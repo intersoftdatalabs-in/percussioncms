@@ -135,6 +135,7 @@ public class Guid {
    *
    * @param guid the guid string, must not be null
    */
+  @SuppressWarnings("this-escape")
   public Guid(String guid) {
     Objects.requireNonNull(guid, "guid must not be null");
     var temp = new PSGuid(guid);

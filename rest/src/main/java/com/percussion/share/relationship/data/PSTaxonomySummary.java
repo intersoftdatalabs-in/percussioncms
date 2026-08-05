@@ -38,6 +38,7 @@ import java.util.List;
  */
 @XmlRootElement(name = "PSTaxonomySummary")
 @JsonRootName("PSTaxonomySummary")
+@SuppressWarnings("serial")
 public class PSTaxonomySummary extends PSAbstractDataObject {
 
   private static final long serialVersionUID = 1L;

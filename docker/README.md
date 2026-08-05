@@ -25,14 +25,14 @@ docker compose --env-file .env.compose --profile postgres up -d
 
 ## Layout
 
-|     Path      |                                 Purpose                                  |
-|---------------|--------------------------------------------------------------------------|
-| `cms/`        | Dockerfile + image for the long-lived cms-dts **dev** container          |
-| `matrix/`     | Dockerfile + in-cell entrypoint for ephemeral install matrix cells       |
-| `dev-data/`   | Persistent bind-mount volume (CMS install + DB) for **dev** only         |
-| `entrypoint/` | Dev container service-start scripts (`install-update.py`)                |
-| `scripts/`    | Host-side operator control (`perc-devctl.py`, `matrix-install-smoke.py`) |
-| `logs/`       | Timestamped logs + matrix JSON results                                   |
+|     Path      |                                                    Purpose                                                    |
+|---------------|---------------------------------------------------------------------------------------------------------------|
+| `cms/`        | Dockerfile + image for the long-lived cms-dts **dev** container                                               |
+| `matrix/`     | Dockerfile + in-cell entrypoint for ephemeral install matrix cells                                            |
+| `dev-data/`   | Persistent bind-mount volume (CMS install + DB) for **dev** only                                              |
+| `entrypoint/` | Dev container service-start scripts (`install-update.py`)                                                     |
+| `scripts/`    | Host-side operator control (`perc-devctl.py`, `matrix-install-smoke.py`, freeport helpers / concurrent smoke) |
+| `logs/`       | Timestamped logs + matrix JSON results                                                                        |
 
 ## Host-side scripts
 
@@ -94,9 +94,146 @@ Do **not** hardcode `http://127.0.0.1:9993` in agent scripts — 9993 is only th
 
 **Remaining multi-worktree gaps** (parent [#2001](https://github.com/intersoftdatalabs-in/percussioncms/issues/2001)): fixed compose `container_name` values still limit true concurrent full stacks; freeport alone does not rename containers. Operator two-worktree checklist: [#2006](https://github.com/intersoftdatalabs-in/percussioncms/issues/2006) when present.
 
+#### Two-worktree concurrent freeport smoke (#2006)
+
+Operator / agent checklist proving freeport multi-cell stacks do not collide on **published host ports**. Parent [#2001](https://github.com/intersoftdatalabs-in/percussioncms/issues/2001); freeport implementation [#2003](https://github.com/intersoftdatalabs-in/percussioncms/pull/2003) / matrix wire-up [#2014](https://github.com/intersoftdatalabs-in/percussioncms/pull/2014) (issue #2005). Sibling residual surface: [#2004](https://github.com/intersoftdatalabs-in/percussioncms/issues/2004). Companion notes also in [workbench-rest-and-qa-modes.md](../docs/developer-module/workbench-rest-and-qa-modes.md).
+
+##### Tier 0 — allocation dry-run (no Docker, no CMS install)
+
+Fast, CI-friendly proof of the freeport contract (preferred → freeport fallback → env override → tear-down frees):
+
+```bash
+# From repo root (Windows: py -3 or python)
+python docker/scripts/freeport-concurrent-smoke.py
+# optional: --quiet  (RESULT line only)
+# Expected: RESULT:OK STEP:freeport-concurrent-smoke
+
+python -m pytest docker/scripts/test_freeport_concurrent_smoke.py -q
+```
+
+What it asserts (simulates two “worktree cells” by holding ports with stdlib sockets):
+
+|         Check          |                     Expected                      |
+|------------------------|---------------------------------------------------|
+| Cell A, no env pin     | Preferred baseline when free                      |
+| Cell B, preferred held | Distinct freeport (not cell A)                    |
+| Env override           | `QA_CMS_HOST_PORT` / `CMS_PORT` / `DTS_PORT` wins |
+| Compose pair freeport  | Second CMS+DTS pair distinct from first           |
+| After release          | Preferred free again (when this process held it)  |
+
+##### Tier 1 — dry-run CLI discovery (no real containers)
+
+Use two shells / two worktree checkouts of the same repo. Do **not** set port env vars (unless testing override).
+
+```bash
+# Worktree A (or terminal 1)
+cd /path/to/worktree-a
+python docker/scripts/perc-devctl.py qa-up --dry-run
+# Note QA_CMS_HOST_PORT=… (often 9993 when free) and TEST_CMS_URL=…
+
+python docker/scripts/perc-devctl.py up --dry-run
+# Note CMS_PORT=… DTS_PORT=… and VERIFY_*_URL=…
+
+# Worktree B — hold preferred first so freeport must kick in, then dry-run
+# (Tier 0 script already holds preferred; or start a real cell in A first)
+cd /path/to/worktree-b
+# Unset any pin:
+#   Unix: unset QA_CMS_HOST_PORT CMS_HOST_PORT CMS_PORT DTS_PORT
+#   Windows PowerShell: Remove-Item Env:QA_CMS_HOST_PORT -ErrorAction SilentlyContinue  (etc.)
+python docker/scripts/perc-devctl.py qa-up --dry-run
+# Assert QA_CMS_HOST_PORT differs from worktree A when A still holds preferred
+```
+
+**Env override wins** (either worktree):
+
+```bash
+# Unix
+export QA_CMS_HOST_PORT=18001
+python docker/scripts/perc-devctl.py qa-up --dry-run
+# Expect QA_CMS_HOST_PORT=18001 and TEST_CMS_URL=http://127.0.0.1:18001
+
+export CMS_PORT=19111 DTS_PORT=19112
+python docker/scripts/perc-devctl.py up --dry-run
+# Expect CMS_PORT=19111 DTS_PORT=19112 in printed VERIFY_* URLs
+```
+
+##### Tier 2 — live stacks (optional; real Docker + probes)
+
+Requires Docker, packaged CMS installer for QA (`modules/perc-distribution-tree` assembly jar), and free machine resources. **Container names are still global** (`perc-matrix-cms-h2`, `percussion-cms-dts`); two checkouts cannot both keep the same named container. Live concurrent smoke therefore uses **sequential ownership of the shared name** or **one live cell + freeport dry-run for the second** unless #2004 / follow-ups add worktree-scoped names.
+
+**Path A — sequential QA (same host, prove freeport + probes + tear-down):**
+
+```bash
+# 1) Worktree A — no port pin
+cd /path/to/worktree-a
+python docker/scripts/perc-devctl.py qa-up
+# Record PORT_A from QA_CMS_HOST_PORT=… ; curl/qa-health the printed TEST_CMS_URL
+python docker/scripts/perc-devctl.py qa-health
+
+# 2) Tear-down A; confirm publish freed
+python docker/scripts/perc-devctl.py qa-down
+# Port PORT_A should be free for bind again (Tier 0 or a short Python is_port_free check)
+
+# 3) Worktree B — no port pin (gets preferred when free)
+cd /path/to/worktree-b
+python docker/scripts/perc-devctl.py qa-up
+python docker/scripts/perc-devctl.py qa-health
+python docker/scripts/perc-devctl.py qa-down
+```
+
+**Path B — concurrent freeport under a live holder (port collision only):**
+
+```bash
+# Terminal A — occupy preferred QA port without full install (or leave a cell up)
+python -c "import socket;s=socket.socket();s.bind(('127.0.0.1',9993));s.listen(1);input('holding 9993; Enter to release')"
+
+# Terminal B — worktree B, no pin
+python docker/scripts/perc-devctl.py qa-up --dry-run
+# Expect QA_CMS_HOST_PORT != 9993
+# Optional full: qa-up (if no other perc-matrix-cms-h2), qa-health, qa-down
+```
+
+**Path C — dev compose `up` / `verify` (single container name `percussion-cms-dts`):**
+
+```bash
+# Worktree A
+python docker/scripts/perc-devctl.py up
+# Record CMS_PORT / DTS_PORT; perc-devctl.py verify when stack ready
+python docker/scripts/perc-devctl.py down
+
+# Worktree B (after A down, or with preferred held) — no pin
+python docker/scripts/perc-devctl.py up --dry-run   # assert freeport when preferred taken
+# Env override: CMS_PORT=19111 DTS_PORT=19112 python docker/scripts/perc-devctl.py up
+python docker/scripts/perc-devctl.py down
+```
+
+**Pass criteria (summary):**
+
+|          Step           |                             Pass when                             |
+|-------------------------|-------------------------------------------------------------------|
+| No pin, preferred free  | Cell uses preferred baseline                                      |
+| No pin, preferred taken | Second cell uses freeport ≠ first                                 |
+| Env set                 | Printed / published port equals env                               |
+| Probe (live)            | `qa-health` / `verify` RESULT:OK (or HTTP 200/302 on login)       |
+| Tear-down               | `qa-down` / `down`; host ports free; no orphan cell for that name |
+
+##### Related helpers
+
+|                   Artifact                    |                                            Role                                            |
+|-----------------------------------------------|--------------------------------------------------------------------------------------------|
+| `docker/scripts/perc_host_ports.py`           | `find_free_port` / `is_port_free` / `resolve_host_port`                                    |
+| `docker/scripts/perc-devctl.py`               | `up` / `verify` / `qa-up` pin + print ports                                                |
+| `docker/scripts/matrix-install-smoke.py`      | Matrix CMS/DTS freeport publish + probe                                                    |
+| `docker/scripts/freeport-concurrent-smoke.py` | Tier 0 allocation smoke (#2006)                                                            |
+| Unit tests                                    | `test_perc_devctl.py`, `test_matrix_install_smoke.py`, `test_freeport_concurrent_smoke.py` |
+
 #### QA mode (`qa-up` / `qa-health` / `qa-down`)
 
-Starts an ephemeral **CMS + H2** matrix cell (same stack as `matrix-install-smoke.py --product cms --db h2 --keep`), waits for the resolved probe URL (`http://127.0.0.1:<QA_CMS_HOST_PORT>/Rhythmyx/login`), prints `TEST_CMS_URL` / admin username (password from generated install file when available), and tears down with `docker rm -f perc-matrix-cms-h2` so ports and disk are freed (no multi-GB named volume by default). Full operator flow: [workbench-rest-and-qa-modes.md](../docs/developer-module/workbench-rest-and-qa-modes.md) → **QA mode** section.
+Starts an ephemeral **CMS + H2** matrix cell (same stack as `matrix-install-smoke.py --product cms --db h2 --keep`), waits for the resolved probe URL (`http://127.0.0.1:<QA_CMS_HOST_PORT>/Rhythmyx/login`), prints `TEST_CMS_URL` / admin username (password from generated install file when available), and tears down with `docker rm -f perc-matrix-cms-h2` so ports and disk are freed (no multi-GB named volume by default). Full operator flow: [workbench-rest-and-qa-modes.md](../docs/developer-module/workbench-rest-and-qa-modes.md) → **QA mode** section. Concurrent freeport checklist: **Two-worktree concurrent freeport smoke** above.
+
+### `docker/scripts/freeport-concurrent-smoke.py`
+
+Allocation-only smoke for multi-worktree freeport (#2006). No Docker and no CMS install — holds preferred ports with stdlib sockets, asserts second-cell freeport and env override, prints `RESULT:OK|FAIL STEP:freeport-concurrent-smoke`. See **Two-worktree concurrent freeport smoke** above. Unit tests: `test_freeport_concurrent_smoke.py`.
 
 ### `docker/scripts/hot-deploy-jar.py`
 

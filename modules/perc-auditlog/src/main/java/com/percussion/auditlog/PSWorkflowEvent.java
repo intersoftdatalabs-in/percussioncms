@@ -61,6 +61,7 @@ public class PSWorkflowEvent extends AbstractEvent {
    * @param guid the GUID of the affected item, never {@code null}.
    * @param outcome the outcome of the transition, never {@code null}.
    */
+  @SuppressWarnings("this-escape")
   public PSWorkflowEvent(
       String transitionFrom,
       String transitionTo,

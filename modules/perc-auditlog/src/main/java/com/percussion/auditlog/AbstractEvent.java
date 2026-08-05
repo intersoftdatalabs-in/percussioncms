@@ -50,6 +50,7 @@ public class AbstractEvent extends AuditContext {
   }
 
   /** Constructs an event pre-populated with the system observer and an {@code UNKNOWN} outcome. */
+  @SuppressWarnings("this-escape")
   public AbstractEvent() {
 
     // Set some defaults
