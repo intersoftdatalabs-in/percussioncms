@@ -6,6 +6,14 @@ On modern Linux hosts, `install-jetty-service.sh` installs a **native systemd un
 for the CMS Jetty process (default name `PercussionCMS`). SysV/init.d remains
 available as:
 
+### Dual-ship policy (keep init.d until soak)
+
+**Both** the native systemd unit path and the classic init.d path ship together
+(dual-ship). Do **not** remove product init.d until a live Linux install soak has
+been signed off and ops review completes (see GH-1978 residual soak; GH-1976
+deprecation is out of scope until then). Packaging regression tests under
+`com.percussion.jetty.service.ServiceDualShipPackagingTest` guard this surface.
+
 1. **Start helper** — `ExecStart` / `ExecStop` always invoke `/etc/init.d/<ServiceName>`
    even when a native unit is registered (the unit does **not** dual-register that
    helper via chkconfig / update-rc.d on the systemd path).

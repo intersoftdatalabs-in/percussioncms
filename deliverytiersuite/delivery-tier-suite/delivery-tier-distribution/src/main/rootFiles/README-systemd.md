@@ -9,7 +9,16 @@ systemd is available (same approach as CMS Jetty / GH-962; docs parity for slice
 | `DTSProductionService.sh` | `PercussionProductionDTS` |
 | `DTSStagingService.sh`    | `PercussionStagingDTS`    |
 
-Shared unit template: `dts-tomcat.service.in` (next to these scripts after install).
+### Dual-ship policy (keep init.d until soak)
+
+**Both** systemd and init.d paths ship together. Keep init.d until a live Linux
+install soak signs off and ops review completes (GH-1978 residual; do not remove
+init.d under GH-1976 without human approval). Packaging guards:
+`DtsLinuxServiceDualShipPackagingTest`.
+
+Shared unit template: `dts-tomcat.service.in` (must sit next to the role
+installer under `Deployment/Server/` after install — `installDts.xml` co-locates
+it). Ops README also remains at the DTS install root.
 
 SysV/init.d remains available as:
 
@@ -35,7 +44,8 @@ unchanged (Tomcat Windows service).
 
 ```bash
 # Must run as root (or via sudo). There is no --dry-run flag.
-# From the DTS install root (directory containing this script and bin/catalina.sh)
+# From Deployment/Server/ (where installDts places the role script + unit template)
+cd /path/to/DTS/Deployment/Server
 sudo ./DTSProductionService.sh [ServiceName] install
 sudo ./DTSStagingService.sh [ServiceName] install
 

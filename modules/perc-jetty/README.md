@@ -21,7 +21,7 @@ The module descriptor at src/main/jetty/defaults/modules/perc.mod is the source 
 
 Run: ../../mvnw -pl modules/perc-jetty clean install -DskipTests
 
-## Linux service (systemd) — GH-962
+## Linux service (systemd) — GH-962 / dual-ship (GH-1978)
 
 Native systemd install is provided under `src/main/jetty/service/`:
 
@@ -29,6 +29,12 @@ Native systemd install is provided under `src/main/jetty/service/`:
 - `percussion-cms.service.in` — unit template (`Type=forking`, `TimeoutStartSec=1800`, journal)
 - `README-systemd.md` — operator install / migrate / journal notes, **dry-run / non-root**
   limitations (no `--dry-run` flag; install requires root), and migration uninstall→install
+
+**Dual-ship policy:** keep init.d until a live Linux soak signs off. Do not remove
+init.d without ops review (GH-1976 deferred). Packaging guards:
+`src/test/java/com/percussion/jetty/service/ServiceDualShipPackagingTest.java`.
+The same `service/` tree is copied into the Jetty assembly and into the CMS
+install layout via `perc-distribution-tree` (whole perc-jetty zip under `jetty/`).
 
 ```bash
 sudo ./install-jetty-service.sh PercussionCMS install

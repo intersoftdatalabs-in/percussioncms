@@ -516,10 +516,21 @@
 						</fileset>
 					</copy>
 
+					<!--
+					  Role-specific service installer lives under Deployment/Server.
+					  Service scripts are excluded from the install-root * copy above so
+					  only Production OR Staging lands here (not both). Windows binaries
+					  go to bin/; Linux systemd unit template MUST sit next to the .sh
+					  (DTS*Service.sh resolves dts-tomcat.service.in via dirname of $0).
+					  GH-1978 dual-ship: also keep template + README at install root via
+					  the * copy (not excluded). Do not drop init.d until soak (#1976).
+					-->
 					<copy todir="${install.dir}${staging.dir}/Deployment/Server">
 						<fileset dir="${install.src}">
 							<include name="${serviceFileName}" if="${isWindows}" />
 							<include name="${serviceFileNameLinux}" if="${isLinux}" />
+							<!-- Co-locate unit template with Linux service installer -->
+							<include name="dts-tomcat.service.in" if="${isLinux}" />
 						</fileset>
 					</copy>
 
@@ -824,6 +835,21 @@
 							<exclude name="DTSProductionService.sh" />
 							<exclude name="DTSStagingService.sh" />
 
+						</fileset>
+					</copy>
+
+					<!--
+					  GH-1978: on upgrade, refresh the role-specific service installer and
+					  co-located systemd unit template under Deployment/Server so systemd
+					  dual-ship assets match the shipping payload. Same intentional excludes
+					  as fresh install: only one role script, not both Production+Staging.
+					-->
+					<copy todir="${install.dir}${staging.dir}/Deployment/Server"
+						overwrite="true" force="true" verbose="true">
+						<fileset dir="${install.src}">
+							<include name="${serviceFileName}" if="${isWindows}" />
+							<include name="${serviceFileNameLinux}" if="${isLinux}" />
+							<include name="dts-tomcat.service.in" if="${isLinux}" />
 						</fileset>
 					</copy>
 

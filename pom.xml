@@ -2217,6 +2217,9 @@
                                     <dependencyConvergence/>
                                     <banDuplicatePomDependencyVersions/>
                                     <bannedDependencies>
+                                        <!-- Single <excludes> list (GH-1978): multiple open
+                                             <excludes> tags without closes made parent POM
+                                             non-parseable. All bans stay searchTransitive. -->
                                         <!-- Issue #1672: ban unmaintained junrar entirely.
                                              Excluded from tika-parsers-standard-package above;
                                              ban prevents re-introduction via any transitive. -->
