@@ -48,7 +48,7 @@ public class AssemblyDesignSOAPImpl extends PSBaseSOAPImpl
   public AssemblyDesignSOAPImpl() {
     // SOAP implementations are stateless; the superclass handles wiring
   }
-{
+
    /*
     * (non-Javadoc)
     *

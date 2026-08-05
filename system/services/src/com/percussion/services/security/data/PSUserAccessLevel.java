@@ -16,108 +16,119 @@
  */
 package com.percussion.services.security.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.services.security.PSPermissions;
-
-import java.util.AbstractSet;
-import java.util.Arrays;
+import com.percussion.utils.xml.IPSXmlSerialization;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Provides the sum of a user's permissions for a given resource.
+ *
+ * <p>Jackson bean surface (issue #1903 / epic #505): no-arg constructor plus {@link
+ * #setPermissions(Collection)} so empty nested graphs deserialize when this type appears under XML.
+ * Derived {@code has*Access} predicates are suppressed from serialization.
  */
-public class PSUserAccessLevel
-{
-   /**
-    * Default ctor.
-    * 
-    * @param permissions The collection all permissions the user has for a given
-    * resource, may be <code>null</code> or empty if the user has no 
-    * permissions.
-    */
-   public PSUserAccessLevel(Collection<PSPermissions> permissions)
-   {
-      m_permissions = new HashSet<>();
-      if (permissions != null)
-         m_permissions.addAll(permissions);
-   }
+public class PSUserAccessLevel {
+  /**
+   * No-arg constructor for Jackson / XML frameworks. Permissions start empty until {@link
+   * #setPermissions(Collection)} or the collection constructor is used.
+   */
+  public PSUserAccessLevel() {
+    m_permissions = new HashSet<>();
+  }
 
-   /**
-    * @return <code>true</code> if this access level has read pemission, false
-    * otherwise.
-    */
-   public boolean hasReadAccess()
-   {
-      return m_permissions.contains(PSPermissions.READ);
-   }
+  /**
+   * Construct with the given permission collection.
+   *
+   * @param permissions The collection of all permissions the user has for a given resource, may be
+   *     {@code null} or empty if the user has no permissions.
+   */
+  public PSUserAccessLevel(Collection<PSPermissions> permissions) {
+    m_permissions = new HashSet<>();
+    if (permissions != null) {
+      m_permissions.addAll(permissions);
+    }
+  }
 
-   /**
-    * @return <code>true</code> if this access level has update pemission,
-    * false otherwise.
-    */
-   public boolean hasUpdateAccess()
-   {
-      return m_permissions.contains(PSPermissions.UPDATE);
-   }
+  /**
+   * @return {@code true} if this access level has read permission, false otherwise.
+   */
+  @IPSXmlSerialization(suppress = true)
+  @JsonIgnore
+  public boolean hasReadAccess() {
+    return m_permissions.contains(PSPermissions.READ);
+  }
 
-   /**
-    * @return <code>true</code> if this access level has delete pemission,
-    * false otherwise.
-    */
-   public boolean hasDeleteAccess()
-   {
-      return m_permissions.contains(PSPermissions.DELETE);
-   }
+  /**
+   * @return {@code true} if this access level has update permission, false otherwise.
+   */
+  @IPSXmlSerialization(suppress = true)
+  @JsonIgnore
+  public boolean hasUpdateAccess() {
+    return m_permissions.contains(PSPermissions.UPDATE);
+  }
 
-   /**
-    * @return <code>true</code> if this access level has runtime permission,
-    * false otherwise.
-    */
-   public boolean hasRuntimeAccess()
-   {
-      return m_permissions.contains(PSPermissions.RUNTIME_VISIBLE);
-   }
-   
+  /**
+   * @return {@code true} if this access level has delete permission, false otherwise.
+   */
+  @IPSXmlSerialization(suppress = true)
+  @JsonIgnore
+  public boolean hasDeleteAccess() {
+    return m_permissions.contains(PSPermissions.DELETE);
+  }
 
-   /**
-    * @return <code>true</code> if this access level has owner permission,
-    * false otherwise.
-    */
-   public boolean hasOwnerAccess()
-   {
-      return m_permissions.contains(PSPermissions.OWNER);
-   }
-   
-   /**
-    * Get the set of permissions represented by this object.
-    * 
-    * @return The set, never <code>null</code>.  Modifications to this set will
-    * affect this object.
-    */
-   public Set<PSPermissions> getPermissions()
-   {
-      return m_permissions;
-   }
+  /**
+   * @return {@code true} if this access level has runtime permission, false otherwise.
+   */
+  @IPSXmlSerialization(suppress = true)
+  @JsonIgnore
+  public boolean hasRuntimeAccess() {
+    return m_permissions.contains(PSPermissions.RUNTIME_VISIBLE);
+  }
 
-   @Override
-   public String toString() {
-      final StringBuffer sb = new StringBuffer("PSUserAccessLevel{");
-      sb.append("m_permissions=").append(m_permissions);
-      sb.append('}');
-      return sb.toString();
-   }
+  /**
+   * @return {@code true} if this access level has owner permission, false otherwise.
+   */
+  @IPSXmlSerialization(suppress = true)
+  @JsonIgnore
+  public boolean hasOwnerAccess() {
+    return m_permissions.contains(PSPermissions.OWNER);
+  }
 
-   /**
-    * Set of all permissions, never <code>null</code> after construction, may
-    * be empty. 
-    */
-   private Set<PSPermissions> m_permissions;
+  /**
+   * Get the set of permissions represented by this object.
+   *
+   * @return The set, never {@code null}. Modifications to this set will affect this object.
+   */
+  @JsonProperty
+  public Set<PSPermissions> getPermissions() {
+    return m_permissions;
+  }
+
+  /**
+   * Replace the permission set (Jackson / bean restore).
+   *
+   * @param permissions may be {@code null} or empty
+   */
+  public void setPermissions(Collection<PSPermissions> permissions) {
+    m_permissions = new HashSet<>();
+    if (permissions != null) {
+      m_permissions.addAll(permissions);
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "PSUserAccessLevel{m_permissions=" + m_permissions + '}';
+  }
+
+  /**
+   * Set of all permissions, never {@code null} after construction, may be empty.
+   */
+  private Set<PSPermissions> m_permissions;
 
    @Override
    public boolean equals(Object o) {
