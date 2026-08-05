@@ -373,6 +373,7 @@ public class PSJavaHelp {
       url = new URL(m_helpSetURL);
       hs = new HelpSet(loader, url);
       System.out.println("Helpset URL is " + hs.getHelpSetURL());
+      @SuppressWarnings("rawtypes")
       java.util.Enumeration ids = hs.getLocalMap().getAllIDs();
       // for (; ids.hasMoreElements(); )
       // System.out.println("Map - " + ids.nextElement().toString());

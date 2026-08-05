@@ -25,6 +25,7 @@ import java.net.URL;
 import javax.swing.*;
 
 /** Applet Class for launching JavaHelp viewer from browser. */
+@SuppressWarnings("removal")
 public class PSHelpApplet extends JApplet {
 
   private static final long serialVersionUID = 1L;
@@ -176,9 +177,11 @@ public class PSHelpApplet extends JApplet {
 
   /**
    * The singleton instance of java help so that it is not garbage collected, initialized in <code>
-   * init()</code> and never <code>null</code> or modified after that.
+   * init()</code> and never <code>null</code> or modified after that. Marked <code>transient</code>
+   * because {@link PSJavaHelp} is not {@link java.io.Serializable} and applet serialization should
+   * not retain the runtime help instance.
    */
-  private PSJavaHelp m_help;
+  private transient PSJavaHelp m_help;
 
   /** The name of the parameter which provides helpset file. */
   private static final String HELPSETFILE = "helpset_file";
