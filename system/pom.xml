@@ -535,7 +535,7 @@
 			<groupId>tools.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
-		<!-- Design-object Jackson XML annotations (security domain #1889 / content #1888 / epic #505) -->
+		<!-- Design-object Jackson XML annotations (content #1888 / security #1889 / assembly #1891 / epic #505) -->
 		<dependency>
 			<groupId>tools.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-xml</artifactId>

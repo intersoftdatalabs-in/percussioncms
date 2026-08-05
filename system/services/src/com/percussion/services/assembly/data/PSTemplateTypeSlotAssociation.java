@@ -16,31 +16,54 @@
  */
 package com.percussion.services.assembly.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * Persist an association between a slot, template and content type.
- * 
+ *
+ * <p>Package/design nested element name is {@code slot-type-association} (registered on {@link
+ * PSTemplateSlot}); standalone mapped type name is {@code template-type-slot-association}. Property
+ * element names are hyphenated ({@code content-type-id}, {@code template-id}, {@code slot-id})
+ * matching package-normalize rewrite and historical {@code PSTemplateTypeSlotAssociation.betwixt}
+ * (issue #1891 / epic #505).
+ *
  * @author dougrand
  */
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, 
-      region = "PSTemplateTypeSlotAssociation")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSTemplateTypeSlotAssociation")
 @Table(name = "RXSLOTCONTENT")
+@JacksonXmlRootElement(localName = "slot-type-association")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({"contentTypeId", "slotId", "templateId", "version"})
 public class PSTemplateTypeSlotAssociation implements Serializable
 {
    static
    {
       // Register types with XML serializer for read creation of objects
       PSXmlSerializationHelper.addType("template-type-slot-association",
+            PSTemplateTypeSlotAssociation.class);
+      // Nested under PSTemplateSlot as package/design item element name
+      PSXmlSerializationHelper.addType("slot-type-association",
             PSTemplateTypeSlotAssociation.class);
    }
 
@@ -86,15 +109,17 @@ public class PSTemplateTypeSlotAssociation implements Serializable
 
 
    /**
-    * Hibernate embedded id. Suppressed from Betwixt so package XML attributes like {@code
+    * Hibernate embedded id. Suppressed from Betwixt/Jackson so package XML attributes like {@code
     * id="2"} (Betwixt object identity) are not mapped onto this PK — that left content/template
     * ids at 0 and broke perc.nav slot deploy (ContentType source ID 0).
     */
    @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public PSTemplateTypeSlotAssociationPK getId() {
       return id;
    }
 
+   @JsonIgnore
    public void setId(PSTemplateTypeSlotAssociationPK id) {
       this.id = id;
    }
@@ -102,6 +127,7 @@ public class PSTemplateTypeSlotAssociation implements Serializable
    /**
     * @return Returns the contentTypeId.
     */
+   @JsonProperty
    public long getContentTypeId()
    {
       if (id != null)
@@ -125,6 +151,7 @@ public class PSTemplateTypeSlotAssociation implements Serializable
    /**
     * @return Returns the slotId.
     */
+   @JsonProperty
    public long getSlotId()
    {
       if (id != null)
@@ -148,8 +175,9 @@ public class PSTemplateTypeSlotAssociation implements Serializable
 
 
    /**
-    * @return Returns the contentTypeId.
+    * @return Returns the templateId.
     */
+   @JsonProperty
    public long getTemplateId()
    {
       if (id != null)
@@ -159,7 +187,7 @@ public class PSTemplateTypeSlotAssociation implements Serializable
    }
 
    /**
-    * @param templateId The contentTypeId to set.
+    * @param templateId The templateId to set.
     */
    public void setTemplateId(long templateId)
    {
@@ -172,6 +200,7 @@ public class PSTemplateTypeSlotAssociation implements Serializable
    /**
     * @return Returns the version.
     */
+   @JsonProperty
    public Integer getVersion()
    {
       return version;
