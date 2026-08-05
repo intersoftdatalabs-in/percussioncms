@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,10 @@
  */
 package com.percussion.services.contentmgr.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.services.contentmgr.IPSNodeDefinition;
@@ -29,18 +33,14 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.NaturalIdCache;
-import org.xml.sax.SAXException;
-
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeType;
@@ -54,31 +54,65 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.NaturalIdCache;
+import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Wrapper for content type definitions in Rhythmyx. Additional methods are
- * provided here for Rhythmyx specific information. Most of the JSR-170
- * information is not provided at this time.
- * 
+ * Wrapper for content type definitions in Rhythmyx. Additional methods are provided here for
+ * Rhythmyx specific information. Most of the JSR-170 information is not provided at this time.
+ *
+ * <p>Design-object XML root is {@code node-definition}. Jackson opt-in surface matches historical
+ * package shape ({@code template-id} items under {@code template-ids}; {@code string} items under
+ * {@code workflow-ids}). JCR interface methods that are not part of the design wire form are
+ * suppressed (issue #1921 / epic #505).
+ *
  * @author dougrand
- * 
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSNodeDefinition")
 @NaturalIdCache
 @Table(name = "CONTENTTYPES")
-public class PSNodeDefinition implements IPSNodeDefinition
-{
-   static
-   {
-      // Register types with XML serializer for read creation of objects
-      PSXmlSerializationHelper.addType("variant-guid", PSGuid.class);
-   }
+@JacksonXmlRootElement(localName = "node-definition")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({
+  "auto-created",
+  "description",
+  "hideFromMenu",
+  "id",
+  "internalName",
+  "label",
+  "mandatory",
+  "name",
+  "newRequest",
+  "objectType",
+  "protected",
+  "queryRequest",
+  "rawContentType",
+  "templateIds",
+  "updateRequest",
+  "workflowIds"
+})
+public class PSNodeDefinition implements IPSNodeDefinition {
+  static {
+    // Register types with XML serializer for read creation of objects
+    PSXmlSerializationHelper.addType("variant-guid", PSGuid.class);
+  }
 
    @Id
    @Column(name = "CONTENTTYPEID")
@@ -136,6 +170,12 @@ public class PSNodeDefinition implements IPSNodeDefinition
    private Set<PSContentTypeWorkflow> m_ctWfRels;
 
    /**
+    * Provisional association PKs when GuidManager is not configured (offline tests / design tools).
+    * Live CMS always has {@link PSGuidManagerLocator#getGuidMgr()}.
+    */
+   private static final AtomicLong OFFLINE_CTWF_ID = new AtomicLong(0L);
+
+   /**
     * (non-Javadoc)
     * 
     * @see javax.jcr.nodetype.NodeDefinition#getRequiredPrimaryTypes()
@@ -169,6 +209,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
    }
 
    @Override
+   @JsonIgnore
    public String[] getRequiredPrimaryTypeNames()
    {
       NodeType type = getDefaultPrimaryType();
@@ -180,6 +221,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
    }
 
    @Override
+   @JsonIgnore
    public String getDefaultPrimaryTypeName()
    {
       NodeType type = getDefaultPrimaryType();
@@ -191,6 +233,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * 
     * @see javax.jcr.nodetype.NodeDefinition#allowsSameNameSiblings()
     */
+   @JsonIgnore
    public boolean allowsSameNameSiblings()
    {
       return false;
@@ -212,6 +255,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * 
     * @see javax.jcr.nodetype.ItemDefinition#getName()
     */
+   @JsonProperty
    public String getName()
    {
       if (m_name != null)
@@ -225,6 +269,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * 
     * @see com.percussion.services.contentmgr.IPSNodeDefinition#getInternalName()
     */
+   @JsonProperty
    public String getInternalName()
    {
       return m_name;
@@ -235,6 +280,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * 
     * @see javax.jcr.nodetype.ItemDefinition#isAutoCreated()
     */
+   @JsonProperty("auto-created")
    public boolean isAutoCreated()
    {
       return false;
@@ -245,6 +291,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * 
     * @see javax.jcr.nodetype.ItemDefinition#isMandatory()
     */
+   @JsonProperty("mandatory")
    public boolean isMandatory()
    {
       return false;
@@ -266,6 +313,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * 
     * @see javax.jcr.nodetype.ItemDefinition#isProtected()
     */
+   @JsonProperty("protected")
    public boolean isProtected()
    {
       return false;
@@ -275,6 +323,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * @return Returns the contenttypeid.
     */
    @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public IPSGuid getGUID()
    {
       return new PSGuid(PSTypeEnum.NODEDEF, m_contenttypeid);
@@ -289,20 +338,41 @@ public class PSNodeDefinition implements IPSNodeDefinition
    }
 
    /**
-    * Get the raw content type id, required for some operations
-    * 
+    * Get the raw content type id, required for some operations.
+    *
+    * <p>Fails fast when the id has not been set (null {@code m_contenttypeid}). Returning a synthetic
+    * {@code 0L} would mask uninitialized-object bugs during design-object XML and runtime use.
+    *
     * @return the raw content type id
+    * @throws NullPointerException if the content type id has not been set
     */
+   @JsonProperty
    public long getRawContentType()
    {
       return m_contenttypeid;
    }
 
    /**
-    * Get id as long, only used for serialization
-    * 
-    * @return get the id
+    * Set raw content type id (design-object XML property {@code raw-content-type}).
+    *
+    * @param rawContentType the content type id
     */
+   public void setRawContentType(long rawContentType)
+   {
+      m_contenttypeid = rawContentType;
+   }
+
+   /**
+    * Get id as long, only used for serialization.
+    *
+    * <p>Fails fast when the id has not been set (null {@code m_contenttypeid}), matching historical
+    * Betwixt unboxing behavior. Callers must set {@link #setId(long)} / {@link #setRawContentType(long)}
+    * before reading.
+    *
+    * @return get the id
+    * @throws NullPointerException if the content type id has not been set
+    */
+   @JsonProperty
    public long getId()
    {
       return m_contenttypeid;
@@ -323,6 +393,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * 
     * @return Returns the label.
     */
+   @JsonProperty
    public String getLabel()
    {
       return m_label;
@@ -343,6 +414,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * 
     * @see com.percussion.services.contentmgr.IPSNodeDefinition#getDescription()
     */
+   @JsonProperty
    public String getDescription()
    {
       return m_description;
@@ -363,6 +435,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * 
     * @see com.percussion.services.contentmgr.IPSNodeDefinition#getHideFromMenu()
     */
+   @JsonProperty
    public Boolean getHideFromMenu()
    {
       return m_hideFromMenu;
@@ -385,6 +458,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
    /**
     * @return Returns the newRequest.
     */
+   @JsonProperty
    public String getNewRequest()
    {
       return m_newRequest;
@@ -403,6 +477,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * 
     * @see com.percussion.services.contentmgr.IPSNodeDefinition#getObjectType()
     */
+   @JsonProperty
    public Integer getObjectType()
    {
       return m_objectType;
@@ -421,6 +496,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
    /**
     * @return Returns the queryRequest.
     */
+   @JsonProperty
    public String getQueryRequest()
    {
       return m_queryRequest;
@@ -437,6 +513,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
    /**
     * @return Returns the updateRequest.
     */
+   @JsonProperty
    public String getUpdateRequest()
    {
       return m_updateRequest;
@@ -480,6 +557,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * @return the descriptors, may be empty but not <code>null</code>
     */
    @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public Set<PSContentTemplateDesc> getCvDescriptors()
    {
       return m_cvDescriptors;
@@ -505,6 +583,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * <code>null</code>
     */
    @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public Set<PSContentTypeWorkflow> getCtWfRels()
    {
       return m_ctWfRels;
@@ -551,6 +630,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * 
     */
    @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public Set<IPSGuid> getVariantGuids()
    {
       Set<IPSGuid> guids = new HashSet<>();
@@ -572,6 +652,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * 
     */
    @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public Set<IPSGuid> getWorkflowGuids()
    {
       Set<IPSGuid> guids = new HashSet<>();
@@ -681,6 +762,7 @@ public class PSNodeDefinition implements IPSNodeDefinition
     * @return The version, may be <code>null</code> if it has not been set.
     */
    @IPSXmlSerialization(suppress=true)
+   @JsonIgnore
    public Integer getVersion()
    {
       return m_version;
@@ -751,13 +833,19 @@ public class PSNodeDefinition implements IPSNodeDefinition
    }
 
    /**
-    * Get a string representation of GUIDs of the template associtations
-    * 
+    * Get a string representation of GUIDs of the template associations.
+    *
+    * <p>Package/design XML uses item element {@code template-id} (not mapped type name).
+    *
     * @return set of Guid Strings may be empty never <code>null</code>
     */
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "template-ids")
+   @JacksonXmlProperty(localName = "template-id")
    public Set<String> getTemplateIds()
    {
-      Set<String> ids = new HashSet<>();
+      // TreeSet for stable design-object XML order (HashSet iteration is non-deterministic)
+      Set<String> ids = new TreeSet<>();
       if (m_cvDescriptors != null && !m_cvDescriptors.isEmpty())
       {
          for (PSContentTemplateDesc desc : m_cvDescriptors)
@@ -767,13 +855,47 @@ public class PSNodeDefinition implements IPSNodeDefinition
    }
 
    /**
-    * Get a string representation of GUIDs of the workflow associtations
-    * 
+    * Restore template associations from design-object XML ({@code template-ids}). Replaces any
+    * existing {@link #m_cvDescriptors} entries (clear-then-add) so repeated calls do not
+    * accumulate. Uses historical {@link #addTemplateId(String)} path (requires content manager for
+    * association lookup in live CMS). Offline unit tests exercise write/scalar restore only.
+    *
+    * @param templateIds may be {@code null} or empty (clears associations)
+    */
+   public void setTemplateIds(Set<String> templateIds)
+   {
+      if (m_cvDescriptors == null)
+      {
+         m_cvDescriptors = new HashSet<>();
+      }
+      else
+      {
+         m_cvDescriptors.clear();
+      }
+      if (templateIds == null || templateIds.isEmpty())
+      {
+         return;
+      }
+      for (String tmpId : templateIds)
+      {
+         addTemplateId(tmpId);
+      }
+   }
+
+   /**
+    * Get a string representation of GUIDs of the workflow associations.
+    *
+    * <p>Package XML uses nested {@code string} item elements under {@code workflow-ids}.
+    *
     * @return set of Guid Strings may be empty never <code>null</code>
     */
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "workflow-ids")
+   @JacksonXmlProperty(localName = "string")
    public Set<String> getWorkflowIds()
    {
-      Set<String> ids = new HashSet<>();
+      // TreeSet for stable design-object XML order
+      Set<String> ids = new TreeSet<>();
       if (m_ctWfRels != null && !m_ctWfRels.isEmpty())
       {
          for (PSContentTypeWorkflow ctwf : m_ctWfRels)
@@ -783,11 +905,112 @@ public class PSNodeDefinition implements IPSNodeDefinition
    }
 
    /**
+    * Jackson collection setter for {@code workflow-ids}. Rebuilds {@link #m_ctWfRels} entries from
+    * GUID strings so design-object XML restore retains workflow associations.
+    *
+    * <p>Replaces any existing associations (clear-then-add). Offline-friendly: creates new {@link
+    * PSContentTypeWorkflow} rows without consulting the content manager. Each association primary
+    * key is assigned in {@link #addWorkflowGuid(IPSGuid)} (GuidManager when available; provisional
+    * offline id otherwise) because {@code PSContentTypeWorkflow.m_ctWfId} has no {@code
+    * @GeneratedValue}. Live package install may still re-merge via {@code PSContentTypeHelper}
+    * when existing DB rows must be reused. Skips blank entries and de-duplicates by workflow GUID.
+    *
+    * @param workflowIds may be {@code null} or empty (clears associations)
+    */
+   public void setWorkflowIds(Set<String> workflowIds)
+   {
+      if (m_ctWfRels == null)
+      {
+         m_ctWfRels = new HashSet<>();
+      }
+      else
+      {
+         m_ctWfRels.clear();
+      }
+      if (workflowIds == null || workflowIds.isEmpty())
+      {
+         return;
+      }
+      for (String wfId : workflowIds)
+      {
+         if (StringUtils.isBlank(wfId))
+         {
+            continue;
+         }
+         addWorkflowId(wfId);
+      }
+   }
+
+   /**
+    * Add a workflow association from a GUID string (design-object {@code workflow-ids} item).
+    *
+    * @param wfId string form of the workflow guid, never blank
+    */
+   @JsonIgnore
+   public void addWorkflowId(String wfId)
+   {
+      if (StringUtils.isBlank(wfId))
+      {
+         throw new IllegalArgumentException("workflow guid may not be null or empty");
+      }
+      addWorkflowGuid(new PSGuid(wfId));
+   }
+
+   /**
+    * Add the given workflow GUID to {@code m_ctWfRels} if not already present. Does not require a
+    * live content manager (unlike template association restore). Assigns a non-null association
+    * primary key: prefers {@link PSGuidManagerLocator#getGuidMgr()} like {@link
+    * #addVariantGuid(IPSGuid)}; when GuidManager is unavailable (offline unit tests / design tools
+    * without Spring), uses a provisional monotonic id so cascaded persist never sees a null {@code
+    * CONTENTTYPE_WORKFLOW_ID} ({@link PSContentTypeWorkflow} has {@code @Id} without {@code
+    * @GeneratedValue}).
+    *
+    * @param guid workflow guid, never {@code null}
+    */
+   @JsonIgnore
+   public void addWorkflowGuid(IPSGuid guid)
+   {
+      if (guid == null)
+      {
+         throw new IllegalArgumentException("guid may not be null");
+      }
+      if (m_ctWfRels == null)
+      {
+         m_ctWfRels = new HashSet<>();
+      }
+      for (PSContentTypeWorkflow rel : m_ctWfRels)
+      {
+         if (guid.equals(rel.getWorkflowId()))
+         {
+            return;
+         }
+      }
+      PSContentTypeWorkflow rel = new PSContentTypeWorkflow();
+      // PK is application-assigned (no @GeneratedValue) — mirror addVariantGuid.
+      Optional<IPSGuidManager> gmgr = PSGuidManagerLocator.getGuidMgrSafely();
+      if (gmgr.isPresent())
+      {
+         rel.setId(gmgr.get().createGuid(PSTypeEnum.INTERNAL).longValue());
+      }
+      else
+      {
+         rel.setId(OFFLINE_CTWF_ID.incrementAndGet());
+      }
+      if (m_contenttypeid != null)
+      {
+         rel.setContentTypeId(new PSGuid(PSTypeEnum.NODEDEF, m_contenttypeid));
+      }
+      rel.setWorkflowId(guid);
+      m_ctWfRels.add(rel);
+   }
+
+   /**
     * Add the Template Guid, represented by a string to the template association
     * aka cvDescriptors
     * 
     * @param tmpId the string form of the guid, never <code>null</code>
     */
+   @JsonIgnore
    public void addTemplateId(String tmpId)
    {
       if (StringUtils.isBlank(tmpId))

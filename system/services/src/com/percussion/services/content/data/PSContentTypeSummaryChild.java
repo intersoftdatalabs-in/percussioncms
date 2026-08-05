@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,150 +16,151 @@
  */
 package com.percussion.services.content.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * This object represents a single content type summary child.
+ *
+ * <p>Design-object XML root is {@code content-type-summary-child}. Nested fields use mapped type
+ * name {@code field-description} (issue #1921 / epic #505).
  */
-public class PSContentTypeSummaryChild
-{
-   /**
-    * The name of the child, may be <code>null</code>, never empty.
-    */
-   private String name;
-   
-   /**
-    * A list with all fields that are part of this child, never 
-    * <code>null</code>, may be empty.
-    */
-   private List<PSFieldDescription> childFields = 
-      new ArrayList<>();
-   
-   /**
-    * Default constructor.
-    */
-   public PSContentTypeSummaryChild()
-   {
-   }
-   
-   /**
-    * Construct a new child for the supplied name.
-    * 
-    * @param name the name of the child, not <code>null</code> or empty.
-    */
-   public PSContentTypeSummaryChild(String name)
-   {
-      setName(name);
-   }
+@JacksonXmlRootElement(localName = "content-type-summary-child")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({"childFields", "name"})
+public class PSContentTypeSummaryChild {
+  /** The name of the child, may be <code>null</code>, never empty. */
+  private String name;
 
-   /**
-    * Get the child name.
-    * 
-    * @return the child name, may be <code>null</code>, never empty.
-    */
-   public String getName()
-   {
-      return name;
-   }
-   
-   /**
-    * Set a new name.
-    * 
-    * @param name the new child name, not <code>null</code> or empty.
-    */
-   public void setName(String name)
-   {
-      if (StringUtils.isBlank(name))
-         throw new IllegalArgumentException("name cannot be null or empty");
-      
-      this.name = name;
-   }
-   
-   /**
-    * Get the list with all child fields.
-    * 
-    * @return the list with all child fields, never <code>null</code>, may
-    *    be empty.
-    */
-   public List<PSFieldDescription> getChildFields()
-   {
-      return childFields;
-   }
-   
-   /**
-    * Set a new list of child fields.
-    * 
-    * @param childFields the new list of child fields, may be 
-    *    <code>null</code> or empty.
-    */
-   public void setChildFields(List<PSFieldDescription> childFields)
-   {
-      if (childFields == null)
-         this.childFields = new ArrayList<>();
-      else
-         this.childFields = childFields;
-   }
-   
-   /**
-    * Add a new child field.
-    * 
-    * @param childField the new child field to add, not <code>null</code>.
-    */
-   public void addField(PSFieldDescription childField)
-   {
-      if (childField == null)
-         throw new IllegalArgumentException("childField cannot be null");
-      
-      childFields.add(childField);
-   }
+  /**
+   * A list with all fields that are part of this child, never <code>null</code>, may be empty.
+   */
+  private List<PSFieldDescription> childFields = new ArrayList<>();
 
-   @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof PSContentTypeSummaryChild)) return false;
-      PSContentTypeSummaryChild that = (PSContentTypeSummaryChild) o;
-      return Objects.equals(getName(), that.getName()) && Objects.equals(getChildFields(), that.getChildFields());
-   }
+  static {
+    PSXmlSerializationHelper.addType("field-description", PSFieldDescription.class);
+  }
 
-   @Override
-   public int hashCode() {
-      return Objects.hash(getName(), getChildFields());
-   }
+  /** Default constructor. */
+  public PSContentTypeSummaryChild() {}
 
-   @Override
-   public String toString() {
-      final StringBuffer sb = new StringBuffer("PSContentTypeSummaryChild{");
-      sb.append("name='").append(name).append('\'');
-      sb.append(", childFields=").append(childFields);
-      sb.append('}');
-      return sb.toString();
-   }
+  /**
+   * Construct a new child for the supplied name.
+   *
+   * @param name the name of the child, not <code>null</code> or empty.
+   */
+  public PSContentTypeSummaryChild(String name) {
+    setName(name);
+  }
 
-   /* (non-Javadoc)
-    * @see IPSCatalogItem#fromXML(String)
-    */
-   public void fromXML(String xmlsource) throws IOException, SAXException
-   {
-      PSXmlSerializationHelper.readFromXML(xmlsource, this);
-   }
+  /**
+   * Get the child name.
+   *
+   * @return the child name, may be <code>null</code>, never empty.
+   */
+  @JsonProperty
+  public String getName() {
+    return name;
+  }
 
-   /* (non-Javadoc)
-    * @see IPSCatalogItem#toXML()
-    */
-   public String toXML() throws IOException, SAXException
-   {
-      return PSXmlSerializationHelper.writeToXml(this);
-   }
+  /**
+   * Set a new name.
+   *
+   * @param name the new child name, not <code>null</code> or empty.
+   */
+  public void setName(String name) {
+    if (StringUtils.isBlank(name))
+      throw new IllegalArgumentException("name cannot be null or empty");
+
+    this.name = name;
+  }
+
+  /**
+   * Get the list with all child fields.
+   *
+   * @return the list with all child fields, never <code>null</code>, may be empty.
+   */
+  @JsonProperty
+  @JacksonXmlElementWrapper(localName = "child-fields")
+  @JacksonXmlProperty(localName = "field-description")
+  public List<PSFieldDescription> getChildFields() {
+    return childFields;
+  }
+
+  /**
+   * Set a new list of child fields.
+   *
+   * @param childFields the new list of child fields, may be <code>null</code> or empty.
+   */
+  public void setChildFields(List<PSFieldDescription> childFields) {
+    if (childFields == null) this.childFields = new ArrayList<>();
+    else this.childFields = childFields;
+  }
+
+  /**
+   * Add a new child field. Jackson uses {@link #setChildFields(List)}; this remains for API
+   * callers.
+   *
+   * @param childField the new child field to add, not <code>null</code>.
+   */
+  @JsonIgnore
+  public void addField(PSFieldDescription childField) {
+    if (childField == null) throw new IllegalArgumentException("childField cannot be null");
+
+    childFields.add(childField);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSContentTypeSummaryChild)) return false;
+    PSContentTypeSummaryChild that = (PSContentTypeSummaryChild) o;
+    return Objects.equals(getName(), that.getName())
+        && Objects.equals(getChildFields(), that.getChildFields());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getName(), getChildFields());
+  }
+
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("PSContentTypeSummaryChild{");
+    sb.append("name='").append(name).append('\'');
+    sb.append(", childFields=").append(childFields);
+    sb.append('}');
+    return sb.toString();
+  }
+
+  /* (non-Javadoc)
+   * @see IPSCatalogItem#fromXML(String)
+   */
+  public void fromXML(String xmlsource) throws IOException, SAXException {
+    PSXmlSerializationHelper.readFromXML(xmlsource, this);
+  }
+
+  /* (non-Javadoc)
+   * @see IPSCatalogItem#toXML()
+   */
+  public String toXML() throws IOException, SAXException {
+    return PSXmlSerializationHelper.writeToXml(this);
+  }
 }
-
