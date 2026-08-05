@@ -511,8 +511,14 @@ public class PSTemplateSlot
     }
 
     /**
-     * Set the slot associations, used by MSM / design XML restore.
+     * Set the slot associations, used by MSM / design XML restore and Jackson bean binding.
      *
+     * <p>{@code null} intentionally clears the collection (same contract as {@link
+     * #setFinderArguments(Map)}): package/Jackson restore may omit or null the wrapper element, and
+     * callers use null to empty associations. Prefer {@link #addSlotTypeAssociation} when a
+     * non-null association is required.
+     *
+     * @param associations the new associations, or {@code null} to clear
      */
     public void setSlotTypeAssociations(
             PSTemplateTypeSlotAssociation[] associations) {

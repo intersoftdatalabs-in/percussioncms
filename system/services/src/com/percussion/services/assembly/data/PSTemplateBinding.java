@@ -124,7 +124,8 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
    /**
     * Create a new template binding with execution order.
     *
-    * @param order execution order (low to high), minimum value is 1
+    * @param order execution order (low to high); package archives may use {@code 0}, factory paths
+     *     prefer &gt;= 1
     * @param variable the variable to bind to, not {@code null} or empty
     * @param expression the JEXL expression, not {@code null} or empty
     * @throws IllegalArgumentException if parameters are invalid
@@ -152,7 +153,7 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
     *
     * @param variable the variable name, not {@code null} or empty
     * @param expression the JEXL expression, not {@code null} or empty
-    * @param order the execution order, must be >= 1
+    * @param order the execution order, must be &gt;= 0 (package archives emit {@code 0})
     * @return a new PSTemplateBinding instance
     * @throws IllegalArgumentException if validation fails
     */
@@ -175,10 +176,16 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
    /**
     * Get the execution order with Optional wrapper for safer access.
     *
-    * @return Optional containing the execution order if valid, empty otherwise
+    * <p>{@code 0} is a valid package-archive order (see {@link #setExecutionOrder(Integer)}), so
+    * this method returns {@link Optional#of(Object)} for every non-negative value including {@code
+    * 0}. Negative values cannot be stored (setter rejects them).
+    *
+    * @return Optional containing the execution order (including {@code 0}); never empty for a
+     *     successfully constructed binding
     */
    public Optional<Integer> getExecutionOrderOptional() {
-      return m_executionOrder > 0 ? Optional.of(m_executionOrder) : Optional.empty();
+      // 0 is valid (package archives); do not treat as "missing" after setExecutionOrder(>=0)
+      return Optional.of(m_executionOrder);
    }
 
    /**

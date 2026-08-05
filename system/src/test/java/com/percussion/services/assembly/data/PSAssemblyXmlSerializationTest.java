@@ -27,6 +27,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.Test;
@@ -221,6 +222,28 @@ class PSAssemblyXmlSerializationTest {
     assertEquals(42L, restored.getId().longValue());
   }
 
+  /** Package archives may emit execution order 0; round-trip must keep it. */
+  @Test
+  void bindingExecutionOrderZeroRoundTrip() throws Exception {
+    PSTemplateBinding original = new PSTemplateBinding(0, "$sys.item", "/*");
+    original.setId(7L);
+    String xml = com.percussion.services.utils.xml.PSXmlSerializationHelper.writeToXml(original);
+    PSTemplateBinding restored = new PSTemplateBinding();
+    com.percussion.services.utils.xml.PSXmlSerializationHelper.readFromXML(xml, restored);
+    assertEquals(0, restored.getExecutionOrder().intValue());
+    assertTrue(restored.getExecutionOrderOptional().isPresent());
+    assertEquals(0, restored.getExecutionOrderOptional().get().intValue());
+  }
+
+  /** Jackson/MSM restore may pass null to clear associations (same as setFinderArguments). */
+  @Test
+  void slotTypeAssociationsNullClears() {
+    PSTemplateSlot slot = sampleNavImageSlot();
+    assertTrue(slot.getSlotTypeAssociations().length > 0);
+    slot.setSlotTypeAssociations(null);
+    assertEquals(0, slot.getSlotTypeAssociations().length);
+  }
+
   @Test
   void associationStandaloneRoundTrip() throws Exception {
     PSTemplateTypeSlotAssociation original =
@@ -304,7 +327,8 @@ class PSAssemblyXmlSerializationTest {
 
   /**
    * Compare logical XML trees: ignore XML declaration, Betwixt graph-identity {@code id}
-   * attributes, insignificant whitespace, and HTML comments. Child order is significant.
+   * attributes, insignificant whitespace, and HTML comments. Child order is significant. All other
+   * attributes are compared (name set + values) so non-identity attribute regressions still fail.
    */
   private static void assertLogicalXmlParity(String expectedXml, String actualXml)
       throws Exception {
@@ -339,8 +363,14 @@ class PSAssemblyXmlSerializationTest {
     return builder.parse(new InputSource(new java.io.StringReader(xml)));
   }
 
+  /**
+   * Structural element compare used by golden/package parity. Tag names, text, non-{@code id}
+   * attributes, and child order are significant. The {@code id} attribute is ignored because legacy
+   * Betwixt graph-identity attributes are not part of the product contract under Jackson.
+   */
   private static void assertElementTreeEquals(Element expected, Element actual, String path) {
     assertEquals(expected.getTagName(), actual.getTagName(), "tag at " + path);
+    assertAttributesEqualIgnoringGraphId(expected, actual, path);
     List<Node> eChildren = significantChildren(expected);
     List<Node> aChildren = significantChildren(actual);
     assertEquals(
@@ -362,6 +392,34 @@ class PSAssemblyXmlSerializationTest {
             (Element) en, (Element) an, path + "/" + ((Element) en).getTagName() + "[" + i + "]");
       }
     }
+  }
+
+  /** Compare attributes except Betwixt graph-identity {@code id}. */
+  private static void assertAttributesEqualIgnoringGraphId(
+      Element expected, Element actual, String path) {
+    Map<String, String> eAttrs = attributesWithoutId(expected);
+    Map<String, String> aAttrs = attributesWithoutId(actual);
+    assertEquals(eAttrs.keySet(), aAttrs.keySet(), "attribute names at " + path);
+    for (Map.Entry<String, String> e : eAttrs.entrySet()) {
+      assertEquals(e.getValue(), aAttrs.get(e.getKey()), "attr @" + e.getKey() + " at " + path);
+    }
+  }
+
+  private static Map<String, String> attributesWithoutId(Element el) {
+    Map<String, String> out = new java.util.LinkedHashMap<>();
+    var attrs = el.getAttributes();
+    if (attrs == null) {
+      return out;
+    }
+    for (int i = 0; i < attrs.getLength(); i++) {
+      Node a = attrs.item(i);
+      String name = a.getNodeName();
+      if ("id".equals(name)) {
+        continue;
+      }
+      out.put(name, a.getNodeValue() == null ? "" : a.getNodeValue());
+    }
+    return out;
   }
 
   private static List<Node> significantChildren(Element el) {
