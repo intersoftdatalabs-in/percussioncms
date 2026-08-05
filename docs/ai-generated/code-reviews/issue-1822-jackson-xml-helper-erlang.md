@@ -4,7 +4,7 @@
 **Scope:** `modules/utils` only (parallel Jackson XML path; Betwixt remains production default)  
 **Date:** 2026-08-04  
 **Recommendation:** approve  
-**May commit/push:** yes  
+**May commit/push:** yes
 
 ## Summary
 
@@ -18,7 +18,7 @@ Production Betwixt path is unchanged except `PSNameMapper` delegates to the shar
 
 - [x] No production cutover of `PSXmlSerializationHelper` default
 - [x] Behavioral unit tests for name mapper, golden parity, Betwixt→Jackson round-trip,
-      legacy `<null>` root rewrite on Jackson path, `@IPSXmlSerialization(suppress=true)`
+  legacy `<null>` root rewrite on Jackson path, `@IPSXmlSerialization(suppress=true)`
 - [x] Cross-platform path / file I/O: not touched (classpath golden resource only)
 - [x] Module standalone `mvnw clean install` — BUILD SUCCESS (Tests run: 255, Failures: 0)
 - [x] Spotless apply then check on `modules/utils` — clean; out-of-scope monorepo Spotless debt not included
@@ -43,3 +43,4 @@ None blocking.
 - Parallel helper / no silent production default flip
 - Golden fixture from current producer (Betwixt write)
 - Companion tests for new helper logic
+

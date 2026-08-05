@@ -364,6 +364,7 @@ public class PSJdbcColumnData {
    * Validates the supplied encoding string, Should be one of the ENC_TEXT, ENC_ESCAPED or
    * ENC_BASE64
    *
+   * @param enc the encoding id to validate
    * @return <code>false</code> if the provided encoding is invalid, <code>true</code> otherwise.
    */
   public static boolean validEncoding(int enc) {

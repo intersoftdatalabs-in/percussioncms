@@ -34,6 +34,14 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
    * Convenience method for calling {@link #PSJdbcColumnDef(PSJdbcDataTypeMap, String, int, int,
    * String, String, boolean, String)} with the scale parameter as <code>null</code>. See that
    * method for parameter descriptions.
+   *
+   * @param dataTypeMap the object containing the JDBC-to-native type mappings, never {@code null}
+   * @param name the column name, never {@code null} or empty
+   * @param action one of the {@link PSJdbcTableComponent#ACTION_xxx} constants
+   * @param jdbcType a valid JDBC type whose name is contained in {@code dataTypeMap}
+   * @param size the column size/precision, may be {@code null} if the type does not support it
+   * @param allowsNull {@code true} if the column may be {@code NULL}
+   * @param defaultValue the default value for the column, may be {@code null}
    */
   public PSJdbcColumnDef(
       PSJdbcDataTypeMap dataTypeMap,

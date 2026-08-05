@@ -27,6 +27,12 @@ import java.util.List;
  * sequentially.
  */
 public class PSJdbcExecutionBlock extends PSJdbcExecutionStep {
+
+  /** No-op constructor. */
+  public PSJdbcExecutionBlock() {
+    // no-op
+  }
+
   /**
    * Adds the step to this block.
    *

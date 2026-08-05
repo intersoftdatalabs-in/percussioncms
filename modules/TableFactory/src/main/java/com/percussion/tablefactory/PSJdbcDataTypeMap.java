@@ -200,8 +200,12 @@ public class PSJdbcDataTypeMap {
    * Convenience version of {@link #PSJdbcDataTypeMap(Document, String, String, String)} that loads
    * the document from a default mappings Xml document as a resource in this class's package.
    *
+   * @param dbAlias the database alias to use, may be <code>null</code> only if driver is provided
+   * @param driver the JDBC driver class name, may be <code>null</code> only if dbAlias is provided
+   * @param os the operating system name, used to choose an OS-specific mapping set
    * @throws IOException if resource cannot be loaded.
    * @throws SAXException if the xml document cannot be parsed.
+   * @throws PSJdbcTableFactoryException if the table factory encounters an unexpected error
    * @see #DEFAULT_MAP_FILE_NAME
    */
   public PSJdbcDataTypeMap(String dbAlias, String driver, String os)

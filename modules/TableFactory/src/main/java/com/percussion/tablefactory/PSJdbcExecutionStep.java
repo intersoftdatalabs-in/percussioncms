@@ -26,8 +26,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/** Represents a step in an execution plan. */
+/**
+ * Represents a step in an execution plan.
+ *
+ * @author chadloder
+ * @version 1.2 1999/08/20
+ */
 public abstract class PSJdbcExecutionStep {
+
+  /** No-op constructor for abstract base class. */
+  protected PSJdbcExecutionStep() {
+    // no-op
+  }
+
   /**
    * Executes the step against the provided Connection.
    *

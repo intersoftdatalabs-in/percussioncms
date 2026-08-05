@@ -30,6 +30,13 @@ public class PSJdbcDataTypeMapping {
    * Convenience method for calling {@link #PSJdbcDataTypeMapping(String, String, String, String,
    * String, boolean)} with the <code>isNative2Jdbc</code> parameter as <code>false</code>. See that
    * method for parameter descriptions.
+   *
+   * @param jdbc the JDBC type name, never {@code null} or empty
+   * @param nativeStr the native database type string, never {@code null} or empty
+   * @param defaultSize default size/precision hint, {@code null} when the type does not support
+   *     size
+   * @param defaultScale default scale hint, {@code null} when the type does not support scale
+   * @param suffix optional native suffix appended after the size/scale, may be {@code null}
    */
   public PSJdbcDataTypeMapping(
       String jdbc, String nativeStr, String defaultSize, String defaultScale, String suffix) {

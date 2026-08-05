@@ -252,6 +252,13 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
    * </tr>
    * </table>
    */
+  /**
+   * Compares two column-name lists for ordering match.
+   *
+   * @param cols1 the first list of column names, never {@code null}
+   * @param cols2 the second list of column names, never {@code null}
+   * @return {@link #IS_GENERIC_MISMATCH} or {@link #IS_COLUMN_ORDER_MISMATCH} as appropriate
+   */
   protected int compareColumns(List<String> cols1, List<String> cols2) {
     notNull(cols1);
     notNull(cols2);
@@ -323,6 +330,12 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
     return m_names.iterator();
   }
 
+  /**
+   * Tests whether this key contains the supplied column name.
+   *
+   * @param colName the column name to look up
+   * @return {@code true} if this key includes the column
+   */
   public boolean hasColumn(String colName) {
     return m_names.contains(colName);
   }

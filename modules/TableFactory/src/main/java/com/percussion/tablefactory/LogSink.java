@@ -16,33 +16,34 @@
  */
 package com.percussion.tablefactory;
 
+/**
+ * Logging sink contract used by the table factory. Implementations decide where the message and
+ * exception data ultimately end up (console, file, network listener, ...).
+ *
+ * @author chadloder
+ * @version 1.2 1999/08/20
+ */
 public interface LogSink {
   /**
-   * Logs the message.
+   * Logs the given message.
    *
-   * @author chadloder
-   * @version 1.2 1999/08/20
-   * @param message
+   * @param message the message to log, never {@code null}
    */
   public void log(String message);
 
   /**
-   * Logs the exception, including a stack trace.
+   * Logs the given throwable, including a stack trace.
    *
-   * @author chadloder
-   * @version 1.2 1999/08/20
-   * @param t
+   * @param t the throwable to log, never {@code null}
    */
   public void log(Throwable t);
 
   /**
-   * Logs the exception, including a stack trace, and a message. If the message is null, it will not
-   * be logged.
+   * Logs the given message together with the given throwable (including its stack trace). If {@code
+   * message} is {@code null} it is not logged.
    *
-   * @author chadloder
-   * @version 1.2 1999/08/20
-   * @param message
-   * @param t
+   * @param message the message to log, may be {@code null}
+   * @param t the throwable to log, never {@code null}
    */
   public void log(String message, Throwable t);
 }

@@ -32,17 +32,17 @@ compiler / enforcer / Spotless warnings.
 - Prior report: none (first Erlang review for this branch / issue)
 - Memory patterns hit: none of the institutional hard gates apply to a docs-only change.
 
-|                          File                           |                                                                                                                                Change                                                                                                                                 |
-|---------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `data/PSMembershipConfiguration.java`                  | Class-level Javadoc (replaces the empty `@deprecated`-only stub); explicit `public` no-arg constructor (silences "use of default constructor" warning).                                                                                                              |
-| `services/AuthFormProcessingFilter.java`                | Class-level Javadoc describing the filter's role; Javadoc on the 3 `SPRING_SECURITY_*` constants; Javadoc on the protected constructor and the 4 setter / 2 getter / 3 protected helper methods (12 symbols).                                                          |
-| `services/PSCacheControlFilter.java`                    | Class-level Javadoc describing the cache-disabling filter; explicit `public` no-arg constructor (silences "use of default constructor" warning).                                                                                                                       |
-| `services/PSLdapMembershipAuthProvider.java`            | Constructor now has a main description sentence (was `* @param ...` with no description above it); Javadoc on the 8 accessor / mutator pairs (`getUserSearchFilter` / `setUserSearchFilter`, `getGroupRoleAttribute` / `setGroupRoleAttribute`, `getGroupSearchFilter` / `setGroupSearchFilter`, `getGroupSearchBase` / `setGroupSearchBase`). |
-| `services/PSLdapUserDetailsMapper.java`                 | Explicit `public` no-arg constructor; Javadoc on `getAccessGroupsFromXML`, `getAccessGroupFileName`, `setAccessGroupFileName`.                                                                                                                                          |
-| `services/PSMembershipAuthProvider.java`                | Javadoc on `setMembershipConfig`, `setLdapMembershipAuthProvider`, `setAccessGroupFileName`.                                                                                                                                                                            |
-| `services/PSMembershipAuthUtils.java`                   | Class-level Javadoc describing the static helpers; explicit `public` no-arg constructor; Javadoc on `getAccessGroupsFromXML(String)`.                                                                                                                                     |
-| `services/PSMembershipLoginHandler.java`                | Explicit `public` no-arg constructor; Javadoc on `setMembershipConfig`.                                                                                                                                                                                                |
-| `services/PSMembershipLogoutHandler.java`               | Explicit `public` no-arg constructor; Javadoc on `setMembershipConfig`.                                                                                                                                                                                                |
+|                     File                     |                                                                                                                                                                     Change                                                                                                                                                                     |
+|----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `data/PSMembershipConfiguration.java`        | Class-level Javadoc (replaces the empty `@deprecated`-only stub); explicit `public` no-arg constructor (silences "use of default constructor" warning).                                                                                                                                                                                        |
+| `services/AuthFormProcessingFilter.java`     | Class-level Javadoc describing the filter's role; Javadoc on the 3 `SPRING_SECURITY_*` constants; Javadoc on the protected constructor and the 4 setter / 2 getter / 3 protected helper methods (12 symbols).                                                                                                                                  |
+| `services/PSCacheControlFilter.java`         | Class-level Javadoc describing the cache-disabling filter; explicit `public` no-arg constructor (silences "use of default constructor" warning).                                                                                                                                                                                               |
+| `services/PSLdapMembershipAuthProvider.java` | Constructor now has a main description sentence (was `* @param ...` with no description above it); Javadoc on the 8 accessor / mutator pairs (`getUserSearchFilter` / `setUserSearchFilter`, `getGroupRoleAttribute` / `setGroupRoleAttribute`, `getGroupSearchFilter` / `setGroupSearchFilter`, `getGroupSearchBase` / `setGroupSearchBase`). |
+| `services/PSLdapUserDetailsMapper.java`      | Explicit `public` no-arg constructor; Javadoc on `getAccessGroupsFromXML`, `getAccessGroupFileName`, `setAccessGroupFileName`.                                                                                                                                                                                                                 |
+| `services/PSMembershipAuthProvider.java`     | Javadoc on `setMembershipConfig`, `setLdapMembershipAuthProvider`, `setAccessGroupFileName`.                                                                                                                                                                                                                                                   |
+| `services/PSMembershipAuthUtils.java`        | Class-level Javadoc describing the static helpers; explicit `public` no-arg constructor; Javadoc on `getAccessGroupsFromXML(String)`.                                                                                                                                                                                                          |
+| `services/PSMembershipLoginHandler.java`     | Explicit `public` no-arg constructor; Javadoc on `setMembershipConfig`.                                                                                                                                                                                                                                                                        |
+| `services/PSMembershipLogoutHandler.java`    | Explicit `public` no-arg constructor; Javadoc on `setMembershipConfig`.                                                                                                                                                                                                                                                                        |
 
 ## Recommendation
 
@@ -61,9 +61,9 @@ None.
 
 ### Diff footprint
 
-|     File      |       Δ       |
-|---------------|---------------|
-| 9 Java files  | +193 / -1     |
+|     File     |     Δ     |
+|--------------|-----------|
+| 9 Java files | +193 / -1 |
 
 All changes are additions (Javadoc blocks, no-arg constructors); the single `-1` is one `@param`
 line removed from `PSLdapMembershipAuthProvider` constructor's pre-existing tag block to make room
@@ -100,9 +100,12 @@ precedents:
 - Class-level Javadoc + per-symbol Javadoc (with `@param` / `@return` where the symbol has them).
 - `public` no-arg constructor on utility / handler classes that previously had an implicit default
   constructor (the canonical Java fix that the rest of the module suite already uses — see PR
-  #1849 PR notes: "Add explicit no-arg constructors with Javadoc to `PkgMgtUI`, `PSPackagesTab`
+
+  # 1849 PR notes: "Add explicit no-arg constructors with Javadoc to `PkgMgtUI`, `PSPackagesTab`
+
   and `PSVisibilityTab` so the tool stops warning about 'use of default constructor, which does
   not provide a comment'.").
+
 - No public API change, no signature change, no Spring bean wiring change.
 
 No additional companions are required:
@@ -189,3 +192,4 @@ Counts after the fix:
 - **Suppress the implicit-default-constructor warning via a `package-info.java` `@SuppressWarnings`
   annotation** — rejected; the same precedent (PR #1849) places the explicit no-arg constructor
   on each class so the warning is silenced at the source rather than at the package level.
+

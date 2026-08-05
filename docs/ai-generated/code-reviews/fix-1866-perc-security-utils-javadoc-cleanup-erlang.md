@@ -30,13 +30,13 @@ compiler / enforcer / Spotless warnings.
 - Prior report: none (first Erlang review for this branch / issue)
 - Memory patterns hit: none of the institutional hard gates apply to a docs-only change.
 
-|                       File                        |                                                                                                          Change                                                                                                          |
-|----------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `io/PSPathInjectionGuard.java`                     | Javadoc on 3 public helper methods that lacked `@param` / `@return`: `requireUnderBase(String, String)`, `requireUnderBasePath(File, String)`, `containsForbiddenCharacters(String)`.                                |
-| `validation/URLGlobMatcher.java`                   | Javadoc on the 2 public static methods that lacked `@param` / `@return`: `normalize(URL)` and `matches(String, String)`.                                                                                                  |
-| `validation/URLListFileLoader.java`                | Javadoc on the 3 public constants (`ALLOWED_FILE_NAME`, `BLOCKED_FILE_NAME`, `SERVER_RELATIVE_DIR`) and on the 6 public static methods (`parsePatterns(Path)`, `seedIfMissing`, `seedServerConfigDir`, `resolveServerConfigDirFromRxDeployDir`, `loadPatternsAfterSeed`, `readClasspathResource`). |
-| `validation/URLValidation.java`                    | Javadoc on the 2 single-arg overloads `validateURL(URL)` and `validateURLString(String)` that inherited a description from the 2-arg overload but had no `@param` / `@throws` of their own.                                |
-| `validation/URLValidationConfig.java`              | Main-description sentence + `@param` / `@return` Javadoc on the 2-arg `URLValidationConfig(List, List)` ctor, `fromFiles`, `loadFromInstallRoot`, `getDefault`, `setDefault`, `getAllowPatterns`, `getBlockPatterns`, `matchesAllow`, `matchesBlock`, `builder`, and `Builder` class with class-level Javadoc + explicit `public Builder()` ctor + Javadoc on `addAllowPattern`, `addBlockPattern`, `build`. |
+|                 File                  |                                                                                                                                                                                                    Change                                                                                                                                                                                                    |
+|---------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `io/PSPathInjectionGuard.java`        | Javadoc on 3 public helper methods that lacked `@param` / `@return`: `requireUnderBase(String, String)`, `requireUnderBasePath(File, String)`, `containsForbiddenCharacters(String)`.                                                                                                                                                                                                                        |
+| `validation/URLGlobMatcher.java`      | Javadoc on the 2 public static methods that lacked `@param` / `@return`: `normalize(URL)` and `matches(String, String)`.                                                                                                                                                                                                                                                                                     |
+| `validation/URLListFileLoader.java`   | Javadoc on the 3 public constants (`ALLOWED_FILE_NAME`, `BLOCKED_FILE_NAME`, `SERVER_RELATIVE_DIR`) and on the 6 public static methods (`parsePatterns(Path)`, `seedIfMissing`, `seedServerConfigDir`, `resolveServerConfigDirFromRxDeployDir`, `loadPatternsAfterSeed`, `readClasspathResource`).                                                                                                           |
+| `validation/URLValidation.java`       | Javadoc on the 2 single-arg overloads `validateURL(URL)` and `validateURLString(String)` that inherited a description from the 2-arg overload but had no `@param` / `@throws` of their own.                                                                                                                                                                                                                  |
+| `validation/URLValidationConfig.java` | Main-description sentence + `@param` / `@return` Javadoc on the 2-arg `URLValidationConfig(List, List)` ctor, `fromFiles`, `loadFromInstallRoot`, `getDefault`, `setDefault`, `getAllowPatterns`, `getBlockPatterns`, `matchesAllow`, `matchesBlock`, `builder`, and `Builder` class with class-level Javadoc + explicit `public Builder()` ctor + Javadoc on `addAllowPattern`, `addBlockPattern`, `build`. |
 
 ## Recommendation
 
@@ -55,9 +55,9 @@ None.
 
 ### Diff footprint
 
-|     File      |        Δ         |
-|---------------|------------------|
-| 5 Java files  | +185 / -4 lines  |
+|     File     |        Δ        |
+|--------------|-----------------|
+| 5 Java files | +185 / -4 lines |
 
 All changes are additions (Javadoc blocks, one no-arg `public Builder()` ctor). The `-4` is
 redundant inline `@param` / `@throws` lines replaced by full main-description sentences.
@@ -169,9 +169,13 @@ Counts after the fix:
   recently-merged javadoc-cleanup PR in this repo.
 - **Convert the explicit `public Builder()` to `private`** — rejected; the Builder is `public
   static` and its constructor visibility must match. `public` matches the convention used in PR
-  #1849 for `PSPackagesTab` / `PSVisibilityTab` (those also stay public) and keeps the inner
+
+  # 1849 for `PSPackagesTab` / `PSVisibilityTab` (those also stay public) and keeps the inner
+
   class Java-accessible from the outer class's `builder()` factory method.
+
 - **Suppress the missing-tag warnings via a `package-info.java` `@SuppressWarnings`
   annotation** — rejected; the same precedent (PR #1849, PR #1790, PR #1810) places the
   explicit `@param` / `@return` / `@throws` on each method so the warnings are silenced at the
   source rather than at the package level.
+

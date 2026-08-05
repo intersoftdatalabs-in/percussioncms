@@ -30,7 +30,18 @@ import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * Database-utility methods used by the table-factory CLI helpers.
+ *
+ * @author chadloder
+ * @version 1.2 1999/08/20
+ */
 public class DbUtils {
+
+  /** No-op constructor — utility class. */
+  public DbUtils() {
+    // no-op
+  }
 
   /**
    * Creates backup of existing table. First we will attempt to copy the data using copy table
@@ -54,6 +65,9 @@ public class DbUtils {
    * @return <code>true</code> if the backup of the table was sucessful, <code>false</code>
    *     otherwise.
    * @throws IllegalArgumentException if any param is invalid
+   * @throws SQLException if a database access error occurs while copying the table data
+   * @throws PSJdbcTableFactoryException if a table-factory error occurs while building or executing
+   *     the catalog/copy statements
    */
   public static boolean backupTable(
       Connection conn,

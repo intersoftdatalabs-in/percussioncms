@@ -35,6 +35,12 @@ public class PSJdbcIndex extends PSJdbcKey {
   /**
    * Convenience ctor that calls the four arg ctor {@link #PSJdbcIndex(String, Iterator, int, int)}
    * with <code>type</code> set to <code>PSJdbcIndex.TYPE_UNIQUE</code>
+   *
+   * @param name The name of the index. May not be <code>null</code> or empty.
+   * @param colNames An iterator over one or more column names to include in the index. May not be
+   *     <code>null</code>. May not contain <code>null</code>, empty or duplicate names.
+   * @param action One of the <code>PSJdbcTableComponent.ACTION_xxx</code> constants.
+   * @throws PSJdbcTableFactoryException if the index cannot be constructed.
    */
   public PSJdbcIndex(String name, Iterator<String> colNames, int action)
       throws PSJdbcTableFactoryException {
@@ -205,6 +211,12 @@ public class PSJdbcIndex extends PSJdbcKey {
     return match;
   }
 
+  /**
+   * Indicates whether some other object is "equal to" this one.
+   *
+   * @param obj the reference object with which to compare
+   * @return {@code true} if this object is the same as {@code obj}
+   */
   public boolean equals(Object obj) {
     if (!(obj instanceof PSJdbcIndex)) return false;
     PSJdbcIndex other = (PSJdbcIndex) obj;

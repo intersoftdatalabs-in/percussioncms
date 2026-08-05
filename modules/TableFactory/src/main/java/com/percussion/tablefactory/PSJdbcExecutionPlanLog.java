@@ -29,6 +29,12 @@ import org.w3c.dom.Element;
  * result of execution of each step of an execution plan.
  */
 public class PSJdbcExecutionPlanLog {
+
+  /** No-op constructor. */
+  public PSJdbcExecutionPlanLog() {
+    // no-op
+  }
+
   /**
    * Returns an iterator over the list of <code>PSJdbcExecutionStepLog</code> objects.
    *

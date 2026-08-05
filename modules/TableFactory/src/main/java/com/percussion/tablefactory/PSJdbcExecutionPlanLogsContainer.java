@@ -35,6 +35,12 @@ import org.w3c.dom.Text;
  * log of execution of multiple execution plans.
  */
 public class PSJdbcExecutionPlanLogsContainer {
+
+  /** No-op constructor. */
+  public PSJdbcExecutionPlanLogsContainer() {
+    // no-op
+  }
+
   /**
    * Returns an iterator over the list of <code>PSJdbcExecutionPlanLog</code> objects.
    *

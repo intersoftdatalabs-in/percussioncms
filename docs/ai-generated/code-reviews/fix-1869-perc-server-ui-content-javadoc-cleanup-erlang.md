@@ -33,25 +33,25 @@ compiler / enforcer / Spotless warnings, tests unchanged from baseline.
 - Prior report: none (first Erlang review for this branch / issue)
 - Memory patterns hit: none of the institutional hard gates apply to a docs-only change.
 
-| Category                                        | Files | Δ                |
-|-------------------------------------------------|-------|------------------|
-| `aa/actions/impl/*Action` (default ctor)        | 35    | +5 / -0 each     |
-| `browse/PSContentBrowser` (throws + ctor)       | 1     | +23 / -16        |
-| `aa/PSAAObjectId` (param/return/throws)         | 1     | +33 / -10        |
-| `aa/actions/impl/PSAAActionBase` (ctor + const) | 1     | +12 / -0         |
-| `aa/actions/impl/PSActionUtil` (param/throws)   | 1     | +14 / -5         |
-| `aa/actions/impl/PSAddSnippetAction` (const)    | 1     | +13 / -1         |
-| `aa/actions/impl/PSGetUrlAction` (const + Jdoc) | 1     | +41 / -7         |
-| `search/PSSearchResult` (ctor + throws)         | 1     | +13 / -3         |
-| `aa/actions/PSAAClientActionException` (ctors)  | 1     | +21 / -4         |
-| `aa/actions/IPSAAClientAction` (throws)         | 1     | +2 / -1          |
-| `aa/actions/PSActionResponse` (ctor + class)    | 1     | +6 / -0          |
-| `aa/PSAAClientServlet` (ctor)                   | 1     | +3 / -0          |
-| `aa/actions/impl/PSConvertLinksToManagedAction` | 1     | +9 / -1          |
-| `aa/actions/impl/PSAutoLinkGenerationProperties`| 1     | +3 / -0          |
-| `aa/actions/impl/PSGetCreateItemUrlAction`      | 1     | +10 / -1         |
-| `aa/actions/impl/PSGetInlinelinkParentsAction`  | 1     | +6 / -0          |
-| `aa/actions/impl/PSResolveSiteFoldersAction`    | 1     | +6 / -0          |
+|                     Category                     | Files |      Δ       |
+|--------------------------------------------------|-------|--------------|
+| `aa/actions/impl/*Action` (default ctor)         | 35    | +5 / -0 each |
+| `browse/PSContentBrowser` (throws + ctor)        | 1     | +23 / -16    |
+| `aa/PSAAObjectId` (param/return/throws)          | 1     | +33 / -10    |
+| `aa/actions/impl/PSAAActionBase` (ctor + const)  | 1     | +12 / -0     |
+| `aa/actions/impl/PSActionUtil` (param/throws)    | 1     | +14 / -5     |
+| `aa/actions/impl/PSAddSnippetAction` (const)     | 1     | +13 / -1     |
+| `aa/actions/impl/PSGetUrlAction` (const + Jdoc)  | 1     | +41 / -7     |
+| `search/PSSearchResult` (ctor + throws)          | 1     | +13 / -3     |
+| `aa/actions/PSAAClientActionException` (ctors)   | 1     | +21 / -4     |
+| `aa/actions/IPSAAClientAction` (throws)          | 1     | +2 / -1      |
+| `aa/actions/PSActionResponse` (ctor + class)     | 1     | +6 / -0      |
+| `aa/PSAAClientServlet` (ctor)                    | 1     | +3 / -0      |
+| `aa/actions/impl/PSConvertLinksToManagedAction`  | 1     | +9 / -1      |
+| `aa/actions/impl/PSAutoLinkGenerationProperties` | 1     | +3 / -0      |
+| `aa/actions/impl/PSGetCreateItemUrlAction`       | 1     | +10 / -1     |
+| `aa/actions/impl/PSGetInlinelinkParentsAction`   | 1     | +6 / -0      |
+| `aa/actions/impl/PSResolveSiteFoldersAction`     | 1     | +6 / -0      |
 
 ## Recommendation
 
@@ -130,3 +130,4 @@ Counts after the fix:
   subclasses inherit it** -- rejected; javadoc inheritance is not honored by `doclint` for
   warnings about the default constructor (the warning is per-class, not per-inheritance graph),
   so every subclass still needs its own `public NoArgCtor()`.
+

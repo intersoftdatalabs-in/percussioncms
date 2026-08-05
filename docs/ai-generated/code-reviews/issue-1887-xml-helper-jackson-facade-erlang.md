@@ -4,7 +4,7 @@
 **Scope:** `modules/utils` only (production facade cutover to Jackson; Betwixt retained for rollback)  
 **Date:** 2026-08-04  
 **Recommendation:** approve  
-**May commit/push:** yes  
+**May commit/push:** yes
 
 ## Summary
 
@@ -19,7 +19,7 @@ type maps. Betwixt remains on the classpath; emergency rollback via system prope
 
 - [x] Public API signature parity preserved
 - [x] Behavioral unit tests: golden fixture via facade, Jackson round-trip with nested choices,
-      legacy `<null>` root, suppress annotation, engine property rollback, dual `addType` registry
+  legacy `<null>` root, suppress annotation, engine property rollback, dual `addType` registry
 - [x] Cross-platform path / file I/O: not touched (classpath golden resource only)
 - [x] Module standalone `mvnw clean install` — BUILD SUCCESS
 - [x] Spotless apply then check on `modules/utils` (in-scope only)
@@ -45,3 +45,4 @@ None blocking.
 - Dual-engine rollback property with explicit removal plan
 - Companion golden + round-trip + legacy null-root tests for production path change
 - Keep Betwixt dependency until dedicated removal issue
+

@@ -32,6 +32,9 @@ import org.w3c.dom.Element;
 
 /** Creates execution plans for schema and data modifications. */
 public class PSJdbcPlanBuilder {
+
+  /** No-op constructor. */
+  public PSJdbcPlanBuilder() {}
   /**
    * Creates an execution plan for processing the table's schema changes.
    *
@@ -415,6 +418,17 @@ public class PSJdbcPlanBuilder {
    * PSJdbcExecutionPlan,PSJdbcExecutionPlan,PSJdbcReplaceExecutionPlan, boolean)
    * getDataPlan(conn,dbmsDef,null,tableSchema,tableData,insertPlan,
    * deletePlan,updatePlan,replacePlan,isChildTable)}
+   *
+   * @param conn a valid open connection, never {@code null}
+   * @param dbmsDef the database definition, never {@code null}
+   * @param tableSchema the table schema, never {@code null}
+   * @param tableData the table data, may be {@code null}
+   * @param insertPlan the insert plan, may be {@code null}
+   * @param deletePlan the delete plan, may be {@code null}
+   * @param updatePlan the update plan, may be {@code null}
+   * @param replacePlan the replace plan, may be {@code null}
+   * @param isChildTable {@code true} if processing a child table
+   * @throws PSJdbcTableFactoryException if planning fails
    */
   public static void getDataPlan(
       Connection conn,

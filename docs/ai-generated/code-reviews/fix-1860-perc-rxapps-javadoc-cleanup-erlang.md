@@ -31,10 +31,10 @@ module (unchanged from baseline; out of scope for a javadoc-only PR).
 - Memory patterns hit: none of the institutional hard gates apply to a docs-only change in a
   Java-source-free module.
 
-|     File      |                                                                                       Change                                                                                        |
-|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `pom.xml`     | Add `<name>perc-rxapps</name>` and a real `<description>` element so the module is discoverable from Maven site reports. No build, dependency, or plugin behavior was changed. |
-| `README.md`   | Expand the 9-line stub into a module overview with sections for **What this module produces**, **How the module builds**, **Javadoc status**, **Building**, and **See also**.    |
+|    File     |                                                                                     Change                                                                                     |
+|-------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `pom.xml`   | Add `<name>perc-rxapps</name>` and a real `<description>` element so the module is discoverable from Maven site reports. No build, dependency, or plugin behavior was changed. |
+| `README.md` | Expand the 9-line stub into a module overview with sections for **What this module produces**, **How the module builds**, **Javadoc status**, **Building**, and **See also**.  |
 
 ## Recommendation
 
@@ -53,10 +53,10 @@ None.
 
 ### Diff footprint
 
-|              File              |                                                                                                                                                                                                  Change                                                                                                                                                                                                  |
-|--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `modules/perc-rxapps/pom.xml`  | +7 lines: `<name>` + 7-line `<description>`.                                                                                                                                                                                                                                                                                                                                                              |
-| `modules/perc-rxapps/README.md`| +72 lines / -2 lines: expanded stub into a 5-section module overview.                                                                                                                                                                                                                                                                                                                                       |
+|              File               |                                Change                                 |
+|---------------------------------|-----------------------------------------------------------------------|
+| `modules/perc-rxapps/pom.xml`   | +7 lines: `<name>` + 7-line `<description>`.                          |
+| `modules/perc-rxapps/README.md` | +72 lines / -2 lines: expanded stub into a 5-section module overview. |
 
 ### Functional risk
 
@@ -161,3 +161,4 @@ Counts after the fix:
   empty) `perc-rxapps-<version>.jar` plus the tar.gz / zip archives, and downstream modules
   may depend on the jar artifact being present in the Maven repository. A packaging change would
   be out of scope for a javadoc-cleanup PR and would warrant its own issue / verification cycle.
+
