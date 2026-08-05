@@ -238,6 +238,18 @@ public class SolrServer
    public boolean isActive() {
       return (!fatalError && errorCount < maxErrors);
    }
+
+   public int getMaxErrors() {
+      return maxErrors;
+   }
+
+   /**
+    * Maximum consecutive delivery errors before this server is treated as inactive. Used by JAXB
+    * config and unit tests.
+    */
+   public void setMaxErrors(int maxErrors) {
+      this.maxErrors = maxErrors;
+   }
    
    public void incrError()
    {

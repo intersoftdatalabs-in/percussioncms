@@ -26,8 +26,12 @@ SCRIPTS = Path(__file__).resolve().parent
 _PORT_ENV_KEYS = (
     "QA_CMS_HOST_PORT",
     "CMS_HOST_PORT",
+    "DTS_HOST_PORT",
     "CMS_PORT",
     "DTS_PORT",
+    "MYSQL_PORT",
+    "POSTGRES_PORT",
+    "MSSQL_PORT",
     "VERIFY_CMS_URL",
     "VERIFY_DTS_URL",
 )
@@ -684,6 +688,40 @@ class TestFreeportAndUrlWiring(unittest.TestCase):
         self.assertEqual((cms, dts), (18881, 18882))
         self.assertEqual(os.environ["CMS_PORT"], "18881")
         self.assertEqual(os.environ["DTS_PORT"], "18882")
+        # #2004 — CMS/DTS ensure also pins compose DB host publishes.
+        self.assertIn("MYSQL_PORT", os.environ)
+        self.assertIn("POSTGRES_PORT", os.environ)
+        self.assertIn("MSSQL_PORT", os.environ)
+        self.assertGreater(int(os.environ["MYSQL_PORT"]), 0)
+
+    def test_ensure_compose_db_host_ports_env_override(self):
+        os.environ["MYSQL_PORT"] = "13306"
+        os.environ["POSTGRES_PORT"] = "15433"
+        os.environ["MSSQL_PORT"] = "11433"
+        resolved = pdc.ensure_compose_db_host_ports()
+        self.assertEqual(
+            resolved,
+            {
+                "MYSQL_PORT": 13306,
+                "POSTGRES_PORT": 15433,
+                "MSSQL_PORT": 11433,
+            },
+        )
+        self.assertEqual(os.environ["MYSQL_PORT"], "13306")
+
+    def test_ensure_compose_db_host_ports_freeport_when_taken(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.bind(("127.0.0.1", 0))
+            taken = int(sock.getsockname()[1])
+            # Prefer a held port for MYSQL only via temporary preferred constant.
+            original = pdc.PREFERRED_MYSQL_HOST_PORT
+            pdc.PREFERRED_MYSQL_HOST_PORT = taken
+            self.addCleanup(
+                lambda: setattr(pdc, "PREFERRED_MYSQL_HOST_PORT", original)
+            )
+            resolved = pdc.ensure_compose_db_host_ports()
+            self.assertNotEqual(resolved["MYSQL_PORT"], taken)
+            self.assertEqual(os.environ["MYSQL_PORT"], str(resolved["MYSQL_PORT"]))
 
     def test_qa_up_dry_run_honors_env_port(self):
         os.environ["QA_CMS_HOST_PORT"] = "16666"

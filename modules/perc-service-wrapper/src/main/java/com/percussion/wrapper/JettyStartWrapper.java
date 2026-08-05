@@ -55,6 +55,7 @@ public class JettyStartWrapper extends StartWrapper {
    * @throws IllegalArgumentException if <code>jetty/base/etc/installation.properties</code> cannot
    *     be found under <code>rootDir</code>
    */
+  @SuppressWarnings("this-escape")
   public JettyStartWrapper(String name, File rootDir, String[] args) {
     super(name, rootDir, args);
 

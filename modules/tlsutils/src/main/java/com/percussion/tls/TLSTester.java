@@ -213,10 +213,8 @@ public class TLSTester {
             socket.setEnabledCipherSuites(testCipher.toArray(new String[testCipher.size()]));
             socket.startHandshake();
             SSLSession session = socket.getSession();
-            socket.close();
             String cipher = session.getCipherSuite();
             String protocol = session.getProtocol();
-            socket.close();
 
             lastProt = protocol;
             log.info("Connected with protocol {} using cipher {}", protocol, cipher);
@@ -359,8 +357,8 @@ public class TLSTester {
     Set<String> availableCiphers = new HashSet<>(Arrays.asList(ssf.getSupportedCipherSuites()));
 
     log.info("Default\tCipher");
-    for (Iterator i = availableCiphers.iterator(); i.hasNext(); ) {
-      String cipher = (String) i.next();
+    for (Iterator<String> i = availableCiphers.iterator(); i.hasNext(); ) {
+      String cipher = i.next();
       StringBuilder cipherInfo = new StringBuilder();
       if (defaultCiphers.contains(cipher)) cipherInfo.append('*');
       else cipherInfo.append(' ');
@@ -374,12 +372,12 @@ public class TLSTester {
   }
 
   /**
- * Tests whether the JCE jurisdiction policy allows unlimited-strength cryptography.
- *
- * @return {@code true} if {@link Cipher#getMaxAllowedKeyLength(String)} returns
- *     {@link Integer#MAX_VALUE} for AES, {@code false} otherwise
- */
-static boolean isUnlimitedCryptoLength() {
+   * Tests whether the JCE jurisdiction policy allows unlimited-strength cryptography.
+   *
+   * @return {@code true} if {@link Cipher#getMaxAllowedKeyLength(String)} returns {@link
+   *     Integer#MAX_VALUE} for AES, {@code false} otherwise
+   */
+  static boolean isUnlimitedCryptoLength() {
 
     try {
       int length = Cipher.getMaxAllowedKeyLength("AES");
@@ -393,10 +391,8 @@ static boolean isUnlimitedCryptoLength() {
     return false;
   }
 
-  /**
- * Logs the cipher suites enabled for each installed security provider. Used for diagnostics.
- */
-public static void getEnabledCiphers() {
+  /** Logs the cipher suites enabled for each installed security provider. Used for diagnostics. */
+  public static void getEnabledCiphers() {
     for (Provider provider : Security.getProviders()) {
       log.info("Security Provider: {}", provider.getName());
       for (String key : provider.stringPropertyNames())

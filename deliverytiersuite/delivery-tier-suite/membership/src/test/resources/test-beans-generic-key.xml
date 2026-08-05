@@ -50,7 +50,11 @@
 	<!-- Only import the minimal test DataSource/Hibernate props -->
 	<import resource="perc-datasources.xml" />
 
-   <!-- Hibernate SessionFactory -->
+   <!-- Hibernate SessionFactory.
+        Use packagesToScan (same as test-beans.xml) instead of configLocation +
+        hibernate.cfg.xml. The test hibernate.cfg.xml DOCTYPE used a relative
+        file: DTD that resolves against the process CWD and fails under Maven
+        Surefire with FileNotFoundException / StAX parse errors. -->
    <bean id="membershipSessionFactory"
          class="org.springframework.orm.jpa.hibernate.LocalSessionFactoryBean">
       <property name="dataSource">
@@ -59,8 +63,10 @@
       <property name="hibernateProperties">
          <ref bean="${hibernateProperties}" />
       </property>
-      <property name="configLocation">
-         <value>hibernate.cfg.xml</value>
+      <property name="packagesToScan">
+         <list>
+            <value>com.percussion.generickey.utils.data.rdbms.impl</value>
+         </list>
       </property>
    </bean>
 

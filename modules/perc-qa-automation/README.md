@@ -146,7 +146,9 @@ python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql --p
 
 # Leave cell up for Playwright Layer 2 (install.spec.js)
 python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql --keep
-TEST_CMS_URL=http://localhost:9993 TEST_DB_TYPE=postgresql \
+# Use the pinned CMS_HOST_PORT (or TEST_CMS_URL from perc-devctl qa-up). Prefer
+# preferred 9993 only when free — multi-worktree freeport may allocate another port.
+TEST_CMS_URL=http://127.0.0.1:${CMS_HOST_PORT:-9993} TEST_DB_TYPE=postgresql \
   npm test --prefix frontend -- tests/install.spec.js
 ```
 

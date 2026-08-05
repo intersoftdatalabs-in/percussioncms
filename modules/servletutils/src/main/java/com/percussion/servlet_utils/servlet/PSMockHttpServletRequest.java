@@ -90,6 +90,7 @@ public class PSMockHttpServletRequest implements HttpServletRequest {
    * @param method the HTTP method, defaults to {@code GET} when {@code null}
    * @param requestURI the request URI, defaults to empty when {@code null}
    */
+  @SuppressWarnings("this-escape")
   public PSMockHttpServletRequest(String method, String requestURI) {
     this.method = method != null ? method : "GET";
     setRequestURI(requestURI != null ? requestURI : "");

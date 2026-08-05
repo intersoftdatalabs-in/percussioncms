@@ -177,6 +177,24 @@ class PercLoggingLog4j2ConfigTest {
     assertTrue(found, "logdir Property must be defined for RollingFile paths");
   }
 
+  /**
+   * Issue #1824 (slice 1): Betwixt logger overrides are obsolete after Jackson XML migration noise
+   * cleanup. Do not reintroduce {@code org.apache.commons.betwixt.*} AsyncLogger entries.
+   */
+  @Test
+  void noBetwixtLoggerOverrides() {
+    for (String tag : new String[] {"AsyncLogger", "Logger"}) {
+      NodeList loggers = configDoc.getElementsByTagName(tag);
+      for (int i = 0; i < loggers.getLength(); i++) {
+        Element logger = (Element) loggers.item(i);
+        String name = logger.getAttribute("name");
+        assertTrue(
+            name == null || !name.contains("org.apache.commons.betwixt"),
+            () -> tag + " must not silence Betwixt (removed in #1824): " + name);
+      }
+    }
+  }
+
   private static List<Element> rollingFiles() {
     NodeList nodes = configDoc.getElementsByTagName("RollingFile");
     List<Element> list = new ArrayList<>();

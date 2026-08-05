@@ -9,25 +9,30 @@
  * Playwright suite (and the rest of perc-qa-automation) can run against it.
  *
  * Usage:
- *   # Bring up a cell and leave it running
+ *   # Bring up a cell and leave it running (pins CMS_HOST_PORT / freeport)
  *   python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql --keep
+ *   # Or: python docker/scripts/perc-devctl.py qa-up  (prints TEST_CMS_URL)
  *
- *   # Probe login (CMS default host port from the harness: 9993)
- *   TEST_CMS_URL=http://localhost:9993 TEST_DB_TYPE=postgresql \
+ *   # Probe login — always use the harness-printed URL / pinned host port
+ *   # (preferred CMS 9993 / DTS 9983 only when free; do not hardcode freeport).
+ *   TEST_CMS_URL=http://127.0.0.1:${CMS_HOST_PORT:-9993} TEST_DB_TYPE=postgresql \
  *     npm test -- tests/install.spec.js
  *
- *   # DTS (harness host port 9983)
- *   TEST_PRODUCT=dts TEST_CMS_URL=http://localhost:9983 TEST_DB_TYPE=h2 \
+ *   # DTS (preferred host port 9983 when free, else freeport via DTS_HOST_PORT)
+ *   TEST_PRODUCT=dts TEST_CMS_URL=http://127.0.0.1:${DTS_HOST_PORT:-9983} TEST_DB_TYPE=h2 \
  *     npm test -- tests/install.spec.js
  *
  * Environment:
- *   TEST_CMS_URL   Base URL (CMS or DTS) — default http://localhost:9993
+ *   TEST_CMS_URL   Base URL (CMS or DTS) — set from qa-up / matrix pin; fallback
+ *                  http://localhost:9993 is preferred baseline only when free
  *   TEST_DB_TYPE   Label for reporting — default h2
  *   TEST_PRODUCT   cms | dts — default cms (chooses probe path)
+ *   CMS_HOST_PORT / QA_CMS_HOST_PORT / DTS_HOST_PORT — set by harness (#2005)
  */
 
 const { test, expect } = require("@playwright/test");
 
+// Preferred single-worktree baseline when free; prefer TEST_CMS_URL from qa-up.
 const BASE_URL = process.env.TEST_CMS_URL || "http://localhost:9993";
 const DB_TYPE = process.env.TEST_DB_TYPE || "h2";
 const PRODUCT = (process.env.TEST_PRODUCT || "cms").toLowerCase();

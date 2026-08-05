@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -40,7 +41,7 @@ import org.xml.sax.InputSource;
 
 /**
  * Golden / round-trip tests for system design objects under the Jackson-backed {@code
- * PSXmlSerializationHelper} (issues #1920 / #1993, epic #505). Offline only — no live CMS.
+ * PSXmlSerializationHelper} (issues #1920 / #1993 / #1994, epic #505). Offline only — no live CMS.
  */
 class PSSystemDataXmlSerializationTest {
 
@@ -248,10 +249,12 @@ class PSSystemDataXmlSerializationTest {
     assertNull(property.getVersion());
     property.setVersion(2);
     assertEquals(2, property.getVersion());
-    assertThrows(IllegalArgumentException.class, () -> {
-      property.setVersion(null);
-      property.setVersion(-1);
-    });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          property.setVersion(null);
+          property.setVersion(-1);
+        });
   }
 
   @Test
@@ -363,6 +366,108 @@ class PSSystemDataXmlSerializationTest {
     assertEquals(PSTypeEnum.CONTENT_LIST.name(), restored.getDependents().get(0).getType());
   }
 
+  @Test
+  void mimeContentAdapterWriteShapeAndGolden() throws Exception {
+    PSMimeContentAdapter original = sampleMimeContentInline();
+    String xml = original.toXML();
+
+    assertNotNull(xml);
+    assertFalse(xml.trim().startsWith("<null"), xml);
+    assertTrue(containsTag(xml, "mime-content-adapter"), "root: " + xml);
+    assertTrue(containsTag(xml, "attachment-id"), xml);
+    assertTrue(containsTag(xml, "character-encoding"), xml);
+    assertTrue(containsTag(xml, "content"), xml);
+    assertTrue(containsTag(xml, "content-length"), xml);
+    assertTrue(containsTag(xml, "guid"), xml);
+    assertTrue(containsTag(xml, "mime-type"), xml);
+    assertTrue(containsTag(xml, "name"), xml);
+    assertTrue(containsTag(xml, "transfer-encoding"), xml);
+    assertFalse(containsTag(xml, "label"), "label alias suppressed: " + xml);
+    assertFalse(containsTag(xml, "content-attached"), "derived flag suppressed: " + xml);
+    assertFalse(containsTag(xml, "description"), "always-null description suppressed: " + xml);
+    // base64 of UTF-8 "sample-config-body"
+    assertTrue(xml.contains("c2FtcGxlLWNvbmZpZy1ib2R5"), xml);
+    assertTrue(xml.contains("WORKFLOW_CONFIG"), xml);
+
+    String golden =
+        loadResource("com/percussion/services/system/data/ps-mime-content-adapter-golden.xml");
+    assertLogicalXmlParity(golden, xml);
+  }
+
+  @Test
+  void mimeContentAdapterRoundTripRestoresInlineBase64Content() throws Exception {
+    PSMimeContentAdapter original = sampleMimeContentInline();
+    byte[] originalBytes = original.getContent().readAllBytes();
+    String xml = original.toXML();
+
+    PSMimeContentAdapter restored = new PSMimeContentAdapter();
+    restored.fromXML(xml);
+
+    assertEquals(original.getAttachmentId(), restored.getAttachmentId());
+    assertEquals(original.getName(), restored.getName());
+    assertEquals(original.getMimeType(), restored.getMimeType());
+    assertEquals(original.getContentLength(), restored.getContentLength());
+    assertEquals(original.getCharacterEncoding(), restored.getCharacterEncoding());
+    assertEquals(original.getTransferEncoding(), restored.getTransferEncoding());
+    assertEquals(original.getGUID().toString(), restored.getGUID().toString());
+    assertFalse(restored.isContentAttached());
+    byte[] restoredBytes = restored.getContent().readAllBytes();
+    assertEquals(
+        new String(originalBytes, StandardCharsets.UTF_8),
+        new String(restoredBytes, StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void mimeContentAdapterRoundTripRestoresAttachmentHref() throws Exception {
+    PSMimeContentAdapter original = sampleMimeContentAttached();
+    String xml = original.toXML();
+
+    assertTrue(containsTag(xml, "attachment-id"), xml);
+    // Null content property is omitted (or empty) when attachment-referenced.
+    assertFalse(xml.contains("c2FtcGxl"), "no inline body when attached: " + xml);
+
+    PSMimeContentAdapter restored = new PSMimeContentAdapter();
+    restored.fromXML(xml);
+
+    assertEquals(42L, restored.getAttachmentId());
+    assertTrue(restored.isContentAttached());
+    assertNull(restored.getContent());
+    assertEquals("ATTACHED_CONFIG", restored.getName());
+    assertEquals(original.getGUID().toString(), restored.getGUID().toString());
+  }
+
+  @Test
+  void mimeContentAdapterFromXmlAcceptsLegacyNullRoot() throws Exception {
+    String legacy =
+        """
+        <?xml version="1.0" encoding="utf-8"?>
+        <null>
+          <attachment-id>-1</attachment-id>
+          <character-encoding>UTF-8</character-encoding>
+          <content>c2FtcGxlLWNvbmZpZy1ib2R5</content>
+          <content-length>18</content-length>
+          <guid>0-34-100</guid>
+          <mime-type>text/xml</mime-type>
+          <name>LEGACY_CONFIG</name>
+          <transfer-encoding>base64</transfer-encoding>
+        </null>
+        """;
+
+    PSMimeContentAdapter restored = new PSMimeContentAdapter();
+    restored.fromXML(legacy);
+
+    assertEquals(-1L, restored.getAttachmentId());
+    assertEquals("LEGACY_CONFIG", restored.getName());
+    assertEquals("text/xml", restored.getMimeType());
+    assertEquals(18L, restored.getContentLength());
+    assertEquals("UTF-8", restored.getCharacterEncoding());
+    assertEquals("base64", restored.getTransferEncoding());
+    assertEquals(100L, restored.getGUID().getUUID());
+    assertEquals(
+        "sample-config-body",
+        new String(restored.getContent().readAllBytes(), StandardCharsets.UTF_8));
+  }
+
   private static PSAudit sampleAudit() {
     PSAudit audit = new PSAudit();
     audit.setId(1001L);
@@ -437,6 +542,31 @@ class PSSystemDataXmlSerializationTest {
     dependency.addDependent(sampleDependent(2001L, PSTypeEnum.TEMPLATE.name()));
     dependency.addDependent(sampleDependent(2002L, PSTypeEnum.ITEM_FILTER.name()));
     return dependency;
+  }
+
+  private static PSMimeContentAdapter sampleMimeContentInline() {
+    PSMimeContentAdapter content = new PSMimeContentAdapter();
+    content.setGUID(new PSGuid(PSTypeEnum.CONFIGURATION, 100L));
+    content.setName("WORKFLOW_CONFIG");
+    content.setMimeType("text/xml");
+    content.setCharacterEncoding(StandardCharsets.UTF_8.name());
+    content.setTransferEncoding("base64");
+    byte[] body = "sample-config-body".getBytes(StandardCharsets.UTF_8);
+    content.setContent(new ByteArrayInputStream(body));
+    content.setContentLength(body.length);
+    return content;
+  }
+
+  private static PSMimeContentAdapter sampleMimeContentAttached() {
+    PSMimeContentAdapter content = new PSMimeContentAdapter();
+    content.setGUID(new PSGuid(PSTypeEnum.CONFIGURATION, 200L));
+    content.setName("ATTACHED_CONFIG");
+    content.setMimeType("application/octet-stream");
+    content.setCharacterEncoding(StandardCharsets.UTF_8.name());
+    content.setTransferEncoding("base64");
+    content.setAttachmentId(42L);
+    content.setContentLength(-1);
+    return content;
   }
 
   /** 2024-01-15T12:00:00.000Z as {@link Date}. */

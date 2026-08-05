@@ -42,6 +42,7 @@ public class PSAuthenticationEvent extends AbstractEvent {
   public static final String SYSTEM_SECURITY_URI = "service/bss/cms/security";
 
   /** Constructs an empty event with the security observer pre-assigned. */
+  @SuppressWarnings("this-escape")
   public PSAuthenticationEvent() {
     super();
 
@@ -58,6 +59,7 @@ public class PSAuthenticationEvent extends AbstractEvent {
    * @param request the HTTP request that triggered the event, never {@code null}.
    * @param username the user name captured by the authentication attempt, never {@code null}.
    */
+  @SuppressWarnings("this-escape")
   public PSAuthenticationEvent(
       String outcome,
       AuthenticationEventActions action,

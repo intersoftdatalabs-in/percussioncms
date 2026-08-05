@@ -58,7 +58,6 @@ import argparse
 import logging
 import os
 import shlex
-import socket
 import subprocess
 import sys
 import time
@@ -67,6 +66,13 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, List, Optional, Sequence
+
+# Sibling freeport helpers (stdlib only). Ensure scripts dir is importable
+# when this file is loaded via importlib (unit tests) or as a script.
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+from perc_host_ports import find_free_port, is_port_free, resolve_host_port  # noqa: E402
 
 LOG = logging.getLogger("perc-devctl")
 
@@ -89,6 +95,10 @@ VERIFY_FIX_TIMEOUT_SECONDS_DEFAULT = 240
 PREFERRED_VERIFY_CMS_HOST_PORT = 9992
 PREFERRED_VERIFY_DTS_HOST_PORT = 9980
 PREFERRED_QA_CMS_HOST_PORT = 9993
+# Compose DB host publishes (docker-compose.yml ${*_PORT:-…}); #2004.
+PREFERRED_MYSQL_HOST_PORT = 3306
+PREFERRED_POSTGRES_HOST_PORT = 5433
+PREFERRED_MSSQL_HOST_PORT = 1433
 
 VERIFY_CMS_PATH = "/Rhythmyx/rest/folders/by-path/Assets"
 VERIFY_DTS_PATH = "/"
@@ -111,62 +121,7 @@ QA_PROBE_TIMEOUT_SECONDS_DEFAULT = 900
 QA_PROBE_INTERVAL_SECONDS_DEFAULT = 5
 
 
-# ---------------------------------------------------------------------------
-# Freeport / host-port resolution (cross-platform; stdlib only) — #2001
-# ---------------------------------------------------------------------------
-
-
-def find_free_port(host: str = "127.0.0.1") -> int:
-    """Allocate an ephemeral free TCP port via bind(port=0).
-
-    Cross-platform (Windows / Linux / macOS). Uses stdlib ``socket`` only —
-    no Unix-only tooling. The port is free at return time; a short TOCTOU
-    race remains until the consumer binds (docker / compose).
-    """
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.bind((host, 0))
-        return int(sock.getsockname()[1])
-
-
-def is_port_free(port: int, host: str = "127.0.0.1") -> bool:
-    """Return True if ``port`` can be bound on ``host`` right now."""
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.bind((host, port))
-            return True
-    except OSError:
-        return False
-
-
-def resolve_host_port(
-    *env_keys: str,
-    preferred: Optional[int] = None,
-) -> int:
-    """Resolve a host TCP port for published docker services.
-
-    Order:
-      1. First non-empty environment variable among ``env_keys`` (integer).
-      2. ``preferred`` when that port is free on the loopback interface.
-      3. :func:`find_free_port` ephemeral allocation.
-
-    Env override lets operators pin ports across worktrees or match an
-    already-running stack. Leaving env unset prefers the historical single-
-    worktree defaults when free, otherwise allocates a free port so a second
-    worktree does not fail with ``address already in use``.
-    """
-    for key in env_keys:
-        raw = os.environ.get(key, "").strip()
-        if not raw:
-            continue
-        try:
-            return int(raw)
-        except ValueError as exc:
-            raise ValueError(
-                f"env {key}={raw!r} is not an integer host port"
-            ) from exc
-    if preferred is not None and is_port_free(preferred):
-        return preferred
-    return find_free_port()
+# Freeport primitives live in perc_host_ports.py (shared with matrix) — #2001/#2005.
 
 
 def resolve_verify_cms_url() -> str:
@@ -224,18 +179,44 @@ def qa_cms_probe_url(port: int) -> str:
     return f"{qa_cms_base_url(port)}{QA_CMS_PROBE_PATH}"
 
 
+def ensure_compose_db_host_ports() -> dict[str, int]:
+    """Resolve compose DB host ports and pin them in ``os.environ`` (#2004).
+
+    Compose maps ``${MYSQL_PORT:-3306}:3306``, ``${POSTGRES_PORT:-5433}:5432``,
+    and ``${MSSQL_PORT:-1433}:1433``. Process-env pins override ``.env.compose``
+    defaults so concurrent worktrees do not fail with address-already-in-use.
+    Returns mapping of env key → resolved host port.
+    """
+    specs = (
+        ("MYSQL_PORT", PREFERRED_MYSQL_HOST_PORT),
+        ("POSTGRES_PORT", PREFERRED_POSTGRES_HOST_PORT),
+        ("MSSQL_PORT", PREFERRED_MSSQL_HOST_PORT),
+    )
+    resolved: dict[str, int] = {}
+    for env_key, preferred in specs:
+        port = resolve_host_port(env_key, preferred=preferred)
+        os.environ[env_key] = str(port)
+        resolved[env_key] = port
+    return resolved
+
+
 def ensure_compose_host_ports() -> tuple[int, int]:
-    """Resolve CMS/DTS host ports for compose and pin them in ``os.environ``.
+    """Resolve CMS/DTS (and DB) host ports for compose and pin ``os.environ``.
 
     Compose already maps ``${CMS_PORT:-9992}:9992`` and
     ``${DTS_PORT:-9980}:9980``. Pinning the resolved values into the process
     environment makes ``docker compose`` and later ``verify`` in the same
     session use the same published ports (critical for multi-worktree freeport).
+
+    Also pins ``MYSQL_PORT`` / ``POSTGRES_PORT`` / ``MSSQL_PORT`` via
+    :func:`ensure_compose_db_host_ports` so full compose stacks share the
+    freeport contract (#2004).
     """
     cms = resolve_host_port("CMS_PORT", preferred=PREFERRED_VERIFY_CMS_HOST_PORT)
     dts = resolve_host_port("DTS_PORT", preferred=PREFERRED_VERIFY_DTS_HOST_PORT)
     os.environ["CMS_PORT"] = str(cms)
     os.environ["DTS_PORT"] = str(dts)
+    ensure_compose_db_host_ports()
     return cms, dts
 
 
@@ -243,7 +224,7 @@ def ensure_qa_cms_host_port() -> int:
     """Resolve QA CMS host port and pin it for child processes / discovery."""
     port = resolve_qa_cms_host_port()
     os.environ["QA_CMS_HOST_PORT"] = str(port)
-    # Shared name matrix-install-smoke residual (#2001 follow-up) will read.
+    # matrix-install-smoke reads CMS_HOST_PORT / QA_CMS_HOST_PORT for docker -p (#2005).
     os.environ.setdefault("CMS_HOST_PORT", str(port))
     return port
 
@@ -561,6 +542,11 @@ def cmd_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     repo_root, env_file, compose_file = paths
     log_dir = _log_dir(repo_root)
     cms_port, dts_port = ensure_compose_host_ports()
+    db_ports = {
+        key: int(os.environ[key])
+        for key in ("MYSQL_PORT", "POSTGRES_PORT", "MSSQL_PORT")
+        if os.environ.get(key)
+    }
     compose_argv = _docker_compose(env_file, compose_file, "up", "-d")
     if args.build:
         compose_argv.append("--build")
@@ -574,6 +560,9 @@ def cmd_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     # Agent/operator discovery: published host ports for this worktree cell.
     print(f"CMS_PORT={cms_port}")
     print(f"DTS_PORT={dts_port}")
+    for key in ("MYSQL_PORT", "POSTGRES_PORT", "MSSQL_PORT"):
+        if key in db_ports:
+            print(f"{key}={db_ports[key]}")
     print(f"VERIFY_CMS_URL={resolve_verify_cms_url()}")
     print(f"VERIFY_DTS_URL={resolve_verify_dts_url()}")
     return rc
@@ -1036,7 +1025,7 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
 
     Host port is resolved via :func:`ensure_qa_cms_host_port` (env override
     or freeport) and exported as ``QA_CMS_HOST_PORT`` / ``CMS_HOST_PORT`` so
-    operators and residual matrix freeport wiring can discover it.
+    matrix-install-smoke docker ``-p`` and operators / Playwright agree (#2005).
     """
     repo_root, _env_file, _compose_file = paths
     log_dir = _log_dir(repo_root)

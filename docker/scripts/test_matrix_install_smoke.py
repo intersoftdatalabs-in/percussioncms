@@ -5,6 +5,8 @@
 from __future__ import annotations
 
 import importlib.util
+import os
+import socket
 import sys
 import tempfile
 import unittest
@@ -12,6 +14,21 @@ from pathlib import Path
 
 SCRIPTS = Path(__file__).resolve().parent
 MATRIX = SCRIPTS.parent / "matrix"
+
+# Env keys freeport / matrix host-port resolution may set or read.
+_PORT_ENV_KEYS = (
+    "QA_CMS_HOST_PORT",
+    "CMS_HOST_PORT",
+    "DTS_HOST_PORT",
+    "MYSQL_PORT",
+    "POSTGRES_PORT",
+    "MSSQL_PORT",
+)
+
+
+def _clear_port_env() -> None:
+    for key in _PORT_ENV_KEYS:
+        os.environ.pop(key, None)
 
 
 def _load(path: Path, name: str):
@@ -244,6 +261,250 @@ class ProbeUrlTests(unittest.TestCase):
             smoke.build_probe_url("dts", 9983),
             "http://127.0.0.1:9983/",
         )
+
+
+class MatrixHostPortFreeportTests(unittest.TestCase):
+    """#2005 — matrix docker -p / probe host port from env or freeport."""
+
+    def setUp(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+
+    def test_preferred_baselines(self):
+        self.assertEqual(smoke.PREFERRED_CMS_HOST_PORT, 9993)
+        self.assertEqual(smoke.PREFERRED_DTS_HOST_PORT, 9983)
+        # Historical aliases remain for callers/docs.
+        self.assertEqual(smoke.CMS_HOST_PORT, 9993)
+        self.assertEqual(smoke.DTS_HOST_PORT, 9983)
+
+    def test_cms_env_override_qa_cms_host_port(self):
+        os.environ["QA_CMS_HOST_PORT"] = "18001"
+        self.assertEqual(smoke.resolve_matrix_host_port("cms"), 18001)
+
+    def test_cms_env_override_cms_host_port(self):
+        os.environ["CMS_HOST_PORT"] = "18002"
+        self.assertEqual(smoke.resolve_matrix_host_port("cms"), 18002)
+
+    def test_cms_qa_env_wins_over_cms_host_port(self):
+        os.environ["QA_CMS_HOST_PORT"] = "18003"
+        os.environ["CMS_HOST_PORT"] = "18004"
+        self.assertEqual(smoke.resolve_matrix_host_port("cms"), 18003)
+
+    def test_dts_env_override(self):
+        os.environ["DTS_HOST_PORT"] = "18005"
+        self.assertEqual(smoke.resolve_matrix_host_port("dts"), 18005)
+
+    def test_invalid_env_raises(self):
+        os.environ["CMS_HOST_PORT"] = "not-a-port"
+        with self.assertRaises(ValueError):
+            smoke.resolve_matrix_host_port("cms")
+
+    def test_preferred_when_free(self):
+        preferred = smoke.find_free_port()
+        # Temporarily treat preferred as free preferred baseline via direct resolve.
+        self.assertEqual(
+            smoke.resolve_host_port(preferred=preferred),
+            preferred,
+        )
+
+    def test_falls_back_when_preferred_taken(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.bind(("127.0.0.1", 0))
+            taken = int(sock.getsockname()[1])
+            resolved = smoke.resolve_host_port(preferred=taken)
+            self.assertNotEqual(resolved, taken)
+            self.assertGreater(resolved, 0)
+
+    def test_ensure_cms_pins_env(self):
+        os.environ["QA_CMS_HOST_PORT"] = "17777"
+        port = smoke.ensure_matrix_host_port("cms")
+        self.assertEqual(port, 17777)
+        self.assertEqual(os.environ["CMS_HOST_PORT"], "17777")
+        self.assertEqual(os.environ["QA_CMS_HOST_PORT"], "17777")
+
+    def test_ensure_dts_pins_env(self):
+        os.environ["DTS_HOST_PORT"] = "17778"
+        port = smoke.ensure_matrix_host_port("dts")
+        self.assertEqual(port, 17778)
+        self.assertEqual(os.environ["DTS_HOST_PORT"], "17778")
+
+    def test_docker_run_argv_uses_resolved_host_port(self):
+        """Probe URL and -p mapping must share the same host port (e2e contract)."""
+        os.environ["CMS_HOST_PORT"] = "16661"
+        host_port = smoke.ensure_matrix_host_port("cms")
+        self.assertEqual(host_port, 16661)
+        argv = smoke.build_docker_run_argv(
+            image=smoke.MATRIX_IMAGE_TAG,
+            container_name="perc-matrix-cms-h2",
+            product="cms",
+            db_type="h2",
+            installer_jar_host=Path("/tmp/j.jar"),
+            host_port=host_port,
+            network=smoke.MATRIX_NETWORK,
+            db_meta=smoke.DB_SERVICES["h2"],
+            keep=False,
+        )
+        joined = " ".join(argv)
+        self.assertIn("16661:9992", joined)
+        self.assertEqual(
+            smoke.build_probe_url("cms", host_port),
+            "http://127.0.0.1:16661/Rhythmyx/login",
+        )
+
+    def test_unknown_product_raises(self):
+        with self.assertRaises(ValueError):
+            smoke.resolve_matrix_host_port("oracle")
+
+
+class ComposeDbHostPortFreeportTests(unittest.TestCase):
+    """#2004 — compose MYSQL/POSTGRES/MSSQL host ports from env or freeport."""
+
+    def setUp(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+
+    def test_preferred_baselines(self):
+        self.assertEqual(smoke.PREFERRED_MYSQL_HOST_PORT, 3306)
+        self.assertEqual(smoke.PREFERRED_POSTGRES_HOST_PORT, 5433)
+        self.assertEqual(smoke.PREFERRED_MSSQL_HOST_PORT, 1433)
+        self.assertEqual(
+            smoke.COMPOSE_DB_HOST_PORT_SPEC["mysql"],
+            ("MYSQL_PORT", 3306),
+        )
+        self.assertEqual(
+            smoke.COMPOSE_DB_HOST_PORT_SPEC["postgresql"],
+            ("POSTGRES_PORT", 5433),
+        )
+        self.assertEqual(
+            smoke.COMPOSE_DB_HOST_PORT_SPEC["sqlserver"],
+            ("MSSQL_PORT", 1433),
+        )
+
+    def test_env_override_mysql(self):
+        os.environ["MYSQL_PORT"] = "13306"
+        self.assertEqual(smoke.resolve_compose_db_host_port("mysql"), 13306)
+
+    def test_env_override_postgres(self):
+        os.environ["POSTGRES_PORT"] = "15433"
+        self.assertEqual(smoke.resolve_compose_db_host_port("postgresql"), 15433)
+
+    def test_env_override_mssql(self):
+        os.environ["MSSQL_PORT"] = "11433"
+        self.assertEqual(smoke.resolve_compose_db_host_port("sqlserver"), 11433)
+
+    def test_invalid_env_raises(self):
+        os.environ["MYSQL_PORT"] = "not-a-port"
+        with self.assertRaises(ValueError):
+            smoke.resolve_compose_db_host_port("mysql")
+
+    def test_h2_and_unknown_raise(self):
+        with self.assertRaises(ValueError):
+            smoke.resolve_compose_db_host_port("h2")
+        with self.assertRaises(ValueError):
+            smoke.resolve_compose_db_host_port("oracle")
+
+    def test_preferred_when_free(self):
+        preferred = smoke.find_free_port()
+        # Direct resolve_host_port path used by compose DB helpers.
+        self.assertEqual(
+            smoke.resolve_host_port("MYSQL_PORT", preferred=preferred),
+            preferred,
+        )
+
+    def test_falls_back_when_preferred_taken(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.bind(("127.0.0.1", 0))
+            taken = int(sock.getsockname()[1])
+            resolved = smoke.resolve_host_port("POSTGRES_PORT", preferred=taken)
+            self.assertNotEqual(resolved, taken)
+            self.assertGreater(resolved, 0)
+
+    def test_ensure_pins_all_external_dbs(self):
+        os.environ["MYSQL_PORT"] = "13306"
+        os.environ["POSTGRES_PORT"] = "15433"
+        os.environ["MSSQL_PORT"] = "11433"
+        resolved = smoke.ensure_compose_db_host_ports(
+            ["h2", "mysql", "postgresql", "sqlserver"]
+        )
+        self.assertEqual(
+            resolved,
+            {
+                "mysql": 13306,
+                "postgresql": 15433,
+                "sqlserver": 11433,
+            },
+        )
+        self.assertNotIn("h2", resolved)
+        self.assertEqual(os.environ["MYSQL_PORT"], "13306")
+        self.assertEqual(os.environ["POSTGRES_PORT"], "15433")
+        self.assertEqual(os.environ["MSSQL_PORT"], "11433")
+
+    def test_ensure_skips_h2_only(self):
+        resolved = smoke.ensure_compose_db_host_ports(["h2"])
+        self.assertEqual(resolved, {})
+        self.assertNotIn("MYSQL_PORT", os.environ)
+
+    def test_ensure_freeport_when_preferred_taken(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.bind(("127.0.0.1", 0))
+            taken = int(sock.getsockname()[1])
+            # Force preferred to the held port via a temporary preferred override
+            # by pre-setting env empty and monkeypatching preferred in resolve path:
+            # Call resolve_host_port with taken preferred through ensure after
+            # temporarily swapping COMPOSE_DB_HOST_PORT_SPEC preferred.
+            original = smoke.COMPOSE_DB_HOST_PORT_SPEC["mysql"]
+            smoke.COMPOSE_DB_HOST_PORT_SPEC["mysql"] = ("MYSQL_PORT", taken)
+            self.addCleanup(
+                lambda: smoke.COMPOSE_DB_HOST_PORT_SPEC.__setitem__(
+                    "mysql", original
+                )
+            )
+            resolved = smoke.ensure_compose_db_host_ports(["mysql"])
+            self.assertEqual(list(resolved.keys()), ["mysql"])
+            self.assertNotEqual(resolved["mysql"], taken)
+            self.assertEqual(os.environ["MYSQL_PORT"], str(resolved["mysql"]))
+
+    def test_dry_run_postgresql_prints_postgres_port(self):
+        """Dry-run external DB path pins and prints POSTGRES_PORT (#2004)."""
+        import io
+        from contextlib import redirect_stdout
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target = root / "modules" / "perc-distribution-tree" / "target"
+            target.mkdir(parents=True)
+            (target / "perc-distribution-tree.jar").write_bytes(b"stub-jar-content")
+            (root / "docker" / "logs").mkdir(parents=True)
+            (root / "docker" / "matrix").mkdir(parents=True)
+            (root / "docker" / "matrix" / "Dockerfile").write_text(
+                "FROM scratch\n", encoding="utf-8"
+            )
+            (root / "docker-compose.yml").write_text("services: {}\n", encoding="utf-8")
+            (root / ".env.compose.example").write_text(
+                "POSTGRES_PASSWORD=test-local-only\n"
+                "MYSQL_PASSWORD=test-local-only\n"
+                "MSSQL_SA_PASSWORD=test-local-only\n",
+                encoding="utf-8",
+            )
+            os.environ["POSTGRES_PORT"] = "15444"
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = smoke.main(
+                    [
+                        "--repo-root",
+                        str(root),
+                        "--product",
+                        "cms",
+                        "--db",
+                        "postgresql",
+                        "--dry-run",
+                        "--skip-image-build",
+                    ]
+                )
+            self.assertEqual(rc, 0)
+            out = buf.getvalue()
+            self.assertIn("POSTGRES_PORT=15444", out)
+            self.assertEqual(os.environ["POSTGRES_PORT"], "15444")
 
 
 class DbOwnershipAndTeardownTests(unittest.TestCase):

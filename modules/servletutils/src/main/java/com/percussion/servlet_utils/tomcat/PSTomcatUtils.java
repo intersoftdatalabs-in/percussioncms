@@ -67,7 +67,8 @@ public class PSTomcatUtils {
     if (root == null || !root.getNodeName().equals(SERVER_NODE_NAME))
       throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, SERVER_NODE_NAME);
 
-    Element serviceEl = tree.getNextElement(SERVICE_NODE_NAME, tree.GET_NEXT_ALLOW_CHILDREN);
+    Element serviceEl =
+        tree.getNextElement(SERVICE_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (serviceEl == null)
       throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, SERVICE_NODE_NAME);
 
