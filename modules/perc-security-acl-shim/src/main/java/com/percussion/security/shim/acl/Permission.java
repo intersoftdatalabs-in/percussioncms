@@ -17,7 +17,12 @@
 package com.percussion.security.shim.acl;
 
 /**
- * Marker interface equivalent to java.security.acl.Permission. Concrete permission types in
- * Percussion should implement this interface.
+ * Marker interface equivalent to {@code java.security.acl.Permission}. Concrete permission types in
+ * Percussion should implement this interface so they can be attached to {@link AclEntry} instances
+ * and tested by {@link Acl#checkPermission(javax.security.auth.Subject, Permission)}.
+ *
+ * <p>Implementations should also override {@link Object#equals(Object)} and {@link
+ * Object#hashCode()} so that duplicate permissions can be detected via {@link
+ * java.util.Set#contains(Object)}.
  */
 public interface Permission {}
