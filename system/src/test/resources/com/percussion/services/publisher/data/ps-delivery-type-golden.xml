@@ -1,0 +1,9 @@
+<!-- Golden snapshot for production PSDeliveryType Jackson wire shape (issue
+	#1919 / epic #505). Offline-safe PSGuid form for guid. -->
+<delivery-type>
+	<bean-name>sys_fileDeliveryHandler</bean-name>
+	<description>Publish to the filesystem</description>
+	<guid>0-112-7</guid>
+	<name>filesystem</name>
+	<unpublishing-requires-assembly>false</unpublishing-requires-assembly>
+</delivery-type>
