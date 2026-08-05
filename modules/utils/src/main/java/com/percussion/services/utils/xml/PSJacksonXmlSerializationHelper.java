@@ -71,7 +71,7 @@ import tools.jackson.dataformat.xml.XmlWriteFeature;
  * elements).
  *
  * <p>{@link IPSGuid} / {@link PSGuid} use string form (same as historical Betwixt {@code
- * PSBetwixtObjectConverter}) via a registered module (issue #1888 / #1890).
+ * PSBetwixtObjectConverter}) via a registered module (issue #1888 / #1890 / #1891 / epic #505).
  */
 public final class PSJacksonXmlSerializationHelper {
 

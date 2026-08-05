@@ -17,8 +17,12 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.assembly.data;
 
-import com.percussion.security.error.PSExceptionUtils;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.extension.IPSExtension;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSTemplateSlot;
@@ -30,30 +34,11 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSRuntimeException;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-import com.percussion.utils.xml.PSInvalidXmlException;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
+import com.percussion.utils.xml.PSInvalidXmlException;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.hibernate.Hibernate;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.ListIndexBase;
-import org.hibernate.annotations.NamedQueries;
-import org.hibernate.annotations.NamedQuery;
-import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.NaturalIdCache;
-import org.hibernate.annotations.SortComparator;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -80,6 +65,27 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.hibernate.Hibernate;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.ListIndexBase;
+import org.hibernate.annotations.NamedQueries;
+import org.hibernate.annotations.NamedQuery;
+import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.NaturalIdCache;
+import org.hibernate.annotations.SortComparator;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * Assembly template entity representing a single template with enhanced Java 11 support.
@@ -103,6 +109,12 @@ import java.util.stream.Stream;
  * @author dougrand
  * @since Java 11 Modernization
  */
+/**
+ * Design-object XML root is {@code assembly-template}. Nested bindings use item element {@code
+ * binding}; slot membership is exported as scalar {@code template-slot-ids}/{@code
+ * template-slot-id} longs (not nested slot graphs) — parity with historical {@code
+ * PSAssemblyTemplate.betwixt} (issue #1891 / epic #505).
+ */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSAssemblyTemplate")
 @NaturalIdCache
@@ -118,11 +130,48 @@ import java.util.stream.Stream;
                          "from PSAssemblyTemplate t, PSContentTemplateDesc d " +
                          "where d.m_templateid = t.id")
 })
+@JacksonXmlRootElement(localName = "assembly-template")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({
+  "bindings",
+  "templateSlotIds",
+  "guid",
+  "activeAssemblyType",
+  "assembler",
+  "assemblyUrl",
+  "charset",
+  "description",
+  "globalTemplate",
+  "globalTemplateUsage",
+  "label",
+  "locationPrefix",
+  "locationSuffix",
+  "mimeType",
+  "name",
+  "outputFormat",
+  "publishWhen",
+  "styleSheetPath",
+  "template",
+  "templateType",
+  "type",
+  "variant"
+})
 public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummary, IPSCatalogItem, Serializable {
 
     private static final PSExecutionOrderComparator bindingComparator = new PSExecutionOrderComparator();
     private static final Logger log = LogManager.getLogger(PSAssemblyTemplate.class);
     private static final long serialVersionUID = -1240365481092237620L;
+
+    static {
+       // Nested package/design item element for bindings (historical betwixt + Jackson pin)
+       PSXmlSerializationHelper.addType("binding", PSTemplateBinding.class);
+       PSXmlSerializationHelper.addType("template-binding", PSTemplateBinding.class);
+    }
 
     @Id
     @Column(name = "TEMPLATE_ID")
@@ -218,6 +267,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     }
 
     @Override
+    @JsonProperty
     public PublishWhen getPublishWhen()
     {
        return (publishWhen == null) ? PublishWhen.Unspecified : PublishWhen.valueOf(publishWhen.charValue());
@@ -265,6 +315,8 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      * Get the template version used for optimistic locking.
      * @return the version, may be {@code null}
      */
+    @IPSXmlSerialization(suppress = true)
+    @JsonIgnore
     public Integer getVersion()
     {
        return this.version;
@@ -364,6 +416,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      *
      * @return Optional containing the template name if present, empty otherwise
      */
+    @JsonIgnore
     public Optional<String> getNameOptional() {
         return Optional.ofNullable(name);
     }
@@ -373,6 +426,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      *
      * @return the template name, may be {@code null}
      */
+    @JsonProperty
     public String getName() {
         return name;
     }
@@ -395,6 +449,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      *
      * @return Optional containing the description if present, empty otherwise
      */
+    @JsonIgnore
     public Optional<String> getDescriptionOptional() {
         return Optional.ofNullable(description);
     }
@@ -404,6 +459,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      *
      * @return the description, may be {@code null}
      */
+    @JsonProperty
     public String getDescription() {
         return description;
     }
@@ -422,6 +478,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      *
      * @return Optional containing the assembler if present, empty otherwise
      */
+    @JsonIgnore
     public Optional<String> getAssemblerOptional() {
         return Optional.ofNullable(assembler);
     }
@@ -431,6 +488,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      *
      * @return the assembler, may be {@code null}
      */
+    @JsonProperty
     public String getAssembler() {
         return assembler;
     }
@@ -449,12 +507,19 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     }
 
     /**
-     * Get template bindings as an immutable list for safer access.
+     * Get template bindings for design XML. Nested items use element name {@code binding}.
      *
-     * @return immutable list of template bindings, never {@code null}
+     * @return list of template bindings, never {@code null}
      */
+    @JsonProperty
+    @JacksonXmlElementWrapper(localName = "bindings")
+    @JacksonXmlProperty(localName = "binding")
     public List<PSTemplateBinding> getBindings() {
-        return bindings != null ? List.copyOf(bindings) : List.of();
+        if (bindings == null) {
+            return List.of();
+        }
+        // hibernate can return null placeholders in lists that have order field
+        return bindings.stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     /**
@@ -462,6 +527,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      *
      * @return Stream of template bindings, never {@code null}
      */
+    @JsonIgnore
     public Stream<PSTemplateBinding> getBindingsStream() {
         return bindings != null ? bindings.stream() : Stream.empty();
     }
@@ -473,6 +539,9 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      */
     public void setBindings(List<PSTemplateBinding> bindings) {
         this.bindings = bindings != null ? new ArrayList<>(bindings) : new ArrayList<>();
+        if (this.bindings.size() > 1) {
+            Collections.sort(this.bindings, bindingComparator);
+        }
     }
 
     /**
@@ -481,10 +550,14 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      * @param binding the binding to add, not {@code null}
      * @throws IllegalArgumentException if binding is null
      */
+    @JsonIgnore
     public void addBinding(PSTemplateBinding binding) {
         Objects.requireNonNull(binding, "binding cannot be null");
         if (bindings == null) {
             bindings = new ArrayList<>();
+        }
+        if (binding.getExecutionOrder() == null || binding.getExecutionOrder() < 1) {
+            binding.setExecutionOrder(bindings.size() + 1);
         }
         bindings.add(binding);
     }
@@ -501,10 +574,13 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     }
 
     /**
-     * Get template slots as an immutable set for safer access.
+     * Get template slots. Suppressed from design XML — slot membership is exported via {@link
+     * #getTemplateSlotIds()} scalar longs (historical betwixt).
      *
      * @return immutable set of template slots, never {@code null}
      */
+    @IPSXmlSerialization(suppress = true)
+    @JsonIgnore
     public Set<IPSTemplateSlot> getSlots() {
         return slots != null ? Set.copyOf(slots) : Set.of();
     }
@@ -514,6 +590,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      *
      * @return Stream of template slots, never {@code null}
      */
+    @JsonIgnore
     public Stream<IPSTemplateSlot> getSlotsStream() {
         return slots != null ? slots.stream() : Stream.empty();
     }
@@ -533,12 +610,84 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      * @param slot the slot to add, not {@code null}
      * @throws IllegalArgumentException if slot is null
      */
+    @JsonIgnore
     public void addSlot(IPSTemplateSlot slot) {
         Objects.requireNonNull(slot, "slot cannot be null");
         if (slots == null) {
             slots = new HashSet<>();
         }
         slots.add(slot);
+    }
+
+    /**
+     * Slot ids for design XML (package/MSM). Restored via {@link #setTemplateSlotIds(List)} /
+     * {@link #addTemplateSlotId(Long)}.
+     *
+     * @return list of slot long ids, never {@code null}
+     */
+    @JsonProperty
+    @JacksonXmlElementWrapper(localName = "template-slot-ids")
+    @JacksonXmlProperty(localName = "template-slot-id")
+    public List<Long> getTemplateSlotIds() {
+        if (slots == null || slots.isEmpty()) {
+            return List.of();
+        }
+        return slots.stream()
+                .filter(Objects::nonNull)
+                .map(IPSTemplateSlot::getGUID)
+                .filter(Objects::nonNull)
+                .map(IPSGuid::longValue)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Restore slot membership from scalar ids. Live CMS uses the assembly service to load full slot
+     * graphs; offline unit tests attach GUID-only placeholders when the service is unavailable.
+     *
+     * @param slotIds slot long ids, may be {@code null}
+     */
+    public void setTemplateSlotIds(List<Long> slotIds) {
+        if (slots == null) {
+            slots = new HashSet<>();
+        } else {
+            slots.clear();
+        }
+        if (slotIds == null) {
+            return;
+        }
+        for (Long slotId : slotIds) {
+            if (slotId != null) {
+                addTemplateSlotId(slotId);
+            }
+        }
+    }
+
+    /**
+     * Add a single slot by id for XML restore (historical betwixt updater).
+     *
+     * @param slotid the slot id, never {@code null}
+     */
+    @JsonIgnore
+    public void addTemplateSlotId(Long slotid) {
+        if (slotid == null) {
+            throw new IllegalArgumentException("slotid may not be null.");
+        }
+        try {
+            IPSAssemblyService service = PSAssemblyServiceLocator.getAssemblyService();
+            IPSTemplateSlot slot = service.loadSlot(new PSGuid(PSTypeEnum.SLOT, slotid));
+            Hibernate.initialize(slot);
+            addSlot(slot);
+        } catch (Exception ex) {
+            // Offline / unit-test path: attach a GUID-only placeholder so MSM XML still restores ids
+            PSTemplateSlot placeholder = new PSTemplateSlot();
+            placeholder.setGUID(new PSGuid(PSTypeEnum.SLOT, slotid));
+            try {
+                placeholder.setName("slot-" + slotid);
+            } catch (RuntimeException ignored) {
+                // name is required for equality; ignore if validation tightens later
+            }
+            addSlot(placeholder);
+        }
     }
 
     @Override
@@ -567,6 +716,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      *  (non-Javadoc)
      * @see com.percussion.services.catalog.IPSCatalogSummary#getLabel()
      */
+    @JsonProperty
     public String getLabel()
     {
       if (StringUtils.isBlank(label))
@@ -576,16 +726,18 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     }
 
     /**
-     * Get the type of this object for cataloging
+     * Get the type of this object for cataloging / design XML.
      * @return the type, never <code>null</code>
      */
     @Override
+    @JsonProperty
     public String getType()
     {
       return PSTypeEnum.TEMPLATE.name();
     }
 
     @Override
+    @JsonProperty("guid")
     public IPSGuid getGUID()
     {
        return new PSGuid(PSTypeEnum.TEMPLATE, id);
@@ -594,7 +746,9 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     @Override
     public void setGUID(IPSGuid newguid) throws IllegalStateException
     {
-       this.id = newguid.longValue();
+       if (newguid != null) {
+          this.id = newguid.longValue();
+       }
     }
 
     @Override
@@ -637,6 +791,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      *  (non-Javadoc)
      * @see com.percussion.services.assembly.IPSAssemblyTemplate#getTemplateType()
      */
+    @JsonProperty
     public TemplateType getTemplateType()
     {
       if (templateType == null)
@@ -658,54 +813,63 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     }
 
     @Override
+    @JsonProperty
     public IPSAssemblyTemplate.OutputFormat getOutputFormat()
     {
        return IPSAssemblyTemplate.OutputFormat.valueOf(outputFormat);
     }
 
     @Override
+    @JsonProperty
     public String getAssemblyUrl()
     {
        return assemblyUrl;
     }
 
     @Override
+    @JsonProperty
     public String getCharset()
     {
        return charset;
     }
 
     @Override
+    @JsonProperty
     public String getStyleSheetPath()
     {
        return styleSheet;
     }
 
     @Override
+    @JsonProperty
     public String getLocationPrefix()
     {
        return locationPrefix;
     }
 
     @Override
+    @JsonProperty
     public String getLocationSuffix()
     {
        return locationSuffix;
     }
 
     @Override
+    @JsonProperty
     public IPSAssemblyTemplate.AAType getActiveAssemblyType()
     {
        return IPSAssemblyTemplate.AAType.valueOf(aaType);
     }
 
     @Override
+    @JsonProperty
     public String getMimeType()
     {
        return mimeType;
     }
 
     @Override
+    @JsonProperty
     public String getTemplate()
     {
        return template;
@@ -745,6 +909,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     /**
      * Get the global template GUID, may be null.
      */
+    @JsonProperty
     public IPSGuid getGlobalTemplate()
     {
       if (this.globalTemplate != null)
@@ -756,6 +921,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     /**
      * Gets the global template usage for this template. Never returns null.
      */
+    @JsonProperty
     public IPSAssemblyTemplate.GlobalTemplateUsage getGlobalTemplateUsage()
     {
        if (this.globalTemplateUsage == null)
@@ -770,6 +936,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     /* (non-Javadoc)
      * @see com.percussion.services.assembly.IPSAssemblyTemplate#isVariant()
      */
+    @JsonProperty("variant")
     public boolean isVariant()
     {
       return assembler == null

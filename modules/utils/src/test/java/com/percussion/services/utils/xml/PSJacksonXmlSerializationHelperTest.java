@@ -232,7 +232,7 @@ class PSJacksonXmlSerializationHelperTest {
 
   @Test
   void ipsGuidSerializesAndDeserializesAsBetwixtStringForm() throws Exception {
-    // Parity with PSBetwixtObjectConverter — required for package <guid> elements (#1888).
+    // Parity with PSBetwixtObjectConverter — required for package <guid> elements (#1888 / #1891).
     SampleWithGuid original = new SampleWithGuid();
     original.setId(513L);
     original.setGuid(new com.percussion.services.guidmgr.data.PSGuid("0-5-513"));
