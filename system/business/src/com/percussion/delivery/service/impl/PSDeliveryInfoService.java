@@ -52,8 +52,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @author peterfrontiero
+ * Default {@link IPSDeliveryInfoService} implementation that reads and persists delivery-server
+ * configuration from the CMS repository and proxies registration calls to the delivery tier.
  *
+ * @author peterfrontiero
  */
 // REFACTORED: CP-JAVA11
 public class PSDeliveryInfoService implements IPSDeliveryInfoService

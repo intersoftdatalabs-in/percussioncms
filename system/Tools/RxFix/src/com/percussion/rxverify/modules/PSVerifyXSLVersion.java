@@ -30,11 +30,11 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXParseException;
 
 /**
+ * Verifies that the installer has updated all XSL stylesheets in the Rhythmyx installation.
+ * This verification has no generate component because it is a pass/fail based on what is
+ * actually there, rather than a comparison with a known-good case.
+ *
  * @author dougrand
- * 
- * Verify that the installer has updated all XSL stylesheets. This has no
- * generate component, because it is a pass/fail based on what is actually
- * there, rather than a comparison with a known good case.
  */
 public class PSVerifyXSLVersion implements IPSVerify
 {

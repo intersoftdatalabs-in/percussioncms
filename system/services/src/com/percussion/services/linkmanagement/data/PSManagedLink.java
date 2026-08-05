@@ -28,11 +28,13 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * @author JaySeletz
+ * Persistent representation of a managed link entry, capturing the link's relationship to a
+ * parent content item, the link's URL, and the relative position used for reordering.
  *
+ * @author JaySeletz
  */
 @Entity
-@Cache (usage=CacheConcurrencyStrategy.READ_WRITE, 
+@Cache (usage=CacheConcurrencyStrategy.READ_WRITE,
 region = "PSManagedLink")
 @Table(name = "PSX_MANAGEDLINK")
 public class PSManagedLink extends PSAbstractDataObject

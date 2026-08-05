@@ -33,10 +33,9 @@ import java.util.Iterator;
 import javax.naming.NamingException;
 
 /**
+ * Removes folder relationships where the owner id is not a folder owner or dependent.
+ *
  * @author dougrand
- * 
- * Removes folder relationships where owner id is not a folder
- * owner or dependent
  */
 public class PSFixInvalidFolderRelationships extends PSFixDBBase implements IPSFix
 {

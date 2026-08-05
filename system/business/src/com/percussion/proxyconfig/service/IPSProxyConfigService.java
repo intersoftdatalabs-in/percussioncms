@@ -22,8 +22,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * Contract for the service that reads and queries the proxy-server configuration used by the
+ * CMS for outbound HTTP traffic.
+ *
  * @author LucasPiccoli
- * 
  */
 public interface IPSProxyConfigService {
     /**

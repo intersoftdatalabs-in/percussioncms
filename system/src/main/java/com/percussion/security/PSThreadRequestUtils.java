@@ -46,9 +46,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * Wraps useful functions around {@code PSRequestInfo} (which lives in rxutils.jar and does not have
+ * access to {@code com.percussion.services}), exposing them in a thread-safe manner for the CMS
+ * security subsystem.
+ *
  * @author stephenbolton
- *     <p>This Class wraps useful functions around PSRequestInfo which is in rxutils.jar and does
- *     not have access to com.percussion.services
  */
 public class PSThreadRequestUtils {
 

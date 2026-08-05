@@ -36,9 +36,11 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * @author dougrand
+ * Verifies that all expected files were installed correctly in the Rhythmyx installation by
+ * comparing on-disk content against the canonical file set captured during a previous verify
+ * pass.
  *
- * This class verifies that all files were installed correctly
+ * @author dougrand
  */
 public class PSVerifyInstalledFiles implements IPSVerify
 {

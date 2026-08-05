@@ -36,21 +36,20 @@ import java.util.Set;
 import javax.naming.NamingException;
 
 /**
- * Finds all invalid folders (all folders that have enrties in CONTENTSTATUS
- * table but not in PSX_FOLDER) and reports in preview mode. In fix mode, it
- * actually removes the rows corresponding to these folderids (contentids) from
- * the following tables.
- * <p>
+ * Finds all invalid folders (all folders that have entries in {@code CONTENTSTATUS} but not in
+ * {@code PSX_FOLDER}) and reports them in preview mode. In fix mode, it actually removes the
+ * rows corresponding to these folder ids (content ids) from the following tables:
+ *
  * <ul>
- * <li>CONTENTSTATUS</li>
- * <li>PSX_OBJECTACL</li>
- * <li>PSX_PROPERTIES</li>
- * <li>PSX_RELATIONSHIPPROPERTIES</li>
- * <li>PSX_RELATIONSHIPS</li>
+ *   <li>{@code CONTENTSTATUS}</li>
+ *   <li>{@code PSX_OBJECTACL}</li>
+ *   <li>{@code PSX_PROPERTIES}</li>
+ *   <li>{@code PSX_RELATIONSHIPPROPERTIES}</li>
+ *   <li>{@code PSX_RELATIONSHIPS}</li>
  * </ul>
- * <p>
- * There could be entries in CONTENTSTATUSHISTORY table for these folders but we
- * don't clean this table.
+ *
+ * <p>There may be entries in {@code CONTENTSTATUSHISTORY} for these folders but this fix does
+ * not clean that table.
  */
 public class PSFixInvalidFolders extends PSFixDBBase implements IPSFix
 {

@@ -362,6 +362,7 @@ public class PSBaseSOAPImpl {
      * @param e the exception to be converted, not null
      * @param serviceName the service name, not null
      * @throws RemoteException if error occurred during conversion
+     * @throws PSErrorResultsFault when the supplied exception must be raised as a SOAP fault.
      * @throws IllegalArgumentException if parameters are null
      */
     protected void handleErrorResultsException(PSErrorResultsException e, String serviceName)
@@ -388,6 +389,7 @@ public class PSBaseSOAPImpl {
      * @param e the exception to be converted, not null
      * @param serviceName the service name, not null
      * @throws RemoteException if error occurred during conversion
+     * @throws PSErrorsFault when the supplied exception must be raised as a SOAP fault.
      * @throws IllegalArgumentException if parameters are null
      */
     protected void handleErrorsException(PSErrorsException e, String serviceName)

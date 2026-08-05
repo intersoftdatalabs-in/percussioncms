@@ -26,11 +26,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
+ * Contains proxy configuration information to allow traffic for certain protocols going through
+ * a proxy server.
+ *
  * @author LucasPiccoli
- * 
- *         This class contains proxy configuration information to allow traffic
- *         for certain protocols going through a proxy server.
- * 
  */
 public class PSProxyConfig extends PSAbstractDataObject {
     private static final long serialVersionUID = 1L;

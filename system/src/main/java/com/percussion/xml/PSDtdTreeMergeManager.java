@@ -24,7 +24,10 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** */
+/**
+ * Manages the incremental merge of a master {@code PSDtdTree} with one or more slave DTD trees,
+ * allowing DTD fragments from multiple sources to be combined into a single tree.
+ */
 public class PSDtdTreeMergeManager {
   private static final Logger log = LogManager.getLogger(PSDtdTreeMergeManager.class);
 

@@ -65,8 +65,10 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
- * @author wesleyhirsch
+ * Default {@link IPSDeliveryClient} implementation that performs HTTP requests against the
+ * delivery tier, honoring proxy configuration and license-override headers.
  *
+ * @author wesleyhirsch
  */
 public class PSDeliveryClient implements IPSDeliveryClient
 {

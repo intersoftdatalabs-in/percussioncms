@@ -48,10 +48,9 @@ import java.util.List;
 
 
 /**
+ * Removes relationships that reference a non-existent content item as the owner or dependent.
+ *
  * @author dougrand
- * 
- * Removes relationships that reference a non-existant content item as the
- * owner or dependent
  */
 @Deprecated
 public class PSFixNavigation extends PSFixDBBase implements IPSFix

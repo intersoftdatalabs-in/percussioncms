@@ -28,9 +28,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 
 /**
- * The standard class for rendering (displaying) individual cells
- * in a EditableListBox.
- * <p>
+ * The standard class for rendering (displaying) individual cells in a EditableListBox.
  *
  * @see JTable
  */

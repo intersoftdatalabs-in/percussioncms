@@ -28,6 +28,15 @@ import javax.swing.event.EventListenerList;
  * interface and support for managing a series of listeners.
  */
 public class AbstractCellEditor implements CellEditor {
+
+  /**
+   * Default constructor; provided so the implicit default constructor has explicit Javadoc and
+   * doclint does not warn about its use.
+   */
+  public AbstractCellEditor() {
+    // utility state is initialized lazily in field initializers
+  }
+
   protected EventListenerList listenerList = new EventListenerList();
 
   public Object getCellEditorValue() {

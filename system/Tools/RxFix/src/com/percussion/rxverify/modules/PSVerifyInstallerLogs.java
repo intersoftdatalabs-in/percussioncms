@@ -27,9 +27,10 @@ import java.io.FileReader;
 import java.io.IOException;
 
 /**
- * @author dougrand
+ * Checks the Rhythmyx installer logs for errors and reports any problems found, providing a
+ * quick way to detect a failed or partial install.
  *
- * Check the installer logs for errors
+ * @author dougrand
  */
 public class PSVerifyInstallerLogs implements IPSVerify
 {

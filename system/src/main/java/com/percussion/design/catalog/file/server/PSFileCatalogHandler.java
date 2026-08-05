@@ -21,6 +21,9 @@ import com.percussion.design.catalog.PSCatalogRequestHandler;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * The catalog request handler for file-related catalog requests, serving as the entry point for the
+ * file catalog driver within the Rhythmyx server.
+ *
  * @version 1.0
  * @since 18-Oct-2005 11:36:19 AM
  */

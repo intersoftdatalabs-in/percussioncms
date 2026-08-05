@@ -36,16 +36,12 @@ import org.apache.commons.lang3.time.FastDateFormat;
  * <p>It will also include an AclHandler to check against when performing application updates, and a
  * the file's last modified time to ensure the AclHandler is valid (current).
  *
- * <p>
- *
  * @see PSXmlObjectStoreHandler
  */
 public class PSApplicationSummary {
 
   /**
    * Create an application summary based on the application itself
-   *
-   * <p>
    *
    * @author David Gennaco
    * @version 1.0 1999/6/24
