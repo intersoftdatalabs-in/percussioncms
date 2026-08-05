@@ -30,6 +30,12 @@
             <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- In-memory DB for PSLocaleCodeMigrator integration tests (GH-1547) -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- Log4j 2 -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
