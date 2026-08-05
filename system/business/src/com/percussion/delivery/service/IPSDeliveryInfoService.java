@@ -22,8 +22,10 @@ import java.net.MalformedURLException;
 import java.util.List;
 
 /**
- * @author peterfrontiero
+ * Contract for the service that manages the list of delivery servers known to the CMS, exposing
+ * lookup, registration, and removal operations.
  *
+ * @author peterfrontiero
  */
 // REFACTORED: CP-JAVA11
 public interface IPSDeliveryInfoService

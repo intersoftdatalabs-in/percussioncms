@@ -76,7 +76,7 @@ import static com.percussion.services.assembly.impl.finder.PSContentFinderUtils.
  * into a set of assembly items to be assembled.
  * 
  * @author dougrand
- * @param <T> 
+ * @param <T> the slot container type used by the concrete finder implementation.
  */
 @Transactional( readOnly = true, noRollbackFor = Exception.class, propagation = Propagation.REQUIRED)
 public abstract class PSContentFinderBase<T extends Object>

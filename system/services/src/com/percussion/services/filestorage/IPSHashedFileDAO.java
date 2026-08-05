@@ -25,8 +25,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Contract for the DAO that persists and retrieves hashed file entries (keyed by SHA-1 hash) in
+ * the Rhythmyx binary storage subsystem.
+ *
  * @author stephenbolton
- * 
  */
 
 public interface IPSHashedFileDAO

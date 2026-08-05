@@ -28,6 +28,9 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 /**
+ * Upgrade plugin that adds the incremental publishing configuration entries required by the
+ * Rhythmyx publishing subsystem.
+ *
  * @author JaySeletz
  */
 // REFACTORED: CP-JAVA11

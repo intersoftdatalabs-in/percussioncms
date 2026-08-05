@@ -16,6 +16,10 @@
  */
 package com.percussion.services.assembly.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.catalog.IPSCatalogItem;
@@ -27,18 +31,6 @@ import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
 import com.percussion.utils.xml.IPSXmlSerialization;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.NamedQuery;
-import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.NaturalIdCache;
-import org.xml.sax.SAXException;
-
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -58,6 +50,18 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.NamedQuery;
+import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.NaturalIdCache;
+import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -69,6 +73,11 @@ import static java.util.stream.Collectors.toSet;
  * This object represents a single slot that is related to a template. Templates
  * are related to slots via a many to many relationship.
  *
+ * <p>Design-object XML root is {@code template-slot}. Nested associations use item element
+ * {@code slot-type-association}; package archives may ship unhyphenated association field tags
+ * rewritten by {@link #normalizePackageAssociationElementNames(String)} before Jackson/Betwixt
+ * read (issue #1891 / epic #505).
+ *
  * @author dougrand
  */
 @Entity
@@ -77,6 +86,26 @@ import static java.util.stream.Collectors.toSet;
 @NaturalIdCache
 @NamedQuery(name = "slot.findSlotsByNames",
                 query = "select s from PSTemplateSlot s where lower(s.name) in (:names)")
+@JacksonXmlRootElement(localName = "template-slot")
+@JsonAutoDetect(
+        getterVisibility = JsonAutoDetect.Visibility.NONE,
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+        fieldVisibility = JsonAutoDetect.Visibility.NONE,
+        setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+        creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({
+    "description",
+    "finderArguments",
+    "finderName",
+    "guid",
+    "label",
+    "name",
+    "relationshipName",
+    "slotTypeAssociations",
+    "slottype",
+    "systemSlot",
+    "version"
+})
 public class PSTemplateSlot
         implements
         IPSTemplateSlot,
@@ -142,6 +171,7 @@ public class PSTemplateSlot
      *
      * @see com.percussion.services.catalog.IPSCatalogSummary#getName()
      */
+    @JsonProperty
     public String getName() {
         return name;
     }
@@ -161,6 +191,7 @@ public class PSTemplateSlot
      *
      * @see com.percussion.services.catalog.IPSCatalogSummary#getDescription()
      */
+    @JsonProperty
     public String getDescription() {
         return description;
     }
@@ -177,6 +208,7 @@ public class PSTemplateSlot
      *
      * @return Returns the slottype.
      */
+    @JsonProperty
     public int getSlottype() {
         return slottype;
     }
@@ -208,6 +240,7 @@ public class PSTemplateSlot
      * @see com.percussion.services.assembly.IPSTemplateSlot#getSlottypeEnum()
      */
     @IPSXmlSerialization(suppress = true)
+    @JsonIgnore
     public SlotType getSlottypeEnum() {
         return SlotType.valueOf(slottype);
     }
@@ -217,6 +250,7 @@ public class PSTemplateSlot
      *
      * @see com.percussion.services.assembly.IPSTemplateSlot#getFinderName()
      */
+    @JsonProperty
     public String getFinderName() {
         return finder;
     }
@@ -233,6 +267,7 @@ public class PSTemplateSlot
      *
      * @see com.percussion.services.assembly.IPSTemplateSlot#getFinderArguments()
      */
+    @JsonProperty
     public Map<String, String> getFinderArguments() {
         return finderArguments.stream()
                 .collect(toMap(PSSlotContentFinderParam::getName, PSSlotContentFinderParam::getValue));
@@ -245,8 +280,9 @@ public class PSTemplateSlot
      */
     public void setFinderArguments(Map<String, String> arguments) {
         finderArguments.clear();
-        arguments.forEach(this::addFinderArgument);
-
+        if (arguments != null) {
+            arguments.forEach(this::addFinderArgument);
+        }
     }
 
     /**
@@ -287,6 +323,7 @@ public class PSTemplateSlot
      *
      * @return the object version, <code>null</code> if not initialized yet.
      */
+    @JsonProperty
     public Integer getVersion() {
         return version;
     }
@@ -310,6 +347,7 @@ public class PSTemplateSlot
     /**
      * @return Returns the relationshipName.
      */
+    @JsonProperty
     public String getRelationshipName() {
         return relationshipName;
     }
@@ -339,18 +377,15 @@ public class PSTemplateSlot
         id = 0L; // Avoid problems during restore
         this.version=null;
         // Package archives (perc.nav etc.) use unhyphenated association field names
-        // (contenttypeid/templateid/slotid). PSNameMapper / PSTemplateTypeSlotAssociation.betwixt
-        // expect hyphenated names (content-type-id etc.). Without the rewrite, associations
-        // restore as zeros and deploy fails with "ContentType with source ID 0".
-        // Both the default introspector path and a successfully loaded .betwixt must agree
-        // on hyphenated names — see PSTemplateTypeSlotAssociation.betwixt.
+        // (contenttypeid/templateid/slotid). Jackson kebab naming + PSNameMapper expect
+        // hyphenated names (content-type-id etc.). Without the rewrite, associations restore as
+        // zeros and deploy fails with "ContentType with source ID 0".
         PSXmlSerializationHelper.readFromXML(normalizePackageAssociationElementNames(xmlsource), this);
     }
 
     /**
      * Rewrites legacy package element names on slot-type associations to hyphenated names expected
-     * by {@link PSXmlSerializationHelper}'s name mapper and by {@code
-     * PSTemplateTypeSlotAssociation.betwixt}.
+     * by {@link PSXmlSerializationHelper}'s kebab-case property naming (Jackson) / name mapper.
      *
      * <p>Only rewrites element open/close tags ({@code <name>} / {@code </name>} / {@code
      * <name ...>}), not bare text or attribute values such as {@code name="contenttypeid"}.
@@ -388,6 +423,7 @@ public class PSTemplateSlot
      *
      * @see com.percussion.services.catalog.IPSCatalogItem#getGUID()
      */
+    @JsonProperty("guid")
     public IPSGuid getGUID() {
         return new PSGuid(PSTypeEnum.SLOT, id);
     }
@@ -406,6 +442,7 @@ public class PSTemplateSlot
      *
      * @see com.percussion.services.assembly.IPSTemplateSlot#isSystemSlot()
      */
+    @JsonProperty("system-slot")
     public boolean isSystemSlot() {
         return systemslot != null && systemslot == 1;
     }
@@ -434,6 +471,7 @@ public class PSTemplateSlot
      * @return get the slotAssociations set, never <code>null</code>
      */
     @IPSXmlSerialization(suppress = true)
+    @JsonIgnore
     public Collection<PSPair<IPSGuid, IPSGuid>> getSlotAssociations() {
 
         return  slotAssociations.stream()
@@ -459,22 +497,35 @@ public class PSTemplateSlot
     }
 
     /**
-     * Get the slot associations - used for MSM
+     * Get the slot associations - used for MSM / design XML.
      *
-     * @return the slot associations as an arrau
+     * <p>Jackson pins nested items to package element name {@code slot-type-association}.
+     *
+     * @return the slot associations as an array
      */
+    @JsonProperty
+    @JacksonXmlElementWrapper(localName = "slot-type-associations")
+    @JacksonXmlProperty(localName = "slot-type-association")
     public PSTemplateTypeSlotAssociation[] getSlotTypeAssociations() {
         return slotAssociations.toArray(new PSTemplateTypeSlotAssociation[0]);
     }
 
     /**
-     * Set the slot associations, used by MSM
+     * Set the slot associations, used by MSM / design XML restore and Jackson bean binding.
      *
+     * <p>{@code null} intentionally clears the collection (same contract as {@link
+     * #setFinderArguments(Map)}): package/Jackson restore may omit or null the wrapper element, and
+     * callers use null to empty associations. Prefer {@link #addSlotTypeAssociation} when a
+     * non-null association is required.
+     *
+     * @param associations the new associations, or {@code null} to clear
      */
     public void setSlotTypeAssociations(
             PSTemplateTypeSlotAssociation[] associations) {
         this.slotAssociations.clear();
-        this.slotAssociations.addAll(Arrays.stream(associations).collect(toSet()));
+        if (associations != null) {
+            this.slotAssociations.addAll(Arrays.stream(associations).collect(toSet()));
+        }
     }
 
     /**
@@ -482,6 +533,7 @@ public class PSTemplateSlot
      *
      * @param association the association to add, never <code>null</code>
      */
+    @JsonIgnore
     public void addSlotTypeAssociation(PSTemplateTypeSlotAssociation association) {
         if (association == null) {
             throw new IllegalArgumentException("object may not be null");
@@ -567,6 +619,7 @@ public class PSTemplateSlot
      *
      * @see com.percussion.services.assembly.IPSTemplateSlot#getLabel()
      */
+    @JsonProperty
     public String getLabel() {
         return label == null ? name : label;
     }
@@ -588,6 +641,7 @@ public class PSTemplateSlot
      * @return the type name for this object
      */
     @IPSXmlSerialization(suppress = true)
+    @JsonIgnore
     public String getType() {
         return PSTypeEnum.SLOT.name();
     }
@@ -598,12 +652,14 @@ public class PSTemplateSlot
      * @return the enum type for this object
      */
     @IPSXmlSerialization(suppress = true)
+    @JsonIgnore
     public PSTypeEnum getTypeEnum() {
         return PSTypeEnum.SLOT;
     }
 
 
     @IPSXmlSerialization(suppress = true)
+    @JsonIgnore
     @Override
     public Set<IPSAssemblyTemplate> getSlotTemplates() {
         return slotTemplates;

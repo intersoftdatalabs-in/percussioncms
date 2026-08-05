@@ -23,19 +23,14 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.List;
 
 /**
- * Create globally unique ids for use when creating service objects. The methods
- * that begin with 'create' are generally only useful to the system.
- * Implementers will be interested in the methods that begin with 'make'.
- * 
- * There are also methods for converting between old-style item locators and
- * guids. These are provided for interoperability between the old and new
- * models.
- * 
- * @author dougrand
- */
-/**
- * @author stephenbolton
+ * Creates globally unique ids for use when creating service objects. The methods that begin
+ * with {@code create} are generally only useful to the system. Implementers will be interested
+ * in the methods that begin with {@code make}.
  *
+ * <p>There are also methods for converting between old-style item locators and guids. These are
+ * provided for interoperability between the old and new models.
+ *
+ * @author dougrand
  */
 public interface IPSGuidManager
 {

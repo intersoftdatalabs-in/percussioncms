@@ -30,6 +30,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Utility class for generating thumbnails from screen captures. Provides methods to write a
+ * placeholder thumbnail to disk and to invoke the configured screen-capture command (typically a
+ * headless browser) against a target URL.
+ *
+ * <p>All methods are static; the class is not meant to be instantiated.
+ */
 public class PSScreenCapture {
 
   private PSScreenCapture() {
@@ -48,13 +55,29 @@ public class PSScreenCapture {
 
   private static PSProperties ms_serverProps = null;
 
+  /**
+   * Classpath resource path of the placeholder thumbnail image used when a real screen capture
+   * cannot be produced.
+   */
   public static final String EMPTY_THUMB_RESOURCE =
       "META-INF/resources/sys_resources/images/thumbnail/empty-thumb.jpg";
 
+  /**
+   * Copies the placeholder thumbnail image to the supplied destination path.
+   *
+   * @param imagePathForGeneration the on-disk path to write the placeholder image to, may not be
+   *     <code>null</code>.
+   */
   public static void generateEmptyThumb(String imagePathForGeneration) {
     copyResource(EMPTY_THUMB_RESOURCE, new File(imagePathForGeneration));
   }
 
+  /**
+   * Loads (and caches) the Rhythmyx server properties file used to look up the screen-capture
+   * command.
+   *
+   * @return the loaded properties, or <code>null</code> when the file cannot be read.
+   */
   private static PSProperties getServerProperties() {
     if (ms_serverProps != null) {
       return ms_serverProps;
@@ -70,6 +93,13 @@ public class PSScreenCapture {
     return ms_serverProps;
   }
 
+  /**
+   * Resolves a path under the Rhythmyx configuration directory, asserting that it exists on disk.
+   *
+   * @param path the relative path under the Rhythmyx root, may not be <code>null</code>.
+   * @return the absolute path of the resolved directory.
+   * @throws IllegalArgumentException if the resolved path does not exist.
+   */
   public static String getRxConfigDir(String path) {
 
     File item = new File(PathUtils.getRxDir(null), path);
@@ -79,6 +109,13 @@ public class PSScreenCapture {
     return item.getAbsolutePath();
   }
 
+  /**
+   * Captures a screenshot of the supplied URL using the configured screen-capture command and
+   * writes the resulting image to {@code imagePath}.
+   *
+   * @param urlForCapture the URL to capture, may not be <code>null</code> or empty.
+   * @param imagePath the on-disk path to write the captured image to, may not be <code>null</code>.
+   */
   public static void takeCapture(String urlForCapture, String imagePath) {
     try {
       Properties serverProps = getServerProperties();

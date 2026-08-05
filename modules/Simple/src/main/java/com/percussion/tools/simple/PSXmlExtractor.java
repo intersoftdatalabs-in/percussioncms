@@ -51,6 +51,14 @@ import org.xml.sax.SAXParseException;
  */
 public class PSXmlExtractor {
 
+  /**
+   * Default constructor; provided so the implicit default constructor has explicit Javadoc and
+   * doclint does not warn about its use. All methods on this class are static.
+   */
+  public PSXmlExtractor() {
+    // utility class - no instance state
+  }
+
   private static final Logger log = LogManager.getLogger(PSXmlExtractor.class);
 
   /**
@@ -211,8 +219,26 @@ public class PSXmlExtractor {
   }
 
   /**
-   * Convenience Version for {@link #extract(File, File, String, URL, List, Map)}. Assumes <code>
-   * null</code> for <code>addList</code> parameter.
+   * Convenience overload of {@link #extract(File, File, String, URL, List, Map, String)} that
+   * assumes <code>null</code> for <code>addList</code> and <code>null</code> for <code>dtdPath
+   * </code>.
+   *
+   * @param source The source Xml file, may not be <code>null</code>. Must point to an existing Xml
+   *     file. File is assumed to be in UTF-8.
+   * @param target The file to write the extracted Xml to. May not be <code>null</code>. File
+   *     pointed to may or may not exist. If it does not, then it is created, including any
+   *     necessary directories. If it exists, it will be overwritten.
+   * @param element The element to extract. Must exist in the source document. May not be <code>null
+   *     </code> or empty. Will extract the first instance of this element that is found.
+   * @param dtd An optional dtd to use to validate the target. May be <code>null</code>.
+   * @param excludeList a list of element names as Strings to exclude from the extracted element.
+   *     May be <code>null</code>. All elements matching this name will be excluded.
+   * @return <code>null</code> if dtd is supplied and extracted xml is successfully validated, or if
+   *     no dtd is supplied. Returns an error message if a dtd is supplied and validation fails.
+   * @throws IllegalArgumentException if any param is invalid.
+   * @throws IOException if any io error occurs
+   * @throws FileNotFoundException if any file cannot be located.
+   * @throws SAXException if the source file cannot be parsed.
    */
   public static String extract(
       File source, File target, String element, URL dtd, List<String> excludeList)
@@ -221,8 +247,27 @@ public class PSXmlExtractor {
   }
 
   /**
-   * Convenience Version for {@link #extract(File, File, String, URL, List, Map, boolean)}. Assumes
-   * <code>false</code> for <code>addDtd</code> parameter.
+   * Convenience overload of {@link #extract(File, File, String, URL, List, Map, boolean)} that
+   * assumes <code>false</code> for <code>addDtd</code>.
+   *
+   * @param source The source Xml file, may not be <code>null</code>. Must point to an existing Xml
+   *     file. File is assumed to be in UTF-8.
+   * @param target The file to write the extracted Xml to. May not be <code>null</code>. File
+   *     pointed to may or may not exist. If it does not, then it is created, including any
+   *     necessary directories. If it exists, it will be overwritten.
+   * @param element The element to extract. Must exist in the source document. May not be <code>null
+   *     </code> or empty. Will extract the first instance of this element that is found.
+   * @param dtd An optional dtd to use to validate the target. May be <code>null</code>.
+   * @param excludeList a list of element names as Strings to exclude from the extracted element.
+   *     May be <code>null</code>. All elements matching this name will be excluded.
+   * @param addList a map of elements to add with parent element tag name as key and the <code>
+   *     Element</code> object as value. May be <code>null</code>.
+   * @return <code>null</code> if dtd is supplied and extracted xml is successfully validated, or if
+   *     no dtd is supplied. Returns an error message if a dtd is supplied and validation fails.
+   * @throws IllegalArgumentException if any param is invalid.
+   * @throws IOException if any io error occurs
+   * @throws FileNotFoundException if any file cannot be located.
+   * @throws SAXException if the source file cannot be parsed.
    */
   public static String extract(
       File source,
@@ -357,6 +402,8 @@ public class PSXmlExtractor {
    * </ol>
    *
    * Any errors are written to System.out
+   *
+   * @param args the command-line arguments as documented above
    */
   public static void main(String[] args) {
     File source = null;

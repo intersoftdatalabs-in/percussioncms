@@ -27,27 +27,55 @@ import javax.swing.tree.TreeModel;
  * isCellEditable() returns true.
  */
 public interface PSFUDTreeTableModel extends TreeModel {
-  /** Returns the number ofs availible column. */
+  /**
+   * Returns the number of available columns.
+   *
+   * @return the number of columns, never negative.
+   */
   public int getColumnCount();
 
-  /** Returns the name for column number <code>column</code>. */
+  /**
+   * Returns the name for column number <code>column</code>.
+   *
+   * @param column the column index.
+   * @return the column name, may be <code>null</code>.
+   */
   public String getColumnName(int column);
 
-  /** Returns the type for column number <code>column</code>. */
+  /**
+   * Returns the type for column number <code>column</code>.
+   *
+   * @param column the column index.
+   * @return the {@link Class} of values stored in the column.
+   */
   public Class getColumnClass(int column);
 
   /**
    * Returns the value to be displayed for node <code>node</code>, at column number <code>column
    * </code>.
+   *
+   * @param node the tree node, may not be <code>null</code>.
+   * @param column the column index.
+   * @return the displayed value, may be <code>null</code>.
    */
   public Object getValueAt(Object node, int column);
 
   /**
-   * Indicates whether the the value for node <code>node</code>, at column number <code>column
-   * </code> is editable.
+   * Indicates whether the value for node <code>node</code>, at column number <code>column</code> is
+   * editable.
+   *
+   * @param node the tree node, may not be <code>null</code>.
+   * @param column the column index.
+   * @return <code>true</code> when the cell can be edited.
    */
   public boolean isCellEditable(Object node, int column);
 
-  /** Sets the value for node <code>node</code>, at column number <code>column</code>. */
+  /**
+   * Sets the value for node <code>node</code>, at column number <code>column</code>.
+   *
+   * @param aValue the new value, may be <code>null</code>.
+   * @param node the tree node, may not be <code>null</code>.
+   * @param column the column index.
+   */
   public void setValueAt(Object aValue, Object node, int column);
 }

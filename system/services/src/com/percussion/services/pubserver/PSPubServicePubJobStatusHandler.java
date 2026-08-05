@@ -36,8 +36,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * Default {@link IPSPublishingJobStatusCallback} implementation that updates publisher-service
+ * state in response to publishing-job status events and forwards them to the notification
+ * service.
+ *
  * @author JaySeletz
- * 
  */
 public class PSPubServicePubJobStatusHandler implements IPSPublishingJobStatusCallback
 {

@@ -2201,6 +2201,12 @@
                                              otherwise pulls 1.3.7. -->
                                         <excludes>
                                             <exclude>org.java-websocket:Java-WebSocket:*:[,1.4.1]</exclude>
+                                        <!-- Issue #1804: com.sun:tools (tools.jar) is not a valid Maven
+                                             dependency on JDK 9+ / Maven 3.9+. systemPath ${tools.jar}
+                                             fails absolute-path validation and tools.jar is gone from
+                                             modern JDKs. Ban so it cannot re-enter dependencyManagement. -->
+                                        <excludes>
+                                            <exclude>com.sun:tools</exclude>
                                         </excludes>
                                         <searchTransitive>true</searchTransitive>
                                     </bannedDependencies>

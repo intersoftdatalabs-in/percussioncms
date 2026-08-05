@@ -45,6 +45,14 @@ import org.xml.sax.SAXException;
  */
 public class PSCETemplateGenerator {
 
+  /**
+   * Default constructor; provided so the implicit default constructor has explicit Javadoc and
+   * doclint does not warn about its use.
+   */
+  public PSCETemplateGenerator() {
+    // utility class - no instance state
+  }
+
   private static final Logger log = LogManager.getLogger(PSCETemplateGenerator.class);
 
   /**
@@ -215,6 +223,8 @@ public class PSCETemplateGenerator {
    * </ol>
    *
    * Any errors are written to System.out
+   *
+   * @param args the command-line arguments as documented above
    */
   public static void main(String[] args) {
     File source = null;

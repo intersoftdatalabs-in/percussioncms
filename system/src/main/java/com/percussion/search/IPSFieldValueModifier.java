@@ -19,6 +19,9 @@ package com.percussion.search;
 import java.util.Map;
 
 /**
+ * Implemented by services that modify the field values of an item fragment prior to indexing,
+ * typically to denormalize or pre-compute searchable text.
+ *
  * @author JaySeletz
  */
 public interface IPSFieldValueModifier {

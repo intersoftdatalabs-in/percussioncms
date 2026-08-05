@@ -19,6 +19,9 @@ package com.percussion.pso.imageedit.services;
 import com.percussion.services.PSBaseServiceLocator;
 
 /**
+ * Spring service locator for the image-size definition manager bean used by the image editor
+ * subsystem.
+ *
  * @author DavidBenua
  */
 public class ImageSizeDefinitionManagerLocator extends PSBaseServiceLocator {

@@ -44,6 +44,14 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSDirectoryAnalyzer {
 
+  /**
+   * Default constructor; provided so the implicit default constructor has explicit Javadoc and
+   * doclint does not warn about its use.
+   */
+  public PSDirectoryAnalyzer() {
+    // utility class - no instance state
+  }
+
   private static final Logger log = LogManager.getLogger(PSDirectoryAnalyzer.class);
 
   /**
@@ -280,6 +288,8 @@ public class PSDirectoryAnalyzer {
    * </ol>
    *
    * Any errors are written to System.out
+   *
+   * @param args the command-line arguments as documented above
    */
   public static void main(String[] args) {
     try {

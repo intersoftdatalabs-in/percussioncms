@@ -27,8 +27,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * A single entry in the metadata extracted from a published page, holding the page path, name,
+ * and the set of metadata properties that apply to it.
+ *
  * @author Administrator
- * 
  */
 public class PSMetadataEntry implements IPSMetadataEntry {
     private String pagepath;

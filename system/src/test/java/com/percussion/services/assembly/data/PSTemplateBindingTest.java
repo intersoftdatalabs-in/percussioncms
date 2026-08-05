@@ -19,6 +19,8 @@ package com.percussion.services.assembly.data;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -41,6 +43,28 @@ public class PSTemplateBindingTest {
     assertEquals("", binding.getVariable());
     binding.setVariable(null);
     assertNull(binding.getVariable());
+  }
+
+  /**
+   * Package archives historically emit execution order {@code 0}. Optional must treat {@code 0} as
+   * present (parity with {@link PSTemplateBinding#setExecutionOrder(Integer)} allowing &gt;= 0).
+   */
+  @Test
+  public void testExecutionOrderZeroIsPresentInOptional() {
+    PSTemplateBinding binding = new PSTemplateBinding();
+    binding.setExecutionOrder(0);
+    assertEquals(0, binding.getExecutionOrder().intValue());
+    assertTrue(binding.getExecutionOrderOptional().isPresent());
+    assertEquals(0, binding.getExecutionOrderOptional().get().intValue());
+
+    binding.setExecutionOrder(null);
+    assertEquals(0, binding.getExecutionOrder().intValue());
+    assertTrue(binding.getExecutionOrderOptional().isPresent());
+
+    binding.setExecutionOrder(3);
+    assertEquals(3, binding.getExecutionOrderOptional().get().intValue());
+
+    assertThrows(IllegalArgumentException.class, () -> binding.setExecutionOrder(-1));
   }
 
   /** */

@@ -28,8 +28,6 @@ import com.percussion.relationship.IPSExecutionContext;
  * will be picked up by the next incremental publishing. For folder dependents, it touches all item
  * descendants of the folders, but not the folder themselves.
  *
- * <p>
- *
  * @deprecated Please use {@link PSTouchItemsFolderEffect}
  */
 public class PSTouchParentFolderEffect extends PSTouchItemsFolderEffect {}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- GH-1547: one-time upgrade migration of persisted locale codes after
+	the 17-locale BCP-47 matrix. Invoked from install.xml install.chain and upgrade.chain
+	after updateConfiguration (post-setupDB). Targets: * PSX_PERSISTEDPROPERTYVALUES.PROPERTYVALUE
+	where PROPERTYNAME='sys_lang' - hi → hi-in; underscore/legacy tags → lower-case
+	hyphen; es stays es * CONTENTSTATUS.LOCALE (issue text may say CT_LOCALE)
+	- es → es-es; other tags normalized only; never deletes rows Dry-run: -Di18n.locale.migration.dryRun=true
+	or dryRun="true" on the task. -->
+<project name="migration_i18n_locales"
+	default="migrateI18nLocales">
+
+	<!-- Nested <ant> projects do not inherit parent taskdefs; re-register from
+		ant.deps (path id defined in install.xml, inherited via inheritRefs). -->
+	<taskdef name="PSMigrateI18nLocaleCodes"
+		classname="com.percussion.ant.install.PSMigrateI18nLocaleCodes"
+		classpathref="ant.deps" onerror="ignore" />
+
+	<target name="migrateI18nLocales"
+		description="Rewrite persisted sys_lang and CONTENTSTATUS.LOCALE codes to canonical BCP-47 forms (GH-1547)">
+		<echo>Running i18n locale code migration (GH-1547)...</echo>
+		<!-- dryRun defaults false; override via -Di18n.locale.migration.dryRun=true -->
+		<property name="i18n.locale.migration.dryRun" value="false" />
+		<PSMigrateI18nLocaleCodes
+			rootDir="${install.dir}" dryRun="${i18n.locale.migration.dryRun}"
+			failOnError="true" />
+	</target>
+
+</project>

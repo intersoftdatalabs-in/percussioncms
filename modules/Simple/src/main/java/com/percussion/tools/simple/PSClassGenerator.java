@@ -33,6 +33,15 @@ import org.apache.logging.log4j.Logger;
 
 /** This class is used to create dummy classes with stubbed out methods. */
 public class PSClassGenerator {
+
+  /**
+   * Default constructor; provided so the implicit default constructor has explicit Javadoc and
+   * doclint does not warn about its use.
+   */
+  public PSClassGenerator() {
+    // utility class - no instance state
+  }
+
   private static final Logger log = LogManager.getLogger(PSClassGenerator.class);
 
   /**
@@ -434,6 +443,8 @@ public class PSClassGenerator {
    *       existing directory.
    *   <li>package: The package of the generated java classes.
    * </ol>
+   *
+   * @param args the command-line arguments as documented above
    */
   public static void main(String[] args) {
     File srcClassDir = null;

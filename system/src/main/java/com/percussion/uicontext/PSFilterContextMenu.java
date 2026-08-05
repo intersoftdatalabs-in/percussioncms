@@ -47,17 +47,20 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
+ * Implements a filter that checks each action in the context menu and decides, based on visibility,
+ * whether the specific action should remain in the menu. One or more (currently one) parameters may
+ * be passed that will be used by this exit. In the absence of parameters, the list will not be
+ * filtered.
+ *
+ * <p>&lt;table caption="Parameters"&gt; &lt;tr&gt; &lt;th&gt;Parameter&lt;/th&gt;
+ * &lt;th&gt;Description&lt;/th&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt;sys_contentid&lt;/td&gt;
+ * &lt;td&gt;The content id being filtered for.&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt;
+ * &lt;td&gt;sys_assignmenttype&lt;/td&gt; &lt;td&gt;The assignment type of the user/role for this
+ * content id&lt;/td&gt; &lt;/tr&gt; &lt;/table&gt;
+ *
+ * <p>See the <code>ActionList</code> dtd for more information.
+ *
  * @author dougrand
- *     <p>&lt;p&gt;This class implements a filter that checks each action in the context menu and
- *     decides, based on visibility, whether the specific action should remain in the menu. One or
- *     more (current one) parameters may be passed that will be used by this exit. In the absence of
- *     parameters, the list will not be filtered.
- *     <p>&lt;table caption="Parameters"&gt; &lt;tr&gt; &lt;th&gt;Parameter&lt;/th&gt;
- *     &lt;th&gt;Description&lt;/th&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt;sys_contentid&lt;/td&gt;
- *     &lt;td&gt;The content id being filtered for.&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt;
- *     &lt;td&gt;sys_assignmenttype&lt;/td&gt; &lt;td&gt;The assignment type of the user/role for
- *     this content id&lt;/td&gt; &lt;/tr&gt; &lt;/table&gt;
- *     <p>See the <code>ActionList</code> dtd for more information.
  */
 public class PSFilterContextMenu implements IPSResultDocumentProcessor {
 

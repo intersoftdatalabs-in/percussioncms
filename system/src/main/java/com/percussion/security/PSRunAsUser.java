@@ -44,7 +44,7 @@ import org.apache.logging.log4j.Logger;
  * other parts of the system may not be.
  *
  * @author adamgent
- * @param <CONTEXT>
+ * @param <CONTEXT> the type of caller-supplied context object passed to the run callback.
  */
 public abstract class PSRunAsUser<CONTEXT> {
 

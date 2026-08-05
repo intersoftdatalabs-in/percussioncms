@@ -32,6 +32,9 @@ import org.springframework.web.servlet.mvc.Controller;
 import org.springframework.web.servlet.mvc.ParameterizableViewController;
 
 /**
+ * Spring MVC controller used by the image-editor test page to load and render sample {@link
+ * MasterImageMetaData} for the image-editor UI.
+ *
  * @author DavidBenua
  */
 public class ImageEditorTestPageController extends ParameterizableViewController

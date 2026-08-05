@@ -27,13 +27,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * Performs a single verification task: checks a given installation and verifies whether the
+ * backend database used by the installation conforms to the table definitions contained in
+ * {@code sys_cmstableDef.xml}. These checks include table existence, primary key, index, and
+ * foreign key. Any inconsistencies found are displayed to the user.
+ *
  * @author peterfrontiero
- * 
- * PSVerifyTable performs one task. It checks a given installation and
- * verifies whether or not the backend database utilized by the installation
- * conforms to the table definitions contained in sys_cmstableDef.xml.
- * These checks include table existence, primary key, index, and foreign key.
- * Any inconsistencies found are displayed to the user.
  */
 public class PSVerifyTable
 {

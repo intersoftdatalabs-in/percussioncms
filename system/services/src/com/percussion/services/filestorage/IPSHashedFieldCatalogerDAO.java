@@ -22,8 +22,10 @@ import com.percussion.services.filestorage.data.PSHashedColumn;
 import java.util.Set;
 
 /**
- * @author stephenbolton
+ * Contract for the DAO that catalogs which fields on content types should be cataloged
+ * (extracted as metadata) when hashed files are stored.
  *
+ * @author stephenbolton
  */
 public interface IPSHashedFieldCatalogerDAO
 {
