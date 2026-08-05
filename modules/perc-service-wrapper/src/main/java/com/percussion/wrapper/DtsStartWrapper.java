@@ -47,6 +47,7 @@ public class DtsStartWrapper extends StartWrapper {
    * @param args additional command-line arguments to forward to the Tomcat bootstrap, may be <code>
    *     null</code>
    */
+  @SuppressWarnings("this-escape")
   public DtsStartWrapper(String name, File rootDir, String[] args) {
     super(name, rootDir, args);
 

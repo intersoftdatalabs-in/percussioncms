@@ -59,12 +59,16 @@ public class PercArgs {
       switch (arg) {
         case "--help":
           help = true;
+          break;
         case "--jettyHelp":
           filteredArgs.add("--help");
+          break;
         case "--debugWrapper":
           debugStartup = true;
+          break;
         case "--force":
           force = true;
+          break;
         case "--start":
           foundArg = true;
           startServer = true;
