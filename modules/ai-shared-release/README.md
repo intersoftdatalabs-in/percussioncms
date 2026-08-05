@@ -77,6 +77,17 @@ The three non-`skills` directories ship as placeholders with a `.gitkeeep` so th
 - **Document end-user-facing skills** in `src/site/markdown/` and the project's end-user help site so operators can find them.
 - **Cross-platform paths only** in any scripts or references. Use `Path` / `pathlib`, never hardcoded `/` or `\` separators.
 
+## Javadoc status
+
+This module declares `<packaging>pom</packaging>` and ships no Java sources.
+The `maven-javadoc-plugin` reports `Not executing Javadoc as the project
+is not a Java classpath-capable package.` during the build, which is the
+expected outcome: **zero source warnings, zero plugin warnings, zero
+errors, zero failures**.
+
+The zero-warning Javadoc baseline for this module is recorded against
+issue **#1941** and the broader cleanup sweep tracked by **#1909**.
+
 ## Related modules
 
 - `modules/ai-shared-develop/` — developer-only AI resources (skills, prompts, agents) used by AI coding agents while working on the Percussion CMS source tree. Built into a JAR; not shipped to end users.
