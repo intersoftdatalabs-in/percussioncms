@@ -35,7 +35,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Default {@link ImageResizeManager} implementation that resizes images in memory using the
- * standard Java ImageIO APIs, applying a configurable compression level and rescale-step size.
+ * standard Java ImageIO APIs, applying a configurable compression level and rescaling step size.
  *
  * @author DavidBenua
  */

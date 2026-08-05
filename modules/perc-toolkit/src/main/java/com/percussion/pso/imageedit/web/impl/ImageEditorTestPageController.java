@@ -33,7 +33,7 @@ import org.springframework.web.servlet.mvc.ParameterizableViewController;
 
 /**
  * Spring MVC controller used by the image-editor test page to load and render sample {@link
- * com.percussion.pso.imageedit.data.MasterImageMetaData} for the image-editor UI.
+ * MasterImageMetaData} for the image-editor UI.
  *
  * @author DavidBenua
  */
