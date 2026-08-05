@@ -1,0 +1,20 @@
+<template-slot>
+	<description>navigation image for rollovers</description>
+	<finder-arguments />
+	<finder-name>Java/global/percussion/slotcontentfinder/sys_RelationshipContentFinder</finder-name>
+	<guid>0-5-513</guid>
+	<label>Nav Image</label>
+	<name>perc.nav.image</name>
+	<relationship-name>ActiveAssembly</relationship-name>
+	<slot-type-associations>
+		<slot-type-association>
+			<content-type-id>313</content-type-id>
+			<slot-id>513</slot-id>
+			<template-id>550</template-id>
+			<version>0</version>
+		</slot-type-association>
+	</slot-type-associations>
+	<slottype>0</slottype>
+	<system-slot>false</system-slot>
+	<version>2</version>
+</template-slot>

@@ -17,20 +17,34 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.assembly.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.assembly.IPSTemplateBinding;
 import com.percussion.utils.jexl.IPSScript;
 import com.percussion.utils.jexl.PSJexlEvaluator;
 import com.percussion.utils.xml.IPSXmlSerialization;
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.*;
-
-import jakarta.persistence.*;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.Version;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.GenericGenerator;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * Represents a single template binding with enhanced Java 11 support.
@@ -51,9 +65,22 @@ import java.util.Optional;
  * @author dougrand
  * @since Java 11 Modernization
  */
+/**
+ * Nested package/design item element is {@code binding} (see {@code PSAssemblyTemplate.betwixt}
+ * historically). Standalone root uses mapped type name {@code template-binding}. Jackson pins the
+ * wire surface (issue #1891 / epic #505).
+ */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSTemplateBinding")
 @Table(name = "PSX_TEMPLATE_BINDING")
+@JacksonXmlRootElement(localName = "template-binding")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({"executionOrder", "expression", "id", "variable"})
 public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Serializable {
 
    /**
@@ -97,7 +124,8 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
    /**
     * Create a new template binding with execution order.
     *
-    * @param order execution order (low to high), minimum value is 1
+    * @param order execution order (low to high); package archives may use {@code 0}, factory paths
+     *     prefer &gt;= 1
     * @param variable the variable to bind to, not {@code null} or empty
     * @param expression the JEXL expression, not {@code null} or empty
     * @throws IllegalArgumentException if parameters are invalid
@@ -125,7 +153,7 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
     *
     * @param variable the variable name, not {@code null} or empty
     * @param expression the JEXL expression, not {@code null} or empty
-    * @param order the execution order, must be >= 1
+    * @param order the execution order, must be &gt;= 0 (package archives emit {@code 0})
     * @return a new PSTemplateBinding instance
     * @throws IllegalArgumentException if validation fails
     */
@@ -148,30 +176,38 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
    /**
     * Get the execution order with Optional wrapper for safer access.
     *
-    * @return Optional containing the execution order if valid, empty otherwise
+    * <p>{@code 0} is a valid package-archive order (see {@link #setExecutionOrder(Integer)}), so
+    * this method returns {@link Optional#of(Object)} for every non-negative value including {@code
+    * 0}. Negative values cannot be stored (setter rejects them).
+    *
+    * @return Optional containing the execution order (including {@code 0}); never empty for a
+     *     successfully constructed binding
     */
    public Optional<Integer> getExecutionOrderOptional() {
-      return m_executionOrder > 0 ? Optional.of(m_executionOrder) : Optional.empty();
+      // 0 is valid (package archives); do not treat as "missing" after setExecutionOrder(>=0)
+      return Optional.of(m_executionOrder);
    }
 
    /**
     * Get the execution order for this binding.
     *
-    * @return the execution order (1-based)
+    * @return the execution order (0-based allowed for package archives; factory paths use &gt;= 1)
     */
+   @JsonProperty
    public Integer getExecutionOrder() {
       return m_executionOrder;
    }
 
    /**
-    * Set the execution order with enhanced validation.
+    * Set the execution order. Package archives historically emit {@code 0}; factory construction
+    * still prefers &gt;= 1. Negative values are rejected.
     *
-    * @param executionOrder the execution order, must be >= 1
-    * @throws IllegalArgumentException if executionOrder is &lt; 1
+    * @param executionOrder the execution order, must be {@code null} or &gt;= 0
+    * @throws IllegalArgumentException if executionOrder is &lt; 0
     */
    public void setExecutionOrder(Integer executionOrder) {
-      if (executionOrder != null && executionOrder < 1) {
-         throw new IllegalArgumentException("executionOrder must be >= 1");
+      if (executionOrder != null && executionOrder < 0) {
+         throw new IllegalArgumentException("executionOrder must be >= 0");
       }
       this.m_executionOrder = executionOrder != null ? executionOrder : 0;
    }
@@ -180,8 +216,20 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
     * Get the database id for this binding.
     * @return the binding id
     */
+   @JsonProperty
    public Long getId() {
       return m_bindingId;
+   }
+
+   /**
+    * Jackson / BeanUtils restore for package {@code <id>} elements.
+    *
+    * @param bindingId the binding id
+    */
+   public void setId(Long bindingId) {
+      if (bindingId != null) {
+         this.m_bindingId = bindingId;
+      }
    }
 
    /**
@@ -189,6 +237,7 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
     *
     * @return Optional containing the expression if present, empty otherwise
     */
+   @JsonIgnore
    public Optional<String> getExpressionOptional() {
       return Optional.ofNullable(m_expression);
    }
@@ -198,6 +247,7 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
     *
     * @return the expression, may be {@code null}
     */
+   @JsonProperty
    public String getExpression() {
       return m_expression;
    }
@@ -219,6 +269,7 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
     *
     * @return Optional containing the variable name if present, empty otherwise
     */
+   @JsonIgnore
    public Optional<String> getVariableOptional() {
       return Optional.ofNullable(m_variable);
    }
@@ -228,6 +279,7 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
     *
     * @return the variable name, may be {@code null}
     */
+   @JsonProperty
    public String getVariable() {
       return m_variable;
    }
@@ -247,6 +299,7 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
     *
     * @return Optional containing the compiled script if expression is valid, empty otherwise
     */
+   @JsonIgnore
    public Optional<IPSScript> getJexlScriptOptional() {
       if (m_jexl == null && StringUtils.isNotBlank(m_expression)) {
          try {
@@ -260,10 +313,13 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
    }
 
    /**
-    * Get the compiled JEXL script with lazy initialization.
+    * Get the compiled JEXL script with lazy initialization. Suppressed from design XML — packages
+    * may emit a derived {@code jexl-script} blob that Jackson ignores on read.
     *
     * @return the compiled script, may be {@code null} if expression is invalid
     */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public IPSScript getJexlScript() {
       return getJexlScriptOptional().orElse(null);
    }
@@ -273,6 +329,7 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
     *
     * @return true if the expression can be compiled successfully
     */
+   @JsonIgnore
    public boolean hasValidExpression() {
       return getJexlScriptOptional().isPresent();
    }
@@ -282,6 +339,7 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
     *
     * @return true if both variable and expression are not blank
     */
+   @JsonIgnore
    public boolean isReady() {
       return StringUtils.isNotBlank(m_variable) && StringUtils.isNotBlank(m_expression);
    }

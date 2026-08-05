@@ -167,6 +167,7 @@ public class AboutDialog extends JDialog {
   /** the label for URL of Percussion website. */
   JLabel m_labelUrl = null;
 
+  /** URL of the Percussion website displayed in the about dialog. */
   public static final String PERCUSSION_URL = "https://www.percussion.com";
 
   // Image for to display in the dialog box.

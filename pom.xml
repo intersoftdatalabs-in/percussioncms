@@ -169,7 +169,8 @@
         <java.cache.api.version>1.1.1</java.cache.api.version>
         <java.source.version>21</java.source.version>
         <java.version>21</java.version>
-        <!-- javafx-webview-debugger → Java-WebSocket 1.3.7; floor for Dependabot #204 -->
+        <!-- javafx-webview-debugger → Java-WebSocket 1.3.7; floor 1.6.0 clears
+             advisory range (,1.4.1] (Dependabot #204 / issue #1674) -->
         <java.websocket.version>1.6.0</java.websocket.version>
         <!-- Desktop Content Explorer OpenJFX line (bare "17" was unpatched javafx-media) -->
         <javafx.version>17.0.20</javafx.version>
@@ -275,7 +276,10 @@
         <surefireArgLine/>
         <swagger.ui.version>5.32.11</swagger.ui.version>
         <swagger.version>2.2.52</swagger.version>
-        <!-- 3.3.1 pulls junrar 7.6.0 (clears Dependabot #208/#214; was 7.5.5 on 3.2.3) -->
+        <!-- Tika 3.3.1 would pull junrar 7.6.0 via tika-parser-pkg-module.
+             Product has no junrar API usage (issue #1672): exclude junrar from
+             tika-parsers-standard-package in dependencyManagement; archive handling
+             uses commons-compress (${commons.compress.version}). -->
         <tika.version>3.3.1</tika.version>
         <!-- TinyMCE 6.8.x is the last series under the MIT license. -->
         <!-- TinyMCE 7+ switched to GPL-2.0-or-later, which is incompatible -->
@@ -332,6 +336,8 @@
                 <artifactId>zookeeper-jute</artifactId>
                 <version>${zookeeper.version}</version>
             </dependency>
+            <!-- Force Java-WebSocket above advisory (,1.4.1]; only consumer is
+                 Desktop Content Explorer via javafx-webview-debugger (issue #1674) -->
             <dependency>
                 <groupId>org.java-websocket</groupId>
                 <artifactId>Java-WebSocket</artifactId>
@@ -1124,6 +1130,16 @@
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-parsers-standard-package</artifactId>
                 <version>${tika.version}</version>
+                <exclusions>
+                    <!-- Issue #1672: drop unmaintained com.github.junrar:junrar.
+                         Sole pull path was tika-parser-pkg-module (WebUI → Tika).
+                         No product Java imports of junrar; commons-compress is the
+                         intended archive library. RAR-via-Tika is not a product path. -->
+                    <exclusion>
+                        <groupId>com.github.junrar</groupId>
+                        <artifactId>junrar</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>
@@ -2192,7 +2208,24 @@
                                     <dependencyConvergence/>
                                     <banDuplicatePomDependencyVersions/>
                                     <bannedDependencies>
-                                        <excludes/>
+                                        <!-- Issue #1672: ban unmaintained junrar entirely.
+                                             Excluded from tika-parsers-standard-package above;
+                                             ban prevents re-introduction via any transitive. -->
+                                        <excludes>
+                                            <exclude>com.github.junrar:junrar</exclude>
+                                        <!-- Issue #1674: ban Java-WebSocket advisory range (,1.4.1].
+                                             Floor is ${java.websocket.version} (1.6.0) via
+                                             dependencyManagement; javafx-webview-debugger
+                                             otherwise pulls 1.3.7. -->
+                                        <excludes>
+                                            <exclude>org.java-websocket:Java-WebSocket:*:[,1.4.1]</exclude>
+                                        <!-- Issue #1804: com.sun:tools (tools.jar) is not a valid Maven
+                                             dependency on JDK 9+ / Maven 3.9+. systemPath ${tools.jar}
+                                             fails absolute-path validation and tools.jar is gone from
+                                             modern JDKs. Ban so it cannot re-enter dependencyManagement. -->
+                                        <excludes>
+                                            <exclude>com.sun:tools</exclude>
+                                        </excludes>
                                         <searchTransitive>true</searchTransitive>
                                     </bannedDependencies>
                                 </rules>

@@ -40,6 +40,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * Default {@link ImagePersistenceManager} implementation that loads and saves image items (master
+ * and child rows) through the standard Rhythmyx content APIs.
+ *
  * @author DavidBenua
  */
 public class ImagePersistenceManagerImpl extends ImageItemSupport

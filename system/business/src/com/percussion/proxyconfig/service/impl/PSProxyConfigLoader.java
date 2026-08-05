@@ -43,8 +43,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * @author LucasPiccoli
+ * Loads proxy configuration from the on-disk proxy-config.xml file, decrypting any stored
+ * passwords and re-encrypting them with the current key.
  *
+ * @author LucasPiccoli
  */
 public class PSProxyConfigLoader {
     public static final Logger log = LogManager.getLogger(PSProxyConfigLoader.class);

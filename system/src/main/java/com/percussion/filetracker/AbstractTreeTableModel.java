@@ -37,22 +37,42 @@ public abstract class AbstractTreeTableModel implements PSFUDTreeTableModel {
   // Default implmentations for methods in the TreeModel interface.
   //
 
-  /** Default implementation for the method in TreeModel interface. */
+  /**
+   * Default implementation for the method in the TreeModel interface.
+   *
+   * @return the root node of the tree, may be <code>null</code>.
+   */
   public Object getRoot() {
     return root;
   }
 
-  /** Default implementation for the method in TreeModel interface. */
+  /**
+   * Default implementation for the method in the TreeModel interface.
+   *
+   * @param node the node to test.
+   * @return <code>true</code> when the supplied node has no children.
+   */
   public boolean isLeaf(Object node) {
     return getChildCount(node) == 0;
   }
 
-  /** Default implementation for the method in TreeModel interface. */
+  /**
+   * Default implementation for the method in the TreeModel interface.
+   *
+   * @param path the tree path whose value changed, may be <code>null</code>.
+   * @param newValue the new value, may be <code>null</code>.
+   */
   public void valueForPathChanged(TreePath path, Object newValue) {}
 
-  /** Default implementation for the method in TreeModel interface. */
-  // This is not called in the JTree's default mode: use a native
-  // implementation.
+  /**
+   * Default implementation for the method in the TreeModel interface.
+   *
+   * <p>This is not called in the JTree's default mode: use a native implementation.
+   *
+   * @param parent the parent node to search within, may not be <code>null</code>.
+   * @param child the child node to locate.
+   * @return the index of the child within the parent, or <code>-1</code> if not found.
+   */
   public int getIndexOfChild(Object parent, Object child) {
     for (int i = 0; i < getChildCount(parent); i++) {
       if (getChild(parent, i).equals(child)) {
@@ -80,12 +100,15 @@ public abstract class AbstractTreeTableModel implements PSFUDTreeTableModel {
     listenerList.remove(TreeModelListener.class, l);
   }
 
-  /*
-   * Notify all listeners that have registered interest for
-   * notification on this event type.  The event instance
-   * is lazily created using the parameters passed into
-   * the fire method.
+  /**
+   * Notify all listeners that have registered interest for notification on this event type. The
+   * event instance is lazily created using the parameters passed into the fire method.
+   *
    * @see EventListenerList
+   * @param source the source of the event, may be <code>null</code>.
+   * @param path the path to the parent of the modified nodes.
+   * @param childIndices the indices of the modified children.
+   * @param children the modified child nodes.
    */
   protected void fireTreeNodesChanged(
       Object source, Object[] path, int[] childIndices, Object[] children) {
@@ -104,12 +127,15 @@ public abstract class AbstractTreeTableModel implements PSFUDTreeTableModel {
     }
   }
 
-  /*
-   * Notify all listeners that have registered interest for
-   * notification on this event type.  The event instance
-   * is lazily created using the parameters passed into
-   * the fire method.
+  /**
+   * Notify all listeners that have registered interest for notification on this event type. The
+   * event instance is lazily created using the parameters passed into the fire method.
+   *
    * @see EventListenerList
+   * @param source the source of the event, may be <code>null</code>.
+   * @param path the path to the parent of the inserted nodes.
+   * @param childIndices the indices of the inserted children.
+   * @param children the inserted child nodes.
    */
   protected void fireTreeNodesInserted(
       Object source, Object[] path, int[] childIndices, Object[] children) {
@@ -127,12 +153,15 @@ public abstract class AbstractTreeTableModel implements PSFUDTreeTableModel {
     }
   }
 
-  /*
-   * Notify all listeners that have registered interest for
-   * notification on this event type.  The event instance
-   * is lazily created using the parameters passed into
-   * the fire method.
+  /**
+   * Notify all listeners that have registered interest for notification on this event type. The
+   * event instance is lazily created using the parameters passed into the fire method.
+   *
    * @see EventListenerList
+   * @param source the source of the event, may be <code>null</code>.
+   * @param path the path to the parent of the removed nodes.
+   * @param childIndices the indices of the removed children.
+   * @param children the removed child nodes.
    */
   protected void fireTreeNodesRemoved(
       Object source, Object[] path, int[] childIndices, Object[] children) {
@@ -150,12 +179,15 @@ public abstract class AbstractTreeTableModel implements PSFUDTreeTableModel {
     }
   }
 
-  /*
-   * Notify all listeners that have registered interest for
-   * notification on this event type.  The event instance
-   * is lazily created using the parameters passed into
-   * the fire method.
+  /**
+   * Notify all listeners that have registered interest for notification on this event type. The
+   * event instance is lazily created using the parameters passed into the fire method.
+   *
    * @see EventListenerList
+   * @param source the source of the event, may be <code>null</code>.
+   * @param path the path to the parent of the structurally changed nodes.
+   * @param childIndices the indices of the affected children.
+   * @param children the affected child nodes.
    */
   protected void fireTreeStructureChanged(
       Object source, Object[] path, int[] childIndices, Object[] children) {
@@ -173,7 +205,12 @@ public abstract class AbstractTreeTableModel implements PSFUDTreeTableModel {
     }
   }
 
-  /** Default impelmentations for methods in the PSFUDTreeTableModel interface. */
+  /**
+   * Default implementation for methods in the PSFUDTreeTableModel interface.
+   *
+   * @param column the column index.
+   * @return the class of values in the column, defaults to {@link Object}.
+   */
   public Class getColumnClass(int column) {
     return Object.class;
   }
@@ -187,6 +224,14 @@ public abstract class AbstractTreeTableModel implements PSFUDTreeTableModel {
     return getColumnClass(column) == PSFUDTreeTableModel.class;
   }
 
+  /**
+   * Default implementation for the {@link PSFUDTreeTableModel#setValueAt(Object, Object, int)}
+   * method. Subclasses should override when column values are editable.
+   *
+   * @param aValue the new value, may be <code>null</code>.
+   * @param node the node being edited, may be <code>null</code>.
+   * @param column the column index being edited.
+   */
   public void setValueAt(Object aValue, Object node, int column) {}
 
   // Left to be implemented in the subclass:

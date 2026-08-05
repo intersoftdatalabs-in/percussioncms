@@ -32,12 +32,19 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 /**
- * Server side implementations for web services defined in
- * <code>rhythmyx.wsdl</code> for operations defined in the
- * <code>assemblySOAP</code> bindings.
+ * Server side implementations for web services defined in <code>rhythmyx.wsdl</code> for
+ * operations defined in the <code>assemblySOAP</code> bindings.
  */
-public class AssemblySOAPImpl extends PSBaseSOAPImpl implements Assembly
-{
+public class AssemblySOAPImpl extends PSBaseSOAPImpl implements Assembly {
+
+  /**
+   * Default constructor; provided so the implicit default constructor has explicit Javadoc and
+   * doclint does not warn about its use.
+   */
+  public AssemblySOAPImpl() {
+    // SOAP implementations are stateless; the superclass handles wiring
+  }
+
    /*
     * (non-Javadoc)
     *

@@ -1,0 +1,28 @@
+<!-- Golden snapshot for production PSContentList Jackson wire shape (issue
+	#1919 / epic #505). Nested items content-list-generator-param / template-expander-param.
+	Approved deviations: no Betwixt graph-identity id attrs; version / map param
+	forms / filter object suppressed; no XML declaration. -->
+<content-list>
+	<content-list-id>501</content-list-id>
+	<content-list-type>NORMAL</content-list-type>
+	<description>Sample content list</description>
+	<edition-type>AUTOMATIC</edition-type>
+	<expander>Java/global/percussion/system/sys_TemplateExpand</expander>
+	<filter-id>0-7-11</filter-id>
+	<generator>Java/global/percussion/system/sys_SearchGenerator</generator>
+	<guid>0-21-501</guid>
+	<name>sample_clist</name>
+	<url>../sys_cxSupport/contentlist.xml?sys_deliverytype=filesystem</url>
+	<generator-arguments>
+		<content-list-generator-param>
+			<name>query</name>
+			<value>//*[jcr:primaryType='percPage']</value>
+		</content-list-generator-param>
+	</generator-arguments>
+	<expander-arguments>
+		<template-expander-param>
+			<name>template</name>
+			<value>perc.page</value>
+		</template-expander-param>
+	</expander-arguments>
+</content-list>

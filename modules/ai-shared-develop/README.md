@@ -78,3 +78,9 @@ Paste `prompts/erlang-review-uncommitted.md` or attach `agents/erlang-code-revie
 ### Not for production
 
 Do not copy Erlang into `ai-shared-release` or ship it with the CMS product. It is for **developers and AI coding agents** only.
+
+## Javadoc status
+
+This module declares `<packaging>jar</packaging>` but contains **no Java sources** — only agentic resources (`agents/`, `chatmodes/`, `instructions/`, `prompts/`, `skills/`) under `src/main/resources/`. The `maven-javadoc-plugin` reports `No Javadoc in project. Archive not created.` during the build, which is the expected outcome: **zero source warnings, zero plugin warnings, zero errors, zero failures**.
+
+The zero-warning Javadoc baseline for this module is recorded against issue **#1940** and the broader cleanup sweep tracked by **#1909**.

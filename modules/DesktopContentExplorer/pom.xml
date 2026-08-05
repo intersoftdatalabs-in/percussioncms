@@ -144,13 +144,15 @@
             <artifactId>javafx-webview-debugger</artifactId>
             <version>0.8.6</version>
             <exclusions>
-                <!-- Parent manages Java-WebSocket at ${java.websocket.version} (1.6.0) -->
+                <!-- Transitive was 1.3.7 (advisory ≤1.4.1). Exclude and re-declare
+                     managed ${java.websocket.version} (1.6.0); see issue #1674. -->
                 <exclusion>
                     <groupId>org.java-websocket</groupId>
                     <artifactId>Java-WebSocket</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- Version from parent dependencyManagement (java.websocket.version) -->
         <dependency>
             <groupId>org.java-websocket</groupId>
             <artifactId>Java-WebSocket</artifactId>

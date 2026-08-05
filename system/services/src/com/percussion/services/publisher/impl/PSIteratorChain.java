@@ -21,13 +21,11 @@ import com.google.common.collect.AbstractIterator;
 import java.util.Iterator;
 
 /**
- * 
- * Chains iterators lazily by calling {@link #nextIterator()}.
- * This allows you to flatten an iterator of iterators or 
- * iterator of collections.
- * @author adamgent
+ * Chains iterators lazily by calling {@link #nextIterator()}. This allows you to flatten an
+ * iterator of iterators or an iterator of collections into a single iterator.
  *
- * @param <T>
+ * @author adamgent
+ * @param <T> the element type yielded by each chained iterator.
  */
 public abstract class PSIteratorChain<T> extends AbstractIterator<T>
 {

@@ -107,6 +107,29 @@ cd modules/perc-distribution-tree
 ../../mvnw clean install
 ```
 
+### Installer DB migrations (locale codes — GH-1547)
+
+One-time upgrade migration rewrites persisted locale tags after the BCP-47 matrix:
+
+|       Piece        |                                               Location                                                |
+|--------------------|-------------------------------------------------------------------------------------------------------|
+| Rewrite map (pure) | `modules/perc-i18n` → `PSLocaleCodeRewrite`                                                           |
+| JDBC migrator      | `modules/perc-i18n` → `PSLocaleCodeMigrator` (tablefactory-qualified UPDATEs, transactional, dry-run) |
+| ANT task           | `modules/perc-ant` → `PSMigrateI18nLocaleCodes` (registered in `antlib.xml`)                          |
+| ANT script         | `rxconfig/Installer/migration_i18n_locales.xml`                                                       |
+| Wire-in            | `install.xml` `install.chain` + `upgrade.chain` after `updateConfiguration`                           |
+
+**Tables:**
+
+* `PSX_PERSISTEDPROPERTYVALUES.PROPERTYVALUE` where `PROPERTYNAME='sys_lang'`: `hi` → `hi-in`; `es` stays `es`; other tags `toLowerCase` + `_`→`-`.
+* `CONTENTSTATUS.LOCALE` (issue text may say `CT_LOCALE`): `es` → `es-es`; never deletes rows; every rewrite is logged.
+
+**Dry-run (staging rehearsal):** `-Di18n.locale.migration.dryRun=true` (counts only; no commit).
+
+**Out of scope:** custom widget configs with `locale=hi` (user re-picks enum).
+
+Tests: `PSLocaleCodeRewriteTest` / `PSLocaleCodeMigratorTest` (perc-i18n); `I18nLocaleMigrationWiringTest` (this module).
+
 ### Verifying the JDBC driver set
 
 After `mvn verify`, the `scripts/verify-jdbc-drivers.py` script (cross-platform Python port of the original `.sh`/`.bat`) runs against the built distribution artifact and asserts that `jetty/base/lib/jdbc/` is populated with the expected JDBC drivers (sourced from parent-POM-managed Maven coordinates; see `pom.xml` execution `stage-jdbc-drivers`). See `scripts/README.md` for invocation details and exit-code table.

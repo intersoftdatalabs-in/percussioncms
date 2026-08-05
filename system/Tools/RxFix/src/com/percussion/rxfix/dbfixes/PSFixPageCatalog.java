@@ -41,9 +41,10 @@ import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 
 /**
- * 
- * @author chriswright
+ * Fix that re-catalogs page content items, ensuring the catalog data is up-to-date after the
+ * page content type has been modified or migrated.
  *
+ * @author chriswright
  */
 public class PSFixPageCatalog extends PSFixDBBase implements IPSFix
 {

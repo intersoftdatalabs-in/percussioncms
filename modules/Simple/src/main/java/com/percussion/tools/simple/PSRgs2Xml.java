@@ -227,9 +227,11 @@ public class PSRgs2Xml {
   }
 
   /**
-   * Main method Usage: java PSRgs2Xml [rgsfilePath] [xmlOuputFilePath]
+   * Main method. Usage: <code>java PSRgs2Xml [rgsfilePath] [xmlOuputFilePath]</code>.
    *
-   * @param args
+   * @param args the command-line arguments; the first element is the path to the rgs file to
+   *     convert and the second element is the path to the YGuard xml file to produce. If fewer than
+   *     two arguments are supplied, the usage message is printed and the method returns.
    */
   public static void main(String[] args) {
     if (args.length >= 2) {

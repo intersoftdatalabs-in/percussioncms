@@ -29,9 +29,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
+ * A collection component that holds the list of fields whose clone behavior is being overridden for
+ * a given component definition.
+ *
  * @author RammohanVangapalli
- *     <p>To change the template for this generated type comment go to
- *     Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class PSCloneOverrideFieldList extends PSCollectionComponent {
 

@@ -24,12 +24,25 @@ public interface IPSUnitTestConfigHelper {
   /** Prop keys. */
   public static final String PROP_HOST_NAME = "hostName";
 
+  /** Property key for the HTTP(S) port the Rhythmyx server listens on. */
   public static final String PROP_PORT = "port";
+
+  /** Property key whose value is the string {@code "true"} when SSL should be used. */
   public static final String PROP_USESSL = "useSSL";
+
+  /** Property key for the user name used to authenticate to the Rhythmyx server. */
   public static final String PROP_LOGIN_ID = "loginId";
+
+  /** Property key for the (unencrypted) password used to authenticate to the Rhythmyx server. */
   public static final String PROP_LOGIN_PW = "loginPw";
+
+  /** Property key for the URL scheme (e.g. {@code http} or {@code https}) of the connection. */
   public static final String PROP_SCHEME = "scheme";
+
+  /** Property key for the security realm presented by the Rhythmyx server. */
   public static final String PROP_REALM = "realm";
+
+  /** Property key for the request root path on the Rhythmyx server. */
   public static final String PROP_SERVER_ROOT = "serverRoot";
 
   /**

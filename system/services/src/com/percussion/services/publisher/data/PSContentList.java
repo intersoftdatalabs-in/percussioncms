@@ -16,50 +16,79 @@
  */
 package com.percussion.services.publisher.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.filter.IPSItemFilter;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidHelper;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
-import com.percussion.services.guidmgr.PSGuidUtils;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.publisher.IPSContentList;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import org.hibernate.annotations.*;
-import org.hibernate.annotations.Cache;
-
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.hibernate.annotations.*;
+import org.hibernate.annotations.Cache;
+import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Represents a content list in the database
+ * Represents a content list in the database.
+ *
+ * <p>Design-object XML root is {@code content-list}. Nested package item elements are {@code
+ * content-list-generator-param} and {@code template-expander-param} (registered via {@link
+ * PSXmlSerializationHelper#addType}). Jackson opt-in property surface (issue #1919 / epic #505).
  *
  * @author dougrand
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSContentList")
 @Table(name = "RXCONTENTLIST")
+@JacksonXmlRootElement(localName = "content-list")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({
+  "contentListId",
+  "contentListType",
+  "description",
+  "editionType",
+  "expander",
+  "expanderArguments",
+  "filterId",
+  "generator",
+  "generatorArguments",
+  "guid",
+  "name",
+  "url"
+})
 public class PSContentList implements IPSContentList {
+
+  static {
+    // Nested package item element names (mapped type defaults).
+    PSXmlSerializationHelper.addType(
+        "content-list-generator-param", PSContentListGeneratorParam.class);
+    PSXmlSerializationHelper.addType("template-expander-param", PSTemplateExpanderParam.class);
+  }
     @Id
     @Column(name = "CONTENTLISTID")
     long contentListId;
@@ -104,17 +133,11 @@ public class PSContentList implements IPSContentList {
      */
     transient IPSItemFilter m_filter = null;
 
-    /*
-     * //see base class method for details
-     */
-    public boolean isLegacy() {
-        return StringUtils.isBlank(generator) && StringUtils.isBlank(expander) &&
-        (filterId == null);
-    }
-
     /* (non-Javadoc)
      * @see com.percussion.services.publisher.IPSContentList#getGeneratorParams()
      */
+    @JsonIgnore
+    @IPSXmlSerialization(suppress = true)
     public Map<String, String> getGeneratorParams() {
         Map<String, String> rval = new HashMap<>();
 
@@ -167,6 +190,8 @@ public class PSContentList implements IPSContentList {
      * (non-Javadoc)
      * @see com.percussion.services.publisher.IPSContentList#getExpanderParams()
      */
+    @JsonIgnore
+    @IPSXmlSerialization(suppress = true)
     public Map<String, String> getExpanderParams() {
         Map<String, String> rval = new HashMap<>();
 
@@ -393,6 +418,7 @@ public class PSContentList implements IPSContentList {
      * @return the content list id, never <code>null</code> for a persisted
      *         object, may be <code>null</code> otherwise
      */
+    @JsonProperty
     public long getContentListId() {
         return contentListId;
     }
@@ -400,8 +426,17 @@ public class PSContentList implements IPSContentList {
     /**
      * @param contentListId
      */
-    public void setContentListId(Integer contentListId) {
+    public void setContentListId(long contentListId) {
         this.contentListId = contentListId;
+    }
+
+    /**
+     * Binary-compatible overload for older callers that passed {@link Integer}.
+     *
+     * @param contentListId may be {@code null} (treated as 0)
+     */
+    public void setContentListId(Integer contentListId) {
+        this.contentListId = contentListId == null ? 0L : contentListId.longValue();
     }
 
     /*
@@ -409,6 +444,7 @@ public class PSContentList implements IPSContentList {
      *
      * @see com.percussion.services.publisher.IPSContentList#getDescription()
      */
+    @JsonProperty
     public String getDescription() {
         return description;
     }
@@ -427,6 +463,7 @@ public class PSContentList implements IPSContentList {
      *
      * @see com.percussion.services.publisher.IPSContentList#getEditionType()
      */
+    @JsonProperty("edition-type")
     public PSEditionType getEditionType() {
         if (editionType == null) {
             editionType = "2"; // Default
@@ -451,6 +488,7 @@ public class PSContentList implements IPSContentList {
      *
      * @see com.percussion.services.publisher.IPSContentList#getExpander()
      */
+    @JsonProperty
     public String getExpander() {
         return expander;
     }
@@ -469,6 +507,7 @@ public class PSContentList implements IPSContentList {
      *
      * @see com.percussion.services.publisher.IPSContentList#getGenerator()
      */
+    @JsonProperty
     public String getGenerator() {
         return generator;
     }
@@ -487,6 +526,7 @@ public class PSContentList implements IPSContentList {
      *
      * @see com.percussion.services.publisher.IPSContentList#getName()
      */
+    @JsonProperty
     public String getName() {
         return name;
     }
@@ -505,6 +545,7 @@ public class PSContentList implements IPSContentList {
      *
      * @see com.percussion.services.publisher.IPSContentList#getUrl()
      */
+    @JsonProperty
     public String getUrl() {
         return url;
     }
@@ -626,6 +667,7 @@ public class PSContentList implements IPSContentList {
      *
      * @see com.percussion.services.catalog.IPSCatalogItem#getGUID()
      */
+    @JsonProperty("guid")
     public IPSGuid getGUID() {
         return new PSGuid(PSTypeEnum.CONTENT_LIST, contentListId);
     }
@@ -636,12 +678,19 @@ public class PSContentList implements IPSContentList {
      * @see com.percussion.services.catalog.IPSCatalogItem#setGUID(com.percussion.utils.guid.IPSGuid)
      */
     public void setGUID(IPSGuid newguid) throws IllegalStateException {
+        // Allow overwrite on design-object XML restore (BeanUtils + Jackson); same pattern as
+        // PSKeyword#setGUID (issue #1919).
+        if (newguid == null) {
+            throw new IllegalArgumentException("newguid may not be null");
+        }
         contentListId = newguid.longValue();
     }
 
     /**
      * @return Returns the version.
      */
+    @JsonIgnore
+    @IPSXmlSerialization(suppress = true)
     public Integer getVersion() {
         return version;
     }
@@ -658,11 +707,13 @@ public class PSContentList implements IPSContentList {
      *
      * @see com.percussion.services.publisher.IPSContentList#getFilter()
      */
+    @JsonProperty("filter-id")
     public IPSGuid getFilterId() {
         if (filterId == null) {
             return null;
         } else {
-            return PSGuidUtils.makeGuid(filterId, PSTypeEnum.ITEM_FILTER);
+            // Offline-safe assemble (avoid PSGuidUtils/locator in unit tests).
+            return new PSGuid(PSTypeEnum.ITEM_FILTER, filterId);
         }
     }
 
@@ -681,6 +732,7 @@ public class PSContentList implements IPSContentList {
         m_filter = null;
     }
 
+    @JsonIgnore
     @IPSXmlSerialization(suppress = true)
     public IPSItemFilter getFilter() {
         return m_filter;
@@ -706,13 +758,24 @@ public class PSContentList implements IPSContentList {
      * @see com.percussion.services.publisher.IPSContentList#getType()
      */
     @Override
+    @JsonIgnore
     public String getType() {
         return PSTypeEnum.CONTENT_LIST.name();
     }
 
+    @JsonProperty("content-list-type")
     public Type getContentListType() {
         int tordinal = (type == null) ? 0 : type.shortValue();
         return Type.valueOf(tordinal);
+    }
+
+    /**
+     * Jackson / design-object restore for {@link #getContentListType()}.
+     *
+     * @param newtype never {@code null}
+     */
+    public void setContentListType(Type newtype) {
+        setContentListTypeImpl(newtype);
     }
 
     @Override
@@ -731,7 +794,111 @@ public class PSContentList implements IPSContentList {
     /*
      * Backwards-compatible setter that remains for binary compatibility
      */
+    @JsonIgnore
     public void setType(Type newtype) {
         setContentListTypeImpl(newtype);
+    }
+
+    /**
+     * Generator argument beans (unordered set for Hibernate / mutators).
+     *
+     * @return never {@code null}
+     */
+    @JsonIgnore
+    public Set<PSContentListGeneratorParam> getGeneratorArguments() {
+        if (generatorArguments == null) {
+            generatorArguments = new HashSet<>();
+        }
+        return generatorArguments;
+    }
+
+    /**
+     * Stable-order generator arguments for design-object XML (sorted by name).
+     *
+     * @return never {@code null}
+     */
+    @JsonProperty("generator-arguments")
+    @JacksonXmlElementWrapper(localName = "generator-arguments")
+    @JacksonXmlProperty(localName = "content-list-generator-param")
+    public java.util.List<PSContentListGeneratorParam> getGeneratorArgumentsXml() {
+        return getGeneratorArguments().stream()
+            .sorted(
+                java.util.Comparator.comparing(
+                    p -> p.getName() == null ? "" : p.getName(), String.CASE_INSENSITIVE_ORDER))
+            .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * Restore generator argument beans from design-object XML.
+     *
+     * @param args may be {@code null} (treated as empty)
+     */
+    public void setGeneratorArgumentsXml(java.util.List<PSContentListGeneratorParam> args) {
+        this.generatorArguments = new HashSet<>();
+        if (args != null) {
+            for (PSContentListGeneratorParam p : args) {
+                if (p != null) {
+                    p.setContentList(this);
+                    this.generatorArguments.add(p);
+                }
+            }
+        }
+    }
+
+    /**
+     * Expander argument beans (unordered set for Hibernate / mutators).
+     *
+     * @return never {@code null}
+     */
+    @JsonIgnore
+    public Set<PSTemplateExpanderParam> getExpanderArguments() {
+        if (expanderArguments == null) {
+            expanderArguments = new HashSet<>();
+        }
+        return expanderArguments;
+    }
+
+    /**
+     * Stable-order expander arguments for design-object XML (sorted by name).
+     *
+     * @return never {@code null}
+     */
+    @JsonProperty("expander-arguments")
+    @JacksonXmlElementWrapper(localName = "expander-arguments")
+    @JacksonXmlProperty(localName = "template-expander-param")
+    public java.util.List<PSTemplateExpanderParam> getExpanderArgumentsXml() {
+        return getExpanderArguments().stream()
+            .sorted(
+                java.util.Comparator.comparing(
+                    p -> p.getName() == null ? "" : p.getName(), String.CASE_INSENSITIVE_ORDER))
+            .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * Restore expander argument beans from design-object XML.
+     *
+     * @param args may be {@code null} (treated as empty)
+     */
+    public void setExpanderArgumentsXml(java.util.List<PSTemplateExpanderParam> args) {
+        this.expanderArguments = new HashSet<>();
+        if (args != null) {
+            for (PSTemplateExpanderParam p : args) {
+                if (p != null) {
+                    p.setContentList(this);
+                    this.expanderArguments.add(p);
+                }
+            }
+        }
+    }
+
+    /**
+     * Legacy computed flag — not part of design-object XML.
+     */
+    @JsonIgnore
+    @Override
+    public boolean isLegacy() {
+        return StringUtils.isBlank(generator)
+            && StringUtils.isBlank(expander)
+            && (filterId == null);
     }
 }

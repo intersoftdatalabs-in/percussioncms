@@ -2,6 +2,14 @@
 
 This module contains the support for tinymce editor plugin.
 
+## Javadoc status
+
+This module contains **no Java sources** — it is a packaging-only module that bundles the
+TinyMCE and CodeMirror WebJARs and produces a resource-only JAR under
+`META-INF/resources/sys_resources/tinymce/`. As a result, the Maven Javadoc plugin skips
+the `javadoc:javadoc` goal for this module and the module's `JavadocSrcWarnings` count is
+**structurally zero** by design.
+
 * Configuration files (json files : default, customer overridden etc.) for configuring the tinymce editor.
 * Javascript files to initialize and default editor functionality.
 * Javascript files for customising the functionality.

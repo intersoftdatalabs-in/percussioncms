@@ -82,6 +82,9 @@ import org.xml.sax.helpers.DefaultHandler;
  * <ul>
  *   <li>Betwixt graph-identity {@code id="…"} attributes on complex elements are not emitted by
  *       Jackson (property values live in child elements).
+ *   <li>Historical {@code idref} graph stubs are expanded on Jackson <em>read</em> via {@link
+ *       PSBetwixtIdrefExpander} (product decision expand-on-read, #1899) so package ACL permissions
+ *       are not silently dropped.
  *   <li>Property / collection item element names for unannotated domain beans may differ until
  *       domain migration slices add Jackson annotations or shared mix-ins (#1888+).
  * </ul>

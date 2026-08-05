@@ -19,7 +19,21 @@ package com.percussion;
 
 import javax.net.ssl.HttpsURLConnection;
 
+/**
+ * Utility class that inspects an {@link HttpsURLConnection} for the presence of a known set of
+ * security-related HTTP response headers (for example <code>Strict-Transport-Security</code> and
+ * <code>X-Frame-Options</code>) and reports which ones are missing.
+ */
 public class SecureHeaderChecker {
+
+  /**
+   * Default constructor; provided so the implicit default constructor has explicit Javadoc and
+   * doclint does not warn about its use. This class only exposes static methods, so the constructor
+   * is intentionally empty.
+   */
+  public SecureHeaderChecker() {
+    // utility class - no instance state
+  }
 
   private static final String[] secureHeaders = {
     "X-Frame-Options",
@@ -32,9 +46,12 @@ public class SecureHeaderChecker {
   };
 
   /**
-   * Checks the connection for the presence of secure headers and
+   * Checks the connection for the presence of secure headers and returns a response describing each
+   * header check.
    *
-   * @param conn
+   * @param conn the live HTTPS connection to inspect, may not be <code>null</code>.
+   * @return a {@link SecureHeaderCheckResponse} summarizing which secure headers are present and
+   *     marking the overall check as failed when any header is missing.
    */
   public static SecureHeaderCheckResponse check(HttpsURLConnection conn) {
 

@@ -19,12 +19,12 @@ package com.percussion.delivery.service.impl;
 import jakarta.ws.rs.Path;
 
 /**
- * @author peterfrontiero
+ * JAX-RS root resource exposing the delivery-tier REST endpoints under {@code /delivery}.
  *
+ * @author peterfrontiero
  */
 // REFACTORED: CP-JAVA11
 @Path("/delivery")
-public class PSDeliveryRestService
-{
-    
+public class PSDeliveryRestService {
+
 }

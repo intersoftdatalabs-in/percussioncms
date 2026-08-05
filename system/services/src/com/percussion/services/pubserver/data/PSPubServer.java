@@ -16,6 +16,14 @@
  */
 package com.percussion.services.pubserver.data;
 
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.Validate.notEmpty;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.delivery.service.PSDeliveryInfoServiceLocator;
 import com.percussion.delivery.service.impl.PSDeliveryInfoService;
 import com.percussion.services.catalog.IPSCatalogIdentifier;
@@ -26,16 +34,7 @@ import com.percussion.services.pubserver.IPSPubServerDao;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.share.data.PSAbstractDataObject;
 import com.percussion.utils.guid.IPSGuid;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.xml.sax.SAXException;
-
+import com.percussion.utils.xml.IPSXmlSerialization;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -50,22 +49,55 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.Validate.notEmpty;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * Represents a publishing server related to a given site.
- * 
+ *
+ * <p>Design-object XML root is {@code pub-server}. Nested property item element is {@code
+ * pub-server-property} (registered via {@link PSXmlSerializationHelper#addType}). Jackson opt-in
+ * property surface (issue #1919 / epic #505).
+ *
  * @author leonardohildt
- * 
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSPubServer")
 @Table(name = "PSX_PUBSERVER")
+@JacksonXmlRootElement(localName = "pub-server")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({
+  "description",
+  "guid",
+  "hasFullPublished",
+  "name",
+  "properties",
+  "publishType",
+  "serverId",
+  "siteId",
+  "siteRenamed",
+  "serverTypeXml"
+})
 public class PSPubServer extends PSAbstractDataObject implements Serializable, IPSCatalogIdentifier, IPSPubServer
 {
+  static {
+    PSXmlSerializationHelper.addType("pub-server-property", PSPubServerProperty.class);
+  }
 
    /**
     * 
@@ -108,9 +140,32 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
    /**
     * @return the serverType wrapped in an Optional. If unset, defaults to {@link #PRODUCTION}.
     */
+   @JsonIgnore
    public java.util.Optional<String> getServerType()
    {
       return java.util.Optional.of(StringUtils.isBlank(serverType) ? PRODUCTION : serverType);
+   }
+
+   /**
+    * Design-object XML form of server type (defaults to {@link #PRODUCTION} when blank).
+    *
+    * @return never blank
+    */
+   @JsonProperty("server-type")
+   public String getServerTypeXml()
+   {
+      return StringUtils.isBlank(serverType) ? PRODUCTION : serverType;
+   }
+
+   /**
+    * Jackson setter for {@code server-type} (avoids Optional {@link #getServerType()} conflict).
+    *
+    * @param serverType may be blank (defaults to {@link #PRODUCTION})
+    */
+   @JsonProperty("server-type")
+   public void setServerTypeXml(String serverType)
+   {
+      setServerType(serverType);
    }
 
    /**
@@ -118,6 +173,7 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
     *
     * @return {@code true} if fully published, {@code false} otherwise
     */
+   @JsonProperty("has-full-published")
    public boolean hasFullPublished()
    {
       return "yes".equalsIgnoreCase(hasFullPublished) || Boolean.TRUE.toString().equalsIgnoreCase(hasFullPublished);
@@ -180,17 +236,54 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
 
    public void setProperties(Set<PSPubServerProperty> properties)
    {
-      this.properties = properties;
+      this.properties = properties != null ? properties : new HashSet<>();
    }
 
+   /**
+    * Hibernate / mutator view of properties (unordered set).
+    *
+    * @return never {@code null}
+    */
+   @JsonIgnore
    public Set<PSPubServerProperty> getProperties()
    {
+      if (properties == null)
+      {
+         properties = new HashSet<>();
+      }
       return properties;
+   }
+
+   /**
+    * Stable-order property list for design-object XML (sorted by name).
+    *
+    * @return never {@code null}
+    */
+   @JsonProperty("properties")
+   @JacksonXmlElementWrapper(localName = "properties")
+   @JacksonXmlProperty(localName = "pub-server-property")
+   public java.util.List<PSPubServerProperty> getPropertiesXml()
+   {
+      return getProperties().stream()
+          .sorted(java.util.Comparator.comparing(
+              p -> p.getName() == null ? "" : p.getName(), String.CASE_INSENSITIVE_ORDER))
+          .collect(java.util.stream.Collectors.toList());
+   }
+
+   /**
+    * Restore properties from design-object XML.
+    *
+    * @param props may be {@code null}
+    */
+   public void setPropertiesXml(java.util.List<PSPubServerProperty> props)
+   {
+      setProperties(props == null ? new HashSet<>() : new HashSet<>(props));
    }
    
    /**
     * @return the id
     */
+   @JsonProperty("guid")
    public IPSGuid getGUID()
    {
       return new PSGuid(PSTypeEnum.PUBLISHING_SERVER, serverId);
@@ -201,6 +294,10 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
     */
    public void setGUID(IPSGuid guid)
    {
+      if (guid == null)
+      {
+         throw new IllegalArgumentException("guid may not be null");
+      }
       this.serverId = guid.getUUID();
    }
 
@@ -209,6 +306,7 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
     * 
     * @return Returns the site id, never <code>null</code>
     */
+   @JsonProperty("site-id")
    public long getSiteId()
    {
       return siteId;
@@ -235,7 +333,19 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
     */
    public void fromXML(String xmlsource) throws IOException, SAXException
    {
-      PSXmlSerializationHelper.readFromXML(xmlsource, this);
+      // Class-based read (not BeanUtils copy): Optional getters for description / serverType
+      // prevent BeanUtils property-copy of those scalar fields (issue #1919).
+      PSPubServer src =
+          (PSPubServer) PSXmlSerializationHelper.readFromXML(xmlsource, PSPubServer.class);
+      this.serverId = src.serverId;
+      this.siteId = src.siteId;
+      this.name = src.name;
+      this.description = src.description;
+      this.publishType = src.publishType;
+      this.serverType = src.serverType;
+      this.hasFullPublished = src.hasFullPublished;
+      this.siteRenamed = src.siteRenamed;
+      setProperties(src.properties != null ? new HashSet<>(src.properties) : new HashSet<>());
    }
 
    /**
@@ -243,6 +353,7 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
     * 
     * @return the server name, never <code>null</code> or empty.
     */
+   @JsonProperty
    public String getName()
    {
       return name;
@@ -263,9 +374,32 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
     * 
     * @return Optional containing the description if set, otherwise empty.
     */
+   @JsonIgnore
    public java.util.Optional<String> getDescription()
    {
       return java.util.Optional.ofNullable(description);
+   }
+
+   /**
+    * Design-object XML form of description (nullable string).
+    *
+    * @return may be {@code null}
+    */
+   @JsonProperty("description")
+   public String getDescriptionXml()
+   {
+      return description;
+   }
+
+   /**
+    * Jackson setter for {@code description} (avoids Optional {@link #getDescription()} conflict).
+    *
+    * @param description the description to set
+    */
+   @JsonProperty("description")
+   public void setDescriptionXml(String description)
+   {
+      this.description = description;
    }
 
    /**
@@ -283,6 +417,7 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
     * 
     * @return the server id, never <code>null</code> or empty.
     */
+   @JsonProperty("server-id")
    public long getServerId()
    {
       return serverId;
@@ -303,6 +438,7 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
     * 
     * @return the publish type, never <code>null</code> or empty.
     */
+   @JsonProperty("publish-type")
    public String getPublishType()
    {
       return publishType;
@@ -404,6 +540,8 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
     * 
     * @see com.percussion.services.pubserver.IPSPubServer#isXmlFormat()
     */
+   @JsonIgnore
+   @IPSXmlSerialization(suppress = true)
    public boolean isXmlFormat()
    {
       return equalsIgnoreCase(
@@ -416,6 +554,8 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
     * 
     * @see com.percussion.services.pubserver.IPSPubServer#isDatabaseType()
     */
+   @JsonIgnore
+   @IPSXmlSerialization(suppress = true)
    public boolean isDatabaseType()
    {
       return getPublishTypeEnum()
@@ -424,8 +564,10 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
    }
 
    /**
-
+    * Whether publish type is FTP-based (computed; not design XML).
     */
+   @JsonIgnore
+   @IPSXmlSerialization(suppress = true)
    public boolean isFtpType()
    {
       return getPublishTypeEnum()
@@ -438,6 +580,7 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
      * Returns whether or not the site has been renamed since the last full publish.
      * @return <code>true</code> if the site has been renamed since last full publish.
      */
+    @JsonProperty("site-renamed")
     public boolean getSiteRenamed()
     {
         return "y".equals(siteRenamed);
@@ -474,6 +617,8 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
        return true;
    }
 
+   @JsonIgnore
+   @IPSXmlSerialization(suppress = true)
    public java.util.Optional<String> getPublishServer(){
       PSDeliveryInfoService psDeliveryInfoService = (PSDeliveryInfoService) PSDeliveryInfoServiceLocator.getDeliveryInfoService();
       List<String> adminUrls = psDeliveryInfoService.getAdminUrls(this.serverType);

@@ -247,8 +247,12 @@ public class PSPrepForConvert {
     transformer.transform(source, result);
   }
 
-  /*
-   * Main class
+  /**
+   * Main entry point. Usage: <code>java PSPrepForConvert [&lt;ServerBase path&gt;]</code>.
+   *
+   * @param args optional single-element array containing the server base directory path; if missing
+   *     or more than one element is supplied, the usage message is printed and the method returns
+   *     without doing anything
    */
   public static void main(String[] args) {
     if (args.length == 1) {

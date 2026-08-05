@@ -67,6 +67,35 @@ class InstallJettyServiceJavaHomeTest {
   }
 
   /**
+   * Issue #1804: Procrun classpath must not reference JDK {@code lib/tools.jar}. That JAR was
+   * removed in JDK 9+; Maven 3.9+ also rejects the legacy {@code com.sun:tools} systemPath
+   * dependency. Product runtime is JDK 21.
+   */
+  @Test
+  void installBat_procrunClasspathDoesNotReferenceToolsJar() throws Exception {
+    String s = Files.readString(INSTALL_BAT, StandardCharsets.UTF_8);
+    assertTrue(s.contains("PR_CLASSPATH="), "Procrun classpath must be set");
+    // Ignore REM comments that may mention tools.jar historically; only classpath lines matter.
+    boolean classpathHasToolsJar =
+        s.lines()
+            .map(String::trim)
+            .filter(
+                line ->
+                    line.regionMatches(
+                        true, 0, "set PR_CLASSPATH=", 0, "set PR_CLASSPATH=".length()))
+            .anyMatch(line -> line.toLowerCase().contains("tools.jar"));
+    assertFalse(
+        classpathHasToolsJar,
+        "install-jetty-service.bat must not put tools.jar on PR_CLASSPATH (JDK 9+)");
+    assertTrue(
+        s.lines()
+            .map(String::trim)
+            .anyMatch(
+                line -> line.equalsIgnoreCase("set PR_CLASSPATH=\"%JETTY_HOME%\\start.jar\"")),
+        "Procrun classpath should be Jetty start.jar only");
+  }
+
+  /**
    * Regression for kilo-code-bot PR review thread 3631027608: the resolver must be sourced INTO the
    * install shell, not in a subshell. A subshell isolates the assignments of JAVA_HOME / JAVA /
    * RESOLVE_SOURCE from the resolver and silently discards them, bypassing the documented

@@ -35,13 +35,20 @@ import com.percussion.webservices.faults.PSErrorsFault;
 import java.rmi.RemoteException;
 
 /**
- * Server side implementations for web services defined in
- * <code>rhythmyxDesign.wsdl</code> for operations defined in the
- * <code>assemblyDesignSOAP</code> bindings.
+ * Server side implementations for web services defined in <code>rhythmyxDesign.wsdl</code> for
+ * operations defined in the <code>assemblyDesignSOAP</code> bindings.
  */
 public class AssemblyDesignSOAPImpl extends PSBaseSOAPImpl
    implements AssemblyDesign
 {
+  /**
+   * Default constructor; provided so the implicit default constructor has explicit Javadoc and
+   * doclint does not warn about its use.
+   */
+  public AssemblyDesignSOAPImpl() {
+    // SOAP implementations are stateless; the superclass handles wiring
+  }
+
    /*
     * (non-Javadoc)
     *

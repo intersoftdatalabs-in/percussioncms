@@ -23,8 +23,10 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.util.Objects;
 
 /**
- * @author JaySeletz
+ * Represents a single sort criterion (property + ascending/descending flag) used to order
+ * publishing results returned by an edition's content list.
  *
+ * @author JaySeletz
  */
 public class PSSortCriterion
 {

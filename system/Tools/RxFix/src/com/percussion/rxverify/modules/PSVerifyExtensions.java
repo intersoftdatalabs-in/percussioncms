@@ -36,9 +36,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * @author dougrand
+ * Verifies that all expected extensions are installed in the Rhythmyx installation, comparing
+ * the live set against the canonical set captured during a previous verify pass.
  *
- * Verify that all the proper extensions are present
+ * @author dougrand
  */
 public class PSVerifyExtensions implements IPSVerify
 {

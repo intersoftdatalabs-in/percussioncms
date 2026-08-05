@@ -213,8 +213,6 @@ import org.xml.sax.SAXException;
  * <p>The daemon is designed to be run as a standalone application. It requires a number of
  * parameters that can be supplied in a properties file.
  *
- * <p>
- *
  * @author paulhoward
  */
 public class PSProcessDaemon extends Thread {

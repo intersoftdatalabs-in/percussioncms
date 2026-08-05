@@ -43,6 +43,9 @@ import org.springframework.web.servlet.mvc.Controller;
 import org.springframework.web.servlet.mvc.ParameterizableViewController;
 
 /**
+ * Spring MVC controller that triggers an on-demand preview publish of a single content item for the
+ * requesting user, returning the published preview URL via the configured view.
+ *
  * @author DavidBenua
  */
 public class DemandPreviewController extends ParameterizableViewController implements Controller {

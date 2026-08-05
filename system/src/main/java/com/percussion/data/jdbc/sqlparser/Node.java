@@ -32,18 +32,41 @@ public interface Node {
   /** This method is called after all the child nodes have been added. */
   public void jjtClose();
 
-  /** This pair of methods are used to inform the node of its parent. */
+  /**
+   * Informs the node of its parent in the AST.
+   *
+   * @param n the new parent node, may be <code>null</code> when detaching.
+   */
   public void jjtSetParent(Node n);
 
+  /**
+   * Returns the parent of this node in the AST.
+   *
+   * @return the parent node, or <code>null</code> if this node has no parent.
+   */
   public Node jjtGetParent();
 
-  /** This method tells the node to add its argument to the node's list of children. */
+  /**
+   * Tells the node to add its argument to the node's list of children.
+   *
+   * @param n the child node to add, may not be <code>null</code>.
+   * @param i the zero-based index at which to add the child.
+   */
   public void jjtAddChild(Node n, int i);
 
-  /** This method returns a child node. The children are numbered from zero, left to right. */
+  /**
+   * Returns a child node. The children are numbered from zero, left to right.
+   *
+   * @param i the zero-based index of the child to return.
+   * @return the child node at the requested index.
+   */
   public Node jjtGetChild(int i);
 
-  /** Return the number of children the node has. */
+  /**
+   * Returns the number of children the node has.
+   *
+   * @return the number of children this node holds, never negative.
+   */
   public int jjtGetNumChildren();
 
   /** Accept the visitor. * */

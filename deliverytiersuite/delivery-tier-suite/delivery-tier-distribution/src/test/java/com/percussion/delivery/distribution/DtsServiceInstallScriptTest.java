@@ -71,6 +71,19 @@ class DtsServiceInstallScriptTest {
   }
 
   @Test
+  void bothScripts_requireRoot_noDryRunFlag() {
+    // GH-1977: install is root-only; no product --dry-run (docs cover offline review)
+    for (String script : List.of(production, staging)) {
+      assertTrue(script.contains("id -u"), "root check via id -u");
+      assertTrue(
+          script.contains("must be run with sudo or as root")
+              || script.contains("must be run as root"),
+          "root error message");
+      assertFalse(script.contains("--dry-run"), "no --dry-run installer flag");
+    }
+  }
+
+  @Test
   void bothScripts_defaultsFile_isEnvironmentFileSafe() {
     // Must not embed mkdir/chown into /etc/default (breaks EnvironmentFile)
     for (String script : List.of(production, staging)) {

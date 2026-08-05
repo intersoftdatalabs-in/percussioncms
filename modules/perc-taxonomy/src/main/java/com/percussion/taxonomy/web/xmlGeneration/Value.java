@@ -21,7 +21,10 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Text;
 
 /**
- * @author Steffen Gates May 9, 2011
+ * Represents a localized value entry emitted by the taxonomy XML generator, holding the language id
+ * and the value text.
+ *
+ * @author Steffen Gates
  */
 public class Value {
 

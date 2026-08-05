@@ -43,8 +43,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * Handles application-level requests dispatched to the Rhythmyx server, serving as the front
+ * controller for the CMS application.
+ *
  * @author dougrand
- *     <p>Handle application requests
  */
 public class PSAppServlet extends HttpServlet {
   /** serial version id */
