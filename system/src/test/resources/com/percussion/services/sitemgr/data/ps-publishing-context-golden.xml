@@ -1,0 +1,11 @@
+<!-- Golden snapshot for PSPublishingContext Jackson wire shape (issue #1918
+	/ #1892 / epic #505). Root publishing-context (element children). Historical
+	PSXPublishingContext attribute root is a documented deviation. default-scheme
+	object suppressed; default-scheme-id is scalar GUID. -->
+<publishing-context>
+	<default-scheme-id>0-10-314</default-scheme-id>
+	<description>This is a test description</description>
+	<guid>0-113-1</guid>
+	<id>1</id>
+	<name>Publish</name>
+</publishing-context>
