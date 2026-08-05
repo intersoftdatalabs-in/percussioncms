@@ -1,0 +1,75 @@
+<!-- Golden snapshot for PSSite / PSSiteProperty Jackson wire shape (issue
+	#1918 / #1892 / epic #505). Nested element site-property; template-ids empty
+	without assembly service. Approved deviations: no graph id attrs; null scalars
+	may emit xsi:nil; no XML declaration; version / associatedTemplates / label
+	suppressed; circular site on property omitted. -->
+<site>
+	<base-url>http://localhost:9992/Rhythmyx/</base-url>
+	<canonical-dist>sections</canonical-dist>
+	<default-document>index.html</default-document>
+	<default-file-extension
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<default-pub-server
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<description>Sample site for Jackson golden/round-trip</description>
+	<folder-root>//Sites/DemoSite</folder-root>
+	<generate-site-map-options
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<global-template>rc.gtt</global-template>
+	<guid>0-9-100</guid>
+	<ip-address>127.0.0.1</ip-address>
+	<name>DemoSite</name>
+	<nav-theme>Default</nav-theme>
+	<port>9992</port>
+	<previous-name
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<properties>
+		<site-property>
+			<context-id>0-113-1</context-id>
+			<guid>0-11-501</guid>
+			<name>sys_pubBase</name>
+			<property-id>501</property-id>
+			<value>http://example.com/</value>
+		</site-property>
+	</properties>
+	<root>/</root>
+	<site-id>100</site-id>
+	<site-protocol>https</site-protocol>
+	<template-ids />
+	<unpublish-flags>u</unpublish-flags>
+	<allowed-namespaces
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<canonical>true</canonical>
+	<canonicalReplace>true</canonicalReplace>
+	<generateSitemap>false</generateSitemap>
+	<login-page
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<mobilePreviewEnabled>false</mobilePreviewEnabled>
+	<overrideSystemFoundation>false</overrideSystemFoundation>
+	<overrideSystemJQuery>false</overrideSystemJQuery>
+	<overrideSystemJQueryUI>false</overrideSystemJQueryUI>
+	<pageBased>true</pageBased>
+	<password
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<private-key
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<registration-confirmation-page
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<registration-page
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<reset-page
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<reset-request-password-page
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<secure>false</secure>
+	<site-additional-head-content
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<site-after-body-open-content
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<site-before-body-close-content
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<state xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:nil="true" />
+	<user-id xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:nil="true" />
+</site>

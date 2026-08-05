@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,17 @@
  */
 package com.percussion.services.sitemgr.data;
 
-
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.catalog.IPSCatalogItem;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.xml.sax.SAXException;
-
+import com.percussion.utils.xml.IPSXmlSerialization;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,248 +37,240 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.io.IOException;
 import java.io.Serializable;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Represents a single property for the site. Each property is keyed to 
- * a particular context.
- * @author dougrand
+ * Represents a single property for the site. Each property is keyed to a particular context.
  *
+ * <p>Design-object XML root / nested package element is {@code site-property} (registered from
+ * {@link PSSite} via {@link PSXmlSerializationHelper#addType}). Parent {@link #getSite()} is
+ * suppressed (circular); restore is via {@link PSSite#setProperties(java.util.Set)}. Jackson opt-in
+ * surface (issue #1918 / #1892 / epic #505).
+ *
+ * @author dougrand
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSSiteProperty")
 @Table(name = "RXASSEMBLERPROPERTIES")
-public class PSSiteProperty implements IPSCatalogItem, Serializable
-{
-   /**
-    * Serial id identifies versions of serialized data
-    */
-   private static final long serialVersionUID = 1L;
-   
-   static
-   {
-      // Register types with XML serializer for read creation of objects
-      PSXmlSerializationHelper.addType("context", PSPublishingContext.class);
-   }
+@JacksonXmlRootElement(localName = "site-property")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({"contextId", "guid", "name", "propertyId", "value"})
+public class PSSiteProperty implements IPSCatalogItem, Serializable {
+  /** Serial id identifies versions of serialized data */
+  private static final long serialVersionUID = 1L;
 
-   @Id
-   @Column(name = "PROPERTYID")
-   long     propertyId;
-   
-   @Version
-   @Column(name = "VERSION")
-   Integer  version;
-   
-   @ManyToOne(targetEntity = PSSite.class)
-   @JoinColumn(name = "SITEID", nullable = false, insertable = false, updatable = false)
-   IPSSite   site;
-   
-   @Column(name = "CONTEXTID")
-   Integer  contextId;
-   
-   @Basic
-   @Column(name = "PROPERTYNAME")
-   String   name;
-   
-   @Basic
-   @Column(name = "PROPERTYVALUE")
-   String   value;
+  static {
+    // Register types with XML serializer for read creation of objects
+    PSXmlSerializationHelper.addType("context", PSPublishingContext.class);
+  }
 
-   /**
-    * The database id for this object
-    * @return Returns the propertyId, never <code>null</code> after persistence
-    */
-   public long getPropertyId()
-   {
-      return propertyId;
-   }
+  @Id
+  @Column(name = "PROPERTYID")
+  long propertyId;
 
-   /**
-    * @param propertyId The propertyId to set.
-    */
-   public void setPropertyId(long propertyId)
-   {
-      this.propertyId = propertyId;
-   }
+  @Version
+  @Column(name = "VERSION")
+  Integer version;
 
+  @ManyToOne(targetEntity = PSSite.class)
+  @JoinColumn(name = "SITEID", nullable = false, insertable = false, updatable = false)
+  IPSSite site;
 
+  @Column(name = "CONTEXTID")
+  Integer contextId;
 
-   /**
-    * The parent site object
-    * @return Returns the site, never <code>null</code>
-    */
-   public IPSSite getSite()
-   {
-      return site;
-   }
+  @Basic
+  @Column(name = "PROPERTYNAME")
+  String name;
 
-   /**
-    * @param site The site to set, may be <code>null</code> when disconnecting
-    */
-   public void setSite(IPSSite site)
-   {
-      this.site = site;
-   }
+  @Basic
+  @Column(name = "PROPERTYVALUE")
+  String value;
 
-   /**
-    * Get the property name
-    * @return Returns the name, never <code>null</code> or empty
-    */
-   public String getName()
-   {
-      return name;
-   }
+  /**
+   * The database id for this object
+   *
+   * @return Returns the propertyId, never <code>null</code> after persistence
+   */
+  @JsonProperty
+  public long getPropertyId() {
+    return propertyId;
+  }
 
-   /**
-    * @param name The name to set, never <code>null</code> or empty
-    */
-   public void setName(String name)
-   {
-      if (StringUtils.isBlank(name))
-      {
-         throw new IllegalArgumentException("name may not be null or empty");
-      }
-      this.name = name;
-   }
+  /**
+   * @param propertyId The propertyId to set.
+   */
+  public void setPropertyId(long propertyId) {
+    this.propertyId = propertyId;
+  }
 
-   /**
-    * Get the value
-    * @return Returns the value.
-    */
-   public String getValue()
-   {
-      return value;
-   }
+  /**
+   * The parent site object
+   *
+   * @return Returns the site, never <code>null</code>
+   */
+  @IPSXmlSerialization(suppress = true)
+  @JsonIgnore
+  public IPSSite getSite() {
+    return site;
+  }
 
-   /**
-    * @param value The value to set.
-    */
-   public void setValue(String value)
-   {
-      this.value = value;
-   }
-   
-   /**
-    * Get the object version.
-    * 
-    * @return the object version, <code>null</code> if not initialized yet.
-    */
-   public Integer getVersion()
-   {
-      return version;
-   }
+  /**
+   * @param site The site to set, may be <code>null</code> when disconnecting
+   */
+  @JsonIgnore
+  public void setSite(IPSSite site) {
+    this.site = site;
+  }
 
-   /**
-    * Set the object version. The version can only be set once in the life cycle
-    * of this object.
-    * 
-    * @param version the version of the object, must be >= 0.
-    */
-   public void setVersion(Integer version)
-   {
-      if (this.version != null && version != null)
-         throw new IllegalStateException("Version can only be set once");
-      
-      this.version = version;
-   }
+  /**
+   * Get the property name
+   *
+   * @return Returns the name, never <code>null</code> or empty
+   */
+  @JsonProperty
+  public String getName() {
+    return name;
+  }
 
+  /**
+   * @param name The name to set, never <code>null</code> or empty
+   */
+  public void setName(String name) {
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("name may not be null or empty");
+    }
+    this.name = name;
+  }
 
-   /**
-    * Get the publishing context ID
-    * @return Returns the context ID, never <code>null</code>
-    */
-   public IPSGuid getContextId()
-   {
-      return new PSGuid(PSTypeEnum.CONTEXT, contextId);
-   }
+  /**
+   * Get the value
+   *
+   * @return Returns the value.
+   */
+  @JsonProperty
+  public String getValue() {
+    return value;
+  }
 
-   /**
-    * Set the publishing context id, cannot set if context ID is already set. 
-    * Used by serialization only.
-    * @param ctxId the content id
-    */
-   public void setContextId(IPSGuid ctxId)
-   {
-      if (ctxId == null)
-         throw new IllegalArgumentException("ctxId may not be null.");
-      
-      if ( contextId != null )
-         return;
-      contextId = ctxId.getUUID();
-   }
-  
-   /** (non-Javadoc)
-    * @see java.lang.Object#equals(java.lang.Object)
-    */
-   @Override
-   public boolean equals(Object obj)
-   {
-      if ( !(obj instanceof PSSiteProperty) )
-         return false;
-      PSSiteProperty b = (PSSiteProperty) obj;
-      return new EqualsBuilder()
-         .append(propertyId, b.propertyId)
-         .append(name, b.name)
-         .append(value, b.value)
-         .isEquals();
-   }
-   
-   /** (non-Javadoc)
-    * @see java.lang.Object#hashCode()
-    */
-   @Override
-   public int hashCode()
-   {
-      return new HashCodeBuilder().append(name).toHashCode();
-   }
+  /**
+   * @param value The value to set.
+   */
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-   /**
-    * (non-Javadoc)
-    *
-    * @see Object#toString()
-    */
-   @Override
-   public String toString() {
-      final StringBuffer sb = new StringBuffer("PSSiteProperty{");
-      sb.append("propertyId=").append(propertyId);
-      sb.append(", version=").append(version);
-      sb.append(", site=").append(site);
-      sb.append(", contextId=").append(contextId);
-      sb.append(", name='").append(name).append('\'');
-      sb.append(", value='").append(value).append('\'');
-      sb.append('}');
-      return sb.toString();
-   }
+  /**
+   * Get the object version.
+   *
+   * @return the object version, <code>null</code> if not initialized yet.
+   */
+  @IPSXmlSerialization(suppress = true)
+  @JsonIgnore
+  public Integer getVersion() {
+    return version;
+  }
 
-   /** (non-Javadoc)
-    * @see com.percussion.services.catalog.IPSCatalogItem#toXML()
-    */
-   public String toXML() throws IOException, SAXException
-   {
-      return PSXmlSerializationHelper.writeToXml(this);
-   }
+  /**
+   * Set the object version. The version can only be set once in the life cycle of this object.
+   *
+   * @param version the version of the object, must be &gt;= 0.
+   */
+  public void setVersion(Integer version) {
+    if (this.version != null && version != null)
+      throw new IllegalStateException("Version can only be set once");
 
-   /** (non-Javadoc)
-    * @see com.percussion.services.catalog.IPSCatalogItem#fromXML(java.lang.String)
-    */
-   public void fromXML(String xmlsource) throws IOException, SAXException {
-      PSXmlSerializationHelper.readFromXML(xmlsource, this);   }
+    this.version = version;
+  }
 
-   /** (non-Javadoc)
-    * @see com.percussion.services.catalog.IPSCatalogItem#getGUID()
-    */
-   public IPSGuid getGUID()
-   {
-      return new PSGuid(PSTypeEnum.SITE_PROPERTY, getPropertyId());
-   }
+  /**
+   * Get the publishing context ID
+   *
+   * @return Returns the context ID, never <code>null</code> after initialization
+   */
+  @JsonProperty
+  public IPSGuid getContextId() {
+    if (contextId == null) {
+      return null;
+    }
+    return new PSGuid(PSTypeEnum.CONTEXT, contextId);
+  }
 
-   /** (non-Javadoc)
-    * @see com.percussion.services.catalog.IPSCatalogItem#setGUID(com.percussion.utils.guid.IPSGuid)
-    */
-   public void setGUID(IPSGuid newguid) throws IllegalStateException
-   {
-      if (newguid == null)
-         throw new IllegalArgumentException("newguid may be not null.");
-      
-      setPropertyId(newguid.longValue()); 
-   }
+  /**
+   * Set the publishing context id. Used by serialization and property assignment.
+   *
+   * @param ctxId the context id
+   */
+  public void setContextId(IPSGuid ctxId) {
+    if (ctxId == null) throw new IllegalArgumentException("ctxId may not be null.");
+
+    // Allow overwrite on design-object XML restore (BeanUtils + Jackson)
+    contextId = ctxId.getUUID();
+  }
+
+  /** (non-Javadoc) */
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof PSSiteProperty)) return false;
+    PSSiteProperty b = (PSSiteProperty) obj;
+    return new EqualsBuilder()
+        .append(propertyId, b.propertyId)
+        .append(name, b.name)
+        .append(value, b.value)
+        .isEquals();
+  }
+
+  /** (non-Javadoc) */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(name).toHashCode();
+  }
+
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("PSSiteProperty{");
+    sb.append("propertyId=").append(propertyId);
+    sb.append(", version=").append(version);
+    sb.append(", site=").append(site);
+    sb.append(", contextId=").append(contextId);
+    sb.append(", name='").append(name).append('\'');
+    sb.append(", value='").append(value).append('\'');
+    sb.append('}');
+    return sb.toString();
+  }
+
+  /** (non-Javadoc) */
+  public String toXML() throws IOException, SAXException {
+    return PSXmlSerializationHelper.writeToXml(this);
+  }
+
+  /** (non-Javadoc) */
+  public void fromXML(String xmlsource) throws IOException, SAXException {
+    PSXmlSerializationHelper.readFromXML(xmlsource, this);
+  }
+
+  /** (non-Javadoc) */
+  @JsonProperty("guid")
+  public IPSGuid getGUID() {
+    return new PSGuid(PSTypeEnum.SITE_PROPERTY, getPropertyId());
+  }
+
+  /** (non-Javadoc) */
+  public void setGUID(IPSGuid newguid) throws IllegalStateException {
+    if (newguid == null) throw new IllegalArgumentException("newguid may be not null.");
+
+    // Allow overwrite on design-object XML restore
+    setPropertyId(newguid.longValue());
+  }
 }

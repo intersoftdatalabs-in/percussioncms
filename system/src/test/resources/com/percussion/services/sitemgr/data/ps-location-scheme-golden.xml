@@ -1,0 +1,32 @@
+<!-- Golden snapshot for PSLocationScheme / PSLocationSchemeParameter Jackson
+	wire shape (issue #1918 / #1892 / epic #505). Nested location-scheme-parameter
+	under parameter-set; circular scheme suppressed; version suppressed; parameters
+	ordered by sequence. -->
+<location-scheme>
+	<content-type-id>301</content-type-id>
+	<context-id>0-113-1</context-id>
+	<description>Generic location scheme</description>
+	<generator>Java/global/percussion/system/sys_pubLocations</generator>
+	<guid>0-10-314</guid>
+	<id>314</id>
+	<name>Generic</name>
+	<parameter-set>
+		<location-scheme-parameter>
+			<name>ext</name>
+			<parameter-id
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+			<sequence>10</sequence>
+			<type>java.lang.String</type>
+			<value>.html</value>
+		</location-scheme-parameter>
+		<location-scheme-parameter>
+			<name>path</name>
+			<parameter-id
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+			<sequence>20</sequence>
+			<type>java.lang.String</type>
+			<value>$sys.site.path</value>
+		</location-scheme-parameter>
+	</parameter-set>
+	<template-id>501</template-id>
+</location-scheme>

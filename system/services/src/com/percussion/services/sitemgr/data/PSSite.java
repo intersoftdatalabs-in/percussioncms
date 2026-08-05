@@ -17,6 +17,10 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.sitemgr.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.PSAssemblyException;
@@ -29,24 +33,9 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
-import com.percussion.xml.PSXmlDocumentBuilder;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.NaturalIdCache;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
+import com.percussion.utils.xml.PSInvalidXmlException;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -61,35 +50,36 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Collections;
-
-import com.percussion.utils.xml.IPSXmlErrors;
-import com.percussion.utils.xml.PSInvalidXmlException;
-import com.percussion.utils.xml.PSXmlUtils;
-
-import static com.percussion.util.PSBase64Decoder.decode;
-import static com.percussion.util.PSBase64Encoder.encode;
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import java.util.stream.Collectors;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.NaturalIdCache;
+import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Modern site data entity representing a logical (and physical) place to publish
- * content using Java 11 features. The site is associated with a portion of the
- * site folder tree in the repository and publishes to a specific publisher.
+ * Site data entity representing a logical (and physical) place to publish content. The site is
+ * associated with a portion of the site folder tree in the repository and publishes to a specific
+ * publisher.
  *
- * <h2>Java 11 Enhancements</h2>
- * <ul>
- * <li>Enhanced validation with Objects.requireNonNull</li>
- * <li>Optional-based safe access for nullable properties</li>
- * <li>Stream API for efficient collection processing</li>
- * <li>Improved error handling patterns</li>
- * </ul>
+ * <p>Design-object XML root is {@code site}. Nested package element {@code site-property} and
+ * {@code template-id} are registered via {@link PSXmlSerializationHelper#addType}. Associated
+ * templates are suppressed as full objects; wire form uses {@link #getTemplateIds()}. Jackson
+ * opt-in surface (issue #1918 / #1892 / epic #505).
  *
  * @author dougrand (original)
  * @author Sunny Sal (Java 11 refactoring)
@@ -98,6 +88,36 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSSite")
 @NaturalIdCache
 @Table(name = "RXSITES")
+@JacksonXmlRootElement(localName = "site")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({
+  "baseUrl",
+  "canonicalDist",
+  "defaultDocument",
+  "defaultFileExtension",
+  "defaultPubServer",
+  "description",
+  "folderRoot",
+  "generateSiteMapOptions",
+  "globalTemplate",
+  "guid",
+  "ipAddress",
+  "name",
+  "navTheme",
+  "port",
+  "previousName",
+  "properties",
+  "root",
+  "siteId",
+  "siteProtocol",
+  "templateIds",
+  "unpublishFlags"
+})
 public class PSSite implements IPSSite, IPSCatalogItem {
 
     private static final long serialVersionUID = 1L;
@@ -245,6 +265,8 @@ public class PSSite implements IPSSite, IPSCatalogItem {
      * Get the entity version used for optimistic locking.
      * @return the version or null if not set
      */
+    @IPSXmlSerialization(suppress = true)
+    @JsonIgnore
     public Integer getVersion()
     {
         return version;
@@ -317,8 +339,38 @@ public class PSSite implements IPSSite, IPSCatalogItem {
      * Get site properties as a set, never null.
      * @return set of properties, may be empty
      */
+    @JsonProperty
+    @JacksonXmlElementWrapper(localName = "properties")
+    @JacksonXmlProperty(localName = "site-property")
     public Set<PSSiteProperty> getProperties() {
         return properties == null ? Collections.emptySet() : properties;
+    }
+
+    /**
+     * Set site properties (design-object XML restore and service callers).
+     *
+     * @param props may be {@code null} to clear
+     */
+    public void setProperties(Set<PSSiteProperty> props) {
+        if (props == null) {
+            if (properties != null) {
+                properties.clear();
+            } else {
+                properties = new HashSet<>();
+            }
+            return;
+        }
+        if (properties == null) {
+            properties = new HashSet<>();
+        } else {
+            properties.clear();
+        }
+        for (PSSiteProperty property : props) {
+            if (property != null) {
+                property.setSite(this);
+                addProperty(property);
+            }
+        }
     }
 
     /**
@@ -379,6 +431,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     // Enhanced getters and setters with Java 11 patterns
 
     @Override
+    @JsonProperty("guid")
     public IPSGuid getGUID() {
         return Optional.ofNullable(siteId)
                 .map(id -> new PSGuid(PSTypeEnum.SITE, id))
@@ -391,13 +444,12 @@ public class PSSite implements IPSSite, IPSCatalogItem {
         if (newguid.getType() != PSTypeEnum.SITE.getOrdinal()) {
             throw new IllegalArgumentException("newguid must be a site guid");
         }
-        if (siteId != null) {
-            throw new IllegalStateException("siteId is already set");
-        }
+        // Allow overwrite on design-object XML restore (BeanUtils + Jackson)
         siteId = newguid.longValue();
     }
 
     @Override
+    @JsonProperty
     public Long getSiteId() {
         return siteId;
     }
@@ -407,11 +459,13 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getName() {
         return name;
     }
 
     @Override
+    @JsonIgnore
     public String getLabel() {
         // Default label is the site name; return empty string if name is missing
         return Optional.ofNullable(name)
@@ -430,11 +484,13 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getPreviousName() {
         return previousName;
     }
 
     @Override
+    @JsonProperty
     public String getDescription() {
         return description;
     }
@@ -445,6 +501,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getBaseUrl() {
         return baseUrl;
     }
@@ -455,6 +512,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getIpAddress() {
         return ipAddress;
     }
@@ -465,6 +523,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getFolderRoot() {
         return folderRoot;
     }
@@ -475,6 +534,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getGlobalTemplate() {
         return globalTemplate;
     }
@@ -485,6 +545,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public Integer getPort() {
         return port;
     }
@@ -495,6 +556,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getRoot() {
         return root;
     }
@@ -505,16 +567,123 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @IPSXmlSerialization(suppress = true)
+    @JsonIgnore
     public Set<IPSAssemblyTemplate> getAssociatedTemplates() {
         return new HashSet<>(templates);
     }
 
+    @JsonIgnore
     public void setAssociatedTemplates(Set<IPSAssemblyTemplate> templates) {
         this.templates = Optional.ofNullable(templates)
             .orElse(Collections.emptySet());
     }
 
+    /**
+     * Template association GUIDs for design-object XML (string form). Full {@link
+     * IPSAssemblyTemplate} graphs are suppressed; restore via {@link #setTemplateIds(Set)} requires
+     * the assembly service to load templates.
+     *
+     * @return set of template guid strings, never null
+     */
+    @JsonProperty
+    @JacksonXmlElementWrapper(localName = "template-ids")
+    @JacksonXmlProperty(localName = "template-id")
+    public Set<String> getTemplateIds() {
+        Set<String> ids = new HashSet<>();
+        if (templates != null && !templates.isEmpty()) {
+            for (IPSAssemblyTemplate tmp : templates) {
+                if (tmp != null && tmp.getGUID() != null) {
+                    ids.add(tmp.getGUID().toString());
+                }
+            }
+        }
+        return ids.stream().sorted().collect(Collectors.toCollection(HashSet::new));
+    }
+
+    /**
+     * Sync associated templates from design-object XML string GUID set.
+     *
+     * @param newT may be null or empty to clear
+     */
+    public void setTemplateIds(Set<String> newT) {
+        if (newT == null || newT.isEmpty()) {
+            if (templates != null) {
+                templates.clear();
+            } else {
+                templates = new HashSet<>();
+            }
+            return;
+        }
+        Set<IPSGuid> newTmps = new HashSet<>();
+        for (String t : newT) {
+            if (StringUtils.isNotBlank(t)) {
+                newTmps.add(new PSGuid(t.trim()));
+            }
+        }
+
+        if (templates == null) {
+            templates = new HashSet<>();
+        }
+
+        // if the current template set is empty
+        if (templates.isEmpty()) {
+            for (IPSGuid guid : newTmps) {
+                addTemplateGuidToCollection(guid);
+            }
+            return;
+        }
+        // get all existing tmp guids associated with this site
+        Set<IPSGuid> curTmps = new HashSet<>();
+        for (IPSAssemblyTemplate t : templates) {
+            curTmps.add(t.getGUID());
+        }
+        Collection<IPSGuid> common = CollectionUtils.intersection(curTmps, newTmps);
+        Collection<IPSGuid> remove = CollectionUtils.subtract(curTmps, newTmps);
+        curTmps.removeAll(remove);
+        newTmps.removeAll(common);
+        curTmps.addAll(newTmps);
+        templates.clear();
+
+        for (IPSGuid guid : curTmps) {
+            addTemplateGuidToCollection(guid);
+        }
+    }
+
+    /**
+     * Add a template by string GUID (Betwixt/Jackson adder path).
+     *
+     * @param tmpId string form of the guid, never blank
+     */
+    @JsonIgnore
+    public void addTemplateId(String tmpId) {
+        if (StringUtils.isBlank(tmpId)) {
+            throw new IllegalArgumentException("template guid may not be null");
+        }
+        addTemplateId(new PSGuid(tmpId.trim()));
+    }
+
+    /**
+     * Add a template by GUID if not already associated.
+     *
+     * @param id template GUID, never null
+     */
+    @JsonIgnore
+    public void addTemplateId(IPSGuid id) {
+        Objects.requireNonNull(id, "template guid may not be null");
+        if (templates == null) {
+            templates = new HashSet<>();
+        }
+        for (IPSAssemblyTemplate t : templates) {
+            if (t.getGUID().equals(id)) {
+                return;
+            }
+        }
+        addTemplateGuidToCollection(id);
+    }
+
     @Override
+    @JsonProperty
     public Long getDefaultPubServer() {
         return defaultPubServer;
     }
@@ -525,6 +694,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getDefaultFileExtension() {
         return defaultFileExtention;
     }
@@ -728,6 +898,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getSiteAdditionalHeadContent() {
         return siteAdditionalHeadContent;
     }
@@ -738,6 +909,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getSiteBeforeBodyCloseContent() {
         return siteBeforeBodyCloseContent;
     }
@@ -748,6 +920,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getSiteAfterBodyOpenContent() {
         return siteAfterBodyOpenContent;
     }
@@ -758,6 +931,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getLoginPage() {
         return loginPage;
     }
@@ -768,6 +942,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getRegistrationPage() {
         return registrationPage;
     }
@@ -778,6 +953,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getRegistrationConfirmationPage() {
         return registrationConfirmationPage;
     }
@@ -788,6 +964,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getResetPage() {
         return resetPage;
     }
@@ -798,6 +975,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getResetRequestPasswordPage() {
         return resetRequestPasswordPage;
     }
@@ -808,6 +986,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getUserId() {
         return userId;
     }
@@ -818,6 +997,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getPassword() {
         return this.password;
     }
@@ -828,6 +1008,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getPrivateKey() {
         return this.privateKey;
     }
@@ -838,6 +1019,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getNavTheme() {
         return this.navTheme;
     }
@@ -847,6 +1029,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
         this.privateKey = privateKey;
     }
 
+    @JsonProperty
     public String getUnpublishFlags() {
         return StringUtils.isBlank(unpublishFlags) ? "u" : unpublishFlags;
     }
@@ -859,6 +1042,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty("mobilePreviewEnabled")
     public boolean isMobilePreviewEnabled() {
         return Boolean.TRUE.equals(mobilePreviewEnabled);
     }
@@ -869,6 +1053,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty("overrideSystemJQuery")
     public boolean isOverrideSystemJQuery() {
         return Boolean.TRUE.equals(overrideSystemJQuery);
     }
@@ -879,6 +1064,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty("overrideSystemFoundation")
     public boolean isOverrideSystemFoundation() {
         return Boolean.TRUE.equals(overrideSystemFoundation);
     }
@@ -889,6 +1075,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty("overrideSystemJQueryUI")
     public boolean isOverrideSystemJQueryUI() {
         return Boolean.TRUE.equals(overrideSystemJQueryUI);
     }
@@ -899,6 +1086,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty("pageBased")
     public boolean isPageBased() {
         return Boolean.TRUE.equals(pageBased);
     }
@@ -909,6 +1097,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty("secure")
     public boolean isSecure() {
         return BooleanToTFCharConverter.isTruthy(is_secure);
     }
@@ -920,6 +1109,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty("canonical")
     public boolean isCanonical() {
         return BooleanToTFCharConverter.isTruthy(is_canonical);
     }
@@ -931,6 +1121,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty("canonicalReplace")
     public boolean isCanonicalReplace() {
         return BooleanToTFCharConverter.isTruthy(is_canonical_replace);
     }
@@ -941,6 +1132,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getAllowedNamespaces() {
         return allowedNamespaces;
     }
@@ -952,6 +1144,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getCanonicalDist() {
         return canonicalDist;
     }
@@ -962,6 +1155,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getDefaultDocument() {
         return defaultDocument;
     }
@@ -978,12 +1172,14 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty("generateSitemap")
     public boolean isGenerateSitemap() {
         return BooleanToTFCharConverter.isTruthy(this.generateSiteMap);
     }
 
     @Override
     @Deprecated
+    @JsonProperty
     public Integer getState() {
         return this.state;
     }
@@ -1000,6 +1196,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getGenerateSiteMapOptions() {
         return this.generateSiteMapOptions;
     }
@@ -1010,6 +1207,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    @JsonProperty
     public String getSiteProtocol() {
         return this.siteProtocol;
     }
@@ -1037,79 +1235,19 @@ public class PSSite implements IPSSite, IPSCatalogItem {
                 .toString();
     }
 
-    // XML serialization constants
+    /**
+     * Historical root node name of the attribute-shaped XML representation (pre-helper). Retained
+     * for callers that still reference the constant; modern writes use root {@code site}.
+     */
     public static final String XML_NODE_NAME = "PSXSite";
-
-    // private XML constants
-    private static final String NAME_ATTR = "name";
-    private static final String DESCRIPTION_ATTR = "description";
-    private static final String BASEURL_ATTR = "baseUrl";
-    private static final String ROOT_ATTR = "root";
-    private static final String IPADDRESS_ATTR = "ipAddress";
-    private static final String PORT_ATTR = "port";
-    private static final String FOLDERROOT_ATTR = "folderRoot";
-    private static final String NAVTHEME_ATTR = "navTheme";
-    private static final String GLOBALTEMPLATE_ATTR = "globalTemplate";
-    private static final String IS_PAGE_BASED_ATTR = "isPageBased";
 
     @Override
     public void fromXML(String xmlsource) throws IOException, SAXException, PSInvalidXmlException {
-        if (xmlsource == null || xmlsource.trim().isEmpty()) {
-            throw new IllegalArgumentException("xmlsource may not be null or empty");
-        }
-
-        Reader r = new StringReader(xmlsource);
-        Document doc = PSXmlDocumentBuilder.createXmlDocument(r, false);
-        NodeList nodes = doc.getElementsByTagName(XML_NODE_NAME);
-        if (nodes.getLength() == 0) {
-            throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, XML_NODE_NAME);
-        }
-
-        Element elem = (Element) nodes.item(0);
-
-        String nameAttr = PSXmlUtils.checkAttribute(elem, NAME_ATTR, true);
-        setName(nameAttr);
-
-        String descr = PSXmlUtils.checkAttribute(elem, DESCRIPTION_ATTR, false);
-        setDescription(descr.length() > 0 ? descr : null);
-
-        setBaseUrl(PSXmlUtils.checkAttribute(elem, BASEURL_ATTR, false));
-        setRoot(PSXmlUtils.checkAttribute(elem, ROOT_ATTR, false));
-        setIpAddress(PSXmlUtils.checkAttribute(elem, IPADDRESS_ATTR, false));
-        String portAttr = PSXmlUtils.checkAttribute(elem, PORT_ATTR, false);
-        if (portAttr.length() > 0) {
-            try {
-                setPort(Integer.valueOf(portAttr));
-            } catch (NumberFormatException ignore) {
-                setPort(null);
-            }
-        }
-
-        setFolderRoot(PSXmlUtils.checkAttribute(elem, FOLDERROOT_ATTR, false));
-        setNavTheme(PSXmlUtils.checkAttribute(elem, NAVTHEME_ATTR, false));
-        setGlobalTemplate(PSXmlUtils.checkAttribute(elem, GLOBALTEMPLATE_ATTR, false));
-
-        setPageBased(Boolean.parseBoolean(PSXmlUtils.checkAttribute(elem, IS_PAGE_BASED_ATTR, false)));
+        PSXmlSerializationHelper.readFromXML(xmlsource, this);
     }
 
     @Override
     public String toXML() throws IOException, SAXException {
-        Document doc = PSXmlDocumentBuilder.createXmlDocument();
-        Element root = doc.createElement(XML_NODE_NAME);
-
-        root.setAttribute(NAME_ATTR, getName());
-        if (getDescription() != null) root.setAttribute(DESCRIPTION_ATTR, getDescription());
-        if (getBaseUrl() != null) root.setAttribute(BASEURL_ATTR, getBaseUrl());
-        if (getRoot() != null) root.setAttribute(ROOT_ATTR, getRoot());
-        if (getIpAddress() != null) root.setAttribute(IPADDRESS_ATTR, getIpAddress());
-        if (getPort() != null) root.setAttribute(PORT_ATTR, String.valueOf(getPort()));
-        if (getFolderRoot() != null) root.setAttribute(FOLDERROOT_ATTR, getFolderRoot());
-        if (getNavTheme() != null) root.setAttribute(NAVTHEME_ATTR, getNavTheme());
-        if (getGlobalTemplate() != null) root.setAttribute(GLOBALTEMPLATE_ATTR, getGlobalTemplate());
-
-        root.setAttribute(IS_PAGE_BASED_ATTR, Boolean.toString(isPageBased()));
-
-        doc.appendChild(root);
-        return PSXmlDocumentBuilder.toString(doc);
+        return PSXmlSerializationHelper.writeToXml(this);
     }
 }
