@@ -39,6 +39,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * JEXL utility bean exposed to Rhythmyx templates that performs image-related lookups and
+ * operations, such as locating image-size definitions and resolving image metadata for the image
+ * editor UI.
+ *
  * @author DavidBenua
  */
 public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpression {

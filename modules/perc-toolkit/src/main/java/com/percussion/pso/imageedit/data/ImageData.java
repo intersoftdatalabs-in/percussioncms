@@ -19,6 +19,9 @@ package com.percussion.pso.imageedit.data;
 import java.io.Serializable;
 
 /**
+ * Holds the binary image data together with the metadata tracked by {@link ImageMetaData}. Used by
+ * the image editor to load and persist images through the Rhythmyx content repository.
+ *
  * @author DavidBenua
  */
 public class ImageData extends ImageMetaData implements Serializable {

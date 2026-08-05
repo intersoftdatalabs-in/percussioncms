@@ -19,6 +19,9 @@ package com.percussion.pso.imageedit.services.cache;
 import com.percussion.services.PSBaseServiceLocator;
 
 /**
+ * Spring service locator for the image-meta-data cache manager bean used by the image editor
+ * subsystem.
+ *
  * @author DavidBenua
  */
 public class ImageCacheManagerLocator extends PSBaseServiceLocator {
