@@ -19,6 +19,7 @@ consistent set of transitive dependency versions.
 
 ```
 perc-shared-app/
+├── .gitignore
 ├── pom.xml   # declares the empty <dependencies/> block and inherits dependencyManagement
 └── README.md
 ```
