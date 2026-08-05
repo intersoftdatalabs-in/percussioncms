@@ -96,8 +96,9 @@ public class ApiUtils {
 
   /***
    * Converts a system IPSGuid to a rest compatible Guid.
-   * @param guid
    *
+   * @param guid the system GUID, may be {@code null}
+   * @return the rest compatible Guid, never {@code null}
    */
   public static Guid convertGuid(IPSGuid guid) {
     var ret = new Guid();
@@ -112,16 +113,34 @@ public class ApiUtils {
     return ret;
   }
 
+  /**
+   * Converts a rest compatible Guid to a system IPSGuid.
+   *
+   * @param guid the rest compatible Guid
+   * @return the corresponding system IPSGuid
+   */
   public static IPSGuid convertGuid(Guid guid) {
     return PSGuidManagerLocator.getGuidMgr().makeGuid(guid.getStringValue().orElse(null));
   }
 
-  /** Helper that returns the contained value or null. */
+  /**
+   * Helper that returns the contained value or null.
+   *
+   * @param opt the optional to unwrap, may be {@code null}
+   * @param <T> the contained type
+   * @return the contained value or {@code null}
+   */
   public static <T> T orNull(Optional<T> opt) {
     return opt == null ? null : opt.orElse(null);
   }
 
-  /** Return an empty collection if the Optional is empty or null. */
+  /**
+   * Return an empty collection if the Optional is empty or null.
+   *
+   * @param opt the optional collection, may be {@code null}
+   * @param <T> the element type
+   * @return the contained collection or an empty one
+   */
   public static <T> Collection<T> orEmpty(Optional<? extends Collection<T>> opt) {
     if (opt == null || opt.isEmpty()) {
       return List.of();
@@ -134,6 +153,10 @@ public class ApiUtils {
    * contained value or null; otherwise the value is returned unchanged. This allows callers to
    * uniformly access getters which may or may not return Optionals without needing to know the
    * return type.
+   *
+   * @param <T> the type parameter of the contained value
+   * @param o the value to unwrap
+   * @return the contained value, or the input unchanged when it is not an Optional
    */
   public static <T> T unwrap(Object o) {
     if (o instanceof Optional) {
@@ -142,8 +165,9 @@ public class ApiUtils {
     return (T) o;
   }
 
-  /***
-   * Converts a PSCommunity to a Community for return to the REST API
+  /**
+   * Converts a PSCommunity to a Community for return to the REST API.
+   *
    * @param c A valid community
    * @return The converted community
    */
@@ -169,10 +193,11 @@ public class ApiUtils {
     return ret;
   }
 
-  /***
-   * Takes a list of Guids and returns a list of IPSGuids
-   * @param ids
+  /**
+   * Takes a list of Guids and returns a list of IPSGuids.
    *
+   * @param ids the rest compatible Guid list, never {@code null}
+   * @return the converted list of system IPSGuids, never {@code null}
    */
   public static List<IPSGuid> convertGuids(GuidList ids) {
     var ret = new ArrayList<IPSGuid>();
@@ -186,10 +211,11 @@ public class ApiUtils {
     return ret;
   }
 
-  /***
-   * Takes a list of PSCommunity instances and returns a CommunityList
-   * @param ps_communities
+  /**
+   * Takes a list of PSCommunity instances and returns a CommunityList.
    *
+   * @param ps_communities the list of PSCommunity instances, never {@code null}
+   * @return the corresponding CommunityList, never {@code null}
    */
   public static CommunityList convertPSCommunities(List<PSCommunity> ps_communities) {
 
@@ -200,10 +226,11 @@ public class ApiUtils {
     return new CommunityList(communities);
   }
 
-  /***
-   * Takes a CommunityList and returns a list of PSCommunity objects
-   * @param communities
+  /**
+   * Takes a CommunityList and returns a list of PSCommunity objects.
    *
+   * @param communities the CommunityList, never {@code null}
+   * @return the corresponding list of PSCommunity objects, never {@code null}
    */
   public static List<PSCommunity> convertCommunityList(CommunityList communities) {
 
@@ -215,10 +242,11 @@ public class ApiUtils {
     return ret;
   }
 
-  /***
-   * Takes a Community and returns a PSCommunity
-   * @param c
+  /**
+   * Takes a Community and returns a PSCommunity.
    *
+   * @param c the rest compatible Community, never {@code null}
+   * @return the corresponding PSCommunity, never {@code null}
    */
   public static PSCommunity convertCommunity(Community c) {
     PSCommunity p = new PSCommunity();
@@ -234,10 +262,11 @@ public class ApiUtils {
     return p;
   }
 
-  /***
-   * Takes a community role list and returns a List of IPSGuids
-   * @param roleList
+  /**
+   * Takes a community role list and returns a List of PSCommunityRoleAssociation objects.
    *
+   * @param roleList the rest compatible CommunityRoleList, may be {@code null}
+   * @return the corresponding list of PSCommunityRoleAssociation objects, never {@code null}
    */
   public static Collection<PSCommunityRoleAssociation> convertCommunityRoleList(
       CommunityRoleList roleList) {
@@ -255,14 +284,21 @@ public class ApiUtils {
     return ret;
   }
 
+  /**
+   * Converts an ObjectTypeEnum to a PSTypeEnum.
+   *
+   * @param type the rest compatible ObjectTypeEnum, never {@code null}
+   * @return the corresponding PSTypeEnum
+   */
   public static PSTypeEnum convertObjectTypeEnum(ObjectTypeEnum type) {
     return PSTypeEnum.valueOf(type.name());
   }
 
-  /***
-   * Takes a list of PSCommunityVisibilities and returns a CommunityVisibilityList
-   * @param ps_visibilities
+  /**
+   * Takes a list of PSCommunityVisibilities and returns a CommunityVisibilityList.
    *
+   * @param ps_visibilities the list of PSCommunityVisibility objects, never {@code null}
+   * @return the corresponding CommunityVisibilityList, never {@code null}
    */
   public static Collection<? extends CommunityVisibility> convertPSCommunityVisibilities(
       List<PSCommunityVisibility> ps_visibilities) {
@@ -273,6 +309,12 @@ public class ApiUtils {
     return new CommunityVisibilityList(visibilities);
   }
 
+  /**
+   * Converts a single PSCommunityVisibility to its REST representation.
+   *
+   * @param pv the PSCommunityVisibility, never {@code null}
+   * @return the corresponding CommunityVisibility, never {@code null}
+   */
   public static CommunityVisibility convertPSCommunityVisibility(PSCommunityVisibility pv) {
 
     CommunityVisibility ret =
