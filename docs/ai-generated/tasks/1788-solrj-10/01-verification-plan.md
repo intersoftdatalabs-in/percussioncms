@@ -5,13 +5,13 @@
 >
 > **Sibling slices:**
 >
-> |  Slice   | Issue |                              Scope                              |
-> |----------|-------|-----------------------------------------------------------------|
-> | 1        | #1996 | Call-site + POM inventory vs Solr 10 (`00-inventory.md`)        |
-> | 2        | #1997 | SolrJ 10 compile cutover + client construction unit tests       |
-> | 3        | #1998 | Explicit Maven modules / packaging (HTTP-only policy)           |
-> | 4 (this) | #1999 | Verification plan + expanded mock/unit coverage                 |
-> | 5        | #2000 | Docs + Dependabot #1777 disposition + real version-bump closure |
+> |  Slice   | Issue |                                   Scope                                    |
+> |----------|-------|----------------------------------------------------------------------------|
+> | 1        | #1996 | Call-site + POM inventory vs Solr 10 (`00-inventory.md`)                   |
+> | 2        | #1997 | SolrJ 10 compile cutover + client construction unit tests                  |
+> | 3        | #1998 | Explicit Maven modules / packaging (HTTP-only policy)                      |
+> | 4 (this) | #1999 | Verification plan + expanded mock/unit coverage                            |
+> | 5        | #2000 | Operator release notes + #1777 supersede (`release-notes-8.2-solrj-10.md`) |
 
 ---
 
@@ -267,11 +267,12 @@ Record results on the parent epic **#1788** or this issue with:
 
 ## 8. Links
 
-|       Resource        |                                         URL / path                                          |
-|-----------------------|---------------------------------------------------------------------------------------------|
-| Parent epic           | https://github.com/intersoftdatalabs-in/percussioncms/issues/1788                           |
-| This issue            | https://github.com/intersoftdatalabs-in/percussioncms/issues/1999                           |
-| Inventory             | `docs/ai-generated/tasks/1788-solrj-10/00-inventory.md`                                     |
-| Solr 10 major changes | https://solr.apache.org/guide/solr/latest/upgrade-notes/major-changes-in-solr-10.html       |
-| Handler               | `system/business/src/com/percussion/delivery/metadata/solr/impl/PSSolrDeliveryHandler.java` |
+|        Resource        |                                         URL / path                                          |
+|------------------------|---------------------------------------------------------------------------------------------|
+| Parent epic            | https://github.com/intersoftdatalabs-in/percussioncms/issues/1788                           |
+| This issue             | https://github.com/intersoftdatalabs-in/percussioncms/issues/1999                           |
+| Inventory              | `docs/ai-generated/tasks/1788-solrj-10/00-inventory.md`                                     |
+| Operator release notes | `docs/ai-generated/tasks/1788-solrj-10/release-notes-8.2-solrj-10.md` (#2000)               |
+| Solr 10 major changes  | https://solr.apache.org/guide/solr/latest/upgrade-notes/major-changes-in-solr-10.html       |
+| Handler                | `system/business/src/com/percussion/delivery/metadata/solr/impl/PSSolrDeliveryHandler.java` |
 

@@ -17,7 +17,7 @@
 > | 2        | #1997 | SolrJ 10 compile cutover + unit tests (`system` / metadata primary)                                            |
 > | 3        | #1998 | Explicit Maven modules / packaging for non-transitive SolrJ bits                                               |
 > | 4        | #1999 | Metadata Solr verification plan (mock/unit first; live optional / human-gated) — see `01-verification-plan.md` |
-> | 5        | #2000 | Docs + Dependabot **#1777** disposition + real `solr.version` bump PR closure                                  |
+> | 5        | #2000 | Operator release notes + Dependabot **#1777** supersede + major ignore (`release-notes-8.2-solrj-10.md`)       |
 
 ---
 
@@ -307,8 +307,9 @@ Risk: **H** = compile/runtime break without code change; **M** = works with conf
 | Compile cutover                 | https://github.com/intersoftdatalabs-in/percussioncms/issues/1997                           |
 | Maven modules                   | https://github.com/intersoftdatalabs-in/percussioncms/issues/1998                           |
 | Verification plan               | #1999 — `docs/ai-generated/tasks/1788-solrj-10/01-verification-plan.md`                     |
-| Version bump / docs             | https://github.com/intersoftdatalabs-in/percussioncms/issues/2000                           |
-| Dependabot (do not merge alone) | https://github.com/intersoftdatalabs-in/percussioncms/pull/1777                             |
+| Operator release notes          | `docs/ai-generated/tasks/1788-solrj-10/release-notes-8.2-solrj-10.md` (#2000)               |
+| Dependabot (superseded; closed) | https://github.com/intersoftdatalabs-in/percussioncms/pull/1777                             |
+| Intentional upgrade PRs         | #2009 (client+packaging+`solr.version` 10.0.0), #2010 (verification + mock tests)           |
 | Solr 10 major changes           | https://solr.apache.org/guide/solr/latest/upgrade-notes/major-changes-in-solr-10.html       |
 | Primary handler                 | `system/business/src/com/percussion/delivery/metadata/solr/impl/PSSolrDeliveryHandler.java` |
 | Root pin                        | `pom.xml` → `solr.version`                                                                  |

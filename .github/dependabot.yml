@@ -14,6 +14,12 @@ updates:
           - ">=2"
       - dependency-name: "com.percussion:*"
         versions: [">= 0"]
+      # After intentional SolrJ 10.x landing (#1788 / #2009): freeze major-only
+      # Dependabot bumps so the next Solr major cannot reappear as a version-only
+      # PR (see closed #1777). Patch/minor within 10.x remain allowed.
+      - dependency-name: "org.apache.solr:*"
+        update-types:
+          - "version-update:semver-major"
 
   # npm / frontend packages (lockfiles present). Dual WebUI roots stay in lockstep:
   # WebUI/package.json and WebUI/src/main/frontend (Maven frontend-maven-plugin).
