@@ -43,6 +43,7 @@ public class PSFeedsApplication extends ResourceConfig {
    * Registers the request-scoped filter, Spring component provider, lifecycle listeners, the feed
    * REST service, JSON binding provider, and exception mappers used by the feeds application.
    */
+  @SuppressWarnings("this-escape")
   public PSFeedsApplication() {
     register(RequestContextFilter.class);
     register(SpringComponentProvider.class);
