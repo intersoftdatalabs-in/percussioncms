@@ -262,7 +262,10 @@
         <skipTests>false</skipTests>
         <slf4j.version>2.0.18</slf4j.version>
         <snakeyaml.version>2.5</snakeyaml.version>
-        <solr.version>9.10.1</solr.version>
+        <!-- SolrJ 10 compile cutover (#1997 / parent #1788): HttpJdkSolrClient replaces
+             removed Apache-HttpClient HttpSolrClient. Optional modules (solr-solrj-jetty,
+             solr-solrj-zookeeper) remain non-transitive — see #1998 for jetty packaging. -->
+        <solr.version>10.0.0</solr.version>
         <spotless.plugin.version>3.8.0</spotless.plugin.version>
         <!--
           Agent / nested worktree dirs. Spotless must never format these full-tree copies.
@@ -1037,7 +1040,8 @@
                 <version>${solr.version}</version>
                 <exclusions>
                     <!-- Issue #1673: optional SolrCloud ZK client (historically ZK 3.9.4).
-                         Product uses HTTP SolrJ only — no CloudSolrClient. Keep off the
+                         Product uses HTTP SolrJ (HttpJdkSolrClient after #1997) and optional
+                         CloudSolrClient with *Solr URLs* (not ZK hosts). Keep ZK off the
                          tree; enforcer bans zookeeper/zookeeper-jute. If CloudSolrClient+ZK
                          is required later: drop these exclusions, remove the enforcer ban,
                          and rely on zookeeper.version (3.9.5, Central latest) management. -->
