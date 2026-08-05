@@ -40,7 +40,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit tests for SolrJ 10 cutover in {@link PSSolrDeliveryHandler} (#1997).
+ * Unit tests for SolrJ 10 cutover in {@link PSSolrDeliveryHandler} (#1997) and packaging policy for
+ * non-transitive optional modules (#1998).
  *
  * <p>No live Solr: construction builds clients offline; update paths use a mocked {@link
  * SolrClient}.
@@ -62,6 +63,20 @@ public class PSSolrDeliveryHandlerTest {
     openClient = PSSolrDeliveryHandler.createStandaloneClient("http://localhost:8983/solr");
     assertInstanceOf(HttpJdkSolrClient.class, openClient);
     assertInstanceOf(SolrClient.class, openClient);
+  }
+
+  /**
+   * Packaging policy (#1998): product declares only {@code solr-solrj} core. Optional modules
+   * {@code solr-solrj-jetty} and {@code solr-solrj-zookeeper} stay off the test/runtime classpath
+   * (managed in root POM but not module dependencies; ZK also enforcer-banned).
+   */
+  @Test
+  void packagingPolicy_optionalSolrModulesNotOnClasspath() {
+    assertThrows(
+        ClassNotFoundException.class,
+        () -> Class.forName("org.apache.solr.client.solrj.jetty.HttpJettySolrClient"));
+    assertThrows(
+        ClassNotFoundException.class, () -> Class.forName("org.apache.zookeeper.ZooKeeper"));
   }
 
   @Test
@@ -122,8 +137,7 @@ public class PSSolrDeliveryHandlerTest {
     SolrServer config = standaloneConfig("siteA");
     PSSolrDeliveryHandler handler = new PSSolrDeliveryHandler("siteA", "PRODUCTION", config);
     SolrClient client = mock(SolrClient.class);
-    when(client.deleteById(any(String.class)))
-        .thenThrow(new SolrServerException("network down"));
+    when(client.deleteById(any(String.class))).thenThrow(new SolrServerException("network down"));
     handler.setSolrClientForTests(client);
 
     assertThrows(PSDeliveryException.class, () -> handler.delete("/x"));

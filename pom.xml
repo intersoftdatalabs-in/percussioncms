@@ -262,9 +262,11 @@
         <skipTests>false</skipTests>
         <slf4j.version>2.0.18</slf4j.version>
         <snakeyaml.version>2.5</snakeyaml.version>
-        <!-- SolrJ 10 compile cutover (#1997 / parent #1788): HttpJdkSolrClient replaces
-             removed Apache-HttpClient HttpSolrClient. Optional modules (solr-solrj-jetty,
-             solr-solrj-zookeeper) remain non-transitive — see #1998 for jetty packaging. -->
+        <!-- SolrJ 10 (#1997 cutover + #1998 packaging / parent #1788):
+             Product HTTP path uses HttpJdkSolrClient from solr-solrj core (JDK java.net.http).
+             Optional modules solr-solrj-jetty and solr-solrj-zookeeper are NON-TRANSITIVE in
+             SolrJ 10 — managed below but intentionally NOT declared on system/WebUI.
+             Keep ZK off tree (enforcer ban, issue #1673). Do not merge Dependabot #1777 alone. -->
         <solr.version>10.0.0</solr.version>
         <spotless.plugin.version>3.8.0</spotless.plugin.version>
         <!--
@@ -317,10 +319,11 @@
             </dependency>
             <!-- ===== Transitive security floors (BOM imports first) =====
                  Product does not call Netty/ZooKeeper APIs directly. AWS SDK v1 and
-                 SolrJ still pull com.fasterxml Jackson 2.x; Artemis pulls modular Netty.
-                 Import BOMs so every module version is forced without sprinkling per-artifact
-                 pins. Solr's optional ZK client is excluded from solr-solrj (issue #1673);
-                 ZK jars are also banned by enforcer while the tree is empty. -->
+                 SolrJ 10 still pull com.fasterxml Jackson 2.x at runtime (tools.jackson 3.x
+                 is the product JSON stack — dual Jackson lines are intentional). Artemis
+                 pulls modular Netty. Import BOMs so every module version is forced without
+                 sprinkling per-artifact pins. SolrJ optional ZK client stays off tree
+                 (issue #1673 / #1998); ZK jars + solr-solrj-zookeeper are enforcer-banned. -->
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-bom</artifactId>
@@ -1034,17 +1037,23 @@
                 <artifactId>owlapi-distribution</artifactId>
                 <version>${owl.version}</version>
             </dependency>
+            <!-- ===== SolrJ 10 packaging (#1998 / parent #1788) =====
+                 Only solr-solrj (+ transitive solr-api) is on the product tree.
+                 Optional modules are non-transitive in SolrJ 10 — declare them only if
+                 product code intentionally adopts that client path. -->
             <dependency>
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-solrj</artifactId>
                 <version>${solr.version}</version>
                 <exclusions>
-                    <!-- Issue #1673: optional SolrCloud ZK client (historically ZK 3.9.4).
-                         Product uses HTTP SolrJ (HttpJdkSolrClient after #1997) and optional
-                         CloudSolrClient with *Solr URLs* (not ZK hosts). Keep ZK off the
-                         tree; enforcer bans zookeeper/zookeeper-jute. If CloudSolrClient+ZK
-                         is required later: drop these exclusions, remove the enforcer ban,
-                         and rely on zookeeper.version (3.9.5, Central latest) management. -->
+                    <!-- Issue #1673 / #1998: keep ZK stack off the tree (HTTP SolrJ only).
+                         solr-solrj-zookeeper is non-transitive in SolrJ 10; exclusions remain
+                         defensive if a future solr-solrj release re-introduces optional pulls.
+                         Product CloudSolrClient uses *Solr base URLs* (not ZK hosts) and falls
+                         back to HttpJdkSolrClient without Jetty on the classpath.
+                         To re-enable Cloud+ZK later: drop these exclusions, remove enforcer
+                         bans for solr-solrj-zookeeper + zookeeper/zookeeper-jute, and add an
+                         explicit module dependency on solr-solrj-zookeeper (managed below). -->
                     <exclusion>
                         <groupId>org.apache.solr</groupId>
                         <artifactId>solr-solrj-zookeeper</artifactId>
@@ -1058,40 +1067,40 @@
                         <artifactId>zookeeper-jute</artifactId>
                     </exclusion>
                     <!-- com.fasterxml Jackson 2.x for SolrJ is version-forced via jackson-bom
-                         (do not exclude — SolrJ needs it at runtime). Netty via netty-bom. -->
-                    <exclusion>
-                        <groupId>io.netty</groupId>
-                        <artifactId>netty-buffer</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-alpn-client</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-alpn-java-client</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-client</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-http</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-io</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-util</artifactId>
-                    </exclusion>
+                         (do not exclude — SolrJ 10 still needs jackson-databind/core/annotations
+                         at runtime under product tools.jackson 3.x). Netty is not a SolrJ 10
+                         core transitive; Artemis Netty stays on netty-bom. -->
+                    <!-- SolrJ 10 core no longer pulls Jetty client jars (moved to
+                         solr-solrj-jetty). Do not re-add Jetty exclusions on core — they are
+                         no-ops. Product does not declare solr-solrj-jetty (HttpJdk path). -->
                     <exclusion>
                         <groupId>org.slf4j</groupId>
                         <artifactId>jcl-over-slf4j</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <!-- Transitive of solr-solrj; managed so version stays locked to ${solr.version}. -->
+            <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-api</artifactId>
+                <version>${solr.version}</version>
+            </dependency>
+            <!-- OPTIONAL / OFF TREE (#1998): Jetty HTTP Solr client (HttpJettySolrClient).
+                 Managed only so an intentional future opt-in gets a single version pin.
+                 NOT declared on system or WebUI — product uses HttpJdkSolrClient (#1997).
+                 Adding this module also pulls Jetty 12 HTTP/2 client stacks. -->
+            <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-solrj-jetty</artifactId>
+                <version>${solr.version}</version>
+            </dependency>
+            <!-- OPTIONAL / OFF TREE (#1673 / #1998): ZK-backed CloudSolrClient support.
+                 Managed for re-enable design only. Enforcer bans this artifact and
+                 zookeeper/zookeeper-jute while the product stays HTTP SolrJ only. -->
+            <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-solrj-zookeeper</artifactId>
+                <version>${solr.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.woodstox</groupId>
@@ -2235,18 +2244,20 @@
                                              dependency on JDK 9+ / Maven 3.9+. systemPath ${tools.jar}
                                              fails absolute-path validation and tools.jar is gone from
                                              modern JDKs. Ban so it cannot re-enter dependencyManagement. -->
-                                        <!-- Issue #1673: ban ZooKeeper client jars entirely.
-                                             solr-solrj already excludes solr-solrj-zookeeper +
-                                             zookeeper/zookeeper-jute (HTTP Solr only). Tree is
-                                             empty on system/WebUI/sitemanage/rest/deployer.
-                                             No newer Central pin than 3.9.5; Dependabot residual
-                                             advisory noise on 3.9.x is mitigated by absence from
-                                             the tree. Drop this ban only if CloudSolrClient+ZK
-                                             is intentionally re-enabled. -->
+                                        <!-- Issue #1673 / #1998: ban ZooKeeper + SolrJ ZK module.
+                                             solr-solrj excludes solr-solrj-zookeeper +
+                                             zookeeper/zookeeper-jute (HTTP Solr only / HttpJdk).
+                                             Tree is empty on system/WebUI. solr-solrj-jetty is
+                                             also intentionally undeclared (managed only).
+                                             No newer Central ZK pin than 3.9.5; residual
+                                             Dependabot noise is mitigated by absence from the
+                                             tree. Drop bans only if CloudSolrClient+ZK is
+                                             intentionally re-enabled with an explicit design. -->
                                         <excludes>
                                             <exclude>com.github.junrar:junrar</exclude>
                                             <exclude>org.java-websocket:Java-WebSocket:*:[,1.4.1]</exclude>
                                             <exclude>com.sun:tools</exclude>
+                                            <exclude>org.apache.solr:solr-solrj-zookeeper</exclude>
                                             <exclude>org.apache.zookeeper:zookeeper</exclude>
                                             <exclude>org.apache.zookeeper:zookeeper-jute</exclude>
                                         </excludes>
