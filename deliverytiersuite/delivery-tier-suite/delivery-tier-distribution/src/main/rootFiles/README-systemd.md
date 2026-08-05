@@ -17,8 +17,9 @@ init.d under GH-1976 without human approval). Packaging guards:
 `DtsLinuxServiceDualShipPackagingTest`.
 
 Shared unit template: `dts-tomcat.service.in` (must sit next to the role
-installer under `Deployment/Server/` after install — `installDts.xml` co-locates
-it). Ops README also remains at the DTS install root.
+installer under `Deployment/Server/` after install/upgrade — `installDts.xml`
+co-locates it with `DTS*Service.sh`; GH-1984). Ops README also remains at the
+DTS install root and is co-located under `Deployment/Server/` on Linux.
 
 SysV/init.d remains available as:
 

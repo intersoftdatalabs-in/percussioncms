@@ -124,9 +124,12 @@ when available:
 | `DTSStagingService.sh`    | `PercussionStagingDTS`    |
 
 Shared unit template: `dts-tomcat.service.in` (`Type=forking`, `TimeoutStartSec=1800`, journal).  
-Ops notes: `README-systemd.md` (dry-run / non-root limitations, migration uninstall→install,
-init.d retained as start helper + fallback). Flags: `--systemd`, `--initd`. Install requires
-root (no product `--dry-run`). Windows `.bat` unchanged.
+`installDts.xml` co-locates the template and `README-systemd.md` under `Deployment/Server/`
+next to `DTSProductionService.sh` / `DTSStagingService.sh` (scripts resolve
+`dirname $0`/dts-tomcat.service.in; GH-1984). Ops notes: `README-systemd.md` (dry-run /
+non-root limitations, migration uninstall→install, init.d retained as start helper +
+fallback). Flags: `--systemd`, `--initd`. Install requires root (no product `--dry-run`).
+Windows `.bat` unchanged.
 
 **Dual-ship policy:** keep init.d until a live Linux soak signs off (do not remove
 init.d / #1976 without ops review). `installDts.xml` places the role-specific

@@ -108,4 +108,95 @@ class DtsServiceInstallScriptTest {
   void staging_defaultServiceName() {
     assertTrue(staging.contains("SERVICE_NAME=PercussionStagingDTS"));
   }
+
+  /**
+   * GH-1984: systemd install resolves the unit template beside the service script ({@code dirname
+   * $0}/dts-tomcat.service.in). Scripts are installed under {@code Deployment/Server/}, so the
+   * template must not be assumed only at product surface root.
+   */
+  @Test
+  void bothScripts_resolveUnitTemplateBesideScript() {
+    for (String script : List.of(production, staging)) {
+      assertTrue(
+          script.contains(
+                  "unit_template=\"$(dirname \"$(abspath \"$0\")\")/dts-tomcat.service.in\"")
+              || script.contains(
+                  "unit_template=$(dirname \"$(abspath \"$0\")\")/dts-tomcat.service.in"),
+          "installSystemdUnit must resolve dts-tomcat.service.in next to the service script");
+      assertTrue(
+          script.contains("Missing systemd unit template"),
+          "must fail closed when unit template is missing");
+    }
+  }
+
+  /**
+   * GH-1984 / inventory Gap B: {@code installDts.xml} must copy {@code dts-tomcat.service.in} (and
+   * {@code README-systemd.md}) into {@code Deployment/Server/} on both fresh and upgrade Linux
+   * paths, co-located with {@code DTSProductionService.sh} / {@code DTSStagingService.sh}.
+   */
+  @Test
+  void installDts_colocatesSystemdTemplateWithServiceScripts() throws Exception {
+    Path installDts =
+        Path.of("src", "main", "rootFiles", "rxconfig", "Installer", "installDts.xml");
+    assertTrue(Files.isRegularFile(installDts), () -> "missing " + installDts.toAbsolutePath());
+    String xml = Files.readString(installDts, StandardCharsets.UTF_8);
+
+    // At least two Linux co-location copies (fresh + upgrade).
+    int serviceInIncludes = countOccurrences(xml, "dts-tomcat.service.in");
+    assertTrue(
+        serviceInIncludes >= 2,
+        "installDts.xml must reference dts-tomcat.service.in at least twice (fresh + upgrade); was "
+            + serviceInIncludes);
+
+    int readmeIncludes = countOccurrences(xml, "README-systemd.md");
+    assertTrue(
+        readmeIncludes >= 2,
+        "installDts.xml must reference README-systemd.md at least twice (fresh + upgrade); was "
+            + readmeIncludes);
+
+    // Each Deployment/Server service-script copy block must also include the unit template.
+    int searchFrom = 0;
+    int serverCopyBlocks = 0;
+    while (true) {
+      int copyIdx =
+          xml.indexOf("todir=\"${install.dir}${staging.dir}/Deployment/Server\"", searchFrom);
+      if (copyIdx < 0) {
+        // also match without quotes variation used on upgrade (same attribute form)
+        break;
+      }
+      int filesetEnd = xml.indexOf("</fileset>", copyIdx);
+      assertTrue(filesetEnd > copyIdx, "unclosed fileset after Deployment/Server copy");
+      String block = xml.substring(copyIdx, filesetEnd);
+      if (block.contains("serviceFileNameLinux") || block.contains("${serviceFileNameLinux}")) {
+        serverCopyBlocks++;
+        assertTrue(
+            block.contains("dts-tomcat.service.in"),
+            "Deployment/Server service-script copy must include dts-tomcat.service.in (GH-1984)");
+        assertTrue(
+            block.contains("README-systemd.md"),
+            "Deployment/Server service-script copy must include README-systemd.md (GH-1984)");
+        assertTrue(
+            block.contains("if=\"${isLinux}\""),
+            "systemd template co-location must be gated on isLinux");
+      }
+      searchFrom = filesetEnd + 1;
+    }
+    assertTrue(
+        serverCopyBlocks >= 2,
+        "expected >=2 Deployment/Server service-script copy blocks (fresh+upgrade); was "
+            + serverCopyBlocks);
+  }
+
+  private static int countOccurrences(String haystack, String needle) {
+    int count = 0;
+    int from = 0;
+    while (true) {
+      int idx = haystack.indexOf(needle, from);
+      if (idx < 0) {
+        return count;
+      }
+      count++;
+      from = idx + needle.length();
+    }
+  }
 }
