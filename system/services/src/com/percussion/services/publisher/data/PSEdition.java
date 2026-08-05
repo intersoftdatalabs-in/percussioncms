@@ -18,37 +18,55 @@ package com.percussion.services.publisher.data;
 
 // Generated Dec 16, 2005 4:46:50 PM by Hibernate Tools 3.1.0 beta1JBIDERC2
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.catalog.IPSCatalogItem;
 import com.percussion.services.catalog.PSTypeEnum;
-import com.percussion.services.guidmgr.IPSGuidManager;
-import com.percussion.services.guidmgr.PSGuidManagerLocator;
-import com.percussion.services.guidmgr.PSGuidUtils;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.publisher.IPSEdition;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
-
-import java.io.IOException;
-
 import jakarta.persistence.Basic;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
-
+import java.io.IOException;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * @see IPSEdition
+ *
+ * <p>Design-object XML root is {@code edition}. Jackson opt-in property surface (issue #1919 / epic
+ * #505). Historical Betwixt suppressed {@code guid}; identity uses {@code id}. {@code name} is an
+ * alias of {@code display-title} and is omitted on write.
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSEdition")
 @Table(name = "RXEDITION")
+@JacksonXmlRootElement(localName = "edition")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({
+  "comment",
+  "displayTitle",
+  "editionType",
+  "id",
+  "priority",
+  "pubServerId",
+  "siteId"
+})
 public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
 {
    /**
@@ -100,6 +118,7 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
    /* (non-Javadoc)
     * @see com.percussion.services.publisher.data.IPSEdition#getId()
     */
+   @JsonProperty
    public long getId()
    {
       return this.editionid;
@@ -116,6 +135,7 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
    /* (non-Javadoc)
     * @see com.percussion.services.publisher.data.IPSEdition#getDisplayTitle()
     */
+   @JsonProperty("display-title")
    public String getDisplayTitle()
    {
       return this.displaytitle;
@@ -125,6 +145,7 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
     *  (non-Javadoc)
     * @see com.percussion.services.publisher.IPSEdition#getName()
     */
+   @JsonIgnore
    public String getName()
    {
       return getDisplayTitle();
@@ -174,6 +195,7 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
    /* (non-Javadoc)
     * @see com.percussion.services.publisher.data.IPSEdition#getComment()
     */
+   @JsonProperty
    public String getComment()
    {
       return this.editioncomment;
@@ -190,6 +212,7 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
    /* (non-Javadoc)
     * @see com.percussion.services.publisher.data.IPSEdition#getEditionType()
     */
+   @JsonProperty("edition-type")
    public PSEditionType getEditionType()
    {
       try
@@ -224,12 +247,13 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
    /* (non-Javadoc)
     * @see com.percussion.services.publisher.data.IPSEdition#getDestSite()
     */
+   @JsonProperty("site-id")
    public IPSGuid getSiteId()
    {
       if (this.destsite == null)
          return null;
       
-      return PSGuidUtils.makeGuid(this.destsite, PSTypeEnum.SITE);
+      return new PSGuid(PSTypeEnum.SITE, this.destsite);
    }
 
    /* (non-Javadoc)
@@ -237,21 +261,24 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
     */
    public void setSiteId(IPSGuid siteId)
    {
-      this.destsite = siteId.longValue();
+      // Null-safe for design-object XML restore when site is unset (issue #1919).
+      this.destsite = siteId == null ? null : siteId.longValue();
    }
 
    /*
     * (non-Javadoc)
     * @see com.percussion.services.publisher.IPSEdition#getPubServerId()
     */
+   @JsonProperty("pub-server-id")
    public IPSGuid getPubServerId()
    {
       if (this.pubserver == null)
          return null;
       
-      return PSGuidUtils.makeGuid(this.pubserver, PSTypeEnum.PUBLISHING_SERVER);
+      return new PSGuid(PSTypeEnum.PUBLISHING_SERVER, this.pubserver);
    }
    
+   @JsonIgnore
    public IPSGuid getPubServerOrSiteId()
    {
       return pubserver == null ? getSiteId() : getPubServerId();
@@ -263,12 +290,14 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
     */
    public void setPubServerId(IPSGuid serverId)
    {
-      pubserver = serverId.longValue();
+      // Null-safe for design-object XML restore when pub server is unset (issue #1919).
+      pubserver = serverId == null ? null : serverId.longValue();
    }
    
    /* (non-Javadoc)
     * @see com.percussion.services.publisher.data.IPSEdition#getPriority()
     */
+   @JsonProperty
    public Priority getPriority()
    {
       if (priority == null)
@@ -335,11 +364,12 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
    /* (non-Javadoc)
     * @see com.percussion.services.publisher.IPSEdition#getGUID()
     */
+   @JsonIgnore
    @IPSXmlSerialization(suppress=true)
    public IPSGuid getGUID()
    {
-      IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-      return gmgr.makeGuid(editionid, PSTypeEnum.EDITION); 
+      // Offline-safe assemble (historical design XML suppressed guid; uses id).
+      return new PSGuid(PSTypeEnum.EDITION, editionid);
    }
 
    /* (non-Javadoc)
@@ -350,10 +380,8 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
       if (guid == null)
          throw new IllegalArgumentException("guid may not be null");
       
-      if (editionid != -1L)
-         throw new IllegalStateException("guid can only be set once");
-      
-      editionid = guid != null ? guid.getUUID() : null;
+      // Allow overwrite on design-object XML restore (BeanUtils + Jackson).
+      editionid = guid.getUUID();
    }
 
    /**
@@ -361,6 +389,8 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
     * 
     * @return returns the version, may be <code>null</code>.
     */
+   @JsonIgnore
+   @IPSXmlSerialization(suppress = true)
    public Integer getVersion()
    {
       return version;

@@ -1,0 +1,24 @@
+<!-- Golden snapshot for production PSPubServer / PSPubServerProperty Jackson
+	wire shape (issue #1919 / epic #505). Nested pub-server-property; properties
+	sorted by name; computed flags and DTS publish-server lookup suppressed. -->
+<pub-server>
+	<description>Default publishing server</description>
+	<guid>0-152-401</guid>
+	<has-full-published>true</has-full-published>
+	<name>Default_Server</name>
+	<publish-type>filesystem</publish-type>
+	<server-id>401</server-id>
+	<site-id>301</site-id>
+	<site-renamed>false</site-renamed>
+	<server-type>PRODUCTION</server-type>
+	<properties>
+		<pub-server-property>
+			<name>folder</name>
+			<value>/sites/default</value>
+		</pub-server-property>
+		<pub-server-property>
+			<name>format</name>
+			<value>HTML</value>
+		</pub-server-property>
+	</properties>
+</pub-server>
