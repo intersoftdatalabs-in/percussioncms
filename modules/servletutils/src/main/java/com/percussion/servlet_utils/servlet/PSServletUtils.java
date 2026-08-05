@@ -83,10 +83,13 @@ public class PSServletUtils {
   /** The name of the Spring configuration file for the sitemanage module. */
   public static final String SITEMANAGE_FILE_NAME = "sitemanage-beans.xml";
 
+  /** File name of the package beans XML descriptor used during servlet wiring. */
   public static final String PACKAGE_BEANS_FILE_NAME = "package-beans.xml";
 
+  /** File name of the image widget beans XML descriptor. */
   public static final String IMAGEWIDGET_BEANS_FILE_NAME = "imageWidget-beans.xml";
 
+  /** File name of the image widget servlet XML descriptor. */
   public static final String IMAGEWIDGET_SERVLET_FILE_NAME = "imageWidget-servlet.xml";
 
   /**
@@ -360,8 +363,8 @@ public class PSServletUtils {
    *
    * @param req the request, never <code>null</code>, will normally be a mock/internal request
    * @return the mock response, never <code>null</code>
-   * @throws IOException
-   * @throws ServletException
+   * @throws IOException if the underlying request/response handling fails
+   * @throws ServletException if the servlet container signals an error during dispatch
    */
   public static PSMockHttpServletResponse callServlet(HttpServletRequest req)
       throws ServletException, IOException {

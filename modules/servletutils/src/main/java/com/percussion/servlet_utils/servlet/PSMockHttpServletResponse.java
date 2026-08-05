@@ -41,19 +41,44 @@ import java.util.Map;
  */
 public class PSMockHttpServletResponse implements HttpServletResponse {
 
+  /** Accumulated response body. */
   private final ByteArrayOutputStream content = new ByteArrayOutputStream();
+
+  /** Response headers keyed by header name. */
   private final Map<String, List<String>> headers = new LinkedHashMap<>();
+
+  /** Cookies that have been added to the response. */
   private final List<Cookie> cookies = new ArrayList<>();
 
+  /** HTTP status code, defaults to {@link #SC_OK}. */
   private int status = SC_OK;
+
+  /** Character encoding used for the response body, defaults to UTF-8. */
   private String characterEncoding = StandardCharsets.UTF_8.name();
+
+  /** Response content type, may be {@code null}. */
   private String contentType;
+
+  /** Locale associated with the response. */
   private Locale locale = Locale.getDefault();
+
+  /** Whether the response has been committed. */
   private boolean committed;
+
+  /** Lazily created print writer for the response body. */
   private PrintWriter writer;
+
+  /** Lazily created servlet output stream for the response body. */
   private ServletOutputStream outputStream;
 
+  /** No-op constructor. */
+  public PSMockHttpServletResponse() {
+    // no-op
+  }
+
   /**
+   * Returns the accumulated response body decoded using the configured character encoding.
+   *
    * @return response body using the configured character encoding
    */
   public String getContentAsString() {
@@ -67,6 +92,8 @@ public class PSMockHttpServletResponse implements HttpServletResponse {
   }
 
   /**
+   * Returns the accumulated response body as raw bytes.
+   *
    * @return raw response bytes
    */
   public byte[] getContentAsByteArray() {

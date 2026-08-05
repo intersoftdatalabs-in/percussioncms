@@ -71,12 +71,16 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSInputValidatorFilter implements Filter {
 
+  /** HTTP status returned when a parameter fails validation. */
   public static final int RESPONSE_ERROR_STATUS = 422;
 
+  /** Default value used when the enable property is absent. */
   protected static final boolean VALIDATOR_ENABLE_DEFAULT_PARAM_VALUE = false;
 
+  /** Name of the system property that turns the filter on or off. */
   public static final String VALIDATOR_ENABLE_PROP_NAME = "PSInputValidatorFilter.enable";
 
+  /** Name of the system property that points at the validator configuration resource. */
   public static final String VALIDATOR_CONFIG_RESOURCE_PROP_NAME =
       "PSInputValidatorFilter.configResource";
 
@@ -100,19 +104,27 @@ public class PSInputValidatorFilter implements Filter {
     // Only allow a numeric, i.e. 10 or 4.5
     NUMERIC(Pattern.compile("\\d+.\\d+"));
 
+    /** Compiled regular expression associated with this restriction type. */
     private Pattern pattern;
 
     RestrictType(Pattern p) {
       this.pattern = p;
     }
 
+    /**
+     * Returns the compiled pattern used to enforce this restriction.
+     *
+     * @return the pattern, never {@code null}
+     */
     public Pattern getPattern() {
       return this.pattern;
     }
   }
 
+  /** Whether this filter instance currently has validation enabled. */
   private boolean isEnabled = false;
 
+  /** No-op constructor. */
   public PSInputValidatorFilter() {
     // ctor
   }
