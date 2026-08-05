@@ -564,7 +564,7 @@ A list of child modules in this repository. Each bullet contains: Module name �
 - **perc-rxapps** — `./modules/perc-rxapps` — Packaging module used by the installer to package files required in the cms deployment.
 - **webservices** — `./modules/webservices` — Legacy Rhythmyx SOAP web services API migrated from Apache Axis to CXF.
 - **perc-system** — `./system` — The core CMS module representing Rhythmyx functionality.  Contains the core XML application server and content managenent implementation.
-- **perc-service-wrapper** — `./modules/perc-service-wrapper` — Legacy module that was intended to be used for Windows service management. Currently not used in deployments.
+- **perc-service-wrapper** — `./modules/perc-service-wrapper` — CMS/DTS process start/stop jar (`PSServiceWrapper`). Packaged into CMS and DTS distributions; **live** on classic Linux SysV/init.d service install (`system/release/installer/Linux/percussion-service.sh` + `install-service.sh`). Not the modern Jetty systemd path (`modules/perc-jetty` dual-ship, GH-962/#1978); do not remove until init.d deprecation (GH-1976).
 - **rest** — `./rest` — Public REST API (JAX-RS resources, wire DTOs, `IXxxAdaptor` interfaces). **Must not** depend on `sitemanage` (reactor cycle). See `rest/AGENTS.md`. Workbench-replacement REST + **dev/QA test modes**: `docs/developer-module/workbench-rest-and-qa-modes.md`.
 - **perc-tinymce** — `./modules/perc-tinymce` — Packaging module for the TinyMCE rich text editor used in the CMS ui to edit content.
 - **perc-toolkit** — `./modules/perc-toolkit` — Legacy module containing
