@@ -10,9 +10,10 @@ Unattended overnight worker:
 
 1. **Discover** open GitHub issues  
 2. **Triage** (implement / split / skip)  
-3. **Work** sequential implement or split — **file residual follow-up issues** for leftover work  
-4. **PR follow-up** (optional, default on) — tech need first (conflicts → CI → review threads); human and AI threads **equal**, human only as **tie-break** on *our* open PRs  
-5. **Report** → `scratch/night-report.md`
+3. **PR follow-up PRE** (optional, default on) - **merge-blocker drain** before new issue PRs (conflicts + open review threads + failing CI, co-equal; oldest first)  
+4. **Work** sequential implement or split - **file residual follow-up issues** for leftover work  
+5. **PR follow-up POST** - catch PRs opened this run + remaining merge blockers  
+6. **Report** -> `scratch/night-report.md`
 
 Opens **PRs only** (never merges). Oversized issues become child issues, not mega-PRs.
 
@@ -22,10 +23,13 @@ Opens **PRs only** (never merges). Oversized issues become child issues, not meg
 |----------------|------------|
 | Partial PRs leave “rest of the work” only in chat | **Always** log residual work as GitHub issues (or plan them in dry_run) linked to parent + PR |
 | Split plans disappear if only a comment | Child issues for each slice; residual URLs in structured result |
-| Same-area overnight PRs (i18n/TMX/gadgets) go **CONFLICTING** and block each other | **PR follow-up** rebases onto base **oldest-first**, resolves conflicts, then CI/review |
-| Review threads (human or AI) invisible / under-reported | Inventory **all** owned PRs; human and bot threads are **equal** selection; report still lists open human threads for visibility |
-| Agent PRs sit blocked on review/CI | **PR follow-up** phase fixes + **inline reply + `resolveReviewThread`** per root `AGENTS.md` |
+| Same-area overnight PRs (i18n/TMX/gadgets) go **CONFLICTING** and block each other | **PR follow-up** rebases onto base **oldest-first**, resolves conflicts |
+| Review threads (human or AI) sit forever while newer conflicts win `max_prs` | Threads are **merge blockers equal to conflicts**; selection is **oldest first** |
+| Empty issue queue early-complete skipped babysit | Empty triage still runs PR follow-up |
+| Agent "touches" a PR (rebase) but leaves 5-7 Kilo threads open | **Completeness:** finish **all** threads on a selected PR before the next PR |
+| Agent PRs sit blocked on review/CI | PRE + POST follow-up; **inline reply + `resolveReviewThread`** per root `AGENTS.md` |
 | Fake-green: resolve without fix | Never bare-resolve (human or bot); mitigation + resolve, or residual issue and **leave OPEN** |
+| Human cannot merge with open conversations | `merge_blockers_still_open` reported every run |
 
 ### When to use
 
@@ -37,17 +41,17 @@ Opens **PRs only** (never merges). Oversized issues become child issues, not meg
 
 | Arg | Type | Default | Meaning |
 |-----|------|---------|---------|
-| `max_issues` | int | `3` | Max items fully processed (capped 1–8) |
-| `issue_numbers` | int[] | — | Only these issues (still triaged) |
-| `labels` | string | — | Optional label filter for discovery |
+| `max_issues` | int | `3` | Max items fully processed (capped 1-8) |
+| `issue_numbers` | int[] | - | Only these issues (still triaged) |
+| `labels` | string | - | Optional label filter for discovery |
 | `repo` | string | `intersoftdatalabs-in/percussioncms` | GitHub repo |
 | `base_branch` | string | `main` | PR base |
 | `dry_run` | bool | `false` | **Cheap plan only:** discover + triage + report (no work agents, no PR follow-up, no git/gh writes) |
 | `prefer_easy` | bool | `true` | Prefer tech-debt / javadoc / small bugs |
 | `agent_safe_only` | bool | `true` | Skip work needing live CMS / E2E / secrets |
 | `unassigned_only` | bool | `true` | Only issues with **no assignees** |
-| `include_pr_followup` | bool | `true` | Run PR babysit phase after issue work (conflicts + CI + review) |
-| `max_prs` | int | `3` | Max open PRs to follow up (capped 1–8). Raise (e.g. 5–8) when same-area conflict chains build up |
+| `include_pr_followup` | bool | `true` | Run PR merge-blocker drain **before and after** issue Work |
+| `max_prs` | int | `6` | Max open PRs per follow-up pass (capped 1-12). Raise on heavy conflict/thread debt nights |
 
 ### What is `agent_budget`?
 
@@ -57,7 +61,7 @@ Not a money budget. It is the **maximum number of child agents** this workflow r
 |---------|---------|
 | **1 slot** | One `agent()` call, or one item in a `parallel()` panel |
 | **Default** | 128 slots for the whole run |
-| **Range** | 1–1,024 if you set `agent_budget` when launching |
+| **Range** | 1-1,024 if you set `agent_budget` when launching |
 | **Does not count** | Schema-correction retries on the same agent |
 
 Rough agent use:
@@ -67,10 +71,11 @@ Rough agent use:
 | Discover | 1 |
 | Triage | 1 |
 | Work | 1 per queued issue |
-| PR follow-up | 0–1 |
+| PR follow-up pre | 0-1 |
+| PR follow-up post | 0-1 |
 | Report | 1 |
 
-**3 issues + PR follow-up ≈ 7 agents.** Default 128 is plenty.
+**3 issues + dual PR follow-up ~ 8 agents.** Default 128 is plenty.
 
 ### How to run
 
@@ -81,7 +86,7 @@ Rough agent use:
 Examples:
 
 ```text
-# Dry run — triage plan only (~2–3 agents, a few minutes). No work explorers.
+# Dry run - triage plan only (~2-3 agents, a few minutes). No work explorers.
 name=night-issue-prs args={"dry_run": true, "max_issues": 5, "labels": "tech-debt"}
 
 # Live overnight: unassigned tech-debt + PR follow-up
@@ -99,21 +104,25 @@ name=night-issue-prs args={"max_issues": 1, "max_prs": 8, "include_pr_followup":
 
 For a pure PR-babysit night, prefer `max_issues: 1` with a label filter that matches nothing (or a known empty set) so Work is nearly empty, and raise `max_prs`. Watch in `/workflows`. Result path: `scratch/night-report.md`.
 
-### PR follow-up: tech need + equal review threads + human tie-break
+### PR follow-up: merge blockers (anti-starvation)
 
-1. **Inventory** GraphQL `reviewThreads` on every owned open PR (human and bot both visible)  
-2. **Select up to `max_prs` by technical need:**  
-   - Tier A: CONFLICTING/DIRTY  
-   - Tier B: failing CI  
-   - Tier C: unresolved review threads (**human and AI equal**)  
-   - Tier D: optional BEHIND base  
-3. **Within a tier only:** prefer PRs with unresolved **human** threads, then oldest `createdAt`  
-4. On each PR: conflicts → CI → all unresolved threads (same fix/reply/resolve rules; human first only if equal difficulty)  
-5. Rebase with careful conflict resolution; push **`--force-with-lease` only** after history rewrite  
+**Human cannot merge** a PR that has conflicts **or** any unresolved review conversation (bot or human). Those are **merge blockers**.
+
+1. **Inventory** GraphQL `reviewThreads` + `mergeable` / `mergeStateStatus` + CI on every owned open PR  
+2. **Select up to `max_prs` merge blockers**, ordered by:  
+   - **Oldest `createdAt` first** (anti-starvation - old Kilo debt must not lose forever to new CONFLICTING PRs)  
+   - Tie-break: unresolved **human** threads before bot-only  
+   - Tie-break: more open threads before fewer  
+3. Conflicts, open threads, and failing CI are **co-equal for inclusion** (interleave by age)  
+4. **Completeness:** on each selected PR, finish **all** unresolved threads (or residual + leave OPEN) before the next PR  
+5. Rebase carefully; push **`--force-with-lease` only** after history rewrite  
 6. Never bare-resolve: fix + mitigation + resolve, or residual + **leave OPEN**  
-7. Report `human_threads_still_open` after a fresh full re-query (visibility, not a separate work queue)
+7. Report `merge_blockers_still_open` + `human_threads_still_open` after a full re-query  
 
-**#1955 lesson:** a MERGEABLE PR with a human freeport thread was under-reported as “no threads.” Fix is full inventory + treating review threads as a real tier (not human-only special-casing that jumps the queue).
+**Phase order:** PRE follow-up -> issue Work -> POST follow-up. Empty issue queue still runs PRE/POST.
+
+**#1955 lesson:** MERGEABLE + human freeport thread under-reported.  
+**#1974 lesson:** MERGEABLE + open Kilo threads starved by `max_prs` + conflict-first tiering.
 
 ### Safety model
 
@@ -121,7 +130,7 @@ For a pure PR-babysit night, prefer `max_issues: 1` with a label filter that mat
 - Fresh branch per issue from `origin/<base_branch>`  
 - No merge, no direct push to `main`  
 - **No bare `--force`**; rebase after conflict resolution may use **`--force-with-lease` only**  
-- Spotless → clean install → tests before PR  
+- Spotless -> clean install -> tests before PR  
 - `unassigned_only` avoids stepping on humans  
 - PR follow-up only on **our** open PRs; hard gate reply+resolve (never bare resolve)  
 - Human and AI review comments **equal**; human is a **tie-break** when tech need is equal  
@@ -138,7 +147,7 @@ Do **not** use a `daily-status` label. Status tables are built from **last 24h P
 | `operator:kilo` | Kilo Code agent |
 | `operator:minimax` | Minimax agent |
 | `operator:nate` | Human Nate only (optional; default is “no operator: label = Nate”) |
-| `model:<id>` | **Required with every agent operator** — e.g. `model:grok-4.5`, `model:claude-…`, whatever the tool reports |
+| `model:<id>` | **Required with every agent operator** - e.g. `model:grok-4.5`, `model:claude-…`, whatever the tool reports |
 
 **Daily status Operator column** (derived):
 
@@ -156,7 +165,7 @@ Exclude Vijay’s PRs by author filter (`-author:vijaya-boddipudi`), not labels.
 Implementers **must** `gh pr create --label operator:… --label model:…` (and create labels if missing). Residual/child issues get the same labels.
 
 **Kilo (Nate + Vijay):** project rule `.kilo/rules/operator-pr-labels.md` requires
-`operator:kilo` + `model:<session model>` on every agent-authored PR — keep that
+`operator:kilo` + `model:<session model>` on every agent-authored PR - keep that
 file in lockstep with this table.
 
 ### Note on in-flight runs
@@ -169,7 +178,7 @@ A run already started uses the **immutable script from launch**. Edits to this f
 
 | Path | What happens |
 |------|----------------|
-| Manual / chat `workflow` tool | Run appears in **this** session’s `/workflows`; can complete (~45–90 min). |
+| Manual / chat `workflow` tool | Run appears in **this** session’s `/workflows`; can complete (~45-90 min). |
 | `scheduler_create` every N hours | Kickoff is a **side session**. Run often **does not show** in parent `/workflows`; may **cancel in ~3s** or **orphan** as `status=active` after parent exits. |
 
 Product feedback logged:
@@ -204,4 +213,4 @@ Keep both in sync after edits, or edit only the user copy for overnight schedule
 workflow validate_only name=night-issue-prs args={"dry_run": true}
 ```
 
-Canned path only — not live `gh` proof.
+Canned path only - not live `gh` proof.
