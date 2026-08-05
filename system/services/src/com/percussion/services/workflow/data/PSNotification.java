@@ -18,41 +18,49 @@ package com.percussion.services.workflow.data;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.services.catalog.IPSCatalogItem;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.string.PSStringUtils;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
-
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Represents a transition notification
+ * Represents a transition notification.
+ *
+ * <p>Recipient lists use Betwixt wire shape {@code <recipients><string/>…} and {@code
+ * <ccrecipients><string/>…} (issue #1890 / epic #505).
  */
 @Entity
 @Table(name = "TRANSITIONNOTIFICATIONS")
 @IdClass(PSNotificationPK.class)
-public class PSNotification implements Serializable, IPSCatalogItem
-{
+@JacksonXmlRootElement(localName = "notification")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+public class PSNotification implements Serializable, IPSCatalogItem {
    /**
     * Compiler generated serial version ID used for serialization.
     */
@@ -90,33 +98,28 @@ public class PSNotification implements Serializable, IPSCatalogItem
    /* (non-Javadoc)
     * @see IPSCatalogSummary#getGUID()
     */
-   public IPSGuid getGUID()
-   {
+   @JsonProperty("guid")
+   public IPSGuid getGUID() {
       return new PSGuid(PSTypeEnum.WORKFLOW_TRANS_NOTIFICATION, transNotificationId);
    }
 
    /* (non-Javadoc)
     * @see IPSCatalogItem#setGUID(IPSGuid)
     */
-   public void setGUID(IPSGuid newguid) throws IllegalStateException
-   {
-      if (newguid == null)
-         throw new IllegalArgumentException("newguid may not be null");
+   public void setGUID(IPSGuid newguid) throws IllegalStateException {
+      if (newguid == null) throw new IllegalArgumentException("newguid may not be null");
 
-      if (transNotificationId != 0)
-         throw new IllegalStateException("cannot change existing guid");
-
+      // Allow overwrite on design-object XML restore (BeanUtils + Jackson).
       transNotificationId = newguid.longValue();
    }
-   
+
    /**
     * Get the state role recipient type.
-    * 
-    * @return the state role recipient type used for this notification,
-    *    never <code>null</code>.
+    *
+    * @return the state role recipient type used for this notification, never <code>null</code>.
     */
-   public PSStateRoleRecipientTypeEnum getStateRoleRecipientType()
-   {
+   @JsonProperty
+   public PSStateRoleRecipientTypeEnum getStateRoleRecipientType() {
       return PSStateRoleRecipientTypeEnum.valueOf(stateRoleRecipientType);
    }
    
@@ -138,30 +141,29 @@ public class PSNotification implements Serializable, IPSCatalogItem
     * @param recipient The email address of the recipient, may not be 
     * <code>null</code> or empty.
     */
-   public void addRecipient(String recipient)
-   {
+   @JsonIgnore
+   public void addRecipient(String recipient) {
       if (StringUtils.isBlank(recipient))
-         throw new IllegalArgumentException(
-            "recipient may not be null or empty");
-      
-      if (StringUtils.isBlank(recipients))
-         recipients = recipient;
-      else
-         recipients += ("," + recipient);
+         throw new IllegalArgumentException("recipient may not be null or empty");
+
+      if (StringUtils.isBlank(recipients)) recipients = recipient;
+      else recipients += ("," + recipient);
    }
-   
+
    /**
     * Get all additional recipients for this notifications.
-    * 
-    * @return all additional recipients email addresses, never 
-    *    <code>null</code>, may be empty.
+    *
+    * <p>Item element is {@code string} (Betwixt type-mapped {@code String}). Use a dedicated
+    * Jackson-facing property name so two list fields can share the same item element name without
+    * conflicting (issue #1890).
+    *
+    * @return all additional recipients email addresses, never <code>null</code>, may be empty.
     */
-   public List<String> getRecipients()
-   {
-      if (recipients == null)
-         return new ArrayList<>();
-      else
-         return Arrays.asList(StringUtils.split(recipients, ','));
+   @JsonProperty("recipients")
+   @JacksonXmlElementWrapper(localName = "recipients")
+   public List<String> getRecipients() {
+      if (recipients == null) return new ArrayList<>();
+      else return new ArrayList<>(Arrays.asList(StringUtils.split(recipients, ',')));
    }
    
    /**
@@ -183,30 +185,28 @@ public class PSNotification implements Serializable, IPSCatalogItem
     * @param recipient The email address of the recipient, may not be 
     * <code>null</code> or empty.
     */
-   public void addCCRecipient(String recipient)
-   {
+   @JsonIgnore
+   public void addCCRecipient(String recipient) {
       if (StringUtils.isBlank(recipient))
-         throw new IllegalArgumentException(
-            "recipient may not be null or empty");
-      
-      if (StringUtils.isBlank(ccRecipients))
-         ccRecipients = recipient;
-      else
-         ccRecipients += ("," + recipient);
+         throw new IllegalArgumentException("recipient may not be null or empty");
+
+      if (StringUtils.isBlank(ccRecipients)) ccRecipients = recipient;
+      else ccRecipients += ("," + recipient);
    }
 
    /**
     * Get all additional CC recipients for this notification.
-    * 
-    * @return all additional CC recipients email addresses, never 
-    *    <code>null</code>, may be empty.
+    *
+    * <p>Wire wrapper is historical Betwixt name {@code ccrecipients} (not kebab {@code
+    * cc-recipients}).
+    *
+    * @return all additional CC recipients email addresses, never <code>null</code>, may be empty.
     */
-   public List<String> getCCRecipients()
-   {
-      if (ccRecipients == null)
-         return new ArrayList<>();
-      else
-         return Arrays.asList(StringUtils.split(ccRecipients, ','));
+   @JsonProperty("ccrecipients")
+   @JacksonXmlElementWrapper(localName = "ccrecipients")
+   public List<String> getCCRecipients() {
+      if (ccRecipients == null) return new ArrayList<>();
+      else return new ArrayList<>(Arrays.asList(StringUtils.split(ccRecipients, ',')));
    }
    
    /**
@@ -225,11 +225,11 @@ public class PSNotification implements Serializable, IPSCatalogItem
    
    /**
     * Get the id of the transition for which this notification is specified.
-    * 
+    *
     * @return the id.
     */
-   public long getTransitionId()
-   {
+   @JsonProperty
+   public long getTransitionId() {
       return transitionId;
    }
 
@@ -245,11 +245,11 @@ public class PSNotification implements Serializable, IPSCatalogItem
 
    /**
     * Get the id of the workflow for which is notification is specified.
-    * 
+    *
     * @return the id
     */
-   public long getWorkflowId()
-   {
+   @JsonProperty
+   public long getWorkflowId() {
       return workflowId;
    }
 
@@ -263,8 +263,8 @@ public class PSNotification implements Serializable, IPSCatalogItem
       this.workflowId = workflowId;
    }   
 
-   public long getNotificationId()
-   {
+   @JsonProperty
+   public long getNotificationId() {
       return notificationId;
    }
    
@@ -332,12 +332,12 @@ public class PSNotification implements Serializable, IPSCatalogItem
       return PSXmlSerializationHelper.writeToXml(this);
    }
    
-   static
-   {
-      // Register types with XML serializer for read creation of objects
+   static {
+      // Historical Betwixt adder element names + wire item element used in design XML.
       PSXmlSerializationHelper.addType("recipient", String.class);
       PSXmlSerializationHelper.addType("ccrecipient", String.class);
-   }   
+      PSXmlSerializationHelper.addType("string", String.class);
+   }
    
    /**
     * Enumeration of the workflow state role recipient types.

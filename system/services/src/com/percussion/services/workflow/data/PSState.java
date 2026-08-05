@@ -16,11 +16,14 @@
  */
 package com.percussion.services.workflow.data;
 
-import static org.apache.commons.lang3.Validate.notNull;
 import static com.percussion.services.workflow.data.PSTransformTransitionUtils.convertTransitions;
 import static com.percussion.services.workflow.data.PSTransformTransitionUtils.copyAgingTransitions;
 import static com.percussion.services.workflow.data.PSTransformTransitionUtils.copyTransitions;
+import static org.apache.commons.lang3.Validate.notNull;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.services.catalog.IPSCatalogItem;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -28,13 +31,6 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.services.workflow.data.PSTransitionHib.TransitionType;
 import com.percussion.utils.guid.IPSGuid;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -46,22 +42,34 @@ import jakarta.persistence.JoinColumns;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
-
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.Cascade;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Represents a workflow state
+ * Represents a workflow state.
+ *
+ * <p>Design-object nested element is {@code state}. Child lists use package wire names {@code
+ * assigned-role}, {@code transition}, {@code aging-transition} (issue #1890 / epic #505).
  */
 @Entity
 @Table(name = "STATES")
 @IdClass(PSStatePK.class)
-public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
-{
+@JacksonXmlRootElement(localName = "state")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem {
    private static final long serialVersionUID = 1L;
 
    @Id
@@ -123,8 +131,8 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     *
     * @see IPSCatalogSummary#getGUID()
     */
-   public IPSGuid getGUID()
-   {
+   @JsonProperty("guid")
+   public IPSGuid getGUID() {
       return new PSGuid(PSTypeEnum.WORKFLOW_STATE, stateId);
    }
 
@@ -133,14 +141,10 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     *
     * @see IPSCatalogItem#setGUID(IPSGuid)
     */
-   public void setGUID(IPSGuid newguid) throws IllegalStateException
-   {
-      if (newguid == null)
-         throw new IllegalArgumentException("newguid may not be null");
+   public void setGUID(IPSGuid newguid) throws IllegalStateException {
+      if (newguid == null) throw new IllegalArgumentException("newguid may not be null");
 
-      if (stateId != 0)
-         throw new IllegalStateException("cannot change existing guid");
-
+      // Allow overwrite on design-object XML restore (BeanUtils + Jackson).
       stateId = newguid.longValue();
    }
 
@@ -149,8 +153,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     *
     * @param id The id
     */
-   public void setStateId(long id)
-   {
+   public void setStateId(long id) {
       stateId = id;
    }
 
@@ -159,8 +162,8 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     *
     * @return the id.
     */
-   public long getStateId()
-   {
+   @JsonProperty
+   public long getStateId() {
       return stateId;
    }
 
@@ -169,8 +172,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     *
     * @param id The id.
     */
-   public void setWorkflowId(long id)
-   {
+   public void setWorkflowId(long id) {
       workflowId = id;
    }
 
@@ -179,8 +181,8 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     *
     * @return The id.
     */
-   public long getWorkflowId()
-   {
+   @JsonProperty
+   public long getWorkflowId() {
       return workflowId;
    }
 
@@ -189,8 +191,8 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     *
     * @see IPSCatalogSummary#getName()
     */
-   public String getName()
-   {
+   @JsonProperty
+   public String getName() {
       return name;
    }
 
@@ -212,8 +214,8 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     *
     * @see IPSCatalogSummary#getLabel()
     */
-   public String getLabel()
-   {
+   @JsonProperty
+   public String getLabel() {
       return getName();
    }
 
@@ -222,8 +224,8 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     *
     * @see IPSCatalogSummary#getDescription()
     */
-   public String getDescription()
-   {
+   @JsonProperty
+   public String getDescription() {
       return description;
    }
 
@@ -242,8 +244,8 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     *
     * @return the sort order.
     */
-   public Integer getSortOrder()
-   {
+   @JsonProperty
+   public Integer getSortOrder() {
       return sortOrder;
    }
 
@@ -262,9 +264,9 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     *
     * @return <code>true</code> is it is, <code>false</code> otherwise.
     */
-   public boolean isPublishable()
-   {
-      return contentValidValue.trim().equalsIgnoreCase("y");
+   @JsonProperty
+   public boolean isPublishable() {
+      return contentValidValue != null && contentValidValue.trim().equalsIgnoreCase("y");
    }
 
    /**
@@ -283,8 +285,8 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     *
     * @return the value.
     */
-   public String getContentValidValue()
-   {
+   @JsonProperty
+   public String getContentValidValue() {
       return contentValidValue;
    }
 
@@ -306,12 +308,14 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     * @return all transitions, never <code>null</code>, may be empty.
     */
 
-   public List<PSTransition> getTransitions()
-   {
-      if (transitionsCache != null)
-         return transitionsCache;
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "transitions")
+   @JacksonXmlProperty(localName = "transition")
+   public List<PSTransition> getTransitions() {
+      if (transitionsCache != null) return transitionsCache;
 
-      transitionsCache = (List<PSTransition>) convertTransitions(transitionHibs, TransitionType.TRANSITION);
+      transitionsCache =
+          (List<PSTransition>) convertTransitions(transitionHibs, TransitionType.TRANSITION);
       return transitionsCache;
    }
 
@@ -364,8 +368,8 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     *
     * @param transition The transition to add, may not be <code>null</code>.
     */
-   public void addTransition(PSTransition transition)
-   {
+   @JsonIgnore
+   public void addTransition(PSTransition transition) {
       notNull(transition, "transition may not be null");
 
       List<PSTransition> transList = getTransitions();
@@ -373,19 +377,19 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
       setTransitions(transList);
    }
 
-
    /**
     * Get all aging transitions defined for this state.
     *
     * @return all aging transitions, never <code>null</code>, may be empty.
     */
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "aging-transitions")
+   @JacksonXmlProperty(localName = "aging-transition")
+   public List<PSAgingTransition> getAgingTransitions() {
+      if (agingTransitionsCache != null) return agingTransitionsCache;
 
-   public List<PSAgingTransition> getAgingTransitions()
-   {
-      if (agingTransitionsCache != null)
-         return agingTransitionsCache;
-
-      agingTransitionsCache = (List<PSAgingTransition>) convertTransitions(transitionHibs, TransitionType.AGING);
+      agingTransitionsCache =
+          (List<PSAgingTransition>) convertTransitions(transitionHibs, TransitionType.AGING);
       return agingTransitionsCache;
    }
 
@@ -414,8 +418,8 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     *
     * @param transition The aging transition to add, may not be <code>null</code>.
     */
-   public void addAgingTransition(PSAgingTransition transition)
-   {
+   @JsonIgnore
+   public void addAgingTransition(PSAgingTransition transition) {
       notNull(transition, "transition may not be null");
 
       List<PSAgingTransition> transList = getAgingTransitions();
@@ -425,23 +429,25 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /**
     * Add an assigned-role to this state's collection.
-    * <p>
-    * Note, this method is required to support the underlying implementation of
-    * {@link #toXML()} and {@link #fromXML(String)} methods for the list of
-    * {@link PSAssignedRole} objects.
     *
-    * @param role The assigned role to add, may not be <code>null</code> and
-    * the role (of the ID) must not exist in current role list.
+    * <p>Ignored by Jackson; use {@link #setAssignedRoles(List)} for XML restore.
+    *
+    * @param role The assigned role to add, may not be <code>null</code> and the role (of the ID)
+    *     must not exist in current role list.
     */
-   public void addAssignedRole(PSAssignedRole role)
-   {
+   @JsonIgnore
+   public void addAssignedRole(PSAssignedRole role) {
       notNull(role, "role may not be null");
 
       // validate the added role does not exist
-      for (PSAssignedRole r : assignedRoles)
-      {
+      for (PSAssignedRole r : assignedRoles) {
          if (r.getGUID().equals(role.getGUID()))
-            throw new IllegalArgumentException("Role ID, \"" + role.getGUID() + "\", already exists in state \"" + getName() + "\".");
+            throw new IllegalArgumentException(
+                "Role ID, \""
+                    + role.getGUID()
+                    + "\", already exists in state \""
+                    + getName()
+                    + "\".");
       }
 
       assignedRoles.add(role);
@@ -450,11 +456,12 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
    /**
     * Get all assigned roles for this state.
     *
-    * @return all assigend state roles, never <code>null</code>, may be
-    *         empty.
+    * @return all assigend state roles, never <code>null</code>, may be empty.
     */
-   public List<PSAssignedRole> getAssignedRoles()
-   {
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "assigned-roles")
+   @JacksonXmlProperty(localName = "assigned-role")
+   public List<PSAssignedRole> getAssignedRoles() {
       return assignedRoles;
    }
 
@@ -524,17 +531,13 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
    /**
     * Determines if any of the state roles have adhoc assignment enabled
     *
-    * @return <code>true</code> if adhoc assignment is enabled,
-    * <code>false</code> otherwise.
+    * @return <code>true</code> if adhoc assignment is enabled, <code>false</code> otherwise.
     */
-   public boolean isAdhocEnabled()
-   {
-      for (PSAssignedRole role : assignedRoles)
-      {
-         if (role.getAssignmentType().getValue() >=
-            PSAssignmentTypeEnum.ASSIGNEE.getValue() &&
-            !role.getAdhocType().equals(PSAdhocTypeEnum.DISABLED))
-         {
+   @JsonProperty
+   public boolean isAdhocEnabled() {
+      for (PSAssignedRole role : assignedRoles) {
+         if (role.getAssignmentType().getValue() >= PSAssignmentTypeEnum.ASSIGNEE.getValue()
+             && !role.getAdhocType().equals(PSAdhocTypeEnum.DISABLED)) {
             return true;
          }
       }
@@ -542,11 +545,12 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
       return false;
    }
 
-   static
-   {
-      // Register types with XML serializer for read creation of objects
+   static {
+      // Wire names match design export XML; historical aliases kept for dual-engine rollback.
+      PSXmlSerializationHelper.addType("assigned-role", PSAssignedRole.class);
       PSXmlSerializationHelper.addType("assignedrole", PSAssignedRole.class);
       PSXmlSerializationHelper.addType("transition", PSTransition.class);
+      PSXmlSerializationHelper.addType("aging-transition", PSAgingTransition.class);
       PSXmlSerializationHelper.addType("agingTransition", PSAgingTransition.class);
    }
 }

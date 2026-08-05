@@ -18,25 +18,34 @@ package com.percussion.services.workflow.data;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.workflow.IPSTransitionsContext;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Represent a workflow non-aging transition
+ * Represent a workflow non-aging transition.
+ *
+ * <p>Design-object nested element is {@code transition} (issue #1890 / epic #505).
  */
-public class PSTransition extends PSTransitionBase implements IPSTransition
-{
+@JacksonXmlRootElement(localName = "transition")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+public class PSTransition extends PSTransitionBase implements IPSTransition {
    /**
     * Compiler generated serial version ID used for serialization.
     */
@@ -59,10 +68,10 @@ public class PSTransition extends PSTransitionBase implements IPSTransition
     * (non-Javadoc)
     * @see com.percussion.services.workflow.data.IPSTransition#isAllowAllRoles()
     */
-   public boolean isAllowAllRoles()
-   {
-      return transitionRoles == null || transitionRoles.trim().equals(
-         IPSTransitionsContext.NO_TRANSITION_ROLE_RESTRICTION);
+   @JsonProperty
+   public boolean isAllowAllRoles() {
+      return transitionRoles == null
+          || transitionRoles.trim().equals(IPSTransitionsContext.NO_TRANSITION_ROLE_RESTRICTION);
    }
 
    /*
@@ -82,8 +91,8 @@ public class PSTransition extends PSTransitionBase implements IPSTransition
     * (non-Javadoc)
     * @see com.percussion.services.workflow.data.IPSTransition#getApprovals()
     */
-   public int getApprovals()
-   {
+   @JsonProperty
+   public int getApprovals() {
       return approvals;
    }
 
@@ -100,12 +109,10 @@ public class PSTransition extends PSTransitionBase implements IPSTransition
     * (non-Javadoc)
     * @see com.percussion.services.workflow.data.IPSTransition#getRequiresComment()
     */
-   public PSWorkflowCommentEnum getRequiresComment()
-   {
-      if (StringUtils.isBlank(requiresComment))
-         return PSWorkflowCommentEnum.OPTIONAL;
-      else
-         return PSWorkflowCommentEnum.typeValueOf(requiresComment);
+   @JsonProperty
+   public PSWorkflowCommentEnum getRequiresComment() {
+      if (StringUtils.isBlank(requiresComment)) return PSWorkflowCommentEnum.OPTIONAL;
+      else return PSWorkflowCommentEnum.typeValueOf(requiresComment);
    }
 
    /*
@@ -124,9 +131,9 @@ public class PSTransition extends PSTransitionBase implements IPSTransition
     * (non-Javadoc)
     * @see com.percussion.services.workflow.data.IPSTransition#isDefaultTransition()
     */
-   public boolean isDefaultTransition()
-   {
-      return defaultTransition == null ? false : defaultTransition.equalsIgnoreCase("Y");
+   @JsonProperty
+   public boolean isDefaultTransition() {
+      return defaultTransition != null && defaultTransition.equalsIgnoreCase("Y");
    }
    
    /**
@@ -149,10 +156,10 @@ public class PSTransition extends PSTransitionBase implements IPSTransition
     * 
     * @param transitionRole the to be added transition role, not <code>null</code>.
     */   
-   public void addTransitionRole(PSTransitionRole transitionRole)
-   {
+   @JsonIgnore
+   public void addTransitionRole(PSTransitionRole transitionRole) {
       notNull(transitionRole, "transitionRole may not be null");
-      
+
       roles.add(transitionRole);
    }
 
@@ -160,8 +167,10 @@ public class PSTransition extends PSTransitionBase implements IPSTransition
     * (non-Javadoc)
     * @see com.percussion.services.workflow.data.IPSTransition#getTransitionRoles()
     */
-   public List<PSTransitionRole> getTransitionRoles()
-   {
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "transition-roles")
+   @JacksonXmlProperty(localName = "transition-role")
+   public List<PSTransitionRole> getTransitionRoles() {
       return roles;
    }
    
@@ -277,12 +286,10 @@ public class PSTransition extends PSTransitionBase implements IPSTransition
       private String mi_value;
    }
    
-   static
-   {
-      // Register types with XML serializer for read creation of objects
+   static {
       PSXmlSerializationHelper.addType("notification", PSNotification.class);
-      PSXmlSerializationHelper.addType("transitionrole", 
-         PSTransitionRole.class);
+      PSXmlSerializationHelper.addType("transition-role", PSTransitionRole.class);
+      PSXmlSerializationHelper.addType("transitionrole", PSTransitionRole.class);
    }
 }
 

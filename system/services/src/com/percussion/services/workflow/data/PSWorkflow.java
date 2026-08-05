@@ -18,6 +18,9 @@ package com.percussion.services.workflow.data;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.services.catalog.IPSCatalogItem;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -25,16 +28,6 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -44,27 +37,39 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Represents a workflow
+ * Represents a workflow.
+ *
+ * <p>Design-object XML root is {@code workflow}. Nested package/export element names match
+ * historical Betwixt writes ({@code state}, {@code role}, {@code notification-def}) — pinned via
+ * Jackson annotations and {@link PSXmlSerializationHelper#addType} (issue #1890 / epic #505).
  */
 @Entity
 @Table(name = "WORKFLOWAPPS")
-public class PSWorkflow
-      implements
-         Serializable,
-         IPSCatalogSummary,
-         IPSCatalogItem
-{
+@JacksonXmlRootElement(localName = "workflow")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+public class PSWorkflow implements Serializable, IPSCatalogSummary, IPSCatalogItem {
    /**
     * Compiler generated serial version ID used for serialization.
     */
@@ -113,37 +118,34 @@ public class PSWorkflow
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSCatalogSummary#getGUID()
     */
-   public IPSGuid getGUID()
-   {
+   @JsonProperty("guid")
+   public IPSGuid getGUID() {
       return new PSGuid(PSTypeEnum.WORKFLOW, id);
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSCatalogItem#setGUID(IPSGuid)
     */
-   public void setGUID(IPSGuid newguid) throws IllegalStateException
-   {
-      if (newguid == null)
-         throw new IllegalArgumentException("newguid may not be null");
+   public void setGUID(IPSGuid newguid) throws IllegalStateException {
+      if (newguid == null) throw new IllegalArgumentException("newguid may not be null");
 
-      if (id != 0)
-         throw new IllegalStateException("cannot change existing guid");
-
+      // Allow overwrite on design-object XML restore (BeanUtils + Jackson); same pattern as
+      // PSKeyword#setGUID (issue #1890).
       id = newguid.longValue();
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSCatalogSummary#getName()
     */
-   public String getName()
-   {
+   @JsonProperty
+   public String getName() {
       return name;
    }
 
@@ -162,22 +164,21 @@ public class PSWorkflow
 
    /**
     * Get the object version.
-    * 
+    *
     * @return the object version, <code>null</code> if not initialized yet.
     */
-   public Integer getVersion()
-   {
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
+   public Integer getVersion() {
       return version;
    }
 
    /**
-    * Set the object version. The version can only be set once in the life cycle
-    * of this object.
-    * 
+    * Set the object version. The version can only be set once in the life cycle of this object.
+    *
     * @param version the version of the object, must be >= 0.
     */
-   public void setVersion(Integer version)
-   {
+   public void setVersion(Integer version) {
       if (this.version != null && version != null)
          throw new IllegalStateException("version can only be initialized once");
 
@@ -186,24 +187,24 @@ public class PSWorkflow
 
       this.version = version;
    }
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSCatalogSummary#getLabel()
     */
-   public String getLabel()
-   {
+   @JsonProperty
+   public String getLabel() {
       return getName();
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSCatalogSummary#getDescription()
     */
-   public String getDescription()
-   {
+   @JsonProperty
+   public String getDescription() {
       return description;
    }
 
@@ -219,11 +220,11 @@ public class PSWorkflow
 
    /**
     * Get the role of the administrator for this workflow.
-    * 
+    *
     * @return the administrator role, may be <code>null</code> or empty.
     */
-   public String getAdministratorRole()
-   {
+   @JsonProperty
+   public String getAdministratorRole() {
       return administratorRole;
    }
 
@@ -240,29 +241,26 @@ public class PSWorkflow
 
    /**
     * The id of the initial state into which all items enter this workflow.
-    * 
+    *
     * @return the initial state id.
     */
-   public long getInitialStateId()
-   {
+   @JsonProperty
+   public long getInitialStateId() {
       return initialStateId;
    }
 
    /**
     * Get the intial state object.
-    * 
-    * @return The state, or <code>null</code> if a valid initial state has not
-    *         been specified.
+    *
+    * @return The state, or <code>null</code> if a valid initial state has not been specified.
     */
    @IPSXmlSerialization(suppress = true)
-   public PSState getInitialState()
-   {
+   @JsonIgnore
+   public PSState getInitialState() {
       PSState state = null;
 
-      for (PSState test : states)
-      {
-         if (test.getStateId() == initialStateId)
-         {
+      for (PSState test : states) {
+         if (test.getStateId() == initialStateId) {
             state = test;
             break;
          }
@@ -283,25 +281,28 @@ public class PSWorkflow
 
    /**
     * Add a state.
-    * 
+    *
+    * <p>Ignored by Jackson (conflicts with collection item name {@code state}); use {@link
+    * #setStates(List)} for XML restore.
+    *
     * @param state The state to add, may not be <code>null</code>.
     */
-   public void addState(PSState state)
-   {
-      if (state == null)
-         throw new IllegalArgumentException("state may not be null");
+   @JsonIgnore
+   public void addState(PSState state) {
+      if (state == null) throw new IllegalArgumentException("state may not be null");
 
       states.add(state);
    }
 
    /**
     * Get all workflow states.
-    * 
-    * @return a list with all defined workflow states, never <code>null</code>,
-    *         may be empty.
+    *
+    * @return a list with all defined workflow states, never <code>null</code>, may be empty.
     */
-   public List<PSState> getStates()
-   {
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "states")
+   @JacksonXmlProperty(localName = "state")
+   public List<PSState> getStates() {
       return states;
    }
 
@@ -340,22 +341,34 @@ public class PSWorkflow
 
    /**
     * The the supplied role to the collection.
-    * 
-    * @param role The role to add, may not be <code>null</code> and the ID and name
-    * of the role must not exist in current role list.
+    *
+    * <p>Ignored by Jackson (conflicts with collection item name {@code role}); use {@link
+    * #setRoles(List)} for XML restore.
+    *
+    * @param role The role to add, may not be <code>null</code> and the ID and name of the role must
+    *     not exist in current role list.
     */
-   public void addRole(PSWorkflowRole role)
-   {
+   @JsonIgnore
+   public void addRole(PSWorkflowRole role) {
       notNull(role);
 
       // validate the added role does not exist
-      for (PSWorkflowRole r : roles)
-      {
+      for (PSWorkflowRole r : roles) {
          if (r.getGUID().equals(role.getGUID()))
-            throw new IllegalArgumentException("Role ID, \"" + role.getGUID() + "\", already exists in workflow \"" + getName() + "\".");
+            throw new IllegalArgumentException(
+                "Role ID, \""
+                    + role.getGUID()
+                    + "\", already exists in workflow \""
+                    + getName()
+                    + "\".");
 
          if (r.getName().equalsIgnoreCase(role.getName()))
-            throw new IllegalArgumentException("Role name, \"" + role.getName() + "\", already exists in workflow \"" + getName() + "\".");
+            throw new IllegalArgumentException(
+                "Role name, \""
+                    + role.getName()
+                    + "\", already exists in workflow \""
+                    + getName()
+                    + "\".");
       }
 
       roles.add(role);
@@ -363,12 +376,13 @@ public class PSWorkflow
 
    /**
     * Get all workflow roles.
-    * 
-    * @return a list with all defined workflow roles, never <code>null</code>,
-    *         may be empty.
+    *
+    * @return a list with all defined workflow roles, never <code>null</code>, may be empty.
     */
-   public List<PSWorkflowRole> getRoles()
-   {
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "roles")
+   @JacksonXmlProperty(localName = "role")
+   public List<PSWorkflowRole> getRoles() {
       return roles;
    }
 
@@ -387,25 +401,28 @@ public class PSWorkflow
 
    /**
     * Add a notification to the collection.
-    * 
+    *
+    * <p>Ignored by Jackson; use {@link #setNotificationDefs(List)} for XML restore.
+    *
     * @param notif The notification to add, may not be <code>null</code>.
     */
-   public void addNotificationDef(PSNotificationDef notif)
-   {
-      if (notif == null)
-         throw new IllegalArgumentException("notif may not be null");
+   @JsonIgnore
+   public void addNotificationDef(PSNotificationDef notif) {
+      if (notif == null) throw new IllegalArgumentException("notif may not be null");
 
       notificationDefs.add(notif);
    }
 
    /**
     * Get all workflow notification definitions.
-    * 
-    * @return a list with all defined workflow notificcations, never
-    *         <code>null</code>, may be empty.
+    *
+    * @return a list with all defined workflow notificcations, never <code>null</code>, may be
+    *     empty.
     */
-   public List<PSNotificationDef> getNotificationDefs()
-   {
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "notification-defs")
+   @JacksonXmlProperty(localName = "notification-def")
+   public List<PSNotificationDef> getNotificationDefs() {
       return notificationDefs;
    }
 
@@ -525,12 +542,12 @@ public class PSWorkflow
       return names;
    }
    
-   static
-   {
-      // Register types with XML serializer for read creation of objects
+   static {
+      // Register types with XML serializer for read creation of objects.
+      // Wire names match design export XML; historical unhyphenated aliases kept for dual-engine.
       PSXmlSerializationHelper.addType("state", PSState.class);
       PSXmlSerializationHelper.addType("role", PSWorkflowRole.class);
-      PSXmlSerializationHelper.addType("notificationdef",
-            PSNotificationDef.class);
+      PSXmlSerializationHelper.addType("notification-def", PSNotificationDef.class);
+      PSXmlSerializationHelper.addType("notificationdef", PSNotificationDef.class);
    }
 }
