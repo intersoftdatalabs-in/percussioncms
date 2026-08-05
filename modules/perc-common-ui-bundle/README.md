@@ -14,8 +14,10 @@ those generated resources inside
 `perc-common-ui-bundle-8.2.0-SNAPSHOT.jar`.
 
 The POM disables the standard `maven-compiler-plugin` execution and uses
-`frontend-maven-plugin` plus `maven-resources-plugin` to produce the
-final JAR. See `pom.xml` for the wiring.
+`frontend-maven-plugin` (run via `npm`) plus `maven-jar-plugin` to
+package the generated resources into the final JAR. The
+`maven-resources-plugin` runs by default in the standard lifecycle but is
+not explicitly configured here. See `pom.xml` for the wiring.
 
 ## Javadoc status
 
@@ -28,9 +30,18 @@ issue **#1942** and the broader cleanup sweep tracked by **#1909**.
 
 ## Build
 
+Windows:
+
 ```bat
 cd modules\perc-common-ui-bundle
 ..\..\mvnw.cmd clean install
+```
+
+Linux / macOS:
+
+```bash
+cd modules/perc-common-ui-bundle
+../../mvnw clean install
 ```
 
 Expected: `BUILD SUCCESS` with no Javadoc phase output (other than the
