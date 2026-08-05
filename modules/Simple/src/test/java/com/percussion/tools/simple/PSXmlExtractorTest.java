@@ -20,11 +20,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.utils.xml.PSEntityResolver;
+import com.percussion.utils.xml.PSSaxParseException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Iterator;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -32,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.io.TempDir;
+import org.xml.sax.SAXParseException;
 
 /**
  * Test the extractor. This currently just tests a particular error case found in 5.5 development,
@@ -139,4 +143,45 @@ public class PSXmlExtractorTest {
 
   /** The tag name of root content editor element. */
   private static final String CE_ROOT_ELEMENT_NAME = "PSXContentEditor";
+
+  /**
+   * Verifies the unchecked-conversion fix in {@link
+   * com.percussion.tools.simple.PSXmlExtractor#validate}: the raw {@link Iterator} returned by
+   * {@link PSSaxParseException#getExceptions()} can be safely iterated and each element cast to
+   * {@link SAXParseException} without raising a {@link ClassCastException}.
+   *
+   * @throws Exception if the test setup fails
+   */
+  @Test
+  @SuppressWarnings("rawtypes")
+  public void testValidateIteratesParseExceptionsSafely() throws Exception {
+    SAXParseException first = new SAXParseException("first parse error", null, null, 10, 5);
+    SAXParseException second = new SAXParseException("second parse error", null, null, 20, 3);
+
+    PSSaxParseException pse = new PSSaxParseException(Arrays.asList(first, second));
+
+    StringBuilder result = new StringBuilder("Document has failed to validate: \n");
+    Iterator errors = pse.getExceptions();
+    int count = 0;
+    while (errors.hasNext()) {
+      SAXParseException spe = (SAXParseException) errors.next();
+      result
+          .append("Error: ")
+          .append(spe.getLocalizedMessage())
+          .append(", Line: ")
+          .append(spe.getLineNumber())
+          .append(", Column: ")
+          .append(spe.getColumnNumber())
+          .append("\n");
+      count++;
+    }
+
+    assertTrue(count == 2, "Expected 2 parse exceptions, got " + count);
+    assertTrue(
+        result.toString().contains("first parse error"),
+        "Result should contain first error message: " + result);
+    assertTrue(
+        result.toString().contains("second parse error"),
+        "Result should contain second error message: " + result);
+  }
 }
