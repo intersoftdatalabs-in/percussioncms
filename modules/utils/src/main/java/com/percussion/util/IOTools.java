@@ -44,6 +44,10 @@ public class IOTools {
    * Convenience method. Copies all of the bytes from the InputStream to the OutputStream using a
    * default buffer size of 8k.
    *
+   * @param in the input stream to read from, never {@code null}; caller is responsible to close
+   * @param out the output stream to write to, never {@code null}; caller is responsible to close
+   * @return the number of bytes copied
+   * @throws IOException if an I/O error occurs during the copy
    * @see #copyStream(InputStream, OutputStream, int)
    */
   public static long copyStream(InputStream in, OutputStream out) throws IOException {
@@ -54,6 +58,11 @@ public class IOTools {
    * Convenience method. Copies all of the bytes from the InputStream to the OutputStream using a
    * default buffer size of 8k.
    *
+   * @param in the input stream to read from, never {@code null}; caller is responsible to close
+   * @param out the output stream to write to, never {@code null}; caller is responsible to close
+   * @param bufSize the number of bytes to transfer at a time
+   * @return the number of bytes copied
+   * @throws IOException if an I/O error occurs during the copy
    * @see #copyStream(InputStream, OutputStream, int)
    */
   public static long copyStream(InputStream in, OutputStream out, int bufSize) throws IOException {
@@ -66,7 +75,7 @@ public class IOTools {
    * @param in Never <code>null</code> caller is responsible to close.
    * @param outFile Never <code>null</code>.
    * @return The number of bytes copied.
-   * @throws IOException
+   * @throws IOException if an I/O error occurs during the copy
    */
   public static long copyStreamToFile(InputStream in, File outFile) throws IOException {
     if (in == null) throw new IllegalArgumentException("Supplied input stream must not be null.");
@@ -128,6 +137,10 @@ public class IOTools {
   /**
    * Convenience method. Copies all of the bytes from the InputStream to a Writer with an 8k buffer.
    *
+   * @param in the input reader to read from, never {@code null}; caller is responsible to close
+   * @param out the output writer to write to, never {@code null}; caller is responsible to close
+   * @return the number of characters copied
+   * @throws IOException if an I/O error occurs during the copy
    * @see #writeStream(Reader, Writer, int)
    */
   public static long writeStream(Reader in, Writer out) throws IOException {
@@ -321,6 +334,7 @@ public class IOTools {
    *
    * @param file file to copy, never <code>null</code>.
    * @param targetDir directory to create copies in, never <code>null</code>.
+   * @throws IOException if an I/O error occurs during the copy
    */
   public static void copyToDir(File file, File targetDir) throws IOException {
     if (file == null) throw new IllegalArgumentException("file may not be null");
@@ -343,6 +357,7 @@ public class IOTools {
    *
    * @param dir directory to copy, never <code>null</code>.
    * @param targetDirs list of directories to create copies in, never <code>null</code>.
+   * @throws IOException if an I/O error occurs during the copy
    */
   public static void copyToDirs(File dir, List<File> targetDirs) throws IOException {
     if (dir == null) throw new IllegalArgumentException("dir may not be null");
@@ -362,6 +377,7 @@ public class IOTools {
    * Deletes file or directory. If directory is not empty recursively deletes it.
    *
    * @param file file to delete.
+   * @throws SecurityException if a security manager denies file deletion
    */
   public static void deleteFile(File file) {
     if (file.isDirectory()) {
@@ -379,7 +395,7 @@ public class IOTools {
    *
    * @param file file to read content from, may not be <code>null</code>.
    * @return content as string, never <code>null</code>, may be empty.
-   * @throws IOException
+   * @throws IOException if an I/O error occurs reading the file
    */
   public static String getFileContent(File file) throws IOException {
     if (file == null) throw new IllegalArgumentException("file may not be null");
@@ -404,7 +420,7 @@ public class IOTools {
    *
    * @param stream stream to read content from, may not be <code>null</code>.
    * @return content as string, never <code>null</code>, may be empty.
-   * @throws IOException
+   * @throws IOException if an I/O error occurs reading the stream
    */
   public static String getContent(InputStream stream) throws IOException {
     if (stream == null) throw new IllegalArgumentException("stream may not be null");
@@ -430,7 +446,7 @@ public class IOTools {
    *
    * @param file the file to copy, may not be <code>null</code>
    * @return the temporary file
-   * @throws IOException
+   * @throws IOException if an I/O error occurs creating the temp file
    */
   public static File createTempFile(File file) throws IOException {
     if (file == null) {
@@ -458,7 +474,7 @@ public class IOTools {
    * @param file the resulting backup file will be file.000,...,etc., may not be <code>null</code>
    *     and must exist.
    * @return a file reference to the newly created backup.
-   * @throws IOException
+   * @throws IOException if an I/O error occurs creating the backup
    */
   public static File createBackupFile(File file) throws IOException {
     if (file == null || !file.exists()) {

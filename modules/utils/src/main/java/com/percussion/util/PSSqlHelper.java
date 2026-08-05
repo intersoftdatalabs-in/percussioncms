@@ -68,6 +68,8 @@ public class PSSqlHelper {
    * Convenience method that looks up the Rx server's database info and calls {@link
    * #qualifyTableName(String, String, String, String)}.
    *
+   * @param tableName the table name to qualify, must be valid
+   * @return the fully qualified table name
    * @throws SQLException See {@link PSConnectionHelper#getDbConnection()}.
    */
   public static String qualifyTableName(String tableName) throws SQLException {
@@ -189,6 +191,7 @@ public class PSSqlHelper {
    * This will create a fully qualified primary key name. Depending on the provided driver type we
    * will return key, or db.key.
    *
+   * @param key the primary-key column name to qualify, must be valid
    * @param db the used database, may be <code>null</code>
    * @param owner the table owner, may be <code>null</code>
    * @param driver the driver type to qualify for, must be valid
@@ -455,6 +458,7 @@ public class PSSqlHelper {
    * @param dataType The jdbc datatype, one of the constant values from {@link java.sql.Types}.
    * @throws IllegalArgumentException if any parameter is invalid.
    * @throws SQLException if an error occurs.
+   * @throws IOException if an I/O error occurs while reading the value bytes
    */
   public static void setDataFromByteArray(
       PreparedStatement stmt, int bindStart, byte[] value, int dataType)
@@ -665,6 +669,7 @@ public class PSSqlHelper {
    * @param dataType The jdbc datatype, on of the constant values from {@link java.sql.Types}.
    * @throws IllegalArgumentException if any parameter is invalid.
    * @throws SQLException if an error occurs.
+   * @throws com.percussion.data.PSDataExtractionException if the value cannot be coerced to the JDBC type
    */
   public static void setDataFromNumber(
       PreparedStatement stmt, int bindStart, Number value, int dataType)
