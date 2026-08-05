@@ -70,3 +70,26 @@ After deployment, access API documentation at:
 3. Verify REST APIs remain functional without Swagger runtime
 4. Confirm Rhythmyx `WEB-INF/lib` has no Swagger artifacts leaked
 
+## Javadoc status
+
+This module is a WAR-only packaging artifact for the Swagger UI web
+resources and contains **no Java sources**. The `maven-javadoc-plugin`
+reports `No Javadoc in project. Archive not created.` during the build,
+which is the expected outcome: **zero source warnings, zero plugin
+warnings, zero errors, zero failures**.
+
+The zero-warning Javadoc baseline for this module is recorded against
+issue **#1945** and the broader cleanup sweep tracked by **#1909**.
+
+## Build
+
+```bat
+cd modules\perc-openapi-webapp
+..\..\mvnw.cmd clean install
+```
+
+Expected: `BUILD SUCCESS`. The non-javadoc warnings about a missing
+`rest-8.2.0-SNAPSHOT.jar` (from the openapi-spec plugin lookup) are
+expected when building this module standalone without first building
+the `rest` module; they are not javadoc warnings.
+
