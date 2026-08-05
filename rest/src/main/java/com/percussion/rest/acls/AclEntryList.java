@@ -27,17 +27,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
+/** List of {@link AclEntry} objects. */
 @XmlRootElement(name = "AclEntryList")
 @XmlSeeAlso(AclEntry.class)
 @ArraySchema(schema = @Schema(implementation = AclEntry.class))
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AclEntryList extends ArrayList<AclEntry> {
+  /** Safe to serialize. */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Creates a new list populated with the supplied collection.
+   *
+   * @param c the source collection
+   */
   public AclEntryList(Collection<? extends AclEntry> c) {
     super(c);
   }
 
+  /** No-op constructor. */
   public AclEntryList() {
     super();
   }

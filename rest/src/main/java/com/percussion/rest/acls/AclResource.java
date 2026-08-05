@@ -36,6 +36,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
+/** REST resource exposing ACL operations. */
 @PSSiteManageBean(value = "restAclResource")
 @Path("/acls")
 @XmlRootElement
@@ -43,10 +44,13 @@ import org.springframework.context.annotation.Lazy;
 @Lazy
 public class AclResource {
 
+  /** Logger used by this resource. */
   private final Logger log = LogManager.getLogger(getClass());
 
+  /** Adaptor that implements the ACL operations. */
   @Autowired private IAclAdaptor adaptor;
 
+  /** No-op constructor. */
   public AclResource() {}
 
   @POST
@@ -138,6 +142,12 @@ public class AclResource {
     }
   }
 
+  /**
+   * Loads the ACL identified by the supplied GUID string.
+   *
+   * @param guid the ACL GUID
+   * @return the loaded ACL
+   */
   @GET
   @Path("/{guid}")
   @Produces(MediaType.APPLICATION_JSON)
@@ -152,6 +162,12 @@ public class AclResource {
     }
   }
 
+  /**
+   * Loads the ACLs for the supplied object GUIDs.
+   *
+   * @param objectGuids the object GUIDs whose ACLs should be loaded
+   * @return the loaded ACLs
+   */
   @POST
   @Path("/bulk")
   @Produces(MediaType.APPLICATION_JSON)
@@ -193,6 +209,12 @@ public class AclResource {
     }
   }
 
+  /**
+   * Persists the supplied ACL list.
+   *
+   * @param aclList the ACL list to save
+   * @return the save status
+   */
   @PUT
   @Path("/bulk")
   @Produces(MediaType.APPLICATION_JSON)
@@ -209,6 +231,12 @@ public class AclResource {
     return ret;
   }
 
+  /**
+   * Deletes the ACL with the supplied GUID.
+   *
+   * @param aclGuid the ACL GUID to delete
+   * @return the deletion status
+   */
   @DELETE
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
@@ -227,6 +255,13 @@ public class AclResource {
     return ret;
   }
 
+  /**
+   * Filters ACLs by community membership. Not implemented.
+   *
+   * @param aclList the ACL list to filter
+   * @param communityNames community names to include
+   * @return {@code null}, indicating the operation is not implemented
+   */
   @POST
   @Path("/community/filter")
   @Produces(MediaType.APPLICATION_JSON)
@@ -236,6 +271,11 @@ public class AclResource {
     return null;
   }
 
+  /**
+   * Finds objects visible to the supplied communities. Not implemented.
+   *
+   * @return {@code null}, indicating the operation is not implemented
+   */
   @GET
   @Path("/community")
   @Produces(MediaType.APPLICATION_JSON)

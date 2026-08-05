@@ -26,32 +26,68 @@ import java.util.Objects;
 @Schema(description = "An ActionMenu parameter")
 public class ActionMenuParameter {
 
+  /** Parameter name. */
   private String name;
+
+  /** Parameter value. */
   private String value;
+
+  /** Free-form description of the parameter. */
   private String description;
 
+  /** No-op constructor. */
   public ActionMenuParameter() {}
 
+  /**
+   * Returns the parameter name.
+   *
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Sets the parameter name.
+   *
+   * @param name the new name
+   */
   public void setName(String name) {
     this.name = name;
   }
 
+  /**
+   * Returns the parameter value.
+   *
+   * @return the value
+   */
   public String getValue() {
     return value;
   }
 
+  /**
+   * Sets the parameter value.
+   *
+   * @param value the new value
+   */
   public void setValue(String value) {
     this.value = value;
   }
 
+  /**
+   * Returns the parameter description.
+   *
+   * @return the description
+   */
   public String getDescription() {
     return description;
   }
 
+  /**
+   * Sets the parameter description.
+   *
+   * @param description the new description
+   */
   public void setDescription(String description) {
     this.description = description;
   }

@@ -28,12 +28,19 @@ import java.util.Objects;
 @XmlRootElement(name = "ActionMenuList")
 @ArraySchema(schema = @Schema(implementation = ActionMenu.class))
 public class ActionMenuList extends ArrayList<ActionMenu> {
+  /** Safe to serialize. */
   private static final long serialVersionUID = 1L;
 
+  /** No-op constructor. */
   public ActionMenuList() {
     super();
   }
 
+  /**
+   * Creates a new list populated with the supplied collection.
+   *
+   * @param c the source collection
+   */
   public ActionMenuList(Collection<? extends ActionMenu> c) {
     super(c);
   }
