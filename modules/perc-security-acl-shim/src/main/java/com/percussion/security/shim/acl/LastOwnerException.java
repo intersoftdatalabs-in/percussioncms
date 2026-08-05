@@ -17,24 +17,44 @@
 package com.percussion.security.shim.acl;
 
 /**
- * Compatibility exception mirroring java.security.acl.LastOwnerException. Thrown when attempting to
- * remove the final owner from an ACL.
+ * Compatibility exception mirroring the legacy {@code java.security.acl.LastOwnerException} type.
+ * Thrown when an operation would leave an {@link Acl} with zero owners.
+ *
+ * <p>Every ACL must have at least one owner; an attempt to delete the final owner fails with this
+ * exception so that the ACL remains administrable.
  */
 public class LastOwnerException extends Exception {
   private static final long serialVersionUID = 1L;
 
+  /** Creates a new exception with no message or cause. */
   public LastOwnerException() {
     super();
   }
 
+  /**
+   * Creates a new exception with the given message.
+   *
+   * @param message a human-readable description of the failure, may be {@code null}
+   */
   public LastOwnerException(String message) {
     super(message);
   }
 
+  /**
+   * Creates a new exception with the given message and underlying cause.
+   *
+   * @param message a human-readable description of the failure, may be {@code null}
+   * @param cause the underlying cause of the failure, may be {@code null}
+   */
   public LastOwnerException(String message, Throwable cause) {
     super(message, cause);
   }
 
+  /**
+   * Creates a new exception wrapping the given cause.
+   *
+   * @param cause the underlying cause of the failure, may be {@code null}
+   */
   public LastOwnerException(Throwable cause) {
     super(cause);
   }

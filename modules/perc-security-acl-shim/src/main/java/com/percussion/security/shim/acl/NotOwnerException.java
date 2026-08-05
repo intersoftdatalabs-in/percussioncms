@@ -16,22 +16,42 @@
  */
 package com.percussion.security.shim.acl;
 
-/** Compatibility exception mirroring java.security.acl.NotOwnerException. */
+/**
+ * Compatibility exception mirroring the legacy {@code java.security.acl.NotOwnerException} type.
+ * Thrown when a non-owner principal attempts to modify an {@link Acl} or change its owner set.
+ */
 public class NotOwnerException extends Exception {
   private static final long serialVersionUID = 1L;
 
+  /** Creates a new exception with no message or cause. */
   public NotOwnerException() {
     super();
   }
 
+  /**
+   * Creates a new exception with the given message.
+   *
+   * @param message a human-readable description of the failure, may be {@code null}
+   */
   public NotOwnerException(String message) {
     super(message);
   }
 
+  /**
+   * Creates a new exception with the given message and underlying cause.
+   *
+   * @param message a human-readable description of the failure, may be {@code null}
+   * @param cause the underlying cause of the failure, may be {@code null}
+   */
   public NotOwnerException(String message, Throwable cause) {
     super(message, cause);
   }
 
+  /**
+   * Creates a new exception wrapping the given cause.
+   *
+   * @param cause the underlying cause of the failure, may be {@code null}
+   */
   public NotOwnerException(Throwable cause) {
     super(cause);
   }
