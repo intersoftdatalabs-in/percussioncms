@@ -83,9 +83,18 @@ issue **#1945** and the broader cleanup sweep tracked by **#1909**.
 
 ## Build
 
+Windows:
+
 ```bat
 cd modules\perc-openapi-webapp
 ..\..\mvnw.cmd clean install
+```
+
+Linux / macOS:
+
+```bash
+cd modules/perc-openapi-webapp
+../../mvnw clean install
 ```
 
 Expected: `BUILD SUCCESS`. The non-javadoc warnings about a missing
