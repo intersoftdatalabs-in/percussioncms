@@ -28,7 +28,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
@@ -36,70 +35,29 @@ import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Golden / round-trip parity for the Jackson XML engine (issue #1822, cutover #1887, epic #505).
+ * Golden / round-trip parity for the Jackson XML engine (issue #1822, cutover #1887, Betwixt purge
+ * #2062, epic #505).
  *
  * <p>Pilot family mirrors package-deploy keywords ({@code SampleKeyword} / {@code SampleChoice})
  * because production {@code PSKeyword} lives outside {@code modules/utils}. The production facade
- * {@link PSXmlSerializationHelper} now defaults to this engine; tests here still call the helper
- * directly and force Betwixt via {@link PSXmlSerializationHelper#ENGINE_PROPERTY} when comparing
- * engines.
+ * {@link PSXmlSerializationHelper} uses this engine exclusively.
  */
 class PSJacksonXmlSerializationHelperTest {
 
   @BeforeAll
   static void registerChoiceType() {
-    // Betwixt write uses type-mapped item name "sample-choice"; package archives often use
-    // "choice".
+    // Package archives often use item element "choice"; type-mapped write uses "sample-choice".
     PSXmlSerializationHelper.addType("choice", SampleChoice.class);
     PSXmlSerializationHelper.addType("sample-choice", SampleChoice.class);
     PSJacksonXmlSerializationHelper.addType("choice", SampleChoice.class);
     PSJacksonXmlSerializationHelper.addType("sample-choice", SampleChoice.class);
   }
 
-  @AfterEach
-  void clearEngineProperty() {
-    System.clearProperty(PSXmlSerializationHelper.ENGINE_PROPERTY);
-  }
-
   @Test
-  void nameMapperAgreesWithBetwixtPsNameMapper() {
-    PSXmlSerializationHelper.PSNameMapper betwixt = new PSXmlSerializationHelper.PSNameMapper();
-    assertEquals(
-        betwixt.mapTypeToElementName("PSKeyword"),
-        PSXmlElementNameMapper.mapTypeToElementName("PSKeyword"));
-    assertEquals(
-        betwixt.mapTypeToElementName("SampleKeyword"),
-        PSXmlElementNameMapper.mapTypeToElementName("SampleKeyword"));
-    assertEquals(
-        betwixt.mapTypeToElementName("SampleChoice"),
-        PSXmlElementNameMapper.mapTypeToElementName("SampleChoice"));
-  }
-
-  @Test
-  void betwixtRollbackWriteProducesStableGoldenShape() throws Exception {
-    System.setProperty(
-        PSXmlSerializationHelper.ENGINE_PROPERTY, PSXmlSerializationHelper.ENGINE_BETWIXT);
-    SampleKeyword original = pilotKeyword();
-    String betwixtXml = PSXmlSerializationHelper.writeToXml(original);
-    assertNotNull(betwixtXml);
-    assertFalse(
-        betwixtXml.trim().startsWith("<null"), "modern write must not emit legacy null root");
-    assertTrue(containsTag(betwixtXml, "sample-keyword"), "Betwixt root: " + betwixtXml);
-    assertTrue(containsTag(betwixtXml, "sample-choice"), "nested type element: " + betwixtXml);
-    assertTrue(betwixtXml.contains("Time_Zones"), betwixtXml);
-    assertTrue(betwixtXml.contains("ACT"), betwixtXml);
-  }
-
-  @Test
-  void jacksonWriteMatchesBetwixtLogicalTree() throws Exception {
-    SampleKeyword original = pilotKeyword();
-    System.setProperty(
-        PSXmlSerializationHelper.ENGINE_PROPERTY, PSXmlSerializationHelper.ENGINE_BETWIXT);
-    String betwixtXml = PSXmlSerializationHelper.writeToXml(original);
-    System.clearProperty(PSXmlSerializationHelper.ENGINE_PROPERTY);
-    String jacksonXml = PSJacksonXmlSerializationHelper.writeToXml(original);
-
-    assertLogicalXmlParity(betwixtXml, jacksonXml);
+  void nameMapperProducesHistoricalHyphenatedTypeNames() {
+    assertEquals("keyword", PSXmlElementNameMapper.mapTypeToElementName("PSKeyword"));
+    assertEquals("sample-keyword", PSXmlElementNameMapper.mapTypeToElementName("SampleKeyword"));
+    assertEquals("sample-choice", PSXmlElementNameMapper.mapTypeToElementName("SampleChoice"));
   }
 
   @Test
@@ -111,18 +69,7 @@ class PSJacksonXmlSerializationHelperTest {
   }
 
   @Test
-  void betwixtRollbackWriteMatchesGoldenFixture() throws Exception {
-    System.setProperty(
-        PSXmlSerializationHelper.ENGINE_PROPERTY, PSXmlSerializationHelper.ENGINE_BETWIXT);
-    SampleKeyword original = pilotKeyword();
-    String betwixtXml = PSXmlSerializationHelper.writeToXml(original);
-    String golden = loadResource("com/percussion/services/utils/xml/sample-keyword-golden.xml");
-    assertLogicalXmlParity(golden, betwixtXml);
-  }
-
-  @Test
-  void facadeDefaultWriteMatchesGoldenFixture() throws Exception {
-    System.clearProperty(PSXmlSerializationHelper.ENGINE_PROPERTY);
+  void facadeWriteMatchesGoldenFixture() throws Exception {
     SampleKeyword original = pilotKeyword();
     String facadeXml = PSXmlSerializationHelper.writeToXml(original);
     String golden = loadResource("com/percussion/services/utils/xml/sample-keyword-golden.xml");
@@ -130,21 +77,8 @@ class PSJacksonXmlSerializationHelperTest {
   }
 
   @Test
-  void betwixtWriteJacksonReadRoundTrip() throws Exception {
-    SampleKeyword original = pilotKeyword();
-    System.setProperty(
-        PSXmlSerializationHelper.ENGINE_PROPERTY, PSXmlSerializationHelper.ENGINE_BETWIXT);
-    String betwixtXml = PSXmlSerializationHelper.writeToXml(original);
-    System.clearProperty(PSXmlSerializationHelper.ENGINE_PROPERTY);
-
-    SampleKeyword restored =
-        PSJacksonXmlSerializationHelper.readFromXml(betwixtXml, SampleKeyword.class);
-    assertPilotEquals(original, restored);
-  }
-
-  @Test
   void jacksonWriteFacadeReadRoundTripScalars() throws Exception {
-    // Nested collection restore on unannotated paths can differ by engine; assert scalar wire.
+    // Nested collection restore on unannotated paths can differ; assert scalar wire.
     SampleKeyword original = pilotKeyword();
     String jacksonXml = PSJacksonXmlSerializationHelper.writeToXml(original);
 
@@ -231,8 +165,9 @@ class PSJacksonXmlSerializationHelperTest {
   }
 
   @Test
-  void ipsGuidSerializesAndDeserializesAsBetwixtStringForm() throws Exception {
-    // Parity with PSBetwixtObjectConverter — required for package <guid> elements (#1888 / #1890 / #1891).
+  void ipsGuidSerializesAndDeserializesAsStringForm() throws Exception {
+    // Historical Betwixt converter parity — required for package <guid> elements (#1888 / #1890 /
+    // #1891).
     SampleWithGuid original = new SampleWithGuid();
     original.setId(513L);
     original.setGuid(new com.percussion.services.guidmgr.data.PSGuid("0-5-513"));
@@ -271,25 +206,8 @@ class PSJacksonXmlSerializationHelperTest {
     return k;
   }
 
-  private static void assertPilotEquals(SampleKeyword expected, SampleKeyword actual) {
-    assertNotNull(actual);
-    assertEquals(expected.getId(), actual.getId());
-    assertEquals(expected.getLabel(), actual.getLabel());
-    assertEquals(expected.getValue(), actual.getValue());
-    assertNotNull(actual.getChoices());
-    assertEquals(expected.getChoices().size(), actual.getChoices().size());
-    for (int i = 0; i < expected.getChoices().size(); i++) {
-      SampleChoice e = expected.getChoices().get(i);
-      SampleChoice a = actual.getChoices().get(i);
-      assertEquals(e.getId(), a.getId());
-      assertEquals(e.getLabel(), a.getLabel());
-      assertEquals(e.getValue(), a.getValue());
-      assertEquals(e.getSequence(), a.getSequence());
-    }
-  }
-
   /**
-   * Compare logical XML trees: ignore XML declaration, Betwixt graph-identity {@code id}
+   * Compare logical XML trees: ignore XML declaration, historical graph-identity {@code id}
    * attributes, insignificant whitespace, and HTML comments.
    */
   static void assertLogicalXmlParity(String expectedXml, String actualXml) {
@@ -303,17 +221,13 @@ class PSJacksonXmlSerializationHelperTest {
     // Drop XML declaration and comments
     s = s.replaceAll("(?is)<\\?xml[^?]*\\?>", "");
     s = s.replaceAll("(?s)<!--.*?-->", "");
-    // Drop Betwixt object-identity attributes (id="…") — property values are child elements
+    // Drop historical object-identity attributes (id="…") — property values are child elements
     s = s.replaceAll("\\s+id=\"[^\"]*\"", "");
     // Normalize newlines
     s = s.replace("\r\n", "\n").replace('\r', '\n');
     // Collapse whitespace between tags
     s = s.replaceAll(">\\s+<", "><");
     return s.trim();
-  }
-
-  private static boolean containsTag(String xml, String localName) {
-    return xml.contains("<" + localName) || xml.contains("</" + localName + ">");
   }
 
   private static String loadResource(String classpath) throws Exception {
@@ -326,8 +240,8 @@ class PSJacksonXmlSerializationHelperTest {
 
   /**
    * Pilot DTO shaped like packaged keyword XML. Jackson annotations pin collection item element
-   * name to {@code sample-choice} (Betwixt type-mapped write form). {@link JsonPropertyOrder}
-   * mirrors Betwixt property emission order for golden parity.
+   * name to {@code sample-choice}. {@link JsonPropertyOrder} mirrors historical property emission
+   * order for golden parity.
    */
   @JacksonXmlRootElement(localName = "sample-keyword")
   @JsonPropertyOrder({"choices", "id", "label", "value"})
@@ -372,7 +286,7 @@ class PSJacksonXmlSerializationHelperTest {
       this.choices = choices;
     }
 
-    /** Suppressed on both Betwixt and Jackson paths. */
+    /** Suppressed on the Jackson serialization path. */
     @IPSXmlSerialization(suppress = true)
     public String getInternalOnly() {
       return internalOnly;

@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
 
 
-<!-- This document will have all the object classes listed that need to be
-	serialized and deserialized. For each class in this file a <classname>.betwixt
-	file must be created if a default behavior of betwixt is not enough as far
-	element-field mapping is concerned -->
+<!-- This document lists object classes registered with PSObjectSerializer
+	/ PSXmlSerializationHelper for package and design XML. Jackson annotations
+	(or shared naming via PSXmlElementNameMapper) control element-field mapping. -->
 <registry>
 	<!-- classes for unit test of object serializer -->
 	<!-- <class name="com.percussion.xml.serialization.junit.Address" /> <class

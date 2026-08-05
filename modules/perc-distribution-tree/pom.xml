@@ -262,10 +262,6 @@
                     <artifactId>aspectjrt</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>commons-betwixt</groupId>
-                    <artifactId>commons-betwixt</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>org.jsoup</groupId>
                     <artifactId>jsoup</artifactId>
                 </exclusion>

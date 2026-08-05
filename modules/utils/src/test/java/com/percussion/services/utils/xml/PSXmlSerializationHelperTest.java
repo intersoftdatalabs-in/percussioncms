@@ -27,14 +27,13 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
- * Facade regression for {@link PSXmlSerializationHelper} after the Jackson cutover (#1887 / epic
- * #505). Covers legacy {@code <null>} root rewrite, golden pilot shapes, round-trip, suppress
- * annotation, and Betwixt rollback engine property.
+ * Facade regression for {@link PSXmlSerializationHelper} after the Jackson-only cutover (#1887 /
+ * #2062 / epic #505). Covers legacy {@code <null>} root rewrite, golden pilot shapes, round-trip,
+ * and suppress annotation.
  */
 class PSXmlSerializationHelperTest {
 
@@ -45,11 +44,6 @@ class PSXmlSerializationHelperTest {
     PSXmlSerializationHelper.addType(
         "sample-choice", PSJacksonXmlSerializationHelperTest.SampleChoice.class);
     PSXmlSerializationHelper.addType(PSJacksonXmlSerializationHelperTest.SampleKeyword.class);
-  }
-
-  @AfterEach
-  void clearEngineProperty() {
-    System.clearProperty(PSXmlSerializationHelper.ENGINE_PROPERTY);
   }
 
   /** Minimal unannotated bean for rewrite-only cases (no nested collection assert). */
@@ -129,19 +123,6 @@ class PSXmlSerializationHelperTest {
     public void setSequence(int sequence) {
       this.sequence = sequence;
     }
-  }
-
-  @Test
-  void defaultEngineIsJackson() {
-    System.clearProperty(PSXmlSerializationHelper.ENGINE_PROPERTY);
-    assertTrue(PSXmlSerializationHelper.isJacksonEngine());
-  }
-
-  @Test
-  void betwixtEnginePropertyForcesRollback() {
-    System.setProperty(
-        PSXmlSerializationHelper.ENGINE_PROPERTY, PSXmlSerializationHelper.ENGINE_BETWIXT);
-    assertFalse(PSXmlSerializationHelper.isJacksonEngine());
   }
 
   @Test
@@ -320,27 +301,6 @@ class PSXmlSerializationHelperTest {
     assertFalse(xml.contains("secret-must-not-appear"), xml);
     assertFalse(xml.contains("internal-only"), xml);
     assertFalse(xml.contains("internalOnly"), xml);
-  }
-
-  @Test
-  void betwixtRollbackEngineStillWritesAndReadsScalars() throws Exception {
-    System.setProperty(
-        PSXmlSerializationHelper.ENGINE_PROPERTY, PSXmlSerializationHelper.ENGINE_BETWIXT);
-    assertFalse(PSXmlSerializationHelper.isJacksonEngine());
-
-    SampleKeyword original = new SampleKeyword();
-    original.setId(9);
-    original.setLabel("Rollback");
-    original.setValue("9");
-
-    String xml = PSXmlSerializationHelper.writeToXml(original);
-    assertNotNull(xml);
-    assertTrue(xml.contains("sample-keyword") || xml.contains("SampleKeyword"), xml);
-
-    SampleKeyword target = new SampleKeyword();
-    SampleKeyword restored = (SampleKeyword) PSXmlSerializationHelper.readFromXML(xml, target);
-    assertEquals("Rollback", restored.getLabel());
-    assertEquals("9", restored.getValue());
   }
 
   @Test

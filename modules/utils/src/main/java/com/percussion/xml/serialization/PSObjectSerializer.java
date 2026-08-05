@@ -39,8 +39,8 @@ import org.xml.sax.SAXException;
  * getting the singleton by calling {@link #getInstance()} otherwise you cannot do much with it. It
  * is an error trying to serialize or deserialize an object of unregistered class an exception will
  * be thrown in such a case. The registry is basically list of fully qualified class names. These
- * classes must be in class path during runtime. The .betwixt file for each class (if exists) must
- * reside along with each class.
+ * classes must be in class path during runtime. Element naming uses Jackson / {@link
+ * com.percussion.services.utils.xml.PSXmlElementNameMapper} (Commons Betwixt removed in #2062).
  *
  * <p>The file classregistry.xml has a simple DTD as follows:
  *

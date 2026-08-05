@@ -45,12 +45,11 @@ import tools.jackson.dataformat.xml.XmlMapper;
 import tools.jackson.dataformat.xml.XmlWriteFeature;
 
 /**
- * Jackson XML serialization engine used by {@link PSXmlSerializationHelper} (production default as
- * of issue #1887 / epic #505 slice 1).
+ * Jackson XML serialization engine used by {@link PSXmlSerializationHelper} (sole production engine
+ * as of issue #1887 / epic #505; Commons Betwixt removed in #2062).
  *
  * <p>Call sites should continue to use the {@link PSXmlSerializationHelper} facade. This helper may
- * also be invoked directly by tests and dual-path diagnostics. Betwixt remains on the classpath for
- * emergency rollback via {@link PSXmlSerializationHelper#ENGINE_PROPERTY}.
+ * also be invoked directly by tests.
  *
  * <p>Naming strategy (see {@link PSXmlElementNameMapper}):
  *
@@ -58,7 +57,7 @@ import tools.jackson.dataformat.xml.XmlWriteFeature;
  *   <li>Root elements: {@link PSXmlElementNameMapper#mapTypeToElementName(String)} (PS/IPS strip +
  *       multi-cap flatten + hyphenation)
  *   <li>Property elements: kebab-case ({@link PropertyNamingStrategies#KEBAB_CASE}) matching
- *       historical Betwixt {@code HyphenatedNameMapper} for properties
+ *       historical Betwixt hyphenated property names
  *   <li>Collections: wrapper element enabled by default (Betwixt-style {@code
  *       <choices><choice/>…</choices>})
  * </ul>
@@ -66,17 +65,17 @@ import tools.jackson.dataformat.xml.XmlWriteFeature;
  * <p>Legacy package payloads with root {@code <null>} are rewritten via {@link
  * PSXmlSerializationHelper#rewriteLegacyNullRoot(String, Class)} before deserialize.
  *
- * <p>Betwixt graph-identity {@code idref} stubs (e.g. shared {@code <ps-permission idref="N"/>} in
- * package ACL XML) are expanded via {@link PSBetwixtIdrefExpander} before bind so package install
- * does not silently drop permissions (issue #1899).
+ * <p>Historical graph-identity {@code idref} stubs (e.g. shared {@code <ps-permission idref="N"/>}
+ * in package ACL XML) are expanded via {@link PSBetwixtIdrefExpander} before bind so package
+ * install does not silently drop permissions (issue #1899).
  *
  * <p><strong>Approved XML deviations vs historical Betwixt writes:</strong> Jackson does not emit
  * Betwixt graph-identity {@code id="…"} attributes on complex elements (values live in child
  * elements). On <em>read</em>, historical idrefs are expanded (product decision: expand on read —
  * #1899).
  *
- * <p>{@link IPSGuid} / {@link PSGuid} use string form (same as historical Betwixt {@code
- * PSBetwixtObjectConverter}) via a registered module (issue #1888 / #1890 / #1891 / epic #505).
+ * <p>{@link IPSGuid} / {@link PSGuid} use string form (historical Betwixt converter parity) via a
+ * registered module (issue #1888 / #1890 / #1891 / epic #505).
  */
 public final class PSJacksonXmlSerializationHelper {
 
@@ -203,7 +202,7 @@ public final class PSJacksonXmlSerializationHelper {
     suppressModule.setSerializerModifier(new IpsXmlSuppressionModifier());
 
     SimpleModule guidModule = new SimpleModule("ps-ips-guid-string");
-    // Match Betwixt PSBetwixtObjectConverter: IPSGuid ↔ toString / new PSGuid(String)
+    // IPSGuid ↔ toString / new PSGuid(String) (historical Betwixt converter parity)
     guidModule.addSerializer(IPSGuid.class, new ToStringSerializer(IPSGuid.class));
     guidModule.addSerializer(PSGuid.class, new ToStringSerializer(PSGuid.class));
     guidModule.addDeserializer(IPSGuid.class, new IpsGuidFromStringDeserializer());
@@ -224,8 +223,8 @@ public final class PSJacksonXmlSerializationHelper {
   }
 
   /**
-   * Deserializes package/design {@code <guid>} string values into {@link IPSGuid}, matching {@link
-   * PSBetwixtObjectConverter#stringToObject}.
+   * Deserializes package/design {@code <guid>} string values into {@link IPSGuid} (historical
+   * Betwixt string form: {@code host-type-uuid}).
    */
   static final class IpsGuidFromStringDeserializer extends FromStringDeserializer<IPSGuid> {
     private static final long serialVersionUID = 1L;

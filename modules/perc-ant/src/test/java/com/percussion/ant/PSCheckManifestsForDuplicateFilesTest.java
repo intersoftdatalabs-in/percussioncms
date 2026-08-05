@@ -220,7 +220,7 @@ public class PSCheckManifestsForDuplicateFilesTest {
           + "Bundle-Localization: plugin\n"
           + "Export-Package: com.percussion.client,\n"
           + " org.apache.log4j\n"
-          + "Bundle-ClassPath: ..\\..\\system\\Tools\\Commons\\commons-betwixt-0.7RC2.jar\n"
+          + "Bundle-ClassPath: ..\\..\\system\\Tools\\Commons\\commons-beanutils-1.7.0.jar\n"
           + " ..\\..\\system\\Tools\\Commons\\commons-codec-1.11.jar\n"
           + " ..\\..\\system\\Tools\\Commons\\commons-lang-2.4.jar\n"
           + " \n"

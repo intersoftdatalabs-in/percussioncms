@@ -224,7 +224,7 @@ public class PSObjectSummary implements IPSCatalogSummary {
 
    /**
     * Catalog GUID. Jackson emits/reads string form via the shared {@code IPSGuid} converter in
-    * {@code PSJacksonXmlSerializationHelper} (parity with Betwixt {@code PSBetwixtObjectConverter}).
+    * {@code PSJacksonXmlSerializationHelper}.
     */
    @Override
    @JsonProperty("guid")

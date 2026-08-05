@@ -451,10 +451,6 @@
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>commons-betwixt</groupId>
-                        <artifactId>commons-betwixt</artifactId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>xerces</groupId>
                         <artifactId>xercesImpl</artifactId>
                     </exclusion>
@@ -472,10 +468,6 @@
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-betwixt</groupId>
-                        <artifactId>commons-betwixt</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>xerces</groupId>
@@ -497,10 +489,6 @@
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-betwixt</groupId>
-                        <artifactId>commons-betwixt</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>xerces</groupId>

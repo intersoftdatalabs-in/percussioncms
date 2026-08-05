@@ -17,11 +17,10 @@
 package com.percussion.services.utils.xml;
 
 /**
- * Maps Java type / property simple names to Betwixt-compatible XML element names used by design
- * object XML in package deploy and catalog.
+ * Maps Java type / property simple names to XML element names used by design object XML in package
+ * deploy and catalog (historical Betwixt hyphenated naming, retained for wire compatibility).
  *
- * <p><strong>Naming strategy (must stay aligned with Betwixt {@code HyphenatedNameMapper} usage in
- * {@link PSXmlSerializationHelper}):</strong>
+ * <p><strong>Naming strategy:</strong>
  *
  * <ol>
  *   <li>Strip leading {@code PS} or {@code IPS} type prefixes (product class naming convention).
