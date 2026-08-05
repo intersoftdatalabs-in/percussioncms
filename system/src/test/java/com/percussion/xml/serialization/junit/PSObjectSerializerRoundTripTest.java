@@ -57,9 +57,8 @@ public class PSObjectSerializerRoundTripTest {
       Pattern.compile("\\sid\\s*=\\s*\"\\d+\"", Pattern.CASE_INSENSITIVE);
 
   @BeforeAll
-  static void ensureJacksonDefault() {
-    System.clearProperty(PSXmlSerializationHelper.ENGINE_PROPERTY);
-    assertTrue(PSXmlSerializationHelper.isJacksonEngine());
+  static void registerTypes() {
+    // Jackson is the sole XML engine after #2062 (Betwixt purge).
     PSXmlSerializationHelper.addType("assembly-template", PSAssemblyTemplate.class);
   }
 

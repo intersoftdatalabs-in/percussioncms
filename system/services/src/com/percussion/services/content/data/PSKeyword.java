@@ -530,7 +530,7 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
     */
    /**
     * Catalog GUID. Jackson emits/reads string form via shared {@code IPSGuid} converter in {@code
-    * PSJacksonXmlSerializationHelper} (parity with Betwixt {@code PSBetwixtObjectConverter}).
+    * PSJacksonXmlSerializationHelper}.
     */
    @JsonProperty("guid")
    public IPSGuid getGUID()

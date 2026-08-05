@@ -128,12 +128,7 @@ public class PSObjectSerializerTest {
    */
   @BeforeAll
   public static void setUp() throws Exception {
-    // Ensure default production engine (Jackson); residual Betwixt rollback is out of scope here.
-    System.clearProperty(PSXmlSerializationHelper.ENGINE_PROPERTY);
-    assertTrue(
-        PSXmlSerializationHelper.isJacksonEngine(),
-        "suite expects Jackson default after #1887 cutover");
-
+    // Jackson is the sole XML engine after #2062 (Betwixt purge).
     PSXmlSerializationHelper.addType("person", Person.class);
     PSXmlSerializationHelper.addType("address", Address.class);
     PSXmlSerializationHelper.addType("book", Book.class);

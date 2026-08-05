@@ -20,7 +20,6 @@ CLASSPATH=$pwd
 CLASSPATH=${CLASSPATH}:$pwd/Tools/Hibernate/antlr-2.7.6.jar
 CLASSPATH=${CLASSPATH}:$pwd/Tools/cglib/cglib-nodep-2.1_3.jar
 CLASSPATH=${CLASSPATH}:$pwd/Tools/Commons/commons-beanutils-1.7.0.jar
-CLASSPATH=${CLASSPATH}:$pwd/Tools/Commons/commons-betwixt-0.7RC2.jar
 CLASSPATH=${CLASSPATH}:$pwd/Tools/Commons/commons-codec-1.11.jar
 CLASSPATH=${CLASSPATH}:$pwd/Tools/Commons/commons-dbcp-1.2.1.jar
 CLASSPATH=${CLASSPATH}:$pwd/Tools/Commons/commons-io-1.1.jar
