@@ -23,5 +23,9 @@ package com.percussion.rest.struct;
  * extensibility ka zero!"
  */
 public abstract class AdaptorBase extends Base {
+
+  /** No-op constructor. */
+  public AdaptorBase() {}
+
   // Extend this class for REST adaptors. Add shared logic here if needed.
 }

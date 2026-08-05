@@ -39,17 +39,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/** REST resource exposing Action Menu operations. */
 @PSSiteManageBean(value = "restActionMenuResource")
 @Path("/actions")
 @Tag(name = "Action Menu", description = "Action Menu operations")
 public class ActionMenuResource {
 
+  /** Logger used by this resource. */
   private static final Logger log = LogManager.getLogger(ActionMenuResource.class);
 
+  /** Adaptor that implements the action menu operations. */
   @Autowired private IActionMenuAdaptor adaptor;
 
+  /** Injected URI info, may be {@code null}. */
   @Context private UriInfo uriInfo;
 
+  /** No-op constructor. */
   public ActionMenuResource() {}
 
   /**
@@ -161,11 +166,24 @@ public class ActionMenuResource {
     }
   }
 
+  /**
+   * Loads action menus by GUIDs. Not implemented.
+   *
+   * @param guids the action menu GUIDs
+   * @return an empty array (not implemented)
+   */
   public ActionMenu[] loadActions(List<Guid> guids) {
     // Not implemented yet
     return new ActionMenu[0];
   }
 
+  /**
+   * Accepts an object with an array of content ids and assignment types and returns the allowed
+   * menus. Not implemented.
+   *
+   * @param request the request payload
+   * @return an empty list (not implemented)
+   */
   @POST
   @Operation(
       description =

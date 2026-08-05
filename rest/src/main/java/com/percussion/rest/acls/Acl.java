@@ -23,21 +23,50 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
 
+/** REST representation of an access control list. */
 @XmlRootElement
 @Schema(description = "Acl")
 public class Acl {
 
+  /** Numeric identifier of the ACL. */
   private long id;
+
+  /** Optional GUID identifying the ACL. */
   private Guid guid;
+
+  /** Human-readable name of the ACL. */
   private String name;
+
+  /** Identifier of the secured object. */
   private long objectId;
+
+  /** Free-form description of the ACL. */
   private String description;
+
+  /** Entries that make up the ACL. */
   private AclEntryList aclEntries;
+
+  /** Type identifier of the secured object. */
   private int objectType;
+
+  /** Optional GUID of the secured object. */
   private Guid objectGuid; // fixed typo
 
+  /** No-op constructor. */
   public Acl() {}
 
+  /**
+   * Creates a new ACL populated with the supplied values.
+   *
+   * @param id numeric identifier of the ACL
+   * @param guid GUID of the ACL, may be {@code null}
+   * @param name name of the ACL
+   * @param objectId identifier of the secured object
+   * @param description free-form description
+   * @param aclEntries entries on the ACL
+   * @param objectType type identifier of the secured object
+   * @param objectGuid GUID of the secured object, may be {@code null}
+   */
   public Acl(
       long id,
       Guid guid,
@@ -57,66 +86,146 @@ public class Acl {
     this.objectGuid = objectGuid;
   }
 
+  /**
+   * Returns the ACL's numeric identifier.
+   *
+   * @return the ACL id
+   */
   public long getId() {
     return id;
   }
 
+  /**
+   * Sets the ACL's numeric identifier.
+   *
+   * @param id the new id
+   */
   public void setId(long id) {
     this.id = id;
   }
 
+  /**
+   * Returns the ACL's GUID.
+   *
+   * @return the GUID, may be empty
+   */
   public Optional<Guid> getGuid() {
     return Optional.ofNullable(guid);
   }
 
+  /**
+   * Sets the ACL's GUID.
+   *
+   * @param guid the new GUID
+   */
   public void setGuid(Guid guid) {
     this.guid = guid;
   }
 
+  /**
+   * Returns the ACL's name.
+   *
+   * @return the name, may be empty
+   */
   public Optional<String> getName() {
     return Optional.ofNullable(name);
   }
 
+  /**
+   * Sets the ACL's name.
+   *
+   * @param name the new name
+   */
   public void setName(String name) {
     this.name = name;
   }
 
+  /**
+   * Returns the identifier of the secured object.
+   *
+   * @return the object id
+   */
   public long getObjectId() {
     return objectId;
   }
 
+  /**
+   * Sets the identifier of the secured object.
+   *
+   * @param objectId the new object id
+   */
   public void setObjectId(long objectId) {
     this.objectId = objectId;
   }
 
+  /**
+   * Returns the ACL's description.
+   *
+   * @return the description, may be empty
+   */
   public Optional<String> getDescription() {
     return Optional.ofNullable(description);
   }
 
+  /**
+   * Sets the ACL's description.
+   *
+   * @param description the new description
+   */
   public void setDescription(String description) {
     this.description = description;
   }
 
+  /**
+   * Returns the ACL's entries.
+   *
+   * @return the entries, may be empty
+   */
   public Optional<AclEntryList> getAclEntries() {
     return Optional.ofNullable(aclEntries);
   }
 
+  /**
+   * Replaces the ACL's entries.
+   *
+   * @param aclEntries the new entries
+   */
   public void setAclEntries(AclEntryList aclEntries) {
     this.aclEntries = aclEntries;
   }
 
+  /**
+   * Returns the type identifier of the secured object.
+   *
+   * @return the object type
+   */
   public int getObjectType() {
     return objectType;
   }
 
+  /**
+   * Sets the type identifier of the secured object.
+   *
+   * @param objectType the new object type
+   */
   public void setObjectType(int objectType) {
     this.objectType = objectType;
   }
 
+  /**
+   * Returns the GUID of the secured object.
+   *
+   * @return the object GUID, may be empty
+   */
   public Optional<Guid> getObjectGuid() {
     return Optional.ofNullable(objectGuid);
   }
 
+  /**
+   * Sets the GUID of the secured object.
+   *
+   * @param objectGuid the new object GUID
+   */
   public void setObjectGuid(Guid objectGuid) {
     this.objectGuid = objectGuid;
   }

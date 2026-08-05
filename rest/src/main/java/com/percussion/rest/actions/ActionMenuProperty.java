@@ -26,48 +26,93 @@ import java.util.Objects;
 @Schema(description = "Represents an Action Menu property")
 public class ActionMenuProperty {
 
+  /** Identifier of the action this property belongs to. */
   @Schema(description = "The action to which this property belongs.")
   private int actionId;
 
+  /** Property name. */
   @Schema(description = "The name of the property")
   private String name;
 
+  /** Property value. */
   @Schema(description = "The value of the property")
   private String value;
 
+  /** Property description. */
   @Schema(description = "The description of the property")
   private String description;
 
+  /** No-op constructor. */
   public ActionMenuProperty() {}
 
+  /**
+   * Returns the owning action id.
+   *
+   * @return the action id
+   */
   public int getActionId() {
     return actionId;
   }
 
+  /**
+   * Sets the owning action id.
+   *
+   * @param actionId the new action id
+   */
   public void setActionId(int actionId) {
     this.actionId = actionId;
   }
 
+  /**
+   * Returns the property name.
+   *
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Sets the property name.
+   *
+   * @param name the new name
+   */
   public void setName(String name) {
     this.name = name;
   }
 
+  /**
+   * Returns the property value.
+   *
+   * @return the value
+   */
   public String getValue() {
     return value;
   }
 
+  /**
+   * Sets the property value.
+   *
+   * @param value the new value
+   */
   public void setValue(String value) {
     this.value = value;
   }
 
+  /**
+   * Returns the property description.
+   *
+   * @return the description
+   */
   public String getDescription() {
     return description;
   }
 
+  /**
+   * Sets the property description.
+   *
+   * @param description the new description
+   */
   public void setDescription(String description) {
     this.description = description;
   }

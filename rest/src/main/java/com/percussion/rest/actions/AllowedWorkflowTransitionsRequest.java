@@ -25,23 +25,47 @@ import java.util.Optional;
 @XmlRootElement
 public class AllowedWorkflowTransitionsRequest {
 
+  /** Content ids to evaluate transitions for. */
   private int[] contentIds;
+
+  /** Assignment type ids. */
   private int[] assignmentTypeIds;
 
+  /** No-op constructor. */
   public AllowedWorkflowTransitionsRequest() {}
 
+  /**
+   * Returns the content ids.
+   *
+   * @return the content ids, may be empty
+   */
   public Optional<int[]> getContentIds() {
     return Optional.ofNullable(contentIds);
   }
 
+  /**
+   * Sets the content ids.
+   *
+   * @param contentIds the new content ids
+   */
   public void setContentIds(int[] contentIds) {
     this.contentIds = contentIds;
   }
 
+  /**
+   * Returns the assignment type ids.
+   *
+   * @return the assignment type ids, may be empty
+   */
   public Optional<int[]> getAssignmentTypeIds() {
     return Optional.ofNullable(assignmentTypeIds);
   }
 
+  /**
+   * Sets the assignment type ids.
+   *
+   * @param assignmentTypeIds the new assignment type ids
+   */
   public void setAssignmentTypeIds(int[] assignmentTypeIds) {
     this.assignmentTypeIds = assignmentTypeIds;
   }

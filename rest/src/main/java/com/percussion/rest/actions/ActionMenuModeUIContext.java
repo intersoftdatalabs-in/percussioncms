@@ -26,50 +26,110 @@ import java.util.Objects;
 @Schema(description = "Represents a UI Context that can be used to scope a Menu")
 public class ActionMenuModeUIContext {
 
+  /** Identifier of the UI mode. */
   private String modeId;
+
+  /** Name of the UI mode. */
   private String modeName;
+
+  /** Identifier of the UI context. */
   private String contextId;
+
+  /** Name of the UI context. */
   private String contextName;
+
+  /** Free-form description. */
   private String description;
 
+  /** No-op constructor. */
   public ActionMenuModeUIContext() {}
 
+  /**
+   * Returns the UI mode id.
+   *
+   * @return the mode id
+   */
   public String getModeId() {
     return modeId;
   }
 
+  /**
+   * Sets the UI mode id.
+   *
+   * @param modeId the new mode id
+   */
   public void setModeId(String modeId) {
     this.modeId = modeId;
   }
 
+  /**
+   * Returns the UI mode name.
+   *
+   * @return the mode name
+   */
   public String getModeName() {
     return modeName;
   }
 
+  /**
+   * Sets the UI mode name.
+   *
+   * @param modeName the new mode name
+   */
   public void setModeName(String modeName) {
     this.modeName = modeName;
   }
 
+  /**
+   * Returns the UI context id.
+   *
+   * @return the context id
+   */
   public String getContextId() {
     return contextId;
   }
 
+  /**
+   * Sets the UI context id.
+   *
+   * @param contextId the new context id
+   */
   public void setContextId(String contextId) {
     this.contextId = contextId;
   }
 
+  /**
+   * Returns the UI context name.
+   *
+   * @return the context name
+   */
   public String getContextName() {
     return contextName;
   }
 
+  /**
+   * Sets the UI context name.
+   *
+   * @param contextName the new context name
+   */
   public void setContextName(String contextName) {
     this.contextName = contextName;
   }
 
+  /**
+   * Returns the description.
+   *
+   * @return the description
+   */
   public String getDescription() {
     return description;
   }
 
+  /**
+   * Sets the description.
+   *
+   * @param description the new description
+   */
   public void setDescription(String description) {
     this.description = description;
   }

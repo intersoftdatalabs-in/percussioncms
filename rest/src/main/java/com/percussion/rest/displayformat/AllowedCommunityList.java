@@ -24,12 +24,19 @@ import java.util.Objects;
 /** Represents a list of allowed communities for a display format. */
 public class AllowedCommunityList extends ArrayList<String> {
 
+  /** Safe to serialize. */
   private static final long serialVersionUID = 1L;
 
+  /** No-op constructor. */
   public AllowedCommunityList() {
     super();
   }
 
+  /**
+   * Creates a list populated with the supplied collection.
+   *
+   * @param c the source collection
+   */
   public AllowedCommunityList(Collection<? extends String> c) {
     super(c);
   }

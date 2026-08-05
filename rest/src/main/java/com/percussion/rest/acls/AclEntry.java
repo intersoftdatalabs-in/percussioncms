@@ -23,19 +23,42 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
 
+/** REST representation of an ACL entry. */
 @XmlRootElement
 @Schema(description = "AclEntry")
 public class AclEntry {
 
+  /** Numeric identifier of the entry. */
   private long id;
+
+  /** Human-readable name of the entry. */
   private String name;
+
+  /** Principal associated with the entry, may be {@code null}. */
   private Principal principal;
+
+  /** Typed principal classification. */
   private TypedPrincipal type;
+
+  /** Permission set granted by this entry. */
   private UserAccessLevelList permissions;
+
+  /** Identifier of the owning ACL. */
   private long aclId;
 
+  /** No-op constructor. */
   public AclEntry() {}
 
+  /**
+   * Creates a new entry populated with the supplied values.
+   *
+   * @param id numeric identifier
+   * @param name human-readable name
+   * @param principal associated principal
+   * @param type typed principal classification
+   * @param permissions permissions granted
+   * @param aclId owning ACL id
+   */
   public AclEntry(
       long id,
       String name,
@@ -51,50 +74,110 @@ public class AclEntry {
     this.aclId = aclId;
   }
 
+  /**
+   * Returns the owning ACL id.
+   *
+   * @return the ACL id
+   */
   public long getAclId() {
     return aclId;
   }
 
+  /**
+   * Sets the owning ACL id.
+   *
+   * @param aclId the new ACL id
+   */
   public void setAclId(long aclId) {
     this.aclId = aclId;
   }
 
+  /**
+   * Returns the entry id.
+   *
+   * @return the entry id
+   */
   public long getId() {
     return id;
   }
 
+  /**
+   * Sets the entry id.
+   *
+   * @param id the new entry id
+   */
   public void setId(long id) {
     this.id = id;
   }
 
+  /**
+   * Returns the entry name.
+   *
+   * @return the name, may be empty
+   */
   public Optional<String> getName() {
     return Optional.ofNullable(name);
   }
 
+  /**
+   * Sets the entry name.
+   *
+   * @param name the new name
+   */
   public void setName(String name) {
     this.name = name;
   }
 
+  /**
+   * Returns the associated principal.
+   *
+   * @return the principal, may be empty
+   */
   public Optional<Principal> getPrincipal() {
     return Optional.ofNullable(principal);
   }
 
+  /**
+   * Sets the associated principal.
+   *
+   * @param principal the new principal
+   */
   public void setPrincipal(Principal principal) {
     this.principal = principal;
   }
 
+  /**
+   * Returns the typed principal classification.
+   *
+   * @return the type, may be empty
+   */
   public Optional<TypedPrincipal> getType() {
     return Optional.ofNullable(type);
   }
 
+  /**
+   * Sets the typed principal classification.
+   *
+   * @param type the new type
+   */
   public void setType(TypedPrincipal type) {
     this.type = type;
   }
 
+  /**
+   * Returns the permissions granted by this entry.
+   *
+   * @return the permissions, may be empty
+   */
   public Optional<UserAccessLevelList> getPermissions() {
     return Optional.ofNullable(permissions);
   }
 
+  /**
+   * Sets the permissions granted by this entry.
+   *
+   * @param permissions the new permissions
+   */
   public void setPermissions(UserAccessLevelList permissions) {
     this.permissions = permissions;
   }

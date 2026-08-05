@@ -28,14 +28,26 @@ import java.util.Optional;
 @Schema
 public class AllowedContentTypeMenusRequest {
 
+  /** Content ids. */
   @ArraySchema private int[] contentIds;
 
+  /** No-op constructor. */
   public AllowedContentTypeMenusRequest() {}
 
+  /**
+   * Returns the content ids.
+   *
+   * @return the content ids, may be empty
+   */
   public Optional<int[]> getContentIds() {
     return Optional.ofNullable(contentIds);
   }
 
+  /**
+   * Sets the content ids.
+   *
+   * @param contentIds the new content ids
+   */
   public void setContentIds(int[] contentIds) {
     this.contentIds = contentIds;
   }

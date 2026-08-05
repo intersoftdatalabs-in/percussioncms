@@ -23,15 +23,20 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
 
 /**
+ * Represents a generic REST API status response carrying a human-readable message and a numeric
+ * status code.
+ *
  * @author stephenbolton
  */
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Status")
 public class Status {
+  /** Human-readable message describing the status. */
   @Schema(name = "message", description = "The message for the Status response")
   private String message;
 
+  /** Numeric status code accompanying the message. */
   @Schema(name = "statusCode", description = "The numeric code for the Status message")
   private int statusCode;
 

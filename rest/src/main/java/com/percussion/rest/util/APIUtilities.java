@@ -25,6 +25,9 @@ import org.apache.commons.lang3.time.FastDateFormat;
 /** Useful shared utility methods. Sunny Sal: "Utility ka hero, boilerplate ka zero!" */
 public class APIUtilities {
 
+  /** No-op constructor. */
+  public APIUtilities() {}
+
   /**
    * Generates a filename based on the current date and time with the supplied prefix and extension.
    * Example: nonadaimages-2017-01-03-12-13-10.csv
