@@ -105,6 +105,22 @@ DTS_HOST_PORT = PREFERRED_DTS_HOST_PORT
 CMS_PROBE_PATH = "/Rhythmyx/login"
 DTS_PROBE_PATH = "/"
 
+# Compose DB published host ports (docker-compose.yml ``${*_PORT:-…}:container``).
+# Container listen ports and matrix cell DB_PORT stay fixed (3306/5432/1433);
+# cells reach DBs via Docker DNS on perc-matrix-net, not host publish ports.
+# Multi-worktree: set MYSQL_PORT / POSTGRES_PORT / MSSQL_PORT or leave unset
+# so freeport allocates — see ensure_compose_db_host_ports / docker/README.md.
+PREFERRED_MYSQL_HOST_PORT = 3306
+PREFERRED_POSTGRES_HOST_PORT = 5433
+PREFERRED_MSSQL_HOST_PORT = 1433
+
+# matrix db_type → (compose env key, preferred host port)
+COMPOSE_DB_HOST_PORT_SPEC: Dict[str, Tuple[str, int]] = {
+    "mysql": ("MYSQL_PORT", PREFERRED_MYSQL_HOST_PORT),
+    "postgresql": ("POSTGRES_PORT", PREFERRED_POSTGRES_HOST_PORT),
+    "sqlserver": ("MSSQL_PORT", PREFERRED_MSSQL_HOST_PORT),
+}
+
 # Compose service name → stable container_name from docker-compose.yml
 CONTAINER_BY_SERVICE: Dict[str, str] = {
     "postgres": "percussion-postgres",
@@ -457,6 +473,56 @@ def ensure_matrix_host_port(product: str) -> int:
     return port
 
 
+def resolve_compose_db_host_port(db_type: str) -> int:
+    """Resolve published host port for a compose external DB (env or freeport).
+
+    Resolution order (via :func:`resolve_host_port`):
+
+      1. Env override: ``MYSQL_PORT`` / ``POSTGRES_PORT`` / ``MSSQL_PORT``
+      2. Preferred baseline when free (3306 / 5433 / 1433)
+      3. Ephemeral freeport
+
+    Does not pin env — use :func:`ensure_compose_db_host_ports` before
+    ``docker compose up`` so shell env overrides ``.env.compose`` defaults.
+    H2 and unknown types raise ``ValueError``.
+    """
+    db_type = db_type.lower().strip()
+    spec = COMPOSE_DB_HOST_PORT_SPEC.get(db_type)
+    if spec is None:
+        raise ValueError(
+            f"No compose host-port mapping for db_type={db_type!r}; "
+            f"known: {sorted(COMPOSE_DB_HOST_PORT_SPEC)}"
+        )
+    env_key, preferred = spec
+    return resolve_host_port(env_key, preferred=preferred)
+
+
+def ensure_compose_db_host_ports(db_types: Iterable[str]) -> Dict[str, int]:
+    """Resolve and pin compose DB host ports for external DBs in ``db_types``.
+
+    Pins ``MYSQL_PORT`` / ``POSTGRES_PORT`` / ``MSSQL_PORT`` into
+    ``os.environ`` so concurrent worktrees and ``docker compose`` publish
+    / probe stay consistent (#2004). Skips H2 and unknown non-external types.
+    Returns mapping of matrix ``db_type`` → resolved host port.
+    """
+    resolved: Dict[str, int] = {}
+    for raw in db_types:
+        db_type = raw.lower().strip()
+        if db_type not in COMPOSE_DB_HOST_PORT_SPEC:
+            continue
+        env_key, _preferred = COMPOSE_DB_HOST_PORT_SPEC[db_type]
+        port = resolve_compose_db_host_port(db_type)
+        os.environ[env_key] = str(port)
+        resolved[db_type] = port
+        LOG.info(
+            "Compose DB host publish %s %s=%s (container port unchanged)",
+            db_type,
+            env_key,
+            port,
+        )
+    return resolved
+
+
 def build_docker_run_argv(
     *,
     image: str,
@@ -599,6 +665,11 @@ def start_db(
     # compose service name (e.g. "postgres") so cells can use DB_HOST=postgres.
     container = db_container_name(service)
     started_by_matrix = False
+
+    # Pin freeport/env host publish before compose so multi-worktree cells do
+    # not collide on MYSQL_PORT / POSTGRES_PORT / MSSQL_PORT (#2004). Process
+    # env overrides .env.compose defaults for docker compose interpolation.
+    ensure_compose_db_host_ports([db_type])
 
     # If compose DB is already running (common on long-lived dev hosts), skip
     # ``compose up`` so a host port clash (e.g. local Postgres on 5432) does not
@@ -1004,6 +1075,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     LOG.info("Using compose env file %s", env_file)
     cells = expand_matrix(products, dbs)
+    # Pin compose DB host publishes once for the whole matrix so concurrent
+    # worktrees get a stable freeport set before any compose up (#2004).
+    db_host_ports = ensure_compose_db_host_ports(dbs)
+    for db_type, port in sorted(db_host_ports.items()):
+        env_key = COMPOSE_DB_HOST_PORT_SPEC[db_type][0]
+        print(f"{env_key}={port}")
     # Engaged = external DBs we actually start_db()'d for a cell (not merely selected).
     engaged_external: Set[str] = set()
     started_by_matrix: Set[str] = set()

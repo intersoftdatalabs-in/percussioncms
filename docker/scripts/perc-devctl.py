@@ -95,6 +95,10 @@ VERIFY_FIX_TIMEOUT_SECONDS_DEFAULT = 240
 PREFERRED_VERIFY_CMS_HOST_PORT = 9992
 PREFERRED_VERIFY_DTS_HOST_PORT = 9980
 PREFERRED_QA_CMS_HOST_PORT = 9993
+# Compose DB host publishes (docker-compose.yml ${*_PORT:-…}); #2004.
+PREFERRED_MYSQL_HOST_PORT = 3306
+PREFERRED_POSTGRES_HOST_PORT = 5433
+PREFERRED_MSSQL_HOST_PORT = 1433
 
 VERIFY_CMS_PATH = "/Rhythmyx/rest/folders/by-path/Assets"
 VERIFY_DTS_PATH = "/"
@@ -175,18 +179,44 @@ def qa_cms_probe_url(port: int) -> str:
     return f"{qa_cms_base_url(port)}{QA_CMS_PROBE_PATH}"
 
 
+def ensure_compose_db_host_ports() -> dict[str, int]:
+    """Resolve compose DB host ports and pin them in ``os.environ`` (#2004).
+
+    Compose maps ``${MYSQL_PORT:-3306}:3306``, ``${POSTGRES_PORT:-5433}:5432``,
+    and ``${MSSQL_PORT:-1433}:1433``. Process-env pins override ``.env.compose``
+    defaults so concurrent worktrees do not fail with address-already-in-use.
+    Returns mapping of env key → resolved host port.
+    """
+    specs = (
+        ("MYSQL_PORT", PREFERRED_MYSQL_HOST_PORT),
+        ("POSTGRES_PORT", PREFERRED_POSTGRES_HOST_PORT),
+        ("MSSQL_PORT", PREFERRED_MSSQL_HOST_PORT),
+    )
+    resolved: dict[str, int] = {}
+    for env_key, preferred in specs:
+        port = resolve_host_port(env_key, preferred=preferred)
+        os.environ[env_key] = str(port)
+        resolved[env_key] = port
+    return resolved
+
+
 def ensure_compose_host_ports() -> tuple[int, int]:
-    """Resolve CMS/DTS host ports for compose and pin them in ``os.environ``.
+    """Resolve CMS/DTS (and DB) host ports for compose and pin ``os.environ``.
 
     Compose already maps ``${CMS_PORT:-9992}:9992`` and
     ``${DTS_PORT:-9980}:9980``. Pinning the resolved values into the process
     environment makes ``docker compose`` and later ``verify`` in the same
     session use the same published ports (critical for multi-worktree freeport).
+
+    Also pins ``MYSQL_PORT`` / ``POSTGRES_PORT`` / ``MSSQL_PORT`` via
+    :func:`ensure_compose_db_host_ports` so full compose stacks share the
+    freeport contract (#2004).
     """
     cms = resolve_host_port("CMS_PORT", preferred=PREFERRED_VERIFY_CMS_HOST_PORT)
     dts = resolve_host_port("DTS_PORT", preferred=PREFERRED_VERIFY_DTS_HOST_PORT)
     os.environ["CMS_PORT"] = str(cms)
     os.environ["DTS_PORT"] = str(dts)
+    ensure_compose_db_host_ports()
     return cms, dts
 
 
@@ -512,6 +542,11 @@ def cmd_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     repo_root, env_file, compose_file = paths
     log_dir = _log_dir(repo_root)
     cms_port, dts_port = ensure_compose_host_ports()
+    db_ports = {
+        key: int(os.environ[key])
+        for key in ("MYSQL_PORT", "POSTGRES_PORT", "MSSQL_PORT")
+        if os.environ.get(key)
+    }
     compose_argv = _docker_compose(env_file, compose_file, "up", "-d")
     if args.build:
         compose_argv.append("--build")
@@ -525,6 +560,9 @@ def cmd_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     # Agent/operator discovery: published host ports for this worktree cell.
     print(f"CMS_PORT={cms_port}")
     print(f"DTS_PORT={dts_port}")
+    for key in ("MYSQL_PORT", "POSTGRES_PORT", "MSSQL_PORT"):
+        if key in db_ports:
+            print(f"{key}={db_ports[key]}")
     print(f"VERIFY_CMS_URL={resolve_verify_cms_url()}")
     print(f"VERIFY_DTS_URL={resolve_verify_dts_url()}")
     return rc
