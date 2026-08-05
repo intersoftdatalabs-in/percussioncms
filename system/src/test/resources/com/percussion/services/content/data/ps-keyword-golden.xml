@@ -1,0 +1,38 @@
+<!-- Golden snapshot for production PSKeyword / PSKeywordChoice Jackson wire
+	shape (issue #1888 / epic #505). Nested item element is package name "choice"
+	(not mapped type name "keyword-choice"). Approved Jackson deviations vs historical
+	Betwixt package dumps: - no graph-identity id="…" attributes on complex elements
+	- no <name> or <type> (catalog aliases of label / KEYWORD_DEF) - catalog
+	interface default-method properties suppressed (description-optional, etc.)
+	- no XML declaration (PSJacksonXmlSerializationHelper default) - version
+	remains suppressed via @IPSXmlSerialization - <guid> uses shared IPSGuid
+	string converter (Betwixt parity) -->
+<keyword>
+	<choices>
+		<choice>
+			<description>Ad Hoc Assignment Anonymous Access</description>
+			<label>Anonymous</label>
+			<sequence>3</sequence>
+			<value>2</value>
+		</choice>
+		<choice>
+			<description>Ad Hoc Assignment Enabled</description>
+			<label>Enabled</label>
+			<sequence>2</sequence>
+			<value>1</value>
+		</choice>
+		<choice>
+			<description>Ad Hoc Assignment Disabled</description>
+			<label>Disabled</label>
+			<sequence>1</sequence>
+			<value>0</value>
+		</choice>
+	</choices>
+	<description>Ad Hoc Assignment Lookups</description>
+	<guid>0-14-125</guid>
+	<id>125</id>
+	<keyword-type>1</keyword-type>
+	<label>Adhoc_Type</label>
+	<sequence>1</sequence>
+	<value>125</value>
+</keyword>
