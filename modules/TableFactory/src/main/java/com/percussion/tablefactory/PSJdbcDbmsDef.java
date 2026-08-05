@@ -205,6 +205,7 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
     this(dbName, driverType, null);
   }
 
+  /** No-op constructor used during XML deserialization. */
   public PSJdbcDbmsDef() {}
 
   /**
@@ -456,6 +457,7 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
   /**
    * Obtains a connection to the database.
    *
+   * @return a new JDBC connection, never {@code null}
    * @throws SQLException if database connection using the parameters specified in the property file
    *     fails.
    * @throws PSJdbcTableFactoryException if database connection using the datasource object fails.
@@ -521,6 +523,9 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
    * Lookup and return the correct type map for this database definition
    *
    * @return a new data type map based on this database definition
+   * @throws PSJdbcTableFactoryException if the table factory encounters an unexpected error
+   * @throws IOException if the mapping XML resource cannot be read
+   * @throws SAXException if the mapping XML cannot be parsed
    */
   public PSJdbcDataTypeMap getTypemap()
       throws PSJdbcTableFactoryException, IOException, SAXException {
@@ -775,10 +780,20 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
     return encrypted;
   }
 
+  /**
+   * Returns the configured location where binary column data is stored on disk.
+   *
+   * @return the binary storage directory, may be {@code null} if not configured
+   */
   public File getBinaryStorageLocation() {
     return m_binaryStorageLocation;
   }
 
+  /**
+   * Sets the location where binary column data is stored on disk.
+   *
+   * @param binaryStorageLocation the binary storage directory, may be {@code null}
+   */
   public void setBinaryStorageLocation(File binaryStorageLocation) {
     this.m_binaryStorageLocation = binaryStorageLocation;
   }
@@ -865,6 +880,12 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
    */
   private File m_binaryStorageLocation = null;
 
+  /**
+   * Returns details of the underlying JDBC connection. Currently returns {@code null}; subclasses
+   * with access to a live connection should override.
+   *
+   * @return {@code null}
+   */
   public PSConnectionDetail getConnectionDetail() {
     return null;
   }

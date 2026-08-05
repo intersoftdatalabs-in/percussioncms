@@ -125,6 +125,6 @@ public interface IPSJdbcTableDataHandler {
   /** The name of this objects root Xml element. */
   public static final String NODE_NAME = "dataHandler";
 
-  // Xml elements and attributes
+  /** The XML attribute used to carry the implementing class name. */
   public static String CLASS_ATTR = "class";
 }

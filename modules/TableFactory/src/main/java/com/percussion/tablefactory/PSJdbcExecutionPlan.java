@@ -23,8 +23,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-/** A set of steps that may be executed in sequence. */
+/**
+ * A set of steps that may be executed in sequence.
+ *
+ * @author chadloder
+ * @version 1.2 1999/08/20
+ */
 public class PSJdbcExecutionPlan {
+
+  /** No-op constructor. */
+  public PSJdbcExecutionPlan() {
+    // no-op
+  }
+
   /**
    * Adds the step to this plan.
    *
@@ -75,8 +86,8 @@ public class PSJdbcExecutionPlan {
    * @param conn A valid connection to use, may not be <code>null</code>.
    * @param forward executes the steps in forward order if <code>true</code> else in reverse order.
    * @throws IllegalArgumentException if conn is <code>null</code>.
-   * @throws SQLException if any errors occur and {@link PSJdbcExecutionStep#stopOnError() is
-   *     <code>true</code>}.
+   * @throws SQLException if any errors occur and a step's {@link PSJdbcExecutionStep#stopOnError()}
+   *     is <code>true</code>.
    */
   public void execute(Connection conn, boolean forward) throws SQLException {
     if (conn == null) throw new IllegalArgumentException("conn may not be null");

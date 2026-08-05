@@ -198,6 +198,14 @@ public class PSJdbcTableFactory {
    * Convenience method, calls {@link #catalogTable(Connection,PSJdbcDbmsDef,
    * Map,PSJdbcDataTypeMap,String,boolean) catalogTable(conn,dbmsDef,null,
    * dataTypeMap,tableName,includeData)}
+   *
+   * @param conn the open database connection, never {@code null}
+   * @param dbmsDef the database definition, never {@code null}
+   * @param dataTypeMap the JDBC-to-native type mappings, never {@code null}
+   * @param tableName the table to catalog, never {@code null} or empty
+   * @param includeData {@code true} to include row data in the catalog
+   * @return a fully cataloged table schema
+   * @throws PSJdbcTableFactoryException if the table cannot be cataloged
    */
   public static PSJdbcTableSchema catalogTable(
       Connection conn,
@@ -212,6 +220,12 @@ public class PSJdbcTableFactory {
   /**
    * Version of {@link #processTable(Connection, PSJdbcDbmsDef, PSJdbcTableSchema, PrintStream,
    * boolean)} that creates the Connection first.
+   *
+   * @param dbmsDef the database definition, never {@code null}
+   * @param tableSchema the table schema describing the changes, never {@code null}
+   * @param logOut the output stream to receive log messages, may be {@code null}
+   * @param logDebug {@code true} to enable verbose debug logging
+   * @throws PSJdbcTableFactoryException if processing fails
    */
   public static void processTable(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PrintStream logOut, boolean logDebug)
@@ -401,6 +415,15 @@ public class PSJdbcTableFactory {
   /**
    * Convenient method, calls processTable(Connection, PSJdbcDbmsDef, null, PSJdbcTableSchema,
    * PrintStream, boolean).
+   *
+   * @param conn The connection to use, must connect to the database server specified in dbmsDef.
+   *     May not be <code>null</code>. Connection is not closed by this method.
+   * @param dbmsDef Used to connect to the database and provides correct schema/origin. May not be
+   *     <code>null</code>.
+   * @param tableSchema the table schema describing the changes, never {@code null}
+   * @param logOut the output stream to receive log messages, may be {@code null}
+   * @param logDebug {@code true} to enable verbose debug logging
+   * @throws PSJdbcTableFactoryException if processing fails
    */
   public static void processTable(
       Connection conn,

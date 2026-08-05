@@ -28,28 +28,65 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+/** Helper that collects constants and small utilities used by the DB import/export tools. */
 public class PSJdbcImportExportHelper {
+
+  /** No-op constructor. */
+  public PSJdbcImportExportHelper() {
+    // no-op
+  }
+
+  /** Command line option indicating a database export should be performed. */
   public static String OPTION_DB_EXPORT = "-dbexport";
+
+  /** Command line option indicating a database import should be performed. */
   public static String OPTION_DB_IMPPORT = "-dbimport";
+
+  /** Command line option carrying the path to the JDBC properties file. */
   public static String OPTION_DB_PROPS = "-dbprops";
+
+  /** Command line option carrying the storage path used during import/export. */
   public static String OPTION_STORAGE_PATH = "-storagepath";
+
+  /** Command line option carrying a comma-separated list of tables to skip. */
   public static String OPTION_TABLES_TO_SKIP = "-tablestoskip";
+
+  /** Key under which the selected db option is stored in the parsed options map. */
   public static String DB_OPTION = "dboption";
+
+  /** Default folder name used for storing text data XML files. */
   public static String DEF_DATA_FOLDER = "defData";
+
+  /** Default folder name used for storing binary data files. */
   public static String BINARY_DATA_FOLDER = "binaryData";
+
+  /** Prefix used for binary data bucket directories. */
   public static String BINARY_DATA_BUCKET = "bucket";
+
+  /** Initial binary data bucket directory name (bucket_0). */
   public static String BINARY_DATA_INITIAL_BUCKET = BINARY_DATA_BUCKET + "_0";
+
+  /** The set of option names that must always be supplied to {@link #getOptions(String[])}. */
   public static Set<String> requiredParams =
       new HashSet<>(Arrays.asList(OPTION_DB_PROPS, OPTION_STORAGE_PATH));
+
+  /**
+   * Maximum number of files allowed per storage folder before the import/export tooling splits
+   * output across folders.
+   */
   public static int MAX_FILES_IN_FILDER = 500;
+
+  /**
+   * Tables that should be skipped during import/export, parsed from {@link #OPTION_TABLES_TO_SKIP}.
+   */
   public static List<String> tablesToSkip = new ArrayList<>();
 
-  /*
-   * Import on MySql is choking on import if the limitSizeForIndex value is set to true for DPL_ID_MAPPING mapping.
-   * Added this map to check the table while cataloging and update the value.
-   * The key is the table name, the value is colon (:) separated list of column names.
-   * For example limitSizeForIndexMap.put("DPL_ID_MAPPING", "REPOSITORY_ID");
-   * If there are multiple columns that needs to be set with true value for limit size.
+  /**
+   * Import on MySql is choking on import if the limitSizeForIndex value is set to true for
+   * DPL_ID_MAPPING mapping. Added this map to check the table while cataloging and update the
+   * value. The key is the table name, the value is colon (:) separated list of column names. For
+   * example limitSizeForIndexMap.put("DPL_ID_MAPPING", "REPOSITORY_ID"); If there are multiple
+   * columns that needs to be set with true value for limit size.
    * limitSizeForIndexMap.put("DPL_ID_MAPPING", "REPOSITORY_ID:ID_MAP");
    */
   public static Map<String, String> limitSizeForIndexMap = new HashMap<>();
@@ -106,8 +143,9 @@ public class PSJdbcImportExportHelper {
   /**
    * Recursively find a file by name.
    *
-   * @param file
-   * @param search
+   * @param file the file or directory under which to search, never {@code null}
+   * @param search the file name to search for
+   * @return the matching file or {@code null} if no match was found
    */
   public static File findFile(File file, String search) {
     if (file.isDirectory()) {
@@ -124,6 +162,12 @@ public class PSJdbcImportExportHelper {
     return null;
   }
 
+  /**
+   * Returns the next numbered sibling bucket directory, creating it if necessary.
+   *
+   * @param currBucket the current bucket directory, never {@code null}
+   * @return a new directory whose name follows the {@code <prefix>_<n+1>} pattern
+   */
   public static File getNextBucket(File currBucket) {
     String[] bucketParts = currBucket.getName().split("_");
     int nextBucketNumber = Integer.parseInt(bucketParts[1]) + 1;
@@ -133,6 +177,8 @@ public class PSJdbcImportExportHelper {
   }
 
   /**
+   * Print command line usage for the supplied option.
+   *
    * @param dboption assumed to be either -dbexport or -dbimport.
    */
   private static void usage(String dboption) {

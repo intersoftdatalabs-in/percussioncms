@@ -17,14 +17,14 @@
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | none found |
-| Behavioral unit tests for changed logic | yes (Jackson serialisation + resource list + adaptor stub) |
-| Cross-platform path / file I/O | not touched |
-| Change-class companions | rest resource/DTO/test stubs; sitemanage adaptor mapping already correct — no sitemanage change |
-| New dependencies | none |
-| May commit/push | **yes** |
+|                  Check                  |                                             Result                                              |
+|-----------------------------------------|-------------------------------------------------------------------------------------------------|
+| Bugs                                    | none found                                                                                      |
+| Behavioral unit tests for changed logic | yes (Jackson serialisation + resource list + adaptor stub)                                      |
+| Cross-platform path / file I/O          | not touched                                                                                     |
+| Change-class companions                 | rest resource/DTO/test stubs; sitemanage adaptor mapping already correct — no sitemanage change |
+| New dependencies                        | none                                                                                            |
+| May commit/push                         | **yes**                                                                                         |
 
 ## Issues
 
@@ -45,3 +45,4 @@ cd rest && ../mvnw clean install
 ## Residual (not this PR)
 
 - Playwright developer-catalog-smoke against live CMS after redeploy remains under parent #1690 / #1695 (and redeploy #1692).
+

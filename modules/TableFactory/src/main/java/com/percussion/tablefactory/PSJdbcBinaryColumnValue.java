@@ -20,7 +20,7 @@ package com.percussion.tablefactory;
 import java.io.FileInputStream;
 
 /**
- * Contains a binary column value.
+ * Contains a binary column value backed by a {@link FileInputStream} plus the byte count to read.
  *
  * @author natechadwick
  */
@@ -28,23 +28,49 @@ public class PSJdbcBinaryColumnValue {
   private FileInputStream stream;
   private long fileSize;
 
-  public PSJdbcBinaryColumnValue(FileInputStream stream, long l) {
+  /**
+   * Constructs a binary column value backed by the given stream.
+   *
+   * @param stream the input stream to read the column bytes from, assumed not {@code null}
+   * @param fileSize the number of bytes available in {@code stream}
+   */
+  public PSJdbcBinaryColumnValue(FileInputStream stream, long fileSize) {
     this.setStream(stream);
-    this.setFileSize(l);
+    this.setFileSize(fileSize);
   }
 
+  /**
+   * Returns the input stream that backs this binary column value.
+   *
+   * @return the backing stream, may be {@code null} if not yet set
+   */
   public FileInputStream getStream() {
     return stream;
   }
 
+  /**
+   * Replaces the backing stream for this binary column value.
+   *
+   * @param stream the new backing stream, may be {@code null}
+   */
   public final void setStream(FileInputStream stream) {
     this.stream = stream;
   }
 
+  /**
+   * Returns the number of bytes in this binary column value.
+   *
+   * @return the configured file size in bytes
+   */
   public long getFileSize() {
     return fileSize;
   }
 
+  /**
+   * Sets the number of bytes in this binary column value.
+   *
+   * @param fileSize the file size in bytes
+   */
   public final void setFileSize(long fileSize) {
     this.fileSize = fileSize;
   }

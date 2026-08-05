@@ -23,8 +23,19 @@ import java.util.Iterator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/** This class encapsulates the log of execution of each step of an execution plan. */
+/**
+ * This class encapsulates the log of execution of each step of an execution plan.
+ *
+ * @author chadloder
+ * @version 1.2 1999/08/20
+ */
 public class PSJdbcExecutionStepLog {
+
+  /** No-op constructor. */
+  public PSJdbcExecutionStepLog() {
+    // no-op
+  }
+
   /**
    * Returns the connection object in string form.
    *
@@ -297,21 +308,52 @@ public class PSJdbcExecutionStepLog {
   /** Constants for Xml Elements and Attributes */
   public static final String NODE_NAME = "StepLogData";
 
+  /** Xml node name for the connection used to run the step. */
   public static final String CONNECTION_NODE_NAME = "connection";
+
+  /** Xml node name for the database server. */
   public static final String DB_SERVER_NODE_NAME = "dbserver";
+
+  /** Xml node name for the database element. */
   public static final String DATABASE_NODE_NAME = "database";
+
+  /** Xml attribute name carrying the database name. */
   public static final String DATABASE_NAME_NODE_NAME = "name";
+
+  /** Xml attribute name carrying the database type. */
   public static final String DATABASE_TYPE_NODE_NAME = "type";
+
+  /** Xml node name for the table affected by the step. */
   public static final String TABLE_NODE_NAME = "table";
+
+  /** Xml node name for the SQL query text. */
   public static final String QUERY_NODE_NAME = "query";
+
+  /** Xml node name for the primary key affected by the step. */
   public static final String PRIMARY_KEY_NODE_NAME = "primarykey";
+
+  /** Xml node name for a primary key column entry. */
   public static final String PRIMARY_KEY_COL_NODE_NAME = "column";
+
+  /** Xml attribute name carrying the primary key column name. */
   public static final String PRIMARY_KEY_COL_NAME_NODE_NAME = "name";
+
+  /** Xml attribute name carrying the primary key column value. */
   public static final String PRIMARY_KEY_COL_VALUE_NODE_NAME = "value";
+
+  /** Xml node name for the row count returned by the step. */
   public static final String UPDATE_COUNT_NODE_NAME = "updatecount";
+
+  /** Xml node name indicating whether the step succeeded. */
   public static final String SUCCESS_NODE_NAME = "successful";
+
+  /** Attribute value of {@link #SUCCESS_NODE_NAME} when the step succeeded. */
   public static final String SUCCESS_YES_VALUE = "yes";
+
+  /** Attribute value of {@link #SUCCESS_NODE_NAME} when the step failed. */
   public static final String SUCCESS_NO_VALUE = "no";
+
+  /** Xml node name for a free-form message emitted by the step. */
   public static final String MESSAGE_NODE_NAME = "message";
 
   /** Message when the step is successfully executed. */

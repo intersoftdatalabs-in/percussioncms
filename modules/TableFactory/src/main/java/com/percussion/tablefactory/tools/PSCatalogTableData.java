@@ -58,6 +58,11 @@ public class PSCatalogTableData {
 
   private static final Logger log = LogManager.getLogger(PSCatalogTableData.class);
 
+  /** No-op constructor for utility class. */
+  public PSCatalogTableData() {
+    // no-op
+  }
+
   /**
    * Creates a <code>PSJdbcDbmsDef</code> by loading the specified properties file. Assumes that the
    * password in the properties file is encrypted.
@@ -174,7 +179,7 @@ public class PSCatalogTableData {
    * Command line interface for this tool. For parameters see {@link PSCatalogTableData#usage()} for
    * a list of the required properties.
    *
-   * @param args
+   * @param args command-line arguments as described by {@link #usage()}
    */
   public static void main(String[] args) {
     if (args.length > 0
@@ -389,6 +394,14 @@ public class PSCatalogTableData {
     return tablesToExportDoc;
   }
 
+  /**
+   * Entry point for the {@code -dbexport} CLI mode. Catalogs every user table in the source
+   * database and writes schema + per-table data XML plus binary LOB files under {@code
+   * args[OPTION_STORAGE_PATH]}.
+   *
+   * @param args CLI arguments parsed by {@link PSJdbcImportExportHelper#getOptions(String[])}; must
+   *     include the storage path and DB properties file
+   */
   public static void mainExport(String[] args) {
     Map<String, String> optionsMap = PSJdbcImportExportHelper.getOptions(args);
     try {

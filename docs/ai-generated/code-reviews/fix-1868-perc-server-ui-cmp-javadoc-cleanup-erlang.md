@@ -33,12 +33,12 @@ incremental cleanups per the change-class table in root `AGENTS.md`.
 - Prior report: none (first Erlang review for this branch / issue)
 - Memory patterns hit: none of the institutional hard gates apply to a docs-only change.
 
-| Category                                  | Files | Δ                |
-|-------------------------------------------|-------|------------------|
-| Action / utility classes (default ctor)    | 27    | +5 / -0 each     |
-| `aa/PSAction` (param/return descriptions)   | 1     | +51 / -11        |
-| `browse/PSContentBrowser`-style updates   | 3     | +30 / -8         |
-| Misc no-arg ctor / class Javadoc          | 1     | +3 / -1          |
+|                 Category                  | Files |      Δ       |
+|-------------------------------------------|-------|--------------|
+| Action / utility classes (default ctor)   | 27    | +5 / -0 each |
+| `aa/PSAction` (param/return descriptions) | 1     | +51 / -11    |
+| `browse/PSContentBrowser`-style updates   | 3     | +30 / -8     |
+| Misc no-arg ctor / class Javadoc          | 1     | +3 / -1      |
 
 ## Recommendation
 
@@ -114,3 +114,4 @@ Counts after the fix:
   `public` matches the convention used in PR #1849 for `PSPackagesTab` / `PSVisibilityTab` and is
   the only visibility level that suppresses the "use of default constructor, which does not
   provide a comment" javadoc warning.
+

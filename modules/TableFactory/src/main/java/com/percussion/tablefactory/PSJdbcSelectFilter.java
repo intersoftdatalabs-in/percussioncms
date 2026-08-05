@@ -280,22 +280,49 @@ public class PSJdbcSelectFilter {
   /** String equivalents of the constants defined above */
   protected static final String STR_EQUALS = " = ";
 
+  /** SQL fragment for the not-equals operator. */
   protected static final String STR_NOT_EQUALS = " != ";
+
+  /** SQL fragment for the less-than operator. */
   protected static final String STR_LESS_THAN = " < ";
+
+  /** SQL fragment for the less-than-or-equals operator. */
   protected static final String STR_LESS_THAN_OR_EQUALS = " <= ";
+
+  /** SQL fragment for the greater-than operator. */
   protected static final String STR_GREATER_THAN = " > ";
+
+  /** SQL fragment for the greater-than-or-equals operator. */
   protected static final String STR_GREATER_THAN_OR_EQUALS = " >= ";
 
+  /** SQL fragment for the IS NULL operator. */
   protected static final String STR_IS_NULL = " IS NULL ";
+
+  /** SQL fragment for the IS NOT NULL operator. */
   protected static final String STR_IS_NOT_NULL = " IS NOT NULL ";
+
+  /** SQL fragment for the BETWEEN operator. */
   protected static final String STR_BETWEEN = " BETWEEN ";
+
+  /** SQL fragment for the NOT BETWEEN operator. */
   protected static final String STR_NOT_BETWEEN = " NOT BETWEEN ";
+
+  /** SQL fragment for the IN operator. */
   protected static final String STR_IN = " IN ";
+
+  /** SQL fragment for the NOT IN operator. */
   protected static final String STR_NOT_IN = " NOT IN ";
+
+  /** SQL fragment for the LIKE operator. */
   protected static final String STR_LIKE = " LIKE ";
+
+  /** SQL fragment for the NOT LIKE operator. */
   protected static final String STR_NOT_LIKE = " NOT LIKE ";
 
+  /** SQL fragment used to join WHERE-clause predicates with AND. */
   protected static final String STR_AND = " AND ";
+
+  /** SQL fragment used to join WHERE-clause predicates with OR. */
   protected static final String STR_OR = " OR ";
 
   /**

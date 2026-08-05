@@ -17,15 +17,15 @@ inline `XSSValidation` (GH-1611 architecture).
 
 ## Checklist
 
-| Gate | Result |
-|------|--------|
-| Bugs in new logic | Pass — mock no-ops when `location` non-configurable; invalid URLs swallowed |
-| Behavioral tests | Pass — `jsdomLocationNavigation.test.ts` + Dashboard legacy redirect assertion |
-| Cross-platform paths | N/A — no filesystem path I/O in mock |
-| Production navigation semantics | Unchanged — setup file only runs under Vitest |
-| Companions | setupFiles wired in both `WebUI/vite.config.ts` and frontend vite config |
-| Spotless apply then check | Pass (WebUI module) |
-| `cd WebUI && ../mvnw clean install` | BUILD SUCCESS |
+|                Gate                 |                                     Result                                     |
+|-------------------------------------|--------------------------------------------------------------------------------|
+| Bugs in new logic                   | Pass — mock no-ops when `location` non-configurable; invalid URLs swallowed    |
+| Behavioral tests                    | Pass — `jsdomLocationNavigation.test.ts` + Dashboard legacy redirect assertion |
+| Cross-platform paths                | N/A — no filesystem path I/O in mock                                           |
+| Production navigation semantics     | Unchanged — setup file only runs under Vitest                                  |
+| Companions                          | setupFiles wired in both `WebUI/vite.config.ts` and frontend vite config       |
+| Spotless apply then check           | Pass (WebUI module)                                                            |
+| `cd WebUI && ../mvnw clean install` | BUILD SUCCESS                                                                  |
 
 ## Residual
 

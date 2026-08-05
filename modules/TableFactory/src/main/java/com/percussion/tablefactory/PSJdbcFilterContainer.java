@@ -22,6 +22,12 @@ package com.percussion.tablefactory;
  * of PSJdbcSelectFilter class.
  */
 public class PSJdbcFilterContainer extends PSJdbcSelectFilter {
+
+  /** No-op constructor. */
+  public PSJdbcFilterContainer() {
+    // no-op
+  }
+
   /**
    * Joins the filter to the filters already contained in the container using AND clause.
    *

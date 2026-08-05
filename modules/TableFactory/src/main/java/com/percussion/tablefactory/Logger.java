@@ -29,6 +29,9 @@ import org.apache.commons.lang3.time.FastDateFormat;
  * defaults to System.out, but can be overridden by the user. In addition, debugging messages can be
  * optionally written (by default they aren't). There is a single instance of this class that can be
  * obtained by calling {@link #getLogger() getLogger}.
+ *
+ * @author chadloder
+ * @version 1.2 1999/08/20
  */
 public class Logger implements LogSink, IPSLogger {
   /**
@@ -39,6 +42,8 @@ public class Logger implements LogSink, IPSLogger {
    *
    * <p>The primary class should keep a copy of the logger reference so the GC doesn't unload the
    * class.
+   *
+   * @return the singleton {@link Logger} instance, never {@code null}
    */
   public static Logger getLogger() {
     if (null == ms_logger) ms_logger = new Logger();
@@ -88,8 +93,6 @@ public class Logger implements LogSink, IPSLogger {
    * commences to that file on the next message. If null is supplied, file logging is disabled. All
    * pending output is written before the file is closed.
    *
-   * <p>
-   *
    * @param log A valid file object that specifies the logging file. If it doesn't exist, it will be
    *     created. If it exists, new entries will be appended. If null, logging to the existing file
    *     will be stopped.
@@ -120,6 +123,8 @@ public class Logger implements LogSink, IPSLogger {
    * prepending [Debug] onto it.
    *
    * <p>See {@link #logMessage(String, Object[], boolean) logMessage } for a complete description.
+   *
+   * @param msg the message to log, never {@code null}
    */
   public void logDebugMessage(String msg) {
     if (null == msg) throw new IllegalArgumentException("Message cannot be null");
@@ -130,6 +135,8 @@ public class Logger implements LogSink, IPSLogger {
    * Logs a message with no arguments to the stream and file.
    *
    * <p>See {@link #logMessage(String, Object[], boolean) logMessage } for a complete description.
+   *
+   * @param msg the message to log, never {@code null}
    */
   public void logMessage(String msg) {
     if (null == msg) throw new IllegalArgumentException("Message cannot be null");
@@ -140,6 +147,9 @@ public class Logger implements LogSink, IPSLogger {
    * Logs a message with arguments to the stream and file.
    *
    * <p>See {@link #logMessage(String, Object[], boolean) logMessage } for a complete description.
+   *
+   * @param msg the message template, never {@code null}
+   * @param args replacement arguments for the message template, may be {@code null}
    */
   public void logMessage(String msg, Object[] args) {
     if (null == msg) throw new IllegalArgumentException("Message cannot be null");
@@ -151,6 +161,8 @@ public class Logger implements LogSink, IPSLogger {
    * printed on the console.
    *
    * <p>See {@link #logMessage(String, Object[], boolean) logMessage } for a complete description.
+   *
+   * @param msg the message to log, never {@code null}
    */
   public void logStreamMessage(String msg) {
     if (null == msg) throw new IllegalArgumentException("Message cannot be null");
@@ -198,12 +210,11 @@ public class Logger implements LogSink, IPSLogger {
 
   /*****************************************************************/
   /*************** LogSink Interface *******************************/
+
   /**
    * Logs the message.
    *
-   * @author chadloder
-   * @version 1.2 1999/08/20
-   * @param message
+   * @param message the message to log, never {@code null}
    */
   public void log(String message) {
     logMessage(message);
@@ -212,9 +223,7 @@ public class Logger implements LogSink, IPSLogger {
   /**
    * Logs the exception, including a stack trace.
    *
-   * @author chadloder
-   * @version 1.2 1999/08/20
-   * @param t
+   * @param t the throwable to log, never {@code null}
    */
   public void log(Throwable t) {
     logMessage(t.getLocalizedMessage());
@@ -224,10 +233,8 @@ public class Logger implements LogSink, IPSLogger {
    * Logs the exception, including a stack trace, and a message. If the message is null, it will not
    * be logged.
    *
-   * @author chadloder
-   * @version 1.2 1999/08/20
-   * @param message
-   * @param t
+   * @param message the message to log, may be {@code null}
+   * @param t the throwable to log, never {@code null}
    */
   public void log(String message, Throwable t) {
     logMessage(message);

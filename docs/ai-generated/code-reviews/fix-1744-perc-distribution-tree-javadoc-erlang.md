@@ -52,21 +52,21 @@ None.
 397 insertions / 25 deletions across 13 files. All changes are Javadoc comments plus one
 explicit no-op constructor — no runtime behavior change.
 
-| File                                                              | Insertions | Pattern                                                                                  |
-|-------------------------------------------------------------------|-----------:|------------------------------------------------------------------------------------------|
-| `Main.java`                                                       |       116  | Explicit `public Main()` ctor (no-op) to silence default-ctor block; class-level javadoc, `@param args` on `main`, javadoc on 11 fields and 7 methods. |
-| `ObsoleteInstallDirCleaner.java`                                  |       105  | Record compact-ctor javadoc on `Candidate`/`FailedPath`/`CleanupResult`; enum values on `Decision`; javadoc on 11 methods + 2 fields. |
-| `JavaHomeResolver.java`                                           |        37  | Javadoc on `ResolutionResult.success`/`failure` and 5 nested fields/methods.            |
-| `JavaInstallSelection.java`                                       |        35  | `@param` on record `SelectionOutcome`; javadoc on `summary`, 2 `JavaSelectionException` ctors, `InteractivePrompt.readLine`. |
-| `InputStreamLineBuffer.java`                                      |        24  | `@return` on `isAlive`/`hasNext`/`getNext`/`timeElapsed`.                               |
-| `JavaCandidateDiscovery.java`                                     |        24  | `@return` on `discoverEligible`; javadoc on record `Candidate` 3 fields.               |
-| `JavaPropertiesSupport.java`                                      |        24  | `@param` on record `JavaLoadResult`; javadoc on `keysForDebug`/`forLogPath`.            |
-| `DbInstallConfigResolver.java`                                    |        15  | `@param` on record `ParsedArgs`; compact-ctor + convenience ctor javadoc on `ResolvedDbConfig`. |
-| `InteractiveInstallWizard.java`                                   |        13  | Full `@param`/`@return` on 3 `runPhase1` overloads.                                     |
-| `RepositoryConnectionProbe.java`                                  |        11  | Javadoc on `ProbeResult.isSuccess`/`mayRetry`.                                          |
-| `CheckNoGlobDeletes.java`                                         |         7  | `@param args` on `main`.                                                                 |
-| `VerifyJdbcDrivers.java`                                          |         6  | `@param args` on `main`.                                                                 |
-| `InstallerUserSettings.java`                                      |         5  | Javadoc on `KEY_INSTALL_DIRECTORY`/`KEY_VERSION`/`KEY_JAVA_HOME` constants.             |
+|               File               | Insertions |                                                                        Pattern                                                                         |
+|----------------------------------|-----------:|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Main.java`                      |        116 | Explicit `public Main()` ctor (no-op) to silence default-ctor block; class-level javadoc, `@param args` on `main`, javadoc on 11 fields and 7 methods. |
+| `ObsoleteInstallDirCleaner.java` |        105 | Record compact-ctor javadoc on `Candidate`/`FailedPath`/`CleanupResult`; enum values on `Decision`; javadoc on 11 methods + 2 fields.                  |
+| `JavaHomeResolver.java`          |         37 | Javadoc on `ResolutionResult.success`/`failure` and 5 nested fields/methods.                                                                           |
+| `JavaInstallSelection.java`      |         35 | `@param` on record `SelectionOutcome`; javadoc on `summary`, 2 `JavaSelectionException` ctors, `InteractivePrompt.readLine`.                           |
+| `InputStreamLineBuffer.java`     |         24 | `@return` on `isAlive`/`hasNext`/`getNext`/`timeElapsed`.                                                                                              |
+| `JavaCandidateDiscovery.java`    |         24 | `@return` on `discoverEligible`; javadoc on record `Candidate` 3 fields.                                                                               |
+| `JavaPropertiesSupport.java`     |         24 | `@param` on record `JavaLoadResult`; javadoc on `keysForDebug`/`forLogPath`.                                                                           |
+| `DbInstallConfigResolver.java`   |         15 | `@param` on record `ParsedArgs`; compact-ctor + convenience ctor javadoc on `ResolvedDbConfig`.                                                        |
+| `InteractiveInstallWizard.java`  |         13 | Full `@param`/`@return` on 3 `runPhase1` overloads.                                                                                                    |
+| `RepositoryConnectionProbe.java` |         11 | Javadoc on `ProbeResult.isSuccess`/`mayRetry`.                                                                                                         |
+| `CheckNoGlobDeletes.java`        |          7 | `@param args` on `main`.                                                                                                                               |
+| `VerifyJdbcDrivers.java`         |          6 | `@param args` on `main`.                                                                                                                               |
+| `InstallerUserSettings.java`     |          5 | Javadoc on `KEY_INSTALL_DIRECTORY`/`KEY_VERSION`/`KEY_JAVA_HOME` constants.                                                                            |
 
 The 1 javadoc **block** warning was an implicit default constructor on
 `com.percussion.preinstall.Main` (public utility class with `public static void main`).
@@ -173,3 +173,4 @@ installed in `.m2`) is also pre-existing and unrelated to the javadoc changes.
 - [x] Cross-platform path / file I/O: not touched.
 - [x] No new warnings versus baseline.
 - [x] No spotless debt introduced into the PR.
+
