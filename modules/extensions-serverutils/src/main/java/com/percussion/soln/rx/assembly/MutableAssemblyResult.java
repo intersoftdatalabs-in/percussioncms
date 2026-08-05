@@ -34,20 +34,46 @@ import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Mutable implementation of {@link IPSAssemblyResult} that holds the rendered payload, mime type,
+ * and optional temporary backing file. Used by assemblers that need to amend their output after the
+ * initial render pass.
+ */
 public class MutableAssemblyResult extends DelegateToAssemblyItemAssemblyResult {
+  /** Logger used by this class. */
   private static final Logger log = LogManager.getLogger(MutableAssemblyResult.class);
 
   /** Safe to serialize */
   private static final long serialVersionUID = 1L;
 
+  /** Current {@link Status} of the result, defaults to {@link Status#SUCCESS}. */
   private Status status = Status.SUCCESS;
+
+  /** In-memory result payload. May be {@code null} when {@link #resultFile} is used instead. */
   private byte[] resultData;
+
+  /** Result mime type, defaults to {@code text/html}. */
   private String mimeType = "text/html";
+
+  /** Optional backing file for the result payload when it is too large for memory. */
   private PSPurgableTempFile resultFile;
+
+  /** Directory used to host {@link #resultFile}. */
   private File tempDir;
+
+  /** Set to {@code true} once the backing file has been released to the consumer. */
   private boolean fileReleased;
+
+  /** Whether the result represents a paginated portion of a larger body. */
   private boolean paginated = false;
 
+  /**
+   * Creates a new mutable result wrapping the supplied assembly item.
+   *
+   * @param assemblyItem the assembly item whose state backs this result
+   * @param resultData the in-memory payload
+   * @param mimeType the payload mime type
+   */
   public MutableAssemblyResult(IPSAssemblyItem assemblyItem, byte[] resultData, String mimeType) {
     super();
     this.setAssemblyItem(assemblyItem);
@@ -132,14 +158,29 @@ public class MutableAssemblyResult extends DelegateToAssemblyItemAssemblyResult 
     return Status.SUCCESS == getStatus();
   }
 
+  /**
+   * Returns the directory used to host any backing result file.
+   *
+   * @return the temp directory, may be {@code null}
+   */
   public File getTempDir() {
     return tempDir;
   }
 
+  /**
+   * Sets the directory used to host any backing result file.
+   *
+   * @param tempDir the new temp directory, may be {@code null}
+   */
   public void setTempDir(File tempDir) {
     this.tempDir = tempDir;
   }
 
+  /**
+   * Returns the current {@link Status} of this result.
+   *
+   * @return the status, never {@code null}
+   */
   public Status getStatus() {
     return status;
   }

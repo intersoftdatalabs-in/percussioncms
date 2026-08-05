@@ -22,7 +22,16 @@ import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.impl.plugin.PSVelocityAssembler;
 import com.percussion.utils.jexl.PSJexlEvaluator;
 
+/**
+ * Base class for Velocity assemblers that delegate Jexl binding and result handling to an
+ * {@link AbstractAssemblyHelper}.
+ */
 public abstract class AbstractExtendedVelocityAssembler extends PSVelocityAssembler {
+
+  /** No-op constructor. */
+  public AbstractExtendedVelocityAssembler() {
+    // no-op
+  }
 
   @Override
   protected IPSAssemblyResult doAssembleSingle(IPSAssemblyItem item) throws Exception {
@@ -36,5 +45,10 @@ public abstract class AbstractExtendedVelocityAssembler extends PSVelocityAssemb
     return helper.doResults(eval, result);
   }
 
+  /**
+   * Returns the helper that supplies Jexl bindings and result post-processing.
+   *
+   * @return the assembly helper for this assembler
+   */
   protected abstract AbstractAssemblyHelper getAssemblyHelper();
 }

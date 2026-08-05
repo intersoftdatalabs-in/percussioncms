@@ -21,7 +21,18 @@ import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.impl.plugin.PSAssemblerBase;
 
+/**
+ * Assembler base class that produces an XStream-serialized object as its output payload. Subclasses
+ * provide the actual object to serialize via {@link #createObject(IPSAssemblyItem)}.
+ *
+ * @param <T> the type of object produced by the assembler
+ */
 public abstract class ObjectAssembler<T> extends PSAssemblerBase {
+
+  /** No-op constructor. */
+  public ObjectAssembler() {
+    // no-op
+  }
 
   @Override
   public IPSAssemblyResult assembleSingle(IPSAssemblyItem assemblyItem) {
@@ -29,5 +40,11 @@ public abstract class ObjectAssembler<T> extends PSAssemblerBase {
     return new XStreamAssemblyResult(assemblyItem, object);
   }
 
+  /**
+   * Creates the payload object for the supplied assembly item.
+   *
+   * @param assemblyItem the assembly item being processed
+   * @return the object to serialize as the result payload
+   */
   public abstract T createObject(IPSAssemblyItem assemblyItem);
 }

@@ -43,12 +43,19 @@ import org.apache.commons.logging.LogFactory;
  * @author AdamGent
  * @author DavidBenua
  */
+/** Utility exposing Jexl-callable template dispatch helpers. */
 public class DispatchTemplateUtil extends SolnJexlBase {
 
+  /** Cached assembly service pointer, populated by {@link #initServices()}. */
   private static IPSAssemblyService assemblyService = null;
 
   /** Logger for this class. */
   private static Log log = LogFactory.getLog(DispatchTemplateUtil.class);
+
+  /** No-op constructor. */
+  public DispatchTemplateUtil() {
+    // no-op
+  }
 
   /** Initialize service pointers. */
   private static void initServices() {
@@ -65,7 +72,7 @@ public class DispatchTemplateUtil extends SolnJexlBase {
    *     name, and the value of the map is the desired template name for that type.
    * @param defaultTemplate the default template if no matching content type names is found.
    * @return the name of the selected template.
-   * @throws RepositoryException
+   * @throws RepositoryException if the assembly item's underlying repository cannot be read
    */
   @IPSJexlMethod(
       description = "Picks the template to dispatch to.",
@@ -123,7 +130,7 @@ public class DispatchTemplateUtil extends SolnJexlBase {
    *
    * @param params the parameter map.
    * @return the template or <code>null</code> if the template could not be found.
-   * @throws PSAssemblyException
+   * @throws PSAssemblyException if the assembly service fails to look up the template
    */
   @IPSJexlMethod(
       description = "Gets the template name from the location scheme parameters ($sys.params)",

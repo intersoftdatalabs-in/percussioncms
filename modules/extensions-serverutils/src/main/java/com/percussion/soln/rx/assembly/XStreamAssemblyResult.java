@@ -22,12 +22,26 @@ import com.percussion.services.assembly.IPSAssemblyResult;
 import com.thoughtworks.xstream.XStream;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * {@link IPSAssemblyResult} implementation whose payload is the XStream-serialized form of a Java
+ * object supplied by the caller.
+ */
 public class XStreamAssemblyResult extends MutableAssemblyResult implements IPSAssemblyResult {
+  /** Safe to serialize */
   private static final long serialVersionUID = 1L;
 
+  /** Shared XStream instance, lazily initialized by {@link #getXStream()}. */
   private static XStream xstream;
+
+  /** The object that will be XStream-serialized into the result payload. */
   private Object data;
 
+  /**
+   * Creates a new XStream result for the supplied assembly item and payload object.
+   *
+   * @param assemblyItem the assembly item whose state backs this result
+   * @param data the object to serialize, never {@code null}
+   */
   public XStreamAssemblyResult(IPSAssemblyItem assemblyItem, Object data) {
     super(assemblyItem, null, "application/xml");
     if (data == null)
@@ -50,10 +64,20 @@ public class XStreamAssemblyResult extends MutableAssemblyResult implements IPSA
     return super.getResultData();
   }
 
+  /**
+   * Returns the object that will be serialized as the result payload.
+   *
+   * @return the data object, may be {@code null}
+   */
   public Object getData() {
     return data;
   }
 
+  /**
+   * Replaces the object that will be serialized as the result payload.
+   *
+   * @param data the new data object
+   */
   public void setData(Object data) {
     this.data = data;
   }

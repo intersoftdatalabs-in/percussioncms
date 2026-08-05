@@ -34,6 +34,11 @@ import java.lang.reflect.Method;
  */
 public class SolnJexlBase extends PSJexlUtilBase {
 
+  /** No-op constructor. */
+  public SolnJexlBase() {
+    // no-op
+  }
+
   /**
    * Returns a string representation of all JEXL methods available in this class. Includes method
    * names and parameter types for each annotated method.
