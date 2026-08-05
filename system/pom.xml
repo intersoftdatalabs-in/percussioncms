@@ -363,6 +363,10 @@
 			<artifactId>saxon</artifactId>
 			<scope>compile</scope>
 		</dependency>
+		<!-- SolrJ 10 HTTP client surface only (#1997 / #1998).
+		     optional=true: not transitive to consumers; WebUI re-declares for WAR packaging.
+		     Do NOT add solr-solrj-jetty or solr-solrj-zookeeper here — both are managed-off-tree
+		     in root dependencyManagement and ZK is enforcer-banned (#1673). -->
 		<dependency>
 			<groupId>org.apache.solr</groupId>
 			<artifactId>solr-solrj</artifactId>

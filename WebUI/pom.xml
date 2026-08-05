@@ -476,6 +476,10 @@
             <artifactId>lucene-suggest</artifactId>
             <version>8.11.4</version>
         </dependency>
+        <!-- SolrJ packaging (#1998): keep explicit.
+             perc-system marks solr-solrj optional (not transitive). WebUI ships perc-system
+             and must put solr-solrj on the server WAR classpath for PSSolrDeliveryHandler.
+             No org.apache.solr Java sources under WebUI — core module only; no jetty/ZK. -->
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
