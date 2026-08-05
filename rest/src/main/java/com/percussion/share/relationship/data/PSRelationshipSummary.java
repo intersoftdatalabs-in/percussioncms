@@ -51,6 +51,7 @@ import java.util.Objects;
  */
 @XmlRootElement(name = "PSRelationshipSummary")
 @JsonRootName("PSRelationshipSummary")
+@SuppressWarnings("serial")
 public class PSRelationshipSummary extends PSAbstractDataObject {
 
   private static final long serialVersionUID = 1L;

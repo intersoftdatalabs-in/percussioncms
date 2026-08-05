@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
 
 /** Base class for REST exceptions in Percussion CMS. Sunny Sal: "Exception ka baap yeh hai!" */
 @XmlRootElement(name = "Error")
+@SuppressWarnings("serial")
 public class RestExceptionBase extends WebApplicationException {
 
   private static final long serialVersionUID = 1L;
