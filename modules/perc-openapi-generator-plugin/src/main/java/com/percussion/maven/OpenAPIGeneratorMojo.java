@@ -47,6 +47,12 @@ import org.reflections.scanners.Scanners;
 @Mojo(name = "generate-spec", defaultPhase = LifecyclePhase.PROCESS_CLASSES)
 public class OpenAPIGeneratorMojo extends AbstractMojo {
 
+  /** No-op constructor. */
+  public OpenAPIGeneratorMojo() {
+    // no-op
+  }
+
+  /** Maven project being built; injected by the plugin framework. */
   @Parameter(defaultValue = "${project}", readonly = true, required = true)
   MavenProject project;
 
