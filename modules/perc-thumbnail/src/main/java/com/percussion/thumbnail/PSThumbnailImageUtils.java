@@ -29,9 +29,27 @@ import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/** Utility class for resizing on-disk thumbnail images using the standard Java ImageIO APIs. */
 public class PSThumbnailImageUtils {
+
+  /**
+   * Default constructor; provided so the implicit default constructor has explicit Javadoc and
+   * doclint does not warn about its use.
+   */
+  public PSThumbnailImageUtils() {
+    // utility class - no instance state
+  }
+
   private static final Logger log = LogManager.getLogger(PSThumbnailImageUtils.class);
 
+  /**
+   * Resizes the on-disk image at the supplied path to the standard thumbnail dimensions and
+   * re-encodes it as a JPEG, waiting for the source file to become available and writable first.
+   *
+   * @param thumbnailFilePath the on-disk path of the thumbnail image, may not be <code>null</code>.
+   * @throws InterruptedException if the wait for the source file to become available is
+   *     interrupted.
+   */
   public static void resizeThumbnail(String thumbnailFilePath) throws InterruptedException {
 
     File inImageFile = new File(thumbnailFilePath);
