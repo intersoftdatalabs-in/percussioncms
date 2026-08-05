@@ -73,6 +73,7 @@ public class StartArgsProxy {
    * @return the list of command-line arguments assembled by Jetty, or <code>null</code> if the
    *     underlying Jetty method could not be invoked reflectively
    */
+  @SuppressWarnings("unchecked")
   public List<String> getMainArgs() {
     try {
       Method getMainArgs = instance.getClass().getMethod("getMainArgs", boolean.class);
