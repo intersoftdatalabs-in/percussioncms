@@ -17,8 +17,9 @@ Layer 1 harness:
 
 DB lifecycle (#1516)
 --------------------
-External compose DBs (``percussion-postgres`` / ``-mysql`` / ``-sqlserver``) are
-started only when not already running. After the matrix report is written:
+External compose DBs (``percussion-postgres`` / ``-mysql`` / ``-sqlserver`` /
+``-oracle``) are started only when not already running. After the matrix report
+is written:
 
 * **Default** — stop services this process brought up (``compose stop``, no ``-v``).
 * ``--keep`` — leave cells **and** DBs up (Playwright Layer 2 / debugging).
@@ -38,6 +39,9 @@ Usage
 
     # CMS + PostgreSQL
     python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql
+
+    # CMS + Oracle XE (compose profile oracle; heavy image — see docker/README.md)
+    python3 docker/scripts/matrix-install-smoke.py --product cms --db oracle
 
     # Both products × H2 and PostgreSQL
     python3 docker/scripts/matrix-install-smoke.py --product cms,dts --db h2,postgresql
@@ -106,19 +110,21 @@ CMS_PROBE_PATH = "/Rhythmyx/login"
 DTS_PROBE_PATH = "/"
 
 # Compose DB published host ports (docker-compose.yml ``${*_PORT:-…}:container``).
-# Container listen ports and matrix cell DB_PORT stay fixed (3306/5432/1433);
+# Container listen ports and matrix cell DB_PORT stay fixed (3306/5432/1433/1521);
 # cells reach DBs via Docker DNS on perc-matrix-net, not host publish ports.
-# Multi-worktree: set MYSQL_PORT / POSTGRES_PORT / MSSQL_PORT or leave unset
-# so freeport allocates — see ensure_compose_db_host_ports / docker/README.md.
+# Multi-worktree: set MYSQL_PORT / POSTGRES_PORT / MSSQL_PORT / ORACLE_PORT or
+# leave unset so freeport allocates — see ensure_compose_db_host_ports / README.
 PREFERRED_MYSQL_HOST_PORT = 3306
 PREFERRED_POSTGRES_HOST_PORT = 5433
 PREFERRED_MSSQL_HOST_PORT = 1433
+PREFERRED_ORACLE_HOST_PORT = 1521
 
 # matrix db_type → (compose env key, preferred host port)
 COMPOSE_DB_HOST_PORT_SPEC: Dict[str, Tuple[str, int]] = {
     "mysql": ("MYSQL_PORT", PREFERRED_MYSQL_HOST_PORT),
     "postgresql": ("POSTGRES_PORT", PREFERRED_POSTGRES_HOST_PORT),
     "sqlserver": ("MSSQL_PORT", PREFERRED_MSSQL_HOST_PORT),
+    "oracle": ("ORACLE_PORT", PREFERRED_ORACLE_HOST_PORT),
 }
 
 # Compose service name → stable container_name from docker-compose.yml
@@ -126,6 +132,7 @@ CONTAINER_BY_SERVICE: Dict[str, str] = {
     "postgres": "percussion-postgres",
     "mysql": "percussion-mysql",
     "sqlserver": "percussion-sqlserver",
+    "oracle": "percussion-oracle",
 }
 
 PRODUCTS = ("cms", "dts")
@@ -168,6 +175,19 @@ _DB_SERVICE_BASE: Dict[str, Dict[str, str]] = {
         "user": "sa",
         "password_env": "MSSQL_SA_PASSWORD",
         "name": "percdb",
+    },
+    # Oracle XE (gvenzl/oracle-xe): --db.name is service/SID (XEPDB1);
+    # APP_USER is CMS user/schema. Password from ORACLE_APP_PASSWORD.
+    "oracle": {
+        "profile": "oracle",
+        "service": "oracle",
+        "host": "localhost",
+        "port": "1521",
+        "container_host": "oracle",
+        "user": "percuser",
+        "password_env": "ORACLE_APP_PASSWORD",
+        "name": "XEPDB1",
+        "schema": "percuser",
     },
 }
 
@@ -231,6 +251,18 @@ def build_db_services(env: Mapping[str, str]) -> Dict[str, Dict[str, str]]:
             meta["name"] = _pick_env(env, "MYSQL_DATABASE", default=meta.get("name", "percdb"))
         elif name == "sqlserver":
             meta["user"] = "sa"
+        elif name == "oracle":
+            # APP_USER / service name / schema — never hardcode secrets.
+            meta["user"] = _pick_env(
+                env, "ORACLE_APP_USER", "APP_USER", default=meta.get("user", "percuser")
+            )
+            meta["name"] = _pick_env(
+                env, "ORACLE_SERVICE", default=meta.get("name", "XEPDB1")
+            )
+            # Schema defaults to the app user (Oracle unquoted identifiers).
+            meta["schema"] = _pick_env(
+                env, "ORACLE_SCHEMA", default=meta.get("user", "percuser")
+            )
         services[name] = meta
     return services
 
@@ -478,8 +510,9 @@ def resolve_compose_db_host_port(db_type: str) -> int:
 
     Resolution order (via :func:`resolve_host_port`):
 
-      1. Env override: ``MYSQL_PORT`` / ``POSTGRES_PORT`` / ``MSSQL_PORT``
-      2. Preferred baseline when free (3306 / 5433 / 1433)
+      1. Env override: ``MYSQL_PORT`` / ``POSTGRES_PORT`` / ``MSSQL_PORT`` /
+         ``ORACLE_PORT``
+      2. Preferred baseline when free (3306 / 5433 / 1433 / 1521)
       3. Ephemeral freeport
 
     Does not pin env — use :func:`ensure_compose_db_host_ports` before
@@ -500,8 +533,8 @@ def resolve_compose_db_host_port(db_type: str) -> int:
 def ensure_compose_db_host_ports(db_types: Iterable[str]) -> Dict[str, int]:
     """Resolve and pin compose DB host ports for external DBs in ``db_types``.
 
-    Pins ``MYSQL_PORT`` / ``POSTGRES_PORT`` / ``MSSQL_PORT`` into
-    ``os.environ`` so concurrent worktrees and ``docker compose`` publish
+    Pins ``MYSQL_PORT`` / ``POSTGRES_PORT`` / ``MSSQL_PORT`` / ``ORACLE_PORT``
+    into ``os.environ`` so concurrent worktrees and ``docker compose`` publish
     / probe stay consistent (#2004). Skips H2 and unknown non-external types.
     Returns mapping of matrix ``db_type`` → resolved host port.
     """
@@ -667,8 +700,8 @@ def start_db(
     started_by_matrix = False
 
     # Pin freeport/env host publish before compose so multi-worktree cells do
-    # not collide on MYSQL_PORT / POSTGRES_PORT / MSSQL_PORT (#2004). Process
-    # env overrides .env.compose defaults for docker compose interpolation.
+    # not collide on MYSQL_PORT / POSTGRES_PORT / MSSQL_PORT / ORACLE_PORT
+    # (#2004). Process env overrides .env.compose defaults for compose.
     ensure_compose_db_host_ports([db_type])
 
     # If compose DB is already running (common on long-lived dev hosts), skip
@@ -981,7 +1014,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--db",
         default="h2",
-        help="Comma list: h2,postgresql,mysql,sqlserver (default: h2)",
+        help="Comma list: h2,postgresql,mysql,sqlserver,oracle (default: h2)",
     )
     p.add_argument(
         "--compose-file",

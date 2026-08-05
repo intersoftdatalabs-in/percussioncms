@@ -146,7 +146,7 @@ def build_install_argv(
             argv.append(f"--db.password={db_password}")
         if db_schema:
             argv.append(f"--db.schema={db_schema}")
-        # Compose matrix DBs (postgres/mysql/sqlserver profiles) do not terminate TLS.
+        # Compose matrix DBs (postgres/mysql/sqlserver/oracle profiles) do not terminate TLS.
         # Installer defaults db.ssl.enabled=true, which makes MySQL requireSSL and SQL Server
         # encrypt=true fail with "Communications link failure" against plain Docker DBs.
         argv.append("--db.ssl.enabled=false")

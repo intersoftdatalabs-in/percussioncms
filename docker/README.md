@@ -10,7 +10,7 @@ DB passwords are **not** hardcoded in `docker-compose.yml`. Copy the example env
 
 ```bash
 cp .env.compose.example .env.compose
-# edit MYSQL_*/POSTGRES_*/MSSQL_* passwords as needed
+# edit MYSQL_*/POSTGRES_*/MSSQL_*/ORACLE_* passwords as needed
 docker compose --env-file .env.compose --profile postgres up -d
 ```
 
@@ -66,19 +66,19 @@ Each subcommand writes full output to a timestamped file under `docker/logs/<lab
 
 1. **Env override** (wins):
    - Dev stack: `CMS_PORT`, `DTS_PORT` (compose already maps these), or full `VERIFY_CMS_URL` / `VERIFY_DTS_URL`
-   - Compose DB host publishes: `MYSQL_PORT`, `POSTGRES_PORT`, `MSSQL_PORT` (compose maps `${*_PORT:-…}:container`)
+   - Compose DB host publishes: `MYSQL_PORT`, `POSTGRES_PORT`, `MSSQL_PORT`, `ORACLE_PORT` (compose maps `${*_PORT:-…}:container`)
    - QA / matrix CMS cell: `QA_CMS_HOST_PORT` or `CMS_HOST_PORT`
    - Matrix DTS cell: `DTS_HOST_PORT`
-2. **Preferred baseline when free** on loopback: compose CMS `9992`, compose DTS `9980`, matrix/QA CMS `9993`, matrix DTS `9983`, MySQL `3306`, Postgres `5433`, SQL Server `1433`
+2. **Preferred baseline when free** on loopback: compose CMS `9992`, compose DTS `9980`, matrix/QA CMS `9993`, matrix DTS `9983`, MySQL `3306`, Postgres `5433`, SQL Server `1433`, Oracle `1521`
 3. Else **ephemeral freeport** so a second worktree does not hit `address already in use`
 
-Process-env pins override `.env.compose` / `.env.compose.example` defaults when `docker compose` interpolates host ports. **Container listen ports stay fixed** (MySQL `3306`, Postgres `5432`, SQL Server `1433`); matrix cells reach DBs via Docker DNS on `perc-matrix-net`, not the host publish side.
+Process-env pins override `.env.compose` / `.env.compose.example` defaults when `docker compose` interpolates host ports. **Container listen ports stay fixed** (MySQL `3306`, Postgres `5432`, SQL Server `1433`, Oracle `1521`); matrix cells reach DBs via Docker DNS on `perc-matrix-net`, not the host publish side.
 
 **Discover allocated ports:**
 
 - `perc-devctl.py up` prints `CMS_PORT=…`, `DTS_PORT=…`, `MYSQL_PORT` / `POSTGRES_PORT` / `MSSQL_PORT`, and the resolved `VERIFY_*_URL` lines
 - `perc-devctl.py qa-up` prints `QA_CMS_HOST_PORT=…` and `TEST_CMS_URL=http://127.0.0.1:<port>`
-- `matrix-install-smoke.py` pins `CMS_HOST_PORT` / `QA_CMS_HOST_PORT` / `DTS_HOST_PORT` for the cell it starts; probe URL and docker `-p` always use that same port. External DB cells also pin and print `MYSQL_PORT` / `POSTGRES_PORT` / `MSSQL_PORT` before compose up.
+- `matrix-install-smoke.py` pins `CMS_HOST_PORT` / `QA_CMS_HOST_PORT` / `DTS_HOST_PORT` for the cell it starts; probe URL and docker `-p` always use that same port. External DB cells also pin and print `MYSQL_PORT` / `POSTGRES_PORT` / `MSSQL_PORT` / `ORACLE_PORT` before compose up.
 
 **Playwright / `TEST_CMS_URL` contract:**
 
@@ -284,8 +284,12 @@ python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql
 # Both products × H2 and PostgreSQL
 python3 docker/scripts/matrix-install-smoke.py --product cms,dts --db h2,postgresql
 
-# DTS only × full Layer-1 DB matrix (H2 + external compose profiles)
+# DTS only × Layer-1 DB matrix without Oracle (H2 + common external profiles)
 python3 docker/scripts/matrix-install-smoke.py --product dts --db h2,postgresql,mysql,sqlserver
+
+# CMS + Oracle XE (opt-in; heavy image — see Oracle section below)
+# Requires ORACLE_PASSWORD + ORACLE_APP_PASSWORD in .env.compose
+python3 docker/scripts/matrix-install-smoke.py --product cms --db oracle
 
 # Leave cell up for Playwright Layer 2 (perc-qa-automation)
 python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql --keep
@@ -302,12 +306,42 @@ python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql,mys
 
 # Dry-run (no docker)
 python3 docker/scripts/matrix-install-smoke.py --product cms --db h2 --dry-run --skip-image-build
+# Dry-run Oracle cell metadata (still needs passwords in env / .env.compose)
+python3 docker/scripts/matrix-install-smoke.py --product cms --db oracle --dry-run --skip-image-build
 ```
+
+### Oracle compose profile (#1508)
+
+Opt-in Oracle XE for matrix Layer-1 only (not started by default `perc-devctl.py up`).
+
+|              Item              |                                                                                                    Value                                                                                                     |
+|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Image**                      | `gvenzl/oracle-xe:21-slim` (community packaging of Oracle Database XE). Accept Oracle Free Use Terms when pulling; operators may pin a company-approved mirror by changing `image:` in `docker-compose.yml`. |
+| **Compose profiles**           | `oracle`, and `db-all` (starts all external matrix DBs)                                                                                                                                                      |
+| **Container name**             | `percussion-oracle`                                                                                                                                                                                          |
+| **Network alias**              | `oracle` on `perc-matrix-net` (cells use `DB_HOST=oracle`)                                                                                                                                                   |
+| **Container port**             | `1521` (fixed)                                                                                                                                                                                               |
+| **Host publish**               | `${ORACLE_PORT:-1521}:1521` (freeport / env when 1521 is taken)                                                                                                                                              |
+| **Service name (`--db.name`)** | `XEPDB1` (default pluggable DB; override with `ORACLE_SERVICE`)                                                                                                                                              |
+| **CMS user / schema**          | `APP_USER` / `ORACLE_APP_USER` (default `percuser`); password `ORACLE_APP_PASSWORD`                                                                                                                          |
+| **SYS bootstrap**              | `ORACLE_PASSWORD` (required by the image; **not** the CMS connect password)                                                                                                                                  |
+| **SSL**                        | Off for compose cells (`--db.ssl.enabled=false`), same as postgres/mysql/sqlserver                                                                                                                           |
+| **Resources**                  | Large image, high RAM, slow first healthcheck (`start_period` 120s). Prefer dedicated machine / long probe timeout for live smoke.                                                                           |
+
+```bash
+# Start Oracle only (after .env.compose has ORACLE_* set)
+docker compose --env-file .env.compose --profile oracle up -d oracle
+
+# Matrix harness (starts profile, network-connects alias, install cell)
+python3 docker/scripts/matrix-install-smoke.py --product cms --db oracle --probe-timeout 1800
+```
+
+**Live smoke residual:** compose + harness + unit tests land in this slice. Unattended `RESULT:OK` against a real Oracle container (image pull, license, long first start, full install probe) is **not** required for the first PR — track as residual follow-up on #1508 / parent #1500.
 
 ### External DB teardown policy (#1516)
 
 Matrix cells (`perc-matrix-*`) are destroyed after each cell unless `--keep`.
-External compose DBs (`percussion-postgres` / `percussion-mysql` / `percussion-sqlserver`) follow a separate ownership rule:
+External compose DBs (`percussion-postgres` / `percussion-mysql` / `percussion-sqlserver` / `percussion-oracle`) follow a separate ownership rule:
 
 |    Flag     |            Cells            |                              External DBs                               |
 |-------------|-----------------------------|-------------------------------------------------------------------------|
