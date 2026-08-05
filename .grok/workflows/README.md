@@ -11,7 +11,7 @@ Unattended overnight worker:
 1. **Discover** open GitHub issues  
 2. **Triage** (implement / split / skip)  
 3. **Work** sequential implement or split — **file residual follow-up issues** for leftover work  
-4. **PR follow-up** (optional, default on) — **human review threads first** (never starve/fake-resolve), then merge conflicts, CI, then bot review threads on *our* open PRs only  
+4. **PR follow-up** (optional, default on) — tech need first (conflicts → CI → review threads); human and AI threads **equal**, human only as **tie-break** on *our* open PRs  
 5. **Report** → `scratch/night-report.md`
 
 Opens **PRs only** (never merges). Oversized issues become child issues, not mega-PRs.
@@ -23,9 +23,9 @@ Opens **PRs only** (never merges). Oversized issues become child issues, not meg
 | Partial PRs leave “rest of the work” only in chat | **Always** log residual work as GitHub issues (or plan them in dry_run) linked to parent + PR |
 | Split plans disappear if only a comment | Child issues for each slice; residual URLs in structured result |
 | Same-area overnight PRs (i18n/TMX/gadgets) go **CONFLICTING** and block each other | **PR follow-up** rebases onto base **oldest-first**, resolves conflicts, then CI/review |
-| Human review comments lose to conflict/CI `max_prs` budget | **HUMAN threads are mandatory** — always inventoried; not capped out by `max_prs`; report `human_threads_still_open` |
+| Review threads (human or AI) invisible / under-reported | Inventory **all** owned PRs; human and bot threads are **equal** selection; report still lists open human threads for visibility |
 | Agent PRs sit blocked on review/CI | **PR follow-up** phase fixes + **inline reply + `resolveReviewThread`** per root `AGENTS.md` |
-| Fake-green: resolve without fix | Never resolve without mitigation reply citing commit; open residual issue if judgment needed; **human threads stay OPEN** if deferred |
+| Fake-green: resolve without fix | Never bare-resolve (human or bot); mitigation + resolve, or residual issue and **leave OPEN** |
 
 ### When to use
 
@@ -99,20 +99,21 @@ name=night-issue-prs args={"max_issues": 1, "max_prs": 8, "include_pr_followup":
 
 For a pure PR-babysit night, prefer `max_issues: 1` with a label filter that matches nothing (or a known empty set) so Work is nearly empty, and raise `max_prs`. Watch in `/workflows`. Result path: `scratch/night-report.md`.
 
-### PR follow-up: human reviews + conflicts + order
+### PR follow-up: tech need + equal review threads + human tie-break
 
-1. **Inventory first:** GraphQL `reviewThreads` on **every** owned open PR; classify HUMAN vs bot  
-2. **HUMAN threads (sacred):** always in the work set (not excluded by `max_prs`); process oldest first  
-   - Fix + mitigation reply + `resolveReviewThread`, **or**  
-   - Inline deferral + residual issue and **leave thread OPEN** (never bare-resolve)  
-3. **Then fill `max_prs`:** CONFLICTING/DIRTY → failing CI → unresolved bot threads → optional BEHIND  
-4. **Process oldest first** among non-human work so same-area stacks unstick bottom-up  
-5. **Rebase** conflicted PRs onto `origin/<base_branch>`; resolve markers carefully  
-6. **Push** with `git push --force-with-lease` only after history rewrite (never bare `--force`)  
-7. Bot review reply+`resolveReviewThread` only after humans on that PR are handled or deferred  
-8. Report **must** list `human_threads_still_open` after a fresh GraphQL re-query of all owned PRs  
+1. **Inventory** GraphQL `reviewThreads` on every owned open PR (human and bot both visible)  
+2. **Select up to `max_prs` by technical need:**  
+   - Tier A: CONFLICTING/DIRTY  
+   - Tier B: failing CI  
+   - Tier C: unresolved review threads (**human and AI equal**)  
+   - Tier D: optional BEHIND base  
+3. **Within a tier only:** prefer PRs with unresolved **human** threads, then oldest `createdAt`  
+4. On each PR: conflicts → CI → all unresolved threads (same fix/reply/resolve rules; human first only if equal difficulty)  
+5. Rebase with careful conflict resolution; push **`--force-with-lease` only** after history rewrite  
+6. Never bare-resolve: fix + mitigation + resolve, or residual + **leave OPEN**  
+7. Report `human_threads_still_open` after a fresh full re-query (visibility, not a separate work queue)
 
-**What went wrong on #1955 (example):** a human freeport review sat open while follow-up reported “all MERGEABLE / no threads” — conflict-first + `max_prs` starved the PR, and inventory was incomplete. Human priority above closes that gap.
+**#1955 lesson:** a MERGEABLE PR with a human freeport thread was under-reported as “no threads.” Fix is full inventory + treating review threads as a real tier (not human-only special-casing that jumps the queue).
 
 ### Safety model
 
@@ -123,7 +124,7 @@ For a pure PR-babysit night, prefer `max_issues: 1` with a label filter that mat
 - Spotless → clean install → tests before PR  
 - `unassigned_only` avoids stepping on humans  
 - PR follow-up only on **our** open PRs; hard gate reply+resolve (never bare resolve)  
-- **Human review threads never starved or fake-resolved**; deferred humans stay open with residual issue  
+- Human and AI review comments **equal**; human is a **tie-break** when tech need is equal  
 - Residual / child issues left **unassigned** for the backlog  
 
 ### Operator + model labels (daily status)
