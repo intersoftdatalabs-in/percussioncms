@@ -330,14 +330,18 @@ public class PSNodeDefinition implements IPSNodeDefinition {
    }
 
    /**
-    * Get the raw content type id, required for some operations
-    * 
+    * Get the raw content type id, required for some operations.
+    *
+    * <p>Fails fast when the id has not been set (null {@code m_contenttypeid}). Returning a synthetic
+    * {@code 0L} would mask uninitialized-object bugs during design-object XML and runtime use.
+    *
     * @return the raw content type id
+    * @throws NullPointerException if the content type id has not been set
     */
    @JsonProperty
    public long getRawContentType()
    {
-      return m_contenttypeid != null ? m_contenttypeid : 0L;
+      return m_contenttypeid;
    }
 
    /**
@@ -351,14 +355,19 @@ public class PSNodeDefinition implements IPSNodeDefinition {
    }
 
    /**
-    * Get id as long, only used for serialization
-    * 
+    * Get id as long, only used for serialization.
+    *
+    * <p>Fails fast when the id has not been set (null {@code m_contenttypeid}), matching historical
+    * Betwixt unboxing behavior. Callers must set {@link #setId(long)} / {@link #setRawContentType(long)}
+    * before reading.
+    *
     * @return get the id
+    * @throws NullPointerException if the content type id has not been set
     */
    @JsonProperty
    public long getId()
    {
-      return m_contenttypeid != null ? m_contenttypeid : 0L;
+      return m_contenttypeid;
    }
 
    /**
@@ -883,20 +892,82 @@ public class PSNodeDefinition implements IPSNodeDefinition {
    }
 
    /**
-    * Jackson collection setter for {@code workflow-ids}. Workflow associations are not rebuilt from
-    * string ids offline without content-type-workflow rows; live package install may still use other
-    * paths. Accepts and ignores empty/null; non-empty is a no-op unless descriptors already exist.
+    * Jackson collection setter for {@code workflow-ids}. Rebuilds {@link #m_ctWfRels} entries from
+    * GUID strings so design-object XML restore retains workflow associations.
+    *
+    * <p>Offline-friendly: creates new {@link PSContentTypeWorkflow} rows without consulting the
+    * content manager. Association primary keys are left unset so Hibernate can assign them on
+    * persist; live package install may still re-merge via {@code PSContentTypeHelper} when
+    * existing DB rows must be reused. Skips blank entries and de-duplicates by workflow GUID.
     *
     * @param workflowIds may be {@code null} or empty
     */
    public void setWorkflowIds(Set<String> workflowIds)
    {
-      // Historical Betwixt surface exposed getWorkflowIds only; no singular adder. Keep setter for
-      // Jackson collection binding without inventing CMS-dependent association create.
       if (workflowIds == null || workflowIds.isEmpty())
       {
          return;
       }
+      if (m_ctWfRels == null)
+      {
+         m_ctWfRels = new HashSet<>();
+      }
+      for (String wfId : workflowIds)
+      {
+         if (StringUtils.isBlank(wfId))
+         {
+            continue;
+         }
+         addWorkflowId(wfId);
+      }
+   }
+
+   /**
+    * Add a workflow association from a GUID string (design-object {@code workflow-ids} item).
+    *
+    * @param wfId string form of the workflow guid, never blank
+    */
+   @JsonIgnore
+   public void addWorkflowId(String wfId)
+   {
+      if (StringUtils.isBlank(wfId))
+      {
+         throw new IllegalArgumentException("workflow guid may not be null or empty");
+      }
+      addWorkflowGuid(new PSGuid(wfId));
+   }
+
+   /**
+    * Add the given workflow GUID to {@code m_ctWfRels} if not already present. Does not require a
+    * live content manager (unlike template association restore).
+    *
+    * @param guid workflow guid, never {@code null}
+    */
+   @JsonIgnore
+   public void addWorkflowGuid(IPSGuid guid)
+   {
+      if (guid == null)
+      {
+         throw new IllegalArgumentException("guid may not be null");
+      }
+      if (m_ctWfRels == null)
+      {
+         m_ctWfRels = new HashSet<>();
+      }
+      for (PSContentTypeWorkflow rel : m_ctWfRels)
+      {
+         if (guid.equals(rel.getWorkflowId()))
+         {
+            return;
+         }
+      }
+      PSContentTypeWorkflow rel = new PSContentTypeWorkflow();
+      if (m_contenttypeid != null)
+      {
+         rel.setContentTypeId(new PSGuid(PSTypeEnum.NODEDEF, m_contenttypeid));
+      }
+      rel.setWorkflowId(guid);
+      m_ctWfRels.add(rel);
    }
 
    /**

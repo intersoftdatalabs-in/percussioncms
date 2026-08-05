@@ -19,6 +19,8 @@ package com.percussion.services.content.data;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.services.catalog.PSTypeEnum;
@@ -184,6 +186,35 @@ class PSContentLeftoversXmlSerializationTest {
     PSItemStatus restored = new PSItemStatus();
     restored.fromXML(xml);
     assertEquals(original, restored);
+  }
+
+  @Test
+  void itemStatusAllowsNullStateNamesButRejectsEmpty() {
+    PSItemStatus status = new PSItemStatus(42);
+    // null is intentional: no transition / Jackson absent optional elements
+    status.setFromState(null);
+    status.setToState(null);
+    assertNull(status.getFromState());
+    assertNull(status.getToState());
+
+    // Contract uses StringUtils.isEmpty: reject "" only (not whitespace-only)
+    assertThrows(IllegalArgumentException.class, () -> status.setFromState(""));
+    assertThrows(IllegalArgumentException.class, () -> status.setToState(""));
+  }
+
+  @Test
+  void itemStatusWithoutTransitionRoundTripsNullStates() throws Exception {
+    PSItemStatus original = new PSItemStatus(100, true, false, null, null, null, null);
+    String xml = original.toXML();
+    PSItemStatus restored = new PSItemStatus();
+    restored.fromXML(xml);
+    assertEquals(original.getId(), restored.getId());
+    assertTrue(restored.isDidCheckout());
+    assertFalse(restored.isDidTransition());
+    assertNull(restored.getFromState());
+    assertNull(restored.getToState());
+    assertNull(restored.getFromStateId());
+    assertNull(restored.getToStateId());
   }
 
   private static PSAutoTranslation sampleAutoTranslation() {

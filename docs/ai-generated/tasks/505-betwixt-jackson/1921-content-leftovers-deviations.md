@@ -19,10 +19,13 @@ Parent: #1892 · Grandparent: #1823 · Epic: #505
 - No XML declaration (`PSJacksonXmlSerializationHelper` default)
 - Catalog / `Optional` / Hibernate association graph suppressed on modern write
 - `PSNodeDefinition` template association **restore** still needs live content-manager (integration tests); offline suite pins write shape + scalar restore
+- `PSNodeDefinition` workflow association **restore** is offline-friendly via `setWorkflowIds` / `addWorkflowGuid` (new `PSContentTypeWorkflow` rows; association PK left unset for Hibernate). Live package install may still re-merge existing DB rows via `PSContentTypeHelper`.
+- `PSNodeDefinition#getId` / `getRawContentType` fail-fast (NPE) when unset — no synthetic `0L` (historical Betwixt unboxing).
+- `PSItemStatus#setFromState` / `setToState` allow `null` (no transition / Jackson absent optionals) and reject empty non-null strings. Historical setters used `StringUtils.isEmpty` (also rejected null); null is intentional for Jackson + domain.
 - No production `.betwixt` files existed for these types (nothing to drop)
 
 ## Tests
 
-- `PSContentLeftoversXmlSerializationTest` — golden + round-trip (8 tests)
-- `PSNodeDefinitionXmlSerializationTest` — golden + scalar/package smoke (4 tests)
+- `PSContentLeftoversXmlSerializationTest` — golden + round-trip + null/empty state contract
+- `PSNodeDefinitionXmlSerializationTest` — golden + scalar/package smoke + workflow restore + fail-fast id getters
 

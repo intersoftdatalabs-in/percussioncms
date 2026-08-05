@@ -19,6 +19,7 @@ package com.percussion.services.contentmgr.data;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.services.catalog.PSTypeEnum;
@@ -133,6 +134,62 @@ class PSNodeDefinitionXmlSerializationTest {
     assertEquals(Integer.valueOf(1), restored.getObjectType());
     assertEquals(Boolean.FALSE, restored.getHideFromMenu());
     assertEquals("../psx_cerffGeneric/rffGeneric.html", restored.getNewRequest());
+  }
+
+  @Test
+  void unsetContentTypeIdFailsFastOnGetters() {
+    PSNodeDefinition unset = new PSNodeDefinition();
+    assertThrows(NullPointerException.class, unset::getId);
+    assertThrows(NullPointerException.class, unset::getRawContentType);
+  }
+
+  @Test
+  void setWorkflowIdsRestoresAssociationsOffline() {
+    PSNodeDefinition def = sampleNodeDefinitionScalarsOnly();
+    Set<String> ids = new HashSet<>();
+    ids.add("0-23-6");
+    ids.add("0-23-7");
+    def.setWorkflowIds(ids);
+
+    Set<String> restored = def.getWorkflowIds();
+    assertEquals(2, restored.size());
+    assertTrue(restored.contains("0-23-6"), restored.toString());
+    assertTrue(restored.contains("0-23-7"), restored.toString());
+    assertEquals(2, def.getWorkflowGuids().size());
+  }
+
+  @Test
+  void fromXmlRestoresWorkflowIds() throws Exception {
+    String packaged =
+        """
+        <node-definition>
+          <auto-created>false</auto-created>
+          <description>vTest Node</description>
+          <hide-from-menu>false</hide-from-menu>
+          <id>911</id>
+          <internal-name>rffGeneric</internal-name>
+          <label>Generic</label>
+          <mandatory>false</mandatory>
+          <name>rx:rffGeneric</name>
+          <new-request>../psx_cerffGeneric/rffGeneric.html</new-request>
+          <object-type>1</object-type>
+          <protected>false</protected>
+          <query-request>../psx_cerffGeneric/rffGeneric.html</query-request>
+          <raw-content-type>911</raw-content-type>
+          <update-request/>
+          <workflow-ids>
+            <string>0-23-6</string>
+          </workflow-ids>
+        </node-definition>
+        """;
+
+    PSNodeDefinition restored = new PSNodeDefinition();
+    restored.fromXML(packaged);
+
+    assertEquals(911L, restored.getId());
+    Set<String> workflowIds = restored.getWorkflowIds();
+    assertEquals(1, workflowIds.size());
+    assertTrue(workflowIds.contains("0-23-6"), workflowIds.toString());
   }
 
   private static PSNodeDefinition sampleNodeDefinitionScalarsOnly() {

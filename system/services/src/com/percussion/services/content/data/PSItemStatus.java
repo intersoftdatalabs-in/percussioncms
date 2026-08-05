@@ -201,6 +201,10 @@ public class PSItemStatus {
   /**
    * Set the name of the workflow state in which the item was before it was prepared for edit.
    *
+   * <p>{@code null} is allowed: items that did not transition have no from-state, and Jackson maps
+   * absent/empty optional design-object elements to {@code null}. Empty (non-null blank) strings
+   * are rejected so callers cannot store a meaningless empty state name.
+   *
    * @param fromState the new item state before it was prepared for edit, may be <code>null</code>,
    *     not empty.
    */
@@ -225,6 +229,10 @@ public class PSItemStatus {
 
   /**
    * Set the name of the workflow state to which the item was transitioned to prepare it for edit.
+   *
+   * <p>{@code null} is allowed: items that did not transition have no to-state, and Jackson maps
+   * absent/empty optional design-object elements to {@code null}. Empty (non-null blank) strings
+   * are rejected so callers cannot store a meaningless empty state name.
    *
    * @param toState the new item state to which the it was transitioned to prepared it for edit, may
    *     be <code>null</code>, not empty.
