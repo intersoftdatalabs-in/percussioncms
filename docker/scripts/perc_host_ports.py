@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Shared host-port / freeport helpers for docker scripts (#2001 / #2005).
+"""Shared host-port / freeport helpers for docker scripts (#2001 / #2005 / #2004).
 
 Cross-platform (Windows / Linux / macOS). Uses stdlib ``socket`` only —
-no Unix-only tooling. Callers: ``perc-devctl.py``, ``matrix-install-smoke.py``.
+no Unix-only tooling. Callers: ``perc-devctl.py``, ``matrix-install-smoke.py``
+(product CMS/DTS publish ports and compose DB host publishes).
 
 Resolution order for :func:`resolve_host_port`:
 

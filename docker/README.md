@@ -60,22 +60,25 @@ perc-devctl.py qa-down [--container NAME]
 
 Each subcommand writes full output to a timestamped file under `docker/logs/<label>-<ts>.log` and emits a single `RESULT:OK STEP:<label> LOG:<path>` (or `RESULT:FAIL`) line on stdout so agent workflows can parse the result without parsing free-form output.
 
-#### Host ports / freeport (multi-worktree) — #2001 / #2005
+#### Host ports / freeport (multi-worktree) — #2001 / #2005 / #2004
 
 `perc-devctl.py` and `matrix-install-smoke.py` resolve published host ports via shared helpers in `docker/scripts/perc_host_ports.py` (cross-platform stdlib `socket` bind to port `0` — no Unix-only tooling):
 
 1. **Env override** (wins):
    - Dev stack: `CMS_PORT`, `DTS_PORT` (compose already maps these), or full `VERIFY_CMS_URL` / `VERIFY_DTS_URL`
+   - Compose DB host publishes: `MYSQL_PORT`, `POSTGRES_PORT`, `MSSQL_PORT` (compose maps `${*_PORT:-…}:container`)
    - QA / matrix CMS cell: `QA_CMS_HOST_PORT` or `CMS_HOST_PORT`
    - Matrix DTS cell: `DTS_HOST_PORT`
-2. **Preferred baseline when free** on loopback: compose CMS `9992`, compose DTS `9980`, matrix/QA CMS `9993`, matrix DTS `9983`
+2. **Preferred baseline when free** on loopback: compose CMS `9992`, compose DTS `9980`, matrix/QA CMS `9993`, matrix DTS `9983`, MySQL `3306`, Postgres `5433`, SQL Server `1433`
 3. Else **ephemeral freeport** so a second worktree does not hit `address already in use`
+
+Process-env pins override `.env.compose` / `.env.compose.example` defaults when `docker compose` interpolates host ports. **Container listen ports stay fixed** (MySQL `3306`, Postgres `5432`, SQL Server `1433`); matrix cells reach DBs via Docker DNS on `perc-matrix-net`, not the host publish side.
 
 **Discover allocated ports:**
 
-- `perc-devctl.py up` prints `CMS_PORT=…`, `DTS_PORT=…`, and the resolved `VERIFY_*_URL` lines
+- `perc-devctl.py up` prints `CMS_PORT=…`, `DTS_PORT=…`, `MYSQL_PORT` / `POSTGRES_PORT` / `MSSQL_PORT`, and the resolved `VERIFY_*_URL` lines
 - `perc-devctl.py qa-up` prints `QA_CMS_HOST_PORT=…` and `TEST_CMS_URL=http://127.0.0.1:<port>`
-- `matrix-install-smoke.py` pins `CMS_HOST_PORT` / `QA_CMS_HOST_PORT` / `DTS_HOST_PORT` for the cell it starts; probe URL and docker `-p` always use that same port
+- `matrix-install-smoke.py` pins `CMS_HOST_PORT` / `QA_CMS_HOST_PORT` / `DTS_HOST_PORT` for the cell it starts; probe URL and docker `-p` always use that same port. External DB cells also pin and print `MYSQL_PORT` / `POSTGRES_PORT` / `MSSQL_PORT` before compose up.
 
 **Playwright / `TEST_CMS_URL` contract:**
 
@@ -86,6 +89,10 @@ Each subcommand writes full output to a timestamped file under `docker/logs/<lab
 | CI / local override   | Export `TEST_CMS_URL` **and** matching `QA_CMS_HOST_PORT` / `CMS_HOST_PORT` before `qa-up` so publish + probe + Playwright agree |
 
 Do **not** hardcode `http://127.0.0.1:9993` in agent scripts — 9993 is only the preferred baseline when free. Pin ports across sessions by exporting those env vars before `up` / `qa-up` / `matrix-install-smoke` / `verify`. Tear-down (`down` / `qa-down` / cell destroy) frees the docker publish mapping; the host port itself is not reserved after the container exits.
+
+**Host-side installer + MySQL freeport:** if `MYSQL_PORT` freeports away from `3306` and you run `scripts/install-cms-dev.py` against published MySQL on localhost, also set `PERC_DB_PORT` to the same host port (matrix cells do not need this — they use container DNS).
+
+**Remaining multi-worktree gaps** (parent [#2001](https://github.com/intersoftdatalabs-in/percussioncms/issues/2001)): fixed compose `container_name` values still limit true concurrent full stacks; freeport alone does not rename containers. Operator two-worktree checklist: [#2006](https://github.com/intersoftdatalabs-in/percussioncms/issues/2006) when present.
 
 #### QA mode (`qa-up` / `qa-health` / `qa-down`)
 
