@@ -60,9 +60,28 @@ perc-devctl.py qa-down [--container NAME]
 
 Each subcommand writes full output to a timestamped file under `docker/logs/<label>-<ts>.log` and emits a single `RESULT:OK STEP:<label> LOG:<path>` (or `RESULT:FAIL`) line on stdout so agent workflows can parse the result without parsing free-form output.
 
+#### Host ports / freeport (multi-worktree) — #2001
+
+`perc-devctl.py` no longer hardcodes published host ports for the **dev verify** probes or **QA CMS** cell. Resolution order (cross-platform stdlib `socket` bind to port `0` — no Unix-only tooling):
+
+1. **Env override** (wins):
+   - Dev stack: `CMS_PORT`, `DTS_PORT` (compose already maps these), or full `VERIFY_CMS_URL` / `VERIFY_DTS_URL`
+   - QA cell: `QA_CMS_HOST_PORT` or `CMS_HOST_PORT`
+2. **Preferred baseline when free** on loopback: CMS `9992`, DTS `9980`, QA CMS `9993`
+3. Else **ephemeral freeport** so a second worktree does not hit `address already in use`
+
+**Discover allocated ports:**
+
+- `perc-devctl.py up` prints `CMS_PORT=…`, `DTS_PORT=…`, and the resolved `VERIFY_*_URL` lines
+- `perc-devctl.py qa-up` prints `QA_CMS_HOST_PORT=…` and `TEST_CMS_URL=http://127.0.0.1:<port>`
+
+Pin ports across sessions by exporting those env vars before `up` / `qa-up` / `verify`. Tear-down (`down` / `qa-down`) frees the docker publish mapping; the host port itself is not reserved after the container exits.
+
+**Scope note:** matrix-install-smoke still defaults its own `CMS_HOST_PORT=9993` until a follow-up wires freeport into matrix docker `-p` (see #2001 residual). `qa-up` exports `QA_CMS_HOST_PORT` / `CMS_HOST_PORT` for that consumer.
+
 #### QA mode (`qa-up` / `qa-health` / `qa-down`)
 
-Starts an ephemeral **CMS + H2** matrix cell (same stack as `matrix-install-smoke.py --product cms --db h2 --keep`), waits for `http://127.0.0.1:9993/Rhythmyx/login`, prints `TEST_CMS_URL` / admin username (password from generated install file when available), and tears down with `docker rm -f perc-matrix-cms-h2` so ports and disk are freed (no multi-GB named volume by default). Full operator flow: [workbench-rest-and-qa-modes.md](../docs/developer-module/workbench-rest-and-qa-modes.md) → **QA mode** section.
+Starts an ephemeral **CMS + H2** matrix cell (same stack as `matrix-install-smoke.py --product cms --db h2 --keep`), waits for the resolved probe URL (`http://127.0.0.1:<QA_CMS_HOST_PORT>/Rhythmyx/login`), prints `TEST_CMS_URL` / admin username (password from generated install file when available), and tears down with `docker rm -f perc-matrix-cms-h2` so ports and disk are freed (no multi-GB named volume by default). Full operator flow: [workbench-rest-and-qa-modes.md](../docs/developer-module/workbench-rest-and-qa-modes.md) → **QA mode** section.
 
 ### `docker/scripts/hot-deploy-jar.py`
 

@@ -56,7 +56,9 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import shlex
+import socket
 import subprocess
 import sys
 import time
@@ -81,28 +83,169 @@ VERIFY_TIMEOUT_SECONDS_DEFAULT = 300
 VERIFY_INTERVAL_SECONDS_DEFAULT = 5
 VERIFY_FIX_TIMEOUT_SECONDS_DEFAULT = 240
 
-# HTTP endpoints used by `verify` (dev stack on 9992 / 9980).
-VERIFY_CMS_URL = "http://localhost:9992/Rhythmyx/rest/folders/by-path/Assets"
-VERIFY_DTS_URL = "http://localhost:9980/"
+# Preferred host ports when free and no env override (single-worktree baseline).
+# Multi-worktree: set CMS_PORT / DTS_PORT / QA_CMS_HOST_PORT (or leave unset
+# so freeport allocates) — see resolve_host_port / docker/README.md.
+PREFERRED_VERIFY_CMS_HOST_PORT = 9992
+PREFERRED_VERIFY_DTS_HOST_PORT = 9980
+PREFERRED_QA_CMS_HOST_PORT = 9993
+
+VERIFY_CMS_PATH = "/Rhythmyx/rest/folders/by-path/Assets"
+VERIFY_DTS_PATH = "/"
 
 # ---------------------------------------------------------------------------
-# QA mode — H2 matrix cell for Playwright (no host install). Ports match
-# matrix-install-smoke.py defaults so TEST_CMS_URL stays consistent.
+# QA mode — H2 matrix cell for Playwright (no host install). Host port is
+# resolved at runtime (env override or freeport); preferred baseline 9993
+# matches matrix-install-smoke.py when that port is free (#2001).
 # ---------------------------------------------------------------------------
 QA_CMS_PRODUCT = "cms"
 QA_CMS_DB = "h2"
 QA_CMS_CELL_ID = f"{QA_CMS_PRODUCT}-{QA_CMS_DB}"
 QA_CMS_CONTAINER = f"perc-matrix-{QA_CMS_CELL_ID}"
-QA_CMS_HOST_PORT = 9993
-QA_CMS_BASE_URL = f"http://127.0.0.1:{QA_CMS_HOST_PORT}"
 QA_CMS_PROBE_PATH = "/Rhythmyx/login"
-QA_CMS_PROBE_URL = f"{QA_CMS_BASE_URL}{QA_CMS_PROBE_PATH}"
 QA_ADMIN_USERNAME = "Admin"
 QA_INSTALL_ROOT = "/opt/Percussion"
 QA_PASSWORDS_REL = "var/config/generated/passwords"
 # Matrix silent install can take several minutes on first run.
 QA_PROBE_TIMEOUT_SECONDS_DEFAULT = 900
 QA_PROBE_INTERVAL_SECONDS_DEFAULT = 5
+
+
+# ---------------------------------------------------------------------------
+# Freeport / host-port resolution (cross-platform; stdlib only) — #2001
+# ---------------------------------------------------------------------------
+
+
+def find_free_port(host: str = "127.0.0.1") -> int:
+    """Allocate an ephemeral free TCP port via bind(port=0).
+
+    Cross-platform (Windows / Linux / macOS). Uses stdlib ``socket`` only —
+    no Unix-only tooling. The port is free at return time; a short TOCTOU
+    race remains until the consumer binds (docker / compose).
+    """
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind((host, 0))
+        return int(sock.getsockname()[1])
+
+
+def is_port_free(port: int, host: str = "127.0.0.1") -> bool:
+    """Return True if ``port`` can be bound on ``host`` right now."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.bind((host, port))
+            return True
+    except OSError:
+        return False
+
+
+def resolve_host_port(
+    *env_keys: str,
+    preferred: Optional[int] = None,
+) -> int:
+    """Resolve a host TCP port for published docker services.
+
+    Order:
+      1. First non-empty environment variable among ``env_keys`` (integer).
+      2. ``preferred`` when that port is free on the loopback interface.
+      3. :func:`find_free_port` ephemeral allocation.
+
+    Env override lets operators pin ports across worktrees or match an
+    already-running stack. Leaving env unset prefers the historical single-
+    worktree defaults when free, otherwise allocates a free port so a second
+    worktree does not fail with ``address already in use``.
+    """
+    for key in env_keys:
+        raw = os.environ.get(key, "").strip()
+        if not raw:
+            continue
+        try:
+            return int(raw)
+        except ValueError as exc:
+            raise ValueError(
+                f"env {key}={raw!r} is not an integer host port"
+            ) from exc
+    if preferred is not None and is_port_free(preferred):
+        return preferred
+    return find_free_port()
+
+
+def resolve_verify_cms_url() -> str:
+    """CMS probe URL for ``verify`` / ``verify-fix``.
+
+    Override with ``VERIFY_CMS_URL``, else build from ``CMS_PORT`` (compose)
+    / freeport with preferred host port :data:`PREFERRED_VERIFY_CMS_HOST_PORT`.
+    """
+    explicit = os.environ.get("VERIFY_CMS_URL", "").strip()
+    if explicit:
+        return explicit
+    port = resolve_host_port(
+        "CMS_PORT", preferred=PREFERRED_VERIFY_CMS_HOST_PORT
+    )
+    return f"http://localhost:{port}{VERIFY_CMS_PATH}"
+
+
+def resolve_verify_dts_url() -> str:
+    """DTS probe URL for ``verify`` / ``verify-fix``.
+
+    Override with ``VERIFY_DTS_URL``, else build from ``DTS_PORT`` / freeport
+    with preferred host port :data:`PREFERRED_VERIFY_DTS_HOST_PORT`.
+    """
+    explicit = os.environ.get("VERIFY_DTS_URL", "").strip()
+    if explicit:
+        return explicit
+    port = resolve_host_port(
+        "DTS_PORT", preferred=PREFERRED_VERIFY_DTS_HOST_PORT
+    )
+    return f"http://localhost:{port}{VERIFY_DTS_PATH}"
+
+
+def resolve_qa_cms_host_port() -> int:
+    """Host port for the QA CMS matrix cell publish mapping.
+
+    Override with ``QA_CMS_HOST_PORT`` or ``CMS_HOST_PORT``; else preferred
+    9993 when free, else freeport. Exports nothing by itself — callers that
+    start the cell should write the chosen port into the environment for
+    child processes and operator discovery.
+    """
+    return resolve_host_port(
+        "QA_CMS_HOST_PORT",
+        "CMS_HOST_PORT",
+        preferred=PREFERRED_QA_CMS_HOST_PORT,
+    )
+
+
+def qa_cms_base_url(port: int) -> str:
+    """Base URL for the QA CMS cell on the given host port."""
+    return f"http://127.0.0.1:{port}"
+
+
+def qa_cms_probe_url(port: int) -> str:
+    """Health probe URL for the QA CMS cell."""
+    return f"{qa_cms_base_url(port)}{QA_CMS_PROBE_PATH}"
+
+
+def ensure_compose_host_ports() -> tuple[int, int]:
+    """Resolve CMS/DTS host ports for compose and pin them in ``os.environ``.
+
+    Compose already maps ``${CMS_PORT:-9992}:9992`` and
+    ``${DTS_PORT:-9980}:9980``. Pinning the resolved values into the process
+    environment makes ``docker compose`` and later ``verify`` in the same
+    session use the same published ports (critical for multi-worktree freeport).
+    """
+    cms = resolve_host_port("CMS_PORT", preferred=PREFERRED_VERIFY_CMS_HOST_PORT)
+    dts = resolve_host_port("DTS_PORT", preferred=PREFERRED_VERIFY_DTS_HOST_PORT)
+    os.environ["CMS_PORT"] = str(cms)
+    os.environ["DTS_PORT"] = str(dts)
+    return cms, dts
+
+
+def ensure_qa_cms_host_port() -> int:
+    """Resolve QA CMS host port and pin it for child processes / discovery."""
+    port = resolve_qa_cms_host_port()
+    os.environ["QA_CMS_HOST_PORT"] = str(port)
+    # Shared name matrix-install-smoke residual (#2001 follow-up) will read.
+    os.environ.setdefault("CMS_HOST_PORT", str(port))
+    return port
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:
@@ -246,7 +389,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "qa-health",
         help=(
             "Poll QA CMS health URL until ready or timeout "
-            f"(default probe: {QA_CMS_PROBE_URL})."
+            "(default: freeport/env-resolved QA CMS probe URL)."
         ),
     )
     pqh.add_argument(
@@ -263,8 +406,11 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     pqh.add_argument(
         "--url",
-        default=QA_CMS_PROBE_URL,
-        help=f"Probe URL (default: {QA_CMS_PROBE_URL}).",
+        default=None,
+        help=(
+            "Probe URL (default: from QA_CMS_HOST_PORT / CMS_HOST_PORT env, "
+            f"preferred {PREFERRED_QA_CMS_HOST_PORT} when free, else freeport)."
+        ),
     )
     pqh.add_argument("--dry-run", action="store_true")
 
@@ -414,6 +560,7 @@ def cmd_install(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int
 def cmd_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     repo_root, env_file, compose_file = paths
     log_dir = _log_dir(repo_root)
+    cms_port, dts_port = ensure_compose_host_ports()
     compose_argv = _docker_compose(env_file, compose_file, "up", "-d")
     if args.build:
         compose_argv.append("--build")
@@ -424,6 +571,11 @@ def cmd_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
         cwd=repo_root,
         dry_run=args.dry_run,
     )
+    # Agent/operator discovery: published host ports for this worktree cell.
+    print(f"CMS_PORT={cms_port}")
+    print(f"DTS_PORT={dts_port}")
+    print(f"VERIFY_CMS_URL={resolve_verify_cms_url()}")
+    print(f"VERIFY_DTS_URL={resolve_verify_dts_url()}")
     return rc
 
 
@@ -490,23 +642,25 @@ def cmd_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     interval = args.interval_seconds
     max_checks = max(1, timeout // interval) if interval > 0 else 1
     log_file = _new_log_file(log_dir, "verify")
+    cms_url = resolve_verify_cms_url()
+    dts_url = resolve_verify_dts_url()
 
     if args.dry_run:
         LOG.info(
             "DRY-RUN: verify plan: %d checks x %ds interval against %s + %s",
-            max_checks, interval, VERIFY_CMS_URL, VERIFY_DTS_URL,
+            max_checks, interval, cms_url, dts_url,
         )
         with log_file.open("w", encoding="utf-8") as f:
             f.write(
                 f"DRY-RUN: verify max_checks={max_checks} interval={interval}\n"
-                f"endpoints={VERIFY_CMS_URL} {VERIFY_DTS_URL}\n"
+                f"endpoints={cms_url} {dts_url}\n"
             )
         print(f"RESULT:OK STEP:verify CMS_HTTP:200 DTS_HTTP:200 HEALTH:healthy LOG:{log_file}")
         return EXIT_OK
 
     for check in range(1, max_checks + 1):
-        cms_code = _curl_status(VERIFY_CMS_URL, timeout=5.0)
-        dts_code = _curl_status(VERIFY_DTS_URL, timeout=5.0)
+        cms_code = _curl_status(cms_url, timeout=5.0)
+        dts_code = _curl_status(dts_url, timeout=5.0)
         health = _docker_health(DEFAULT_CONTAINER)
         if (
             cms_code in (200, 401, 403)
@@ -518,6 +672,8 @@ def cmd_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
                 f.write(f"cms_http={cms_code}\n")
                 f.write(f"dts_http={dts_code}\n")
                 f.write(f"container_health={health}\n")
+                f.write(f"cms_url={cms_url}\n")
+                f.write(f"dts_url={dts_url}\n")
             print(
                 f"RESULT:OK STEP:verify CMS_HTTP:{cms_code} DTS_HTTP:{dts_code} "
                 f"HEALTH:{health} LOG:{log_file}"
@@ -656,16 +812,20 @@ def _verify_inline(
     max_checks = max(1, timeout_seconds // interval_seconds) if interval_seconds > 0 else 1
     log_file = _new_log_file(log_dir, "verify")
 
+    cms_url = resolve_verify_cms_url()
+    dts_url = resolve_verify_dts_url()
+
     if dry_run:
         with log_file.open("w", encoding="utf-8") as f:
             f.write(
                 f"DRY-RUN: verify-inline max_checks={max_checks} interval={interval_seconds}\n"
+                f"endpoints={cms_url} {dts_url}\n"
             )
         return EXIT_OK, log_file
 
     for _ in range(1, max_checks + 1):
-        cms_code = _curl_status(VERIFY_CMS_URL, timeout=5.0)
-        dts_code = _curl_status(VERIFY_DTS_URL, timeout=5.0)
+        cms_code = _curl_status(cms_url, timeout=5.0)
+        dts_code = _curl_status(dts_url, timeout=5.0)
         health = _docker_health(DEFAULT_CONTAINER)
         if (
             cms_code in (200, 401, 403)
@@ -806,6 +966,7 @@ def _qa_destroy_argv(container_name: str) -> List[str]:
 
 
 def _qa_print_endpoint_banner(
+    host_port: int,
     *,
     admin_password_line: Optional[str] = None,
 ) -> None:
@@ -813,9 +974,12 @@ def _qa_print_endpoint_banner(
 
     Does not emit RESULT: lines — callers use ``_run_logged`` for that
     contract so agent parsers see a single OK/FAIL per step.
+    ``host_port`` is the resolved published host port (env or freeport).
     """
-    print(f"QA_CMS_URL:{QA_CMS_BASE_URL}")
-    print(f"TEST_CMS_URL={QA_CMS_BASE_URL}")
+    base = qa_cms_base_url(host_port)
+    print(f"QA_CMS_HOST_PORT={host_port}")
+    print(f"QA_CMS_URL:{base}")
+    print(f"TEST_CMS_URL={base}")
     print(f"TEST_DB_TYPE={QA_CMS_DB}")
     print(f"TEST_PRODUCT={QA_CMS_PRODUCT}")
     print(f"QA_CONTAINER:{QA_CMS_CONTAINER}")
@@ -869,12 +1033,17 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     Delegates install/start/health-wait to ``matrix-install-smoke.py`` with
     ``--product cms --db h2 --keep``. On success prints ``TEST_CMS_URL`` and
     admin credential guidance for Playwright / agents.
+
+    Host port is resolved via :func:`ensure_qa_cms_host_port` (env override
+    or freeport) and exported as ``QA_CMS_HOST_PORT`` / ``CMS_HOST_PORT`` so
+    operators and residual matrix freeport wiring can discover it.
     """
     repo_root, _env_file, _compose_file = paths
     log_dir = _log_dir(repo_root)
     dry_run = bool(args.dry_run)
     probe_timeout = int(args.timeout_seconds)
     skip_image_build = bool(args.skip_image_build)
+    host_port = ensure_qa_cms_host_port()
 
     matrix_argv = _qa_matrix_up_argv(
         repo_root,
@@ -895,16 +1064,17 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
         # Extra detail line for agent timeout diagnosis (RESULT already printed).
         print(
             f"QA_DETAIL:matrix-install-smoke failed "
-            f"timeout_seconds={probe_timeout} LOG:{log_file}"
+            f"timeout_seconds={probe_timeout} "
+            f"QA_CMS_HOST_PORT={host_port} LOG:{log_file}"
         )
         return rc
 
     if dry_run:
-        _qa_print_endpoint_banner()
+        _qa_print_endpoint_banner(host_port)
         return EXIT_OK
 
     admin_line = _qa_fetch_admin_password(QA_CMS_CONTAINER)
-    _qa_print_endpoint_banner(admin_password_line=admin_line)
+    _qa_print_endpoint_banner(host_port, admin_password_line=admin_line)
     return EXIT_OK
 
 
@@ -914,7 +1084,8 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
     log_dir = _log_dir(repo_root)
     timeout = int(args.timeout_seconds)
     interval = int(args.interval_seconds)
-    url = args.url or QA_CMS_PROBE_URL
+    host_port = resolve_qa_cms_host_port()
+    url = args.url or qa_cms_probe_url(host_port)
     max_checks = max(1, timeout // interval) if interval > 0 else 1
     log_file = _new_log_file(log_dir, "qa-health")
 

@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import importlib.util
 import logging
+import os
+import socket
 import subprocess
 import sys
 import tempfile
@@ -19,6 +21,21 @@ import unittest.mock
 from pathlib import Path
 
 SCRIPTS = Path(__file__).resolve().parent
+
+# Env keys that freeport resolution may set or read — clear between tests.
+_PORT_ENV_KEYS = (
+    "QA_CMS_HOST_PORT",
+    "CMS_HOST_PORT",
+    "CMS_PORT",
+    "DTS_PORT",
+    "VERIFY_CMS_URL",
+    "VERIFY_DTS_URL",
+)
+
+
+def _clear_port_env() -> None:
+    for key in _PORT_ENV_KEYS:
+        os.environ.pop(key, None)
 
 
 def _load():
@@ -157,9 +174,16 @@ class TestSubcommandDryRun(unittest.TestCase):
         # install-cms-dev.py path is logged via LOG.info to stderr, not stdout
 
     def test_up_dry_run(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
         rc, out = self.runner.run(["up", "--build"])
         self.assertEqual(rc, pdc.EXIT_OK)
         self.assertIn("RESULT:OK STEP:up", out)
+        # Freeport / preferred host ports emitted for operator discovery (#2001).
+        self.assertIn("CMS_PORT=", out)
+        self.assertIn("DTS_PORT=", out)
+        self.assertIn("VERIFY_CMS_URL=", out)
+        self.assertIn("VERIFY_DTS_URL=", out)
         # --build is logged via LOG.info to stderr, not stdout — only check the RESULT line
 
     def test_down_dry_run(self):
@@ -174,20 +198,27 @@ class TestSubcommandDryRun(unittest.TestCase):
         self.assertIn("RESULT:OK STEP:status", out)
 
     def test_verify_dry_run(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
         rc, out = self.runner.run(["verify", "--timeout-seconds", "60"])
         self.assertEqual(rc, pdc.EXIT_OK)
         self.assertIn("RESULT:OK STEP:verify", out)
         self.assertIn("CMS_HTTP:200", out)
 
     def test_qa_up_dry_run(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
         rc, out = self.runner.run(["qa-up", "--timeout-seconds", "60"])
         self.assertEqual(rc, pdc.EXIT_OK)
         self.assertIn("RESULT:OK STEP:qa-up", out)
         self.assertIn("TEST_CMS_URL=", out)
-        self.assertIn(pdc.QA_CMS_BASE_URL, out)
+        self.assertIn("QA_CMS_HOST_PORT=", out)
+        self.assertRegex(out, r"TEST_CMS_URL=http://127\.0\.0\.1:\d+")
         self.assertIn(f"ADMIN_USERNAME={pdc.QA_ADMIN_USERNAME}", out)
 
     def test_qa_health_dry_run(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
         rc, out = self.runner.run(["qa-health", "--timeout-seconds", "30"])
         self.assertEqual(rc, pdc.EXIT_OK)
         self.assertIn("RESULT:OK STEP:qa-health", out)
@@ -465,12 +496,12 @@ class TestQaHelpers(unittest.TestCase):
         argv = pdc._qa_destroy_argv("perc-matrix-cms-h2")
         self.assertEqual(argv, ["docker", "rm", "-f", "perc-matrix-cms-h2"])
 
-    def test_qa_constants_align_with_matrix_ports(self):
-        """Published URL must match matrix-install-smoke CMS host port."""
-        self.assertEqual(pdc.QA_CMS_HOST_PORT, 9993)
+    def test_qa_preferred_port_and_container_constants(self):
+        """Preferred baseline aligns with matrix-install-smoke CMS host port."""
+        self.assertEqual(pdc.PREFERRED_QA_CMS_HOST_PORT, 9993)
         self.assertEqual(pdc.QA_CMS_CONTAINER, "perc-matrix-cms-h2")
-        self.assertTrue(pdc.QA_CMS_PROBE_URL.endswith("/Rhythmyx/login"))
-        self.assertIn("9993", pdc.QA_CMS_BASE_URL)
+        self.assertTrue(pdc.qa_cms_probe_url(9993).endswith("/Rhythmyx/login"))
+        self.assertEqual(pdc.qa_cms_base_url(9993), "http://127.0.0.1:9993")
 
 
 class TestQaHealthRealMode(unittest.TestCase):
@@ -559,6 +590,130 @@ class TestMain(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             pdc.main(["--help"])
         self.assertEqual(cm.exception.code, 0)
+
+
+class TestFreeportAndUrlWiring(unittest.TestCase):
+    """#2001 — freeport allocator + env override + verify/QA URL wiring."""
+
+    def setUp(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+
+    def test_find_free_port_returns_bindable_int(self):
+        port = pdc.find_free_port()
+        self.assertIsInstance(port, int)
+        self.assertGreater(port, 0)
+        self.assertLess(port, 65536)
+        # Port was released after allocation; may or may not still be free
+        # (TOCTOU), but a second allocation must also succeed.
+        port2 = pdc.find_free_port()
+        self.assertIsInstance(port2, int)
+        self.assertGreater(port2, 0)
+
+    def test_is_port_free_true_for_ephemeral(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.bind(("127.0.0.1", 0))
+            occupied = int(sock.getsockname()[1])
+            self.assertFalse(pdc.is_port_free(occupied))
+        # After close, preferred high-ish ephemeral range should often be free;
+        # use a second bind-0 allocation and release to prove True path.
+        free = pdc.find_free_port()
+        self.assertTrue(pdc.is_port_free(free))
+
+    def test_resolve_host_port_env_override(self):
+        os.environ["QA_CMS_HOST_PORT"] = "18001"
+        self.assertEqual(pdc.resolve_host_port("QA_CMS_HOST_PORT", preferred=9993), 18001)
+
+    def test_resolve_host_port_invalid_env_raises(self):
+        os.environ["CMS_PORT"] = "not-a-port"
+        with self.assertRaises(ValueError):
+            pdc.resolve_host_port("CMS_PORT", preferred=9992)
+
+    def test_resolve_host_port_preferred_when_free(self):
+        # Use find_free_port as preferred so we know it is free after release.
+        preferred = pdc.find_free_port()
+        self.assertEqual(
+            pdc.resolve_host_port(preferred=preferred),
+            preferred,
+        )
+
+    def test_resolve_host_port_falls_back_when_preferred_taken(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.bind(("127.0.0.1", 0))
+            taken = int(sock.getsockname()[1])
+            resolved = pdc.resolve_host_port(preferred=taken)
+            self.assertNotEqual(resolved, taken)
+            self.assertGreater(resolved, 0)
+
+    def test_verify_urls_from_cms_dts_port_env(self):
+        os.environ["CMS_PORT"] = "19111"
+        os.environ["DTS_PORT"] = "19112"
+        self.assertEqual(
+            pdc.resolve_verify_cms_url(),
+            "http://localhost:19111/Rhythmyx/rest/folders/by-path/Assets",
+        )
+        self.assertEqual(
+            pdc.resolve_verify_dts_url(),
+            "http://localhost:19112/",
+        )
+
+    def test_verify_urls_full_env_override(self):
+        os.environ["VERIFY_CMS_URL"] = "http://example.test:1/cms"
+        os.environ["VERIFY_DTS_URL"] = "http://example.test:2/dts"
+        self.assertEqual(pdc.resolve_verify_cms_url(), "http://example.test:1/cms")
+        self.assertEqual(pdc.resolve_verify_dts_url(), "http://example.test:2/dts")
+
+    def test_qa_url_helpers_wire_port(self):
+        self.assertEqual(pdc.qa_cms_base_url(12345), "http://127.0.0.1:12345")
+        self.assertEqual(
+            pdc.qa_cms_probe_url(12345),
+            "http://127.0.0.1:12345/Rhythmyx/login",
+        )
+
+    def test_ensure_qa_cms_host_port_pins_env(self):
+        os.environ["QA_CMS_HOST_PORT"] = "17777"
+        port = pdc.ensure_qa_cms_host_port()
+        self.assertEqual(port, 17777)
+        self.assertEqual(os.environ["QA_CMS_HOST_PORT"], "17777")
+        self.assertEqual(os.environ["CMS_HOST_PORT"], "17777")
+
+    def test_ensure_compose_host_ports_pins_env(self):
+        os.environ["CMS_PORT"] = "18881"
+        os.environ["DTS_PORT"] = "18882"
+        cms, dts = pdc.ensure_compose_host_ports()
+        self.assertEqual((cms, dts), (18881, 18882))
+        self.assertEqual(os.environ["CMS_PORT"], "18881")
+        self.assertEqual(os.environ["DTS_PORT"], "18882")
+
+    def test_qa_up_dry_run_honors_env_port(self):
+        os.environ["QA_CMS_HOST_PORT"] = "16666"
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        repo = _stub_repo_root(Path(td.name))
+        matrix = repo / "docker" / "scripts" / "matrix-install-smoke.py"
+        matrix.write_text("# stub\n", encoding="utf-8")
+        runner = _CliRunner(repo)
+        rc, out = runner.run(["qa-up", "--timeout-seconds", "60"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("QA_CMS_HOST_PORT=16666", out)
+        self.assertIn("TEST_CMS_URL=http://127.0.0.1:16666", out)
+
+    def test_up_dry_run_honors_cms_dts_env(self):
+        os.environ["CMS_PORT"] = "15551"
+        os.environ["DTS_PORT"] = "15552"
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        repo = _stub_repo_root(Path(td.name))
+        runner = _CliRunner(repo)
+        rc, out = runner.run(["up"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("CMS_PORT=15551", out)
+        self.assertIn("DTS_PORT=15552", out)
+        self.assertIn(
+            "VERIFY_CMS_URL=http://localhost:15551/Rhythmyx/rest/folders/by-path/Assets",
+            out,
+        )
+        self.assertIn("VERIFY_DTS_URL=http://localhost:15552/", out)
 
 
 if __name__ == "__main__":
