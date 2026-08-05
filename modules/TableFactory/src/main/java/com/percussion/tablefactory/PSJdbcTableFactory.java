@@ -68,6 +68,9 @@ import org.w3c.dom.NodeList;
 /** This class is used to install and upgrade tables via Jdbc. */
 public class PSJdbcTableFactory {
 
+  /** No-op constructor. */
+  public PSJdbcTableFactory() {}
+
   private static final Logger log = LogManager.getLogger(PSJdbcTableFactory.class);
 
   /**
@@ -484,6 +487,13 @@ public class PSJdbcTableFactory {
   /**
    * Convenient method, calls processTables(Connection,PSJdbcDbmsDef,
    * null,PSJdbcTableSchemaCollection,PrintStream,boolean).
+   *
+   * @param conn The connection to use, never {@code null}
+   * @param dbmsDef The database definition, never {@code null}
+   * @param tables The tables to process, never {@code null}
+   * @param logOut the log output stream, may be {@code null}
+   * @param logDebug {@code true} to enable debug logging
+   * @throws PSJdbcTableFactoryException if processing fails
    */
   public static void processTables(
       Connection conn,
@@ -541,7 +551,18 @@ public class PSJdbcTableFactory {
     processTables(dbmsDef, dataTypeMap, tableDef, tableData, logOut, logDebug);
   }
 
-  /** Convenience method, calls . */
+  /**
+   * Convenience method, calls {@link #processTables(Connection, PSJdbcDbmsDef, Map, Document,
+   * Document, PrintStream, boolean, boolean)}.
+   *
+   * @param dbmsDef the database definition, never {@code null}
+   * @param dataTypeMap the data type map document
+   * @param doc the publisher document
+   * @param logOut the log output stream, may be {@code null}
+   * @param logDebug {@code true} to enable debug logging
+   * @param transactionSupport {@code true} to use a transaction
+   * @throws PSJdbcTableFactoryException if processing fails
+   */
   public static void processTables(
       PSJdbcDbmsDef dbmsDef,
       Document dataTypeMap,
@@ -648,7 +669,18 @@ public class PSJdbcTableFactory {
     processTables(dbmsDef, dataTypeMap, tableDef, tableData, logOut, logDebug, false);
   }
 
-  /** Convenient method. */
+  /**
+   * Convenience method that creates the connection from {@code dbmsDef}.
+   *
+   * @param dbmsDef the database definition, never {@code null}
+   * @param dataTypeMap the data type map document
+   * @param tableDef the table definition document, never {@code null}
+   * @param tableData the table data document, may be {@code null}
+   * @param logOut the log output stream, may be {@code null}
+   * @param logDebug {@code true} to enable debug logging
+   * @param transactionSupport {@code true} to use a transaction
+   * @throws PSJdbcTableFactoryException if processing fails
+   */
   public static void processTables(
       PSJdbcDbmsDef dbmsDef,
       Document dataTypeMap,
@@ -792,6 +824,7 @@ public class PSJdbcTableFactory {
    *
    * @param dbmsDef A valid PSJdbcDbmsDef object. May not be <code>null
    * </code>.
+   * @return an open JDBC connection, never {@code null}
    * @throws IllegalArgumentException if dbmsDef is <code>null</code>.
    * @throws SQLException if there is an error getting the connection.
    * @throws PSJdbcTableFactoryException if there are any other errors.
@@ -826,6 +859,8 @@ public class PSJdbcTableFactory {
    *       specified if logging switches are also specified. If not specified and logging is on,
    *       message are written to the console.
    * </ol>
+   *
+   * @param args the command line arguments, see above
    *
    * Example com.percussion.tablefactory.PSJdbcTableFactory serverProps.properties
    * rxdatatypemaps.xml cmstabledef.xml cmstabledata.xml -ld log.txt
@@ -1040,6 +1075,8 @@ public class PSJdbcTableFactory {
    * A more flexible main method that takes multiple def and data files, see example. Example:
    * com.percussion.tablefactory.PSJdbcTableFactory -dbprops serverProps.properties -typemap
    * rxdatatypemaps.xml -def cmstabledef.xml -data cmstabledata.xml -options ld -log log.txt
+   *
+   * @param args the command line arguments
    */
   public static void main2(String[] args) {
     if (args.length < 8) {
@@ -1465,6 +1502,8 @@ public class PSJdbcTableFactory {
    * @return the value of a column for the current row from a resultset, never <code>null</code>
    * @throws IllegalArgumentException if dbmsDef or tableSchema or rs or columnName is <code>null
    *     </code> or if columnName is empty
+   * @throws SQLException if a database access error occurs
+   * @throws IOException if an I/O error occurs while reading the column value
    */
   public static PSJdbcColumnData getColumnData(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, ResultSet rs, String columnName)
@@ -1614,6 +1653,8 @@ public class PSJdbcTableFactory {
    *     the CLOB column value is <code>null</code>, may be empty
    * @throws IllegalArgumentException if rs or columnName is <code>null</code> or if columnName is
    *     empty
+   * @throws SQLException if a database access error occurs
+   * @throws IOException if an I/O error occurs while reading the CLOB value
    */
   public static String getClobColumnData(ResultSet rs, String columnName)
       throws SQLException, IOException {
