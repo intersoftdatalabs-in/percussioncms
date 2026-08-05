@@ -16,20 +16,26 @@
  */
 package com.percussion.services.security.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.security.PSPermissions;
 import com.percussion.utils.xml.IPSXmlSerialization;
-import org.hibernate.annotations.*;
-import org.hibernate.annotations.Cache;
-
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.io.Serializable;
+import org.hibernate.annotations.*;
+import org.hibernate.annotations.Cache;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Implementation of the interface
- * {@link com.percussion.services.security.PSPermissions}
- * 
+ * Implementation of the interface {@link com.percussion.services.security.PSPermissions}.
+ *
+ * <p>Nested package element name is {@code ps-permission} (registered from {@link
+ * PSAclEntryImpl}). Issue #1889 / epic #505.
+ *
  * @since 6.0
  */
 @Entity
@@ -40,6 +46,14 @@ import java.io.Serializable;
  */
 @Table(name = "PSX_ACLENTRYPERMISSIONS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSAccessLevelImpl")
+@JacksonXmlRootElement(localName = "ps-permission")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({"aclEntryId", "id", "permission"})
 public class PSAccessLevelImpl implements Serializable
 {
    /**
@@ -75,6 +89,7 @@ public class PSAccessLevelImpl implements Serializable
    }
 
     @IPSXmlSerialization(suppress = true)
+    @JsonIgnore
     public PSAclEntryImpl getAclEntry()
     {
         return aclEntry;
@@ -138,17 +153,20 @@ public class PSAccessLevelImpl implements Serializable
    }
 
 
+   /**
+    * Set the permission row id. Package XML may emit both a graph-identity {@code id} attribute and
+    * a child {@code <id>} element; last write wins (issue #1889).
+    */
    public void setId(long id)
    {
-
       this.id = id;
-      
    }
    /**
     * Get the unique id of this object.
     * 
     * @return The id
     */
+   @JsonProperty
    public long getId()
    {
       return id;
@@ -160,6 +178,7 @@ public class PSAccessLevelImpl implements Serializable
     * 
     * @return always greater than 0 if the object is fully initialized.
     */
+   @JsonProperty
    public long getAclEntryId()
    {
        if(this.aclEntry != null) {
@@ -192,6 +211,7 @@ public class PSAccessLevelImpl implements Serializable
    /**
     * Get the permission associated with this.
     */
+   @JsonProperty
    public PSPermissions getPermission()
    {
       return PSPermissions.valueOf(permission);

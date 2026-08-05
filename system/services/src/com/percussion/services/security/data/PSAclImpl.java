@@ -16,6 +16,17 @@
  */
 package com.percussion.services.security.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import com.percussion.security.IPSTypedPrincipal;
+import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
+import com.percussion.security.shim.acl.AclEntry;
+import com.percussion.security.shim.acl.LastOwnerException;
+import com.percussion.security.shim.acl.NotOwnerException;
+import com.percussion.security.shim.acl.Permission;
 import com.percussion.services.catalog.IPSCatalogItem;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -23,41 +34,53 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.security.*;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.security.IPSTypedPrincipal;
-import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 import com.percussion.utils.xml.IPSXmlSerialization;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.*;
-import org.xml.sax.SAXException;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.*;
 import java.io.IOException;
 import java.security.Principal;
-import com.percussion.security.shim.acl.AclEntry;
-import com.percussion.security.shim.acl.LastOwnerException;
-import com.percussion.security.shim.acl.NotOwnerException;
-import com.percussion.security.shim.acl.Permission;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.*;
+import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * Implementation of the interface {@link com.percussion.services.security.IPSAcl}.
- * This class provides comprehensive Access Control List functionality for the
- * Percussion CMS, managing permissions and security access controls using
- * modern Java 11 features and best practices.
+ *
+ * <p>Design-object XML root is {@code acl-impl}. Nested package item element is {@code entry}
+ * (registered via {@link PSXmlSerializationHelper#addType}). Jackson opt-in property surface
+ * (issue #1889 / epic #505).
  *
  * @since 08-Aug-2005 3:09:34 PM
  * @version 6.0
- * @since Java 11 Modernization
  */
 @Entity
 @Table(name="PSX_ACLS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSAclImpl")
+@JacksonXmlRootElement(localName = "acl-impl")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({
+  "description",
+  "entries",
+  "guid",
+  "name",
+  "objectId",
+  "objectType",
+  "version"
+})
 public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
 
    private static final Logger log = LogManager.getLogger(PSAclImpl.class);
@@ -117,7 +140,8 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
     * 
     * @return Returns the id.
     */
-   @IPSXmlSerialization(suppress = true) 
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public long getId() {
       updateGuid();
       return this.id;
@@ -137,6 +161,7 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
     * {@inheritDoc}
     */
    @Override
+   @JsonProperty
    public String getName() {
       return name;
    }
@@ -171,6 +196,7 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
     * {@inheritDoc}
     */
    @Override
+   @JsonProperty
    public long getObjectId() {
       return objectId;
    }
@@ -190,6 +216,7 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
     * 
     * @return Never {@code null}, may be empty.
     */
+   @JsonProperty
    public String getDescription() {
       return Optional.ofNullable(description).orElse("");
    }
@@ -495,6 +522,7 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
    /**
     * @return the int value of the design object type.
     */
+   @JsonProperty
    public int getObjectType()
    {
       return objectType;
@@ -505,7 +533,7 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
     * 
     * @return The guid, never <code>null</code>.
     */
-   
+   @JsonIgnore
    public IPSGuid getObjectGuid()
    {  
       return objectType > 0 ? new PSGuid(PSTypeEnum.valueOf(objectType), objectId): null;
@@ -575,10 +603,11 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
    }
 
    /**
-    * Strictly for serialization. Do not use.
+    * Strictly for serialization (Betwixt adder). Jackson uses {@link #setEntries(Collection)}.
     * 
     * @param entry entry to set, must not be <code>null</code>.
     */
+   @JsonIgnore
    public void addEntry(PSAclEntryImpl entry)
    {
       if (entry == null)
@@ -590,13 +619,23 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
    }
 
    /**
-    * Strictly for serialization. Do not use.
+    * Strictly for serialization. Nested package element is {@code entry}.
     * 
     * @return Acl entries, never <code>null</code> may be empty.
     */
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "entries")
+   @JacksonXmlProperty(localName = "entry")
+   @JsonDeserialize(contentAs = PSAclEntryImpl.class)
    public Collection<IPSAclEntry> getEntries()
    {
-      return entries;
+      // Stable order for design-object XML / golden parity (backing store is a Set).
+      return entries.stream()
+          .sorted(
+              Comparator.comparing(
+                  e -> e instanceof PSAclEntryImpl impl ? impl.getName() : "",
+                  Comparator.nullsLast(String::compareToIgnoreCase)))
+          .collect(Collectors.toList());
    }
    
    /**
@@ -702,6 +741,7 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
       PSXmlSerializationHelper.readFromXML(xmlsource, this);   
    }
 
+   @JsonProperty("guid")
    public IPSGuid getGUID()
    {
       updateGuid();
@@ -759,6 +799,7 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
    /* (non-Javadoc)
     * @see com.percussion.services.security.IPSAcl#getFirstOwner()
     */
+   @JsonIgnore
    public IPSTypedPrincipal getFirstOwner() throws SecurityException
    {
       for (IPSAclEntry entry : entries)
@@ -874,6 +915,7 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
    }
    
    
+   @JsonProperty
    public Integer getVersion()
    {
       return m_version;
@@ -888,6 +930,7 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
     * Implemented to satisfy implemented interface {@link IPSCatalogSummary}.
     * @see com.percussion.services.catalog.IPSCatalogSummary#getLabel()
     */
+   @JsonIgnore
    public String getLabel()
    {
       return getName();

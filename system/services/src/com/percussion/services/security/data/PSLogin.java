@@ -16,19 +16,46 @@
  */
 package com.percussion.services.security.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.design.objectstore.PSRole;
 import com.percussion.i18n.PSLocale;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-import org.apache.commons.lang3.StringUtils;
-import org.xml.sax.SAXException;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
+import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
+/**
+ * Login session summary returned by security web services.
+ *
+ * <p>Design-object XML root is {@code login}. Nested communities use annotated {@link
+ * PSCommunity}. Nested {@link PSRole}/{@link PSLocale} are omitted on modern Jackson write (legacy
+ * objectstore types; issue #1889 / epic #505).
+ */
+@JacksonXmlRootElement(localName = "login")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({
+  "communities",
+  "defaultCommunity",
+  "defaultLocaleCode",
+  "sessionId",
+  "sessionTimeout"
+})
 public class PSLogin implements Serializable 
 {
    /**
@@ -101,6 +128,7 @@ public class PSLogin implements Serializable
     * 
     * @return the login session id, may be <code>null</code>, never empty.
     */
+   @JsonProperty
    public String getSessionId()
    {
       return sessionId;
@@ -126,6 +154,7 @@ public class PSLogin implements Serializable
     * @return the session timeout in milliseconds, -1 if the session does
     *    not timeout.
     */
+   @JsonProperty
    public long getSessionTimeout()
    {
       return sessionTimeout;
@@ -148,6 +177,7 @@ public class PSLogin implements Serializable
     * @return the default ccommunity for the loggedd in user, may be 
     *    <code>null</code>, not empty.
     */
+   @JsonProperty
    public String getDefaultCommunity()
    {
       return defaultCommunity;
@@ -188,6 +218,7 @@ public class PSLogin implements Serializable
     * @return the efault locale code for the logged in user, may be
     *    <code>null</code>, not empty.
     */
+   @JsonProperty
    public String getDefaultLocaleCode()
    {
       return defaultLocaleCode;
@@ -214,6 +245,9 @@ public class PSLogin implements Serializable
     * @return all communities to which the logged in user is a member of, 
     *    never <code>null</code>, may be empty.
     */
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "communities")
+   @JacksonXmlProperty(localName = "community")
    public List<PSCommunity> getCommunities()
    {
       return communities;
@@ -239,6 +273,7 @@ public class PSLogin implements Serializable
     * @param community a community to which the logged in user is a member, 
     *    not <code>null</code>.
     */
+   @JsonIgnore
    public void addCommunity(PSCommunity community)
    {
       if (community == null)
@@ -253,6 +288,7 @@ public class PSLogin implements Serializable
     * @return all roles to which the logged in user is a member of, 
     *    never <code>null</code>, may be empty.
     */
+   @JsonIgnore
    public List<PSRole> getRoles()
    {
       return roles;
@@ -278,6 +314,7 @@ public class PSLogin implements Serializable
     * @param role a role to which the logged in user is a member, 
     *    not <code>null</code>.
     */
+   @JsonIgnore
    public void addRole(PSRole role)
    {
       if (role == null)
@@ -292,6 +329,7 @@ public class PSLogin implements Serializable
     * @return all locales enabled for the logged in user, never 
     *    <code>null</code>, may be empty.
     */
+   @JsonIgnore
    public List<PSLocale> getLocales()
    {
       return locales;
@@ -317,6 +355,7 @@ public class PSLogin implements Serializable
     * @param locale a locale enabled for the logged in user, not 
     *    <code>null</code>.
     */
+   @JsonIgnore
    public void addLocale(PSLocale locale)
    {
       if (locale == null)
