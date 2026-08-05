@@ -24,12 +24,18 @@ Concurrent overnight runs must **not** keep epic/slice progress in committed fil
 
 | Store | Purpose |
 |-------|---------|
-| **Parent issue body** — section `## Agent progress (night-issue-prs)` | Living slice table: Issue / Status / PR / Notes / Updated |
+| **Parent issue body** — section `## Agent progress (night-issue-prs)` | Living slice table (see columns below) |
 | **Parent issue comments** | Append-only run history (split created, PR opened, blocked) |
 | **Child / residual issues** | One PR-sized unit; body links `Parent: #N` |
 | **`scratch/night-report.md`** | **This run only** (workflow UI). Never commit as the epic tracker |
 
-Statuses in the parent table: `open` | `in_progress` | `pr_opened` | `blocked` | `done` | `skipped`.
+Parent body table columns (must match the work-agent prompt):
+
+```markdown
+| Slice | Issue | Status | PR | Notes | Updated |
+```
+
+Statuses: `open` | `in_progress` | `pr_opened` | `blocked` | `done` | `skipped`.
 
 Workers **upsert** the parent body section (`gh issue view` → edit section → `gh issue edit --body-file`) and post a short comment after each meaningful step.
 

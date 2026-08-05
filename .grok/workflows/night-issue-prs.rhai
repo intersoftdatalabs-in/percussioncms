@@ -330,8 +330,8 @@ pr_prompt_core += "    Also list human_threads_still_open for visibility.\n\n";
 
 pr_prompt_core += "SCOPE:\n";
 pr_prompt_core += "1) gh auth status first; active account for " + repo + ".\n";
-pr_prompt_core += "2) Touch only: author is active gh user, OR head branch fix/issue-|feat/issue-|\n";
-pr_prompt_core += "   fix/installer- from this agent lineage.\n";
+pr_prompt_core += "2) Touch only: author is active gh user, OR head branch matches prefix\n";
+pr_prompt_core += "   fix/issue- OR feat/issue- OR fix/installer- from this agent lineage.\n";
 pr_prompt_core += "3) Skip pure drafts unless they are merge blockers.\n";
 pr_prompt_core += "4) After each successful push, git fetch origin before the next PR.\n";
 pr_prompt_core += "5) NEVER edit threads on other humans' PRs unless co-author / overnight bot PR.\n\n";
