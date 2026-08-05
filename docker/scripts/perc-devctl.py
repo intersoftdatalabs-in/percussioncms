@@ -9,6 +9,12 @@ docker compose stack and exposes every subcommand the original
 ``it-verify``, ``deploy-jar``, ``verify-fix``, ``logs-path``,
 ``inspect-install``, ``show-generated-passwords``.
 
+QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
+
+* ``qa-up`` — one-shot CMS on H2 via matrix cell (``--keep``), health wait
+* ``qa-health`` — poll published CMS URL until ready (clear timeout)
+* ``qa-down`` — destroy the QA cell (frees ports; no multi-GB orphans)
+
 Each subcommand logs its full output to a timestamped file under
 ``docker/logs/`` and emits a single ``RESULT:OK STEP:<step> LOG:<path>``
 or ``RESULT:FAIL STEP:<step> LOG:<path>`` line on stdout so agent
@@ -75,9 +81,28 @@ VERIFY_TIMEOUT_SECONDS_DEFAULT = 300
 VERIFY_INTERVAL_SECONDS_DEFAULT = 5
 VERIFY_FIX_TIMEOUT_SECONDS_DEFAULT = 240
 
-# HTTP endpoints used by `verify`.
+# HTTP endpoints used by `verify` (dev stack on 9992 / 9980).
 VERIFY_CMS_URL = "http://localhost:9992/Rhythmyx/rest/folders/by-path/Assets"
 VERIFY_DTS_URL = "http://localhost:9980/"
+
+# ---------------------------------------------------------------------------
+# QA mode — H2 matrix cell for Playwright (no host install). Ports match
+# matrix-install-smoke.py defaults so TEST_CMS_URL stays consistent.
+# ---------------------------------------------------------------------------
+QA_CMS_PRODUCT = "cms"
+QA_CMS_DB = "h2"
+QA_CMS_CELL_ID = f"{QA_CMS_PRODUCT}-{QA_CMS_DB}"
+QA_CMS_CONTAINER = f"perc-matrix-{QA_CMS_CELL_ID}"
+QA_CMS_HOST_PORT = 9993
+QA_CMS_BASE_URL = f"http://127.0.0.1:{QA_CMS_HOST_PORT}"
+QA_CMS_PROBE_PATH = "/Rhythmyx/login"
+QA_CMS_PROBE_URL = f"{QA_CMS_BASE_URL}{QA_CMS_PROBE_PATH}"
+QA_ADMIN_USERNAME = "Admin"
+QA_INSTALL_ROOT = "/opt/Percussion"
+QA_PASSWORDS_REL = "var/config/generated/passwords"
+# Matrix silent install can take several minutes on first run.
+QA_PROBE_TIMEOUT_SECONDS_DEFAULT = 900
+QA_PROBE_INTERVAL_SECONDS_DEFAULT = 5
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:
@@ -192,6 +217,70 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "show-generated-passwords",
         help="Capture generated passwords file from running container.",
     )
+
+    # --- QA mode (H2 Docker, no host install) — #1827 slice 1 / #1927 ---
+    pqu = sub.add_parser(
+        "qa-up",
+        help=(
+            "Start CMS on H2 in Docker for QA/Playwright (no host install). "
+            "Waits for health; prints TEST_CMS_URL and admin creds hint."
+        ),
+    )
+    pqu.add_argument(
+        "--timeout-seconds",
+        type=int,
+        default=QA_PROBE_TIMEOUT_SECONDS_DEFAULT,
+        help=(
+            f"Seconds to wait for CMS ready during install/start "
+            f"(default: {QA_PROBE_TIMEOUT_SECONDS_DEFAULT})."
+        ),
+    )
+    pqu.add_argument(
+        "--skip-image-build",
+        action="store_true",
+        help="Pass --skip-image-build to matrix-install-smoke (reuse local image).",
+    )
+    pqu.add_argument("--dry-run", action="store_true")
+
+    pqh = sub.add_parser(
+        "qa-health",
+        help=(
+            "Poll QA CMS health URL until ready or timeout "
+            f"(default probe: {QA_CMS_PROBE_URL})."
+        ),
+    )
+    pqh.add_argument(
+        "--timeout-seconds",
+        type=int,
+        default=QA_PROBE_TIMEOUT_SECONDS_DEFAULT,
+        help=f"Seconds to wait (default: {QA_PROBE_TIMEOUT_SECONDS_DEFAULT}).",
+    )
+    pqh.add_argument(
+        "--interval-seconds",
+        type=int,
+        default=QA_PROBE_INTERVAL_SECONDS_DEFAULT,
+        help=f"Poll interval seconds (default: {QA_PROBE_INTERVAL_SECONDS_DEFAULT}).",
+    )
+    pqh.add_argument(
+        "--url",
+        default=QA_CMS_PROBE_URL,
+        help=f"Probe URL (default: {QA_CMS_PROBE_URL}).",
+    )
+    pqh.add_argument("--dry-run", action="store_true")
+
+    pqd = sub.add_parser(
+        "qa-down",
+        help=(
+            "Tear down the H2 QA CMS cell (docker rm -f). "
+            "Frees published ports; does not leave multi-GB orphans."
+        ),
+    )
+    pqd.add_argument(
+        "--container",
+        default=QA_CMS_CONTAINER,
+        help=f"Container name to remove (default: {QA_CMS_CONTAINER}).",
+    )
+    pqd.add_argument("--dry-run", action="store_true")
 
     return p
 
@@ -674,6 +763,242 @@ def cmd_show_generated_passwords(args: argparse.Namespace, paths: tuple[Path, Pa
 
 
 # ---------------------------------------------------------------------------
+# QA mode — H2-in-Docker one-shot (issue #1827 slice 1 / #1927)
+# ---------------------------------------------------------------------------
+
+
+def _qa_matrix_up_argv(
+    repo_root: Path,
+    *,
+    probe_timeout: int,
+    skip_image_build: bool,
+    dry_run: bool,
+) -> List[str]:
+    """Build argv for matrix-install-smoke CMS+H2 with ``--keep`` (pure).
+
+    Uses ``sys.executable`` so Windows/Linux/macOS all invoke the same
+    interpreter that is running perc-devctl (no hardcoded ``python3``).
+    """
+    script = repo_root / "docker" / "scripts" / "matrix-install-smoke.py"
+    argv: List[str] = [
+        sys.executable,
+        str(script),
+        "--repo-root",
+        str(repo_root),
+        "--product",
+        QA_CMS_PRODUCT,
+        "--db",
+        QA_CMS_DB,
+        "--keep",
+        "--probe-timeout",
+        str(probe_timeout),
+    ]
+    if skip_image_build:
+        argv.append("--skip-image-build")
+    if dry_run:
+        argv.append("--dry-run")
+    return argv
+
+
+def _qa_destroy_argv(container_name: str) -> List[str]:
+    """``docker rm -f`` argv for the QA cell (pure; unit-tested)."""
+    return ["docker", "rm", "-f", container_name]
+
+
+def _qa_print_endpoint_banner(
+    *,
+    admin_password_line: Optional[str] = None,
+) -> None:
+    """Emit agent-parseable endpoint + credential guidance after qa-up.
+
+    Does not emit RESULT: lines — callers use ``_run_logged`` for that
+    contract so agent parsers see a single OK/FAIL per step.
+    """
+    print(f"QA_CMS_URL:{QA_CMS_BASE_URL}")
+    print(f"TEST_CMS_URL={QA_CMS_BASE_URL}")
+    print(f"TEST_DB_TYPE={QA_CMS_DB}")
+    print(f"TEST_PRODUCT={QA_CMS_PRODUCT}")
+    print(f"QA_CONTAINER:{QA_CMS_CONTAINER}")
+    print(f"ADMIN_USERNAME={QA_ADMIN_USERNAME}")
+    if admin_password_line:
+        print(admin_password_line)
+    else:
+        # URL path inside container always uses '/'; not a host filesystem path.
+        pwd_path = f"{QA_INSTALL_ROOT}/{QA_PASSWORDS_REL}"
+        print(
+            "ADMIN_PASSWORD: fetch with "
+            f"docker exec {QA_CMS_CONTAINER} cat {pwd_path} "
+            f"(look for {QA_ADMIN_USERNAME}=…)"
+        )
+
+
+def _qa_fetch_admin_password(container_name: str) -> Optional[str]:
+    """Best-effort read of Admin=… from generated passwords in the QA cell.
+
+    Returns a line ``ADMIN_PASSWORD=<value>`` or None if unavailable.
+    Never raises; callers treat missing passwords as non-fatal (URL is enough
+    for health; Playwright login may need env set separately).
+    """
+    pwd_path = f"{QA_INSTALL_ROOT}/{QA_PASSWORDS_REL}"
+    try:
+        completed = subprocess.run(
+            ["docker", "exec", container_name, "cat", pwd_path],
+            shell=False,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if completed.returncode != 0:
+        return None
+    text = completed.stdout or ""
+    for line in text.splitlines():
+        line = line.strip()
+        if line.startswith(f"{QA_ADMIN_USERNAME}="):
+            value = line.split("=", 1)[1].strip()
+            if value:
+                return f"ADMIN_PASSWORD={value}"
+    return None
+
+
+def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
+    """Bring up CMS on H2 in Docker and wait until the probe URL is ready.
+
+    Delegates install/start/health-wait to ``matrix-install-smoke.py`` with
+    ``--product cms --db h2 --keep``. On success prints ``TEST_CMS_URL`` and
+    admin credential guidance for Playwright / agents.
+    """
+    repo_root, _env_file, _compose_file = paths
+    log_dir = _log_dir(repo_root)
+    dry_run = bool(args.dry_run)
+    probe_timeout = int(args.timeout_seconds)
+    skip_image_build = bool(args.skip_image_build)
+
+    matrix_argv = _qa_matrix_up_argv(
+        repo_root,
+        probe_timeout=probe_timeout,
+        skip_image_build=skip_image_build,
+        dry_run=dry_run,
+    )
+    # Use a dedicated label so logs are easy to find for QA mode.
+    # _run_logged emits RESULT:OK/FAIL STEP:qa-up LOG:<path>.
+    rc, log_file = _run_logged(
+        "qa-up",
+        matrix_argv,
+        log_dir=log_dir,
+        cwd=repo_root,
+        dry_run=dry_run,
+    )
+    if rc != EXIT_OK:
+        # Extra detail line for agent timeout diagnosis (RESULT already printed).
+        print(
+            f"QA_DETAIL:matrix-install-smoke failed "
+            f"timeout_seconds={probe_timeout} LOG:{log_file}"
+        )
+        return rc
+
+    if dry_run:
+        _qa_print_endpoint_banner()
+        return EXIT_OK
+
+    admin_line = _qa_fetch_admin_password(QA_CMS_CONTAINER)
+    _qa_print_endpoint_banner(admin_password_line=admin_line)
+    return EXIT_OK
+
+
+def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
+    """Poll the QA CMS probe URL until ready or a clear timeout error."""
+    repo_root, _env_file, _compose_file = paths
+    log_dir = _log_dir(repo_root)
+    timeout = int(args.timeout_seconds)
+    interval = int(args.interval_seconds)
+    url = args.url or QA_CMS_PROBE_URL
+    max_checks = max(1, timeout // interval) if interval > 0 else 1
+    log_file = _new_log_file(log_dir, "qa-health")
+
+    if args.dry_run:
+        LOG.info(
+            "DRY-RUN: qa-health plan: %d checks x %ds interval against %s",
+            max_checks,
+            interval,
+            url,
+        )
+        with log_file.open("w", encoding="utf-8") as f:
+            f.write(
+                f"DRY-RUN: qa-health max_checks={max_checks} interval={interval}\n"
+                f"url={url}\n"
+                f"container={QA_CMS_CONTAINER}\n"
+            )
+        print(
+            f"RESULT:OK STEP:qa-health HTTP:200 URL:{url} "
+            f"CONTAINER:{QA_CMS_CONTAINER} LOG:{log_file}"
+        )
+        return EXIT_OK
+
+    last_code = 0
+    for check in range(1, max_checks + 1):
+        last_code = _curl_status(url, timeout=5.0)
+        if last_code in (200, 302, 401, 403):
+            with log_file.open("w", encoding="utf-8") as f:
+                f.write("qa-health success\n")
+                f.write(f"url={url}\n")
+                f.write(f"http={last_code}\n")
+                f.write(f"check={check}\n")
+                f.write(f"container={QA_CMS_CONTAINER}\n")
+            print(
+                f"RESULT:OK STEP:qa-health HTTP:{last_code} URL:{url} "
+                f"CONTAINER:{QA_CMS_CONTAINER} LOG:{log_file}"
+            )
+            return EXIT_OK
+        time.sleep(interval)
+
+    with log_file.open("w", encoding="utf-8") as f:
+        f.write("qa-health failed\n")
+        f.write(f"url={url}\n")
+        f.write(f"last_http={last_code}\n")
+        f.write(f"timeout_seconds={timeout}\n")
+        f.write(f"interval_seconds={interval}\n")
+        f.write(f"container={QA_CMS_CONTAINER}\n")
+        f.write(
+            "hint: run qa-up first; ensure installer jar is built "
+            "(modules/perc-distribution-tree package)\n"
+        )
+    print(
+        f"RESULT:FAIL STEP:qa-health DETAIL:timeout after {timeout}s "
+        f"(last_http={last_code}) URL:{url} CONTAINER:{QA_CMS_CONTAINER} "
+        f"LOG:{log_file}"
+    )
+    return EXIT_SUBPROCESS_FAILED
+
+
+def cmd_qa_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
+    """Destroy the H2 QA CMS cell so ports/disk are freed by default.
+
+    Uses ``docker rm -f`` on the matrix cell. Install lives inside the
+    container filesystem (no named multi-GB volume by default), so removing
+    the container frees the port and disk used by the cell.
+    """
+    repo_root, _env_file, _compose_file = paths
+    log_dir = _log_dir(repo_root)
+    container = args.container or QA_CMS_CONTAINER
+    dry_run = bool(args.dry_run)
+    rc, log_file = _run_logged(
+        "qa-down",
+        _qa_destroy_argv(container),
+        log_dir=log_dir,
+        cwd=repo_root,
+        dry_run=dry_run,
+    )
+    # RESULT:OK/FAIL already emitted by _run_logged; add agent-parseable detail.
+    print(f"QA_CONTAINER:{container}")
+    if rc == EXIT_OK:
+        print("QA_DETAIL:removed (ports/disk freed)")
+    return rc
+
+
+# ---------------------------------------------------------------------------
 # Dispatch
 # ---------------------------------------------------------------------------
 
@@ -690,6 +1015,9 @@ _DISPATCH = {
     "logs-path": cmd_logs_path,
     "inspect-install": cmd_inspect_install,
     "show-generated-passwords": cmd_show_generated_passwords,
+    "qa-up": cmd_qa_up,
+    "qa-health": cmd_qa_health,
+    "qa-down": cmd_qa_down,
 }
 
 

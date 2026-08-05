@@ -102,6 +102,52 @@ Two supported modes. Agents must know which they are in. **Developers/agents do 
 2. Do not ask the developer to copy jars into a personal install to “make QA green.”
 3. Failures are **product or pipeline** defects; file issues, don’t invent local-only workarounds as the fix.
 
+#### H2 Docker one-shot (agents / operators) — up → health → down
+
+Productized entrypoint on `docker/scripts/perc-devctl.py` (cross-platform Python; no shell required). Implements **#1827** slice 1 / **#1927**: CMS on **H2 in Docker**, published URL, no host install.
+
+**Prereq (once per machine / after installer changes):** package the customer CMS installer assembly:
+
+```bash
+cd modules/perc-distribution-tree && ../../mvnw package -DskipTests
+# Windows: cd modules\perc-distribution-tree && ..\..\mvnw.cmd package -DskipTests
+```
+
+**Lifecycle (always use this order for unattended QA):**
+
+```bash
+# 1) UP — silent install + start CMS on H2; waits until /Rhythmyx/login is ready
+python docker/scripts/perc-devctl.py qa-up
+# optional: --timeout-seconds 900  --skip-image-build
+
+# 2) HEALTH — re-check readiness (clear RESULT:FAIL + timeout if not ready)
+python docker/scripts/perc-devctl.py qa-health
+# optional: --timeout-seconds 120  --interval-seconds 5
+
+# 3) (later slices) Playwright against the stack only — no DEV_PERCUSSION_INSTALL
+#    TEST_CMS_URL=http://127.0.0.1:9993  TEST_DB_TYPE=h2  TEST_PRODUCT=cms
+#    ADMIN_USERNAME=Admin  (password printed by qa-up or via docker exec)
+
+# 4) DOWN — destroy the cell; frees host port 9993; no multi-GB orphans by default
+python docker/scripts/perc-devctl.py qa-down
+```
+
+|  Output / constant   |                         Value                          |
+|----------------------|--------------------------------------------------------|
+| Published base URL   | `http://127.0.0.1:9993` (`TEST_CMS_URL`)               |
+| Probe path           | `/Rhythmyx/login`                                      |
+| Container name       | `perc-matrix-cms-h2`                                   |
+| Admin user           | `Admin` (password from install generated passwords)    |
+| RESULT line contract | `RESULT:OK\|FAIL STEP:qa-up\|qa-health\|qa-down LOG:…` |
+
+**Tear-down policy:** `qa-down` runs `docker rm -f` on the QA cell. The install lives **inside** the container (no named multi-GB volume by default), so removing the container frees ports and disk. Prefer `qa-down` after every agent session; do not leave `perc-matrix-cms-h2` running overnight unless debugging.
+
+**Dry-run (no docker):** `python docker/scripts/perc-devctl.py qa-up --dry-run` (and `qa-health` / `qa-down` likewise). Unit tests: `python -m pytest docker/scripts/test_perc_devctl.py -q`.
+
+Equivalent low-level harness (same cell): `python docker/scripts/matrix-install-smoke.py --product cms --db h2 --keep` then destroy with `docker rm -f perc-matrix-cms-h2`. Prefer `perc-devctl.py qa-*` for agents.
+
+Playwright env defaults, surface filters, and CI jobs are **later slices** of #1827 (#1928–#1930).
+
 ### What is *not* a supported long-term process
 
 - “Merged to `development` so the shared QA box should magically update” without **automation**.

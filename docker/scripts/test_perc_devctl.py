@@ -179,6 +179,27 @@ class TestSubcommandDryRun(unittest.TestCase):
         self.assertIn("RESULT:OK STEP:verify", out)
         self.assertIn("CMS_HTTP:200", out)
 
+    def test_qa_up_dry_run(self):
+        rc, out = self.runner.run(["qa-up", "--timeout-seconds", "60"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-up", out)
+        self.assertIn("TEST_CMS_URL=", out)
+        self.assertIn(pdc.QA_CMS_BASE_URL, out)
+        self.assertIn(f"ADMIN_USERNAME={pdc.QA_ADMIN_USERNAME}", out)
+
+    def test_qa_health_dry_run(self):
+        rc, out = self.runner.run(["qa-health", "--timeout-seconds", "30"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-health", out)
+        self.assertIn("HTTP:200", out)
+        self.assertIn(pdc.QA_CMS_CONTAINER, out)
+
+    def test_qa_down_dry_run(self):
+        rc, out = self.runner.run(["qa-down"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-down", out)
+        self.assertIn(f"QA_CONTAINER:{pdc.QA_CMS_CONTAINER}", out)
+
     def test_it_verify_dry_run(self):
         rc, out = self.runner.run(["it-verify"])
         self.assertEqual(rc, pdc.EXIT_OK)
@@ -390,6 +411,147 @@ class TestDispatch(unittest.TestCase):
         """
         with self.assertRaises(SystemExit):
             pdc.main(["not-a-command"])
+
+
+class TestQaHelpers(unittest.TestCase):
+    """Pure helpers for QA mode (H2 Docker entrypoint) — no docker."""
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo_root = _stub_repo_root(Path(self.td.name))
+        matrix = self.repo_root / "docker" / "scripts" / "matrix-install-smoke.py"
+        matrix.write_text("# stub\n", encoding="utf-8")
+
+    def test_qa_matrix_up_argv_includes_keep_and_h2(self):
+        argv = pdc._qa_matrix_up_argv(
+            self.repo_root,
+            probe_timeout=120,
+            skip_image_build=True,
+            dry_run=True,
+        )
+        self.assertEqual(argv[0], sys.executable)
+        self.assertTrue(any(str(a).endswith("matrix-install-smoke.py") for a in argv))
+        self.assertIn("--product", argv)
+        self.assertIn("cms", argv)
+        self.assertIn("--db", argv)
+        self.assertIn("h2", argv)
+        self.assertIn("--keep", argv)
+        self.assertIn("--probe-timeout", argv)
+        self.assertIn("120", argv)
+        self.assertIn("--skip-image-build", argv)
+        self.assertIn("--dry-run", argv)
+        script_idx = next(
+            i for i, a in enumerate(argv) if str(a).endswith("matrix-install-smoke.py")
+        )
+        # Match production: str(repo_root / ...) without resolve(). Comparing a
+        # resolved expected path fails on Windows when tempfile uses 8.3 short
+        # names (e.g. RUNNER~1 vs runneradmin on GHA windows-latest).
+        expected = self.repo_root / "docker" / "scripts" / "matrix-install-smoke.py"
+        self.assertEqual(Path(argv[script_idx]), expected)
+
+    def test_qa_matrix_up_argv_no_dry_run_flag_when_live(self):
+        argv = pdc._qa_matrix_up_argv(
+            self.repo_root,
+            probe_timeout=900,
+            skip_image_build=False,
+            dry_run=False,
+        )
+        self.assertNotIn("--dry-run", argv)
+        self.assertNotIn("--skip-image-build", argv)
+        self.assertIn("--keep", argv)
+
+    def test_qa_destroy_argv(self):
+        argv = pdc._qa_destroy_argv("perc-matrix-cms-h2")
+        self.assertEqual(argv, ["docker", "rm", "-f", "perc-matrix-cms-h2"])
+
+    def test_qa_constants_align_with_matrix_ports(self):
+        """Published URL must match matrix-install-smoke CMS host port."""
+        self.assertEqual(pdc.QA_CMS_HOST_PORT, 9993)
+        self.assertEqual(pdc.QA_CMS_CONTAINER, "perc-matrix-cms-h2")
+        self.assertTrue(pdc.QA_CMS_PROBE_URL.endswith("/Rhythmyx/login"))
+        self.assertIn("9993", pdc.QA_CMS_BASE_URL)
+
+
+class TestQaHealthRealMode(unittest.TestCase):
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo_root = _stub_repo_root(Path(self.td.name))
+
+    def test_qa_health_success_on_first_check(self):
+        with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc.time, "sleep"):
+            mock_curl.return_value = 200
+            import io
+            from contextlib import redirect_stdout
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc.main([
+                    "--repo-root", str(self.repo_root),
+                    "qa-health", "--timeout-seconds", "10",
+                ])
+            out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-health", out)
+        self.assertIn("HTTP:200", out)
+
+    def test_qa_health_timeout_emits_clear_error(self):
+        with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc.time, "sleep"):
+            mock_curl.return_value = 0
+            import io
+            from contextlib import redirect_stdout
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc.main([
+                    "--repo-root", str(self.repo_root),
+                    "qa-health",
+                    "--timeout-seconds", "5",
+                    "--interval-seconds", "5",
+                ])
+            out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("RESULT:FAIL STEP:qa-health", out)
+        self.assertIn("timeout", out)
+        self.assertIn("LOG:", out)
+        self.assertNotIn("LOG:\n", out)
+
+
+class TestQaDownRealMode(unittest.TestCase):
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo_root = _stub_repo_root(Path(self.td.name))
+
+    def test_qa_down_invokes_docker_rm(self):
+        captured = []
+
+        def fake_run(argv, *args, **kwargs):
+            captured.append(list(argv))
+            return subprocess.CompletedProcess(
+                args=argv, returncode=0, stdout="", stderr=""
+            )
+
+        import io
+        from contextlib import redirect_stdout
+        buf = io.StringIO()
+        with unittest.mock.patch.object(pdc.subprocess, "run", side_effect=fake_run):
+            with redirect_stdout(buf):
+                rc = pdc.main([
+                    "--repo-root", str(self.repo_root),
+                    "qa-down",
+                ])
+        out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-down", out)
+        self.assertTrue(
+            any(
+                a[:3] == ["docker", "rm", "-f"] and pdc.QA_CMS_CONTAINER in a
+                for a in captured
+            ),
+            msg=f"expected docker rm -f {pdc.QA_CMS_CONTAINER} in {captured!r}",
+        )
 
 
 class TestMain(unittest.TestCase):
