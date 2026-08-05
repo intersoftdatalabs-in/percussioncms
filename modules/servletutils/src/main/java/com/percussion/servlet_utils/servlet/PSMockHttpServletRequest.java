@@ -81,85 +81,188 @@ public class PSMockHttpServletRequest implements HttpServletRequest {
   private ServletContext servletContext;
   private Locale locale = Locale.getDefault();
 
+  /** No-op constructor. */
   public PSMockHttpServletRequest() {}
 
+  /**
+   * Convenience constructor that seeds the request method and URI.
+   *
+   * @param method the HTTP method, defaults to {@code GET} when {@code null}
+   * @param requestURI the request URI, defaults to empty when {@code null}
+   */
   public PSMockHttpServletRequest(String method, String requestURI) {
     this.method = method != null ? method : "GET";
     setRequestURI(requestURI != null ? requestURI : "");
   }
 
+  /**
+   * Sets the HTTP method.
+   *
+   * @param method the method
+   */
   public void setMethod(String method) {
     this.method = method;
   }
 
+  /**
+   * Sets the URL scheme.
+   *
+   * @param scheme the scheme
+   */
   public void setScheme(String scheme) {
     this.scheme = scheme;
   }
 
+  /**
+   * Sets the server name.
+   *
+   * @param serverName the server name
+   */
   public void setServerName(String serverName) {
     this.serverName = serverName;
   }
 
+  /**
+   * Sets the server port.
+   *
+   * @param serverPort the server port
+   */
   public void setServerPort(int serverPort) {
     this.serverPort = serverPort;
   }
 
+  /**
+   * Sets the context path.
+   *
+   * @param contextPath the context path, never {@code null}
+   */
   public void setContextPath(String contextPath) {
     this.contextPath = contextPath != null ? contextPath : "";
   }
 
+  /**
+   * Sets the servlet path.
+   *
+   * @param servletPath the servlet path, never {@code null}
+   */
   public void setServletPath(String servletPath) {
     this.servletPath = servletPath != null ? servletPath : "";
   }
 
+  /**
+   * Sets the path info.
+   *
+   * @param pathInfo the path info
+   */
   public void setPathInfo(String pathInfo) {
     this.pathInfo = pathInfo;
   }
 
+  /**
+   * Sets the query string.
+   *
+   * @param queryString the query string
+   */
   public void setQueryString(String queryString) {
     this.queryString = queryString;
   }
 
+  /**
+   * Sets the request URI.
+   *
+   * @param requestURI the request URI, never {@code null}
+   */
   public void setRequestURI(String requestURI) {
     this.requestURI = requestURI != null ? requestURI : "";
   }
 
+  /**
+   * Sets the request protocol.
+   *
+   * @param protocol the protocol
+   */
   public void setProtocol(String protocol) {
     this.protocol = protocol;
   }
 
+  /**
+   * Sets the remote client address.
+   *
+   * @param remoteAddr the remote address
+   */
   public void setRemoteAddr(String remoteAddr) {
     this.remoteAddr = remoteAddr;
   }
 
+  /**
+   * Sets the remote client host.
+   *
+   * @param remoteHost the remote host
+   */
   public void setRemoteHost(String remoteHost) {
     this.remoteHost = remoteHost;
   }
 
+  /**
+   * Sets the remote authenticated user.
+   *
+   * @param remoteUser the remote user
+   */
   public void setRemoteUser(String remoteUser) {
     this.remoteUser = remoteUser;
   }
 
+  /**
+   * Sets the authentication scheme.
+   *
+   * @param authType the auth type
+   */
   public void setAuthType(String authType) {
     this.authType = authType;
   }
 
+  /**
+   * Sets whether the request was made over a secure transport.
+   *
+   * @param secure {@code true} for HTTPS-like requests
+   */
   public void setSecure(boolean secure) {
     this.secure = secure;
   }
 
+  /**
+   * Sets the authenticated user principal.
+   *
+   * @param userPrincipal the principal, may be {@code null}
+   */
   public void setUserPrincipal(Principal userPrincipal) {
     this.userPrincipal = userPrincipal;
   }
 
+  /**
+   * Sets the request content type.
+   *
+   * @param contentType the content type
+   */
   public void setContentType(String contentType) {
     this.contentType = contentType;
   }
 
+  /**
+   * Sets the request body content.
+   *
+   * @param content the body bytes, never {@code null}
+   */
   public void setContent(byte[] content) {
     this.content = content != null ? content : new byte[0];
   }
 
+  /**
+   * Sets a single-valued parameter, removing any existing values if {@code value} is {@code null}.
+   *
+   * @param name the parameter name
+   * @param value the parameter value, or {@code null} to remove
+   */
   public void setParameter(String name, String value) {
     if (name == null) {
       return;
@@ -171,6 +274,12 @@ public class PSMockHttpServletRequest implements HttpServletRequest {
     }
   }
 
+  /**
+   * Sets a multi-valued parameter, removing any existing values if {@code values} is {@code null}.
+   *
+   * @param name the parameter name
+   * @param values the parameter values
+   */
   public void setParameter(String name, String... values) {
     if (name == null) {
       return;
@@ -182,6 +291,11 @@ public class PSMockHttpServletRequest implements HttpServletRequest {
     }
   }
 
+  /**
+   * Replaces all parameters with the supplied map.
+   *
+   * @param params the new parameter map, may be {@code null}
+   */
   public void setParameters(Map<String, String[]> params) {
     parameters.clear();
     if (params != null) {
@@ -189,14 +303,30 @@ public class PSMockHttpServletRequest implements HttpServletRequest {
     }
   }
 
+  /**
+   * Appends a header value to the list of headers for {@code name}.
+   *
+   * @param name the header name
+   * @param value the header value
+   */
   public void addHeader(String name, String value) {
     headers.computeIfAbsent(normalize(name), k -> new ArrayList<>()).add(value);
   }
 
+  /**
+   * Sets the active HTTP session.
+   *
+   * @param session the session, may be {@code null}
+   */
   public void setSession(HttpSession session) {
     this.session = session;
   }
 
+  /**
+   * Sets the active servlet context.
+   *
+   * @param servletContext the servlet context
+   */
   public void setServletContext(ServletContext servletContext) {
     this.servletContext = servletContext;
   }
