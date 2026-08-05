@@ -140,6 +140,7 @@ public class StringLinkBackTokenImpl implements LinkbackTokenCodec {
    * @param value a string, string array, list, or other object
    * @return the first value represented as a string, or {@code null} when the input is null
    */
+  @SuppressWarnings("rawtypes")
   public static String simplifyValue(Object value) {
     if (value == null) {
       log.debug("null value");
