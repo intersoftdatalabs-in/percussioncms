@@ -156,6 +156,24 @@ class PSNodeDefinitionXmlSerializationTest {
     assertTrue(restored.contains("0-23-6"), restored.toString());
     assertTrue(restored.contains("0-23-7"), restored.toString());
     assertEquals(2, def.getWorkflowGuids().size());
+    // Association PKs must be non-null (no @GeneratedValue on PSContentTypeWorkflow).
+    assertEquals(2, def.getCtWfRels().size());
+    for (PSContentTypeWorkflow rel : def.getCtWfRels()) {
+      assertNotNull(rel.getId(), "PSContentTypeWorkflow.id must be assigned offline and online");
+    }
+  }
+
+  @Test
+  void setWorkflowIdsReplacesExistingAssociations() {
+    PSNodeDefinition def = sampleNodeDefinitionScalarsOnly();
+    def.setWorkflowIds(Set.of("0-23-6", "0-23-7"));
+    assertEquals(2, def.getWorkflowIds().size());
+
+    def.setWorkflowIds(Set.of("0-23-8"));
+    Set<String> restored = def.getWorkflowIds();
+    assertEquals(1, restored.size());
+    assertTrue(restored.contains("0-23-8"), restored.toString());
+    assertNotNull(def.getCtWfRels().iterator().next().getId());
   }
 
   @Test
@@ -190,6 +208,7 @@ class PSNodeDefinitionXmlSerializationTest {
     Set<String> workflowIds = restored.getWorkflowIds();
     assertEquals(1, workflowIds.size());
     assertTrue(workflowIds.contains("0-23-6"), workflowIds.toString());
+    assertNotNull(restored.getCtWfRels().iterator().next().getId());
   }
 
   private static PSNodeDefinition sampleNodeDefinitionScalarsOnly() {

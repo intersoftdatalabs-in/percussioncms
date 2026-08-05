@@ -37,8 +37,10 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeType;
@@ -166,6 +168,12 @@ public class PSNodeDefinition implements IPSNodeDefinition {
    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, region = "object")
    @Fetch(FetchMode. SUBSELECT)
    private Set<PSContentTypeWorkflow> m_ctWfRels;
+
+   /**
+    * Provisional association PKs when GuidManager is not configured (offline tests / design tools).
+    * Live CMS always has {@link PSGuidManagerLocator#getGuidMgr()}.
+    */
+   private static final AtomicLong OFFLINE_CTWF_ID = new AtomicLong(0L);
 
    /**
     * (non-Javadoc)
@@ -847,21 +855,26 @@ public class PSNodeDefinition implements IPSNodeDefinition {
    }
 
    /**
-    * Restore template associations from design-object XML ({@code template-ids}). Uses historical
-    * {@link #addTemplateId(String)} path (requires content manager for association lookup in live
-    * CMS). Offline unit tests exercise write/scalar restore only.
+    * Restore template associations from design-object XML ({@code template-ids}). Replaces any
+    * existing {@link #m_cvDescriptors} entries (clear-then-add) so repeated calls do not
+    * accumulate. Uses historical {@link #addTemplateId(String)} path (requires content manager for
+    * association lookup in live CMS). Offline unit tests exercise write/scalar restore only.
     *
-    * @param templateIds may be {@code null} or empty
+    * @param templateIds may be {@code null} or empty (clears associations)
     */
    public void setTemplateIds(Set<String> templateIds)
    {
-      if (templateIds == null || templateIds.isEmpty())
-      {
-         return;
-      }
       if (m_cvDescriptors == null)
       {
          m_cvDescriptors = new HashSet<>();
+      }
+      else
+      {
+         m_cvDescriptors.clear();
+      }
+      if (templateIds == null || templateIds.isEmpty())
+      {
+         return;
       }
       for (String tmpId : templateIds)
       {
@@ -895,22 +908,28 @@ public class PSNodeDefinition implements IPSNodeDefinition {
     * Jackson collection setter for {@code workflow-ids}. Rebuilds {@link #m_ctWfRels} entries from
     * GUID strings so design-object XML restore retains workflow associations.
     *
-    * <p>Offline-friendly: creates new {@link PSContentTypeWorkflow} rows without consulting the
-    * content manager. Association primary keys are left unset so Hibernate can assign them on
-    * persist; live package install may still re-merge via {@code PSContentTypeHelper} when
-    * existing DB rows must be reused. Skips blank entries and de-duplicates by workflow GUID.
+    * <p>Replaces any existing associations (clear-then-add). Offline-friendly: creates new {@link
+    * PSContentTypeWorkflow} rows without consulting the content manager. Each association primary
+    * key is assigned in {@link #addWorkflowGuid(IPSGuid)} (GuidManager when available; provisional
+    * offline id otherwise) because {@code PSContentTypeWorkflow.m_ctWfId} has no {@code
+    * @GeneratedValue}. Live package install may still re-merge via {@code PSContentTypeHelper}
+    * when existing DB rows must be reused. Skips blank entries and de-duplicates by workflow GUID.
     *
-    * @param workflowIds may be {@code null} or empty
+    * @param workflowIds may be {@code null} or empty (clears associations)
     */
    public void setWorkflowIds(Set<String> workflowIds)
    {
-      if (workflowIds == null || workflowIds.isEmpty())
-      {
-         return;
-      }
       if (m_ctWfRels == null)
       {
          m_ctWfRels = new HashSet<>();
+      }
+      else
+      {
+         m_ctWfRels.clear();
+      }
+      if (workflowIds == null || workflowIds.isEmpty())
+      {
+         return;
       }
       for (String wfId : workflowIds)
       {
@@ -939,7 +958,12 @@ public class PSNodeDefinition implements IPSNodeDefinition {
 
    /**
     * Add the given workflow GUID to {@code m_ctWfRels} if not already present. Does not require a
-    * live content manager (unlike template association restore).
+    * live content manager (unlike template association restore). Assigns a non-null association
+    * primary key: prefers {@link PSGuidManagerLocator#getGuidMgr()} like {@link
+    * #addVariantGuid(IPSGuid)}; when GuidManager is unavailable (offline unit tests / design tools
+    * without Spring), uses a provisional monotonic id so cascaded persist never sees a null {@code
+    * CONTENTTYPE_WORKFLOW_ID} ({@link PSContentTypeWorkflow} has {@code @Id} without {@code
+    * @GeneratedValue}).
     *
     * @param guid workflow guid, never {@code null}
     */
@@ -962,6 +986,16 @@ public class PSNodeDefinition implements IPSNodeDefinition {
          }
       }
       PSContentTypeWorkflow rel = new PSContentTypeWorkflow();
+      // PK is application-assigned (no @GeneratedValue) — mirror addVariantGuid.
+      Optional<IPSGuidManager> gmgr = PSGuidManagerLocator.getGuidMgrSafely();
+      if (gmgr.isPresent())
+      {
+         rel.setId(gmgr.get().createGuid(PSTypeEnum.INTERNAL).longValue());
+      }
+      else
+      {
+         rel.setId(OFFLINE_CTWF_ID.incrementAndGet());
+      }
       if (m_contenttypeid != null)
       {
          rel.setContentTypeId(new PSGuid(PSTypeEnum.NODEDEF, m_contenttypeid));
