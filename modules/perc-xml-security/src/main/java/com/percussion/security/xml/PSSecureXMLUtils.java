@@ -36,22 +36,40 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 
-/** Utility class for securing XML parses. */
+/**
+ * Utility class for securing XML parses.
+ *
+ * <p>Provides constant feature URIs and helpers that hard-disable external-entity resolution and
+ * document-type declarations on the various XML parser factories used by Percussion CMS. The
+ * defaults defend against XXE (CWE-611) even when callers mistakenly request the legacy {@code
+ * enableExternalEntities} options.
+ *
+ * @author Percussion Software
+ */
 public class PSSecureXMLUtils {
 
   private PSSecureXMLUtils() {
     // hidden ctor
   }
 
-  //  http://xml.org/sax/features/namespaces
-  // Set to true
+  /**
+   * JAXP {@code secure-processing} feature URI. Always set to {@code true} by the helpers in this
+   * class. See <a href="http://xml.org/sax/features/namespaces">namespaces</a> for the related SAX
+   * feature.
+   */
   public static final String SECURE_PROCESSING_FEATURE = XMLConstants.FEATURE_SECURE_PROCESSING;
 
-  // Set to true based on param
+  /**
+   * Apache Xerces feature URI used to disallow {@code <!DOCTYPE>} declarations. Set to {@code true}
+   * when {@link PSXmlSecurityOptions#isEnableDtdDeclarations()} returns {@code false}.
+   */
   public static final String DISALLOW_DOCTYPES_FEATURE =
       "http://apache.org/xml/features/disallow-doctype-decl";
 
-  // Set to false
+  /**
+   * SAX feature URI used to disable resolution of general external entities. Always set to {@code
+   * false} as a defense-in-depth measure.
+   */
   public static final String SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE =
       "http://xml.org/sax/features/external-general-entities";
 
@@ -67,6 +85,10 @@ public class PSSecureXMLUtils {
   public static final String X2_GENERAL_EXTERNAL_ENTITIES_FEATURE =
       X1_GENERAL_EXTERNAL_ENTITIES_FEATURE;
 
+  /**
+   * Xerces feature URI used to disable resolution of external parameter entities. Always set to
+   * {@code false} as a defense-in-depth measure.
+   */
   public static final String X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE =
       "http://apache.org/xml/features/external-parameter-entities";
 
@@ -74,17 +96,35 @@ public class PSSecureXMLUtils {
   public static final String X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE =
       X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE;
 
+  /** SAX feature URI used to disable external parameter entities. Always set to {@code false}. */
   public static final String SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE =
       "http://xml.org/sax/features/external-parameter-entities";
 
+  /** Xerces feature URI used to disable loading of external DTDs. Always set to {@code false}. */
   public static final String LOAD_EXTERNAL_DTD =
       "http://apache.org/xml/features/nonvalidating/load-external-dtd";
 
+  /**
+   * Default value used for {@link
+   * javax.xml.parsers.DocumentBuilderFactory#setXIncludeAware(boolean)}. Set to {@code false} so
+   * XInclude processing is disabled.
+   */
   public static final boolean XINCLUDE_AWARE = false;
+
+  /**
+   * Default value used for {@link
+   * javax.xml.parsers.DocumentBuilderFactory#setExpandEntityReferences(boolean)}. Set to {@code
+   * false} so entity references are not expanded into text.
+   */
   public static final boolean EXPAND_ENTITY_REFERENCES = false;
 
   private static final Logger log = LogManager.getLogger(PSSecureXMLUtils.class);
 
+  /**
+   * Log message template emitted when an XML parser reports that one of the security features
+   * requested by this utility is not supported. The single {@code {}} placeholder is filled with
+   * the unsupported feature URI.
+   */
   public static final String UNSUPPORTED_FEATURE_WARN =
       "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.";
 
@@ -206,10 +246,11 @@ public class PSSecureXMLUtils {
   }
 
   /**
-   * Secures XMLInputFactory instances. External entities are disabled and DTD's are turned on or
-   * off based on the caller.
+   * Secures {@link XMLInputFactory} instances. External entities are hard-disabled and DTD support
+   * is enabled or disabled based on the caller-supplied options.
    *
-   * @param options Options for secure processing
+   * @param options the security options to apply; assumed not {@code null}
+   * @return a secured {@link XMLInputFactory} instance with external entities disabled
    */
   public static XMLInputFactory getSecuredXMLInputFactory(PSXmlSecurityOptions options) {
 
@@ -229,6 +270,15 @@ public class PSSecureXMLUtils {
     return xif;
   }
 
+  /**
+   * Returns an XStream instance configured to (de)serialize only classes under the {@code
+   * com.percussion.**} package and to use the DOM driver for XML I/O.
+   *
+   * <p>Note: the type whitelist is intentionally broad so that all Percussion CMS payload classes
+   * can be processed; tighten it for any deployment that handles untrusted input.
+   *
+   * @return a non-null, configured {@link XStream} instance
+   */
   public static XStream getSecuredXStream() {
     XStream xs = new XStream(new DomDriver());
     // TODO: 01-04-2022   whitelist specific classes
@@ -292,6 +342,16 @@ public class PSSecureXMLUtils {
     return tf;
   }
 
+  /**
+   * Returns a {@link SAXParserFactory} for the given implementation class name with
+   * OWASP-recommended security attributes. External entities and external parameter entities are
+   * hard-disabled regardless of caller-supplied options to prevent XXE (CWE-611).
+   *
+   * @param className the fully-qualified SAXParserFactory implementation class name
+   * @param classLoader the class loader to use, may be {@code null}
+   * @param options the security options to apply; assumed not {@code null}
+   * @return a secured {@link SAXParserFactory} instance
+   */
   public static SAXParserFactory getSecuredSaxParserFactory(
       String className, ClassLoader classLoader, PSXmlSecurityOptions options) {
 
@@ -299,6 +359,14 @@ public class PSSecureXMLUtils {
     return enableSPFFeatures(spf, options);
   }
 
+  /**
+   * Returns a {@link SAXParserFactory} configured with OWASP-recommended security attributes.
+   * External entities and external parameter entities are hard-disabled regardless of
+   * caller-supplied options to prevent XXE (CWE-611).
+   *
+   * @param options the security options to apply; assumed not {@code null}
+   * @return a secured {@link SAXParserFactory} instance
+   */
   public static SAXParserFactory getSecuredSaxParserFactory(PSXmlSecurityOptions options) {
 
     SAXParserFactory spf = SAXParserFactory.newInstance();
