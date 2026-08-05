@@ -1,0 +1,13 @@
+<!-- Golden snapshot for production PSMimeContentAdapter Jackson wire shape
+	(issue #1994 / epic #505). Inline content is base64; label/description/ content-attached
+	suppressed. -->
+<mime-content-adapter>
+	<attachment-id>-1</attachment-id>
+	<character-encoding>UTF-8</character-encoding>
+	<content>c2FtcGxlLWNvbmZpZy1ib2R5</content>
+	<content-length>18</content-length>
+	<guid>0-34-100</guid>
+	<mime-type>text/xml</mime-type>
+	<name>WORKFLOW_CONFIG</name>
+	<transfer-encoding>base64</transfer-encoding>
+</mime-content-adapter>
