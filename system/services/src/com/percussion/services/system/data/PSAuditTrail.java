@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,165 +16,167 @@
  */
 package com.percussion.services.system.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * This object represents a single audit trail.
+ *
+ * <p>Design-object XML root is {@code audit-trail}. Nested package item element is {@code audit}.
+ * Jackson opt-in property surface (issue #1920 / epic #505).
+ *
+ * <p><b>Nested type registration (two engines, one name):</b> Jackson binds nested items via {@link
+ * JacksonXmlProperty}{@code (localName="audit")} on {@link #getAudits()}. The static {@link
+ * PSXmlSerializationHelper#addType} registration is retained for the Betwixt rollback engine and
+ * for polymorphic list restore helpers that still consult the shared type map. Both paths use the
+ * same element name {@code audit} → {@link PSAudit}; they are complementary, not competing owners.
  */
-public class PSAuditTrail implements Serializable
-{
-   /**
-    * Compiler generated serial version ID used for serialization.
-    */
-   private static final long serialVersionUID = -8037995317473435726L;
-   
-   private int currentRevision;
-   
-   private int editRevision;
-   
-   private List<PSAudit> audits = new ArrayList<>();
+@JacksonXmlRootElement(localName = "audit-trail")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({"audits", "currentRevision", "editRevision"})
+public class PSAuditTrail implements Serializable {
+  /** Compiler generated serial version ID used for serialization. */
+  private static final long serialVersionUID = -8037995317473435726L;
 
-   /**
-    * Default constructor.
-    */
-   public PSAuditTrail()
-   {
-   }
-   
-   /**
-    * Get the current revision of the item for which this defines the audit
-    * trail.
-    * 
-    * @return the current revision of the item for which this defines the 
-    *    audit trail.
-    */
-   public int getCurrentRevision()
-   {
-      return currentRevision;
-   }
-   
-   /**
-    * Set the current revision of the item for which this defines the audit
-    * trail.
-    * 
-    * @param currentRevision the new current revision of the item for which
-    *    this defines the audit trail.
-    */
-   public void setCurrentRevision(int currentRevision)
-   {
-      this.currentRevision = currentRevision;
-   }
-   
-   /**
-    * Get the edit revision of the item for which this defines the audit
-    * trail.
-    * 
-    * @return the edit revision of the item for which this defines the 
-    *    audit trail.
-    */
-   public int getEditRevision()
-   {
-      return editRevision;
-   }
-   
-   /**
-    * Set the edit revision of the item for which this defines the audit
-    * trail.
-    * 
-    * @param editRevision the new edit revision of the item for which
-    *    this defines the audit trail.
-    */
-   public void setEditRevision(int editRevision)
-   {
-      this.editRevision = editRevision;
-   }
-   
-   /**
-    * Get the list with all audits.
-    * 
-    * @return the list with all audits, never <code>null</code>, may
-    *    be empty.
-    */
-   public List<PSAudit> getAudits()
-   {
-      return audits;
-   }
-   
-   /**
-    * Set a new list of audits.
-    * 
-    * @param audits the new list of audits, may be <code>null</code> or
-    *    empty.
-    */
-   public void setAudits(List<PSAudit> audits)
-   {
-      if (audits == null)
-         this.audits = new ArrayList<>();
-      else
-         this.audits = audits;
-   }
-   
-   /**
-    * Add a new audit.
-    * 
-    * @param audit the new audit to add, not <code>null</code>.
-    */
-   public void addAudit(PSAudit audit)
-   {
-      if (audit == null)
-         throw new IllegalArgumentException("audit cannot be null");
-      
-      audits.add(audit);
-   }
+  private int currentRevision;
 
-   @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof PSAuditTrail)) return false;
-      PSAuditTrail that = (PSAuditTrail) o;
-      return getCurrentRevision() == that.getCurrentRevision() && getEditRevision() == that.getEditRevision() && Objects.equals(getAudits(), that.getAudits());
-   }
+  private int editRevision;
 
-   @Override
-   public int hashCode() {
-      return Objects.hash(getCurrentRevision(), getEditRevision(), getAudits());
-   }
+  private List<PSAudit> audits = new ArrayList<>();
 
-   @Override
-   public String toString() {
-      final StringBuffer sb = new StringBuffer("PSAuditTrail{");
-      sb.append("currentRevision=").append(currentRevision);
-      sb.append(", editRevision=").append(editRevision);
-      sb.append(", audits=").append(audits);
-      sb.append('}');
-      return sb.toString();
-   }
+  static {
+    // Betwixt / helper type-map path (Jackson uses @JacksonXmlProperty on getAudits()).
+    // Same key+class as Jackson annotations — intentional dual registration for dual engines.
+    PSXmlSerializationHelper.addType("audit", PSAudit.class);
+  }
 
-   /* (non-Javadoc)
-    * @see IPSCatalogItem#fromXML(String)
-    */
-   public void fromXML(String xmlsource) throws IOException, SAXException
-   {
-      PSXmlSerializationHelper.readFromXML(xmlsource, this);
-   }
+  /** Default constructor. */
+  public PSAuditTrail() {}
 
-   /* (non-Javadoc)
-    * @see IPSCatalogItem#toXML()
-    */
-   public String toXML() throws IOException, SAXException
-   {
-      return PSXmlSerializationHelper.writeToXml(this);
-   }
+  /**
+   * Get the current revision of the item for which this defines the audit trail.
+   *
+   * @return the current revision of the item for which this defines the audit trail.
+   */
+  @JsonProperty("current-revision")
+  public int getCurrentRevision() {
+    return currentRevision;
+  }
+
+  /**
+   * Set the current revision of the item for which this defines the audit trail.
+   *
+   * @param currentRevision the new current revision of the item for which this defines the audit
+   *     trail.
+   */
+  public void setCurrentRevision(int currentRevision) {
+    this.currentRevision = currentRevision;
+  }
+
+  /**
+   * Get the edit revision of the item for which this defines the audit trail.
+   *
+   * @return the edit revision of the item for which this defines the audit trail.
+   */
+  @JsonProperty("edit-revision")
+  public int getEditRevision() {
+    return editRevision;
+  }
+
+  /**
+   * Set the edit revision of the item for which this defines the audit trail.
+   *
+   * @param editRevision the new edit revision of the item for which this defines the audit trail.
+   */
+  public void setEditRevision(int editRevision) {
+    this.editRevision = editRevision;
+  }
+
+  /**
+   * Get the list with all audits.
+   *
+   * @return the list with all audits, never <code>null</code>, may be empty.
+   */
+  @JsonProperty
+  @JacksonXmlElementWrapper(localName = "audits")
+  @JacksonXmlProperty(localName = "audit")
+  public List<PSAudit> getAudits() {
+    return audits;
+  }
+
+  /**
+   * Set a new list of audits.
+   *
+   * @param audits the new list of audits, may be <code>null</code> or empty.
+   */
+  public void setAudits(List<PSAudit> audits) {
+    if (audits == null) this.audits = new ArrayList<>();
+    else this.audits = audits;
+  }
+
+  /**
+   * Add a new audit.
+   *
+   * @param audit the new audit to add, not <code>null</code>.
+   */
+  public void addAudit(PSAudit audit) {
+    if (audit == null) throw new IllegalArgumentException("audit cannot be null");
+
+    audits.add(audit);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSAuditTrail)) return false;
+    PSAuditTrail that = (PSAuditTrail) o;
+    return getCurrentRevision() == that.getCurrentRevision()
+        && getEditRevision() == that.getEditRevision()
+        && Objects.equals(getAudits(), that.getAudits());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getCurrentRevision(), getEditRevision(), getAudits());
+  }
+
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("PSAuditTrail{");
+    sb.append("currentRevision=").append(currentRevision);
+    sb.append(", editRevision=").append(editRevision);
+    sb.append(", audits=").append(audits);
+    sb.append('}');
+    return sb.toString();
+  }
+
+  /* (non-Javadoc)
+   * @see IPSCatalogItem#fromXML(String)
+   */
+  public void fromXML(String xmlsource) throws IOException, SAXException {
+    PSXmlSerializationHelper.readFromXML(xmlsource, this);
+  }
+
+  /* (non-Javadoc)
+   * @see IPSCatalogItem#toXML()
+   */
+  public String toXML() throws IOException, SAXException {
+    return PSXmlSerializationHelper.writeToXml(this);
+  }
 }
-

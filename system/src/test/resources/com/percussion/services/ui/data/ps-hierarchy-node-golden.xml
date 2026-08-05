@@ -1,0 +1,13 @@
+<!-- Golden snapshot for production PSHierarchyNode Jackson wire shape (issue
+	#1920 / epic #505). Properties as key-as-element map; type enum name; version/label/description/type-int
+	suppressed. -->
+<hierarchy-node>
+	<guid>0-32-200</guid>
+	<name>Sites</name>
+	<parent-id>0-32-100</parent-id>
+	<properties>
+		<displayOrder>10</displayOrder>
+		<icon>sites</icon>
+	</properties>
+	<type>FOLDER</type>
+</hierarchy-node>
