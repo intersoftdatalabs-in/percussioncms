@@ -16,11 +16,15 @@
  */
 package com.percussion.services.filter.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidHelper;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
+import com.percussion.utils.xml.IPSXmlSerialization;
+import java.io.Serializable;
+import java.util.Objects;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,11 +35,16 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
-import java.io.Serializable;
-import java.util.Objects;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Represents a single parameter for the rule definition
+ * Represents a single parameter for the rule definition.
+ *
+ * <p>Registered under package element name {@code parameters} via {@code
+ * PSXmlSerializationHelper.addType}. Production package {@code *.filterDef} wire typically uses the
+ * parent {@code params} string map instead of nested parameter beans.
  *
  * @author dougrand
  */
@@ -43,6 +52,14 @@ import java.util.Objects;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
       region = "PSItemFilterRuleParam")
 @Table(name = "PSX_ITEM_FILTER_RULE_PARAM")
+@JacksonXmlRootElement(localName = "parameters")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({"id", "name", "value"})
 public class PSItemFilterRuleParam implements Serializable
 {
    /**
@@ -128,6 +145,7 @@ public class PSItemFilterRuleParam implements Serializable
    /**
     * @return Returns the id.
     */
+   @JsonProperty
    public Long getId()
    {
       initializeIdIfNeeded(false);
@@ -135,8 +153,17 @@ public class PSItemFilterRuleParam implements Serializable
    }
 
    /**
+    * @param id primary key, may be {@code null} before persist
+    */
+   public void setId(Long id)
+   {
+      this.id = id;
+   }
+
+   /**
     * @return Returns the name.
     */
+   @JsonProperty
    public String getName()
    {
       return name;
@@ -153,6 +180,7 @@ public class PSItemFilterRuleParam implements Serializable
    /**
     * @return Returns the value.
     */
+   @JsonProperty
    public String getValue()
    {
       return value;
@@ -169,6 +197,8 @@ public class PSItemFilterRuleParam implements Serializable
    /**
     * @return Returns the ruleDef.
     */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public PSItemFilterRuleDef getRuleDef()
    {
       return ruleDef;
@@ -177,9 +207,28 @@ public class PSItemFilterRuleParam implements Serializable
    /**
     * @param ruleDef The ruleDef to set.
     */
+   @JsonIgnore
    public void setRuleDef(PSItemFilterRuleDef ruleDef)
    {
       this.ruleDef = ruleDef;
+   }
+
+   /**
+    * Hibernate version — not part of design-object XML wire.
+    *
+    * @return version, may be {@code null}
+    */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
+   public Integer getVersion()
+   {
+      return version;
+   }
+
+   @JsonIgnore
+   public void setVersion(Integer version)
+   {
+      this.version = version;
    }
 
    @Override

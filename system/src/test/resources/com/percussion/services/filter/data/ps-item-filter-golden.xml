@@ -1,0 +1,31 @@
+<!-- Golden snapshot for production PSItemFilter / PSItemFilterRuleDef Jackson
+	wire shape (issue #1915 / #1892 / epic #505). Nested item element is package
+	name "rule-def" (not mapped type name "item-filter-rule-def"). Approved Jackson
+	deviations vs historical Betwixt package dumps: - no graph-identity id="…"
+	attributes on complex elements - no circular <filter idref> on rule-def (restored
+	via parent setRuleDefs) - null parent-filter-id may emit xsi:nil (package
+	used empty element) - no XML declaration (PSJacksonXmlSerializationHelper
+	default) - version / parentFilter remain suppressed via @IPSXmlSerialization
+	- <guid> uses shared IPSGuid string converter (Betwixt parity) - params map
+	uses key-as-element children when non-empty -->
+<item-filter>
+	<description>Public Asset Filter.</description>
+	<guid>0-7-11</guid>
+	<label>perc_public</label>
+	<legacy-authtype-id>1</legacy-authtype-id>
+	<name>perc_public</name>
+	<parent-filter-id
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+	<rule-defs>
+		<rule-def>
+			<params>
+				<sys_context>1</sys_context>
+			</params>
+			<rule-name>***TESTRULE***</rule-name>
+		</rule-def>
+		<rule-def>
+			<params />
+			<rule-name>***TESTRULE-UNSCHEDULED***</rule-name>
+		</rule-def>
+	</rule-defs>
+</item-filter>

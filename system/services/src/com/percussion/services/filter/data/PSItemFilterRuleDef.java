@@ -16,6 +16,10 @@
  */
 package com.percussion.services.filter.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.PSExtensionException;
@@ -31,12 +35,12 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -51,23 +55,37 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * This data object represents a single rule instantiation for an item filter.
  * Rules are applied in rule priority order - the order of the actual defs is
  * not relevant (at least at this point).
  *
- * @author dougrand
+ * <p>Nested package item element is {@code rule-def} (registered from {@link PSItemFilter}), not
+ * the default mapped type name {@code item-filter-rule-def}. {@link JacksonXmlRootElement} applies
+ * to standalone serialization only. Package wire uses string map {@code params} (not nested
+ * {@code parameters} bean elements); {@link PSXmlSerializationHelper#addType} still registers
+ * {@code parameters}→{@link PSItemFilterRuleParam} for polymorphic read parity.
  *
+ * @author dougrand
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSItemFilterRuleDef")
 @Table(name = "PSX_ITEM_FILTER_RULE")
+@JacksonXmlRootElement(localName = "item-filter-rule-def")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({"params", "ruleName"})
 public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
    Serializable
 {
@@ -174,6 +192,7 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
 
 
    @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public IPSItemFilterRule getRule() throws PSFilterException
    {
       if (m_rule == null)
@@ -188,6 +207,7 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
     * cases that require manipulation of the version.
     * @param v the version, could be <code>null</code>
     */
+   @JsonIgnore
    public void setVersion(Integer v)
    {
       this.version = v;
@@ -200,6 +220,7 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
     * database.
     */
    @IPSXmlSerialization(suppress=true)
+   @JsonIgnore
    public Integer getVersion()
    {
       return this.version;
@@ -210,6 +231,7 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
     * @return the name of the extension, never <code>null</code> or empty
     * @throws PSFilterException
     */
+   @JsonProperty
    public String getRuleName() throws PSFilterException
    {
       return name;
@@ -267,6 +289,7 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
     * @return the guid, never <code>null</code>
     */
    @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public IPSGuid getGUID()
    {
       initializeRuleIdIfNeeded(false);
@@ -277,6 +300,7 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
     * Set the guid representation of the rule def.
     * @param newguid the new guid, never <code>null</code>
     */
+   @JsonIgnore
    public void setGUID(IPSGuid newguid)
    {
       if (newguid == null)
@@ -300,6 +324,7 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
     * Set the rule name
     * @param rulename the new rule name, never <code>null</code> or empty
     */
+   @JsonIgnore
    public void setRule(String rulename)
    {
       if (StringUtils.isBlank(rulename))
@@ -310,24 +335,26 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
    }
 
    /**
-    * Set the parameters for the given rule
-    * @param params the parameter, if <code>null</code> then the current
-    *   parameters will be cleared.
+    * Set the parameters for the given rule (Jackson design-object XML + service callers).
+    *
+    * @param params the parameter, if <code>null</code> then the current parameters will be
+    *     cleared.
     */
+   @JsonProperty("params")
    public void setParams(Map<String, String> params)
    {
-      if (params == null)
+      if (this.params != null)
       {
-         if (this.params != null)
-         {
-            this.params.clear();
-         }
+         this.params.clear();
       }
-      else
+      if (params != null)
       {
          for (Map.Entry<String, String> entry : params.entrySet())
          {
-            setParam(entry.getKey(), entry.getValue());
+            if (entry.getKey() != null && entry.getValue() != null)
+            {
+               setParam(entry.getKey(), entry.getValue());
+            }
          }
       }
    }
@@ -337,11 +364,13 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
     * @param parameterName the parameter name, never <code>null</code> or empty
     * @param value the parameter value, never <code>null</code> or empty
     */
+   @JsonIgnore
    public void addParam(String parameterName, String value)
    {
       setParam(parameterName, value);
    }
 
+   @JsonIgnore
    public void setParam(String parameterName, String value)
    {
       if (StringUtils.isBlank(parameterName))
@@ -356,7 +385,9 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
       PSItemFilterRuleParam param = this.params.get(parameterName);
       if (param == null)
       {
-         param = new PSItemFilterRuleParam(isClientSide);
+         // Prefer client-side / default construction so design-object XML restore and offline unit
+         // tests do not require GuidManager / Spring (ids assigned on PrePersist when needed).
+         param = new PSItemFilterRuleParam(true);
          param.setRuleDef(this);
          param.setName(parameterName);
          param.setValue(value);
@@ -368,6 +399,7 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
       }
    }
 
+   @JsonIgnore
    public void removeParam(String parameterName)
    {
       PSItemFilterRuleParam param = this.params.get(parameterName);
@@ -378,11 +410,18 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
       }
    }
 
+   /**
+    * Parent filter association. Package Betwixt dumps used graph {@code idref}; modern Jackson
+    * write omits the circular parent (restored via {@link PSItemFilter#setRuleDefs}).
+    */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public IPSItemFilter getFilter()
    {
       return filter;
    }
 
+   @JsonIgnore
    public void setFilter(IPSItemFilter f)
    {
       filter = (PSItemFilter) f;
@@ -430,14 +469,38 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
       }
    }
 
+   /**
+    * Parameter map for service API callers (unmodifiable). Design-object XML uses {@link
+    * #getParamsForXml()} / {@link #setParams(Map)}.
+    *
+    * @return unmodifiable map, never {@code null}
+    */
+   @JsonIgnore
    public Map<String, String> getParams()
    {
-      Map<String, String> rval = new HashMap<>();
+      Map<String, String> rval = new TreeMap<>();
       for (Map.Entry<String, PSItemFilterRuleParam> e : this.params.entrySet())
       {
          rval.put(e.getKey(), e.getValue().getValue());
       }
       return Collections.unmodifiableMap(rval);
+   }
+
+   /**
+    * Mutable sorted params for Jackson design-object XML. Package fixtures use empty {@code
+    * <params/>}; non-empty maps write key-as-element children.
+    *
+    * @return mutable map, never {@code null}
+    */
+   @JsonProperty("params")
+   public Map<String, String> getParamsForXml()
+   {
+      Map<String, String> rval = new TreeMap<>();
+      for (Map.Entry<String, PSItemFilterRuleParam> e : this.params.entrySet())
+      {
+         rval.put(e.getKey(), e.getValue().getValue());
+      }
+      return rval;
    }
 
    /**
