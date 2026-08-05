@@ -28,9 +28,22 @@ import java.util.List;
 /**
  * Wrapper for Service/Daemon
  *
+ * <p>This is the main entry point used by the Percussion CMS service / daemon launcher. It locates
+ * the deployed installation directory, parses the command-line arguments, and orchestrates the
+ * start / stop / status of the wrapped services (Jetty, Production DTS, and Staging DTS).
+ *
  * @author luisteixeira
  */
 public class PSServiceWrapper {
+  /**
+   * Default constructor; provided so the implicit default constructor has explicit Javadoc and
+   * doclint does not warn about its use. This class is used only through its static {@link
+   * #main(String[])} method.
+   */
+  public PSServiceWrapper() {
+    // entry-point utility class - no instance state
+  }
+
   private static final String FS = File.separator;
   private static final String JETTY_BASE = "jetty" + FS + "base";
   private static final String DTS_ROOT = "Deployment";
@@ -45,6 +58,9 @@ public class PSServiceWrapper {
    * <p>1. Derby Database 2. Tomcat 3. Server
    *
    * <p>If Derby doesn't start it will fail.
+   *
+   * @param args the command-line arguments passed to the wrapper; supported flags are parsed by
+   *     {@link PercArgs} and remaining arguments are forwarded to the wrapped Jetty/DTS processes
    */
   // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
   public static void main(String[] args) {

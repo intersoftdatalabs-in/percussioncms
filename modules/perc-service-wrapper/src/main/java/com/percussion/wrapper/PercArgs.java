@@ -20,6 +20,17 @@ package com.percussion.wrapper;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Parses the command-line arguments supplied to {@link PSServiceWrapper#main(String[])} and exposes
+ * typed accessors for each recognized flag.
+ *
+ * <p>Recognized flags include <code>--help</code>, <code>--jettyHelp</code>, <code>--debugWrapper
+ * </code>, <code>--force</code>, <code>--start</code>, <code>--startServer</code>, <code>--startDTS
+ * </code>, <code>--startStagingDTS</code>, <code>--stop</code>, <code>--stopServer</code>, <code>
+ * --stopDTS</code>, <code>--stopStagingDTS</code>, <code>--status</code>, and <code>--rxlt</code>.
+ * Any arguments not matching a recognized flag are retained in {@link #getFilteredArgs()} and
+ * forwarded to the wrapped services.
+ */
 public class PercArgs {
   private boolean startServer;
   private boolean startDTS;
@@ -35,6 +46,12 @@ public class PercArgs {
 
   private List<String> filteredArgs = new ArrayList<>();
 
+  /**
+   * Parses the supplied command-line arguments and sets the corresponding flags.
+   *
+   * @param args the raw command-line arguments; may be <code>null</code> or empty, in which case
+   *     help mode is enabled by default
+   */
   public PercArgs(String[] args) {
     boolean foundArg = false;
 
@@ -102,34 +119,76 @@ public class PercArgs {
     }
   }
 
+  /**
+   * Indicates whether the Jetty server should be started.
+   *
+   * @return <code>true</code> if <code>--startServer</code> or <code>--start</code> was supplied
+   */
   public boolean isStartServer() {
     return startServer;
   }
 
+  /**
+   * Indicates whether the production DTS should be started.
+   *
+   * @return <code>true</code> if <code>--startDTS</code> or <code>--start</code> was supplied
+   */
   public boolean isStartDTS() {
     return startDTS;
   }
 
+  /**
+   * Indicates whether the staging DTS should be started.
+   *
+   * @return <code>true</code> if <code>--startStagingDTS</code> or <code>--start</code> was
+   *     supplied
+   */
   public boolean isStartStagingDTS() {
     return startStagingDTS;
   }
 
+  /**
+   * Indicates whether the Jetty server should be stopped.
+   *
+   * @return <code>true</code> if <code>--stopServer</code> or <code>--stop</code> was supplied
+   */
   public boolean isStopServer() {
     return stopServer;
   }
 
+  /**
+   * Indicates whether the production DTS should be stopped.
+   *
+   * @return <code>true</code> if <code>--stopDTS</code> or <code>--stop</code> was supplied
+   */
   public boolean isStopDTS() {
     return stopDTS;
   }
 
+  /**
+   * Indicates whether the staging DTS should be stopped.
+   *
+   * @return <code>true</code> if <code>--stopStagingDTS</code> or <code>--stop</code> was supplied
+   */
   public boolean isStopStagingDTS() {
     return stopStagingDTS;
   }
 
+  /**
+   * Indicates whether the <code>--status</code> flag was supplied.
+   *
+   * @return <code>true</code> if the wrapper should print the state of each managed service and
+   *     exit
+   */
   public boolean isStatus() {
     return status;
   }
 
+  /**
+   * Indicates whether the <code>--rxlt</code> flag was supplied.
+   *
+   * @return <code>true</code> if the wrapper should invoke the RxLT localization tool
+   */
   public boolean isRxltTool() {
     return rxltTool;
   }
@@ -143,14 +202,29 @@ public class PercArgs {
     return filteredArgs.toArray(new String[filteredArgs.size()]);
   }
 
+  /**
+   * Indicates whether the <code>--debugWrapper</code> flag was supplied.
+   *
+   * @return <code>true</code> if Jetty-startup debug logging should be enabled
+   */
   public boolean isDebugStartup() {
     return debugStartup;
   }
 
+  /**
+   * Indicates whether the <code>--force</code> flag was supplied.
+   *
+   * @return <code>true</code> if a service that does not stop gracefully should be killed
+   */
   public boolean isForce() {
     return force;
   }
 
+  /**
+   * Indicates whether the <code>--help</code> flag was supplied or no recognized flag was found.
+   *
+   * @return <code>true</code> if the wrapper should print help text and exit
+   */
   public boolean isHelp() {
     return help;
   }

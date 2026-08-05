@@ -24,11 +24,29 @@ import static com.percussion.wrapper.JettyStartUtils.loadProperties;
 import java.io.*;
 import java.util.*;
 
+/**
+ * {@link StartWrapper} implementation that manages the Percussion Delivery Tier Service (DTS)
+ * Tomcat instance(s).
+ *
+ * <p>The constructor resolves the DTS installation by looking up the standard Tomcat properties
+ * file (<code>conf/perc/perc-catalina.properties</code>), reads the <code>http.port</code>, <code>
+ * shutdown.port</code>, and <code>shutdown.key</code> values, and prepares the command line used to
+ * bootstrap Tomcat via the standard <code>org.apache.catalina.startup.Bootstrap</code> class.
+ */
 public class DtsStartWrapper extends StartWrapper {
   private static final String DTS_PROPERTIES = "conf/perc/perc-catalina.properties";
   private static final String DTS_STATE = "dts.state";
   private static final String TOMCAT_STARTUP_CHECK = "Server startup in";
 
+  /**
+   * Constructs a DTS wrapper for the installation located at <code>rootDir</code>.
+   *
+   * @param name a human-readable label used in log output, never <code>null</code>
+   * @param rootDir the DTS installation root directory containing <code>
+   *     conf/perc/perc-catalina.properties</code>, never <code>null</code>
+   * @param args additional command-line arguments to forward to the Tomcat bootstrap, may be <code>
+   *     null</code>
+   */
   public DtsStartWrapper(String name, File rootDir, String[] args) {
     super(name, rootDir, args);
 

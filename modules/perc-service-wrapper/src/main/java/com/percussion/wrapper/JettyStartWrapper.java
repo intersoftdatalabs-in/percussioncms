@@ -23,6 +23,15 @@ import static com.percussion.wrapper.JettyStartUtils.loadProperties;
 import java.io.*;
 import java.util.*;
 
+/**
+ * {@link StartWrapper} implementation that manages the embedded Jetty server which hosts the
+ * Percussion CMS web tier.
+ *
+ * <p>The constructor resolves the Jetty installation by locating the Jetty <code>start.jar</code>
+ * file, loads <code>jetty/base/etc/installation.properties</code> to determine the HTTP and
+ * shutdown ports and shutdown key, and configures the Jetty main class invocation through a {@link
+ * MainProxy} so that Jetty can be started in-process without spawning a child JVM.
+ */
 public class JettyStartWrapper extends StartWrapper {
   private static final String FS = File.separator;
   private static final String JETTY_ROOT = "jetty";
@@ -36,6 +45,16 @@ public class JettyStartWrapper extends StartWrapper {
 
   private StartArgsProxy startArgs = null;
 
+  /**
+   * Constructs a Jetty wrapper for the installation located at <code>rootDir</code>.
+   *
+   * @param name a human-readable label used in log output, never <code>null</code>
+   * @param rootDir the Jetty installation root directory, expected to contain <code>
+   *     jetty/upstream/start.jar</code>, never <code>null</code>
+   * @param args additional command-line arguments to forward to Jetty, may be <code>null</code>
+   * @throws IllegalArgumentException if <code>jetty/base/etc/installation.properties</code> cannot
+   *     be found under <code>rootDir</code>
+   */
   public JettyStartWrapper(String name, File rootDir, String[] args) {
     super(name, rootDir, args);
 
@@ -88,6 +107,11 @@ public class JettyStartWrapper extends StartWrapper {
     }
   }
 
+  /**
+   * Invokes the configured Jetty start command through the {@link MainProxy}, which delegates to
+   * the Jetty <code>org.eclipse.jetty.start.Main</code> class loaded via a dedicated {@code
+   * URLClassLoader}.
+   */
   public void callJettyCommand() {
     mainProxy.start(startArgs);
   }
