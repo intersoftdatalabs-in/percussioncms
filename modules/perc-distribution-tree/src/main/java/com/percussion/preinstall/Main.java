@@ -778,9 +778,7 @@ public class Main {
               if (s.contains("<CategoryTree")) {
                 topLevelNodeToReplace.set(s);
               }
-              if (s.contains("</CategoryTree"))
-                ;
-              {
+              if (s.contains("</CategoryTree")) {
                 topLevelNodeEndToReplace.set(s);
               }
               if (s.contains("topLevelNodes")) {

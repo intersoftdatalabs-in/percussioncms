@@ -196,6 +196,7 @@ public final class JavaInstallSelection {
   }
 
   /** Thrown when no candidate is found or selection is invalid. */
+  @SuppressWarnings("serial")
   public static final class JavaSelectionException extends Exception {
     /**
      * Creates an exception with the supplied message.
