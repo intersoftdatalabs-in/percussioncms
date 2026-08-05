@@ -444,9 +444,10 @@ class TestQaHelpers(unittest.TestCase):
         script_idx = next(
             i for i, a in enumerate(argv) if str(a).endswith("matrix-install-smoke.py")
         )
-        expected = (
-            self.repo_root / "docker" / "scripts" / "matrix-install-smoke.py"
-        ).resolve()
+        # Match production: str(repo_root / ...) without resolve(). Comparing a
+        # resolved expected path fails on Windows when tempfile uses 8.3 short
+        # names (e.g. RUNNER~1 vs runneradmin on GHA windows-latest).
+        expected = self.repo_root / "docker" / "scripts" / "matrix-install-smoke.py"
         self.assertEqual(Path(argv[script_idx]), expected)
 
     def test_qa_matrix_up_argv_no_dry_run_flag_when_live(self):
