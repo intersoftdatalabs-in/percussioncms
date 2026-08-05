@@ -34,6 +34,7 @@ import java.util.Map;
  * In general, the content finders are reusable across different contexts.
  * 
  * @author dougrand
+ * @param <T> the slot container type that the finder is invoked for.
  */
 public interface IPSContentFinder<T extends Object> extends IPSExtension
 {

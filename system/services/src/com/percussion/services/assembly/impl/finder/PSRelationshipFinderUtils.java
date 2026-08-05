@@ -60,6 +60,7 @@ import static org.apache.commons.lang3.Validate.notNull;
  * reversion.
  *
  * @author YuBingChen
+ * @param <T> the slot container type used by the concrete finder implementation.
  */
 public abstract class PSRelationshipFinderUtils<T extends Object> extends PSContentFinderUtils
       implements

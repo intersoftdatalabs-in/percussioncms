@@ -26,8 +26,10 @@ import jakarta.ws.rs.core.MediaType;
 
 
 /**
- * @author wesleyhirsch
+ * Client contract for issuing requests against the delivery tier from the CMS server, including
+ * delivery-info lookups and proxy-aware REST calls.
  *
+ * @author wesleyhirsch
  */
 public interface IPSDeliveryClient
 {

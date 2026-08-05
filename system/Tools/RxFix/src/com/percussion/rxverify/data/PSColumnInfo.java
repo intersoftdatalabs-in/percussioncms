@@ -26,9 +26,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Stores information from a tabledef file in a canonical format that the verify tool can
+ * compare against the live database schema.
+ *
  * @author dougrand
- * 
- * Store information from the tabledef file in a canonical format
  */
 public class PSColumnInfo implements Serializable
 {

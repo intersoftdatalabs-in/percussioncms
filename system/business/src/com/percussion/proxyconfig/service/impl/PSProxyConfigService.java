@@ -30,8 +30,10 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * @author LucasPiccoli
+ * Default {@link IPSProxyConfigService} implementation that reads and caches the proxy
+ * configuration from the configured location, exposing the standard lookup operations.
  *
+ * @author LucasPiccoli
  */
 public class PSProxyConfigService implements IPSProxyConfigService {
     /**

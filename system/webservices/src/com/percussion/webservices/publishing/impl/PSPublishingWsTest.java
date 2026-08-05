@@ -17,10 +17,11 @@
 package com.percussion.webservices.publishing.impl;
 
 /**
- * @author peterfrontiero
+ * Placeholder test class for the publishing web services. Reserved for future integration tests
+ * targeting the publishing JAX-WS endpoints.
  *
+ * @author peterfrontiero
  */
-public class PSPublishingWsTest
-{
+public class PSPublishingWsTest {
 
 }

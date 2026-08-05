@@ -27,6 +27,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
+ * Base class for upgrade plugins that update the delivery-servers configuration file. Concrete
+ * subclasses implement the delivery-servers file path and any required backup / restore logic.
+ *
  * @author JaySeletz
  */
 public abstract class PSUpgradePluginDeliveryServersBase implements IPSUpgradePlugin {

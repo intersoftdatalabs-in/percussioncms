@@ -72,12 +72,10 @@ import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
 /**
- * @author stephenbolton
+ * Default {@link IPSFileStorageService} implementation that stores binary files in the Rhythmyx
+ * repository, indexes them by SHA-1 hash, and extracts metadata using Apache Tika.
  *
- */
-/**
  * @author stephenbolton
- *
  */
 public class PSDbStorageService implements IPSFileStorageService, InitializingBean
 {

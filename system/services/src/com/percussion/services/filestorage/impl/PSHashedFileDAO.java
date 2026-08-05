@@ -57,8 +57,10 @@ import java.util.Set;
 
 
 /**
- * @author stephenbolton
+ * Default {@link IPSHashedFileDAO} implementation backed by Hibernate that persists hashed file
+ * entries and their metadata in the Rhythmyx repository.
  *
+ * @author stephenbolton
  */
 @Repository
 @Scope("singleton")

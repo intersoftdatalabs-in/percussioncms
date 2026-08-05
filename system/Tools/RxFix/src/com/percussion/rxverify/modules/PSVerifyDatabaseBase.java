@@ -22,9 +22,10 @@ import java.io.File;
 import java.util.Properties;
 
 /**
- * @author dougrand
+ * Base support code shared by the database verification modules, providing common helpers for
+ * locating and loading the Rhythmyx database definition.
  *
- * Support code for database verifications
+ * @author dougrand
  */
 public class PSVerifyDatabaseBase
 {

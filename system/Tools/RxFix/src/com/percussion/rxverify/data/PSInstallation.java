@@ -38,11 +38,10 @@ import java.util.Set;
 import org.apache.logging.log4j.Logger;
 
 /**
- * @author dougrand
+ * Represents the information about a Rhythmyx installation captured during a verify pass. It
+ * can be serialized to an external stream using the methods from {@link Externalizable}.
  *
- * This class represents the information about an installation. It can be
- * serialized to an external stream using the methods from
- * {@link java.io.Externalizable}
+ * @author dougrand
  */
 public class PSInstallation implements Externalizable
 {

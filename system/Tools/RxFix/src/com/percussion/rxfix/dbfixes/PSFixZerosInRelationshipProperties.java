@@ -31,9 +31,11 @@ import com.percussion.util.PSPreparedStatement;
 import com.percussion.utils.jdbc.PSConnectionHelper;
 
 /**
- * 
- * @author chriswright
+ * Fix that normalizes zero-valued {@code SITE_ID} and {@code FOLDER_ID} entries in
+ * {@code PSX_OBJECTRELATIONSHIP} to {@code NULL}, which is the canonical representation in
+ * recent repository versions.
  *
+ * @author chriswright
  */
 public class PSFixZerosInRelationshipProperties extends PSFixDBBase implements IPSFix
 {

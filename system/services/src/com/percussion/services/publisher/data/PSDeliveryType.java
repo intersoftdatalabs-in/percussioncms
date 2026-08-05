@@ -37,6 +37,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.xml.sax.SAXException;
 
 /**
+ * Persistent representation of a delivery type used by the publishing subsystem to define how
+ * assembled content items are delivered to their destination.
+ *
  * @see IPSDeliveryType
  */
 @Entity

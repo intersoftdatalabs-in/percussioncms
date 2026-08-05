@@ -52,6 +52,9 @@ import org.w3c.dom.Node;
  * fact, it is more restrictive as it is meant to behave like a {@link
  * com.percussion.util.PSCollection}. It implements many, but not all of the methods of the Set
  * interface, except it uses appropriate types rather than Object.
+ *
+ * @param <T> the type of {@link IPSDbComponent} stored in this set, bounded to subtypes of {@code
+ *     IPSDbComponent}.
  */
 public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
   /**
