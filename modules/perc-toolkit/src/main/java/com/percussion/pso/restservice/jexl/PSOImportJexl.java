@@ -31,6 +31,8 @@ import com.percussion.pso.restservice.utils.HtmlLinkHelper;
 import com.percussion.pso.restservice.utils.ItemServiceHelper;
 import com.percussion.pso.utils.HTTPProxyClientConfig;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.xml.PSSecureXMLUtils;
+import com.percussion.security.xml.PSXmlSecurityOptions;
 import com.percussion.server.PSRequest;
 import com.percussion.utils.request.PSRequestInfo;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,6 +54,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import javax.xml.parsers.SAXParserFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dom4j.Document;
@@ -62,6 +65,7 @@ import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
+import org.xml.sax.XMLReader;
 
 /** */
 public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
@@ -262,27 +266,31 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   /**
    * Creates a secured SAXReader instance with XXE defenses enabled.
    *
+   * <p>Pins Xerces via {@link PSSecureXMLUtils} rather than {@code new SAXReader()} so classpath
+   * order cannot select Saxon Aelfred (or another non-JAXP reader) that rejects secure features.
+   * Required after removing the unused direct {@code commons-betwixt} provided dependency (#1824),
+   * which had accidentally stabilized XMLReader resolution in some test orders.
+   *
    * @return a secured SAXReader instance
    * @throws RuntimeException if the secure features cannot be configured
    */
   private SAXReader createSecureSAXReader() {
-    SAXReader reader = new SAXReader();
     try {
-      reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-      reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
-      reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-      reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-      reader.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      SAXParserFactory factory =
+          PSSecureXMLUtils.getSecuredSaxParserFactory(
+              "org.apache.xerces.jaxp.SAXParserFactoryImpl", null, PSXmlSecurityOptions.secure());
+      XMLReader xmlReader = factory.newSAXParser().getXMLReader();
+      SAXReader reader = new SAXReader(xmlReader);
+      reader.setEntityResolver(
+          (publicId, systemId) -> {
+            throw new org.xml.sax.SAXException(
+                "Resolution of external entity is blocked: " + systemId);
+          });
+      return reader;
     } catch (Exception e) {
       log.error("Critical: Failed to set secure features on SAXReader", e);
       throw new RuntimeException("Failed to initialize secure XML parser", e);
     }
-    reader.setEntityResolver(
-        (publicId, systemId) -> {
-          throw new org.xml.sax.SAXException(
-              "Resolution of external entity is blocked: " + systemId);
-        });
-    return reader;
   }
 
   /**

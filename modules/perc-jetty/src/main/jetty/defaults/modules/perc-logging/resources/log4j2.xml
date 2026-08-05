@@ -100,19 +100,6 @@
 		<!-- =========================== -->
 		<!-- Setup the Percussion loggers -->
 		<!-- =========================== -->
-		<!-- Percussion turn off excessive logger from betwixt -->
-		<AsyncLogger
-			name="org.apache.commons.betwixt.io.BeanReader" level="error"
-			includeLocation="true" additivity="false">
-			<AppenderRef ref="CONSOLE" />
-			<AppenderRef ref="FILE" />
-		</AsyncLogger>
-		<AsyncLogger
-			name="org.apache.commons.betwixt.digester.ElementRule" level="error"
-			includeLocation="true" additivity="false">
-			<AppenderRef ref="CONSOLE" />
-			<AppenderRef ref="FILE" />
-		</AsyncLogger>
 		<!-- Turn off excessive logging from PDF Box -->
 		<AsyncLogger name="org.apache.pdfbox" level="fatal"
 			includeLocation="true" additivity="false">
