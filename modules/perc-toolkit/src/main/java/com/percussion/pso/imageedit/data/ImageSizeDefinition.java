@@ -17,6 +17,9 @@
 package com.percussion.pso.imageedit.data;
 
 /**
+ * Represents a single named image-size variant available in the image editor, including the
+ * rendered dimensions and the Rhythmyx snippet / binary templates used to produce it.
+ *
  * @author DavidBenua
  */
 public class ImageSizeDefinition {

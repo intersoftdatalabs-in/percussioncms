@@ -32,6 +32,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
+ * Spring MVC controller that looks up the available image-size definitions for the image editor and
+ * forwards them to the configured view as an XML document.
+ *
  * @author DavidBenua
  */
 @org.springframework.stereotype.Controller
