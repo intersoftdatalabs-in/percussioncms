@@ -45,7 +45,13 @@ import java.io.IOException;
  * @author erikserating
  */
 public class TmxMessageTag extends TagSupport {
+  /** Safe to serialize. */
   private static final long serialVersionUID = 1L;
+
+  /** No-op constructor. */
+  public TmxMessageTag() {
+    // no-op
+  }
 
   /** The message key to look up in the translation cache. */
   private String key;

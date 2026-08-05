@@ -103,6 +103,13 @@ public class TmxCache {
     return miCache.getOrDefault(lang, new HashMap<>()).get(key);
   }
 
+  /**
+   * Indicates whether the supplied prefix set has been indexed for the given language.
+   *
+   * @param lang the language code
+   * @param prefixes the comma-separated prefix set
+   * @return {@code true} if the prefix set is cached for this language
+   */
   public boolean isIndexed(String lang, String prefixes) {
     Set<String> prefixSet = miCachedIndex.get(lang);
     return prefixSet != null && prefixSet.contains(prefixes);

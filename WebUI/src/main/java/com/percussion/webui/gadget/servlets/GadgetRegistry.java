@@ -80,6 +80,8 @@ public final class GadgetRegistry {
   }
 
   /**
+   * Maps a gadget display name to its logical group.
+   *
    * @param gadgetName display name from registry (e.g. "Activity")
    * @return group name, or {@code "Custom"} if unknown
    */

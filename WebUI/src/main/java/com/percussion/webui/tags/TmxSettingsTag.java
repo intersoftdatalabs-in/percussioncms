@@ -54,7 +54,13 @@ import org.xml.sax.SAXException;
  * @author erikserating
  */
 public class TmxSettingsTag extends TagSupport {
+  /** Safe to serialize. */
   private static final long serialVersionUID = 1L;
+
+  /** No-op constructor. */
+  public TmxSettingsTag() {
+    // no-op
+  }
 
   /** Comma-separated list of key prefixes to load from the translation bundle. */
   private String prefixes;
