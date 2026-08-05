@@ -23,9 +23,36 @@ You are a QA automation expert specializing in browser-based testing using Playw
 
 ## Environment Setup
 
-### Required Environment Variables
+### QA mode (agents — no host install) HARD GATE path
 
-The module uses auto-discovery, but you can set a `.env` file in the module root (`modules/perc-qa-automation/.env`):
+Unattended / overnight runs must **not** require `DEV_PERCUSSION_INSTALL`. Use
+env pointing at the H2 Docker stack from `perc-devctl qa-up`:
+
+```bash
+# After: python docker/scripts/perc-devctl.py qa-up
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm test -- tests/install.spec.js
+```
+
+- **URL precedence:** `TEST_CMS_URL` (aliases `CMS_BASE_URL`, `QA_CMS_URL`) >
+  `QA_CMS_HOST_PORT` / `CMS_HOST_PORT` → `http://127.0.0.1:<port>` >
+  `DEV_PERCUSSION_URL` > install discovery > fallback.
+- **Do not hardcode `:9993`** as the only host port (freeport multi-worktree; issues #2005/#2014). Prefer the `TEST_CMS_URL` printed by `qa-up`.
+
+- **Admin creds:** `ADMIN_USERNAME=Admin` (default); password from env / `qa-up`
+  output / `docker exec` — **never commit secrets**.
+
+- Pure resolver + unit tests: `frontend/tests/helpers/resolve-cms-env.js`,
+  `npm run test:unit` (no live CMS).
+
+- Failure artifact dirs: `frontend/test-results/`, `frontend/playwright-report/`
+  (attach runbook: `docs/developer-module/playwright-failure-artifacts.md`).
+
+### Dev mode environment (human fast loop)
+
+The module uses auto-discovery. You can set a `.env` file in the module root
+(`modules/perc-qa-automation/.env`):
 
 ```bash
 # Path to your local CMS installation
@@ -47,9 +74,9 @@ CONTRIBUTOR_USERNAME=Contributor
 # CONTRIBUTOR_PASSWORD=... (auto-discovered)
 ```
 
-### Auto-Configuration
+### Auto-Configuration (dev mode)
 
-The test helpers will automatically:
+When `DEV_PERCUSSION_INSTALL` is set and QA URL env is not, helpers will:
 
 1. Read the CMS URL from `jetty/base/etc/installation.properties` → `jetty.http.port`
 2. Read the DTS URL from `{DEV_PERCUSSION_DTS_INSTALL}/Deployment/Server/conf/perc/perc-catalina.properties` → `http.port`
@@ -63,19 +90,11 @@ Import the auth helpers which include configuration:
 ```javascript
 const { loginAsAdmin, loginAsEditor, loginAsContributor, BASE_URL, DTS_URL } = require('./tests/helpers/auth');
 
-// Use BASE_URL (auto-discovered CMS URL)
+// Use BASE_URL (TEST_CMS_URL / install / fallback — never hardcode port alone)
 await page.goto(`${BASE_URL}/Rhythmyx/login`);
 ```
 
-Or use dotenv directly:
-
-```javascript
-require('dotenv').config({ path: require('path').resolve(__dirname, '../../../.env') });
-
-const CMS_URL = process.env.DEV_PERCUSSION_URL;
-const DTS_URL = process.env.DEV_PERCUSSION_DTS_URL;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-```
+Prefer `BASE_URL` from auth over raw `process.env.DEV_PERCUSSION_URL` so QA mode works.
 
 ## User Roles
 

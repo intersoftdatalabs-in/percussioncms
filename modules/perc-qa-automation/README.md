@@ -14,7 +14,46 @@ The `perc-qa-automation` module is used for authoring and executing automated br
 
 ## Configuration
 
-### Quick Start
+Two modes share the same helpers (`frontend/tests/helpers/auth.js` +
+`resolve-cms-env.js`). Full product rules:
+[workbench-rest-and-qa-modes.md](../../docs/developer-module/workbench-rest-and-qa-modes.md).
+
+|              Mode              |                           CMS target                            |            Host install?            |
+|--------------------------------|-----------------------------------------------------------------|-------------------------------------|
+| **QA mode** (agents / gate)    | `TEST_CMS_URL` from `perc-devctl qa-up` (or freeport host port) | **No**                              |
+| **Dev mode** (human fast loop) | Local install + `DEV_PERCUSSION_*` auto-discovery               | Yes (optional if URL/passwords set) |
+
+### Quick Start — QA mode (no host install)
+
+```bash
+# From repo root — bring up H2 Docker cell (prints TEST_CMS_URL + host port)
+python docker/scripts/perc-devctl.py qa-up
+
+# Playwright against the stack only — do not set DEV_PERCUSSION_INSTALL
+# Prefer the printed TEST_CMS_URL (do not hardcode :9993 — freeport #2005/#2014).
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm test -- tests/install.spec.js
+
+# Tear down when done
+python docker/scripts/perc-devctl.py qa-down
+```
+
+**Admin creds (QA):** default username `Admin` (`ADMIN_USERNAME`). Password comes
+from `qa-up` output, process env, or `docker exec` into the QA cell — **never
+commit secrets**. No passwords are stored in this repo.
+
+**URL resolution precedence** (highest first; pure helper + unit tests):
+
+1. `TEST_CMS_URL` (aliases: `CMS_BASE_URL`, `QA_CMS_URL`)
+2. `http://127.0.0.1:<port>` from `QA_CMS_HOST_PORT` or `CMS_HOST_PORT`
+3. `DEV_PERCUSSION_URL`
+4. Discover from `DEV_PERCUSSION_INSTALL` (dev mode only)
+5. Documented fallback `http://localhost:9992` (dev default; install matrix
+   specs may fall back to preferred QA pin `http://localhost:9993` when free)
+
+### Quick Start — Dev mode (human)
 
 1. Copy the example environment file:
 
@@ -33,27 +72,46 @@ The `perc-qa-automation` module is used for authoring and executing automated br
 
 ### Environment Variables
 
-|           Variable           | Required |                                    Description                                    |
-|------------------------------|----------|-----------------------------------------------------------------------------------|
-| `DEV_PERCUSSION_INSTALL`     | Yes      | Path to your local CMS installation (e.g., `/home/nate/installs/cms-8.1.7-317-2`) |
-| `DEV_PERCUSSION_URL`         | No       | CMS URL (auto-calculated from installation)                                       |
-| `DEV_PERCUSSION_DTS_INSTALL` | No       | Path to DTS installation (if separate from CMS)                                   |
-| `DEV_PERCUSSION_DTS_URL`     | No       | DTS URL (auto-calculated from DTS installation)                                   |
-| `ADMIN_USERNAME`             | No       | Admin username (default: `Admin`)                                                 |
-| `ADMIN_PASSWORD`             | No       | Admin password (auto-read from installation)                                      |
-| `EDITOR_USERNAME`            | No       | Editor username (default: `Editor`)                                               |
-| `EDITOR_PASSWORD`            | No       | Editor password (auto-read from installation)                                     |
-| `CONTRIBUTOR_USERNAME`       | No       | Contributor username (default: `Contributor`)                                     |
-| `CONTRIBUTOR_PASSWORD`       | No       | Contributor password (auto-read from installation)                                |
+|               Variable               |     Required     |                    Description                     |
+|--------------------------------------|------------------|----------------------------------------------------|
+| `TEST_CMS_URL`                       | QA mode          | CMS base URL from `qa-up` / matrix pin (preferred) |
+| `CMS_BASE_URL` / `QA_CMS_URL`        | No               | Documented aliases for `TEST_CMS_URL`              |
+| `QA_CMS_HOST_PORT` / `CMS_HOST_PORT` | No               | Freeport host port when URL not set (#2005)        |
+| `DEV_PERCUSSION_INSTALL`             | Dev mode         | Path to local CMS installation                     |
+| `DEV_PERCUSSION_URL`                 | No               | CMS URL (auto-calculated from installation)        |
+| `DEV_PERCUSSION_DTS_INSTALL`         | No               | Path to DTS installation (if separate from CMS)    |
+| `DEV_PERCUSSION_DTS_URL`             | No               | DTS URL (auto-calculated from DTS installation)    |
+| `ADMIN_USERNAME`                     | No               | Admin username (default: `Admin`)                  |
+| `ADMIN_PASSWORD`                     | QA if no install | Admin password (env / qa-up / install discovery)   |
+| `EDITOR_USERNAME`                    | No               | Editor username (default: `Editor`)                |
+| `EDITOR_PASSWORD`                    | No               | Editor password (auto-read from installation)      |
+| `CONTRIBUTOR_USERNAME`               | No               | Contributor username (default: `Contributor`)      |
+| `CONTRIBUTOR_PASSWORD`               | No               | Contributor password (auto-read from installation) |
 
-### Auto-Configuration
+### Auto-Configuration (dev mode)
 
-On first run, the test helpers will automatically:
+On first run with `DEV_PERCUSSION_INSTALL`, the test helpers will automatically:
 
 1. Read the CMS port from `jetty/base/etc/installation.properties` → `jetty.http.port`
 2. Read the DTS port from `{DEV_PERCUSSION_DTS_INSTALL}/Deployment/Server/conf/perc/perc-catalina.properties` → `http.port`
 3. Read all user passwords from `var/config/generated/passwords`
 4. Save these values to `.env` for faster subsequent runs
+
+QA mode skips install discovery when `TEST_CMS_URL` (or host port env) is set.
+
+### Failure artifacts
+
+On failure, Playwright writes under `frontend/` (paths relative to that directory):
+
+|               Artifact               |     Default path     |
+|--------------------------------------|----------------------|
+| Screenshots / traces / error context | `test-results/`      |
+| HTML report                          | `playwright-report/` |
+
+How agents attach these to PRs/issues: see
+[playwright-failure-artifacts.md](../../docs/developer-module/playwright-failure-artifacts.md)
+(#2066) when present; otherwise collect the paths above and upload as PR comment
+attachments or gist links.
 
 ## Building
 
@@ -80,6 +138,13 @@ npm ci                                              # install @playwright/test +
 npx playwright install chromium                    # one-time browser download
 # Optional: copy .env.example to .env (auto-discovered from
 # DEV_PERCUSSION_INSTALL on first run if missing)
+```
+
+### Unit / config tests (no live CMS)
+
+```bash
+cd modules/perc-qa-automation/frontend
+npm run test:unit                                   # node:test for URL/creds precedence
 ```
 
 ### Full suite
@@ -205,10 +270,12 @@ test('login test', async ({ page }) => {
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../../.env') });
 
 test('use configuration', async ({ page }) => {
-  console.log('CMS URL:', process.env.DEV_PERCUSSION_URL);
+  // Prefer BASE_URL from auth helpers (respects TEST_CMS_URL precedence).
+  const { BASE_URL } = require('./tests/helpers/auth');
+  console.log('CMS URL:', BASE_URL);
   console.log('DTS URL:', process.env.DEV_PERCUSSION_DTS_URL);
-  
-  await page.goto(process.env.DEV_PERCUSSION_URL);
+
+  await page.goto(BASE_URL);
 });
 ```
 

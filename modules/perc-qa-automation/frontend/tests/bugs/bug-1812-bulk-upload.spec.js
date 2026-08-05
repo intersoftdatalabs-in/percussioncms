@@ -46,7 +46,7 @@ async function ensureBulkUploadGadget(page) {
 
   await page.getByTestId("dashboard-add-gadget").click();
   // Search filter in Add Gadget modal (no dedicated testid on the input).
-  const search = page.locator('input[placeholder]').first();
+  const search = page.locator("input[placeholder]").first();
   await search.fill("Bulk Upload");
   // Click the Add button next to the Bulk Upload catalog entry.
   const row = page
@@ -76,7 +76,11 @@ test.describe("Bulk Upload exact mapping (GH-1812)", () => {
 
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "perc-bulk-upload-"));
     const samplePath = path.join(tmpDir, "gh-1812-sample.txt");
-    fs.writeFileSync(samplePath, "GH-1812 bulk upload regression sample\n", "utf8");
+    fs.writeFileSync(
+      samplePath,
+      "GH-1812 bulk upload regression sample\n",
+      "utf8",
+    );
 
     const uploadResponsePromise = page.waitForResponse(
       (res) => {
@@ -106,11 +110,14 @@ test.describe("Bulk Upload exact mapping (GH-1812)", () => {
     const results = page.getByTestId("bulk-upload-results");
     const errorBox = page.getByTestId("bulk-upload-error");
     await expect
-      .poll(async () => {
-        if (await results.isVisible().catch(() => false)) return "results";
-        if (await errorBox.isVisible().catch(() => false)) return "error";
-        return "pending";
-      }, { timeout: 30_000 })
+      .poll(
+        async () => {
+          if (await results.isVisible().catch(() => false)) return "results";
+          if (await errorBox.isVisible().catch(() => false)) return "error";
+          return "pending";
+        },
+        { timeout: 30_000 },
+      )
       .not.toBe("pending");
 
     if (await results.isVisible().catch(() => false)) {

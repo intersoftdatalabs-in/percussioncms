@@ -31,9 +31,16 @@
  */
 
 const { test, expect } = require("@playwright/test");
+const {
+  resolveCmsBaseUrl,
+  QA_PREFERRED_FALLBACK_URL,
+} = require("./helpers/resolve-cms-env");
 
-// Preferred single-worktree baseline when free; prefer TEST_CMS_URL from qa-up.
-const BASE_URL = process.env.TEST_CMS_URL || "http://localhost:9993";
+// Same precedence as auth helpers (#2064): TEST_CMS_URL > host port > …
+// Install matrix / QA preferred pin when free is the fallback (not sole port).
+const BASE_URL = resolveCmsBaseUrl(process.env, {
+  fallbackUrl: QA_PREFERRED_FALLBACK_URL,
+}).url;
 const DB_TYPE = process.env.TEST_DB_TYPE || "h2";
 const PRODUCT = (process.env.TEST_PRODUCT || "cms").toLowerCase();
 const PROBE_PATH = PRODUCT === "dts" ? "/" : "/Rhythmyx/login";
