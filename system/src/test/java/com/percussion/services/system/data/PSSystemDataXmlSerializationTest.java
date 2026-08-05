@@ -40,7 +40,7 @@ import org.xml.sax.InputSource;
 
 /**
  * Golden / round-trip tests for system design objects under the Jackson-backed {@code
- * PSXmlSerializationHelper} (issue #1920, epic #505). Offline only — no live CMS.
+ * PSXmlSerializationHelper} (issues #1920 / #1993, epic #505). Offline only — no live CMS.
  */
 class PSSystemDataXmlSerializationTest {
 
@@ -254,6 +254,115 @@ class PSSystemDataXmlSerializationTest {
     });
   }
 
+  @Test
+  void dependentWriteShapeAndGolden() throws Exception {
+    PSDependent original = sampleDependent(2001L, PSTypeEnum.TEMPLATE.name());
+    String xml = original.toXML();
+
+    assertNotNull(xml);
+    assertFalse(xml.trim().startsWith("<null"), xml);
+    assertTrue(containsTag(xml, "dependent"), "root: " + xml);
+    assertTrue(containsTag(xml, "id"), xml);
+    assertTrue(containsTag(xml, "type"), xml);
+    assertFalse(containsTag(xml, "display-type"), "derived display-type omitted: " + xml);
+    assertTrue(xml.contains("TEMPLATE"), xml);
+
+    String golden = loadResource("com/percussion/services/system/data/ps-dependent-golden.xml");
+    assertLogicalXmlParity(golden, xml);
+  }
+
+  @Test
+  void dependentRoundTripRestoresScalars() throws Exception {
+    PSDependent original = sampleDependent(2001L, PSTypeEnum.TEMPLATE.name());
+    String xml = original.toXML();
+
+    PSDependent restored = new PSDependent();
+    restored.fromXML(xml);
+
+    assertEquals(original.getId(), restored.getId());
+    assertEquals(original.getType(), restored.getType());
+    assertEquals(original.getDisplayType(), restored.getDisplayType());
+  }
+
+  @Test
+  void dependentFromXmlAcceptsLegacyNullRoot() throws Exception {
+    String legacy =
+        """
+        <?xml version="1.0" encoding="utf-8"?>
+        <null>
+          <id>77</id>
+          <type>ITEM_FILTER</type>
+        </null>
+        """;
+
+    PSDependent restored = new PSDependent();
+    restored.fromXML(legacy);
+
+    assertEquals(77L, restored.getId());
+    assertEquals(PSTypeEnum.ITEM_FILTER.name(), restored.getType());
+  }
+
+  @Test
+  void dependencyWriteShapeAndGolden() throws Exception {
+    PSDependency original = sampleDependency();
+    String xml = original.toXML();
+
+    assertTrue(containsTag(xml, "dependency"), xml);
+    assertTrue(containsTag(xml, "dependents"), xml);
+    assertTrue(containsTag(xml, "dependent"), xml);
+    assertTrue(containsTag(xml, "id"), xml);
+    assertTrue(containsTag(xml, "type"), xml);
+    assertFalse(containsTag(xml, "dependent-types"), "derived dependent-types omitted: " + xml);
+    assertTrue(xml.contains("TEMPLATE"), xml);
+    assertTrue(xml.contains("ITEM_FILTER"), xml);
+
+    String golden = loadResource("com/percussion/services/system/data/ps-dependency-golden.xml");
+    assertLogicalXmlParity(golden, xml);
+  }
+
+  @Test
+  void dependencyRoundTripRestoresNestedDependents() throws Exception {
+    PSDependency original = sampleDependency();
+    String xml = original.toXML();
+
+    PSDependency restored = new PSDependency();
+    restored.fromXML(xml);
+
+    assertEquals(original.getId(), restored.getId());
+    assertEquals(original.getDependents().size(), restored.getDependents().size());
+    assertEquals(original.getDependents().get(0).getId(), restored.getDependents().get(0).getId());
+    assertEquals(
+        original.getDependents().get(0).getType(), restored.getDependents().get(0).getType());
+    assertEquals(original.getDependents().get(1).getId(), restored.getDependents().get(1).getId());
+    assertEquals(
+        original.getDependents().get(1).getType(), restored.getDependents().get(1).getType());
+  }
+
+  @Test
+  void dependencyFromXmlAcceptsLegacyNullRoot() throws Exception {
+    String legacy =
+        """
+        <?xml version="1.0" encoding="utf-8"?>
+        <null>
+          <dependents>
+            <dependent>
+              <id>9</id>
+              <type>CONTENT_LIST</type>
+            </dependent>
+          </dependents>
+          <id>5</id>
+        </null>
+        """;
+
+    PSDependency restored = new PSDependency();
+    restored.fromXML(legacy);
+
+    assertEquals(5L, restored.getId());
+    assertEquals(1, restored.getDependents().size());
+    assertEquals(9L, restored.getDependents().get(0).getId());
+    assertEquals(PSTypeEnum.CONTENT_LIST.name(), restored.getDependents().get(0).getType());
+  }
+
   private static PSAudit sampleAudit() {
     PSAudit audit = new PSAudit();
     audit.setId(1001L);
@@ -313,6 +422,21 @@ class PSSystemDataXmlSerializationTest {
     prop.setName("sys_prop_sample");
     prop.setValue("sample-value");
     return prop;
+  }
+
+  private static PSDependent sampleDependent(long id, String type) {
+    PSDependent dependent = new PSDependent();
+    dependent.setId(id);
+    dependent.setType(type);
+    return dependent;
+  }
+
+  private static PSDependency sampleDependency() {
+    PSDependency dependency = new PSDependency();
+    dependency.setId(100L);
+    dependency.addDependent(sampleDependent(2001L, PSTypeEnum.TEMPLATE.name()));
+    dependency.addDependent(sampleDependent(2002L, PSTypeEnum.ITEM_FILTER.name()));
+    return dependency;
   }
 
   /** 2024-01-15T12:00:00.000Z as {@link Date}. */

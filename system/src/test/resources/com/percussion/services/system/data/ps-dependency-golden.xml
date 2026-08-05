@@ -1,0 +1,15 @@
+<!-- Golden snapshot for production PSDependency Jackson wire shape (issue
+	#1993 / epic #505). Nested package item element is dependent. -->
+<dependency>
+	<dependents>
+		<dependent>
+			<id>2001</id>
+			<type>TEMPLATE</type>
+		</dependent>
+		<dependent>
+			<id>2002</id>
+			<type>ITEM_FILTER</type>
+		</dependent>
+	</dependents>
+	<id>100</id>
+</dependency>
