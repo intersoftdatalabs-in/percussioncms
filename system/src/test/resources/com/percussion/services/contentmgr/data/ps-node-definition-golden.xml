@@ -1,0 +1,26 @@
+<!-- Golden snapshot for PSNodeDefinition Jackson wire shape (issue #1921
+	/ epic #505). template-id items under template-ids; string items under workflow-ids;
+	TreeSet order for stable template-id list. -->
+<node-definition>
+	<auto-created>false</auto-created>
+	<description>vTest Node</description>
+	<hide-from-menu>false</hide-from-menu>
+	<id>911</id>
+	<internal-name>rffGeneric</internal-name>
+	<label>Generic</label>
+	<mandatory>false</mandatory>
+	<name>rx:rffGeneric</name>
+	<new-request>../psx_cerffGeneric/rffGeneric.html</new-request>
+	<object-type>1</object-type>
+	<protected>false</protected>
+	<query-request>../psx_cerffGeneric/rffGeneric.html</query-request>
+	<raw-content-type>911</raw-content-type>
+	<template-ids>
+		<template-id>0-4-502</template-id>
+		<template-id>0-4-504</template-id>
+	</template-ids>
+	<update-request></update-request>
+	<workflow-ids>
+		<string>0-23-6</string>
+	</workflow-ids>
+</node-definition>

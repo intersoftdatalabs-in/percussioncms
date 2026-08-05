@@ -1,0 +1,28 @@
+# Issue #1921 — content leftovers + PSNodeDefinition Jackson deviations
+
+Parent: #1892 · Grandparent: #1823 · Epic: #505
+
+## Scope delivered
+
+|               Type               |      Package      |                                     Notes                                     |
+|----------------------------------|-------------------|-------------------------------------------------------------------------------|
+| `PSAutoTranslation`              | `content.data`    | Opt-in Jackson; suppress catalog aliases, version, GUID, `Optional` accessors |
+| `PSFieldDescription`             | `content.data`    | Root `field-description`; `exportable` omit-null                              |
+| `PSContentTypeSummary` / `Child` | `content.data`    | Nested `field-description` / `content-type-summary-child`                     |
+| `PSFolderProperty`               | `content.data`    | Added `toXML`/`fromXML`; opt-in surface; suppress `Optional` accessors        |
+| `PSItemStatus`                   | `content.data`    | No-arg ctor + `setId`; content id as wire property `id`                       |
+| `PSNodeDefinition`               | `contentmgr.data` | Opt-in surface; `template-id` / workflow `string` items; TreeSet order        |
+
+## Approved Jackson deviations vs historical Betwixt
+
+- No graph-identity `id="…"` attributes on complex elements
+- No XML declaration (`PSJacksonXmlSerializationHelper` default)
+- Catalog / `Optional` / Hibernate association graph suppressed on modern write
+- `PSNodeDefinition` template association **restore** still needs live content-manager (integration tests); offline suite pins write shape + scalar restore
+- No production `.betwixt` files existed for these types (nothing to drop)
+
+## Tests
+
+- `PSContentLeftoversXmlSerializationTest` — golden + round-trip (8 tests)
+- `PSNodeDefinitionXmlSerializationTest` — golden + scalar/package smoke (4 tests)
+

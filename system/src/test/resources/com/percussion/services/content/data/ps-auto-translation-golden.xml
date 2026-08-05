@@ -1,0 +1,12 @@
+<!-- Golden snapshot for content leftovers Jackson wire shape (issue #1921
+	/ epic #505). Approved Jackson deviations: no graph-identity id attributes;
+	no XML declaration; Optional/catalog aliases suppressed. -->
+<auto-translation>
+	<community-id>1001</community-id>
+	<community-name>Default</community-name>
+	<content-type-id>311</content-type-id>
+	<content-type-name>rxGeneric</content-type-name>
+	<locale>en-us</locale>
+	<workflow-id>6</workflow-id>
+	<workflow-name>Simple Workflow</workflow-name>
+</auto-translation>

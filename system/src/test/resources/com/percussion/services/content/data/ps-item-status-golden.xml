@@ -1,0 +1,12 @@
+<!-- Golden snapshot for content leftovers Jackson wire shape (issue #1921
+	/ epic #505). Approved Jackson deviations: no graph-identity id attributes;
+	no XML declaration; Optional/catalog aliases suppressed. -->
+<item-status>
+	<did-checkout>true</did-checkout>
+	<did-transition>true</did-transition>
+	<from-state>Draft</from-state>
+	<from-state-id>2</from-state-id>
+	<id>335</id>
+	<to-state>Quick Edit</to-state>
+	<to-state-id>3</to-state-id>
+</item-status>

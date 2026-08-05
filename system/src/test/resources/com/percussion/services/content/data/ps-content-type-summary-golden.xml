@@ -1,0 +1,31 @@
+<!-- Golden snapshot for content leftovers Jackson wire shape (issue #1921
+	/ epic #505). Approved Jackson deviations: no graph-identity id attributes;
+	no XML declaration; Optional/catalog aliases suppressed. -->
+<content-type-summary>
+	<children>
+		<content-type-summary-child>
+			<child-fields>
+				<field-description>
+					<name>body</name>
+					<type>TEXT</type>
+				</field-description>
+			</child-fields>
+			<name>rx_body</name>
+		</content-type-summary-child>
+	</children>
+	<description>Generic page content type</description>
+	<fields>
+		<field-description>
+			<exportable>true</exportable>
+			<name>sys_title</name>
+			<type>TEXT</type>
+		</field-description>
+		<field-description>
+			<exportable>false</exportable>
+			<name>sys_contentstart</name>
+			<type>DATE</type>
+		</field-description>
+	</fields>
+	<guid>0-2-311</guid>
+	<name>rxGeneric</name>
+</content-type-summary>
