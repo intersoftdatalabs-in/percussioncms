@@ -43,6 +43,10 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Base class for controllers that drive the taxonomy editor UI, wiring the taxonomy-related
+ * services used to load and persist taxonomy data.
+ */
 public abstract class AbstractTaxonEditorController extends AbstractControllerWithSecurityChecks {
 
   private static final Logger log = LogManager.getLogger(AbstractTaxonEditorController.class);
