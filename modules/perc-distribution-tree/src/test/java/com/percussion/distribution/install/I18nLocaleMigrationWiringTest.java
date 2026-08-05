@@ -69,14 +69,49 @@ class I18nLocaleMigrationWiringTest {
     assertTrue(
         LOCAL_ANT_DEPS_PATH.matcher(body).find(),
         "migration_i18n_locales.xml must define <path id=\"ant.deps\"> locally (GH-2011)");
+    // taskdef classpathref must point at that local path (no dangling parent-only ref).
+    assertTrue(
+        CLASSPATHREF_ANT_DEPS.matcher(body).find(),
+        "migration must use classpathref=\"ant.deps\" for PSMigrateI18nLocaleCodes taskdef");
 
-    // If the script still uses classpathref="ant.deps", the local path id must exist (no dangling
-    // ref).
-    if (CLASSPATHREF_ANT_DEPS.matcher(body).find()) {
-      assertTrue(
-          LOCAL_ANT_DEPS_PATH.matcher(body).find(),
-          "classpathref=\"ant.deps\" without local <path id=\"ant.deps\">");
+    // Partial installer layouts must configure: every local ant.deps fileset uses
+    // erroronmissingdir="false".
+    assertTrue(
+        body.contains("erroronmissingdir=\"false\"") || body.contains("erroronmissingdir='false'"),
+        "local ant.deps filesets must set erroronmissingdir=\"false\" for partial layouts");
+    // Count fileset opens vs erroronmissingdir so a fileset without the attribute fails.
+    int filesetCount = 0;
+    int missingDirFalseCount = 0;
+    int searchFrom = 0;
+    while ((searchFrom = body.indexOf("<fileset", searchFrom)) >= 0) {
+      filesetCount++;
+      searchFrom += "<fileset".length();
     }
+    searchFrom = 0;
+    while (true) {
+      int dqi = body.indexOf("erroronmissingdir=\"false\"", searchFrom);
+      int sqi = body.indexOf("erroronmissingdir='false'", searchFrom);
+      int next;
+      if (dqi < 0 && sqi < 0) {
+        break;
+      }
+      if (dqi < 0) {
+        next = sqi;
+      } else if (sqi < 0) {
+        next = dqi;
+      } else {
+        next = Math.min(dqi, sqi);
+      }
+      missingDirFalseCount++;
+      searchFrom = next + "erroronmissingdir=".length();
+    }
+    assertTrue(
+        filesetCount > 0 && missingDirFalseCount >= filesetCount,
+        "every ant.deps fileset needs erroronmissingdir=\"false\" (filesets="
+            + filesetCount
+            + ", attrs="
+            + missingDirFalseCount
+            + ")");
 
     // Properties used to build the local path must come from the parent via inheritAll.
     assertTrue(
@@ -102,11 +137,7 @@ class I18nLocaleMigrationWiringTest {
 
     // Parent still passes inheritAll/inheritRefs for properties and any other refs; classpath for
     // taskdef is self-contained in the child (asserted above).
-    assertTrue(
-        body.contains("install.chain") || body.contains("name=\"install.chain\""),
-        "install.chain target must remain");
-    assertTrue(
-        body.contains("upgrade.chain") || body.contains("name=\"upgrade.chain\""),
-        "upgrade.chain target must remain");
+    assertTrue(body.contains("install.chain"), "install.chain target must remain");
+    assertTrue(body.contains("upgrade.chain"), "upgrade.chain target must remain");
   }
 }
