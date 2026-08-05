@@ -23,6 +23,7 @@ _PORT_ENV_KEYS = (
     "MYSQL_PORT",
     "POSTGRES_PORT",
     "MSSQL_PORT",
+    "ORACLE_PORT",
 )
 
 
@@ -78,12 +79,39 @@ class EnvAndPasswordTests(unittest.TestCase):
                 "POSTGRES_PASSWORD": "pg-secret",
                 "MYSQL_PASSWORD": "my-secret",
                 "MSSQL_SA_PASSWORD": "sa-secret",
+                "ORACLE_APP_PASSWORD": "ora-secret",
             }
         )
         self.assertEqual(services["postgresql"]["password"], "pg-secret")
         self.assertEqual(services["mysql"]["password"], "my-secret")
         self.assertEqual(services["sqlserver"]["password"], "sa-secret")
+        self.assertEqual(services["oracle"]["password"], "ora-secret")
         self.assertEqual(services["h2"].get("password", ""), "")
+
+    def test_build_db_services_oracle_metadata_shape(self):
+        """Oracle harness metadata: service alias, XEPDB1, schema, no secrets in base."""
+        services = smoke.build_db_services(
+            {
+                "ORACLE_APP_PASSWORD": "ora-secret",
+                "ORACLE_APP_USER": "cmsuser",
+                "ORACLE_SERVICE": "XEPDB1",
+                "ORACLE_SCHEMA": "cmsuser",
+            }
+        )
+        ora = services["oracle"]
+        self.assertEqual(ora["profile"], "oracle")
+        self.assertEqual(ora["service"], "oracle")
+        self.assertEqual(ora["container_host"], "oracle")
+        self.assertEqual(ora["port"], "1521")
+        self.assertEqual(ora["user"], "cmsuser")
+        self.assertEqual(ora["name"], "XEPDB1")
+        self.assertEqual(ora["schema"], "cmsuser")
+        self.assertEqual(ora["password"], "ora-secret")
+        # Defaults when only password is provided
+        defaults = smoke.build_db_services({"ORACLE_APP_PASSWORD": "x"})
+        self.assertEqual(defaults["oracle"]["user"], "percuser")
+        self.assertEqual(defaults["oracle"]["name"], "XEPDB1")
+        self.assertEqual(defaults["oracle"]["schema"], "percuser")
 
     def test_require_db_passwords_fails_when_missing(self):
         services = smoke.build_db_services({})
@@ -91,9 +119,19 @@ class EnvAndPasswordTests(unittest.TestCase):
             smoke.require_db_passwords(services, ["postgresql"])
         self.assertIn("POSTGRES_PASSWORD", str(ctx.exception))
 
+    def test_require_db_passwords_fails_for_oracle_when_missing(self):
+        services = smoke.build_db_services({})
+        with self.assertRaises(ValueError) as ctx:
+            smoke.require_db_passwords(services, ["oracle"])
+        self.assertIn("ORACLE_APP_PASSWORD", str(ctx.exception))
+
     def test_require_db_passwords_allows_h2(self):
         services = smoke.build_db_services({})
         smoke.require_db_passwords(services, ["h2"])  # no raise
+
+    def test_db_types_includes_oracle(self):
+        self.assertIn("oracle", smoke.DB_TYPES)
+        self.assertEqual(smoke.CONTAINER_BY_SERVICE["oracle"], "percussion-oracle")
 
 
 class ResolveJarTests(unittest.TestCase):
@@ -197,6 +235,37 @@ class DockerRunArgvTests(unittest.TestCase):
         self.assertIn("DB_TYPE=h2", joined)
         self.assertNotIn("DB_HOST=", joined)
 
+    def test_cms_oracle_argv(self):
+        jar = Path("/tmp/fake-cms.jar")
+        db_meta = smoke.build_db_services(
+            {
+                "ORACLE_APP_PASSWORD": "ora-secret",
+                "ORACLE_APP_USER": "percuser",
+                "ORACLE_SERVICE": "XEPDB1",
+            }
+        )["oracle"]
+        argv = smoke.build_docker_run_argv(
+            image=smoke.MATRIX_IMAGE_TAG,
+            container_name="perc-matrix-cms-oracle",
+            product="cms",
+            db_type="oracle",
+            installer_jar_host=jar,
+            host_port=9993,
+            network=smoke.MATRIX_NETWORK,
+            db_meta=db_meta,
+            keep=False,
+        )
+        joined = " ".join(argv)
+        self.assertIn("--name perc-matrix-cms-oracle", joined)
+        self.assertIn("DB_TYPE=oracle", joined)
+        self.assertIn("DB_HOST=oracle", joined)
+        self.assertIn("DB_PORT=1521", joined)
+        self.assertIn("DB_NAME=XEPDB1", joined)
+        self.assertIn("DB_USER=percuser", joined)
+        self.assertIn("DB_PASSWORD=ora-secret", joined)
+        self.assertIn("DB_SCHEMA=percuser", joined)
+        self.assertIn("PRODUCT=cms", joined)
+
 
 class InstallArgvTests(unittest.TestCase):
     def test_cms_postgres_silent_argv(self):
@@ -249,6 +318,34 @@ class InstallArgvTests(unittest.TestCase):
         self.assertIn("--db.type=h2", argv)
         self.assertNotIn("--db.host=ignored", argv)
         self.assertNotIn("--db.ssl.enabled=false", argv)
+
+    def test_oracle_install_argv_service_schema_ssl_off(self):
+        """Oracle cell: host/port/service/user/password/schema + SSL off (compose)."""
+        argv = cell.build_install_argv(
+            java="java",
+            installer_jar=Path("/installer/installer.jar"),
+            install_root=Path("/opt/Percussion"),
+            product="cms",
+            db_type="oracle",
+            db_host="oracle",
+            db_port="1521",
+            db_name="XEPDB1",
+            db_user="percuser",
+            db_password="test-db-password",
+            db_schema="percuser",
+            silent=True,
+        )
+        self.assertIn("--db.type=oracle", argv)
+        self.assertIn("--db.host=oracle", argv)
+        self.assertIn("--db.port=1521", argv)
+        self.assertIn("--db.name=XEPDB1", argv)
+        self.assertIn("--db.user=percuser", argv)
+        self.assertIn("--db.password=test-db-password", argv)
+        self.assertIn("--db.schema=percuser", argv)
+        self.assertIn("--db.ssl.enabled=false", argv)
+        self.assertIn("--db.ssl.verify=false", argv)
+        self.assertIn("--silent", argv)
+        self.assertIn("--no-tty", argv)
 
 
 class ProbeUrlTests(unittest.TestCase):
@@ -367,6 +464,7 @@ class ComposeDbHostPortFreeportTests(unittest.TestCase):
         self.assertEqual(smoke.PREFERRED_MYSQL_HOST_PORT, 3306)
         self.assertEqual(smoke.PREFERRED_POSTGRES_HOST_PORT, 5433)
         self.assertEqual(smoke.PREFERRED_MSSQL_HOST_PORT, 1433)
+        self.assertEqual(smoke.PREFERRED_ORACLE_HOST_PORT, 1521)
         self.assertEqual(
             smoke.COMPOSE_DB_HOST_PORT_SPEC["mysql"],
             ("MYSQL_PORT", 3306),
@@ -378,6 +476,10 @@ class ComposeDbHostPortFreeportTests(unittest.TestCase):
         self.assertEqual(
             smoke.COMPOSE_DB_HOST_PORT_SPEC["sqlserver"],
             ("MSSQL_PORT", 1433),
+        )
+        self.assertEqual(
+            smoke.COMPOSE_DB_HOST_PORT_SPEC["oracle"],
+            ("ORACLE_PORT", 1521),
         )
 
     def test_env_override_mysql(self):
@@ -392,6 +494,10 @@ class ComposeDbHostPortFreeportTests(unittest.TestCase):
         os.environ["MSSQL_PORT"] = "11433"
         self.assertEqual(smoke.resolve_compose_db_host_port("sqlserver"), 11433)
 
+    def test_env_override_oracle(self):
+        os.environ["ORACLE_PORT"] = "11521"
+        self.assertEqual(smoke.resolve_compose_db_host_port("oracle"), 11521)
+
     def test_invalid_env_raises(self):
         os.environ["MYSQL_PORT"] = "not-a-port"
         with self.assertRaises(ValueError):
@@ -401,7 +507,7 @@ class ComposeDbHostPortFreeportTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             smoke.resolve_compose_db_host_port("h2")
         with self.assertRaises(ValueError):
-            smoke.resolve_compose_db_host_port("oracle")
+            smoke.resolve_compose_db_host_port("cockroach")
 
     def test_preferred_when_free(self):
         preferred = smoke.find_free_port()
@@ -423,8 +529,9 @@ class ComposeDbHostPortFreeportTests(unittest.TestCase):
         os.environ["MYSQL_PORT"] = "13306"
         os.environ["POSTGRES_PORT"] = "15433"
         os.environ["MSSQL_PORT"] = "11433"
+        os.environ["ORACLE_PORT"] = "11521"
         resolved = smoke.ensure_compose_db_host_ports(
-            ["h2", "mysql", "postgresql", "sqlserver"]
+            ["h2", "mysql", "postgresql", "sqlserver", "oracle"]
         )
         self.assertEqual(
             resolved,
@@ -432,12 +539,14 @@ class ComposeDbHostPortFreeportTests(unittest.TestCase):
                 "mysql": 13306,
                 "postgresql": 15433,
                 "sqlserver": 11433,
+                "oracle": 11521,
             },
         )
         self.assertNotIn("h2", resolved)
         self.assertEqual(os.environ["MYSQL_PORT"], "13306")
         self.assertEqual(os.environ["POSTGRES_PORT"], "15433")
         self.assertEqual(os.environ["MSSQL_PORT"], "11433")
+        self.assertEqual(os.environ["ORACLE_PORT"], "11521")
 
     def test_ensure_skips_h2_only(self):
         resolved = smoke.ensure_compose_db_host_ports(["h2"])
@@ -483,7 +592,9 @@ class ComposeDbHostPortFreeportTests(unittest.TestCase):
             (root / ".env.compose.example").write_text(
                 "POSTGRES_PASSWORD=test-local-only\n"
                 "MYSQL_PASSWORD=test-local-only\n"
-                "MSSQL_SA_PASSWORD=test-local-only\n",
+                "MSSQL_SA_PASSWORD=test-local-only\n"
+                "ORACLE_APP_PASSWORD=test-local-only\n"
+                "ORACLE_PASSWORD=test-local-only\n",
                 encoding="utf-8",
             )
             os.environ["POSTGRES_PORT"] = "15444"
@@ -514,12 +625,15 @@ class DbOwnershipAndTeardownTests(unittest.TestCase):
         self.assertEqual(smoke.db_container_name("postgres"), "percussion-postgres")
         self.assertEqual(smoke.db_container_name("mysql"), "percussion-mysql")
         self.assertEqual(smoke.db_container_name("sqlserver"), "percussion-sqlserver")
+        self.assertEqual(smoke.db_container_name("oracle"), "percussion-oracle")
         self.assertEqual(smoke.db_container_name("other"), "percussion-other")
 
     def test_external_db_types_skips_h2(self):
         self.assertEqual(
-            smoke.external_db_types(["h2", "postgresql", "mysql", "sqlserver"]),
-            {"postgresql", "mysql", "sqlserver"},
+            smoke.external_db_types(
+                ["h2", "postgresql", "mysql", "sqlserver", "oracle"]
+            ),
+            {"postgresql", "mysql", "sqlserver", "oracle"},
         )
         self.assertEqual(smoke.external_db_types(["h2"]), set())
 
@@ -635,10 +749,13 @@ class DryRunCliTests(unittest.TestCase):
         )
         (root / "docker-compose.yml").write_text("services: {}\n", encoding="utf-8")
         # Credentials for external DB matrix cells (mirrors .env.compose.example).
+        # Placeholders only — never real secrets (matrix harness unit tests).
         (root / ".env.compose.example").write_text(
             "POSTGRES_PASSWORD=test-local-only\n"
             "MYSQL_PASSWORD=test-local-only\n"
-            "MSSQL_SA_PASSWORD=test-local-only\n",
+            "MSSQL_SA_PASSWORD=test-local-only\n"
+            "ORACLE_APP_PASSWORD=test-local-only\n"
+            "ORACLE_PASSWORD=test-local-only\n",
             encoding="utf-8",
         )
 
@@ -680,6 +797,39 @@ class DryRunCliTests(unittest.TestCase):
                 ]
             )
             self.assertEqual(rc, 0)
+
+    def test_dry_run_oracle_exits_zero(self):
+        """Oracle cell accepted by CLI; dry-run exercises compose port pin (#1508)."""
+        import io
+        from contextlib import redirect_stdout
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._stub_repo(root)
+            os.environ["ORACLE_PORT"] = "11521"
+            self.addCleanup(lambda: os.environ.pop("ORACLE_PORT", None))
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = smoke.main(
+                    [
+                        "--repo-root",
+                        str(root),
+                        "--product",
+                        "cms",
+                        "--db",
+                        "oracle",
+                        "--dry-run",
+                        "--skip-image-build",
+                    ]
+                )
+            self.assertEqual(rc, 0)
+            self.assertIn("ORACLE_PORT=11521", buf.getvalue())
+
+    def test_parse_csv_accepts_oracle(self):
+        self.assertEqual(
+            smoke.parse_csv("oracle", smoke.DB_TYPES, "db"),
+            ["oracle"],
+        )
 
     def test_keep_db_and_stop_db_are_mutually_exclusive(self):
         with self.assertRaises(SystemExit) as ctx:

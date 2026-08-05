@@ -126,7 +126,41 @@ services:
       timeout: 5s
       retries: 10
 
+  # Oracle XE for matrix install smoke (#1508 / parent #1500).
+  # Image: gvenzl/oracle-xe (community Oracle XE packaging). Heavy RAM/disk and
+  # slow first start; opt-in profile only (not part of default up).
+  # Cells reach the DB via Docker DNS alias ``oracle:1521`` on perc-matrix-net.
+  # Installer uses --db.name as service name (default XEPDB1) and APP_USER as schema.
+  # See docker/README.md § Oracle compose profile. Credentials from .env.compose only.
+  oracle:
+    image: gvenzl/oracle-xe:21-slim
+    container_name: percussion-oracle
+    restart: unless-stopped
+    profiles:
+      - oracle
+      - db-all
+    environment:
+      # SYS/SYSTEM password (required by the image). Not used as CMS login.
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD:?Set ORACLE_PASSWORD in .env.compose}
+      # Application user created on first start (CMS connect user / schema).
+      APP_USER: ${ORACLE_APP_USER:-percuser}
+      APP_USER_PASSWORD: ${ORACLE_APP_PASSWORD:?Set ORACLE_APP_PASSWORD in .env.compose}
+    ports:
+      # Host 1521 is often taken by a local Oracle listener; freeport / ORACLE_PORT
+      # can reallocate. Cells use container DNS, not this host publish.
+      - "${ORACLE_PORT:-1521}:1521"
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    healthcheck:
+      # healthcheck.sh ships with gvenzl/oracle-xe images.
+      test: ["CMD", "healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+      start_period: 120s
+
 volumes:
   mysql-data:
   postgres-data:
   sqlserver-data:
+  oracle-data:
