@@ -38,6 +38,7 @@ import java.util.List;
  */
 @XmlRootElement(name = "PSLocalDependencySummary")
 @JsonRootName("PSLocalDependencySummary")
+@SuppressWarnings("serial")
 public class PSLocalDependencySummary extends PSAbstractDataObject {
 
   private static final long serialVersionUID = 1L;

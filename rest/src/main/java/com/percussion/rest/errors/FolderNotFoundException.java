@@ -28,6 +28,7 @@ public class FolderNotFoundException extends RestExceptionBase {
     this((Throwable) null);
   }
 
+  @SuppressWarnings("this-escape")
   public FolderNotFoundException(Throwable cause) {
     // always set the folder not found code, attach cause if present
     super(RestErrorCode.FOLDER_NOT_FOUND, null, null, null, null);
