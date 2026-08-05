@@ -32,6 +32,9 @@ import java.util.Properties;
 import org.w3c.dom.Element;
 
 /**
+ * Upgrade plugin that creates the initial server entry and server-properties record in the Rhythmyx
+ * repository when none exist yet.
+ *
  * @author Ignacio Erro
  */
 public class PSUpgradePluginCreateServerAndServerProperties implements IPSUpgradePlugin {

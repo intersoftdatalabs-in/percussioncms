@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,35 +16,62 @@
  */
 package com.percussion.services.security.data;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.i18n.PSLocale;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
+import java.util.Collection;
+import java.util.regex.Pattern;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
- * Test xml helper serialization of selected objects
+ * Behavioral XML helper serialization for selected security / locale objects under the
+ * Jackson-backed {@link PSXmlSerializationHelper} (issue #1893 / parent #1823 / epic #505).
+ *
+ * <p>Converted from a JUnit 3-style class (methods were not discovered by JUnit Platform) to JUnit
+ * 5. Domain-specific goldens and package fixtures for {@link PSCommunity} / ACL / login live in
+ * issue #1889; this suite keeps lightweight round-trip coverage only.
+ *
+ * <p><strong>Approved deviations:</strong> no Betwixt graph-identity {@code id="…"} attributes;
+ * unannotated beans may emit derived catalog alias fields ({@code *-optional}, {@code
+ * display-string}, …) until domain annotation slices suppress them.
  *
  * @author dougrand
  */
 public class PSSerializationTest {
-  static {
+
+  private static final Pattern BETWIXT_GRAPH_ID_ATTR =
+      Pattern.compile("\\sid\\s*=\\s*\"\\d+\"", Pattern.CASE_INSENSITIVE);
+
+  @BeforeAll
+  static void registerTypesAndEngine() {
+    System.clearProperty(PSXmlSerializationHelper.ENGINE_PROPERTY);
+    assertTrue(PSXmlSerializationHelper.isJacksonEngine());
     PSXmlSerializationHelper.addType(PSCommunity.class);
     PSXmlSerializationHelper.addType(PSLocale.class);
     PSXmlSerializationHelper.addType(PSGuid.class);
   }
 
+  @Test
   public void testGuidSer() throws Exception {
     PSGuid g = new PSGuid(PSTypeEnum.ACL, 101101);
 
     String ser = PSXmlSerializationHelper.writeToXml(g);
+    assertTrue(containsTag(ser, "guid"), ser);
+    assertFalse(BETWIXT_GRAPH_ID_ATTR.matcher(ser).find(), ser);
 
     PSGuid res = (PSGuid) PSXmlSerializationHelper.readFromXML(ser);
 
     assertEquals(g, res);
+    assertEquals(g.toString(), res.toString());
   }
 
+  @Test
   public void testCommunitySerialization() throws Exception {
     PSCommunity community = new PSCommunity();
 
@@ -55,12 +82,26 @@ public class PSSerializationTest {
     community.addRoleAssociation(new PSGuid(PSTypeEnum.ROLE, 11));
 
     String ser = PSXmlSerializationHelper.writeToXml(community);
+    assertTrue(containsTag(ser, "community"), ser);
+    assertTrue(containsTag(ser, "name"), ser);
+    assertTrue(ser.contains("Test_1"), ser);
+    assertFalse(BETWIXT_GRAPH_ID_ATTR.matcher(ser).find(), "no graph id attrs: " + ser);
+    assertFalse(ser.trim().startsWith("<null"), ser);
 
     PSCommunity restore = (PSCommunity) PSXmlSerializationHelper.readFromXML(ser);
     assertEquals(community, restore);
+    assertEquals("Test_1", restore.getName());
+    assertEquals("Test community", restore.getDescription());
+    assertEquals(community.getGUID().toString(), restore.getGUID().toString());
+
+    Collection<Long> roles = restore.getRoles();
+    assertEquals(2, roles.size(), "role associations restored: " + ser);
+    assertTrue(roles.contains(10L), roles.toString());
+    assertTrue(roles.contains(11L), roles.toString());
   }
 
-  public void FIXME_testLocaleSerialization() throws Exception {
+  @Test
+  public void testLocaleSerialization() throws Exception {
     PSLocale locale = new PSLocale();
 
     locale.setLocaleId(111);
@@ -70,9 +111,20 @@ public class PSSerializationTest {
     locale.setStatus(5);
 
     String ser = PSXmlSerializationHelper.writeToXml(locale);
+    assertTrue(containsTag(ser, "locale"), ser);
+    assertFalse(BETWIXT_GRAPH_ID_ATTR.matcher(ser).find(), ser);
 
     PSLocale restore = (PSLocale) PSXmlSerializationHelper.readFromXML(ser);
 
     assertEquals(locale, restore);
+    assertEquals(111, restore.getLocaleId());
+    assertEquals("A locale", restore.getDescription());
+    assertEquals("en_GB", restore.getDisplayName());
+    assertEquals("en_UK_1", restore.getLanguageString());
+    assertEquals(5, restore.getStatus());
+  }
+
+  private static boolean containsTag(String xml, String localName) {
+    return xml.contains("<" + localName) || xml.contains("</" + localName + ">");
   }
 }

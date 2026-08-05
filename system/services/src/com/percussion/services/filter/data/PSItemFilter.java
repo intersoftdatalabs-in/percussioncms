@@ -16,6 +16,11 @@
  */
 package com.percussion.services.filter.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.data.IPSCloneTuner;
@@ -28,21 +33,24 @@ import com.percussion.services.filter.IPSItemFilterRuleDef;
 import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.filter.PSFilterServiceLocator;
 import com.percussion.services.guidmgr.PSGuidHelper;
-import com.percussion.services.guidmgr.PSGuidUtils;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.NaturalIdCache;
-import org.xml.sax.SAXException;
-
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -54,28 +62,51 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.NaturalIdCache;
+import org.xml.sax.SAXException;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * Implementation for an item filter, this is a pure mapping object to bring
  * database info into memory.
- * 
+ *
+ * <p>Design-object XML root is {@code item-filter}. Nested package item element is {@code rule-def}
+ * (registered via {@link PSXmlSerializationHelper#addType}). Jackson opt-in property surface (issue
+ * #1915 / #1892 / epic #505).
+ *
  * @author dougrand
  */
 @Entity
 @NaturalIdCache(region = "PSItemFilter_NaturalId")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSItemFilter")
 @Table(name = "PSX_ITEM_FILTER")
+@JacksonXmlRootElement(localName = "item-filter")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({
+  "description",
+  "guid",
+  "label",
+  "legacyAuthtypeId",
+  "name",
+  "parentFilterId",
+  "ruleDefs"
+})
 public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
    IPSCloneTuner
 {
@@ -207,6 +238,7 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
     *  (non-Javadoc)
     * @see com.percussion.services.catalog.IPSCatalogSummary#getName()
     */
+   @JsonProperty
    public String getName()
    {
       return name;
@@ -223,6 +255,7 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
    /**
     * Internal implementation for name setting.
     */
+   @JsonIgnore
    public void setNameImpl(String name) throws PSFilterException
    {
       this.name = name;
@@ -231,6 +264,7 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
     * @return Returns the parentFilter.
     */
    @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public IPSItemFilter getParentFilter()
    {
       return parentFilter;
@@ -239,6 +273,7 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
    /**
     * @param parentFilter The parentFilter to set.
     */
+   @JsonIgnore
    public void setParentFilter(IPSItemFilter parentFilter)
    {
       this.parentFilter = parentFilter;
@@ -248,6 +283,7 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
     * Get the parent filter id for xml serialization
     * @return the parent id or <code>null</code>
     */
+   @JsonProperty
    public IPSGuid getParentFilterId()
    {
       if (parentFilter != null)
@@ -282,6 +318,7 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
     *  (non-Javadoc)
     * @see com.percussion.services.catalog.IPSCatalogSummary#getDescription()
     */
+   @JsonProperty
    public String getDescription()
    {
       return description;
@@ -292,6 +329,7 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
     *
     * @return true if description is present and non-empty
     */
+   @JsonIgnore
    public boolean hasDescription() {
       return StringUtils.isNotBlank(description);
    }
@@ -309,6 +347,7 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
     *  (non-Javadoc)
     * @see com.percussion.services.filter.IPSItemFilter#getLegacyAuthtypeId()
     */
+   @JsonProperty
    public Integer getLegacyAuthtypeId()
    {
       return legacy_authtype;
@@ -323,10 +362,26 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
       legacy_authtype = authTypeId;
    }
    /**
-    *  (non-Javadoc)
-    * @see com.percussion.services.filter.IPSItemFilter#setRuleDefs(java.util.Set)
+    * {@inheritDoc}
     */
+   @Override
    public void setRuleDefs(Set<IPSItemFilterRuleDef> ruleDefs)
+   {
+      applyRuleDefs(ruleDefs);
+   }
+
+   /**
+    * Jackson / design-object XML restore for nested {@code rule-def} items.
+    *
+    * @param ruleDefs rule definitions, may be {@code null}
+    */
+   @JsonProperty
+   public void setRuleDefs(List<? extends IPSItemFilterRuleDef> ruleDefs)
+   {
+      applyRuleDefs(ruleDefs);
+   }
+
+   private void applyRuleDefs(Collection<? extends IPSItemFilterRuleDef> ruleDefs)
    {
       rules.clear();
       if (ruleDefs != null)
@@ -336,17 +391,37 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
             k.setFilter(this);
             rules.add(k);
          });
-
       }
    }
 
    /**
-    *  (non-Javadoc)
+    * Nested package item element is {@code rule-def} (matches historical Betwixt {@code addType}
+    * registration). Sorted by rule name for deterministic design-object XML / golden parity.
+    *
+    * <p>Returns a live-backed view is intentionally <em>not</em> used: callers that need to mutate
+    * the set must use {@link #addRuleDef}/{@link #removeRuleDef}/{@link #setRuleDefs}.
+    *
     * @see com.percussion.services.filter.IPSItemFilter#getRuleDefs()
     */
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "rule-defs")
+   @JacksonXmlProperty(localName = "rule-def")
+   @JsonDeserialize(contentAs = PSItemFilterRuleDef.class)
    public Set<IPSItemFilterRuleDef> getRuleDefs()
    {
-      return rules;
+      // Stable order for design-object XML / golden parity (backing store is a Set).
+      return rules.stream()
+          .sorted(
+              Comparator.comparing(
+                  def -> {
+                    try {
+                      return def.getRuleName();
+                    } catch (PSFilterException e) {
+                      return "";
+                    }
+                  },
+                  Comparator.nullsLast(String::compareToIgnoreCase)))
+          .collect(Collectors.toCollection(java.util.LinkedHashSet::new));
    }
 
    /**
@@ -373,9 +448,11 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
     * Get the guid for xml serialization
     * @return the guid, never <code>null</code>
     */
+   @JsonProperty("guid")
    public IPSGuid getGUID()
    {
-      return PSGuidUtils.makeGuid(filter_id, PSTypeEnum.ITEM_FILTER);
+      // Construct without GuidManager / Spring (offline design-object XML + unit tests).
+      return new PSGuid(PSTypeEnum.ITEM_FILTER, filter_id);
    }
    
    /**
@@ -389,6 +466,8 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
       {
          throw new IllegalArgumentException("newguid may not be null");
       }
+      // Allow overwrite on design-object XML restore (BeanUtils + Jackson); same pattern as
+      // PSKeyword#setGUID / PSCommunity (issue #1915).
       filter_id = newguid.longValue();
    }
 
@@ -396,12 +475,14 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
     *  (non-Javadoc)
     * @see com.percussion.services.filter.IPSItemFilter#addRuleDef(com.percussion.services.filter.IPSItemFilterRuleDef)
     */
+   @JsonIgnore
    public void addRuleDef(IPSItemFilterRuleDef def)
    {
       def.setFilter(this);
       rules.add(def);
    }
 
+   @JsonIgnore
    public void addRuleDefImpl(IPSItemFilterRuleDef def) {
       addRuleDef(def);
    }
@@ -410,11 +491,13 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
     *  (non-Javadoc)
     * @see com.percussion.services.filter.IPSItemFilter#removeRuleDef(com.percussion.services.filter.IPSItemFilterRuleDef)
     */
+   @JsonIgnore
    public void removeRuleDef(IPSItemFilterRuleDef def)
    {
       rules.remove(def);
    }
 
+   @JsonIgnore
    public void removeRuleDefImpl(IPSItemFilterRuleDef def) {
       removeRuleDef(def);
    }
@@ -423,6 +506,7 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
     * @return Returns the version.
     */
    @IPSXmlSerialization(suppress=true)
+   @JsonIgnore
    public Integer getVersion()
    {
       return version;
@@ -431,6 +515,7 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
    /**
     * @param version The version to set.
     */
+   @JsonIgnore
    public void setVersion(Integer version)
    {
       this.version = version;
@@ -517,14 +602,28 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
    /* (non-Javadoc)
     * @see IPSCatalogSummary#getLabel()
     */
+   @JsonProperty
    public String getLabel()
    {
       return getName();
+   }
+
+   /**
+    * Label is an alias of {@link #getName()} for package/catalog XML parity. Ignore writes that
+    * would duplicate name; name element remains authoritative.
+    *
+    * @param label ignored
+    */
+   @JsonIgnore
+   public void setLabel(String label)
+   {
+      // catalog alias of name — package fixtures emit both; name is authoritative on restore
    }
    
    /* (non-Javadoc)
     * @see com.percussion.services.data.IPSCloneTuner#tuneClone(long)
     */
+   @JsonIgnore
    public Object tuneClone(long newId)
    {
       filter_id = newId;
@@ -563,10 +662,10 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
          sourceRuleNames.add(def.getRuleName());
       }
 
-      // Check old rules, remove if they no longer belong. When this loop 
+      // Check old rules, remove if they no longer belong. When this loop
       // is done, oldRuleNamesMap will contain the old rules that are still
-      // present
-      Iterator<IPSItemFilterRuleDef> iter = getRuleDefs().iterator();
+      // present. Mutate the live field (getRuleDefs returns a sorted copy for XML).
+      Iterator<IPSItemFilterRuleDef> iter = rules.iterator();
       while(iter.hasNext())
       {
          IPSItemFilterRuleDef def = iter.next();

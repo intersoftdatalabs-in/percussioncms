@@ -163,6 +163,9 @@
 	<!-- #548 DTS per-service Derby→H2 migration -->
 	<taskdef name="PSMigrateDtsEmbeddedRepository"
 		classname="com.percussion.ant.install.PSMigrateDtsEmbeddedRepository" />
+	<!-- #1547 one-time i18n locale code rewrite (sys_lang + CONTENTSTATUS.LOCALE) -->
+	<taskdef name="PSMigrateI18nLocaleCodes"
+		classname="com.percussion.ant.install.PSMigrateI18nLocaleCodes" />
 	<taskdef name="PSUpgradeEncryption"
 		classname="com.percussion.ant.install.PSUpgradeEncryption" />
 	<taskdef name="PSUpgradeSiteConfig"

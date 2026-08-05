@@ -22,6 +22,9 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 
 /**
+ * Concrete {@link PSBaseControlManager} that manages the bundled system controls shipped with the
+ * Rhythmyx server.
+ *
  * @author JaySeletz
  */
 public class PSSystemControlManager extends PSBaseControlManager {

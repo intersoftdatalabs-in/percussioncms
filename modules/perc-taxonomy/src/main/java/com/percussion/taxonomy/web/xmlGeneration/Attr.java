@@ -23,7 +23,10 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 
 /**
- * @author Steffen Gates May 9, 2011
+ * Represents an XML attribute node emitted by the taxonomy XML generator. Holds the attribute name
+ * and the language id under which the attribute is exposed.
+ *
+ * @author Steffen Gates
  */
 public class Attr {
 

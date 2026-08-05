@@ -20,7 +20,19 @@ package com.percussion.services.assembly.impl;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSServer;
 
+/**
+ * Utility methods used by assembly-related components for working with assembly-level
+ * parameters, variant URLs, and broken-link behavior overrides.
+ */
 public class AssemblerInfoUtils {
+
+    /**
+     * Default constructor; provided so the implicit default constructor has explicit Javadoc and
+     * doclint does not warn about its use.
+     */
+    public AssemblerInfoUtils() {
+        // utility class - no instance state
+    }
 
     /**
      * Add the {@link #ASSEMBLY_LEVEL assembly level} parameter to the supplied
@@ -87,9 +99,12 @@ public class AssemblerInfoUtils {
     public static final String ASSEMBLY_LEVEL = "sys_assemblylevel";
 
     /**
-     * Return a correct HRef override based on user Preference in server.properties
+     * Returns a correct HRef override based on user preference in server.properties.
+     *
+     * @param originalValue the original HRef value to override, may be <code>null</code>.
+     * @return the override value, either <code>"#"</code> (dead-link), <code>""</code> (remove
+     *     link), or the original value (leave link); <code>null</code> if no preference is set.
      */
-
     public static String getBrokenLinkOverrideValue(String originalValue){
         String returnValue = null;
         String userPrefBrokenLinkBhvr = PSServer.getBrokenLinkBehavior();

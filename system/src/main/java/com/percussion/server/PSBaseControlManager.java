@@ -31,6 +31,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
+ * Base class for managers that load and cache control definitions on behalf of the Rhythmyx server,
+ * providing common resource-loading and lifecycle behavior used by specialized control managers.
+ *
  * @author JaySeletz
  */
 public abstract class PSBaseControlManager {

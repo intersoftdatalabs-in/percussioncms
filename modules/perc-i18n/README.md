@@ -231,11 +231,13 @@ Run tests with:
 
 ## Future Enhancements
 
-- One-time DB migration that rewrites persisted `sys_lang` and
+- ~~One-time DB migration that rewrites persisted `sys_lang` and
   `LOCALE` values from the legacy `hi` / `es` / `en` codes to the
-  canonical regional forms (`hi-in`, `es-es`, `en-us`). Not in scope
-  for the current revision because the runtime loader already handles
-  both forms via normalization.
+  canonical regional forms (`hi-in`, `es-es`, `en-us`).~~ **Done (GH-1547):**
+  `PSLocaleCodeRewrite` + `PSLocaleCodeMigrator` (this module), ANT task
+  `PSMigrateI18nLocaleCodes`, installer script
+  `migration_i18n_locales.xml` (see `modules/perc-distribution-tree/AGENTS.md`).
+  Custom widget `locale=hi` configs remain out of scope (user re-picks).
 - Migrate additional application-specific TMX files to perc-i18n
 - Enhance language tool integration for new language support
 - Implement more sophisticated resource merging strategies

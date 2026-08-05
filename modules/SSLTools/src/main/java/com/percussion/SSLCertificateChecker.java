@@ -58,6 +58,27 @@ public class SSLCertificateChecker {
 
   private static final Logger log = LogManager.getLogger(SSLCertificateChecker.class.getName());
 
+  /**
+   * Default constructor; provided so the implicit default constructor has explicit Javadoc and
+   * doclint does not warn about its use.
+   */
+  public SSLCertificateChecker() {
+    // utility state is initialized lazily on first use
+  }
+
+  /**
+   * Entry point used when the class is run on the command line.
+   *
+   * <p>Arguments expected are:
+   *
+   * <ol>
+   *   <li>url-or-file: a single HTTPS URL or the path of a file containing one URL per line.
+   *   <li>warningDays: number of days before an SSL certificate expires that should trigger a
+   *       warning notification.
+   * </ol>
+   *
+   * @param args the command-line arguments as documented above.
+   */
   public static void main(String[] args) {
     if (args.length < 2) {
       log.info("Usage: PSSSLCertificateChecker [url or file containing urls] [warningDays] ");

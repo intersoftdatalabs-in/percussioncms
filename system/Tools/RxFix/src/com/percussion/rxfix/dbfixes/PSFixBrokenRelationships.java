@@ -33,10 +33,9 @@ import java.util.Iterator;
 import javax.naming.NamingException;
 
 /**
+ * Removes relationships that reference a non-existent content item as the owner or dependent.
+ *
  * @author dougrand
- * 
- * Removes relationships that reference a non-existant content item as the
- * owner or dependent
  */
 public class PSFixBrokenRelationships extends PSFixDBBase implements IPSFix
 {

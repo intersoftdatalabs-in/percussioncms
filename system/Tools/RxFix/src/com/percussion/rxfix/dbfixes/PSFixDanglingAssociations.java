@@ -36,9 +36,9 @@ import java.util.Set;
 import javax.naming.NamingException;
 
 /**
- * @author peterfrontiero
- * 
  * Removes invalid associations in which one of the references no longer exists.
+ *
+ * @author peterfrontiero
  */
 public class PSFixDanglingAssociations extends PSFixDBBase
  implements IPSFix

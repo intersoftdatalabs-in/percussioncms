@@ -44,6 +44,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.xml.sax.SAXException;
 
 /**
+ * Persistent representation of a publishing edition, capturing the configuration of a single
+ * publishing unit-of-work: site, delivery type, content lists, and assembly / publish
+ * parameters.
+ *
  * @see IPSEdition
  */
 @Entity

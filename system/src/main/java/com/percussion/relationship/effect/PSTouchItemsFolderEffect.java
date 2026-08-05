@@ -21,6 +21,9 @@ import com.percussion.relationship.PSEffectResult;
 import com.percussion.server.IPSRequestContext;
 
 /**
+ * Folder effect that updates the last-modified timestamp of items affected by a folder change so
+ * that they are picked up by the next incremental publishing pass.
+ *
  * @author adamgent
  */
 public class PSTouchItemsFolderEffect extends PSFolderEffect {

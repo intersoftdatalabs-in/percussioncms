@@ -44,11 +44,11 @@ import org.w3c.dom.Element;
  * &lt;!--
  *    A set of rules, one for each cache key that is optional.
  * -->
- * <code>PSXKeyRules (KeyRule*)</code>
+ * &lt;code&gt;PSXKeyRules (KeyRule*)&lt;/code&gt;
  *
  * &lt;!--
  *    A rule for a single key used to determine if the key value should be used
- *    when an item is cached.  If the rule resolves to <code>true</code>, then
+ *    when an item is cached.  If the rule resolves to &lt;code&gt;true&lt;/code&gt;, then
  *    the keys value will be included in the keys when the item is cached.
  *    Otherwise the item is cache without regard for this keys value.  A list of
  *    rules may be supplied, and they are evaluated in order using each rule's

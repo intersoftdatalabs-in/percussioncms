@@ -43,15 +43,10 @@ import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.metadata.TikaMimeKeys;
 
 /**
- * An adaptor class wrapping the Tika metadata object and providing
- * some getters and setters for the most important metadata values; mimetype,
- * encoding, original filename, and length.
- * @author stephenbolton
+ * An adaptor class wrapping the Tika metadata object and providing some getters and setters for
+ * the most important metadata values: mimetype, encoding, original filename, and length.
  *
- */
-/**
  * @author stephenbolton
- *
  */
 public class PSMeta
       implements

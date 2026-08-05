@@ -22,9 +22,10 @@ import org.w3c.dom.NodeList;
 import java.io.Serializable;
 
 /**
- * @author dougrand
+ * Stores information from the table definition file in a canonical format used by the verify
+ * tool to compare against the live database schema.
  *
- * Store information from the table definition file in a canonical format.
+ * @author dougrand
  */
 public class PSTableInfo implements Serializable
 {

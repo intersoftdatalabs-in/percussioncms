@@ -20,9 +20,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * Enumerates the possible navigation-on (NavOn) types managed by the FastForward managed navigation
+ * subsystem.
+ *
  * @author DavidBenua
- *     <p>To change the template for this generated type comment go to Window>Preferences>Java>Code
- *     Generation>Code and Comments
  */
 public class PSNavonType {
   /**

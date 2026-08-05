@@ -38,6 +38,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * Loads, runs, and coordinates startup processes for the Rhythmyx server, persisting their state
+ * across restarts and registering with the core server notification service.
+ *
  * @author JaySeletz
  */
 public class PSStartupProcessManager implements IPSNotificationListener, IPSStartupProcessManager {
