@@ -43,6 +43,10 @@ import org.apache.solr.common.util.NamedList;
 /**
  * Publishes CMS metadata to an external Solr instance during delivery/publish.
  *
+ * <p>Verification (issue #1999 / parent #1788): unit tests inject a mock {@link SolrClient} via
+ * package-private hooks — no live Solr required. Live 9.x / 10.x + Tika Server smoke is
+ * human-gated; see {@code docs/ai-generated/tasks/1788-solrj-10/01-verification-plan.md}.
+ *
  * <p>SolrJ 10 cutover (#1997 / parent #1788):
  *
  * <ul>
@@ -125,7 +129,11 @@ public class PSSolrDeliveryHandler {
     this.serverConfig = serverConfig;
   }
 
-  private void deleteAllSolrEntries() throws PSDeliveryException {
+  /**
+   * Deletes all documents when {@link SolrServer#isCleanAllOnFullPublish()} is true.
+   * Package-private for unit tests (mock {@link SolrClient}; no network).
+   */
+  void deleteAllSolrEntries() throws PSDeliveryException {
     if (!isEnabled()) return;
 
     log.debug("Deleting existing metadata entries");
