@@ -21,7 +21,21 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import org.apache.commons.codec.binary.Base64;
 
+/** Utility methods for working with TLS certificates. */
 public class TLSUtils {
+
+  /** No-op constructor. */
+  public TLSUtils() {
+    // no-op
+  }
+
+  /**
+   * Converts an X.509 certificate to its PEM-encoded string representation.
+   *
+   * @param cert the certificate to encode, never {@code null}
+   * @return the PEM-encoded certificate, including begin/end markers
+   * @throws CertificateEncodingException if the certificate cannot be DER-encoded
+   */
   protected static String convertToPem(X509Certificate cert) throws CertificateEncodingException {
 
     String cert_begin = "-----BEGIN CERTIFICATE-----\n";

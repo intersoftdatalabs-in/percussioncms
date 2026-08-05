@@ -58,12 +58,25 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/** Utility for verifying TLS connections to a target host. */
 public class TLSTester {
 
+  /** No-op constructor. */
+  public TLSTester() {
+    // no-op
+  }
+
+  /** Logger used by this class. */
   private static final Logger log = LogManager.getLogger(TLSTester.class);
 
+  /** Cached value of the {@code os.name} system property. */
   private static String OS = null;
 
+  /**
+   * Returns the cached value of the {@code os.name} system property, computing it on first access.
+   *
+   * @return the operating system name
+   */
   public static String getOsName() {
     if (OS == null) {
       OS = System.getProperty("os.name");
@@ -71,13 +84,30 @@ public class TLSTester {
     return OS;
   }
 
+  /**
+   * Tests whether the current operating system is Windows.
+   *
+   * @return {@code true} if {@code os.name} starts with "windows"
+   */
   public static boolean isWindows() {
     // perform case-insensitive check, cache handles case already
     return getOsName().toLowerCase().startsWith("windows");
   }
 
+  /** Default password used when reading the bundled keystore. */
   public static final String KEYSTORE_PASS = "changeit";
 
+  /**
+   * Command-line entry point that exercises the TLS utilities against the hosts/ports supplied on
+   * the command line.
+   *
+   * @param args command-line arguments; expected to be {@code host port} pairs
+   * @throws IOException if a network or keystore I/O error occurs
+   * @throws NoSuchAlgorithmException if a required algorithm is not available
+   * @throws CertificateException if a certificate cannot be parsed or validated
+   * @throws KeyManagementException if the key management subsystem fails
+   * @throws KeyStoreException if the keystore cannot be loaded
+   */
   public static void main(String[] args)
       throws IOException,
           NoSuchAlgorithmException,
@@ -343,7 +373,13 @@ public class TLSTester {
     }
   }
 
-  static boolean isUnlimitedCryptoLength() {
+  /**
+ * Tests whether the JCE jurisdiction policy allows unlimited-strength cryptography.
+ *
+ * @return {@code true} if {@link Cipher#getMaxAllowedKeyLength(String)} returns
+ *     {@link Integer#MAX_VALUE} for AES, {@code false} otherwise
+ */
+static boolean isUnlimitedCryptoLength() {
 
     try {
       int length = Cipher.getMaxAllowedKeyLength("AES");
@@ -357,7 +393,10 @@ public class TLSTester {
     return false;
   }
 
-  public static void getEnabledCiphers() {
+  /**
+ * Logs the cipher suites enabled for each installed security provider. Used for diagnostics.
+ */
+public static void getEnabledCiphers() {
     for (Provider provider : Security.getProviders()) {
       log.info("Security Provider: {}", provider.getName());
       for (String key : provider.stringPropertyNames())
@@ -365,6 +404,13 @@ public class TLSTester {
     }
   }
 
+  /**
+   * Converts an X.509 certificate to its PEM-encoded string representation.
+   *
+   * @param cert the certificate to encode, never {@code null}
+   * @return the PEM-encoded certificate, including begin/end markers
+   * @throws CertificateEncodingException if the certificate cannot be DER-encoded
+   */
   protected static String convertToPem(X509Certificate cert) throws CertificateEncodingException {
 
     String cert_begin = "-----BEGIN CERTIFICATE-----\n";

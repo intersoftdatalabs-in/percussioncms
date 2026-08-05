@@ -32,16 +32,28 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Aggregates multiple {@link X509TrustManager} instances and delegates certificate checks to each in
+ * order. Used by the TLS testing utilities to evaluate trust against several trust stores.
+ */
 public class WrappedTrustManager implements X509TrustManager {
 
+  /** Logger used by this class. */
   private static final Logger log = LogManager.getLogger(WrappedTrustManager.class);
 
+  /** Wrapped trust managers keyed by their identifying alias. */
   private LinkedHashMap<String, X509TrustManager> wrappedManagers = new LinkedHashMap<>();
 
   WrappedTrustManager() {
     addKeyStore("Default Java", null);
   }
 
+  /**
+   * Registers a named keystore whose trust manager should be wrapped.
+   *
+   * @param name the alias used to identify this trust store
+   * @param keyStore the keystore to wrap, or {@code null} to use the JVM default trust store
+   */
   public void addKeyStore(String name, KeyStore keyStore) {
     try {
       wrappedManagers.put(name, getTrustManager(keyStore));
