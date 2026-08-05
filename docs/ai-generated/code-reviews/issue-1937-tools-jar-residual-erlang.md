@@ -16,10 +16,10 @@ Removes remaining product/test references to JDK `lib/tools.jar` that are not ow
 |------|--------|
 | `system/Tools/RxFix/build.bat` | Dropped `%JAVA_SDK_HOME%\lib\tools.jar` from classpath; REM notes JDK 9+/21 |
 | `system/installResources/install.sh` | Removed commented `#CLASSPATH=.../tools.jar` line; note left |
-| `modules/utils/**/PercussionServer*.lax` (4) | Dropped `JRE/lib/tools.jar` from `lax.class.path` |
-| `modules/perc-ant/**/mockinstall/PercussionServer*.lax` (2) | Same |
-| `specs/.../derby-surface-inventory.md` | Inventory lines updated to match fixtures |
-| `PSJacksonXmlSerializationHelperTest.java` | Removed exact duplicate `@Test` method (pre-existing `main` testCompile break) |
+| `modules/utils/**/PercussionServer*.lax` (4) | **Deleted** (review: legacy InstallAnywhere fixtures unused) |
+| `modules/perc-ant/**/mockinstall/PercussionServer*.lax` (2) | **Deleted** (same) |
+| `TestUpdateDTSConfiguration.java` | Stopped loading/copying LAX into temp mock root (DTS task does not read LAX) |
+| `specs/.../derby-surface-inventory.md` | Removed inventory rows for deleted LAX fixtures |
 
 ## Intentionally not changed
 
@@ -33,8 +33,9 @@ None (bugs / missing behavioral tests / non-portable paths).
 
 ### Notes
 
-- Consuming tests (`TestUpdateDTSConfiguration` and peers) load LAX for JVM options / file presence; no assertion on `lax.class.path` or `tools.jar`.
-- Existing suite verifies fixture parse after classpath edit: utils 265 tests, perc-ant 38 tests, 0 failures.
+- Review follow-up: deleted all six InstallAnywhere `PercussionServer*.lax` test fixtures rather than editing classpath lines.
+- `TestUpdateDTSConfiguration` no longer stages LAX; DTS config task does not read them.
+- Production upgrade code may still *look for* LAX at install root (`PSUpdateJettyConfigFromJBoss`) — only test fixtures were removed.
 - Scripts: no new path construction; bat REM / sh comment only.
 - Cross-platform path checklist: N/A for new filesystem I/O (none added).
 

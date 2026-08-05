@@ -60,12 +60,8 @@ public class TestUpdateDTSConfiguration {
   public void testProperties() throws IOException {
     Path root = temporaryFolder;
 
-    InputStream srcWinLax =
-        DtsConnectorConfigurationAdapterTest.class.getResourceAsStream(
-            "/com/percussion/utils/container/PercussionServer.lax");
-    InputStream srcLinuxLax =
-        DtsConnectorConfigurationAdapterTest.class.getResourceAsStream(
-            "/com/percussion/utils/container/PercussionServer.bin.lax");
+    // Legacy InstallAnywhere PercussionServer*.lax fixtures removed (#1937 review): DTS task
+    // does not read LAX; Jetty/install props + server.xml are sufficient for this fixture.
     InputStream srcInstallProps =
         DtsConnectorConfigurationAdapterTest.class.getResourceAsStream(
             "/com/percussion/utils/container/jetty/base/etc/installation.properties");
@@ -101,8 +97,6 @@ public class TestUpdateDTSConfiguration {
     Files.createDirectories(root.resolve("Deployment/Server/conf"));
     Files.createDirectories(root.resolve("Staging/Deployment/Server/conf"));
 
-    Files.copy(srcWinLax, root.resolve("PercussionServer.lax"));
-    Files.copy(srcLinuxLax, root.resolve("PercussionServer.bin.lax"));
     Files.copy(srcInstallProps, root.resolve("jetty/base/etc/installation.properties"));
     Files.copy(srcLoginConf, root.resolve("jetty/base/etc/login.conf"));
     Files.copy(srcPercDsXML, root.resolve("jetty/base/etc/perc-ds.xml"));
@@ -188,14 +182,18 @@ public class TestUpdateDTSConfiguration {
         DtsConnectorConfigurationAdapterTest.class.getResourceAsStream(
             "/com/percussion/ant/install/mockinstall/Staging/Deployment/Server/conf/perc/perc-catalina.properties");
 
-    Files.createDirectories(root.resolve("8to8upgrade/Deployment/Server/conf/perc"));
-    Files.createDirectories(root.resolve("8to8upgrade/Staging/Deployment/Server/conf/perc"));
+    // root is already .../8to8upgrade — do not nest another 8to8upgrade segment
+    Files.createDirectories(root.resolve("Deployment/Server/conf/perc"));
+    Files.createDirectories(root.resolve("Staging/Deployment/Server/conf/perc"));
 
     Files.copy(srcProdDTSXML, root.resolve("Deployment/Server/conf/server.xml"));
     Files.copy(srcStageDTSXML, root.resolve("Staging/Deployment/Server/conf/server.xml"));
     Files.copy(srcProdDTSXML53, root.resolve("Deployment/Server/conf/server.xml.5.3"));
     Files.copy(srcStageDTSXML53, root.resolve("Staging/Deployment/Server/conf/server.xml.5.3"));
-    Files.copy(srcProdDTSXMLBAK, root.resolve("Deployment/Server/conf/server.xml.bak"));
+    // server.xml.bak fixture is optional (not present in all resource trees)
+    if (srcProdDTSXMLBAK != null) {
+      Files.copy(srcProdDTSXMLBAK, root.resolve("Deployment/Server/conf/server.xml.bak"));
+    }
     //
     // Files.copy(srcStageDTSXMLBAK,root.resolve("Staging/Deployment/Server/conf/server.xml.bak"));
     Files.copy(
