@@ -27,7 +27,7 @@ set classpath=%classpath%;%SANDBOX_ROOT%\Tools\Ant\lib\p4.jar
 set classpath=%classpath%;%SANDBOX_ROOT%\Tools\Ant\lib\psantextensions.jar
 set classpath=%classpath%;%SANDBOX_ROOT%\Tools\SWT\swt.jar
 set classpath=%classpath%;%SANDBOX_ROOT%\Tools\yguard-1.2\lib\yguard.jar
-set classpath=%classpath%;%JAVA_SDK_HOME%\lib\tools.jar
+REM JDK tools.jar removed: not present on JDK 9+ / JDK 21 (see issue #1937).
 set classpath=%classpath%;Tools\junit\junit-4.11.jar
 
 %ANT_HOME%\bin\ant

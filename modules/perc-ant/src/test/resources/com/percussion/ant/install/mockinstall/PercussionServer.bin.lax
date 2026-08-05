@@ -12,7 +12,7 @@ lax.application.name=PercussionServer.bin
 #   the Java classpath necessary to run this application
 #   Can be separated by colons (Mac OS/Unix) or semicolons (Windows)
 
-lax.class.path=JRE/lib/tools.jar;AppServer/bin/run.jar;Repository/lib/derbyclient.jar;:lax.jar
+lax.class.path=AppServer/bin/run.jar;Repository/lib/derbyclient.jar;:lax.jar
 
 
 #   LAX.COMMAND.LINE.ARGS
