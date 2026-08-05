@@ -40,11 +40,15 @@ sudo ./install-jetty-service.sh [ServiceName] install
 
 Prompts for the run-as user (same as before), writes:
 
-|   Artifact   |                                              Path                                               |
-|--------------|-------------------------------------------------------------------------------------------------|
-| Environment  | `/etc/default/<ServiceName>`                                                                    |
-| Start helper | `/etc/init.d/<ServiceName>` (used by ExecStart; **not** enabled via chkconfig on systemd hosts) |
-| Unit         | `/etc/systemd/system/<ServiceName>.service`                                                     |
+|   Artifact   |                                                                 Path                                                                  |
+|--------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| Environment  | `/etc/default/<ServiceName>`                                                                                                          |
+| Start helper | `/etc/init.d/<ServiceName>` (from `jetty/defaults/bin/rxjetty.sh`; used by ExecStart; **not** enabled via chkconfig on systemd hosts) |
+| Unit         | `/etc/systemd/system/<ServiceName>.service`                                                                                           |
+
+The start-helper template ships at `<rxDir>/jetty/defaults/bin/rxjetty.sh` (GH-1983). Install
+substitutes `${rxjetty_service}` into `/etc/init.d/<ServiceName>` for **both** systemd and
+`--initd` paths. Service install hard-fails if that template is missing.
 
 Then:
 
@@ -85,10 +89,10 @@ for packaging verification on a non-root workstation.
 
 Use this on a packaging machine, CI agent, or non-root workstation:
 
-1. **Confirm artifacts ship** under `<rxDir>/jetty/service/`:
-   - `percussion-cms.service.in`
-   - `install-jetty-service.sh`
-   - this `README-systemd.md`
+1. **Confirm artifacts ship**:
+   - under `<rxDir>/jetty/service/`: `percussion-cms.service.in`, `install-jetty-service.sh`,
+     this `README-systemd.md`
+   - under `<rxDir>/jetty/defaults/bin/`: `rxjetty.sh` (start-helper template; required by install)
 2. **Contract keys** in the unit template (see
    `specs/988-linux-systemd-services/contracts/systemd-unit-contract.md`):
    - `Type=forking`, `PIDFile=`, `EnvironmentFile=`, `ExecStart`/`ExecStop`
@@ -103,7 +107,7 @@ Use this on a packaging machine, CI agent, or non-root workstation:
    ```bash
    # from repo, module standalone
    cd modules/perc-jetty
-   ../../mvnw test -Dtest=SystemdUnitTemplateTest,InstallJettyServiceScriptTest
+   ../../mvnw test -Dtest=SystemdUnitTemplateTest,InstallJettyServiceScriptTest,RxJettyStartHelperTemplateTest
    ```
 6. **Migration rehearsal (document only)**: uninstall → install order below; do not
    run against production without change control.

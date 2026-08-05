@@ -88,6 +88,10 @@ system/.settings/*
 .idea/sonarlint/issuestore/index.pb
 spotless-index-file
 bin/
+# GH-1983: ship Jetty start-helper under defaults/bin/ (install-jetty-service.sh contract).
+# Root bin/ ignore must not hide this packaged template.
+!modules/perc-jetty/src/main/jetty/defaults/bin/
+!modules/perc-jetty/src/main/jetty/defaults/bin/**
 target/
 .codeql-db/
 .codeql-results/

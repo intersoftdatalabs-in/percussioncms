@@ -112,4 +112,22 @@ class InstallJettyServiceScriptTest {
             || script.contains("cat > \"/etc/default/"),
         "writes defaults file");
   }
+
+  @Test
+  void script_requiresRxJettyTemplateFromDefaultsBin() {
+    // GH-1983: both systemd and --initd paths call installInitScriptAndDefaults, which hard-fails
+    // without jetty/defaults/bin/rxjetty.sh (sed ${rxjetty_service} into /etc/init.d/<name>).
+    assertTrue(script.contains("installInitScriptAndDefaults"), "shared init helper install");
+    assertTrue(
+        script.contains("${JETTY_DEFAULTS}/bin/rxjetty.sh")
+            || script.contains("JETTY_DEFAULTS}/bin/rxjetty.sh"),
+        "template path under defaults/bin/rxjetty.sh");
+    assertTrue(
+        script.contains("s/\\${rxjetty_service}/") || script.contains("${rxjetty_service}"),
+        "sed service-name placeholder");
+    assertTrue(
+        script.contains("Missing Jetty service template")
+            || script.contains("Missing Jetty service template:"),
+        "hard-fail when template absent");
+  }
 }
