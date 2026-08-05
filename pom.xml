@@ -297,7 +297,12 @@
         <xmpbox.version>2.0.17</xmpbox.version>
         <xstream.version>1.4.21</xstream.version>
         <!-- Transitive CVE floors (see dependencyManagement BOM / pins below) -->
-        <!-- SolrJ → ZK 3.9.4; Dependabot #210/#211 need ≥3.9.5 -->
+        <!-- SolrJ historically pinned ZK 3.9.4; floor 3.9.5 is Maven Central latest
+             (Apache current 3.9.x as of 2026-08). Product excludes solr-solrj-zookeeper
+             and bans ZK via enforcer (issue #1673) — HTTP SolrJ only. Keep this pin if
+             CloudSolrClient+ZK is re-enabled: remove bans/exclusions and re-add the
+             optional module. Dependabot may still list 3.9.5 in residual advisory ranges
+             with no newer patched artifact; empty tree is the mitigation. -->
         <zookeeper.version>3.9.5</zookeeper.version>
     </properties>
     <dependencyManagement>
@@ -311,7 +316,8 @@
                  Product does not call Netty/ZooKeeper APIs directly. AWS SDK v1 and
                  SolrJ still pull com.fasterxml Jackson 2.x; Artemis pulls modular Netty.
                  Import BOMs so every module version is forced without sprinkling per-artifact
-                 pins. Exclude Solr's optional ZK client module so its 3.9.4 pin cannot win. -->
+                 pins. Solr's optional ZK client is excluded from solr-solrj (issue #1673);
+                 ZK jars are also banned by enforcer while the tree is empty. -->
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-bom</artifactId>
@@ -326,6 +332,8 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- Managed floor only if CloudSolrClient+ZK is re-enabled (see zookeeper.version).
+                 Not on the runtime tree today — solr-solrj exclusions + enforcer ban. -->
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
@@ -1028,10 +1036,11 @@
                 <artifactId>solr-solrj</artifactId>
                 <version>${solr.version}</version>
                 <exclusions>
-                    <!-- Optional SolrCloud client; pins ZK 3.9.4 (Dependabot #210/#211).
-                         HTTP SolrJ does not need this module. If CloudSolrClient+ZK is
-                         required later, re-add solr-solrj-zookeeper and rely on
-                         zookeeper.version (3.9.5+) management above. -->
+                    <!-- Issue #1673: optional SolrCloud ZK client (historically ZK 3.9.4).
+                         Product uses HTTP SolrJ only — no CloudSolrClient. Keep off the
+                         tree; enforcer bans zookeeper/zookeeper-jute. If CloudSolrClient+ZK
+                         is required later: drop these exclusions, remove the enforcer ban,
+                         and rely on zookeeper.version (3.9.5, Central latest) management. -->
                     <exclusion>
                         <groupId>org.apache.solr</groupId>
                         <artifactId>solr-solrj-zookeeper</artifactId>
@@ -2211,20 +2220,28 @@
                                         <!-- Issue #1672: ban unmaintained junrar entirely.
                                              Excluded from tika-parsers-standard-package above;
                                              ban prevents re-introduction via any transitive. -->
-                                        <excludes>
-                                            <exclude>com.github.junrar:junrar</exclude>
                                         <!-- Issue #1674: ban Java-WebSocket advisory range (,1.4.1].
                                              Floor is ${java.websocket.version} (1.6.0) via
                                              dependencyManagement; javafx-webview-debugger
                                              otherwise pulls 1.3.7. -->
-                                        <excludes>
-                                            <exclude>org.java-websocket:Java-WebSocket:*:[,1.4.1]</exclude>
                                         <!-- Issue #1804: com.sun:tools (tools.jar) is not a valid Maven
                                              dependency on JDK 9+ / Maven 3.9+. systemPath ${tools.jar}
                                              fails absolute-path validation and tools.jar is gone from
                                              modern JDKs. Ban so it cannot re-enter dependencyManagement. -->
+                                        <!-- Issue #1673: ban ZooKeeper client jars entirely.
+                                             solr-solrj already excludes solr-solrj-zookeeper +
+                                             zookeeper/zookeeper-jute (HTTP Solr only). Tree is
+                                             empty on system/WebUI/sitemanage/rest/deployer.
+                                             No newer Central pin than 3.9.5; Dependabot residual
+                                             advisory noise on 3.9.x is mitigated by absence from
+                                             the tree. Drop this ban only if CloudSolrClient+ZK
+                                             is intentionally re-enabled. -->
                                         <excludes>
+                                            <exclude>com.github.junrar:junrar</exclude>
+                                            <exclude>org.java-websocket:Java-WebSocket:*:[,1.4.1]</exclude>
                                             <exclude>com.sun:tools</exclude>
+                                            <exclude>org.apache.zookeeper:zookeeper</exclude>
+                                            <exclude>org.apache.zookeeper:zookeeper-jute</exclude>
                                         </excludes>
                                         <searchTransitive>true</searchTransitive>
                                     </bannedDependencies>
