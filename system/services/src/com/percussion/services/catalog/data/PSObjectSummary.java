@@ -17,9 +17,10 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.catalog.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
-import com.percussion.services.guidmgr.data.PSDesignGuid;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.locking.data.PSObjectLock;
 import com.percussion.services.locking.data.PSObjectLockSummary;
@@ -28,13 +29,10 @@ import com.percussion.services.security.data.PSUserAccessLevel;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Container which holds common information available for all design objects with enhanced Java 11 support.
@@ -224,37 +222,113 @@ public class PSObjectSummary implements IPSCatalogSummary {
       this.description = s.getDescription();
    }
 
+   /**
+    * Catalog GUID. Jackson emits/reads string form via the shared {@code IPSGuid} converter in
+    * {@code PSJacksonXmlSerializationHelper} (parity with Betwixt {@code PSBetwixtObjectConverter}).
+    */
    @Override
+   @JsonProperty("guid")
    public IPSGuid getGUID() {
       return new PSGuid(type, id);
    }
 
-   @Override
-   public String getType() {
-      return type == null ? null : type.name();
+   /**
+    * Set the GUID for XML / bean restore (Jackson + Betwixt). Populates both id and type.
+    *
+    * @param guid the new guid, not {@code null}
+    */
+   public void setGUID(IPSGuid guid) {
+      Objects.requireNonNull(guid, "guid cannot be null");
+      this.id = guid.longValue();
+      this.type = PSTypeEnum.valueOf(guid.getType());
    }
 
+   /**
+    * Raw id used by some call sites. Suppressed from XML (wire form is {@code guid}).
+    *
+    * @return the object id
+    */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
+   public long getId() {
+      return id;
+   }
+
+   /**
+    * Set the raw object id (not the preferred XML path; prefer {@link #setGUID(IPSGuid)}).
+    *
+    * @param id the new object id
+    */
+   public void setId(long id) {
+      this.id = id;
+   }
+
+   @Override
+   @JsonProperty
+   public String getType() {
+      if (type == null) {
+         type = PSTypeEnum.INVALID;
+      }
+      return type.name();
+   }
+
+   /**
+    * Set the object type from its enum name (XML / bean restore).
+    *
+    * @param typeName the type name, not blank
+    */
+   public void setType(String typeName) {
+      if (StringUtils.isBlank(typeName)) {
+         throw new IllegalArgumentException("type cannot be null or empty");
+      }
+      this.type = PSTypeEnum.valueOf(typeName);
+   }
+
+   /**
+    * Typed enum access. Suppressed from XML (wire form is {@link #getType()} string).
+    *
+    * @return the type enum, may be {@code null} before population
+    */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public PSTypeEnum getTypeEnum() {
       return type;
    }
 
    @Override
+   @JsonProperty
    public String getName() {
       return name;
    }
 
    @Override
+   @JsonProperty
    public String getLabel() {
       return label != null ? label : name;
    }
 
+   /**
+    * Set the object label. Defaults to the object name if blank.
+    *
+    * @param label the new object label, may be blank
+    */
+   public void setLabel(String label) {
+      if (StringUtils.isBlank(label)) {
+         this.label = name;
+      } else {
+         this.label = label;
+      }
+   }
+
    @Override
+   @JsonProperty
    public String getDescription() {
       return description;
    }
 
    /**
     * Set the object's description.
+    *
     * @param desc the description, may be {@code null} or empty
     */
    public void setDescription(String desc) {
@@ -262,8 +336,9 @@ public class PSObjectSummary implements IPSCatalogSummary {
    }
 
    /**
-    * Set the object's name. Used by callers that construct summaries and then
-    * need to adjust the name.
+    * Set the object's name. Used by callers that construct summaries and then need to adjust the
+    * name.
+    *
     * @param name the name to set, not {@code null} or empty
     */
    public void setName(String name) {
@@ -278,9 +353,10 @@ public class PSObjectSummary implements IPSCatalogSummary {
     *
     * @return Optional containing the description if present and non-empty, empty otherwise
     */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public Optional<String> getDescriptionOptional() {
-      return Optional.ofNullable(description)
-         .filter(desc -> !desc.trim().isEmpty());
+      return Optional.ofNullable(description).filter(desc -> !desc.trim().isEmpty());
    }
 
    /**
@@ -288,15 +364,20 @@ public class PSObjectSummary implements IPSCatalogSummary {
     *
     * @return Optional containing permissions if valid, empty otherwise
     */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public Optional<PSUserAccessLevel> getPermissionsOptional() {
       return m_arePermissionsValid ? Optional.ofNullable(permissions) : Optional.empty();
    }
 
    /**
-    * Get the object permissions.
+    * Object permissions for API use. Nested {@link PSUserAccessLevel} is suppressed on XML write
+    * (historical Betwixt design; issue #1903) — wire form is {@link #getPermissionValue()}.
     *
     * @return the permissions, never {@code null}
     */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public PSUserAccessLevel getPermissions() {
       return permissions;
    }
@@ -305,7 +386,7 @@ public class PSObjectSummary implements IPSCatalogSummary {
     * Set the object permissions with validation.
     *
     * @param permissions the permissions to set, not {@code null}
-    * @throws IllegalArgumentException if permissions is null
+    * @throws NullPointerException if permissions is null
     */
    public void setPermissions(PSUserAccessLevel permissions) {
       Objects.requireNonNull(permissions, "permissions cannot be null");
@@ -314,10 +395,48 @@ public class PSObjectSummary implements IPSCatalogSummary {
    }
 
    /**
+    * Permissions as a comma-separated enum name list for XML serialization (Betwixt / Jackson).
+    * Nested {@link PSUserAccessLevel} is not written; see {@link #getPermissions()}.
+    *
+    * @return permission names joined by {@code ,}, never {@code null} (may be empty)
+    */
+   @JsonProperty
+   public String getPermissionValue() {
+      var rval = new StringBuilder();
+      for (PSPermissions p : permissions.getPermissions()) {
+         if (rval.length() > 0) {
+            rval.append(',');
+         }
+         rval.append(p.name());
+      }
+      return rval.toString();
+   }
+
+   /**
+    * Restore permissions from the XML string form produced by {@link #getPermissionValue()}.
+    *
+    * @param permissionsStr comma-separated {@link PSPermissions} names, may be blank
+    */
+   public void setPermissionValue(String permissionsStr) {
+      if (StringUtils.isBlank(permissionsStr)) {
+         return;
+      }
+      for (String token : permissionsStr.split(",")) {
+         if (StringUtils.isBlank(token)) {
+            continue;
+         }
+         permissions.getPermissions().add(PSPermissions.valueOf(token.trim()));
+      }
+      m_arePermissionsValid = true;
+   }
+
+   /**
     * Check if permissions have been explicitly set on this object.
     *
     * @return true if permissions are valid and have been set
     */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public boolean arePermissionsValid() {
       return m_arePermissionsValid;
    }
@@ -327,6 +446,8 @@ public class PSObjectSummary implements IPSCatalogSummary {
     *
     * @return Optional containing lock information if object is locked, empty otherwise
     */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public Optional<PSObjectLockSummary> getLockedOptional() {
       return Optional.ofNullable(locked);
    }
@@ -336,6 +457,7 @@ public class PSObjectSummary implements IPSCatalogSummary {
     *
     * @return the lock information if object is locked, {@code null} otherwise
     */
+   @JsonProperty
    public PSObjectLockSummary getLocked() {
       return locked;
    }
@@ -350,10 +472,13 @@ public class PSObjectSummary implements IPSCatalogSummary {
    }
 
    /**
-    * Check if this object is currently locked.
+    * Check if this object is currently locked. Suppressed so it does not collide with the {@code
+    * locked} property written from {@link #getLocked()}.
     *
     * @return true if the object has lock information
     */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public boolean isLocked() {
       return locked != null;
    }
@@ -364,39 +489,49 @@ public class PSObjectSummary implements IPSCatalogSummary {
     * @param userName the user name to check, may be {@code null}
     * @return true if the object is locked by the specified user
     */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public boolean isLockedBy(String userName) {
       return getLockedOptional()
-         .map(lockSummary -> Objects.equals(lockSummary.getLocker(), userName))
-         .orElse(false);
+          .map(lockSummary -> Objects.equals(lockSummary.getLocker(), userName))
+          .orElse(false);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj) return true;
-      if (!(obj instanceof PSObjectSummary)) return false;
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof PSObjectSummary)) {
+         return false;
+      }
 
       var other = (PSObjectSummary) obj;
-      return Objects.equals(id, other.id) &&
-             Objects.equals(type, other.type) &&
-             Objects.equals(name, other.name);
+      return id == other.id
+          && Objects.equals(type, other.type)
+          && Objects.equals(name, other.name)
+          && Objects.equals(getLabel(), other.getLabel())
+          && Objects.equals(description, other.description)
+          && Objects.equals(locked, other.locked)
+          && Objects.equals(permissions, other.permissions);
    }
 
    @Override
    public int hashCode() {
-      return Objects.hash(id, type, name);
+      return Objects.hash(id, type, name, getLabel(), description, permissions, locked);
    }
 
    @Override
    public String toString() {
       return new ToStringBuilder(this)
-         .append("id", id)
-         .append("type", type)
-         .append("name", name)
-         .append("label", label)
-         .append("description", description)
-         .append("locked", isLocked())
-         .append("permissionsValid", m_arePermissionsValid)
-         .toString();
+          .append("id", id)
+          .append("type", type)
+          .append("name", name)
+          .append("label", label)
+          .append("description", description)
+          .append("locked", isLocked())
+          .append("permissionsValid", m_arePermissionsValid)
+          .toString();
    }
 
    /**

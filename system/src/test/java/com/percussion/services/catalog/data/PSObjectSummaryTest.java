@@ -29,16 +29,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
  * Object summary serialization coverage under Jackson-backed {@link PSXmlSerializationHelper}
- * (issue #1893 / parent #1823 / epic #505).
+ * (issue #1903 residual of #1893 / parent #1823 / epic #505).
  *
- * <p>Write-side shape tests are enabled. Full equality round-trips remain disabled until catalog /
- * security domain suppress annotations land for {@code permissions} / {@link PSUserAccessLevel} (no
- * default constructor; nested graph fails Jackson deserialize). Tracked as residual of #1893.
+ * <p>Write-side shape and full equality round-trips are enabled. Nested {@link PSUserAccessLevel}
+ * is suppressed on write (historical Betwixt {@code @IPSXmlSerialization}); permissions wire as
+ * {@code permission-value}. {@link PSUserAccessLevel} also has a Jackson no-arg constructor for
+ * empty nested graphs elsewhere.
  *
  * <p><strong>Approved deviations:</strong> no Betwixt graph-identity {@code id="…"} attributes on
  * write.
@@ -61,7 +61,8 @@ public class PSObjectSummaryTest {
   }
 
   /**
-   * Write-side shape for a minimal summary: modern root, name/label/guid present, no graph ids.
+   * Write-side shape for a minimal summary: modern root, name/label/guid present, no nested
+   * permissions graph, no graph ids.
    *
    * @throws Exception on write failure
    */
@@ -80,20 +81,17 @@ public class PSObjectSummaryTest {
     assertTrue(ser.contains("Test object summary"), ser);
     assertTrue(ser.contains("Test object summary label"), ser);
     assertTrue(containsTag(ser, "guid"), ser);
+    assertFalse(containsTag(ser, "permissions"), "nested permissions suppressed: " + ser);
     assertFalse(BETWIXT_GRAPH_ID_ATTR.matcher(ser).find(), "no graph id attrs: " + ser);
     assertFalse(ser.trim().startsWith("<null"), ser);
   }
 
   /**
-   * Full equality round-trip for an incomplete summary. Blocked on Jackson: empty {@code
-   * permissions} / {@link PSUserAccessLevel} has no default constructor.
+   * Full equality round-trip for an incomplete summary (default empty permissions).
    *
-   * @throws Exception
+   * @throws Exception on write/read failure
    */
   @Test
-  @Disabled(
-      "Residual #1893: PSObjectSummary permissions→PSUserAccessLevel lacks default ctor; needs"
-          + " catalog/security suppress or bean fix in a domain slice (not this PR).")
   public void testSerialization() throws Exception {
     PSObjectSummary nsum =
         new PSObjectSummary(
@@ -109,16 +107,11 @@ public class PSObjectSummaryTest {
   }
 
   /**
-   * Fully populated summary including lock + permissions. Same residual blocker as {@link
-   * #testSerialization()} plus historical JRE/OS flakiness notes.
+   * Fully populated summary including lock + permissions (permission-value string path).
    *
-   * @throws Exception
+   * @throws Exception on write/read failure
    */
   @Test
-  @Disabled(
-      "Residual #1893: complete summary RT needs PSUserAccessLevel / permissions Jackson"
-          + " support (catalog domain). Historical note: also flaky on certain JRE/OS with"
-          + " Betwixt.")
   public void testCompleteSerialization() throws Exception {
     PSObjectSummary nsum =
         new PSObjectSummary(
@@ -135,6 +128,12 @@ public class PSObjectSummaryTest {
     nsum.setPermissions(new PSUserAccessLevel(permissions));
 
     String ser = PSXmlSerializationHelper.writeToXml(nsum);
+    assertTrue(containsTag(ser, "permission-value"), ser);
+    assertTrue(ser.contains("RUNTIME_VISIBLE"), ser);
+    assertTrue(ser.contains("OWNER"), ser);
+    assertFalse(containsTag(ser, "permissions"), "nested permissions suppressed: " + ser);
+    assertTrue(containsTag(ser, "locked"), ser);
+
     PSObjectSummary restore = (PSObjectSummary) PSXmlSerializationHelper.readFromXML(ser);
 
     org.junit.jupiter.api.Assertions.assertEquals(nsum, restore, "Expected to be equal");
