@@ -212,3 +212,19 @@ test('use configuration', async ({ page }) => {
 });
 ```
 
+## Failure artifacts (night-issue / PR attach)
+
+On a failed Playwright run, collect outputs under **`frontend/`** (always run tests from that directory):
+
+|           Directory           |                                             Role                                              |
+|-------------------------------|-----------------------------------------------------------------------------------------------|
+| `frontend/test-results/`      | Default Playwright `outputDir` (`error-context.md`, traces, failure screenshots when enabled) |
+| `frontend/playwright-report/` | HTML report when `--reporter=…,html` is used                                                  |
+| `frontend/tests/screenshots/` | Optional manual failure screenshots (module convention)                                       |
+
+These paths are **gitignored** — do not commit them. For overnight agents attaching failures to a PR or issue (inline summary, small zip/gist, size limits, cross-platform notes), follow:
+
+**[docs/developer-module/playwright-failure-artifacts.md](../../docs/developer-module/playwright-failure-artifacts.md)**
+
+QA-mode stack lifecycle (`qa-up` / `TEST_CMS_URL` / `qa-down`) is documented in [workbench-rest-and-qa-modes.md](../../docs/developer-module/workbench-rest-and-qa-modes.md). Full CI artifact upload is a separate track (#1930), not this module’s default `npm test` path.
+

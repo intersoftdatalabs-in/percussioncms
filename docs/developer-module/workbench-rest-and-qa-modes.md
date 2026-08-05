@@ -163,6 +163,8 @@ Equivalent low-level harness (same cell): `python docker/scripts/matrix-install-
 
 Playwright env defaults, surface filters, and CI jobs are **later slices** of #1827 (#1928–#1930).
 
+**Failure artifacts (night-issue attach):** when Playwright fails in QA or dev mode, collect paths under `modules/perc-qa-automation/frontend` (`test-results/`, optional `playwright-report/`, screenshots) and attach them to the PR/issue using the conventions in [playwright-failure-artifacts.md](./playwright-failure-artifacts.md). Full CI upload pipeline remains #1930.
+
 ### What is *not* a supported long-term process
 
 - “Merged to `development` so the shared QA box should magically update” without **automation**.
@@ -180,6 +182,7 @@ Playwright env defaults, surface filters, and CI jobs are **later slices** of #1
 | REST adaptor layout          | `rest/AGENTS.md`, `projects/sitemanage/AGENTS.md`                        |
 | Which adaptors hit design WS | `docs/ai-generated/tasks/developer-module-p0/adaptor-design-ws-audit.md` |
 | Playwright + hot copy        | `modules/perc-qa-automation/AGENTS.md`, `WebUI/AGENTS.md`                |
+| Playwright failure attach    | [playwright-failure-artifacts.md](./playwright-failure-artifacts.md)     |
 | FR parity                    | `docs/developer-module/workbench-functional-inventory.md`                |
 | Progress tracker             | GitHub **#1690** (post-P0); closed **#1622** was P0                      |
 
