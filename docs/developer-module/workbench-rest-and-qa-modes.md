@@ -149,6 +149,16 @@ python docker/scripts/perc-devctl.py qa-down
 
 **Dry-run (no docker):** `python docker/scripts/perc-devctl.py qa-up --dry-run` (and `qa-health` / `qa-down` likewise). Unit tests: `python -m pytest docker/scripts/test_perc_devctl.py -q`.
 
+**Two-worktree concurrent freeport smoke (#2006):** when two agent worktrees share a host, published ports must not collide. Operator checklist + CI dry-run (no CMS install):
+
+```bash
+# Allocation-only (preferred → freeport → env override → tear-down)
+python docker/scripts/freeport-concurrent-smoke.py
+# Expect: RESULT:OK STEP:freeport-concurrent-smoke
+```
+
+Full tiers (CLI dry-run, live sequential `qa-up` / `up`, env override, tear-down port free): see [docker/README.md](../../docker/README.md) → **Two-worktree concurrent freeport smoke**. Shared helpers: `docker/scripts/perc_host_ports.py` (used by `perc-devctl` + `matrix-install-smoke`). Parent freeport epic [#2001](https://github.com/intersoftdatalabs-in/percussioncms/issues/2001); sibling residual [#2004](https://github.com/intersoftdatalabs-in/percussioncms/issues/2004).
+
 Equivalent low-level harness (same cell): `python docker/scripts/matrix-install-smoke.py --product cms --db h2 --keep` then destroy with `docker rm -f perc-matrix-cms-h2`. Prefer `perc-devctl.py qa-*` for agents.
 
 Playwright env defaults, surface filters, and CI jobs are **later slices** of #1827 (#1928–#1930).
