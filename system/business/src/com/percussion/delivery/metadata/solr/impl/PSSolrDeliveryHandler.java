@@ -139,7 +139,7 @@ public class PSSolrDeliveryHandler {
           solrClient.deleteByQuery("*:*");
           serverConfig.setDelivered(true);
         }
-      } catch (Exception e) {
+      } catch (SolrException | SolrServerException | IOException e) {
         rollback();
         throw new PSDeliveryException(
             IPSDeliveryErrors.SOLR_COMMUNICATION_EXCEPTION, e, PSExceptionUtils.getMessageForLog(e));
@@ -210,14 +210,17 @@ public class PSSolrDeliveryHandler {
         log.debug("literal. {}:{}", property.getName(), property.getValue());
       }
 
-      // SolrJ 10: addFile takes Path (File overload removed)
+      // SolrJ 10: addFile takes Path; null content type is unsafe — default when no dcterms:format
+      if (type == null || type.isBlank()) {
+        type = "application/octet-stream";
+      }
       req.addFile(psPurgableTempFile.toPath(), type);
 
       NamedList<Object> result;
 
       result = client.request(req);
       log.info("Solr Result: {}", result);
-    } catch (SolrServerException | IOException e) {
+    } catch (SolrException | SolrServerException | IOException e) {
       solrConfig.incrError();
       throw new PSDeliveryException(
           IPSDeliveryErrors.SOLR_COMMUNICATION_EXCEPTION, e, PSExceptionUtils.getMessageForLog(e));
@@ -267,7 +270,7 @@ public class PSSolrDeliveryHandler {
 
       try {
         if (client != null) {
-          client.deleteById(String.valueOf(path));
+          client.deleteById(path);
           if (!serverConfig.isDelivered()) serverConfig.setDelivered(true);
         }
       } catch (SolrException | SolrServerException | IOException e) {
@@ -291,7 +294,7 @@ public class PSSolrDeliveryHandler {
 
     synchronized (this) {
       log.info(
-          "Committing solr changes for for site {} type={} solrUrl={}",
+          "Committing solr changes for site {} type={} solrUrl={}",
           this.siteName,
           this.serverType,
           serverConfig.getSolrHost());

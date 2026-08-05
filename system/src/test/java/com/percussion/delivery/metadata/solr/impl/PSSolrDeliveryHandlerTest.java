@@ -36,6 +36,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpJdkSolrClient;
 import org.apache.solr.client.solrj.response.UpdateResponse;
+import org.apache.solr.common.SolrException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,10 +51,16 @@ public class PSSolrDeliveryHandlerTest {
   private SolrClient openClient;
 
   @AfterEach
-  void closeOpenClient() throws IOException {
+  void closeOpenClient() {
     if (openClient != null) {
-      openClient.close();
-      openClient = null;
+      try {
+        openClient.close();
+      } catch (IOException e) {
+        // Do not fail the test on close errors — that can mask the real result
+        System.err.println("PSSolrDeliveryHandlerTest: openClient.close() failed: " + e);
+      } finally {
+        openClient = null;
+      }
     }
   }
 
@@ -74,8 +81,14 @@ public class PSSolrDeliveryHandlerTest {
   }
 
   @Test
-  void createCloudClient_allowsBlankDefaultCollection() throws Exception {
+  void createCloudClient_allowsNullDefaultCollection() throws Exception {
     openClient = PSSolrDeliveryHandler.createCloudClient("http://localhost:8983/solr", null);
+    assertInstanceOf(CloudSolrClient.class, openClient);
+  }
+
+  @Test
+  void createCloudClient_allowsBlankDefaultCollection() throws Exception {
+    openClient = PSSolrDeliveryHandler.createCloudClient("http://localhost:8983/solr", "");
     assertInstanceOf(CloudSolrClient.class, openClient);
   }
 
@@ -122,8 +135,19 @@ public class PSSolrDeliveryHandlerTest {
     SolrServer config = standaloneConfig("siteA");
     PSSolrDeliveryHandler handler = new PSSolrDeliveryHandler("siteA", "PRODUCTION", config);
     SolrClient client = mock(SolrClient.class);
+    when(client.deleteById(any(String.class))).thenThrow(new SolrServerException("network down"));
+    handler.setSolrClientForTests(client);
+
+    assertThrows(PSDeliveryException.class, () -> handler.delete("/x"));
+  }
+
+  @Test
+  void delete_propagatesRuntimeSolrExceptionAsDeliveryException() throws Exception {
+    SolrServer config = standaloneConfig("siteA");
+    PSSolrDeliveryHandler handler = new PSSolrDeliveryHandler("siteA", "PRODUCTION", config);
+    SolrClient client = mock(SolrClient.class);
     when(client.deleteById(any(String.class)))
-        .thenThrow(new SolrServerException("network down"));
+        .thenThrow(new SolrException(SolrException.ErrorCode.SERVER_ERROR, "solr failed"));
     handler.setSolrClientForTests(client);
 
     assertThrows(PSDeliveryException.class, () -> handler.delete("/x"));
