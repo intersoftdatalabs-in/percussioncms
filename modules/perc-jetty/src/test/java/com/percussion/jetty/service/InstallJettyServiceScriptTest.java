@@ -90,6 +90,17 @@ class InstallJettyServiceScriptTest {
   }
 
   @Test
+  void script_requiresRoot_noDryRunFlag() {
+    // GH-1977: install is root-only; no product --dry-run (docs cover offline review)
+    assertTrue(script.contains("id -u"), "root check via id -u");
+    assertTrue(
+        script.contains("must be run with sudo or as root")
+            || script.contains("must be run as root"),
+        "root error message");
+    assertFalse(script.contains("--dry-run"), "no --dry-run installer flag");
+  }
+
+  @Test
   void defaultsFile_doesNotEmbedShellCommands() {
     // Historical bug: mkdir/chown were written into /etc/default and broke EnvironmentFile
     assertFalse(

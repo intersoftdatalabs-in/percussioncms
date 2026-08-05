@@ -26,9 +26,10 @@ TimeoutStartSec=1800
 TimeoutStopSec=120
 StandardOutput=journal
 StandardError=journal
-# Process user is applied by the Jetty start script via JETTY_USER in EnvironmentFile.
-# Running the unit as root allows the init helper to drop privileges consistently with
-# the historic init.d install path.
+# User=/privilege model: no User= in this unit. Process user is applied by the Jetty
+# start helper via JETTY_USER in EnvironmentFile (/etc/default). Running the unit as
+# root lets the init helper drop privileges consistently with the historic init.d path.
+# See README-systemd.md (contract: User= present or documented).
 KillMode=control-group
 Restart=on-failure
 RestartSec=10

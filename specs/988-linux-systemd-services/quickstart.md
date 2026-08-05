@@ -5,14 +5,37 @@
 - Linux host with systemd (or a packaging-only machine for structural tests)
 - Built/installed CMS tree including `jetty/service/`
 - Root for live install tests; **no root** needed for Maven structural tests
+- Installers have **no `--dry-run` flag** — offline template/README review is the dry-run path
+
+## Dry-run checklist (no live root)
+
+Operator-facing detail lives in:
+
+- CMS: `modules/perc-jetty/src/main/jetty/service/README-systemd.md`
+- DTS: `deliverytiersuite/.../delivery-tier-distribution/src/main/rootFiles/README-systemd.md`
+
+Without root, verify:
+
+1. Unit templates present (`percussion-cms.service.in`, `dts-tomcat.service.in`)
+2. Contract keys vs `contracts/systemd-unit-contract.md` (`Type=forking`, PID/env/exec,
+   `TimeoutStartSec` ≥ 900 / default 1800, journal, `WantedBy=multi-user.target`,
+   privilege model documented)
+3. Install flags documented: `--systemd`, `--initd` (not combined)
+4. init.d remains start helper + fallback (not deleted on systemd path)
+5. Migration order documented: **uninstall → install**
+6. Structural Maven tests green (below)
 
 ## Structural (CI / dev workstation)
 
 ```bash
-./mvnw -pl modules/perc-jetty test -Dai.integrity.skip=true
+# Preferred: standalone per module (see AGENTS.md)
+cd modules/perc-jetty && ../../mvnw test -Dtest=SystemdUnitTemplateTest,InstallJettyServiceScriptTest
+cd deliverytiersuite/delivery-tier-suite/delivery-tier-distribution \
+  && ../../../mvnw test -Dtest=DtsSystemdUnitTemplateTest,DtsServiceInstallScriptTest
 ```
 
-Expect tests covering unit template contract keys (see `contracts/systemd-unit-contract.md`).
+Expect tests covering unit template contract keys **and** README dry-run / flag docs
+(see `contracts/systemd-unit-contract.md`; GH-1977).
 
 ## Live install smoke (manual)
 
