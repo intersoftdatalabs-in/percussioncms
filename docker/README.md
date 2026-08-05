@@ -52,9 +52,17 @@ perc-devctl.py verify-fix --jar <path> [--target ...] [--restart|--no-restart] [
 perc-devctl.py logs-path
 perc-devctl.py inspect-install
 perc-devctl.py show-generated-passwords
+# QA mode — H2-in-Docker CMS for Playwright (no host install) — #1827 / #1927
+perc-devctl.py qa-up [--timeout-seconds N] [--skip-image-build]
+perc-devctl.py qa-health [--timeout-seconds N] [--interval-seconds N] [--url URL]
+perc-devctl.py qa-down [--container NAME]
 ```
 
 Each subcommand writes full output to a timestamped file under `docker/logs/<label>-<ts>.log` and emits a single `RESULT:OK STEP:<label> LOG:<path>` (or `RESULT:FAIL`) line on stdout so agent workflows can parse the result without parsing free-form output.
+
+#### QA mode (`qa-up` / `qa-health` / `qa-down`)
+
+Starts an ephemeral **CMS + H2** matrix cell (same stack as `matrix-install-smoke.py --product cms --db h2 --keep`), waits for `http://127.0.0.1:9993/Rhythmyx/login`, prints `TEST_CMS_URL` / admin username (password from generated install file when available), and tears down with `docker rm -f perc-matrix-cms-h2` so ports and disk are freed (no multi-GB named volume by default). Full operator flow: [workbench-rest-and-qa-modes.md](../docs/developer-module/workbench-rest-and-qa-modes.md) → **QA mode** section.
 
 ### `docker/scripts/hot-deploy-jar.py`
 
