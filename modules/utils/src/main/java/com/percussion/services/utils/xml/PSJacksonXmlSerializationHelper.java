@@ -66,9 +66,14 @@ import tools.jackson.dataformat.xml.XmlWriteFeature;
  * <p>Legacy package payloads with root {@code <null>} are rewritten via {@link
  * PSXmlSerializationHelper#rewriteLegacyNullRoot(String, Class)} before deserialize.
  *
+ * <p>Betwixt graph-identity {@code idref} stubs (e.g. shared {@code <ps-permission idref="N"/>} in
+ * package ACL XML) are expanded via {@link PSBetwixtIdrefExpander} before bind so package install
+ * does not silently drop permissions (issue #1899).
+ *
  * <p><strong>Approved XML deviations vs historical Betwixt writes:</strong> Jackson does not emit
  * Betwixt graph-identity {@code id="…"} attributes on complex elements (values live in child
- * elements).
+ * elements). On <em>read</em>, historical idrefs are expanded (product decision: expand on read —
+ * #1899).
  *
  * <p>{@link IPSGuid} / {@link PSGuid} use string form (same as historical Betwixt {@code
  * PSBetwixtObjectConverter}) via a registered module (issue #1888 / #1890 / #1891 / epic #505).
@@ -133,7 +138,8 @@ public final class PSJacksonXmlSerializationHelper {
 
   /**
    * Deserialize XML into a new instance of {@code clazz}. Accepts legacy root {@code <null>} when
-   * {@code clazz} is non-null (same rewrite as Betwixt path).
+   * {@code clazz} is non-null (same rewrite as Betwixt path). Expands Betwixt {@code idref} graph
+   * stubs via {@link PSBetwixtIdrefExpander} before bind (issue #1899).
    *
    * @param xmlString never blank
    * @param clazz target type, never {@code null}
@@ -148,6 +154,7 @@ public final class PSJacksonXmlSerializationHelper {
       throw new IllegalArgumentException("clazz may not be null");
     }
     String parseXml = PSXmlSerializationHelper.rewriteLegacyNullRoot(xmlString, clazz);
+    parseXml = PSBetwixtIdrefExpander.expandIdrefs(parseXml);
     return MAPPER.readValue(parseXml, clazz);
   }
 

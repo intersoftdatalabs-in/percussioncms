@@ -174,12 +174,13 @@ class PSSecurityXmlSerializationTest {
 
   @Test
   void packageFixtureAclDefSmokeRestoresScalarsAndInlinePermissions() throws Exception {
-    // Offline package smoke: shipped percPage.contentType.aclDef (Betwixt idref sharing remains a
-    // documented deviation — only fully-inlined permission blocks restore under Jackson).
+    // Offline package smoke: shipped percPage.contentType.aclDef. Betwixt idref sharing is expanded
+    // on Jackson read (#1899) so sibling community entries regain RUNTIME_VISIBLE.
     String packaged =
         loadResource("com/percussion/services/security/data/percPage.contentType.aclDef");
     assertTrue(packaged.contains("<acl-impl"), packaged);
     assertTrue(packaged.contains("<entry"), packaged);
+    assertTrue(packaged.contains("idref"), "fixture still uses Betwixt idref sharing");
 
     PSAclImpl restored = new PSAclImpl();
     restored.fromXML(packaged);
@@ -198,12 +199,82 @@ class PSSecurityXmlSerializationTest {
         permissionNames(admin.getPsPermissions()).contains("RUNTIME_VISIBLE"),
         "inline perms on first entry: " + permissionNames(admin.getPsPermissions()));
 
+    // idref siblings must expand to the same permission set as the full definition (#1899)
+    for (String communityName :
+        List.of(
+            "Enterprise_Investments", "Corporate_Investments", "Enterprise_Investments_Admin")) {
+      PSAclEntryImpl community = findEntry(restored, communityName);
+      assertNotNull(community, communityName);
+      assertEquals(PrincipalTypes.COMMUNITY, community.getType());
+      assertTrue(
+          permissionNames(community.getPsPermissions()).contains("RUNTIME_VISIBLE"),
+          communityName
+              + " idref perms must expand: "
+              + permissionNames(community.getPsPermissions()));
+    }
+
     PSAclEntryImpl defaultUser = findEntry(restored, "Default");
     assertNotNull(defaultUser);
     assertEquals(PrincipalTypes.USER, defaultUser.getType());
     Collection<String> defaultPerms = permissionNames(defaultUser.getPsPermissions());
     assertTrue(defaultPerms.contains("OWNER"), defaultPerms.toString());
     assertTrue(defaultPerms.contains("READ"), defaultPerms.toString());
+  }
+
+  @Test
+  void syntheticIdrefPermissionSiblingsRestoreEqualPermissionSets() throws Exception {
+    // Minimal synthetic ACL: one full permission definition + idref sibling entries.
+    String xml =
+        """
+        <?xml version="1.0" encoding="utf-8"?>
+        <acl-impl>
+          <guid>0-17-9002</guid>
+          <name>IdrefAcl</name>
+          <description>idref expand smoke</description>
+          <object-id>1</object-id>
+          <object-type>2</object-type>
+          <entries>
+            <entry>
+              <id>11</id>
+              <name>RoleA</name>
+              <type>ROLE</type>
+              <ps-permissions>
+                <ps-permission id="3">
+                  <acl-entry-id>11</acl-entry-id>
+                  <id>21</id>
+                  <permission>RUNTIME_VISIBLE</permission>
+                </ps-permission>
+                <ps-permission id="4">
+                  <acl-entry-id>11</acl-entry-id>
+                  <id>22</id>
+                  <permission>READ</permission>
+                </ps-permission>
+              </ps-permissions>
+            </entry>
+            <entry>
+              <id>12</id>
+              <name>RoleB</name>
+              <type>ROLE</type>
+              <ps-permissions>
+                <ps-permission idref="3"/>
+                <ps-permission idref="4"/>
+              </ps-permissions>
+            </entry>
+          </entries>
+        </acl-impl>
+        """;
+
+    PSAclImpl restored = new PSAclImpl();
+    restored.fromXML(xml);
+
+    PSAclEntryImpl a = findEntry(restored, "RoleA");
+    PSAclEntryImpl b = findEntry(restored, "RoleB");
+    assertNotNull(a);
+    assertNotNull(b);
+    assertEquals(
+        permissionNames(a.getPsPermissions()),
+        permissionNames(b.getPsPermissions()),
+        "idref sibling must restore equal permission set after expand-on-read");
   }
 
   @Test
