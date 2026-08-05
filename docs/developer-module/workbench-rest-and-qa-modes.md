@@ -126,10 +126,14 @@ python docker/scripts/perc-devctl.py qa-up
 python docker/scripts/perc-devctl.py qa-health
 # optional: --timeout-seconds 120  --interval-seconds 5
 
-# 3) Playwright against the stack only — no DEV_PERCUSSION_INSTALL
+# 3) Playwright against the stack only — no DEV_PERCUSSION_INSTALL (#2064 / #1928 slice A)
 #    Use the TEST_CMS_URL printed by qa-up (do not hardcode :9993 — multi-worktree freeport).
+#    Auth helpers resolve: TEST_CMS_URL > QA_CMS_HOST_PORT/CMS_HOST_PORT > DEV_PERCUSSION_URL
+#    > install discovery > fallback. Unit tests: npm run test:unit in perc-qa-automation/frontend.
 #    TEST_CMS_URL=http://127.0.0.1:$QA_CMS_HOST_PORT  TEST_DB_TYPE=h2  TEST_PRODUCT=cms
-#    ADMIN_USERNAME=Admin  (password printed by qa-up or via docker exec)
+#    ADMIN_USERNAME=Admin  ADMIN_PASSWORD=... (from qa-up output / docker exec — never commit)
+#    Failure artifacts: modules/perc-qa-automation/frontend/test-results/ (+ playwright-report/)
+#    Attach conventions: docs/developer-module/playwright-failure-artifacts.md (#2066)
 
 # 4) DOWN — destroy the cell; frees the published host port; no multi-GB orphans by default
 python docker/scripts/perc-devctl.py qa-down

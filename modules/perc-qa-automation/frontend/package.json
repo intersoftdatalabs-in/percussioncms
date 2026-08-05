@@ -3,7 +3,8 @@
   "version": "8.1.7-SNAPSHOT",
   "description": "Percussion CMS QA Automation tests using Playwright",
   "scripts": {
-    "test": "playwright test"
+    "test": "playwright test",
+    "test:unit": "node --test tests/unit/resolve-cms-env.test.js"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
