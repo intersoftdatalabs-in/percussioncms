@@ -161,6 +161,72 @@ cd modules/perc-qa-automation/frontend
 npx playwright test tests/login.spec.js
 ```
 
+### Surface filter (PR / agent subset) — path, grep, tag
+
+Unattended and PR-focused runs should **not** default to the full suite. Use native
+Playwright filters for the **surface under test**. Helper + npm scripts wrap the same
+CLI (no custom test runner).
+
+|           Filter            |                Native Playwright                 |                        npm / helper                        |
+|-----------------------------|--------------------------------------------------|------------------------------------------------------------|
+| **Path**                    | `npx playwright test tests/login.spec.js`        | `npm run test:surface -- --path tests/login.spec.js`       |
+| **Grep (title)**            | `npx playwright test --grep "Admin login"`       | `npm run test:surface -- --grep "Admin login"`             |
+| **Tag**                     | `npx playwright test --grep @smoke`              | `npm run test:surface -- --tag smoke`                      |
+| **List only** (no live CMS) | `npx playwright test --list tests/login.spec.js` | `npm run test:surface:list -- --path tests/login.spec.js`  |
+| **Print command**           | —                                                | `npm run test:surface:print -- --path tests/login.spec.js` |
+
+```bash
+cd modules/perc-qa-automation/frontend
+
+# Unit tests for the surface-filter arg builder (no live CMS, no Docker)
+npm run test:unit
+
+# List matches only — safe without a CMS
+npm run test:surface:list -- --path tests/login.spec.js
+npm run test:surface:list -- --grep "Content Explorer"
+npm run test:surface:print -- --tag smoke
+
+# Env form (same filters; useful for agents / CI)
+SURFACE_PATH=tests/login.spec.js npm run test:surface:list
+SURFACE_PATHS=tests/login.spec.js,tests/logout.spec.js npm run test:surface:print
+SURFACE_GREP="Admin login" npm run test:surface:list
+SURFACE_TAG=smoke npm run test:surface:print
+
+# Live QA mode against H2 Docker (slices 1–2 entrypoint — no host install)
+# Prefer TEST_CMS_URL from perc-devctl qa-up (do not hardcode :9993 — freeport #2005/#2014).
+# python docker/scripts/perc-devctl.py qa-up   # from repo root
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/login.spec.js
+
+# Tear down when done
+# python docker/scripts/perc-devctl.py qa-down
+```
+
+**`run-surface` refuses the full suite** unless you pass `--allow-full` (agents must
+not use that by default).
+
+**Tags (optional):** annotate specs with Playwright `tag` so `--tag` / `--grep @name`
+selects them:
+
+```javascript
+test("admin can open explorer", { tag: ["@smoke", "@explorer"] }, async ({ page }) => {
+  // ...
+});
+```
+
+Until a tag is present, prefer **path** and **title --grep**.
+
+**Failure artifacts** (after a live run): under `frontend/test-results/` (screenshots,
+traces, error context) and `frontend/playwright-report/` (HTML). How agents attach
+these to PRs/issues: [playwright-failure-artifacts.md](../../docs/developer-module/playwright-failure-artifacts.md)
+(#2066) when present; otherwise upload paths as PR comment attachments or gist links.
+
+**Agent QA mode path (product docs):** see
+[workbench-rest-and-qa-modes.md](../../docs/developer-module/workbench-rest-and-qa-modes.md)
+→ surface filter + proposed agent rules. Root/module `AGENTS.md` rule-file updates
+require human review before commit (root AGENTS hard gate).
+
 ### Maven
 
 `mvn test` from `modules/perc-qa-automation` runs Java Surefire (no tests in this module). Use `npm test` to run Playwright. The `frontend-maven-plugin` only installs Node + `npm ci` — it does NOT invoke Playwright at the Maven `test` phase; the Playwright run is an explicit `npm test` step after the Maven build.

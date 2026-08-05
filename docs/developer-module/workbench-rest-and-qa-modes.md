@@ -126,12 +126,18 @@ python docker/scripts/perc-devctl.py qa-up
 python docker/scripts/perc-devctl.py qa-health
 # optional: --timeout-seconds 120  --interval-seconds 5
 
-# 3) Playwright against the stack only — no DEV_PERCUSSION_INSTALL (#2064 / #1928 slice A)
+# 3) Playwright surface subset against the stack only — no DEV_PERCUSSION_INSTALL
+#    (#2064 / #1928 slice A + #1929 surface filter)
 #    Use the TEST_CMS_URL printed by qa-up (do not hardcode :9993 — multi-worktree freeport).
 #    Auth helpers resolve: TEST_CMS_URL > QA_CMS_HOST_PORT/CMS_HOST_PORT > DEV_PERCUSSION_URL
 #    > install discovery > fallback. Unit tests: npm run test:unit in perc-qa-automation/frontend.
+#    Prefer path / --grep / tag filters (full suite is not the agent default).
+#    cd modules/perc-qa-automation/frontend
 #    TEST_CMS_URL=http://127.0.0.1:$QA_CMS_HOST_PORT  TEST_DB_TYPE=h2  TEST_PRODUCT=cms
 #    ADMIN_USERNAME=Admin  ADMIN_PASSWORD=... (from qa-up output / docker exec — never commit)
+#    npm run test:surface -- --path tests/login.spec.js
+#    # or: npx playwright test tests/login.spec.js --grep "Admin"
+#    # or: npm run test:surface -- --tag smoke
 #    Failure artifacts: modules/perc-qa-automation/frontend/test-results/ (+ playwright-report/)
 #    Attach conventions: docs/developer-module/playwright-failure-artifacts.md (#2066)
 
@@ -165,7 +171,44 @@ Full tiers (CLI dry-run, live sequential `qa-up` / `up`, env override, tear-down
 
 Equivalent low-level harness (same cell): `python docker/scripts/matrix-install-smoke.py --product cms --db h2 --keep` then destroy with `docker rm -f perc-matrix-cms-h2`. Prefer `perc-devctl.py qa-*` for agents.
 
-Playwright env defaults, surface filters, and CI jobs are **later slices** of #1827 (#1928–#1930).
+#### Playwright surface filter (PR surface under test) — #1827 slice 3 / #1929
+
+Agents and operators validating a UI change must run a **subset** of specs for the surface under test — not the full Playwright suite by default.
+
+|     Mechanism      | Native CLI (from `modules/perc-qa-automation/frontend`) |                       Helper / npm                        |
+|--------------------|---------------------------------------------------------|-----------------------------------------------------------|
+| Path               | `npx playwright test tests/login.spec.js`               | `npm run test:surface -- --path tests/login.spec.js`      |
+| Title grep         | `npx playwright test --grep "Admin login"`              | `npm run test:surface -- --grep "Admin login"`            |
+| Tag                | `npx playwright test --grep @smoke`                     | `npm run test:surface -- --tag smoke`                     |
+| List only (no CMS) | `npx playwright test --list tests/login.spec.js`        | `npm run test:surface:list -- --path tests/login.spec.js` |
+
+Env aliases: `SURFACE_PATH` / `SURFACE_PATHS`, `SURFACE_GREP`, `SURFACE_TAG`, `SURFACE_GREP_INVERT`.  
+Arg builder (unit-tested, no live CMS): `frontend/tests/helpers/surface-filter.js` + `npm run test:unit`.  
+Details: [perc-qa-automation/README.md](../../modules/perc-qa-automation/README.md) → **Surface filter**.
+
+**Failure artifacts:** `modules/perc-qa-automation/frontend/test-results/` and `frontend/playwright-report/`. Attach conventions: [playwright-failure-artifacts.md](./playwright-failure-artifacts.md) (#2066) when present.
+
+**Related slices:** Playwright env `TEST_CMS_URL` without host install → #1928 / #2064; golden smoke → #2065; optional CI job → #1930.
+
+#### Agent instructions (productized; AGENTS.md rule commits need human review)
+
+Root and module `AGENTS.md` / night-issue workflow rule files are **hard-gated for human review** before commit (see root `AGENTS.md`). Until those rule diffs are approved, treat the following as **binding product process** for unattended UI work:
+
+1. **Do not blanket-skip Playwright** for a user-visible surface solely because `agent_safe_only` is true **when** the H2 QA path is available: `perc-devctl qa-up` → `TEST_CMS_URL` → **surface-filtered** Playwright → `qa-down`.
+2. Prefer **path / grep / tag** surface filters (`npm run test:surface` or native CLI). Do not run the full suite as the default overnight gate.
+3. List-only checks (`--list` / `npm run test:surface:list`) verify the filter without a live CMS; live runs need `TEST_CMS_URL` from `qa-up` (freeport contract — never hardcode `:9993` alone).
+4. Collect failure artifacts under `frontend/test-results/` (+ HTML report); attach per #2066 when that doc is present.
+5. **Still skip** work that needs host install only, secrets, or multi-RDBMS matrix unless the issue explicitly opts into those.
+
+**Proposed rule-file edits (draft for human approval — do not merge without explicit OK):**
+
+|                      File                       |                                                                      Proposed change                                                                       |
+|-------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `modules/perc-qa-automation/AGENTS.md`          | Add **QA mode surface filter** section pointing at `test:surface`, `TEST_CMS_URL` / `qa-up`, artifact paths                                                |
+| Root `AGENTS.md`                                | In WebUI / Playwright HARD GATE pointers, note unattended path = H2 QA + surface filter (not permanent skip)                                               |
+| `.grok/workflows/night-issue-prs.rhai` + README | Clarify `agent_safe_only`: host-install / secrets still skipped; **QA-mode surface Playwright** is allowed when stack + filter are documented on the issue |
+
+Operators may apply those drafts in a follow-up after human review. Product docs and npm scripts above are mergeable without that gate.
 
 **Failure artifacts (night-issue attach):** when Playwright fails in QA or dev mode, collect paths under `modules/perc-qa-automation/frontend` (`test-results/`, optional `playwright-report/`, screenshots) and attach them to the PR/issue using the conventions in [playwright-failure-artifacts.md](./playwright-failure-artifacts.md). Full CI upload pipeline remains #1930.
 
@@ -181,13 +224,15 @@ Playwright env defaults, surface filters, and CI jobs are **later slices** of #1
 
 ## 3. Pointers for agents
 
-|             Need             |                                   Doc                                    |
-|------------------------------|--------------------------------------------------------------------------|
-| REST adaptor layout          | `rest/AGENTS.md`, `projects/sitemanage/AGENTS.md`                        |
-| Which adaptors hit design WS | `docs/ai-generated/tasks/developer-module-p0/adaptor-design-ws-audit.md` |
-| Playwright + hot copy        | `modules/perc-qa-automation/AGENTS.md`, `WebUI/AGENTS.md`                |
-| Playwright failure attach    | [playwright-failure-artifacts.md](./playwright-failure-artifacts.md)     |
-| FR parity                    | `docs/developer-module/workbench-functional-inventory.md`                |
-| Progress tracker             | GitHub **#1690** (post-P0); closed **#1622** was P0                      |
+|               Need                |                                       Doc                                       |
+|-----------------------------------|---------------------------------------------------------------------------------|
+| REST adaptor layout               | `rest/AGENTS.md`, `projects/sitemanage/AGENTS.md`                               |
+| Which adaptors hit design WS      | `docs/ai-generated/tasks/developer-module-p0/adaptor-design-ws-audit.md`        |
+| Playwright + hot copy             | `modules/perc-qa-automation/AGENTS.md`, `WebUI/AGENTS.md`                       |
+| Playwright failure attach         | [playwright-failure-artifacts.md](./playwright-failure-artifacts.md)            |
+| QA surface filter (path/grep/tag) | `modules/perc-qa-automation/README.md` → Surface filter; `npm run test:surface` |
+| Unattended H2 QA mode             | This file §2 (qa-up → surface filter → qa-down); epic #1827                     |
+| FR parity                         | `docs/developer-module/workbench-functional-inventory.md`                       |
+| Progress tracker                  | GitHub **#1690** (post-P0); closed **#1622** was P0                             |
 
 When adding a Workbench-replacement API or Playwright coverage, **read this file first** and state **dev mode** vs **QA mode** in the PR body.
