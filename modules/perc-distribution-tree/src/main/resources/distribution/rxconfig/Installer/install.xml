@@ -675,6 +675,9 @@
 			inheritrefs="true" />
 		<ant antfile="updateConfiguration.xml"
 			target="updateConfiguration" inheritAll="true" inheritRefs="true" />
+		<!-- GH-1547: rewrite persisted locale codes after DB setup (idempotent). -->
+		<ant antfile="migration_i18n_locales.xml"
+			target="migrateI18nLocales" inheritAll="true" inheritRefs="true" />
 		<antcall target="updateAuditLog" inheritall="true"
 			inheritrefs="true" />
 	</target>
@@ -745,6 +748,9 @@
 			failonerror="false" force="true" />
 		<ant antfile="updateConfiguration.xml"
 			target="updateConfiguration" inheritAll="true" inheritRefs="true" />
+		<!-- GH-1547: rewrite persisted locale codes after DB setup (idempotent). -->
+		<ant antfile="migration_i18n_locales.xml"
+			target="migrateI18nLocales" inheritAll="true" inheritRefs="true" />
 	</target>
 	<target name="deleteOldLog4jJars">
 		<delete failonerror="false" includeemptydirs="true"
