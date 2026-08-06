@@ -61,7 +61,6 @@ import org.w3c.dom.NodeList;
  *
  * <p>The element root indicates any Document Element of the result document.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSServerUserSearch implements IPSResultDocumentProcessor {
   /** Creates a new PSServerUserSearch. */
   public PSServerUserSearch() {}

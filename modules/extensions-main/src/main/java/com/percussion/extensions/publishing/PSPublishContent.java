@@ -78,7 +78,6 @@ import org.xml.sax.SAXException;
  * same edition. However, it will be adequate to honor the first (which is in progress) and the last
  * requests.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowAction {
   /** Creates a new PSPublishContent. */
   public PSPublishContent() {}

@@ -62,7 +62,6 @@ import org.w3c.dom.Element;
  * deletes the rows from all system tables tables. The XML element pkey must be mapped to the
  * primary key in the backed table(s).
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSDeleteContent implements IPSRequestPreProcessor {
   /** Creates a new PSDeleteContent. */
   public PSDeleteContent() {}

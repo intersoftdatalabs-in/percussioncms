@@ -53,7 +53,6 @@ import org.w3c.dom.NodeList;
  *       sure it is available to all Rhythmyx applications for further use
  * </UL>
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSAuthenticateUser implements IPSRequestPreProcessor {
   /** Creates a new PSAuthenticateUser. */
   public PSAuthenticateUser() {}

@@ -45,7 +45,6 @@ import java.util.Iterator;
  *
  * @author dougrand
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSCheckIfVariantIsInUse implements IPSRequestPreProcessor {
   /** Creates a new PSCheckIfVariantIsInUse. */
   public PSCheckIfVariantIsInUse() {}

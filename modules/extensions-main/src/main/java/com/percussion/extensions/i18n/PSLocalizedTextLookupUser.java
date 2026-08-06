@@ -38,7 +38,6 @@ import org.apache.logging.log4j.Logger;
  *
  * @see PSI18nUtils#getString
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSLocalizedTextLookupUser extends PSSimpleJavaUdfExtension {
   /** Creates a new PSLocalizedTextLookupUser. */
   public PSLocalizedTextLookupUser() {}

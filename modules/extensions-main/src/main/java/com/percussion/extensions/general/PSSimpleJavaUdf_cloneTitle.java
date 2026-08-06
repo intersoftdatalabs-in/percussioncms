@@ -57,7 +57,6 @@ import java.util.Iterator;
  *
  * @author Vitaly.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSimpleJavaUdf_cloneTitle extends PSSimpleJavaUdfExtension {
   /** Creates a new PSSimpleJavaUdf_cloneTitle. */
   public PSSimpleJavaUdf_cloneTitle() {}

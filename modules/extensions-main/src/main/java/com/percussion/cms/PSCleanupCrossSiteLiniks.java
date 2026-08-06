@@ -78,7 +78,6 @@ import org.w3c.dom.Document;
  *       <p>Defaults to <code>false</code> seconds.
  * </ol>
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
   /** Creates a new PSCleanupCrossSiteLiniks. */

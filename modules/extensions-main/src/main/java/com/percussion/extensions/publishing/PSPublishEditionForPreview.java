@@ -44,7 +44,6 @@ import org.w3c.dom.NodeList;
  * This class publishes a manual edition for preview purposes. This is also known as just in time
  * publishing.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSPublishEditionForPreview extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
   /** Creates a new PSPublishEditionForPreview. */

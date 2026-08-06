@@ -38,7 +38,6 @@ import org.apache.logging.log4j.Logger;
  *
  * @author erikserating
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSFormEncodeDecodeHelper {
   /** Creates a new PSFormEncodeDecodeHelper. */
   public PSFormEncodeDecodeHelper() {}

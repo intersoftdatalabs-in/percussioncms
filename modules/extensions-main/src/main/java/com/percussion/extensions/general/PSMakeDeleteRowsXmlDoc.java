@@ -49,7 +49,6 @@ import org.w3c.dom.Element;
  * time, then only the first parameter should be used. The second and third parameters are ignored
  * in this case.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSMakeDeleteRowsXmlDoc implements IPSRequestPreProcessor {
   /** Creates a new PSMakeDeleteRowsXmlDoc. */
   public PSMakeDeleteRowsXmlDoc() {}

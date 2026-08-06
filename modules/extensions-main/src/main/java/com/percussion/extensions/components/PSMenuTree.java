@@ -52,7 +52,6 @@ import org.w3c.dom.Text;
  *
  * <p>Multiple requests are made to expand each child item to menu item.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSMenuTree implements IPSResultDocumentProcessor {
   /** Creates a new PSMenuTree. */
   public PSMenuTree() {}

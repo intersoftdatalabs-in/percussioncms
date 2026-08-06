@@ -39,7 +39,6 @@ import org.apache.logging.log4j.Logger;
  * @author adamgent
  * @see #getParameter(String)
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSExtensionParamsHelper {
 
   Object[] params;

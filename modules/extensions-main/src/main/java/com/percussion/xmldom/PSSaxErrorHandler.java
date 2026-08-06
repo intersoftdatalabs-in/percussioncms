@@ -28,7 +28,6 @@ import org.xml.sax.SAXParseException;
  * An error handler for SAX parsers which keeps the errors in a list accessible after parsing is
  * complete.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSaxErrorHandler implements ErrorHandler {
   /**
    * Construct a new SAX error handler. This handler will immediately throw on fatal errors, but

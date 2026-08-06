@@ -55,7 +55,6 @@ import org.w3c.dom.NodeList;
  * &lt;!ELEMENT Param PCDATA&gt; &lt;!ATTLIST Param name CDATA #REQUIRED &gt; &lt;!ELEMENT Params
  * (Param*)&gt;
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSContextMenu implements IPSResultDocumentProcessor {
   /** Creates a new PSContextMenu. */
   public PSContextMenu() {}

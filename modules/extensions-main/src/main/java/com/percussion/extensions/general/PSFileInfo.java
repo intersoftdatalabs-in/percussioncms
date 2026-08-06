@@ -84,7 +84,6 @@ import java.util.StringTokenizer;
  * browsers may not report some or all of these values. If the value is not present (or the file
  * length is 0), the corresponding parameter will not be added to the server's parameter map.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSFileInfo extends PSDefaultExtension implements IPSRequestPreProcessor {
   /** Creates a new PSFileInfo. */
   public PSFileInfo() {}

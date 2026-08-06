@@ -35,7 +35,6 @@ import org.xml.sax.SAXParseException;
  * A Rhythmyx post-exit called to transform a text node into an XML tree and add it to the result
  * Document.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSXdTextToTree extends PSDefaultExtension implements IPSResultDocumentProcessor {
   /** Creates a new PSXdTextToTree. */
   public PSXdTextToTree() {}

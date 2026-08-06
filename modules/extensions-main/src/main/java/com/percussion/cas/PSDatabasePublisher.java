@@ -45,7 +45,6 @@ import org.w3c.dom.Text;
  * This exit is used to produce database publisher documents that conform to the
  * sys_DatabasePublisher.dtd out of input documents conforming to the markup.dtd.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSDatabasePublisher implements IPSResultDocumentProcessor {
   /** Creates a new PSDatabasePublisher. */
   public PSDatabasePublisher() {}

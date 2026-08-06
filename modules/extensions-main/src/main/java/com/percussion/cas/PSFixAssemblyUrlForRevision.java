@@ -57,7 +57,6 @@ import org.w3c.dom.Text;
  * <p>No exception is thrown in case of any processing error, instead the message is logged to
  * server log as well as application trace.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSFixAssemblyUrlForRevision extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
   /** Creates a new PSFixAssemblyUrlForRevision. */

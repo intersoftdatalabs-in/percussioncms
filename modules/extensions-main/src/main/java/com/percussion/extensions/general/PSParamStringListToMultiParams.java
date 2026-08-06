@@ -34,7 +34,6 @@ import org.w3c.dom.Document;
  * source and the destination parameters are the same; otherwise simply copy the value of the source
  * parameter to the destination parameter.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSParamStringListToMultiParams extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
   /** Creates a new PSParamStringListToMultiParams. */

@@ -53,7 +53,6 @@ import org.w3c.dom.Element;
  * <p>The exit itself is generic in that it takes any number parameters though it is specified as 3
  * now.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSParamsToXml extends PSDefaultExtension implements IPSResultDocumentProcessor {
   /** Creates a new PSParamsToXml. */
   public PSParamsToXml() {}

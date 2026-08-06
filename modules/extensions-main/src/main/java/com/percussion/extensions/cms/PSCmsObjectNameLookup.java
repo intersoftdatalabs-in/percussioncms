@@ -40,7 +40,6 @@ import org.w3c.dom.NodeList;
  * namelookups during server initialization and avoid internal requests. In that this is a temporary
  * feature.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSCmsObjectNameLookup extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
   /** Creates a new PSCmsObjectNameLookup. */
   public PSCmsObjectNameLookup() {}

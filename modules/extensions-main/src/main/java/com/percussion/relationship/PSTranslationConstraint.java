@@ -39,7 +39,6 @@ import org.apache.logging.log4j.Logger;
  * This exit decides upon table lookups whether or not the requested translation relationship can be
  * created.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSTranslationConstraint extends PSDefaultExtension implements IPSRequestPreProcessor {
   /** Creates a new PSTranslationConstraint. */
   public PSTranslationConstraint() {}

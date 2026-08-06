@@ -54,7 +54,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Generates the content type list for the Content Manager UI. */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSGenerateContentTypeList extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
   /** Creates a new PSGenerateContentTypeList. */

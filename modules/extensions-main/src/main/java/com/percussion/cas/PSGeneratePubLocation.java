@@ -86,7 +86,6 @@ import org.apache.logging.log4j.Logger;
  * here while the generators for all other contexts are specified in the system table
  * RXLOCATIONSCHEME.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
   /** Creates a new PSGeneratePubLocation. */
   public PSGeneratePubLocation() {}

@@ -34,7 +34,6 @@ import java.util.Set;
  * characters are illegal in XML and will cause an exception if they are left in. This exit is added
  * to the modify command handler in the ContentEditorSystemDef as an input data exit.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSRemoveControlChars implements IPSRequestPreProcessor {
   /** Creates a new PSRemoveControlChars. */
   public PSRemoveControlChars() {}

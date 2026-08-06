@@ -30,7 +30,6 @@ import org.w3c.dom.Document;
  * the first value from the array. If the specified parameter does not exist in the request
  * parameters, it ignores.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSCollapseHtmlParameter extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
   /** Creates a new PSCollapseHtmlParameter. */

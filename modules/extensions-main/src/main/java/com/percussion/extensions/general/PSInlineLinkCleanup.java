@@ -74,7 +74,6 @@ import org.w3c.dom.Element;
  * <p>If the option parameter is not "preview", it will do the same as "preview" does, plus write to
  * the database for the processed result.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResultDocumentProcessor {
   /** Creates a new PSInlineLinkCleanup. */
   public PSInlineLinkCleanup() {}

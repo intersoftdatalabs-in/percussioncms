@@ -50,7 +50,6 @@ import org.xml.sax.InputSource;
  * This class modifies the result document to append all child and paraent dependents of the current
  * content item as a tree.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSDependencyTree implements IPSResultDocumentProcessor {
   /** Creates a new PSDependencyTree. */
   public PSDependencyTree() {}

@@ -106,7 +106,6 @@ import org.xml.sax.SAXException;
  * style sheet files and transform only if the destination stylesheets do not exist or source files
  * are modfied.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   /** Creates a new PSAddAssemblerInfo. */
   public PSAddAssemblerInfo() {}

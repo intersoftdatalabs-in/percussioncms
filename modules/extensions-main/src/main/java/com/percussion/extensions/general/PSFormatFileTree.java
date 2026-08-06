@@ -45,7 +45,6 @@ import org.w3c.dom.Text;
  *
  * @author David Benua
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSFormatFileTree extends PSDefaultExtension implements IPSResultDocumentProcessor {
   /** Creates a new PSFormatFileTree. */
   public PSFormatFileTree() {}

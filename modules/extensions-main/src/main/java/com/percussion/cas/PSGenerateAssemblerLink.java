@@ -36,7 +36,6 @@ import org.w3c.dom.Document;
  * application to get the assembly URL of the variant id passed and generates the internal link
  * (similar to the SYS_MAKEINTLINK UDF).
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSGenerateAssemblerLink extends PSSimpleJavaUdfExtension {
   /** Creates a new PSGenerateAssemblerLink. */
   public PSGenerateAssemblerLink() {}

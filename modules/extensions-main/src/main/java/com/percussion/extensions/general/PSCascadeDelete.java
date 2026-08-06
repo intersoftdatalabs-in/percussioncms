@@ -53,7 +53,6 @@ import org.w3c.dom.NodeList;
  * appended to the root node of the XML document obtained from the request context (ie, the document
  * which is processed by the update resource).
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSCascadeDelete extends PSDefaultExtension implements IPSRequestPreProcessor {
   /** Creates a new PSCascadeDelete. */
   public PSCascadeDelete() {}

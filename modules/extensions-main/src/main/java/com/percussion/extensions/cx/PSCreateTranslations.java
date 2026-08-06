@@ -40,7 +40,6 @@ import org.w3c.dom.Element;
  * translation and then makes an internal request to execute the url. Builds the result document
  * with the status of translations for each content item.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSCreateTranslations extends PSDefaultExtension implements IPSResultDocumentProcessor {
   /** Creates a new PSCreateTranslations. */
   public PSCreateTranslations() {}

@@ -45,7 +45,6 @@ import org.w3c.dom.NodeList;
  * document while processing inline links for an item and replaces the contentids and revisions
  * appropriately.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSGetModifiedInlineLinkData extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
   /** Creates a new PSGetModifiedInlineLinkData. */

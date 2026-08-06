@@ -36,7 +36,6 @@ import org.w3c.dom.Element;
  * Checks out a slot a item before expanding it. If the item is already checked out by someone else,
  * then does not show the slots for that item.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSCheckOutSlotItem extends PSDefaultExtension implements IPSResultDocumentProcessor {
   /** Creates a new PSCheckOutSlotItem. */
   public PSCheckOutSlotItem() {}

@@ -29,7 +29,6 @@ import java.util.HashMap;
  * This class implements the UDF processor interface so it can be used as a Rhythmyx function. See
  * {@link #processUdf(Object[], IPSRequestContext) processUdf} for a description.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSMakeAbsLinkSecure extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
   /** Creates a new PSMakeAbsLinkSecure. */
   public PSMakeAbsLinkSecure() {}
