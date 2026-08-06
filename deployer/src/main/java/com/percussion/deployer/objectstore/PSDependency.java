@@ -41,7 +41,6 @@ import org.w3c.dom.Element;
  * represents any deployable Rhythmyx server element, e.g. a content type, variant definition,
  * application, exit, etc.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class PSDependency
     implements IPSDependencyBaseline, IPSDeployComponent, Comparable {
 

@@ -31,7 +31,6 @@ import org.w3c.dom.Element;
  * Dependency class that represents a cms element that can only be deployed or identified as a child
  * dependency of {@link PSDeployableElement} or another <code>PSDeployableObject</code>.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSDeployableObject extends PSDependency {
   /**
    * Convenience ctor that calls <code>this(dependencyType, dependencyId,

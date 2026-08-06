@@ -76,7 +76,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /** Client-side manager for all deployment requests to the Rhythmyx server. */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSDeploymentManager {
 
   private static final Logger log = LogManager.getLogger(PSDeploymentManager.class);

@@ -43,7 +43,6 @@ import org.w3c.dom.Element;
  * <p>This class is not thread safe, so it should not be accessed by multiple threads at the same
  * time.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSApplicationIDTypes implements IPSDeployComponent {
   /**
    * Construct this object supplying the dependency for which it will map id types.

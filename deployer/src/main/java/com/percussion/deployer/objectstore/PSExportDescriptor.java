@@ -32,7 +32,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Descriptor used to run an export job to create a deployment archive. */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSExportDescriptor extends PSDescriptor {
   /**
    * Construct this descriptor, specifying its name. The archive type is set to <code>

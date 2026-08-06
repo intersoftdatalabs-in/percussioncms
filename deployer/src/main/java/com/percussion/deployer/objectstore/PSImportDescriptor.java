@@ -28,7 +28,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Descriptor used to run an import job to install objects from a deployment archive. */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSImportDescriptor extends PSDescriptor {
 
   /**

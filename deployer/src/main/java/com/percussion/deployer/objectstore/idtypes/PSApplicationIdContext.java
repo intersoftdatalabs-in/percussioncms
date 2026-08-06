@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 /** Describes the location of a literal id within a <code>PSApplication</code> object. */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class PSApplicationIdContext implements IPSDeployComponent {
 
   /** Default constructor for serialization frameworks. */

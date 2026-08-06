@@ -39,7 +39,6 @@ import java.util.stream.Stream;
 import org.w3c.dom.Element;
 
 /** Class for utility methods used by deployment components. */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSDeployComponentUtils {
 
   /** Default constructor for use via static methods. */

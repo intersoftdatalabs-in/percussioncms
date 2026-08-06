@@ -78,7 +78,6 @@ import org.apache.logging.log4j.Logger;
  * copyArchive(descriptorName, deployMgr);
  * </code></pre>
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSFolderContentsDescriptorBuilder {
 
   /**

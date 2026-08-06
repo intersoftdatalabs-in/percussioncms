@@ -41,7 +41,6 @@ import java.util.List;
  * during deployment. Concrete implementations are produced via {@link #getHandlerInstance} from a
  * {@link PSDependencyDef} and operate against a shared {@link PSDependencyMap}.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public interface IPSDependencyHandler {
 
   /**
