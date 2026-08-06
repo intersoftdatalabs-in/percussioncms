@@ -5,8 +5,10 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { WorkflowsPanel } from "../../../main/ts/developer/WorkflowsPanel";
+import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as workflowsApi from "../../../main/ts/api/developer/workflowsApi";
+import { DEV_MSG } from "../../../main/ts/developer/messages";
+import { WorkflowsPanel } from "../../../main/ts/developer/WorkflowsPanel";
 
 vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   listWorkflows: vi.fn(),
@@ -99,13 +101,50 @@ describe("WorkflowsPanel", () => {
     });
   });
 
-  it("shows error state when list fails (items stay unloaded)", async () => {
+  it("shows session-redirect message via panelErrMsg", async () => {
+    listWorkflows.mockRejectedValue(new SessionRedirectError());
+    render(<WorkflowsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-error").textContent).toBe(DEV_MSG.SESSION_REDIRECT);
+    expect(screen.queryByTestId("developer-wf-empty")).toBeNull();
+  });
+
+  it("shows ApiError status via panelErrMsg", async () => {
+    listWorkflows.mockRejectedValue({
+      status: 500,
+      statusText: "Internal Server Error",
+      body: null,
+    });
+    render(<WorkflowsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-error").textContent).toBe(
+      `${DEV_MSG.WF_ERROR} (500)`,
+    );
+  });
+
+  it("shows Error.message via panelErrMsg", async () => {
     listWorkflows.mockRejectedValue(new Error("network down"));
     render(<WorkflowsPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-wf-error")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-wf-error").textContent).toBe(
+      `${DEV_MSG.WF_ERROR} network down`,
+    );
     expect(screen.queryByTestId("developer-wf-empty")).toBeNull();
     expect(screen.queryByTestId("developer-wf-table")).toBeNull();
+  });
+
+  it("shows fallback when rejection has no message", async () => {
+    listWorkflows.mockRejectedValue("boom");
+    render(<WorkflowsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-error").textContent).toBe(DEV_MSG.WF_ERROR);
   });
 });

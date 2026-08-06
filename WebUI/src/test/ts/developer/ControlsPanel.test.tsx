@@ -5,8 +5,10 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ControlsPanel } from "../../../main/ts/developer/ControlsPanel";
+import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as controlsApi from "../../../main/ts/api/developer/controlsApi";
+import { ControlsPanel } from "../../../main/ts/developer/ControlsPanel";
+import { DEV_MSG } from "../../../main/ts/developer/messages";
 
 vi.mock("../../../main/ts/api/developer/controlsApi", () => ({
   listControls: vi.fn(),
@@ -53,7 +55,7 @@ describe("ControlsPanel", () => {
     expect(screen.getByTestId("developer-ctl-gaps").textContent).toContain("gap-a");
   });
 
-  it("shows loading empty and error states", async () => {
+  it("shows loading empty and empty state", async () => {
     let resolveList!: (v: unknown) => void;
     listControls.mockReturnValue(
       new Promise((resolve) => {
@@ -67,11 +69,51 @@ describe("ControlsPanel", () => {
       expect(screen.getByTestId("developer-ctl-empty")).toBeTruthy();
     });
     unmount();
+  });
 
-    listControls.mockRejectedValueOnce(new Error("down"));
+  it("shows session-redirect message via panelErrMsg", async () => {
+    listControls.mockRejectedValue(new SessionRedirectError());
     render(<ControlsPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-ctl-error")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-ctl-error").textContent).toBe(DEV_MSG.SESSION_REDIRECT);
+    expect(screen.queryByTestId("developer-ctl-empty")).toBeNull();
+  });
+
+  it("shows ApiError status via panelErrMsg", async () => {
+    listControls.mockRejectedValue({
+      status: 500,
+      statusText: "Internal Server Error",
+      body: null,
+    });
+    render(<ControlsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ctl-error").textContent).toBe(
+      `${DEV_MSG.CTL_ERROR} (500)`,
+    );
+  });
+
+  it("shows Error.message via panelErrMsg", async () => {
+    listControls.mockRejectedValue(new Error("network down"));
+    render(<ControlsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ctl-error").textContent).toBe(
+      `${DEV_MSG.CTL_ERROR} network down`,
+    );
+    expect(screen.queryByTestId("developer-ctl-table")).toBeNull();
+  });
+
+  it("shows fallback when rejection has no message", async () => {
+    listControls.mockRejectedValue("boom");
+    render(<ControlsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ctl-error").textContent).toBe(DEV_MSG.CTL_ERROR);
   });
 });

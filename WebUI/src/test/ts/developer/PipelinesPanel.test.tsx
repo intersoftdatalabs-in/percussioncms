@@ -5,10 +5,12 @@
 import React from "react";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { SessionRedirectError } from "../../../main/ts/api/client";
 import {
   getApplicationDetail,
   listApplications,
 } from "../../../main/ts/api/developer/pipelinesApi";
+import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { PipelinesPanel } from "../../../main/ts/developer/PipelinesPanel";
 
 vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
@@ -21,6 +23,9 @@ const getApplicationDetailMock = vi.mocked(getApplicationDetail);
 
 describe("PipelinesPanel", () => {
   beforeEach(() => {
+    (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
+      message: (key: string) => key,
+    };
     listApplicationsMock.mockReset();
     getApplicationDetailMock.mockReset();
   });
@@ -110,12 +115,49 @@ describe("PipelinesPanel", () => {
     });
   });
 
-  it("shows error UI when pipelines fetch fails", async () => {
-    listApplicationsMock.mockRejectedValue({ status: 500, statusText: "Error" });
+  it("shows session-redirect message via panelErrMsg", async () => {
+    listApplicationsMock.mockRejectedValue(new SessionRedirectError());
     render(<PipelinesPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-pipe-error")).toBeTruthy();
     });
-    expect(screen.getByTestId("developer-pipe-error").textContent).toMatch(/500/);
+    expect(screen.getByTestId("developer-pipe-error").textContent).toBe(DEV_MSG.SESSION_REDIRECT);
+    expect(screen.queryByTestId("developer-pipe-empty")).toBeNull();
+  });
+
+  it("shows ApiError status via panelErrMsg", async () => {
+    listApplicationsMock.mockRejectedValue({
+      status: 500,
+      statusText: "Internal Server Error",
+      body: null,
+    });
+    render(<PipelinesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-pipe-error").textContent).toBe(
+      `${DEV_MSG.PIPE_ERROR} (500)`,
+    );
+  });
+
+  it("shows Error.message via panelErrMsg", async () => {
+    listApplicationsMock.mockRejectedValue(new Error("network down"));
+    render(<PipelinesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-pipe-error").textContent).toBe(
+      `${DEV_MSG.PIPE_ERROR} network down`,
+    );
+    expect(screen.queryByTestId("developer-pipe-table")).toBeNull();
+  });
+
+  it("shows fallback when rejection has no message", async () => {
+    listApplicationsMock.mockRejectedValue("boom");
+    render(<PipelinesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-pipe-error").textContent).toBe(DEV_MSG.PIPE_ERROR);
   });
 });
