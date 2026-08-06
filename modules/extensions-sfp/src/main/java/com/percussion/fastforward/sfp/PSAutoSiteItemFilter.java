@@ -44,6 +44,7 @@ import org.w3c.dom.Node;
  * This exit filters out the items in the auto index that are not a part of the site identified by
  * the HTMLParameter {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID siteid}passed
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSAutoSiteItemFilter extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
   /** Default constructor for PSAutoSiteItemFilter. */

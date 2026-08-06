@@ -42,6 +42,7 @@ import org.apache.logging.log4j.Logger;
  * @author James Schultz
  * @since 6.0
  */
+@SuppressWarnings("unchecked")
 public class PSChildRelationshipBuilder extends PSChildRelationshipBase {
   /**
    * Constructs an instance of <code>PSChildRelationshipBuilder</code> that will use the specified

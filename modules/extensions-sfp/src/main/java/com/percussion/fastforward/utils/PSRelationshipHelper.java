@@ -63,6 +63,7 @@ import org.w3c.dom.Element;
  * setting for Authtype is <code>ALL CONTENT</code> and the default for communities is <code>ignore
  * </code>.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSRelationshipHelper {
   /**
    * Constructs a new relationship helper, using the specified request as the context for resolving

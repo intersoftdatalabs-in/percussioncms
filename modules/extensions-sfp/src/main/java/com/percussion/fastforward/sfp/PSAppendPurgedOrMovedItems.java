@@ -81,6 +81,7 @@ import org.w3c.dom.NodeList;
  * case sensitive. The default value for this is "no". It assumes the DTD of the result document to
  * be <em>contentlist.dtd</em> and the content list being generated is for unpublishing.
  */
+@SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
 public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
 

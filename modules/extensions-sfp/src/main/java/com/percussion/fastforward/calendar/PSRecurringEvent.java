@@ -28,6 +28,7 @@ import org.w3c.dom.Element;
  *
  * @author James Schultz
  */
+@SuppressWarnings({"rawtypes", "unchecked", "this-escape", "static-method"})
 public class PSRecurringEvent {
   private static final long serialVersionUID = 1L;
 

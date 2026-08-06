@@ -57,6 +57,7 @@ import org.apache.logging.log4j.Logger;
  *
  * @author DavidBenua
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSimpleSqlQuery {
   /** static methods only, never constructed. */
   private PSSimpleSqlQuery() {}
