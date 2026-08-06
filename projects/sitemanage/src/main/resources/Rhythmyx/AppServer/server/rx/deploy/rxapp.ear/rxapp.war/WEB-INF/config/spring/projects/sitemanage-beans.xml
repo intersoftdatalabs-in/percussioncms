@@ -75,35 +75,37 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <jaxrs:serviceBeans>
             <ref bean="restAclResource" />
             <ref bean="restActionMenuResource" />
-            <ref bean="restCommunityResource"/>
+            <ref bean="restCommunityResource" />
             <ref bean="restDisplayFormatResource" />
             <ref bean="restFoldersResource" />
             <ref bean="restAssetResource" />
             <ref bean="restPagesResource" />
             <ref bean="restContentTypesResource" />
             <ref bean="restContextResource" />
-            <ref bean="restDeliveryTypesResource"/>
-            <ref bean="restRelationshipSummaryResource"/>
-            <ref bean="restEditionsResource"/>
-            <ref bean="restExtensionsResource"/>
-            <ref bean="restItemFilterResource"/>
-            <ref bean="restKeywordsResource"/>
-            <ref bean="restLocalesResource"/>
-            <!-- #2152 / #1694 C7: RelationshipTypeResource was component-scanned but not
-                 listed here → CXF 404 on GET /services/relationshiptypes (same class as #1714). -->
-            <ref bean="restRelationshipTypeResource"/>
-            <ref bean="restSharedFieldsResource"/>
-            <ref bean="restSlotsResource"/>
-            <ref bean="restSystemDefResource"/>
-            <ref bean="restJexlResource"/>
-            <ref bean="restLocationSchemeResource"/>
-            <ref bean="restMimeTypesResource"/>
-            <ref bean="restPreferencesResource"/>
-            <ref bean="restI18nCorrectionsResource"/>
+            <ref bean="restDeliveryTypesResource" />
+            <ref bean="restRelationshipSummaryResource" />
+            <ref bean="restEditionsResource" />
+            <ref bean="restExtensionsResource" />
+            <ref bean="restItemFilterResource" />
+            <ref bean="restKeywordsResource" />
+            <ref bean="restLocalesResource" />
+            <ref bean="restRelationshipTypeResource" />
+            <ref bean="restSharedFieldsResource" />
+            <ref bean="restSlotsResource" />
+            <ref bean="restSystemDefResource" />
+            <ref bean="restJexlResource" />
+            <ref bean="restLocationSchemeResource" />
+            <ref bean="restMimeTypesResource" />
+            <ref bean="restPreferencesResource" />
+            <ref bean="restI18nCorrectionsResource" />
             <ref bean="restRolesResource" />
             <ref bean="restSitesResource" />
-            <ref bean="restTemplatesResource"/>
+            <ref bean="restTemplatesResource" />
             <ref bean="restUsersResource" />
+            <ref bean="restSearchResource" />
+            <ref bean="restViewResource" />
+            <ref bean="restControlsResource" />
+            <ref bean="restServerConfigsResource" />
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
             <entry key="json" value="application/json" />
