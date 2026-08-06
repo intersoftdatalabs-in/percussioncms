@@ -28,6 +28,7 @@ import javax.swing.*;
  *
  * @author dougrand
  */
+@SuppressWarnings("this-escape")
 public class PSPathLabel extends JTextField {
   /** Text to display, will be abbreviated according to available size, never <code>null</code> */
   protected String m_text = "";

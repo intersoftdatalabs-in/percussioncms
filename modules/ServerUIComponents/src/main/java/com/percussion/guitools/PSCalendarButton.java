@@ -40,6 +40,7 @@ import javax.swing.*;
  * ActionEvent#getActionCommand()} will return {@link #BUTTON_PRESSED_CMD} and {@link
  * #DATE_UPDATED_CMD} respectively.
  */
+@SuppressWarnings({"serial", "this-escape", "rawtypes"})
 public class PSCalendarButton extends JButton implements ActionListener, Serializable {
   /** No-op default constructor. */
   public PSCalendarButton() {

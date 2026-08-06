@@ -41,6 +41,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableModel;
 
 /** A resuable panel containing a two column table. */
+@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public class PropertyTablePanel extends JPanel implements KeyListener, FocusListener {
   /** The index of the column within the table that contains the property name data. */
   public static final int NAME_COLUMN = 0;

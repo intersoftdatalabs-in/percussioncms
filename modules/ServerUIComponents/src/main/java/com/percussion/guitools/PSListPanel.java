@@ -46,6 +46,7 @@ import javax.swing.event.ListSelectionListener;
  * results will be unpredictable. Only the methods defined by this class should be used to modify
  * the contents of this panel.
  */
+@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public class PSListPanel extends JPanel implements ListSelectionListener {
   /** No-op default constructor. */
   public PSListPanel() {

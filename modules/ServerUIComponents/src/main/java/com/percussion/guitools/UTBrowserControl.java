@@ -23,6 +23,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /** Utility class to start the default system browser */
+@SuppressWarnings("varargs")
 public class UTBrowserControl {
   /**
    * Display a file in the system browser. If you want to display a file, you must include the

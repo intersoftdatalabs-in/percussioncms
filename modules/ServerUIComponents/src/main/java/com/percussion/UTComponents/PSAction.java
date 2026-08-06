@@ -26,6 +26,7 @@ import javax.swing.*;
  *
  * <p>The class is abstract because it does not define actionPerformed().
  */
+@SuppressWarnings({"removal", "this-escape"})
 public abstract class PSAction extends AbstractAction {
 
   private static final long serialVersionUID = 1L;

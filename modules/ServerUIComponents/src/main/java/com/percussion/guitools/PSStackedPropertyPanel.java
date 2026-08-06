@@ -26,6 +26,7 @@ import javax.swing.*;
  * The utility class to create a panel with controls to set properties. This panel will layout the
  * each row with horizontally withe the label stacked above its corresponding control.
  */
+@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public class PSStackedPropertyPanel extends JPanel implements IPSPropertyPanel {
 
   /** */

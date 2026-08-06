@@ -58,7 +58,7 @@ public interface IPSTableModel extends TableModel {
    * @return the iterator over zero or more elements each representing a row data, never <code>null
    *     </code>. The elements can be any <code>Object</code> as defined by the implementor.
    */
-  public Iterator getData();
+  public Iterator<?> getData();
 
   /**
    * Gets the object representing supplied row.

@@ -28,6 +28,7 @@ import javax.swing.table.TableModel;
  * all events to its listeners. Note:Got this class from Swing examples and modified according to
  * coding standards.
  */
+@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public class PSTableMap extends AbstractTableModel implements TableModelListener {
   /** No-op default constructor. */
   public PSTableMap() {

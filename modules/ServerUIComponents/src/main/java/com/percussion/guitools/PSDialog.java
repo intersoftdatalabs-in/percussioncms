@@ -43,6 +43,7 @@ import javax.swing.table.TableCellEditor;
  *
  * @see ValidationFramework
  */
+@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public class PSDialog extends JDialog {
 
   // mimic all constructors of JDialog

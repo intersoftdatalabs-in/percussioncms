@@ -51,6 +51,7 @@ import javax.swing.*;
  * <p>If the date is not set or is <code>null</code>, then the calendar will use today's date as the
  * initial date.
  */
+@SuppressWarnings({"rawtypes", "unchecked", "serial"})
 public class PSCalendarDialog extends JDialog implements Serializable {
   /** No-op default constructor. */
   public PSCalendarDialog() {

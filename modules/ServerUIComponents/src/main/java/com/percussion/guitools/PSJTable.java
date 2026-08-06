@@ -36,6 +36,7 @@ import javax.swing.table.TableModel;
  *
  * @author DougRand
  */
+@SuppressWarnings({"rawtypes", "unchecked", "serial"})
 public class PSJTable extends JTable {
 
   /** Default constructor; delegates to {@link javax.swing.JTable#JTable()}. */

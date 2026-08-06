@@ -30,6 +30,7 @@ import javax.swing.border.BevelBorder;
  *
  * <p>In the future, additional things could be added to the panel.
  */
+@SuppressWarnings({"serial", "this-escape"})
 public class StatusBar extends JPanel {
   /** No-op default constructor. */
   public StatusBar() {

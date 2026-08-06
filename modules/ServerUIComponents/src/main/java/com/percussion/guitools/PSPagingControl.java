@@ -50,6 +50,7 @@ import javax.swing.text.PlainDocument;
  *
  * @author erikserating
  */
+@SuppressWarnings({"serial", "this-escape"})
 public class PSPagingControl extends JPanel {
 
   /** No-op default constructor. */

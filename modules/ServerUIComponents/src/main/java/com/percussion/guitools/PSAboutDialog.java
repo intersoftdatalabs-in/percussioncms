@@ -33,6 +33,7 @@ import javax.swing.*;
  * About dialog displays the Percussion Logo, Rhythmyx version info and has a clickable link to the
  * percussion website.
  */
+@SuppressWarnings({"removal", "serial", "this-escape"})
 public class PSAboutDialog extends JDialog implements Serializable {
   /** No-op default constructor. */
   public PSAboutDialog() {

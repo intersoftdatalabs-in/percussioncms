@@ -56,6 +56,7 @@ import javax.swing.*;
  *   <li>Max results
  * </ul>
  */
+@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape", "varargs"})
 public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListener {
   /** No-op default constructor. */
   public PSSearchSimplePanel() {

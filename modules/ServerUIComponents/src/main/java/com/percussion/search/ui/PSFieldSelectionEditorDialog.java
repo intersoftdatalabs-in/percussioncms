@@ -72,6 +72,7 @@ import org.apache.oro.text.perl.Perl5Util;
  * already selected in the editor from where this is launched will not be show in the Available List
  * group.
  */
+@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape", "cast"})
 public class PSFieldSelectionEditorDialog extends PSDialog {
 
   /** No-op default constructor. */

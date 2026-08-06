@@ -23,6 +23,7 @@ import javax.swing.*;
  * component as <code>DefauleCellEditor</code> accepts only <code>JComboBox</code>, <code>JCheckBox
  * </code> and <code>JTextField</code>.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class UTCellEditor extends DefaultCellEditor {
 
   private static final long serialVersionUID = 1L;

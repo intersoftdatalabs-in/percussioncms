@@ -24,6 +24,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 
 /** Cell renderer used when a {@link JTextArea} object is stored within a table or list cell. */
+@SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
 public class UTMultiLineCellRenderer extends JTextArea
     implements TableCellRenderer, ListCellRenderer, Serializable {
 

@@ -26,6 +26,7 @@ import javax.swing.*;
 /**
  * Model that may be used for a combo box with the data representing all existing display formats.
  */
+@SuppressWarnings({"rawtypes", "unchecked", "serial"})
 public class ApplicationDataComboModel extends DefaultComboBoxModel {
   /** No-op default constructor. */
   public ApplicationDataComboModel() {

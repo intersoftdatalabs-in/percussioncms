@@ -33,6 +33,7 @@ import javax.swing.table.TableModel;
  *
  * @author DougRand
  */
+@SuppressWarnings({"serial", "this-escape"})
 public class PSEditTablePanel extends JPanel {
   /** No-op default constructor. */
   public PSEditTablePanel() {

@@ -25,6 +25,7 @@ import javax.swing.*;
  *
  * <p>If the supplied action is not a PSAction, this object behaves identically to its base class.
  */
+@SuppressWarnings("this-escape")
 public class PSMenu extends JMenu {
 
   private static final long serialVersionUID = 1L;

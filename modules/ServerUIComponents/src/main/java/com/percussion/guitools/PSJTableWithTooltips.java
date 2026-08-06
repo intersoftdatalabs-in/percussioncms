@@ -23,6 +23,7 @@ import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 
 /** A subclass of JTable in which the current cell's value will also be displayed in a tooltip. */
+@SuppressWarnings("serial")
 public class PSJTableWithTooltips extends JTable {
   /** No-op default constructor. */
   public PSJTableWithTooltips() {

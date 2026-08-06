@@ -24,6 +24,7 @@ import javax.swing.*;
  * Creates a small, square button that has 3 dots that is typically used to bring up some sort of
  * browser dialog. The button attempts to maintain a fixed size.
  */
+@SuppressWarnings("this-escape")
 public class UTBrowseButton extends JButton {
 
   private static final long serialVersionUID = 1L;

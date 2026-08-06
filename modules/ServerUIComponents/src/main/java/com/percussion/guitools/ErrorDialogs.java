@@ -28,6 +28,7 @@ import javax.swing.*;
  * </code>. Caller can instantiate this object with the parent window for the error dialog or can
  * use some of the static methods to display the error dialog.
  */
+@SuppressWarnings("varargs")
 public class ErrorDialogs {
   /**
    * Constructs the object.

@@ -21,6 +21,7 @@ import javax.swing.*;
 
 /** A fixed sized JButton. */
 ////////////////////////////////////////////////////////////////////////////////
+@SuppressWarnings("this-escape")
 public class UTFixedButton extends JButton {
 
   /** No-op default constructor. */

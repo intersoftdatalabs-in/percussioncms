@@ -49,6 +49,7 @@ import javax.swing.table.TableModel;
  * </code> will be an instance of this class, <code>PSTableSorter</code>. Events received with other
  * types of sources do not indicate a sorting change and should generally be ignored.
  */
+@SuppressWarnings({"rawtypes", "unchecked", "serial", "cast"})
 public class PSTableSorter extends PSTableMap {
   /** No-op default constructor. */
   public PSTableSorter() {

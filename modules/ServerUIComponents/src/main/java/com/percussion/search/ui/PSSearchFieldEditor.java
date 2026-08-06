@@ -73,6 +73,7 @@ import org.xml.sax.SAXException;
  * Search field editor allows customization of a collection of {@link
  * com.percussion.cms.objectstore.PSSearchField} objects.
  */
+@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public class PSSearchFieldEditor extends JPanel {
   /** No-op default constructor. */
   public PSSearchFieldEditor() {

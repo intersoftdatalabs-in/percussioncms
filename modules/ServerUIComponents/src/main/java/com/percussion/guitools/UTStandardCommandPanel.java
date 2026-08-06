@@ -33,6 +33,7 @@ import javax.swing.*;
  * and Help.
  */
 ////////////////////////////////////////////////////////////////////////////////
+@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public class UTStandardCommandPanel extends JPanel implements ActionListener {
   /** No-op default constructor. */
   public UTStandardCommandPanel() {

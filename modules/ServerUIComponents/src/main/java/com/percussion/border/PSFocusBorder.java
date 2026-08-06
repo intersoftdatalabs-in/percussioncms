@@ -40,6 +40,7 @@ import javax.swing.border.CompoundBorder;
  *
  * @author dougrand
  */
+@SuppressWarnings({"serial", "this-escape"})
 public class PSFocusBorder extends AbstractBorder implements FocusListener, Serializable {
   /** No-op default constructor. */
   public PSFocusBorder() {
