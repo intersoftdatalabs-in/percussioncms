@@ -76,8 +76,10 @@ async function pickNonEnUsLocale(page) {
         .filter(Boolean),
     );
 
-  // Close listbox before returning so later fills are not blocked.
+  // Close listbox before returning so credential fills on the same page are
+  // not blocked (login reuses this navigation; no second login goto).
   await page.keyboard.press("Escape").catch(() => {});
+  await list.waitFor({ state: "hidden", timeout: 5_000 }).catch(() => {});
 
   for (const locale of LOCALE_PREFERENCE) {
     if (optionValues.includes(locale) && ADD_GADGET_BY_LOCALE[locale]) {
@@ -94,10 +96,14 @@ async function pickNonEnUsLocale(page) {
 /**
  * Admin login posting j_locale via modern LocaleSelect (combobox + hidden).
  *
+ * <p>When the page is already on the modern login form (e.g. after locale
+ * discovery), skips a second {@code goto} so discovery + login share one load.
+ *
  * @param {import('@playwright/test').Page} page
  * @param {string} locale
+ * @param {{ alreadyOnLogin?: boolean }} [options]
  */
-async function loginAsAdminWithLocale(page, locale) {
+async function loginAsAdminWithLocale(page, locale, options = {}) {
   if (!ADMIN_PASSWORD) {
     throw new Error(
       "ADMIN_PASSWORD not set. For QA mode set ADMIN_PASSWORD from perc-devctl " +
@@ -105,8 +111,13 @@ async function loginAsAdminWithLocale(page, locale) {
     );
   }
 
-  await page.goto(`${BASE_URL}/Rhythmyx/login`);
-  await page.waitForLoadState("domcontentloaded");
+  const alreadyOnLogin =
+    options.alreadyOnLogin === true ||
+    /\/Rhythmyx\/login(\?|$)|\/login(\?|$)/.test(page.url());
+  if (!alreadyOnLogin) {
+    await page.goto(`${BASE_URL}/Rhythmyx/login`);
+    await page.waitForLoadState("domcontentloaded");
+  }
 
   const modernRoot = page.locator('[data-testid="perc-login-root"]');
   const modernForm = page.locator('[data-testid="perc-login-form"]');
@@ -161,14 +172,14 @@ test.describe("Dashboard Add Gadget i18n (GH-1894 / PR #1863)", () => {
   }) => {
     test.setTimeout(90_000);
 
-    // Discover a supported non-en locale before authenticating.
+    // Discover a supported non-en locale before authenticating (single login load).
     await page.goto(`${BASE_URL}/Rhythmyx/login`);
     await expect(page.getByTestId("perc-login-page")).toBeVisible({
       timeout: 15_000,
     });
     const { locale, label } = await pickNonEnUsLocale(page);
 
-    await loginAsAdminWithLocale(page, locale);
+    await loginAsAdminWithLocale(page, locale, { alreadyOnLogin: true });
 
     // Home → gadgets section (PR-7). Prefer query entry contract; SPA may
     // rewrite to /cm/app/home/gadgets. Bare /cm/app/home is not a valid host.
