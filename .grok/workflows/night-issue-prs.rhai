@@ -15,6 +15,17 @@
 //   include_pr_followup bool   - drain merge blockers on OUR open PRs (default true).
 //                                Runs BEFORE issue Work; second pass AFTER Work for new PRs.
 //   max_prs             int    - max open PRs to babysit per follow-up pass (default 6, cap 12)
+//   include_pr_cluster  bool   - after POST follow-up, absorb same-file thrash PRs into one cluster PR (default true)
+//   cluster_min_prs     int    - min owned open PRs sharing thrash files to form a cluster (default 3, range 2-8)
+//   worktree_path       string - dedicated overnight git worktree (default below)
+//   sync_branch         string - local default branch in that worktree (default night-issue-prs-main)
+//
+// DEDICATED WORKTREE (required for live Work + PR follow-up):
+//   Path:   C:/Users/Nate/.grok/worktrees/intersoft-workspace-percussioncms/night-issue-prs
+//   Branch: night-issue-prs-main — local mirror of origin/main between jobs (not a remote base)
+//   Agents MUST run git/builds only in worktree_path. Primary clone is for humans.
+//   Start of each job: fetch origin main; hard-reset night-issue-prs-main to origin/main when clean.
+//   Feature work: fix/issue-N-* branches inside the worktree; PR base stays base_branch (main).
 //
 // agent_budget (tool arg, not script arg): absolute cap on child agent() / parallel()
 // slots for the whole run (default 128). See README.
@@ -32,6 +43,7 @@ let meta = #{
         #{ title: "PR follow-up (pre)", detail: "drain merge blockers before new issue PRs" },
         #{ title: "Work", detail: "implement or split; track multi-phase status on parent GH issue" },
         #{ title: "PR follow-up (post)", detail: "catch PRs opened this run + remaining blockers" },
+        #{ title: "PR cluster", detail: "same-file thrash: interim branch + superseding PR" },
         #{ title: "Report", detail: "scratch night report (run-local only; not epic status)" },
     ],
 };
@@ -93,6 +105,21 @@ let pr_followup_schema = #{
     },
 };
 
+let pr_cluster_schema = #{
+    "type": "object",
+    "required": ["status", "summary"],
+    "properties": #{
+        "status": #{ "type": "string" },
+        "summary": #{ "type": "string" },
+        "cluster_branch": #{ "type": "string" },
+        "cluster_pr_url": #{ "type": "string" },
+        "superseded_prs": #{ "type": "string" },
+        "thrash_files": #{ "type": "string" },
+        "prs_absorbed": #{ "type": "integer" },
+        "blocked": #{ "type": "string" },
+    },
+};
+
 // --- args (guard unit) ---
 let max_issues = 3;
 let labels = "";
@@ -103,8 +130,14 @@ let prefer_easy = true;
 let agent_safe_only = true;
 let unassigned_only = true;
 let include_pr_followup = true;
+let include_pr_cluster = true;
 let max_prs = 6;
+let cluster_min_prs = 3;
 let issue_numbers = ();
+// Dedicated overnight workspace (agents must chdir here for git/builds).
+let worktree_path = "C:/Users/Nate/.grok/worktrees/intersoft-workspace-percussioncms/night-issue-prs";
+// Local integration branch in the worktree; reset to origin/main between jobs.
+let sync_branch = "night-issue-prs-main";
 
 if args != () {
     if args.max_issues != () { max_issues = args.max_issues; }
@@ -116,14 +149,20 @@ if args != () {
     if args.agent_safe_only != () { agent_safe_only = args.agent_safe_only; }
     if args.unassigned_only != () { unassigned_only = args.unassigned_only; }
     if args.include_pr_followup != () { include_pr_followup = args.include_pr_followup; }
+    if args.include_pr_cluster != () { include_pr_cluster = args.include_pr_cluster; }
     if args.max_prs != () { max_prs = args.max_prs; }
+    if args.cluster_min_prs != () { cluster_min_prs = args.cluster_min_prs; }
     if args.issue_numbers != () { issue_numbers = args.issue_numbers; }
+    if args.worktree_path != () { worktree_path = args.worktree_path; }
+    if args.sync_branch != () { sync_branch = args.sync_branch; }
 }
 
 if max_issues < 1 { max_issues = 1; }
 if max_issues > 12 { max_issues = 12; }
 if max_prs < 1 { max_prs = 1; }
 if max_prs > 12 { max_prs = 12; }
+if cluster_min_prs < 2 { cluster_min_prs = 2; }
+if cluster_min_prs > 8 { cluster_min_prs = 8; }
 
 log("night-issue-prs: repo=" + repo + " base=" + base_branch
     + " max_issues=" + max_issues.to_string()
@@ -131,14 +170,19 @@ log("night-issue-prs: repo=" + repo + " base=" + base_branch
     + " agent_safe_only=" + agent_safe_only.to_string()
     + " unassigned_only=" + unassigned_only.to_string()
     + " include_pr_followup=" + include_pr_followup.to_string()
-    + " max_prs=" + max_prs.to_string());
+    + " include_pr_cluster=" + include_pr_cluster.to_string()
+    + " max_prs=" + max_prs.to_string()
+    + " cluster_min_prs=" + cluster_min_prs.to_string()
+    + " worktree=" + worktree_path
+    + " sync_branch=" + sync_branch);
 
 // ========== Discover ==========
 phase("Discover");
 
 let discover_prompt = "";
 discover_prompt += "You are the discovery agent for Percussion CMS overnight issue work.\n";
-discover_prompt += "Repo workspace is the percussioncms monorepo. Use the shell and gh CLI.\n\n";
+discover_prompt += "Repo: " + repo + ". Prefer cwd " + worktree_path + " for any git status\n";
+discover_prompt += "(dedicated night-issue-prs worktree; sync_branch=" + sync_branch + "). Use gh CLI.\n\n";
 discover_prompt += "HARD RULES:\n";
 discover_prompt += "1) Before any gh command: run `gh auth status` and ensure the active account\n";
 discover_prompt += "   can access " + repo + " (prefer natechadwick-intsof if listed).\n";
@@ -259,6 +303,7 @@ if queue.len() == 0 {
 let results = [];
 let pr_followup_result = ();
 let pr_followup_post_result = ();
+let pr_cluster_result = ();
 if dry_run {
     log("dry_run=true: skipping Work and PR follow-up agents (triage plan only).");
     for item in queue {
@@ -292,6 +337,14 @@ pr_prompt_core += "You are the overnight PR follow-up agent for Percussion CMS.\
 pr_prompt_core += "Repo: " + repo + "\n";
 pr_prompt_core += "Base branch: " + base_branch + "\n";
 pr_prompt_core += "max_prs=" + max_prs.to_string() + "\n\n";
+
+pr_prompt_core += "WORKSPACE (HARD — dedicated overnight worktree):\n";
+pr_prompt_core += "- cwd MUST be: " + worktree_path + "\n";
+pr_prompt_core += "- Local default branch: " + sync_branch + " (sync to origin/" + base_branch + " between jobs).\n";
+pr_prompt_core += "- Start of this pass (if clean): git fetch origin " + base_branch + "; git switch " + sync_branch + ";\n";
+pr_prompt_core += "  git reset --hard origin/" + base_branch + ".\n";
+pr_prompt_core += "- Checkout PR branches only inside this worktree.\n";
+pr_prompt_core += "- Do NOT use the primary human clone for overnight follow-up.\n\n";
 
 pr_prompt_core += "HARD PRODUCT RULE (human operator):\n";
 pr_prompt_core += "No PR can be merged while it has (a) merge conflicts OR (b) any unresolved\n";
@@ -339,7 +392,7 @@ pr_prompt_core += "5) NEVER edit threads on other humans' PRs unless co-author /
 
 pr_prompt_core += "PER SELECTED PR (dry_run=false) - PR by PR, then next phase:\n";
 pr_prompt_core += "A) CONFLICTS/DIRTY (and BEHIND only if you are already rebasing for conflicts):\n";
-pr_prompt_core += "   fetch; checkout PR branch (worktree if main dirty); rebase onto origin/" + base_branch + "\n";
+pr_prompt_core += "   In worktree_path: fetch; checkout PR branch; rebase onto origin/" + base_branch + "\n";
 pr_prompt_core += "   (or PR baseRefName). Resolve markers fully; keep both non-overlapping adds;\n";
 pr_prompt_core += "   TMX union keys. git push --force-with-lease ONLY (never bare --force).\n";
 pr_prompt_core += "   Comment on PR. If unresolvable: abort, residual issue.\n";
@@ -445,7 +498,9 @@ for item in queue {
     if item.slice_title != () { work_prompt += "Slice title: " + item.slice_title + "\n"; }
     if item.split_plan != () { work_prompt += "Split plan: " + item.split_plan + "\n"; }
     if item.rationale != () { work_prompt += "Triage rationale: " + item.rationale + "\n"; }
-    work_prompt += "\nRepo: " + repo + "\nBase branch: " + base_branch + "\n";
+    work_prompt += "\nRepo: " + repo + "\nBase branch (PR base): " + base_branch + "\n";
+    work_prompt += "Worktree: " + worktree_path + "\n";
+    work_prompt += "Sync branch (local default): " + sync_branch + "\n";
     work_prompt += "dry_run=" + dry_run.to_string() + "\n\n";
 
     work_prompt += "READ FIRST (use tools, do not skip):\n";
@@ -460,16 +515,24 @@ for item in queue {
     work_prompt += "- Before any gh: `gh auth status` (active account for this repo).\n";
     work_prompt += "- Commit footer: Co-Authored by Grok Build using grok-4.5 with agent main.\n\n";
 
+    work_prompt += "WORKSPACE (HARD — dedicated overnight worktree):\n";
+    work_prompt += "- cwd MUST be: " + worktree_path + "\n";
+    work_prompt += "- Do NOT edit or build in the primary human clone for this job.\n\n";
+
     work_prompt += "GIT HYGIENE (critical for sequential overnight runs):\n";
-    work_prompt += "1) Start clean: `git status`. If dirty from a prior failed item, stash or\n";
+    work_prompt += "1) cd " + worktree_path + " ; `git status`. If dirty from a prior failed item, stash or\n";
     work_prompt += "   discard ONLY files you created for a failed attempt; never delete unrelated work.\n";
-    work_prompt += "2) `git fetch origin " + base_branch + "`\n";
-    work_prompt += "3) Create a NEW branch from origin/" + base_branch + " named:\n";
+    work_prompt += "2) Sync integration branch with origin/" + base_branch + ":\n";
+    work_prompt += "   git fetch origin " + base_branch + "\n";
+    work_prompt += "   git switch " + sync_branch + "\n";
+    work_prompt += "   git reset --hard origin/" + base_branch + "\n";
+    work_prompt += "   (" + sync_branch + " is the local default in this worktree; keep it = origin/" + base_branch + ")\n";
+    work_prompt += "3) Create a NEW feature branch FROM " + sync_branch + " named:\n";
     work_prompt += "   fix/issue-" + inum.to_string() + "-<short-slug>\n";
     work_prompt += "   (or feat/issue-... as appropriate). If branch exists, pick a unique suffix.\n";
-    work_prompt += "4) Never force-push. Never push to " + base_branch + "/main/development directly.\n";
-    work_prompt += "5) After PR (or abandon): leave the tree on the feature branch or switch back\n";
-    work_prompt += "   cleanly so the next issue can branch from origin/" + base_branch + ".\n\n";
+    work_prompt += "4) Never force-push. Never push to " + sync_branch + " or " + base_branch + "/main/development.\n";
+    work_prompt += "5) After PR (or abandon): switch back to " + sync_branch + ", ensure clean, so the\n";
+    work_prompt += "   next issue can reset to origin/" + base_branch + " and branch again in this worktree.\n\n";
 
     work_prompt += "PARENT-ISSUE STATUS TRACKING (hard ΓÇö multi-phase / multi-issue work):\n";
     work_prompt += "Cross-run progress for epics, splits, and residual slices MUST live on GitHub\n";
@@ -656,6 +719,142 @@ if include_pr_followup {
     }
 }
 
+
+// ========== PR cluster (same-file thrash absorption) ==========
+// When many owned open PRs all edit the same hot paths (smoke specs, sitemanage-beans,
+// package.json, etc.), rebasing each onto main still leaves them conflicting with each
+// other. Prefer one interim cluster branch + one superseding PR.
+if include_pr_followup && include_pr_cluster {
+    phase("PR cluster");
+    let b_cl = budget();
+    if b_cl.remaining < 2 {
+        log("Skipping PR cluster: agent budget low.");
+        pr_cluster_result = #{
+            status: "skipped",
+            summary: "Skipped: insufficient agent budget",
+            cluster_branch: "",
+            cluster_pr_url: "",
+            superseded_prs: "",
+            thrash_files: "",
+            prs_absorbed: 0,
+            blocked: "budget",
+        };
+    } else {
+        let cl_prompt = "";
+        cl_prompt += "You are the overnight PR CLUSTER agent for Percussion CMS.\n";
+        cl_prompt += "Repo: " + repo + "\n";
+        cl_prompt += "PR base: " + base_branch + "\n";
+        cl_prompt += "Worktree (HARD cwd): " + worktree_path + "\n";
+        cl_prompt += "Sync branch: " + sync_branch + " (reset to origin/" + base_branch + " when clean)\n";
+        cl_prompt += "cluster_min_prs=" + cluster_min_prs.to_string() + "\n";
+        cl_prompt += "dry_run=false (this phase only runs on live overnight)\n\n";
+
+        cl_prompt += "CONTEXT from this run:\n";
+        cl_prompt += "Issue work results (JSON):\n" + json_encode(results) + "\n";
+        cl_prompt += "PR follow-up PRE (JSON):\n" + json_encode(pr_followup_result) + "\n";
+        cl_prompt += "PR follow-up POST (JSON):\n" + json_encode(pr_followup_post_result) + "\n\n";
+
+        cl_prompt += "GOAL: If owned open PRs thrash the same files, absorb them into ONE cluster PR\n";
+        cl_prompt += "against " + base_branch + ". Otherwise status=skipped with a short reason.\n\n";
+
+        cl_prompt += "IDENTITY / SCOPE:\n";
+        cl_prompt += "1) gh auth status; active account for " + repo + ".\n";
+        cl_prompt += "2) Only owned open PRs: author is active gh user OR head matches\n";
+        cl_prompt += "   fix/issue- OR feat/issue- OR fix/installer-.\n";
+        cl_prompt += "3) Do NOT merge. Do NOT approve. Do NOT touch other humans' PRs.\n";
+        cl_prompt += "4) Do NOT poll CI. Conflicts + content union only.\n\n";
+
+        cl_prompt += "DETECT thrash groups:\n";
+        cl_prompt += "D1) List ALL owned open PRs (number, head, createdAt, mergeable, files via gh pr view --json files).\n";
+        cl_prompt += "D2) Group PRs that share thrash paths (examples that often thrash overnight):\n";
+        cl_prompt += "    - modules/perc-qa-automation/frontend/tests/developer-catalog-smoke.spec.js\n";
+        cl_prompt += "    - modules/perc-qa-automation/frontend/package.json\n";
+        cl_prompt += "    - modules/perc-qa-automation/frontend/tests/helpers/auth.js\n";
+        cl_prompt += "    - **/sitemanage-beans.xml (rest-jax-rs serviceBeans)\n";
+        cl_prompt += "    - Same parent epic / residual chain is a soft signal, not required.\n";
+        cl_prompt += "D3) A thrash group is actionable if it has >= cluster_min_prs members OR\n";
+        cl_prompt += "    >=2 members that are CONFLICTING/DIRTY against " + base_branch + " on shared paths.\n";
+        cl_prompt += "D4) If no thrash group: status=skipped, summary explains inventory, return.\n";
+        cl_prompt += "D5) Pick the largest thrash group (cap absorb list at 12 PRs, oldest createdAt first).\n\n";
+
+        cl_prompt += "CLUSTER workflow (live):\n";
+        cl_prompt += "C1) cd " + worktree_path + "\n";
+        cl_prompt += "    git fetch origin " + base_branch + "\n";
+        cl_prompt += "    git switch " + sync_branch + "\n";
+        cl_prompt += "    git reset --hard origin/" + base_branch + "\n";
+        cl_prompt += "C2) Create interim branch from " + sync_branch + ":\n";
+        cl_prompt += "    cluster/night-issue-<YYYYMMDD>-<short-topic>\n";
+        cl_prompt += "    (topic from shared thrash files, e.g. catalog-smoke or sitemanage-beans).\n";
+        cl_prompt += "C3) Oldest PR first: merge or cherry-pick its head into the cluster branch.\n";
+        cl_prompt += "    Prefer: git merge origin/<pr-head> --no-ff -m \"cluster: absorb #N\"\n";
+        cl_prompt += "    On conflicts: UNION semantics (never drop either side's unique adds):\n";
+        cl_prompt += "      * serviceBeans / XML lists: keep all distinct ref beans\n";
+        cl_prompt += "      * smoke/REST matrices: table-driven union of endpoints/tests\n";
+        cl_prompt += "      * package.json test:unit: union of unit test paths + keep extra scripts\n";
+        cl_prompt += "      * TMX / i18n: union keys\n";
+        cl_prompt += "    After each absorb: build/tests for touched modules when practical.\n";
+        cl_prompt += "C4) Push cluster branch; open ONE PR to " + base_branch + " with labels\n";
+        cl_prompt += "    operator:grok, operator:night-issue-prs, model:grok-4.5.\n";
+        cl_prompt += "C5) Cluster PR body MUST include:\n";
+        cl_prompt += "    - Summary of thrash problem + thrash file list\n";
+        cl_prompt += "    - Table: Supersedes | Original PR | Head | Absorbed (yes/partial) | Notes\n";
+        cl_prompt += "    - Test plan / gates evidence\n";
+        cl_prompt += "    - Operator: Grok: night-issue-prs (model grok-4.5)\n";
+        cl_prompt += "C6) For each fully absorbed PR: comment on that PR linking the cluster PR:\n";
+        cl_prompt += "    \"Superseded by <cluster PR url> — same-file thrash absorption; do not merge this PR.\"\n";
+        cl_prompt += "    Then close it (gh pr close) — do NOT merge the superseded PR.\n";
+        cl_prompt += "    Only close when content is actually in the cluster (or truly obsolete).\n";
+        cl_prompt += "C7) Leave cluster PR open for human review. Do not merge/approve.\n";
+        cl_prompt += "C8) Return to " + sync_branch + " clean (or leave on cluster branch only if clean).\n\n";
+
+        cl_prompt += "HARD BANS:\n";
+        cl_prompt += "- Do not invent product scope beyond unioning the thrash group.\n";
+        cl_prompt += "- Do not force-push bare --force (force-with-lease only if rewriting cluster history).\n";
+        cl_prompt += "- Do not close a PR that was NOT absorbed.\n";
+        cl_prompt += "- Do not cluster unrelated PRs just to reduce count.\n\n";
+
+        cl_prompt += "Return structured status: skipped | cluster_opened | failed.\n";
+        cl_prompt += "superseded_prs = space-separated PR numbers or URLs.\n";
+        cl_prompt += "thrash_files = space-separated paths.\n";
+
+        let cl_agent = agent(cl_prompt, #{
+            label: "pr-cluster",
+            capability_mode: "all",
+            output_schema: pr_cluster_schema,
+        });
+
+        if cl_agent != () && cl_agent.success && cl_agent.output != () {
+            pr_cluster_result = cl_agent.output;
+            log("PR cluster: " + pr_cluster_result.summary);
+        } else {
+            pr_cluster_result = #{
+                status: "failed",
+                summary: "PR cluster agent failed",
+                cluster_branch: "",
+                cluster_pr_url: "",
+                superseded_prs: "",
+                thrash_files: "",
+                prs_absorbed: 0,
+                blocked: "agent_failed",
+            };
+            log("PR cluster agent failed");
+        }
+    }
+} else if include_pr_cluster == false {
+    log("PR cluster disabled (include_pr_cluster=false).");
+    pr_cluster_result = #{
+        status: "skipped",
+        summary: "include_pr_cluster=false",
+        cluster_branch: "",
+        cluster_pr_url: "",
+        superseded_prs: "",
+        thrash_files: "",
+        prs_absorbed: 0,
+        blocked: "",
+    };
+}
+
+
 } // end else (!dry_run)
 
 // ========== Report ==========
@@ -672,13 +871,15 @@ report_prompt += "Triage notes:\n" + json_encode(triage_notes) + "\n\n";
 report_prompt += "Issue work results (JSON):\n" + json_encode(results) + "\n\n";
 report_prompt += "PR follow-up PRE result (JSON, may be empty):\n" + json_encode(pr_followup_result) + "\n\n";
 report_prompt += "PR follow-up POST result (JSON, may be empty):\n" + json_encode(pr_followup_post_result) + "\n\n";
+report_prompt += "PR cluster result (JSON, may be empty):\n" + json_encode(pr_cluster_result) + "\n\n";
 report_prompt += "Include:\n";
 report_prompt += "1) Table: issue | status | PR | child/residual issue links | parent tracker | summary\n";
 report_prompt += "2) Table: open PRs followed up | conflicts | threads resolved | residual issues\n";
 report_prompt += "3) List still-open HUMAN review threads AND merge_blockers_still_open (conflicts\n";
 report_prompt += "   and unresolved bot/human threads only - not CI wait state)\n";
-report_prompt += "4) Morning review order and what was deferred\n";
-report_prompt += "5) Note any PARENT issues whose ## Agent progress section should be checked\n";
+report_prompt += "4) PR cluster: if a cluster PR was opened, put it FIRST in morning review; list superseded PRs\n";
+report_prompt += "5) Morning review order and what was deferred\n";
+report_prompt += "6) Note any PARENT issues whose ## Agent progress section should be checked\n";
 report_prompt += "Return ONLY the markdown body (no code fence wrapper).\n";
 
 let report_agent = agent(report_prompt, #{
@@ -720,6 +921,9 @@ if pr_followup_result != () && pr_followup_result.summary != () {
 if pr_followup_post_result != () && pr_followup_post_result.summary != () {
     summary = summary + "; pr_post: " + pr_followup_post_result.summary;
 }
+if pr_cluster_result != () && pr_cluster_result.summary != () {
+    summary = summary + "; pr_cluster: " + pr_cluster_result.summary;
+}
 
 log(summary);
 complete(#{
@@ -728,6 +932,7 @@ complete(#{
     results: results,
     pr_followup: pr_followup_result,
     pr_followup_post: pr_followup_post_result,
+    pr_cluster: pr_cluster_result,
     notes: triage_notes,
     dry_run: dry_run,
 });
