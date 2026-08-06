@@ -250,40 +250,90 @@ function missingPasswordMessage(username) {
   );
 }
 
+/**
+ * Fill Admin/role credentials on either the modern React login (data-testid)
+ * or the legacy JSP form (name= attributes). Locale defaults to en-us when
+ * the modern LocaleSelect already posts a hidden j_locale.
+ *
+ * @param {import("@playwright/test").Page} page
+ * @param {string} username
+ * @param {string} password
+ */
+async function fillLoginForm(page, username, password) {
+  const modernRoot = page.locator('[data-testid="perc-login-root"]');
+  const modernForm = page.locator('[data-testid="perc-login-form"]');
+  const legacyUser = page.locator('input[name="j_username"]');
+
+  // Prefer modern React login (#2065 H2 qa-up ships rxlogin → perc-login-root).
+  if ((await modernRoot.count()) > 0 || (await modernForm.count()) > 0) {
+    await modernForm.or(modernRoot).first().waitFor({ state: "visible", timeout: 30_000 });
+    await page.locator('[data-testid="perc-login-username"]').fill(username);
+    await page.locator('[data-testid="perc-login-password"]').fill(password);
+    // LocaleSelect posts hidden input[name=j_locale]; default bootstrap is en-us.
+    // Only open the combobox when we must force a non-default locale.
+    const hiddenLocale = page.locator(
+      'input[type="hidden"][name="j_locale"], input[name="j_locale"]',
+    );
+    if ((await hiddenLocale.count()) > 0) {
+      const current = await hiddenLocale.first().inputValue().catch(() => "");
+      if (current && current !== "en-us") {
+        await page.locator('[data-testid="perc-login-locale"]').click();
+        await page
+          .locator('[role="option"]')
+          .filter({ hasText: /en-us|English \(United States\)/i })
+          .first()
+          .click();
+      }
+    }
+    return { submit: page.locator('[data-testid="perc-login-submit"]') };
+  }
+
+  // Legacy native form (select[name=j_locale]).
+  await legacyUser.waitFor({ state: "visible", timeout: 30_000 });
+  await page.fill('input[name="j_username"]', username);
+  await page.fill('input[name="j_password"]', password);
+  const nativeLocale = page.locator('select[name="j_locale"]');
+  if ((await nativeLocale.count()) > 0) {
+    await nativeLocale.selectOption("en-us");
+  }
+  return { submit: page.locator('button[type="submit"]') };
+}
+
 async function login(page, username, password) {
   if (!password) {
     throw new Error(missingPasswordMessage(username));
   }
 
   await page.goto(`${PERCUSSION_URL}/Rhythmyx/login`);
-  await page.fill('input[name="j_username"]', username);
-  await page.fill('input[name="j_password"]', password);
-  await page.selectOption('select[name="j_locale"]', "en-us");
+  // Wait for SPA mount or legacy form before filling.
+  await page.waitForLoadState("domcontentloaded");
+  const { submit } = await fillLoginForm(page, username, password);
 
-  // The CMS uses a multipart/form-data POST with OWASP-CSRFTOKEN. The
-  // server returns 302 → /Rhythmyx/index.jsp (JSP welcome). We submit
-  // and poll page.url() until we leave the login path, with a hard
-  // timeout. This avoids any race with Playwright's navigation events
-  // on multipart responses.
+  // The CMS uses a multipart/form-data POST with OWASP-CSRFTOKEN. Modern
+  // login may land at /cm/app/spa.jsp?entry=home; legacy lands at index.jsp.
+  // Poll until we leave the login path, with a hard timeout.
   await Promise.all([
     page
       .waitForFunction(
-        () => !window.location.pathname.endsWith("/Rhythmyx/login"),
+        () => {
+          const p = window.location.pathname;
+          return !p.endsWith("/Rhythmyx/login") && !p.endsWith("/login");
+        },
         null,
-        { timeout: 15_000 },
+        { timeout: 30_000 },
       )
       .catch(async () => {
         // networkidle sometimes fires before the JS function evaluates;
         // fall back to a short poll.
         await page.waitForTimeout(1500);
       }),
-    page.click('button[type="submit"]'),
+    submit.click(),
   ]);
 
   const url = page.url();
-  if (url.includes("/Rhythmyx/login")) {
+  if (url.includes("/Rhythmyx/login") || /\/login(\?|$)/.test(url)) {
     throw new Error(
-      `Login did not navigate away from /Rhythmyx/login (still at ${url})`,
+      `Login did not navigate away from login page (still at ${url})`,
     );
   }
 }

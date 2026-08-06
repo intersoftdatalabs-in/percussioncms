@@ -40,6 +40,79 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 python docker/scripts/perc-devctl.py qa-down
 ```
 
+### Golden unattended smoke (#2065 / #1928 slice B)
+
+**One** reference Playwright path for agents: Admin **login + modern Content Explorer**
+(product screen). Env-only (`TEST_CMS_URL` + admin creds); **no** `DEV_PERCUSSION_INSTALL`.
+Not the full suite.
+
+**Prereq (once / after installer changes):** package the customer CMS assembly:
+
+```bash
+cd modules/perc-distribution-tree && ../../mvnw package -DskipTests
+# Windows: cd modules\perc-distribution-tree && ..\..\mvnw.cmd package -DskipTests
+```
+
+**Unix (bash) one-shot** from repo root:
+
+```bash
+python docker/scripts/perc-devctl.py qa-up
+# Capture TEST_CMS_URL=… QA_CMS_HOST_PORT=… ADMIN_PASSWORD=… from stdout (freeport).
+
+cd modules/perc-qa-automation/frontend
+npm ci
+npx playwright install chromium
+
+export TEST_CMS_URL="${TEST_CMS_URL:-http://127.0.0.1:${QA_CMS_HOST_PORT}}"
+export ADMIN_USERNAME=Admin
+export ADMIN_PASSWORD   # set from qa-up stdout — never commit
+export TEST_DB_TYPE=h2
+export TEST_PRODUCT=cms
+
+npm run test:golden
+# equivalent:
+# npm run test:surface -- --path tests/golden-unattended-smoke.spec.js
+# npx playwright test tests/golden-unattended-smoke.spec.js --grep @golden
+
+cd ../../..
+python docker/scripts/perc-devctl.py qa-down
+```
+
+**Windows (cmd) one-shot** from repo root:
+
+```bat
+python docker\scripts\perc-devctl.py qa-up
+REM Capture TEST_CMS_URL / QA_CMS_HOST_PORT / ADMIN_PASSWORD from stdout (do not hardcode 9993)
+
+cd modules\perc-qa-automation\frontend
+call npm ci
+call npx playwright install chromium
+
+set TEST_CMS_URL=http://127.0.0.1:%QA_CMS_HOST_PORT%
+set ADMIN_USERNAME=Admin
+set ADMIN_PASSWORD=<from-qa-up>
+set TEST_DB_TYPE=h2
+set TEST_PRODUCT=cms
+
+call npm run test:golden
+
+cd ..\..\..
+python docker\scripts\perc-devctl.py qa-down
+```
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/golden-unattended-smoke.spec.js` |
+| npm | `npm run test:golden` |
+| Tags | `@smoke` / `@golden` (also via `npm run test:surface -- --tag golden`) |
+| Failure artifacts | `modules/perc-qa-automation/frontend/test-results/` |
+| HTML report | `modules/perc-qa-automation/frontend/playwright-report/` |
+| Attach runbook | [playwright-failure-artifacts.md](../../docs/developer-module/playwright-failure-artifacts.md) |
+| Stack lifecycle | [workbench-rest-and-qa-modes.md](../../docs/developer-module/workbench-rest-and-qa-modes.md) §2 |
+
+**Hard bans:** do not commit passwords; do not hardcode host port `:9993` as the only URL
+(use freeport `TEST_CMS_URL` from `qa-up`).
+
 **Admin creds (QA):** default username `Admin` (`ADMIN_USERNAME`). Password comes
 from `qa-up` output, process env, or `docker exec` into the QA cell — **never
 commit secrets**. No passwords are stored in this repo.

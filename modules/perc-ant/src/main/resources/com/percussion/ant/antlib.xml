@@ -120,6 +120,11 @@
 		classname="com.percussion.ant.install.PSMakeLasagna" />
 	<taskdef name="PSValidateRepositoryConnection"
 		classname="com.percussion.ant.install.PSValidateRepositoryConnection" />
+	<!-- Silent / H2 matrix installs (#548/#1500): random cmdb.password when unset.
+		Must be registered here — installRepository.xml uses <PSGenerateRepositoryPassword>
+		via taskdef resource="com/percussion/ant/antlib.xml" (qa-up blocker if missing). -->
+	<taskdef name="PSGenerateRepositoryPassword"
+		classname="com.percussion.ant.install.PSGenerateRepositoryPassword" />
 	<taskdef name="PSCopyDirectory"
 		classname="com.percussion.ant.packagetool.PSCopyDirectory" />
 	<taskdef name="PSUnZipPackage"

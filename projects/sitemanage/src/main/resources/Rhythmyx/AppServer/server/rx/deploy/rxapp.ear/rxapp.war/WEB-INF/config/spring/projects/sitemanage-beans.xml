@@ -119,7 +119,9 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="authorizationFilter" />
         </jaxrs:providers>
         <jaxrs:features>
-            <cxf:logging/>
+            <!-- CXF 3.1+/4.x: use LoggingFeature bean (requires cxf-rt-features-logging).
+                 Legacy <cxf:logging/> under core NS has no BeanDefinitionParser without that module. -->
+            <bean class="org.apache.cxf.ext.logging.LoggingFeature"/>
         </jaxrs:features>
     </jaxrs:server>
 

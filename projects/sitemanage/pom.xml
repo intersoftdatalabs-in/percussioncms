@@ -189,6 +189,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- Runtime: org.apache.cxf.ext.logging.LoggingFeature bean in sitemanage-beans.xml -->
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-features-logging</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-http</artifactId>
