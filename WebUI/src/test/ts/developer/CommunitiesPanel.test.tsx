@@ -28,7 +28,7 @@ describe("CommunitiesPanel", () => {
     listCommunities.mockResolvedValue([
       {
         id: 7,
-        name: "Default",
+        name: "DefaultComm",
         label: "Default Community",
         description: "System community",
         guid: { stringValue: "0-1-7", longValue: 7 },
@@ -38,10 +38,11 @@ describe("CommunitiesPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
     });
+    // Distinct label vs name (peer ContentTypesPanel: "Page" / "percPage")
     expect(screen.getByTestId("developer-comm-table").textContent).toContain(
       "Default Community",
     );
-    expect(screen.getByTestId("developer-comm-table").textContent).toContain("Default");
+    expect(screen.getByTestId("developer-comm-table").textContent).toContain("DefaultComm");
   });
 
   it("shows empty state when API returns no communities", async () => {
