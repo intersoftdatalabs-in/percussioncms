@@ -251,6 +251,18 @@ function missingPasswordMessage(username) {
 }
 
 /**
+ * Preferred product Spanish locale tags, in order, for login smoke.
+ * Install may expose {@code es-es} without base {@code es} (and vice versa).
+ * TMX residual keys ship under {@code xml:lang="es"} and resolve for es-*.
+ */
+const SPANISH_LOCALE_CANDIDATES = ["es-es", "es", "es-mx"];
+
+/**
+ * @typedef {object} LoginOptions
+ * @property {string} [locale] target j_locale (e.g. {@code es-es}, {@code en-us})
+ */
+
+/**
  * Fill Admin/role credentials on either the modern React login (data-testid)
  * or the legacy JSP form (name= attributes). Locale defaults to en-us when
  * the modern LocaleSelect already posts a hidden j_locale.
@@ -258,11 +270,26 @@ function missingPasswordMessage(username) {
  * @param {import("@playwright/test").Page} page
  * @param {string} username
  * @param {string} password
+ * @param {LoginOptions} [options]
  */
-async function fillLoginForm(page, username, password) {
+/**
+ * Escape a locale/tag string for safe interpolation into {@code RegExp}.
+ * Locale tags are normally alphanumeric + hyphen, but callers may pass
+ * arbitrary strings; metacharacters must not change match semantics.
+ *
+ * @param {string} s
+ * @returns {string}
+ */
+function escapeRegExp(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+async function fillLoginForm(page, username, password, options = {}) {
+  const targetLocale = (options.locale || "en-us").trim() || "en-us";
   const modernRoot = page.locator('[data-testid="perc-login-root"]');
   const modernForm = page.locator('[data-testid="perc-login-form"]');
   const legacyUser = page.locator('input[name="j_username"]');
+  const legacyPassword = page.locator('input[name="j_password"]');
 
   // Prefer modern React login (#2065 H2 qa-up ships rxlogin → perc-login-root).
   if ((await modernRoot.count()) > 0 || (await modernForm.count()) > 0) {
@@ -270,19 +297,31 @@ async function fillLoginForm(page, username, password) {
     await page.locator('[data-testid="perc-login-username"]').fill(username);
     await page.locator('[data-testid="perc-login-password"]').fill(password);
     // LocaleSelect posts hidden input[name=j_locale]; default bootstrap is en-us.
-    // Only open the combobox when we must force a non-default locale.
+    // Open the combobox when the requested locale differs from the hidden value.
     const hiddenLocale = page.locator(
       'input[type="hidden"][name="j_locale"], input[name="j_locale"]',
     );
     if ((await hiddenLocale.count()) > 0) {
       const current = await hiddenLocale.first().inputValue().catch(() => "");
-      if (current && current !== "en-us") {
+      if (current !== targetLocale) {
         await page.locator('[data-testid="perc-login-locale"]').click();
-        await page
-          .locator('[role="option"]')
-          .filter({ hasText: /en-us|English \(United States\)/i })
-          .first()
-          .click();
+        const byTestId = page.getByTestId(
+          `perc-login-locale-option-${targetLocale}`,
+        );
+        if ((await byTestId.count()) > 0) {
+          await byTestId.click();
+        } else {
+          // Fallback: option text often looks like "es-es - español (España)".
+          const escaped = escapeRegExp(targetLocale);
+          await page
+            .locator('[role="option"]')
+            .filter({
+              hasText: new RegExp(`^${escaped}\\b|${escaped}\\s*-`, "i"),
+            })
+            .first()
+            .click();
+        }
+        await expectHiddenLocale(page, targetLocale);
       }
     }
     return { submit: page.locator('[data-testid="perc-login-submit"]') };
@@ -290,16 +329,64 @@ async function fillLoginForm(page, username, password) {
 
   // Legacy native form (select[name=j_locale]).
   await legacyUser.waitFor({ state: "visible", timeout: 30_000 });
-  await page.fill('input[name="j_username"]', username);
-  await page.fill('input[name="j_password"]', password);
+  await legacyUser.fill(username);
+  await legacyPassword.fill(password);
   const nativeLocale = page.locator('select[name="j_locale"]');
   if ((await nativeLocale.count()) > 0) {
-    await nativeLocale.selectOption("en-us");
+    const values = await nativeLocale
+      .locator("option")
+      .evaluateAll((opts) => opts.map((o) => o.value));
+    const pick = values.includes(targetLocale)
+      ? targetLocale
+      : values.find((v) => v === "en-us") || values[0];
+    if (pick) {
+      await nativeLocale.selectOption(pick);
+    }
   }
   return { submit: page.locator('button[type="submit"]') };
 }
 
-async function login(page, username, password) {
+/**
+ * @param {import("@playwright/test").Page} page
+ * @param {string} locale
+ */
+async function expectHiddenLocale(page, locale) {
+  // Soft wait: LocaleSelect updates the hidden input on option commit.
+  await page
+    .waitForFunction(
+      (wanted) => {
+        const el = document.querySelector(
+          'input[type="hidden"][name="j_locale"], input[name="j_locale"]',
+        );
+        return el && /** @type {HTMLInputElement} */ (el).value === wanted;
+      },
+      locale,
+      { timeout: 5_000 },
+    )
+    .catch(async () => {
+      // Soft: submit may still work if the option click selected correctly
+      // but the hidden field lags. Surface a clear diagnostic for debugging.
+      const actual = await page
+        .locator(
+          'input[type="hidden"][name="j_locale"], input[name="j_locale"]',
+        )
+        .first()
+        .inputValue()
+        .catch(() => "(missing)");
+      // eslint-disable-next-line no-console -- Playwright helper diagnostic
+      console.warn(
+        `[auth] j_locale hidden input still "${actual}" after selecting "${locale}" (continuing)`,
+      );
+    });
+}
+
+/**
+ * @param {import("@playwright/test").Page} page
+ * @param {string} username
+ * @param {string} password
+ * @param {LoginOptions} [options]
+ */
+async function login(page, username, password, options = {}) {
   if (!password) {
     throw new Error(missingPasswordMessage(username));
   }
@@ -307,7 +394,7 @@ async function login(page, username, password) {
   await page.goto(`${PERCUSSION_URL}/Rhythmyx/login`);
   // Wait for SPA mount or legacy form before filling.
   await page.waitForLoadState("domcontentloaded");
-  const { submit } = await fillLoginForm(page, username, password);
+  const { submit } = await fillLoginForm(page, username, password, options);
 
   // The CMS uses a multipart/form-data POST with OWASP-CSRFTOKEN. Modern
   // login may land at /cm/app/spa.jsp?entry=home; legacy lands at index.jsp.
@@ -338,16 +425,74 @@ async function login(page, username, password) {
   }
 }
 
-async function loginAsAdmin(page) {
-  await login(page, ADMIN_USERNAME, ADMIN_PASSWORD);
+/**
+ * @param {import("@playwright/test").Page} page
+ * @param {LoginOptions} [options]
+ */
+async function loginAsAdmin(page, options = {}) {
+  await login(page, ADMIN_USERNAME, ADMIN_PASSWORD, options);
 }
 
-async function loginAsEditor(page) {
-  await login(page, USERNAME_EDITOR, EDITOR_PASSWORD);
+/**
+ * @param {import("@playwright/test").Page} page
+ * @param {LoginOptions} [options]
+ */
+async function loginAsEditor(page, options = {}) {
+  await login(page, USERNAME_EDITOR, EDITOR_PASSWORD, options);
 }
 
-async function loginAsContributor(page) {
-  await login(page, USERNAME_CONTRIBUTOR, CONTRIBUTOR_PASSWORD);
+/**
+ * @param {import("@playwright/test").Page} page
+ * @param {LoginOptions} [options]
+ */
+async function loginAsContributor(page, options = {}) {
+  await login(page, USERNAME_CONTRIBUTOR, CONTRIBUTOR_PASSWORD, options);
+}
+
+/**
+ * Pick the first Spanish locale tag present on the modern login dropdown.
+ * Returns null when no Spanish option is exposed (install without es*).
+ *
+ * @param {import("@playwright/test").Page} page
+ * @returns {Promise<string|null>}
+ */
+async function pickSpanishLoginLocale(page) {
+  await page.goto(`${PERCUSSION_URL}/Rhythmyx/login`);
+  await page.waitForLoadState("domcontentloaded");
+  const modernRoot = page.locator('[data-testid="perc-login-root"]');
+  const modernForm = page.locator('[data-testid="perc-login-form"]');
+  if ((await modernRoot.count()) > 0 || (await modernForm.count()) > 0) {
+    await modernForm.or(modernRoot).first().waitFor({ state: "visible", timeout: 30_000 });
+    await page.locator('[data-testid="perc-login-locale"]').click();
+    const list = page.getByTestId("perc-login-locale-list");
+    await list.waitFor({ state: "visible", timeout: 10_000 });
+    for (const tag of SPANISH_LOCALE_CANDIDATES) {
+      const opt = page.getByTestId(`perc-login-locale-option-${tag}`);
+      if ((await opt.count()) > 0) {
+        // Close list without selecting — caller logs in with the tag.
+        await page.keyboard.press("Escape");
+        await list
+          .waitFor({ state: "hidden", timeout: 5_000 })
+          .catch(() => {});
+        return tag;
+      }
+    }
+    await page.keyboard.press("Escape");
+    await list.waitFor({ state: "hidden", timeout: 5_000 }).catch(() => {});
+    return null;
+  }
+  const nativeLocale = page.locator('select[name="j_locale"]');
+  if ((await nativeLocale.count()) > 0) {
+    const values = await nativeLocale
+      .locator("option")
+      .evaluateAll((opts) => opts.map((o) => o.value));
+    for (const tag of SPANISH_LOCALE_CANDIDATES) {
+      if (values.includes(tag)) {
+        return tag;
+      }
+    }
+  }
+  return null;
 }
 
 /**
@@ -388,9 +533,11 @@ module.exports = {
   ADMIN_PASSWORD,
   EDITOR_PASSWORD,
   CONTRIBUTOR_PASSWORD,
+  SPANISH_LOCALE_CANDIDATES,
   loginAsAdmin,
   loginAsEditor,
   loginAsContributor,
+  pickSpanishLoginLocale,
   basicAuthHeaders,
   adminBasicAuthHeaders,
   // Re-export pure helpers for specs / tests that want the same precedence.
