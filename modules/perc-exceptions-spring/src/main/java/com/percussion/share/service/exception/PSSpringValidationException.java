@@ -31,6 +31,7 @@ import org.springframework.validation.ObjectError;
  *
  * @author adamgent
  */
+@SuppressWarnings({"serial", "this-escape"})
 public abstract class PSSpringValidationException extends PSValidationException
     implements Errors, IPSValidationException {
 

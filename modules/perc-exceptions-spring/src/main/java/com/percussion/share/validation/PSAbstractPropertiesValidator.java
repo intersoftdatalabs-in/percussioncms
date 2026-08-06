@@ -92,6 +92,7 @@ public abstract class PSAbstractPropertiesValidator<PROPERTIES> implements Valid
    * @param errors the {@link PSPropertiesValidationException} container to populate, never {@code
    *     null}.
    */
+  @SuppressWarnings("unchecked")
   public void validate(Object properties, Errors errors) {
     doValidation((PROPERTIES) properties, (PSPropertiesValidationException) errors);
   }

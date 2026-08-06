@@ -32,6 +32,7 @@ import org.apache.logging.log4j.Logger;
  * @author adamgent
  */
 @XmlRootElement(name = "ErrorCause")
+@SuppressWarnings("this-escape")
 public class PSErrorCause {
 
   private static final Logger log = LogManager.getLogger("Server");

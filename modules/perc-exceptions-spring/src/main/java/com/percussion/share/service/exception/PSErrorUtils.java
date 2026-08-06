@@ -28,6 +28,7 @@ import com.percussion.share.validation.PSErrors.PSObjectError;
  *
  * @author adamgent
  */
+@SuppressWarnings("serial")
 public class PSErrorUtils {
 
   /**
