@@ -277,7 +277,8 @@ public class Main {
       // secrets live only in rxrepository.properties and the encrypted
       // perc-ds.properties written by PSConfigureDatasource.
 
-      Integer antExit = execJar(installAntJarPath, execPath, installPath, resolvedDbConfig);
+      Integer antExit =
+          execJar(installAntJarPath, execPath, installPath, resolvedDbConfig, options);
       deleteOldJDBCJars(installPath);
 
       int exitCode = resolveInstallExitCode(antExit, error, processCode);
@@ -523,12 +524,48 @@ public class Main {
   }
 
   /**
+   * Resolve the ANT-visible {@code install.demo.sites} value from Phase-1 installer options (wizard
+   * Yes/No or CLI {@code --demo-sites} / {@code --no-demo-sites}), with fallback to the JVM system
+   * property of the same name via {@link DbInstallConfigResolver#parseDemoSitesFlag}.
+   *
+   * <p>Phase-1 stores the operator choice under {@link DbInstallConfigResolver#DEMO_SITES_KEY}
+   * ({@code "demo-sites"}). Prior to #2192, {@link #execJar} only consulted {@link
+   * System#getProperties()}, so interactive Yes / bare {@code --demo-sites} never reached ANT and
+   * sample sites were not seeded (empty {@code RXSITES}).
+   *
+   * <p>Honored on both new installs and upgrades; locale tables are protected by the ANT {@code
+   * stripSampleLocales} step, not by install-type gating.
+   *
+   * @param phase1Options options map from {@link InteractiveInstallWizard#runPhase1}; may be null
+   * @return {@code true} when the ANT child should seed sample sites
+   */
+  static boolean resolveDemoSitesForAnt(Map<String, String> phase1Options) {
+    return DbInstallConfigResolver.parseDemoSitesFlag(phase1Options);
+  }
+
+  /**
+   * Build the {@code -Dinstall.demo.sites=…} token that must appear on the ANT child JVM command
+   * line. Package-visible for unit tests that assert options propagation without spawning a
+   * process.
+   *
+   * @param phase1Options options map from Phase 1; may be null
+   * @return a single command-line argument of the form {@code -Dinstall.demo.sites=true|false}
+   */
+  static String demoSitesAntSystemPropertyArg(Map<String, String> phase1Options) {
+    return "-D"
+        + DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY
+        + "="
+        + resolveDemoSitesForAnt(phase1Options);
+  }
+
+  /**
    * Executes the bundled installer JAR with the supplied resolved DB configuration.
    *
    * @param jar path to the bundled installer JAR.
    * @param execPath working directory for the spawned process.
    * @param installDir target install directory passed to the installer.
    * @param resolvedDbConfig DB configuration to surface via system properties on the child JVM.
+   * @param phase1Options Phase-1 options (wizard / CLI), including {@code demo-sites}; may be null.
    * @return process exit code returned by the spawned JVM.
    * @throws IOException if the child process cannot be started.
    * @throws InterruptedException if the wait is interrupted.
@@ -537,7 +574,8 @@ public class Main {
       Path jar,
       Path execPath,
       Path installDir,
-      DbInstallConfigResolver.ResolvedDbConfig resolvedDbConfig)
+      DbInstallConfigResolver.ResolvedDbConfig resolvedDbConfig,
+      Map<String, String> phase1Options)
       throws IOException, InterruptedException {
 
     try {
@@ -567,17 +605,11 @@ public class Main {
       command.add("-Dfile.encoding=UTF-8");
       command.add("-Dsun.jnu.encoding=UTF-8");
       command.add("-Dinstall.dir=" + installDir.toAbsolutePath());
-      // Propagate the --demo-sites flag so the ANT installer can decide whether to chain
-      // a sample-site seeding pass (RxffTableData/RxffTableDef) after the core schema/data
-      // load. Upgrades always ignore the flag to protect existing repositories.
-      boolean demoSites =
-          DbInstallConfigResolver.parseDemoSitesFlag(
-              System.getProperties().entrySet().stream()
-                  .collect(
-                      java.util.stream.Collectors.toMap(
-                          e -> e.getKey().toString(),
-                          e -> e.getValue() == null ? null : e.getValue().toString())));
-      command.add("-D" + DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY + "=" + demoSites);
+      // Propagate demo-sites from Phase-1 options (wizard / --demo-sites) so ANT can chain
+      // installSampleSites after core schema load. Also honors -Dinstall.demo.sites on this JVM
+      // when the options map does not set the flag. Runs on new installs and upgrades; RXLOCALE
+      // protection is stripSampleLocales in installRepository.xml, not install-type gating.
+      command.add(demoSitesAntSystemPropertyArg(phase1Options));
       for (Map.Entry<String, String> entry : resolvedDbConfig.systemProperties().entrySet()) {
         command.add("-D" + entry.getKey() + "=" + entry.getValue());
       }
