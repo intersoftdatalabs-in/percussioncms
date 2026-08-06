@@ -156,18 +156,23 @@ test.describe("Spanish locale smoke — Finder roots + default gadgets (#2094) @
     await page.goto(explorerUrl(), { waitUntil: "networkidle" });
 
     // Session TMX must load Spanish residual keys (not English-only chrome).
+    // Poll the full key set so an incremental TMX load cannot race a Sites-only
+    // gate followed by a single re-read of the remaining roots.
     const keyList = Object.values(FINDER_ROOT_KEYS);
+    /** @type {Record<string, string>} */
+    let msgs = {};
     await expect
       .poll(
         async () => {
-          const msgs = await readI18nMessages(page, keyList);
-          return msgs[FINDER_ROOT_KEYS.Sites];
+          msgs = await readI18nMessages(page, keyList);
+          return Object.entries(FINDER_ROOT_KEYS).every(
+            ([english, key]) => msgs[key] === ES_FINDER_ROOTS[english],
+          );
         },
         { timeout: 30_000 },
       )
-      .toBe(ES_FINDER_ROOTS.Sites);
+      .toBe(true);
 
-    const msgs = await readI18nMessages(page, keyList);
     for (const [english, key] of Object.entries(FINDER_ROOT_KEYS)) {
       expect(
         msgs[key],
@@ -252,11 +257,14 @@ test.describe("Spanish locale smoke — Finder roots + default gadgets (#2094) @
       timeout: 45_000,
     });
 
-    // Welcome (no dedicated testid — match title chrome).
+    // Welcome (no dedicated testid — match title chrome inside gadgets section).
+    const gadgets = page.getByTestId("home-gadgets-section");
     await expect(
-      page.getByText(ES_GADGET_TITLES.welcome, { exact: true }).first(),
+      gadgets.getByText(ES_GADGET_TITLES.welcome, { exact: true }).first(),
     ).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByText("WELCOME", { exact: true })).toHaveCount(0);
+    // Scope English absence to the gadgets section so unrelated page chrome
+    // cannot mask or falsely satisfy the assertion.
+    await expect(gadgets.getByText("WELCOME", { exact: true })).toHaveCount(0);
 
     // Process Monitor + Pages By Status (default layout).
     const processWidget = page.getByTestId("process-monitor-widget");

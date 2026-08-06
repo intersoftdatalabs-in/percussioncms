@@ -272,11 +272,24 @@ const SPANISH_LOCALE_CANDIDATES = ["es-es", "es", "es-mx"];
  * @param {string} password
  * @param {LoginOptions} [options]
  */
+/**
+ * Escape a locale/tag string for safe interpolation into {@code RegExp}.
+ * Locale tags are normally alphanumeric + hyphen, but callers may pass
+ * arbitrary strings; metacharacters must not change match semantics.
+ *
+ * @param {string} s
+ * @returns {string}
+ */
+function escapeRegExp(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 async function fillLoginForm(page, username, password, options = {}) {
   const targetLocale = (options.locale || "en-us").trim() || "en-us";
   const modernRoot = page.locator('[data-testid="perc-login-root"]');
   const modernForm = page.locator('[data-testid="perc-login-form"]');
   const legacyUser = page.locator('input[name="j_username"]');
+  const legacyPassword = page.locator('input[name="j_password"]');
 
   // Prefer modern React login (#2065 H2 qa-up ships rxlogin → perc-login-root).
   if ((await modernRoot.count()) > 0 || (await modernForm.count()) > 0) {
@@ -299,13 +312,11 @@ async function fillLoginForm(page, username, password, options = {}) {
           await byTestId.click();
         } else {
           // Fallback: option text often looks like "es-es - español (España)".
+          const escaped = escapeRegExp(targetLocale);
           await page
             .locator('[role="option"]')
             .filter({
-              hasText: new RegExp(
-                `^${targetLocale}\\b|${targetLocale}\\s*-`,
-                "i",
-              ),
+              hasText: new RegExp(`^${escaped}\\b|${escaped}\\s*-`, "i"),
             })
             .first()
             .click();
@@ -318,8 +329,8 @@ async function fillLoginForm(page, username, password, options = {}) {
 
   // Legacy native form (select[name=j_locale]).
   await legacyUser.waitFor({ state: "visible", timeout: 30_000 });
-  await page.fill('input[name="j_username"]', username);
-  await page.fill('input[name="j_password"]', password);
+  await legacyUser.fill(username);
+  await legacyPassword.fill(password);
   const nativeLocale = page.locator('select[name="j_locale"]');
   if ((await nativeLocale.count()) > 0) {
     const values = await nativeLocale
@@ -340,9 +351,6 @@ async function fillLoginForm(page, username, password, options = {}) {
  * @param {string} locale
  */
 async function expectHiddenLocale(page, locale) {
-  const hidden = page.locator(
-    'input[type="hidden"][name="j_locale"], input[name="j_locale"]',
-  );
   // Soft wait: LocaleSelect updates the hidden input on option commit.
   await page
     .waitForFunction(
@@ -355,10 +363,21 @@ async function expectHiddenLocale(page, locale) {
       locale,
       { timeout: 5_000 },
     )
-    .catch(() => {
-      /* submit may still work if click selected the option */
+    .catch(async () => {
+      // Soft: submit may still work if the option click selected correctly
+      // but the hidden field lags. Surface a clear diagnostic for debugging.
+      const actual = await page
+        .locator(
+          'input[type="hidden"][name="j_locale"], input[name="j_locale"]',
+        )
+        .first()
+        .inputValue()
+        .catch(() => "(missing)");
+      // eslint-disable-next-line no-console -- Playwright helper diagnostic
+      console.warn(
+        `[auth] j_locale hidden input still "${actual}" after selecting "${locale}" (continuing)`,
+      );
     });
-  void hidden;
 }
 
 /**
@@ -452,10 +471,14 @@ async function pickSpanishLoginLocale(page) {
       if ((await opt.count()) > 0) {
         // Close list without selecting — caller logs in with the tag.
         await page.keyboard.press("Escape");
+        await list
+          .waitFor({ state: "hidden", timeout: 5_000 })
+          .catch(() => {});
         return tag;
       }
     }
     await page.keyboard.press("Escape");
+    await list.waitFor({ state: "hidden", timeout: 5_000 }).catch(() => {});
     return null;
   }
   const nativeLocale = page.locator('select[name="j_locale"]');
