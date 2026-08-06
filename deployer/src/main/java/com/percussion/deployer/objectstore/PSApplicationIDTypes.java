@@ -207,10 +207,11 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
     PSApplicationIDTypeMapping mapping = null;
-    List idTypeList = getIdTypeMappingsList(resourceName, elementName, false);
-    Iterator mappings = idTypeList.iterator();
+    List<PSApplicationIDTypeMapping> idTypeList =
+        getIdTypeMappingsList(resourceName, elementName, false);
+    Iterator<PSApplicationIDTypeMapping> mappings = idTypeList.iterator();
     while (mappings.hasNext() && mapping == null) {
-      PSApplicationIDTypeMapping test = (PSApplicationIDTypeMapping) mappings.next();
+      PSApplicationIDTypeMapping test = mappings.next();
       if (ctx.equals(test.getContext())) mapping = test;
     }
 
@@ -223,9 +224,9 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    * @return <code>true</code> if all IDs have been mapped to a type.
    */
   public boolean isComplete() {
-    Iterator resList = m_resourceMap.keySet().iterator();
+    Iterator<String> resList = m_resourceMap.keySet().iterator();
     while (resList.hasNext()) {
-      if (!isComplete((String) resList.next())) return false;
+      if (!isComplete(resList.next())) return false;
     }
     return true;
   }
@@ -244,10 +245,10 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
 
     // Get the whole list, but do the check here, so that we don't walk
     // through the whole list, less expensive
-    Iterator elemList = getElementList(resourceName, false);
+    Iterator<String> elemList = getElementList(resourceName, false);
 
     while (elemList.hasNext()) {
-      if (!isComplete(resourceName, (String) elemList.next())) return false;
+      if (!isComplete(resourceName, elemList.next())) return false;
     }
     return true;
   }
@@ -275,6 +276,7 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    *     may not be <code>null</code>.
    * @throws IllegalArgumentException if any parameter is invalid.
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public void addMappings(String resourceName, String elementName, Iterator mappings) {
     if (resourceName == null || resourceName.trim().length() == 0)
       throw new IllegalArgumentException("resourceName may not be null or empty");
@@ -308,20 +310,20 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
 
     if (mapping == null) throw new IllegalArgumentException("mapping may not be null");
 
-    Map resElements = (Map) m_resourceMap.get(resourceName);
+    Map<String, List<PSApplicationIDTypeMapping>> resElements = m_resourceMap.get(resourceName);
     if (resElements == null) // add a new resource/element name
     {
-      List idtypeList = new ArrayList();
+      List<PSApplicationIDTypeMapping> idtypeList = new ArrayList<>();
       idtypeList.add(mapping);
-      Map elemMap = new HashMap();
+      Map<String, List<PSApplicationIDTypeMapping>> elemMap = new HashMap<>();
       elemMap.put(elementName, idtypeList);
       m_resourceMap.put(resourceName, elemMap);
     } else // append to existing list
     {
-      List idTypeList = (List) resElements.get(elementName);
+      List<PSApplicationIDTypeMapping> idTypeList = resElements.get(elementName);
       if (idTypeList == null) // add a new element in current resource
       {
-        idTypeList = new ArrayList();
+        idTypeList = new ArrayList<>();
         idTypeList.add(mapping);
         resElements.put(elementName, idTypeList);
       } else // add to existing ID Type mapping list
@@ -347,12 +349,12 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
   public PSApplicationIDTypeMapping removeMapping(
       String resource, String element, PSApplicationIdContext ctx) {
     // NOTE: getIdTypeMappings() will check the parameters
-    List idTypeList = getIdTypeMappingsList(resource, element);
-    Iterator idTypeIterator = idTypeList.iterator();
+    List<PSApplicationIDTypeMapping> idTypeList = getIdTypeMappingsList(resource, element);
+    Iterator<PSApplicationIDTypeMapping> idTypeIterator = idTypeList.iterator();
 
     PSApplicationIDTypeMapping result = null;
     while (idTypeIterator.hasNext() && result == null) {
-      PSApplicationIDTypeMapping currIDType = (PSApplicationIDTypeMapping) idTypeIterator.next();
+      PSApplicationIDTypeMapping currIDType = idTypeIterator.next();
       if (ctx.equals(currIDType.getContext())) {
         idTypeList.remove(currIDType);
         // clear listeners
@@ -362,7 +364,7 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
 
       // clean up map entries
       if (idTypeList.isEmpty()) {
-        Map elementMap = (Map) m_resourceMap.get(resource);
+        Map<String, List<PSApplicationIDTypeMapping>> elementMap = m_resourceMap.get(resource);
         if (elementMap != null) elementMap.remove(element);
         if (elementMap.isEmpty()) m_resourceMap.remove(resource);
       }
@@ -382,11 +384,11 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    * @throws IllegalArgumentException If any param is invalid.
    */
   public boolean containsMapping(String resource, String element, PSApplicationIdContext ctx) {
-    List idTypeList = getIdTypeMappingsList(resource, element);
-    Iterator idTypeIterator = idTypeList.iterator();
+    List<PSApplicationIDTypeMapping> idTypeList = getIdTypeMappingsList(resource, element);
+    Iterator<PSApplicationIDTypeMapping> idTypeIterator = idTypeList.iterator();
 
     while (idTypeIterator.hasNext()) {
-      PSApplicationIDTypeMapping currIDType = (PSApplicationIDTypeMapping) idTypeIterator.next();
+      PSApplicationIDTypeMapping currIDType = idTypeIterator.next();
       if (ctx.equals(currIDType.getContext())) return true;
     }
 
@@ -421,19 +423,21 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
     // fixup mappings based on filters if provided
     if (m_choiceFilters == null) return;
 
-    Iterator resources = m_resourceMap.values().iterator();
+    Iterator<Map<String, List<PSApplicationIDTypeMapping>>> resources =
+        m_resourceMap.values().iterator();
     while (resources.hasNext()) {
-      Map elementMap = (Map) resources.next();
-      Iterator elements = elementMap.values().iterator();
+      Map<String, List<PSApplicationIDTypeMapping>> elementMap = resources.next();
+      Iterator<List<PSApplicationIDTypeMapping>> elements = elementMap.values().iterator();
       while (elements.hasNext()) {
-        List mappingList = (List) elements.next();
-        Iterator mappings = mappingList.iterator();
+        List<PSApplicationIDTypeMapping> mappingList = elements.next();
+        Iterator<PSApplicationIDTypeMapping> mappings = mappingList.iterator();
         while (mappings.hasNext()) {
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
 
           // only care if not undefined and set to an actual type
           if (mapping.isComplete() && mapping.isIdType()) {
             String id = mapping.getValue();
+            @SuppressWarnings("rawtypes")
             List types = (List) m_choiceFilters.get(id);
 
             // if we have a filter and the current type isn't in it, set
