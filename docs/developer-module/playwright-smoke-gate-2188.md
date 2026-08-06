@@ -59,12 +59,13 @@ npm run test:surface -- --tag smoke
 npm run test:developer-smoke:list
 ```
 
-Windows PowerShell example:
+Windows PowerShell example (use freeport from qa-up — do not hardcode `:9993`; freeport #2005/#2014):
 
 ```powershell
-$env:TEST_CMS_URL = "http://127.0.0.1:9993"
+# Prefer TEST_CMS_URL from perc-devctl qa-up (same as bash example above)
+$env:TEST_CMS_URL = "http://127.0.0.1:$env:QA_CMS_HOST_PORT"
 $env:ADMIN_USERNAME = "Admin"
-$env:ADMIN_PASSWORD = "<from docker passwords file>"
+$env:ADMIN_PASSWORD = "<from-qa-up-or-docker-exec>"
 cd modules/perc-qa-automation/frontend
 npm run test:developer-smoke
 ```

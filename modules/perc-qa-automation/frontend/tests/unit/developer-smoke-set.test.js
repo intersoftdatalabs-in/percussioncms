@@ -59,6 +59,17 @@ describe("DEVELOPER_SMOKE_SET", () => {
       assert.equal(entry.status, "green");
       assert.ok(entry.file.endsWith(".spec.js"));
       assert.ok(entry.title.length > 0);
+      // Smoke-gate contract: green must not retain stale skip metadata
+      assert.equal(
+        entry.bugIssue,
+        undefined,
+        `${entry.id} green entry must not carry bugIssue`,
+      );
+      assert.equal(
+        entry.bugUrl,
+        undefined,
+        `${entry.id} green entry must not carry bugUrl`,
+      );
     }
   });
 
