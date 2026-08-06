@@ -89,7 +89,7 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
 
     if (obj == null) throw new IllegalArgumentException("obj may not be null.");
 
-    Integer colType = (Integer) ms_typeObjects.get(obj.getClass());
+    Integer colType = ms_typeObjects.get(obj.getClass());
     if (colType != null) {
       return colType.intValue() == type;
     } else return false;
@@ -105,7 +105,7 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
    */
   static String getTypeString(Object obj) {
     if (obj == null) throw new IllegalArgumentException("obj may not be null.");
-    Integer type = (Integer) ms_typeObjects.get(obj.getClass());
+    Integer type = ms_typeObjects.get(obj.getClass());
     if (type != null) return TYPE_ENUM[type.intValue()];
     else throw new IllegalArgumentException("obj is not a supported column type object");
   }
