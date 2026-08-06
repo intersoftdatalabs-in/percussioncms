@@ -244,6 +244,96 @@ public class PSTmxResourceBundleScanTest {
   }
 
   /**
+   * Residual Spanish locale surface (GH-961): Finder root <em>display</em> labels, root icon
+   * tooltips, and default Dashboard gadget titles/welcome body must ship with at least {@code
+   * en-us} and base {@code es} so Spanish login does not fall back to English for those keys.
+   *
+   * <p>Finder path constants ({@code Sites}/{@code Assets}/…) remain English repository roots and
+   * are intentionally not localized here; display-label keys under {@code perc.ui.finder.root@}
+   * prepare wiring without changing path APIs. Live Playwright locale smoke is residual.
+   */
+  @Test
+  public void cmsUi_spanishLocaleResidualKeys_haveEnUsAndSpanish() throws Exception {
+    Path cmsUi = resolveCmsUiTmx();
+    assertNotNull(cmsUi, "CmsUi.tmx not found (cwd=" + Paths.get("").toAbsolutePath() + ")");
+    assertTrue(Files.isRegularFile(cmsUi), "CmsUi.tmx not a regular file: " + cmsUi);
+
+    Set<String> required =
+        Set.of(
+            // Finder root display labels (paths stay English)
+            "perc.ui.finder.root@Sites",
+            "perc.ui.finder.root@Assets",
+            "perc.ui.finder.root@Design",
+            "perc.ui.finder.root@Search",
+            "perc.ui.finder.root@Recycling",
+            // Finder root icon tooltips
+            "perc.ui.images@SiteIconTitle",
+            "perc.ui.images@AssetLibraryIconTitle",
+            "perc.ui.images@DesignIconTitle",
+            "perc.ui.images@SearchIconTitle",
+            "perc.ui.images@RecyclingIconTitle",
+            // Default dashboard gadgets
+            "perc.ui.gadgets.welcome@WELCOME",
+            "perc.ui.gadgets.processmonitor@Process Monitor",
+            "perc.ui.gadgets.processmonitor@ProcessMonitor",
+            "perc.ui.gadgets.workflowStatus@PAGES BY STATUS",
+            "perc.ui.gadgets.licenseMonitor@License Monitor",
+            // Welcome body + catalog descriptions
+            "perc.ui.dashboard.welcome@Good morning",
+            "perc.ui.dashboard.welcome@Using Percussion CMS",
+            "perc.ui.dashboard.welcome@Site Management",
+            "perc.ui.dashboard.modern@Welcome message and dashboard introduction",
+            "perc.ui.dashboard.modern@System process and monitoring status",
+            "perc.ui.dashboard.modern@Pages grouped by workflow state");
+
+    Document doc = parse(cmsUi);
+    NodeList tus = doc.getElementsByTagName("tu");
+    Set<String> found = new LinkedHashSet<>();
+    for (int i = 0; i < tus.getLength(); i++) {
+      Element tu = (Element) tus.item(i);
+      String tuid = tu.getAttribute("tuid");
+      if (!required.contains(tuid)) {
+        continue;
+      }
+      found.add(tuid);
+      Set<String> langs = new LinkedHashSet<>();
+      String enSeg = null;
+      String esSeg = null;
+      NodeList tuvs = tu.getElementsByTagName("tuv");
+      for (int j = 0; j < tuvs.getLength(); j++) {
+        Element tuv = (Element) tuvs.item(j);
+        String lang = normalizeLangAttr(readXmlLang(tuv));
+        if (lang.isEmpty()) {
+          continue;
+        }
+        langs.add(lang);
+        NodeList segs = tuv.getElementsByTagName("seg");
+        if (segs.getLength() == 0) {
+          continue;
+        }
+        String seg = segs.item(0).getTextContent();
+        if ("en-us".equals(lang)) {
+          enSeg = seg;
+        } else if ("es".equals(lang)) {
+          esSeg = seg;
+        }
+      }
+      assertTrue(langs.contains("en-us"), "missing en-us for GH-961 residual key: " + tuid);
+      assertNotNull(enSeg, "empty en-us seg for: " + tuid);
+      assertFalse(enSeg.isBlank(), "blank en-us seg for: " + tuid);
+      assertTrue(langs.contains("es"), "missing es for GH-961 residual key: " + tuid);
+      assertNotNull(esSeg, "empty es seg for: " + tuid);
+      assertFalse(esSeg.isBlank(), "blank es seg for: " + tuid);
+      assertFalse(
+          enSeg.equals(esSeg),
+          tuid + " es must differ from en-us for Spanish residual surface, got: " + esSeg);
+    }
+    Set<String> missing = new LinkedHashSet<>(required);
+    missing.removeAll(found);
+    assertTrue(missing.isEmpty(), "CmsUi.tmx missing GH-961 residual keys: " + missing);
+  }
+
+  /**
    * Resolve {@code CmsUi.tmx} portably: prefer the test classpath resource (Maven surefire), then
    * fall back to common source-tree locations relative to the process working directory.
    */

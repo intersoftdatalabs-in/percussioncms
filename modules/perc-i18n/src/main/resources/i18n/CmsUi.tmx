@@ -601,7 +601,7 @@
       <tuv xml:lang="te"><seg>డిజైన్</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>设计</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>设计</seg></tuv>
-    <tuv xml:lang="ru"><seg>Дизайн</seg></tuv><tuv xml:lang="he"><seg>לְעַצֵב</seg></tuv><tuv xml:lang="uk"><seg>Дизайн</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Дизайн</seg></tuv><tuv xml:lang="he"><seg>לְעַצֵב</seg></tuv><tuv xml:lang="uk"><seg>Дизайн</seg></tuv><tuv xml:lang="pl"><seg>Projekt</seg></tuv><tuv xml:lang="sv"><seg>Design</seg></tuv><tuv xml:lang="tr"><seg>Tasarım</seg></tuv></tu>
     <tu tuid="perc.ui.navMenu.publish@Publish">
       <tuv xml:lang="en-us"><seg>Publish</seg></tuv>
       <tuv xml:lang="ar"><seg>نشر</seg></tuv>
@@ -8198,7 +8198,7 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="te"><seg>ప్రాసెస్ మానిటర్</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>过程监控器</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>过程监控器</seg></tuv>
-    <tuv xml:lang="ru"><seg>Монитор процессов</seg></tuv><tuv xml:lang="he"><seg>צג תהליכים</seg></tuv><tuv xml:lang="uk"><seg>Монітор процесу</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Монитор процессов</seg></tuv><tuv xml:lang="he"><seg>צג תהליכים</seg></tuv><tuv xml:lang="uk"><seg>Монітор процесу</seg></tuv><tuv xml:lang="pl"><seg>Monitor procesu</seg></tuv><tuv xml:lang="sv"><seg>Processövervakare</seg></tuv><tuv xml:lang="tr"><seg>Süreç Monitörü</seg></tuv></tu>
     <tu tuid="perc.ui.gadgets.processmonitor@Status">
       <tuv xml:lang="en-us"><seg>Status</seg></tuv>
       <tuv xml:lang="ar"><seg>حالة</seg></tuv>
@@ -8278,7 +8278,7 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="te"><seg>ప్రాసెస్ మానిటర్</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>过程监控</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>过程监控</seg></tuv>
-    <tuv xml:lang="ru"><seg>МОНИТОР ПРОЦЕССА</seg></tuv><tuv xml:lang="he"><seg>מעקב תהליכים</seg></tuv><tuv xml:lang="uk"><seg>МОНІТОР ПРОЦЕСУ</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>МОНИТОР ПРОЦЕССА</seg></tuv><tuv xml:lang="he"><seg>מעקב תהליכים</seg></tuv><tuv xml:lang="uk"><seg>МОНІТОР ПРОЦЕСУ</seg></tuv><tuv xml:lang="pl"><seg>MONITOR PROCESU</seg></tuv><tuv xml:lang="sv"><seg>PROCESSÖVERVAKARE</seg></tuv><tuv xml:lang="tr"><seg>SÜREÇ MONİTÖRÜ</seg></tuv></tu>
     <tu tuid="perc.ui.gadgets.welcome@WELCOME">
       <tuv xml:lang="en-us"><seg>WELCOME</seg></tuv>
       <tuv xml:lang="ar"><seg>مرحباً</seg></tuv>
@@ -8294,7 +8294,7 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="te"><seg>స్వాగతం</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>欢迎</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>欢迎</seg></tuv>
-    <tuv xml:lang="ru"><seg>ДОБРО ПОЖАЛОВАТЬ</seg></tuv><tuv xml:lang="he"><seg>קַבָּלַת פָּנִים</seg></tuv><tuv xml:lang="uk"><seg>ЛАСКАВО ПРОСИМО</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>ДОБРО ПОЖАЛОВАТЬ</seg></tuv><tuv xml:lang="he"><seg>קַבָּלַת פָּנִים</seg></tuv><tuv xml:lang="uk"><seg>ЛАСКАВО ПРОСИМО</seg></tuv><tuv xml:lang="pl"><seg>POWITANIE</seg></tuv><tuv xml:lang="sv"><seg>VÄLKOMNA</seg></tuv><tuv xml:lang="tr"><seg>HOŞ GELDİN</seg></tuv></tu>
     <tu tuid="perc.ui.gadgets.welcome@Linkback Not Supported">
       <tuv xml:lang="en-us"><seg>Sorry, Percussion CMS linkback is not supported for this page.</seg></tuv>
       <tuv xml:lang="ar"><seg>عذرًا، رابط Percussion CMS غير مدعوم لهذه الصفحة.</seg></tuv>
@@ -8598,7 +8598,7 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="te"><seg>వర్క్u200cఫ్లో</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>工作流程</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>工作流程</seg></tuv>
-    <tuv xml:lang="ru"><seg>Рабочий процесс</seg></tuv><tuv xml:lang="he"><seg>זרימת עבודה</seg></tuv><tuv xml:lang="uk"><seg>робочий процес</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Рабочий процесс</seg></tuv><tuv xml:lang="he"><seg>זרימת עבודה</seg></tuv><tuv xml:lang="uk"><seg>робочий процес</seg></tuv><tuv xml:lang="pl"><seg>Przepływ pracy</seg></tuv><tuv xml:lang="sv"><seg>Arbetsflöde</seg></tuv><tuv xml:lang="tr"><seg>İş akışı</seg></tuv></tu>
     <tu tuid="perc.ui.gadgets.workflowStatus@Modified">
       <tuv xml:lang="en-us"><seg>Modified</seg></tuv>
       <tuv xml:lang="ar"><seg>معدل</seg></tuv>
@@ -8790,7 +8790,7 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="te"><seg>స్టేటస్ ద్వారా పేజీలు</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>按状态显示的页面</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>按状态显示的页面</seg></tuv>
-    <tuv xml:lang="ru"><seg>СТРАНИЦЫ ПО СТАТУСУ</seg></tuv><tuv xml:lang="he"><seg>דפים לפי סטטוס</seg></tuv><tuv xml:lang="uk"><seg>СТОРІНКИ ЗА СТАТУСОМ</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>СТРАНИЦЫ ПО СТАТУСУ</seg></tuv><tuv xml:lang="he"><seg>דפים לפי סטטוס</seg></tuv><tuv xml:lang="uk"><seg>СТОРІНКИ ЗА СТАТУСОМ</seg></tuv><tuv xml:lang="pl"><seg>STRONY WEDŁUG STANU</seg></tuv><tuv xml:lang="sv"><seg>SIDOR EFTER STATUS</seg></tuv><tuv xml:lang="tr"><seg>DURUMA GÖRE SAYFALAR</seg></tuv></tu>
     <tu tuid="perc.ui.gadgets.workflowStatus@All Sites">
       <tuv xml:lang="en-us"><seg>All Sites</seg></tuv>
       <tuv xml:lang="ar"><seg>جميع المواقع</seg></tuv>
@@ -22274,7 +22274,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="te"><seg>శోధన కోసం చిహ్నం</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>搜索图标</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>搜索图标</seg></tuv>
-    <tuv xml:lang="ru"><seg>Значок для поиска</seg></tuv><tuv xml:lang="he"><seg>סמל לחיפוש</seg></tuv><tuv xml:lang="uk"><seg>Значок для пошуку</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Значок для поиска</seg></tuv><tuv xml:lang="he"><seg>סמל לחיפוש</seg></tuv><tuv xml:lang="uk"><seg>Значок для пошуку</seg></tuv><tuv xml:lang="pl"><seg>Ikona wyszukiwania</seg></tuv><tuv xml:lang="sv"><seg>Ikon för sökning</seg></tuv><tuv xml:lang="tr"><seg>Arama Simgesi</seg></tuv></tu>
     <tu tuid="perc.ui.images@SearchIconTitle">
       <tuv xml:lang="en-us"><seg>Search</seg></tuv>
       <tuv xml:lang="ar"><seg>يبحث</seg></tuv>
@@ -22290,7 +22290,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="te"><seg>శోధించండి</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>搜索</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>搜索</seg></tuv>
-    <tuv xml:lang="ru"><seg>Поиск</seg></tuv><tuv xml:lang="he"><seg>לְחַפֵּשׂ</seg></tuv><tuv xml:lang="uk"><seg>Пошук</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Поиск</seg></tuv><tuv xml:lang="he"><seg>לְחַפֵּשׂ</seg></tuv><tuv xml:lang="uk"><seg>Пошук</seg></tuv><tuv xml:lang="pl"><seg>Szukaj</seg></tuv><tuv xml:lang="sv"><seg>Söka</seg></tuv><tuv xml:lang="tr"><seg>Aramak</seg></tuv></tu>
     <tu tuid="perc.ui.images@RecyclingIconAlt">
       <tuv xml:lang="en-us"><seg>Icon for Recycling</seg></tuv>
       <tuv xml:lang="ar"><seg>أيقونة لإعادة التدوير</seg></tuv>
@@ -22306,7 +22306,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="te"><seg>రీసైక్లింగ్ కోసం చిహ్నం</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>回收图标</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>回收图标</seg></tuv>
-    <tuv xml:lang="ru"><seg>Значок переработки</seg></tuv><tuv xml:lang="he"><seg>סמל למיחזור</seg></tuv><tuv xml:lang="uk"><seg>Значок для переробки</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Значок переработки</seg></tuv><tuv xml:lang="he"><seg>סמל למיחזור</seg></tuv><tuv xml:lang="uk"><seg>Значок для переробки</seg></tuv><tuv xml:lang="pl"><seg>Ikona recyklingu</seg></tuv><tuv xml:lang="sv"><seg>Ikon för återvinning</seg></tuv><tuv xml:lang="tr"><seg>Geri Dönüşüm Simgesi</seg></tuv></tu>
     <tu tuid="perc.ui.images@RecyclingIconTitle">
       <tuv xml:lang="en-us"><seg>Recycling</seg></tuv>
       <tuv xml:lang="ar"><seg>إعادة التدوير</seg></tuv>
@@ -22322,7 +22322,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="te"><seg>రీసైక్లింగ్</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>回收</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>回收</seg></tuv>
-    <tuv xml:lang="ru"><seg>Переработка</seg></tuv><tuv xml:lang="he"><seg>מִחזוּר</seg></tuv><tuv xml:lang="uk"><seg>Переробка</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Переработка</seg></tuv><tuv xml:lang="he"><seg>מִחזוּר</seg></tuv><tuv xml:lang="uk"><seg>Переробка</seg></tuv><tuv xml:lang="pl"><seg>Recykling</seg></tuv><tuv xml:lang="sv"><seg>Återvinning</seg></tuv><tuv xml:lang="tr"><seg>Geri dönüşüm</seg></tuv></tu>
     <tu tuid="perc.ui.images@DesignIconAlt">
       <tuv xml:lang="en-us"><seg>Icon for Design</seg></tuv>
       <tuv xml:lang="ar"><seg>أيقونة للتصميم</seg></tuv>
@@ -22338,7 +22338,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="te"><seg>డిజైన్ కోసం చిహ్నం</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>设计图标</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>设计图标</seg></tuv>
-    <tuv xml:lang="ru"><seg>Иконка для дизайна</seg></tuv><tuv xml:lang="he"><seg>אייקון לעיצוב</seg></tuv><tuv xml:lang="uk"><seg>Значок для дизайну</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Иконка для дизайна</seg></tuv><tuv xml:lang="he"><seg>אייקון לעיצוב</seg></tuv><tuv xml:lang="uk"><seg>Значок для дизайну</seg></tuv><tuv xml:lang="pl"><seg>Ikona dla projektu</seg></tuv><tuv xml:lang="sv"><seg>Ikon för design</seg></tuv><tuv xml:lang="tr"><seg>Tasarım Simgesi</seg></tuv></tu>
     <tu tuid="perc.ui.images@DesignIconTitle">
       <tuv xml:lang="en-us"><seg>Design</seg></tuv>
       <tuv xml:lang="ar"><seg>تصميم</seg></tuv>
@@ -22354,7 +22354,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="te"><seg>డిజైన్</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>设计</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>设计</seg></tuv>
-    <tuv xml:lang="ru"><seg>Дизайн</seg></tuv><tuv xml:lang="he"><seg>לְעַצֵב</seg></tuv><tuv xml:lang="uk"><seg>Дизайн</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Дизайн</seg></tuv><tuv xml:lang="he"><seg>לְעַצֵב</seg></tuv><tuv xml:lang="uk"><seg>Дизайн</seg></tuv><tuv xml:lang="pl"><seg>Projekt</seg></tuv><tuv xml:lang="sv"><seg>Design</seg></tuv><tuv xml:lang="tr"><seg>Tasarım</seg></tuv></tu>
     <tu tuid="perc.ui.images@SiteIconAlt">
       <tuv xml:lang="en-us"><seg>Icon for a Site</seg></tuv>
       <tuv xml:lang="ar"><seg>أيقونة للموقع</seg></tuv>
@@ -22370,7 +22370,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="te"><seg>సైట్ కోసం చిహ్నం</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>网站的图标</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>网站的图标</seg></tuv>
-    <tuv xml:lang="ru"><seg>Иконка для сайта</seg></tuv><tuv xml:lang="he"><seg>סמל עבור אתר</seg></tuv><tuv xml:lang="uk"><seg>Іконка для сайту</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Иконка для сайта</seg></tuv><tuv xml:lang="he"><seg>סמל עבור אתר</seg></tuv><tuv xml:lang="uk"><seg>Іконка для сайту</seg></tuv><tuv xml:lang="pl"><seg>Ikona witryny</seg></tuv><tuv xml:lang="sv"><seg>Ikon för en webbplats</seg></tuv><tuv xml:lang="tr"><seg>Bir Sitenin Simgesi</seg></tuv></tu>
     <tu tuid="perc.ui.images@SiteIconTitle">
       <tuv xml:lang="en-us"><seg>Site</seg></tuv>
       <tuv xml:lang="ar"><seg>موقع</seg></tuv>
@@ -22386,7 +22386,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="te"><seg>సైట్</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>地点</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>地点</seg></tuv>
-    <tuv xml:lang="ru"><seg>Сайт</seg></tuv><tuv xml:lang="he"><seg>אֲתַר</seg></tuv><tuv xml:lang="uk"><seg>Сайт</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Сайт</seg></tuv><tuv xml:lang="he"><seg>אֲתַר</seg></tuv><tuv xml:lang="uk"><seg>Сайт</seg></tuv><tuv xml:lang="pl"><seg>Strona</seg></tuv><tuv xml:lang="sv"><seg>Plats</seg></tuv><tuv xml:lang="tr"><seg>Alan</seg></tuv></tu>
     <tu tuid="perc.ui.images@AssetLibraryIconAlt">
       <tuv xml:lang="en-us"><seg>Icon for the Asset Library</seg></tuv>
       <tuv xml:lang="ar"><seg>أيقونة لمكتبة الأصول</seg></tuv>
@@ -22402,7 +22402,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="te"><seg>అసెట్ లైబ్రరీ కోసం చిహ్నం</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>资源库的图标</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>资源库的图标</seg></tuv>
-    <tuv xml:lang="ru"><seg>Значок библиотеки ресурсов</seg></tuv><tuv xml:lang="he"><seg>סמל עבור ספריית הנכסים</seg></tuv><tuv xml:lang="uk"><seg>Значок для бібліотеки ресурсів</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Значок библиотеки ресурсов</seg></tuv><tuv xml:lang="he"><seg>סמל עבור ספריית הנכסים</seg></tuv><tuv xml:lang="uk"><seg>Значок для бібліотеки ресурсів</seg></tuv><tuv xml:lang="pl"><seg>Ikona Biblioteki zasobów</seg></tuv><tuv xml:lang="sv"><seg>Ikon för tillgångsbiblioteket</seg></tuv><tuv xml:lang="tr"><seg>Varlık Kitaplığı Simgesi</seg></tuv></tu>
     <tu tuid="perc.ui.images@AssetLibraryIconTitle">
       <tuv xml:lang="en-us"><seg>Asset Library</seg></tuv>
       <tuv xml:lang="ar"><seg>مكتبة الأصول</seg></tuv>
@@ -22417,7 +22417,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="pt"><seg>Biblioteca de ativos</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>资源库</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>资源库</seg></tuv>
-    <tuv xml:lang="ru"><seg>Библиотека активов</seg></tuv><tuv xml:lang="he"><seg>ספריית נכסים</seg></tuv><tuv xml:lang="uk"><seg>Бібліотека активів</seg></tuv><tuv xml:lang="te"><seg>ఆస్తి లైబ్రరీ</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Библиотека активов</seg></tuv><tuv xml:lang="he"><seg>ספריית נכסים</seg></tuv><tuv xml:lang="uk"><seg>Бібліотека активів</seg></tuv><tuv xml:lang="te"><seg>ఆస్తి లైబ్రరీ</seg></tuv><tuv xml:lang="pl"><seg>Biblioteka zasobów</seg></tuv><tuv xml:lang="sv"><seg>Tillgångsbibliotek</seg></tuv><tuv xml:lang="tr"><seg>Varlık Kitaplığı</seg></tuv></tu>
     <tu tuid="perc.ui.images@ArrowIconAlt">
       <tuv xml:lang="en-us"><seg>Down Arrow</seg></tuv>
       <tuv xml:lang="ar"><seg>سهم لأسفل</seg></tuv>
@@ -26659,5 +26659,23 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
     <tu tuid="perc.ui.dashboard.welcome@Web Management">
       <tuv xml:lang="en-us"><seg>Web Management</seg></tuv>
     <tuv xml:lang="ar"><seg>إدارة الويب</seg></tuv><tuv xml:lang="bn"><seg>ওয়েব ব্যবস্থাপনা</seg></tuv><tuv xml:lang="de"><seg>Webmanagement</seg></tuv><tuv xml:lang="es"><seg>Gestión Web</seg></tuv><tuv xml:lang="fr"><seg>Gestion Web</seg></tuv><tuv xml:lang="he"><seg>ניהול אתרים</seg></tuv><tuv xml:lang="hi"><seg>वेब प्रबंधन</seg></tuv><tuv xml:lang="it"><seg>Gestione Web</seg></tuv><tuv xml:lang="ja-jp"><seg>ウェブ管理</seg></tuv><tuv xml:lang="nl"><seg>Webbeheer</seg></tuv><tuv xml:lang="pl"><seg>Zarządzanie siecią</seg></tuv><tuv xml:lang="pt"><seg>Gerenciamento Web</seg></tuv><tuv xml:lang="ru"><seg>Веб-управление</seg></tuv><tuv xml:lang="sv"><seg>Webbhantering</seg></tuv><tuv xml:lang="te"><seg>వెబ్ నిర్వహణ</seg></tuv><tuv xml:lang="tr"><seg>Web Yönetimi</seg></tuv><tuv xml:lang="uk"><seg>Веб-менеджмент</seg></tuv><tuv xml:lang="zh-cn"><seg>网页管理</seg></tuv><tuv xml:lang="zh-tw"><seg>网页管理</seg></tuv></tu>
+    <tu tuid="perc.ui.finder.root@Sites">
+      <tuv xml:lang="en-us"><seg>Sites</seg></tuv>
+    <tuv xml:lang="ar"><seg>مواقع</seg></tuv><tuv xml:lang="bn"><seg>সাইট</seg></tuv><tuv xml:lang="de"><seg>Websites</seg></tuv><tuv xml:lang="es"><seg>Sitios</seg></tuv><tuv xml:lang="fr"><seg>Sites</seg></tuv><tuv xml:lang="he"><seg>אתרים</seg></tuv><tuv xml:lang="hi"><seg>साइटों</seg></tuv><tuv xml:lang="it"><seg>Siti</seg></tuv><tuv xml:lang="ja-jp"><seg>サイト</seg></tuv><tuv xml:lang="nl"><seg>Sites</seg></tuv><tuv xml:lang="pl"><seg>Witryny</seg></tuv><tuv xml:lang="pt"><seg>Locais</seg></tuv><tuv xml:lang="ru"><seg>Сайты</seg></tuv><tuv xml:lang="sv"><seg>Webbplatser</seg></tuv><tuv xml:lang="te"><seg>సైట్లు</seg></tuv><tuv xml:lang="tr"><seg>Siteler</seg></tuv><tuv xml:lang="uk"><seg>Сайти</seg></tuv><tuv xml:lang="zh-cn"><seg>站点</seg></tuv><tuv xml:lang="zh-tw"><seg>站点</seg></tuv></tu>
+    <tu tuid="perc.ui.finder.root@Assets">
+      <tuv xml:lang="en-us"><seg>Assets</seg></tuv>
+    <tuv xml:lang="ar"><seg>أصول</seg></tuv><tuv xml:lang="bn"><seg>সম্পদ</seg></tuv><tuv xml:lang="de"><seg>Vermögenswerte</seg></tuv><tuv xml:lang="es"><seg>Activos</seg></tuv><tuv xml:lang="fr"><seg>Actifs</seg></tuv><tuv xml:lang="he"><seg>נכסים</seg></tuv><tuv xml:lang="hi"><seg>संपत्ति</seg></tuv><tuv xml:lang="it"><seg>Attività</seg></tuv><tuv xml:lang="ja-jp"><seg>資産</seg></tuv><tuv xml:lang="nl"><seg>Activa</seg></tuv><tuv xml:lang="pl"><seg>Aktywa</seg></tuv><tuv xml:lang="pt"><seg>Ativos</seg></tuv><tuv xml:lang="ru"><seg>Ресурсы</seg></tuv><tuv xml:lang="sv"><seg>Tillgångar</seg></tuv><tuv xml:lang="te"><seg>ఆస్తులు</seg></tuv><tuv xml:lang="tr"><seg>Varlıklar</seg></tuv><tuv xml:lang="uk"><seg>Активи</seg></tuv><tuv xml:lang="zh-cn"><seg>资产</seg></tuv><tuv xml:lang="zh-tw"><seg>资产</seg></tuv></tu>
+    <tu tuid="perc.ui.finder.root@Design">
+      <tuv xml:lang="en-us"><seg>Design</seg></tuv>
+    <tuv xml:lang="ar"><seg>تصميم</seg></tuv><tuv xml:lang="bn"><seg>ডিজাইন</seg></tuv><tuv xml:lang="de"><seg>Design</seg></tuv><tuv xml:lang="es"><seg>Diseño</seg></tuv><tuv xml:lang="fr"><seg>Conception</seg></tuv><tuv xml:lang="he"><seg>לְעַצֵב</seg></tuv><tuv xml:lang="hi"><seg>डिज़ाइन</seg></tuv><tuv xml:lang="it"><seg>Progetto</seg></tuv><tuv xml:lang="ja-jp"><seg>デザイン</seg></tuv><tuv xml:lang="nl"><seg>Ontwerp</seg></tuv><tuv xml:lang="pl"><seg>Projekt</seg></tuv><tuv xml:lang="pt"><seg>Projeto</seg></tuv><tuv xml:lang="ru"><seg>Дизайн</seg></tuv><tuv xml:lang="sv"><seg>Design</seg></tuv><tuv xml:lang="te"><seg>డిజైన్</seg></tuv><tuv xml:lang="tr"><seg>Tasarım</seg></tuv><tuv xml:lang="uk"><seg>Дизайн</seg></tuv><tuv xml:lang="zh-cn"><seg>设计</seg></tuv><tuv xml:lang="zh-tw"><seg>设计</seg></tuv></tu>
+    <tu tuid="perc.ui.finder.root@Search">
+      <tuv xml:lang="en-us"><seg>Search</seg></tuv>
+    <tuv xml:lang="ar"><seg>يبحث</seg></tuv><tuv xml:lang="bn"><seg>অনুসন্ধান করুন</seg></tuv><tuv xml:lang="de"><seg>Suchen</seg></tuv><tuv xml:lang="es"><seg>Buscar</seg></tuv><tuv xml:lang="fr"><seg>Recherche</seg></tuv><tuv xml:lang="he"><seg>לְחַפֵּשׂ</seg></tuv><tuv xml:lang="hi"><seg>खोज</seg></tuv><tuv xml:lang="it"><seg>Ricerca</seg></tuv><tuv xml:lang="ja-jp"><seg>検索</seg></tuv><tuv xml:lang="nl"><seg>Zoekopdracht</seg></tuv><tuv xml:lang="pl"><seg>Szukaj</seg></tuv><tuv xml:lang="pt"><seg>Procurar</seg></tuv><tuv xml:lang="ru"><seg>Поиск</seg></tuv><tuv xml:lang="sv"><seg>Söka</seg></tuv><tuv xml:lang="te"><seg>శోధించండి</seg></tuv><tuv xml:lang="tr"><seg>Aramak</seg></tuv><tuv xml:lang="uk"><seg>Пошук</seg></tuv><tuv xml:lang="zh-cn"><seg>搜索</seg></tuv><tuv xml:lang="zh-tw"><seg>搜索</seg></tuv></tu>
+    <tu tuid="perc.ui.finder.root@Recycling">
+      <tuv xml:lang="en-us"><seg>Recycling</seg></tuv>
+    <tuv xml:lang="ar"><seg>إعادة التدوير</seg></tuv><tuv xml:lang="bn"><seg>রিসাইক্লিং</seg></tuv><tuv xml:lang="de"><seg>Recycling</seg></tuv><tuv xml:lang="es"><seg>Reciclaje</seg></tuv><tuv xml:lang="fr"><seg>Recyclage</seg></tuv><tuv xml:lang="he"><seg>מִחזוּר</seg></tuv><tuv xml:lang="hi"><seg>पुनर्चक्रण</seg></tuv><tuv xml:lang="it"><seg>Riciclaggio</seg></tuv><tuv xml:lang="ja-jp"><seg>リサイクル</seg></tuv><tuv xml:lang="nl"><seg>Recycling</seg></tuv><tuv xml:lang="pl"><seg>Recykling</seg></tuv><tuv xml:lang="pt"><seg>Reciclagem</seg></tuv><tuv xml:lang="ru"><seg>Переработка</seg></tuv><tuv xml:lang="sv"><seg>Återvinning</seg></tuv><tuv xml:lang="te"><seg>రీసైక్లింగ్</seg></tuv><tuv xml:lang="tr"><seg>Geri dönüşüm</seg></tuv><tuv xml:lang="uk"><seg>Переробка</seg></tuv><tuv xml:lang="zh-cn"><seg>回收</seg></tuv><tuv xml:lang="zh-tw"><seg>回收</seg></tuv></tu>
+    <tu tuid="perc.ui.gadgets.licenseMonitor@License Monitor">
+      <tuv xml:lang="en-us"><seg>License Monitor</seg></tuv>
+    <tuv xml:lang="ar"><seg>مراقب الترخيص</seg></tuv><tuv xml:lang="bn"><seg>লাইসেন্স মনিটর</seg></tuv><tuv xml:lang="de"><seg>Lizenzmonitor</seg></tuv><tuv xml:lang="es"><seg>Monitor de licencia</seg></tuv><tuv xml:lang="fr"><seg>Moniteur de licence</seg></tuv><tuv xml:lang="he"><seg>מוניטור רישיון</seg></tuv><tuv xml:lang="hi"><seg>लाइसेंस मॉनिटर</seg></tuv><tuv xml:lang="it"><seg>Monitoraggio delle licenze</seg></tuv><tuv xml:lang="ja-jp"><seg>ライセンスモニター</seg></tuv><tuv xml:lang="nl"><seg>Licentiemonitor</seg></tuv><tuv xml:lang="pl"><seg>Monitor licencji</seg></tuv><tuv xml:lang="pt"><seg>Monitor de licença</seg></tuv><tuv xml:lang="ru"><seg>Монитор лицензий</seg></tuv><tuv xml:lang="sv"><seg>Licensövervakning</seg></tuv><tuv xml:lang="te"><seg>లైసెన్స్ మానిటర్</seg></tuv><tuv xml:lang="tr"><seg>Lisans Monitörü</seg></tuv><tuv xml:lang="uk"><seg>Монітор ліцензій</seg></tuv><tuv xml:lang="zh-cn"><seg>许可证监控器</seg></tuv><tuv xml:lang="zh-tw"><seg>许可证监控器</seg></tuv></tu>
   </body>
 </tmx>
