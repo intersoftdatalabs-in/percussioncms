@@ -176,8 +176,10 @@ _DB_SERVICE_BASE: Dict[str, Dict[str, str]] = {
         "password_env": "MSSQL_SA_PASSWORD",
         "name": "percdb",
     },
-    # Oracle XE (gvenzl/oracle-xe): --db.name is service/SID (XEPDB1);
-    # APP_USER is CMS user/schema. Password from ORACLE_APP_PASSWORD.
+    # Oracle XE (gvenzl/oracle-xe): --db.name is service name XEPDB1 (Easy Connect
+    # service form; not a SID). APP_USER is CMS user/schema. Password from
+    # ORACLE_APP_PASSWORD. Long first-start — wait_for_container_healthy +
+    # WAIT_DB_SECONDS in the cell.
     "oracle": {
         "profile": "oracle",
         "service": "oracle",
@@ -188,6 +190,10 @@ _DB_SERVICE_BASE: Dict[str, Dict[str, str]] = {
         "password_env": "ORACLE_APP_PASSWORD",
         "name": "XEPDB1",
         "schema": "percuser",
+        # Host-side compose health wait (seconds) before docker run cell.
+        "healthy_timeout": "600",
+        # Cell-side TCP wait after network attach (seconds).
+        "wait_db_seconds": "600",
     },
 }
 
@@ -615,6 +621,9 @@ def build_docker_run_argv(
         schema = db_meta.get("schema", "")
         if schema:
             argv.extend(["-e", f"DB_SCHEMA={schema}"])
+        wait_db = (db_meta.get("wait_db_seconds") or "").strip()
+        if wait_db:
+            argv.extend(["-e", f"WAIT_DB_SECONDS={wait_db}"])
     argv.append(image)
     return argv
 
@@ -743,7 +752,88 @@ def start_db(
         dry_run=dry_run,
         check=False,
     )
+    # Heavy DBs (Oracle XE) may report TCP open before PDB/APP_USER is ready.
+    # Wait for compose healthcheck when the service defines one.
+    healthy_timeout_raw = meta.get("healthy_timeout") or ""
+    if healthy_timeout_raw.strip():
+        try:
+            healthy_timeout = int(healthy_timeout_raw)
+        except ValueError:
+            healthy_timeout = 0
+        if healthy_timeout > 0:
+            if not wait_for_container_healthy(
+                container, healthy_timeout, dry_run=dry_run
+            ):
+                raise RuntimeError(
+                    f"Timed out waiting for healthy status on {container} "
+                    f"after {healthy_timeout}s (db_type={db_type})"
+                )
     return started_by_matrix
+
+
+def wait_for_container_healthy(
+    container: str,
+    timeout_seconds: int,
+    *,
+    dry_run: bool,
+    interval_seconds: float = 5.0,
+) -> bool:
+    """Wait until ``docker inspect`` reports Health.Status == healthy.
+
+    Containers without a healthcheck (Status empty / none) are treated as ready
+    once they are running, so other compose DB profiles stay non-blocking.
+    """
+    if dry_run:
+        LOG.info("DRY-RUN: wait for healthy %s (%ss)", container, timeout_seconds)
+        return True
+    deadline = time.time() + timeout_seconds
+    while time.time() < deadline:
+        try:
+            proc = subprocess.run(
+                [
+                    "docker",
+                    "inspect",
+                    "--format",
+                    "{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}|{{.State.Status}}",
+                    container,
+                ],
+                shell=False,
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            raw = (proc.stdout or "").strip()
+            health, _, status = raw.partition("|")
+            health = health.strip().lower()
+            status = status.strip().lower()
+            if health == "healthy":
+                LOG.info("Container %s is healthy", container)
+                return True
+            if health in ("", "none") and status == "running":
+                LOG.info(
+                    "Container %s is running (no healthcheck); treating as ready",
+                    container,
+                )
+                return True
+            if status in ("exited", "dead", "removing"):
+                LOG.error("Container %s is %s (health=%s)", container, status, health)
+                return False
+            LOG.info(
+                "Waiting for %s healthy (health=%s status=%s)",
+                container,
+                health or "?",
+                status or "?",
+            )
+        except (OSError, subprocess.SubprocessError) as exc:
+            LOG.debug("wait_for_container_healthy %s: %s", container, exc)
+        time.sleep(interval_seconds)
+    LOG.error(
+        "Timed out waiting for healthy status on %s after %ss",
+        container,
+        timeout_seconds,
+    )
+    return False
 
 
 def stop_external_dbs(
@@ -901,14 +991,27 @@ def run_cell(
     LOG.info("Cell %s using jar %s (%s bytes)", cell.cell_id, jar, jar.stat().st_size if jar.is_file() else 0)
 
     destroy_container(name, dry_run=dry_run)
-    ownership = start_db(
-        repo_root,
-        compose_file,
-        cell.db_type,
-        dry_run=dry_run,
-        db_services=db_services,
-        env_file=env_file,
-    )
+    try:
+        ownership = start_db(
+            repo_root,
+            compose_file,
+            cell.db_type,
+            dry_run=dry_run,
+            db_services=db_services,
+            env_file=env_file,
+        )
+    except RuntimeError as exc:
+        return CellResult(
+            cell_id=cell.cell_id,
+            product=cell.product,
+            db_type=cell.db_type,
+            status="fail",
+            container_name=name,
+            probe_url=probe_url,
+            detail=str(exc),
+            duration_seconds=time.time() - started,
+            log_path=str(cell_log),
+        )
     if ownership is not None:
         if engaged_dbs is not None:
             engaged_dbs.add(cell.db_type)

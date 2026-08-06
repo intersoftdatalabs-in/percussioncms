@@ -331,7 +331,7 @@ public final class DbInstallConfigResolver {
       if (isBlank(port)) {
         missing.add("db.port");
       }
-      // Oracle uses db.name as service name / SID in composed DB_SERVER (@host:port:name)
+      // Oracle uses db.name as service name / SID in composed DB_SERVER (@//host:port/name)
       if (isBlank(name)) {
         missing.add("db.name");
       }
@@ -471,17 +471,24 @@ public final class DbInstallConfigResolver {
           (schema == null || schema.trim().isEmpty())
               ? (user == null ? "" : user.trim())
               : schema.trim();
-      // Service/SID form: @host:port:name (name may be service or SID)
+      // Easy Connect service form: @//host:port/serviceOrSid
+      // Multi-tenant Oracle XE (e.g. XEPDB1) is a service name, not a SID; classic
+      // SID form (@host:port:sid) yields ORA-12505 against PDB service names.
+      // Pure SID operators can still set DB_SERVER via -Ddbprops.
+      // db.name is the service/SID for connection only — product DB_NAME must stay
+      // empty for Oracle (sample rxrepository.oracle.properties). Populating
+      // DB_NAME with XEPDB1 makes TableFactory emit schema.XEPDB1.TABLE (ORA-00905).
       String serviceOrSid = name == null ? "" : name.trim();
-      String cmsServer = "@" + host + ":" + port + ":" + serviceOrSid;
+      String cmsServer = "@//" + host + ":" + port + "/" + serviceOrSid;
       systemProperties.put("perc.db.cms.backend", "ORACLE");
       systemProperties.put("perc.db.cms.driverName", ORACLE_DRIVER_NAME);
       systemProperties.put("perc.db.cms.driverClass", ORACLE_DRIVER_CLASS);
       systemProperties.put("perc.db.cms.server", cmsServer);
-      systemProperties.put("perc.db.cms.name", serviceOrSid);
+      systemProperties.put("perc.db.cms.name", "");
       systemProperties.put("perc.db.cms.schema", resolvedSchema);
       systemProperties.put(
-          "perc.db.dts.jdbcUrl", "jdbc:oracle:thin:@" + host + ":" + port + ":" + serviceOrSid);
+          "perc.db.dts.jdbcUrl",
+          "jdbc:oracle:thin:@//" + host + ":" + port + "/" + serviceOrSid);
       systemProperties.put("perc.db.dts.jdbcDriver", ORACLE_DRIVER_CLASS);
       systemProperties.put(
           "perc.db.dts.hibernateDialect", "org.hibernate.dialect.Oracle12cDialect");

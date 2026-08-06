@@ -75,6 +75,14 @@ class RepositoryConnectionProbeTest {
     assertEquals(
         "jdbc:sqlserver://h:1433;databaseName=db",
         RepositoryConnectionProbe.buildJdbcUrl("sqlserver", mssql));
+
+    Map<String, String> ora = new HashMap<>();
+    ora.put("perc.db.host", "oracle");
+    ora.put("perc.db.port", "1521");
+    ora.put("perc.db.name", "XEPDB1");
+    assertEquals(
+        "jdbc:oracle:thin:@//oracle:1521/XEPDB1",
+        RepositoryConnectionProbe.buildJdbcUrl("oracle", ora));
   }
 
   @Test

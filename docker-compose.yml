@@ -126,12 +126,14 @@ services:
       timeout: 5s
       retries: 10
 
-  # Oracle XE for matrix install smoke (#1508 / parent #1500).
+  # Oracle XE for matrix install smoke (#1508 / live residual #2083 / parent #1500).
   # Image: gvenzl/oracle-xe (community Oracle XE packaging). Heavy RAM/disk and
   # slow first start; opt-in profile only (not part of default up).
+  # Observed pull digest (pin optionally): sha256:ecdf4302ac3d134e1bac5ef6e0c223c2d0f4d4d2b6d551aa79b2346f1ab8f792
   # Cells reach the DB via Docker DNS alias ``oracle:1521`` on perc-matrix-net.
-  # Installer uses --db.name as service name (default XEPDB1) and APP_USER as schema.
-  # See docker/README.md § Oracle compose profile. Credentials from .env.compose only.
+  # Installer uses --db.name as Easy Connect service name (default XEPDB1; not SID)
+  # and APP_USER as schema. See docker/README.md § Oracle compose profile.
+  # Credentials from .env.compose only.
   oracle:
     image: gvenzl/oracle-xe:21-slim
     container_name: percussion-oracle

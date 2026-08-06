@@ -107,6 +107,8 @@ class EnvAndPasswordTests(unittest.TestCase):
         self.assertEqual(ora["name"], "XEPDB1")
         self.assertEqual(ora["schema"], "cmsuser")
         self.assertEqual(ora["password"], "ora-secret")
+        self.assertEqual(ora["healthy_timeout"], "600")
+        self.assertEqual(ora["wait_db_seconds"], "600")
         # Defaults when only password is provided
         defaults = smoke.build_db_services({"ORACLE_APP_PASSWORD": "x"})
         self.assertEqual(defaults["oracle"]["user"], "percuser")
@@ -265,6 +267,15 @@ class DockerRunArgvTests(unittest.TestCase):
         self.assertIn("DB_PASSWORD=ora-secret", joined)
         self.assertIn("DB_SCHEMA=percuser", joined)
         self.assertIn("PRODUCT=cms", joined)
+        # Oracle cold-start can exceed the cell default 120s TCP wait.
+        self.assertIn("WAIT_DB_SECONDS=600", joined)
+
+    def test_wait_for_container_healthy_dry_run(self):
+        self.assertTrue(
+            smoke.wait_for_container_healthy(
+                "percussion-oracle", 30, dry_run=True
+            )
+        )
 
 
 class InstallArgvTests(unittest.TestCase):

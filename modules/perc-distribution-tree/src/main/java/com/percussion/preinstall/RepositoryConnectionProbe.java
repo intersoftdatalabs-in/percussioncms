@@ -233,7 +233,9 @@ public final class RepositoryConnectionProbe {
         case "postgresql" -> "jdbc:postgresql://" + ep.host() + ":" + ep.port() + "/" + ep.name();
         case "sqlserver" ->
             "jdbc:sqlserver://" + ep.host() + ":" + ep.port() + ";databaseName=" + ep.name();
-        case "oracle" -> "jdbc:oracle:thin:@" + ep.host() + ":" + ep.port() + ":" + ep.name();
+        // Easy Connect service form (same as DbInstallConfigResolver structured oracle).
+        case "oracle" ->
+            "jdbc:oracle:thin:@//" + ep.host() + ":" + ep.port() + "/" + ep.name();
         default -> null;
       };
     }
@@ -310,7 +312,9 @@ public final class RepositoryConnectionProbe {
       case "postgresql" -> "jdbc:postgresql://" + ep.host() + ":" + ep.port() + "/" + ep.name();
       case "sqlserver" ->
           "jdbc:sqlserver://" + ep.host() + ":" + ep.port() + ";databaseName=" + ep.name();
-      case "oracle" -> "jdbc:oracle:thin:@" + ep.host() + ":" + ep.port() + ":" + ep.name();
+      // Prefer Easy Connect service form; pure SID (@host:port:sid) is still parseable below.
+      case "oracle" ->
+          "jdbc:oracle:thin:@//" + ep.host() + ":" + ep.port() + "/" + ep.name();
       default -> null;
     };
   }
@@ -346,11 +350,12 @@ public final class RepositoryConnectionProbe {
     if (semi >= 0) {
       s = s.substring(0, semi);
     }
-    if (s.startsWith("//")) {
-      s = s.substring(2);
-    }
+    // Oracle Easy Connect may be @//host:port/service — strip @ before //.
     if (s.startsWith("@")) {
       s = s.substring(1);
+    }
+    if (s.startsWith("//")) {
+      s = s.substring(2);
     }
 
     // forms: host:port/name  or  host:port:sid  or  host:port

@@ -310,33 +310,36 @@ python3 docker/scripts/matrix-install-smoke.py --product cms --db h2 --dry-run -
 python3 docker/scripts/matrix-install-smoke.py --product cms --db oracle --dry-run --skip-image-build
 ```
 
-### Oracle compose profile (#1508)
+### Oracle compose profile (#1508 / live residual #2083)
 
 Opt-in Oracle XE for matrix Layer-1 only (not started by default `perc-devctl.py up`).
 
 |              Item              |                                                                                                    Value                                                                                                     |
 |--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Image**                      | `gvenzl/oracle-xe:21-slim` (community packaging of Oracle Database XE). Accept Oracle Free Use Terms when pulling; operators may pin a company-approved mirror by changing `image:` in `docker-compose.yml`. |
+| **Image pin (observed)**       | Digest `sha256:ecdf4302ac3d134e1bac5ef6e0c223c2d0f4d4d2b6d551aa79b2346f1ab8f792` (~2.6 GiB compressed layers on pull). Tag may move; pin by digest for locked operator envs. |
 | **Compose profiles**           | `oracle`, and `db-all` (starts all external matrix DBs)                                                                                                                                                      |
 | **Container name**             | `percussion-oracle`                                                                                                                                                                                          |
 | **Network alias**              | `oracle` on `perc-matrix-net` (cells use `DB_HOST=oracle`)                                                                                                                                                   |
 | **Container port**             | `1521` (fixed)                                                                                                                                                                                               |
 | **Host publish**               | `${ORACLE_PORT:-1521}:1521` (freeport / env when 1521 is taken)                                                                                                                                              |
-| **Service name (`--db.name`)** | `XEPDB1` (default pluggable DB; override with `ORACLE_SERVICE`)                                                                                                                                              |
+| **Service name (`--db.name`)** | `XEPDB1` (default pluggable DB service name; override with `ORACLE_SERVICE`). **Not** a SID — structured install uses Easy Connect `@//host:port/XEPDB1`.                                                    |
 | **CMS user / schema**          | `APP_USER` / `ORACLE_APP_USER` (default `percuser`); password `ORACLE_APP_PASSWORD`                                                                                                                          |
 | **SYS bootstrap**              | `ORACLE_PASSWORD` (required by the image; **not** the CMS connect password)                                                                                                                                  |
 | **SSL**                        | Off for compose cells (`--db.ssl.enabled=false`), same as postgres/mysql/sqlserver                                                                                                                           |
-| **Resources**                  | Large image, high RAM, slow first healthcheck (`start_period` 120s). Prefer dedicated machine / long probe timeout for live smoke.                                                                           |
+| **Resources**                  | Image ~2.6 GiB; container often ≥2 GiB RAM once open; first volume init can take minutes. Docker Desktop should leave headroom for the CMS matrix cell (recommend ≥8 GiB Docker memory for this cell alone). |
+| **Start / wait**               | Compose healthcheck `start_period` 120s, retries 20×30s. Harness waits up to **600s** for `healthy` before `docker run` cell; cell `WAIT_DB_SECONDS=600`. Use `--probe-timeout 1800` for login probe.        |
+| **Image notice**               | Container logs may say `gvenzl/oracle-xe` is legacy and suggest `gvenzl/oracle-free`; matrix still pins `oracle-xe:21-slim` until an intentional image migration.                                           |
 
 ```bash
 # Start Oracle only (after .env.compose has ORACLE_* set)
 docker compose --env-file .env.compose --profile oracle up -d oracle
 
-# Matrix harness (starts profile, network-connects alias, install cell)
+# Matrix harness (starts profile, waits healthy, network-connects alias, install cell)
 python3 docker/scripts/matrix-install-smoke.py --product cms --db oracle --probe-timeout 1800
 ```
 
-**Live smoke residual:** compose + harness + unit tests land in this slice. Unattended `RESULT:OK` against a real Oracle container (image pull, license, long first start, full install probe) is **not** required for the first PR — track as residual follow-up on #1508 / parent #1500.
+**Live smoke (#2083):** unattended `RESULT:OK` requires the installer Easy Connect service form for `XEPDB1` (SID form `@host:port:XEPDB1` yields ORA-12505). Classic pure-SID operators can still set `DB_SERVER=@host:port:SID` via `-Ddbprops`.
 
 ### External DB teardown policy (#1516)
 
