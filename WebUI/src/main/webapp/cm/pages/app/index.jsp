@@ -3,6 +3,7 @@
 <%@ page import="com.percussion.sitemanage.service.impl.PSSiteDataService" %>
 <%@ page import="com.percussion.user.data.PSCurrentUser" %>
 <%@ page import="com.percussion.user.service.impl.PSUserService" %>
+<%@ page import="com.percussion.webui.util.PSDefaultLandingView" %>
 
 <%@ page import="com.percussion.utils.PSSpringBeanProvider" %>
 <%@ page import="com.percussion.utils.container.IPSConnector" %>
@@ -352,20 +353,23 @@
             throw new JspException(e);
         }
     }
+    /**
+     * Effective default {@code view=} for login / app entry when {@code view} is omitted.
+     *
+     * <p>Uses {@link PSRoleService#getUserHomepage()} (user override when set — issue #2209 — else
+     * role resolve else Home), maps product homepage types to view keys, and fails closed to
+     * {@code home} when the target is role-gated and the current user lacks Admin/Designer rights
+     * (issue #2210 / parent #959 slice 3). Explicit {@code ?view=} deep links are unchanged.
+     */
     protected String getDefaultView(HttpServletRequest request, HttpServletResponse response) throws JspException
     {
         try
         {
             PSRoleService roleService = (PSRoleService) PSSpringBeanProvider.getBean("roleService");
             String uhp = roleService.getUserHomepage();
-            String view = "home";
-            if(uhp.equals("Dashboard")){
-                view = "dash";
-            }
-            else if(uhp.equals("Editor")){
-                view = "editor";
-            }
-            return view;
+            boolean isAdmin = Boolean.TRUE.equals(request.getAttribute(IS_ADMIN_KEY));
+            boolean isDesigner = Boolean.TRUE.equals(request.getAttribute(IS_DESIGNER_KEY));
+            return PSDefaultLandingView.resolveAuthorizedView(uhp, isAdmin, isDesigner);
         }
         catch(Exception e)
         {
