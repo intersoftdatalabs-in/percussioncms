@@ -43,6 +43,7 @@ public class PSCheckboxTreeModel extends DefaultTreeModel implements TreeModel {
    * @param psSessionId the value of "pssessionid" applet parameter. It may be <code>null</code> or
    *     empty if the parameter is not defined.
    */
+  @SuppressWarnings("this-escape")
   public PSCheckboxTreeModel(URL baseURL, String docUrlStr, String psSessionId) {
     super(new PSCheckboxTreeRootNode());
 

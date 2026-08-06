@@ -25,6 +25,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
  * The tree render controls the behavior on screen. This one returns the rendered component if the
  * tree contains an instance of <code>PSCheckBoxTreeNode</code>.
  */
+@SuppressWarnings("serial")
 public class PSCheckboxTreeRenderer extends DefaultTreeCellRenderer
     implements IPSCheckboxTreeRenderer {
   /** Default no-argument constructor for the renderer. */

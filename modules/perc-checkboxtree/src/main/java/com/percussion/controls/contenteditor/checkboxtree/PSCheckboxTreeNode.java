@@ -28,6 +28,7 @@ public class PSCheckboxTreeNode extends DefaultMutableTreeNode {
    *     is not enforced.
    * @param label the nodes display label, not <code>null</code> or empty.
    */
+  @SuppressWarnings("this-escape")
   public PSCheckboxTreeNode(String id, String label) {
     setNodeId(id);
     setNodeName(label);

@@ -45,6 +45,7 @@ import javax.swing.tree.TreeSelectionModel;
  *       #getParameterInfo()} and {@link #getExtraParameters()} methods.
  * </ol>
  */
+@SuppressWarnings({"removal", "serial", "rawtypes"})
 public class PSCheckboxTreeApplet extends JApplet implements Runnable {
   /** Default no-argument constructor for the applet. */
   public PSCheckboxTreeApplet() {}
