@@ -2,7 +2,7 @@
 
 **Feature**: `990-unified-publishing-ui`  
 **Purpose**: Durable proof for US8 / FR-015 and RET-06 packaging retirement.  
-**Status**: Updated 2026-08-04 (#1817 faces-config + consumer audit).
+**Status**: Updated 2026-08-05 (#1820 packaging verification prep: redirect stubs + inventory freeze).
 
 |              Slice               | Issue |                              Role                               |   Status    |
 |----------------------------------|-------|-----------------------------------------------------------------|-------------|
@@ -10,8 +10,10 @@
 | A — Inventory / consumer audit   | #1817 | Faces-config + grep audit + deletion checklists (this update)   | **Done**    |
 | B — Design deep-page delete      | #1819 | Delete exclusive `ui/publishing/**` deep JSPs (keep redirects)  | Blocked\*   |
 | C — Runtime deep-page delete     | #1818 | Delete exclusive `ui/pubruntime/**` deep JSPs (keep redirects)  | Blocked\*   |
-| D — Packaging / WAR verification | #1820 | Installer/WAR assertions + RET-06 closure                       | Pending B+C |
+| D — Packaging / WAR verification | #1820 | Installer/WAR assertions + inventory freeze (prep)              | **Prep**†   |
 | UAT gate                         | #1371 | SC-001 / SC-003 / SC-008 sign-off before product deletes        | Open        |
+
+†Child D **prep** (#1820): packaging unit tests + docs land without product deep-page deletes. Full RET-06 Done still requires #1819+#1818, then enable absence assertions and re-check this table.
 
 \*Hard gate: no product deep-page deletes without #1371 UAT sign-off or explicit human ack on #1372. Also rewire non-nav residual consumers listed below before deleting the pages they call.
 
@@ -233,7 +235,8 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 | Upgrade cleanup target | `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/install.xml` | Already deletes residual `publishing-faces-config.xml` on upgrade |
 | Cleanup unit test      | `.../ObsoleteWebInfArtifactsCleanupTest.java`                                                   | Guards the install.xml contract                                   |
 | Seed menu URL          | `cmsTableData.xml` / `RxffTableData.xml`                                                        | **Rewired (#1843)** + **upgrade replace (#1884)** for ACTION 217  |
-| WAR packaging          | WebUI war packages `ui/publishing/**` and `ui/pubruntime/**` as static webapp files             | #1820 asserts only redirects remain after B+C                     |
+| WAR packaging          | WebUI war packages `ui/publishing/**` and `ui/pubruntime/**` as static webapp files             | #1820 freeze + redirect tests live; absence assertions after B+C  |
+| Packaging unit test    | `PublishingDeepPagePackagingTest` (#1820)                                                       | Redirect stubs + inventory freeze + disabled post-delete checks   |
 
 ### Docs / bookmark / external refs (preserve or redirect)
 
@@ -340,8 +343,28 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 
 ## Packaging verification notes — Child D (#1820)
 
-- Assert WAR / WebUI package contains only `ui/publishing/index.jsp` (+ any intentional KEEP files) and `ui/pubruntime/index.jsp` (+ intentional KEEP) after B+C.
-- Keep `ObsoleteWebInfArtifactsCleanupTest` expectations for faces-config upgrade deletes.
-- Mark RET-06 / T124 Done in this file with PR links when closed.
-- Cross-platform: packaging path assertions must not hardcode Unix-only separators.
+**Prep status (2026-08-05)** — packaging verification tests and docs only; **no product deep-page deletes**. Design/Runtime deep pages remain **Deferred** pending #1371 UAT (or human ack on #1372) and Child B/C (#1819 / #1818).
+
+### Test classes (`modules/perc-distribution-tree`)
+
+| Class | Role |
+|-------|------|
+| `com.percussion.distribution.install.PublishingDeepPagePackagingTest` | **#1820 primary**: assert `ui/publishing/index.jsp` + `ui/pubruntime/index.jsp` 301 redirect stubs still target modern shell (`/cm/app/?view=publish&section=design\|runtime`); freeze residual Design (28) / Runtime (13) JSP basename inventory; confirm `install.xml` still deletes `publishing-faces-config.xml`; `@Disabled` absence tests ready to enable after #1819/#1818 |
+| `com.percussion.distribution.install.ObsoleteWebInfArtifactsCleanupTest` | Peer: upgrade cleanup target still covers `publishing-faces-config.xml` (+ JSF lib/TLD families) |
+| `com.percussion.distribution.install.PublishNowActionSeedUrlTest` | Peer: Publish_Now / EI_Publish_Now seeds stay on `/publisher/demandpublishing` (not legacy `publish.jsp`) |
+
+### Live contract on `main` today
+
+- Redirect stubs **must remain** and keep modern shell targets (enabled assertions).
+- Residual deep JSP sets are an **explicit freeze** — accidental add/remove fails CI until freeze or product change is intentional.
+- Exclusive deep-page **absence** assertions are present but **disabled** until B+C land; then re-enable and update Surface A/B rows → Done.
+- Installer faces-config cleanup expectations **unchanged** (upgrade safety).
+
+### After #1819 + #1818
+
+- [ ] Enable `afterDesignRetirementOnlyKeepFilesRemain` / `afterRuntimeRetirementOnlyKeepFilesRemain` in `PublishingDeepPagePackagingTest` (or replace freeze with KEEP-only sets).
+- [ ] Assert WAR / WebUI package contains only `ui/publishing/index.jsp` (+ optional `publish.jsp` KEEP) and `ui/pubruntime/index.jsp`.
+- [ ] Keep `ObsoleteWebInfArtifactsCleanupTest` expectations for faces-config upgrade deletes.
+- [ ] Mark RET-06 / T124 Done in this file with PR/issue links; parent #1372 acceptance checkoff.
+- Cross-platform: packaging path assertions use `Path.of` / `Path.resolve` only (no Unix-only separators).
 
