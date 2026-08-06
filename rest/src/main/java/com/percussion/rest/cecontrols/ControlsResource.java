@@ -17,6 +17,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,10 @@ public class ControlsResource {
 
   private final IControlAdaptor adaptor;
 
+  /**
+   * No-arg constructor for bean-discovery edge cases. Production uses {@link
+   * #ControlsResource(IControlAdaptor)}; catalog methods call {@link #requireAdaptor()}.
+   */
   public ControlsResource() {
     this.adaptor = null;
   }
@@ -57,6 +62,7 @@ public class ControlsResource {
             content =
                 @Content(
                     array = @ArraySchema(schema = @Schema(implementation = ControlDef.class)))),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public List<ControlDef> listControls() {
@@ -64,6 +70,7 @@ public class ControlsResource {
       List<ControlDef> list = requireAdaptor().listControls();
       return list != null ? list : List.of();
     } catch (WebApplicationException e) {
+      // Preserve mapped HTTP errors (e.g. 503 misconfiguration from requireAdaptor)
       throw e;
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
@@ -82,6 +89,7 @@ public class ControlsResource {
             description = "OK",
             content = @Content(schema = @Schema(implementation = ControlDef.class))),
         @ApiResponse(responseCode = "404", description = "Control not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public ControlDef getControl(@PathParam("name") String name) {
@@ -92,6 +100,7 @@ public class ControlsResource {
       }
       return def;
     } catch (WebApplicationException e) {
+      // Preserve mapped HTTP errors (e.g. 503 misconfiguration from requireAdaptor)
       throw e;
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
@@ -100,8 +109,9 @@ public class ControlsResource {
 
   private IControlAdaptor requireAdaptor() {
     if (adaptor == null) {
-      throw new IllegalStateException(
-          "Control adaptor not configured (resource constructed without injection)");
+      // Misconfiguration — not a transient handler failure (align with Extensions/Keywords peers)
+      throw new WebApplicationException(
+          "Control adaptor not configured", Response.Status.SERVICE_UNAVAILABLE);
     }
     return adaptor;
   }
