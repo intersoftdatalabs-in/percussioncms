@@ -31,6 +31,7 @@ dist/
 .kilo/*.local.jsonc
 .kilo/kilo.jsonc
 .kilo/package.json
+.kilo/package-local.json
 .kilo/rules/memory-bank/
 .kilo/rules/memory-bank-instructions.md
 .kilo/kilo.json

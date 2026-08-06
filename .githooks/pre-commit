@@ -1,0 +1,88 @@
+#!/bin/bash
+
+# Arguments passed by Git:
+# $1 = Previous HEAD (all zeros if creating a new worktree/branch)
+# $2 = New HEAD
+# $3 = Flag (1 if a branch checkout, 0 if a file checkout)
+
+PREV_HEAD=$1
+NEW_HEAD=$2
+CHECKOUT_FLAG=$3
+
+# A string of 40 zeros represents a null/empty reference
+NULL_SHA="0000000000000000000000000000000000000000"
+
+# Check if this checkout is triggered by a brand new worktree creation
+if [ "$PREV_HEAD" = "$NULL_SHA" ] && [ "$CHECKOUT_FLAG" -eq 1 ]; then
+    echo "⚙️ [Hook] New worktree detected! Running initialization..."
+
+# Get parent and current locations
+COMMON_GIT_DIR=$(git rev-parse --path-format=absolute --git-common-dir)
+PARENT_REPO_DIR=$(dirname "$COMMON_GIT_DIR")
+CURRENT_WORKTREE_DIR=$(pwd)
+
+# Only sync if we are in a newly spun up worktree
+if [ "$CURRENT_WORKTREE_DIR" != "$PARENT_REPO_DIR" ]; then
+
+    # Define explicit paths to copy (relative to the repository root)
+    # This can include exact files or entire directories
+    EXPLICIT_PATHS=(
+        ".envrc"
+        "env.compose"
+        ".grok/rules"
+    )
+
+    echo "🔍 Syncing settings and rules from parent repo..."
+    # 1. Copy the explicit files/directories if they exist in the parent
+    for relative_path in "${EXPLICIT_PATHS[@]}"; do
+        src_path="$PARENT_REPO_DIR/$relative_path"
+        target_dest="$CURRENT_WORKTREE_DIR/$relative_path"
+
+        if [ -e "$src_path" ]; then
+            # Ensure parent directories exist in the new worktree
+            mkdir -p "$(dirname "$target_dest")"
+            
+            # Use cp -R to safely handle both single files and folders (like .grok/rules)
+            cp -R "$src_path" "$target_dest"
+            echo "✅ Synchronized: $relative_path"
+        fi
+    done
+
+
+    echo "🔍 Syncing ignored AGENTS.local.md files from parent repo..."
+
+    # 2. wildcard search for AGENTS.local.md files
+    cd "$PARENT_REPO_DIR" || exit
+    find . -type f -name "AGENTS.local.md" | while read -r relative_path; do
+        clean_path="${relative_path#./}"
+        target_dest="$CURRENT_WORKTREE_DIR/$clean_path"
+        
+        mkdir -p "$(dirname "$target_dest")"
+        cp "$clean_path" "$target_dest"
+        echo "✅ Synchronized: $clean_path"
+    done
+    
+    # 3. spotless indexes
+    cd "$CURRENT_WORKTREE_DIR" || exit
+
+fi
+
+
+    # Example 1: Copy a template configuration file
+    if [ -f ".env.example" ] && [ ! -f ".env" ]; then
+        cp .env.example .env
+        echo "✅ Created .env file from template"
+    fi
+
+    # Example 2: Automatically install project dependencies
+    if [ -f "package.json" ]; then
+        echo "📦 Installing Node dependencies..."
+        npm install
+    elif [ -f "requirements.txt" ]; then
+        echo "📦 Installing Python dependencies..."
+        pip install -r requirements.txt
+    fi
+
+    echo "🎉 Worktree setup complete!"
+fi
+exit 0
