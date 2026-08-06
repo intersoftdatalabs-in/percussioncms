@@ -407,7 +407,6 @@ public class PSCommandLineProcessor {
    * @throws PSFatalException if could not connect to server database and get the supported Locales.
    */
   private void displayExistingLanguages() throws PSFatalException {
-    PSLocaleHandler localehandler = new PSLocaleHandler();
     try {
       Document doc = PSLocaleHandler.getLocaleDocument(m_rxroot);
       List<String> langstring = new ArrayList<>();
