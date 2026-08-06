@@ -53,6 +53,7 @@ describe("TemplateDetailPanel", () => {
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
+    delete (window as { I18N?: unknown }).I18N;
   });
 
   it("loads detail on success with bindings slots and source", async () => {
@@ -180,7 +181,7 @@ describe("TemplateDetailPanel", () => {
     expect(screen.queryByTestId("developer-tpl-detail-title")).toBeNull();
   });
 
-  it("shows fallback when rejection has no message", async () => {
+  it("shows fallback for non-Error rejection", async () => {
     getTemplateDetailMock.mockRejectedValue("boom");
     render(<TemplateDetailPanel idOrName="missing" onBack={() => undefined} />);
     await waitFor(() => {
