@@ -126,8 +126,8 @@ python docker/scripts/perc-devctl.py qa-up
 python docker/scripts/perc-devctl.py qa-health
 # optional: --timeout-seconds 120  --interval-seconds 5
 
-# 3) Playwright surface subset against the stack only — no DEV_PERCUSSION_INSTALL
-#    (#2064 / #1928 slice A + #1929 surface filter)
+# 3) Playwright against the stack only — no DEV_PERCUSSION_INSTALL
+#    (#2064 env + #2065 golden smoke + #1929 surface filter)
 #    Use the TEST_CMS_URL printed by qa-up (do not hardcode :9993 — multi-worktree freeport).
 #    Auth helpers resolve: TEST_CMS_URL > QA_CMS_HOST_PORT/CMS_HOST_PORT > DEV_PERCUSSION_URL
 #    > install discovery > fallback. Unit tests: npm run test:unit in perc-qa-automation/frontend.
@@ -135,9 +135,12 @@ python docker/scripts/perc-devctl.py qa-health
 #    cd modules/perc-qa-automation/frontend
 #    TEST_CMS_URL=http://127.0.0.1:$QA_CMS_HOST_PORT  TEST_DB_TYPE=h2  TEST_PRODUCT=cms
 #    ADMIN_USERNAME=Admin  ADMIN_PASSWORD=... (from qa-up output / docker exec — never commit)
-#    npm run test:surface -- --path tests/login.spec.js
+#    # Golden unattended smoke (#2065): login + Content Explorer product screen
+#    npm run test:golden
+#    # or surface filter: npm run test:surface -- --path tests/golden-unattended-smoke.spec.js
+#    # or: npm run test:surface -- --path tests/login.spec.js
 #    # or: npx playwright test tests/login.spec.js --grep "Admin"
-#    # or: npm run test:surface -- --tag smoke
+#    # or: npm run test:surface -- --tag golden
 #    Failure artifacts: modules/perc-qa-automation/frontend/test-results/ (+ playwright-report/)
 #    Attach conventions: docs/developer-module/playwright-failure-artifacts.md (#2066)
 
@@ -279,7 +282,7 @@ Night-issue attach conventions (when not using GHA): [playwright-failure-artifac
 ##### Dependencies / first green caveats
 
 - **Installer package:** live mode runs `modules/perc-distribution-tree` `mvnw package -DskipTests` unless `skip_package=true`. This is the heavy step on free GHA runners (disk/time). Self-hosted or pre-baked installer + `skip_package` is supported.
-- **Golden smoke (#2065):** default surface is `tests/login.spec.js` (login). Broader login+product-screen golden may land under #2065; re-run with that path when available.
+- **Golden smoke (#2065):** `tests/golden-unattended-smoke.spec.js` (Admin login + Content Explorer shell). npm: `npm run test:golden`. Optional CI default may still use `tests/login.spec.js`; prefer the golden path for agent one-shot proof.
 - **Docker:** live job needs Docker on the runner (`ubuntu-latest` provides it). Dry-run / PR path does **not**.
 
 ##### Windows-local parity (same product path, no GHA)
@@ -299,7 +302,10 @@ set ADMIN_USERNAME=Admin
 set ADMIN_PASSWORD=<from-qa-up>
 npm ci
 npx playwright install chromium
-npm run test:surface -- --path tests/login.spec.js -- --trace=retain-on-failure --screenshot=only-on-failure --reporter=line,html
+REM Golden unattended smoke (#2065): login + Content Explorer product screen
+npm run test:golden
+REM Or surface path: npm run test:surface -- --path tests/golden-unattended-smoke.spec.js
+REM Or login-only: npm run test:surface -- --path tests/login.spec.js -- --trace=retain-on-failure --screenshot=only-on-failure --reporter=line,html
 cd ..\..\..
 python docker\scripts\perc-devctl.py qa-down
 ```
