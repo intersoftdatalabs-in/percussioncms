@@ -61,6 +61,7 @@ import java.util.stream.Collectors;
  * been provided. Information concerning the workflow context and the workflow actions for this
  * transition is placed into private objects in the request context.
  */
+@SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
 public class PSExitPerformTransition implements IPSRequestPreProcessor {
 
   /** Default constructor for the extension framework. */

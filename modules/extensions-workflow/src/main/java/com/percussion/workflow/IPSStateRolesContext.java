@@ -30,6 +30,7 @@ import java.util.Map;
  * @deprecated
  */
 @Deprecated
+@SuppressWarnings({"rawtypes", "unchecked", "serial"})
 public interface IPSStateRolesContext {
   /**
    * Gets a list of all state role IDs

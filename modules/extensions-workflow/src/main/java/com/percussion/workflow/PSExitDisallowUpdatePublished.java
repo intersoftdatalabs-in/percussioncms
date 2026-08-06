@@ -39,6 +39,7 @@ import org.apache.logging.log4j.Logger;
  * This class is an extension that is part of Rhythmyx workflow engine. The purpose of this
  * extension is to restrict updating a document in workflow when it is in state that is publishable.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSExitDisallowUpdatePublished implements IPSRequestPreProcessor {
 
   /** Default constructor for the extension framework. */

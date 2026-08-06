@@ -34,6 +34,7 @@ import java.util.Collections;
  * the database.
  */
 @Deprecated
+@SuppressWarnings({"rawtypes", "unchecked", "serial"})
 public class PSContentTypesContext implements IPSContentTypesContext {
   private boolean invokedStandalone = false;
 

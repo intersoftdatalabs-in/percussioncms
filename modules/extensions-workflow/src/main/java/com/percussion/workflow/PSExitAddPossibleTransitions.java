@@ -46,6 +46,7 @@ import org.w3c.dom.Text;
  * contract for the parameters and return value of {@link #processResultDocument(Object[],
  * IPSRequestContext, Document)}.
  */
+@SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
 public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor {
 
   /** Default constructor for the extension framework. */

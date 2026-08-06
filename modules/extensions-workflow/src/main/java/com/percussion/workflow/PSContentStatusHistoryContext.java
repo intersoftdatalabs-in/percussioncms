@@ -38,6 +38,7 @@ import java.util.List;
  * @since 2.0
  */
 @Deprecated
+@SuppressWarnings({"rawtypes", "unchecked", "serial"})
 public class PSContentStatusHistoryContext implements IPSContentStatusHistoryContext {
 
   /**
