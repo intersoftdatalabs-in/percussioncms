@@ -10,7 +10,7 @@ Unattended overnight worker:
 
 1. **Discover** open GitHub issues  
 2. **Triage** (implement / split / skip)  
-3. **PR follow-up PRE** (optional, default on) - **merge-blocker drain** before new issue PRs (conflicts + open review threads + failing CI, co-equal; oldest first)  
+3. **PR follow-up PRE** (optional, default on) - **merge-blocker drain** before new issue PRs (conflicts + open review threads only, **no CI polling**; oldest first)  
 4. **Work** sequential implement or split - **file residual follow-up issues** for leftover work  
 5. **PR follow-up POST** - catch PRs opened this run + remaining merge blockers  
 6. **Report** -> `scratch/night-report.md`
@@ -50,7 +50,7 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | Review threads (human or AI) sit forever while newer conflicts win `max_prs` | Threads are **merge blockers equal to conflicts**; selection is **oldest first** |
 | Empty issue queue early-complete skipped babysit | Empty triage still runs PR follow-up |
 | Agent "touches" a PR (rebase) but leaves 5-7 Kilo threads open | **Completeness:** finish **all** threads on a selected PR before the next PR |
-| Agent PRs sit blocked on review/CI | PRE + POST follow-up; **inline reply + `resolveReviewThread`** per root `AGENTS.md` |
+| Agent PRs sit blocked on review threads | PRE + POST follow-up; **inline reply + `resolveReviewThread`** per root `AGENTS.md` |
 | Fake-green: resolve without fix | Never bare-resolve (human or bot); mitigation + resolve, or residual issue and **leave OPEN** |
 | Human cannot merge with open conversations | `merge_blockers_still_open` reported every run |
 
@@ -127,25 +127,18 @@ name=night-issue-prs args={"max_issues": 1, "max_prs": 8, "include_pr_followup":
 
 For a pure PR-babysit night, prefer `max_issues: 1` with a label filter that matches nothing (or a known empty set) so Work is nearly empty, and raise `max_prs`. Watch in `/workflows`. Result path: `scratch/night-report.md`.
 
-### PR follow-up: merge blockers (anti-starvation)
+### PR follow-up: conflicts + review threads only (no CI polling)
 
-**Human cannot merge** a PR that has conflicts **or** any unresolved review conversation (bot or human). Those are **merge blockers**.
+1. **Inventory** owned open PRs: mergeable/DIRTY + GraphQL `reviewThreads` (human and bot). **Do not** select or wait on check runs.  
+2. **Select up to `max_prs` if ANY of:** CONFLICTING/DIRTY **or** unresolved review threads (**human and AI equal**). Failing/pending CI alone is **not** a queue reason.  
+3. **Order:** oldest `createdAt` first; tie-break human threads, then more open threads.  
+4. **Per selected PR (complete before next):** conflicts/rebase → all unresolved threads (fix + inline mitigation + `resolveReviewThread`). Optional BEHIND only if already rebasing.  
+5. Push **`--force-with-lease` only** after history rewrite. Never bare-resolve.  
+6. **Return** when selected PRs are done — do not poll `gh pr checks` / Actions.  
+7. Report remaining conflicts/threads only; `human_threads_still_open` for visibility.
 
-1. **Inventory** GraphQL `reviewThreads` + `mergeable` / `mergeStateStatus` + CI on every owned open PR  
-2. **Select up to `max_prs` merge blockers**, ordered by:  
-   - **Oldest `createdAt` first** (anti-starvation - old Kilo debt must not lose forever to new CONFLICTING PRs)  
-   - Tie-break: unresolved **human** threads before bot-only  
-   - Tie-break: more open threads before fewer  
-3. Conflicts, open threads, and failing CI are **co-equal for inclusion** (interleave by age)  
-4. **Completeness:** on each selected PR, finish **all** unresolved threads (or residual + leave OPEN) before the next PR  
-5. Rebase carefully; push **`--force-with-lease` only** after history rewrite  
-6. Never bare-resolve: fix + mitigation + resolve, or residual + **leave OPEN**  
-7. Report `merge_blockers_still_open` + `human_threads_still_open` after a full re-query  
+**#1955 lesson:** a MERGEABLE PR with a human freeport thread was under-reported as “no threads.” Fix is full inventory + treating review threads as a real tier (not human-only special-casing that jumps the queue).
 
-**Phase order:** PRE follow-up -> issue Work -> POST follow-up. Empty issue queue still runs PRE/POST.
-
-**#1955 lesson:** MERGEABLE + human freeport thread under-reported.  
-**#1974 lesson:** MERGEABLE + open Kilo threads starved by `max_prs` + conflict-first tiering.
 
 ### Safety model
 

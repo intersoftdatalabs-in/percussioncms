@@ -19,8 +19,8 @@
 // agent_budget (tool arg, not script arg): absolute cap on child agent() / parallel()
 // slots for the whole run (default 128). See README.
 //
-// MERGE BLOCKERS (human cannot merge): CONFLICTING/DIRTY, failing CI, OR any unresolved
-// review thread (human or bot). Co-equal top priority - open threads must not starve.
+// MERGE BLOCKERS (agent follow-up scope): CONFLICTING/DIRTY OR any unresolved review
+// thread (human or bot). Co-equal - open threads must not starve. Do NOT poll CI checks.
 
 let meta = #{
     name: "night-issue-prs",
@@ -286,7 +286,7 @@ if dry_run {
     include_pr_followup = false;
 } else {
 
-// Shared PR follow-up instructions (merge-blocker drain). Built once per live run.
+// Shared PR follow-up instructions (conflicts + review threads only; no CI polling).
 let pr_prompt_core = "";
 pr_prompt_core += "You are the overnight PR follow-up agent for Percussion CMS.\n";
 pr_prompt_core += "Repo: " + repo + "\n";
@@ -295,66 +295,71 @@ pr_prompt_core += "max_prs=" + max_prs.to_string() + "\n\n";
 
 pr_prompt_core += "HARD PRODUCT RULE (human operator):\n";
 pr_prompt_core += "No PR can be merged while it has (a) merge conflicts OR (b) any unresolved\n";
-pr_prompt_core += "review conversation (human or bot/Kilo). Those are MERGE BLOCKERS. Clearing\n";
-pr_prompt_core += "them is the primary job of this agent - not optional cleanup after new issues.\n\n";
+pr_prompt_core += "review conversation (human or bot/Kilo). Those are THIS AGENT'S MERGE BLOCKERS.\n";
+pr_prompt_core += "Clear them PR-by-PR, then finish the phase. CI is NOT your job here.\n\n";
 
-pr_prompt_core += "GOAL: Make OUR open pull requests merge-ready (except human APPROVE):\n";
-pr_prompt_core += "  1) merge conflicts (rebase onto " + base_branch + "),\n";
-pr_prompt_core += "  2) unresolved review threads (human and AI/bot - equal),\n";
-pr_prompt_core += "  3) failing CI checks,\n";
-pr_prompt_core += "  4) optional BEHIND-base catch-up if slots remain.\n";
-pr_prompt_core += "Do NOT open new product PRs here. Do NOT merge any PR. Do NOT approve as a bot.\n\n";
+pr_prompt_core += "GOAL (ONLY these; then stop and return):\n";
+pr_prompt_core += "  1) merge conflicts / DIRTY (rebase onto " + base_branch + "),\n";
+pr_prompt_core += "  2) unresolved review threads and review comments (human and AI/bot - equal).\n";
+pr_prompt_core += "Do NOT open new product PRs. Do NOT merge. Do NOT approve as a bot.\n";
+pr_prompt_core += "Do NOT babysit, wait for, poll, re-check, or fix CI / check runs / status checks.\n";
+pr_prompt_core += "Do NOT sleep/loop on `gh pr checks` or Actions. One snapshot is optional for the\n";
+pr_prompt_core += "report only; never block the pass on pending/failing checks.\n\n";
 
 pr_prompt_core += "MERGE-BLOCKER SELECTION (anti-starvation):\n";
-pr_prompt_core += "R1) Inventory ALL owned open PRs via GraphQL reviewThreads + mergeable +\n";
-pr_prompt_core += "    mergeStateStatus + check conclusions. Never claim 'no threads' without a\n";
-pr_prompt_core += "    fresh full inventory of every owned open PR.\n";
-pr_prompt_core += "R2) A PR is a MERGE BLOCKER if ANY of:\n";
+pr_prompt_core += "R1) Inventory ALL owned open PRs: mergeable, mergeStateStatus, and GraphQL\n";
+pr_prompt_core += "    reviewThreads (isResolved). Never claim 'no threads' without a fresh full\n";
+pr_prompt_core += "    inventory of every owned open PR. Skip check-run inventory for selection.\n";
+pr_prompt_core += "R2) A PR is in YOUR queue if ANY of:\n";
 pr_prompt_core += "    - mergeable==CONFLICTING or mergeStateStatus==DIRTY\n";
 pr_prompt_core += "    - one or more unresolved reviewThreads (human OR bot - equal)\n";
-pr_prompt_core += "    - failing required/CI checks\n";
-pr_prompt_core += "R3) Select up to " + max_prs.to_string() + " MERGE BLOCKER PRs, ordered by:\n";
-pr_prompt_core += "    1. Oldest createdAt FIRST (anti-starvation - old Kilo debt must not lose\n";
-pr_prompt_core += "       forever to tonight's CONFLICTING newcomers).\n";
+pr_prompt_core += "    Failing/pending CI alone does NOT put a PR in the queue.\n";
+pr_prompt_core += "R3) Select up to " + max_prs.to_string() + " such PRs, ordered by:\n";
+pr_prompt_core += "    1. Oldest createdAt FIRST (anti-starvation).\n";
 pr_prompt_core += "    2. Tie-break: unresolved HUMAN threads before bot-only.\n";
-pr_prompt_core += "    3. Tie-break: more open threads before fewer (drain dense debt).\n";
+pr_prompt_core += "    3. Tie-break: more open threads before fewer.\n";
 pr_prompt_core += "    Conflicts and open threads are CO-EQUAL for inclusion - interleave by age.\n";
-pr_prompt_core += "R4) COMPLETENESS on a selected PR: finish ALL unresolved threads on that PR\n";
-pr_prompt_core += "    (fix+reply+resolve, or residual+leave OPEN with inline deferral) before\n";
-pr_prompt_core += "    moving to the next PR. Do not 'touch' a PR with a rebase and leave 5-7\n";
-pr_prompt_core += "    Kilo threads hanging - that is failure for that PR.\n";
+pr_prompt_core += "R4) COMPLETENESS on a selected PR: finish conflicts (if any) AND ALL unresolved\n";
+pr_prompt_core += "    threads on THAT PR (fix+reply+resolve, or residual+leave OPEN with inline\n";
+pr_prompt_core += "    deferral) before moving to the next PR. Do not rebase and leave threads\n";
+pr_prompt_core += "    hanging. When done with a PR, move on - do not wait for CI.\n";
 pr_prompt_core += "R5) Never bare-resolve. Human and bot equal protocol.\n";
-pr_prompt_core += "R6) After the pass: re-query ALL owned open PRs. List every remaining merge\n";
-pr_prompt_core += "    blocker in merge_blockers_still_open (PR# + conflict|threads=N|CI).\n";
-pr_prompt_core += "    Also list human_threads_still_open for visibility.\n\n";
+pr_prompt_core += "R6) After the pass: re-query owned open PRs for remaining CONFLICTS and open\n";
+pr_prompt_core += "    threads only. merge_blockers_still_open = PR# + conflict|threads=N.\n";
+pr_prompt_core += "    Do not list CI as a merge_blocker for this agent. human_threads_still_open\n";
+pr_prompt_core += "    for visibility.\n\n";
 
 pr_prompt_core += "SCOPE:\n";
 pr_prompt_core += "1) gh auth status first; active account for " + repo + ".\n";
 pr_prompt_core += "2) Touch only: author is active gh user, OR head branch matches prefix\n";
 pr_prompt_core += "   fix/issue- OR feat/issue- OR fix/installer- from this agent lineage.\n";
-pr_prompt_core += "3) Skip pure drafts unless they are merge blockers.\n";
+pr_prompt_core += "3) Skip pure drafts unless they have conflicts or open threads.\n";
 pr_prompt_core += "4) After each successful push, git fetch origin before the next PR.\n";
 pr_prompt_core += "5) NEVER edit threads on other humans' PRs unless co-author / overnight bot PR.\n\n";
 
-pr_prompt_core += "PER SELECTED PR (dry_run=false) - order by need ON that PR:\n";
-pr_prompt_core += "A) CONFLICTS/DIRTY/BEHIND: fetch; checkout PR branch (worktree if main dirty);\n";
-pr_prompt_core += "   rebase onto origin/" + base_branch + " (or PR baseRefName). Resolve markers fully;\n";
-pr_prompt_core += "   keep both non-overlapping adds; TMX union keys. git push --force-with-lease ONLY\n";
-pr_prompt_core += "   (never bare --force). Comment on PR. If unresolvable: abort, residual issue.\n";
-pr_prompt_core += "B) REVIEW THREADS: GraphQL list ALL unresolved threads. Address each with real\n";
-pr_prompt_core += "   code/tests when needed. Equal human/bot; human first only if equal difficulty.\n";
-pr_prompt_core += "   For EVERY fully fixed thread: inline mitigation reply citing commit SHA, then\n";
-pr_prompt_core += "   resolveReviewThread(thread id). Re-query isResolved true. Outdated fixed threads\n";
-pr_prompt_core += "   still need reply+resolve. Never top-level-only substitute.\n";
-pr_prompt_core += "C) CI FAILURES: fix with real code/tests; push (force-with-lease only if rewritten).\n";
-pr_prompt_core += "D) Judgment / multi-day / out-of-scope: leave thread OPEN, inline residual issue URL;\n";
-pr_prompt_core += "   do NOT resolve. Count under blocked.\n";
-pr_prompt_core += "Gates: standalone clean install when practical; module tests for changed code.\n";
-pr_prompt_core += "Between PRs: clean tree; never leave half-finished rebase.\n\n";
+pr_prompt_core += "PER SELECTED PR (dry_run=false) - PR by PR, then next phase:\n";
+pr_prompt_core += "A) CONFLICTS/DIRTY (and BEHIND only if you are already rebasing for conflicts):\n";
+pr_prompt_core += "   fetch; checkout PR branch (worktree if main dirty); rebase onto origin/" + base_branch + "\n";
+pr_prompt_core += "   (or PR baseRefName). Resolve markers fully; keep both non-overlapping adds;\n";
+pr_prompt_core += "   TMX union keys. git push --force-with-lease ONLY (never bare --force).\n";
+pr_prompt_core += "   Comment on PR. If unresolvable: abort, residual issue.\n";
+pr_prompt_core += "B) REVIEW THREADS / COMMENTS: GraphQL list ALL unresolved threads. Address each\n";
+pr_prompt_core += "   with real code/tests when needed. Equal human/bot; human first only if equal\n";
+pr_prompt_core += "   difficulty. For EVERY fully fixed thread: inline mitigation reply citing\n";
+pr_prompt_core += "   commit SHA, then resolveReviewThread(thread id). Confirm isResolved true once\n";
+pr_prompt_core += "   per thread (no multi-minute poll loops). Outdated fixed threads still need\n";
+pr_prompt_core += "   reply+resolve. Never top-level-only substitute.\n";
+pr_prompt_core += "C) Judgment / multi-day / out-of-scope: leave thread OPEN, inline residual issue\n";
+pr_prompt_core += "   URL; do NOT resolve. Count under blocked.\n";
+pr_prompt_core += "Gates when you change code: standalone clean install when practical; module tests.\n";
+pr_prompt_core += "Between PRs: clean tree; never leave half-finished rebase.\n";
+pr_prompt_core += "When selected PRs are done (or no owned conflict/thread work remains), RETURN\n";
+pr_prompt_core += "immediately so the workflow can enter the next phase.\n\n";
 
 pr_prompt_core += "Return summary, prs_touched, conflicts_resolved, threads_resolved,\n";
 pr_prompt_core += "human_threads_addressed, human_threads_still_open, merge_blockers_still_open,\n";
-pr_prompt_core += "residual_issue_urls, blocked. Honest inventory - omit nothing still blocking merge.\n";
+pr_prompt_core += "residual_issue_urls, blocked. Honest inventory of remaining CONFLICTS and open\n";
+pr_prompt_core += "threads only - not CI wait state.\n";
 
 // ========== PR follow-up PRE (before new issue PRs) ==========
 if include_pr_followup {
@@ -375,8 +380,8 @@ if include_pr_followup {
         };
     } else {
         let pr_prompt = pr_prompt_core;
-        pr_prompt += "\nPASS: PRE-WORK. Drain existing merge blockers before opening new issue PRs.\n";
-        pr_prompt += "Prefer oldest open-thread and CONFLICTING PRs. Completeness on each selected PR.\n";
+        pr_prompt += "\nPASS: PRE-WORK. Drain conflicts + unresolved review threads on owned PRs only.\n";
+        pr_prompt += "No CI polling. Completeness on each selected PR, then return for issue Work.\n";
 
         let pr_agent = agent(pr_prompt, #{
             label: "pr-followup-pre",
@@ -614,15 +619,16 @@ if include_pr_followup {
         };
     } else {
         let pr_prompt_post = pr_prompt_core;
-        pr_prompt_post += "\nPASS: POST-WORK. Prioritize:\n";
+        pr_prompt_post += "\nPASS: POST-WORK. Conflicts + unresolved review threads only (no CI polling).\n";
+        pr_prompt_post += "Prioritize:\n";
         pr_prompt_post += "  (1) PRs opened during this overnight run (issue Work results),\n";
-        pr_prompt_post += "  (2) any merge blockers still open after the pre-work pass,\n";
+        pr_prompt_post += "  (2) remaining owned CONFLICTING / open-thread PRs after pre-pass,\n";
         pr_prompt_post += "  (3) oldest remaining open-thread PRs.\n";
         pr_prompt_post += "Issue work results (JSON) for new PR URLs:\n";
         pr_prompt_post += json_encode(results) + "\n";
         pr_prompt_post += "Pre-pass result (may be empty):\n";
         pr_prompt_post += json_encode(pr_followup_result) + "\n";
-        pr_prompt_post += "Completeness still required on each selected PR.\n";
+        pr_prompt_post += "Completeness on each selected PR, then return for Report phase.\n";
 
         let pr_agent_post = agent(pr_prompt_post, #{
             label: "pr-followup-post",
@@ -669,8 +675,8 @@ report_prompt += "PR follow-up POST result (JSON, may be empty):\n" + json_encod
 report_prompt += "Include:\n";
 report_prompt += "1) Table: issue | status | PR | child/residual issue links | parent tracker | summary\n";
 report_prompt += "2) Table: open PRs followed up | conflicts | threads resolved | residual issues\n";
-report_prompt += "3) List still-open HUMAN review threads AND merge_blockers_still_open (conflicts,\n";
-report_prompt += "   unresolved bot/human threads, CI) - human cannot merge with any of these\n";
+report_prompt += "3) List still-open HUMAN review threads AND merge_blockers_still_open (conflicts\n";
+report_prompt += "   and unresolved bot/human threads only - not CI wait state)\n";
 report_prompt += "4) Morning review order and what was deferred\n";
 report_prompt += "5) Note any PARENT issues whose ## Agent progress section should be checked\n";
 report_prompt += "Return ONLY the markdown body (no code fence wrapper).\n";
