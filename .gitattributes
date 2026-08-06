@@ -3,6 +3,8 @@
 # Betwixt mapping files (force LF so Betwixt parses identically on Windows and Linux;
 # core.autocrlf=true on Windows would otherwise rewrite them with CRLF on checkout).
 *.betwixt       text eol=lf
+# .githooks scripts (no .sh extension by convention; force LF so bash shebang parses on Linux/WSL)
+.githooks/*     text eol=lf
 # Java sources
 *.java          text diff=java
 *.gradle        text diff=java
