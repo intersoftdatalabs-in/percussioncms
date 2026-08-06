@@ -18,7 +18,9 @@
 package com.percussion.rest.keywords;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -51,21 +53,58 @@ public class KeywordsResourceCrudTest {
   }
 
   @Test
-  public void listKeywordsDelegates() {
+  public void listKeywordsDelegatesWithIncludeChoicesTrue() {
     KeywordSummary kw = new KeywordSummary();
     kw.setLabel("Status");
+    KeywordChoiceSummary choice = new KeywordChoiceSummary();
+    choice.setLabel("Open");
+    choice.setValue("open");
+    kw.setChoices(List.of(choice));
     when(adaptor.listKeywords(any(), eq(true))).thenReturn(List.of(kw));
     List<KeywordSummary> out = resource.listKeywords(true);
     assertEquals(1, out.size());
     assertEquals("Status", out.get(0).getLabel());
+    assertEquals(1, out.get(0).getChoices().size());
+    assertEquals("Open", out.get(0).getChoices().get(0).getLabel());
+    verify(adaptor).listKeywords(any(), eq(true));
+  }
+
+  @Test
+  public void listKeywordsDelegatesWithIncludeChoicesFalse() {
+    KeywordSummary kw = new KeywordSummary();
+    kw.setLabel("Status");
+    when(adaptor.listKeywords(any(), eq(false))).thenReturn(List.of(kw));
+    List<KeywordSummary> out = resource.listKeywords(false);
+    assertEquals(1, out.size());
+    assertEquals("Status", out.get(0).getLabel());
+    verify(adaptor).listKeywords(any(), eq(false));
+  }
+
+  @Test
+  public void listKeywordsEmpty() {
+    when(adaptor.listKeywords(any(), eq(false))).thenReturn(List.of());
+    assertTrue(resource.listKeywords(false).isEmpty());
   }
 
   @Test
   public void listKeywordsWrapsUnexpectedFailures() {
-    when(adaptor.listKeywords(any(), eq(false))).thenThrow(new RuntimeException("boom"));
+    RuntimeException cause = new RuntimeException("boom");
+    when(adaptor.listKeywords(any(), eq(false))).thenThrow(cause);
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.listKeywords(false));
     assertEquals(500, ex.getResponse().getStatus());
+    assertSame(cause, ex.getCause());
+  }
+
+  @Test
+  public void listKeywordsRethrowsWebApplicationException() {
+    WebApplicationException mapped =
+        new WebApplicationException("pre-mapped", Response.Status.SERVICE_UNAVAILABLE);
+    when(adaptor.listKeywords(any(), eq(false))).thenThrow(mapped);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.listKeywords(false));
+    assertSame(mapped, ex);
+    assertEquals(503, ex.getResponse().getStatus());
   }
 
   @Test
@@ -101,6 +140,27 @@ public class KeywordsResourceCrudTest {
   }
 
   @Test
+  public void getKeywordWrapsUnexpectedFailures() {
+    RuntimeException cause = new IllegalStateException("Failed to load keyword");
+    when(adaptor.getKeyword(any(), eq("boom"))).thenThrow(cause);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getKeyword("boom"));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(cause, ex.getCause());
+  }
+
+  @Test
+  public void getKeywordRethrowsWebApplicationException() {
+    WebApplicationException mapped =
+        new WebApplicationException("pre-mapped", Response.Status.BAD_GATEWAY);
+    when(adaptor.getKeyword(any(), eq("x"))).thenThrow(mapped);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getKeyword("x"));
+    assertSame(mapped, ex);
+    assertEquals(502, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void createKeywordRequiresLabel() {
     when(adaptor.createKeyword(any(), any()))
         .thenThrow(new IllegalArgumentException("label is required"));
@@ -122,6 +182,27 @@ public class KeywordsResourceCrudTest {
   }
 
   @Test
+  public void createKeywordWrapsUnexpectedFailures() {
+    RuntimeException cause = new IllegalStateException("design ws down");
+    when(adaptor.createKeyword(any(), any())).thenThrow(cause);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.createKeyword(new KeywordSummary()));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(cause, ex.getCause());
+  }
+
+  @Test
+  public void updateKeywordSuccess() {
+    KeywordSummary body = new KeywordSummary();
+    body.setLabel("Updated");
+    KeywordSummary updated = new KeywordSummary();
+    updated.setLabel("Updated");
+    when(adaptor.updateKeyword(any(), eq("9"), any())).thenReturn(updated);
+    assertEquals("Updated", resource.updateKeyword("9", body).getLabel());
+  }
+
+  @Test
   public void updateKeywordNotFound() {
     when(adaptor.updateKeyword(any(), eq("9"), any())).thenReturn(null);
     WebApplicationException ex =
@@ -137,6 +218,17 @@ public class KeywordsResourceCrudTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.updateKeyword("9", null));
     assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateKeywordWrapsUnexpectedFailures() {
+    RuntimeException cause = new IllegalStateException("Failed to update keyword");
+    when(adaptor.updateKeyword(any(), eq("9"), any())).thenThrow(cause);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateKeyword("9", new KeywordSummary()));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(cause, ex.getCause());
   }
 
   @Test
@@ -167,13 +259,61 @@ public class KeywordsResourceCrudTest {
   }
 
   @Test
-  public void missingAdaptorReturnsServiceUnavailable() {
+  public void deleteKeywordWrapsUnexpectedFailures() {
+    RuntimeException cause = new IllegalStateException("Failed to delete keyword");
+    doThrow(cause).when(adaptor).deleteKeyword(any(), eq("7"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteKeyword("7"));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(cause, ex.getCause());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnList() {
+    KeywordsResource bare = newKeywordsResourceWithoutAdaptor();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.listKeywords(false));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnGet() {
+    KeywordsResource bare = newKeywordsResourceWithoutAdaptor();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.getKeyword("status"));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnCreate() {
+    KeywordsResource bare = newKeywordsResourceWithoutAdaptor();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.createKeyword(new KeywordSummary()));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnUpdate() {
+    KeywordsResource bare = newKeywordsResourceWithoutAdaptor();
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> bare.updateKeyword("9", new KeywordSummary()));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnDelete() {
+    KeywordsResource bare = newKeywordsResourceWithoutAdaptor();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.deleteKeyword("9"));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  private static KeywordsResource newKeywordsResourceWithoutAdaptor() {
     KeywordsResource bare = new KeywordsResource();
     UriInfo uriInfo = mock(UriInfo.class);
     when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
     bare.setUriInfo(uriInfo);
-    WebApplicationException ex =
-        assertThrows(WebApplicationException.class, () -> bare.listKeywords(false));
-    assertEquals(503, ex.getResponse().getStatus());
+    return bare;
   }
 }
