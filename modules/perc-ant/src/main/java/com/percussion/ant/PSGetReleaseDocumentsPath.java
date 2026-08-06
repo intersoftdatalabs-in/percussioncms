@@ -132,7 +132,7 @@ public class PSGetReleaseDocumentsPath extends Task {
 
     String version = m_major + "." + m_minor;
     if (Integer.parseInt(m_micro) > 0) version += "." + m_micro;
-    List versionDirs = getAllVersionDirectories(rootDir);
+    List<String> versionDirs = getAllVersionDirectories(rootDir);
 
     if (!versionDirs.contains(version)) return;
 
@@ -149,7 +149,7 @@ public class PSGetReleaseDocumentsPath extends Task {
    *     <code>null</code>.
    * @return a list of all version directories, never <code>null</code>, and should not be empty.
    */
-  private List getAllVersionDirectories(File rootdir) {
+  private List<String> getAllVersionDirectories(File rootdir) {
     if (rootdir == null) throw new IllegalArgumentException("rootdir cannot be null.");
     List<String> dirs = new ArrayList<String>();
     File[] children = rootdir.listFiles();

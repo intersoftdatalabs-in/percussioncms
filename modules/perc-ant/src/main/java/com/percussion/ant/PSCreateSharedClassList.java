@@ -83,9 +83,9 @@ public class PSCreateSharedClassList extends Task {
       getAllPackageNmkPaths(m_dir);
       addComment(TOP_COMMENT);
       addFileSetStart();
-      Iterator it = m_paths.iterator();
+      Iterator<File> it = m_paths.iterator();
       while (it.hasNext()) {
-        File current = (File) it.next();
+        File current = it.next();
         PSMakefileInterpreter interp = new PSMakefileInterpreter(current);
         interp.interpret();
         createEntries(interp.getMacros());

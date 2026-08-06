@@ -160,7 +160,7 @@ public class PSDelete extends Delete {
 
     // delete the files in the filesets
     for (int i = 0; i < filesets.size(); i++) {
-      FileSet fs = (FileSet) filesets.elementAt(i);
+      FileSet fs = filesets.elementAt(i);
       try {
         DirectoryScanner ds = fs.getDirectoryScanner(getProject());
         String[] files = ds.getIncludedFiles();
