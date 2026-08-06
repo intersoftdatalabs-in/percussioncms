@@ -35,6 +35,7 @@ import org.xml.sax.SAXException;
  *
  * @see IPSTmxDtdConstants
  */
+@SuppressWarnings("this-escape")
 public class PSTmxMergeConfig implements IPSTmxMergeConfig {
   /**
    * Constructor. Loads the default merge configuration document from the class file archive and

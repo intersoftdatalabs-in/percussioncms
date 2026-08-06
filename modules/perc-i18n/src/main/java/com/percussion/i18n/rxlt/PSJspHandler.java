@@ -53,6 +53,7 @@ import org.w3c.dom.Element;
  *
  * @author dougrand
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSJspHandler extends PSIdleDotter implements IPSSectionHandler {
   /** Creates a handler for JSP resources. */
   public PSJspHandler() {

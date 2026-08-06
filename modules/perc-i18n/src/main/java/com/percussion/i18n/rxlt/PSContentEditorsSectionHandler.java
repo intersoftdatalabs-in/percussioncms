@@ -45,6 +45,7 @@ import org.xml.sax.SAXException;
  * generate a combined and simple XML document and then to generate the TMX document for this entire
  * section.
  */
+@SuppressWarnings("rawtypes")
 public class PSContentEditorsSectionHandler extends PSIdleDotter implements IPSSectionHandler {
   /**
    * Constructor. Loads the XSL Stylesheet from the file which is part the JAR file.
