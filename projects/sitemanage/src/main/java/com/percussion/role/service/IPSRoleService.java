@@ -104,11 +104,15 @@ public interface IPSRoleService {
   void validateDeleteUsersFromRole(PSUserList userList) throws PSDataServiceException;
 
   /**
-   * Gets the homepage for the logged in user.
+   * Gets the effective CMS landing homepage for the logged-in user.
+   *
+   * <p>Precedence (product #959): user override ({@code perc.user.homepage.{user}}) when set and
+   * valid; else multi-role resolve (Home &gt; Dashboard &gt; Editor); else {@link
+   * #HOMEPAGE_TYPE_HOME}.
    *
    * @return String never null. Product default is {@link #HOMEPAGE_TYPE_HOME} when unset. When the
-   *     user has multiple roles, {@link #HOMEPAGE_TYPE_HOME} wins over Dashboard/Editor (SPA-first
-   *     landing).
+   *     user has multiple roles and no user override, {@link #HOMEPAGE_TYPE_HOME} wins over
+   *     Dashboard/Editor (SPA-first landing).
    */
   String getUserHomepage() throws IPSGenericDao.LoadException;
 }

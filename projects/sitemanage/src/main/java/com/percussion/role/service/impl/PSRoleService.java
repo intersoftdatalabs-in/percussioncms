@@ -506,16 +506,32 @@ public class PSRoleService implements IPSRoleService {
   @Path("/userhomepage")
   @Produces(MediaType.TEXT_PLAIN)
   public String getUserHomepage() throws IPSGenericDao.LoadException {
+    // Precedence (product #959): user override > role resolve > Home
     List<String> userRoles = null;
     try {
-      userRoles = userService.getCurrentUser().getRoles();
+      var current = userService.getCurrentUser();
+      if (current != null) {
+        if (StringUtils.isNotBlank(current.getName())) {
+          String override = userService.getHomepageOverride(current.getName());
+          if (StringUtils.isNotBlank(override)) {
+            // Only accept still-valid types (invalid stored → fall through to role resolve)
+            String normalized =
+                com.percussion.user.service.impl.PSUserService.normalizeHomepageType(override);
+            if (normalized != null) {
+              return normalized;
+            }
+          }
+        }
+        userRoles = current.getRoles();
+      }
     } catch (IPSUserService.PSNoCurrentUserException e) {
       log.error(
           "Error getting roles, No Current User! Error:{}", PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     } catch (PSDataServiceException e) {
       log.error(
-          "Error getting roles for current user: {} Error:", PSExceptionUtils.getMessageForLog(e));
+          "Error getting homepage / roles for current user: {} Error:",
+          PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
 
@@ -529,9 +545,11 @@ public class PSRoleService implements IPSRoleService {
   }
 
   /**
-   * Resolve effective homepage from the set of role homepage values.
+   * Resolve effective homepage from the set of role homepage values (role-only; no user override).
    *
    * <p>Product priority (SPA-first): Home &gt; Dashboard &gt; Editor. Empty/unset → Home.
+   *
+   * <p>User-level override is applied in {@link #getUserHomepage()} before this method.
    *
    * @param userHomePages role homepage types, never {@code null} (may be empty)
    * @return one of {@link #HOMEPAGE_TYPE_HOME}, {@link #HOMEPAGE_TYPE_DASHBOARD}, {@link
@@ -551,6 +569,31 @@ public class PSRoleService implements IPSRoleService {
       return HOMEPAGE_TYPE_EDITOR;
     }
     return HOMEPAGE_TYPE_HOME;
+  }
+
+  /**
+   * Resolve effective CMS landing with full precedence for tests and callers that already have the
+   * parts:
+   *
+   * <ol>
+   *   <li>user override when non-blank and valid
+   *   <li>else role resolve ({@link #resolveUserHomepage(Set)})
+   *   <li>else Home
+   * </ol>
+   *
+   * @param userOverride raw or canonical override; may be blank
+   * @param roleHomePages role homepage values; may be null/empty
+   * @return never null
+   */
+  public static String resolveEffectiveHomepage(String userOverride, Set<String> roleHomePages) {
+    if (StringUtils.isNotBlank(userOverride)) {
+      String normalized =
+          com.percussion.user.service.impl.PSUserService.normalizeHomepageType(userOverride);
+      if (normalized != null) {
+        return normalized;
+      }
+    }
+    return resolveUserHomepage(roleHomePages);
   }
 
   public IPSRoleMgr getRoleMgr() {

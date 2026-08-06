@@ -41,6 +41,8 @@ import com.percussion.design.objectstore.PSAttribute;
 import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.design.objectstore.PSSubject;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
+import com.percussion.metadata.data.PSMetadata;
+import com.percussion.metadata.service.IPSMetadataService;
 import com.percussion.pathmanagement.service.impl.PSAssetPathItemService;
 import com.percussion.role.service.IPSRoleService;
 import com.percussion.role.service.impl.PSRoleService;
@@ -132,8 +134,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 // Java 11 Optional
+import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -192,6 +197,45 @@ public class PSUserService implements IPSUserService {
 
   private final IPSUtilityService utilityService;
 
+  private final IPSMetadataService metadataService;
+
+  /**
+   * Canonical allowed user landing-page types (PascalCase product labels). Peer to role homepage
+   * types Home/Dashboard/Editor; expanded for top-level CMS modules.
+   */
+  public static final Set<String> ALLOWED_HOMEPAGE_TYPES =
+      Collections.unmodifiableSet(
+          new LinkedHashSet<>(
+              Arrays.asList(
+                  HOMEPAGE_TYPE_HOME,
+                  HOMEPAGE_TYPE_DASHBOARD,
+                  HOMEPAGE_TYPE_EDITOR,
+                  HOMEPAGE_TYPE_DESIGNER,
+                  HOMEPAGE_TYPE_ARCHITECTURE,
+                  HOMEPAGE_TYPE_PUBLISH,
+                  HOMEPAGE_TYPE_WORKFLOW,
+                  HOMEPAGE_TYPE_WIDGET_BUILDER)));
+
+  /** Maps canonical homepage type → {@code index.jsp} {@code view} key. */
+  private static final Map<String, String> HOMEPAGE_TYPE_TO_VIEW_KEY =
+      Map.of(
+          HOMEPAGE_TYPE_HOME,
+          "home",
+          HOMEPAGE_TYPE_DASHBOARD,
+          "dash",
+          HOMEPAGE_TYPE_EDITOR,
+          "editor",
+          HOMEPAGE_TYPE_DESIGNER,
+          "design",
+          HOMEPAGE_TYPE_ARCHITECTURE,
+          "arch",
+          HOMEPAGE_TYPE_PUBLISH,
+          "publish",
+          HOMEPAGE_TYPE_WORKFLOW,
+          "workflow",
+          HOMEPAGE_TYPE_WIDGET_BUILDER,
+          "widgetbuilder");
+
   public static final String PERCUSSION_ADMIN_NAME = "PercussionAdmin";
   public static final String ADMIN_NAME = "Admin";
   public static final String ADMIN1_NAME = "admin1";
@@ -229,7 +273,8 @@ public class PSUserService implements IPSUserService {
       IPSSecurityWs securityWs,
       IPSContentWs contentWs,
       IPSIdMapper idMapper,
-      IPSUtilityService utilityService) {
+      IPSUtilityService utilityService,
+      IPSMetadataService metadataService) {
     super();
     this.userLoginDao = userLoginDao;
     this.passwordFilter = passwordFilter;
@@ -240,6 +285,7 @@ public class PSUserService implements IPSUserService {
     this.contentWs = contentWs;
     this.idMapper = idMapper;
     this.utilityService = utilityService;
+    this.metadataService = metadataService;
     setupServerStartupListener(notificationService);
   }
 
@@ -838,6 +884,225 @@ public class PSUserService implements IPSUserService {
     currUser.setAccessibilityUser(isAccessibility);
 
     return currUser;
+  }
+
+  /**
+   * GET persisted default landing override for the current user. Empty string when unset (caller
+   * should fall back to role resolve via {@code /role/userhomepage}).
+   */
+  @GET
+  @Path("/homepage")
+  @Produces(MediaType.TEXT_PLAIN)
+  public String getCurrentUserHomepageOverride() throws PSDataServiceException {
+    return getHomepageOverride(requireCurrentUserName());
+  }
+
+  /**
+   * PUT default landing override for the current user. Body is plain-text product type or view-key
+   * alias; blank body clears the override.
+   */
+  @PUT
+  @Path("/homepage")
+  @Consumes(MediaType.TEXT_PLAIN)
+  @Produces(MediaType.TEXT_PLAIN)
+  public String setCurrentUserHomepageOverride(String homepage) throws PSDataServiceException {
+    return setHomepageOverride(requireCurrentUserName(), homepage);
+  }
+
+  /** DELETE default landing override for the current user. */
+  @DELETE
+  @Path("/homepage")
+  public void clearCurrentUserHomepageOverride() throws PSDataServiceException {
+    clearHomepageOverride(requireCurrentUserName());
+  }
+
+  /**
+   * GET persisted default landing override for a named user (admin-managed). Empty string when
+   * unset.
+   */
+  @GET
+  @Path("/homepage/{userName}")
+  @Produces(MediaType.TEXT_PLAIN)
+  public String getHomepageOverride(@PathParam("userName") String userName)
+      throws PSDataServiceException {
+    PSParameterValidationUtils.rejectIfBlank("getHomepageOverride", "userName", userName);
+    assertCanManageHomepage(userName);
+    try {
+      var md = metadataService.find(META_DATA_HOMEPAGE_PREFIX + userName);
+      if (md == null || isBlank(md.getData())) {
+        return "";
+      }
+      // Stale/invalid stored value treated as unset for read
+      String normalized = normalizeHomepageType(md.getData());
+      return normalized == null ? "" : normalized;
+    } catch (IPSGenericDao.LoadException e) {
+      throw new PSDataServiceException("Failed to load homepage override for user " + userName, e);
+    }
+  }
+
+  /**
+   * PUT default landing override for a named user. Blank body clears. Invalid value → validation
+   * error (400).
+   */
+  @PUT
+  @Path("/homepage/{userName}")
+  @Consumes(MediaType.TEXT_PLAIN)
+  @Produces(MediaType.TEXT_PLAIN)
+  public String setHomepageOverride(
+      @PathParam("userName") String userName, String homepage) throws PSDataServiceException {
+    PSParameterValidationUtils.rejectIfBlank("setHomepageOverride", "userName", userName);
+    assertCanManageHomepage(userName);
+    if (isBlank(homepage)) {
+      clearHomepageOverride(userName);
+      return "";
+    }
+    String normalized = normalizeHomepageType(homepage);
+    if (normalized == null) {
+      PSParameterValidationUtils.validateParameters("setHomepageOverride")
+          .rejectField(
+              "homepage",
+              "Invalid homepage value '"
+                  + homepage
+                  + "'. Allowed: "
+                  + ALLOWED_HOMEPAGE_TYPES
+                  + " (or view keys home/dash/editor/design/arch/publish/workflow/widgetbuilder).",
+              homepage)
+          .throwIfInvalid();
+      // throwIfInvalid always throws when rejectField was used; keep compiler definite-assignment
+      throw new PSDataServiceException("Invalid homepage value: " + homepage);
+    }
+    try {
+      var key = META_DATA_HOMEPAGE_PREFIX + userName;
+      var md = metadataService.find(key);
+      if (md == null) {
+        md = new PSMetadata(key, normalized);
+      } else {
+        md.setData(normalized);
+      }
+      metadataService.save(md);
+      return normalized;
+    } catch (IPSGenericDao.LoadException | IPSGenericDao.SaveException e) {
+      throw new PSDataServiceException("Failed to save homepage override for user " + userName, e);
+    }
+  }
+
+  /** DELETE default landing override for a named user. */
+  @DELETE
+  @Path("/homepage/{userName}")
+  public void clearHomepageOverride(@PathParam("userName") String userName)
+      throws PSDataServiceException {
+    PSParameterValidationUtils.rejectIfBlank("clearHomepageOverride", "userName", userName);
+    assertCanManageHomepage(userName);
+    try {
+      var key = META_DATA_HOMEPAGE_PREFIX + userName;
+      var md = metadataService.find(key);
+      if (md != null) {
+        metadataService.delete(key);
+      }
+    } catch (IPSGenericDao.LoadException | IPSGenericDao.DeleteException e) {
+      throw new PSDataServiceException(
+          "Failed to clear homepage override for user " + userName, e);
+    }
+  }
+
+  /**
+   * Normalizes a raw homepage string to a canonical product type, or {@code null} if invalid.
+   *
+   * <p>Accepts canonical types (case-sensitive) and common view-key / label aliases
+   * (case-insensitive).
+   */
+  public static String normalizeHomepageType(String raw) {
+    if (isBlank(raw)) {
+      return null;
+    }
+    String trimmed = raw.trim();
+    if (ALLOWED_HOMEPAGE_TYPES.contains(trimmed)) {
+      return trimmed;
+    }
+    String lower = trimmed.toLowerCase(Locale.ROOT);
+    switch (lower) {
+      case "home":
+        return HOMEPAGE_TYPE_HOME;
+      case "dash":
+      case "dashboard":
+        return HOMEPAGE_TYPE_DASHBOARD;
+      case "editor":
+      case "pageeditor":
+      case "webmgt":
+        return HOMEPAGE_TYPE_EDITOR;
+      case "design":
+      case "designer":
+      case "siteadmin":
+      case "admin":
+        return HOMEPAGE_TYPE_DESIGNER;
+      case "arch":
+      case "architecture":
+      case "navigation":
+      case "site_arch":
+      case "sitearch":
+        return HOMEPAGE_TYPE_ARCHITECTURE;
+      case "publish":
+        return HOMEPAGE_TYPE_PUBLISH;
+      case "workflow":
+        return HOMEPAGE_TYPE_WORKFLOW;
+      case "widgetbuilder":
+      case "widget-builder":
+      case "widget_builder":
+        return HOMEPAGE_TYPE_WIDGET_BUILDER;
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Maps a canonical homepage type to the {@code index.jsp} {@code view} query key. Unknown/blank
+   * → {@code home}.
+   */
+  public static String homepageTypeToViewKey(String homepageType) {
+    if (isBlank(homepageType)) {
+      return "home";
+    }
+    return HOMEPAGE_TYPE_TO_VIEW_KEY.getOrDefault(homepageType, "home");
+  }
+
+  private String requireCurrentUserName() throws PSNoCurrentUserException {
+    try {
+      String userName = getCurrentUserName();
+      if (isBlank(userName)) {
+        throw new PSNoCurrentUserException("No current user in current request");
+      }
+      return userName;
+    } catch (PSNoCurrentUserException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new PSNoCurrentUserException("Error getting current user.", e);
+    }
+  }
+
+  /**
+   * Current user may manage their own homepage; only Admin may manage another user's.
+   */
+  private void assertCanManageHomepage(String targetUserName) throws PSDataServiceException {
+    String current;
+    try {
+      current = getCurrentUserName();
+    } catch (Exception e) {
+      throw new PSNoCurrentUserException("Error getting current user.", e);
+    }
+    if (isBlank(current)) {
+      throw new PSNoCurrentUserException("No current user in current request");
+    }
+    if (StringUtils.equalsIgnoreCase(current, targetUserName)) {
+      return;
+    }
+    if (!isAdminUser(current)) {
+      PSParameterValidationUtils.validateParameters("homepage")
+          .rejectField(
+              "userName",
+              "Only an Admin user may get or set another user's default landing page.",
+              targetUserName)
+          .throwIfInvalid();
+    }
   }
 
   @POST
