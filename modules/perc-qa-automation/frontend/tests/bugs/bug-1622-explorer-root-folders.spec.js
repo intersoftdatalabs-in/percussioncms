@@ -22,19 +22,23 @@
  * {@code folder//Sites} which the pathmanagement service rejects with
  * HTTP 400. The React tree then rendered with no children.</p>
  *
- * <p>Coverage:</p>
+ * <p>Coverage (issue #1695 / parent #1690):</p>
  * <ul>
  *   <li>REST: root {@code path/folder/} returns 200 with well-known roots</li>
- *   <li>REST: double-slash {@code path/folder//Sites} must not be the
- *       client contract (assert correct Sites URL works)</li>
- *   <li>UI: explorer tree is non-empty after shell mount (requires WebUI
- *       with encodePath fix deployed to the CMS install)</li>
+ *   <li>REST: double-slash {@code path/folder//Sites} is rejected (400) —
+ *       the SPA must not emit this shape</li>
+ *   <li>UI: explorer tree is non-empty after shell mount</li>
+ *   <li>UI network: SPA pathmanagement requests never use {@code folder//}</li>
+ *   <li>UI: if load fails, error chrome is human-readable (not
+ *       {@code [object Object]} — formatApiError #1691)</li>
  * </ul>
  *
- * <p>Run against a live CMS (e.g. {@code C:\Installs\8.2-july-29} or docker):</p>
+ * <p>Run against H2 qa-up or a host install with current WebUI (#1680):</p>
  * <pre>
  *   cd modules/perc-qa-automation/frontend
- *   npm test -- tests/bugs/bug-1622-explorer-root-folders.spec.js
+ *   TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \\
+ *     ADMIN_USERNAME=Admin ADMIN_PASSWORD=... \\
+ *     npm test -- tests/bugs/bug-1622-explorer-root-folders.spec.js
  * </pre>
  */
 
@@ -44,6 +48,11 @@ const {
   BASE_URL,
   adminBasicAuthHeaders,
 } = require("../helpers/auth");
+const {
+  isDoubleSlashPathmanagementUrl,
+  isHumanReadableErrorText,
+  EXPECTED_ROOT_FOLDER_NAMES,
+} = require("../helpers/pathmanagement-url");
 
 const EXPLORER_URL = `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&_=${Date.now()}`;
 const PATH_FOLDER = `${BASE_URL}/Rhythmyx/services/pathmanagement/path/folder`;
@@ -60,6 +69,20 @@ test.describe("GH-1622 explorer root folders (encodePath / no double-slash)", ()
       `GET ${PATH_FOLDER}/ should be 200 (double-slash form is 400)`,
     ).toBe(200);
 
+    const body = await root.json();
+    const items = Array.isArray(body?.PathItem)
+      ? body.PathItem
+      : Array.isArray(body)
+        ? body
+        : [];
+    const names = items.map((it) => it?.name).filter(Boolean);
+    for (const expected of EXPECTED_ROOT_FOLDER_NAMES) {
+      expect(
+        names,
+        `root folder list should include ${expected}; got [${names.join(", ")}]`,
+      ).toContain(expected);
+    }
+
     const sites = await request.get(`${PATH_FOLDER}/Sites`, { headers });
     // Sites may be empty on a fresh install, but the path must be valid.
     expect(
@@ -72,13 +95,25 @@ test.describe("GH-1622 explorer root folders (encodePath / no double-slash)", ()
     expect(bad.status()).toBe(400);
   });
 
-  test("UI: Content Explorer tree is not empty at root", async ({ page }) => {
-    test.setTimeout(60_000);
+  test("UI: Content Explorer tree is not empty at root (no folder// network)", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
     await loginAsAdmin(page);
+
+    /** @type {string[]} */
+    const pathFolderRequests = [];
+    page.on("request", (req) => {
+      const url = req.url();
+      if (url.includes("/pathmanagement/path/")) {
+        pathFolderRequests.push(url);
+      }
+    });
+
     await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
 
     const shell = page.locator('[data-testid="content-explorer-shell"]');
-    await expect(shell).toBeVisible({ timeout: 15_000 });
+    await expect(shell).toBeVisible({ timeout: 20_000 });
 
     const tree = page.locator('[data-testid="explorer-tree"]');
     await expect(tree).toBeVisible({ timeout: 15_000 });
@@ -90,6 +125,11 @@ test.describe("GH-1622 explorer root folders (encodePath / no double-slash)", ()
     );
     if ((await treeErr.count()) > 0 && (await treeErr.first().isVisible())) {
       const text = await treeErr.first().innerText();
+      // #1691: formatApiError must yield a human string, not [object Object].
+      expect(
+        isHumanReadableErrorText(text),
+        `Explorer tree error must be human-readable, got: ${JSON.stringify(text)}`,
+      ).toBe(true);
       throw new Error(
         `Explorer tree failed to load: ${text}. If the network URL was path/folder//, redeploy WebUI with encodePath fix (#1680).`,
       );
@@ -97,8 +137,50 @@ test.describe("GH-1622 explorer root folders (encodePath / no double-slash)", ()
 
     // Root children render as tree-node-* rows (paths like /Sites/, /Assets/).
     const nodes = tree.locator('[data-testid^="tree-node-"]');
-    await expect(nodes.first()).toBeVisible({ timeout: 15_000 });
+    await expect(nodes.first()).toBeVisible({ timeout: 20_000 });
     const count = await nodes.count();
     expect(count, "explorer tree should list root folders").toBeGreaterThan(0);
+
+    // Prefer well-known roots when present (stock CMS).
+    const nodeTestIds = await nodes.evaluateAll((els) =>
+      els.map((el) => el.getAttribute("data-testid") || ""),
+    );
+    const joined = nodeTestIds.join(" ");
+    for (const expected of EXPECTED_ROOT_FOLDER_NAMES) {
+      const hasRoot =
+        joined.includes(`tree-node-/${expected}/`) ||
+        joined.includes(`tree-node-/${expected}`) ||
+        nodeTestIds.some((id) =>
+          id.toLowerCase().includes(expected.toLowerCase()),
+        );
+      expect(
+        hasRoot,
+        `expected root node for ${expected}; testids=${JSON.stringify(nodeTestIds)}`,
+      ).toBe(true);
+    }
+
+    // Network contract: SPA must never call pathmanagement with // after resource.
+    const doubleSlash = pathFolderRequests.filter(
+      isDoubleSlashPathmanagementUrl,
+    );
+    expect(
+      doubleSlash,
+      `SPA must not request double-slash pathmanagement URLs (encodePath #1680). Seen: ${JSON.stringify(pathFolderRequests)}`,
+    ).toEqual([]);
+
+    // At least one root folder/ request should have been issued (encodePath → folder/).
+    const folderGets = pathFolderRequests.filter((u) =>
+      /\/pathmanagement\/path\/folder(\/|$|\?)/.test(u),
+    );
+    expect(
+      folderGets.length,
+      `expected SPA to call path/folder…; captured=${JSON.stringify(pathFolderRequests)}`,
+    ).toBeGreaterThan(0);
+    for (const u of folderGets) {
+      expect(u, `folder URL must not contain folder//: ${u}`).not.toContain(
+        "folder//",
+      );
+    }
   });
 });
+
