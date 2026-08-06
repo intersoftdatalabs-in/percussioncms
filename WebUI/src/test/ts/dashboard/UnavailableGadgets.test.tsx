@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2026 Percussion Software, Inc.
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
  *
  * Shell gadgets are now fully implemented; this file keeps a light smoke.
  */

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2026 Percussion Software, Inc.
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
  *
  * Shared gadget catalog metadata (no React components) for layout prefs
  * and the Widget Configuration gadget.

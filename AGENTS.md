@@ -136,6 +136,58 @@ Module `AGENTS.md` files may specialize this table; they do not replace the meth
 * Prefer readable, in-scope diffs; match surrounding style in files you touch.
 * CI or reviewer feedback may still call out style issues — fix those in scope when asked.
 
+## Copyright / Apache license headers (HARD GATE)
+
+Intersoft Data Labs maintains Percussion CMS under the **Apache License 2.0**. Copyright ownership on **new** source differs from legacy Percussion Software files.
+
+### Rule (by file birth year)
+
+| When the file was **first added** to this repo | Copyright line |
+|------------------------------------------------|----------------|
+| **On or after 2023-01-01** (new product/work after the open-source handoff) | `Copyright (c) <YEAR> Intersoft Data Labs, Inc.` |
+| **Before 2023-01-01** (legacy Percussion lineage) | Keep **Percussion Software, Inc.** headers as-is (do not “upgrade” them to Intersoft) |
+
+* **`<YEAR>` for new files created today:** use the **current calendar year** (**2026** as of this writing). Do not invent multi-year ranges on brand-new files unless the project already uses a range for that file.
+* **Retroactive corrections:** any file first added **≥ 2023** that still says Percussion Software must be rewritten to Intersoft Data Labs (use the file’s first-add year for `<YEAR>`, or the current year if unknown).
+* Leave the standard Apache 2.0 license block that follows the copyright line unchanged (unless the file intentionally has no Apache header).
+
+### Canonical header (Java / JS / TS / similar block comments)
+
+```text
+/*
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+```
+
+Adapt the comment style for `//`, `#`, or XML `<!-- -->` as appropriate. Prefer `Copyright (c) <YEAR> Intersoft Data Labs, Inc.` over older `Copyright 1999-YYYY Percussion Software, Inc.` on new files.
+
+### Agent requirements
+
+1. **Every new source file** (production or test) first introduced by the agent **must** use the Intersoft header with the **current year**.
+2. **Do not** put Percussion Software copyright on new files.
+3. **Do not** rewrite pre-2023 Percussion headers to Intersoft “for consistency.”
+4. When editing only the body of a **post-2023** file that still has a Percussion header, **fix the copyright line** in the same change (or as a dedicated chore PR).
+5. Dual-ship / copied trees (e.g. `WebUI/war/**` mirrors of `WebUI/src/**`) must stay consistent with the source header.
+
+### Hard bans
+
+* New file with Percussion Software copyright.
+* Bulk “rebrand” of pre-2023 files to Intersoft.
+* Stripping the Apache license block while changing only the copyright owner.
+
 ## Pre-PR Maven verification (HARD GATE)
 
 **Before** opening or updating a GitHub PR (and before treating a change set as “done”), agents **MUST** run a real Maven **clean install** against every module whose sources, tests, resources, or `pom.xml` they changed. Partial compiles, IDE “make project”, or “tests only on one class” are **not** a substitute.
@@ -291,6 +343,7 @@ Kilo rule: `.kilo/rules/worktree-hygiene.md`. Script docs: `scripts/README.md`.
 * ALWAYS document your work in comments, README, or maven site documentation.
 * **IMPORTANT** you must ALWAYS update or create unit tests for any code change that you make, new or edited. And the tests must pass. No exceptions. Unit tests for the new class alone do **not** replace module-suite / shared-context verification when the change class participates in those contexts.
 * **IMPORTANT — WebUI + Playwright:** When changing a **product UI screen** under `WebUI/` (React SPA, login, shell chrome, user-visible flows), agents **MUST** also create or update Playwright specs in `modules/perc-qa-automation/` for the changed behavior. Vitest alone is not sufficient for screen work. See `WebUI/AGENTS.md` → **Playwright (HARD GATE)** and `modules/perc-qa-automation/AGENTS.md`.
+* **IMPORTANT — Copyright headers:** New source files (first added **2023+**) must use `Copyright (c) <YEAR> Intersoft Data Labs, Inc.` with the **current year** (2026 now) plus the standard Apache 2.0 block. Do **not** use Percussion Software on new files. Do **not** rewrite pre-2023 Percussion headers to Intersoft. See **Copyright / Apache license headers (HARD GATE)** above.
 * **IMPORTANT — Pre-PR build:** Before opening or updating a GitHub PR, **`cd` into each module you changed** and run repo-root `mvnw` / `mvnw.cmd` **`clean install` standalone** (not default root `-pl -am` reactor builds). Code must compile, tests must pass, and there must be **no new warnings**. Use a full/partial reactor only when the change requires it. See **Pre-PR Maven verification (HARD GATE)** above. CI is not a substitute for this local gate. Spotless apply/check is **not** required for this gate.
 * **IMPORTANT — Worktree hygiene:** If you used a git worktree for the task, remove it when the PR is merged/closed (or when the session ends and no further worktree commits are expected). Use `python3 scripts/prune-stale-worktrees.py --apply --force --delete-local-branches` for bulk cleanup of MERGED/CLOSED PR worktrees. See **Git worktree hygiene (HARD GATE)** above.
 * Always use the #codebase or root `./` context when resolving missing interfaces or classes.

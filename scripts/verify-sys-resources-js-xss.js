@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Copyright 1999-2026 Percussion Software, Inc.
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
  *
  * Regression checks for CodeQL js/xss alerts #945 and #946 in
  * system/cms sys_resources mobile preview + webimagefx helpers.
