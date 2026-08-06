@@ -25,6 +25,38 @@ describe("panelErrMsg", () => {
     expect(panelErrMsg(api, DEV_MSG.CT_ERROR)).toBe(`${DEV_MSG.CT_ERROR} (503)`);
   });
 
+  it("surfaces RestError.message from ApiError body", () => {
+    const api = {
+      status: 500,
+      statusText: "Internal Server Error",
+      body: {
+        errorCode: 99,
+        errorType: "WebApplicationException",
+        message: "adaptor boom",
+        detailMessage: "IllegalStateException: adaptor boom",
+      },
+    };
+    expect(panelErrMsg(api, DEV_MSG.CT_ERROR)).toBe(
+      `${DEV_MSG.CT_ERROR} adaptor boom`,
+    );
+  });
+
+  it("surfaces wrapped RestError root message", () => {
+    const api = {
+      status: 404,
+      statusText: "Not Found",
+      body: {
+        Error: {
+          message: "Control not found",
+          detailMessage: null,
+        },
+      },
+    };
+    expect(panelErrMsg(api, DEV_MSG.CT_ERROR)).toBe(
+      `${DEV_MSG.CT_ERROR} Control not found`,
+    );
+  });
+
   it("appends Error.message to the fallback", () => {
     expect(panelErrMsg(new Error("network down"), DEV_MSG.CT_ERROR)).toBe(
       `${DEV_MSG.CT_ERROR} network down`,

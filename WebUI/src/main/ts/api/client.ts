@@ -58,12 +58,74 @@ export function isApiError(err: unknown): err is ApiError {
   );
 }
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (value != null && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return null;
+}
+
+function firstNonBlankString(
+  o: Record<string, unknown>,
+  ...keys: string[]
+): string | undefined {
+  for (const key of keys) {
+    const v = o[key];
+    if (typeof v === "string" && v.trim()) {
+      return v.trim();
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Extract a client-visible message from a REST error body.
+ *
+ * <p>Recognizes the {@code RestError} shape from rest {@code ExceptionMapper}s
+ * ({@code message} / {@code detailMessage}), optional Jackson root wrap
+ * ({@code Error} / {@code RestError}), plain string bodies, and a loose
+ * {@code detail} alias. Returns {@code undefined} when no usable text is found
+ * so callers can fall back to status chrome.</p>
+ */
+export function extractRestErrorMessage(body: unknown): string | undefined {
+  if (typeof body === "string" && body.trim()) {
+    return body.trim();
+  }
+  const root = asRecord(body);
+  if (!root) {
+    return undefined;
+  }
+  const direct = firstNonBlankString(root, "message", "detailMessage", "detail");
+  if (direct) {
+    return direct;
+  }
+  for (const wrapKey of ["Error", "error", "RestError", "restError"]) {
+    const nested = asRecord(root[wrapKey]);
+    if (!nested) {
+      continue;
+    }
+    const nestedMsg = firstNonBlankString(
+      nested,
+      "message",
+      "detailMessage",
+      "detail",
+    );
+    if (nestedMsg) {
+      return nestedMsg;
+    }
+  }
+  return undefined;
+}
+
 /**
  * Human-readable message for SPA error chrome.
  *
  * <p>{@link handleResponse} throws a plain {@link ApiError} object (not an
  * {@code Error}). {@code String(err)} therefore becomes {@code "[object Object]"}
  * — always use this helper (or equivalent) before displaying API failures.</p>
+ *
+ * <p>When {@link ApiError.body} is RestError-shaped (REST-ERR-01), surfaces
+ * {@code message} / {@code detailMessage} instead of only HTTP status text.</p>
  */
 export function formatApiError(err: unknown, fallback = "Request failed"): string {
   if (isSessionRedirectError(err)) {
@@ -73,6 +135,10 @@ export function formatApiError(err: unknown, fallback = "Request failed"): strin
     return err.message;
   }
   if (isApiError(err)) {
+    const fromBody = extractRestErrorMessage(err.body);
+    if (fromBody) {
+      return fromBody;
+    }
     const st = err.statusText ? ` ${err.statusText}` : "";
     return `${fallback} (HTTP ${err.status}${st})`.trim();
   }
