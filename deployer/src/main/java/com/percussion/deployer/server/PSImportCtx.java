@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 /** Contains objects used during the installation of deployment packages. */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSImportCtx {
 
   /**

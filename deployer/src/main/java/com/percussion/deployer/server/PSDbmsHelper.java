@@ -80,6 +80,7 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /** Singleton class to provide common database read/write functionality. */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSDbmsHelper {
 
   private static final Logger log = LogManager.getLogger(PSDbmsHelper.class);

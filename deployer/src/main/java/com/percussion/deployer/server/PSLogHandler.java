@@ -57,6 +57,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Handles processing of all log table related operations for deployment. */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSLogHandler {
   /**
    * Constructing the object and retrieving all log table schemas from the database.

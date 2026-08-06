@@ -35,6 +35,7 @@ import org.w3c.dom.Element;
  * Encapsulates information regarding the use of an archive for the installation of packages on the
  * target server.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSArchiveSummary implements IPSDeployComponent {
 
   /**

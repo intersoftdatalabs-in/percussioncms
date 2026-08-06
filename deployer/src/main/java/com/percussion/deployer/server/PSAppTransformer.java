@@ -104,6 +104,7 @@ import org.apache.commons.lang3.StringUtils;
  * Handles discovery and transformations of literal ids specified in application and other
  * objectstore elements.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSAppTransformer {
 
   /** Default constructor for use via the service locator. */

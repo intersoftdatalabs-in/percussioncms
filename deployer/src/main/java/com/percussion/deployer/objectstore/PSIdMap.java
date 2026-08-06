@@ -29,6 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** PSIdMap encapsulates a list of <code>PSIsMapping</code> objects for a source server. */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSIdMap implements IPSDeployComponent {
 
   /**

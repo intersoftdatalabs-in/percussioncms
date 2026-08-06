@@ -34,6 +34,7 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
 
 /** Updates the package element version information for each of the system relationships. */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSUpgradePluginRelationshipVersions implements IPSUpgradePlugin {
 
   private static final Logger log = LogManager.getLogger(PSUpgradePluginRelationshipVersions.class);

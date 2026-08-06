@@ -131,6 +131,7 @@ import org.w3c.dom.Node;
 
 /** Class to handle all requests from Deployment client. */
 @PSBaseBean("sys_deploymentHandler")
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableRequestHandler {
   private static final Logger ms_log = LogManager.getLogger(PSDeploymentHandler.class);
 

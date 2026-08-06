@@ -37,6 +37,7 @@ import org.w3c.dom.Element;
  * Class to encapsulate low-level archive detail added at completion of creating all export
  * packages.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSArchiveDetail implements IPSDeployComponent {
   /**
    * Construct this class from its member info.

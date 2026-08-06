@@ -30,6 +30,7 @@ import java.util.Map.Entry;
  * Represents and manages the selected state for all dependency instances referencing the same
  * actual object on the server.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSDependencyContext {
   /**
    * Construct a context from a dependency key.
