@@ -78,6 +78,8 @@
         PATH_DELETE_FOLDER                  : SERVICES.PATHMGT + "/path/deleteFolder",
         GET_ASSET_PAGINATION_CONFIG         : SERVICES.PATHMGT + "/path/getAssetPaginationConfig",
         PATH_RESTORE_FOLDER                 : SERVICES.PATHMGT + "/path/restoreFolder",
+        // Bulk empty Recycling bin (Admin-only; peer to #2205 PSRecycleRestService)
+        RECYCLE_EMPTY                       : SERVICES.PATHMGT + "/recycle/empty",
         PATH_RENAME_FOLDER                  : SERVICES.PATHMGT + "/path/renameFolder",
         PATH_GET_FOLDER_PROPERTIES          : SERVICES.PATHMGT + "/path/folderProperties",
         PATH_SAVE_FOLDER_PROPERTIES         : SERVICES.PATHMGT + "/path/saveFolderProperties",

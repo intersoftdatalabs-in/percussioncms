@@ -19,6 +19,7 @@
   $.PercRecycleService = {
     restoreItem: restoreItem,
     purgeItem: purgeItem,
+    emptyRecycling: emptyRecycling,
   };
 
   function restoreItem(id, path, callback) {
@@ -42,6 +43,33 @@
   function purgeItem(id, path, callback) {
     $.PercServiceUtils.makeJsonRequest(
       path + "/" + id,
+      $.PercServiceUtils.TYPE_DELETE,
+      false,
+      function (status, result) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
+        } else {
+          var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            result.request,
+          );
+          callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
+        }
+      },
+    );
+  }
+
+  /**
+   * Permanently empties the system Recycling bin via #2205 API.
+   * DELETE /pathmanagement/recycle/empty (Admin-only).
+   *
+   * @param {function} callback (status, dataOrMessage)
+   *   On success, data is PSEmptyRecycleResult-shaped object.
+   *   On error, data is a string error message.
+   */
+  function emptyRecycling(callback) {
+    var url = $.perc_paths.RECYCLE_EMPTY;
+    $.PercServiceUtils.makeJsonRequest(
+      url,
       $.PercServiceUtils.TYPE_DELETE,
       false,
       function (status, result) {

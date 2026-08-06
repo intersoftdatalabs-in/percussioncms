@@ -85,6 +85,7 @@
         "widgets/perc_new_page_button.js",
         "widgets/perc_copy_page_button.js",
         "widgets/perc_restore_button.js",
+        "widgets/perc_empty_recycling_button.js",
         "widgets/perc_download_button.js",
         "widgets/perc_upload_button.js",
         "widgets/perc_folderproperties_button.js",
