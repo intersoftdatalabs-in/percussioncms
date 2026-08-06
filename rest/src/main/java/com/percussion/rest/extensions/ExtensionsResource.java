@@ -36,6 +36,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -51,12 +52,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(name = "Extensions", description = "Extension operations")
 public class ExtensionsResource {
 
-  @Autowired private IExtensionAdaptor adaptor;
+  private final IExtensionAdaptor adaptor;
 
   @Context private UriInfo uriInfo;
 
+  /**
+   * No-arg constructor for bean-discovery edge cases. Production uses {@link
+   * #ExtensionsResource(IExtensionAdaptor)}; catalog methods call {@link #requireAdaptor()}.
+   */
   public ExtensionsResource() {
-    // Default constructor
+    this.adaptor = null;
+  }
+
+  @Autowired
+  public ExtensionsResource(IExtensionAdaptor adaptor) {
+    this.adaptor = adaptor;
+  }
+
+  /** Package-private test hook so unit tests need not reflect on {@code uriInfo}. */
+  void setUriInfo(UriInfo uriInfo) {
+    this.uriInfo = uriInfo;
   }
 
   /**
@@ -79,6 +94,7 @@ public class ExtensionsResource {
             description = "OK",
             content =
                 @Content(array = @ArraySchema(schema = @Schema(implementation = Extension.class)))),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public List<Extension> listExtensionsCatalog() {
@@ -86,6 +102,7 @@ public class ExtensionsResource {
       List<Extension> list = requireAdaptor().listExtensions(uriInfo.getBaseUri());
       return list != null ? list : List.of();
     } catch (WebApplicationException e) {
+      // Preserve mapped HTTP errors (e.g. 503 misconfiguration from requireAdaptor)
       throw e;
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
@@ -107,6 +124,7 @@ public class ExtensionsResource {
             description = "OK",
             content = @Content(schema = @Schema(implementation = Extension.class))),
         @ApiResponse(responseCode = "404", description = "Extension not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public Extension getExtensionCatalogItem(
@@ -120,6 +138,7 @@ public class ExtensionsResource {
       }
       return ext;
     } catch (WebApplicationException e) {
+      // Preserve mapped HTTP errors (e.g. 503 misconfiguration from requireAdaptor)
       throw e;
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
@@ -128,8 +147,9 @@ public class ExtensionsResource {
 
   private IExtensionAdaptor requireAdaptor() {
     if (adaptor == null) {
-      throw new IllegalStateException(
-          "Extension adaptor not configured (resource constructed without injection)");
+      // Misconfiguration — not a transient handler failure (align with View/Slots/Locales peers)
+      throw new WebApplicationException(
+          "Extension adaptor not configured", Response.Status.SERVICE_UNAVAILABLE);
     }
     return adaptor;
   }
@@ -153,6 +173,7 @@ public class ExtensionsResource {
             description = "OK",
             content =
                 @Content(array = @ArraySchema(schema = @Schema(implementation = Extension.class)))),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "404", description = "No Extensions found")
       })
   public List<Extension> getExtensions(
@@ -161,7 +182,13 @@ public class ExtensionsResource {
               description = "An extension filter options object",
               required = true)
           ExtensionFilterOptions filter) {
-    var extensions = adaptor.getExtensions(uriInfo.getBaseUri(), filter);
-    return new ExtensionList(extensions);
+    try {
+      var extensions = requireAdaptor().getExtensions(uriInfo.getBaseUri(), filter);
+      return new ExtensionList(extensions);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
   }
 }
