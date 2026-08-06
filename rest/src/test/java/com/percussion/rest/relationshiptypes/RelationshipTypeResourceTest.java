@@ -18,7 +18,6 @@
 package com.percussion.rest.relationshiptypes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -54,12 +53,24 @@ public class RelationshipTypeResourceTest {
     List<RelationshipType> out = resource.listRelationshipTypes();
     assertEquals(1, out.size());
     assertEquals("ActiveAssembly", out.get(0).getName());
+    verify(adaptor).listRelationshipTypes();
   }
 
   @Test
   public void listRelationshipTypesNullSafe() {
     when(adaptor.listRelationshipTypes()).thenReturn(null);
     assertTrue(resource.listRelationshipTypes().isEmpty());
+  }
+
+  @Test
+  public void listRelationshipTypesWrapsUnexpectedAs500() {
+    IllegalStateException boom = new IllegalStateException("boom");
+    when(adaptor.listRelationshipTypes()).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.listRelationshipTypes());
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
   }
 
   @Test
@@ -95,16 +106,31 @@ public class RelationshipTypeResourceTest {
   }
 
   @Test
-  public void withoutInjectionFailsWithDiagnostic() {
-    RelationshipTypeResource bare = new RelationshipTypeResource();
-    WebApplicationException listEx =
-        assertThrows(WebApplicationException.class, bare::listRelationshipTypes);
-    assertEquals(500, listEx.getResponse().getStatus());
-    assertInstanceOf(IllegalStateException.class, listEx.getCause());
+  public void getRelationshipTypeRethrowsWebApplicationException() {
+    WebApplicationException mapped = new WebApplicationException("from adaptor", 404);
+    when(adaptor.findRelationshipType(eq("xx"))).thenThrow(mapped);
 
-    WebApplicationException getEx =
-        assertThrows(WebApplicationException.class, () -> bare.getRelationshipType("x"));
-    assertEquals(500, getEx.getResponse().getStatus());
-    assertInstanceOf(IllegalStateException.class, getEx.getCause());
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getRelationshipType("xx"));
+    assertSame(mapped, ex);
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnList() {
+    RelationshipTypeResource bare = new RelationshipTypeResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, bare::listRelationshipTypes);
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnGet() {
+    // getRelationshipType must rethrow WebApplicationException from requireAdaptor (not re-wrap as
+    // 500)
+    RelationshipTypeResource bare = new RelationshipTypeResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.getRelationshipType("any"));
+    assertEquals(503, ex.getResponse().getStatus());
   }
 }
