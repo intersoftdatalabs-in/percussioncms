@@ -121,4 +121,26 @@ class CleanHeapDumpsCommandTest {
     assertTrue(Files.exists(bak));
     assertTrue(Files.exists(txt));
   }
+
+  @Test
+  void visitFileFailedRecordsFailedEntryOnReport() {
+    CleanReport report = new CleanReport(CleanHeapDumpsCommand.COMMAND_NAME, installRoot, true);
+    Path failed = installRoot.resolve("unreadable.hprof");
+    CleanHeapDumpsCommand.recordVisitFailure(
+        report, failed, new java.io.IOException("Access denied"));
+
+    assertEquals(1, report.getFailedCount());
+    CleanReport.Entry e = report.getEntries().get(0);
+    assertEquals(CleanReport.EntryStatus.FAILED, e.getStatus());
+    assertEquals(failed, e.getPath());
+    assertTrue(e.getDetail().contains("walk:"));
+    assertTrue(e.getDetail().toLowerCase().contains("access denied"));
+  }
+
+  @Test
+  void recordVisitFailureNoopsWhenReportNull() {
+    // Should not throw when inventory-only walk has no report
+    CleanHeapDumpsCommand.recordVisitFailure(
+        null, installRoot.resolve("x.hprof"), new java.io.IOException("x"));
+  }
 }

@@ -54,6 +54,9 @@ public final class InstallRootGuard {
    * absolute normalize). Does not follow the candidate as a real path (avoids requiring the file
    * to exist for the check).
    *
+   * <p>On Windows (case-insensitive FS), comparison is case-insensitive so {@code c:\percussion}
+   * matches descendants resolved as {@code C:\Percussion\...}.
+   *
    * @param installRoot install root (relative or absolute)
    * @param candidate path to test
    * @return true when {@code candidate} is under {@code installRoot}
@@ -63,7 +66,7 @@ public final class InstallRootGuard {
     Objects.requireNonNull(candidate, "candidate");
     Path root = installRoot.toAbsolutePath().normalize();
     Path path = candidate.toAbsolutePath().normalize();
-    return path.startsWith(root);
+    return pathStartsWithRoot(path, root);
   }
 
   /**
@@ -77,11 +80,35 @@ public final class InstallRootGuard {
   public static Path requireUnderInstallRoot(Path installRoot, Path candidate) {
     Path root = installRoot.toAbsolutePath().normalize();
     Path path = candidate.toAbsolutePath().normalize();
-    if (!path.startsWith(root)) {
+    if (!pathStartsWithRoot(path, root)) {
       throw new IllegalArgumentException(
           "Path is outside install root: " + path + " (root=" + root + ")");
     }
     return path;
+  }
+
+  /**
+   * Whether {@code path} is {@code root} or a descendant. Uses {@link Path#startsWith(Path)} first;
+   * on case-insensitive platforms (Windows) also compares folded path strings so mixed-case roots
+   * still match.
+   */
+  static boolean pathStartsWithRoot(Path path, Path root) {
+    if (path.startsWith(root)) {
+      return true;
+    }
+    if (!isCaseInsensitiveFileSystem()) {
+      return false;
+    }
+    // Path.startsWith is case-sensitive even on Windows; fold for containment only.
+    Path pathFolded = Path.of(path.toString().toLowerCase(Locale.ROOT));
+    Path rootFolded = Path.of(root.toString().toLowerCase(Locale.ROOT));
+    return pathFolded.startsWith(rootFolded);
+  }
+
+  /** Windows treats path comparisons as case-insensitive; other OSes stay case-sensitive. */
+  static boolean isCaseInsensitiveFileSystem() {
+    String os = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
+    return os.contains("win");
   }
 
   /**

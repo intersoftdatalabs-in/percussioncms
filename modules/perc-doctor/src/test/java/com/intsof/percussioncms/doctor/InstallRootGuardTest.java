@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 class InstallRootGuardTest {
@@ -86,5 +88,19 @@ class InstallRootGuardTest {
     assertFalse(InstallRootGuard.isHeapDumpFileName(""));
     assertFalse(InstallRootGuard.isHeapDumpFileName(null));
     assertFalse(InstallRootGuard.isHeapDumpFileName("../evil.hprof"));
+  }
+
+  @Test
+  @EnabledOnOs(OS.WINDOWS)
+  void isUnderInstallRootIsCaseInsensitiveOnWindows() {
+    // Path.startsWith is case-sensitive; Windows FS is not — guard must fold.
+    Path root = Path.of("C:\\Percussion\\Install");
+    Path child = Path.of("c:\\percussion\\install\\jetty\\base\\java_pid1.hprof");
+    Path siblingPrefix = Path.of("C:\\Percussion\\InstallExtra\\x.hprof");
+    assertTrue(InstallRootGuard.isUnderInstallRoot(root, child));
+    assertTrue(InstallRootGuard.isUnderInstallRoot(root, Path.of("C:\\PERCUSSION\\INSTALL")));
+    assertFalse(
+        InstallRootGuard.isUnderInstallRoot(root, siblingPrefix),
+        "must not treat InstallExtra as under Install");
   }
 }

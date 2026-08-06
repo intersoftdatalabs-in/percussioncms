@@ -53,7 +53,8 @@ public final class CleanHeapDumpsCommand {
     Path root = InstallRootGuard.requireInstallRoot(installRoot);
     CleanReport report = new CleanReport(COMMAND_NAME, root, dryRun);
 
-    List<Path> candidates = findHeapDumps(root);
+    List<Path> candidates = new ArrayList<>();
+    walkHeapDumps(root, candidates, report);
     candidates.sort(Comparator.comparing(p -> p.toString()));
 
     for (Path candidate : candidates) {
@@ -62,8 +63,23 @@ public final class CleanHeapDumpsCommand {
     return report;
   }
 
+  /**
+   * Inventory {@code *.hprof} under {@code root} without recording walk failures (test helper).
+   */
   static List<Path> findHeapDumps(Path root) throws IOException {
     List<Path> found = new ArrayList<>();
+    walkHeapDumps(root, found, null);
+    return found;
+  }
+
+  /**
+   * Walk install tree for allowlisted heap dumps. When {@code report} is non-null, I/O failures
+   * during the walk are appended as {@link CleanReport.EntryStatus#FAILED} so operators see skipped
+   * paths.
+   */
+  static void walkHeapDumps(Path root, List<Path> found, CleanReport report) throws IOException {
+    Objects.requireNonNull(root, "root");
+    Objects.requireNonNull(found, "found");
     Files.walkFileTree(
         root,
         new SimpleFileVisitor<Path>() {
@@ -94,11 +110,24 @@ public final class CleanHeapDumpsCommand {
 
           @Override
           public FileVisitResult visitFileFailed(Path file, IOException exc) {
-            // Continue walk; failures on individual entries are recorded at process time if needed
+            recordVisitFailure(report, file, exc);
             return FileVisitResult.CONTINUE;
           }
         });
-    return found;
+  }
+
+  /** Record a walk I/O failure on the report when one is provided (package-visible for tests). */
+  static void recordVisitFailure(CleanReport report, Path file, IOException exc) {
+    if (report == null || file == null) {
+      return;
+    }
+    String detail = exc != null ? exc.getMessage() : "unknown I/O error";
+    if (detail == null || detail.isBlank()) {
+      detail = exc != null ? exc.getClass().getSimpleName() : "unknown I/O error";
+    }
+    report.add(
+        new CleanReport.Entry(
+            file, 0L, CleanReport.EntryStatus.FAILED, "walk: " + detail));
   }
 
   private static void processCandidate(
