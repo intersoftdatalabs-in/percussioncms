@@ -16,6 +16,7 @@
  */
 package com.percussion.tools.simple;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -176,7 +177,7 @@ public class PSXmlExtractorTest {
       count++;
     }
 
-    assertTrue(count == 2, "Expected 2 parse exceptions, got " + count);
+    assertEquals(2, count, "Expected 2 parse exceptions");
     assertTrue(
         result.toString().contains("first parse error"),
         "Result should contain first error message: " + result);
