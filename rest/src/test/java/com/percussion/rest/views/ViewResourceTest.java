@@ -5,7 +5,6 @@
 package com.percussion.rest.views;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,17 +32,59 @@ public class ViewResourceTest {
   }
 
   @Test
-  public void listViewsDelegates() {
+  public void listViewsSuccess() {
     ViewDef v = new ViewDef();
     v.setName("My View");
     when(adaptor.listViews()).thenReturn(List.of(v));
-    assertEquals("My View", resource.listViews().get(0).getName());
+    List<ViewDef> out = resource.listViews();
+    assertEquals(1, out.size());
+    assertEquals("My View", out.get(0).getName());
+    verify(adaptor).listViews();
   }
 
   @Test
   public void listViewsNullSafe() {
     when(adaptor.listViews()).thenReturn(null);
     assertTrue(resource.listViews().isEmpty());
+  }
+
+  @Test
+  public void listViewsWrapsUnexpectedFailuresAs500() {
+    IllegalStateException boom = new IllegalStateException("boom");
+    when(adaptor.listViews()).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.listViews());
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnList() {
+    ViewResource bare = new ViewResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, bare::listViews);
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnGet() {
+    // getView must rethrow WebApplicationException from requireAdaptor (not re-wrap as 500)
+    ViewResource bare = new ViewResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.getView("any"));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getViewRethrowsWebApplicationException() {
+    WebApplicationException mapped = new WebApplicationException("from adaptor", 404);
+    when(adaptor.findViewByKey(eq("xx"))).thenThrow(mapped);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getView("xx"));
+    assertSame(mapped, ex);
+    assertEquals(404, ex.getResponse().getStatus());
   }
 
   @Test
@@ -72,17 +113,5 @@ public class ViewResourceTest {
         assertThrows(WebApplicationException.class, () -> resource.getView("My View"));
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause());
-  }
-
-  @Test
-  public void withoutInjectionFailsWithDiagnostic() {
-    ViewResource bare = new ViewResource();
-    WebApplicationException listEx = assertThrows(WebApplicationException.class, bare::listViews);
-    assertEquals(500, listEx.getResponse().getStatus());
-    assertInstanceOf(IllegalStateException.class, listEx.getCause());
-    WebApplicationException getEx =
-        assertThrows(WebApplicationException.class, () -> bare.getView("x"));
-    assertEquals(500, getEx.getResponse().getStatus());
-    assertInstanceOf(IllegalStateException.class, getEx.getCause());
   }
 }
