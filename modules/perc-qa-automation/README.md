@@ -113,6 +113,37 @@ python docker\scripts\perc-devctl.py qa-down
 **Hard bans:** do not commit passwords; do not hardcode host port `:9993` as the only URL
 (use freeport `TEST_CMS_URL` from `qa-up`).
 
+### Demo-sites Sample Site residual (#1750 / #2194)
+
+Regression coverage that **Corporate Investments** and **Enterprise Investments**
+appear under **Sites** after a demo-sites install (REST `path/folder/Sites` + Explorer UI).
+Peers of `tests/bugs/bug-1622-explorer-root-folders.spec.js`.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/bugs/bug-1750-demo-sites-sample-site.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/demo-sites.js`, `npm run test:unit` |
+| Product fix | Installer seed flag propagation (#2192) must be in the image under test |
+| Soft skip | Without sample data, tests `test.skip` with `BUG:` + issue URL (skip-with-BUG) |
+| Hard fail | Set `EXPECT_DEMO_SITES=1` (alias `TEST_EXPECT_DEMO_SITES`) so empty Sites fails |
+
+```bash
+# After #2192 is in the installer/image: silent H2 with sample sites, then CMS up.
+# java -jar <installer>.jar --install-dir=<path> --silent --db.type=h2 --demo-sites
+
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-install> \
+  EXPECT_DEMO_SITES=1 \
+  npm test -- tests/bugs/bug-1750-demo-sites-sample-site.spec.js
+
+# Default qa-up without demo-sites: soft skip when Sites empty (not a suite red)
+TEST_CMS_URL=… ADMIN_PASSWORD=… npm test -- tests/bugs/bug-1750-demo-sites-sample-site.spec.js
+```
+
+Evidence / install flags: `docs/ai-generated/issue-2191-demo-sites-empty-sites-repro.md`,
+module `perc-distribution-tree` AGENTS.md § Installing Sample Sites.
+
 ### Developer entry + critical catalogs smoke gate (#2188 / epic #2089)
 
 Inventory of Developer SPA entry + critical catalog specs that must be **green** or
