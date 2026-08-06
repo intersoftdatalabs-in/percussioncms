@@ -196,10 +196,19 @@ public class KeywordsResourceCrudTest {
   public void updateKeywordSuccess() {
     KeywordSummary body = new KeywordSummary();
     body.setLabel("Updated");
+    KeywordChoiceSummary choice = new KeywordChoiceSummary();
+    choice.setLabel("Open");
+    choice.setValue("open");
+    body.setChoices(List.of(choice));
     KeywordSummary updated = new KeywordSummary();
     updated.setLabel("Updated");
+    updated.setChoices(List.of(choice));
     when(adaptor.updateKeyword(any(), eq("9"), any())).thenReturn(updated);
-    assertEquals("Updated", resource.updateKeyword("9", body).getLabel());
+    KeywordSummary out = resource.updateKeyword("9", body);
+    assertEquals("Updated", out.getLabel());
+    assertEquals(1, out.getChoices().size());
+    assertEquals("Open", out.getChoices().get(0).getLabel());
+    assertEquals("open", out.getChoices().get(0).getValue());
   }
 
   @Test

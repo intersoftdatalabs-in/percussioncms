@@ -81,8 +81,9 @@ class KeywordsAdaptorDesignWsTest {
 
     assertEquals(1, list.size());
     assertEquals("Colors", list.get(0).getLabel());
-    // includeChoices=false leaves the default empty list unset by toSummary
-    assertTrue(list.get(0).getChoices() == null || list.get(0).getChoices().isEmpty());
+    // includeChoices=false leaves KeywordSummary choices as the default empty list
+    assertNotNull(list.get(0).getChoices());
+    assertTrue(list.get(0).getChoices().isEmpty());
     verify(designWs).findKeywords(null);
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<IPSGuid>> ids = ArgumentCaptor.forClass(List.class);
@@ -146,7 +147,9 @@ class KeywordsAdaptorDesignWsTest {
     when(designWs.findKeywords(isNull())).thenReturn(null);
 
     KeywordsAdaptor adaptor = new KeywordsAdaptor(designWs);
+    // Early return on null find is independent of includeChoices
     assertTrue(adaptor.listKeywords(null, false).isEmpty());
+    assertTrue(adaptor.listKeywords(null, true).isEmpty());
     verify(designWs, never()).loadKeywords(anyList(), anyBoolean(), anyBoolean(), any(), any());
   }
 
@@ -181,8 +184,13 @@ class KeywordsAdaptorDesignWsTest {
     KeywordsAdaptor adaptor = new KeywordsAdaptor(designWs);
     List<KeywordSummary> list = adaptor.listKeywords(null, false);
 
+    // Only KEYWORD_TYPE def rows appear; choice rows (keywordType="status") excluded
     assertEquals(1, list.size());
     assertEquals("Status", list.get(0).getLabel());
+    assertEquals("status", list.get(0).getValue());
+    assertTrue(
+        list.stream().noneMatch(s -> "Open".equals(s.getLabel())),
+        "non-keyword-def choice rows must not appear in list output");
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<IPSGuid>> ids = ArgumentCaptor.forClass(List.class);
     verify(designWs).loadKeywords(ids.capture(), eq(false), eq(false), any(), any());
@@ -371,6 +379,8 @@ class KeywordsAdaptorDesignWsTest {
 
     assertNotNull(out);
     assertEquals("ByGuid", out.getLabel());
+    // get always embeds choices (toSummary(..., true))
+    assertNotNull(out.getChoices());
   }
 
   @Test
