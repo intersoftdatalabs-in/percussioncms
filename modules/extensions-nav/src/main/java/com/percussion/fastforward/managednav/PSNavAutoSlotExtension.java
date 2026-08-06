@@ -69,6 +69,7 @@ import org.w3c.dom.NodeList;
  *
  * @author DavidBenua
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSNavAutoSlotExtension extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
 

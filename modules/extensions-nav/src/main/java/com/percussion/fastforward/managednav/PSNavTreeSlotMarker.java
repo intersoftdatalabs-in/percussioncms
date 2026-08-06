@@ -57,6 +57,7 @@ import org.w3c.dom.NodeList;
  * <p>This should process after the NavTreeLink extension. It can be used multiple times to create a
  * marker for more than one slot.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
   /** Default constructor. */

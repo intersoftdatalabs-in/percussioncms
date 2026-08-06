@@ -69,6 +69,7 @@ import org.w3c.dom.Element;
  *
  * @author DavidBenua
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSNavAddAttribute extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
   /** Default constructor. Initializes the logger for this class. */
