@@ -25,12 +25,11 @@
 
 ## Live H2 evidence (session)
 
-1. Pre-fix: `qa-up` failed mid-install: `failed to create task or type PSGenerateRepositoryPassword` (antlib missing taskdef).
-2. Post-fix: silent install completed; Jetty connector up on freeport; `/Rhythmyx/login` returned **HTTP 503** because Rhythmyx webapp Spring context failed: `Cannot locate BeanDefinitionParser for element [logging]` in `sitemanage-beans.xml` (CXF nested `<logging>`).
-3. `var/config/generated/passwords` only had `cmdb=` (no `Admin=`).
-
-**Residual:** product readiness of H2 matrix cell after install (Spring CXF logging + Admin password emission) — track as follow-up issues; not expanded in this PR.
+1. Pre-fix: `qa-up` failed mid-install: `failed to create task or type PSGenerateRepositoryPassword` (antlib missing taskdef) → fixed in this PR.
+2. After antlib only: silent install completed; Jetty up; `/Rhythmyx/login` **HTTP 503** — Spring `Cannot locate BeanDefinitionParser for element [logging]` from legacy `<cxf:logging/>` in `sitemanage-beans.xml` → fixed via `LoggingFeature` bean + `cxf-rt-features-logging` (WebUI WAR repackage required for installer).
+3. Modern React login: auth helper updated for `data-testid` form (no native `select[name=j_locale]`).
+4. **Live green:** `RESULT:OK STEP:qa-up` → `TEST_CMS_URL=http://127.0.0.1:9993` → `npm run test:golden` → **2 passed** (env resolve + Admin login + Content Explorer shell) → `qa-down`.
 
 ## Verdict
 
-**Ship** golden smoke + antlib registration. **Partial** vs full acceptance (live green login+explorer deferred on residual stack defects).
+**Ship** golden smoke + antlib + CXF login stack fixes. **Acceptance met** for live H2 golden path.
