@@ -51,6 +51,51 @@
   }
 
   /**
+   * @param {*} englishName repository root English name (path segment)
+   * @return {boolean} true when name is Sites, Assets, Design, Search, or Recycling
+   */
+  function isFinderRepositoryRoot(englishName) {
+    return i18nKeyForFinderRoot(englishName) != null;
+  }
+
+  /**
+   * Whether double-click on a finder listing should navigate (same as
+   * single-click open) rather than fire an open-content event.
+   *
+   * Repository roots (Sites, Assets, Design, Search, Recycling) are not
+   * typed as "Folder" on the server, so the legacy double-click path only
+   * navigated Folders and Recycling. Non-leaf items and known roots should
+   * navigate; leaf content items should open.
+   *
+   * @param {{leaf?: boolean, type?: string}|null|undefined} spec path item
+   * @param {Array|null|undefined} itemPath path segments from extract_path
+   *        (e.g. ["", "Sites"] or ["", "Sites", "mysite.com"])
+   * @return {boolean}
+   */
+  function shouldNavigateOnDoubleClick(spec, itemPath) {
+    if (!spec) {
+      return false;
+    }
+    // Explicit non-leaf (folders, sites, roots, FS folders, etc.)
+    if (spec.leaf === false) {
+      return true;
+    }
+    if (spec.type === "Folder" || spec.type === "FSFolder") {
+      return true;
+    }
+    // Item itself is a repository root (["", "Sites"] etc.), not a child under it.
+    // Roots may omit type "Folder" and historically only Recycling navigated on dblclick.
+    if (
+      itemPath &&
+      itemPath.length === 2 &&
+      isFinderRepositoryRoot(itemPath[1])
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Map known English Finder root names to locale display labels.
    * Unknown names pass through unchanged.
    *
@@ -96,6 +141,8 @@
   global.percFinderRootDisplay = {
     FINDER_ROOT_I18N_KEYS: FINDER_ROOT_I18N_KEYS,
     i18nKeyForFinderRoot: i18nKeyForFinderRoot,
+    isFinderRepositoryRoot: isFinderRepositoryRoot,
+    shouldNavigateOnDoubleClick: shouldNavigateOnDoubleClick,
     displayLabelForFinderRoot: displayLabelForFinderRoot,
   };
 })(

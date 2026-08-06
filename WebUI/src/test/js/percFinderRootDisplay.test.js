@@ -143,6 +143,88 @@ describe("percFinderRootDisplay", () => {
   });
 });
 
+describe("percFinderRootDisplay.shouldNavigateOnDoubleClick (issue #960)", () => {
+  let api;
+
+  beforeEach(() => {
+    delete globalThis.percFinderRootDisplay;
+    api = loadHelper();
+  });
+
+  it("navigates repository roots Sites/Assets/Design/Search/Recycling", () => {
+    for (const root of KNOWN_ROOTS) {
+      // Roots are not typed "Folder" and may even omit leaf in older payloads.
+      expect(
+        api.shouldNavigateOnDoubleClick({ name: root }, ["", root]),
+        root,
+      ).toBe(true);
+      expect(
+        api.shouldNavigateOnDoubleClick(
+          { name: root, leaf: false },
+          ["", root],
+        ),
+        `${root} leaf:false`,
+      ).toBe(true);
+    }
+  });
+
+  it("navigates Folder and FSFolder types", () => {
+    expect(
+      api.shouldNavigateOnDoubleClick(
+        { type: "Folder", leaf: true },
+        ["", "Sites", "mysite", "folder"],
+      ),
+    ).toBe(true);
+    expect(
+      api.shouldNavigateOnDoubleClick(
+        { type: "FSFolder", leaf: true },
+        ["", "Design", "web_resources"],
+      ),
+    ).toBe(true);
+  });
+
+  it("navigates any explicit non-leaf item (e.g. site)", () => {
+    expect(
+      api.shouldNavigateOnDoubleClick(
+        { type: "site", leaf: false },
+        ["", "Sites", "mysite.com"],
+      ),
+    ).toBe(true);
+  });
+
+  it("opens leaf content items (pages/assets) instead of navigating", () => {
+    expect(
+      api.shouldNavigateOnDoubleClick(
+        { type: "percPage", leaf: true },
+        ["", "Sites", "mysite.com", "index.html"],
+      ),
+    ).toBe(false);
+    expect(
+      api.shouldNavigateOnDoubleClick(
+        { type: "percImageAsset", leaf: true },
+        ["", "Assets", "uploads", "logo.png"],
+      ),
+    ).toBe(false);
+  });
+
+  it("returns false for null/undefined spec", () => {
+    expect(api.shouldNavigateOnDoubleClick(null, ["", "Sites"])).toBe(false);
+    expect(api.shouldNavigateOnDoubleClick(undefined, ["", "Sites"])).toBe(
+      false,
+    );
+  });
+
+  it("isFinderRepositoryRoot matches known roots only", () => {
+    for (const root of KNOWN_ROOTS) {
+      expect(api.isFinderRepositoryRoot(root)).toBe(true);
+    }
+    expect(api.isFinderRepositoryRoot("MySite")).toBe(false);
+    expect(api.isFinderRepositoryRoot("sites")).toBe(false);
+    expect(api.isFinderRepositoryRoot("")).toBe(false);
+    expect(api.isFinderRepositoryRoot(null)).toBe(false);
+  });
+});
+
 describe("perc_finder.js make_item wiring (source contract)", () => {
   it("uses percFinderRootDisplay for visible name and keeps data/spec English", () => {
     const src = readFileSync(FINDER_SRC, "utf8");
@@ -155,5 +237,20 @@ describe("perc_finder.js make_item wiring (source contract)", () => {
     expect(src).toMatch(
       /\.data\(\s*["']name["']\s*,\s*item_path\[\s*item_path\.length\s*-\s*1\s*\]\s*\)/,
     );
+  });
+
+  it("wires doubleClick through shouldNavigateOnDoubleClick (issue #960)", () => {
+    const src = readFileSync(FINDER_SRC, "utf8");
+    expect(src).toMatch(/function\s+doubleClick\s*\(/);
+    expect(src).toMatch(/shouldNavigateOnDoubleClick\s*\(/);
+    expect(src).toMatch(/fireOpenEvent\s*\(\s*spec\s*\)/);
+    // Fallback path still covers roots if helper is unavailable.
+    expect(src).toMatch(/SITES_ROOT_NO_SLASH/);
+    expect(src).toMatch(/ASSETS_ROOT_NO_SLASH/);
+    expect(src).toMatch(/DESIGN_ROOT_NO_SLASH/);
+    expect(src).toMatch(/SEARCH_ROOT_NO_SLASH/);
+    expect(src).toMatch(/RECYCLING_ROOT_NO_SLASH/);
+    // Fallback must null-guard item_path (same as shouldNavigateOnDoubleClick).
+    expect(src).toMatch(/item_path\s*&&\s*[\s\S]*?item_path\.length\s*===\s*2/);
   });
 });
