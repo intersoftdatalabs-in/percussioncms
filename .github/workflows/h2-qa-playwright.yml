@@ -1,0 +1,285 @@
+# Optional H2 Docker QA + Playwright path (#1827 slice 4 / #1930).
+#
+# NON-REQUIRED by design: do not add this workflow (or its job names) to
+# branch protection required checks without an explicit product decision.
+# Path-filtered PR runs are dry-run / unit / list only — never live CMS.
+#
+# Operators / agents trigger a live stack with:
+#   Actions → H2 QA Playwright (optional) → Run workflow → mode=live
+#
+# Docs: docs/developer-module/workbench-rest-and-qa-modes.md
+#       modules/perc-qa-automation/README.md
+# Artifacts: docs/developer-module/playwright-failure-artifacts.md
+
+name: H2 QA Playwright (optional)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: >
+          dry-run = wiring only (no live CMS / no package).
+          live = package installer (unless skip_package) → perc-devctl qa-up →
+          surface/golden Playwright → upload failure artifacts → qa-down.
+        type: choice
+        options:
+          - dry-run
+          - live
+        default: dry-run
+      surface_path:
+        description: >
+          Playwright surface path relative to modules/perc-qa-automation/frontend
+          (default login smoke; golden product-screen path is #2065).
+        type: string
+        default: tests/login.spec.js
+      surface_grep:
+        description: Optional Playwright --grep title filter (empty = none)
+        type: string
+        default: ""
+      surface_tag:
+        description: Optional surface tag (e.g. smoke → @smoke); empty = none
+        type: string
+        default: ""
+      skip_package:
+        description: >
+          live only — skip modules/perc-distribution-tree package when the
+          runner already has a packaged installer assembly.
+        type: boolean
+        default: false
+      qa_up_timeout_seconds:
+        description: live only — qa-up health wait timeout (seconds)
+        type: string
+        default: "900"
+  pull_request:
+    paths:
+      - "modules/perc-qa-automation/**"
+      - "docker/scripts/perc-devctl.py"
+      - "docker/scripts/perc_host_ports.py"
+      - "docker/scripts/matrix-install-smoke.py"
+      - "docker/scripts/freeport-concurrent-smoke.py"
+      - "docker/scripts/test_perc_devctl.py"
+      - "docker/scripts/test_freeport_concurrent_smoke.py"
+      - "docs/developer-module/workbench-rest-and-qa-modes.md"
+      - "docs/developer-module/playwright-failure-artifacts.md"
+      - ".github/workflows/h2-qa-playwright.yml"
+
+# Least privilege. Artifacts upload uses default GITHUB_TOKEN contents:read.
+permissions:
+  contents: read
+
+concurrency:
+  group: h2-qa-playwright-${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}-${{ github.event.inputs.mode || 'pr' }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Always-safe wiring check: freeport + perc-devctl dry-run + Playwright unit
+  # / surface list. No Docker CMS, no secrets, no host install.
+  # ---------------------------------------------------------------------------
+  qa-wiring-check:
+    name: QA wiring (dry-run / unit / list)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Freeport concurrent allocation smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          python docker/scripts/freeport-concurrent-smoke.py
+          echo "RESULT line above must include RESULT:OK STEP:freeport-concurrent-smoke"
+
+      - name: perc-devctl qa-up / qa-health / qa-down dry-run
+        shell: bash
+        run: |
+          set -euo pipefail
+          python docker/scripts/perc-devctl.py qa-up --dry-run --timeout-seconds 60
+          python docker/scripts/perc-devctl.py qa-health --dry-run --timeout-seconds 30
+          python docker/scripts/perc-devctl.py qa-down --dry-run
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: modules/perc-qa-automation/frontend/package-lock.json
+
+      - name: npm ci + unit tests + surface list
+        shell: bash
+        working-directory: modules/perc-qa-automation/frontend
+        env:
+          SURFACE_PATH: ${{ github.event.inputs.surface_path || 'tests/login.spec.js' }}
+          SURFACE_GREP: ${{ github.event.inputs.surface_grep || '' }}
+          SURFACE_TAG: ${{ github.event.inputs.surface_tag || '' }}
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run test:unit
+          # List-only — no live CMS; validates surface filter args / discovered tests.
+          if [ -n "${SURFACE_TAG}" ]; then
+            npm run test:surface:list -- --tag "${SURFACE_TAG}"
+          elif [ -n "${SURFACE_GREP}" ]; then
+            npm run test:surface:list -- --grep "${SURFACE_GREP}"
+          else
+            npm run test:surface:list -- --path "${SURFACE_PATH}"
+          fi
+          npm run test:surface:print -- --path "${SURFACE_PATH:-tests/login.spec.js}"
+
+  # ---------------------------------------------------------------------------
+  # Live H2 Docker QA cell + Playwright. Manual only (workflow_dispatch mode=live).
+  # First green may need #2065 golden smoke + successful distribution-tree package
+  # on the runner. Not required on PRs.
+  # ---------------------------------------------------------------------------
+  h2-qa-live:
+    name: H2 qa-up + Playwright (live)
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'live'
+    runs-on: ubuntu-latest
+    # Packaging the CMS installer assembly is heavy; allow a long window.
+    timeout-minutes: 360
+    # Fail-fast on filter/unit wiring before multi-hour package + qa-up.
+    needs: [qa-wiring-check]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: modules/perc-qa-automation/frontend/package-lock.json
+
+      - name: Package CMS installer assembly (perc-distribution-tree)
+        if: github.event.inputs.skip_package != 'true'
+        shell: bash
+        working-directory: modules/perc-distribution-tree
+        run: |
+          set -euo pipefail
+          # Prereq for qa-up: customer installer assembly (see workbench-rest-and-qa-modes.md).
+          # If this step is too heavy for the runner, re-run with skip_package=true after
+          # placing a packaged installer where matrix-install-smoke expects it, or use a
+          # larger self-hosted runner.
+          ../../mvnw -B package -DskipTests
+
+      - name: qa-up (H2 Docker CMS)
+        id: qa_up
+        shell: bash
+        env:
+          QA_UP_TIMEOUT: ${{ github.event.inputs.qa_up_timeout_seconds || '900' }}
+          # Optional override when install-generated password is unavailable.
+          # Prefer Actions secret QA_ADMIN_PASSWORD; never commit passwords.
+          SECRET_QA_ADMIN_PASSWORD: ${{ secrets.QA_ADMIN_PASSWORD }}
+        run: |
+          set -euo pipefail
+          OUT="${RUNNER_TEMP}/qa-up.out"
+          python docker/scripts/perc-devctl.py qa-up --timeout-seconds "${QA_UP_TIMEOUT}" | tee "${OUT}"
+          if ! grep -q 'RESULT:OK STEP:qa-up' "${OUT}"; then
+            echo "::error::qa-up did not emit RESULT:OK STEP:qa-up"
+            exit 1
+          fi
+          TEST_CMS_URL="$(grep -E '^TEST_CMS_URL=' "${OUT}" | tail -1 | cut -d= -f2-)"
+          QA_CMS_HOST_PORT="$(grep -E '^QA_CMS_HOST_PORT=' "${OUT}" | tail -1 | cut -d= -f2- || true)"
+          ADMIN_PASSWORD="$(grep -E '^ADMIN_PASSWORD=' "${OUT}" | tail -1 | cut -d= -f2- || true)"
+          if [ -z "${ADMIN_PASSWORD}" ] && [ -n "${SECRET_QA_ADMIN_PASSWORD}" ]; then
+            ADMIN_PASSWORD="${SECRET_QA_ADMIN_PASSWORD}"
+          fi
+          if [ -z "${TEST_CMS_URL}" ]; then
+            echo "::error::TEST_CMS_URL missing from qa-up output"
+            exit 1
+          fi
+          if [ -n "${ADMIN_PASSWORD}" ]; then
+            echo "::add-mask::${ADMIN_PASSWORD}"
+          else
+            echo "::warning::ADMIN_PASSWORD not found in qa-up output or secrets.QA_ADMIN_PASSWORD; login specs may fail"
+          fi
+          {
+            echo "TEST_CMS_URL=${TEST_CMS_URL}"
+            echo "QA_CMS_HOST_PORT=${QA_CMS_HOST_PORT}"
+            echo "ADMIN_PASSWORD=${ADMIN_PASSWORD}"
+            echo "ADMIN_USERNAME=Admin"
+            echo "TEST_DB_TYPE=h2"
+            echo "TEST_PRODUCT=cms"
+          } >> "${GITHUB_ENV}"
+          echo "TEST_CMS_URL=${TEST_CMS_URL}"
+          echo "QA_CMS_HOST_PORT=${QA_CMS_HOST_PORT}"
+
+      - name: npm ci + Playwright Chromium
+        working-directory: modules/perc-qa-automation/frontend
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Surface / golden Playwright against TEST_CMS_URL
+        id: playwright
+        working-directory: modules/perc-qa-automation/frontend
+        shell: bash
+        env:
+          SURFACE_PATH: ${{ github.event.inputs.surface_path || 'tests/login.spec.js' }}
+          SURFACE_GREP: ${{ github.event.inputs.surface_grep || '' }}
+          SURFACE_TAG: ${{ github.event.inputs.surface_tag || '' }}
+        run: |
+          set -euo pipefail
+          if [ -z "${TEST_CMS_URL:-}" ]; then
+            echo "::error::TEST_CMS_URL is empty; abort Playwright"
+            exit 1
+          fi
+          echo "Running surface against TEST_CMS_URL=${TEST_CMS_URL}"
+          # Extra flags after -- are passed through to playwright test (see run-surface.js).
+          PW_EXTRA=(--trace=retain-on-failure --screenshot=only-on-failure --reporter=line,html)
+          if [ -n "${SURFACE_TAG}" ]; then
+            npm run test:surface -- --tag "${SURFACE_TAG}" -- "${PW_EXTRA[@]}"
+          elif [ -n "${SURFACE_GREP}" ]; then
+            npm run test:surface -- --grep "${SURFACE_GREP}" -- "${PW_EXTRA[@]}"
+          else
+            npm run test:surface -- --path "${SURFACE_PATH}" -- "${PW_EXTRA[@]}"
+          fi
+
+      - name: Upload Playwright failure artifacts
+        if: always() && steps.playwright.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-h2-qa-${{ github.run_id }}
+          path: |
+            modules/perc-qa-automation/frontend/test-results/
+            modules/perc-qa-automation/frontend/playwright-report/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload qa-up / docker logs (best effort)
+        if: always() && steps.qa_up.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: h2-qa-stack-logs-${{ github.run_id }}
+          path: |
+            docker/logs/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: qa-down (always tear down)
+        if: always() && steps.qa_up.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python docker/scripts/perc-devctl.py qa-down || true
+          docker rm -f perc-matrix-cms-h2 2>/dev/null || true
