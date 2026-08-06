@@ -43,6 +43,7 @@ import org.xml.sax.SAXException;
 /**
  * A UDF that makes an internal request to the specified resource and returns the result document.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSMakeInternalRequest extends PSSimpleJavaUdfExtension {
   /** Creates a new PSMakeInternalRequest. */
   public PSMakeInternalRequest() {}

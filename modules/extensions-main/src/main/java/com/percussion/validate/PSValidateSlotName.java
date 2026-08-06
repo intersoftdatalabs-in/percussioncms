@@ -42,6 +42,7 @@ import org.w3c.dom.NodeList;
  * <p>A slotname is considered unique if the name is not already in the database or the name is in
  * the database and has the same slotid passed in by this request.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSValidateSlotName implements IPSRequestPreProcessor {
   /** Creates a new PSValidateSlotName. */
   public PSValidateSlotName() {}

@@ -35,6 +35,7 @@ import org.w3c.dom.Node;
  * @author dougrand
  *     <p>Query the extension manager to provide a list of matching extensions.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSQueryExtensions extends PSSimpleJavaUdfExtension {
   /** Creates a new PSQueryExtensions. */
   public PSQueryExtensions() {}

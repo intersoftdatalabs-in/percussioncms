@@ -50,6 +50,7 @@ import org.xml.sax.SAXException;
  * problems they will be caught before adding it to the session, so on the way out there won't be
  * any problems and we won't be storing bad data.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequestPreProcessor {
   /** Creates a new PSGetAndSetCxOptions. */
   public PSGetAndSetCxOptions() {}

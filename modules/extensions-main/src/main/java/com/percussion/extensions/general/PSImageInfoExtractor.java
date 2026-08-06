@@ -39,6 +39,7 @@ import org.apache.logging.log4j.Logger;
  * If one of the files is an image then the width and height dimensions will be extracted and will
  * be added to the request as image size attributes. Requires the SUN JAI library.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSImageInfoExtractor extends PSFileInfo implements IPSItemInputTransformer {
   /** Creates a new PSImageInfoExtractor. */
   public PSImageInfoExtractor() {}

@@ -49,6 +49,7 @@ import org.xml.sax.SAXException;
  *       the generated output.
  * </ol>
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ProcessServerPageTags extends Object {
 
   private static final Logger log = LogManager.getLogger(ProcessServerPageTags.class);

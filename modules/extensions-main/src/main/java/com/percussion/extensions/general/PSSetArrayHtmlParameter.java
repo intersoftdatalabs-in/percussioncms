@@ -54,6 +54,7 @@ import org.w3c.dom.NodeList;
  *       n number of items by building the rhythmyx request with a definite sort order
  * </ol>
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSetArrayHtmlParameter implements IPSRequestPreProcessor {
   /** Creates a new PSSetArrayHtmlParameter. */
   public PSSetArrayHtmlParameter() {}

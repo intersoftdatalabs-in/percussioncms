@@ -75,6 +75,7 @@ import org.w3c.dom.NodeList;
  * removes the link. Variant based filtering. If the variant is a page variant then checks whether
  * it is a publishable variant or not. If not removes the link.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
   /** Creates a new PSSiteFolderAuthTypeFilter. */
   public PSSiteFolderAuthTypeFilter() {}

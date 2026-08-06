@@ -51,6 +51,7 @@ import org.xml.sax.SAXParseException;
  * <p>All of these utils are static methods designed for use only within the com.percussion.xmldom
  * package.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSXmlDomUtils {
 
   /** this class should never be instantiated. */

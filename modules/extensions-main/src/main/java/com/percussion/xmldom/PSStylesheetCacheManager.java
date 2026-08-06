@@ -36,6 +36,7 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import org.xml.sax.SAXParseException;
 
 /** Caches stylesheets as PSCachedStylesheet in a Map keyed by URL */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSStylesheetCacheManager {
 
   /** This class contains only static methods, and is never constructed */

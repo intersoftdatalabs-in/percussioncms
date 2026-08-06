@@ -52,6 +52,7 @@ import org.apache.logging.log4j.Logger;
  *
  * <p>This exit supports 3 delimiters: semicolon, period, and comma.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSParameterTokenizer extends PSDefaultExtension implements IPSRequestPreProcessor {
   /** Creates a new PSParameterTokenizer. */
   public PSParameterTokenizer() {}

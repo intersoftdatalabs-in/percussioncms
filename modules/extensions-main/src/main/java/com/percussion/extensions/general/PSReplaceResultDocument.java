@@ -53,6 +53,7 @@ import org.w3c.dom.Node;
  * parameter) is executed and the result document's root element is replaced with that of the result
  * of the execution of the internal request.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSReplaceResultDocument implements IPSResultDocumentProcessor {
   /** Creates a new PSReplaceResultDocument. */
   public PSReplaceResultDocument() {}

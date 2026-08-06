@@ -36,6 +36,7 @@ import org.w3c.dom.Element;
  * operator. Can also convert the operator and value(s) sent to the appropriate sql where clause
  * syntax.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSConvertCustomSearchOperator extends PSDefaultExtension
     implements IPSRequestPreProcessor {
   /** Creates a new PSConvertCustomSearchOperator. */

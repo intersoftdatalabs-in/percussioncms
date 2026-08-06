@@ -30,6 +30,7 @@ import org.w3c.dom.NodeList;
  * child editors with multiple text editors. <code>PSXdTextToTree</code> exit does not support
  * multiple fields with the same name.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSXdMultiTextToTree extends PSXdTextToTree implements IPSResultDocumentProcessor {
   /** Creates a new PSXdMultiTextToTree. */
   public PSXdMultiTextToTree() {}

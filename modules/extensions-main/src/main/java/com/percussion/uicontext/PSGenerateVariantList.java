@@ -69,6 +69,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Generates the variant list for the Content Manager UI. */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSGenerateVariantList extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
   /** Creates a new PSGenerateVariantList. */

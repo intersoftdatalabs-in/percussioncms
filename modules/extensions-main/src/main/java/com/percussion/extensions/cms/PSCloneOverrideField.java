@@ -45,6 +45,7 @@ import org.w3c.dom.Text;
  *
  * @author RammohanVangapalli
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSCloneOverrideField extends PSSimpleJavaUdfExtension {
   /** Creates a new PSCloneOverrideField. */
   public PSCloneOverrideField() {}

@@ -63,6 +63,7 @@ import org.w3c.dom.Text;
  * CDATA #IMPLIED &gt; It basically gets all the workflows in the system and removes the workflows
  * in the excludelist for each content type.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
     implements IPSResultDocumentProcessor, IPSRequestPreProcessor {
 

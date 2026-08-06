@@ -55,6 +55,7 @@ import org.w3c.dom.Document;
  * <code>sys_rxSupport/updaterelateditems</code>. This approacch is taken to keep the interface used
  * for all active assembly update functionality.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSModifyRelatedContent extends PSDefaultExtension implements IPSRequestPreProcessor {
   /** Creates a new PSModifyRelatedContent. */
   public PSModifyRelatedContent() {}

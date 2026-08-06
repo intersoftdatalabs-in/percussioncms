@@ -38,6 +38,7 @@ import java.util.Iterator;
  * "encloseInQuotes" can be specified as <code>0</code> if the objects should not be enclosed in
  * quotes.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSPrepareInClause implements IPSRequestPreProcessor {
   /** Creates a new PSPrepareInClause. */
   public PSPrepareInClause() {}
