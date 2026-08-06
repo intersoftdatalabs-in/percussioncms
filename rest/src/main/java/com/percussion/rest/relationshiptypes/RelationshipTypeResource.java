@@ -30,6 +30,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,11 @@ public class RelationshipTypeResource {
 
   private final IRelationshipTypeAdaptor adaptor;
 
+  /**
+   * No-arg constructor for bean-discovery edge cases. Production uses {@link
+   * #RelationshipTypeResource(IRelationshipTypeAdaptor)}; catalog methods call {@link
+   * #requireAdaptor()}.
+   */
   public RelationshipTypeResource() {
     this.adaptor = null;
   }
@@ -71,6 +77,7 @@ public class RelationshipTypeResource {
                 @Content(
                     array =
                         @ArraySchema(schema = @Schema(implementation = RelationshipType.class)))),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public List<RelationshipType> listRelationshipTypes() {
@@ -78,6 +85,7 @@ public class RelationshipTypeResource {
       List<RelationshipType> list = requireAdaptor().listRelationshipTypes();
       return list != null ? list : List.of();
     } catch (WebApplicationException e) {
+      // Preserve mapped HTTP errors (e.g. 503 misconfiguration from requireAdaptor)
       throw e;
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
@@ -98,6 +106,7 @@ public class RelationshipTypeResource {
             description = "OK",
             content = @Content(schema = @Schema(implementation = RelationshipType.class))),
         @ApiResponse(responseCode = "404", description = "Relationship type not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public RelationshipType getRelationshipType(@PathParam("idOrName") String idOrName) {
@@ -108,6 +117,7 @@ public class RelationshipTypeResource {
       }
       return type;
     } catch (WebApplicationException e) {
+      // Preserve mapped HTTP errors (e.g. 503 misconfiguration from requireAdaptor)
       throw e;
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
@@ -116,8 +126,9 @@ public class RelationshipTypeResource {
 
   private IRelationshipTypeAdaptor requireAdaptor() {
     if (adaptor == null) {
-      throw new IllegalStateException(
-          "Relationship type adaptor not configured (resource constructed without injection)");
+      // Misconfiguration — not a transient handler failure (align with ServerConfigs/Slots peers)
+      throw new WebApplicationException(
+          "Relationship type adaptor not configured", Response.Status.SERVICE_UNAVAILABLE);
     }
     return adaptor;
   }
