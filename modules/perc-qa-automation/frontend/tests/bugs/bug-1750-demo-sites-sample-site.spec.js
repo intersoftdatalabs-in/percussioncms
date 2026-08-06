@@ -108,7 +108,9 @@ function gateSampleSitesOrSkip(names) {
   // Empty / no samples: stock non-demo or pre-#2192 image — skip-with-BUG
   // unless operator set EXPECT_DEMO_SITES=1 (hard regression gate).
   if (!shouldEnforceDemoSites() && !hasAnyExpectedSampleSite(names)) {
-    test.skip(true, demoSitesSkipReason());
+    // Message-only skip so the BUG reason is the reported description (not "true").
+    test.skip(demoSitesSkipReason());
+    return;
   }
   expect(
     names,
@@ -170,9 +172,10 @@ test.describe("GH-1750 demo-sites Sample Site under Sites (#2194 residual)", () 
       throw new Error(`Explorer tree failed to load: ${text}`);
     }
 
-    // Root Sites node — testids use CMS paths (tree-node-/Sites/ peer of #1622).
+    // Root Sites node only — exact testids (avoid *= which can match SitesArchive).
+    // Peers: bug-1622 / bug-2094 use tree-node-/Sites[/].
     const sitesRoot = tree.locator(
-      '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"], [data-testid*="tree-node-/Sites"]',
+      '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"]',
     );
     await expect(sitesRoot.first()).toBeVisible({ timeout: 20_000 });
     await sitesRoot.first().click();
@@ -188,20 +191,28 @@ test.describe("GH-1750 demo-sites Sample Site under Sites (#2194 residual)", () 
       .evaluateAll((els) =>
         els.map((el) => el.getAttribute("data-testid") || ""),
       );
-    const joined = nodeTestIds.join(" ");
+
+    // Immediate children of /Sites only: tree-node-/Sites/<name>[/...]
+    const sitesChildNames = nodeTestIds
+      .map((id) => {
+        const m = /^tree-node-\/Sites\/([^/]+)/.exec(id);
+        return m ? m[1] : null;
+      })
+      .filter((n) => typeof n === "string" && n.length > 0);
+
+    // REST already gated samples; UI tree should expose the same set (exact path segment).
+    expect(
+      hasAllExpectedSampleSites(sitesChildNames),
+      `explorer tree under /Sites missing sample sites; children=${JSON.stringify(sitesChildNames)}; testids=${JSON.stringify(nodeTestIds)}`,
+    ).toBe(true);
 
     for (const expected of EXPECTED_SAMPLE_SITE_NAMES) {
-      const spaced = expected;
-      const underscored = expected.replace(/ /g, "_");
-      const hasNode =
-        joined.includes(`/Sites/${spaced}`) ||
-        joined.includes(`/Sites/${underscored}`) ||
-        nodeTestIds.some((id) =>
-          normalizeSiteName(id).includes(normalizeSiteName(expected)),
-        );
+      const hasNode = sitesChildNames.some(
+        (n) => normalizeSiteName(n) === normalizeSiteName(expected),
+      );
       expect(
         hasNode,
-        `expected explorer tree node for ${expected}; testids=${JSON.stringify(nodeTestIds)}`,
+        `expected explorer tree node for ${expected}; children=${JSON.stringify(sitesChildNames)}`,
       ).toBe(true);
     }
 
