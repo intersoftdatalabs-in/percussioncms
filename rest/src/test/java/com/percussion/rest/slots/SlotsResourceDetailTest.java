@@ -20,6 +20,7 @@ package com.percussion.rest.slots;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.when;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -46,6 +48,68 @@ public class SlotsResourceDetailTest {
     UriInfo uriInfo = mock(UriInfo.class);
     when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
     resource.setUriInfo(uriInfo);
+  }
+
+  @Test
+  public void listSlotsSuccess() {
+    SlotSummary s = new SlotSummary();
+    s.setName("rffList");
+    s.setLabel("List");
+    when(adaptor.listSlots(any())).thenReturn(List.of(s));
+    List<SlotSummary> out = resource.listSlots();
+    assertEquals(1, out.size());
+    assertEquals("rffList", out.get(0).getName());
+    assertEquals("List", out.get(0).getLabel());
+  }
+
+  @Test
+  public void listSlotsEmpty() {
+    when(adaptor.listSlots(any())).thenReturn(List.of());
+    assertTrue(resource.listSlots().isEmpty());
+  }
+
+  @Test
+  public void listSlotsWrapsUnexpectedFailures() {
+    RuntimeException cause = new IllegalStateException("Failed to list slots");
+    when(adaptor.listSlots(any())).thenThrow(cause);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.listSlots());
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(cause, ex.getCause());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnList() {
+    SlotsResource bare = newSlotsResourceWithoutAdaptor();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.listSlots());
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnGet() {
+    // getSlot must rethrow WebApplicationException from requireAdaptor (not re-wrap as 500)
+    SlotsResource bare = newSlotsResourceWithoutAdaptor();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.getSlot("any"));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnUpdate() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> newSlotsResourceWithoutAdaptor().updateSlot("any", new SlotDetail()));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  private static SlotsResource newSlotsResourceWithoutAdaptor() {
+    SlotsResource bare = new SlotsResource();
+    UriInfo uriInfo = mock(UriInfo.class);
+    when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
+    bare.setUriInfo(uriInfo);
+    return bare;
   }
 
   @Test

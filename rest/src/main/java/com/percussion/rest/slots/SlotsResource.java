@@ -33,6 +33,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -115,6 +116,9 @@ public class SlotsResource {
     SlotDetail detail;
     try {
       detail = requireAdaptor().getSlot(uriInfo.getBaseUri(), idOrName);
+    } catch (WebApplicationException e) {
+      // Preserve mapped HTTP errors (e.g. 503 misconfiguration from requireAdaptor)
+      throw e;
     } catch (Exception e) {
       // 404 is thrown outside this try; do not re-wrap mapped HTTP errors here
       log.error(
@@ -167,8 +171,9 @@ public class SlotsResource {
 
   private ISlotsAdaptor requireAdaptor() {
     if (adaptor == null) {
-      throw new IllegalStateException(
-          "Slots adaptor not configured (resource constructed without injection)");
+      // Misconfiguration — not a transient handler failure (align with KeywordsResource)
+      throw new WebApplicationException(
+          "Slots adaptor not configured", Response.Status.SERVICE_UNAVAILABLE);
     }
     return adaptor;
   }
