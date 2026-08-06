@@ -13,7 +13,8 @@ Unattended overnight worker:
 3. **PR follow-up PRE** (optional, default on) - **merge-blocker drain** before new issue PRs (conflicts + open review threads only, **no CI polling**; oldest first)  
 4. **Work** sequential implement or split - **file residual follow-up issues** for leftover work  
 5. **PR follow-up POST** - catch PRs opened this run + remaining merge blockers  
-6. **Report** -> `scratch/night-report.md`
+6. **PR cluster** (optional, default on) - absorb same-file thrash into one superseding PR  
+7. **Report** -> `scratch/night-report.md`
 
 Opens **PRs only** (never merges). Oversized issues become child issues, not mega-PRs.
 
@@ -74,7 +75,30 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | `agent_safe_only` | bool | `true` | Skip work needing live CMS / E2E / secrets |
 | `unassigned_only` | bool | `true` | Only issues with **no assignees** |
 | `include_pr_followup` | bool | `true` | Run PR merge-blocker drain **before and after** issue Work |
+| `include_pr_cluster` | bool | `true` | After POST follow-up, absorb same-file thrash PRs into one cluster PR (**independent of** `include_pr_followup`) |
+| `cluster_min_prs` | int | `3` | Min owned open PRs sharing thrash files to open a cluster (2–8) |
 | `max_prs` | int | `6` | Max open PRs per follow-up pass (capped 1-12). Raise on heavy conflict/thread debt nights |
+| `worktree_path` | string | empty | Override dedicated overnight worktree; empty = portable default under home |
+| `sync_branch` | string | `night-issue-prs-main` | Local mirror of `origin/<base_branch>` in the worktree |
+
+### Dedicated worktree (portable)
+
+Agents run git/builds only in a dedicated worktree (not the human primary clone).
+
+| | |
+|--|--|
+| **Default path** | `<home>/.grok/worktrees/intersoft-workspace-percussioncms/night-issue-prs` |
+| **Home** | `%USERPROFILE%` (Windows) or `$HOME` (Unix/macOS) |
+| **Override** | Pass `worktree_path` for a non-default absolute path |
+| **Sync branch** | `night-issue-prs-main` — reset to `origin/main` between jobs; PR base stays `main` |
+
+```text
+# Example setup (portable)
+git fetch origin main
+git branch night-issue-prs-main origin/main
+git worktree add "$HOME/.grok/worktrees/intersoft-workspace-percussioncms/night-issue-prs" night-issue-prs-main
+# Windows PowerShell: $env:USERPROFILE\.grok\worktrees\...
+```
 
 ### What is `agent_budget`?
 
@@ -126,6 +150,21 @@ name=night-issue-prs args={"max_issues": 1, "max_prs": 8, "include_pr_followup":
 ```
 
 For a pure PR-babysit night, prefer `max_issues: 1` with a label filter that matches nothing (or a known empty set) so Work is nearly empty, and raise `max_prs`. Watch in `/workflows`. Result path: `scratch/night-report.md`.
+
+### PR cluster (same-file thrash absorption)
+
+When many **owned** open PRs all edit the same hot paths (classic: `developer-catalog-smoke.spec.js`, `sitemanage-beans.xml`, `package.json`), rebasing each onto `main` still leaves them **conflicting with each other**. The cluster phase:
+
+1. Inventories owned open PRs + changed files  
+2. Groups by thrash paths (smoke/beans/package/auth/etc.)  
+3. If group size ≥ `cluster_min_prs` (or ≥2 CONFLICTING on shared paths):  
+   - Branch `cluster/night-issue-<YYYYMMDD>-<topic>` from `night-issue-prs-main` (synced to `origin/main`) in the dedicated worktree  
+   - Absorb PRs **oldest-first** (merge/cherry-pick) with **union** conflict resolution  
+   - Open **one** PR to `main` with a **Supersedes** table  
+   - Comment + **close** fully absorbed PRs (do **not** merge them)  
+4. Leaves the cluster PR open for human morning review (no bot merge/approve)
+
+Runs when `include_pr_cluster` is true (**independent of** `include_pr_followup`). Disable with `include_pr_cluster: false`. Raise `cluster_min_prs` if you want fewer automatic clusters.
 
 ### PR follow-up: conflicts + review threads only (no CI polling)
 
