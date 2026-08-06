@@ -343,13 +343,14 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 
 ## Packaging verification notes — Child D (#1820)
 
-**Prep status (2026-08-05)** — packaging verification tests and docs only; **no product deep-page deletes**. Design/Runtime deep pages remain **Deferred** pending #1371 UAT (or human ack on #1372) and Child B/C (#1819 / #1818).
+**Prep status (2026-08-05)** — packaging verification tests and docs only; **no product deep-page deletes**. Design/Runtime deep pages remain **Deferred** pending #1371 UAT (or human ack on #1372) and Child B/C (#1819 / #1818).  
+**PR**: [#2095](https://github.com/intersoftdatalabs-in/percussioncms/pull/2095) · issue [#1820](https://github.com/intersoftdatalabs-in/percussioncms/issues/1820)
 
 ### Test classes (`modules/perc-distribution-tree`)
 
 | Class | Role |
 |-------|------|
-| `com.percussion.distribution.install.PublishingDeepPagePackagingTest` | **#1820 primary**: assert `ui/publishing/index.jsp` + `ui/pubruntime/index.jsp` 301 redirect stubs still target modern shell (`/cm/app/?view=publish&section=design\|runtime`); freeze residual Design (28) / Runtime (13) JSP basename inventory; confirm `install.xml` still deletes `publishing-faces-config.xml`; `@Disabled` absence tests ready to enable after #1819/#1818 |
+| `com.percussion.distribution.install.PublishingDeepPagePackagingTest` | **#1820 / PR #2095 primary**: assert `ui/publishing/index.jsp` + `ui/pubruntime/index.jsp` 301 redirect stubs still target modern shell (`/cm/app/?view=publish&section=design\|runtime`); freeze residual Design (28) / Runtime (13) JSP basename inventory; confirm `install.xml` still deletes `publishing-faces-config.xml`; `@Disabled` absence tests ready to enable after #1819/#1818 |
 | `com.percussion.distribution.install.ObsoleteWebInfArtifactsCleanupTest` | Peer: upgrade cleanup target still covers `publishing-faces-config.xml` (+ JSF lib/TLD families) |
 | `com.percussion.distribution.install.PublishNowActionSeedUrlTest` | Peer: Publish_Now / EI_Publish_Now seeds stay on `/publisher/demandpublishing` (not legacy `publish.jsp`) |
 
