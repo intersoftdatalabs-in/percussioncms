@@ -17,6 +17,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,7 @@ public class SearchResource {
             description = "OK",
             content =
                 @Content(array = @ArraySchema(schema = @Schema(implementation = SearchDef.class)))),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public List<SearchDef> listSearches() {
@@ -83,6 +85,7 @@ public class SearchResource {
             description = "OK",
             content = @Content(schema = @Schema(implementation = SearchDef.class))),
         @ApiResponse(responseCode = "404", description = "Search not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public SearchDef getSearch(@PathParam("idOrName") String idOrName) {
@@ -93,6 +96,7 @@ public class SearchResource {
       }
       return search;
     } catch (WebApplicationException e) {
+      // Preserve mapped HTTP errors (e.g. 503 misconfiguration from requireAdaptor)
       throw e;
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
@@ -101,8 +105,9 @@ public class SearchResource {
 
   private ISearchAdaptor requireAdaptor() {
     if (adaptor == null) {
-      throw new IllegalStateException(
-          "Search adaptor not configured (resource constructed without injection)");
+      // Misconfiguration — not a transient handler failure (align with Slots/Locales/Keywords)
+      throw new WebApplicationException(
+          "Search adaptor not configured", Response.Status.SERVICE_UNAVAILABLE);
     }
     return adaptor;
   }
