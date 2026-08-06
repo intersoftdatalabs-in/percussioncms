@@ -103,11 +103,11 @@ public class PSPrepareInClause implements IPSRequestPreProcessor {
     if (params[1] != null && params[1].toString().trim().length() > 0) {
       // build the "IN" string
       StringBuilder buf = new StringBuilder();
-      Collection coll;
+      Collection<?> coll;
       Object obj = params[1];
-      if (obj instanceof Collection) {
-        coll = (Collection) obj;
-        Iterator values = coll.iterator();
+      if (obj instanceof Collection<?>) {
+        coll = (Collection<?>) obj;
+        Iterator<?> values = coll.iterator();
         while (values.hasNext()) {
           Object o = values.next();
           if (o != null) {

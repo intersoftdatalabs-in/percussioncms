@@ -823,7 +823,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
     Document doc = null;
     IPSInternalRequest iReq = null;
     try {
-      Map params = new HashMap();
+      Map<String, Object> params = new HashMap<>();
       params.put(IPSHtmlParameters.SYS_CONTENTID, contentid);
       iReq = request.getInternalRequest(CONTENT_DETAILS_URL, params, false);
       doc = iReq.getResultDoc();
@@ -1135,7 +1135,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
    */
   private void recordModified(File file, boolean bResetPrevious) {
     if (bResetPrevious) {
-      Set entries = ms_props.entrySet();
+      Set<Map.Entry<Object, Object>> entries = ms_props.entrySet();
       if (entries != null) entries.clear();
     }
     String modDateCurrent = Long.toString(file.lastModified());

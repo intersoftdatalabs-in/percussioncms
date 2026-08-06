@@ -200,7 +200,7 @@ public class PSConvertCustomSearchOperator extends PSDefaultExtension
       Object val = paramDoc.getParam(params[1].toString().trim());
       if (val != null) {
         if (val instanceof List) {
-          List valList = (List) val;
+          List<?> valList = (List<?>) val;
           values = valList.toArray();
         } else {
           String strVal = val.toString().trim();

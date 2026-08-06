@@ -54,10 +54,10 @@ public class PSImageInfoExtractor extends PSFileInfo implements IPSItemInputTran
     // first do the normal file info processing
     super.preProcessRequest(params, request);
 
-    Set paramKeys = new HashSet(request.getParameters().keySet());
-    Iterator iter = paramKeys.iterator();
+    Set<String> paramKeys = new HashSet<>(request.getParameters().keySet());
+    Iterator<String> iter = paramKeys.iterator();
     while (iter.hasNext()) {
-      String paramName = (String) iter.next();
+      String paramName = iter.next();
       Object obj = request.getParameterObject(paramName);
       if (obj instanceof PSPurgableTempFile) {
         PSPurgableTempFile temp = (PSPurgableTempFile) obj;

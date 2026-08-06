@@ -37,9 +37,9 @@ public class PSSaxErrorHandler implements ErrorHandler {
    * similar methods.
    */
   PSSaxErrorHandler() {
-    m_errors = new ArrayList();
-    m_fatalErrors = new ArrayList();
-    m_warnings = new ArrayList();
+    m_errors = new ArrayList<>();
+    m_fatalErrors = new ArrayList<>();
+    m_warnings = new ArrayList<>();
     m_printWriter = null;
   }
 
@@ -157,7 +157,7 @@ public class PSSaxErrorHandler implements ErrorHandler {
    *
    * @return the errors iterator.
    */
-  public Iterator errors() {
+  public Iterator<SAXParseException> errors() {
     return m_errors.iterator();
   }
 
@@ -166,7 +166,7 @@ public class PSSaxErrorHandler implements ErrorHandler {
    *
    * @return the fatal errors iterator.
    */
-  public Iterator fatalErrors() {
+  public Iterator<SAXParseException> fatalErrors() {
     return m_fatalErrors.iterator();
   }
 
@@ -175,13 +175,13 @@ public class PSSaxErrorHandler implements ErrorHandler {
    *
    * @return the warnings iterator.
    */
-  public Iterator warnings() {
+  public Iterator<SAXParseException> warnings() {
     return m_warnings.iterator();
   }
 
-  private List m_errors;
-  private List m_fatalErrors;
-  private List m_warnings;
+  private List<SAXParseException> m_errors;
+  private List<SAXParseException> m_fatalErrors;
+  private List<SAXParseException> m_warnings;
   private PrintWriter m_printWriter;
 
   private boolean m_throwFatalErrors = true;

@@ -110,10 +110,10 @@ public class PSGenerateContentTypeList extends PSDefaultExtension
 
       // Get summaries for all content types visible to the requestor's
       // community.
-      Collection summaries = defMgr.getSummaries(securityToken);
+      Collection<PSItemDefSummary> summaries = defMgr.getSummaries(securityToken);
 
       // Convert summaries collection to list
-      for (Object summary : summaries) summaryList.add((PSItemDefSummary) summary);
+      summaryList.addAll(summaries);
 
       // List to store structured actions based on the content type path
       List<PSMenuAction> structuredActions = new ArrayList<>();

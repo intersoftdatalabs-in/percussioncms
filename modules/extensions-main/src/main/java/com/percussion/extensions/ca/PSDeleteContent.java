@@ -34,6 +34,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -92,11 +93,13 @@ public class PSDeleteContent implements IPSRequestPreProcessor {
       String purgeurl = null;
       String contentid = null;
       Element elem = null;
-      ArrayList purgeurllist = null;
-      if (obj instanceof ArrayList) {
-        purgeurllist = (ArrayList) obj;
+      List<Object> purgeurllist = null;
+      if (obj instanceof List) {
+        @SuppressWarnings("unchecked")
+        List<Object> castList = (List<Object>) obj;
+        purgeurllist = castList;
       } else {
-        purgeurllist = new ArrayList();
+        purgeurllist = new ArrayList<>();
         purgeurllist.add(obj);
       }
       String appResource = "";
@@ -143,9 +146,9 @@ public class PSDeleteContent implements IPSRequestPreProcessor {
         filter.setOwnerId(itemId); // disregard owner revision
         // make sure to disable community filtering
         filter.setCommunityFiltering(false);
-        Iterator relationships = processor.getRelationships(filter).iterator();
+        Iterator<PSRelationship> relationships = processor.getRelationships(filter).iterator();
         while (relationships.hasNext()) {
-          PSRelationship relationship = (PSRelationship) relationships.next();
+          PSRelationship relationship = relationships.next();
           elem.setAttribute(ATTR_PKEY, contentid);
           elem = PSXmlDocumentBuilder.addEmptyElement(doc, parent, ELEM_ROW);
           elem.setAttribute(ATTR_RID, Integer.toString(relationship.getId()));

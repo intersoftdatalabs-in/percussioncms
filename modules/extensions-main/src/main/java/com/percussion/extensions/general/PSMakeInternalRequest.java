@@ -113,7 +113,7 @@ public class PSMakeInternalRequest extends PSSimpleJavaUdfExtension {
     String paramValue = "";
 
     // get all specified request parameters
-    Map requestParams = new HashMap();
+    Map<String, Object> requestParams = new HashMap<>();
     while (index < size) {
       if ((count % 2) == 0) {
         paramName = (params[index] == null) ? "" : params[index].toString().trim();

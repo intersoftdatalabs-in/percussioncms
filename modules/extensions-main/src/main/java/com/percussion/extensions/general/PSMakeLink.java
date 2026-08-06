@@ -91,7 +91,7 @@ public class PSMakeLink extends PSSimpleJavaUdfExtension implements IPSUdfProces
     String sourceUrl = params[0].toString().trim();
 
     // build params map
-    HashMap paramMap = new HashMap();
+    HashMap<String, Object> paramMap = new HashMap<>();
     int paramMaxIndex = params.length - 1;
     for (int paramIndex = 1;
         paramIndex < paramMaxIndex

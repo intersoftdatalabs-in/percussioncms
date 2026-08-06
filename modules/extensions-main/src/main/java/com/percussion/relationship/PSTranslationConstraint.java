@@ -81,7 +81,7 @@ public class PSTranslationConstraint extends PSDefaultExtension implements IPSRe
         IPSHtmlParameters.SYS_RELATIONSHIPTYPE
       };
 
-      Map parameters = new HashMap();
+      Map<String, String> parameters = new HashMap<>();
       for (int i = 0; i < htmlParameters.length; i++) {
         String parameter = request.getParameter(htmlParameters[i], "").trim();
         if (parameter.length() == 0) {

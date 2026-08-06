@@ -371,7 +371,7 @@ public class PSPublishEditionForPreview extends PSDefaultExtension
     {
       IPSInternalRequest iReq = null;
       try {
-        Map paramMap = new HashMap();
+        Map<String, Object> paramMap = new HashMap<>();
         paramMap.put(EDITION_PARAM, editionId);
         paramMap.put(IPSHtmlParameters.SYS_VARIANTID, variantId);
         paramMap.put(IPSHtmlParameters.SYS_CONTENTID, contentId);
@@ -414,7 +414,7 @@ public class PSPublishEditionForPreview extends PSDefaultExtension
     IPSInternalRequest iReq = null;
 
     try {
-      Map paramMap = new HashMap();
+      Map<String, Object> paramMap = new HashMap<>();
       paramMap.put(EDITION_PARAM, editionId);
       paramMap.put(IPSHtmlParameters.SYS_VARIANTID, variantId);
       paramMap.put(IPSHtmlParameters.SYS_CONTENTID, contentId);
@@ -453,7 +453,7 @@ public class PSPublishEditionForPreview extends PSDefaultExtension
       throws PSExtensionProcessingException, PSConversionException {
     boolean returnValue = false;
     IPSInternalRequest internalReq = null;
-    Map paramMap = new HashMap();
+    Map<String, Object> paramMap = new HashMap<>();
     paramMap.put(EDITION_PARAM, editionId);
     paramMap.put(IPSHtmlParameters.SYS_VARIANTID, variantId);
     paramMap.put(IPSHtmlParameters.SYS_CONTENTID, contentId);

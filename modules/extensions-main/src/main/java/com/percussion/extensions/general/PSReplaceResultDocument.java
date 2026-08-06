@@ -81,7 +81,7 @@ public class PSReplaceResultDocument implements IPSResultDocumentProcessor {
     }
 
     Object defaultRequest = params[0];
-    HashMap reqMap = new HashMap();
+    HashMap<String, Object> reqMap = new HashMap<>();
     try {
       Object condValue, requestName;
       // Store the option-value pairs in a hashmap.

@@ -75,14 +75,14 @@ public class PSQueryExtensions extends PSSimpleJavaUdfExtension {
     }
 
     PSExtensionManager mgr = (PSExtensionManager) PSServer.getExtensionManager(null);
-    Iterator iterator;
+    Iterator<PSExtensionRef> iterator;
     try {
       iterator = mgr.getExtensionNames(null, null, interfacePattern, extensionNamePattern);
     } catch (PSExtensionException e) {
       throw new PSConversionException(0, "Problem querying extensions: " + e.getLocalizedMessage());
     }
     while (iterator.hasNext()) {
-      PSExtensionRef exit = (PSExtensionRef) iterator.next();
+      PSExtensionRef exit = iterator.next();
       Element xfaceEl = doc.createElement("extension");
       Node text = doc.createTextNode(exit.getFQN());
       xfaceEl.setAttribute("name", exit.getExtensionName());

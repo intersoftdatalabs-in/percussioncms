@@ -331,9 +331,9 @@ public class PSExtensionParamsHelper {
 
     if (params != null) {
       int index = 0;
-      Iterator names = extensionDef.getRuntimeParameterNames();
+      Iterator<String> names = extensionDef.getRuntimeParameterNames();
       while (names.hasNext()) {
-        String name = (String) names.next();
+        String name = names.next();
 
         if (params.length > index) {
           Object p = params[index];

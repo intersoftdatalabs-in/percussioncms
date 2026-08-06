@@ -22,7 +22,6 @@ import com.percussion.i18n.PSI18nUtils;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,7 +59,10 @@ public class PSLocalizedTextLookupUser extends PSSimpleJavaUdfExtension {
                     PSI18nUtils.USER_CONTEXT_VAR_SYS_LANG, PSI18nUtils.DEFAULT_LANG)
                 .toString();
       }
-      List list = new ArrayList(Arrays.asList(parm1));
+      List<String> list = new ArrayList<>(parm1.length);
+      for (Object key : parm1) {
+        list.add(key == null ? null : key.toString());
+      }
 
       return PSI18nUtils.getString(PSI18nUtils.makeLookupKey(list), lang);
     } catch (Exception e) {
