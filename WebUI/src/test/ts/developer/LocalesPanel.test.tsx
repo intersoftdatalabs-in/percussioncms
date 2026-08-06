@@ -5,8 +5,10 @@
 import React from "react";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { SessionRedirectError } from "../../../main/ts/api/client";
 import { getLocaleDetail, listLocales } from "../../../main/ts/api/developer/localesApi";
 import { LocalesPanel } from "../../../main/ts/developer/LocalesPanel";
+import { DEV_MSG } from "../../../main/ts/developer/messages";
 
 vi.mock("../../../main/ts/api/developer/localesApi", () => ({
   listLocales: vi.fn(),
@@ -18,6 +20,9 @@ const detailMock = vi.mocked(getLocaleDetail);
 
 describe("LocalesPanel", () => {
   beforeEach(() => {
+    (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
+      message: (key: string) => key,
+    };
     listMock.mockReset();
     detailMock.mockReset();
   });
@@ -92,11 +97,57 @@ describe("LocalesPanel", () => {
     expect(screen.getByTestId("developer-loc-gaps")).toBeTruthy();
   });
 
-  it("shows error UI when list fails", async () => {
-    listMock.mockRejectedValue({ status: 500, statusText: "Error" });
+  it("shows empty state when API returns no locales", async () => {
+    listMock.mockResolvedValue([]);
+    render(<LocalesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-empty")).toBeTruthy();
+    });
+  });
+
+  it("shows session-redirect message via panelErrMsg", async () => {
+    listMock.mockRejectedValue(new SessionRedirectError());
     render(<LocalesPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-loc-error")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-loc-error").textContent).toBe(DEV_MSG.SESSION_REDIRECT);
+    expect(screen.queryByTestId("developer-loc-empty")).toBeNull();
+  });
+
+  it("shows ApiError status via panelErrMsg", async () => {
+    listMock.mockRejectedValue({
+      status: 500,
+      statusText: "Internal Server Error",
+      body: null,
+    });
+    render(<LocalesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-loc-error").textContent).toBe(
+      `${DEV_MSG.LOC_ERROR} (500)`,
+    );
+  });
+
+  it("shows Error.message via panelErrMsg", async () => {
+    listMock.mockRejectedValue(new Error("network down"));
+    render(<LocalesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-loc-error").textContent).toBe(
+      `${DEV_MSG.LOC_ERROR} network down`,
+    );
+    expect(screen.queryByTestId("developer-loc-table")).toBeNull();
+  });
+
+  it("shows fallback when rejection has no message", async () => {
+    listMock.mockRejectedValue("boom");
+    render(<LocalesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-loc-error").textContent).toBe(DEV_MSG.LOC_ERROR);
   });
 });
