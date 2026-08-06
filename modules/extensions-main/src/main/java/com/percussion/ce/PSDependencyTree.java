@@ -36,6 +36,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -76,7 +77,7 @@ public class PSDependencyTree implements IPSResultDocumentProcessor {
   public Document processResultDocument(Object[] params, IPSRequestContext request, Document resDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
     Map<String, Object> htmlParams = request.getParameters();
-    ArrayList itemsRendered = new ArrayList();
+    List<String> itemsRendered = new ArrayList<>();
     PSXmlTreeWalker walker = new PSXmlTreeWalker(resDoc);
     try {
       String indent = INDENT;
@@ -87,13 +88,14 @@ public class PSDependencyTree implements IPSResultDocumentProcessor {
           request.getParameter(
               IPSHtmlParameters.SYS_RELATIONSHIPTYPE, PSRelationshipConfig.TYPE_RELATED_CONTENT);
 
-      Iterator configs = PSRelationshipCommandHandler.getRelationshipConfigs();
+      Iterator<PSRelationshipConfig> configs =
+          PSRelationshipCommandHandler.getRelationshipConfigs();
       Element parent =
           PSXmlDocumentBuilder.addEmptyElement(
               resDoc, resDoc.getDocumentElement(), "Relationships");
       parent.setAttribute("showRelationshiptype", relationshiptype);
       while (configs.hasNext()) {
-        PSRelationshipConfig config = (PSRelationshipConfig) configs.next();
+        PSRelationshipConfig config = configs.next();
         Element relationship =
             PSXmlDocumentBuilder.addElement(resDoc, parent, "Relationship", config.getName());
         if (config.getName().equals(relationshiptype)) relationship.setAttribute("selected", "yes");
@@ -131,7 +133,7 @@ public class PSDependencyTree implements IPSResultDocumentProcessor {
    * @param url the URL object for the child or parent item of the current item
    */
   private void processUrl(
-      ArrayList itemsRendered,
+      List<String> itemsRendered,
       String indent,
       Element parent,
       IPSRequestContext request,
@@ -183,8 +185,8 @@ public class PSDependencyTree implements IPSResultDocumentProcessor {
     }
   }
 
-  private HashMap parseUrlForParams(String url) {
-    HashMap map = new HashMap();
+  private Map<String, Object> parseUrlForParams(String url) {
+    Map<String, Object> map = new HashMap<>();
     int loc = url.indexOf('?');
     if (loc == -1) return map;
 

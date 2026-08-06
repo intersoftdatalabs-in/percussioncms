@@ -128,7 +128,7 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
     PSRelationshipProcessor relProxy;
 
     relProxy = PSRelationshipProcessor.getInstance();
-    Map siteFolderRoot = initializeSiteFolderRootMap(request);
+    Map<String, String> siteFolderRoot = initializeSiteFolderRootMap(request);
     if (siteFolderRoot.size() < 1) {
       String msg =
           ms_className
@@ -142,7 +142,7 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
     NodeList nl = doc.getElementsByTagName(LINKURL);
     for (int i = nl.getLength() - 1; i >= 0; i--) {
       Element linkurl = (Element) nl.item(i);
-      Map linkparams = validateLinkUrl(request, linkurl);
+      Map<String, String> linkparams = validateLinkUrl(request, linkurl);
       if (linkparams == null) {
         nl.item(i).getParentNode().removeChild(nl.item(i));
         continue;
@@ -172,7 +172,7 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
    * @return Map of required parameters for filtering the linkurl or <code>
    * null</code> if any of the required parameter is missing.
    */
-  private Map validateLinkUrl(IPSRequestContext request, Element linkurl) {
+  private Map<String, String> validateLinkUrl(IPSRequestContext request, Element linkurl) {
     if (request == null) throw new IllegalArgumentException("request must not be null");
     if (linkurl == null) throw new IllegalArgumentException("linkurl must not be null");
     Map<String, String> params = null;
@@ -243,7 +243,7 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
       return params;
     }
 
-    Map rcurlparams = null;
+    Map<String, Object> rcurlparams = null;
     try {
       rcurlparams = PSParseUrlQueryString.parseParameters(rcurl);
     } catch (PSRequestParsingException e) {
@@ -290,7 +290,7 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
    * @throws PSExtensionProcessingException, if there are any errors getting the Site and Folder
    *     information from Rhythmyx resource {@link #LOOKUP_SITE_FOLDER_ROOT}
    */
-  private Map initializeSiteFolderRootMap(IPSRequestContext request)
+  private Map<String, String> initializeSiteFolderRootMap(IPSRequestContext request)
       throws PSExtensionProcessingException {
     if (request == null) throw new IllegalArgumentException("request must not be null");
     Map<String, String> siteFolderRoot = new HashMap<>();
@@ -431,8 +431,8 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
   private boolean isValidLinkBySiteID(
       IPSRequestContext request,
       PSRelationshipProcessor relProxy,
-      Map siteFolderRoot,
-      Map linkparams,
+      Map<String, String> siteFolderRoot,
+      Map<String, String> linkparams,
       Element linkurl)
       throws PSExtensionProcessingException {
     if (request == null) throw new IllegalArgumentException("request must not be null");
@@ -441,7 +441,7 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
       throw new IllegalArgumentException("siteFolderRoot must not be null");
     if (linkparams == null) throw new IllegalArgumentException("linkparams must not be null");
     if (linkurl == null) throw new IllegalArgumentException("linkurl must not be null");
-    String siteid = (String) linkparams.get(IPSHtmlParameters.SYS_SITEID);
+    String siteid = linkparams.get(IPSHtmlParameters.SYS_SITEID);
     if (!siteFolderRoot.containsKey(siteid)) {
       String msg =
           "Removed linkurl : \nReason: No "
@@ -453,8 +453,8 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
       request.printTraceMessage(msg);
       return false;
     }
-    String contentId = (String) linkparams.get(CONTENTID);
-    String siteFolderPath = (String) siteFolderRoot.get(siteid);
+    String contentId = linkparams.get(CONTENTID);
+    String siteFolderPath = siteFolderRoot.get(siteid);
     // Normalize to end with /
     if (!siteFolderPath.endsWith("/")) siteFolderPath += "/";
     try {
@@ -524,9 +524,9 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
   private boolean isValidLinkByFolderID(
       IPSRequestContext request,
       PSRelationshipProcessor relProxy,
-      Map siteFolderRoot,
-      Map folderPaths,
-      Map linkparams,
+      Map<String, String> siteFolderRoot,
+      Map<String, String> folderPaths,
+      Map<String, String> linkparams,
       Element linkurl)
       throws PSExtensionProcessingException {
     if (request == null) throw new IllegalArgumentException("request must not be null");
@@ -535,12 +535,12 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
       throw new IllegalArgumentException("siteFolderRoot must not be null");
     if (linkparams == null) throw new IllegalArgumentException("linkparams must not be null");
     if (linkurl == null) throw new IllegalArgumentException("linkurl must not be null");
-    String folderId = (String) linkparams.get(IPSHtmlParameters.SYS_FOLDERID);
+    String folderId = linkparams.get(IPSHtmlParameters.SYS_FOLDERID);
     // If there is no sys_folderid attribute on the link we
     // can not validate this linkurl based on the folderid,
     // and we assume it as a right link
     if (folderId.trim().length() < 1) return true;
-    String folderPath = (String) folderPaths.get(folderId);
+    String folderPath = folderPaths.get(folderId);
     // Check 1: Folder exists or not check
     if (folderPath == null) {
       String msg =
@@ -553,8 +553,8 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
       request.printTraceMessage(msg);
       return false;
     }
-    String siteId = (String) linkparams.get(IPSHtmlParameters.SYS_SITEID);
-    String sitePath = (String) siteFolderRoot.get(siteId);
+    String siteId = linkparams.get(IPSHtmlParameters.SYS_SITEID);
+    String sitePath = siteFolderRoot.get(siteId);
     // Check 2: Folder exists under the specified site or not
     if (!(folderPath.equals(sitePath) || folderPath.startsWith(sitePath + "/"))) {
       String msg =
@@ -569,7 +569,7 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
       request.printTraceMessage(msg);
       return false;
     }
-    String contentId = (String) linkparams.get(CONTENTID);
+    String contentId = linkparams.get(CONTENTID);
     // Try to get the folder relationship between the folderid and
     // contentid and if it exists it is the child of the that folder.
     PSRelationshipFilter filter = new PSRelationshipFilter();
@@ -626,12 +626,13 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
    * @throws PSExtensionProcessingException When there is an error making an internal request to
    *     find the publishable variant.
    */
-  private boolean isValidLinkByVariant(IPSRequestContext request, Map linkparams, Element linkurl)
+  private boolean isValidLinkByVariant(
+      IPSRequestContext request, Map<String, String> linkparams, Element linkurl)
       throws PSExtensionProcessingException {
     if (request == null) throw new IllegalArgumentException("request must not be null");
     if (linkparams == null) throw new IllegalArgumentException("linkparams must not be null");
     if (linkurl == null) throw new IllegalArgumentException("linkurl must not be null");
-    String variantId = (String) linkparams.get(VARIANTID);
+    String variantId = linkparams.get(VARIANTID);
     IPSAssemblyService assembly = PSAssemblyServiceLocator.getAssemblyService();
     // Get the info of the variant we are interested in
     IPSAssemblyTemplate template;
@@ -659,14 +660,14 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
     // We can filter it only if it is page variant
     if (template.getOutputFormat().ordinal() != 1) return true;
     // Now it is the time to see whether the page variant is publishable or not
-    String siteId = (String) linkparams.get(IPSHtmlParameters.SYS_SITEID);
+    String siteId = linkparams.get(IPSHtmlParameters.SYS_SITEID);
     // Get the content id from the linkurl
-    String contentId = (String) linkparams.get(CONTENTID);
-    String revision = (String) linkparams.get(IPSHtmlParameters.SYS_REVISION);
+    String contentId = linkparams.get(CONTENTID);
+    String revision = linkparams.get(IPSHtmlParameters.SYS_REVISION);
     // Make use of the publishable variant list from the content list
     // generator resource to decide the link url variant is a publishable
     // variant or not
-    Map reqParams = new HashMap();
+    Map<String, Object> reqParams = new HashMap<>();
     reqParams.put(IPSHtmlParameters.SYS_CONTENTID, contentId);
     reqParams.put(IPSHtmlParameters.SYS_SITEID, siteId);
     reqParams.put(IPSHtmlParameters.SYS_REVISION, revision);

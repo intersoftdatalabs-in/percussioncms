@@ -669,7 +669,8 @@ public class PSSqlHelper {
    * @param dataType The jdbc datatype, on of the constant values from {@link java.sql.Types}.
    * @throws IllegalArgumentException if any parameter is invalid.
    * @throws SQLException if an error occurs.
-   * @throws com.percussion.data.PSDataExtractionException if the value cannot be coerced to the JDBC type
+   * @throws com.percussion.data.PSDataExtractionException if the value cannot be coerced to the
+   *     JDBC type
    */
   public static void setDataFromNumber(
       PreparedStatement stmt, int bindStart, Number value, int dataType)

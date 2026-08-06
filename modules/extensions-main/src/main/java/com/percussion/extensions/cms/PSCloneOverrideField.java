@@ -66,7 +66,7 @@ public class PSCloneOverrideField extends PSSimpleJavaUdfExtension {
     loc = resource.lastIndexOf("/", loc - 1);
     resource = resource.substring(loc + 1);
 
-    Map paramMap = new HashMap();
+    Map<String, Object> paramMap = new HashMap<>();
     for (int i = 2; i < params.length; i = i + 2) {
       String name = params[i].toString();
       String value = "";

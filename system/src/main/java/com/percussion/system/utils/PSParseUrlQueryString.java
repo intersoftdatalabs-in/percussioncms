@@ -39,14 +39,15 @@ public class PSParseUrlQueryString {
    * @throws IllegalArgumentException if paramString is <code>null</code>
    * @throws PSRequestParsingException if an error occurs parsing the parameters.
    */
-  public static Map parseParameters(String paramString) throws PSRequestParsingException {
+  public static Map<String, Object> parseParameters(String paramString)
+      throws PSRequestParsingException {
     if (paramString == null) throw new IllegalArgumentException("paramString can not be null");
     String curTok;
     String curValue = "";
     String curName = null;
     String lastTok = STR_URLENCODING_PARAM_TOKEN;
-    Map params =
-        new HashMap() {
+    Map<String, Object> params =
+        new HashMap<String, Object>() {
           /**
            * Maps the specified value to the specified key. If a mapping already exists, an <code>
            * ArrayList</code> of all values for the key is mapped.
@@ -57,14 +58,15 @@ public class PSParseUrlQueryString {
            *     no mapping for key. A <code>null</code> return can also indicate that the HashMap
            *     previously associated <code>null</code> with the specified key.
            */
-          public Object put(Object key, Object value) {
+          @Override
+          public Object put(String key, Object value) {
             Object oldValue = super.put(key, value);
             if (oldValue != null) {
               if (oldValue instanceof ArrayList) {
-                ((ArrayList) oldValue).add(value);
+                ((ArrayList<Object>) oldValue).add(value);
                 super.put(key, oldValue);
               } else {
-                ArrayList l = new ArrayList();
+                ArrayList<Object> l = new ArrayList<>();
                 l.add(oldValue);
                 l.add(value);
                 super.put(key, l);

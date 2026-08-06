@@ -119,8 +119,8 @@ public class PSAuthenticateUser implements IPSRequestPreProcessor {
    * @return list of user communities (community ids) as Java List object never <code>null</code>
    *     may be empty.
    */
-  private List getUserCommunities(IPSRequestContext request) throws Exception {
-    ArrayList list = new ArrayList();
+  private List<String> getUserCommunities(IPSRequestContext request) throws Exception {
+    List<String> list = new ArrayList<>();
     // Make an internal request to get the user roles.
     IPSInternalRequest iReq = request.getInternalRequest(IREQ_USERCOMMUNITIES);
     Document doc = null;
@@ -169,18 +169,18 @@ public class PSAuthenticateUser implements IPSRequestPreProcessor {
       throws Exception {
     if (srcAttrName == null) return null;
     String attrValue = null;
-    List roles = request.getSubjectRoles();
+    List<String> roles = request.getSubjectRoles();
     Object role = null;
-    List roleAttribs = null;
+    List<PSAttribute> roleAttribs = null;
     PSAttribute attr = null;
-    List attrList = null;
+    List<String> attrList = null;
     String attrName = null;
     for (int i = 0; roles != null && i < roles.size(); i++) {
       role = roles.get(i);
       if (role == null) continue;
       roleAttribs = request.getRoleAttributes(role.toString().trim());
       for (int j = 0; roleAttribs != null && j < roleAttribs.size(); j++) {
-        attr = (PSAttribute) roleAttribs.get(j);
+        attr = roleAttribs.get(j);
         if (attr == null) continue;
         attrName = attr.getName();
         if (attrName.equals(srcAttrName)) {

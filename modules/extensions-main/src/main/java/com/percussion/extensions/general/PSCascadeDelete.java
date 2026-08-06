@@ -165,7 +165,7 @@ public class PSCascadeDelete extends PSDefaultExtension implements IPSRequestPre
     String url = params[1].toString().trim();
 
     // build params map
-    HashMap paramMap = new HashMap();
+    Map<String, String> paramMap = new HashMap<>();
     int paramMaxIndex = params.length - 1;
     for (int paramIndex = 2; paramIndex < paramMaxIndex; paramIndex += 2) {
       Object key = params[paramIndex];
@@ -181,15 +181,15 @@ public class PSCascadeDelete extends PSDefaultExtension implements IPSRequestPre
     try {
       // get the node set corresponding to the deleted rows of the parent table
       PSXPathEvaluator xp = new PSXPathEvaluator(inputDoc);
-      Iterator it = xp.enumerate(xpath, false);
+      Iterator<Node> it = xp.enumerate(xpath, false);
       while (it.hasNext()) {
         // for each node, evaluate the html param values
-        Node node = (Node) it.next();
+        Node node = it.next();
         PSXPathEvaluator xpNode = new PSXPathEvaluator(node);
-        Map nodeParamMap = new HashMap(paramMap);
-        Iterator paramIt = nodeParamMap.entrySet().iterator();
+        Map<String, Object> nodeParamMap = new HashMap<>(paramMap);
+        Iterator<Map.Entry<String, Object>> paramIt = nodeParamMap.entrySet().iterator();
         while (paramIt.hasNext()) {
-          Map.Entry item = (Map.Entry) paramIt.next();
+          Map.Entry<String, Object> item = paramIt.next();
           String strVal = (String) item.getValue();
           try {
             String newVal = xpNode.evaluate(strVal);

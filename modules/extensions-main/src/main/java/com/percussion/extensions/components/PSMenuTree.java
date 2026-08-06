@@ -30,6 +30,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -82,7 +83,7 @@ public class PSMenuTree implements IPSResultDocumentProcessor {
     if (rxAppResource.startsWith("/")) rxAppResource = rxAppResource.substring(1);
 
     Map<String, Object> htmlParams = request.getParameters();
-    ArrayList itemsRendered = new ArrayList();
+    List<String> itemsRendered = new ArrayList<>();
     Element elem = resDoc.getDocumentElement();
     String temp = elem.getAttribute("id").trim();
     if (temp.length() < 1) return resDoc;
@@ -111,11 +112,11 @@ public class PSMenuTree implements IPSResultDocumentProcessor {
    * @param rxAppResource the Rhythmyx application resource for making internal request.
    */
   private void processItem(
-      ArrayList itemsRendered, Element parent, IPSRequestContext request, String rxAppResource) {
+      List<String> itemsRendered, Element parent, IPSRequestContext request, String rxAppResource) {
     try {
       NodeList nl = parent.getChildNodes();
       if (nl == null || nl.getLength() < 1) return;
-      HashMap params = new HashMap();
+      Map<String, Object> params = new HashMap<>();
       Element elemItem = null;
       Element elemRes = null;
       String id = "";

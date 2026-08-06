@@ -221,7 +221,7 @@ public class PSXPathEvaluator {
    * @return an iterator of nodes in the nodeset obtained by evaluating the XPath expression, never
    *     <code>null</code>, may be empty
    */
-  public Iterator enumerate(String xpath, boolean sorted) throws XPathException {
+  public Iterator<Node> enumerate(String xpath, boolean sorted) throws XPathException {
     if (xpath == null || xpath.trim().length() == 0)
       throw new IllegalArgumentException("xpath may not be null or empty");
 

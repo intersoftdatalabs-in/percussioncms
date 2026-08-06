@@ -62,7 +62,7 @@ public class PSDatabasePublisher implements IPSResultDocumentProcessor {
     if (ms_paramCount == NOT_INITIALIZED) {
       ms_paramCount = 0;
 
-      Iterator iter = extensionDef.getRuntimeParameterNames();
+      Iterator<String> iter = extensionDef.getRuntimeParameterNames();
       while (iter.hasNext()) {
         iter.next();
         ms_paramCount++;
@@ -146,8 +146,8 @@ public class PSDatabasePublisher implements IPSResultDocumentProcessor {
    * @return a map of alias String objects as key and name String objects as value, never <code>null
    *     </code>, might be empty.
    */
-  private Map getAliasMap(Element aliases) {
-    Map aliasMap = new HashMap();
+  private Map<String, String> getAliasMap(Element aliases) {
+    Map<String, String> aliasMap = new HashMap<>();
     if (aliases != null) {
       NodeList nodes = aliases.getElementsByTagName(ALIAS_ELEM);
       for (int i = 0; i < nodes.getLength(); i++) {
@@ -168,7 +168,7 @@ public class PSDatabasePublisher implements IPSResultDocumentProcessor {
    *     <code>null</code> or empty.
    */
   private String resolveAlias(String alias) {
-    if (m_aliasMap != null && m_aliasMap.containsKey(alias)) return (String) m_aliasMap.get(alias);
+    if (m_aliasMap != null && m_aliasMap.containsKey(alias)) return m_aliasMap.get(alias);
 
     return alias;
   }
@@ -417,7 +417,7 @@ public class PSDatabasePublisher implements IPSResultDocumentProcessor {
    * A map of alias String objects as key and name String objects as value. Initialized if <code>
    * processResultDocument</code>, never <code>null</code> after that, might be empty.
    */
-  private Map m_aliasMap = null;
+  private Map<String, String> m_aliasMap = null;
 
   /**
    * All constants following define elements, attributes or attribute values from the

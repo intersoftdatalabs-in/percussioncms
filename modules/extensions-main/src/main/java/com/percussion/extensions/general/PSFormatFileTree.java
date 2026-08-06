@@ -160,7 +160,7 @@ public class PSFormatFileTree extends PSDefaultExtension implements IPSResultDoc
    * @param pt parameter tracker contains parameters for this request.
    */
   private void ProcessResultDoc(Document resultDoc, ParamTracker pt) {
-    LinkedList feList = BuildNodeList(resultDoc, pt);
+    LinkedList<FileElement> feList = BuildNodeList(resultDoc, pt);
     Element parentNode = resultDoc.createElement(pt.getFileTreeName());
     resultDoc.getDocumentElement().appendChild(parentNode);
 
@@ -176,8 +176,8 @@ public class PSFormatFileTree extends PSDefaultExtension implements IPSResultDoc
    * @param pt the parameter tracking block, contains instance parameters
    * @return a java.util.LinkedList of FileElement objects
    */
-  private LinkedList BuildNodeList(Document resultDoc, ParamTracker pt) {
-    LinkedList nodeList = new LinkedList();
+  private LinkedList<FileElement> BuildNodeList(Document resultDoc, ParamTracker pt) {
+    LinkedList<FileElement> nodeList = new LinkedList<>();
     PSXmlTreeWalker filelistWalker = new PSXmlTreeWalker(resultDoc);
     String inputList = pt.getInputListName();
     if (!filelistWalker.getCurrent().getNodeName().equals(inputList)) {
@@ -224,8 +224,8 @@ public class PSFormatFileTree extends PSDefaultExtension implements IPSResultDoc
    * @param pt paramm tracker object, assumed not <code>null</code>.
    */
   private void ProcessNodeList(
-      LinkedList nodeList, Element parentNode, int level, ParamTracker pt) {
-    LinkedList childList = new LinkedList();
+      LinkedList<FileElement> nodeList, Element parentNode, int level, ParamTracker pt) {
+    LinkedList<FileElement> childList = new LinkedList<>();
     Document ownerDoc = parentNode.getOwnerDocument();
     String pathName;
     String prevPathName = null;
@@ -235,7 +235,7 @@ public class PSFormatFileTree extends PSDefaultExtension implements IPSResultDoc
     if (nodeList.size() == 0) {
       return;
     }
-    FileElement fe = (FileElement) nodeList.removeFirst();
+    FileElement fe = nodeList.removeFirst();
     while (fe != null) {
       pathName = fe.getNextPathName();
       if (!fe.hasPathElements()) {
@@ -281,7 +281,7 @@ public class PSFormatFileTree extends PSDefaultExtension implements IPSResultDoc
         }
       }
 
-      fe = (nodeList.size() > 0) ? (FileElement) nodeList.removeFirst() : null;
+      fe = (nodeList.size() > 0) ? nodeList.removeFirst() : null;
     }
     if (childList.size() > 0) {
       // there are outstanding items to process

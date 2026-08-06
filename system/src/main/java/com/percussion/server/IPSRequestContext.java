@@ -17,6 +17,7 @@
 package com.percussion.server;
 
 import com.percussion.data.PSDataExtractionException;
+import com.percussion.design.objectstore.PSAttribute;
 import com.percussion.design.objectstore.PSSubject;
 import com.percussion.security.PSNotificationEmailAddress;
 import com.percussion.security.PSSecurityToken;
@@ -689,7 +690,7 @@ public interface IPSRequestContext {
    * @throws IllegalArgumentException If <code>roleName</code> is <code>null</code> or empty.
    * @since 4.0
    */
-  public List<String> getRoleAttributes(String roleName);
+  public List<PSAttribute> getRoleAttributes(String roleName);
 
   /**
    * Gets only the global attributes for a set of subjects.
