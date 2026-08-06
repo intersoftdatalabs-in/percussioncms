@@ -46,6 +46,7 @@ const {
   BASE_URL,
   adminBasicAuthHeaders,
 } = require("./helpers/auth");
+const { catalogRowsSelector } = require("./helpers/developer-catalog-selectors");
 
 /**
  * @type {{
@@ -324,11 +325,14 @@ async function assertContentTypesRowsUsable(page) {
   const table = page.locator('[data-testid="developer-ct-table"]');
   await expect(table).toBeVisible({ timeout: 10_000 });
 
-  const rows = table.locator('[data-testid="developer-ct-row"]');
+  // WebUI SimpleCatalogTable uses indexed testids: developer-ct-row-0, …
+  // (Vitest: getByTestId("developer-ct-row-0")). Bare developer-ct-row never
+  // matches — matrix #2185 / harden #2186.
+  const rows = table.locator(catalogRowsSelector("developer-ct-row"));
   const rowCount = await rows.count();
   expect(
     rowCount,
-    "content type table should have at least one row when panel is shown",
+    "content type table should have at least one indexed row (developer-ct-row-N) when panel is shown",
   ).toBeGreaterThan(0);
 
   // Body cells only (skip thead). Placeholder UI uses em dash / hyphen when

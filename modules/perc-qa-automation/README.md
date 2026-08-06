@@ -113,6 +113,26 @@ python docker\scripts\perc-devctl.py qa-down
 **Hard bans:** do not commit passwords; do not hardcode host port `:9993` as the only URL
 (use freeport `TEST_CMS_URL` from `qa-up`).
 
+### Developer entry + critical catalogs smoke gate (#2188 / epic #2089)
+
+Inventory of Developer SPA entry + critical catalog specs that must be **green** or
+**skip-with-BUG** (durable issue URL) on H2 qa-up. Canonical list:
+`frontend/tests/helpers/developer-smoke-set.js`. Doc:
+[playwright-smoke-gate-2188.md](../../docs/developer-module/playwright-smoke-gate-2188.md).
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=… ADMIN_USERNAME=Admin ADMIN_PASSWORD=… npm run test:developer-smoke
+# list only (no CMS): npm run test:developer-smoke:list
+```
+
+| Item | Value |
+|------|--------|
+| Specs | golden + login + `developer-catalog-smoke` + `developer-template-source-viewer` |
+| npm | `npm run test:developer-smoke` |
+| Tags | `@smoke` (residuals use `test.skip` + `BUG:` + issue URL) |
+| Open residuals | #2186 content-types selectors; #2189 template list DTO |
+
 **Admin creds (QA):** default username `Admin` (`ADMIN_USERNAME`). Password comes
 from `qa-up` output, process env, or `docker exec` into the QA cell — **never
 commit secrets**. No passwords are stored in this repo.

@@ -22,13 +22,18 @@
  * navigated off the login page. This is the smallest possible end-to-end
  * check that the dev CMS is up, the form is rendered, the credentials are
  * valid, and the session is established.</p>
+ *
+ * <p>Tagged {@code @smoke} as auth entry baseline for Developer smoke gate
+ * #2188 / epic #2089 (matrix #2185: green on H2 qa-up).</p>
  */
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 
-test.describe("Admin login", () => {
-  test("logs in and lands on a non-login Rhythmyx page", async ({ page }) => {
+test.describe("Admin login @smoke", () => {
+  test("logs in and lands on a non-login Rhythmyx page @smoke", async ({
+    page,
+  }) => {
     test.setTimeout(30_000);
     await loginAsAdmin(page);
 
@@ -42,7 +47,7 @@ test.describe("Admin login", () => {
     expect(title.toLowerCase()).not.toContain("error");
   });
 
-  test("BASE_URL is auto-discovered", async () => {
+  test("BASE_URL is auto-discovered @smoke", async () => {
     expect(BASE_URL).toMatch(/^https?:\/\/[^/]+:\d+$/);
   });
 });
