@@ -151,8 +151,9 @@ describe("ExplorerTree", () => {
         onSelectFolder={() => undefined}
       />,
     );
+    // formatApiError (api/client) surfaces Error.message / body text when present.
     await waitFor(() =>
-      expect(screen.getByRole("alert")).toHaveTextContent(/Failed to load/),
+      expect(screen.getByRole("alert")).toHaveTextContent(/server down/),
     );
   });
 
