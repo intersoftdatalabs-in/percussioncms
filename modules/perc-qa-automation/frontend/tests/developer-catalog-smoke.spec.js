@@ -22,12 +22,15 @@
  * Content-types also asserts table body cells are not only empty / "—"
  * placeholders (empty DTOs); any other cell text counts as real data.
  *
- * Also includes **REST** probes for critical catalogs (slots, keywords) via
- * Basic auth + {@code RX_USEBASICAUTH} — residuals #2121 / #2124 after unit
- * slices #2115 / #2116.
+ * Also includes **REST** probes for critical catalogs via Basic auth +
+ * {@code RX_USEBASICAUTH}:
+ * - slots residual #2121 after unit-test slice #2115 / #2122
+ * - keywords residual #2124 after unit slice #2116 / #2125
+ * - searches + C-slice peers residual #2142 after unit slice #2127 (and common
+ *   jaxrs registration fix for views/cecontrols/serverconfigs/relationshiptypes)
  *
  * Entry: spa.jsp?entry=developer&section=<slug>
- * Refs #1690 (design-WS retargets #1700–#1704), #1694, #2121, #2124.
+ * Refs #1690 (design-WS retargets #1700–#1704), #1694, #2117, #2121, #2124, #2142.
  *
  * Live REST probe (after {@code perc-devctl qa-up}):
  * <pre>
@@ -94,88 +97,125 @@ function developerUrl(section) {
 }
 
 /**
- * Critical REST catalog residuals of #1694 slices A/B (#2121 slots, #2124 keywords).
+ * Critical REST catalog residuals under #1694 / #2117.
  *
- * Live H2 qa-up (2026-08-06):
- * - GET /Rhythmyx/services/slots → HTTP 200 Jackson {@code Slot} array
- * - GET /Rhythmyx/services/keywords → HTTP 200 Jackson {@code Keyword} array
- * - GET …/keywords?includeChoices=true → HTTP 200 with embedded choices
+ * Live H2 qa-up:
+ * - GET /services/slots → 200 Jackson {@code Slot} array (residual #2121)
+ * - GET /services/keywords → 200 {@code Keyword} (residual #2124)
+ * - GET /services/searches → 200 {@code SearchDef} (residual #2142). Was CXF
+ *   404 until restSearchResource listed on rest-jax-rs serviceBeans (same class
+ *   as #1714). Empty {@code SearchDef: []} is valid when no CX searches exist.
+ * - Peers views/cecontrols/serverconfigs/relationshiptypes share the same
+ *   missing-registration root and go green with the same sitemanage-beans fix.
  *
- * No product stack fix on either residual — static wiring healthy after unit
- * slices #2122 / #2125. Auth: Basic + {@code RX_USEBASICAUTH: true}.
- *
+ * Auth: {@code Authorization: Basic …} + {@code RX_USEBASICAUTH: true}.
  * Kept outside the SPA describe so page login beforeEach does not run.
  */
-test.describe("Developer catalog REST smoke (#2121 / #2124 / #1694)", () => {
-  test("REST: GET /services/slots returns 2xx (#2121)", async ({ request }) => {
-    test.setTimeout(30_000);
-    const headers = {
-      ...adminBasicAuthHeaders(),
-      Accept: "application/json",
-    };
-    const url = `${BASE_URL}/Rhythmyx/services/slots`;
-    const res = await request.get(url, { headers });
-    expect(
-      res.status(),
-      `GET ${url} must be 2xx (catalog residual #2121; was 500 on older QA)`,
-    ).toBeGreaterThanOrEqual(200);
-    expect(res.status(), `GET ${url} must not be error`).toBeLessThan(300);
+test.describe("Developer catalog REST smoke (#2121 / #2124 / #2142 / #1694)", () => {
+  /**
+   * @type {{
+   *   path: string,
+   *   wrapperKey: string,
+   *   issue: string,
+   *   nameFields?: string[],
+   * }[]}
+   */
+  const REST_CATALOGS = [
+    {
+      path: "slots",
+      wrapperKey: "Slot",
+      issue: "#2121",
+      nameFields: ["name", "label"],
+    },
+    {
+      path: "keywords",
+      wrapperKey: "Keyword",
+      issue: "#2124",
+      nameFields: ["label", "value", "description"],
+    },
+    {
+      path: "searches",
+      wrapperKey: "SearchDef",
+      issue: "#2142",
+      nameFields: ["name", "label"],
+    },
+    {
+      path: "views",
+      wrapperKey: "ViewDef",
+      issue: "#2144",
+      nameFields: ["name", "label"],
+    },
+    {
+      path: "cecontrols",
+      wrapperKey: "ControlDef",
+      issue: "#2149",
+      nameFields: ["name", "label"],
+    },
+    {
+      path: "serverconfigs",
+      wrapperKey: "ServerConfig",
+      issue: "#2151",
+      nameFields: ["name", "displayName", "fileName"],
+    },
+    {
+      path: "relationshiptypes",
+      wrapperKey: "RelationshipType",
+      issue: "#2152",
+      nameFields: ["name", "label"],
+    },
+    {
+      path: "locales",
+      wrapperKey: "Locale",
+      issue: "#2140",
+      nameFields: ["languageString", "displayName", "label"],
+    },
+    {
+      path: "extensions/catalog",
+      wrapperKey: "Extension",
+      issue: "#2146",
+      nameFields: ["name", "label"],
+    },
+  ];
 
-    const body = await res.json();
-    // Wire format is Jackson-wrapped list under "Slot" (see SlotSummary root).
-    const slots = Array.isArray(body) ? body : body?.Slot;
-    expect(
-      slots,
-      "slots response must be a JSON array or { Slot: [...] } wrapper",
-    ).toBeTruthy();
-    expect(Array.isArray(slots), "slots payload must be an array").toBe(true);
-    // Stock H2 / package install ships system + rff slots; empty list is still
-    // a valid 2xx catalog (adaptor findSlots → empty), but assert structure.
-    if (slots.length > 0) {
-      const first = slots[0];
+  for (const cat of REST_CATALOGS) {
+    test(`REST: GET /services/${cat.path} returns 2xx (${cat.issue})`, async ({
+      request,
+    }) => {
+      test.setTimeout(30_000);
+      const headers = {
+        ...adminBasicAuthHeaders(),
+        Accept: "application/json",
+      };
+      const url = `${BASE_URL}/Rhythmyx/services/${cat.path}`;
+      const res = await request.get(url, { headers });
       expect(
-        first.name || first.label,
-        "first slot should expose name or label",
-      ).toBeTruthy();
-    }
-  });
+        res.status(),
+        `GET ${url} must be 2xx (catalog residual ${cat.issue}; was 404/500 on older QA)`,
+      ).toBeGreaterThanOrEqual(200);
+      expect(res.status(), `GET ${url} must not be error`).toBeLessThan(300);
 
-  test("REST: GET /services/keywords returns 2xx (#2124)", async ({
-    request,
-  }) => {
-    test.setTimeout(30_000);
-    const headers = {
-      ...adminBasicAuthHeaders(),
-      Accept: "application/json",
-    };
-    const url = `${BASE_URL}/Rhythmyx/services/keywords`;
-    const res = await request.get(url, { headers });
-    expect(
-      res.status(),
-      `GET ${url} must be 2xx (catalog residual #2124; was 500 on older QA)`,
-    ).toBeGreaterThanOrEqual(200);
-    expect(res.status(), `GET ${url} must not be error`).toBeLessThan(300);
-
-    const body = await res.json();
-    // Wire format is Jackson-wrapped list under "Keyword" (KeywordSummary root).
-    const keywords = Array.isArray(body) ? body : body?.Keyword;
-    expect(
-      keywords,
-      "keywords response must be a JSON array or { Keyword: [...] } wrapper",
-    ).toBeTruthy();
-    expect(Array.isArray(keywords), "keywords payload must be an array").toBe(
-      true,
-    );
-    // Stock H2 ships design keywords (e.g. Adhoc_Type); empty list is still a
-    // valid 2xx catalog, but assert structure when data is present.
-    if (keywords.length > 0) {
-      const first = keywords[0];
+      const body = await res.json();
+      // Wire format is often Jackson-wrapped under the element name.
+      const rows = Array.isArray(body) ? body : body?.[cat.wrapperKey];
       expect(
-        first.label || first.value != null || first.description,
-        "first keyword should expose label, value, or description",
+        rows,
+        `${cat.path} response must be a JSON array or { ${cat.wrapperKey}: [...] } wrapper`,
       ).toBeTruthy();
-    }
-  });
+      expect(
+        Array.isArray(rows),
+        `${cat.path} payload must be an array`,
+      ).toBe(true);
+      // Empty catalog is still a valid 2xx (e.g. SearchDef:[] on stock H2).
+      if (rows.length > 0 && cat.nameFields?.length) {
+        const first = rows[0];
+        const hasLabel = cat.nameFields.some((f) => first?.[f] != null && first?.[f] !== "");
+        expect(
+          hasLabel,
+          `first ${cat.path} row should expose one of: ${cat.nameFields.join(", ")}`,
+        ).toBe(true);
+      }
+    });
+  }
 
   test("REST: GET /services/keywords?includeChoices=true returns 2xx with choices (#2124)", async ({
     request,
