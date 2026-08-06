@@ -29,6 +29,9 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const {
+  catalogRowSelector,
+} = require("./helpers/developer-catalog-selectors");
 
 function developerTemplatesUrl() {
   const q = new URLSearchParams({
@@ -75,10 +78,16 @@ test.describe("Developer template source viewer (#2088 UI-SRC-01)", () => {
       return;
     }
 
-    const openBtn = page
-      .locator('[data-testid="developer-tpl-row"] button')
-      .first();
-    await expect(openBtn).toBeVisible({ timeout: 15_000 });
+    // Indexed CatalogTable rows (developer-tpl-row-0 …); bare developer-tpl-row
+    // never matches WebUI. Prefer first-row open button so product detail/DTO
+    // failures (#2189) surface cleanly after this selector harden (#2186).
+    const firstRow = page.locator(catalogRowSelector("developer-tpl-row", 0));
+    await expect(firstRow).toBeVisible({ timeout: 15_000 });
+    const openBtn = firstRow.locator("button");
+    await expect(
+      openBtn,
+      "first template row should expose Open control when selectionKey is set",
+    ).toBeVisible({ timeout: 5_000 });
     await openBtn.click();
 
     await expect(
