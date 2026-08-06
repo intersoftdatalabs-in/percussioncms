@@ -42,6 +42,7 @@ import org.w3c.dom.Document;
  * parameter {@link com.percussion.system.utils.IPSHtmlParameters#SYS_COMMAND} in the request is not
  * {@link com.percussion.cms.handlers.PSModifyCommandHandler#COMMAND_NAME}
  */
+@SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
 public class PSAutoGenerateFileName extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
 

@@ -42,6 +42,7 @@ import org.w3c.dom.NodeList;
  *
  * @author James Schultz
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSExpandRecurringEvents extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
 

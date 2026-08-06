@@ -28,6 +28,7 @@ import java.util.List;
  *
  * @author DavidBenua
  */
+@SuppressWarnings({"rawtypes", "unchecked", "serial"})
 public class PSSqlInList extends ArrayList implements List {
   /**
    * Creates a list with a specificied capacity. The created object is {@link #TYPE_LITERAL}.

@@ -22,6 +22,7 @@ import java.util.Iterator;
  * Extension of {@link java.util.Iterator iterator} to specify the enent object and recurrence
  * value.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSRecurrenceIterator implements Iterator {
 
   /**

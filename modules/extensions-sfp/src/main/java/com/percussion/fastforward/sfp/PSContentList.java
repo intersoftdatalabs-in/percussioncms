@@ -35,6 +35,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Represents a publishing content list. */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSContentList {
   /**
    * Ctor that takes the publish context and delivery type. Calls {@link #PSContentList(String,

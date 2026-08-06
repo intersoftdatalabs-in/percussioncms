@@ -48,6 +48,7 @@ import org.w3c.dom.Document;
  * variants registered in the system. Add this extension to a content list generator resource. Items
  * will be touched regardless of their state.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSTouchAutoIndex extends PSDefaultExtension
     implements IPSResultDocumentProcessor, IPSRequestPreProcessor {
   /** Default constructor. */

@@ -52,6 +52,7 @@ import java.util.Set;
  * <p>This class collects all items for a given sites, then send a (batch) SQL statement to the
  * database, let the database figuring out the published items.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
   /**
    * Constructs a site-folder-driven, full-publishing, public-items content list builder.

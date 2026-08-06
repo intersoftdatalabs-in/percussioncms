@@ -36,6 +36,7 @@ import org.w3c.dom.NodeList;
  *
  * @author James Schultz
  */
+@SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
 public class PSHolidays {
 
   /**

@@ -44,6 +44,7 @@ import org.w3c.dom.NodeList;
  *
  * @author James Schultz
  */
+@SuppressWarnings({"rawtypes", "unchecked", "cast"})
 public class PSSite {
 
   /** Default constructor for PSSite. */

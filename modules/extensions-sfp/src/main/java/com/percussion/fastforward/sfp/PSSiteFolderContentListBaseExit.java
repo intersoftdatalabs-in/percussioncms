@@ -44,6 +44,7 @@ import org.w3c.dom.Document;
  *
  * @author James Schultz
  */
+@SuppressWarnings({"rawtypes", "unchecked", "cast"})
 public abstract class PSSiteFolderContentListBaseExit implements IPSResultDocumentProcessor {
 
   /** Default constructor for PSSiteFolderContentListBaseExit. */

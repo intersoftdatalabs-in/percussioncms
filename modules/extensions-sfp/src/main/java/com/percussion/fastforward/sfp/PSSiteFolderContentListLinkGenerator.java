@@ -36,6 +36,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /** Defines methods to generate various types of assembly locations. */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSiteFolderContentListLinkGenerator {
 
   /** Default constructor for PSSiteFolderContentListLinkGenerator. */

@@ -42,6 +42,7 @@ import org.apache.logging.log4j.Logger;
  * @author James Schultz
  * @since 6.0
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSCalendarMonthModel extends PSJexlUtilBase {
 
   /** Default constructor required by Jexl utility framework. */

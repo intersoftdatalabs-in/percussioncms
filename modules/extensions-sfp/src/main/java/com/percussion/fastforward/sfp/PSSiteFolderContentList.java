@@ -47,6 +47,7 @@ import org.w3c.dom.NodeList;
  *     PSSiteFolderCListBulk} instead.
  * @author James Schultz
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSiteFolderContentList extends PSSiteFolderCListBase {
   /**
    * Constructs a site-folder-driven, full-publishing, public-items content list builder.

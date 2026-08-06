@@ -59,6 +59,7 @@ import org.apache.logging.log4j.Logger;
  *       generated will start with /commonRoot/...
  * </ol>
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSiteFolderAssembly extends PSDefaultExtension
     implements IPSAssemblyLocation, IPSUdfProcessor {
 

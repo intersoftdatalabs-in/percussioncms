@@ -34,6 +34,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /** Represents a single content item/variant in a publishing content list. */
+@SuppressWarnings({"rawtypes", "unchecked", "static-method"})
 public class PSContentListItem implements Comparable {
   /**
    * Ctor taking all the attributes of a content list item to be published/previewed
