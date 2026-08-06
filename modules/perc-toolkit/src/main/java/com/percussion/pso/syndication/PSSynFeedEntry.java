@@ -19,8 +19,6 @@ package com.percussion.pso.syndication;
 import com.rometools.modules.mediarss.MediaEntryModule;
 import com.rometools.modules.mediarss.types.MediaContent;
 import com.rometools.rome.feed.synd.SyndCategory;
-import com.rometools.rome.feed.synd.SyndContent;
-import com.rometools.rome.feed.synd.SyndEnclosure;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndLink;
 import com.rometools.rome.feed.synd.SyndPerson;
@@ -54,7 +52,7 @@ public class PSSynFeedEntry {
    * Returns the entry authors.
    *
    */
-  public List getAuthorsList() {
+  public List<SyndPerson> getAuthorsList() {
     return entry.getAuthors();
   }
 
@@ -81,7 +79,7 @@ public class PSSynFeedEntry {
    * Returns the feed categories.
    *
    */
-  public List getCategoriesList() {
+  public List<SyndCategory> getCategoriesList() {
     return entry.getCategories();
   }
 
@@ -94,7 +92,7 @@ public class PSSynFeedEntry {
     SyndCategory a;
 
     for (int i = 0; i < entry.getCategories().size(); i++) {
-      a = (SyndCategory) entry.getCategories().get(i);
+      a = entry.getCategories().get(i);
       if (ret == "") ret = a.getName();
       else ret.concat("," + a.getName());
     }
@@ -121,7 +119,7 @@ public class PSSynFeedEntry {
     return ret;
   }
 
-  public List getContributorsList() {
+  public List<SyndPerson> getContributorsList() {
     return entry.getContributors();
   }
 
@@ -133,7 +131,7 @@ public class PSSynFeedEntry {
     String ret = "";
 
     for (int i = 0; i < entry.getContents().size(); i++) {
-      if (ret == "") ret = ((SyndContent) entry.getContents().get(i)).getValue();
+      if (ret == "") ret = entry.getContents().get(i).getValue();
       else ret = ret + "\r\n" + entry.getContents().get(i).getValue();
     }
     return ret;
@@ -156,7 +154,7 @@ public class PSSynFeedEntry {
     ArrayList<PSSynFeedEnclosure> ret = new ArrayList<PSSynFeedEnclosure>();
 
     for (int i = 0; i < entry.getEnclosures().size(); i++) {
-      ret.add(new PSSynFeedEnclosure((SyndEnclosure) entry.getEnclosures().get(i)));
+      ret.add(new PSSynFeedEnclosure(entry.getEnclosures().get(i)));
     }
     return ret;
   }
@@ -188,7 +186,7 @@ public class PSSynFeedEntry {
 
     mediaModule = (MediaEntryModule) entry.getModule(MediaEntryModule.URI);
     if (mediaModule != null && mediaModule instanceof MediaEntryModule) {
-      MediaEntryModule mentry = (MediaEntryModule) mediaModule;
+      MediaEntryModule mentry = mediaModule;
 
       for (MediaContent mc : mentry.getMediaContents()) {
         contents.add(new PSSynFeedMediaContent(mc));

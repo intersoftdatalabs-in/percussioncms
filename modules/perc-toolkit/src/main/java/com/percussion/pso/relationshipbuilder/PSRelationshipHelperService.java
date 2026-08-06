@@ -86,8 +86,6 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
       m_relationshipService = PSRelationshipServiceLocator.getRelationshipService();
     if (m_contentWs == null) m_contentWs = PSContentWsLocator.getContentWebservice();
     if (m_guidManager == null) m_guidManager = PSGuidManagerLocator.getGuidMgr();
-    if (m_contentManager == null)
-      ;
     m_contentManager = PSContentMgrLocator.getContentMgr();
   }
 
@@ -228,6 +226,7 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
    * @see com.percussion.pso.relationshipbuilder.IPSRelationshipHelperService#createEmptyRelationshipCollection()
    */
 
+  @SuppressWarnings("unchecked")
   private Collection<PSRelationship> createEmptyRelationshipCollection() {
     PSRelationshipSet relationshipSet = new PSRelationshipSet();
     return relationshipSet;

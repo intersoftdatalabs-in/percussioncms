@@ -124,9 +124,9 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "end", description = "the end index (exclusive)")
       },
       returns = "a subset of collection as a list")
-  public List sublist(Collection c, int start, int end) {
+  public <T> List<T> sublist(Collection<T> c, int start, int end) {
     log.debug("processing sublist(Collection c, int start, int end)");
-    List rvalue = new ArrayList();
+    List<T> rvalue = new ArrayList<>();
     if (c == null) {
       return rvalue;
     }
@@ -157,7 +157,9 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
       end = 0;
     }
 
-    rvalue = subListUnSafe(c, start, end);
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    List tmp = subListUnSafe(c, start, end);
+    rvalue = tmp;
     return rvalue;
   }
 
@@ -168,7 +170,7 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param end
    * @return a subset of the collection never <code>null</code>
    */
-  public List sublist(Collection c, String start, String end) {
+  public <T> List<T> sublist(Collection<T> c, String start, String end) {
     log.debug("processing sublist(Collection c, String start, String end)");
     int[] i = convertIndexs(start, end);
     return sublist(c, i[0], i[1]);
@@ -181,7 +183,7 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param end
    * @return a subset of the collection never <code>null</code>.
    */
-  public List sublist(Collection c, Number start, Number end) {
+  public <T> List<T> sublist(Collection<T> c, Number start, Number end) {
     log.debug("processing sublist(Collection c, Number start, Number end)");
     int[] i = convertIndexs(start, end);
     return sublist(c, i[0], i[1]);
@@ -194,13 +196,13 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param end
    * @return a subset of the collection never <code>null</code>.
    */
-  public List sublist(Object[] c, int start, int end) {
+  public <T> List<T> sublist(T[] c, int start, int end) {
     log.debug("processing sublist(Object[] c, int start, int end)");
-    List rvalue;
+    List<T> rvalue;
     if (c == null) {
-      rvalue = new ArrayList();
+      rvalue = new ArrayList<>();
     } else {
-      List tmpList = Arrays.asList(c);
+      List<T> tmpList = Arrays.asList(c);
       rvalue = sublist(tmpList, start, end);
     }
     return rvalue;
@@ -213,7 +215,7 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @return a subset of the collection never <code>null</code>.
    * @see #sublist(Collection, int, int)
    */
-  public List sublist(Object[] c, String start, String end) {
+  public <T> List<T> sublist(T[] c, String start, String end) {
     log.debug("processing sublist(Object[] c, String start, String end)");
     int[] i = convertIndexs(start, end);
     return sublist(c, i[0], i[1]);
@@ -233,18 +235,19 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
               + " the item.",
       params = {@IPSJexlParam(name = "value", description = "value ")},
       returns = "a list")
-  public List asList(Object single) {
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public List<Object> asList(Object single) {
     if (single == null) {
-      return new ArrayList();
+      return new ArrayList<>();
     } else if (single instanceof Collection) {
       Collection tmpCollection = (Collection) single;
-      List rvalue = new ArrayList();
+      List<Object> rvalue = new ArrayList<>();
       rvalue.addAll(tmpCollection);
       return rvalue;
     } else if (single instanceof Object[]) {
       return Arrays.asList((Object[]) single);
     } else {
-      ArrayList rvalue = new ArrayList();
+      List<Object> rvalue = new ArrayList<>();
       rvalue.add(single);
       return rvalue;
     }

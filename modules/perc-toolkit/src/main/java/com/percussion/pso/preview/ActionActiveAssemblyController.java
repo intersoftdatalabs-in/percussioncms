@@ -50,8 +50,9 @@ public class ActionActiveAssemblyController extends ActionPreviewController impl
   protected List<IPSAssemblyTemplate> findVisibleTemplates(String contentid, Set<IPSSite> sites)
       throws PSException, PSAssemblyException {
     initServices();
-    if (log.isDebugEnabled())
-      ; // do nothing for now
+    if (log.isDebugEnabled()) {
+      log.debug("Finding visible templates for active assembly");
+    }
     List<IPSAssemblyTemplate> templates = super.findVisibleTemplates(contentid, sites);
     List<IPSAssemblyTemplate> htmlTemplates = new ArrayList<IPSAssemblyTemplate>();
     for (IPSAssemblyTemplate template : templates) {
