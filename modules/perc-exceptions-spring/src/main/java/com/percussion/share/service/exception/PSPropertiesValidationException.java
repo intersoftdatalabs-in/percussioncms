@@ -27,6 +27,7 @@ import org.springframework.validation.MapBindingResult;
  *
  * @author adamgent
  */
+@SuppressWarnings({"serial", "this-escape"})
 public class PSPropertiesValidationException extends PSSpringValidationException {
 
   private static final long serialVersionUID = 1L;

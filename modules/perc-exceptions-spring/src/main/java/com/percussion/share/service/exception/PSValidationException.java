@@ -30,6 +30,7 @@ import com.percussion.share.validation.PSValidationErrors;
  * @see PSValidationErrors
  * @author adamgent
  */
+@SuppressWarnings({"serial", "this-escape"})
 public abstract class PSValidationException extends PSDataServiceException
     implements IPSValidationException {
 

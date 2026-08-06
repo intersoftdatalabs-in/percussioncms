@@ -24,6 +24,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
  *
  * @author adamgent
  */
+@SuppressWarnings("this-escape")
 public class PSBeanValidationException extends PSSpringValidationException {
 
   private static final long serialVersionUID = 8097878230304938879L;
