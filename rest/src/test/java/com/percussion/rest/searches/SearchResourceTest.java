@@ -5,7 +5,6 @@
 package com.percussion.rest.searches;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,19 +32,59 @@ public class SearchResourceTest {
   }
 
   @Test
-  public void listSearchesDelegates() {
+  public void listSearchesSuccess() {
     SearchDef s = new SearchDef();
     s.setName("All Content");
     when(adaptor.listSearches()).thenReturn(List.of(s));
     List<SearchDef> out = resource.listSearches();
     assertEquals(1, out.size());
     assertEquals("All Content", out.get(0).getName());
+    verify(adaptor).listSearches();
   }
 
   @Test
   public void listSearchesNullSafe() {
     when(adaptor.listSearches()).thenReturn(null);
     assertTrue(resource.listSearches().isEmpty());
+  }
+
+  @Test
+  public void listSearchesWrapsUnexpectedFailuresAs500() {
+    IllegalStateException boom = new IllegalStateException("boom");
+    when(adaptor.listSearches()).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.listSearches());
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnList() {
+    SearchResource bare = new SearchResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, bare::listSearches);
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnGet() {
+    // getSearch must rethrow WebApplicationException from requireAdaptor (not re-wrap as 500)
+    SearchResource bare = new SearchResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.getSearch("any"));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getSearchRethrowsWebApplicationException() {
+    WebApplicationException mapped = new WebApplicationException("from adaptor", 404);
+    when(adaptor.findSearchByKey(eq("xx"))).thenThrow(mapped);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getSearch("xx"));
+    assertSame(mapped, ex);
+    assertEquals(404, ex.getResponse().getStatus());
   }
 
   @Test
@@ -74,18 +113,5 @@ public class SearchResourceTest {
         assertThrows(WebApplicationException.class, () -> resource.getSearch("All Content"));
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause());
-  }
-
-  @Test
-  public void withoutInjectionFailsWithDiagnostic() {
-    SearchResource bare = new SearchResource();
-    WebApplicationException listEx =
-        assertThrows(WebApplicationException.class, bare::listSearches);
-    assertEquals(500, listEx.getResponse().getStatus());
-    assertInstanceOf(IllegalStateException.class, listEx.getCause());
-    WebApplicationException getEx =
-        assertThrows(WebApplicationException.class, () -> bare.getSearch("x"));
-    assertEquals(500, getEx.getResponse().getStatus());
-    assertInstanceOf(IllegalStateException.class, getEx.getCause());
   }
 }
