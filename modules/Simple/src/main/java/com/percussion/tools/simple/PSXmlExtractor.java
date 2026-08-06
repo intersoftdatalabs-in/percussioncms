@@ -288,6 +288,7 @@ public class PSXmlExtractor {
    * @return <code>null</code> if doc validates, an error message if not.
    * @throws IOException if any io error occurs
    */
+  @SuppressWarnings("rawtypes")
   private static String validate(Document doc, URL dtd) throws IOException {
     /*
      * add doctype for the dtd - need to read and write the doc line by line,
@@ -308,9 +309,9 @@ public class PSXmlExtractor {
         if (e instanceof PSSaxParseException) {
           result = "Document has failed to validate: \n";
 
-          Iterator<SAXParseException> errors = ((PSSaxParseException) e).getExceptions();
+          Iterator errors = ((PSSaxParseException) e).getExceptions();
           while (errors.hasNext()) {
-            SAXParseException spe = errors.next();
+            SAXParseException spe = (SAXParseException) errors.next();
             result +=
                 "Error: "
                     + spe.getLocalizedMessage()
