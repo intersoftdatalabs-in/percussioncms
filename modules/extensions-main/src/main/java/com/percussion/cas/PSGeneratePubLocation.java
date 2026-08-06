@@ -253,8 +253,8 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
       if (authtype == null || authtype.length() < 1)
         authtype = request.getParameter(IPSHtmlParameters.SYS_AUTHTYPE, "0");
 
-      Map htmlParams = PSHtmlParameters.createStandardParams(paramsBackup);
-      request.setParameters((HashMap) htmlParams);
+      Map<String, Object> htmlParams = PSHtmlParameters.createStandardParams(paramsBackup);
+      request.setParameters(new HashMap<>(htmlParams));
 
       /*
        * Use the parameters they provided. The variantid is always provided,
@@ -378,7 +378,7 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
       Number contentid,
       Number variantid,
       Number revision,
-      Map paramsBackup,
+      Map<String, Object> paramsBackup,
       Number siteid,
       Number folderid,
       String authtype,
@@ -605,7 +605,7 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
     String db = null;
     String schema = null;
     try {
-      ArrayList parameters = new ArrayList();
+      List<Object> parameters = new ArrayList<>();
       for (String pname : scheme.getParameterNames()) {
         String type = scheme.getParameterType(pname);
         String value = scheme.getParameterValue(pname);
@@ -646,10 +646,10 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
               ResultSetMetaData metaData = rs.getMetaData();
               PSTextLiteral literal = null;
               int dataType = metaData.getColumnType(1);
-              Map typeMap =
+              Map<String, Short> typeMap =
                   PSDatabaseMetaData.loadNativeDataTypeMap(connection, connection.getMetaData());
-              Object nativeType = typeMap.get(metaData.getColumnTypeName(1));
-              if (nativeType != null) dataType = ((Short) nativeType).intValue();
+              Short nativeType = typeMap.get(metaData.getColumnTypeName(1));
+              if (nativeType != null) dataType = nativeType.intValue();
               switch (dataType) {
                 case Types.CHAR:
                   // needs trim
@@ -682,7 +682,9 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
       }
 
       PSExtensionParamValue[] paramValues = new PSExtensionParamValue[parameters.size()];
-      paramValues = (PSExtensionParamValue[]) parameters.toArray(paramValues);
+      for (int i = 0; i < parameters.size(); i++) {
+        paramValues[i] = (PSExtensionParamValue) parameters.get(i);
+      }
       return paramValues;
     } finally {
       // release the database connection and any resources allocated

@@ -36,13 +36,13 @@ public class PSHtmlParameters {
    * @return a new map of HTML parameters using standard parameter names. Never <code>null</code>,
    *     might be empty.
    */
-  public static Map createStandardParams(Map params) {
-    Map standardParams = new HashMap();
+  public static Map<String, Object> createStandardParams(Map<String, Object> params) {
+    Map<String, Object> standardParams = new HashMap<>();
     if (params != null) {
-      Iterator entries = params.entrySet().iterator();
+      Iterator<Map.Entry<String, Object>> entries = params.entrySet().iterator();
       while (entries.hasNext()) {
-        Map.Entry entry = (Map.Entry) entries.next();
-        standardParams.put(toStandardName((String) entry.getKey()), entry.getValue());
+        Map.Entry<String, Object> entry = entries.next();
+        standardParams.put(toStandardName(entry.getKey()), entry.getValue());
       }
     }
 
