@@ -22,17 +22,18 @@
  * Content-types also asserts table body cells are not only empty / "—"
  * placeholders (empty DTOs); any other cell text counts as real data.
  *
- * Also includes a **REST** probe for critical catalogs (slots) via Basic auth +
- * {@code RX_USEBASICAUTH} — residual #2121 after unit-test slice #2115 / #2122.
+ * Also includes **REST** probes for critical catalogs (slots, keywords) via
+ * Basic auth + {@code RX_USEBASICAUTH} — residuals #2121 / #2124 after unit
+ * slices #2115 / #2116.
  *
  * Entry: spa.jsp?entry=developer&section=<slug>
- * Refs #1690 (design-WS retargets #1700–#1704), #1694, #2121.
+ * Refs #1690 (design-WS retargets #1700–#1704), #1694, #2121, #2124.
  *
  * Live REST probe (after {@code perc-devctl qa-up}):
  * <pre>
  *   cd modules/perc-qa-automation/frontend
  *   TEST_CMS_URL=… ADMIN_USERNAME=Admin ADMIN_PASSWORD=… \
- *     npm test -- tests/developer-catalog-smoke.spec.js -g "REST: GET /services/slots"
+ *     npm test -- tests/developer-catalog-smoke.spec.js -g "REST: GET /services/"
  * </pre>
  */
 
@@ -93,16 +94,19 @@ function developerUrl(section) {
 }
 
 /**
- * Critical REST catalog residual of #2115 / #1694 slice A (#2121).
+ * Critical REST catalog residuals of #1694 slices A/B (#2121 slots, #2124 keywords).
  *
- * Live H2 qa-up (2026-08-06): GET /Rhythmyx/services/slots → HTTP 200 with
- * Jackson-wrapped {@code Slot} array (stock rff* slots). No product stack
- * required beyond merged unit-test slice #2122 — wiring already healthy.
- * Auth: {@code Authorization: Basic …} + {@code RX_USEBASICAUTH: true}.
+ * Live H2 qa-up (2026-08-06):
+ * - GET /Rhythmyx/services/slots → HTTP 200 Jackson {@code Slot} array
+ * - GET /Rhythmyx/services/keywords → HTTP 200 Jackson {@code Keyword} array
+ * - GET …/keywords?includeChoices=true → HTTP 200 with embedded choices
+ *
+ * No product stack fix on either residual — static wiring healthy after unit
+ * slices #2122 / #2125. Auth: Basic + {@code RX_USEBASICAUTH: true}.
  *
  * Kept outside the SPA describe so page login beforeEach does not run.
  */
-test.describe("Developer catalog REST smoke (#2121 / #1694)", () => {
+test.describe("Developer catalog REST smoke (#2121 / #2124 / #1694)", () => {
   test("REST: GET /services/slots returns 2xx (#2121)", async ({ request }) => {
     test.setTimeout(30_000);
     const headers = {
@@ -132,6 +136,87 @@ test.describe("Developer catalog REST smoke (#2121 / #1694)", () => {
       expect(
         first.name || first.label,
         "first slot should expose name or label",
+      ).toBeTruthy();
+    }
+  });
+
+  test("REST: GET /services/keywords returns 2xx (#2124)", async ({
+    request,
+  }) => {
+    test.setTimeout(30_000);
+    const headers = {
+      ...adminBasicAuthHeaders(),
+      Accept: "application/json",
+    };
+    const url = `${BASE_URL}/Rhythmyx/services/keywords`;
+    const res = await request.get(url, { headers });
+    expect(
+      res.status(),
+      `GET ${url} must be 2xx (catalog residual #2124; was 500 on older QA)`,
+    ).toBeGreaterThanOrEqual(200);
+    expect(res.status(), `GET ${url} must not be error`).toBeLessThan(300);
+
+    const body = await res.json();
+    // Wire format is Jackson-wrapped list under "Keyword" (KeywordSummary root).
+    const keywords = Array.isArray(body) ? body : body?.Keyword;
+    expect(
+      keywords,
+      "keywords response must be a JSON array or { Keyword: [...] } wrapper",
+    ).toBeTruthy();
+    expect(Array.isArray(keywords), "keywords payload must be an array").toBe(
+      true,
+    );
+    // Stock H2 ships design keywords (e.g. Adhoc_Type); empty list is still a
+    // valid 2xx catalog, but assert structure when data is present.
+    if (keywords.length > 0) {
+      const first = keywords[0];
+      expect(
+        first.label || first.value != null || first.description,
+        "first keyword should expose label, value, or description",
+      ).toBeTruthy();
+    }
+  });
+
+  test("REST: GET /services/keywords?includeChoices=true returns 2xx with choices (#2124)", async ({
+    request,
+  }) => {
+    test.setTimeout(30_000);
+    const headers = {
+      ...adminBasicAuthHeaders(),
+      Accept: "application/json",
+    };
+    const url = `${BASE_URL}/Rhythmyx/services/keywords?includeChoices=true`;
+    const res = await request.get(url, { headers });
+    expect(
+      res.status(),
+      `GET ${url} must be 2xx (includeChoices residual #2124)`,
+    ).toBeGreaterThanOrEqual(200);
+    expect(res.status(), `GET ${url} must not be error`).toBeLessThan(300);
+
+    const body = await res.json();
+    const keywords = Array.isArray(body) ? body : body?.Keyword;
+    expect(
+      keywords,
+      "includeChoices response must be a JSON array or { Keyword: [...] }",
+    ).toBeTruthy();
+    expect(Array.isArray(keywords), "keywords payload must be an array").toBe(
+      true,
+    );
+
+    // When the catalog is non-empty, at least one stock keyword should embed a
+    // non-empty choices list (design-WS findKeywords + choice mapping).
+    if (keywords.length > 0) {
+      const withChoices = keywords.find(
+        (kw) => Array.isArray(kw.choices) && kw.choices.length > 0,
+      );
+      expect(
+        withChoices,
+        "includeChoices=true should embed at least one keyword with choices",
+      ).toBeTruthy();
+      const choice = withChoices.choices[0];
+      expect(
+        choice.label != null || choice.value != null || choice.description,
+        "choice entries should expose label, value, or description",
       ).toBeTruthy();
     }
   });
