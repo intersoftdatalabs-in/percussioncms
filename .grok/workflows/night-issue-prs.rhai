@@ -349,7 +349,7 @@ pr_prompt_core += "   still need reply+resolve. Never top-level-only substitute.
 pr_prompt_core += "C) CI FAILURES: fix with real code/tests; push (force-with-lease only if rewritten).\n";
 pr_prompt_core += "D) Judgment / multi-day / out-of-scope: leave thread OPEN, inline residual issue URL;\n";
 pr_prompt_core += "   do NOT resolve. Count under blocked.\n";
-pr_prompt_core += "Gates: Spotless apply then check; standalone clean install when practical.\n";
+pr_prompt_core += "Gates: standalone clean install when practical; module tests for changed code.\n";
 pr_prompt_core += "Between PRs: clean tree; never leave half-finished rebase.\n\n";
 
 pr_prompt_core += "Return summary, prs_touched, conflicts_resolved, threads_resolved,\n";
@@ -444,9 +444,10 @@ for item in queue {
     work_prompt += "dry_run=" + dry_run.to_string() + "\n\n";
 
     work_prompt += "READ FIRST (use tools, do not skip):\n";
-    work_prompt += "- Root AGENTS.md hard gates (Erlang pre-commit, Spotless apply then check,\n";
-    work_prompt += "  per-module clean install, cross-platform paths, PR review thread rules,\n";
-    work_prompt += "  human review of agent rules before committing rule files).\n";
+    work_prompt += "- Root AGENTS.md hard gates (Erlang pre-commit, per-module clean install,\n";
+    work_prompt += "  cross-platform paths, PR review thread rules, human review of agent rules\n";
+    work_prompt += "  before committing rule files). Follow AGENTS.md as written — do not invent\n";
+    work_prompt += "  extra formatting gates (e.g. Spotless) unless AGENTS.md currently requires them.\n";
     work_prompt += "- Module AGENTS.md for any module you touch.\n";
     work_prompt += "- gh issue view " + inum.to_string() + " --repo " + repo + " for full body.\n\n";
 
@@ -465,9 +466,9 @@ for item in queue {
     work_prompt += "5) After PR (or abandon): leave the tree on the feature branch or switch back\n";
     work_prompt += "   cleanly so the next issue can branch from origin/" + base_branch + ".\n\n";
 
-    work_prompt += "PARENT-ISSUE STATUS TRACKING (hard — multi-phase / multi-issue work):\n";
+    work_prompt += "PARENT-ISSUE STATUS TRACKING (hard ΓÇö multi-phase / multi-issue work):\n";
     work_prompt += "Cross-run progress for epics, splits, and residual slices MUST live on GitHub\n";
-    work_prompt += "issues — NOT in committed repo markdown. Concurrent overnight runs thrash merge\n";
+    work_prompt += "issues ΓÇö NOT in committed repo markdown. Concurrent overnight runs thrash merge\n";
     work_prompt += "conflicts when they all edit docs/ai-generated/tasks/*.md (or similar trackers).\n";
     work_prompt += "Rules:\n";
     work_prompt += "P1) Identify PARENT_TRACKER:\n";
@@ -479,7 +480,7 @@ for item in queue {
     work_prompt += "    Include a markdown table of slices/children:\n";
     work_prompt += "    | Slice | Issue | Status | PR | Notes | Updated |\n";
     work_prompt += "    Status values: open | in_progress | pr_opened | blocked | done | skipped\n";
-    work_prompt += "    Upsert by: gh issue view PARENT --json body → edit section in place →\n";
+    work_prompt += "    Upsert by: gh issue view PARENT --json body ΓåÆ edit section in place ΓåÆ\n";
     work_prompt += "    gh issue edit PARENT --body-file <temp> (portable path; use repo tmp/ or OS temp).\n";
     work_prompt += "    Never delete other body sections. If section missing, append it at end of body.\n";
     work_prompt += "P3) Also post a short timestamped COMMENT on PARENT after each meaningful step\n";
@@ -540,9 +541,8 @@ for item in queue {
             work_prompt += "IMPLEMENTATION GATES (all required before PR):\n";
             work_prompt += "A) Implement the change + behavioral unit tests for new/changed logic.\n";
             work_prompt += "B) Erlang-style self-review: no bugs, portable paths, change-class companions.\n";
-            work_prompt += "C) Spotless from repo root: mvnw spotless:apply THEN spotless:check.\n";
-            work_prompt += "   Commit only in-scope files; do not dump monorepo reformat.\n";
-            work_prompt += "D) For each changed Maven module: standalone mvnw clean install (cd module).\n";
+            work_prompt += "C) For each changed Maven module: standalone mvnw clean install (cd module).\n";
+            work_prompt += "D) Commit only in-scope files; do not dump monorepo-wide reformat or unrelated churn.\n";
             work_prompt += "E) Commit with a clear message referencing issue " + inum.to_string() + ".\n";
             work_prompt += "F) OPERATOR LABELS (required for daily status - create labels if missing):\n";
             work_prompt += "   Ensure these GitHub labels exist (gh label create NAME --force is OK if missing):\n";
@@ -660,7 +660,7 @@ report_prompt += "Write a concise overnight report in GitHub-flavored markdown f
 report_prompt += "Repo: " + repo + "\n";
 report_prompt += "dry_run=" + dry_run.to_string() + "\n\n";
 report_prompt += "This report is RUN-LOCAL only (scratch/night-report.md). It is NOT the multi-phase\n";
-report_prompt += "epic tracker — that lives on parent GitHub issue bodies under\n";
+report_prompt += "epic tracker ΓÇö that lives on parent GitHub issue bodies under\n";
 report_prompt += "## Agent progress (night-issue-prs). Do not recommend committing this file to git.\n\n";
 report_prompt += "Triage notes:\n" + json_encode(triage_notes) + "\n\n";
 report_prompt += "Issue work results (JSON):\n" + json_encode(results) + "\n\n";
