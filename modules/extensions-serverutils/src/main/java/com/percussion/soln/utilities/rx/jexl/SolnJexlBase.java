@@ -56,7 +56,7 @@ public class SolnJexlBase extends PSJexlUtilBase {
         if (first) first = false;
         else s.append(",");
         s.append(m.getName() + "(");
-        Class[] params = m.getParameterTypes();
+        Class<?>[] params = m.getParameterTypes();
         for (int j = 0; j < params.length; j++) {
           s.append(params[j].getName());
           if (j < (params.length - 1)) s.append(",");
