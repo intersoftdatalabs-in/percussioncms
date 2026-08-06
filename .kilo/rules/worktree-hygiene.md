@@ -38,6 +38,14 @@ When your task used a **git worktree** (for example under `.kilo/worktrees/`,
    - a worktree that still has an **open** PR (unless the human ordered cleanup)
    - the worktree you are currently running in (switch to main first)
 
+## Session start (related HARD GATE)
+
+Disposable worktrees do **not** receive gitignored `AGENTS.local.md` from the
+primary checkout. At session start, read personal overrides from the **primary**
+tree when the worktree copy is missing — see
+`.kilo/rules/agents-local-from-parent.md` and root `AGENTS.md` →
+**AGENTS.local.md across git worktrees**.
+
 ## Why
 
 This monorepo is large. Nested agent worktrees under `.kilo/worktrees/` are

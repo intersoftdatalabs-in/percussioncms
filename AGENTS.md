@@ -73,6 +73,27 @@ This gate is **stricter than Erlang**: even a clean code review does not authori
    * `AGENTS.local.md` takes precedence over `AGENTS.md`.
    * If no local files are found, default strictly to the root-level instructions.
 
+### AGENTS.local.md across git worktrees (HARD GATE)
+
+Root `AGENTS.local.md` is **gitignored** and is **not** copied into agent git
+worktrees (`.kilo/worktrees/`, `.worktrees/`, `~/.grok/worktrees/`, overnight
+workflow worktrees, etc.).
+
+**At session start**, every agent (Kilo, Grok, others) **must**:
+
+1. Resolve the current worktree root (`git rev-parse --show-toplevel`).
+2. If `<worktree>/AGENTS.local.md` is missing, resolve the **primary** checkout
+   (`git worktree list --porcelain` → first `worktree` path, or the directory
+   that owns `git rev-parse --git-common-dir`) and read
+   `<primary>/AGENTS.local.md` when it exists.
+3. Apply those personal/operator overrides (GH identity, commit footers, host
+   shell notes, etc.) for the rest of the session.
+4. **Do not** commit `AGENTS.local.md` into a worktree. **Do not** assume
+   “absent in this worktree” means no overrides exist.
+
+Tracked tool rules: `.kilo/rules/agents-local-from-parent.md` (Kilo). Grok
+user-global: `~/.grok/rules/05-agents-local-from-parent-worktree.md`.
+
 ## Pre-commit code review (Erlang)
 
 Before `git commit`, `git push`, or opening/updating a GitHub PR for changes you authored:
