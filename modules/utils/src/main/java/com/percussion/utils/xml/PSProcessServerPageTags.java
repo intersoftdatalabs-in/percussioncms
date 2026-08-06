@@ -214,7 +214,7 @@ public class PSProcessServerPageTags extends Object {
 
       String strKey = getPostProcessKey(isAttr);
       m_codeMap.put(strKey, m_htmlSource.substring(oldCurrent, m_current));
-      m_escapeMap.put(strKey, m_disableEscaping.elementAt(tagIndex));
+      m_escapeMap.put(strKey, (String) m_disableEscaping.elementAt(tagIndex));
 
       m_lastClose = m_current;
     } else {
@@ -423,13 +423,13 @@ public class PSProcessServerPageTags extends Object {
   }
 
   /** This is the hash table which will be used to store the removed server page code. */
-  private ConcurrentHashMap m_codeMap = new ConcurrentHashMap<>();
+  private ConcurrentHashMap<String, String> m_codeMap = new ConcurrentHashMap<>();
 
   /**
    * This is the hash table which will be used to store the enable/disable escape information. The
    * keys correspond to the keys in the code map.
    */
-  private ConcurrentHashMap m_escapeMap = new ConcurrentHashMap<>();
+  private ConcurrentHashMap<String, String> m_escapeMap = new ConcurrentHashMap<>();
 
   /** The key prefix used to mark removed server page code. */
   private String m_keyPrefix = "XSpLit_Server_Page_Block";
