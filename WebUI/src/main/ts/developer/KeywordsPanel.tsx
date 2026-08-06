@@ -21,6 +21,8 @@ import type { KeywordSummary } from "../api/developer/types";
 import { panelErrMsg } from "./errors";
 import { KeywordEditorPanel } from "./KeywordEditorPanel";
 import { DEV_MSG } from "./messages";
+import { catalogColors, tableHeaderRow, tableRow } from "./catalogStyles";
+
 
 /**
  * P0.3b — keyword catalog with create / edit / delete.
@@ -64,7 +66,7 @@ export function KeywordsPanel(): React.ReactElement {
 
   if (error) {
     return (
-      <div data-testid="developer-kw-error" role="alert" style={{ color: "#b00020" }}>
+      <div data-testid="developer-kw-error" role="alert" style={{ color: catalogColors.error }}>
         {error}
       </div>
     );
@@ -90,14 +92,14 @@ export function KeywordsPanel(): React.ReactElement {
           flexWrap: "wrap",
         }}
       >
-        <p style={{ color: "#4a5568", margin: 0, fontSize: "0.9rem" }}>{DEV_MSG.KW_HINT}</p>
+        <p style={{ color: catalogColors.muted, margin: 0, fontSize: "0.9rem" }}>{DEV_MSG.KW_HINT}</p>
         <button
           type="button"
           data-testid="developer-kw-new"
           onClick={() => setEditing("new")}
           style={{
             padding: "8px 14px",
-            background: "#007ea8",
+            background: catalogColors.accent,
             color: "#fff",
             border: "none",
             borderRadius: "4px",
@@ -123,7 +125,7 @@ export function KeywordsPanel(): React.ReactElement {
             }}
           >
             <thead>
-              <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+              <tr style={tableHeaderRow}>
                 <th style={{ padding: "8px" }}>{DEV_MSG.KW_COL_LABEL}</th>
                 <th style={{ padding: "8px" }}>{DEV_MSG.KW_COL_VALUE}</th>
                 <th style={{ padding: "8px" }}>{DEV_MSG.KW_COL_CHOICES}</th>
@@ -139,10 +141,7 @@ export function KeywordsPanel(): React.ReactElement {
                   <tr
                     key={key}
                     data-testid="developer-kw-row"
-                    style={{
-                      borderBottom: "1px solid #edf2f7",
-                      cursor: "pointer",
-                    }}
+                    style={{ ...tableRow, cursor: "pointer"  }}
                     onClick={() => setEditing(kw)}
                   >
                     <td style={{ padding: "8px" }}>
@@ -152,7 +151,7 @@ export function KeywordsPanel(): React.ReactElement {
                           background: "none",
                           border: "none",
                           padding: 0,
-                          color: "#007ea8",
+                          color: catalogColors.accent,
                           cursor: "pointer",
                           font: "inherit",
                           textDecoration: "underline",
@@ -169,7 +168,7 @@ export function KeywordsPanel(): React.ReactElement {
                       {kw.value || "—"}
                     </td>
                     <td style={{ padding: "8px" }}>{choiceCount}</td>
-                    <td style={{ padding: "8px", color: "#4a5568" }}>
+                    <td style={{ padding: "8px", color: catalogColors.muted }}>
                       {kw.description || ""}
                     </td>
                   </tr>

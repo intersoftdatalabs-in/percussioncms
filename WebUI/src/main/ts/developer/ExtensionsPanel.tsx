@@ -6,7 +6,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { listExtensions } from "../api/developer/extensionsApi";
 import type { ExtensionDef } from "../api/developer/types";
 import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { monoCell, mutedCell } from "./catalogStyles";
+import { catalogColors, monoCell, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { ExtensionDetailPanel } from "./ExtensionDetailPanel";
 import { DEV_MSG } from "./messages";
@@ -68,7 +68,7 @@ export function ExtensionsPanel(): React.ReactElement {
           style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
         >
           <thead>
-            <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+            <tr style={tableHeaderRow}>
               <th style={{ padding: "8px" }}>{DEV_MSG.EX_COL_NAME}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.EX_COL_HANDLER}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.EX_COL_CONTEXT}</th>
@@ -87,10 +87,7 @@ export function ExtensionsPanel(): React.ReactElement {
                 <tr
                   key={e.fqn || e.extensionName || `ex-${index}`}
                   data-testid="developer-ex-row"
-                  style={{
-                    borderBottom: "1px solid #edf2f7",
-                    cursor: interactive ? "pointer" : "default",
-                  }}
+                  style={{ ...tableRow, cursor: interactive ? "pointer" : "default"  }}
                   onClick={() => {
                     if (interactive) setSelected(openKey);
                   }}
@@ -108,7 +105,7 @@ export function ExtensionsPanel(): React.ReactElement {
                         style={{
                           background: "transparent",
                           border: "none",
-                          color: "#007ea8",
+                          color: catalogColors.accent,
                           cursor: "pointer",
                           font: "inherit",
                           padding: 0,

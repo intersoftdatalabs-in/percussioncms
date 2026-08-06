@@ -27,7 +27,7 @@ import type {
   CommunityRoleSummary,
   CommunityVisibleObject,
 } from "../api/developer/types";
-import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -184,13 +184,13 @@ export function CommunityDetailPanel({
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-comm-detail-title">
               {detail.label || detail.name || idOrName}
             </h2>
-            <div style={{ fontFamily: "monospace", color: "#4a5568" }}>
+            <div style={{ fontFamily: "monospace", color: catalogColors.muted }}>
               {detail.name}
               {detail.id != null ? ` · id ${detail.id}` : ""}
               {detail.guid?.stringValue ? ` · ${detail.guid.stringValue}` : ""}
             </div>
             {detail.description ? (
-              <p style={{ marginTop: "8px", color: "#2d3748" }}>{detail.description}</p>
+              <p style={{ marginTop: "8px", color: catalogColors.text }}>{detail.description}</p>
             ) : null}
             <dl style={metaGrid}>
               <dt>{DEV_MSG.COMM_META_ID}</dt>
@@ -206,9 +206,9 @@ export function CommunityDetailPanel({
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-comm-roles">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.COMM_ROLES}</h3>
-            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.COMM_ROLES_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.COMM_ROLES_HINT}</p>
             {rolesForTable.length === 0 ? (
-              <p style={{ color: "#718096" }}>
+              <p style={{ color: catalogColors.empty }}>
                 {allRoles.length === 0 && asRoles(detail).length === 0
                   ? DEV_MSG.COMM_NO_ROLES_SYSTEM
                   : DEV_MSG.COMM_NO_ROLES}
@@ -224,7 +224,7 @@ export function CommunityDetailPanel({
                   }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_MEMBER}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_ROLE_NAME}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_ROLE_ID}</th>
@@ -237,7 +237,7 @@ export function CommunityDetailPanel({
                       return (
                         <tr
                           key={key}
-                          style={{ borderBottom: "1px solid #edf2f7" }}
+                          style={tableRow}
                         >
                           <td style={{ padding: "8px" }}>
                             <input
@@ -268,7 +268,7 @@ export function CommunityDetailPanel({
                 onClick={() => void handleSave()}
                 style={{
                   padding: "8px 16px",
-                  background: dirty ? "#007ea8" : "#a0aec0",
+                  background: dirty ? catalogColors.accent : catalogColors.disabled,
                   color: "#fff",
                   border: "none",
                   borderRadius: "4px",
@@ -282,7 +282,7 @@ export function CommunityDetailPanel({
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-comm-visibility">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.COMM_VISIBILITY}</h3>
-            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.COMM_VISIBILITY_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.COMM_VISIBILITY_HINT}</p>
             {visibilityLoading ? (
               <div data-testid="developer-comm-visibility-loading">
                 {DEV_MSG.COMM_VISIBILITY_LOADING}
@@ -298,7 +298,7 @@ export function CommunityDetailPanel({
               </div>
             ) : null}
             {!visibilityLoading && !visibilityError && visibleObjects.length === 0 ? (
-              <p data-testid="developer-comm-visibility-empty" style={{ color: "#718096" }}>
+              <p data-testid="developer-comm-visibility-empty" style={{ color: catalogColors.empty }}>
                 {DEV_MSG.COMM_VISIBILITY_EMPTY}
               </p>
             ) : null}
@@ -313,7 +313,7 @@ export function CommunityDetailPanel({
                   }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_OBJ_TYPE}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_OBJ_NAME}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_OBJ_LABEL}</th>
@@ -327,7 +327,7 @@ export function CommunityDetailPanel({
                           o.guid?.stringValue ||
                           `${o.type || "obj"}:${o.name || o.id || i}`
                         }
-                        style={{ borderBottom: "1px solid #edf2f7" }}
+                        style={tableRow}
                       >
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {o.type || "—"}
@@ -350,7 +350,7 @@ export function CommunityDetailPanel({
 
           <section data-testid="developer-comm-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.COMM_GAPS}</h3>
-            <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+            <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
               <li>{DEV_MSG.COMM_GAP_ACL}</li>
             </ul>
           </section>

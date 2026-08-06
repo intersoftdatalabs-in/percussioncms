@@ -277,6 +277,13 @@
             var path_end = ut.extract_path_end( spec.path );
             var item_path = ut.extract_path( spe.path );
             var icon = ut.choose_icon( spec.type, spec.icon,    item_path  );
+            // Display-only root labels; path_end / data stay English.
+            var displayLabel =
+                (typeof percFinderRootDisplay !== 'undefined' &&
+                 percFinderRootDisplay &&
+                 typeof percFinderRootDisplay.displayLabelForFinderRoot === 'function')
+                    ? percFinderRootDisplay.displayLabelForFinderRoot(spec.name)
+                    : spec.name;
 			
 			if(settings.siteIcon != "" && spec.type == "site")
 				icon = settings.siteIcon;
@@ -289,7 +296,7 @@
             //    } JGA
                 .attr('id',"perc-saveas-dialog-listing"+ ut.path_id( item_path ))
                 .append($("<img src='"+ icon.src +"' style='float:left' alt='"+ icon.alt + "' title='" + icon.title + "' aria-hidden='" + icon.decorative + "' />" ))
-                .append( spec.name )
+                .append( displayLabel )
                 .data( 'name', path_end )
                 .data( 'tag', spec.name );
 

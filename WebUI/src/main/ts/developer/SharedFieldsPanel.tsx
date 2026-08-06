@@ -19,7 +19,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { listSharedFieldGroups } from "../api/developer/sharedFieldsApi";
 import type { SharedFieldGroupSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { monoCell, mutedMonoCell } from "./catalogStyles";
+import { catalogColors, monoCell, mutedMonoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { SharedFieldGroupDetailPanel } from "./SharedFieldGroupDetailPanel";
@@ -83,7 +83,7 @@ export function SharedFieldsPanel(): React.ReactElement {
           style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
         >
           <thead>
-            <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+            <tr style={tableHeaderRow}>
               <th style={{ padding: "8px" }}>{DEV_MSG.SF_COL_NAME}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.SF_COL_FILENAME}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.SF_COL_FIELDS}</th>
@@ -97,10 +97,7 @@ export function SharedFieldsPanel(): React.ReactElement {
                 <tr
                   key={g.name || `sf-${index}`}
                   data-testid="developer-sf-row"
-                  style={{
-                    borderBottom: "1px solid #edf2f7",
-                    cursor: interactive ? "pointer" : "default",
-                  }}
+                  style={{ ...tableRow, cursor: interactive ? "pointer" : "default"  }}
                   onClick={() => {
                     if (interactive) setSelected(openKey);
                   }}
@@ -118,7 +115,7 @@ export function SharedFieldsPanel(): React.ReactElement {
                         style={{
                           background: "transparent",
                           border: "none",
-                          color: "#007ea8",
+                          color: catalogColors.accent,
                           cursor: "pointer",
                           font: "inherit",
                           padding: 0,

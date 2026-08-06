@@ -18,7 +18,7 @@
 import React, { useEffect, useState } from "react";
 import { getApplicationDetail } from "../api/developer/pipelinesApi";
 import type { ApplicationDetail } from "../api/developer/types";
-import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -75,12 +75,12 @@ export function PipelineDetailPanel({
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-pipe-detail-title">
               {detail.name || idOrName}
             </h2>
-            <div style={{ fontFamily: "monospace", color: "#4a5568" }}>
+            <div style={{ fontFamily: "monospace", color: catalogColors.muted }}>
               {detail.id != null ? `id ${detail.id}` : ""}
               {detail.appRoot ? ` · ${detail.appRoot}` : ""}
             </div>
             {detail.description ? (
-              <p style={{ marginTop: "8px", color: "#4a5568" }}>{detail.description}</p>
+              <p style={{ marginTop: "8px", color: catalogColors.muted }}>{detail.description}</p>
             ) : null}
             <dl style={metaGrid}>
               <dt>{DEV_MSG.PIPE_COL_TYPE}</dt>
@@ -106,9 +106,9 @@ export function PipelineDetailPanel({
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-pipe-datasets">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.PIPE_DATASETS}</h3>
-            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.PIPE_DATASETS_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.PIPE_DATASETS_HINT}</p>
             {(detail.dataSets || []).length === 0 ? (
-              <p style={{ color: "#718096" }} data-testid="developer-pipe-datasets-empty">
+              <p style={{ color: catalogColors.empty }} data-testid="developer-pipe-datasets-empty">
                 {DEV_MSG.PIPE_NONE}
               </p>
             ) : (
@@ -122,7 +122,7 @@ export function PipelineDetailPanel({
                   }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.PIPE_COL_DS_NAME}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.PIPE_COL_DS_KIND}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.PIPE_COL_DS_REQUEST}</th>
@@ -134,7 +134,7 @@ export function PipelineDetailPanel({
                       <tr
                         key={ds.name || `ds-${i}`}
                         data-testid={`developer-pipe-ds-row-${i}`}
-                        style={{ borderBottom: "1px solid #edf2f7" }}
+                        style={tableRow}
                       >
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {ds.name || "—"}
@@ -143,7 +143,7 @@ export function PipelineDetailPanel({
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {ds.requestPage || "—"}
                         </td>
-                        <td style={{ padding: "8px", color: "#4a5568" }}>
+                        <td style={{ padding: "8px", color: catalogColors.muted }}>
                           {ds.description || ""}
                         </td>
                       </tr>
@@ -157,7 +157,7 @@ export function PipelineDetailPanel({
           {detail.designGaps && detail.designGaps.length > 0 ? (
             <section data-testid="developer-pipe-gaps">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.PIPE_GAPS}</h3>
-              <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+              <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
                 {detail.designGaps.map((g) => (
                   <li key={g}>{g}</li>
                 ))}

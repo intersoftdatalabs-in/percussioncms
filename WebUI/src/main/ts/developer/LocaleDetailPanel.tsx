@@ -18,7 +18,7 @@
 import React, { useEffect, useState } from "react";
 import { getLocaleDetail } from "../api/developer/localesApi";
 import type { LocaleDetail } from "../api/developer/types";
-import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -75,12 +75,12 @@ export function LocaleDetailPanel({
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-loc-detail-title">
               {detail.label || detail.languageString || idOrLang}
             </h2>
-            <div style={{ fontFamily: "monospace", color: "#4a5568" }}>
+            <div style={{ fontFamily: "monospace", color: catalogColors.muted }}>
               {detail.languageString || ""}
               {detail.id != null ? ` · id ${detail.id}` : ""}
             </div>
             {detail.description ? (
-              <p style={{ marginTop: "8px", color: "#4a5568" }}>{detail.description}</p>
+              <p style={{ marginTop: "8px", color: catalogColors.muted }}>{detail.description}</p>
             ) : null}
             <dl style={metaGrid}>
               <dt>{DEV_MSG.LOC_COL_STATUS}</dt>
@@ -104,7 +104,7 @@ export function LocaleDetailPanel({
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-loc-format">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.LOC_FORMAT}</h3>
-            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.LOC_FORMAT_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.LOC_FORMAT_HINT}</p>
             {detail.format ? (
               <dl style={metaGrid} data-testid="developer-loc-format-grid">
                 <dt>{DEV_MSG.LOC_FMT_DIR}</dt>
@@ -153,7 +153,7 @@ export function LocaleDetailPanel({
                 <dd style={{ margin: 0 }}>{detail.format.calendar || "—"}</dd>
               </dl>
             ) : (
-              <p style={{ color: "#718096" }} data-testid="developer-loc-format-empty">
+              <p style={{ color: catalogColors.empty }} data-testid="developer-loc-format-empty">
                 {DEV_MSG.LOC_FORMAT_EMPTY}
               </p>
             )}
@@ -162,7 +162,7 @@ export function LocaleDetailPanel({
           {detail.designGaps && detail.designGaps.length > 0 ? (
             <section data-testid="developer-loc-gaps">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.LOC_GAPS}</h3>
-              <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+              <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
                 {detail.designGaps.map((g) => (
                   <li key={g}>{g}</li>
                 ))}

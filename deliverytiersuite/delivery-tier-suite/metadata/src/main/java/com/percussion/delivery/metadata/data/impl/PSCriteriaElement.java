@@ -246,6 +246,7 @@ public class PSCriteriaElement {
     NOT_EQUAL
   }
 
+  @SuppressWarnings("unchecked")
   private static final Map<String, OPERATION_TYPE> OPERATORS =
       MapUtils.orderedMap(new HashMap<String, OPERATION_TYPE>());
 

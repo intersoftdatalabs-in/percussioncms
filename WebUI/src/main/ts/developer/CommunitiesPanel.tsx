@@ -19,7 +19,7 @@ import React, { useEffect, useState } from "react";
 import { listCommunities } from "../api/developer/assemblyApi";
 import type { CommunitySummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { openButtonStyle } from "./catalogStyles";
+import { catalogColors, openButtonStyle, tableHeaderRow, tableRow } from "./catalogStyles";
 import { CommunityDetailPanel } from "./CommunityDetailPanel";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -84,7 +84,7 @@ export function CommunitiesPanel(): React.ReactElement {
           style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
         >
           <thead>
-            <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+            <tr style={tableHeaderRow}>
               <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_LABEL}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_NAME}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_ID}</th>
@@ -99,7 +99,7 @@ export function CommunitiesPanel(): React.ReactElement {
                 <tr
                   key={rowKey}
                   data-testid="developer-comm-row"
-                  style={{ borderBottom: "1px solid #edf2f7" }}
+                  style={tableRow}
                 >
                   <td style={{ padding: "8px" }}>
                     {key ? (
@@ -121,7 +121,7 @@ export function CommunitiesPanel(): React.ReactElement {
                   <td style={{ padding: "8px", fontFamily: "monospace" }}>
                     {c.id != null ? String(c.id) : c.guid?.stringValue || "—"}
                   </td>
-                  <td style={{ padding: "8px", color: "#4a5568" }}>
+                  <td style={{ padding: "8px", color: catalogColors.muted }}>
                     {c.description || ""}
                   </td>
                 </tr>

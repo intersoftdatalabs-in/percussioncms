@@ -27,7 +27,7 @@ import type {
   TemplateDetail,
   TemplateSlotSummary,
 } from "../api/developer/types";
-import { monoCell, mutedCell } from "./catalogStyles";
+import { catalogColors, monoCell, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { ObjectAclSection } from "./ObjectAclSection";
@@ -42,7 +42,7 @@ const metaGrid: React.CSSProperties = {
 
 const sourcePre: React.CSSProperties = {
   background: "#f7fafc",
-  border: "1px solid #e2e8f0",
+  border: `1px solid ${catalogColors.headerBorder}`,
   borderRadius: "4px",
   padding: "12px",
   overflow: "auto",
@@ -52,7 +52,7 @@ const sourcePre: React.CSSProperties = {
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
-  border: "1px solid #cbd5e0",
+  border: `1px solid ${catalogColors.softBorder}`,
   borderRadius: "4px",
   font: "inherit",
   width: "100%",
@@ -271,7 +271,7 @@ export function TemplateDetailPanel({
         style={{
           marginBottom: "12px",
           background: "transparent",
-          border: "1px solid #cbd5e0",
+          border: `1px solid ${catalogColors.softBorder}`,
           borderRadius: "4px",
           padding: "6px 12px",
           cursor: "pointer",
@@ -284,7 +284,7 @@ export function TemplateDetailPanel({
         <div
           role="alert"
           data-testid="developer-tpl-detail-error"
-          style={{ color: "#b00020" }}
+          style={{ color: catalogColors.error }}
         >
           {error}
         </div>
@@ -358,9 +358,9 @@ export function TemplateDetailPanel({
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-tpl-bindings">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.TPL_BINDINGS}</h3>
-            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.TPL_BINDINGS_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.TPL_BINDINGS_HINT}</p>
             {bindings.length === 0 ? (
-              <p style={{ color: "#718096" }}>{DEV_MSG.TPL_NONE}</p>
+              <p style={{ color: catalogColors.empty }}>{DEV_MSG.TPL_NONE}</p>
             ) : (
               <div style={{ overflowX: "auto" }}>
                 <table
@@ -372,7 +372,7 @@ export function TemplateDetailPanel({
                   }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_ORDER}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_VARIABLE}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_EXPRESSION}</th>
@@ -383,7 +383,7 @@ export function TemplateDetailPanel({
                     {bindings.map((b, i) => (
                       <tr
                         key={`binding-${i}`}
-                        style={{ borderBottom: "1px solid #edf2f7" }}
+                        style={tableRow}
                         data-testid={`developer-tpl-binding-row-${i}`}
                       >
                         <td style={{ padding: "8px", width: 72 }}>
@@ -427,7 +427,7 @@ export function TemplateDetailPanel({
                             onClick={() => removeBinding(i)}
                             style={{
                               background: "transparent",
-                              border: "1px solid #cbd5e0",
+                              border: `1px solid ${catalogColors.softBorder}`,
                               borderRadius: "4px",
                               padding: "4px 8px",
                               cursor: busy ? "not-allowed" : "pointer",
@@ -450,7 +450,7 @@ export function TemplateDetailPanel({
               style={{
                 marginTop: 8,
                 padding: "6px 12px",
-                background: "#007ea8",
+                background: catalogColors.accent,
                 color: "#fff",
                 border: "none",
                 borderRadius: "4px",
@@ -463,9 +463,9 @@ export function TemplateDetailPanel({
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-tpl-slots">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.TPL_SLOTS}</h3>
-            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.TPL_SLOTS_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.TPL_SLOTS_HINT}</p>
             {slotsForTable.length === 0 ? (
-              <p style={{ color: "#718096" }}>{DEV_MSG.TPL_NONE}</p>
+              <p style={{ color: catalogColors.empty }}>{DEV_MSG.TPL_NONE}</p>
             ) : (
               <div style={{ overflowX: "auto" }}>
                 <table
@@ -477,7 +477,7 @@ export function TemplateDetailPanel({
                   }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_MEMBER}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_LABEL}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_NAME}</th>
@@ -490,7 +490,7 @@ export function TemplateDetailPanel({
                       return (
                         <tr
                           key={key}
-                          style={{ borderBottom: "1px solid #edf2f7" }}
+                          style={tableRow}
                         >
                           <td style={{ padding: "8px" }}>
                             <input
@@ -535,7 +535,7 @@ export function TemplateDetailPanel({
               onClick={() => void handleSave()}
               style={{
                 padding: "8px 16px",
-                background: dirty ? "#007ea8" : "#a0aec0",
+                background: dirty ? catalogColors.accent : catalogColors.disabled,
                 color: "#fff",
                 border: "none",
                 borderRadius: "4px",
@@ -554,7 +554,7 @@ export function TemplateDetailPanel({
           {(detail.designGaps || []).length > 0 ? (
             <section data-testid="developer-tpl-gaps">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.TPL_GAPS}</h3>
-              <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+              <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
                 {(detail.designGaps || []).map((g) => (
                   <li key={g}>{g}</li>
                 ))}

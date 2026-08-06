@@ -17,6 +17,8 @@
 
 import React from "react";
 import { DEV_MSG } from "./messages";
+import { catalogColors } from "./catalogStyles";
+
 
 export function PlaceholderPanel({
   sectionLabel,
@@ -29,14 +31,14 @@ export function PlaceholderPanel({
       style={{
         padding: "1.25rem",
         background: "#f7fafc",
-        border: "1px solid #e2e8f0",
+        border: `1px solid ${catalogColors.headerBorder}`,
         borderRadius: "6px",
       }}
     >
       <h2 style={{ marginTop: 0, fontSize: "1.1rem" }}>
         {sectionLabel}: {DEV_MSG.PLACEHOLDER_TITLE}
       </h2>
-      <p style={{ marginBottom: 0, color: "#4a5568" }}>{DEV_MSG.PLACEHOLDER_BODY}</p>
+      <p style={{ marginBottom: 0, color: catalogColors.muted }}>{DEV_MSG.PLACEHOLDER_BODY}</p>
     </div>
   );
 }

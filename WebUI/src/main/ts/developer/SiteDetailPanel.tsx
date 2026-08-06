@@ -4,7 +4,7 @@
 
 import React from "react";
 import type { SiteDef } from "../api/developer/types";
-import { backButton, metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, backButton, metaGrid, monoCell } from "./catalogStyles";
 import { DEV_MSG } from "./messages";
 
 export function SiteDetailPanel({
@@ -52,7 +52,7 @@ export function SiteDetailPanel({
 
       <section data-testid="developer-site-gaps">
         <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SITE_GAPS}</h3>
-        <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+        <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
           {gaps.map((g, i) => (
             <li key={`${g}-${i}`}>{g}</li>
           ))}
