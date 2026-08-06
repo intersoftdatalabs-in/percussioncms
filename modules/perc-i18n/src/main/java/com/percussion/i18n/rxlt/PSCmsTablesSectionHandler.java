@@ -60,7 +60,6 @@ import org.xml.sax.SAXException;
  * listed in the XSL stylesheet. The templates in the style sheets generate keys in the form of
  * another simple XML dcument that is used to construct the TMX Document.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSCmsTablesSectionHandler extends PSIdleDotter implements IPSSectionHandler {
   /**
    * Default constructor. Constructs the XSL document and parses list of tables int a list.
@@ -327,5 +326,5 @@ public class PSCmsTablesSectionHandler extends PSIdleDotter implements IPSSectio
    * List of table to be process for key generation. Never <code>null</code>, initially <code>empty
    * </code>, filled during construction of this class object.
    */
-  private static List ms_Tables = new ArrayList();
+  private static List<String> ms_Tables = new ArrayList<>();
 }

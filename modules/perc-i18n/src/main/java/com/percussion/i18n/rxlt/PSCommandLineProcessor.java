@@ -48,8 +48,7 @@ import org.xml.sax.SAXException;
  *   <li>May also be run inline from another Java process without the command line user interface
  * </ol>
  */
-@SuppressWarnings("this-escape")
-public class PSCommandLineProcessor {
+public final class PSCommandLineProcessor {
   /**
    * Constructor. This takes the configuration XML document and the Rhythmyx root directory.
    *

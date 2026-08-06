@@ -53,7 +53,6 @@ import org.w3c.dom.Element;
  *
  * @author dougrand
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSJspHandler extends PSIdleDotter implements IPSSectionHandler {
   /** Creates a handler for JSP resources. */
   public PSJspHandler() {
@@ -144,10 +143,10 @@ public class PSJspHandler extends PSIdleDotter implements IPSSectionHandler {
       // Create an empty TMX Document
       tmxDoc = new PSTmxDocument();
       IPSTmxTranslationUnit tu = null;
-      Set keySet = tuInfo.keySet();
-      Iterator iter = keySet.iterator();
+      Set<String> keySet = tuInfo.keySet();
+      Iterator<String> iter = keySet.iterator();
       while (iter.hasNext()) {
-        String key = (String) iter.next();
+        String key = iter.next();
         String[] info = tuInfo.get(key);
         String desc = "";
         String note = info[TuSectionEnum.NOTE.getOrdinal()];
@@ -194,7 +193,7 @@ public class PSJspHandler extends PSIdleDotter implements IPSSectionHandler {
    * @param rxroot the root directory for the rhythmyx server
    * @param tuInfo the map of key/[note, props, seg] pairs
    */
-  private void handleAllJsps(String rxroot, Map tuInfo) {
+  private void handleAllJsps(String rxroot, Map<String, String[]> tuInfo) {
     File rxapp = new File(rxroot, JETTY_APP_SERVER);
     handleAllJsps(rxapp, tuInfo);
   }
@@ -205,7 +204,7 @@ public class PSJspHandler extends PSIdleDotter implements IPSSectionHandler {
    * @param dir directory to search
    * @param tuInfo the map of key/[note, props, seg] pairs
    */
-  private void handleAllJsps(File dir, Map tuInfo) {
+  private void handleAllJsps(File dir, Map<String, String[]> tuInfo) {
     if (dir.exists()) {
       for (File f : Objects.requireNonNull(dir.listFiles())) {
         if (f.getName().endsWith(".jsp")) {
@@ -224,7 +223,7 @@ public class PSJspHandler extends PSIdleDotter implements IPSSectionHandler {
    * @param file file to examine
    * @param tuInfo the map of translation unit key/[note, props, seg] pairs
    */
-  private void handleJspFile(File file, Map tuInfo) {
+  private void handleJspFile(File file, Map<String, String[]> tuInfo) {
 
     try (Reader r = new FileReader(file)) {
       showDots(true);
@@ -279,7 +278,7 @@ public class PSJspHandler extends PSIdleDotter implements IPSSectionHandler {
    * @param tuInfo the translation unit information as a map of translation unit -> [note, tuv
    *     props, tuv seg] pairs
    */
-  private void getTranslationUnitInfo(String text, Map tuInfo) {
+  private void getTranslationUnitInfo(String text, Map<String, String[]> tuInfo) {
     // Search for tag
     int i = text.indexOf("rxi18n");
 
