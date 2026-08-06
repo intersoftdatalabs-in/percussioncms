@@ -390,6 +390,14 @@ export const PATHS = {
   get USER_LDAP_STATUS() {
     return `${SERVICES_ROOT}/user/user/external/status`;
   },
+  /**
+   * User default CMS landing override (slice 2 / #2209).
+   * GET/PUT/DELETE plain text at {@code /homepage} (current) or
+   * {@code /homepage/{userName}} (admin-managed).
+   */
+  get USER_HOMEPAGE() {
+    return `${SERVICES_ROOT}/user/user/homepage`;
+  },
   /** Role management (rolemanagement) — Feature 993 */
   get ROLES_FIND() {
     return `${SERVICES_ROOT}/rolemanagement/role/find`;

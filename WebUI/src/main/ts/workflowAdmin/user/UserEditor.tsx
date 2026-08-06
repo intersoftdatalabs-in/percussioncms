@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { get, post, put } from "../../api/client";
+import { formatApiError } from "../../api/client";
 import { PATHS } from "../../api/paths";
+import {
+  getUserHomepageOverride,
+  setUserHomepageOverride,
+} from "../../api/user/userHomepageApi";
 import { message } from "../../i18n/message";
 import { WF_ADMIN_MSG } from "../messages";
 import { User } from "./UsersSection";
+import { landingOptionsForRoles } from "./landingOptions";
 
 interface UserEditorProps {
   user: User | null;
@@ -38,6 +44,9 @@ export const UserEditor: React.FC<UserEditorProps> = ({
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [assignedRoles, setAssignedRoles] = useState<string[]>(user?.roles || []);
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
+  /** Empty string = no user override (role Homepage → Home). */
+  const [homepage, setHomepage] = useState<string>("");
+  const [homepageLoaded, setHomepageLoaded] = useState<boolean>(!user);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
@@ -53,9 +62,56 @@ export const UserEditor: React.FC<UserEditorProps> = ({
     fetchRoles();
   }, []);
 
+  // Load persisted user landing override when editing an existing user
+  useEffect(() => {
+    if (!user?.name) {
+      setHomepage("");
+      setHomepageLoaded(true);
+      return;
+    }
+    let cancelled = false;
+    setHomepageLoaded(false);
+    (async () => {
+      try {
+        const value = await getUserHomepageOverride(user.name);
+        if (!cancelled) {
+          setHomepage(value || "");
+        }
+      } catch {
+        // API may be unavailable until #2209 merges; leave empty (role default)
+        if (!cancelled) {
+          setHomepage("");
+        }
+      } finally {
+        if (!cancelled) {
+          setHomepageLoaded(true);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.name]);
+
+  const landingOptions = useMemo(
+    () => landingOptionsForRoles(assignedRoles, homepage),
+    [assignedRoles, homepage],
+  );
+
+  // If roles change and current selection is no longer allowed, fall back to role default
+  useEffect(() => {
+    if (!homepage) {
+      return;
+    }
+    const stillAllowed = landingOptions.some((o) => o.value === homepage);
+    if (!stillAllowed) {
+      setHomepage("");
+    }
+  }, [landingOptions, homepage]);
+
   const handleRoleToggle = (role: string) => {
     setAssignedRoles((prev) =>
-      prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
+      prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role],
     );
   };
 
@@ -103,23 +159,61 @@ export const UserEditor: React.FC<UserEditorProps> = ({
         // Create new internal user
         await post(PATHS.USER_CREATE, userPayload);
       }
+
+      // Persist user landing override (empty clears → role Homepage / Home)
+      try {
+        await setUserHomepageOverride(name.trim(), homepage);
+      } catch (landingErr: unknown) {
+        setError(
+          formatApiError(
+            landingErr,
+            message(WF_ADMIN_MSG.DEFAULT_LANDING_SAVE_FAILED),
+          ),
+        );
+        setIsSaving(false);
+        return;
+      }
+
       onSave();
-    } catch (err: any) {
-      setError(err?.message || message(WF_ADMIN_MSG.ERROR_GENERIC));
+    } catch (err: unknown) {
+      setError(
+        formatApiError(err, message(WF_ADMIN_MSG.ERROR_GENERIC)),
+      );
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <form className="perc-user-editor" onSubmit={handleSubmit} data-testid="perc-user-editor" style={{ padding: "20px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        <h3>{user ? message(WF_ADMIN_MSG.EDIT_USER) : message(WF_ADMIN_MSG.CREATE_USER)}</h3>
+    <form
+      className="perc-user-editor"
+      onSubmit={handleSubmit}
+      data-testid="perc-user-editor"
+      style={{ padding: "20px" }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+        }}
+      >
+        <h3>
+          {user
+            ? message(WF_ADMIN_MSG.EDIT_USER)
+            : message(WF_ADMIN_MSG.CREATE_USER)}
+        </h3>
         <div style={{ display: "flex", gap: "8px" }}>
           <button type="button" onClick={onCancel} disabled={isSaving}>
             {message(WF_ADMIN_MSG.CANCEL)}
           </button>
-          <button type="submit" className="perc-button-primary" disabled={isSaving} data-testid="save-user-button">
+          <button
+            type="submit"
+            className="perc-button-primary"
+            disabled={isSaving || (user != null && !homepageLoaded)}
+            data-testid="save-user-button"
+          >
             {message(WF_ADMIN_MSG.SAVE)}
           </button>
         </div>
@@ -135,15 +229,33 @@ export const UserEditor: React.FC<UserEditorProps> = ({
             border: "1px solid #d9534f",
             borderRadius: "4px",
           }}
+          data-testid="user-editor-error"
         >
           {error}
         </div>
       )}
 
-      <div style={{ background: "#f8fafc", padding: "20px", borderRadius: "8px", border: "1px solid #e2e8f0", marginBottom: "20px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
+      <div
+        style={{
+          background: "#f8fafc",
+          padding: "20px",
+          borderRadius: "8px",
+          border: "1px solid #e2e8f0",
+          marginBottom: "20px",
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "16px",
+            marginBottom: "16px",
+          }}
+        >
           <div>
-            <label style={{ display: "block", fontWeight: 600, marginBottom: "6px" }}>
+            <label
+              style={{ display: "block", fontWeight: 600, marginBottom: "6px" }}
+            >
               {message(WF_ADMIN_MSG.USER_NAME)}
             </label>
             <input
@@ -151,63 +263,179 @@ export const UserEditor: React.FC<UserEditorProps> = ({
               value={name}
               disabled={!!user}
               onChange={(e) => setName(e.target.value)}
-              style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1" }}
+              style={{
+                width: "100%",
+                padding: "8px",
+                borderRadius: "4px",
+                border: "1px solid #cbd5e1",
+              }}
               data-testid="user-name-input"
             />
           </div>
           <div>
-            <label style={{ display: "block", fontWeight: 600, marginBottom: "6px" }}>
+            <label
+              style={{ display: "block", fontWeight: 600, marginBottom: "6px" }}
+            >
               {message(WF_ADMIN_MSG.EMAIL)}
             </label>
             <input
               type="email"
               value={email}
-              disabled={user?.providerType === "DIRECTORY"} // Disabled for imported LDAP users
+              disabled={user?.providerType === "DIRECTORY"}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1" }}
+              style={{
+                width: "100%",
+                padding: "8px",
+                borderRadius: "4px",
+                border: "1px solid #cbd5e1",
+              }}
               data-testid="user-email-input"
             />
           </div>
         </div>
 
         {user?.providerType !== "DIRECTORY" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "16px",
+              marginBottom: "16px",
+            }}
+          >
             <div>
-              <label style={{ display: "block", fontWeight: 600, marginBottom: "6px" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontWeight: 600,
+                  marginBottom: "6px",
+                }}
+              >
                 {message(WF_ADMIN_MSG.PASSWORD)}
               </label>
               <input
                 type="password"
                 value={password}
-                placeholder={user ? message(WF_ADMIN_MSG.PASSWORD_PLACEHOLDER) : ""}
+                placeholder={
+                  user ? message(WF_ADMIN_MSG.PASSWORD_PLACEHOLDER) : ""
+                }
                 onChange={(e) => setPassword(e.target.value)}
-                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1" }}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: "1px solid #cbd5e1",
+                }}
                 data-testid="user-password-input"
               />
             </div>
             <div>
-              <label style={{ display: "block", fontWeight: 600, marginBottom: "6px" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontWeight: 600,
+                  marginBottom: "6px",
+                }}
+              >
                 {message(WF_ADMIN_MSG.CONFIRM_PASSWORD)}
               </label>
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1" }}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: "1px solid #cbd5e1",
+                }}
                 data-testid="user-confirm-password-input"
               />
             </div>
           </div>
         )}
+
+        {/* Default landing page (user override over role Homepage — #959/#2211) */}
+        <div data-testid="user-default-landing-block">
+          <label
+            htmlFor="perc-user-default-landing"
+            style={{ display: "block", fontWeight: 600, marginBottom: "6px" }}
+          >
+            {message(WF_ADMIN_MSG.DEFAULT_LANDING)}
+          </label>
+          <select
+            id="perc-user-default-landing"
+            value={homepage}
+            onChange={(e) => setHomepage(e.target.value)}
+            disabled={user != null && !homepageLoaded}
+            title={message(WF_ADMIN_MSG.DEFAULT_LANDING_HELP)}
+            style={{
+              width: "100%",
+              maxWidth: "400px",
+              padding: "8px",
+              borderRadius: "4px",
+              border: "1px solid #cbd5e1",
+            }}
+            data-testid="user-default-landing-select"
+            aria-describedby="perc-user-default-landing-help"
+          >
+            {landingOptions.map((opt) => (
+              <option key={opt.value || "__role__"} value={opt.value}>
+                {message(opt.labelKey)}
+              </option>
+            ))}
+          </select>
+          <p
+            id="perc-user-default-landing-help"
+            style={{
+              margin: "8px 0 0 0",
+              fontSize: "13px",
+              color: "#64748b",
+              maxWidth: "640px",
+            }}
+            data-testid="user-default-landing-help"
+          >
+            {message(WF_ADMIN_MSG.DEFAULT_LANDING_HELP)}
+          </p>
+        </div>
       </div>
 
-      <div style={{ border: "1px solid #e2e8f0", borderRadius: "8px", background: "#fff", overflow: "hidden" }}>
-        <div style={{ background: "#f8fafc", padding: "10px 16px", borderBottom: "1px solid #e2e8f0", fontWeight: 600 }}>
+      <div
+        style={{
+          border: "1px solid #e2e8f0",
+          borderRadius: "8px",
+          background: "#fff",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            background: "#f8fafc",
+            padding: "10px 16px",
+            borderBottom: "1px solid #e2e8f0",
+            fontWeight: 600,
+          }}
+        >
           {message(WF_ADMIN_MSG.USER_ROLES)}
         </div>
-        <div style={{ padding: "16px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "12px" }}>
+        <div
+          style={{
+            padding: "16px",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+            gap: "12px",
+          }}
+        >
           {availableRoles.map((role) => (
-            <label key={role} style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+            <label
+              key={role}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                cursor: "pointer",
+              }}
+            >
               <input
                 type="checkbox"
                 checked={assignedRoles.includes(role)}
