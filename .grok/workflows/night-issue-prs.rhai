@@ -17,13 +17,15 @@
 //   max_prs             int    - max open PRs to babysit per follow-up pass (default 6, cap 12)
 //   include_pr_cluster  bool   - after POST follow-up, absorb same-file thrash PRs into one cluster PR (default true)
 //   cluster_min_prs     int    - min owned open PRs sharing thrash files to form a cluster (default 3, range 2-8)
-//   worktree_path       string - dedicated overnight git worktree (default below)
+//   worktree_path       string - dedicated overnight git worktree; empty = portable default under
+//                                $HOME or %USERPROFILE%/.grok/worktrees/intersoft-workspace-percussioncms/night-issue-prs
 //   sync_branch         string - local default branch in that worktree (default night-issue-prs-main)
 //
 // DEDICATED WORKTREE (required for live Work + PR follow-up):
-//   Path:   C:/Users/Nate/.grok/worktrees/intersoft-workspace-percussioncms/night-issue-prs
+//   Path (portable default): <home>/.grok/worktrees/intersoft-workspace-percussioncms/night-issue-prs
+//     Resolve <home> as %USERPROFILE% (Windows) or $HOME (Unix/macOS). Pass worktree_path to override.
 //   Branch: night-issue-prs-main — local mirror of origin/main between jobs (not a remote base)
-//   Agents MUST run git/builds only in worktree_path. Primary clone is for humans.
+//   Agents MUST run git/builds only in that worktree. Primary clone is for humans.
 //   Start of each job: fetch origin main; hard-reset night-issue-prs-main to origin/main when clean.
 //   Feature work: fix/issue-N-* branches inside the worktree; PR base stays base_branch (main).
 //
@@ -134,10 +136,13 @@ let include_pr_cluster = true;
 let max_prs = 6;
 let cluster_min_prs = 3;
 let issue_numbers = ();
-// Dedicated overnight workspace (agents must chdir here for git/builds).
-let worktree_path = "C:/Users/Nate/.grok/worktrees/intersoft-workspace-percussioncms/night-issue-prs";
+// Dedicated overnight workspace. Empty = agent resolves portable path under home:
+//   %USERPROFILE% or $HOME + /.grok/worktrees/intersoft-workspace-percussioncms/night-issue-prs
+let worktree_path = "";
 // Local integration branch in the worktree; reset to origin/main between jobs.
 let sync_branch = "night-issue-prs-main";
+// Relative worktree suffix (appended to home) when worktree_path is empty.
+let worktree_rel = ".grok/worktrees/intersoft-workspace-percussioncms/night-issue-prs";
 
 if args != () {
     if args.max_issues != () { max_issues = args.max_issues; }
@@ -174,6 +179,7 @@ log("night-issue-prs: repo=" + repo + " base=" + base_branch
     + " max_prs=" + max_prs.to_string()
     + " cluster_min_prs=" + cluster_min_prs.to_string()
     + " worktree=" + worktree_path
+    + " worktree_rel=" + worktree_rel
     + " sync_branch=" + sync_branch);
 
 // ========== Discover ==========
@@ -181,8 +187,9 @@ phase("Discover");
 
 let discover_prompt = "";
 discover_prompt += "You are the discovery agent for Percussion CMS overnight issue work.\n";
-discover_prompt += "Repo: " + repo + ". Prefer cwd " + worktree_path + " for any git status\n";
-discover_prompt += "(dedicated night-issue-prs worktree; sync_branch=" + sync_branch + "). Use gh CLI.\n\n";
+discover_prompt += "Repo: " + repo + ". Prefer dedicated night-issue-prs worktree for git.\n";
+discover_prompt += "Worktree: override=" + worktree_path + " rel_under_home=" + worktree_rel + " (home=%USERPROFILE% or $HOME).\n";
+discover_prompt += "sync_branch=" + sync_branch + ". Use gh CLI.\n\n";
 discover_prompt += "HARD RULES:\n";
 discover_prompt += "1) Before any gh command: run `gh auth status` and ensure the active account\n";
 discover_prompt += "   can access " + repo + " (prefer natechadwick-intsof if listed).\n";
@@ -339,7 +346,8 @@ pr_prompt_core += "Base branch: " + base_branch + "\n";
 pr_prompt_core += "max_prs=" + max_prs.to_string() + "\n\n";
 
 pr_prompt_core += "WORKSPACE (HARD — dedicated overnight worktree):\n";
-pr_prompt_core += "- cwd MUST be: " + worktree_path + "\n";
+pr_prompt_core += "- WORKTREE cwd: if worktree_path is non-empty use it; else join(home, " + worktree_rel + ")\n";
+pr_prompt_core += "  where home=%USERPROFILE% (Windows) or $HOME (Unix). Cross-platform; no hardcoded user path.\n";
 pr_prompt_core += "- Local default branch: " + sync_branch + " (sync to origin/" + base_branch + " between jobs).\n";
 pr_prompt_core += "- Start of this pass (if clean): git fetch origin " + base_branch + "; git switch " + sync_branch + ";\n";
 pr_prompt_core += "  git reset --hard origin/" + base_branch + ".\n";
@@ -499,7 +507,8 @@ for item in queue {
     if item.split_plan != () { work_prompt += "Split plan: " + item.split_plan + "\n"; }
     if item.rationale != () { work_prompt += "Triage rationale: " + item.rationale + "\n"; }
     work_prompt += "\nRepo: " + repo + "\nBase branch (PR base): " + base_branch + "\n";
-    work_prompt += "Worktree: " + worktree_path + "\n";
+    work_prompt += "Worktree path override (empty=portable): " + worktree_path + "\n";
+    work_prompt += "Worktree relative under home: " + worktree_rel + "\n";
     work_prompt += "Sync branch (local default): " + sync_branch + "\n";
     work_prompt += "dry_run=" + dry_run.to_string() + "\n\n";
 
@@ -515,12 +524,13 @@ for item in queue {
     work_prompt += "- Before any gh: `gh auth status` (active account for this repo).\n";
     work_prompt += "- Commit footer: Co-Authored by Grok Build using grok-4.5 with agent main.\n\n";
 
-    work_prompt += "WORKSPACE (HARD — dedicated overnight worktree):\n";
-    work_prompt += "- cwd MUST be: " + worktree_path + "\n";
+    work_prompt += "WORKSPACE (HARD - dedicated overnight worktree):\n";
+    work_prompt += "- WORKTREE cwd: if worktree_path is non-empty use it; else join(home, " + worktree_rel + ")\n";
+    work_prompt += "  where home=%USERPROFILE% (Windows) or $HOME (Unix). Cross-platform; no hardcoded user path.\n";
     work_prompt += "- Do NOT edit or build in the primary human clone for this job.\n\n";
 
     work_prompt += "GIT HYGIENE (critical for sequential overnight runs):\n";
-    work_prompt += "1) cd " + worktree_path + " ; `git status`. If dirty from a prior failed item, stash or\n";
+    work_prompt += "1) cd resolved worktree (override or home/" + worktree_rel + "); `git status`. If dirty from a prior failed item, stash or\n";
     work_prompt += "   discard ONLY files you created for a failed attempt; never delete unrelated work.\n";
     work_prompt += "2) Sync integration branch with origin/" + base_branch + ":\n";
     work_prompt += "   git fetch origin " + base_branch + "\n";
@@ -724,7 +734,7 @@ if include_pr_followup {
 // When many owned open PRs all edit the same hot paths (smoke specs, sitemanage-beans,
 // package.json, etc.), rebasing each onto main still leaves them conflicting with each
 // other. Prefer one interim cluster branch + one superseding PR.
-if include_pr_followup && include_pr_cluster {
+if include_pr_cluster {
     phase("PR cluster");
     let b_cl = budget();
     if b_cl.remaining < 2 {
@@ -744,7 +754,8 @@ if include_pr_followup && include_pr_cluster {
         cl_prompt += "You are the overnight PR CLUSTER agent for Percussion CMS.\n";
         cl_prompt += "Repo: " + repo + "\n";
         cl_prompt += "PR base: " + base_branch + "\n";
-        cl_prompt += "Worktree (HARD cwd): " + worktree_path + "\n";
+        cl_prompt += "Worktree: override=" + worktree_path + " rel_under_home=" + worktree_rel + "\n";
+        cl_prompt += "  Resolve home as %USERPROFILE% (Windows) or $HOME (Unix). Cross-platform.\n";
         cl_prompt += "Sync branch: " + sync_branch + " (reset to origin/" + base_branch + " when clean)\n";
         cl_prompt += "cluster_min_prs=" + cluster_min_prs.to_string() + "\n";
         cl_prompt += "dry_run=false (this phase only runs on live overnight)\n\n";
@@ -778,12 +789,12 @@ if include_pr_followup && include_pr_cluster {
         cl_prompt += "D5) Pick the largest thrash group (cap absorb list at 12 PRs, oldest createdAt first).\n\n";
 
         cl_prompt += "CLUSTER workflow (live):\n";
-        cl_prompt += "C1) cd " + worktree_path + "\n";
+        cl_prompt += "C1) cd to resolved worktree (override or home/" + worktree_rel + ")\n";
         cl_prompt += "    git fetch origin " + base_branch + "\n";
         cl_prompt += "    git switch " + sync_branch + "\n";
         cl_prompt += "    git reset --hard origin/" + base_branch + "\n";
         cl_prompt += "C2) Create interim branch from " + sync_branch + ":\n";
-        cl_prompt += "    cluster/night-issue-<YYYYMMDD>-<short-topic>\n";
+        cl_prompt += "    cluster/night-issue-<YYYYMMDD>-<topic>\n";
         cl_prompt += "    (topic from shared thrash files, e.g. catalog-smoke or sitemanage-beans).\n";
         cl_prompt += "C3) Oldest PR first: merge or cherry-pick its head into the cluster branch.\n";
         cl_prompt += "    Prefer: git merge origin/<pr-head> --no-ff -m \"cluster: absorb #N\"\n";
