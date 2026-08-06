@@ -10,6 +10,7 @@ import {
   listSlots,
 } from "../../../main/ts/api/developer/assemblyApi";
 import { TemplateDetailPanel } from "../../../main/ts/developer/TemplateDetailPanel";
+import * as sourceViewer from "../../../main/ts/developer/templateSourceViewer";
 
 vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   getTemplateDetail: vi.fn(),
@@ -20,6 +21,8 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
 const getTemplateDetailMock = vi.mocked(getTemplateDetail);
 const listSlotsMock = vi.mocked(listSlots);
 
+const multiLineSource = "<html>\n<body>$sys.variables\n</body>\n</html>";
+
 describe("TemplateDetailPanel", () => {
   beforeEach(() => {
     getTemplateDetailMock.mockReset();
@@ -29,6 +32,7 @@ describe("TemplateDetailPanel", () => {
 
   afterEach(() => {
     cleanup();
+    vi.restoreAllMocks();
   });
 
   it("renders bindings slots and source", async () => {
@@ -37,7 +41,7 @@ describe("TemplateDetailPanel", () => {
       label: "Page",
       bindings: [{ executionOrder: 1, variable: "$x", expression: "1" }],
       slots: [{ name: "target", label: "Target" }],
-      templateSource: "<html/>",
+      templateSource: multiLineSource,
       designGaps: ["read-only"],
     });
     listSlotsMock.mockResolvedValue([
@@ -51,8 +55,46 @@ describe("TemplateDetailPanel", () => {
     expect(screen.getByTestId("developer-tpl-bindings")).toBeTruthy();
     expect(screen.getByTestId("developer-tpl-slots")).toBeTruthy();
     expect(screen.getByTestId("developer-tpl-source")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-source-edit")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-source-lines")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-source-ln-1")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-source-ln-4")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-source-copy")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-tpl-back"));
     expect(onBack).toHaveBeenCalled();
+  });
+
+  it("toggles preview highlight and copy feedback", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      name: "perc.page",
+      label: "Page",
+      templateSource: multiLineSource,
+    });
+    const copySpy = vi.spyOn(sourceViewer, "copyTextToClipboard").mockResolvedValue(true);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-source-edit")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("developer-tpl-source-mode"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-source-preview")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-tpl-source-hl-1")).toBeTruthy();
+    expect(screen.queryByTestId("developer-tpl-source-edit")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-tpl-source-copy"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-source-copy-feedback").textContent).toMatch(
+        /Copied/i,
+      );
+    });
+    expect(copySpy).toHaveBeenCalledWith(multiLineSource);
+
+    fireEvent.click(screen.getByTestId("developer-tpl-source-mode"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-source-edit")).toBeTruthy();
+    });
   });
 
   it("shows error when detail load fails", async () => {

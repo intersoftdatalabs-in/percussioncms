@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   getTemplateDetail,
   listSlots,
@@ -31,6 +31,14 @@ import { catalogColors, monoCell, mutedCell, tableHeaderRow, tableRow } from "./
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { ObjectAclSection } from "./ObjectAclSection";
+import {
+  SOURCE_TOKEN_COLORS,
+  copyTextToClipboard,
+  highlightTemplateSource,
+  lineNumberGutterWidth,
+  lineNumbersForSource,
+  type SourceToken,
+} from "./templateSourceViewer";
 
 const metaGrid: React.CSSProperties = {
   display: "grid",
@@ -40,15 +48,34 @@ const metaGrid: React.CSSProperties = {
   fontSize: "0.9rem",
 };
 
-const sourcePre: React.CSSProperties = {
+const sourceShell: React.CSSProperties = {
   background: "#f7fafc",
   border: `1px solid ${catalogColors.headerBorder}`,
   borderRadius: "4px",
-  padding: "12px",
-  overflow: "auto",
+  overflow: "hidden",
   maxHeight: "320px",
   fontSize: "0.85rem",
+  fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
 };
+
+const sourceToolbarBtn: React.CSSProperties = {
+  background: "transparent",
+  border: `1px solid ${catalogColors.softBorder}`,
+  borderRadius: "4px",
+  padding: "4px 10px",
+  cursor: "pointer",
+  font: "inherit",
+  fontSize: "0.85rem",
+  color: catalogColors.text,
+};
+
+function renderSourceTokens(tokens: SourceToken[]): React.ReactNode {
+  return tokens.map((tok, i) => (
+    <span key={i} style={{ color: SOURCE_TOKEN_COLORS[tok.kind] }}>
+      {tok.text.length === 0 ? "\u00a0" : tok.text}
+    </span>
+  ));
+}
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
@@ -114,6 +141,19 @@ export function TemplateDetailPanel({
   const [bindings, setBindings] = useState<TemplateBindingSummary[]>([]);
   const [slotKeys, setSlotKeys] = useState<Set<string>>(new Set());
   const [allSlots, setAllSlots] = useState<SlotSummary[]>([]);
+  /** When true, show editable textarea; otherwise highlighted preview. */
+  const [sourceEditing, setSourceEditing] = useState(true);
+  const [copyFeedback, setCopyFeedback] = useState<"idle" | "ok" | "err">("idle");
+  const copyFeedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const gutterRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyFeedbackTimer.current != null) {
+        clearTimeout(copyFeedbackTimer.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -260,6 +300,28 @@ export function TemplateDetailPanel({
           guid: s.guid,
           description: s.description,
         }));
+
+  const sourceLines = useMemo(() => lineNumbersForSource(source), [source]);
+  const highlighted = useMemo(
+    () => (sourceEditing ? null : highlightTemplateSource(source)),
+    [source, sourceEditing],
+  );
+  const gutterDigits = lineNumberGutterWidth(sourceLines.length);
+
+  function syncSourceScroll(scrollTop: number) {
+    if (gutterRef.current) {
+      gutterRef.current.scrollTop = scrollTop;
+    }
+  }
+
+  async function handleCopySource() {
+    const ok = await copyTextToClipboard(source);
+    setCopyFeedback(ok ? "ok" : "err");
+    if (copyFeedbackTimer.current != null) {
+      clearTimeout(copyFeedbackTimer.current);
+    }
+    copyFeedbackTimer.current = setTimeout(() => setCopyFeedback("idle"), 2000);
+  }
 
   return (
     <div data-testid="developer-tpl-detail">
@@ -516,14 +578,126 @@ export function TemplateDetailPanel({
           </section>
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-tpl-source">
-            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.TPL_SOURCE}</h3>
-            <textarea
-              data-testid="developer-tpl-source-edit"
-              style={{ ...sourcePre, width: "100%", boxSizing: "border-box", minHeight: 200 }}
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
-              spellCheck={false}
-            />
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "8px",
+                flexWrap: "wrap",
+                marginBottom: "8px",
+              }}
+            >
+              <h3 style={{ fontSize: "1rem", margin: 0 }}>{DEV_MSG.TPL_SOURCE}</h3>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <button
+                  type="button"
+                  data-testid="developer-tpl-source-mode"
+                  onClick={() => setSourceEditing((v) => !v)}
+                  style={sourceToolbarBtn}
+                >
+                  {sourceEditing ? DEV_MSG.TPL_SOURCE_PREVIEW : DEV_MSG.TPL_SOURCE_EDIT}
+                </button>
+                <button
+                  type="button"
+                  data-testid="developer-tpl-source-copy"
+                  onClick={() => void handleCopySource()}
+                  style={sourceToolbarBtn}
+                  aria-label={DEV_MSG.TPL_SOURCE_COPY}
+                >
+                  {DEV_MSG.TPL_SOURCE_COPY}
+                </button>
+                {copyFeedback !== "idle" ? (
+                  <span
+                    data-testid="developer-tpl-source-copy-feedback"
+                    role="status"
+                    style={{
+                      fontSize: "0.85rem",
+                      color: copyFeedback === "ok" ? "#276749" : catalogColors.error,
+                    }}
+                  >
+                    {copyFeedback === "ok"
+                      ? DEV_MSG.TPL_SOURCE_COPIED
+                      : DEV_MSG.TPL_SOURCE_COPY_FAILED}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+            <div style={{ ...sourceShell, display: "flex", minHeight: 200 }}>
+              <div
+                ref={gutterRef}
+                data-testid="developer-tpl-source-lines"
+                aria-label={DEV_MSG.TPL_SOURCE_LINE_NUMBERS_ARIA}
+                style={{
+                  flex: "0 0 auto",
+                  minWidth: `${Math.max(2, gutterDigits) + 1}ch`,
+                  padding: "12px 8px",
+                  textAlign: "right",
+                  color: catalogColors.empty,
+                  background: "#edf2f7",
+                  borderRight: `1px solid ${catalogColors.headerBorder}`,
+                  overflow: "hidden",
+                  userSelect: "none",
+                  lineHeight: 1.45,
+                  whiteSpace: "pre",
+                }}
+              >
+                {sourceLines.map((n) => (
+                  <div key={n} data-testid={`developer-tpl-source-ln-${n}`}>
+                    {n}
+                  </div>
+                ))}
+              </div>
+              {sourceEditing ? (
+                <textarea
+                  data-testid="developer-tpl-source-edit"
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    border: "none",
+                    outline: "none",
+                    resize: "vertical",
+                    padding: "12px",
+                    background: "transparent",
+                    font: "inherit",
+                    lineHeight: 1.45,
+                    minHeight: 200,
+                    boxSizing: "border-box",
+                    whiteSpace: "pre",
+                    overflow: "auto",
+                  }}
+                  value={source}
+                  onChange={(e) => {
+                    setSource(e.target.value);
+                    setNotice(null);
+                  }}
+                  onScroll={(e) => syncSourceScroll(e.currentTarget.scrollTop)}
+                  spellCheck={false}
+                  disabled={busy}
+                />
+              ) : (
+                <pre
+                  data-testid="developer-tpl-source-preview"
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    margin: 0,
+                    padding: "12px",
+                    overflow: "auto",
+                    lineHeight: 1.45,
+                    whiteSpace: "pre",
+                    font: "inherit",
+                  }}
+                  onScroll={(e) => syncSourceScroll(e.currentTarget.scrollTop)}
+                >
+                  {(highlighted || []).map((line) => (
+                    <div key={line.lineNumber} data-testid={`developer-tpl-source-hl-${line.lineNumber}`}>
+                      {renderSourceTokens(line.tokens)}
+                    </div>
+                  ))}
+                </pre>
+              )}
+            </div>
           </section>
 
           <div style={{ marginBottom: "16px" }}>
