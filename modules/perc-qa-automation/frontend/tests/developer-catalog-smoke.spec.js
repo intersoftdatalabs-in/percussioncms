@@ -22,12 +22,26 @@
  * Content-types also asserts table body cells are not only empty / "—"
  * placeholders (empty DTOs); any other cell text counts as real data.
  *
+ * Also includes a **REST** probe for critical catalogs (slots) via Basic auth +
+ * {@code RX_USEBASICAUTH} — residual #2121 after unit-test slice #2115 / #2122.
+ *
  * Entry: spa.jsp?entry=developer&section=<slug>
- * Refs #1690 (design-WS retargets #1700–#1704).
+ * Refs #1690 (design-WS retargets #1700–#1704), #1694, #2121.
+ *
+ * Live REST probe (after {@code perc-devctl qa-up}):
+ * <pre>
+ *   cd modules/perc-qa-automation/frontend
+ *   TEST_CMS_URL=… ADMIN_USERNAME=Admin ADMIN_PASSWORD=… \
+ *     npm test -- tests/developer-catalog-smoke.spec.js -g "REST: GET /services/slots"
+ * </pre>
  */
 
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const {
+  loginAsAdmin,
+  BASE_URL,
+  adminBasicAuthHeaders,
+} = require("./helpers/auth");
 
 /**
  * @type {{
@@ -77,6 +91,51 @@ function developerUrl(section) {
   });
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?${q.toString()}`;
 }
+
+/**
+ * Critical REST catalog residual of #2115 / #1694 slice A (#2121).
+ *
+ * Live H2 qa-up (2026-08-06): GET /Rhythmyx/services/slots → HTTP 200 with
+ * Jackson-wrapped {@code Slot} array (stock rff* slots). No product stack
+ * required beyond merged unit-test slice #2122 — wiring already healthy.
+ * Auth: {@code Authorization: Basic …} + {@code RX_USEBASICAUTH: true}.
+ *
+ * Kept outside the SPA describe so page login beforeEach does not run.
+ */
+test.describe("Developer catalog REST smoke (#2121 / #1694)", () => {
+  test("REST: GET /services/slots returns 2xx (#2121)", async ({ request }) => {
+    test.setTimeout(30_000);
+    const headers = {
+      ...adminBasicAuthHeaders(),
+      Accept: "application/json",
+    };
+    const url = `${BASE_URL}/Rhythmyx/services/slots`;
+    const res = await request.get(url, { headers });
+    expect(
+      res.status(),
+      `GET ${url} must be 2xx (catalog residual #2121; was 500 on older QA)`,
+    ).toBeGreaterThanOrEqual(200);
+    expect(res.status(), `GET ${url} must not be error`).toBeLessThan(300);
+
+    const body = await res.json();
+    // Wire format is Jackson-wrapped list under "Slot" (see SlotSummary root).
+    const slots = Array.isArray(body) ? body : body?.Slot;
+    expect(
+      slots,
+      "slots response must be a JSON array or { Slot: [...] } wrapper",
+    ).toBeTruthy();
+    expect(Array.isArray(slots), "slots payload must be an array").toBe(true);
+    // Stock H2 / package install ships system + rff slots; empty list is still
+    // a valid 2xx catalog (adaptor findSlots → empty), but assert structure.
+    if (slots.length > 0) {
+      const first = slots[0];
+      expect(
+        first.name || first.label,
+        "first slot should expose name or label",
+      ).toBeTruthy();
+    }
+  });
+});
 
 test.describe("Developer catalog smoke (#1690)", () => {
   test.beforeEach(async ({ page }) => {
