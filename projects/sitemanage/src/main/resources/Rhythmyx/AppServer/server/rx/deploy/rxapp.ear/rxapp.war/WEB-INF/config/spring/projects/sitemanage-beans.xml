@@ -531,6 +531,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     <jaxrs:server id="pathmanagement-jax-rs" address="/pathmanagement" basePackages="com.percussion.share">
         <jaxrs:serviceBeans>
             <ref bean="pathService"/>
+            <!-- Empty Recycling bin (issue #2205 / parent #944 slice 1): /pathmanagement/recycle/empty -->
+            <ref bean="recycleRestService"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <ref bean="validationExceptionMapper"/>
