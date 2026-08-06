@@ -292,6 +292,33 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 # python docker/scripts/perc-devctl.py qa-down
 ```
 
+#### Home gadget locale residual (#1876 / parent #1852)
+
+Optional Playwright bug-regression for residual `perc.ui.dashboard.modern@` /
+`welcome@` / `activity@` body and modal keys after a non-English login
+(prefer `de-de`/`de`, else `hi-in`/`hi`, else `es`). Asserts Add Gadget chrome
+and a sample of Welcome/Activity strings are **not** English fallback.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/bugs/bug-1876-home-gadget-locale.spec.js` |
+| Tags | `@locale` `@home` `@dashboard` |
+| Unit (no CMS) | `npm run test:unit` (includes `pick-locale-tag.test.js`) |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/bugs/bug-1876-home-gadget-locale.spec.js
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/bugs/bug-1876-home-gadget-locale.spec.js
+npm run test:surface:list -- --tag locale
+```
+
+Does **not** expand Spanish/#961 residual matrix scope (tracked separately).
+
 **`run-surface` refuses the full suite** unless you pass `--allow-full` (agents must
 not use that by default).
 
