@@ -22,14 +22,14 @@ import java.util.Collection;
 
 public interface AttributeDAO {
 
-  public Collection getAllAttributes(int taxonomy_id, int language_id);
+  public Collection<Attribute> getAllAttributes(int taxonomy_id, int language_id);
 
-  public Collection getAttribute(int id);
+  public Collection<Attribute> getAttribute(int id);
 
   public void removeAttribute(Attribute attribute);
 
   public void saveAttribute(Attribute attribute);
 
   /** Return all Attribute names and IDs */
-  public Collection getAttributeNames(int taxonomy_id, int language_id);
+  public Collection<Object[]> getAttributeNames(int taxonomy_id, int language_id);
 }
