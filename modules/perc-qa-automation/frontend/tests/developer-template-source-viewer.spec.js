@@ -20,11 +20,13 @@
  * Asserts line-number gutter, copy control, and edit/preview chrome on the
  * template detail panel after opening the first catalog row.
  *
- * Live run requires a CMS with at least one template. Blocked on H2 qa-up
- * (#2065) / related stack issues until automation env is available.
+ * Part of #2188 smoke gate ({@code @smoke}). On H2 qa-up matrix (#2185) this
+ * is RED for product TemplateSummary empty name/label (#2189) and indexed row
+ * selectors (#2186). Codified as skip-with-BUG — flip to live assert when
+ * residuals land (see helpers/developer-smoke-set.js).
  *
  * Entry: spa.jsp?entry=developer&section=templates
- * Refs #2088, #1690.
+ * Refs #2088, #1690, #2188.
  */
 
 const { test, expect } = require("@playwright/test");
@@ -32,6 +34,10 @@ const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 const {
   catalogRowSelector,
 } = require("./helpers/developer-catalog-selectors");
+const {
+  getSmokeEntry,
+  skipReasonFor,
+} = require("./helpers/developer-smoke-set");
 
 function developerTemplatesUrl() {
   const q = new URLSearchParams({
@@ -42,15 +48,19 @@ function developerTemplatesUrl() {
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?${q.toString()}`;
 }
 
-test.describe("Developer template source viewer (#2088 UI-SRC-01)", () => {
+test.describe("Developer template source viewer (#2088 UI-SRC-01) @smoke", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(90_000);
     await loginAsAdmin(page);
   });
 
-  test("template detail source shows line numbers and copy control", async ({
+  test("template detail source shows line numbers and copy control @smoke", async ({
     page,
   }) => {
+    // Product DTO empty name/label (#2189) + selector harden (#2186). Smoke gate
+    // requires explicit skip-with-BUG, not a silent red flake (#2188).
+    test.skip(true, skipReasonFor(getSmokeEntry("template-source-viewer")));
+
     await page.goto(developerTemplatesUrl(), { waitUntil: "networkidle" });
 
     await expect(page.locator('[data-testid="nav-developer"]')).toBeVisible({

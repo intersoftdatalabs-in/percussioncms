@@ -7,9 +7,11 @@
   },
   "scripts": {
     "test": "playwright test",
-    "test:unit": "node --test tests/unit/resolve-cms-env.test.js tests/unit/surface-filter.test.js tests/unit/pick-locale-tag.test.js tests/unit/developer-catalog-selectors.test.js",
+    "test:unit": "node --test tests/unit/resolve-cms-env.test.js tests/unit/surface-filter.test.js tests/unit/pick-locale-tag.test.js tests/unit/developer-catalog-selectors.test.js tests/unit/developer-smoke-set.test.js",
     "test:list": "playwright test --list",
     "test:golden": "playwright test tests/golden-unattended-smoke.spec.js",
+    "test:developer-smoke": "playwright test tests/golden-unattended-smoke.spec.js tests/login.spec.js tests/developer-catalog-smoke.spec.js tests/developer-template-source-viewer.spec.js",
+    "test:developer-smoke:list": "playwright test --list tests/golden-unattended-smoke.spec.js tests/login.spec.js tests/developer-catalog-smoke.spec.js tests/developer-template-source-viewer.spec.js",
     "test:surface": "node scripts/run-surface.js",
     "test:surface:print": "node scripts/run-surface.js --print-only",
     "test:surface:list": "node scripts/run-surface.js --list"
