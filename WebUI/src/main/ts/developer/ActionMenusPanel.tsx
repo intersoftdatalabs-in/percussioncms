@@ -6,8 +6,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { listActionMenus } from "../api/developer/actionMenusApi";
 import type { ActionMenu } from "../api/developer/types";
 import { ActionMenuDetailPanel } from "./ActionMenuDetailPanel";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { catalogColors, monoCell, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -64,69 +64,54 @@ export function ActionMenusPanel(): React.ReactElement {
   return (
     <div data-testid="developer-am-panel">
       <CatalogHint>{DEV_MSG.AM_HINT}</CatalogHint>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-am-table"
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
-        >
-          <thead>
-            <tr style={tableHeaderRow}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_NAME}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_LABEL}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_TYPE}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_HANDLER}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_DESCRIPTION}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((m, index) => {
-              const openKey = m.name || (m.id != null ? String(m.id) : "");
-              const interactive = openKey.length > 0;
-              return (
-                <tr
-                  key={m.guid?.stringValue || m.name || `am-${index}`}
-                  data-testid="developer-am-row"
-                  style={{ ...tableRow, cursor: interactive ? "pointer" : "default"  }}
-                  onClick={() => {
-                    if (interactive) setSelected(openKey);
+      <SimpleCatalogTable
+        tableTestId="developer-am-table"
+        rowTestId="developer-am-row"
+        columns={[
+          DEV_MSG.AM_COL_NAME,
+          DEV_MSG.AM_COL_LABEL,
+          DEV_MSG.AM_COL_TYPE,
+          DEV_MSG.AM_COL_HANDLER,
+          DEV_MSG.AM_COL_DESCRIPTION,
+        ]}
+        rows={sorted.map((m, index) => {
+          const openKey = m.name || (m.id != null ? String(m.id) : "");
+          const interactive = openKey.length > 0;
+          return {
+            key: m.guid?.stringValue || m.name || `am-${index}`,
+            onClick: interactive ? () => setSelected(openKey) : undefined,
+            cells: [
+              interactive ? (
+                <button
+                  key="open"
+                  type="button"
+                  data-testid="developer-am-open"
+                  aria-label={`Open ${m.name || openKey}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelected(openKey);
                   }}
+                  style={{ ...openButtonStyle, fontFamily: "monospace" }}
                 >
-                  <td style={{ padding: "8px" }}>
-                    {interactive ? (
-                      <button
-                        type="button"
-                        data-testid="developer-am-open"
-                        aria-label={`Open ${m.name || openKey}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelected(openKey);
-                        }}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: catalogColors.accent,
-                          cursor: "pointer",
-                          font: "inherit",
-                          padding: 0,
-                          fontFamily: "monospace",
-                        }}
-                      >
-                        {m.name || "—"}
-                      </button>
-                    ) : (
-                      <span style={monoCell}>{m.name || "—"}</span>
-                    )}
-                  </td>
-                  <td style={{ padding: "8px" }}>{m.label || ""}</td>
-                  <td style={{ padding: "8px", ...monoCell }}>{m.menuType || "—"}</td>
-                  <td style={{ padding: "8px" }}>{m.handler || "—"}</td>
-                  <td style={{ padding: "8px", ...mutedCell }}>{m.description || ""}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  {m.name || "—"}
+                </button>
+              ) : (
+                <span key="n" style={monoCell}>
+                  {m.name || "—"}
+                </span>
+              ),
+              m.label || "",
+              <span key="t" style={monoCell}>
+                {m.menuType || "—"}
+              </span>,
+              m.handler || "—",
+              <span key="d" style={mutedCell}>
+                {m.description || ""}
+              </span>,
+            ],
+          };
+        })}
+      />
     </div>
   );
 }

@@ -5,8 +5,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { listExtensions } from "../api/developer/extensionsApi";
 import type { ExtensionDef } from "../api/developer/types";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { catalogColors, monoCell, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { ExtensionDetailPanel } from "./ExtensionDetailPanel";
 import { DEV_MSG } from "./messages";
@@ -62,74 +62,59 @@ export function ExtensionsPanel(): React.ReactElement {
   return (
     <div data-testid="developer-ex-panel">
       <CatalogHint>{DEV_MSG.EX_HINT}</CatalogHint>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-ex-table"
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
-        >
-          <thead>
-            <tr style={tableHeaderRow}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.EX_COL_NAME}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.EX_COL_HANDLER}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.EX_COL_CONTEXT}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.EX_COL_CATEGORY}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.EX_COL_FLAGS}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((e, index) => {
-              const openKey = e.fqn || e.extensionName || "";
-              const interactive = openKey.length > 0;
-              const flags: string[] = [];
-              if (e.jexlExtension) flags.push(DEV_MSG.EX_FLAG_JEXL);
-              if (e.deprecated) flags.push(DEV_MSG.EX_FLAG_DEPRECATED);
-              return (
-                <tr
-                  key={e.fqn || e.extensionName || `ex-${index}`}
-                  data-testid="developer-ex-row"
-                  style={{ ...tableRow, cursor: interactive ? "pointer" : "default"  }}
-                  onClick={() => {
-                    if (interactive) setSelected(openKey);
+      <SimpleCatalogTable
+        tableTestId="developer-ex-table"
+        rowTestId="developer-ex-row"
+        columns={[
+          DEV_MSG.EX_COL_NAME,
+          DEV_MSG.EX_COL_HANDLER,
+          DEV_MSG.EX_COL_CONTEXT,
+          DEV_MSG.EX_COL_CATEGORY,
+          DEV_MSG.EX_COL_FLAGS,
+        ]}
+        rows={sorted.map((e, index) => {
+          const openKey = e.fqn || e.extensionName || "";
+          const interactive = openKey.length > 0;
+          const flags: string[] = [];
+          if (e.jexlExtension) flags.push(DEV_MSG.EX_FLAG_JEXL);
+          if (e.deprecated) flags.push(DEV_MSG.EX_FLAG_DEPRECATED);
+          return {
+            key: e.fqn || e.extensionName || `ex-${index}`,
+            onClick: interactive ? () => setSelected(openKey) : undefined,
+            cells: [
+              interactive ? (
+                <button
+                  key="open"
+                  type="button"
+                  data-testid="developer-ex-open"
+                  aria-label={`Open ${e.extensionName || openKey}`}
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    setSelected(openKey);
                   }}
+                  style={{ ...openButtonStyle, fontFamily: "monospace" }}
                 >
-                  <td style={{ padding: "8px" }}>
-                    {interactive ? (
-                      <button
-                        type="button"
-                        data-testid="developer-ex-open"
-                        aria-label={`Open ${e.extensionName || openKey}`}
-                        onClick={(ev) => {
-                          ev.stopPropagation();
-                          setSelected(openKey);
-                        }}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: catalogColors.accent,
-                          cursor: "pointer",
-                          font: "inherit",
-                          padding: 0,
-                          fontFamily: "monospace",
-                        }}
-                      >
-                        {e.extensionName || "—"}
-                      </button>
-                    ) : (
-                      <span style={monoCell}>{e.extensionName || "—"}</span>
-                    )}
-                  </td>
-                  <td style={{ padding: "8px", ...monoCell }}>{e.handlerName || "—"}</td>
-                  <td style={{ padding: "8px", ...mutedCell }}>{e.context || ""}</td>
-                  <td style={{ padding: "8px" }}>{e.category || "—"}</td>
-                  <td style={{ padding: "8px", fontSize: "0.85rem" }}>
-                    {flags.length ? flags.join(", ") : "—"}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  {e.extensionName || "—"}
+                </button>
+              ) : (
+                <span key="n" style={monoCell}>
+                  {e.extensionName || "—"}
+                </span>
+              ),
+              <span key="h" style={monoCell}>
+                {e.handlerName || "—"}
+              </span>,
+              <span key="c" style={mutedCell}>
+                {e.context || ""}
+              </span>,
+              e.category || "—",
+              <span key="f" style={{ fontSize: "0.85rem" }}>
+                {flags.length ? flags.join(", ") : "—"}
+              </span>,
+            ],
+          };
+        })}
+      />
     </div>
   );
 }

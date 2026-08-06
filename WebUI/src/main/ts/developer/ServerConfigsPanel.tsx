@@ -5,8 +5,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { listServerConfigs } from "../api/developer/serverConfigsApi";
 import type { ServerConfigDef } from "../api/developer/types";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { catalogColors, monoCell, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { ServerConfigDetailPanel } from "./ServerConfigDetailPanel";
@@ -67,57 +67,39 @@ export function ServerConfigsPanel(): React.ReactElement {
   return (
     <div data-testid="developer-cfg-panel">
       <CatalogHint>{DEV_MSG.CFG_HINT}</CatalogHint>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-cfg-table"
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
-        >
-          <thead>
-            <tr style={tableHeaderRow}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.CFG_COL_DISPLAY}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.CFG_COL_KEY}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.CFG_COL_FILE}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((c) => {
-              const openKey = (c.name || "").trim();
-              return (
-                <tr
-                  key={openKey}
-                  data-testid="developer-cfg-row"
-                  style={{ ...tableRow, cursor: "pointer"  }}
-                  onClick={() => setSelected(openKey)}
-                >
-                  <td style={{ padding: "8px" }}>
-                    <button
-                      type="button"
-                      data-testid="developer-cfg-open"
-                      aria-label={`Open ${c.displayName || openKey}`}
-                      onClick={(ev) => {
-                        ev.stopPropagation();
-                        setSelected(openKey);
-                      }}
-                      style={{
-                        background: "transparent",
-                        border: "none",
-                        color: catalogColors.accent,
-                        cursor: "pointer",
-                        font: "inherit",
-                        padding: 0,
-                      }}
-                    >
-                      {c.displayName || openKey}
-                    </button>
-                  </td>
-                  <td style={{ padding: "8px", ...monoCell }}>{openKey}</td>
-                  <td style={{ padding: "8px", ...mutedCell }}>{c.fileName || "—"}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <SimpleCatalogTable
+        tableTestId="developer-cfg-table"
+        rowTestId="developer-cfg-row"
+        columns={[DEV_MSG.CFG_COL_DISPLAY, DEV_MSG.CFG_COL_KEY, DEV_MSG.CFG_COL_FILE]}
+        rows={sorted.map((c) => {
+          const openKey = (c.name || "").trim();
+          return {
+            key: openKey,
+            onClick: () => setSelected(openKey),
+            cells: [
+              <button
+                key="open"
+                type="button"
+                data-testid="developer-cfg-open"
+                aria-label={`Open ${c.displayName || openKey}`}
+                onClick={(ev) => {
+                  ev.stopPropagation();
+                  setSelected(openKey);
+                }}
+                style={openButtonStyle}
+              >
+                {c.displayName || openKey}
+              </button>,
+              <span key="k" style={monoCell}>
+                {openKey}
+              </span>,
+              <span key="f" style={mutedCell}>
+                {c.fileName || "—"}
+              </span>,
+            ],
+          };
+        })}
+      />
     </div>
   );
 }

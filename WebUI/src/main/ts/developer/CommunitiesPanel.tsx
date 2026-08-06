@@ -18,8 +18,8 @@
 import React, { useEffect, useState } from "react";
 import { listCommunities } from "../api/developer/assemblyApi";
 import type { CommunitySummary } from "../api/developer/types";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { catalogColors, openButtonStyle, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { CommunityDetailPanel } from "./CommunityDetailPanel";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -78,58 +78,46 @@ export function CommunitiesPanel(): React.ReactElement {
   return (
     <div data-testid="developer-comm-panel">
       <CatalogHint>{DEV_MSG.COMM_HINT}</CatalogHint>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-comm-table"
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
-        >
-          <thead>
-            <tr style={tableHeaderRow}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_LABEL}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_NAME}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_ID}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_DESCRIPTION}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((c, index) => {
-              const key = openKey(c);
-              const rowKey = String(c.id ?? c.guid?.stringValue ?? c.name ?? `comm-${index}`);
-              return (
-                <tr
-                  key={rowKey}
-                  data-testid="developer-comm-row"
-                  style={tableRow}
+      <SimpleCatalogTable
+        tableTestId="developer-comm-table"
+        rowTestId="developer-comm-row"
+        columns={[
+          DEV_MSG.COMM_COL_LABEL,
+          DEV_MSG.COMM_COL_NAME,
+          DEV_MSG.COMM_COL_ID,
+          DEV_MSG.COMM_COL_DESCRIPTION,
+        ]}
+        rows={sorted.map((c, index) => {
+          const key = openKey(c);
+          return {
+            key: String(c.id ?? c.guid?.stringValue ?? c.name ?? `comm-${index}`),
+            cells: [
+              key ? (
+                <button
+                  key="open"
+                  type="button"
+                  style={openButtonStyle}
+                  aria-label={`Open ${c.label || c.name || key}`}
+                  onClick={() => setSelected(key)}
                 >
-                  <td style={{ padding: "8px" }}>
-                    {key ? (
-                      <button
-                        type="button"
-                        style={openButtonStyle}
-                        aria-label={`Open ${c.label || c.name || key}`}
-                        onClick={() => setSelected(key)}
-                      >
-                        {c.label || c.name || "—"}
-                      </button>
-                    ) : (
-                      c.label || "—"
-                    )}
-                  </td>
-                  <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                    {c.name || "—"}
-                  </td>
-                  <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                    {c.id != null ? String(c.id) : c.guid?.stringValue || "—"}
-                  </td>
-                  <td style={{ padding: "8px", color: catalogColors.muted }}>
-                    {c.description || ""}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  {c.label || c.name || "—"}
+                </button>
+              ) : (
+                c.label || "—"
+              ),
+              <span key="n" style={monoCell}>
+                {c.name || "—"}
+              </span>,
+              <span key="i" style={monoCell}>
+                {c.id != null ? String(c.id) : c.guid?.stringValue || "—"}
+              </span>,
+              <span key="d" style={mutedCell}>
+                {c.description || ""}
+              </span>,
+            ],
+          };
+        })}
+      />
     </div>
   );
 }

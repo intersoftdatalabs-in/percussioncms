@@ -18,11 +18,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { listKeywords } from "../api/developer/keywordsApi";
 import type { KeywordSummary } from "../api/developer/types";
+import { CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { KeywordEditorPanel } from "./KeywordEditorPanel";
 import { DEV_MSG } from "./messages";
-import { catalogColors, tableHeaderRow, tableRow } from "./catalogStyles";
-
 
 /**
  * P0.3b — keyword catalog with create / edit / delete.
@@ -66,18 +66,14 @@ export function KeywordsPanel(): React.ReactElement {
 
   if (error) {
     return (
-      <div data-testid="developer-kw-error" role="alert" style={{ color: catalogColors.error }}>
+      <CatalogStatus testId="developer-kw-error" error>
         {error}
-      </div>
+      </CatalogStatus>
     );
   }
 
   if (items == null) {
-    return (
-      <div data-testid="developer-kw-loading" style={{ padding: "0.5rem 0" }}>
-        {DEV_MSG.KW_LOADING}
-      </div>
-    );
+    return <CatalogStatus testId="developer-kw-loading">{DEV_MSG.KW_LOADING}</CatalogStatus>;
   }
 
   return (
@@ -92,14 +88,14 @@ export function KeywordsPanel(): React.ReactElement {
           flexWrap: "wrap",
         }}
       >
-        <p style={{ color: catalogColors.muted, margin: 0, fontSize: "0.9rem" }}>{DEV_MSG.KW_HINT}</p>
+        <p style={{ color: "#4a5568", margin: 0, fontSize: "0.9rem" }}>{DEV_MSG.KW_HINT}</p>
         <button
           type="button"
           data-testid="developer-kw-new"
           onClick={() => setEditing("new")}
           style={{
             padding: "8px 14px",
-            background: catalogColors.accent,
+            background: "#007ea8",
             color: "#fff",
             border: "none",
             borderRadius: "4px",
@@ -111,72 +107,46 @@ export function KeywordsPanel(): React.ReactElement {
       </div>
 
       {items.length === 0 ? (
-        <div data-testid="developer-kw-empty" style={{ padding: "0.5rem 0" }}>
-          {DEV_MSG.KW_EMPTY}
-        </div>
+        <CatalogStatus testId="developer-kw-empty">{DEV_MSG.KW_EMPTY}</CatalogStatus>
       ) : (
-        <div style={{ overflowX: "auto" }}>
-          <table
-            data-testid="developer-kw-table"
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              fontSize: "0.95rem",
-            }}
-          >
-            <thead>
-              <tr style={tableHeaderRow}>
-                <th style={{ padding: "8px" }}>{DEV_MSG.KW_COL_LABEL}</th>
-                <th style={{ padding: "8px" }}>{DEV_MSG.KW_COL_VALUE}</th>
-                <th style={{ padding: "8px" }}>{DEV_MSG.KW_COL_CHOICES}</th>
-                <th style={{ padding: "8px" }}>{DEV_MSG.KW_COL_DESCRIPTION}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((kw, index) => {
-                const key =
-                  kw.guid?.stringValue || kw.value || kw.label || `kw-${index}`;
-                const choiceCount = kw.choices?.length ?? 0;
-                return (
-                  <tr
-                    key={key}
-                    data-testid="developer-kw-row"
-                    style={{ ...tableRow, cursor: "pointer"  }}
-                    onClick={() => setEditing(kw)}
-                  >
-                    <td style={{ padding: "8px" }}>
-                      <button
-                        type="button"
-                        style={{
-                          background: "none",
-                          border: "none",
-                          padding: 0,
-                          color: catalogColors.accent,
-                          cursor: "pointer",
-                          font: "inherit",
-                          textDecoration: "underline",
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditing(kw);
-                        }}
-                      >
-                        {kw.label || "—"}
-                      </button>
-                    </td>
-                    <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                      {kw.value || "—"}
-                    </td>
-                    <td style={{ padding: "8px" }}>{choiceCount}</td>
-                    <td style={{ padding: "8px", color: catalogColors.muted }}>
-                      {kw.description || ""}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <SimpleCatalogTable
+          tableTestId="developer-kw-table"
+          rowTestId="developer-kw-row"
+          columns={[
+            DEV_MSG.KW_COL_LABEL,
+            DEV_MSG.KW_COL_VALUE,
+            DEV_MSG.KW_COL_CHOICES,
+            DEV_MSG.KW_COL_DESCRIPTION,
+          ]}
+          rows={items.map((kw, index) => {
+            const key = kw.guid?.stringValue || kw.value || kw.label || `kw-${index}`;
+            const choiceCount = kw.choices?.length ?? 0;
+            return {
+              key,
+              onClick: () => setEditing(kw),
+              cells: [
+                <button
+                  key="open"
+                  type="button"
+                  style={openButtonStyle}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditing(kw);
+                  }}
+                >
+                  {kw.label || "—"}
+                </button>,
+                <span key="v" style={monoCell}>
+                  {kw.value || "—"}
+                </span>,
+                choiceCount,
+                <span key="d" style={mutedCell}>
+                  {kw.description || ""}
+                </span>,
+              ],
+            };
+          })}
+        />
       )}
     </div>
   );

@@ -5,8 +5,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { listRelationshipTypes } from "../api/developer/relationshipTypesApi";
 import type { RelationshipTypeDef } from "../api/developer/types";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { catalogColors, monoCell, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { RelationshipTypeDetailPanel } from "./RelationshipTypeDetailPanel";
 import { DEV_MSG } from "./messages";
@@ -64,77 +64,58 @@ export function RelationshipTypesPanel(): React.ReactElement {
   return (
     <div data-testid="developer-rt-panel">
       <CatalogHint>{DEV_MSG.RT_HINT}</CatalogHint>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-rt-table"
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
-        >
-          <thead>
-            <tr style={tableHeaderRow}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_NAME}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_LABEL}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_CATEGORY}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_TYPE}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_FLAGS}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((t, index) => {
-              const openKey = t.name || t.guid?.stringValue || "";
-              const interactive = openKey.length > 0;
-              const flags: string[] = [];
-              if (t.allowCloning) flags.push(DEV_MSG.RT_FLAG_CLONE);
-              if (t.systemType) flags.push(DEV_MSG.RT_FLAG_SYSTEM);
-              if (t.userType) flags.push(DEV_MSG.RT_FLAG_USER);
-              return (
-                <tr
-                  key={t.name || t.guid?.stringValue || `rt-${index}`}
-                  data-testid="developer-rt-row"
-                  style={{ ...tableRow, cursor: interactive ? "pointer" : "default"  }}
-                  onClick={() => {
-                    if (interactive) setSelected(openKey);
+      <SimpleCatalogTable
+        tableTestId="developer-rt-table"
+        rowTestId="developer-rt-row"
+        columns={[
+          DEV_MSG.RT_COL_NAME,
+          DEV_MSG.RT_COL_LABEL,
+          DEV_MSG.RT_COL_CATEGORY,
+          DEV_MSG.RT_COL_TYPE,
+          DEV_MSG.RT_COL_FLAGS,
+        ]}
+        rows={sorted.map((t, index) => {
+          const openKey = t.name || t.guid?.stringValue || "";
+          const interactive = openKey.length > 0;
+          const flags: string[] = [];
+          if (t.allowCloning) flags.push(DEV_MSG.RT_FLAG_CLONE);
+          if (t.systemType) flags.push(DEV_MSG.RT_FLAG_SYSTEM);
+          if (t.userType) flags.push(DEV_MSG.RT_FLAG_USER);
+          return {
+            key: t.name || t.guid?.stringValue || `rt-${index}`,
+            onClick: interactive ? () => setSelected(openKey) : undefined,
+            cells: [
+              interactive ? (
+                <button
+                  key="open"
+                  type="button"
+                  data-testid="developer-rt-open"
+                  aria-label={`Open ${t.name || openKey}`}
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    setSelected(openKey);
                   }}
+                  style={{ ...openButtonStyle, fontFamily: "monospace" }}
                 >
-                  <td style={{ padding: "8px" }}>
-                    {interactive ? (
-                      <button
-                        type="button"
-                        data-testid="developer-rt-open"
-                        aria-label={`Open ${t.name || openKey}`}
-                        onClick={(ev) => {
-                          ev.stopPropagation();
-                          setSelected(openKey);
-                        }}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: catalogColors.accent,
-                          cursor: "pointer",
-                          font: "inherit",
-                          padding: 0,
-                          fontFamily: "monospace",
-                        }}
-                      >
-                        {t.name || "—"}
-                      </button>
-                    ) : (
-                      <span style={monoCell}>{t.name || "—"}</span>
-                    )}
-                  </td>
-                  <td style={{ padding: "8px" }}>{t.label || "—"}</td>
-                  <td style={{ padding: "8px", ...mutedCell }}>
-                    {t.categoryLabel || t.category || "—"}
-                  </td>
-                  <td style={{ padding: "8px" }}>{t.type || "—"}</td>
-                  <td style={{ padding: "8px", fontSize: "0.85rem" }}>
-                    {flags.length ? flags.join(", ") : "—"}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  {t.name || "—"}
+                </button>
+              ) : (
+                <span key="n" style={monoCell}>
+                  {t.name || "—"}
+                </span>
+              ),
+              t.label || "—",
+              <span key="cat" style={mutedCell}>
+                {t.categoryLabel || t.category || "—"}
+              </span>,
+              t.type || "—",
+              <span key="f" style={{ fontSize: "0.85rem" }}>
+                {flags.length ? flags.join(", ") : "—"}
+              </span>,
+            ],
+          };
+        })}
+      />
     </div>
   );
 }
