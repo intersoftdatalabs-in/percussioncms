@@ -71,8 +71,7 @@ public class PSContentTypesContext implements IPSContentTypesContext {
     try {
       java.util.List<com.percussion.utils.guid.IPSGuid> ids =
           Collections.singletonList(
-              (com.percussion.utils.guid.IPSGuid)
-                  PSGuidManagerLocator.getGuidMgr().makeGuid(contentTypeID, PSTypeEnum.NODEDEF));
+              PSGuidManagerLocator.getGuidMgr().makeGuid(contentTypeID, PSTypeEnum.NODEDEF));
       java.util.List<IPSNodeDefinition> defs =
           PSContentMgrLocator.getContentMgr().loadNodeDefinitions(ids);
       found =

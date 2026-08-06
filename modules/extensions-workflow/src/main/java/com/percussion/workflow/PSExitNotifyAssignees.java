@@ -1099,7 +1099,7 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
         PSAttribute emailAttr =
             subject.getAttributes().getAttribute(PSWorkFlowUtils.USER_EMAIL_ATTRIBUTE);
         if (emailAttr != null) {
-          String email = (String) emailAttr.getValues().get(0);
+          String email = emailAttr.getValues().get(0);
           if (StringUtils.isNotEmpty(email)) {
             psSubjects.put(email, subject);
           }

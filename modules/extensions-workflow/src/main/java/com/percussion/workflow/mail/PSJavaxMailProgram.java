@@ -90,7 +90,7 @@ public class PSJavaxMailProgram implements IPSMailProgram {
    */
   private InternetAddress[] makeAddress(String sUserList, String mailDomain)
       throws AddressException {
-    ArrayList l = new ArrayList();
+    ArrayList<InternetAddress> l = new ArrayList<>();
     StringTokenizer tokenizer = new StringTokenizer(sUserList, ",");
     String sToken = null;
     String userAddressString = null;
@@ -113,7 +113,7 @@ public class PSJavaxMailProgram implements IPSMailProgram {
     InternetAddress[] inetAddressArray = new InternetAddress[l.size()];
 
     for (int i = 0; i < l.size(); i++) {
-      inetAddressArray[i] = (InternetAddress) l.get(i);
+      inetAddressArray[i] = l.get(i);
     }
 
     return inetAddressArray;
