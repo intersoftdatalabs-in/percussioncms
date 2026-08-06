@@ -39,13 +39,17 @@ import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
  * @author Sunny Sal
  */
 @ApplicationPath("/")
-@SuppressWarnings("this-escape")
 public class PSCommentsApplication extends ResourceConfig {
 
   /**
    * Registers Jersey/Spring components, REST resources, features, and providers for the comments
-   * and likes REST APIs.
+   * and likes REST APIs. The {@link ResourceConfig#register} methods invoked here are overridable
+   * on this subclass, which is why this constructor carries a targeted {@code this-escape}
+   * suppression: subclasses (if any) are not expected to be deserialized, and Jersey instantiates
+   * this class exactly once during application bootstrap, before any subclass overrides could
+   * become visible.
    */
+  @SuppressWarnings("this-escape")
   public PSCommentsApplication() {
     // Register Jersey and Spring integration components
     register(RequestContextFilter.class);

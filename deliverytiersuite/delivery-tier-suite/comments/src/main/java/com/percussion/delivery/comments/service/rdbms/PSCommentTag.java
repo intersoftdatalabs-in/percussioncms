@@ -27,6 +27,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
+import java.io.Serializable;
 
 /**
  * Represents a tag attached to a comment. Tags are stored in their own table and linked back to a
@@ -36,7 +37,8 @@ import jakarta.persistence.TableGenerator;
  */
 @Entity
 @Table(name = "PERC_COMMENT_TAGS")
-public class PSCommentTag {
+public class PSCommentTag implements Serializable {
+  private static final long serialVersionUID = 1L;
 
   @TableGenerator(
       name = "commentTagId",
@@ -90,7 +92,7 @@ public class PSCommentTag {
    *
    * @param comment the parent {@link PSComment}.
    */
-  public void setComment(PSComment comment) {
+  public final void setComment(PSComment comment) {
     this.comment = comment;
   }
 

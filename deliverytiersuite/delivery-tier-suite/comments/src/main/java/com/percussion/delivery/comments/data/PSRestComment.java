@@ -53,7 +53,6 @@ public class PSRestComment implements IPSComment {
    *
    * @param comment A comment to create a copy from.
    */
-  @SuppressWarnings("this-escape")
   public PSRestComment(IPSComment comment) {
     this.id = comment.getId();
     this.approvalState = comment.getApprovalState();
@@ -63,7 +62,7 @@ public class PSRestComment implements IPSComment {
     this.pagePath = comment.getPagePath();
     this.parent = comment.getParent();
     this.site = comment.getSite();
-    setTags(comment.getTags());
+    this.tags = comment.getTags();
     this.text = comment.getText();
     this.title = comment.getTitle();
     this.url = comment.getUrl();

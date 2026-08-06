@@ -182,8 +182,7 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
   @Path("/jsonp")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
-  @SuppressWarnings({"rawtypes", "unchecked"}) // interface returns parameterized type
-  public GenericEntity getCommentsP(PSCommentCriteria criteria) {
+  public GenericEntity<PSComments> getCommentsP(PSCommentCriteria criteria) {
     try {
       if (criteria.getCallback() == null || criteria.getCallback().isEmpty())
         criteria.setCallback(PSCommentsRestService.CALLBACK_FN);
@@ -546,8 +545,7 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
   @PUT
   @RolesAllowed("deliverymanager")
   @Path("/moderation/defaultModerationState")
-  @SuppressWarnings("rawtypes")
-  public void setDefaultModerationState(Map data) {
+  public void setDefaultModerationState(Map<String, Object> data) {
     try {
       String site = (String) data.get("site");
       String state = (String) data.get("state");

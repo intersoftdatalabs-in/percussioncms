@@ -52,7 +52,6 @@ import org.hibernate.annotations.OnDeleteAction;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSComments1")
 @Table(name = "PERC_PAGE_COMMENTS")
-@SuppressWarnings({"serial", "this-escape"})
 public class PSComment implements IPSComment, Serializable {
   private static final long serialVersionUID = 1L;
 
@@ -111,6 +110,7 @@ public class PSComment implements IPSComment, Serializable {
       targetEntity = PSCommentTag.class)
   @Fetch(FetchMode.SUBSELECT)
   @OnDelete(action = OnDeleteAction.CASCADE)
+  @SuppressWarnings("serial") // Set is not Serializable; tag values are Serializable.
   private Set<PSCommentTag> commentTags = new HashSet<>();
 
   /** Flag indicating the comment has been moderated by a user action. */
@@ -136,8 +136,16 @@ public class PSComment implements IPSComment, Serializable {
   /**
    * Creates a new comment with the same values as the given one, except for the id.
    *
+   * <p>Tag materialization is inlined here (rather than calling {@link #setTags}) because this
+   * constructor runs before subclass overrides are visible to the JVM; invoking an overridable
+   * method from a constructor is flagged by {@code javac}'s {@code this-escape} lint. The
+   * back-reference call into {@link PSCommentTag#setComment} necessarily passes {@code this} to
+   * another class while this constructor is still in flight, hence the targeted suppression on this
+   * single constructor.
+   *
    * @param comment A comment to create a copy from.
    */
+  @SuppressWarnings("this-escape")
   public PSComment(final IPSComment comment) {
     this.approvalState = comment.getApprovalState().toString();
     this.createdDate = comment.getCreatedDate();
@@ -146,7 +154,15 @@ public class PSComment implements IPSComment, Serializable {
     this.pagePath = comment.getPagePath();
     this.parent = comment.getParent() == null ? 0 : Long.valueOf(comment.getParent());
     this.site = comment.getSite();
-    this.setTags(comment.getTags());
+    final Set<String> tags = comment.getTags();
+    if (tags != null) {
+      PSCommentTag commentTag;
+      for (final String aTag : tags) {
+        commentTag = new PSCommentTag(aTag);
+        commentTag.setComment(this);
+        this.commentTags.add(commentTag);
+      }
+    }
     this.text = comment.getText();
     this.title = comment.getTitle();
     this.url = comment.getUrl();

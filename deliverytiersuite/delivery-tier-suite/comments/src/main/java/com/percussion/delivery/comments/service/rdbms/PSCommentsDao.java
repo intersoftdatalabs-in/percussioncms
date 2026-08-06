@@ -37,6 +37,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -205,7 +206,7 @@ public class PSCommentsDao implements IPSCommentsDao {
     Session session = getSession();
 
     session
-        .createQuery("delete from PSComment where id in (:commentIds)")
+        .createMutationQuery("delete from PSComment where id in (:commentIds)")
         .setParameter("commentIds", longIds)
         .executeUpdate();
   }
@@ -229,8 +230,7 @@ public class PSCommentsDao implements IPSCommentsDao {
           "update PSComment com set approvalState = :newApprovalState "
               + "where com.id in (:idList) ";
 
-      @SuppressWarnings({"rawtypes", "unchecked"})
-      Query updateQuery = session.createQuery(updateQueryString);
+      MutationQuery updateQuery = session.createMutationQuery(updateQueryString);
       updateQuery.setParameter("newApprovalState", newApprovalState.toString());
       updateQuery.setParameter("idList", longIds);
       updateQuery.executeUpdate();
@@ -250,11 +250,9 @@ public class PSCommentsDao implements IPSCommentsDao {
               + "where site = :site "
               + "group by pagePath, approvalState, viewed ";
 
-      @SuppressWarnings({"rawtypes", "unchecked"})
-      Query query = session.createQuery(stringQuery);
+      Query<Object[]> query = session.createQuery(stringQuery, Object[].class);
       query.setParameter("site", site);
 
-      @SuppressWarnings("unchecked")
       List<Object[]> result = query.getResultList();
       List<PSPageInfo> pages = new ArrayList<>();
       for (Object[] r : result)
@@ -270,14 +268,14 @@ public class PSCommentsDao implements IPSCommentsDao {
   public APPROVAL_STATE findDefaultModerationState(String site) {
     Session session = getSession();
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    Query query = session.createQuery("from PSDefaultModerationState where site = :site");
+    Query<PSDefaultModerationState> query =
+        session.createQuery(
+            "from PSDefaultModerationState where site = :site", PSDefaultModerationState.class);
     query.setParameter("site", site);
-    @SuppressWarnings("unchecked")
-    List<Object> result = query.getResultList();
+    List<PSDefaultModerationState> result = query.getResultList();
     APPROVAL_STATE state = APPROVAL_STATE.APPROVED;
     if (!result.isEmpty()) {
-      state = APPROVAL_STATE.valueOf(((IPSDefaultModerationState) result.get(0)).getDefaultState());
+      state = APPROVAL_STATE.valueOf(result.get(0).getDefaultState());
     }
     return state;
   }
