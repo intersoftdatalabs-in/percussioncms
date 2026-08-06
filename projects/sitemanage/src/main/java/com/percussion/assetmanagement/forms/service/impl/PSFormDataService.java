@@ -99,6 +99,7 @@ public class PSFormDataService implements IPSFormDataService {
   @GET
   @Path(FIND_ALL_PATH)
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @SuppressWarnings("unchecked")
   public List<PSFormSummary> getAllFormData(String site) {
     String procUrl = null;
     try {
@@ -116,13 +117,16 @@ public class PSFormDataService implements IPSFormDataService {
               new PSDeliveryActionOptions(
                   server, FORM_INFO_URL + "list", HttpMethodType.GET, true));
 
+      @SuppressWarnings("unchecked")
       Map<String, Object> jsonMap = (Map<String, Object>) getJson;
 
+      @SuppressWarnings("unchecked")
       List<Object> formInfo = (List<Object>) jsonMap.get("formsInfo");
 
       for (var i = 0; i < formInfo.size(); i++) {
         PSFormSummary sum;
 
+        @SuppressWarnings("unchecked")
         Map<String, Object> formObj = (Map<String, Object>) formInfo.get(i);
         var name = (String) formObj.get(NAME_FIELD);
         if (!formDataMap.containsKey(name)) {
@@ -158,6 +162,7 @@ public class PSFormDataService implements IPSFormDataService {
   @GET
   @Path("/{name}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @SuppressWarnings("unchecked")
   public PSFormSummary getFormData(@PathParam("name") String name) {
     try {
       rejectIfBlank("getFormData", "name", name);
@@ -173,8 +178,10 @@ public class PSFormDataService implements IPSFormDataService {
               new PSDeliveryActionOptions(
                   processor, FORM_INFO_URL + name, HttpMethodType.GET, true));
 
+      @SuppressWarnings("unchecked")
       Map<String, Object> jsonMap = (Map<String, Object>) getJson;
 
+      @SuppressWarnings("unchecked")
       List<Object> formInfo = (List<Object>) jsonMap.get("formsInfo");
       if (!formInfo.isEmpty()) {
         sum = new PSFormSummary();

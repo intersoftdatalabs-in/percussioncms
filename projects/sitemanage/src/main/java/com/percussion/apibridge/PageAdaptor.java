@@ -251,6 +251,7 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
     var fields = contentItem.getFields();
     var calInfo = new CalendarInfo();
     page.setCalendar(calInfo);
+    @SuppressWarnings("unchecked")
     var calendarsValue = (List<String>) fields.get("page_calendar");
     calInfo.setCalendars(calendarsValue);
     var startDateStr = (String) fields.get("page_start_date");
@@ -272,6 +273,7 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
             : null;
     page.setOverridePostDate(overridePostDate);
 
+    @SuppressWarnings("unchecked")
     var pageCategories = (List<String>) fields.get("page_categories_tree");
     if (pageCategories != null) {
       seo.setCategories(pageCategories);
@@ -1280,6 +1282,7 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
       Map<String, Object> fields = contentItem.getFields();
       CalendarInfo calInfo = new CalendarInfo();
       page.setCalendar(calInfo);
+      @SuppressWarnings("unchecked")
       List<String> calendarsValue = (List<String>) fields.get("page_calendar");
       calInfo.setCalendars(calendarsValue);
       String startDateStr = (String) fields.get("page_start_date");
@@ -1305,6 +1308,7 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
 
       page.setOverridePostDate(overridePostDate);
 
+      @SuppressWarnings("unchecked")
       List<String> pageCategories = (List<String>) fields.get("page_categories_tree");
       if (pageCategories != null) {
         seo.setCategories(pageCategories);

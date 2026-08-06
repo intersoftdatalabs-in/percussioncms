@@ -110,6 +110,7 @@ public class PSRegionTreeUtils {
     return new ArrayList<>();
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends PSAbstractRegion> List<T> getChildRegions(PSRegionNode node) {
     var regions = new ArrayList<T>();
     var children = getChildren(node);

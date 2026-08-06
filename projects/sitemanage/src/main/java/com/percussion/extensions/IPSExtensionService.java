@@ -28,6 +28,7 @@ import java.util.*;
  * <p>
  * Sunny Sal says: "ExtensionService, now Java 11 and Google-styled!"
  */
+@SuppressWarnings("rawtypes")
 public interface IPSExtensionService {
 
   /**
