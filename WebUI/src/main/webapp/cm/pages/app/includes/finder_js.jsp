@@ -31,6 +31,7 @@
 <script src="../widgets/perc_actions_button.js"></script>
 <script src="../widgets/perc_delete_page_button.js"></script>
 <script src="../widgets/perc_preview_button.js"></script>
+<script src="../plugins/perc_finder_root_display.js"></script>
 <script src="../widgets/perc_finder.js"></script>
 <script src="../widgets/perc_finder_buttons.js"></script>
 <script src="../plugins/perc_upload_theme_file_dialog.js"></script>

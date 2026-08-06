@@ -275,6 +275,13 @@
       var path_end = ut.extract_path_end(spec.path);
       var item_path = ut.extract_path(spe.path);
       var icon = ut.choose_icon(spec.type, spec.icon, item_path);
+      // Display-only root labels; path_end / data stay English.
+      var displayLabel =
+        typeof percFinderRootDisplay !== "undefined" &&
+        percFinderRootDisplay &&
+        typeof percFinderRootDisplay.displayLabelForFinderRoot === "function"
+          ? percFinderRootDisplay.displayLabelForFinderRoot(spec.name)
+          : spec.name;
 
       if (settings.siteIcon != "" && spec.type == "site")
         icon = settings.siteIcon;
@@ -298,7 +305,7 @@
               "' />",
           ),
         )
-        .append(spec.name)
+        .append(displayLabel)
         .data("name", path_end)
         .data("tag", spec.name);
 

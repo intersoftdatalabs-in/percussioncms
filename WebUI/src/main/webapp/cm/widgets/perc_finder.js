@@ -1066,6 +1066,14 @@ var assetPagination = null;
       var item_path = ut.extract_path(spec.path);
       var isSystemCategory = false;
       var icon;
+      // Display-only: map known English repository roots to TMX labels.
+      // Path identity (spec.name, data name/path, REST) stays English.
+      var displayLabel =
+        typeof percFinderRootDisplay !== "undefined" &&
+        percFinderRootDisplay &&
+        typeof percFinderRootDisplay.displayLabelForFinderRoot === "function"
+          ? percFinderRootDisplay.displayLabelForFinderRoot(spec.name)
+          : spec.name;
       if (
         spec &&
         spec.category &&
@@ -1100,7 +1108,7 @@ var assetPagination = null;
       }
       var listing = $("<a />")
         .addClass("mcol-listing")
-        .attr("alt", spec.name)
+        .attr("alt", displayLabel)
         .attr("id", idFromItem(spec))
         //.attr('tabindex', tabindex)
         .append(
@@ -1119,11 +1127,11 @@ var assetPagination = null;
         .append(
           $(
             "<div class='perc-finder-item-name' style='cursor: default; text-overflow : ellipsis;overflow : hidden'>" +
-              spec.name +
+              displayLabel +
               "</div>",
           ),
         )
-        .attr("title", spec.name)
+        .attr("title", displayLabel)
         .data("tag", pref + (spec.name + "").toLowerCase())
         .data("name", item_path[item_path.length - 1])
         .data("spec", spec);

@@ -375,11 +375,18 @@
             var pref = (spec['type'] == 'Folder') ? 'a' : 'z';
             var item_path = ut.extract_path( spec['path'] );
             var icon = ut.choose_icon( spec['type'], spec['icon'],    item_path  );
+            // Display-only root labels; path_end / asset values stay English.
+            var displayLabel =
+                (typeof percFinderRootDisplay !== 'undefined' &&
+                 percFinderRootDisplay &&
+                 typeof percFinderRootDisplay.displayLabelForFinderRoot === 'function')
+                    ? percFinderRootDisplay.displayLabelForFinderRoot(spec['name'])
+                    : spec['name'];
             var anchor = $("<a href='#'/>")
                 .addClass('mcol-listing')
                 .attr('id',"perc-saveas-dialog-listing"+ ut.path_id( item_path ))
                 .append($("<img src='"+ icon.src +"' style='float:left' alt='"+ icon.alt + "' title='" + icon.title + "' aria-hidden='" + icon.decorative + "' />" ))
-                .append( spec[ 'name' ] )
+                .append( displayLabel )
                 .data( 'name', path_end )
                 .data( 'tag', pref + (spec['name'] + "").toLowerCase() );
 

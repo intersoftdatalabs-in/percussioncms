@@ -945,6 +945,14 @@ var assetPagination = null;
             var item_path = ut.extract_path( spec.path );
             var isSystemCategory = false;
             var icon;
+            // Display-only: map known English repository roots to TMX labels.
+            // Path identity (spec.name, data name/path, REST) stays English.
+            var displayLabel =
+                (typeof percFinderRootDisplay !== 'undefined' &&
+                 percFinderRootDisplay &&
+                 typeof percFinderRootDisplay.displayLabelForFinderRoot === 'function')
+                    ? percFinderRootDisplay.displayLabelForFinderRoot(spec.name)
+                    : spec.name;
             if(spec && spec.category && spec.category ==='SYSTEM' && spec.type && spec.type ==='FSFile' &&
                 spec.name && spec.name.indexOf('.') !==-1){
                 // customizing for case of category:system && it is a file type or image type.
@@ -959,11 +967,11 @@ var assetPagination = null;
                 icon = ut.choose_icon( spec.type, spec.icon, item_path );
             }
             var listing = $("<a />").addClass('mcol-listing')
-                .attr("alt",  spec.name )
+                .attr("alt",  displayLabel )
                 .attr('id', idFromItem(spec))
                 //.attr('tabindex', tabindex)
                 .append($("<img src='"+ icon.src +"' style='float:left' alt='"+ icon.alt + "' title='" + icon.title + "' aria-hidden='" + icon.decorative + "' />" ))
-                .append($("<div class='perc-finder-item-name' style='cursor: default; text-overflow : ellipsis;overflow : hidden'>" + spec.name + "</div>" )).attr('title', spec.name)
+                .append($("<div class='perc-finder-item-name' style='cursor: default; text-overflow : ellipsis;overflow : hidden'>" + displayLabel + "</div>" )).attr('title', displayLabel)
                 .data( 'tag', pref + (spec.name + "").toLowerCase() )
                 .data( 'name', item_path[ item_path.length - 1 ] )
                 .data( 'spec', spec );
