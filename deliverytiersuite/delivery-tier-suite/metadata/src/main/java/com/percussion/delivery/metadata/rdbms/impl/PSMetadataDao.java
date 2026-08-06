@@ -93,7 +93,7 @@ public class PSMetadataDao implements IPSMetadataDao {
     try (Session session = getSession()) {
       String hql = "delete from PSDbMetadataEntry  where pagepathHash in (:paths)";
       tx = session.beginTransaction();
-      Query<Object> q = session.createQuery(hql);
+      Query<?> q = session.createQuery(hql);
       q.setParameterList("paths", pagepathHashes);
       q.executeUpdate();
       tx.commit();

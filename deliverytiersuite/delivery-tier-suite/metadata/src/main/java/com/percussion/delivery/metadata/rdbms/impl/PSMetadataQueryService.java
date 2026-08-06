@@ -166,7 +166,8 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
               + "ORDER BY p.stringvalue";
       log.debug("{}", hql);
       try (Session session = getSession()) {
-        Query hq = session.createQuery(hql);
+        @SuppressWarnings("unchecked")
+        Query<Object[]> hq = session.createQuery(hql);
         cats = hq.getResultList();
       } catch (Exception e) {
         log.error("Simple category query failed: {}", e.getMessage());
@@ -333,7 +334,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
 
     PSPair<List<IPSMetadataEntry>, Integer> searchResults =
         new PSPair<List<IPSMetadataEntry>, Integer>();
-    PSPair<Query, SORTTYPE> queryInfo = new PSPair<Query, SORTTYPE>();
+    PSPair<Query<?>, SORTTYPE> queryInfo = new PSPair<Query<?>, SORTTYPE>();
 
     try (Session session = getSession()) {
 
@@ -355,17 +356,22 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
         }
 
         // call the method for second time to get list of objects based on the query
-        queryInfo = new PSPair<Query, SORTTYPE>();
+        queryInfo = new PSPair<Query<?>, SORTTYPE>();
         queryInfo = buildHibernateQuery(session, query, false);
         if (queryInfo.getSecond().equals(SORTTYPE.PROPERTY)) {
-          List<Object[]> resultsTmpList = queryInfo.getFirst().list();
-          for (Object[] o : resultsTmpList) {
-            results.add((PSDbMetadataEntry) o[0]);
+          @SuppressWarnings({"unchecked", "rawtypes"})
+          List resultsTmpList = queryInfo.getFirst().list();
+          for (Object o : resultsTmpList) {
+            results.add((PSDbMetadataEntry) ((Object[]) o)[0]);
           }
           searchResults.setFirst(results);
         } else if (queryInfo.getSecond().equals(SORTTYPE.METADATA)
             || queryInfo.getSecond().equals(SORTTYPE.NONE)) {
-          results = queryInfo.getFirst().list();
+          @SuppressWarnings({"unchecked", "rawtypes"})
+          List rawList = queryInfo.getFirst().list();
+          @SuppressWarnings("unchecked")
+          List<IPSMetadataEntry> resultList = (List<IPSMetadataEntry>) rawList;
+          results = resultList;
           searchResults.setFirst(results);
         }
         searchResults.setSecond(totalResults);
@@ -402,7 +408,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
    * @throws HibernateException
    */
   @Transactional
-  private PSPair<Query, SORTTYPE> buildHibernateQuery(
+  private PSPair<Query<?>, SORTTYPE> buildHibernateQuery(
       Session sess, PSMetadataQuery rawQuery, boolean isCount)
       throws PSMalformedMetadataQueryException, HibernateException, ParseException {
     List<PSCriteriaElement> entryCrit = new ArrayList<>();
@@ -611,7 +617,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
 
     log.debug("{}", queryBuf);
 
-    Query q = sess.createQuery(queryBuf.toString());
+    Query<?> q = sess.createQuery(queryBuf.toString());
     int useLimit = queryLimit;
     // All caller to set a query limit, but they can't allow higher than the server limit.
     if (rawQuery.getTotalMaxResults() > 0 && rawQuery.getTotalMaxResults() < queryLimit) {
@@ -769,8 +775,8 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
    * @param query
    * @param type sort type
    */
-  private PSPair<Query, SORTTYPE> getBuildQueryInfo(Query query, SORTTYPE type) {
-    PSPair<Query, SORTTYPE> queryInfo = new PSPair<Query, SORTTYPE>();
+  private PSPair<Query<?>, SORTTYPE> getBuildQueryInfo(Query<?> query, SORTTYPE type) {
+    PSPair<Query<?>, SORTTYPE> queryInfo = new PSPair<Query<?>, SORTTYPE>();
     queryInfo.setFirst(query);
     queryInfo.setSecond(type);
     return queryInfo;

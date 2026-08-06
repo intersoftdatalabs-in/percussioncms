@@ -206,7 +206,9 @@ public class PSMetadataRestEntry {
         multiValued.add(newValue);
         this.properties.put(metadataProperty.getName(), multiValued);
       } else {
-        ((List<String>) value).add(newValue);
+        @SuppressWarnings("unchecked")
+        List<String> existingList = (List<String>) value;
+        existingList.add(newValue);
         this.properties.put(metadataProperty.getName(), value);
       }
     }
