@@ -73,13 +73,13 @@ import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
   "description",
   "editionType",
   "expander",
-  "expanderArguments",
   "filterId",
   "generator",
-  "generatorArguments",
   "guid",
   "name",
-  "url"
+  "url",
+  "generator-arguments",
+  "expander-arguments"
 })
 public class PSContentList implements IPSContentList {
 
