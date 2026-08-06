@@ -5,7 +5,9 @@
 import React from "react";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { SessionRedirectError } from "../../../main/ts/api/client";
 import { getSystemDef } from "../../../main/ts/api/developer/systemDefApi";
+import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { SystemDefPanel } from "../../../main/ts/developer/SystemDefPanel";
 
 vi.mock("../../../main/ts/api/developer/systemDefApi", () => ({
@@ -16,6 +18,9 @@ const getMock = vi.mocked(getSystemDef);
 
 describe("SystemDefPanel", () => {
   beforeEach(() => {
+    (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
+      message: (key: string) => key,
+    };
     getMock.mockReset();
   });
 
@@ -55,11 +60,49 @@ describe("SystemDefPanel", () => {
     });
   });
 
-  it("shows error UI when fetch fails", async () => {
-    getMock.mockRejectedValue({ status: 500, statusText: "Error" });
+  it("shows session-redirect message via panelErrMsg", async () => {
+    getMock.mockRejectedValue(new SessionRedirectError());
     render(<SystemDefPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-sys-error")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-sys-error").textContent).toBe(DEV_MSG.SESSION_REDIRECT);
+    expect(screen.queryByTestId("developer-sys-empty")).toBeNull();
+  });
+
+  it("shows ApiError status via panelErrMsg", async () => {
+    getMock.mockRejectedValue({
+      status: 500,
+      statusText: "Internal Server Error",
+      body: null,
+    });
+    render(<SystemDefPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-sys-error").textContent).toBe(
+      `${DEV_MSG.SYS_ERROR} (500)`,
+    );
+  });
+
+  it("shows Error.message via panelErrMsg", async () => {
+    getMock.mockRejectedValue(new Error("network down"));
+    render(<SystemDefPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-sys-error").textContent).toBe(
+      `${DEV_MSG.SYS_ERROR} network down`,
+    );
+    expect(screen.queryByTestId("developer-sys-fields-table")).toBeNull();
+  });
+
+  it("shows fallback when rejection has no message", async () => {
+    getMock.mockRejectedValue("boom");
+    render(<SystemDefPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-sys-error").textContent).toBe(DEV_MSG.SYS_ERROR);
   });
 });

@@ -5,8 +5,10 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SitesPanel } from "../../../main/ts/developer/SitesPanel";
+import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as sitesApi from "../../../main/ts/api/developer/sitesApi";
+import { DEV_MSG } from "../../../main/ts/developer/messages";
+import { SitesPanel } from "../../../main/ts/developer/SitesPanel";
 
 vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
   listSites: vi.fn(),
@@ -66,12 +68,50 @@ describe("SitesPanel", () => {
     });
   });
 
-  it("shows error without treating as empty", async () => {
+  it("shows session-redirect message via panelErrMsg", async () => {
+    listSites.mockRejectedValue(new SessionRedirectError());
+    render(<SitesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-error").textContent).toBe(DEV_MSG.SESSION_REDIRECT);
+    expect(screen.queryByTestId("developer-site-empty")).toBeNull();
+  });
+
+  it("shows ApiError status via panelErrMsg", async () => {
+    listSites.mockRejectedValue({
+      status: 500,
+      statusText: "Internal Server Error",
+      body: null,
+    });
+    render(<SitesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-error").textContent).toBe(
+      `${DEV_MSG.SITE_ERROR} (500)`,
+    );
+  });
+
+  it("shows Error.message via panelErrMsg", async () => {
     listSites.mockRejectedValue(new Error("sites down"));
     render(<SitesPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-site-error")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-site-error").textContent).toBe(
+      `${DEV_MSG.SITE_ERROR} sites down`,
+    );
     expect(screen.queryByTestId("developer-site-empty")).toBeNull();
+    expect(screen.queryByTestId("developer-site-table")).toBeNull();
+  });
+
+  it("shows fallback when rejection has no message", async () => {
+    listSites.mockRejectedValue("boom");
+    render(<SitesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-error").textContent).toBe(DEV_MSG.SITE_ERROR);
   });
 });

@@ -5,8 +5,10 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ServerConfigsPanel } from "../../../main/ts/developer/ServerConfigsPanel";
+import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as api from "../../../main/ts/api/developer/serverConfigsApi";
+import { DEV_MSG } from "../../../main/ts/developer/messages";
+import { ServerConfigsPanel } from "../../../main/ts/developer/ServerConfigsPanel";
 
 vi.mock("../../../main/ts/api/developer/serverConfigsApi", () => ({
   listServerConfigs: vi.fn(),
@@ -53,17 +55,57 @@ describe("ServerConfigsPanel", () => {
     );
   });
 
-  it("shows empty and error states", async () => {
-    listServerConfigs.mockResolvedValueOnce([]);
-    const { unmount } = render(<ServerConfigsPanel />);
+  it("shows empty state when API returns no configs", async () => {
+    listServerConfigs.mockResolvedValue([]);
+    render(<ServerConfigsPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-cfg-empty")).toBeTruthy();
     });
-    unmount();
-    listServerConfigs.mockRejectedValueOnce(new Error("down"));
+  });
+
+  it("shows session-redirect message via panelErrMsg", async () => {
+    listServerConfigs.mockRejectedValue(new SessionRedirectError());
     render(<ServerConfigsPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-cfg-error")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-cfg-error").textContent).toBe(DEV_MSG.SESSION_REDIRECT);
+    expect(screen.queryByTestId("developer-cfg-empty")).toBeNull();
+  });
+
+  it("shows ApiError status via panelErrMsg", async () => {
+    listServerConfigs.mockRejectedValue({
+      status: 500,
+      statusText: "Internal Server Error",
+      body: null,
+    });
+    render(<ServerConfigsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-cfg-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-cfg-error").textContent).toBe(
+      `${DEV_MSG.CFG_ERROR} (500)`,
+    );
+  });
+
+  it("shows Error.message via panelErrMsg", async () => {
+    listServerConfigs.mockRejectedValue(new Error("network down"));
+    render(<ServerConfigsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-cfg-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-cfg-error").textContent).toBe(
+      `${DEV_MSG.CFG_ERROR} network down`,
+    );
+    expect(screen.queryByTestId("developer-cfg-table")).toBeNull();
+  });
+
+  it("shows fallback when rejection has no message", async () => {
+    listServerConfigs.mockRejectedValue("boom");
+    render(<ServerConfigsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-cfg-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-cfg-error").textContent).toBe(DEV_MSG.CFG_ERROR);
   });
 });
