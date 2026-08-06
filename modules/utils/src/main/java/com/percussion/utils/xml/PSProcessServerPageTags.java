@@ -112,15 +112,15 @@ public class PSProcessServerPageTags extends Object {
 
     int stylesheetStart = 0;
     int pos = 0;
-    Iterator keys = m_codeMap.keySet().iterator();
+    Iterator<String> keys = m_codeMap.keySet().iterator();
     while (keys.hasNext()) {
       stylesheetStart = xslTarget.toString().indexOf("<xsl:stylesheet");
-      key = (String) keys.next();
+      key = keys.next();
       pos = xslTarget.toString().indexOf(key);
-      String strDisable = (String) m_escapeMap.get(key);
+      String strDisable = m_escapeMap.get(key);
       if (strDisable != null && strDisable.equalsIgnoreCase("yes"))
-        serverPageBlock = (String) m_codeMap.get(key);
-      else serverPageBlock = escape(key, (String) m_codeMap.get(key), stylesheetStart, pos);
+        serverPageBlock = m_codeMap.get(key);
+      else serverPageBlock = escape(key, m_codeMap.get(key), stylesheetStart, pos);
 
       if (serverPageBlock.startsWith("<xsl:include") || serverPageBlock.startsWith("<xsl:import")) {
         topElements.add(serverPageBlock);
@@ -183,8 +183,8 @@ public class PSProcessServerPageTags extends Object {
   private void markIt(int tagIndex) {
     int oldCurrent = m_current;
 
-    String strClosingTag = (String) m_closingTags.elementAt(tagIndex);
-    String strOpeningTag = (String) m_openingTags.elementAt(tagIndex);
+    String strClosingTag = m_closingTags.elementAt(tagIndex);
+    String strOpeningTag = m_openingTags.elementAt(tagIndex);
     log.debug("Opening Tag is: {}", strOpeningTag);
     int nextOpening = getNextOpeningTag(m_nextOpen + strOpeningTag.length(), tagIndex);
     int nextClosing = m_htmlSource.indexOf(strClosingTag, m_nextOpen + strOpeningTag.length());
@@ -214,7 +214,7 @@ public class PSProcessServerPageTags extends Object {
 
       String strKey = getPostProcessKey(isAttr);
       m_codeMap.put(strKey, m_htmlSource.substring(oldCurrent, m_current));
-      m_escapeMap.put(strKey, (String) m_disableEscaping.elementAt(tagIndex));
+      m_escapeMap.put(strKey, m_disableEscaping.elementAt(tagIndex));
 
       m_lastClose = m_current;
     } else {
@@ -279,7 +279,7 @@ public class PSProcessServerPageTags extends Object {
       return;
     }
 
-    String strTag = (String) m_skipTags.elementAt(tagIndex);
+    String strTag = m_skipTags.elementAt(tagIndex);
     int index = m_htmlSource.indexOf(strTag, m_nextSkip);
     if (index != -1) {
       m_current = index + strTag.length();
@@ -300,7 +300,7 @@ public class PSProcessServerPageTags extends Object {
     int tagIndex = -1;
     int temp = -1;
     for (int i = 0, count = m_openingTags.size(); i < count; i++) {
-      temp = m_htmlSource.indexOf((String) m_openingTags.elementAt(i), start);
+      temp = m_htmlSource.indexOf(m_openingTags.elementAt(i), start);
       if (temp != -1) {
         if (m_nextOpen == -1 || temp < m_nextOpen) {
           tagIndex = i;
@@ -325,7 +325,7 @@ public class PSProcessServerPageTags extends Object {
    * @return the next found opening tag.
    */
   private int getNextOpeningTag(int start, int tagIndex) {
-    return m_htmlSource.indexOf((String) m_openingTags.elementAt(tagIndex), start);
+    return m_htmlSource.indexOf(m_openingTags.elementAt(tagIndex), start);
   }
 
   /**
@@ -347,7 +347,7 @@ public class PSProcessServerPageTags extends Object {
     int tagIndex = -1;
     int temp = -1;
     for (int i = 0, count = m_skipTags.size(); i < count; i++) {
-      temp = m_htmlSource.indexOf((String) m_skipTags.elementAt(i), start);
+      temp = m_htmlSource.indexOf(m_skipTags.elementAt(i), start);
       if (temp != -1) {
         if (m_nextSkip == -1 || temp < m_nextSkip) {
           tagIndex = i;
@@ -438,16 +438,16 @@ public class PSProcessServerPageTags extends Object {
   private static int ms_keyCount = 0;
 
   /** A vector of opening tags. */
-  private Vector m_openingTags = null;
+  private Vector<String> m_openingTags = null;
 
   /** A vector of closing tags. */
-  private Vector m_closingTags = null;
+  private Vector<String> m_closingTags = null;
 
   /** A vector of disable escaping information. */
-  private Vector m_disableEscaping = null;
+  private Vector<String> m_disableEscaping = null;
 
   /** A vector of skip tags. */
-  private Vector m_skipTags = null;
+  private Vector<String> m_skipTags = null;
 
   /** The source HTML string to pre-process server page tags for. */
   private String m_htmlSource = null;

@@ -23,7 +23,7 @@ public interface IWorkflowRoleInfo {
 
   String WORKFLOW_ROLE_INFO_PRIVATE_OBJECT = "workflowroleinfoprivateobject";
 
-  void setUserActingRoleNames(List actorRoleNames);
+  void setUserActingRoleNames(List<String> actorRoleNames);
 
   IPSContentAdhocUsersContext getFromStateCauc();
 

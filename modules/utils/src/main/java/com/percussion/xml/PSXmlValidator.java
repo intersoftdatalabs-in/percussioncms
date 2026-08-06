@@ -80,7 +80,10 @@ public class PSXmlValidator {
     }
     boolean hasErrors = errorHandler.numErrors() > 0 || errorHandler.numFatalErrors() > 0;
     if (errors != null) {
+      @SuppressWarnings("rawtypes")
       Iterator errorIt = errorHandler.errors();
+
+      @SuppressWarnings("rawtypes")
       Iterator fatalIt = errorHandler.fatalErrors();
       while (errorIt.hasNext()) {
         errors.add((Exception) errorIt.next());

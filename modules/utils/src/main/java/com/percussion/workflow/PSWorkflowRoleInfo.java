@@ -37,6 +37,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @return the list of IDs of state roles in which a user is acting
    */
+  @SuppressWarnings("rawtypes")
   public List getUserActingRoleIDs() {
     return m_userActingRoleIDs;
   }
@@ -46,6 +47,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @return the list of names of state roles in which a user is acting
    */
+  @SuppressWarnings("rawtypes")
   public List getUserActingRoleNames() {
     return m_userActingRoleNames;
   }
@@ -73,7 +75,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @param userActingRoleIDs list of IDs of state roles in which a user is acting
    */
-  public void setUserActingRoleIDs(List userActingRoleIDs) {
+  public void setUserActingRoleIDs(List<Integer> userActingRoleIDs) {
     m_userActingRoleIDs = userActingRoleIDs;
   }
 
@@ -82,7 +84,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @param userActingRoleNames list of names of state roles in which a user is acting
    */
-  public void setUserActingRoleNames(List userActingRoleNames) {
+  public void setUserActingRoleNames(List<String> userActingRoleNames) {
     m_userActingRoleNames = userActingRoleNames;
   }
 
@@ -105,10 +107,10 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
   }
 
   /** list of IDs of state roles in which a user is acting */
-  private List m_userActingRoleIDs = null;
+  private List<Integer> m_userActingRoleIDs = null;
 
   /** list of names of state roles in which a user is acting */
-  private List m_userActingRoleNames = null;
+  private List<String> m_userActingRoleNames = null;
 
   /** Content adhoc users context for the transition "to" state */
   private IPSContentAdhocUsersContext m_toStateCauc = null;

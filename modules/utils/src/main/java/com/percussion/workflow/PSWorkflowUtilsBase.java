@@ -277,6 +277,7 @@ public class PSWorkflowUtilsBase {
    * @param sRoleList - the second role list as comma separated list
    * @return the assignment type - one of the values defined in this file (PSWorkflowUtilsBase.java)
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static int compareRoleList(
       ArrayList assignmentTypeList, ArrayList roleList, String sRoleList) {
     StringTokenizer sTokenizer = new StringTokenizer(sRoleList, ROLE_DELIMITER);
@@ -306,6 +307,7 @@ public class PSWorkflowUtilsBase {
    * @param sRoleList - the second role list as comma separated list
    * @return <CODE>true</CODE> if there is a common role, else <CODE>false</CODE>
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static boolean compareRoleList(List roleList, String sRoleList) {
     StringTokenizer sTokenizer = new StringTokenizer(sRoleList, ROLE_DELIMITER);
     String sRole = "";
@@ -429,6 +431,7 @@ public class PSWorkflowUtilsBase {
    *     descriptive comment in the HTML Parameter hash map, or the comment is empty or consists
    *     entirely of whitespace. May not be more than 255 characters.
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static String getTransitionCommentFromHTMLParams(HashMap htmlParams) {
     String paramName = getTransitionCommentParamName();
 
@@ -462,6 +465,7 @@ public class PSWorkflowUtilsBase {
    * @param params map containing the HTML parameters for this request, may not be <code>null</code>
    *     .
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static void setTransitionCommentInHTMLParams(String comment, HashMap params) {
     if (comment != null && comment.length() > 255)
       throw new IllegalArgumentException("comment may not exceed 255 characters");
@@ -814,6 +818,7 @@ public class PSWorkflowUtilsBase {
    * @return correponding list, with primitives replaced by wrapper clases, empty list if input
    *     array is <CODE>null</CODE>
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static List arrayToList(Object array) {
     List newList = new ArrayList();
     if (null == array) {
@@ -832,18 +837,18 @@ public class PSWorkflowUtilsBase {
    * @return list with items in lower case, or <CODE>null</CODE> if original list was <CODE>null
    *     </CODE>.
    */
-  static List lowerCaseList(List inputList) {
+  static List<String> lowerCaseList(List<String> inputList) {
     if (null == inputList) {
       return null;
     }
 
-    List newList = new ArrayList();
+    List<String> newList = new ArrayList<>();
 
-    Iterator iter = inputList.iterator();
+    Iterator<String> iter = inputList.iterator();
     String item = "";
 
     while (iter.hasNext()) {
-      item = (String) iter.next();
+      item = iter.next();
       if (null != item) {
         newList.add(item.toLowerCase());
       } else {
@@ -864,6 +869,7 @@ public class PSWorkflowUtilsBase {
    *     to <CODE>true</CODE>. Return <CODE>null</CODE> if the original list was <CODE>null</CODE>
    *     or the map was <CODE>null</CODE> or empty.
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static List filterList(List inputList, Map map) {
     if (null == inputList || null == map || map.isEmpty()) {
       return null;
@@ -900,6 +906,7 @@ public class PSWorkflowUtilsBase {
    * @param value the value whose id is needed.
    * @return the key if found. -1 if not found.
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static int getRoleIdFromMap(Map roleMap, String value) {
     if (roleMap == null || value == null || value.trim().length() == 0)
       throw new IllegalArgumentException("arguments must not be null or empty");
@@ -970,8 +977,9 @@ public class PSWorkflowUtilsBase {
    *     case-insensitive comparision, retaining the first occurance of any item, and discarding
    *     <CODE>null</CODE> strings. Returns <CODE>null</CODE> if the original list is null.
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static List caseInsensitiveUniqueList(List inputList) {
-    HashMap localMap = new HashMap();
+    HashMap<String, String> localMap = new HashMap<>();
     if (null == inputList) {
       return null;
     }
@@ -1013,6 +1021,7 @@ public class PSWorkflowUtilsBase {
    * @return a list consisting of all elements of the first list that are contained in the second
    *     list, or <CODE>null</CODE> if either list is empty.
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static List intersectLists(List list1, List list2) {
     if (null == list1 || null == list2) {
       return null;
@@ -1049,6 +1058,7 @@ public class PSWorkflowUtilsBase {
    * Convenience method. Calls {@link #listToDelimitedString(List,String,String)
    * listToDelimitedString(list, delimeter, "")}
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static String listToDelimitedString(List list, String delimeter) {
     return listToDelimitedString(list, delimeter, "");
   }
@@ -1061,6 +1071,7 @@ public class PSWorkflowUtilsBase {
    * @param delimeter the delimeter used to separate the substrings can be empty ("").
    * @throws IllegalArgumentException if list is <CODE>null</CODE> or empty.
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static String listToDelimitedString(List list, String delimeter, String stringForNull) {
 
     // Null or empty lists are not allowed

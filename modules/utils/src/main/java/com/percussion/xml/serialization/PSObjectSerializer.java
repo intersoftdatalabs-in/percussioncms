@@ -68,6 +68,7 @@ public class PSObjectSerializer {
    * @param classRegistryStreamSrc the classregistry.xml file is loaded from this class package,
    *     must not be <code>null</code>.
    */
+  @SuppressWarnings("rawtypes")
   public synchronized void registerBeanClasses(Class classRegistryStreamSrc) {
     if (classRegistryStreamSrc == null) {
       throw new IllegalArgumentException("classRegistryStreamSrc must not be null");

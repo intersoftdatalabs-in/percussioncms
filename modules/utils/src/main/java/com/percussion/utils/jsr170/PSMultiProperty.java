@@ -95,6 +95,7 @@ public class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCacheIte
     } else {
       propname = m_name;
     }
+    @SuppressWarnings("unchecked")
     Collection<Object> values = (Collection<Object>) super.getPropertyValue(propname);
     // Getting values.size() is a costly db call use a list so we only query for the
     // actual values.  values.iterator() is called in the for loop, this calls the db

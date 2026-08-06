@@ -42,9 +42,11 @@ public abstract class PSItemIterator<M> implements Iterator {
    * The original map that's being iterated. Needs to be kept to enable this to return the size of
    * the collection.
    */
+  @SuppressWarnings("rawtypes")
   Map m_map = null;
 
   /** The filter, may be <code>null</code> as the filter is not required */
+  @SuppressWarnings("rawtypes")
   Predicate m_filter = null;
 
   /**
@@ -53,6 +55,7 @@ public abstract class PSItemIterator<M> implements Iterator {
    * @param things the map of things, never <code>null</code>
    * @param filterpattern the filter pattern, may be <code>null</code>
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   protected PSItemIterator(Map things, String filterpattern) {
     if (things == null) {
       throw new IllegalArgumentException("things may not be null");
@@ -70,6 +73,7 @@ public abstract class PSItemIterator<M> implements Iterator {
    *
    * @return an iterator, never <code>null</code>
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private Iterator<M> calculateIter() {
     if (m_map instanceof Map<?, ?> && !(m_map instanceof HashMap<?, ?>)) {
       return new PSMultiMapIterator<>(m_map, m_filter);
@@ -109,7 +113,7 @@ public abstract class PSItemIterator<M> implements Iterator {
   public long getSize() {
     // Get a fresh iterator and exhaust it
     int count = 0;
-    Iterator i = calculateIter();
+    Iterator<M> i = calculateIter();
     while (i.hasNext()) {
       i.next();
       count++;
@@ -142,7 +146,8 @@ public abstract class PSItemIterator<M> implements Iterator {
    *
    * @return the map, never <code>null</code>
    */
-  public Map getMap() {
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public Map<?, M> getMap() {
     return m_map;
   }
 
@@ -153,7 +158,8 @@ public abstract class PSItemIterator<M> implements Iterator {
    *
    * @param newmap
    */
-  public void setMap(Map newmap) {
+  @SuppressWarnings("rawtypes")
+  public void setMap(Map<?, M> newmap) {
     m_map = newmap;
     m_iter = calculateIter();
   }
