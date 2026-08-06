@@ -5,7 +5,6 @@
 package com.percussion.rest.extensions;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,17 +30,12 @@ public class ExtensionsResourceTest {
   private UriInfo uriInfo;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     adaptor = mock(IExtensionAdaptor.class);
     uriInfo = mock(UriInfo.class);
     when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/"));
-    resource = new ExtensionsResource();
-    var af = ExtensionsResource.class.getDeclaredField("adaptor");
-    af.setAccessible(true);
-    af.set(resource, adaptor);
-    var uf = ExtensionsResource.class.getDeclaredField("uriInfo");
-    uf.setAccessible(true);
-    uf.set(resource, uriInfo);
+    resource = new ExtensionsResource(adaptor);
+    resource.setUriInfo(uriInfo);
   }
 
   @Test
@@ -52,12 +46,57 @@ public class ExtensionsResourceTest {
     List<Extension> out = resource.listExtensionsCatalog();
     assertEquals(1, out.size());
     assertEquals("sys_add", out.get(0).getExtensionName());
+    verify(adaptor).listExtensions(any());
   }
 
   @Test
   public void listExtensionsCatalogNullSafe() {
     when(adaptor.listExtensions(any())).thenReturn(null);
     assertTrue(resource.listExtensionsCatalog().isEmpty());
+  }
+
+  @Test
+  public void listExtensionsCatalogWrapsUnexpectedFailuresAs500() {
+    IllegalStateException boom = new IllegalStateException("boom");
+    when(adaptor.listExtensions(any())).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.listExtensionsCatalog());
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnList() {
+    ExtensionsResource bare = new ExtensionsResource();
+    bare.setUriInfo(uriInfo);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, bare::listExtensionsCatalog);
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnGet() {
+    // getExtensionCatalogItem must rethrow WebApplicationException from requireAdaptor (not
+    // re-wrap as 500)
+    ExtensionsResource bare = new ExtensionsResource();
+    bare.setUriInfo(uriInfo);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> bare.getExtensionCatalogItem("any"));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getExtensionCatalogItemRethrowsWebApplicationException() {
+    WebApplicationException mapped = new WebApplicationException("from adaptor", 404);
+    when(adaptor.findExtensionByKey(any(), eq("xx"))).thenThrow(mapped);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.getExtensionCatalogItem("xx"));
+    assertSame(mapped, ex);
+    assertEquals(404, ex.getResponse().getStatus());
   }
 
   @Test
@@ -88,21 +127,5 @@ public class ExtensionsResourceTest {
             WebApplicationException.class, () -> resource.getExtensionCatalogItem("sys_add"));
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause());
-  }
-
-  @Test
-  public void withoutInjectionFailsWithDiagnostic() {
-    ExtensionsResource bare = new ExtensionsResource();
-    try {
-      var uf = ExtensionsResource.class.getDeclaredField("uriInfo");
-      uf.setAccessible(true);
-      uf.set(bare, uriInfo);
-    } catch (ReflectiveOperationException e) {
-      throw new RuntimeException(e);
-    }
-    WebApplicationException listEx =
-        assertThrows(WebApplicationException.class, bare::listExtensionsCatalog);
-    assertEquals(500, listEx.getResponse().getStatus());
-    assertInstanceOf(IllegalStateException.class, listEx.getCause());
   }
 }
