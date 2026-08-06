@@ -59,6 +59,17 @@ export default defineConfig({
       // workingDirectory (Maven frontend-maven-plugin) resolves the same way
       // as runs from the WebUI root.
       "@mkd/language": resolve(__dirname, "../../../vendor/mkd-language"),
+      // Pin country-flag-icons to the worktree's frontend copy. Recurring
+      // stray `node_modules/country-flag-icons` installs outside this
+      // workingDirectory (e.g. a leftover at the monorepo root) leak into
+      // Vitest's resolver, and the package's `modules/react/3x2/index.js`
+      // does `import React from "react"` which then fails because the stray
+      // copy has no `react` next to it. Aliasing forces the resolution
+      // back to the bundled copy under WebUI/src/main/frontend/node_modules.
+      "country-flag-icons": resolve(
+        __dirname,
+        "node_modules/country-flag-icons",
+      ),
     },
   },
   // Allow Vitest to load tests and sources outside frontend/ (WebUI/src/test/ts).
