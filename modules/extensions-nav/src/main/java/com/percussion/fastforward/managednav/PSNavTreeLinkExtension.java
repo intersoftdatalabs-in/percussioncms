@@ -50,6 +50,7 @@ import org.w3c.dom.Document;
  *
  * @author DavidBenua
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSNavTreeLinkExtension extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
 
