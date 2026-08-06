@@ -43,7 +43,7 @@ let triage_schema = #{
         "notes": #{ "type": "string" },
         "queue": #{
             "type": "array",
-            "maxItems": 8,
+            "maxItems": 12,
             "items": #{
                 "type": "object",
                 "required": ["issue_number", "disposition", "title", "rationale", "work_summary"],
@@ -121,7 +121,7 @@ if args != () {
 }
 
 if max_issues < 1 { max_issues = 1; }
-if max_issues > 8 { max_issues = 8; }
+if max_issues > 12 { max_issues = 12; }
 if max_prs < 1 { max_prs = 1; }
 if max_prs > 12 { max_prs = 12; }
 

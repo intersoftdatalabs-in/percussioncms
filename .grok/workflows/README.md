@@ -64,7 +64,7 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 
 | Arg | Type | Default | Meaning |
 |-----|------|---------|---------|
-| `max_issues` | int | `3` | Max items fully processed (capped 1-8) |
+| `max_issues` | int | `3` | Max items fully processed (capped 1-12) |
 | `issue_numbers` | int[] | - | Only these issues (still triaged) |
 | `labels` | string | - | Optional label filter for discovery |
 | `repo` | string | `intersoftdatalabs-in/percussioncms` | GitHub repo |
