@@ -101,7 +101,7 @@ Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/pro
 | UI feature “done” but QA/E2E missing                                                                     | Vitest/unit only; product screen requires Playwright companion                                                           |
 | REST resource “done” but rest suite broken                                                               | Mockito resource test only; no Spring test stub for adaptor interface; or sitemanage impl without rest interface closure |
 | Works on author machine, fails Windows/Linux CI                                                          | Non-portable paths, wrong separators, case-only assumptions                                                              |
-| PR “fixed” but merge still blocked                                                                       | Code fix without review-thread reply/resolve; Spotless out-of-scope dump; incomplete gates                               |
+| PR “fixed” but merge still blocked                                                                       | Code fix without review-thread reply/resolve; incomplete gates                               |
 
 ### Mandatory method (every non-trivial change)
 
@@ -127,92 +127,14 @@ Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/pro
 
 Module `AGENTS.md` files may specialize this table; they do not replace the method above.
 
-## Pre-PR Spotless formatting (HARD GATE)
+## Formatting (optional — not a hard gate)
 
-**Before every final commit** that will ship on a GitHub PR (and before `git push` / open / update that PR), agents **MUST** run Spotless when the change set can include Spotless-covered files.
+**Spotless is not a required pre-PR process gate.** Agents and humans may use `./mvnw spotless:apply` / `spotless:check` for local style convenience, but:
 
-Spotless in this monorepo is **not Java-only**. It formats / checks **Java, Markdown/docs, JavaScript, TypeScript**, and other configured globs. Skipping it “because this is not Java” is a common agent failure mode.
-
-### Required sequence
-
-**Order is mandatory: `spotless:apply` first, then `spotless:check` second.** Never run `check` alone as the pre-PR gate and “fix later if it fails” — apply rewrites the tree; check only verifies. Agents that reverse the order leave dirty formatting unapplied or waste cycles on a failing check that apply would have fixed.
-
-1. Ensure `JAVA_HOME` is JDK 21; use the repo Maven wrapper (`./mvnw` / `mvnw.cmd`).
-2. From **repo root** (preferred for a final PR commit so docs/JS/TS outside a single module are included):
-
-   ```bash
-   # 1) FIRST — rewrite in-place to Spotless style
-   ./mvnw spotless:apply
-   # 2) SECOND — verify nothing still fails (must exit 0)
-   ./mvnw spotless:check
-   ```
-
-   Windows:
-
-   ```bat
-   rem 1) FIRST — rewrite in-place to Spotless style
-   mvnw.cmd spotless:apply
-   rem 2) SECOND — verify nothing still fails (must exit 0)
-   mvnw.cmd spotless:check
-   ```
-
-   Module-scoped apply is OK for mid-work iteration; the **final** PR commit must still end with a clean `spotless:check` for everything that will land on the PR (root apply then check when unsure).
-
-3. Immediately inspect what Spotless rewrote:
-
-   ```bash
-   git status
-   git diff --name-only
-   ```
-4. **Partition the working tree** into:
-   - **In-scope** — files that are part of the agent’s intentional task (feature/fix/docs you meant to ship on *this* PR).
-   - **Out-of-scope** — files Spotless rewrote that the agent did **not** intentionally change for this task (baseline formatting debt, unrelated modules, “100 files I never touched”).
-
-### Out-of-scope Spotless hits — mandatory split (do not freak out)
-
-If Spotless touches files **outside** the agent’s task scope:
-
-|                                                              Do                                                               |                                              Do **not**                                              |
-|-------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
-| Keep **only in-scope** files on the feature branch / feature PR                                                               | Stuff dozens or hundreds of unrelated Spotless files into the feature PR                             |
-| Leave out-of-scope Spotless changes **uncommitted** (or stash them) while finishing the feature commit                        | Panic, discard the whole worktree, or “fix everything Spotless touched” as part of the feature story |
-| Open a **second PR** whose sole purpose is baseline formatting                                                                | Expand the feature PR description to claim ownership of unrelated modules                            |
-| Title that second PR clearly, e.g. **`chore: Spotless cleanup`** (branch e.g. `chore/spotless-cleanup-<short-date-or-topic>`) | Skip Spotless entirely because “too many files”                                                      |
-| Commit **only** the Spotless-only diffs on that cleanup branch                                                                | Mix product logic and repo-wide reformat in one review                                               |
-
-Concrete workflow when `git status` shows a sea of unrelated Spotless files:
-
-```bash
-# 1) Stage and commit ONLY the intentional task files on the feature branch
-git add <in-scope paths...>
-git commit   # feature commit — no drive-by formatting of the monorepo
-
-# 2) Move remaining Spotless-only changes onto a cleanup branch
-git switch -c chore/spotless-cleanup-<topic> origin/development   # or current base
-# re-apply / keep the out-of-scope Spotless diffs (stash pop, cherry-pick, etc.)
-git add <spotless-only paths...>
-git commit -m "chore: Spotless cleanup (unrelated baseline formatting)"
-# push + open PR titled "Spotless Cleanup" (or "chore: Spotless cleanup") against the same base
-```
-
-If the out-of-scope set is huge, still open the cleanup PR rather than folding it into the feature PR. Reviewers must be able to approve product work without auditing a monorepo reformat.
-
-### Hard bans
-
-* **Do not** open or update a product/feature PR that silently includes large unrelated Spotless diffs.
-* **Do not** skip `spotless:apply` / `spotless:check` on the final PR commit for Spotless-covered work because apply rewrote files outside your scope — **split** instead.
-* **Do not** treat Spotless noise as a reason to abandon the feature branch or rewrite history of unrelated modules.
-* **Do not** claim “formatting only” inside a feature PR when the diff is mostly baseline debt; that is a **Spotless Cleanup** PR.
-
-### Evidence in the PR
-
-In the feature PR body (or a short comment before “ready for review”), record:
-
-* That `./mvnw spotless:apply` ran **first**, then `./mvnw spotless:check` **second** (exact commands, that order).
-* That the feature PR contains **only in-scope** files (or “Spotless rewrote no out-of-scope files”).
-* If a cleanup PR was opened: its URL/number, e.g. “Unrelated Spotless hits → #NNNN”.
-
-Failing this section is a **hard gate** equal to a failing Erlang review or failed clean install: fix partitioning / formatting, then open/update the PR.
+* **Do not** treat Spotless apply/check as mandatory before commit, push, or PR.
+* **Do not** expand a feature PR with monorepo-wide reformatting.
+* Prefer readable, in-scope diffs; match surrounding style in files you touch.
+* CI or reviewer feedback may still call out style issues — fix those in scope when asked.
 
 ## Pre-PR Maven verification (HARD GATE)
 
@@ -222,7 +144,7 @@ Failing this section is a **hard gate** equal to a failing Erlang review or fail
 
 1. **Compile** — every changed module builds successfully **standalone** (see below).
 2. **Tests** — unit/integration tests that Maven runs for those modules **pass**. No exceptions for “known flaky” without fixing or an explicit, documented skip approved in the PR body.
-3. **No new warnings** — the clean install must not introduce **new** compiler, surefire, enforcer, Spotless, or plugin warnings attributable to the change. Prefer zero warnings on the modules you own; if the baseline already warns, do not add more (diff against a clean build of the base branch when unsure).
+3. **No new warnings** — the clean install must not introduce **new** compiler, surefire, enforcer, or plugin warnings attributable to the change. Prefer zero warnings on the modules you own; if the baseline already warns, do not add more (diff against a clean build of the base branch when unsure).
 4. **Use the Maven wrapper + JDK 21** — always invoke repo-root `mvnw` / `mvnw.cmd` from the **module directory** (path is relative to depth). Ensure `JAVA_HOME` points at **JDK 21** (this monorepo’s supported toolchain on `development`).
 
 ### How to run (default: per-module standalone — NOT full reactor)
@@ -369,8 +291,7 @@ Kilo rule: `.kilo/rules/worktree-hygiene.md`. Script docs: `scripts/README.md`.
 * ALWAYS document your work in comments, README, or maven site documentation.
 * **IMPORTANT** you must ALWAYS update or create unit tests for any code change that you make, new or edited. And the tests must pass. No exceptions. Unit tests for the new class alone do **not** replace module-suite / shared-context verification when the change class participates in those contexts.
 * **IMPORTANT — WebUI + Playwright:** When changing a **product UI screen** under `WebUI/` (React SPA, login, shell chrome, user-visible flows), agents **MUST** also create or update Playwright specs in `modules/perc-qa-automation/` for the changed behavior. Vitest alone is not sufficient for screen work. See `WebUI/AGENTS.md` → **Playwright (HARD GATE)** and `modules/perc-qa-automation/AGENTS.md`.
-* **IMPORTANT — Pre-PR Spotless:** Before every final PR commit, run `./mvnw spotless:apply` **first**, then `./mvnw spotless:check` **second** (JDK 21 + Maven wrapper). Do not check-only first. Spotless covers **Java, docs/Markdown, JS, and TS** (and other configured globs)—not Java only. If Spotless rewrites files **outside** your task scope, **do not** fold them into the feature PR: commit only in-scope files there, and open a second **`chore: Spotless cleanup`** PR for the unrelated formatting. Do not panic or abandon the feature work. See **Pre-PR Spotless formatting (HARD GATE)** above.
-* **IMPORTANT — Pre-PR build:** Before opening or updating a GitHub PR, **`cd` into each module you changed** and run repo-root `mvnw` / `mvnw.cmd` **`clean install` standalone** (not default root `-pl -am` reactor builds). Code must compile, tests must pass, and there must be **no new warnings**. Use a full/partial reactor only when the change requires it. See **Pre-PR Maven verification (HARD GATE)** above. CI is not a substitute for this local gate.
+* **IMPORTANT — Pre-PR build:** Before opening or updating a GitHub PR, **`cd` into each module you changed** and run repo-root `mvnw` / `mvnw.cmd` **`clean install` standalone** (not default root `-pl -am` reactor builds). Code must compile, tests must pass, and there must be **no new warnings**. Use a full/partial reactor only when the change requires it. See **Pre-PR Maven verification (HARD GATE)** above. CI is not a substitute for this local gate. Spotless apply/check is **not** required for this gate.
 * **IMPORTANT — Worktree hygiene:** If you used a git worktree for the task, remove it when the PR is merged/closed (or when the session ends and no further worktree commits are expected). Use `python3 scripts/prune-stale-worktrees.py --apply --force --delete-local-branches` for bulk cleanup of MERGED/CLOSED PR worktrees. See **Git worktree hygiene (HARD GATE)** above.
 * Always use the #codebase or root `./` context when resolving missing interfaces or classes.
 * You MUST respect rate limits when calling 3rd party API's. All 3rd party API integrations must be implemented with rate limit detection and exponential backoff logic.
@@ -515,7 +436,7 @@ Disposition ladder: **runtime fix + test → model pack barrier → sink-line `/
 
 ## Git Branch & Maven Wrapper Information
 
-* **Toolchain today (do not target older JDKs on `main`):** parent `pom.xml` uses **`java.version` / compiler `release` = 21**. Agent instructions, Spotless (`google-java-format`), and local builds assume **JDK 21** via `JAVA_HOME` + `./mvnw` / `mvnw.cmd`. Do **not** follow stale “Java 11” or “Java 17” modernization checklists as the current baseline—those were intermediate migrations; **current product line is Java 21**.
+* **Toolchain today (do not target older JDKs on `main`):** parent `pom.xml` uses **`java.version` / compiler `release` = 21**. Agent instructions and local builds assume **JDK 21** via `JAVA_HOME` + `./mvnw` / `mvnw.cmd`. Do **not** follow stale “Java 11” or “Java 17” modernization checklists as the current baseline—those were intermediate migrations; **current product line is Java 21**.
 * Base Branch Name: **`main`** (default branch; formerly `development`)
   * All code changes on this branch must be compatible with **JDK 21**.
   * Prefer modern language features that compile on 21 (records, sealed types, pattern matching, virtual threads where appropriate, `var`, `Optional`, Streams, NIO `Path`).

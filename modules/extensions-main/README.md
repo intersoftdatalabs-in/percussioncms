@@ -354,10 +354,9 @@ cd modules/extensions-main
 # Skip tests for speed
 ../../mvnw clean install -DskipTests
 
-# Code style check (must pass before committing)
-../../mvnw spotless:check
-# Auto-fix style issues
-../../mvnw spotless:apply
+# Optional local formatting only (not a required process gate)
+# ../../mvnw spotless:check
+# ../../mvnw spotless:apply
 ```
 
 For cross-module changes that touch `perc-system` or other upstream modules,
@@ -380,7 +379,6 @@ build from the workspace root:
 - The `categorystring` attribute in `Extensions.xml` is informational and
   does **not** affect runtime lookup. The FQN (`handler/context/name`) is
   the authoritative identity used as the map key.
-- Run `../../mvnw spotless:check` before committing; apply fixes with
-  `spotless:apply` if needed.
-- Follow the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html).
+- Spotless apply/check is optional; match surrounding style in files you touch.
+- Follow the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html) as a style reference, not a Spotless hard gate.
 

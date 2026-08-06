@@ -132,7 +132,7 @@ Use the provided environment script to ensure Maven uses JDK 21:
 - Follow [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
 - Use Java 17+ features (var, records, Optional, Streams)
 - Ensure backwards compatibility when modifying public REST endpoints
-- Apply Spotless formatting before commit
+- Spotless formatting is optional (not a required process gate); match surrounding style
 
 ## Testing
 
