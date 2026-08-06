@@ -191,8 +191,32 @@ class DbInstallConfigResolverTest {
     assertEquals("oracle", cfg.systemProperties().get("perc.db.type"));
     assertEquals("ORACLE", cfg.systemProperties().get("perc.db.cms.backend"));
     assertEquals("oracle:thin", cfg.systemProperties().get("perc.db.cms.driverName"));
-    assertTrue(cfg.systemProperties().get("perc.db.cms.server").startsWith("@ora.example.com"));
-    assertTrue(cfg.systemProperties().get("perc.db.cms.server").endsWith(":ORCL"));
+    // Easy Connect service form (required for multi-tenant service names such as XEPDB1).
+    assertEquals("@//ora.example.com:1521/ORCL", cfg.systemProperties().get("perc.db.cms.server"));
+    assertEquals(
+        "jdbc:oracle:thin:@//ora.example.com:1521/ORCL",
+        cfg.systemProperties().get("perc.db.dts.jdbcUrl"));
+    // Product DB_NAME must be empty for Oracle (service lives only in DB_SERVER).
+    assertEquals("", cfg.systemProperties().get("perc.db.cms.name"));
+  }
+
+  @Test
+  void structuredOracleXepdb1UsesServiceEasyConnectForm() {
+    Map<String, String> opts = new HashMap<>();
+    opts.put("db.type", "oracle");
+    opts.put("db.host", "oracle");
+    opts.put("db.port", "1521");
+    opts.put("db.name", "XEPDB1");
+    opts.put("db.user", "percuser");
+    opts.put("db.password", "x");
+    opts.put("db.schema", "percuser");
+
+    DbInstallConfigResolver.ResolvedDbConfig cfg = DbInstallConfigResolver.resolveDbConfig(opts);
+    assertEquals("@//oracle:1521/XEPDB1", cfg.systemProperties().get("perc.db.cms.server"));
+    // CLI --db.name is still required for service composition; cms.name / DB_NAME stays blank.
+    assertEquals("XEPDB1", cfg.systemProperties().get("perc.db.name"));
+    assertEquals("", cfg.systemProperties().get("perc.db.cms.name"));
+    assertEquals("percuser", cfg.systemProperties().get("perc.db.cms.schema"));
   }
 
   @Test

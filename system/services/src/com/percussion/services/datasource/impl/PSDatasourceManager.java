@@ -188,10 +188,11 @@ public class PSDatasourceManager implements IPSDatasourceManager {
         var dsName = dsConfig.getDataSource();
         var conn = getDbConnection(dsName);
 
-        // Wrap Oracle connections for enhanced functionality
-        if (conn.getMetaData().getURL().contains("oracle")) {
-            conn = new PSOracleConnectionWrapper(conn);
-        }
+        // Do not wrap Oracle pool connections in PSOracleConnectionWrapper here.
+        // HikariCP ProxyConnection + modern ojdbc often fail unwrap(OracleConnection)
+        // with ORA-17177, which aborted Jetty start on live Oracle XE matrix (#2083).
+        // Pool connections already implement java.sql.Connection; Oracle-specific
+        // unwrap remains available via PSOracleConnectionWrapper for callers that need it.
 
         // Set catalog if specified
         configureCatalog(conn, dsConfig.getDatabase());
