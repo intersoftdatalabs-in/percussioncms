@@ -18,13 +18,13 @@
 import React, { useEffect, useState } from "react";
 import { getSlotDetail, updateSlotDetail } from "../api/developer/assemblyApi";
 import type { SlotAssociationSummary, SlotDetail } from "../api/developer/types";
-import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
-  border: "1px solid #cbd5e0",
+  border: `1px solid ${catalogColors.softBorder}`,
   borderRadius: "4px",
   font: "inherit",
   width: "100%",
@@ -212,7 +212,7 @@ export function SlotDetailPanel({
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-slot-detail-title">
               {label || detail.name || idOrName}
             </h2>
-            <div style={{ fontFamily: "monospace", color: "#4a5568" }}>
+            <div style={{ fontFamily: "monospace", color: catalogColors.muted }}>
               {detail.name}
               {detail.guid?.stringValue ? ` · ${detail.guid.stringValue}` : ""}
             </div>
@@ -261,14 +261,14 @@ export function SlotDetailPanel({
           <section style={{ marginBottom: "16px" }} data-testid="developer-slot-args">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SLOT_ARGS}</h3>
             {argEntries.length === 0 ? (
-              <p style={{ color: "#718096" }}>{DEV_MSG.SLOT_NONE}</p>
+              <p style={{ color: catalogColors.empty }}>{DEV_MSG.SLOT_NONE}</p>
             ) : (
               <ul>
                 {argEntries.map(([k, v]) => (
                   <li key={k}>
                     <span style={{ fontFamily: "monospace" }}>{k}</span>
                     {" = "}
-                    <span style={{ fontFamily: "monospace", color: "#4a5568" }}>{v}</span>
+                    <span style={{ fontFamily: "monospace", color: catalogColors.muted }}>{v}</span>
                   </li>
                 ))}
               </ul>
@@ -277,9 +277,9 @@ export function SlotDetailPanel({
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-slot-associations">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SLOT_ASSOCIATIONS}</h3>
-            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.SLOT_ASSOCIATIONS_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.SLOT_ASSOCIATIONS_HINT}</p>
             {associations.length === 0 ? (
-              <p style={{ color: "#718096" }} data-testid="developer-slot-assoc-empty">
+              <p style={{ color: catalogColors.empty }} data-testid="developer-slot-assoc-empty">
                 {DEV_MSG.SLOT_NONE}
               </p>
             ) : (
@@ -293,7 +293,7 @@ export function SlotDetailPanel({
                   }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_CT}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_TPL}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_ACTIONS}</th>
@@ -314,7 +314,7 @@ export function SlotDetailPanel({
                       return (
                         <tr
                           key={assocKey(a, i)}
-                          style={{ borderBottom: "1px solid #edf2f7" }}
+                          style={tableRow}
                           data-testid={`developer-slot-assoc-row-${i}`}
                         >
                           <td style={{ padding: "8px", fontFamily: "monospace" }}>{ctDisplay}</td>
@@ -328,7 +328,7 @@ export function SlotDetailPanel({
                               onClick={() => removeAssociation(i)}
                               style={{
                                 background: "transparent",
-                                border: "1px solid #cbd5e0",
+                                border: `1px solid ${catalogColors.softBorder}`,
                                 borderRadius: "4px",
                                 padding: "4px 8px",
                                 cursor: busy ? "not-allowed" : "pointer",
@@ -389,7 +389,7 @@ export function SlotDetailPanel({
                 onClick={addAssociation}
                 style={{
                   padding: "8px 12px",
-                  background: newCtGuid.trim() && newTplGuid.trim() ? "#007ea8" : "#a0aec0",
+                  background: newCtGuid.trim() && newTplGuid.trim() ? catalogColors.accent : catalogColors.disabled,
                   color: "#fff",
                   border: "none",
                   borderRadius: "4px",
@@ -414,7 +414,7 @@ export function SlotDetailPanel({
               onClick={() => void handleSave()}
               style={{
                 padding: "8px 16px",
-                background: dirty ? "#007ea8" : "#a0aec0",
+                background: dirty ? catalogColors.accent : catalogColors.disabled,
                 color: "#fff",
                 border: "none",
                 borderRadius: "4px",
@@ -428,7 +428,7 @@ export function SlotDetailPanel({
           {(detail.designGaps || []).length > 0 ? (
             <section data-testid="developer-slot-gaps">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SLOT_GAPS}</h3>
-              <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+              <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
                 {(detail.designGaps || []).map((g) => (
                   <li key={g}>{g}</li>
                 ))}

@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from "react";
 import { getControlDetail } from "../api/developer/controlsApi";
 import type { ControlDef } from "../api/developer/types";
-import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -81,7 +81,7 @@ export function ControlDetailPanel({
           <section data-testid="developer-ctl-params">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CTL_PARAMS}</h3>
             {params.length === 0 ? (
-              <p style={{ color: "#718096" }}>{DEV_MSG.CTL_NONE}</p>
+              <p style={{ color: catalogColors.empty }}>{DEV_MSG.CTL_NONE}</p>
             ) : (
               <div style={{ overflowX: "auto" }}>
                 <table
@@ -89,7 +89,7 @@ export function ControlDetailPanel({
                   style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.CTL_COL_PARAM}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.CTL_COL_TYPE}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.CTL_COL_REQ}</th>
@@ -100,7 +100,7 @@ export function ControlDetailPanel({
                     {params.map((p, i) => (
                       <tr
                         key={`${p.name ?? "p"}-${i}`}
-                        style={{ borderBottom: "1px solid #edf2f7" }}
+                        style={tableRow}
                       >
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {p.name || "—"}
@@ -120,7 +120,7 @@ export function ControlDetailPanel({
 
           <section style={{ marginTop: "16px" }} data-testid="developer-ctl-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CTL_GAPS}</h3>
-            <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+            <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
               {gaps.map((g, i) => (
                 <li key={`${g}-${i}`}>{g}</li>
               ))}

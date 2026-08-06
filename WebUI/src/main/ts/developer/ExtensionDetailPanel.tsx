@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from "react";
 import { getExtensionDetail } from "../api/developer/extensionsApi";
 import type { ExtensionDef } from "../api/developer/types";
-import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -83,7 +83,7 @@ export function ExtensionDetailPanel({
           <section data-testid="developer-ex-ifaces">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.EX_IFACES}</h3>
             {ifaces.length === 0 ? (
-              <p style={{ color: "#718096" }}>{DEV_MSG.EX_NONE}</p>
+              <p style={{ color: catalogColors.empty }}>{DEV_MSG.EX_NONE}</p>
             ) : (
               <ul style={{ fontFamily: "monospace", fontSize: "0.85rem" }}>
                 {ifaces.map((x) => (
@@ -96,7 +96,7 @@ export function ExtensionDetailPanel({
           <section style={{ marginTop: "16px" }} data-testid="developer-ex-params">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.EX_PARAMS}</h3>
             {params.length === 0 ? (
-              <p style={{ color: "#718096" }} data-testid="developer-ex-params-empty">
+              <p style={{ color: catalogColors.empty }} data-testid="developer-ex-params-empty">
                 {DEV_MSG.EX_NONE}
               </p>
             ) : (
@@ -106,7 +106,7 @@ export function ExtensionDetailPanel({
                   style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.EX_COL_PARAM}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.EX_COL_TYPE}</th>
                     </tr>
@@ -115,7 +115,7 @@ export function ExtensionDetailPanel({
                     {params.map((p, i) => (
                       <tr
                         key={`${p.name ?? "p"}-${i}`}
-                        style={{ borderBottom: "1px solid #edf2f7" }}
+                        style={tableRow}
                       >
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {p.name || "—"}
@@ -131,7 +131,7 @@ export function ExtensionDetailPanel({
 
           <section style={{ marginTop: "16px" }} data-testid="developer-ex-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.EX_GAPS}</h3>
-            <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+            <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
               <li>{DEV_MSG.EX_GAP_INSTALL}</li>
               <li>{DEV_MSG.EX_GAP_EDIT}</li>
             </ul>

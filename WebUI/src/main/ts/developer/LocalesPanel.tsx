@@ -19,7 +19,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { listLocales } from "../api/developer/localesApi";
 import type { LocaleSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { monoCell, mutedCell } from "./catalogStyles";
+import { catalogColors, monoCell, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { LocaleDetailPanel } from "./LocaleDetailPanel";
 import { DEV_MSG } from "./messages";
@@ -83,7 +83,7 @@ export function LocalesPanel(): React.ReactElement {
           style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
         >
           <thead>
-            <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+            <tr style={tableHeaderRow}>
               <th style={{ padding: "8px" }}>{DEV_MSG.LOC_COL_LANG}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.LOC_COL_LABEL}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.LOC_COL_STATUS}</th>
@@ -101,10 +101,7 @@ export function LocalesPanel(): React.ReactElement {
                 <tr
                   key={String(loc.id ?? loc.languageString ?? `loc-${index}`)}
                   data-testid="developer-loc-row"
-                  style={{
-                    borderBottom: "1px solid #edf2f7",
-                    cursor: interactive ? "pointer" : "default",
-                  }}
+                  style={{ ...tableRow, cursor: interactive ? "pointer" : "default"  }}
                   onClick={() => {
                     if (interactive) setSelected(openKey);
                   }}
@@ -122,7 +119,7 @@ export function LocalesPanel(): React.ReactElement {
                         style={{
                           background: "transparent",
                           border: "none",
-                          color: "#007ea8",
+                          color: catalogColors.accent,
                           cursor: "pointer",
                           font: "inherit",
                           padding: 0,

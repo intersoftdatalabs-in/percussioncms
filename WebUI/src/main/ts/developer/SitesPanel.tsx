@@ -6,7 +6,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { listSites } from "../api/developer/sitesApi";
 import type { SiteDef } from "../api/developer/types";
 import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { mutedCell } from "./catalogStyles";
+import { catalogColors, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { SiteDetailPanel } from "./SiteDetailPanel";
@@ -76,7 +76,7 @@ export function SitesPanel(): React.ReactElement {
           style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
         >
           <thead>
-            <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+            <tr style={tableHeaderRow}>
               <th style={{ padding: "8px" }}>{DEV_MSG.SITE_COL_NAME}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.SITE_COL_DESC}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.SITE_COL_URL}</th>
@@ -93,10 +93,7 @@ export function SitesPanel(): React.ReactElement {
                 <tr
                   key={`${name}-${index}`}
                   data-testid="developer-site-row"
-                  style={{
-                    borderBottom: "1px solid #edf2f7",
-                    cursor: "pointer",
-                  }}
+                  style={{ ...tableRow, cursor: "pointer"  }}
                   onClick={() => setSelected(s)}
                 >
                   <td style={{ padding: "8px" }}>
@@ -111,7 +108,7 @@ export function SitesPanel(): React.ReactElement {
                       style={{
                         background: "transparent",
                         border: "none",
-                        color: "#007ea8",
+                        color: catalogColors.accent,
                         cursor: "pointer",
                         font: "inherit",
                         padding: 0,

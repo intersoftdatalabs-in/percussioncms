@@ -42,6 +42,8 @@ import { SlotsPanel } from "./SlotsPanel";
 import { TemplatesPanel } from "./TemplatesPanel";
 import { ViewsPanel } from "./ViewsPanel";
 import { WorkflowsPanel } from "./WorkflowsPanel";
+import { catalogColors } from "./catalogStyles";
+
 
 export type { DeveloperSection };
 
@@ -86,11 +88,11 @@ export interface DeveloperShellProps {
 const tabStyle = (active: boolean): React.CSSProperties => ({
   padding: "10px 16px",
   border: "none",
-  borderBottom: active ? "3px solid #007ea8" : "3px solid transparent",
+  borderBottom: active ? `3px solid ${catalogColors.accent}` : "3px solid transparent",
   fontWeight: active ? 600 : 400,
   background: "transparent",
   cursor: "pointer",
-  color: active ? "#007ea8" : "#2d3748",
+  color: active ? catalogColors.accent : catalogColors.text,
 });
 
 /**
@@ -118,7 +120,7 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
     >
       <header style={{ marginBottom: "12px" }}>
         <h1 style={{ marginBottom: "8px" }}>{DEV_MSG.TITLE}</h1>
-        <p style={{ margin: 0, color: "#4a5568", maxWidth: "48rem" }}>
+        <p style={{ margin: 0, color: catalogColors.muted, maxWidth: "48rem" }}>
           {DEV_MSG.INTRO}
         </p>
       </header>
@@ -130,7 +132,7 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
         style={{
           display: "flex",
           flexWrap: "wrap",
-          borderBottom: "1px solid #e2e8f0",
+          borderBottom: `1px solid ${catalogColors.headerBorder}`,
           marginBottom: "20px",
           gap: "4px",
         }}

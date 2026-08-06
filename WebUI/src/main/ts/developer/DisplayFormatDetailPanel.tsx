@@ -21,7 +21,7 @@ import {
   normalizeColumns,
 } from "../api/developer/displayFormatsApi";
 import type { DisplayFormat } from "../api/developer/types";
-import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -82,7 +82,7 @@ export function DisplayFormatDetailPanel({
               {detail.label || detail.displayName || detail.name || idOrName}
             </h2>
             {detail.description ? (
-              <p style={{ marginTop: "8px", color: "#4a5568" }}>{detail.description}</p>
+              <p style={{ marginTop: "8px", color: catalogColors.muted }}>{detail.description}</p>
             ) : null}
             <dl style={metaGrid}>
               <dt>{DEV_MSG.DF_COL_NAME}</dt>
@@ -106,9 +106,9 @@ export function DisplayFormatDetailPanel({
 
           <section data-testid="developer-df-columns">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.DF_COLUMNS}</h3>
-            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.DF_COLUMNS_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.DF_COLUMNS_HINT}</p>
             {columns.length === 0 ? (
-              <p style={{ color: "#718096" }} data-testid="developer-df-columns-empty">
+              <p style={{ color: catalogColors.empty }} data-testid="developer-df-columns-empty">
                 {DEV_MSG.DF_NONE}
               </p>
             ) : (
@@ -122,7 +122,7 @@ export function DisplayFormatDetailPanel({
                   }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.DF_COL_POS}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.DF_COL_SOURCE}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.DF_COL_COL_LABEL}</th>
@@ -135,7 +135,7 @@ export function DisplayFormatDetailPanel({
                       <tr
                         key={`${c.source ?? "col"}-${c.position ?? i}-${i}`}
                         data-testid={`developer-df-column-row-${i}`}
-                        style={{ borderBottom: "1px solid #edf2f7" }}
+                        style={tableRow}
                       >
                         <td style={{ padding: "8px" }}>
                           {c.position != null ? String(c.position) : "—"}
@@ -158,7 +158,7 @@ export function DisplayFormatDetailPanel({
 
           <section style={{ marginTop: "16px" }} data-testid="developer-df-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.DF_GAPS}</h3>
-            <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+            <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
               <li>{DEV_MSG.DF_GAP_WRITE}</li>
               <li>{DEV_MSG.DF_GAP_COLUMNS_EDIT}</li>
               <li>{DEV_MSG.DF_GAP_COMMUNITIES}</li>

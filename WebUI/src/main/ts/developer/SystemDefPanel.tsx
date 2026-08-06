@@ -19,7 +19,7 @@ import React, { useEffect, useState } from "react";
 import { getSystemDef } from "../api/developer/systemDefApi";
 import type { SystemDefDetail } from "../api/developer/types";
 import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -83,9 +83,9 @@ export function SystemDefPanel(): React.ReactElement {
 
       <section data-testid="developer-sys-fields">
         <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SYS_FIELDS}</h3>
-        <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.SYS_FIELDS_HINT}</p>
+        <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.SYS_FIELDS_HINT}</p>
         {fields.length === 0 ? (
-          <p style={{ color: "#718096" }} data-testid="developer-sys-empty">
+          <p style={{ color: catalogColors.empty }} data-testid="developer-sys-empty">
             {DEV_MSG.SYS_EMPTY}
           </p>
         ) : (
@@ -99,7 +99,7 @@ export function SystemDefPanel(): React.ReactElement {
               }}
             >
               <thead>
-                <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                <tr style={tableHeaderRow}>
                   <th style={{ padding: "8px" }}>{DEV_MSG.SYS_COL_FIELD}</th>
                   <th style={{ padding: "8px" }}>{DEV_MSG.SYS_COL_DATATYPE}</th>
                   <th style={{ padding: "8px" }}>{DEV_MSG.SYS_COL_OCCURRENCE}</th>
@@ -113,7 +113,7 @@ export function SystemDefPanel(): React.ReactElement {
                   <tr
                     key={f.name || `f-${i}`}
                     data-testid={`developer-sys-field-row-${i}`}
-                    style={{ borderBottom: "1px solid #edf2f7" }}
+                    style={tableRow}
                   >
                     <td style={{ padding: "8px", fontFamily: "monospace" }}>{f.name || "—"}</td>
                     <td style={{ padding: "8px" }}>{f.dataType || "—"}</td>
@@ -142,7 +142,7 @@ export function SystemDefPanel(): React.ReactElement {
       {detail.designGaps && detail.designGaps.length > 0 ? (
         <section style={{ marginTop: "16px" }} data-testid="developer-sys-gaps">
           <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SYS_GAPS}</h3>
-          <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+          <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
             {detail.designGaps.map((g) => (
               <li key={g}>{g}</li>
             ))}

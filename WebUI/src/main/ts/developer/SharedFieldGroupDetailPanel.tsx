@@ -18,7 +18,7 @@
 import React, { useEffect, useState } from "react";
 import { getSharedFieldGroupDetail } from "../api/developer/sharedFieldsApi";
 import type { SharedFieldGroupDetail } from "../api/developer/types";
-import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -83,9 +83,9 @@ export function SharedFieldGroupDetailPanel({
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-sf-fields">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SF_FIELDS}</h3>
-            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.SF_FIELDS_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.SF_FIELDS_HINT}</p>
             {(detail.fields || []).length === 0 ? (
-              <p style={{ color: "#718096" }} data-testid="developer-sf-fields-empty">
+              <p style={{ color: catalogColors.empty }} data-testid="developer-sf-fields-empty">
                 {DEV_MSG.SF_NONE}
               </p>
             ) : (
@@ -99,7 +99,7 @@ export function SharedFieldGroupDetailPanel({
                   }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.SF_COL_FIELD}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.SF_COL_DATATYPE}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.SF_COL_OCCURRENCE}</th>
@@ -113,7 +113,7 @@ export function SharedFieldGroupDetailPanel({
                       <tr
                         key={f.name || `f-${i}`}
                         data-testid={`developer-sf-field-row-${i}`}
-                        style={{ borderBottom: "1px solid #edf2f7" }}
+                        style={tableRow}
                       >
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {f.name || "—"}
@@ -144,7 +144,7 @@ export function SharedFieldGroupDetailPanel({
           {detail.designGaps && detail.designGaps.length > 0 ? (
             <section data-testid="developer-sf-gaps">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SF_GAPS}</h3>
-              <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+              <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
                 {detail.designGaps.map((g) => (
                   <li key={g}>{g}</li>
                 ))}

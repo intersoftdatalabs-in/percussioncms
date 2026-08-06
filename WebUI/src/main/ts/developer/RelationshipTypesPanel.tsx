@@ -6,7 +6,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { listRelationshipTypes } from "../api/developer/relationshipTypesApi";
 import type { RelationshipTypeDef } from "../api/developer/types";
 import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { monoCell, mutedCell } from "./catalogStyles";
+import { catalogColors, monoCell, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { RelationshipTypeDetailPanel } from "./RelationshipTypeDetailPanel";
 import { DEV_MSG } from "./messages";
@@ -70,7 +70,7 @@ export function RelationshipTypesPanel(): React.ReactElement {
           style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
         >
           <thead>
-            <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+            <tr style={tableHeaderRow}>
               <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_NAME}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_LABEL}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_CATEGORY}</th>
@@ -90,10 +90,7 @@ export function RelationshipTypesPanel(): React.ReactElement {
                 <tr
                   key={t.name || t.guid?.stringValue || `rt-${index}`}
                   data-testid="developer-rt-row"
-                  style={{
-                    borderBottom: "1px solid #edf2f7",
-                    cursor: interactive ? "pointer" : "default",
-                  }}
+                  style={{ ...tableRow, cursor: interactive ? "pointer" : "default"  }}
                   onClick={() => {
                     if (interactive) setSelected(openKey);
                   }}
@@ -111,7 +108,7 @@ export function RelationshipTypesPanel(): React.ReactElement {
                         style={{
                           background: "transparent",
                           border: "none",
-                          color: "#007ea8",
+                          color: catalogColors.accent,
                           cursor: "pointer",
                           font: "inherit",
                           padding: 0,

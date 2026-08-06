@@ -19,7 +19,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { listApplications } from "../api/developer/pipelinesApi";
 import type { ApplicationSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { monoCell, mutedCell, mutedMonoCell } from "./catalogStyles";
+import { catalogColors, monoCell, mutedCell, mutedMonoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { PipelineDetailPanel } from "./PipelineDetailPanel";
@@ -83,7 +83,7 @@ export function PipelinesPanel(): React.ReactElement {
           style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
         >
           <thead>
-            <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+            <tr style={tableHeaderRow}>
               <th style={{ padding: "8px" }}>{DEV_MSG.PIPE_COL_NAME}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.PIPE_COL_ID}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.PIPE_COL_TYPE}</th>
@@ -100,10 +100,7 @@ export function PipelinesPanel(): React.ReactElement {
                 <tr
                   key={String(app.id ?? app.name ?? `pipe-${index}`)}
                   data-testid="developer-pipe-row"
-                  style={{
-                    borderBottom: "1px solid #edf2f7",
-                    cursor: interactive ? "pointer" : "default",
-                  }}
+                  style={{ ...tableRow, cursor: interactive ? "pointer" : "default"  }}
                   onClick={() => {
                     if (interactive) setSelected(openKey);
                   }}
@@ -121,7 +118,7 @@ export function PipelinesPanel(): React.ReactElement {
                         style={{
                           background: "transparent",
                           border: "none",
-                          color: "#007ea8",
+                          color: catalogColors.accent,
                           cursor: "pointer",
                           font: "inherit",
                           padding: 0,

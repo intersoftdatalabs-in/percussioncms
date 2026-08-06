@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from "react";
 import { getActionMenuDetail } from "../api/developer/actionMenusApi";
 import type { ActionMenu } from "../api/developer/types";
-import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -63,7 +63,7 @@ export function ActionMenuDetailPanel({
               {detail.label || detail.name || idOrName}
             </h2>
             {detail.description ? (
-              <p style={{ marginTop: "8px", color: "#4a5568" }}>{detail.description}</p>
+              <p style={{ marginTop: "8px", color: catalogColors.muted }}>{detail.description}</p>
             ) : null}
             <dl style={metaGrid}>
               <dt>{DEV_MSG.AM_COL_NAME}</dt>
@@ -83,9 +83,9 @@ export function ActionMenuDetailPanel({
 
           <section data-testid="developer-am-params">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.AM_PARAMS}</h3>
-            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.AM_PARAMS_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.AM_PARAMS_HINT}</p>
             {params.length === 0 ? (
-              <p style={{ color: "#718096" }} data-testid="developer-am-params-empty">
+              <p style={{ color: catalogColors.empty }} data-testid="developer-am-params-empty">
                 {DEV_MSG.AM_NONE}
               </p>
             ) : (
@@ -95,7 +95,7 @@ export function ActionMenuDetailPanel({
                   style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_PARAM}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_VALUE}</th>
                     </tr>
@@ -105,7 +105,7 @@ export function ActionMenuDetailPanel({
                       <tr
                         key={`${p.name ?? "p"}-${i}`}
                         data-testid={`developer-am-param-row-${i}`}
-                        style={{ borderBottom: "1px solid #edf2f7" }}
+                        style={tableRow}
                       >
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {p.name || "—"}
@@ -122,7 +122,7 @@ export function ActionMenuDetailPanel({
           <section style={{ marginTop: "16px" }} data-testid="developer-am-props">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.AM_PROPS}</h3>
             {props.length === 0 ? (
-              <p style={{ color: "#718096" }} data-testid="developer-am-props-empty">
+              <p style={{ color: catalogColors.empty }} data-testid="developer-am-props-empty">
                 {DEV_MSG.AM_NONE}
               </p>
             ) : (
@@ -132,7 +132,7 @@ export function ActionMenuDetailPanel({
                   style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_PROP}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_VALUE}</th>
                     </tr>
@@ -142,7 +142,7 @@ export function ActionMenuDetailPanel({
                       <tr
                         key={`${p.name ?? "prop"}-${i}`}
                         data-testid={`developer-am-prop-row-${i}`}
-                        style={{ borderBottom: "1px solid #edf2f7" }}
+                        style={tableRow}
                       >
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {p.name || "—"}
@@ -158,7 +158,7 @@ export function ActionMenuDetailPanel({
 
           <section style={{ marginTop: "16px" }} data-testid="developer-am-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.AM_GAPS}</h3>
-            <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+            <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
               <li>{DEV_MSG.AM_GAP_WRITE}</li>
               <li>{DEV_MSG.AM_GAP_CHILDREN}</li>
               <li>{DEV_MSG.AM_GAP_VISIBILITY}</li>
