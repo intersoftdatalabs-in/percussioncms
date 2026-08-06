@@ -86,12 +86,12 @@ import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
   "guid",
   "hasFullPublished",
   "name",
-  "properties",
   "publishType",
   "serverId",
   "siteId",
   "siteRenamed",
-  "serverTypeXml"
+  "serverTypeXml",
+  "properties"
 })
 public class PSPubServer extends PSAbstractDataObject implements Serializable, IPSCatalogIdentifier, IPSPubServer
 {
