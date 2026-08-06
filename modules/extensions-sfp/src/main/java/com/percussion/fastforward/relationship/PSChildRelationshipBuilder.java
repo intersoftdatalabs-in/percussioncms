@@ -170,8 +170,9 @@ public class PSChildRelationshipBuilder extends PSChildRelationshipBase {
     m_log.debug("to be removed: " + idsToRemove);
 
     // remove any relationships from the set that are not being removed
-    for (Iterator iter = relationships.iterator(); iter.hasNext(); ) {
-      PSRelationship r = (PSRelationship) iter.next();
+    for (@SuppressWarnings("unchecked") Iterator<PSRelationship> iter = relationships.iterator();
+        iter.hasNext(); ) {
+      PSRelationship r = iter.next();
       Integer ownerId = Integer.valueOf(r.getOwner().getId());
       if (!idsToRemove.contains(ownerId)) {
         iter.remove();

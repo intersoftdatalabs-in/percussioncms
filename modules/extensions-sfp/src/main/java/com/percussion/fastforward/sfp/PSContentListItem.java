@@ -294,7 +294,7 @@ public class PSContentListItem implements Comparable {
           makeNullContentUrl(doc, request, contentUrlXml, revError);
         } else {
           URL assemblerURL =
-              m_linkGenerator.generateAssemblerLink(
+              PSSiteFolderContentListLinkGenerator.generateAssemblerLink(
                   m_contentId,
                   correctedRevision,
                   m_variantId,
