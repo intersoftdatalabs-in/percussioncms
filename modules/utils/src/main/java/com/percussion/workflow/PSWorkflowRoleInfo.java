@@ -37,7 +37,8 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @return the list of IDs of state roles in which a user is acting
    */
-  public List<Integer> getUserActingRoleIDs() {
+  @SuppressWarnings("rawtypes")
+  public List getUserActingRoleIDs() {
     return m_userActingRoleIDs;
   }
 
@@ -46,7 +47,8 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @return the list of names of state roles in which a user is acting
    */
-  public List<String> getUserActingRoleNames() {
+  @SuppressWarnings("rawtypes")
+  public List getUserActingRoleNames() {
     return m_userActingRoleNames;
   }
 
@@ -73,7 +75,8 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @param userActingRoleIDs list of IDs of state roles in which a user is acting
    */
-  public void setUserActingRoleIDs(List<Integer> userActingRoleIDs) {
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public void setUserActingRoleIDs(List userActingRoleIDs) {
     m_userActingRoleIDs = userActingRoleIDs;
   }
 
@@ -82,7 +85,8 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @param userActingRoleNames list of names of state roles in which a user is acting
    */
-  public void setUserActingRoleNames(List<String> userActingRoleNames) {
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public void setUserActingRoleNames(List userActingRoleNames) {
     m_userActingRoleNames = userActingRoleNames;
   }
 
