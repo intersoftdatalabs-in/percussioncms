@@ -55,6 +55,7 @@ import org.w3c.dom.*;
  *
  * @author RammohanVangapalli
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSCreateTranslations implements IPSWorkflowAction {
 
   /** Default constructor for the extension framework. */

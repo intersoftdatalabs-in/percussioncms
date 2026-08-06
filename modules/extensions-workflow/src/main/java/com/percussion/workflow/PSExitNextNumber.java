@@ -35,6 +35,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /** This extension returns the value of a counter obtained from a database stored procedure. */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSExitNextNumber implements IPSRequestPreProcessor {
 
   /** Default constructor for the extension framework. */

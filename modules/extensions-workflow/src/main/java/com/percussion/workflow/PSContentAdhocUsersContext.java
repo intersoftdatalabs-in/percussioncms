@@ -39,6 +39,7 @@ import org.apache.logging.log4j.Logger;
  * the backend table 'CONTENTADHOCUSERS'.
  */
 @Deprecated
+@SuppressWarnings({"rawtypes", "unchecked", "serial"})
 public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
 
   private static final Logger log = LogManager.getLogger(PSContentAdhocUsersContext.class);

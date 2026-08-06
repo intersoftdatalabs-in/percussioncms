@@ -101,6 +101,7 @@ import org.apache.velocity.runtime.RuntimeServices;
 import org.w3c.dom.Document;
 
 /** This exit sends mail notifications to the assigned roles for the new state after transition. */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
 
   /** Default constructor for the extension framework. */

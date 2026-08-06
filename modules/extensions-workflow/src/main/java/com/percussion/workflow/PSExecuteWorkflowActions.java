@@ -45,6 +45,7 @@ import org.w3c.dom.Document;
  * requestContext.getSessionPrivateObject</CODE>. <CODE>
  * (IPSWorkflowAction.WORKFLOW_ACTIONS_PRIVATE_OBJECT)</CODE>.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSExecuteWorkflowActions implements IPSResultDocumentProcessor {
 
   /** Default constructor for the extension framework. */

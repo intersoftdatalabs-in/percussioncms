@@ -59,6 +59,7 @@ import org.w3c.dom.Text;
  * for action links. See {@link IPSResultDocumentProcessor} for the contract of {@link
  * #processResultDocument(Object[], IPSRequestContext, Document)}.
  */
+@SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
 public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcessor {
 
   /** Default constructor for the extension framework. */
