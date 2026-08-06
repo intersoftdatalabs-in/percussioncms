@@ -17,7 +17,7 @@
 | **CMS URL** | `http://127.0.0.1:9993` |
 | **Auth path** | `GET/POST /Rhythmyx/login` (modern React `perc-login-root` form) |
 | Admin username | `Admin` (password from container `var/config/generated/passwords` — not committed) |
-| Health | `perc-devctl.py qa-health --url http://127.0.0.1:9993/Rhythmyx/login` → **RESULT:OK HTTP:200** |
+| Health | `python docker/scripts/perc-devctl.py qa-health --url http://127.0.0.1:9993/Rhythmyx/login` → **RESULT:OK HTTP:200** |
 | Playwright cwd | `modules/perc-qa-automation/frontend` |
 | Env | `TEST_CMS_URL=http://127.0.0.1:9993` `TEST_DB_TYPE=h2` `TEST_PRODUCT=cms` `ADMIN_USERNAME=Admin` `ADMIN_PASSWORD=<from docker>` |
 | Out of scope | #2094 Spanish locale, #1695 Explorer encodePath, #1894 Dashboard Add Gadget i18n |
@@ -29,7 +29,12 @@
 python docker/scripts/perc-devctl.py qa-health --url http://127.0.0.1:9993/Rhythmyx/login
 
 cd modules/perc-qa-automation/frontend
-# PowerShell: set TEST_CMS_URL / ADMIN_* then:
+# PowerShell example (session env):
+#   $env:TEST_CMS_URL = "http://127.0.0.1:9993"
+#   $env:TEST_DB_TYPE = "h2"
+#   $env:TEST_PRODUCT = "cms"
+#   $env:ADMIN_USERNAME = "Admin"
+#   $env:ADMIN_PASSWORD = "<from docker passwords file>"
 npx playwright test \
   tests/developer-catalog-smoke.spec.js \
   tests/developer-template-source-viewer.spec.js \
