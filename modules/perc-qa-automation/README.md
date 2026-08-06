@@ -113,6 +113,22 @@ How agents attach these to PRs/issues: see
 (#2066) when present; otherwise collect the paths above and upload as PR comment
 attachments or gist links.
 
+### Optional CI (GitHub Actions) — #1930
+
+Non-required workflow: [`.github/workflows/h2-qa-playwright.yml`](../../.github/workflows/h2-qa-playwright.yml)
+(**H2 QA Playwright (optional)**).
+
+| Mode | When | Runs |
+|------|------|------|
+| **dry-run** / path-filtered PR | Default dispatch + QA-related PR paths | Freeport + `qa-*` dry-run + `test:unit` + surface list (no live CMS) |
+| **live** | Manual `workflow_dispatch` only | Package → `perc-devctl qa-up` → surface Playwright → upload `test-results/` + `playwright-report/` → `qa-down` |
+
+- Trigger / env / artifact download / Windows-local parity:
+  [workbench-rest-and-qa-modes.md](../../docs/developer-module/workbench-rest-and-qa-modes.md)
+  → **Optional CI**.
+- Do **not** make this workflow a required branch check without a product decision.
+- Secrets: optional repo secret `QA_ADMIN_PASSWORD`; prefer password emitted by `qa-up` (masked). Never commit passwords.
+
 ## Building
 
 To build the module and install Node.js dependencies:

@@ -14,7 +14,7 @@ This runbook answers three questions when Playwright fails during night-issue / 
 2. **How** do agents collect those paths on Windows, Linux, and macOS?
 3. **How** should failures be attached to a PR or issue comment **without** inventing CI infra?
 
-It does **not** implement golden smoke (#2065), env-only `TEST_CMS_URL` wiring (#2064), or a full CI artifact pipeline (#1930).
+It does **not** implement golden smoke (#2065) or env-only `TEST_CMS_URL` wiring (#2064). Optional GHA artifact upload for the H2 QA path is [#1930](https://github.com/intersoftdatalabs-in/percussioncms/issues/1930) (workflow `h2-qa-playwright.yml` — see [workbench-rest-and-qa-modes.md](./workbench-rest-and-qa-modes.md) → Optional CI).
 
 ---
 
@@ -28,12 +28,12 @@ modules/perc-qa-automation/frontend
 
 Repo-relative (forward slashes for docs; use OS path APIs in code/scripts):
 
-|             Role             |                             Path under repo root                             |
-|------------------------------|------------------------------------------------------------------------------|
-| Config                       | `modules/perc-qa-automation/frontend/playwright.config.js`                   |
-| Specs                        | `modules/perc-qa-automation/frontend/tests/`                                 |
-| Default failure output       | `modules/perc-qa-automation/frontend/test-results/`                          |
-| HTML report (when enabled)   | `modules/perc-qa-automation/frontend/playwright-report/`                     |
+|             Role             |                                                               Path under repo root                                                                |
+|------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| Config                       | `modules/perc-qa-automation/frontend/playwright.config.js`                                                                                        |
+| Specs                        | `modules/perc-qa-automation/frontend/tests/`                                                                                                      |
+| Default failure output       | `modules/perc-qa-automation/frontend/test-results/`                                                                                               |
+| HTML report (when enabled)   | `modules/perc-qa-automation/frontend/playwright-report/`                                                                                          |
 | Manual screenshot convention | `modules/perc-qa-automation/frontend/tests/screenshots/` (see [modules/perc-qa-automation/AGENTS.md](../../modules/perc-qa-automation/AGENTS.md)) |
 
 These output dirs are **gitignored** (see `modules/perc-qa-automation/.gitignore`). **Never commit** `test-results/`, `playwright-report/`, or screenshot dumps.
@@ -266,13 +266,13 @@ On **Playwright failure** before closing the session:
 
 ## 7. Out of scope / follow-ups
 
-|                  Item                   |                                      Owner                                      |
-|-----------------------------------------|---------------------------------------------------------------------------------|
-| `TEST_CMS_URL` env without host install | #2064 (slice A)                                                                 |
-| Golden unattended smoke green proof     | #2065 (slice B)                                                                 |
-| CI Actions artifact upload / retention  | #1930 / #1827 slice 4                                                           |
-| Changing Playwright defaults in config  | Optional product PR; not required for this convention                           |
-| New heavy `scripts/` automation         | Only if a peer one-liner already exists — none for attach; use `gh` + zip above |
+|                  Item                   |                                         Owner                                          |
+|-----------------------------------------|----------------------------------------------------------------------------------------|
+| `TEST_CMS_URL` env without host install | #2064 (slice A)                                                                        |
+| Golden unattended smoke green proof     | #2065 (slice B)                                                                        |
+| CI Actions artifact upload / retention  | #1930 — `.github/workflows/h2-qa-playwright.yml` (optional; see workbench Optional CI) |
+| Changing Playwright defaults in config  | Optional product PR; not required for this convention                                  |
+| New heavy `scripts/` automation         | Only if a peer one-liner already exists — none for attach; use `gh` + zip above        |
 
 ---
 
