@@ -39,6 +39,7 @@ import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
  * @author Sunny Sal
  */
 @ApplicationPath("/")
+@SuppressWarnings("this-escape")
 public class PSCommentsApplication extends ResourceConfig {
 
   /**

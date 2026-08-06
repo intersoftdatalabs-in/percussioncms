@@ -229,6 +229,7 @@ public class PSCommentsDao implements IPSCommentsDao {
           "update PSComment com set approvalState = :newApprovalState "
               + "where com.id in (:idList) ";
 
+      @SuppressWarnings({"rawtypes", "unchecked"})
       Query updateQuery = session.createQuery(updateQueryString);
       updateQuery.setParameter("newApprovalState", newApprovalState.toString());
       updateQuery.setParameter("idList", longIds);
@@ -249,9 +250,11 @@ public class PSCommentsDao implements IPSCommentsDao {
               + "where site = :site "
               + "group by pagePath, approvalState, viewed ";
 
+      @SuppressWarnings({"rawtypes", "unchecked"})
       Query query = session.createQuery(stringQuery);
       query.setParameter("site", site);
 
+      @SuppressWarnings("unchecked")
       List<Object[]> result = query.getResultList();
       List<PSPageInfo> pages = new ArrayList<>();
       for (Object[] r : result)
@@ -267,8 +270,10 @@ public class PSCommentsDao implements IPSCommentsDao {
   public APPROVAL_STATE findDefaultModerationState(String site) {
     Session session = getSession();
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     Query query = session.createQuery("from PSDefaultModerationState where site = :site");
     query.setParameter("site", site);
+    @SuppressWarnings("unchecked")
     List<Object> result = query.getResultList();
     APPROVAL_STATE state = APPROVAL_STATE.APPROVED;
     if (!result.isEmpty()) {

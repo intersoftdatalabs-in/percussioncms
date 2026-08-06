@@ -53,6 +53,7 @@ public class PSRestComment implements IPSComment {
    *
    * @param comment A comment to create a copy from.
    */
+  @SuppressWarnings("this-escape")
   public PSRestComment(IPSComment comment) {
     this.id = comment.getId();
     this.approvalState = comment.getApprovalState();

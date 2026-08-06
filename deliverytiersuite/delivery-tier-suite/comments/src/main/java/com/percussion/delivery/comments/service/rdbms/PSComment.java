@@ -52,6 +52,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSComments1")
 @Table(name = "PERC_PAGE_COMMENTS")
+@SuppressWarnings({"serial", "this-escape"})
 public class PSComment implements IPSComment, Serializable {
   private static final long serialVersionUID = 1L;
 
