@@ -37,8 +37,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @return the list of IDs of state roles in which a user is acting
    */
-  @SuppressWarnings("rawtypes")
-  public List getUserActingRoleIDs() {
+  public List<Integer> getUserActingRoleIDs() {
     return m_userActingRoleIDs;
   }
 
@@ -47,8 +46,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @return the list of names of state roles in which a user is acting
    */
-  @SuppressWarnings("rawtypes")
-  public List getUserActingRoleNames() {
+  public List<String> getUserActingRoleNames() {
     return m_userActingRoleNames;
   }
 

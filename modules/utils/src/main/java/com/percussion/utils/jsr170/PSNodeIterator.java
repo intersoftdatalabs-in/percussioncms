@@ -25,7 +25,6 @@ import org.apache.commons.collections4.MultiValuedMap;
  *
  * @author dougrand
  */
-@SuppressWarnings("rawtypes")
 public class PSNodeIterator extends PSItemIterator<Node> implements NodeIterator {
   /**
    * Ctor for node iterator
@@ -33,7 +32,7 @@ public class PSNodeIterator extends PSItemIterator<Node> implements NodeIterator
    * @param children child map, may not be <code>null</code>
    * @param filter filter, may be <code>null</code> if no filter is needed
    */
-  public PSNodeIterator(MultiValuedMap children, String filter) {
+  public PSNodeIterator(MultiValuedMap<?, Node> children, String filter) {
     super(children.asMap(), filter);
   }
 

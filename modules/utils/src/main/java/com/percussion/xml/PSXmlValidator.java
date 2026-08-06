@@ -25,6 +25,7 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /** Helper class for validating an xml file against a specified Schema and for well-formed ness. */
 public class PSXmlValidator {
@@ -80,16 +81,13 @@ public class PSXmlValidator {
     }
     boolean hasErrors = errorHandler.numErrors() > 0 || errorHandler.numFatalErrors() > 0;
     if (errors != null) {
-      @SuppressWarnings("rawtypes")
-      Iterator errorIt = errorHandler.errors();
-
-      @SuppressWarnings("rawtypes")
-      Iterator fatalIt = errorHandler.fatalErrors();
+      Iterator<SAXParseException> errorIt = errorHandler.errors();
+      Iterator<SAXParseException> fatalIt = errorHandler.fatalErrors();
       while (errorIt.hasNext()) {
-        errors.add((Exception) errorIt.next());
+        errors.add(errorIt.next());
       }
       while (fatalIt.hasNext()) {
-        errors.add((Exception) fatalIt.next());
+        errors.add(fatalIt.next());
       }
     }
     return !hasErrors;

@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Binary;
@@ -95,8 +96,9 @@ public class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCacheIte
     } else {
       propname = m_name;
     }
-    @SuppressWarnings("unchecked")
-    Collection<Object> values = (Collection<Object>) super.getPropertyValue(propname);
+    Object rawValues = super.getPropertyValue(propname);
+    Collection<?> values =
+        (rawValues instanceof Collection<?>) ? (Collection<?>) rawValues : Collections.emptyList();
     // Getting values.size() is a costly db call use a list so we only query for the
     // actual values.  values.iterator() is called in the for loop, this calls the db
     List<Value> valuesList = new ArrayList<>();

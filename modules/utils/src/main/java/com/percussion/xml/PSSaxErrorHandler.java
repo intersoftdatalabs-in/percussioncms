@@ -109,13 +109,11 @@ public class PSSaxErrorHandler implements ErrorHandler {
     return m_warnings.size();
   }
 
-  @SuppressWarnings("rawtypes")
-  public Iterator errors() {
+  public Iterator<SAXParseException> errors() {
     return m_errors.iterator();
   }
 
-  @SuppressWarnings("rawtypes")
-  public Iterator fatalErrors() {
+  public Iterator<SAXParseException> fatalErrors() {
     return m_fatalErrors.iterator();
   }
 
@@ -137,8 +135,7 @@ public class PSSaxErrorHandler implements ErrorHandler {
     return new ArrayList<SAXParseException>(m_errors);
   }
 
-  @SuppressWarnings("rawtypes")
-  public Iterator warnings() {
+  public Iterator<SAXParseException> warnings() {
     return m_warnings.iterator();
   }
 

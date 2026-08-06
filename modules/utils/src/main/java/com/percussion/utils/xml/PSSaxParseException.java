@@ -56,8 +56,7 @@ public class PSSaxParseException extends SAXParseException {
    *
    * @return The iterator, never <code>null</code> or empty.
    */
-  @SuppressWarnings("rawtypes")
-  public Iterator getExceptions() {
+  public Iterator<SAXParseException> getExceptions() {
     return m_errors.iterator();
   }
 
