@@ -8,10 +8,16 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
-import java.util.Optional;
 
 /**
  * Represents a lightweight summary of a template. Sunny Sal: "Summary ka hero, template ka zero!"
+ *
+ * <p>Wire getters return plain {@link String} types (not {@code Optional}) so Jackson/CXF JSON
+ * always emits {@code templateName}, {@code templateLabel}, and {@code templateDescription} when
+ * set. Optional-returning getters historically dropped those fields under {@code
+ * @JsonInclude(NON_NULL)} when the mapper did not unwrap {@code Optional}, leaving only {@code
+ * templateId} on the list wire shape (issue #2189). Matches {@link
+ * com.percussion.rest.contenttypes.ContentType} getter style (issue #1693).
  */
 @XmlRootElement(name = "TemplateSummary")
 @JsonRootName(value = "TemplateSummary")
@@ -41,24 +47,24 @@ public class TemplateSummary {
     this.templateId = templateId;
   }
 
-  public Optional<String> getTemplateName() {
-    return Optional.ofNullable(templateName);
+  public String getTemplateName() {
+    return templateName;
   }
 
   public void setTemplateName(String templateName) {
     this.templateName = templateName;
   }
 
-  public Optional<String> getTemplateLabel() {
-    return Optional.ofNullable(templateLabel);
+  public String getTemplateLabel() {
+    return templateLabel;
   }
 
   public void setTemplateLabel(String templateLabel) {
     this.templateLabel = templateLabel;
   }
 
-  public Optional<String> getTemplateDescription() {
-    return Optional.ofNullable(templateDescription);
+  public String getTemplateDescription() {
+    return templateDescription;
   }
 
   public void setTemplateDescription(String templateDescription) {
