@@ -135,9 +135,9 @@ public class PSPostExitHandler implements IPSResultDocumentProcessor {
 
     log.info("");
     log.info("List of CGI variables and values:");
-    Enumeration headers = request.getHeaders();
+    Enumeration<String> headers = request.getHeaders();
     while (headers.hasMoreElements()) {
-      String header = (String) headers.nextElement();
+      String header = headers.nextElement();
       String value = request.getCgiVariable(header);
       printString(header, value);
     }
@@ -156,12 +156,12 @@ public class PSPostExitHandler implements IPSResultDocumentProcessor {
    *
    * @param map the map to log, may be <code>null</code>.
    */
-  public static void printMap(Map map) {
+  public static void printMap(Map<String, ? extends Object> map) {
     if (null == map) {
       log.info("Map containing the list is null");
       return;
     }
-    Set keyset = map.keySet();
+    Set<String> keyset = map.keySet();
     if (null == keyset || keyset.isEmpty()) {
       log.info("List is empty");
     }

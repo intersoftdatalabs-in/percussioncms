@@ -178,10 +178,10 @@ public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWo
     if (i >= m_nCount || i < 0) {
       return false;
     }
-    m_nNotificationID = ((Integer) m_nNotificationIDList.get(i)).intValue();
-    m_nStateRoleRecipientTypes = ((Integer) m_nStateRoleRecipientTypesList.get(i)).intValue();
-    m_sAdditionalRecipientList = (String) m_sAdditionalRecipientListList.get(i);
-    m_sCCList = (String) m_sCCListList.get(i);
+    m_nNotificationID = m_nNotificationIDList.get(i).intValue();
+    m_nStateRoleRecipientTypes = m_nStateRoleRecipientTypesList.get(i).intValue();
+    m_sAdditionalRecipientList = m_sAdditionalRecipientListList.get(i);
+    m_sCCList = m_sCCListList.get(i);
 
     return true;
   }
@@ -260,19 +260,19 @@ public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWo
   private String m_sCCList = null;
 
   /** List of notification IDs */
-  private ArrayList m_nNotificationIDList = new ArrayList();
+  private List<Integer> m_nNotificationIDList = new ArrayList<>();
 
   /**
    * List of values indicating which state role recipients should receive notification: none,
    * from-state, to-state or both
    */
-  private ArrayList m_nStateRoleRecipientTypesList = new ArrayList();
+  private List<Integer> m_nStateRoleRecipientTypesList = new ArrayList<>();
 
   /** List of comma-delimited lists of additional notification recipients */
-  private ArrayList m_sAdditionalRecipientListList = new ArrayList();
+  private List<String> m_sAdditionalRecipientListList = new ArrayList<>();
 
   /** List of comma-delimited lists of CC notification recipients */
-  private ArrayList m_sCCListList = new ArrayList();
+  private List<String> m_sCCListList = new ArrayList<>();
 
   /**
    * <CODE>true</CODE> if from-state role recipients should receive at least one notification, else

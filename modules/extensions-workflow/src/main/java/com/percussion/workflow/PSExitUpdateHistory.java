@@ -80,7 +80,7 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
     if (ms_correctParamCount == IPSExtension.NOT_INITIALIZED) {
       ms_correctParamCount = 0;
 
-      Iterator iter = extensionDef.getRuntimeParameterNames();
+      Iterator<String> iter = extensionDef.getRuntimeParameterNames();
       while (iter.hasNext()) {
         iter.next();
         ms_correctParamCount++;
@@ -137,7 +137,7 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
     int transitionID = 0;
     String transitionComment = "";
     int contentstatushistoryid = 0;
-    List stateAssignedRoles = null;
+    List<String> stateAssignedRoles = null;
     Exception except = null;
     String lang = null;
     try {
@@ -230,7 +230,9 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
               request.getPrivateObject(PSWorkflowRoleInfo.WORKFLOW_ROLE_INFO_PRIVATE_OBJECT);
 
       if (null != wfRoleInfo) {
-        stateAssignedRoles = wfRoleInfo.getUserActingRoleNames();
+        @SuppressWarnings("unchecked")
+        List<String> assignedRoles = wfRoleInfo.getUserActingRoleNames();
+        stateAssignedRoles = assignedRoles;
       } else {
         PSWorkFlowUtils.printWorkflowMessage(
             request, "update history: - no state roles found - history" + "will be written");
@@ -322,7 +324,7 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
       String userName,
       String sessionID,
       int transitionID,
-      List stateAssignedRoles,
+      List<String> stateAssignedRoles,
       String transitionComment,
       IPSRequestContext request)
       throws SQLException, PSEntryNotFoundException, PSExtensionProcessingException {

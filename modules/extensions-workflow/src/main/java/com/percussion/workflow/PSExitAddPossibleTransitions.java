@@ -224,15 +224,15 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
     // Add workflow info element and set required attributes
     Element elemWorkflowInfo = doc.createElement(ELEMENT_WORKFLOWINFO);
     elemWorkflowInfo = (Element) elemParent.appendChild(elemWorkflowInfo);
-    elemWorkflowInfo.setAttribute(this.ATTRIB_CONTENTID, sContentID);
-    elemWorkflowInfo.setAttribute(this.ATTRIB_WORKFLOWID, Integer.toString(nWorkFlowAppID));
+    elemWorkflowInfo.setAttribute(ATTRIB_CONTENTID, sContentID);
+    elemWorkflowInfo.setAttribute(ATTRIB_WORKFLOWID, Integer.toString(nWorkFlowAppID));
 
-    elemWorkflowInfo.setAttribute(this.ATTRIB_WORKFLOWNAME, wac.getWorkFlowAppName());
+    elemWorkflowInfo.setAttribute(ATTRIB_WORKFLOWNAME, wac.getWorkFlowAppName());
     //
     // Add state information element and attributes
-    Element elemState = doc.createElement(this.ELEMENT_CURRENTSTATE);
+    Element elemState = doc.createElement(ELEMENT_CURRENTSTATE);
     elemState = (Element) elemWorkflowInfo.appendChild(elemState);
-    elemState.setAttribute(this.ATTRIB_STATEID, Integer.toString(nContentStateID));
+    elemState.setAttribute(ATTRIB_STATEID, Integer.toString(nContentStateID));
 
     Optional<? extends IPSStatesContext> scOpt =
         cms.loadWorkflowState(nWorkFlowAppID, nContentStateID);
@@ -242,7 +242,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
     IPSStatesContext sc = scOpt.get();
 
     String sPublishable = (sc.getIsValid()) ? "Y" : "N";
-    elemState.setAttribute(this.ATTRIB_PUBLISHABLE, sPublishable);
+    elemState.setAttribute(ATTRIB_PUBLISHABLE, sPublishable);
 
     Text text = doc.createTextNode(sc.getStateName());
     elemState.appendChild(text);
@@ -253,11 +253,11 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
     if (null == localParams.m_checkoutUserName) localParams.m_checkoutUserName = "";
     else localParams.m_checkoutUserName = localParams.m_checkoutUserName.trim();
 
-    Element elemCheckoutStatus = doc.createElement(this.ELEMENT_CHECKOUTSTATUS);
+    Element elemCheckoutStatus = doc.createElement(ELEMENT_CHECKOUTSTATUS);
 
     elemCheckoutStatus = (Element) elemWorkflowInfo.appendChild(elemCheckoutStatus);
 
-    elemCheckoutStatus.setAttribute(this.ATTRIB_CHECKOUTUSERNAME, localParams.m_checkoutUserName);
+    elemCheckoutStatus.setAttribute(ATTRIB_CHECKOUTUSERNAME, localParams.m_checkoutUserName);
 
     int nCheckoutStatus = PSWorkFlowUtils.CHECKOUT_STATUS_NONE;
     if (null == localParams.m_checkoutUserName || localParams.m_checkoutUserName.length() < 1) {
@@ -273,7 +273,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
     //
 
     // Add user info element and attributes
-    Element elemUserName = doc.createElement(this.ELEMENT_USERNAME);
+    Element elemUserName = doc.createElement(ELEMENT_USERNAME);
     elemUserName = (Element) elemWorkflowInfo.appendChild(elemUserName);
 
     int nAssignmentType =
@@ -285,7 +285,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
             localParams.m_roleNameList,
             req);
 
-    elemUserName.setAttribute(this.ATTRIB_ASSIGNMENTTYPE, Integer.toString(nAssignmentType));
+    elemUserName.setAttribute(ATTRIB_ASSIGNMENTTYPE, Integer.toString(nAssignmentType));
 
     text = doc.createTextNode(localParams.m_userName);
     elemUserName.appendChild(text);
@@ -304,7 +304,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
   private void addAssignedRolesInfo(
       Document doc, Element elemParent, int nWorkflowAppID, int stateid)
       throws SQLException, PSRoleException {
-    Element elemAssignedRoles = doc.createElement(this.ELEMENT_ASSIGNEDROLES);
+    Element elemAssignedRoles = doc.createElement(ELEMENT_ASSIGNEDROLES);
     elemAssignedRoles = (Element) elemParent.appendChild(elemAssignedRoles);
     Element elemAssignedRole = null;
 
@@ -457,7 +457,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
         elemAction.setAttribute(ms_actionTriggerName, tc.getTransitionActionTrigger());
 
         elemAction.setAttribute(localParams.m_contentIDName, sContentID);
-        elemAction.setAttribute(this.ATTRIB_TRANSITIONID, Integer.toString(tc.getTransitionID()));
+        elemAction.setAttribute(ATTRIB_TRANSITIONID, Integer.toString(tc.getTransitionID()));
 
         text = doc.createTextNode(tc.getTransitionLabel());
         elemAction.appendChild(text);

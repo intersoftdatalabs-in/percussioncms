@@ -130,7 +130,7 @@ public class PSGetWorkflowActionList implements IPSResultDocumentProcessor {
     Exception fatal = null;
 
     try {
-      Iterator wfActionRefIter = PSWorkFlowUtils.getWorkflowActionExtensionRefs();
+      Iterator<PSExtensionRef> wfActionRefIter = PSWorkFlowUtils.getWorkflowActionExtensionRefs();
 
       // If there are no workflow actions installed we are done
       if (!wfActionRefIter.hasNext()) {
@@ -145,7 +145,7 @@ public class PSGetWorkflowActionList implements IPSResultDocumentProcessor {
 
       while (wfActionRefIter.hasNext()) {
 
-        PSExtensionRef wfActionRef = (PSExtensionRef) wfActionRefIter.next();
+        PSExtensionRef wfActionRef = wfActionRefIter.next();
         Element workflowAction =
             PSXmlDocumentBuilder.addElement(
                 resultDoc, workflowActionList, "workflowaction", wfActionRef.toString());

@@ -89,7 +89,7 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
   private void populateFromHibernate(List<PSContentAdhocUser> rows) {
     if (rows == null) return;
     for (PSContentAdhocUser row : rows) {
-      int roleID = (int) row.getRoleId();
+      int roleID = row.getRoleId();
       int adhocType = row.getAdhocType();
       String userName = row.getUser();
       if (userName == null || userName.isEmpty()) {

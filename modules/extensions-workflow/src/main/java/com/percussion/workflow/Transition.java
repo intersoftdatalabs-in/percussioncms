@@ -158,9 +158,10 @@ public class Transition {
    * @param height the height of the transition elements
    * @return a new Element representing this transition, ready for insertion into a document
    */
-  public Element makeElement(Element elemTransitions, HashMap statesMap, int height) {
-    int indexFrom = ((State) statesMap.get(getFrom())).getIndex();
-    int indexTo = ((State) statesMap.get(getTo())).getIndex();
+  public Element makeElement(
+      Element elemTransitions, HashMap<String, State> statesMap, int height) {
+    int indexFrom = statesMap.get(getFrom()).getIndex();
+    int indexTo = statesMap.get(getTo()).getIndex();
     boolean bForward = (indexTo > indexFrom) ? true : false;
     int indexBegin = indexFrom;
     int indexEnd = indexTo;
@@ -170,7 +171,7 @@ public class Transition {
     }
 
     Document doc = elemTransitions.getOwnerDocument();
-    Element elemTransition = (Element) doc.createElement("transition");
+    Element elemTransition = doc.createElement("transition");
     elemTransition.setAttribute("label", getLabel());
     elemTransition.setAttribute("link", getLink());
     elemTransition.setAttribute("type", getType());
@@ -183,7 +184,7 @@ public class Transition {
     int ii;
     for (int i = 0; i <= last; i++) {
       key = keys[i].toString();
-      state = (State) statesMap.get(key);
+      state = statesMap.get(key);
       ii = i; // state.getIndex();
       if (0 == ii) {
         elem = doc.createElement("draw");

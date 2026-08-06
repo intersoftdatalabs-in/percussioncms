@@ -119,7 +119,7 @@ public class PreviewWorkflow extends PSPostExitHandler {
 
     Element elemTransition;
     String tmp = "";
-    List toAppendEl = new ArrayList();
+    List<Node> toAppendEl = new ArrayList<>();
 
     for (int i = 0; i < nlTransitions.getLength(); i++) {
       elemTransition = (Element) nlTransitions.item(i);
@@ -132,12 +132,11 @@ public class PreviewWorkflow extends PSPostExitHandler {
       toAppendEl.add(elemTransition.cloneNode(true));
     }
 
-    for (int j = 0; j < toAppendEl.size(); j++)
-      elemTransitions.appendChild((Node) toAppendEl.get(j));
+    for (int j = 0; j < toAppendEl.size(); j++) elemTransitions.appendChild(toAppendEl.get(j));
 
     nl = elemStates.getElementsByTagName("state");
     Element elemState = null;
-    HashMap statesMap = new HashMap(nl.getLength());
+    HashMap<String, State> statesMap = new HashMap<>(nl.getLength());
 
     int x = Math.round(20 * scale);
     int y = Math.round(20 * scale);
