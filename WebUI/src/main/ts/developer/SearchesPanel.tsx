@@ -5,8 +5,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { listSearches } from "../api/developer/searchesApi";
 import type { SearchDef } from "../api/developer/types";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { catalogColors, monoCell, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { SearchDetailPanel } from "./SearchDetailPanel";
@@ -62,77 +62,60 @@ export function SearchesPanel(): React.ReactElement {
   return (
     <div data-testid="developer-sr-panel">
       <CatalogHint>{DEV_MSG.SR_HINT}</CatalogHint>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-sr-table"
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
-        >
-          <thead>
-            <tr style={tableHeaderRow}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_NAME}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_LABEL}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_KIND}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_FIELDS}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_DESCRIPTION}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((s, index) => {
-              const openKey = s.name || s.guid?.stringValue || "";
-              const interactive = openKey.length > 0;
-              const fieldCount = Array.isArray(s.fields) ? s.fields.length : 0;
-              const kind = s.customSearch
-                ? DEV_MSG.SR_KIND_CUSTOM
-                : s.userSearch
-                  ? DEV_MSG.SR_KIND_USER
-                  : s.standardSearch
-                    ? DEV_MSG.SR_KIND_STANDARD
-                    : s.type || "—";
-              return (
-                <tr
-                  key={s.guid?.stringValue || s.name || `sr-${index}`}
-                  data-testid="developer-sr-row"
-                  style={{ ...tableRow, cursor: interactive ? "pointer" : "default"  }}
-                  onClick={() => {
-                    if (interactive) setSelected(openKey);
+      <SimpleCatalogTable
+        tableTestId="developer-sr-table"
+        rowTestId="developer-sr-row"
+        columns={[
+          DEV_MSG.SR_COL_NAME,
+          DEV_MSG.SR_COL_LABEL,
+          DEV_MSG.SR_COL_KIND,
+          DEV_MSG.SR_COL_FIELDS,
+          DEV_MSG.SR_COL_DESCRIPTION,
+        ]}
+        rows={sorted.map((s, index) => {
+          const openKey = s.name || s.guid?.stringValue || "";
+          const interactive = openKey.length > 0;
+          const fieldCount = Array.isArray(s.fields) ? s.fields.length : 0;
+          const kind = s.customSearch
+            ? DEV_MSG.SR_KIND_CUSTOM
+            : s.userSearch
+              ? DEV_MSG.SR_KIND_USER
+              : s.standardSearch
+                ? DEV_MSG.SR_KIND_STANDARD
+                : s.type || "—";
+          return {
+            key: s.guid?.stringValue || s.name || `sr-${index}`,
+            onClick: interactive ? () => setSelected(openKey) : undefined,
+            cells: [
+              interactive ? (
+                <button
+                  key="open"
+                  type="button"
+                  data-testid="developer-sr-open"
+                  aria-label={`Open ${s.name || openKey}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelected(openKey);
                   }}
+                  style={{ ...openButtonStyle, fontFamily: "monospace" }}
                 >
-                  <td style={{ padding: "8px" }}>
-                    {interactive ? (
-                      <button
-                        type="button"
-                        data-testid="developer-sr-open"
-                        aria-label={`Open ${s.name || openKey}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelected(openKey);
-                        }}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: catalogColors.accent,
-                          cursor: "pointer",
-                          font: "inherit",
-                          padding: 0,
-                          fontFamily: "monospace",
-                        }}
-                      >
-                        {s.name || "—"}
-                      </button>
-                    ) : (
-                      <span style={monoCell}>{s.name || "—"}</span>
-                    )}
-                  </td>
-                  <td style={{ padding: "8px" }}>{s.label || ""}</td>
-                  <td style={{ padding: "8px" }}>{kind}</td>
-                  <td style={{ padding: "8px" }}>{fieldCount}</td>
-                  <td style={{ padding: "8px", ...mutedCell }}>{s.description || ""}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  {s.name || "—"}
+                </button>
+              ) : (
+                <span key="n" style={monoCell}>
+                  {s.name || "—"}
+                </span>
+              ),
+              s.label || "",
+              kind,
+              fieldCount,
+              <span key="d" style={mutedCell}>
+                {s.description || ""}
+              </span>,
+            ],
+          };
+        })}
+      />
     </div>
   );
 }

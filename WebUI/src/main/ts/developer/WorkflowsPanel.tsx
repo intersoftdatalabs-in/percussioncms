@@ -5,8 +5,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { listWorkflows } from "../api/developer/workflowsApi";
 import type { WorkflowDef } from "../api/developer/types";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { catalogColors, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { WorkflowDetailPanel } from "./WorkflowDetailPanel";
@@ -64,67 +64,44 @@ export function WorkflowsPanel(): React.ReactElement {
   return (
     <div data-testid="developer-wf-panel">
       <CatalogHint>{DEV_MSG.WF_HINT}</CatalogHint>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-wf-table"
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
-        >
-          <thead>
-            <tr style={tableHeaderRow}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_NAME}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_DESC}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_DEFAULT}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_STEPS}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((w, index) => {
-              const openKey = (w.workflowName || "").trim();
-              const stepCount = Array.isArray(w.workflowSteps) ? w.workflowSteps.length : 0;
-              return (
-                <tr
-                  key={`${openKey}-${index}`}
-                  data-testid="developer-wf-row"
-                  style={{ ...tableRow, cursor: "pointer"  }}
-                  onClick={() => setSelected(openKey)}
-                >
-                  <td style={{ padding: "8px" }}>
-                    <button
-                      type="button"
-                      data-testid="developer-wf-open"
-                      aria-label={`Open ${openKey}`}
-                      onClick={(ev) => {
-                        ev.stopPropagation();
-                        setSelected(openKey);
-                      }}
-                      style={{
-                        background: "transparent",
-                        border: "none",
-                        color: catalogColors.accent,
-                        cursor: "pointer",
-                        font: "inherit",
-                        padding: 0,
-                        fontFamily: "monospace",
-                      }}
-                    >
-                      {openKey}
-                    </button>
-                  </td>
-                  <td style={{ padding: "8px", ...mutedCell }}>
-                    {w.workflowDescription || ""}
-                  </td>
-                  <td style={{ padding: "8px" }}>
-                    {w.defaultWorkflow ? DEV_MSG.WF_YES : "—"}
-                  </td>
-                  <td style={{ padding: "8px" }}>
-                    {stepCount > 0 ? String(stepCount) : "—"}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <SimpleCatalogTable
+        tableTestId="developer-wf-table"
+        rowTestId="developer-wf-row"
+        columns={[
+          DEV_MSG.WF_COL_NAME,
+          DEV_MSG.WF_COL_DESC,
+          DEV_MSG.WF_COL_DEFAULT,
+          DEV_MSG.WF_COL_STEPS,
+        ]}
+        rows={sorted.map((w, index) => {
+          const openKey = (w.workflowName || "").trim();
+          const stepCount = Array.isArray(w.workflowSteps) ? w.workflowSteps.length : 0;
+          return {
+            key: `${openKey}-${index}`,
+            onClick: () => setSelected(openKey),
+            cells: [
+              <button
+                key="open"
+                type="button"
+                data-testid="developer-wf-open"
+                aria-label={`Open ${openKey}`}
+                onClick={(ev) => {
+                  ev.stopPropagation();
+                  setSelected(openKey);
+                }}
+                style={{ ...openButtonStyle, fontFamily: "monospace" }}
+              >
+                {openKey}
+              </button>,
+              <span key="d" style={mutedCell}>
+                {w.workflowDescription || ""}
+              </span>,
+              w.defaultWorkflow ? DEV_MSG.WF_YES : "—",
+              stepCount > 0 ? String(stepCount) : "—",
+            ],
+          };
+        })}
+      />
     </div>
   );
 }

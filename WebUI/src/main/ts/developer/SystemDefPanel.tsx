@@ -18,8 +18,8 @@
 import React, { useEffect, useState } from "react";
 import { getSystemDef } from "../api/developer/systemDefApi";
 import type { SystemDefDetail } from "../api/developer/types";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { catalogColors, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { catalogColors, metaGrid, monoCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -89,53 +89,35 @@ export function SystemDefPanel(): React.ReactElement {
             {DEV_MSG.SYS_EMPTY}
           </p>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table
-              data-testid="developer-sys-fields-table"
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                fontSize: "0.9rem",
-              }}
-            >
-              <thead>
-                <tr style={tableHeaderRow}>
-                  <th style={{ padding: "8px" }}>{DEV_MSG.SYS_COL_FIELD}</th>
-                  <th style={{ padding: "8px" }}>{DEV_MSG.SYS_COL_DATATYPE}</th>
-                  <th style={{ padding: "8px" }}>{DEV_MSG.SYS_COL_OCCURRENCE}</th>
-                  <th style={{ padding: "8px" }}>{DEV_MSG.SYS_COL_REQUIRED}</th>
-                  <th style={{ padding: "8px" }}>{DEV_MSG.SYS_COL_SEARCH}</th>
-                  <th style={{ padding: "8px" }}>{DEV_MSG.SYS_COL_READONLY}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {fields.map((f, i) => (
-                  <tr
-                    key={f.name || `f-${i}`}
-                    data-testid={`developer-sys-field-row-${i}`}
-                    style={tableRow}
-                  >
-                    <td style={{ padding: "8px", fontFamily: "monospace" }}>{f.name || "—"}</td>
-                    <td style={{ padding: "8px" }}>{f.dataType || "—"}</td>
-                    <td style={{ padding: "8px" }}>{f.occurrence || "—"}</td>
-                    <td style={{ padding: "8px" }}>
-                      {f.required == null ? "—" : f.required ? DEV_MSG.YES : DEV_MSG.NO}
-                    </td>
-                    <td style={{ padding: "8px" }}>
-                      {f.searchable == null
-                        ? "—"
-                        : f.searchable
-                          ? DEV_MSG.YES
-                          : DEV_MSG.NO}
-                    </td>
-                    <td style={{ padding: "8px" }}>
-                      {f.readOnly == null ? "—" : f.readOnly ? DEV_MSG.YES : DEV_MSG.NO}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <SimpleCatalogTable
+            tableTestId="developer-sys-fields-table"
+            rowTestId="developer-sys-field-row"
+            columns={[
+              DEV_MSG.SYS_COL_FIELD,
+              DEV_MSG.SYS_COL_DATATYPE,
+              DEV_MSG.SYS_COL_OCCURRENCE,
+              DEV_MSG.SYS_COL_REQUIRED,
+              DEV_MSG.SYS_COL_SEARCH,
+              DEV_MSG.SYS_COL_READONLY,
+            ]}
+            rows={fields.map((f, i) => ({
+              key: f.name || `f-${i}`,
+              cells: [
+                <span key="n" style={monoCell}>
+                  {f.name || "—"}
+                </span>,
+                f.dataType || "—",
+                f.occurrence || "—",
+                f.required == null ? "—" : f.required ? DEV_MSG.YES : DEV_MSG.NO,
+                f.searchable == null
+                  ? "—"
+                  : f.searchable
+                    ? DEV_MSG.YES
+                    : DEV_MSG.NO,
+                f.readOnly == null ? "—" : f.readOnly ? DEV_MSG.YES : DEV_MSG.NO,
+              ],
+            }))}
+          />
         )}
       </section>
 

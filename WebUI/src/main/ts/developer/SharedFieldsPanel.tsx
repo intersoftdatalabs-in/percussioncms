@@ -18,8 +18,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { listSharedFieldGroups } from "../api/developer/sharedFieldsApi";
 import type { SharedFieldGroupSummary } from "../api/developer/types";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { catalogColors, monoCell, mutedMonoCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedMonoCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { SharedFieldGroupDetailPanel } from "./SharedFieldGroupDetailPanel";
@@ -77,67 +77,44 @@ export function SharedFieldsPanel(): React.ReactElement {
   return (
     <div data-testid="developer-sf-panel">
       <CatalogHint>{DEV_MSG.SF_HINT}</CatalogHint>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-sf-table"
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
-        >
-          <thead>
-            <tr style={tableHeaderRow}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.SF_COL_NAME}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.SF_COL_FILENAME}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.SF_COL_FIELDS}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((g, index) => {
-              const openKey = g.name || "";
-              const interactive = openKey.length > 0;
-              return (
-                <tr
-                  key={g.name || `sf-${index}`}
-                  data-testid="developer-sf-row"
-                  style={{ ...tableRow, cursor: interactive ? "pointer" : "default"  }}
-                  onClick={() => {
-                    if (interactive) setSelected(openKey);
+      <SimpleCatalogTable
+        tableTestId="developer-sf-table"
+        rowTestId="developer-sf-row"
+        columns={[DEV_MSG.SF_COL_NAME, DEV_MSG.SF_COL_FILENAME, DEV_MSG.SF_COL_FIELDS]}
+        rows={sorted.map((g, index) => {
+          const openKey = g.name || "";
+          const interactive = openKey.length > 0;
+          return {
+            key: g.name || `sf-${index}`,
+            onClick: interactive ? () => setSelected(openKey) : undefined,
+            cells: [
+              interactive ? (
+                <button
+                  key="open"
+                  type="button"
+                  data-testid="developer-sf-open"
+                  aria-label={`Open ${g.name || openKey}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelected(openKey);
                   }}
+                  style={{ ...openButtonStyle, fontFamily: "monospace" }}
                 >
-                  <td style={{ padding: "8px" }}>
-                    {interactive ? (
-                      <button
-                        type="button"
-                        data-testid="developer-sf-open"
-                        aria-label={`Open ${g.name || openKey}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelected(openKey);
-                        }}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: catalogColors.accent,
-                          cursor: "pointer",
-                          font: "inherit",
-                          padding: 0,
-                          fontFamily: "monospace",
-                        }}
-                      >
-                        {g.name || "—"}
-                      </button>
-                    ) : (
-                      <span style={monoCell}>{g.name || "—"}</span>
-                    )}
-                  </td>
-                  <td style={{ padding: "8px", ...mutedMonoCell }}>{g.filename || ""}</td>
-                  <td style={{ padding: "8px" }}>
-                    {g.fieldCount != null ? String(g.fieldCount) : "—"}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  {g.name || "—"}
+                </button>
+              ) : (
+                <span key="n" style={monoCell}>
+                  {g.name || "—"}
+                </span>
+              ),
+              <span key="fn" style={mutedMonoCell}>
+                {g.filename || ""}
+              </span>,
+              g.fieldCount != null ? String(g.fieldCount) : "—",
+            ],
+          };
+        })}
+      />
     </div>
   );
 }

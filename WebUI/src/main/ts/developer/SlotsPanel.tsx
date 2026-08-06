@@ -18,8 +18,8 @@
 import React, { useEffect, useState } from "react";
 import { listSlots } from "../api/developer/assemblyApi";
 import type { SlotSummary } from "../api/developer/types";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { catalogColors, openButtonStyle, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { SlotDetailPanel } from "./SlotDetailPanel";
@@ -71,54 +71,38 @@ export function SlotsPanel(): React.ReactElement {
   return (
     <div data-testid="developer-slot-panel">
       <CatalogHint>{DEV_MSG.SLOT_HINT}</CatalogHint>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-slot-table"
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
-        >
-          <thead>
-            <tr style={tableHeaderRow}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_LABEL}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_NAME}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_DESCRIPTION}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((s, index) => {
-              const openKey = selectionKey(s);
-              const key = s.guid?.stringValue || s.name || `slot-${index}`;
-              return (
-                <tr
-                  key={key}
-                  data-testid="developer-slot-row"
-                  style={tableRow}
+      <SimpleCatalogTable
+        tableTestId="developer-slot-table"
+        rowTestId="developer-slot-row"
+        columns={[DEV_MSG.SLOT_COL_LABEL, DEV_MSG.SLOT_COL_NAME, DEV_MSG.SLOT_COL_DESCRIPTION]}
+        rows={sorted.map((s, index) => {
+          const openKey = selectionKey(s);
+          return {
+            key: s.guid?.stringValue || s.name || `slot-${index}`,
+            cells: [
+              openKey ? (
+                <button
+                  key="open"
+                  type="button"
+                  style={openButtonStyle}
+                  aria-label={`Open ${s.label || s.name || openKey}`}
+                  onClick={() => setSelected(openKey)}
                 >
-                  <td style={{ padding: "8px" }}>
-                    {openKey ? (
-                      <button
-                        type="button"
-                        style={openButtonStyle}
-                        aria-label={`Open ${s.label || s.name || openKey}`}
-                        onClick={() => setSelected(openKey)}
-                      >
-                        {s.label || "—"}
-                      </button>
-                    ) : (
-                      s.label || "—"
-                    )}
-                  </td>
-                  <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                    {s.name || "—"}
-                  </td>
-                  <td style={{ padding: "8px", color: catalogColors.muted }}>
-                    {s.description || ""}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  {s.label || "—"}
+                </button>
+              ) : (
+                s.label || "—"
+              ),
+              <span key="n" style={monoCell}>
+                {s.name || "—"}
+              </span>,
+              <span key="d" style={mutedCell}>
+                {s.description || ""}
+              </span>,
+            ],
+          };
+        })}
+      />
     </div>
   );
 }

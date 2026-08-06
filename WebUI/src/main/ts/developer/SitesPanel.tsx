@@ -5,8 +5,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { listSites } from "../api/developer/sitesApi";
 import type { SiteDef } from "../api/developer/types";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { catalogColors, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { SiteDetailPanel } from "./SiteDetailPanel";
@@ -70,67 +70,50 @@ export function SitesPanel(): React.ReactElement {
   return (
     <div data-testid="developer-site-panel">
       <CatalogHint>{DEV_MSG.SITE_HINT}</CatalogHint>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-site-table"
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
-        >
-          <thead>
-            <tr style={tableHeaderRow}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.SITE_COL_NAME}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.SITE_COL_DESC}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.SITE_COL_URL}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.SITE_COL_FLAGS}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((s, index) => {
-              const name = siteName(s);
-              const flags: string[] = [];
-              if (s.pageBasedSite) flags.push(DEV_MSG.SITE_FLAG_PAGE);
-              if (s.isCanonical ?? s.canonical) flags.push(DEV_MSG.SITE_FLAG_CANONICAL);
-              return (
-                <tr
-                  key={`${name}-${index}`}
-                  data-testid="developer-site-row"
-                  style={{ ...tableRow, cursor: "pointer"  }}
-                  onClick={() => setSelected(s)}
-                >
-                  <td style={{ padding: "8px" }}>
-                    <button
-                      type="button"
-                      data-testid="developer-site-open"
-                      aria-label={`Open ${name}`}
-                      onClick={(ev) => {
-                        ev.stopPropagation();
-                        setSelected(s);
-                      }}
-                      style={{
-                        background: "transparent",
-                        border: "none",
-                        color: catalogColors.accent,
-                        cursor: "pointer",
-                        font: "inherit",
-                        padding: 0,
-                        fontFamily: "monospace",
-                      }}
-                    >
-                      {name}
-                    </button>
-                  </td>
-                  <td style={{ padding: "8px", ...mutedCell }}>{s.description || ""}</td>
-                  <td style={{ padding: "8px", fontFamily: "monospace", fontSize: "0.85rem" }}>
-                    {s.baseUrl || "—"}
-                  </td>
-                  <td style={{ padding: "8px", fontSize: "0.85rem" }}>
-                    {flags.length ? flags.join(", ") : "—"}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <SimpleCatalogTable
+        tableTestId="developer-site-table"
+        rowTestId="developer-site-row"
+        columns={[
+          DEV_MSG.SITE_COL_NAME,
+          DEV_MSG.SITE_COL_DESC,
+          DEV_MSG.SITE_COL_URL,
+          DEV_MSG.SITE_COL_FLAGS,
+        ]}
+        rows={sorted.map((s, index) => {
+          const name = siteName(s);
+          const flags: string[] = [];
+          if (s.pageBasedSite) flags.push(DEV_MSG.SITE_FLAG_PAGE);
+          if (s.isCanonical ?? s.canonical) flags.push(DEV_MSG.SITE_FLAG_CANONICAL);
+          return {
+            key: `${name}-${index}`,
+            onClick: () => setSelected(s),
+            cells: [
+              <button
+                key="open"
+                type="button"
+                data-testid="developer-site-open"
+                aria-label={`Open ${name}`}
+                onClick={(ev) => {
+                  ev.stopPropagation();
+                  setSelected(s);
+                }}
+                style={{ ...openButtonStyle, fontFamily: "monospace" }}
+              >
+                {name}
+              </button>,
+              <span key="d" style={mutedCell}>
+                {s.description || ""}
+              </span>,
+              <span key="u" style={{ fontFamily: "monospace", fontSize: "0.85rem" }}>
+                {s.baseUrl || "—"}
+              </span>,
+              <span key="f" style={{ fontSize: "0.85rem" }}>
+                {flags.length ? flags.join(", ") : "—"}
+              </span>,
+            ],
+          };
+        })}
+      />
     </div>
   );
 }

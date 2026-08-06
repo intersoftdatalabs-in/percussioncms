@@ -18,8 +18,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { listLocales } from "../api/developer/localesApi";
 import type { LocaleSummary } from "../api/developer/types";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { catalogColors, monoCell, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { LocaleDetailPanel } from "./LocaleDetailPanel";
 import { DEV_MSG } from "./messages";
@@ -77,84 +77,59 @@ export function LocalesPanel(): React.ReactElement {
   return (
     <div data-testid="developer-loc-panel">
       <CatalogHint>{DEV_MSG.LOC_HINT}</CatalogHint>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-loc-table"
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
-        >
-          <thead>
-            <tr style={tableHeaderRow}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.LOC_COL_LANG}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.LOC_COL_LABEL}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.LOC_COL_STATUS}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.LOC_COL_BASE}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.LOC_COL_FORMAT}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.LOC_COL_DESCRIPTION}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((loc, index) => {
-              const openKey =
-                loc.languageString || (loc.id != null ? String(loc.id) : "");
-              const interactive = openKey.length > 0;
-              return (
-                <tr
-                  key={String(loc.id ?? loc.languageString ?? `loc-${index}`)}
-                  data-testid="developer-loc-row"
-                  style={{ ...tableRow, cursor: interactive ? "pointer" : "default"  }}
-                  onClick={() => {
-                    if (interactive) setSelected(openKey);
+      <SimpleCatalogTable
+        tableTestId="developer-loc-table"
+        rowTestId="developer-loc-row"
+        columns={[
+          DEV_MSG.LOC_COL_LANG,
+          DEV_MSG.LOC_COL_LABEL,
+          DEV_MSG.LOC_COL_STATUS,
+          DEV_MSG.LOC_COL_BASE,
+          DEV_MSG.LOC_COL_FORMAT,
+          DEV_MSG.LOC_COL_DESCRIPTION,
+        ]}
+        rows={sorted.map((loc, index) => {
+          const openKey =
+            loc.languageString || (loc.id != null ? String(loc.id) : "");
+          const interactive = openKey.length > 0;
+          return {
+            key: String(loc.id ?? loc.languageString ?? `loc-${index}`),
+            onClick: interactive ? () => setSelected(openKey) : undefined,
+            cells: [
+              interactive ? (
+                <button
+                  key="open"
+                  type="button"
+                  data-testid="developer-loc-open"
+                  aria-label={`Open ${loc.languageString || openKey}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelected(openKey);
                   }}
+                  style={{ ...openButtonStyle, fontFamily: "monospace" }}
                 >
-                  <td style={{ padding: "8px" }}>
-                    {interactive ? (
-                      <button
-                        type="button"
-                        data-testid="developer-loc-open"
-                        aria-label={`Open ${loc.languageString || openKey}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelected(openKey);
-                        }}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: catalogColors.accent,
-                          cursor: "pointer",
-                          font: "inherit",
-                          padding: 0,
-                          fontFamily: "monospace",
-                        }}
-                      >
-                        {loc.languageString || "—"}
-                      </button>
-                    ) : (
-                      <span style={monoCell}>{loc.languageString || "—"}</span>
-                    )}
-                  </td>
-                  <td style={{ padding: "8px" }}>{loc.label || "—"}</td>
-                  <td style={{ padding: "8px" }}>{loc.status || "—"}</td>
-                  <td style={{ padding: "8px" }}>
-                    {loc.baseLocale == null
-                      ? "—"
-                      : loc.baseLocale
-                        ? DEV_MSG.YES
-                        : DEV_MSG.NO}
-                  </td>
-                  <td style={{ padding: "8px" }}>
-                    {loc.hasFormatProfile
-                      ? DEV_MSG.LOC_FORMAT_YES
-                      : DEV_MSG.LOC_FORMAT_NO}
-                  </td>
-                  <td style={{ padding: "8px", ...mutedCell }}>
-                    {loc.description || ""}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  {loc.languageString || "—"}
+                </button>
+              ) : (
+                <span key="lang" style={monoCell}>
+                  {loc.languageString || "—"}
+                </span>
+              ),
+              loc.label || "—",
+              loc.status || "—",
+              loc.baseLocale == null
+                ? "—"
+                : loc.baseLocale
+                  ? DEV_MSG.YES
+                  : DEV_MSG.NO,
+              loc.hasFormatProfile ? DEV_MSG.LOC_FORMAT_YES : DEV_MSG.LOC_FORMAT_NO,
+              <span key="d" style={mutedCell}>
+                {loc.description || ""}
+              </span>,
+            ],
+          };
+        })}
+      />
     </div>
   );
 }

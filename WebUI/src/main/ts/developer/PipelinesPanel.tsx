@@ -18,8 +18,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { listApplications } from "../api/developer/pipelinesApi";
 import type { ApplicationSummary } from "../api/developer/types";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { catalogColors, monoCell, mutedCell, mutedMonoCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedCell, mutedMonoCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { PipelineDetailPanel } from "./PipelineDetailPanel";
@@ -77,75 +77,58 @@ export function PipelinesPanel(): React.ReactElement {
   return (
     <div data-testid="developer-pipe-panel">
       <CatalogHint>{DEV_MSG.PIPE_HINT}</CatalogHint>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-pipe-table"
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
-        >
-          <thead>
-            <tr style={tableHeaderRow}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.PIPE_COL_NAME}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.PIPE_COL_ID}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.PIPE_COL_TYPE}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.PIPE_COL_ENABLED}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.PIPE_COL_ROOT}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.PIPE_COL_DESCRIPTION}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((app, index) => {
-              const openKey = app.name || (app.id != null ? String(app.id) : "");
-              const interactive = openKey.length > 0;
-              return (
-                <tr
-                  key={String(app.id ?? app.name ?? `pipe-${index}`)}
-                  data-testid="developer-pipe-row"
-                  style={{ ...tableRow, cursor: interactive ? "pointer" : "default"  }}
-                  onClick={() => {
-                    if (interactive) setSelected(openKey);
+      <SimpleCatalogTable
+        tableTestId="developer-pipe-table"
+        rowTestId="developer-pipe-row"
+        columns={[
+          DEV_MSG.PIPE_COL_NAME,
+          DEV_MSG.PIPE_COL_ID,
+          DEV_MSG.PIPE_COL_TYPE,
+          DEV_MSG.PIPE_COL_ENABLED,
+          DEV_MSG.PIPE_COL_ROOT,
+          DEV_MSG.PIPE_COL_DESCRIPTION,
+        ]}
+        rows={sorted.map((app, index) => {
+          const openKey = app.name || (app.id != null ? String(app.id) : "");
+          const interactive = openKey.length > 0;
+          return {
+            key: String(app.id ?? app.name ?? `pipe-${index}`),
+            onClick: interactive ? () => setSelected(openKey) : undefined,
+            cells: [
+              interactive ? (
+                <button
+                  key="open"
+                  type="button"
+                  data-testid="developer-pipe-open"
+                  aria-label={`Open ${app.name || openKey}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelected(openKey);
                   }}
+                  style={{ ...openButtonStyle, fontFamily: "monospace" }}
                 >
-                  <td style={{ padding: "8px" }}>
-                    {interactive ? (
-                      <button
-                        type="button"
-                        data-testid="developer-pipe-open"
-                        aria-label={`Open ${app.name || openKey}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelected(openKey);
-                        }}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: catalogColors.accent,
-                          cursor: "pointer",
-                          font: "inherit",
-                          padding: 0,
-                          fontFamily: "monospace",
-                        }}
-                      >
-                        {app.name || "—"}
-                      </button>
-                    ) : (
-                      <span style={monoCell}>{app.name || "—"}</span>
-                    )}
-                  </td>
-                  <td style={{ padding: "8px", ...monoCell }}>
-                    {app.id != null ? String(app.id) : "—"}
-                  </td>
-                  <td style={{ padding: "8px" }}>{app.appType || "—"}</td>
-                  <td style={{ padding: "8px" }}>
-                    {app.enabled == null ? "—" : app.enabled ? DEV_MSG.YES : DEV_MSG.NO}
-                  </td>
-                  <td style={{ padding: "8px", ...mutedMonoCell }}>{app.appRoot || ""}</td>
-                  <td style={{ padding: "8px", ...mutedCell }}>{app.description || ""}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  {app.name || "—"}
+                </button>
+              ) : (
+                <span key="n" style={monoCell}>
+                  {app.name || "—"}
+                </span>
+              ),
+              <span key="i" style={monoCell}>
+                {app.id != null ? String(app.id) : "—"}
+              </span>,
+              app.appType || "—",
+              app.enabled == null ? "—" : app.enabled ? DEV_MSG.YES : DEV_MSG.NO,
+              <span key="r" style={mutedMonoCell}>
+                {app.appRoot || ""}
+              </span>,
+              <span key="d" style={mutedCell}>
+                {app.description || ""}
+              </span>,
+            ],
+          };
+        })}
+      />
     </div>
   );
 }

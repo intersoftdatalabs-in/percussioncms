@@ -31,7 +31,6 @@ function selectionKey(t: TemplateSummary): string | null {
   return null;
 }
 
-
 export function TemplatesPanel(): React.ReactElement {
   const [items, setItems] = useState<TemplateSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);

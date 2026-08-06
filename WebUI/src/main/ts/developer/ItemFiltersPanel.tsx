@@ -18,8 +18,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { listItemFilters } from "../api/developer/itemFiltersApi";
 import type { ItemFilter } from "../api/developer/types";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { catalogColors, monoCell, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { ItemFilterDetailPanel } from "./ItemFilterDetailPanel";
 import { DEV_MSG } from "./messages";
@@ -77,70 +77,53 @@ export function ItemFiltersPanel(): React.ReactElement {
   return (
     <div data-testid="developer-if-panel">
       <CatalogHint>{DEV_MSG.IF_HINT}</CatalogHint>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-if-table"
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
-        >
-          <thead>
-            <tr style={tableHeaderRow}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.IF_COL_NAME}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.IF_COL_RULES}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.IF_COL_PARENT}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.IF_COL_DESCRIPTION}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((f, index) => {
-              const openKey = f.name || f.filterId?.stringValue || "";
-              const interactive = openKey.length > 0;
-              const ruleCount = Array.isArray(f.rules) ? f.rules.length : 0;
-              return (
-                <tr
-                  key={f.filterId?.stringValue || f.name || `if-${index}`}
-                  data-testid="developer-if-row"
-                  style={{ ...tableRow, cursor: interactive ? "pointer" : "default"  }}
-                  onClick={() => {
-                    if (interactive) setSelected(openKey);
+      <SimpleCatalogTable
+        tableTestId="developer-if-table"
+        rowTestId="developer-if-row"
+        columns={[
+          DEV_MSG.IF_COL_NAME,
+          DEV_MSG.IF_COL_RULES,
+          DEV_MSG.IF_COL_PARENT,
+          DEV_MSG.IF_COL_DESCRIPTION,
+        ]}
+        rows={sorted.map((f, index) => {
+          const openKey = f.name || f.filterId?.stringValue || "";
+          const interactive = openKey.length > 0;
+          const ruleCount = Array.isArray(f.rules) ? f.rules.length : 0;
+          return {
+            key: f.filterId?.stringValue || f.name || `if-${index}`,
+            onClick: interactive ? () => setSelected(openKey) : undefined,
+            cells: [
+              interactive ? (
+                <button
+                  key="open"
+                  type="button"
+                  data-testid="developer-if-open"
+                  aria-label={`Open ${f.name || openKey}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelected(openKey);
                   }}
+                  style={{ ...openButtonStyle, fontFamily: "monospace" }}
                 >
-                  <td style={{ padding: "8px" }}>
-                    {interactive ? (
-                      <button
-                        type="button"
-                        data-testid="developer-if-open"
-                        aria-label={`Open ${f.name || openKey}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelected(openKey);
-                        }}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: catalogColors.accent,
-                          cursor: "pointer",
-                          font: "inherit",
-                          padding: 0,
-                          fontFamily: "monospace",
-                        }}
-                      >
-                        {f.name || "—"}
-                      </button>
-                    ) : (
-                      <span style={monoCell}>{f.name || "—"}</span>
-                    )}
-                  </td>
-                  <td style={{ padding: "8px" }}>{ruleCount}</td>
-                  <td style={{ padding: "8px", ...monoCell }}>
-                    {f.parentFilter?.name || ""}
-                  </td>
-                  <td style={{ padding: "8px", ...mutedCell }}>{f.description || ""}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  {f.name || "—"}
+                </button>
+              ) : (
+                <span key="n" style={monoCell}>
+                  {f.name || "—"}
+                </span>
+              ),
+              ruleCount,
+              <span key="p" style={monoCell}>
+                {f.parentFilter?.name || ""}
+              </span>,
+              <span key="d" style={mutedCell}>
+                {f.description || ""}
+              </span>,
+            ],
+          };
+        })}
+      />
     </div>
   );
 }

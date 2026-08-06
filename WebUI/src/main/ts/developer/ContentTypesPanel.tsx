@@ -18,11 +18,11 @@
 import React, { useEffect, useState } from "react";
 import { listContentTypes } from "../api/developer/contentTypesApi";
 import type { ContentTypeSummary } from "../api/developer/types";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { ContentTypeDetailPanel } from "./ContentTypeDetailPanel";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
-import { catalogColors, openButtonStyle, tableHeaderRow, tableRow } from "./catalogStyles";
-
 
 function displayId(ct: ContentTypeSummary): string {
   const g = ct.guid;
@@ -36,7 +36,6 @@ function displayId(ct: ContentTypeSummary): string {
 function selectionKey(ct: ContentTypeSummary): string {
   return ct.name || ct.guid?.stringValue || displayId(ct);
 }
-
 
 /**
  * P0.1 list + P0.2 read-only field catalog detail.
@@ -79,26 +78,18 @@ export function ContentTypesPanel(): React.ReactElement {
 
   if (error) {
     return (
-      <div data-testid="developer-ct-error" role="alert" style={{ color: catalogColors.error }}>
+      <CatalogStatus testId="developer-ct-error" error>
         {error}
-      </div>
+      </CatalogStatus>
     );
   }
 
   if (items == null) {
-    return (
-      <div data-testid="developer-ct-loading" style={{ padding: "0.5rem 0" }}>
-        {DEV_MSG.CT_LOADING}
-      </div>
-    );
+    return <CatalogStatus testId="developer-ct-loading">{DEV_MSG.CT_LOADING}</CatalogStatus>;
   }
 
   if (items.length === 0) {
-    return (
-      <div data-testid="developer-ct-empty" style={{ padding: "0.5rem 0" }}>
-        {DEV_MSG.CT_EMPTY}
-      </div>
-    );
+    return <CatalogStatus testId="developer-ct-empty">{DEV_MSG.CT_EMPTY}</CatalogStatus>;
   }
 
   const sorted = [...items].sort((a, b) =>
@@ -109,75 +100,58 @@ export function ContentTypesPanel(): React.ReactElement {
 
   return (
     <div data-testid="developer-ct-panel">
-      <p style={{ color: catalogColors.muted, marginBottom: "12px", fontSize: "0.9rem" }}>
-        {DEV_MSG.CT_HINT}
-      </p>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-ct-table"
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            fontSize: "0.95rem",
-          }}
-        >
-          <thead>
-            <tr style={tableHeaderRow}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_LABEL}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_NAME}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_ID}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_DESCRIPTION}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((ct) => {
-              const key =
-                ct.guid?.stringValue ||
-                ct.name ||
-                `${ct.label ?? "ct"}-${displayId(ct)}`;
-              const openKey = selectionKey(ct);
-              const interactive = openKey !== "—";
-              return (
-                <tr
-                  key={key}
-                  data-testid="developer-ct-row"
-                  style={{ ...tableRow, cursor: interactive ? "pointer" : "default"  }}
-                  onClick={() => {
-                    if (interactive) setSelected(openKey);
+      <CatalogHint>{DEV_MSG.CT_HINT}</CatalogHint>
+      <SimpleCatalogTable
+        tableTestId="developer-ct-table"
+        rowTestId="developer-ct-row"
+        columns={[
+          DEV_MSG.CT_COL_LABEL,
+          DEV_MSG.CT_COL_NAME,
+          DEV_MSG.CT_COL_ID,
+          DEV_MSG.CT_COL_DESCRIPTION,
+        ]}
+        rows={sorted.map((ct) => {
+          const key =
+            ct.guid?.stringValue ||
+            ct.name ||
+            `${ct.label ?? "ct"}-${displayId(ct)}`;
+          const openKey = selectionKey(ct);
+          const interactive = openKey !== "—";
+          return {
+            key,
+            onClick: interactive ? () => setSelected(openKey) : undefined,
+            cells: [
+              interactive ? (
+                <button
+                  key="open"
+                  type="button"
+                  style={openButtonStyle}
+                  aria-label={`Open ${ct.label || ct.name || openKey}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelected(openKey);
                   }}
                 >
-                  <td style={{ padding: "8px" }}>
-                    {interactive ? (
-                      <button
-                        type="button"
-                        style={openButtonStyle}
-                        aria-label={`Open ${ct.label || ct.name || openKey}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelected(openKey);
-                        }}
-                      >
-                        {ct.label || "—"}
-                      </button>
-                    ) : (
-                      <span style={{ color: catalogColors.muted }}>{ct.label || "—"}</span>
-                    )}
-                  </td>
-                  <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                    {ct.name || "—"}
-                  </td>
-                  <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                    {displayId(ct)}
-                  </td>
-                  <td style={{ padding: "8px", color: catalogColors.muted }}>
-                    {ct.description || ""}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  {ct.label || "—"}
+                </button>
+              ) : (
+                <span key="lbl" style={mutedCell}>
+                  {ct.label || "—"}
+                </span>
+              ),
+              <span key="n" style={monoCell}>
+                {ct.name || "—"}
+              </span>,
+              <span key="i" style={monoCell}>
+                {displayId(ct)}
+              </span>,
+              <span key="d" style={mutedCell}>
+                {ct.description || ""}
+              </span>,
+            ],
+          };
+        })}
+      />
     </div>
   );
 }

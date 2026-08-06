@@ -5,8 +5,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { listControls } from "../api/developer/controlsApi";
 import type { ControlDef } from "../api/developer/types";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { catalogColors, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { ControlDetailPanel } from "./ControlDetailPanel";
 import { DEV_MSG } from "./messages";
@@ -61,66 +61,49 @@ export function ControlsPanel(): React.ReactElement {
   return (
     <div data-testid="developer-ctl-panel">
       <CatalogHint>{DEV_MSG.CTL_HINT}</CatalogHint>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-ctl-table"
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
-        >
-          <thead>
-            <tr style={tableHeaderRow}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.CTL_COL_NAME}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.CTL_COL_DISPLAY}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.CTL_COL_SCOPE}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.CTL_COL_DIM}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.CTL_COL_FLAGS}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((c, index) => {
-              const openKey = (c.name || "").trim();
-              const flags: string[] = [];
-              if (c.deprecated) flags.push(DEV_MSG.CTL_FLAG_DEPRECATED);
-              return (
-                <tr
-                  key={`${openKey}-${index}`}
-                  data-testid="developer-ctl-row"
-                  style={{ ...tableRow, cursor: "pointer"  }}
-                  onClick={() => setSelected(openKey)}
-                >
-                  <td style={{ padding: "8px" }}>
-                    <button
-                      type="button"
-                      data-testid="developer-ctl-open"
-                      aria-label={`Open ${openKey}`}
-                      onClick={(ev) => {
-                        ev.stopPropagation();
-                        setSelected(openKey);
-                      }}
-                      style={{
-                        background: "transparent",
-                        border: "none",
-                        color: catalogColors.accent,
-                        cursor: "pointer",
-                        font: "inherit",
-                        padding: 0,
-                        fontFamily: "monospace",
-                      }}
-                    >
-                      {openKey}
-                    </button>
-                  </td>
-                  <td style={{ padding: "8px" }}>{c.displayName || "—"}</td>
-                  <td style={{ padding: "8px" }}>{c.scope || "—"}</td>
-                  <td style={{ padding: "8px", ...mutedCell }}>{c.dimension || "—"}</td>
-                  <td style={{ padding: "8px", fontSize: "0.85rem" }}>
-                    {flags.length ? flags.join(", ") : "—"}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <SimpleCatalogTable
+        tableTestId="developer-ctl-table"
+        rowTestId="developer-ctl-row"
+        columns={[
+          DEV_MSG.CTL_COL_NAME,
+          DEV_MSG.CTL_COL_DISPLAY,
+          DEV_MSG.CTL_COL_SCOPE,
+          DEV_MSG.CTL_COL_DIM,
+          DEV_MSG.CTL_COL_FLAGS,
+        ]}
+        rows={sorted.map((c, index) => {
+          const openKey = (c.name || "").trim();
+          const flags: string[] = [];
+          if (c.deprecated) flags.push(DEV_MSG.CTL_FLAG_DEPRECATED);
+          return {
+            key: `${openKey}-${index}`,
+            onClick: () => setSelected(openKey),
+            cells: [
+              <button
+                key="open"
+                type="button"
+                data-testid="developer-ctl-open"
+                aria-label={`Open ${openKey}`}
+                onClick={(ev) => {
+                  ev.stopPropagation();
+                  setSelected(openKey);
+                }}
+                style={{ ...openButtonStyle, fontFamily: "monospace" }}
+              >
+                {openKey}
+              </button>,
+              c.displayName || "—",
+              c.scope || "—",
+              <span key="dim" style={mutedCell}>
+                {c.dimension || "—"}
+              </span>,
+              <span key="f" style={{ fontSize: "0.85rem" }}>
+                {flags.length ? flags.join(", ") : "—"}
+              </span>,
+            ],
+          };
+        })}
+      />
     </div>
   );
 }

@@ -18,7 +18,6 @@
 import React from "react";
 import { catalogColors, tableHeaderRow, tableRow } from "./catalogStyles";
 
-
 export function CatalogHint({ children }: { children: React.ReactNode }): React.ReactElement {
   return (
     <p style={{ color: catalogColors.muted, marginBottom: "12px", fontSize: "0.9rem" }}>{children}</p>
@@ -45,6 +44,21 @@ export function CatalogStatus({
   );
 }
 
+/** One data row for {@link SimpleCatalogTable}. */
+export type SimpleCatalogRow = {
+  key: string;
+  cells: React.ReactNode[];
+  /** When set, row is clickable (pointer cursor + keyboard + onClick). */
+  onClick?: () => void;
+};
+
+/**
+ * Shared list-catalog chrome used by Developer *Panel* browse tables.
+ * Open-to-detail controls live in cell content (preserve panel testids there).
+ *
+ * Row testids are unique per index: `${rowTestId}-${index}` (legacy indexed contract).
+ * Clickable rows get role="button", tabIndex=0, and Enter/Space activation.
+ */
 export function SimpleCatalogTable({
   tableTestId,
   rowTestId,
@@ -52,9 +66,10 @@ export function SimpleCatalogTable({
   rows,
 }: {
   tableTestId: string;
+  /** Base test id; each row becomes `${rowTestId}-${index}`. */
   rowTestId: string;
   columns: string[];
-  rows: Array<{ key: string; cells: React.ReactNode[] }>;
+  rows: SimpleCatalogRow[];
 }): React.ReactElement {
   return (
     <div style={{ overflowX: "auto" }}>
@@ -72,19 +87,38 @@ export function SimpleCatalogTable({
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
-            <tr
-              key={r.key}
-              data-testid={rowTestId}
-              style={tableRow}
-            >
-              {r.cells.map((cell, i) => (
-                <td key={i} style={{ padding: "8px" }}>
-                  {cell}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {rows.map((r, index) => {
+            const clickable = r.onClick != null;
+            return (
+              <tr
+                key={r.key}
+                data-testid={`${rowTestId}-${index}`}
+                style={{
+                  ...tableRow,
+                  cursor: clickable ? "pointer" : undefined,
+                }}
+                onClick={r.onClick}
+                role={clickable ? "button" : undefined}
+                tabIndex={clickable ? 0 : undefined}
+                onKeyDown={
+                  clickable
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          r.onClick?.();
+                        }
+                      }
+                    : undefined
+                }
+              >
+                {r.cells.map((cell, i) => (
+                  <td key={i} style={{ padding: "8px" }}>
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
