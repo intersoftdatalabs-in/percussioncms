@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.rest.errors.RestExceptionMapper;
+import com.percussion.rest.errors.WebApplicationExceptionMapper;
 import com.percussion.utils.testing.PSTestNetUtils;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.client.ClientBuilder;
@@ -150,10 +151,12 @@ public class MainTest {
       final JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean();
       port = PSTestNetUtils.findFreePort();
       RestExceptionMapper exceptionMapper = new RestExceptionMapper();
+      WebApplicationExceptionMapper waeMapper = new WebApplicationExceptionMapper();
       String endpoint = MainTest.ENDPOINT_HOST + ":" + port + ENDPOINT_PATH;
       factory.setExtensionMappings(extensionMap);
       factory.setBus(ctx.getBean(SpringBus.class));
-      factory.setProviders(Arrays.asList(exceptionMapper, jacksonProvider, contextResolver));
+      factory.setProviders(
+          Arrays.asList(exceptionMapper, waeMapper, jacksonProvider, contextResolver));
       factory.setResourceProviders(resourceProviders);
       factory.setAddress(endpoint);
       try {

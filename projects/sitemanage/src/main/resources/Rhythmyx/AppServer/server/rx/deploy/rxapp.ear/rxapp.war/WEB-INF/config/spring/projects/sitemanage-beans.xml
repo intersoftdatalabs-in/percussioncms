@@ -107,6 +107,9 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <entry key="xml" value="application/xml" />
         </jaxrs:extensionMappings>
         <jaxrs:providers>
+            <!-- RestError mappers (REST-ERR-01/02): more-specific than runtimeExceptionMapper -->
+            <ref bean="restExceptionMapper" />
+            <ref bean="webApplicationExceptionMapper" />
             <ref bean="PSJsonProcessingExceptionMapper" />
             <ref bean="validationExceptionMapper" />
             <ref bean="constraintsViolatedExceptionMapper" />

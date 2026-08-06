@@ -15,14 +15,23 @@
  * limitations under the License.
  */
 
-import { isSessionRedirectError, type ApiError } from "../api/client";
+import {
+  extractRestErrorMessage,
+  isApiError,
+  isSessionRedirectError,
+} from "../api/client";
 import { DEV_MSG } from "./messages";
 
 /** Shared error message formatting for Developer catalog panels. */
 export function panelErrMsg(err: unknown, fallback: string): string {
   if (isSessionRedirectError(err)) return DEV_MSG.SESSION_REDIRECT;
-  const api = err as ApiError;
-  if (api && typeof api.status === "number") return `${fallback} (${api.status})`;
+  if (isApiError(err)) {
+    const fromBody = extractRestErrorMessage(err.body);
+    if (fromBody) {
+      return `${fallback} ${fromBody}`;
+    }
+    return `${fallback} (${err.status})`;
+  }
   if (err instanceof Error && err.message) return `${fallback} ${err.message}`;
   return fallback;
 }
