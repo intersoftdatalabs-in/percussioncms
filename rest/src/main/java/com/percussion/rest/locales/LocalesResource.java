@@ -31,9 +31,12 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -47,10 +50,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(name = "Locales", description = "CMS locale design catalog (read-only)")
 public class LocalesResource {
 
+  /**
+   * Package-private and non-final so unit tests can install a mock {@link Logger} and assert
+   * unexpected-failure diagnostics (log4j-core ListAppender is not on the rest test classpath).
+   */
+  static Logger log = LogManager.getLogger(LocalesResource.class);
+
   private final ILocalesAdaptor adaptor;
 
   @Context private UriInfo uriInfo;
 
+  /**
+   * No-arg constructor for bean-discovery edge cases. Production uses {@link
+   * #LocalesResource(ILocalesAdaptor)}; list/detail methods call {@link #requireAdaptor()}.
+   */
   public LocalesResource() {
     this.adaptor = null;
   }
@@ -58,6 +71,11 @@ public class LocalesResource {
   @Autowired
   public LocalesResource(ILocalesAdaptor adaptor) {
     this.adaptor = adaptor;
+  }
+
+  /** Package-private test hook so unit tests need not reflect on {@code uriInfo}. */
+  void setUriInfo(UriInfo uriInfo) {
+    this.uriInfo = uriInfo;
   }
 
   @GET
@@ -74,6 +92,7 @@ public class LocalesResource {
             content =
                 @Content(
                     array = @ArraySchema(schema = @Schema(implementation = LocaleSummary.class)))),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public List<LocaleSummary> listLocales() {
@@ -82,6 +101,7 @@ public class LocalesResource {
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
+      log.error("Failed to list locales ({}): {}", e.getClass().getName(), e.getMessage(), e);
       throw new WebApplicationException(e, 500);
     }
   }
@@ -100,6 +120,7 @@ public class LocalesResource {
             description = "OK",
             content = @Content(schema = @Schema(implementation = LocaleDetail.class))),
         @ApiResponse(responseCode = "404", description = "Locale not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public LocaleDetail getLocale(@PathParam("idOrLang") String idOrLang) {
@@ -110,16 +131,20 @@ public class LocalesResource {
       }
       return detail;
     } catch (WebApplicationException e) {
+      // Preserve mapped HTTP errors (e.g. 503 misconfiguration from requireAdaptor)
       throw e;
     } catch (Exception e) {
+      log.error(
+          "Failed to load locale {} ({}): {}", idOrLang, e.getClass().getName(), e.getMessage(), e);
       throw new WebApplicationException(e, 500);
     }
   }
 
   private ILocalesAdaptor requireAdaptor() {
     if (adaptor == null) {
-      throw new IllegalStateException(
-          "Locales adaptor not configured (resource constructed without injection)");
+      // Misconfiguration — not a transient handler failure (align with slots/keywords)
+      throw new WebApplicationException(
+          "Locales adaptor not configured", Response.Status.SERVICE_UNAVAILABLE);
     }
     return adaptor;
   }
