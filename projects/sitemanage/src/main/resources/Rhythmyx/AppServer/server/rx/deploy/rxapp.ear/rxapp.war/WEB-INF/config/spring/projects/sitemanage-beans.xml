@@ -102,11 +102,10 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restSitesResource" />
             <ref bean="restTemplatesResource" />
             <ref bean="restUsersResource" />
-            <ref bean="restExceptionMapper" />
-            <ref bean="restControlsResource" />
             <ref bean="restSearchResource" />
-            <ref bean="restServerConfigsResource" />
             <ref bean="restViewResource" />
+            <ref bean="restControlsResource" />
+            <ref bean="restServerConfigsResource" />
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
             <entry key="json" value="application/json" />
