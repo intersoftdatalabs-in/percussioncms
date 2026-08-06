@@ -120,7 +120,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
     if (ms_paramCount == NOT_INITIALIZED) {
       ms_paramCount = 0;
 
-      Iterator iter = extensionDef.getRuntimeParameterNames();
+      Iterator<String> iter = extensionDef.getRuntimeParameterNames();
       while (iter.hasNext()) {
         iter.next();
         ms_paramCount++;
