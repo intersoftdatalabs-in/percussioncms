@@ -18,9 +18,9 @@
 package com.percussion.rest.locales;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -29,7 +29,6 @@ import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.UriInfo;
-import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,18 +42,16 @@ public class LocalesResourceTest {
   private LocalesResource resource;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     adaptor = mock(ILocalesAdaptor.class);
     resource = new LocalesResource(adaptor);
     UriInfo uriInfo = mock(UriInfo.class);
     when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
-    Field f = LocalesResource.class.getDeclaredField("uriInfo");
-    f.setAccessible(true);
-    f.set(resource, uriInfo);
+    resource.setUriInfo(uriInfo);
   }
 
   @Test
-  public void listLocalesDelegatesToAdaptor() {
+  public void listLocalesSuccess() {
     LocaleSummary s = new LocaleSummary();
     s.setLanguageString("en-us");
     s.setBaseLocale(false);
@@ -69,7 +66,13 @@ public class LocalesResourceTest {
   }
 
   @Test
-  public void listLocalesWrapsFailures() {
+  public void listLocalesEmpty() {
+    when(adaptor.listLocales(any())).thenReturn(List.of());
+    assertTrue(resource.listLocales().isEmpty());
+  }
+
+  @Test
+  public void listLocalesWrapsUnexpectedFailuresAs500() {
     IllegalStateException boom = new IllegalStateException("boom");
     when(adaptor.listLocales(any())).thenThrow(boom);
 
@@ -80,11 +83,32 @@ public class LocalesResourceTest {
   }
 
   @Test
-  public void listLocalesWithoutInjectionFailsWithDiagnostic() {
-    LocalesResource bare = new LocalesResource();
-    WebApplicationException ex = assertThrows(WebApplicationException.class, bare::listLocales);
-    assertEquals(500, ex.getResponse().getStatus());
-    assertInstanceOf(IllegalStateException.class, ex.getCause());
+  public void missingAdaptorReturnsServiceUnavailableOnList() {
+    LocalesResource bare = newLocalesResourceWithoutAdaptor();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, bare::listLocales);
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnGet() {
+    // getLocale must rethrow WebApplicationException from requireAdaptor (not re-wrap as 500)
+    LocalesResource bare = newLocalesResourceWithoutAdaptor();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.getLocale("any"));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getLocaleRethrowsWebApplicationException() {
+    WebApplicationException mapped =
+        new WebApplicationException("from adaptor", 404);
+    when(adaptor.getLocale(any(), eq("xx"))).thenThrow(mapped);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getLocale("xx"));
+    assertSame(mapped, ex);
+    assertEquals(404, ex.getResponse().getStatus());
   }
 
   @Test
@@ -116,5 +140,13 @@ public class LocalesResourceTest {
         assertThrows(WebApplicationException.class, () -> resource.getLocale("en-us"));
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause());
+  }
+
+  private static LocalesResource newLocalesResourceWithoutAdaptor() {
+    LocalesResource bare = new LocalesResource();
+    UriInfo uriInfo = mock(UriInfo.class);
+    when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
+    bare.setUriInfo(uriInfo);
+    return bare;
   }
 }
