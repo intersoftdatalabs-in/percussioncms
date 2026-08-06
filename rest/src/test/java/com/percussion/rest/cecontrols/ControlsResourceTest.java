@@ -5,7 +5,6 @@
 package com.percussion.rest.cecontrols;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,13 +36,27 @@ public class ControlsResourceTest {
     ControlDef c = new ControlDef();
     c.setName("sys_EditBox");
     when(adaptor.listControls()).thenReturn(List.of(c));
-    assertEquals("sys_EditBox", resource.listControls().get(0).getName());
+    List<ControlDef> out = resource.listControls();
+    assertEquals(1, out.size());
+    assertEquals("sys_EditBox", out.get(0).getName());
+    verify(adaptor).listControls();
   }
 
   @Test
   public void listControlsNullSafe() {
     when(adaptor.listControls()).thenReturn(null);
     assertTrue(resource.listControls().isEmpty());
+  }
+
+  @Test
+  public void listControlsWrapsUnexpectedAs500() {
+    IllegalStateException boom = new IllegalStateException("boom");
+    when(adaptor.listControls()).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.listControls());
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
   }
 
   @Test
@@ -75,11 +88,30 @@ public class ControlsResourceTest {
   }
 
   @Test
-  public void withoutInjectionFailsWithDiagnostic() {
+  public void getControlRethrowsWebApplicationException() {
+    WebApplicationException mapped = new WebApplicationException("from adaptor", 404);
+    when(adaptor.findControlByName(eq("xx"))).thenThrow(mapped);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getControl("xx"));
+    assertSame(mapped, ex);
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnList() {
     ControlsResource bare = new ControlsResource();
-    WebApplicationException listEx =
+    WebApplicationException ex =
         assertThrows(WebApplicationException.class, bare::listControls);
-    assertEquals(500, listEx.getResponse().getStatus());
-    assertInstanceOf(IllegalStateException.class, listEx.getCause());
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnGet() {
+    // getControl must rethrow WebApplicationException from requireAdaptor (not re-wrap as 500)
+    ControlsResource bare = new ControlsResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.getControl("any"));
+    assertEquals(503, ex.getResponse().getStatus());
   }
 }
