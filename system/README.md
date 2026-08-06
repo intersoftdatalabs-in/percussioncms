@@ -2,7 +2,7 @@
 
 The **system** module is the foundational core of Percussion CMS: content management, service infrastructure, business logic, configuration, and deployment resources. It is large and historically layered—prefer the layout below and root / module `AGENTS.md` over old modernization logs.
 
-**Toolchain:** JDK **21** (`release=21`), Maven wrapper `./mvnw` / `mvnw.cmd`, Spotless under JDK 21.
+**Toolchain:** JDK **21** (`release=21`), Maven wrapper `./mvnw` / `mvnw.cmd`.
 
 ## Table of Contents
 
@@ -96,10 +96,8 @@ com.percussion
 # From repo root
 ./mvnw -pl system clean install
 
-# Format: apply first, then check (see root AGENTS.md Spotless hard gate)
-./mvnw spotless:apply
-./mvnw spotless:check
-# (module-scoped mid-work: ./mvnw -pl system spotless:apply && ./mvnw -pl system spotless:check)
+# Optional local formatting only (not a required process gate)
+# ./mvnw spotless:apply && ./mvnw spotless:check
 ```
 
 Windows: `mvnw.cmd` with the same goals.
@@ -113,13 +111,13 @@ Windows: `mvnw.cmd` with the same goals.
 1. Read **this README** and **`system/AGENTS.md`** before large changes.
 2. Prefer **`src/site/markdown/`** for deeper architecture (`overview.md`, `services.md`, `building.md`).
 3. Put new code in **active** trees; do not grow legacy directories without a clear reason.
-4. **JDK 21** only on `development`; Google Java Style via Spotless; JUnit 5 for new tests.
+4. **JDK 21** only on `main`; match surrounding style; JUnit 5 for new tests. Spotless is optional.
 5. Do **not** look for or maintain Java 11/17 package modernization logs — those were removed; work is already on the current line.
 
 ### When modifying code
 
 - Compile with `release=21`; avoid deprecated APIs
-- Run Spotless apply/check before the final PR commit (root AGENTS.md)
+- Spotless apply/check is optional (not a pre-PR hard gate)
 - Add or update unit tests for non-trivial behavior
 - Update this README only when structure or agent workflow actually changes
 

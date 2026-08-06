@@ -18,8 +18,7 @@ Before starting ANY task on the system module, you MUST:
    - [services.md](src/site/markdown/services.md) – Service architecture (if working on services)
    - [building.md](src/site/markdown/building.md) – Build and development workflow
 3. ✅ **Understand Java Version Requirements**
-   - **`development` baseline is JDK 21** (parent `release=21`)
-   - Spotless requires JDK 21 at runtime
+   - **`main` baseline is JDK 21** (parent `release=21`)
    - Use `./mvnw` / `mvnw.cmd` with `JAVA_HOME` → JDK 21
    - Do **not** recreate or consult deleted Java 11/17 package modernization logs
 
@@ -55,10 +54,8 @@ Before starting ANY task on the system module, you MUST:
 ### Code Quality
 
 **MUST DO:**
-- ✅ Run `./mvnw spotless:apply` before committing
-- ✅ Run `./mvnw spotless:check` to verify formatting
 - ✅ Target **JDK 21** (parent POM `release=21`); use modern Java features that compile on 21 (`var`, `Optional`, Streams, try-with-resources, records/pattern matching where they fit)
-- ✅ Follow Google Java Style (enforced by Spotless; Spotless runs under JDK 21)
+- ✅ Match surrounding style in files you touch; Spotless apply/check is **optional** (not a pre-PR hard gate — see root `AGENTS.md`)
 - ✅ Add comprehensive unit tests (use JUnit 5, not JUnit 4 for new code)
 - ✅ Prefer clear commits when modernizing legacy code; ignore historical `// REFACTORED: CP-JAVA11` markers in source (labels only)
 - ✅ Handle specific exceptions, not generic Exception
@@ -177,20 +174,17 @@ class PSXxxServiceTest {
 **Before committing ANY change:**
 
 ```bash
-# 1. Format code (apply FIRST)
-./mvnw spotless:apply
-
-# 2. Verify formatting (check SECOND — must exit 0)
-./mvnw spotless:check
-
-# 3. Build and test
+# Build and test (required)
 ./mvnw -pl system clean verify
 
-# 4. Optional: Run specific tests
+# Optional: run specific tests
 ./mvnw -pl system test -Dtest=YourTestClass
+
+# Optional local formatting only (not a process hard gate)
+# ./mvnw spotless:apply && ./mvnw spotless:check
 ```
 
-**If any checks fail, do not commit.** Fix the issues and re-run.
+**If build/tests fail, do not commit.** Fix the issues and re-run.
 
 ### Documentation Requirements
 
@@ -295,7 +289,6 @@ public NewDataType newMethod() {
 3. Fix the implementation
 4. Verify test passes: `./mvnw test -Dtest=PSXxxServiceTest`
 5. Run full build: `./mvnw clean verify`
-6. Format code: `./mvnw spotless:apply`
 
 ### Task: Refactor Legacy Code
 
@@ -304,7 +297,7 @@ public NewDataType newMethod() {
    - Replace raw types with generics
    - Use `var` / `Optional` / Streams where they improve clarity
    - Prefer modern APIs available on 21; avoid deprecated APIs
-   - Apply Google Java Style (`spotless:apply`)
+   - Match surrounding style in the files you touch
 3. Add/update unit tests (JUnit 5)
 4. Build and verify: `./mvnw -pl system clean verify`
 
@@ -325,9 +318,8 @@ public NewDataType newMethod() {
 
 1. **Build fails** → Run `./mvnw -X clean compile` for detailed output
 2. **Test fails** → Run test with `-e` flag: `./mvnw test -Dtest=Xyz -e`
-3. **Formatting issues** → Run `./mvnw spotless:apply`
-4. **Dependency conflicts** → Check tree: `./mvnw dependency:tree`
-5. **Documentation unclear** → Update it and submit PR with improvements
+3. **Dependency conflicts** → Check tree: `./mvnw dependency:tree`
+4. **Documentation unclear** → Update it and submit PR with improvements
 
 **Then check:**
 
@@ -350,19 +342,16 @@ public NewDataType newMethod() {
 |-------------------|-------------------------------------|
 | Build module      | `./mvnw -pl system compile`         |
 | Run tests         | `./mvnw -pl system test`            |
-| Format code       | `./mvnw spotless:apply`             |
-| Check formatting  | `./mvnw spotless:check`             |
 | Full build        | `./mvnw -pl system clean verify`    |
 | View dependencies | `./mvnw -pl system dependency:tree` |
+| Format (optional) | `./mvnw spotless:apply` / `check`   |
 
 ## Checklist Before Submitting Work
 
 - [ ] Read README.md in full
 - [ ] Read relevant documentation (overview.md, services.md, or building.md)
-- [ ] Code targets JDK 21 and follows Google Java Style
+- [ ] Code targets JDK 21; style matches surrounding code in touched files
 - [ ] All unit tests written (85%+ coverage)
-- [ ] `./mvnw spotless:apply` ran successfully
-- [ ] `./mvnw spotless:check` passes
 - [ ] `./mvnw -pl system clean verify` passes all builds and tests
 - [ ] Documentation updated (README, site docs, Javadoc)
 - [ ] Backward compatibility maintained or documented

@@ -295,7 +295,7 @@ For detailed testing guidance (local transport testing, mocking strategies, best
 
 ## Building & Code Quality
 
-For building, code style, and Spotless formatting details, see README.md.
+For building and code-style guidance, see README.md. Spotless is optional (not a hard gate).
 
 Build the module with:
 

@@ -2,7 +2,7 @@
 
 Active service layer for Percussion CMS: interfaces and implementations under `services/src`.
 
-**Toolchain:** JDK 21 · part of the `system` Maven module · format with Spotless via repo `./mvnw` / `mvnw.cmd`.
+**Toolchain:** JDK 21 · part of the `system` Maven module · build with repo `./mvnw` / `mvnw.cmd`.
 
 ## Layout
 

@@ -153,7 +153,7 @@ For a pure PR-babysit night, prefer `max_issues: 1` with a label filter that mat
 - Fresh branch per issue from `origin/<base_branch>`  
 - No merge, no direct push to `main`  
 - **No bare `--force`**; rebase after conflict resolution may use **`--force-with-lease` only**  
-- Spotless -> clean install -> tests before PR  
+- Clean install (changed modules) -> tests before PR  
 - `unassigned_only` avoids stepping on humans  
 - PR follow-up only on **our** open PRs; hard gate reply+resolve (never bare resolve)  
 - Human and AI review comments **equal**; human is a **tie-break** when tech need is equal  

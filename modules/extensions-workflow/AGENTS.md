@@ -94,12 +94,8 @@ cd modules/extensions-workflow
 ../mvnw clean install
 ```
 
-Plus Spotless (configured upstream):
-
-```bash
-../mvnw -pl modules/extensions-workflow spotless:apply
-../mvnw -pl modules/extensions-workflow spotless:check
-```
+Spotless apply/check is **optional** (not a process hard gate). Prefer matching
+surrounding style in files you touch.
 
 Standalone builds must succeed with **no new warnings** and all tests green
 before a PR is opened.
@@ -110,6 +106,6 @@ before a PR is opened.
 
 - Migration epic + phased plan: `docs/ai-generated/migrations/workflow-orm/00-inventory.md`
 - Root repo rules: `AGENTS.md`
-- `system` module rules (services, locators, JDK 21, Spotless):
+- `system` module rules (services, locators, JDK 21):
   `system/AGENTS.md`
 

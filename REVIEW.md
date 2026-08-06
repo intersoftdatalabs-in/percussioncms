@@ -61,7 +61,7 @@ from the base branch, never from the feature branch under review.
   as needing refactoring (root `AGENTS.md` "modernization context"),
   Javadoc additions, optional parameter validation hardening.
 - **Do not flag:**
-  - Formatter / Spotless / Enforcer violations — tooling reports them in CI.
+  - Formatter / Enforcer violations — tooling reports them in CI when applicable.
   - Lint or typecheck errors — CI reports them directly.
   - Surefire test failures — CI reports them directly.
   - Existing pre-modernization patterns that are out of scope for the PR's
@@ -78,7 +78,7 @@ from the base branch, never from the feature branch under review.
   the implementer must `cd` into each changed module and run the
   repo-root `mvnw` / `mvnw.cmd clean install` standalone (not
   root reactor `-pl … -am` unless justified). BUILD SUCCESS, all
-  Surefire tests pass, zero new compiler / warning / enforcer / Spotless
+  Surefire tests pass, zero new compiler / warning / enforcer
   warnings on the changed modules.
 - **Behavioral tests required for new non-trivial logic.** Pure refactors
   that do not change observable behavior may add a characterization test
