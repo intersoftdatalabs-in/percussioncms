@@ -80,7 +80,7 @@ java -cp <install>/jetty/base/lib/jdbc/h2-*.jar org.h2.tools.Shell \
 - Seeded: expect rows `Enterprise_Investments`, `Corporate_Investments` (see seed XML).
 - Unseeded (this repro): `SITE_COUNT = 0`.
 
-4. **Explorer / REST** (when CMS is up; patterns from bug-1622):
+4. **Explorer / REST** (when CMS is up; patterns from [#1622](https://github.com/intersoftdatalabs-in/percussioncms/issues/1622)):
 
 ```text
 GET /Rhythmyx/services/pathmanagement/path/folder/
@@ -124,10 +124,10 @@ Between core schema load and completion there is **no** seed or skip message:
 45954:     [echo] Repository installation complete...
 ```
 
-The complete target list includes `installSampleSites` as a **named** target, but the in-`installRepository` guard only `antcall`s it when `${install.demo.sites}` equals `true`:
+The complete target list includes `installSampleSites` as a **named** target, but the in-`installRepository` guard only `antcall`s it when `${install.demo.sites}` equals `true` (uses Ant-Contrib `<if>`, not core Ant):
 
 ```xml
-<!-- installRepository.xml -->
+<!-- installRepository.xml — <if> is Ant-Contrib (third-party), not standard Ant -->
 <if>
   <equals arg1="${install.demo.sites}" arg2="true" />
   <then>
@@ -183,13 +183,16 @@ This slice does **not** change product code; the following is diagnostic only.
 
 ### Flag propagation into ANT (broken gap)
 
-`Main.execJar` builds the ANT child JVM command and sets:
+`Main.execJar` builds the ANT child JVM command and sets (actual code at `Main.java` ~575–579):
 
 ```java
 boolean demoSites =
     DbInstallConfigResolver.parseDemoSitesFlag(
         System.getProperties().entrySet().stream()
-            .collect(/* key/value toString map */));
+            .collect(
+                java.util.stream.Collectors.toMap(
+                    e -> e.getKey().toString(),
+                    e -> e.getValue() == null ? null : e.getValue().toString())));
 command.add("-Dinstall.demo.sites=" + demoSites);
 ```
 
