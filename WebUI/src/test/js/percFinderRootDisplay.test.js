@@ -250,5 +250,7 @@ describe("perc_finder.js make_item wiring (source contract)", () => {
     expect(src).toMatch(/DESIGN_ROOT_NO_SLASH/);
     expect(src).toMatch(/SEARCH_ROOT_NO_SLASH/);
     expect(src).toMatch(/RECYCLING_ROOT_NO_SLASH/);
+    // Fallback must null-guard item_path (same as shouldNavigateOnDoubleClick).
+    expect(src).toMatch(/item_path\s*&&\s*[\s\S]*?item_path\.length\s*===\s*2/);
   });
 });

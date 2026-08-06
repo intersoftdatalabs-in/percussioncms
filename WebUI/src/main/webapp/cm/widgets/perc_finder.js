@@ -1260,7 +1260,8 @@ var assetPagination = null;
               : spec.type === "Folder" ||
                 spec.type === "FSFolder" ||
                 spec.leaf === false ||
-                (item_path.length === 2 &&
+                (item_path &&
+                  item_path.length === 2 &&
                   (item_path[1] === $.perc_paths.RECYCLING_ROOT_NO_SLASH ||
                     item_path[1] === $.perc_paths.SITES_ROOT_NO_SLASH ||
                     item_path[1] === $.perc_paths.ASSETS_ROOT_NO_SLASH ||
