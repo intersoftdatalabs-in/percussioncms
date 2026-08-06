@@ -1244,10 +1244,29 @@ var assetPagination = null;
 
       function doubleClick(evt) {
         validatePath(evt, item_path, function () {
-          if (
-            spec.type === "Folder" ||
-            item_path[1] === $.perc_paths.RECYCLING_ROOT_NO_SLASH
-          ) {
+          // Navigate folders and repository roots (Sites, Assets, Design,
+          // Search, Recycling) the same as single-click. Open leaf content.
+          // Roots are not typed "Folder" on the server; only Recycling was
+          // special-cased historically (issue #960).
+          var navigate =
+            typeof percFinderRootDisplay !== "undefined" &&
+            percFinderRootDisplay &&
+            typeof percFinderRootDisplay.shouldNavigateOnDoubleClick ===
+              "function"
+              ? percFinderRootDisplay.shouldNavigateOnDoubleClick(
+                  spec,
+                  item_path,
+                )
+              : spec.type === "Folder" ||
+                spec.type === "FSFolder" ||
+                spec.leaf === false ||
+                (item_path.length === 2 &&
+                  (item_path[1] === $.perc_paths.RECYCLING_ROOT_NO_SLASH ||
+                    item_path[1] === $.perc_paths.SITES_ROOT_NO_SLASH ||
+                    item_path[1] === $.perc_paths.ASSETS_ROOT_NO_SLASH ||
+                    item_path[1] === $.perc_paths.DESIGN_ROOT_NO_SLASH ||
+                    item_path[1] === $.perc_paths.SEARCH_ROOT_NO_SLASH));
+          if (navigate) {
             onClick(evt);
           } else {
             fireOpenEvent(spec);
