@@ -23,7 +23,7 @@ import {
   updateKeyword,
 } from "../api/developer/keywordsApi";
 import type { KeywordChoiceSummary, KeywordSummary } from "../api/developer/types";
-import { backButton, errorAlert } from "./catalogStyles";
+import { catalogColors, backButton, errorAlert } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -69,7 +69,7 @@ const fieldStyle: React.CSSProperties = {
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
-  border: "1px solid #cbd5e0",
+  border: `1px solid ${catalogColors.softBorder}`,
   borderRadius: "4px",
   font: "inherit",
 };
@@ -236,7 +236,7 @@ export function KeywordEditorPanel({
           onClick={() => void handleSave()}
           style={{
             padding: "8px 16px",
-            background: "#007ea8",
+            background: catalogColors.accent,
             color: "#fff",
             border: "none",
             borderRadius: "4px",
@@ -253,7 +253,7 @@ export function KeywordEditorPanel({
           style={{
             padding: "8px 16px",
             background: "transparent",
-            border: "1px solid #cbd5e0",
+            border: `1px solid ${catalogColors.softBorder}`,
             borderRadius: "4px",
             cursor: "pointer",
           }}

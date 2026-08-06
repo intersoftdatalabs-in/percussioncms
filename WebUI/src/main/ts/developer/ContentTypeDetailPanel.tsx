@@ -29,10 +29,12 @@ import type {
 import { ObjectAclSection } from "./ObjectAclSection";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { catalogColors, tableHeaderRow, tableRow } from "./catalogStyles";
+
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
-  border: "1px solid #cbd5e0",
+  border: `1px solid ${catalogColors.softBorder}`,
   borderRadius: "4px",
   font: "inherit",
   width: "100%",
@@ -41,7 +43,7 @@ const inputStyle: React.CSSProperties = {
 
 const smallBtnStyle: React.CSSProperties = {
   background: "transparent",
-  border: "1px solid #cbd5e0",
+  border: `1px solid ${catalogColors.softBorder}`,
   borderRadius: "4px",
   padding: "4px 8px",
   cursor: "pointer",
@@ -334,7 +336,7 @@ export function ContentTypeDetailPanel({
         style={{
           marginBottom: "12px",
           background: "transparent",
-          border: "1px solid #cbd5e0",
+          border: `1px solid ${catalogColors.softBorder}`,
           borderRadius: "4px",
           padding: "6px 12px",
           cursor: "pointer",
@@ -344,7 +346,7 @@ export function ContentTypeDetailPanel({
       </button>
 
       {error ? (
-        <div role="alert" data-testid="developer-ct-detail-error" style={{ color: "#b00020" }}>
+        <div role="alert" data-testid="developer-ct-detail-error" style={{ color: catalogColors.error }}>
           {error}
         </div>
       ) : null}
@@ -364,7 +366,7 @@ export function ContentTypeDetailPanel({
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-ct-detail-title">
               {label || detail.name || idOrName}
             </h2>
-            <div style={{ fontFamily: "monospace", color: "#4a5568" }}>
+            <div style={{ fontFamily: "monospace", color: catalogColors.muted }}>
               {detail.name}
               {detail.guid?.stringValue ? ` · ${detail.guid.stringValue}` : ""}
             </div>
@@ -441,9 +443,9 @@ export function ContentTypeDetailPanel({
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-ct-workflows">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_WORKFLOWS}</h3>
-            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.CT_WORKFLOWS_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_WORKFLOWS_HINT}</p>
             {workflows.length === 0 ? (
-              <p style={{ color: "#718096" }} data-testid="developer-ct-wf-empty">
+              <p style={{ color: catalogColors.empty }} data-testid="developer-ct-wf-empty">
                 {DEV_MSG.CT_NONE}
               </p>
             ) : (
@@ -452,13 +454,10 @@ export function ContentTypeDetailPanel({
                   <li
                     key={refKey(w, i)}
                     data-testid={`developer-ct-wf-row-${i}`}
-                    style={{
-                      display: "flex",
+                    style={{ ...tableRow, display: "flex",
                       alignItems: "center",
                       gap: 12,
-                      padding: "6px 0",
-                      borderBottom: "1px solid #edf2f7",
-                    }}
+                      padding: "6px 0"  }}
                   >
                     <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <input
@@ -470,7 +469,7 @@ export function ContentTypeDetailPanel({
                         onChange={() => setDefaultWorkflow(i)}
                         aria-label={`${DEV_MSG.CT_SET_DEFAULT} ${w.label || w.name}`}
                       />
-                      <span style={{ fontSize: "0.85rem", color: "#4a5568" }}>
+                      <span style={{ fontSize: "0.85rem", color: catalogColors.muted }}>
                         {DEV_MSG.CT_SET_DEFAULT}
                       </span>
                     </label>
@@ -480,7 +479,7 @@ export function ContentTypeDetailPanel({
                         <span
                           style={{
                             fontFamily: "monospace",
-                            color: "#718096",
+                            color: catalogColors.empty,
                             marginLeft: "8px",
                             fontSize: "0.85rem",
                           }}
@@ -550,9 +549,9 @@ export function ContentTypeDetailPanel({
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-ct-templates">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_TEMPLATES}</h3>
-            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.CT_TEMPLATES_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_TEMPLATES_HINT}</p>
             {templates.length === 0 ? (
-              <p style={{ color: "#718096" }} data-testid="developer-ct-tpl-empty">
+              <p style={{ color: catalogColors.empty }} data-testid="developer-ct-tpl-empty">
                 {DEV_MSG.CT_NONE}
               </p>
             ) : (
@@ -561,13 +560,10 @@ export function ContentTypeDetailPanel({
                   <li
                     key={refKey(t, i)}
                     data-testid={`developer-ct-tpl-row-${i}`}
-                    style={{
-                      display: "flex",
+                    style={{ ...tableRow, display: "flex",
                       alignItems: "center",
                       gap: 12,
-                      padding: "6px 0",
-                      borderBottom: "1px solid #edf2f7",
-                    }}
+                      padding: "6px 0"  }}
                   >
                     <span>
                       {t.label || t.name}
@@ -575,7 +571,7 @@ export function ContentTypeDetailPanel({
                         <span
                           style={{
                             fontFamily: "monospace",
-                            color: "#718096",
+                            color: catalogColors.empty,
                             marginLeft: "8px",
                             fontSize: "0.85rem",
                           }}
@@ -645,7 +641,7 @@ export function ContentTypeDetailPanel({
 
           <section style={{ marginBottom: "16px" }}>
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_FIELDS}</h3>
-            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.CT_FIELDS_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_FIELDS_HINT}</p>
             <div style={{ overflowX: "auto" }}>
               <table
                 data-testid="developer-ct-fields-table"
@@ -656,7 +652,7 @@ export function ContentTypeDetailPanel({
                 }}
               >
                 <thead>
-                  <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                  <tr style={tableHeaderRow}>
                     <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_FIELD}</th>
                     <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_ORIGIN}</th>
                     <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_DATATYPE}</th>
@@ -683,14 +679,14 @@ export function ContentTypeDetailPanel({
                       <tr
                         key={k}
                         data-testid="developer-ct-field-row"
-                        style={{ borderBottom: "1px solid #edf2f7" }}
+                        style={tableRow}
                       >
                         <td style={{ padding: "8px" }}>
                           <div>{f.label || f.name}</div>
                           <div
                             style={{
                               fontFamily: "monospace",
-                              color: "#718096",
+                              color: catalogColors.empty,
                               fontSize: "0.85rem",
                             }}
                           >
@@ -730,7 +726,7 @@ export function ContentTypeDetailPanel({
                           {f.occurrence || "—"}
                         </td>
                         <td
-                          style={{ padding: "8px", fontSize: "0.85rem", color: "#4a5568" }}
+                          style={{ padding: "8px", fontSize: "0.85rem", color: catalogColors.muted }}
                           data-testid="developer-ct-field-rules"
                         >
                           {rules.length > 0 ? rules.join(", ") : "—"}
@@ -771,7 +767,7 @@ export function ContentTypeDetailPanel({
               onClick={() => void handleSave()}
               style={{
                 padding: "8px 16px",
-                background: dirty ? "#007ea8" : "#a0aec0",
+                background: dirty ? catalogColors.accent : catalogColors.disabled,
                 color: "#fff",
                 border: "none",
                 borderRadius: "4px",
@@ -790,7 +786,7 @@ export function ContentTypeDetailPanel({
           {detail.designGaps && detail.designGaps.length > 0 ? (
             <section data-testid="developer-ct-gaps">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_GAPS}</h3>
-              <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+              <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
                 {detail.designGaps.map((g) => (
                   <li key={g}>{g}</li>
                 ))}

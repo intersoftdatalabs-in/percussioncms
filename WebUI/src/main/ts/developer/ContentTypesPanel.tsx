@@ -21,6 +21,8 @@ import type { ContentTypeSummary } from "../api/developer/types";
 import { ContentTypeDetailPanel } from "./ContentTypeDetailPanel";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { catalogColors, openButtonStyle, tableHeaderRow, tableRow } from "./catalogStyles";
+
 
 function displayId(ct: ContentTypeSummary): string {
   const g = ct.guid;
@@ -35,16 +37,6 @@ function selectionKey(ct: ContentTypeSummary): string {
   return ct.name || ct.guid?.stringValue || displayId(ct);
 }
 
-const openButtonStyle: React.CSSProperties = {
-  background: "none",
-  border: "none",
-  padding: 0,
-  color: "#007ea8",
-  cursor: "pointer",
-  font: "inherit",
-  textAlign: "left",
-  textDecoration: "underline",
-};
 
 /**
  * P0.1 list + P0.2 read-only field catalog detail.
@@ -87,7 +79,7 @@ export function ContentTypesPanel(): React.ReactElement {
 
   if (error) {
     return (
-      <div data-testid="developer-ct-error" role="alert" style={{ color: "#b00020" }}>
+      <div data-testid="developer-ct-error" role="alert" style={{ color: catalogColors.error }}>
         {error}
       </div>
     );
@@ -117,7 +109,7 @@ export function ContentTypesPanel(): React.ReactElement {
 
   return (
     <div data-testid="developer-ct-panel">
-      <p style={{ color: "#4a5568", marginBottom: "12px", fontSize: "0.9rem" }}>
+      <p style={{ color: catalogColors.muted, marginBottom: "12px", fontSize: "0.9rem" }}>
         {DEV_MSG.CT_HINT}
       </p>
       <div style={{ overflowX: "auto" }}>
@@ -130,7 +122,7 @@ export function ContentTypesPanel(): React.ReactElement {
           }}
         >
           <thead>
-            <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+            <tr style={tableHeaderRow}>
               <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_LABEL}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_NAME}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_ID}</th>
@@ -149,10 +141,7 @@ export function ContentTypesPanel(): React.ReactElement {
                 <tr
                   key={key}
                   data-testid="developer-ct-row"
-                  style={{
-                    borderBottom: "1px solid #edf2f7",
-                    cursor: interactive ? "pointer" : "default",
-                  }}
+                  style={{ ...tableRow, cursor: interactive ? "pointer" : "default"  }}
                   onClick={() => {
                     if (interactive) setSelected(openKey);
                   }}
@@ -171,7 +160,7 @@ export function ContentTypesPanel(): React.ReactElement {
                         {ct.label || "—"}
                       </button>
                     ) : (
-                      <span style={{ color: "#4a5568" }}>{ct.label || "—"}</span>
+                      <span style={{ color: catalogColors.muted }}>{ct.label || "—"}</span>
                     )}
                   </td>
                   <td style={{ padding: "8px", fontFamily: "monospace" }}>
@@ -180,7 +169,7 @@ export function ContentTypesPanel(): React.ReactElement {
                   <td style={{ padding: "8px", fontFamily: "monospace" }}>
                     {displayId(ct)}
                   </td>
-                  <td style={{ padding: "8px", color: "#4a5568" }}>
+                  <td style={{ padding: "8px", color: catalogColors.muted }}>
                     {ct.description || ""}
                   </td>
                 </tr>

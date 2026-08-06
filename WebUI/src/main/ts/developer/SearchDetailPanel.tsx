@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from "react";
 import { getSearchDetail } from "../api/developer/searchesApi";
 import type { SearchDef } from "../api/developer/types";
-import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -61,7 +61,7 @@ export function SearchDetailPanel({
               {detail.label || detail.name || idOrName}
             </h2>
             {detail.description ? (
-              <p style={{ marginTop: "8px", color: "#4a5568" }}>{detail.description}</p>
+              <p style={{ marginTop: "8px", color: catalogColors.muted }}>{detail.description}</p>
             ) : null}
             <dl style={metaGrid}>
               <dt>{DEV_MSG.SR_COL_NAME}</dt>
@@ -81,9 +81,9 @@ export function SearchDetailPanel({
 
           <section data-testid="developer-sr-fields">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SR_FIELDS}</h3>
-            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.SR_FIELDS_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.SR_FIELDS_HINT}</p>
             {fields.length === 0 ? (
-              <p style={{ color: "#718096" }} data-testid="developer-sr-fields-empty">
+              <p style={{ color: catalogColors.empty }} data-testid="developer-sr-fields-empty">
                 {DEV_MSG.SR_NONE}
               </p>
             ) : (
@@ -93,7 +93,7 @@ export function SearchDetailPanel({
                   style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_FIELD}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_OP}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_VALUE}</th>
@@ -105,7 +105,7 @@ export function SearchDetailPanel({
                       <tr
                         key={`${f.fieldName ?? "f"}-${i}`}
                         data-testid={`developer-sr-field-row-${i}`}
-                        style={{ borderBottom: "1px solid #edf2f7" }}
+                        style={tableRow}
                       >
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {f.fieldName || f.displayName || "—"}
@@ -123,7 +123,7 @@ export function SearchDetailPanel({
 
           <section style={{ marginTop: "16px" }} data-testid="developer-sr-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SR_GAPS}</h3>
-            <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+            <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
               {(detail.designGaps && detail.designGaps.length
                 ? detail.designGaps
                 : [DEV_MSG.SR_GAP_WRITE, DEV_MSG.SR_GAP_FIELDS, DEV_MSG.SR_GAP_VIEWS]

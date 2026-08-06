@@ -19,7 +19,7 @@ import React, { useEffect, useState } from "react";
 import { listSlots } from "../api/developer/assemblyApi";
 import type { SlotSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { openButtonStyle } from "./catalogStyles";
+import { catalogColors, openButtonStyle, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { SlotDetailPanel } from "./SlotDetailPanel";
@@ -77,7 +77,7 @@ export function SlotsPanel(): React.ReactElement {
           style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
         >
           <thead>
-            <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+            <tr style={tableHeaderRow}>
               <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_LABEL}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_NAME}</th>
               <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_DESCRIPTION}</th>
@@ -91,9 +91,7 @@ export function SlotsPanel(): React.ReactElement {
                 <tr
                   key={key}
                   data-testid="developer-slot-row"
-                  style={{
-                    borderBottom: "1px solid #edf2f7",
-                  }}
+                  style={tableRow}
                 >
                   <td style={{ padding: "8px" }}>
                     {openKey ? (
@@ -112,7 +110,7 @@ export function SlotsPanel(): React.ReactElement {
                   <td style={{ padding: "8px", fontFamily: "monospace" }}>
                     {s.name || "—"}
                   </td>
-                  <td style={{ padding: "8px", color: "#4a5568" }}>
+                  <td style={{ padding: "8px", color: catalogColors.muted }}>
                     {s.description || ""}
                   </td>
                 </tr>

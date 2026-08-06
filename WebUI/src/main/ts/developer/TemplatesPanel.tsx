@@ -19,7 +19,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { listTemplates } from "../api/developer/assemblyApi";
 import type { TemplateSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
-import { monoCell, mutedCell } from "./catalogStyles";
+import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { TemplateDetailPanel } from "./TemplateDetailPanel";
@@ -31,16 +31,6 @@ function selectionKey(t: TemplateSummary): string | null {
   return null;
 }
 
-const openButtonStyle: React.CSSProperties = {
-  background: "none",
-  border: "none",
-  padding: 0,
-  color: "#007ea8",
-  cursor: "pointer",
-  font: "inherit",
-  textAlign: "left",
-  textDecoration: "underline",
-};
 
 export function TemplatesPanel(): React.ReactElement {
   const [items, setItems] = useState<TemplateSummary[] | null>(null);

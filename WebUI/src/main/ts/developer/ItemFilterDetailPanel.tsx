@@ -18,7 +18,7 @@
 import React, { useEffect, useState } from "react";
 import { getItemFilterDetail } from "../api/developer/itemFiltersApi";
 import type { ItemFilter } from "../api/developer/types";
-import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -86,7 +86,7 @@ export function ItemFilterDetailPanel({
               {detail.name || idOrName}
             </h2>
             {detail.description ? (
-              <p style={{ marginTop: "8px", color: "#4a5568" }}>{detail.description}</p>
+              <p style={{ marginTop: "8px", color: catalogColors.muted }}>{detail.description}</p>
             ) : null}
             <dl style={metaGrid}>
               <dt>{DEV_MSG.IF_COL_GUID}</dt>
@@ -109,9 +109,9 @@ export function ItemFilterDetailPanel({
 
           <section data-testid="developer-if-rules">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.IF_RULES}</h3>
-            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.IF_RULES_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.IF_RULES_HINT}</p>
             {ruleList.length === 0 ? (
-              <p style={{ color: "#718096" }} data-testid="developer-if-rules-empty">
+              <p style={{ color: catalogColors.empty }} data-testid="developer-if-rules-empty">
                 {DEV_MSG.IF_NONE}
               </p>
             ) : (
@@ -125,7 +125,7 @@ export function ItemFilterDetailPanel({
                   }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.IF_COL_RULE}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.IF_COL_PARAMS}</th>
                     </tr>
@@ -139,12 +139,12 @@ export function ItemFilterDetailPanel({
                         <tr
                           key={r.ruleId?.stringValue || `${r.name ?? "rule"}-${i}`}
                           data-testid={`developer-if-rule-row-${i}`}
-                          style={{ borderBottom: "1px solid #edf2f7" }}
+                          style={tableRow}
                         >
                           <td style={{ padding: "8px", fontFamily: "monospace" }}>
                             {r.name || "—"}
                           </td>
-                          <td style={{ padding: "8px", color: "#4a5568" }}>{params}</td>
+                          <td style={{ padding: "8px", color: catalogColors.muted }}>{params}</td>
                         </tr>
                       );
                     })}
@@ -156,7 +156,7 @@ export function ItemFilterDetailPanel({
 
           <section style={{ marginTop: "16px" }} data-testid="developer-if-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.IF_GAPS}</h3>
-            <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+            <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
               <li>{DEV_MSG.IF_GAP_WRITE}</li>
               <li>{DEV_MSG.IF_GAP_RULE_EDIT}</li>
             </ul>

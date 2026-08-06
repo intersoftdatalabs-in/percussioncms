@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from "react";
 import { getRelationshipTypeDetail } from "../api/developer/relationshipTypesApi";
 import type { RelationshipTypeDef } from "../api/developer/types";
-import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -78,7 +78,7 @@ export function RelationshipTypeDetailPanel({
           <section data-testid="developer-rt-effects">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.RT_EFFECTS}</h3>
             {effects.length === 0 ? (
-              <p style={{ color: "#718096" }}>{DEV_MSG.RT_NONE}</p>
+              <p style={{ color: catalogColors.empty }}>{DEV_MSG.RT_NONE}</p>
             ) : (
               <div style={{ overflowX: "auto" }}>
                 <table
@@ -86,7 +86,7 @@ export function RelationshipTypeDetailPanel({
                   style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_EFFECT}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_ENDPOINT}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_EXTREF}</th>
@@ -96,7 +96,7 @@ export function RelationshipTypeDetailPanel({
                     {effects.map((e, i) => (
                       <tr
                         key={`${e.name ?? "e"}-${i}`}
-                        style={{ borderBottom: "1px solid #edf2f7" }}
+                        style={tableRow}
                       >
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {e.name || "—"}
@@ -116,7 +116,7 @@ export function RelationshipTypeDetailPanel({
           <section style={{ marginTop: "16px" }} data-testid="developer-rt-sysprops">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.RT_SYS_PROPS}</h3>
             {sysProps.length === 0 ? (
-              <p style={{ color: "#718096" }}>{DEV_MSG.RT_NONE}</p>
+              <p style={{ color: catalogColors.empty }}>{DEV_MSG.RT_NONE}</p>
             ) : (
               <div style={{ overflowX: "auto" }}>
                 <table
@@ -124,7 +124,7 @@ export function RelationshipTypeDetailPanel({
                   style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_PROP}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_VALUE}</th>
                     </tr>
@@ -133,7 +133,7 @@ export function RelationshipTypeDetailPanel({
                     {sysProps.map((p, i) => (
                       <tr
                         key={`${p.name ?? "p"}-${i}`}
-                        style={{ borderBottom: "1px solid #edf2f7" }}
+                        style={tableRow}
                       >
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {p.name || "—"}
@@ -150,7 +150,7 @@ export function RelationshipTypeDetailPanel({
           <section style={{ marginTop: "16px" }} data-testid="developer-rt-userprops">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.RT_USER_PROPS}</h3>
             {userProps.length === 0 ? (
-              <p style={{ color: "#718096" }}>{DEV_MSG.RT_NONE}</p>
+              <p style={{ color: catalogColors.empty }}>{DEV_MSG.RT_NONE}</p>
             ) : (
               <div style={{ overflowX: "auto" }}>
                 <table
@@ -158,7 +158,7 @@ export function RelationshipTypeDetailPanel({
                   style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_PROP}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_VALUE}</th>
                     </tr>
@@ -167,7 +167,7 @@ export function RelationshipTypeDetailPanel({
                     {userProps.map((p, i) => (
                       <tr
                         key={`${p.name ?? "up"}-${i}`}
-                        style={{ borderBottom: "1px solid #edf2f7" }}
+                        style={tableRow}
                       >
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {p.name || "—"}
@@ -183,7 +183,7 @@ export function RelationshipTypeDetailPanel({
 
           <section style={{ marginTop: "16px" }} data-testid="developer-rt-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.RT_GAPS}</h3>
-            <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+            <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
               {(detail.designGaps && detail.designGaps.length
                 ? detail.designGaps
                 : [DEV_MSG.RT_GAP_WRITE, DEV_MSG.RT_GAP_CLONE, DEV_MSG.RT_GAP_EFFECTS]

@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from "react";
 import { getServerConfigDetail } from "../api/developer/serverConfigsApi";
 import type { ServerConfigDef } from "../api/developer/types";
-import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -77,7 +77,7 @@ export function ServerConfigDetailPanel({
           <section data-testid="developer-cfg-content">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CFG_CONTENT}</h3>
             {detail.content == null || detail.content === "" ? (
-              <p style={{ color: "#718096" }} data-testid="developer-cfg-content-empty">
+              <p style={{ color: catalogColors.empty }} data-testid="developer-cfg-content-empty">
                 {DEV_MSG.CFG_CONTENT_EMPTY}
               </p>
             ) : (
@@ -85,7 +85,7 @@ export function ServerConfigDetailPanel({
                 data-testid="developer-cfg-content-pre"
                 style={{
                   background: "#f7fafc",
-                  border: "1px solid #e2e8f0",
+                  border: `1px solid ${catalogColors.headerBorder}`,
                   borderRadius: 4,
                   padding: 12,
                   overflow: "auto",
@@ -102,7 +102,7 @@ export function ServerConfigDetailPanel({
 
           <section style={{ marginTop: "16px" }} data-testid="developer-cfg-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CFG_GAPS}</h3>
-            <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+            <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
               {gaps.map((g, i) => (
                 <li key={`${g}-${i}`}>{g}</li>
               ))}

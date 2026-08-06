@@ -29,7 +29,7 @@ import type {
   ObjectAclPermission,
 } from "../api/developer/types";
 import { isSessionRedirectError, type ApiError } from "../api/client";
-import { errorAlert } from "./catalogStyles";
+import { catalogColors, errorAlert, tableHeaderRow, tableRow } from "./catalogStyles";
 import { DEV_MSG } from "./messages";
 
 /** Principal types supported when adding an ACL entry (REST TypedPrincipal / PrincipalTypes). */
@@ -40,7 +40,7 @@ type DraftEntry = ObjectAclEntry & { clientKey: string };
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
-  border: "1px solid #cbd5e0",
+  border: `1px solid ${catalogColors.softBorder}`,
   borderRadius: "4px",
   font: "inherit",
   width: "100%",
@@ -49,7 +49,7 @@ const inputStyle: React.CSSProperties = {
 
 const smallBtnStyle: React.CSSProperties = {
   background: "transparent",
-  border: "1px solid #cbd5e0",
+  border: `1px solid ${catalogColors.softBorder}`,
   borderRadius: "4px",
   padding: "4px 8px",
   cursor: "pointer",
@@ -432,7 +432,7 @@ export function ObjectAclSection({
     return (
       <section style={{ marginBottom: "16px" }} data-testid={`${testIdPrefix}-section`}>
         <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.ACL_TITLE}</h3>
-        <p style={{ color: "#718096" }}>{DEV_MSG.ACL_NO_GUID}</p>
+        <p style={{ color: catalogColors.empty }}>{DEV_MSG.ACL_NO_GUID}</p>
       </section>
     );
   }
@@ -440,7 +440,7 @@ export function ObjectAclSection({
   return (
     <section style={{ marginBottom: "16px" }} data-testid={`${testIdPrefix}-section`}>
       <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.ACL_TITLE}</h3>
-      <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.ACL_HINT}</p>
+      <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.ACL_HINT}</p>
 
       {loading ? (
         <div data-testid={`${testIdPrefix}-loading`}>{DEV_MSG.ACL_LOADING}</div>
@@ -460,8 +460,8 @@ export function ObjectAclSection({
 
       {missing && !loading ? (
         <div data-testid={`${testIdPrefix}-empty`}>
-          <p style={{ color: "#718096" }}>{DEV_MSG.ACL_EMPTY}</p>
-          <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.ACL_EMPTY_HINT}</p>
+          <p style={{ color: catalogColors.empty }}>{DEV_MSG.ACL_EMPTY}</p>
+          <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.ACL_EMPTY_HINT}</p>
           <div
             style={{
               marginTop: "12px",
@@ -518,7 +518,7 @@ export function ObjectAclSection({
               onClick={() => void handleCreate()}
               style={{
                 padding: "8px 16px",
-                background: ownerName.trim() ? "#007ea8" : "#a0aec0",
+                background: ownerName.trim() ? catalogColors.accent : catalogColors.disabled,
                 color: "#fff",
                 border: "none",
                 borderRadius: "4px",
@@ -534,7 +534,7 @@ export function ObjectAclSection({
       {acl && !loading ? (
         <>
           <div
-            style={{ fontFamily: "monospace", color: "#4a5568", fontSize: "0.85rem" }}
+            style={{ fontFamily: "monospace", color: catalogColors.muted, fontSize: "0.85rem" }}
             data-testid={`${testIdPrefix}-meta`}
           >
             {acl.name || "ACL"}
@@ -542,7 +542,7 @@ export function ObjectAclSection({
             {acl.guid?.stringValue ? ` · ${acl.guid.stringValue}` : ""}
           </div>
           {draftEntries.length === 0 ? (
-            <p style={{ color: "#718096" }} data-testid={`${testIdPrefix}-no-entries`}>
+            <p style={{ color: catalogColors.empty }} data-testid={`${testIdPrefix}-no-entries`}>
               {DEV_MSG.ACL_NO_ENTRIES}
             </p>
           ) : (
@@ -556,7 +556,7 @@ export function ObjectAclSection({
                 }}
               >
                 <thead>
-                  <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                  <tr style={tableHeaderRow}>
                     <th style={{ padding: "8px" }}>{DEV_MSG.ACL_COL_ENTRY}</th>
                     <th style={{ padding: "8px" }}>{DEV_MSG.ACL_COL_TYPE}</th>
                     {ACL_PERMISSIONS.map((p) => (
@@ -578,7 +578,7 @@ export function ObjectAclSection({
                     return (
                       <tr
                         key={key}
-                        style={{ borderBottom: "1px solid #edf2f7" }}
+                        style={tableRow}
                         data-testid={`${testIdPrefix}-row-${key}`}
                       >
                         <td style={{ padding: "8px" }}>{label}</td>
@@ -699,7 +699,7 @@ export function ObjectAclSection({
               onClick={() => void handleSave()}
               style={{
                 padding: "8px 16px",
-                background: dirty ? "#007ea8" : "#a0aec0",
+                background: dirty ? catalogColors.accent : catalogColors.disabled,
                 color: "#fff",
                 border: "none",
                 borderRadius: "4px",

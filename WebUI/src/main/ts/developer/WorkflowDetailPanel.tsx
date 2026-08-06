@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from "react";
 import { getWorkflowDetail } from "../api/developer/workflowsApi";
 import type { WorkflowDef } from "../api/developer/types";
-import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
+import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -77,7 +77,7 @@ export function WorkflowDetailPanel({
           <section data-testid="developer-wf-steps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.WF_STEPS}</h3>
             {steps.length === 0 ? (
-              <p style={{ color: "#718096" }}>{DEV_MSG.WF_NONE}</p>
+              <p style={{ color: catalogColors.empty }}>{DEV_MSG.WF_NONE}</p>
             ) : (
               <div style={{ overflowX: "auto" }}>
                 <table
@@ -85,7 +85,7 @@ export function WorkflowDetailPanel({
                   style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
                 >
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                    <tr style={tableHeaderRow}>
                       <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_STEP}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_PERMS}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_ROLES}</th>
@@ -105,7 +105,7 @@ export function WorkflowDetailPanel({
                       return (
                         <tr
                           key={`${s.stepName ?? "s"}-${i}`}
-                          style={{ borderBottom: "1px solid #edf2f7" }}
+                          style={tableRow}
                         >
                           <td style={{ padding: "8px", fontFamily: "monospace" }}>
                             {s.stepName || "—"}
@@ -123,7 +123,7 @@ export function WorkflowDetailPanel({
 
           <section style={{ marginTop: "16px" }} data-testid="developer-wf-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.WF_GAPS}</h3>
-            <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
+            <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
               {(detail.designGaps && detail.designGaps.length
                 ? detail.designGaps
                 : [DEV_MSG.WF_GAP_GRAPH, DEV_MSG.WF_GAP_WRITE, DEV_MSG.WF_GAP_CT]

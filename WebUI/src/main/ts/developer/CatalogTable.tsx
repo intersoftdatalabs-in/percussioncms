@@ -16,10 +16,12 @@
  */
 
 import React from "react";
+import { catalogColors, tableHeaderRow, tableRow } from "./catalogStyles";
+
 
 export function CatalogHint({ children }: { children: React.ReactNode }): React.ReactElement {
   return (
-    <p style={{ color: "#4a5568", marginBottom: "12px", fontSize: "0.9rem" }}>{children}</p>
+    <p style={{ color: catalogColors.muted, marginBottom: "12px", fontSize: "0.9rem" }}>{children}</p>
   );
 }
 
@@ -36,7 +38,7 @@ export function CatalogStatus({
     <div
       data-testid={testId}
       role={error ? "alert" : undefined}
-      style={{ padding: "0.5rem 0", color: error ? "#b00020" : undefined }}
+      style={{ padding: "0.5rem 0", color: error ? catalogColors.error : undefined }}
     >
       {children}
     </div>
@@ -61,7 +63,7 @@ export function SimpleCatalogTable({
         style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
       >
         <thead>
-          <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+          <tr style={tableHeaderRow}>
             {columns.map((c) => (
               <th key={c} style={{ padding: "8px" }}>
                 {c}
@@ -74,7 +76,7 @@ export function SimpleCatalogTable({
             <tr
               key={r.key}
               data-testid={rowTestId}
-              style={{ borderBottom: "1px solid #edf2f7" }}
+              style={tableRow}
             >
               {r.cells.map((cell, i) => (
                 <td key={i} style={{ padding: "8px" }}>
