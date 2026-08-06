@@ -23,7 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,6 +33,8 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.List;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -40,14 +44,25 @@ public class LocalesResourceTest {
 
   private ILocalesAdaptor adaptor;
   private LocalesResource resource;
+  private Logger previousLog;
+  private Logger mockLog;
 
   @BeforeEach
   public void setUp() {
+    previousLog = LocalesResource.log;
+    mockLog = mock(Logger.class);
+    LocalesResource.log = mockLog;
+
     adaptor = mock(ILocalesAdaptor.class);
     resource = new LocalesResource(adaptor);
     UriInfo uriInfo = mock(UriInfo.class);
     when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
     resource.setUriInfo(uriInfo);
+  }
+
+  @AfterEach
+  public void restoreLog() {
+    LocalesResource.log = previousLog;
   }
 
   @Test
@@ -63,6 +78,7 @@ public class LocalesResourceTest {
     assertEquals("en-us", out.get(0).getLanguageString());
     assertEquals(Boolean.TRUE, out.get(0).getHasFormatProfile());
     verify(adaptor).listLocales(any());
+    verify(mockLog, never()).error(any(String.class), any(), any(), any());
   }
 
   @Test
@@ -80,6 +96,12 @@ public class LocalesResourceTest {
         assertThrows(WebApplicationException.class, () -> resource.listLocales());
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause());
+    verify(mockLog)
+        .error(
+            eq("Failed to list locales ({}): {}"),
+            eq(IllegalStateException.class.getName()),
+            eq("boom"),
+            same(boom));
   }
 
   @Test
@@ -88,6 +110,8 @@ public class LocalesResourceTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, bare::listLocales);
     assertEquals(503, ex.getResponse().getStatus());
+    // Misconfiguration path must not log as unexpected failure
+    verify(mockLog, never()).error(any(String.class), any(), any(), any());
   }
 
   @Test
@@ -97,6 +121,7 @@ public class LocalesResourceTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> bare.getLocale("any"));
     assertEquals(503, ex.getResponse().getStatus());
+    verify(mockLog, never()).error(any(String.class), any(), any(), any());
   }
 
   @Test
@@ -109,6 +134,7 @@ public class LocalesResourceTest {
         assertThrows(WebApplicationException.class, () -> resource.getLocale("xx"));
     assertSame(mapped, ex);
     assertEquals(404, ex.getResponse().getStatus());
+    verify(mockLog, never()).error(any(String.class), any(), any(), any());
   }
 
   @Test
@@ -129,6 +155,7 @@ public class LocalesResourceTest {
         assertThrows(WebApplicationException.class, () -> resource.getLocale("xx"));
     assertEquals(404, ex.getResponse().getStatus());
     assertEquals("Locale not found", ex.getMessage());
+    verify(mockLog, never()).error(any(String.class), any(), any(), any());
   }
 
   @Test
@@ -140,6 +167,13 @@ public class LocalesResourceTest {
         assertThrows(WebApplicationException.class, () -> resource.getLocale("en-us"));
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause());
+    verify(mockLog)
+        .error(
+            eq("Failed to load locale {} ({}): {}"),
+            eq("en-us"),
+            eq(IllegalStateException.class.getName()),
+            eq("cms down"),
+            same(boom));
   }
 
   private static LocalesResource newLocalesResourceWithoutAdaptor() {

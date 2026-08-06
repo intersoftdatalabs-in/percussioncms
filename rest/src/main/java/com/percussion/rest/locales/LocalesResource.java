@@ -50,7 +50,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(name = "Locales", description = "CMS locale design catalog (read-only)")
 public class LocalesResource {
 
-  private static final Logger log = LogManager.getLogger(LocalesResource.class);
+  /**
+   * Package-private and non-final so unit tests can install a mock {@link Logger} and assert
+   * unexpected-failure diagnostics (log4j-core ListAppender is not on the rest test classpath).
+   */
+  static Logger log = LogManager.getLogger(LocalesResource.class);
 
   private final ILocalesAdaptor adaptor;
 
@@ -138,7 +142,7 @@ public class LocalesResource {
 
   private ILocalesAdaptor requireAdaptor() {
     if (adaptor == null) {
-      // Misconfiguration — not a transient handler failure (align with Slots/Keywords)
+      // Misconfiguration — not a transient handler failure (align with slots/keywords)
       throw new WebApplicationException(
           "Locales adaptor not configured", Response.Status.SERVICE_UNAVAILABLE);
     }
