@@ -200,17 +200,26 @@ public class PSMetadataRestEntry {
       this.properties.put(metadataProperty.getName(), newValue);
     } else {
       Object value = this.properties.get(metadataProperty.getName());
-      if (value instanceof String) {
+      if (value instanceof String existingValue) {
         List<String> multiValued = new ArrayList<>();
-        multiValued.add((String) value);
+        multiValued.add(existingValue);
         multiValued.add(newValue);
         this.properties.put(metadataProperty.getName(), multiValued);
-      } else {
-        @SuppressWarnings("unchecked")
-        List<String> existingList = (List<String>) value;
-        existingList.add(newValue);
+      } else if (value instanceof List<?> existingList) {
+        appendToStringList(existingList, newValue);
         this.properties.put(metadataProperty.getName(), value);
       }
     }
+  }
+
+  /**
+   * Appends a string to a list that is contractually a {@code List<String>}. The properties map is
+   * only ever populated with {@code List<String>} values for multi-valued entries, so this cast is
+   * safe at the type-system boundary and is the single point where the unchecked cast is localized.
+   */
+  private static void appendToStringList(List<?> rawList, String value) {
+    @SuppressWarnings("unchecked")
+    List<String> typed = (List<String>) rawList;
+    typed.add(value);
   }
 }

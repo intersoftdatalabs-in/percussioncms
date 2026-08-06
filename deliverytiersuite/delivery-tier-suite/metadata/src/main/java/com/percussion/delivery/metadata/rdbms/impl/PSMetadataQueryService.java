@@ -166,8 +166,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
               + "ORDER BY p.stringvalue";
       log.debug("{}", hql);
       try (Session session = getSession()) {
-        @SuppressWarnings("unchecked")
-        Query<Object[]> hq = session.createQuery(hql);
+        Query<Object[]> hq = session.createQuery(hql, Object[].class);
         cats = hq.getResultList();
       } catch (Exception e) {
         log.error("Simple category query failed: {}", e.getMessage());
@@ -351,27 +350,26 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
         if (query.getStartIndex() == 0 || query.getReturnTotalEntries()) {
           queryInfo = buildHibernateQuery(session, query, true);
 
-          Long count = (Long) queryInfo.getFirst().list().get(0);
+          List<?> countRows = queryInfo.getFirst().getResultList();
+          Long count = (Long) countRows.get(0);
           totalResults = count.intValue();
         }
 
         // call the method for second time to get list of objects based on the query
         queryInfo = new PSPair<Query<?>, SORTTYPE>();
         queryInfo = buildHibernateQuery(session, query, false);
+        List<?> dataRows = queryInfo.getFirst().getResultList();
         if (queryInfo.getSecond().equals(SORTTYPE.PROPERTY)) {
-          @SuppressWarnings({"unchecked", "rawtypes"})
-          List resultsTmpList = queryInfo.getFirst().list();
-          for (Object o : resultsTmpList) {
-            results.add((PSDbMetadataEntry) ((Object[]) o)[0]);
+          for (Object o : dataRows) {
+            Object[] row = (Object[]) o;
+            results.add((PSDbMetadataEntry) row[0]);
           }
           searchResults.setFirst(results);
         } else if (queryInfo.getSecond().equals(SORTTYPE.METADATA)
             || queryInfo.getSecond().equals(SORTTYPE.NONE)) {
-          @SuppressWarnings({"unchecked", "rawtypes"})
-          List rawList = queryInfo.getFirst().list();
-          @SuppressWarnings("unchecked")
-          List<IPSMetadataEntry> resultList = (List<IPSMetadataEntry>) rawList;
-          results = resultList;
+          for (Object o : dataRows) {
+            results.add((IPSMetadataEntry) o);
+          }
           searchResults.setFirst(results);
         }
         searchResults.setSecond(totalResults);
@@ -617,7 +615,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
 
     log.debug("{}", queryBuf);
 
-    Query<?> q = sess.createQuery(queryBuf.toString());
+    Query<?> q = createTypedQuery(sess, queryBuf.toString(), isCount, type);
     int useLimit = queryLimit;
     // All caller to set a query limit, but they can't allow higher than the server limit.
     if (rawQuery.getTotalMaxResults() > 0 && rawQuery.getTotalMaxResults() < queryLimit) {
@@ -650,6 +648,29 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
     }
 
     return getBuildQueryInfo(q, type);
+  }
+
+  /**
+   * Constructs the Hibernate {@link Query} with the result type that matches the HQL projection:
+   *
+   * <ul>
+   *   <li>count queries produce {@code Long} (single scalar),
+   *   <li>property-sorted queries produce {@code Object[]} (entity + sort scalar),
+   *   <li>metadata / unsorted queries produce {@link PSDbMetadataEntry}.
+   * </ul>
+   *
+   * <p>Using the typed {@link Session#createQuery(String, Class)} overload lets Hibernate verify
+   * the result type at construction time and removes the {@code @SuppressWarnings("unchecked")}
+   * that would otherwise be required.
+   */
+  private Query<?> createTypedQuery(Session sess, String hql, boolean isCount, SORTTYPE type) {
+    if (isCount) {
+      return sess.createQuery(hql, Long.class);
+    }
+    if (type == SORTTYPE.PROPERTY) {
+      return sess.createQuery(hql, Object[].class);
+    }
+    return sess.createQuery(hql, PSDbMetadataEntry.class);
   }
 
   private String escapeSpecialCharacters(String value) {
