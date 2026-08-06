@@ -267,6 +267,29 @@ class PSUserHomepageTest {
     }
 
     @Test
+    void nonAdminCannotSetOtherUserHomepage() throws Exception {
+      doReturn("bob").when(userService).getCurrentUserName();
+      doReturn(false).when(userService).isAdminUser("bob");
+
+      assertThrows(
+          PSValidationException.class,
+          () -> userService.setHomepageOverride("alice", HOMEPAGE_TYPE_EDITOR));
+      verify(metadataService, never()).save(any());
+      verify(metadataService, never()).find(any());
+    }
+
+    @Test
+    void nonAdminCannotClearOtherUserHomepage() throws Exception {
+      doReturn("bob").when(userService).getCurrentUserName();
+      doReturn(false).when(userService).isAdminUser("bob");
+
+      assertThrows(
+          PSValidationException.class, () -> userService.clearHomepageOverride("alice"));
+      verify(metadataService, never()).delete(any());
+      verify(metadataService, never()).find(any());
+    }
+
+    @Test
     void adminCanManageOtherUser() throws Exception {
       doReturn("admin").when(userService).getCurrentUserName();
       doReturn(true).when(userService).isAdminUser("admin");
@@ -274,6 +297,32 @@ class PSUserHomepageTest {
 
       assertEquals("", userService.getHomepageOverride("alice"));
       verify(metadataService).find(META_DATA_HOMEPAGE_PREFIX + "alice");
+    }
+
+    @Test
+    void metadataKeyIsCaseInsensitiveForPathParam() throws Exception {
+      doReturn("Alice").when(userService).getCurrentUserName();
+      when(metadataService.find(META_DATA_HOMEPAGE_PREFIX + "alice"))
+          .thenReturn(new PSMetadata(META_DATA_HOMEPAGE_PREFIX + "alice", HOMEPAGE_TYPE_EDITOR));
+
+      // Path-param casing must not fragment the stored key
+      assertEquals(HOMEPAGE_TYPE_EDITOR, userService.getHomepageOverride("Alice"));
+      assertEquals(HOMEPAGE_TYPE_EDITOR, userService.getHomepageOverride("alice"));
+      verify(metadataService, org.mockito.Mockito.atLeastOnce())
+          .find(META_DATA_HOMEPAGE_PREFIX + "alice");
+    }
+
+    @Test
+    void setUsesCanonicalLowercaseMetadataKey() throws Exception {
+      doReturn("Alice").when(userService).getCurrentUserName();
+      when(metadataService.find(META_DATA_HOMEPAGE_PREFIX + "alice")).thenReturn(null);
+
+      String stored = userService.setHomepageOverride("Alice", "editor");
+      assertEquals(HOMEPAGE_TYPE_EDITOR, stored);
+
+      ArgumentCaptor<PSMetadata> captor = ArgumentCaptor.forClass(PSMetadata.class);
+      verify(metadataService).save(captor.capture());
+      assertEquals(META_DATA_HOMEPAGE_PREFIX + "alice", captor.getValue().getKey());
     }
   }
 }

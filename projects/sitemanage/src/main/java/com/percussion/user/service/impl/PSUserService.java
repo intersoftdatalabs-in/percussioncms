@@ -928,7 +928,7 @@ public class PSUserService implements IPSUserService {
     PSParameterValidationUtils.rejectIfBlank("getHomepageOverride", "userName", userName);
     assertCanManageHomepage(userName);
     try {
-      var md = metadataService.find(META_DATA_HOMEPAGE_PREFIX + userName);
+      var md = metadataService.find(homepageMetadataKey(userName));
       if (md == null || isBlank(md.getData())) {
         return "";
       }
@@ -968,11 +968,9 @@ public class PSUserService implements IPSUserService {
                   + " (or view keys home/dash/editor/design/arch/publish/workflow/widgetbuilder).",
               homepage)
           .throwIfInvalid();
-      // throwIfInvalid always throws when rejectField was used; keep compiler definite-assignment
-      throw new PSDataServiceException("Invalid homepage value: " + homepage);
     }
     try {
-      var key = META_DATA_HOMEPAGE_PREFIX + userName;
+      var key = homepageMetadataKey(userName);
       var md = metadataService.find(key);
       if (md == null) {
         md = new PSMetadata(key, normalized);
@@ -994,7 +992,7 @@ public class PSUserService implements IPSUserService {
     PSParameterValidationUtils.rejectIfBlank("clearHomepageOverride", "userName", userName);
     assertCanManageHomepage(userName);
     try {
-      var key = META_DATA_HOMEPAGE_PREFIX + userName;
+      var key = homepageMetadataKey(userName);
       var md = metadataService.find(key);
       if (md != null) {
         metadataService.delete(key);
@@ -1003,6 +1001,18 @@ public class PSUserService implements IPSUserService {
       throw new PSDataServiceException(
           "Failed to clear homepage override for user " + userName, e);
     }
+  }
+
+  /**
+   * Canonical metadata key for a user's homepage override.
+   *
+   * <p>Usernames are compared case-insensitively for authz ({@link #assertCanManageHomepage}); the
+   * key must use the same case folding so {@code /homepage/alice} and {@code /homepage/Alice} share
+   * one stored value (and {@link com.percussion.role.service.impl.PSRoleService#getUserHomepage}
+   * finds the override regardless of {@code current.getName()} casing).
+   */
+  static String homepageMetadataKey(String userName) {
+    return META_DATA_HOMEPAGE_PREFIX + userName.trim().toLowerCase(Locale.ROOT);
   }
 
   /**
