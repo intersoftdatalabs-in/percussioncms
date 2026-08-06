@@ -72,7 +72,7 @@ import org.apache.oro.text.perl.Perl5Util;
  * already selected in the editor from where this is launched will not be show in the Available List
  * group.
  */
-@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape", "cast"})
+@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public class PSFieldSelectionEditorDialog extends PSDialog {
 
   /** No-op default constructor. */
@@ -389,7 +389,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
     // selected table panel
     JPanel selectedPane = new JPanel();
     selectedPane.setLayout(new BoxLayout(selectedPane, BoxLayout.X_AXIS));
-    b = super.createGroupBorder(getResource("Selected Fields"));
+    b = PSDialog.createGroupBorder(getResource("Selected Fields"));
     selectedPane.setBorder(b);
     JToolBar tb = new JToolBar();
 
@@ -1082,15 +1082,15 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
    *
    * @return, vector containing the combo box data, never <code>null</code> or empty.
    */
-  private Vector prepareComboData() {
+  private Vector<String> prepareComboData() {
     Vector<String> vec = new Vector<String>();
     vec.add(I18N_SYSTEM);
     vec.add(I18N_SHARED);
 
     // get all local content type names
-    Iterator itContentTypeNames = m_ceCatlg.getLocalContentTypeMap().keySet().iterator();
+    Iterator<String> itContentTypeNames = m_ceCatlg.getLocalContentTypeMap().keySet().iterator();
 
-    while (itContentTypeNames.hasNext()) vec.add((String) itContentTypeNames.next());
+    while (itContentTypeNames.hasNext()) vec.add(itContentTypeNames.next());
 
     vec.add(I18N_ALL);
     return vec;
@@ -1405,7 +1405,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
               if (!df.getFieldRef().equalsIgnoreCase(selectedLwf.getInternalName()))
                 continue; // nope, skip it
 
-              if (df.getDependencyType().equalsIgnoreCase(df.TYPE_OPTIONAL)) {
+              if (df.getDependencyType().equalsIgnoreCase(PSChoiceFilter.DependentField.TYPE_OPTIONAL)) {
                 String msg = getResource("opt.msg.removeOptionalDependent");
                 Object args[] = {df.getFieldRef(), notSelectedLwf.getInternalName()};
 
@@ -1557,12 +1557,12 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
     if (fieldName == null) throw new IllegalArgumentException("fieldName may not be null");
 
     // first check local then shared then system fields
-    PSLightWeightField lwf = (PSLightWeightField) m_ceCatlg.getLocalMap().get(fieldName);
+    PSLightWeightField lwf = m_ceCatlg.getLocalMap().get(fieldName);
 
     if (lwf == null) {
-      lwf = (PSLightWeightField) m_ceCatlg.getSharedMap().get(fieldName);
+      lwf = m_ceCatlg.getSharedMap().get(fieldName);
 
-      if (lwf == null) lwf = (PSLightWeightField) m_ceCatlg.getSystemMap().get(fieldName);
+      if (lwf == null) lwf = m_ceCatlg.getSystemMap().get(fieldName);
     }
 
     return lwf;
@@ -1713,7 +1713,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
    * 'System', 'Shared', 'Local' or 'All'. Initialized in {@link #init()}, never null or modified
    * after that.
    */
-  private JComboBox m_availSelectorComboBox;
+  private JComboBox<String> m_availSelectorComboBox;
 
   /**
    * Determines if an external search engine will be used. Initially <code>false</code>, modified by
