@@ -5,7 +5,6 @@
 package com.percussion.rest.serverconfigs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,13 +36,27 @@ public class ServerConfigsResourceTest {
     ServerConfigSummary s = new ServerConfigSummary();
     s.setName("LOG_CONFIG");
     when(adaptor.listConfigs()).thenReturn(List.of(s));
-    assertEquals("LOG_CONFIG", resource.listConfigs().get(0).getName());
+    List<ServerConfigSummary> out = resource.listConfigs();
+    assertEquals(1, out.size());
+    assertEquals("LOG_CONFIG", out.get(0).getName());
+    verify(adaptor).listConfigs();
   }
 
   @Test
   public void listConfigsNullSafe() {
     when(adaptor.listConfigs()).thenReturn(null);
     assertTrue(resource.listConfigs().isEmpty());
+  }
+
+  @Test
+  public void listConfigsWrapsUnexpectedAs500() {
+    IllegalStateException boom = new IllegalStateException("boom");
+    when(adaptor.listConfigs()).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.listConfigs());
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
   }
 
   @Test
@@ -75,10 +88,30 @@ public class ServerConfigsResourceTest {
   }
 
   @Test
-  public void withoutInjectionFailsWithDiagnostic() {
+  public void getConfigRethrowsWebApplicationException() {
+    WebApplicationException mapped = new WebApplicationException("from adaptor", 404);
+    when(adaptor.findConfigByName(eq("xx"))).thenThrow(mapped);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getConfig("xx"));
+    assertSame(mapped, ex);
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnList() {
     ServerConfigsResource bare = new ServerConfigsResource();
-    WebApplicationException listEx = assertThrows(WebApplicationException.class, bare::listConfigs);
-    assertEquals(500, listEx.getResponse().getStatus());
-    assertInstanceOf(IllegalStateException.class, listEx.getCause());
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, bare::listConfigs);
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnGet() {
+    // getConfig must rethrow WebApplicationException from requireAdaptor (not re-wrap as 500)
+    ServerConfigsResource bare = new ServerConfigsResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.getConfig("any"));
+    assertEquals(503, ex.getResponse().getStatus());
   }
 }
