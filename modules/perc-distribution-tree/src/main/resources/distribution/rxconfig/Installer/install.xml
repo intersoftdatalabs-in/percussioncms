@@ -592,6 +592,11 @@
 		<include name="jetty/base/webapps/Rhythmyx.xml" />
 		<include name="**/*.bat" />
 		<include name="**/*.sh" />
+		<!-- issue #2220: Unix launcher has no extension (not matched by **/*.sh);
+			jar is not covered by bat/sh globs. Keep all three bin entries in lockstep. -->
+		<include name="bin/perc-doctor" />
+		<include name="bin/perc-doctor.bat" />
+		<include name="bin/perc-doctor.jar" />
 	</patternset>
 	<patternset id="upgrade.excludes">
 		<exclude
