@@ -2,9 +2,9 @@
 
 Operator CLI for diagnosing and safely cleaning Percussion CMS install trees.
 
-**Issues:** [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213) (parent), [#2217](https://github.com/intersoftdatalabs-in/percussioncms/issues/2217) (`clean-install-backups`), [#2218](https://github.com/intersoftdatalabs-in/percussioncms/issues/2218) (`clean-logs`), [#2219](https://github.com/intersoftdatalabs-in/percussioncms/issues/2219) (admin HTTP API), [#2220](https://github.com/intersoftdatalabs-in/percussioncms/issues/2220) (dist packaging + install guide)  
+**Issues:** [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213) (parent), [#2217](https://github.com/intersoftdatalabs-in/percussioncms/issues/2217) (`clean-install-backups`), [#2218](https://github.com/intersoftdatalabs-in/percussioncms/issues/2218) (`clean-logs`), [#2219](https://github.com/intersoftdatalabs-in/percussioncms/issues/2219) (admin HTTP API), [#2220](https://github.com/intersoftdatalabs-in/percussioncms/issues/2220) (dist packaging + install guide), [#2232](https://github.com/intersoftdatalabs-in/percussioncms/issues/2232) (`clean-temp`)  
 **Package:** `com.intsof.percussioncms.doctor` (+ `...doctor.api` for HTTP)  
-**Shipped commands:** `diagnose`/`health` (read-only), `clean-heap-dumps`, `clean-install-backups`, `clean-logs` with global `--dry-run` / `--install-root` / `-v`  
+**Shipped commands:** `diagnose`/`health` (read-only), `clean-heap-dumps`, `clean-install-backups`, `clean-logs`, `clean-temp` with global `--dry-run` / `--install-root` / `-v`  
 **HTTP:** Admin-only `POST .../maintenance/doctor/{command}` for clean-* commands (wired in sitemanage); diagnose is CLI-first
 
 **Operator install guide (dry-run-first examples):** [docs/operator-install-guide.md](docs/operator-install-guide.md)
@@ -207,15 +207,46 @@ java -jar target/perc-doctor-8.2.0-SNAPSHOT.jar \
   --install-root /opt/Percussion --dry-run -v clean-logs
 ```
 
+#### `clean-temp`
+
+Reclaim space from **known** install temp / work directories under the install root. Prefer stopping CMS / DTS processes before apply so temp files are not locked.
+
+##### Target temp / work locations (relative to `--install-root`)
+
+| Relative path | Role |
+|---------------|------|
+| `temp` | CMS install temp (`install.xml` creates `${install.dir}/temp`) |
+| `jetty/base/work` | Jetty work directory (assembly / install layout) |
+| `Deployment/Server/temp` | DTS Tomcat `catalina.base`/temp |
+| `Deployment/Server/work` | DTS Tomcat `catalina.base`/work |
+
+Missing directories are skipped (not an error). **Only files under these roots** are candidates. The allowlisted root directories themselves are **never** deleted (empty nested subdirs may be removed best-effort after apply). **No user-supplied globs; no walk of the entire install for arbitrary temp files.**
+
+- **Scope:** only under `--install-root` and the allowlisted temp/work dirs
+- **Dry-run:** inventories candidates + sizes without deleting
+
+Examples:
+
+```bash
+# Preview reclaimable temp/work files (safe)
+java -jar target/perc-doctor-8.2.0-SNAPSHOT.jar \
+  --install-root /opt/Percussion --dry-run -v clean-temp
+
+# Apply (Windows example)
+java -jar target\perc-doctor-8.2.0-SNAPSHOT.jar ^
+  --install-root C:\Percussion -v clean-temp
+```
+
 ## Safety model
 
 1. Resolve and validate install root (must exist and be a directory).
 2. For `diagnose`/`health`: only read path existence, sizes, and JVM/disk properties; never delete or write.
-3. Walk only under that root (and for `clean-logs`, only under allowlisted log dirs); skip / reject candidates that escape the root.
+3. Walk only under that root (and for `clean-logs` / `clean-temp`, only under allowlisted dirs); skip / reject candidates that escape the root.
 4. Match allowlisted patterns only (per clean command; no user-supplied globs).
 5. If `--dry-run`, stop after inventory (clean commands).
 6. On apply, re-check containment immediately before each delete.
 7. For `clean-logs`, apply `--keep-current` and `--older-than` before any delete.
+8. For `clean-temp`, never remove the allowlisted temp/work root directories themselves.
 
 ## Admin HTTP API (slice #2219)
 
@@ -224,7 +255,7 @@ When the CMS server is running, doctor commands are also available as an **Admin
 | | |
 |--|--|
 | **Method / path** | `POST /Rhythmyx/services/maintenance/doctor/{command}` |
-| **Commands** | `clean-heap-dumps`, `clean-install-backups`, `clean-logs` (same tokens as CLI) |
+| **Commands** | `clean-heap-dumps`, `clean-install-backups`, `clean-logs`, `clean-temp` (same tokens as CLI) |
 | **Auth hard gate** | **Admin role only.** Anonymous and non-admin callers receive **HTTP 403**. |
 | **Content-Type** | `application/json` (XML also accepted/produced by the host stack) |
 
@@ -283,4 +314,4 @@ Example apply (Admin only; deletes under install root):
 
 ## Deferred (stretch after diagnose)
 
-Further stretch commands under parent [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213): `clean-temp`, `fix-permissions`, deeper `check-config` (beyond presence), and optional diagnose on the admin HTTP surface.
+`clean-temp` is delivered under [#2232](https://github.com/intersoftdatalabs-in/percussioncms/issues/2232). Further residuals (e.g. `fix-permissions` / deeper `check-config`) and optional diagnose on the admin HTTP surface stay on the parent epic [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213).

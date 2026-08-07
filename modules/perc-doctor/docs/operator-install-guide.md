@@ -1,7 +1,7 @@
 # perc-doctor operator install guide
 
 **Module:** `modules/perc-doctor`  
-**Issues:** [#2220](https://github.com/intersoftdatalabs-in/percussioncms/issues/2220) (packaging), [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213) (parent)
+**Issues:** [#2220](https://github.com/intersoftdatalabs-in/percussioncms/issues/2220) (packaging), [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213) (parent), [#2232](https://github.com/intersoftdatalabs-in/percussioncms/issues/2232) (`clean-temp`)
 
 This guide is for operators running **perc-doctor** against a CMS install on Windows or Linux. Prefer **dry-run first** for every command; only apply after you review the candidate list and sizes.
 
@@ -176,6 +176,37 @@ bin\perc-doctor.bat --install-root C:\Percussion --dry-run -v clean-logs --older
 bin\perc-doctor.bat --install-root C:\Percussion -v clean-logs --older-than 14d
 ```
 
+### `clean-temp`
+
+Removes **files** under known install temp / work directories only. Prefer stopping CMS / DTS first so files are not locked. Allowlisted roots themselves are retained.
+
+| Relative path | Role |
+|---------------|------|
+| `temp` | CMS install temp |
+| `jetty/base/work` | Jetty work directory |
+| `Deployment/Server/temp` | DTS Tomcat temp |
+| `Deployment/Server/work` | DTS Tomcat work |
+
+**Dry-run first:**
+
+```bash
+./bin/perc-doctor --install-root /opt/Percussion --dry-run -v clean-temp
+```
+
+```bat
+bin\perc-doctor.bat --install-root C:\Percussion --dry-run -v clean-temp
+```
+
+**Apply (only after review; prefer CMS/DTS stopped):**
+
+```bash
+./bin/perc-doctor --install-root /opt/Percussion -v clean-temp
+```
+
+```bat
+bin\perc-doctor.bat --install-root C:\Percussion -v clean-temp
+```
+
 ## Distribution packaging (developers)
 
 Module `mvnw clean install` attaches:
@@ -192,4 +223,5 @@ Module `mvnw clean install` attaches:
 
 - Module README: [../README.md](../README.md)
 - Parent epic: [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213)
-- Admin HTTP API: deferred ([#2219](https://github.com/intersoftdatalabs-in/percussioncms/issues/2219))
+- `clean-temp` slice: [#2232](https://github.com/intersoftdatalabs-in/percussioncms/issues/2232)
+- Admin HTTP API: shipped with MVP cluster ([#2219](https://github.com/intersoftdatalabs-in/percussioncms/issues/2219) / [#2230](https://github.com/intersoftdatalabs-in/percussioncms/pull/2230))
