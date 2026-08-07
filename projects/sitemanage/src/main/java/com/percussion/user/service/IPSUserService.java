@@ -188,6 +188,64 @@ public interface IPSUserService {
   public PSAccessLevel getAccessLevel(PSAccessLevelRequest request);
 
   /**
+   * Metadata key prefix for a user's CMS default landing page override. Peer to role homepage
+   * {@code perc.role.homepage.{roleName}}. Full key: {@code perc.user.homepage.{userName}}.
+   */
+  String META_DATA_HOMEPAGE_PREFIX = "perc.user.homepage.";
+
+  /** Product homepage type: Home (SPA default). */
+  String HOMEPAGE_TYPE_HOME = "Home";
+
+  /** Product homepage type: Dashboard. */
+  String HOMEPAGE_TYPE_DASHBOARD = "Dashboard";
+
+  /** Product homepage type: Editor (page editor). */
+  String HOMEPAGE_TYPE_EDITOR = "Editor";
+
+  /** Product homepage type: Designer / site admin ({@code view=design}). */
+  String HOMEPAGE_TYPE_DESIGNER = "Designer";
+
+  /** Product homepage type: Architecture / navigation ({@code view=arch}). */
+  String HOMEPAGE_TYPE_ARCHITECTURE = "Architecture";
+
+  /** Product homepage type: Publish. */
+  String HOMEPAGE_TYPE_PUBLISH = "Publish";
+
+  /** Product homepage type: Workflow admin. */
+  String HOMEPAGE_TYPE_WORKFLOW = "Workflow";
+
+  /** Product homepage type: Widget Builder. */
+  String HOMEPAGE_TYPE_WIDGET_BUILDER = "WidgetBuilder";
+
+  /**
+   * Returns the persisted default landing-page override for the named user, or empty string when
+   * unset. Never {@code null}. Does not apply role resolve.
+   *
+   * @param userName never blank
+   * @return canonical homepage type or {@code ""} if unset
+   */
+  String getHomepageOverride(String userName) throws PSDataServiceException;
+
+  /**
+   * Sets or clears the default landing-page override for the named user.
+   *
+   * <p>Blank {@code homepage} clears the override (user falls back to role resolve). Non-blank must
+   * normalize to an allowed type; invalid values fail validation (HTTP 400).
+   *
+   * @param userName never blank
+   * @param homepage product type or view-key alias; blank clears
+   * @return the stored canonical type, or {@code ""} when cleared
+   */
+  String setHomepageOverride(String userName, String homepage) throws PSDataServiceException;
+
+  /**
+   * Clears the default landing-page override for the named user.
+   *
+   * @param userName never blank
+   */
+  void clearHomepageOverride(String userName) throws PSDataServiceException;
+
+  /**
    * A group of external users to import.
    *
    * @author adamgent

@@ -123,4 +123,20 @@ public class PSUserServiceRestClient extends PSObjectRestClient implements IPSUs
     throw new UnsupportedOperationException(
         "Checking if current user has Design role is not yet supported");
   }
+
+  @Override
+  public String getHomepageOverride(final String userName) throws PSDataServiceException {
+    return getObjectFromPath(concatPath(getPath(), "homepage", userName), String.class);
+  }
+
+  @Override
+  public String setHomepageOverride(final String userName, final String homepage)
+      throws PSDataServiceException {
+    return putObjectToPath(concatPath(getPath(), "homepage", userName), homepage, String.class);
+  }
+
+  @Override
+  public void clearHomepageOverride(final String userName) throws PSDataServiceException {
+    delete(concatPath(getPath(), "homepage", userName));
+  }
 }

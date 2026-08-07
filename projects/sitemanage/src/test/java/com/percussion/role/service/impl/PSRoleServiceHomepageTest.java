@@ -62,4 +62,21 @@ class PSRoleServiceHomepageTest {
         HOMEPAGE_TYPE_DASHBOARD,
         PSRoleService.resolveUserHomepage(Set.of(HOMEPAGE_TYPE_DASHBOARD, HOMEPAGE_TYPE_EDITOR)));
   }
+
+  @Test
+  void effectivePrefersUserOverrideOverMultiRole() {
+    assertEquals(
+        HOMEPAGE_TYPE_EDITOR,
+        PSRoleService.resolveEffectiveHomepage(
+            HOMEPAGE_TYPE_EDITOR,
+            Set.of(HOMEPAGE_TYPE_HOME, HOMEPAGE_TYPE_DASHBOARD, HOMEPAGE_TYPE_EDITOR)));
+  }
+
+  @Test
+  void effectiveFallsBackToRoleWhenOverrideBlank() {
+    assertEquals(
+        HOMEPAGE_TYPE_DASHBOARD,
+        PSRoleService.resolveEffectiveHomepage(
+            "", Set.of(HOMEPAGE_TYPE_DASHBOARD, HOMEPAGE_TYPE_EDITOR)));
+  }
 }

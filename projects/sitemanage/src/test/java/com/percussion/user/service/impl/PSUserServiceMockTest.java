@@ -24,6 +24,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 
+import com.percussion.metadata.service.IPSMetadataService;
 import com.percussion.security.IPSPasswordFilter;
 import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.IPSRoleMgr;
@@ -75,7 +76,8 @@ class PSUserServiceMockTest {
             Mockito.mock(IPSSecurityWs.class),
             Mockito.mock(IPSContentWs.class),
             Mockito.mock(IPSIdMapper.class),
-            Mockito.mock(IPSUtilityService.class));
+            Mockito.mock(IPSUtilityService.class),
+            Mockito.mock(IPSMetadataService.class));
     userServiceSpy = spy(userService);
   }
 
