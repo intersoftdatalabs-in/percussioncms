@@ -395,7 +395,8 @@ public class PSRecycleService implements IPSRecycleService {
 
   /**
    * Clears asset-widget (ActiveAssembly / LocalContent) relationships that still target the
-   * recycled item as dependent. Failures are logged but do not fail the recycle operation.
+   * recycled item as dependent. Only runs for asset content types (pages/templates/folders/nav
+   * cannot be widget dependents). Failures are logged but do not fail the recycle operation.
    *
    * @param itemGuid recycled item guid, never {@code null}
    */
@@ -405,6 +406,13 @@ public class PSRecycleService implements IPSRecycleService {
     }
     try {
       String assetId = idMapper.getString(itemGuid);
+      // Skip non-assets: recycleItem also handles pages, templates, and folders; only assets can
+      // be bound as widget dependents. Avoid two loadRelationships hits per non-asset recycle.
+      if (workflowHelper != null && !isAssetForWidgetClear(assetId)) {
+        log.debug(
+            "Skipping widget relationship clear for non-asset recycled item {}", itemGuid);
+        return;
+      }
       int cleared = widgetAssetRelationshipService.clearAssetWidgetRelationshipsForAsset(assetId);
       log.debug(
           "Cleared {} widget relationship(s) for recycled item {}", cleared, itemGuid);
@@ -414,6 +422,23 @@ public class PSRecycleService implements IPSRecycleService {
           itemGuid,
           PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
+
+  /**
+   * Returns whether {@code itemId} is an asset that may have widget bindings. On type-detection
+   * failure, returns {@code true} so the clear path still runs (empty relationship lists are a
+   * safe no-op for non-assets).
+   */
+  private boolean isAssetForWidgetClear(String itemId) {
+    try {
+      return workflowHelper.isAsset(itemId);
+    } catch (Exception e) {
+      log.debug(
+          "Could not determine asset type for recycled item {}; attempting widget clear: {}",
+          itemId,
+          PSExceptionUtils.getMessageForLog(e));
+      return true;
     }
   }
 
