@@ -45,6 +45,7 @@ const {
   collectEmptyS3CredentialFields,
   buildS3EmptyCredentialsWarning,
   isS3EmptyCredentialsWarningText,
+  messageFnFromPage,
   s3WarningSurfaceSkipReason,
 } = require("../helpers/s3-empty-credentials-warning");
 
@@ -191,8 +192,10 @@ test.describe("Publish S3 empty-credentials footer warning (#2284) @s3-empty-cre
     ).toBeVisible({ timeout: 15_000 });
 
     const footerText = await footer.innerText();
+    // Bind matcher to live CMS I18N so non-English locales still pass.
+    const pageMessage = await messageFnFromPage(page);
     expect(
-      isS3EmptyCredentialsWarningText(footerText),
+      isS3EmptyCredentialsWarningText(footerText, pageMessage),
       `expected #2284 S3 empty-credentials warning in footer, got: ${footerText.slice(0, 240)}`,
     ).toBeTruthy();
   });

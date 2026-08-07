@@ -12,7 +12,10 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 const {
   PRODUCT_ISSUE,
+  MESSAGE_KEYS,
+  EN_US_CATALOG,
   SELECTORS,
+  messageFnFromCatalog,
   collectEmptyS3CredentialFields,
   buildS3EmptyCredentialsWarning,
   isS3EmptyCredentialsWarningText,
@@ -20,10 +23,15 @@ const {
 } = require("../helpers/s3-empty-credentials-warning");
 
 describe("s3-empty-credentials-warning helpers", () => {
-  it("exposes product issue and footer selectors", () => {
+  it("exposes product issue, I18N keys, and footer selectors", () => {
     assert.equal(PRODUCT_ISSUE, 2284);
     assert.equal(SELECTORS.accessKey, "#perc-access-key");
     assert.equal(SELECTORS.footerAlert, "#percFooterAlertTarget");
+    assert.equal(
+      MESSAGE_KEYS.emptyCredentialsWarning,
+      "perc.ui.publish.servers.s3@Empty credentials warning",
+    );
+    assert.ok(EN_US_CATALOG[MESSAGE_KEYS.accessKey]);
   });
 
   it("collectEmptyS3CredentialFields lists Access/Security when blank", () => {
@@ -59,7 +67,7 @@ describe("s3-empty-credentials-warning helpers", () => {
     );
   });
 
-  it("buildS3EmptyCredentialsWarning matches product footer copy", () => {
+  it("buildS3EmptyCredentialsWarning matches product footer copy (en-us catalog)", () => {
     assert.equal(buildS3EmptyCredentialsWarning([]), null);
     assert.equal(buildS3EmptyCredentialsWarning(null), null);
     const msg = buildS3EmptyCredentialsWarning(["Access Key", "Security Key"]);
@@ -67,6 +75,26 @@ describe("s3-empty-credentials-warning helpers", () => {
     assert.ok(msg.includes("Save will proceed"));
     assert.ok(msg.includes("HttpPutResponseHopLimit >= 2"));
     assert.ok(isS3EmptyCredentialsWarningText(msg));
+  });
+
+  it("resolves labels and warning body via custom I18N catalog (non-en)", () => {
+    const de = messageFnFromCatalog({
+      [MESSAGE_KEYS.accessKey]: "Zugriffsschlüssel",
+      [MESSAGE_KEYS.securityKey]: "Sicherheitsschlüssel",
+      [MESSAGE_KEYS.roleArn]: "Rollen-ARN",
+      [MESSAGE_KEYS.emptyCredentialsWarning]:
+        "Amazon-S3-Felder sind leer ({0}). Speichern fährt fort; HttpPutResponseHopLimit >= 2.",
+    });
+    const empty = collectEmptyS3CredentialFields(
+      { accessKey: "", secretKey: "", useAssumeRole: false },
+      de,
+    );
+    assert.deepEqual(empty, ["Zugriffsschlüssel", "Sicherheitsschlüssel"]);
+    const msg = buildS3EmptyCredentialsWarning(empty, de);
+    assert.ok(msg.includes("Amazon-S3-Felder sind leer (Zugriffsschlüssel, Sicherheitsschlüssel)"));
+    assert.ok(isS3EmptyCredentialsWarningText(msg, de));
+    // en-us matcher must not falsely accept German copy
+    assert.equal(isS3EmptyCredentialsWarningText(msg), false);
   });
 
   it("skip-with-BUG reason embeds durable issue URL", () => {
