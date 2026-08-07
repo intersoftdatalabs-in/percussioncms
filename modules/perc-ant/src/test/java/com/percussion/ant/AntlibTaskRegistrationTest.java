@@ -49,4 +49,19 @@ public class AntlibTaskRegistrationTest {
         xml.contains("com.percussion.ant.install.PSGenerateRepositoryPassword"),
         "antlib classname must match install package");
   }
+
+  @Test
+  void antlibRegistersStripSampleLocales() throws Exception {
+    String xml;
+    try (InputStream in = getClass().getClassLoader().getResourceAsStream(ANTLIB)) {
+      assertNotNull(in, "classpath must contain " + ANTLIB);
+      xml = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+    }
+    assertTrue(
+        xml.contains("name=\"PSStripSampleLocales\""),
+        "antlib must register PSStripSampleLocales for demo-site seed strip (#2303)");
+    assertTrue(
+        xml.contains("com.percussion.ant.install.PSStripSampleLocales"),
+        "antlib classname must match install package");
+  }
 }

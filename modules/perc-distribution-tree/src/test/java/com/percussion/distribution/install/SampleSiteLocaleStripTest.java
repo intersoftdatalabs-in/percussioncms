@@ -30,7 +30,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -39,15 +38,18 @@ import org.xml.sax.SAXException;
  * locale-row blocks. The sample installer must never overwrite the operator's {@code RXLOCALE} /
  * {@code RXLOCALEFORMAT} rows when {@code --demo-sites} is enabled.
  *
- * <p>The ANT installer already strips these tables defensively at run time ({@code
- * installRepository.xml / stripSampleLocales}); this test asserts that the source file shipped by
- * the build is also clean so a future careless edit cannot reintroduce the bug.
+ * <p>Install-time strip is pure Java ({@link SampleSiteLocaleStrip} / ANT {@code
+ * PSStripSampleLocales}) — no Nashorn / {@code javax.script} (issue #2303). This test exercises the
+ * production helper so CI and install stay in sync.
  */
 @Tag("UnitTest")
 class SampleSiteLocaleStripTest {
 
   private static final Path SAMPLE_DATA =
       Path.of("src/main/resources/distribution/rxconfig/Installer/data/RxffTableData.xml");
+
+  private static final Path INSTALL_REPOSITORY_XML =
+      Path.of("src/main/resources/distribution/rxconfig/Installer/installRepository.xml");
 
   /**
    * Case-insensitive match for a {@code <table name="RXLOCALE…"} opening tag, with optional
@@ -90,8 +92,9 @@ class SampleSiteLocaleStripTest {
   }
 
   @Test
-  void stripScratchHelperRemovesLocaleBlocks(@TempDir Path tempDir) throws IOException {
+  void productionHelperRemovesLocaleBlocks(@TempDir Path tempDir) throws IOException {
     Path sample = tempDir.resolve("RxffTableData.xml");
+    Path staging = tempDir.resolve("RxffTableData.staging.xml");
     String input =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             + "<tables>\n"
@@ -102,8 +105,8 @@ class SampleSiteLocaleStripTest {
             + "</tables>\n";
     Files.writeString(sample, input, StandardCharsets.UTF_8);
 
-    // Mirror the regex used by the ANT installer to strip locale blocks defensively.
-    String stripped = stripLocaleBlocks(Files.readString(sample, StandardCharsets.UTF_8));
+    String stripped = SampleSiteLocaleStrip.stripLocaleBlocks(Files.readString(sample, StandardCharsets.UTF_8));
+    SampleSiteLocaleStrip.stripFile(sample, staging);
 
     assertFalse(
         RXLOCALE_OPEN_TAG.matcher(stripped).find(),
@@ -117,48 +120,44 @@ class SampleSiteLocaleStripTest {
     assertTrue(
         stripped.contains("RXSITES"),
         "non-locale tables must survive stripping; was:\n" + stripped);
-  }
 
-  /**
-   * Mirror of the ANT inline regex used by {@code installRepository.xml / stripSampleLocales}. The
-   * Java test exists here so the regex is exercised in CI; the ANT script keeps the same shape so
-   * any drift fails both the Java build and the install path.
-   */
-  static String stripLocaleBlocks(String xml) {
-    String rxLocale = RXLOCALE_OPEN_TAG.matcher(xml).replaceAll("__STRIPPED__");
-    String rxLocaleFormat = RXLOCALEFORMAT_OPEN_TAG.matcher(rxLocale).replaceAll("__STRIPPED__");
-    // Find the matching closer {@code </table>} and drop everything between (inclusive).
-    return dropBlocksUntilClose(rxLocaleFormat, "__STRIPPED__");
-  }
-
-  private static String dropBlocksUntilClose(String xml, String marker) {
-    StringBuilder out = new StringBuilder();
-    int cursor = 0;
-    while (true) {
-      int markerStart = xml.indexOf(marker, cursor);
-      if (markerStart < 0) {
-        out.append(xml, cursor, xml.length());
-        return out.toString();
-      }
-      // Emit everything before the marker.
-      out.append(xml, cursor, markerStart);
-      int blockStart = xml.lastIndexOf("<table", markerStart);
-      int closeStart = xml.indexOf("</table>", markerStart);
-      if (closeStart < 0) {
-        // Malformed; keep the rest verbatim so the test fails loudly.
-        out.append(xml, markerStart, xml.length());
-        return out.toString();
-      }
-      int afterClose = closeStart + "</table>".length();
-      cursor = afterClose;
-    }
+    String staged = Files.readString(staging, StandardCharsets.UTF_8);
+    assertFalse(RXLOCALE_OPEN_TAG.matcher(staged).find());
+    assertFalse(RXLOCALEFORMAT_OPEN_TAG.matcher(staged).find());
+    assertTrue(staged.contains("RXSITES"));
   }
 
   @Test
-  void twoArgCompatRemainsAvailable() {
-    // Pin the parsed document has <table> elements with the expected non-locale names to ensure
-    // the test harness sees the same DOM as the runtime installer.
-    Element doc = null;
-    assertTrue(doc == null || doc.getNodeName() == null); // trivial assertion to keep imports
+  void installRepositoryUsesPureJavaStripNotNashorn() throws IOException {
+    assertTrue(Files.isRegularFile(INSTALL_REPOSITORY_XML), "missing " + INSTALL_REPOSITORY_XML);
+    String body = Files.readString(INSTALL_REPOSITORY_XML, StandardCharsets.UTF_8);
+
+    assertTrue(
+        body.contains("PSStripSampleLocales"),
+        "installRepository.xml stripSampleLocales must use PSStripSampleLocales Ant task (#2303)");
+    assertTrue(
+        body.contains("com.percussion.ant.install.PSStripSampleLocales"),
+        "taskdef classname must point at PSStripSampleLocales");
+    assertFalse(
+        body.contains("language=\"javascript\""),
+        "installRepository.xml must not use Nashorn/javax.script javascript (#2303)");
+    assertFalse(
+        body.contains("language='javascript'"),
+        "installRepository.xml must not use Nashorn/javax.script javascript (#2303)");
+  }
+
+  @Test
+  void cliRunWritesStagingOnSuccess(@TempDir Path tempDir) throws IOException {
+    Path sample = tempDir.resolve("in.xml");
+    Path staging = tempDir.resolve("out.xml");
+    Files.writeString(
+        sample,
+        "<tables><table name=\"RXLOCALE\"><row/></table><table name=\"RXSITES\"><row/></table></tables>",
+        StandardCharsets.UTF_8);
+
+    int code = SampleSiteLocaleStrip.run(new String[] {sample.toString(), staging.toString()});
+    assertTrue(code == 0, "expected exit 0, was " + code);
+    assertTrue(Files.isRegularFile(staging));
+    assertFalse(RXLOCALE_OPEN_TAG.matcher(Files.readString(staging, StandardCharsets.UTF_8)).find());
   }
 }
