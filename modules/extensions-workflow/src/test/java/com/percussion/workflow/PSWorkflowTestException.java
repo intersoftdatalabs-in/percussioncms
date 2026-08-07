@@ -22,6 +22,10 @@ package com.percussion.workflow;
  * exception.
  */
 public class PSWorkflowTestException extends Exception {
+
+  /** Serialization UID. */
+  private static final long serialVersionUID = 1L;
+
   public PSWorkflowTestException() {
     super();
   }

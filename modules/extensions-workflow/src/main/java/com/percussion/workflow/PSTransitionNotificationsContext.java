@@ -32,7 +32,7 @@ import javax.naming.NamingException;
  * @deprecated
  */
 @Deprecated
-public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWorkflowContext
+public final class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWorkflowContext
     implements IPSTransitionNotificationsContext {
   /**
    * Hibernate-backed factory added for #1561 Phase 4c. Loads the {@code TRANSITIONNOTIFICATIONS}

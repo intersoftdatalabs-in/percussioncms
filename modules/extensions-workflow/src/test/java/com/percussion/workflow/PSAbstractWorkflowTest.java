@@ -187,13 +187,13 @@ public abstract class PSAbstractWorkflowTest {
       return "";
     }
     StringBuilder buf = new StringBuilder();
-    buf.append((calendar.get(calendar.MONTH) + 1) + "/");
-    buf.append(calendar.get(calendar.DAY_OF_MONTH) + "/");
-    buf.append(calendar.get(calendar.YEAR) + " ");
-    buf.append(calendar.get(calendar.HOUR) + ":");
-    buf.append(calendar.get(calendar.MINUTE) + ":");
-    buf.append(calendar.get(calendar.SECOND) + ":");
-    buf.append(calendar.get(calendar.MILLISECOND));
+    buf.append((calendar.get(Calendar.MONTH) + 1) + "/");
+    buf.append(calendar.get(Calendar.DAY_OF_MONTH) + "/");
+    buf.append(calendar.get(Calendar.YEAR) + " ");
+    buf.append(calendar.get(Calendar.HOUR) + ":");
+    buf.append(calendar.get(Calendar.MINUTE) + ":");
+    buf.append(calendar.get(Calendar.SECOND) + ":");
+    buf.append(calendar.get(Calendar.MILLISECOND));
     return buf.toString();
   }
 

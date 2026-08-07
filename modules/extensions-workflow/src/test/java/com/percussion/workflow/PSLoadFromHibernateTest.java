@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -102,7 +103,7 @@ public class PSLoadFromHibernateTest {
 
     when(service.findStateRoles(wfId, stId, 1))
         .thenReturn(List.of(nonAdhoc, adhocNormal, adhocAnon));
-    when(service.findWorkflowRoles(eq(wfId), any(java.util.Set.class)))
+    when(service.findWorkflowRoles(eq(wfId), anySet()))
         .thenReturn(
             List.of(
                 mockWorkflowRole(101L, "Reader"),
@@ -147,7 +148,7 @@ public class PSLoadFromHibernateTest {
         mockRole(101L, PSAdhocTypeEnum.DISABLED, PSAssignmentTypeEnum.READER, "Reader");
     when(service.findStateRoles(wfId, stId, 1)).thenReturn(List.of(row));
     // no role-name row for 101 — simulate a schema mismatch
-    when(service.findWorkflowRoles(eq(wfId), any(java.util.Set.class))).thenReturn(List.of());
+    when(service.findWorkflowRoles(eq(wfId), anySet())).thenReturn(List.of());
 
     assertThrows(PSRoleException.class, () -> PSStateRolesContext.loadFromHibernate(7, 11, 1));
   }

@@ -39,7 +39,7 @@ import java.util.List;
  */
 @Deprecated
 @SuppressWarnings({"rawtypes", "unchecked", "serial"})
-public class PSContentStatusHistoryContext implements IPSContentStatusHistoryContext {
+public final class PSContentStatusHistoryContext implements IPSContentStatusHistoryContext {
 
   /**
    * Constructor specifying the workFlowID, connection, and contentID, used for read-only access to

@@ -23,6 +23,10 @@ import com.percussion.error.PSException;
  * is indicated in the exception message.
  */
 public class PSInvalidNumberOfParametersException extends PSException {
+
+  /** Serialization UID. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Construct an exception for messages taking locale and msgCode arguments.
    *
@@ -78,10 +82,10 @@ public class PSInvalidNumberOfParametersException extends PSException {
    *
    * @return can be <code>null</code>.
    */
-  public Object[] getParams() {
+  public String[] getParams() {
     return m_params;
   }
 
   /** Array of arguments. */
-  Object[] m_params = null;
+  private String[] m_params = null;
 }
