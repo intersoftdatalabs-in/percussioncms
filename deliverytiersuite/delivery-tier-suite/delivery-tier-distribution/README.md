@@ -38,6 +38,20 @@ See `InstallerUserSettings` and `com.intsof.common:utilities`.
 | Embedded DB (new install)   | **H2** under `Deployment/Server/h2data/` (`-Dperc.h2.data.home`)                      |
 | Shared JDBC on `common/lib` | H2 + external drivers (jTDS, MariaDB, MSSQL, Oracle, HikariCP) — **not** Apache Derby |
 
+### Windows service logging (issue #938)
+
+When DTS runs as a **Windows service**, Procrun redirects JVM stdout/stderr to:
+
+```text
+Deployment/Server/logs/catalina.log
+```
+
+This matches Linux `CATALINA_OUT=${CATALINA_HOME}/logs/catalina.log` in
+`DTSProductionService.sh` / `DTSStagingService.sh`. Installers also set the Log4j
+JUL bridge and `log4j.configurationFile` to `log4j2/conf/log4j2-tomcat.xml`
+(service mode does not run `setenv.bat`). Operator details:
+`src/main/rootFiles/README-windows-service.md`.
+
 **HTTPS (Tomcat 11):** `conf/server.xml` uses nested `<SSLHostConfig>` / `<Certificate>` (legacy Connector `keystoreFile` attributes no longer create a default SSL host config). Keystore defaults: `conf/.keystore`, type **PKCS12**, password from `conf/perc/perc-catalina.properties`.
 
 **Derby:** Not packaged into the shipping Tomcat `common/lib`. Upgrade-time Derby→H2 migration still runs offline from `installDts.xml` (`PSMigrateDtsEmbeddedRepository` / `PSUpgradeDerby` via perc-ant). Do not re-add `org.apache.derby` cargo container dependencies without an explicit migration-window reason.
