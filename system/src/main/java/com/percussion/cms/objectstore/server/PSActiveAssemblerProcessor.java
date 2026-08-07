@@ -99,7 +99,7 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
 
     // build the insert set starting the sortrank at the supplied index
     PSRelationshipSet inserts = new PSRelationshipSet();
-    Iterator dependentKeys = dependents.iterator();
+    Iterator<?> dependentKeys = dependents.iterator();
     while (dependentKeys.hasNext()) {
       PSDependent dependent = (PSDependent) dependentKeys.next();
       PSRelationship relationship = new PSRelationship(-1, owner, dependent.getLocator(), config);
@@ -150,7 +150,7 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
       String resource =
           PSRelationshipUtils.SYS_PSXRELATIONSHIPSUPPORT + "/" + SLOT_RELATIONSHIP_LOOKUP;
 
-      Map params = new HashMap();
+      Map<String, Object> params = new HashMap<>();
       params.put(IPSHtmlParameters.SYS_SLOTID, slotid);
 
       IPSInternalRequest ir = request.getInternalRequest(resource, params, false);
@@ -187,17 +187,13 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
 
     if (dependents == null) throw new IllegalArgumentException("dependents cannot be null");
 
-    Map slotDependentMap = buildSlotDependentMap(dependents);
-    Iterator slots = slotDependentMap.keySet().iterator();
-    String slotid = null;
-    List deps = null;
-    while (slots.hasNext()) {
-      slotid = (String) slots.next();
-      deps = (List) slotDependentMap.get(slotid);
+    Map<String, List<PSDependent>> slotDependentMap = buildSlotDependentMap(dependents);
+    for (Map.Entry<String, List<PSDependent>> entry : slotDependentMap.entrySet()) {
+      String slotid = entry.getKey();
+      List<PSDependent> deps = entry.getValue();
       if (deps == null) continue;
       int relationshipIds[] = new int[dependents.size()];
-      for (int i = 0; i < deps.size(); i++)
-        relationshipIds[i] = ((PSDependent) deps.get(i)).getRelationshipId();
+      for (int i = 0; i < deps.size(); i++) relationshipIds[i] = deps.get(i).getRelationshipId();
       delete(getConfigForSlot(m_request, slotid).getName(), owner, relationshipIds);
     }
   }
@@ -211,17 +207,13 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
 
     if (dependents == null) throw new IllegalArgumentException("dependents cannot be null");
 
-    Map slotDependentMap = buildSlotDependentMap(dependents);
-    Iterator slots = slotDependentMap.keySet().iterator();
-    String slotid = null;
-    List deps = null;
-    while (slots.hasNext()) {
-      slotid = (String) slots.next();
-      deps = (List) slotDependentMap.get(slotid);
+    Map<String, List<PSDependent>> slotDependentMap = buildSlotDependentMap(dependents);
+    for (Map.Entry<String, List<PSDependent>> entry : slotDependentMap.entrySet()) {
+      String slotid = entry.getKey();
+      List<PSDependent> deps = entry.getValue();
       if (deps == null) continue;
       int relationshipIds[] = new int[dependents.size()];
-      for (int i = 0; i < deps.size(); i++)
-        relationshipIds[i] = ((PSDependent) deps.get(i)).getRelationshipId();
+      for (int i = 0; i < deps.size(); i++) relationshipIds[i] = deps.get(i).getRelationshipId();
       delete(getConfigForSlot(m_request, slotid).getName(), owner, relationshipIds);
     }
   }
@@ -234,17 +226,16 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
    * @return map of slotid (String) and dependents for this slot (List), never <code>null</code> may
    *     be empty.
    */
-  private Map buildSlotDependentMap(PSDependentSet dependents) {
-    Map slotDependentMap = new HashMap();
-    PSDependent dependent = null;
+  private Map<String, List<PSDependent>> buildSlotDependentMap(PSDependentSet dependents) {
+    Map<String, List<PSDependent>> slotDependentMap = new HashMap<>();
     for (int i = 0; i < dependents.size(); i++) {
-      dependent = (PSDependent) dependents.get(i);
+      PSDependent dependent = (PSDependent) dependents.get(i);
       PSPropertySet props = dependent.getProperties();
       String slotid = props.getProperty(IPSHtmlParameters.SYS_SLOTID).getValue().toString();
       if (slotid == null || slotid.length() < 1) continue;
-      List deps = (List) slotDependentMap.get(slotid);
+      List<PSDependent> deps = slotDependentMap.get(slotid);
       if (deps == null) {
-        deps = new ArrayList();
+        deps = new ArrayList<>();
         slotDependentMap.put(slotid, deps);
       }
       deps.add(dependent);
@@ -336,7 +327,7 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
             slotId);
 
     // create a map sorted based on the sort rank property
-    Map relationshipMap = new TreeMap();
+    Map<Integer, PSRelationshipSet> relationshipMap = new TreeMap<>();
     for (int i = 0; i < relationships.size(); i++) {
       PSRelationship relationship = (PSRelationship) relationships.get(i);
       String sortRank = relationship.getProperty(IPSHtmlParameters.SYS_SORTRANK);
@@ -354,7 +345,7 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
         throw new PSCmsException(IPSCmsErrors.INVALID_RELATIONSHIP_PROP_VALUE, args);
       }
 
-      PSRelationshipSet set = (PSRelationshipSet) relationshipMap.get(intRank);
+      PSRelationshipSet set = relationshipMap.get(intRank);
       if (set == null) {
         set = new PSRelationshipSet();
         relationshipMap.put(intRank, set);
@@ -364,10 +355,8 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
     }
 
     PSRelationshipSet resultSet = new PSRelationshipSet();
-    Iterator keys = relationshipMap.keySet().iterator();
-    while (keys.hasNext()) {
-      Integer key = (Integer) keys.next();
-      resultSet.addAll((PSRelationshipSet) relationshipMap.get(key));
+    for (PSRelationshipSet set : relationshipMap.values()) {
+      resultSet.addAll(set);
     }
     normalizeSortRank(resultSet);
 
@@ -404,11 +393,9 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
 
     PSRelationshipSet updates = new PSRelationshipSet();
 
-    Map slotDepMap = buildSlotDependentMap(dependents);
-    Iterator slots = slotDepMap.keySet().iterator();
+    Map<String, List<PSDependent>> slotDepMap = buildSlotDependentMap(dependents);
     PSRelationshipSet relationships = new PSRelationshipSet();
-    while (slots.hasNext()) {
-      String slotid = (String) slots.next();
+    for (String slotid : slotDepMap.keySet()) {
       relationships.addAll(getDependents(getConfigForSlot(m_request, slotid).getName(), owner));
     }
 
@@ -433,7 +420,7 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
    *     assumed not <code>null</code>.
    */
   private void updateProperties(PSRelationship relationship, PSDependent dependent) {
-    Iterator properties = dependent.getProperties().iterator();
+    Iterator<?> properties = dependent.getProperties().iterator();
     while (properties.hasNext()) {
       PSProperty property = (PSProperty) properties.next();
       Object value = property.getValue();
@@ -452,7 +439,8 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
    *     null</code> otherwise.
    * @throws PSCmsException if the supplied list contains invalid locators.
    */
-  private PSDependent contains(Iterator list, PSRelationship relationship) throws PSCmsException {
+  private PSDependent contains(Iterator<?> list, PSRelationship relationship)
+      throws PSCmsException {
     while (list.hasNext()) {
       PSDependent dependent = (PSDependent) list.next();
       int test = dependent.getRelationshipId();
@@ -475,7 +463,7 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   private String checkPropertyValue(String propertyName, int owner, PSDependentSet dependents)
       throws PSCmsException {
     String propVal = null;
-    Iterator deps = dependents.iterator();
+    Iterator<?> deps = dependents.iterator();
     while (deps.hasNext()) {
       PSDependent dep = (PSDependent) deps.next();
       PSPropertySet props = dep.getProperties();

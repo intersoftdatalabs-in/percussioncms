@@ -48,7 +48,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    *     <code>null</code>.
    * @param procConfig The parameters from the config file. This is not needed.
    */
-  public PSRelationshipProcessor(IPSRemoteRequester conn, Map procConfig) {
+  public PSRelationshipProcessor(IPSRemoteRequester conn, Map<?, ?> procConfig) {
     if (null == conn) {
       throw new IllegalArgumentException("Connection information must be supplied.");
     }
@@ -65,7 +65,8 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    *
    * @throws UnsupportedOperationException Always.
    */
-  public void add(String componentType, String relationshipType, List children, PSKey targetParent)
+  public void add(
+      String componentType, String relationshipType, List<?> children, PSKey targetParent)
       throws PSCmsException {
     throw new UnsupportedOperationException("Not supported by this processor.");
   }
@@ -106,7 +107,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
     PSLocator pslocator = (PSLocator) locator;
     PSComponentSummaries summaries = null;
 
-    Map params = new HashMap();
+    Map<String, String> params = new HashMap<>();
     params.put(PARAM_ID, Integer.toString(pslocator.getId()));
     params.put(PARAM_REVISION, Integer.toString(pslocator.getRevision()));
     params.put(PARAM_METHOD, method);
@@ -141,7 +142,8 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    *
    * @throws UnsupportedOperationException Always.
    */
-  public void move(String relationshipType, PSKey sourceParent, List children, PSKey targetParent)
+  public void move(
+      String relationshipType, PSKey sourceParent, List<?> children, PSKey targetParent)
       throws PSCmsException {
     throw new UnsupportedOperationException("Not supported by this processor.");
   }
@@ -151,7 +153,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    *
    * @throws UnsupportedOperationException Always.
    */
-  public void copy(String relationshipType, List children, PSKey parent) throws PSCmsException {
+  public void copy(String relationshipType, List<?> children, PSKey parent) throws PSCmsException {
     throw new UnsupportedOperationException("Not supported by this processor.");
   }
 
@@ -160,7 +162,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    *
    * @throws UnsupportedOperationException Always.
    */
-  public void delete(String type, PSKey parent, List children) throws PSCmsException {
+  public void delete(String type, PSKey parent, List<?> children) throws PSCmsException {
     throw new UnsupportedOperationException("Not supported by this processor.");
   }
 
@@ -193,7 +195,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    *
    * @throws UnsupportedOperationException Always.
    */
-  public void add(String relationshipType, List children, PSLocator targetParent)
+  public void add(String relationshipType, List<?> children, PSLocator targetParent)
       throws PSCmsException {
     throw new UnsupportedOperationException(
         "getRelationships() is not implemented in : " + this.getClass().getName());
@@ -217,7 +219,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    * @throws UnsupportedOperationException Always.
    */
   public void move(
-      String relationshipType, PSLocator sourceParent, List children, PSLocator targetParent)
+      String relationshipType, PSLocator sourceParent, List<?> children, PSLocator targetParent)
       throws PSCmsException {
     throw new UnsupportedOperationException(
         "move() is not implemented in : " + this.getClass().getName());
@@ -244,7 +246,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
 
     PSComponentSummaries summaries = null;
 
-    Map params = new HashMap();
+    Map<String, String> params = new HashMap<>();
     Document inputDoc = PSXmlDocumentBuilder.createXmlDocument();
     String rFilter = PSXmlDocumentBuilder.toString(filter.toXml(inputDoc));
     params.put(PARAM_OWNER, Boolean.toString(owner));

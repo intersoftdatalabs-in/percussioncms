@@ -192,8 +192,8 @@ public class PSRemoteAgent {
    *     but may be empty.
    * @throws PSRemoteException if an error occurs.
    */
-  public List getCommunities() throws PSRemoteException {
-    List communities = new ArrayList();
+  public List<PSEntry> getCommunities() throws PSRemoteException {
+    List<PSEntry> communities = new ArrayList<>();
     try {
       Document doc =
           m_requester.getRemoteRequester().getDocument("sys_cmpCommunities/communities.xml", null);
@@ -235,7 +235,7 @@ public class PSRemoteAgent {
    *     but may be empty.
    * @throws PSRemoteException if an error occurs.
    */
-  public List getContentTypes(PSEntry community) throws PSRemoteException {
+  public List<PSEntry> getContentTypes(PSEntry community) throws PSRemoteException {
     if (community == null) throw new IllegalArgumentException("community may not be null");
 
     return getCTypesOrWorkflows(community, "contenttypelookup.xml");
@@ -250,7 +250,7 @@ public class PSRemoteAgent {
    *     but may be empty.
    * @throws PSRemoteException if an error occurs.
    */
-  public List getWorkflows(PSEntry community) throws PSRemoteException {
+  public List<PSEntry> getWorkflows(PSEntry community) throws PSRemoteException {
     if (community == null) throw new IllegalArgumentException("community may not be null");
 
     return getCTypesOrWorkflows(community, "workflowlookup.xml");
@@ -267,11 +267,12 @@ public class PSRemoteAgent {
    *     but may be empty.
    * @throws PSRemoteException if an error occurs.
    */
-  private List getCTypesOrWorkflows(PSEntry community, String resource) throws PSRemoteException {
-    List entries = new ArrayList();
+  private List<PSEntry> getCTypesOrWorkflows(PSEntry community, String resource)
+      throws PSRemoteException {
+    List<PSEntry> entries = new ArrayList<>();
 
     try {
-      Map params = new HashMap();
+      Map<String, String> params = new HashMap<>();
       params.put("communityid", community.getValue());
       Document doc =
           m_requester.getRemoteRequester().getDocument("sys_commSupport/" + resource, params);
@@ -318,13 +319,13 @@ public class PSRemoteAgent {
    *     name.
    * @throws PSRemoteException if an error occurs.
    */
-  public List getTransitions(PSEntry workflow) throws PSRemoteException {
+  public List<PSEntry> getTransitions(PSEntry workflow) throws PSRemoteException {
     if (workflow == null) throw new IllegalArgumentException("workflow may not be null");
 
-    List entries = new ArrayList();
+    List<PSEntry> entries = new ArrayList<>();
 
     try {
-      Map params = new HashMap();
+      Map<String, String> params = new HashMap<>();
       params.put(IPSHtmlParameters.SYS_WORKFLOWID, workflow.getValue());
       Document doc =
           m_requester
@@ -378,7 +379,7 @@ public class PSRemoteAgent {
    */
   public String getLastTransitionComment(int contentId) throws PSRemoteException {
     try {
-      Map params = new HashMap();
+      Map<String, String> params = new HashMap<>();
       params.put(IPSHtmlParameters.SYS_CONTENTID, Integer.toString(contentId));
 
       Document doc =
@@ -404,8 +405,8 @@ public class PSRemoteAgent {
    *     but may be empty.
    * @throws PSRemoteException if an error occurs.
    */
-  public List getContextVariables() throws PSRemoteException {
-    List entries = new ArrayList();
+  public List<PSEntry> getContextVariables() throws PSRemoteException {
+    List<PSEntry> entries = new ArrayList<>();
 
     try {
       Document doc =
@@ -542,10 +543,10 @@ public class PSRemoteAgent {
    * @return List of <code>String</code> objects, never <code>null</code>, may be empty.
    * @throws PSRemoteException if content type not exist or any other error occurs.
    */
-  public List getFieldNames(String contentTypeId) throws PSRemoteException {
+  public List<String> getFieldNames(String contentTypeId) throws PSRemoteException {
     PSClientItem clientItem = newItem(contentTypeId);
-    Iterator itor = clientItem.getAllFieldNames();
-    List list = new ArrayList();
+    Iterator<String> itor = clientItem.getAllFieldNames();
+    List<String> list = new ArrayList<>();
     while (itor.hasNext()) list.add(itor.next());
     return list;
   }
@@ -596,9 +597,9 @@ public class PSRemoteAgent {
     // binary data
     Map<String, Object> params = new HashMap<>();
     List<PSBinaryFileData> files = new ArrayList<>();
-    Iterator it = item.getAllFields();
+    Iterator<PSItemField> it = item.getAllFields();
     while (it.hasNext()) {
-      PSItemField field = (PSItemField) it.next();
+      PSItemField field = it.next();
       PSItemFieldMeta meta = field.getItemFieldMeta();
 
       try {
@@ -750,7 +751,7 @@ public class PSRemoteAgent {
    *     </code>.
    * @throws PSRemoteException if an error occurs.
    */
-  public void removeComponentsFromFolder(PSKey parent, List children) throws PSRemoteException {
+  public void removeComponentsFromFolder(PSKey parent, List<?> children) throws PSRemoteException {
     if (parent == null) throw new IllegalArgumentException("parent may not be null");
 
     if (children == null) throw new IllegalArgumentException("children may not be null");
@@ -954,15 +955,15 @@ public class PSRemoteAgent {
 
     IPSRemoteRequesterEx requester = (IPSRemoteRequesterEx) m_requester.getRemoteRequester();
     String app_resource = getAppResource(item);
-    Iterator it = item.getAllFields();
+    Iterator<PSItemField> it = item.getAllFields();
     // Set up common params
-    Map params = new HashMap(4);
+    Map<String, Object> params = new HashMap<>(4);
     params.put(IPSHtmlParameters.SYS_COMMAND, "binary");
     params.put(IPSHtmlParameters.SYS_CONTENTID, Integer.toString(item.getContentId()));
     params.put(IPSHtmlParameters.SYS_REVISION, Integer.toString(item.getRevision()));
 
     while (it.hasNext()) {
-      PSItemField field = (PSItemField) it.next();
+      PSItemField field = it.next();
       PSItemFieldMeta meta = field.getItemFieldMeta();
 
       if (meta.isBinary()) {
@@ -1052,10 +1053,8 @@ public class PSRemoteAgent {
   private Element sendRequest(String action, String wsdlPort, Element params, String respElement)
       throws PSRemoteException {
     // set community and locale if available
-    Map extraParams = null;
-    extraParams = new HashMap();
+    Map<String, String> extraParams = new HashMap<>();
     if (m_community != null || m_locale != null) {
-      extraParams = new HashMap();
       if (m_community != null) extraParams.put(IPSHtmlParameters.SYS_COMMUNITY, m_community);
       if (m_locale != null) extraParams.put(IPSHtmlParameters.SYS_LANG, m_locale);
     }
