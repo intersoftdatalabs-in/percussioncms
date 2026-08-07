@@ -69,6 +69,10 @@ cd modules/perc-distribution-tree
 ../../mvnw clean install
 ```
 
+### GitHub Release checksums
+
+When publishing `perc-distribution-tree.jar` on a GitHub Release, hash the **final** JAR after upload and attach a matching `perc-distribution-tree.jar.sha256` (never reuse an interim build checksum). Operator checklist: [docs/release/github-release-assets-checklist.md](../../docs/release/github-release-assets-checklist.md).
+
 ## Key Files
 
 - **`src/main/resources/installDistributionFiles.xml`**: ANT build script that assembles the distribution
