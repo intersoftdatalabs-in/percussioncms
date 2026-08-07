@@ -2,11 +2,13 @@
 
 Operator CLI for diagnosing and safely cleaning Percussion CMS install trees.
 
-**Issues:** [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213) (parent), [#2217](https://github.com/intersoftdatalabs-in/percussioncms/issues/2217) (`clean-install-backups`), [#2218](https://github.com/intersoftdatalabs-in/percussioncms/issues/2218) (`clean-logs`)  
+**Issues:** [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213) (parent), [#2217](https://github.com/intersoftdatalabs-in/percussioncms/issues/2217) (`clean-install-backups`), [#2218](https://github.com/intersoftdatalabs-in/percussioncms/issues/2218) (`clean-logs`), [#2220](https://github.com/intersoftdatalabs-in/percussioncms/issues/2220) (dist packaging + install guide)  
 **Package:** `com.intsof.percussioncms.doctor`  
 **Shipped commands:** `clean-heap-dumps`, `clean-install-backups`, `clean-logs` with global `--dry-run` / `--install-root` / `-v`
 
-Later slices (tracked on #2213 / residual issues): admin HTTP API, distribution `bin` packaging.
+**Operator install guide (dry-run-first examples):** [docs/operator-install-guide.md](docs/operator-install-guide.md)
+
+Later slices (tracked on #2213 / residual issues): admin HTTP API.
 
 ## Build
 
@@ -22,19 +24,51 @@ Windows:
 ..\..\mvnw.cmd clean install
 ```
 
-## Run
+Produces:
+
+| Output | Description |
+|--------|-------------|
+| `target/perc-doctor-8.2.0-SNAPSHOT.jar` | Runnable jar (`Main-Class` = `DoctorCli`; no runtime deps) |
+| `target/perc-doctor-8.2.0-SNAPSHOT-dist.zip` | Install layout: `bin/perc-doctor`, `bin/perc-doctor.bat`, `bin/perc-doctor.jar` |
+| `target/perc-doctor-8.2.0-SNAPSHOT-dist/` | Exploded dist layout |
+
+CMS distribution (`modules/perc-distribution-tree`) unpacks the `dist` classifier zip into the install assembly so operators get the launchers under `<install-root>/bin`.
+
+## Run from a CMS install (preferred)
+
+```bash
+# Linux / macOS — dry-run first
+/opt/Percussion/bin/perc-doctor --dry-run -v clean-heap-dumps
+
+# Windows — dry-run first
+C:\Percussion\bin\perc-doctor.bat --dry-run -v clean-heap-dumps
+```
+
+Wrappers default `--install-root` to the parent of `bin/` (portable; no hardcoded user home). Override with `--install-root` when needed.
+
+## Run from a module build
 
 ```bash
 java -jar target/perc-doctor-8.2.0-SNAPSHOT.jar [options] <command> [command-options]
 ```
 
-Or with the compiled classes on the classpath (after install).
+Or via the exploded dist:
+
+```bash
+./target/perc-doctor-8.2.0-SNAPSHOT-dist/bin/perc-doctor --help
+```
+
+Windows:
+
+```bat
+target\perc-doctor-8.2.0-SNAPSHOT-dist\bin\perc-doctor.bat --help
+```
 
 ### Global options
 
 | Flag | Meaning |
 |------|---------|
-| `--install-root <path>` | CMS install root (default: current working directory) |
+| `--install-root <path>` | CMS install root (default: current working directory for raw jar; parent of `bin/` for wrappers) |
 | `--dry-run` | Report only — **never** deletes or writes |
 | `-v` / `--verbose` | Path-level detail |
 | `-h` / `--help` | Usage |
@@ -141,5 +175,4 @@ java -jar target/perc-doctor-8.2.0-SNAPSHOT.jar \
 
 ## Deferred (not in this module slice)
 
-- Admin-authenticated HTTP API mirroring CLI
-- Distribution packaging (`bin/perc-doctor` / fat jar in install tree)
+- Admin-authenticated HTTP API mirroring CLI ([#2219](https://github.com/intersoftdatalabs-in/percussioncms/issues/2219))

@@ -54,6 +54,31 @@
                     </archive>
                 </configuration>
             </plugin>
+            <!--
+              Operator dist layout (issue #2220): bin/perc-doctor{.bat} + bin/perc-doctor.jar.
+              Attached as classifier "dist" (zip + exploded dir under target). Zero runtime deps,
+              so the Main-Class jar is the runnable "fat" artifact for distribution.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>perc-doctor-dist</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/dist-bin.xml</descriptor>
+                            </descriptors>
+                            <appendAssemblyId>true</appendAssemblyId>
+                            <attach>true</attach>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
