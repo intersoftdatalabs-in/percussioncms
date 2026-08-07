@@ -80,9 +80,21 @@ public class PSInvalidNumberOfParametersException extends PSException {
   /**
    * Get an array of arguments set.
    *
+   * <p>Return type is {@code Object[]} to preserve binary compatibility with pre-compiled callers
+   * (method descriptors include return type). Runtime content is a {@code String[]} when non-null.
+   *
    * @return can be <code>null</code>.
    */
-  public String[] getParams() {
+  public Object[] getParams() {
+    return m_params;
+  }
+
+  /**
+   * Typed view of {@link #getParams()}.
+   *
+   * @return the stored string params, or {@code null}
+   */
+  public String[] getTypedParams() {
     return m_params;
   }
 
