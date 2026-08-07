@@ -127,4 +127,55 @@ class DoctorCliTest {
     assertEquals(DoctorCli.EXIT_ERROR, code);
     assertTrue(errBuf.toString(StandardCharsets.UTF_8).toLowerCase().contains("install root"));
   }
+
+  @Test
+  void cleanInstallBackupsDryRunViaCliDoesNotDelete() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("install-bak"));
+    Path bak = root.resolve("config.properties.backup");
+    Path zip = root.resolve("AppServer_backup_20260101.zip");
+    Files.writeString(bak, "bak");
+    Files.write(zip, "zip".getBytes(StandardCharsets.UTF_8));
+
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {
+              "--install-root", root.toString(), "--dry-run", "-v", "clean-install-backups"
+            },
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+
+    assertEquals(DoctorCli.EXIT_OK, code);
+    assertTrue(Files.exists(bak));
+    assertTrue(Files.exists(zip));
+    String out = outBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(out.contains("command=clean-install-backups"));
+    assertTrue(out.contains("dry-run=true"));
+    assertTrue(out.contains("candidates=2"));
+    assertTrue(out.contains("WOULD_DELETE"));
+  }
+
+  @Test
+  void cleanInstallBackupsApplyViaCliDeletesAllowlistedOnly() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("install-bak-apply"));
+    Path bak = root.resolve("x.bak");
+    Path keep = root.resolve("server.log");
+    Files.writeString(bak, "bak");
+    Files.writeString(keep, "log");
+
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {"--install-root", root.toString(), "clean-install-backups"},
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+
+    assertEquals(DoctorCli.EXIT_OK, code);
+    assertFalse(Files.exists(bak));
+    assertTrue(Files.exists(keep));
+    String out = outBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(out.contains("deleted=1"));
+  }
 }

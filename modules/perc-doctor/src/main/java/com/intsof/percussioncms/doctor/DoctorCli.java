@@ -27,7 +27,7 @@ import java.nio.file.Path;
  * perc-doctor [--install-root &lt;path&gt;] [--dry-run] [-v|--verbose] &lt;command&gt;
  * </pre>
  *
- * <p>Slice 1 command: {@code clean-heap-dumps}.
+ * <p>Commands: {@code clean-heap-dumps}, {@code clean-install-backups}.
  */
 public final class DoctorCli {
 
@@ -72,7 +72,11 @@ public final class DoctorCli {
     }
 
     if (parsed.command == null || parsed.command.isEmpty()) {
-      err.println("Error: missing command. Try: clean-heap-dumps");
+      err.println(
+          "Error: missing command. Try: "
+              + CleanHeapDumpsCommand.COMMAND_NAME
+              + " or "
+              + CleanInstallBackupsCommand.COMMAND_NAME);
       printHelp(err);
       return EXIT_USAGE;
     }
@@ -88,8 +92,17 @@ public final class DoctorCli {
         printReport(report, parsed.verbose, out);
         return report.getFailedCount() > 0 ? EXIT_ERROR : EXIT_OK;
       }
+      if (CleanInstallBackupsCommand.COMMAND_NAME.equals(parsed.command)) {
+        CleanReport report = CleanInstallBackupsCommand.execute(installRoot, parsed.dryRun);
+        printReport(report, parsed.verbose, out);
+        return report.getFailedCount() > 0 ? EXIT_ERROR : EXIT_OK;
+      }
       err.println("Error: unknown command: " + parsed.command);
-      err.println("Supported commands (slice 1): " + CleanHeapDumpsCommand.COMMAND_NAME);
+      err.println(
+          "Supported commands: "
+              + CleanHeapDumpsCommand.COMMAND_NAME
+              + ", "
+              + CleanInstallBackupsCommand.COMMAND_NAME);
       printHelp(err);
       return EXIT_USAGE;
     } catch (IllegalArgumentException e) {
@@ -145,7 +158,9 @@ public final class DoctorCli {
   private static void printHelp(PrintStream stream) {
     stream.println("usage: perc-doctor [options] <command>");
     stream.println();
-    stream.println("CMS Doctor — safe install-tree maintenance (slice 1: clean-heap-dumps).");
+    stream.println(
+        "CMS Doctor — safe install-tree maintenance"
+            + " (clean-heap-dumps, clean-install-backups).");
     stream.println();
     stream.println("Options:");
     stream.println("  --install-root <path>  CMS install root (default: current working directory)");
@@ -155,10 +170,16 @@ public final class DoctorCli {
     stream.println();
     stream.println("Commands:");
     stream.println("  clean-heap-dumps       Remove recursive *.hprof under install root");
+    stream.println(
+        "  clean-install-backups  Remove allowlisted installer/upgrade backups"
+            + " (*.bak, *.backup, AppServer_backup_*.zip)");
     stream.println();
     stream.println("Examples:");
     stream.println("  perc-doctor --install-root /opt/Percussion --dry-run clean-heap-dumps");
     stream.println("  perc-doctor --install-root C:\\Percussion -v clean-heap-dumps");
+    stream.println(
+        "  perc-doctor --install-root /opt/Percussion --dry-run -v clean-install-backups");
+    stream.println("  perc-doctor --install-root C:\\Percussion -v clean-install-backups");
   }
 
   static void printReport(CleanReport report, boolean verbose, PrintStream out) {

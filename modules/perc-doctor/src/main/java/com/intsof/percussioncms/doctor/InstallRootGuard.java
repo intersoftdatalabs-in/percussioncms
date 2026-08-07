@@ -129,4 +129,52 @@ public final class InstallRootGuard {
     String lower = fileName.toLowerCase(Locale.ROOT);
     return lower.endsWith(".hprof");
   }
+
+  /**
+   * Allowlisted installer / upgrade backup file name for {@code clean-install-backups}.
+   *
+   * <p>Patterns are drawn from {@code perc-distribution-tree} installer and assembly excludes —
+   * not arbitrary user globs:
+   *
+   * <ul>
+   *   <li>{@code AppServer_backup_&lt;timestamp&gt;.zip} (see {@code install.xml} {@code
+   *       zip_AppServer})
+   *   <li>any file ending with {@code .bak} (assembly / install excludes)
+   *   <li>any file ending with {@code .backup} (assembly / install excludes; includes known
+   *       {@code *.properties.backup} such as {@code Navigation.properties.backup})
+   * </ul>
+   *
+   * <p>Matching is case-insensitive. Path separators in {@code fileName} are rejected.
+   *
+   * @param fileName bare file name (not a path)
+   * @return true if the name matches an allowlisted install-backup pattern
+   */
+  public static boolean isInstallBackupFileName(String fileName) {
+    if (fileName == null || fileName.isEmpty()) {
+      return false;
+    }
+    // Reject path separators smuggled into a "name"
+    if (fileName.indexOf('/') >= 0 || fileName.indexOf('\\') >= 0) {
+      return false;
+    }
+    String lower = fileName.toLowerCase(Locale.ROOT);
+    if (lower.endsWith(".bak") || lower.endsWith(".backup")) {
+      return true;
+    }
+    // AppServer_backup_${timestamp}.zip — require non-empty timestamp segment
+    return isAppServerBackupZipName(lower);
+  }
+
+  /**
+   * {@code AppServer_backup_<timestamp>.zip} with a non-empty timestamp (case already folded).
+   */
+  static boolean isAppServerBackupZipName(String lowerFileName) {
+    final String prefix = "appserver_backup_";
+    final String suffix = ".zip";
+    if (!lowerFileName.startsWith(prefix) || !lowerFileName.endsWith(suffix)) {
+      return false;
+    }
+    int midLen = lowerFileName.length() - prefix.length() - suffix.length();
+    return midLen > 0;
+  }
 }
