@@ -42,7 +42,7 @@ import org.w3c.dom.Element;
  * application, exit, etc.
  */
 public abstract class PSDependency
-    implements IPSDependencyBaseline, IPSDeployComponent, Comparable {
+    implements IPSDependencyBaseline, IPSDeployComponent, Comparable<PSDependency> {
 
   private static final Logger log = LogManager.getLogger(PSDependency.class);
 
@@ -302,17 +302,18 @@ public abstract class PSDependency
    * @throws IllegalArgumentException if <code>dependencies</code> contains a <code>null</code>
    *     element.
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public void setDependencies(Iterator dependencies) {
     if (m_dependencies != null) {
       // clear the parent dependency on any current children
-      for (Iterator children = m_dependencies.iterator(); children.hasNext(); ) {
-        PSDependency child = (PSDependency) children.next();
+      for (Iterator<PSDependency> children = m_dependencies.iterator(); children.hasNext(); ) {
+        PSDependency child = children.next();
         child.setParentDependency(null);
       }
     }
     if (dependencies == null) m_dependencies = null;
     else {
-      m_dependencies = new TreeSet();
+      m_dependencies = new TreeSet<>();
       while (dependencies.hasNext()) {
         PSDependency dep = (PSDependency) dependencies.next();
         if (dep == null)
@@ -376,7 +377,7 @@ public abstract class PSDependency
   public String printDependencyTree() {
     StringBuilder buf = new StringBuilder();
 
-    printDependencyTree(buf, new ArrayList(), "");
+    printDependencyTree(buf, new ArrayList<PSDependency>(), "");
 
     return buf.toString();
   }
@@ -551,9 +552,9 @@ public abstract class PSDependency
 
     boolean removed = false;
 
-    Iterator deps = m_dependencies.iterator();
+    Iterator<PSDependency> deps = m_dependencies.iterator();
     while (deps.hasNext() && !removed) {
-      PSDependency dep = (PSDependency) deps.next();
+      PSDependency dep = deps.next();
       if (dep.getDependencyType() == PSDependency.TYPE_USER) {
         PSUserDependency userDep = (PSUserDependency) dep;
         if (userDep.getPath().getPath().equals(path.getPath())) {
@@ -689,7 +690,7 @@ public abstract class PSDependency
 
     if (dep.getKey().equals(getKey())) found = true;
     else {
-      List checked = new ArrayList();
+      List<PSDependency> checked = new ArrayList<>();
       found = containsDependency(dep, checked);
     }
 
@@ -747,8 +748,8 @@ public abstract class PSDependency
       }
     } else {
       // search all dependencies
-      List checked = new ArrayList();
-      List parentStack = new ArrayList();
+      List<PSDependency> checked = new ArrayList<>();
+      List<PSDependency> parentStack = new ArrayList<>();
       included = includesDependency(dep, sameInstance, parentStack, checked);
     }
     return included;
@@ -776,10 +777,10 @@ public abstract class PSDependency
    * @throws IllegalArgumentException if obj is <code>null</code>
    * @throws ClassCastException if obj is not an instance of PSDependency.
    */
-  public int compareTo(Object obj) {
-    if (obj == null) throw new IllegalArgumentException("obj may not be null");
+  @Override
+  public int compareTo(PSDependency dep) {
+    if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
-    PSDependency dep = (PSDependency) obj;
     int result = getDisplayIdentifier().compareToIgnoreCase(dep.getDisplayIdentifier());
     if (result == 0) result = getDependencyId().compareToIgnoreCase(dep.getDependencyId());
 
@@ -821,10 +822,10 @@ public abstract class PSDependency
    * @return <code>true</code> if <code>dep</code> is one of this dependency's children,
    *     recursively, <code>false</code> otherwise.
    */
-  private boolean containsDependency(PSDependency dep, List checked) {
-    Iterator checkedDeps = checked.iterator();
+  private boolean containsDependency(PSDependency dep, List<PSDependency> checked) {
+    Iterator<PSDependency> checkedDeps = checked.iterator();
     while (checkedDeps.hasNext()) {
-      PSDependency checkedDep = (PSDependency) checkedDeps.next();
+      PSDependency checkedDep = checkedDeps.next();
       if (checkedDep == this) return false;
     }
     checked.add(this);
@@ -834,9 +835,9 @@ public abstract class PSDependency
     if (m_dependencies != null) {
       // first check each child dep
       String depKey = dep.getKey();
-      Iterator deps = m_dependencies.iterator();
+      Iterator<PSDependency> deps = m_dependencies.iterator();
       while (deps.hasNext() && !found) {
-        PSDependency childDep = (PSDependency) deps.next();
+        PSDependency childDep = deps.next();
         if (depKey.equals(childDep.getKey())) found = true;
       }
 
@@ -844,7 +845,7 @@ public abstract class PSDependency
       if (!found) {
         deps = m_dependencies.iterator();
         while (deps.hasNext() && !found) {
-          PSDependency child = (PSDependency) deps.next();
+          PSDependency child = deps.next();
           found = child.containsDependency(dep, checked);
         }
       }
@@ -868,10 +869,13 @@ public abstract class PSDependency
    * @return <code>true</code> if the supplied dep is included, <code>false</code> otherwise.
    */
   private boolean includesDependency(
-      PSDependency dep, boolean sameInstance, List parentStack, List checked) {
-    Iterator checkedDeps = checked.iterator();
+      PSDependency dep,
+      boolean sameInstance,
+      List<PSDependency> parentStack,
+      List<PSDependency> checked) {
+    Iterator<PSDependency> checkedDeps = checked.iterator();
     while (checkedDeps.hasNext()) {
-      PSDependency checkedDep = (PSDependency) checkedDeps.next();
+      PSDependency checkedDep = checkedDeps.next();
       if (checkedDep == this) return false;
     }
     checked.add(this);
@@ -885,9 +889,9 @@ public abstract class PSDependency
     if ((sameInstance && this == dep) || (!sameInstance && getKey().equals(dep.getKey()))) {
       // if local, walk back up the parent stack to first non-local
       if (getDependencyType() == PSDependency.TYPE_LOCAL) {
-        Iterator parents = parentStack.iterator();
+        Iterator<PSDependency> parents = parentStack.iterator();
         while (parents.hasNext()) {
-          PSDependency parent = (PSDependency) parents.next();
+          PSDependency parent = parents.next();
           if (parent.getDependencyType() != PSDependency.TYPE_LOCAL) {
             included = parent.isIncluded();
             break;
@@ -904,9 +908,9 @@ public abstract class PSDependency
       parentStack.add(0, this);
 
       // check each child dep
-      Iterator deps = m_dependencies.iterator();
+      Iterator<PSDependency> deps = m_dependencies.iterator();
       while (deps.hasNext() && !included) {
-        PSDependency child = (PSDependency) deps.next();
+        PSDependency child = deps.next();
         included = child.includesDependency(dep, sameInstance, parentStack, checked);
       }
 
@@ -945,9 +949,9 @@ public abstract class PSDependency
   public int getChildCount(boolean includedOnly) {
     int count = 0;
     if (m_dependencies != null) {
-      Iterator deps = m_dependencies.iterator();
+      Iterator<PSDependency> deps = m_dependencies.iterator();
       while (deps.hasNext()) {
-        PSDependency dep = (PSDependency) deps.next();
+        PSDependency dep = deps.next();
         if (!(dep instanceof PSDeployableElement)) {
           if ((includedOnly && dep.isIncluded()) || !includedOnly) count++;
         }
@@ -1006,10 +1010,10 @@ public abstract class PSDependency
    */
   public boolean containsIncludedDependency() {
     boolean hasIncluded = false;
-    Iterator deps = getDependencies();
+    Iterator<PSDependency> deps = getDependencies();
     if (deps != null) {
       while (deps.hasNext() && !hasIncluded) {
-        PSDependency dep = (PSDependency) deps.next();
+        PSDependency dep = deps.next();
         if (dep instanceof PSDeployableElement) continue;
         hasIncluded = (dep.getDependencyType() != PSDependency.TYPE_LOCAL) && dep.isIncluded();
         if (!hasIncluded) hasIncluded = dep.containsIncludedDependency();
@@ -1104,18 +1108,18 @@ public abstract class PSDependency
 
     if (m_dependencies != null) {
       Element deps = PSXmlDocumentBuilder.addEmptyElement(doc, root, XML_EL_DEPENDENCIES);
-      Iterator i = m_dependencies.iterator();
+      Iterator<PSDependency> i = m_dependencies.iterator();
       while (i.hasNext()) {
-        PSDependency dep = (PSDependency) i.next();
+        PSDependency dep = i.next();
         deps.appendChild(dep.toXml(doc));
       }
     }
 
     if (m_ancestors != null) {
       Element ancs = PSXmlDocumentBuilder.addEmptyElement(doc, root, XML_EL_ANCESTORS);
-      Iterator i = m_ancestors.iterator();
+      Iterator<PSDependency> i = m_ancestors.iterator();
       while (i.hasNext()) {
-        PSDependency dep = (PSDependency) i.next();
+        PSDependency dep = i.next();
         ancs.appendChild(dep.toXml(doc));
       }
     }
@@ -1184,7 +1188,7 @@ public abstract class PSDependency
     m_dependencies = null;
     Element deps = tree.getNextElement(XML_EL_DEPENDENCIES, firstFlags);
     if (deps != null) {
-      m_dependencies = new TreeSet();
+      m_dependencies = new TreeSet<>();
       Element dep = tree.getNextElement(firstFlags);
       while (dep != null) {
         PSDependency depObj;
@@ -1211,7 +1215,7 @@ public abstract class PSDependency
     m_ancestors = null;
     Element ancs = tree.getNextElement(XML_EL_ANCESTORS, firstFlags);
     if (ancs != null) {
-      m_ancestors = new TreeSet();
+      m_ancestors = new TreeSet<>();
       Element dep = tree.getNextElement(firstFlags);
       while (dep != null) {
         PSDependency depObj;
@@ -1262,13 +1266,13 @@ public abstract class PSDependency
 
     if (dep.m_ancestors == null) m_ancestors = null;
     else {
-      m_ancestors = new TreeSet();
+      m_ancestors = new TreeSet<>();
       m_ancestors.addAll(dep.m_ancestors);
     }
 
     if (dep.m_dependencies == null) m_dependencies = null;
     else {
-      m_dependencies = new TreeSet();
+      m_dependencies = new TreeSet<>();
       m_dependencies.addAll(dep.m_dependencies);
     }
   }
