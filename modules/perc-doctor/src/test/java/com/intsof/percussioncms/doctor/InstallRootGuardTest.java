@@ -125,4 +125,42 @@ class InstallRootGuardTest {
         InstallRootGuard.isUnderInstallRoot(root, siblingPrefix),
         "must not treat InstallExtra as under Install");
   }
+
+  @Test
+  void logFileNameAllowlistAndCurrentDetection() {
+    assertTrue(InstallRootGuard.isLogFileName("server.log"));
+    assertTrue(InstallRootGuard.isLogFileName("SERVER.LOG"));
+    assertTrue(InstallRootGuard.isLogFileName("catalina.out"));
+    assertTrue(InstallRootGuard.isLogFileName("catalina.2024-01-15.log.gz"));
+    assertFalse(InstallRootGuard.isLogFileName("notes.txt"));
+    assertFalse(InstallRootGuard.isLogFileName("../evil.log"));
+    assertFalse(InstallRootGuard.isLogFileName(null));
+
+    assertTrue(InstallRootGuard.isCurrentLogFileName("server.log"));
+    assertTrue(InstallRootGuard.isCurrentLogFileName("globaltemplate.log"));
+    assertTrue(InstallRootGuard.isCurrentLogFileName("catalina.out"));
+    assertFalse(InstallRootGuard.isCurrentLogFileName("server-2024-01-15-1.log"));
+    assertFalse(InstallRootGuard.isCurrentLogFileName("catalina.2024-01-15.log.gz"));
+    assertFalse(InstallRootGuard.isCurrentLogFileName("server.log.1"));
+  }
+
+  @Test
+  void existingLogDirsOnlyReturnsPresentDirsUnderRoot() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("cms-logs"));
+    Path jettyLogs =
+        Files.createDirectories(root.resolve("jetty").resolve("base").resolve("logs"));
+    // DTS dir intentionally missing
+    java.util.List<Path> dirs = InstallRootGuard.existingLogDirs(root);
+    assertEquals(1, dirs.size());
+    assertEquals(jettyLogs.toAbsolutePath().normalize(), dirs.get(0));
+  }
+
+  @Test
+  void resolveRelativeUnderRootRejectsDotDot() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("cms-rel")).toAbsolutePath().normalize();
+    Path resolved = InstallRootGuard.resolveRelativeUnderRoot(root, "jetty/base/logs");
+    assertTrue(resolved.startsWith(root));
+    assertEquals(null, InstallRootGuard.resolveRelativeUnderRoot(root, "../escape"));
+    assertEquals(null, InstallRootGuard.resolveRelativeUnderRoot(root, "a\\b"));
+  }
 }

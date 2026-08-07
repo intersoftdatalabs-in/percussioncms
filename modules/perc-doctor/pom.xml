@@ -30,7 +30,7 @@
     <name>Percussion CMS Doctor</name>
     <description>
         Operator CLI for diagnosing and safely cleaning Percussion CMS install trees
-        (heap dumps, install backups, logs — slice 1: clean-heap-dumps).
+        (heap dumps, install backups, logs).
     </description>
 
     <dependencies>
