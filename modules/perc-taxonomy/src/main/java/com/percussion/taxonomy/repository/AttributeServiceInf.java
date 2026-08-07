@@ -33,7 +33,7 @@ public interface AttributeServiceInf {
    * @param language_id the unique identifier of the language
    * @return a collection of Attribute entities matching the criteria, or an empty collection
    */
-  public Collection getAllAttributes(int taxonomy_id, int language_id);
+  public Collection<Attribute> getAllAttributes(int taxonomy_id, int language_id);
 
   /**
    * Retrieves a specific attribute by its unique identifier.
@@ -41,7 +41,7 @@ public interface AttributeServiceInf {
    * @param id the unique identifier of the attribute
    * @return the Attribute entity with the given id, or null if not found
    */
-  public Collection getAttribute(int id);
+  public Collection<Attribute> getAttribute(int id);
 
   /**
    * Removes the specified attribute from the system.
@@ -65,5 +65,5 @@ public interface AttributeServiceInf {
    * @param language_id the unique identifier of the language
    * @return a collection of Attribute names and IDs, or an empty collection
    */
-  public Collection getAttributeNames(int taxonomy_id, int language_id);
+  public Collection<Object[]> getAttributeNames(int taxonomy_id, int language_id);
 }

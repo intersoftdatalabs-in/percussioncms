@@ -31,17 +31,17 @@ public class HibernateAttributeDAO implements AttributeDAO {
 
   @Autowired private SessionFactory sessionFactory;
 
-  public Collection getAttribute(int id) {
+  public Collection<Attribute> getAttribute(int id) {
     String queryString =
         "from Attribute a left join fetch a.taxonomy left join fetch a.attribute_langs where a.id ="
             + " "
             + id;
     Session session = sessionFactory.getCurrentSession();
-    return (Collection) session.createQuery(queryString).list();
+    return session.createQuery(queryString, Attribute.class).getResultList();
   }
 
   /** Return all Attributes */
-  public Collection getAllAttributes(int taxonomy_id, int langID) {
+  public Collection<Attribute> getAllAttributes(int taxonomy_id, int langID) {
     String queryString =
         "from Attribute a left join fetch a.taxonomy left join fetch a.attribute_langs al join"
             + " fetch al.language where a.taxonomy.id = "
@@ -49,11 +49,11 @@ public class HibernateAttributeDAO implements AttributeDAO {
             + " and al.language.id = "
             + langID;
     Session session = sessionFactory.getCurrentSession();
-    return (Collection) session.createQuery(queryString).list();
+    return session.createQuery(queryString, Attribute.class).getResultList();
   }
 
   /** Return all Attribute names and IDs */
-  public Collection getAttributeNames(int taxonomy_id, int language_id) {
+  public Collection<Object[]> getAttributeNames(int taxonomy_id, int language_id) {
     String queryString =
         "select al.Name, a.id from Attribute a, Attribute_lang al where al.attribute.id = a.id and"
             + " a.taxonomy.id = "
@@ -62,7 +62,7 @@ public class HibernateAttributeDAO implements AttributeDAO {
             + language_id
             + " order by al.id";
     Session session = sessionFactory.getCurrentSession();
-    return (Collection) session.createQuery(queryString).list();
+    return session.createQuery(queryString, Object[].class).getResultList();
   }
 
   public void saveAttribute(Attribute attribute) {
