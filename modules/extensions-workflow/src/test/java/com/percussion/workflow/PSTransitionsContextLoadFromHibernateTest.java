@@ -58,9 +58,10 @@ public class PSTransitionsContextLoadFromHibernateTest {
     Field mf = Field.class.getDeclaredField("modifiers");
     mf.setAccessible(true);
     mf.setInt(f, f.getModifiers() & ~java.lang.reflect.Modifier.FINAL);
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    AtomicReference rawRef = (AtomicReference) f.get(null);
-    rawRef.set(mockWf);
+    @SuppressWarnings("unchecked")
+    AtomicReference<IPSWorkflowService> ref =
+        (AtomicReference<IPSWorkflowService>) f.get(null);
+    ref.set(mockWf);
   }
 
   @org.junit.jupiter.api.AfterEach
@@ -70,9 +71,10 @@ public class PSTransitionsContextLoadFromHibernateTest {
     Field mf = Field.class.getDeclaredField("modifiers");
     mf.setAccessible(true);
     mf.setInt(f, f.getModifiers() & ~java.lang.reflect.Modifier.FINAL);
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    AtomicReference rawRef = (AtomicReference) f.get(null);
-    rawRef.set(savedWf);
+    @SuppressWarnings("unchecked")
+    AtomicReference<IPSWorkflowService> ref =
+        (AtomicReference<IPSWorkflowService>) f.get(null);
+    ref.set(savedWf);
   }
 
   // --- loadAllFromHibernate ------------------------------------------------

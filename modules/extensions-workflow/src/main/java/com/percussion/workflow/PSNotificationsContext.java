@@ -33,7 +33,7 @@ import org.apache.logging.log4j.Logger;
  * @deprecated
  */
 @Deprecated
-public class PSNotificationsContext extends PSAbstractWorkflowContext
+public final class PSNotificationsContext extends PSAbstractWorkflowContext
     implements IPSNotificationsContext {
 
   private static final Logger log = LogManager.getLogger(PSNotificationsContext.class);
