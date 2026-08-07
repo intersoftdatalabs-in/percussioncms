@@ -57,7 +57,6 @@ import org.w3c.dom.NodeList;
  * <p>This should process after the NavTreeLink extension. It can be used multiple times to create a
  * marker for more than one slot.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
   /** Default constructor. */
@@ -88,8 +87,8 @@ public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResult
       throws PSParameterMismatchException, PSExtensionProcessingException {
     String markerName = null;
     String slotName = null;
-    List markerNames = new ArrayList();
-    List slotNames = new ArrayList();
+    List<String> markerNames = new ArrayList<>();
+    List<String> slotNames = new ArrayList<>();
 
     // first validate the exit parameters
     int paramsLength = params.length;
@@ -149,7 +148,10 @@ public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResult
    * @throws PSNavException
    */
   private void walkTreeForContent(
-      final IPSRequestContext req, final Element node, final List slotNames, final List markerNames)
+      final IPSRequestContext req,
+      final Element node,
+      final List<String> slotNames,
+      final List<String> markerNames)
       throws PSNavException {
     String relation = node.getAttribute(PSNavon.XML_ATTR_TYPE);
     ms_log.debug("Relationship is " + relation);
@@ -183,7 +185,10 @@ public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResult
    * @throws PSNavException upon any error
    */
   private boolean checkItemForContent(
-      final IPSRequestContext req, final Element node, final List slotNames, final List markerNames)
+      final IPSRequestContext req,
+      final Element node,
+      final List<String> slotNames,
+      final List<String> markerNames)
       throws PSNavException {
     int authType = PSNavUtil.getAuthType(req);
     String contentId = node.getAttribute(PSNavon.XML_ATTR_CONTENTID);
@@ -198,11 +203,11 @@ public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResult
     }
     try {
       PSLocator loc = new PSLocator(contentId, revision);
-      Set slots = getSlotNames(req, loc, authType);
+      Set<String> slots = getSlotNames(req, loc, authType);
       if (!slots.isEmpty()) {
         for (int i = 0; i < slotNames.size(); i++) {
           if (slots.contains(slotNames.get(i))) {
-            node.setAttribute((String) markerNames.get(i), "Yes");
+            node.setAttribute(markerNames.get(i), "Yes");
           }
         }
       }
@@ -226,15 +231,15 @@ public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResult
    * @return A set of all slotnames with content in it. Never <code>null</code> may be empty.
    * @throws PSNavException upon any error
    */
-  private Set getSlotNames(final IPSRequestContext req, PSLocator parent, int authType)
+  private Set<String> getSlotNames(final IPSRequestContext req, PSLocator parent, int authType)
       throws PSNavException {
     String resource = PSAuthTypes.getInstance().getResourceForAuthtype("" + authType);
     if (resource == null || resource.length() == 0) {
       String[] args = {"" + authType, PSAuthTypes.getInstance().getConfigFile().getAbsolutePath()};
       throw new PSNavException(new PSCmsException(IPSCmsErrors.INVALID_AUTHTYPE, args));
     }
-    Set resultSet = new HashSet();
-    Map params = new HashMap();
+    Set<String> resultSet = new HashSet<>();
+    Map<String, Object> params = new HashMap<>();
     params.put(IPSHtmlParameters.SYS_CONTENTID, "" + parent.getId());
     params.put(IPSHtmlParameters.SYS_REVISION, "" + parent.getRevision());
     IPSInternalRequest ir = req.getInternalRequest(resource, params, true);

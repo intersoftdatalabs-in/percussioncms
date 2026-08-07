@@ -50,7 +50,6 @@ import org.w3c.dom.Document;
  *
  * @author DavidBenua
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSNavTreeLinkExtension extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
 
@@ -107,7 +106,7 @@ public class PSNavTreeLinkExtension extends PSDefaultExtension
   public static Document getTreeVariantXMLClean(IPSRequestContext req, PSLocator loc)
       throws PSNavException {
     log.debug("loading Clean XML");
-    Map landingPageParams = PSNavXMLUtils.getLandingPageMap(req);
+    Map<String, String> landingPageParams = PSNavXMLUtils.getLandingPageMap(req);
 
     if (loc == null) {
       log.debug("getting root from current request");
@@ -177,7 +176,7 @@ public class PSNavTreeLinkExtension extends PSDefaultExtension
     String treeURL = treeVar.getAssemblyUrl();
     log.debug("Tree Assembler URL is {}", treeURL);
 
-    Map intParams = new HashMap();
+    Map<String, Object> intParams = new HashMap<>();
 
     // always build tree in context 0, site 0.
     intParams.put(IPSHtmlParameters.SYS_CONTEXT, "0");
@@ -210,6 +209,7 @@ public class PSNavTreeLinkExtension extends PSDefaultExtension
     log.debug("calling NavTree variant - with new cache (on3)");
     PSNavUtil.logMap(intParams, "Tree Variant Parameters", log);
 
+    // Upstream cache APIs still accept raw Map; pass the typed map as-is.
     Document resDoc = config.retrieveNavTreeXML(intParams);
 
     if (resDoc == null) {
