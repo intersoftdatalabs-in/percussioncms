@@ -99,6 +99,15 @@ describe("empty-recycling helpers", () => {
       true,
     );
     assert.equal(recyclingHasName([{ name: "other" }], "missing"), false);
+    // Exact match only — substring must not count as a hit.
+    assert.equal(
+      recyclingHasName([{ name: "qa-empty-recycl-xyz" }], "qa-empty-recycl-abc"),
+      false,
+    );
+    assert.equal(
+      recyclingHasName([{ path: "/Recycling/Assets/qa-folder-1" }], "qa-folder-1"),
+      true,
+    );
   });
 
   it("emptyApiFailureMessage points at #2205 for 404", () => {

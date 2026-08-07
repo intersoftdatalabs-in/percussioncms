@@ -61,7 +61,6 @@ const {
   seedRecycledFolder,
   emptyRecyclingViaApi,
   emptyApiFailureMessage,
-  isAlreadyEmptyResult,
   isRecyclingListEmpty,
   recyclingHasName,
   RECYCLE_EMPTY_PATH,
@@ -149,16 +148,9 @@ test.describe("Empty Recycling (#2207 / parent #944 slice 3) @empty-recycling", 
       second.status >= 200 && second.status < 300,
       emptyApiFailureMessage(second),
     ).toBe(true);
-    // When the bin has no children, body reports alreadyEmpty.
-    // Structural installs that always list Sites/Assets under Recycling may
-    // re-materialize children — accept either alreadyEmpty or another 2xx purge.
-    if (
-      second.body &&
-      typeof second.body === "object" &&
-      isAlreadyEmptyResult(second.body)
-    ) {
-      expect(isAlreadyEmptyResult(second.body)).toBe(true);
-    }
+    // When the bin has no children, body may report alreadyEmpty=true.
+    // Structural installs that re-materialize Sites/Assets under Recycling may
+    // return another 2xx purge instead — both are valid (status asserted above).
 
     // Endpoint must remain registered (regression for #2205 wiring).
     expect(RECYCLE_EMPTY_PATH).toMatch(/recycle\/empty$/);
@@ -185,9 +177,9 @@ test.describe("Empty Recycling (#2207 / parent #944 slice 3) @empty-recycling", 
     );
     // Recycled folders often land under /Recycling/Assets/… or /Recycling/Sites/…
     // so search top-level and, if needed, known structural children.
-    let found =
-      recyclingHasName(before, seeded.name) || before.length > 0;
-    if (!recyclingHasName(before, seeded.name)) {
+    // Do not treat "any children exist" as seed present (structural roots).
+    let found = recyclingHasName(before, seeded.name);
+    if (!found) {
       for (const root of ["Assets", "Sites"]) {
         const nested = await listFolderChildren(
           request,
@@ -279,8 +271,25 @@ test.describe("Empty Recycling (#2207 / parent #944 slice 3) @empty-recycling", 
       headers,
       "Recycling",
     );
+    // Seed may land under structural Assets/Sites — require the seeded name,
+    // not merely "Recycling has any children".
+    let stillSeeded = recyclingHasName(children, seeded.name);
+    if (!stillSeeded) {
+      for (const root of ["Assets", "Sites"]) {
+        const nested = await listFolderChildren(
+          request,
+          BASE_URL,
+          headers,
+          `Recycling/${root}`,
+        ).catch(() => []);
+        if (recyclingHasName(nested, seeded.name)) {
+          stillSeeded = true;
+          break;
+        }
+      }
+    }
     expect(
-      recyclingHasName(children, seeded.name) || children.length > 0,
+      stillSeeded,
       `cancel must leave recycled content; expected ${seeded.name} in ${JSON.stringify(children)}`,
     ).toBe(true);
 

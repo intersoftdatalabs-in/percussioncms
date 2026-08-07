@@ -311,16 +311,34 @@ function isRecyclingListEmpty(items) {
 }
 
 /**
- * Whether a name appears among recycling children.
+ * Whether a name appears among recycling children (exact match).
+ * Matches item.name equality, full path equality, or path basename —
+ * not substring includes (avoids partial-prefix false positives).
  * @param {object[]} items
  * @param {string} name
  * @returns {boolean}
  */
 function recyclingHasName(items, name) {
   const target = String(name || "");
+  if (!target) {
+    return false;
+  }
   return (items || []).some((it) => {
-    const n = it && (it.name || it.path || "");
-    return String(n).includes(target);
+    if (!it || typeof it !== "object") {
+      return false;
+    }
+    if (it.name != null && String(it.name) === target) {
+      return true;
+    }
+    if (it.path != null) {
+      const p = String(it.path);
+      if (p === target) {
+        return true;
+      }
+      const base = p.split("/").filter(Boolean).pop() || "";
+      return base === target;
+    }
+    return false;
   });
 }
 
