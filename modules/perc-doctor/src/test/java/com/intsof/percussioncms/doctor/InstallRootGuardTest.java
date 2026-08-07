@@ -91,6 +91,28 @@ class InstallRootGuardTest {
   }
 
   @Test
+  void installBackupAllowlistAcceptsDocumentedPatternsOnly() {
+    assertTrue(InstallRootGuard.isInstallBackupFileName("AppServer_backup_20240115_120000.zip"));
+    assertTrue(InstallRootGuard.isInstallBackupFileName("appserver_backup_1.zip"));
+    assertTrue(InstallRootGuard.isInstallBackupFileName("ResourceBundle.tmx.bak"));
+    assertTrue(InstallRootGuard.isInstallBackupFileName("file.BAK"));
+    assertTrue(InstallRootGuard.isInstallBackupFileName("misc.config.backup"));
+    assertTrue(InstallRootGuard.isInstallBackupFileName("Navigation.properties.backup"));
+    assertTrue(InstallRootGuard.isInstallBackupFileName("FOO.PROPERTIES.BACKUP"));
+
+    assertFalse(InstallRootGuard.isInstallBackupFileName("AppServer_backup_.zip"));
+    assertFalse(InstallRootGuard.isInstallBackupFileName("AppServer_backup.zip"));
+    assertFalse(InstallRootGuard.isInstallBackupFileName("OtherServer_backup_1.zip"));
+    assertFalse(InstallRootGuard.isInstallBackupFileName("java_pid123.hprof"));
+    assertFalse(InstallRootGuard.isInstallBackupFileName("server.log"));
+    assertFalse(InstallRootGuard.isInstallBackupFileName("notes.txt"));
+    assertFalse(InstallRootGuard.isInstallBackupFileName(""));
+    assertFalse(InstallRootGuard.isInstallBackupFileName(null));
+    assertFalse(InstallRootGuard.isInstallBackupFileName("../evil.bak"));
+    assertFalse(InstallRootGuard.isInstallBackupFileName("dir/file.bak"));
+  }
+
+  @Test
   @EnabledOnOs(OS.WINDOWS)
   void isUnderInstallRootIsCaseInsensitiveOnWindows() {
     // Path.startsWith is case-sensitive; Windows FS is not — guard must fold.
