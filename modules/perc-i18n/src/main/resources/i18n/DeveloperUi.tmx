@@ -2096,6 +2096,10 @@
       <tuv xml:lang="te"><seg>ఈ వస్తువు కోసం డిజైన్-సమయ యాక్సెస్ నియంత్రణ. అనుమతులను టోగుల్ చేయండి, ఎంట్రీలను జోడించండి లేదా తీసివేయండి, ఆపై సేవ్ చేయండి (పూర్తి ఎంట్రీ జాబితాను బల్క్ ACL API ద్వారా భర్తీ చేయండి).</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>该对象的设计时访问控制。切换权限、添加或删除条目，然后保存（通过批量 ACL API 替换完整条目列表）。</seg></tuv>
     <tuv xml:lang="ru"><seg>Управление доступом во время разработки для этого объекта. Переключайте разрешения, добавляйте или удаляйте записи, затем сохраняйте (полная замена списка записей через API-интерфейс ACL).</seg></tuv><tuv xml:lang="he"><seg>בקרת גישה בזמן עיצוב עבור אובייקט זה. החלף הרשאות, הוסף או הסר ערכים ולאחר מכן שמור (החלפה של רשימת ערכים מלאה באמצעות ACL API בכמות גדולה).</seg></tuv><tuv xml:lang="uk"><seg>Контроль доступу до цього об’єкта під час розробки. Перемкніть дозволи, додайте або видаліть записи, а потім збережіть (повний список записів замінено за допомогою групового API ACL).</seg></tuv></tu>
+    <!-- CD-19 / #2283: new English source for ACL_HINT (tuid includes English; prior tu above is orphaned for retranslation history). Non-en locales fall back to English until retranslated. -->
+    <tu tuid="perc.ui.developer@Design-time and runtime access control for this object. Toggle Design access (Read, Update, Delete, Modify ACL) and Runtime visibility where applicable, add or remove entries, then save (full entry list replace via bulk ACL API).">
+      <tuv xml:lang="en-us"><seg>Design-time and runtime access control for this object. Toggle Design access (Read, Update, Delete, Modify ACL) and Runtime visibility where applicable, add or remove entries, then save (full entry list replace via bulk ACL API).</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.developer@An entry with that name and type already exists.">
       <tuv xml:lang="en-us"><seg>An entry with that name and type already exists.</seg></tuv>
       <tuv xml:lang="ar"><seg>هناك إدخال بهذا الاسم والنوع موجود بالفعل.</seg></tuv>

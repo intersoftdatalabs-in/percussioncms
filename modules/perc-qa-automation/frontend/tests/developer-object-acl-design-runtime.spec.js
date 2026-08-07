@@ -157,12 +157,13 @@ test.describe("Developer Object ACL design vs runtime permissions (#2283)", () =
       page.locator('[data-testid="developer-ct-acl-perm-header-RUNTIME_VISIBLE"]'),
     ).toContainText(/Visible/i);
 
-    // At least one permission checkbox exists for design + runtime
+    // Checkbox-only locators: prefix also matches perm-header-<PERM> <th> cells;
+    // scope to input so .first() is never the header (see ObjectAclSection.tsx).
     const designRead = page.locator(
-      '[data-testid^="developer-ct-acl-perm-"][data-testid$="-READ"]',
+      'input[type="checkbox"][data-testid^="developer-ct-acl-perm-"][data-testid$="-READ"]',
     );
     const runtimeVis = page.locator(
-      '[data-testid^="developer-ct-acl-perm-"][data-testid$="-RUNTIME_VISIBLE"]',
+      'input[type="checkbox"][data-testid^="developer-ct-acl-perm-"][data-testid$="-RUNTIME_VISIBLE"]',
     );
     await expect(designRead.first()).toBeVisible();
     await expect(runtimeVis.first()).toBeVisible();
