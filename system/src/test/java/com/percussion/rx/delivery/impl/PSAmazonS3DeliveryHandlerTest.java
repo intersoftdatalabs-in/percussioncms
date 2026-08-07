@@ -19,6 +19,7 @@ package com.percussion.rx.delivery.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,6 +40,7 @@ import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.guid.IPSGuid;
 import java.lang.reflect.Field;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -138,14 +140,9 @@ public class PSAmazonS3DeliveryHandlerTest {
   @AfterEach
   public void tearDown() {
     if (handlerStatic != null) handlerStatic.close();
-    // Reset the static isEC2Instance cache so it doesn't leak between tests.
-    try {
-      Field f = PSAmazonS3DeliveryHandler.class.getDeclaredField("isEC2Instance");
-      f.setAccessible(true);
-      f.set(null, (Object) null);
-    } catch (Exception e) {
-      // ignore
-    }
+    // Reset the static isEC2Instance cache / metadata client so state does not leak.
+    PSAmazonS3DeliveryHandler.clearEc2InstanceCacheForTests();
+    PSAmazonS3DeliveryHandler.setEc2MetadataClientForTests(null);
   }
 
   private PSBaseDeliveryHandler.JobData newJobData() {
@@ -383,6 +380,39 @@ public class PSAmazonS3DeliveryHandlerTest {
         PSAmazonS3DeliveryHandler.getS3Client(
             pubServer, software.amazon.awssdk.regions.Region.of(REGION));
     assertNotNull(s3);
+  }
+
+  @Test
+  public void isEC2Instance_usesInjectedMetadataClient_andCaches() {
+    // Use real methods (no static mock for isEC2Instance on this path).
+    handlerStatic.close();
+    handlerStatic = null;
+
+    AtomicBoolean available = new AtomicBoolean(true);
+    PSEc2MetadataClient stub =
+        new PSEc2MetadataClient("http://127.0.0.1:9", PSEc2MetadataClient.defaultHttpClient()) {
+          @Override
+          public boolean isAvailable() {
+            return available.get();
+          }
+
+          @Override
+          public String getRegion() {
+            return "eu-west-1";
+          }
+        };
+    PSAmazonS3DeliveryHandler.setEc2MetadataClientForTests(stub);
+
+    assertTrue(PSAmazonS3DeliveryHandler.isEC2Instance());
+    // Flip stub; cached value must remain true for JVM lifetime of the cache.
+    available.set(false);
+    assertTrue(PSAmazonS3DeliveryHandler.isEC2Instance());
+    assertEquals("eu-west-1", PSAmazonS3DeliveryHandler.getCurrentEc2Region());
+
+    PSAmazonS3DeliveryHandler.clearEc2InstanceCacheForTests();
+    available.set(false);
+    assertFalse(PSAmazonS3DeliveryHandler.isEC2Instance());
+    assertNull(PSAmazonS3DeliveryHandler.getCurrentEc2Region());
   }
 
   private static S3Exception s3NotFound(String msg) {

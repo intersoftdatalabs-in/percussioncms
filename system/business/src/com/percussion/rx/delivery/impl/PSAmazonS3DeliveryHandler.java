@@ -31,8 +31,6 @@ import com.percussion.services.pubserver.IPSPubServerDao;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.utils.types.PSPair;
 
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -70,14 +68,16 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.auth.StsAssumeRoleCredentialsProvider;
 
-import static jakarta.ws.rs.client.ClientBuilder.newClient;
-
 /**
  * This handler delivers content to the amazon s3.
  *
  * <p>Uses AWS SDK for Java v2 ({@code software.amazon.awssdk}). The v1 SDK and the product-local
  * {@code com.amazonaws.services.s3.transfer.TransferManagerBuilder} shim are no longer used (see
  * issue #1730).
+ *
+ * <p>EC2 detection and region resolution use {@link PSEc2MetadataClient} (IMDSv2 with IMDSv1
+ * fallback). See that class for Amazon Linux 2023+ / container hop-limit operator notes (issue
+ * #2284).
  */
 public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
 {
@@ -88,7 +88,10 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
     private String targetRegion = DEFAULT_REGION;
     /** Per-job S3 client (v2 {@link S3Client}) - replaces v1's cached TransferManager. */
     private final ConcurrentHashMap<Long, S3Client> jobTransferManagers = new ConcurrentHashMap<>();
+    /** JVM-lifetime cache of the EC2 probe result (null until first probe). */
     private static Boolean isEC2Instance = null;
+    /** Shared metadata client; replaceable in unit tests via {@link #setEc2MetadataClientForTests}. */
+    private static volatile PSEc2MetadataClient ec2MetadataClient = new PSEc2MetadataClient();
     private static final Logger log = LogManager.getLogger(PSAmazonS3DeliveryHandler.class);
 
     /**
@@ -302,33 +305,45 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
         }
     }
 
+    /**
+     * Replace the EC2 metadata client used by {@link #isEC2Instance()} / {@link
+     * #getCurrentEc2Region()}. Intended for unit tests only; clears the JVM-lifetime EC2 cache.
+     *
+     * @param client client to use, or {@code null} to restore the production default
+     */
+    static void setEc2MetadataClientForTests(PSEc2MetadataClient client) {
+        ec2MetadataClient = client != null ? client : new PSEc2MetadataClient();
+        isEC2Instance = null;
+    }
+
+    /**
+     * Clears the JVM-lifetime EC2 detection cache. Intended for unit tests.
+     */
+    static void clearEc2InstanceCacheForTests() {
+        isEC2Instance = null;
+    }
+
+    /**
+     * @return {@code true} if this JVM appears to be running on EC2 (IMDSv2-aware probe with
+     *     IMDSv1 fallback). Result is cached for the JVM lifetime after the first call.
+     */
     public static boolean isEC2Instance() {
         if (isEC2Instance != null) {
             return isEC2Instance;
         }
         try {
-            var client = newClient();
-            var resource = client.target("http://169.254.169.254/latest/meta-data/");
-            var request = resource.request();
-            request.accept(MediaType.APPLICATION_JSON);
-            var response = request.get();
-            if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
-                isEC2Instance = Boolean.TRUE;
-                return true;
-            } else {
-                isEC2Instance = Boolean.FALSE;
-            }
+            isEC2Instance = Boolean.valueOf(ec2MetadataClient.isAvailable());
         } catch (Exception e) {
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             isEC2Instance = Boolean.FALSE;
         }
         return isEC2Instance;
     }
 
     /**
-     * Returns the EC2 instance region by querying the EC2 instance metadata service
-     * ({@code http://169.254.169.254/latest/meta-data/placement/availability-zone/}) and stripping
-     * the trailing AZ letter. Returns {@code null} if the host is not on EC2 or the metadata call
-     * fails.
+     * Returns the EC2 instance region by querying the EC2 instance metadata service (IMDSv2-aware)
+     * for the availability zone and stripping the trailing AZ letter. Returns {@code null} if the
+     * host is not on EC2 or the metadata call fails.
      *
      * <p>Replaces v1's {@code com.amazonaws.regions.Regions.getCurrentRegion()} which has no
      * direct v2 equivalent.
@@ -338,21 +353,11 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
             return null;
         }
         try {
-            var client = newClient();
-            var resource = client.target("http://169.254.169.254/latest/meta-data/placement/availability-zone/");
-            var request = resource.request();
-            var response = request.get();
-            if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
-                String az = response.readEntity(String.class);
-                if (az != null && az.length() > 1) {
-                    // Availability zone is "<region><letter>", e.g. "us-east-1a" -> "us-east-1".
-                    return az.substring(0, az.length() - 1);
-                }
-            }
+            return ec2MetadataClient.getRegion();
         } catch (Exception e) {
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            return null;
         }
-        return null;
     }
 
     /**

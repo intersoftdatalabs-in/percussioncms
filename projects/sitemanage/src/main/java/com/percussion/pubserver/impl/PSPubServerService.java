@@ -19,7 +19,6 @@ package com.percussion.pubserver.impl;
 
 import static com.percussion.share.service.exception.PSParameterValidationUtils.validateParameters;
 import static com.percussion.utils.service.impl.PSSiteConfigUtils.removeServerEntry;
-import static jakarta.ws.rs.client.ClientBuilder.newClient;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -77,11 +76,6 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.service.IPSUtilityService;
 import com.percussion.webservices.publishing.IPSPublishingWs;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -128,7 +122,6 @@ public class PSPubServerService implements IPSPubServerService {
   private final IPSPublisherService publisherService;
   private final IPSContentChangeService contentChangeService;
   private final IPSUtilityService utilityService;
-  private static Boolean isEC2Instance = null;
   private IPSPublishingWs pubWs;
   private SecureKeyRotationListener secureKeyRotationListener;
 
@@ -743,31 +736,13 @@ public class PSPubServerService implements IPSPubServerService {
     return server;
   }
 
+  /**
+   * Whether this JVM appears to be running on EC2. Delegates to {@link
+   * PSAmazonS3DeliveryHandler#isEC2Instance()} so UI REST and S3 delivery share one IMDSv2-aware
+   * probe and JVM-lifetime cache (issue #2284).
+   */
   public static Boolean isEC2Instance() {
-    if (isEC2Instance != null) {
-      return isEC2Instance;
-    }
-    try {
-      Client client = newClient();
-
-      WebTarget resource = client.target("http://169.254.169.254/latest/meta-data/");
-
-      Invocation.Builder request = resource.request();
-      request.accept(MediaType.APPLICATION_JSON);
-
-      Response response = request.get();
-
-      if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
-        isEC2Instance = Boolean.TRUE;
-        return true;
-      } else {
-        isEC2Instance = Boolean.FALSE;
-      }
-    } catch (Exception e) {
-      // means not an EC2 Server
-      isEC2Instance = Boolean.FALSE;
-    }
-    return isEC2Instance;
+    return PSAmazonS3DeliveryHandler.isEC2Instance();
   }
 
   @Override
@@ -1792,28 +1767,21 @@ public class PSPubServerService implements IPSPubServerService {
       PSPublishServerInfo pubServerInfo, String[] requieredProperties)
       throws PSValidationException {
     PSValidationErrorsBuilder builder = validateParameters("validatePropertiesByDriver");
-    String val = pubServerInfo.findProperty(IPSPubServerDao.PUBLISH_AS3_USE_ASSUME_ROLE);
-    boolean useAssumeRole = false;
-    if (val != null) {
-      useAssumeRole = Boolean.valueOf(val);
-    }
     for (String property : requieredProperties) {
       String value = pubServerInfo.findProperty(property);
       if (IPSPubServerDao.PUBLISH_AS3_BUCKET_PROPERTY.equals(property)) {
         builder.rejectIfBlank(property, value).throwIfInvalid();
-      } else if (IPSPubServerDao.PUBLISH_AS3_ACCESSKEY_PROPERTY.equals(property)) {
-        if (!isEC2Instance()) {
-          builder.rejectIfBlank(property, value).throwIfInvalid();
-        }
-      } else if (IPSPubServerDao.PUBLISH_AS3_SECURITYKEY_PROPERTY.equals(property)) {
-        if (!isEC2Instance()) {
-          builder.rejectIfBlank(property, value).throwIfInvalid();
-        }
-      } else if (IPSPubServerDao.PUBLISH_AS3_ARN_ROLE.equals(property)) {
-        if (useAssumeRole) {
-          builder.rejectIfBlank(property, value).throwIfInvalid();
-        }
+      } else if (IPSPubServerDao.PUBLISH_AS3_ACCESSKEY_PROPERTY.equals(property)
+          || IPSPubServerDao.PUBLISH_AS3_SECURITYKEY_PROPERTY.equals(property)
+          || IPSPubServerDao.PUBLISH_AS3_ARN_ROLE.equals(property)) {
+        // Access Key, Secret, and Role ARN are intentionally not hard-required when S3 is
+        // selected (issue #2284). Empty values are allowed so operators can rely on EC2
+        // instance profile / Assume Role without static keys, and as a workaround when IMDS
+        // detection fails. The publish UI shows a non-modal warning on save when these fields
+        // are empty; runtime still needs credentials via instance profile, static keys, or
+        // the default provider chain.
       }
+      // Other driver properties in the array are presence-checked by the caller shape only.
     }
   }
 

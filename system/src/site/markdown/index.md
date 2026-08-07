@@ -12,6 +12,7 @@ Welcome to the technical documentation for the Percussion CMS **system** module.
 - [Package Reference](packages.html) – Detailed package-by-package reference documentation
 - [Modernization Status](modernization.html) – Java modernization history (module is now on JDK 21)
 - [Legacy Code](legacy.html) – Information about legacy components and backward compatibility
+- [S3 publish on EC2 (IMDSv2)](s3-publish-ec2-imds.html) – Operator notes for Amazon Linux 2023+, hop limit, Assume Role
 
 ## Module At A Glance
 

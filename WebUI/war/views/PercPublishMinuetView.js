@@ -1074,5 +1074,32 @@ function processServerPropertiesForm(eventData) {
         }
     };
 
+    // Issue #2284: S3 Access/Secret/ARN are not hard-required. Non-modal footer warning when empty.
+    if (driver === "AMAZONS3") {
+        var emptyS3Fields = [];
+        var accessKeyVal = ($("#perc-access-key").val() || "").trim();
+        var secretKeyVal = ($("#perc-security-key").val() || "").trim();
+        var arnRoleVal = ($("#ARNRole").val() || "").trim();
+        if (!accessKeyVal) {
+            emptyS3Fields.push("Access Key");
+        }
+        if (!secretKeyVal) {
+            emptyS3Fields.push("Security Key");
+        }
+        if ($("#useAssumeRole").is(":checked") && !arnRoleVal) {
+            emptyS3Fields.push("Role ARN");
+        }
+        if (emptyS3Fields.length > 0) {
+            var s3Warn = {};
+            s3Warn.result = {};
+            s3Warn.source = I18N.message("perc.ui.publish.title@Server Configuration");
+            s3Warn.result.warning =
+                "Amazon S3 fields are empty (" +
+                emptyS3Fields.join(", ") +
+                "). Save will proceed; ensure EC2 instance profile, Assume Role, or other AWS credentials are available. On Amazon Linux 2023+ IMDS uses tokens (HttpTokens=required); containers need HttpPutResponseHopLimit >= 2.";
+            processAlert(s3Warn);
+        }
+    }
+
     updateServerProperties(selectedSiteData.siteId, serverName, newServerPropObj);
 }

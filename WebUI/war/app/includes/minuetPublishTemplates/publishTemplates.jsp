@@ -519,13 +519,13 @@
             </div>
             <div style="width:75%;" >
                 <div  class="input-group">
-                    <label  style="margin-right: 10px;" for="ARNRole">* <i18n:message key="perc.ui.publish.servers.s3@Role ARN"/>:</label>
+                    <label  style="margin-right: 10px;" for="ARNRole"><i18n:message key="perc.ui.publish.servers.s3@Role ARN"/>:</label>
                     <div   class="input-group-prepend">
                         <div class="input-group-text">
                             <i aria-hidden="true" class="fas fa-lock"></i>
                         </div>
                     </div>
-                    <input autocomplete="off" aria-required="true" class="form-control" percServerFileProp="ARNRole" id="ARNRole" name="ARNRole" value="{{#filterByValue serverInfo.properties 'key' 'ARNRole'}}{{/filterByValue}}">
+                    <input autocomplete="off" class="form-control" percServerFileProp="ARNRole" id="ARNRole" name="ARNRole" value="{{#filterByValue serverInfo.properties 'key' 'ARNRole'}}{{/filterByValue}}">
                 </div>
             </div>
 
@@ -534,25 +534,25 @@
     <div class="form-group" id="s3accessSecurityKey" >
         <div class="form-row">
             <div class="col-md-6 col-sm-12 perc-stacked-form-input">
-                <label for="perc-access-key">* <i18n:message key="perc.ui.publish.servers.s3@Access Key"/>:</label>
+                <label for="perc-access-key"><i18n:message key="perc.ui.publish.servers.s3@Access Key"/>:</label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <div class="input-group-text">
                             <i aria-hidden="true" class="fas fa-key"></i>
                         </div>
                     </div>
-                    <input autocomplete="off" type="password" aria-required="true" class="form-control" percServerFileProp="accesskey" id="perc-access-key" name="accesskey" value="{{#filterByValue serverInfo.properties 'key' 'accesskey'}}{{/filterByValue}}">
+                    <input autocomplete="off" type="password" class="form-control" percServerFileProp="accesskey" id="perc-access-key" name="accesskey" value="{{#filterByValue serverInfo.properties 'key' 'accesskey'}}{{/filterByValue}}">
                 </div>
             </div>
             <div class="col-md-6 col col-sm-12">
-                <label for="perc-security-key">* <i18n:message key="perc.ui.publish.servers.s3@Security Key"/>:</label>
+                <label for="perc-security-key"><i18n:message key="perc.ui.publish.servers.s3@Security Key"/>:</label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <div class="input-group-text">
                             <i aria-hidden="true" class="fas fa-lock"></i>
                         </div>
                     </div>
-                    <input autocomplete="off" aria-required="true" type="password" class="form-control" percServerFileProp="securitykey" id="perc-security-key" name="securitykey" value="{{#filterByValue serverInfo.properties 'key' 'securitykey'}}{{/filterByValue}}">
+                    <input autocomplete="off" type="password" class="form-control" percServerFileProp="securitykey" id="perc-security-key" name="securitykey" value="{{#filterByValue serverInfo.properties 'key' 'securitykey'}}{{/filterByValue}}">
                 </div>
             </div>
         </div>
