@@ -1,18 +1,18 @@
 ---
 
 applyTo: "**/*.java"
-description: "Java 21 language and API practices for Percussion CMS on development (release=21). Intermediate Java 11/17 baselines are historical only."
+description: "Java 21 language and API practices for Percussion CMS on main (release=21). Intermediate Java 11/17 baselines are historical only."
 ---
 
-# Java 21 language practices (development baseline)
+# Java 21 language practices (`main` baseline)
 
-The monorepo **`development`** branch already targets **JDK 21** (parent `java.version` / compiler `release`). Do **not** treat Java 11 or Java 17 as the current product baseline.
+The monorepo **`main`** branch (formerly `development`) already targets **JDK 21** (parent `java.version` / compiler `release`). Do **not** treat Java 11 or Java 17 as the current product baseline.
 
-These notes help agents and developers **prefer Java 21-era language features and APIs** when writing or modernizing code on `development`. Comparisons to older idioms (e.g. pre-pattern-matching switch) are for migration clarity only.
+These notes help agents and developers **prefer Java 21-era language features and APIs** when writing or modernizing code on `main`. Comparisons to older idioms (e.g. pre-pattern-matching switch) are for migration clarity only.
 
-**Out of scope here:** `development-8.1.x` remains **JDK 8** — do not apply these features on that branch.
+**Out of scope here:** JDK 8 lives in the separate `percussioncms-java8` repository (formerly `development-8.1.x` on this remote) — do not apply these features on that line.
 
-## Major Language Features in JDK 18-21 (use on development)
+## Major Language Features in JDK 18-21 (use on `main`)
 
 ### Pattern Matching for switch (JEP 441 - Standard in 21)
 

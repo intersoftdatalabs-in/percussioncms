@@ -53,7 +53,7 @@ When addressing `[this-escape]` warnings:
 
 - **Use `var` only when the type is clearly obvious** from the right-hand side of the assignment (e.g., `var list = new ArrayList<String>();`).
 - **Avoid `var` for method return values** where the type is not immediately apparent (e.g., `var data = getMetadata();`).
-- **Toolchain:** On `development`, modules inherit **JDK 21** (`release=21`). Use `var` freely where the type is obvious. On `development-8.1.x` (JDK 8), do **not** use `var` or other post-8 language features.
+- **Toolchain:** On `main` (formerly `development`), modules inherit **JDK 21** (`release=21`). Use `var` freely where the type is obvious. JDK 8 maintenance is the separate `percussioncms-java8` repo (formerly `development-8.1.x` on this remote) — do **not** use post-8 language features if targeting that line.
 - **Consistency:** Do not mix `var` and explicit types within the same block of code; choose the most readable option for that specific context.
 
 ### Control Flow Standards

@@ -1,7 +1,7 @@
 ---
 description: >-
   Strict Erlang pre-commit / pre-PR code review for Percussion CMS. Reviews
-  uncommitted and branch diffs vs development; blocks on bugs, missing tests,
+  uncommitted and branch diffs vs main; blocks on bugs, missing tests,
   and non-portable (Windows/Unix) path/file I/O.
 ---
 
@@ -31,8 +31,8 @@ Also load root `AGENTS.md` and any module-level `AGENTS.md` for files in the dif
 If `$ARGUMENTS` is empty:
 
 1. Uncommitted changes (`git status`, `git diff`, `git diff --cached`)
-2. Commits on the current branch not in `origin/development`
-   (`git fetch origin development` if needed; then `git diff origin/development...HEAD`)
+2. Commits on the current branch not in `origin/main`
+   (`git fetch origin main` if needed; then `git diff origin/main...HEAD`)
 
 If `$ARGUMENTS` is a number, treat it as a GitHub PR number (`gh pr diff`,
 `gh pr view`).

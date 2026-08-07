@@ -19,8 +19,8 @@ Product cross-platform path rules: root `AGENTS.md` → **Cross-Platform File I/
 ## Quick start
 
 1. Open that canonical agent file and follow it exactly.
-2. Review uncommitted changes and `origin/development...HEAD` unless the user
-   specifies a PR or other base.
+2. Review uncommitted changes and `origin/main...HEAD` unless the user
+   specifies a PR or other base (formerly `origin/development`).
 3. Strict gate: any bug, missing behavioral tests for non-trivial logic, or
    non-portable path/file I/O → `request-changes` and **May commit/push: no**.
 4. When the diff touches file I/O or path assertions, apply the Erlang
