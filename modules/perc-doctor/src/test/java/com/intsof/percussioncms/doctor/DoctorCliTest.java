@@ -422,4 +422,89 @@ class DoctorCliTest {
     String out = outBuf.toString(StandardCharsets.UTF_8);
     assertTrue(out.contains("deleted=1"));
   }
+
+  @Test
+  void checkConfigViaCliReportsHealthyOnBareTree() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("install-check-config"));
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {
+              "--install-root", root.toString(), "--dry-run", "-v", "check-config"
+            },
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+
+    assertEquals(DoctorCli.EXIT_OK, code);
+    String out = outBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(out.contains("command=check-config"));
+    assertTrue(out.contains("dry-run=true"));
+    assertTrue(out.contains("healthy=true"));
+    assertTrue(out.contains("WARN"));
+  }
+
+  @Test
+  void checkConfigViaCliFailsOnInvalidBindPort() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("install-check-config-fail"));
+    Path serverDir = Files.createDirectories(root.resolve("rxconfig").resolve("Server"));
+    Files.writeString(serverDir.resolve("server.properties"), "bindPort=xyz\n");
+    Path installerDir = Files.createDirectories(root.resolve("rxconfig").resolve("Installer"));
+    Files.writeString(
+        installerDir.resolve("rxrepository.properties"),
+        "DB_BACKEND=H2\nDB_DRIVER_NAME=h2\nDB_DRIVER_CLASS_NAME=org.h2.Driver\n"
+            + "DB_SERVER=file:x\nUID=sa\n");
+
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {"--install-root", root.toString(), "-v", "check-config"},
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+
+    assertEquals(DoctorCli.EXIT_ERROR, code);
+    String out = outBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(out.contains("healthy=false"));
+    assertTrue(out.contains("server.bindPort"));
+  }
+
+  @Test
+  void fixPermissionsViaCliDryRunDoesNotFailOnWindowsLayout() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("install-fix-perms"));
+    Path bin = Files.createDirectories(root.resolve("bin"));
+    Files.writeString(bin.resolve("perc-doctor"), "#!/bin/sh\n");
+    Files.writeString(bin.resolve("perc-doctor.bat"), "@echo off\r\n");
+
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {
+              "--install-root", root.toString(), "--dry-run", "-v", "fix-permissions"
+            },
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+
+    assertEquals(DoctorCli.EXIT_OK, code);
+    String out = outBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(out.contains("command=fix-permissions"));
+    assertTrue(out.contains("dry-run=true"));
+    assertTrue(out.contains("candidates="));
+  }
+
+  @Test
+  void helpListsCheckConfigAndFixPermissions() {
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {"--help"},
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+    assertEquals(DoctorCli.EXIT_OK, code);
+    String out = outBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(out.contains("check-config"));
+    assertTrue(out.contains("fix-permissions"));
+  }
 }

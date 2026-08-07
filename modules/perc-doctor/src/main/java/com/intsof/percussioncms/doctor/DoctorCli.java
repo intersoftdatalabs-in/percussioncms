@@ -30,7 +30,8 @@ import java.time.Duration;
  * </pre>
  *
  * <p>Commands: {@code diagnose}/{@code health}, {@code clean-heap-dumps}, {@code
- * clean-install-backups}, {@code clean-logs}, {@code clean-temp}.
+ * clean-install-backups}, {@code clean-logs}, {@code clean-temp}, {@code check-config}, {@code
+ * fix-permissions}.
  */
 public final class DoctorCli {
 
@@ -86,8 +87,12 @@ public final class DoctorCli {
               + CleanInstallBackupsCommand.COMMAND_NAME
               + ", "
               + CleanLogsCommand.COMMAND_NAME
+              + ", "
+              + CleanTempCommand.COMMAND_NAME
+              + ", "
+              + CheckConfigCommand.COMMAND_NAME
               + ", or "
-              + CleanTempCommand.COMMAND_NAME);
+              + FixPermissionsCommand.COMMAND_NAME);
       printHelp(err);
       return EXIT_USAGE;
     }
@@ -144,6 +149,16 @@ public final class DoctorCli {
         printReport(report, parsed.verbose, out);
         return report.getFailedCount() > 0 ? EXIT_ERROR : EXIT_OK;
       }
+      if (CheckConfigCommand.COMMAND_NAME.equals(parsed.command)) {
+        CheckConfigReport report = CheckConfigCommand.execute(installRoot, parsed.dryRun);
+        printCheckConfigReport(report, parsed.verbose, out);
+        return report.isHealthy() ? EXIT_OK : EXIT_ERROR;
+      }
+      if (FixPermissionsCommand.COMMAND_NAME.equals(parsed.command)) {
+        FixPermissionsReport report = FixPermissionsCommand.execute(installRoot, parsed.dryRun);
+        printFixPermissionsReport(report, parsed.verbose, out);
+        return report.getFailedCount() > 0 ? EXIT_ERROR : EXIT_OK;
+      }
       err.println("Error: unknown command: " + parsed.command);
       err.println(
           "Supported commands: "
@@ -157,7 +172,11 @@ public final class DoctorCli {
               + ", "
               + CleanLogsCommand.COMMAND_NAME
               + ", "
-              + CleanTempCommand.COMMAND_NAME);
+              + CleanTempCommand.COMMAND_NAME
+              + ", "
+              + CheckConfigCommand.COMMAND_NAME
+              + ", "
+              + FixPermissionsCommand.COMMAND_NAME);
       printHelp(err);
       return EXIT_USAGE;
     } catch (IllegalArgumentException e) {
@@ -234,7 +253,7 @@ public final class DoctorCli {
     stream.println(
         "CMS Doctor — install diagnose + safe install-tree maintenance"
             + " (diagnose/health, clean-heap-dumps, clean-install-backups, clean-logs,"
-            + " clean-temp).");
+            + " clean-temp, check-config, fix-permissions).");
     stream.println();
     stream.println("Options:");
     stream.println("  --install-root <path>  CMS install root (default: current working directory)");
@@ -254,6 +273,10 @@ public final class DoctorCli {
         "  clean-logs             Remove aged logs under known Jetty/CMS/DTS log dirs");
     stream.println(
         "  clean-temp             Remove files under known install temp/work dirs");
+    stream.println(
+        "  check-config           Read-only value/misconfig checks (server + repository props)");
+    stream.println(
+        "  fix-permissions        Report/fix allowlisted launcher + log-dir modes (POSIX)");
     stream.println();
     stream.println("clean-logs options:");
     stream.println(
@@ -278,6 +301,12 @@ public final class DoctorCli {
     stream.println(
         "  perc-doctor --install-root /opt/Percussion --dry-run -v clean-temp");
     stream.println("  perc-doctor --install-root C:\\Percussion -v clean-temp");
+    stream.println(
+        "  perc-doctor --install-root /opt/Percussion --dry-run -v check-config");
+    stream.println("  perc-doctor --install-root C:\\Percussion -v check-config");
+    stream.println(
+        "  perc-doctor --install-root /opt/Percussion --dry-run -v fix-permissions");
+    stream.println("  perc-doctor --install-root C:\\Percussion -v fix-permissions");
   }
 
   static void printDiagnoseReport(DiagnoseReport report, boolean verbose, PrintStream out) {
@@ -318,6 +347,48 @@ public final class DoctorCli {
             "  " + e.getStatus() + " " + e.getSizeBytes() + " " + e.getPath() + detail);
       }
     } else if (report.isDryRun() && report.getCandidateCount() > 0) {
+      out.println("(use -v/--verbose for path list)");
+    }
+  }
+
+  static void printCheckConfigReport(CheckConfigReport report, boolean verbose, PrintStream out) {
+    out.println("command=" + report.getCommand());
+    out.println("install-root=" + report.getInstallRoot());
+    out.println("dry-run=" + report.isDryRun());
+    out.println("checks=" + report.getCheckCount());
+    out.println("pass=" + report.getPassCount());
+    out.println("warn=" + report.getWarnCount());
+    out.println("fail=" + report.getFailCount());
+    out.println("info=" + report.getInfoCount());
+    out.println("healthy=" + report.isHealthy());
+    if (verbose) {
+      for (CheckConfigReport.Check c : report.getChecks()) {
+        String pathPart = c.getPath() == null ? "" : " path=" + c.getPath();
+        out.println("  " + c.getStatus() + " " + c.getId() + " " + c.getMessage() + pathPart);
+      }
+    } else if (report.getCheckCount() > 0) {
+      out.println("(use -v/--verbose for check list)");
+    }
+  }
+
+  static void printFixPermissionsReport(
+      FixPermissionsReport report, boolean verbose, PrintStream out) {
+    out.println("command=" + report.getCommand());
+    out.println("install-root=" + report.getInstallRoot());
+    out.println("dry-run=" + report.isDryRun());
+    out.println("candidates=" + report.getCandidateCount());
+    if (report.isDryRun()) {
+      out.println("would-fix=" + report.getWouldFixCount());
+    } else {
+      out.println("fixed=" + report.getFixedCount());
+    }
+    out.println("failed=" + report.getFailedCount());
+    if (verbose) {
+      for (FixPermissionsReport.Entry e : report.getEntries()) {
+        String detail = e.getDetail() == null ? "" : " " + e.getDetail();
+        out.println("  " + e.getStatus() + " " + e.getPath() + detail);
+      }
+    } else if (report.getCandidateCount() > 0) {
       out.println("(use -v/--verbose for path list)");
     }
   }

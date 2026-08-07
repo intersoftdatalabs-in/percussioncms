@@ -207,6 +207,58 @@ bin\perc-doctor.bat --install-root C:\Percussion --dry-run -v clean-temp
 bin\perc-doctor.bat --install-root C:\Percussion -v clean-temp
 ```
 
+### `check-config`
+
+Read-only **value / misconfig** checklist on documented config files (beyond presence-only checks). Always non-mutating; `--dry-run` is accepted for flag parity.
+
+Scoped files:
+
+- `rxconfig/Server/server.properties` — e.g. `enableDebugTools`, CSRF disable, `bindPort`, `requireHTTPS`
+- `rxconfig/Installer/rxrepository.properties` — required JDBC keys, driver/backend consistency, weak `PWD`, plaintext `PWD_ENCRYPTED`
+
+Exit code is non-zero when any check is **FAIL**. Password values are never printed.
+
+**Safe inventory (Linux / macOS):**
+
+```bash
+./bin/perc-doctor --install-root /opt/Percussion --dry-run -v check-config
+```
+
+**Safe inventory (Windows):**
+
+```bat
+bin\perc-doctor.bat --install-root C:\Percussion -v check-config
+```
+
+### `fix-permissions`
+
+Reports (and on POSIX can fix) **allowlisted** mode / access issues only — no shell, no user globs. Prefer dry-run first.
+
+| Target | Fix behavior |
+|--------|----------------|
+| `bin/perc-doctor` (+ `.bat` / `.jar` report) | POSIX: add owner-execute on the Unix script when missing |
+| Known log directories | POSIX: ensure owner rwx when the directory exists |
+| Key `rxconfig` property files | POSIX: ensure owner-read when present |
+
+On Windows the command reports readable/writable and does **not** rewrite ACLs.
+
+**Dry-run first:**
+
+```bash
+./bin/perc-doctor --install-root /opt/Percussion --dry-run -v fix-permissions
+```
+
+```bat
+bin\perc-doctor.bat --install-root C:\Percussion --dry-run -v fix-permissions
+```
+
+**Apply (POSIX mode bits only):**
+
+```bash
+./bin/perc-doctor --install-root /opt/Percussion -v fix-permissions
+```
+
+
 ## Distribution packaging (developers)
 
 Module `mvnw clean install` attaches:
