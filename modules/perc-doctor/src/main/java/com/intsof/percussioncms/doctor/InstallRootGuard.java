@@ -177,4 +177,159 @@ public final class InstallRootGuard {
     int midLen = lowerFileName.length() - prefix.length() - suffix.length();
     return midLen > 0;
   }
+
+  /**
+   * Relative log directory roots under a CMS install (portable segments joined with {@link
+   * Path#of(String, String...)}). Documented in the module README.
+   *
+   * <ul>
+   *   <li>{@code jetty/base/logs} — Jetty / CMS Log4j2 and install layout ({@code install.xml})
+   *   <li>{@code jetty/base/modules/perc-logging/logs} — Log4j2 default relative to
+   *       perc-logging module config
+   *   <li>{@code Deployment/Server/logs} — DTS / Tomcat ({@code catalina.base}/logs)
+   * </ul>
+   *
+   * <p>Missing directories are skipped at walk time (not an error).
+   */
+  public static final String[] LOG_DIR_RELATIVE = {
+    "jetty/base/logs",
+    "jetty/base/modules/perc-logging/logs",
+    "Deployment/Server/logs"
+  };
+
+  /**
+   * Resolve allowlisted log directory roots that exist under {@code installRoot}. Only existing
+   * directories that stay under the install root are returned.
+   *
+   * @param installRoot resolved install root
+   * @return list of existing log dir paths under the root (may be empty)
+   */
+  public static java.util.List<Path> existingLogDirs(Path installRoot) {
+    Objects.requireNonNull(installRoot, "installRoot");
+    Path root = installRoot.toAbsolutePath().normalize();
+    java.util.List<Path> dirs = new java.util.ArrayList<>();
+    for (String relative : LOG_DIR_RELATIVE) {
+      Path dir = resolveRelativeUnderRoot(root, relative);
+      if (dir == null) {
+        continue;
+      }
+      if (Files.isDirectory(dir) && isUnderInstallRoot(root, dir)) {
+        dirs.add(dir);
+      }
+    }
+    return dirs;
+  }
+
+  /**
+   * Join a forward-slash relative path under {@code root}. Rejects {@code ..} segments and
+   * absolute relative inputs so the result cannot escape the root via the relative string.
+   *
+   * @return resolved path under root, or null if the relative path is invalid
+   */
+  static Path resolveRelativeUnderRoot(Path root, String relativeSlashPath) {
+    if (relativeSlashPath == null || relativeSlashPath.isEmpty()) {
+      return null;
+    }
+    if (relativeSlashPath.indexOf('\\') >= 0) {
+      return null;
+    }
+    String[] parts = relativeSlashPath.split("/");
+    Path resolved = root;
+    for (String part : parts) {
+      if (part.isEmpty() || ".".equals(part)) {
+        continue;
+      }
+      if ("..".equals(part)) {
+        return null;
+      }
+      resolved = resolved.resolve(part);
+    }
+    Path normalized = resolved.toAbsolutePath().normalize();
+    if (!pathStartsWithRoot(normalized, root.toAbsolutePath().normalize())) {
+      return null;
+    }
+    return normalized;
+  }
+
+  /**
+   * Allowlisted log file name for {@code clean-logs}: ends with {@code .log}, {@code .log.gz}, or
+   * {@code .out} (e.g. {@code catalina.out}). Case-insensitive. Path separators rejected.
+   *
+   * @param fileName bare file name (not a path)
+   * @return true if the name is a log candidate
+   */
+  public static boolean isLogFileName(String fileName) {
+    if (fileName == null || fileName.isEmpty()) {
+      return false;
+    }
+    if (fileName.indexOf('/') >= 0 || fileName.indexOf('\\') >= 0) {
+      return false;
+    }
+    String lower = fileName.toLowerCase(Locale.ROOT);
+    return lower.endsWith(".log")
+        || lower.endsWith(".log.gz")
+        || lower.endsWith(".out");
+  }
+
+  /**
+   * Whether {@code fileName} is an identifiable <em>current / active</em> log that {@code
+   * --keep-current} should retain.
+   *
+   * <p>Current logs are non-compressed {@code *.log} / {@code *.out} basenames that do not embed a
+   * rolled date token ({@code yyyy-MM-dd}) and are not numbered backups like {@code name.log.1}.
+   * Examples kept: {@code server.log}, {@code catalina.log}, {@code catalina.out}. Examples not
+   * current: {@code server-2024-01-15-1.log}, {@code catalina.2024-01-15.log.gz}.
+   *
+   * @param fileName bare file name
+   * @return true if the file should be treated as the active log
+   */
+  public static boolean isCurrentLogFileName(String fileName) {
+    if (fileName == null || fileName.isEmpty()) {
+      return false;
+    }
+    if (fileName.indexOf('/') >= 0 || fileName.indexOf('\\') >= 0) {
+      return false;
+    }
+    String lower = fileName.toLowerCase(Locale.ROOT);
+    // Compressed / explicitly rolled archives are never "current active"
+    if (lower.endsWith(".gz")) {
+      return false;
+    }
+    // name.log.N style (common Tomcat / JUL rotation)
+    if (lower.matches(".*\\.log\\.\\d+$") || lower.matches(".*\\.out\\.\\d+$")) {
+      return false;
+    }
+    // Embedded ISO date token used by Log4j2 / Tomcat rolled names
+    if (containsIsoDateToken(lower)) {
+      return false;
+    }
+    return lower.endsWith(".log") || lower.endsWith(".out");
+  }
+
+  /** True when {@code lowerName} contains a {@code yyyy-MM-dd} token. */
+  static boolean containsIsoDateToken(String lowerName) {
+    if (lowerName == null || lowerName.length() < 10) {
+      return false;
+    }
+    // Lightweight scan for yyyy-mm-dd without regex overhead on every file
+    for (int i = 0; i <= lowerName.length() - 10; i++) {
+      if (isDigit(lowerName.charAt(i))
+          && isDigit(lowerName.charAt(i + 1))
+          && isDigit(lowerName.charAt(i + 2))
+          && isDigit(lowerName.charAt(i + 3))
+          && lowerName.charAt(i + 4) == '-'
+          && isDigit(lowerName.charAt(i + 5))
+          && isDigit(lowerName.charAt(i + 6))
+          && lowerName.charAt(i + 7) == '-'
+          && isDigit(lowerName.charAt(i + 8))
+          && isDigit(lowerName.charAt(i + 9))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean isDigit(char c) {
+    return c >= '0' && c <= '9';
+  }
 }

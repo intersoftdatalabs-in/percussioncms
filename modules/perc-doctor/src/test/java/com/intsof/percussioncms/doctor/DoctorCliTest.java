@@ -178,4 +178,84 @@ class DoctorCliTest {
     String out = outBuf.toString(StandardCharsets.UTF_8);
     assertTrue(out.contains("deleted=1"));
   }
+
+  @Test
+  void cleanLogsDryRunViaCliDoesNotDelete() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("install-logs"));
+    Path logs =
+        Files.createDirectories(root.resolve("jetty").resolve("base").resolve("logs"));
+    Path current = logs.resolve("server.log");
+    Path rolled = logs.resolve("server-2020-01-01-1.log");
+    Files.writeString(current, "cur");
+    Files.writeString(rolled, "old");
+    Files.setLastModifiedTime(
+        rolled, java.nio.file.attribute.FileTime.from(java.time.Instant.now().minusSeconds(86400L * 30)));
+
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {
+              "--install-root",
+              root.toString(),
+              "--dry-run",
+              "-v",
+              "clean-logs",
+              "--older-than",
+              "7d"
+            },
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+
+    assertEquals(DoctorCli.EXIT_OK, code);
+    assertTrue(Files.exists(current));
+    assertTrue(Files.exists(rolled));
+    String out = outBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(out.contains("command=clean-logs"));
+    assertTrue(out.contains("dry-run=true"));
+    assertTrue(out.contains("WOULD_DELETE"));
+  }
+
+  @Test
+  void cleanLogsApplyViaCliKeepsCurrentDeletesAgedRolled() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("install-logs-apply"));
+    Path logs =
+        Files.createDirectories(root.resolve("jetty").resolve("base").resolve("logs"));
+    Path current = logs.resolve("server.log");
+    Path rolled = logs.resolve("server-2020-02-02-1.log");
+    Files.writeString(current, "cur");
+    Files.writeString(rolled, "old");
+    Files.setLastModifiedTime(
+        rolled, java.nio.file.attribute.FileTime.from(java.time.Instant.now().minusSeconds(86400L * 30)));
+    Files.setLastModifiedTime(
+        current, java.nio.file.attribute.FileTime.from(java.time.Instant.now().minusSeconds(86400L * 30)));
+
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {
+              "--install-root", root.toString(), "clean-logs", "--older-than", "7d"
+            },
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+
+    assertEquals(DoctorCli.EXIT_OK, code);
+    assertTrue(Files.exists(current), "keep-current default retains server.log");
+    assertFalse(Files.exists(rolled));
+    String out = outBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(out.contains("deleted=1"));
+  }
+
+  @Test
+  void cleanLogsInvalidOlderThanIsUsageError() {
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {"clean-logs", "--older-than", "not-a-duration"},
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+    assertEquals(DoctorCli.EXIT_USAGE, code);
+  }
 }

@@ -19,15 +19,17 @@ package com.intsof.percussioncms.doctor;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.time.Duration;
 
 /**
  * CLI entry for {@code perc-doctor}.
  *
  * <pre>
- * perc-doctor [--install-root &lt;path&gt;] [--dry-run] [-v|--verbose] &lt;command&gt;
+ * perc-doctor [--install-root &lt;path&gt;] [--dry-run] [-v|--verbose]
+ *   &lt;command&gt; [command-options]
  * </pre>
  *
- * <p>Commands: {@code clean-heap-dumps}, {@code clean-install-backups}.
+ * <p>Commands: {@code clean-heap-dumps}, {@code clean-install-backups}, {@code clean-logs}.
  */
 public final class DoctorCli {
 
@@ -75,8 +77,10 @@ public final class DoctorCli {
       err.println(
           "Error: missing command. Try: "
               + CleanHeapDumpsCommand.COMMAND_NAME
-              + " or "
-              + CleanInstallBackupsCommand.COMMAND_NAME);
+              + ", "
+              + CleanInstallBackupsCommand.COMMAND_NAME
+              + ", or "
+              + CleanLogsCommand.COMMAND_NAME);
       printHelp(err);
       return EXIT_USAGE;
     }
@@ -97,12 +101,21 @@ public final class DoctorCli {
         printReport(report, parsed.verbose, out);
         return report.getFailedCount() > 0 ? EXIT_ERROR : EXIT_OK;
       }
+      if (CleanLogsCommand.COMMAND_NAME.equals(parsed.command)) {
+        CleanLogsCommand.Options options =
+            new CleanLogsCommand.Options(parsed.olderThan, parsed.keepCurrent);
+        CleanReport report = CleanLogsCommand.execute(installRoot, parsed.dryRun, options);
+        printReport(report, parsed.verbose, out);
+        return report.getFailedCount() > 0 ? EXIT_ERROR : EXIT_OK;
+      }
       err.println("Error: unknown command: " + parsed.command);
       err.println(
           "Supported commands: "
               + CleanHeapDumpsCommand.COMMAND_NAME
               + ", "
-              + CleanInstallBackupsCommand.COMMAND_NAME);
+              + CleanInstallBackupsCommand.COMMAND_NAME
+              + ", "
+              + CleanLogsCommand.COMMAND_NAME);
       printHelp(err);
       return EXIT_USAGE;
     } catch (IllegalArgumentException e) {
@@ -120,11 +133,15 @@ public final class DoctorCli {
     boolean verbose;
     boolean help;
     String command;
+    /** Optional age filter for {@code clean-logs}; null when unset. */
+    Duration olderThan;
+    /** Default true for {@code clean-logs}. */
+    boolean keepCurrent = true;
   }
 
   /**
    * Minimal argv parser (no external CLI library). Supports long options and {@code -v}/{@code
-   * -h}.
+   * -h}. Global and command-specific options may appear before or after the command token.
    */
   static ParsedArgs parseArgs(String[] args) {
     ParsedArgs parsed = new ParsedArgs();
@@ -144,6 +161,16 @@ public final class DoctorCli {
           throw new IllegalArgumentException("--install-root requires a path argument");
         }
         parsed.installRoot = args[++i];
+      } else if ("--older-than".equals(a)) {
+        if (i + 1 >= args.length) {
+          throw new IllegalArgumentException(
+              "--older-than requires a duration argument (e.g. 7d)");
+        }
+        parsed.olderThan = CleanLogsCommand.parseOlderThan(args[++i]);
+      } else if ("--keep-current".equals(a)) {
+        parsed.keepCurrent = true;
+      } else if ("--no-keep-current".equals(a)) {
+        parsed.keepCurrent = false;
       } else if (a.startsWith("-")) {
         throw new IllegalArgumentException("unknown option: " + a);
       } else if (parsed.command == null) {
@@ -156,11 +183,11 @@ public final class DoctorCli {
   }
 
   private static void printHelp(PrintStream stream) {
-    stream.println("usage: perc-doctor [options] <command>");
+    stream.println("usage: perc-doctor [options] <command> [command-options]");
     stream.println();
     stream.println(
         "CMS Doctor — safe install-tree maintenance"
-            + " (clean-heap-dumps, clean-install-backups).");
+            + " (clean-heap-dumps, clean-install-backups, clean-logs).");
     stream.println();
     stream.println("Options:");
     stream.println("  --install-root <path>  CMS install root (default: current working directory)");
@@ -173,6 +200,16 @@ public final class DoctorCli {
     stream.println(
         "  clean-install-backups  Remove allowlisted installer/upgrade backups"
             + " (*.bak, *.backup, AppServer_backup_*.zip)");
+    stream.println(
+        "  clean-logs             Remove aged logs under known Jetty/CMS/DTS log dirs");
+    stream.println();
+    stream.println("clean-logs options:");
+    stream.println(
+        "  --older-than <dur>     Only files older than duration (e.g. 7d, 24h, 30m)");
+    stream.println(
+        "  --keep-current         Never delete active current *.log/*.out (default)");
+    stream.println(
+        "  --no-keep-current      Allow deleting active current log basenames");
     stream.println();
     stream.println("Examples:");
     stream.println("  perc-doctor --install-root /opt/Percussion --dry-run clean-heap-dumps");
@@ -180,6 +217,10 @@ public final class DoctorCli {
     stream.println(
         "  perc-doctor --install-root /opt/Percussion --dry-run -v clean-install-backups");
     stream.println("  perc-doctor --install-root C:\\Percussion -v clean-install-backups");
+    stream.println(
+        "  perc-doctor --install-root /opt/Percussion --dry-run -v clean-logs --older-than 7d");
+    stream.println(
+        "  perc-doctor --install-root C:\\Percussion -v clean-logs --older-than 14d");
   }
 
   static void printReport(CleanReport report, boolean verbose, PrintStream out) {
