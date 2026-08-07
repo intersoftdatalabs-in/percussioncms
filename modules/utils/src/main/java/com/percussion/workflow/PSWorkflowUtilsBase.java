@@ -24,7 +24,6 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,7 +31,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.StringTokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -277,18 +275,19 @@ public class PSWorkflowUtilsBase {
    * @param sRoleList - the second role list as comma separated list
    * @return the assignment type - one of the values defined in this file (PSWorkflowUtilsBase.java)
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static int compareRoleList(
       ArrayList assignmentTypeList, ArrayList roleList, String sRoleList) {
     StringTokenizer sTokenizer = new StringTokenizer(sRoleList, ROLE_DELIMITER);
-    String sRole = "";
-    String sToken = "";
+    String sRole;
+    String sToken;
     boolean bPresent = false;
     int nAssignmentType = PSWorkflowUtilsBase.ASSIGNMENT_TYPE_NONE;
     Integer index;
     while (sTokenizer.hasMoreElements()) {
       sToken = sTokenizer.nextToken().trim();
       for (int i = 0; i < roleList.size(); i++) {
-        sRole = roleList.get(i).toString();
+        sRole = (String) roleList.get(i);
         if (sRole.trim().equalsIgnoreCase(sToken)) {
           if (false == bPresent) bPresent = true;
           index = (Integer) assignmentTypeList.get(i);
@@ -306,15 +305,16 @@ public class PSWorkflowUtilsBase {
    * @param sRoleList - the second role list as comma separated list
    * @return <CODE>true</CODE> if there is a common role, else <CODE>false</CODE>
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static boolean compareRoleList(List roleList, String sRoleList) {
     StringTokenizer sTokenizer = new StringTokenizer(sRoleList, ROLE_DELIMITER);
-    String sRole = "";
-    String sToken = "";
+    String sRole;
+    String sToken;
     boolean bFound = false;
     while (sTokenizer.hasMoreElements()) {
       sToken = sTokenizer.nextToken().trim();
       for (int i = 0; i < roleList.size(); i++) {
-        sRole = roleList.get(i).toString();
+        sRole = (String) roleList.get(i);
         if (sRole.trim().equalsIgnoreCase(sToken)) {
           bFound = true;
           break;
@@ -429,6 +429,7 @@ public class PSWorkflowUtilsBase {
    *     descriptive comment in the HTML Parameter hash map, or the comment is empty or consists
    *     entirely of whitespace. May not be more than 255 characters.
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static String getTransitionCommentFromHTMLParams(HashMap htmlParams) {
     String paramName = getTransitionCommentParamName();
 
@@ -462,6 +463,7 @@ public class PSWorkflowUtilsBase {
    * @param params map containing the HTML parameters for this request, may not be <code>null</code>
    *     .
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static void setTransitionCommentInHTMLParams(String comment, HashMap params) {
     if (comment != null && comment.length() > 255)
       throw new IllegalArgumentException("comment may not exceed 255 characters");
@@ -814,6 +816,7 @@ public class PSWorkflowUtilsBase {
    * @return correponding list, with primitives replaced by wrapper clases, empty list if input
    *     array is <CODE>null</CODE>
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static List arrayToList(Object array) {
     List newList = new ArrayList();
     if (null == array) {
@@ -832,18 +835,18 @@ public class PSWorkflowUtilsBase {
    * @return list with items in lower case, or <CODE>null</CODE> if original list was <CODE>null
    *     </CODE>.
    */
-  static List lowerCaseList(List inputList) {
+  static List<String> lowerCaseList(List<String> inputList) {
     if (null == inputList) {
       return null;
     }
 
-    List newList = new ArrayList();
+    List<String> newList = new ArrayList<>();
 
-    Iterator iter = inputList.iterator();
+    Iterator<String> iter = inputList.iterator();
     String item = "";
 
     while (iter.hasNext()) {
-      item = (String) iter.next();
+      item = iter.next();
       if (null != item) {
         newList.add(item.toLowerCase());
       } else {
@@ -864,6 +867,7 @@ public class PSWorkflowUtilsBase {
    *     to <CODE>true</CODE>. Return <CODE>null</CODE> if the original list was <CODE>null</CODE>
    *     or the map was <CODE>null</CODE> or empty.
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static List filterList(List inputList, Map map) {
     if (null == inputList || null == map || map.isEmpty()) {
       return null;
@@ -875,12 +879,11 @@ public class PSWorkflowUtilsBase {
     Iterator iter = inputList.iterator();
     Object key = null;
     Boolean val = null;
-
     while (iter.hasNext()) {
       key = iter.next();
       if (null != key) {
         val = (Boolean) map.get(key);
-        if (null != val && val.booleanValue()) {
+        if (null != val && val) {
           filteredList.add(key);
         }
       }
@@ -900,26 +903,20 @@ public class PSWorkflowUtilsBase {
    * @param value the value whose id is needed.
    * @return the key if found. -1 if not found.
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static int getRoleIdFromMap(Map roleMap, String value) {
     if (roleMap == null || value == null || value.trim().length() == 0)
       throw new IllegalArgumentException("arguments must not be null or empty");
 
     int theKey = -1;
-    Collection c = roleMap.values();
-    Iterator it = c.iterator();
 
-    Set keySet = roleMap.keySet();
-    Object key[] = keySet.toArray();
-
-    int i = 0;
-    while (it.hasNext()) {
-
-      String theValue = (String) it.next();
-      if (theValue.equals(value)) {
-        theKey = ((Integer) key[i]).intValue();
+    Iterator entries = roleMap.entrySet().iterator();
+    while (entries.hasNext()) {
+      Map.Entry e = (Map.Entry) entries.next();
+      if (value.equals(e.getValue())) {
+        theKey = ((Integer) e.getKey()).intValue();
         break;
       }
-      i++;
     }
 
     return theKey;
@@ -970,6 +967,7 @@ public class PSWorkflowUtilsBase {
    *     case-insensitive comparision, retaining the first occurance of any item, and discarding
    *     <CODE>null</CODE> strings. Returns <CODE>null</CODE> if the original list is null.
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static List caseInsensitiveUniqueList(List inputList) {
     HashMap localMap = new HashMap();
     if (null == inputList) {
@@ -979,14 +977,10 @@ public class PSWorkflowUtilsBase {
     if (inputList.isEmpty()) {
       return new ArrayList();
     }
-    Iterator iter = inputList.iterator();
-    String key = null;
-    String val = null;
 
-    /*
-     * Create a map with the lower cased strings as keys, and the strings as
-     * values. This map collects the unique strings.
-     */
+    Iterator iter = inputList.iterator();
+    String val = "";
+    String key = "";
     while (iter.hasNext()) {
       val = (String) iter.next();
       if (null == val) {
@@ -1013,6 +1007,7 @@ public class PSWorkflowUtilsBase {
    * @return a list consisting of all elements of the first list that are contained in the second
    *     list, or <CODE>null</CODE> if either list is empty.
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static List intersectLists(List list1, List list2) {
     if (null == list1 || null == list2) {
       return null;
@@ -1024,7 +1019,6 @@ public class PSWorkflowUtilsBase {
 
     Iterator iter = list1.iterator();
     Object item = null;
-
     while (iter.hasNext()) {
       item = iter.next();
       if (list2.contains(item)) {
@@ -1049,6 +1043,7 @@ public class PSWorkflowUtilsBase {
    * Convenience method. Calls {@link #listToDelimitedString(List,String,String)
    * listToDelimitedString(list, delimeter, "")}
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static String listToDelimitedString(List list, String delimeter) {
     return listToDelimitedString(list, delimeter, "");
   }
@@ -1061,6 +1056,7 @@ public class PSWorkflowUtilsBase {
    * @param delimeter the delimeter used to separate the substrings can be empty ("").
    * @throws IllegalArgumentException if list is <CODE>null</CODE> or empty.
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static String listToDelimitedString(List list, String delimeter, String stringForNull) {
 
     // Null or empty lists are not allowed

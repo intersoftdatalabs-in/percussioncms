@@ -104,10 +104,19 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
     m_fromStateCauc = fromStateCauc;
   }
 
-  /** list of IDs of state roles in which a user is acting */
+  /**
+   * List of IDs of state roles in which a user is acting. The field is intentionally raw {@code
+   * List} to match the public getter/setter and the {@link IWorkflowRoleInfo} interface signature.
+   * Callers that need typed access should construct a typed view locally; the underlying raw
+   * contract is preserved for source compatibility with external XML applications and
+   * reflection-based callers.
+   */
   private List m_userActingRoleIDs = null;
 
-  /** list of names of state roles in which a user is acting */
+  /**
+   * List of names of state roles in which a user is acting. See {@link #m_userActingRoleIDs} for
+   * why the field is raw.
+   */
   private List m_userActingRoleNames = null;
 
   /** Content adhoc users context for the transition "to" state */

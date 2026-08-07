@@ -95,7 +95,12 @@ public class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCacheIte
     } else {
       propname = m_name;
     }
-    Collection<Object> values = (Collection<Object>) super.getPropertyValue(propname);
+    Object rawValues = super.getPropertyValue(propname);
+    // Cast deliberately raw: a non-Collection property value is a configuration / data
+    // corruption symptom, and should surface as ClassCastException (matches pre-PR behavior
+    // and is documented by review thread PRRT_kwDOKZBp3M6XPfAm).
+    @SuppressWarnings("unchecked")
+    Collection<?> values = (Collection<?>) rawValues;
     // Getting values.size() is a costly db call use a list so we only query for the
     // actual values.  values.iterator() is called in the for loop, this calls the db
     List<Value> valuesList = new ArrayList<>();
