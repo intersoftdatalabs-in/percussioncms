@@ -17,7 +17,6 @@
 package com.percussion.design.objectstore;
 
 import com.percussion.extension.PSExtensionRef;
-import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
@@ -48,7 +47,8 @@ public class PSExtensionCall extends PSComponent
    * @param parentComponents the parent objects of this object
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSExtensionCall(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSExtensionCall(
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
@@ -174,7 +174,11 @@ public class PSExtensionCall extends PSComponent
    * @param params an array of PSExtensionParamValue objects
    */
   public void setParamValues(PSExtensionParamValue[] params) {
-    setParamValues(PSIteratorUtils.iterator(params));
+    if (params == null) {
+      setParamValues((Iterator<? extends PSExtensionParamValue>) null);
+    } else {
+      setParamValues(Arrays.asList(params).iterator());
+    }
   }
 
   /**
@@ -183,16 +187,16 @@ public class PSExtensionCall extends PSComponent
    * @param params An Iterator over 0 or more PSExtensionParamValue objects. Can be <CODE>null
    *     </CODE>.
    */
-  public void setParamValues(Iterator params) {
-    m_params = new LinkedList();
+  public void setParamValues(Iterator<? extends PSExtensionParamValue> params) {
+    m_params = new LinkedList<>();
 
     // build column names which need to be mapped
-    ArrayList cols = new ArrayList();
+    ArrayList<String> cols = new ArrayList<>();
 
     if (params != null) {
       // get the back-end column names
       while (params.hasNext()) {
-        PSExtensionParamValue val = (PSExtensionParamValue) (params.next());
+        PSExtensionParamValue val = params.next();
         if (val != null && val.isBackEndColumn()) {
           cols.add(val.getValue().getValueText());
         }
@@ -200,8 +204,7 @@ public class PSExtensionCall extends PSComponent
       }
     }
 
-    m_columns = new String[cols.size()];
-    cols.toArray(m_columns);
+    m_columns = cols.toArray(new String[0]);
   }
 
   /**
@@ -211,8 +214,10 @@ public class PSExtensionCall extends PSComponent
    *     empty. If the returned list is empty, this should be applied to all handlers, otherwise
    *     only to the listed ones.
    */
-  public Iterator getApplyTo() {
-    if (m_applyTo == null) return PSIteratorUtils.emptyIterator();
+  public Iterator<String> getApplyTo() {
+    if (m_applyTo == null) {
+      return java.util.Collections.emptyIterator();
+    }
 
     return m_applyTo.iterator();
   }
@@ -223,7 +228,7 @@ public class PSExtensionCall extends PSComponent
    * @param applyTo a list of handler names this exit should be applied to. Set it to <code>null
    *     </code> or empty to apply it to all handlers.
    */
-  public void setApplyTo(List applyTo) {
+  public void setApplyTo(List<String> applyTo) {
     m_applyTo = applyTo;
   }
 
@@ -252,7 +257,7 @@ public class PSExtensionCall extends PSComponent
    * @return this extension's parameter values wrapped in a list, never <code>null</code>.
    * @see #getParamValues()
    */
-  public Collection getParameters() {
+  public Collection<? extends IPSParameter> getParameters() {
     return Arrays.asList(getParamValues());
   }
 
@@ -268,10 +273,12 @@ public class PSExtensionCall extends PSComponent
   public Object clone() {
     PSExtensionCall copy = (PSExtensionCall) super.clone();
     // PSExtensionRef is immutable
-    copy.m_params = new ArrayList(m_params.size());
-    for (Object m_param : m_params) {
-      PSExtensionParamValue value = (PSExtensionParamValue) m_param;
-      copy.m_params.add(value.clone());
+    copy.m_params = new ArrayList<>(m_params.size());
+    for (PSExtensionParamValue value : m_params) {
+      copy.m_params.add((PSExtensionParamValue) value.clone());
+    }
+    if (m_applyTo != null) {
+      copy.m_applyTo = new ArrayList<>(m_applyTo);
     }
     return copy;
   }
@@ -328,11 +335,9 @@ public class PSExtensionCall extends PSComponent
     if (m_ext != null) PSXmlDocumentBuilder.addElement(doc, root, "name", m_ext.toString());
 
     if (m_params != null) {
-      Element node;
-      for (Iterator i = m_params.iterator(); i.hasNext(); ) {
-        PSExtensionParamValue val = (PSExtensionParamValue) (i.next());
+      for (PSExtensionParamValue val : m_params) {
         if (val != null) {
-          node = val.toXml(doc);
+          Element node = val.toXml(doc);
           root.appendChild(node);
         }
       }
@@ -348,7 +353,8 @@ public class PSExtensionCall extends PSComponent
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXExtensionCall
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;
@@ -381,7 +387,7 @@ public class PSExtensionCall extends PSComponent
     }
 
     m_ext = new PSExtensionRef(exitName);
-    Collection params = new LinkedList();
+    Collection<PSExtensionParamValue> params = new LinkedList<>();
 
     final String curNodeType = PSExtensionParamValue.ms_NodeType;
 
@@ -427,8 +433,7 @@ public class PSExtensionCall extends PSComponent
     if (m_params != null) {
       cxt.pushParent(this);
       try {
-        for (Iterator i = m_params.iterator(); i.hasNext(); ) {
-          PSExtensionParamValue val = (PSExtensionParamValue) (i.next());
+        for (PSExtensionParamValue val : m_params) {
           if (null != val) val.validate(cxt);
         }
       } finally {
@@ -459,7 +464,7 @@ public class PSExtensionCall extends PSComponent
    * A Collection of zero or more non-<CODE>null</CODE> PSExtensionParamValue objects. Never <CODE>
    * null</CODE>.
    */
-  protected Collection m_params;
+  protected Collection<PSExtensionParamValue> m_params;
 
   /**
    * An array of zero or more columns which need to be mapped in order for the param values to be
@@ -473,7 +478,7 @@ public class PSExtensionCall extends PSComponent
    * empty. If the list is empty or <code>null</code>, this exit will be applied to all handlers,
    * otherwise it will only be applied to the handlers in this list.
    */
-  private List m_applyTo = null;
+  private List<String> m_applyTo = null;
 
   /** Name of the root element of this object's XML representation */
   public static final String ms_NodeType = "PSXExtensionCall";

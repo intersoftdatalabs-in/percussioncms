@@ -51,7 +51,8 @@ public abstract class PSNamedReplacementValue extends PSComponent
    * @param parentComponents may be <code>null</code>
    * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format.
    */
-  public PSNamedReplacementValue(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSNamedReplacementValue(
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode may not be null");
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -93,7 +94,8 @@ public abstract class PSNamedReplacementValue extends PSComponent
    * @param parentComponents may be <code>null</code>
    * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     validateElementName(sourceNode, getNodeName());
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
