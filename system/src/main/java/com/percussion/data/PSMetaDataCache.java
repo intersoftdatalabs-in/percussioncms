@@ -169,7 +169,7 @@ public class PSMetaDataCache {
     // try to get the table name from the tableset
     if (null == tableName || tableName.trim().length() == 0) {
       String alias = column.getTable().getAlias();
-      Iterator refs = tableSet.getTableRefs();
+      Iterator<?> refs = tableSet.getTableRefs();
       while (refs.hasNext()) {
         PSTableRef ref = (PSTableRef) refs.next();
         if (ref.getAlias().equals(alias)) {

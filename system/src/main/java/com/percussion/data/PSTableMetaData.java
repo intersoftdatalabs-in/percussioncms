@@ -34,7 +34,6 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -75,10 +74,10 @@ public class PSTableMetaData implements IPSConnectionInfo {
     m_dataSource = m_login == null ? null : m_login.getDataSource();
     m_schema = schema;
     m_tableName = tableName;
-    m_columns = new ArrayList();
+    m_columns = new ArrayList<>();
     m_patMat = new PSPatternMatcher('_', '%', "%");
-    m_primaryKeyColumns = new ArrayList();
-    m_foreignKeyColumns = new ArrayList();
+    m_primaryKeyColumns = new ArrayList<>();
+    m_foreignKeyColumns = new ArrayList<>();
 
     /*
      * Fold catalog/schema/table to the case the backend stores unquoted
@@ -136,15 +135,31 @@ public class PSTableMetaData implements IPSConnectionInfo {
    * Case-insensitive column name lookup for sorted {@link #m_columns}. Used when the driver returns
    * lowercase names (PostgreSQL) but content editors request {@code COMMUNITYID}.
    *
+   * <p>Manual binary search (not {@link Collections#binarySearch} with a {@link String} key) so
+   * {@code m_columns} can be a typed {@code List<ColumnInfo>} without raw {@code Comparable}.
+   *
    * @param columnName name to find, may be {@code null}
-   * @return index in {@link #m_columns}, or negative if not found (same contract as {@link
-   *     Collections#binarySearch})
+   * @return index in {@link #m_columns}, or negative insertion point if not found (same contract as
+   *     {@link Collections#binarySearch})
    */
   int findColumnIndex(String columnName) {
     if (columnName == null) {
       return -1;
     }
-    return Collections.binarySearch(m_columns, columnName);
+    int low = 0;
+    int high = m_columns.size() - 1;
+    while (low <= high) {
+      int mid = (low + high) >>> 1;
+      int cmp = m_columns.get(mid).m_name.compareToIgnoreCase(columnName);
+      if (cmp < 0) {
+        low = mid + 1;
+      } else if (cmp > 0) {
+        high = mid - 1;
+      } else {
+        return mid;
+      }
+    }
+    return -(low + 1);
   }
 
   /**
@@ -186,9 +201,8 @@ public class PSTableMetaData implements IPSConnectionInfo {
    * @since 1.1 1999/4/30
    */
   public String[] getColumns(String columnNamePattern) {
-    List cols = new ArrayList(m_columns.size());
-    for (Iterator i = m_columns.iterator(); i.hasNext(); ) {
-      ColumnInfo colInfo = (ColumnInfo) i.next();
+    List<String> cols = new ArrayList<>(m_columns.size());
+    for (ColumnInfo colInfo : m_columns) {
       if (m_patMat.doesMatchPattern(columnNamePattern, colInfo.m_name)) {
         cols.add(colInfo.m_name);
       }
@@ -233,7 +247,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
   public String[] getAutoUpdateColumns() {
     // may need to aquire this info lazily
     if (m_autoUpdateColumns == null) {
-      m_autoUpdateColumns = new ArrayList();
+      m_autoUpdateColumns = new ArrayList<>();
 
       if (PSSqlHelper.supportsIdentityColumns(m_driver)) {
         ResultSet rs = null;
@@ -307,7 +321,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
     int colIdx = findColumnIndex(columnName);
     if (colIdx < 0) throw new SQLException("no such column " + columnName);
 
-    ColumnInfo info = (ColumnInfo) m_columns.get(colIdx);
+    ColumnInfo info = m_columns.get(colIdx);
     if (info.m_nullable == DatabaseMetaData.columnNoNulls) return false;
     return true;
   }
@@ -323,7 +337,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
   public int columnIndex(String columnName) throws SQLException {
     int colIdx = findColumnIndex(columnName);
     if (colIdx < 0) return -1;
-    ColumnInfo info = (ColumnInfo) m_columns.get(colIdx);
+    ColumnInfo info = m_columns.get(colIdx);
     return info.m_ordinalPosition;
   }
 
@@ -345,7 +359,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
   public short getColumnType(String columnName) throws SQLException {
     if (null == columnName || columnName.trim().length() == 0)
       throw new SQLException("no such column '" + columnName + "'");
-    Integer jdbcType = (Integer) m_dataTypes.get(columnName.toLowerCase());
+    Integer jdbcType = m_dataTypes.get(columnName.toLowerCase());
     if (null == jdbcType) throw new SQLException("no such column " + columnName);
     return (short) jdbcType.intValue();
   }
@@ -360,7 +374,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
   public int getSize(String columnName) throws SQLException {
     int colIdx = findColumnIndex(columnName);
     if (colIdx < 0) throw new SQLException("no such column " + columnName);
-    ColumnInfo info = (ColumnInfo) m_columns.get(colIdx);
+    ColumnInfo info = m_columns.get(colIdx);
     return info.m_size;
   }
 
@@ -374,7 +388,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
   public int getScale(String columnName) throws SQLException {
     int colIdx = findColumnIndex(columnName);
     if (colIdx < 0) throw new SQLException("no such column " + columnName);
-    ColumnInfo info = (ColumnInfo) m_columns.get(colIdx);
+    ColumnInfo info = m_columns.get(colIdx);
     return info.m_fractionalDigits;
   }
 
@@ -387,7 +401,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
   public String getTypeName(String columnName) throws SQLException {
     int colIdx = findColumnIndex(columnName);
     if (colIdx < 0) throw new SQLException("no such column " + columnName);
-    ColumnInfo info = (ColumnInfo) m_columns.get(colIdx);
+    ColumnInfo info = m_columns.get(colIdx);
     return null == info.m_typeName ? "" : info.m_typeName;
   }
 
@@ -420,16 +434,16 @@ public class PSTableMetaData implements IPSConnectionInfo {
    *     java.sql.Types.xxx data type is stored as the value.
    * @throws SQLException if there are any database errors.
    */
-  public Map loadDataTypes(String alias) throws SQLException {
-    Map dtMap = null;
+  public Map<String, Integer> loadDataTypes(String alias) throws SQLException {
+    Map<String, Integer> dtMap = null;
 
     // see if this has already been built
-    dtMap = (Map) m_dataTypeMap.get(alias.toLowerCase());
+    dtMap = m_dataTypeMap.get(alias.toLowerCase());
     if (dtMap != null) return dtMap;
 
     // see if we've already built our base datatype map
     if (m_dataTypes == null) {
-      m_dataTypes = new HashMap();
+      m_dataTypes = new HashMap<>();
       java.sql.Connection conn = null;
       ResultSet rs = null;
       try {
@@ -477,15 +491,13 @@ public class PSTableMetaData implements IPSConnectionInfo {
     }
 
     // need to add in entries with the table alias as part of the key
-    dtMap = new HashMap();
+    dtMap = new HashMap<>();
     m_dataTypeMap.put(alias.toLowerCase(), dtMap);
 
-    Iterator entries = m_dataTypes.entrySet().iterator();
-    while (entries.hasNext()) {
-      Map.Entry entry = (Map.Entry) entries.next();
-      String key = (String) entry.getKey();
-      Integer val = (Integer) entry.getValue();
-      dtMap.put(new String(key), Integer.valueOf(val.intValue()));
+    for (Map.Entry<String, Integer> entry : m_dataTypes.entrySet()) {
+      String key = entry.getKey();
+      Integer val = entry.getValue();
+      dtMap.put(key, Integer.valueOf(val.intValue()));
       dtMap.put(alias.toLowerCase() + "." + key, Integer.valueOf(val.intValue()));
     }
 
@@ -712,7 +724,8 @@ public class PSTableMetaData implements IPSConnectionInfo {
     // we depend upon this already existing (which it should)
     PSDatabaseMetaData psDbMeta = PSOptimizer.getCachedDatabaseMetaData(m_dataSource);
 
-    Map typeMap = psDbMeta.getDataTypeDefinitionMap();
+    // Side-effect: warm back-end type-definition cache used by native type conversion.
+    psDbMeta.getDataTypeDefinitionMap();
 
     ResultSet rs = null;
     try {
@@ -750,7 +763,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
   }
 
   /** Private class to keep track of column information */
-  private class ColumnInfo implements Comparable {
+  private class ColumnInfo implements Comparable<ColumnInfo> {
     public ColumnInfo(
         String name,
         short type,
@@ -811,11 +824,9 @@ public class PSTableMetaData implements IPSConnectionInfo {
           m_ordinalPosition);
     }
 
-    public int compareTo(Object o) {
+    @Override
+    public int compareTo(ColumnInfo other) {
       // Case-insensitive: PG/MySQL return lowercase names; editors request UPPER.
-      if (o instanceof String) return m_name.compareToIgnoreCase((String) o);
-
-      ColumnInfo other = (ColumnInfo) o;
       return m_name.compareToIgnoreCase(other.m_name);
     }
 
@@ -840,20 +851,20 @@ public class PSTableMetaData implements IPSConnectionInfo {
   private String m_dataSource;
 
   // a list (in key order) of the primary key columns
-  private List m_primaryKeyColumns;
+  private List<String> m_primaryKeyColumns;
 
   // the name of this table's primary key
   private String m_primaryKeyName;
 
   // a list of the foreign key columns
-  private List m_foreignKeyColumns;
+  private List<String> m_foreignKeyColumns;
 
   /**
    * a list of the columns which are automatically inserted/updated. <code>
    * null</code> until a call to {@link #getAutoUpdateColumns()} or {@link
    * #loadColumnInformation(DatabaseMetaData)} is made.
    */
-  private List m_autoUpdateColumns = null;
+  private List<String> m_autoUpdateColumns = null;
 
   // the table statistics for this table
   private PSTableStatistics m_tableStats;
@@ -862,7 +873,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
   private PSIndexStatistics[] m_indexStats;
 
   // a list (in column name order) of ColumnInfo objects
-  private List m_columns;
+  private List<ColumnInfo> m_columns;
 
   // a SQL style pattern matcher
   private PSPatternMatcher m_patMat;
@@ -872,13 +883,13 @@ public class PSTableMetaData implements IPSConnectionInfo {
    * the first call to {@link #loadDataTypes(String)}, never <code>null</code> or modified after
    * that.
    */
-  private Map m_dataTypes = null;
+  private Map<String, Integer> m_dataTypes = null;
 
   /**
    * Map of datatype maps based on table alias as the key and the datatype map as the value. Never
    * <code>null</code>, entries are added by calls to {@link #loadDataTypes(String)}.
    */
-  private Map m_dataTypeMap = new HashMap();
+  private Map<String, Map<String, Integer>> m_dataTypeMap = new HashMap<>();
 
   /* (non-Javadoc)
    * @see com.percussion.util.jdbc.IPSConnectionInfo#getDataSource()

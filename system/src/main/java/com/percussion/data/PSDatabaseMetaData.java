@@ -59,8 +59,8 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
   public PSDatabaseMetaData(String dataSource) {
     m_dataSource = dataSource;
     m_patMat = new PSPatternMatcher('_', '%', "%");
-    m_tables = new ArrayList();
-    m_tableMetaData = new HashMap();
+    m_tables = new ArrayList<>();
+    m_tableMetaData = new HashMap<>();
     m_dataTypeMap = null; // flag to get data types on the first request
   }
 
@@ -134,7 +134,7 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
   public String[] getTables(
       String catalog, String schemaPattern, String tableNamePattern, String[] types)
       throws SQLException {
-    ArrayList matchingTables = new ArrayList();
+    ArrayList<String> matchingTables = new ArrayList<>();
 
     if (m_tables != null) {
       matchingTables.ensureCapacity(m_tables.size());
@@ -145,8 +145,7 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
         System.arraycopy(types, 0, sortedTypes, 0, types.length);
         Arrays.sort(sortedTypes);
       }
-      for (Iterator i = m_tables.iterator(); i.hasNext(); ) {
-        ShortTableInfo info = (ShortTableInfo) i.next();
+      for (ShortTableInfo info : m_tables) {
         if (catalog != null) {
           if (info.m_catalog == null || !info.m_catalog.equals(catalog)) continue;
         }
@@ -164,7 +163,7 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
       }
     }
 
-    return (String[]) matchingTables.toArray(new String[matchingTables.size()]);
+    return matchingTables.toArray(new String[matchingTables.size()]);
   }
 
   /**
@@ -179,7 +178,7 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
     if (schemaName == null) tableKey = "." + tableName;
     else tableKey = schemaName + "." + tableName;
 
-    PSTableMetaData tmd = (PSTableMetaData) m_tableMetaData.get(tableKey);
+    PSTableMetaData tmd = m_tableMetaData.get(tableKey);
     if (null != tmd) return tmd;
 
     Connection conn = null;
@@ -199,7 +198,7 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
         }
     }
 
-    return (PSTableMetaData) m_tableMetaData.get(tableKey);
+    return m_tableMetaData.get(tableKey);
   }
 
   /**
@@ -210,13 +209,13 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
    * @throws SQLException
    * @see PSDataTypeInfo
    */
-  public java.util.Map getDataTypeDefinitionMap() throws SQLException {
+  public Map<String, PSDataTypeInfo> getDataTypeDefinitionMap() throws SQLException {
     if (m_dataTypeMap == null) {
       /* we should probably synchronize, but it's really no big deal as
        * the worst case scenario is multiple people do this at the same
        * time. There's no real harm from that.
        */
-      java.util.Map types = new java.util.HashMap();
+      Map<String, PSDataTypeInfo> types = new HashMap<>();
 
       Connection conn = null;
       try {
@@ -306,13 +305,13 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
    * @throws NamingException
    */
   public PSDataTypeInfo[] getDataTypeDefinitions() throws NamingException, SQLException {
-    java.util.Map types = getDataTypeDefinitionMap();
+    Map<String, PSDataTypeInfo> types = getDataTypeDefinitionMap();
     int size = (types == null) ? 0 : types.size();
     PSDataTypeInfo[] dtArray = new PSDataTypeInfo[size];
 
     if (size > 0) {
-      java.util.Iterator ite = types.values().iterator();
-      for (int i = 0; ite.hasNext() && (i < size); i++) dtArray[i] = (PSDataTypeInfo) ite.next();
+      Iterator<PSDataTypeInfo> ite = types.values().iterator();
+      for (int i = 0; ite.hasNext() && (i < size); i++) dtArray[i] = ite.next();
     }
 
     return dtArray;
@@ -340,7 +339,7 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
    */
   public static short guessNativeDataTypeConversion(short nativeType) {
     short dt = nativeType;
-    Short sJdbcType = (Short) ms_dataTypeConversionMap.get(new Short(nativeType));
+    Short sJdbcType = ms_dataTypeConversionMap.get(Short.valueOf(nativeType));
     if (sJdbcType != null) {
       dt = sJdbcType.shortValue();
     }
@@ -400,7 +399,7 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
       // this is not critical, just prevents the special case check
     }
 
-    HashMap<String, Short> map = (HashMap<String, Short>) ms_fixedUpDataTypeMap.get(dbmsType);
+    HashMap<String, Short> map = ms_fixedUpDataTypeMap.get(dbmsType);
     if (map != null) return map;
     map = new HashMap<>();
 
@@ -412,8 +411,8 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
             final String typeName = rs.getString(1);
             short nativeType = rs.getShort(2);
             short jdbcType = PSSqlHelper.convertNativeDataType(nativeType, typeName, driver);
-            ms_dataTypeConversionMap.put(new Short(nativeType), new Short(jdbcType));
-            map.put(typeName, new Short(jdbcType));
+            ms_dataTypeConversionMap.put(Short.valueOf(nativeType), Short.valueOf(jdbcType));
+            map.put(typeName, Short.valueOf(jdbcType));
           }
         }
       } finally {
@@ -492,13 +491,13 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
   }
 
   // the list of data types supported by the back-end
-  private Map m_dataTypeMap;
+  private Map<String, PSDataTypeInfo> m_dataTypeMap;
 
   // a list of ShortTableInfo objects, one for each table contained herein
-  private List m_tables;
+  private List<ShortTableInfo> m_tables;
 
   // a map from table names to PSTableMetaData objects
-  private Map m_tableMetaData;
+  private Map<String, PSTableMetaData> m_tableMetaData;
 
   // a SQL style pattern matcher
   private PSPatternMatcher m_patMat;
@@ -522,7 +521,7 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
    * </code>, modified by a call to {@link #loadNativeDataTypeMap(Connection, DatabaseMetaData)
    * loadNativeDataTypeMap}.
    */
-  protected static HashMap ms_dataTypeConversionMap = new HashMap();
+  protected static HashMap<Short, Short> ms_dataTypeConversionMap = new HashMap<>();
 
   /**
    * The hash set containing datasources which require that the modified datatypes be returned to
@@ -530,12 +529,12 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
    * populated in the static() method and will therefore never be <code>null</code> or empty. The
    * names are lowercased as datasource names must be treated case-insensitively.
    */
-  private static HashSet ms_driversNeedingUntweakedNulls = new HashSet();
+  private static HashSet<String> ms_driversNeedingUntweakedNulls = new HashSet<>();
 
   private static final String UNTWEAKED_DRIVER_PREFIX = "ds:";
 
   /** An internal class we use to keep track of table info. */
-  private class ShortTableInfo implements Comparable {
+  private class ShortTableInfo implements Comparable<ShortTableInfo> {
     public ShortTableInfo(
         String catalog, String schema, String tableName, String type, String remarks) {
       m_catalog = catalog;
@@ -567,11 +566,9 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
      *
      * <p>Catalog and remarks are not used in the comparison.
      */
-    public int compareTo(Object o) {
-      ShortTableInfo other = (ShortTableInfo) o;
-
+    @Override
+    public int compareTo(ShortTableInfo other) {
       int i = m_type.compareTo(other.m_type);
-      ;
       if (i != 0) return i;
 
       if (m_schema != null || other.m_schema != null) {
