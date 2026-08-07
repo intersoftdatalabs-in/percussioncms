@@ -290,6 +290,10 @@ public class Main {
         System.exit(exitCode);
       }
 
+      // Issue #2337 / parent #934 AC-5: durable post-install verification of selected backend.
+      // Runs for silent and interactive paths after a successful ANT install; never prints secrets.
+      emitPostInstallVerificationReport(installPath, resolvedDbConfig);
+
       // Persist non-secret defaults for the next install (no passwords).
       try {
         String versionToSave = percVersion != null ? percVersion : "";
@@ -317,6 +321,27 @@ public class Main {
       return;
     }
     System.out.println("Done extracting");
+  }
+
+  /**
+   * Emits the post-install DB verification report to the console and installer log (issue #2337).
+   * Failures are non-fatal so a reporting glitch cannot reverse a successful install.
+   *
+   * @param installPath install root used for embedded path display
+   * @param resolvedDbConfig resolved backend config from Phase 1
+   */
+  static void emitPostInstallVerificationReport(
+      Path installPath, DbInstallConfigResolver.ResolvedDbConfig resolvedDbConfig) {
+    try {
+      String report = PostInstallVerificationReport.build(installPath, resolvedDbConfig);
+      System.out.println(report);
+      log.info(report);
+    } catch (Exception reportEx) {
+      System.out.println(
+          "Warning: could not emit post-install DB verification report: "
+              + reportEx.getMessage());
+      log.warn("Post-install DB verification report failed", reportEx);
+    }
   }
 
   /**
