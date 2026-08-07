@@ -20,8 +20,9 @@ any module `AGENTS.md` for paths you touch.
    `docs/ai-generated/code-reviews/`, load it. Do not use `tmp/reviews/` as memory.
 2. Collect the diff with **git** (host shell may be PowerShell, cmd, or bash —
    avoid bash-only redirects). Run: `git status -sb`, `git diff`,
-   `git diff --cached`, `git fetch origin development`, then
-   `git diff origin/development...HEAD`. `gh` is optional (PR-number mode only);
+   `git diff --cached`, `git fetch origin main`, then
+   `git diff origin/main...HEAD` (default base; formerly `development`).
+   `gh` is optional (PR-number mode only);
    if `gh` is missing, continue with git and note that in Scope.
 3. Read surrounding code for non-trivial hunks — do not review hunks alone.
 4. Produce the full Erlang report: Summary, Scope, Recommendation, Gate, Issues

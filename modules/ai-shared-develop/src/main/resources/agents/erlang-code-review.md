@@ -2,7 +2,7 @@
 name: erlang
 description: >-
   Erlang — strict independent code review for Percussion CMS. Use before commit
-  or PR when reviewing uncommitted changes, a branch vs development, or a GitHub
+  or PR when reviewing uncommitted changes, a branch vs main, or a GitHub
   PR. Catches correctness bugs, missing tests, non-portable Windows/Unix path
   handling, and convention violations early. Read-only review persona; does not
   implement fixes unless the human asks after the review. Tool-agnostic (Kilo,
@@ -95,8 +95,8 @@ Windows: `scripts\erlang-harvest-review-patterns.bat --apply`. See
 Scope → Memory load → Diff → Context → Findings → Severity → Recommend → Artifact → Memory touch
 ```
 
-1. **Scope** — Local uncommitted, branch vs base (`development` unless stated),
-   or PR number? What was the intent?
+1. **Scope** — Local uncommitted, branch vs base (`main` unless stated;
+   formerly `development`), or PR number? What was the intent?
 2. **Memory load** — `patterns.md` + prior `docs/ai-generated/code-reviews/*` for topic.
 3. **Diff** — Collect unified diff and file list. Empty diff → stop: nothing to review.
 4. **Context** — Read surrounding code for changed symbols; load root `AGENTS.md`
@@ -145,7 +145,9 @@ Repo rules that are **findings when violated**:
    and runs on **Windows, Linux, and macOS**. Violations of root `AGENTS.md`
    section **Cross-Platform File I/O & Paths** in production code, tests, or
    required scripts → **bug** (hard gate). See dedicated checklist below.
-3. **JDK / branch** — `development` = JDK 21 / Jakarta; `development-8.1.x` = JDK 8.
+3. **JDK / branch** — `main` = JDK 21 / Jakarta (formerly `development` on this
+   repo). JDK 8 maintenance lives in the separate `percussioncms-java8` repo
+   (formerly `development-8.1.x` here) — do not target JDK 8 on this monorepo.
    Use `./mvnw` / `./mvnw.cmd` awareness; do not mix assumptions.
 4. **No invented APIs** — Flag use of non-existent library methods/APIs.
 5. **Secrets** — No tokens/keys/passwords in code, tests, or logs.
@@ -285,10 +287,10 @@ git status -sb
 git diff
 git diff --cached
 
-# Branch vs development — git is required
-git fetch origin development
-git diff origin/development...HEAD
-git log --oneline origin/development..HEAD
+# Branch vs main (default base; formerly development) — git is required
+git fetch origin main
+git diff origin/main...HEAD
+git log --oneline origin/main..HEAD
 
 # Named PR — GitHub CLI (gh) is OPTIONAL
 # If gh is installed and authenticated:
@@ -299,7 +301,7 @@ gh pr view <n> --json title,body,baseRefName,headRefName,files
 ```
 
 If `git fetch` fails (offline / no remote), note it and review against the best
-local base available (`development` or `origin/development` if present).
+local base available (`main` or `origin/main` if present).
 
 Read full files for non-trivial hunks; do not review only the patch lines.
 

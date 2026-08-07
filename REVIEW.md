@@ -41,7 +41,7 @@ from the base branch, never from the feature branch under review.
   versions; do not duplicate plugin versions in module `pom.xml`.
 - **No new dependencies without justification.** Prefer parent POM
   `<dependencyManagement>` over per-module dependency declarations.
-  Dependabot is configured at `.github/dependabot.yml` for `development`.
+  Dependabot is configured at `.github/dependabot.yml` for `main`.
 - **Secrets and tokens never appear in code, logs, or test fixtures.**
   A `MKD-REDACTED` marker in a session indicates a leak.
 
@@ -51,7 +51,7 @@ from the base branch, never from the feature branch under review.
   escalation, remote code execution, broken installer or upgrade path,
   missing lockstep contract propagation, secrets leaked to logs or wire,
   cross-platform path bug (works only on one OS), force-push to
-  `origin/development`, bypassing the Erlang pre-commit review gate.
+  `origin/main`, bypassing the Erlang pre-commit review gate.
 - **Warning:** missing behavioral unit test for new non-trivial logic,
   raw `Throwable` catches that swallow stack traces, `null`-returning
   APIs where `Optional` would prevent misuse, untested error paths,
@@ -109,9 +109,10 @@ from the base branch, never from the feature branch under review.
   re-enable default setup without the same config and model pack.
   Suppressions go on the sink line (`// codeql[rule-id]`), not above
   multi-line builders.
-- Force-push to `origin/development` is forbidden — create a feature
+- Force-push to `origin/main` is forbidden — create a feature
   branch and open a PR instead. See
-  `.kilo/rules/no-force-push-development.md`.
+  `.kilo/rules/no-force-push-development.md` (filename historical;
+  rule text targets `main`, formerly `development`).
 
 ## Comment style
 

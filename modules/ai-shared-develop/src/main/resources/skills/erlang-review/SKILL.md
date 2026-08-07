@@ -38,7 +38,8 @@ Cross-platform path rules (product): root `AGENTS.md` → **Cross-Platform File 
      `docs/ai-generated/code-reviews/`, load it (re-review continuity).
    - Do **not** treat `tmp/reviews/` as authoritative (`tmp/` is wipeable).
 3. **Determine scope** (ask only if unclear):
-   - default: uncommitted + unstaged vs `HEAD`, plus commits not in `origin/development`
+   - default: uncommitted + unstaged vs `HEAD`, plus commits not in `origin/main`
+     (default base; formerly `origin/development`)
    - or: explicit PR number / branch
 4. **Collect diff** (see agent file). Use portable **git** commands (not
    bash-only `2>/dev/null || true`). Host shell may be PowerShell, cmd, Git Bash,

@@ -48,9 +48,9 @@ removing an existing locale (different playbook — see §7).
    `docker info` exits 0 before starting; failure is a tooling issue, not
    a content one.
 4. **Which branch / working tree?** Module-level changes span three
-   modules — start from `origin/development` (or your assigned base).
-   Per repo rules, **never** force-push to `development`; create a
-   `feat/<issue>-<code>-locale` branch.
+   modules — start from `origin/main` (or your assigned base; formerly
+   `origin/development`). Per repo rules, **never** force-push to
+   `main`; create a `feat/<issue>-<code>-locale` branch.
 
 ## The 6-step checklist
 
@@ -326,8 +326,7 @@ will block if string-by-key fall-through to English is not documented.
    `docs/ai-generated/code-reviews/<branch-slug>-erlang.md` with
    recommendation `approve`. Use the canonical review skill; this
    checklist is not a substitute.
-5. Branch off `origin/development`; PR base is `development`; **never**
-   force-push.
+5. Branch off `origin/main`; PR base is `main`; **never** force-push.
 6. If you added a Lucene `case`, include the test that exercises a
    sample analyzer for the primary sub-tag (Erlang will flag a missing
    behavioral test as a bug).
