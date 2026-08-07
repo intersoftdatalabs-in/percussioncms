@@ -1010,9 +1010,21 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     </jaxrs:server>
 
 
+    <!-- perc-doctor admin HTTP API (issue #2219 / parent #2213 slice 4):
+         POST /maintenance/doctor/{command} — Admin only; dryRun defaults to true. -->
+    <bean id="doctorAdminChecker" class="com.percussion.doctor.PSDoctorAdminChecker">
+        <constructor-arg ref="userService"/>
+    </bean>
+    <bean id="doctorInstallRootProvider" class="com.percussion.doctor.PSDoctorInstallRootProvider"/>
+    <bean id="doctorRestService" class="com.intsof.percussioncms.doctor.api.DoctorRestService">
+        <constructor-arg ref="doctorAdminChecker"/>
+        <constructor-arg ref="doctorInstallRootProvider"/>
+    </bean>
+
     <jaxrs:server id="maintenance-jax-rs" address="/maintenance">
         <jaxrs:serviceBeans>
             <ref bean="maintenanceManagerRestService"/>
+            <ref bean="doctorRestService"/>
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
             <entry key="json" value="application/json"/>

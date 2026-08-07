@@ -29,14 +29,29 @@
     <packaging>jar</packaging>
     <name>Percussion CMS Doctor</name>
     <description>
-        Operator CLI for diagnosing and safely cleaning Percussion CMS install trees
-        (heap dumps, install backups, logs).
+        Operator CLI and admin HTTP API for diagnosing and safely cleaning Percussion CMS
+        install trees (heap dumps, install backups, logs).
     </description>
 
     <dependencies>
+        <!-- JAX-RS annotations for DoctorRestService; provided by the CMS server (CXF).
+             Maven "provided" is on the compile and test classpaths. -->
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>${jakarta.ws.rs.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- RuntimeDelegate for jakarta.ws.rs.core.Response in unit tests -->
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>3.1.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
