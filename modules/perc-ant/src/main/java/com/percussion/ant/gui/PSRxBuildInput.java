@@ -29,6 +29,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -277,10 +278,10 @@ public class PSRxBuildInput {
     String mkdirContents = "";
     String copyContents = "";
     String cfgContents = "";
-    Set mkdirs = new HashSet();
+    Set<String> mkdirs = new HashSet<>();
 
     // Build jar copy tasks
-    ArrayList jarNames = new ArrayList();
+    List<String> jarNames = new ArrayList<>();
 
     cfgContents += BUILD_DATE_BEGIN_TAG + "\n";
     cfgContents += m_dateText + "\n";
@@ -297,7 +298,7 @@ public class PSRxBuildInput {
     cfgContents += ADDITIONAL_JARS_BEGIN_TAG + "\n";
 
     for (int i = 0; i < m_additionalJarsArrList.size(); i++) {
-      String jarName = (String) m_additionalJarsArrList.get(i);
+      String jarName = m_additionalJarsArrList.get(i);
 
       jarNames.add(jarName);
       cfgContents += jarName + "\n";
@@ -307,7 +308,7 @@ public class PSRxBuildInput {
     for (int i = 0; i < ms_requiredJars.length; i++) jarNames.add(ms_requiredJars[i]);
 
     for (int i = 0; i < jarNames.size(); i++) {
-      String name = (String) jarNames.get(i);
+      String name = jarNames.get(i);
       if (name.trim().length() == 0) continue;
 
       if (ms_jarMap.get(name) == null)
@@ -336,9 +337,9 @@ public class PSRxBuildInput {
     }
 
     // Build mkdir tasks
-    Iterator iter = mkdirs.iterator();
+    Iterator<String> iter = mkdirs.iterator();
     while (iter.hasNext()) {
-      String dir = "${outputdir}/patch/" + (String) iter.next();
+      String dir = "${outputdir}/patch/" + iter.next();
       String mkdirTask = "<mkdir dir=\"" + dir + "\"/>";
       mkdirContents += mkdirTask + "\n";
     }
@@ -357,7 +358,7 @@ public class PSRxBuildInput {
     // Build file copy tasks
     cfgContents += ADDITIONAL_FILES_BEGIN_TAG + "\n";
     for (int i = 0; i < m_addPatchFilesArrList.size(); i++) {
-      String[] mapping = ((String) m_addPatchFilesArrList.get(i)).split("->");
+      String[] mapping = m_addPatchFilesArrList.get(i).split("->");
       String src =
           FilenameUtils.separatorsToUnix(new File(m_rootDir, mapping[0]).getAbsolutePath());
 
@@ -390,7 +391,7 @@ public class PSRxBuildInput {
     // Build remove file tasks
     cfgContents += REMOVE_FILES_BEGIN_TAG + "\n";
     for (int i = 0; i < m_remPatchFilesArrList.size(); i++) {
-      String fileLoc = (String) m_remPatchFilesArrList.get(i);
+      String fileLoc = m_remPatchFilesArrList.get(i);
       File file = new File(fileLoc);
       String name = file.getName();
       File parent = file.getParentFile();
@@ -731,10 +732,10 @@ public class PSRxBuildInput {
     String backupTask = "";
 
     ZipFile zip = new ZipFile(src);
-    Enumeration entries = zip.entries();
-    Set<String> dirs = new HashSet<String>();
+    Enumeration<? extends ZipEntry> entries = zip.entries();
+    Set<String> dirs = new HashSet<>();
     while (entries.hasMoreElements()) {
-      ZipEntry entry = (ZipEntry) entries.nextElement();
+      ZipEntry entry = entries.nextElement();
       String entryName = entry.getName();
       try {
         // CWE-22: Validate zip entry path to prevent ZipSlip attacks
@@ -811,10 +812,10 @@ public class PSRxBuildInput {
     String uninstallTask = "";
 
     ZipFile zip = new ZipFile(src);
-    Enumeration entries = zip.entries();
-    Set<String> dirs = new HashSet<String>();
+    Enumeration<? extends ZipEntry> entries = zip.entries();
+    Set<String> dirs = new HashSet<>();
     while (entries.hasMoreElements()) {
-      ZipEntry entry = (ZipEntry) entries.nextElement();
+      ZipEntry entry = entries.nextElement();
       String entryName = entry.getName();
       try {
         // CWE-22: Validate zip entry path to prevent ZipSlip attacks
@@ -1354,11 +1355,11 @@ public class PSRxBuildInput {
 
   private String m_readme;
 
-  private ArrayList m_addPatchFilesArrList = new ArrayList();
+  private List<String> m_addPatchFilesArrList = new ArrayList<>();
 
-  private ArrayList m_remPatchFilesArrList = new ArrayList();
+  private List<String> m_remPatchFilesArrList = new ArrayList<>();
 
-  private ArrayList m_additionalJarsArrList = new ArrayList();
+  private List<String> m_additionalJarsArrList = new ArrayList<>();
 
   private static final String ms_action = "Build All";
 

@@ -68,7 +68,7 @@ import org.w3c.dom.Document;
  *
  * </pre>
  */
-public class PSTableAction extends PSAction {
+public final class PSTableAction extends PSAction {
   /** Creates a new table action task. */
   public PSTableAction() {}
 
