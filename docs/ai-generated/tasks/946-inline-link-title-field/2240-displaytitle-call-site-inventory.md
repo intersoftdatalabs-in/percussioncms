@@ -109,7 +109,7 @@ Implications for slice 3:
 - Runtime assembly for **hyperlinks** does not re-read title from JCR today; changing runtime only helps if product also refreshes title on publish, or for **images** (R1/R3).
 - Recommend fallback chain (document in #2242):  
   `configured field (if non-blank value on target)` →  
-  `type default` (`resource_link_title` for pages, `displaytitle` for assets)` →  
+  `type default` (`resource_link_title` for pages, `displaytitle` for assets) →  
   empty / leave existing static title attribute.
 
 ## Slice 3 handoff — files to change first
