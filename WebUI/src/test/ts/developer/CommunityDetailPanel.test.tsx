@@ -75,6 +75,99 @@ describe("CommunityDetailPanel", () => {
       expect(screen.getByTestId("developer-comm-visibility-empty")).toBeTruthy();
     });
     expect(screen.queryByTestId("developer-comm-visibility-table")).toBeNull();
+    expect(screen.getByTestId("developer-comm-visibility-filters")).toBeTruthy();
+  });
+
+  it("re-fetches visibility with type filter and shows type-empty state", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    getCommunityVisibility
+      .mockResolvedValueOnce([
+        { name: "percPage", label: "Page", type: "NODEDEF" },
+        { name: "rffSnTitle", label: "Title", type: "TEMPLATE" },
+      ])
+      .mockResolvedValueOnce([]);
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-visibility-table")).toBeTruthy();
+    });
+    expect(getCommunityVisibility).toHaveBeenCalledWith(sampleDetail.guid);
+
+    fireEvent.change(screen.getByTestId("developer-comm-visibility-type-filter"), {
+      target: { value: "WORKFLOW" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-visibility-empty-type")).toBeTruthy();
+    });
+    expect(getCommunityVisibility).toHaveBeenLastCalledWith(sampleDetail.guid, "WORKFLOW");
+    expect(screen.queryByTestId("developer-comm-visibility-table")).toBeNull();
+  });
+
+  it("filters visibility rows client-side by name and shows name-empty state", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    getCommunityVisibility.mockResolvedValue([
+      { name: "percPage", label: "Page", type: "NODEDEF" },
+      { name: "rffSnTitle", label: "Title Snippet", type: "TEMPLATE" },
+    ]);
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-visibility-summary").textContent).toMatch(
+        /2 visible objects/i,
+      );
+    });
+
+    fireEvent.change(screen.getByTestId("developer-comm-visibility-name-filter"), {
+      target: { value: "title" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-visibility-summary").textContent).toMatch(
+        /Showing 1 of 2/i,
+      );
+    });
+    expect(screen.getByTestId("developer-comm-visibility-table").textContent).toMatch(
+      /rffSnTitle/,
+    );
+    expect(screen.getByTestId("developer-comm-visibility-table").textContent).not.toMatch(
+      /percPage/,
+    );
+
+    fireEvent.change(screen.getByTestId("developer-comm-visibility-name-filter"), {
+      target: { value: "zzz-no-match" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-visibility-empty-name")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-comm-visibility-table")).toBeNull();
+    // Name filter is client-side only — no extra fetch
+    expect(getCommunityVisibility).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows dirty cue and save feedback with role count", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    updateCommunityRoles.mockResolvedValue({
+      ...sampleDetail,
+      roleList: [
+        { roleName: "Admin", roleId: 1, roleGuid: { stringValue: "0-6-1" } },
+        { roleName: "Editor", roleId: 2, roleGuid: { stringValue: "0-6-2" } },
+      ],
+    });
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-roles-table")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-comm-roles-dirty")).toBeNull();
+
+    // Keys prefer roleGuid.stringValue when present (see roleKey in panel).
+    fireEvent.click(screen.getByTestId("developer-comm-role-check-0-6-2"));
+    expect(screen.getByTestId("developer-comm-roles-dirty")).toBeTruthy();
+
+    fireEvent.click(screen.getByTestId("developer-comm-roles-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-notice").textContent).toMatch(
+        /2 roles/i,
+      );
+    });
+    expect(updateCommunityRoles).toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-comm-roles-dirty")).toBeNull();
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {
