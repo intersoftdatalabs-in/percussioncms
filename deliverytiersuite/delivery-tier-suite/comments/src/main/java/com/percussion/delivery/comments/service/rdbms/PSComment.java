@@ -135,6 +135,12 @@ public class PSComment implements IPSComment, Serializable {
   /**
    * Creates a new comment with the same values as the given one, except for the id.
    *
+   * <p>Tag materialization is inlined here (rather than calling {@link #setTags}) because that
+   * method is overridable, and invoking it from a constructor would expose a partially-constructed
+   * instance to subclass overrides. The parent back-reference on each {@link PSCommentTag} is set
+   * via direct field access on the package-private {@code comment} field — a field write is not a
+   * method call, so it does not trip javac's {@code this-escape} lint.
+   *
    * @param comment A comment to create a copy from.
    */
   public PSComment(final IPSComment comment) {
@@ -145,7 +151,15 @@ public class PSComment implements IPSComment, Serializable {
     this.pagePath = comment.getPagePath();
     this.parent = comment.getParent() == null ? 0 : Long.valueOf(comment.getParent());
     this.site = comment.getSite();
-    this.setTags(comment.getTags());
+    final Set<String> tags = comment.getTags();
+    if (tags != null) {
+      PSCommentTag commentTag;
+      for (final String aTag : tags) {
+        commentTag = new PSCommentTag(aTag);
+        commentTag.comment = this;
+        this.commentTags.add(commentTag);
+      }
+    }
     this.text = comment.getText();
     this.title = comment.getTitle();
     this.url = comment.getUrl();

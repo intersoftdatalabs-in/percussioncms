@@ -62,7 +62,7 @@ public class PSRestComment implements IPSComment {
     this.pagePath = comment.getPagePath();
     this.parent = comment.getParent();
     this.site = comment.getSite();
-    setTags(comment.getTags());
+    this.tags = comment.getTags();
     this.text = comment.getText();
     this.title = comment.getTitle();
     this.url = comment.getUrl();
