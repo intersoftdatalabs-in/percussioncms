@@ -27,6 +27,10 @@ import org.w3c.dom.Element;
 
 /** Implementation for the PSXDisplayMapper DTD in BasicObjects.dtd. */
 public class PSDisplayMapper extends PSCollectionComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates a new display mapper collection (a collection of PSDisplayMapping objects) for the
    * provided class name.

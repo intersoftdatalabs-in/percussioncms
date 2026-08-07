@@ -24,6 +24,10 @@ import org.w3c.dom.Element;
 
 /** Implementation for the PSXInputTranslations DTD in BasicObjects.dtd. */
 public class PSInputTranslations extends PSCollectionComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /** Creates a new, empty input translation collection of PSConditionalExit objects. */
   public PSInputTranslations() {
     super((new PSConditionalExit()).getClass());

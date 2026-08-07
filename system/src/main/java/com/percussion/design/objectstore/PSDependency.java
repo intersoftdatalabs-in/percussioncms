@@ -28,6 +28,10 @@ import org.w3c.dom.Element;
  * control to operate correctly.
  */
 public class PSDependency extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Initializes a newly created <code>PSDependency</code> object, from an XML representation. See
    * {@link #toXml} for the format.

@@ -24,6 +24,10 @@ import org.w3c.dom.Element;
 
 /** Implementation for the PSXDefaultSelected DTD in BasicObjects.dtd. */
 public class PSDefaultSelected extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /** Creates a new default selected of type 'nullEntry'. */
   public PSDefaultSelected() {
     m_type = TYPE_NULL_ENTRY;

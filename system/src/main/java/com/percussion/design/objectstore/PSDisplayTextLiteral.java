@@ -31,6 +31,10 @@ import org.w3c.dom.Text;
  * @author James Schultz
  */
 public class PSDisplayTextLiteral extends PSLiteral implements IPSMutatableReplacementValue {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Construct a <code>PSDisplayTextLiteral</code> object with the provided values.
    *

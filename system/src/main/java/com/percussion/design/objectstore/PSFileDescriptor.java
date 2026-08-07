@@ -27,6 +27,10 @@ import org.w3c.dom.Element;
  * the &lt;psxctl:AssociatedFileList&gt; node in <code>sys_LibraryControlDef.dtd</code>
  */
 public class PSFileDescriptor extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Initializes a newly created <code>PSFileDescriptor</code> object, from an XML representation.
    * See {@link #toXml(Document)} for the format.

@@ -31,6 +31,10 @@ import org.w3c.dom.Element;
  * @since 1.0
  */
 public class PSLiteralSet extends PSCollectionComponent implements IPSReplacementValue {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /** The value type associated with this instances of this class. */
   public static final String VALUE_TYPE = "LiteralSet";
 
