@@ -19,9 +19,13 @@ package com.percussion.utils.tomcat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.percussion.utils.container.IPSConnector;
 import com.percussion.utils.container.PSAbstractConnector;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class PSTomcatConnectorTest {
@@ -39,5 +43,16 @@ public class PSTomcatConnectorTest {
             .get();
     System.out.println("result=" + result);
     assertEquals("This is the value=testValue and value2=testValue2 value3=${unknownProp}", result);
+  }
+
+  @Test
+  @DisplayName("scheme/port ctor seeds connector without this-escape suppress")
+  public void schemePortConstructorSeedsFields() {
+    Path ctx = Paths.get(".");
+    Map<String, String> props = new HashMap<>();
+    PSTomcatConnector connector =
+        new PSTomcatConnector(ctx, IPSConnector.SCHEME_HTTP, 9980, props);
+    assertEquals(IPSConnector.SCHEME_HTTP, connector.getScheme());
+    assertEquals(9980, connector.getPort());
   }
 }

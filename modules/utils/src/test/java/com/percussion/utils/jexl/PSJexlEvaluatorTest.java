@@ -17,6 +17,7 @@ package com.percussion.utils.jexl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
 import java.util.List;
@@ -103,6 +104,17 @@ public class PSJexlEvaluatorTest {
     eval.bind("$foo.bar.bletch", 3);
 
     assertEquals(3, eval.evaluate(PSJexlEvaluator.createExpression("$foo.bar.bletch")));
+  }
+
+  @Test
+  public void testMapCtorRejectsNullBindings() {
+    assertThrows(IllegalArgumentException.class, () -> new PSJexlEvaluator(null));
+  }
+
+  @Test
+  public void testSetValuesRejectsNullBindings() {
+    PSJexlEvaluator eval = new PSJexlEvaluator();
+    assertThrows(IllegalArgumentException.class, () -> eval.setValues(null));
   }
 
   @Test

@@ -1389,8 +1389,9 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * @deprecated Use #removeElement(Element) instead
+   * @deprecated Use {@link #removeElement(Element)} instead
    */
+  @Deprecated
   public static void removeElement(Document parentDoc, Element elementNode) {
     if (parentDoc != null) {
       ;

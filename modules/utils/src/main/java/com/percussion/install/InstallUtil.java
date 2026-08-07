@@ -44,8 +44,6 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Driver;
@@ -1245,14 +1243,9 @@ public class InstallUtil {
                 urlList[i] = m_jarUrls.get(i);
               }
 
-              ClassLoader loader =
-                  AccessController.doPrivileged(
-                      new PrivilegedAction<URLClassLoader>() {
-                        @Override
-                        public URLClassLoader run() {
-                          return new URLClassLoader(urlList);
-                        }
-                      });
+              // Direct URLClassLoader — AccessController.doPrivileged is deprecated for removal
+              // and a no-op without a SecurityManager (removed for user code on modern JDKs).
+              ClassLoader loader = new URLClassLoader(urlList);
 
               driverClass = Class.forName(className, true, loader);
               InstallUtil.logInfo("Loaded " + className);
@@ -1309,14 +1302,8 @@ public class InstallUtil {
               urlList[i] = f.toURI().toURL();
               i++;
             }
-            ClassLoader loader =
-                AccessController.doPrivileged(
-                    new PrivilegedAction<URLClassLoader>() {
-                      @Override
-                      public URLClassLoader run() {
-                        return new URLClassLoader(urlList);
-                      }
-                    });
+            // Direct URLClassLoader — AccessController.doPrivileged is deprecated for removal.
+            ClassLoader loader = new URLClassLoader(urlList);
 
             System.setProperty("jdbc.drivers", className);
             driverClass = Class.forName(className, true, loader);

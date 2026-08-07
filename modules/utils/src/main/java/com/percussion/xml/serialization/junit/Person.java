@@ -26,8 +26,12 @@ import java.util.Objects;
  * com.percussion.xml.serialization.PSObjectSerializer} class. As can be seen it is a simple java
  * bean with a default ctor (required) and setXxx() and getXxx() methods. It has some other java
  * objects and a collection of an object as fields.
+ *
+ * <p>This class is {@code final} and the two-arg constructor assigns the name field directly so no
+ * subclass can observe a partially constructed instance via {@link #setName(Name)} ({@code
+ * this-escape} under {@code -Xlint}).
  */
-public class Person {
+public final class Person {
   private Name name;
 
   private Address address;
@@ -38,7 +42,7 @@ public class Person {
   public Person() {}
 
   public Person(String first, String last) {
-    setName(new Name(first, last));
+    this.name = new Name(first, last);
   }
 
   public void setName(Name name) {
