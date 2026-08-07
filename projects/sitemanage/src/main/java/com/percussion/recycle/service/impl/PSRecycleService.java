@@ -36,6 +36,7 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipSet;
+import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.itemmanagement.data.PSItemStateTransition;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
@@ -138,6 +139,12 @@ public class PSRecycleService implements IPSRecycleService {
 
   private IPSManagedNavService navService;
 
+  /**
+   * Clears page/template asset-widget relationships when an asset is recycled so owners do not
+   * remain bound to a recycled content id (GH #777 / #2238).
+   */
+  private IPSWidgetAssetRelationshipService widgetAssetRelationshipService;
+
   @Autowired
   public PSRecycleService(
       IPSSystemWs systemWs,
@@ -145,13 +152,15 @@ public class PSRecycleService implements IPSRecycleService {
       IPSDataItemSummaryService itemSummaryService,
       IPSContentWs contentWs,
       IPSWorkflowHelper workflowHelper,
-      IPSManagedNavService navService) {
+      IPSManagedNavService navService,
+      IPSWidgetAssetRelationshipService widgetAssetRelationshipService) {
     this.systemWs = systemWs;
     this.idMapper = idMapper;
     this.itemSummaryService = itemSummaryService;
     this.contentWs = contentWs;
     this.workflowHelper = workflowHelper;
     this.navService = navService;
+    this.widgetAssetRelationshipService = widgetAssetRelationshipService;
   }
 
   // Create Root Relationship between Site-SiteName for Recycle Folder, if not created yet
@@ -279,6 +288,9 @@ public class PSRecycleService implements IPSRecycleService {
         log.debug("The parent locators for the item are: {}", folderRel.getDependent());
         updateParentFolders(idMapper.getGuid(folderRel.getDependent()), FOLDER_TYPE, RECYCLED_TYPE);
       }
+      // Detach page/template widgets still bound to this content id so assembly does not keep
+      // rendering recycled assets (perc-recycled-asset chrome / red border). See #777 / #2238.
+      clearWidgetRelationshipsForRecycledItem(itemGuid);
       psContentEvent =
           new PSContentEvent(
               itemGuid.toString(),
@@ -376,6 +388,30 @@ public class PSRecycleService implements IPSRecycleService {
       log.error(
           "Error recycling folder with guid: {} Error:",
           guid,
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
+
+  /**
+   * Clears asset-widget (ActiveAssembly / LocalContent) relationships that still target the
+   * recycled item as dependent. Failures are logged but do not fail the recycle operation.
+   *
+   * @param itemGuid recycled item guid, never {@code null}
+   */
+  void clearWidgetRelationshipsForRecycledItem(IPSGuid itemGuid) {
+    if (itemGuid == null || widgetAssetRelationshipService == null) {
+      return;
+    }
+    try {
+      String assetId = idMapper.getString(itemGuid);
+      int cleared = widgetAssetRelationshipService.clearAssetWidgetRelationshipsForAsset(assetId);
+      log.debug(
+          "Cleared {} widget relationship(s) for recycled item {}", cleared, itemGuid);
+    } catch (Exception e) {
+      log.warn(
+          "Recycled item {} but failed to clear page/template widget relationships: {}",
+          itemGuid,
           PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }

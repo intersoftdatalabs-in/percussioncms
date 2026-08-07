@@ -352,6 +352,51 @@ public class PSWidgetAssetRelationshipService implements IPSWidgetAssetRelations
     }
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Deletes relationship rows only (shared non-inline ActiveAssembly + local content). Does not
+   * cascade-delete the asset; that is intentional for the recycle lifecycle.
+   */
+  @Override
+  public int clearAssetWidgetRelationshipsForAsset(String assetId)
+      throws PSWidgetAssetRelationshipServiceException {
+    notEmpty(assetId, "assetId");
+
+    try {
+      int cleared = 0;
+
+      // Shared widget bindings (e.g. File / Image widgets on pages and templates).
+      // getSharedAssetRelationships already excludes inline AA links.
+      List<PSRelationship> sharedRels = getSharedAssetRelationships(null, null, assetId);
+      for (PSRelationship rel : sharedRels) {
+        deleteRelationship(rel);
+        cleared++;
+      }
+
+      // Local content bindings if the recycled item was used as a local asset dependent.
+      List<PSRelationship> localRels = getLocalAssetRelationships(null, null, assetId);
+      for (PSRelationship rel : localRels) {
+        // Relationship only — do not call deleteAssetRelationship (would try to purge the asset).
+        deleteRelationship(rel);
+        cleared++;
+      }
+
+      if (cleared > 0) {
+        log.info(
+            "Cleared {} asset-widget relationship(s) for recycled/rebound asset id {}",
+            cleared,
+            assetId);
+      } else {
+        log.debug("No asset-widget relationships to clear for asset id {}", assetId);
+      }
+      return cleared;
+    } catch (Exception e) {
+      throw new PSWidgetAssetRelationshipServiceException(
+          "Failed to clear asset-widget relationships for asset " + assetId, e);
+    }
+  }
+
   private void deleteAssetRelationship(PSRelationship r) throws PSValidationException {
     deleteRelationship(r);
     if (r.getConfig().getName().equals(PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY))
