@@ -17,6 +17,7 @@
 package com.percussion.design.objectstore;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -129,7 +130,7 @@ public class PSInlineLinkTitleFieldControlParamTest {
         foundTitleField = true;
       }
     }
-    assertTrue(!foundTitleField, "absent InlineLinkTitleField must not be invented on round-trip");
+    assertFalse(foundTitleField, "absent InlineLinkTitleField must not be invented on round-trip");
   }
 
   @Test
