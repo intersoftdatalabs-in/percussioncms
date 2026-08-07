@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   getCommunityDetail,
   getCommunityVisibility,
@@ -26,10 +26,52 @@ import type {
   CommunityDetail,
   CommunityRoleSummary,
   CommunityVisibleObject,
+  RestGuid,
 } from "../api/developer/types";
-import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import {
+  catalogColors,
+  backButton,
+  errorAlert,
+  metaGrid,
+  monoCell,
+  tableHeaderRow,
+  tableRow,
+} from "./catalogStyles";
+import {
+  COMMUNITY_VISIBILITY_TYPE_OPTIONS,
+  filterVisibleObjects,
+  visibilityEmptyKind,
+  visibilitySummaryCounts,
+} from "./communityVisibilityFilters";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+
+const filterControlStyle: React.CSSProperties = {
+  padding: "8px",
+  border: `1px solid ${catalogColors.softBorder}`,
+  borderRadius: "4px",
+  font: "inherit",
+  minWidth: "12rem",
+};
+
+const successNoticeStyle: React.CSSProperties = {
+  color: "#276749",
+  background: "#f0fff4",
+  border: "1px solid #9ae6b4",
+  borderRadius: "4px",
+  padding: "8px 12px",
+  marginBottom: "8px",
+};
+
+const dirtyNoticeStyle: React.CSSProperties = {
+  color: "#744210",
+  background: "#fffff0",
+  border: "1px solid #f6e05e",
+  borderRadius: "4px",
+  padding: "8px 12px",
+  marginBottom: "8px",
+  fontSize: "0.9rem",
+};
 
 function asRoles(detail: CommunityDetail | null): CommunityRoleSummary[] {
   if (!detail?.roleList) return [];
@@ -45,6 +87,20 @@ function roleKey(r: CommunityRoleSummary, index = 0): string {
   if (r.roleName) return `name:${r.roleName}`;
   // Stable synthetic key so checkbox rows remain selectable even without ids
   return `role-idx:${index}`;
+}
+
+function formatSavedRolesNotice(roleCount: number): string {
+  return DEV_MSG.COMM_ROLES_SAVED_COUNT.replace("{0}", String(roleCount));
+}
+
+function formatVisibilitySummary(shown: number, total: number, filtered: boolean): string {
+  if (filtered) {
+    return DEV_MSG.COMM_VISIBILITY_SUMMARY.replace("{0}", String(shown)).replace(
+      "{1}",
+      String(total),
+    );
+  }
+  return DEV_MSG.COMM_VISIBILITY_SUMMARY_ALL.replace("{0}", String(total));
 }
 
 export function CommunityDetailPanel({
@@ -63,14 +119,43 @@ export function CommunityDetailPanel({
   const [visibleObjects, setVisibleObjects] = useState<CommunityVisibleObject[]>([]);
   const [visibilityLoading, setVisibilityLoading] = useState(false);
   const [visibilityError, setVisibilityError] = useState<string | null>(null);
+  const [typeFilter, setTypeFilter] = useState("");
+  const [nameFilter, setNameFilter] = useState("");
+  const [communityGuid, setCommunityGuid] = useState<RestGuid | null>(null);
+  /** Monotonic id so stale visibility responses (type filter / remount) are ignored. */
+  const visibilityReqId = useRef(0);
+
+  const loadVisibility = useCallback((guid: RestGuid, objectType: string) => {
+    const req = ++visibilityReqId.current;
+    setVisibilityLoading(true);
+    setVisibilityError(null);
+    const typeArg = objectType.trim() || undefined;
+    getCommunityVisibility(guid, typeArg)
+      .then((objs) => {
+        if (req !== visibilityReqId.current) return;
+        setVisibleObjects(objs);
+        setVisibilityLoading(false);
+      })
+      .catch((err: unknown) => {
+        if (req !== visibilityReqId.current) return;
+        setVisibilityLoading(false);
+        setVisibleObjects([]);
+        setVisibilityError(panelErrMsg(err, DEV_MSG.COMM_VISIBILITY_ERROR));
+      });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
+    // Invalidate any in-flight visibility from a prior community / type filter.
+    visibilityReqId.current += 1;
     setDetail(null);
     setError(null);
     setNotice(null);
     setVisibleObjects([]);
     setVisibilityError(null);
+    setCommunityGuid(null);
+    setTypeFilter("");
+    setNameFilter("");
     Promise.all([getCommunityDetail(idOrName), listAvailableRoles()])
       .then(([d, roles]) => {
         if (cancelled) return;
@@ -81,15 +166,17 @@ export function CommunityDetailPanel({
         );
         const g = d.guid;
         if (g?.stringValue || g?.uuid != null) {
+          setCommunityGuid(g);
+          const req = ++visibilityReqId.current;
           setVisibilityLoading(true);
           getCommunityVisibility(g)
             .then((objs) => {
-              if (cancelled) return;
+              if (cancelled || req !== visibilityReqId.current) return;
               setVisibleObjects(objs);
               setVisibilityLoading(false);
             })
             .catch((err: unknown) => {
-              if (cancelled) return;
+              if (cancelled || req !== visibilityReqId.current) return;
               setVisibilityLoading(false);
               setVisibilityError(panelErrMsg(err, DEV_MSG.COMM_VISIBILITY_ERROR));
             });
@@ -103,6 +190,7 @@ export function CommunityDetailPanel({
       });
     return () => {
       cancelled = true;
+      visibilityReqId.current += 1;
     };
   }, [idOrName]);
 
@@ -119,6 +207,18 @@ export function CommunityDetailPanel({
     selectedKeys.size !== initialKeys.size ||
     [...selectedKeys].some((k) => !initialKeys.has(k));
 
+  const displayedObjects = useMemo(
+    () => filterVisibleObjects(visibleObjects, nameFilter),
+    [visibleObjects, nameFilter],
+  );
+  const emptyKind = visibilityEmptyKind(
+    visibleObjects.length,
+    displayedObjects.length,
+    typeFilter,
+    nameFilter,
+  );
+  const summary = visibilitySummaryCounts(visibleObjects.length, displayedObjects.length);
+
   function toggle(key: string) {
     setSelectedKeys((prev) => {
       const next = new Set(prev);
@@ -126,6 +226,15 @@ export function CommunityDetailPanel({
       else next.add(key);
       return next;
     });
+    setNotice(null);
+  }
+
+  function handleTypeFilterChange(next: string) {
+    setTypeFilter(next);
+    setNameFilter("");
+    if (communityGuid) {
+      loadVisibility(communityGuid, next);
+    }
   }
 
   async function handleSave() {
@@ -136,10 +245,11 @@ export function CommunityDetailPanel({
     try {
       const saved = await updateCommunityRoles(idOrName, body);
       setDetail(saved);
+      const nextRoles = asRoles(saved);
       setSelectedKeys(
-        new Set(asRoles(saved).map((r, i) => roleKey(r, i)).filter((k) => k.length > 0)),
+        new Set(nextRoles.map((r, i) => roleKey(r, i)).filter((k) => k.length > 0)),
       );
-      setNotice(DEV_MSG.COMM_ROLES_SAVED);
+      setNotice(formatSavedRolesNotice(nextRoles.length));
     } catch (err: unknown) {
       setError(panelErrMsg(err, DEV_MSG.COMM_ROLES_SAVE_ERROR));
     } finally {
@@ -167,7 +277,11 @@ export function CommunityDetailPanel({
         </div>
       ) : null}
       {notice ? (
-        <div data-testid="developer-comm-detail-notice" style={{ color: "#276749" }}>
+        <div
+          role="status"
+          data-testid="developer-comm-detail-notice"
+          style={successNoticeStyle}
+        >
           {notice}
         </div>
       ) : null}
@@ -207,6 +321,11 @@ export function CommunityDetailPanel({
           <section style={{ marginBottom: "16px" }} data-testid="developer-comm-roles">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.COMM_ROLES}</h3>
             <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.COMM_ROLES_HINT}</p>
+            {dirty ? (
+              <div data-testid="developer-comm-roles-dirty" style={dirtyNoticeStyle}>
+                {DEV_MSG.COMM_ROLES_DIRTY}
+              </div>
+            ) : null}
             {rolesForTable.length === 0 ? (
               <p style={{ color: catalogColors.empty }}>
                 {allRoles.length === 0 && asRoles(detail).length === 0
@@ -235,10 +354,7 @@ export function CommunityDetailPanel({
                       const key = roleKey(r, i);
                       const checked = selectedKeys.has(key);
                       return (
-                        <tr
-                          key={key}
-                          style={tableRow}
-                        >
+                        <tr key={key} style={tableRow}>
                           <td style={{ padding: "8px" }}>
                             <input
                               type="checkbox"
@@ -259,7 +375,7 @@ export function CommunityDetailPanel({
                 </table>
               </div>
             )}
-            <div style={{ marginTop: "12px", display: "flex", gap: "8px" }}>
+            <div style={{ marginTop: "12px", display: "flex", gap: "8px", alignItems: "center" }}>
               <button
                 type="button"
                 data-testid="developer-comm-roles-save"
@@ -282,7 +398,52 @@ export function CommunityDetailPanel({
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-comm-visibility">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.COMM_VISIBILITY}</h3>
-            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.COMM_VISIBILITY_HINT}</p>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+              {DEV_MSG.COMM_VISIBILITY_HINT}
+            </p>
+
+            <div
+              data-testid="developer-comm-visibility-filters"
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "12px",
+                marginBottom: "12px",
+                alignItems: "flex-end",
+              }}
+            >
+              <label style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "0.9rem" }}>
+                <span>{DEV_MSG.COMM_VISIBILITY_TYPE_LABEL}</span>
+                <select
+                  data-testid="developer-comm-visibility-type-filter"
+                  value={typeFilter}
+                  disabled={!communityGuid || visibilityLoading}
+                  onChange={(e) => handleTypeFilterChange(e.target.value)}
+                  style={filterControlStyle}
+                  aria-label={DEV_MSG.COMM_VISIBILITY_TYPE_LABEL}
+                >
+                  {COMMUNITY_VISIBILITY_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt.value || "all"} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "0.9rem", flex: "1 1 12rem" }}>
+                <span>{DEV_MSG.COMM_VISIBILITY_NAME_LABEL}</span>
+                <input
+                  type="search"
+                  data-testid="developer-comm-visibility-name-filter"
+                  value={nameFilter}
+                  disabled={visibilityLoading}
+                  placeholder={DEV_MSG.COMM_VISIBILITY_NAME_PLACEHOLDER}
+                  onChange={(e) => setNameFilter(e.target.value)}
+                  style={{ ...filterControlStyle, width: "100%", boxSizing: "border-box" }}
+                  aria-label={DEV_MSG.COMM_VISIBILITY_NAME_LABEL}
+                />
+              </label>
+            </div>
+
             {visibilityLoading ? (
               <div data-testid="developer-comm-visibility-loading">
                 {DEV_MSG.COMM_VISIBILITY_LOADING}
@@ -297,12 +458,39 @@ export function CommunityDetailPanel({
                 {visibilityError}
               </div>
             ) : null}
-            {!visibilityLoading && !visibilityError && visibleObjects.length === 0 ? (
+
+            {!visibilityLoading && !visibilityError && emptyKind === "none" ? (
               <p data-testid="developer-comm-visibility-empty" style={{ color: catalogColors.empty }}>
                 {DEV_MSG.COMM_VISIBILITY_EMPTY}
               </p>
             ) : null}
-            {visibleObjects.length > 0 ? (
+            {!visibilityLoading && !visibilityError && emptyKind === "type-filter" ? (
+              <p
+                data-testid="developer-comm-visibility-empty-type"
+                style={{ color: catalogColors.empty }}
+              >
+                {DEV_MSG.COMM_VISIBILITY_EMPTY_TYPE}
+              </p>
+            ) : null}
+            {!visibilityLoading && !visibilityError && emptyKind === "name-filter" ? (
+              <p
+                data-testid="developer-comm-visibility-empty-name"
+                style={{ color: catalogColors.empty }}
+              >
+                {DEV_MSG.COMM_VISIBILITY_EMPTY_NAME}
+              </p>
+            ) : null}
+
+            {!visibilityLoading && !visibilityError && visibleObjects.length > 0 ? (
+              <p
+                data-testid="developer-comm-visibility-summary"
+                style={{ color: catalogColors.muted, fontSize: "0.9rem", margin: "0 0 8px" }}
+              >
+                {formatVisibilitySummary(summary.shown, summary.total, summary.filtered)}
+              </p>
+            ) : null}
+
+            {displayedObjects.length > 0 ? (
               <div style={{ overflowX: "auto" }}>
                 <table
                   data-testid="developer-comm-visibility-table"
@@ -321,7 +509,7 @@ export function CommunityDetailPanel({
                     </tr>
                   </thead>
                   <tbody>
-                    {visibleObjects.map((o, i) => (
+                    {displayedObjects.map((o, i) => (
                       <tr
                         key={
                           o.guid?.stringValue ||
