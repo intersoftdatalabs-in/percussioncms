@@ -393,7 +393,7 @@ public class PSSearchFieldEditor extends JPanel {
       IPSPropertyPanel fieldPropertyPanel, String dispName) {
     if (fieldPropertyPanel == null || dispName == null || dispName.length() == 0) return;
 
-    List rowComps = fieldPropertyPanel.getMatchingRowByLabel(dispName);
+    List<Component> rowComps = fieldPropertyPanel.getMatchingRowByLabel(dispName);
     if (rowComps != null) {
       Iterator comps = rowComps.iterator();
       // first find the label

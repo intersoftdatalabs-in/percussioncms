@@ -155,7 +155,9 @@ public class UTMultiLineCellRenderer extends JTextArea
    * architecture.
    */
   public static class UIResource extends UTMultiLineCellRenderer
-      implements javax.swing.plaf.UIResource {}
+      implements javax.swing.plaf.UIResource {
+    private static final long serialVersionUID = 1L;
+  }
 
   protected static Border noFocusBorder;
 

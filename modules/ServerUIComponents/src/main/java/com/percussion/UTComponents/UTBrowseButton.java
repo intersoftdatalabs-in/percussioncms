@@ -24,7 +24,7 @@ import javax.swing.*;
  * Creates a small, square button that has 3 dots that is typically used to bring up some sort of
  * browser dialog. The button attempts to maintain a fixed size.
  */
-public class UTBrowseButton extends JButton {
+public final class UTBrowseButton extends JButton {
   private static final long serialVersionUID = 1L;
 
   /**
@@ -34,7 +34,6 @@ public class UTBrowseButton extends JButton {
    * setPreferredSize/setAlignmentY) are overridable; subclasses could observe a partially
    * constructed instance. Suppress at the constructor scope only.
    */
-  @SuppressWarnings("this-escape")
   public UTBrowseButton() {
     ImageIcon icon =
         BitmapManager.getBitmapManager(this.getClass()).getImage("images/optional.gif");

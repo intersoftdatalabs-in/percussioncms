@@ -113,6 +113,5 @@ public class ApplicationDataComboModel extends DefaultComboBoxModel<String> {
   }
 
   /** Initialized in ctor. Never <code>null</code>, may be empty. */
-  @SuppressWarnings("serial")
-  private Map<String, String> m_map = null;
+  private transient Map<String, String> m_map = null;
 }

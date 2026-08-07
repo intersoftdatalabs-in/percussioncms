@@ -21,7 +21,7 @@ import javax.swing.*;
 
 /** A fixed sized JButton. */
 ////////////////////////////////////////////////////////////////////////////////
-public class UTFixedButton extends JButton {
+public final class UTFixedButton extends JButton {
   private static final long serialVersionUID = 1L;
 
   /** No-op default constructor. */
@@ -40,7 +40,6 @@ public class UTFixedButton extends JButton {
   //////////////////////////////////////////////////////////////////////////////
   // setPreferredSize is overridable on JComponent; subclasses could observe a partially constructed
   // instance. Suppress at the constructor scope only.
-  @SuppressWarnings("this-escape")
   public UTFixedButton(String name) {
     super(name);
     setPreferredSize(STANDARD_BUTTON_SIZE);
@@ -53,7 +52,6 @@ public class UTFixedButton extends JButton {
    * @param size the button size
    */
   //////////////////////////////////////////////////////////////////////////////
-  @SuppressWarnings("this-escape")
   public UTFixedButton(String name, Dimension size) {
     super(name);
     setPreferredSize(size);
@@ -67,7 +65,6 @@ public class UTFixedButton extends JButton {
    * @param height the button height
    */
   //////////////////////////////////////////////////////////////////////////////
-  @SuppressWarnings("this-escape")
   public UTFixedButton(String name, int width, int height) {
     super(name);
     setPreferredSize(new Dimension(width, height));
@@ -79,7 +76,6 @@ public class UTFixedButton extends JButton {
    * @param icon the button icon
    */
   //////////////////////////////////////////////////////////////////////////////
-  @SuppressWarnings("this-escape")
   public UTFixedButton(ImageIcon icon) {
     super(icon);
     setPreferredSize(STANDARD_BUTTON_SIZE);
@@ -92,7 +88,6 @@ public class UTFixedButton extends JButton {
    * @param size the button size
    */
   //////////////////////////////////////////////////////////////////////////////
-  @SuppressWarnings("this-escape")
   public UTFixedButton(ImageIcon icon, Dimension size) {
     super(icon);
     setPreferredSize(size);
@@ -106,7 +101,6 @@ public class UTFixedButton extends JButton {
    * @param height the button height
    */
   //////////////////////////////////////////////////////////////////////////////
-  @SuppressWarnings("this-escape")
   public UTFixedButton(ImageIcon icon, int width, int height) {
     super(icon);
     setPreferredSize(new Dimension(width, height));

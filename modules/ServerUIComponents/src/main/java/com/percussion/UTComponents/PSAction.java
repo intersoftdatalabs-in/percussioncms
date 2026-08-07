@@ -29,7 +29,11 @@ import javax.swing.*;
 public abstract class PSAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
-  // constructors
+  @Override
+  public final void putValue(String key, Object value) {
+    super.putValue(key, value);
+  }
+
   /**
    * Constructs an action with the supplied menu text, mnemonic letter, and accelerator key but no
    * icon.
@@ -65,16 +69,11 @@ public abstract class PSAction extends AbstractAction {
    * @param AccelKey keystroke describing the accelerator key for this action, ignored if null
    * @param Img the image for the UI, ignored if null
    */
-  // putValue is overridable on AbstractAction; subclasses that override it could observe a
-  // partially-constructed instance. The class is abstract and intended to be subclassed, but the
-  // constructor's putValue calls are part of well-defined initialization and there is no safe
-  // point to defer them without changing the public API. Suppress at the constructor scope only.
-  @SuppressWarnings("this-escape")
   public PSAction(String strMenuText, char cMnemonic, KeyStroke AccelKey, Icon Img) {
     super(null == strMenuText ? "" : strMenuText, null == Img ? new ImageIcon() : Img);
 
-    if (0 != cMnemonic) putValue(MNEMONIC_KEY, Character.valueOf(cMnemonic));
-    if (null != AccelKey) putValue(ACCEL_KEY, AccelKey);
+    if (0 != cMnemonic) super.putValue(MNEMONIC_KEY, Character.valueOf(cMnemonic));
+    if (null != AccelKey) super.putValue(ACCEL_KEY, AccelKey);
   }
 
   // attributes
