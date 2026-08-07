@@ -31,6 +31,18 @@ import type {
 import { isSessionRedirectError, type ApiError } from "../api/client";
 import { catalogColors, errorAlert, tableHeaderRow, tableRow } from "./catalogStyles";
 import { DEV_MSG } from "./messages";
+import {
+  canRemoveAclEntry,
+  createSpecialAclEntryTemplate,
+  isDuplicateAclEntry,
+  missingSpecialAclKinds,
+  orderAclEntriesWithSpecialsFirst,
+  specialAclKind,
+  specialAclKindFromName,
+  specialAclPrincipalName,
+  specialAclPrincipalType,
+  type SpecialAclKind,
+} from "./objectAclSpecialEntries";
 
 /** Principal types supported when adding an ACL entry (REST TypedPrincipal / PrincipalTypes). */
 export const ACL_ENTRY_TYPES = ["ROLE", "USER", "COMMUNITY", "GROUP"] as const;
@@ -109,7 +121,8 @@ function stableServerKey(e: ObjectAclEntry, index: number): string {
 }
 
 function toDraftEntries(list: ObjectAclEntry[]): DraftEntry[] {
-  return list.map((e, i) => ({
+  const ordered = orderAclEntriesWithSpecialsFirst(list);
+  return ordered.map((e, i) => ({
     ...e,
     principal: e.principal ? { ...e.principal } : undefined,
     type: e.type ? { ...e.type } : undefined,
@@ -121,6 +134,9 @@ function toDraftEntries(list: ObjectAclEntry[]): DraftEntry[] {
 }
 
 function entryLabel(e: ObjectAclEntry): string {
+  const kind = specialAclKind(e);
+  if (kind === "default") return DEV_MSG.ACL_SPECIAL_DEFAULT_LABEL;
+  if (kind === "any-community") return DEV_MSG.ACL_SPECIAL_ANY_COMMUNITY_LABEL;
   return (
     e.name ||
     e.principal?.name ||
@@ -130,6 +146,9 @@ function entryLabel(e: ObjectAclEntry): string {
 }
 
 function entryTypeLabel(e: ObjectAclEntry): string {
+  const kind = specialAclKind(e);
+  if (kind === "default") return DEV_MSG.ACL_SPECIAL_TYPE_DEFAULT;
+  if (kind === "any-community") return DEV_MSG.ACL_SPECIAL_TYPE_ANY_COMMUNITY;
   // Prefer PrincipalTypes enum on type.type; fall back to type.name / principal.type
   return e.type?.type || e.type?.name || e.principal?.type || "—";
 }
@@ -244,6 +263,10 @@ export function ObjectAclSection({
     return !permsEqual(cur, init);
   });
   const dirty = acl != null && (structureDirty || permsDirty);
+  const missingSpecials = useMemo(
+    () => missingSpecialAclKinds(draftEntries),
+    [draftEntries],
+  );
 
   function togglePerm(key: string, perm: AclPermissionName) {
     setSelected((prev) => {
@@ -256,6 +279,10 @@ export function ObjectAclSection({
   }
 
   function removeEntry(clientKey: string) {
+    const target = draftEntries.find((e) => e.clientKey === clientKey);
+    if (target && !canRemoveAclEntry(target)) {
+      return;
+    }
     setDraftEntries((prev) => prev.filter((e) => e.clientKey !== clientKey));
     setSelected((prev) => {
       const copy = { ...prev };
@@ -266,31 +293,55 @@ export function ObjectAclSection({
     setNotice(null);
   }
 
-  function addEntry() {
-    const name = newName.trim();
-    if (!name) return;
-    const dup = draftEntries.some(
-      (e) =>
-        (e.name || e.principal?.name || "").toLowerCase() === name.toLowerCase() &&
-        (e.type?.type || "").toUpperCase() === newType,
-    );
-    if (dup) {
-      setError(DEV_MSG.ACL_ENTRY_DUP);
-      return;
-    }
+  function appendDraftEntry(partial: ObjectAclEntry) {
     const seq = newSeq + 1;
     setNewSeq(seq);
     const clientKey = `__new:${seq}`;
     const entry: DraftEntry = {
+      ...partial,
       clientKey,
-      name,
-      principal: { name },
-      type: { type: newType, name },
+      permissions: Array.isArray(partial.permissions)
+        ? partial.permissions.map((p) => ({ ...p }))
+        : partial.permissions,
+    };
+    setDraftEntries((prev) => orderAclEntriesWithSpecialsFirst([...prev, entry]));
+    setSelected((prev) => ({
+      ...prev,
+      [clientKey]: new Set<string>(asPermissions(entry).length ? asPermissions(entry) : ["READ"]),
+    }));
+    return clientKey;
+  }
+
+  function addSpecialEntry(kind: SpecialAclKind) {
+    if (isDuplicateAclEntry(draftEntries, specialAclPrincipalName(kind), specialAclPrincipalType(kind))) {
+      setError(DEV_MSG.ACL_ENTRY_DUP);
+      return;
+    }
+    appendDraftEntry(createSpecialAclEntryTemplate(kind, acl?.id));
+    setError(null);
+    setNotice(null);
+  }
+
+  function addEntry() {
+    const name = newName.trim();
+    if (!name) return;
+    // Coerce special names to server PrincipalTypes (USER / COMMUNITY).
+    const special = specialAclKindFromName(name);
+    const effectiveType: AclEntryTypeName = special
+      ? specialAclPrincipalType(special)
+      : newType;
+    const effectiveName = special ? specialAclPrincipalName(special) : name;
+    if (isDuplicateAclEntry(draftEntries, effectiveName, effectiveType)) {
+      setError(DEV_MSG.ACL_ENTRY_DUP);
+      return;
+    }
+    appendDraftEntry({
+      name: effectiveName,
+      principal: { name: effectiveName, type: effectiveType },
+      type: { type: effectiveType, name: effectiveName },
       permissions: [{ permission: "READ" }],
       aclId: acl?.id,
-    };
-    setDraftEntries((prev) => [...prev, entry]);
-    setSelected((prev) => ({ ...prev, [clientKey]: new Set<string>(["READ"]) }));
+    });
     setNewName("");
     setError(null);
     setNotice(null);
@@ -335,22 +386,29 @@ export function ObjectAclSection({
     return draftEntries.map((e) => {
       const chosen = selected[e.clientKey] ?? new Set<string>();
       // Preserve name fallbacks used by the pre-add/remove save path
-      const principalName =
-        e.name || e.principal?.name || e.type?.name || "";
-      const typeName = e.type?.type || "ROLE";
+      const special = specialAclKind(e);
+      const principalName = special
+        ? specialAclPrincipalName(special)
+        : e.name || e.principal?.name || e.type?.name || "";
+      // Specials always use server PrincipalTypes (USER / COMMUNITY), even if a
+      // historical payload mis-typed Default as ROLE.
+      const typeName = special
+        ? specialAclPrincipalType(special)
+        : e.type?.type || "ROLE";
       // Preserve extra fields from server principal/type objects when present
       const principal = e.principal
         ? {
             ...e.principal,
             name: principalName || e.principal.name,
+            type: special ? typeName : e.principal.type || typeName,
           }
         : principalName
-          ? { name: principalName }
+          ? { name: principalName, type: typeName }
           : undefined;
       const type = e.type
         ? {
             ...e.type,
-            type: e.type.type || typeName,
+            type: special ? typeName : e.type.type || typeName,
             name: principalName || e.type.name,
           }
         : {
@@ -441,6 +499,12 @@ export function ObjectAclSection({
     <section style={{ marginBottom: "16px" }} data-testid={`${testIdPrefix}-section`}>
       <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.ACL_TITLE}</h3>
       <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.ACL_HINT}</p>
+      <p
+        style={{ color: catalogColors.muted, fontSize: "0.85rem" }}
+        data-testid={`${testIdPrefix}-special-hint`}
+      >
+        {DEV_MSG.ACL_SPECIAL_HINT}
+      </p>
 
       {loading ? (
         <div data-testid={`${testIdPrefix}-loading`}>{DEV_MSG.ACL_LOADING}</div>
@@ -575,14 +639,34 @@ export function ObjectAclSection({
                     const key = e.clientKey;
                     const chosen = selected[key] ?? new Set<string>();
                     const label = entryLabel(e);
+                    const kind = specialAclKind(e);
+                    const removable = canRemoveAclEntry(e);
                     return (
                       <tr
                         key={key}
                         style={tableRow}
                         data-testid={`${testIdPrefix}-row-${key}`}
+                        data-special-acl={kind ?? undefined}
                       >
-                        <td style={{ padding: "8px" }}>{label}</td>
-                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                        <td style={{ padding: "8px" }}>
+                          <span data-testid={`${testIdPrefix}-label-${key}`}>{label}</span>
+                          {kind ? (
+                            <span
+                              data-testid={`${testIdPrefix}-special-badge-${kind}`}
+                              style={{
+                                marginLeft: "8px",
+                                fontSize: "0.75rem",
+                                color: catalogColors.muted,
+                              }}
+                            >
+                              {DEV_MSG.ACL_SPECIAL_PROTECTED}
+                            </span>
+                          ) : null}
+                        </td>
+                        <td
+                          style={{ padding: "8px", fontFamily: "monospace" }}
+                          data-testid={`${testIdPrefix}-type-${key}`}
+                        >
                           {entryTypeLabel(e)}
                         </td>
                         {ACL_PERMISSIONS.map((p) => (
@@ -598,19 +682,29 @@ export function ObjectAclSection({
                           </td>
                         ))}
                         <td style={{ padding: "8px" }}>
-                          <button
-                            type="button"
-                            data-testid={`${testIdPrefix}-remove-${key}`}
-                            aria-label={`Remove ACL entry ${label}`}
-                            disabled={busy}
-                            onClick={() => removeEntry(key)}
-                            style={{
-                              ...smallBtnStyle,
-                              cursor: busy ? "not-allowed" : "pointer",
-                            }}
-                          >
-                            {DEV_MSG.ACL_ENTRY_REMOVE}
-                          </button>
+                          {removable ? (
+                            <button
+                              type="button"
+                              data-testid={`${testIdPrefix}-remove-${key}`}
+                              aria-label={`Remove ACL entry ${label}`}
+                              disabled={busy}
+                              onClick={() => removeEntry(key)}
+                              style={{
+                                ...smallBtnStyle,
+                                cursor: busy ? "not-allowed" : "pointer",
+                              }}
+                            >
+                              {DEV_MSG.ACL_ENTRY_REMOVE}
+                            </button>
+                          ) : (
+                            <span
+                              data-testid={`${testIdPrefix}-protected-${key}`}
+                              style={{ color: catalogColors.muted, fontSize: "0.85rem" }}
+                              title={DEV_MSG.ACL_SPECIAL_HINT}
+                            >
+                              {DEV_MSG.ACL_SPECIAL_PROTECTED}
+                            </span>
+                          )}
                         </td>
                       </tr>
                     );
@@ -619,6 +713,50 @@ export function ObjectAclSection({
               </table>
             </div>
           )}
+
+          {missingSpecials.length > 0 ? (
+            <div
+              style={{
+                marginTop: "12px",
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "8px",
+                alignItems: "center",
+              }}
+              data-testid={`${testIdPrefix}-special-actions`}
+            >
+              {missingSpecials.includes("default") ? (
+                <button
+                  type="button"
+                  data-testid={`${testIdPrefix}-add-default`}
+                  disabled={busy}
+                  onClick={() => addSpecialEntry("default")}
+                  style={{
+                    ...smallBtnStyle,
+                    padding: "8px 12px",
+                    cursor: busy ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {DEV_MSG.ACL_SPECIAL_ADD_DEFAULT}
+                </button>
+              ) : null}
+              {missingSpecials.includes("any-community") ? (
+                <button
+                  type="button"
+                  data-testid={`${testIdPrefix}-add-any-community`}
+                  disabled={busy}
+                  onClick={() => addSpecialEntry("any-community")}
+                  style={{
+                    ...smallBtnStyle,
+                    padding: "8px 12px",
+                    cursor: busy ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {DEV_MSG.ACL_SPECIAL_ADD_ANY_COMMUNITY}
+                </button>
+              ) : null}
+            </div>
+          ) : null}
 
           <div
             style={{
