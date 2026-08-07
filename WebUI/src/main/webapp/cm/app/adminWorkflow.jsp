@@ -207,7 +207,7 @@
 
     </script>
 </head>
-<body onbeforeunload="return navigationEvent()" style="overflow : hidden">
+<body onbeforeunload="return navigationEvent()" class="perc-admin-workflow-page" style="overflow-x: hidden; overflow-y: auto">
 <div class="perc-main perc-finder-fix">
     <jsp:include page="includes/header.jsp" flush="true">
         <jsp:param name="mainNavTab" value="workflow"/>
@@ -251,7 +251,7 @@
 
 </div>
 <div class="perc-workflow-container">
-    <div id="tabs" style="min-width:500px;">
+    <div id="tabs" class="perc-admin-tabs">
         <ul role="tablist">
             <li role="presentation"><a role="tab" id="perc-tab-workflow" href="#tabs-1"><i18n:message key = "perc.ui.navMenu.workflow@Workflow" /></a></li>
             <li role="presentation"><a role="tab" id="perc-tab-roles" href="#tabs-2"><i18n:message key = "perc.ui.perc.role.view@Roles" /></a></li>

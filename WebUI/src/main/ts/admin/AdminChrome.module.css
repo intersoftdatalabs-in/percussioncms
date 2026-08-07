@@ -1,0 +1,95 @@
+/*
+ * Shared Admin / Workflow Admin shell chrome.
+ * Portrait / narrow viewports: wrap tabs, avoid fixed min-widths that clip.
+ */
+
+.shell {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1200px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: var(--perc-font-family, sans-serif);
+  overflow-x: auto;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.25;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+.tabNav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 20px;
+  min-width: 0;
+  max-width: 100%;
+  /* Horizontal scroll only if tabs cannot wrap for any reason */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tab {
+  box-sizing: border-box;
+  flex: 0 1 auto;
+  min-width: 0;
+  padding: 10px 20px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  font: inherit;
+  font-weight: 400;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  background: rgba(0, 126, 168, 0.06);
+}
+
+.tabActive {
+  border-bottom-color: #007ea8;
+  font-weight: 600;
+}
+
+.tabContent {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 640px), ((orientation: portrait) and (max-width: 900px)) {
+  .shell {
+    padding: 12px;
+  }
+
+  .header {
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-size: 1.25rem;
+  }
+
+  .tabNav {
+    margin-bottom: 12px;
+  }
+
+  .tab {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+}

@@ -43,6 +43,15 @@ describe("WorkflowAdminShell", () => {
     expect(screen.getByTestId("mock-workflow-section")).toBeTruthy();
   });
 
+  it("exposes responsive tablist chrome for narrow / portrait layouts", () => {
+    render(<WorkflowAdminShell />);
+    const shell = screen.getByTestId("perc-workflow-admin-shell");
+    const tablist = screen.getByTestId("perc-workflow-admin-tablist");
+    expect(tablist.getAttribute("role")).toBe("tablist");
+    expect(tablist.className.length).toBeGreaterThan(0);
+    expect(shell.className.length).toBeGreaterThan(0);
+  });
+
   it("switches tabs when nav buttons are clicked", () => {
     render(<WorkflowAdminShell />);
     

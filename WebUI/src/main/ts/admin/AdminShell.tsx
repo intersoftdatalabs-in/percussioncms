@@ -21,6 +21,7 @@ import { TasksSection } from "./TasksSection";
 import { TaskLogsSection } from "./TaskLogsSection";
 import { TaskNotifications } from "./TaskNotifications";
 import { ToolsSection } from "./tools/ToolsSection";
+import styles from "./AdminChrome.module.css";
 
 export type AdminTab = "tasks" | "logs" | "notifications" | "tools";
 
@@ -60,29 +61,22 @@ export const AdminShell: React.FC<AdminShellProps> = ({
     normalizeAdminShellTab(initialTab),
   );
 
+  const tabClass = (tab: AdminTab): string =>
+    activeTab === tab ? `${styles.tab} ${styles.tabActive}` : styles.tab;
+
   return (
     <div
-      className="perc-admin-shell"
+      className={`perc-admin-shell ${styles.shell}`}
       data-testid="perc-admin-shell"
-      style={{
-        fontFamily: "var(--perc-font-family, sans-serif)",
-        padding: "20px",
-        maxWidth: "1200px",
-        margin: "0 auto",
-      }}
     >
-      <header style={{ marginBottom: "20px" }}>
+      <header className={styles.header}>
         <h1>{message(ADMIN_MSG.ADMIN_TITLE)}</h1>
       </header>
 
       <nav
-        className="perc-tab-nav"
+        className={`perc-tab-nav ${styles.tabNav}`}
         role="tablist"
-        style={{
-          display: "flex",
-          borderBottom: "1px solid #e2e8f0",
-          marginBottom: "20px",
-        }}
+        data-testid="perc-admin-tablist"
       >
         <button
           type="button"
@@ -91,14 +85,7 @@ export const AdminShell: React.FC<AdminShellProps> = ({
           aria-selected={activeTab === "tasks"}
           aria-controls="panel-tasks"
           onClick={() => setActiveTab("tasks")}
-          style={{
-            padding: "10px 20px",
-            border: "none",
-            borderBottom: activeTab === "tasks" ? "3px solid #007ea8" : "none",
-            fontWeight: activeTab === "tasks" ? 600 : 400,
-            background: "transparent",
-            cursor: "pointer",
-          }}
+          className={tabClass("tasks")}
           data-testid="tab-tasks"
         >
           {message(ADMIN_MSG.TAB_TASKS)}
@@ -111,14 +98,7 @@ export const AdminShell: React.FC<AdminShellProps> = ({
           aria-selected={activeTab === "logs"}
           aria-controls="panel-logs"
           onClick={() => setActiveTab("logs")}
-          style={{
-            padding: "10px 20px",
-            border: "none",
-            borderBottom: activeTab === "logs" ? "3px solid #007ea8" : "none",
-            fontWeight: activeTab === "logs" ? 600 : 400,
-            background: "transparent",
-            cursor: "pointer",
-          }}
+          className={tabClass("logs")}
           data-testid="tab-logs"
         >
           {message(ADMIN_MSG.TAB_LOGS)}
@@ -131,14 +111,7 @@ export const AdminShell: React.FC<AdminShellProps> = ({
           aria-selected={activeTab === "notifications"}
           aria-controls="panel-notifications"
           onClick={() => setActiveTab("notifications")}
-          style={{
-            padding: "10px 20px",
-            border: "none",
-            borderBottom: activeTab === "notifications" ? "3px solid #007ea8" : "none",
-            fontWeight: activeTab === "notifications" ? 600 : 400,
-            background: "transparent",
-            cursor: "pointer",
-          }}
+          className={tabClass("notifications")}
           data-testid="tab-notifications"
         >
           {message(ADMIN_MSG.TAB_NOTIFICATIONS)}
@@ -151,14 +124,7 @@ export const AdminShell: React.FC<AdminShellProps> = ({
           aria-selected={activeTab === "tools"}
           aria-controls="panel-tools"
           onClick={() => setActiveTab("tools")}
-          style={{
-            padding: "10px 20px",
-            border: "none",
-            borderBottom: activeTab === "tools" ? "3px solid #007ea8" : "none",
-            fontWeight: activeTab === "tools" ? 600 : 400,
-            background: "transparent",
-            cursor: "pointer",
-          }}
+          className={tabClass("tools")}
           data-testid="tab-tools"
         >
           System Tools
@@ -166,7 +132,7 @@ export const AdminShell: React.FC<AdminShellProps> = ({
       </nav>
 
       <main
-        className="perc-tab-content"
+        className={`perc-tab-content ${styles.tabContent}`}
         role="tabpanel"
         id={`panel-${activeTab}`}
         aria-labelledby={`tab-${activeTab}`}
