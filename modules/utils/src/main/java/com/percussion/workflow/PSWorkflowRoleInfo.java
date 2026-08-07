@@ -37,7 +37,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @return the list of IDs of state roles in which a user is acting
    */
-  public List<Integer> getUserActingRoleIDs() {
+  public List getUserActingRoleIDs() {
     return m_userActingRoleIDs;
   }
 
@@ -46,7 +46,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @return the list of names of state roles in which a user is acting
    */
-  public List<String> getUserActingRoleNames() {
+  public List getUserActingRoleNames() {
     return m_userActingRoleNames;
   }
 
@@ -73,7 +73,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @param userActingRoleIDs list of IDs of state roles in which a user is acting
    */
-  public void setUserActingRoleIDs(List<Integer> userActingRoleIDs) {
+  public void setUserActingRoleIDs(List userActingRoleIDs) {
     m_userActingRoleIDs = userActingRoleIDs;
   }
 
@@ -82,7 +82,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @param userActingRoleNames list of names of state roles in which a user is acting
    */
-  public void setUserActingRoleNames(List<String> userActingRoleNames) {
+  public void setUserActingRoleNames(List userActingRoleNames) {
     m_userActingRoleNames = userActingRoleNames;
   }
 
@@ -104,11 +104,20 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
     m_fromStateCauc = fromStateCauc;
   }
 
-  /** list of IDs of state roles in which a user is acting */
-  private List<Integer> m_userActingRoleIDs = null;
+  /**
+   * List of IDs of state roles in which a user is acting. The field is intentionally raw {@code
+   * List} to match the public getter/setter and the {@link IWorkflowRoleInfo} interface signature.
+   * Callers that need typed access should construct a typed view locally; the underlying raw
+   * contract is preserved for source compatibility with external XML applications and
+   * reflection-based callers.
+   */
+  private List m_userActingRoleIDs = null;
 
-  /** list of names of state roles in which a user is acting */
-  private List<String> m_userActingRoleNames = null;
+  /**
+   * List of names of state roles in which a user is acting. See {@link #m_userActingRoleIDs} for
+   * why the field is raw.
+   */
+  private List m_userActingRoleNames = null;
 
   /** Content adhoc users context for the transition "to" state */
   private IPSContentAdhocUsersContext m_toStateCauc = null;
