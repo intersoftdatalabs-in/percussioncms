@@ -66,36 +66,41 @@ class PSTableMetaDataIdentifierFoldTest {
   }
 
   /**
-   * ColumnInfo.compareTo is case-insensitive so binarySearch finds COMMUNITYID when the driver
-   * returned communityid.
+   * Case-insensitive column lookup (same algorithm as {@code PSTableMetaData#findColumnIndex}) so
+   * COMMUNITYID is found when the driver returned communityid.
    */
   @Test
   void columnBinarySearchIsCaseInsensitive() {
-    List<StringComparableColumn> cols = new ArrayList<>();
-    cols.add(new StringComparableColumn("communityid"));
-    cols.add(new StringComparableColumn("contentid"));
-    cols.add(new StringComparableColumn("locale"));
-    Collections.sort(cols);
+    List<String> cols = new ArrayList<>();
+    cols.add("communityid");
+    cols.add("contentid");
+    cols.add("locale");
+    Collections.sort(cols, String.CASE_INSENSITIVE_ORDER);
 
-    assertTrue(Collections.binarySearch(cols, "COMMUNITYID") >= 0);
-    assertTrue(Collections.binarySearch(cols, "ContentId") >= 0);
-    assertTrue(Collections.binarySearch(cols, "missing") < 0);
+    assertTrue(findColumnIndex(cols, "COMMUNITYID") >= 0);
+    assertTrue(findColumnIndex(cols, "ContentId") >= 0);
+    assertTrue(findColumnIndex(cols, "missing") < 0);
+    assertEquals(-1, findColumnIndex(cols, null));
   }
 
-  /** Mirrors {@link PSTableMetaData.ColumnInfo#compareTo} case-insensitive contract. */
-  private static final class StringComparableColumn implements Comparable<Object> {
-    private final String name;
-
-    StringComparableColumn(String name) {
-      this.name = name;
+  /** Mirrors package-private {@code PSTableMetaData#findColumnIndex} for unit isolation. */
+  private static int findColumnIndex(List<String> columns, String columnName) {
+    if (columnName == null) {
+      return -1;
     }
-
-    @Override
-    public int compareTo(Object o) {
-      if (o instanceof String) {
-        return name.compareToIgnoreCase((String) o);
+    int low = 0;
+    int high = columns.size() - 1;
+    while (low <= high) {
+      int mid = (low + high) >>> 1;
+      int cmp = columns.get(mid).compareToIgnoreCase(columnName);
+      if (cmp < 0) {
+        low = mid + 1;
+      } else if (cmp > 0) {
+        high = mid - 1;
+      } else {
+        return mid;
       }
-      return name.compareToIgnoreCase(((StringComparableColumn) o).name);
     }
+    return -(low + 1);
   }
 }
