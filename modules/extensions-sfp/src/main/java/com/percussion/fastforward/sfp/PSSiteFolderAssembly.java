@@ -17,7 +17,6 @@
 package com.percussion.fastforward.sfp;
 
 import com.percussion.cms.PSCmsException;
-import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.data.PSConversionException;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
@@ -59,7 +58,6 @@ import org.apache.logging.log4j.Logger;
  *       generated will start with /commonRoot/...
  * </ol>
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSiteFolderAssembly extends PSDefaultExtension
     implements IPSAssemblyLocation, IPSUdfProcessor {
 
@@ -235,8 +233,7 @@ public class PSSiteFolderAssembly extends PSDefaultExtension
     }
 
     PSLocator siteFolderLoc = getSpecifiedFolder(request);
-    PSFolder siteFolder = null;
-    List path = null;
+    List<PSLocator> path;
     if (siteFolderLoc != null) { // a folder specified in the parameters,
       log.debug("folder specified " + siteFolderLoc.getId());
 
@@ -255,7 +252,7 @@ public class PSSiteFolderAssembly extends PSDefaultExtension
     } else {
       path = PSSite.buildFolderPathList(fid, currentItem, false);
 
-      if (path == null) {
+      if (path == null || path.isEmpty()) {
         log.error(
             "No folders in this site contain this item, (id="
                 + currentItem.getId()

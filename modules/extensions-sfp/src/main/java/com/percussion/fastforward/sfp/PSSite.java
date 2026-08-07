@@ -28,7 +28,6 @@ import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -44,7 +43,6 @@ import org.w3c.dom.NodeList;
  *
  * @author James Schultz
  */
-@SuppressWarnings({"rawtypes", "unchecked", "cast"})
 public class PSSite {
 
   /** Default constructor for PSSite. */
@@ -65,7 +63,7 @@ public class PSSite {
 
     if (siteid != null) {
       // build and execute an interal request
-      Map lookupParams = new HashMap(1);
+      Map<String, Object> lookupParams = new HashMap<>(1);
       lookupParams.put(IPSHtmlParameters.SYS_SITEID, siteid);
       IPSInternalRequest lookupRequest =
           request.getInternalRequest(LOOKUP_SITE_FOLDER_ROOT, lookupParams, false);
@@ -141,25 +139,21 @@ public class PSSite {
    *     rootLoc. It never null.
    * @throws PSCmsException if an error occurs.
    */
-  public static List buildFolderPathList(int rootId, PSLocator locator, boolean addLocator)
-      throws PSCmsException {
+  public static List<PSLocator> buildFolderPathList(
+      int rootId, PSLocator locator, boolean addLocator) throws PSCmsException {
 
     if (rootId <= 0) throw new IllegalArgumentException("rootid must not be > 0");
     if (locator == null) throw new IllegalArgumentException("locator must not be null");
 
     PSServerFolderProcessor fldProcessor = PSServerFolderProcessor.getInstance();
-    List paths = fldProcessor.getFolderLocatorPaths(locator);
-    Iterator pathsIt = paths.iterator();
-    ListIterator walkPath;
-    List path;
-    PSLocator tmpLoc;
+    List<List<PSLocator>> paths = fldProcessor.getFolderLocatorPaths(locator);
 
-    while (pathsIt.hasNext()) {
-      walkPath = ((List) pathsIt.next()).listIterator();
+    for (List<PSLocator> onePath : paths) {
+      ListIterator<PSLocator> walkPath = onePath.listIterator();
       // collect the locators while walking the path from bottom up
-      path = new ArrayList();
+      List<PSLocator> path = new ArrayList<>();
       while (walkPath.hasNext()) {
-        tmpLoc = (PSLocator) walkPath.next();
+        PSLocator tmpLoc = walkPath.next();
         if (tmpLoc.getId() == rootId) {
           Collections.reverse(path);
           if (addLocator) path.add(locator);
@@ -170,7 +164,7 @@ public class PSSite {
       }
     }
 
-    return Collections.EMPTY_LIST;
+    return Collections.emptyList();
   }
 
   /**
@@ -185,12 +179,10 @@ public class PSSite {
    * @deprecated use {@link #renderSiteFolderPathLocators(List)} instead.
    */
   @Deprecated
-  public static String renderSiteFolderPath(List siteFolderList) throws PSCmsException {
+  public static String renderSiteFolderPath(List<PSFolder> siteFolderList) throws PSCmsException {
     StringBuilder path = new StringBuilder();
-    ListIterator it = siteFolderList.listIterator();
-    while (it.hasNext()) {
-      PSFolder folder = (PSFolder) it.next();
-      PSLocator loc = (PSLocator) folder.getLocator();
+    for (PSFolder folder : siteFolderList) {
+      PSLocator loc = folder.getLocator();
       path.append(SITE_PATH_SEPARATOR);
       path.append(getFolderFileName(loc));
     }

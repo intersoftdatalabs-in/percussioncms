@@ -18,8 +18,6 @@ package com.percussion.fastforward.sfp;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * A List object that produces a SQL "IN" clause. The only restriction placed on objects in this
@@ -28,8 +26,8 @@ import java.util.List;
  *
  * @author DavidBenua
  */
-@SuppressWarnings({"rawtypes", "unchecked", "serial"})
-public class PSSqlInList extends ArrayList implements List {
+@SuppressWarnings("serial")
+public class PSSqlInList extends ArrayList<Object> {
   /**
    * Creates a list with a specificied capacity. The created object is {@link #TYPE_LITERAL}.
    *
@@ -50,7 +48,7 @@ public class PSSqlInList extends ArrayList implements List {
    *
    * @param c the collection whose members will populate this list, never <code>null</code>
    */
-  public PSSqlInList(Collection c) {
+  public PSSqlInList(Collection<?> c) {
     super(c);
   }
 
@@ -82,15 +80,14 @@ public class PSSqlInList extends ArrayList implements List {
       if (m_type == TYPE_NUMERIC) return "()";
       else return "('')";
     }
-    Iterator it = this.iterator();
     StringBuilder sb = new StringBuilder();
     boolean first = true;
     sb.append("(");
-    while (it.hasNext()) {
+    for (Object value : this) {
       if (!first) {
         sb.append(",");
       }
-      sb.append(getValue(it.next()));
+      sb.append(getValue(value));
       first = false;
     }
 
