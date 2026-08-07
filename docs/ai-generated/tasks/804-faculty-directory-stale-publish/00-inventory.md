@@ -267,8 +267,8 @@ Do **not** ship without evidence which hypothesis holds.
 | Slice | Goal | Status |
 |-------|------|--------|
 | **1 (this PR)** | Inventory publish/cache/stale-relationship surfaces | Done (docs) |
-| **2** | Live / customer-env repro when snapshot available; classify H1–H9 | Open residual issue |
-| **3** | Minimal product fix once root cause classified | Open residual issue |
+| **2** | Live / customer-env repro when snapshot available; classify H1–H9 | Done — see [01-classification.md](./01-classification.md) (#2334); primary **H1**, product defect not repro without snapshot |
+| **3** | Minimal product fix once root cause classified | Open #2335 — ops-first per Slice 2 recommendation |
 
 ---
 
