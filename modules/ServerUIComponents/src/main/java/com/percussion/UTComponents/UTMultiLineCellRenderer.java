@@ -24,10 +24,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 
 /** Cell renderer used when a {@link JTextArea} object is stored within a table or list cell. */
-@SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
 public class UTMultiLineCellRenderer extends JTextArea
     implements TableCellRenderer, ListCellRenderer, Serializable {
-
   private static final long serialVersionUID = 1L;
 
   /** Constructs the renderer with line wrap, word-wrap, and a small empty border configured. */
@@ -157,10 +155,7 @@ public class UTMultiLineCellRenderer extends JTextArea
    * architecture.
    */
   public static class UIResource extends UTMultiLineCellRenderer
-      implements javax.swing.plaf.UIResource {
-
-    private static final long serialVersionUID = 1L;
-  }
+      implements javax.swing.plaf.UIResource {}
 
   protected static Border noFocusBorder;
 

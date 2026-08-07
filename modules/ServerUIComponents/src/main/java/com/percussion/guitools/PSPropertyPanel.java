@@ -31,8 +31,9 @@ import javax.swing.*;
  * edit the property value. All the labels added using {@link #addPropertyRow } are aligned to their
  * right and controls are aligned to the left. The label will be center of controls.
  */
-@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public class PSPropertyPanel extends JPanel implements IPSPropertyPanel {
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates a panel with {@link com.percussion.layout.PSGridBoxLayout} with 2 columns. Uses <code>
    * 10</code> for gap between rows or columns.

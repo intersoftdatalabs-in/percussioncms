@@ -24,20 +24,22 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 /** Just like a standard text field except for restricting the number of characters in the field. */
-@SuppressWarnings("this-escape")
 public class UTFixedCharTextField extends JTextField implements Serializable {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public UTFixedCharTextField() {
     super();
   }
-
-  private static final long serialVersionUID = 1L;
 
   /**
    * Ctor for creating a fixed character text field.
    *
    * @param maxChars int greater than 0.
    */
+  // setDocument is overridable on JTextComponent; subclasses could observe a partially
+  // constructed instance. Suppress at the constructor scope only.
+  @SuppressWarnings("this-escape")
   public UTFixedCharTextField(int maxChars) {
     setDocument(new LimitingDocument(maxChars));
   }
@@ -84,7 +86,6 @@ public class UTFixedCharTextField extends JTextField implements Serializable {
 
   /** Inner class to limit the number of chars in this text field. */
   class LimitingDocument extends PlainDocument {
-    private static final long serialVersionUID = 1L;
 
     /**
      * Construct the limiting document.

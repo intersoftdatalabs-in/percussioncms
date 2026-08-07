@@ -50,8 +50,9 @@ import javax.swing.text.PlainDocument;
  *
  * @author erikserating
  */
-@SuppressWarnings({"serial", "this-escape"})
 public class PSPagingControl extends JPanel {
+
+  private static final long serialVersionUID = 1L;
 
   /** No-op default constructor. */
   public PSPagingControl() {

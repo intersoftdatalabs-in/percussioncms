@@ -30,7 +30,6 @@ import javax.swing.table.TableModel;
  *     their heart. It implements the basic functionality, but you must subclass it to implement the
  *     column oriented methods that will extract and update information from an object's fields.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class PSEditTableModel implements TableModel {
   /**
    * The maintained list of listeners for table modification events. These listeners are all of the

@@ -28,7 +28,6 @@ import javax.swing.*;
  *
  * @author dougrand
  */
-@SuppressWarnings("this-escape")
 public class PSPathLabel extends JTextField {
   /** Text to display, will be abbreviated according to available size, never <code>null</code> */
   protected String m_text = "";
@@ -37,6 +36,9 @@ public class PSPathLabel extends JTextField {
   private static final long serialVersionUID = 5446758279307498471L;
 
   /** Ctor */
+  // setBorder/setEditable are overridable on JTextField/JComponent; subclasses could observe a
+  // partially constructed instance. Suppress at the constructor scope only.
+  @SuppressWarnings("this-escape")
   public PSPathLabel() {
     super();
     this.setBorder(null);

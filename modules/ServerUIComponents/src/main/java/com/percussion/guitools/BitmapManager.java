@@ -35,7 +35,6 @@ import javax.swing.*;
  * <p>Use {@link #getBitmapManager(Class) getBitmapManager} to obtain a manager that can load images
  * relative to the package of the class.
  */
-@SuppressWarnings({"rawtypes", "unchecked", "varargs"})
 public class BitmapManager {
   // constructors
   /**

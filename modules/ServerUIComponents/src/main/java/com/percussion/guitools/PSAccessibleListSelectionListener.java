@@ -26,7 +26,6 @@ import javax.swing.event.ListSelectionListener;
  * mainly required since Swing components like JComboBox does not do right thing when selection is
  * changed.
  */
-@SuppressWarnings("rawtypes")
 public class PSAccessibleListSelectionListener implements ListSelectionListener {
   /** No-op default constructor. */
   public PSAccessibleListSelectionListener() {

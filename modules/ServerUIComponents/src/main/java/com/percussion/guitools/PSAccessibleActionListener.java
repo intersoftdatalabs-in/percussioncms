@@ -25,7 +25,6 @@ import javax.swing.*;
  * mainly required since Swing components like JComboBox does not do right thing when selection is
  * changed.
  */
-@SuppressWarnings("rawtypes")
 public class PSAccessibleActionListener implements ActionListener {
 
   /** Default Constructor to work in the current usage */

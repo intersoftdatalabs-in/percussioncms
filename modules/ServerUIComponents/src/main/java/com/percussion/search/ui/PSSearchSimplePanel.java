@@ -56,8 +56,9 @@ import javax.swing.*;
  *   <li>Max results
  * </ul>
  */
-@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape", "varargs"})
 public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListener {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public PSSearchSimplePanel() {
     super();

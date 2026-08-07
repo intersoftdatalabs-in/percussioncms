@@ -72,7 +72,6 @@ import org.apache.oro.text.perl.Perl5Util;
  * already selected in the editor from where this is launched will not be show in the Available List
  * group.
  */
-@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public class PSFieldSelectionEditorDialog extends PSDialog {
 
   /** No-op default constructor. */
@@ -1405,7 +1404,8 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
               if (!df.getFieldRef().equalsIgnoreCase(selectedLwf.getInternalName()))
                 continue; // nope, skip it
 
-              if (df.getDependencyType().equalsIgnoreCase(PSChoiceFilter.DependentField.TYPE_OPTIONAL)) {
+              if (df.getDependencyType()
+                  .equalsIgnoreCase(PSChoiceFilter.DependentField.TYPE_OPTIONAL)) {
                 String msg = getResource("opt.msg.removeOptionalDependent");
                 Object args[] = {df.getFieldRef(), notSelectedLwf.getInternalName()};
 

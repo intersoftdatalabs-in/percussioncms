@@ -23,7 +23,6 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /** Utility class to start the default system browser */
-@SuppressWarnings("varargs")
 public class UTBrowserControl {
   /**
    * Display a file in the system browser. If you want to display a file, you must include the
@@ -54,7 +53,7 @@ public class UTBrowserControl {
       } // we already had the default.
 
       String[] params = {url};
-      cmd = MessageFormat.format(cmdLine, params);
+      cmd = MessageFormat.format(cmdLine, (Object[]) params);
 
       Process p = Runtime.getRuntime().exec(cmd);
     } catch (IOException x) {

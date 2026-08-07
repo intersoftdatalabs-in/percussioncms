@@ -40,14 +40,13 @@ import javax.swing.*;
  * ActionEvent#getActionCommand()} will return {@link #BUTTON_PRESSED_CMD} and {@link
  * #DATE_UPDATED_CMD} respectively.
  */
-@SuppressWarnings({"serial", "this-escape", "rawtypes"})
 public class PSCalendarButton extends JButton implements ActionListener, Serializable {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public PSCalendarButton() {
     super();
   }
-
-  private static final long serialVersionUID = 1L;
 
   /**
    * Ctor that implements the default behavior for this class. Uses the standard calendar icon and

@@ -35,7 +35,6 @@ import javax.swing.event.DocumentListener;
  * formatted date string. Formats are based on the date format rules for <code>
  * java.text.SimpleDateFormat</code>.
  */
-@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public class PSCalendarField extends JPanel implements ActionListener {
   private static final long serialVersionUID = 1L;
 

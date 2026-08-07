@@ -25,9 +25,7 @@ import javax.swing.*;
  *
  * <p>If the supplied action is not a PSAction, this object behaves identically to its base class.
  */
-@SuppressWarnings("this-escape")
 public class PSMenu extends JMenu {
-
   private static final long serialVersionUID = 1L;
 
   // constructors
@@ -49,6 +47,9 @@ public class PSMenu extends JMenu {
    * @param strLabel the label of the menu, may be <code>null</code> or empty.
    * @param mnemonic the keyboard character mnemonic
    */
+  // setMnemonic is overridable on JMenu; subclasses could observe a partially-constructed
+  // instance. Suppress at the constructor scope only.
+  @SuppressWarnings("this-escape")
   public PSMenu(String strLabel, char mnemonic) {
     super(strLabel);
     setMnemonic(mnemonic);

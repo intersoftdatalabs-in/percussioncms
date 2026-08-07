@@ -28,8 +28,9 @@ import javax.swing.*;
  * "Arial" which is able to display such characters. This class mimics all constructors of <code>
  * JLabel</code> for ease of use.
  */
-@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public class PSLabel extends JLabel {
+  private static final long serialVersionUID = 1L;
+
   /** Default constructor; see {@link JLabel#JLabel()}. */
   public PSLabel() {
     super();

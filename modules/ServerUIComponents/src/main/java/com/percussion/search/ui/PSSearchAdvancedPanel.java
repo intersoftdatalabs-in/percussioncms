@@ -39,8 +39,9 @@ import javax.swing.*;
  * The presence of the these controls can be controlled by the caller. Either the full-text controls
  * or the db flag is present, but never both.
  */
-@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape", "varargs"})
 public class PSSearchAdvancedPanel extends PSPropertyPanel implements ActionListener {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public PSSearchAdvancedPanel() {
     super();

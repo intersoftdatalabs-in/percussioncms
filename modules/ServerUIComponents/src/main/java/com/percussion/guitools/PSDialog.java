@@ -43,8 +43,8 @@ import javax.swing.table.TableCellEditor;
  *
  * @see ValidationFramework
  */
-@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public class PSDialog extends JDialog {
+  private static final long serialVersionUID = 1L;
 
   // mimic all constructors of JDialog
   /**

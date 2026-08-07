@@ -33,8 +33,9 @@ import javax.swing.*;
  * and Help.
  */
 ////////////////////////////////////////////////////////////////////////////////
-@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public class UTStandardCommandPanel extends JPanel implements ActionListener {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public UTStandardCommandPanel() {
     super();

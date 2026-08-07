@@ -40,8 +40,9 @@ import javax.swing.event.ListSelectionListener;
  * items selected from source list to the target list and 'Remove' - for removing selected items
  * from the target list and them back into source list.
  */
-@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public class PSSourceTargetListPanel extends JPanel {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public PSSourceTargetListPanel() {
     super();

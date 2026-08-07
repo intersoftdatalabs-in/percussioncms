@@ -39,8 +39,9 @@ import javax.swing.event.ListSelectionListener;
  * object to add to the list. The list will render objects using their <code>toString()</code>
  * method. Mult-select is not currently supported.
  */
-@SuppressWarnings({"rawtypes", "unchecked", "serial", "this-escape"})
 public abstract class PSListBox extends JPanel {
+  private static final long serialVersionUID = 1L;
+
   /**
    * Construct the list box, providing its title and initial data.
    *

@@ -23,8 +23,9 @@ import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
 
 /** Default implementation for <code>IPSTableModel</code>. */
-@SuppressWarnings({"rawtypes", "unchecked", "serial"})
 public abstract class PSTableModel extends DefaultTableModel implements IPSTableModel {
+  private static final long serialVersionUID = 1L;
+
   // implements interface method to return false always.
   public boolean allowChangeDescription() {
     return false;
