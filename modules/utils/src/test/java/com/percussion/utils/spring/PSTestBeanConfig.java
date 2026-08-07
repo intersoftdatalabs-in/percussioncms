@@ -31,8 +31,10 @@ public class PSTestBeanConfig implements IPSBeanConfig {
   }
 
   public void fromXml(Element source) throws PSInvalidXmlException {
-    if (null == source)
-      ;
+    // Test stub: no state to hydrate from XML.
+    if (null == source) {
+      return;
+    }
   }
 
   public String getBeanName() {

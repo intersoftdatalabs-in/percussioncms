@@ -54,10 +54,11 @@ public class PSItemIteratorTest {
     /**
      * Ctor
      *
-     * @param things
+     * @param things map of values (simple map or multi-map {@code asMap()} view); production accepts
+     *     {@code Map<?, ?>}
      * @param filterpattern
      */
-    protected TestItemIterator(Map<String, Item> things, String filterpattern) {
+    protected TestItemIterator(Map<?, ?> things, String filterpattern) {
       super(things, filterpattern);
     }
   }
@@ -138,7 +139,7 @@ public class PSItemIteratorTest {
   }
 
   /** Test data for multi map testing */
-  static MultiValuedMap ms_mm = new ArrayListValuedHashMap<>();
+  static MultiValuedMap<String, String> ms_mm = new ArrayListValuedHashMap<>();
 
   static {
     ms_mm.put("aa", "1");
@@ -217,7 +218,7 @@ public class PSItemIteratorTest {
     ti = new TestItemIterator(ms_mm.asMap(), null);
 
     int count = 0;
-    Iterator<Object> v = ms_mm.values().iterator();
+    Iterator<String> v = ms_mm.values().iterator();
     while (v.hasNext()) {
       v.next();
       count++;

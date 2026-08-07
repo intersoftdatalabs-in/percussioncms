@@ -161,8 +161,8 @@ public class TestAllHTML5Tags {
 
   private void verifyAttributes(Element tag, Map<String, String> attrList) {
 
-    for (Map.Entry attr : attrList.entrySet()) {
-      String attrValue = tag.attr((String) attr.getKey());
+    for (Map.Entry<String, String> attr : attrList.entrySet()) {
+      String attrValue = tag.attr(attr.getKey());
       assertTrue(attrValue != null);
       System.out.println("Attribute Value: " + attrValue);
       System.out.println("Attribute Name: " + attr.getKey());
@@ -173,8 +173,8 @@ public class TestAllHTML5Tags {
 
   private void verifyAttributes(Attributes attributes, Map<String, String> attrList) {
 
-    for (Map.Entry attr : attrList.entrySet()) {
-      String attrValue = attributes.get((String) attr.getKey());
+    for (Map.Entry<String, String> attr : attrList.entrySet()) {
+      String attrValue = attributes.get(attr.getKey());
       assertEquals(attrValue, attr.getValue());
     }
   }

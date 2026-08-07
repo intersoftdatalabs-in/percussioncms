@@ -50,7 +50,8 @@ public class PSTestUtils {
    * @throws Exception If the test fails.
    */
   public static void testSetter(
-      Object obj, String prop, Object val, Class valClass, boolean shouldThrow) throws Exception {
+      Object obj, String prop, Object val, Class<?> valClass, boolean shouldThrow)
+      throws Exception {
     if (obj == null) throw new IllegalArgumentException("obj may not be null");
 
     if (StringUtils.isBlank(prop))
@@ -58,13 +59,13 @@ public class PSTestUtils {
 
     if (valClass == null) throw new IllegalArgumentException("valClass may not be null");
 
-    Class objClass = obj.getClass();
-    Method setter = objClass.getMethod("set" + prop, new Class[] {valClass});
-    Method getter = objClass.getMethod("get" + prop, new Class[] {});
+    Class<?> objClass = obj.getClass();
+    Method setter = objClass.getMethod("set" + prop, valClass);
+    Method getter = objClass.getMethod("get" + prop);
 
     boolean didThrow = false;
     try {
-      setter.invoke(obj, new Object[] {val});
+      setter.invoke(obj, val);
     } catch (InvocationTargetException e) {
       if (e.getCause() instanceof IllegalArgumentException) didThrow = true;
       else {
@@ -86,9 +87,8 @@ public class PSTestUtils {
    * @return The constructed object.
    * @throws Exception If the test fails.
    */
-  @SuppressWarnings(value = {"unchecked"})
-  public static Object testCtor(Class objClass, Class[] params, Object[] args, boolean shouldThrow)
-      throws Exception {
+  public static Object testCtor(
+      Class<?> objClass, Class<?>[] params, Object[] args, boolean shouldThrow) throws Exception {
     if (objClass == null) throw new IllegalArgumentException("objClass may not be null");
     if (params == null) throw new IllegalArgumentException("params may not be null");
     if (args == null) throw new IllegalArgumentException("args may not be null");
@@ -96,7 +96,7 @@ public class PSTestUtils {
     boolean result = !shouldThrow;
     Object test = null;
     try {
-      Constructor ctor = objClass.getConstructor(params);
+      Constructor<?> ctor = objClass.getConstructor(params);
       test = ctor.newInstance(args);
     } catch (Exception e) {
       result = shouldThrow;
