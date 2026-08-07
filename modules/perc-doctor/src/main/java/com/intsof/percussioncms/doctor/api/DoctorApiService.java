@@ -86,12 +86,52 @@ public final class DoctorApiService {
     return DoctorReportView.from(report);
   }
 
+  /**
+   * Resolve the install root for HTTP execution.
+   *
+   * <p><strong>Security:</strong> the HTTP API never uses a client-supplied path for filesystem
+   * I/O. Optional {@link DoctorRequest#getInstallRoot()} is accepted only when it normalizes to the
+   * same absolute path as the host default; the return value is always the host-provided {@link
+   * Path} so CodeQL / runtime path-injection cannot flow from the JSON body into {@code
+   * Files.exists} / walk / delete sinks.
+   *
+   * @param body request body (non-null)
+   * @return trusted install root from {@link DoctorInstallRootProvider}
+   * @throws IllegalArgumentException if a non-blank override does not match the host root
+   */
   private Path resolveInstallRoot(DoctorRequest body) {
+    Path hostRoot =
+        Objects.requireNonNull(
+            installRootProvider.getDefaultInstallRoot(), "installRootProvider returned null");
     String explicit = body.getInstallRoot();
-    if (explicit != null && !explicit.isBlank()) {
-      return Path.of(explicit.trim());
+    if (explicit == null || explicit.isBlank()) {
+      return hostRoot;
     }
-    return installRootProvider.getDefaultInstallRoot();
+    Path requested = Path.of(explicit.trim()).toAbsolutePath().normalize();
+    Path trusted = hostRoot.toAbsolutePath().normalize();
+    if (!installRootPathsEqual(requested, trusted)) {
+      throw new IllegalArgumentException(
+          "installRoot override is not permitted for the HTTP API; omit installRoot to use the"
+              + " server install root");
+    }
+    // Always return the host Path (trusted), never Path.of(client string).
+    return hostRoot;
+  }
+
+  /**
+   * Equality of install roots after absolute normalize. On Windows, compare case-insensitively
+   * because the FS does.
+   */
+  static boolean installRootPathsEqual(Path a, Path b) {
+    if (a.equals(b)) {
+      return true;
+    }
+    // Windows path equality is case-insensitive; Path.equals is not always.
+    String os = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
+    if (os.contains("win")) {
+      return a.toString().equalsIgnoreCase(b.toString());
+    }
+    return false;
   }
 
   /**

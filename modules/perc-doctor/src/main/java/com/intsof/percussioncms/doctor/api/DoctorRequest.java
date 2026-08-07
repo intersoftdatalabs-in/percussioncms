@@ -32,8 +32,10 @@ public class DoctorRequest {
   private Boolean dryRun;
 
   /**
-   * Optional CMS install root. When blank/null, the host supplies the server install root
-   * ({@code rxdeploydir} / resolved RX dir).
+   * Optional CMS install root string. When blank/null, the host supplies the server install root
+   * ({@code rxdeploydir} / resolved RX dir). When non-blank, the HTTP API accepts it only if it
+   * normalizes to the same path as the host default; filesystem I/O always uses the host-provided
+   * path (never a client-constructed path) to prevent path injection.
    */
   private String installRoot;
 

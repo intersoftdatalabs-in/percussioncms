@@ -93,7 +93,22 @@ class DoctorApiServiceTest {
   }
 
   @Test
-  void explicitInstallRootOverridesProvider() throws Exception {
+  void explicitInstallRootMatchingHostIsAcceptedAndUsesHostPath() throws Exception {
+    DoctorRequest req = new DoctorRequest();
+    req.setDryRun(true);
+    // Same tree as provider — allowed, but I/O still uses host Path.
+    req.setInstallRoot(installRoot.toAbsolutePath().normalize().toString());
+
+    DoctorReportView view = service.execute(CleanHeapDumpsCommand.COMMAND_NAME, req);
+    assertEquals(1, view.getCandidateCount());
+    assertTrue(Files.exists(heapDump), "dry-run");
+    assertEquals(
+        installRoot.toAbsolutePath().normalize().toString(),
+        Path.of(view.getInstallRoot()).toAbsolutePath().normalize().toString());
+  }
+
+  @Test
+  void explicitInstallRootOutsideHostIsRejected() throws Exception {
     Path otherRoot = Files.createDirectories(tempDir.resolve("other-install"));
     Path otherDump = otherRoot.resolve("x.hprof");
     Files.write(otherDump, "X".getBytes(StandardCharsets.UTF_8));
@@ -102,11 +117,13 @@ class DoctorApiServiceTest {
     req.setDryRun(true);
     req.setInstallRoot(otherRoot.toString());
 
-    DoctorReportView view = service.execute(CleanHeapDumpsCommand.COMMAND_NAME, req);
-    assertEquals(1, view.getCandidateCount());
-    assertTrue(view.getInstallRoot().contains("other-install") || view.getInstallRoot().equals(otherRoot.toString()));
-    assertTrue(Files.exists(heapDump), "default install root dump untouched");
-    assertTrue(Files.exists(otherDump), "dry-run");
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> service.execute(CleanHeapDumpsCommand.COMMAND_NAME, req));
+    assertTrue(ex.getMessage().toLowerCase().contains("installroot"));
+    assertTrue(Files.exists(heapDump), "rejected override must not touch host root");
+    assertTrue(Files.exists(otherDump), "rejected override must not walk outside root");
   }
 
   @Test

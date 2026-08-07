@@ -188,7 +188,7 @@ When the CMS server is running, doctor commands are also available as an **Admin
 | Field | Type | Default | Meaning |
 |-------|------|---------|---------|
 | `dryRun` | boolean | **`true` when omitted/null** | Report only — **no deletes**. Explicit apply requires `"dryRun": false`. |
-| `installRoot` | string | Server RX install root (`rxdeploydir` / resolved install dir) | Optional override of the CMS install tree |
+| `installRoot` | string | Server RX install root (`rxdeploydir` / resolved install dir) | Optional; when set must normalize to the **same** path as the host default. Filesystem I/O always uses the host-provided root (never a client path) — arbitrary tree override is rejected (**HTTP 400**) to block path injection. |
 | `olderThan` | string | unset | `clean-logs` only — e.g. `"7d"`, `"24h"` |
 | `keepCurrent` | boolean | `true` when omitted/null | `clean-logs` only — retain active current logs |
 
