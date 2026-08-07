@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,51 +15,73 @@
  * limitations under the License.
  */
 
-(function($)
-{
-    $.PercRecycleService = {
-        restoreItem: restoreItem,
-        purgeItem: purgeItem
-    };
+(function ($) {
+  $.PercRecycleService = {
+    restoreItem: restoreItem,
+    purgeItem: purgeItem,
+    emptyRecycling: emptyRecycling,
+  };
 
-    function restoreItem(id, path, callback) {
-        $.PercServiceUtils.makeJsonRequest(
-            path + '/' + id,
-            $.PercServiceUtils.TYPE_PUT,
-            false,
-            function(status, result)
-            {
-                if(status === $.PercServiceUtils.STATUS_SUCCESS)
-                {
-                    callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
-                }
-                else
-                {
-                    var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
-                    callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
-                }
-            }
-        );
-    }
+  function restoreItem(id, path, callback) {
+    $.PercServiceUtils.makeJsonRequest(
+      path + "/" + id,
+      $.PercServiceUtils.TYPE_PUT,
+      false,
+      function (status, result) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
+        } else {
+          var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            result.request,
+          );
+          callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
+        }
+      },
+    );
+  }
 
-    function purgeItem(id, path, callback) {
-        $.PercServiceUtils.makeJsonRequest(
-            path + '/' + id,
-            $.PercServiceUtils.TYPE_DELETE,
-            false,
-            function(status, result)
-            {
-                if(status === $.PercServiceUtils.STATUS_SUCCESS)
-                {
-                    callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
-                }
-                else
-                {
-                    var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
-                    callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
-                }
-            }
-        );
-    }
+  function purgeItem(id, path, callback) {
+    $.PercServiceUtils.makeJsonRequest(
+      path + "/" + id,
+      $.PercServiceUtils.TYPE_DELETE,
+      false,
+      function (status, result) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
+        } else {
+          var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            result.request,
+          );
+          callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
+        }
+      },
+    );
+  }
 
+  /**
+   * Permanently empties the system Recycling bin via #2205 API.
+   * DELETE /pathmanagement/recycle/empty (Admin-only).
+   *
+   * @param {function} callback (status, dataOrMessage)
+   *   On success, data is PSEmptyRecycleResult-shaped object.
+   *   On error, data is a string error message.
+   */
+  function emptyRecycling(callback) {
+    var url = $.perc_paths.RECYCLE_EMPTY;
+    $.PercServiceUtils.makeJsonRequest(
+      url,
+      $.PercServiceUtils.TYPE_DELETE,
+      false,
+      function (status, result) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
+        } else {
+          var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            result.request,
+          );
+          callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
+        }
+      },
+    );
+  }
 })(jQuery);

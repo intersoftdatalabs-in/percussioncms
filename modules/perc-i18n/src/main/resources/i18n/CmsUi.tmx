@@ -18789,6 +18789,33 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>警告：</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>警告：</seg></tuv>
     <tuv xml:lang="ru"><seg>Предупреждение:</seg></tuv><tuv xml:lang="he"><seg>אַזהָרָה:</seg></tuv><tuv xml:lang="uk"><seg>УВАГА:</seg></tuv></tu>
+    <tu tuid="perc.ui.empty.recycling@Label">
+      <tuv xml:lang="en-us"><seg>Empty Recycling</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.empty.recycling@Click">
+      <tuv xml:lang="en-us"><seg>Permanently empty the Recycling bin</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.empty.recycling@Title">
+      <tuv xml:lang="en-us"><seg>Empty Recycling</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.empty.recycling@Confirm">
+      <tuv xml:lang="en-us"><seg>This will permanently delete all items in the Recycling bin. This action cannot be undone. Are you sure you want to empty the Recycling bin?</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.empty.recycling@Empty">
+      <tuv xml:lang="en-us"><seg>Empty</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.empty.recycling@Not Authorized">
+      <tuv xml:lang="en-us"><seg>Only Admin users may empty the Recycling bin.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.empty.recycling@Error">
+      <tuv xml:lang="en-us"><seg>Failed to empty the Recycling bin.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.empty.recycling@Already Empty">
+      <tuv xml:lang="en-us"><seg>The Recycling bin is already empty.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.empty.recycling@Partial">
+      <tuv xml:lang="en-us"><seg>Some items could not be permanently deleted ({0}). The Recycling bin has been refreshed.</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.restore.messsage@Restore Not Allowed">
       <tuv xml:lang="en-us"><seg>Please select parent folder to restore. </seg></tuv>
       <tuv xml:lang="ar"><seg>الرجاء تحديد المجلد الأصلي لاستعادته.</seg></tuv>

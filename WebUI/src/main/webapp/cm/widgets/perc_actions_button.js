@@ -32,8 +32,9 @@
     var db = $.perc_build_download_button(finder, contentViewer);
     var ub = $.perc_build_upload_button(finder, contentViewer);
     var ri = $.perc_build_restore_button(finder, contentViewer);
+    var er = $.perc_build_empty_recycling_button(finder, contentViewer);
 
-    var menuEntries = [cp, fp, db, ub, ri];
+    var menuEntries = [cp, fp, db, ub, ri, er];
     // Create the menu and the button
     var menu = createMenuHTML(menuEntries)
       .on("mouseenter", function (e) {

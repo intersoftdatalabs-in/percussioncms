@@ -25,6 +25,7 @@
 <script src="../widgets/perc_new_page_button.js"></script>
 <script src="../widgets/perc_copy_page_button.js"></script>
 <script src="../widgets/perc_restore_button.js"></script>
+<script src="../widgets/perc_empty_recycling_button.js"></script>
 <script src="../widgets/perc_download_button.js"></script>
 <script src="../widgets/perc_upload_button.js"></script>
 <script src="../widgets/perc_folderproperties_button.js"></script>
