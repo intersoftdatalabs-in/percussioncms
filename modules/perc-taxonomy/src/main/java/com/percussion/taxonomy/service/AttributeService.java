@@ -39,11 +39,11 @@ public class AttributeService implements AttributeServiceInf {
     this.valueService = valueService;
   }
 
-  public Collection getAllAttributes(int taxonomy_id, int language_id) {
+  public Collection<Attribute> getAllAttributes(int taxonomy_id, int language_id) {
     return attributeDAO.getAllAttributes(taxonomy_id, language_id);
   }
 
-  public Collection getAttribute(int id) {
+  public Collection<Attribute> getAttribute(int id) {
     return attributeDAO.getAttribute(id);
   }
 
@@ -93,7 +93,7 @@ public class AttributeService implements AttributeServiceInf {
   }
 
   /** Return all Attribute names and IDs */
-  public Collection getAttributeNames(int taxonomy_id, int language_id) {
+  public Collection<Object[]> getAttributeNames(int taxonomy_id, int language_id) {
     return attributeDAO.getAttributeNames(taxonomy_id, language_id);
   }
 
