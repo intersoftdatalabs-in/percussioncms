@@ -226,28 +226,52 @@ public class PSCategoryServiceUtil {
     }
   }
 
-  private static String getCategoriesForPublish(String categoryString) {
+  /**
+   * Builds the JSON array string of category path renames to push to DTS.
+   *
+   * <p>Package-visible for unit tests. Returns {@code "[]"} when nothing was renamed, or {@code
+   * null} when the category payload cannot be read.
+   *
+   * @param categoryString marshalled category JSON; may be blank
+   * @return JSON array string of {@code previousCategoryName}/{@code title} pairs, or null
+   */
+  static String getCategoriesForPublish(String categoryString) {
     String forPublish = null;
     var category = PSCategoryUnMarshaller.unMarshalFromString(categoryString);
+    if (category == null) {
+      return null;
+    }
     log.debug("Getting categories for publish.");
     var topCategories = category.getTopLevelNodes();
     if (topCategories != null && !topCategories.isEmpty()) {
+      String treeTitle = StringUtils.defaultIfBlank(category.getTitle(), "Categories");
       forPublish =
-          findModifiedCategories(topCategories, "/" + category.getTitle(), null, false).toString();
+          findModifiedCategories(topCategories, "/" + treeTitle, null, false).toString();
     }
     return forPublish;
   }
 
-  private static JSONArray findModifiedCategories(
+  /**
+   * Walks the category tree and collects rename pairs for DTS {@code perc:category} updates.
+   *
+   * @param categories siblings at the current level; never null
+   * @param oldPrefix path prefix using previous names for ancestors
+   * @param newPrefix path prefix using new titles for renamed ancestors; may be null
+   * @param hasParentChanged true when an ancestor was renamed
+   * @return JSON array of rename objects (may be empty)
+   */
+  static JSONArray findModifiedCategories(
       List<PSCategoryNode> categories,
       String oldPrefix,
       String newPrefix,
       boolean hasParentChanged) {
     var jsonArray = new JSONArray();
-    boolean thisParentChanged = false;
     log.debug("Finding modified categories.");
     try {
       for (var parent : categories) {
+        // Must reset per sibling; previously a rename on one node incorrectly
+        // treated every following sibling as renamed (and broke child paths).
+        boolean thisParentChanged = false;
         var obj = new JSONObject();
         if (StringUtils.isNotBlank(parent.getPreviousCategoryName())
             && StringUtils.isNotBlank(parent.getTitle())) {

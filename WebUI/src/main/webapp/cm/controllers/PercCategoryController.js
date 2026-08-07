@@ -238,6 +238,14 @@ var globalVar;
         }
 
         dirtyController.setDirty(false);
+        // Success was previously silent (HTTP 204 only) — users reported
+        // "nothing happens" when publish actually completed (GH-957).
+        view.alertDialog(
+          I18N.message("perc.ui.category.controller@Publish Success"),
+          I18N.message(
+            "perc.ui.category.controller@Categories Published to DTS",
+          ),
+        );
       },
     );
   }

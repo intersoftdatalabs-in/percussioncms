@@ -13306,6 +13306,12 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>删除类别选项卡锁时出现一些问题！</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>删除类别选项卡锁时出现一些问题！</seg></tuv>
     <tuv xml:lang="ru"><seg>Возникла проблема при снятии блокировки вкладки категории!</seg></tuv><tuv xml:lang="he"><seg>התרחשה בעיה בעת הסרת נעילת לשונית הקטגוריה!</seg></tuv><tuv xml:lang="uk"><seg>Виникла проблема під час видалення блокування вкладки категорії!</seg></tuv></tu>
+    <tu tuid="perc.ui.category.controller@Publish Success">
+      <tuv xml:lang="en-us"><seg>Publish Success</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.category.controller@Categories Published to DTS">
+      <tuv xml:lang="en-us"><seg>Categories were published to the selected DTS server(s).</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.category.controller@Publish Error">
       <tuv xml:lang="en-us"><seg>Publish Error</seg></tuv>
       <tuv xml:lang="ar"><seg>خطأ في النشر</seg></tuv>

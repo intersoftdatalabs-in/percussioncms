@@ -973,6 +973,13 @@
         if (parent.data.title == null) {
           children.push(
             node.toDict(true, function (dict) {
+              // Fancytree nests custom fields under dict.data. Flatten so the
+              // CMS category JSON retains id, previousCategoryName, etc.
+              // (regression of GH-758 / lost in #1256 fancytree port).
+              if (dict.data) {
+                $.extend(dict, dict.data);
+                delete dict.data;
+              }
               delete dict.activate;
               delete dict.addClass;
               delete dict.expand;
@@ -1139,7 +1146,6 @@
     }
 
     function publishToDTS(node, deliveryServer) {
-      var catArray = manageDynaProps();
       if (
         sitename == null ||
         typeof sitename == "undefined" ||
@@ -1151,10 +1157,21 @@
         );
         return;
       }
-      controller.publishToDTS(catArray, deliveryServer, sitename);
-
+      // Persist the tree first so previousCategoryName and other node.data
+      // fields land in category.xml, then publish from the server copy.
+      // (Previously publish raced ahead of save and used stale XML — GH-957.)
       isPublished = true;
-      save();
+      var catArray = manageDynaProps();
+      controller.editCategories(
+        catArray,
+        sitename,
+        function () {
+          controller.publishToDTS(catArray, deliveryServer, sitename);
+        },
+        function () {
+          isPublished = false;
+        },
+      );
     }
   };
 })(jQuery);
