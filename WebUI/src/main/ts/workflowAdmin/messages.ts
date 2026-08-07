@@ -96,6 +96,12 @@ export const WF_ADMIN_MSG = {
   IMPORT_SUCCESS: "perc.ui.users@Imported successfully.",
   PASSWORD_PLACEHOLDER: "perc.ui.users@Leave blank to keep current",
   NO_USERS_FOUND: "perc.ui.users@No users found",
+  /** User default landing (#2211 / parent #959) */
+  DEFAULT_LANDING: "perc.ui.users@Default Landing Page",
+  DEFAULT_LANDING_HELP:
+    "perc.ui.users@When set, overrides the role Homepage for this user after login. Choose Use role default to clear the override and fall back to role Homepage (or Home when roles do not set one).",
+  DEFAULT_LANDING_USE_ROLE: "perc.ui.users@Use role default",
+  DEFAULT_LANDING_SAVE_FAILED: "perc.ui.users@Failed to save default landing page.",
 
   // Categories - US6
   CATEGORIES_TITLE: "perc.ui.categories@Categories",

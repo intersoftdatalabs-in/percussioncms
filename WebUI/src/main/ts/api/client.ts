@@ -255,6 +255,29 @@ export async function put<T>(
   return handleResponse<T>(response);
 }
 
+/**
+ * Sends a PUT request with a raw {@code text/plain} body (not JSON-stringified).
+ *
+ * <p>Used by endpoints such as {@code PUT /user/user/homepage/{name}} that
+ * consume plain product type strings rather than JSON objects.</p>
+ */
+export async function putPlainText<T>(
+  url: string,
+  body: string,
+  headers?: HeadersInit,
+): Promise<T> {
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: buildHeaders(
+      { "Content-Type": "text/plain;charset=UTF-8", ...headers },
+      false,
+    ),
+    credentials: "same-origin",
+    body: body ?? "",
+  });
+  return handleResponse<T>(response);
+}
+
 /** Sends a DELETE request. */
 export async function del<T>(
   url: string,
