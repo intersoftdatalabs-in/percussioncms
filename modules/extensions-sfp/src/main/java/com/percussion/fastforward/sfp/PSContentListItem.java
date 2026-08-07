@@ -493,7 +493,10 @@ public class PSContentListItem implements Comparable<PSContentListItem> {
 
   @Override
   public int compareTo(PSContentListItem other) {
-    if (other == null) return -1;
+    // Comparable contract: null argument throws NullPointerException
+    if (other == null) {
+      throw new NullPointerException("other");
+    }
     return getCompareKey().compareTo(other.getCompareKey());
   }
 

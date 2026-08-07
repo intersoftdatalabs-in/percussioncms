@@ -229,6 +229,17 @@ public class PSContentList {
     return m_list.size();
   }
 
+  /**
+   * Returns the content item at the given index.
+   *
+   * @param index zero-based index into the list
+   * @return the item at {@code index}, never {@code null}
+   * @throws IndexOutOfBoundsException if the index is out of range
+   */
+  public PSContentListItem getItem(int index) {
+    return m_list.get(index);
+  }
+
   /** Sorts the content items by the contentId and variantId */
   public void sort() {
     PSContentListItem[] items = new PSContentListItem[size()];

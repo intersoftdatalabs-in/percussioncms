@@ -75,15 +75,21 @@ class PSContentListTest {
     list.addItem(item("100", "2"));
     list.addItem(item("100", "1"));
     list.sort();
-    // compareTo key is contentId + "," + variantId
+    // compareTo key is contentId + "," + variantId — assert list order after sort
+    assertEquals(3, list.size());
+    assertEquals("100", list.getItem(0).getContentId());
+    assertEquals("1", list.getItem(0).getVariantId());
+    assertEquals("100", list.getItem(1).getContentId());
+    assertEquals("2", list.getItem(1).getVariantId());
+    assertEquals("200", list.getItem(2).getContentId());
+    assertEquals("1", list.getItem(2).getVariantId());
     assertTrue(item("100", "1").compareTo(item("100", "2")) < 0);
     assertTrue(item("100", "2").compareTo(item("200", "1")) < 0);
-    assertEquals(3, list.size());
   }
 
   @Test
-  void compareToNullIsLess() {
-    assertEquals(-1, item("1", "1").compareTo(null));
+  void compareToNullThrowsNpe() {
+    assertThrows(NullPointerException.class, () -> item("1", "1").compareTo(null));
   }
 
   @Test

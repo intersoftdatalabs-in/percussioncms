@@ -174,8 +174,11 @@ public class PSHolidays {
    */
   private Set<Holiday> m_holidays;
 
-  /** Inner class to represent a single holiday object. */
-  class Holiday {
+  /**
+   * Represents a single holiday. Public static so protected {@link #loadHolidays} overrides from
+   * out-of-package test/subclass types can reference the typed set without raw-type fallbacks.
+   */
+  public static class Holiday {
     /**
      * Ctor. Takes the date and name of the holiday.
      *
