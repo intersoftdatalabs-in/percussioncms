@@ -31,8 +31,12 @@ import java.util.*;
  * file, loads <code>jetty/base/etc/installation.properties</code> to determine the HTTP and
  * shutdown ports and shutdown key, and configures the Jetty main class invocation through a {@link
  * MainProxy} so that Jetty can be started in-process without spawning a child JVM.
+ *
+ * <p>This class is {@code final} so constructor calls into {@link StartWrapper} cannot be observed
+ * by a subclass before initialization completes ({@code this-escape} free under {@code
+ * -Xlint:all}).
  */
-public class JettyStartWrapper extends StartWrapper {
+public final class JettyStartWrapper extends StartWrapper {
   private static final String FS = File.separator;
   private static final String JETTY_ROOT = "jetty";
   private static final String JETTY_BASE = JETTY_ROOT + FS + "base";
@@ -48,6 +52,9 @@ public class JettyStartWrapper extends StartWrapper {
   /**
    * Constructs a Jetty wrapper for the installation located at <code>rootDir</code>.
    *
+   * <p>The class is {@code final}, so inherited configuration methods cannot be overridden to
+   * observe a partially constructed instance during this constructor.
+   *
    * @param name a human-readable label used in log output, never <code>null</code>
    * @param rootDir the Jetty installation root directory, expected to contain <code>
    *     jetty/upstream/start.jar</code>, never <code>null</code>
@@ -55,7 +62,6 @@ public class JettyStartWrapper extends StartWrapper {
    * @throws IllegalArgumentException if <code>jetty/base/etc/installation.properties</code> cannot
    *     be found under <code>rootDir</code>
    */
-  @SuppressWarnings("this-escape")
   public JettyStartWrapper(String name, File rootDir, String[] args) {
     super(name, rootDir, args);
 

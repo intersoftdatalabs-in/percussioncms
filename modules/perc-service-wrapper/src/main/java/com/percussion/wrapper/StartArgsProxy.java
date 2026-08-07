@@ -21,6 +21,7 @@ import static com.percussion.wrapper.JettyStartUtils.error;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -70,16 +71,24 @@ public class StartArgsProxy {
   /**
    * Returns the main command-line arguments Jetty will execute when started in foreground mode.
    *
+   * <p>The reflective result is checked with {@code instanceof List} and each element is verified
+   * to be a {@link String} before being copied into a parameterized {@code List<String>}, so no
+   * unchecked cast is required.
+   *
    * @return the list of command-line arguments assembled by Jetty, or <code>null</code> if the
-   *     underlying Jetty method could not be invoked reflectively
+   *     underlying Jetty method could not be invoked reflectively or returned a non-list / non-String
+   *     payload
    */
-  @SuppressWarnings("unchecked")
   public List<String> getMainArgs() {
     try {
       Method getMainArgs = instance.getClass().getMethod("getMainArgs", boolean.class);
-      Object cmdlineBuild = getMainArgs.invoke(instance, new Object[] {true});
+      Object cmdlineBuild = getMainArgs.invoke(instance, Boolean.TRUE);
+      if (cmdlineBuild == null) {
+        return null;
+      }
       Method getArgsMethod = cmdlineBuild.getClass().getMethod("getArgs");
-      return (List<String>) getArgsMethod.invoke(cmdlineBuild);
+      Object rawArgs = getArgsMethod.invoke(cmdlineBuild);
+      return toStringList(rawArgs);
     } catch (IllegalAccessException e) {
       error("Error accessing jetty method", e);
     } catch (InvocationTargetException e) {
@@ -88,6 +97,43 @@ public class StartArgsProxy {
       error("Error accessing jetty method", e);
     }
     return null;
+  }
+
+  /**
+   * Converts a reflective {@link List} payload into a parameterized {@code List<String>} without
+   * an unchecked cast, rejecting non-list results and non-{@link String} elements.
+   *
+   * @param rawArgs the value returned by Jetty's reflective {@code getArgs()} method; may be {@code
+   *     null}
+   * @return a new list of non-null string arguments, or {@code null} when {@code rawArgs} is null,
+   *     not a list, or contains a null or non-{@link String} element
+   */
+  static List<String> toStringList(Object rawArgs) {
+    if (rawArgs == null) {
+      return null;
+    }
+    if (!(rawArgs instanceof List<?>)) {
+      error(
+          "Jetty getArgs did not return a List, got %s",
+          rawArgs.getClass().getName());
+      return null;
+    }
+    List<?> rawList = (List<?>) rawArgs;
+    List<String> args = new ArrayList<>(rawList.size());
+    for (Object item : rawList) {
+      if (item == null) {
+        error("Unexpected null element in Jetty main args");
+        return null;
+      } else if (item instanceof String) {
+        args.add((String) item);
+      } else {
+        error(
+            "Unexpected non-String element in Jetty main args: %s",
+            item.getClass().getName());
+        return null;
+      }
+    }
+    return args;
   }
 
   /**
