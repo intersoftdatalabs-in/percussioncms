@@ -258,4 +258,34 @@ class DoctorCliTest {
             new PrintStream(errBuf, true, StandardCharsets.UTF_8));
     assertEquals(DoctorCli.EXIT_USAGE, code);
   }
+
+  @Test
+  void olderThanOnNonCleanLogsCommandWarnsAndContinues() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("install-older-warn"));
+    Path dump = root.resolve("warn.hprof");
+    Files.write(dump, "abc".getBytes(StandardCharsets.UTF_8));
+
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {
+              "--install-root",
+              root.toString(),
+              "--dry-run",
+              "--older-than",
+              "7d",
+              "clean-heap-dumps"
+            },
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+
+    assertEquals(DoctorCli.EXIT_OK, code);
+    String err = errBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(
+        err.contains("--older-than") && err.toLowerCase().contains("ignoring"),
+        "expected ignore warning for --older-than on non-clean-logs: " + err);
+    assertTrue(Files.exists(dump));
+    assertTrue(outBuf.toString(StandardCharsets.UTF_8).contains("candidates=1"));
+  }
 }

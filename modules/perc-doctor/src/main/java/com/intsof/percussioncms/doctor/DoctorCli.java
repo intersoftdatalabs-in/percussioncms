@@ -90,6 +90,24 @@ public final class DoctorCli {
             ? Path.of(parsed.installRoot)
             : Path.of("").toAbsolutePath().normalize();
 
+    // clean-logs-only options: warn (do not hard-fail) when used with other commands.
+    if (parsed.olderThan != null
+        && !CleanLogsCommand.COMMAND_NAME.equals(parsed.command)) {
+      err.println(
+          "Warning: --older-than is only used by "
+              + CleanLogsCommand.COMMAND_NAME
+              + "; ignoring for "
+              + parsed.command);
+    }
+    if (parsed.keepCurrentExplicit
+        && !CleanLogsCommand.COMMAND_NAME.equals(parsed.command)) {
+      err.println(
+          "Warning: --keep-current / --no-keep-current are only used by "
+              + CleanLogsCommand.COMMAND_NAME
+              + "; ignoring for "
+              + parsed.command);
+    }
+
     try {
       if (CleanHeapDumpsCommand.COMMAND_NAME.equals(parsed.command)) {
         CleanReport report = CleanHeapDumpsCommand.execute(installRoot, parsed.dryRun);
@@ -137,6 +155,8 @@ public final class DoctorCli {
     Duration olderThan;
     /** Default true for {@code clean-logs}. */
     boolean keepCurrent = true;
+    /** True when the user passed {@code --keep-current} or {@code --no-keep-current}. */
+    boolean keepCurrentExplicit;
   }
 
   /**
@@ -169,8 +189,10 @@ public final class DoctorCli {
         parsed.olderThan = CleanLogsCommand.parseOlderThan(args[++i]);
       } else if ("--keep-current".equals(a)) {
         parsed.keepCurrent = true;
+        parsed.keepCurrentExplicit = true;
       } else if ("--no-keep-current".equals(a)) {
         parsed.keepCurrent = false;
+        parsed.keepCurrentExplicit = true;
       } else if (a.startsWith("-")) {
         throw new IllegalArgumentException("unknown option: " + a);
       } else if (parsed.command == null) {

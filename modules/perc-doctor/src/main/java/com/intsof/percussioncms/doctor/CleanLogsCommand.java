@@ -69,8 +69,9 @@ public final class CleanLogsCommand {
   /**
    * Options for {@link #execute(Path, boolean, Options)}.
    *
-   * <p>{@code olderThan} — when non-null, only files with last-modified before {@code now -
-   * olderThan}. {@code keepCurrent} — when true, skip identifiable current / active log files.
+   * <p>{@code olderThan} — when non-null, only files whose last-modified is older than this
+   * duration relative to the time each file is evaluated (per-candidate {@code Instant.now()}).
+   * {@code keepCurrent} — when true, skip identifiable current / active log files.
    */
   public static final class Options {
     private final Duration olderThan;
@@ -134,17 +135,17 @@ public final class CleanLogsCommand {
     Path root = InstallRootGuard.requireInstallRoot(installRoot);
     CleanReport report = new CleanReport(COMMAND_NAME, root, dryRun);
 
-    Instant cutoff =
-        options.getOlderThan() == null ? null : Instant.now().minus(options.getOlderThan());
-
     List<Path> candidates = new ArrayList<>();
     for (Path logDir : InstallRootGuard.existingLogDirs(root)) {
       walkLogDir(root, logDir, candidates, report);
     }
     candidates.sort(Comparator.comparing(p -> p.toString()));
 
+    // Age cutoff is evaluated per candidate (Instant.now() at process time), not once at
+    // walk-start, so a long walk does not leave a stale threshold for later files.
     for (Path candidate : candidates) {
-      processCandidate(report, root, candidate, dryRun, options.isKeepCurrent(), cutoff);
+      processCandidate(
+          report, root, candidate, dryRun, options.isKeepCurrent(), options.getOlderThan());
     }
     return report;
   }
@@ -231,7 +232,7 @@ public final class CleanLogsCommand {
       Path candidate,
       boolean dryRun,
       boolean keepCurrent,
-      Instant cutoff) {
+      Duration olderThan) {
     Objects.requireNonNull(candidate, "candidate");
     try {
       InstallRootGuard.requireUnderInstallRoot(root, candidate);
@@ -258,7 +259,7 @@ public final class CleanLogsCommand {
       return;
     }
 
-    if (cutoff != null) {
+    if (olderThan != null) {
       Instant mtime;
       try {
         FileTime ft = Files.getLastModifiedTime(candidate);
@@ -269,6 +270,8 @@ public final class CleanLogsCommand {
                 candidate, 0L, CleanReport.EntryStatus.FAILED, "mtime: " + e.getMessage()));
         return;
       }
+      // Per-file age reference: now is sampled when this candidate is evaluated.
+      Instant cutoff = Instant.now().minus(olderThan);
       if (!mtime.isBefore(cutoff)) {
         long size = sizeOrZero(candidate);
         report.add(
