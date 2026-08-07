@@ -1779,7 +1779,16 @@ public class PSPubServerService implements IPSPubServerService {
         // instance profile / Assume Role without static keys, and as a workaround when IMDS
         // detection fails. The publish UI shows a non-modal warning on save when these fields
         // are empty; runtime still needs credentials via instance profile, static keys, or
-        // the default provider chain.
+        // the default provider chain. Warn-log preserves server-side observability without
+        // blocking the EC2 instance-profile use case.
+        if (isBlank(value)) {
+          log.warn(
+              "S3 publish server property '{}' is blank; save allowed for EC2 instance"
+                  + " profile / Assume Role (issue #2284). Ensure runtime credentials are"
+                  + " available via instance profile, static keys, or the default AWS"
+                  + " provider chain.",
+              property);
+        }
       }
       // Other driver properties in the array are presence-checked by the caller shape only.
     }

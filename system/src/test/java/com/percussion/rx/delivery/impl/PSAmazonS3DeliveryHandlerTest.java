@@ -385,8 +385,13 @@ public class PSAmazonS3DeliveryHandlerTest {
   @Test
   public void isEC2Instance_usesInjectedMetadataClient_andCaches() {
     // Use real methods (no static mock for isEC2Instance on this path).
-    handlerStatic.close();
+    // Null the field before close so @AfterEach cannot double-close if anything
+    // throws between these statements (MockitoException masks the real failure).
+    MockedStatic<PSAmazonS3DeliveryHandler> staticToClose = handlerStatic;
     handlerStatic = null;
+    if (staticToClose != null) {
+      staticToClose.close();
+    }
 
     AtomicBoolean available = new AtomicBoolean(true);
     PSEc2MetadataClient stub =
