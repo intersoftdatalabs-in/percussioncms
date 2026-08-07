@@ -38,7 +38,6 @@ import java.util.List;
  */
 @XmlRootElement(name = "PSLocalDependencySummary")
 @JsonRootName("PSLocalDependencySummary")
-@SuppressWarnings("serial")
 public class PSLocalDependencySummary extends PSAbstractDataObject {
 
   private static final long serialVersionUID = 1L;
@@ -46,8 +45,11 @@ public class PSLocalDependencySummary extends PSAbstractDataObject {
   /** Total number of local + linked assets incident on the supplied item. */
   private long count;
 
-  /** Per-target rows; type is one of {@code local}, {@code linked}, {@code shared}. */
-  private List<PSLocalDependencyLink> links = new ArrayList<>();
+  /**
+   * Per-target rows; type is one of {@code local}, {@code linked}, {@code shared}. Stored as {@link
+   * ArrayList} so the field type is {@link java.io.Serializable} under {@code -Xlint:serial}.
+   */
+  private ArrayList<PSLocalDependencyLink> links = new ArrayList<>();
 
   public PSLocalDependencySummary() {
     super();
@@ -55,7 +57,7 @@ public class PSLocalDependencySummary extends PSAbstractDataObject {
 
   public PSLocalDependencySummary(long count, List<PSLocalDependencyLink> links) {
     this.count = count;
-    this.links = links == null ? new ArrayList<>() : links;
+    this.links = links == null ? new ArrayList<>() : new ArrayList<>(links);
   }
 
   public long getCount() {
@@ -71,7 +73,7 @@ public class PSLocalDependencySummary extends PSAbstractDataObject {
   }
 
   public void setLinks(List<PSLocalDependencyLink> links) {
-    this.links = links == null ? new ArrayList<>() : links;
+    this.links = links == null ? new ArrayList<>() : new ArrayList<>(links);
   }
 
   /** A single local or linked target on a page / template. */

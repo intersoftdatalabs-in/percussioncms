@@ -38,7 +38,6 @@ import java.util.List;
  */
 @XmlRootElement(name = "PSTaxonomySummary")
 @JsonRootName("PSTaxonomySummary")
-@SuppressWarnings("serial")
 public class PSTaxonomySummary extends PSAbstractDataObject {
 
   private static final long serialVersionUID = 1L;
@@ -46,8 +45,11 @@ public class PSTaxonomySummary extends PSAbstractDataObject {
   /** Number of taxonomy node paths incident on the supplied item. */
   private long count;
 
-  /** The taxonomy node paths. Empty (not {@code null}) when {@link #count} is 0. */
-  private List<String> nodes = new ArrayList<>();
+  /**
+   * The taxonomy node paths. Empty (not {@code null}) when {@link #count} is 0. Stored as {@link
+   * ArrayList} so the field type is {@link java.io.Serializable} under {@code -Xlint:serial}.
+   */
+  private ArrayList<String> nodes = new ArrayList<>();
 
   public PSTaxonomySummary() {
     super();
@@ -55,7 +57,7 @@ public class PSTaxonomySummary extends PSAbstractDataObject {
 
   public PSTaxonomySummary(long count, List<String> nodes) {
     this.count = count;
-    this.nodes = nodes == null ? new ArrayList<>() : nodes;
+    this.nodes = nodes == null ? new ArrayList<>() : new ArrayList<>(nodes);
   }
 
   public long getCount() {
@@ -71,6 +73,6 @@ public class PSTaxonomySummary extends PSAbstractDataObject {
   }
 
   public void setNodes(List<String> nodes) {
-    this.nodes = nodes == null ? new ArrayList<>() : nodes;
+    this.nodes = nodes == null ? new ArrayList<>() : new ArrayList<>(nodes);
   }
 }

@@ -133,18 +133,20 @@ public class Guid {
   /**
    * Initializes a Guid from a guid string.
    *
+   * <p>Fields are assigned directly (not via setters) so this constructor does not leak {@code
+   * this} through overridable methods ({@code this-escape} free under {@code -Xlint:all}).
+   *
    * @param guid the guid string, must not be null
    */
-  @SuppressWarnings("this-escape")
   public Guid(String guid) {
     Objects.requireNonNull(guid, "guid must not be null");
     var temp = new PSGuid(guid);
 
-    setStringValue(temp.toString());
-    setHostId(temp.getHostId());
-    setLongValue(temp.longValue());
-    setType(temp.getType());
-    setUuid(temp.getUUID());
-    setUntypedString(temp.toStringUntyped());
+    this.stringValue = temp.toString();
+    this.hostId = temp.getHostId();
+    this.longValue = temp.longValue();
+    this.type = temp.getType();
+    this.uuid = temp.getUUID();
+    this.untypedString = temp.toStringUntyped();
   }
 }
