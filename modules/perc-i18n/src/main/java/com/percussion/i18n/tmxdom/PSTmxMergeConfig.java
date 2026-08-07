@@ -35,7 +35,7 @@ import org.xml.sax.SAXException;
  *
  * @see IPSTmxDtdConstants
  */
-public class PSTmxMergeConfig implements IPSTmxMergeConfig {
+public final class PSTmxMergeConfig implements IPSTmxMergeConfig {
   /**
    * Constructor. Loads the default merge configuration document from the class file archive and
    * builds map of configuration parameter property map.

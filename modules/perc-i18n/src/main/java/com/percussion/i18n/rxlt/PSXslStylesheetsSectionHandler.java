@@ -138,7 +138,7 @@ public class PSXslStylesheetsSectionHandler extends PSIdleDotter implements IPSS
     Document doc = null;
     File file = null;
     for (int i = 0; listFiles != null && i < listFiles.size(); i++) {
-      file = (File) listFiles.get(i);
+      file = listFiles.get(i);
       PSCommandLineProcessor.logMessage("processingFile", file.getCanonicalPath());
       try {
         doc = PSXmlDocumentBuilder.createXmlDocument(new FileReader(file), false);

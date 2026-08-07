@@ -326,5 +326,5 @@ public class PSCmsTablesSectionHandler extends PSIdleDotter implements IPSSectio
    * List of table to be process for key generation. Never <code>null</code>, initially <code>empty
    * </code>, filled during construction of this class object.
    */
-  private static List ms_Tables = new ArrayList();
+  private static List<String> ms_Tables = new ArrayList<>();
 }

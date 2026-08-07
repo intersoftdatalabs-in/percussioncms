@@ -89,7 +89,7 @@ public class PSRxltMain {
 
       if (ui) initLog4J(file);
 
-      PSEntityResolver.getInstance().setResolutionHome(file);
+      PSEntityResolver.setResolutionHome(file);
 
       processor = new PSCommandLineProcessor(file.getCanonicalPath(), ui);
 

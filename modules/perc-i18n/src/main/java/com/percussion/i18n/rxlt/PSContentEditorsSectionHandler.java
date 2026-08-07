@@ -154,13 +154,13 @@ public class PSContentEditorsSectionHandler extends PSIdleDotter implements IPSS
     filter.setNamePattern(pattern);
     PSFilteredFileList lister = new PSFilteredFileList(filter);
     // get list of all XML files from this folder
-    List listFiles = lister.getFiles(new File(rxroot, SHAREDDEF_DIR));
+    List<File> listFiles = lister.getFiles(new File(rxroot, SHAREDDEF_DIR));
     // Stop showing idle dots
     showDots(false);
     Document doc = null;
     File file = null;
     for (int i = 0; listFiles != null && i < listFiles.size(); i++) {
-      file = (File) listFiles.get(i);
+      file = listFiles.get(i);
       PSCommandLineProcessor.logMessage("processingFile", file.getCanonicalPath());
       try {
         doc = PSXmlDocumentBuilder.createXmlDocument(new FileReader(file), false);
@@ -198,14 +198,14 @@ public class PSContentEditorsSectionHandler extends PSIdleDotter implements IPSS
     filter.setNamePattern(pattern);
     PSFilteredFileList lister = new PSFilteredFileList(filter);
     // get list of all XML files from this folder
-    List listFiles = lister.getFiles(new File(rxroot, LOCALDEF_DIR));
+    List<File> listFiles = lister.getFiles(new File(rxroot, LOCALDEF_DIR));
     // Stop showing idle dots
     showDots(false);
 
     Document doc = null;
     File file = null;
     for (int i = 0; listFiles != null && i < listFiles.size(); i++) {
-      file = (File) listFiles.get(i);
+      file = listFiles.get(i);
       PSCommandLineProcessor.logMessage("processingFile", file.getCanonicalPath());
       try {
         doc = PSXmlDocumentBuilder.createXmlDocument(new FileReader(file), false);

@@ -333,7 +333,7 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
     File newFile = null;
     String newPath = "";
     for (int i = 0; listFiles != null && i < listFiles.size(); i++) {
-      file = (File) listFiles.get(i);
+      file = listFiles.get(i);
       newPath = getNewImagePath(file.getCanonicalPath());
       newFile = new File(newPath);
       if (newFile.exists()) {

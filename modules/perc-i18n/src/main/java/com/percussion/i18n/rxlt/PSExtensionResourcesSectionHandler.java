@@ -93,7 +93,7 @@ public class PSExtensionResourcesSectionHandler extends PSIdleDotter implements 
       IPSTmxDocument tmxDocTemp = null;
       for (int i = 0; listFiles != null && i < listFiles.size(); i++) {
         try {
-          file = (File) listFiles.get(i);
+          file = listFiles.get(i);
           PSCommandLineProcessor.logMessage("processingFile", file.getCanonicalPath());
           try (InputStreamReader ir =
               new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {

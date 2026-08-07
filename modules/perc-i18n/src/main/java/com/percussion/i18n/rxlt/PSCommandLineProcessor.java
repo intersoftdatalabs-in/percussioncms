@@ -48,7 +48,7 @@ import org.xml.sax.SAXException;
  *   <li>May also be run inline from another Java process without the command line user interface
  * </ol>
  */
-public class PSCommandLineProcessor {
+public final class PSCommandLineProcessor {
   /**
    * Constructor. This takes the configuration XML document and the Rhythmyx root directory.
    *
@@ -406,9 +406,8 @@ public class PSCommandLineProcessor {
    * @throws PSFatalException if could not connect to server database and get the supported Locales.
    */
   private void displayExistingLanguages() throws PSFatalException {
-    PSLocaleHandler localehandler = new PSLocaleHandler();
     try {
-      Document doc = localehandler.getLocaleDocument(m_rxroot);
+      Document doc = PSLocaleHandler.getLocaleDocument(m_rxroot);
       List<String> langstring = new ArrayList<>();
 
       List<String> disname = new ArrayList<>();

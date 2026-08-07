@@ -208,7 +208,8 @@ public final class PSTmxJsCatalog {
           sb.append('\\').append("u2029");
           break;
         default:
-          // Full C0 range (NUL..US) as JSON unicode escapes so catalog stays valid if fallback runs.
+          // Full C0 range (NUL..US) as JSON unicode escapes so catalog stays valid if fallback
+          // runs.
           if (c < 0x20) {
             sb.append('\\').append(String.format("u%04x", (int) c));
           } else {
