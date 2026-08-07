@@ -51,6 +51,10 @@ import org.w3c.dom.Element;
  * @since 1.0
  */
 public class PSApplicationFile extends PSFile {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /** No argument constructor for serialization, such as calling fromXml(). */
   public PSApplicationFile() {
     super();

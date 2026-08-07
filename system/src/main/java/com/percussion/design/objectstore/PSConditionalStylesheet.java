@@ -26,6 +26,10 @@ import org.w3c.dom.Element;
 
 /** Implements the PSXConditionalStylesheet DTD defined in BasicObjects.dtd. */
 public class PSConditionalStylesheet extends PSStylesheet {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Create a new conditional stylesheet for the provided request and conditions.
    *

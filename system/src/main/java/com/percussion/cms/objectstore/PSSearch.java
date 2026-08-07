@@ -50,6 +50,10 @@ import org.w3c.dom.Element;
  * @see PSVersionableDbComponent for base class description.
  */
 public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSummary, IPSCloneTuner {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * When a custom view is created, this value is set as the URL. This allows the object to be saved
    * w/o error. A custom view can be created w/ the following {@link #PSSearch(String, boolean)}

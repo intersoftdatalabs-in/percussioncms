@@ -24,6 +24,10 @@ import org.w3c.dom.Element;
 
 /** Implementation for the PSXConditionalExit DTD in BasicObjects.dtd. */
 public class PSConditionalExit extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Create a new conditional exit for the provided rules.
    *

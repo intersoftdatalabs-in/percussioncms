@@ -26,6 +26,10 @@ package com.percussion.cms.objectstore;
  * @author paulhoward
  */
 public class PSItemChildLocator extends PSKey {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * @param fieldName The submit name of the complex child. Never <code>null
    * </code> or empty.

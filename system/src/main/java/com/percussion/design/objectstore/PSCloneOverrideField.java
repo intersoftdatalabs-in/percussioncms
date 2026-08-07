@@ -39,6 +39,10 @@ import org.w3c.dom.NodeList;
  * @author RammohanVangapalli
  */
 public class PSCloneOverrideField extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Constructs a clone field from supplied name and the replacement value.
    *

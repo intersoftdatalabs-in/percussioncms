@@ -40,6 +40,10 @@ import org.w3c.dom.Node;
  * the toXml(Document) method for the DTD description.
  */
 public class PSAuthentication extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   private static final Logger logger = LogManager.getLogger(PSAuthentication.class);
 
   /**

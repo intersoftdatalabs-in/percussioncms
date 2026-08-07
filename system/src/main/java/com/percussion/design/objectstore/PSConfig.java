@@ -47,6 +47,10 @@ import org.xml.sax.SAXException;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSConfig")
 @Table(name = "PSX_RXCONFIGURATIONS")
 public class PSConfig extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Constructs the configuration from its XML representation.
    *

@@ -25,6 +25,10 @@ import com.percussion.error.PSException;
  * user.
  */
 public class PSInvalidContentTypeException extends PSException {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates an exception with text describing the problem.
    *

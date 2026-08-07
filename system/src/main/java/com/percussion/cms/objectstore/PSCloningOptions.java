@@ -34,6 +34,10 @@ import org.w3c.dom.Element;
  * sys_FolderParameters.xsd.
  */
 public class PSCloningOptions extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Convenience constructor for copy site subfolders where no site name is required.
    *

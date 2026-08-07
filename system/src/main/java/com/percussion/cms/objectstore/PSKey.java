@@ -43,6 +43,10 @@ import org.w3c.dom.Element;
  * @version 1.0
  */
 public class PSKey implements IPSCmsComponent, Serializable {
+
+  /** Serialization id for {@link Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   private static final Logger log = LogManager.getLogger(PSKey.class);
 
   /**
@@ -193,7 +197,7 @@ public class PSKey implements IPSCmsComponent, Serializable {
    * @return <code>true</code> if this key has values assigned for its parts, otherwise <code>false
    *     </code>.
    */
-  public boolean isAssigned() {
+  public final boolean isAssigned() {
     for (int i = 0; i < m_definition.length; i++) {
       if (getPart(m_definition[i]).trim().length() == 0) return false;
     }
@@ -281,7 +285,7 @@ public class PSKey implements IPSCmsComponent, Serializable {
    *     comparison is done case- insensitive.
    * @return The value for the named part, or "" if no value has been assigned.
    */
-  public String getPart(String name) {
+  public final String getPart(String name) {
     String value = (String) m_nameValueMap.get(name.toLowerCase());
 
     if (value == null) return "";
@@ -411,7 +415,8 @@ public class PSKey implements IPSCmsComponent, Serializable {
   private void fromXml(Element src, boolean validate) throws PSUnknownNodeTypeException {
     if (null == src) throw new IllegalArgumentException("src must be supplied");
 
-    PSXMLDomUtil.checkNode(src, getNodeName());
+    // Use class-derived node name (not overridable getNodeName) so Element ctor is this-escape free.
+    PSXMLDomUtil.checkNode(src, nodeNameFor(getClass()));
 
     // get the attributes
     String sIsPersisted = PSXMLDomUtil.checkAttribute(src, XML_ATTR_IS_PERSISTED, false);
@@ -481,7 +486,18 @@ public class PSKey implements IPSCmsComponent, Serializable {
    *     null</code> or empty.
    */
   public String getNodeName() {
-    String name = getClass().getName();
+    return nodeNameFor(getClass());
+  }
+
+  /**
+   * Derives the default XML node name for a component class without virtual dispatch (safe during
+   * construction).
+   *
+   * @param clazz the runtime class, never {@code null}
+   * @return PS → PSX style node name, never {@code null} or empty
+   */
+  private static String nodeNameFor(Class<?> clazz) {
+    String name = clazz.getName();
     name = name.substring(name.lastIndexOf('.') + 1);
     if (name.startsWith("PS")) name = "PSX" + name.substring(2);
     return name;
@@ -590,9 +606,10 @@ public class PSKey implements IPSCmsComponent, Serializable {
   /**
    * Maps the definition to its corresponding value. The map key is the definition in <code>String
    * </code>, which is normalized to lower case. The map value is the value of the definition in
-   * <code>String</code>. Never <code>null</code>, but may be empty.
+   * <code>String</code>. Never <code>null</code>, but may be empty. Declared as {@link HashMap}
+   * (not {@link Map}) so the field type is {@link Serializable} under {@code -Xlint:serial}.
    */
-  private Map m_nameValueMap = new HashMap();
+  private HashMap m_nameValueMap = new HashMap();
 
   /**
    * The definitions in its original case sensitive form. Initialized by the constructor, never

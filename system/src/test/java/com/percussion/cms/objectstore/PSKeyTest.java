@@ -187,4 +187,56 @@ public class PSKeyTest {
 
     return true;
   }
+
+  /**
+   * Element construction and Java serialization for foundation key types after this-escape / serial
+   * cleanups (issue #2297).
+   */
+  @Test
+  public void testElementCtorAndJavaSerialization() throws Exception {
+    PSKey key = new PSKey(new String[] {"CONTENTID", "REVISIONID"}, new int[] {42, 3}, true);
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = key.toXml(doc);
+    PSKey restored = new PSKey(el);
+    assertEquals(key, restored);
+    assertEquals("PSXKey", key.getNodeName());
+
+    PSLocator locator = new PSLocator(100, 2);
+    Element locEl = locator.toXml(doc);
+    PSLocator locRestored = new PSLocator(locEl);
+    assertEquals(locator, locRestored);
+    assertEquals(PSLocator.XML_NODE_NAME, locRestored.getNodeName());
+
+    // Java serialization round-trip (serialVersionUID + HashMap field type)
+    byte[] bytes;
+    try (java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        java.io.ObjectOutputStream oos = new java.io.ObjectOutputStream(bos)) {
+      oos.writeObject(key);
+      oos.writeObject(locator);
+      bytes = bos.toByteArray();
+    }
+    try (java.io.ObjectInputStream ois =
+        new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(bytes))) {
+      PSKey serKey = (PSKey) ois.readObject();
+      PSLocator serLoc = (PSLocator) ois.readObject();
+      assertEquals(key, serKey);
+      assertEquals(locator, serLoc);
+      assertEquals(42, serKey.getPartAsInt("CONTENTID"));
+      assertEquals(100, serLoc.getId());
+      assertEquals(2, serLoc.getRevision());
+    }
+
+    PSSimpleKey simple = new PSSimpleKey("id", "99", true);
+    try (java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        java.io.ObjectOutputStream oos = new java.io.ObjectOutputStream(bos)) {
+      oos.writeObject(simple);
+      bytes = bos.toByteArray();
+    }
+    try (java.io.ObjectInputStream ois =
+        new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(bytes))) {
+      PSSimpleKey serSimple = (PSSimpleKey) ois.readObject();
+      assertEquals(simple, serSimple);
+      assertEquals(99, serSimple.getKeyValueAsInt());
+    }
+  }
 }
