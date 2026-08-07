@@ -199,7 +199,7 @@ public class PSCheckTmxFile extends Task {
    * @throws BuildException if an IO error occurs
    */
   private void checkForDupesInPropertyFiles() throws BuildException {
-    Iterator it = m_propertyFiles.iterator();
+    Iterator<String> it = m_propertyFiles.iterator();
     File file = null;
     Properties props = null;
     boolean foundErrors = false;
@@ -211,7 +211,7 @@ public class PSCheckTmxFile extends Task {
         throw new BuildException("Property file does not exist: " + file.getAbsolutePath());
       try {
         props = loadProperties(file);
-        Enumeration keys = props.keys();
+        Enumeration<Object> keys = props.keys();
         while (keys.hasMoreElements()) {
           String key = (String) keys.nextElement();
           if (m_tmxIds.contains(key)) {

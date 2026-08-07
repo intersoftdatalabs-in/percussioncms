@@ -71,10 +71,8 @@ public class PSHelpHintFileCreator {
     validatePaths();
     Properties mappings = loadMappings();
     final Map<String, String> sortedMappings = new TreeMap<String, String>();
-    Iterator it = mappings.keySet().iterator();
-    while (it.hasNext()) {
-      String key = (String) it.next();
-      sortedMappings.put(key, (String) mappings.get(key));
+    for (String key : mappings.stringPropertyNames()) {
+      sortedMappings.put(key, mappings.getProperty(key));
     }
 
     PrintStream out = null;
@@ -292,10 +290,10 @@ public class PSHelpHintFileCreator {
    * @param source assumed not <code>null</code>.
    * @return list of all the field description p tags, never <code>null</code>, may be empty.
    */
-  private List getAllFieldDescStartTags(Source source) {
-    List tags = new ArrayList();
-    for (Iterator it = source.findAllStartTags(ELEM_P).iterator(); it.hasNext(); ) {
-      StartTag sTag = (StartTag) it.next();
+  private List<StartTag> getAllFieldDescStartTags(Source source) {
+    List<StartTag> tags = new ArrayList<>();
+    for (Iterator<StartTag> it = source.findAllStartTags(ELEM_P).iterator(); it.hasNext(); ) {
+      StartTag sTag = it.next();
       if (isFieldDescription(sTag)) {
         tags.add(sTag);
       }

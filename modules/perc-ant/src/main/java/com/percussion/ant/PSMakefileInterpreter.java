@@ -47,8 +47,9 @@ public class PSMakefileInterpreter {
    *
    * @return a copy of the macro map, never <code>null</code>.
    */
-  public Map getMacros() {
-    return (Map) m_macros.clone();
+  @SuppressWarnings("unchecked")
+  public Map<String, String> getMacros() {
+    return (Map<String, String>) m_macros.clone();
   }
 
   /**
@@ -99,7 +100,7 @@ public class PSMakefileInterpreter {
         // a heuristic to tell if the right side is ok - won't always work
         if (!right.startsWith("=")) {
           if (shouldAppend) {
-            String str = (String) m_macros.get(left);
+            String str = m_macros.get(left);
             if (str == null) str = "";
             left = str + left;
           }
@@ -132,7 +133,7 @@ public class PSMakefileInterpreter {
 
           if (c == ')') {
             String varName = buf.substring(startVar + 2, endVar);
-            String varValue = (String) m_macros.get(varName);
+            String varValue = m_macros.get(varName);
             if (varValue == null) varValue = "";
             buf.replace(startVar, endVar + 1, varValue);
             pos = startVar - 1;

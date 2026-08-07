@@ -278,7 +278,7 @@ public class PSJunitFileSelector extends BaseExtendSelector {
    *
    * @see org.apache.tools.ant.types.Parameterizable#setParameters(Parameter[])
    */
-  public void setParameters(Parameter parameters[]) {
+  public void setParameters(Parameter... parameters) {
     super.setParameters(parameters);
 
     // clear lists
