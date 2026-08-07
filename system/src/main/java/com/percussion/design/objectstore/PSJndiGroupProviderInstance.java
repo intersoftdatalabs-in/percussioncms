@@ -33,6 +33,10 @@ import org.w3c.dom.Element;
  * determine group membership.
  */
 public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Parameterless constructor for this class. Used for serialization. Should always call <code>
    * fromXml</code> following use of this constructor.

@@ -30,6 +30,10 @@ import org.w3c.dom.Element;
  * Datasource configuration based on a selected driver name.
  */
 public class PSJdbcDriverConfig extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /** Constant of root element name to use for XML serialization. */
   public static final String XML_NODE_NAME = "PSXJdbcDriverConfig";
 

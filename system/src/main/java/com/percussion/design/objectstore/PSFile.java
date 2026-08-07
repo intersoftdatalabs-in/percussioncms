@@ -50,6 +50,10 @@ import org.w3c.dom.Element;
  * @since 1.1
  */
 public abstract class PSFile extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /** No args constructor for use with fromXml() */
   protected PSFile() {
     super();

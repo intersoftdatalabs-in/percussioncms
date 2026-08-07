@@ -34,6 +34,10 @@ import org.w3c.dom.Element;
  * @since 1.0
  */
 public class PSDateLiteral extends PSLiteral {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /** The value type associated with this instances of this class. */
   public static final String VALUE_TYPE = "DateLiteral";
 

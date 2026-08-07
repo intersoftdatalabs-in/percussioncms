@@ -45,6 +45,9 @@ import org.w3c.dom.Element;
 public class PSFunctionCall extends PSNamedReplacementValue
     implements IPSMutatableReplacementValue {
 
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Constructs this object from its XML representation. See the {@link #toXml(Document) toXml()}
    * method for the DTD of the <code>sourceNode</code> element.

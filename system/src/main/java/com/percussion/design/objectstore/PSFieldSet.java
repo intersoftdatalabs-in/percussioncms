@@ -31,6 +31,10 @@ import org.w3c.dom.Element;
 
 /** Implementation for the PSXFieldSet DTD in BasicObjects.dtd. */
 public class PSFieldSet extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates a new parent field set for the provided name.
    *

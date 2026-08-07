@@ -36,6 +36,9 @@ import org.w3c.dom.Node;
  */
 public class PSDirectory extends PSComponent {
 
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /** The default timeout in milliseconds for the ldap connection */
   public static final long TIMEOUT_DEFAULT = 59000;
 

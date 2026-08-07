@@ -22,6 +22,10 @@ package com.percussion.design.objectstore;
  * occurs when an application is being opened by a workbench and an invalid value is detected.
  */
 public class PSMinorValidationException extends PSSystemValidationException {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Construct an exception for messages taking only a single argument.
    *

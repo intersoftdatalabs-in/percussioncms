@@ -28,6 +28,10 @@ import org.w3c.dom.Element;
  * types of supported parameters)
  */
 public class PSFunctionParamValue extends PSAbstractParamValue implements IPSParameter {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Constructs this object from its XML representation. See the {@link #toXml(Document) toXml()}
    * method for the DTD of the <code>sourceNode</code> element.

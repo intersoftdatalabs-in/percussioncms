@@ -22,6 +22,10 @@ import org.w3c.dom.Element;
 
 /** This class is used to extract parameters through macros. */
 public class PSMacro extends PSNamedReplacementValue {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Construct a Java object from it's XML representation.
    *

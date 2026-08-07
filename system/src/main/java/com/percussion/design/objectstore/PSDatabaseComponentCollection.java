@@ -35,6 +35,7 @@ import org.w3c.dom.Element;
  * to this "collection" most closely resembles a subset of "List".
  */
 public class PSDatabaseComponentCollection extends PSDatabaseComponent {
+
   /**
    * Construct a collection of database components.
    *

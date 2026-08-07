@@ -28,6 +28,10 @@ import org.w3c.dom.Node;
 
 /** Implementation for the PSXFieldValidationRules DTD in BasicObjects.dtd. */
 public class PSFieldValidationRules extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Construct a Java object from its XML representation.
    *

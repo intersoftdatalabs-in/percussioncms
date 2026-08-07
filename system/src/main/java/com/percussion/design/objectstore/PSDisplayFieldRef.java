@@ -25,6 +25,9 @@ import org.w3c.dom.Element;
 /** A replacement value used to specify 'DisplayField' references. */
 public class PSDisplayFieldRef extends PSComponent implements IPSMutatableReplacementValue {
 
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates a new display field reference for the provided name.
    *
