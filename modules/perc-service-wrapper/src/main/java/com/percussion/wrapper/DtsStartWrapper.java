@@ -32,8 +32,12 @@ import java.util.*;
  * file (<code>conf/perc/perc-catalina.properties</code>), reads the <code>http.port</code>, <code>
  * shutdown.port</code>, and <code>shutdown.key</code> values, and prepares the command line used to
  * bootstrap Tomcat via the standard <code>org.apache.catalina.startup.Bootstrap</code> class.
+ *
+ * <p>This class is {@code final} so constructor calls into {@link StartWrapper} cannot be observed
+ * by a subclass before initialization completes ({@code this-escape} free under {@code
+ * -Xlint:all}).
  */
-public class DtsStartWrapper extends StartWrapper {
+public final class DtsStartWrapper extends StartWrapper {
   private static final String DTS_PROPERTIES = "conf/perc/perc-catalina.properties";
   private static final String DTS_STATE = "dts.state";
   private static final String TOMCAT_STARTUP_CHECK = "Server startup in";
@@ -41,13 +45,15 @@ public class DtsStartWrapper extends StartWrapper {
   /**
    * Constructs a DTS wrapper for the installation located at <code>rootDir</code>.
    *
+   * <p>The class is {@code final}, so inherited configuration methods cannot be overridden to
+   * observe a partially constructed instance during this constructor.
+   *
    * @param name a human-readable label used in log output, never <code>null</code>
    * @param rootDir the DTS installation root directory containing <code>
    *     conf/perc/perc-catalina.properties</code>, never <code>null</code>
    * @param args additional command-line arguments to forward to the Tomcat bootstrap, may be <code>
    *     null</code>
    */
-  @SuppressWarnings("this-escape")
   public DtsStartWrapper(String name, File rootDir, String[] args) {
     super(name, rootDir, args);
 

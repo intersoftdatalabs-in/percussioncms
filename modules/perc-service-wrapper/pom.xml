@@ -29,6 +29,11 @@
             <artifactId>perc-i18n</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -46,6 +51,16 @@
                             <mainClass>com.percussion.wrapper.PSServiceWrapper</mainClass>
                         </manifest>
                     </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- JettyStartUtils static init requires a non-null install root -->
+                    <systemPropertyVariables>
+                        <rxdeploydir>${project.build.directory}/test-rx-root</rxdeploydir>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>
