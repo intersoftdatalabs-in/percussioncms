@@ -33,6 +33,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * @since 1.0
  */
 public abstract class PSPipe extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Get the name of the pipe.

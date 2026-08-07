@@ -28,6 +28,8 @@ import com.percussion.error.PSException;
  * @since 1.0
  */
 public class PSSyntaxException extends PSException {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Construct an exception for messages taking only a single argument.
    *

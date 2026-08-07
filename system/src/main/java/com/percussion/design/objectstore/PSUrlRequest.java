@@ -28,6 +28,8 @@ import org.w3c.dom.Element;
 
 /** Implements the PSXUrlRequest DTD defined in BasicObjects.dtd. */
 public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Creates a new request object for the provided name, href and parameters.
    *

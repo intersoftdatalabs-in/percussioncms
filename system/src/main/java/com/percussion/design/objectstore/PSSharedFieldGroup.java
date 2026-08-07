@@ -26,6 +26,8 @@ import org.w3c.dom.Element;
 /** Implementation for the PSXSharedFieldGroup DTD in ContentEditorSharedDef.dtd. */
 @SuppressWarnings("serial")
 public class PSSharedFieldGroup extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Creates a new shared field group.
    *

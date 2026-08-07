@@ -24,6 +24,8 @@ import org.w3c.dom.Element;
 
 /** A component that holds one reference to an other XML element. */
 public class PSReference extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Construct a Java object from its XML representation.
    *

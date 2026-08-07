@@ -23,6 +23,8 @@ import org.w3c.dom.Element;
 
 /** Implementation for the PSXParam DTD in BasicObjects.dtd. */
 public class PSParam extends PSComponent implements IPSParameter {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Constructs a new parameter for the provided name.
    *

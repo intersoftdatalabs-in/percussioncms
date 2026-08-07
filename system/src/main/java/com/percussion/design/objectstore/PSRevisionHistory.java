@@ -29,6 +29,8 @@ import org.w3c.dom.Element;
  * revision associated with a component or document.
  */
 public class PSRevisionHistory extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Constructs a new revision history object.
    *

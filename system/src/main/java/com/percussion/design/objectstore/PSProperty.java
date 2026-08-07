@@ -25,6 +25,8 @@ import org.w3c.dom.Node;
 
 /** The class which defines a property in any Rx configuration. */
 public class PSProperty extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Constructs this property from the supplied parameters.
    *
