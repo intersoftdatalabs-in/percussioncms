@@ -27,7 +27,7 @@ public class VisibilityService implements VisibilityServiceInf {
 
   public VisibilityDAO VisibilityDAO;
 
-  public Collection getAllVisibilities() {
+  public Collection<Visibility> getAllVisibilities() {
     try {
       return VisibilityDAO.getAllVisibilities();
     } catch (HibernateException e) {
@@ -35,7 +35,7 @@ public class VisibilityService implements VisibilityServiceInf {
     }
   }
 
-  public Collection getAllVisibilitiesForTaxonomyId(int taxonomy_id) {
+  public Collection<Visibility> getAllVisibilitiesForTaxonomyId(int taxonomy_id) {
     try {
       return VisibilityDAO.getAllVisibilitiesForTaxonomyId(taxonomy_id);
     } catch (HibernateException e) {

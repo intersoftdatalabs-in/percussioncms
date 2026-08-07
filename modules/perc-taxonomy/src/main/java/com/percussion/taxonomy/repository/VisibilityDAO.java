@@ -22,9 +22,9 @@ import java.util.Collection;
 
 public interface VisibilityDAO {
 
-  public Collection getAllVisibilities();
+  public Collection<Visibility> getAllVisibilities();
 
-  public Collection getAllVisibilitiesForTaxonomyId(int taxonomy_id);
+  public Collection<Visibility> getAllVisibilitiesForTaxonomyId(int taxonomy_id);
 
   public Visibility getVisibility(int id);
 

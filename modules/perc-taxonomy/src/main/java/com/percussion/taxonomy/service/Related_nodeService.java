@@ -27,7 +27,7 @@ public class Related_nodeService implements Related_nodeServiceInf {
 
   public Related_nodeDAO related_nodeDAO;
 
-  public Collection getAllRelated_nodes() {
+  public Collection<Related_node> getAllRelated_nodes() {
     try {
       return related_nodeDAO.getAllRelated_nodes();
     } catch (HibernateException e) {

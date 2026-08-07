@@ -22,7 +22,7 @@ import java.util.Collection;
 
 public interface Related_nodeDAO {
 
-  public Collection getAllRelated_nodes();
+  public Collection<Related_node> getAllRelated_nodes();
 
   public Related_node getRelated_node(int id);
 

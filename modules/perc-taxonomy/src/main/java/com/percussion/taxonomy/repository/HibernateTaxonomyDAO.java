@@ -34,7 +34,7 @@ public class HibernateTaxonomyDAO implements TaxonomyDAO {
 
   public Taxonomy getTaxonomy(int id) {
     Session session = sessionFactory.getCurrentSession();
-    return session.get(Taxonomy.class, id);
+    return session.find(Taxonomy.class, id);
   }
 
   public List<Taxonomy> getTaxonomy(String name) {
@@ -55,11 +55,11 @@ public class HibernateTaxonomyDAO implements TaxonomyDAO {
     return query.list();
   }
 
-  public Collection getAllTaxonomys() {
+  public Collection<Taxonomy> getAllTaxonomys() {
     Session session = sessionFactory.getCurrentSession();
     Query<Taxonomy> query =
         session.createQuery("from Taxonomy tax order by lower(name) asc", Taxonomy.class);
-    return (Collection) (Collection<?>) query.list();
+    return query.list();
   }
 
   public void saveTaxonomy(Taxonomy taxonomy) {

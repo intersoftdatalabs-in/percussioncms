@@ -27,7 +27,7 @@ public class Node_statusService implements Node_statusServiceInf {
 
   public Node_statusDAO node_statusDAO;
 
-  public Collection getAllNode_statuss() {
+  public Collection<Node_status> getAllNode_statuss() {
     try {
       return node_statusDAO.getAllNode_statuss();
     } catch (HibernateException e) {

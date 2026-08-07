@@ -78,7 +78,7 @@ public class NodeService implements NodeServiceInf {
   public Collection<Node> getAllNodes(int taxID, int langID) {
     Collection<Node> nodes = null;
     try {
-      nodes = (Collection<Node>) this.nodeDAO.getAllNodes(taxID, langID);
+      nodes = this.nodeDAO.getAllNodes(taxID, langID);
     } catch (HibernateException e) {
       throw new HibernateException(e);
     }
@@ -133,9 +133,7 @@ public class NodeService implements NodeServiceInf {
       int taxID, int langID, String search_string, boolean exclude_disabled) {
     Collection<Node> nodes = null;
     try {
-      nodes =
-          (Collection<Node>)
-              this.nodeDAO.getNodesFromSearch(taxID, langID, search_string, exclude_disabled);
+      nodes = this.nodeDAO.getNodesFromSearch(taxID, langID, search_string, exclude_disabled);
     } catch (HibernateException e) {
       throw new HibernateException(e);
     }
@@ -217,7 +215,7 @@ public class NodeService implements NodeServiceInf {
   public Collection<Object[]> getAllNodeNames(int taxonomyID, int langID) {
     Collection<Object[]> names = null;
     try {
-      names = (Collection<Object[]>) nodeDAO.getAllNodeNames(taxonomyID, langID);
+      names = nodeDAO.getAllNodeNames(taxonomyID, langID);
     } catch (HibernateException e) {
       throw new HibernateException(e);
     }
@@ -234,7 +232,7 @@ public class NodeService implements NodeServiceInf {
   public Collection<Object[]> getSomeNodeNames(Collection<Integer> ids, int langID) {
     Collection<Object[]> names = null;
     try {
-      names = (Collection<Object[]>) this.nodeDAO.getSomeNodeNames(ids, langID);
+      names = this.nodeDAO.getSomeNodeNames(ids, langID);
     } catch (HibernateException e) {
       throw new HibernateException(e);
     }
@@ -251,7 +249,7 @@ public class NodeService implements NodeServiceInf {
   public Collection<String> getNodeName(int nodeID, int langID) {
     Collection<String> names = null;
     try {
-      names = (Collection<String>) this.nodeDAO.getNodeName(nodeID, langID);
+      names = this.nodeDAO.getNodeName(nodeID, langID);
     } catch (HibernateException e) {
       throw new HibernateException(e);
     }
@@ -494,7 +492,7 @@ public class NodeService implements NodeServiceInf {
     // PSContentEditorSystemDef m_systemDef = PSServer.getContentEditorSystemDef();
     PSContentEditorSharedDef m_sharedDef = PSServer.getContentEditorSharedDef();
 
-    Iterator groupsItt = m_sharedDef.getFieldGroups();
+    Iterator<?> groupsItt = m_sharedDef.getFieldGroups();
 
     while (groupsItt.hasNext()) {
       PSSharedFieldGroup group = (PSSharedFieldGroup) groupsItt.next();
@@ -546,7 +544,7 @@ public class NodeService implements NodeServiceInf {
   private List<PSField> getControlFields(
       PSFieldSet fieldSet, PSDisplayMapper mapper, List<String> controlNames) {
     List<PSField> fields = new ArrayList<PSField>();
-    Iterator mappings = mapper.iterator();
+    Iterator<?> mappings = mapper.iterator();
     while (mappings.hasNext()) {
       PSDisplayMapping mapping = (PSDisplayMapping) mappings.next();
 
@@ -576,7 +574,7 @@ public class NodeService implements NodeServiceInf {
             PSFieldSet childFs = (PSFieldSet) o;
             if (childFs.getType() == PSFieldSet.TYPE_SIMPLE_CHILD) {
               PSDisplayMapper childMapper = mapping.getDisplayMapper();
-              Iterator childMappings = childMapper.iterator();
+              Iterator<?> childMappings = childMapper.iterator();
               while (childMappings.hasNext()) {
                 PSDisplayMapping childMapping = (PSDisplayMapping) childMappings.next();
                 fieldName = childMapping.getFieldRef();

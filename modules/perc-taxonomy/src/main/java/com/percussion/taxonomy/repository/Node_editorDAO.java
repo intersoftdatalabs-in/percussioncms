@@ -22,7 +22,7 @@ import java.util.Collection;
 
 public interface Node_editorDAO {
 
-  public Collection getAllNode_editors();
+  public Collection<Node_editor> getAllNode_editors();
 
   public Node_editor getNode_editor(int id);
 

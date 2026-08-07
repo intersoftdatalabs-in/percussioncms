@@ -69,11 +69,11 @@ public class TaxonomyFieldVisibility implements IPSFieldVisibilityRule {
     Transaction tx = session.beginTransaction();
 
     // get similar ID for our main query
-    Query query = session.createQuery(SQL_STRING);
+    Query<Long> query = session.createQuery(SQL_STRING, Long.class);
     query.setParameter("taxonomy_id", taxonomy_id);
 
     // add them
-    Collection<Long> visible_to_community_ids = (Collection<Long>) query.list();
+    Collection<Long> visible_to_community_ids = query.list();
 
     log.debug("visible_to_community_ids.size:" + visible_to_community_ids.size());
 

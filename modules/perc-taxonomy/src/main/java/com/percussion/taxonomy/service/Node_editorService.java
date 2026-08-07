@@ -27,7 +27,7 @@ public class Node_editorService implements Node_editorServiceInf {
 
   public Node_editorDAO node_editorDAO;
 
-  public Collection getAllNode_editors() {
+  public Collection<Node_editor> getAllNode_editors() {
     try {
       return node_editorDAO.getAllNode_editors();
     } catch (HibernateException e) {

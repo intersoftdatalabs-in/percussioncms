@@ -48,13 +48,12 @@ public class HibernateValueDAO implements ValueDAO {
 
   public Value getValue(int id) {
     Session session = sessionFactory.getCurrentSession();
-    return session.get(Value.class, id);
+    return session.find(Value.class, id);
   }
 
   public Collection<Value> getAllValues() {
     Session session = sessionFactory.getCurrentSession();
-    return (Collection<Value>)
-        (Collection<?>) session.createQuery("from Value val", Value.class).list();
+    return session.createQuery("from Value val", Value.class).list();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +74,7 @@ public class HibernateValueDAO implements ValueDAO {
       Session session = sessionFactory.getCurrentSession();
       HibernateValueCallback valueSetter =
           new HibernateValueCallback(params, attributes, node, langID, user_name);
-      values = (Map<String, String>) valueSetter.doInHibernate(session);
+      values = valueSetter.doInHibernate(session);
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -175,7 +174,7 @@ public class HibernateValueDAO implements ValueDAO {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public Object doInHibernate(Session session) throws HibernateException {
+    public Map<String, String> doInHibernate(Session session) throws HibernateException {
 
       Map<String, String> errors = null;
       Collection<Value> forGarbage = new HashSet<Value>();
@@ -280,7 +279,7 @@ public class HibernateValueDAO implements ValueDAO {
                 nodeInfo.isNew(),
                 username,
                 attribute,
-                StringUtils.trimToNull((String) params.get(getParamNameFor(attribute))[0]),
+                StringUtils.trimToNull(params.get(getParamNameFor(attribute))[0]),
                 currentValues.values(),
                 forGarbage));
       }
@@ -321,11 +320,10 @@ public class HibernateValueDAO implements ValueDAO {
           value.setAttribute(attribute);
           value.setNode(node);
           value.setLang(
-              (Language)
-                  session
-                      .createQuery("select l from Language l where l.id = :langId", Language.class)
-                      .setParameter("langId", langID)
-                      .uniqueResult());
+              session
+                  .createQuery("select l from Language l where l.id = :langId", Language.class)
+                  .setParameter("langId", langID)
+                  .uniqueResult());
           value.setCreated_by_id(userName);
           value.setCreated_at(new Timestamp(System.currentTimeMillis()));
           value.setName(s);
@@ -374,11 +372,10 @@ public class HibernateValueDAO implements ValueDAO {
           value.setAttribute(attribute);
           value.setNode(node);
           value.setLang(
-              (Language)
-                  session
-                      .createQuery("select l from Language l where l.id = :langId", Language.class)
-                      .setParameter("langId", langID)
-                      .uniqueResult());
+              session
+                  .createQuery("select l from Language l where l.id = :langId", Language.class)
+                  .setParameter("langId", langID)
+                  .uniqueResult());
           value.setCreated_by_id(userName);
           value.setCreated_at(new Timestamp(System.currentTimeMillis()));
         }

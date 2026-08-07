@@ -74,18 +74,18 @@ public class TaxonomyTextConverter implements IPSLuceneTextConverter {
       }
 
       // get similar ID for our main query
-      Query query = session.createQuery(SQL_SIMILAR);
-      query.setParameterList("nodes", ids);
-      query.setParameter("relationship_type_id", Relationship_type.SIMILAR);
+      Query<Integer> similarQuery = session.createQuery(SQL_SIMILAR, Integer.class);
+      similarQuery.setParameterList("nodes", ids);
+      similarQuery.setParameter("relationship_type_id", Relationship_type.SIMILAR);
 
       // add them
-      ids.addAll((Collection<Integer>) query.list());
+      ids.addAll(similarQuery.list());
 
       // run our main query
-      query = session.createQuery(SQL_GET_VALUES);
-      query.setParameter("language_id", langID);
-      query.setParameterList("ids", ids);
-      Collection<String> values = (Collection<String>) query.list();
+      Query<String> valuesQuery = session.createQuery(SQL_GET_VALUES, String.class);
+      valuesQuery.setParameter("language_id", langID);
+      valuesQuery.setParameterList("ids", ids);
+      Collection<String> values = valuesQuery.list();
 
       // add values to our search string to return
       for (String v : values) {

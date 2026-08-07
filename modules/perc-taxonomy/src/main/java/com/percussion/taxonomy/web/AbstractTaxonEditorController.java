@@ -65,9 +65,9 @@ public abstract class AbstractTaxonEditorController extends AbstractControllerWi
 
   public static final String ACTION_ERROR = "action_error";
 
-  protected static HashMap collection_to_hashmap(Collection c) {
-    HashMap ret = new HashMap();
-    for (Object o : c) {
+  protected static <T> HashMap<T, T> collection_to_hashmap(Collection<T> c) {
+    HashMap<T, T> ret = new HashMap<>();
+    for (T o : c) {
       ret.put(o, o);
     }
     return ret;
@@ -124,10 +124,10 @@ public abstract class AbstractTaxonEditorController extends AbstractControllerWi
 
   protected ArrayList<Pair> getAttributeNames(int taxonomy_id, int language_id) {
     ArrayList<Pair> attributeNames = new ArrayList<Pair>();
-    Collection all = attributeService.getAttributeNames(taxonomy_id, language_id);
-    Iterator pairs = all.iterator();
+    Collection<Object[]> all = attributeService.getAttributeNames(taxonomy_id, language_id);
+    Iterator<Object[]> pairs = all.iterator();
     while (pairs.hasNext()) {
-      Object[] pair = (Object[]) pairs.next();
+      Object[] pair = pairs.next();
       attributeNames.add(new Pair((String) pair[0], (Integer) pair[1]));
     }
     Collections.sort(attributeNames);
@@ -137,10 +137,10 @@ public abstract class AbstractTaxonEditorController extends AbstractControllerWi
   protected HashMap<String, Integer> getNodeNames(int taxID, int langID) {
     // TODO need to change this from a hard coding to an ajax based one
     HashMap<String, Integer> nodeNames = new HashMap<String, Integer>();
-    Collection all = nodeService.getAllNodeNames(taxID, langID);
-    Iterator pairs = all.iterator();
+    Collection<Object[]> all = nodeService.getAllNodeNames(taxID, langID);
+    Iterator<Object[]> pairs = all.iterator();
     while (pairs.hasNext()) {
-      Object[] pair = (Object[]) pairs.next();
+      Object[] pair = pairs.next();
       nodeNames.put((String) pair[2], (Integer) pair[0]);
     }
     return nodeNames;
@@ -207,7 +207,7 @@ public abstract class AbstractTaxonEditorController extends AbstractControllerWi
     }
 
     if (do_children) {
-      for (Node child_node : (Collection<Node>) nodeService.getChildNodes(this_node.getId())) {
+      for (Node child_node : nodeService.getChildNodes(this_node.getId())) {
         set_new_permissions_for_role(roleNames, child_node, do_children);
       }
     }

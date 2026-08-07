@@ -31,7 +31,7 @@ public interface VisibilityServiceInf {
    *
    * @return a collection of all Visibility entities, or an empty collection
    */
-  public Collection getAllVisibilities();
+  public Collection<Visibility> getAllVisibilities();
 
   /**
    * Retrieves all visibility options for a specific taxonomy.
@@ -39,7 +39,7 @@ public interface VisibilityServiceInf {
    * @param taxonomy_id the unique identifier of the taxonomy
    * @return a collection of Visibility entities associated with the taxonomy
    */
-  public Collection getAllVisibilitiesForTaxonomyId(int taxonomy_id);
+  public Collection<Visibility> getAllVisibilitiesForTaxonomyId(int taxonomy_id);
 
   /**
    * Retrieves a specific visibility by its unique identifier.

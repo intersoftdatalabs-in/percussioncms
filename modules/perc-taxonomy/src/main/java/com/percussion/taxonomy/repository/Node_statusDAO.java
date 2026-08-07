@@ -22,7 +22,7 @@ import java.util.Collection;
 
 public interface Node_statusDAO {
 
-  public Collection getAllNode_statuss();
+  public Collection<Node_status> getAllNode_statuss();
 
   public Node_status getNode_status(int id);
 

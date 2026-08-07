@@ -32,14 +32,12 @@ public class HibernateRelationship_typeDAO implements Relationship_typeDAO {
 
   public Relationship_type getRelationship_type(int id) {
     Session session = sessionFactory.getCurrentSession();
-    return session.get(Relationship_type.class, id);
+    return session.find(Relationship_type.class, id);
   }
 
-  public Collection getAllRelationship_types() {
+  public Collection<Relationship_type> getAllRelationship_types() {
     Session session = sessionFactory.getCurrentSession();
-    return (Collection)
-        (Collection<?>)
-            session.createQuery("from Relationship_type rel", Relationship_type.class).list();
+    return session.createQuery("from Relationship_type rel", Relationship_type.class).list();
   }
 
   public void saveRelationship_type(Relationship_type relationship_type) {

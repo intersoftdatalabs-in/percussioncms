@@ -47,7 +47,7 @@ public class TaxonomySecurityHelper {
 
   public static List<String> getAllRoles() {
     List<String> ret;
-    ret = new ArrayList(PSRoleMgrLocator.getRoleManager().getDefinedRoles());
+    ret = new ArrayList<>(PSRoleMgrLocator.getRoleManager().getDefinedRoles());
     ret.remove(TAXONOMY_ADMIN_GROUP);
     Collections.sort(ret);
     return ret;
