@@ -21,8 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.design.objectstore.PSApplication;
@@ -32,8 +37,15 @@ import com.percussion.design.objectstore.PSRequestor;
 import com.percussion.design.objectstore.server.PSApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
+import com.percussion.services.pipeline.IPSPipelineRuntimeService;
+import com.percussion.services.pipeline.PSPipelineIrException;
+import com.percussion.services.pipeline.model.PipelineExecuteRequest;
+import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.util.PSCollection;
+import jakarta.ws.rs.WebApplicationException;
+import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -235,6 +247,116 @@ class PipelinesAdaptorTest {
     assertNull(PipelinesAdaptor.resolveApplicationName("../sys_cmpDocuments", sums));
     assertNull(PipelinesAdaptor.resolveApplicationName("sys_cmpDocuments/../other", sums));
     assertNull(PipelinesAdaptor.resolveApplicationName("99", sums));
+  }
+
+  @Test
+  void execute_delegatesToRuntimeService() throws Exception {
+    IPSPipelineRuntimeService runtime = mock(IPSPipelineRuntimeService.class);
+    PipelineExecuteResult expected = new PipelineExecuteResult();
+    expected.setAppName("lookupApp");
+    expected.setResourceName("DatasetQ");
+    expected.setOperation("query");
+    expected.setRows(List.of(Map.of("TYPE", "workflow")));
+    PipelineExecuteRequest req = PipelineExecuteRequest.ofParams(Map.of("TYPE", "workflow"));
+    when(runtime.execute(eq("lookupApp"), eq("DatasetQ"), eq(req))).thenReturn(expected);
+
+    PipelinesAdaptor adaptor = new PipelinesAdaptor(tok -> new PSApplicationSummary[0], () -> runtime);
+    PipelineExecuteResult out =
+        adaptor.execute(URI.create("http://localhost/services/"), "lookupApp", "DatasetQ", req);
+
+    assertEquals("query", out.getOperation());
+    assertEquals(1, out.getRowCount());
+    verify(runtime).execute(eq("lookupApp"), eq("DatasetQ"), eq(req));
+  }
+
+  @Test
+  void execute_nullBodyBecomesEmptyRequest() throws Exception {
+    IPSPipelineRuntimeService runtime = mock(IPSPipelineRuntimeService.class);
+    PipelineExecuteResult expected = new PipelineExecuteResult();
+    expected.setOperation("query");
+    when(runtime.execute(eq("app"), eq("res"), any(PipelineExecuteRequest.class)))
+        .thenReturn(expected);
+
+    PipelinesAdaptor adaptor = new PipelinesAdaptor(tok -> new PSApplicationSummary[0], () -> runtime);
+    assertEquals(
+        "query",
+        adaptor.execute(URI.create("http://localhost/"), "app", "res", null).getOperation());
+  }
+
+  @Test
+  void execute_rejectsUnsafeAppOrResourceNames() {
+    IPSPipelineRuntimeService runtime = mock(IPSPipelineRuntimeService.class);
+    PipelinesAdaptor adaptor = new PipelinesAdaptor(tok -> new PSApplicationSummary[0], () -> runtime);
+
+    WebApplicationException badApp =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.execute(
+                    URI.create("http://localhost/"),
+                    "../evil",
+                    "res",
+                    PipelineExecuteRequest.empty()));
+    assertEquals(400, badApp.getResponse().getStatus());
+
+    WebApplicationException badRes =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.execute(
+                    URI.create("http://localhost/"),
+                    "app",
+                    "foo/bar",
+                    PipelineExecuteRequest.empty()));
+    assertEquals(400, badRes.getResponse().getStatus());
+  }
+
+  @Test
+  void execute_mapsNotFoundIrTo404() throws Exception {
+    IPSPipelineRuntimeService runtime = mock(IPSPipelineRuntimeService.class);
+    when(runtime.execute(anyString(), anyString(), any(PipelineExecuteRequest.class)))
+        .thenThrow(new PSPipelineIrException("Pipeline IR not found: missing"));
+    PipelinesAdaptor adaptor = new PipelinesAdaptor(tok -> new PSApplicationSummary[0], () -> runtime);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.execute(
+                    URI.create("http://localhost/"),
+                    "missing",
+                    "res",
+                    PipelineExecuteRequest.empty()));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Pipeline application or resource not found", ex.getMessage());
+  }
+
+  @Test
+  void execute_mapsPlannerFailureTo400() throws Exception {
+    IPSPipelineRuntimeService runtime = mock(IPSPipelineRuntimeService.class);
+    when(runtime.execute(anyString(), anyString(), any(PipelineExecuteRequest.class)))
+        .thenThrow(new PSPipelineIrException("Insert requires request.rows or request.params"));
+    PipelinesAdaptor adaptor = new PipelinesAdaptor(tok -> new PSApplicationSummary[0], () -> runtime);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.execute(
+                    URI.create("http://localhost/"),
+                    "updApp",
+                    "Ins",
+                    PipelineExecuteRequest.empty()));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("Insert requires"));
+  }
+
+  @Test
+  void isNotFoundMessage_detectsRuntimeNotFoundWording() {
+    assertTrue(PipelinesAdaptor.isNotFoundMessage("Pipeline IR not found: x"));
+    assertTrue(PipelinesAdaptor.isNotFoundMessage("Resource not found in IR x: y"));
+    assertFalse(PipelinesAdaptor.isNotFoundMessage("Insert requires request.rows"));
+    assertFalse(PipelinesAdaptor.isNotFoundMessage(null));
   }
 
   private static PSApplicationSummary summary(

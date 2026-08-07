@@ -17,6 +17,8 @@
 
 package com.percussion.rest.pipelines;
 
+import com.percussion.services.pipeline.model.PipelineExecuteRequest;
+import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import java.net.URI;
 import java.util.List;
 
@@ -39,4 +41,20 @@ public interface IPipelinesAdaptor {
    * @return detail, or {@code null} when not found / not visible
    */
   ApplicationDetail getApplication(URI baseUri, String idOrName);
+
+  /**
+   * Execute a native pipeline IR resource via {@code IPSPipelineRuntimeService}.
+   *
+   * <p>Developer smoke / Slice A residual — does <strong>not</strong> call classic {@code
+   * PSQueryHandler} / {@code PSUpdateHandler}. JSON request/result shapes match the system model
+   * types used by the runtime codec.
+   *
+   * @param baseUri request base URI (reserved for HATEOAS)
+   * @param appName native IR application name
+   * @param resourceName resource within the IR document
+   * @param request params/rows body; {@code null} treated as empty by implementations
+   * @return execute result, never {@code null}
+   */
+  PipelineExecuteResult execute(
+      URI baseUri, String appName, String resourceName, PipelineExecuteRequest request);
 }

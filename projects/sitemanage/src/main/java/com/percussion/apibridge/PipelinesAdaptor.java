@@ -31,24 +31,33 @@ import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
+import com.percussion.services.pipeline.IPSPipelineRuntimeService;
+import com.percussion.services.pipeline.PSPipelineIrException;
+import com.percussion.services.pipeline.PSPipelineRuntimeServiceLocator;
+import com.percussion.services.pipeline.model.PipelineExecuteRequest;
+import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.util.PSCollection;
+import jakarta.ws.rs.WebApplicationException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Lists classic XML Applications (pipeline packages) visible to the current security token.
+ * Lists classic XML Applications (pipeline packages) visible to the current security token, and
+ * thin IR execute via {@link IPSPipelineRuntimeService}.
  *
  * <p>Uses {@link PSServerXmlObjectStore} for summaries; mapping/filter/limit are pure helpers so
- * they can be unit-tested without the object-store singleton.
+ * they can be unit-tested without the object-store singleton. Execute never calls classic {@code
+ * PSQueryHandler}.
  */
 @PSSiteManageBean
 public class PipelinesAdaptor implements IPipelinesAdaptor {
@@ -62,14 +71,31 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   public static final int MAX_LIMIT = 1000;
 
   private final Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader;
+  private final Supplier<IPSPipelineRuntimeService> runtimeSupplier;
 
   public PipelinesAdaptor() {
-    this(tok -> PSServerXmlObjectStore.getInstance().getApplicationSummaryObjects(tok, false));
+    this(
+        tok -> PSServerXmlObjectStore.getInstance().getApplicationSummaryObjects(tok, false),
+        PSPipelineRuntimeServiceLocator::getPipelineRuntimeService);
   }
 
   /** Package-visible for unit tests that inject a fake summary source. */
   PipelinesAdaptor(Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader) {
+    this(summaryLoader, PSPipelineRuntimeServiceLocator::getPipelineRuntimeService);
+  }
+
+  /**
+   * Package-visible for unit tests that inject summary source and/or runtime service without the
+   * static locator.
+   */
+  PipelinesAdaptor(
+      Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader,
+      Supplier<IPSPipelineRuntimeService> runtimeSupplier) {
     this.summaryLoader = summaryLoader;
+    this.runtimeSupplier =
+        runtimeSupplier != null
+            ? runtimeSupplier
+            : PSPipelineRuntimeServiceLocator::getPipelineRuntimeService;
   }
 
   @Override
@@ -123,6 +149,41 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     }
   }
 
+  @Override
+  public PipelineExecuteResult execute(
+      URI baseUri, String appName, String resourceName, PipelineExecuteRequest request) {
+    // baseUri reserved for HATEOAS link building (interface contract)
+    if (StringUtils.isBlank(appName) || !isSafeApplicationName(appName.trim())) {
+      throw new WebApplicationException("Invalid pipeline application name", 400);
+    }
+    if (StringUtils.isBlank(resourceName) || !isSafeResourceName(resourceName.trim())) {
+      throw new WebApplicationException("Invalid pipeline resource name", 400);
+    }
+    String safeApp = appName.trim();
+    String safeResource = resourceName.trim();
+    PipelineExecuteRequest req = request != null ? request : PipelineExecuteRequest.empty();
+    try {
+      return runtimeSupplier.get().execute(safeApp, safeResource, req);
+    } catch (PSPipelineIrException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Pipeline execute failed";
+      // Generic 404 bodies: do not echo raw path params (name probing).
+      if (isNotFoundMessage(msg)) {
+        throw new WebApplicationException("Pipeline application or resource not found", 404);
+      }
+      // Planner/validation failures are client errors; keep message (no path echo).
+      throw new WebApplicationException(msg, 400);
+    }
+  }
+
+  /** True when the runtime reports missing IR app or resource (not validation failures). */
+  static boolean isNotFoundMessage(String message) {
+    if (message == null) {
+      return false;
+    }
+    String m = message.toLowerCase(Locale.ROOT);
+    return m.contains("pipeline ir not found") || m.contains("resource not found in ir");
+  }
+
   /**
    * Application names become object-store directory names. Reject path traversal and separators so
    * a user-supplied {@code idOrName} cannot escape the apps root ({@code java/path-injection}).
@@ -136,6 +197,14 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
         && name.indexOf('/') < 0
         && name.indexOf('\\') < 0
         && name.indexOf('\0') < 0;
+  }
+
+  /**
+   * Resource names are IR identifiers (not filesystem paths). Same single-segment rules as
+   * application names to reject traversal / separators in the path param.
+   */
+  static boolean isSafeResourceName(String name) {
+    return isSafeApplicationName(name);
   }
 
   /**
