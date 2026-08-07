@@ -236,19 +236,19 @@ public class PSCategoryServiceUtil {
    * @return JSON array string of {@code previousCategoryName}/{@code title} pairs, or null
    */
   static String getCategoriesForPublish(String categoryString) {
-    String forPublish = null;
     var category = PSCategoryUnMarshaller.unMarshalFromString(categoryString);
     if (category == null) {
       return null;
     }
     log.debug("Getting categories for publish.");
     var topCategories = category.getTopLevelNodes();
-    if (topCategories != null && !topCategories.isEmpty()) {
-      String treeTitle = StringUtils.defaultIfBlank(category.getTitle(), "Categories");
-      forPublish =
-          findModifiedCategories(topCategories, "/" + treeTitle, null, false).toString();
+    if (topCategories == null || topCategories.isEmpty()) {
+      // Valid empty tree: match documented contract ("[]" = nothing renamed).
+      // null is reserved for unreadable / unparseable payloads only.
+      return "[]";
     }
-    return forPublish;
+    String treeTitle = StringUtils.defaultIfBlank(category.getTitle(), "Categories");
+    return findModifiedCategories(topCategories, "/" + treeTitle, null, false).toString();
   }
 
   /**

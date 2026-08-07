@@ -19,7 +19,6 @@ package com.percussion.category.service.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryNode;
@@ -93,11 +92,21 @@ class PSCategoryServiceUtilPublishTest {
   void emptyTreeYieldsEmptyArrayPayload() throws Exception {
     String json = marshalTree(List.of());
     String payload = PSCategoryServiceUtil.getCategoriesForPublish(json);
-    // No top-level nodes → method returns null (caller treats as nothing to publish)
-    // or empty array if title present with empty children. Accept either empty signal.
-    assertTrue(
-        payload == null || "[]".equals(payload),
-        "expected no renames for empty tree, got: " + payload);
+    // Valid empty tree must return "[]" (null is only for unreadable payloads).
+    assertEquals("[]", payload, "expected empty-array contract for empty tree");
+  }
+
+  @Test
+  void blankPayloadReturnsNull() {
+    // PSCategoryUnMarshaller returns null only for blank input (parse errors throw).
+    assertEquals(
+        null,
+        PSCategoryServiceUtil.getCategoriesForPublish(""),
+        "blank payload must return null, not empty array");
+    assertEquals(
+        null,
+        PSCategoryServiceUtil.getCategoriesForPublish(null),
+        "null payload must return null, not empty array");
   }
 
   @Test
