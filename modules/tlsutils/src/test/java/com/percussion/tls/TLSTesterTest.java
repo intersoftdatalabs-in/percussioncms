@@ -22,8 +22,10 @@ import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.net.URL;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import javax.security.auth.x500.X500Principal;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -333,5 +335,39 @@ public class TLSTesterTest {
     assertTrue(result.split("\n").length > 3, "Result should contain multiple lines");
 
     verify(mockCertificate).getEncoded();
+  }
+
+  @Test
+  public void testCertificateAlias_StripsNonAlphanumericAndLowercases() {
+    when(mockCertificate.getSubjectX500Principal())
+        .thenReturn(new X500Principal("CN=Example Cert, O=Acme Inc., C=US"));
+
+    String alias = TLSTester.certificateAlias(mockCertificate);
+
+    assertEquals("cnexamplecertoacmeinccus", alias);
+    verify(mockCertificate).getSubjectX500Principal();
+  }
+
+  @Test
+  public void testCertificateAlias_AlreadySimpleSubject() {
+    when(mockCertificate.getSubjectX500Principal()).thenReturn(new X500Principal("CN=localhost"));
+
+    String alias = TLSTester.certificateAlias(mockCertificate);
+
+    assertEquals("cnlocalhost", alias);
+  }
+
+  @Test
+  public void testToUrl_ValidHttpsUrl() throws Exception {
+    URL url = TLSTester.toUrl("https://www.example.com/path");
+
+    assertEquals("https", url.getProtocol());
+    assertEquals("www.example.com", url.getHost());
+    assertEquals("/path", url.getPath());
+  }
+
+  @Test
+  public void testToUrl_InvalidUriThrowsIllegalArgumentException() {
+    assertThrows(IllegalArgumentException.class, () -> TLSTester.toUrl("not a uri"));
   }
 }
