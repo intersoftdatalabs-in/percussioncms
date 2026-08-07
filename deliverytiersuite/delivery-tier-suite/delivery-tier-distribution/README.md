@@ -127,6 +127,16 @@ before writing Procrun `--JavaHome` or `/etc/default/<service>`. See
 `specs/991-system-java-home/quickstart.md` for re-point steps (edit
 `java.properties`, restart — no JRE folder required).
 
+## Log rotation samples (GH-2348)
+
+Standalone DTS ships **opt-in** Linux `logrotate` samples under `logrotate/` at the install root (`percussion-dts` + README). They are **not** copied into `/etc/logrotate.d` automatically.
+
+- Covers `Deployment/Server/logs` (`*.log`, `*.out` including `catalina.out`)
+- Defaults: daily, rotate 14, compress, **copytruncate**
+- Dry-run: `logrotate -d /etc/logrotate.d/percussion-dts` after path substitution
+- Co-located CMS installs also keep the full CMS+DTS samples under `rxconfig/Installer/logrotate/`
+- Windows: schedule `perc-doctor clean-logs --older-than 14d` (see CMS logrotate README)
+
 ## Linux services (systemd) — GH-962 / dual-ship (GH-1978)
 
 Production and Staging installers under `src/main/rootFiles/` prefer **native systemd**

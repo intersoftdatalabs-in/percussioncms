@@ -1,0 +1,54 @@
+# Percussion DTS / Tomcat — sample logrotate policy (issue #2348)
+#
+# Canonical install path when co-located with CMS (after CMS install/upgrade):
+#   <install-root>/rxconfig/Installer/logrotate/percussion-dts
+#
+# Standalone DTS package also ships the same sample under:
+#   <dts-install-root>/logrotate/percussion-dts
+#
+# This file is a SAMPLE. It is NOT installed into /etc/logrotate.d automatically.
+# Operators must copy (or symlink) it after substituting the install root.
+#
+# Default placeholder root (document substitution):
+#   /opt/Percussion
+# Split-host DTS often uses a dedicated root; substitute $DTS_HOME / install dir
+# so paths resolve to Deployment/Server/logs (catalina.base/logs).
+#
+# Install (Linux, as root — only with operator consent):
+#   1. Edit INSTALL_ROOT below (or sed-replace /opt/Percussion).
+#   2. install -m 0644 percussion-dts /etc/logrotate.d/percussion-dts
+#   3. Dry-run: logrotate -d /etc/logrotate.d/percussion-dts
+#   4. Force once (optional): logrotate -f /etc/logrotate.d/percussion-dts
+#
+# Why copytruncate:
+#   Tomcat and JUL often keep catalina.out / continuous log handles open.
+#   copytruncate rotates without a hard restart. Prefer this over create +
+#   signal unless postrotate is wired to a known safe reload.
+#
+# Coexistence (who owns what):
+#   - DTS / Tomcat Log4j2 configs: app-level rolling for service logs.
+#   - This logrotate policy: OS safety net for catalina.out, catalina.*.log,
+#     localhost/host-manager/manager/access logs, and other *.log / *.out under
+#     Deployment/Server/logs.
+#   - perc-doctor clean-logs: age-based purge under the same allowlisted root
+#     (manual or scheduled). Complements rotation.
+#
+# Globs align with perc-doctor InstallRootGuard (Deployment/Server/logs) and
+# isLogFileName (.log / .out). catalina.out is explicitly covered by *.out.
+
+/opt/Percussion/Deployment/Server/logs/*.log
+/opt/Percussion/Deployment/Server/logs/*.out
+{
+    daily
+    rotate 14
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
+    sharedscripts
+    # Optional when DTS systemd units are installed (GH-962 dual-ship):
+    # postrotate
+    #     systemctl reload PercussionDTSProduction.service >/dev/null 2>&1 || true
+    # endscript
+}
