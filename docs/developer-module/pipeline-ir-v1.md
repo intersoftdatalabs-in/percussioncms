@@ -127,20 +127,59 @@ Not imported in v1 (deferred): full where-clause trees, join graphs, exits/hooks
 - `toJson` / `fromJson`
 - `save` / `load` / `exists`
 
-### Runtime (Slice A part 2 — #2248)
+### Runtime (Slice A part 2 — #2248; richer UPDATE/DELETE — #2340)
 
 `IPSPipelineRuntimeService` / `PSPipelineRuntimeService` / `PSPipelineRuntimeServiceLocator`:
 
 - `execute(appName, resourceName, request)` — load native IR, run resource
 - `execute(document, resource, request)` — in-memory IR (tests / callers)
 - SQL via `IPSPipelineSqlAdapter` / `PSJdbcPipelineSqlAdapter` (parameterized JDBC only)
-- Planner: `PSPipelineSqlPlanner` (generated single-table SELECT/INSERT, or native SELECT with `:param`)
+- Planner: `PSPipelineSqlPlanner` (generated single-table SELECT/INSERT/**UPDATE**/**DELETE**, or native SELECT with `:param`)
 - Pre/post hooks: `IPSPipelinePreExecuteHook` / `IPSPipelinePostExecuteHook`
 - JSON I/O: `PipelineExecuteRequest` / `PipelineExecuteResult` + `PSPipelineExecuteJsonCodec`
+- Thin REST: `POST /services/pipelines/{app}/resources/{resource}/execute` (see #2269 / PR #2341)
 
 **Not** calling classic `PSQueryHandler` / `PSUpdateHandler` as the public path.
 
-Catalog list remains `GET /services/pipelines`. Optional thin REST **invoke** is deferred (Developer smoke residual).
+Catalog list remains `GET /services/pipelines`.
+
+### UPDATE resource mutations (`updater.*` flags)
+
+| Request | Planner | Flag gate |
+|---------|---------|-----------|
+| `operation=insert` (or only insert allowed) | `planInserts` | `allowInsert` |
+| `operation=update` (or only update allowed) | `planUpdates` | `allowUpdate` |
+| `operation=delete` (or only delete allowed) | `planDeletes` | `allowDelete` |
+
+- When more than one of insert/update/delete is allowed, **`request.operation` is required**.
+- When a flag is false, the runtime rejects with a clear API error naming the flag (e.g. `updater.allowUpdate=false`).
+- **UPDATE**: `SET` non-key mapped columns from each row; **WHERE** from `request.keyColumns` values on the row, or from mapped keys in `request.params` (shared WHERE).
+- **DELETE**: WHERE from `keyColumns` / mapped `params` / mapped columns present on each row. Empty WHERE (unrestricted delete) is rejected.
+- Unrestricted UPDATE/DELETE without keys is rejected.
+
+Example update body:
+
+```json
+{
+  "operation": "update",
+  "keyColumns": ["TYPE", "NAME"],
+  "rows": [
+    { "TYPE": "workflow", "NAME": "wf1", "LOOKUPVALUE": "99" }
+  ]
+}
+```
+
+### Multi-row transaction modes
+
+IR field `resource.transactionMode` (`none` | `row` | `all`) is honored for multi-plan mutations via `IPSPipelineSqlAdapter#updateAll`:
+
+| Mode | Behavior |
+|------|----------|
+| `none` (default) | Each plan uses its own connection; auto-commit per plan |
+| `row` | Each plan runs in its own explicit transaction (commit per plan); prior plans stay committed if a later plan fails |
+| `all` | All plans share one connection/transaction; **any failure rolls back the entire batch** |
+
+Documented + covered by H2 tests in `PSPipelineRuntimeServiceTest` (`transactionMode=all` commit + rollback; `row` keeps prior commits).
 
 ### Runtime security
 
@@ -149,7 +188,8 @@ Catalog list remains `GET /services/pipelines`. Optional thin REST **invoke** is
 | Parameterized SQL | Request values bound as JDBC `?` only |
 | Generated identifiers | Table/column must match `[A-Za-z_][A-Za-z0-9_]*` |
 | Native SQL escape hatch | Single `SELECT`/`WITH` only; named `:param`; rejects `;`, DML/DDL keywords |
-| Joins / multi-table | Not supported in Slice A2 planner |
+| Joins / multi-table | Not supported in Slice A2 planner (residual) |
+| Unrestricted DELETE/UPDATE | Rejected (WHERE keys required) |
 
 Manual raw multi-statement SQL is **not** a product surface.
 
@@ -157,11 +197,12 @@ Manual raw multi-statement SQL is **not** a product surface.
 
 - IR JSON round-trip + file load/save
 - Golden classic fixture `sys_adminCataloger` → IR stage inventory (backend tank, mapper, selector, page tank)
-- H2 runtime: generated query + JSON params, native SELECT, pre/post hooks, minimal INSERT (`PSPipelineRuntimeServiceTest`)
+- H2 runtime: generated query + JSON params, native SELECT, pre/post hooks, INSERT, UPDATE/DELETE flag gates, multi-row `transactionMode` all/row (`PSPipelineRuntimeServiceTest`)
 
 ## Evolution
 
 - **1.x** additive fields preferred; bump `irVersion` only for breaking shape changes.
 - Slice A2 (#2248): SQL execute + JSON I/O + hooks consume this IR (landed).
-- Residual: thin REST invoke for Developer smoke; richer UPDATE (update/delete); join graphs; full where-clause IR.
+- Residual #2269: thin REST invoke (landed / PR #2341).
+- Residual #2340: richer UPDATE/DELETE + multi-row txn modes (this work); join graphs / full where-clause IR may remain a further residual.
 - Slice B: designer writes native IR (`source=NATIVE`).

@@ -35,13 +35,42 @@ import java.util.Objects;
  * <p>Example insert body:
  *
  * <pre>
- * { "rows": [ { "TYPE": "workflow", "NAME": "wf1" } ] }
+ * { "operation": "insert", "rows": [ { "TYPE": "workflow", "NAME": "wf1" } ] }
  * </pre>
+ *
+ * <p>Example update body (SET non-key columns; WHERE from {@code keyColumns} values on each row):
+ *
+ * <pre>
+ * {
+ *   "operation": "update",
+ *   "keyColumns": ["TYPE", "NAME"],
+ *   "rows": [ { "TYPE": "workflow", "NAME": "wf1", "LOOKUPVALUE": "99" } ]
+ * }
+ * </pre>
+ *
+ * <p>Example delete body:
+ *
+ * <pre>
+ * {
+ *   "operation": "delete",
+ *   "keyColumns": ["TYPE", "NAME"],
+ *   "rows": [ { "TYPE": "locale", "NAME": "en-us" } ]
+ * }
+ * </pre>
+ *
+ * <p>When an UPDATE resource allows only one of insert/update/delete, {@code operation} may be
+ * omitted and is inferred. When more than one is allowed, {@code operation} is required.
  */
 public class PipelineExecuteRequest {
 
+  public static final String OP_INSERT = "insert";
+  public static final String OP_UPDATE = "update";
+  public static final String OP_DELETE = "delete";
+
+  private String operation;
   private Map<String, Object> params = new LinkedHashMap<>();
   private List<Map<String, Object>> rows = new ArrayList<>();
+  private List<String> keyColumns = new ArrayList<>();
 
   public static PipelineExecuteRequest ofParams(Map<String, Object> params) {
     PipelineExecuteRequest req = new PipelineExecuteRequest();
@@ -53,6 +82,14 @@ public class PipelineExecuteRequest {
 
   public static PipelineExecuteRequest empty() {
     return new PipelineExecuteRequest();
+  }
+
+  public String getOperation() {
+    return operation;
+  }
+
+  public void setOperation(String operation) {
+    this.operation = operation;
   }
 
   public Map<String, Object> getParams() {
@@ -71,6 +108,18 @@ public class PipelineExecuteRequest {
     this.rows = rows != null ? new ArrayList<>(rows) : new ArrayList<>();
   }
 
+  /**
+   * Mapped column names used as equality WHERE keys for update/delete. Values are taken from each
+   * row (or from {@link #params} when used as a single-row body).
+   */
+  public List<String> getKeyColumns() {
+    return keyColumns;
+  }
+
+  public void setKeyColumns(List<String> keyColumns) {
+    this.keyColumns = keyColumns != null ? new ArrayList<>(keyColumns) : new ArrayList<>();
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -79,11 +128,14 @@ public class PipelineExecuteRequest {
     if (!(o instanceof PipelineExecuteRequest that)) {
       return false;
     }
-    return Objects.equals(params, that.params) && Objects.equals(rows, that.rows);
+    return Objects.equals(operation, that.operation)
+        && Objects.equals(params, that.params)
+        && Objects.equals(rows, that.rows)
+        && Objects.equals(keyColumns, that.keyColumns);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(params, rows);
+    return Objects.hash(operation, params, rows, keyColumns);
   }
 }

@@ -96,6 +96,144 @@ public class PSJdbcPipelineSqlAdapter implements IPSPipelineSqlAdapter {
     }
   }
 
+  @Override
+  public int updateAll(List<PSPipelineSqlPlan> plans, String transactionMode)
+      throws PSPipelineIrException {
+    Objects.requireNonNull(plans, "plans");
+    if (plans.isEmpty()) {
+      return 0;
+    }
+    for (PSPipelineSqlPlan plan : plans) {
+      if (plan == null) {
+        throw new PSPipelineIrException("Null SQL plan in mutation batch");
+      }
+      if (plan.getKind() != PSPipelineSqlPlan.Kind.UPDATE) {
+        throw new PSPipelineIrException("SQL plan is not an UPDATE: " + plan.getKind());
+      }
+    }
+    String mode = normalizeTransactionMode(transactionMode);
+    if (TX_ALL.equals(mode)) {
+      return updateAllInOneTransaction(plans);
+    }
+    if (TX_ROW.equals(mode)) {
+      return updateEachInOwnTransaction(plans);
+    }
+    // TX_NONE: independent connection per plan (legacy insert path)
+    int affected = 0;
+    for (PSPipelineSqlPlan plan : plans) {
+      affected += update(plan);
+    }
+    return affected;
+  }
+
+  private int updateAllInOneTransaction(List<PSPipelineSqlPlan> plans) throws PSPipelineIrException {
+    try (Connection conn = open()) {
+      boolean previousAutoCommit = conn.getAutoCommit();
+      try {
+        conn.setAutoCommit(false);
+        int affected = 0;
+        for (PSPipelineSqlPlan plan : plans) {
+          try (PreparedStatement ps = conn.prepareStatement(plan.getSql())) {
+            bind(ps, plan.getParameters());
+            affected += ps.executeUpdate();
+          }
+        }
+        conn.commit();
+        return affected;
+      } catch (SQLException e) {
+        try {
+          conn.rollback();
+        } catch (SQLException rollbackEx) {
+          e.addSuppressed(rollbackEx);
+        }
+        throw new PSPipelineIrException(
+            "Pipeline SQL batch failed (transactionMode=all); rolled back: "
+                + e.getMessage(),
+            e);
+      } catch (RuntimeException e) {
+        try {
+          conn.rollback();
+        } catch (SQLException rollbackEx) {
+          e.addSuppressed(rollbackEx);
+        }
+        throw new PSPipelineIrException(
+            "Pipeline SQL batch failed (transactionMode=all); rolled back", e);
+      } finally {
+        try {
+          conn.setAutoCommit(previousAutoCommit);
+        } catch (SQLException ignored) {
+          // connection closing next
+        }
+      }
+    } catch (SQLException e) {
+      throw new PSPipelineIrException("Pipeline SQL batch failed to open connection", e);
+    } catch (RuntimeException e) {
+      throw new PSPipelineIrException("Pipeline SQL batch failed to open connection", e);
+    }
+  }
+
+  private int updateEachInOwnTransaction(List<PSPipelineSqlPlan> plans)
+      throws PSPipelineIrException {
+    int affected = 0;
+    for (PSPipelineSqlPlan plan : plans) {
+      try (Connection conn = open()) {
+        boolean previousAutoCommit = conn.getAutoCommit();
+        try {
+          conn.setAutoCommit(false);
+          try (PreparedStatement ps = conn.prepareStatement(plan.getSql())) {
+            bind(ps, plan.getParameters());
+            affected += ps.executeUpdate();
+          }
+          conn.commit();
+        } catch (SQLException e) {
+          try {
+            conn.rollback();
+          } catch (SQLException rollbackEx) {
+            e.addSuppressed(rollbackEx);
+          }
+          throw new PSPipelineIrException(
+              "Pipeline SQL update failed (transactionMode=row): " + plan.getDescription(), e);
+        } catch (RuntimeException e) {
+          try {
+            conn.rollback();
+          } catch (SQLException rollbackEx) {
+            e.addSuppressed(rollbackEx);
+          }
+          throw new PSPipelineIrException(
+              "Pipeline SQL update failed (transactionMode=row): " + plan.getDescription(), e);
+        } finally {
+          try {
+            conn.setAutoCommit(previousAutoCommit);
+          } catch (SQLException ignored) {
+            // connection closing
+          }
+        }
+      } catch (SQLException e) {
+        throw new PSPipelineIrException(
+            "Pipeline SQL update failed (transactionMode=row): " + plan.getDescription(), e);
+      } catch (RuntimeException e) {
+        if (e.getCause() instanceof SQLException || e instanceof IllegalStateException) {
+          throw new PSPipelineIrException(
+              "Pipeline SQL update failed (transactionMode=row): " + plan.getDescription(), e);
+        }
+        throw e;
+      }
+    }
+    return affected;
+  }
+
+  static String normalizeTransactionMode(String transactionMode) {
+    if (transactionMode == null || transactionMode.isBlank()) {
+      return TX_NONE;
+    }
+    String m = transactionMode.trim().toLowerCase(java.util.Locale.ROOT);
+    if (TX_ALL.equals(m) || TX_ROW.equals(m) || TX_NONE.equals(m)) {
+      return m;
+    }
+    // Unknown modes degrade to none (documented); classic import only emits none|row|all
+    return TX_NONE;
+  }
+
   private Connection open() throws SQLException {
     try {
       Connection conn = connectionSupplier.get();
