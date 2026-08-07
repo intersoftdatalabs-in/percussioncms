@@ -859,6 +859,17 @@ it("loads views catalog section", async () => {
     });
   });
 
+  it("opens community-visibility navigator section (SE-05)", async () => {
+    render(<DeveloperShell initialSection="community-visibility" embedded />);
+    expect(
+      screen.getByTestId("tab-developer-community-visibility").getAttribute("aria-selected"),
+    ).toBe("true");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-cvn-panel")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-cvn-tree")).toBeTruthy();
+  });
+
   it("loads templates slots and communities catalogs", async () => {
     const { unmount } = render(<DeveloperShell initialSection="templates" embedded />);
     await waitFor(() => {
