@@ -209,8 +209,12 @@ public class PSNavonNodeInvocationHandler implements InvocationHandler
             PSPropertyIterator iter =
                (PSPropertyIterator) method.invoke(m_containedNode, args);
 
-            // Add nav properties
-            Map<String,Property> map = new HashMap<>(iter.getMap());
+            // Add nav properties (copy from Map<?,?> returned by getMap)
+            Map<String, Property> map = new HashMap<>();
+            for (Map.Entry<?, ?> e : iter.getMap().entrySet())
+            {
+               map.put((String) e.getKey(), (Property) e.getValue());
+            }
             for(String prop : NAV_PROPERTIES)
             {
                Property p = getNavProperty((Node) proxy, prop);

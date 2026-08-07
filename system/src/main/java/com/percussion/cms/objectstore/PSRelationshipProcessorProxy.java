@@ -99,19 +99,21 @@ public class PSRelationshipProcessorProxy extends PSProcessorProxy
   }
 
   // see interface for description
-  public void add(String componentType, String relationshipType, List children, PSKey targetParent)
+  public void add(
+      String componentType, String relationshipType, List<?> children, PSKey targetParent)
       throws PSCmsException {
     getProcessor(componentType).add(componentType, relationshipType, children, targetParent);
   }
 
   // see interface for description
-  public void add(String relationshipType, List children, PSLocator targetParent)
+  public void add(String relationshipType, List<?> children, PSLocator targetParent)
       throws PSCmsException {
     getProcessor(m_componentType).add(relationshipType, children, targetParent);
   }
 
   // see interface for description
-  public void move(String relationshipType, PSKey sourceParent, List children, PSKey targetParent)
+  public void move(
+      String relationshipType, PSKey sourceParent, List<?> children, PSKey targetParent)
       throws PSCmsException {
     getProcessor(m_componentType).move(relationshipType, sourceParent, children, targetParent);
   }
@@ -120,13 +122,13 @@ public class PSRelationshipProcessorProxy extends PSProcessorProxy
    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#copy(
    * java.lang.String, java.util.List, com.percussion.cms.objectstore.PSKey)
    */
-  public void copy(String relationshipType, List children, PSKey targetParent)
+  public void copy(String relationshipType, List<?> children, PSKey targetParent)
       throws PSCmsException {
     getProcessor(m_componentType).copy(relationshipType, children, targetParent);
   }
 
   // see interface for description
-  public void delete(String relationshipType, PSKey sourceParent, List children)
+  public void delete(String relationshipType, PSKey sourceParent, List<?> children)
       throws PSCmsException {
     getProcessor(m_componentType).delete(relationshipType, sourceParent, children);
   }
@@ -185,7 +187,7 @@ public class PSRelationshipProcessorProxy extends PSProcessorProxy
    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#delete(
    * com.percussion.cms.objectstore.PSKey, java.util.List)
    */
-  public void delete(PSKey sourceParent, List children) throws PSCmsException {
+  public void delete(PSKey sourceParent, List<?> children) throws PSCmsException {
     getProcessor(m_componentType).delete(null, sourceParent, children);
   }
 
@@ -205,7 +207,7 @@ public class PSRelationshipProcessorProxy extends PSProcessorProxy
    * design.objectstore.PSLocator)
    */
   public void move(
-      String relationshipType, PSLocator sourceParent, List children, PSLocator targetParent)
+      String relationshipType, PSLocator sourceParent, List<?> children, PSLocator targetParent)
       throws PSCmsException {
     getProcessor(m_componentType).move(relationshipType, sourceParent, children, targetParent);
   }
