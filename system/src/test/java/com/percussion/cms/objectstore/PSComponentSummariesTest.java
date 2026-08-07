@@ -94,8 +94,29 @@ public class PSComponentSummariesTest {
     assertEquals(1, folderLocators.size());
     assertEquals(6, folderLocators.get(0).getId());
 
+    List<PSLocator> keyLocators =
+        summaries.getComponentLocators(
+            PSComponentSummary.TYPE_ITEM, PSComponentSummary.GET_LOCATOR);
+    assertEquals(1, keyLocators.size());
+    assertEquals(5, keyLocators.get(0).getId());
+
     List<PSLocator> allLocators = summaries.getLocators();
     assertEquals(2, allLocators.size());
+  }
+
+  @Test
+  public void getComponentLocatorsRejectsUnsupportedLocatorType() {
+    PSComponentSummaries summaries =
+        new PSComponentSummaries(new PSComponentSummary[] {item(1, "x")});
+    // GET_NAME and other non-locator constants must fail fast (typed List<PSLocator> API)
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            summaries.getComponentLocators(
+                PSComponentSummary.TYPE_ITEM, PSComponentSummary.GET_NAME));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> summaries.getComponentLocators(PSComponentSummary.TYPE_ITEM, 99));
   }
 
   @Test

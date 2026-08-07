@@ -75,11 +75,29 @@ public class PSDbComponentCollection extends PSDbComponent {
    *     getComponentType} method of the components being stored in this collection. If the default
    *     is being used, you can use the 1 param ctor instead of this one. Never <code>null</code> or
    *     empty.
-   * @throws ClassNotFoundException If a class by the supplied name cannot be found.
+   * @throws ClassNotFoundException If a class by the supplied name cannot be found, or if the
+   *     loaded class does not implement {@link IPSDbComponent} (the missing-interface case is
+   *     wrapped so callers that only catch {@code ClassNotFoundException} still see the failure).
    * @throws NullPointerException if className is <code>null</code>.
    */
   public PSDbComponentCollection(String className, String compType) throws ClassNotFoundException {
-    this(Class.forName(className).asSubclass(IPSDbComponent.class), compType);
+    this(loadIpsDbComponentClass(className), compType);
+  }
+
+  /**
+   * Loads {@code className} and ensures it implements {@link IPSDbComponent}. Wrong-type loads are
+   * reported as {@link ClassNotFoundException} (with {@link ClassCastException} cause) so callers
+   * that only catch {@code ClassNotFoundException} still observe the failure.
+   */
+  private static Class<? extends IPSDbComponent> loadIpsDbComponentClass(String className)
+      throws ClassNotFoundException {
+    Class<?> loaded = Class.forName(className);
+    try {
+      return loaded.asSubclass(IPSDbComponent.class);
+    } catch (ClassCastException e) {
+      throw new ClassNotFoundException(
+          "Class " + className + " does not implement " + IPSDbComponent.class.getName(), e);
+    }
   }
 
   /**

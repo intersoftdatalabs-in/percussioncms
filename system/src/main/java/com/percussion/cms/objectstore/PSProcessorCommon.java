@@ -265,8 +265,19 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
       throw new PSCmsException(IPSCmsErrors.MISSING_PROPERTY, args);
     }
 
+    // Fail-fast: config values must be Strings (legacy cast). Do not toString()
+    // non-String entries (e.g. Element) — that masks misconfiguration.
     if (raw == null) return "";
-    return raw instanceof String ? (String) raw : raw.toString();
+    if (!(raw instanceof String)) {
+      throw new ClassCastException(
+          "Property '"
+              + propName
+              + "' for component type '"
+              + type
+              + "' must be a String, was "
+              + raw.getClass().getName());
+    }
+    return (String) raw;
   }
 
   /**

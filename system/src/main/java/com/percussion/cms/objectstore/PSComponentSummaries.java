@@ -142,13 +142,23 @@ public class PSComponentSummaries extends PSDbComponentSet<PSComponentSummary> {
   }
 
   /**
-   * Convenience method to get a list of component locators for a specified type
+   * Convenience method to get a list of component locators for a specified type.
+   *
+   * <p>Unlike the pre-generics mixed-type helper this method always returns {@link PSLocator}
+   * instances only. Unsupported {@code locatorType} values fail fast with {@link
+   * IllegalArgumentException} rather than silently returning a summary object (legacy default) or
+   * inventing a locator.
    *
    * @param objectType The type of the returned component locators. It must be <code>TYPE_XXX</code>
    *     .
-   * @param locatorType The type of the locator requested. It must be one of the <code>
-   *     PSComponentSummary.GET_XXX_LOCATOR</code> values.
+   * @param locatorType The type of the locator requested. It must be one of {@link
+   *     PSComponentSummary#GET_LOCATOR}, {@link PSComponentSummary#GET_CURRENT_LOCATOR}, or {@link
+   *     PSComponentSummary#GET_TIP_LOCATOR}.
    * @return A list over <code>0</code> or more <code>PSLocator</code> objects.
+   * @throws IllegalArgumentException if {@code objectType} is invalid or {@code locatorType} is not
+   *     one of the locator constants above
+   * @throws IllegalStateException if a summary's component key is not a {@link PSLocator} when
+   *     {@code locatorType} is {@link PSComponentSummary#GET_LOCATOR}
    */
   public List<PSLocator> getComponentLocators(int objectType, int locatorType) {
     PSComponentSummary.validateType(objectType);
@@ -159,8 +169,13 @@ public class PSComponentSummaries extends PSDbComponentSet<PSComponentSummary> {
       if (summary.getType() == objectType) {
         switch (locatorType) {
           case PSComponentSummary.GET_LOCATOR:
-            // Component key is always a PSLocator for summaries
-            items.add((PSLocator) summary.getLocator());
+            Object key = summary.getLocator();
+            if (!(key instanceof PSLocator)) {
+              throw new IllegalStateException(
+                  "Component key is always expected to be a PSLocator for summaries, got: "
+                      + (key == null ? "null" : key.getClass().getName()));
+            }
+            items.add((PSLocator) key);
             break;
           case PSComponentSummary.GET_CURRENT_LOCATOR:
             items.add(summary.getCurrentLocator());
@@ -169,8 +184,10 @@ public class PSComponentSummaries extends PSDbComponentSet<PSComponentSummary> {
             items.add(summary.getTipLocator());
             break;
           default:
-            items.add(summary.getCurrentLocator());
-            break;
+            throw new IllegalArgumentException(
+                "Unsupported locatorType for getComponentLocators: "
+                    + locatorType
+                    + " (expected GET_LOCATOR, GET_CURRENT_LOCATOR, or GET_TIP_LOCATOR)");
         }
       }
     }

@@ -70,4 +70,22 @@ public class PSDbComponentCollectionEqualsTest {
     assertThrows(
         IllegalArgumentException.class, () -> PSDbComponentCollection.hashCodeIgnoresOrder(null));
   }
+
+  @Test
+  public void stringCtorRejectsClassThatDoesNotImplementIpsDbComponent() {
+    // Class loads successfully but is not IPSDbComponent — wrapped as ClassNotFoundException
+    // so callers that only catch ClassNotFoundException still see the failure path.
+    ClassNotFoundException ex =
+        assertThrows(
+            ClassNotFoundException.class,
+            () -> new PSDbComponentCollection(String.class.getName(), "String"));
+    assertTrue(ex.getMessage().contains("IPSDbComponent") || ex.getCause() instanceof ClassCastException);
+  }
+
+  @Test
+  public void stringCtorRejectsMissingClass() {
+    assertThrows(
+        ClassNotFoundException.class,
+        () -> new PSDbComponentCollection("com.percussion.does.not.Exist", "X"));
+  }
 }
