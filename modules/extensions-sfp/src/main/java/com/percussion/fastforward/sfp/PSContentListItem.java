@@ -34,8 +34,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /** Represents a single content item/variant in a publishing content list. */
-@SuppressWarnings({"rawtypes", "unchecked", "static-method"})
-public class PSContentListItem implements Comparable {
+public class PSContentListItem implements Comparable<PSContentListItem> {
   /**
    * Ctor taking all the attributes of a content list item to be published/previewed
    *
@@ -86,7 +85,7 @@ public class PSContentListItem implements Comparable {
       String protocol,
       String host,
       int port,
-      Set paramSetToPass,
+      Set<String> paramSetToPass,
       boolean getLastPubRev4QEState) {
     if (contentId == null || contentId.length() < 1) {
       throw new IllegalArgumentException("contentId must not be null or empty");
@@ -492,13 +491,13 @@ public class PSContentListItem implements Comparable {
     return m_deliveryLocation;
   }
 
-  // Implements compareTo(Object) interface
-  public int compareTo(Object other) {
-    if (!(other instanceof PSContentListItem)) return -1;
-
-    PSContentListItem otherObj = (PSContentListItem) other;
-
-    return getCompareKey().compareTo(otherObj.getCompareKey());
+  @Override
+  public int compareTo(PSContentListItem other) {
+    // Comparable contract: null argument throws NullPointerException
+    if (other == null) {
+      throw new NullPointerException("other");
+    }
+    return getCompareKey().compareTo(other.getCompareKey());
   }
 
   /**
@@ -569,7 +568,7 @@ public class PSContentListItem implements Comparable {
    * Set of optional parameter names that need to be appended to the contenturl for the item. Could
    * be initialized in the ctor, may be <code>null</code> or empty.
    */
-  private Set m_paramSetToPass = null;
+  private Set<String> m_paramSetToPass = null;
 
   /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger log = LogManager.getLogger(PSContentListItem.class);

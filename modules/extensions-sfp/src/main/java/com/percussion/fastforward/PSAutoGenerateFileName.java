@@ -29,6 +29,7 @@ import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.HashMap;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -42,7 +43,6 @@ import org.w3c.dom.Document;
  * parameter {@link com.percussion.system.utils.IPSHtmlParameters#SYS_COMMAND} in the request is not
  * {@link com.percussion.cms.handlers.PSModifyCommandHandler#COMMAND_NAME}
  */
-@SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
 public class PSAutoGenerateFileName extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
 
@@ -114,7 +114,7 @@ public class PSAutoGenerateFileName extends PSDefaultExtension
     }
 
     String filename = defaultFilename + contentid;
-    HashMap paramMap = new HashMap();
+    Map<String, Object> paramMap = new HashMap<>();
     paramMap.put(IPSHtmlParameters.SYS_CONTENTID, contentid);
     paramMap.put(IPSHtmlParameters.SYS_REVISION, revisionid);
     paramMap.put("defaultFilename", filename);

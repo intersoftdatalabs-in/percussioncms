@@ -47,6 +47,7 @@ import org.w3c.dom.NodeList;
  *     PSSiteFolderCListBulk} instead.
  * @author James Schultz
  */
+@Deprecated
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSiteFolderContentList extends PSSiteFolderCListBase {
   /**

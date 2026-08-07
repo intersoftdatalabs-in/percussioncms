@@ -184,6 +184,7 @@ public class PSSite {
    * @throws PSCmsException if an error occurs.
    * @deprecated use {@link #renderSiteFolderPathLocators(List)} instead.
    */
+  @Deprecated
   public static String renderSiteFolderPath(List siteFolderList) throws PSCmsException {
     StringBuilder path = new StringBuilder();
     ListIterator it = siteFolderList.listIterator();
@@ -202,18 +203,19 @@ public class PSSite {
    * #SITE_PATH_SEPARATOR Separator}. If the list of folders is empty, the returned path will
    * consist of a single Separator.
    *
-   * @param siteFolderList a list of PSLocator that represent the path, must not be null , may be
-   *     empty. The 2nd element is the sub-folder of the 1st element, the 3nd element is the
+   * @param siteFolderList a list of {@link PSLocator} that represent the path, must not be null ,
+   *     may be empty. The 2nd element is the sub-folder of the 1st element, the 3nd element is the
    *     sub-folder of the 2nd element, and so on and so forth.
    * @return the site folder path. Never null.
    * @throws PSCmsException if an error occurs.
    */
-  public static String renderSiteFolderPathLocators(List siteFolderList) throws PSCmsException {
+  public static String renderSiteFolderPathLocators(List<? extends PSLocator> siteFolderList)
+      throws PSCmsException {
+    if (siteFolderList == null) {
+      throw new IllegalArgumentException("siteFolderList must not be null");
+    }
     StringBuilder path = new StringBuilder();
-    ListIterator it = siteFolderList.listIterator();
-    PSLocator loc;
-    while (it.hasNext()) {
-      loc = (PSLocator) it.next();
+    for (PSLocator loc : siteFolderList) {
       path.append(SITE_PATH_SEPARATOR);
       path.append(getFolderFileName(loc));
     }

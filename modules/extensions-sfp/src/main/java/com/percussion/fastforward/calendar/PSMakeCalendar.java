@@ -43,7 +43,7 @@ import org.w3c.dom.NodeList;
  * @deprecated Use a Velocity template paired with {@link
  *     com.percussion.fastforward.calendar.PSCalendarMonthModel PSCalendarMonthModel} instead.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
+@Deprecated
 public class PSMakeCalendar implements IPSResultDocumentProcessor {
 
   /** Default constructor for PSMakeCalendar. */

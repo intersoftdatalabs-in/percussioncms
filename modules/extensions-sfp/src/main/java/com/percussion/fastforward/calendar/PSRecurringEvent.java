@@ -28,7 +28,6 @@ import org.w3c.dom.Element;
  *
  * @author James Schultz
  */
-@SuppressWarnings({"rawtypes", "unchecked", "this-escape", "static-method"})
 public class PSRecurringEvent {
   private static final long serialVersionUID = 1L;
 
@@ -48,6 +47,7 @@ public class PSRecurringEvent {
    *     recurring event lands on. Must be assigned a value when using a monthly-by-week interval
    *     type.
    */
+  @SuppressWarnings("this-escape")
   public PSRecurringEvent(
       Date startDate,
       Date endDate,
@@ -99,6 +99,7 @@ public class PSRecurringEvent {
    * @throws IllegalValueException if the XML tree contains illegal values for construction of a
    *     recurrent event
    */
+  @SuppressWarnings("this-escape")
   public PSRecurringEvent(Element root) throws UnknownNodeTypeException, IllegalValueException {
     if (!(root.getTagName().equals(EVENT)))
       throw new UnknownNodeTypeException("Root element must be named: " + EVENT);
@@ -380,7 +381,7 @@ public class PSRecurringEvent {
    * @return an iterator that can be used to step through each recurrence of this event, never
    *     <code>null</code>.
    */
-  public Iterator getRecurrenceIterator() {
+  public Iterator<Calendar> getRecurrenceIterator() {
     return new PSRecurrenceIterator(this);
   }
 
