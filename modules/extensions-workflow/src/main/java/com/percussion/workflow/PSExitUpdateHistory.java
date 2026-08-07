@@ -137,7 +137,7 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
     int transitionID = 0;
     String transitionComment = "";
     int contentstatushistoryid = 0;
-    List stateAssignedRoles = null;
+    List<String> stateAssignedRoles = null;
     Exception except = null;
     String lang = null;
     try {
@@ -322,7 +322,7 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
       String userName,
       String sessionID,
       int transitionID,
-      List stateAssignedRoles,
+      List<String> stateAssignedRoles,
       String transitionComment,
       IPSRequestContext request)
       throws SQLException, PSEntryNotFoundException, PSExtensionProcessingException {

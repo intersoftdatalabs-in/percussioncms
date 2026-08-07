@@ -45,7 +45,7 @@ public abstract class PSItemIterator<M> {
   Map<?, ?> m_map = null;
 
   /** The filter, may be <code>null</code> as the filter is not required */
-  Predicate<?> m_filter = null;
+  Predicate<? super M> m_filter = null;
 
   /**
    * Ctor, may only be used from subclasses
@@ -78,25 +78,26 @@ public abstract class PSItemIterator<M> {
     // Simple map: values are individual M
     List<M> values = new ArrayList<>();
     for (Object v : m_map.values()) {
-      @SuppressWarnings("unchecked")
-      M m = (M) v;
-      values.add(m);
+      values.add(uncheckedCast(v));
     }
     if (m_filter != null) {
-      @SuppressWarnings({"rawtypes", "unchecked"})
-      FilterIterator<M> fi = new FilterIterator(values.iterator(), m_filter);
+      FilterIterator<M> fi = new FilterIterator<>(values.iterator(), m_filter);
       return fi;
     }
     return values.iterator();
   }
 
-  @SuppressWarnings("unchecked")
   private Map<Object, Collection<? extends M>> toMultiMap(Map<?, ?> source) {
     Map<Object, Collection<? extends M>> multi = new HashMap<>();
     for (Map.Entry<?, ?> e : source.entrySet()) {
-      multi.put(e.getKey(), (Collection<? extends M>) e.getValue());
+      multi.put(e.getKey(), uncheckedCast(e.getValue()));
     }
     return multi;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> T uncheckedCast(Object o) {
+    return (T) o;
   }
 
   public M next() {

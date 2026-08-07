@@ -272,7 +272,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
     int nParamCount = 0;
     Params localParams = new Params();
     String sRoleNameList = "";
-    List actorRoleList = null;
+    List<String> actorRoleList = null;
     String assignmentType = "";
     int currentStateID = 0;
     PSWorkFlowContext wfContext = null;
@@ -1198,7 +1198,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
             lang, IPSExtensionErrors.TRANSITION_ATTEMPT, userName);
       }
 
-      HashSet userRoles = new HashSet(workflowInfo.getUserActingRoleNames());
+      HashSet<String> userRoles = new HashSet<>(workflowInfo.getUserActingRoleNames());
 
       // get the list of specified roles, these are the roles that need to
       // approve a transition if necessary, otherwise we'll use the state
