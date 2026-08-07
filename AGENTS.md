@@ -526,6 +526,7 @@ Disposition ladder: **runtime fix + test → model pack barrier → sink-line `/
 * Use Maven for Java dependency management; ensure all dependencies are defined in the `pom.xml`.
 * Use npm for typescript and javascript dependency management via the Maven frontend-plugin.
 * Use the parent POM to manage shared dependencies and plugin versions.
+* **Prefer root dependency version management:** always pin shared/transitive library versions in the root `pom.xml` (`properties` + `dependencyManagement`), not in child module POMs (e.g. RequireUpperBoundDeps alignments).
 * The parent POM (`pom.xml`) has a pluginManagement section to manage versions of plugins used in child modules. Use these plugins.
 * Ignore module folders that are not referenced directly or indirectly in the `./pom.xml` as child modules.
 
