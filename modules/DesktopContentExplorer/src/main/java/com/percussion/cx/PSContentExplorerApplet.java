@@ -173,7 +173,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
     m_createdFromFrame = createdFromFrame;
   }
 
-  static String getJaxpImplementationInfo(String componentName, Class componentClass) {
+  static String getJaxpImplementationInfo(String componentName, Class<?> componentClass) {
     CodeSource source = componentClass.getProtectionDomain().getCodeSource();
     return MessageFormat.format(
         "{0} implementation: {1} loaded from: {2}",
@@ -1418,7 +1418,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    *     itself.
    * @throws IllegalArgumentException if key is <code>null</code> or empty.
    */
-  public String getResourceString(Class resClass, String key) {
+  public String getResourceString(Class<?> resClass, String key) {
     if (resClass == null) throw new IllegalArgumentException("resClass may not be null.");
 
     if (key == null || key.trim().length() == 0)
@@ -1449,7 +1449,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    * @param mnemonic the value to return if no mnemonic is found.
    * @return The mnemonic or the mnemonic parameter if no mnemonic is found
    */
-  public static char getResourceMnemonic(Class resClass, String label, char mnemonic) {
+  public static char getResourceMnemonic(Class<?> resClass, String label, char mnemonic) {
     if (resClass == null) throw new IllegalArgumentException("resClass may not be null.");
 
     if (label == null || label.trim().length() == 0)
@@ -1496,7 +1496,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    * @param label the label, must never be <code>null</code> or empty
    * @return the tooltip or <code>null</code> if undefined
    */
-  public static String getResourceTooltip(Class clazz, String label) {
+  public static String getResourceTooltip(Class<?> clazz, String label) {
     if (clazz == null) throw new IllegalArgumentException("clazz may not be null.");
 
     if (label == null || label.trim().length() == 0)
@@ -1924,7 +1924,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    */
   public void displayErrorMessage(
       Window parent,
-      Class source,
+      Class<?> source,
       String msgKey,
       Object[] msgParams,
       String titleKey,

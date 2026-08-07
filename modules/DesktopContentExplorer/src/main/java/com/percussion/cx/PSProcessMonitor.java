@@ -84,7 +84,7 @@ public class PSProcessMonitor {
               m_applet.getResourceString(getClass(), "Processing the {0} <{1}>"),
               new String[] {m_curProcessNode.getType(), m_curProcessNode.getLabel()});
 
-      int percentDone = (int) ((m_current - 1) * 100 / m_total);
+      int percentDone = (m_current - 1) * 100 / m_total;
       m_dlg.updateStatus(msg, percentDone);
     }
   }
