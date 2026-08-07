@@ -111,6 +111,44 @@ class CategoriesFancytreePortTest {
     }
   }
 
+  /**
+   * GH-957 / GH-758: Fancytree {@code toDict} nests custom fields under {@code dict.data}. Without
+   * flattening, {@code previousCategoryName} (and id) never reach category.xml, so Publish
+   * Categories finds nothing to push to DTS.
+   */
+  @Test
+  void manageDynaPropsFlattensFancytreeDictData() {
+    for (String rel : VIEW_PATHS) {
+      String js = read(rel);
+      assertTrue(
+          js.contains("dict.data") && js.contains("$.extend(dict, dict.data)"),
+          rel + " must flatten fancytree dict.data into the node dict (GH-758/957)");
+      assertTrue(
+          js.contains("delete dict.data"),
+          rel + " must remove nested data after flatten");
+    }
+  }
+
+  /** GH-957: publish must persist the tree before calling updateindts (save-then-publish). */
+  @Test
+  void publishToDTSSavesBeforePublish() {
+    for (String rel : VIEW_PATHS) {
+      String js = read(rel);
+      // Structural: publishToDTS calls editCategories then publishToDTS on success.
+      assertTrue(
+          js.contains("controller.editCategories")
+              && js.contains("controller.publishToDTS"),
+          rel + " publish flow should save (editCategories) then publish");
+      // Must not fire-and-forget publish then save() (race against category.xml).
+      Pattern race =
+          Pattern.compile(
+              "controller\\.publishToDTS\\([^)]*\\)\\s*;\\s*isPublished\\s*=\\s*true\\s*;\\s*save\\s*\\(");
+      assertTrue(
+          !race.matcher(js).find(),
+          rel + " must not publish before save (legacy race)");
+    }
+  }
+
   private static String read(String rel) {
     Path p = repoRoot.resolve(rel);
     if (!Files.isRegularFile(p)) {

@@ -383,6 +383,7 @@ public class PSCategoryService implements IPSCategoryService {
         PSCategoryServiceUtil.publishToDTS(category, sitename, deliveryserver, deliveryService);
       }
     } catch (PSDataServiceException e) {
+      // Includes PSValidationException (e.g. no recently-edited categories).
       throw new WebApplicationException(e.getMessage());
     }
   }
