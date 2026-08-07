@@ -59,7 +59,7 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 
 - Overnight / long session: burn down **unassigned** issues and leave PRs for morning review  
 - Clean up review debt on PRs this account already owns  
-- Prefer small tech-debt; skip live-CMS / Playwright when `agent_safe_only` is true (default)
+- Prefer small tech-debt; when `agent_safe_only` is true (default), skip host-install / secrets / full-suite Playwright — **allow** H2 Docker QA + surface-filtered Playwright
 
 ### Args
 
@@ -72,7 +72,7 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | `base_branch` | string | `main` | PR base |
 | `dry_run` | bool | `false` | **Cheap plan only:** discover + triage + report (no work agents, no PR follow-up, no git/gh writes) |
 | `prefer_easy` | bool | `true` | Prefer tech-debt / javadoc / small bugs |
-| `agent_safe_only` | bool | `true` | Skip work needing live CMS / E2E / secrets |
+| `agent_safe_only` | bool | `true` | Skip host-install, secrets, multi-RDBMS, full-suite E2E; **allow** H2 QA + `test:surface` |
 | `unassigned_only` | bool | `true` | Only issues with **no assignees** |
 | `include_pr_followup` | bool | `true` | Run PR merge-blocker drain **before and after** issue Work |
 | `include_pr_cluster` | bool | `true` | After POST follow-up, absorb same-file thrash PRs into one cluster PR (**independent of** `include_pr_followup`) |
