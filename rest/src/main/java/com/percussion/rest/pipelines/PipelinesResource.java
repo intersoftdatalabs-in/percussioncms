@@ -17,6 +17,8 @@
 
 package com.percussion.rest.pipelines;
 
+import com.percussion.services.pipeline.model.PipelineExecuteRequest;
+import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -24,8 +26,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -39,15 +43,18 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Read-only catalog of classic XML Applications (pipeline packages) for the Developer module.
+ * Catalog of classic XML Applications (pipeline packages) plus thin IR execute for Developer smoke.
  *
  * <p>Registered via {@link PSSiteManageBean} like sibling catalog resources ({@code Keywords},
- * {@code Slots}).
+ * {@code Slots}). Execute delegates to {@code IPSPipelineRuntimeService} only (never classic {@code
+ * PSQueryHandler} as the public path).
  */
 @PSSiteManageBean(value = "restPipelinesResource")
 @Path("/pipelines")
 @XmlRootElement
-@Tag(name = "Pipelines", description = "Data pipeline / XML application design catalog (read-only)")
+@Tag(
+    name = "Pipelines",
+    description = "Data pipeline / XML application design catalog and thin IR execute")
 public class PipelinesResource {
 
   private final IPipelinesAdaptor adaptor;
@@ -127,6 +134,46 @@ public class PipelinesResource {
       return detail;
     } catch (WebApplicationException e) {
       throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Thin Developer smoke invoke: POST JSON params/rows → pipeline runtime → {@link
+   * PipelineExecuteResult} JSON.
+   *
+   * <p>Path is multi-segment so it does not collide with {@code GET /{idOrName}} catalog detail.
+   */
+  @POST
+  @Path("/{app}/resources/{resource}/execute")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Execute a pipeline IR resource",
+      description =
+          "Runs a native pipeline IR resource via IPSPipelineRuntimeService (SQL adapter +"
+              + " parameterized plans). Body is PipelineExecuteRequest ({params}, {rows}). Does not"
+              + " call classic PSQueryHandler/PSUpdateHandler. Designer UI is out of scope.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = PipelineExecuteResult.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input or unsupported resource"),
+        @ApiResponse(responseCode = "404", description = "Application or resource not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public PipelineExecuteResult execute(
+      @PathParam("app") String app,
+      @PathParam("resource") String resource,
+      PipelineExecuteRequest body) {
+    try {
+      return requireAdaptor().execute(uriInfo.getBaseUri(), app, resource, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
     }

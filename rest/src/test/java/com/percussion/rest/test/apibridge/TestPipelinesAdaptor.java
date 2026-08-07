@@ -20,6 +20,8 @@ package com.percussion.rest.test.apibridge;
 import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
+import com.percussion.services.pipeline.model.PipelineExecuteRequest;
+import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import java.net.URI;
 import java.util.List;
 import org.springframework.context.annotation.Lazy;
@@ -42,5 +44,17 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
   @Override
   public ApplicationDetail getApplication(URI baseUri, String idOrName) {
     return null;
+  }
+
+  @Override
+  public PipelineExecuteResult execute(
+      URI baseUri, String appName, String resourceName, PipelineExecuteRequest request) {
+    PipelineExecuteResult result = new PipelineExecuteResult();
+    result.setAppName(appName);
+    result.setResourceName(resourceName);
+    result.setOperation("stub");
+    result.setRowCount(0);
+    result.setAffectedRows(0);
+    return result;
   }
 }
