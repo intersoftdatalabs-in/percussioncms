@@ -110,7 +110,6 @@ public class PSComment implements IPSComment, Serializable {
       targetEntity = PSCommentTag.class)
   @Fetch(FetchMode.SUBSELECT)
   @OnDelete(action = OnDeleteAction.CASCADE)
-  @SuppressWarnings("serial") // Set is not Serializable; tag values are Serializable.
   private Set<PSCommentTag> commentTags = new HashSet<>();
 
   /** Flag indicating the comment has been moderated by a user action. */
