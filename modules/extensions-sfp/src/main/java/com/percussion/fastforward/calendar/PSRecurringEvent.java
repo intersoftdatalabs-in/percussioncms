@@ -144,7 +144,7 @@ public class PSRecurringEvent {
       Element dayOfWeek =
           walker.getNextElement(DAYOFWEEK_ELEM, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
       if (dayOfWeek != null) {
-        String data = walker.getElementData(dayOfWeek);
+        String data = PSXmlTreeWalker.getElementData(dayOfWeek);
         try {
           setDayOfWeek(Integer.parseInt(data));
         } catch (NumberFormatException e) {
@@ -167,7 +167,7 @@ public class PSRecurringEvent {
       Element dayOfMonth =
           walker.getNextElement(DAYOFMONTH_ELEM, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
       if (dayOfMonth != null) {
-        String data = walker.getElementData(dayOfMonth);
+        String data = PSXmlTreeWalker.getElementData(dayOfMonth);
         try {
           setDayOfMonth(Integer.parseInt(data));
         } catch (NumberFormatException e) {
