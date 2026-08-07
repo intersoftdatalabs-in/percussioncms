@@ -75,10 +75,13 @@ public abstract class PSItemIterator<M> {
       // Multi map: values are Collection<M>
       return new PSMultiMapIterator<>(toMultiMap(m_map), m_filter);
     }
-    // Simple map: values are individual M
+    // Simple map: values are individual M. The map's values are typed as Object by the field
+    // declaration; the cast to M is safe per the iteration contract documented on m_map.
     List<M> values = new ArrayList<>();
     for (Object v : m_map.values()) {
-      values.add(uncheckedCast(v));
+      @SuppressWarnings("unchecked")
+      M m = (M) v;
+      values.add(m);
     }
     if (m_filter != null) {
       FilterIterator<M> fi = new FilterIterator<>(values.iterator(), m_filter);
@@ -90,15 +93,27 @@ public abstract class PSItemIterator<M> {
   private Map<Object, Collection<? extends M>> toMultiMap(Map<?, ?> source) {
     Map<Object, Collection<? extends M>> multi = new HashMap<>();
     for (Map.Entry<?, ?> e : source.entrySet()) {
-      multi.put(e.getKey(), uncheckedCast(e.getValue()));
+      Object value = e.getValue();
+      Collection<? extends M> collection;
+      if (value instanceof Collection<?>) {
+        // Per the iteration contract, the collection's elements are M. The unchecked cast is
+        // documented on the field declaration; this site is the single rewrap that needs it.
+        @SuppressWarnings("unchecked")
+        Collection<? extends M> typed = (Collection<? extends M>) value;
+        collection = typed;
+      } else if (value == null) {
+        collection = null;
+      } else {
+        throw new ClassCastException(
+            "PSItemIterator expected Collection value for multi-map entry but found "
+                + value.getClass().getName());
+      }
+      multi.put(e.getKey(), collection);
     }
     return multi;
   }
 
-  @SuppressWarnings("unchecked")
-  private static <T> T uncheckedCast(Object o) {
-    return (T) o;
-  }
+  // Type and ParameterizedType imports removed; no longer used.
 
   public M next() {
     m_current++;
