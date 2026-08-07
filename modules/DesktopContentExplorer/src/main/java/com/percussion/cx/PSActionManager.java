@@ -154,6 +154,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @throws PSCmsException if an error occurs while communicating with the Rhythmyx server during
    *     initialization.
    */
+  @SuppressWarnings("this-escape")
   public PSActionManager(PSContentExplorerApplet applet)
       throws PSContentExplorerException, PSCmsException {
     if (applet == null) throw new IllegalArgumentException("applet must not be null");
@@ -216,6 +217,40 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
   }
 
   /**
+   * Adapts a raw menu-action children iterator from {@link PSMenuAction#getChildren()} (system API
+   * still raw) into a typed iterator for local use.
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private static Iterator<PSMenuAction> asMenuActions(Iterator children) {
+    return children;
+  }
+
+  /**
+   * Adapts a raw node iterator from managers / older APIs into {@code Iterator<PSNode>}.
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private static Iterator<PSNode> asNodes(Iterator children) {
+    return children;
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private static Iterator<PSNode> asNodeListIterator(List results) {
+    return results == null ? Collections.emptyIterator() : results.iterator();
+  }
+
+  /** Adapts a raw display-format iterator into a typed iterator. */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private static Iterator<PSDisplayFormat> asDisplayFormats(Iterator formats) {
+    return formats;
+  }
+
+  /** Typed wrapper around raw {@link PSMenuAction#setChildren(Iterator)}. */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private static void setMenuChildren(PSMenuAction action, Iterator<PSMenuAction> children) {
+    action.setChildren(children);
+  }
+
+  /**
    * Initializes the action map and visibility context maps and maps visibility contexts for each
    * action.
    *
@@ -242,7 +277,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           contexts = createVisibilityContext(contextsElem);
           m_visibilityContextsMap.put(key, contexts);
         } else {
-          Iterator ctxts = createVisibilityContext(contextsElem).iterator();
+          Iterator<?> ctxts = createVisibilityContext(contextsElem).iterator();
 
           while (ctxts.hasNext()) contexts.add((IPSDbComponent) ctxts.next());
         }
@@ -591,7 +626,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    */
   private PSMenuAction addChildMenuActions(PSMenuAction action, PSSelection selection)
       throws PSContentExplorerException {
-    Iterator childActions = null;
+    Iterator<PSMenuAction> childActions = null;
     if (action.getName().endsWith(ACTION_PASTE)) // client sub-menu
     {
       childActions = getPasteMenu(action, selection);
@@ -608,7 +643,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       childActions = getActionChildren(action, url, selection);
     }
     // Set the child actions if found any.
-    if (childActions != null) action.setChildren(childActions);
+    if (childActions != null) setMenuChildren(action, childActions);
 
     return action;
   }
@@ -633,7 +668,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     PSMenuAction filterAction = filter((PSMenuAction) action.clone(), selection, isTestMultiSelect);
     if (filterAction == null || !filterAction.getChildren().hasNext()) {
       String label = m_applet.getResourceString(getClass(), "No Entries");
-      action.setChildren(PSIteratorUtils.iterator(new PSMenuAction(ACTION_NO_ENTRIES, label)));
+      setMenuChildren(action, asMenuActions(PSIteratorUtils.iterator(new PSMenuAction(ACTION_NO_ENTRIES, label))));
     } else action = filterAction;
 
     return action;
@@ -647,30 +682,30 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * null</code>.
    * @return the list of display format menu actions, never <code>null</code>, may be empty.
    */
-  private Iterator getDisplayFormatsMenu(PSSelection selection) {
-    List<PSMenuAction> childActions = new ArrayList<PSMenuAction>();
+  private Iterator<PSMenuAction> getDisplayFormatsMenu(PSSelection selection) {
+    List<PSMenuAction> childActions = new ArrayList<>();
 
-    Iterator dispFormats = null;
-    if (selection.isFolderType()) dispFormats = m_folderMgr.getDisplayFormats();
+    Iterator<PSDisplayFormat> dispFormats = null;
+    if (selection.isFolderType()) dispFormats = asDisplayFormats(m_folderMgr.getDisplayFormats());
     else if (selection.isOfType(PSNode.TYPE_NEW_SRCH)
         || selection.isOfType(PSNode.TYPE_SAVE_SRCH)
         || selection.isOfType(PSNode.TYPE_CUSTOM_SRCH)
         || selection.isOfType(PSNode.TYPE_STANDARD_SRCH)
         || selection.isOfType(PSNode.TYPE_VIEW)) {
-      dispFormats = m_searchViewMgr.getDisplayFormats();
+      dispFormats = asDisplayFormats(m_searchViewMgr.getDisplayFormats());
     }
 
     if (dispFormats != null && dispFormats.hasNext()) {
       String displayId = "";
       while (dispFormats.hasNext()) {
-        PSDisplayFormat format = (PSDisplayFormat) dispFormats.next();
+        PSDisplayFormat format = dispFormats.next();
         PSMenuAction menuAction = new PSMenuAction(ACTION_CHANGE_DF, format.getDisplayName());
         PSProperties props = new PSProperties();
 
         displayId = String.valueOf(format.getDisplayId());
         props.setProperty(PROPERTY_DISPLAYFORMATID, displayId);
 
-        if (((PSNode) selection.getNodeList().next())
+        if ((selection.getNodeList().next())
             .getDisplayFormatId()
             .equalsIgnoreCase(displayId)) {
           props.setProperty(PROPERTY_MENU_ITEM_CHECKED, PROPERTY_TRUE);
@@ -697,13 +732,13 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * null</code>.
    * @return the list of display format menu actions, never <code>null</code>, may be empty.
    */
-  private Iterator getPasteVariantsMenu(PSMenuAction action, PSSelection selection)
+  private Iterator<PSMenuAction> getPasteVariantsMenu(PSMenuAction action, PSSelection selection)
       throws PSContentExplorerException {
     if (action == null) throw new IllegalArgumentException("action must not be null");
 
     if (selection == null) throw new IllegalArgumentException("selection must not be null");
 
-    PSNode tgtNode = (PSNode) selection.getNodeList().next();
+    PSNode tgtNode = selection.getNodeList().next();
 
     int clipType = PSClipBoard.TYPE_COPY;
     if (action.getName().startsWith(PSMenuAction.PREFIX_DROP_PASTE))
@@ -737,9 +772,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     m_applet.setWaitCursor();
     try {
       String mode = selection.getMode().getViewMode();
-      Iterator iter = selection.getNodeList();
+      Iterator<PSNode> iter = selection.getNodeList();
       while (iter.hasNext()) {
-        uiContext = ((PSNode) iter.next()).getType();
+        uiContext = iter.next().getType();
         action = lookupAction(mode, uiContext, action);
       }
 
@@ -747,7 +782,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       retAction = new PSMenuAction("parent", "parent");
       retAction.setType(PSMenuAction.TYPE_MENU);
       String label = m_applet.getResourceString(getClass(), "No Entries");
-      retAction.setChildren(PSIteratorUtils.iterator(new PSMenuAction(ACTION_NO_ENTRIES, label)));
+      setMenuChildren(retAction, asMenuActions(PSIteratorUtils.iterator(new PSMenuAction(ACTION_NO_ENTRIES, label))));
 
       // Update the action to return for context menu if we found action
       // children based on mode and uicontext of the selection.
@@ -755,7 +790,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         PSMenuAction filterAction = filter((PSMenuAction) action.clone(), selection, true);
         if (filterAction != null) {
           // Modified to populate initially and do not wait for selection
-          Iterator children = filterAction.getChildren();
+          Iterator<PSMenuAction> children = asMenuActions(filterAction.getChildren());
           if (children.hasNext()) {
             poplateDynamic(children, selection);
           }
@@ -772,18 +807,17 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     return retAction;
   }
 
-  @SuppressWarnings("rawtypes")
-  private void poplateDynamic(Iterator children, PSSelection selection)
+  private void poplateDynamic(Iterator<PSMenuAction> children, PSSelection selection)
       throws PSContentExplorerException {
 
     while (children.hasNext()) {
-      PSMenuAction action = (PSMenuAction) children.next();
+      PSMenuAction action = children.next();
 
       if (action.getType().equals(PSMenuAction.TYPE_MENU) && action.getURL().trim().length() > 0) {
         String url = makeUrl(action, selection);
-        Iterator childActions = getActionChildren(action, url, selection);
-        action.setChildren(childActions);
-        poplateDynamic(action.getChildren(), selection);
+        Iterator<PSMenuAction> childActions = getActionChildren(action, url, selection);
+        setMenuChildren(action, childActions);
+        poplateDynamic(asMenuActions(action.getChildren()), selection);
         action.setURL("");
       }
     }
@@ -819,12 +853,12 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @return the child actions to represent the sub-menu of the supplied action, never <code>null
    *     </code>, may be empty.
    */
-  private Iterator getPasteMenu(PSMenuAction action, PSSelection selection)
+  private Iterator<PSMenuAction> getPasteMenu(PSMenuAction action, PSSelection selection)
       throws PSContentExplorerException {
-    List<PSMenuAction> children = new ArrayList<PSMenuAction>();
+    List<PSMenuAction> children = new ArrayList<>();
 
     if (selection.getNodeListSize() > 0) {
-      PSNode node = (PSNode) selection.getNodeList().next();
+      PSNode node = selection.getNodeList().next();
       if (node.isOfType(PSNode.TYPE_SLOT_ITEM)) node = selection.getParent();
 
       int clipType = PSClipBoard.TYPE_COPY;
@@ -836,10 +870,10 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
       if (canAcceptPaste(selection.getMode().getView(), node, clipType)) {
         String url = makePasteUrl(action, selection);
-        Iterator actionChildren = getActionChildren(action, url, selection);
+        Iterator<PSMenuAction> actionChildren = getActionChildren(action, url, selection);
 
         while (actionChildren.hasNext()) {
-          PSMenuAction child = (PSMenuAction) actionChildren.next();
+          PSMenuAction child = actionChildren.next();
           if (isPasteChildActionPossible(child, selection, clipType)) {
             child.setName(prefix + child.getName());
             children.add(child);
@@ -864,10 +898,10 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
     PSNode parentNode = targetSel.getParent();
 
-    Iterator targetNodes = targetSel.getNodeList();
+    Iterator<PSNode> targetNodes = targetSel.getNodeList();
 
     while (targetNodes.hasNext()) {
-      PSNode targetNode = (PSNode) targetNodes.next();
+      PSNode targetNode = targetNodes.next();
       PSObjectPermissions tgtPerm;
 
       if (targetNode.isAnyFolderType()) {
@@ -900,9 +934,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       return false; // must have write access to the parent
 
     // check that each selected folder has admin access
-    Iterator sourceNodes = selection.getNodeList();
+    Iterator<PSNode> sourceNodes = selection.getNodeList();
     while (sourceNodes.hasNext()) {
-      PSNode sourceNode = (PSNode) sourceNodes.next();
+      PSNode sourceNode = sourceNodes.next();
 
       if (sourceNode.isAnyFolderType()) {
         PSObjectPermissions srcPerm = sourceNode.getPermissions();
@@ -974,15 +1008,15 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
        */
       if (!tgtSelection.isAnyFolderType()) return false;
       // No selected node can be in the target node
-      Iterator selNodes = selection.getNodeList();
+      Iterator<PSNode> selNodes = selection.getNodeList();
       while (selNodes.hasNext()) {
-        if (tgtSelection.containsNode((PSNode) selNodes.next())) return false;
+        if (tgtSelection.containsNode(selNodes.next())) return false;
       }
 
       // Folders accept only folders and items for linking or copying
       if (tgtSelection.isFolderType()) {
         // Selection can contain only either folders or items
-        List selTypes = selection.getTypes();
+        List<String> selTypes = selection.getTypes();
         int selTotal = selTypes.size();
         selTypes.remove(PSNode.TYPE_FOLDER);
         selTypes.remove(PSNode.TYPE_SITE);
@@ -1032,7 +1066,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       if (tgtSelection.isMultiSelect()) return false;
 
       // Selection parent cannot be the same as target node for move
-      PSNode tgtNode = (PSNode) tgtSelection.getNodeList().next();
+      PSNode tgtNode = tgtSelection.getNodeList().next();
       if (tgtNode == selParent) return false;
 
       // Selecion is not possible if selection contains the target node
@@ -1070,7 +1104,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @throws PSContentExplorerException if the url is not provided or an exception happened
    *     executing the url
    */
-  private Iterator getActionChildren(PSMenuAction action, String url, PSSelection selection)
+  private Iterator<PSMenuAction> getActionChildren(PSMenuAction action, String url, PSSelection selection)
       throws PSContentExplorerException {
     try {
       if (StringUtils.isBlank(url)) {
@@ -1168,7 +1202,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           if (propValue != null) child.getProperties().setProperty(prop, propValue);
         }
       } else if (child.getType().equalsIgnoreCase("MENU")) {
-        setPassThruParams(child.getChildren(), passThruParamValues);
+        setPassThruParams(asMenuActions(child.getChildren()), passThruParamValues);
       }
     }
   }
@@ -1233,7 +1267,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       // can't support multiple selections
       if (!selection.isMultiSelect()) {
         // get from node
-        PSNode node = (PSNode) selection.getNodeList().next();
+        PSNode node = selection.getNodeList().next();
         cacheActions = node.getChildMenuActions(url);
       }
     } else {
@@ -1273,7 +1307,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       if (selection.isMultiSelect()) return;
 
       // store in node
-      PSNode node = (PSNode) selection.getNodeList().next();
+      PSNode node = selection.getNodeList().next();
       node.setChildMenuActions(url, cacheActions);
     } else {
       m_childMenuCache.put(url, cacheActions);
@@ -1336,10 +1370,10 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
     List<PSMenuAction> keep = new ArrayList<PSMenuAction>();
     PSMenuAction childAction = null;
-    Iterator iter = action.getChildren();
+    Iterator<PSMenuAction> iter = asMenuActions(action.getChildren());
     if (iter.hasNext()) {
       while (iter.hasNext()) {
-        childAction = (PSMenuAction) iter.next();
+        childAction = iter.next();
         // recurse filter for each child
         if (filter(childAction, selection, isTestMultiSelect) != null) {
           if (clipSel == null) keep.add(childAction);
@@ -1348,7 +1382,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           else if (filter(childAction, clipSel, false) != null) keep.add(childAction);
         }
       }
-      action.setChildren(keep.iterator());
+      setMenuChildren(action, keep.iterator());
     }
     return action;
   }
@@ -1370,9 +1404,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     List<Integer> idList = new ArrayList<Integer>();
     Set<String> ctTypeIDs = new HashSet<String>();
     if (selection != null) {
-      Iterator nodes = selection.getNodeList();
+      Iterator<PSNode> nodes = selection.getNodeList();
       while (nodes.hasNext()) {
-        PSNode node = (PSNode) nodes.next();
+        PSNode node = nodes.next();
 
         // make sure we have an item
         if (!(node.getType().equals(PSNode.TYPE_DTITEM)
@@ -1412,17 +1446,17 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
     // execute the search
     PSNode tmpNode = new PSNode("temp", "temp", PSNode.TYPE_PARENT, null, null, false, -1);
-    Iterator results = search.executeSearch(tmpNode).iterator();
+    Iterator<PSNode> results = asNodeListIterator(search.executeSearch(tmpNode));
     while (results.hasNext()) {
-      PSNode resultNode = (PSNode) results.next();
+      PSNode resultNode = results.next();
       PSNode srcNode = nodeMap.get(resultNode.getContentId());
       if (srcNode != null) {
         // add the results column values as properties
         PSProperties srcProps = srcNode.getProperties();
         PSProperties resultProps = resultNode.getProperties();
-        Iterator cols = ms_dynColumNames.iterator();
+        Iterator<String> cols = ms_dynColumNames.iterator();
         while (cols.hasNext()) {
-          String colName = cols.next().toString();
+          String colName = cols.next();
           String val = resultProps.getProperty(colName);
           srcProps.setProperty(colName, val);
         }
@@ -1450,10 +1484,11 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     boolean hasRevision = false;
     PSParameters actionParams = action.getParameters();
     if (actionParams != null) {
-      Iterator iter = actionParams.getParamKeys();
+      @SuppressWarnings({"rawtypes", "unchecked"})
+      Iterator<String> iter = actionParams.getParamKeys();
       String matchParam = "$" + IPSHtmlParameters.SYS_REVISION;
       while (iter.hasNext() && !hasRevision) {
-        String key = iter.next().toString();
+        String key = iter.next();
         String value = actionParams.getParameter(key);
         if (matchParam.equals(value)) {
           hasRevision = true;
@@ -1468,9 +1503,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     List<Integer> contentIds = new ArrayList<Integer>();
     List<String> ctypeIds = new ArrayList<String>();
     Map<String, PSNode> nodeMap = new HashMap<String, PSNode>();
-    Iterator nodes = selection.getNodeList();
+    Iterator<PSNode> nodes = selection.getNodeList();
     while (nodes.hasNext()) {
-      PSNode node = (PSNode) nodes.next();
+      PSNode node = nodes.next();
 
       // make sure we have an item
       if (!(node.getType().equals(PSNode.TYPE_DTITEM) || node.getType().equals(PSNode.TYPE_ITEM))) {
@@ -1504,9 +1539,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
     // execute the search
     PSNode tmpNode = new PSNode("temp", "temp", PSNode.TYPE_PARENT, null, null, false, -1);
-    Iterator results;
+    Iterator<PSNode> results;
     try {
-      results = search.executeSearch(tmpNode).iterator();
+      results = asNodeListIterator(search.executeSearch(tmpNode));
     } catch (PSContentExplorerException e) {
       m_applet.displayErrorMessage(
           null,
@@ -1520,7 +1555,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
     List<PSNode> dirtyNodes = new ArrayList<PSNode>();
     while (results.hasNext()) {
-      PSNode resultNode = (PSNode) results.next();
+      PSNode resultNode = results.next();
       PSNode srcNode = nodeMap.get(resultNode.getContentId());
       if (srcNode != null) {
         // add the results column values as properties
@@ -1597,8 +1632,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
     @Override
     public Collection<String> getRoles() {
-      Collection<String> roles = new ArrayList<String>();
-      Iterator it = m_applet.getUserInfo().getRoles();
+      Collection<String> roles = new ArrayList<>();
+      Iterator<?> it = m_applet.getUserInfo().getRoles();
       while (it.hasNext()) roles.add(it.next().toString());
       return roles;
     }
@@ -1627,10 +1662,10 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     PSActionVisibilityGlobalState globalState = new CxGlobalState();
     Collection<PSActionVisibilityObjectState> objStates =
         new ArrayList<PSActionVisibilityObjectState>();
-    Iterator selIter = selection.getNodeList();
+    Iterator<PSNode> selIter = selection.getNodeList();
     PSNode parent = selection.getParent();
     while (selIter.hasNext()) {
-      PSNode node = (PSNode) selIter.next();
+      PSNode node = selIter.next();
       objStates.add(new CxObjectState(node, parent));
     }
 
@@ -1771,30 +1806,30 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    *     loading the children.
    * @throws IllegalArgumentException if the node is <code>null</code>.
    */
-  public Iterator loadChildren(PSNode node) {
+  public Iterator<PSNode> loadChildren(PSNode node) {
     if (node == null) throw new IllegalArgumentException("node must not be null");
 
     m_applet.setWaitCursor();
-    Iterator children = null;
+    Iterator<PSNode> children = null;
     try {
       // Load children using Item Relationship Manager for dependency tree
       // mode
       if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_DT)) {
-        children = m_irsManager.loadDependencies(node);
+        children = asNodes(m_irsManager.loadDependencies(node));
       } else {
         /**
          * If the node type is "Folder" or "SystemFolder" or "SystemSite" load the children using
          * the folder API.
          */
         if (node.isAnyFolderType()) {
-          children = m_folderMgr.loadChildren(node);
+          children = asNodes(m_folderMgr.loadChildren(node));
         }
         /**
          * If the node type is related to a "Search" or "View" load the children using the Search
          * View Manager.
          */
         else if (node.isSearchType()) {
-          children = m_searchViewMgr.loadChildren(node);
+          children = asNodes(m_searchViewMgr.loadChildren(node));
         } else {
           String sUrl = node.getChildrenURL();
           if (sUrl.trim().length() < 1) {
@@ -1810,9 +1845,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
               hideOrShowNewSearchNode();
             }
             children = node.getChildren();
-            Iterator searchChildren = node.getChildren();
+            Iterator<PSNode> searchChildren = node.getChildren();
             while (searchChildren.hasNext()) {
-              PSNode searchNode = (PSNode) searchChildren.next();
+              PSNode searchNode = searchChildren.next();
               if (searchNode.getType().equals(PSNode.TYPE_EMPTY_SRCH)) {
                 m_emptySearchNode = searchNode;
               }
@@ -1820,7 +1855,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           }
         }
         if (children == null) {
-          children = PSIteratorUtils.emptyIterator();
+          children = Collections.emptyIterator();
         }
       }
       node.setChildren(children);
@@ -2003,7 +2038,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
             try {
               monitor.setStatus(PSProcessMonitor.STATUS_RUN);
 
-              final Map itemIdToStateId = new HashMap();
+              final Map<Integer, Integer> itemIdToStateId = new HashMap<>();
               // the 2nd chk is an optimization to prevent an unneeded srvr
               // query
               if (workflowAction && selection.getNodeListSize() > 1) {
@@ -2011,16 +2046,16 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
                  * the key is the item's contentId, the value is the id of the
                  * WF state that the item was in before the processing started
                  */
-                List ids = new ArrayList();
-                Iterator selIter = selection.getNodeList();
+                List<String> ids = new ArrayList<>();
+                Iterator<PSNode> selIter = selection.getNodeList();
                 while (selIter.hasNext()) {
-                  ids.add(((PSNode) selIter.next()).getContentId());
+                  ids.add(selIter.next().getContentId());
                 }
                 // get current WF state of all items for use while processing
                 getItemIdToStateIdMap(ids, itemIdToStateId);
               }
 
-              Iterator iter = selection.getNodeList();
+              Iterator<PSNode> iter = selection.getNodeList();
               int code = 0;
               int i = 0;
               boolean first = true;
@@ -2029,7 +2064,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
                 if (monitor.getStatus() == PSProcessMonitor.STATUS_STOP) break;
 
-                PSNode node = (PSNode) iter.next();
+                PSNode node = iter.next();
                 processedNodes.add(node);
                 monitor.updateStatus(++i, node);
 
@@ -2110,13 +2145,13 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    *     that is present in the map.
    * @throws PSContentExplorerException If a failure occurs when querying the server.
    */
-  private boolean inSameState(Map itemIdToStateIdOriginal, String contentId)
+  private boolean inSameState(Map<Integer, Integer> itemIdToStateIdOriginal, String contentId)
       throws PSContentExplorerException {
     Integer cid = Integer.valueOf(contentId);
-    Map itemIdToStateIdCur = new HashMap();
+    Map<Integer, Integer> itemIdToStateIdCur = new HashMap<>();
     getItemIdToStateIdMap(Collections.singletonList(cid), itemIdToStateIdCur);
-    Integer originalState = (Integer) itemIdToStateIdOriginal.get(cid);
-    Integer curState = (Integer) itemIdToStateIdCur.get(cid);
+    Integer originalState = itemIdToStateIdOriginal.get(cid);
+    Integer curState = itemIdToStateIdCur.get(cid);
     return originalState.equals(curState);
   }
 
@@ -2131,9 +2166,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @throws PSContentExplorerException If a problem occurs while talking to the server or parsing
    *     the result document.
    */
-  private void getItemIdToStateIdMap(List contentIds, Map results)
+  private void getItemIdToStateIdMap(List<?> contentIds, Map<Integer, Integer> results)
       throws PSContentExplorerException {
-    Map params = new HashMap();
+    Map<String, Object> params = new HashMap<>();
     params.put(IPSHtmlParameters.SYS_CONTENTID, contentIds);
     URL url;
     try {
@@ -2190,9 +2225,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     // Handle a Forced Check-in
     if (action.getName().equals(ACTION_FORCE_CHECKIN)) {
       Set<String> checkOutUsers = new HashSet<String>();
-      Iterator nodes = selection.getNodeList();
+      Iterator<PSNode> nodes = selection.getNodeList();
       while (nodes.hasNext()) {
-        PSNode node = (PSNode) nodes.next();
+        PSNode node = nodes.next();
         checkOutUsers.add(node.getProp(PROPERTY_CHECKOUTUSER));
       }
       String title = m_applet.getResourceString(getClass(), "Warning");
@@ -2427,9 +2462,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       } else if (action.getName().equals(ACTION_SEARCH)
           || action.getName().equals(ACTION_SLOT_SEARCH)
           || action.getName().equals(ACTION_EDIT_SEARCH)
-              && ((PSNode) selection.getNodeList().next()).isOfType(PSNode.TYPE_EMPTY_SRCH)) {
+              && (selection.getNodeList().next()).isOfType(PSNode.TYPE_EMPTY_SRCH)) {
         if (action.getName().equals(ACTION_SLOT_SEARCH)) {
-          PSNode selectedSlotNode = (PSNode) selection.getNodeList().next();
+          PSNode selectedSlotNode = selection.getNodeList().next();
           if (selectedSlotNode.getSlotId().length() == 0)
             throw new IllegalArgumentException(
                 "The action "
@@ -2450,7 +2485,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         boolean isRcSearch = m_newSearchNode.getSlotId().length() > 0;
         // prepare the search fields filter and pass it to the
         // PSSearchDialog
-        Map searchFieldFilterMap = prepareSearchFilterMap(m_newSearchNode);
+        Map<?, ?> searchFieldFilterMap = prepareSearchFilterMap(m_newSearchNode);
         // see the NOTE above
         Runtime.getRuntime().gc();
         PSSearchDialog dlg =
@@ -2480,7 +2515,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           m_newSearchNode.setProperty(PROPERTY_FOLDER_PATH, oldFolderPath);
         }
       } else if (action.getName().equals(ACTION_EDIT_SEARCH)) {
-        PSNode searchNode = (PSNode) selection.getNodeList().next();
+        PSNode searchNode = selection.getNodeList().next();
         if (!searchNode.isOfType(PSNode.TYPE_SAVE_SRCH)
             && !searchNode.isOfType(PSNode.TYPE_NEW_SRCH)
             && !searchNode.isOfType(PSNode.TYPE_CUSTOM_SRCH)
@@ -2495,7 +2530,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           boolean isRcSearch = searchNode.getSlotId().length() > 0;
           // prepare the search fields filter and pass it to the
           // PSSearchDialog
-          Map searchFieldFilterMap = prepareSearchFilterMap(searchNode);
+          Map<?, ?> searchFieldFilterMap = prepareSearchFilterMap(searchNode);
           // see the NOTE above
           Runtime.getRuntime().gc();
           PSSearchDialog dlg =
@@ -2526,7 +2561,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         }
       } else if (action.getName().equals(ACTION_CREATE_FOLDER)) {
         PSNode parentFolderNode = null;
-        if (selection != null) parentFolderNode = (PSNode) selection.getNodeList().next();
+        if (selection != null) parentFolderNode = selection.getNodeList().next();
 
         boolean isFolderSel = true;
         if (parentFolderNode == null || !parentFolderNode.isAnyFolderType()) {
@@ -2553,7 +2588,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           else informListeners(PSIteratorUtils.iterator(parentFolderNode));
         }
       } else if (action.getName().equals(ACTION_EDIT_FOLDER)) {
-        PSNode folderNode = (PSNode) selection.getNodeList().next();
+        PSNode folderNode = selection.getNodeList().next();
 
         if (!folderNode.isFolderType())
           throw new IllegalArgumentException("Invalid node for the action " + action.getName());
@@ -2589,9 +2624,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
             // Search for the matching new node in the refreshed parent
             PSNode parent = m_applet.getNavTree().getSelectedNode();
             m_folderMgr.loadChildren(parent);
-            Iterator citer = parent.getChildren();
+            Iterator<PSNode> citer = parent.getChildren();
             while (citer.hasNext()) {
-              PSNode child = (PSNode) citer.next();
+              PSNode child = citer.next();
               if (child.getContentId().equals(content_id)) {
                 match = child;
                 break;
@@ -2603,7 +2638,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           }
         }
       } else if (action.getName().equals(ACTION_COPY_ACL_TO_SUBFOLDERS)) {
-        PSNode folderNode = (PSNode) selection.getNodeList().next();
+        PSNode folderNode = selection.getNodeList().next();
         PSFolder folder = m_folderMgr.loadFolder(folderNode);
         if (folder.getPermissions().hasServerAdminAccess()) {
           propagateFolderSecurity(folderNode);
@@ -2675,8 +2710,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       } else if (action.getName().equals(ACTION_COPY)) {
         m_clipBoard.setClip(PSClipBoard.TYPE_COPY, selection);
       } else if (action.getName().equals(ACTION_COPY_URL_TO_CLIPBOARD)) {
-        Iterator selectedItems = selection.getNodeList();
-        PSNode item = (PSNode) selectedItems.next();
+        Iterator<PSNode> selectedItems = selection.getNodeList();
+        PSNode item = selectedItems.next();
         String codeBase = m_applet.getRhythmyxCodeBase().toString();
         String link = codeBase + "/sys_ActionPage/Panel.html?sys_contentid=" + item.getContentId();
         Transferable trans = new StringSelection(link);
@@ -2695,8 +2730,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           m_applet.debugMessage("Unable to copy to clipboard, problem was " + e1.getMessage());
         }
       } else if (action.getName().equals(ACTION_SAVEAS)) {
-        Iterator iter = selection.getNodeList();
-        PSNode newSearchNode = (PSNode) iter.next();
+        Iterator<PSNode> iter = selection.getNodeList();
+        PSNode newSearchNode = iter.next();
         if (!newSearchNode.isOfType(PSNode.TYPE_NEW_SRCH)) {
           throw new IllegalArgumentException("Invalid node found for action " + ACTION_SAVEAS);
         }
@@ -2717,7 +2752,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         }
 
         // take only the first one
-        PSNode node = (PSNode) selection.getNodeList().next();
+        PSNode node = selection.getNodeList().next();
         if (node.isFolderType()
             || node.isOfType(PSNode.TYPE_NEW_SRCH)
             || node.isOfType(PSNode.TYPE_SAVE_SRCH)
@@ -2740,14 +2775,14 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         if (action.getName().startsWith(PSMenuAction.PREFIX_DROP_PASTE))
           clipType = PSClipBoard.TYPE_DRAG;
 
-        Iterator clipNodes = m_clipBoard.getClip(clipType);
+        Iterator<PSNode> clipNodes = m_clipBoard.getClip(clipType);
         if (clipNodes == null)
           throw new IllegalStateException(
               "Paste action is called without content in the clip board.");
 
         List<PSNode> refreshNodes = new ArrayList<PSNode>();
         PSNode targetParent = selection.getParent();
-        Iterator targetNodes = selection.getNodeList();
+        Iterator<PSNode> targetNodes = selection.getNodeList();
 
         // Remember where we currently are to restore this below
         PSNode currentSelectedNode = m_applet.getSelectedNavTreeNode();
@@ -2758,7 +2793,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         if (action.getName().endsWith(ACTION_PASTE_DF)) {
           // Take only the first node for getting display format of the
           // source
-          PSNode nodeSrc = (PSNode) clipNodes.next();
+          PSNode nodeSrc = clipNodes.next();
           String nodeSrcType = nodeSrc.getType();
 
           // Displays an error if the current content in the clip board
@@ -2784,7 +2819,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           // Apply the display format of the source to all target(selected)
           // nodes
           while (targetNodes.hasNext()) {
-            PSNode nodeTgt = (PSNode) targetNodes.next();
+            PSNode nodeTgt = targetNodes.next();
             String tgtType = nodeTgt.getType();
             if (isFolderType(tgtType)
                 || tgtType.equals(PSNode.TYPE_SAVE_SRCH)
@@ -2812,7 +2847,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
             if (targetParent.isOfType(PSNode.TYPE_SLOT)) refreshNodes.add(targetParent);
             while (targetNodes.hasNext()) {
-              PSNode target = (PSNode) targetNodes.next();
+              PSNode target = targetNodes.next();
 
               /*
                * the new variant id is stored as action property in this
@@ -2825,7 +2860,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
                 List<PSNode> tempNodes = new ArrayList<PSNode>();
                 PSNode node = null;
                 while (clipNodes.hasNext()) {
-                  node = (PSNode) clipNodes.next();
+                  node = clipNodes.next();
                   node.setProperty(PROPERTY_VARIANTID, varid);
                   tempNodes.add(node);
                 }
@@ -2864,7 +2899,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
             boolean refreshSrcParent = false;
             boolean addedSrcParent = false;
             while (targetNodes.hasNext()) {
-              PSNode target = (PSNode) targetNodes.next();
+              PSNode target = targetNodes.next();
 
               // right-now supports only pasting on Folders
               if (!target.isAnyFolderType()) continue;
@@ -2875,7 +2910,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
                 List<PSNode> list = new ArrayList<PSNode>();
                 PSNode tmp = null;
                 while (clipNodes.hasNext()) {
-                  tmp = (PSNode) clipNodes.next();
+                  tmp = clipNodes.next();
                   if (tmp.isFolderType()) list.add(tmp);
                 }
                 clipNodes = list.iterator();
@@ -2884,7 +2919,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
               if (clipNodes.hasNext()) refreshSrcParent = true;
 
               // save clip nodes list for dirty action
-              List clipList = PSIteratorUtils.cloneList(clipNodes);
+              List<PSNode> clipList = PSIteratorUtils.cloneList(clipNodes);
               clipNodes = clipList.iterator();
               boolean doDirty = true;
               if (action.getName().endsWith(ACTION_PASTE_LINK)) {
@@ -2902,7 +2937,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
                  * site subfolder actions.
                  */
                 PSNode singleSource = null;
-                if (clipList.size() == 1) singleSource = (PSNode) clipList.get(0);
+                if (clipList.size() == 1) singleSource = clipList.get(0);
 
                 PSFolderActionManager.ErrorResults errorLog = null;
                 if (singleSource != null
@@ -3020,7 +3055,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         }
       } else if (action.getName().equals(ACTION_ARRANGE_REMOVE)) {
         if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
-          Iterator targetNodes = selection.getNodeList();
+          Iterator<PSNode> targetNodes = selection.getNodeList();
 
           PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
           mgr.delete(selection.getParent(), targetNodes);
@@ -3088,7 +3123,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       } else if (action.getName().endsWith(ACTION_CHANGE_VARIANT)) {
         if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
           PSNode target = selection.getParent();
-          PSNode nodeCurrent = (PSNode) selection.getNodeList().next();
+          PSNode nodeCurrent = selection.getNodeList().next();
           String newVarid = action.getProperty(PROPERTY_VARIANTID);
           String oldVarid = nodeCurrent.getProp(PROPERTY_VARIANTID);
           if (newVarid.equals(oldVarid)) {
@@ -3113,7 +3148,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         else if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_RC)) helpId = "RelatedContentSearch";
         else helpId = "DependencyViewer";
         if (action.getName().equals(ACTION_CXT_HELP)) {
-          PSNode helpNode = (PSNode) selection.getNodeList().next();
+          PSNode helpNode = selection.getNodeList().next();
           String nodeType = helpNode.getType();
           String helpTypeHint = helpNode.getHelpTypeHint();
           if (nodeType.equals(PSNode.TYPE_SYS_SITES)) {
@@ -3155,7 +3190,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         dlg.setAppletContext(m_applet.getAppletContext());
         dlg.setVisible(true);
       } else if (action.getName().equals(ACTION_OPEN_FOLDER_REF)) {
-        PSNode node = (PSNode) selection.getNodeList().next();
+        PSNode node = selection.getNodeList().next();
         /*
          * Use the path, if present, otherwise, retrieve the path from the
          * server based on the folder id.
@@ -3192,7 +3227,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
          * SearchResults parent node loads it's children before the applet
          * starts.
          */
-        PSNode node = (PSNode) selection.getNodeList().next();
+        PSNode node = selection.getNodeList().next();
         if (!node.isAnyFolderType()) {
           // may happen if action mis-configured
           JOptionPane.showConfirmDialog(
@@ -3284,7 +3319,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
     if (ok != JOptionPane.YES_OPTION) return;
     try {
-      m_folderMgr.purgeAllNav((PSNode) selection.getNodeList().next());
+      m_folderMgr.purgeAllNav(selection.getNodeList().next());
     } catch (PSCmsException e) {
       m_applet.debugMessage(e);
       m_applet.displayErrorMessage(
@@ -3447,11 +3482,11 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @return a collection of child folder names as <code>String</code> objects, never <code>null
    *     </code>, may be empty.
    */
-  private Collection getChildFolders(PSNode target) {
-    Collection<String> folderNames = new ArrayList<String>();
-    Iterator targetChildren = target.getChildren();
+  private Collection<String> getChildFolders(PSNode target) {
+    Collection<String> folderNames = new ArrayList<>();
+    Iterator<PSNode> targetChildren = target.getChildren();
     while (targetChildren != null && targetChildren.hasNext()) {
-      PSNode targetChild = (PSNode) targetChildren.next();
+      PSNode targetChild = targetChildren.next();
       if (targetChild.isAnyFolderType()) folderNames.add(targetChild.getName());
     }
 
@@ -3704,7 +3739,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           m_applet.debugMessage("script = " + script);
           script.show();
         } else {
-          Map params = new HashMap();
+          Map<String, String> params = new HashMap<>();
           String sUrl = PSContentExplorerUtils.splitUrl(actionUrl, params);
           URL url = new URL(m_applet.getRhythmyxCodeBase(), sUrl);
           try {
@@ -3790,7 +3825,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       if (action.getName().startsWith(PSMenuAction.PREFIX_DROP_PASTE))
         clipType = PSClipBoard.TYPE_DRAG;
 
-      Iterator nodes = m_clipBoard.getClip(clipType);
+      Iterator<PSNode> nodes = m_clipBoard.getClip(clipType);
 
       // Process the dyamic parameters for each node
       while (nodes.hasNext()) {
@@ -3799,12 +3834,12 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
                 action,
                 actionUrl,
                 actionParams,
-                (PSNode) nodes.next(),
+                nodes.next(),
                 selection.getMode().getViewMode());
       }
-      Iterator tgtNodes = selection.getNodeList();
+      Iterator<PSNode> tgtNodes = selection.getNodeList();
       while (tgtNodes.hasNext()) {
-        PSNode tgtNode = (PSNode) tgtNodes.next();
+        PSNode tgtNode = tgtNodes.next();
         // Process the special parameters
         actionUrl = appendSpecialParams(actionUrl, actionParams, tgtNode);
       }
@@ -3869,10 +3904,11 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
     if (tgtNode == null) return actionUrl;
 
-    Iterator keys = actionParams.getParamKeys();
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    Iterator<String> keys = actionParams.getParamKeys();
     String key, value, paramName = null;
     while (keys.hasNext()) {
-      key = keys.next().toString();
+      key = keys.next();
       value = actionParams.getParameter(key);
       if (!value.startsWith("$") || value.startsWith("$$")) {
         // Not a special parameter - skip
@@ -3931,7 +3967,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       int clipType = PSClipBoard.TYPE_COPY;
       if (action.getName().startsWith(PSMenuAction.PREFIX_DROP_PASTE))
         clipType = PSClipBoard.TYPE_DRAG;
-      Iterator nodes = m_clipBoard.getClip(clipType);
+      Iterator<PSNode> nodes = m_clipBoard.getClip(clipType);
 
       // Process the dyamic parameters for source nodes
       while (nodes.hasNext()) {
@@ -3940,22 +3976,22 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
                 action,
                 actionUrl,
                 actionParams,
-                (PSNode) nodes.next(),
+                nodes.next(),
                 selection.getMode().getViewMode());
       }
-      Iterator tgtNodes = selection.getNodeList();
+      Iterator<PSNode> tgtNodes = selection.getNodeList();
       while (tgtNodes.hasNext()) {
-        PSNode tgtNode = (PSNode) tgtNodes.next();
+        PSNode tgtNode = tgtNodes.next();
         // Process the special parameters
         actionUrl = appendSpecialParams(actionUrl, actionParams, tgtNode);
       }
       // Process the static parameters
       actionUrl = appendStaticParams(actionUrl, actionParams);
     } else {
-      Iterator nodes = selection.getNodeList();
+      Iterator<PSNode> nodes = selection.getNodeList();
       // Process the dyamic parameters for each node
       while (nodes.hasNext()) {
-        PSNode psn = (PSNode) nodes.next();
+        PSNode psn = nodes.next();
         actionUrl =
             appendDynamcParams(
                 action, actionUrl, actionParams, psn, selection.getMode().getViewMode());
@@ -3973,7 +4009,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         nodes = selection.getNodeList();
         // Process the special parameters for each node
         while (nodes.hasNext()) {
-          PSNode psn = (PSNode) nodes.next();
+          PSNode psn = nodes.next();
           actionUrl = appendSpecialParams(actionUrl, actionParams, psn);
         }
       }
@@ -4004,7 +4040,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     /**
      * @todo actions to be mergded and filtered based several conditions
      */
-    PSNode node = (PSNode) selection.getNodeList().next();
+    PSNode node = selection.getNodeList().next();
     String actionUrl =
         "../sys_cxSupport/ActionList.html?sys_action="
             + ACTION_PASTE
@@ -4091,9 +4127,10 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
     String key = null;
     String value = null;
-    Iterator iter = actionParams.getParamKeys();
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    Iterator<String> iter = actionParams.getParamKeys();
     while (iter.hasNext()) {
-      key = iter.next().toString();
+      key = iter.next();
       value = actionParams.getParameter(key);
       //         //CMS-8722 : the psredirect parameter was giving malformed URL exception while
       // redirecting
@@ -4140,9 +4177,10 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     String value = null;
     PSProperties nodeProps = node.getProperties();
     if (nodeProps != null) {
-      Iterator iter = actionParams.getParamKeys();
+      @SuppressWarnings({"rawtypes", "unchecked"})
+      Iterator<String> iter = actionParams.getParamKeys();
       while (iter.hasNext()) {
-        key = iter.next().toString();
+        key = iter.next();
         value = actionParams.getParameter(key);
         if (StringUtils.isEmpty(value)) {
           continue;
@@ -4219,9 +4257,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @param monitor the monitor that gets updated with status, assumed not <code>null</code>.
    */
   private void informListeners(PSProcessMonitor monitor) {
-    Iterator listeners = m_actionListeners.iterator();
+    Iterator<IPSActionListener> listeners = m_actionListeners.iterator();
     while (listeners.hasNext()) {
-      IPSActionListener listener = (IPSActionListener) listeners.next();
+      IPSActionListener listener = listeners.next();
       listener.actionInitiated(monitor);
     }
   }
@@ -4246,9 +4284,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     PSActionEvent event = new PSActionEvent(hint);
     event.setIsFullRefresh(isFullRefresh);
 
-    Iterator listeners = m_actionListeners.iterator();
+    Iterator<IPSActionListener> listeners = m_actionListeners.iterator();
     while (listeners.hasNext()) {
-      IPSActionListener listener = (IPSActionListener) listeners.next();
+      IPSActionListener listener = listeners.next();
       listener.actionExecuted(event);
     }
   }
@@ -4259,7 +4297,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @param nodesToRefresh the list of nodes to refresh, assumed not <code>null
    * </code> or empty.
    */
-  private void informListeners(Iterator nodesToRefresh) {
+  private void informListeners(Iterator<? extends PSNode> nodesToRefresh) {
     informListeners(nodesToRefresh, false);
   }
 
@@ -4271,7 +4309,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @param isFullRefresh <code>true</code> to force refresh of all specified nodes, <code>false
    *     </code> to allow possible refresh of only dirty nodes.
    */
-  private void informListeners(Iterator nodesToRefresh, boolean isFullRefresh) {
+  private void informListeners(Iterator<? extends PSNode> nodesToRefresh, boolean isFullRefresh) {
     informListeners(nodesToRefresh, PSActionEvent.REFRESH_NODES, isFullRefresh);
   }
 
@@ -4283,7 +4321,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @param hint the hint that describes the action to takeby the listeners, assumed not <code>null
    *     </code> or empty, and to be one of the <code>PSActionEvent</code> hint constants.
    */
-  void informListeners(Iterator nodesToRefresh, String hint) {
+  void informListeners(Iterator<? extends PSNode> nodesToRefresh, String hint) {
     informListeners(nodesToRefresh, hint, false);
   }
 
@@ -4297,16 +4335,17 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @param isFullRefresh <code>true</code> to force refresh of all specified nodes, <code>false
    *     </code> to allow possible refresh of only dirty nodes.
    */
-  private void informListeners(Iterator nodesToRefresh, String hint, boolean isFullRefresh) {
+  private void informListeners(
+      Iterator<? extends PSNode> nodesToRefresh, String hint, boolean isFullRefresh) {
     if (!nodesToRefresh.hasNext()) return;
 
     PSActionEvent event = new PSActionEvent(hint);
     event.setRefreshNodes(nodesToRefresh);
     event.setIsFullRefresh(isFullRefresh);
 
-    Iterator listeners = m_actionListeners.iterator();
+    Iterator<IPSActionListener> listeners = m_actionListeners.iterator();
     while (listeners.hasNext()) {
-      IPSActionListener listener = (IPSActionListener) listeners.next();
+      IPSActionListener listener = listeners.next();
       listener.actionExecuted(event);
     }
   }
@@ -4374,7 +4413,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @throws ProtocolException if the POST request violates the HTTP protocol.
    * @throws PSException if an error occurs while posting the data to the server.
    */
-  public String postData(String strUrl, Map paramMap)
+  public String postData(String strUrl, Map<String, ?> paramMap)
       throws MalformedURLException, IOException, ProtocolException, PSException {
     if (strUrl == null || strUrl.trim().length() == 0)
       throw new IllegalArgumentException("strUrl must not be null or empty");
@@ -4432,12 +4471,12 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @return a list of {@link PSLocator} objects corresponding to the supplied nodes; never <code>
    *     null</code>.
    */
-  public static List nodesToLocators(Iterator nodeList) {
+  public static List<PSLocator> nodesToLocators(Iterator<? extends PSNode> nodeList) {
     if (nodeList == null) throw new IllegalArgumentException("nodeList must not be null");
 
-    List<PSLocator> list = new ArrayList<PSLocator>();
+    List<PSLocator> list = new ArrayList<>();
     while (nodeList.hasNext()) {
-      PSNode node = (PSNode) nodeList.next();
+      PSNode node = nodeList.next();
       PSLocator locator = nodeToLocator(node);
       list.add(locator);
     }
@@ -4575,7 +4614,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     if (selection.getNodeListSize() < 1) {
       throw new IllegalArgumentException("selection must have at least one node");
     }
-    PSNode selNode = (PSNode) selection.getNodeList().next();
+    PSNode selNode = selection.getNodeList().next();
     if (!PSContentExplorerConstants.ms_NodeDefaultActionMap.containsKey(selNode.getType()))
       return null; // No default actions are definedfor this node type
 
@@ -4601,10 +4640,10 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    *     null</code>.
    */
   private PSMenuAction findChildActionByName(PSMenuAction actionParent, String actionName) {
-    Iterator children = actionParent.getChildren();
+    Iterator<PSMenuAction> children = asMenuActions(actionParent.getChildren());
     PSMenuAction action = null;
     while (children.hasNext()) {
-      action = (PSMenuAction) children.next();
+      action = children.next();
       if (action.getName().equals(actionName)) return action;
       else {
         // recurse children
@@ -4682,7 +4721,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           || tgtType.equals(PSNode.TYPE_SAVE_SRCH)) {
         if (selection.isMultiSelect()) return false;
 
-        List selTypes = selection.getTypes();
+        List<String> selTypes = selection.getTypes();
         selTypes.remove(PSNode.TYPE_FOLDER);
         selTypes.remove(PSNode.TYPE_SITE);
         selTypes.remove(PSNode.TYPE_SITESUBFOLDER);
@@ -4694,7 +4733,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         // selection contains types other than the above
         if (selTypes.size() > 0) return false;
       } else if (isFolderType(tgtType)) {
-        List selTypes = selection.getTypes();
+        List<String> selTypes = selection.getTypes();
         selTypes.remove(PSNode.TYPE_FOLDER);
         selTypes.remove(PSNode.TYPE_SITE);
         selTypes.remove(PSNode.TYPE_SITESUBFOLDER);
@@ -4708,17 +4747,17 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     }
     // if we are in the Item Assembly view the following rules apply
     else if (view.equals(PSUiMode.TYPE_VIEW_IA)) {
-      Iterator srcIter = selection.getNodeList();
+      Iterator<PSNode> srcIter = selection.getNodeList();
       while (srcIter.hasNext()) {
-        PSNode source = (PSNode) srcIter.next();
+        PSNode source = srcIter.next();
 
         // if we are ourselves
         if (target.equals(source)) return false;
 
-        Iterator childIter = source.getChildren();
+        Iterator<PSNode> childIter = source.getChildren();
         if (childIter != null) {
           while (childIter.hasNext()) {
-            PSNode childNode = (PSNode) childIter.next();
+            PSNode childNode = childIter.next();
 
             // if we are dropping on a child of ourselves
             if (target.equals(childNode)) return false;
@@ -4753,9 +4792,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @return <code>true</code> if the supplied sources contain the provided node, <code>false</code>
    *     otherwise.
    */
-  private boolean contains(Iterator sources, PSNode node) {
+  private boolean contains(Iterator<? extends PSNode> sources, PSNode node) {
     while (sources != null && sources.hasNext()) {
-      PSNode source = (PSNode) sources.next();
+      PSNode source = sources.next();
       if (source.equals(node)) return true;
 
       if (contains(source.getChildren(), node)) return true;
@@ -4826,7 +4865,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    *     applied.
    * @throws PSContentExplorerException
    */
-  private Map prepareSearchFilterMap(PSNode searchNode) throws PSContentExplorerException {
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private Map<?, ?> prepareSearchFilterMap(PSNode searchNode) throws PSContentExplorerException {
 
     Map fm = new HashMap();
     if (searchNode == null) {
@@ -4873,7 +4913,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
     String slotId = target.getSlotId();
 
-    List slotDefList = m_slotDefMap.get(slotId);
+    List<ContentIdVariantId> slotDefList = m_slotDefMap.get(slotId);
 
     if (slotDefList == null) return false;
 
@@ -4916,16 +4956,16 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
   private void hideOrShowNewSearchNode() {
     if (m_searchResultsNode == null) return; // Should never happen
 
-    Iterator children = m_searchResultsNode.getChildren();
+    Iterator<PSNode> children = m_searchResultsNode.getChildren();
     if (!children.hasNext()) return;
 
-    List newChildren = new ArrayList();
+    List<PSNode> newChildren = new ArrayList<>();
     // Only in case of CX there will be a Empty Search Node first.
     if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_CX)) {
       // Add the empty search node first
       newChildren.add(children.next());
     }
-    PSNode newSearchNode = (PSNode) children.next();
+    PSNode newSearchNode = children.next();
     // may be first time, initialize
     if (m_newSearchNode == null) m_newSearchNode = newSearchNode;
     if (!m_newSearchNode.isHidden()) {
@@ -4952,13 +4992,13 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     if (m_newSearchNode == null || m_searchResultsNode == null) return; // Should never happen
     // Set it unhidden
     m_newSearchNode.setHidden(false);
-    List<PSNode> newChildren = new ArrayList<PSNode>();
-    Iterator children = m_searchResultsNode.getChildren();
+    List<PSNode> newChildren = new ArrayList<>();
+    Iterator<PSNode> children = m_searchResultsNode.getChildren();
     // Add new search node as the first node
     newChildren.add(m_newSearchNode);
     // Add the rest now
     while (children.hasNext()) {
-      newChildren.add((PSNode) children.next());
+      newChildren.add(children.next());
     }
     m_searchResultsNode.setChildren(newChildren.iterator());
     informListeners(PSIteratorUtils.iterator(m_searchResultsNode));
@@ -5139,9 +5179,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     }
 
     private boolean isRender(String url) {
-      if ((url.toLowerCase().contains("/render") && !url.toLowerCase().contains("sys_action")))
-        ;
-      return false;
+      return url.toLowerCase().contains("/render") && !url.toLowerCase().contains("sys_action");
     }
 
     private boolean isCompareUrl(String urlString) {

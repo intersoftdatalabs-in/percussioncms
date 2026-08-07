@@ -62,11 +62,11 @@ public class PSClipBoard {
    *     never empty.
    * @throws IllegalArgumentException if type is invalid.
    */
-  public Iterator getClip(int type) {
+  public Iterator<PSNode> getClip(int type) {
     checkType(type);
 
-    PSSelection clip = (PSSelection) m_clip.get(Integer.valueOf(type));
-    Iterator clippedNodes = null;
+    PSSelection clip = m_clip.get(Integer.valueOf(type));
+    Iterator<PSNode> clippedNodes = null;
     if (clip != null) clippedNodes = clip.getNodeList();
 
     return clippedNodes;
@@ -84,7 +84,7 @@ public class PSClipBoard {
   public PSSelection getClipSelection(int type) {
     checkType(type);
 
-    return (PSSelection) m_clip.get(Integer.valueOf(type));
+    return m_clip.get(Integer.valueOf(type));
   }
 
   /**
@@ -98,7 +98,7 @@ public class PSClipBoard {
   public PSNode getClipSource(int type) {
     checkType(type);
 
-    PSSelection clip = (PSSelection) m_clip.get(Integer.valueOf(type));
+    PSSelection clip = m_clip.get(Integer.valueOf(type));
     PSNode clipSource = null;
     if (clip != null) clipSource = clip.getParent();
 
@@ -120,7 +120,7 @@ public class PSClipBoard {
    * The clip that contains entries for supported type of clips. The key is an <code>Integer</code>
    * indicating the type of clip and value is the clip selection (<code>PSSelection</code>).
    */
-  private Map m_clip = new HashMap();
+  private final Map<Integer, PSSelection> m_clip = new HashMap<>();
 
   /** The constant to indicate 'Drag' clip board. */
   public static final int TYPE_DRAG = 0;

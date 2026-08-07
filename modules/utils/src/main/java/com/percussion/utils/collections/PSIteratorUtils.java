@@ -24,13 +24,14 @@ import java.util.*;
  */
 public abstract class PSIteratorUtils {
   /** Returns an iterator over this object. */
-  public static Iterator<Object> iterator(Object o) {
+  public static <T> Iterator<T> iterator(T o) {
     return iterator(o, 1);
   }
 
   /** Returns an iterator over this object N times. */
-  public static Iterator<Object> iterator(Object o, int numIterations) {
-    return new CountedIterator(o, numIterations);
+  @SuppressWarnings("unchecked")
+  public static <T> Iterator<T> iterator(T o, int numIterations) {
+    return (Iterator<T>) new CountedIterator(o, numIterations);
   }
 
   /**
@@ -39,7 +40,7 @@ public abstract class PSIteratorUtils {
    * @deprecated Use Collections.emptyIterator
    */
   @Deprecated
-  public static Iterator<Object> emptyIterator() {
+  public static <T> Iterator<T> emptyIterator() {
     return Collections.emptyIterator();
   }
 

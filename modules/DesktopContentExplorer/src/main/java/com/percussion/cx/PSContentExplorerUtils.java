@@ -112,7 +112,7 @@ public class PSContentExplorerUtils {
    *     <code>null</code>. The existing map values will not be deleted, if it is not empty.
    * @return the url part as explained above. Never <code>null</code> or empty.
    */
-  public static String splitUrl(String actionUrl, Map params) {
+  public static String splitUrl(String actionUrl, Map<? super String, ? super String> params) {
     if (StringUtils.isEmpty(actionUrl)) {
       throw new IllegalArgumentException("actionUrl must not be null or empty");
     }
