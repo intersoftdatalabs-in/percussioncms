@@ -16,6 +16,14 @@
  */
 
 tinymce.PluginManager.add("percadvlink", function (editor) {
+  // Register so CE/control-settings value from perc_tinymce_init is retained
+  // (TinyMCE 6 strips unknown options). Empty = product default field names.
+  // Runtime pass-through to getInlineRenderLink is #2242.
+  editor.options.register("inlineLinkTitleField", {
+    processor: "string",
+    default: "",
+  });
+
   function createLinkList(callback) {
     return function () {
       // editor.options.get() replaces the deprecated editor.settings in TinyMCE 6+.

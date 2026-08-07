@@ -379,6 +379,11 @@
 				<psxctl:Description>tinymce config file</psxctl:Description>
 				<psxctl:DefaultValue>../sys_resources/tinymce/config/default_config.json</psxctl:DefaultValue>
 			</psxctl:Param>
+			<psxctl:Param name="InlineLinkTitleField" datatype="String"
+				paramtype="generic">
+				<psxctl:Description>Content field name used for inline link titles. Empty uses product default (displaytitle / resource_link_title).</psxctl:Description>
+				<psxctl:DefaultValue></psxctl:DefaultValue>
+			</psxctl:Param>
 		</psxctl:ParamList>
 		<psxctl:Dependencies>
 			<psxctl:Dependency status="setupOptional"
