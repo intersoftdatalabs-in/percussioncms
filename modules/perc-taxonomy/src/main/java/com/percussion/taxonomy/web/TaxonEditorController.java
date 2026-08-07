@@ -44,8 +44,8 @@ public class TaxonEditorController extends AbstractTaxonEditorController {
   public ModelAndView index(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
 
-    Collection taxonomys = taxonomyService.getAllTaxonomys();
-    Collection languages = languageService.getAllLanguages();
+    Collection<Taxonomy> taxonomys = taxonomyService.getAllTaxonomys();
+    Collection<Language> languages = languageService.getAllLanguages();
 
     TaxonParams tp =
         new TaxonParams(
@@ -106,7 +106,7 @@ public class TaxonEditorController extends AbstractTaxonEditorController {
     errors = nodeService.deleteNodeAndFriends(tp.getNodeID(), Language.DEFAUL_LANG);
     if (node.getParent() != null) {
       node_parent = nodeService.getNode(node.getParent().getId(), Language.DEFAUL_LANG);
-      Collection childNodes = nodeService.getChildNodes(node_parent.getId());
+      Collection<Node> childNodes = nodeService.getChildNodes(node_parent.getId());
       if (childNodes.size() == 0 && node_parent.getNot_leaf()) {
         node_parent.setNot_leaf(false);
         nodeService.saveNode(node_parent);
@@ -145,8 +145,8 @@ public class TaxonEditorController extends AbstractTaxonEditorController {
       HttpServletRequest request, HttpServletResponse response, Map<String, String> errors)
       throws Exception {
     HashMap<String, Object> myModel = new HashMap<String, Object>();
-    Collection taxonomys = taxonomyService.getAllTaxonomys();
-    Collection languages = languageService.getAllLanguages();
+    Collection<Taxonomy> taxonomys = taxonomyService.getAllTaxonomys();
+    Collection<Language> languages = languageService.getAllLanguages();
 
     TaxonParams tp = new TaxonParams(request, taxonomyService);
 
@@ -238,8 +238,7 @@ public class TaxonEditorController extends AbstractTaxonEditorController {
     if (referenced_by_ids.size() > 0) {
       Collection<String> referenced_by_node_names = new ArrayList<String>();
       for (Object[] obj :
-          (Collection<Object[]>)
-              nodeService.getSomeNodeNames(referenced_by_ids, Language.DEFAUL_LANG)) {
+          nodeService.getSomeNodeNames(referenced_by_ids, Language.DEFAUL_LANG)) {
         referenced_by_node_names.add(obj[2].toString());
       }
       myModel.put("referenced_by_node_names", StringUtils.join(referenced_by_node_names, ","));
@@ -444,7 +443,7 @@ public class TaxonEditorController extends AbstractTaxonEditorController {
       // a leaf node.
       if (node.getParent() != null) {
         orig_node_parent = nodeService.getNode(node.getParent().getId(), Language.DEFAUL_LANG);
-        Collection childNodes = nodeService.getChildNodes(orig_node_parent.getId());
+        Collection<Node> childNodes = nodeService.getChildNodes(orig_node_parent.getId());
         if (childNodes.size() == 1 && orig_node_parent.getNot_leaf()) {
           orig_node_parent.setNot_leaf(false);
           nodeService.saveNode(orig_node_parent);
@@ -466,7 +465,7 @@ public class TaxonEditorController extends AbstractTaxonEditorController {
       if (node.getParent() != null) {
         orig_node_parent = nodeService.getNode(node.getParent().getId(), Language.DEFAUL_LANG);
 
-        Collection children = nodeService.getChildNodes(orig_node_parent.getId());
+        Collection<Node> children = nodeService.getChildNodes(orig_node_parent.getId());
 
         if (children.size() == 0 && orig_node_parent.getNot_leaf()) {
           // save_values_from_params(request, orig_node_parent, tp.getLangID(), true);

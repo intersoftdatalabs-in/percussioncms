@@ -33,24 +33,20 @@ public class HibernateVisibilityDAO implements VisibilityDAO {
 
   public Visibility getVisibility(int id) {
     Session session = sessionFactory.getCurrentSession();
-    return session.get(Visibility.class, id);
+    return session.find(Visibility.class, id);
   }
 
   public Collection<Visibility> getAllVisibilities() {
     Session session = sessionFactory.getCurrentSession();
-    return (Collection<Visibility>)
-        (Collection<?>) session.createQuery("from Visibility v", Visibility.class).list();
+    return session.createQuery("from Visibility v", Visibility.class).list();
   }
 
   public Collection<Visibility> getAllVisibilitiesForTaxonomyId(int taxonomy_id) {
     Session session = sessionFactory.getCurrentSession();
-    return (Collection<Visibility>)
-        (Collection<?>)
-            session
-                .createQuery(
-                    "from Visibility v where v.taxonomy.id = :taxonomy_id", Visibility.class)
-                .setParameter("taxonomy_id", taxonomy_id)
-                .list();
+    return session
+        .createQuery("from Visibility v where v.taxonomy.id = :taxonomy_id", Visibility.class)
+        .setParameter("taxonomy_id", taxonomy_id)
+        .list();
   }
 
   public void saveVisibility(Visibility Visibility) {

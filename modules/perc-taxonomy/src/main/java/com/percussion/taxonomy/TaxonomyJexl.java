@@ -96,14 +96,14 @@ public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
       }
       queryString += "and l.id = ? order by a.id";
 
-      Query q = session.createQuery(queryString);
+      Query<Attribute_lang> q = session.createQuery(queryString, Attribute_lang.class);
       if (taxID > 0) {
         q.setParameter(0, taxID);
       } else {
         q.setParameter(0, taxName);
       }
       q.setParameter(1, langID);
-      attLang = (List<Attribute_lang>) q.list();
+      attLang = q.list();
       ret = new TaxAttMap(attLang);
       tx.commit();
     } catch (HibernateException e) {
@@ -168,10 +168,10 @@ public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
       queryString += "inner join  rn.relationship as rt ";
       queryString += "where rn.node.id = ? and rt.Relationship_type = ?";
 
-      Query q = session.createQuery(queryString);
+      Query<Node> q = session.createQuery(queryString, Node.class);
       q.setParameter(0, nodeID);
       q.setParameter(1, relationship_type_name);
-      nodes = (List<Node>) q.list();
+      nodes = q.list();
       for (Node node : nodes) {
         TaxNode taxNode = new TaxNode(node);
         ret.add(taxNode);
@@ -247,10 +247,10 @@ public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
       queryString += "and al.language.id = ? ";
       queryString += "and v.lang.id = ? order by n.id";
 
-      Query q = session.createQuery(queryString);
+      Query<Node> q = session.createQuery(queryString, Node.class);
       q.setParameter(0, langID);
       q.setParameter(1, langID);
-      nodes = (List<Node>) q.list();
+      nodes = q.list();
 
       for (Node node : nodes) {
         TaxNode taxNode = new TaxNode(node);
@@ -327,7 +327,7 @@ public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
       queryString += "and al.language.id = ? ";
       queryString += "and v.lang.id = ? order by n.id";
 
-      Query q = session.createQuery(queryString);
+      Query<Node> q = session.createQuery(queryString, Node.class);
       if (taxID > 0) {
         q.setParameter(0, taxID);
       } else {
@@ -335,7 +335,7 @@ public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
       }
       q.setParameter(1, langID);
       q.setParameter(2, langID);
-      nodes = (List<Node>) q.list();
+      nodes = q.list();
       for (Node node : nodes) {
         TaxNode taxNode = new TaxNode(node);
         ret.add(taxNode);

@@ -27,7 +27,7 @@ public class Attribute_langService implements Attribute_langServiceInf {
 
   public Attribute_langDAO attribute_langDAO;
 
-  public Collection getAllAttribute_langs() {
+  public Collection<Attribute_lang> getAllAttribute_langs() {
     try {
       return attribute_langDAO.getAllAttribute_langs();
     } catch (HibernateException e) {

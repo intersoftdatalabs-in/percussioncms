@@ -44,7 +44,7 @@ public class LanguageService implements LanguageServiceInf {
    *
    * @return a collection of all Language entities, or an empty collection if none exist
    */
-  public Collection getAllLanguages() {
+  public Collection<Language> getAllLanguages() {
     try {
       return languageDAO.getAllLanguages();
     } catch (HibernateException e) {

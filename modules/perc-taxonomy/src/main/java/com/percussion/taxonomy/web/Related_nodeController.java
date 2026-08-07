@@ -17,6 +17,7 @@
 
 package com.percussion.taxonomy.web;
 
+import com.percussion.taxonomy.domain.Related_node;
 import com.percussion.taxonomy.TaxonomySecurityHelper;
 import com.percussion.taxonomy.service.Related_nodeService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,7 +53,7 @@ public class Related_nodeController {
       throws Exception {
     // --------------------------- Templated - Modify or replace -----------------------------
     TaxonomySecurityHelper.raise_error_if_cannot_admin();
-    Collection all = related_nodeService.getAllRelated_nodes();
+    Collection<Related_node> all = related_nodeService.getAllRelated_nodes();
     Map<String, Object> myModel = new HashMap<String, Object>();
     myModel.put("all", all);
     return new ModelAndView("related_node", "model", myModel);

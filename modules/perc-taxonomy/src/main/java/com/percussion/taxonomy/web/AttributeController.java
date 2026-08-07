@@ -17,6 +17,7 @@
 
 package com.percussion.taxonomy.web;
 
+import com.percussion.taxonomy.domain.Attribute;
 import com.percussion.taxonomy.TaxonomySecurityHelper;
 import com.percussion.taxonomy.service.AttributeService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -53,7 +54,7 @@ public class AttributeController {
     // --------------------------- Templated - Modify or replace -----------------------------
     TaxonomySecurityHelper.raise_error_if_cannot_admin();
     //      Collection all = attributeService.getAttribute(1);
-    Collection all = attributeService.getAllAttributes(2, 1);
+    Collection<Attribute> all = attributeService.getAllAttributes(2, 1);
     Map<String, Object> myModel = new HashMap<String, Object>();
     myModel.put("all", all);
     return new ModelAndView("attribute", "model", myModel);

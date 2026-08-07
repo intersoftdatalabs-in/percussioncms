@@ -19,7 +19,7 @@ package com.percussion.taxonomy.jexl;
 import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
 
-public class TaxValues extends ArrayList<String> {
+public final class TaxValues extends ArrayList<String> {
   /**
    * An object that can handle both single and multiple taxonomy attribute values It can be treated
    * like a regular List for multiple values or toString will output a comma separated list for

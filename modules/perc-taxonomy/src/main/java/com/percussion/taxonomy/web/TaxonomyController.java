@@ -216,17 +216,17 @@ public class TaxonomyController extends AbstractControllerWithSecurityChecks {
     // save attr
     Attribute attr = new Attribute();
     attr.setTaxonomy(tax);
-    if (((String) request.getParameter("attr_is_multiple")).equalsIgnoreCase("yes")) {
+    if (request.getParameter("attr_is_multiple").equalsIgnoreCase("yes")) {
       attr.setIs_multiple(true);
     } else {
       attr.setIs_multiple(false);
     }
-    if (((String) request.getParameter("attr_is_percussion_item")).equalsIgnoreCase("yes")) {
+    if (request.getParameter("attr_is_percussion_item").equalsIgnoreCase("yes")) {
       attr.setIs_percussion_item(true);
     } else {
       attr.setIs_percussion_item(false);
     }
-    if (((String) request.getParameter("attr_is_node_name")).equalsIgnoreCase("yes")) {
+    if (request.getParameter("attr_is_node_name").equalsIgnoreCase("yes")) {
       attr.setIs_node_name(1);
       // override these options if needed
       attr.setIs_percussion_item(false);
@@ -234,7 +234,7 @@ public class TaxonomyController extends AbstractControllerWithSecurityChecks {
     } else {
       attr.setIs_node_name(0);
     }
-    if (((String) request.getParameter("attr_is_required")).equalsIgnoreCase("yes")) {
+    if (request.getParameter("attr_is_required").equalsIgnoreCase("yes")) {
       attr.setIs_required(true);
     } else {
       attr.setIs_required(false);
@@ -336,12 +336,12 @@ public class TaxonomyController extends AbstractControllerWithSecurityChecks {
   public ModelAndView delete_attribute(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
     TaxonParams tp = new TaxonParams(request, taxonomyService);
-    String attributeId = ((String) request.getParameter("attrID"));
+    String attributeId = request.getParameter("attrID");
     notEmpty(attributeId);
 
-    Collection attributes = attributeService.getAttribute(Integer.valueOf(attributeId));
+    Collection<Attribute> attributes = attributeService.getAttribute(Integer.valueOf(attributeId));
     if (!attributes.isEmpty()) {
-      Attribute attribute = (Attribute) attributes.iterator().next();
+      Attribute attribute = attributes.iterator().next();
       attributeService.removeAttribute(attribute);
     }
     return new ModelAndView(

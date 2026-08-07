@@ -93,13 +93,12 @@ public class AbstractXMLProviderController extends AbstractControllerWithSecurit
         titles_ConcurrentHashMap = buildTitlesConcurrentHashMap(tp.getTaxID(), langID);
 
     List<Object[]> the_nodes = null;
-    Collection<Object[]> unfilted_nodes =
-        (Collection<Object[]>) nodeService.getAllNodeNames(tp.getTaxID(), langID);
+    Collection<Object[]> unfilted_nodes = nodeService.getAllNodeNames(tp.getTaxID(), langID);
 
     // create helper objects
     ArrayList<Integer> nodes_with_children = new ArrayList<Integer>();
     ArrayList<Integer> root_nodes = new ArrayList<Integer>();
-    for (Node node : (Collection<Node>) nodeService.getAllNodes(tp.getTaxID(), langID)) {
+    for (Node node : nodeService.getAllNodes(tp.getTaxID(), langID)) {
       if (node.getParent() != null) {
         nodes_with_children.add(node.getParent().getId());
       } else {
@@ -163,7 +162,7 @@ public class AbstractXMLProviderController extends AbstractControllerWithSecurit
       ArrayList<Attr> attributes = null;
 
       if (tp.getForJEXL()) {
-        attributes = new ArrayList();
+        attributes = new ArrayList<>();
       }
 
       String title =
@@ -257,8 +256,7 @@ public class AbstractXMLProviderController extends AbstractControllerWithSecurit
     Collection<Integer> ret = new ArrayList<Integer>();
     Node bottom_node = nodeService.getNode(nodeID, langID);
     if (bottom_node.getParent() != null) {
-      for (Node sibling :
-          (Collection<Node>) nodeService.getChildNodes(bottom_node.getParent().getId())) {
+      for (Node sibling : nodeService.getChildNodes(bottom_node.getParent().getId())) {
         ret.add(Integer.valueOf(sibling.getId()));
       }
       ret.addAll(getSelfAndElders(bottom_node.getParent().getId(), langID));
@@ -271,7 +269,7 @@ public class AbstractXMLProviderController extends AbstractControllerWithSecurit
 
   protected Collection<Integer> children_and_sub_ids(int nodeID, boolean first_level_only) {
     Collection<Integer> ret = new ArrayList<Integer>();
-    for (Node node : (Collection<Node>) nodeService.getChildNodes(nodeID)) {
+    for (Node node : nodeService.getChildNodes(nodeID)) {
       ret.add(Integer.valueOf(node.getId()));
       if (!first_level_only) {
         ret.addAll(children_and_sub_ids(node.getId(), first_level_only));
@@ -284,7 +282,7 @@ public class AbstractXMLProviderController extends AbstractControllerWithSecurit
   protected ConcurrentHashMap<Integer, ConcurrentHashMap<String, Collection<String>>>
       buildTitlesConcurrentHashMap(int taxID, int langID) {
     // build titles
-    ArrayList<Object[]> raw_titles = new ArrayList(nodeService.getTitlesForNodes(taxID, langID));
+    ArrayList<Object[]> raw_titles = new ArrayList<>(nodeService.getTitlesForNodes(taxID, langID));
     ConcurrentHashMap<Integer, ConcurrentHashMap<String, Collection<String>>>
         titles_ConcurrentHashMap =
             new ConcurrentHashMap<Integer, ConcurrentHashMap<String, Collection<String>>>();

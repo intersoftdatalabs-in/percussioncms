@@ -17,6 +17,7 @@
 
 package com.percussion.taxonomy.web;
 
+import com.percussion.taxonomy.domain.Node_editor;
 import com.percussion.taxonomy.TaxonomySecurityHelper;
 import com.percussion.taxonomy.service.Node_editorService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,7 +52,7 @@ public class Node_editorController {
       throws Exception {
     // --------------------------- Templated - Modify or replace -----------------------------
     TaxonomySecurityHelper.raise_error_if_cannot_admin();
-    Collection all = node_editorService.getAllNode_editors();
+    Collection<Node_editor> all = node_editorService.getAllNode_editors();
     Map<String, Object> myModel = new HashMap<String, Object>();
     myModel.put("all", all);
     return new ModelAndView("node_editor", "model", myModel);

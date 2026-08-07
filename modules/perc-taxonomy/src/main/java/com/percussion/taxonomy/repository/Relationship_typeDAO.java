@@ -22,7 +22,7 @@ import java.util.Collection;
 
 public interface Relationship_typeDAO {
 
-  public Collection getAllRelationship_types();
+  public Collection<Relationship_type> getAllRelationship_types();
 
   public Relationship_type getRelationship_type(int id);
 
