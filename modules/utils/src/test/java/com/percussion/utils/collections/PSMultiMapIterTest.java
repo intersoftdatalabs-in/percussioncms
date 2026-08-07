@@ -31,7 +31,7 @@ public class PSMultiMapIterTest {
 
   @Test
   public void test1() throws Exception {
-    MultiValuedMap map = new ArrayListValuedHashMap<>();
+    MultiValuedMap<String, Integer> map = new ArrayListValuedHashMap<>();
 
     map.put("a", 1);
     map.put("b", 2);
@@ -40,8 +40,8 @@ public class PSMultiMapIterTest {
     map.put("c", 5);
     map.put("d", 6);
 
-    PSMultiMapIterator<Integer> simple = new PSMultiMapIterator<Integer>(map.asMap(), null);
-    Set<Integer> results = new HashSet<Integer>();
+    PSMultiMapIterator<Integer> simple = new PSMultiMapIterator<>(map.asMap(), null);
+    Set<Integer> results = new HashSet<>();
     int count = 0;
     while (simple.hasNext()) {
       results.add(simple.next());
@@ -59,7 +59,7 @@ public class PSMultiMapIterTest {
 
   @Test
   public void test2() throws Exception {
-    MultiValuedMap map = new ArrayListValuedHashMap<>();
+    MultiValuedMap<String, Integer> map = new ArrayListValuedHashMap<>();
 
     map.put("a", 1);
     map.put("b", 2);
@@ -68,18 +68,16 @@ public class PSMultiMapIterTest {
     map.put("c", 5);
     map.put("d", 6);
 
-    PSMultiMapIterator<Integer> simple =
-        new PSMultiMapIterator<Integer>(
-            map.asMap(),
-            new Predicate() {
+    Predicate<Object> keyIsB =
+        new Predicate<Object>() {
+          @Override
+          public boolean evaluate(Object o) {
+            return "b".equals(o);
+          }
+        };
+    PSMultiMapIterator<Integer> simple = new PSMultiMapIterator<>(map.asMap(), keyIsB);
 
-              public boolean evaluate(Object o) {
-                String key = (String) o;
-                return key.equals("b");
-              }
-            });
-
-    Set<Integer> results = new HashSet<Integer>();
+    Set<Integer> results = new HashSet<>();
     int count = 0;
     while (simple.hasNext()) {
       results.add(simple.next());
