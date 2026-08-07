@@ -73,6 +73,9 @@ public class MainDTSPreInstall {
   /** Default SSL allow-self-signed value for new DTS installs. */
   public static final String DB_SSL_ALLOW_SELF_SIGNED_DEFAULT = "false";
 
+  /** Oracle JDBC driver class (parity with CMS {@code DbInstallConfigResolver}). */
+  public static final String ORACLE_DRIVER_CLASS = "oracle.jdbc.OracleDriver";
+
   /** CLI key for silent/non-interactive mode (--silent or --no-tty). */
   public static final String SILENT_KEY = "silent";
 
@@ -442,6 +445,11 @@ public class MainDTSPreInstall {
    * Resolve DTS database configuration into {@code perc.db.*} system properties for the ANT install
    * JVM.
    *
+   * <p>Supported structured {@code db.type} values match CMS installer parity: {@code h2}, {@code
+   * derby}, {@code mysql}, {@code sqlserver}, {@code oracle}, {@code postgresql} (aliases {@code
+   * mssql}, {@code ora}, {@code postgres}). Unknown types fail fast — they must not silently leave
+   * DTS on the embedded H2 default when the operator requested an external RDBMS (issue #2338).
+   *
    * @param cliOptions options from {@link #parseArgs(String[])}
    * @return resolved config (never null)
    */
@@ -459,7 +467,8 @@ public class MainDTSPreInstall {
       envFileValues.putAll(loadEnvFile(envFilePath));
     }
 
-    String dbType = getConfigValue("db.type", cliOptions, envFileValues, DB_TYPE_DEFAULT);
+    String dbTypeRaw = getConfigValue("db.type", cliOptions, envFileValues, DB_TYPE_DEFAULT);
+    String dbTypeNormalized = normalizeStructuredDbType(dbTypeRaw);
     String sslEnabled =
         normalizeBoolean(
             getConfigValue("db.ssl.enabled", cliOptions, envFileValues, DB_SSL_ENABLED_DEFAULT),
@@ -478,7 +487,7 @@ public class MainDTSPreInstall {
             "db.ssl.allowSelfSigned");
 
     Map<String, String> systemProperties = new HashMap<>();
-    systemProperties.put("perc.db.type", dbType.toLowerCase(Locale.ROOT));
+    systemProperties.put("perc.db.type", dbTypeNormalized);
     systemProperties.put("perc.db.ssl.enabled", sslEnabled);
     systemProperties.put("perc.db.ssl.verify", sslVerify);
     systemProperties.put("perc.db.ssl.allowSelfSigned", sslAllowSelfSigned);
@@ -516,7 +525,6 @@ public class MainDTSPreInstall {
         "perc.db.ssl.trustStorePassword",
         getConfigValue("db.ssl.trustStorePassword", cliOptions, envFileValues, null));
 
-    String dbTypeNormalized = dbType.toLowerCase(Locale.ROOT);
     String host = systemProperties.get("perc.db.host");
     String port = systemProperties.get("perc.db.port");
     String name = systemProperties.get("perc.db.name");
@@ -571,7 +579,8 @@ public class MainDTSPreInstall {
       systemProperties.put("perc.db.dts.jdbcDriver", "com.mysql.cj.jdbc.Driver");
       systemProperties.put(
           "perc.db.dts.hibernateDialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
-      systemProperties.put("perc.db.dts.schema", firstNonBlank(schema, ""));
+      // Schema may be empty for MySQL; do not use firstNonBlank("", ...) (empty is blank).
+      systemProperties.put("perc.db.dts.schema", schema == null ? "" : schema);
     } else if ("sqlserver".equals(dbTypeNormalized)) {
       String trustServerCertificate =
           ("true".equals(sslAllowSelfSigned) || "false".equals(sslVerify)) ? "true" : "false";
@@ -593,16 +602,128 @@ public class MainDTSPreInstall {
           "perc.db.dts.hibernateDialect",
           "com.percussion.delivery.rdbms.PSUnicodeSQLServerDialect");
       systemProperties.put("perc.db.dts.schema", firstNonBlank(schema, "DBO"));
-    } else if ("postgresql".equals(dbTypeNormalized) || "postgres".equals(dbTypeNormalized)) {
+    } else if ("postgresql".equals(dbTypeNormalized)) {
       String dtsJdbcUrl = "jdbc:postgresql://" + host + ":" + port + "/" + name;
       systemProperties.put("perc.db.dts.jdbcUrl", dtsJdbcUrl);
       systemProperties.put("perc.db.dts.jdbcDriver", "org.postgresql.Driver");
       systemProperties.put(
           "perc.db.dts.hibernateDialect", "org.hibernate.dialect.PostgreSQLDialect");
       systemProperties.put("perc.db.dts.schema", firstNonBlank(schema, "public"));
+    } else if ("oracle".equals(dbTypeNormalized)) {
+      // Easy Connect service form: @//host:port/serviceOrSid — same as CMS DbInstallConfigResolver
+      // (multi-tenant PDB service names such as XEPDB1 are not classic SID forms).
+      String serviceOrSid = name == null ? "" : name.trim();
+      String resolvedSchema =
+          isBlank(schema) ? (user == null ? "" : user.trim()) : schema.trim();
+      String dtsJdbcUrl =
+          "jdbc:oracle:thin:@//" + host + ":" + port + "/" + serviceOrSid;
+      systemProperties.put("perc.db.dts.jdbcUrl", dtsJdbcUrl);
+      systemProperties.put("perc.db.dts.jdbcDriver", ORACLE_DRIVER_CLASS);
+      systemProperties.put(
+          "perc.db.dts.hibernateDialect", "org.hibernate.dialect.Oracle12cDialect");
+      systemProperties.put("perc.db.dts.schema", resolvedSchema);
     }
 
     return new ResolvedDbConfig(systemProperties);
+  }
+
+  /**
+   * Normalize structured installer {@code db.type} values (CMS parity).
+   *
+   * @param dbTypeRaw raw type from CLI / env / default
+   * @return canonical lower-case type
+   * @throws IllegalArgumentException when the type is not a supported DTS backend
+   */
+  static String normalizeStructuredDbType(String dbTypeRaw) {
+    if (isBlank(dbTypeRaw)) {
+      return DB_TYPE_DEFAULT;
+    }
+    String t = dbTypeRaw.trim().toLowerCase(Locale.ROOT);
+    return switch (t) {
+      case "h2", "derby", "mysql", "sqlserver", "oracle", "postgresql" -> t;
+      case "mssql" -> "sqlserver";
+      case "ora" -> "oracle";
+      case "postgres" -> "postgresql";
+      default ->
+          throw new IllegalArgumentException(
+              "Unknown db.type='"
+                  + dbTypeRaw
+                  + "'. Allowed values: h2, derby, mysql, sqlserver, oracle, postgresql");
+    };
+  }
+
+  /**
+   * Whether {@code installDts.xml} should rewrite {@code perc-datasources.properties} for this
+   * backend (fresh install, non-embedded).
+   *
+   * @param dbType normalized {@code perc.db.type}
+   * @return true when external RDBMS datasource keys must be written
+   */
+  static boolean shouldWriteDtsDatasourceProperties(String dbType) {
+    if (isBlank(dbType)) {
+      return false;
+    }
+    String t = dbType.trim().toLowerCase(Locale.ROOT);
+    return !"h2".equals(t) && !"derby".equals(t);
+  }
+
+  /**
+   * Map resolved {@code perc.db.*} system properties to the {@code perc-datasources.properties}
+   * keys written by {@code installDts.xml} on fresh external-DB installs.
+   *
+   * <p>Keeps the Java resolve path and the ANT propertyfile write contract aligned for unit tests
+   * (issue #2338).
+   *
+   * @param systemProperties from {@link ResolvedDbConfig#systemProperties()}
+   * @return ordered map of datasource property keys (never null)
+   */
+  static Map<String, String> dtsDatasourcePropertyEntries(Map<String, String> systemProperties) {
+    Map<String, String> entries = new java.util.LinkedHashMap<>();
+    if (systemProperties == null) {
+      return entries;
+    }
+    entries.put("db.username", nullToEmpty(systemProperties.get("perc.db.user")));
+    entries.put("db.password", nullToEmpty(systemProperties.get("perc.db.password")));
+    entries.put("db.schema", nullToEmpty(systemProperties.get("perc.db.dts.schema")));
+    entries.put("jdbcDriver", nullToEmpty(systemProperties.get("perc.db.dts.jdbcDriver")));
+    entries.put("jdbcUrl", nullToEmpty(systemProperties.get("perc.db.dts.jdbcUrl")));
+    entries.put(
+        "hibernate.dialect", nullToEmpty(systemProperties.get("perc.db.dts.hibernateDialect")));
+    entries.put("db.ssl.enabled", nullToEmpty(systemProperties.get("perc.db.ssl.enabled")));
+    entries.put("db.ssl.verify", nullToEmpty(systemProperties.get("perc.db.ssl.verify")));
+    entries.put(
+        "db.ssl.allowSelfSigned",
+        nullToEmpty(systemProperties.get("perc.db.ssl.allowSelfSigned")));
+    return entries;
+  }
+
+  /**
+   * Write DTS datasource keys into a properties file using the same entry set as {@code
+   * installDts.xml}. Existing keys in the target file are preserved except those overwritten by
+   * this mapping.
+   *
+   * @param targetFile path to {@code perc-datasources.properties} (parent dirs must exist)
+   * @param systemProperties resolved {@code perc.db.*} map
+   * @throws IOException if the file cannot be read or written
+   */
+  static void writeDtsDatasourceProperties(Path targetFile, Map<String, String> systemProperties)
+      throws IOException {
+    java.util.Properties props = new java.util.Properties();
+    if (Files.isRegularFile(targetFile)) {
+      try (var in = Files.newInputStream(targetFile)) {
+        props.load(in);
+      }
+    }
+    for (Map.Entry<String, String> e : dtsDatasourcePropertyEntries(systemProperties).entrySet()) {
+      props.setProperty(e.getKey(), e.getValue());
+    }
+    try (var out = Files.newOutputStream(targetFile)) {
+      props.store(out, "DTS datasource configuration (MainDTSPreInstall)");
+    }
+  }
+
+  private static String nullToEmpty(String value) {
+    return value == null ? "" : value;
   }
 
   private static Map<String, String> loadEnvFile(String envFilePath) {

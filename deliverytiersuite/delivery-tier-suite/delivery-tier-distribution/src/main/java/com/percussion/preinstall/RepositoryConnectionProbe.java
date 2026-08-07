@@ -186,6 +186,9 @@ public final class RepositoryConnectionProbe {
           "jdbc:postgresql://" + ep.host() + ":" + ep.port() + "/" + ep.name();
       case "sqlserver" ->
           "jdbc:sqlserver://" + ep.host() + ":" + ep.port() + ";databaseName=" + ep.name();
+      // Easy Connect service form — same as MainDTSPreInstall.resolveDbConfig (issue #2338).
+      case "oracle", "ora" ->
+          "jdbc:oracle:thin:@//" + ep.host() + ":" + ep.port() + "/" + ep.name();
       default -> null;
     };
   }
