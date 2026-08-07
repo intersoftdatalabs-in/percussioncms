@@ -738,9 +738,67 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
       var dbmsInfo = new DbmsInfo();
       dbmsInfo.m_dbName = dbServer.getDatabase();
       dbmsInfo.m_driverType = dbServer.getDriverType().getDriverName();
-      dbmsInfo.m_origin = dbServer.getOwner();
+      // Oracle: schema property is not always a safe TableFactory origin (see resolveDbmsOrigin).
+      dbmsInfo.m_origin = resolveDbmsOrigin(dbServer);
       dbmsInfo.m_resourceName = datasource;
       return dbmsInfo;
+   }
+
+   /**
+    * Resolves the TableFactory origin ({@code DB_SCHEMA} / object owner) for a
+    * database publish server without requiring a live JDBC connection.
+    *
+    * <p>Driver rules:
+    * <ul>
+    *   <li><b>MSSQL</b> — use {@link PSDatabasePubServer#getOwner()} (the
+    *       {@code owner} property, e.g. {@code dbo}). Connect {@code userid}
+    *       is never used as origin.</li>
+    *   <li><b>Oracle</b> — Oracle treats a qualified schema name as a
+    *       <em>user</em> for object ownership. Configurations with
+    *       {@code schema} ≠ connect {@code userid} (e.g. schema={@code ORAPROD},
+    *       userid={@code SYSTEM}) previously set origin to the schema and
+    *       produced {@code CREATE TABLE ORAPROD.PERC_EXPORT_PAGE}, which raises
+    *       {@code ORA-01918} when that Oracle user does not exist (#953 / #2245).
+    *       For Oracle, TableFactory origin is therefore the <b>connect user</b>
+    *       when it is non-blank; schema remains on {@link PSDatabasePubServer}
+    *       for configuration / datasource registration and is only used as
+    *       origin when the connect user is blank (legacy fallback).</li>
+    *   <li><b>MySQL</b> — owner/schema is typically unused; return owner as-is.</li>
+    * </ul>
+    *
+    * <p>Pure function for unit tests — no JNDI, Spring, or live DB.
+    *
+    * @param dbServer database publish server view, never {@code null}
+    * @return origin/schema for {@link PSJdbcDbmsDef}, may be {@code null} or empty
+    */
+   public static String resolveDbmsOrigin(PSDatabasePubServer dbServer)
+   {
+      notNull(dbServer);
+      var owner = dbServer.getOwner();
+      var userName = dbServer.getUserName();
+      if (dbServer.getDriverType() == PSDatabasePubServer.DriverType.ORACLE)
+      {
+         if (StringUtils.isNotBlank(userName))
+         {
+            if (StringUtils.isNotBlank(owner)
+                  && !owner.trim().equalsIgnoreCase(userName.trim())
+                  && ms_log.isInfoEnabled())
+            {
+               ms_log.info(
+                     "Oracle database publish server schema '{}' differs from connect user '{}'; "
+                           + "using connect user as TableFactory origin to avoid treating schema as "
+                           + "Oracle user (ORA-01918). Intentional cross-schema publish requires the "
+                           + "schema Oracle user to exist; residual validation is tracked separately.",
+                     owner.trim(),
+                     userName.trim());
+            }
+            return userName.trim();
+         }
+         // Connect user missing — fall back to configured schema/owner (may still be empty).
+         return owner;
+      }
+      // MSSQL owner (dbo) / MySQL unused: never substitute connect user for owner.
+      return owner;
    }
    /**
     * Gets the publish server from the supplied item or job.
