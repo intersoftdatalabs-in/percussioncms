@@ -104,6 +104,7 @@ export const DEVELOPER_SECTIONS = [
   "communities",
   "community-visibility",
   "pipelines",
+  "preferences",
 ] as const;
 
 export type DeveloperSection = (typeof DEVELOPER_SECTIONS)[number];
@@ -163,6 +164,12 @@ const DEVELOPER_SECTION_ALIASES: Record<string, DeveloperSection> = {
   pipeline: "pipelines",
   applications: "pipelines",
   "xml-apps": "pipelines",
+  preferences: "preferences",
+  preference: "preferences",
+  prefs: "preferences",
+  settings: "preferences",
+  security: "preferences",
+  "security-prefs": "preferences",
 };
 
 const ID_RE = /^[A-Za-z0-9_-]{1,128}$/;

@@ -145,6 +145,34 @@ vi.mock("../../../main/ts/api/developer/aclApi", async () => {
   };
 });
 
+vi.mock("../../../main/ts/api/developer/preferencesApi", () => ({
+  loadDefaultAclTemplate: vi.fn().mockResolvedValue({
+    template: {
+      version: 1,
+      entries: [
+        {
+          name: "Default",
+          type: "USER",
+          permissions: ["READ", "UPDATE", "DELETE", "OWNER"],
+        },
+        {
+          name: "AnyCommunity",
+          type: "COMMUNITY",
+          permissions: ["RUNTIME_VISIBLE"],
+        },
+      ],
+    },
+    fromPreference: false,
+  }),
+  saveDefaultAclTemplate: vi.fn().mockResolvedValue({
+    name: "developer.defaultObjectAclTemplate",
+    value: "{}",
+    userName: "admin",
+  }),
+  loadUserPreference: vi.fn().mockResolvedValue(null),
+  saveUserPreference: vi.fn(),
+}));
+
 vi.mock("../../../main/ts/api/developer/keywordsApi", () => ({
   listKeywords: vi.fn().mockResolvedValue([
     {
@@ -870,6 +898,20 @@ it("loads views catalog section", async () => {
     expect(screen.getByTestId("developer-cvn-tree")).toBeTruthy();
   });
 
+  it("opens preferences section with default ACL security surface", async () => {
+    render(<DeveloperShell initialSection="preferences" embedded />);
+    expect(
+      screen.getByTestId("tab-developer-preferences").getAttribute("aria-selected"),
+    ).toBe("true");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-prefs-panel")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-prefs-security")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-prefs-acl-table")).toBeTruthy();
+    });
+  });
+
   it("loads templates slots and communities catalogs", async () => {
     const { unmount } = render(<DeveloperShell initialSection="templates" embedded />);
     await waitFor(() => {
@@ -1266,13 +1308,59 @@ it("loads views catalog section", async () => {
   });
 
   it("creates an ACL when object has none (404)", async () => {
-    const { getAclForObject, createObjectAcl } = await import(
+    const { getAclForObject, createObjectAcl, saveObjectAcl } = await import(
       "../../../main/ts/api/developer/aclApi"
     );
-    (getAclForObject as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-      Object.assign(new Error("not found"), { status: 404 }),
+    const { loadDefaultAclTemplate } = await import(
+      "../../../main/ts/api/developer/preferencesApi"
     );
+    const createdAcl = {
+      id: 99,
+      name: "new-object-acl",
+      guid: { stringValue: "0-4-99", uuid: 99 },
+      aclEntries: [
+        {
+          id: 100,
+          name: "admin",
+          type: { type: "USER", name: "admin" },
+          permissions: [{ permission: "OWNER" }],
+        },
+      ],
+    };
+    const afterTemplate = {
+      ...createdAcl,
+      aclEntries: [
+        ...createdAcl.aclEntries,
+        {
+          id: 101,
+          name: "Default",
+          type: { type: "USER", name: "Default" },
+          permissions: [{ permission: "READ" }],
+        },
+        {
+          id: 102,
+          name: "AnyCommunity",
+          type: { type: "COMMUNITY", name: "AnyCommunity" },
+          permissions: [{ permission: "RUNTIME_VISIBLE" }],
+        },
+      ],
+    };
+    (getAclForObject as ReturnType<typeof vi.fn>)
+      .mockRejectedValueOnce(Object.assign(new Error("not found"), { status: 404 }))
+      .mockResolvedValueOnce(afterTemplate);
     (createObjectAcl as ReturnType<typeof vi.fn>).mockClear();
+    (createObjectAcl as ReturnType<typeof vi.fn>).mockResolvedValueOnce(createdAcl);
+    (saveObjectAcl as ReturnType<typeof vi.fn>).mockClear();
+    (loadDefaultAclTemplate as ReturnType<typeof vi.fn>).mockResolvedValue({
+      template: {
+        version: 1,
+        entries: [
+          { name: "Default", type: "USER", permissions: ["READ"] },
+          { name: "AnyCommunity", type: "COMMUNITY", permissions: ["RUNTIME_VISIBLE"] },
+        ],
+      },
+      fromPreference: true,
+    });
 
     render(<DeveloperShell embedded />);
     await waitFor(() => {
@@ -1299,11 +1387,18 @@ it("loads views catalog section", async () => {
       );
     });
     await waitFor(() => {
+      expect(saveObjectAcl).toHaveBeenCalled();
+    });
+    await waitFor(() => {
       expect(screen.getByTestId("developer-ct-acl-table")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-ct-acl-row-id:100")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-acl-row-id:101")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-acl-row-id:102")).toBeTruthy();
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-acl-notice").textContent).toMatch(/saved/i);
+      expect(screen.getByTestId("developer-ct-acl-notice").textContent).toMatch(
+        /template applied/i,
+      );
     });
   });
 });

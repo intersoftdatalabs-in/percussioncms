@@ -23,6 +23,7 @@ import {
   saveObjectAcl,
   type AclPermissionName,
 } from "../api/developer/aclApi";
+import { loadDefaultAclTemplate } from "../api/developer/preferencesApi";
 import type {
   ObjectAcl,
   ObjectAclEntry,
@@ -30,6 +31,10 @@ import type {
 } from "../api/developer/types";
 import { isSessionRedirectError, type ApiError } from "../api/client";
 import { catalogColors, errorAlert, tableHeaderRow, tableRow } from "./catalogStyles";
+import {
+  mergeTemplateOntoAclEntries,
+  shouldApplyDefaultAclTemplate,
+} from "./defaultAclTemplate";
 import { DEV_MSG } from "./messages";
 
 /** Principal types supported when adding an ACL entry (REST TypedPrincipal / PrincipalTypes). */
@@ -411,16 +416,49 @@ export function ObjectAclSection({
     setError(null);
     setNotice(null);
     try {
-      const created = await createObjectAcl(objectGuid, {
+      let created = await createObjectAcl(objectGuid, {
         name,
         type: ownerType,
       });
+      // Workbench parity: merge default ACL template preference onto the new ACL.
+      let templateApplied = false;
+      let templateApplyFailed = false;
+      try {
+        const { template } = await loadDefaultAclTemplate();
+        if (shouldApplyDefaultAclTemplate(template)) {
+          const existing = asEntries(created);
+          const { entries: merged, added } = mergeTemplateOntoAclEntries(
+            existing,
+            template,
+            created.id,
+          );
+          if (added > 0) {
+            await saveObjectAcl({ ...created, aclEntries: merged });
+            try {
+              created = await getAclForObject(objectGuid);
+            } catch {
+              created = { ...created, aclEntries: merged };
+            }
+            templateApplied = true;
+          }
+        }
+      } catch {
+        // Create succeeded; template is best-effort (pref API / bulk save).
+        templateApplyFailed = true;
+      }
       setMissing(false);
       setAcl(created);
       const entries = toDraftEntries(asEntries(created));
       setDraftEntries(entries);
       setSelected(buildSelectedMap(entries));
-      setNotice(DEV_MSG.ACL_SAVED);
+      if (templateApplied) {
+        setNotice(DEV_MSG.ACL_TEMPLATE_APPLIED);
+      } else {
+        setNotice(DEV_MSG.ACL_SAVED);
+      }
+      if (templateApplyFailed) {
+        setError(DEV_MSG.ACL_TEMPLATE_APPLY_ERROR);
+      }
     } catch (err: unknown) {
       setError(formatApiErr(DEV_MSG.ACL_CREATE_ERROR, err));
     } finally {
