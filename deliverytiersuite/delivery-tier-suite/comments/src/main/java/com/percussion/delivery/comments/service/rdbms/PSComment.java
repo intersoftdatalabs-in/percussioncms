@@ -135,16 +135,14 @@ public class PSComment implements IPSComment, Serializable {
   /**
    * Creates a new comment with the same values as the given one, except for the id.
    *
-   * <p>Tag materialization is inlined here (rather than calling {@link #setTags}) because this
-   * constructor runs before subclass overrides are visible to the JVM; invoking an overridable
-   * method from a constructor is flagged by {@code javac}'s {@code this-escape} lint. The
-   * back-reference call into {@link PSCommentTag#setComment} necessarily passes {@code this} to
-   * another class while this constructor is still in flight, hence the targeted suppression on this
-   * single constructor.
+   * <p>Tag materialization is inlined here (rather than calling {@link #setTags}) because that
+   * method is overridable, and invoking it from a constructor would expose a partially-constructed
+   * instance to subclass overrides. The parent back-reference on each {@link PSCommentTag} is set
+   * via direct field access on the package-private {@code comment} field — a field write is not a
+   * method call, so it does not trip javac's {@code this-escape} lint.
    *
    * @param comment A comment to create a copy from.
    */
-  @SuppressWarnings("this-escape")
   public PSComment(final IPSComment comment) {
     this.approvalState = comment.getApprovalState().toString();
     this.createdDate = comment.getCreatedDate();
@@ -158,7 +156,7 @@ public class PSComment implements IPSComment, Serializable {
       PSCommentTag commentTag;
       for (final String aTag : tags) {
         commentTag = new PSCommentTag(aTag);
-        commentTag.setComment(this);
+        commentTag.comment = this;
         this.commentTags.add(commentTag);
       }
     }

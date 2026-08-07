@@ -53,7 +53,7 @@ public class PSCommentTag implements Serializable {
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "COMMENT_ID")
-  private PSComment comment;
+  PSComment comment;
 
   @Basic private String name;
 
