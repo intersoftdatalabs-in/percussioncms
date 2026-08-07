@@ -105,8 +105,8 @@ public class StartArgsProxy {
    *
    * @param rawArgs the value returned by Jetty's reflective {@code getArgs()} method; may be {@code
    *     null}
-   * @return a new list of string arguments, or {@code null} when {@code rawArgs} is null, not a
-   *     list, or contains a non-string element
+   * @return a new list of non-null string arguments, or {@code null} when {@code rawArgs} is null,
+   *     not a list, or contains a null or non-{@link String} element
    */
   static List<String> toStringList(Object rawArgs) {
     if (rawArgs == null) {
@@ -122,7 +122,8 @@ public class StartArgsProxy {
     List<String> args = new ArrayList<>(rawList.size());
     for (Object item : rawList) {
       if (item == null) {
-        args.add(null);
+        error("Unexpected null element in Jetty main args");
+        return null;
       } else if (item instanceof String) {
         args.add((String) item);
       } else {

@@ -58,12 +58,13 @@ public class StartArgsProxyTest {
   }
 
   @Test
-  @DisplayName("toStringList copies null and String elements and rejects non-String")
+  @DisplayName("toStringList copies String elements and rejects null or non-String elements")
   void toStringListValidatesElements() {
     assertNull(StartArgsProxy.toStringList(null));
     assertNull(StartArgsProxy.toStringList("not-a-list"));
     assertEquals(Collections.singletonList("x"), StartArgsProxy.toStringList(List.of("x")));
-    assertEquals(Arrays.asList("a", null, "b"), StartArgsProxy.toStringList(Arrays.asList("a", null, "b")));
+    // Null elements are not String; reject the payload (avoids NPE for non-null List<String> consumers)
+    assertNull(StartArgsProxy.toStringList(Arrays.asList("a", null, "b")));
     assertNull(StartArgsProxy.toStringList(List.of("ok", 42)));
   }
 
