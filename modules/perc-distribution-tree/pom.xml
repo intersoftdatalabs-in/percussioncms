@@ -95,6 +95,15 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Build-time only: operator CMS doctor dist zip (bin/perc-doctor{.bat,.jar}); issue #2220. -->
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-doctor</artifactId>
+            <version>${project.version}</version>
+            <classifier>dist</classifier>
+            <type>zip</type>
+            <scope>provided</scope>
+        </dependency>
         <!-- Build-time only: 234 MB shaded uber-jar copied as artifact, not imported by preinstall Java code.
              The antrun plugin declares its own perc-ant dependency for Ant task execution. -->
         <dependency>
@@ -486,6 +495,27 @@
                             <outputDirectory>${project.build.directory}/wars</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                    <!-- issue #2220: unpack perc-doctor dist zip → assembly bin/perc-doctor{.bat,.jar} -->
+                    <execution>
+                        <id>unpack-perc-doctor-dist</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.percussion</groupId>
+                                    <artifactId>perc-doctor</artifactId>
+                                    <version>${project.version}</version>
+                                    <classifier>dist</classifier>
+                                    <type>zip</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${assembly-directory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                     <execution>

@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# Copyright (c) 2026 Intersoft Data Labs, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Operator launcher for perc-doctor on Unix-like hosts.
+# Layout (CMS install or dist zip):
+#   <install-root>/bin/perc-doctor
+#   <install-root>/bin/perc-doctor.jar
+#
+# Default --install-root is the parent of this script's directory (the install
+# root). Operators may still pass --install-root explicitly to override.
+# Never hardcodes a user home path.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+INSTALL_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+JAR="${SCRIPT_DIR}/perc-doctor.jar"
+
+if [[ ! -f "${JAR}" ]]; then
+  echo "perc-doctor: jar not found at ${JAR}" >&2
+  echo "Expected layout: <install-root>/bin/perc-doctor.jar next to this script." >&2
+  exit 1
+fi
+
+if [[ -n "${JAVA_HOME:-}" && -x "${JAVA_HOME}/bin/java" ]]; then
+  JAVA="${JAVA_HOME}/bin/java"
+elif command -v java >/dev/null 2>&1; then
+  JAVA="$(command -v java)"
+else
+  echo "perc-doctor: java not found. Set JAVA_HOME (JDK 21+) or put java on PATH." >&2
+  exit 1
+fi
+
+has_install_root=0
+for arg in "$@"; do
+  if [[ "${arg}" == "--install-root" ]]; then
+    has_install_root=1
+    break
+  fi
+done
+
+if [[ "${has_install_root}" -eq 0 ]]; then
+  exec "${JAVA}" -jar "${JAR}" --install-root "${INSTALL_ROOT}" "$@"
+else
+  exec "${JAVA}" -jar "${JAR}" "$@"
+fi

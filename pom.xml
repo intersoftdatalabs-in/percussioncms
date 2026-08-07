@@ -15,6 +15,7 @@
     </licenses>
     <modules>
         <module>modules/intsof-common-utilities</module>
+        <module>modules/perc-doctor</module>
         <module>modules/perc-security-utils</module>
         <module>modules/perc-security-acl-shim</module>
         <module>modules/perc-xml-security</module>
