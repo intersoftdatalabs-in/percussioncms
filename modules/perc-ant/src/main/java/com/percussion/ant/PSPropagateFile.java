@@ -65,22 +65,22 @@ public class PSPropagateFile extends Task {
 
     try {
       List<String> directories = new ArrayList<String>();
-      Iterator it = m_fileSets.iterator();
+      Iterator<DirSet> it = m_fileSets.iterator();
       FileUtils utils = FileUtils.newFileUtils();
       File baseDir = null;
       int count = 0;
       while (it.hasNext()) {
-        DirSet fs = (DirSet) it.next();
+        DirSet fs = it.next();
         DirectoryScanner ds = fs.getDirectoryScanner(getProject());
         baseDir = ds.getBasedir();
         String[] dirs = ds.getIncludedDirectories();
         directories.addAll(Arrays.asList(dirs));
       }
-      it = directories.iterator();
+      Iterator<String> dirIt = directories.iterator();
 
-      while (it.hasNext()) {
+      while (dirIt.hasNext()) {
 
-        File df = new File(baseDir + "/" + (String) it.next() + "/" + m_srcFile.getName());
+        File df = new File(baseDir + "/" + dirIt.next() + "/" + m_srcFile.getName());
 
         utils.copyFile(m_srcFile, df);
         count++;

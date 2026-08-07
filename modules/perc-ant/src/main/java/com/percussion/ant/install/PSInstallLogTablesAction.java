@@ -83,13 +83,13 @@ public class PSInstallLogTablesAction extends PSAction {
 
         PSProperties repProp = new PSProperties(repPropFile.getPath());
 
-        String strDriver = (String) repProp.getProperty(REP_DRIVER);
-        String strClass = (String) repProp.getProperty(REP_CLASS);
-        String strServer = (String) repProp.getProperty(REP_SERVER);
-        String strId = (String) repProp.getProperty(REP_ID);
-        String strPw = (String) repProp.getProperty(REP_PW);
-        String strDb = (String) repProp.getProperty(REP_DATABASE);
-        String strSchema = (String) repProp.getProperty(REP_SCHEMA);
+        String strDriver = repProp.getProperty(REP_DRIVER);
+        String strClass = repProp.getProperty(REP_CLASS);
+        String strServer = repProp.getProperty(REP_SERVER);
+        String strId = repProp.getProperty(REP_ID);
+        String strPw = repProp.getProperty(REP_PW);
+        String strDb = repProp.getProperty(REP_DATABASE);
+        String strSchema = repProp.getProperty(REP_SCHEMA);
 
         PSProperties serverProp = new PSProperties(serverPropFile.getAbsolutePath());
 

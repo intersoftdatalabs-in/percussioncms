@@ -206,7 +206,7 @@ public class PSCheckTmxFile extends Task {
 
     while (it.hasNext()) {
       boolean firstError = true;
-      file = new File((String) it.next());
+      file = new File(it.next());
       if (!file.exists())
         throw new BuildException("Property file does not exist: " + file.getAbsolutePath());
       try {

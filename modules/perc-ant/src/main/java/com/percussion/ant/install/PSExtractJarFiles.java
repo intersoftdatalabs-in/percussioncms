@@ -69,12 +69,12 @@ public class PSExtractJarFiles extends PSAction {
 
       PSLogger.logInfo("Extracting jar file : " + jarFile + " to :" + destinationDir);
 
-      List fileList = new ArrayList();
+      List<String> fileList = new ArrayList<>();
       try (JarFile jar = new JarFile(jarFile)) {
         if ((filesToExtract == null) || (filesToExtract.length == 0)) {
-          for (Enumeration entries = jar.entries(); entries.hasMoreElements(); ) {
+          for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements(); ) {
             // Get the next entry.
-            JarEntry entry = (JarEntry) entries.nextElement();
+            JarEntry entry = entries.nextElement();
             String entryName = entry.getName();
             if (!((entryName.endsWith(File.separator)) || (entryName.endsWith("/"))))
               fileList.add(entryName);
@@ -88,7 +88,7 @@ public class PSExtractJarFiles extends PSAction {
       int bytesRead;
 
       for (int k = 0; k < fileList.size(); k++) {
-        String entryName = (String) fileList.get(k);
+        String entryName = fileList.get(k);
         // CWE-22 / java/zipslip #720: never concatenate destinationDir with a raw jar entry
         // name. PathValidation.constructSafePath rejects absolute paths and .. traversal.
         final File fJarFile;

@@ -89,12 +89,12 @@ public class PSRxFix extends PSAction {
         cmd.execute();
 
         // Log the results
-        List results = cmd.getResults();
+        List<String> results = cmd.getResults();
 
         if (results.size() == 0) PSLogger.logInfo("No modifications were required");
         else {
           for (int i = 0; i < results.size(); i++) {
-            String result = (String) results.get(i);
+            String result = results.get(i);
             PSLogger.logInfo(result);
           }
         }

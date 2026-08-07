@@ -264,7 +264,8 @@ public class PSUpgradeDerby extends PSAction {
     PSLogger.logInfo("Loading DerbyDriver File " + derbyJDBCDriver.toString());
     java.net.URL url = derbyJDBCDriver.toURI().toURL();
     java.lang.reflect.Method method =
-        java.net.URLClassLoader.class.getDeclaredMethod("addURL", new Class[] {java.net.URL.class});
+        java.net.URLClassLoader.class.getDeclaredMethod(
+            "addURL", new Class<?>[] {java.net.URL.class});
     method.setAccessible(true); /*promote the method to public access*/
     method.invoke(Thread.currentThread().getContextClassLoader(), new Object[] {url});
   }
