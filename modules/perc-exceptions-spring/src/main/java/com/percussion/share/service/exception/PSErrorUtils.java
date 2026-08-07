@@ -16,19 +16,17 @@
  */
 package com.percussion.share.service.exception;
 
-import static org.apache.commons.lang3.Validate.*;
-
 import com.percussion.error.IPSException;
 import com.percussion.share.validation.PSErrorCause;
 import com.percussion.share.validation.PSErrors;
 import com.percussion.share.validation.PSErrors.PSObjectError;
+import org.apache.commons.lang3.Validate;
 
 /**
  * Utilities for create {@link PSErrors} objects.
  *
  * @author adamgent
  */
-@SuppressWarnings("serial")
 public class PSErrorUtils {
 
   /**
@@ -49,7 +47,7 @@ public class PSErrorUtils {
    * @throws NullPointerException if {@code exception} is {@code null}.
    */
   public static PSErrors createErrorsFromException(Throwable exception) {
-    notNull(exception, "exception cannot be null");
+    Validate.notNull(exception, "exception cannot be null");
     PSErrors errors = new PSErrors();
     PSObjectError oe = new PSObjectError();
 
@@ -83,13 +81,16 @@ public class PSErrorUtils {
    * @throws NullPointerException if {@code errors} is {@code null}.
    */
   public static RuntimeException createExceptionFromErrors(PSErrors errors) {
-    notNull(errors, "errors cannot be null");
+    Validate.notNull(errors, "errors cannot be null");
     return new PSProxyException(errors);
   }
 
   /**
    * A runtime exception that carries a {@link PSErrors} payload across boundaries where checked
    * exceptions cannot be thrown.
+   *
+   * <p>{@link #errors} is {@code transient}: {@link PSErrors} is a JAXB / REST DTO and is not
+   * {@link java.io.Serializable}. Java serialization of this proxy is not the transport path.
    *
    * @author adamgent
    */
@@ -100,8 +101,11 @@ public class PSErrorUtils {
     /** The message returned by {@link #getMessage()}; may be {@code null}. */
     private String message;
 
-    /** The wrapped errors; never {@code null} after {@link #convert(PSErrors)} is invoked. */
-    protected PSErrors errors;
+    /**
+     * The wrapped errors; never {@code null} after {@link #convert(PSErrors)} is invoked. Not part
+     * of Java serialization (JAXB / REST transport only).
+     */
+    protected transient PSErrors errors;
 
     /**
      * Constructs a proxy exception that wraps the supplied errors.
@@ -122,7 +126,7 @@ public class PSErrorUtils {
      */
     protected void convert(PSErrors errors) {
       this.errors = errors;
-      notNull(errors, "errors cannot be null");
+      Validate.notNull(errors, "errors cannot be null");
       PSObjectError oe = errors.getGlobalError();
       setMessage(oe.getDefaultMessage());
     }

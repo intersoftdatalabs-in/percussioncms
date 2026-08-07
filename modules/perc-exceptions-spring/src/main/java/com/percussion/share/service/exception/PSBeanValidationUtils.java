@@ -55,6 +55,11 @@ public class PSBeanValidationUtils {
     }
 
     @Override
+    protected Class<Object> getFullType() {
+      return Object.class;
+    }
+
+    @Override
     protected void doValidation(Object obj, PSBeanValidationException e) {
       // Do nothing.
     }

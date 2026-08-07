@@ -103,19 +103,60 @@ public abstract class PSAbstractBeanValidator<FULL> implements Validator {
   public void validate(Object object, Errors errors) {
     try {
       ovalValidator.validate(object, errors);
-      if (errors instanceof PSBeanValidationException) {
+      if (errors instanceof PSBeanValidationException beanErrors) {
         try {
-          // This cast is safe because the validator only accepts objects of type FULL
-
-          @SuppressWarnings("unchecked")
-          FULL fullObject = (FULL) object;
-          doValidation(fullObject, (PSBeanValidationException) errors);
+          // Spring Validator is typed to Object; FULL is compile-time only. castToFull uses
+          // Class.cast when a type token is available, otherwise an unchecked bridge required by
+          // the Spring contract.
+          doValidation(castToFull(object), beanErrors);
         } catch (PSValidationException e) {
-          ((PSBeanValidationException) errors).addSuppressed(e);
+          beanErrors.addSuppressed(e);
         }
       }
     } catch (ValidationFailedException ex) {
-      ((PSBeanValidationException) errors).addSuppressed(ex);
+      if (errors instanceof PSBeanValidationException beanErrors) {
+        beanErrors.addSuppressed(ex);
+      }
     }
+  }
+
+  /**
+   * Converts the Spring {@link Validator} target to {@code FULL}.
+   *
+   * <p>When {@link #getFullType()} is non-null, uses a checked {@link Class#cast(Object)}.
+   * Otherwise falls back to an unchecked cast required by type erasure and Spring's raw {@code
+   * Object} contract (no Class token is available without breaking existing subclasses).
+   *
+   * @param object the target object, may be {@code null}.
+   * @return the object as {@code FULL}.
+   */
+  protected FULL castToFull(Object object) {
+    Class<FULL> type = getFullType();
+    if (type != null) {
+      return type.cast(object);
+    }
+    return uncheckedCast(object);
+  }
+
+  /**
+   * Optional type token for {@code FULL}. Subclasses may override to enable a checked {@link
+   * Class#cast(Object)} in {@link #castToFull(Object)}.
+   *
+   * @return the class of {@code FULL}, or {@code null} when not available.
+   */
+  protected Class<FULL> getFullType() {
+    return null;
+  }
+
+  /**
+   * Unchecked bridge for Spring's raw {@link Validator#validate(Object, Errors)} when no {@link
+   * Class} token is available.
+   *
+   * @param object the target object, may be {@code null}.
+   * @return the object as {@code FULL}.
+   */
+  @SuppressWarnings("unchecked")
+  private static <T> T uncheckedCast(Object object) {
+    return (T) object;
   }
 }

@@ -26,25 +26,34 @@ import com.percussion.share.validation.PSValidationErrors;
  *
  * <p>The validation exceptions are loosly based on the Spring Frameworks Validation.
  *
+ * <p>{@link #validationErrors} is {@code transient}: validation payloads are transported via JAXB /
+ * REST mappers (see {@link IPSValidationException}), not via Java serialization of the exception
+ * graph. {@link PSValidationErrors} is intentionally not {@link java.io.Serializable}.
+ *
  * @see PSSpringValidationException
  * @see PSValidationErrors
  * @author adamgent
  */
-@SuppressWarnings({"serial", "this-escape"})
 public abstract class PSValidationException extends PSDataServiceException
     implements IPSValidationException {
 
-  /** The validation errors carried by this exception; may be {@code null}. */
-  private PSValidationErrors validationErrors;
+  /**
+   * The validation errors carried by this exception; may be {@code null}. Not part of Java
+   * serialization (JAXB / REST transport only).
+   */
+  private transient PSValidationErrors validationErrors;
 
   /**
    * Constructs a validation exception that wraps the given validation errors.
+   *
+   * <p>Assigns the field directly (not via an overridable setter) so construction is {@code
+   * this-escape} free under {@code -Xlint:all}.
    *
    * @param validationErrors the validation errors to wrap, never {@code null}.
    */
   public PSValidationException(PSValidationErrors validationErrors) {
     super(validationErrors.toString());
-    setValidationErrors(validationErrors);
+    this.validationErrors = validationErrors;
   }
 
   /**
@@ -91,7 +100,7 @@ public abstract class PSValidationException extends PSDataServiceException
    *
    * @param validationErrors the new validation errors, may be {@code null}.
    */
-  public void setValidationErrors(PSValidationErrors validationErrors) {
+  public final void setValidationErrors(PSValidationErrors validationErrors) {
     this.validationErrors = validationErrors;
   }
 
