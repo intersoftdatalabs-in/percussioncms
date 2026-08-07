@@ -44,5 +44,5 @@ public interface IPSDependentObject extends IPSComponent, IPSReplacementValue {
    * @return the parameters as a collection of <code>IPSParameter</code> objects, never <code>null
    *     </code>, may be empty.
    */
-  public Collection getParameters();
+  public Collection<? extends IPSParameter> getParameters();
 }

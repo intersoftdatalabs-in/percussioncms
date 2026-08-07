@@ -39,7 +39,8 @@ public class PSFunctionParamValue extends PSAbstractParamValue implements IPSPar
    * @exception PSUnknownNodeTypeException if <code>sourceNode</code> is <code>null</code> or the
    *     XML element node is not of the appropriate type
    */
-  public PSFunctionParamValue(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSFunctionParamValue(
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     super(sourceNode, parentDoc, parentComponents);
   }
