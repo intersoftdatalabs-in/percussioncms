@@ -158,6 +158,7 @@ public class ApiUtils {
    * @param o the value to unwrap
    * @return the contained value, or the input unchanged when it is not an Optional
    */
+  @SuppressWarnings("unchecked")
   public static <T> T unwrap(Object o) {
     if (o instanceof Optional) {
       return ((Optional<T>) o).orElse(null);

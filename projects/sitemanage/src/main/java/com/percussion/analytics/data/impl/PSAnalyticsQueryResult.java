@@ -117,8 +117,7 @@ public class PSAnalyticsQueryResult implements IPSAnalyticsQueryResult {
     var value = values.get(lowerKey);
     if (value == null) return null;
     if (type == DataType.DATE) {
-      var df = DateFormat.getInstance();
-      return df.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL).format((Date) value);
+      return DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL).format((Date) value);
     }
     return value.toString();
   }

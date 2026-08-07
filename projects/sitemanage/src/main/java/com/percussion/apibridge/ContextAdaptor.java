@@ -150,7 +150,7 @@ public class ContextAdaptor implements IContextsAdaptor {
       String idStr = ApiUtils.orNull(idGuid.getStringValue());
       if (idStr != null) {
         var guid = new PSGuid(idStr);
-        ((PSPublishingContext) ret).setGUID(guid);
+        ret.setGUID(guid);
       }
     }
     ret.setName(ApiUtils.orNull(context.getName()));

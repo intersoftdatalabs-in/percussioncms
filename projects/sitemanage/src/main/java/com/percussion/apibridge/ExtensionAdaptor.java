@@ -17,12 +17,12 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.*;
 import com.percussion.extensions.IPSExtensionService;
 import com.percussion.rest.extensions.*;
 import com.percussion.system.utils.PSSiteManageBean;
 import java.net.URI;
-import java.net.URL;
 import java.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,7 +56,7 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
 
       // Copy interfaces
       var interfaces = new ArrayList<String>();
-      def.getInterfaces().forEachRemaining(o -> interfaces.add((String) o));
+      def.getInterfaces().forEachRemaining(o -> interfaces.add(o));
       ret.setSupportedInterfaces(interfaces);
 
       // Init params
@@ -70,7 +70,7 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
       def.getMethods()
           .forEachRemaining(
               methodObj -> {
-                var defMethod = (PSExtensionMethod) methodObj;
+                var defMethod = methodObj;
                 var meth = new ExtensionMethod();
                 meth.setName(defMethod.getName());
                 meth.setDescription(defMethod.getDescription());
@@ -80,7 +80,7 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
                     .getParameters()
                     .forEachRemaining(
                         paramObj -> {
-                          var emp = (PSExtensionMethodParam) paramObj;
+                          var emp = paramObj;
                           var ep = new ExtensionParameter();
                           ep.setDataType(emp.getType());
                           ep.setDescription(emp.getDescription());
@@ -99,12 +99,12 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
 
       // Resource locations
       var resources = new ArrayList<String>();
-      def.getResourceLocations().forEachRemaining(res -> resources.add(((URL) res).toString()));
+      def.getResourceLocations().forEachRemaining(res -> resources.add(res.toString()));
       ret.setResourceLocations(resources);
 
       // Supplied resources
       var supplied = new ArrayList<String>();
-      def.getSuppliedResources().forEachRemaining(res -> supplied.add(((URL) res).toString()));
+      def.getSuppliedResources().forEachRemaining(res -> supplied.add(res.toString()));
       ret.setSuppliedResources(supplied);
 
       // Runtime parameters
@@ -121,9 +121,10 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
               });
       ret.setRuntimeParameters(runParams);
 
-    } finally {
-      return ret;
+    } catch (PSExtensionException | PSNotFoundException e) {
+      log.error("Error copying extension ref {}", ref, e);
     }
+    return ret;
   }
 
   /** Gets all extensions based on the specified ExtensionFilterOptions. */
@@ -138,14 +139,13 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
               ApiUtils.orNull(filter.getInterfacePattern()),
               ApiUtils.orNull(filter.getExtensionNamePattern()));
       while (it.hasNext()) {
-        var ref = (PSExtensionRef) it.next();
+        var ref = it.next();
         response.add(copyExtensionRef(ref));
       }
     } catch (PSExtensionException e) {
       log.error("Error getting getExtensionNames", e);
-    } finally {
-      return response;
     }
+    return response;
   }
 
   @Override

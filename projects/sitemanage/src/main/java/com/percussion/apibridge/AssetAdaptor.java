@@ -673,7 +673,7 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
     }
 
     try {
-      Asset a = getSharedAssetByPath(baseUri, (String) pathServicePath);
+      Asset a = getSharedAssetByPath(baseUri, pathServicePath);
       PSAsset update = this.assetService.load(ApiUtils.orNull(a.getId()));
       // Check it out
       if (!workflowHelper.isCheckedOutToCurrentUser(update.getId())) {
