@@ -30,10 +30,18 @@
     /**
      * Makes a call to the server and calls the supplied callback with status and result. See $.PercServiceUtils.makeJsonRequest
      * for more details.
+     * @param itemId (String) guid of the page or asset
+     * @param itemType (String) optional; "page" or "asset". Defaults to asset.
+     * @param callback function(status, result)
      */
-    function getSiteImpactDetails(itemId, callback)
+    function getSiteImpactDetails(itemId, itemType, callback)
     {
-        var url = $.perc_paths.ASSET_SITE_IMPACT + "/" + itemId;
+        if (typeof itemType === "function") {
+            callback = itemType;
+            itemType = null;
+        }
+        var baseUrl = itemType === "page" ? $.perc_paths.PAGE_SITE_IMPACT : $.perc_paths.ASSET_SITE_IMPACT;
+        var url = baseUrl + "/" + itemId;
         $.PercServiceUtils.makeJsonRequest(url,$.PercServiceUtils.TYPE_GET,false,callback);
     }
 })(jQuery);

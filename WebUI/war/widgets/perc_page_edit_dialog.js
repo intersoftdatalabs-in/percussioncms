@@ -146,6 +146,15 @@
             setTimeout(function () { _handleAutoSummary();}, 4000);
 
             $("#edit-page-metadata-frame").contents().find("#perc-content-edit-metadata-link").show();
+
+            // Site impact for pages (parity with asset edit): reverse links / relationships.
+            var $siteImpactPanel = $("#edit-page-metadata-frame").contents().find("#perc-site-impact-panel");
+            if ($siteImpactPanel.length && pageid) {
+                $siteImpactPanel.show();
+                if ($.PercSiteImpactView && typeof $.PercSiteImpactView.renderSiteImpact === "function") {
+                    $.PercSiteImpactView.renderSiteImpact(pageid, $.PercSiteImpactView.ITEM_TYPE_PAGE, $siteImpactPanel);
+                }
+            }
         }
 
         // A private helper method to group the fields and create collapsible sections

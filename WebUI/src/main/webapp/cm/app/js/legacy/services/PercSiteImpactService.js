@@ -28,9 +28,22 @@
   /**
    * Makes a call to the server and calls the supplied callback with status and result. See $.PercServiceUtils.makeJsonRequest
    * for more details.
+   * @param itemId (String) guid of the page or asset
+   * @param itemType (String) optional; use PercSiteImpactView.ITEM_TYPE_PAGE or ITEM_TYPE_ASSET.
+   *        Defaults to asset for backward compatibility.
+   * @param callback function(status, result)
    */
-  function getSiteImpactDetails(itemId, callback) {
-    var url = $.perc_paths.ASSET_SITE_IMPACT + "/" + itemId;
+  function getSiteImpactDetails(itemId, itemType, callback) {
+    // Back-compat: older callers pass (itemId, callback)
+    if (typeof itemType === "function") {
+      callback = itemType;
+      itemType = null;
+    }
+    var baseUrl =
+      itemType === "page"
+        ? $.perc_paths.PAGE_SITE_IMPACT
+        : $.perc_paths.ASSET_SITE_IMPACT;
+    var url = baseUrl + "/" + itemId;
     $.PercServiceUtils.makeJsonRequest(
       url,
       $.PercServiceUtils.TYPE_GET,

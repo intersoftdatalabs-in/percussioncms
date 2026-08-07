@@ -486,17 +486,38 @@ public class PSItemService implements IPSItemService {
 
   // FIXME: This really needs to be re-factored so that it is working with Jackson or Jaxb or
   // something.
+  @Override
   @GET
   @Path("siteimpact/asset/{assetId}")
   @Produces(MediaType.TEXT_PLAIN)
   public String getAssetSiteImpact(@PathParam("assetId") String assetId) {
+    return buildSiteImpactJson(assetId, "asset");
+  }
+
+  @Override
+  @GET
+  @Path("siteimpact/page/{pageId}")
+  @Produces(MediaType.TEXT_PLAIN)
+  public String getPageSiteImpact(@PathParam("pageId") String pageId) {
+    return buildSiteImpactJson(pageId, "page");
+  }
+
+  /**
+   * Shared site-impact JSON builder for assets and pages. Finds relationship owners (walks nested
+   * assets) and managed-link parents that reference the item, then resolves page/template details.
+   *
+   * @param itemId guid string of the asset or page, assumed not blank
+   * @param itemKind label for logs ("asset" or "page")
+   * @return JSON string with pages and templates arrays; never null
+   */
+  private String buildSiteImpactJson(String itemId, String itemKind) {
     Map<String, Object> result = new LinkedHashMap<>();
     Set<String> ownerPages = new HashSet<>();
     Set<String> ownerTemplates = new HashSet<>();
     try {
-      fillOwners(assetId, ownerPages, ownerTemplates);
+      fillOwners(itemId, ownerPages, ownerTemplates);
 
-      getManagedLinkOwners(assetId, ownerPages, ownerTemplates, MAX_PAGES_SITEIMPACT);
+      getManagedLinkOwners(itemId, ownerPages, ownerTemplates, MAX_PAGES_SITEIMPACT);
       List<Object> pageArray = new ArrayList<>();
       for (String page : ownerPages) {
         PSItemProperties itemProps = null;
@@ -504,9 +525,11 @@ public class PSItemService implements IPSItemService {
           itemProps = folderHelper.findItemPropertiesById(page);
         } catch (Exception e) {
           log.error(
-              "An error occurred while processing Asset Impact checking item properties for Page:"
-                  + " {} Error: {}",
+              "An error occurred while processing Site Impact checking item properties for Page:"
+                  + " {} (target {} id: {}) Error: {}",
               page,
+              itemKind,
+              itemId,
               PSExceptionUtils.getMessageForLog(e));
           log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
@@ -521,8 +544,11 @@ public class PSItemService implements IPSItemService {
           template = templateService.find(templateId);
         } catch (Exception e) {
           log.error(
-              "An error occurred while processing Asset Impact with Template {} Error: {}",
+              "An error occurred while processing Site Impact with Template {} (target {} id: {})"
+                  + " Error: {}",
               templateId,
+              itemKind,
+              itemId,
               PSExceptionUtils.getMessageForLog(e));
           log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
@@ -559,9 +585,14 @@ public class PSItemService implements IPSItemService {
       result.put("templates", templateArray);
     } catch (Exception e) {
       log.error(
-          "An unexpected error occurred while fetching the site impact details for the asset.", e);
+          "An unexpected error occurred while fetching the site impact details for the {}.",
+          itemKind,
+          e);
       throw new WebApplicationException(
-          "An unexpected error occurred while fetching the site impact details for the asset.", e);
+          "An unexpected error occurred while fetching the site impact details for the "
+              + itemKind
+              + ".",
+          e);
     }
     try {
       ObjectMapper mapper = JsonMapper.builder().build();
@@ -574,17 +605,17 @@ public class PSItemService implements IPSItemService {
 
   /**
    * Helper function that fills the supplied set of owner pages and templates with the owners of the
-   * of the given asset, calls it self if the owner of the given asset is an asset.
+   * of the given item, calls itself if the owner is an asset (nested local content).
    *
-   * @param assetId assumed not blank.
+   * @param itemId assumed not blank (asset or page guid string).
    * @param ownerPages assumed not <code>null</code>, may be empty.
    * @param ownerTemplates assumed not <code>null</code>, may be empty.
    */
-  private void fillOwners(String assetId, Set<String> ownerPages, Set<String> ownerTemplates)
+  private void fillOwners(String itemId, Set<String> ownerPages, Set<String> ownerTemplates)
       throws PSValidationException {
     Set<String> owners = null;
 
-    owners = waRelService.getRelationshipOwners(assetId, true);
+    owners = waRelService.getRelationshipOwners(itemId, true);
 
     if (owners != null) {
       for (String owner : owners) {
@@ -600,10 +631,10 @@ public class PSItemService implements IPSItemService {
   }
 
   private void getManagedLinkOwners(
-      String assetId, Set<String> ownerPages, Set<String> ownerTemplates, int limit) {
+      String itemId, Set<String> ownerPages, Set<String> ownerTemplates, int limit) {
 
-    IPSGuid assetGuid = idMapper.getGuid(assetId);
-    List<PSManagedLink> links = linkService.findLinksByChildId(idMapper.getContentId(assetGuid));
+    IPSGuid itemGuid = idMapper.getGuid(itemId);
+    List<PSManagedLink> links = linkService.findLinksByChildId(idMapper.getContentId(itemGuid));
 
     for (PSManagedLink link : links) {
 

@@ -143,6 +143,16 @@ public interface IPSItemService {
   String getAssetSiteImpact(String assetId);
 
   /**
+   * Calculates the site impact of a page: pages and templates that reverse-relate to or hold
+   * managed links targeting the given page. Response JSON shape matches {@link
+   * #getAssetSiteImpact(String)}.
+   *
+   * @param pageId The id of the page in the string format of the guid, must not be blank
+   * @return String representation of the JSON object, never null
+   */
+  String getPageSiteImpact(String pageId);
+
+  /**
    * Adds a page to logged in user's my pages.
    *
    * @param pageId guid of the page id, must not be blank
