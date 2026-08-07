@@ -143,8 +143,12 @@ class PercDoctorPackagingTest {
     assertTrue(
         guideText.contains("clean-heap-dumps")
             && guideText.contains("clean-install-backups")
-            && guideText.contains("clean-logs"),
-        "install guide must cover all shipped commands");
+            && guideText.contains("clean-logs")
+            && (guideText.contains("diagnose") || guideText.contains("health"))
+            && guideText.contains("clean-temp")
+            && guideText.contains("check-config")
+            && guideText.contains("fix-permissions"),
+        "install guide must cover all shipped commands including diagnose/health");
     assertTrue(
         guideText.contains("bin/perc-doctor") || guideText.contains("bin\\perc-doctor"),
         "install guide must document install-tree bin wrappers");

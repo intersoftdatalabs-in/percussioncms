@@ -71,7 +71,7 @@ public class DoctorRestService {
    * Execute a doctor command.
    *
    * @param command CLI command token ({@code clean-heap-dumps}, {@code clean-install-backups},
-   *     {@code clean-logs})
+   *     {@code clean-logs}, {@code clean-temp})
    * @param request JSON body; may be null (treated as empty dry-run request)
    * @return structured report (same fields as CLI inventory/action report)
    */

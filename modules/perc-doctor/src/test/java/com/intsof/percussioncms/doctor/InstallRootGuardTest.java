@@ -156,6 +156,29 @@ class InstallRootGuardTest {
   }
 
   @Test
+  void existingTempDirsOnlyReturnsPresentDirsUnderRoot() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("cms-temp"));
+    Path cmsTemp = Files.createDirectories(root.resolve("temp"));
+    Path jettyWork =
+        Files.createDirectories(root.resolve("jetty").resolve("base").resolve("work"));
+    // DTS temp/work intentionally missing
+    java.util.List<Path> dirs = InstallRootGuard.existingTempDirs(root);
+    assertEquals(2, dirs.size());
+    assertTrue(dirs.contains(cmsTemp.toAbsolutePath().normalize()));
+    assertTrue(dirs.contains(jettyWork.toAbsolutePath().normalize()));
+  }
+
+  @Test
+  void tempDirRelativeAllowlistIsDocumentedAndStable() {
+    // Guard against accidental allowlist expansion without docs/tests.
+    assertEquals(4, InstallRootGuard.TEMP_DIR_RELATIVE.length);
+    assertEquals("temp", InstallRootGuard.TEMP_DIR_RELATIVE[0]);
+    assertEquals("jetty/base/work", InstallRootGuard.TEMP_DIR_RELATIVE[1]);
+    assertEquals("Deployment/Server/temp", InstallRootGuard.TEMP_DIR_RELATIVE[2]);
+    assertEquals("Deployment/Server/work", InstallRootGuard.TEMP_DIR_RELATIVE[3]);
+  }
+
+  @Test
   void resolveRelativeUnderRootRejectsDotDot() throws Exception {
     Path root = Files.createDirectories(tempDir.resolve("cms-rel")).toAbsolutePath().normalize();
     Path resolved = InstallRootGuard.resolveRelativeUnderRoot(root, "jetty/base/logs");

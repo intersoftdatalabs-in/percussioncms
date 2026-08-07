@@ -1,7 +1,7 @@
 # perc-doctor operator install guide
 
 **Module:** `modules/perc-doctor`  
-**Issues:** [#2220](https://github.com/intersoftdatalabs-in/percussioncms/issues/2220) (packaging), [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213) (parent)
+**Issues:** [#2220](https://github.com/intersoftdatalabs-in/percussioncms/issues/2220) (packaging), [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213) (parent), [#2232](https://github.com/intersoftdatalabs-in/percussioncms/issues/2232) (`clean-temp`)
 
 This guide is for operators running **perc-doctor** against a CMS install on Windows or Linux. Prefer **dry-run first** for every command; only apply after you review the candidate list and sizes.
 
@@ -65,6 +65,28 @@ For every command:
 4. Prefer off-hours for apply when reclaiming large log trees.
 
 ## Commands
+
+### `diagnose` / `health` (read-only)
+
+Run a non-mutating install checklist (layout dirs, free disk, key config presence, Java version, known log dirs). **Never deletes.** Alias: `health` is the same command. Safe to run anytime; prefer `-v` for checklist detail.
+
+**Linux / macOS:**
+
+```bash
+cd /opt/Percussion
+./bin/perc-doctor -v diagnose
+# or
+./bin/perc-doctor --dry-run -v health
+```
+
+**Windows:**
+
+```bat
+cd /d C:\Percussion
+bin\perc-doctor.bat -v diagnose
+```
+
+Exit code is non-zero when any check is `FAIL` (e.g. missing `jetty/base` or `rxconfig`). WARN-only outcomes still exit 0.
 
 ### `clean-heap-dumps`
 
@@ -154,6 +176,89 @@ bin\perc-doctor.bat --install-root C:\Percussion --dry-run -v clean-logs --older
 bin\perc-doctor.bat --install-root C:\Percussion -v clean-logs --older-than 14d
 ```
 
+### `clean-temp`
+
+Removes **files** under known install temp / work directories only. Prefer stopping CMS / DTS first so files are not locked. Allowlisted roots themselves are retained.
+
+| Relative path | Role |
+|---------------|------|
+| `temp` | CMS install temp |
+| `jetty/base/work` | Jetty work directory |
+| `Deployment/Server/temp` | DTS Tomcat temp |
+| `Deployment/Server/work` | DTS Tomcat work |
+
+**Dry-run first:**
+
+```bash
+./bin/perc-doctor --install-root /opt/Percussion --dry-run -v clean-temp
+```
+
+```bat
+bin\perc-doctor.bat --install-root C:\Percussion --dry-run -v clean-temp
+```
+
+**Apply (only after review; prefer CMS/DTS stopped):**
+
+```bash
+./bin/perc-doctor --install-root /opt/Percussion -v clean-temp
+```
+
+```bat
+bin\perc-doctor.bat --install-root C:\Percussion -v clean-temp
+```
+
+### `check-config`
+
+Read-only **value / misconfig** checklist on documented config files (beyond presence-only checks). Always non-mutating; `--dry-run` is accepted for flag parity.
+
+Scoped files:
+
+- `rxconfig/Server/server.properties` — e.g. `enableDebugTools`, CSRF disable, `bindPort`, `requireHTTPS`
+- `rxconfig/Installer/rxrepository.properties` — required JDBC keys, driver/backend consistency, weak `PWD`, plaintext `PWD_ENCRYPTED`
+
+Exit code is non-zero when any check is **FAIL**. Password values are never printed.
+
+**Safe inventory (Linux / macOS):**
+
+```bash
+./bin/perc-doctor --install-root /opt/Percussion --dry-run -v check-config
+```
+
+**Safe inventory (Windows):**
+
+```bat
+bin\perc-doctor.bat --install-root C:\Percussion -v check-config
+```
+
+### `fix-permissions`
+
+Reports (and on POSIX can fix) **allowlisted** mode / access issues only — no shell, no user globs. Prefer dry-run first.
+
+| Target | Fix behavior |
+|--------|----------------|
+| `bin/perc-doctor` (+ `.bat` / `.jar` report) | POSIX: add owner-execute on the Unix script when missing |
+| Known log directories | POSIX: ensure owner rwx when the directory exists |
+| Key `rxconfig` property files | POSIX: ensure owner-read when present |
+
+On Windows the command reports readable/writable and does **not** rewrite ACLs.
+
+**Dry-run first:**
+
+```bash
+./bin/perc-doctor --install-root /opt/Percussion --dry-run -v fix-permissions
+```
+
+```bat
+bin\perc-doctor.bat --install-root C:\Percussion --dry-run -v fix-permissions
+```
+
+**Apply (POSIX mode bits only):**
+
+```bash
+./bin/perc-doctor --install-root /opt/Percussion -v fix-permissions
+```
+
+
 ## Distribution packaging (developers)
 
 Module `mvnw clean install` attaches:
@@ -170,4 +275,5 @@ Module `mvnw clean install` attaches:
 
 - Module README: [../README.md](../README.md)
 - Parent epic: [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213)
-- Admin HTTP API: deferred ([#2219](https://github.com/intersoftdatalabs-in/percussioncms/issues/2219))
+- `clean-temp` slice: [#2232](https://github.com/intersoftdatalabs-in/percussioncms/issues/2232)
+- Admin HTTP API: shipped with MVP cluster ([#2219](https://github.com/intersoftdatalabs-in/percussioncms/issues/2219) / [#2230](https://github.com/intersoftdatalabs-in/percussioncms/pull/2230))
