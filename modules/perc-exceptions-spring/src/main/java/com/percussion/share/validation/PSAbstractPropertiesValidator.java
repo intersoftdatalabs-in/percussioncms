@@ -16,9 +16,8 @@
  */
 package com.percussion.share.validation;
 
-import static org.apache.commons.lang3.Validate.*;
-
 import com.percussion.share.service.exception.PSPropertiesValidationException;
+import org.apache.commons.lang3.Validate;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
@@ -69,7 +68,7 @@ public abstract class PSAbstractPropertiesValidator<PROPERTIES> implements Valid
    * @return {@code true} only when {@code klass} equals the type returned by {@link #getType()}.
    */
   public boolean supports(Class<?> klass) {
-    notNull(getType(), "getType() cannot return null");
+    Validate.notNull(getType(), "getType() cannot return null");
     if (klass == getType()) return true;
     return false;
   }
@@ -87,13 +86,14 @@ public abstract class PSAbstractPropertiesValidator<PROPERTIES> implements Valid
    * Spring {@link Validator} entry point that forwards to {@link #doValidation} after the supplied
    * {@code errors} container has been cast to {@link PSPropertiesValidationException}.
    *
+   * <p>Uses {@link Class#cast(Object)} via {@link #getType()} so no unchecked cast is required.
+   *
    * @param properties the property-like object to validate, expected to be of type {@code
    *     PROPERTIES}.
    * @param errors the {@link PSPropertiesValidationException} container to populate, never {@code
    *     null}.
    */
-  @SuppressWarnings("unchecked")
   public void validate(Object properties, Errors errors) {
-    doValidation((PROPERTIES) properties, (PSPropertiesValidationException) errors);
+    doValidation(getType().cast(properties), (PSPropertiesValidationException) errors);
   }
 }

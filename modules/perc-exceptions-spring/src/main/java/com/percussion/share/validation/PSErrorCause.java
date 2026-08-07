@@ -23,19 +23,18 @@ import jakarta.xml.bind.annotation.XmlTransient;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * A JAXB serializable Exception wrapper.
  *
+ * <p>Constructors and {@link #init(Throwable, boolean)} assign fields directly (or via {@code
+ * final} helpers) so construction is free of {@code this-escape} under {@code -Xlint:all}.
+ *
  * @author adamgent
  */
 @XmlRootElement(name = "ErrorCause")
-@SuppressWarnings("this-escape")
 public class PSErrorCause {
 
-  private static final Logger log = LogManager.getLogger("Server");
   private PSErrorCause errorCause;
   private List<PSErrorCauseElement> errorCauseStackTrace;
   private StackTraceElement[] stackTrace;
@@ -61,19 +60,22 @@ public class PSErrorCause {
   /**
    * Initializes the wrapper with the given throwable and stack-trace visibility flag.
    *
+   * <p>{@code final} and field-direct so constructors do not leak {@code this} through overridable
+   * methods.
+   *
    * @param t the throwable to wrap, may be {@code null}.
    * @param sendErrorStackToClient when {@code true}, the stack trace is included for delivery to
    *     the client.
    */
-  protected void init(Throwable t, boolean sendErrorStackToClient) {
-    setLocalizedMessage(t.getLocalizedMessage());
-    setMessage(t.getMessage());
+  protected final void init(Throwable t, boolean sendErrorStackToClient) {
+    this.localizedMessage = SecureStringUtils.sanitizeStringForHTML(t.getLocalizedMessage());
+    this.message = SecureStringUtils.sanitizeStringForHTML(t.getMessage());
 
     if (sendErrorStackToClient) {
-      setStackTrace(t.getStackTrace());
+      applyStackTrace(t.getStackTrace());
     }
 
-    setCause(t.getCause());
+    applyCause(t.getCause());
   }
 
   /**
@@ -90,7 +92,7 @@ public class PSErrorCause {
    *
    * @param cause the nested cause wrapper, may be {@code null}.
    */
-  public void setErrorCause(PSErrorCause cause) {
+  public final void setErrorCause(PSErrorCause cause) {
     this.errorCause = cause;
   }
 
@@ -109,10 +111,14 @@ public class PSErrorCause {
    *
    * @param cause the underlying throwable, may be {@code null}.
    */
-  public void setCause(Throwable cause) {
+  public final void setCause(Throwable cause) {
+    applyCause(cause);
+  }
+
+  private void applyCause(Throwable cause) {
     this.cause = cause;
     if (cause != null) {
-      setErrorCause(new PSErrorCause(cause));
+      this.errorCause = new PSErrorCause(cause);
     }
   }
 
@@ -130,7 +136,7 @@ public class PSErrorCause {
    *
    * @param errorCauseStackTrace the new cause stack trace list, may be {@code null}.
    */
-  public void setErrorCauseStackTrace(List<PSErrorCauseElement> errorCauseStackTrace) {
+  public final void setErrorCauseStackTrace(List<PSErrorCauseElement> errorCauseStackTrace) {
     this.errorCauseStackTrace = errorCauseStackTrace;
   }
 
@@ -159,7 +165,11 @@ public class PSErrorCause {
    *
    * @param stackTrace the new stack trace, may be {@code null}.
    */
-  public void setStackTrace(StackTraceElement[] stackTrace) {
+  public final void setStackTrace(StackTraceElement[] stackTrace) {
+    applyStackTrace(stackTrace);
+  }
+
+  private void applyStackTrace(StackTraceElement[] stackTrace) {
     this.stackTrace = stackTrace;
     if (stackTrace != null) {
       errorCauseStackTrace = new ArrayList<>();
@@ -183,7 +193,7 @@ public class PSErrorCause {
    *
    * @param message the message to sanitize and store, may be {@code null}.
    */
-  public void setMessage(String message) {
+  public final void setMessage(String message) {
     this.message = SecureStringUtils.sanitizeStringForHTML(message);
   }
 
@@ -201,7 +211,7 @@ public class PSErrorCause {
    *
    * @param localizedMessage the localized message to sanitize and store, may be {@code null}.
    */
-  public void setLocalizedMessage(String localizedMessage) {
+  public final void setLocalizedMessage(String localizedMessage) {
     this.localizedMessage = SecureStringUtils.sanitizeStringForHTML(localizedMessage);
   }
 
@@ -234,13 +244,15 @@ public class PSErrorCause {
     /**
      * Constructs an element by copying the relevant fields from the supplied stack trace element.
      *
+     * <p>Fields are assigned directly so construction is {@code this-escape} free.
+     *
      * @param element the stack trace element to copy, never {@code null}.
      */
     public PSErrorCauseElement(StackTraceElement element) {
-      setClassName(element.getClassName());
-      setFileName(element.getFileName());
-      setLineNumber(element.getLineNumber());
-      setMethodName(element.getMethodName());
+      this.className = element.getClassName();
+      this.fileName = element.getFileName();
+      this.lineNumber = element.getLineNumber();
+      this.methodName = element.getMethodName();
     }
 
     /**
@@ -258,7 +270,7 @@ public class PSErrorCause {
      *
      * @param className the class name, may be {@code null}.
      */
-    public void setClassName(String className) {
+    public final void setClassName(String className) {
       this.className = className;
     }
 
@@ -277,7 +289,7 @@ public class PSErrorCause {
      *
      * @param fileName the file name, may be {@code null}.
      */
-    public void setFileName(String fileName) {
+    public final void setFileName(String fileName) {
       this.fileName = fileName;
     }
 
@@ -296,7 +308,7 @@ public class PSErrorCause {
      *
      * @param lineNumber the line number; pass a negative value when unknown.
      */
-    public void setLineNumber(int lineNumber) {
+    public final void setLineNumber(int lineNumber) {
       this.lineNumber = lineNumber;
     }
 
@@ -315,11 +327,8 @@ public class PSErrorCause {
      *
      * @param methodName the method name, may be {@code null}.
      */
-    public void setMethodName(String methodName) {
+    public final void setMethodName(String methodName) {
       this.methodName = methodName;
     }
   }
-
-  /** */
-  private static final long serialVersionUID = -3237445850903443415L;
 }

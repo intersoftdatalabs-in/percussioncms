@@ -22,10 +22,14 @@ import org.springframework.validation.BeanPropertyBindingResult;
 /**
  * Used to validate Java Bean data objects (aka POJOs with out behavior).
  *
+ * <p>Constructors pass a pre-built {@link BeanPropertyBindingResult} into the parent so the Spring
+ * {@link org.springframework.validation.Errors} field is assigned by direct field write (no {@code
+ * this-escape} under {@code -Xlint:all}). This class is {@code final} so constructors cannot be
+ * observed by a partially initialized subclass.
+ *
  * @author adamgent
  */
-@SuppressWarnings("this-escape")
-public class PSBeanValidationException extends PSSpringValidationException {
+public final class PSBeanValidationException extends PSSpringValidationException {
 
   private static final long serialVersionUID = 8097878230304938879L;
 
@@ -46,12 +50,14 @@ public class PSBeanValidationException extends PSSpringValidationException {
    *     never {@code null}.
    */
   public PSBeanValidationException(Object target, String methodName) {
-    super(methodName);
-    init(target, methodName);
+    super(methodName, new BeanPropertyBindingResult(target, methodName));
   }
 
   /**
    * Constructs a bean validation exception with a custom message and cause.
+   *
+   * <p>The binding result is installed via the parent constructor; when {@code cause} is
+   * non-{@code null} it is recorded as a global rejection during that {@code super} call.
    *
    * @param target the bean being validated, may be {@code null}.
    * @param methodName the canonical name used to identify the bean in the resulting binding result,
@@ -61,18 +67,19 @@ public class PSBeanValidationException extends PSSpringValidationException {
    */
   public PSBeanValidationException(
       Object target, String methodName, String message, Throwable cause) {
-    super(message, cause);
-    init(target, methodName);
+    super(message, cause, new BeanPropertyBindingResult(target, methodName), true);
   }
 
   /**
-   * Initializes this exception with a Spring {@link BeanPropertyBindingResult} for the supplied
-   * target.
+   * Replaces the Spring binding result for the supplied target.
+   *
+   * <p>Prefer constructors that install the binding result via {@code super}; this method remains
+   * for post-construction reconfiguration.
    *
    * @param target the bean being validated, may be {@code null}.
    * @param objectName the name to associate with the binding result, never {@code null}.
    */
-  protected void init(Object target, String objectName) {
+  public void init(Object target, String objectName) {
     setSpringValidationErrors(new BeanPropertyBindingResult(target, objectName));
   }
 }

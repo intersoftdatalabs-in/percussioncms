@@ -25,15 +25,20 @@ import org.springframework.validation.MapBindingResult;
 /**
  * Used to validate property objects like {@link Map} and {@link Properties}.
  *
+ * <p>The property map field is a concrete {@link HashMap} so the serializable exception hierarchy
+ * satisfies {@code -Xlint:serial} (interface {@link Map} is not {@link java.io.Serializable}).
+ * Constructors install a {@link MapBindingResult} via the parent constructor (direct field write;
+ * no {@code this-escape}). This class is {@code final} so constructors cannot be observed by a
+ * partially initialized subclass.
+ *
  * @author adamgent
  */
-@SuppressWarnings({"serial", "this-escape"})
-public class PSPropertiesValidationException extends PSSpringValidationException {
+public final class PSPropertiesValidationException extends PSSpringValidationException {
 
   private static final long serialVersionUID = 1L;
 
   /** The property map that backs the binding result; never {@code null}. */
-  private Map<String, Object> properties = new HashMap<>();
+  private final HashMap<String, Object> properties;
 
   /**
    * Constructs a properties validation exception for the given target and method.
@@ -42,9 +47,7 @@ public class PSPropertiesValidationException extends PSSpringValidationException
    * @param methodName the name to associate with the resulting binding result, never {@code null}.
    */
   public PSPropertiesValidationException(Object target, String methodName) {
-    super(methodName);
-    init(target, methodName);
-    setProperties(getProperties());
+    this(new HashMap<>(), methodName, methodName, null, false);
   }
 
   /**
@@ -57,9 +60,21 @@ public class PSPropertiesValidationException extends PSSpringValidationException
    */
   public PSPropertiesValidationException(
       Object target, String methodName, String message, Throwable cause) {
-    super(message, cause);
-    init(target, methodName);
-    setProperties(getProperties());
+    this(new HashMap<>(), methodName, message, cause, true);
+  }
+
+  /**
+   * Primary constructor: owns the property map and installs a {@link MapBindingResult} through the
+   * parent so no instance methods run on a partially initialized subclass.
+   */
+  private PSPropertiesValidationException(
+      HashMap<String, Object> properties,
+      String methodName,
+      String message,
+      Throwable cause,
+      boolean rejectCause) {
+    super(message, cause, new MapBindingResult(properties, methodName), rejectCause);
+    this.properties = properties;
   }
 
   /**
@@ -68,7 +83,7 @@ public class PSPropertiesValidationException extends PSSpringValidationException
    * @param target the property-like object being validated, may be {@code null}.
    * @param objectName the name to associate with the resulting binding result, never {@code null}.
    */
-  protected void init(Object target, String objectName) {
+  public void init(Object target, String objectName) {
     init(getProperties(), objectName);
   }
 
@@ -78,7 +93,7 @@ public class PSPropertiesValidationException extends PSSpringValidationException
    * @param properties the property map to validate, never {@code null}.
    * @param objectName the name to associate with the resulting binding result, never {@code null}.
    */
-  protected void init(Map<String, Object> properties, String objectName) {
+  public void init(Map<String, Object> properties, String objectName) {
     MapBindingResult mbr = new MapBindingResult(properties, objectName);
     setSpringValidationErrors(mbr);
   }
@@ -93,12 +108,16 @@ public class PSPropertiesValidationException extends PSSpringValidationException
   }
 
   /**
-   * Replaces the underlying property map and rebuilds the binding result.
+   * Replaces the contents of the underlying property map and rebuilds the binding result.
+   *
+   * <p>Clears and repopulates the existing {@link HashMap} so the field remains the same concrete
+   * serializable instance under {@code -Xlint:serial}.
    *
    * @param parameters the new property map, never {@code null}.
    */
   public void setProperties(Map<String, Object> parameters) {
-    this.properties = parameters;
-    init(parameters, getObjectName());
+    this.properties.clear();
+    this.properties.putAll(parameters);
+    init(this.properties, getObjectName());
   }
 }
