@@ -16,6 +16,7 @@
 
 import React, { useState } from "react";
 import { message } from "../i18n/message";
+import styles from "../admin/AdminChrome.module.css";
 import { WF_ADMIN_MSG } from "./messages";
 import { WorkflowSection } from "./workflow/WorkflowSection";
 import { RolesSection } from "./role/RolesSection";
@@ -60,29 +61,22 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
     normalizeWorkflowAdminTab(initialTab),
   );
 
+  const tabClass = (tab: WorkflowAdminTab): string =>
+    activeTab === tab ? `${styles.tab} ${styles.tabActive}` : styles.tab;
+
   return (
     <div
-      className="perc-workflow-admin-shell"
+      className={`perc-workflow-admin-shell ${styles.shell}`}
       data-testid="perc-workflow-admin-shell"
-      style={{
-        fontFamily: "var(--perc-font-family, sans-serif)",
-        padding: "20px",
-        maxWidth: "1200px",
-        margin: "0 auto",
-      }}
     >
-      <header style={{ marginBottom: "20px" }}>
+      <header className={styles.header}>
         <h1>{message(WF_ADMIN_MSG.TITLE)}</h1>
       </header>
 
       <nav
-        className="perc-tab-nav"
+        className={`perc-tab-nav ${styles.tabNav}`}
         role="tablist"
-        style={{
-          display: "flex",
-          borderBottom: "1px solid #e2e8f0",
-          marginBottom: "20px",
-        }}
+        data-testid="perc-workflow-admin-tablist"
       >
         <button
           type="button"
@@ -91,14 +85,7 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
           aria-selected={activeTab === "workflow"}
           aria-controls="panel-workflow"
           onClick={() => setActiveTab("workflow")}
-          style={{
-            padding: "10px 20px",
-            border: "none",
-            borderBottom: activeTab === "workflow" ? "3px solid #007ea8" : "none",
-            fontWeight: activeTab === "workflow" ? 600 : 400,
-            background: "transparent",
-            cursor: "pointer",
-          }}
+          className={tabClass("workflow")}
           data-testid="tab-workflow"
         >
           {message(WF_ADMIN_MSG.TAB_WORKFLOW)}
@@ -111,14 +98,7 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
           aria-selected={activeTab === "roles"}
           aria-controls="panel-roles"
           onClick={() => setActiveTab("roles")}
-          style={{
-            padding: "10px 20px",
-            border: "none",
-            borderBottom: activeTab === "roles" ? "3px solid #007ea8" : "none",
-            fontWeight: activeTab === "roles" ? 600 : 400,
-            background: "transparent",
-            cursor: "pointer",
-          }}
+          className={tabClass("roles")}
           data-testid="tab-roles"
         >
           {message(WF_ADMIN_MSG.TAB_ROLES)}
@@ -131,14 +111,7 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
           aria-selected={activeTab === "users"}
           aria-controls="panel-users"
           onClick={() => setActiveTab("users")}
-          style={{
-            padding: "10px 20px",
-            border: "none",
-            borderBottom: activeTab === "users" ? "3px solid #007ea8" : "none",
-            fontWeight: activeTab === "users" ? 600 : 400,
-            background: "transparent",
-            cursor: "pointer",
-          }}
+          className={tabClass("users")}
           data-testid="tab-users"
         >
           {message(WF_ADMIN_MSG.TAB_USERS)}
@@ -151,14 +124,7 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
           aria-selected={activeTab === "categories"}
           aria-controls="panel-categories"
           onClick={() => setActiveTab("categories")}
-          style={{
-            padding: "10px 20px",
-            border: "none",
-            borderBottom: activeTab === "categories" ? "3px solid #007ea8" : "none",
-            fontWeight: activeTab === "categories" ? 600 : 400,
-            background: "transparent",
-            cursor: "pointer",
-          }}
+          className={tabClass("categories")}
           data-testid="tab-categories"
         >
           {message(WF_ADMIN_MSG.TAB_CATEGORIES)}
@@ -166,7 +132,7 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
       </nav>
 
       <main
-        className="perc-tab-content"
+        className={`perc-tab-content ${styles.tabContent}`}
         role="tabpanel"
         id={`panel-${activeTab}`}
         aria-labelledby={`tab-${activeTab}`}

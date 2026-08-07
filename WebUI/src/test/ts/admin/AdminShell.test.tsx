@@ -43,6 +43,20 @@ describe("AdminShell", () => {
     expect(screen.getByTestId("mock-tasks-section")).toBeDefined();
   });
 
+  it("exposes responsive tablist chrome for narrow / portrait layouts", () => {
+    render(<AdminShell />);
+    const shell = screen.getByTestId("perc-admin-shell");
+    const tablist = screen.getByTestId("perc-admin-tablist");
+    expect(tablist.getAttribute("role")).toBe("tablist");
+    // CSS modules attach hashed classes; ensure nav is classed (not only inline styles).
+    expect(tablist.className.length).toBeGreaterThan(0);
+    expect(shell.className.length).toBeGreaterThan(0);
+    expect(screen.getByTestId("tab-tasks")).toBeDefined();
+    expect(screen.getByTestId("tab-logs")).toBeDefined();
+    expect(screen.getByTestId("tab-notifications")).toBeDefined();
+    expect(screen.getByTestId("tab-tools")).toBeDefined();
+  });
+
   it("switches tabs when nav buttons are clicked", () => {
     render(<AdminShell />);
 
