@@ -77,10 +77,10 @@ public class PSCopy extends Copy {
    */
   private void modifyFileMap() {
     if (fileCopyMap.size() > 0) {
-      Enumeration e = fileCopyMap.keys();
+      Enumeration<String> e = fileCopyMap.keys();
       while (e.hasMoreElements()) {
-        String fromFile = (String) e.nextElement();
-        String[] toFiles = (String[]) fileCopyMap.get(fromFile);
+        String fromFile = e.nextElement();
+        String[] toFiles = fileCopyMap.get(fromFile);
         ArrayList<String> toFilesList = new ArrayList<String>();
 
         for (int i = 0; i < toFiles.length; i++) {

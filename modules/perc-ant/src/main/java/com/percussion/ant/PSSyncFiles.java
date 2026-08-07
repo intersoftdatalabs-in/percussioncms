@@ -79,27 +79,27 @@ public class PSSyncFiles extends Task {
     setCopies(m_fromDir);
 
     // process deletes
-    Iterator it = null;
+    Iterator<File> it = null;
     File current = null;
     log("Removing " + m_fileDeletes.size() + " files from destination");
     it = m_fileDeletes.iterator();
     while (it.hasNext()) {
-      current = (File) it.next();
+      current = it.next();
       deleteFile(current);
     }
     log("Removing " + m_dirDeletes.size() + " directories from destination");
     it = m_dirDeletes.iterator();
     while (it.hasNext()) {
-      current = (File) it.next();
+      current = it.next();
       deleteFile(current);
     }
 
     // process copies
-    Set keys = m_dirCopies.keySet();
+    Set<File> keys = m_dirCopies.keySet();
     log("Copying " + m_dirCopies.size() + " directories to" + " destination");
     it = keys.iterator();
     while (it.hasNext()) {
-      current = (File) it.next();
+      current = it.next();
       m_dirCopies.get(current).mkdirs();
     }
     keys = m_fileCopies.keySet();
@@ -107,7 +107,7 @@ public class PSSyncFiles extends Task {
     it = keys.iterator();
     try {
       while (it.hasNext()) {
-        current = (File) it.next();
+        current = it.next();
 
         try {
           copyFile(current, m_fileCopies.get(current));

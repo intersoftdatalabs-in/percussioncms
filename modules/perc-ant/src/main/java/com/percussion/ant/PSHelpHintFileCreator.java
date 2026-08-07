@@ -102,7 +102,7 @@ public class PSHelpHintFileCreator {
    *
    * @return iterator of all unique parsed images. Never <code>null</code>, may be empty.
    */
-  public Iterator getImages() {
+  public Iterator<String> getImages() {
     return m_images.keySet().iterator();
   }
 
@@ -112,9 +112,7 @@ public class PSHelpHintFileCreator {
    * @param out assumed not <code>null</code>.
    */
   private void createFileBody(PrintStream out, Map<String, String> mappings) throws IOException {
-    Iterator it = mappings.keySet().iterator();
-    while (it.hasNext()) {
-      String key = (String) it.next();
+    for (String key : mappings.keySet()) {
       if (key.startsWith(EDITOR_PKG) || key.startsWith(WIZARD_PKG)) {
         final String filename = mappings.get(key);
         if (filename != null && filename.trim().length() > 0) {
@@ -139,11 +137,11 @@ public class PSHelpHintFileCreator {
   private void parseAndWriteHints(PrintStream out, File helpFile, String key) throws IOException {
     String text = getHelpFileText(helpFile);
     Source source = new Source(text);
-    List descTags = getAllFieldDescStartTags(source);
+    List<StartTag> descTags = getAllFieldDescStartTags(source);
     if (descTags.isEmpty()) return;
     for (int i = 0; i < descTags.size(); i++) {
       String content = null;
-      StartTag tagA = (StartTag) descTags.get(i);
+      StartTag tagA = descTags.get(i);
       if (i == descTags.size() - 1) {
         Tag lastTag = tagA.findEndTag();
         while (true) {
@@ -159,7 +157,7 @@ public class PSHelpHintFileCreator {
         content = text.substring(tagA.getBegin(), lastTag.getBegin());
 
       } else {
-        StartTag tagB = (StartTag) descTags.get(i + 1);
+        StartTag tagB = descTags.get(i + 1);
         content = text.substring(tagA.getBegin(), tagB.getBegin());
       }
 
@@ -200,8 +198,8 @@ public class PSHelpHintFileCreator {
   private String handleImages(String content) {
     Source source = new Source(content);
     OutputDocument outputDoc = new OutputDocument(content);
-    for (Iterator it = source.findAllStartTags(ELEM_IMAGE).iterator(); it.hasNext(); ) {
-      StartTag sTag = (StartTag) it.next();
+    for (Object tagObj : source.findAllStartTags(ELEM_IMAGE)) {
+      StartTag sTag = (StartTag) tagObj;
       Attributes attrs = sTag.getAttributes();
       Attribute attr = attrs.get(ATTR_SOURCE);
       String value = attr.getValue();
@@ -229,8 +227,8 @@ public class PSHelpHintFileCreator {
   private String handleAnchors(String content) {
     Source source = new Source(content);
     OutputDocument outputDoc = new OutputDocument(content);
-    for (Iterator it = source.findAllStartTags(ELEM_ANCHOR).iterator(); it.hasNext(); ) {
-      StartTag sTag = (StartTag) it.next();
+    for (Object tagObj : source.findAllStartTags(ELEM_ANCHOR)) {
+      StartTag sTag = (StartTag) tagObj;
       Attributes attrs = sTag.getAttributes();
       Attribute attr = attrs.get(ATTR_HREF);
       String value = attr.getValue();
@@ -257,7 +255,7 @@ public class PSHelpHintFileCreator {
   private String stripTags(String content) {
     Source source = new Source(content);
     OutputDocument outputDoc = new OutputDocument(content);
-    for (Iterator it = source.getNextTagIterator(0); it.hasNext(); ) {
+    for (Iterator<?> it = source.getNextTagIterator(0); it.hasNext(); ) {
       Tag tag = (Tag) it.next();
       outputDoc.add(new StringOutputSegment(tag.getBegin(), tag.getEnd(), ""));
     }
@@ -275,8 +273,8 @@ public class PSHelpHintFileCreator {
     if (!tag.getName().equals(ELEM_TABLE)) return false;
     EndTag eTag = tag.findEndTag();
     Source source = new Source(text.substring(tag.getBegin(), eTag.getEnd()));
-    for (Iterator it = source.findAllStartTags(ELEM_P).iterator(); it.hasNext(); ) {
-      StartTag sTag = (StartTag) it.next();
+    for (Object tagObj : source.findAllStartTags(ELEM_P)) {
+      StartTag sTag = (StartTag) tagObj;
       Attributes attrs = sTag.getAttributes();
       Attribute attr = attrs.get(ATTR_CLASS);
       if (attr != null && attr.getValue().equals(RELATEDHEADING)) return true;
@@ -292,8 +290,8 @@ public class PSHelpHintFileCreator {
    */
   private List<StartTag> getAllFieldDescStartTags(Source source) {
     List<StartTag> tags = new ArrayList<>();
-    for (Iterator<StartTag> it = source.findAllStartTags(ELEM_P).iterator(); it.hasNext(); ) {
-      StartTag sTag = it.next();
+    for (Object tagObj : source.findAllStartTags(ELEM_P)) {
+      StartTag sTag = (StartTag) tagObj;
       if (isFieldDescription(sTag)) {
         tags.add(sTag);
       }
@@ -309,8 +307,8 @@ public class PSHelpHintFileCreator {
    */
   private String getFieldName(String content) {
     Source source = new Source(content);
-    for (Iterator it = source.findAllStartTags(ELEM_STRONG).iterator(); it.hasNext(); ) {
-      StartTag sTag = (StartTag) it.next();
+    for (Object tagObj : source.findAllStartTags(ELEM_STRONG)) {
+      StartTag sTag = (StartTag) tagObj;
       Attributes attrs = sTag.getAttributes();
       Attribute attr = attrs.get(ATTR_CLASS);
       if (attr != null && attr.getValue().equals(FIELDNAME)) {

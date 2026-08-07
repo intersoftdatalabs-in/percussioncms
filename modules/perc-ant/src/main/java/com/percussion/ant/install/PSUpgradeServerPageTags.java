@@ -106,7 +106,7 @@ public class PSUpgradeServerPageTags extends PSAction {
 
         // list of "tag" elements whose attribute "isXslTag" has the
         // value "yes"
-        List processTagNodes = new ArrayList();
+        List<Element> processTagNodes = new ArrayList<>();
 
         NodeList resNl = resDoc.getElementsByTagName("tag");
         for (int i = 0; i < resNl.getLength(); i++) {
@@ -128,7 +128,7 @@ public class PSUpgradeServerPageTags extends PSAction {
           boolean processedOne = false;
 
           for (int i = 0; i < processTagNodes.size(); i++) {
-            PSXmlTreeWalker resWalker = new PSXmlTreeWalker((Element) processTagNodes.get(i));
+            PSXmlTreeWalker resWalker = new PSXmlTreeWalker(processTagNodes.get(i));
             String resOpening = resWalker.getElementData("opening", true);
             String resClosing = resWalker.getElementData("closing", true);
 

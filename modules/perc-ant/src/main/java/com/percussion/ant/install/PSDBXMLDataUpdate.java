@@ -127,7 +127,7 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
       // catalog table data
       // we will catalog the update key columns and the column whose
       // data we need to update
-      List keyColumns = tableSchema.getKeyColumns();
+      List<String> keyColumns = tableSchema.getKeyColumns();
       if (keyColumns.isEmpty()) {
         PSLogger.logInfo("ERROR : No key columns defined for table - " + tableName);
         PSLogger.logInfo("Data cannot be updated in table - " + tableName);
@@ -135,10 +135,10 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
       }
 
       String[] columns = new String[keyColumns.size() + 1];
-      Iterator it = keyColumns.iterator();
+      Iterator<String> it = keyColumns.iterator();
       int index = 0;
       while (it.hasNext()) {
-        columns[index] = (String) it.next();
+        columns[index] = it.next();
         index++;
       }
       columns[index] = columnName;
@@ -159,9 +159,9 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
       // create a plan containing all the update statements
       PSJdbcExecutionPlan plan = new PSJdbcExecutionPlan();
       PSJdbcExecutionStep step = null;
-      Iterator rowIt = tableData.getRows();
+      Iterator<PSJdbcRowData> rowIt = tableData.getRows();
       while (rowIt.hasNext()) {
-        PSJdbcRowData row = (PSJdbcRowData) rowIt.next();
+        PSJdbcRowData row = rowIt.next();
         PSJdbcColumnData colData = row.getColumn(columnName);
         if (colData != null) {
           String colValue = colData.getValue();

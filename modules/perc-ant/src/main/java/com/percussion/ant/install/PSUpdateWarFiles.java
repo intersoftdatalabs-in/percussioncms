@@ -103,7 +103,7 @@ public class PSUpdateWarFiles extends PSAction {
     JarFile srcJarFile = null;
 
     try {
-      Set setJarFiles = new HashSet();
+      Set<String> setJarFiles = new HashSet<>();
       for (int k = 0; k < m_jarFiles.length; k++) {
         String jarFileName = jarFilesPath + new File(m_jarFiles[k]).getName();
 
@@ -156,9 +156,10 @@ public class PSUpdateWarFiles extends PSAction {
 
         // Loop through the jar entries and add/remove them to/from the temp jar,
         // skipping the entry that was added/(to be removed) to/from the temp jar already.
-        for (Enumeration srcJarEntries = srcJarFile.entries(); srcJarEntries.hasMoreElements(); ) {
+        for (Enumeration<JarEntry> srcJarEntries = srcJarFile.entries();
+            srcJarEntries.hasMoreElements(); ) {
           // Get the next entry.
-          JarEntry srcJarEntry = (JarEntry) srcJarEntries.nextElement();
+          JarEntry srcJarEntry = srcJarEntries.nextElement();
 
           String entryName = srcJarEntry.getName();
 
