@@ -54,13 +54,26 @@ public class PSDeploymentServerConnectionXmlMultipartTest {
   @Test
   public void createXmlRequestFileDataStripsPathAndEnsuresXmlSuffix() {
     byte[] xml = "<root/>".getBytes(StandardCharsets.UTF_8);
-    PSBinaryFileData[] parts =
-        PSDeploymentServerConnection.createXmlRequestFileData("C:\\\\temp\\\\dpl_req", xml);
-    assertEquals(1, parts.length);
-    String name = parts[0].getFileName();
-    assertFalse(name.contains("\\") || name.contains("/"), "basename only: " + name);
-    assertTrue(name.toLowerCase(Locale.ROOT).endsWith(".xml"), name);
-    assertEquals(PSDeploymentServerConnection.XML_REQUEST_CONTENT_TYPE, parts[0].getContentType());
+    // Windows-style path (backslashes)
+    PSBinaryFileData[] winParts =
+        PSDeploymentServerConnection.createXmlRequestFileData("C:\\temp\\dpl_req", xml);
+    assertEquals(1, winParts.length);
+    String winName = winParts[0].getFileName();
+    assertFalse(winName.contains("\\") || winName.contains("/"), "basename only: " + winName);
+    assertTrue(winName.toLowerCase(Locale.ROOT).endsWith(".xml"), winName);
+    assertEquals(
+        PSDeploymentServerConnection.XML_REQUEST_CONTENT_TYPE, winParts[0].getContentType());
+
+    // Unix-style path (forward slashes) — same stripping on both separator families
+    PSBinaryFileData[] unixParts =
+        PSDeploymentServerConnection.createXmlRequestFileData("/tmp/dpl_req", xml);
+    assertEquals(1, unixParts.length);
+    String unixName = unixParts[0].getFileName();
+    assertFalse(unixName.contains("\\") || unixName.contains("/"), "basename only: " + unixName);
+    assertTrue(unixName.toLowerCase(Locale.ROOT).endsWith(".xml"), unixName);
+    assertEquals("dpl_req.xml", unixName);
+    assertEquals(
+        PSDeploymentServerConnection.XML_REQUEST_CONTENT_TYPE, unixParts[0].getContentType());
   }
 
   @Test
@@ -75,7 +88,8 @@ public class PSDeploymentServerConnectionXmlMultipartTest {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
     Element root = PSXmlDocumentBuilder.createRoot(doc, "PSXDeployConnectRequest");
     root.setAttribute("userId", "admin");
-    root.setAttribute("password", "secret");
+    // Placeholder only — not a real credential (REVIEW.md: no secrets in fixtures)
+    root.setAttribute("password", "test-password");
 
     NVPair[] opts = new NVPair[] {new NVPair("sessionProbe", "1")};
     NVPair[] hdrs = new NVPair[2];
