@@ -465,8 +465,8 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
       throw new PSDeployException(IPSDeploymentErrors.NULL_INPUT_DOC);
     }
 
-    // Get the list of objects
-    List<PSDeployableObject> depList = new ArrayList<>();
+    // Get the list of objects (typed as PSDependency so iterator assigns cleanly)
+    List<PSDependency> depList = new ArrayList<>();
     PSXmlTreeWalker tree = new PSXmlTreeWalker(doc);
     Element depEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     while (depEl != null) {
@@ -2025,8 +2025,13 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
 
     // get the dependency
     PSDependency dep = getDependencyFromRequestDoc(doc);
-    List ancs =
-        PSDeployComponentUtils.cloneList(m_depMgr.getAncestors(req.getSecurityToken(), dep));
+    // getAncestors is typed as Iterator<IPSDependencyBaseline> on the manager baseline API;
+    // runtime elements are always PSDependency (see PSDependencyManager.getParentDependencies).
+    // Keep explicit cast after #2276 revert so cloneList inference still compiles.
+    @SuppressWarnings("unchecked")
+    Iterator<PSDependency> ancsIter =
+        (Iterator<PSDependency>) (Iterator<?>) m_depMgr.getAncestors(req.getSecurityToken(), dep);
+    List<PSDependency> ancs = PSDeployComponentUtils.cloneList(ancsIter);
 
     // check max count to return
     checkDepCount(ancs.size(), getMaxDepCount(doc.getDocumentElement()));

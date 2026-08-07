@@ -22,6 +22,7 @@ import com.percussion.HTTPClient.HTTPConnection;
 import com.percussion.HTTPClient.HTTPResponse;
 import com.percussion.HTTPClient.HttpOutputStream;
 import com.percussion.HTTPClient.NVPair;
+import com.percussion.HTTPClient.PSBinaryFileData;
 import com.percussion.HTTPClient.ProtocolNotSuppException;
 import com.percussion.conn.PSServerException;
 import com.percussion.deployer.objectstore.PSDbmsInfo;
@@ -49,13 +50,16 @@ import com.percussion.utils.server.IPSCgiVariables;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -460,14 +464,12 @@ public class PSDeploymentServerConnection {
       // add the params
       NVPair[] opts = getParams(params);
 
-      // add the request doc as an attachment
+      // add the request doc as an attachment with explicit XML content type
+      // so PSFormContentParser always sets the input document (NULL_INPUT_DOC)
       reqFile = createAttachmentFile(req);
 
-      NVPair[] file = new NVPair[1];
-      file[0] = new NVPair(reqFile.getName(), reqFile.getPath());
-
       hdrs[1] = new NVPair(IPSCgiVariables.CGI_PS_REQUEST_TYPE, type);
-      data = Codecs.mpFormDataEncode(opts, file, hdrs);
+      data = encodeXmlDocumentMultipart(opts, reqFile, hdrs);
 
       // send the request to the Rx server
       synchronized (m_mutexObject) {
@@ -780,17 +782,14 @@ public class PSDeploymentServerConnection {
     // no options
     NVPair[] opts = null;
 
-    // add the request doc as an attachment
+    // add the request doc as an attachment with explicit XML content type
     try (PSPurgableTempFile reqFile = createAttachmentFile(req)) {
-
-      NVPair[] file = new NVPair[1];
-      file[0] = new NVPair(reqFile.getName(), reqFile.getPath());
 
       // add reqtype header after first header (will get set with
       // content-type header automatically by the formDataEncode call)
       NVPair[] hdrs = new NVPair[2];
       hdrs[1] = new NVPair(IPSCgiVariables.CGI_PS_REQUEST_TYPE, type);
-      byte[] data = Codecs.mpFormDataEncode(opts, file, hdrs);
+      byte[] data = encodeXmlDocumentMultipart(opts, reqFile, hdrs);
 
       // send the request to the Rx server
       HTTPResponse resp = null;
@@ -1044,6 +1043,114 @@ public class PSDeploymentServerConnection {
       PSXmlDocumentBuilder.write(doc, out);
     }
     return reqFile;
+  }
+
+  /**
+   * Multipart Content-Type forced on XML request document parts so the server {@code
+   * PSFormContentParser} classifies the part as XML and calls {@code setInputDocument}. Relying
+   * only on {@code URLConnection.guessContentTypeFromName} can omit or mis-classify the type on
+   * some JREs/platforms and surfaces as {@code IPSDeploymentErrors.NULL_INPUT_DOC}.
+   */
+  public static final String XML_REQUEST_CONTENT_TYPE = "application/xml";
+
+  /**
+   * Builds multipart file parts for an XML request body with an explicit {@link
+   * #XML_REQUEST_CONTENT_TYPE} Content-Type.
+   *
+   * <p>Package-private for unit tests.
+   *
+   * @param fieldName form field / disposition name; if {@code null} or blank, {@code
+   *     dpl_request.xml} is used. A {@code .xml} suffix is ensured for filename-based fallbacks.
+   * @param xmlBytes raw XML bytes, not {@code null}
+   * @return a one-element array suitable for {@link Codecs#mpFormDataEncode(NVPair[],
+   *     PSBinaryFileData[], NVPair[])}
+   */
+  static PSBinaryFileData[] createXmlRequestFileData(String fieldName, byte[] xmlBytes) {
+    if (xmlBytes == null) {
+      throw new IllegalArgumentException("xmlBytes may not be null");
+    }
+    String partName =
+        (fieldName == null || fieldName.trim().isEmpty()) ? "dpl_request.xml" : fieldName.trim();
+    // Use a simple basename (no path separators) for Content-Disposition filename.
+    int slash = Math.max(partName.lastIndexOf('/'), partName.lastIndexOf('\\'));
+    if (slash >= 0 && slash < partName.length() - 1) {
+      partName = partName.substring(slash + 1);
+    }
+    if (!partName.toLowerCase(Locale.ROOT).endsWith(".xml")) {
+      partName = partName + ".xml";
+    }
+    return new PSBinaryFileData[] {
+      new PSBinaryFileData(xmlBytes, partName, partName, XML_REQUEST_CONTENT_TYPE)
+    };
+  }
+
+  /**
+   * Multipart-encodes form fields plus an XML request document file with explicit {@link
+   * #XML_REQUEST_CONTENT_TYPE} on the file part.
+   *
+   * <p>Package-private for unit tests.
+   *
+   * @param opts form name/value pairs, may be {@code null}
+   * @param xmlFile temp file containing the XML document, not {@code null}
+   * @param hdrs header array of length &gt;= 1; element 0 is set to the multipart Content-Type by
+   *     the encoder
+   * @return encoded multipart body, never {@code null}
+   * @throws IOException if the file cannot be read or encoding fails
+   */
+  static byte[] encodeXmlDocumentMultipart(NVPair[] opts, File xmlFile, NVPair[] hdrs)
+      throws IOException {
+    if (xmlFile == null) {
+      throw new IllegalArgumentException("xmlFile may not be null");
+    }
+    if (hdrs == null || hdrs.length < 1) {
+      throw new IllegalArgumentException("hdrs must have at least one slot for Content-Type");
+    }
+    byte[] xmlBytes = java.nio.file.Files.readAllBytes(xmlFile.toPath());
+    PSBinaryFileData[] files = createXmlRequestFileData(xmlFile.getName(), xmlBytes);
+    return Codecs.mpFormDataEncode(opts, files, hdrs);
+  }
+
+  /**
+   * Multipart-encodes form fields plus an in-memory XML document with explicit {@link
+   * #XML_REQUEST_CONTENT_TYPE} on the file part. Used by unit tests and as a convenience for
+   * callers that already have a {@link Document}.
+   *
+   * <p>Package-private for unit tests.
+   *
+   * @param opts form name/value pairs, may be {@code null}
+   * @param doc XML request document, not {@code null}
+   * @param hdrs header array of length &gt;= 1
+   * @return encoded multipart body, never {@code null}
+   * @throws Exception if the document cannot be serialized or encoding fails
+   */
+  static byte[] encodeXmlDocumentMultipart(NVPair[] opts, Document doc, NVPair[] hdrs)
+      throws Exception {
+    if (doc == null) {
+      throw new IllegalArgumentException("doc may not be null");
+    }
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    PSXmlDocumentBuilder.write(doc, bos);
+    byte[] xmlBytes = bos.toByteArray();
+    PSBinaryFileData[] files = createXmlRequestFileData("dpl_request.xml", xmlBytes);
+    return Codecs.mpFormDataEncode(opts, files, hdrs);
+  }
+
+  /**
+   * Returns {@code true} if the multipart body contains a part Content-Type of {@link
+   * #XML_REQUEST_CONTENT_TYPE} or {@code text/xml}. Package-private for unit tests.
+   *
+   * @param multipartBody encoded multipart bytes, not {@code null}
+   * @return whether an XML content-type header is present for a part
+   */
+  static boolean multipartContainsXmlContentType(byte[] multipartBody) {
+    if (multipartBody == null) {
+      return false;
+    }
+    // Multipart encoding uses ISO-8859-1 / 8859_1 for headers (see Codecs).
+    String body = new String(multipartBody, StandardCharsets.ISO_8859_1);
+    String lower = body.toLowerCase(Locale.ROOT);
+    return lower.contains("content-type: application/xml")
+        || lower.contains("content-type: text/xml");
   }
 
   /**
