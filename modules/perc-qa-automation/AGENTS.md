@@ -49,6 +49,35 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 - Failure artifact dirs: `frontend/test-results/`, `frontend/playwright-report/`
   (attach runbook: `docs/developer-module/playwright-failure-artifacts.md`).
 
+### QA mode surface filter (HARD GATE for unattended UI gates)
+
+Do **not** run the full Playwright suite as the default overnight or agent gate.
+Run a **subset** for the surface under test (path / title grep / tag).
+
+From `modules/perc-qa-automation/frontend`:
+
+```bash
+# List / print only — no live CMS required
+npm run test:unit
+npm run test:surface:list -- --path tests/login.spec.js
+npm run test:surface:print -- --tag smoke
+
+# Live QA mode after perc-devctl qa-up (use printed TEST_CMS_URL — freeport contract)
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  npm run test:surface -- --path tests/login.spec.js
+
+# Alternatives
+npm run test:surface -- --grep "Admin login"
+npm run test:surface -- --tag golden
+```
+
+- `run-surface` **refuses the full suite** unless `--allow-full` is explicit.
+- Prefer path/grep/tag for PR surfaces; golden smoke: `tests/golden-unattended-smoke.spec.js`.
+- Product direction of record: `docs/developer-module/workbench-rest-and-qa-modes.md`
+  (§ Playwright surface filter + unattended H2 QA). Module README → **Surface filter**.
+- Tear-down: `python docker/scripts/perc-devctl.py qa-down` when the agent started the stack.
+
 ### Dev mode environment (human fast loop)
 
 The module uses auto-discovery. You can set a `.env` file in the module root
