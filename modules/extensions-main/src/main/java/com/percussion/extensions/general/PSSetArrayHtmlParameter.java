@@ -124,7 +124,7 @@ public class PSSetArrayHtmlParameter implements IPSRequestPreProcessor {
     }
     m_log.debug("maxNumber is " + maxNumber);
 
-    List valueList = new ArrayList();
+    List<String> valueList = new ArrayList<>();
 
     IPSInternalRequest resReq = null;
     try {

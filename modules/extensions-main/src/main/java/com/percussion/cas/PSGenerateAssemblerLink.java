@@ -28,6 +28,7 @@ import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.xml.PSXPathEvaluator;
 import java.net.MalformedURLException;
 import java.util.HashMap;
+import java.util.Map;
 import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 
@@ -125,7 +126,7 @@ public class PSGenerateAssemblerLink extends PSSimpleJavaUdfExtension {
 
     // Create a new hashmap of parameters to be passed
     // while generating the link
-    HashMap paramMap = new HashMap(10);
+    Map<String, Object> paramMap = new HashMap<>(10);
     paramMap.put(IPSHtmlParameters.SYS_SESSIONID, request.getUserSessionId());
     paramMap.put(IPSHtmlParameters.SYS_CONTENTID, contentid.toString());
     paramMap.put(IPSHtmlParameters.SYS_REVISION, revisionid.toString());

@@ -311,7 +311,7 @@ public class PSChoiceBuilder {
       Element workflow = (Element) workflows.item(i);
       String id = getFirstTagText(workflow, DISPLAYVALUE_NAME);
 
-      Iterator values = wfInfo.getValues();
+      Iterator<Integer> values = wfInfo.getValues();
       boolean found = false;
       while (!found && values.hasNext()) {
         if (id.equals(String.valueOf(values.next()))) found = true;

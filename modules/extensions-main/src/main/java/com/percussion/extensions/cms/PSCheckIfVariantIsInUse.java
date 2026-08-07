@@ -62,11 +62,11 @@ public class PSCheckIfVariantIsInUse implements IPSRequestPreProcessor {
       PSRelationshipSet results = rproc.getRelationships(filter);
       if (results.size() > 0) {
         StringBuilder ownerids = new StringBuilder();
-        Iterator iter = results.iterator();
+        Iterator<PSRelationship> iter = results.iterator();
         int count = 0;
         while (iter.hasNext()) {
           count++;
-          PSRelationship rel = (PSRelationship) iter.next();
+          PSRelationship rel = iter.next();
           ownerids.append(Integer.toString(rel.getOwner().getId()));
           if (count > 99) {
             ownerids.append("...");

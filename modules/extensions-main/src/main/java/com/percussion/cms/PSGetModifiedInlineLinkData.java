@@ -78,7 +78,7 @@ public class PSGetModifiedInlineLinkData extends PSDefaultExtension
           PSSingleValueBuilder.buildRelationshipData(request, null);
       String dependentIds = request.getParameter("inlinecontentids", "");
       StringTokenizer tokenizer = new StringTokenizer(dependentIds, ";");
-      Map cidMap = new HashMap<>();
+      Map<String, String> cidMap = new HashMap<>();
       while (tokenizer.hasMoreTokens()) {
         String cid = tokenizer.nextToken();
 
@@ -97,20 +97,20 @@ public class PSGetModifiedInlineLinkData extends PSDefaultExtension
             m_def.getRef().getExtensionName(),
             new IllegalArgumentException("inlinecontentids parameter must not be null or empty"));
       }
-      Iterator iter = cidMap.keySet().iterator();
-      List paramList = new ArrayList<>();
+      Iterator<String> iter = cidMap.keySet().iterator();
+      List<String> paramList = new ArrayList<>();
       while (iter.hasNext()) {
-        String element = (String) cidMap.get(iter.next());
+        String element = cidMap.get(iter.next());
         paramList.add(element);
       }
-      Map reqParams = new HashMap<>();
+      Map<String, Object> reqParams = new HashMap<>();
       reqParams.put(IPSHtmlParameters.SYS_CONTENTID, paramList);
       IPSInternalRequest iReq =
           request.getInternalRequest("sys_psxCms/getCurrentRevision", reqParams, false);
 
       Document doc = iReq.getResultDoc();
       NodeList nl = doc.getElementsByTagName("Item");
-      Map cidRevisionMap = new HashMap<>();
+      Map<String, String> cidRevisionMap = new HashMap<>();
       for (int i = 0; nl != null && i < nl.getLength(); i++) {
         Element elem = (Element) nl.item(i);
         cidRevisionMap.put(
@@ -126,12 +126,12 @@ public class PSGetModifiedInlineLinkData extends PSDefaultExtension
       root.setAttribute(
           IPSHtmlParameters.SYS_REVISION, request.getParameter(IPSHtmlParameters.SYS_REVISION, ""));
 
-      Iterator cidIter = cidMap.keySet().iterator();
+      Iterator<String> cidIter = cidMap.keySet().iterator();
       while (cidIter.hasNext()) {
-        String oldCid = (String) cidIter.next();
-        String newCid = cidMap.get(oldCid).toString();
+        String oldCid = cidIter.next();
+        String newCid = cidMap.get(oldCid);
         String newRevision = "";
-        if (cidRevisionMap.containsKey(newCid)) newRevision = cidRevisionMap.get(newCid).toString();
+        if (cidRevisionMap.containsKey(newCid)) newRevision = cidRevisionMap.get(newCid);
         Element child = PSXmlDocumentBuilder.addElement(resultDoc, root, "Child", null);
         child.setAttribute("oldContentId", oldCid);
         child.setAttribute("newContentId", newCid);

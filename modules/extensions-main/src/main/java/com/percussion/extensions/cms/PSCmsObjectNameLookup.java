@@ -62,14 +62,14 @@ public class PSCmsObjectNameLookup extends PSSimpleJavaUdfExtension implements I
     if (params.length > 2) keyPart2 = params[2] != null ? params[2].toString() : "";
     if (params.length > 3) keyPart3 = params[3] != null ? params[3].toString() : "";
 
-    Map cache = initLookupCache(request);
+    Map<String, String> cache = initLookupCache(request);
     String objectName = null;
     String cacheKey = getCacheKey(cmsObjectType, keyPart1, keyPart2, keyPart3);
 
-    objectName = (String) cache.get(cacheKey);
+    objectName = cache.get(cacheKey);
 
     if (objectName == null) {
-      Map lookupParams = new HashMap();
+      Map<String, Object> lookupParams = new HashMap<>();
       lookupParams.put("keyPart1", keyPart1);
       lookupParams.put("keyPart2", keyPart2);
       lookupParams.put("keyPart3", keyPart3);
@@ -117,12 +117,14 @@ public class PSCmsObjectNameLookup extends PSSimpleJavaUdfExtension implements I
    * @param request The current request, may not be <code>null</code>.
    * @return The map used as the cache, never <code>null</code>.
    */
-  public static Map initLookupCache(IPSRequestContext request) {
+  public static Map<String, String> initLookupCache(IPSRequestContext request) {
     if (request == null) throw new IllegalArgumentException("request may not be null");
 
-    Map cache = (Map) request.getPrivateObject(CACHE_KEY);
+    Object cached = request.getPrivateObject(CACHE_KEY);
+    @SuppressWarnings("unchecked")
+    Map<String, String> cache = (cached instanceof Map) ? (Map<String, String>) cached : null;
     if (cache == null) {
-      cache = new HashMap();
+      cache = new HashMap<>();
       request.setPrivateObject(CACHE_KEY, cache);
     }
 

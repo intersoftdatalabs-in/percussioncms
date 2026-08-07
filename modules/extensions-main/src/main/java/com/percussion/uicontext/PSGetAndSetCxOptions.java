@@ -153,7 +153,7 @@ public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequ
    * @see IPSResultDocumentProcessor
    */
   public void init(IPSExtensionDef parm1, File parm2) throws PSExtensionException {
-    m_defaultLocalOptionMap = new HashMap();
+    m_defaultLocalOptionMap = new HashMap<>();
 
     StringBuilder sb = new StringBuilder();
     sb.append("rx_resources");
@@ -185,7 +185,7 @@ public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequ
 
     // is it in the map:
     if (m_defaultLocalOptionMap.containsKey(theLang)) {
-      doc = (Document) m_defaultLocalOptionMap.get(theLang);
+      doc = m_defaultLocalOptionMap.get(theLang);
     } else {
       doc = loadOptionDoc(theLang);
     }
@@ -272,7 +272,7 @@ public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequ
    * </code>. Once added, the <code>Locale</code> and document are then held for the lifetime of
    * this object.
    */
-  private Map m_defaultLocalOptionMap = null;
+  private Map<String, Document> m_defaultLocalOptionMap = null;
 
   /**
    * This is base path to the default option file starting below the PSServer.RequestRoot() and

@@ -64,7 +64,7 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
       throws PSExtensionProcessingException {
     try {
       if (request != null) {
-        Iterator htmlParams = request.getParametersIterator();
+        Iterator<?> htmlParams = request.getParametersIterator();
         if (!htmlParams.hasNext())
           throw new PSExtensionProcessingException(0, "HTML parameter list cannot be empty");
 

@@ -95,12 +95,14 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
     if (params.length < 2 || params[1] == null)
       throw new PSParameterMismatchException("Two params expected");
 
-    List ctypeList = null;
+    List<String> ctypeList = null;
     if (params[0] instanceof List) {
-      ctypeList = (List) params[0];
+      @SuppressWarnings("unchecked")
+      List<String> rawList = (List<String>) params[0];
+      ctypeList = rawList;
     } else if (params[0] != null) {
       String ctype = params[0].toString();
-      ctypeList = new ArrayList(1);
+      ctypeList = new ArrayList<>(1);
       ctypeList.add(ctype);
     }
 
@@ -110,16 +112,16 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
     if (outParamName.trim().length() == 0)
       throw new PSParameterMismatchException("Output param must be specified");
 
-    List allWFList = getAllWorkflows(request);
-    List wfList = new ArrayList();
+    List<String> allWFList = getAllWorkflows(request);
+    List<String> wfList = new ArrayList<>();
 
     if (allWFList != null) {
       try {
         // build set for non-dupes
-        Set wfSet = new HashSet();
-        Iterator ctypes = ctypeList.iterator();
+        Set<String> wfSet = new HashSet<>();
+        Iterator<String> ctypes = ctypeList.iterator();
         while (ctypes.hasNext()) {
-          String ctype = ctypes.next().toString();
+          String ctype = ctypes.next();
           wfSet.addAll(getAllowedWorkflows(ctype, request, allWFList));
         }
 
@@ -147,7 +149,7 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
     }
     Element workflowsElem = null;
     Element workflowElem = null;
-    List wfList = getAllWorkflows(request);
+    List<String> wfList = getAllWorkflows(request);
 
     if (wfList == null) {
       // Could not bring any workflows
@@ -155,22 +157,22 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
     }
 
     // make copy that we don't modify to use for each type's allowed call
-    List allWFList = new ArrayList(wfList);
+    List<String> allWFList = new ArrayList<>(wfList);
 
     // walk each type and get allowed.  Also filter main wfList to contain
     // only allowed types as we go
     for (int i = 0; i < nl.getLength(); i++) {
       try {
         String cid = ((Element) nl.item(i)).getAttribute(ATTR_CONTENTTYPEID);
-        List allowed = getAllowedWorkflows(cid, request, allWFList);
+        List<String> allowed = getAllowedWorkflows(cid, request, allWFList);
         wfList.retainAll(allowed);
 
         if (!allowed.isEmpty()) {
           Element wselem = doc.createElement(ELEM_WORKFLOWS);
-          Iterator iter = allowed.iterator();
+          Iterator<String> iter = allowed.iterator();
           while (iter.hasNext()) {
             Element welem = doc.createElement(ELEM_WORKFLOW);
-            welem.setAttribute(ATTR_WORKFLOWID, iter.next().toString());
+            welem.setAttribute(ATTR_WORKFLOWID, iter.next());
             wselem.appendChild(welem);
           }
           nl.item(i).appendChild(wselem);
@@ -187,7 +189,7 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
     workflowsElem = doc.createElement(ELEM_WORKFLOWS);
     for (int j = 0; j < wfList.size(); j++) {
       workflowElem = doc.createElement(ELEM_WORKFLOW);
-      workflowElem.setAttribute(ATTR_WORKFLOWID, wfList.get(j).toString());
+      workflowElem.setAttribute(ATTR_WORKFLOWID, wfList.get(j));
       workflowsElem.appendChild(workflowElem);
     }
     doc.getDocumentElement().appendChild(workflowsElem);
@@ -200,9 +202,9 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
    * @param request IPSRequestContext
    * @return List of the workflows
    */
-  private List getAllWorkflows(IPSRequestContext request) {
+  private List<String> getAllWorkflows(IPSRequestContext request) {
     Document doc = null;
-    List temp = new ArrayList();
+    List<String> temp = new ArrayList<>();
 
     IPSInternalRequest iReq = null;
     try {
@@ -239,12 +241,13 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
    *     </code>.
    * @throws PSInvalidContentTypeException
    */
-  private List getAllowedWorkflows(String cid, IPSRequestContext request, List allWorkflows)
+  private List<String> getAllowedWorkflows(
+      String cid, IPSRequestContext request, List<String> allWorkflows)
       throws PSInvalidContentTypeException {
     PSItemDefManager mgr = PSItemDefManager.getInstance();
     PSContentEditor cedef = mgr.getItemDef(Integer.parseInt(cid), -1).getContentEditor();
     PSWorkflowInfo wfinfo = cedef.getWorkflowInfo();
-    List allowedWorkflows = new ArrayList();
+    List<String> allowedWorkflows = new ArrayList<>();
     if (wfinfo == null) {
       // all are allowed
       allowedWorkflows.addAll(allWorkflows);
@@ -252,12 +255,12 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
     }
     if (wfinfo.isExclusionary()) {
       allowedWorkflows.addAll(allWorkflows);
-      Iterator iter = wfinfo.getValues();
+      Iterator<Integer> iter = wfinfo.getValues();
       while (iter.hasNext()) {
         allowedWorkflows.remove(iter.next().toString());
       }
     } else {
-      Iterator iter = wfinfo.getValues();
+      Iterator<Integer> iter = wfinfo.getValues();
       while (iter.hasNext()) {
         String wfId = iter.next().toString();
         if (allWorkflows.contains(wfId)) allowedWorkflows.add(wfId);

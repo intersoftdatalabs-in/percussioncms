@@ -127,9 +127,10 @@ public class PSFormEncodeDecodeHelper {
           buff.append(marker);
           buff.append("=\"true\"");
         }
-        Iterator it = attrs.iterator();
+        @SuppressWarnings("unchecked")
+        Iterator<Attribute> it = attrs.iterator();
         while (it.hasNext()) {
-          Attribute at = (Attribute) it.next();
+          Attribute at = it.next();
           if (!encode && at.getName().equalsIgnoreCase(marker)) continue;
           buff.append(SPACE);
           buff.append(at.getName());

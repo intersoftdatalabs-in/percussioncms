@@ -61,8 +61,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -104,15 +102,10 @@ public class PSGenerateVariantList extends PSDefaultExtension
       if (templates != null && !templates.isEmpty()) {
         IPSSecurityWs sec = PSSecurityWsLocator.getSecurityWebservice();
 
-        List<IPSGuid> templateGuids =
-            new ArrayList<>(
-                CollectionUtils.collect(
-                    templates,
-                    new Transformer() {
-                      public Object transform(Object input) {
-                        return ((IPSAssemblyTemplate) input).getGUID();
-                      }
-                    }));
+        List<IPSGuid> templateGuids = new ArrayList<>(templates.size());
+        for (IPSAssemblyTemplate template : templates) {
+          templateGuids.add(template.getGUID());
+        }
 
         List<IPSGuid> filtered = sec.filterByRuntimeVisibility(templateGuids);
 
@@ -174,8 +167,8 @@ public class PSGenerateVariantList extends PSDefaultExtension
     Collection<IPSGuid> visibleTemplates =
         svc.findObjectsVisibleToCommunities(
             Collections.singletonList(community), PSTypeEnum.TEMPLATE);
-    List<IPSGuid> filteredRet =
-        new ArrayList<>(CollectionUtils.intersection(visibleTemplates, filtered));
+    List<IPSGuid> filteredRet = new ArrayList<>(visibleTemplates);
+    filteredRet.retainAll(filtered);
     return filteredRet;
   }
 
@@ -278,12 +271,12 @@ public class PSGenerateVariantList extends PSDefaultExtension
 
     String sourceUrl = "../assembler/render";
 
-    Iterator paramIter = request.getParametersIterator();
+    Iterator<Map.Entry<String, Object>> paramIter = request.getParametersIterator();
     while (paramIter.hasNext()) {
-      Map.Entry map = (Map.Entry) paramIter.next();
-      String key = (String) map.getKey();
+      Map.Entry<String, Object> map = paramIter.next();
+      String key = map.getKey();
 
-      if (!ms_removeParamsList.contains(key)) paramMap.put((String) map.getKey(), map.getValue());
+      if (!ms_removeParamsList.contains(key)) paramMap.put(key, map.getValue());
     }
 
     paramMap.put(IPSHtmlParameters.SYS_CONTENTID, id);

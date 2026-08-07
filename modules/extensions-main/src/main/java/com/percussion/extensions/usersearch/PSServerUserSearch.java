@@ -81,8 +81,8 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
       command = command.trim();
       Element roleElem = null;
 
-      ArrayList fromRoleList = new ArrayList();
-      ArrayList adHocTypeList = new ArrayList();
+      List<String> fromRoleList = new ArrayList<>();
+      List<String> adHocTypeList = new ArrayList<>();
       String fromRoles = resultDoc.getDocumentElement().getAttribute(ATTR_FROM_ROLES);
 
       extractFromRolesParam(fromRoles, fromRoleList, adHocTypeList);
@@ -93,12 +93,12 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
 
       if (command.equals(HTMLPARAM_COMMAND_GETROLES)) {
 
-        List roleList = request.getRoles();
+        List<String> roleList = request.getRoles();
         String role = null;
         String adHocType = null;
 
         for (int i = 0; roleList != null && i < roleList.size(); i++) {
-          role = roleList.get(i).toString();
+          role = roleList.get(i);
           /*
            * 1. Add all roles if fromRoles is empty
            * 2. If fromRoles is not empty, add only the intersection
@@ -113,7 +113,7 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
 
             if (containsAdhocEnabled) {
               // get the adhoc type of the role:
-              adHocType = (String) adHocTypeList.get(fromRoleList.indexOf(role));
+              adHocType = adHocTypeList.get(fromRoleList.indexOf(role));
 
               if (!adHocType.equalsIgnoreCase("" + PSWorkFlowUtils.ADHOC_ENABLED)) continue;
             }
@@ -128,7 +128,7 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
         String filter = request.getParameter(HTMLPARAM_NAMEFILTER);
 
         // only instantiated when containsAnonymousAdhoc is false.
-        List communityRoleList = null;
+        List<String> communityRoleList = null;
         PSRoleManager mgr = null;
 
         if (filter != null && filter.trim().length() < 1) filter = null;
@@ -139,7 +139,8 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
               PSXmlDocumentBuilder.addElement(
                   resultDoc, resultDoc.getDocumentElement(), ELEM_ROLE, null);
           roleElem.setAttribute(ATTR_NAME, role);
-          List subjectList = request.getRoleSubjects(role, PSSubject.SUBJECT_TYPE_USER, filter);
+          List<PSSubject> subjectList =
+              request.getRoleSubjects(role, PSSubject.SUBJECT_TYPE_USER, filter);
 
           // get the communityid from the item:
           if (!containsAnonymousAdhoc) {
@@ -151,7 +152,7 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
           // once we have the subject list lets check to see if they're
           // a part of the same community as the item.
           for (int i = 0; subjectList != null && i < subjectList.size(); i++) {
-            PSSubject subject = (PSSubject) subjectList.get(i);
+            PSSubject subject = subjectList.get(i);
 
             // any role is anonymous adhoc return all users for
             // for that role
@@ -160,9 +161,9 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
             else {
               // else return only users that are in the same community
               // as the item.
-              Iterator it = communityRoleList.iterator();
+              Iterator<String> it = communityRoleList.iterator();
               while (it.hasNext()) {
-                if (mgr.isMemberOfRole(subject.getName(), (String) it.next())) {
+                if (mgr.isMemberOfRole(subject.getName(), it.next())) {
                   PSXmlDocumentBuilder.addElement(
                       resultDoc, roleElem, ELEM_USER, subject.getName());
                   break;
@@ -188,7 +189,7 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
    * @param adHocTypeList - the ad hoc types in the fromRoles param, assumed not <code>null</code>
    */
   private void extractFromRolesParam(
-      String fromRoles, ArrayList fromRoleList, ArrayList adHocTypeList) {
+      String fromRoles, List<String> fromRoleList, List<String> adHocTypeList) {
     if (fromRoles.length() > 0) {
       StringTokenizer tokenizer =
           new StringTokenizer(fromRoles, PSWorkFlowUtils.ADHOC_USER_LIST_DELIMITER);
@@ -213,7 +214,7 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
    */
   private int getItemCommunity(IPSRequestContext request, String contentId)
       throws PSInternalRequestCallException {
-    Map params = new HashMap();
+    Map<String, Object> params = new HashMap<>();
 
     params.put(IPSHtmlParameters.SYS_CONTENTID, contentId);
     Document doc = makeRequest(CMS_LOOKUP_CONTENTSTATUS, request, params, true);
@@ -235,9 +236,9 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
    *
    * @param contentid
    */
-  private List retrieveRoleList(IPSRequestContext request, int communityid)
+  private List<String> retrieveRoleList(IPSRequestContext request, int communityid)
       throws PSInternalRequestCallException {
-    Map params = new HashMap();
+    Map<String, Object> params = new HashMap<>();
     // TODO: this is not sys_community or sys_communityid, the app expects
     // something entirely different.  This should be fixed when time.
 
@@ -254,9 +255,9 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
    * @param doc assumed not <code>null</code> and that it is properly constrained.
    * @return a list of role ids. Never <code>null</code> may be empty.
    */
-  private List extractRoleListFromDoc(Document doc) {
+  private List<String> extractRoleListFromDoc(Document doc) {
     NodeList nl = doc.getElementsByTagName("name");
-    List idList = new ArrayList();
+    List<String> idList = new ArrayList<>();
     Node theNode = null;
     for (int i = 0; i < nl.getLength(); i++) {
       theNode = nl.item(i);
@@ -275,7 +276,8 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
    * @param inherit
    * @return Document the result document, never <code>null</code>
    */
-  private Document makeRequest(String path, IPSRequestContext request, Map params, boolean inherit)
+  private Document makeRequest(
+      String path, IPSRequestContext request, Map<String, Object> params, boolean inherit)
       throws PSInternalRequestCallException {
     IPSInternalRequest iReq = request.getInternalRequest(path, params, inherit);
 

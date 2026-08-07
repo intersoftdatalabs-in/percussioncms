@@ -172,10 +172,10 @@ public class PSSimpleJavaUdf_cloneTitle extends PSSimpleJavaUdfExtension {
 
       int countDepLocales = 0;
 
-      Iterator sums = relProxy.getSummaries(filter, false).iterator();
+      Iterator<PSComponentSummary> sums = relProxy.getSummaries(filter, false).iterator();
 
       while (sums.hasNext()) {
-        PSComponentSummary summary = (PSComponentSummary) sums.next();
+        PSComponentSummary summary = sums.next();
 
         String locale = summary.getLocale();
 

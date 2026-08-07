@@ -47,13 +47,13 @@ public class PSRemoveControlChars implements IPSRequestPreProcessor {
           PSParameterMismatchException,
           PSExtensionProcessingException {
 
-    Map reqParams = request.getParameters();
-    Set keys = reqParams.keySet();
-    Iterator it = keys.iterator();
+    Map<String, Object> reqParams = request.getParameters();
+    Set<String> keys = reqParams.keySet();
+    Iterator<String> it = keys.iterator();
     String key = null;
     Object value = null;
     while (it.hasNext()) {
-      key = (String) it.next();
+      key = it.next();
       value = reqParams.get(key);
       if (value instanceof String) {
         value = removeControlChars((String) value);

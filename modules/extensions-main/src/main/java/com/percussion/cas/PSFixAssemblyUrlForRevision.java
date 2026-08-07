@@ -212,7 +212,7 @@ public class PSFixAssemblyUrlForRevision extends PSDefaultExtension
     if (contentValidString == null || contentValidString.length() < 1) {
       throw new IllegalArgumentException("contentValidString must not be null or empty");
     }
-    Map params = PSParseUrlQueryString.parseParameters(relatedContentUrl);
+    Map<String, Object> params = PSParseUrlQueryString.parseParameters(relatedContentUrl);
     String contentid = (String) params.get(IPSHtmlParameters.SYS_CONTENTID);
     if (contentid == null || contentid.length() < 1) {
       String msg =

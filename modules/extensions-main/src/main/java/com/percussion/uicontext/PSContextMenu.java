@@ -84,7 +84,7 @@ public class PSContextMenu implements IPSResultDocumentProcessor {
     if (rxAppResource.startsWith("/")) rxAppResource = rxAppResource.substring(1);
 
     Map<String, Object> htmlParams = request.getParameters();
-    ArrayList itemsRendered = new ArrayList();
+    List<String> itemsRendered = new ArrayList<>();
 
     NodeList nl = resDoc.getDocumentElement().getElementsByTagName(ELEM_ACTION);
     Element elem = null;
@@ -121,7 +121,7 @@ public class PSContextMenu implements IPSResultDocumentProcessor {
       isDocumentAssemblerLicensed = false;
 
     // create a list of menu items to be removed from the context menu
-    List removeMenuItemsList = new ArrayList();
+    List<String> removeMenuItemsList = new ArrayList<>();
     if (!trreq) removeMenuItemsList.add(ACTION_TRANSLATE.toUpperCase());
     if (!isDocumentAssemblerLicensed) removeMenuItemsList.add(ACTION_DOC_ASSEMBLER.toUpperCase());
 
@@ -142,7 +142,7 @@ public class PSContextMenu implements IPSResultDocumentProcessor {
    *     <code>null</code>. This list contains the name of menu actions to be removed as <code>
    *     String</code> objects in UPPERCASE form.
    */
-  private void removeMenuItems(NodeList actionNodeList, List removeMenuItemsList) {
+  private void removeMenuItems(NodeList actionNodeList, List<String> removeMenuItemsList) {
     if ((actionNodeList == null) || (actionNodeList.getLength() < 1)) return;
     if (removeMenuItemsList.isEmpty()) return;
 
@@ -174,7 +174,7 @@ public class PSContextMenu implements IPSResultDocumentProcessor {
    * @param rxAppResource the Rhythmyx application resource for making internal request.
    */
   private void processItem(
-      ArrayList itemsRendered, Element parent, IPSRequestContext request, String rxAppResource) {
+      List<String> itemsRendered, Element parent, IPSRequestContext request, String rxAppResource) {
     String actionid = parent.getAttribute(ATTR_ACTIONID).trim();
     if (actionid.length() < 1) return;
 

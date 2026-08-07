@@ -624,7 +624,7 @@ public class PSRequestContext implements IPSRequestContext {
    *  (non-Javadoc)
    * @see com.percussion.server.IPSRequestContext#getRoleAttributes(java.lang.String)
    */
-  public List getRoleAttributes(String roleName) {
+  public List<PSAttribute> getRoleAttributes(String roleName) {
     return PSRoleManager.getInstance().getRoleAttributes(roleName);
   }
 

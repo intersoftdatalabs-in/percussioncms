@@ -114,8 +114,8 @@ public class PSWorkflowInfo extends PSComponent {
    */
   private String getValuesAsCSV() {
     StringBuilder values = new StringBuilder();
-    for (Iterator i = getValues(); i.hasNext(); ) {
-      Integer workflowId = (Integer) i.next();
+    for (Iterator<Integer> i = getValues(); i.hasNext(); ) {
+      Integer workflowId = i.next();
       values.append(workflowId);
       if (i.hasNext()) values.append(",");
     }
@@ -152,8 +152,8 @@ public class PSWorkflowInfo extends PSComponent {
 
     PSWorkflowInfo info = (PSWorkflowInfo) c;
     setType(info.getType());
-    List values = new ArrayList();
-    for (Iterator i = info.getValues(); i.hasNext(); ) {
+    List<Integer> values = new ArrayList<>();
+    for (Iterator<Integer> i = info.getValues(); i.hasNext(); ) {
       values.add(i.next());
     }
     setValues(values);
@@ -195,7 +195,7 @@ public class PSWorkflowInfo extends PSComponent {
   /**
    * @return an Iterator of the Integers from the values field (workflow ids)
    */
-  public Iterator getValues() {
+  public Iterator<Integer> getValues() {
     return getValueList().iterator();
   }
 

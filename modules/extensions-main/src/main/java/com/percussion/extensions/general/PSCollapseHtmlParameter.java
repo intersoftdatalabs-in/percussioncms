@@ -97,7 +97,7 @@ public class PSCollapseHtmlParameter extends PSDefaultExtension
       // The object is not an array, dont worry about it!
       if (!(obj instanceof ArrayList)) continue;
 
-      ArrayList list = (ArrayList) obj;
+      ArrayList<?> list = (ArrayList<?>) obj;
       // Replace the parameter with the first value
       paramMap.put(paramName, list.get(0));
     }

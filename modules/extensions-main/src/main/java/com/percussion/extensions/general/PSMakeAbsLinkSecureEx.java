@@ -242,7 +242,7 @@ public class PSMakeAbsLinkSecureEx extends PSSimpleJavaUdfExtension implements I
     String sourceUrl = params[3].toString().trim();
 
     // build params map
-    HashMap paramMap = new HashMap();
+    HashMap<String, Object> paramMap = new HashMap<>();
     int paramMaxIndex = params.length;
     for (int paramIndex = 4;
         paramIndex < paramMaxIndex

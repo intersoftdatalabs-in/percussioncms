@@ -166,10 +166,8 @@ class PSHierarchyNodeXmlSerializationTest {
   @Test
   void hierarchyNodeSetTypeIsOneShotStrict() {
     PSDesignGuid guid = new PSDesignGuid(new PSGuid(PSTypeEnum.HIERARCHY_NODE, 1L));
-    PSHierarchyNode node =
-        new PSHierarchyNode("n", guid, PSHierarchyNode.NodeType.FOLDER);
-    assertThrows(
-        IllegalStateException.class, () -> node.setType(PSHierarchyNode.NodeType.FOLDER));
+    PSHierarchyNode node = new PSHierarchyNode("n", guid, PSHierarchyNode.NodeType.FOLDER);
+    assertThrows(IllegalStateException.class, () -> node.setType(PSHierarchyNode.NodeType.FOLDER));
     assertThrows(
         IllegalStateException.class, () -> node.setType(PSHierarchyNode.NodeType.PLACEHOLDER));
     assertThrows(IllegalArgumentException.class, () -> node.setType(null));
@@ -197,10 +195,12 @@ class PSHierarchyNodeXmlSerializationTest {
     assertNull(node.getVersion());
     node.setVersion(2);
     assertEquals(2, node.getVersion());
-    assertThrows(IllegalArgumentException.class, () -> {
-      node.setVersion(null);
-      node.setVersion(-1);
-    });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          node.setVersion(null);
+          node.setVersion(-1);
+        });
   }
 
   @Test

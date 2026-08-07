@@ -123,12 +123,12 @@ public class PSValidateSlotName implements IPSRequestPreProcessor {
     // so we must be valid
     if (m_slotMap.isEmpty()) return true;
 
-    Iterator iter = m_slotMap.keySet().iterator();
+    Iterator<String> iter = m_slotMap.keySet().iterator();
     String key = null;
     String value = null;
     while (iter.hasNext()) {
-      key = (String) iter.next();
-      value = (String) m_slotMap.get(key);
+      key = iter.next();
+      value = m_slotMap.get(key);
 
       // Not valid if slotname exists with
       // a different slotid

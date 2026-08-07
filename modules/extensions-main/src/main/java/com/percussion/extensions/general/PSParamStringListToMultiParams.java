@@ -128,9 +128,9 @@ public class PSParamStringListToMultiParams extends PSDefaultExtension
     else if (!sourceParamName.equals(destinationParamName)) {
       // cannot use getParameter (flat) nor getParameterList (balanced),
       // so iterate to find 'true' value
-      Iterator origParams = request.getParametersIterator();
+      Iterator<Map.Entry<String, Object>> origParams = request.getParametersIterator();
       while (origParams.hasNext()) {
-        Map.Entry param = (Map.Entry) origParams.next();
+        Map.Entry<String, Object> param = origParams.next();
         if (param.getKey().equals(sourceParamName)) {
           request.setParameter(destinationParamName, param.getValue());
           break;

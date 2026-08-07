@@ -104,8 +104,8 @@ public class PSFileInfo extends PSDefaultExtension implements IPSRequestPreProce
           PSParameterMismatchException,
           PSExtensionProcessingException {
     // make a copy to avoid ConcurrentModificationException
-    Set paramKeys = new HashSet(request.getParameters().keySet());
-    Iterator iter = paramKeys.iterator();
+    Set<String> paramKeys = new HashSet<>(request.getParameters().keySet());
+    Iterator<String> iter = paramKeys.iterator();
     String wifxFlag = request.getParameter("webimagefxupload");
     boolean isWifxUpload =
         wifxFlag != null
@@ -274,10 +274,10 @@ public class PSFileInfo extends PSDefaultExtension implements IPSRequestPreProce
         PSItemDefinition item =
             mgr.getItemDef(Integer.parseInt(contentTypeId), Integer.parseInt(communityId));
         PSServerItem sItem = new PSServerItem(item);
-        Iterator it = sItem.getAllFields();
+        Iterator<PSItemField> it = sItem.getAllFields();
         PSItemField field = null;
         while (it.hasNext()) {
-          field = (PSItemField) it.next();
+          field = it.next();
           if (field.isMultiValue()) delimitedParameterToList(request, field.getName(), ";");
         }
       } catch (Exception e) {

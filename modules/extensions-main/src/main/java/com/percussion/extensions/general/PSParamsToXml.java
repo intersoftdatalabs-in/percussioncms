@@ -78,22 +78,23 @@ public class PSParamsToXml extends PSDefaultExtension implements IPSResultDocume
     }
     // Name of the unit element whose children will be the parameters.
     String unitElemName = params[0].toString();
-    Map map = request.getParameters();
+    Map<String, Object> map = request.getParameters();
     String paramName = null;
     Object obj = null;
-    List values = null;
+    List<String> values = null;
     int leastSize = Integer.MAX_VALUE; // Initialize to a large value.
-    Map newMap = new HashMap();
+    Map<String, List<String>> newMap = new HashMap<>();
     for (int i = 1; i < params.length; i++) {
       if (params[i] == null) continue;
       paramName = params[i].toString();
       obj = map.get(paramName);
       if (obj == null) continue;
 
-      values = new ArrayList();
+      values = new ArrayList<>();
 
-      if (obj instanceof List) values.addAll((List) obj);
-      else values.add(obj.toString());
+      if (obj instanceof List) {
+        for (Object o : (List<?>) obj) values.add(o == null ? null : o.toString());
+      } else values.add(obj.toString());
       newMap.put(paramName, values);
 
       if (leastSize > values.size()) leastSize = values.size();
@@ -102,7 +103,7 @@ public class PSParamsToXml extends PSDefaultExtension implements IPSResultDocume
     // Make sure not keep the huge value to be a valid one.
     if (leastSize == Integer.MAX_VALUE) leastSize = 0;
 
-    Iterator keys = null;
+    Iterator<String> keys = null;
     String key = null;
     String value = null;
     for (int i = 0; i < leastSize; i++) {
@@ -110,8 +111,8 @@ public class PSParamsToXml extends PSDefaultExtension implements IPSResultDocume
           PSXmlDocumentBuilder.addElement(doc, doc.getDocumentElement(), unitElemName, null);
       keys = newMap.keySet().iterator();
       while (keys.hasNext()) {
-        key = keys.next().toString();
-        value = ((List) newMap.get(key)).get(i).toString();
+        key = keys.next();
+        value = newMap.get(key).get(i);
 
         PSXmlDocumentBuilder.addElement(doc, unitElem, key, value);
       }

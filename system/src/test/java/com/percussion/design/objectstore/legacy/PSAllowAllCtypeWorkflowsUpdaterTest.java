@@ -40,7 +40,7 @@ public class PSAllowAllCtypeWorkflowsUpdaterTest {
 
     assertTrue(PSWorkflowInfo.TYPE_INCLUSIONARY.equals(info.getType()));
     assertFalse(info.isExclusionary());
-    Iterator values = info.getValues();
+    Iterator<Integer> values = info.getValues();
     assertTrue(values.hasNext());
 
     Set<Integer> wfIdSet = new HashSet<Integer>();

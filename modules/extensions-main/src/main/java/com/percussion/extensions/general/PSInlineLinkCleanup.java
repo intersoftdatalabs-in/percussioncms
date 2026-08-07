@@ -179,14 +179,15 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
   private void addInlineFields(
       PSDisplayMapper dispMapper, PSContentEditorMapper editMapper, ContentType ctype) {
     PSFieldSet fieldSet = editMapper.getFieldSet(dispMapper.getFieldSetRef());
-    Iterator mappings = dispMapper.iterator();
+    @SuppressWarnings("unchecked")
+    Iterator<PSDisplayMapping> mappings = dispMapper.iterator();
     PSDisplayMapping mapping = null;
     PSUISet uiSet = null;
     PSDisplayText label = null;
     String text = null;
     if (mappings != null) {
       while (mappings.hasNext()) {
-        mapping = (PSDisplayMapping) mappings.next();
+        mapping = mappings.next();
         PSDisplayMapper displayMapper = mapping.getDisplayMapper();
         if (displayMapper != null) {
           addInlineFields(displayMapper, editMapper, ctype);
@@ -217,7 +218,7 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
    * @return The schema object, never <code>null</code>.
    */
   private PSJdbcTableSchema getSchema(String table) {
-    PSJdbcTableSchema schema = (PSJdbcTableSchema) ms_tableSchemas.get(table);
+    PSJdbcTableSchema schema = ms_tableSchemas.get(table);
     if (schema == null) {
       try {
         schema = PSDbmsHelper.getInstance().catalogTable(table, false);
@@ -369,7 +370,7 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
      * @return A list over zero or more <code>PSField</code> objects, never <code>null</code>, but
      *     may not empty.
      */
-    private List getInlineFields() {
+    private List<PSField> getInlineFields() {
       return m_inlineFields;
     }
 
@@ -408,16 +409,16 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
      *     may be empty.
      * @throws Exception if an error occurs.
      */
-    private List getContentLocators(IPSRequestContext request) throws Exception {
-      List result = new ArrayList();
+    private List<PSLocator> getContentLocators(IPSRequestContext request) throws Exception {
+      List<PSLocator> result = new ArrayList<>();
       String table = getLocalTable();
       PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
       PSJdbcTableData data = dbmsHelper.catalogTableData(table, null, null);
 
       if (data != null && data.getRows().hasNext()) {
-        Iterator rows = data.getRows();
+        Iterator<PSJdbcRowData> rows = data.getRows();
         while (rows.hasNext()) {
-          PSJdbcRowData row = (PSJdbcRowData) rows.next();
+          PSJdbcRowData row = rows.next();
           int id = dbmsHelper.getColumnInt(table, CONTENTID, row);
           int rev = dbmsHelper.getColumnInt(table, REVISIONID, row);
           PSLocator locator = new PSLocator(id, rev);
@@ -442,14 +443,13 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
       Object[] args = {m_itemdef.getName()};
       traceMessage(request, "Processing content type: \"{0}\"", args);
 
-      List result = new ArrayList();
       if (!hasInlineFields()) return;
 
       try {
         // process one content type at a time
-        Iterator locators = getContentLocators(request).iterator();
+        Iterator<PSLocator> locators = getContentLocators(request).iterator();
         while (locators.hasNext()) {
-          PSLocator locator = (PSLocator) locators.next();
+          PSLocator locator = locators.next();
           try {
             processContents(request, locator, isPreview);
           } catch (Exception e) {
@@ -488,10 +488,10 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
       PSField field = null;
 
       // retrieve contents for all inline link fields
-      Iterator fields = getInlineFields().iterator();
-      List contents = new ArrayList();
+      Iterator<PSField> fields = getInlineFields().iterator();
+      List<FieldContent> contents = new ArrayList<>();
       while (fields.hasNext()) {
-        field = (PSField) fields.next();
+        field = fields.next();
         contents.addAll(getContents(locator, field));
       }
 
@@ -500,9 +500,9 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
       request.setParameter(IPSHtmlParameters.SYS_REVISION, String.valueOf(locator.getRevision()));
       PSRelationshipSet deletes = PSInlineLinkField.getInlineRelationships(request);
       PSRelationshipSet modifies = new PSRelationshipSet();
-      Iterator fieldContents = contents.iterator();
+      Iterator<FieldContent> fieldContents = contents.iterator();
       while (fieldContents.hasNext()) {
-        fieldContent = (FieldContent) fieldContents.next();
+        fieldContent = fieldContents.next();
         fieldContent.preProcess(request, deletes, modifies);
       }
 
@@ -510,7 +510,7 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
       if ((!isPreview) && (deletes.size() > 0 || modifies.size() > 0)) {
         fieldContents = contents.iterator();
         while (fieldContents.hasNext()) {
-          fieldContent = (FieldContent) fieldContents.next();
+          fieldContent = fieldContents.next();
           fieldContent.postProcess(request);
         }
 
@@ -545,8 +545,8 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
      *     empty.
      * @throws Exception if an error occurs.
      */
-    private List getContents(PSLocator locator, PSField field) throws Exception {
-      List result = new ArrayList();
+    private List<FieldContent> getContents(PSLocator locator, PSField field) throws Exception {
+      List<FieldContent> result = new ArrayList<>();
       String column = getColumnFromField(field);
       String table = getTableFromField(field);
       PSJdbcTableSchema schema = getSchema(table);
@@ -558,11 +558,11 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
       PSJdbcSelectFilter filter = getFilter(locator);
       PSJdbcTableData data = dbmsHelper.catalogTableData(table, null, filter);
       if (data != null && data.getRows().hasNext()) {
-        Iterator rows = data.getRows();
+        Iterator<PSJdbcRowData> rows = data.getRows();
         FieldContent fieldContent;
         int sysid = -1;
         while (rows.hasNext()) {
-          PSJdbcRowData row = (PSJdbcRowData) rows.next();
+          PSJdbcRowData row = rows.next();
           PSJdbcColumnData cdata = row.getColumn(column);
           String content = cdata.getValue();
           if (hasSysid) sysid = dbmsHelper.getColumnInt(table, SYSID, row);
@@ -608,7 +608,7 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
     /*
      * A list of inline link fields, never <code>null</code>, may be empty.
      */
-    private List m_inlineFields = new ArrayList();
+    private List<PSField> m_inlineFields = new ArrayList<>();
 
     /**
      * The local (DB) table name for the current content type. Set by {@link
@@ -696,7 +696,7 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
       String table = getTableFromField(m_field);
       String column = getColumnFromField(m_field);
       // creates the updated row
-      List columns = new ArrayList();
+      List<PSJdbcColumnData> columns = new ArrayList<>();
       PSJdbcColumnData id = new PSJdbcColumnData(CONTENTID, String.valueOf(m_locator.getId()));
       columns.add(id);
       PSJdbcColumnData rev =
@@ -709,7 +709,7 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
         columns.add(sysid);
       }
       PSJdbcRowData row = new PSJdbcRowData(columns.iterator(), PSJdbcRowData.ACTION_UPDATE);
-      List rows = new ArrayList();
+      List<PSJdbcRowData> rows = new ArrayList<>();
       rows.add(row);
       PSJdbcTableData data = new PSJdbcTableData(table, rows.iterator());
       data.setOnCreateOnly(false);
@@ -750,5 +750,5 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
    * String</code> object; the map value is the schema of the table as a <code>PSJdbcTableSchema
    * </code> object.
    */
-  private static Map ms_tableSchemas = new HashMap();
+  private static Map<String, PSJdbcTableSchema> ms_tableSchemas = new HashMap<>();
 }

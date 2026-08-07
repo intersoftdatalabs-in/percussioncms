@@ -672,7 +672,7 @@ public class PSRoleManager {
    *     ascending alpha order by attribute name. There will be no duplicates. The caller takes
    *     ownership of the list.
    */
-  public List getRoleAttributes(String roleName) {
+  public List<PSAttribute> getRoleAttributes(String roleName) {
     if (roleName == null) throw new IllegalArgumentException("roleName cannot be null");
 
     roleName = roleName.trim();

@@ -300,13 +300,13 @@ public class PSSite extends PSComponent {
    *     null</code>, may be empty.
    * @throws PSCmsException for any error.
    */
-  public static List getSites(IPSRequestContext request) throws PSCmsException {
+  public static List<PSSite> getSites(IPSRequestContext request) throws PSCmsException {
     if (request == null) throw new IllegalArgumentException("request cannot be null");
 
     // get all possible parameters from the request. This is to make sure
     // the resource cache is only based on these possible parameters, and
     // not based by any unknown parameters in the request.
-    Map params = new HashMap();
+    Map<String, Object> params = new HashMap<>();
     String paramValue;
     for (int i = 0; i < ALL_PARAMS.length; i++) {
       paramValue = request.getParameter(ALL_PARAMS[i]);
@@ -315,7 +315,7 @@ public class PSSite extends PSComponent {
     }
 
     try {
-      List results = new ArrayList();
+      List<PSSite> results = new ArrayList<>();
 
       IPSInternalRequest ir = request.getInternalRequest(GET_SITE_RESOURCE, params, false);
       Document doc = ir.getResultDoc();

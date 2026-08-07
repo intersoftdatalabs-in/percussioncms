@@ -48,16 +48,16 @@ public class PSXdMultiTextToTree extends PSXdTextToTree implements IPSResultDocu
    * @throws IllegalArgumentException if <code>resultDoc</code> is <code>null</code> or if <code>
    *     textSourceName</code> is <code>null</code> or empty
    */
-  protected Iterator getNodes(Document resultDoc, String textSourceName) {
+  protected Iterator<Node> getNodes(Document resultDoc, String textSourceName) {
     if (resultDoc == null) throw new IllegalArgumentException("resultDoc may not be null");
 
     if (textSourceName == null)
       throw new IllegalArgumentException("textSourceName may not be null or empty");
 
-    List nodeList = new ArrayList();
+    List<Node> nodeList = new ArrayList<>();
     NodeList nl = resultDoc.getElementsByTagName(textSourceName);
     for (int i = 0; i < nl.getLength(); i++) {
-      Node sourceNode = (Node) nl.item(i);
+      Node sourceNode = nl.item(i);
       if (sourceNode != null) nodeList.add(sourceNode);
     }
     return nodeList.iterator();

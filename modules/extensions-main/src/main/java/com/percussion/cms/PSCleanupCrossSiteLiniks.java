@@ -161,10 +161,10 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
     if (relset.isEmpty()) return; // do nothing if there is no dependent (in AA relationships)
 
     // "cleanup" all links if needed
-    Iterator rels = relset.iterator();
+    Iterator<PSRelationship> rels = relset.iterator();
     PSRelationship rel;
     while (rels.hasNext()) {
-      rel = (PSRelationship) rels.next();
+      rel = rels.next();
       try {
         processAALink(rel);
       } catch (Exception e) {
@@ -332,11 +332,11 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
    * @throws PSCmsException if error occurs.
    */
   private boolean isChildItem(PSLocator folderLoc, PSLocator itemLoc) throws PSCmsException {
-    List children = getFolderChildren(folderLoc);
-    Iterator locs = children.iterator();
+    List<PSLocator> children = getFolderChildren(folderLoc);
+    Iterator<PSLocator> locs = children.iterator();
     PSLocator child;
     while (locs.hasNext()) {
-      child = (PSLocator) locs.next();
+      child = locs.next();
       if (child.getId() == itemLoc.getId()) {
         return true;
       }
@@ -384,7 +384,7 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
    * @return a list of {@link PSLocator}; it may not empty, but never <code>null</code>.
    * @throws PSCmsException if failed to get the children.
    */
-  private List getFolderChildren(PSLocator parent) throws PSCmsException {
+  private List<PSLocator> getFolderChildren(PSLocator parent) throws PSCmsException {
     return getFolderRelationships(parent, true);
   }
 
@@ -409,9 +409,9 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
     PSRelationshipSet relset = m_relProcessor.getRelationships(filter);
     List<PSLocator> parent = new ArrayList<>();
 
-    Iterator rels = relset.iterator();
+    Iterator<PSRelationship> rels = relset.iterator();
     while (rels.hasNext()) {
-      PSRelationship rel = (PSRelationship) rels.next();
+      PSRelationship rel = rels.next();
       if (isOwner) parent.add(rel.getDependent());
       else parent.add(rel.getOwner());
     }
@@ -473,9 +473,9 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
 
     // get all folders that exist under the target site
     List<PSLocator> siteFolders = new ArrayList<>();
-    Iterator rels = relset.iterator();
+    Iterator<PSRelationship> rels = relset.iterator();
     while (rels.hasNext()) {
-      PSRelationship r = (PSRelationship) rels.next();
+      PSRelationship r = rels.next();
       PSLocator folder = r.getDependent();
       if (isUnderTargetSite(folder)) {
         siteFolders.add(folder);
@@ -816,11 +816,11 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
    */
   private void populateSites() throws PSCmsException {
     m_request.removeParameter(IPSHtmlParameters.SYS_SITEID);
-    List siteList = PSSite.getSites(m_request);
+    List<PSSite> siteList = PSSite.getSites(m_request);
 
-    Iterator sites = siteList.iterator();
+    Iterator<PSSite> sites = siteList.iterator();
     while (sites.hasNext()) {
-      PSSite s = (PSSite) sites.next();
+      PSSite s = sites.next();
       Integer siteid = Integer.valueOf(s.getId());
       PSLocator root = getRootLocator(s);
       if (root != null) {

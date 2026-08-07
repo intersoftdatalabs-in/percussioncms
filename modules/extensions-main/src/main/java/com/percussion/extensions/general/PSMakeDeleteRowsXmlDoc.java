@@ -92,8 +92,8 @@ public class PSMakeDeleteRowsXmlDoc implements IPSRequestPreProcessor {
       Element elem = null;
 
       if (obj instanceof Collection) {
-        Collection col = (Collection) obj;
-        Iterator it = col.iterator();
+        Collection<?> col = (Collection<?>) obj;
+        Iterator<?> it = col.iterator();
         while (it.hasNext()) {
           Object tempObj = it.next();
           if (tempObj == null) continue;

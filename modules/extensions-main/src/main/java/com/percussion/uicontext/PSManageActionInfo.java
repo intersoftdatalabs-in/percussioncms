@@ -48,7 +48,7 @@ public class PSManageActionInfo {
    * @param request The current request context, must never be <code>null</code>
    * @throws PSException if a problem occurs loading the action information
    */
-  public void ensureActionsLoaded(Collection actionids, IPSRequestContext request)
+  public void ensureActionsLoaded(Collection<String> actionids, IPSRequestContext request)
       throws PSException {
     if (actionids == null) {
       throw new IllegalArgumentException("actionids must never be null");
@@ -56,7 +56,7 @@ public class PSManageActionInfo {
     if (request == null) {
       throw new IllegalArgumentException("request must never be null");
     }
-    Collection known = knownActionIds(request);
+    Collection<String> known = knownActionIds(request);
     actionids.removeAll(known);
     loadActionIds(actionids, request);
   }
@@ -76,8 +76,8 @@ public class PSManageActionInfo {
       throw new IllegalArgumentException("req must never be null");
     }
 
-    Map actionMap = getOrCreateActionMap(req);
-    PSAction action = (PSAction) actionMap.get(actionid);
+    Map<String, PSAction> actionMap = getOrCreateActionMap(req);
+    PSAction action = actionMap.get(actionid);
     if (action != null) return action.getVisibilityContexts();
     else return null;
   }
@@ -96,8 +96,8 @@ public class PSManageActionInfo {
     if (req == null) {
       throw new IllegalArgumentException("req must never be null");
     }
-    Map actionMap = getOrCreateActionMap(req);
-    PSAction action = (PSAction) actionMap.get(actionid);
+    Map<String, PSAction> actionMap = getOrCreateActionMap(req);
+    PSAction action = actionMap.get(actionid);
     if (action != null) return action.isMenuItem();
     else return false;
   }
@@ -109,17 +109,18 @@ public class PSManageActionInfo {
    * @param request The request context to use, assume not <code>null</code>
    * @throws PSException if a problem occurs loading the action information
    */
-  private void loadActionIds(Collection actionids, IPSRequestContext request) throws PSException {
-    if (actionids.size() == 0) return;
+  private void loadActionIds(Collection<String> actionids, IPSRequestContext request)
+      throws PSException {
+    if (actionids.isEmpty()) return;
 
-    Map actionMap = getOrCreateActionMap(request);
+    Map<String, PSAction> actionMap = getOrCreateActionMap(request);
     PSComponentProcessorProxy cpp = getComponentProcessor(request);
     String actionIdVector[] = new String[actionids.size()];
 
     int i = 0;
 
-    for (Iterator iter = actionids.iterator(); iter.hasNext(); ) {
-      actionIdVector[i++] = (String) iter.next();
+    for (Iterator<String> iter = actionids.iterator(); iter.hasNext(); ) {
+      actionIdVector[i++] = iter.next();
     }
 
     PSAction actions[] = loadActions(cpp, actionIdVector);
@@ -140,10 +141,12 @@ public class PSManageActionInfo {
    * @param request request context to check, assume not <code>null</code>
    * @return a {@link Map}, never <code>null</code>
    */
-  private Map getOrCreateActionMap(IPSRequestContext request) {
-    Map rval = (Map) request.getSessionPrivateObject("RX_ACTION_MAP");
+  private Map<String, PSAction> getOrCreateActionMap(IPSRequestContext request) {
+    @SuppressWarnings("unchecked")
+    Map<String, PSAction> rval =
+        (Map<String, PSAction>) request.getSessionPrivateObject("RX_ACTION_MAP");
     if (rval == null) {
-      rval = new HashMap();
+      rval = new HashMap<>();
       request.setSessionPrivateObject("RX_ACTION_MAP", rval);
     }
     return rval;
@@ -156,8 +159,8 @@ public class PSManageActionInfo {
    *     <code>null</code>
    * @return a {@link Collection}of known action ids, never <code>null</code> but may be empty
    */
-  private Collection knownActionIds(IPSRequestContext request) {
-    Map actionMap = getOrCreateActionMap(request);
+  private Collection<String> knownActionIds(IPSRequestContext request) {
+    Map<String, PSAction> actionMap = getOrCreateActionMap(request);
     return actionMap.keySet();
   }
 

@@ -120,7 +120,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
     if (ms_paramCount == NOT_INITIALIZED) {
       ms_paramCount = 0;
 
-      Iterator iter = extensionDef.getRuntimeParameterNames();
+      Iterator<String> iter = extensionDef.getRuntimeParameterNames();
       while (iter.hasNext()) {
         iter.next();
         ms_paramCount++;
@@ -181,7 +181,8 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
        * Convert to standard HTML parameter names and add default siteid
        * if not there yet.
        */
-      Map htmlParams = PSHtmlParameters.createStandardParams(request.getParameters());
+      Map<String, Object> htmlParams =
+          PSHtmlParameters.createStandardParams(request.getParameters());
       htmlParams.put(IPSHtmlParameters.SYS_SESSIONID, request.getUserSessionId());
 
       String variantid = request.getParameter(IPSHtmlParameters.SYS_VARIANTID);
@@ -190,13 +191,13 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
 
       // get the global template
       String globalTemplate = null;
-      List sites = PSSite.getSites(request);
+      List<PSSite> sites = PSSite.getSites(request);
       // Only lookup a global template if the variant is not set to use a
       // velocity global template, i.e. a value other than legacy.[]
       if (!sites.isEmpty()
           && template.getGlobalTemplateUsage().equals(GlobalTemplateUsage.Legacy)) {
         // there is always maximum one site
-        PSSite site = (PSSite) sites.get(0);
+        PSSite site = sites.get(0);
         globalTemplate = site.getGlobalTemplateName();
 
         PSLocator itemLocator =
@@ -212,10 +213,10 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
       Element assemblerInfo = doc.createElement(ASSEMBLER_INFO_ELEM);
       assemblerInfo.setAttribute(PREVIEWURL_ATTR, requestFileURL);
       if (globalTemplate != null) assemblerInfo.setAttribute("psxglobaltemplate", globalTemplate);
-      Iterator attrs = htmlParams.entrySet().iterator();
+      Iterator<Map.Entry<String, Object>> attrs = htmlParams.entrySet().iterator();
       while (attrs.hasNext()) {
-        Map.Entry attr = (Map.Entry) attrs.next();
-        assemblerInfo.setAttribute((String) attr.getKey(), (String) attr.getValue());
+        Map.Entry<String, Object> attr = attrs.next();
+        assemblerInfo.setAttribute(attr.getKey(), (String) attr.getValue());
       }
 
       /*
@@ -307,7 +308,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
         // "sys_casSupport/AssemblerProperties". The cache flag is enabled
         // for
         // the resource.
-        Map assemblyParams = new HashMap(2);
+        Map<String, Object> assemblyParams = new HashMap<>(2);
         assemblyParams.put(
             IPSHtmlParameters.SYS_CONTEXT, htmlParams.get(IPSHtmlParameters.SYS_CONTEXT));
         assemblyParams.put(
@@ -324,7 +325,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
         }
 
         // append the InlineLink element
-        Map paramMap = new HashMap(2);
+        Map<String, Object> paramMap = new HashMap<>(2);
         paramMap.put(IPSHtmlParameters.SYS_SESSIONID, request.getUserSessionId());
         paramMap.put(IPSHtmlParameters.SYS_CONTEXT, htmlParams.get(IPSHtmlParameters.SYS_CONTEXT));
 
@@ -343,7 +344,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
         assemblerInfo.appendChild(inlineLink);
 
         // append the varianturl element
-        Map vurlParamMap = new HashMap(3);
+        Map<String, Object> vurlParamMap = new HashMap<>(3);
         vurlParamMap.put(IPSHtmlParameters.SYS_SESSIONID, request.getUserSessionId());
         vurlParamMap.put(
             IPSHtmlParameters.SYS_CONTEXT, htmlParams.get(IPSHtmlParameters.SYS_CONTEXT));
@@ -368,7 +369,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
         // for
         // correct version and revision numbers.
         // extract all body field nodes from the full document
-        List bodyFields = new ArrayList();
+        List<Text> bodyFields = new ArrayList<>();
         NodeList nl = doc.getElementsByTagName("*");
         int nodeCount = nl.getLength();
         // Collect all rich text fields if the assembly process is not
@@ -390,7 +391,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
               PSSingleValueBuilder.buildRelationshipData(request, null);
           for (int i = 0; i < count; i++) {
             try {
-              Text txtContent = (Text) bodyFields.get(i);
+              Text txtContent = bodyFields.get(i);
               String content = (txtContent).getData();
               Document contentDoc =
                   PSXmlDocumentBuilder.createXmlDocument(new StringReader(content), false);
@@ -464,13 +465,13 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
 
       // get the locator paths for the supplied item
 
-      List folderPaths = fprocessor.getFolderLocatorPaths(locator);
+      List<List<PSLocator>> folderPaths = fprocessor.getFolderLocatorPaths(locator);
 
       boolean foundSiteTree = false;
-      List locatorPath = null;
-      Iterator walker = folderPaths.iterator();
+      List<PSLocator> locatorPath = null;
+      Iterator<List<PSLocator>> walker = folderPaths.iterator();
       while (!foundSiteTree && walker.hasNext()) {
-        locatorPath = (List) walker.next();
+        locatorPath = walker.next();
         foundSiteTree = isPathForSite(locatorPath, siteFolderId);
       }
 
@@ -481,9 +482,9 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
          * Walk the path from the bottom up to find the global template
          * override with the highest precedence.
          */
-        ListIterator walkPath = locatorPath.listIterator();
+        ListIterator<PSLocator> walkPath = locatorPath.listIterator();
         while (walkPath.hasNext()) {
-          flocator = (PSLocator) walkPath.next();
+          flocator = walkPath.next();
           globalTemplate = fprocessor.getGlobalTemplateProperty(flocator.getId());
           if (globalTemplate != null && globalTemplate.trim().length() > 0) {
             return globalTemplate;
@@ -506,10 +507,10 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
    * @return <code>true</code> if the supplied locator path contains the provided site id, <code>
    *     false</code> otherwise.
    */
-  private boolean isPathForSite(List locatorPath, int siteFolderId) {
+  private boolean isPathForSite(List<PSLocator> locatorPath, int siteFolderId) {
     PSLocator folder;
     for (int i = 0; i < locatorPath.size(); i++) {
-      folder = (PSLocator) locatorPath.get(i);
+      folder = locatorPath.get(i);
       if (folder.getId() == siteFolderId) return true;
     }
 
@@ -556,12 +557,14 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   private boolean isAssemblyRecursive(IPSRequestContext request) {
     String recursionKey = makeKeyFromRequestContext(request);
     request.printTraceMessage("recursionKey = " + recursionKey);
-    Map assembleRecursionMap = (Map) request.getPrivateObject(ASSEMBLY_RECURSION_MAP_KEY);
-    Set levels = (Set) assembleRecursionMap.get(recursionKey);
+    @SuppressWarnings("unchecked")
+    Map<String, Set<String>> assembleRecursionMap =
+        (Map<String, Set<String>>) request.getPrivateObject(ASSEMBLY_RECURSION_MAP_KEY);
+    Set<String> levels = assembleRecursionMap.get(recursionKey);
     int currentAssemblyLevel = readCurrentAssemblyLevel(request);
     boolean recursion = false;
     if (levels == null) {
-      levels = new HashSet();
+      levels = new HashSet<>();
       levels.add("" + currentAssemblyLevel);
       assembleRecursionMap.put(recursionKey, levels);
     } else {
@@ -609,7 +612,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
    */
   private static String makeKeyFromRequestContext(IPSRequestContext request) {
     if (request == null) throw new IllegalArgumentException("request must not be null");
-    Map params = new HashMap(request.getParameters());
+    Map<String, Object> params = new HashMap<>(request.getParameters());
     params.remove(ASSEMBLY_LEVEL);
     return request.getRequestFileURL() + params;
   }
@@ -658,7 +661,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
     // You are working on parent and we initialize parentid with the contentid.
     if (parent != null) parentid = contentid;
 
-    List ridList = new ArrayList();
+    List<String> ridList = new ArrayList<>();
     if (activeitemid != null && activeitemid.trim().length() > 0) {
       ridList.add(activeitemid.trim());
     }
@@ -667,7 +670,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
       ridList.add(tok.nextToken());
     }
     if (ridList.size() > 0) {
-      Map ridMap = new HashMap();
+      Map<String, Object> ridMap = new HashMap<>();
       ridMap.put(IPSHtmlParameters.SYS_ACTIVEITEMID, ridList);
       IPSInternalRequest intReq =
           request.getInternalRequest("sys_rcSupport/activeitemdetails", ridMap, false);
@@ -703,7 +706,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
     }
     // if activeitems contentid exists then get the details of the item.
     if (activecontentid != null && activecontentid.length() > 0) {
-      Map chkoutMap = new HashMap();
+      Map<String, Object> chkoutMap = new HashMap<>();
       chkoutMap.put(IPSHtmlParameters.SYS_CONTENTID, activecontentid);
       chkoutMap.put(IPSHtmlParameters.SYS_COMMAND, WORKFLOW_COMMAND_NAME);
       chkoutMap.put(PSWorkFlowUtils.DEFAULT_ACTION_TRIGGER_NAME, WORKFLOW_CHECKOUT);
@@ -731,7 +734,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
     try {
       String appRoot = request.getRequestRoot();
       // Make an internal request to get the stylesheet name and location.
-      Map temp = new HashMap();
+      Map<String, Object> temp = new HashMap<>();
       temp.put(IPSHtmlParameters.SYS_CONTENTID, contentid);
       temp.put(IPSHtmlParameters.SYS_VARIANTID, variantid);
       IPSInternalRequest iReq =
@@ -820,7 +823,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
     Document doc = null;
     IPSInternalRequest iReq = null;
     try {
-      Map params = new HashMap();
+      Map<String, Object> params = new HashMap<>();
       params.put(IPSHtmlParameters.SYS_CONTENTID, contentid);
       iReq = request.getInternalRequest(CONTENT_DETAILS_URL, params, false);
       doc = iReq.getResultDoc();
@@ -1132,7 +1135,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
    */
   private void recordModified(File file, boolean bResetPrevious) {
     if (bResetPrevious) {
-      Set entries = ms_props.entrySet();
+      Set<Map.Entry<Object, Object>> entries = ms_props.entrySet();
       if (entries != null) entries.clear();
     }
     String modDateCurrent = Long.toString(file.lastModified());

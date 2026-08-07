@@ -47,7 +47,7 @@ public class PSStylesheetCacheManager {
    * the Stylesheet cache is a keyed table that contains javax.xml.transform.Templates objects.
    * ConcurrentHashMap is used rather than HashMap because it is synchronized.
    */
-  static Map ms_cache = new ConcurrentHashMap();
+  static Map<URL, PSCachedStylesheet> ms_cache = new ConcurrentHashMap<>();
 
   /**
    * get a stylesheet from the cache by URL. If the stylesheet does not exist in the cache, it will
@@ -79,7 +79,7 @@ public class PSStylesheetCacheManager {
     PSCachedStylesheet cachedSS = null;
 
     try {
-      cachedSS = (PSCachedStylesheet) ms_cache.get(styleFile);
+      cachedSS = ms_cache.get(styleFile);
       if (cachedSS == null) {
         cachedSS = new PSCachedStylesheet(styleFile);
         ms_cache.put(styleFile, cachedSS);
@@ -106,7 +106,7 @@ public class PSStylesheetCacheManager {
    * @param buf where to append the strings; modified by this method; cannot be <code>null</code>
    * @param iter where to find the objects; cannot be <code>null</code>
    */
-  private static void appendFromIterator(StringBuilder buf, Iterator iter) {
+  private static void appendFromIterator(StringBuilder buf, Iterator<?> iter) {
     while (iter.hasNext()) {
       Object o = iter.next();
       if (o instanceof TransformerException) {

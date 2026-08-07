@@ -61,9 +61,9 @@ public class PSXdTextToTree extends PSDefaultExtension implements IPSResultDocum
 
     try {
       request.printTraceMessage("Source name is: " + textSourceName);
-      Iterator it = getNodes(resultDoc, textSourceName);
+      Iterator<Node> it = getNodes(resultDoc, textSourceName);
       while (it.hasNext()) {
-        Node sourceNode = (Node) it.next();
+        Node sourceNode = it.next();
         request.printTraceMessage(
             "Source node is " + sourceNode.getNodeName() + " -- " + sourceNode.toString());
         String textSource = PSXmlTreeWalker.getElementData(sourceNode);
@@ -103,13 +103,13 @@ public class PSXdTextToTree extends PSDefaultExtension implements IPSResultDocum
    * @throws IllegalArgumentException if <code>resultDoc</code> is <code>null</code> or if <code>
    *     textSourceName</code> is <code>null</code> or empty
    */
-  protected Iterator getNodes(Document resultDoc, String textSourceName) {
+  protected Iterator<Node> getNodes(Document resultDoc, String textSourceName) {
     if (resultDoc == null) throw new IllegalArgumentException("resultDoc may not be null");
 
     if (textSourceName == null)
       throw new IllegalArgumentException("textSourceName may not be null or empty");
 
-    List nodeList = new ArrayList();
+    List<Node> nodeList = new ArrayList<>();
     PSXmlTreeWalker sourceWalker = new PSXmlTreeWalker(resultDoc);
     int flags = PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS;
     Node sourceNode = sourceWalker.getNextElement(textSourceName, flags);

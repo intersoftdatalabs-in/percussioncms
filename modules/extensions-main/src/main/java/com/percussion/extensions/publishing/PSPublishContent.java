@@ -122,7 +122,7 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
    * The publish properties identifies the edition to publish for a given pair of transitionId and
    * workflowId. These are read from an XML file in rxconfig/Workflow/publishcontent.xml
    */
-  private Map m_publishProps = null;
+  private Map<PSPCKey, List<Integer>> m_publishProps = null;
 
   /**
    * Default polling time in milli seconds, which is the interval between two consecutive attempts
@@ -186,17 +186,17 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
     key.mi_transitionId = transitionId;
     key.mi_workflowId = workflowId;
 
-    List editions = (List) m_publishProps.get(key);
+    List<Integer> editions = m_publishProps.get(key);
     // Check if we got property value from publish.properties file
     if (editions != null) {
-      Iterator it = editions.iterator();
+      Iterator<Integer> it = editions.iterator();
       while (it.hasNext()) {
-        Integer edition = (Integer) it.next();
+        Integer edition = it.next();
         try {
           editionId = edition.intValue();
           request.printTraceMessage("EditionID= ".concat(String.valueOf(editionId)));
           URL pubUrl = getPubHandlerUrl(request, editionId);
-          Set inProgress = (Set) request.getSessionPrivateObject(PUB_URLS_IN_PROGRESS);
+          Set<URL> inProgress = getInProgressUrls(request);
           if (inProgress == null || !inProgress.contains(pubUrl)) publishUrl(request, pubUrl);
         } catch (Exception s) {
           ms_logger.error(s);
@@ -218,6 +218,17 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
   }
 
   /**
+   * Retrieve the set of publisher URLs currently in progress from the session.
+   *
+   * @param request request context object, assumed not <code>null</code>.
+   * @return the set of in progress URLs, <code>null</code> if none has been stored yet.
+   */
+  @SuppressWarnings("unchecked")
+  private static Set<URL> getInProgressUrls(IPSRequestContext request) {
+    return (Set<URL>) request.getSessionPrivateObject(PUB_URLS_IN_PROGRESS);
+  }
+
+  /**
    * Publish the edition by making the request to server using the URL object. The edition that is
    * in progress will be stored as session private object.
    *
@@ -225,9 +236,9 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
    * @param pubUrl url object to publish the edition, assumed not <code>null</code>.
    */
   private void publishUrl(IPSRequestContext request, URL pubUrl) {
-    Set inProgress = (Set) request.getSessionPrivateObject(PUB_URLS_IN_PROGRESS);
+    Set<URL> inProgress = getInProgressUrls(request);
     if (inProgress == null) {
-      inProgress = new HashSet();
+      inProgress = new HashSet<>();
       request.setSessionPrivateObject(PUB_URLS_IN_PROGRESS, inProgress);
     }
     // publish the edition in a separate thread.
@@ -249,7 +260,7 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
    *     document.
    * @throws FileNotFoundException when the file does not exist
    */
-  private static Map getPublishProperties()
+  private static Map<PSPCKey, List<Integer>> getPublishProperties()
       throws PSExtensionException, SAXException, IOException, ParserConfigurationException {
     DocumentBuilderFactory fact =
         PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
@@ -266,7 +277,7 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
         // ignore exception and keep the default value.
       }
     }
-    Map<PSPublishContent.PSPCKey, List<Integer>> rval = new HashMap<>();
+    Map<PSPCKey, List<Integer>> rval = new HashMap<>();
 
     // Find child elements
     NodeList elements = configfile.getElementsByTagName(PUBLISH);
@@ -397,7 +408,7 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
       if (ex != null) {
         request.setSessionPrivateObject(PUB_URLS_IN_PROGRESS, null);
       } else {
-        Set inProgress = (Set) request.getSessionPrivateObject(PUB_URLS_IN_PROGRESS);
+        Set<URL> inProgress = getInProgressUrls(request);
         if (inProgress != null) inProgress.remove(pubUrl);
       }
     }

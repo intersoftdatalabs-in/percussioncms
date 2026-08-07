@@ -66,7 +66,7 @@ public class PSCheckOutSlotItem extends PSDefaultExtension implements IPSResultD
     } else if (checkoutstatus.equalsIgnoreCase(IPSConstants.CHECKOUT_STATUS_NOBODY)) {
       String contentid = PSHtmlParameters.get(IPSHtmlParameters.SYS_CONTENTID, request);
       if (contentid != null && contentid.length() > 0) {
-        Map chkoutMap = new HashMap();
+        Map<String, Object> chkoutMap = new HashMap<>();
         chkoutMap.put(IPSHtmlParameters.SYS_CONTENTID, contentid);
         chkoutMap.put(IPSHtmlParameters.SYS_COMMAND, WORKFLOW_COMMAND_NAME);
         chkoutMap.put(PSWorkFlowUtils.DEFAULT_ACTION_TRIGGER_NAME, WORKFLOW_CHECKOUT);

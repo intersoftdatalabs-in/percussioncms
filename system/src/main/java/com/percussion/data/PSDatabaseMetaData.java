@@ -385,7 +385,7 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
    * @param meta The database metadata, may not be <code>null</code>.
    * @throws IllegalArgumentException if either param is <code>null</code>.
    */
-  public static HashMap loadNativeDataTypeMap(Connection conn, DatabaseMetaData meta)
+  public static HashMap<String, Short> loadNativeDataTypeMap(Connection conn, DatabaseMetaData meta)
       throws SQLException {
     if (conn == null || meta == null)
       throw new IllegalArgumentException("One or more params is null");
@@ -400,9 +400,9 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
       // this is not critical, just prevents the special case check
     }
 
-    HashMap map = (HashMap) ms_fixedUpDataTypeMap.get(dbmsType);
+    HashMap<String, Short> map = (HashMap<String, Short>) ms_fixedUpDataTypeMap.get(dbmsType);
     if (map != null) return map;
-    map = new HashMap();
+    map = new HashMap<>();
 
     if (dbmsType != null && dbmsType.trim().length() != 0) {
       try {
@@ -515,7 +515,7 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
    * once. Never <code>null</code>, modified by a call to {@link #loadNativeDataTypeMap( Connection,
    * DatabaseMetaData) loadNativeDataTypeMap}.
    */
-  protected static HashMap ms_fixedUpDataTypeMap = new HashMap();
+  protected static HashMap<String, HashMap<String, Short>> ms_fixedUpDataTypeMap = new HashMap<>();
 
   /**
    * Stores a mapping of some native datatypes and their related jdbc data types. Never <code>null

@@ -29,6 +29,7 @@ import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.HashMap;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -118,7 +119,7 @@ public class PSCreateTranslations extends PSDefaultExtension implements IPSResul
     String contentid;
     String revision;
     String ceurl;
-    HashMap paramMap = new HashMap();
+    Map<String, Object> paramMap = new HashMap<>();
     paramMap.put(IPSHtmlParameters.SYS_LANG, lang);
     paramMap.put(IPSHtmlParameters.SYS_COMMAND, PSRelationshipCommandHandler.COMMAND_NAME);
     paramMap.put(IPSHtmlParameters.SYS_RELATIONSHIPTYPE, relationshipType);

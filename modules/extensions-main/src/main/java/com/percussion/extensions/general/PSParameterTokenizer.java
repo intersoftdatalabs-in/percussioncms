@@ -25,6 +25,7 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import org.apache.logging.log4j.LogManager;
@@ -109,9 +110,10 @@ public class PSParameterTokenizer extends PSDefaultExtension implements IPSReque
         }
       }
 
-      if (inputArray instanceof ArrayList) {
+      if (inputArray instanceof List<?>) {
         // this is an array, so we need to iterate across it
-        ArrayList inputList = (ArrayList) inputArray;
+        @SuppressWarnings("unchecked")
+        List<String> inputList = (List<String>) inputArray;
 
         // make sure that the list is not empty before we start
         if (inputList.isEmpty()) {
@@ -121,7 +123,7 @@ public class PSParameterTokenizer extends PSDefaultExtension implements IPSReque
         request.printTraceMessage("multiple values found:" + inputArray);
 
         // iterate across the list of input parameters
-        for (Object o : inputList) {
+        for (String o : inputList) {
           String inputValue = (String) o;
           StringTokenizer tok = new StringTokenizer(inputValue, SEPARATORS);
           // now iterate across the tokens of the string
@@ -175,7 +177,7 @@ public class PSParameterTokenizer extends PSDefaultExtension implements IPSReque
      * the array of values for this parameter. It will be <code>null</code> for new paraemeters and
      * parameters which have only one value.
      */
-    private ArrayList m_Array;
+    private List<String> m_Array;
 
     /**
      * build a new HTMLParameter with the specified name.
@@ -195,7 +197,7 @@ public class PSParameterTokenizer extends PSDefaultExtension implements IPSReque
       // the array is not always needed
       // so we add it the first time through
       if (m_Array == null) {
-        m_Array = new ArrayList();
+        m_Array = new ArrayList<>();
       }
       m_Array.add(sValue);
     }
@@ -206,7 +208,7 @@ public class PSParameterTokenizer extends PSDefaultExtension implements IPSReque
      *
      * @return the array value, which may be <code>null</code>.
      */
-    private ArrayList getArray() {
+    private List<String> getArray() {
       return m_Array;
     }
 

@@ -110,11 +110,13 @@ public class PSDeleteContent implements IPSRequestPreProcessor {
       String purgeurl = null;
       String contentid = null;
       Element elem = null;
-      ArrayList purgeContentIdList = null;
-      if (obj instanceof ArrayList) {
-        purgeContentIdList = (ArrayList) obj;
+      List<String> purgeContentIdList = null;
+      if (obj instanceof List<?>) {
+        @SuppressWarnings("unchecked")
+        List<String> castList = (List<String>) obj;
+        purgeContentIdList = castList;
       } else {
-        purgeContentIdList = new ArrayList();
+        purgeContentIdList = new ArrayList<>();
         purgeContentIdList.add(obj.toString());
       }
       String ceResource = "";
@@ -156,7 +158,7 @@ public class PSDeleteContent implements IPSRequestPreProcessor {
             // relationships and then notify the handler
             Map<String, Object> reqParams = request.getParameters();
             String val = request.getParameter("sys_changeEventOnly");
-            Map tmpParams = new HashMap();
+            Map<String, Object> tmpParams = new HashMap<>();
             tmpParams.put(IPSHtmlParameters.SYS_COMMAND, "modify");
             tmpParams.put(IPSHtmlParameters.SYS_REVISION, "-1");
             iReq = request.getInternalRequest(ceResource, tmpParams, true);
