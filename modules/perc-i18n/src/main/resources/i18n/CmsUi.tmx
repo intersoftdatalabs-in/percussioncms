@@ -26710,5 +26710,21 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
     <tu tuid="perc.ui.gadgets.licenseMonitor@License Monitor">
       <tuv xml:lang="en-us"><seg>License Monitor</seg></tuv>
     <tuv xml:lang="ar"><seg>مراقب الترخيص</seg></tuv><tuv xml:lang="bn"><seg>লাইসেন্স মনিটর</seg></tuv><tuv xml:lang="de"><seg>Lizenzmonitor</seg></tuv><tuv xml:lang="es"><seg>Monitor de licencia</seg></tuv><tuv xml:lang="fr"><seg>Moniteur de licence</seg></tuv><tuv xml:lang="he"><seg>מוניטור רישיון</seg></tuv><tuv xml:lang="hi"><seg>लाइसेंस मॉनिटर</seg></tuv><tuv xml:lang="it"><seg>Monitoraggio delle licenze</seg></tuv><tuv xml:lang="ja-jp"><seg>ライセンスモニター</seg></tuv><tuv xml:lang="nl"><seg>Licentiemonitor</seg></tuv><tuv xml:lang="pl"><seg>Monitor licencji</seg></tuv><tuv xml:lang="pt"><seg>Monitor de licença</seg></tuv><tuv xml:lang="ru"><seg>Монитор лицензий</seg></tuv><tuv xml:lang="sv"><seg>Licensövervakning</seg></tuv><tuv xml:lang="te"><seg>లైసెన్స్ మానిటర్</seg></tuv><tuv xml:lang="tr"><seg>Lisans Monitörü</seg></tuv><tuv xml:lang="uk"><seg>Монітор ліцензій</seg></tuv><tuv xml:lang="zh-cn"><seg>许可证监控器</seg></tuv><tuv xml:lang="zh-tw"><seg>许可证监控器</seg></tuv></tu>
+    <!-- Issue #2284 / PR #2292: S3 optional credentials footer warning + a11y hint (en-us; other locales fall back) -->
+    <tu tuid="perc.ui.publish.servers.s3@Access Key">
+      <tuv xml:lang="en-us"><seg>Access Key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.servers.s3@Security Key">
+      <tuv xml:lang="en-us"><seg>Security Key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.servers.s3@Role ARN">
+      <tuv xml:lang="en-us"><seg>Role ARN</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.servers.s3@Empty credentials warning">
+      <tuv xml:lang="en-us"><seg>Amazon S3 fields are empty ({0}). Save will proceed; ensure EC2 instance profile, Assume Role, or other AWS credentials are available. On Amazon Linux 2023+ IMDS uses tokens (HttpTokens=required); containers need HttpPutResponseHopLimit &gt;= 2.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.servers.s3@Optional credentials hint">
+      <tuv xml:lang="en-us"><seg>Optional when using an EC2 instance profile or Assume Role. Leave empty only if alternate AWS credentials will be available at publish time. Saving with empty fields shows a footer warning.</seg></tuv>
+    </tu>
   </body>
 </tmx>
