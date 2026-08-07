@@ -13,6 +13,12 @@ tinymce.PluginManager.add("rxinline", function (editor) {
     processor: "string",
     default: "104",
   });
+  // Content field name for inline link/image title attrs; empty = product default
+  // (displaytitle / resource_link_title). Consumed by insert/resolve paths (#2242).
+  editor.options.register("inlineLinkTitleField", {
+    processor: "string",
+    default: "",
+  });
 
   // Use editor.options.get() instead of the deprecated editor.getParam().
   var tinyMCEinlineLinkSlot = (
@@ -24,6 +30,8 @@ tinymce.PluginManager.add("rxinline", function (editor) {
   var tinyMCEinlineImageSlot = (
     editor.options.get("inlineImageSlot") || "104"
   ).trim();
+  // inlineLinkTitleField is registered above for CE/init and for #2242
+  // insert/resolve paths (editor.options.get("inlineLinkTitleField")).
 
   var ctypeid;
   if (typeof document.forms.EditForm !== "undefined") {

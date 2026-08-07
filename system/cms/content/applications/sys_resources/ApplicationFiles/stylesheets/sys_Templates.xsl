@@ -3855,6 +3855,10 @@ onchange    %Script;       #IMPLIED
             <psxctl:Description>This parameter specifies the id of inline variant slot. The inline search dialog box shows the content types that have at least one variant added to the inline variant slot. The default value is system inline variant slotid 105.</psxctl:Description>
             <psxctl:DefaultValue>105</psxctl:DefaultValue>
          </psxctl:Param>
+         <psxctl:Param name="InlineLinkTitleField" datatype="String" paramtype="generic">
+            <psxctl:Description>This parameter specifies the content field name used for the title attribute of inline links and images inserted from this rich-text control (for example, pagetitle or page_title). When empty or absent, the product default is used (displaytitle for assets; resource_link_title / page link title for pages).</psxctl:Description>
+            <psxctl:DefaultValue></psxctl:DefaultValue>
+         </psxctl:Param>
          <psxctl:Param name="dlg_width" datatype="Number" paramtype="generic">
             <psxctl:Description>This parameter specifies the width of the dialog box that is opened during field editing in Active Assembly.</psxctl:Description>
             <psxctl:DefaultValue>90%</psxctl:DefaultValue>
@@ -4047,6 +4051,16 @@ onchange    %Script;       #IMPLIED
             </xsl:otherwise>
          </xsl:choose>
       </xsl:variable>
+      <xsl:variable name="InlineLinkTitleField">
+         <xsl:choose>
+            <xsl:when test="ParamList/Param[@name='InlineLinkTitleField']">
+               <xsl:value-of select="ParamList/Param[@name='InlineLinkTitleField']"/>
+            </xsl:when>
+            <xsl:otherwise>
+               <xsl:value-of select="document('')/*/psxctl:ControlMeta[@name='sys_tinymce']/psxctl:ParamList/psxctl:Param[@name='InlineLinkTitleField']/psxctl:DefaultValue"/>
+            </xsl:otherwise>
+         </xsl:choose>
+      </xsl:variable>
       <xsl:variable name="validItemLocale">
          <xsl:choose>
             <xsl:when test="not($itemLocale = '')">
@@ -4109,6 +4123,7 @@ onchange    %Script;       #IMPLIED
        inlineLinkSlot : "]]><xsl:value-of select="$InlineLinkSlot"/><![CDATA[",
        inlineImageSlot : "]]><xsl:value-of select="$InlineImageSlot"/><![CDATA[",
        inlineVariantSlot : "]]><xsl:value-of select="$InlineVariantSlot"/><![CDATA[",
+       inlineLinkTitleField : "]]><xsl:value-of select="$InlineLinkTitleField"/><![CDATA[",
        editor_selector : "tinymce_]]><xsl:value-of select="$uniqueName"/><![CDATA[",
        perc_locale  : "]]><xsl:value-of select="$validItemLocale"/><![CDATA[",
        community  : "]]><xsl:value-of select="$communityName"/><![CDATA[",

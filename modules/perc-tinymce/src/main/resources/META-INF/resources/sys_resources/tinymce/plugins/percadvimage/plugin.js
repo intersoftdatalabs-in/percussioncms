@@ -1,6 +1,14 @@
 /*global tinymce:true */
 
 tinymce.PluginManager.add("percadvimage", function (editor, url) {
+  // Register so CE/control-settings value from perc_tinymce_init is retained
+  // (TinyMCE 6 strips unknown options). Empty = product default field names.
+  // Runtime pass-through to getInlineRenderLink is #2242.
+  editor.options.register("inlineLinkTitleField", {
+    processor: "string",
+    default: "",
+  });
+
   var formData = {};
 
   function showDialog(buttonAPI) {
