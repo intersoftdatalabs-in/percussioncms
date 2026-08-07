@@ -74,6 +74,7 @@ export const DEV_MSG_KEYS = {
   TAB_CE_CONTROLS: "perc.ui.developer@CE Controls",
   TAB_SITES: "perc.ui.developer@Sites",
   TAB_COMMUNITIES: "perc.ui.developer@Communities",
+  TAB_COMMUNITY_VISIBILITY: "perc.ui.developer@Community Visibility",
   TAB_PIPELINES: "perc.ui.developer@Pipelines",
   CT_LOADING: "perc.ui.developer@Loading content types...",
   CT_EMPTY: "perc.ui.developer@No content types returned.",
@@ -271,7 +272,21 @@ export const DEV_MSG_KEYS = {
   COMM_COL_OBJ_GUID: "perc.ui.developer@GUID",
   COMM_GAPS: "perc.ui.developer@Known gaps",
   COMM_GAP_ACL:
-    "perc.ui.developer@Full ACL editor parity and community navigator IA remain separate slices; assign COMMUNITY principals on object ACL sections where mounted",
+    "perc.ui.developer@Full ACL editor parity remains a separate slice; assign COMMUNITY principals on object ACL sections where mounted. Use Community Visibility for the SE-05 navigator groups.",
+  CVN_LOADING: "perc.ui.developer@Loading community visibility navigator...",
+  CVN_EMPTY: "perc.ui.developer@No communities returned for the visibility navigator.",
+  CVN_ERROR: "perc.ui.developer@Could not load communities for the visibility navigator.",
+  CVN_HINT:
+    "perc.ui.developer@SE-05 navigator: expand a community to load design objects visible to it, then expand type groups (content types, templates, workflows, …).",
+  CVN_INTRO:
+    "perc.ui.developer@Groups design objects by community visibility. Complements per-object ACL editing; does not replace it. Lazy-loads via existing communities/visibility REST.",
+  CVN_TREE_LABEL: "perc.ui.developer@Community visibility navigator",
+  CVN_VISIBILITY_LOADING: "perc.ui.developer@Loading objects for this community...",
+  CVN_VISIBILITY_ERROR: "perc.ui.developer@Could not load objects for this community.",
+  CVN_NO_GUID:
+    "perc.ui.developer@Community GUID not available — cannot load visibility for this community.",
+  CVN_COMMUNITY_EMPTY:
+    "perc.ui.developer@No visible design objects returned for this community.",
   PIPE_LOADING: "perc.ui.developer@Loading pipelines...",
   PIPE_EMPTY: "perc.ui.developer@No pipeline applications returned.",
   PIPE_ERROR: "perc.ui.developer@Could not load pipelines.",

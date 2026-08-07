@@ -102,6 +102,7 @@ export const DEVELOPER_SECTIONS = [
   "ce-controls",
   "sites",
   "communities",
+  "community-visibility",
   "pipelines",
 ] as const;
 
@@ -152,6 +153,13 @@ const DEVELOPER_SECTION_ALIASES: Record<string, DeveloperSection> = {
   sites: "sites",
   site: "sites",
   cxviews: "views",
+  communities: "communities",
+  community: "communities",
+  "community-visibility": "community-visibility",
+  communityvisibility: "community-visibility",
+  "comm-visibility": "community-visibility",
+  "visibility-navigator": "community-visibility",
+  se05: "community-visibility",
   pipeline: "pipelines",
   applications: "pipelines",
   "xml-apps": "pipelines",

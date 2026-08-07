@@ -23,6 +23,7 @@ import {
 } from "../app/deepLinks/allowlists";
 import { ActionMenusPanel } from "./ActionMenusPanel";
 import { CommunitiesPanel } from "./CommunitiesPanel";
+import { CommunityVisibilityNavigatorPanel } from "./CommunityVisibilityNavigatorPanel";
 import { ContentTypesPanel } from "./ContentTypesPanel";
 import { ControlsPanel } from "./ControlsPanel";
 import { ExtensionsPanel } from "./ExtensionsPanel";
@@ -67,6 +68,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   "ce-controls": DEV_MSG.TAB_CE_CONTROLS,
   sites: DEV_MSG.TAB_SITES,
   communities: DEV_MSG.TAB_COMMUNITIES,
+  "community-visibility": DEV_MSG.TAB_COMMUNITY_VISIBILITY,
   pipelines: DEV_MSG.TAB_PIPELINES,
 };
 
@@ -198,6 +200,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <SitesPanel />
         ) : active === "communities" ? (
           <CommunitiesPanel />
+        ) : active === "community-visibility" ? (
+          <CommunityVisibilityNavigatorPanel />
         ) : (
           <PipelinesPanel />
         )}
