@@ -23,8 +23,11 @@ import jakarta.servlet.http.HttpServletRequest;
  * Audit event emitted when a workflow transition is applied to a content item. Carries the source
  * and destination state names, the affected content id and GUID, and the user who triggered the
  * transition.
+ *
+ * <p>This class is {@code final}; constructors assign own fields directly and use {@code final}
+ * parent setters after {@code super()} completes (no {@code this-escape}).
  */
-public class PSWorkflowEvent extends AbstractEvent {
+public final class PSWorkflowEvent extends AbstractEvent {
 
   /** Tag identifying the integer content id of the item whose workflow was updated. */
   public static final String CONTENTID_TAG = "//percussion/contentid";
@@ -53,6 +56,9 @@ public class PSWorkflowEvent extends AbstractEvent {
   /**
    * Constructs a workflow event populated from the originating servlet request and metadata.
    *
+   * <p>Own fields are assigned directly; parent CADF fields use {@code final} setters after {@code
+   * super()} completes.
+   *
    * @param transitionFrom the source workflow state name, never {@code null}.
    * @param transitionTo the destination workflow state name, never {@code null}.
    * @param action the workflow transition action, never {@code null}.
@@ -61,7 +67,6 @@ public class PSWorkflowEvent extends AbstractEvent {
    * @param guid the GUID of the affected item, never {@code null}.
    * @param outcome the outcome of the transition, never {@code null}.
    */
-  @SuppressWarnings("this-escape")
   public PSWorkflowEvent(
       String transitionFrom,
       String transitionTo,
@@ -70,16 +75,16 @@ public class PSWorkflowEvent extends AbstractEvent {
       String content,
       String guid,
       String outcome) {
-
-    this.setTargetUsername(request.getRemoteUser());
-    this.setTransitionFrom(transitionFrom);
-    this.setTransitionTo(transitionTo);
-    this.setAction(action);
-    this.setAgentName(request.getHeader("User-Agent"));
-    this.setOutcome(outcome);
-    this.setInitiatorIP(request.getRemoteAddr());
-    this.setGuid(guid);
-    this.setContentId(Integer.parseInt(content));
+    super();
+    this.transitionFrom = transitionFrom;
+    this.transitionTo = transitionTo;
+    this.action = action;
+    this.guid = guid;
+    this.contentId = Integer.parseInt(content);
+    setTargetUsername(request.getRemoteUser());
+    setAgentName(request.getHeader("User-Agent"));
+    setOutcome(outcome);
+    setInitiatorIP(request.getRemoteAddr());
   }
 
   /**

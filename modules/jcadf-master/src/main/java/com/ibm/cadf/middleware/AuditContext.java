@@ -23,6 +23,9 @@ package com.ibm.cadf.middleware;
  * target}/{@code observer} resources when assembling an {@link com.ibm.cadf.model.Event}. All
  * fields are optional and may be {@code null}; the middleware falls back to safe defaults when a
  * value is missing.
+ *
+ * <p>Setters are {@code final} so subclasses (for example Percussion audit events) may call them
+ * from constructors without {@code this-escape} under {@code -Xlint:all}.
  */
 public class AuditContext {
   private String targetName;
@@ -58,7 +61,7 @@ public class AuditContext {
    *
    * @param path the path, may be {@code null}.
    */
-  public void setPath(String path) {
+  public final void setPath(String path) {
     this.path = path;
   }
 
@@ -76,7 +79,7 @@ public class AuditContext {
    *
    * @param guidID the GUID, may be {@code null}.
    */
-  public void setGuidID(String guidID) {
+  public final void setGuidID(String guidID) {
     this.guidID = guidID;
   }
 
@@ -94,7 +97,7 @@ public class AuditContext {
    *
    * @param activity the activity, may be {@code null}.
    */
-  public void setActivity(String activity) {
+  public final void setActivity(String activity) {
     this.activity = activity;
   }
 
@@ -112,12 +115,25 @@ public class AuditContext {
    *
    * @param agentName the agent name, may be {@code null}.
    */
-  public void setAgentName(String agentName) {
+  public final void setAgentName(String agentName) {
     this.agentName = agentName;
   }
 
   /** Default no-argument constructor for {@link AuditContext}. */
   public AuditContext() {}
+
+  /**
+   * Constructs an {@link AuditContext} with observer and target names assigned by direct field
+   * writes. Subclass constructors may call this form of {@code super(...)} without invoking
+   * overridable methods on a partially constructed instance (avoids {@code this-escape}).
+   *
+   * @param observerName the observer name, may be {@code null}.
+   * @param targetName the target name, may be {@code null}.
+   */
+  protected AuditContext(String observerName, String targetName) {
+    this.observerName = observerName;
+    this.targetName = targetName;
+  }
 
   /**
    * Returns the human-readable name of the target resource (e.g., a content item title).
@@ -133,7 +149,7 @@ public class AuditContext {
    *
    * @param targetName the target name, may be {@code null}.
    */
-  public void setTargetName(String targetName) {
+  public final void setTargetName(String targetName) {
     this.targetName = targetName;
   }
 
@@ -151,7 +167,7 @@ public class AuditContext {
    *
    * @param targetUrl the target URL, may be {@code null}.
    */
-  public void setTargetUrl(String targetUrl) {
+  public final void setTargetUrl(String targetUrl) {
     this.targetUrl = targetUrl;
   }
 
@@ -169,7 +185,7 @@ public class AuditContext {
    *
    * @param targetUsername the target username, may be {@code null}.
    */
-  public void setTargetUsername(String targetUsername) {
+  public final void setTargetUsername(String targetUsername) {
     this.targetUsername = targetUsername;
   }
 
@@ -187,7 +203,7 @@ public class AuditContext {
    *
    * @param observerName the observer name, may be {@code null}.
    */
-  public void setObserverName(String observerName) {
+  public final void setObserverName(String observerName) {
     this.observerName = observerName;
   }
 
@@ -205,7 +221,7 @@ public class AuditContext {
    *
    * @param initiatorIP the initiator IP, may be {@code null}.
    */
-  public void setInitiatorIP(String initiatorIP) {
+  public final void setInitiatorIP(String initiatorIP) {
     this.initiatorIP = initiatorIP;
   }
 
@@ -223,7 +239,7 @@ public class AuditContext {
    *
    * @param iniatorName the initiator user name, may be {@code null}.
    */
-  public void setIniatorName(String iniatorName) {
+  public final void setIniatorName(String iniatorName) {
     this.iniatorName = iniatorName;
   }
 
@@ -241,7 +257,7 @@ public class AuditContext {
    *
    * @param targetEndpointName the endpoint name, may be {@code null}.
    */
-  public void setTargetEndpointName(String targetEndpointName) {
+  public final void setTargetEndpointName(String targetEndpointName) {
     this.targetEndpointName = targetEndpointName;
   }
 }
