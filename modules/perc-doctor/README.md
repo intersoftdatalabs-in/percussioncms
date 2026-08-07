@@ -2,10 +2,10 @@
 
 Operator CLI for diagnosing and safely cleaning Percussion CMS install trees.
 
-**Issues:** [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213) (parent), [#2217](https://github.com/intersoftdatalabs-in/percussioncms/issues/2217) (`clean-install-backups`), [#2218](https://github.com/intersoftdatalabs-in/percussioncms/issues/2218) (`clean-logs`), [#2219](https://github.com/intersoftdatalabs-in/percussioncms/issues/2219) (admin HTTP API), [#2220](https://github.com/intersoftdatalabs-in/percussioncms/issues/2220) (dist packaging + install guide)  
+**Issues:** [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213) (parent), [#2233](https://github.com/intersoftdatalabs-in/percussioncms/issues/2233) (`check-config` / `fix-permissions`), [#2217](https://github.com/intersoftdatalabs-in/percussioncms/issues/2217) (`clean-install-backups`), [#2218](https://github.com/intersoftdatalabs-in/percussioncms/issues/2218) (`clean-logs`), [#2219](https://github.com/intersoftdatalabs-in/percussioncms/issues/2219) (admin HTTP API), [#2220](https://github.com/intersoftdatalabs-in/percussioncms/issues/2220) (dist packaging + install guide)  
 **Package:** `com.intsof.percussioncms.doctor` (+ `...doctor.api` for HTTP)  
-**Shipped commands:** `clean-heap-dumps`, `clean-install-backups`, `clean-logs` with global `--dry-run` / `--install-root` / `-v`  
-**HTTP:** Admin-only `POST .../maintenance/doctor/{command}` (wired in sitemanage)
+**Shipped commands:** `clean-heap-dumps`, `clean-install-backups`, `clean-logs`, `check-config`, `fix-permissions` with global `--dry-run` / `--install-root` / `-v`  
+**HTTP:** Admin-only `POST .../maintenance/doctor/{command}` for clean-* (wired in sitemanage); `check-config` / `fix-permissions` are CLI-first in this slice
 
 **Operator install guide (dry-run-first examples):** [docs/operator-install-guide.md](docs/operator-install-guide.md)
 
@@ -163,14 +163,80 @@ java -jar target/perc-doctor-8.2.0-SNAPSHOT.jar \
   --install-root /opt/Percussion --dry-run -v clean-logs
 ```
 
+#### `check-config`
+
+Read-only **value / misconfig** checks on documented CMS config files (deeper than presence-only layout checks). Never deletes or writes. Honors `--install-root`, `--dry-run` (echoed only), and `-v`.
+
+| Relative path | Role |
+|---------------|------|
+| `rxconfig/Server/server.properties` | Server flags / bind port |
+| `rxconfig/Installer/rxrepository.properties` | Repository JDBC settings |
+
+Scoped checks (documented; no arbitrary property scans beyond placeholder scan):
+
+| Area | Examples |
+|------|----------|
+| Presence + readable | Missing file → **WARN** (partial install); unreadable → **FAIL** |
+| `enableDebugTools=true` | **WARN** (unsafe for production) |
+| `disableCrossSiteRequestForgeryCheck=true` | **WARN** |
+| `bindPort` | Missing/invalid/out-of-range/unresolved `${...}` → **WARN**/**FAIL** |
+| `requireHTTPS` | **INFO** when false/unset (lab ok); **PASS** when true |
+| Required repo keys | `DB_BACKEND`, `DB_DRIVER_NAME`, `DB_DRIVER_CLASS_NAME`, `DB_SERVER`, `UID` blank/placeholder → **FAIL** |
+| Driver vs backend | H2 vs non-H2 mismatch → **WARN** |
+| `PWD` / `PWD_ENCRYPTED` | Weak/default tokens, empty non-H2 PWD, plaintext storage → **WARN**/**INFO** |
+| Unresolved `${...}` | Other property values → **WARN** (truncated after 5) |
+
+Exit code is non-zero when any check is **FAIL** (`healthy=false`). Password values are never printed.
+
+Examples:
+
+```bash
+# Value / misconfig checklist (safe; always read-only)
+java -jar target/perc-doctor-8.2.0-SNAPSHOT.jar \
+  --install-root /opt/Percussion --dry-run -v check-config
+
+# Windows
+java -jar target\perc-doctor-8.2.0-SNAPSHOT.jar ^
+  --install-root C:\Percussion -v check-config
+```
+
+#### `fix-permissions`
+
+Report (and optionally fix) **allowlisted** install mode / access issues. Prefer `--dry-run` first. **Never** runs a shell and never accepts user path globs.
+
+| Target | Behavior |
+|--------|----------|
+| `bin/perc-doctor`, `bin/perc-doctor.bat`, `bin/perc-doctor.jar` | Report readable; on POSIX add **owner-execute** to the Unix `perc-doctor` script when missing |
+| Known log dirs (`jetty/base/logs`, `jetty/base/modules/perc-logging/logs`, `Deployment/Server/logs`) | Report access; on POSIX ensure **owner rwx** when the directory exists |
+| `rxconfig/Server/server.properties`, `rxconfig/Installer/rxrepository.properties` | Report owner-read; on POSIX add **owner-read** when missing |
+
+On Windows (non-POSIX file stores): reports readability/writability and skips mode mutation (Windows ACL repair is out of scope). Dry-run never writes; apply re-checks install-root containment before each mode change.
+
+Examples:
+
+```bash
+# Preview mode fixes (safe)
+java -jar target/perc-doctor-8.2.0-SNAPSHOT.jar \
+  --install-root /opt/Percussion --dry-run -v fix-permissions
+
+# Apply (POSIX only for actual mode writes)
+java -jar target/perc-doctor-8.2.0-SNAPSHOT.jar \
+  --install-root /opt/Percussion -v fix-permissions
+
+# Windows — report access; no ACL rewrite
+java -jar target\perc-doctor-8.2.0-SNAPSHOT.jar ^
+  --install-root C:\Percussion --dry-run -v fix-permissions
+```
+
 ## Safety model
 
 1. Resolve and validate install root (must exist and be a directory).
 2. Walk only under that root (and for `clean-logs`, only under allowlisted log dirs); skip / reject candidates that escape the root.
 3. Match allowlisted patterns only (per command; no user-supplied globs).
-4. If `--dry-run`, stop after inventory.
-5. On apply, re-check containment immediately before each delete.
+4. If `--dry-run`, stop after inventory (check-config is always non-mutating regardless).
+5. On apply, re-check containment immediately before each delete or mode change.
 6. For `clean-logs`, apply `--keep-current` and `--older-than` before any delete.
+7. For `fix-permissions`, mutate only POSIX mode bits on allowlisted paths; no shell.
 
 ## Admin HTTP API (slice #2219)
 
