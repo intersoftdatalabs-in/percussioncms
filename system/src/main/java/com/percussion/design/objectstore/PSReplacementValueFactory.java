@@ -58,7 +58,7 @@ public abstract class PSReplacementValueFactory {
    */
   public static IPSReplacementValue getReplacementValueFromXml(
       IPSDocument parentDoc,
-      List parentComponents,
+      List<?> parentComponents,
       Element node,
       String xmlNodeName,
       String xmlVarName)
@@ -73,19 +73,19 @@ public abstract class PSReplacementValueFactory {
     String nodeName = node.getTagName();
 
     try {
-      Class replValueClass = (Class) ms_rvClasses.get(nodeName.toLowerCase());
+      Class<?> replValueClass = ms_rvClasses.get(nodeName.toLowerCase());
       if (replValueClass == null) {
         Object[] args = {xmlNodeName, xmlVarName, nodeName};
         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
       }
 
-      Class[] constrArgs = {
+      Class<?>[] constrArgs = {
         org.w3c.dom.Element.class,
         com.percussion.design.objectstore.IPSDocument.class,
         java.util.List.class
       };
 
-      Constructor constr = replValueClass.getDeclaredConstructor(constrArgs);
+      Constructor<?> constr = replValueClass.getDeclaredConstructor(constrArgs);
       value =
           (IPSReplacementValue)
               constr.newInstance(new Object[] {node, parentDoc, parentComponents});
@@ -127,7 +127,7 @@ public abstract class PSReplacementValueFactory {
       // now figure out which type it is
       IPSReplacementValue value = null;
       String[] parsedField = parseFieldName(xmlField);
-      Constructor constr = getReplacementValueCtor(parsedField[0]);
+      Constructor<?> constr = getReplacementValueCtor(parsedField[0]);
       if (constr != null) {
         value = (IPSReplacementValue) constr.newInstance(new Object[] {parsedField[1]});
       }
@@ -162,15 +162,15 @@ public abstract class PSReplacementValueFactory {
     IPSReplacementValue value = null;
     String[] parts = parseFieldName(repString);
     try {
-      Class replValueClass = (Class) ms_rvClasses.get(parts[0]);
+      Class<?> replValueClass = ms_rvClasses.get(parts[0]);
       String msg = "The supplied string ({0}) is not valid for creating " + "a replacement value.";
       Object[] args = {repString};
       if (replValueClass == null) {
         throw new IllegalArgumentException(MessageFormat.format(msg, args));
       }
-      Class[] constrArgs = {String.class};
+      Class<?>[] constrArgs = {String.class};
 
-      Constructor constr = replValueClass.getConstructor(constrArgs);
+      Constructor<?> constr = replValueClass.getConstructor(constrArgs);
       value = (IPSReplacementValue) constr.newInstance(new Object[] {parts[1]});
     } catch (Exception e) {
       String msg = "Failed to create a replacement value for the " + "supplied string ({0}).";
@@ -210,12 +210,12 @@ public abstract class PSReplacementValueFactory {
    * @return The matching constructor or <code>null</code> if not found. The value to supply to the
    *     ctor is appended to the supplied <code>value</code> string buffer if supplied.
    */
-  private static Constructor getReplacementValueCtor(String type) {
-    Constructor ctor = null;
+  private static Constructor<?> getReplacementValueCtor(String type) {
+    Constructor<?> ctor = null;
 
-    Class realClass = (Class) ms_rvClasses.get(type);
+    Class<?> realClass = ms_rvClasses.get(type);
     if (realClass != null) {
-      Class[] constrArgs = {String.class};
+      Class<?>[] constrArgs = {String.class};
 
       try {
         ctor = realClass.getDeclaredConstructor(constrArgs);
@@ -246,7 +246,7 @@ public abstract class PSReplacementValueFactory {
   }
 
   /** Maps from lowercased XML node name (String) to the proper replacement value class (Class). */
-  private static ConcurrentHashMap ms_rvClasses = new ConcurrentHashMap();
+  private static final ConcurrentHashMap<String, Class<?>> ms_rvClasses = new ConcurrentHashMap<>();
 
   static {
     // initialize the node name -> class mappings
