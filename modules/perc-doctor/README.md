@@ -4,8 +4,8 @@ Operator CLI for diagnosing and safely cleaning Percussion CMS install trees.
 
 **Issues:** [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213) (parent), [#2217](https://github.com/intersoftdatalabs-in/percussioncms/issues/2217) (`clean-install-backups`), [#2218](https://github.com/intersoftdatalabs-in/percussioncms/issues/2218) (`clean-logs`), [#2219](https://github.com/intersoftdatalabs-in/percussioncms/issues/2219) (admin HTTP API), [#2220](https://github.com/intersoftdatalabs-in/percussioncms/issues/2220) (dist packaging + install guide)  
 **Package:** `com.intsof.percussioncms.doctor` (+ `...doctor.api` for HTTP)  
-**Shipped commands:** `clean-heap-dumps`, `clean-install-backups`, `clean-logs` with global `--dry-run` / `--install-root` / `-v`  
-**HTTP:** Admin-only `POST .../maintenance/doctor/{command}` (wired in sitemanage)
+**Shipped commands:** `diagnose`/`health` (read-only), `clean-heap-dumps`, `clean-install-backups`, `clean-logs` with global `--dry-run` / `--install-root` / `-v`  
+**HTTP:** Admin-only `POST .../maintenance/doctor/{command}` for clean-* commands (wired in sitemanage); diagnose is CLI-first
 
 **Operator install guide (dry-run-first examples):** [docs/operator-install-guide.md](docs/operator-install-guide.md)
 
@@ -73,6 +73,50 @@ target\perc-doctor-8.2.0-SNAPSHOT-dist\bin\perc-doctor.bat --help
 | `-h` / `--help` | Usage |
 
 ### Commands
+
+#### `diagnose` / `health`
+
+Read-only install checklist. **Never deletes or writes.** Alias: `health` is identical to `diagnose`.
+
+Checks (all path probes stay under `--install-root`):
+
+| Area | What |
+|------|------|
+| Install root | Exists and is a directory |
+| Layout | Critical dirs: `jetty`, `jetty/base`, `rxconfig` (missing → fail). Optional: `bin`, `rxconfig/Server`, `Deployment` (missing → warn) |
+| Key config | Presence of `rxconfig/Server/server.properties`, `rxconfig/Installer/rxrepository.properties` (missing → warn) |
+| Log dirs | Known Jetty/CMS/DTS log dir existence (same roots as `clean-logs`) |
+| Free disk | Usable space on the install root volume (warn below 1 GiB) |
+| Java | Running doctor JVM version/major (info + warn if major &lt; 21) |
+
+Global `--dry-run` is accepted for flag parity and echoed on the report; diagnose is always non-mutating. Exit code is non-zero when any check is `FAIL`.
+
+Examples:
+
+```bash
+# Checklist with detail (Linux / macOS)
+java -jar target/perc-doctor-8.2.0-SNAPSHOT.jar \
+  --install-root /opt/Percussion -v diagnose
+
+# Alias + dry-run flag echo (Windows)
+java -jar target\perc-doctor-8.2.0-SNAPSHOT.jar ^
+  --install-root C:\Percussion --dry-run -v health
+```
+
+Sample summary lines:
+
+```text
+command=diagnose
+install-root=/opt/Percussion
+dry-run=false
+read-only=true
+checks=16
+pass=10
+warn=4
+fail=0
+info=1
+healthy=true
+```
 
 #### `clean-heap-dumps`
 
@@ -166,11 +210,12 @@ java -jar target/perc-doctor-8.2.0-SNAPSHOT.jar \
 ## Safety model
 
 1. Resolve and validate install root (must exist and be a directory).
-2. Walk only under that root (and for `clean-logs`, only under allowlisted log dirs); skip / reject candidates that escape the root.
-3. Match allowlisted patterns only (per command; no user-supplied globs).
-4. If `--dry-run`, stop after inventory.
-5. On apply, re-check containment immediately before each delete.
-6. For `clean-logs`, apply `--keep-current` and `--older-than` before any delete.
+2. For `diagnose`/`health`: only read path existence, sizes, and JVM/disk properties; never delete or write.
+3. Walk only under that root (and for `clean-logs`, only under allowlisted log dirs); skip / reject candidates that escape the root.
+4. Match allowlisted patterns only (per clean command; no user-supplied globs).
+5. If `--dry-run`, stop after inventory (clean commands).
+6. On apply, re-check containment immediately before each delete.
+7. For `clean-logs`, apply `--keep-current` and `--older-than` before any delete.
 
 ## Admin HTTP API (slice #2219)
 
@@ -236,6 +281,6 @@ Example apply (Admin only; deletes under install root):
 - Admin gate: `com.percussion.doctor.PSDoctorAdminChecker` (`IPSUserService.isAdminUser`)
 - Default install root: `com.percussion.doctor.PSDoctorInstallRootProvider` (`PathUtils.getRxDir()`)
 
-## Deferred (not in this module slice)
+## Deferred (stretch after diagnose)
 
-None for the #2213 slices absorbed here (`clean-*` CLI, dist packaging #2220, admin HTTP #2219). Further residuals stay on the parent epic if any.
+Further stretch commands under parent [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213): `clean-temp`, `fix-permissions`, deeper `check-config` (beyond presence), and optional diagnose on the admin HTTP surface.

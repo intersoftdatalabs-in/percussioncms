@@ -66,6 +66,28 @@ For every command:
 
 ## Commands
 
+### `diagnose` / `health` (read-only)
+
+Run a non-mutating install checklist (layout dirs, free disk, key config presence, Java version, known log dirs). **Never deletes.** Alias: `health` is the same command. Safe to run anytime; prefer `-v` for checklist detail.
+
+**Linux / macOS:**
+
+```bash
+cd /opt/Percussion
+./bin/perc-doctor -v diagnose
+# or
+./bin/perc-doctor --dry-run -v health
+```
+
+**Windows:**
+
+```bat
+cd /d C:\Percussion
+bin\perc-doctor.bat -v diagnose
+```
+
+Exit code is non-zero when any check is `FAIL` (e.g. missing `jetty/base` or `rxconfig`). WARN-only outcomes still exit 0.
+
 ### `clean-heap-dumps`
 
 Removes recursive `*.hprof` under the install root (case-insensitive). Scope is hard-limited to `--install-root`.
