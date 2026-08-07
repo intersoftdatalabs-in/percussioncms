@@ -166,7 +166,10 @@ public class PSMetadataIndexerServiceTest {
 
       assertTrue(props.containsKey("prop3"), "prop3 exists");
       assertEquals(VALUETYPE.DATE, props.get("prop3").get(0).getValuetype(), "prop3 value type");
-      assertEquals(Date.valueOf("2011-02-28"), props.get("prop3").get(0).getDatevalue(), "prop3 value");
+      assertEquals(
+          java.time.LocalDate.of(2011, 2, 28).atStartOfDay(),
+          props.get("prop3").get(0).getDatevalue(),
+          "prop3 value");
     }
 
     System.out.println();

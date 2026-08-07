@@ -17,13 +17,12 @@
 package com.percussion.delivery.metadata.data;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Modifier;
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -39,8 +38,8 @@ public class PSCookieConsentTest {
   }
 
   @Test
-  public void populatedConstructorAssignsDefensiveDateCopy() {
-    Date consent = new Date(1_700_000_000_000L);
+  public void populatedConstructorAssignsInstantConsentDate() {
+    Instant consent = Instant.ofEpochMilli(1_700_000_000_000L);
     PSCookieConsent entry =
         new PSCookieConsent("siteA", "analytics", consent, "127.0.0.1", true);
 
@@ -49,12 +48,11 @@ public class PSCookieConsentTest {
     assertEquals("127.0.0.1", entry.getIP());
     assertTrue(entry.getOptIn());
     assertEquals(consent, entry.getConsentDate());
-    assertNotSame(consent, entry.getConsentDate());
   }
 
   @Test
   public void populatedConstructorRejectsNulls() {
-    Date now = new Date();
+    Instant now = Instant.now();
     assertThrows(
         IllegalArgumentException.class,
         () -> new PSCookieConsent(null, "svc", now, "1.1.1.1", true));
@@ -71,7 +69,7 @@ public class PSCookieConsentTest {
 
   @Test
   public void cookieConsentQueryConstructorSetsServices() {
-    Date now = new Date();
+    Instant now = Instant.now();
     List<String> services = Arrays.asList("cookie-a", "cookie-b");
     PSCookieConsentQuery query = new PSCookieConsentQuery("mysite", now, true, services);
 
@@ -85,6 +83,6 @@ public class PSCookieConsentTest {
   public void cookieConsentQueryRejectsNullServices() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new PSCookieConsentQuery("site", new Date(), true, null));
+        () -> new PSCookieConsentQuery("site", Instant.now(), true, null));
   }
 }

@@ -17,10 +17,10 @@
 package com.percussion.delivery.metadata.data;
 
 import com.percussion.delivery.metadata.IPSMetadataProperty;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
  * Represents a metadata entry in the REST layer. It's used to return exactly what's needed by the
@@ -28,7 +28,8 @@ import org.apache.commons.lang3.time.FastDateFormat;
  */
 public class PSMetadataRestEntry {
   /** Date format used for string-serialized date values such as {@code 2011-01-21T09:36:05}. */
-  FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
+  private static final DateTimeFormatter DATE_FORMAT =
+      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
   private String pagepath;
 
@@ -192,7 +193,10 @@ public class PSMetadataRestEntry {
     if (metadataProperty.getValuetype().equals(IPSMetadataProperty.VALUETYPE.NUMBER)) {
       newValue = metadataProperty.getNumbervalue().toString();
     } else if (metadataProperty.getValuetype().equals(IPSMetadataProperty.VALUETYPE.DATE)) {
-      newValue = dateFormat.format(metadataProperty.getDatevalue());
+      newValue =
+          metadataProperty.getDatevalue() == null
+              ? ""
+              : DATE_FORMAT.format(metadataProperty.getDatevalue());
     } else {
       newValue = metadataProperty.getStringvalue();
     }

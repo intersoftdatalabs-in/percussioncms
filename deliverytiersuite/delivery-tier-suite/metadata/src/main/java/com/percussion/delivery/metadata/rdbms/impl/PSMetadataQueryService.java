@@ -34,6 +34,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -214,7 +216,9 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
 
       if (valueColumn.equals(PROP_DATEVALUE_COLUMN_NAME)) {
         Calendar date = DatatypeConverter.parseDate(value.toString().replace(' ', 'T'));
-        value = new Date(date.getTimeInMillis());
+        value =
+            LocalDateTime.ofInstant(
+                date.toInstant(), ZoneId.systemDefault());
       }
 
       if ((valueColumn.equals(PROP_STRINGVALUE_COLUMN_NAME)
@@ -301,8 +305,12 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
               key,
               PSMetadataQueryServiceHelper.parseToList(
                   key, value.toString(), datatypeMappings, hashCalculator));
+        } else if (value instanceof LocalDateTime) {
+          hq.setParameter(key, (LocalDateTime) value);
         } else if (value instanceof Date) {
-          hq.setParameter(key, (Date) value);
+          hq.setParameter(
+              key,
+              LocalDateTime.ofInstant(((Date) value).toInstant(), ZoneId.systemDefault()));
         } else if (value instanceof String) {
           hq.setParameter(key, value.toString());
         }
@@ -530,7 +538,9 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
 
       if (valueColumn.equals(PROP_DATEVALUE_COLUMN_NAME)) {
         Calendar date = DatatypeConverter.parseDate(value.toString().replace(' ', 'T'));
-        value = new Date(date.getTimeInMillis());
+        value =
+            LocalDateTime.ofInstant(
+                date.toInstant(), ZoneId.systemDefault());
       }
 
       String useClause = clauseTemplate;
@@ -640,8 +650,12 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
             key,
             PSMetadataQueryServiceHelper.parseToList(
                 key, value.toString(), datatypeMappings, hashCalculator));
+      } else if (value instanceof LocalDateTime) {
+        q.setParameter(key, (LocalDateTime) value);
       } else if (value instanceof Date) {
-        q.setParameter(key, (Date) value);
+        q.setParameter(
+            key,
+            LocalDateTime.ofInstant(((Date) value).toInstant(), ZoneId.systemDefault()));
       } else if (value instanceof String) {
         q.setParameter(key, value.toString());
       }

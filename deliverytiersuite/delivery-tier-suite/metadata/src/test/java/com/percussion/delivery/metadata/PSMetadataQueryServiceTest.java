@@ -31,6 +31,7 @@ import com.percussion.delivery.metadata.impl.utils.PSPair;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataEntry;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataProperty;
 import com.percussion.security.error.PSExceptionUtils;
+import java.time.LocalDateTime;
 import java.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -207,7 +208,7 @@ public class PSMetadataQueryServiceTest {
     assertNotNull(results, "entries not null");
     assertEquals(ENTRY_COUNT * 3, results.size(), "entries found");
 
-    Date previousDateValue = getTime(1900, 1, 1);
+    LocalDateTime previousDateValue = getTime(1900, 1, 1);
     IPSMetadataEntry entry;
 
     for (int i = 0; i < results.size(); i++) {
@@ -216,7 +217,7 @@ public class PSMetadataQueryServiceTest {
       props = toPropsMap(entry.getProperties());
 
       assertTrue(
-          props.get("dcterms:created").getDatevalue().compareTo(previousDateValue) >= 0,
+          !props.get("dcterms:created").getDatevalue().isBefore(previousDateValue),
           "Date greater than previous");
 
       previousDateValue = props.get("dcterms:created").getDatevalue();
@@ -732,7 +733,7 @@ public class PSMetadataQueryServiceTest {
         VALUETYPE.DATE,
         new PropertyValueChecker<Object>() {
           public boolean valueIsCorrect(Object currentValue) {
-            Date value = (Date) currentValue;
+            LocalDateTime value = (LocalDateTime) currentValue;
             return value.compareTo(getTime(2010, 12, 15, 16, 17, 18)) == 0;
           }
         });
@@ -810,7 +811,7 @@ public class PSMetadataQueryServiceTest {
         VALUETYPE.DATE,
         new PropertyValueChecker<Object>() {
           public boolean valueIsCorrect(Object currentValue) {
-            Date date = (Date) currentValue;
+            LocalDateTime date = (LocalDateTime) currentValue;
             return date.compareTo(getTime(2010, 12, 15, 16, 17, 18)) != 0;
           }
         });
@@ -825,7 +826,7 @@ public class PSMetadataQueryServiceTest {
         VALUETYPE.DATE,
         new PropertyValueChecker<Object>() {
           public boolean valueIsCorrect(Object currentValue) {
-            Date date = (Date) currentValue;
+            LocalDateTime date = (LocalDateTime) currentValue;
             return date.compareTo(getTime(2010, 12, 15, 16, 17, 18)) > 0;
           }
         });
@@ -840,7 +841,7 @@ public class PSMetadataQueryServiceTest {
         VALUETYPE.DATE,
         new PropertyValueChecker<Object>() {
           public boolean valueIsCorrect(Object currentValue) {
-            Date date = (Date) currentValue;
+            LocalDateTime date = (LocalDateTime) currentValue;
             return date.compareTo(getTime(2010, 12, 15, 16, 17, 18)) >= 0;
           }
         });
@@ -855,7 +856,7 @@ public class PSMetadataQueryServiceTest {
         VALUETYPE.DATE,
         new PropertyValueChecker<Object>() {
           public boolean valueIsCorrect(Object currentValue) {
-            Date date = (Date) currentValue;
+            LocalDateTime date = (LocalDateTime) currentValue;
             return date.compareTo(getTime(2010, 12, 15)) < 0;
           }
         });
@@ -870,7 +871,7 @@ public class PSMetadataQueryServiceTest {
         VALUETYPE.DATE,
         new PropertyValueChecker<Object>() {
           public boolean valueIsCorrect(Object currentValue) {
-            Date date = (Date) currentValue;
+            LocalDateTime date = (LocalDateTime) currentValue;
             return date.compareTo(getTime(2010, 12, 15, 16, 17, 18)) <= 0;
           }
         });
@@ -885,7 +886,7 @@ public class PSMetadataQueryServiceTest {
         VALUETYPE.DATE,
         new PropertyValueChecker<Object>() {
           public boolean valueIsCorrect(Object currentValue) {
-            Date date = (Date) currentValue;
+            LocalDateTime date = (LocalDateTime) currentValue;
             return date.compareTo(getTime(2010, 12, 15, 16, 17, 18)) <= 0;
           }
         });
@@ -908,7 +909,7 @@ public class PSMetadataQueryServiceTest {
     assertNotNull(results, "entries not null");
     assertEquals(ENTRY_COUNT * 3, results.size(), "entries found");
 
-    Date previousDateValue = getTime(1900, 1, 1);
+    LocalDateTime previousDateValue = getTime(1900, 1, 1);
     PSDbMetadataEntry entry;
 
     for (int i = 0; i < results.size(); i++) {
@@ -917,7 +918,7 @@ public class PSMetadataQueryServiceTest {
       props = toPropsMap(entry.getProperties());
 
       assertTrue(
-          props.get("dcterms:created").getDatevalue().compareTo(previousDateValue) >= 0,
+          !props.get("dcterms:created").getDatevalue().isBefore(previousDateValue),
           "Date greater than previous");
 
       previousDateValue = props.get("dcterms:created").getDatevalue();
@@ -1354,23 +1355,12 @@ public class PSMetadataQueryServiceTest {
     return entries;
   }
 
-  private Date getTime(int year, int month, int day) {
+  private LocalDateTime getTime(int year, int month, int day) {
     return getTime(year, month, day, 0, 0, 0);
   }
 
-  private Date getTime(int year, int month, int day, int hour, int minute, int second) {
-    Calendar cal = Calendar.getInstance();
-
-    cal.clear();
-
-    cal.set(Calendar.YEAR, year);
-    cal.set(Calendar.MONTH, month - 1);
-    cal.set(Calendar.DAY_OF_MONTH, day);
-    cal.set(Calendar.HOUR_OF_DAY, hour);
-    cal.set(Calendar.MINUTE, minute);
-    cal.set(Calendar.SECOND, second);
-
-    return cal.getTime();
+  private LocalDateTime getTime(int year, int month, int day, int hour, int minute, int second) {
+    return LocalDateTime.of(year, month, day, hour, minute, second);
   }
 
   private void runEntryTest(
@@ -1503,18 +1493,18 @@ public class PSMetadataQueryServiceTest {
   }
 
   private PSDbMetadataEntry createEntry(
-      String folder, String linktext, Date date, String type, int idx) {
+      String folder, String linktext, LocalDateTime date, String type, int idx) {
     return createEntry("testsite", folder, linktext, date, type, idx);
   }
 
   private PSDbMetadataEntry createEntry(
-      String folder, String linktext, Date date, String template, String type, int idx) {
+      String folder, String linktext, LocalDateTime date, String template, String type, int idx) {
     return createEntry(
         "testsite", folder, linktext, date, "a summary of the page", template, type, idx);
   }
 
   private PSDbMetadataEntry createEntry(
-      String testsite, String folder, String linktext, Date date, String type, int idx) {
+      String testsite, String folder, String linktext, LocalDateTime date, String type, int idx) {
     return createEntry(
         testsite, folder, linktext, date, "a summary of the page", "templateName", type, idx);
   }
@@ -1523,7 +1513,7 @@ public class PSMetadataQueryServiceTest {
       String testsite,
       String folder,
       String linktext,
-      Date date,
+      LocalDateTime date,
       String abstr,
       String template,
       String type,
@@ -1537,7 +1527,7 @@ public class PSMetadataQueryServiceTest {
       String title,
       String folder,
       String linktext,
-      Date date,
+      LocalDateTime date,
       String abstr,
       String template,
       String type,
@@ -1616,18 +1606,18 @@ public class PSMetadataQueryServiceTest {
 
       assertNotNull(results, "entries not null");
 
-      Date latest = null;
+      LocalDateTime latest = null;
       // Test descending query
       for (IPSMetadataEntry e : results) {
         Map<String, IPSMetadataProperty> props = toPropsMap(e.getProperties());
 
-        Date curDate = props.get("dcterms:created").getDatevalue();
+        LocalDateTime curDate = props.get("dcterms:created").getDatevalue();
 
         if (latest == null) {
           latest = curDate;
           System.out.println("Starting date is " + latest.toString());
         } else {
-          assertTrue(latest.after(curDate));
+          assertTrue(latest.isAfter(curDate));
           System.out.println(latest.toString() + " is more recent than " + curDate.toString());
           latest = curDate;
         }
@@ -1658,17 +1648,17 @@ public class PSMetadataQueryServiceTest {
 
       assertNotNull(results, "entries not null");
 
-      Date latest = null;
+      LocalDateTime latest = null;
       // Test ascending query
       for (IPSMetadataEntry e : results) {
         Map<String, IPSMetadataProperty> props = toPropsMap(e.getProperties());
 
-        Date curDate = props.get("dcterms:created").getDatevalue();
+        LocalDateTime curDate = props.get("dcterms:created").getDatevalue();
 
         if (latest == null) {
           latest = curDate;
         } else {
-          assertTrue(latest.before(curDate));
+          assertTrue(latest.isBefore(curDate));
           System.out.println(latest.toString() + " is older than " + curDate.toString());
           latest = curDate;
         }

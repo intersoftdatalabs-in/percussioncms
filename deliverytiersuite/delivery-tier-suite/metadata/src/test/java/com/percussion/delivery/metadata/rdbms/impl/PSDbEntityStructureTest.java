@@ -24,7 +24,8 @@ import com.percussion.delivery.metadata.extractor.data.PSMetadataEntry;
 import java.io.Serializable;
 import java.lang.reflect.Modifier;
 import java.math.BigInteger;
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -52,7 +53,7 @@ public class PSDbEntityStructureTest {
 
   @Test
   public void blogPostVisitConstructorAssignsFields() {
-    Date hit = new Date(1_700_000_000_000L);
+    LocalDate hit = LocalDate.of(2023, 11, 14);
     PSDbBlogPostVisit visit =
         new PSDbBlogPostVisit("/site/blog/post.html", hit, BigInteger.valueOf(3));
     assertEquals("/site/blog/post.html", visit.getPagepath());
@@ -62,7 +63,7 @@ public class PSDbEntityStructureTest {
 
   @Test
   public void cookieConsentConstructorAssignsFields() {
-    Date consent = new Date(1_700_000_000_000L);
+    Instant consent = Instant.ofEpochMilli(1_700_000_000_000L);
     PSDbCookieConsent entity =
         new PSDbCookieConsent("site", "svc", consent, "10.0.0.1", true);
     assertEquals("site", entity.getSiteName());
