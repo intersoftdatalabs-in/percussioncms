@@ -155,6 +155,7 @@ public class PSSiteFolderContentListLinkGenerator {
    *     IPSRequestContext)} Created a new method that takes the folderid parameter to fix the bug
    *     RX-13461.
    */
+  @Deprecated
   public String generatePubLocation(
       String contentId,
       String revision,

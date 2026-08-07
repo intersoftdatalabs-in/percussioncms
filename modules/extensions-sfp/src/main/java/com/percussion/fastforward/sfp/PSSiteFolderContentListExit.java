@@ -25,6 +25,7 @@ import java.util.Set;
  * @deprecated This Exit may have poor performance with large amount of items. Use {@link
  *     PSSiteFolderContentListBulkExit} instead.
  */
+@Deprecated
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSiteFolderContentListExit extends PSSiteFolderContentListBaseExit {
 

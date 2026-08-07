@@ -184,6 +184,7 @@ public class PSSite {
    * @throws PSCmsException if an error occurs.
    * @deprecated use {@link #renderSiteFolderPathLocators(List)} instead.
    */
+  @Deprecated
   public static String renderSiteFolderPath(List siteFolderList) throws PSCmsException {
     StringBuilder path = new StringBuilder();
     ListIterator it = siteFolderList.listIterator();

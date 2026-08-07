@@ -57,7 +57,6 @@ import org.apache.logging.log4j.Logger;
  *
  * @author DavidBenua
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSimpleSqlQuery {
   /** static methods only, never constructed. */
   private PSSimpleSqlQuery() {}
@@ -71,8 +70,8 @@ public class PSSimpleSqlQuery {
    * @return a List of Object[] representing the rows of the result set.
    * @throws SQLException if an error occurs executing the query
    */
-  public static List doQuery(String query, List params) throws SQLException {
-    List resultList = new ArrayList();
+  public static List<Object[]> doQuery(String query, List<?> params) throws SQLException {
+    List<Object[]> resultList = new ArrayList<>();
     Connection conn = null;
     PreparedStatement stmt = null;
     ResultSet rs = null;
@@ -106,9 +105,9 @@ public class PSSimpleSqlQuery {
    * @throws PSInternalRequestCallException if the internal request fails
    * @throws SQLException if an error occurs executing the query
    */
-  public static List doQuery(IPSInternalRequest ir)
+  public static List<Object[]> doQuery(IPSInternalRequest ir)
       throws PSInternalRequestCallException, SQLException {
-    List resultList = new ArrayList();
+    List<Object[]> resultList = new ArrayList<>();
     ResultSet rs = null;
     Object[] resultRow = null;
     try {
@@ -141,7 +140,7 @@ public class PSSimpleSqlQuery {
    *     </code>.
    * @throws SQLException if an error occurs executing the query
    */
-  public static Object[] doSingleRowQuery(String query, List params) throws SQLException {
+  public static Object[] doSingleRowQuery(String query, List<?> params) throws SQLException {
     Connection conn = null;
     PreparedStatement stmt = null;
     ResultSet rs = null;
@@ -237,8 +236,9 @@ public class PSSimpleSqlQuery {
    *     may be <code>empty</code>
    * @throws SQLException
    */
-  private static void setInternalParams(PreparedStatement stmt, List params) throws SQLException {
-    Iterator parm = params.iterator();
+  private static void setInternalParams(PreparedStatement stmt, List<?> params)
+      throws SQLException {
+    Iterator<?> parm = params.iterator();
     int i = 1;
     while (parm.hasNext()) {
       stmt.setObject(i, parm.next());

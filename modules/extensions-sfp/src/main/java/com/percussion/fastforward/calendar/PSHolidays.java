@@ -25,7 +25,6 @@ import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -36,7 +35,6 @@ import org.w3c.dom.NodeList;
  *
  * @author James Schultz
  */
-@SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
 public class PSHolidays {
 
   /**
@@ -44,6 +42,7 @@ public class PSHolidays {
    *
    * @param request used to make internal request to fetch holidays
    */
+  @SuppressWarnings("this-escape")
   public PSHolidays(IPSRequestContext request) {
     m_holidays = loadHolidays(request);
   }
@@ -60,8 +59,7 @@ public class PSHolidays {
   public boolean isHoliday(Date d) {
     if (d == null) throw new IllegalArgumentException("m_date may not be null");
 
-    for (Iterator i = m_holidays.iterator(); i.hasNext(); ) {
-      Holiday holiday = (Holiday) i.next();
+    for (Holiday holiday : m_holidays) {
       if (holiday.isSameDate(d)) return true;
     }
     return false;
@@ -77,8 +75,7 @@ public class PSHolidays {
   public String getHoliday(Date d) {
     if (d == null) throw new IllegalArgumentException("date may not be null");
 
-    for (Iterator i = m_holidays.iterator(); i.hasNext(); ) {
-      Holiday holiday = (Holiday) i.next();
+    for (Holiday holiday : m_holidays) {
       if (holiday.isSameDate(d)) return holiday.getName();
     }
     return null;
@@ -141,8 +138,8 @@ public class PSHolidays {
    *     request, must not be <code>null</code>.
    * @return a set of <code>Holiday</code> objects, never <code>null</code> but may be empty.
    */
-  protected Set loadHolidays(IPSRequestContext request) {
-    Set holidays = new HashSet();
+  protected Set<Holiday> loadHolidays(IPSRequestContext request) {
+    Set<Holiday> holidays = new HashSet<>();
     Document results = executeCatalogerQuery(request);
     if (results != null) {
       NodeList nodes = results.getElementsByTagName("holiday");
@@ -175,7 +172,7 @@ public class PSHolidays {
    * Stores <code>Holiday</code> objects. Never <code>null</code> after construction, but may be
    * empty.
    */
-  private Set m_holidays;
+  private Set<Holiday> m_holidays;
 
   /** Inner class to represent a single holiday object. */
   class Holiday {

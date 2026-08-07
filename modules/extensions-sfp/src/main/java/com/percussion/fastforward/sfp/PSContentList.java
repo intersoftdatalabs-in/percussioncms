@@ -35,7 +35,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Represents a publishing content list. */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSContentList {
   /**
    * Ctor that takes the publish context and delivery type. Calls {@link #PSContentList(String,
@@ -108,7 +107,7 @@ public class PSContentList {
               + indexOfFirstItem);
       int indexOfLastItem = indexOfFirstItem + m_maxRowsPerPage - 1;
       for (int i = indexOfFirstItem - 1; i < m_list.size() && i < indexOfLastItem; i++) {
-        PSContentListItem listItem = (PSContentListItem) m_list.get(i);
+        PSContentListItem listItem = m_list.get(i);
         Element elem = listItem.toXml(listDoc, request);
         if (sys_publicationid == null || !listItem.isContentUrlNull())
           contentList.appendChild(elem);
@@ -121,8 +120,7 @@ public class PSContentList {
        * entire content list is output
        */
       log.debug("outputting non-paged content list XML");
-      for (Iterator i = m_list.iterator(); i.hasNext(); ) {
-        PSContentListItem listItem = (PSContentListItem) i.next();
+      for (PSContentListItem listItem : m_list) {
         Element elem = listItem.toXml(listDoc, request);
         if (sys_publicationid == null || !listItem.isContentUrlNull())
           contentList.appendChild(elem);
@@ -159,10 +157,10 @@ public class PSContentList {
      * parameters to the link, making sure to assign the correct value to
      * "psfirst"
      */
-    HashMap paramMap = new HashMap(10);
-    Iterator paramIter = request.getParametersIterator();
+    Map<String, Object> paramMap = new HashMap<>(10);
+    Iterator<Map.Entry<String, Object>> paramIter = request.getParametersIterator();
     while (paramIter.hasNext()) {
-      Map.Entry map = (Map.Entry) paramIter.next();
+      Map.Entry<String, Object> map = paramIter.next();
       paramMap.put(map.getKey(), map.getValue());
     }
     if (indexOfFirstItem > 1) {
@@ -241,7 +239,7 @@ public class PSContentList {
   }
 
   /** List of all content items, never <code>null</code>. */
-  private List m_list = new ArrayList();
+  private List<PSContentListItem> m_list = new ArrayList<>();
 
   /** Publish context value, initialized in the ctor, never <code>null</code>, may be empty. */
   private String m_context;

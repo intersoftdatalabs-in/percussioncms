@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -44,7 +45,6 @@ import org.w3c.dom.Node;
  * This exit filters out the items in the auto index that are not a part of the site identified by
  * the HTMLParameter {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID siteid}passed
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSAutoSiteItemFilter extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
   /** Default constructor for PSAutoSiteItemFilter. */
@@ -92,7 +92,7 @@ public class PSAutoSiteItemFilter extends PSDefaultExtension implements IPSResul
     boolean isEmpty = true;
     try {
       // First get the folders for the current site...
-      HashMap paramMap = new HashMap();
+      Map<String, Object> paramMap = new HashMap<>();
       paramMap.put(IPSHtmlParameters.SYS_SITEID, currSiteid);
       IPSInternalRequest ireq = request.getInternalRequest(siteFolderLookupURL, paramMap, false);
       Document sdoc = ireq.getResultDoc();
