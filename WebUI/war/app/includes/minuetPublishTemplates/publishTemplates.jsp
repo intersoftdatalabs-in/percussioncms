@@ -525,7 +525,8 @@
                             <i aria-hidden="true" class="fas fa-lock"></i>
                         </div>
                     </div>
-                    <input autocomplete="off" class="form-control" percServerFileProp="ARNRole" id="ARNRole" name="ARNRole" value="{{#filterByValue serverInfo.properties 'key' 'ARNRole'}}{{/filterByValue}}">
+                    <!-- Issue #2284: not hard-required; aria-describedby replaces aria-required for optional EC2/AssumeRole credentials -->
+                    <input autocomplete="off" class="form-control" percServerFileProp="ARNRole" id="ARNRole" name="ARNRole" aria-describedby="perc-s3-optional-credentials-hint percFooterAlertTarget" value="{{#filterByValue serverInfo.properties 'key' 'ARNRole'}}{{/filterByValue}}">
                 </div>
             </div>
 
@@ -541,7 +542,8 @@
                             <i aria-hidden="true" class="fas fa-key"></i>
                         </div>
                     </div>
-                    <input autocomplete="off" type="password" class="form-control" percServerFileProp="accesskey" id="perc-access-key" name="accesskey" value="{{#filterByValue serverInfo.properties 'key' 'accesskey'}}{{/filterByValue}}">
+                    <!-- Issue #2284: not hard-required; aria-describedby links optional-credentials hint + footer warning target -->
+                    <input autocomplete="off" type="password" class="form-control" percServerFileProp="accesskey" id="perc-access-key" name="accesskey" aria-describedby="perc-s3-optional-credentials-hint percFooterAlertTarget" value="{{#filterByValue serverInfo.properties 'key' 'accesskey'}}{{/filterByValue}}">
                 </div>
             </div>
             <div class="col-md-6 col col-sm-12">
@@ -552,10 +554,14 @@
                             <i aria-hidden="true" class="fas fa-lock"></i>
                         </div>
                     </div>
-                    <input autocomplete="off" type="password" class="form-control" percServerFileProp="securitykey" id="perc-security-key" name="securitykey" value="{{#filterByValue serverInfo.properties 'key' 'securitykey'}}{{/filterByValue}}">
+                    <!-- Issue #2284: not hard-required; aria-describedby links optional-credentials hint + footer warning target -->
+                    <input autocomplete="off" type="password" class="form-control" percServerFileProp="securitykey" id="perc-security-key" name="securitykey" aria-describedby="perc-s3-optional-credentials-hint percFooterAlertTarget" value="{{#filterByValue serverInfo.properties 'key' 'securitykey'}}{{/filterByValue}}">
                 </div>
             </div>
         </div>
+        <p id="perc-s3-optional-credentials-hint" class="form-text text-muted">
+            <i18n:message key="perc.ui.publish.servers.s3@Optional credentials hint"/>
+        </p>
     </div>
     <div class="form-group" >
         <label for="region">* <i18n:message key="perc.ui.publish.view@Region"/>:</label>

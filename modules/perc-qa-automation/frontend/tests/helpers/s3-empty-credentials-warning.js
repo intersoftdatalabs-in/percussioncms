@@ -4,7 +4,8 @@
  *
  * Mirrors the client-side logic in PercPublishMinuetView.js:
  * Access Key / Security Key empty → warn; Role ARN only when Assume Role is on.
- * Message text must stay in lock-step with product UI strings.
+ * Message text must stay in lock-step with product UI en-us TMX strings
+ * (keys under perc.ui.publish.servers.s3@* in CmsUi.tmx; UI resolves via I18N.message).
  */
 
 "use strict";
@@ -18,6 +19,7 @@ const SELECTORS = {
   securityKey: "#perc-security-key",
   arnRole: "#ARNRole",
   useAssumeRole: "#useAssumeRole",
+  optionalCredentialsHint: "#perc-s3-optional-credentials-hint",
   footerAlert: "#percFooterAlertTarget",
   footerAlertMessage: "#percFooterAlertTarget .alert",
   publishRoot: "#perc-publishing-root, #perc-publish-body-target",

@@ -160,6 +160,14 @@ public class PSEc2MetadataClient {
         log.debug("IMDSv2 GET failed for {}; trying IMDSv1 fallback", path);
       }
       return getWithOptionalToken(path, null);
+    } catch (InterruptedException e) {
+      // Preserve interrupt flag so server shutdown/cancellation remains reliable.
+      Thread.currentThread().interrupt();
+      log.debug(
+          "EC2 metadata probe interrupted for {} (host is likely not EC2 or IMDS unreachable): {}",
+          path,
+          e.toString());
+      return null;
     } catch (Exception e) {
       log.debug(
           "EC2 metadata probe failed for {} (host is likely not EC2 or IMDS unreachable): {}",
