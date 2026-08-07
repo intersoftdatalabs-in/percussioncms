@@ -51,6 +51,11 @@ public class PreviewLocation implements Comparable<PreviewLocation> {
     return super.equals(obj);
   }
 
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
   /**
    * @return the siteName
    */

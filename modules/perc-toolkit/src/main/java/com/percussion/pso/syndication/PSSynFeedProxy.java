@@ -17,7 +17,6 @@
 package com.percussion.pso.syndication;
 
 import com.percussion.pso.utils.HTTPProxyClientConfig;
-import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.feed.synd.SyndPerson;
 import com.rometools.rome.io.FeedException;
@@ -132,7 +131,7 @@ public class PSSynFeedProxy {
     return ret;
   }
 
-  public List getContributorsList() {
+  public List<SyndPerson> getContributorsList() {
     return feed.getContributors();
   }
 
@@ -170,7 +169,7 @@ public class PSSynFeedProxy {
     ArrayList<PSSynFeedEntry> ret = new ArrayList<PSSynFeedEntry>();
 
     for (int i = 0; i < feed.getEntries().size(); i++) {
-      ret.add(new PSSynFeedEntry((SyndEntry) feed.getEntries().get(i)));
+      ret.add(new PSSynFeedEntry(feed.getEntries().get(i)));
     }
     return ret;
   }

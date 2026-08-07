@@ -58,6 +58,11 @@ public class PSOAction implements Comparable<PSOAction> {
     return super.equals(obj);
   }
 
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
   @SuppressWarnings("unused")
   public Element toXml(Document doc) {
     Element root = doc.createElement("Action");

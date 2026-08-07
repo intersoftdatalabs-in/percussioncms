@@ -241,6 +241,7 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
    * @see com.percussion.pso.relationshipbuilder.IPSRelationshipHelperService#createEmptyRelationshipCollection()
    */
 
+  @SuppressWarnings("unchecked")
   protected Collection<PSRelationship> createEmptyRelationshipCollection() {
     PSRelationshipSet relationshipSet = new PSRelationshipSet();
     return relationshipSet;
