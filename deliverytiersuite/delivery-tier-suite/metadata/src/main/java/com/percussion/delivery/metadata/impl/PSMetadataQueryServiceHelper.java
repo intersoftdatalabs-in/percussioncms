@@ -105,7 +105,7 @@ public abstract class PSMetadataQueryServiceHelper {
 
     if (type == VALUETYPE.NUMBER) {
       for (String s : val.split(",")) {
-        results.add(new Double(s));
+        results.add(Double.valueOf(s));
       }
     } else if (type == VALUETYPE.DATE) {
       for (String s : val.split("'")) {

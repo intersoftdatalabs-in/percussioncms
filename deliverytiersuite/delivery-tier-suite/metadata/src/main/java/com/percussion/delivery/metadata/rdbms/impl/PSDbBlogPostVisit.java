@@ -26,7 +26,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Optional;
@@ -43,8 +42,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSBlogPostVisit")
 @Table(name = "BLOG_POST_VISIT")
-public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable {
-  private static final long serialVersionUID = 1L;
+public final class PSDbBlogPostVisit implements IPSBlogPostVisit {
 
   /** Surrogate primary key for this visit row. */
   @Id
@@ -80,9 +78,10 @@ public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable {
     if (hitDate == null) throw new IllegalArgumentException("hitDate cannot be null");
     if (hitCount == null) throw new IllegalArgumentException("hitCount cannot be null");
 
-    setHitCount(hitCount);
-    setHitDate(hitDate);
-    setPagepath(pagepath);
+    // Direct field assignment; class is final (no this-escape via overridable setters).
+    this.hitCount = hitCount;
+    this.hitDate = new Date(hitDate.getTime());
+    this.pagepath = pagepath;
   }
 
   /**

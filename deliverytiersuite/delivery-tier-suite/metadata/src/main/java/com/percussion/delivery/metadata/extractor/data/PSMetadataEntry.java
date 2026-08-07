@@ -22,19 +22,19 @@ import com.percussion.delivery.metadata.IPSMetadataProperty;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlType;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Represents metadata for a published page on the deleivery server.
+ * Represents metadata for a published page on the delivery server.
+ *
+ * <p>Not {@link java.io.Serializable}: exchanged as REST/JAXB DTOs and indexer payloads, not via
+ * Java serialization (avoids serial warnings on collection field types).
  *
  * @author miltonpividori
  */
 @XmlType(propOrder = {"name"})
-public class PSMetadataEntry implements Serializable, IPSMetadataEntry {
-
-  private static final long serialVersionUID = 1L;
+public class PSMetadataEntry implements IPSMetadataEntry {
 
   /** Published site-relative page path of the indexed entry. */
   private String pagepath;
@@ -57,9 +57,8 @@ public class PSMetadataEntry implements Serializable, IPSMetadataEntry {
   /** Properties attached to this entry. */
   @XmlElementWrapper(name = "property")
   @XmlElement(type = PSMetadataProperty.class)
-  private Set<PSMetadataProperty> properties = new HashSet<>();
+  private Set<IPSMetadataProperty> properties = new HashSet<>();
 
-  /** No-arg constructor required by JAXB. */
   /** No-arg constructor required by JAXB. */
   public PSMetadataEntry() {}
 
@@ -177,23 +176,22 @@ public class PSMetadataEntry implements Serializable, IPSMetadataEntry {
   /* (non-Javadoc)
    * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#getProperties()
    */
-  @SuppressWarnings({"rawtypes", "unchecked"})
   public Set<IPSMetadataProperty> getProperties() {
     if (properties == null) {
       properties = new HashSet<>();
     }
-    return (Set) properties;
+    return properties;
   }
 
   /* (non-Javadoc)
    * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#setProperties(java.util.Set)
    */
   public void setProperties(Set<IPSMetadataProperty> properties) {
-    Set<PSMetadataProperty> convertedProperties = new HashSet<>();
+    Set<IPSMetadataProperty> convertedProperties = new HashSet<>();
     if (properties != null) {
       for (IPSMetadataProperty property : properties) {
         if (property instanceof PSMetadataProperty) {
-          convertedProperties.add((PSMetadataProperty) property);
+          convertedProperties.add(property);
         } else {
           convertedProperties.add(
               new PSMetadataProperty(
@@ -207,7 +205,7 @@ public class PSMetadataEntry implements Serializable, IPSMetadataEntry {
   public void addProperty(IPSMetadataProperty prop) {
     if (properties == null) properties = new HashSet<>();
     if (prop instanceof PSMetadataProperty) {
-      properties.add((PSMetadataProperty) prop);
+      properties.add(prop);
     } else {
       properties.add(new PSMetadataProperty(prop.getName(), prop.getValuetype(), prop.getValue()));
     }

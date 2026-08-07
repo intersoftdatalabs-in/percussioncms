@@ -62,11 +62,13 @@ public class PSCookieConsent implements IPSCookieConsent {
     if (consentDate == null) throw new IllegalArgumentException("consentDate may not be null");
     if (ip == null) throw new IllegalArgumentException("ip may not be null");
 
-    setSiteName(siteName);
-    setService(serviceName);
-    setConsentDate(consentDate);
-    setIP(ip);
-    setOptIn(optIn);
+    // Direct field assignment avoids this-escape from overridable setters (subclassed by
+    // PSCookieConsentQuery).
+    this.siteName = siteName;
+    this.serviceName = serviceName;
+    this.consentDate = new Date(consentDate.getTime());
+    this.ip = ip;
+    this.optIn = optIn;
   }
 
   @Override

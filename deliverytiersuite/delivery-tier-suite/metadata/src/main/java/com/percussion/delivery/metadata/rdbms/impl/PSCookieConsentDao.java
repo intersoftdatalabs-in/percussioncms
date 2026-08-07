@@ -162,7 +162,7 @@ public class PSCookieConsentDao implements IPSCookieConsentDao {
       CriteriaDelete<PSDbCookieConsent> deleteQuery =
           builder.createCriteriaDelete(PSDbCookieConsent.class);
       deleteQuery.from(PSDbCookieConsent.class);
-      session.createQuery(deleteQuery).executeUpdate();
+      session.createMutationQuery(deleteQuery).executeUpdate();
 
     } catch (Exception e) {
       throw new Exception("Error deleting cookie consent entries from DB.", e);
@@ -180,7 +180,7 @@ public class PSCookieConsentDao implements IPSCookieConsentDao {
           builder.createCriteriaDelete(PSDbCookieConsent.class);
       Root<PSDbCookieConsent> root = deleteQuery.from(PSDbCookieConsent.class);
       deleteQuery.where(builder.like(root.get("siteName"), siteName));
-      session.createQuery(deleteQuery).executeUpdate();
+      session.createMutationQuery(deleteQuery).executeUpdate();
 
     } catch (Exception e) {
       throw new Exception("Error deleting cookie consent entries for site: " + siteName, e);
@@ -278,7 +278,7 @@ public class PSCookieConsentDao implements IPSCookieConsentDao {
     criteriaUpdate
         .set(root.get("siteName"), newSiteName)
         .where(criteriaBuilder.equal(root.get("siteName"), oldSiteName));
-    session.createQuery(criteriaUpdate).executeUpdate();
+    session.createMutationQuery(criteriaUpdate).executeUpdate();
   }
 
   private Session getSession() {

@@ -33,7 +33,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import java.io.Serializable;
 import java.util.Date;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
@@ -55,9 +54,7 @@ import org.hibernate.annotations.Nationalized;
       @Index(columnList = "NAME,DATEVALUE", name = "name_date_hidx"),
       @Index(columnList = "NAME,VALUE_HASH", name = "name_valuehash_hidx")
     })
-public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
-
-  private static final long serialVersionUID = 1L;
+public final class PSDbMetadataProperty implements IPSMetadataProperty {
 
   /** Surrogate primary key for this property row. */
   @Id

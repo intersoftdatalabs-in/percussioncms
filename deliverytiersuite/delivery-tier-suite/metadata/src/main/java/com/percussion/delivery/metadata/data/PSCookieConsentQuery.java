@@ -31,7 +31,7 @@ import java.util.List;
  * @author chriswright
  */
 @XmlRootElement(name = "consent")
-public class PSCookieConsentQuery extends PSCookieConsent {
+public final class PSCookieConsentQuery extends PSCookieConsent {
 
   private List<String> services;
 
@@ -63,7 +63,8 @@ public class PSCookieConsentQuery extends PSCookieConsent {
     if (services == null)
       throw new IllegalArgumentException("List of cookies approved by client may not be null.");
 
-    setServices(services);
+    // Direct field assignment; class is final so no this-escape via overridable setter.
+    this.services = services;
   }
 
   /**

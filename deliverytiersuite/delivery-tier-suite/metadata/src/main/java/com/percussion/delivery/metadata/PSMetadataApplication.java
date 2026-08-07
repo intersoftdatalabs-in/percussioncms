@@ -39,12 +39,14 @@ import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
  * uncaught-error mapper and the Jackson JSON provider under a single {@code "/"} application path.
  */
 @ApplicationPath("/")
-public class PSMetadataApplication extends ResourceConfig {
+public final class PSMetadataApplication extends ResourceConfig {
   /**
    * Constructs the application context and registers the Spring / Jersey integration listeners, the
    * metadata REST resources, the role filter, the uncaught-error mapper and the JSON provider.
+   *
+   * <p>Class is {@code final} so {@link ResourceConfig#register} calls in this constructor cannot
+   * observe a subclass before it is fully initialized (javac {@code this-escape}).
    */
-  @SuppressWarnings("this-escape")
   public PSMetadataApplication() {
     register(RequestContextFilter.class);
     register(SpringComponentProvider.class);
