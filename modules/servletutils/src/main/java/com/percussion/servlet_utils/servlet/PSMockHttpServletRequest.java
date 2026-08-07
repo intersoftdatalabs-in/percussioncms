@@ -87,13 +87,15 @@ public class PSMockHttpServletRequest implements HttpServletRequest {
   /**
    * Convenience constructor that seeds the request method and URI.
    *
+   * <p>Assigns fields directly rather than calling overridable setters so a subclass cannot observe
+   * a partially constructed instance ({@code this-escape} under {@code -Xlint:all}).
+   *
    * @param method the HTTP method, defaults to {@code GET} when {@code null}
    * @param requestURI the request URI, defaults to empty when {@code null}
    */
-  @SuppressWarnings("this-escape")
   public PSMockHttpServletRequest(String method, String requestURI) {
     this.method = method != null ? method : "GET";
-    setRequestURI(requestURI != null ? requestURI : "");
+    this.requestURI = requestURI != null ? requestURI : "";
   }
 
   /**
