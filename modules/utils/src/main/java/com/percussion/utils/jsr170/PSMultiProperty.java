@@ -48,11 +48,14 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
- * Represents JSR-170 properties that can contain a set of values
+ * Represents JSR-170 properties that can contain a set of values.
+ *
+ * <p>This class is {@code final} so the constructor may call inherited property accessors without a
+ * subclass observing a partially constructed instance ({@code this-escape} under {@code -Xlint}).
  *
  * @author dougrand
  */
-public class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCacheItem, IPSProperty {
+public final class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCacheItem, IPSProperty {
   /** The name of this property, never <code>null</code> after construction */
   public String m_name;
 

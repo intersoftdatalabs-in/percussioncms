@@ -129,6 +129,15 @@ public class PSWorkflowUtilsBaseTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
+  public void filterUserNameIsNoopPreservingCommas() {
+    // Deprecated IP-security helper is intentionally a no-op (RX-02-11-0151).
+    assertEquals("Lee, Christo", PSWorkflowUtilsBase.filterUserName("Lee, Christo"));
+    assertEquals("admin", PSWorkflowUtilsBase.filterUserName("admin"));
+    assertNull(PSWorkflowUtilsBase.filterUserName(null));
+  }
+
+  @Test
   public void caseInsensitiveUniqueListOnNullReturnsNull() {
     assertNull(PSWorkflowUtilsBase.caseInsensitiveUniqueList(null));
   }

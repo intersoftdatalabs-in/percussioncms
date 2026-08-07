@@ -17,6 +17,7 @@
 
 package com.percussion.utils.xml;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.xml.sax.SAXParseException;
@@ -48,7 +49,8 @@ public class PSSaxParseException extends SAXParseException {
         parseExceptions.get(0).getLineNumber(),
         parseExceptions.get(0).getColumnNumber());
 
-    m_errors = parseExceptions;
+    // ArrayList is Serializable (unlike the List interface) so -Xlint:serial is clean.
+    m_errors = new ArrayList<>(parseExceptions);
   }
 
   /**
@@ -62,7 +64,7 @@ public class PSSaxParseException extends SAXParseException {
 
   /**
    * Collection of SAXParseExceptions, initialized by the ctor, never <code>
-   * null</code> or empty after that.
+   * null</code> or empty after that. Stored as {@link ArrayList} so the field type is serializable.
    */
-  private List<SAXParseException> m_errors = null;
+  private final ArrayList<SAXParseException> m_errors;
 }

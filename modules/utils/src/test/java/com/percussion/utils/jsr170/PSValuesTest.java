@@ -160,6 +160,21 @@ public class PSValuesTest {
   }
 
   @Test
+  public void testLongFromString() throws Exception {
+    // PSLongValue(String) uses Long.valueOf (not deprecated Long(String) ctor)
+    PSLongValue fromString = new PSLongValue("150201");
+    assertEquals(PropertyType.LONG, fromString.getType());
+    assertEquals(150201L, fromString.getLong());
+    assertEquals("150201", fromString.getString());
+    try {
+      new PSLongValue("not-a-number");
+      fail("Expected ValueFormatException for non-numeric string");
+    } catch (javax.jcr.ValueFormatException e) {
+      // expected
+    }
+  }
+
+  @Test
   public void testString() throws Exception {
     PSValueFactory fact = new PSValueFactory();
     Value d = fact.createValue("12345");

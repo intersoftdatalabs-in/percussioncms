@@ -52,12 +52,19 @@ public class PSJexlEvaluator {
   public PSJexlEvaluator() {}
 
   /**
-   * Ctor for an evaluator with prebound values
+   * Ctor for an evaluator with prebound values.
+   *
+   * <p>Copies bindings into the internal map directly so subclasses cannot observe a partially
+   * constructed instance via an overridable {@link #setValues(Map)} (avoids {@code this-escape}
+   * under {@code -Xlint}).
    *
    * @param bindings values to bind, never <code>null</code>
    */
   public PSJexlEvaluator(Map<String, Object> bindings) {
-    setValues(bindings);
+    if (bindings == null) {
+      throw new IllegalArgumentException("bindings may not be null");
+    }
+    m_vars.putAll(bindings);
   }
 
   /**
@@ -66,10 +73,10 @@ public class PSJexlEvaluator {
    * @param bindings the bindings, never <code>null</code>
    */
   public void setValues(Map<String, Object> bindings) {
-    Map<String, Object> m = m_vars;
-    for (Map.Entry<String, Object> e : bindings.entrySet()) {
-      m.put(e.getKey(), e.getValue());
+    if (bindings == null) {
+      throw new IllegalArgumentException("bindings may not be null");
     }
+    m_vars.putAll(bindings);
   }
 
   /**

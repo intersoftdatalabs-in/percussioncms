@@ -49,7 +49,7 @@ public class PSLongValue extends PSBaseValue<Long> {
    */
   public PSLongValue(String value) throws ValueFormatException {
     try {
-      m_value = new Long(value);
+      m_value = Long.valueOf(value);
     } catch (NumberFormatException e) {
       throw new ValueFormatException(e);
     }

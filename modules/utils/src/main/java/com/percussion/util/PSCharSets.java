@@ -21,7 +21,6 @@ import com.percussion.xml.PSXmlTreeWalker;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -180,9 +179,9 @@ public class PSCharSets {
               + " later.");
     } catch (IOException e) {
       System.err.println("Error: Could not initialize charset map: " + e.toString());
-    } catch (AccessControlException e) {
-      // we ignore this, since we load it later when the connection is
-      // established through the object store handler
+    } catch (SecurityException e) {
+      // SecurityManager / AccessControlException (deprecated for removal on JDK 17+) —
+      // ignore and load later via the object store handler when a connection is available.
       System.out.println(
           "No access to character encoding map file. Try to load it through the object store"
               + " handler later.");

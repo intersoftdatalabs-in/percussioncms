@@ -135,6 +135,26 @@ public class PSXmlDocumentBuilderTest {
     assertNull(n);
   }
 
+  @Test
+  @SuppressWarnings("deprecation")
+  public void testRemoveElementDeprecatedAndCurrent() {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = doc.createElement("root");
+    doc.appendChild(root);
+    Element child = doc.createElement("child");
+    root.appendChild(child);
+    assertEquals(1, root.getChildNodes().getLength());
+
+    // Deprecated two-arg form still delegates to removeElement(Element)
+    PSXmlDocumentBuilder.removeElement(doc, child);
+    assertEquals(0, root.getChildNodes().getLength());
+
+    Element child2 = doc.createElement("child2");
+    root.appendChild(child2);
+    PSXmlDocumentBuilder.removeElement(child2);
+    assertEquals(0, root.getChildNodes().getLength());
+  }
+
   // recursive document comparison
   public void assertDocEquals(Document a, Document b) {
     assertEquals(a.getDocumentElement(), b.getDocumentElement());

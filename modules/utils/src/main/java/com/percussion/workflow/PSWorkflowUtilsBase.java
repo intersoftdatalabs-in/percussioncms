@@ -408,6 +408,7 @@ public class PSWorkflowUtilsBase {
    * @version 1.0
    * @since 2.0
    */
+  @Deprecated
   public static String filterUserName(String sUserName) {
     /*
     Vitaly, Dec 9 2002: made this method a 'noop' for the following reasons:
