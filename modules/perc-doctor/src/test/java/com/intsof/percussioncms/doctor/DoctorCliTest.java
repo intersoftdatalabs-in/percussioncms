@@ -260,6 +260,88 @@ class DoctorCliTest {
   }
 
   @Test
+  void diagnoseViaCliIsReadOnlyAndPrintsReportShape() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("install-diagnose"));
+    Files.createDirectories(root.resolve("jetty").resolve("base"));
+    Files.createDirectories(root.resolve("rxconfig").resolve("Server"));
+    Path keep = root.resolve("keep.me");
+    Files.writeString(keep, "safe");
+
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {
+              "--install-root", root.toString(), "--dry-run", "-v", "diagnose"
+            },
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+
+    assertEquals(DoctorCli.EXIT_OK, code);
+    assertTrue(Files.exists(keep));
+    String out = outBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(out.contains("command=diagnose"));
+    assertTrue(out.contains("dry-run=true"));
+    assertTrue(out.contains("read-only=true"));
+    assertTrue(out.contains("healthy=true"));
+    assertTrue(out.contains("checks="));
+    assertTrue(out.contains("PASS install-root") || out.contains("install-root"));
+  }
+
+  @Test
+  void healthAliasViaCliWorks() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("install-health"));
+    Files.createDirectories(root.resolve("jetty").resolve("base"));
+    Files.createDirectories(root.resolve("rxconfig"));
+
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {"--install-root", root.toString(), "-v", "health"},
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+
+    assertEquals(DoctorCli.EXIT_OK, code);
+    String out = outBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(out.contains("command=health"));
+    assertTrue(out.contains("read-only=true"));
+  }
+
+  @Test
+  void diagnoseBareTreeExitsErrorOnFailChecks() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("install-bare-diag"));
+
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {"--install-root", root.toString(), "diagnose"},
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+
+    assertEquals(DoctorCli.EXIT_ERROR, code);
+    String out = outBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(out.contains("healthy=false"));
+    assertTrue(out.contains("fail="));
+  }
+
+  @Test
+  void helpMentionsDiagnose() {
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {"--help"},
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+    assertEquals(DoctorCli.EXIT_OK, code);
+    String out = outBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(out.contains("diagnose"));
+    assertTrue(out.contains("health"));
+  }
+
+  @Test
   void olderThanOnNonCleanLogsCommandWarnsAndContinues() throws Exception {
     Path root = Files.createDirectories(tempDir.resolve("install-older-warn"));
     Path dump = root.resolve("warn.hprof");
