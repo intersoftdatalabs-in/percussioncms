@@ -27,10 +27,13 @@ import javax.swing.*;
  * <p>The class is abstract because it does not define actionPerformed().
  */
 public abstract class PSAction extends AbstractAction {
-
   private static final long serialVersionUID = 1L;
 
-  // constructors
+  @Override
+  public final void putValue(String key, Object value) {
+    super.putValue(key, value);
+  }
+
   /**
    * Constructs an action with the supplied menu text, mnemonic letter, and accelerator key but no
    * icon.
@@ -69,8 +72,8 @@ public abstract class PSAction extends AbstractAction {
   public PSAction(String strMenuText, char cMnemonic, KeyStroke AccelKey, Icon Img) {
     super(null == strMenuText ? "" : strMenuText, null == Img ? new ImageIcon() : Img);
 
-    if (0 != cMnemonic) putValue(MNEMONIC_KEY, new Character(cMnemonic));
-    if (null != AccelKey) putValue(ACCEL_KEY, AccelKey);
+    if (0 != cMnemonic) super.putValue(MNEMONIC_KEY, Character.valueOf(cMnemonic));
+    if (null != AccelKey) super.putValue(ACCEL_KEY, AccelKey);
   }
 
   // attributes

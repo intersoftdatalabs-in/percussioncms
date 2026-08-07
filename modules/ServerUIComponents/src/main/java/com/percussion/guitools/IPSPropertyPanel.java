@@ -17,6 +17,7 @@
 
 package com.percussion.guitools;
 
+import java.awt.Component;
 import java.util.List;
 import javax.swing.*;
 
@@ -139,5 +140,5 @@ public interface IPSPropertyPanel {
    * @param label The text to match, assumed not <code>null</code> or empty.
    * @return The component list of the matching row, or <code>null</code> if no match is found.
    */
-  public List getMatchingRowByLabel(String label);
+  public List<Component> getMatchingRowByLabel(String label);
 }

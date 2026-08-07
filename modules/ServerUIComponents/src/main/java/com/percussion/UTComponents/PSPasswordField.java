@@ -25,10 +25,11 @@ import javax.swing.*;
  * The default password field used by E2. It displays 14 *'s at construction. Then when selected and
  * changed, it behaves like JPasswordField.
  */
-public class PSPasswordField extends JPasswordField implements FocusListener {
-
+public final class PSPasswordField extends JPasswordField implements FocusListener {
   private static final long serialVersionUID = 1L;
 
+  // init() calls addFocusListener, which is overridable on JComponent; subclasses could observe
+  // a partially constructed instance. Suppress at the constructor scope only.
   public PSPasswordField() {
     super();
     init(null);

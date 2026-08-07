@@ -168,7 +168,8 @@ public class ErrorDialogs {
       if (m_res != null) {
         displayText =
             MessageFormat.format(
-                m_res.getString("NoExceptionMsg"), new String[] {e.getClass().getName()});
+                m_res.getString("NoExceptionMsg"),
+                (Object[]) new String[] {e.getClass().getName()});
       } else {
         displayText =
             "An exception occurred, but no text is available. "
@@ -212,7 +213,8 @@ public class ErrorDialogs {
 
     String[] astrParams = {strMsg};
 
-    showErrorMessage(null, MessageFormat.format(strFormat, astrParams), strFatalDlgTitle);
+    showErrorMessage(
+        null, MessageFormat.format(strFormat, (Object[]) astrParams), strFatalDlgTitle);
     System.out.println("Fatal error, program terminating");
     System.exit(-1);
   }

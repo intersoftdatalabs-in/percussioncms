@@ -40,6 +40,8 @@ import javax.swing.*;
  * or the db flag is present, but never both.
  */
 public class PSSearchAdvancedPanel extends PSPropertyPanel implements ActionListener {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public PSSearchAdvancedPanel() {
     super();

@@ -41,6 +41,8 @@ import javax.swing.event.ListSelectionListener;
  * from the target list and them back into source list.
  */
 public class PSSourceTargetListPanel extends JPanel {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public PSSourceTargetListPanel() {
     super();

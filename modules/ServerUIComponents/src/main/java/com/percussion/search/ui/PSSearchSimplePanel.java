@@ -57,6 +57,8 @@ import javax.swing.*;
  * </ul>
  */
 public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListener {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public PSSearchSimplePanel() {
     super();

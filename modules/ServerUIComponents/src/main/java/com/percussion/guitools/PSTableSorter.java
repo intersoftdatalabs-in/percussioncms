@@ -50,6 +50,8 @@ import javax.swing.table.TableModel;
  * types of sources do not indicate a sorting change and should generally be ignored.
  */
 public class PSTableSorter extends PSTableMap {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public PSTableSorter() {
     super();

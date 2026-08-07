@@ -74,6 +74,8 @@ import org.xml.sax.SAXException;
  * com.percussion.cms.objectstore.PSSearchField} objects.
  */
 public class PSSearchFieldEditor extends JPanel {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public PSSearchFieldEditor() {
     super();
@@ -391,7 +393,7 @@ public class PSSearchFieldEditor extends JPanel {
       IPSPropertyPanel fieldPropertyPanel, String dispName) {
     if (fieldPropertyPanel == null || dispName == null || dispName.length() == 0) return;
 
-    List rowComps = fieldPropertyPanel.getMatchingRowByLabel(dispName);
+    List<Component> rowComps = fieldPropertyPanel.getMatchingRowByLabel(dispName);
     if (rowComps != null) {
       Iterator comps = rowComps.iterator();
       // first find the label

@@ -29,6 +29,8 @@ import javax.swing.table.TableModel;
  * coding standards.
  */
 public class PSTableMap extends AbstractTableModel implements TableModelListener {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public PSTableMap() {
     super();

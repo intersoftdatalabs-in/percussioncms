@@ -40,13 +40,13 @@ import javax.swing.border.CompoundBorder;
  *
  * @author dougrand
  */
-public class PSFocusBorder extends AbstractBorder implements FocusListener, Serializable {
+public final class PSFocusBorder extends AbstractBorder implements FocusListener, Serializable {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public PSFocusBorder() {
     super();
   }
-
-  private static final long serialVersionUID = 1L;
 
   /**
    * Ctor that calls {@link #PSFocusBorder(int, PSDisplayOptions, boolean) PSFocusBorder(thickness,
@@ -327,7 +327,7 @@ public class PSFocusBorder extends AbstractBorder implements FocusListener, Seri
    * This container listener is used to handle updates (the addition or removal of components in a
    * container). This is initialized here and never modified or <code>null</code>.
    */
-  private ContainerListener m_containerListener =
+  private transient ContainerListener m_containerListener =
       new ContainerListener() {
         public void componentAdded(ContainerEvent e) {
           if (e.getComponent() instanceof JComponent) {

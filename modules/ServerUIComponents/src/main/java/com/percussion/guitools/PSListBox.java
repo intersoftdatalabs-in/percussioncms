@@ -40,6 +40,8 @@ import javax.swing.event.ListSelectionListener;
  * method. Mult-select is not currently supported.
  */
 public abstract class PSListBox extends JPanel {
+  private static final long serialVersionUID = 1L;
+
   /**
    * Construct the list box, providing its title and initial data.
    *

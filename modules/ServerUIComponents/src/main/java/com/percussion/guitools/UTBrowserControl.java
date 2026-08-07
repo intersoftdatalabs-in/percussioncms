@@ -53,7 +53,7 @@ public class UTBrowserControl {
       } // we already had the default.
 
       String[] params = {url};
-      cmd = MessageFormat.format(cmdLine, params);
+      cmd = MessageFormat.format(cmdLine, (Object[]) params);
 
       Process p = Runtime.getRuntime().exec(cmd);
     } catch (IOException x) {

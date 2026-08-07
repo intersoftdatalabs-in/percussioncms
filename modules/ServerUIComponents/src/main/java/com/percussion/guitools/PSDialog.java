@@ -44,6 +44,7 @@ import javax.swing.table.TableCellEditor;
  * @see ValidationFramework
  */
 public class PSDialog extends JDialog {
+  private static final long serialVersionUID = 1L;
 
   // mimic all constructors of JDialog
   /**

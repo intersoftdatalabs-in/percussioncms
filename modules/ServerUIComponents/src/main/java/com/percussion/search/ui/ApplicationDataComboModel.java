@@ -17,7 +17,6 @@
 package com.percussion.search.ui;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -26,7 +25,9 @@ import javax.swing.*;
 /**
  * Model that may be used for a combo box with the data representing all existing display formats.
  */
-public class ApplicationDataComboModel extends DefaultComboBoxModel {
+public class ApplicationDataComboModel extends DefaultComboBoxModel<String> {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public ApplicationDataComboModel() {
     super();
@@ -38,12 +39,12 @@ public class ApplicationDataComboModel extends DefaultComboBoxModel {
    * @param map Map of id and names. If <code>null</code> an empty map will be created.
    * @return ApplicationDataComboModel object.
    */
-  public static ApplicationDataComboModel createApplicationDataComboModel(Map map) {
-    if (map == null) map = new HashMap();
+  public static ApplicationDataComboModel createApplicationDataComboModel(Map<String, String> map) {
+    if (map == null) map = new HashMap<>();
     try {
       return new ApplicationDataComboModel(map);
     } catch (Exception e) {
-      Map m = new HashMap();
+      Map<String, String> m = new HashMap<>();
       m.put(e.getLocalizedMessage(), e.getClass().getName());
       return new ApplicationDataComboModel(m);
     }
@@ -54,8 +55,8 @@ public class ApplicationDataComboModel extends DefaultComboBoxModel {
    *
    * @param map of ids and display names. Assumed not <code>null</code>.
    */
-  private ApplicationDataComboModel(Map map) {
-    super(sort(map.values().toArray()));
+  private ApplicationDataComboModel(Map<String, String> map) {
+    super(sort(map.values()));
     m_map = map;
   }
 
@@ -68,11 +69,11 @@ public class ApplicationDataComboModel extends DefaultComboBoxModel {
   public String getSelectedId() {
     String strVal = (String) super.getSelectedItem();
 
-    Iterator keys = m_map.keySet().iterator();
+    Iterator<String> keys = m_map.keySet().iterator();
     while (keys.hasNext()) {
-      String strId = (String) keys.next();
+      String strId = keys.next();
 
-      if (((String) m_map.get(strId)).equalsIgnoreCase(strVal)) return strId;
+      if (m_map.get(strId).equalsIgnoreCase(strVal)) return strId;
     }
 
     return null;
@@ -86,47 +87,31 @@ public class ApplicationDataComboModel extends DefaultComboBoxModel {
    */
   public void setSelectedId(String strId) {
     if (strId == null || strId.trim().length() < 1) return;
-    String strVal = (String) m_map.get(strId);
+    String strVal = m_map.get(strId);
 
     if (strVal == null) {
-      Iterator iter = m_map.values().iterator();
+      Iterator<String> iter = m_map.values().iterator();
 
-      if (iter.hasNext()) strVal = (String) iter.next();
+      if (iter.hasNext()) strVal = iter.next();
     }
 
     super.setSelectedItem(strVal);
   }
 
   /**
-   * Re-orders the supplied list into dictionary order.
+   * Re-orders the supplied collection into dictionary order.
    *
-   * @param values May be <code>null</code>. Assumes entries are Strings.
-   * @return The supplied object, or <code>null</code> if <code>null</code> supplied.
+   * @param values May be <code>null</code>.
+   * @return A sorted array, or <code>null</code> if {@code values} is <code>null</code>.
    */
-  private static Object[] sort(Object[] values) {
+  private static String[] sort(java.util.Collection<String> values) {
     if (values == null) return null;
 
-    Arrays.sort(
-        values,
-        new Comparator() {
-          public int compare(Object o1, Object o2) {
-            return ((String) o1).compareToIgnoreCase((String) o2);
-          }
-
-          @Override
-          public boolean equals(Object o) {
-            throw new UnsupportedOperationException("Not implemented");
-          }
-
-          @Override
-          public int hashCode() {
-            throw new UnsupportedOperationException("Not implemented");
-          }
-        });
-
-    return values;
+    String[] arr = values.toArray(new String[0]);
+    Arrays.sort(arr, String::compareToIgnoreCase);
+    return arr;
   }
 
   /** Initialized in ctor. Never <code>null</code>, may be empty. */
-  private Map m_map = null;
+  private transient Map<String, String> m_map = null;
 }

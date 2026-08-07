@@ -29,6 +29,8 @@ import javax.swing.*;
  * JLabel</code> for ease of use.
  */
 public class PSLabel extends JLabel {
+  private static final long serialVersionUID = 1L;
+
   /** Default constructor; see {@link JLabel#JLabel()}. */
   public PSLabel() {
     super();

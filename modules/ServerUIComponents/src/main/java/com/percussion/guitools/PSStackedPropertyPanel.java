@@ -27,6 +27,7 @@ import javax.swing.*;
  * each row with horizontally withe the label stacked above its corresponding control.
  */
 public class PSStackedPropertyPanel extends JPanel implements IPSPropertyPanel {
+  private static final long serialVersionUID = 1L;
 
   /** */
   public PSStackedPropertyPanel() {
@@ -188,7 +189,7 @@ public class PSStackedPropertyPanel extends JPanel implements IPSPropertyPanel {
    * @param label The text to match, assumed not <code>null</code> or empty.
    * @return The component list of the matching row, or <code>null</code> if no match is found.
    */
-  public List getMatchingRowByLabel(String label) {
+  public List<Component> getMatchingRowByLabel(String label) {
     int idx = m_controlLabels.indexOf(label);
     if (idx == -1) return null;
 

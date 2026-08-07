@@ -42,6 +42,8 @@ import javax.swing.table.TableModel;
 
 /** A resuable panel containing a two column table. */
 public class PropertyTablePanel extends JPanel implements KeyListener, FocusListener {
+  private static final long serialVersionUID = 1L;
+
   /** The index of the column within the table that contains the property name data. */
   public static final int NAME_COLUMN = 0;
 

@@ -31,6 +31,8 @@ import javax.swing.border.BevelBorder;
  * <p>In the future, additional things could be added to the panel.
  */
 public class StatusBar extends JPanel {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public StatusBar() {
     super();

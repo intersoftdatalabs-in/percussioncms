@@ -32,6 +32,8 @@ import javax.swing.*;
  * right and controls are aligned to the left. The label will be center of controls.
  */
 public class PSPropertyPanel extends JPanel implements IPSPropertyPanel {
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates a panel with {@link com.percussion.layout.PSGridBoxLayout} with 2 columns. Uses <code>
    * 10</code> for gap between rows or columns.
@@ -358,7 +360,7 @@ public class PSPropertyPanel extends JPanel implements IPSPropertyPanel {
    * @param label The text to match, assumed not <code>null</code> or empty.
    * @return The component list of the matching row, or <code>null</code> if no match is found.
    */
-  public List getMatchingRowByLabel(String label) {
+  public List<Component> getMatchingRowByLabel(String label) {
     List match = null;
     int onRow = 0;
     boolean found = false;

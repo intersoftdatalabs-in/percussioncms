@@ -34,6 +34,8 @@ import javax.swing.table.TableModel;
  * @author DougRand
  */
 public class PSEditTablePanel extends JPanel {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public PSEditTablePanel() {
     super();

@@ -21,14 +21,13 @@ import javax.swing.*;
 
 /** A fixed sized JButton. */
 ////////////////////////////////////////////////////////////////////////////////
-public class UTFixedButton extends JButton {
+public final class UTFixedButton extends JButton {
+  private static final long serialVersionUID = 1L;
 
   /** No-op default constructor. */
   public UTFixedButton() {
     super();
   }
-
-  private static final long serialVersionUID = 1L;
 
   /** The size of button used by default by this class. */
   public static final Dimension STANDARD_BUTTON_SIZE = new Dimension(80, 24);
@@ -39,6 +38,8 @@ public class UTFixedButton extends JButton {
    * @param name the button name
    */
   //////////////////////////////////////////////////////////////////////////////
+  // setPreferredSize is overridable on JComponent; subclasses could observe a partially constructed
+  // instance. Suppress at the constructor scope only.
   public UTFixedButton(String name) {
     super(name);
     setPreferredSize(STANDARD_BUTTON_SIZE);

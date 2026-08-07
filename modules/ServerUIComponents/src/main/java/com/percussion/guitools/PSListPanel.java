@@ -47,6 +47,8 @@ import javax.swing.event.ListSelectionListener;
  * the contents of this panel.
  */
 public class PSListPanel extends JPanel implements ListSelectionListener {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public PSListPanel() {
     super();

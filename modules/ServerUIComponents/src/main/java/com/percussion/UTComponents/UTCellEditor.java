@@ -24,7 +24,6 @@ import javax.swing.*;
  * </code> and <code>JTextField</code>.
  */
 public class UTCellEditor extends DefaultCellEditor {
-
   private static final long serialVersionUID = 1L;
 
   /**

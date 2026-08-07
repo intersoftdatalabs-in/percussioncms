@@ -37,6 +37,7 @@ import javax.swing.table.TableModel;
  * @author DougRand
  */
 public class PSJTable extends JTable {
+  private static final long serialVersionUID = 1L;
 
   /** Default constructor; delegates to {@link javax.swing.JTable#JTable()}. */
   public PSJTable() {

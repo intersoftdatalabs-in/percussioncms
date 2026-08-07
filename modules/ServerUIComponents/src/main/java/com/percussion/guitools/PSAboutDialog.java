@@ -34,12 +34,12 @@ import javax.swing.*;
  * percussion website.
  */
 public class PSAboutDialog extends JDialog implements Serializable {
+  private static final long serialVersionUID = 1L;
+
   /** No-op default constructor. */
   public PSAboutDialog() {
     super();
   }
-
-  private static final long serialVersionUID = 1L;
 
   /**
    * Initialies the dialog with supplied parameters.
