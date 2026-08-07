@@ -53,9 +53,11 @@ public class PSResultSet implements ResultSet {
   /** Construct an empty result set. */
   public PSResultSet() {
     super();
-    m_data = new ArrayList[1];
-    m_data[0] = new ArrayList();
-    m_nameToIndexMap = new java.util.HashMap();
+    @SuppressWarnings("unchecked")
+    List<Object>[] empty = (List<Object>[]) new List<?>[1];
+    empty[0] = new ArrayList<>();
+    m_data = empty;
+    m_nameToIndexMap = new java.util.HashMap<>();
     m_isOpen = true;
   }
 
@@ -66,7 +68,8 @@ public class PSResultSet implements ResultSet {
   }
 
   /** Construct a result set with data */
-  public PSResultSet(List[] data, java.util.HashMap nameToIndexMap, PSResultSetMetaData meta) {
+  public PSResultSet(
+      List<?>[] data, java.util.HashMap<String, Integer> nameToIndexMap, PSResultSetMetaData meta) {
     setResultData(data, nameToIndexMap);
     m_isOpen = true;
     m_metaData = meta;
@@ -709,7 +712,7 @@ public class PSResultSet implements ResultSet {
    */
   public int findColumn(String columnName) throws java.sql.SQLException {
     try {
-      Integer i = (Integer) (m_nameToIndexMap.get(columnName));
+      Integer i = m_nameToIndexMap.get(columnName);
       if (i == null) throw new SQLException("No column named " + columnName);
       return i.intValue();
     } catch (Exception e) {
@@ -2010,12 +2013,15 @@ public class PSResultSet implements ResultSet {
    * <p>Note that SQL column numbers are 1-based, which means that to map the name "foo" to the List
    * in data[0], you should put an entry in the map which maps "foo" to Integer(1)
    */
-  void setResultData(List[] data, java.util.HashMap nameToIndexMap)
+  void setResultData(List<?>[] data, java.util.HashMap<String, Integer> nameToIndexMap)
       throws IllegalArgumentException {
     if (data == null) throw new IllegalArgumentException("result data == null");
     if (nameToIndexMap == null) throw new IllegalArgumentException("name to index map == null");
     m_numRows = data[0].size();
-    m_data = data;
+    // Column lists hold heterogeneous Object cells; store as List<Object> for mutators.
+    @SuppressWarnings("unchecked")
+    List<Object>[] asObjectLists = (List<Object>[]) data;
+    m_data = asObjectLists;
     m_rowIndex = -1;
     m_nameToIndexMap = nameToIndexMap;
   }
@@ -2031,7 +2037,7 @@ public class PSResultSet implements ResultSet {
    *     set remains unchanged.
    */
   void renameColumn(String oldName, String newName) throws SQLException {
-    Integer ord = (Integer) m_nameToIndexMap.remove(oldName);
+    Integer ord = m_nameToIndexMap.remove(oldName);
     if (ord == null) throw new SQLException("No column named " + oldName);
 
     // make sure we don't obliterate an existing column
@@ -2043,7 +2049,7 @@ public class PSResultSet implements ResultSet {
     m_nameToIndexMap.put(newName, ord);
   }
 
-  public Map getColumnNames() {
+  public Map<String, Integer> getColumnNames() {
     return Collections.unmodifiableMap(m_nameToIndexMap);
   }
 
@@ -2057,7 +2063,7 @@ public class PSResultSet implements ResultSet {
     if (isAfterLast()) throw new SQLException("row cursor is positioned after last row");
   }
 
-  public List getColumnData(int ordinal) throws SQLException {
+  public List<Object> getColumnData(int ordinal) throws SQLException {
     if (!m_isOpen) throw new SQLException("attempt to get data from a closed result set");
     if (ordinal > m_data.length)
       throw new SQLException(
@@ -2065,7 +2071,7 @@ public class PSResultSet implements ResultSet {
     return m_data[ordinal - 1];
   }
 
-  public List getColumnData(String name) throws SQLException {
+  public List<Object> getColumnData(String name) throws SQLException {
     int ord = findColumn(name);
     return getColumnData(ord);
   }
@@ -2073,10 +2079,11 @@ public class PSResultSet implements ResultSet {
   public void setMetaData(PSResultSetMetaData meta) throws SQLException {
     m_metaData = meta;
     int colCount = meta.getColumnCount();
-    List[] data = new List[colCount];
-    java.util.HashMap nameMap = new java.util.HashMap();
+    @SuppressWarnings("unchecked")
+    List<Object>[] data = (List<Object>[]) new List<?>[colCount];
+    java.util.HashMap<String, Integer> nameMap = new java.util.HashMap<>();
     for (int colNo = 1; colNo <= colCount; colNo++) {
-      data[colNo - 1] = new java.util.ArrayList();
+      data[colNo - 1] = new java.util.ArrayList<>();
       nameMap.put(meta.getColumnName(colNo), Integer.valueOf(colNo));
     }
 
@@ -2122,13 +2129,13 @@ public class PSResultSet implements ResultSet {
   private boolean m_isOpen;
 
   /** the column name to column number map */
-  private java.util.HashMap m_nameToIndexMap;
+  private java.util.HashMap<String, Integer> m_nameToIndexMap;
 
   /**
    * an array of Lists, one List for each column, one List element for each row. Each List will have
    * the same number of elements (equal to the number of rows in this result set)
    */
-  private List[] m_data;
+  private List<Object>[] m_data;
 
   /** the meta data for this result set */
   private PSResultSetMetaData m_metaData;

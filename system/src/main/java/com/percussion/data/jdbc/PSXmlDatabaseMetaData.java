@@ -1576,54 +1576,38 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
     // This comparator sorts first by type (file extension), then by
     // file name. We omit the schema from the sorting because it is always
     // null.
-    Comparator typeSchemNameComp =
-        new Comparator() {
-          public int compare(Object a, Object b) {
-            File fileA = (File) a;
-            File fileB = (File) b;
-            String nameA = fileA.getName();
-            String nameB = fileB.getName();
-            String typeA;
-            String typeB;
+    Comparator<File> typeSchemNameComp =
+        (fileA, fileB) -> {
+          String nameA = fileA.getName();
+          String nameB = fileB.getName();
+          String typeA;
+          String typeB;
 
-            int periodPos = nameA.lastIndexOf('.');
-            if (periodPos == (nameA.length() - 1) || -1 == periodPos) typeA = "";
-            else typeA = nameA.substring(periodPos + 1).toUpperCase();
+          int periodPos = nameA.lastIndexOf('.');
+          if (periodPos == (nameA.length() - 1) || -1 == periodPos) typeA = "";
+          else typeA = nameA.substring(periodPos + 1).toUpperCase();
 
-            periodPos = nameB.lastIndexOf('.');
-            if (periodPos == (nameB.length() - 1) || -1 == periodPos) typeB = "";
-            else typeB = nameB.substring(periodPos + 1).toUpperCase();
+          periodPos = nameB.lastIndexOf('.');
+          if (periodPos == (nameB.length() - 1) || -1 == periodPos) typeB = "";
+          else typeB = nameB.substring(periodPos + 1).toUpperCase();
 
-            int comp = typeA.compareTo(typeB);
-            if (0 == comp) {
-              comp = nameA.compareTo(nameB);
-            }
-            return comp;
+          int comp = typeA.compareTo(typeB);
+          if (0 == comp) {
+            comp = nameA.compareTo(nameB);
           }
-
-          public boolean equals(Object o) {
-            return false; // no other comparators like this exist
-          }
-
-          /**
-           * Generates code of the object. Overrides {@link Object#hashCode().
-           */
-          @Override
-          public int hashCode() {
-            throw new UnsupportedOperationException("Not Implemented");
-          }
+          return comp;
         };
 
     Arrays.sort(finalList, 0, finalList.length, typeSchemNameComp);
 
     // column 3: table names
-    ArrayList table_name = new ArrayList(finalList.length);
+    ArrayList<String> table_name = new ArrayList<>(finalList.length);
 
     // column 4: table types
-    ArrayList table_type = new ArrayList(finalList.length);
+    ArrayList<String> table_type = new ArrayList<>(finalList.length);
 
     // column 5: remarks
-    ArrayList remarks = new ArrayList(finalList.length);
+    ArrayList<String> remarks = new ArrayList<>(finalList.length);
 
     for (int i = 0; i < finalList.length; i++) {
       File f = finalList[i];
@@ -1655,12 +1639,12 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
     }
 
     // column 1: table catalogs
-    List table_cat = Collections.nCopies(table_name.size(), catalog);
+    List<String> table_cat = Collections.nCopies(table_name.size(), catalog);
 
     // column 2: table schema
-    List table_schem = Collections.nCopies(table_name.size(), null);
+    List<String> table_schem = Collections.nCopies(table_name.size(), (String) null);
 
-    java.util.HashMap columnNames = new java.util.HashMap();
+    java.util.HashMap<String, Integer> columnNames = new java.util.HashMap<>();
     columnNames.put("TABLE_CAT", Integer.valueOf(1));
     columnNames.put("TABLE_SCHEM", Integer.valueOf(2));
     columnNames.put("TABLE_NAME", Integer.valueOf(3));
@@ -1668,7 +1652,7 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
     columnNames.put("REMARKS", Integer.valueOf(5));
 
     return new PSResultSet(
-        new List[] {table_cat, table_schem, table_name, table_type, remarks},
+        new List<?>[] {table_cat, table_schem, table_name, table_type, remarks},
         columnNames,
         ms_getTablesRSMeta);
   }
@@ -1697,14 +1681,14 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
    * @exception SQLException if an error occurs
    */
   public java.sql.ResultSet getTableTypes() throws SQLException {
-    ArrayList table_type = new ArrayList(10);
+    ArrayList<String> table_type = new ArrayList<>(10);
     table_type.add("XML");
     table_type.add("HTML");
     table_type.add("XSL");
     table_type.add("DTD");
-    java.util.HashMap columnNames = new java.util.HashMap();
+    java.util.HashMap<String, Integer> columnNames = new java.util.HashMap<>();
     columnNames.put("TABLE_TYPE", Integer.valueOf(1));
-    return new PSResultSet(new List[] {table_type}, columnNames, ms_getTableTypesRSMeta);
+    return new PSResultSet(new List<?>[] {table_type}, columnNames, ms_getTableTypesRSMeta);
   }
 
   /**
@@ -1784,13 +1768,13 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
 
     try {
       // String => table name (initialize below)
-      List table_name = null;
+      List<String> table_name = null;
 
       // String => column name
-      List column_name = new ArrayList(10);
+      List<String> column_name = new ArrayList<>(10);
 
       // int => index of column in table (starting at 1)
-      List ordinal_position = new ArrayList(10);
+      List<Integer> ordinal_position = new ArrayList<>(10);
 
       final Integer zero = Integer.valueOf(0);
       int numRows = 0;
@@ -1806,7 +1790,7 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
       } else if (tableNamePattern.equals("PSXCookie")) {
         // TODO (v2): support cookie cataloging
         // for now, return empty list
-        table_name = new ArrayList(0);
+        table_name = new ArrayList<>(0);
         numRows = 0;
       } else if (tableNamePattern.toLowerCase().endsWith("dtd")) {
         File catalogDir = null;
@@ -1826,8 +1810,10 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
 
         PSDtdTree myTree = new PSDtdTree(new File(catalogDir, tableNamePattern).toURL());
 
-        column_name = myTree.getCatalog(null, null);
-        table_name = new ArrayList(column_name.size());
+        @SuppressWarnings("unchecked")
+        List<String> dtdCols = myTree.getCatalog(null, null);
+        column_name = dtdCols;
+        table_name = new ArrayList<>(column_name.size());
         for (int columnNumber = 0; columnNumber < column_name.size(); columnNumber++) {
           numRows++;
           table_name.add(tableNamePattern);
@@ -1866,41 +1852,45 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
 
         File[] matchingFiles = catalogDir.listFiles((FileFilter) filt);
 
-        table_name = new ArrayList(matchingFiles.length * 10);
+        table_name = new ArrayList<>(matchingFiles.length * 10);
 
         // now, for each matching file, parse it and get all of its columns
         for (int i = 0; i < matchingFiles.length; i++) {
-          List fields = getFields(matchingFiles[i]);
-          Iterator j = fields.iterator();
+          List<String> fields = getFields(matchingFiles[i]);
+          Iterator<String> j = fields.iterator();
           int ordinalPos = 0;
           String fileName = matchingFiles[i].getName();
           while (j.hasNext()) {
             ordinalPos++;
             numRows++;
             table_name.add(fileName);
-            column_name.add((String) j.next());
+            column_name.add(j.next());
             ordinal_position.add(Integer.valueOf(ordinalPos));
           }
         }
       }
 
-      List table_cat = Collections.nCopies(numRows, catalog);
-      List table_schem = Collections.nCopies(numRows, null);
-      List data_type = Collections.nCopies(numRows, Integer.valueOf(java.sql.Types.VARCHAR));
-      List type_name = Collections.nCopies(numRows, "java.lang.String");
-      List column_size = Collections.nCopies(numRows, Integer.valueOf(Integer.MAX_VALUE));
-      List buffer_length = Collections.nCopies(numRows, zero);
-      List decimal_digits = Collections.nCopies(numRows, zero);
-      List num_prec_radix = Collections.nCopies(numRows, zero);
-      List nullable = Collections.nCopies(numRows, Integer.valueOf(columnNoNulls));
-      List remarks = Collections.nCopies(numRows, null);
-      List column_def = Collections.nCopies(numRows, null);
-      List sql_data_type = Collections.nCopies(numRows, zero);
-      List sql_datetime_sub = Collections.nCopies(numRows, zero);
-      List char_octet_length = Collections.nCopies(numRows, Integer.valueOf(Integer.MAX_VALUE));
-      List is_nullable = Collections.nCopies(numRows, "");
+      List<String> table_cat = Collections.nCopies(numRows, catalog);
+      List<String> table_schem = Collections.nCopies(numRows, (String) null);
+      List<Integer> data_type =
+          Collections.nCopies(numRows, Integer.valueOf(java.sql.Types.VARCHAR));
+      List<String> type_name = Collections.nCopies(numRows, "java.lang.String");
+      List<Integer> column_size =
+          Collections.nCopies(numRows, Integer.valueOf(Integer.MAX_VALUE));
+      List<Integer> buffer_length = Collections.nCopies(numRows, zero);
+      List<Integer> decimal_digits = Collections.nCopies(numRows, zero);
+      List<Integer> num_prec_radix = Collections.nCopies(numRows, zero);
+      List<Integer> nullable =
+          Collections.nCopies(numRows, Integer.valueOf(columnNoNulls));
+      List<String> remarks = Collections.nCopies(numRows, (String) null);
+      List<String> column_def = Collections.nCopies(numRows, (String) null);
+      List<Integer> sql_data_type = Collections.nCopies(numRows, zero);
+      List<Integer> sql_datetime_sub = Collections.nCopies(numRows, zero);
+      List<Integer> char_octet_length =
+          Collections.nCopies(numRows, Integer.valueOf(Integer.MAX_VALUE));
+      List<String> is_nullable = Collections.nCopies(numRows, "");
 
-      HashMap columnNames = new HashMap(18);
+      HashMap<String, Integer> columnNames = new HashMap<>(18);
       columnNames.put("TABLE_CAT", Integer.valueOf(1));
       columnNames.put("TABLE_SCHEM", Integer.valueOf(2));
       columnNames.put("TABLE_NAME", Integer.valueOf(3));
@@ -1921,7 +1911,7 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
       columnNames.put("IS_NULLABLE", Integer.valueOf(18));
 
       return new PSResultSet(
-          new List[] {
+          new List<?>[] {
             table_cat,
             table_schem,
             table_name,
@@ -2631,8 +2621,8 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
    *     will not be added itself.
    * @deprecated Use getFields(File) instead.
    */
-  private static Map getFields(Element rootElement) {
-    Map fieldHash = new TreeMap();
+  private static Map<String, Boolean> getFields(Element rootElement) {
+    Map<String, Boolean> fieldHash = new TreeMap<>();
 
     String rootElementName = rootElement.getNodeName();
     if (null == fieldHash.get(rootElementName)) fieldHash.put(rootElementName, Boolean.TRUE);
@@ -2661,16 +2651,18 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
    * @return List A list of fields.
    * @throws SQLException
    */
-  private static List getFields(File xmlFile) throws SQLException {
+  private static List<String> getFields(File xmlFile) throws SQLException {
     // create a DTD tree from the DTD in the parser
-    List list = new ArrayList();
+    List<String> list = new ArrayList<>();
     try {
       PSDtdParser dtdParser = new PSDtdParser();
       dtdParser.parseXmlForDtd(xmlFile, true);
       PSDtd dtd = dtdParser.getDtd();
       if (dtd != null) {
         PSDtdTree dtdTree = new PSDtdTree(dtd);
-        list = dtdTree.getCatalog("/", "@");
+        @SuppressWarnings("unchecked")
+        List<String> catalog = dtdTree.getCatalog("/", "@");
+        list = catalog;
       }
     } catch (PSCatalogException e) {
       throw new SQLException("Error getting DTD: " + e.getMessage());
@@ -2695,7 +2687,8 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
    * @param fieldHash The hash to which fields will be added.
    * @deprecated You should call getFields(File)
    */
-  private static void getFields(Element rootElement, String path, Map fieldHash) {
+  private static void getFields(
+      Element rootElement, String path, Map<String, Boolean> fieldHash) {
     /* Go through each child c of the rootElement with this strategy:
      *
      * If c is an Element node, then add its path to the hash if not
@@ -2755,15 +2748,15 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
   /** Matches .xsl files */
   protected static final String ms_xslPattern = ".xsl";
 
-  protected static List ms_cgiVars;
-  protected static List ms_cgiVarsOrdinals;
+  protected static List<String> ms_cgiVars;
+  protected static List<Integer> ms_cgiVarsOrdinals;
 
   static {
-    Class serverVariables = IPSCgiVariables.class;
+    Class<?> serverVariables = IPSCgiVariables.class;
     Field[] serverVariableFields = serverVariables.getFields();
 
-    ms_cgiVars = new ArrayList(serverVariableFields.length);
-    ms_cgiVarsOrdinals = new ArrayList(serverVariableFields.length);
+    ms_cgiVars = new ArrayList<>(serverVariableFields.length);
+    ms_cgiVarsOrdinals = new ArrayList<>(serverVariableFields.length);
 
     try {
       int numRows = 0;
