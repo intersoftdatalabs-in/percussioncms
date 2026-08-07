@@ -25,7 +25,6 @@ import java.util.Set;
  *
  * @see PSSiteFolderCListBulk
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSiteFolderContentListBulkExit extends PSSiteFolderContentListBaseExit {
 
   /** Default constructor for PSSiteFolderContentListBulkExit. */
@@ -43,7 +42,7 @@ public class PSSiteFolderContentListBulkExit extends PSSiteFolderContentListBase
       String protocol,
       String host,
       String port,
-      Set paramSetToPass) {
+      Set<String> paramSetToPass) {
     return new PSSiteFolderCListBulk(
         request,
         isIncremental,

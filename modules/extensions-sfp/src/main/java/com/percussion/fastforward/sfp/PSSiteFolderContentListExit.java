@@ -26,7 +26,6 @@ import java.util.Set;
  *     PSSiteFolderContentListBulkExit} instead.
  */
 @Deprecated
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSiteFolderContentListExit extends PSSiteFolderContentListBaseExit {
 
   /** Default constructor for PSSiteFolderContentListExit. */
@@ -44,7 +43,7 @@ public class PSSiteFolderContentListExit extends PSSiteFolderContentListBaseExit
       String protocol,
       String host,
       String port,
-      Set paramSetToPass) {
+      Set<String> paramSetToPass) {
     return new PSSiteFolderContentList(
         request,
         isIncremental,

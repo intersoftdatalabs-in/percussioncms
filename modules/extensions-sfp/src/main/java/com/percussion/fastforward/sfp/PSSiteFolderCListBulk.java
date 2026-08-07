@@ -52,7 +52,6 @@ import java.util.Set;
  * <p>This class collects all items for a given sites, then send a (batch) SQL statement to the
  * database, let the database figuring out the published items.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
   /**
    * Constructs a site-folder-driven, full-publishing, public-items content list builder.
@@ -124,7 +123,7 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
       String protocol,
       String host,
       String port,
-      Set paramSetToPass) {
+      Set<String> paramSetToPass) {
     super(
         request,
         isIncremental,
@@ -255,21 +254,18 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
             PSRelationshipConfig.TYPE_FOLDER_CONTENT,
             folderLocator,
             PSRelationshipConfig.FILTER_TYPE_COMMUNITY);
-    Iterator itRelationships = rs.iterator();
-    PSRelationship rel;
+    Iterator<PSRelationship> itRelationships = rs.iterator();
     while (itRelationships.hasNext()) {
-      rel = (PSRelationship) itRelationships.next();
+      PSRelationship rel = itRelationships.next();
       int dependentId = rel.getDependent().getId();
       if (rel.getDependentObjectType() == PSCmsObject.TYPE_ITEM) {
         if (!bExclude) // collect the item
         {
           Integer depId = Integer.valueOf(dependentId);
           ParentFolder parentFolder = new ParentFolder(folderId, folderPath);
-          Set<ParentFolder> pFolderSet = null;
-          if (siteItems.get(depId) == null) {
+          Set<ParentFolder> pFolderSet = siteItems.get(depId);
+          if (pFolderSet == null) {
             pFolderSet = new HashSet<>();
-          } else {
-            pFolderSet = siteItems.get(depId);
           }
           pFolderSet.add(parentFolder);
           siteItems.put(depId, pFolderSet);
@@ -298,7 +294,8 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
    * @throws PSExtensionProcessingException if cannot find resource.
    * @throws PSCmsException if other error occurs.
    */
-  private void generateContentItems(String location_context, Map siteItems)
+  private void generateContentItems(
+      String location_context, Map<Integer, Set<ParentFolder>> siteItems)
       throws PSExtensionProcessingException, PSCmsException {
     // get the max number of ids that can be used in the IN clause
     // default to 500. MS SQL server seems perform better with 500.
@@ -311,14 +308,13 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
     // generate the content items by groups, each group contains up to
     // "maxIdLength" items.
     StringBuilder idBuffer = new StringBuilder();
-    Iterator ids = siteItems.keySet().iterator();
-    Integer id;
+    Iterator<Integer> ids = siteItems.keySet().iterator();
     int collected = 0;
 
     while (ids.hasNext()) {
       if (collected < maxIdLength) // collect the item
       {
-        id = (Integer) ids.next();
+        Integer id = ids.next();
         if (collected > 0) idBuffer.append(",");
         idBuffer.append(String.valueOf(id));
         collected++;
@@ -352,19 +348,15 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
     } catch (PSException e) {
       throw new PSCmsException(IPSServerErrors.EXCEPTION_NOT_CAUGHT, e.toString());
     }
-    Iterator entries = fixupItems.entrySet().iterator();
-    Map.Entry entry;
-    Integer contentid, revision;
-    PSContentListItem item;
-    while (entries.hasNext()) {
-      entry = (Map.Entry) entries.next();
-      contentid = (Integer) entry.getKey();
-      revision = (Integer) entry.getValue();
+    for (Map.Entry<Integer, Integer> entry : fixupItems.entrySet()) {
+      Integer contentid = entry.getKey();
+      Integer revision = entry.getValue();
       if (revision != null) {
-        Iterator itemIter = ((Set) m_quickEditCList.get(contentid)).iterator();
-        while (itemIter.hasNext()) {
-          item = (PSContentListItem) itemIter.next();
-          item.setLastPublicRevision(revision.toString());
+        Set<PSContentListItem> items = m_quickEditCList.get(contentid);
+        if (items != null) {
+          for (PSContentListItem item : items) {
+            item.setLastPublicRevision(revision.toString());
+          }
         }
       }
     }
@@ -385,7 +377,8 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
    * @throws PSExtensionProcessingException if cannot find resource.
    * @throws PSCmsException if other error occurs.
    */
-  private void generateContentItems(String location_context, String contentIds, Map siteItems)
+  private void generateContentItems(
+      String location_context, String contentIds, Map<Integer, Set<ParentFolder>> siteItems)
       throws PSExtensionProcessingException, PSCmsException {
     // set required parameters.
     // request parameters may eventually hold non-string values
@@ -438,9 +431,12 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
         else getLastPubRev4QEState = false;
 
         // create the content list item
-        Iterator pfIter = ((Set) siteItems.get(Integer.valueOf(contentId))).iterator();
-        while (pfIter.hasNext()) {
-          parentFolder = (ParentFolder) pfIter.next();
+        Set<ParentFolder> parentFolders = siteItems.get(Integer.valueOf(contentId));
+        if (parentFolders == null) {
+          continue;
+        }
+        for (ParentFolder pf : parentFolders) {
+          parentFolder = pf;
 
           item =
               new PSContentListItem(
@@ -467,11 +463,9 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
           m_contentList.addItem(item);
           // stateFlag is in lower case character
           if (getLastPubRev4QEState) {
-            Set<PSContentListItem> itemSet = null;
-            if (m_quickEditCList.get(Integer.valueOf(contentId)) == null) {
+            Set<PSContentListItem> itemSet = m_quickEditCList.get(Integer.valueOf(contentId));
+            if (itemSet == null) {
               itemSet = new HashSet<>();
-            } else {
-              itemSet = m_quickEditCList.get(Integer.valueOf(contentId));
             }
             itemSet.add(item);
             m_quickEditCList.put(Integer.valueOf(contentId), itemSet);

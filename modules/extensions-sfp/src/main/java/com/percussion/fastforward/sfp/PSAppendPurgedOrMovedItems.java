@@ -40,7 +40,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,7 +80,7 @@ import org.w3c.dom.NodeList;
  * case sensitive. The default value for this is "no". It assumes the DTD of the result document to
  * be <em>contentlist.dtd</em> and the content list being generated is for unpublishing.
  */
-@SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
+@SuppressWarnings("this-escape")
 public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
 
@@ -109,13 +108,11 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
       String strCaseSensitive = params[0].toString().trim();
       if (strCaseSensitive.equalsIgnoreCase("yes")) caseSensitive = true;
     }
-    List items = getSiteItems(request);
+    List<PageData> items = getSiteItems(request);
 
     // Collect all contentids into a set of strings
-    Set contentidSet = new HashSet();
-    Iterator iter = items.iterator();
-    while (iter.hasNext()) {
-      PageData data = (PageData) iter.next();
+    Set<String> contentidSet = new HashSet<>();
+    for (PageData data : items) {
       String contentid = data.getContentid("");
       if (contentid.length() != 0) contentidSet.add(contentid);
     }
@@ -123,15 +120,15 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     PSLocator siteRootLocator = getSiteRootLocator(request);
     PSServerFolderProcessor processor = PSServerFolderProcessor.getInstance();
     // Get contentids of all folders each items exists in.
-    Map cidFolderIdMap =
-        getParentFolderIdMap(request, (String[]) contentidSet.toArray(new String[0]));
+    Map<String, String[]> cidFolderIdMap =
+        getParentFolderIdMap(request, contentidSet.toArray(new String[0]));
     // it maps contentId (String) to its parent folder path set (Set), which
     // is a set of locations that suppose to publish to.
-    Map cidFolderPathsMap = new HashMap();
+    Map<String, Set<String>> cidFolderPathsMap = new HashMap<>();
     PSSiteFolderContentListLinkGenerator linkGenerator = new PSSiteFolderContentListLinkGenerator();
     int count = items.size();
     for (int i = count - 1; i >= 0; i--) {
-      PageData data = (PageData) items.get(i);
+      PageData data = items.get(i);
       String contentid = data.getContentid("");
       if (contentid.length() == 0) {
         items.remove(data);
@@ -139,9 +136,8 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
       }
       String revision = data.getRevision("");
       String variantid = data.getVariantid("");
-      String[] folderIds = (String[]) cidFolderIdMap.get(contentid);
-      Set pathSet = new HashSet(folderIds.length);
-      PSLocator locator;
+      String[] folderIds = cidFolderIdMap.get(contentid);
+      Set<String> pathSet = new HashSet<>(folderIds.length);
       /*
        * Generate pub locations for each parent folder of the item and store
        * in a set
@@ -180,10 +176,8 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
       }
     }
     // Collect all contentids left in the page list into a set of strings now
-    contentidSet = new HashSet();
-    iter = items.iterator();
-    while (iter.hasNext()) {
-      PageData data = (PageData) iter.next();
+    contentidSet = new HashSet<>();
+    for (PageData data : items) {
       String contentid = data.getContentid("");
       if (contentid.length() != 0) contentidSet.add(contentid);
     }
@@ -273,8 +267,8 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
   private void appendContentList(
       Document resultDoc,
       IPSRequestContext request,
-      Set contentidSet,
-      Map cidFolderPaths,
+      Set<String> contentidSet,
+      Map<String, Set<String>> cidFolderPaths,
       boolean caseSensitive)
       throws PSExtensionProcessingException {
     Document purgedOrMovedDoc = buildContentList(contentidSet, request);
@@ -287,7 +281,7 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     PSContentListItem citem;
     Element itemElem;
     String location;
-    Set folderPaths;
+    Set<String> folderPaths;
     String contentId;
     Element root = resultDoc.getDocumentElement();
     for (int i = 0; i < itemCount; i++) {
@@ -310,7 +304,7 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
       // previously. We are applying the same filtering as we did previously,
       // but this is to filter out the good (or suppose to published) entries
       // and keep the bad (purged or moved) entries.
-      folderPaths = (Set) cidFolderPaths.get(contentId);
+      folderPaths = cidFolderPaths.get(contentId);
       if (folderPaths != null && (!folderPaths.contains(location))) {
         root.appendChild(resultDoc.importNode(itemElem, true));
       }
@@ -332,15 +326,15 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
    * @throws PSExtensionProcessingException if the resource for the internal request is missing or
    *     any error while executing the request.
    */
-  private Document buildContentList(Set contentidSet, IPSRequestContext request)
+  private Document buildContentList(Set<String> contentidSet, IPSRequestContext request)
       throws PSExtensionProcessingException {
     String resource = "rx_Support_pub/buildUnpub_clist";
-    Map params = new HashMap();
+    Map<String, Object> params = new HashMap<>();
     params.put(
         IPSHtmlParameters.SYS_SITEID, request.getParameter(IPSHtmlParameters.SYS_SITEID, ""));
     params.put(
         IPSHtmlParameters.SYS_CONTEXT, request.getParameter(IPSHtmlParameters.SYS_CONTEXT, ""));
-    params.put(IPSHtmlParameters.SYS_CONTENTID, new ArrayList(contentidSet));
+    params.put(IPSHtmlParameters.SYS_CONTENTID, new ArrayList<>(contentidSet));
     IPSInternalRequest irq = request.getInternalRequest(resource, params, false);
     if (irq == null) {
       // Fatal error
@@ -371,7 +365,8 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
    * @throws PSExtensionProcessingException if internal requet to Rhythmyx resource fails for any
    *     reason.
    */
-  private List getSiteItems(IPSRequestContext request) throws PSExtensionProcessingException {
+  private List<PageData> getSiteItems(IPSRequestContext request)
+      throws PSExtensionProcessingException {
     String resource = "rx_Support_pub/siteitem_clist";
     IPSInternalRequest irq = request.getInternalRequest(resource);
     if (irq == null) {
@@ -380,7 +375,7 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
       throw new PSExtensionProcessingException(IPSCmsErrors.CMS_INTERNAL_REQUEST_ERROR, args);
     }
     ResultSet rs = null;
-    List items = new ArrayList();
+    List<PageData> items = new ArrayList<>();
     try {
       rs = irq.getResultSet();
 
@@ -427,9 +422,9 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
    * @throws PSExtensionProcessingException if the parent folder paths could not be obtained from
    *     server for any reason.
    */
-  private Map getParentFolderIdMap(IPSRequestContext request, String[] cids)
+  private Map<String, String[]> getParentFolderIdMap(IPSRequestContext request, String[] cids)
       throws PSExtensionProcessingException {
-    Map map = new HashMap();
+    Map<String, String[]> map = new HashMap<>();
 
     if (cids.length == 0) return map;
 
