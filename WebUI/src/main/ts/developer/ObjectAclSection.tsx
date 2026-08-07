@@ -37,6 +37,15 @@ import {
 } from "./defaultAclTemplate";
 import { DEV_MSG } from "./messages";
 import {
+  DESIGN_ACCESS_PERMISSIONS,
+  RUNTIME_ACCESS_PERMISSIONS,
+  hasRuntimeAccessPermission,
+  shouldShowRuntimeAccessColumns,
+  type AclDesignObjectKind,
+  type AclPermissionLayer,
+  visibleAclPermissionsForObject,
+} from "./objectAclPermissionModel";
+import {
   canRemoveAclEntry,
   createSpecialAclEntryTemplate,
   isDuplicateAclEntry,
@@ -182,15 +191,41 @@ function structureEqual(a: DraftEntry[], b: DraftEntry[]): boolean {
   return true;
 }
 
+/** i18n label for a known REST permission column (Workbench wording). */
+function permissionColumnLabel(perm: AclPermissionName): string {
+  switch (perm) {
+    case "READ":
+      return DEV_MSG.ACL_PERM_READ;
+    case "UPDATE":
+      return DEV_MSG.ACL_PERM_UPDATE;
+    case "DELETE":
+      return DEV_MSG.ACL_PERM_DELETE;
+    case "OWNER":
+      return DEV_MSG.ACL_PERM_OWNER;
+    case "RUNTIME_VISIBLE":
+      return DEV_MSG.ACL_PERM_RUNTIME_VISIBLE;
+    default:
+      return String(perm).replace(/_/g, " ");
+  }
+}
+
 /**
- * Object ACL viewer/editor for Developer detail panels (SE-04).
- * Toggle permissions, add/remove entries, save via PUT /acls/bulk.
+ * Object ACL viewer/editor for Developer detail panels (SE-04 / CD-19).
+ * Design vs runtime permission columns (Workbench parity), toggle permissions,
+ * add/remove entries, save via PUT /acls/bulk.
  */
 export function ObjectAclSection({
   objectGuid,
+  objectKind = null,
   testIdPrefix = "developer-acl",
 }: {
   objectGuid: string | null | undefined;
+  /**
+   * Design-object kind for runtime-visibility column gating (CD-19).
+   * Content types / templates / etc. show Runtime visibility; others hide it
+   * unless an entry already carries RUNTIME_VISIBLE.
+   */
+  objectKind?: AclDesignObjectKind | null;
   testIdPrefix?: string;
 }): React.ReactElement {
   const [acl, setAcl] = useState<ObjectAcl | null>(null);
@@ -272,6 +307,31 @@ export function ObjectAclSection({
     () => missingSpecialAclKinds(draftEntries),
     [draftEntries],
   );
+
+  /** Force-show runtime columns when any draft entry already has runtime bits. */
+  const forceShowRuntime = useMemo(() => {
+    for (const e of draftEntries) {
+      const chosen = selected[e.clientKey];
+      if (chosen && hasRuntimeAccessPermission(chosen)) return true;
+      if (hasRuntimeAccessPermission(asPermissions(e))) return true;
+    }
+    return false;
+  }, [draftEntries, selected]);
+
+  const showRuntimeColumns = shouldShowRuntimeAccessColumns(objectKind, {
+    forceShow: forceShowRuntime,
+  });
+
+  const visiblePermissions = useMemo(
+    () =>
+      visibleAclPermissionsForObject(objectKind, {
+        forceShowRuntime: forceShowRuntime,
+      }),
+    [objectKind, forceShowRuntime],
+  );
+
+  const designPerms = DESIGN_ACCESS_PERMISSIONS;
+  const runtimePerms = showRuntimeColumns ? RUNTIME_ACCESS_PERMISSIONS : [];
 
   function togglePerm(key: string, perm: AclPermissionName) {
     setSelected((prev) => {
@@ -651,6 +711,8 @@ export function ObjectAclSection({
             <div style={{ overflowX: "auto", marginTop: "8px" }}>
               <table
                 data-testid={`${testIdPrefix}-table`}
+                data-acl-show-runtime={showRuntimeColumns ? "true" : "false"}
+                data-acl-object-kind={objectKind ?? "unknown"}
                 style={{
                   width: "100%",
                   borderCollapse: "collapse",
@@ -658,18 +720,73 @@ export function ObjectAclSection({
                 }}
               >
                 <thead>
-                  <tr style={tableHeaderRow}>
-                    <th style={{ padding: "8px" }}>{DEV_MSG.ACL_COL_ENTRY}</th>
-                    <th style={{ padding: "8px" }}>{DEV_MSG.ACL_COL_TYPE}</th>
-                    {ACL_PERMISSIONS.map((p) => (
+                  {/* Layer group headers — Design access | Runtime visibility (CD-19) */}
+                  <tr
+                    style={tableHeaderRow}
+                    data-testid={`${testIdPrefix}-layer-headers`}
+                  >
+                    <th style={{ padding: "8px" }} rowSpan={2}>
+                      {DEV_MSG.ACL_COL_ENTRY}
+                    </th>
+                    <th style={{ padding: "8px" }} rowSpan={2}>
+                      {DEV_MSG.ACL_COL_TYPE}
+                    </th>
+                    <th
+                      colSpan={designPerms.length}
+                      style={{
+                        padding: "6px 8px",
+                        textAlign: "center",
+                        fontSize: "0.8rem",
+                        borderBottom: `1px solid ${catalogColors.softBorder}`,
+                        background: "rgba(0,0,0,0.02)",
+                      }}
+                      title={DEV_MSG.ACL_LAYER_DESIGN_HINT}
+                      data-testid={`${testIdPrefix}-layer-design`}
+                      data-acl-layer={"design" satisfies AclPermissionLayer}
+                    >
+                      {DEV_MSG.ACL_LAYER_DESIGN}
+                    </th>
+                    {showRuntimeColumns ? (
+                      <th
+                        colSpan={runtimePerms.length}
+                        style={{
+                          padding: "6px 8px",
+                          textAlign: "center",
+                          fontSize: "0.8rem",
+                          borderBottom: `1px solid ${catalogColors.softBorder}`,
+                          background: "rgba(0,0,0,0.02)",
+                        }}
+                        title={DEV_MSG.ACL_LAYER_RUNTIME_HINT}
+                        data-testid={`${testIdPrefix}-layer-runtime`}
+                        data-acl-layer={"runtime" satisfies AclPermissionLayer}
+                      >
+                        {DEV_MSG.ACL_LAYER_RUNTIME}
+                      </th>
+                    ) : null}
+                    <th style={{ padding: "8px" }} rowSpan={2}>
+                      {DEV_MSG.ACL_COL_ACTIONS}
+                    </th>
+                  </tr>
+                  <tr
+                    style={tableHeaderRow}
+                    data-testid={`${testIdPrefix}-perm-headers`}
+                  >
+                    {visiblePermissions.map((p) => (
                       <th
                         key={p}
-                        style={{ padding: "8px", textAlign: "center", fontSize: "0.8rem" }}
+                        style={{
+                          padding: "8px",
+                          textAlign: "center",
+                          fontSize: "0.8rem",
+                          fontWeight: 500,
+                        }}
+                        data-testid={`${testIdPrefix}-perm-header-${p}`}
+                        data-acl-permission={p}
+                        title={p}
                       >
-                        {p.replace("_", " ")}
+                        {permissionColumnLabel(p)}
                       </th>
                     ))}
-                    <th style={{ padding: "8px" }}>{DEV_MSG.ACL_COL_ACTIONS}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -707,7 +824,7 @@ export function ObjectAclSection({
                         >
                           {entryTypeLabel(e)}
                         </td>
-                        {ACL_PERMISSIONS.map((p) => (
+                        {visiblePermissions.map((p) => (
                           <td key={p} style={{ padding: "8px", textAlign: "center" }}>
                             <input
                               type="checkbox"
@@ -715,7 +832,7 @@ export function ObjectAclSection({
                               checked={chosen.has(p)}
                               disabled={busy}
                               onChange={() => togglePerm(key, p)}
-                              aria-label={`${p} for ${label}`}
+                              aria-label={`${permissionColumnLabel(p)} (${p}) for ${label}`}
                             />
                           </td>
                         ))}

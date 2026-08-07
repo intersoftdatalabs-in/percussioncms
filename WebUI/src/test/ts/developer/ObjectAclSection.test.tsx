@@ -80,7 +80,13 @@ describe("ObjectAclSection special Default / AnyCommunity UX", () => {
 
   it("labels Default as protected and hides remove; offers Add AnyCommunity when missing", async () => {
     getAclForObject.mockResolvedValue(aclWithDefaultOnly);
-    render(<ObjectAclSection objectGuid="0-2-301" testIdPrefix="t-acl" />);
+    render(
+      <ObjectAclSection
+        objectGuid="0-2-301"
+        objectKind="content-type"
+        testIdPrefix="t-acl"
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId("t-acl-table")).toBeTruthy();
@@ -102,9 +108,77 @@ describe("ObjectAclSection special Default / AnyCommunity UX", () => {
     expect(screen.queryByTestId("t-acl-add-default")).toBeNull();
   });
 
+  it("groups permission columns under Design access and Runtime visibility (CD-19)", async () => {
+    getAclForObject.mockResolvedValue(aclWithBothSpecials);
+    render(
+      <ObjectAclSection
+        objectGuid="0-2-301"
+        objectKind="content-type"
+        testIdPrefix="t-acl"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("t-acl-table")).toBeTruthy();
+    });
+
+    const table = screen.getByTestId("t-acl-table");
+    expect(table.getAttribute("data-acl-show-runtime")).toBe("true");
+    expect(table.getAttribute("data-acl-object-kind")).toBe("content-type");
+
+    expect(screen.getByTestId("t-acl-layer-headers")).toBeTruthy();
+    expect(screen.getByTestId("t-acl-layer-design").textContent).toMatch(/Design access/i);
+    expect(screen.getByTestId("t-acl-layer-runtime").textContent).toMatch(
+      /Runtime visibility/i,
+    );
+
+    // Design: Read, Update, Delete, Modify ACL; Runtime: Visible
+    expect(screen.getByTestId("t-acl-perm-header-READ").textContent).toMatch(/Read/i);
+    expect(screen.getByTestId("t-acl-perm-header-OWNER").textContent).toMatch(/Modify ACL/i);
+    expect(screen.getByTestId("t-acl-perm-header-RUNTIME_VISIBLE").textContent).toMatch(
+      /Visible/i,
+    );
+
+    // Runtime checkbox still toggles for AnyCommunity
+    const rt = screen.getByTestId("t-acl-perm-id:21-RUNTIME_VISIBLE") as HTMLInputElement;
+    expect(rt.checked).toBe(true);
+    fireEvent.click(rt);
+    expect(rt.checked).toBe(false);
+  });
+
+  it("hides Runtime visibility columns for non-runtime-relevant object kinds", async () => {
+    getAclForObject.mockResolvedValue(aclWithDefaultOnly);
+    render(
+      <ObjectAclSection
+        objectGuid="0-2-301"
+        objectKind="keyword"
+        testIdPrefix="t-acl"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("t-acl-table")).toBeTruthy();
+    });
+
+    expect(screen.getByTestId("t-acl-table").getAttribute("data-acl-show-runtime")).toBe(
+      "false",
+    );
+    expect(screen.getByTestId("t-acl-layer-design")).toBeTruthy();
+    expect(screen.queryByTestId("t-acl-layer-runtime")).toBeNull();
+    expect(screen.queryByTestId("t-acl-perm-header-RUNTIME_VISIBLE")).toBeNull();
+    expect(screen.getByTestId("t-acl-perm-header-READ")).toBeTruthy();
+    expect(screen.getByTestId("t-acl-perm-header-OWNER")).toBeTruthy();
+  });
+
   it("orders Default and AnyCommunity first and blocks remove on both", async () => {
     getAclForObject.mockResolvedValue(aclWithBothSpecials);
-    render(<ObjectAclSection objectGuid="0-2-301" testIdPrefix="t-acl" />);
+    render(
+      <ObjectAclSection
+        objectGuid="0-2-301"
+        objectKind="content-type"
+        testIdPrefix="t-acl"
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId("t-acl-table")).toBeTruthy();
@@ -125,7 +199,13 @@ describe("ObjectAclSection special Default / AnyCommunity UX", () => {
 
   it("adds missing AnyCommunity via special action with correct REST shape on save", async () => {
     getAclForObject.mockResolvedValue(aclWithDefaultOnly);
-    render(<ObjectAclSection objectGuid="0-2-301" testIdPrefix="t-acl" />);
+    render(
+      <ObjectAclSection
+        objectGuid="0-2-301"
+        objectKind="content-type"
+        testIdPrefix="t-acl"
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId("t-acl-add-any-community")).toBeTruthy();

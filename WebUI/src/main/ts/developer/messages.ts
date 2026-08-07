@@ -29,7 +29,8 @@ export const DEV_MSG_KEYS = {
   INTRO: "perc.ui.developer@Design-time tools for content types, assembly, and related CMS objects. Replaces the classic Workbench / Design surfaces.",
   SESSION_REDIRECT: "perc.ui.developer@Session expired - redirecting to login...",
   ACL_TITLE: "perc.ui.developer@Object ACL",
-  ACL_HINT: "perc.ui.developer@Design-time access control for this object. Toggle permissions, add or remove entries, then save (full entry list replace via bulk ACL API).",
+  ACL_HINT:
+    "perc.ui.developer@Design-time and runtime access control for this object. Toggle Design access (Read, Update, Delete, Modify ACL) and Runtime visibility where applicable, add or remove entries, then save (full entry list replace via bulk ACL API).",
   ACL_LOADING: "perc.ui.developer@Loading ACL...",
   ACL_ERROR: "perc.ui.developer@Could not load object ACL.",
   ACL_EMPTY: "perc.ui.developer@No ACL defined for this object.",
@@ -45,6 +46,17 @@ export const DEV_MSG_KEYS = {
   ACL_COL_TYPE: "perc.ui.developer@Type",
   ACL_COL_PERMS: "perc.ui.developer@Permissions",
   ACL_COL_ACTIONS: "perc.ui.developer@Actions",
+  ACL_LAYER_DESIGN: "perc.ui.developer@Design access",
+  ACL_LAYER_RUNTIME: "perc.ui.developer@Runtime visibility",
+  ACL_LAYER_DESIGN_HINT:
+    "perc.ui.developer@Design access controls who can read, update, delete, or modify the ACL for this design object in Workbench / Developer tools.",
+  ACL_LAYER_RUNTIME_HINT:
+    "perc.ui.developer@Runtime visibility (RUNTIME_VISIBLE) controls Content Explorer / community visibility for this object at runtime.",
+  ACL_PERM_READ: "perc.ui.developer@Read",
+  ACL_PERM_UPDATE: "perc.ui.developer@Update",
+  ACL_PERM_DELETE: "perc.ui.developer@Delete",
+  ACL_PERM_OWNER: "perc.ui.developer@Modify ACL",
+  ACL_PERM_RUNTIME_VISIBLE: "perc.ui.developer@Visible",
   ACL_ENTRY_ADD: "perc.ui.developer@Add entry",
   ACL_ENTRY_REMOVE: "perc.ui.developer@Remove",
   ACL_ENTRY_NAME: "perc.ui.developer@Principal name",

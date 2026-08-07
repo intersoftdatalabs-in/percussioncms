@@ -780,6 +780,7 @@ export function ContentTypeDetailPanel({
 
           <ObjectAclSection
             objectGuid={detail.guid?.stringValue}
+            objectKind="content-type"
             testIdPrefix="developer-ct-acl"
           />
 

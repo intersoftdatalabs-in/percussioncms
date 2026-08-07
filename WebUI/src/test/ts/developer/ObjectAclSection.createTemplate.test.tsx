@@ -141,8 +141,15 @@ describe("ObjectAclSection create + default template apply", () => {
         /template applied/i,
       );
     });
-    expect(screen.getByText("Default")).toBeTruthy();
-    expect(screen.getByText("AnyCommunity")).toBeTruthy();
+    // Specials render via DEV_MSG labels (i18n fallback includes key@English).
+    expect(screen.getByTestId("developer-acl-special-badge-default")).toBeTruthy();
+    expect(screen.getByTestId("developer-acl-special-badge-any-community")).toBeTruthy();
+    expect(screen.getByTestId("developer-acl-label-id:501").textContent).toMatch(
+      /Default/i,
+    );
+    expect(screen.getByTestId("developer-acl-label-id:502").textContent).toMatch(
+      /Any community/i,
+    );
   });
 
   it("still creates ACL when template load fails (best-effort)", async () => {
