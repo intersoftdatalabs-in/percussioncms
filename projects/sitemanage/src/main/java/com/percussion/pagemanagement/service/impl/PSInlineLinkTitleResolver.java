@@ -46,9 +46,27 @@ public final class PSInlineLinkTitleResolver {
 
   /**
    * Default title field name for pages when no control setting is configured ({@code
-   * resource_link_title} / page link title).
+   * resource_link_title} / page link title). Matches {@code PSPageDao} field mapping.
    */
   public static final String PAGE_DEFAULT_TITLE_FIELD = "resource_link_title";
+
+  /**
+   * Browser title field on page content type ({@code page_title}). Matches {@code PSPageDao}
+   * mapping of {@code PSPage#getTitle()}.
+   */
+  public static final String PAGE_TITLE_FIELD = "page_title";
+
+  /** System item name field ({@code sys_title}). Matches {@code PSPageDao} / item summary name. */
+  public static final String SYS_TITLE_FIELD = "sys_title";
+
+  /** Page description field name (DTO / content). */
+  public static final String PAGE_DESCRIPTION_FIELD = "page_description";
+
+  /** Page summary field name (DTO / content). */
+  public static final String PAGE_SUMMARY_FIELD = "page_summary";
+
+  /** Page author field name (DTO / content). */
+  public static final String PAGE_AUTHOR_FIELD = "page_authorname";
 
   private PSInlineLinkTitleResolver() {
     // utility
@@ -96,12 +114,19 @@ public final class PSInlineLinkTitleResolver {
     }
     Object raw = fields.get(fieldName);
     if (raw == null) {
-      // Case-insensitive key match for content-type field names that differ only by case
-      for (Map.Entry<String, ?> e : fields.entrySet()) {
-        if (e.getKey() != null && e.getKey().equalsIgnoreCase(fieldName)) {
-          raw = e.getValue();
-          break;
+      // Case-insensitive key match. Exact key preferred above. If multiple keys differ only by
+      // case (pathological HashMap content), pick the lexicographically first key so the result
+      // is deterministic regardless of HashMap iteration order.
+      String matchedKey = null;
+      for (String key : fields.keySet()) {
+        if (key != null && key.equalsIgnoreCase(fieldName)) {
+          if (matchedKey == null || key.compareTo(matchedKey) < 0) {
+            matchedKey = key;
+          }
         }
+      }
+      if (matchedKey != null) {
+        raw = fields.get(matchedKey);
       }
     }
     if (raw == null) {

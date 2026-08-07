@@ -368,23 +368,26 @@ public class PSRenderLinkService
     return renLink;
   }
 
-  /** REST: default preview link (page or asset). Optional {@code titleField} query param. */
+  /**
+   * REST: default preview link (page or asset). Optional {@code titleField} query param.
+   *
+   * <p>Exceptions surface as {@link WebApplicationException} from {@link
+   * #renderPreviewLink(String, String, String, String)} (no outer DataService* catch — those
+   * checked types no longer escape the 4-arg method).
+   */
   @GET
   @Path("/preview/{id}/default")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSInlineRenderLink restRenderPreviewLinkDefault(
       @PathParam(ID_PATH_PARAM) String targetId, @QueryParam("titleField") String titleField) {
-
-    try {
-      return renderPreviewLink(targetId, null, null, titleField);
-    } catch (DataServiceLoadException | DataServiceNotFoundException e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new WebApplicationException(e.getMessage());
-    }
+    return renderPreviewLink(targetId, null, null, titleField);
   }
 
-  /** REST: preview with resource definition id. Optional {@code titleField} query param. */
+  /**
+   * REST: preview with resource definition id. Optional {@code titleField} query param.
+   *
+   * <p>See {@link #restRenderPreviewLinkDefault} for exception handling notes.
+   */
   @GET
   @Path("/preview/{id}/{resourceDef}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -392,18 +395,15 @@ public class PSRenderLinkService
       @PathParam(ID_PATH_PARAM) String targetId,
       @PathParam("resourceDef") String resourceDefinitionId,
       @QueryParam("titleField") String titleField) {
-    try {
-      return renderPreviewLink(targetId, resourceDefinitionId, null, titleField);
-    } catch (DataServiceLoadException | DataServiceNotFoundException e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new WebApplicationException(e.getMessage());
-    }
+    return renderPreviewLink(targetId, resourceDefinitionId, null, titleField);
   }
 
   /**
    * REST + internal: preview with resource + thumbnail resource definition ids. Optional {@code
    * titleField} query param for title resolve (#2242).
+   *
+   * <p>All {@link PSDataServiceException} paths are converted to {@link WebApplicationException}.
+   * Checked DataService* types do not escape (dead outer catches on REST wrappers removed).
    */
   @GET
   @Path("/preview/{id}/{resourceDef}/{thumbResourceDef}")
@@ -412,8 +412,7 @@ public class PSRenderLinkService
       @PathParam(ID_PATH_PARAM) String targetId,
       @PathParam("resourceDef") String resourceDefinitionId,
       @PathParam("thumbResourceDef") String thumbResourceDefinitionId,
-      @QueryParam("titleField") String titleField)
-      throws DataServiceLoadException, DataServiceNotFoundException {
+      @QueryParam("titleField") String titleField) {
 
     try {
       IPSItemSummary itemSummary = resourceInstanceHelper.findResourceAsset(targetId);
@@ -439,8 +438,7 @@ public class PSRenderLinkService
    * Backward-compatible overload without title field (internal callers / BC).
    */
   public PSInlineRenderLink renderPreviewLink(
-      String targetId, String resourceDefinitionId, String thumbResourceDefinitionId)
-      throws DataServiceLoadException, DataServiceNotFoundException {
+      String targetId, String resourceDefinitionId, String thumbResourceDefinitionId) {
     return renderPreviewLink(targetId, resourceDefinitionId, thumbResourceDefinitionId, null);
   }
 
@@ -553,54 +551,65 @@ public class PSRenderLinkService
   /**
    * Resolves page inline link title: configured field → displaytitle → page link title (BC).
    *
+   * <p>Uses the page DTO field map first. Loads a partial asset only when the configured field is
+   * not already satisfied from the DTO (avoids a data-service round-trip for common configs like
+   * {@code page_title} / {@code resource_link_title}). Custom / shared fields such as {@code
+   * displaytitle} still trigger the partial load when needed.
+   *
    * @param page loaded page, never null
    * @param pageId page id for optional field load
    * @param titleField optional configured field name
    * @return never null (may be empty)
    */
-  private String resolvePageInlineLinkTitle(PSPage page, String pageId, String titleField) {
+  // package-private for unit tests (#2242 review)
+  String resolvePageInlineLinkTitle(PSPage page, String pageId, String titleField) {
     String typeDefault = page.getLinkTitle();
     if (StringUtils.isBlank(titleField)) {
       return StringUtils.defaultString(typeDefault);
     }
-    // Start with known DTO fields; overlay content fields so custom + displaytitle are visible.
     Map<String, Object> fields = buildPageTitleFieldMap(page);
-    try {
-      PSAsset partial = resourceInstanceHelper.loadPartialAsset(pageId);
-      if (partial != null && partial.getFields() != null) {
-        fields.putAll(partial.getFields());
+    // Skip partial load when DTO already has a non-blank value for the configured field.
+    if (StringUtils.isBlank(PSInlineLinkTitleResolver.fieldAsString(fields, titleField))) {
+      try {
+        PSAsset partial = resourceInstanceHelper.loadPartialAsset(pageId);
+        if (partial != null && partial.getFields() != null) {
+          fields.putAll(partial.getFields());
+        }
+      } catch (Exception e) {
+        log.debug(
+            "Could not load page fields for titleField={}: {}",
+            titleField,
+            PSExceptionUtils.getMessageForLog(e));
       }
-    } catch (Exception e) {
-      log.debug(
-          "Could not load page fields for titleField={}: {}",
-          titleField,
-          PSExceptionUtils.getMessageForLog(e));
     }
     return PSInlineLinkTitleResolver.resolve(titleField, fields, typeDefault);
   }
 
   /**
-   * Known page title-related fields from the page DTO (matches {@code PSPageDao} mapping). Used so
-   * common configs like {@code page_title} / {@code resource_link_title} do not require an extra
-   * content load. Shared {@code displaytitle} is not invented here — if absent, the resolver falls
-   * through to the page link-title type default.
+   * Known page title-related fields from the page DTO. Keys use {@link PSInlineLinkTitleResolver}
+   * constants and must stay aligned with {@code PSPageDao} field mapping ({@code page_title},
+   * {@code resource_link_title}, etc.). Shared {@code displaytitle} is not invented here — if
+   * absent, the resolver falls through to the page link-title type default.
    */
-  private static Map<String, Object> buildPageTitleFieldMap(PSPage page) {
+  // package-private for unit tests (#2242 review)
+  static Map<String, Object> buildPageTitleFieldMap(PSPage page) {
     Map<String, Object> fields = new HashMap<>();
-    fields.put("resource_link_title", page.getLinkTitle());
-    fields.put("page_title", page.getTitle());
-    fields.put("sys_title", page.getName());
-    fields.put("page_description", page.getDescription());
-    fields.put("page_summary", page.getSummary());
-    fields.put("page_authorname", page.getAuthor());
+    fields.put(PSInlineLinkTitleResolver.PAGE_DEFAULT_TITLE_FIELD, page.getLinkTitle());
+    fields.put(PSInlineLinkTitleResolver.PAGE_TITLE_FIELD, page.getTitle());
+    fields.put(PSInlineLinkTitleResolver.SYS_TITLE_FIELD, page.getName());
+    fields.put(PSInlineLinkTitleResolver.PAGE_DESCRIPTION_FIELD, page.getDescription());
+    fields.put(PSInlineLinkTitleResolver.PAGE_SUMMARY_FIELD, page.getSummary());
+    fields.put(PSInlineLinkTitleResolver.PAGE_AUTHOR_FIELD, page.getAuthor());
     return fields;
   }
 
   /**
    * Resolves asset/file/image inline link title: configured field → displaytitle → type default.
    */
-  private static String resolveAssetInlineLinkTitle(PSAsset asset, String titleField) {
-    Map<String, Object> fields = asset.getFields() != null ? asset.getFields() : Collections.emptyMap();
+  // package-private for unit tests (#2242 review)
+  static String resolveAssetInlineLinkTitle(PSAsset asset, String titleField) {
+    Map<String, Object> fields =
+        asset.getFields() != null ? asset.getFields() : Collections.emptyMap();
     String typeDefault =
         PSInlineLinkTitleResolver.fieldAsString(
             fields, PSInlineLinkTitleResolver.ASSET_DEFAULT_TITLE_FIELD);

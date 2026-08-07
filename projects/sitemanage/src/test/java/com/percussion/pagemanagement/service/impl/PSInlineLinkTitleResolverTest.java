@@ -160,4 +160,24 @@ class PSInlineLinkTitleResolverTest {
     fields.put("PageTitle", "Mixed Case Key");
     assertEquals("Mixed Case Key", PSInlineLinkTitleResolver.fieldAsString(fields, "pagetitle"));
   }
+
+  @Test
+  @DisplayName("fieldAsString prefers exact key over case-insensitive siblings")
+  void fieldAsString_exactKeyPreferred() {
+    Map<String, Object> fields = new HashMap<>();
+    fields.put("PageTitle", "Mixed");
+    fields.put("pagetitle", "Exact Lower");
+    assertEquals("Exact Lower", PSInlineLinkTitleResolver.fieldAsString(fields, "pagetitle"));
+  }
+
+  @Test
+  @DisplayName("fieldAsString case-conflict without exact key picks lexicographically first key")
+  void fieldAsString_caseConflict_deterministicLexFirst() {
+    Map<String, Object> fields = new HashMap<>();
+    // Pathological: two keys differ only by case; no exact "pagetitle" entry.
+    fields.put("PageTitle", "From Pascal");
+    fields.put("PAGETITLE", "From Upper");
+    // Lexicographically first among case-insensitive matches: "PAGETITLE" < "PageTitle"
+    assertEquals("From Upper", PSInlineLinkTitleResolver.fieldAsString(fields, "pagetitle"));
+  }
 }
