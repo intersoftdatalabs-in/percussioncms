@@ -29,7 +29,8 @@ import java.time.Duration;
  *   &lt;command&gt; [command-options]
  * </pre>
  *
- * <p>Commands: {@code clean-heap-dumps}, {@code clean-install-backups}, {@code clean-logs}.
+ * <p>Commands: {@code clean-heap-dumps}, {@code clean-install-backups}, {@code clean-logs},
+ * {@code clean-temp}.
  */
 public final class DoctorCli {
 
@@ -79,8 +80,10 @@ public final class DoctorCli {
               + CleanHeapDumpsCommand.COMMAND_NAME
               + ", "
               + CleanInstallBackupsCommand.COMMAND_NAME
+              + ", "
+              + CleanLogsCommand.COMMAND_NAME
               + ", or "
-              + CleanLogsCommand.COMMAND_NAME);
+              + CleanTempCommand.COMMAND_NAME);
       printHelp(err);
       return EXIT_USAGE;
     }
@@ -126,6 +129,11 @@ public final class DoctorCli {
         printReport(report, parsed.verbose, out);
         return report.getFailedCount() > 0 ? EXIT_ERROR : EXIT_OK;
       }
+      if (CleanTempCommand.COMMAND_NAME.equals(parsed.command)) {
+        CleanReport report = CleanTempCommand.execute(installRoot, parsed.dryRun);
+        printReport(report, parsed.verbose, out);
+        return report.getFailedCount() > 0 ? EXIT_ERROR : EXIT_OK;
+      }
       err.println("Error: unknown command: " + parsed.command);
       err.println(
           "Supported commands: "
@@ -133,7 +141,9 @@ public final class DoctorCli {
               + ", "
               + CleanInstallBackupsCommand.COMMAND_NAME
               + ", "
-              + CleanLogsCommand.COMMAND_NAME);
+              + CleanLogsCommand.COMMAND_NAME
+              + ", "
+              + CleanTempCommand.COMMAND_NAME);
       printHelp(err);
       return EXIT_USAGE;
     } catch (IllegalArgumentException e) {
@@ -209,7 +219,7 @@ public final class DoctorCli {
     stream.println();
     stream.println(
         "CMS Doctor — safe install-tree maintenance"
-            + " (clean-heap-dumps, clean-install-backups, clean-logs).");
+            + " (clean-heap-dumps, clean-install-backups, clean-logs, clean-temp).");
     stream.println();
     stream.println("Options:");
     stream.println("  --install-root <path>  CMS install root (default: current working directory)");
@@ -224,6 +234,8 @@ public final class DoctorCli {
             + " (*.bak, *.backup, AppServer_backup_*.zip)");
     stream.println(
         "  clean-logs             Remove aged logs under known Jetty/CMS/DTS log dirs");
+    stream.println(
+        "  clean-temp             Remove files under known install temp/work dirs");
     stream.println();
     stream.println("clean-logs options:");
     stream.println(
@@ -243,6 +255,9 @@ public final class DoctorCli {
         "  perc-doctor --install-root /opt/Percussion --dry-run -v clean-logs --older-than 7d");
     stream.println(
         "  perc-doctor --install-root C:\\Percussion -v clean-logs --older-than 14d");
+    stream.println(
+        "  perc-doctor --install-root /opt/Percussion --dry-run -v clean-temp");
+    stream.println("  perc-doctor --install-root C:\\Percussion -v clean-temp");
   }
 
   static void printReport(CleanReport report, boolean verbose, PrintStream out) {

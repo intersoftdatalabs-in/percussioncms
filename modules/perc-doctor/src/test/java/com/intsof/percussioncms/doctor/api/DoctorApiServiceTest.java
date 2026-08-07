@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.intsof.percussioncms.doctor.CleanHeapDumpsCommand;
 import com.intsof.percussioncms.doctor.CleanReport;
+import com.intsof.percussioncms.doctor.CleanTempCommand;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -131,5 +132,37 @@ class DoctorApiServiceTest {
     assertThrows(
         DoctorUnknownCommandException.class,
         () -> service.execute("not-a-real-command", new DoctorRequest()));
+  }
+
+  @Test
+  void cleanTempDryRunDefaultDoesNotDelete() throws Exception {
+    Path cmsTemp = Files.createDirectories(installRoot.resolve("temp"));
+    Path junk = cmsTemp.resolve("api-scratch.tmp");
+    Files.writeString(junk, "tmp");
+
+    DoctorReportView view = service.execute(CleanTempCommand.COMMAND_NAME, null);
+
+    assertTrue(view.isDryRun());
+    assertEquals(1, view.getCandidateCount());
+    assertEquals(0, view.getDeletedCount());
+    assertEquals(CleanReport.EntryStatus.WOULD_DELETE.name(), view.getEntries().get(0).getStatus());
+    assertTrue(Files.exists(junk), "dry-run must not delete temp files");
+    assertTrue(Files.isDirectory(cmsTemp));
+  }
+
+  @Test
+  void cleanTempApplyDeletesUnderAllowlistedDirs() throws Exception {
+    Path cmsTemp = Files.createDirectories(installRoot.resolve("temp"));
+    Path junk = cmsTemp.resolve("api-apply.tmp");
+    Files.writeString(junk, "tmp");
+
+    DoctorRequest req = new DoctorRequest();
+    req.setDryRun(false);
+    DoctorReportView view = service.execute(CleanTempCommand.COMMAND_NAME, req);
+
+    assertFalse(view.isDryRun());
+    assertEquals(1, view.getDeletedCount());
+    assertFalse(Files.exists(junk));
+    assertTrue(Files.isDirectory(cmsTemp));
   }
 }

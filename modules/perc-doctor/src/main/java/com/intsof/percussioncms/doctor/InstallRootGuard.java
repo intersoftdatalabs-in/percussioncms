@@ -198,6 +198,27 @@ public final class InstallRootGuard {
   };
 
   /**
+   * Relative install temp / work directory roots for {@code clean-temp}. Documented in the module
+   * README and operator guide.
+   *
+   * <ul>
+   *   <li>{@code temp} — CMS install temp ({@code install.xml} {@code mkdir ${install.dir}/temp})
+   *   <li>{@code jetty/base/work} — Jetty work directory (assembly / install layout)
+   *   <li>{@code Deployment/Server/temp} — DTS Tomcat {@code catalina.base}/temp
+   *   <li>{@code Deployment/Server/work} — DTS Tomcat {@code catalina.base}/work
+   * </ul>
+   *
+   * <p>Missing directories are skipped at walk time (not an error). Only contents under these
+   * roots are candidates; the allowlisted root directories themselves are never removed.
+   */
+  public static final String[] TEMP_DIR_RELATIVE = {
+    "temp",
+    "jetty/base/work",
+    "Deployment/Server/temp",
+    "Deployment/Server/work"
+  };
+
+  /**
    * Resolve allowlisted log directory roots that exist under {@code installRoot}. Only existing
    * directories that stay under the install root are returned.
    *
@@ -205,10 +226,33 @@ public final class InstallRootGuard {
    * @return list of existing log dir paths under the root (may be empty)
    */
   public static java.util.List<Path> existingLogDirs(Path installRoot) {
+    return existingAllowlistedDirs(installRoot, LOG_DIR_RELATIVE);
+  }
+
+  /**
+   * Resolve allowlisted temp / work directory roots that exist under {@code installRoot}. Only
+   * existing directories that stay under the install root are returned.
+   *
+   * @param installRoot resolved install root
+   * @return list of existing temp/work dir paths under the root (may be empty)
+   */
+  public static java.util.List<Path> existingTempDirs(Path installRoot) {
+    return existingAllowlistedDirs(installRoot, TEMP_DIR_RELATIVE);
+  }
+
+  /**
+   * Resolve relative directory roots that exist under {@code installRoot} and remain contained.
+   *
+   * @param installRoot resolved install root
+   * @param relativeRoots forward-slash relative paths under the install root
+   * @return list of existing directory paths under the root (may be empty)
+   */
+  static java.util.List<Path> existingAllowlistedDirs(Path installRoot, String[] relativeRoots) {
     Objects.requireNonNull(installRoot, "installRoot");
+    Objects.requireNonNull(relativeRoots, "relativeRoots");
     Path root = installRoot.toAbsolutePath().normalize();
     java.util.List<Path> dirs = new java.util.ArrayList<>();
-    for (String relative : LOG_DIR_RELATIVE) {
+    for (String relative : relativeRoots) {
       Path dir = resolveRelativeUnderRoot(root, relative);
       if (dir == null) {
         continue;

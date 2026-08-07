@@ -20,6 +20,7 @@ import com.intsof.percussioncms.doctor.CleanHeapDumpsCommand;
 import com.intsof.percussioncms.doctor.CleanInstallBackupsCommand;
 import com.intsof.percussioncms.doctor.CleanLogsCommand;
 import com.intsof.percussioncms.doctor.CleanReport;
+import com.intsof.percussioncms.doctor.CleanTempCommand;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -29,7 +30,7 @@ import java.util.Objects;
 /**
  * Executes doctor clean commands for the HTTP API. Reuses the same command implementations as the
  * CLI ({@link CleanHeapDumpsCommand}, {@link CleanInstallBackupsCommand}, {@link
- * CleanLogsCommand}).
+ * CleanLogsCommand}, {@link CleanTempCommand}).
  *
  * <p>Authorization is enforced by the caller ({@link DoctorRestService}); this class only runs
  * commands.
@@ -80,6 +81,8 @@ public final class DoctorApiService {
       CleanLogsCommand.Options options =
           new CleanLogsCommand.Options(olderThan, body.isEffectiveKeepCurrent());
       report = CleanLogsCommand.execute(installRoot, dryRun, options);
+    } else if (CleanTempCommand.COMMAND_NAME.equals(cmd)) {
+      report = CleanTempCommand.execute(installRoot, dryRun);
     } else {
       throw new DoctorUnknownCommandException(cmd);
     }

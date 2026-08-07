@@ -288,4 +288,56 @@ class DoctorCliTest {
     assertTrue(Files.exists(dump));
     assertTrue(outBuf.toString(StandardCharsets.UTF_8).contains("candidates=1"));
   }
+
+  @Test
+  void cleanTempDryRunViaCliDoesNotDelete() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("install-temp"));
+    Path cmsTemp = Files.createDirectories(root.resolve("temp"));
+    Path junk = cmsTemp.resolve("scratch.tmp");
+    Files.writeString(junk, "temp-data");
+
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {
+              "--install-root", root.toString(), "--dry-run", "-v", "clean-temp"
+            },
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+
+    assertEquals(DoctorCli.EXIT_OK, code);
+    assertTrue(Files.exists(junk));
+    assertTrue(Files.isDirectory(cmsTemp));
+    String out = outBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(out.contains("command=clean-temp"));
+    assertTrue(out.contains("dry-run=true"));
+    assertTrue(out.contains("candidates=1"));
+    assertTrue(out.contains("WOULD_DELETE"));
+  }
+
+  @Test
+  void cleanTempApplyViaCliDeletesUnderAllowlistedTempDirs() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("install-temp-apply"));
+    Path cmsTemp = Files.createDirectories(root.resolve("temp"));
+    Path junk = cmsTemp.resolve("scratch.tmp");
+    Path keep = root.resolve("important.cfg");
+    Files.writeString(junk, "temp-data");
+    Files.writeString(keep, "keep");
+
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {"--install-root", root.toString(), "clean-temp"},
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+
+    assertEquals(DoctorCli.EXIT_OK, code);
+    assertFalse(Files.exists(junk));
+    assertTrue(Files.exists(keep));
+    assertTrue(Files.isDirectory(cmsTemp), "temp root retained");
+    String out = outBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(out.contains("deleted=1"));
+  }
 }
