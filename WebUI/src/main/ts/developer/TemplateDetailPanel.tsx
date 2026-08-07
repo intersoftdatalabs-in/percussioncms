@@ -722,6 +722,7 @@ export function TemplateDetailPanel({
 
           <ObjectAclSection
             objectGuid={detail.guid?.stringValue}
+            objectKind="template"
             testIdPrefix="developer-tpl-acl"
           />
 
