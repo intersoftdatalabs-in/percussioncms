@@ -421,7 +421,7 @@ public class PSMetadataDao implements IPSMetadataDao {
     Object value = metadataProperty.getValue();
     switch (metadataProperty.getValuetype()) {
       case DATE:
-        copiedProperty.setDatevalue((java.util.Date) value);
+        copiedProperty.setDatevalue(PSDbMetadataProperty.toLocalDateTime(value));
         break;
       case NUMBER:
         copiedProperty.setNumbervalue(toDouble(value));

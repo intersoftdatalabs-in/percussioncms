@@ -24,11 +24,10 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -138,13 +137,11 @@ public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
   public List<String> getTopVisitedPages(
       String sectionPath, int days, int limit, String sortOrder) {
     Session session = getSession();
-    Calendar cal = Calendar.getInstance();
     /*
      *  if -1, means we are looking for events from all time.
-     *  we just keep current time and filter below current time.
+     *  we just keep current date and filter on or before current date.
      */
-    if (days != -1) cal.add(Calendar.DAY_OF_YEAR, -days);
-    Date fromDate = cal.getTime();
+    LocalDate fromDate = days != -1 ? LocalDate.now().minusDays(days) : LocalDate.now();
 
     CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
     CriteriaQuery<String> criteriaQuery = criteriaBuilder.createQuery(String.class);
@@ -200,7 +197,7 @@ public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
    * @return the matching visit, or {@code null} if none was found.
    */
   @Transactional(isolation = Isolation.READ_UNCOMMITTED, readOnly = true)
-  public PSDbBlogPostVisit findBlogPostVisitByDate(String pagepath, Date date) {
+  public PSDbBlogPostVisit findBlogPostVisitByDate(String pagepath, LocalDate date) {
     Validate.notEmpty(pagepath, "pagepath cannot be null nor empty");
 
     Session session = getSession();

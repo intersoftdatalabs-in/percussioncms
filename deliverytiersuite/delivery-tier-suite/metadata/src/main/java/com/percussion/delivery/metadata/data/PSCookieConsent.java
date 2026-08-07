@@ -18,8 +18,7 @@
 package com.percussion.delivery.metadata.data;
 
 import com.percussion.delivery.metadata.IPSCookieConsent;
-import java.util.Date;
-import java.util.Optional;
+import java.time.Instant;
 
 /**
  * Provides model for cookie consent entries. Statistics include:
@@ -40,7 +39,7 @@ public class PSCookieConsent implements IPSCookieConsent {
   private String ip;
   private String serviceName;
   private boolean optIn;
-  private Date consentDate;
+  private Instant consentDate;
 
   /** No-arg constructor required by the JSON binding layer. */
   public PSCookieConsent() {}
@@ -50,12 +49,12 @@ public class PSCookieConsent implements IPSCookieConsent {
    *
    * @param siteName the site the consent was captured for; may not be {@code null}.
    * @param serviceName the service / cookie name the consent applies to; may not be {@code null}.
-   * @param consentDate the date the consent was captured; may not be {@code null}.
+   * @param consentDate the instant the consent was captured; may not be {@code null}.
    * @param ip the originating client IP; may not be {@code null}.
    * @param optIn {@code true} if the client opted in, {@code false} otherwise.
    */
   public PSCookieConsent(
-      String siteName, String serviceName, Date consentDate, String ip, boolean optIn) {
+      String siteName, String serviceName, Instant consentDate, String ip, boolean optIn) {
 
     if (siteName == null) throw new IllegalArgumentException("siteName may not be null");
     if (serviceName == null) throw new IllegalArgumentException("serviceName may not be null");
@@ -63,10 +62,10 @@ public class PSCookieConsent implements IPSCookieConsent {
     if (ip == null) throw new IllegalArgumentException("ip may not be null");
 
     // Direct field assignment avoids this-escape from overridable setters (subclassed by
-    // PSCookieConsentQuery).
+    // PSCookieConsentQuery). Instant is immutable so no defensive copy is required.
     this.siteName = siteName;
     this.serviceName = serviceName;
-    this.consentDate = new Date(consentDate.getTime());
+    this.consentDate = consentDate;
     this.ip = ip;
     this.optIn = optIn;
   }
@@ -92,14 +91,13 @@ public class PSCookieConsent implements IPSCookieConsent {
   }
 
   @Override
-  public void setConsentDate(Date consentDate) {
-    this.consentDate =
-        Optional.ofNullable(consentDate).map(Date::getTime).map(Date::new).orElse(null);
+  public void setConsentDate(Instant consentDate) {
+    this.consentDate = consentDate;
   }
 
   @Override
-  public Date getConsentDate() {
-    return Optional.ofNullable(consentDate).map(Date::getTime).map(Date::new).orElse(null);
+  public Instant getConsentDate() {
+    return consentDate;
   }
 
   @Override

@@ -18,7 +18,7 @@
 package com.percussion.delivery.metadata;
 
 import java.math.BigInteger;
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * Represents a single recorded visit to a blog post on a published site, capturing the page path,
@@ -41,18 +41,18 @@ public interface IPSBlogPostVisit {
   public void setHitCount(BigInteger count);
 
   /**
-   * Returns the date of the most recent hit on the blog post.
+   * Returns the calendar date of the most recent hit on the blog post.
    *
    * @return the hit date, may be {@code null} if never hit.
    */
-  public Date getHitDate();
+  public LocalDate getHitDate();
 
   /**
-   * Sets the date of the most recent hit on the blog post.
+   * Sets the calendar date of the most recent hit on the blog post.
    *
    * @param date the hit date to store; may be {@code null}.
    */
-  public void setHitDate(Date date);
+  public void setHitDate(LocalDate date);
 
   /**
    * Returns the published site-relative page path of the blog post that was visited.

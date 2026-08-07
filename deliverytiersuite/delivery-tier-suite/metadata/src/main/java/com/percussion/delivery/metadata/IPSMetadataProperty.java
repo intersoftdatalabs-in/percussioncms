@@ -17,7 +17,7 @@
 
 package com.percussion.delivery.metadata;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * A typed value attached to an {@link IPSMetadataEntry}. Each property carries the name of the
@@ -56,11 +56,11 @@ public interface IPSMetadataProperty {
   public Object getValue();
 
   /**
-   * Returns the property as a {@link Date} when the declared value type is {@code DATE}.
+   * Returns the property as a {@link LocalDateTime} when the declared value type is {@code DATE}.
    *
    * @return the date value, may be <code>null</code>.
    */
-  public Date getDatevalue();
+  public LocalDateTime getDatevalue();
 
   /**
    * Returns the property as a {@link Double} when the declared value type is {@code NUMBER}.
@@ -81,7 +81,7 @@ public interface IPSMetadataProperty {
    *
    * @param val the date value to set; may be <code>null</code>.
    */
-  public void setDatevalue(Date val);
+  public void setDatevalue(LocalDateTime val);
 
   /**
    * Sets the numeric value of this property.

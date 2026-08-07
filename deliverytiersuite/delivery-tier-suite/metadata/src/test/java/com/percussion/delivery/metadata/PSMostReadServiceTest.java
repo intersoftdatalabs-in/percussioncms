@@ -27,7 +27,7 @@ import com.percussion.security.error.PSExceptionUtils;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
+
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -234,7 +234,7 @@ public class PSMostReadServiceTest {
     PSDbBlogPostVisit bpv = null;
 
     try {
-      bpv = new PSDbBlogPostVisit(null, new Date(), BigInteger.ONE);
+      bpv = new PSDbBlogPostVisit(null, java.time.LocalDate.now(), BigInteger.ONE);
     } catch (IllegalArgumentException illegalArgumentException) {
       assertEquals("pagepath cannot be null or empty", illegalArgumentException.getMessage());
     }
@@ -246,14 +246,14 @@ public class PSMostReadServiceTest {
     }
 
     try {
-      bpv = new PSDbBlogPostVisit("test", new Date(), null);
+      bpv = new PSDbBlogPostVisit("test", java.time.LocalDate.now(), null);
     } catch (IllegalArgumentException illegalArgumentException) {
       assertEquals("hitCount cannot be null", illegalArgumentException.getMessage());
     }
 
-    bpv = new PSDbBlogPostVisit("test", new Date(), BigInteger.ONE);
+    bpv = new PSDbBlogPostVisit("test", java.time.LocalDate.now(), BigInteger.ONE);
     assertEquals("test", bpv.getPagepath(), "should equal test");
-    assertTrue(bpv.getHitDate().getTime() <= System.currentTimeMillis());
+    assertTrue(!bpv.getHitDate().isAfter(java.time.LocalDate.now()));
   }
 
   /**
