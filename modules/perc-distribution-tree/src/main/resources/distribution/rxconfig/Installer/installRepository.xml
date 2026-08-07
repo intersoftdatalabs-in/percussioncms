@@ -202,7 +202,7 @@
 
 		<!-- Optional sample sites (Corporate Investments / Enterprise Investments).
 			Driven by the Java preinstall's demo-sites flag, propagated to ANT as -Dinstall.demo.sites=true
-			from Phase-1 options (wizard Yes / --demo-sites) via Main.execJar (#2192).
+			from Phase-1 options (wizard Yes / demo-sites CLI flag) via Main.execJar (#2192).
 			When true on new installs and upgrades: antcall installSampleSites chains an
 			RxffTableData/RxffTableDef PSTableAction pass that seeds the two sample sites plus
 			their ACLs, content types, nav, etc. RXLOCALE / RXLOCALEFORMAT are protected by
