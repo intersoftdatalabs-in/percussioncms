@@ -338,6 +338,7 @@
     ITEM_GETDATES: SERVICES.ITEMMGT + "/item/getitemdates",
     ITEM_LAST_COMMENT: SERVICES.ITEMMGT + "/item/lastComment",
     ASSET_SITE_IMPACT: SERVICES.ITEMMGT + "/item/siteimpact/asset",
+    PAGE_SITE_IMPACT: SERVICES.ITEMMGT + "/item/siteimpact/page",
     ADD_TO_MYPAGES: SERVICES.ITEMMGT + "/item/addtomypages",
     REMOVE_FROM_MYPAGES: SERVICES.ITEMMGT + "/item/removefrommypages",
     IS_MY_PAGE: SERVICES.ITEMMGT + "/item/ismypage",

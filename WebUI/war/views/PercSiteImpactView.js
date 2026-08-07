@@ -36,7 +36,7 @@
         var dialog;
         var rootElem = rootElement;
         //Makes a service call and gets the site impact data, passes the _renderResults as the callback
-        $.PercSiteImpactService.getSiteImpactDetails(itemId, _renderResults);
+        $.PercSiteImpactService.getSiteImpactDetails(itemId, itemType, _renderResults);
         /**
          * Creates the dialog and sets the field values from the supplied result.data object.
          * On dialog open calls the addRevisionRows to add the revision rows.

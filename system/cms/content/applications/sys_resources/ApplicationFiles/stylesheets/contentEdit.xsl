@@ -168,14 +168,26 @@
 			</div>
 		</div>
 		<div id="perc-content-edit-metadata-sep"/>
+		<!-- Page editors expose page_title; assets do not. Labels differ for page vs asset site impact. -->
+		<xsl:variable name="isPageEditor" select="boolean(//Control[@paramName='page_title'])"/>
 		<div id="perc-site-impact-panel" style = "display:none">
 			<div id="perc-content-edit-site-link" class = "perc-spacer">
 				<span id="perc-content-edit-site-icon" />Site Impact</div>
 			<div class="perc-content-edit-data">
-				<span class = "font_normal_07em_black">Pages using this asset</span>
+				<span class="font_normal_07em_black perc-site-impact-pages-label">
+					<xsl:choose>
+						<xsl:when test="$isPageEditor">Pages linking to this page</xsl:when>
+						<xsl:otherwise>Pages using this asset</xsl:otherwise>
+					</xsl:choose>
+				</span>
 				<div class = "perc-site-impact-pages">
 				</div>
-				<span class = "font_normal_07em_black">Templates using this asset</span>
+				<span class="font_normal_07em_black perc-site-impact-templates-label">
+					<xsl:choose>
+						<xsl:when test="$isPageEditor">Templates linking to this page</xsl:when>
+						<xsl:otherwise>Templates using this asset</xsl:otherwise>
+					</xsl:choose>
+				</span>
 				<div class = "perc-site-impact-templates">
 				</div>
 			</div>
