@@ -886,11 +886,11 @@ public class PSContentEditorHandler
     int defaultWfId = ce.getWorkflowId();
     PSWorkflowInfo wfInfo = ce.getWorkflowInfo();
     if (wfInfo != null) {
-      Iterator ids = wfInfo.getValues();
+      Iterator<Integer> ids = wfInfo.getValues();
       if (wfInfo.isExclusionary()) {
         // make sure the default IS NOT in the excluded list
         while (ids.hasNext()) {
-          int id = ((Integer) ids.next()).intValue();
+          int id = ids.next().intValue();
           if (id == defaultWfId)
             throw new PSSystemValidationException(
                 IPSServerErrors.CE_DEFAULT_WF_EXCLUDED, Integer.toString(id));

@@ -301,9 +301,9 @@ public class PSContentTypeHelper {
       PSWorkflowInfo wfInfo = ce.getWorkflowInfo();
       if (wfInfo != null) {
         IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-        Iterator iter = wfInfo.getValues();
+        Iterator<Integer> iter = wfInfo.getValues();
         while (iter.hasNext()) {
-          wfids.add(gmgr.makeGuid(((Integer) iter.next()).toString(), PSTypeEnum.WORKFLOW));
+          wfids.add(gmgr.makeGuid(iter.next().toString(), PSTypeEnum.WORKFLOW));
         }
       }
       mergeWorkflowIds(nodeDef, wfids);

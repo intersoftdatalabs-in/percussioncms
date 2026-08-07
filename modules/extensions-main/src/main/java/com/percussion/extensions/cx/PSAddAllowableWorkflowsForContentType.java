@@ -255,12 +255,12 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
     }
     if (wfinfo.isExclusionary()) {
       allowedWorkflows.addAll(allWorkflows);
-      Iterator<?> iter = wfinfo.getValues();
+      Iterator<Integer> iter = wfinfo.getValues();
       while (iter.hasNext()) {
         allowedWorkflows.remove(iter.next().toString());
       }
     } else {
-      Iterator<?> iter = wfinfo.getValues();
+      Iterator<Integer> iter = wfinfo.getValues();
       while (iter.hasNext()) {
         String wfId = iter.next().toString();
         if (allWorkflows.contains(wfId)) allowedWorkflows.add(wfId);

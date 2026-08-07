@@ -150,7 +150,7 @@ public class PSUpgradePluginCreateCtWfAssociations extends PSSpringUpgradePlugin
    * @param wfs iterator of Integer objects of workflows. Assumed not <code>null</code>.
    * @throws Exception
    */
-  private void createCtWfAssociations(long id, Iterator wfs) {
+  private void createCtWfAssociations(long id, Iterator<Integer> wfs) {
     Connection conn = null;
     try {
       conn = RxUpgrade.getJdbcConnection();
@@ -167,7 +167,7 @@ public class PSUpgradePluginCreateCtWfAssociations extends PSSpringUpgradePlugin
       // Create a set of Integers to avoid duplicates.
       Set<Integer> wfSet = new HashSet<>();
       while (wfs.hasNext()) {
-        Integer wf = (Integer) wfs.next();
+        Integer wf = wfs.next();
         if (m_workflows.contains(wf)) {
           wfSet.add(wf);
         } else {

@@ -150,9 +150,9 @@ class PSCopyHandler implements IPSCopyHandler {
     if (m_ceHandler.getCmsObject() != null
         && m_ceHandler.getCmsObject().isWorkflowable()
         && null != ce.getWorkflowInfo()) {
-      Iterator iter = ce.getWorkflowInfo().getValues();
+      Iterator<Integer> iter = ce.getWorkflowInfo().getValues();
       m_workflowIds = new ArrayList();
-      while (iter.hasNext()) m_workflowIds.add(((Integer) iter.next()).toString());
+      while (iter.hasNext()) m_workflowIds.add(iter.next().toString());
     }
 
     // build table maps

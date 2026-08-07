@@ -164,7 +164,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
 
           PSWorkflowInfo wfInfo = ce.getWorkflowInfo();
           if (wfInfo != null) {
-            Iterator ids = wfInfo.getValues();
+            Iterator<Integer> ids = wfInfo.getValues();
             while (ids.hasNext()) {
               PSDependency childDep = null;
               try {
@@ -1455,9 +1455,9 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     PSWorkflowInfo wfInfo = ce.getWorkflowInfo();
     if (wfInfo != null) {
       List<Integer> newIds = new ArrayList<>();
-      Iterator ids = wfInfo.getValues();
+      Iterator<Integer> ids = wfInfo.getValues();
       while (ids.hasNext()) {
-        Integer oldId = (Integer) ids.next();
+        Integer oldId = ids.next();
         newIds.add(Integer.valueOf(getNewIdInt(ctx, oldId.toString(), wfType)));
       }
       wfInfo.setValues(newIds);
@@ -1476,10 +1476,10 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     Integer defaultWfId = -1;
 
     if (wfInfo != null) {
-      Iterator ids = wfInfo.getValues();
+      Iterator<Integer> ids = wfInfo.getValues();
       while (ids.hasNext()) {
         // use first included workflow which exists on target system
-        Integer id = (Integer) ids.next();
+        Integer id = ids.next();
         IPSGuid wfGuid = PSGuidUtils.makeGuid(id, PSTypeEnum.WORKFLOW);
         PSWorkflow wf = ms_wfSvc.loadWorkflow(wfGuid);
         if (wf != null) {
@@ -1513,7 +1513,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       throws PSDeployException {
     PSWorkflowInfo wfInfo = ce.getWorkflowInfo();
     if (wfInfo != null) {
-      Iterator ids = wfInfo.getValues();
+      Iterator<Integer> ids = wfInfo.getValues();
       while (ids.hasNext()) {
         String id = String.valueOf(ids.next());
         boolean included =

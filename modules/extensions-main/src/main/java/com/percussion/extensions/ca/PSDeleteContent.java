@@ -161,7 +161,7 @@ public class PSDeleteContent implements IPSRequestPreProcessor {
         filter.setCommunityFiltering(false);
         relationships = processor.getRelationships(filter).iterator();
         while (relationships.hasNext()) {
-          PSRelationship relationship = (PSRelationship) relationships.next();
+          PSRelationship relationship = relationships.next();
           elem.setAttribute(ATTR_PKEY, contentid);
           elem = PSXmlDocumentBuilder.addEmptyElement(doc, parent, ELEM_ROW);
           elem.setAttribute(ATTR_RID, Integer.toString(relationship.getId()));
