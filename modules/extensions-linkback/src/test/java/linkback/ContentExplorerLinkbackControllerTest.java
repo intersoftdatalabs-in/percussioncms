@@ -29,7 +29,9 @@ import com.percussion.soln.linkback.codec.impl.StringLinkBackTokenImpl;
 import com.percussion.soln.linkback.servlet.ContentExplorerLinkbackController;
 import com.percussion.soln.linkback.utils.LinkbackUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -63,6 +65,13 @@ public class ContentExplorerLinkbackControllerTest {
     pmap.put(IPSHtmlParameters.SYS_SITEID, "102");
     StringLinkBackTokenImpl impl = new StringLinkBackTokenImpl();
     token_nocontentid = impl.encode(pmap);
+  }
+
+  @Test
+  public final void testConstructorSeedsContentExplorerDefaults() {
+    assertTrue(Modifier.isFinal(ContentExplorerLinkbackController.class.getModifiers()));
+    assertEquals("/sys_cx/mainpage.html", cut.getRedirectPath());
+    assertEquals(List.of(IPSHtmlParameters.SYS_CONTENTID), cut.getRequiredParameterNames());
   }
 
   @Test
