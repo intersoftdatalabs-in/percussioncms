@@ -26,6 +26,10 @@ import org.w3c.dom.Element;
 
 /** Implements the PSXConditionalEffect element defined in sys_RelationshipConfig.dtd. */
 public class PSConditionalExtension extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Construct a Java object from its XML representation.
    *

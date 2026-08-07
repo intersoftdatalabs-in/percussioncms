@@ -83,7 +83,10 @@ public abstract class PSDbComponent implements IPSDbComponent {
    */
   protected PSDbComponent(Element src) throws PSUnknownNodeTypeException {
     if (null == src) throw new IllegalArgumentException("Source element cannot be null.");
-    fromXml(src);
+    // Private path avoids virtual dispatch to subclass fromXml during super construction.
+    // Skip node-name check here: custom constants (e.g. PSSFields → PSX_FIELDS) differ from
+    // the PS→PSX class mapping; subclasses re-validate in their fromXml when needed.
+    fromXmlBase(src, false);
   }
 
   /**
@@ -312,15 +315,34 @@ public abstract class PSDbComponent implements IPSDbComponent {
    *     (see {@link PSKey#fromXml(Element)}) or the state name is not valid.
    */
   public void fromXml(Element source) throws PSUnknownNodeTypeException {
+    fromXmlBase(source, true);
+  }
+
+  /**
+   * Shared implementation for {@link #fromXml(Element)} and the Element constructor. Keeps the
+   * constructor from virtually dispatching to a subclass {@code fromXml} before subclass fields are
+   * initialized. Note: {@link #createKey(Element)} remains overridable so specialized key types
+   * (e.g. {@code PSLocator}) still work when restoring from XML after construction.
+   *
+   * @param checkNodeName when {@code true} (public fromXml), validate against {@link
+   *     #getNodeName()}; when {@code false} (Element super ctor), skip that check to avoid
+   *     this-escape and allow custom node-name constants.
+   */
+  private void fromXmlBase(Element source, boolean checkNodeName)
+      throws PSUnknownNodeTypeException {
     // Threshold
     if (null == source) throw new IllegalArgumentException("Source must be provided.");
 
-    // Threshold
-    if (!getNodeName().equalsIgnoreCase(source.getNodeName())) {
-      String[] args = new String[] {"PSDbComponent.fromXml node: " + getNodeName()};
+    String nodeName = nodeNameFor(getClass());
+    if (checkNodeName) {
+      // Safe after full construction: honor getNodeName overrides (e.g. PSX_FIELDS).
+      if (!getNodeName().equalsIgnoreCase(source.getNodeName())) {
+        String[] args = new String[] {"PSDbComponent.fromXml node: " + getNodeName()};
 
-      // @todo change exceptions if needed!!
-      throw new PSUnknownNodeTypeException(IPSCmsErrors.INVALID_CONTENT_TYPE_ID, args);
+        // @todo change exceptions if needed!!
+        throw new PSUnknownNodeTypeException(IPSCmsErrors.INVALID_CONTENT_TYPE_ID, args);
+      }
+      nodeName = getNodeName();
     }
 
     // Must restore key first because it has higher priority than state
@@ -328,7 +350,7 @@ public abstract class PSDbComponent implements IPSDbComponent {
 
     // Threshold
     String strState = PSXMLDomUtil.checkAttribute(source, XML_ATTR_STATE, false);
-    if (strState.length() == 0) setState(DBSTATE_NEW);
+    if (strState.length() == 0) setStateInternal(DBSTATE_NEW);
     else {
       boolean found = false;
       int i = 0;
@@ -336,12 +358,44 @@ public abstract class PSDbComponent implements IPSDbComponent {
         if (STATE_LABELS[i].equalsIgnoreCase(strState)) found = true;
       }
       if (!found) {
-        String[] args = {getNodeName(), XML_ATTR_STATE, strState};
+        String[] args = {nodeName, XML_ATTR_STATE, strState};
         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
       }
       // Handles validation of state.
-      setState(i - 1);
+      setStateInternal(i - 1);
     }
+  }
+
+  /**
+   * Default XML node name for a component class without virtual dispatch (PS → PSX).
+   *
+   * @param clazz runtime class, never {@code null}
+   * @return node name, never {@code null} or empty
+   */
+  private static String nodeNameFor(Class<?> clazz) {
+    String name = clazz.getName();
+    name = name.substring(name.lastIndexOf('.') + 1);
+    if (name.startsWith("PS")) name = "PSX" + name.substring(2);
+    return name;
+  }
+
+  /**
+   * Applies state without calling the overridable {@link #setState(int)} (safe during
+   * construction).
+   */
+  private void setStateInternal(int newState) {
+    if (!isValidState(newState)) throw new IllegalArgumentException("Invalid state.");
+
+    if ((isPersisted() && newState == DBSTATE_NEW)
+        || (!isPersisted()
+            && (newState == DBSTATE_UNMODIFIED
+                || newState == DBSTATE_MODIFIED
+                || newState == DBSTATE_MARKEDFORDELETE))) {
+      throw new IllegalStateException(
+          "Attempted to set component to illegal state given the state " + "of the key.");
+    }
+
+    m_state = newState;
   }
 
   /**
@@ -453,11 +507,11 @@ public abstract class PSDbComponent implements IPSDbComponent {
     m_key = (PSKey) locator.clone();
     if (isPersisted()) {
       if (getState() == DBSTATE_NEW || getState() == DBSTATE_MARKEDFORDELETE) {
-        setState(DBSTATE_MODIFIED);
+        setStateInternal(DBSTATE_MODIFIED);
       }
     } else {
       if (getState() == DBSTATE_MODIFIED || getState() == DBSTATE_UNMODIFIED) {
-        setState(DBSTATE_NEW);
+        setStateInternal(DBSTATE_NEW);
       }
     }
   }
@@ -512,18 +566,7 @@ public abstract class PSDbComponent implements IPSDbComponent {
 
   // see interface for description
   public void setState(int newState) {
-    if (!isValidState(newState)) throw new IllegalArgumentException("Invalid state.");
-
-    if ((isPersisted() && newState == DBSTATE_NEW)
-        || (!isPersisted()
-            && (newState == DBSTATE_UNMODIFIED
-                || newState == DBSTATE_MODIFIED
-                || newState == DBSTATE_MARKEDFORDELETE))) {
-      throw new IllegalStateException(
-          "Attempted to set component to illegal state given the state " + "of the key.");
-    }
-
-    m_state = newState;
+    setStateInternal(newState);
   }
 
   /**

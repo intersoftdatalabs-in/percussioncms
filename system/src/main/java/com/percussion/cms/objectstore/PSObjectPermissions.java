@@ -47,7 +47,10 @@ import java.util.Iterator;
  * be created for a specific type of securable object. For example, <code>PSFolderPermissions</code>
  * class represents permissions on folder objects.
  */
-public abstract class PSObjectPermissions {
+public abstract class PSObjectPermissions implements java.io.Serializable {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * This constructor will typically be used on the server side. This sets the user's server access
@@ -418,14 +421,15 @@ public abstract class PSObjectPermissions {
    * <code>null</code> if single arg constructor is used, otherwise initialized in the constructor,
    * never modified after initialization.
    */
-  protected PSObjectAcl m_objectAcl = null;
+  /** Server-side ACL; not part of the serialized permission mask. */
+  protected transient PSObjectAcl m_objectAcl = null;
 
   /**
    * Contains the credentials of the user accessing the securable object, may be <code>null</code>
    * if single arg constructor is used, otherwise initialized in the constructor, never modified
-   * after initialization.
+   * after initialization. Transient: not part of the serialized permission mask.
    */
-  protected PSUserInfo m_userInfo = null;
+  protected transient PSUserInfo m_userInfo = null;
 
   /**
    * server access level for the user, initialized to <code></code> which implies no access to the

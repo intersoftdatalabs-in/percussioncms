@@ -28,6 +28,10 @@ import java.util.Iterator;
  * context of a folder object.
  */
 public class PSFolderPermissions extends PSObjectPermissions {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * This constructor will typically be used on the server side.
    *
@@ -181,5 +185,6 @@ public class PSFolderPermissions extends PSObjectPermissions {
    * single arg constructor is used, otherwise initialized in the constructor, never modified after
    * initializartion.
    */
-  private PSFolderAcl m_folderAcl = null;
+  /** Server-side folder ACL; not part of the serialized permission mask. */
+  private transient PSFolderAcl m_folderAcl = null;
 }

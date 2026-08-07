@@ -159,7 +159,9 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
    *     defined in the <code>fromXml()</code> method.
    */
   public PSComponentSummary(Element source) throws PSUnknownNodeTypeException {
-    super(source);
+    // Avoid PSDbComponent(Element) which virtual-dispatches createKey before subclass init.
+    // Dummy locator is replaced by fromXml (same pattern as the no-arg Hibernate ctor).
+    super(createKey(0, -1));
     fromXml(source);
   }
 
@@ -939,7 +941,7 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
     }
   }
 
-  public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+  public final void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode must be supplied");
 
     super.fromXml(sourceNode);
@@ -1486,7 +1488,8 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   @Filter(
       name = "relationshipConfigFilter",
       condition = "CONFIG_ID = " + PSRelationshipConfig.ID_FOLDER_CONTENT)
-  private Set<PSRelationshipData> parentFolders = new HashSet<>();
+  // HashSet (not Set) so the field type is Serializable under -Xlint:serial
+  private HashSet<PSRelationshipData> parentFolders = new HashSet<>();
 
   /**
    * Specifies the permissions set on the item encapsulated by this object for the user accessing

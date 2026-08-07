@@ -31,6 +31,10 @@ import org.w3c.dom.Element;
 
 /** Implements the PSXContainerLocator DTD defined in BasicObjects.dtd. */
 public class PSContainerLocator extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Create a new table locator for the provided table sets.
    *

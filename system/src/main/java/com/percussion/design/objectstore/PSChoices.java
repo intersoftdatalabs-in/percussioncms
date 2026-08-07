@@ -28,6 +28,10 @@ import org.w3c.dom.Node;
 
 /** Implements the PSXChoices DTD in BasicObjects.dtd. */
 public class PSChoices extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Create new choices of type global.
    *

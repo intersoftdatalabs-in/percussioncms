@@ -38,6 +38,10 @@ import org.w3c.dom.Element;
  * @since 1.0
  */
 public class PSAclEntry extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * This entry can be used in calls to setName or the constructor to create an entry for anonynmous
    * users (not logged in).

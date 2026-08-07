@@ -28,6 +28,10 @@ import org.w3c.dom.Element;
  * @version 1.0
  */
 public class PSSimpleKey extends PSKey {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Create an un-assigned key with a single part.
    *

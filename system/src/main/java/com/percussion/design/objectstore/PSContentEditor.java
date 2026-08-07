@@ -38,6 +38,10 @@ import org.w3c.dom.Node;
 
 /** Implements the PSXContentEditorLocalDef DTD defined in ContentEditorLocalDef.dtd. */
 public class PSContentEditor extends PSDataSet {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates a new content editor for the provided name, content type and workflow id. Related
    * content is disabled.

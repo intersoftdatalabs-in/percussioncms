@@ -40,6 +40,10 @@ import org.w3c.dom.Element;
  * class is satisfactory.
  */
 public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummary {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates an instance.
    *
