@@ -28,7 +28,7 @@ import com.percussion.util.PSXMLDomUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -96,7 +96,7 @@ public class PSRemoteProcessor extends PSProcessorCommon {
    * @param conn Never <code>null</code>. All work is performed as the user identified with these
    *     connection parameters.
    */
-  public PSRemoteProcessor(IPSRemoteRequester conn, Map procConfig) {
+  public PSRemoteProcessor(IPSRemoteRequester conn, Map<String, Map<String, Object>> procConfig) {
     super(procConfig);
     if (null == conn) {
       throw new IllegalArgumentException("Connection information must be supplied.");
@@ -115,21 +115,11 @@ public class PSRemoteProcessor extends PSProcessorCommon {
    *   <li>Generate an http/s request to the resource specified in loadResource.
    * </ul>
    */
-  protected Document doLoad(String resourceName, Map ids) throws PSCmsException {
+  @Override
+  protected Document doLoad(String resourceName, Map<String, String[]> ids) throws PSCmsException {
     String path = "";
     try {
-      Map params = new HashMap();
-      Iterator pairs = ids.keySet().iterator();
-      while (pairs.hasNext()) {
-        String keyPartName = (String) pairs.next();
-        String[] idSet = (String[]) ids.get(keyPartName);
-        if (idSet.length > 1) {
-          ArrayList l = new ArrayList();
-          for (int i = 0; i < idSet.length; i++) l.add(idSet[i]);
-          params.put(keyPartName, l);
-        } else params.put(keyPartName, idSet[0]);
-      }
-
+      Map<String, Object> params = toRequestParams(ids);
       return m_conn.getDocument(resourceName, params);
     } catch (IOException ioe) {
       String[] args = {"request url: " + path, ioe.getLocalizedMessage()};
@@ -141,20 +131,11 @@ public class PSRemoteProcessor extends PSProcessorCommon {
   }
 
   // see interface for description
-  protected int doDelete(String resourceName, Map ids) throws PSCmsException {
+  @Override
+  protected int doDelete(String resourceName, Map<String, String[]> ids) throws PSCmsException {
     Element root = null;
     try {
-      Map params = new HashMap();
-      Iterator pairs = ids.keySet().iterator();
-      while (pairs.hasNext()) {
-        String keyPartName = (String) pairs.next();
-        String[] idSet = (String[]) ids.get(keyPartName);
-        if (idSet.length > 1) {
-          ArrayList l = new ArrayList();
-          for (int i = 0; i < idSet.length; i++) l.add(idSet[i]);
-          params.put(keyPartName, l);
-        } else params.put(keyPartName, idSet[0]);
-      }
+      Map<String, Object> params = toRequestParams(ids);
       Document doc = m_conn.getDocument(resourceName, params);
       if (null == doc || null == doc.getDocumentElement()) {
         throw new PSCmsException(IPSObjectStoreErrors.XML_ELEMENT_NULL, "PSXExecStatistics");
@@ -174,12 +155,13 @@ public class PSRemoteProcessor extends PSProcessorCommon {
   }
 
   // see base class
+  @Override
   protected int[] doAllocateIds(String lookup, int count) throws PSCmsException {
     String number = "";
     // used if exception occurs
     String errPath = "";
     try {
-      Map params = new HashMap();
+      Map<String, Object> params = new HashMap<>();
       params.put("sys_lookupkey", lookup);
       params.put("sys_idcount", "" + count);
       /*resource returns doc of form
@@ -218,6 +200,7 @@ public class PSRemoteProcessor extends PSProcessorCommon {
   }
 
   // see base class for description
+  @Override
   protected PSProcessingStatistics doSave(String resourceName, Document input)
       throws PSCmsException {
     Element root = null;
@@ -242,6 +225,26 @@ public class PSRemoteProcessor extends PSProcessorCommon {
     } catch (PSUnknownNodeTypeException unte) {
       throw new PSCmsException(unte.getErrorCode(), unte.getErrorArguments());
     }
+  }
+
+  /**
+   * Converts key-part id arrays into request parameters: multi-valued parts become a {@link List}
+   * of strings, single-valued parts become a plain string.
+   */
+  private static Map<String, Object> toRequestParams(Map<String, String[]> ids) {
+    Map<String, Object> params = new HashMap<>();
+    for (Map.Entry<String, String[]> entry : ids.entrySet()) {
+      String keyPartName = entry.getKey();
+      String[] idSet = entry.getValue();
+      if (idSet.length > 1) {
+        List<String> l = new ArrayList<>(idSet.length);
+        for (int i = 0; i < idSet.length; i++) l.add(idSet[i]);
+        params.put(keyPartName, l);
+      } else {
+        params.put(keyPartName, idSet[0]);
+      }
+    }
+    return params;
   }
 
   /** Object used to make the requests to the server. Never <code>null</code> after construction. */
