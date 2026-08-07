@@ -35,15 +35,20 @@ import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
  * Jersey application configuration for the feeds REST endpoints. Mounted at the application root
  * and registers the Spring/Jersey integration, JSON providers, exception mappers, and the {@link
  * PSFeedService} resource.
+ *
+ * <p>This class is {@code final} so no subclass can override {@link ResourceConfig#register} and
+ * observe a partially constructed instance during construction (avoids {@code this-escape} under
+ * {@code -Xlint:all}).
  */
 @ApplicationPath("/")
-public class PSFeedsApplication extends ResourceConfig {
+public final class PSFeedsApplication extends ResourceConfig {
 
   /**
    * Registers the request-scoped filter, Spring component provider, lifecycle listeners, the feed
-   * REST service, JSON binding provider, and exception mappers used by the feeds application.
+   * REST service, JSON binding provider, and exception mappers used by the feeds application. The
+   * class is {@code final} so no subclass can override {@link ResourceConfig#register} and observe
+   * a partially-constructed instance during this constructor.
    */
-  @SuppressWarnings("this-escape")
   public PSFeedsApplication() {
     register(RequestContextFilter.class);
     register(SpringComponentProvider.class);
