@@ -363,7 +363,7 @@ public class PSRenderLinkService
     PSAssetResource r = resolveResourceDefinition(resourceId, null, null);
     renderLinkHelper(renLink, context, r, page);
     renLink.setStateClass(getStateClass(pageId));
-    renLink.setTitle(resolvePageInlineLinkTitle(page, pageId, titleField));
+    renLink.setTitle(resolvePageInlineLinkTitle(page, titleField));
     legacyLinkGenerator.addLegacyDataToInlineLink(renLink, page);
     return renLink;
   }
@@ -556,13 +556,15 @@ public class PSRenderLinkService
    * {@code page_title} / {@code resource_link_title}). Custom / shared fields such as {@code
    * displaytitle} still trigger the partial load when needed.
    *
-   * @param page loaded page, never null
-   * @param pageId page id for optional field load
+   * <p>Callers must set {@link PSPage#setId(String)} before invoking this method; the page id is
+   * used for the optional partial-asset load.
+   *
+   * @param page loaded page with id set, never null
    * @param titleField optional configured field name
    * @return never null (may be empty)
    */
   // package-private for unit tests (#2242 review)
-  String resolvePageInlineLinkTitle(PSPage page, String pageId, String titleField) {
+  String resolvePageInlineLinkTitle(PSPage page, String titleField) {
     String typeDefault = page.getLinkTitle();
     if (StringUtils.isBlank(titleField)) {
       return StringUtils.defaultString(typeDefault);
@@ -571,7 +573,7 @@ public class PSRenderLinkService
     // Skip partial load when DTO already has a non-blank value for the configured field.
     if (StringUtils.isBlank(PSInlineLinkTitleResolver.fieldAsString(fields, titleField))) {
       try {
-        PSAsset partial = resourceInstanceHelper.loadPartialAsset(pageId);
+        PSAsset partial = resourceInstanceHelper.loadPartialAsset(page.getId());
         if (partial != null && partial.getFields() != null) {
           fields.putAll(partial.getFields());
         }

@@ -122,22 +122,24 @@ class PSRenderLinkServiceInlineTitleTest {
 
   @Test
   @DisplayName("page titleField from DTO skips partial asset load")
-  void resolvePageInlineLinkTitle_dtoHit_skipsPartialLoad() throws Exception {
+  void resolvePageInlineLinkTitle_dtoHit_skipsPartialLoad() {
     PSPage page = new PSPage();
+    page.setId("page-1");
     page.setLinkTitle("Link Default");
     page.setTitle("From DTO page_title");
 
     String title =
-        service.resolvePageInlineLinkTitle(page, "page-1", PSInlineLinkTitleResolver.PAGE_TITLE_FIELD);
+        service.resolvePageInlineLinkTitle(page, PSInlineLinkTitleResolver.PAGE_TITLE_FIELD);
 
     assertEquals("From DTO page_title", title);
-    verify(resourceInstanceHelper, never()).loadPartialAsset(anyString());
+    verifyNeverLoadPartialAsset();
   }
 
   @Test
   @DisplayName("page custom titleField loads partial and uses content field")
-  void resolvePageInlineLinkTitle_customField_loadsPartial() throws Exception {
+  void resolvePageInlineLinkTitle_customField_loadsPartial() {
     PSPage page = new PSPage();
+    page.setId("page-2");
     page.setLinkTitle("Link Default");
     page.setTitle("Browser");
 
@@ -145,51 +147,90 @@ class PSRenderLinkServiceInlineTitleTest {
     Map<String, Object> contentFields = new HashMap<>();
     contentFields.put("my_custom_title", "From Content");
     partial.setFields(contentFields);
-    when(resourceInstanceHelper.loadPartialAsset("page-2")).thenReturn(partial);
+    stubLoadPartialAsset("page-2", partial);
 
-    String title = service.resolvePageInlineLinkTitle(page, "page-2", "my_custom_title");
+    String title = service.resolvePageInlineLinkTitle(page, "my_custom_title");
 
     assertEquals("From Content", title);
-    verify(resourceInstanceHelper).loadPartialAsset("page-2");
+    verifyLoadPartialAsset("page-2");
   }
 
   @Test
   @DisplayName("page blank titleField returns link title without load")
-  void resolvePageInlineLinkTitle_blankConfig_usesTypeDefault() throws Exception {
+  void resolvePageInlineLinkTitle_blankConfig_usesTypeDefault() {
     PSPage page = new PSPage();
+    page.setId("page-3");
     page.setLinkTitle("BC Link Title");
 
-    assertEquals("BC Link Title", service.resolvePageInlineLinkTitle(page, "page-3", null));
-    assertEquals("BC Link Title", service.resolvePageInlineLinkTitle(page, "page-3", "  "));
-    verify(resourceInstanceHelper, never()).loadPartialAsset(anyString());
+    assertEquals("BC Link Title", service.resolvePageInlineLinkTitle(page, null));
+    assertEquals("BC Link Title", service.resolvePageInlineLinkTitle(page, "  "));
+    verifyNeverLoadPartialAsset();
   }
 
   @Test
   @DisplayName("page custom missing falls back to type default when displaytitle absent")
-  void resolvePageInlineLinkTitle_missingCustom_usesTypeDefault() throws Exception {
+  void resolvePageInlineLinkTitle_missingCustom_usesTypeDefault() {
     PSPage page = new PSPage();
+    page.setId("page-4");
     page.setLinkTitle("Link Default");
 
     PSAsset partial = new PSAsset();
     partial.setFields(new HashMap<>());
-    when(resourceInstanceHelper.loadPartialAsset("page-4")).thenReturn(partial);
+    stubLoadPartialAsset("page-4", partial);
 
-    String title = service.resolvePageInlineLinkTitle(page, "page-4", "nonexistent");
+    String title = service.resolvePageInlineLinkTitle(page, "nonexistent");
     assertEquals("Link Default", title);
   }
 
   @Test
   @DisplayName("page constants stay aligned with literal PSPageDao field names")
   void pageFieldConstants_matchDaoLiterals() {
-    // Guard against silent drift from PSPageDao field put/get strings.
+    // Guard against silent drift from PSPageDao field put/get strings (all 6 page-field constants).
     assertEquals("resource_link_title", PSInlineLinkTitleResolver.PAGE_DEFAULT_TITLE_FIELD);
     assertEquals("page_title", PSInlineLinkTitleResolver.PAGE_TITLE_FIELD);
     assertEquals("sys_title", PSInlineLinkTitleResolver.SYS_TITLE_FIELD);
-    assertTrue(PSRenderLinkService.buildPageTitleFieldMap(new PSPage()).keySet()
-        .containsAll(
-            java.util.Set.of(
-                PSInlineLinkTitleResolver.PAGE_DEFAULT_TITLE_FIELD,
-                PSInlineLinkTitleResolver.PAGE_TITLE_FIELD,
-                PSInlineLinkTitleResolver.SYS_TITLE_FIELD)));
+    assertEquals("page_description", PSInlineLinkTitleResolver.PAGE_DESCRIPTION_FIELD);
+    assertEquals("page_summary", PSInlineLinkTitleResolver.PAGE_SUMMARY_FIELD);
+    assertEquals("page_authorname", PSInlineLinkTitleResolver.PAGE_AUTHOR_FIELD);
+    assertTrue(
+        PSRenderLinkService.buildPageTitleFieldMap(new PSPage())
+            .keySet()
+            .containsAll(
+                java.util.Set.of(
+                    PSInlineLinkTitleResolver.PAGE_DEFAULT_TITLE_FIELD,
+                    PSInlineLinkTitleResolver.PAGE_TITLE_FIELD,
+                    PSInlineLinkTitleResolver.SYS_TITLE_FIELD,
+                    PSInlineLinkTitleResolver.PAGE_DESCRIPTION_FIELD,
+                    PSInlineLinkTitleResolver.PAGE_SUMMARY_FIELD,
+                    PSInlineLinkTitleResolver.PAGE_AUTHOR_FIELD)));
+  }
+
+  /**
+   * Helpers isolate checked {@code PSAssetServiceException} from mock stubbing/verification so test
+   * methods need not declare {@code throws Exception} (production {@code
+   * resolvePageInlineLinkTitle} does not throw checked exceptions).
+   */
+  private void stubLoadPartialAsset(String pageId, PSAsset partial) {
+    try {
+      when(resourceInstanceHelper.loadPartialAsset(pageId)).thenReturn(partial);
+    } catch (Exception e) {
+      throw new AssertionError("stub loadPartialAsset failed", e);
+    }
+  }
+
+  private void verifyLoadPartialAsset(String pageId) {
+    try {
+      verify(resourceInstanceHelper).loadPartialAsset(pageId);
+    } catch (Exception e) {
+      throw new AssertionError("verify loadPartialAsset failed", e);
+    }
+  }
+
+  private void verifyNeverLoadPartialAsset() {
+    try {
+      verify(resourceInstanceHelper, never()).loadPartialAsset(anyString());
+    } catch (Exception e) {
+      throw new AssertionError("verify never loadPartialAsset failed", e);
+    }
   }
 }

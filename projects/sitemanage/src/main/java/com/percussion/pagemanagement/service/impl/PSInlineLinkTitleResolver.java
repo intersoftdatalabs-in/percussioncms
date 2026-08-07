@@ -59,13 +59,22 @@ public final class PSInlineLinkTitleResolver {
   /** System item name field ({@code sys_title}). Matches {@code PSPageDao} / item summary name. */
   public static final String SYS_TITLE_FIELD = "sys_title";
 
-  /** Page description field name (DTO / content). */
+  /**
+   * Page description field name ({@code page_description}). Matches {@code PSPageDao} mapping of
+   * {@code PSPage#getDescription()}.
+   */
   public static final String PAGE_DESCRIPTION_FIELD = "page_description";
 
-  /** Page summary field name (DTO / content). */
+  /**
+   * Page summary field name ({@code page_summary}). Matches {@code PSPageDao} mapping of {@code
+   * PSPage#getSummary()}.
+   */
   public static final String PAGE_SUMMARY_FIELD = "page_summary";
 
-  /** Page author field name (DTO / content). */
+  /**
+   * Page author field name ({@code page_authorname}). Matches {@code PSPageDao} mapping of {@code
+   * PSPage#getAuthor()}.
+   */
   public static final String PAGE_AUTHOR_FIELD = "page_authorname";
 
   private PSInlineLinkTitleResolver() {
