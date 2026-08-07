@@ -84,6 +84,13 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
       throws PSPipelineIrException {
     Objects.requireNonNull(document, "document");
     Objects.requireNonNull(resource, "resource");
+    // Interface contract: resource must belong to document (same instance from findResource).
+    String resourceName = resource.getName();
+    if (resourceName == null || document.findResource(resourceName) != resource) {
+      throw new PSPipelineIrException(
+          "Resource does not belong to the provided pipeline document"
+              + (resourceName != null ? ": " + resourceName : ""));
+    }
     PipelineExecuteRequest req = request != null ? request : PipelineExecuteRequest.empty();
 
     PipelineHookContext ctx = new PipelineHookContext(document, resource, req);

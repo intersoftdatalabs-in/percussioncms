@@ -33,6 +33,7 @@ import com.percussion.services.pipeline.model.PipelineStagesIr;
 import com.percussion.services.pipeline.model.SelectorStageIr;
 import com.percussion.services.pipeline.model.UpdaterStageIr;
 import com.percussion.services.pipeline.sql.PSJdbcPipelineSqlAdapter;
+import com.percussion.services.pipeline.sql.PSPipelineSqlPlan;
 import com.percussion.services.pipeline.sql.PSPipelineSqlPlanner;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -187,6 +188,48 @@ class PSPipelineRuntimeServiceTest {
             PSPipelineSqlPlanner.planQuery(
                 nativeOnlyResource("DELETE FROM PSX_ADMINLOOKUP"),
                 PipelineExecuteRequest.empty()));
+  }
+
+  @Test
+  @DisplayName("security: native keyword inside string literal is not rejected")
+  void nativeSql_allowsKeywordInsideStringLiteral() throws Exception {
+    PSPipelineSqlPlan plan =
+        PSPipelineSqlPlanner.planQuery(
+            nativeOnlyResource("SELECT * FROM t WHERE name = 'EXEC sp'"),
+            PipelineExecuteRequest.empty());
+    assertNotNull(plan);
+    assertTrue(plan.getSql().contains("'EXEC sp'") || plan.getSql().toUpperCase().contains("SELECT"));
+  }
+
+  @Test
+  @DisplayName("generated SELECT dedupes case-variant params onto one WHERE bind")
+  void generatedSelect_dedupesCaseVariantParams() throws Exception {
+    PipelineIrDocument doc = nativeQueryDoc("dedupeApp", "D1");
+    PipelineResourceIr res = doc.findResource("D1");
+    Map<String, Object> params = new LinkedHashMap<>();
+    params.put("TYPE", "workflow");
+    params.put("type", "locale"); // same mapped column; first entry wins
+    PSPipelineSqlPlan plan =
+        PSPipelineSqlPlanner.planQuery(res, PipelineExecuteRequest.ofParams(params));
+    String sql = plan.getSql();
+    // Only one equality on TYPE column
+    int idx = sql.indexOf("\"TYPE\" = ?");
+    assertTrue(idx >= 0, sql);
+    assertEquals(-1, sql.indexOf("\"TYPE\" = ?", idx + 1), sql);
+    assertEquals(1, plan.getParameters().size());
+    assertEquals("workflow", plan.getParameters().get(0));
+  }
+
+  @Test
+  @DisplayName("execute rejects resource not owned by document")
+  void execute_rejectsForeignResource() {
+    PipelineIrDocument doc = nativeQueryDoc("ownApp", "R1");
+    PipelineIrDocument other = nativeQueryDoc("otherApp", "R1");
+    PipelineResourceIr foreign = other.findResource("R1");
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
+    assertThrows(
+        PSPipelineIrException.class,
+        () -> runtime.execute(doc, foreign, PipelineExecuteRequest.empty()));
   }
 
   @Test

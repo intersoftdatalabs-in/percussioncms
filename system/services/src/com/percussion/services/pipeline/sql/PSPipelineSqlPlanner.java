@@ -26,11 +26,13 @@ import com.percussion.services.pipeline.model.PipelineResourceIr;
 import com.percussion.services.pipeline.model.SelectorStageIr;
 import com.percussion.services.pipeline.model.UpdaterStageIr;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -171,17 +173,19 @@ public final class PSPipelineSqlPlanner {
               + firstToken(trimmed)
               + ")");
     }
-    // Reject obvious mutation keywords as whole words
-    if (containsWord(upper, "INSERT")
-        || containsWord(upper, "UPDATE")
-        || containsWord(upper, "DELETE")
-        || containsWord(upper, "DROP")
-        || containsWord(upper, "ALTER")
-        || containsWord(upper, "TRUNCATE")
-        || containsWord(upper, "MERGE")
-        || containsWord(upper, "EXEC")
-        || containsWord(upper, "EXECUTE")
-        || containsWord(upper, "CALL")) {
+    // Reject obvious mutation keywords as whole words outside string literals
+    // (e.g. WHERE name = 'EXEC sp' must not false-positive on EXEC inside quotes).
+    String upperOutsideLiterals = stripSqlStringLiterals(trimmed).toUpperCase(Locale.ROOT);
+    if (containsWord(upperOutsideLiterals, "INSERT")
+        || containsWord(upperOutsideLiterals, "UPDATE")
+        || containsWord(upperOutsideLiterals, "DELETE")
+        || containsWord(upperOutsideLiterals, "DROP")
+        || containsWord(upperOutsideLiterals, "ALTER")
+        || containsWord(upperOutsideLiterals, "TRUNCATE")
+        || containsWord(upperOutsideLiterals, "MERGE")
+        || containsWord(upperOutsideLiterals, "EXEC")
+        || containsWord(upperOutsideLiterals, "EXECUTE")
+        || containsWord(upperOutsideLiterals, "CALL")) {
       throw new PSPipelineIrException("Native SQL escape hatch rejected unsafe keyword in statement");
     }
 
@@ -232,11 +236,18 @@ public final class PSPipelineSqlPlanner {
         request.getParams() != null ? request.getParams() : Map.of();
     if (!params.isEmpty()) {
       List<String> whereParts = new ArrayList<>();
+      // Deduplicate by mapped column so case variants of the same param (TYPE vs type) do not
+      // produce duplicate WHERE "TYPE" = ? AND "TYPE" = ? with conflicting binds.
+      Set<String> usedColumns = new HashSet<>();
       for (Map.Entry<String, Object> e : params.entrySet()) {
         ColumnMapping match = findMappingForParam(mappings, e.getKey());
         if (match == null) {
           // Unknown params are ignored for generated WHERE (hooks may use them); only mapped cols
           // become filters.
+          continue;
+        }
+        String colKey = match.column.toUpperCase(Locale.ROOT);
+        if (!usedColumns.add(colKey)) {
           continue;
         }
         whereParts.add(quoteIdent(match.column) + " = ?");
@@ -396,6 +407,38 @@ public final class PSPipelineSqlPlanner {
   private static boolean containsWord(String upperSql, String word) {
     Pattern p = Pattern.compile("\\b" + word + "\\b");
     return p.matcher(upperSql).find();
+  }
+
+  /**
+   * Removes single-quoted SQL string literals (including {@code ''} escapes) so keyword checks do
+   * not false-positive on values such as {@code 'EXEC sp'}.
+   */
+  static String stripSqlStringLiterals(String sql) {
+    if (sql == null || sql.isEmpty()) {
+      return sql == null ? "" : sql;
+    }
+    StringBuilder out = new StringBuilder(sql.length());
+    boolean inString = false;
+    for (int i = 0; i < sql.length(); i++) {
+      char c = sql.charAt(i);
+      if (c == '\'') {
+        if (inString) {
+          // doubled quote inside a literal is an escaped apostrophe
+          if (i + 1 < sql.length() && sql.charAt(i + 1) == '\'') {
+            i++;
+            continue;
+          }
+          inString = false;
+        } else {
+          inString = true;
+        }
+        continue;
+      }
+      if (!inString) {
+        out.append(c);
+      }
+    }
+    return out.toString();
   }
 
   private static String firstToken(String sql) {
