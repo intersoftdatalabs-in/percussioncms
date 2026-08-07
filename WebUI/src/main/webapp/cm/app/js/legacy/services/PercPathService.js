@@ -759,8 +759,20 @@
    *     data (second arg) -- this will be String error message if status is false, otherwise the data object returned by service call.
    *
    */
-  function getInlineRenderLink(itemId, callback) {
+  /**
+   * Gets item render link details for inline link/image insert.
+   * @param {string} itemId target content id
+   * @param {function} callback (status, data|error)
+   * @param {string} [titleField] optional configured title field name from the
+   *   rich-text control (InlineLinkTitleField / editor.options.inlineLinkTitleField).
+   *   Passed as query param titleField for server resolve (#2242 / #946).
+   */
+  function getInlineRenderLink(itemId, callback, titleField) {
     var svcUrl = $.perc_paths.RENDER_LINK_PREVIEW + "/" + itemId + "/default";
+    if (titleField != null && String(titleField).trim() !== "") {
+      svcUrl +=
+        "?titleField=" + encodeURIComponent(String(titleField).trim());
+    }
 
     $.PercServiceUtils.makeJsonRequest(
       svcUrl,

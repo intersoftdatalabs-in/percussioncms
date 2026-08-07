@@ -83,14 +83,17 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -285,12 +288,18 @@ public class PSRenderLinkService
     return resources;
   }
 
+  /**
+   * REST: preview page link. Optional {@code titleField} query param selects the target content
+   * field for the HTML title attribute (#2242). Method name is distinct from {@link
+   * #renderPreviewPageLink(String, String)} (renderType) to avoid Java signature clash.
+   */
   @GET
   @Path("/preview/{id}/page")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  public PSInlineRenderLink renderPreviewPageLink(@PathParam(ID_PATH_PARAM) String pageId) {
+  public PSInlineRenderLink restRenderPreviewPageLink(
+      @PathParam(ID_PATH_PARAM) String pageId, @QueryParam("titleField") String titleField) {
     try {
-      return renderPreviewPageLink(pageId, "html");
+      return renderPreviewPageLink(pageId, "html", titleField);
     } catch (PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -298,8 +307,34 @@ public class PSRenderLinkService
     }
   }
 
+  /** {@inheritDoc} */
+  public PSInlineRenderLink renderPreviewPageLink(String pageId) {
+    try {
+      return renderPreviewPageLink(pageId, "html", null);
+    } catch (PSDataServiceException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e.getMessage());
+    }
+  }
+
+  /** {@inheritDoc} */
   public PSInlineRenderLink renderPreviewPageLink(String pageId, String renderType)
       throws PSDataServiceException {
+    return renderPreviewPageLink(pageId, renderType, null);
+  }
+
+  /**
+   * Renders a preview page link, optionally resolving {@code title} from a configured content field
+   * (control setting / {@code titleField} query param). See {@link PSInlineLinkTitleResolver}.
+   *
+   * @param pageId page id, never blank
+   * @param renderType html/xml/database
+   * @param titleField optional target field name for the link title attribute
+   * @return preview link or {@code null} if page missing
+   */
+  public PSInlineRenderLink renderPreviewPageLink(
+      String pageId, String renderType, String titleField) throws PSDataServiceException {
     notNull(pageId, "pageId");
     PSPage page = null;
     try {
@@ -328,18 +363,20 @@ public class PSRenderLinkService
     PSAssetResource r = resolveResourceDefinition(resourceId, null, null);
     renderLinkHelper(renLink, context, r, page);
     renLink.setStateClass(getStateClass(pageId));
-    renLink.setTitle(page.getLinkTitle());
+    renLink.setTitle(resolvePageInlineLinkTitle(page, pageId, titleField));
     legacyLinkGenerator.addLegacyDataToInlineLink(renLink, page);
     return renLink;
   }
 
+  /** REST: default preview link (page or asset). Optional {@code titleField} query param. */
   @GET
   @Path("/preview/{id}/default")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  public PSInlineRenderLink renderPreviewLink(@PathParam(ID_PATH_PARAM) String targetId) {
+  public PSInlineRenderLink restRenderPreviewLinkDefault(
+      @PathParam(ID_PATH_PARAM) String targetId, @QueryParam("titleField") String titleField) {
 
     try {
-      return renderPreviewLink(targetId, null, null);
+      return renderPreviewLink(targetId, null, null, titleField);
     } catch (DataServiceLoadException | DataServiceNotFoundException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -347,14 +384,16 @@ public class PSRenderLinkService
     }
   }
 
+  /** REST: preview with resource definition id. Optional {@code titleField} query param. */
   @GET
   @Path("/preview/{id}/{resourceDef}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  public PSInlineRenderLink renderPreviewLink(
+  public PSInlineRenderLink restRenderPreviewLinkWithResource(
       @PathParam(ID_PATH_PARAM) String targetId,
-      @PathParam("resourceDef") String resourceDefinitionId) {
+      @PathParam("resourceDef") String resourceDefinitionId,
+      @QueryParam("titleField") String titleField) {
     try {
-      return renderPreviewLink(targetId, resourceDefinitionId, null);
+      return renderPreviewLink(targetId, resourceDefinitionId, null, titleField);
     } catch (DataServiceLoadException | DataServiceNotFoundException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -362,25 +401,31 @@ public class PSRenderLinkService
     }
   }
 
+  /**
+   * REST + internal: preview with resource + thumbnail resource definition ids. Optional {@code
+   * titleField} query param for title resolve (#2242).
+   */
   @GET
   @Path("/preview/{id}/{resourceDef}/{thumbResourceDef}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSInlineRenderLink renderPreviewLink(
       @PathParam(ID_PATH_PARAM) String targetId,
       @PathParam("resourceDef") String resourceDefinitionId,
-      @PathParam("thumbResourceDef") String thumbResourceDefinitionId)
+      @PathParam("thumbResourceDef") String thumbResourceDefinitionId,
+      @QueryParam("titleField") String titleField)
       throws DataServiceLoadException, DataServiceNotFoundException {
 
     try {
       IPSItemSummary itemSummary = resourceInstanceHelper.findResourceAsset(targetId);
       if (itemSummary.isPage()) {
-        return renderPreviewPageLink(targetId);
+        return renderPreviewPageLink(targetId, "html", titleField);
       }
 
       PSInlineLinkRequest lr = new PSInlineLinkRequest();
       lr.setTargetId(targetId);
       lr.setResourceDefinitionId(resourceDefinitionId);
       lr.setThumbResourceDefinitionId(thumbResourceDefinitionId);
+      lr.setTitleField(titleField);
 
       return renderPreviewResourceLink(lr);
     } catch (PSDataServiceException e) {
@@ -388,6 +433,15 @@ public class PSRenderLinkService
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e.getMessage());
     }
+  }
+
+  /**
+   * Backward-compatible overload without title field (internal callers / BC).
+   */
+  public PSInlineRenderLink renderPreviewLink(
+      String targetId, String resourceDefinitionId, String thumbResourceDefinitionId)
+      throws DataServiceLoadException, DataServiceNotFoundException {
+    return renderPreviewLink(targetId, resourceDefinitionId, thumbResourceDefinitionId, null);
   }
 
   /** {@inheritDoc} */
@@ -486,7 +540,7 @@ public class PSRenderLinkService
 
     renLink.setStateClass(getStateClass(request.getTargetId()));
     renLink.setAltText((String) asset.getFields().get("alttext"));
-    renLink.setTitle((String) asset.getFields().get("displaytitle"));
+    renLink.setTitle(resolveAssetInlineLinkTitle(asset, request.getTitleField()));
 
     /*
      * Fill in legacy data.
@@ -494,6 +548,63 @@ public class PSRenderLinkService
     legacyLinkGenerator.addLegacyDataToInlineLink(renLink, request, asset);
 
     return renLink;
+  }
+
+  /**
+   * Resolves page inline link title: configured field → displaytitle → page link title (BC).
+   *
+   * @param page loaded page, never null
+   * @param pageId page id for optional field load
+   * @param titleField optional configured field name
+   * @return never null (may be empty)
+   */
+  private String resolvePageInlineLinkTitle(PSPage page, String pageId, String titleField) {
+    String typeDefault = page.getLinkTitle();
+    if (StringUtils.isBlank(titleField)) {
+      return StringUtils.defaultString(typeDefault);
+    }
+    // Start with known DTO fields; overlay content fields so custom + displaytitle are visible.
+    Map<String, Object> fields = buildPageTitleFieldMap(page);
+    try {
+      PSAsset partial = resourceInstanceHelper.loadPartialAsset(pageId);
+      if (partial != null && partial.getFields() != null) {
+        fields.putAll(partial.getFields());
+      }
+    } catch (Exception e) {
+      log.debug(
+          "Could not load page fields for titleField={}: {}",
+          titleField,
+          PSExceptionUtils.getMessageForLog(e));
+    }
+    return PSInlineLinkTitleResolver.resolve(titleField, fields, typeDefault);
+  }
+
+  /**
+   * Known page title-related fields from the page DTO (matches {@code PSPageDao} mapping). Used so
+   * common configs like {@code page_title} / {@code resource_link_title} do not require an extra
+   * content load. Shared {@code displaytitle} is not invented here — if absent, the resolver falls
+   * through to the page link-title type default.
+   */
+  private static Map<String, Object> buildPageTitleFieldMap(PSPage page) {
+    Map<String, Object> fields = new HashMap<>();
+    fields.put("resource_link_title", page.getLinkTitle());
+    fields.put("page_title", page.getTitle());
+    fields.put("sys_title", page.getName());
+    fields.put("page_description", page.getDescription());
+    fields.put("page_summary", page.getSummary());
+    fields.put("page_authorname", page.getAuthor());
+    return fields;
+  }
+
+  /**
+   * Resolves asset/file/image inline link title: configured field → displaytitle → type default.
+   */
+  private static String resolveAssetInlineLinkTitle(PSAsset asset, String titleField) {
+    Map<String, Object> fields = asset.getFields() != null ? asset.getFields() : Collections.emptyMap();
+    String typeDefault =
+        PSInlineLinkTitleResolver.fieldAsString(
+            fields, PSInlineLinkTitleResolver.ASSET_DEFAULT_TITLE_FIELD);
+    return PSInlineLinkTitleResolver.resolve(titleField, fields, typeDefault);
   }
 
   private String getStateClass(String id) {

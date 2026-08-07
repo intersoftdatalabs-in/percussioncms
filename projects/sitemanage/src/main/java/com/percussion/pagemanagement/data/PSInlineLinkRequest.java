@@ -38,6 +38,12 @@ public class PSInlineLinkRequest extends PSAbstractDataObject {
   @NotNull @NotBlank private String targetId;
   private String resourceDefinitionId;
   private String thumbResourceDefinitionId;
+  /**
+   * Optional content field name for the inline link/image {@code title} attribute (control setting
+   * {@code InlineLinkTitleField} / query param {@code titleField}). Empty or null = product default
+   * (assets: {@code displaytitle}; pages: link title). See #2242 / #946.
+   */
+  private String titleField;
 
   /**
    * Gets the ID of the asset resource that we are linking to.
@@ -71,5 +77,18 @@ public class PSInlineLinkRequest extends PSAbstractDataObject {
 
   public void setResourceDefinitionId(String resourceDefinitionId) {
     this.resourceDefinitionId = resourceDefinitionId;
+  }
+
+  /**
+   * Optional field name used to resolve {@link PSInlineRenderLink#getTitle()}.
+   *
+   * @return may be {@code null} or blank for product defaults
+   */
+  public String getTitleField() {
+    return titleField;
+  }
+
+  public void setTitleField(String titleField) {
+    this.titleField = titleField;
   }
 }

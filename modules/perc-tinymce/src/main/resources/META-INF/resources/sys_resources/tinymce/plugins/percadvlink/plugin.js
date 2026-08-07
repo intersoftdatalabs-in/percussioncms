@@ -16,13 +16,30 @@
  */
 
 tinymce.PluginManager.add("percadvlink", function (editor) {
-  // Register so CE/control-settings value from perc_tinymce_init is retained
-  // (TinyMCE 6 strips unknown options). Empty = product default field names.
-  // Runtime pass-through to getInlineRenderLink is #2242.
-  editor.options.register("inlineLinkTitleField", {
-    processor: "string",
-    default: "",
-  });
+  // Retain CE control setting (InlineLinkTitleField → inlineLinkTitleField). Safe if
+  // already registered by rxinline / #2241. Consumed when resolving insert titles (#2242).
+  if (
+    !editor.options.isRegistered ||
+    !editor.options.isRegistered("inlineLinkTitleField")
+  ) {
+    try {
+      editor.options.register("inlineLinkTitleField", {
+        processor: "string",
+        default: "",
+      });
+    } catch (ignore) {
+      // already registered
+    }
+  }
+
+  function getInlineLinkTitleField() {
+    try {
+      var v = editor.options.get("inlineLinkTitleField");
+      return v == null ? "" : String(v).trim();
+    } catch (e) {
+      return "";
+    }
+  }
 
   function createLinkList(callback) {
     return function () {
@@ -197,6 +214,7 @@ tinymce.PluginManager.add("percadvlink", function (editor) {
     function updateLinkData(pathItem) {
       //Save the path to cookie
       topFrJQ.cookie("perc-inlinelink-path", pathItem.path);
+      // Pass control-configured title field so server resolve can prefer it (#2242)
       topFrJQ.PercPathService.getInlineRenderLink(
         pathItem.id,
         function (status, retData) {
@@ -224,6 +242,7 @@ tinymce.PluginManager.add("percadvlink", function (editor) {
           addLink("no");
           win.setData(data);
         },
+        getInlineLinkTitleField(),
       );
     }
 
