@@ -69,7 +69,6 @@ import org.w3c.dom.Element;
  *
  * @author DavidBenua
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSNavAddAttribute extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
   /** Default constructor. Initializes the logger for this class. */
@@ -336,7 +335,7 @@ public class PSNavAddAttribute extends PSDefaultExtension implements IPSResultDo
      * @throws SQLException
      */
     private Object doQuery(PSLocator locator) throws PSInternalRequestCallException, SQLException {
-      Map xtraParams = new HashMap();
+      Map<String, Object> xtraParams = new HashMap<>();
       xtraParams.put(IPSHtmlParameters.SYS_CONTENTID, locator.getPart(PSLocator.KEY_ID));
       xtraParams.put(IPSHtmlParameters.SYS_REVISION, locator.getPart(PSLocator.KEY_REVISION));
       logger.debug("Fetching value for " + xtraParams);

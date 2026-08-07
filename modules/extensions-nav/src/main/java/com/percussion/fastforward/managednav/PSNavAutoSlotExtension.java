@@ -69,7 +69,6 @@ import org.w3c.dom.NodeList;
  *
  * @author DavidBenua
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSNavAutoSlotExtension extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
 
@@ -243,10 +242,14 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
             PSLocator siteLoc = siteRoot.getCurrentLocator();
             String cType = PSProcessorProxy.RELATIONSHIP_COMPTYPE;
             PSNavFolderSet siteFolders = new PSNavFolderSet();
-            Iterator it = allFolders.iterator();
+            Iterator<?> it = allFolders.iterator();
 
             while (it.hasNext()) {
-              PSNavFolder tFolder = (PSNavFolder) it.next();
+              Object nextFolder = it.next();
+              if (!(nextFolder instanceof PSNavFolder)) {
+                continue;
+              }
+              PSNavFolder tFolder = (PSNavFolder) nextFolder;
               log.debug("Examining folder {}", tFolder.getName());
               PSLocator lFolder = tFolder.getFolderSummary().getCurrentLocator();
               if (relProxy.isDescendent(
@@ -294,7 +297,7 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
 
     log.debug("Item name is {}", itemSummary.getName());
 
-    Map themeParams = buildThemeParams(req, navonDoc);
+    Map<String, Object> themeParams = buildThemeParams(req, navonDoc);
 
     // find the variant we are assembling
     int variantId = Integer.parseInt(req.getParameter(IPSHtmlParameters.SYS_VARIANTID));
@@ -311,7 +314,7 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
       return;
     }
     // list the slots on this variant
-    Iterator slots = variant.getVariantSlots().iterator();
+    Iterator<?> slots = variant.getVariantSlots().iterator();
     PSNavSlotSet navSlots = ms_config.getNavSlots();
 
     Element relatedContent = findRelatedContentElement(resultDoc);
@@ -325,7 +328,11 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
     }
 
     while (slots.hasNext()) {
-      PSVariantSlotType varSlot = (PSVariantSlotType) slots.next();
+      Object nextSlot = slots.next();
+      if (!(nextSlot instanceof PSVariantSlotType)) {
+        continue;
+      }
+      PSVariantSlotType varSlot = (PSVariantSlotType) nextSlot;
       int varSlotId = varSlot.getSlotId();
       log.debug("Processing Slot Id {}", varSlotId);
 
@@ -333,12 +340,17 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
       PSNavSlot navSlot = navSlots.getSlotById(varSlotId);
       if (navSlot != null) { // the slot is a nav slot
         log.debug("Processing Slot Name {}", navSlot.getSlotName());
-        Iterator navSlotVariants = navSlot.getVariantIterator();
+        Iterator<?> navSlotVariants = navSlot.getVariantIterator();
         while (navSlotVariants.hasNext()) {
-          PSContentTypeTemplate linkVar = (PSContentTypeTemplate) navSlotVariants.next();
+          Object nextVariant = navSlotVariants.next();
+          if (!(nextVariant instanceof PSContentTypeTemplate)) {
+            continue;
+          }
+          PSContentTypeTemplate linkVar = (PSContentTypeTemplate) nextVariant;
           log.debug("Adding Variant {}", linkVar.getName());
 
           PSNavLink link = new PSNavLink();
+          // Upstream createLinkToDocument still takes a raw Map.
           link.createLinkToDocument(req, navon, linkVar, themeParams);
 
           PSNavTreeXMLUtils.addLinkUrl(relatedContent, link, navSlot, resultDoc, context);
@@ -385,10 +397,10 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
    *     </code>.
    * @throws PSNavException
    */
-  private static Map buildThemeParams(IPSRequestContext req, Document navonDoc)
+  private static Map<String, Object> buildThemeParams(IPSRequestContext req, Document navonDoc)
       throws PSNavException {
     ms_config = PSNavConfig.getInstance();
-    Map params = new HashMap();
+    Map<String, Object> params = new HashMap<>();
 
     // first see if the caller specified a Theme
     String themeParam = ms_config.getNavThemeParamName();
@@ -422,7 +434,7 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
       throws PSNavException {
     log.debug("searching for site {}", siteId);
     try {
-      Map smap = new HashMap();
+      Map<String, Object> smap = new HashMap<>();
       smap.put(IPSHtmlParameters.SYS_SITEID, siteId);
       IPSInternalRequest iq = req.getInternalRequest(SITEQUERY, smap, false);
       if (iq == null) {
