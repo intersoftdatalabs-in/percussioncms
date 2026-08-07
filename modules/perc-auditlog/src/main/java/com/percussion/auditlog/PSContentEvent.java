@@ -23,8 +23,11 @@ import jakarta.servlet.http.HttpServletRequest;
  * Audit event emitted whenever content stored in the CMS changes — covering CRUD, recycling, and
  * page publish/removal scheduling. Carries the content id and GUID so downstream consumers can
  * locate the affected item.
+ *
+ * <p>This class is {@code final}; constructors assign own fields directly and use {@code final}
+ * parent setters after {@code super()} completes (no {@code this-escape}).
  */
-public class PSContentEvent extends AbstractEvent {
+public final class PSContentEvent extends AbstractEvent {
 
   /** Tag identifying the integer content id of the affected item. */
   public static final String CONTENTID_TAG = "//percussion/contentid";
@@ -53,9 +56,13 @@ public class PSContentEvent extends AbstractEvent {
 
   private String contentId;
   private String guid;
+  private ContentEventActions action;
 
   /**
    * Constructs a content event pre-populated from the supplied servlet request and metadata.
+   *
+   * <p>Own fields are assigned directly; parent CADF fields use {@code final} setters after {@code
+   * super()} completes.
    *
    * @param guid the GUID of the affected content item, never {@code null}.
    * @param contentId the integer content id of the affected content item as a string, may be {@code
@@ -65,7 +72,6 @@ public class PSContentEvent extends AbstractEvent {
    * @param request the HTTP request that triggered the event, never {@code null}.
    * @param outcome the outcome of the action, never {@code null}.
    */
-  @SuppressWarnings("this-escape")
   public PSContentEvent(
       String guid,
       String contentId,
@@ -73,17 +79,16 @@ public class PSContentEvent extends AbstractEvent {
       ContentEventActions action,
       HttpServletRequest request,
       PSActionOutcome outcome) {
+    super();
     this.guid = guid;
     this.contentId = contentId;
-    this.setPath(path);
     this.action = action;
-    this.setTargetUsername(request.getRemoteUser());
-    this.setAgentName(request.getHeader("User-Agent"));
-    this.setInitiatorIP(request.getRemoteAddr());
-    this.setOutcome(outcome.name());
+    setPath(path);
+    setTargetUsername(request.getRemoteUser());
+    setAgentName(request.getHeader("User-Agent"));
+    setInitiatorIP(request.getRemoteAddr());
+    setOutcome(outcome.name());
   }
-
-  private ContentEventActions action;
 
   /**
    * Returns the integer content id of the affected item as a string.
@@ -139,11 +144,13 @@ public class PSContentEvent extends AbstractEvent {
     this.action = action;
   }
 
-  /** Constructs an empty event with the content observer pre-assigned. */
-  @SuppressWarnings("this-escape")
+  /**
+   * Constructs an empty event with the content observer pre-assigned.
+   *
+   * <p>Uses a {@code final} parent setter after {@code super()} completes.
+   */
   public PSContentEvent() {
     super();
-
-    this.setObserverName(CONTENT_OBSERVER);
+    setObserverName(CONTENT_OBSERVER);
   }
 }

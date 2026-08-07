@@ -24,11 +24,17 @@ import com.ibm.cadf.middleware.AuditContext;
  * target resource URIs with the {@code service/bss/cms} system observer and defaults the action
  * outcome to {@link PSActionOutcome#UNKNOWN}. Sub-classes typically mutate the action and the
  * outcome in their own constructors before passing the event to {@link PSAuditLogService}.
+ *
+ * <p>Outcome is field-initialized and {@link #setOutcome(String)} is {@code final}; parent CADF
+ * setters are {@code final} as well, so this constructor does not leak {@code this} via overridable
+ * methods ({@code this-escape} under {@code -Xlint:all}).
  */
 public class AbstractEvent extends AuditContext {
 
   private static final String SYSTEM_OBSERVER = "service/bss/cms";
-  private String outcome;
+
+  /** Action outcome; field-initialized so the no-arg constructor need not call an overridable setter. */
+  private String outcome = PSActionOutcome.UNKNOWN.name();
 
   /**
    * Returns the action outcome recorded for this audit event.
@@ -45,17 +51,18 @@ public class AbstractEvent extends AuditContext {
    *
    * @param outcome the outcome value, typically one of {@link PSActionOutcome}, never {@code null}.
    */
-  public void setOutcome(String outcome) {
+  public final void setOutcome(String outcome) {
     this.outcome = outcome;
   }
 
-  /** Constructs an event pre-populated with the system observer and an {@code UNKNOWN} outcome. */
-  @SuppressWarnings("this-escape")
+  /**
+   * Constructs an event pre-populated with the system observer and an {@code UNKNOWN} outcome.
+   *
+   * <p>Outcome is field-initialized; observer/target names are written in the parent constructor
+   * via direct field assignment so this constructor performs no instance method calls on {@code
+   * this} ({@code this-escape} free under {@code -Xlint:all}).
+   */
   public AbstractEvent() {
-
-    // Set some defaults
-    this.setOutcome(PSActionOutcome.UNKNOWN.name());
-    this.setObserverName(SYSTEM_OBSERVER);
-    this.setTargetName(SYSTEM_OBSERVER);
+    super(SYSTEM_OBSERVER, SYSTEM_OBSERVER);
   }
 }
