@@ -19,10 +19,10 @@ package com.percussion.delivery.metadata.data.impl;
 import com.percussion.delivery.metadata.error.PSMalformedMetadataQueryException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -246,21 +246,25 @@ public class PSCriteriaElement {
     NOT_EQUAL
   }
 
-  @SuppressWarnings("unchecked")
-  private static final Map<String, OPERATION_TYPE> OPERATORS =
-      MapUtils.orderedMap(new HashMap<String, OPERATION_TYPE>());
+  /**
+   * Operators keyed by token string. Insertion order is longest-first so multi-character operators
+   * are matched before single-character ones when scanning criteria text.
+   */
+  private static final Map<String, OPERATION_TYPE> OPERATORS;
 
   static {
+    Map<String, OPERATION_TYPE> ops = new LinkedHashMap<>();
     // Order matters largest length to smallest
-    OPERATORS.put("LIKE", OPERATION_TYPE.LIKE);
-    OPERATORS.put("IN", OPERATION_TYPE.IN);
-    OPERATORS.put("<>", OPERATION_TYPE.NOT_EQUAL);
-    OPERATORS.put("<=", OPERATION_TYPE.LESS_THAN_EQUAL);
-    OPERATORS.put(">=", OPERATION_TYPE.GREATER_THAN_EQUAL);
-    OPERATORS.put("!=", OPERATION_TYPE.NOT_EQUAL);
-    OPERATORS.put("=", OPERATION_TYPE.EQUAL);
-    OPERATORS.put("<", OPERATION_TYPE.LESS_THAN);
-    OPERATORS.put(">", OPERATION_TYPE.GREATER_THAN);
+    ops.put("LIKE", OPERATION_TYPE.LIKE);
+    ops.put("IN", OPERATION_TYPE.IN);
+    ops.put("<>", OPERATION_TYPE.NOT_EQUAL);
+    ops.put("<=", OPERATION_TYPE.LESS_THAN_EQUAL);
+    ops.put(">=", OPERATION_TYPE.GREATER_THAN_EQUAL);
+    ops.put("!=", OPERATION_TYPE.NOT_EQUAL);
+    ops.put("=", OPERATION_TYPE.EQUAL);
+    ops.put("<", OPERATION_TYPE.LESS_THAN);
+    ops.put(">", OPERATION_TYPE.GREATER_THAN);
+    OPERATORS = Collections.unmodifiableMap(ops);
   }
 
   /**

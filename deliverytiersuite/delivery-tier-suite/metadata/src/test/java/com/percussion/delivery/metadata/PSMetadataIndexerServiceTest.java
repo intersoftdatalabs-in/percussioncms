@@ -108,7 +108,7 @@ public class PSMetadataIndexerServiceTest {
 
       assertTrue(props.containsKey("prop2"), "prop2 exists");
       assertEquals(VALUETYPE.NUMBER, props.get("prop2").get(0).getValuetype(), "prop2 value type");
-      assertEquals(new Double(4), props.get("prop2").get(0).getNumbervalue(), "prop2 value");
+      assertEquals(Double.valueOf(4), props.get("prop2").get(0).getNumbervalue(), "prop2 value");
     }
 
     System.out.println();
@@ -137,7 +137,7 @@ public class PSMetadataIndexerServiceTest {
     for (IPSMetadataEntry e : entries) {
       e.setLinktext("New value for linktext");
 
-      e.addProperty(new PSDbMetadataProperty("prop3", new Date(2011, 01, 28)));
+      e.addProperty(new PSDbMetadataProperty("prop3", Date.valueOf("2011-02-28")));
     }
 
     System.out.println("Updating entries");
@@ -162,11 +162,11 @@ public class PSMetadataIndexerServiceTest {
 
       assertTrue(props.containsKey("prop2"), "prop2 exists");
       assertEquals(VALUETYPE.NUMBER, props.get("prop2").get(0).getValuetype(), "prop2 value type");
-      assertEquals(new Double(4), props.get("prop2").get(0).getNumbervalue(), "prop2 value");
+      assertEquals(Double.valueOf(4), props.get("prop2").get(0).getNumbervalue(), "prop2 value");
 
       assertTrue(props.containsKey("prop3"), "prop3 exists");
       assertEquals(VALUETYPE.DATE, props.get("prop3").get(0).getValuetype(), "prop3 value type");
-      assertEquals(new Date(2011, 01, 28), props.get("prop3").get(0).getDatevalue(), "prop3 value");
+      assertEquals(Date.valueOf("2011-02-28"), props.get("prop3").get(0).getDatevalue(), "prop3 value");
     }
 
     System.out.println();
@@ -282,7 +282,7 @@ public class PSMetadataIndexerServiceTest {
 
       assertTrue(props.containsKey("prop2"), "prop2 exists");
       assertEquals(VALUETYPE.NUMBER, props.get("prop2").get(0).getValuetype(), "prop2 value type");
-      assertEquals(new Double(10), props.get("prop2").get(0).getNumbervalue(), "prop2 value");
+      assertEquals(Double.valueOf(10), props.get("prop2").get(0).getNumbervalue(), "prop2 value");
     }
   }
 
@@ -366,7 +366,7 @@ public class PSMetadataIndexerServiceTest {
     }
 
     assertEquals(
-        new Double(4), propsMap.get("prop2").get(0).getNumbervalue(), "prop2 expected value");
+        Double.valueOf(4), propsMap.get("prop2").get(0).getNumbervalue(), "prop2 expected value");
 
     // Update
     entry.setName("TestEntry1_Modified");
@@ -384,9 +384,9 @@ public class PSMetadataIndexerServiceTest {
 
     propsMap = toPropsMap(updatedEntry.getProperties());
     assertEquals("TestEntry1_Modified", updatedEntry.getName());
-    assertEquals(new Double(66), propsMap.get("prop2").get(0).getNumbervalue());
+    assertEquals(Double.valueOf(66), propsMap.get("prop2").get(0).getNumbervalue());
     assertEquals("foo1", propsMap.get("prop1").get(0).getStringvalue());
-    assertEquals(new Double(77), propsMap.get("prop3").get(0).getNumbervalue());
+    assertEquals(Double.valueOf(77), propsMap.get("prop3").get(0).getNumbervalue());
 
     // Delete
     service.delete(pagepath);
@@ -466,9 +466,9 @@ public class PSMetadataIndexerServiceTest {
 
     Map<String, List<IPSMetadataProperty>> propsMap = toPropsMap(updatedEntry.getProperties());
     assertEquals("TestEntry1_Modified", updatedEntry.getName(), "Entry name");
-    assertEquals(new Double(66), propsMap.get("prop2").get(0).getNumbervalue(), "prop2 value");
+    assertEquals(Double.valueOf(66), propsMap.get("prop2").get(0).getNumbervalue(), "prop2 value");
     assertEquals("foo1", propsMap.get("prop1").get(0).getStringvalue(), "prop1 value");
-    assertEquals(new Double(77), propsMap.get("prop3").get(0).getNumbervalue(), "prop3 value");
+    assertEquals(Double.valueOf(77), propsMap.get("prop3").get(0).getNumbervalue(), "prop3 value");
 
     // Delete
     service.delete(pagepath);

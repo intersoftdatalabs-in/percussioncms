@@ -28,7 +28,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +38,9 @@ import org.hibernate.annotations.*;
 /**
  * Represents metadata for a published page on the delivery server.
  *
+ * <p>Not {@link java.io.Serializable}: JPA-managed entity exchanged as a DTO/graph, not via Java
+ * serialization (avoids serial warnings on non-serializable collection field types).
+ *
  * @author erikserating
  */
 @Entity
@@ -46,9 +48,8 @@ import org.hibernate.annotations.*;
 @Table(
     name = "PERC_PAGE_METADATA",
     indexes = {@Index(name = "typeIndex", columnList = "type")})
-public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
+public final class PSDbMetadataEntry implements IPSMetadataEntry {
 
-  private static final long serialVersionUID = 1L;
 
   /** Hash of {@link #pagepath}; used as the database primary key. */
   @Id
@@ -120,11 +121,13 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
     if (site == null || site.length() == 0)
       throw new IllegalArgumentException("site cannot be null or empty");
 
-    setName(name);
-    setFolder(folder);
-    setType(type);
-    setPagepath(pagepath);
-    setSite(site);
+    // Direct assignment + private pagepathHash update; class is final (no this-escape).
+    this.name = name;
+    this.folder = folder;
+    this.type = type == null ? "" : type;
+    this.site = site;
+    this.pagepath = pagepath;
+    this.pagepathHash = hashCalculator.calculateHash(pagepath);
   }
 
   /**

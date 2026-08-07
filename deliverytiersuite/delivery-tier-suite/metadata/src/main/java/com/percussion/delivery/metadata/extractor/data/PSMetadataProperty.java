@@ -368,7 +368,7 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
         valuetype = type;
         return val;
       } else if (type == VALUETYPE.NUMBER) {
-        if (NumberUtils.isNumber((String) val)) {
+        if (NumberUtils.isCreatable((String) val)) {
           Double doub = Double.parseDouble((String) val);
           valuetype = VALUETYPE.NUMBER;
           return doub;

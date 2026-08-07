@@ -26,7 +26,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import java.io.Serializable;
 import java.util.Date;
 import java.util.Optional;
 import org.hibernate.annotations.Cache;
@@ -41,8 +40,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSCookieConsent")
 @Table(name = "PERC_COOKIE_CONSENT")
-public class PSDbCookieConsent implements IPSCookieConsent, Serializable {
-  private static final long serialVersionUID = 1L;
+public final class PSDbCookieConsent implements IPSCookieConsent {
 
   /** Surrogate primary key for this consent entry. */
   @Id
@@ -96,11 +94,12 @@ public class PSDbCookieConsent implements IPSCookieConsent, Serializable {
     if (consentDate == null) throw new IllegalArgumentException("consentDate may not be null");
     if (ip == null) throw new IllegalArgumentException("ip may not be null");
 
-    setSiteName(siteName);
-    setService(serviceName);
-    setConsentDate(consentDate);
-    setIP(ip);
-    setOptIn(optIn);
+    // Direct field assignment; class is final (no this-escape via overridable setters).
+    this.siteName = siteName;
+    this.serviceName = serviceName;
+    this.consentDate = new Date(consentDate.getTime());
+    this.ip = ip;
+    this.optIn = optIn;
   }
 
   @Override
