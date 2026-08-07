@@ -72,10 +72,15 @@ describe("s3-empty-credentials-warning helpers", () => {
   it("skip-with-BUG reason embeds durable issue URL", () => {
     const reason = s3WarningSurfaceSkipReason("no Add Server");
     assert.ok(reason.includes("skip-with-BUG"));
-    assert.ok(
-      reason.includes(
-        "https://github.com/intersoftdatalabs-in/percussioncms/issues/2284",
-      ),
+    // Parse the embedded URL (host + path) instead of substring-matching the
+    // full URL string — avoids js/incomplete-url-substring-sanitization.
+    const urlToken = reason.match(/https:\/\/\S+/)?.[0];
+    assert.ok(urlToken, "expected absolute product-issue URL in skip reason");
+    const u = new URL(urlToken);
+    assert.equal(u.hostname, "github.com");
+    assert.equal(
+      u.pathname,
+      `/intersoftdatalabs-in/percussioncms/issues/${PRODUCT_ISSUE}`,
     );
   });
 });
