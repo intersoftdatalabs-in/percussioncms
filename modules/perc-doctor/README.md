@@ -2,11 +2,12 @@
 
 Operator CLI for diagnosing and safely cleaning Percussion CMS install trees.
 
-**Issues:** [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213) (parent), [#2217](https://github.com/intersoftdatalabs-in/percussioncms/issues/2217) (`clean-install-backups`), [#2218](https://github.com/intersoftdatalabs-in/percussioncms/issues/2218) (`clean-logs`)  
-**Package:** `com.intsof.percussioncms.doctor`  
-**Shipped commands:** `clean-heap-dumps`, `clean-install-backups`, `clean-logs` with global `--dry-run` / `--install-root` / `-v`
+**Issues:** [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213) (parent), [#2217](https://github.com/intersoftdatalabs-in/percussioncms/issues/2217) (`clean-install-backups`), [#2218](https://github.com/intersoftdatalabs-in/percussioncms/issues/2218) (`clean-logs`), [#2219](https://github.com/intersoftdatalabs-in/percussioncms/issues/2219) (admin HTTP API)  
+**Package:** `com.intsof.percussioncms.doctor` (+ `...doctor.api` for HTTP)  
+**Shipped commands:** `clean-heap-dumps`, `clean-install-backups`, `clean-logs` with global `--dry-run` / `--install-root` / `-v`  
+**HTTP:** Admin-only `POST .../maintenance/doctor/{command}` (wired in sitemanage)
 
-Later slices (tracked on #2213 / residual issues): admin HTTP API, distribution `bin` packaging.
+Later slices (tracked on #2213 / residual issues): distribution `bin` packaging.
 
 ## Build
 
@@ -139,7 +140,70 @@ java -jar target/perc-doctor-8.2.0-SNAPSHOT.jar \
 5. On apply, re-check containment immediately before each delete.
 6. For `clean-logs`, apply `--keep-current` and `--older-than` before any delete.
 
+## Admin HTTP API (slice #2219)
+
+When the CMS server is running, doctor commands are also available as an **Admin-only** REST surface next to the existing maintenance manager.
+
+| | |
+|--|--|
+| **Method / path** | `POST /Rhythmyx/services/maintenance/doctor/{command}` |
+| **Commands** | `clean-heap-dumps`, `clean-install-backups`, `clean-logs` (same tokens as CLI) |
+| **Auth hard gate** | **Admin role only.** Anonymous and non-admin callers receive **HTTP 403**. |
+| **Content-Type** | `application/json` (XML also accepted/produced by the host stack) |
+
+### Request body (`DoctorRequest`)
+
+| Field | Type | Default | Meaning |
+|-------|------|---------|---------|
+| `dryRun` | boolean | **`true` when omitted/null** | Report only — **no deletes**. Explicit apply requires `"dryRun": false`. |
+| `installRoot` | string | Server RX install root (`rxdeploydir` / resolved install dir) | Optional override of the CMS install tree |
+| `olderThan` | string | unset | `clean-logs` only — e.g. `"7d"`, `"24h"` |
+| `keepCurrent` | boolean | `true` when omitted/null | `clean-logs` only — retain active current logs |
+
+**Dry-run is the default on the API** (unlike the CLI, where `--dry-run` is opt-in). This reduces risk of accidental deletes from HTTP clients. Document this to operators: inventory is safe by default; destructive apply is opt-in via `"dryRun": false`.
+
+### Response (`DoctorReportView`)
+
+Same structured report the CLI produces (candidate paths, sizes, status `WOULD_DELETE` / `DELETED` / `SKIPPED` / `FAILED`, totals).
+
+Example (safe inventory):
+
+```http
+POST /Rhythmyx/services/maintenance/doctor/clean-heap-dumps
+Content-Type: application/json
+Authorization: (Admin session)
+
+{"dryRun": true}
+```
+
+```json
+{
+  "command": "clean-heap-dumps",
+  "installRoot": "/opt/Percussion",
+  "dryRun": true,
+  "candidateCount": 2,
+  "deletedCount": 0,
+  "failedCount": 0,
+  "totalBytes": 12345678,
+  "entries": [
+    {"path": "/opt/Percussion/java_pid1.hprof", "sizeBytes": 1000, "status": "WOULD_DELETE", "detail": null}
+  ]
+}
+```
+
+Example apply (Admin only; deletes under install root):
+
+```json
+{"dryRun": false}
+```
+
+### Host wiring
+
+- Resource class: `com.intsof.percussioncms.doctor.api.DoctorRestService` (`@Path("/doctor")`)
+- Mounted on the **maintenance** JAX-RS server in sitemanage (`address="/maintenance"`)
+- Admin gate: `com.percussion.doctor.PSDoctorAdminChecker` (`IPSUserService.isAdminUser`)
+- Default install root: `com.percussion.doctor.PSDoctorInstallRootProvider` (`PathUtils.getRxDir()`)
+
 ## Deferred (not in this module slice)
 
-- Admin-authenticated HTTP API mirroring CLI
-- Distribution packaging (`bin/perc-doctor` / fat jar in install tree)
+- Distribution packaging (`bin/perc-doctor` / fat jar in install tree) — see #2220

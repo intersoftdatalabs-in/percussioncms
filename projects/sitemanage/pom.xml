@@ -49,6 +49,12 @@
             <artifactId>rest</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <!-- CMS Doctor admin HTTP API (issue #2219): reuses CLI command implementations -->
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-doctor</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
         <!-- TEMP DISABLED until mkd-gcm-sdk / mkd-gcm-natives are on Maven Central.
              GCM language corrections: thin JNA SDK. Native mkd_gcm_ffi is packaged into
              <installdir>/bin by perc-distribution-tree (StartJetty -Djna.library.path);
