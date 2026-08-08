@@ -151,11 +151,11 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
     // Base class handling even
     super.markForDeletion();
 
-    Iterator propsIter = m_props.iterator();
+    Iterator<PSCmsProperty> propsIter = m_props.iterator();
 
     while (propsIter.hasNext()) {
       // Mark each contained property for deletion
-      PSCmsProperty aProp = (PSCmsProperty) propsIter.next();
+      PSCmsProperty aProp = propsIter.next();
       aProp.markForDeletion();
     }
   }
@@ -217,10 +217,10 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
    */
   public boolean contains(String value) {
     // Check the properties
-    Iterator iter = m_props.iterator();
+    Iterator<PSCmsProperty> iter = m_props.iterator();
 
     while (iter.hasNext()) {
-      PSCmsProperty p = (PSCmsProperty) iter.next();
+      PSCmsProperty p = iter.next();
 
       if (p.getValue().equalsIgnoreCase(value)) return true;
     }
@@ -242,10 +242,10 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
    *
    * @return An iterator over 0 or more entries, each of which is a String. Never <code>null</code>.
    */
-  public Iterator iterator() {
-    Collection c = new ArrayList();
-    Iterator it = m_props.iterator();
-    while (it.hasNext()) c.add(((PSCmsProperty) it.next()).getValue());
+  public Iterator<String> iterator() {
+    Collection<String> c = new ArrayList<>();
+    Iterator<PSCmsProperty> it = m_props.iterator();
+    while (it.hasNext()) c.add(it.next().getValue());
     return c.iterator();
   }
 
@@ -259,10 +259,10 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
    */
   public boolean remove(String value) {
     // Check the properties
-    Iterator iter = m_props.iterator();
+    Iterator<PSCmsProperty> iter = m_props.iterator();
 
     while (iter.hasNext()) {
-      PSCmsProperty p = (PSCmsProperty) iter.next();
+      PSCmsProperty p = iter.next();
 
       if (p.getValue().equalsIgnoreCase(value)) {
         return m_props.remove(p);

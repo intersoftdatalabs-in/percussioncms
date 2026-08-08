@@ -51,7 +51,8 @@ public class PSFolderProcessorProxy extends PSProcessorProxy implements IPSFolde
   }
 
   // see IPSFolderProcessor interface
-  public void copyChildren(List children, PSLocator targetFolderId) throws PSCmsException {
+  public void copyChildren(List<PSLocator> children, PSLocator targetFolderId)
+      throws PSCmsException {
     getProcessor().copyChildren(children, targetFolderId);
   }
 
@@ -61,19 +62,21 @@ public class PSFolderProcessorProxy extends PSProcessorProxy implements IPSFolde
   }
 
   // see IPSFolderProcessor interface
-  public void moveChildren(PSLocator sourceFolderId, List children, PSLocator targetFolderId)
+  public void moveChildren(
+      PSLocator sourceFolderId, List<PSLocator> children, PSLocator targetFolderId)
       throws PSCmsException {
     getProcessor().moveChildren(sourceFolderId, children, targetFolderId);
   }
 
   // see IPSFolderProcessor interface
-  public void removeChildren(PSLocator sourceFolderId, List children)
+  public void removeChildren(PSLocator sourceFolderId, List<PSLocator> children)
       throws PSCmsException, PSNotFoundException {
     getProcessor().removeChildren(sourceFolderId, children);
   }
 
   // see IPSFolderProcessor interface
-  public void addChildren(List children, PSLocator targetFolderId) throws PSCmsException {
+  public void addChildren(List<PSLocator> children, PSLocator targetFolderId)
+      throws PSCmsException {
     getProcessor().addChildren(children, targetFolderId);
   }
 
@@ -89,7 +92,7 @@ public class PSFolderProcessorProxy extends PSProcessorProxy implements IPSFolde
   }
 
   // see IPSFolderProcessor interface
-  public Set getFolderCommunities(PSLocator source) throws PSCmsException {
+  public Set<Integer> getFolderCommunities(PSLocator source) throws PSCmsException {
     return getProcessor().getFolderCommunities(source);
   }
 
@@ -134,14 +137,17 @@ public class PSFolderProcessorProxy extends PSProcessorProxy implements IPSFolde
   }
 
   // implement the interface method
-  public void removeChildren(PSLocator sourceFolderId, List children, boolean force)
+  public void removeChildren(PSLocator sourceFolderId, List<PSLocator> children, boolean force)
       throws PSCmsException, PSNotFoundException {
     getProcessor().removeChildren(sourceFolderId, children, force);
   }
 
   // implement the interface method
   public void moveChildren(
-      PSLocator sourceFolderId, List children, PSLocator targetFolderId, boolean force)
+      PSLocator sourceFolderId,
+      List<PSLocator> children,
+      PSLocator targetFolderId,
+      boolean force)
       throws PSCmsException {
     getProcessor().moveChildren(sourceFolderId, children, targetFolderId, force);
   }

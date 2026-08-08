@@ -155,7 +155,7 @@ import org.w3c.dom.Element;
 public class PSServerFolderProcessor extends PSProcessorCommon
     implements IPSRelationshipProcessor, IPSFolderProcessor {
 
-  public PSServerFolderProcessor(PSRemoteFolderAgent ctx, Map procConfig) {
+  public PSServerFolderProcessor(PSRemoteFolderAgent ctx, Map<?, ?> procConfig) {
     this();
     log.debug("Proxy constructor called");
   }
@@ -182,7 +182,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   public void add(
       String componentType,
       @SuppressWarnings("unused") String relationshipType,
-      List children,
+      List<?> children,
       PSKey targetParent)
       throws PSCmsException {
     add(componentType, children, targetParent);
@@ -742,7 +742,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /** validates a list of keys. */
-  private void validateKeys(Iterator locators) {
+  private void validateKeys(Iterator<?> locators) {
     while (locators.hasNext()) {
       PSKey key = (PSKey) locators.next();
       validateKey(key);
@@ -1218,7 +1218,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
   /** Not supported. */
   @SuppressWarnings("unused")
-  public void reorder(int insertAt, List comp) throws PSCmsException {
+  public void reorder(int insertAt, List<?> comp) throws PSCmsException {
     throw new IllegalStateException("reorder(int, List) is not supported");
   }
 
@@ -1227,7 +1227,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * {@link #validateKey(PSKey)} for the requirement of the locators, <code>children</code> and
    * <code>targetParent</code>.
    */
-  public void add(String componentType, List children, PSKey targetParent) throws PSCmsException {
+  public void add(String componentType, List<?> children, PSKey targetParent)
+      throws PSCmsException {
     validateComponentType(componentType);
     validateKeys(children.iterator());
     validateKey(targetParent);
@@ -1279,13 +1280,13 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     public ComponentGroup(PSComponentSummaries summaries) throws PSCmsException {
       PSRelationshipProcessor relation = PSRelationshipProcessor.getInstance();
 
-      Iterator componenties = summaries.getSummaries();
+      Iterator<?> componenties = summaries.getSummaries();
       while (componenties.hasNext()) {
         PSComponentSummary comp = (PSComponentSummary) componenties.next();
         PSLocator locator = comp.getCurrentLocator();
 
         if (comp.isFolder()) {
-          List parents = relation.getParents(FOLDER_RELATE_TYPE, locator);
+          List<PSLocator> parents = relation.getParents(FOLDER_RELATE_TYPE, locator);
 
           // if has parent already, get the locator from a cloned folder
           if (parents.isEmpty()) linkedList.add(locator);
@@ -1301,14 +1302,14 @@ public class PSServerFolderProcessor extends PSProcessorCommon
      * folder cannot have more than one parent, so this list of folders will be cloned to a new
      * parent. Initialized by constructor, never <code>null</code>, but may be empty.
      */
-    private List copiedList = new ArrayList();
+    private List<PSLocator> copiedList = new ArrayList<>();
 
     /**
      * A list of folders and non-folder items. Each folder components has no parent. This list of
      * items can be simply linked to a parent folder. Initialized by constructor, never <code>null
      * </code>, but may be empty.
      */
-    private List linkedList = new ArrayList();
+    private List<PSLocator> linkedList = new ArrayList<>();
   }
 
   /**
@@ -1327,13 +1328,13 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @throws PSCmsException if the validation fails.
    */
   private PSComponentSummaries validateChildren(
-      List children, PSComponentSummaries childSummaries, PSKey target) throws PSCmsException {
+      List<?> children, PSComponentSummaries childSummaries, PSKey target) throws PSCmsException {
 
     PSComponentSummaries existingObjectsSummaries = validateChildNames(childSummaries, target);
 
     // remove the components from the "children", where the components
     // already exist in the "target" folder
-    Iterator walker = existingObjectsSummaries.iterator();
+    Iterator<?> walker = existingObjectsSummaries.iterator();
     while (walker.hasNext()) {
       PSComponentSummary summary = (PSComponentSummary) walker.next();
       for (int i = 0; i < children.size(); i++) {
@@ -1360,8 +1361,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @throws PSCmsException if the test described above is successful.
    */
   private void validateTargetParentIsNotDescendent(
-      PSLocator targetParent, List folderChildren, boolean copyItem) throws PSCmsException {
-    Iterator childs = folderChildren.iterator();
+      PSLocator targetParent, List<?> folderChildren, boolean copyItem) throws PSCmsException {
+    Iterator<?> childs = folderChildren.iterator();
     PSComponentSummary subFolder;
     while (childs.hasNext()) {
       subFolder = (PSComponentSummary) childs.next();
@@ -1370,7 +1371,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       if (isDescendent(
           FOLDER_PROXY_TYPE, subFolder.getCurrentLocator(), targetParent, FOLDER_RELATE_TYPE)) {
         // get the name of the targetParent for error message
-        List pl = new ArrayList();
+        List<PSLocator> pl = new ArrayList<>();
         pl.add(targetParent);
         PSComponentSummaries ps = getComponentSummaries(pl.iterator(), null, false);
         String targetParentName = "";
@@ -1507,7 +1508,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @return a string with all summary names of the supplied summaries separated by comma, never
    *     <code>null</code>, may be empty.
    */
-  private String formatSummaryNames(Iterator summaries) {
+  private String formatSummaryNames(Iterator<?> summaries) {
     StringBuilder names = new StringBuilder();
 
     while (summaries.hasNext()) {
@@ -1524,7 +1525,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * description. See {@link #validateKey(PSKey)} for the requirement of the locators, <code>
    * children</code> and <code>sourceParent</code>.
    */
-  public void move(String componentType, PSKey sourceParent, List children, PSKey targetParent)
+  public void move(
+      String componentType, PSKey sourceParent, List<?> children, PSKey targetParent)
       throws PSCmsException {
     moveFolderChildren(sourceParent, children, targetParent, true);
   }
@@ -1540,21 +1542,24 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @throws PSCmsException if an error occurs.
    */
   public void moveFolderChildren(
-      PSKey sourceParent, List children, PSKey targetParent, boolean checkFolderPermission)
+      PSKey sourceParent, List<?> children, PSKey targetParent, boolean checkFolderPermission)
       throws PSCmsException {
     validateKeys(children.iterator());
     validateKey(sourceParent);
     validateKey(targetParent);
 
     // validating all ids, make sure they all exist in database
-    List<PSLocator> allIds = new ArrayList<PSLocator>(children);
+    List<PSLocator> allIds = new ArrayList<>();
+    for (Object child : children) {
+      allIds.add((PSLocator) child);
+    }
     allIds.add((PSLocator) sourceParent);
     allIds.add((PSLocator) targetParent);
     PSComponentSummaries summaries = getComponentSummaries(allIds.iterator(), null, false);
 
     // the moved children must not contain target parent
     int targetId = ((PSLocator) targetParent).getId();
-    Iterator childIt = children.iterator();
+    Iterator<?> childIt = children.iterator();
     while (childIt.hasNext()) {
       PSLocator child = (PSLocator) childIt.next();
       if (child.getId() == ((PSLocator) targetParent).getId())
@@ -1694,21 +1699,22 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @param source List of folder and item ids. Assumed not <code>null</code>.
    * @return A new list with just the folder ids. Never <code>null</code>.
    */
-  private List<PSLocator> filterItems(List<PSLocator> source) {
+  private List<PSLocator> filterItems(List<?> source) {
     List<PSLocator> results = new ArrayList<>();
     PSItemSummaryCache cache = PSItemSummaryCache.getInstance();
     if (cache == null) {
       List<Integer> ids = new ArrayList<>();
-      for (PSLocator l : source) {
-        ids.add(l.getId());
+      for (Object o : source) {
+        ids.add(((PSLocator) o).getId());
       }
       IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
       List<PSComponentSummary> summarylist = cms.loadComponentSummaries(ids);
       for (int i = 0; i < summarylist.size(); i++) {
-        if (summarylist.get(i).isFolder()) results.add(source.get(i));
+        if (summarylist.get(i).isFolder()) results.add((PSLocator) source.get(i));
       }
     } else {
-      for (PSLocator l : source) {
+      for (Object o : source) {
+        PSLocator l = (PSLocator) o;
         IPSItemEntry e = cache.getItem(l.getId());
         if (e.isFolder()) results.add(l);
       }
@@ -1762,7 +1768,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @deprecated Use {@link PSFolderProcessorProxy#copyChildren(List, PSLocator)}.
    */
   public void copy(
-      @SuppressWarnings("unused") String relationshipType, List children, PSKey targetParent)
+      @SuppressWarnings("unused") String relationshipType, List<?> children, PSKey targetParent)
       throws PSCmsException {
     checkHasCopyPermission(children, targetParent, true);
 
@@ -1830,13 +1836,12 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     try {
       PSRelationshipProcessor processor = PSRelationshipProcessor.getInstance();
 
-      List children =
+      List<PSLocator> children =
           getDependentLocators(
               processor, parentFolder, getFilterFlags(), recurse, relationshipTypeName);
 
       Set<Integer> locators = new HashSet<>();
-      for (Object child : children) {
-        PSLocator loc = (PSLocator) child;
+      for (PSLocator loc : children) {
         locators.add(loc.getId());
       }
       return locators;
@@ -1899,7 +1904,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *
    * @deprecated Use {@link PSFolderProcessorProxy#removeChildren(PSLocator, List)}.
    */
-  public void delete(String relType, PSKey sourceParent, List children) throws PSCmsException {
+  public void delete(String relType, PSKey sourceParent, List<?> children) throws PSCmsException {
     validateRelType(relType);
     validateKeys(children.iterator());
     validateKey(sourceParent);
@@ -1907,13 +1912,16 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     // recurvisely delete the child folder objects and its relationship with
     // its own children.
     PSComponentSummaries summaries =
-        getComponentSummaries(children.iterator(), (PSLocator) sourceParent, false);
-    List childFolders =
+        getComponentSummaries(
+            (Iterator<PSLocator>) (Iterator<?>) children.iterator(),
+            (PSLocator) sourceParent,
+            false);
+    List<PSLocator> childFolders =
         summaries.getComponentLocators(
             PSComponentSummary.TYPE_FOLDER, PSComponentSummary.GET_CURRENT_LOCATOR);
     PSKey[] locators = new PSKey[childFolders.size()];
-    Iterator it = childFolders.iterator();
-    for (int i = 0; it.hasNext(); i++) locators[i] = (PSKey) it.next();
+    Iterator<PSLocator> it = childFolders.iterator();
+    for (int i = 0; it.hasNext(); i++) locators[i] = it.next();
 
     // delete the descendents of the child folders and child folders
     // themselves
@@ -2474,7 +2482,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       // Otherwise relationship processor will load them and
       // getComponentSummaries() will load them again.
       PSFolderSecurityManager.setCheckFolderPermissions(false);
-      List children = null;
+      List<PSLocator> children = null;
       try {
         children =
             processor.getDependentLocators(
@@ -2512,7 +2520,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @return Each entry is a PSLocator. Never <code>null</code>, may be empty.
    * @throws PSCmsException If any problems getting the relationships.
    */
-  private static List getDependentLocators(
+  private static List<PSLocator> getDependentLocators(
       PSRelationshipProcessor proc, PSKey folderId, int doNotApplyFilters, boolean recursive)
       throws PSCmsException {
     return getDependentLocators(proc, folderId, doNotApplyFilters, recursive, FOLDER_RELATE_TYPE);
@@ -3022,27 +3030,29 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @throws PSCmsException if any error occurs getting the component summaries for the specified
    *     locators
    */
-  private PSKey[] getFolderLocators(List locators) throws PSCmsException {
+  private PSKey[] getFolderLocators(List<?> locators) throws PSCmsException {
     PSKey[] keys = new PSKey[0];
     PSItemSummaryCache cache = getItemCache();
-    List folderIds = null;
+    List<PSLocator> folderIds = null;
     if (cache != null) {
-      Iterator it = locators.iterator();
+      Iterator<?> it = locators.iterator();
       PSLocator locator = null;
-      folderIds = new ArrayList();
+      folderIds = new ArrayList<>();
       while (it.hasNext()) {
         locator = (PSLocator) it.next();
         if (cache.isFolderExist(locator.getId())) folderIds.add(locator);
       }
     } else {
-      PSComponentSummaries summaries = getComponentSummaries(locators.iterator(), null, false);
+      PSComponentSummaries summaries =
+          getComponentSummaries(
+              (Iterator<PSLocator>) (Iterator<?>) locators.iterator(), null, false);
 
       folderIds =
           summaries.getComponentLocators(
               PSComponentSummary.TYPE_FOLDER, PSComponentSummary.GET_CURRENT_LOCATOR);
     }
 
-    if (!folderIds.isEmpty()) keys = (PSKey[]) folderIds.toArray(new PSKey[folderIds.size()]);
+    if (!folderIds.isEmpty()) keys = folderIds.toArray(new PSKey[0]);
 
     return keys;
   }
@@ -3129,7 +3139,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     children</code> or <code>targetParent</code> is <code>null</code>
    */
   private boolean checkHasMovePermission(
-      PSKey sourceParent, List children, PSKey targetParent, boolean throwException)
+      PSKey sourceParent, List<?> children, PSKey targetParent, boolean throwException)
       throws PSCmsException {
 
     if (sourceParent == null) throw new IllegalArgumentException("sourceParent may not be null");
@@ -3189,8 +3199,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @throws IllegalArgumentException if <code>request</code> or or <code>children</code> or <code>
    *     targetParent</code> is <code>null</code>
    */
-  private boolean checkHasCopyPermission(List children, PSKey targetParent, boolean throwException)
-      throws PSCmsException {
+  private boolean checkHasCopyPermission(
+      List<?> children, PSKey targetParent, boolean throwException) throws PSCmsException {
     if (children == null) throw new IllegalArgumentException("children may not be null");
     if (targetParent == null) throw new IllegalArgumentException("targetParent may not be null");
 
@@ -3380,11 +3390,10 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
       PSRelationshipProcessor processor = PSRelationshipProcessor.getInstance();
 
-      List children = processor.getDependentLocators(FOLDER_RELATE_TYPE, locator, donotfilterby);
-      Iterator folderChilds = children.iterator();
+      List<PSLocator> children =
+          processor.getDependentLocators(FOLDER_RELATE_TYPE, locator, donotfilterby);
 
-      while (folderChilds.hasNext()) {
-        PSLocator childLocator = (PSLocator) folderChilds.next();
+      for (PSLocator childLocator : children) {
         boolean hasPermission =
             checkHasFolderPermission(childLocator, accessLevel, recursive, throwException);
         if (!hasPermission) return false;
@@ -3497,7 +3506,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * com.percussion.cms.objectstore.PSKey, java.util.List)
    */
   @Transactional(propagation = Propagation.REQUIRED)
-  public void delete(PSKey sourceParent, List children, String relationshipTypeName)
+  public void delete(PSKey sourceParent, List<?> children, String relationshipTypeName)
       throws PSCmsException {
     delete(relationshipTypeName, sourceParent, children);
   }
@@ -3523,7 +3532,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @deprecated Use {@link PSFolderProcessorProxy#addChildren(List, PSLocator)}.
    */
   @Deprecated
-  public void add(String relationshipType, List children, PSLocator targetParent)
+  public void add(String relationshipType, List<?> children, PSLocator targetParent)
       throws PSCmsException {
     validateRelationshipType(relationshipType);
     add(FOLDER_PROXY_TYPE, children, (PSKey) targetParent);
@@ -3568,9 +3577,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @return summaries for all the owners/children of the relationships supplied.
    * @throws PSCmsException if it could not fetch the summaries for any reason.
    */
-  private PSComponentSummaries getSummaries(Iterator relationships, boolean owner)
+  private PSComponentSummaries getSummaries(Iterator<?> relationships, boolean owner)
       throws PSCmsException {
-    List locators = new ArrayList();
+    List<PSLocator> locators = new ArrayList<>();
     while (relationships.hasNext()) {
       PSRelationship element = (PSRelationship) relationships.next();
       PSLocator temp = null;
@@ -3584,7 +3593,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   public void move(
       @SuppressWarnings("unused") String relationshipType,
       PSLocator sourceParent,
-      List children,
+      List<?> children,
       PSLocator targetParent)
       throws PSCmsException {
     move(
@@ -3705,7 +3714,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   // see IPSFolderProcessor
-  public void addChildren(List children, PSLocator targetFolderId) throws PSCmsException {
+  public void addChildren(List<PSLocator> children, PSLocator targetFolderId)
+      throws PSCmsException {
     add(FOLDER_RELATE_TYPE, children, targetFolderId);
   }
 
@@ -3722,14 +3732,15 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   // see IPSFolderProcessor
-  public void copyChildren(List children, PSLocator targetFolderId) throws PSCmsException {
+  public void copyChildren(List<PSLocator> children, PSLocator targetFolderId)
+      throws PSCmsException {
     copy(FOLDER_RELATE_TYPE, children, targetFolderId);
   }
 
   // see IPSFolderProcessor
 
   @Transactional
-  public void removeChildren(PSLocator sourceFolderId, List children, boolean force)
+  public void removeChildren(PSLocator sourceFolderId, List<PSLocator> children, boolean force)
       throws PSCmsException, PSNotFoundException {
     validateKey(sourceFolderId);
     validateKeys(children.iterator());
@@ -3788,7 +3799,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
   // see IPSFolderProcessor
 
-  public void removeChildren(PSLocator sourceFolderId, List children)
+  public void removeChildren(PSLocator sourceFolderId, List<PSLocator> children)
       throws PSCmsException, PSNotFoundException {
     removeChildren(sourceFolderId, children, false);
   }
@@ -3809,7 +3820,10 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
   // see IPSFolderProcessor
   public void moveChildren(
-      PSLocator sourceFolderId, List children, PSLocator targetFolderId, boolean force)
+      PSLocator sourceFolderId,
+      List<PSLocator> children,
+      PSLocator targetFolderId,
+      boolean force)
       throws PSCmsException {
     moveFolderChildren(sourceFolderId, children, targetFolderId, force, true);
   }
@@ -3829,7 +3843,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    */
   public void moveFolderChildren(
       PSLocator sourceFolderId,
-      List children,
+      List<PSLocator> children,
       PSLocator targetFolderId,
       boolean force,
       boolean checkFolderPermission)
@@ -3895,7 +3909,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   // see IPSFolderProcessor
-  public void moveChildren(PSLocator sourceFolderId, List children, PSLocator targetFolderId)
+  public void moveChildren(
+      PSLocator sourceFolderId, List<PSLocator> children, PSLocator targetFolderId)
       throws PSCmsException {
     moveChildren(sourceFolderId, children, targetFolderId, false);
   }
@@ -4142,7 +4157,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
         logger.info("Source: {} --> Target: {}", sourceSite, targetSite);
       }
 
-      List children = new ArrayList();
+      // May hold PSLocator or PSLocatorWithName (override name for clone)
+      List<Object> children = new ArrayList<>();
       PSLocatorWithName newSource =
           new PSLocatorWithName(source.getId(), source.getRevision(), options.getFolderName());
       children.add(newSource);
@@ -4159,7 +4175,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
         request.setParameter(IPSHtmlParameters.RXS_DISABLE_NAV_FOLDER_EFFECT, "y");
 
         PSComponentSummaries childSummaries =
-            getComponentSummaries(children.iterator(), null, false);
+            getComponentSummaries(
+                (Iterator<PSLocator>) (Iterator<?>) children.iterator(), null, false);
 
         // make sure target is not a descendent of the copied childen
         validateTargetParentIsNotDescendent(
@@ -4425,15 +4442,15 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
   // see IPSFolderProcessor
 
-  public Set getFolderCommunities(PSLocator source) throws PSCmsException {
+  public Set<Integer> getFolderCommunities(PSLocator source) throws PSCmsException {
     if (source == null) throw new IllegalArgumentException("source cannot be null");
 
-    Set communities = new HashSet();
+    Set<Integer> communities = new HashSet<>();
 
     PSComponentSummaries summaries = new PSComponentSummaries();
     collectComponentSummaries(source, summaries);
 
-    Iterator walker = summaries.iterator();
+    Iterator<?> walker = summaries.iterator();
     while (walker.hasNext()) {
       PSComponentSummary summary = (PSComponentSummary) walker.next();
       communities.add(Integer.valueOf(summary.getCommunityId()));
