@@ -19,6 +19,7 @@ package com.percussion.delivery.service.impl;
 
 import com.percussion.delivery.client.IPSDeliveryClient;
 import com.percussion.delivery.client.PSDeliveryClient;
+import com.percussion.delivery.client.PSDeliveryHttpErrorSupport;
 import com.percussion.delivery.data.PSDeliveryInfo;
 import com.percussion.delivery.service.IPSDeliveryInfoService;
 import com.percussion.delivery.service.PSDeliveryInfoServiceLocator;
@@ -242,12 +243,16 @@ public class PSDeliveryInfoService implements IPSDeliveryInfoService
                 }
                 if (info.getAvailableServices().contains(PSDeliveryInfo.SERVICE_FEEDS)) {
                     PSDeliveryClient deliveryClient = new PSDeliveryClient();
+                    final String rotateKeyPath = "/feeds/rss/rotateKey";
+                    final String methodLabel = IPSDeliveryClient.HttpMethodType.PUT.name();
+                    String expectedUrl = PSDeliveryHttpErrorSupport.joinAdminActionUrl(
+                            info.getAdminUrl().orElse(""), rotateKeyPath);
                     try {
                         Set<Integer> successfullHttpStatusCodes = new HashSet<>();
                         successfullHttpStatusCodes.add(204);
                         deliveryClient.push(
                                 new IPSDeliveryClient.PSDeliveryActionOptions()
-                                        .setActionUrl("/feeds/rss/rotateKey")
+                                        .setActionUrl(rotateKeyPath)
                                         .setDeliveryInfo(info)
                                         .setHttpMethod(IPSDeliveryClient.HttpMethodType.PUT)
                                         .setSuccessfullHttpStatusCodes(successfullHttpStatusCodes)
@@ -255,8 +260,27 @@ public class PSDeliveryInfoService implements IPSDeliveryInfoService
                                 secureKey);
                         log.info("Updated security key pushed to DTS server: {}", info.getAdminUrl().orElse(""));
                     } catch (Exception ex) {
-                        log.warn("Unable to push updated security key to DTS server:{} ", info.getAdminUrl().orElse(""));
-                        log.debug("Unable to push updated security key to DTS server:{}  ERROR: {} ", info.getAdminUrl().orElse(""), ex.getMessage(), ex);
+                        String fullUrl = expectedUrl;
+                        String method = methodLabel;
+                        int statusCode = -1;
+                        if (ex instanceof IPSDeliveryClient.PSDeliveryClientException pce) {
+                            if (StringUtils.isNotBlank(pce.getRequestUrl())) {
+                                fullUrl = pce.getRequestUrl();
+                            }
+                            if (StringUtils.isNotBlank(pce.getHttpMethod())) {
+                                method = pce.getHttpMethod();
+                            }
+                            statusCode = pce.getStatusCode();
+                        }
+                        String shortReason = PSDeliveryHttpErrorSupport.shortReasonFromException(ex);
+                        log.warn(
+                                PSDeliveryHttpErrorSupport.formatRotateKeyFailureWarn(
+                                        method, fullUrl, statusCode, shortReason));
+                        log.debug(
+                                "Unable to push updated security key to DTS server: {} ERROR: {}",
+                                fullUrl,
+                                ex.getMessage(),
+                                ex);
                     }
                 }
             }
