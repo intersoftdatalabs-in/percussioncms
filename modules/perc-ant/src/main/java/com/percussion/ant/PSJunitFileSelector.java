@@ -347,13 +347,13 @@ public class PSJunitFileSelector extends BaseExtendSelector {
    * @return An array of url objects for each classpath element that is found to exist.
    */
   private URL[] pathToURLs(String classPath) {
-    List<URL> urlList = new ArrayList<URL>();
+    List<URL> urlList = new ArrayList<>();
     StringTokenizer st = new StringTokenizer(classPath, File.pathSeparator);
     while (st.hasMoreTokens()) {
       File file = new File(st.nextToken());
       if (file.exists()) {
         try {
-          urlList.add(file.toURL());
+          urlList.add(file.toURI().toURL());
         } catch (MalformedURLException e) {
           // ignore bad entries (that's what Java does)
           log.error(PSExceptionUtils.getMessageForLog(e));
@@ -362,7 +362,7 @@ public class PSJunitFileSelector extends BaseExtendSelector {
       }
     }
 
-    return urlList.toArray(new URL[urlList.size()]);
+    return urlList.toArray(new URL[0]);
   }
 
   /**

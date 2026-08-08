@@ -247,7 +247,7 @@ public class PSUpgradeDerby extends PSAction {
     PSLogger.logInfo("Loading DerbyDriver at RunTime");
     File derbyJDBCDriver = null;
     File dir = new File(getRootDir() + File.separator + "Deployment/Server/common/lib");
-    FileFilter fileFilter = new WildcardFileFilter("derby-*.jar");
+    FileFilter fileFilter = WildcardFileFilter.builder().setWildcards("derby-*.jar").get();
     File[] files = dir.listFiles(fileFilter);
     if (files != null) {
       if (files.length == 1) {
@@ -282,16 +282,14 @@ public class PSUpgradeDerby extends PSAction {
     }
 
     try {
-      Class.forName(driver).newInstance();
+      Class.forName(driver);
     } catch (ClassNotFoundException e) {
       try {
         loadDerbyJDBCJar();
-        Class.forName(driver).newInstance();
+        Class.forName(driver);
       } catch (Exception ex) {
         throw new BuildException("Unable to load embedded Derby driver");
       }
-    } catch (InstantiationException | IllegalAccessException ex) {
-      throw new BuildException("Unable to load embedded Derby driver");
     }
 
     // Connection properties

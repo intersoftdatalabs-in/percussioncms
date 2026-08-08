@@ -20,7 +20,6 @@ package com.percussion.ant.install;
 import com.percussion.install.PSLogger;
 import com.percussion.install.RxFileManager;
 import com.percussion.security.xml.PSSecureXMLUtils;
-import com.percussion.util.IOTools;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.io.BufferedInputStream;
@@ -182,7 +181,7 @@ public class PSXMLFileUpdate extends PSAction implements EntityResolver {
     try {
       // create a backup of the xml file, if specified
       if (m_backupXmlFile) {
-        File backupFile = IOTools.createBackupFile(fSrcXmlFile);
+        File backupFile = PSInstallIoUtils.createBackupFile(fSrcXmlFile);
       }
 
       if (deleteSrcFile) fSrcXmlFile.delete();
@@ -314,7 +313,7 @@ public class PSXMLFileUpdate extends PSAction implements EntityResolver {
    */
   private String resolveFile(String file) throws Exception {
     BufferedReader in = new BufferedReader(new FileReader(file));
-    String xslResolvedFile = IOTools.createTempFile(new File(file)).getAbsolutePath();
+    String xslResolvedFile = PSInstallIoUtils.createTempFile(new File(file)).getAbsolutePath();
 
     BufferedWriter out = null;
     try {

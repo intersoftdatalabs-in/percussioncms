@@ -92,8 +92,7 @@ public class TestExecSQLRemoveDupes {
   }
 
   @Test
-  public void testTask()
-      throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+  public void testTask() throws SQLException, ClassNotFoundException {
 
     PSExecSQLRemoveDupes task = new PSExecSQLRemoveDupes();
     task.setQualifyingTableName("CT_PAGE_PAGE_CATEGORIES_SET");
@@ -103,7 +102,7 @@ public class TestExecSQLRemoveDupes {
 
     // Now make sure that the data was updated correctly
     System.setProperty("derby.system.home", repoRoot);
-    Class.forName(driver).newInstance();
+    Class.forName(driver);
     try (Connection conn = DriverManager.getConnection(connectionURL)) {
       Statement statement = conn.createStatement();
       String sql =
@@ -130,10 +129,9 @@ public class TestExecSQLRemoveDupes {
   }
 
   @Test
-  public void testMultiLevelDupes()
-      throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+  public void testMultiLevelDupes() throws SQLException, ClassNotFoundException {
     System.setProperty("derby.system.home", repoRoot);
-    Class.forName(driver).newInstance();
+    Class.forName(driver);
     try (Connection conn = DriverManager.getConnection(connectionURL)) {
       Statement statement = conn.createStatement();
       String sql =
@@ -164,7 +162,7 @@ public class TestExecSQLRemoveDupes {
       newTask.execute();
     }
     System.setProperty("derby.system.home", repoRoot);
-    Class.forName(driver).newInstance();
+    Class.forName(driver);
     try (Connection connection = DriverManager.getConnection(connectionURL)) {
       Statement statement = connection.createStatement();
       String sql =

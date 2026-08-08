@@ -18,6 +18,7 @@ package com.percussion.ant;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -56,17 +57,17 @@ public class PSPropagateFile extends Task {
   public void execute() throws BuildException {
 
     if (m_srcFile == null) {
-      throw new BuildException("The src attribute must be present.", location);
+      throw new BuildException("The src attribute must be present.", getLocation());
     }
 
     if (!m_srcFile.exists()) {
-      throw new BuildException("src " + m_srcFile.toString() + " does not exist.", location);
+      throw new BuildException("src " + m_srcFile.toString() + " does not exist.", getLocation());
     }
 
     try {
-      List<String> directories = new ArrayList<String>();
+      List<String> directories = new ArrayList<>();
       Iterator<DirSet> it = m_fileSets.iterator();
-      FileUtils utils = FileUtils.newFileUtils();
+      FileUtils utils = FileUtils.getFileUtils();
       File baseDir = null;
       int count = 0;
       while (it.hasNext()) {
@@ -79,8 +80,9 @@ public class PSPropagateFile extends Task {
       Iterator<String> dirIt = directories.iterator();
 
       while (dirIt.hasNext()) {
-
-        File df = new File(baseDir + "/" + dirIt.next() + "/" + m_srcFile.getName());
+        Path destPath =
+            baseDir.toPath().resolve(dirIt.next()).resolve(m_srcFile.getName()).normalize();
+        File df = destPath.toFile();
 
         utils.copyFile(m_srcFile, df);
         count++;
@@ -95,5 +97,5 @@ public class PSPropagateFile extends Task {
   }
 
   private File m_srcFile;
-  private List<DirSet> m_fileSets = new ArrayList<DirSet>();
+  private List<DirSet> m_fileSets = new ArrayList<>();
 }

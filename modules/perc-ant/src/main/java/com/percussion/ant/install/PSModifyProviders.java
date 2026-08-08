@@ -83,6 +83,7 @@ public final class PSModifyProviders extends PSAction {
 
   // see base class
   @Override
+  @SuppressWarnings("deprecation") // PSConfigurationCtx still requires getPartOneKey for convert
   public void execute() {
     try {
       PSLogger.logInfo("Modifying security providers");

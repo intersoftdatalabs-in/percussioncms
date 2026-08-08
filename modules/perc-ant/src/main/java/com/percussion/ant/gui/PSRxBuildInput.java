@@ -1292,15 +1292,15 @@ public class PSRxBuildInput {
    */
   public static void main(String[] args) {
 
-    boolean obfuscation = (StringUtils.equalsIgnoreCase(System.getProperty("OBFUSCATION"), "true"));
+    boolean obfuscation = "true".equalsIgnoreCase(System.getProperty("OBFUSCATION"));
 
-    boolean debug = (StringUtils.equalsIgnoreCase(System.getProperty("DEBUG"), "true"));
+    boolean debug = "true".equalsIgnoreCase(System.getProperty("DEBUG"));
 
-    boolean manufacture = (StringUtils.equalsIgnoreCase(System.getProperty("MANUFACTURE"), "true"));
+    boolean manufacture = "true".equalsIgnoreCase(System.getProperty("MANUFACTURE"));
 
-    boolean sync = (StringUtils.equalsIgnoreCase(System.getProperty("SYNC"), "true"));
+    boolean sync = "true".equalsIgnoreCase(System.getProperty("SYNC"));
 
-    boolean verbose = (StringUtils.equalsIgnoreCase(System.getProperty("VERBOSE"), "true"));
+    boolean verbose = "true".equalsIgnoreCase(System.getProperty("VERBOSE"));
 
     if (args.length > 8) {
       new PSRxBuildInput(
