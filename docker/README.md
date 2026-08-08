@@ -231,15 +231,17 @@ python docker/scripts/perc-devctl.py down
 
 Starts an ephemeral **CMS + H2** matrix cell (same stack as `matrix-install-smoke.py --product cms --db h2 --keep`), waits for the resolved probe URL (`http://127.0.0.1:<QA_CMS_HOST_PORT>/Rhythmyx/login`), prints `TEST_CMS_URL` / admin username (password from generated install file when available), and tears down with `docker rm -f perc-matrix-cms-h2` so ports and disk are freed (no multi-GB named volume by default). Full operator flow: [workbench-rest-and-qa-modes.md](../docs/developer-module/workbench-rest-and-qa-modes.md) → **QA mode** section. Concurrent freeport checklist: **Two-worktree concurrent freeport smoke** above.
 
-##### Rhythmyx ApplicationContext fail-fast (#2462 / #2423)
+##### Rhythmyx ApplicationContext fail-fast (#2462 / #2480 / #2423)
 
-Jetty can report the HTTP connector **Started** while the ROOT/Rhythmyx Spring `ApplicationContext` failed (e.g. `BeanCurrentlyInCreationException` / circular `folderHelper` wiring). A port-up or HTTP-only probe is **not** sufficient.
+Jetty can report the HTTP connector **Started** while the ROOT/Rhythmyx Spring `ApplicationContext` failed (e.g. `BeanCurrentlyInCreationException` / circular `folderHelper` wiring). A port-up or HTTP-only probe is **not** sufficient. The same markers apply to **QA matrix cells** and the **cms-dts compose stack**.
 
 | Signal | Where | Operator meaning |
 |--------|--------|------------------|
 | `RESULT:OK STEP:qa-health HTTP:…` | `perc-devctl.py qa-health` | Probe URL ready **and** recent `docker logs` have **no** Rhythmyx context-failure markers |
-| `RESULT:FAIL … DETAIL:rhythmyx_context_failed MATCH:…` | `qa-health` or matrix cell `detail` | **Fail-fast**: Spring/Jetty context death detected in logs; treat cell as unusable even if HTTP answered |
+| `RESULT:OK STEP:verify CMS_HTTP:… DTS_HTTP:… HEALTH:healthy` | `perc-devctl.py verify` (and `verify-fix` / `deploy-jar --verify`) | CMS+DTS HTTP ready, docker health healthy, **and** cms-dts logs have **no** Rhythmyx context-failure markers |
+| `RESULT:FAIL … DETAIL:rhythmyx_context_failed MATCH:…` | `qa-health`, compose `verify` / `_verify_inline`, or matrix cell `detail` | **Fail-fast**: Spring/Jetty context death detected in logs; treat stack as unusable even if HTTP / docker health answered green |
 | `RESULT:FAIL … DETAIL:timeout after Ns (last_http=…)` | `qa-health` | Probe never became ready; if logs later show context fail, re-run `qa-health` or `docker logs perc-matrix-cms-h2` |
+| `RESULT:FAIL … DETAIL:timeout after Ns (cms_http=… dts_http=… health=…)` | `verify` | Stack never became ready; scan `docker logs percussion-cms-dts` for context markers |
 | Matrix `status=fail` + `detail` containing `rhythmyx_context_failed` | `matrix-install-smoke.py` CMS cells | Same fail-fast during cell HTTP wait (container log scan) |
 
 Markers (shared helper `docker/scripts/rhythmyx_ready.py`): `Failed startup of context`, `BeanCurrentlyInCreationException`, `Requested bean is currently in creation`, `Is there an unresolvable circular reference`.
@@ -251,6 +253,13 @@ python docker/scripts/perc-devctl.py qa-health
 # RESULT:FAIL STEP:qa-health DETAIL:rhythmyx_context_failed MATCH:Failed startup of context …
 docker logs perc-matrix-cms-h2 2>&1 | findstr /i "Failed startup BeanCurrently circular folderHelper"
 # Unix: docker logs perc-matrix-cms-h2 2>&1 | grep -E 'Failed startup|BeanCurrently|circular'
+
+# After compose up, verify also scans cms-dts logs (#2480):
+python docker/scripts/perc-devctl.py verify
+# FAIL example:
+# RESULT:FAIL STEP:verify DETAIL:rhythmyx_context_failed MATCH:Failed startup of context …
+docker logs percussion-cms-dts 2>&1 | findstr /i "Failed startup BeanCurrently circular folderHelper"
+# Unix: docker logs percussion-cms-dts 2>&1 | grep -E 'Failed startup|BeanCurrently|circular'
 ```
 
 Unit tests: `python -m pytest docker/scripts/test_rhythmyx_ready.py docker/scripts/test_perc_devctl.py docker/scripts/test_matrix_install_smoke.py -q`.
