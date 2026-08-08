@@ -74,7 +74,12 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
 
   @Autowired
   public PSPageDaoHelper(
-      IPSContentWs contentWs, IPSFolderHelper folderHelper, IPSIdMapper idMapper) {
+      IPSContentWs contentWs,
+      // @Lazy breaks reverse edge: folderHelper creation → … → pageDaoHelper → folderHelper.
+      // Class-level @Lazy on this bean only defers first request; ctor deps still resolve eagerly.
+      // Observed on Docker CMS after contentItemDao @Lazy (#2435): #2423 / #2437.
+      @Lazy IPSFolderHelper folderHelper,
+      IPSIdMapper idMapper) {
     this.contentWs = contentWs;
     this.folderHelper = folderHelper;
     this.idMapper = idMapper;
