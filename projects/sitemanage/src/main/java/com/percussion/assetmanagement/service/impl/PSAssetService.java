@@ -164,7 +164,11 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
   @Autowired
   public PSAssetService(
       IPSIdMapper idMapper,
-      IPSPageService pageService,
+      // Belt-and-braces: class-level @Lazy on both beans does not break constructor edges.
+      // Param @Lazy injects a pageService proxy so a future reverse edge (or eager multi-hop
+      // creation through shared cycle peers) cannot form BeanCurrentlyInCreationException on
+      // assetService↔pageService. pageService is only used post-construction (see #2476 / #2463).
+      @Lazy IPSPageService pageService,
       @Qualifier("sys_templateService") IPSTemplateService templateService,
       IPSWidgetService widgetService,
       IPSContentDesignWs contentDs,

@@ -28,6 +28,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.Lazy;
 
 /**
  * Protection for the next-hottest sitemanage injection edge after the folderHelper cycle (#2423).
@@ -37,16 +38,18 @@ import org.junit.jupiter.api.Test;
  * PSContentItemDao}. The next hottest <em>near-cycle</em> is a one-way hub edge:
  *
  * <pre>
- * assetService  →  pageService   (constructor, not @Lazy)
+ * assetService  →  pageService   (constructor, param @Lazy — #2476)
  * pageService   ↛  assetService  (must remain true)
  * </pre>
  *
  * <p>{@link PSAssetService} is a high fan-in product service that construct-requires {@link
- * IPSPageService}. {@link PSPageService} already construct-requires cycle peers ({@code
- * contentItemDao}, {@code folderHelper}, {@code recycleService}, {@code
- * widgetAssetRelationshipService}). Adding {@link IPSAssetService} to {@code PSPageService}'s
- * constructor (or an eager non-{@code @Lazy} field) would form a new {@code
- * BeanCurrentlyInCreationException} path independent of the folderHelper fix.
+ * IPSPageService}. Class-level {@code @Lazy} on both beans does <em>not</em> break constructor
+ * dependency edges when an eager consumer forces creation; parameter {@code @Lazy} injects a proxy
+ * (peer of {@link PSContentItemDaoCycleLazyWiringTest}). {@link PSPageService} already
+ * construct-requires cycle peers ({@code contentItemDao}, {@code folderHelper}, {@code
+ * recycleService}, {@code widgetAssetRelationshipService}). Adding {@link IPSAssetService} to
+ * {@code PSPageService}'s constructor without a matching lazy break would still be a wiring hazard;
+ * the reverse edge remains banned here and the forward edge carries param {@code @Lazy}.
  *
  * <p>Peers: {@link PSContentItemDaoCycleLazyWiringTest}, {@code FolderHelperCycleContextTest}
  * (#2436). Full inventory: {@code
@@ -63,6 +66,23 @@ public class PSAssetServicePageServiceNearCycleWiringTest {
         pageParam,
         "PSAssetService must still construct-require IPSPageService — inventory #2463 assumed this"
             + " one-way hub edge; if the edge was removed, update the inventory and this test");
+  }
+
+  /**
+   * Belt-and-braces: param {@code @Lazy} on the forward edge so Spring injects a pageService proxy
+   * (#2476). Class-level {@code @Lazy} alone is insufficient when both beans are forced during
+   * startup (see inventory note on class vs param {@code @Lazy}).
+   */
+  @Test
+  public void assetServicePageServiceConstructorParameterIsLazy() throws NoSuchMethodException {
+    Constructor<?> ctor = singlePublicConstructor(PSAssetService.class);
+    Parameter pageParam = findParamOfType(ctor, IPSPageService.class);
+    assertNotNull(pageParam, "Expected an IPSPageService constructor parameter on PSAssetService");
+    assertTrue(
+        pageParam.isAnnotationPresent(Lazy.class),
+        "IPSPageService constructor parameter on PSAssetService must be @Lazy (belt-and-braces"
+            + " near-cycle protection for assetService→pageService; see #2476 / #2463)."
+            + " pageService is only used post-construction so the proxy is safe.");
   }
 
   @Test
