@@ -44,8 +44,13 @@ public abstract class PSItemIterator<M> {
    */
   Map<?, ?> m_map = null;
 
-  /** The filter, may be <code>null</code> as the filter is not required */
-  Predicate<? super M> m_filter = null;
+  /**
+   * The filter, may be <code>null</code> as the filter is not required. Typed as {@code
+   * Predicate<Object>} because {@link PSNamePatternFilter} evaluates keys and items via {@code
+   * Object}/{@code toString}/{@code Item.getName()}, and the same predicate is shared with {@link
+   * PSMultiMapIterator} key filtering.
+   */
+  Predicate<Object> m_filter = null;
 
   /**
    * Ctor, may only be used from subclasses

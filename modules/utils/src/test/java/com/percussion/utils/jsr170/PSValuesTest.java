@@ -212,6 +212,18 @@ public class PSValuesTest {
   }
 
   @Test
+  public void testBaseValueEqualsUsesTypedPatternMatch() throws Exception {
+    PSValueFactory fact = new PSValueFactory();
+    Value a = fact.createValue(7L);
+    Value b = fact.createValue(7L);
+    Value c = fact.createValue(8L);
+    assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
+    assertTrue(!a.equals(c));
+    assertTrue(!a.equals("not-a-value"));
+  }
+
+  @Test
   public void testPropertyDefinitionQueryMetadata() {
     PSPropertyDefinition def =
         new PSPropertyDefinition("rx:title", false, PropertyType.STRING, new StubNodeType());
