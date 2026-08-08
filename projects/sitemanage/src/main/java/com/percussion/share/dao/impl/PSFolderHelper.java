@@ -166,7 +166,11 @@ public class PSFolderHelper implements IPSFolderHelper {
       IPSNotificationService notificationService,
       IPSSiteManager siteMgr,
       IPSWorkflowService workflowService,
-      IPSRecycleService recycleService) {
+      // @Lazy breaks constructor cycles that re-enter folderHelper via recycle →
+      // widgetAssetRelationshipService → pageIndexService → pageDaoHelper (and via
+      // assetDao → contentItemDao). Class-level @Lazy alone does not break ctor edges.
+      // See #2423 / #2437 Docker Rhythmyx startup.
+      @Lazy IPSRecycleService recycleService) {
     this.contentWs = contentWs;
     this.dataItemSummaryService = dataItemSummaryService;
     this.idMapper = idMapper;

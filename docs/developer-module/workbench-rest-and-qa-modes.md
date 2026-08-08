@@ -106,12 +106,24 @@ Two supported modes. Agents must know which they are in. **Developers/agents do 
 
 Productized entrypoint on `docker/scripts/perc-devctl.py` (cross-platform Python; no shell required). Implements **#1827** slice 1 / **#1927**: CMS on **H2 in Docker**, published URL, no host install.
 
-**Prereq (once per machine / after installer changes):** package the customer CMS installer assembly:
+**Prereq (once per machine / after installer or sitemanage/WebUI SNAPSHOT changes):** rebuild the chain that feeds the installer. The matrix cell **bind-mounts** `modules/perc-distribution-tree/target/perc-distribution-tree.jar`; that jar unpacks **`WebUI/target/perc-web-ui-*.war`** into `Rhythmyx/WEB-INF/lib` (including `sitemanage-*.jar`). Packaging only `perc-distribution-tree` after a sitemanage-only install **does not** pick up a new sitemanage if the WebUI WAR is stale.
+
+```bash
+# After sitemanage (or other Rhythmyx WEB-INF/lib) changes — full QA rebuild chain:
+cd projects/sitemanage && ../../mvnw clean install   # or package if tests already green
+cd ../../WebUI && ../mvnw package -DskipTests
+cd ../modules/perc-distribution-tree && ../../mvnw clean package -DskipTests
+# Windows: use mvnw.cmd and the same module order
+```
+
+If only installer packaging scripts/resources changed (no Java SNAPSHOT under the WAR):
 
 ```bash
 cd modules/perc-distribution-tree && ../../mvnw package -DskipTests
 # Windows: cd modules\perc-distribution-tree && ..\..\mvnw.cmd package -DskipTests
 ```
+
+**Post-cycle-fix smoke (#2423 / #2437):** after the rebuild chain, `qa-up` logs must show `ServletContextHandler] Started` for ROOT/Rhythmyx and **must not** contain `BeanCurrentlyInCreationException` / `Failed startup of context`. `qa-health` → login page HTTP 200/302 is the operator gate before Playwright.
 
 **Lifecycle (always use this order for unattended QA):**
 
