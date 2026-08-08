@@ -81,8 +81,8 @@ public class SimplifyParameters {
       sval = x[0];
       log.trace("Converted String[] to {} {}", sval, value);
     } else if (value instanceof List) {
-      List x = (List) value;
-      if (x.size() == 0) {
+      List<?> x = (List<?>) value;
+      if (x.isEmpty()) {
         log.debug("Empty List");
         return "";
       }
@@ -102,7 +102,7 @@ public class SimplifyParameters {
       return result;
     }
     if (value instanceof List) {
-      List<Object> ff = (List<Object>) value;
+      List<?> ff = (List<?>) value;
       for (Object vl : ff) {
         result.add(vl.toString());
       }

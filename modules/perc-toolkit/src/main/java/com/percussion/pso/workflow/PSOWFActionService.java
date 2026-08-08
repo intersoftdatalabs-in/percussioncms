@@ -184,11 +184,11 @@ public class PSOWFActionService implements IPSOWFActionService {
       throws PSExtensionException, PSNotFoundException {
     initServices();
     IPSWorkflowAction ext = null;
-    Iterator<PSExtensionRef> itr =
+    Iterator<?> itr =
         extMgr.getExtensionNames(
             "Java", null, IPSWorkflowAction.class.getName(), workflowActionName);
     while (itr.hasNext()) {
-      PSExtensionRef ref = itr.next();
+      PSExtensionRef ref = (PSExtensionRef) itr.next();
       log.debug("found extension " + ref.getFQN());
       ext = (IPSWorkflowAction) extMgr.prepareExtension(ref, null);
       log.debug("prepared extension " + ext.getClass().getCanonicalName());

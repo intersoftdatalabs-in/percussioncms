@@ -157,10 +157,10 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
       end = 0;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    List tmp = subListUnSafe(c, start, end);
-    rvalue = tmp;
-    return rvalue;
+    List<Object> tmp = subListUnSafe(c, start, end);
+    @SuppressWarnings("unchecked")
+    List<T> typed = (List<T>) (List<?>) tmp;
+    return typed;
   }
 
   /**
@@ -343,7 +343,7 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
       params = {
         @IPSJexlParam(name = "list", description = "the list whose elements are to be reversed.")
       })
-  public void reverse(List list) {
+  public void reverse(List<?> list) {
     Collections.reverse(list);
   }
 
@@ -364,7 +364,7 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
           s.append(",");
         }
         s.append(m.getName() + "(");
-        Class[] params = m.getParameterTypes();
+        Class<?>[] params = m.getParameterTypes();
         for (int j = 0; j < params.length; j++) {
           s.append(params[j].getName());
           if (j < (params.length - 1)) {

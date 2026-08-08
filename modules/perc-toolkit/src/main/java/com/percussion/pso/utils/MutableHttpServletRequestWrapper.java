@@ -124,7 +124,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
    * @see jakarta.servlet.ServletRequestWrapper#getParameterMap()
    */
   @Override
-  public Map getParameterMap() {
+  public Map<String, String[]> getParameterMap() {
     return Collections.unmodifiableMap(localParams);
   }
 
@@ -132,8 +132,8 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
    * @see jakarta.servlet.ServletRequestWrapper#getParameterNames()
    */
   @Override
-  public Enumeration getParameterNames() {
-    return Collections.<String>enumeration(localParams.keySet());
+  public Enumeration<String> getParameterNames() {
+    return Collections.enumeration(localParams.keySet());
   }
 
   /**
@@ -165,12 +165,12 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
    * @see jakarta.servlet.http.HttpServletRequestWrapper#getHeaderNames()
    */
   @Override
-  public Enumeration getHeaderNames() {
-    Set<String> names = new HashSet<String>();
+  public Enumeration<String> getHeaderNames() {
+    Set<String> names = new HashSet<>();
     names.addAll(localHeaders.keySet());
-    Enumeration e = super.getHeaderNames();
+    Enumeration<String> e = super.getHeaderNames();
     while (e.hasMoreElements()) {
-      String nm = e.nextElement().toString().toLowerCase();
+      String nm = e.nextElement().toLowerCase();
       if (!names.contains(nm)) // faster this way
       {
         names.add(nm);
@@ -183,7 +183,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
    * @see jakarta.servlet.http.HttpServletRequestWrapper#getHeaders(java.lang.String)
    */
   @Override
-  public Enumeration getHeaders(String name) {
+  public Enumeration<String> getHeaders(String name) {
     Validate.notEmpty(name);
     String key = name.toUpperCase();
     if (localHeaders.containsKey(key)) {

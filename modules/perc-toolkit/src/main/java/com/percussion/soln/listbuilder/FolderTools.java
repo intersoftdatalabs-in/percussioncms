@@ -237,10 +237,10 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
   public Map<String, String> getFolderProperties(String path) {
     try {
       PSFolder folder = getContentWs().loadFolders(new String[] {path}).get(0);
-      Map<String, String> props = new HashMap<String, String>();
-      Iterator<PSFolderProperty> it = folder.getProperties();
+      Map<String, String> props = new HashMap<>();
+      Iterator<?> it = folder.getProperties();
       while (it.hasNext()) {
-        PSFolderProperty prop = it.next();
+        PSFolderProperty prop = (PSFolderProperty) it.next();
         props.put(prop.getName(), prop.getValue());
       }
       return props;

@@ -55,18 +55,20 @@ public class PSOParseUrlQueryString {
            *     no mapping for key. A <code>null</code> return can also indicate that the HashMap
            *     previously associated <code>null</code> with the specified key.
            */
-          @SuppressWarnings(value = {"unchecked"})
+          @Override
           public Object put(String key, Object value) {
             Object oldValue = super.put(key, value);
             if (oldValue != null) {
               if (oldValue instanceof ArrayList) {
-                ((ArrayList) oldValue).add(value);
-                super.put(key, oldValue);
+                @SuppressWarnings("unchecked")
+                ArrayList<Object> existing = (ArrayList<Object>) oldValue;
+                existing.add(value);
+                super.put(key, existing);
               } else {
-                ArrayList l = new ArrayList();
-                l.add(oldValue);
-                l.add(value);
-                super.put(key, l);
+                ArrayList<Object> list = new ArrayList<>();
+                list.add(oldValue);
+                list.add(value);
+                super.put(key, list);
               }
             }
             return oldValue;

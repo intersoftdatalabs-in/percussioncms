@@ -146,6 +146,7 @@ public class PublishEditionService implements InitializingBean {
    * @param sessionId
    * @deprecated
    */
+  @Deprecated
   @SuppressWarnings("deprecation")
   protected QueuedEdition makeQueuedEdition(String editionId, String sessionId) {
 
@@ -161,6 +162,7 @@ public class PublishEditionService implements InitializingBean {
    * @return Returns the baseUrl.
    * @deprecated
    */
+  @Deprecated
   public String getBaseUrl() {
     return baseUrl;
   }
@@ -171,6 +173,7 @@ public class PublishEditionService implements InitializingBean {
    * @param baseUrl The baseUrl to set.
    * @deprecated
    */
+  @Deprecated
   public void setBaseUrl(String baseUrl) {
     this.baseUrl = baseUrl;
   }
@@ -181,6 +184,7 @@ public class PublishEditionService implements InitializingBean {
    * @return Returns the listenerPort.
    * @deprecated
    */
+  @Deprecated
   public String getListenerPort() {
     return listenerPort;
   }
@@ -191,6 +195,7 @@ public class PublishEditionService implements InitializingBean {
    * @param listenerPort The listenerPort to set.
    * @deprecated
    */
+  @Deprecated
   public void setListenerPort(String listenerPort) {
     this.listenerPort = listenerPort;
   }
@@ -271,6 +276,7 @@ public class PublishEditionService implements InitializingBean {
    * @return Returns the retryCount.
    * @deprecated
    */
+  @Deprecated
   public int getRetryCount() {
     return retryCount;
   }
@@ -279,6 +285,7 @@ public class PublishEditionService implements InitializingBean {
    * @param retryCount The retryCount to set.
    * @deprecated
    */
+  @Deprecated
   public void setRetryCount(int retryCount) {
     this.retryCount = retryCount;
   }

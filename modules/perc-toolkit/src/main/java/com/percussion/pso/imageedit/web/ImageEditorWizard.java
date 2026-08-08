@@ -396,12 +396,7 @@ public class ImageEditorWizard {
     long y = Math.max(Math.round(rect.getY() * scaleFactor), 0l);
     long h = Math.min(Math.round(rect.getHeight() * scaleFactor), imageSize.height - y);
     long w = Math.min(Math.round(rect.getWidth() * scaleFactor), imageSize.width - x);
-    Rectangle out =
-        new Rectangle(
-            new Long(x).intValue(),
-            new Long(y).intValue(),
-            new Long(w).intValue(),
-            new Long(h).intValue());
+    Rectangle out = new Rectangle((int) x, (int) y, (int) w, (int) h);
     return out;
   }
 
@@ -960,9 +955,9 @@ public class ImageEditorWizard {
         && width < maxDisplayWidth) { // image is small enough that we don't need to scale it.
       return 1.0;
     }
-    Double hr = new Double(height) / new Double(maxDisplayHeight);
-    Double wr = new Double(width) / new Double(maxDisplayWidth);
-    return Math.max(hr.doubleValue(), wr.doubleValue());
+    double hr = (double) height / (double) maxDisplayHeight;
+    double wr = (double) width / (double) maxDisplayWidth;
+    return Math.max(hr, wr);
   }
 
   public UserSessionData getUserSessionData(HttpServletRequest request) {

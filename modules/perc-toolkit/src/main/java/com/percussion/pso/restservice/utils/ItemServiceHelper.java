@@ -46,7 +46,7 @@ public class ItemServiceHelper {
     StringWriter sw = new StringWriter();
     try {
 
-      JAXBContext jc = JAXBContext.newInstance(new Class[] {Item.class});
+      JAXBContext jc = JAXBContext.newInstance(Item.class);
       Marshaller m = jc.createMarshaller();
       m.setProperty("jaxb.fragment", Boolean.TRUE);
       m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
@@ -67,7 +67,7 @@ public class ItemServiceHelper {
    * @throws JAXBException
    */
   public static Item getItemFromXml(InputStream is) throws JAXBException {
-    JAXBContext jc = JAXBContext.newInstance(new Class[] {Item.class});
+    JAXBContext jc = JAXBContext.newInstance(Item.class);
     Unmarshaller um = jc.createUnmarshaller();
     Item item = (Item) um.unmarshal(is);
     return item;
@@ -81,7 +81,7 @@ public class ItemServiceHelper {
    * @throws JAXBException
    */
   public static Items getItemsFromXml(InputStream is) throws JAXBException {
-    JAXBContext jc = JAXBContext.newInstance(new Class[] {Items.class});
+    JAXBContext jc = JAXBContext.newInstance(Items.class);
     Unmarshaller um = jc.createUnmarshaller();
     Items items = (Items) um.unmarshal(is);
     return items;
@@ -121,7 +121,7 @@ public class ItemServiceHelper {
     DocumentResult dr = new DocumentResult();
     try {
 
-      JAXBContext jc = JAXBContext.newInstance(new Class[] {Item.class});
+      JAXBContext jc = JAXBContext.newInstance(Item.class);
       Marshaller m = jc.createMarshaller();
       m.setProperty("jaxb.fragment", Boolean.TRUE);
       m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
