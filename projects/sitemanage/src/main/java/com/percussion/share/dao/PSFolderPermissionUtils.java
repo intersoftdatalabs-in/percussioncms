@@ -83,8 +83,9 @@ public class PSFolderPermissionUtils {
     var readPrincipals = new ArrayList<Principal>();
     var writePrincipals = new ArrayList<Principal>();
 
-    for (var entryObj : (Iterable<?>) () -> acl.iterator()) {
-      var entry = (PSObjectAclEntry) entryObj;
+    var iter = acl.iterator();
+    while (iter.hasNext()) {
+      var entry = (PSObjectAclEntry) iter.next();
       if (entry.isUser()) {
         var p = new Principal();
         p.setName(entry.getName());
@@ -401,8 +402,9 @@ public class PSFolderPermissionUtils {
    */
   private static PSObjectAclEntry getAclEntry(PSObjectAcl acl, int type, String name) {
     if (acl == null) return null;
-    for (var entryObj : (Iterable<?>) () -> acl.iterator()) {
-      var entry = (PSObjectAclEntry) entryObj;
+    var iter = acl.iterator();
+    while (iter.hasNext()) {
+      var entry = (PSObjectAclEntry) iter.next();
       if (entry.getType() == type && (name == null || entry.getName().equalsIgnoreCase(name))) {
         return entry;
       }
@@ -418,8 +420,9 @@ public class PSFolderPermissionUtils {
   private static void removeNonVirtualAclEntries(PSObjectAcl acl) {
     if (acl == null) return;
     var entries = new ArrayList<PSObjectAclEntry>();
-    for (var entryObj : (Iterable<?>) () -> acl.iterator()) {
-      var entry = (PSObjectAclEntry) entryObj;
+    var iter = acl.iterator();
+    while (iter.hasNext()) {
+      var entry = (PSObjectAclEntry) iter.next();
       if (!entry.isVirtual()) entries.add(entry);
     }
     entries.forEach(acl::remove);
