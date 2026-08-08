@@ -62,6 +62,24 @@ These beans have high constructor fan-in and sit on or next to the known cycle p
 
 Protection test: `PSAssetServicePageServiceNearCycleWiringTest` (asserts one-way ctor edge + param `@Lazy` + no reverse).
 
+### ItemWorkflow hub reverse-edge protection (#2478)
+
+**`PSItemWorkflowService` → cycle peers (constructor)** with **no reverse** from those peers → `IPSItemWorkflowService`.
+
+Scan (2026-08-08 / #2478): among known-cycle peers (`PSAssetDao`, `PSContentItemDao`, `PSWidgetAssetRelationshipService`, `PSRecycleService`, `PSFolderHelper`):
+
+| Peer | ctor → `IPSItemWorkflowService`? | field → `IPSItemWorkflowService`? | Notes |
+|------|----------------------------------|-----------------------------------|-------|
+| `PSAssetDao` | no | no | Forward only: itemWorkflow → assetDao |
+| `PSContentItemDao` | no | no | Cycle-break peer; must stay free of hub reverse |
+| `PSWidgetAssetRelationshipService` | no | no | Forward only |
+| `PSRecycleService` | no | no | Imports transition **constants** only (`TRANSITION_TRIGGER_*`), not the bean |
+| `PSFolderHelper` | no | no | Forward only |
+
+`PSItemWorkflowService` itself construct-requires `IPSAssetDao`, `IPSFolderHelper`, `IPSRecycleService`, `IPSWidgetAssetRelationshipService` (class `@Lazy` on the hub is not a reverse-edge breaker for peers that inject it eagerly).
+
+Protection test: `PSItemWorkflowServiceHubReverseEdgeWiringTest` — freezes forward hub edges; forbids reverse ctor edges unless parameter `@Lazy`; forbids non-`@Lazy` field inject of `IPSItemWorkflowService` on the five peers. Intentional `@Lazy` reverse edges (if ever added) must be documented in this table.
+
 ### Other one-way edges to keep one-way (known cycle intermediate)
 
 These must not gain reverse constructor dependencies:
@@ -72,8 +90,9 @@ These must not gain reverse constructor dependencies:
 | `PSWidgetAssetRelationshipService` | `IPSAssetDao` | assetDao → widgetAsset skips contentItemDao break |
 | `PSRecycleService` | `IPSWidgetAssetRelationshipService` | widgetAsset → recycle closes mid-chain |
 | `PSFolderHelper` | `IPSRecycleService` | recycle → folderHelper bypasses contentItemDao `@Lazy` |
+| `PSItemWorkflowService` | `IPSAssetDao` / `IPSFolderHelper` / `IPSRecycleService` / `IPSWidgetAssetRelationshipService` | peer → itemWorkflow closes hub reverse cycle (#2478) |
 
-`FolderHelperCycleContextTest` (#2436) + `PSContentItemDaoCycleLazyWiringTest` (#2435) cover the `@Lazy` break; intermediate reverse edges are residual hardening candidates.
+`FolderHelperCycleContextTest` (#2436) + `PSContentItemDaoCycleLazyWiringTest` (#2435) cover the `@Lazy` break; intermediate reverse edges: `PSAssetServicePageServiceNearCycleWiringTest` + `PSItemWorkflowServiceHubReverseEdgeWiringTest` (#2478).
 
 ## Constructor `@Lazy` parameter edges found (sitemanage)
 
@@ -100,11 +119,12 @@ Many path/item services inject `IPSFolderHelper` without parameter `@Lazy` (e.g.
 
 ## Residual recommendations (file as GitHub issues under #2423)
 
-1. Optional: protect intermediate known-cycle reverse edges with reflection tests (assetDao/widgetAsset/recycle one-way) — **covered in** `PSAssetServicePageServiceNearCycleWiringTest.knownCycleIntermediateBeansHaveNoReverseConstructorEdges` (#2463).
-2. ~~Optional: add `@Lazy` on `PSAssetService`'s `IPSPageService` ctor param~~ — **done (#2476)**.
-3. Keep Docker `qa-up` / Rhythmyx health smoke (#2437) as the production-level gate.
-4. When adding new `@Autowired` constructors on cycle peers, re-run this inventory method (or extend the reflection tests).
-5. Hub hardening still open as separate residuals: templateService (#2477), itemWorkflow reverse-edge tests (#2478).
+1. ~~Optional: protect intermediate known-cycle reverse edges with reflection tests (assetDao/widgetAsset/recycle one-way).~~ Done in `PSAssetServicePageServiceNearCycleWiringTest.knownCycleIntermediateBeansHaveNoReverseConstructorEdges` (#2463).
+2. ~~Optional: add `@Lazy` on `PSAssetService`'s `IPSPageService` ctor param as belt-and-braces.~~ **Done (#2476)**.
+3. ~~ItemWorkflow hub reverse-edge tests.~~ Done: `PSItemWorkflowServiceHubReverseEdgeWiringTest` (#2478).
+4. Keep Docker `qa-up` / Rhythmyx health smoke (#2437) as the production-level gate.
+5. When adding new `@Autowired` constructors on cycle peers, re-run this inventory method (or extend the reflection tests).
+6. Optional next hubs (same pattern as #2478): `PSPageService` (rank 1) and `PSTemplateService` (rank 3 / #2477) reverse-edge freezes.
 
 ## Related
 
@@ -114,4 +134,6 @@ Many path/item services inject `IPSFolderHelper` without parameter `@Lazy` (e.g.
 - #2437 — Docker qa-up health/login smoke  
 - #2463 — this residual inventory  
 - #2476 — param `@Lazy` on assetService→pageService  
+- #2478 — itemWorkflow hub reverse-edge protection (`PSItemWorkflowServiceHubReverseEdgeWiringTest`)  
+- #2477 — templateService hub hardening residual  
 - #2457 / PR #2469 — JDK 21 lambda compile fix often needed to build sitemanage tests
