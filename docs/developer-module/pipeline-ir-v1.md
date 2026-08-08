@@ -72,6 +72,17 @@ Slice A part 1 delivers **IR model + load/save + classic import**. Execution, SQ
           "unique": false,
           "method": "whereClause | nativeStatement | unknown",
           "whereClauseCount": 1,
+          "whereClauses": [
+            {
+              "leftKind": "COLUMN",
+              "left": "PSX_ADMINLOOKUP.TYPE",
+              "operator": "=",
+              "rightKind": "PARAM",
+              "right": "sys_key",
+              "booleanOp": "AND",
+              "omitWhenNull": false
+            }
+          ],
           "sortedColumnCount": 0,
           "nativeStatement": null
         },
@@ -111,11 +122,12 @@ From classic `PSApplication` / `PSDataSet` / pipes:
 | `PSPageDataTank` | `stages.pageTank` |
 | `PSBackEndDataTank` | `stages.backendTank` (tables + join count) |
 | `PSDataMapper` | `stages.mapper` (field inventory) |
-| `PSDataSelector` | `stages.selector` (method + clause counts) |
+| `PSDataSelector` | `stages.selector` (method + whereClauses IR + counts) |
+| `PSWhereClause` / `PSConditional` | `selector.whereClauses[]` (COLUMN/PARAM/LITERAL/OTHER) |
 | `PSResultPager` | `stages.pager` |
 | `PSDataSynchronizer` | `stages.updater` |
 
-Not imported in v1 (deferred): full where-clause trees, join graphs, exits/hooks, result pages/XSL, ACLs, CE field maps.
+Not imported in v1 (deferred): join graphs (only `joinCount`), exits/hooks, result pages/XSL, ACLs, CE field maps. Unsupported where right-hand kinds stay as `OTHER` (planner requires native SQL for those).
 
 ## Service API
 
@@ -135,6 +147,7 @@ Not imported in v1 (deferred): full where-clause trees, join graphs, exits/hooks
 - `execute(document, resource, request)` — in-memory IR (tests / callers)
 - SQL via `IPSPipelineSqlAdapter` / `PSJdbcPipelineSqlAdapter` (parameterized JDBC only)
 - Planner: `PSPipelineSqlPlanner` (generated single-table SELECT/INSERT/**UPDATE**/**DELETE**, or native SELECT with `:param`)
+- Generated SELECT **WHERE** prefers `selector.whereClauses` IR when present (COLUMN left; operators `=`, `<>`, `!=`, `<`, `<=`, `>`, `>=`, `LIKE`, `NOT LIKE`, `IS NULL`, `IS NOT NULL`; right PARAM/LITERAL/COLUMN; AND/OR; `omitWhenNull`). Otherwise falls back to request-param equality on mapped columns.
 - Pre/post hooks: `IPSPipelinePreExecuteHook` / `IPSPipelinePostExecuteHook`
 - JSON I/O: `PipelineExecuteRequest` / `PipelineExecuteResult` + `PSPipelineExecuteJsonCodec`
 - Thin REST: `POST /services/pipelines/{app}/resources/{resource}/execute` (see #2269 / PR #2341)
@@ -188,7 +201,7 @@ Documented + covered by H2 tests in `PSPipelineRuntimeServiceTest` (`transaction
 | Parameterized SQL | Request values bound as JDBC `?` only |
 | Generated identifiers | Table/column must match `[A-Za-z_][A-Za-z0-9_]*` |
 | Native SQL escape hatch | Single `SELECT`/`WITH` only; named `:param`; rejects `;`, DML/DDL keywords |
-| Joins / multi-table | Not supported in Slice A2 planner (residual) |
+| Joins / multi-table | **Product limit:** `joinCount > 0` rejected (`PSPipelineSqlPlanner.JOIN_PRODUCT_LIMIT_MESSAGE`). Multi-table tanks without joins also rejected. Use single table or `nativeStatement` SELECT with hand-authored joins. Residual join-graph planner under parent epic #1690 / #2359 follow-up. |
 | Unrestricted DELETE/UPDATE | Rejected (WHERE keys required) |
 
 Manual raw multi-statement SQL is **not** a product surface.
@@ -196,13 +209,14 @@ Manual raw multi-statement SQL is **not** a product surface.
 ## Tests
 
 - IR JSON round-trip + file load/save
-- Golden classic fixture `sys_adminCataloger` → IR stage inventory (backend tank, mapper, selector, page tank)
-- H2 runtime: generated query + JSON params, native SELECT, pre/post hooks, INSERT, UPDATE/DELETE flag gates, multi-row `transactionMode` all/row (`PSPipelineRuntimeServiceTest`)
+- Golden classic fixture `sys_adminCataloger` → IR stage inventory (backend tank, mapper, selector whereClauses, page tank)
+- H2 runtime: generated query + JSON params, **where-clause IR** (PARAM/LIKE), native SELECT, pre/post hooks, INSERT, UPDATE/DELETE flag gates, multi-row `transactionMode` all/row, **joinCount product-limit rejection** (`PSPipelineRuntimeServiceTest`)
 
 ## Evolution
 
 - **1.x** additive fields preferred; bump `irVersion` only for breaking shape changes.
 - Slice A2 (#2248): SQL execute + JSON I/O + hooks consume this IR (landed).
 - Residual #2269: thin REST invoke (landed / PR #2341).
-- Residual #2340: richer UPDATE/DELETE + multi-row txn modes (this work); join graphs / full where-clause IR may remain a further residual.
+- Residual #2340: richer UPDATE/DELETE + multi-row txn modes (landed / PR #2360).
+- Residual #2359: where-clause IR executable path + documented join product limit (this work); **join-graph SQL generation** remains a further residual under #1690.
 - Slice B: designer writes native IR (`source=NATIVE`).

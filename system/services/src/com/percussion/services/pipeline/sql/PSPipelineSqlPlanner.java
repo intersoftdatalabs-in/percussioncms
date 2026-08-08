@@ -25,6 +25,7 @@ import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
 import com.percussion.services.pipeline.model.SelectorStageIr;
 import com.percussion.services.pipeline.model.UpdaterStageIr;
+import com.percussion.services.pipeline.model.WhereClauseIr;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -46,12 +47,29 @@ import java.util.regex.Pattern;
  *   <li>Generated identifiers (table/column) are restricted to {@code [A-Za-z_][A-Za-z0-9_]*}.
  *   <li>Native SQL (selector {@code nativeStatement}) is an escape hatch: single {@code SELECT}
  *       only, named {@code :param} placeholders; multi-statement and non-SELECT rejected.
+ *   <li>Multi-table joins are a documented product limit: {@code joinCount &gt; 0} is rejected
+ *       (use native SELECT escape hatch or a residual join-graph planner).
  * </ul>
  */
 public final class PSPipelineSqlPlanner {
 
   private static final Pattern SAFE_IDENT = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
   private static final Pattern NAMED_PARAM = Pattern.compile(":([A-Za-z_][A-Za-z0-9_]*)");
+
+  /** Relational operators allowed in generated WHERE (case-insensitive match after normalize). */
+  private static final Set<String> BINARY_OPS =
+      Set.of("=", "<>", "!=", "<", "<=", ">", ">=", "LIKE", "NOT LIKE");
+
+  private static final Set<String> UNARY_OPS = Set.of("IS NULL", "IS NOT NULL");
+
+  /**
+   * Product-limit message for multi-table backend tanks. Keep stable for tests and API clients.
+   */
+  public static final String JOIN_PRODUCT_LIMIT_MESSAGE =
+      "Product limit: multi-table joins are not supported by the pipeline SQL planner"
+          + " (joinCount > 0). Use a single backend table, or the selector nativeStatement"
+          + " escape hatch for hand-authored SELECT with joins. Residual join-graph planner"
+          + " tracked under parent pipeline epic.";
 
   private PSPipelineSqlPlanner() {}
 
@@ -62,8 +80,9 @@ public final class PSPipelineSqlPlanner {
    *
    * <ol>
    *   <li>If selector uses {@code nativeStatement}, compile named-parameter SELECT.
-   *   <li>Else build projection from single backend table + COLUMN mapper mappings; optional WHERE
-   *       from request params that match mapped columns / JSON field names.
+   *   <li>Else build projection from single backend table + COLUMN mapper mappings; WHERE from
+   *       selector where-clause IR when present, otherwise request params that match mapped columns
+   *       / JSON field names (equality only).
    * </ol>
    */
   public static PSPipelineSqlPlan planQuery(
@@ -601,7 +620,14 @@ public final class PSPipelineSqlPlanner {
           "QUERY resource has no COLUMN mappings to project: " + resource.getName());
     }
 
+    SelectorStageIr selector =
+        resource.getStages() != null ? resource.getStages().getSelector() : null;
+    boolean distinct = selector != null && selector.isUnique();
+
     StringBuilder sql = new StringBuilder("SELECT ");
+    if (distinct) {
+      sql.append("DISTINCT ");
+    }
     for (int i = 0; i < mappings.size(); i++) {
       ColumnMapping m = mappings.get(i);
       if (i > 0) {
@@ -614,33 +640,203 @@ public final class PSPipelineSqlPlanner {
     List<Object> binds = new ArrayList<>();
     Map<String, Object> params =
         request.getParams() != null ? request.getParams() : Map.of();
-    if (!params.isEmpty()) {
-      List<String> whereParts = new ArrayList<>();
-      // Deduplicate by mapped column so case variants of the same param (TYPE vs type) do not
-      // produce duplicate WHERE "TYPE" = ? AND "TYPE" = ? with conflicting binds.
-      Set<String> usedColumns = new HashSet<>();
-      for (Map.Entry<String, Object> e : params.entrySet()) {
-        ColumnMapping match = findMappingForParam(mappings, e.getKey());
-        if (match == null) {
-          // Unknown params are ignored for generated WHERE (hooks may use them); only mapped cols
-          // become filters.
-          continue;
-        }
-        String colKey = match.column.toUpperCase(Locale.ROOT);
-        if (!usedColumns.add(colKey)) {
-          continue;
-        }
-        whereParts.add(quoteIdent(match.column) + " = ?");
-        binds.add(e.getValue());
-      }
-      if (!whereParts.isEmpty()) {
-        sql.append(" WHERE ");
-        sql.append(String.join(" AND ", whereParts));
-      }
+
+    List<WhereClauseIr> irClauses =
+        selector != null && selector.getWhereClauses() != null
+            ? selector.getWhereClauses()
+            : List.of();
+    if (!irClauses.isEmpty()) {
+      appendWhereFromIr(sql, binds, irClauses, params, resource.getName());
+    } else if (!params.isEmpty()) {
+      appendWhereFromRequestParams(sql, binds, mappings, params);
     }
 
     return new PSPipelineSqlPlan(
         PSPipelineSqlPlan.Kind.QUERY, sql.toString(), binds, "generatedSelect:" + table);
+  }
+
+  /**
+   * Build WHERE from selector where-clause IR (classic import / native IR). Values are always JDBC
+   * binds; identifiers are validated.
+   */
+  private static void appendWhereFromIr(
+      StringBuilder sql,
+      List<Object> binds,
+      List<WhereClauseIr> clauses,
+      Map<String, Object> params,
+      String resourceName)
+      throws PSPipelineIrException {
+    List<String> parts = new ArrayList<>();
+    // Connector after each emitted part (classic: boolean on a clause joins it to the next).
+    List<String> trailingConnectors = new ArrayList<>();
+    for (WhereClauseIr clause : clauses) {
+      if (clause == null) {
+        continue;
+      }
+      PredicateFrag frag = compileWherePredicate(clause, params, resourceName);
+      if (frag == null) {
+        // omitWhenNull skipped this predicate — do not consume its boolean either
+        continue;
+      }
+      parts.add(frag.sql);
+      binds.addAll(frag.binds);
+      trailingConnectors.add(frag.booleanOpAfter);
+    }
+    if (parts.isEmpty()) {
+      return;
+    }
+    sql.append(" WHERE ");
+    for (int i = 0; i < parts.size(); i++) {
+      if (i > 0) {
+        // Use the previous clause's boolean as the join to this clause
+        sql.append(' ').append(trailingConnectors.get(i - 1)).append(' ');
+      }
+      sql.append(parts.get(i));
+    }
+  }
+
+  /**
+   * @return null when predicate should be omitted (omitWhenNull + missing/null param)
+   */
+  private static PredicateFrag compileWherePredicate(
+      WhereClauseIr clause, Map<String, Object> params, String resourceName)
+      throws PSPipelineIrException {
+    String opRaw = clause.getOperator();
+    if (opRaw == null || opRaw.isBlank()) {
+      throw new PSPipelineIrException(
+          "Where-clause IR missing operator on resource: " + resourceName);
+    }
+    String op = normalizeOperator(opRaw);
+
+    if (!WhereClauseIr.KIND_COLUMN.equals(clause.getLeftKind())) {
+      throw new PSPipelineIrException(
+          "Where-clause IR left side must be COLUMN (got "
+              + clause.getLeftKind()
+              + ") on resource: "
+              + resourceName
+              + " — use nativeStatement for non-column predicates");
+    }
+    String leftCol = columnFromBackend(clause.getLeft() != null ? clause.getLeft() : "");
+    String leftSql = quoteIdent(leftCol);
+
+    String bool =
+        clause.getBooleanOp() != null && !clause.getBooleanOp().isBlank()
+            ? clause.getBooleanOp().trim().toUpperCase(Locale.ROOT)
+            : WhereClauseIr.BOOL_AND;
+    if (!WhereClauseIr.BOOL_AND.equals(bool) && !WhereClauseIr.BOOL_OR.equals(bool)) {
+      throw new PSPipelineIrException(
+          "Where-clause IR booleanOp must be AND or OR (got " + bool + "): " + resourceName);
+    }
+
+    if (UNARY_OPS.contains(op)) {
+      return new PredicateFrag(leftSql + " " + op, List.of(), bool);
+    }
+
+    if (!BINARY_OPS.contains(op)) {
+      throw new PSPipelineIrException(
+          "Where-clause IR operator not supported by generated planner: "
+              + opRaw
+              + " on resource: "
+              + resourceName
+              + " (supported: =, <>, !=, <, <=, >, >=, LIKE, NOT LIKE, IS NULL, IS NOT NULL)");
+    }
+
+    // SQL uses <> for inequality
+    String sqlOp = "!=".equals(op) ? "<>" : op;
+
+    String rightKind = clause.getRightKind() != null ? clause.getRightKind() : WhereClauseIr.KIND_OTHER;
+    if (WhereClauseIr.KIND_COLUMN.equals(rightKind)) {
+      String rightCol = columnFromBackend(clause.getRight() != null ? clause.getRight() : "");
+      return new PredicateFrag(leftSql + " " + sqlOp + " " + quoteIdent(rightCol), List.of(), bool);
+    }
+    if (WhereClauseIr.KIND_PARAM.equals(rightKind)) {
+      String paramName = clause.getRight();
+      if (paramName == null || paramName.isBlank()) {
+        throw new PSPipelineIrException(
+            "Where-clause IR PARAM right side missing name on resource: " + resourceName);
+      }
+      boolean present = containsKeyIgnoreCase(params, paramName);
+      Object value = present ? findParamIgnoreCase(params, paramName) : null;
+      if (clause.isOmitWhenNull() && (!present || value == null)) {
+        return null;
+      }
+      if (!present) {
+        throw new PSPipelineIrException(
+            "Missing request param for where-clause IR placeholder: "
+                + paramName
+                + " (resource: "
+                + resourceName
+                + ")");
+      }
+      return new PredicateFrag(leftSql + " " + sqlOp + " ?", List.of(value), bool);
+    }
+    if (WhereClauseIr.KIND_LITERAL.equals(rightKind)) {
+      // Always bind literals as parameters — never concatenate into SQL text.
+      Object lit = clause.getRight();
+      if (clause.isOmitWhenNull() && lit == null) {
+        return null;
+      }
+      return new PredicateFrag(leftSql + " " + sqlOp + " ?", List.of(lit), bool);
+    }
+    throw new PSPipelineIrException(
+        "Where-clause IR right side kind not executable ("
+            + rightKind
+            + ") on resource: "
+            + resourceName
+            + " — use nativeStatement for OTHER kinds");
+  }
+
+  private static String normalizeOperator(String opRaw) {
+    String t = opRaw.trim().replaceAll("\\s+", " ");
+    String upper = t.toUpperCase(Locale.ROOT);
+    // Preserve symbolic ops; upper-case word ops
+    if ("!=".equals(t) || "<>".equals(t) || "=".equals(t) || "<".equals(t) || ">".equals(t)
+        || "<=".equals(t) || ">=".equals(t)) {
+      return t;
+    }
+    return upper;
+  }
+
+  private static void appendWhereFromRequestParams(
+      StringBuilder sql,
+      List<Object> binds,
+      List<ColumnMapping> mappings,
+      Map<String, Object> params) {
+    List<String> whereParts = new ArrayList<>();
+    // Deduplicate by mapped column so case variants of the same param (TYPE vs type) do not
+    // produce duplicate WHERE "TYPE" = ? AND "TYPE" = ? with conflicting binds.
+    Set<String> usedColumns = new HashSet<>();
+    for (Map.Entry<String, Object> e : params.entrySet()) {
+      ColumnMapping match = findMappingForParam(mappings, e.getKey());
+      if (match == null) {
+        // Unknown params are ignored for generated WHERE (hooks may use them); only mapped cols
+        // become filters.
+        continue;
+      }
+      String colKey = match.column.toUpperCase(Locale.ROOT);
+      if (!usedColumns.add(colKey)) {
+        continue;
+      }
+      whereParts.add(quoteIdent(match.column) + " = ?");
+      binds.add(e.getValue());
+    }
+    if (!whereParts.isEmpty()) {
+      sql.append(" WHERE ");
+      sql.append(String.join(" AND ", whereParts));
+    }
+  }
+
+  private static final class PredicateFrag {
+    final String sql;
+    final List<Object> binds;
+    /** Boolean connector that joins this fragment to the next (classic clause boolean). */
+    final String booleanOpAfter;
+
+    PredicateFrag(String sql, List<Object> binds, String booleanOpAfter) {
+      this.sql = sql;
+      this.binds = binds;
+      this.booleanOpAfter = booleanOpAfter;
+    }
   }
 
   private static String requireSingleTable(PipelineResourceIr resource) throws PSPipelineIrException {
@@ -651,12 +847,15 @@ public final class PSPipelineSqlPlanner {
     }
     if (resource.getStages().getBackendTank().getJoinCount() > 0) {
       throw new PSPipelineIrException(
-          "Joined backend tanks are not supported in Slice A runtime: " + resource.getName());
+          JOIN_PRODUCT_LIMIT_MESSAGE + " Resource: " + resource.getName());
     }
     List<BackendTableRefIr> tables = resource.getStages().getBackendTank().getTables();
     if (tables == null || tables.size() != 1) {
       throw new PSPipelineIrException(
-          "Slice A runtime requires exactly one backend table: " + resource.getName());
+          "Pipeline SQL planner requires exactly one backend table (got "
+              + (tables == null ? 0 : tables.size())
+              + "); multi-table tanks without joins are also unsupported. Resource: "
+              + resource.getName());
     }
     String table = tables.get(0).getTable();
     if (table == null || table.isBlank()) {

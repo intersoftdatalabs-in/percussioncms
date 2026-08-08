@@ -17,6 +17,7 @@
 
 package com.percussion.services.pipeline;
 
+import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndDataTank;
@@ -28,14 +29,20 @@ import com.percussion.design.objectstore.PSDataSelector;
 import com.percussion.design.objectstore.PSDataSet;
 import com.percussion.design.objectstore.PSDataSynchronizer;
 import com.percussion.design.objectstore.PSExtensionCall;
+import com.percussion.design.objectstore.PSHtmlParameter;
+import com.percussion.design.objectstore.PSLiteral;
+import com.percussion.design.objectstore.PSNamedReplacementValue;
 import com.percussion.design.objectstore.PSPageDataTank;
 import com.percussion.design.objectstore.PSPipe;
 import com.percussion.design.objectstore.PSQueryPipe;
 import com.percussion.design.objectstore.PSRequestor;
 import com.percussion.design.objectstore.PSResultPager;
+import com.percussion.design.objectstore.PSSingleHtmlParameter;
+import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.design.objectstore.PSUpdatePipe;
 import com.percussion.design.objectstore.PSUnknownDocTypeException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
+import com.percussion.design.objectstore.PSWhereClause;
 import com.percussion.services.pipeline.model.BackendTableRefIr;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
 import com.percussion.services.pipeline.model.MapperStageIr;
@@ -48,6 +55,7 @@ import com.percussion.services.pipeline.model.PipelineResourceIr;
 import com.percussion.services.pipeline.model.PipelineStagesIr;
 import com.percussion.services.pipeline.model.SelectorStageIr;
 import com.percussion.services.pipeline.model.UpdaterStageIr;
+import com.percussion.services.pipeline.model.WhereClauseIr;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.IOException;
@@ -278,10 +286,88 @@ public final class PSClassicPipelineImporter {
       stage.setMethod(SelectorStageIr.METHOD_UNKNOWN);
     }
     PSCollection wheres = selector.getWhereClauses();
-    stage.setWhereClauseCount(wheres != null ? wheres.size() : 0);
+    List<WhereClauseIr> whereIr = new ArrayList<>();
+    if (wheres != null) {
+      for (Object o : wheres) {
+        if (o instanceof PSWhereClause clause) {
+          whereIr.add(mapWhereClause(clause));
+        }
+      }
+    }
+    stage.setWhereClauses(whereIr);
     PSCollection sorts = selector.getSortedColumns();
     stage.setSortedColumnCount(sorts != null ? sorts.size() : 0);
     return stage;
+  }
+
+  private static WhereClauseIr mapWhereClause(PSWhereClause clause) {
+    WhereClauseIr ir = new WhereClauseIr();
+    ir.setOmitWhenNull(clause.isOmittedWhenNull());
+    ir.setOperator(clause.getOperator());
+    String bool = clause.getBoolean();
+    if (StringUtils.isNotBlank(bool)) {
+      ir.setBooleanOp(bool.trim().toUpperCase(java.util.Locale.ROOT));
+    }
+    mapReplacement(clause.getVariable(), ir, true);
+    mapReplacement(clause.getValue(), ir, false);
+    return ir;
+  }
+
+  /**
+   * Map a classic replacement value onto left or right of a where-clause IR entry.
+   *
+   * @param value classic replacement, may be {@code null}
+   * @param ir target clause
+   * @param left {@code true} for variable/left side; {@code false} for value/right side
+   */
+  private static void mapReplacement(IPSReplacementValue value, WhereClauseIr ir, boolean left) {
+    if (value == null) {
+      if (left) {
+        ir.setLeftKind(WhereClauseIr.KIND_OTHER);
+        ir.setLeft(null);
+      } else {
+        ir.setRightKind(WhereClauseIr.KIND_OTHER);
+        ir.setRight(null);
+      }
+      return;
+    }
+    String kind;
+    String text;
+    if (value instanceof PSBackEndColumn col) {
+      kind = WhereClauseIr.KIND_COLUMN;
+      String alias = col.getTable() != null ? col.getTable().getAlias() : null;
+      String column = col.getColumn();
+      if (StringUtils.isNotBlank(alias) && StringUtils.isNotBlank(column)) {
+        text = alias + "." + column;
+      } else {
+        text = column;
+      }
+    } else if (value instanceof PSHtmlParameter || value instanceof PSSingleHtmlParameter) {
+      kind = WhereClauseIr.KIND_PARAM;
+      text = value instanceof PSNamedReplacementValue n ? n.getName() : value.getValueText();
+    } else if (value instanceof PSTextLiteral lit) {
+      kind = WhereClauseIr.KIND_LITERAL;
+      text = lit.getText();
+    } else if (value instanceof PSLiteral) {
+      // NumericDate/other literals: display/value text from replacement interface
+      kind = WhereClauseIr.KIND_LITERAL;
+      text = value.getValueText();
+    } else if (value instanceof PSNamedReplacementValue named
+        && ("HtmlParameter".equals(value.getValueType())
+            || "SingleHtmlParameter".equals(value.getValueType()))) {
+      kind = WhereClauseIr.KIND_PARAM;
+      text = named.getName();
+    } else {
+      kind = WhereClauseIr.KIND_OTHER;
+      text = value.getValueText();
+    }
+    if (left) {
+      ir.setLeftKind(kind);
+      ir.setLeft(text);
+    } else {
+      ir.setRightKind(kind);
+      ir.setRight(text);
+    }
   }
 
   private static PagerStageIr mapPager(PSResultPager pager) {

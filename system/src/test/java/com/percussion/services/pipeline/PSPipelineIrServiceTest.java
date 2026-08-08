@@ -24,6 +24,7 @@ import com.percussion.services.pipeline.model.MapperStageIr;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
 import com.percussion.services.pipeline.model.SelectorStageIr;
+import com.percussion.services.pipeline.model.WhereClauseIr;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -98,6 +99,14 @@ class PSPipelineIrServiceTest {
     SelectorStageIr selector = res.getStages().getSelector();
     assertEquals(SelectorStageIr.METHOD_WHERE, selector.getMethod());
     assertEquals(1, selector.getWhereClauseCount());
+    assertEquals(1, selector.getWhereClauses().size());
+    WhereClauseIr where = selector.getWhereClauses().get(0);
+    assertEquals(WhereClauseIr.KIND_COLUMN, where.getLeftKind());
+    assertEquals("PSX_ADMINLOOKUP.TYPE", where.getLeft());
+    assertEquals("=", where.getOperator());
+    assertEquals(WhereClauseIr.KIND_PARAM, where.getRightKind());
+    assertEquals("sys_key", where.getRight());
+    assertFalse(where.isOmitWhenNull());
     assertFalse(selector.isUnique());
   }
 
