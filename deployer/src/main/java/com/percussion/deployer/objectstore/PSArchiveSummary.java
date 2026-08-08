@@ -47,7 +47,7 @@ public class PSArchiveSummary implements IPSDeployComponent {
    *     objects. It may not be <code>null</code> or empty.
    * @throws IllegalArgumentException if any parameter is invalid.
    */
-  public PSArchiveSummary(PSArchiveInfo archiveInfo, Date installDate, Iterator packageList) {
+  public PSArchiveSummary(PSArchiveInfo archiveInfo, Date installDate, Iterator<PSArchivePackage> packageList) {
     if (archiveInfo == null || archiveInfo.getArchiveDetail() != null)
       throw new IllegalArgumentException(
           "archiveInfo may not be null or may not include PSArchiveDetail");
@@ -159,9 +159,9 @@ public class PSArchiveSummary implements IPSDeployComponent {
       throw new IllegalArgumentException("pkgName may not be null or empty");
 
     PSArchivePackage pkgFound = null;
-    Iterator pList = m_packageList.iterator();
+    Iterator<PSArchivePackage> pList = m_packageList.iterator();
     while (pList.hasNext() && pkgFound == null) {
-      PSArchivePackage pkg = (PSArchivePackage) pList.next();
+      PSArchivePackage pkg = pList.next();
       if (pkgName.equals(pkg.getName())) pkgFound = pkg;
     }
     if (pkgFound == null) throw new IllegalArgumentException("pkgName cannot be found");

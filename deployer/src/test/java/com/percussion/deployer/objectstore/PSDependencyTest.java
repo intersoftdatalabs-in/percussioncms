@@ -43,6 +43,50 @@ public class PSDependencyTest {
   public PSDependencyTest() {}
 
   /**
+   * Behavioral coverage for {@link PSDependency#compareTo(PSDependency)} after
+   * {@code Comparable<PSDependency>} typing (issue #2028 batch 1).
+   */
+  @Test
+  public void testCompareToOrdersByDisplayIdentifier() {
+    PSDeployableObject lower =
+        new PSDeployableObject(
+            PSDependency.TYPE_SHARED,
+            "id-a",
+            "TypeA",
+            "Type A",
+            "alpha",
+            true,
+            false,
+            false);
+    PSDeployableObject higher =
+        new PSDeployableObject(
+            PSDependency.TYPE_SHARED,
+            "id-b",
+            "TypeA",
+            "Type A",
+            "beta",
+            true,
+            false,
+            false);
+    PSDeployableObject sameDisplayDifferentId =
+        new PSDeployableObject(
+            PSDependency.TYPE_SHARED,
+            "id-c",
+            "TypeA",
+            "Type A",
+            "alpha",
+            true,
+            false,
+            false);
+
+    assertTrue(lower.compareTo(higher) < 0);
+    assertTrue(higher.compareTo(lower) > 0);
+    assertEquals(0, lower.compareTo(lower));
+    // same display identifier falls back to dependency id
+    assertTrue(lower.compareTo(sameDisplayDifferentId) < 0);
+  }
+
+  /**
    * Tests the <code>getParentDependency</code> method.
    *
    * @throws Exception
@@ -75,7 +119,7 @@ public class PSDependencyTest {
     // parent dep should be null until this is assigned as a child
     assertNull(do2.getParentDependency());
 
-    List objList = new ArrayList();
+    List<PSDependency> objList = new ArrayList<>();
     objList.add(do1);
     objList.add(do2);
 
@@ -104,8 +148,8 @@ public class PSDependencyTest {
     Element el = de1.toXml(doc);
     PSDeployableElement de2 = new PSDeployableElement(el);
     assertEquals(de1, de2);
-    for (Iterator i = de2.getDependencies(); i.hasNext(); ) {
-      PSDependency dep = (PSDependency) i.next();
+    for (Iterator<PSDependency> i = de2.getDependencies(); i.hasNext(); ) {
+      PSDependency dep = i.next();
       assertNotNull(dep.getParentDependency());
       assertSame(de2, dep.getParentDependency());
     }
@@ -114,14 +158,14 @@ public class PSDependencyTest {
     PSDependency clone = (PSDependency) de1.clone();
     assertEquals(de1, clone);
     // de1's deps should point to de1
-    for (Iterator i = de1.getDependencies(); i.hasNext(); ) {
-      PSDependency dep = (PSDependency) i.next();
+    for (Iterator<PSDependency> i = de1.getDependencies(); i.hasNext(); ) {
+      PSDependency dep = i.next();
       assertNotNull(dep.getParentDependency());
       assertSame(de1, dep.getParentDependency());
     }
     // clone's deps should point to clone (clone is deep)
-    for (Iterator i = clone.getDependencies(); i.hasNext(); ) {
-      PSDependency dep = (PSDependency) i.next();
+    for (Iterator<PSDependency> i = clone.getDependencies(); i.hasNext(); ) {
+      PSDependency dep = i.next();
       assertNotNull(dep.getParentDependency());
       assertSame(clone, dep.getParentDependency());
     }
@@ -199,7 +243,7 @@ public class PSDependencyTest {
             false,
             false);
 
-    List objList = new ArrayList();
+    List<PSDependency> objList = new ArrayList<>();
     objList.add(do1);
     objList.add(do2);
 

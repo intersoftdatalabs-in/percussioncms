@@ -188,10 +188,10 @@ public class PSIdMap implements IPSDeployComponent {
       throw new IllegalArgumentException("parentType may not be null or empty");
     }
 
-    Iterator mappings = m_mappingList.iterator();
+    Iterator<PSIdMapping> mappings = m_mappingList.iterator();
     PSIdMapping result = null;
     while (mappings.hasNext() && result == null) {
-      PSIdMapping mapping = (PSIdMapping) mappings.next();
+      PSIdMapping mapping = mappings.next();
       if (targetId.equals(mapping.getTargetId()) && objectType.equals(mapping.getObjectType())) {
         if (targetParentId != null) {
           if (targetParentId.equals(mapping.getTargetParentId())

@@ -198,7 +198,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable<PSCatalog
       }
 
       while (column != null) {
-        String data = tree.getElementData(column);
+        String data = PSXmlTreeWalker.getElementData(column);
         String typeString = PSDeployComponentUtils.getRequiredAttribute(column, XML_COL_TYPE_ATTR);
         int type = PSCatalogResultColumn.getType(typeString);
         if (PSCatalogResultColumn.validateType(type)) {
