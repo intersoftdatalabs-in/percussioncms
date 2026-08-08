@@ -78,8 +78,8 @@ class DtsLogrotateSamplePackagingTest {
         xml.contains("logrotate"),
         "installDts.xml must reference logrotate sample packaging (GH-2348)");
     assertTrue(
-        xml.contains("install.src}/logrotate") || xml.contains("${install.src}/logrotate"),
-        "installDts must copy from install.src/logrotate");
+        xml.contains("${install.src}/logrotate"),
+        "installDts must copy from ${install.src}/logrotate");
     assertTrue(
         xml.contains("/logrotate"),
         "installDts must land samples under install-root logrotate/");

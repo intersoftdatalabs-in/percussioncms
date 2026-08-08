@@ -17,6 +17,7 @@
 
 package com.percussion.distribution.install;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -146,6 +147,30 @@ class LogrotateSamplePackagingTest {
     assertTrue(
         text.contains("DryRun") || text.contains("dry-run"),
         "Windows sample must default to / support dry-run");
+    // Resolve-DefaultInstallRoot: sample is at <install-root>/rxconfig/Installer/logrotate/
+    // so climb exactly three parents (not four, which would leave install-root entirely).
+    assertTrue(
+        text.contains("..\\..\\..") || text.contains("../.."),
+        "Resolve-DefaultInstallRoot must climb three levels from logrotate/ to install root");
+    assertFalse(
+        text.contains("..\\..\\..\\..") || text.contains("../../../.."),
+        "must not climb four levels (parent of install root)");
+    assertTrue(
+        text.toLowerCase().contains("three levels") || text.contains("three levels up"),
+        "doc comment must describe three-level climb");
+    // Behavioral path math: three parents of .../rxconfig/Installer/logrotate == install root
+    Path installRoot = Path.of("install-root").toAbsolutePath().normalize();
+    Path scriptDir =
+        installRoot.resolve("rxconfig").resolve("Installer").resolve("logrotate");
+    Path resolved = scriptDir.resolve("..").resolve("..").resolve("..").normalize();
+    assertEquals(
+        installRoot,
+        resolved,
+        "three-level climb from rxconfig/Installer/logrotate must yield install root");
+    Path overshoot = scriptDir.resolve("..").resolve("..").resolve("..").resolve("..").normalize();
+    assertFalse(
+        installRoot.equals(overshoot),
+        "four-level climb must leave the install root (regression for 4-parent bug)");
   }
 
   @Test

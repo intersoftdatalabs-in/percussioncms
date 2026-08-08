@@ -28,7 +28,7 @@
 
 .PARAMETER InstallRoot
   CMS (or co-located CMS+DTS) install root. Defaults to parent of this script's
-  install tree when placed under rxconfig/Installer/logrotate (four levels up),
+  install tree when placed under rxconfig/Installer/logrotate (three levels up),
   otherwise requires an explicit path. Generic examples: C:\Percussion
 
 .PARAMETER OlderThan
@@ -63,11 +63,12 @@ $ErrorActionPreference = 'Stop'
 
 function Resolve-DefaultInstallRoot {
     # This sample lives at <install-root>/rxconfig/Installer/logrotate/
+    # Climb three levels: logrotate -> Installer -> rxconfig -> install-root
     $here = $PSScriptRoot
     if (-not $here) {
         $here = Split-Path -Parent $MyInvocation.MyCommand.Path
     }
-    $candidate = (Resolve-Path (Join-Path $here '..\..\..\..')).Path
+    $candidate = (Resolve-Path (Join-Path $here '..\..\..')).Path
     $doctorBat = Join-Path $candidate 'bin\perc-doctor.bat'
     if (Test-Path -LiteralPath $doctorBat) {
         return $candidate
