@@ -28,6 +28,8 @@ import java.util.Collection;
 @ArraySchema(schema = @Schema(implementation = PSImportedUser.class))
 @JsonRootName("ImportedUser")
 public class PSImportedUserList extends ArrayList<PSImportedUser> {
+  private static final long serialVersionUID = 1L;
+
   public PSImportedUserList(Collection<? extends PSImportedUser> c) {
     super(c);
   }

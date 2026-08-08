@@ -26,6 +26,8 @@ import java.util.Collection;
  * playlist—make sure it's got all the hits!"
  */
 public class PSPublishingActionList extends ArrayList<PSPublishingAction> {
+  private static final long serialVersionUID = 1L;
+
 
   public PSPublishingActionList(Collection<? extends PSPublishingAction> c) {
     super(c);

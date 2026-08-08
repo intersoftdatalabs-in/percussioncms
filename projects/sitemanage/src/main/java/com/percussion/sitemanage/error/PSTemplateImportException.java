@@ -21,6 +21,8 @@ import com.percussion.share.service.exception.PSDataServiceException;
 
 /** Exception thrown when a template import operation fails. */
 public class PSTemplateImportException extends PSDataServiceException {
+  private static final long serialVersionUID = 1L;
+
 
   /** Constructs a new exception with no detail message. */
   public PSTemplateImportException() {

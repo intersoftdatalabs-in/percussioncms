@@ -32,6 +32,8 @@ import net.sf.oval.constraint.NotNull;
 @XmlRootElement(name = "SiteSectionProperties")
 @JsonRootName("SiteSectionProperties")
 public class PSSiteSectionProperties extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
+
   /** The ID of the section, not blank for a valid request. */
   @NotBlank @NotNull private String id;
 

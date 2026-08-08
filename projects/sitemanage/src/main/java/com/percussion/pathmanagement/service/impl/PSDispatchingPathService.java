@@ -325,7 +325,7 @@ public class PSDispatchingPathService implements IPSPathService, IPSPathRecycleS
     return pm.validateFolderDelete();
   }
 
-  public List findItemProperties(PSItemByWfStateRequest request)
+  public List<PSItemProperties> findItemProperties(PSItemByWfStateRequest request)
       throws PSPathNotFoundServiceException,
           PSPathServiceException,
           PSValidationException,
@@ -335,7 +335,8 @@ public class PSDispatchingPathService implements IPSPathService, IPSPathRecycleS
     return findItemProperties(pm, request.getWorkflow(), request.getState());
   }
 
-  protected List findItemProperties(PathMatch pm, String workflowName, String stateName)
+  protected List<PSItemProperties> findItemProperties(
+      PathMatch pm, String workflowName, String stateName)
       throws PSPathNotFoundServiceException,
           PSPathServiceException,
           IPSDataService.DataServiceNotFoundException,
@@ -579,7 +580,7 @@ public class PSDispatchingPathService implements IPSPathService, IPSPathRecycleS
       return pathService.validateFolderDelete(path);
     }
 
-    public List findItemProperties(PSItemByWfStateRequest request)
+    public List<PSItemProperties> findItemProperties(PSItemByWfStateRequest request)
         throws PSPathNotFoundServiceException,
             PSPathServiceException,
             IPSDataService.DataServiceNotFoundException,

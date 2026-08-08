@@ -29,6 +29,8 @@ import java.util.Collection;
 @XmlRootElement(name = "FormSummary")
 @ArraySchema(schema = @Schema(implementation = PSFormSummary.class))
 public class PSFormSummaryList extends ArrayList<PSFormSummary> {
+  private static final long serialVersionUID = 1L;
+
   public PSFormSummaryList(Collection<? extends PSFormSummary> c) {
     super(c);
   }

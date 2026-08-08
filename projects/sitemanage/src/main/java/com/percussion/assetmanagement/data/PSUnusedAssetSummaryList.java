@@ -26,6 +26,8 @@ import java.util.Collection;
 /** List wrapper for PSUnusedAssetSummary. */
 @JsonRootName("UnusedAssetSummary")
 public class PSUnusedAssetSummaryList extends ArrayList<PSUnusedAssetSummary> {
+  private static final long serialVersionUID = 1L;
+
   public PSUnusedAssetSummaryList(Collection<? extends PSUnusedAssetSummary> c) {
     super(c);
   }

@@ -28,6 +28,8 @@ import java.util.Collection;
 @XmlRootElement(name = "ThemeSummary")
 @ArraySchema(schema = @Schema(implementation = PSThemeSummary.class))
 public class PSThemeSummaryList extends ArrayList<PSThemeSummary> {
+  private static final long serialVersionUID = 1L;
+
   public PSThemeSummaryList(Collection<? extends PSThemeSummary> c) {
     super(c);
   }

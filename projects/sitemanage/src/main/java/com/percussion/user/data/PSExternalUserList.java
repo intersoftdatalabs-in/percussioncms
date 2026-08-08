@@ -28,6 +28,8 @@ import java.util.Collection;
 @ArraySchema(schema = @Schema(implementation = PSExternalUser.class))
 @JsonRootName("ExternalUser")
 public class PSExternalUserList extends ArrayList<PSExternalUser> {
+  private static final long serialVersionUID = 1L;
+
   public PSExternalUserList(Collection<? extends PSExternalUser> c) {
     super(c);
   }

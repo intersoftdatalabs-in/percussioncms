@@ -146,8 +146,7 @@ public class PSSitePublishServiceHelper implements IPSSitePublishServiceHelper {
             allSharedAssetContentTypeIds,
             allValidRelationshipConfigs);
     org.hibernate.query.NativeQuery<Integer> query =
-        sess.createNativeQuery(sql)
-            .addScalar("DEPENDENT_ID", org.hibernate.type.StandardBasicTypes.INTEGER);
+        createIntegerNativeQuery(sess, sql, "DEPENDENT_ID");
     return new HashSet<>(query.list());
   }
 
@@ -167,8 +166,7 @@ public class PSSitePublishServiceHelper implements IPSSitePublishServiceHelper {
             join(cids, ","),
             join(getPublishableContentTypeIds(sess), ","));
     org.hibernate.query.NativeQuery<Integer> query =
-        sess.createNativeQuery(sql)
-            .addScalar("DEPENDENT_ID", org.hibernate.type.StandardBasicTypes.INTEGER);
+        createIntegerNativeQuery(sess, sql, "DEPENDENT_ID");
     return new HashSet<>(query.list());
   }
 
@@ -187,8 +185,7 @@ public class PSSitePublishServiceHelper implements IPSSitePublishServiceHelper {
             join(cids, ","),
             join(getNonPublishableContentTypeIds(sess), ","));
     org.hibernate.query.NativeQuery<Integer> query =
-        sess.createNativeQuery(sql)
-            .addScalar("DEPENDENT_ID", org.hibernate.type.StandardBasicTypes.INTEGER);
+        createIntegerNativeQuery(sess, sql, "DEPENDENT_ID");
     return new HashSet<>(query.list());
   }
 
@@ -232,26 +229,33 @@ public class PSSitePublishServiceHelper implements IPSSitePublishServiceHelper {
     }
   }
 
-  private List loadSharedAssetContentType(Session sess) throws SQLException {
+  private List<Integer> loadSharedAssetContentType(Session sess) throws SQLException {
     String sql =
         String.format(
             "SELECT DISTINCT CONTENTTYPEID FROM %s WHERE CONTENTTYPENAME NOT IN (%s)",
             qualifyTableName("CONTENTTYPES"), binaryAssetTypesStr);
-    org.hibernate.query.NativeQuery<Integer> query =
-        sess.createNativeQuery(sql)
-            .addScalar("CONTENTTYPEID", org.hibernate.type.StandardBasicTypes.INTEGER);
+    org.hibernate.query.NativeQuery<Integer> query = createIntegerNativeQuery(sess, sql, "CONTENTTYPEID");
     return query.list();
   }
 
-  private List loadValidRelationshipConfigNames(Session sess) throws SQLException {
+  private List<Integer> loadValidRelationshipConfigNames(Session sess) throws SQLException {
     String sql =
         String.format(
             "SELECT DISTINCT CONFIG_ID FROM %s WHERE CONFIG_NAME NOT IN (%s)",
             qualifyTableName("PSX_RELATIONSHIPCONFIGNAME"), invalidRelationshipConfigName);
-    org.hibernate.query.NativeQuery<Integer> query =
-        sess.createNativeQuery(sql)
-            .addScalar("CONFIG_ID", org.hibernate.type.StandardBasicTypes.INTEGER);
+    org.hibernate.query.NativeQuery<Integer> query = createIntegerNativeQuery(sess, sql, "CONFIG_ID");
     return query.list();
+  }
+
+  /**
+   * Builds a typed integer native query. Hibernate's {@code createNativeQuery(String)} is untyped;
+   * centralize the scalar mapping so callers stay fully generic.
+   */
+  @SuppressWarnings("unchecked")
+  private static org.hibernate.query.NativeQuery<Integer> createIntegerNativeQuery(
+      Session sess, String sql, String scalarAlias) {
+    return sess.createNativeQuery(sql)
+        .addScalar(scalarAlias, org.hibernate.type.StandardBasicTypes.INTEGER);
   }
 
   private List<Integer> getPublishableContentTypeIds(Session sess) {

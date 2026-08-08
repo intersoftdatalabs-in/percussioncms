@@ -26,6 +26,8 @@ import java.util.Collection;
 /** List wrapper for asset editors. */
 @JsonRootName("AssetEditor")
 public class PSAssetEditorList extends ArrayList<PSAssetEditor> {
+  private static final long serialVersionUID = 1L;
+
 
   public PSAssetEditorList(Collection<? extends PSAssetEditor> c) {
     super(c);

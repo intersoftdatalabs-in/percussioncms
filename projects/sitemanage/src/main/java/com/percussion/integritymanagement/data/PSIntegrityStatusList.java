@@ -27,6 +27,8 @@ import java.util.Collection;
 @XmlRootElement(name = "integritystatus")
 @ArraySchema(schema = @Schema(implementation = PSIntegrityStatus.class))
 public class PSIntegrityStatusList extends java.util.ArrayList<PSIntegrityStatus> {
+  private static final long serialVersionUID = 1L;
+
   public PSIntegrityStatusList(Collection<? extends PSIntegrityStatus> c) {
     super(c);
   }

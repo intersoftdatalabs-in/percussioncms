@@ -30,6 +30,8 @@ import net.sf.oval.constraint.NotNull;
 @XmlRootElement(name = "MoveSiteSection")
 @JsonRootName("MoveSiteSection")
 public class PSMoveSiteSection extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
+
 
   /**
    * Gets the ID of the target (parent) navigation node.

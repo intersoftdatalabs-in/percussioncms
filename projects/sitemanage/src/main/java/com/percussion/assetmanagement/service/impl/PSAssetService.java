@@ -1755,7 +1755,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     IPSCmsObjectMgr objMgr = PSCmsObjectMgrLocator.getObjectManager();
     try {
       objMgr.changeWorkflowForItem(
-          (int) idMapper.getGuid(assetId).getUUID(), wfId, steppedWfMetadata.getSystemStatesList());
+          idMapper.getGuid(assetId).getUUID(), wfId, steppedWfMetadata.getSystemStatesList());
     } catch (PSORMException e) {
       String msg =
           "Failed to assign workflow for asset with ID \""

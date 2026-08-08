@@ -26,6 +26,8 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "SitePublishItem")
 @JsonRootName("SitePublishItem")
 public class PSSitePublishItem extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
+
 
   @Min(1)
   private long itemStatusId;

@@ -26,6 +26,8 @@ import java.util.Collection;
 /** List wrapper for PSCommentsSummary. */
 @XmlRootElement(name = "commentsSummary")
 public class PSCommentsSummaryList extends ArrayList<PSCommentsSummary> {
+  private static final long serialVersionUID = 1L;
+
   public PSCommentsSummaryList(Collection<? extends PSCommentsSummary> c) {
     super(c);
   }

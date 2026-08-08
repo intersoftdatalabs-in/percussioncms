@@ -29,6 +29,8 @@ import java.util.Objects;
 @JsonRootName(value = "psobj")
 @ArraySchema(schema = @Schema(implementation = PSLightWeightObjectList.class))
 public class PSLightWeightObjectList extends ArrayList<PSLightWeightObject> {
+  private static final long serialVersionUID = 1L;
+
 
   public PSLightWeightObjectList(Collection<? extends PSLightWeightObject> c) {
     super(Objects.requireNonNull(c, "Collection cannot be null"));

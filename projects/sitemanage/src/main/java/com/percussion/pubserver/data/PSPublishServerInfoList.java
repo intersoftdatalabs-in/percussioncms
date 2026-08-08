@@ -28,6 +28,8 @@ import java.util.Collection;
 @XmlRootElement(name = "serverInfo")
 @ArraySchema(schema = @Schema(implementation = PSPublishServerInfo.class))
 public class PSPublishServerInfoList extends ArrayList<PSPublishServerInfo> {
+  private static final long serialVersionUID = 1L;
+
   /**
    * Constructs a new list from the given collection.
    *
