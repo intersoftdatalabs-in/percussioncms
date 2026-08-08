@@ -322,7 +322,7 @@ public class PSXmlTreeWalkerTest {
 
   private java.util.List<Book> m_books;
 
-  protected static class Book implements Comparable {
+  protected static class Book implements Comparable<Book> {
     public Book(String title, String isbn, String author, String authorId) {
       m_title = title;
       m_isbn = isbn;
@@ -346,8 +346,8 @@ public class PSXmlTreeWalkerTest {
       return Objects.hash(m_title, m_isbn, m_author, m_authorId);
     }
 
-    public int compareTo(Object o) {
-      Book b = (Book) o;
+    @Override
+    public int compareTo(Book b) {
       int compare = m_title.compareTo(b.m_title);
       if (compare != 0) return compare;
       compare = m_isbn.compareTo(b.m_isbn);

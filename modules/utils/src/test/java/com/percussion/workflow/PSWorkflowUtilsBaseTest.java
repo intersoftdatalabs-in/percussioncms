@@ -39,6 +39,9 @@ import org.junit.jupiter.api.Test;
  * backward source compatibility with downstream modules and XML apps. These tests pass raw {@link
  * ArrayList}, {@link HashMap}, and {@link List} arguments to assert that the public API still
  * accepts those shapes.
+ *
+ * <p>Behavioral tests use typed locals where safe. Intentional raw public-API source-compat probes
+ * are isolated in {@link #rawListSignaturesAreAcceptedByPublicAPI()} (documented suppressions).
  */
 @Tag("UnitTest")
 public class PSWorkflowUtilsBaseTest {
@@ -61,7 +64,7 @@ public class PSWorkflowUtilsBaseTest {
   @Test
   public void arrayToListAcceptsStringArray() {
     String[] input = {"alpha", "beta"};
-    List result = PSWorkflowUtilsBase.arrayToList(input);
+    List<?> result = castList(PSWorkflowUtilsBase.arrayToList(input));
     assertEquals(2, result.size());
     assertEquals("alpha", result.get(0));
   }
@@ -69,25 +72,25 @@ public class PSWorkflowUtilsBaseTest {
   @Test
   public void arrayToListAcceptsIntArray() {
     int[] input = {1, 2, 3};
-    List result = PSWorkflowUtilsBase.arrayToList(input);
+    List<?> result = castList(PSWorkflowUtilsBase.arrayToList(input));
     assertEquals(3, result.size());
     assertEquals(1, result.get(0));
   }
 
   @Test
   public void arrayToListOnNullReturnsEmptyList() {
-    List result = PSWorkflowUtilsBase.arrayToList(null);
+    List<?> result = castList(PSWorkflowUtilsBase.arrayToList(null));
     assertNotNull(result);
     assertTrue(result.isEmpty());
   }
 
   @Test
   public void compareRoleListThreeArgFindsAssignmentType() {
-    ArrayList assignmentTypes = new ArrayList();
+    ArrayList<Integer> assignmentTypes = new ArrayList<>();
     assignmentTypes.add(1);
     assignmentTypes.add(2);
     assignmentTypes.add(3);
-    ArrayList roleNames = new ArrayList();
+    ArrayList<String> roleNames = new ArrayList<>();
     roleNames.add("Author");
     roleNames.add("Editor");
     roleNames.add("Admin");
@@ -97,9 +100,9 @@ public class PSWorkflowUtilsBaseTest {
 
   @Test
   public void compareRoleListThreeArgReturnsNoneForUnknown() {
-    ArrayList assignmentTypes = new ArrayList();
+    ArrayList<Integer> assignmentTypes = new ArrayList<>();
     assignmentTypes.add(1);
-    ArrayList roleNames = new ArrayList();
+    ArrayList<String> roleNames = new ArrayList<>();
     roleNames.add("Author");
     int result =
         PSWorkflowUtilsBase.compareRoleList(assignmentTypes, roleNames, "UnknownRole,Another");
@@ -108,20 +111,20 @@ public class PSWorkflowUtilsBaseTest {
 
   @Test
   public void compareRoleListTwoArgFindsCommonRole() {
-    List roleList = Arrays.asList("Author", "Editor", "Admin");
+    List<String> roleList = Arrays.asList("Author", "Editor", "Admin");
     assertTrue(PSWorkflowUtilsBase.compareRoleList(roleList, "Editor,foo"));
   }
 
   @Test
   public void compareRoleListTwoArgReturnsFalseWhenNoMatch() {
-    List roleList = Arrays.asList("Author", "Editor");
+    List<String> roleList = Arrays.asList("Author", "Editor");
     assertEquals(false, PSWorkflowUtilsBase.compareRoleList(roleList, "Admin,Reviewer"));
   }
 
   @Test
   public void caseInsensitiveUniqueListDedupesCaseInsensitively() {
-    List input = Arrays.asList("alpha", "ALPHA", "Beta", "beta", "Gamma");
-    List result = PSWorkflowUtilsBase.caseInsensitiveUniqueList(input);
+    List<String> input = Arrays.asList("alpha", "ALPHA", "Beta", "beta", "Gamma");
+    List<?> result = castList(PSWorkflowUtilsBase.caseInsensitiveUniqueList(input));
     assertEquals(3, result.size());
     assertTrue(result.contains("alpha"));
     assertTrue(result.contains("Beta"));
@@ -144,23 +147,23 @@ public class PSWorkflowUtilsBaseTest {
 
   @Test
   public void caseInsensitiveUniqueListOnEmptyReturnsEmptyList() {
-    List result = PSWorkflowUtilsBase.caseInsensitiveUniqueList(new ArrayList());
+    List<?> result = castList(PSWorkflowUtilsBase.caseInsensitiveUniqueList(new ArrayList<>()));
     assertNotNull(result);
     assertTrue(result.isEmpty());
   }
 
   @Test
   public void caseInsensitiveUniqueListTrimsAndDropsNulls() {
-    List input = Arrays.asList("alpha", null, "  alpha  ");
-    List result = PSWorkflowUtilsBase.caseInsensitiveUniqueList(input);
+    List<String> input = Arrays.asList("alpha", null, "  alpha  ");
+    List<?> result = castList(PSWorkflowUtilsBase.caseInsensitiveUniqueList(input));
     assertEquals(1, result.size());
   }
 
   @Test
   public void intersectListsReturnsCommonElements() {
-    List list1 = Arrays.asList("a", "b", "c");
-    List list2 = Arrays.asList("b", "c", "d");
-    List result = PSWorkflowUtilsBase.intersectLists(list1, list2);
+    List<String> list1 = Arrays.asList("a", "b", "c");
+    List<String> list2 = Arrays.asList("b", "c", "d");
+    List<?> result = castList(PSWorkflowUtilsBase.intersectLists(list1, list2));
     assertEquals(2, result.size());
     assertTrue(result.contains("b"));
     assertTrue(result.contains("c"));
@@ -168,7 +171,7 @@ public class PSWorkflowUtilsBaseTest {
 
   @Test
   public void intersectListsOnEmptyReturnsEmpty() {
-    List result = PSWorkflowUtilsBase.intersectLists(new ArrayList(), Arrays.asList("a"));
+    List<?> result = castList(PSWorkflowUtilsBase.intersectLists(new ArrayList<>(), Arrays.asList("a")));
     assertNotNull(result);
     assertTrue(result.isEmpty());
   }
@@ -181,7 +184,7 @@ public class PSWorkflowUtilsBaseTest {
 
   @Test
   public void getRoleIdFromMapFindsKey() {
-    Map roleMap = new HashMap();
+    Map<Integer, String> roleMap = new HashMap<>();
     roleMap.put(1, "Author");
     roleMap.put(2, "Editor");
     roleMap.put(3, "Admin");
@@ -190,14 +193,14 @@ public class PSWorkflowUtilsBaseTest {
 
   @Test
   public void getRoleIdFromMapReturnsMinusOneForMissing() {
-    Map roleMap = new HashMap();
+    Map<Integer, String> roleMap = new HashMap<>();
     roleMap.put(1, "Author");
     assertEquals(-1, PSWorkflowUtilsBase.getRoleIdFromMap(roleMap, "Missing"));
   }
 
   @Test
   public void getRoleIdFromMapRejectsNullArgs() {
-    Map roleMap = new HashMap();
+    Map<Integer, String> roleMap = new HashMap<>();
     assertThrows(
         IllegalArgumentException.class, () -> PSWorkflowUtilsBase.getRoleIdFromMap(roleMap, null));
     assertThrows(
@@ -206,7 +209,7 @@ public class PSWorkflowUtilsBaseTest {
 
   @Test
   public void listToDelimitedStringJoinsWithDelimiter() {
-    List input = Arrays.asList("a", "b", "c");
+    List<String> input = Arrays.asList("a", "b", "c");
     String result = PSWorkflowUtilsBase.listToDelimitedString(input, ",");
     assertEquals("a,b,c", result);
   }
@@ -215,32 +218,32 @@ public class PSWorkflowUtilsBaseTest {
   public void listToDelimitedStringRejectsEmpty() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> PSWorkflowUtilsBase.listToDelimitedString(new ArrayList(), ","));
+        () -> PSWorkflowUtilsBase.listToDelimitedString(new ArrayList<>(), ","));
     assertThrows(
         IllegalArgumentException.class,
-        () -> PSWorkflowUtilsBase.listToDelimitedString((List) null, ","));
+        () -> PSWorkflowUtilsBase.listToDelimitedString(null, ","));
   }
 
   @Test
   public void listToDelimitedStringSingleElementHasNoDelimiter() {
-    List input = Arrays.asList("only");
+    List<String> input = Arrays.asList("only");
     assertEquals("only", PSWorkflowUtilsBase.listToDelimitedString(input, ","));
   }
 
   @Test
   public void listToDelimitedStringUsesStringForNullForNullEntries() {
-    List input = Arrays.asList("a", null, "c");
+    List<String> input = Arrays.asList("a", null, "c");
     String result = PSWorkflowUtilsBase.listToDelimitedString(input, ",", "<null>");
     assertEquals("a,<null>,c", result);
   }
 
   @Test
   public void filterListReturnsMatchingEntries() {
-    List input = Arrays.asList("a", "b", "c");
-    Map filter = new HashMap();
+    List<String> input = Arrays.asList("a", "b", "c");
+    Map<String, Boolean> filter = new HashMap<>();
     filter.put("a", Boolean.TRUE);
     filter.put("c", Boolean.TRUE);
-    List result = PSWorkflowUtilsBase.filterList(input, filter);
+    List<?> result = castList(PSWorkflowUtilsBase.filterList(input, filter));
     assertEquals(2, result.size());
     assertTrue(result.contains("a"));
     assertTrue(result.contains("c"));
@@ -248,35 +251,35 @@ public class PSWorkflowUtilsBaseTest {
 
   @Test
   public void filterListOnEmptyMapReturnsNull() {
-    assertNull(PSWorkflowUtilsBase.filterList(Arrays.asList("a"), new HashMap()));
+    assertNull(PSWorkflowUtilsBase.filterList(Arrays.asList("a"), new HashMap<>()));
   }
 
   @Test
   public void filterListOnNullInputReturnsNull() {
-    Map filter = new HashMap();
+    Map<String, Boolean> filter = new HashMap<>();
     filter.put("a", Boolean.TRUE);
     assertNull(PSWorkflowUtilsBase.filterList(null, filter));
   }
 
   @Test
   public void filterListOnEmptyInputReturnsEmptyList() {
-    Map filter = new HashMap();
+    Map<String, Boolean> filter = new HashMap<>();
     filter.put("a", Boolean.TRUE);
-    List result = PSWorkflowUtilsBase.filterList(new ArrayList(), filter);
+    List<?> result = castList(PSWorkflowUtilsBase.filterList(new ArrayList<>(), filter));
     assertNotNull(result);
     assertTrue(result.isEmpty());
   }
 
   @Test
   public void setTransitionCommentInHTMLParamsAcceptsRawHashMap() {
-    HashMap params = new HashMap();
+    HashMap<String, Object> params = new HashMap<>();
     PSWorkflowUtilsBase.setTransitionCommentInHTMLParams("my comment", params);
     assertEquals("my comment", params.get(PSWorkflowUtilsBase.TRANSITION_COMMENT));
   }
 
   @Test
   public void setTransitionCommentInHTMLParamsRejectsLongComment() {
-    HashMap params = new HashMap();
+    HashMap<String, Object> params = new HashMap<>();
     StringBuilder tooLong = new StringBuilder();
     for (int i = 0; i < 256; i++) tooLong.append('x');
     assertThrows(
@@ -293,7 +296,7 @@ public class PSWorkflowUtilsBaseTest {
 
   @Test
   public void setTransitionCommentInHTMLParamsIgnoresNullComment() {
-    HashMap params = new HashMap();
+    HashMap<String, Object> params = new HashMap<>();
     PSWorkflowUtilsBase.setTransitionCommentInHTMLParams(null, params);
     assertTrue(params.isEmpty());
   }
@@ -318,5 +321,14 @@ public class PSWorkflowUtilsBaseTest {
     assertEquals(2, PSWorkflowUtilsBase.intersectLists(rawList, rawList).size());
     assertEquals("a,b", PSWorkflowUtilsBase.listToDelimitedString(rawList, ","));
     assertEquals(2, PSWorkflowUtilsBase.caseInsensitiveUniqueList(rawList).size());
+  }
+
+  /**
+   * Bridges raw public-API return values to a typed local without per-call unchecked warnings.
+   * Production methods intentionally return raw {@link List} for source compatibility.
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private static List<?> castList(List raw) {
+    return raw;
   }
 }

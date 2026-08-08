@@ -29,7 +29,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -38,7 +37,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /** Utility class used to organize a property file into ascending order */
-@SuppressWarnings("rawtypes")
 public class PSOrganizeProperties {
 
   private static final Logger log = LogManager.getLogger(PSOrganizeProperties.class);
@@ -63,9 +61,7 @@ public class PSOrganizeProperties {
               }
             });
 
-    Iterator it = props.keySet().iterator();
-    while (it.hasNext()) {
-      String key = (String) it.next();
+    for (String key : props.stringPropertyNames()) {
       propsMap.put(key, props.getProperty(key, ""));
     }
     savePropsFile(file, propsMap, m_comments);
@@ -173,13 +169,10 @@ public class PSOrganizeProperties {
       props.remove(HEADER_COMMENTS);
     }
 
-    // iterator must be created after props remove the header_commonets
+    // iterate after props remove the header comments
     // to avoid concurrentmodificationexception.
-    Iterator it = props.keySet().iterator();
-
     String lastPrefix = "";
-    while (it.hasNext()) {
-      String key = (String) it.next();
+    for (String key : props.keySet()) {
       String val = escapeValue(props.get(key));
       int pos = key.indexOf('.');
       String prefix = pos == -1 ? key : key.substring(0, key.indexOf('.'));
