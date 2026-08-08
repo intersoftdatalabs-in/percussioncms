@@ -21,6 +21,24 @@ hand-maintained Python/shell scripts.
 | `test_i18n_cache.py`              | Unit tests for cache load/save, legacy migrate, and conflict union.                                                                                |
 | `test_resolve_tmx_conflicts.py`   | Unit tests for TMX merge-conflict resolver.                                                                                                        |
 
+## Louisiana Creole (`lou`) draft seed
+
+Google Translate does **not** support Louisiana Creole (Kouri-Vini / `lou`).
+To fill missing `xml:lang="lou"` segments without an external API:
+
+```bash
+# Offline draft: glossary + phrase map + word-level fallback (all canonical TMX)
+python3 modules/perc-i18n/scripts/i18n_lou_draft.py
+
+# Preview only
+python3 modules/perc-i18n/scripts/i18n_lou_draft.py --dry-run --file DeveloperUi.tmx
+```
+
+**Quality:** machine-assisted **draft**, not a certified native localization.
+Have a Kouri-Vini speaker review high-traffic UI (login, menus, errors) before
+treating `lou` as production-complete. Re-run with `--force` only if you intend
+to overwrite existing `lou` TUVs.
+
 ## Quick start
 
 ```bash
