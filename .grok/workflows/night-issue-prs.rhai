@@ -20,6 +20,26 @@
 //   max_prs             int    - max open PRs to babysit per follow-up pass (default 6, cap 12)
 //   include_pr_cluster  bool   - after POST follow-up, absorb same-file thrash PRs into one cluster PR (default true)
 //   cluster_min_prs     int    - min owned open PRs sharing thrash files to form a cluster (default 3, range 2-8)
+//   include_security_audit bool - after PR cluster: CodeQL open-alert pass (default true).
+//                                If open code-scanning alerts exist on the default branch analysis:
+//                                ensure exactly ONE open tracking issue titled
+//                                "[night-issues: Security Audit - Fix Pass]" for base_branch, then open
+//                                mitigation PRs (capped) for alerts. Never open a second concurrent
+//                                Security Audit issue for the same base_branch.
+//   max_security_prs    int    - max mitigation PRs to open per Security Audit pass (default 3, cap 8)
+//   min_residual_issues int    - min NEW residual/child GH issues this run must file (default 3, cap 12).
+//                                ONLY residuals whose PARENT issue is already p1–p4 count.
+//                                Residual priority MUST be copied from the parent (same pN) — never invent
+//                                a higher priority and never pad the quota with p5–p8 (or parent-p8) residuals.
+//                                Counts residual_issue_urls + child_issue_urls from Work and PR follow-up.
+//                                After Work+PR-POST: if under quota, one residual-backfill agent may file more
+//                                REAL residuals under existing p1–p4 parents only. If still under quota →
+//                                CIRCUIT BREAKER (stop run).
+//   require_residual_quota bool - enforce min_residual_issues gate (default true). dry_run skips the gate.
+//   include_human_qa    bool   - when Work item is ready for human QA, create QA issue with test plan
+//                                and assign designated QA resource (default true).
+//   qa_assignee         string - GitHub login for human QA (default vijaya-boddipudi)
+//   qa_label            string - label for human QA issues (default "qa task")
 //   worktree_path       string - dedicated overnight git worktree; empty = portable default under
 //                                $HOME or %USERPROFILE%/.grok/worktrees/intersoft-workspace-percussioncms/night-issue-prs
 //   sync_branch         string - local default branch in that worktree (default night-issue-prs-main)
@@ -48,7 +68,9 @@ let meta = #{
         #{ title: "PR follow-up (pre)", detail: "drain merge blockers before new issue PRs" },
         #{ title: "Work", detail: "In Progress label lifecycle; implement/split; parent GH progress" },
         #{ title: "PR follow-up (post)", detail: "catch PRs opened this run + remaining blockers" },
+        #{ title: "Residual quota", detail: "≥N real residual GH issues this pass or circuit breaker" },
         #{ title: "PR cluster", detail: "same-file thrash: interim branch + superseding PR" },
+        #{ title: "Security audit", detail: "CodeQL open alerts → one Audit Fix Pass issue + mitigation PRs" },
         #{ title: "Report", detail: "scratch night report (run-local only; not epic status)" },
     ],
 };
@@ -126,6 +148,46 @@ let pr_cluster_schema = #{
     },
 };
 
+let security_audit_schema = #{
+    "type": "object",
+    "required": ["status", "summary"],
+    "properties": #{
+        "status": #{ "type": "string" },
+        "summary": #{ "type": "string" },
+        "open_alert_count": #{ "type": "integer" },
+        "audit_issue_url": #{ "type": "string" },
+        "audit_issue_number": #{ "type": "integer" },
+        "mitigation_pr_urls": #{ "type": "string" },
+        "alerts_addressed": #{ "type": "integer" },
+        "alerts_deferred": #{ "type": "string" },
+        "duplicate_audit_issues_closed": #{ "type": "string" },
+        "blocked": #{ "type": "string" },
+    },
+};
+
+let residual_quota_schema = #{
+    "type": "object",
+    "required": ["status", "summary", "residual_count", "quota_met", "circuit_breaker"],
+    "properties": #{
+        "status": #{ "type": "string" },
+        "summary": #{ "type": "string" },
+        "residual_count": #{ "type": "integer" },
+        "quota_met": #{ "type": "boolean" },
+        "circuit_breaker": #{ "type": "boolean" },
+        "residual_issue_urls": #{ "type": "string" },
+        "residual_issue_numbers": #{ "type": "string" },
+        "backfill_created": #{ "type": "integer" },
+        "blocked": #{ "type": "string" },
+    },
+};
+
+// Canonical tracking issue title (exact match for singleton search).
+// Per base_branch: at most ONE open issue with this title may exist.
+let security_audit_title = "[night-issues: Security Audit - Fix Pass]";
+// Designated human QA resource (Intersoft QA). Override via args.
+let qa_assignee = "vijaya-boddipudi";
+let qa_label = "qa task";
+
 // --- args (guard unit) ---
 let max_issues = 3;
 let labels = "";
@@ -139,8 +201,15 @@ let agent_safe_only = true;
 let unassigned_only = true;
 let include_pr_followup = true;
 let include_pr_cluster = true;
+let include_security_audit = true;
+let require_residual_quota = true;
+let include_human_qa = true;
 let max_prs = 6;
 let cluster_min_prs = 3;
+let max_security_prs = 3;
+// Min NEW residual/child GitHub issues filed this overnight pass (backlog growth).
+// Only residuals of parents already labeled p1–p4 count; residual pN must match parent.
+let min_residual_issues = 3;
 let issue_numbers = ();
 // Dedicated overnight workspace. Empty = agent resolves portable path under home:
 //   %USERPROFILE% or $HOME + /.grok/worktrees/intersoft-workspace-percussioncms/night-issue-prs
@@ -162,8 +231,15 @@ if args != () {
     if args.unassigned_only != () { unassigned_only = args.unassigned_only; }
     if args.include_pr_followup != () { include_pr_followup = args.include_pr_followup; }
     if args.include_pr_cluster != () { include_pr_cluster = args.include_pr_cluster; }
+    if args.include_security_audit != () { include_security_audit = args.include_security_audit; }
+    if args.require_residual_quota != () { require_residual_quota = args.require_residual_quota; }
+    if args.include_human_qa != () { include_human_qa = args.include_human_qa; }
+    if args.qa_assignee != () { qa_assignee = args.qa_assignee; }
+    if args.qa_label != () { qa_label = args.qa_label; }
     if args.max_prs != () { max_prs = args.max_prs; }
     if args.cluster_min_prs != () { cluster_min_prs = args.cluster_min_prs; }
+    if args.max_security_prs != () { max_security_prs = args.max_security_prs; }
+    if args.min_residual_issues != () { min_residual_issues = args.min_residual_issues; }
     if args.issue_numbers != () { issue_numbers = args.issue_numbers; }
     if args.worktree_path != () { worktree_path = args.worktree_path; }
     if args.sync_branch != () { sync_branch = args.sync_branch; }
@@ -175,6 +251,10 @@ if max_prs < 1 { max_prs = 1; }
 if max_prs > 12 { max_prs = 12; }
 if cluster_min_prs < 2 { cluster_min_prs = 2; }
 if cluster_min_prs > 8 { cluster_min_prs = 8; }
+if max_security_prs < 1 { max_security_prs = 1; }
+if max_security_prs > 8 { max_security_prs = 8; }
+if min_residual_issues < 1 { min_residual_issues = 1; }
+if min_residual_issues > 12 { min_residual_issues = 12; }
 if low_priority_quota_pct < 0 { low_priority_quota_pct = 0; }
 if low_priority_quota_pct > 50 { low_priority_quota_pct = 50; }
 
@@ -194,8 +274,15 @@ log("night-issue-prs: repo=" + repo + " base=" + base_branch
     + " unassigned_only=" + unassigned_only.to_string()
     + " include_pr_followup=" + include_pr_followup.to_string()
     + " include_pr_cluster=" + include_pr_cluster.to_string()
+    + " include_security_audit=" + include_security_audit.to_string()
+    + " require_residual_quota=" + require_residual_quota.to_string()
+    + " min_residual_issues=" + min_residual_issues.to_string()
+    + " include_human_qa=" + include_human_qa.to_string()
+    + " qa_assignee=" + qa_assignee
+    + " qa_label=" + qa_label
     + " max_prs=" + max_prs.to_string()
     + " cluster_min_prs=" + cluster_min_prs.to_string()
+    + " max_security_prs=" + max_security_prs.to_string()
     + " worktree=" + worktree_path
     + " worktree_rel=" + worktree_rel
     + " sync_branch=" + sync_branch);
@@ -374,8 +461,35 @@ let results = [];
 let pr_followup_result = ();
 let pr_followup_post_result = ();
 let pr_cluster_result = ();
+let security_audit_result = ();
+let residual_quota_result = ();
+// When true after residual-quota phase: skip cluster + security audit and finish via Report.
+let residual_circuit_breaker = false;
 if dry_run {
-    log("dry_run=true: skipping Work and PR follow-up agents (triage plan only).");
+    log("dry_run=true: skipping Work, PR follow-up, residual-quota, cluster, and security-audit agents (triage plan only).");
+    residual_quota_result = #{
+        status: "skipped",
+        summary: "dry_run=true (residual quota not enforced)",
+        residual_count: 0,
+        quota_met: true,
+        circuit_breaker: false,
+        residual_issue_urls: "",
+        residual_issue_numbers: "",
+        backfill_created: 0,
+        blocked: "",
+    };
+    security_audit_result = #{
+        status: "skipped",
+        summary: "dry_run=true (no security audit writes)",
+        open_alert_count: 0,
+        audit_issue_url: "",
+        audit_issue_number: 0,
+        mitigation_pr_urls: "",
+        alerts_addressed: 0,
+        alerts_deferred: "",
+        duplicate_audit_issues_closed: "",
+        blocked: "",
+    };
     for item in queue {
         let inum = item.issue_number;
         let disp = item.disposition;
@@ -655,18 +769,77 @@ for item in queue {
     work_prompt += "    - Product/code docs that are part of the fix itself are fine; progress trackers are not.\n";
     work_prompt += "P5) Child/residual issue bodies must link PARENT and state their slice role; leave unassigned.\n\n";
 
-    work_prompt += "RESIDUAL WORK (hard requirement for implement/split/partial):\n";
+    work_prompt += "RESIDUAL WORK (hard requirement — p1–p4 parent backlog growth):\n";
     work_prompt += "Anything not finished in this PR/session must not only live in chat.\n";
+    work_prompt += "RUN QUOTA: this overnight pass must file at least " + min_residual_issues.to_string()
+        + " NEW real residual/child GitHub issues whose PARENT is already p1–p4.\n";
+    work_prompt += "Residual priority MUST equal the parent's priority label (copy pN exactly).\n";
+    work_prompt += "Do NOT invent a higher priority. Do NOT pad the quota with p5–p8 residuals or with\n";
+    work_prompt += "residuals of Unset/p5–p8 parents. Those may exist outside quota but do not count.\n";
+    work_prompt += "Circuit breaker if the pass ends short of " + min_residual_issues.to_string()
+        + " residuals under p1–p4 parents — do your part; no fake issues.\n";
     work_prompt += "If dry_run=false: create GitHub issues with gh issue create for each residual slice\n";
     work_prompt += "  (title/body link PARENT tracker + this issue #" + inum.to_string() + " and any PR URL;\n";
     work_prompt += "  leave unassigned).\n";
-    work_prompt += "  Label residual issues: operator:grok, operator:night-issue-prs, model:grok-4.5.\n";
-    work_prompt += "  Copy parent priority label (p1–p8) onto residual/child issues when known; else omit pN.\n";
+    work_prompt += "  Labels REQUIRED: operator:grok, operator:night-issue-prs, model:grok-4.5,\n";
+    work_prompt += "  AND the parent's pN when parent has p1|p2|p3|p4 (copy exactly; one pN only).\n";
+    work_prompt += "  Priority rules for residual/child issues:\n";
+    work_prompt += "    - Resolve PARENT_TRACKER (P1). Read parent's labels for p1–p8.\n";
+    work_prompt += "    - If parent has p1–p4: label residual with that SAME pN (copy). These count for quota.\n";
+    work_prompt += "    - If parent is Unset or p5–p8: residual may still be filed for honesty, but it does\n";
+    work_prompt += "      NOT count toward the run quota; copy parent pN if present, else omit pN.\n";
+    work_prompt += "      NEVER upgrade a p8 parent residual to p1–p4 to meet quota.\n";
+    work_prompt += "    - Prefer working / filing residuals under p1–p4 parents so the quota can be met.\n";
     work_prompt += "  Do NOT put In Progress on residual/child issues you only file (not working now).\n";
     work_prompt += "  Then update PARENT ## Agent progress table + comment (P2/P3).\n";
-    work_prompt += "If dry_run=true: list planned residual issue titles in summary only (do not create).\n";
+    work_prompt += "REAL/actionable only: PR-sized units with clear acceptance, module hints, Parent: #N.\n";
+    work_prompt += "  Forbidden: placeholder titles, empty bodies, duplicates, priority upgrades, p8 padding.\n";
+    work_prompt += "Even full pr_opened success: if more work remains on a p1–p4 parent epic, file residual\n";
+    work_prompt += "  children with the parent's pN.\n";
+    work_prompt += "If dry_run=true: list planned residual titles + parent # + inherited pN in summary only.\n";
     work_prompt += "Put created URLs in residual_issue_urls (space-separated). child_issue_urls is for\n";
-    work_prompt += "planned split slices; residual_issue_urls is for leftover after a partial implement.\n\n";
+    work_prompt += "planned split slices; residual_issue_urls is for leftover after a partial implement.\n";
+    work_prompt += "Only residuals of p1–p4 parents (with matching pN) count toward the pass residual quota.\n\n";
+
+    if include_human_qa {
+        work_prompt += "HUMAN QA HANDOFF (when ready for human verification):\n";
+        work_prompt += "include_human_qa=true. Designated QA resource: @" + qa_assignee + "\n";
+        work_prompt += "Label: \"" + qa_label + "\" (create with gh label create if missing).\n";
+        work_prompt += "When this work item is READY FOR HUMAN QA — typically status will be pr_opened\n";
+        work_prompt += "AND any of the following is true:\n";
+        work_prompt += "  A) Product UI / Explorer / WebUI / user-visible flow changed\n";
+        work_prompt += "  B) Installer, packaging, upgrade, or host-visible behavior needs human eyes\n";
+        work_prompt += "  C) Acceptance criteria call for manual QA / UAT beyond agent-safe automation\n";
+        work_prompt += "  D) Agent could not fully prove the fix on a live/QA CMS and human must verify\n";
+        work_prompt += "THEN (dry_run=false only):\n";
+        work_prompt += "  1) Ensure label exists: gh label create \"" + qa_label + "\" --repo " + repo
+            + " --color C5DEF5 --description \"Human QA task\" --force\n";
+        work_prompt += "  2) Avoid duplicates: search open issues for title containing \"QA (#"
+            + inum.to_string() + "\" or the PR number before creating.\n";
+        work_prompt += "  3) gh issue create --repo " + repo + " \\\n";
+        work_prompt += "       --title \"QA (#" + inum.to_string() + "): <short what to verify>\" \\\n";
+        work_prompt += "       --label \"" + qa_label + "\" --label 8.2 --label operator:night-issue-prs \\\n";
+        work_prompt += "       --label operator:grok --label model:grok-4.5 \\\n";
+        work_prompt += "       --assignee " + qa_assignee + " \\\n";
+        work_prompt += "       --body-file <temp>\n";
+        work_prompt += "     Body MUST include:\n";
+        work_prompt += "       - Parent: #" + inum.to_string() + " (and Parent epic if different)\n";
+        work_prompt += "       - PR URL(s) to verify\n";
+        work_prompt += "       - base_branch: " + base_branch + "\n";
+        work_prompt += "       - ## Test plan (numbered steps, env: QA H2 docker or install, users/roles)\n";
+        work_prompt += "       - ## Pass / fail criteria\n";
+        work_prompt += "       - ## Out of scope\n";
+        work_prompt += "       - ## Evidence already collected by agent (Playwright/modules/commands)\n";
+        work_prompt += "  4) Comment on Parent #" + inum.to_string() + " and on the PR with the QA issue URL.\n";
+        work_prompt += "  5) Mention qa_issue_url in summary. QA issues use label \"" + qa_label + "\"\n";
+        work_prompt += "     and assignee @" + qa_assignee + " — they are NOT unassigned residuals.\n";
+        work_prompt += "  6) QA issues usually do NOT count toward residual quota (different purpose).\n";
+        work_prompt += "If not ready for human QA (pure tech-debt, fully agent-proven, no UI/install):\n";
+        work_prompt += "  skip human QA issue; note why in summary.\n";
+        work_prompt += "If dry_run=true: describe planned QA issue + test plan outline only.\n\n";
+    } else {
+        work_prompt += "HUMAN QA HANDOFF: include_human_qa=false — do not create QA issues this run.\n\n";
+    }
 
     if disp == "skip" {
         work_prompt += "ACTION: disposition is skip. Do not change code. Confirm why in summary.\n";
@@ -825,12 +998,213 @@ if include_pr_followup {
     }
 }
 
+// ========== Residual quota (p1–p4 PARENT backlog + circuit breaker) ==========
+// Live runs must file at least min_residual_issues NEW real residual/child GH issues
+// whose PARENT is already p1–p4; residual pN must match parent. Residuals of p5–p8
+// parents do NOT count. Never invent priority. One backfill agent may file under
+// existing p1–p4 parents only. If still short → stop the run.
+if require_residual_quota {
+    phase("Residual quota");
+    let b_rq = budget();
+    if b_rq.remaining < 2 {
+        log("Residual quota: agent budget low — treating as circuit breaker.");
+        residual_quota_result = #{
+            status: "failed",
+            summary: "Circuit breaker: insufficient agent budget to verify residual quota",
+            residual_count: 0,
+            quota_met: false,
+            circuit_breaker: true,
+            residual_issue_urls: "",
+            residual_issue_numbers: "",
+            backfill_created: 0,
+            blocked: "budget",
+        };
+        residual_circuit_breaker = true;
+    } else {
+        let rq_prompt = "";
+        rq_prompt += "You are the residual-quota agent for night-issue-prs (p1–p4 parent residuals only).\n";
+        rq_prompt += "Repo: " + repo + "\n";
+        rq_prompt += "base_branch: " + base_branch + "\n";
+        rq_prompt += "min_residual_issues (HARD QUOTA): " + min_residual_issues.to_string() + "\n";
+        rq_prompt += "PRIORITY RULES (HARD):\n";
+        rq_prompt += "  - Only residuals whose PARENT issue is labeled p1|p2|p3|p4 count.\n";
+        rq_prompt += "  - Residual must carry the SAME pN as the parent (copied, not invented).\n";
+        rq_prompt += "  - Residuals of Unset/p5–p8 parents NEVER count (including new p8 residuals).\n";
+        rq_prompt += "  - NEVER upgrade priority to meet quota. NEVER invent p1–p4 on a p8 parent chain.\n\n";
+
+        rq_prompt += "AGENTS.local.md: if missing in night worktree, read from primary checkout\n";
+        rq_prompt += "(git worktree list --porcelain → first worktree path). Do not commit it.\n";
+        rq_prompt += "gh auth status before gh writes; match AGENTS.local identity.\n\n";
+
+        rq_prompt += "CONTEXT (this run):\n";
+        rq_prompt += "Issue work results (JSON):\n" + json_encode(results) + "\n";
+        rq_prompt += "PR follow-up PRE (JSON):\n" + json_encode(pr_followup_result) + "\n";
+        rq_prompt += "PR follow-up POST (JSON):\n" + json_encode(pr_followup_post_result) + "\n";
+        rq_prompt += "Triage notes:\n" + json_encode(triage_notes) + "\n\n";
+
+        rq_prompt += "GOAL: Ensure this overnight PASS logged at least min_residual_issues NEW,\n";
+        rq_prompt += "REAL residual/child issues under parents that are ALREADY p1–p4, each residual\n";
+        rq_prompt += "inheriting the parent pN. Important unfinished work on high-priority parents —\n";
+        rq_prompt += "not three new low-priority issues.\n\n";
+
+        rq_prompt += "COUNTING RULES (residual_count):\n";
+        rq_prompt += "1) Collect every URL/number from:\n";
+        rq_prompt += "   - each work result residual_issue_urls and child_issue_urls\n";
+        rq_prompt += "   - pr_followup residual_issue_urls (pre + post)\n";
+        rq_prompt += "2) Deduplicate by issue number. For each candidate residual R:\n";
+        rq_prompt += "   a) gh issue view R --repo " + repo + " --json number,title,state,url,labels,body\n";
+        rq_prompt += "   b) Parse Parent: #N / Part of #N / Parent tracker from body (required).\n";
+        rq_prompt += "   c) gh issue view PARENT --json number,labels\n";
+        rq_prompt += "3) Count R only if ALL are true:\n";
+        rq_prompt += "   - R is OPEN (or just created this run)\n";
+        rq_prompt += "   - R was filed this overnight pass (operator labels OR body links this run)\n";
+        rq_prompt += "   - R is REAL (acceptance or concrete slice goal; no TBD-only / empty)\n";
+        rq_prompt += "   - PARENT has label p1 OR p2 OR p3 OR p4 (if multiple pN on parent, highest wins)\n";
+        rq_prompt += "   - R has the SAME pN label as the resolved parent priority (exact copy)\n";
+        rq_prompt += "4) EXCLUDE if parent is Unset or p5–p8, or residual pN differs from parent pN,\n";
+        rq_prompt += "   or residual has no pN while parent is p1–p4 (must fix label to match parent).\n";
+        rq_prompt += "5) Do NOT count parent work issues themselves, closed junk, duplicates, or\n";
+        rq_prompt += "   pre-existing backlog not filed this pass.\n\n";
+
+        rq_prompt += "IF residual_count >= min_residual_issues:\n";
+        rq_prompt += "  status=quota_met, quota_met=true, circuit_breaker=false, list URLs/numbers.\n";
+        rq_prompt += "  Do not create extra issues for quota.\n\n";
+
+        rq_prompt += "IF residual_count < min_residual_issues:\n";
+        rq_prompt += "  BACKFILL only under existing p1–p4 parents (need shortfall more issues):\n";
+        rq_prompt += "  Sources (must attach to a p1–p4 Parent):\n";
+        rq_prompt += "  A) Partial implement leftovers on p1–p4 parents worked this run\n";
+        rq_prompt += "  B) Split plans on p1–p4 epics not yet filed as children\n";
+        rq_prompt += "  C) PR follow-up deferred product work that links to a p1–p4 parent issue\n";
+        rq_prompt += "  D) Open p1–p4 issues/epics from triage with clear next slices not yet filed\n";
+        rq_prompt += "  For each backfill issue:\n";
+        rq_prompt += "    - Parent MUST already be p1–p4 (verify labels before create)\n";
+        rq_prompt += "    - Copy parent's pN onto the residual (same label; do not change severity)\n";
+        rq_prompt += "    gh issue create --repo " + repo + " with:\n";
+        rq_prompt += "    - Title: concrete, PR-sized (e.g. issue N residual: <action>)\n";
+        rq_prompt += "    - Body: Parent: #N, goal, acceptance, modules, out of scope\n";
+        rq_prompt += "    - Labels: operator:grok, operator:night-issue-prs, model:grok-4.5, <parent pN>\n";
+        rq_prompt += "    - Leave unassigned. No In Progress.\n";
+        rq_prompt += "    - Comment on Parent.\n";
+        rq_prompt += "  HARD BAN: fake padding; new residuals under p5–p8 parents for quota; inventing\n";
+        rq_prompt += "  p1–p4; upgrading parent priority; empty 'misc cleanup' issues.\n";
+        rq_prompt += "  If not enough REAL leftover work under p1–p4 parents, do NOT invent fakes.\n\n";
+
+        rq_prompt += "AFTER BACKFILL (or if none possible):\n";
+        rq_prompt += "  Re-count with parent p1–p4 + matching pN rules only.\n";
+        rq_prompt += "  Set residual_count, residual_issue_urls, residual_issue_numbers.\n";
+        rq_prompt += "  backfill_created = number newly created this step that meet counting rules.\n";
+        rq_prompt += "  If residual_count >= min_residual_issues:\n";
+        rq_prompt += "    status=backfill_ok, quota_met=true, circuit_breaker=false\n";
+        rq_prompt += "  Else:\n";
+        rq_prompt += "    status=circuit_breaker, quota_met=false, circuit_breaker=true\n";
+        rq_prompt += "    summary MUST explain shortfall (e.g. only p8 parents worked; not enough\n";
+        rq_prompt += "    residual scope under p1–p4 parents).\n";
+        rq_prompt += "    blocked=residual_quota\n\n";
+
+        rq_prompt += "Return structured fields. circuit_breaker true STOPS the overnight run\n";
+        rq_prompt += "(no PR cluster, no security audit).\n";
+
+        let rq_agent = agent(rq_prompt, #{
+            label: "residual-quota",
+            capability_mode: "all",
+            output_schema: residual_quota_schema,
+        });
+
+        if rq_agent != () && rq_agent.success && rq_agent.output != () {
+            residual_quota_result = rq_agent.output;
+            log("Residual quota: " + residual_quota_result.summary);
+            if residual_quota_result.circuit_breaker == true {
+                residual_circuit_breaker = true;
+            } else if residual_quota_result.quota_met == false {
+                // Defensive: under quota without explicit flag still trips breaker.
+                residual_circuit_breaker = true;
+                let rq_count = residual_quota_result.residual_count;
+                if rq_count == () { rq_count = 0; }
+                let rq_urls = residual_quota_result.residual_issue_urls;
+                if rq_urls == () { rq_urls = ""; }
+                let rq_nums = residual_quota_result.residual_issue_numbers;
+                if rq_nums == () { rq_nums = ""; }
+                let rq_bf = residual_quota_result.backfill_created;
+                if rq_bf == () { rq_bf = 0; }
+                let rq_sum = residual_quota_result.summary;
+                if rq_sum == () { rq_sum = "residual quota not met"; }
+                residual_quota_result = #{
+                    status: "circuit_breaker",
+                    summary: rq_sum,
+                    residual_count: rq_count,
+                    quota_met: false,
+                    circuit_breaker: true,
+                    residual_issue_urls: rq_urls,
+                    residual_issue_numbers: rq_nums,
+                    backfill_created: rq_bf,
+                    blocked: "residual_quota",
+                };
+            }
+        } else {
+            residual_quota_result = #{
+                status: "failed",
+                summary: "Circuit breaker: residual-quota agent failed",
+                residual_count: 0,
+                quota_met: false,
+                circuit_breaker: true,
+                residual_issue_urls: "",
+                residual_issue_numbers: "",
+                backfill_created: 0,
+                blocked: "agent_failed",
+            };
+            residual_circuit_breaker = true;
+            log("Residual quota agent failed — circuit breaker");
+        }
+    }
+    if residual_circuit_breaker {
+        log("CIRCUIT BREAKER: residual quota not met (need >= "
+            + min_residual_issues.to_string()
+            + " residuals under p1–p4 parents this pass). Skipping PR cluster + security audit.");
+        pr_cluster_result = #{
+            status: "skipped",
+            summary: "Skipped: residual-quota circuit breaker",
+            cluster_branch: "",
+            cluster_pr_url: "",
+            superseded_prs: "",
+            thrash_files: "",
+            prs_absorbed: 0,
+            blocked: "residual_quota_circuit_breaker",
+        };
+        security_audit_result = #{
+            status: "skipped",
+            summary: "Skipped: residual-quota circuit breaker",
+            open_alert_count: 0,
+            audit_issue_url: "",
+            audit_issue_number: 0,
+            mitigation_pr_urls: "",
+            alerts_addressed: 0,
+            alerts_deferred: "",
+            duplicate_audit_issues_closed: "",
+            blocked: "residual_quota_circuit_breaker",
+        };
+    }
+} else {
+    log("Residual quota disabled (require_residual_quota=false).");
+    residual_quota_result = #{
+        status: "skipped",
+        summary: "require_residual_quota=false",
+        residual_count: 0,
+        quota_met: true,
+        circuit_breaker: false,
+        residual_issue_urls: "",
+        residual_issue_numbers: "",
+        backfill_created: 0,
+        blocked: "",
+    };
+}
+
 
 // ========== PR cluster (same-file thrash absorption) ==========
 // When many owned open PRs all edit the same hot paths (smoke specs, sitemanage-beans,
 // package.json, etc.), rebasing each onto main still leaves them conflicting with each
 // other. Prefer one interim cluster branch + one superseding PR.
-if include_pr_cluster {
+if !residual_circuit_breaker && include_pr_cluster {
     phase("PR cluster");
     let b_cl = budget();
     if b_cl.remaining < 2 {
@@ -947,7 +1321,7 @@ if include_pr_cluster {
             log("PR cluster agent failed");
         }
     }
-} else if include_pr_cluster == false {
+} else if !residual_circuit_breaker && include_pr_cluster == false {
     log("PR cluster disabled (include_pr_cluster=false).");
     pr_cluster_result = #{
         status: "skipped",
@@ -957,6 +1331,164 @@ if include_pr_cluster {
         superseded_prs: "",
         thrash_files: "",
         prs_absorbed: 0,
+        blocked: "",
+    };
+}
+
+// ========== Security audit (CodeQL open alerts → Fix Pass) ==========
+// Post-processing: if code-scanning has open alerts, ensure exactly one open
+// tracking issue titled security_audit_title for this base_branch, then open
+// up to max_security_prs mitigation PRs (one alert per PR when practical).
+// Skipped when residual_circuit_breaker already tripped.
+if !residual_circuit_breaker && include_security_audit {
+    phase("Security audit");
+    let b_sec = budget();
+    if b_sec.remaining < 2 {
+        log("Skipping security audit: agent budget low.");
+        security_audit_result = #{
+            status: "skipped",
+            summary: "Skipped: insufficient agent budget",
+            open_alert_count: 0,
+            audit_issue_url: "",
+            audit_issue_number: 0,
+            mitigation_pr_urls: "",
+            alerts_addressed: 0,
+            alerts_deferred: "",
+            duplicate_audit_issues_closed: "",
+            blocked: "budget",
+        };
+    } else {
+        let sec_prompt = "";
+        sec_prompt += "You are the overnight SECURITY AUDIT (CodeQL fix-pass) agent for Percussion CMS.\n";
+        sec_prompt += "Repo: " + repo + "\n";
+        sec_prompt += "PR / analysis base branch: " + base_branch + "\n";
+        sec_prompt += "max_security_prs=" + max_security_prs.to_string() + "\n";
+        sec_prompt += "Canonical audit issue title (EXACT): " + security_audit_title + "\n";
+        sec_prompt += "Worktree: override=" + worktree_path + " rel_under_home=" + worktree_rel + "\n";
+        sec_prompt += "  Resolve home as %USERPROFILE% (Windows) or $HOME (Unix).\n";
+        sec_prompt += "Sync branch: " + sync_branch + "\n\n";
+
+        sec_prompt += "AGENTS.local.md FROM PARENT WORKTREE (HARD — first):\n";
+        sec_prompt += "If missing in night worktree, resolve primary via `git worktree list --porcelain`\n";
+        sec_prompt += "(first worktree path) and read <primary>/AGENTS.local.md for gh identity + footers.\n";
+        sec_prompt += "Do not copy or commit AGENTS.local.md.\n\n";
+
+        sec_prompt += "READ FIRST (tools):\n";
+        sec_prompt += "- docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md\n";
+        sec_prompt += "- modules/ai-shared-develop/src/main/resources/skills/codeql-pr/SKILL.md\n";
+        sec_prompt += "- root AGENTS.md CodeQL section\n\n";
+
+        sec_prompt += "GOAL:\n";
+        sec_prompt += "1) Inventory OPEN GitHub code-scanning alerts for " + repo + ".\n";
+        sec_prompt += "2) If count==0: status=skipped, summary=no open alerts, do NOT create an audit issue.\n";
+        sec_prompt += "3) If count>0: ensure EXACTLY ONE open tracking issue with title EXACTLY:\n";
+        sec_prompt += "   " + security_audit_title + "\n";
+        sec_prompt += "   scoped to base_branch=" + base_branch + " (body must record base_branch).\n";
+        sec_prompt += "4) Open mitigation PRs against " + base_branch + " for up to max_security_prs alerts\n";
+        sec_prompt += "   (prefer highest severity first: error/critical > warning > note/other).\n";
+        sec_prompt += "5) Link every mitigation PR to the single audit parent issue. Never merge.\n\n";
+
+        sec_prompt += "SINGLETON RULE (HARD — one Security Audit issue per base_branch):\n";
+        sec_prompt += "S1) Search open issues (exact title match preferred):\n";
+        sec_prompt += "    gh issue list --repo " + repo + " --state open --limit 50\n";
+        sec_prompt += "      --search Security Audit Fix Pass\n";
+        sec_prompt += "      --json number,title,createdAt,url,body\n";
+        sec_prompt += "    Keep only issues whose title equals the canonical title after trim.\n";
+        sec_prompt += "S2) Keep only candidates whose body contains `base_branch: " + base_branch + "`\n";
+        sec_prompt += "    OR (legacy) body lacks base_branch but title is exact match and base is main.\n";
+        sec_prompt += "S3) If 0 candidates and open_alert_count>0: CREATE one issue:\n";
+        sec_prompt += "    Title: " + security_audit_title + "\n";
+        sec_prompt += "    Labels: p1, 8.2, operator:night-issue-prs, operator:grok, model:grok-4.5\n";
+        sec_prompt += "    (create labels with --force if missing). Leave UNASSIGNED.\n";
+        sec_prompt += "    Body MUST include:\n";
+        sec_prompt += "      - base_branch: " + base_branch + "\n";
+        sec_prompt += "      - ## Open code-scanning alerts (table: alert# | rule | severity | path:line | url)\n";
+        sec_prompt += "      - ## Agent progress (night-issue-prs) table\n";
+        sec_prompt += "      - Pointer to codeql-pr-playbook.md disposition ladder\n";
+        sec_prompt += "S4) If 1 candidate: REUSE it. Upsert the open-alerts table + progress section.\n";
+        sec_prompt += "S5) If >1 candidates: REUSE the oldest createdAt; for each other, comment\n";
+        sec_prompt += "    'Duplicate Security Audit Fix Pass for base_branch=" + base_branch + ";\n";
+        sec_prompt += "     singleton is #<kept>. Closing this duplicate.' then `gh issue close`.\n";
+        sec_prompt += "    Record closed numbers in duplicate_audit_issues_closed.\n";
+        sec_prompt += "S6) NEVER open a second concurrent Security Audit issue for the same base_branch.\n\n";
+
+        sec_prompt += "CODE-SCANNING INVENTORY:\n";
+        sec_prompt += "C1) List open alerts (paginate if needed):\n";
+        sec_prompt += "    gh api --paginate repos/" + repo + "/code-scanning/alerts?state=open&per_page=100\n";
+        sec_prompt += "C2) Prefer tool name containing CodeQL. Record number, rule.id, rule.severity,\n";
+        sec_prompt += "    most_recent_instance.location (path, start_line), html_url.\n";
+        sec_prompt += "C3) Skip alerts already fixed on an open mitigation PR you own for the same\n";
+        sec_prompt += "    alert number (search PR bodies for 'code-scanning alert #N' or html_url).\n";
+        sec_prompt += "C4) open_alert_count = total open after inventory.\n\n";
+
+        sec_prompt += "MITIGATION PRs (live, up to max_security_prs):\n";
+        sec_prompt += "M1) cd resolved night worktree; fetch origin " + base_branch + ";\n";
+        sec_prompt += "    git switch " + sync_branch + "; git reset --hard origin/" + base_branch + "\n";
+        sec_prompt += "M2) For each selected alert (severity order, cap max_security_prs):\n";
+        sec_prompt += "    - Branch: fix/codeql-alert-<number>-<short-rule-slug> from " + sync_branch + "\n";
+        sec_prompt += "    - Disposition ladder (playbook): runtime fix + test → model pack →\n";
+        sec_prompt += "      sink-line // codeql[rule-id] → path query-filters → dismiss LAST.\n";
+        sec_prompt += "    - Do NOT open dismiss-only PRs. Do NOT re-enable CodeQL default setup\n";
+        sec_prompt += "      or GitHub Code Quality.\n";
+        sec_prompt += "    - Analyzer of record: Advanced CodeQL only (Java + JS/TS).\n";
+        sec_prompt += "    - Module clean install for changed modules when practical.\n";
+        sec_prompt += "    - Open PR to " + base_branch + " with labels operator:grok, operator:night-issue-prs,\n";
+        sec_prompt += "      model:grok-4.5. Body MUST cite: Parent audit issue, alert number + html_url,\n";
+        sec_prompt += "      rule id, disposition step used, test evidence.\n";
+        sec_prompt += "    - Comment on the audit parent issue with the PR URL + alert #.\n";
+        sec_prompt += "    - Update parent ## Agent progress row for that alert.\n";
+        sec_prompt += "    - Return to " + sync_branch + " clean before the next alert branch.\n";
+        sec_prompt += "M3) If an alert cannot be safely fixed unattended: leave it on the audit issue\n";
+        sec_prompt += "    table as deferred (reason in alerts_deferred); do not invent a fake PR.\n";
+        sec_prompt += "M4) Never merge. Never force-push bare --force (force-with-lease only if needed).\n\n";
+
+        sec_prompt += "HARD BANS:\n";
+        sec_prompt += "- Second open Security Audit issue for the same base_branch\n";
+        sec_prompt += "- Creating the audit issue when open_alert_count==0\n";
+        sec_prompt += "- Dismiss-only PRs / re-enable default CodeQL setup\n";
+        sec_prompt += "- Working outside the dedicated night worktree for git/builds\n\n";
+
+        sec_prompt += "Return structured status: skipped | audit_only | prs_opened | failed.\n";
+        sec_prompt += "mitigation_pr_urls = space-separated PR URLs.\n";
+        sec_prompt += "alerts_deferred = space-separated alert numbers with short reasons.\n";
+
+        let sec_agent = agent(sec_prompt, #{
+            label: "security-audit-fix-pass",
+            capability_mode: "all",
+            output_schema: security_audit_schema,
+        });
+
+        if sec_agent != () && sec_agent.success && sec_agent.output != () {
+            security_audit_result = sec_agent.output;
+            log("Security audit: " + security_audit_result.summary);
+        } else {
+            security_audit_result = #{
+                status: "failed",
+                summary: "Security audit agent failed",
+                open_alert_count: 0,
+                audit_issue_url: "",
+                audit_issue_number: 0,
+                mitigation_pr_urls: "",
+                alerts_addressed: 0,
+                alerts_deferred: "",
+                duplicate_audit_issues_closed: "",
+                blocked: "agent_failed",
+            };
+            log("Security audit agent failed");
+        }
+    }
+} else if !residual_circuit_breaker {
+    log("Security audit disabled (include_security_audit=false).");
+    security_audit_result = #{
+        status: "skipped",
+        summary: "include_security_audit=false",
+        open_alert_count: 0,
+        audit_issue_url: "",
+        audit_issue_number: 0,
+        mitigation_pr_urls: "",
+        alerts_addressed: 0,
+        alerts_deferred: "",
+        duplicate_audit_issues_closed: "",
         blocked: "",
     };
 }
@@ -972,22 +1504,31 @@ report_prompt += "Write a concise overnight report in GitHub-flavored markdown f
 report_prompt += "Repo: " + repo + "\n";
 report_prompt += "dry_run=" + dry_run.to_string() + "\n\n";
 report_prompt += "This report is RUN-LOCAL only (scratch/night-report.md). It is NOT the multi-phase\n";
-report_prompt += "epic tracker ΓÇö that lives on parent GitHub issue bodies under\n";
+report_prompt += "epic tracker — that lives on parent GitHub issue bodies under\n";
 report_prompt += "## Agent progress (night-issue-prs). Do not recommend committing this file to git.\n\n";
 report_prompt += "Triage notes:\n" + json_encode(triage_notes) + "\n\n";
 report_prompt += "Issue work results (JSON):\n" + json_encode(results) + "\n\n";
 report_prompt += "PR follow-up PRE result (JSON, may be empty):\n" + json_encode(pr_followup_result) + "\n\n";
 report_prompt += "PR follow-up POST result (JSON, may be empty):\n" + json_encode(pr_followup_post_result) + "\n\n";
 report_prompt += "PR cluster result (JSON, may be empty):\n" + json_encode(pr_cluster_result) + "\n\n";
+report_prompt += "Security audit result (JSON, may be empty):\n" + json_encode(security_audit_result) + "\n\n";
+report_prompt += "Residual quota result (JSON, may be empty):\n" + json_encode(residual_quota_result) + "\n\n";
 report_prompt += "Include:\n";
 report_prompt += "1) Table: issue | pN priority | status | PR | child/residual | parent | summary\n";
 report_prompt += "2) Table: open PRs followed up | conflicts | threads resolved | residual issues\n";
 report_prompt += "3) List still-open HUMAN review threads AND merge_blockers_still_open (conflicts\n";
 report_prompt += "   and unresolved bot/human threads only - not CI wait state)\n";
-report_prompt += "4) PR cluster: if a cluster PR was opened, put it FIRST in morning review; list superseded PRs\n";
-report_prompt += "5) Morning review order and what was deferred\n";
-report_prompt += "6) Note any PARENT issues whose ## Agent progress section should be checked\n";
-report_prompt += "7) Flag any issues that may still have In Progress left on (worker crash risk)\n";
+report_prompt += "4) Residual quota (parent must be p1–p4; residual pN = parent pN): residual_count vs min ("
+    + min_residual_issues.to_string()
+    + "), backfill_created, residual_issue_urls;\n";
+report_prompt += "   list each counted residual with Parent # and pN; **call out CIRCUIT BREAKER** if tripped;\n";
+report_prompt += "   note residuals excluded (parent Unset/p5–p8 or priority mismatch)\n";
+report_prompt += "5) PR cluster: if a cluster PR was opened, put it FIRST in morning review; list superseded PRs\n";
+report_prompt += "6) Security audit: open alert count, audit issue URL (singleton), mitigation PRs,\n";
+report_prompt += "   deferred alerts; flag if more than one Security Audit issue was found (should not happen)\n";
+report_prompt += "7) Morning review order and what was deferred\n";
+report_prompt += "8) Note any PARENT issues whose ## Agent progress section should be checked\n";
+report_prompt += "9) Flag any issues that may still have In Progress left on (worker crash risk)\n";
 report_prompt += "Return ONLY the markdown body (no code fence wrapper).\n";
 
 let report_agent = agent(report_prompt, #{
@@ -1032,6 +1573,15 @@ if pr_followup_post_result != () && pr_followup_post_result.summary != () {
 if pr_cluster_result != () && pr_cluster_result.summary != () {
     summary = summary + "; pr_cluster: " + pr_cluster_result.summary;
 }
+if security_audit_result != () && security_audit_result.summary != () {
+    summary = summary + "; security_audit: " + security_audit_result.summary;
+}
+if residual_quota_result != () && residual_quota_result.summary != () {
+    summary = summary + "; residual_quota: " + residual_quota_result.summary;
+}
+if residual_circuit_breaker {
+    summary = "CIRCUIT_BREAKER residual_quota; " + summary;
+}
 
 log(summary);
 complete(#{
@@ -1041,6 +1591,10 @@ complete(#{
     pr_followup: pr_followup_result,
     pr_followup_post: pr_followup_post_result,
     pr_cluster: pr_cluster_result,
+    security_audit: security_audit_result,
+    residual_quota: residual_quota_result,
+    residual_circuit_breaker: residual_circuit_breaker,
+    min_residual_issues: min_residual_issues,
     notes: triage_notes,
     dry_run: dry_run,
 });
