@@ -28,6 +28,8 @@ import java.util.Collection;
 @XmlRootElement(name = "psResourceLinkAndLocation")
 @ArraySchema(schema = @Schema(implementation = PSResourceLinkAndLocation.class))
 public class PSResourceLinkAndLocationList extends ArrayList<PSResourceLinkAndLocation> {
+  private static final long serialVersionUID = 1L;
+
   public PSResourceLinkAndLocationList() {
     super();
   }

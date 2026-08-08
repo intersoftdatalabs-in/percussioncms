@@ -26,6 +26,8 @@ import java.util.Collection;
 /** List wrapper for PSAssetSummary objects. */
 @XmlRootElement(name = "AssetSummary")
 public class PSAssetSummaryList extends ArrayList<PSAssetSummary> {
+  private static final long serialVersionUID = 1L;
+
 
   public PSAssetSummaryList() {
     super();

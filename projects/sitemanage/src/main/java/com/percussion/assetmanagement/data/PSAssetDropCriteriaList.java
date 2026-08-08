@@ -26,6 +26,8 @@ import java.util.Collection;
 /** List wrapper for asset drop criteria. */
 @JsonRootName("AssetDropCriteria")
 public class PSAssetDropCriteriaList extends ArrayList<PSAssetDropCriteria> {
+  private static final long serialVersionUID = 1L;
+
 
   public PSAssetDropCriteriaList(Collection<? extends PSAssetDropCriteria> c) {
     super(c);

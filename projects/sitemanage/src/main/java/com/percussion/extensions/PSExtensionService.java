@@ -22,6 +22,7 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.*;
 import com.percussion.server.PSServer;
 import java.io.File;
+import java.net.URL;
 import java.util.Iterator;
 
 // REFACTORED: CP-JAVA11
@@ -34,11 +35,13 @@ public class PSExtensionService implements IPSExtensionService {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public Iterator<PSExtensionRef> getExtensionHandlerNames() {
     return manager.getExtensionHandlerNames();
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public Iterator<PSExtensionRef> getExtensionNames(
       String handlerNamePattern,
       String context,
@@ -50,7 +53,8 @@ public class PSExtensionService implements IPSExtensionService {
   }
 
   @Override
-  public Iterator getExtensionFiles(PSExtensionRef ref)
+  @SuppressWarnings("unchecked")
+  public Iterator<URL> getExtensionFiles(PSExtensionRef ref)
       throws PSNotFoundException, PSExtensionException {
     return manager.getExtensionFiles(ref);
   }
@@ -79,14 +83,14 @@ public class PSExtensionService implements IPSExtensionService {
   }
 
   @Override
-  public void installExtension(IPSExtensionDef def, Iterator resources)
+  public void installExtension(IPSExtensionDef def, Iterator<?> resources)
       throws PSExtensionException, PSNotFoundException, PSNonUniqueException {
     manager.installExtension(def, resources);
   }
 
   @Override
   public void installExtension(
-      IPSExtensionDef def, Iterator resources, IPSExtensionListener listener)
+      IPSExtensionDef def, Iterator<?> resources, IPSExtensionListener listener)
       throws PSExtensionException, PSNotFoundException, PSNonUniqueException {
     manager.installExtension(def, resources, listener);
   }
@@ -97,7 +101,7 @@ public class PSExtensionService implements IPSExtensionService {
   }
 
   @Override
-  public void updateExtension(IPSExtensionDef def, Iterator resources)
+  public void updateExtension(IPSExtensionDef def, Iterator<?> resources)
       throws PSExtensionException, PSNotFoundException {
     manager.updateExtension(def, resources);
   }

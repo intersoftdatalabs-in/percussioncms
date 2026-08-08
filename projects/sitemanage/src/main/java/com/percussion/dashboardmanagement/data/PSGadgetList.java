@@ -27,6 +27,8 @@ import java.util.List;
 @XmlRootElement(name = "gadget")
 @ArraySchema(schema = @Schema(implementation = PSGadget.class))
 public class PSGadgetList extends ArrayList<PSGadget> {
+  private static final long serialVersionUID = 1L;
+
   public PSGadgetList(Collection<? extends PSGadget> c) {
     super(c != null ? c : List.of());
   }

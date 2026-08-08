@@ -28,6 +28,8 @@ import java.util.Collection;
 @XmlRootElement(name = "RichTextCustomStyle")
 @ArraySchema(schema = @Schema(implementation = PSRichTextCustomStyle.class))
 public class PSRichTextCustomStyleList extends ArrayList<PSRichTextCustomStyle> {
+  private static final long serialVersionUID = 1L;
+
   public PSRichTextCustomStyleList(Collection<? extends PSRichTextCustomStyle> c) {
     super(c);
   }

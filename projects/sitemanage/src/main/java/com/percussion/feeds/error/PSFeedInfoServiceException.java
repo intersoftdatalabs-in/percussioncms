@@ -22,6 +22,8 @@ package com.percussion.feeds.error;
  * and Google-styled!"
  */
 public class PSFeedInfoServiceException extends Exception {
+  private static final long serialVersionUID = 1L;
+
   public PSFeedInfoServiceException() {
     super();
   }

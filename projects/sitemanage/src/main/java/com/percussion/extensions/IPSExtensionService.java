@@ -21,14 +21,14 @@ import com.percussion.error.PSNonUniqueException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.*;
 import java.io.File;
-import java.util.*;
+import java.net.URL;
+import java.util.Iterator;
 
 /****
  * Service wrapper for the extension manager.
  * <p>
  * Sunny Sal says: "ExtensionService, now Java 11 and Google-styled!"
  */
-@SuppressWarnings("rawtypes")
 public interface IPSExtensionService {
 
   /**
@@ -78,7 +78,8 @@ public interface IPSExtensionService {
    * @throws IllegalArgumentException If ref is <code>null</code>.
    * @throws PSExtensionException If there is an error attempting to locate the files.
    */
-  Iterator getExtensionFiles(PSExtensionRef ref) throws PSNotFoundException, PSExtensionException;
+  Iterator<URL> getExtensionFiles(PSExtensionRef ref)
+      throws PSNotFoundException, PSExtensionException;
 
   /**
    * Returns <CODE>true</CODE> if and only if the given extension ref refers to an installed
@@ -146,7 +147,7 @@ public interface IPSExtensionService {
    * @throws PSNonUniqueException If the extension already exists. Use updateExtension instead. The
    *     defined extension will not be installed.
    */
-  void installExtension(IPSExtensionDef def, Iterator resources)
+  void installExtension(IPSExtensionDef def, Iterator<?> resources)
       throws PSExtensionException, PSNotFoundException, PSNonUniqueException;
 
   /**
@@ -170,7 +171,8 @@ public interface IPSExtensionService {
    * @throws PSNonUniqueException If the extension already exists. Use updateExtension instead. The
    *     defined extension will not be installed.
    */
-  void installExtension(IPSExtensionDef def, Iterator resources, IPSExtensionListener listener)
+  void installExtension(
+      IPSExtensionDef def, Iterator<?> resources, IPSExtensionListener listener)
       throws PSExtensionException, PSNotFoundException, PSNonUniqueException;
 
   /**
@@ -202,7 +204,7 @@ public interface IPSExtensionService {
    * @see #removeExtension
    * @see #installExtension
    */
-  void updateExtension(IPSExtensionDef def, Iterator resources)
+  void updateExtension(IPSExtensionDef def, Iterator<?> resources)
       throws PSExtensionException, PSNotFoundException;
 
   /**

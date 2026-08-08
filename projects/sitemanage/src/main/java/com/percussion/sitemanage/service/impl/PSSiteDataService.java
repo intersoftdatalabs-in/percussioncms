@@ -1890,7 +1890,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
         if (!localIds.isEmpty()) {
           // update the copied page's assets
           widgetAssetRelationshipService.removeAssetWidgetRelationships(
-              pageId, Collections.EMPTY_LIST);
+              pageId, Collections.emptyList());
           assetIds =
               widgetAssetRelationshipService.copyAssetWidgetRelationships(origPage.getId(), pageId);
 
@@ -2212,9 +2212,8 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
   private IPSPubServerService getPubServerService() {
     if (pubserverService == null)
       pubserverService =
-          (IPSPubServerService)
-              PSSpringWebApplicationContextUtils.getWebApplicationContext()
-                  .getBean("pubServerService", IPSPubServerService.class);
+          PSSpringWebApplicationContextUtils.getWebApplicationContext()
+              .getBean("pubServerService", IPSPubServerService.class);
     return pubserverService;
   }
 

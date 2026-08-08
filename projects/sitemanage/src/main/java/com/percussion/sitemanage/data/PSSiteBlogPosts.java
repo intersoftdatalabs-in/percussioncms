@@ -29,6 +29,8 @@ import net.sf.oval.constraint.NotEmpty;
 @XmlRootElement(name = "SiteBlogPosts")
 @JsonRootName("SiteBlogPosts")
 public class PSSiteBlogPosts extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
+
 
   @NotEmpty private String blogTitle;
 

@@ -28,6 +28,8 @@ import java.util.Collection;
 @XmlRootElement(name = "TemplateSummary")
 @ArraySchema(schema = @Schema(implementation = AssignTemplate.class))
 public class AssignTemplateList extends ArrayList<AssignTemplate> {
+  private static final long serialVersionUID = 1L;
+
   public AssignTemplateList(Collection<AssignTemplate> c) {
     super(c);
   }

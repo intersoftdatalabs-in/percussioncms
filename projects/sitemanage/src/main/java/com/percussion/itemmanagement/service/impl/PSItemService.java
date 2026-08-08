@@ -1705,7 +1705,7 @@ public class PSItemService implements IPSItemService {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
       try {
-        Set processedPages = new HashSet();
+        Set<Integer> processedPages = new HashSet<>();
         Collection<PSAsset> assets = assetDao.findAllAssetsUsingEncryption();
         for (PSAsset asset : assets) {
           Set<String> pages = waRelService.getRelationshipOwners(asset.getId());
@@ -1713,11 +1713,11 @@ public class PSItemService implements IPSItemService {
             if (workflowHelper.isTemplate(page)) {
               Collection<Integer> pageIds = templateService.getPageIdsForTemplate(page);
               for (Integer pageContentId : pageIds) {
-                if (processedPages.contains(pageContentId.intValue())) {
+                if (processedPages.contains(pageContentId)) {
                   continue;
                 }
                 if (addToIncrementalQueue(pageContentId)) {
-                  processedPages.add(pageContentId.intValue());
+                  processedPages.add(pageContentId);
                 }
               }
             } else if (workflowHelper.isPage(page)) {

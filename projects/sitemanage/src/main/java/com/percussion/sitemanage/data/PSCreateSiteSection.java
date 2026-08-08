@@ -32,6 +32,8 @@ import net.sf.oval.constraint.NotNull;
  */
 @JsonRootName("CreateSiteSection")
 public class PSCreateSiteSection extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
+
 
   public String getPageName() {
     return pageName;

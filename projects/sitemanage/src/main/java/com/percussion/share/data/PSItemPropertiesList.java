@@ -31,6 +31,8 @@ import java.util.Objects;
 @JsonRootName(value = "ItemProperties")
 @ArraySchema(schema = @Schema(implementation = PSItemProperties.class))
 public class PSItemPropertiesList extends ArrayList<PSItemProperties> {
+  private static final long serialVersionUID = 1L;
+
   public PSItemPropertiesList(Collection<? extends PSItemProperties> c) {
     super(Objects.requireNonNull(c, "Collection cannot be null"));
   }

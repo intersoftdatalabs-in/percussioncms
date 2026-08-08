@@ -28,6 +28,8 @@ import java.util.Collection;
 @XmlRootElement(name = "RenderLink")
 @ArraySchema(schema = @Schema(implementation = PSRenderLink.class))
 public class PSRenderLinkList extends ArrayList<PSRenderLink> {
+  private static final long serialVersionUID = 1L;
+
   public PSRenderLinkList() {
     super();
   }

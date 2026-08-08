@@ -35,7 +35,6 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -141,7 +140,7 @@ public class PSCategoryControlUtils {
   public static Document convertToOldFormatXml(Document doc) {
     var document = DocumentHelper.createDocument();
     var root = document.addElement("Tree");
-    for (var attr : (List<Attribute>) doc.getRootElement().attributes()) {
+    for (var attr : doc.getRootElement().attributes()) {
       if ("title".equalsIgnoreCase(attr.getName())) {
         root.addAttribute("label", attr.getStringValue());
       }
@@ -150,7 +149,7 @@ public class PSCategoryControlUtils {
       var e = it.next();
       if ("Children".equalsIgnoreCase(e.getName())) {
         var newElement = root.addElement("Node");
-        for (var attr : (List<Attribute>) e.attributes()) {
+        for (var attr : e.attributes()) {
           if ("id".equalsIgnoreCase(attr.getName()))
             newElement.addAttribute("id", attr.getStringValue());
           if ("title".equalsIgnoreCase(attr.getName()))
@@ -179,7 +178,7 @@ public class PSCategoryControlUtils {
    */
   private static void createChildElement(Element source, Element targetParent) {
     var newChild = targetParent.addElement("Node");
-    for (var attr : (List<Attribute>) source.attributes()) {
+    for (var attr : source.attributes()) {
       if ("id".equalsIgnoreCase(attr.getName())) newChild.addAttribute("id", attr.getStringValue());
       if ("title".equalsIgnoreCase(attr.getName()))
         newChild.addAttribute("label", attr.getStringValue());

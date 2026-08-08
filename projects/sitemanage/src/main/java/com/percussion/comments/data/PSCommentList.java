@@ -31,6 +31,8 @@ import java.util.Collection;
 @ArraySchema(schema = @Schema(implementation = PSComment.class))
 @JsonRootName("comments")
 public class PSCommentList extends ArrayList<PSComment> {
+  private static final long serialVersionUID = 1L;
+
   public PSCommentList(Collection<? extends PSComment> c) {
     super(c);
   }

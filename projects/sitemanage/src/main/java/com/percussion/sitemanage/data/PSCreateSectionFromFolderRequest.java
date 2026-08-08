@@ -28,6 +28,8 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "CreateSectionFromFolderRequest")
 @JsonRootName("PSCreateSectionFromFolderRequest")
 public class PSCreateSectionFromFolderRequest extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
+
 
   public String getSourceFolderPath() {
     return sourceFolderPath;

@@ -31,6 +31,8 @@ import java.util.Collection;
 @XmlRootElement(name = "WidgetSummary")
 @ArraySchema(schema = @Schema(implementation = PSWidgetSummary.class))
 public class PSWidgetSummaryList extends ArrayList<PSWidgetSummary> {
+  private static final long serialVersionUID = 1L;
+
   public PSWidgetSummaryList() {
     super();
   }

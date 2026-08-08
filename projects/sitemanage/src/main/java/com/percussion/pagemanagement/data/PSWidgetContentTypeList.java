@@ -27,6 +27,8 @@ import java.util.Collection;
 @XmlRootElement(name = "WidgetContentType")
 @JsonRootName("WidgetContentType")
 public class PSWidgetContentTypeList extends ArrayList<PSWidgetContentType> {
+  private static final long serialVersionUID = 1L;
+
   public PSWidgetContentTypeList() {
     super();
   }

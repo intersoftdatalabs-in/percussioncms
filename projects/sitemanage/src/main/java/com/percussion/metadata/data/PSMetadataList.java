@@ -30,6 +30,8 @@ import java.util.Collection;
 @XmlRootElement(name = "metadata")
 @ArraySchema(schema = @Schema(implementation = PSMetadata.class))
 public class PSMetadataList extends ArrayList<PSMetadata> {
+  private static final long serialVersionUID = 1L;
+
 
   public PSMetadataList(Collection<? extends PSMetadata> c) {
     super(c);

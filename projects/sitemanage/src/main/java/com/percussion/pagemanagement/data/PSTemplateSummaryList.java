@@ -30,6 +30,8 @@ import java.util.Collection;
 @ArraySchema(schema = @Schema(implementation = PSTemplateSummary.class))
 @JsonRootName("TemplateSummary")
 public class PSTemplateSummaryList extends ArrayList<PSTemplateSummary> {
+  private static final long serialVersionUID = 1L;
+
   public PSTemplateSummaryList() {
     super();
   }

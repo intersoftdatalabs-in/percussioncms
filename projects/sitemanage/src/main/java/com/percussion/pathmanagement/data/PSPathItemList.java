@@ -33,6 +33,8 @@ import java.util.Collection;
 @ArraySchema(schema = @Schema(implementation = PSPathItem.class))
 @JsonRootName("PathItemList")
 public class PSPathItemList extends ArrayList<PSPathItem> {
+  private static final long serialVersionUID = 1L;
+
   public PSPathItemList(Collection<? extends PSPathItem> c) {
     super(c);
   }

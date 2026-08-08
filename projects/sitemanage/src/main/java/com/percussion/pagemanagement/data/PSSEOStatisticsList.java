@@ -30,6 +30,8 @@ import java.util.Collection;
 @ArraySchema(schema = @Schema(implementation = PSSEOStatistics.class))
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class PSSEOStatisticsList extends ArrayList<PSSEOStatistics> {
+  private static final long serialVersionUID = 1L;
+
   public PSSEOStatisticsList() {
     super();
   }

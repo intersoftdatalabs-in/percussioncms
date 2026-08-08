@@ -28,6 +28,8 @@ import org.apache.commons.lang3.Validate;
  */
 @XmlRootElement(name = "WidgetPackageInfo")
 public class PSWidgetPackageInfo extends PSAbstractPersistantObject {
+  private static final long serialVersionUID = 1L;
+
 
   private String id;
   private String widgetName;
