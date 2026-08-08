@@ -32,17 +32,25 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 
 /**
- * Regression for GH-757 / v8.1.7 PRs #763 and #767: published theme {@code vspan_*} regions use
- * {@code min-height} so sidebars grow with content (footer stays below), while editor decoration
- * CSS keeps fixed {@code height !important} and resets {@code min-height} so placeholders stay
- * sized.
+ * Regression for GH-757 / GH-2352:
+ *
+ * <ul>
+ *   <li>Published default theme {@code vspan_*} regions use {@code min-height} so sidebars grow
+ *       with content (footer stays below) — GH-757.
+ *   <li>Editor/preview decoration must <strong>not</strong> force the legacy fixed pixel grid with
+ *       {@code !important} (or hard-coded px heights/widths) so responsive customer themes that set
+ *       {@code height/width: auto} win in the CMS chrome — GH-2352.
+ * </ul>
  */
 class VspanFooterAlignmentCssTest {
 
   private static final Pattern VSPAN_BLOCK =
       Pattern.compile("\\.vspan_([2468])\\s*\\{([^}]*)\\}", Pattern.DOTALL);
 
-  /** Design floor heights for empty vspan regions (px), keyed by span index. */
+  private static final Pattern HSPAN_BLOCK =
+      Pattern.compile("\\.hspan_(2|8|10|12)\\s*\\{([^}]*)\\}", Pattern.DOTALL);
+
+  /** Design floor heights for empty vspan regions (px), keyed by span index (default theme). */
   private static final Map<String, String> VSPAN_FLOOR_PX =
       Map.of("2", "120", "4", "240", "6", "360", "8", "480");
 
@@ -97,7 +105,7 @@ class VspanFooterAlignmentCssTest {
   }
 
   @Test
-  void decorationCssOverridesMinHeightWithFixedHeightImportant() throws Exception {
+  void decorationCssDoesNotForceFixedPixelGridWithImportant() throws Exception {
     Path root = resolveRepoRoot();
     for (String rel : DECORATION_PATHS) {
       Path cssPath = root.resolve(rel);
@@ -105,40 +113,94 @@ class VspanFooterAlignmentCssTest {
         fail("expected decoration CSS at " + cssPath.toAbsolutePath());
       }
       String css = Files.readString(cssPath, StandardCharsets.UTF_8);
-      Matcher m = VSPAN_BLOCK.matcher(css);
-      Map<String, Integer> counts = new LinkedHashMap<>();
-      for (String k : VSPAN_FLOOR_PX.keySet()) {
-        counts.put(k, 0);
-      }
-      int blocks = 0;
-      while (m.find()) {
-        blocks++;
-        String span = m.group(1);
-        String body = m.group(2);
-        String floor = VSPAN_FLOOR_PX.get(span);
-        assertTrue(
-            Pattern.compile("height\\s*:\\s*" + floor + "px\\s*!important").matcher(body).find(),
-            rel
-                + " .vspan_"
-                + span
-                + " must fix height: "
-                + floor
-                + "px !important: "
-                + body.replace('\n', ' '));
-        assertTrue(
-            Pattern.compile("min-height\\s*:\\s*0\\s*!important").matcher(body).find(),
-            rel
-                + " .vspan_"
-                + span
-                + " must reset min-height: 0 !important: "
-                + body.replace('\n', ' '));
-        counts.merge(span, 1, Integer::sum);
-      }
-      // At least one rule per span class (allow extra legitimate editor variants later).
-      assertTrue(blocks >= 4, rel + ": expected at least vspan_2/4/6/8 rules, found " + blocks);
-      for (Map.Entry<String, Integer> e : counts.entrySet()) {
-        assertTrue(e.getValue() >= 1, rel + " .vspan_" + e.getKey() + " count=" + e.getValue());
-      }
+      assertVspanAllowsResponsiveThemes(rel, css);
+      assertHspanAllowsResponsiveThemes(rel, css);
+    }
+  }
+
+  private static void assertVspanAllowsResponsiveThemes(String rel, String css) {
+    Matcher m = VSPAN_BLOCK.matcher(css);
+    Map<String, Integer> counts = new LinkedHashMap<>();
+    for (String k : VSPAN_FLOOR_PX.keySet()) {
+      counts.put(k, 0);
+    }
+    int blocks = 0;
+    while (m.find()) {
+      blocks++;
+      String span = m.group(1);
+      String body = m.group(2);
+      // GH-2352: never lock height with !important over customer auto rules.
+      assertFalse(
+          Pattern.compile("(?<!min-|max-)height\\s*:[^;!]*!important").matcher(body).find(),
+          rel
+              + " .vspan_"
+              + span
+              + " must not force height with !important: "
+              + body.replace('\n', ' '));
+      assertFalse(
+          Pattern.compile("min-height\\s*:\\s*0\\s*!important").matcher(body).find(),
+          rel
+              + " .vspan_"
+              + span
+              + " must not reset min-height: 0 !important (kills theme floors): "
+              + body.replace('\n', ' '));
+      // Prefer auto so decoration does not re-impose the legacy 120/240/360/480 grid.
+      assertTrue(
+          Pattern.compile("(?<!min-|max-)height\\s*:\\s*auto").matcher(body).find(),
+          rel + " .vspan_" + span + " must use height: auto: " + body.replace('\n', ' '));
+      // No fixed design-floor px height on decoration (theme owns min-height floors).
+      String floor = VSPAN_FLOOR_PX.get(span);
+      assertFalse(
+          Pattern.compile("(?<!min-|max-)height\\s*:\\s*" + floor + "px").matcher(body).find(),
+          rel
+              + " .vspan_"
+              + span
+              + " must not set fixed height: "
+              + floor
+              + "px: "
+              + body.replace('\n', ' '));
+      counts.merge(span, 1, Integer::sum);
+    }
+    assertTrue(blocks >= 4, rel + ": expected at least vspan_2/4/6/8 rules, found " + blocks);
+    for (Map.Entry<String, Integer> e : counts.entrySet()) {
+      assertTrue(e.getValue() >= 1, rel + " .vspan_" + e.getKey() + " count=" + e.getValue());
+    }
+  }
+
+  private static void assertHspanAllowsResponsiveThemes(String rel, String css) {
+    Matcher m = HSPAN_BLOCK.matcher(css);
+    Map<String, Integer> counts = new LinkedHashMap<>();
+    for (String k : List.of("2", "8", "10", "12")) {
+      counts.put(k, 0);
+    }
+    int blocks = 0;
+    while (m.find()) {
+      blocks++;
+      String span = m.group(1);
+      String body = m.group(2);
+      assertFalse(
+          Pattern.compile("width\\s*:[^;!]*!important").matcher(body).find(),
+          rel
+              + " .hspan_"
+              + span
+              + " must not force width with !important: "
+              + body.replace('\n', ' '));
+      assertTrue(
+          Pattern.compile("width\\s*:\\s*auto").matcher(body).find(),
+          rel + " .hspan_" + span + " must use width: auto: " + body.replace('\n', ' '));
+      // Legacy fixed grid must not be reimposed (160/640/800/960).
+      assertFalse(
+          Pattern.compile("width\\s*:\\s*(160|640|800|960)px").matcher(body).find(),
+          rel
+              + " .hspan_"
+              + span
+              + " must not set fixed legacy grid width: "
+              + body.replace('\n', ' '));
+      counts.merge(span, 1, Integer::sum);
+    }
+    assertTrue(blocks >= 4, rel + ": expected at least hspan_2/8/10/12 rules, found " + blocks);
+    for (Map.Entry<String, Integer> e : counts.entrySet()) {
+      assertTrue(e.getValue() >= 1, rel + " .hspan_" + e.getKey() + " count=" + e.getValue());
     }
   }
 
