@@ -1,3 +1,6 @@
+# scratch folder
+scratch/
+
 # --- Speckit (.specify): track project config; ignore regenerable cache only ---
 .specify/extensions/.cache/
 .specify/feature.json
