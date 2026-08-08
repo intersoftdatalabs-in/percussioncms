@@ -60,3 +60,14 @@ extensions:
           "sql-injection",
           "manual",
         ]
+      - [
+          "com.percussion.security",
+          "SecureStringUtils",
+          false,
+          "requireJdbcMetadataPatternOrNull",
+          "(String)",
+          "",
+          "ReturnValue",
+          "sql-injection",
+          "manual",
+        ]

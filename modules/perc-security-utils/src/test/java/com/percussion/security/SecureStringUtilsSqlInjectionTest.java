@@ -91,4 +91,30 @@ class SecureStringUtilsSqlInjectionTest {
         IllegalArgumentException.class,
         () -> SecureStringUtils.requireFactorySqlStatement("SELECT 1 -- x"));
   }
+
+  @Test
+  void requireJdbcMetadataPatternOrNullAcceptsIdentifiersAndWildcards() {
+    assertNull(SecureStringUtils.requireJdbcMetadataPatternOrNull(null));
+    assertEquals("", SecureStringUtils.requireJdbcMetadataPatternOrNull(""));
+    assertEquals("CONTENTSTATUS", SecureStringUtils.requireJdbcMetadataPatternOrNull("CONTENTSTATUS"));
+    assertEquals("%", SecureStringUtils.requireJdbcMetadataPatternOrNull("%"));
+    assertEquals("PSX_%", SecureStringUtils.requireJdbcMetadataPatternOrNull("PSX_%"));
+    assertEquals("col$", SecureStringUtils.requireJdbcMetadataPatternOrNull("col$"));
+  }
+
+  @Test
+  void requireJdbcMetadataPatternOrNullRejectsInjectionFragments() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SecureStringUtils.requireJdbcMetadataPatternOrNull("t; DROP TABLE x"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SecureStringUtils.requireJdbcMetadataPatternOrNull("t' OR '1'='1"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SecureStringUtils.requireJdbcMetadataPatternOrNull("a b"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SecureStringUtils.requireJdbcMetadataPatternOrNull("t--comment"));
+  }
 }
