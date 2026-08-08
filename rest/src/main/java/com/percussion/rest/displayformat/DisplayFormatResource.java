@@ -24,18 +24,22 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Read-only display format catalog for the Developer module (UI-05 list/detail).
+ * Read-only display format catalog for the Developer module (UI-05 list/detail) and the modern
+ * Content Explorer folder list (issue #2400 / FR-027).
  *
  * <p>Write endpoints remain unimplemented at the adaptor layer (later slice).
  */
@@ -61,8 +65,9 @@ public class DisplayFormatResource {
   @Operation(
       summary = "List display formats",
       description =
-          "Lists Content Explorer display formats with columns and usage flags. Create/edit/delete"
-              + " are later slices.",
+          "Lists Content Explorer display formats with columns and usage flags. Optional filters"
+              + " support the modern Explorer folder list (validForFolder) and search/view UIs"
+              + " (validForViewsAndSearches). Create/edit/delete are later slices.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -72,10 +77,41 @@ public class DisplayFormatResource {
                     array = @ArraySchema(schema = @Schema(implementation = DisplayFormat.class)))),
         @ApiResponse(responseCode = "500", description = "Error")
       })
-  public List<DisplayFormat> listDisplayFormats() {
+  public List<DisplayFormat> listDisplayFormats(
+      @Parameter(description = "When true, only formats valid for folder list views")
+          @QueryParam("validForFolder")
+          Boolean validForFolder,
+      @Parameter(description = "When true, only formats valid for views and searches")
+          @QueryParam("validForViewsAndSearches")
+          Boolean validForViewsAndSearches) {
     try {
       List<DisplayFormat> list = requireAdaptor().findAllDisplayFormats();
-      return list != null ? list : List.of();
+      if (list == null || list.isEmpty()) {
+        return List.of();
+      }
+      if (validForFolder == null && validForViewsAndSearches == null) {
+        return list;
+      }
+      List<DisplayFormat> filtered = new ArrayList<>(list.size());
+      for (DisplayFormat df : list) {
+        if (df == null) {
+          continue;
+        }
+        if (Boolean.TRUE.equals(validForFolder) && !df.isValidForFolder()) {
+          continue;
+        }
+        if (Boolean.FALSE.equals(validForFolder) && df.isValidForFolder()) {
+          continue;
+        }
+        if (Boolean.TRUE.equals(validForViewsAndSearches) && !df.isValidForViewsAndSearches()) {
+          continue;
+        }
+        if (Boolean.FALSE.equals(validForViewsAndSearches) && df.isValidForViewsAndSearches()) {
+          continue;
+        }
+        filtered.add(df);
+      }
+      return filtered;
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {

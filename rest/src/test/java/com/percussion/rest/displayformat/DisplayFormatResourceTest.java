@@ -51,7 +51,7 @@ public class DisplayFormatResourceTest {
     f.setName("Default");
     when(adaptor.findAllDisplayFormats()).thenReturn(List.of(f));
 
-    List<DisplayFormat> out = resource.listDisplayFormats();
+    List<DisplayFormat> out = resource.listDisplayFormats(null, null);
     assertEquals(1, out.size());
     assertEquals("Default", out.get(0).getName());
   }
@@ -59,7 +59,39 @@ public class DisplayFormatResourceTest {
   @Test
   public void listDisplayFormatsNullSafe() throws Exception {
     when(adaptor.findAllDisplayFormats()).thenReturn(null);
-    assertTrue(resource.listDisplayFormats().isEmpty());
+    assertTrue(resource.listDisplayFormats(null, null).isEmpty());
+  }
+
+  @Test
+  public void listDisplayFormatsFiltersValidForFolder() throws Exception {
+    DisplayFormat folderOk = new DisplayFormat();
+    folderOk.setName("FolderList");
+    folderOk.setValidForFolder(true);
+    DisplayFormat notFolder = new DisplayFormat();
+    notFolder.setName("SearchOnly");
+    notFolder.setValidForFolder(false);
+    notFolder.setValidForViewsAndSearches(true);
+    when(adaptor.findAllDisplayFormats()).thenReturn(List.of(folderOk, notFolder));
+
+    List<DisplayFormat> out = resource.listDisplayFormats(true, null);
+    assertEquals(1, out.size());
+    assertEquals("FolderList", out.get(0).getName());
+  }
+
+  @Test
+  public void listDisplayFormatsFiltersValidForViewsAndSearches() throws Exception {
+    DisplayFormat searchOk = new DisplayFormat();
+    searchOk.setName("SearchFmt");
+    searchOk.setValidForViewsAndSearches(true);
+    DisplayFormat noSearch = new DisplayFormat();
+    noSearch.setName("FolderOnly");
+    noSearch.setValidForViewsAndSearches(false);
+    noSearch.setValidForFolder(true);
+    when(adaptor.findAllDisplayFormats()).thenReturn(List.of(searchOk, noSearch));
+
+    List<DisplayFormat> out = resource.listDisplayFormats(null, true);
+    assertEquals(1, out.size());
+    assertEquals("SearchFmt", out.get(0).getName());
   }
 
   @Test
@@ -97,7 +129,7 @@ public class DisplayFormatResourceTest {
   public void withoutInjectionFailsWithDiagnostic() {
     DisplayFormatResource bare = new DisplayFormatResource();
     WebApplicationException listEx =
-        assertThrows(WebApplicationException.class, bare::listDisplayFormats);
+        assertThrows(WebApplicationException.class, () -> bare.listDisplayFormats(null, null));
     assertEquals(500, listEx.getResponse().getStatus());
     assertInstanceOf(IllegalStateException.class, listEx.getCause());
 

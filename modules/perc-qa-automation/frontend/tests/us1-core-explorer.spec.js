@@ -73,6 +73,32 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     await expect(page.locator('[data-testid="action-move"]')).toBeVisible();
     await expect(page.locator('[data-testid="action-copy"]')).toBeVisible();
     await expect(page.locator('[data-testid="action-delete"]')).toBeVisible();
+    // #2400 product shell composition: search, security, display format, server actions
+    await expect(
+      page.locator('[data-testid="explorer-toggle-search"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="explorer-toggle-security"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="explorer-display-format"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="explorer-server-actions"]'),
+    ).toBeVisible();
+    await expect(page.locator('[data-testid="action-toolbar"]')).toBeVisible();
+  });
+
+  test("Explorer shell opens search panel from view tools (#2400)", async ({
+    page,
+  }) => {
+    await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
+    const shell = page.locator('[data-testid="content-explorer-shell"]');
+    await expect(shell).toBeVisible({ timeout: 15_000 });
+    await page.locator('[data-testid="explorer-toggle-search"]').click();
+    await expect(
+      page.locator('[data-testid="explorer-search-panel"]'),
+    ).toBeVisible();
   });
 
   test("no miller-column Finder chrome loads for the modern entry", async ({
