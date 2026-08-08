@@ -63,6 +63,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 
@@ -91,7 +92,7 @@ public class PSContentItemDao implements IPSContentItemDao {
       IPSContentWs contentWs,
       IPSIdMapper idMapper,
       @Qualifier("itemSummaryService") IPSDataItemSummaryService itemSummaryService,
-      IPSFolderHelper folderHelper,
+      @Lazy IPSFolderHelper folderHelper,
       IPSCmsObjectMgr cmsObjectMgr,
       @Qualifier("relationshipCataloger") IPSRelationshipCataloger relationshipHelper,
       IPSSystemWs systemWs) {
