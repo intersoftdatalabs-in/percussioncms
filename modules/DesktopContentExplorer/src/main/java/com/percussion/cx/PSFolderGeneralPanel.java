@@ -258,7 +258,10 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
           m_folderMgr.getGlobalTemplateCataloger().getGlobalTemplates().iterator();
       m_comboGlobalTemplate.addItem(m_applet.getResourceString(getClass(), "Use default"));
       while (globalTemplates.hasNext()) {
-        m_comboGlobalTemplate.addItem(globalTemplates.next());
+        String template = globalTemplates.next();
+        if (template != null) {
+          m_comboGlobalTemplate.addItem(template);
+        }
       }
 
       String globalTemplate = m_folder.getGlobalTemplateProperty();
