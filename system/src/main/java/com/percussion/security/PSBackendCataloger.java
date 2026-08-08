@@ -31,6 +31,7 @@ import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,7 +46,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Base class which holds common backend catalog functionality used in security classes. */
-@SuppressWarnings(value = {"unchecked"})
 public class PSBackendCataloger {
 
   private static final Logger log = LogManager.getLogger(PSBackendCataloger.class);
@@ -54,7 +54,7 @@ public class PSBackendCataloger {
    * Convenience method that call {@link #getRoleAttributes(String, String)
    * getRoleAttributes(String, null)}.
    */
-  public static List getRoleAttributes(String roleName) {
+  public static List<PSAttribute> getRoleAttributes(String roleName) {
     if (roleName == null) throw new IllegalArgumentException("roleName cannot be null");
 
     roleName = roleName.trim();
@@ -87,15 +87,15 @@ public class PSBackendCataloger {
    *     includeEmptySubjects is <code>true</code>), ordered in ascending alpha order by subject
    *     name. The caller takes ownership of the list.
    */
-  public static List getSubjectGlobalAttributes(
+  public static List<PSSubject> getSubjectGlobalAttributes(
       String subjectNameFilter,
       int subjectType,
       String roleName,
       String attributeNameFilter,
       boolean includeEmptySubjects) {
-    Set subjects = new HashSet();
+    Set<PSSubject> subjects = new HashSet<>();
 
-    HashMap filters = new HashMap();
+    HashMap<String, String> filters = new HashMap<>();
     if (null != subjectNameFilter && subjectNameFilter.trim().length() > 0)
       filters.put(FILTER_SUBJECT_NAME, subjectNameFilter);
 
@@ -115,12 +115,12 @@ public class PSBackendCataloger {
       requestPage = "sys_catalogSubjectAttributes";
 
     Document doc = getCatalogDocument(requestPage, filters);
-    List results = processSubjectAttributes(doc, includeEmptySubjects);
+    List<PSSubject> results = processSubjectAttributes(doc, includeEmptySubjects);
 
     // add all subjects to the result
     subjects.addAll(results);
 
-    return new ArrayList(subjects);
+    return new ArrayList<>(subjects);
   }
 
   /**
@@ -140,14 +140,14 @@ public class PSBackendCataloger {
    * @return the subject specific role attributes in a list of <code>PSSubject</code> objects, never
    *     <code>null</code>, may be empty.
    */
-  public static List getSubjectRoleAttributes(
+  public static List<PSSubject> getSubjectRoleAttributes(
       String subjectNameFilter, int subjectType, String roleName, String attributeNameFilter) {
     if (roleName == null) throw new IllegalArgumentException("roleName cannot be null");
 
     roleName = roleName.trim();
     if (roleName.length() == 0) throw new IllegalArgumentException("roleName cannot be empty");
 
-    HashMap filters = new HashMap();
+    HashMap<String, String> filters = new HashMap<>();
     if (null != subjectNameFilter && subjectNameFilter.trim().length() > 0)
       filters.put(FILTER_SUBJECT_NAME, subjectNameFilter);
 
@@ -163,8 +163,8 @@ public class PSBackendCataloger {
     }
 
     Document doc = getCatalogDocument("sys_catalogRoleSubjectAttributes", filters);
-    List subjects = processSubjectAttributes(doc, false);
-    if (null == subjects) subjects = new ArrayList();
+    List<PSSubject> subjects = processSubjectAttributes(doc, false);
+    if (null == subjects) subjects = new ArrayList<>();
 
     return subjects;
   }
@@ -180,11 +180,11 @@ public class PSBackendCataloger {
    * @return a valid list of 0 or more <code>PSAttribute</code> objects. They are ordered in
    *     ascending alpha order by attribute name. The caller takes ownership of the list.
    */
-  protected static List getRoleAttributes(String roleName, String attributeNameFilter) {
+  protected static List<PSAttribute> getRoleAttributes(String roleName, String attributeNameFilter) {
     if (roleName == null || roleName.trim().length() == 0)
       throw new IllegalArgumentException("roleName cannot be null or empty");
 
-    HashMap filters = new HashMap();
+    HashMap<String, String> filters = new HashMap<>();
     filters.put(FILTER_ROLE_NAME, roleName);
 
     if (null != attributeNameFilter && attributeNameFilter.trim().length() > 0)
@@ -194,7 +194,7 @@ public class PSBackendCataloger {
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(doc);
 
-    List results = new ArrayList();
+    List<PSAttribute> results = new ArrayList<>();
     if (null == tree.getCurrent()) return results;
 
     // we only expect a single role back, so no for loop
@@ -205,7 +205,8 @@ public class PSBackendCataloger {
     }
 
     PSAttributeList attribs = getAttributes(el);
-    Iterator iter = attribs.iterator();
+    @SuppressWarnings("unchecked")
+    Iterator<PSAttribute> iter = attribs.iterator();
     while (iter.hasNext()) results.add(iter.next());
 
     return results;
@@ -242,7 +243,7 @@ public class PSBackendCataloger {
         continue;
       }
 
-      List values = getValues(el);
+      List<String> values = getValues(el);
       results.setAttribute(name, values);
     }
 
@@ -258,17 +259,17 @@ public class PSBackendCataloger {
    *     no values are found, <code>null</code> is returned. The entries may be <code>null</code> or
    *     empty.
    */
-  protected static List getValues(Element parent) {
+  protected static List<String> getValues(Element parent) {
     if (parent == null) throw new IllegalArgumentException("parent cannot be null");
 
-    List results = null;
+    List<String> results = null;
     PSXmlTreeWalker tree = new PSXmlTreeWalker(parent);
 
     Element el = tree.getNextElement("Value", ms_firstFlags);
 
     if (null == el) return results;
 
-    results = new ArrayList();
+    results = new ArrayList<>();
     for (; null != el; el = tree.getNextElement("Value", ms_nextFlags)) {
       String value = PSXmlTreeWalker.getElementData(el);
       results.add(value);
@@ -294,14 +295,19 @@ public class PSBackendCataloger {
    *     not a query resource, security on the app failed (the app is corrupted) or the actual
    *     request failed.
    */
-  protected static Document getCatalogDocument(String datasetName, HashMap filters) {
+  protected static Document getCatalogDocument(String datasetName, Map<String, String> filters) {
     if (datasetName == null || datasetName.trim().length() == 0)
       throw new IllegalArgumentException("datasetName cannot be null or empty");
 
     try {
       String path = CATALOGER_APPNAME + "/" + datasetName;
+      // PSRequest html params require a HashMap; copy when a non-HashMap map is supplied.
+      HashMap<String, String> paramMap =
+          filters instanceof HashMap
+              ? (HashMap<String, String>) filters
+              : filters == null ? null : new HashMap<>(filters);
       PSInternalRequest ir =
-          PSServer.getInternalRequest(path, PSRequest.getContextForRequest(), filters, false);
+          PSServer.getInternalRequest(path, PSRequest.getContextForRequest(), paramMap, false);
 
       return ir.getResultDoc();
     } catch (PSInternalRequestCallException e) {
@@ -320,14 +326,14 @@ public class PSBackendCataloger {
    * @return a valid list of 0 or more <code>Strings</code>, each naming a role. The list will not
    *     contain duplicates.
    */
-  public static List getRhythmyxRoles(String subjectName, int subjectType) {
+  public static List<String> getRhythmyxRoles(String subjectName, int subjectType) {
     // use a set to remove duplicates
     Set<String> resultSet = new HashSet<>();
     resultSet.addAll(
         PSRoleMgrLocator.getBackEndRoleManager().getRhythmyxRoles(subjectName, subjectType));
 
     // make sure we return an alpha ordered list
-    List resultList = new ArrayList(resultSet);
+    List<String> resultList = new ArrayList<>(resultSet);
     Collections.sort(
         resultList, new PSStringComparator(PSStringComparator.SORT_CASE_INSENSITIVE_ASC));
 
@@ -346,18 +352,19 @@ public class PSBackendCataloger {
    * @return A valid list with 0 or more PSSubjects, each containing any attributes they have.
    * @throws PSSecurityException If the document is improperly formed.
    */
-  protected static List processSubjectAttributes(Document doc, boolean includeEmptySubjects) {
+  protected static List<PSSubject> processSubjectAttributes(
+      Document doc, boolean includeEmptySubjects) {
     if (doc == null) throw new IllegalArgumentException("doc cannot be null");
 
     Element el = doc.getDocumentElement();
-    if (null == el) return new ArrayList();
+    if (null == el) return new ArrayList<>();
 
     if (!el.getTagName().equals("Subjects")) {
       Object[] args = {"Subjects", el.getTagName()};
       throw new PSSecurityException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
     }
 
-    return new ArrayList(processCatalogedSubjects(el, includeEmptySubjects));
+    return new ArrayList<>(processCatalogedSubjects(el, includeEmptySubjects));
   }
 
   /**
@@ -378,11 +385,15 @@ public class PSBackendCataloger {
    *    </code>.
    * @throws PSSecurityException If any of a Subject's attributes are not valid.
    */
-  protected static Set processCatalogedSubjects(Element parent, boolean includeEmptySubjects) {
+  @SuppressWarnings("unchecked")
+  protected static Set<PSSubject> processCatalogedSubjects(
+      Element parent, boolean includeEmptySubjects) {
     if (parent == null) throw new IllegalArgumentException("parent cannot be null");
 
     // use set to remove dups introduced with the fix for Rx-01-10-0104
-    TreeSet results = new TreeSet(PSSubject.getSubjectIdentifierComparator());
+    Comparator<PSSubject> subjectComparator =
+        (Comparator<PSSubject>) PSSubject.getSubjectIdentifierComparator();
+    TreeSet<PSSubject> results = new TreeSet<>(subjectComparator);
 
     Map<String, PSSubject> subjectMap = new LinkedHashMap<>();
 
@@ -449,32 +460,41 @@ public class PSBackendCataloger {
    *     empty to get all attributes.
    * @return a set of <code>PSSubject</code> objects with the requested attributes.
    */
-  protected static Set getSubjects(HashMap filters, Collection attributeNames) {
+  @SuppressWarnings("unchecked")
+  protected static Set<PSSubject> getSubjects(
+      Map<String, String> filters, Collection<?> attributeNames) {
     if (filters == null) throw new IllegalArgumentException("filters cannot be null");
 
     // use treeset to prevent duplicates and enforce ordering
-    TreeSet sortedSet = new TreeSet(PSSubject.getSubjectIdentifierComparator());
+    Comparator<PSSubject> subjectComparator =
+        (Comparator<PSSubject>) PSSubject.getSubjectIdentifierComparator();
+    TreeSet<PSSubject> sortedSet = new TreeSet<>(subjectComparator);
 
-    Document doc = doc = getCatalogDocument("sys_catalogOuterJoinSubjectAttributes", filters);
+    Document doc = getCatalogDocument("sys_catalogOuterJoinSubjectAttributes", filters);
     sortedSet.addAll(processSubjectAttributes(doc, true));
 
-    if (attributeNames != null && attributeNames.size() > 0) {
-      Iterator subjects = sortedSet.iterator();
-      while (subjects.hasNext()) {
-        PSSubject subject = (PSSubject) subjects.next();
+    if (attributeNames != null && !attributeNames.isEmpty()) {
+      Set<String> requestedNames = new HashSet<>();
+      for (Object nameObj : attributeNames) {
+        if (nameObj != null) requestedNames.add(nameObj.toString());
+      }
+
+      for (PSSubject subject : sortedSet) {
         PSAttributeList attributes = subject.getAttributes();
 
         // remove not requested attributes
-        Iterator attrs = attributes.iterator();
+        List<PSAttribute> toRemove = new ArrayList<>();
+        Iterator<?> attrs = attributes.iterator();
         while (attrs.hasNext()) {
           PSAttribute attribute = (PSAttribute) attrs.next();
-          if (!attributeNames.contains(attribute.getName())) attributes.remove(attribute);
+          if (!requestedNames.contains(attribute.getName())) toRemove.add(attribute);
+        }
+        for (PSAttribute attribute : toRemove) {
+          attributes.remove(attribute);
         }
 
         // add missing attributes
-        Iterator names = attributeNames.iterator();
-        while (names.hasNext()) {
-          String name = (String) names.next();
+        for (String name : requestedNames) {
           PSAttribute attribute = attributes.getAttribute(name);
           if (attribute == null) attributes.setAttribute(name, null);
         }

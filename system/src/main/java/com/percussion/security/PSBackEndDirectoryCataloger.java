@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -92,8 +93,7 @@ public class PSBackEndDirectoryCataloger extends PSDirectoryCataloger {
     Collection users = new HashSet();
     if (criteria == null || criteria.length == 0) criteria = new PSConditional[] {null};
     for (int i = 0; i < criteria.length; i++) {
-      users.addAll(
-          PSBackendCataloger.getSubjects((HashMap) createFilter(criteria[i]), attributeNames));
+      users.addAll(PSBackendCataloger.getSubjects(createFilter(criteria[i]), attributeNames));
     }
 
     return users;
@@ -123,11 +123,11 @@ public class PSBackEndDirectoryCataloger extends PSDirectoryCataloger {
    * @return The subject, or <code>null</code> if not found.
    */
   private PSSubject getMatchingSubject(String name, Collection attributeNames) {
-    HashMap<String, String> filters = new HashMap<>();
+    Map<String, String> filters = new HashMap<>();
     filters.put(PSBackendCataloger.FILTER_SUBJECT_NAME, name);
-    Set subjects = PSBackendCataloger.getSubjects(filters, attributeNames);
+    Set<PSSubject> subjects = PSBackendCataloger.getSubjects(filters, attributeNames);
     if (subjects.isEmpty()) return null;
-    else return (PSSubject) subjects.iterator().next();
+    else return subjects.iterator().next();
   }
 
   /** Constant for the default name of this cataloger */

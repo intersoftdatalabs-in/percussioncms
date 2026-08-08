@@ -17,6 +17,7 @@
 package com.percussion.security;
 
 import com.percussion.design.objectstore.PSRoleProvider;
+import com.percussion.design.objectstore.PSSubject;
 import java.util.List;
 import java.util.Set;
 
@@ -38,10 +39,10 @@ public interface IPSInternalRoleCataloger {
    * @return a valid list of 0 or more Strings, each naming a role. The list will not contain
    *     duplicates.
    */
-  public List getRoles(String subjectName, int subjectType);
+  List<String> getRoles(String subjectName, int subjectType);
 
   /** Convenience method which calls {@link #getSubjects(String, String, int, String, boolean)}. */
-  public Set getSubjects(String roleName, String subjectNameFilter);
+  Set<PSSubject> getSubjects(String roleName, String subjectNameFilter);
 
   /**
    * Gets a filtered set of subjects associated with a specific role.
@@ -62,7 +63,7 @@ public interface IPSInternalRoleCataloger {
    *     set contents. The subjects are ordered in ascending alpha order by their name.
    * @throws PSSecurityException If any problems occur while trying to get the requested data.
    */
-  public Set getSubjects(
+  Set<PSSubject> getSubjects(
       String roleName,
       String subjectNameFilter,
       int subjectType,
@@ -74,5 +75,5 @@ public interface IPSInternalRoleCataloger {
    *
    * @return the role provider definition, never <code>null</code>.
    */
-  public PSRoleProvider getProvider();
+  PSRoleProvider getProvider();
 }

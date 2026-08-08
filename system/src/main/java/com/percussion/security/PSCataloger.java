@@ -48,7 +48,6 @@ import javax.naming.directory.SearchResult;
 import org.apache.commons.lang3.StringUtils;
 
 /** An abstract base class which holds all common functionality to all catalogers. */
-@SuppressWarnings(value = {"unchecked"})
 public abstract class PSCataloger {
   /**
    * Convenience constructor that calls {@link #PSCataloger(Properties, PSServerConfiguration)} with
@@ -125,7 +124,7 @@ public abstract class PSCataloger {
    *     <code>String</code>. Initialized in constructor, never <code>null</code> or changed after
    *     that.
    */
-  protected Map getDirectories() {
+  protected Map<String, PSDirectoryDefinition> getDirectories() {
     return m_directories;
   }
 
@@ -153,9 +152,10 @@ public abstract class PSCataloger {
     }
 
     // load and validate all referenced directories/authentications
-    Iterator directoryRefs = m_directorySet.iterator();
+    @SuppressWarnings("unchecked")
+    Iterator<PSReference> directoryRefs = m_directorySet.iterator();
     while (directoryRefs.hasNext()) {
-      PSReference directoryRef = (PSReference) directoryRefs.next();
+      PSReference directoryRef = directoryRefs.next();
       PSDirectory directory = config.getDirectory(directoryRef.getName());
       if (directory == null) {
         Object[] args = {directoryRef.getName()};
@@ -278,18 +278,18 @@ public abstract class PSCataloger {
     String uid = objectAttribute.get(0).toString();
 
     PSAttributeList attributes = new PSAttributeList();
-    NamingEnumeration attrs = null;
-    NamingEnumeration attrValues = null;
+    NamingEnumeration<? extends Attribute> attrs = null;
+    NamingEnumeration<?> attrValues = null;
     try {
       attrs = subject.getAttributes().getAll();
       while (attrs.hasMore()) {
-        Attribute attr = (Attribute) attrs.next();
+        Attribute attr = attrs.next();
 
         String attrName = attr.getID();
         if (!requestedReturns.contains(attrName)) continue;
         PSAttribute attribute = new PSAttribute(attrName);
 
-        List attributeValues = new ArrayList();
+        List<Object> attributeValues = new ArrayList<>();
         attrValues = attr.getAll();
         while (attrValues.hasMore()) {
           attributeValues.add(attrValues.next());
@@ -329,11 +329,11 @@ public abstract class PSCataloger {
    * @return a by subject type filtered set of <code>PSSubject</code> objects, never <code>null
    *     </code>, may be empty.
    */
-  protected Set filterByType(Set subjects, int type, boolean includeEmpty) {
+  protected Set<PSSubject> filterByType(Set<PSSubject> subjects, int type, boolean includeEmpty) {
     if (type != 0 || !includeEmpty) {
-      List subjectList = new ArrayList(subjects);
+      List<PSSubject> subjectList = new ArrayList<>(subjects);
       for (int i = 0; i < subjectList.size(); i++) {
-        PSSubject subject = (PSSubject) subjectList.get(i);
+        PSSubject subject = subjectList.get(i);
         if ((type != 0 && subject.getType() != type)
             || (!includeEmpty && subject.getAttributes().size() == 0)) subjects.remove(subject);
       }
@@ -376,9 +376,10 @@ public abstract class PSCataloger {
   private static Map<String, IPSGroupProviderInstance> getGroupProviderInstances(
       PSServerConfiguration config) {
     Map<String, IPSGroupProviderInstance> result = new HashMap<>();
-    Iterator i = config.getGroupProviderInstances().iterator();
+    @SuppressWarnings("unchecked")
+    Iterator<IPSGroupProviderInstance> i = config.getGroupProviderInstances().iterator();
     while (i.hasNext()) {
-      IPSGroupProviderInstance inst = (IPSGroupProviderInstance) i.next();
+      IPSGroupProviderInstance inst = i.next();
       result.put(inst.getName(), inst);
     }
 
@@ -397,18 +398,23 @@ public abstract class PSCataloger {
    * @return a collection with <code>PSSubject</code> objects, each subject with the requested
    *     attributes. Never <code>null</code>, may be empty.
    */
-  protected Collection getSubjects(
-      PSDirectoryDefinition directory, Map filter, Collection attributeNames) {
-    Collection resultList = new ArrayList();
+  @SuppressWarnings("unchecked")
+  protected Collection<PSSubject> getSubjects(
+      PSDirectoryDefinition directory, Map<String, ?> filter, Collection<?> attributeNames) {
+    Collection<PSSubject> resultList = new ArrayList<>();
 
     DirContext context = null;
-    NamingEnumeration results = null;
+    NamingEnumeration<SearchResult> results = null;
 
     try {
       context = createContext(directory);
 
-      Set additionals = new HashSet();
-      if (attributeNames != null) additionals.addAll(attributeNames);
+      Set<String> additionals = new HashSet<>();
+      if (attributeNames != null) {
+        for (Object attrName : attributeNames) {
+          if (attrName != null) additionals.add(attrName.toString());
+        }
+      }
       Set<String> requestedReturns = directory.getReturnAttributeNames(additionals);
       Set<String> returns = new HashSet<>(requestedReturns);
       returns.add(getObjectAttributeName());
@@ -416,13 +422,13 @@ public abstract class PSCataloger {
 
       SearchControls searchControls = createSearchControls(directory.getDirectory(), returnAttrs);
 
-      Map values = new HashMap();
+      Map<String, Object> values = new HashMap<>();
       values.put(PSJndiProvider.OBJECT_CLASS_ATTR, PSJndiProvider.OBJECT_CLASS_PERSON_VAL);
       values.putAll(filter);
 
       results = context.search("", PSJndiUtils.buildFilter(values), searchControls);
       while (results.hasMore()) {
-        resultList.add(createSubject((SearchResult) results.next(), requestedReturns));
+        resultList.add(createSubject(results.next(), requestedReturns));
       }
 
       return resultList;
@@ -456,7 +462,7 @@ public abstract class PSCataloger {
    * A map of <code>PSDirectoryDefinition</code> objects. The key is the directory name as <code>
    * String</code>. Initialized in constructor, never <code>null</code> or changed after that.
    */
-  protected Map m_directories = new HashMap();
+  protected Map<String, PSDirectoryDefinition> m_directories = new HashMap<>();
 
   /**
    * List of IPSGroupProvider objects used by this security provider, never <code>null</code> after

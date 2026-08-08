@@ -18,7 +18,7 @@ package com.percussion.security;
 
 import com.percussion.design.objectstore.PSRoleProvider;
 import com.percussion.design.objectstore.PSServerConfiguration;
-import java.util.ArrayList;
+import com.percussion.design.objectstore.PSSubject;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -57,13 +57,15 @@ public class PSBackendRoleCataloger extends PSBackendCataloger implements IPSInt
   /**
    * @see IPSInternalRoleCataloger
    */
-  public List getRoles(String subjectName, int subjectType) {
+  @Override
+  public List<String> getRoles(String subjectName, int subjectType) {
     return getRhythmyxRoles(subjectName, subjectType);
   }
 
   /**
    * @see IPSInternalRoleCataloger
    */
+  @Override
   public PSRoleProvider getProvider() {
     return new PSRoleProvider(
         "sys_backendrolecataloger", PSRoleProvider.TYPE_BACKEND, (String) null);
@@ -72,20 +74,22 @@ public class PSBackendRoleCataloger extends PSBackendCataloger implements IPSInt
   /**
    * @see IPSInternalRoleCataloger
    */
-  public Set getSubjects(String roleName, String subjectNameFilter) {
+  @Override
+  public Set<PSSubject> getSubjects(String roleName, String subjectNameFilter) {
     return getSubjects(roleName, subjectNameFilter, 0, null, true);
   }
 
   /**
    * @see IPSInternalRoleCataloger
    */
-  public Set getSubjects(
+  @Override
+  public Set<PSSubject> getSubjects(
       String roleName,
       String subjectNameFilter,
       int subjectType,
       String attributeNameFilter,
       boolean includeEmpty) {
-    HashMap filters = new HashMap();
+    HashMap<String, String> filters = new HashMap<>();
 
     if (null != roleName && roleName.trim().length() > 0) filters.put(FILTER_ROLE_NAME, roleName);
 
@@ -97,10 +101,7 @@ public class PSBackendRoleCataloger extends PSBackendCataloger implements IPSInt
 
     if (subjectType != 0) filters.put("sys_subjectType", String.valueOf(subjectType));
 
-    List results = new ArrayList();
-    results.addAll(getSubjects(filters, null));
-
-    return new HashSet(results);
+    return new HashSet<>(getSubjects(filters, null));
   }
 
   /** Role cataloger configuration properties supplied at construction time. Currently not used. */
