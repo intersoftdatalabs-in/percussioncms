@@ -15,6 +15,7 @@ const {
   extractPathItem,
   extractPathItemGuid,
   findNamedPathItem,
+  findInRecycling,
   restoreFolderUrl,
   PATH_RESTORE_FOLDER,
 } = require("../helpers/folder-recycle-smoke");
@@ -80,5 +81,67 @@ describe("folder-recycle-smoke helpers", () => {
       restoreFolderUrl("http://127.0.0.1:9993/", "jcr:guid-1"),
       "http://127.0.0.1:9993/Rhythmyx/services/pathmanagement/path/restoreFolder/jcr%3Aguid-1",
     );
+  });
+
+  it("findInRecycling rethrows non-404 listFolderChildren failures", async () => {
+    const request = {
+      get: async () => ({
+        ok: () => false,
+        status: () => 503,
+        text: async () => "BeanCurrentlyInCreationException folderHelper",
+      }),
+    };
+    await assert.rejects(
+      () => findInRecycling(request, "http://127.0.0.1:9993", {}, "seed"),
+      /failed status=503/,
+    );
+  });
+
+  it("findInRecycling treats 404 roots as empty and returns not found", async () => {
+    const request = {
+      get: async () => ({
+        ok: () => false,
+        status: () => 404,
+        text: async () => "missing",
+      }),
+    };
+    const result = await findInRecycling(
+      request,
+      "http://127.0.0.1:9993",
+      {},
+      "seed",
+    );
+    assert.equal(result.found, false);
+    assert.equal(result.item, null);
+  });
+
+  it("findInRecycling returns hit when list contains name", async () => {
+    const request = {
+      get: async (url) => {
+        const path = String(url || "");
+        if (path.includes("/folder/Recycling") && !path.includes("Recycling/")) {
+          return {
+            ok: () => true,
+            status: () => 200,
+            json: async () => [{ name: "seed-a", path: "/Recycling/Assets/seed-a" }],
+            text: async () => "[]",
+          };
+        }
+        return {
+          ok: () => false,
+          status: () => 404,
+          text: async () => "missing",
+        };
+      },
+    };
+    const result = await findInRecycling(
+      request,
+      "http://127.0.0.1:9993",
+      {},
+      "seed-a",
+    );
+    assert.equal(result.found, true);
+    assert.equal(result.location, "Recycling");
+    assert.equal(result.item.name, "seed-a");
   });
 });

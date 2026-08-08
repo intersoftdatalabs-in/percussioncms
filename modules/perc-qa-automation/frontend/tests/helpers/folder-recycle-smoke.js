@@ -14,7 +14,6 @@
 
 const {
   cmsUrl,
-  normalizePathItems,
   uniqueSeedFolderName,
   listFolderChildren,
   recyclingHasName,
@@ -222,12 +221,13 @@ async function createNamedFolder(request, baseUrl, headers, opts = {}) {
     baseUrl,
     `${PATH_ADD_NEW_FOLDER}/${parent}?name=${encodeURIComponent(name)}`,
   );
+  const fallbackUrl = cmsUrl(baseUrl, `${PATH_ADD_NEW_FOLDER}/${parent}`);
+  // Track the URL of the request that actually failed (named first, then fallback).
+  let attemptedUrl = addUrl;
   let addRes = await request.get(addUrl, { headers });
   if (!addRes.ok()) {
-    addRes = await request.get(
-      cmsUrl(baseUrl, `${PATH_ADD_NEW_FOLDER}/${parent}`),
-      { headers },
-    );
+    attemptedUrl = fallbackUrl;
+    addRes = await request.get(fallbackUrl, { headers });
   }
   if (!addRes.ok()) {
     const text = await addRes.text().catch(() => "");
@@ -236,13 +236,13 @@ async function createNamedFolder(request, baseUrl, headers, opts = {}) {
       throw new Error(
         contextDownFailureMessage({
           status: addRes.status(),
-          url: addUrl,
+          url: attemptedUrl,
           bodySnippet: text,
         }),
       );
     }
     throw new Error(
-      `addNewFolder under ${parent} failed status=${addRes.status()} body=${text.slice(0, 300)}`,
+      `addNewFolder under ${parent} failed status=${addRes.status()} url=${attemptedUrl} body=${text.slice(0, 300)}`,
     );
   }
   const created = await addRes.json().catch(() => ({}));
@@ -374,9 +374,19 @@ async function restoreFolderByGuid(request, baseUrl, headers, guid) {
 async function findInRecycling(request, baseUrl, headers, name) {
   const roots = ["Recycling", "Recycling/Assets", "Recycling/Sites"];
   for (const root of roots) {
-    const items = await listFolderChildren(request, baseUrl, headers, root).catch(
-      () => [],
-    );
+    let items;
+    try {
+      items = await listFolderChildren(request, baseUrl, headers, root);
+    } catch (err) {
+      const msg = err && err.message ? String(err.message) : String(err);
+      // Optional structural children (e.g. Recycling/Sites) may 404 when empty
+      // or absent. Network / 5xx / auth / context-down must not become
+      // "not in Recycling" — rethrow so the smoke fails honestly.
+      if (/\bfailed status=404\b/i.test(msg)) {
+        continue;
+      }
+      throw err;
+    }
     const hit = findNamedPathItem(items, name);
     if (hit) {
       return { found: true, item: hit, location: root };

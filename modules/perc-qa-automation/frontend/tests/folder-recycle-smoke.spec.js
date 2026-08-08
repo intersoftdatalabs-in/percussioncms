@@ -63,7 +63,8 @@ const {
   contextDownFailureMessage,
 } = require("./helpers/folder-recycle-smoke");
 
-test.describe("folder + recycle REST smoke @folder-recycle @smoke", () => {
+// Tags live on individual test() titles only — Playwright ignores @tags on describe names.
+test.describe("folder + recycle REST smoke", () => {
   test("pathmanagement context is up (hard fail if Rhythmyx dead) @folder-recycle @smoke", async ({
     request,
   }) => {
