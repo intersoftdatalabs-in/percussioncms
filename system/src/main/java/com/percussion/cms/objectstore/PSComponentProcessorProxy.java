@@ -20,7 +20,6 @@ import com.percussion.cms.PSCmsException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Element;
@@ -91,16 +90,15 @@ public class PSComponentProcessorProxy extends PSProcessorProxy implements IPSCo
   public PSSaveResults save(IPSDbComponent[] components) throws PSCmsException {
     if (null == components) throw new IllegalArgumentException("Supplied array cannot be null.");
 
-    Map procGroups = createComponentProcessorGroups(components);
+    Map<PSProcessorCommon, Collection<IPSDbComponent>> procGroups =
+        createComponentProcessorGroups(components);
 
     PSProcessingStatistics totals = new PSProcessingStatistics(0, 0);
     List<IPSDbComponent> resultComps = new ArrayList<>();
-    Iterator iter = procGroups.keySet().iterator();
-    while (iter.hasNext()) {
-      PSProcessorCommon proc = (PSProcessorCommon) iter.next();
-      Collection coll = (Collection) procGroups.get(proc);
-      IPSDbComponent[] comps = new IPSDbComponent[coll.size()];
-      coll.toArray(comps);
+    for (Map.Entry<PSProcessorCommon, Collection<IPSDbComponent>> entry : procGroups.entrySet()) {
+      PSProcessorCommon proc = entry.getKey();
+      Collection<IPSDbComponent> coll = entry.getValue();
+      IPSDbComponent[] comps = coll.toArray(new IPSDbComponent[0]);
       PSSaveResults results = proc.save(comps);
       PSProcessingStatistics stats = results.getResultStats();
       totals =
@@ -112,8 +110,7 @@ public class PSComponentProcessorProxy extends PSProcessorProxy implements IPSCo
               totals.getErroredCount() + stats.getErroredCount());
       resultComps.addAll(Arrays.asList(results.getResults()));
     }
-    IPSDbComponent[] res = new IPSDbComponent[resultComps.size()];
-    resultComps.toArray(res);
+    IPSDbComponent[] res = resultComps.toArray(new IPSDbComponent[0]);
     return new PSSaveResults(res, totals);
   }
 
@@ -135,16 +132,14 @@ public class PSComponentProcessorProxy extends PSProcessorProxy implements IPSCo
       throw new IllegalArgumentException("Component array and members cannot be null.");
     }
 
-    Map procGroups = createComponentProcessorGroups(components);
+    Map<PSProcessorCommon, Collection<IPSDbComponent>> procGroups =
+        createComponentProcessorGroups(components);
 
     int total = 0;
-    Iterator iter = procGroups.keySet().iterator();
-    while (iter.hasNext()) {
-      PSProcessorCommon proc = (PSProcessorCommon) iter.next();
-      Collection coll = (Collection) procGroups.get(proc);
-      IPSDbComponent[] comps = new IPSDbComponent[coll.size()];
-      coll.toArray(comps);
-      total += proc.delete(comps);
+    for (Map.Entry<PSProcessorCommon, Collection<IPSDbComponent>> entry : procGroups.entrySet()) {
+      Collection<IPSDbComponent> coll = entry.getValue();
+      IPSDbComponent[] comps = coll.toArray(new IPSDbComponent[0]);
+      total += entry.getKey().delete(comps);
     }
     return total;
   }
@@ -155,7 +150,7 @@ public class PSComponentProcessorProxy extends PSProcessorProxy implements IPSCo
   }
 
   // see interface for description
-  public void reorder(int insertAt, List comp) throws PSCmsException {
+  public void reorder(int insertAt, List<?> comp) throws PSCmsException {
     throw new UnsupportedOperationException("Not Implemented");
   }
 

@@ -4152,21 +4152,19 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
       logger.info("Community mappings:");
       Map<Integer, Integer> communityMappings = options.getCommunityMappings();
-      Iterator sourceCommunities = communityMappings.keySet().iterator();
-      while (sourceCommunities.hasNext()) {
-        Integer sourceCommunity = (Integer) sourceCommunities.next();
-        Integer targetCommunity = (Integer) communityMappings.get(sourceCommunity);
+      for (Map.Entry<Integer, Integer> entry : communityMappings.entrySet()) {
+        Integer sourceCommunity = entry.getKey();
+        Integer targetCommunity = entry.getValue();
         if (sourceCommunity == null || targetCommunity == null) break;
 
         logger.info("Source: {} --> Target: {}", sourceCommunity, targetCommunity);
       }
 
       logger.info("Site mappings:");
-      Map siteMappings = options.getSiteMappings();
-      Iterator sourceSites = siteMappings.keySet().iterator();
-      while (sourceSites.hasNext()) {
-        Integer sourceSite = (Integer) sourceSites.next();
-        Integer targetSite = (Integer) siteMappings.get(sourceSite);
+      Map<Integer, Integer> siteMappings = options.getSiteMappings();
+      for (Map.Entry<Integer, Integer> entry : siteMappings.entrySet()) {
+        Integer sourceSite = entry.getKey();
+        Integer targetSite = entry.getValue();
         if (sourceSite == null || targetSite == null) break;
 
         logger.info("Source: {} --> Target: {}", sourceSite, targetSite);
@@ -4411,7 +4409,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
       String siteId = PSUrlUtils.getUrlParameterValue(homePageUrl, IPSHtmlParameters.SYS_SITEID);
       if (siteId != null) {
-        Integer sid = (Integer) options.getSiteMappings().get(Integer.valueOf(siteId));
+        Integer sid = options.getSiteMappings().get(Integer.valueOf(siteId));
         if (sid != null) {
           homePageUrl =
               PSUrlUtils.replaceUrlParameterValue(
@@ -4629,8 +4627,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
         // change the community if mapped
         Integer newCommunity =
-            (Integer)
-                options.getCommunityMappings().get(Integer.valueOf(newFolder.getCommunityId()));
+            options.getCommunityMappings().get(Integer.valueOf(newFolder.getCommunityId()));
         if (newCommunity != null) {
           context.setSessionPrivateObject(IPSHtmlParameters.SYS_COMMUNITY, newCommunity.toString());
           newFolder.setCommunityId(newCommunity.intValue());
@@ -4907,7 +4904,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
               String originalSiteId = relationship.getProperty(IPSHtmlParameters.SYS_SITEID);
               if (originalSiteId != null && originalSiteId.trim().length() > 0) {
                 Integer newSiteId =
-                    (Integer) options.getSiteMappings().get(Integer.valueOf(originalSiteId));
+                    options.getSiteMappings().get(Integer.valueOf(originalSiteId));
                 if (newSiteId != null) {
                   newRelationship.setProperty(IPSHtmlParameters.SYS_SITEID, newSiteId.toString());
 

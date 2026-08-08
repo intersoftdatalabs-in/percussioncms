@@ -826,12 +826,12 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
       m_isCloning = false;
     }
 
-    copy.m_set = new HashSet(); // objects added below
-    copy.m_deleteList = new ArrayList();
+    copy.m_set = new HashSet<>(); // objects added below
+    copy.m_deleteList = new ArrayList<>();
 
     Iterator<T> iter = iterator();
     while (iter.hasNext()) {
-      IPSDbComponent c = (IPSDbComponent) iter.next();
+      IPSDbComponent c = iter.next();
       if (c.getState() != DBSTATE_MARKEDFORDELETE) copy.add((IPSDbComponent) c.clone());
     }
 

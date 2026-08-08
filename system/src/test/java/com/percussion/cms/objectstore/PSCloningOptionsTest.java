@@ -35,7 +35,7 @@ public class PSCloningOptionsTest {
    */
   @Test
   public void testConstructors() throws Exception {
-    Map communityMappings = new HashMap();
+    Map<Integer, Integer> communityMappings = new HashMap<>();
 
     // test valid site type
     new PSCloningOptions(
@@ -143,7 +143,7 @@ public class PSCloningOptionsTest {
    */
   @Test
   public void testPublicAPI() throws Exception {
-    Map communityMappings = new HashMap();
+    Map<Integer, Integer> communityMappings = new HashMap<>();
     communityMappings.put(Integer.valueOf(1), Integer.valueOf(2));
     communityMappings.put(Integer.valueOf(3), Integer.valueOf(4));
     communityMappings.put(Integer.valueOf(5), Integer.valueOf(6));
@@ -217,6 +217,45 @@ public class PSCloningOptionsTest {
     options_5.addSiteMapping(Integer.valueOf(102), Integer.valueOf(203));
     PSCloningOptions options_5_copy = new PSCloningOptions(options_5.toXml(doc), null, null);
     assertTrue(options_5.equals(options_5_copy));
+  }
+
+  /**
+   * Typed community / site mapping getters after generics batch (#2376): maps preserve entries
+   * through construction, addSiteMapping, and XML round-trip.
+   */
+  @Test
+  public void testTypedMappingApis() throws Exception {
+    Map<Integer, Integer> communities = new HashMap<>();
+    communities.put(10, 20);
+    communities.put(30, 40);
+
+    PSCloningOptions options =
+        new PSCloningOptions(
+            PSCloningOptions.TYPE_SITE,
+            "srcSite",
+            "newSite",
+            "folder",
+            PSCloningOptions.COPY_NO_CONTENT,
+            PSCloningOptions.COPYCONTENT_AS_LINK,
+            communities);
+
+    Map<Integer, Integer> gotCommunities = options.getCommunityMappings();
+    assertEquals(Integer.valueOf(20), gotCommunities.get(10));
+    assertEquals(Integer.valueOf(40), gotCommunities.get(30));
+    assertEquals(2, gotCommunities.size());
+
+    options.addSiteMapping(100, 200);
+    options.addSiteMapping(101, 201);
+    Map<Integer, Integer> sites = options.getSiteMappings();
+    assertEquals(Integer.valueOf(200), sites.get(100));
+    assertEquals(Integer.valueOf(201), sites.get(101));
+    assertEquals(2, sites.size());
+
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSCloningOptions restored = new PSCloningOptions(options.toXml(doc), null, null);
+    assertEquals(options.getCommunityMappings(), restored.getCommunityMappings());
+    assertEquals(options.getSiteMappings(), restored.getSiteMappings());
+    assertEquals(options, restored);
   }
 
   // JUnit 3 style suite removed; using JUnit 5 test methods

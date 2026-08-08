@@ -286,7 +286,7 @@ public class PSKey implements IPSCmsComponent, Serializable {
    * @return The value for the named part, or "" if no value has been assigned.
    */
   public final String getPart(String name) {
-    String value = (String) m_nameValueMap.get(name.toLowerCase());
+    String value = m_nameValueMap.get(name.toLowerCase());
 
     if (value == null) return "";
     else return value;
@@ -383,11 +383,11 @@ public class PSKey implements IPSCmsComponent, Serializable {
       if (m_needGenerateId) root.setAttribute(XML_ATTR_NEED_GEN_ID, XML_TRUE);
     }
 
-    Iterator entries = Arrays.asList(m_definition).iterator();
+    Iterator<String> entries = Arrays.asList(m_definition).iterator();
     while (entries.hasNext()) {
-      String name = (String) entries.next();
+      String name = entries.next();
 
-      String val = (String) m_nameValueMap.get(name.toLowerCase());
+      String val = m_nameValueMap.get(name.toLowerCase());
 
       PSXmlDocumentBuilder.addElement(doc, root, name, val);
     }
@@ -423,8 +423,8 @@ public class PSKey implements IPSCmsComponent, Serializable {
     String sNeedGenerateId = PSXMLDomUtil.checkAttribute(src, XML_ATTR_NEED_GEN_ID, false);
 
     // get the properties / definition & values
-    List defs = new ArrayList();
-    Map nameValueMap = new HashMap();
+    List<String> defs = new ArrayList<>();
+    Map<String, String> nameValueMap = new HashMap<>();
     Element propEl = PSXMLDomUtil.getFirstElementChild(src);
     while (propEl != null) {
       String name = propEl.getNodeName();
@@ -436,7 +436,7 @@ public class PSKey implements IPSCmsComponent, Serializable {
       propEl = PSXMLDomUtil.getNextElementSibling(propEl);
     }
     String[] definition = new String[defs.size()];
-    for (int i = 0; i < defs.size(); i++) definition[i] = (String) defs.get(i);
+    for (int i = 0; i < defs.size(); i++) definition[i] = defs.get(i);
 
     // validate the key part
     if (validate && !isSameType(definition)) {
@@ -509,10 +509,10 @@ public class PSKey implements IPSCmsComponent, Serializable {
     try {
       copy = (PSKey) super.clone();
       copy.m_definition = m_definition.clone();
-      copy.m_nameValueMap = new HashMap();
-      Iterator pairs = m_nameValueMap.keySet().iterator();
+      copy.m_nameValueMap = new HashMap<>();
+      Iterator<String> pairs = m_nameValueMap.keySet().iterator();
       while (pairs.hasNext()) {
-        String key = (String) pairs.next();
+        String key = pairs.next();
         copy.m_nameValueMap.put(key, m_nameValueMap.get(key));
       }
     } catch (Exception e) {
@@ -609,7 +609,7 @@ public class PSKey implements IPSCmsComponent, Serializable {
    * <code>String</code>. Never <code>null</code>, but may be empty. Declared as {@link HashMap}
    * (not {@link Map}) so the field type is {@link Serializable} under {@code -Xlint:serial}.
    */
-  private HashMap m_nameValueMap = new HashMap();
+  private HashMap<String, String> m_nameValueMap = new HashMap<>();
 
   /**
    * The definitions in its original case sensitive form. Initialized by the constructor, never

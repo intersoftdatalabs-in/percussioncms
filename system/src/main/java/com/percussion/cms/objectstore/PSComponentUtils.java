@@ -41,8 +41,8 @@ public class PSComponentUtils {
    * @throws PSUnknownNodeTypeException if the attribute exists and its value is not one of the
    *     allowed values.
    */
-  public static String getEnumeratedAttribute(Element el, String attrib, List allowedValues)
-      throws PSUnknownNodeTypeException {
+  public static String getEnumeratedAttribute(
+      Element el, String attrib, List<String> allowedValues) throws PSUnknownNodeTypeException {
     if (el == null) throw new IllegalArgumentException("el may not be null.");
 
     if (attrib == null || attrib.trim().length() == 0)
@@ -58,7 +58,7 @@ public class PSComponentUtils {
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
     }
 
-    if (value == null || value.trim().length() == 0) value = (String) allowedValues.get(0);
+    if (value == null || value.trim().length() == 0) value = allowedValues.get(0);
 
     return value;
   }
@@ -108,14 +108,14 @@ public class PSComponentUtils {
     if (childName == null || childName.trim().length() == 0)
       throw new IllegalArgumentException("childName may not be null or empty.");
 
-    Iterator list = getChildElements(el, childName);
+    Iterator<Element> list = getChildElements(el, childName);
     if (!list.hasNext() && required) {
       Object[] args = {el.getTagName(), "null"};
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     Element child = null;
-    if (list.hasNext()) child = (Element) list.next();
+    if (list.hasNext()) child = list.next();
 
     return child;
   }
@@ -129,18 +129,18 @@ public class PSComponentUtils {
    * null</code>
    * @throws IllegalArgumentException if any parameter is invalid.
    */
-  public static Iterator getChildElements(Element element, String childName) {
+  public static Iterator<Element> getChildElements(Element element, String childName) {
     if (element == null) throw new IllegalArgumentException("el may not be null.");
 
     if (childName == null || childName.trim().length() == 0)
       throw new IllegalArgumentException("childName may not be null or empty.");
 
-    List children = new ArrayList();
+    List<Element> children = new ArrayList<>();
     NodeList list = element.getElementsByTagName(childName);
     int length = list.getLength();
     for (int i = 0; i < length; i++) {
       Node item = list.item(i);
-      if (item.getParentNode() == element) children.add(item);
+      if (item.getParentNode() == element) children.add((Element) item);
     }
 
     return children.iterator();
