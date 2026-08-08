@@ -116,23 +116,67 @@ export function renderDisplayFormatCell(
   column: DetailColumnId,
   item: PSPathItem,
 ): string {
+  // Prefer pathmanagement displayProperties (columnData) when a display
+  // format id was requested — keys are CX system field names.
+  const fromProps = (keys: string[]): string => {
+    const props = item.displayProperties;
+    if (!props || typeof props !== "object") return "";
+    for (const key of keys) {
+      const v = props[key];
+      if (v != null && String(v).length > 0) return String(v);
+    }
+    const lowerKeys = keys.map((k) => k.toLowerCase());
+    for (const [k, v] of Object.entries(props)) {
+      if (lowerKeys.includes(k.toLowerCase()) && v != null && String(v).length > 0) {
+        return String(v);
+      }
+    }
+    return "";
+  };
+
   switch (column) {
     case "name":
-      return item.name ?? item.path ?? "";
+      return (
+        fromProps(["sys_title", "name", "Name"]) ||
+        item.name ||
+        item.path ||
+        ""
+      );
     case "type":
-      return item.type ?? item.category ?? "";
+      return (
+        fromProps(["sys_contenttypename", "sys_contenttype", "type", "Type"]) ||
+        item.type ||
+        item.category ||
+        ""
+      );
     case "path":
       return item.path ?? "";
     case "title":
-      return item.title ?? item.name ?? "";
+      return (
+        fromProps(["sys_title", "title", "Title"]) ||
+        item.title ||
+        item.name ||
+        ""
+      );
     case "category":
-      return item.category ?? "";
+      return fromProps(["category", "Category"]) || item.category || "";
     case "modified":
-      // API surface pending — see comment above.
-      return (item as unknown as { lastModified?: string }).lastModified ?? "";
+      return (
+        fromProps([
+          "sys_contentlastmodifieddate",
+          "sys_contentmodifieddate",
+          "lastModified",
+          "modified",
+        ]) ||
+        (item as unknown as { lastModified?: string }).lastModified ||
+        ""
+      );
     case "workflow":
-      // API surface pending — see comment above.
-      return (item as unknown as { workflowId?: string }).workflowId ?? "";
+      return (
+        fromProps(["sys_workflow", "sys_workflowid", "workflow", "workflowId"]) ||
+        (item as unknown as { workflowId?: string }).workflowId ||
+        ""
+      );
     default:
       return "";
   }
@@ -197,6 +241,13 @@ export interface DetailListProps {
    * in pure helpers so it can be unit-tested without rendering.
    */
   displayFormat?: DetailDisplayFormat;
+  /**
+   * Optional CX display format id passed to {@link paginatedFolder} so the
+   * server fills {@link PSPathItem.displayProperties} (columnData).
+   */
+  displayFormatId?: string | null;
+  /** Optional multi-select / context-menu affordance on row right-click. */
+  onItemContextMenu?: (item: PSPathItem, clientX: number, clientY: number) => void;
 }
 
 export function DetailList({
@@ -205,6 +256,8 @@ export function DetailList({
   onSelectItem,
   onActivateItem,
   displayFormat,
+  displayFormatId,
+  onItemContextMenu,
 }: DetailListProps): React.ReactElement {
   const [page, setPage] = useState(0);
   const [data, setData] = useState<PSPagedResult | null>(null);
@@ -240,14 +293,18 @@ export function DetailList({
     let cancelled = false;
     setLoading(true);
     setError(null);
-    paginatedFolder(folderPath, {
+    const params: Parameters<typeof paginatedFolder>[1] = {
       startIndex,
       maxResults: PAGE_SIZE,
-    })
-    .then((res) => {
-      if (cancelled) return;
-      setData(res as PSPagedResult);
-    })
+    };
+    if (displayFormatId) {
+      params.displayFormatId = displayFormatId;
+    }
+    paginatedFolder(folderPath, params)
+      .then((res) => {
+        if (cancelled) return;
+        setData(res as PSPagedResult);
+      })
       .catch((err: unknown) => {
         if (cancelled) return;
         const msg = err instanceof Error ? err.message : String(err);
@@ -259,7 +316,7 @@ export function DetailList({
     return () => {
       cancelled = true;
     };
-  }, [folderPath, page]);
+  }, [folderPath, page, displayFormatId]);
 
   const children = useMemo<PSPathItem[]>(() => {
     if (!data) return [];
@@ -344,6 +401,12 @@ export function DetailList({
                 aria-disabled={!visible}
                 onClick={() => visible && onSelectItem(item)}
                 onDoubleClick={() => visible && onActivateItem?.(item)}
+                onContextMenu={(e) => {
+                  if (!visible || !onItemContextMenu) return;
+                  e.preventDefault();
+                  onSelectItem(item);
+                  onItemContextMenu(item, e.clientX, e.clientY);
+                }}
                 onKeyDown={(e) => {
                   if (!visible) return;
                   if (e.key === "Enter") onActivateItem?.(item);

@@ -73,6 +73,32 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     await expect(page.locator('[data-testid="action-move"]')).toBeVisible();
     await expect(page.locator('[data-testid="action-copy"]')).toBeVisible();
     await expect(page.locator('[data-testid="action-delete"]')).toBeVisible();
+    // #2400 product shell composition: search, security, display format, server actions
+    await expect(
+      page.locator('[data-testid="explorer-toggle-search"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="explorer-toggle-security"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="explorer-display-format"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="explorer-server-actions"]'),
+    ).toBeVisible();
+    await expect(page.locator('[data-testid="action-toolbar"]')).toBeVisible();
+  });
+
+  test("Explorer shell opens search panel from view tools (#2400)", async ({
+    page,
+  }) => {
+    await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
+    const shell = page.locator('[data-testid="content-explorer-shell"]');
+    await expect(shell).toBeVisible({ timeout: 15_000 });
+    await page.locator('[data-testid="explorer-toggle-search"]').click();
+    await expect(
+      page.locator('[data-testid="explorer-search-panel"]'),
+    ).toBeVisible();
   });
 
   test("no miller-column Finder chrome loads for the modern entry", async ({
@@ -102,13 +128,31 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     expect(ADMIN_USERNAME).toBe("Admin");
   });
 
-  test("axe-core a11y gate — modern Content Explorer shell (T082b)", async ({
+  test("axe-core a11y gate — modern Content Explorer shell (T082b / 508)", async ({
     page,
   }) => {
     await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
+    const shell = page.locator('[data-testid="content-explorer-shell"]');
+    await expect(shell).toBeVisible({ timeout: 15_000 });
+    // Full product shell including #2400 composition chrome (search / DF / menus).
     await expectNoSeriousA11yViolations(page, {
-      scope:
-        '[id="perc-modern-ui-mount"], [data-testid="explorer-tree"], [data-testid="detail-list"]',
+      scope: '[data-testid="content-explorer-shell"]',
+    });
+  });
+
+  test("axe-core a11y gate — Explorer search panel expanded (#2400)", async ({
+    page,
+  }) => {
+    await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
+    await expect(
+      page.locator('[data-testid="content-explorer-shell"]'),
+    ).toBeVisible({ timeout: 15_000 });
+    await page.locator('[data-testid="explorer-toggle-search"]').click();
+    await expect(
+      page.locator('[data-testid="explorer-search-panel"]'),
+    ).toBeVisible();
+    await expectNoSeriousA11yViolations(page, {
+      scope: '[data-testid="content-explorer-shell"]',
     });
   });
 });
