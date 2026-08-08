@@ -22,6 +22,10 @@ import java.util.Iterator;
 
 /** This class represents a view that may be selected based on a condition as well as the name. */
 public class PSConditionalView extends PSView {
+
+  /** Serialization id for {@link java.io.Serializable} (inherited via {@link PSView}). */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates a conditional view with the supplied conditions. See {@link PSView base class} for more
    * info.

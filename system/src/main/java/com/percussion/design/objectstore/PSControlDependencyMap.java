@@ -16,6 +16,7 @@
  */
 package com.percussion.design.objectstore;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -42,8 +43,15 @@ import org.apache.commons.lang3.StringUtils;
  * save, call {@link #clearControlDependencies()} followed by {@link
  * #setControlDependencies(PSDisplayMapping, List)} for each existing mapping that was not removed
  * as well for for any new mappings.
+ *
+ * <p>Implements {@link Serializable} so it may be held on {@link PSContentEditorPipe} under {@code
+ * -Xlint:serial}.
  */
-public class PSControlDependencyMap {
+public class PSControlDependencyMap implements Serializable {
+
+  /** Serialization id for {@link Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /** Construct a new, empty dependency map */
   public PSControlDependencyMap() {}
 
@@ -388,29 +396,36 @@ public class PSControlDependencyMap {
 
   /**
    * Map of dependencies for each control, never <code>null</code> after contruction, may be empty,
-   * key is the control id, value is the dependency id.
+   * key is the control id, value is the dependency id. Declared as {@link HashMap} (not {@link
+   * Map}) so the field type is {@link Serializable} under {@code -Xlint:serial}.
    */
-  private Map<Integer, List<Integer>> m_controlDependencies = new HashMap<>();
+  private HashMap<Integer, List<Integer>> m_controlDependencies = new HashMap<>();
 
   /**
    * Map of extension component id to exit, never <code>null</code> after construction, contains
    * extensions specified by control dependencies with parameters that do not specify macros.
+   * Declared as {@link HashMap} (not {@link Map}) so the field type is {@link Serializable} under
+   * {@code -Xlint:serial}.
    */
-  private Map<Integer, PSExtensionCall> m_ceInputDataExits = new HashMap<>();
+  private HashMap<Integer, PSExtensionCall> m_ceInputDataExits = new HashMap<>();
 
   /**
    * Map of extension component id to exit, never <code>null</code> after construction, contains
-   * extensions specified by control dependencies with parameters that specify macros.
+   * extensions specified by control dependencies with parameters that specify macros. Declared as
+   * {@link HashMap} (not {@link Map}) so the field type is {@link Serializable} under {@code
+   * -Xlint:serial}.
    */
-  private Map<Integer, PSExtensionCall> m_controlDepExits = new HashMap<>();
+  private HashMap<Integer, PSExtensionCall> m_controlDepExits = new HashMap<>();
 
   /**
    * Map of extensions known to be specified by a control as "single occurrence" (see {@link
    * PSDependency#SINGLE_OCCURRENCE}. Never <code>null</code>, may be empty, does not necessarily
    * contain all such dependencies, only those that have been checked. Key is the extension name.
-   * Used to return the same extension call instance for such dependencies.
+   * Used to return the same extension call instance for such dependencies. Declared as {@link
+   * HashMap} (not {@link Map}) so the field type is {@link Serializable} under {@code
+   * -Xlint:serial}.
    */
-  private Map<String, PSExtensionCall> m_singleDepExits = new HashMap<>();
+  private HashMap<String, PSExtensionCall> m_singleDepExits = new HashMap<>();
 
   /** Constant for the property name suffix when specifying control dependency ids. */
   private final String DEP_IDS = "_DependencyIds";

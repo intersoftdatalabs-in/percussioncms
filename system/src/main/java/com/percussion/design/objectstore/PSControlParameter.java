@@ -217,7 +217,13 @@ public class PSControlParameter extends PSComponent {
    * @param choiceList List of Entry objects, or <code>null</code> to clear the list.
    */
   public void setChoiceList(List choiceList) {
-    m_choiceList = choiceList;
+    if (choiceList == null) {
+      m_choiceList = null;
+    } else if (choiceList instanceof ArrayList) {
+      m_choiceList = (ArrayList) choiceList;
+    } else {
+      m_choiceList = new ArrayList(choiceList);
+    }
   }
 
   /**
@@ -309,9 +315,10 @@ public class PSControlParameter extends PSComponent {
 
   /**
    * Holds the entries that make up the choice list for this parameter. Will be <code>null</code> if
-   * this parameter has not defined a choice list.
+   * this parameter has not defined a choice list. Declared as {@link ArrayList} (not {@link List})
+   * so the field type is {@link java.io.Serializable} under {@code -Xlint:serial}.
    */
-  private List m_choiceList = null;
+  private ArrayList m_choiceList = null;
 
   /** A single entry in the choice list */
   public class Entry {

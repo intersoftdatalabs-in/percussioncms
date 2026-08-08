@@ -17,12 +17,21 @@
 
 package com.percussion.design.objectstore;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/** Specifies a list of fields that are included in a particular content editor view. */
-public class PSView {
+/**
+ * Specifies a list of fields that are included in a particular content editor view.
+ *
+ * <p>Implements {@link Serializable} so it may be held on serializable content-editor types (e.g.
+ * {@link PSViewSet} / {@link PSContentEditor}) under {@code -Xlint:serial}.
+ */
+public class PSView implements Serializable {
+
+  /** Serialization id for {@link Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Constructs a view with the specified name and list of fields.
    *
@@ -105,7 +114,8 @@ public class PSView {
 
   /**
    * The names of the fields as Strings that are included in this view, never <code>null</code> or
-   * modified after construction, may be empty.
+   * modified after construction, may be empty. Declared as {@link ArrayList} (not {@link List}) so
+   * the field type is {@link Serializable} under {@code -Xlint:serial}.
    */
-  private List m_fields;
+  private ArrayList m_fields;
 }

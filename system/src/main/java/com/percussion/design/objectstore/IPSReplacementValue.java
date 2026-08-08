@@ -17,15 +17,23 @@
 
 package com.percussion.design.objectstore;
 
+import java.io.Serializable;
+
 /**
  * The IPSReplacementValue interface must be implemented by any class which can be used as a
  * replacement value for conditionals or exit parameters at run-time.
+ *
+ * <p>Extends {@link Serializable} so fields typed as this interface (or sub-interfaces such as
+ * {@link IPSBackEndMapping}) are valid under {@code -Xlint:serial} serial-field checks when held by
+ * serializable objectstore types. Product implementors are already serializable via {@link
+ * PSComponent} (or declare {@code serialVersionUID} where applicable). Wire/XML behavior is
+ * unchanged.
  *
  * @author Tas Giakouminakis
  * @version 1.0
  * @since 1.0
  */
-public interface IPSReplacementValue extends Cloneable {
+public interface IPSReplacementValue extends Cloneable, Serializable {
   /** Get the type of replacement value this object represents. */
   public String getValueType();
 
