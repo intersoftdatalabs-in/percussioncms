@@ -46,16 +46,21 @@ These beans have high constructor fan-in and sit on or next to the known cycle p
 | 2 | `PSItemWorkflowService` | out ~7 / in ~23 | Injects `assetDao`, `folderHelper`, `recycleService`, `widgetAsset`. Class `@Lazy`. |
 | 3 | `PSTemplateService` | out ~6 / in ~20 | **Not** class `@Lazy`. Injects `widgetAsset`, page/template DAOs. |
 | 4 | `PSWidgetAssetRelationshipService` | out ~4 / in ~18 | **Not** class `@Lazy`. On known cycle path. |
-| 5 | `PSAssetService` | out ~8 / in ~14 | Ctor takes `IPSPageService` (and folder/asset/widget/item). Class `@Lazy`. |
+| 5 | `PSAssetService` | out ~8 / in ~14 | Ctor takes `IPSPageService` with param `@Lazy` (#2476) (and folder/asset/widget/item). Class `@Lazy`. |
 | 6 | `PSSiteDataService` | out ~15 / in ~12 | Wide hub; class `@Lazy`; field injects page/path. |
 
-### Next hottest unprotected edge
+### Next hottest near-cycle edge (protected — #2476)
 
-**`PSAssetService` → `IPSPageService` (constructor, not `@Lazy`)** with **no reverse** `PSPageService` → `IPSAssetService`.
+**`PSAssetService` → `IPSPageService` (constructor, param `@Lazy` as of #2476)** with **no reverse** `PSPageService` → `IPSAssetService`.
 
-If a future change adds `IPSAssetService` to `PSPageService`'s constructor (or an eager non-`@Lazy` field), Spring will hit a creation cycle involving two of the busiest product services, independent of the folderHelper fix.
+| Aspect | Disposition |
+|--------|-------------|
+| Class-level `@Lazy` on both beans | Present but **not** a cycle breaker when an eager consumer forces construction |
+| Param `@Lazy` on forward edge | **Added (#2476)** — Spring injects a pageService proxy; safe because `PSAssetService` only calls `pageService` post-construction (`load` / `notifyPageChange` / `isPageItem` / etc.), never during the ctor body beyond a non-null check (proxy is non-null) |
+| Reverse edge ban | Kept — `PSPageService` must not construct-require `IPSAssetService` |
+| Why not skip param `@Lazy` | Inventory residual after #2463: without it, a future reverse edge or multi-hop eager path would form a second `BeanCurrentlyInCreationException` independent of the folderHelper fix |
 
-Protection test: `PSAssetServicePageServiceNearCycleWiringTest` (asserts one-way ctor edge + no reverse).
+Protection test: `PSAssetServicePageServiceNearCycleWiringTest` (asserts one-way ctor edge + param `@Lazy` + no reverse).
 
 ### Other one-way edges to keep one-way (known cycle intermediate)
 
@@ -72,9 +77,10 @@ These must not gain reverse constructor dependencies:
 
 ## Constructor `@Lazy` parameter edges found (sitemanage)
 
-Outside the known fix, constructor-parameter `@Lazy` is rare in this module. Scan snapshot:
+Constructor-parameter `@Lazy` remains rare in this module. Scan snapshot (after #2476):
 
-- `PSContentItemDao` → `IPSFolderHelper` (`@Lazy`) — cycle break
+- `PSContentItemDao` → `IPSFolderHelper` (`@Lazy`) — known cycle break (#2435)
+- `PSAssetService` → `IPSPageService` (`@Lazy`) — near-cycle belt-and-braces (#2476)
 - `PSRecentRestService` → `IPSRecentService` (`@Lazy`) — rest convenience, not cycle-related
 
 Class-level `@Lazy` is common on REST facades and many services; treat it as lazy *init*, not a cycle breaker.
@@ -94,10 +100,11 @@ Many path/item services inject `IPSFolderHelper` without parameter `@Lazy` (e.g.
 
 ## Residual recommendations (file as GitHub issues under #2423)
 
-1. Optional: protect intermediate known-cycle reverse edges with reflection tests (assetDao/widgetAsset/recycle one-way).
-2. Optional: add `@Lazy` on `PSAssetService`'s `IPSPageService` ctor param as belt-and-braces (behavior review needed).
+1. Optional: protect intermediate known-cycle reverse edges with reflection tests (assetDao/widgetAsset/recycle one-way) — **covered in** `PSAssetServicePageServiceNearCycleWiringTest.knownCycleIntermediateBeansHaveNoReverseConstructorEdges` (#2463).
+2. ~~Optional: add `@Lazy` on `PSAssetService`'s `IPSPageService` ctor param~~ — **done (#2476)**.
 3. Keep Docker `qa-up` / Rhythmyx health smoke (#2437) as the production-level gate.
 4. When adding new `@Autowired` constructors on cycle peers, re-run this inventory method (or extend the reflection tests).
+5. Hub hardening still open as separate residuals: templateService (#2477), itemWorkflow reverse-edge tests (#2478).
 
 ## Related
 
@@ -106,4 +113,5 @@ Many path/item services inject `IPSFolderHelper` without parameter `@Lazy` (e.g.
 - #2436 — `FolderHelperCycleContextTest` graph witness  
 - #2437 — Docker qa-up health/login smoke  
 - #2463 — this residual inventory  
+- #2476 — param `@Lazy` on assetService→pageService  
 - #2457 / PR #2469 — JDK 21 lambda compile fix often needed to build sitemanage tests
