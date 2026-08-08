@@ -135,8 +135,9 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
       throw new IllegalArgumentException(
           "the supplied data must be an array of Collection objects");
 
-    Collection allCommunities = ((InputData) data).getCommunityDefinitions();
-    List sourceCommunities = ((InputData) data).getSourceCommunities();
+    Collection<PSCommunityCataloger.Community> allCommunities =
+        ((InputData) data).getCommunityDefinitions();
+    List<Integer> sourceCommunities = ((InputData) data).getSourceCommunities();
     PSCommunityContentTypeMapperCataloger mapper = ((InputData) data).getCommCtMapper();
 
     // initialize the table
@@ -156,7 +157,7 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
 
     // initialize source and target community columns
     for (int row = 0; row < sourceCommunities.size(); row++) {
-      Integer srcCommunity = (Integer) sourceCommunities.get(row);
+      Integer srcCommunity = sourceCommunities.get(row);
       m_table.initTableCells(row, srcCommunity, allCommunities, mapper, model);
     }
   }
@@ -174,20 +175,19 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
      */
     public InputData(
         PSCommunityContentTypeMapperCataloger commCtMapper,
-        Collection communityDefinitions,
-        Collection sourceCommunities) {
+        Collection<PSCommunityCataloger.Community> communityDefinitions,
+        Collection<Integer> sourceCommunities) {
       if (commCtMapper == null) throw new IllegalArgumentException("commCtMapper may not be null");
 
-      if (!(communityDefinitions instanceof Collection))
-        throw new IllegalArgumentException(
-            "communityDefinitions must be an instance of Collection");
+      if (communityDefinitions == null)
+        throw new IllegalArgumentException("communityDefinitions may not be null");
 
-      if (!(sourceCommunities instanceof Collection))
-        throw new IllegalArgumentException("sourceCommunities must be an instance of Collection");
+      if (sourceCommunities == null)
+        throw new IllegalArgumentException("sourceCommunities may not be null");
 
       m_commCtMapper = commCtMapper;
       m_communityDefinitions = communityDefinitions;
-      m_sourceCommunities = new ArrayList(sourceCommunities);
+      m_sourceCommunities = new ArrayList<>(sourceCommunities);
       Collections.sort(m_sourceCommunities);
       Collections.reverse(m_sourceCommunities); // move smallest to the end
     }
@@ -198,7 +198,7 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
      * @return a collection of community definitions as <code>PSCommunityCataloger.Community</code>
      *     obejcts, never <code>null</code>, may be empty.
      */
-    public Collection getCommunityDefinitions() {
+    public Collection<PSCommunityCataloger.Community> getCommunityDefinitions() {
       return m_communityDefinitions;
     }
 
@@ -208,7 +208,7 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
      * @return a collection of source node community ids as <code>Integer</code> objects, never
      *     <code>null</code>, may be empty.
      */
-    public List getSourceCommunities() {
+    public List<Integer> getSourceCommunities() {
       return m_sourceCommunities;
     }
 
@@ -227,14 +227,14 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
      * PSCommunityCataloger.Community</code> objects, initialized during construction, never <code>
      * null</code> or changed after that.
      */
-    private Collection m_communityDefinitions = null;
+    private Collection<PSCommunityCataloger.Community> m_communityDefinitions = null;
 
     /**
      * A collection with all community ids found in the source object (typically a site or site
      * folder) as <code>integer</code> objects, initialized during constuction, never <code>null
      * </code> or changed after that.
      */
-    private List m_sourceCommunities = null;
+    private List<Integer> m_sourceCommunities = null;
 
     /**
      * The community and content type mapper. It is initialized by ctor, never <code>null</code>
@@ -289,7 +289,7 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
      * @param sourceCommunities a list of source community ids, each id is an <code>Integer</code>
      *     object. Assume not <code>null</code>
      */
-    private void setCellEditors(Collection sourceCommunities) {
+    private void setCellEditors(Collection<Integer> sourceCommunities) {
       // set the cell editor for source column
       m_sourceEditor =
           new DefaultCellEditor(new JTextField()) {
@@ -318,10 +318,11 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
     private void initTableCells(
         int row,
         Integer srcCommunity,
-        Collection allCommunities,
+        Collection<PSCommunityCataloger.Community> allCommunities,
         PSCommunityContentTypeMapperCataloger mapper,
         TableModel model) {
-      Collection communities = mapper.getCompatibleCommunities(srcCommunity);
+      Collection<PSCommunityCataloger.Community> communities =
+          mapper.getCompatibleCommunities(srcCommunity);
 
       // set the cell editor for the target column
       if (communities == null) {
@@ -333,10 +334,7 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
       }
 
       // find the source community & init the cell values for source & target
-      Iterator walker = communities.iterator();
-      while (walker.hasNext()) {
-        PSCommunityCataloger.Community community = (PSCommunityCataloger.Community) walker.next();
-
+      for (PSCommunityCataloger.Community community : communities) {
         if (community.getId() == srcCommunity.intValue()) {
           model.setValueAt(community, row, SOURCE_COLUMN_INDEX);
           model.setValueAt(community, row, TARGET_COLUMN_INDEX);
@@ -358,11 +356,10 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
      *     PSCommunityCataloger.Community} object. Assume not <code>null</code>, but may be empty.
      * @return the created cell editor, never <code>null</code>.
      */
-    private DefaultCellEditor createCellEditor(Collection communities) {
+    private DefaultCellEditor createCellEditor(
+        Collection<PSCommunityCataloger.Community> communities) {
       JComboBox cbox = new JComboBox();
-      Iterator walker = communities.iterator();
-      while (walker.hasNext()) {
-        PSCommunityCataloger.Community community = (PSCommunityCataloger.Community) walker.next();
+      for (PSCommunityCataloger.Community community : communities) {
         cbox.addItem(community);
       }
 

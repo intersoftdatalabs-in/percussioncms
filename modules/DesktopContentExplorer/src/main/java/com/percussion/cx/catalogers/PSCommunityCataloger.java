@@ -26,7 +26,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -67,10 +66,14 @@ public class PSCommunityCataloger {
     try {
       clone = (PSCommunityCataloger) super.clone();
 
-      Collection clonedComm = new ArrayList();
+      Collection<Community> clonedComm = new ArrayList<>();
 
-      Iterator it = m_collCommunities.iterator();
-      while (it.hasNext()) clonedComm.add(((Community) it.next()).clone());
+      for (Community community : m_collCommunities) {
+        Object communityClone = community.clone();
+        if (communityClone instanceof Community) {
+          clonedComm.add((Community) communityClone);
+        }
+      }
 
       clone.m_collCommunities = clonedComm;
 
@@ -274,7 +277,7 @@ public class PSCommunityCataloger {
    *
    * @return unmodifiable collection of cataloged Community instances, never {@code null}
    */
-  public Collection getCommunities() {
+  public Collection<Community> getCommunities() {
     return Collections.unmodifiableCollection(m_collCommunities);
   }
 
@@ -293,7 +296,7 @@ public class PSCommunityCataloger {
   }
 
   /** collection of cataloged Community instances */
-  private Collection m_collCommunities = new ArrayList();
+  private Collection<Community> m_collCommunities = new ArrayList<>();
 
   /** The XML root element name containing all cataloged communities. */
   public static final String XML_ELEM_ROOT = "communities";

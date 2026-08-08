@@ -52,6 +52,8 @@ import org.jetbrains.annotations.NotNull;
  * PSSelection, PSMenuAction)}.
  */
 public abstract class PSDesktopExplorerWindow extends JFrame {
+  private static final long serialVersionUID = 1L;
+
   /**
    * State provider for the embedded JavaFX web view debugger, exposing a JSON-serializable state
    * blob to the page so it can be restored on reload.

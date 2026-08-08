@@ -141,7 +141,7 @@ public class PSDisplayFormatCatalog {
    * @return the list of all displayformats, never <code>null</code> or empty.
    * @see PSDisplayFormat
    */
-  public Iterator getAll() {
+  public Iterator<PSDisplayFormat> getAll() {
     return m_displayFormats.iterator();
   }
 
@@ -151,7 +151,7 @@ public class PSDisplayFormatCatalog {
    * @return the list of displayformats, never <code>null</code> or empty.
    * @see PSDisplayFormat
    */
-  public Iterator getFolderDisplayFormats() {
+  public Iterator<PSDisplayFormat> getFolderDisplayFormats() {
     return m_folderDisplayFormats.iterator();
   }
 
@@ -162,7 +162,7 @@ public class PSDisplayFormatCatalog {
    * @return the list of displayformats, never <code>null</code> or empty.
    * @see PSDisplayFormat
    */
-  public Iterator getRcDisplayFormats() {
+  public Iterator<PSDisplayFormat> getRcDisplayFormats() {
     return m_rcDisplayFormats.iterator();
   }
 
@@ -173,7 +173,7 @@ public class PSDisplayFormatCatalog {
    * @return the list of displayformats, never <code>null</code> or empty.
    * @see PSDisplayFormat
    */
-  public Iterator getViewsSearchDisplayFormats() {
+  public Iterator<PSDisplayFormat> getViewsSearchDisplayFormats() {
     return m_viewAndSearchDisplayFormats.iterator();
   }
 
@@ -211,19 +211,14 @@ public class PSDisplayFormatCatalog {
    * @return the matching display format, may be <code>null</code> if not found in cache.
    */
   private PSDisplayFormat getDisplayFormatByIdFromCache(String displayformatid) {
-    PSDisplayFormat match = null;
-
-    Iterator iter = m_displayFormats.iterator();
-    while (iter.hasNext()) {
-      PSDisplayFormat format = (PSDisplayFormat) iter.next();
+    for (PSDisplayFormat format : m_displayFormats) {
       String id = getDisplayFormatId(format);
       if (id.equals(displayformatid)) {
-        match = format;
-        break;
+        return format;
       }
     }
 
-    return match;
+    return null;
   }
 
   /**
@@ -243,25 +238,25 @@ public class PSDisplayFormatCatalog {
    * Array list of all display format objects cataloged, updated with list of available formats and
    * never <code>null</code>, empty or modified after that.
    */
-  private List m_displayFormats = new ArrayList();
+  private List<PSDisplayFormat> m_displayFormats = new ArrayList<>();
 
   /**
    * List of all display formats applicable to Folders, updated with list in the ctor and never
    * <code>null</code>, empty or modified after that.
    */
-  private List m_folderDisplayFormats = new ArrayList();
+  private List<PSDisplayFormat> m_folderDisplayFormats = new ArrayList<>();
 
   /**
    * List of all display formats applicable to related content, updated with list in the ctor and
    * never <code>null</code>, empty or modified after that.
    */
-  private List m_rcDisplayFormats = new ArrayList();
+  private List<PSDisplayFormat> m_rcDisplayFormats = new ArrayList<>();
 
   /**
    * List of all display formats applicable to searchs and views, updated with list in the ctor and
    * never <code>null</code>, empty or modified after that.
    */
-  private List m_viewAndSearchDisplayFormats = new ArrayList();
+  private List<PSDisplayFormat> m_viewAndSearchDisplayFormats = new ArrayList<>();
 
   /**
    * The proxy to use to load display formats from server, initialized in the ctor and never <code>

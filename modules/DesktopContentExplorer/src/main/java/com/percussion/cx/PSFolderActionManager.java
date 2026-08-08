@@ -516,7 +516,7 @@ public class PSFolderActionManager {
    *     bottom as <code>Integer</code> objects, never <code>null</code>, may be empty.
    * @throws PSCmsException for any error.
    */
-  public Set<?> getFolderCommunities(PSNode source) throws PSCmsException {
+  public Set<Integer> getFolderCommunities(PSNode source) throws PSCmsException {
     if (source == null) throw new IllegalArgumentException("source cannot be null");
 
     return m_folderProxy.getFolderCommunities(PSActionManager.nodeToLocator(source));
@@ -1001,7 +1001,7 @@ public class PSFolderActionManager {
    *
    * @return the list of display formats, never <code>null</code> or empty.
    */
-  public Iterator<?> getDisplayFormats() {
+  public Iterator<PSDisplayFormat> getDisplayFormats() {
     PSDisplayFormatCatalog dispFormatCatalog = m_actionManager.getDisplayFormatCatalog();
 
     return dispFormatCatalog.getFolderDisplayFormats();
@@ -1244,8 +1244,7 @@ public class PSFolderActionManager {
         String path = getFolderPath(parent);
         if (!path.endsWith("/")) path += "/";
         path += folderName;
-        for (Object siteObj : getSiteCataloger().getSites()) {
-          PSSite site = (PSSite) siteObj;
+        for (PSSite site : getSiteCataloger().getSites()) {
           String sitePath = site.getFolderRoot();
           sitePath = sitePath.replace('\\', '/');
           if (sitePath.endsWith("/")) sitePath = sitePath.substring(0, sitePath.length() - 1);

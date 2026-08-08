@@ -274,8 +274,8 @@ public class PSSearchViewActionManager {
    *
    * @return the list of display formats, never <code>null</code> or empty.
    */
-  public Iterator getDisplayFormats() {
-    Iterator dispFormats;
+  public Iterator<PSDisplayFormat> getDisplayFormats() {
+    Iterator<PSDisplayFormat> dispFormats;
 
     PSDisplayFormatCatalog dispFormatCatalog =
         m_applet.getActionManager().getDisplayFormatCatalog();

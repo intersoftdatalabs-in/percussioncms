@@ -102,7 +102,7 @@ public class PSSiteCataloger {
    * @return a collection of all site definitions as <code>PSSite</code> objects, never <code>null
    *     </code>, may be empty.
    */
-  public Collection getSites() {
+  public Collection<PSSite> getSites() {
     return Collections.unmodifiableCollection(m_sites);
   }
 
@@ -115,7 +115,7 @@ public class PSSiteCataloger {
    * The collection of all sites, reset with each call to {@link #fromXml(Element)}, never <code>
    * null</code>, may be empty.
    */
-  private Collection m_sites = new ArrayList();
+  private Collection<PSSite> m_sites = new ArrayList<>();
 
   // private XML constants
   private static final String ROOT_ELEM = "Sites";

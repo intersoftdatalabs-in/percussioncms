@@ -26,7 +26,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -67,10 +66,14 @@ public class PSSubjectCataloger {
     try {
       clone = (PSSubjectCataloger) super.clone();
 
-      Collection clonedSubjects = new ArrayList();
+      Collection<Subject> clonedSubjects = new ArrayList<>();
 
-      Iterator it = m_collSubjects.iterator();
-      while (it.hasNext()) clonedSubjects.add(((Subject) it.next()).clone());
+      for (Subject subject : m_collSubjects) {
+        Object subjectClone = subject.clone();
+        if (subjectClone instanceof Subject) {
+          clonedSubjects.add((Subject) subjectClone);
+        }
+      }
 
       clone.m_collSubjects = clonedSubjects;
 
@@ -270,12 +273,12 @@ public class PSSubjectCataloger {
    *
    * @return unmodifiable collection of cataloged Subject instances, never <code>null</code>.
    */
-  public Collection getSubjects() {
+  public Collection<Subject> getSubjects() {
     return Collections.unmodifiableCollection(m_collSubjects);
   }
 
   /** Collection of cataloged Subject instances. */
-  private Collection m_collSubjects = new ArrayList();
+  private Collection<Subject> m_collSubjects = new ArrayList<>();
 
   /** Root element name in the catalog response. */
   public static final String XML_ELEM_ROOT = "getSubject";
