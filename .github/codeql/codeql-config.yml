@@ -94,9 +94,10 @@ query-filters:
       paths:
         - "modules/perc-toolkit/src/main/java/com/percussion/pso/restservice/jexl/PSOImportJexl.java"
       reason: >-
-        Documented residual for code-scanning alert #666 (T039 / PR #1216
-        runtime already closed). createSecureSAXReader builds the SAXReader
-        from PSSecureXMLUtils.getSecuredSaxParserFactory (Xerces pinned,
+        Documented residual for code-scanning alerts #666 and re-fingerprint
+        thrash #1945 (T039 / PR #1216 runtime; PR #2471 sink-line + path
+        filter). createSecureSAXReader builds the SAXReader from
+        PSSecureXMLUtils.getSecuredSaxParserFactory (Xerces pinned,
         disallow-doctype-decl + external-entity features disabled) and a
         fail-closed EntityResolver that rejects all external entity
         resolution. getPostDom / getDomFromString only parse through that
@@ -104,7 +105,7 @@ query-filters:
         null). CodeQL does not model the factory/feature propagation into
         dom4j SAXReader.read as an XXE barrier; same blind spot as
         PSSerializerUtils #1710. Sink-line // codeql[java/xxe] on both
-        read sinks. See suppressions.md alert_id=666.
+        read sinks. See suppressions.md alert_id=666,1945.
   - exclude:
       id: js/xss-through-dom
       paths:
@@ -350,9 +351,10 @@ query-filters:
       paths:
         - "system/src/main/java/com/percussion/data/PSDatabasePoolDatabaseMetaData.java"
       reason: >-
-        Documented residuals for code-scanning alerts #1941 (getColumns) and
-        #1942 (getPrimaryKeys). Runtime: getFixedupCatalog/Schema/Identifier
-        call SecureStringUtils.requireJdbcMetadataPatternOrNull before any
+        Documented residuals for code-scanning alerts #1941/#1942 and
+        re-fingerprint thrash #1946/#1947 (getColumns / getPrimaryKeys).
+        Runtime: getFixedupCatalog/Schema/Identifier call
+        SecureStringUtils.requireJdbcMetadataPatternOrNull before any
         DatabaseMetaData API (allow-list: unquoted identifier chars + JDBC
         %/_ wildcards; rejects quotes, spaces, stacked-query markers).
         DatabaseMetaData is a JDBC metadata API, not string-SQL execution.
@@ -360,4 +362,4 @@ query-filters:
         barrier for requireJdbcMetadataPatternOrNull (GHA may not load local
         packs). Tests: SecureStringUtilsSqlInjectionTest,
         PSDatabasePoolDatabaseMetaDataSqlInjectionTest. Same family as
-        PSJdbcTableMetaData #659/#660.
+        PSJdbcTableMetaData #659/#660. Do not re-edit sinks to chase IDs.
