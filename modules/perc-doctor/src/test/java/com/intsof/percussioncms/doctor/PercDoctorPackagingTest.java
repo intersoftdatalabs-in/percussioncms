@@ -155,5 +155,8 @@ class PercDoctorPackagingTest {
     assertTrue(
         guideText.contains("/opt/") || guideText.contains("C:\\Percussion"),
         "install guide should use generic install-root examples (not a user home)");
+    assertTrue(
+        guideText.contains("logrotate") && guideText.contains("clean-logs"),
+        "install guide must document OS logrotate coexistence with clean-logs (#2348)");
   }
 }

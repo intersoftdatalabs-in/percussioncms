@@ -176,6 +176,27 @@ bin\perc-doctor.bat --install-root C:\Percussion --dry-run -v clean-logs --older
 bin\perc-doctor.bat --install-root C:\Percussion -v clean-logs --older-than 14d
 ```
 
+#### OS log rotation (Linux logrotate + Windows schedule)
+
+`clean-logs` is an **age-based purge** of allowlisted files. It does **not** replace OS-level rotation of continuous files such as `catalina.out`. Default samples ship with the product (issue [#2348](https://github.com/intersoftdatalabs-in/percussioncms/issues/2348)):
+
+| Path | Contents |
+|------|----------|
+| `<install-root>/rxconfig/Installer/logrotate/` | `percussion-cms`, `percussion-dts`, `schedule-clean-logs.ps1`, `README.md` |
+| Standalone DTS: `<dts-root>/logrotate/` | `percussion-dts`, short README |
+
+**Not auto-enabled.** Operators copy the Linux fragments into `/etc/logrotate.d/` only with consent after path substitution and `logrotate -d` dry-run. Prefer **`copytruncate`** so Jetty/Tomcat keep writing without a restart.
+
+Coexistence:
+
+| Layer | Role |
+|-------|------|
+| Log4j2 RollingFile | Size-based app log rollover (CMS perc-logging, DTS service configs) |
+| OS logrotate samples | Daily / 14 compressed archives for `*.log` / `*.out` under known roots |
+| `perc-doctor clean-logs` | Manual or scheduled purge of aged allowlisted files |
+
+**Windows:** schedule `perc-doctor clean-logs --older-than 14d` (Task Scheduler) or use `rxconfig/Installer/logrotate/schedule-clean-logs.ps1` (defaults to dry-run). Full steps: `rxconfig/Installer/logrotate/README.md`.
+
 ### `clean-temp`
 
 Removes **files** under known install temp / work directories only. Prefer stopping CMS / DTS first so files are not locked. Allowlisted roots themselves are retained.

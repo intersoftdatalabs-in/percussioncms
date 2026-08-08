@@ -1,0 +1,37 @@
+# Percussion DTS / Tomcat — sample logrotate policy (issue #2348)
+#
+# Shipped with standalone DTS under:
+#   <dts-install-root>/logrotate/percussion-dts
+#
+# When co-located with CMS, prefer the CMS install tree copy:
+#   <install-root>/rxconfig/Installer/logrotate/percussion-dts
+#
+# This file is a SAMPLE. It is NOT installed into /etc/logrotate.d automatically.
+# Operators must copy (or symlink) it after substituting the install root.
+#
+# Default placeholder root (document substitution):
+#   /opt/Percussion
+# Split-host DTS: substitute $DTS_HOME / this install root so paths resolve to
+# Deployment/Server/logs (catalina.base/logs).
+#
+# Install (Linux, as root — only with operator consent):
+#   1. Edit paths below (or sed-replace /opt/Percussion).
+#   2. install -m 0644 percussion-dts /etc/logrotate.d/percussion-dts
+#   3. Dry-run: logrotate -d /etc/logrotate.d/percussion-dts
+#
+# Prefer copytruncate so Tomcat keeps writing without a hard restart.
+# Coexistence: DTS Log4j2 rolling + this OS policy + optional perc-doctor clean-logs.
+# See logrotate/README.md in this directory (and CMS rxconfig/Installer/logrotate).
+
+/opt/Percussion/Deployment/Server/logs/*.log
+/opt/Percussion/Deployment/Server/logs/*.out
+{
+    daily
+    rotate 14
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
+    sharedscripts
+}

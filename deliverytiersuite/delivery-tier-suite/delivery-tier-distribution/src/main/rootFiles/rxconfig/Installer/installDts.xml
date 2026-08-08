@@ -517,6 +517,19 @@
 					</copy>
 
 					<!--
+					  GH-2348: sample logrotate policy for Deployment/Server/logs.
+					  rootFiles/logrotate/ is a directory — install-root bulk copy uses
+					  name="*" (files only), so ship the tree explicitly. SAMPLE only;
+					  operators copy into /etc/logrotate.d with consent (not auto-enabled).
+					-->
+					<copy todir="${install.dir}${staging.dir}/logrotate" verbose="true"
+						failonerror="false">
+						<fileset dir="${install.src}/logrotate" erroronmissingdir="false">
+							<include name="**" />
+						</fileset>
+					</copy>
+
+					<!--
 					  Role-specific service installer lives under Deployment/Server.
 					  Service scripts are excluded from the install-root * copy above so
 					  only Production OR Staging lands here (not both). Windows binaries
@@ -842,6 +855,17 @@
 							<exclude name="DTSProductionService.sh" />
 							<exclude name="DTSStagingService.sh" />
 
+						</fileset>
+					</copy>
+
+					<!--
+					  GH-2348: refresh sample logrotate tree on upgrade (directory is not
+					  covered by install-root name="*" bulk copy). SAMPLE only; not auto-enabled.
+					-->
+					<copy todir="${install.dir}${staging.dir}/logrotate" overwrite="true"
+						force="true" verbose="true" failonerror="false">
+						<fileset dir="${install.src}/logrotate" erroronmissingdir="false">
+							<include name="**" />
 						</fileset>
 					</copy>
 

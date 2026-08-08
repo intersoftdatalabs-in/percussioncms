@@ -1,0 +1,56 @@
+# Percussion CMS / Jetty — sample logrotate policy (issue #2348)
+#
+# Canonical install path (after CMS install/upgrade):
+#   <install-root>/rxconfig/Installer/logrotate/percussion-cms
+#
+# This file is a SAMPLE. It is NOT installed into /etc/logrotate.d automatically.
+# Operators must copy (or symlink) it after substituting the install root.
+#
+# Default placeholder root (document substitution):
+#   /opt/Percussion
+# Also common: $PERCUSSION_HOME, /usr/local/Percussion, custom mounts.
+#
+# Install (Linux, as root — only with operator consent):
+#   1. Edit INSTALL_ROOT below (or sed-replace /opt/Percussion).
+#   2. install -m 0644 percussion-cms /etc/logrotate.d/percussion-cms
+#   3. Dry-run: logrotate -d /etc/logrotate.d/percussion-cms
+#   4. Force once (optional): logrotate -f /etc/logrotate.d/percussion-cms
+#
+# Why copytruncate:
+#   Jetty / Log4j2 keep file handles open. copytruncate rotates without requiring
+#   a process signal or restart. Prefer this over create + postrotate unless you
+#   have a documented reload path.
+#
+# Coexistence (who owns what):
+#   - Log4j2 RollingFile (perc-logging): size-based rollover for app logs
+#     (typically 10 MB × keep 10). Primary owner of server.log / velocity.log etc.
+#   - This logrotate policy: OS safety net for continuous *.log / *.out under
+#     Jetty log roots, including audit and any non-Log4j handles.
+#   - perc-doctor clean-logs: age-based purge of allowlisted log names under the
+#     same roots (manual or scheduled). Complements rotation; does not replace it.
+#   Double-rotation is acceptable: Log4j keeps active size bounds; logrotate
+#   compresses/ages leftover files; clean-logs removes aged archives operators
+#   no longer need.
+#
+# Globs align with perc-doctor InstallRootGuard log roots + isLogFileName spirit
+# (.log / .out only — not arbitrary junk under the log trees).
+
+/opt/Percussion/jetty/base/logs/*.log
+/opt/Percussion/jetty/base/logs/*.out
+/opt/Percussion/jetty/base/logs/audit/*.log
+/opt/Percussion/jetty/base/modules/perc-logging/logs/*.log
+/opt/Percussion/jetty/base/modules/perc-logging/logs/*.out
+{
+    daily
+    rotate 14
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
+    sharedscripts
+    # Optional when CMS systemd units are installed (GH-962 dual-ship):
+    # postrotate
+    #     systemctl reload percussion-cms.service >/dev/null 2>&1 || true
+    # endscript
+}

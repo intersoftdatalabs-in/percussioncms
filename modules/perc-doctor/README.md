@@ -207,6 +207,15 @@ java -jar target/perc-doctor-8.2.0-SNAPSHOT.jar \
   --install-root /opt/Percussion --dry-run -v clean-logs
 ```
 
+##### OS log rotation coexistence (#2348)
+
+`clean-logs` complements (does not replace) app Log4j2 rolling and OS `logrotate`. Product samples:
+
+- CMS install: `<install-root>/rxconfig/Installer/logrotate/` (`percussion-cms`, `percussion-dts`, Windows `schedule-clean-logs.ps1`)
+- Standalone DTS: `<dts-root>/logrotate/percussion-dts`
+
+Samples are **opt-in** (not auto-installed to `/etc/logrotate.d`). Prefer `copytruncate`; dry-run with `logrotate -d`. On Windows, schedule `clean-logs --older-than 14d` (or the PowerShell sample). See the README in that directory and `docs/operator-install-guide.md`.
+
 #### `clean-temp`
 
 Reclaim space from **known** install temp / work directories under the install root. Prefer stopping CMS / DTS processes before apply so temp files are not locked.
