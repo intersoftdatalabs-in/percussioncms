@@ -17,6 +17,8 @@ QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
   (``Failed startup of context`` / ``BeanCurrentlyInCreationException``)
   even if HTTP still answers (#2462 / #2423)
 * ``qa-down`` — destroy the QA cell (frees ports; no multi-GB orphans)
+* ``qa-preflight`` — rebuild-chain preflight; detect a stale WebUI WAR vs
+  a freshly built sitemanage SNAPSHOT (#2486)
 
 Each subcommand logs its full output to a timestamped file under
 ``docker/logs/`` and emits a single ``RESULT:OK STEP:<step> LOG:<path>``
@@ -375,6 +377,19 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help="Pass --skip-image-build to matrix-install-smoke (reuse local image).",
     )
     pqu.add_argument("--dry-run", action="store_true")
+
+    # --- Rebuild-chain preflight — #2486 ---
+    pqp = sub.add_parser(
+        "qa-preflight",
+        help=(
+            "Detect a stale WebUI WAR vs a freshly built sitemanage "
+            "SNAPSHOT before qa-up (#2486). Exits non-zero in --strict "
+            "mode when stale; otherwise prints the STALE: line and "
+            "returns OK."
+        ),
+    )
+    pqp.add_argument("--strict", action="store_true")
+    pqp.add_argument("--dry-run", action="store_true")
 
     pqh = sub.add_parser(
         "qa-health",
@@ -1269,6 +1284,40 @@ def cmd_qa_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int
     return rc
 
 
+def cmd_qa_preflight(
+    args: argparse.Namespace, paths: tuple[Path, Path, Path]
+) -> int:
+    """Run the rebuild-chain preflight (#2486).
+
+    Detects a stale WebUI WAR vs a freshly built sitemanage SNAPSHOT
+    so the operator / agent does not launch a container that
+    silently ships an outdated ``sitemanage-*.jar`` inside the WAR.
+    Delegates to ``docker/scripts/qa_preflight.py``.
+    """
+    import qa_preflight
+
+    repo_root, _env_file, _compose_file = paths
+    log_dir = _log_dir(repo_root)
+    log_file = log_dir / f"qa-preflight-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.log"
+    if args.dry_run:
+        print("RESULT:OK STEP:qa-preflight LOG:")
+        print("PREFLIGHT: dry-run — skipping filesystem checks")
+        return EXIT_OK
+    rc = qa_preflight.main(
+        [
+            "--repo-root", str(repo_root),
+            "--log-file", str(log_file),
+            "--strict" if args.strict else "--no-strict",
+        ]
+    )
+    # Mirror the rest of perc-devctl: emit a single RESULT line for agents.
+    if rc == 0:
+        print(f"RESULT:OK STEP:qa-preflight LOG:{log_file}")
+    else:
+        print(f"RESULT:FAIL STEP:qa-preflight LOG:{log_file}")
+    return rc
+
+
 # ---------------------------------------------------------------------------
 # Dispatch
 # ---------------------------------------------------------------------------
@@ -1289,6 +1338,7 @@ _DISPATCH = {
     "qa-up": cmd_qa_up,
     "qa-health": cmd_qa_health,
     "qa-down": cmd_qa_down,
+    "qa-preflight": cmd_qa_preflight,
 }
 
 

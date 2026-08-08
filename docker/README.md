@@ -54,8 +54,27 @@ perc-devctl.py inspect-install
 perc-devctl.py show-generated-passwords
 # QA mode — H2-in-Docker CMS for Playwright (no host install) — #1827 / #1927
 perc-devctl.py qa-up [--timeout-seconds N] [--skip-image-build]
+perc-devctl.py qa-preflight [--strict]
 perc-devctl.py qa-health [--timeout-seconds N] [--interval-seconds N] [--url URL]
 perc-devctl.py qa-down [--container NAME]
+```
+
+#### Rebuild-chain preflight (#2486)
+
+`perc-devctl.py qa-preflight [--strict]` (or the standalone `python3 docker/scripts/qa_preflight.py`) detects a **stale WebUI WAR** vs a freshly built sitemanage SNAPSHOT **before** `qa-up`. Without this gate, re-running only `sitemanage → install` and then `qa-up` leaves the old `sitemanage-*.jar` bundled inside the `perc-web-ui-*.war` (which `perc-distribution-tree` unpacks into `Rhythmyx/WEB-INF/lib`). The container then loads the stale classpath and the cycle / DI fix appears to regress even though the m2 snapshot is correct.
+
+The preflight compares:
+
+- `~/.m2/repository/com/percussion/sitemanage/sitemanage-*.jar` — the freshly installed snapshot, and
+- `WebUI/target/perc-web-ui-*.war` — the WAR whose `WEB-INF/lib/sitemanage-*.jar` the dist tree will unpack.
+
+If the WAR was built **before** the m2 jar was last installed (or the WAR / WAR-side jar is missing), it prints `STALE:` plus the file paths and mtimes and (with `--strict`) returns exit code `2`. Without `--strict` it prints the same line and returns `0` so callers can log without blocking.
+
+Run order recommended for agents and CI:
+
+```bash
+python3 docker/scripts/perc-devctl.py qa-preflight --strict \
+  && python3 docker/scripts/perc-devctl.py qa-up
 ```
 
 Each subcommand writes full output to a timestamped file under `docker/logs/<label>-<ts>.log` and emits a single `RESULT:OK STEP:<label> LOG:<path>` (or `RESULT:FAIL`) line on stdout so agent workflows can parse the result without parsing free-form output.

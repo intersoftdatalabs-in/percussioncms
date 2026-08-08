@@ -159,6 +159,20 @@ class TestLogsPath(unittest.TestCase):
         self.assertIn("LOG_DIR:", out)
 
 
+class TestQaPreflight(unittest.TestCase):
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo_root = _stub_repo_root(Path(self.td.name))
+        self.runner = _CliRunner(self.repo_root)
+
+    def test_qa_preflight_dry_run(self):
+        rc, out = self.runner.run(["qa-preflight"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-preflight", out)
+        self.assertIn("dry-run", out.lower())
+
+
 class TestSubcommandDryRun(unittest.TestCase):
     """Every subcommand that supports ``--dry-run`` returns EXIT_OK and
     emits RESULT:OK without invoking docker / curl / mvn.
