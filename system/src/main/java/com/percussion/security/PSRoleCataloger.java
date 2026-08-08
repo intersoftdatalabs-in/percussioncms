@@ -25,6 +25,7 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,10 +46,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /** A role cataloger using a directory server as source. */
-@SuppressWarnings(value = {"unchecked"})
 public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCataloger {
   /** Logger to use, never <code>null</code>. */
-  private static Logger log = LogManager.getLogger(PSRoleCataloger.class);
+  private static final Logger log = LogManager.getLogger(PSRoleCataloger.class);
 
   /**
    * Convenience constructor that calls {@link #PSRoleCataloger(Properties, PSServerConfiguration)}
@@ -95,9 +95,10 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
   /**
    * @see IPSInternalRoleCataloger
    */
-  public List getRoles(String subjectName, int subjectType) {
-    List roleList = new ArrayList();
-    Set roleSet = new HashSet();
+  @Override
+  public List<String> getRoles(String subjectName, int subjectType) {
+    List<String> roleList = new ArrayList<>();
+    Set<String> roleSet = new HashSet<>();
 
     // groups not supported
     if (subjectType == PSSubject.SUBJECT_TYPE_GROUP) return roleList;
@@ -106,9 +107,9 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
 
     if (provider.isDirectoryRoleProvider() || provider.isBothProvider()) {
       DirContext context = null;
-      NamingEnumeration results = null;
-      NamingEnumeration attrs = null;
-      NamingEnumeration values = null;
+      NamingEnumeration<SearchResult> results = null;
+      NamingEnumeration<? extends Attribute> attrs = null;
+      NamingEnumeration<?> values = null;
 
       try {
         String objectAttributeName =
@@ -116,7 +117,7 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
         String roleAttrName =
             getDirectorySet().getRequiredAttributeName(PSDirectorySet.ROLE_ATTRIBUTE_KEY);
 
-        Map filterValues = new HashMap();
+        Map<String, Object> filterValues = new HashMap<>();
         if (subjectName != null) {
           if (subjectName.trim().length() == 0)
             filterValues.put(objectAttributeName, PSJndiUtils.WILDCARD_SEARCH);
@@ -126,21 +127,19 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
 
         String[] returnAttributes = {roleAttrName};
 
-        Iterator directories = getDirectories().values().iterator();
-        while (directories.hasNext()) {
+        for (PSDirectoryDefinition directory : getDirectories().values()) {
           String dirName = "";
           try {
-            PSDirectoryDefinition directory = (PSDirectoryDefinition) directories.next();
             dirName = directory.getDirectory().getName();
             context = createContext(directory);
             results = getAttributes(context, directory, filterValues, returnAttributes);
             while (results != null && results.hasMore()) {
-              SearchResult result = (SearchResult) results.next();
+              SearchResult result = results.next();
               Attributes attributes = result.getAttributes();
               if (attributes != null) {
                 attrs = attributes.getAll();
                 while (attrs != null && attrs.hasMore()) {
-                  Attribute attribute = (Attribute) attrs.next();
+                  Attribute attribute = attrs.next();
                   if (attribute.getID().equals(roleAttrName)) {
                     if (!m_roleProvider.isDelimited())
                       roleSet.addAll(getMultiValuedRoles(attribute));
@@ -159,10 +158,14 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
                 dirName,
                 PSExceptionUtils.getMessageForLog(e));
           }
-          results.close();
-          results = null;
-          context.close();
-          context = null;
+          if (results != null) {
+            results.close();
+            results = null;
+          }
+          if (context != null) {
+            context.close();
+            context = null;
+          }
         }
       } catch (NamingException e) {
         // print the error to the console and return an empty list
@@ -191,7 +194,6 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
           } catch (NamingException e) {
             /* noop */
           }
-        ;
       }
     }
 
@@ -203,16 +205,16 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
    * Extract roles from a role attribute that stores values as a multi valued attribute
    *
    * @param attribute the attribute, assumed not <code>null</code>
-   * @return a set of role values that can be merged into a larger role set
    * @param delimiter the delimiter string used to split the values in attribute, assumed not <code>
    *     null</code>
+   * @return a set of role values that can be merged into a larger role set
    * @throws NamingException
    */
-  private Set getDelimitedValuedRoles(Attribute attribute, String delimiter)
+  private Set<String> getDelimitedValuedRoles(Attribute attribute, String delimiter)
       throws NamingException {
     String value = (String) attribute.get();
     String roles[] = value.split(delimiter);
-    Set rval = new HashSet();
+    Set<String> rval = new HashSet<>();
     for (int i = 0; i < roles.length; i++) {
       rval.add(roles[i]);
     }
@@ -226,40 +228,43 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
    * @return a set of role values that can be merged into a larger role set
    * @throws NamingException
    */
-  private Set getMultiValuedRoles(Attribute attribute) throws NamingException {
-    NamingEnumeration values;
-    values = attribute.getAll();
-    Set rval = new HashSet();
+  private Set<String> getMultiValuedRoles(Attribute attribute) throws NamingException {
+    NamingEnumeration<?> values = attribute.getAll();
+    Set<String> rval = new HashSet<>();
     while (values != null && values.hasMore()) {
       String role = (String) values.next();
       if (role != null) rval.add(role);
     }
     values.close();
-    values = null;
     return rval;
   }
 
   /**
    * @see IPSInternalRoleCataloger
    */
-  public Set getSubjects(String roleName, String subjectNameFilter) {
+  @Override
+  public Set<PSSubject> getSubjects(String roleName, String subjectNameFilter) {
     return getSubjects(roleName, subjectNameFilter, 0, null, true);
   }
 
   /**
    * @see IPSInternalRoleCataloger
    */
-  public Set getSubjects(
+  @Override
+  @SuppressWarnings("unchecked")
+  public Set<PSSubject> getSubjects(
       String roleName,
       String subjectNameFilter,
       int subjectType,
       String attributeNameFilter,
       boolean includeEmpty) {
     // groups not supported
-    if (subjectType == PSSubject.SUBJECT_TYPE_GROUP) return new HashSet();
+    if (subjectType == PSSubject.SUBJECT_TYPE_GROUP) return new HashSet<>();
 
     // use treeset to prevent duplicates and enforce ordering
-    Set results = new TreeSet(PSSubject.getSubjectIdentifierComparator());
+    Comparator<PSSubject> subjectComparator =
+        (Comparator<PSSubject>) PSSubject.getSubjectIdentifierComparator();
+    Set<PSSubject> results = new TreeSet<>(subjectComparator);
     String plainRoleName = roleName;
     if (roleName != null && m_roleProvider.isDelimited()) {
       roleName = "*" + roleName + "*";
@@ -269,7 +274,7 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
     // handles all directory connection security providers
     if (provider.isDirectoryRoleProvider() || provider.isBothProvider()) {
       PSDirectorySet directorySet = getDirectorySet();
-      Map filterValues = new HashMap();
+      Map<String, Object> filterValues = new HashMap<>();
       if (!StringUtils.isBlank(roleName)) {
         String roleAttrName =
             directorySet.getRequiredAttributeName(PSDirectorySet.ROLE_ATTRIBUTE_KEY);
@@ -281,18 +286,16 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
             getObjectAttributeName(), PSJndiUtils.translateSQLFilter(subjectNameFilter));
       }
 
-      Set additionals = null;
+      Set<String> additionals = null;
       if (attributeNameFilter != null && attributeNameFilter.trim().length() > 0) {
         filterValues.put(attributeNameFilter, PSJndiUtils.WILDCARD_SEARCH);
-        additionals = new HashSet();
+        additionals = new HashSet<>();
         additionals.add(attributeNameFilter);
       }
 
-      Iterator directories = getDirectories().values().iterator();
-      while (directories.hasNext()) {
+      for (PSDirectoryDefinition directory : getDirectories().values()) {
         String dirName = "";
         try {
-          PSDirectoryDefinition directory = (PSDirectoryDefinition) directories.next();
           dirName = directory.getDirectory().getName();
 
           if (provider.isDirectoryRoleProvider() || provider.isBothProvider())
@@ -323,12 +326,10 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
    * @param results the original results, assumed not <code>null</code>
    * @return the new results
    */
-  private Set filterResultsByRoleAttribute(String roleName, Set results) {
-    Set rval = new HashSet();
-    Iterator iter = results.iterator();
-    while (iter.hasNext()) {
-      PSGlobalSubject user = (PSGlobalSubject) iter.next();
-      List roles = getRoles(user.getName(), 0);
+  private Set<PSSubject> filterResultsByRoleAttribute(String roleName, Set<PSSubject> results) {
+    Set<PSSubject> rval = new HashSet<>();
+    for (PSSubject user : results) {
+      List<String> roles = getRoles(user.getName(), 0);
       if (roles.contains(roleName)) rval.add(user);
     }
     return rval;
@@ -337,6 +338,7 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
   /**
    * @see IPSInternalRoleCataloger
    */
+  @Override
   public PSRoleProvider getProvider() {
     return m_roleProvider;
   }
@@ -351,7 +353,10 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
    *     <code>null</code>.
    */
   protected void getSubjects(
-      PSDirectoryDefinition directory, Map filterValues, Set results, Set additionals) {
+      PSDirectoryDefinition directory,
+      Map<String, ?> filterValues,
+      Set<PSSubject> results,
+      Set<String> additionals) {
     results.addAll(getSubjects(directory, filterValues, additionals));
   }
 
@@ -370,8 +375,11 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
    * @throws NamingException for any JNDI lookup error.
    */
   // TODO: Remove me @SuppressFBWarnings("LDAP_INJECTION") //Mitigated in PSJndiUtils.buildFilter
-  private NamingEnumeration getAttributes(
-      DirContext context, PSDirectoryDefinition directory, Map filterValues, String[] returnAttrs)
+  private NamingEnumeration<SearchResult> getAttributes(
+      DirContext context,
+      PSDirectoryDefinition directory,
+      Map<String, Object> filterValues,
+      String[] returnAttrs)
       throws NamingException {
     context = createContext(directory);
     SearchControls searchControls = createSearchControls(directory.getDirectory(), returnAttrs);
