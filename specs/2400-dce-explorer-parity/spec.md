@@ -42,6 +42,7 @@ The modern SPA **Explorer** (`WebUI` `ContentExplorerShell`, route `/cm/app/expl
 - [ ] Spec + plan + matrix checked in (this package) and linked from #2400.
 - [ ] Product Explorer route exercises composed surfaces (not only isolated registry components).
 - [ ] Vitest for logic/components; Playwright surface tests for user-visible Explorer changes.
+- [ ] **i18n + 508 / a11y HARD GATE** on every UI slice — see [checklists/i18n-a11y-hard-gate.md](./checklists/i18n-a11y-hard-gate.md) and `WebUI/AGENTS.md` (Content Explorer section). No bare English chrome; `renderA11yGate` + Playwright axe gates green.
 
 ## Slice principles
 

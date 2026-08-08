@@ -143,13 +143,30 @@ cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.css \
 - Functional components + hooks; strict TypeScript (avoid `any`)
 - Feature modules under `src/main/ts/<feature>/`
 - REST via `api/client.ts` + feature APIs; CSRF from bootstrap / `OWASP_CSRFTOKEN`
-- i18n via TMX `message()` helpers — no raw keys in primary chrome
+- i18n via TMX `message()` helpers — no raw English product chrome strings
 - **Crowdsource translation (alpha, third-party):** vendored `@mkd/language` **0.4** under `WebUI/vendor/mkd-language/`. Adapter: `src/main/ts/i18n/mkdLanguage.ts`. Keys from tracked `message()`. Submit: `postUrl` → **`POST /Rhythmyx/rest/i18n/corrections`** (CSRF via `getCsrfToken()`). Server: `perc.mkd.language.enabled` + `perc.mkd.language.roles` (empty=off; `*`=all; else role list; suggest `Translations_Team`). GCM config in `server.properties` (`perc.mkd.gcm.*`, PAT as `ENC(...)`). Native `mkd_gcm_ffi` in `<installdir>/bin`. Opt-in UX: `?mkdLang=1`. Treat mkd as external — no GCM design docs here.
 - Styles: CSS modules preferred; theme tokens via `ui-themes`
 - Tests: **two layers** — Vitest for unit/component logic **and** Playwright for live-CMS screen behavior (see **Playwright (HARD GATE)**)
 - Prefer stable `data-testid` on interactive chrome so Playwright selectors stay reliable
 - SPA routing: `app/routes.tsx` + deep-link allowlists; server entry allowlists stay in lockstep
 - **No jQuery** — see product lock #2. If a legacy page used `$('…')` or FancyTree, reimplement in React or use a non-jQuery primitive.
+
+### Content Explorer — i18n + 508 / accessibility (HARD GATE)
+
+Applies to **all** work under `WebUI/src/main/ts/contentExplorer/**`,
+`WebUI/src/main/ts/api/contentExplorer/**`, Explorer SPA routes, and Explorer
+Playwright specs (feature **992**, parity **#2400**, and follow-ups).
+
+| Requirement | Rule |
+|-------------|------|
+| **i18n (FR-026)** | Every **product chrome** string (labels, buttons, titles, empty/error states, `aria-label` / `aria-labelledby` text, `role="status"` / `alert` copy) MUST go through `message(EXPLORER_MSG.<KEY>)`. Keys live in `contentExplorer/messages.ts` as `perc.ui.explorer@<English default>`. |
+| **No bare English chrome** | Do **not** hardcode user-visible English in JSX. Server/catalog values (display-format names, action menu labels from REST, CMS path/item titles) may render as data — not as product chrome. |
+| **508 / WCAG** | Keyboard-completable flows; meaningful `aria-*` / roles on toolbars, toggles (`aria-expanded` / `aria-controls` / `aria-pressed`), regions, lists, and dialogs. Prefer labels tied to controls (`htmlFor` / `aria-labelledby`). |
+| **Vitest a11y gate (T082a)** | New or changed Explorer components MUST call `renderA11yGate(container)` from `WebUI/src/test/ts/contentExplorer/a11y.ts` (zero **serious** / **critical** axe violations; WCAG 2.0/2.1 A+AA tags). |
+| **Playwright a11y gate (T082b)** | Product-visible Explorer screen changes MUST keep/extend `expectNoSeriousA11yViolations` in `modules/perc-qa-automation/frontend/tests/` (e.g. `us1-core-explorer.spec.js`) scoped to `[data-testid="content-explorer-shell"]` (or the changed surface). |
+| **Checklists** | `specs/992-react-content-explorer/checklists/a11y-spotcheck.md`, `…/i18n-key-presence.md`; parity program: `specs/2400-dce-explorer-parity/`. |
+
+**Done means** i18n + a11y gates green — not only that a panel mounts.
 
 ### Java (WebUI)
 

@@ -58,9 +58,12 @@ Wire existing Explorer panels into `ContentExplorerShell` so `/cm/app/explorer` 
 | Layer | When |
 |-------|------|
 | Vitest pure helpers + shell composition | Every UI PR |
+| Vitest `renderA11yGate` (T082a) + EXPLORER_MSG key shape | Every Explorer UI PR |
 | `rest` unit tests (Mockito resource) | Every REST PR |
 | Module `mvnw clean install` | Pre-PR hard gate (`rest`, `WebUI`, `sitemanage` as touched) |
-| Playwright `modules/perc-qa-automation` surface | Product-visible Explorer changes |
+| Playwright surface + `expectNoSeriousA11yViolations` (T082b) | Product-visible Explorer changes |
+
+**i18n / 508:** [checklists/i18n-a11y-hard-gate.md](./checklists/i18n-a11y-hard-gate.md) — non-optional for UI work.
 
 ## Risk
 

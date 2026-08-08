@@ -311,21 +311,34 @@ export function ContentExplorerShell({
               onError={handleActionError}
             />
           </div>
-          <div style={toolRowStyle} data-testid="explorer-server-actions">
+          <div
+            style={toolRowStyle}
+            data-testid="explorer-server-actions"
+            role="group"
+            aria-label={message(EXPLORER_MSG.SERVER_ACTIONS_ARIA)}
+          >
             <ActionToolbar
               actions={menuActions}
-              ariaLabel={message(EXPLORER_MSG.TITLE)}
+              ariaLabel={message(EXPLORER_MSG.SERVER_ACTIONS_ARIA)}
               onInvoke={() => {
                 // Server URL actions navigate; client-only refresh list.
                 setListEpoch((n) => n + 1);
               }}
             />
           </div>
-          <div style={toolRowStyle} data-testid="explorer-view-tools">
+          <div
+            style={toolRowStyle}
+            data-testid="explorer-view-tools"
+            role="toolbar"
+            aria-label={message(EXPLORER_MSG.VIEW_TOOLS_ARIA)}
+          >
             <button
               type="button"
               data-testid="explorer-toggle-search"
               aria-pressed={showSearch}
+              aria-expanded={showSearch}
+              aria-controls="explorer-search-panel"
+              aria-label={message(EXPLORER_MSG.TOGGLE_SEARCH_ARIA)}
               onClick={() => setShowSearch((v) => !v)}
             >
               {message(EXPLORER_MSG.SEARCH_TITLE)}
@@ -334,19 +347,26 @@ export function ContentExplorerShell({
               type="button"
               data-testid="explorer-toggle-security"
               aria-pressed={showSecurity}
+              aria-expanded={showSecurity}
+              aria-controls="explorer-security-panel"
+              aria-label={message(EXPLORER_MSG.TOGGLE_SECURITY_ARIA)}
               onClick={() => setShowSecurity((v) => !v)}
             >
               {message(EXPLORER_MSG.SECURITY_TITLE)}
             </button>
             <label
+              htmlFor="explorer-display-format"
               style={{ display: "inline-flex", gap: 6, alignItems: "center" }}
             >
-              <span>{message(EXPLORER_MSG.DISPLAY_FORMAT_LABEL)}</span>
+              <span id="explorer-display-format-label">
+                {message(EXPLORER_MSG.DISPLAY_FORMAT_LABEL)}
+              </span>
               <select
+                id="explorer-display-format"
                 data-testid="explorer-display-format"
                 value={selectedFormatKey}
                 onChange={(e) => setSelectedFormatKey(e.target.value)}
-                aria-label={message(EXPLORER_MSG.DISPLAY_FORMAT_LABEL)}
+                aria-labelledby="explorer-display-format-label"
               >
                 <option value="">
                   {message(EXPLORER_MSG.DISPLAY_FORMAT_DEFAULT)}
@@ -354,6 +374,8 @@ export function ContentExplorerShell({
                 {displayFormats.map((df) => {
                   const key = displayFormatOptionKey(df);
                   if (!key) return null;
+                  // Server catalog labels (displayName/label/name) are
+                  // CMS design data, not product chrome — not TMX keys.
                   const label = df.displayName || df.label || df.name || key;
                   return (
                     <option key={key} value={key}>
@@ -367,7 +389,11 @@ export function ContentExplorerShell({
         </div>
       </header>
       {error && (
-        <div style={{ ...errorStateStyle, gridColumn: "1 / -1" }} role="alert">
+        <div
+          style={{ ...errorStateStyle, gridColumn: "1 / -1" }}
+          role="alert"
+          aria-live="assertive"
+        >
           {message(EXPLORER_MSG.ERROR_GENERIC)}: {error}
         </div>
       )}
@@ -388,7 +414,12 @@ export function ContentExplorerShell({
         onItemContextMenu={handleItemContextMenu}
       />
       {showSearch && (
-        <div style={sidePanelStyle} data-testid="explorer-search-panel">
+        <section
+          id="explorer-search-panel"
+          style={sidePanelStyle}
+          data-testid="explorer-search-panel"
+          aria-label={message(EXPLORER_MSG.SEARCH_PANEL_REGION)}
+        >
           <SearchPanel
             onOpen={handleSearchOpen}
             onReveal={handleSearchReveal}
@@ -398,18 +429,29 @@ export function ContentExplorerShell({
                 : undefined
             }
           />
-        </div>
+        </section>
       )}
       {showSecurity && securityFolderId && (
-        <div style={sidePanelStyle} data-testid="explorer-security-panel">
+        <section
+          id="explorer-security-panel"
+          style={sidePanelStyle}
+          data-testid="explorer-security-panel"
+          aria-label={message(EXPLORER_MSG.SECURITY_PANEL_REGION)}
+        >
           <FolderSecurityPanel
             folderId={securityFolderId}
             currentUserIdentities={[]}
           />
-        </div>
+        </section>
       )}
       {showSecurity && !securityFolderId && (
-        <div style={sidePanelStyle} data-testid="explorer-security-hint">
+        <div
+          id="explorer-security-panel"
+          style={sidePanelStyle}
+          data-testid="explorer-security-hint"
+          role="status"
+          aria-live="polite"
+        >
           {message(EXPLORER_MSG.SECURITY_SELECT_FOLDER)}
         </div>
       )}
@@ -422,6 +464,7 @@ export function ContentExplorerShell({
             zIndex: 1000,
           }}
           data-testid="explorer-context-menu-anchor"
+          role="presentation"
         >
           <ContextMenu
             actions={contextMenu.actions}

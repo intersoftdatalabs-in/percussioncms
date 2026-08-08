@@ -121,6 +121,14 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@You do not have permission to open this item",
   DISPLAY_FORMAT_LABEL: "perc.ui.explorer@Display format",
   DISPLAY_FORMAT_DEFAULT: "perc.ui.explorer@Default columns",
+  /** Product shell: server-driven action toolbar (US3 / #2400). */
+  SERVER_ACTIONS_ARIA: "perc.ui.explorer@Server actions",
+  /** Product shell: view tools row (search / security / display format). */
+  VIEW_TOOLS_ARIA: "perc.ui.explorer@Explorer view tools",
+  TOGGLE_SEARCH_ARIA: "perc.ui.explorer@Show or hide search",
+  TOGGLE_SECURITY_ARIA: "perc.ui.explorer@Show or hide folder security",
+  SEARCH_PANEL_REGION: "perc.ui.explorer@Search panel",
+  SECURITY_PANEL_REGION: "perc.ui.explorer@Folder security panel",
   // US4 P-ACL / folder security (FR-014–FR-016, SC-004)
   SECURITY_TITLE: "perc.ui.explorer@Folder Security",
   SECURITY_SELECT_FOLDER:

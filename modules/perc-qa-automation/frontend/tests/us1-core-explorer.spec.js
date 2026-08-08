@@ -128,13 +128,31 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     expect(ADMIN_USERNAME).toBe("Admin");
   });
 
-  test("axe-core a11y gate — modern Content Explorer shell (T082b)", async ({
+  test("axe-core a11y gate — modern Content Explorer shell (T082b / 508)", async ({
     page,
   }) => {
     await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
+    const shell = page.locator('[data-testid="content-explorer-shell"]');
+    await expect(shell).toBeVisible({ timeout: 15_000 });
+    // Full product shell including #2400 composition chrome (search / DF / menus).
     await expectNoSeriousA11yViolations(page, {
-      scope:
-        '[id="perc-modern-ui-mount"], [data-testid="explorer-tree"], [data-testid="detail-list"]',
+      scope: '[data-testid="content-explorer-shell"]',
+    });
+  });
+
+  test("axe-core a11y gate — Explorer search panel expanded (#2400)", async ({
+    page,
+  }) => {
+    await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
+    await expect(
+      page.locator('[data-testid="content-explorer-shell"]'),
+    ).toBeVisible({ timeout: 15_000 });
+    await page.locator('[data-testid="explorer-toggle-search"]').click();
+    await expect(
+      page.locator('[data-testid="explorer-search-panel"]'),
+    ).toBeVisible();
+    await expectNoSeriousA11yViolations(page, {
+      scope: '[data-testid="content-explorer-shell"]',
     });
   });
 });
