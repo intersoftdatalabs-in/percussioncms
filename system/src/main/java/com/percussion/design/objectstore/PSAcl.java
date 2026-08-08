@@ -86,7 +86,7 @@ public class PSAcl extends PSComponent {
    * @see PSAclEntry
    * @see #getEntries
    */
-  public void setEntries(com.percussion.util.PSCollection entries) {
+  public final void setEntries(com.percussion.util.PSCollection entries) {
     IllegalArgumentException ex = validateEntries(entries);
     if (ex != null) throw ex;
 
@@ -408,7 +408,7 @@ public class PSAcl extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXAcl
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

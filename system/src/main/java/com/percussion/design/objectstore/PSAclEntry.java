@@ -199,7 +199,7 @@ public class PSAclEntry extends PSComponent {
    * @param name the name of the user, group or role to associate with this entry. This is limited
    *     to 255 characters.
    */
-  public void setName(String name) {
+  public final void setName(String name) {
     IllegalArgumentException ex = validateName(name);
     if (ex != null) throw ex;
 
@@ -286,7 +286,7 @@ public class PSAclEntry extends PSComponent {
    *     application ACE, specify one or more PSAclEntry.AACE_ flag. Server and application flags
    *     cannot be combined.
    */
-  public void setAccessLevel(int level) {
+  public final void setAccessLevel(int level) {
     boolean isServer = false;
     boolean isApplication = false;
 
@@ -518,7 +518,7 @@ public class PSAclEntry extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXAclEntry
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

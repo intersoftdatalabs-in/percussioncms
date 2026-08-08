@@ -199,7 +199,7 @@ public class PSContentEditor extends PSDataSet {
    * @param name the content editor name, not <code>null</code> or empty.
    */
   @Override
-  public void setName(String name) {
+  public final void setName(String name) {
     try {
       super.setName(name);
     } catch (IllegalArgumentException e) {
@@ -628,7 +628,7 @@ public class PSContentEditor extends PSDataSet {
    *      com.percussion.design.objectstore.IPSDocument, java.util.ArrayList)
    */
   @Override
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

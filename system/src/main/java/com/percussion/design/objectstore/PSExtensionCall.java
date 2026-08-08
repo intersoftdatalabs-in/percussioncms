@@ -135,7 +135,7 @@ public class PSExtensionCall extends PSComponent
    *
    * @param ext The name of the extension to be called, not <code>null</code>
    */
-  public void setExtensionRef(PSExtensionRef ext) {
+  public final void setExtensionRef(PSExtensionRef ext) {
     IllegalArgumentException ex = validateExtension(ext);
     if (ex != null) throw ex;
 
@@ -177,7 +177,7 @@ public class PSExtensionCall extends PSComponent
    *
    * @param params an array of PSExtensionParamValue objects
    */
-  public void setParamValues(PSExtensionParamValue[] params) {
+  public final void setParamValues(PSExtensionParamValue[] params) {
     if (params == null) {
       setParamValues((Iterator<? extends PSExtensionParamValue>) null);
     } else {
@@ -191,7 +191,7 @@ public class PSExtensionCall extends PSComponent
    * @param params An Iterator over 0 or more PSExtensionParamValue objects. Can be <CODE>null
    *     </CODE>.
    */
-  public void setParamValues(Iterator<? extends PSExtensionParamValue> params) {
+  public final void setParamValues(Iterator<? extends PSExtensionParamValue> params) {
     m_params = new LinkedList<>();
 
     // build column names which need to be mapped
@@ -357,7 +357,7 @@ public class PSExtensionCall extends PSComponent
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXExtensionCall
    */
-  public void fromXml(
+  public final void fromXml(
       Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);

@@ -94,7 +94,7 @@ public class PSTableSet extends PSComponent {
    *
    * @param tableLocation the new table locator, not <code>null</code>.
    */
-  public void setTableLocation(PSTableLocator tableLocation) {
+  public final void setTableLocation(PSTableLocator tableLocation) {
     if (tableLocation == null) throw new IllegalArgumentException("tableLocation cannot be null");
 
     m_tableLocation = tableLocation;
@@ -135,7 +135,7 @@ public class PSTableSet extends PSComponent {
    *
    * @param tableRefs the new table references, not <code>null</code>, not empty.
    */
-  public void setTableRefs(PSCollection tableRefs) {
+  public final void setTableRefs(PSCollection tableRefs) {
     if (tableRefs == null || tableRefs.isEmpty())
       throw new IllegalArgumentException("tableRefs cannot be null or empty");
 
@@ -151,7 +151,7 @@ public class PSTableSet extends PSComponent {
    *
    * @param tableRef the table reference, may not be <code>null</code>
    */
-  public void addTableRef(PSTableRef tableRef) {
+  public final void addTableRef(PSTableRef tableRef) {
     if (tableRef == null) throw new IllegalArgumentException("tableRef cannot be null");
 
     m_tableRefs.add(tableRef);
@@ -175,7 +175,7 @@ public class PSTableSet extends PSComponent {
    *
    * @param c a valid PSTableSet, not <code>null</code>.
    */
-  public void copyFrom(PSTableSet c) {
+  public final void copyFrom(PSTableSet c) {
     try {
       super.copyFrom(c);
     } catch (IllegalArgumentException e) {
@@ -207,7 +207,7 @@ public class PSTableSet extends PSComponent {
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

@@ -57,7 +57,8 @@ public class PSDataSet extends PSComponent {
   public PSDataSet(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     this();
-    fromXml(sourceNode, parentDoc, parentComponents);
+    // Private path avoids virtual fromXml (e.g. PSContentEditor) during super construction.
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
 
   /** Constructor for serialization, fromXml, etc. */
@@ -74,7 +75,7 @@ public class PSDataSet extends PSComponent {
    * @see #setName
    */
   public PSDataSet(String name) {
-    setName(name);
+    applyName(name);
   }
 
   /**
@@ -94,6 +95,11 @@ public class PSDataSet extends PSComponent {
    *     server.
    */
   public void setName(String name) {
+    applyName(name);
+  }
+
+  /** Non-overridable name assignment for construction and {@link #setName(String)}. */
+  private void applyName(String name) {
     IllegalArgumentException ex = validateName(name);
     if (ex != null) throw ex;
 
@@ -637,6 +643,15 @@ public class PSDataSet extends PSComponent {
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
+  }
+
+  /**
+   * Shared load for {@link #fromXml} and the Element constructor. Avoids virtual fromXml dispatch
+   * (e.g. {@link PSContentEditor}) before subclass fields are initialized.
+   */
+  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;
 
@@ -660,7 +675,7 @@ public class PSDataSet extends PSComponent {
       }
 
       try { // private          String          m_name = "";
-        setName(tree.getElementData("name"));
+        applyName(tree.getElementData("name"));
       } catch (IllegalArgumentException e) {
         throw new PSUnknownNodeTypeException(
             ms_NodeType, "name", new PSException(e.getLocalizedMessage()));

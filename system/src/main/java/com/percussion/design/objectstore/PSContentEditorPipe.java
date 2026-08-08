@@ -80,7 +80,7 @@ public class PSContentEditorPipe extends PSPipe {
    *
    * @param locator the new locator, never <code>null</code>.
    */
-  public void setLocator(PSContainerLocator locator) {
+  public final void setLocator(PSContainerLocator locator) {
     if (locator == null) throw new IllegalArgumentException("locator cannot be null");
 
     m_locator = locator;
@@ -100,7 +100,7 @@ public class PSContentEditorPipe extends PSPipe {
    *
    * @param mapper the new mapper, not <code>null</code>.
    */
-  public void setMapper(PSContentEditorMapper mapper) {
+  public final void setMapper(PSContentEditorMapper mapper) {
     if (mapper == null) throw new IllegalArgumentException("mapper cannot be null");
 
     m_mapper = mapper;
@@ -160,7 +160,7 @@ public class PSContentEditorPipe extends PSPipe {
    *
    * @param c a valid PSContentEditorPipe, not <code>null</code>.
    */
-  public void copyFrom(PSContentEditorPipe c) {
+  public final void copyFrom(PSContentEditorPipe c) {
     try {
       super.copyFrom(c);
     } catch (IllegalArgumentException e) {
@@ -226,7 +226,7 @@ public class PSContentEditorPipe extends PSPipe {
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

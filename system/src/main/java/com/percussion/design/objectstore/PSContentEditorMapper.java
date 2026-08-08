@@ -125,7 +125,7 @@ public class PSContentEditorMapper extends PSComponent {
    * @param systemFieldExcludes the new list of system field excludes, may be <code>null</code> or
    *     empty.
    */
-  public void setSystemFieldExcludes(ArrayList systemFieldExcludes) {
+  public final void setSystemFieldExcludes(ArrayList systemFieldExcludes) {
     if (systemFieldExcludes == null) m_systemFieldExcludes = new ArrayList();
     else m_systemFieldExcludes = systemFieldExcludes;
   }
@@ -146,7 +146,7 @@ public class PSContentEditorMapper extends PSComponent {
    * @param sharedFieldIncludes the new list of shared field group names (String) included, may be
    *     <code>null</code> or empty.
    */
-  public void setSharedFieldIncludes(ArrayList sharedFieldIncludes) {
+  public final void setSharedFieldIncludes(ArrayList sharedFieldIncludes) {
     if (sharedFieldIncludes == null) m_sharedFieldIncludes = new ArrayList();
     else m_sharedFieldIncludes = sharedFieldIncludes;
   }
@@ -167,7 +167,7 @@ public class PSContentEditorMapper extends PSComponent {
    * @param sharedFieldExcludes the new list of shared field excludes, may be <code>null</code> or
    *     empty.
    */
-  public void setSharedFieldExcludes(ArrayList sharedFieldExcludes) {
+  public final void setSharedFieldExcludes(ArrayList sharedFieldExcludes) {
     if (sharedFieldExcludes == null) m_sharedFieldExcludes = new ArrayList();
     else m_sharedFieldExcludes = sharedFieldExcludes;
   }
@@ -186,7 +186,7 @@ public class PSContentEditorMapper extends PSComponent {
    *
    * @param fieldSet the new field set, never <code>null</code>.
    */
-  public void setFieldSet(PSFieldSet fieldSet) {
+  public final void setFieldSet(PSFieldSet fieldSet) {
     if (fieldSet == null) throw new IllegalArgumentException("fieldSet cannot be null");
 
     m_fieldSet = fieldSet;
@@ -206,7 +206,7 @@ public class PSContentEditorMapper extends PSComponent {
    *
    * @param uiDefinition the new UI definition, never <code>null</code>.
    */
-  public void setUIDefinition(PSUIDefinition uiDefinition) {
+  public final void setUIDefinition(PSUIDefinition uiDefinition) {
     if (uiDefinition == null) throw new IllegalArgumentException("uiDefinition cannot be null");
 
     m_uiDefinition = uiDefinition;
@@ -218,7 +218,7 @@ public class PSContentEditorMapper extends PSComponent {
    *
    * @param c a valid PSContentEditorMapper, not <code>null</code>.
    */
-  public void copyFrom(PSContentEditorMapper c) {
+  public final void copyFrom(PSContentEditorMapper c) {
     try {
       super.copyFrom(c);
     } catch (IllegalArgumentException e) {
@@ -262,7 +262,7 @@ public class PSContentEditorMapper extends PSComponent {
    * @see IPSComponent
    */
   // $NON-NLS-1$
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

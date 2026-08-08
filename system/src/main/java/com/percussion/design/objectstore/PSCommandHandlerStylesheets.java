@@ -130,7 +130,7 @@ public class PSCommandHandlerStylesheets extends PSComponent {
    * @throws IllegalArgumentException if the provided command handler name is <code>null</code> or
    *     empty or if the stylesheet is <code>null</code>.
    */
-  public void setDefaultStylesheet(String name, PSStylesheet stylesheet) {
+  public final void setDefaultStylesheet(String name, PSStylesheet stylesheet) {
     validate(name);
     if (stylesheet == null) throw new IllegalArgumentException("the stylesheet cannot be null");
 
@@ -174,7 +174,7 @@ public class PSCommandHandlerStylesheets extends PSComponent {
    * @throws IllegalArgumentException if the provided command handler name is <code>null</code> or
    *     empty or if the stylesheet collection is <code>null</code> or empty.
    */
-  public void addStylesheets(String name, PSCollection stylesheets) {
+  public final void addStylesheets(String name, PSCollection stylesheets) {
     validate(name);
     validate(stylesheets);
 
@@ -192,7 +192,7 @@ public class PSCommandHandlerStylesheets extends PSComponent {
    *     empty or if the stylesheet collection is <code>null</code> or if no command handler was
    *     found for the provided name.
    */
-  public void addConditionalStylesheets(String name, PSCollection stylesheets) {
+  public final void addConditionalStylesheets(String name, PSCollection stylesheets) {
     validate(name);
     if (stylesheets == null) throw new IllegalArgumentException("the stylesheets cannot be null");
 
@@ -254,7 +254,7 @@ public class PSCommandHandlerStylesheets extends PSComponent {
    *
    * @param c a valid PSCommandHandlerStylesheets, not <code>null</code>.
    */
-  public void copyFrom(PSCommandHandlerStylesheets c) {
+  public final void copyFrom(PSCommandHandlerStylesheets c) {
     try {
       super.copyFrom(c);
     } catch (IllegalArgumentException e) {
@@ -282,7 +282,7 @@ public class PSCommandHandlerStylesheets extends PSComponent {
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

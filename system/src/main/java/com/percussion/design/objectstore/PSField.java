@@ -282,7 +282,7 @@ public class PSField extends PSComponent {
    *
    * @param type the field type to set, must be one of TYPE_SYSTEM | TYPE_SHARED | TYPE_LOCAL.
    */
-  public void setType(int type) {
+  public final void setType(int type) {
     if (type != TYPE_SYSTEM && type != TYPE_SHARED && type != TYPE_LOCAL)
       throw new IllegalArgumentException("unsupported type " + type);
 
@@ -384,7 +384,7 @@ public class PSField extends PSComponent {
    *
    * @param submitName the new name, not <code>null</code> or empty.
    */
-  public void setSubmitName(String submitName) {
+  public final void setSubmitName(String submitName) {
     if (submitName == null || submitName.trim().length() == 0)
       throw new IllegalArgumentException("the name cannot be null or empty");
 
@@ -1206,7 +1206,7 @@ public class PSField extends PSComponent {
    *
    * @param locator the new locator, may be <code>null</code>.
    */
-  public void setLocator(IPSBackEndMapping locator) {
+  public final void setLocator(IPSBackEndMapping locator) {
     m_locator = locator;
   }
 
@@ -1581,7 +1581,7 @@ public class PSField extends PSComponent {
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

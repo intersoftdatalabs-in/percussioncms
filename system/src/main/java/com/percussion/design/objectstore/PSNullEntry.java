@@ -64,7 +64,7 @@ public class PSNullEntry extends PSEntry {
    * @param includeWhen the new include when attribute.
    * @throws IllegalArgumentException if the include when provided is not known.
    */
-  public void setIncludeWhen(int includeWhen) {
+  public final void setIncludeWhen(int includeWhen) {
     if (includeWhen != INCLUDE_WHEN_ALWAYS && includeWhen != INCLUDE_WHEN_ONLY_IF_NULL)
       throw new IllegalArgumentException("unknown inchlude when attribute");
 
@@ -86,7 +86,7 @@ public class PSNullEntry extends PSEntry {
    * @param sortOrder the new sort order.
    * @throws IllegalArgumentException if thw sort order provided is not known.
    */
-  public void setSortOrder(int sortOrder) {
+  public final void setSortOrder(int sortOrder) {
     if (sortOrder != SORT_ORDER_FIRST
         && sortOrder != SORT_ORDER_LAST
         && sortOrder != SORT_ORDER_SORTED)
@@ -138,7 +138,7 @@ public class PSNullEntry extends PSEntry {
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

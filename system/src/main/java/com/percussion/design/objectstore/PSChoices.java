@@ -130,7 +130,7 @@ public class PSChoices extends PSComponent {
    *
    * @param sortOrder the new sort order (ascending | descending | user).
    */
-  public void setSortOrder(int sortOrder) {
+  public final void setSortOrder(int sortOrder) {
     if (sortOrder != SORT_ORDER_ASCENDING
         && sortOrder != SORT_ORDER_DESCENDING
         && sortOrder != SORT_ORDER_USER) throw new IllegalArgumentException("unkown sort order");
@@ -152,7 +152,7 @@ public class PSChoices extends PSComponent {
    *
    * @param global the new global choice table ID.
    */
-  public void setGlobal(int global) {
+  public final void setGlobal(int global) {
     if (global < 0) throw new IllegalArgumentException("invalid global choice ID");
 
     m_global = global;
@@ -173,7 +173,7 @@ public class PSChoices extends PSComponent {
    *
    * @param local a collection of PSEntry objects, not <code>null</code> might be empty.
    */
-  public void setLocal(PSCollection local) {
+  public final void setLocal(PSCollection local) {
     if (local == null) throw new IllegalArgumentException("the collection cannot be null");
 
     if (!local.getMemberClassName().equals(m_local.getMemberClassName()))
@@ -199,7 +199,7 @@ public class PSChoices extends PSComponent {
    * @param lookup the new lookup request, might be <code>null</code>.
    * @param type the lookup type to create, can only be TYPE_LOOKUP or TYPE_INTERNAL_LOOKUP.
    */
-  public void setLookup(PSUrlRequest lookup, int type) {
+  public final void setLookup(PSUrlRequest lookup, int type) {
     if (lookup == null) throw new IllegalArgumentException("lookup cannot be null");
     if (type != TYPE_LOOKUP && type != TYPE_INTERNAL_LOOKUP)
       throw new IllegalArgumentException("type must be TYPE_LOOKUP or TYPE_INTERNAL_LOOKUP");
@@ -222,7 +222,7 @@ public class PSChoices extends PSComponent {
    *
    * @param tableinfo the new PSChoiceTableInfo object.
    */
-  public void setTableInfo(PSChoiceTableInfo tableinfo) {
+  public final void setTableInfo(PSChoiceTableInfo tableinfo) {
     if (tableinfo == null) throw new IllegalArgumentException("tableinfo cannot be null");
 
     m_tableInfo = tableinfo;
@@ -243,7 +243,7 @@ public class PSChoices extends PSComponent {
    *
    * @param nullEntry the new null entry, might be <code>null</code>.
    */
-  public void setNullEntry(PSNullEntry nullEntry) {
+  public final void setNullEntry(PSNullEntry nullEntry) {
     m_nullEntry = nullEntry;
   }
 
@@ -269,7 +269,7 @@ public class PSChoices extends PSComponent {
    *
    * @param choiceFilter may be <code>null</code>.
    */
-  public void setChoiceFilter(PSChoiceFilter choiceFilter) {
+  public final void setChoiceFilter(PSChoiceFilter choiceFilter) {
     m_choiceFilter = choiceFilter;
   }
 
@@ -280,7 +280,7 @@ public class PSChoices extends PSComponent {
    *     empty.
    * @throws IllegalArgumentException if the provided collection is of wrong objects types.
    */
-  public void setDefaultSelected(PSCollection defaultSelected) {
+  public final void setDefaultSelected(PSCollection defaultSelected) {
     if (defaultSelected != null
         && !defaultSelected.getMemberClassName().equals(m_defaultSelected.getMemberClassName()))
       throw new IllegalArgumentException("PSDefaultSelected collection expected");
@@ -348,7 +348,7 @@ public class PSChoices extends PSComponent {
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

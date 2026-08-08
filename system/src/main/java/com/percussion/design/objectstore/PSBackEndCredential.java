@@ -107,7 +107,7 @@ public class PSBackEndCredential extends PSComponent implements IPSConnectionInf
    *     is non-unique, an exception will be thrown when the application or server containing this
    *     entry is saved.
    */
-  public void setAlias(java.lang.String alias) {
+  public final void setAlias(java.lang.String alias) {
     IllegalArgumentException ex = validateAlias(alias);
 
     if (ex != null) throw ex;
@@ -125,7 +125,7 @@ public class PSBackEndCredential extends PSComponent implements IPSConnectionInf
   /**
    * @param dataSource The dataSource to set.
    */
-  public void setDataSource(String dataSource) {
+  public final void setDataSource(String dataSource) {
     m_dataSource = dataSource;
   }
 
@@ -316,7 +316,7 @@ public class PSBackEndCredential extends PSComponent implements IPSConnectionInf
    * @exception PSUnknownNodeTypeException if the XML element node is not of type
    *     PSXBackEndCredential
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

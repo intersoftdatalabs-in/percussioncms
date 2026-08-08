@@ -52,8 +52,8 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
    */
   public PSBackEndColumn(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
-    // allow subclasses to override (don't use "this")
-    fromXml(sourceNode, parentDoc, parentComponents);
+    // Private path avoids virtual fromXml (e.g. PSSortedColumn) during construction.
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
 
   /**
@@ -106,7 +106,7 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
    *
    * @param table the back-end table containing the column
    */
-  public void setTable(PSBackEndTable table) {
+  public final void setTable(PSBackEndTable table) {
     IllegalArgumentException ex = validateTable(table);
     if (ex != null) throw ex;
 
@@ -133,7 +133,7 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
    *
    * @param name the name of the name of the back-end column
    */
-  public void setColumn(String name) {
+  public final void setColumn(String name) {
     IllegalArgumentException ex = validateColumn(name);
     if (ex != null) throw ex;
 
@@ -441,6 +441,15 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXBackEndColumn
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
+  }
+
+  /**
+   * Shared load for {@link #fromXml} and the Element constructor. Avoids virtual fromXml dispatch
+   * (e.g. {@link PSSortedColumn}) before subclass fields are initialized.
+   */
+  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

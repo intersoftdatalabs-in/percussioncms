@@ -345,8 +345,11 @@ public abstract class PSDbComponent implements IPSDbComponent {
       nodeName = getNodeName();
     }
 
-    // Must restore key first because it has higher priority than state
-    setLocatorInternal(createKey(PSXMLDomUtil.getFirstElementChild(source)));
+    // Must restore key first because it has higher priority than state.
+    // Element super-ctor path uses non-overridable default createKey to avoid
+    // this-escape; public fromXml (after full construction) still uses virtual createKey.
+    Element keyEl = PSXMLDomUtil.getFirstElementChild(source);
+    setLocatorInternal(checkNodeName ? createKey(keyEl) : createKeyDefault(keyEl));
 
     // Threshold
     String strState = PSXMLDomUtil.checkAttribute(source, XML_ATTR_STATE, false);
@@ -408,6 +411,16 @@ public abstract class PSDbComponent implements IPSDbComponent {
    * @return Never <code>null</code>.
    */
   protected PSKey createKey(Element el) throws PSUnknownNodeTypeException {
+    return createKeyDefault(el);
+  }
+
+  /**
+   * Default key restoration used by {@link #createKey(Element)} and by the Element super-ctor path
+   * in {@link #fromXmlBase(Element, boolean)} (non-virtual, this-escape safe). Subclasses may still
+   * override {@link #createKey(Element)}; that override is honored from public {@link
+   * #fromXml(Element)} after construction.
+   */
+  private PSKey createKeyDefault(Element el) throws PSUnknownNodeTypeException {
     if (el == null) throw new IllegalArgumentException("Source element cannot be null.");
 
     String strNodeName = el.getNodeName();

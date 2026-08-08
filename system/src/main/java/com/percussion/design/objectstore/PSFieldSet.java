@@ -272,7 +272,7 @@ public class PSFieldSet extends PSComponent {
    *     valid name.
    * @return the previous value if there was one, <code>null</code> otherwise
    */
-  public Object add(PSField field) {
+  public final Object add(PSField field) {
     if (field == null) throw new IllegalArgumentException("the field cannot be null");
 
     String name = field.getSubmitName();
@@ -289,7 +289,7 @@ public class PSFieldSet extends PSComponent {
    *     contain a valid name.
    * @return the previous value if there was one, <code>null</code> otherwise.
    */
-  public Object add(PSFieldSet fieldSet) {
+  public final Object add(PSFieldSet fieldSet) {
     if (fieldSet == null) throw new IllegalArgumentException("the field set cannot be null");
 
     String name = fieldSet.getName();
@@ -342,7 +342,7 @@ public class PSFieldSet extends PSComponent {
    *
    * @param name the new field set name, not <code>null</code> or empty.
    */
-  public void setName(String name) {
+  public final void setName(String name) {
     if (name == null || name.trim().length() == 0)
       throw new IllegalArgumentException("name cannot be null or empty");
 
@@ -363,7 +363,7 @@ public class PSFieldSet extends PSComponent {
    *
    * @param type the new field set type.
    */
-  public void setType(int type) {
+  public final void setType(int type) {
     if (!isValidType(type)) throw new IllegalArgumentException("unknown type");
 
     m_type = type;
@@ -661,7 +661,7 @@ public class PSFieldSet extends PSComponent {
    *
    * @param c a valid PSFieldSet, not <code>null</code>.
    */
-  public void copyFrom(PSFieldSet c) {
+  public final void copyFrom(PSFieldSet c) {
     try {
       super.copyFrom(c);
     } catch (IllegalArgumentException e) {
@@ -723,7 +723,7 @@ public class PSFieldSet extends PSComponent {
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

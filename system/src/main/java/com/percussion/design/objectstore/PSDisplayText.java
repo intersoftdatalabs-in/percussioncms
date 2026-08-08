@@ -66,7 +66,7 @@ public class PSDisplayText extends PSComponent {
    *
    * @param text the new display text, not <code>null</code>, may be empty.
    */
-  public void setText(String text) {
+  public final void setText(String text) {
     if (text == null) throw new IllegalArgumentException("the text cannot be null");
 
     m_text = text;
@@ -118,7 +118,7 @@ public class PSDisplayText extends PSComponent {
    *  (non-Javadoc)
    * @see com.percussion.design.objectstore.IPSComponent#fromXml(org.w3c.dom.Element, com.percussion.design.objectstore.IPSDocument, java.util.ArrayList)
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

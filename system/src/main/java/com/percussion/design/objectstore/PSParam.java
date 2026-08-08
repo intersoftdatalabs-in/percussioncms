@@ -76,7 +76,7 @@ public class PSParam extends PSComponent implements IPSParameter {
    *
    * @param name the new parameter name, not <code>null</code> or empty.
    */
-  public void setName(String name) {
+  public final void setName(String name) {
     if (name == null || name.trim().length() == 0)
       throw new IllegalArgumentException("name cannot be null or empty");
 
@@ -136,7 +136,7 @@ public class PSParam extends PSComponent implements IPSParameter {
    *
    * @param value the new parameter value, not <code>null</code>.
    */
-  public void setValue(IPSReplacementValue value) {
+  public final void setValue(IPSReplacementValue value) {
     if (value == null) throw new IllegalArgumentException("the value cannot be null");
 
     m_value = value;
@@ -200,7 +200,7 @@ public class PSParam extends PSComponent implements IPSParameter {
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
