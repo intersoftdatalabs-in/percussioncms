@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<!--
+  Fixture for PSMetadataExtractorServiceTests#testUnboundPrefixGcseSearch (#2355):
+  Google Custom Search vendor tag without xmlns:gcse must not fail RDFa metadata
+  extraction; dcterms/RDFa elsewhere on the page must still be extracted.
+-->
+<html
+  lang="en"
+  prefix="dcterms: http://purl.org/dc/terms/ perc: http://percussion.com/perc/elements/1.0/"
+>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+    <title>Unbound Prefix CSE Fixture</title>
+    <meta property="dcterms:title" content="CSE Page Title" />
+    <meta property="dcterms:source" content="gcse-fixture" />
+    <meta property="dcterms:description" content="Page with Google CSE embed" />
+  </head>
+  <body>
+    <h1 property="dcterms:title">CSE Page Title</h1>
+    <!-- Unbound XML-style prefix — no xmlns:gcse declared -->
+    <gcse:search></gcse:search>
+    <div class="search-wrapper">
+      <gcse:searchbox-only></gcse:searchbox-only>
+    </div>
+    <div property="dcterms:abstract">
+      Abstract survives unbound vendor prefix strip.
+    </div>
+  </body>
+</html>

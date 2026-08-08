@@ -17,9 +17,11 @@
 
 package com.percussion.delivery;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.delivery.metadata.IPSMetadataProperty;
 import com.percussion.delivery.metadata.PSMetadataExtractorService;
@@ -28,6 +30,8 @@ import com.percussion.delivery.metadata.rdfa.PSTripleHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
 import org.junit.jupiter.api.Test;
@@ -188,5 +192,74 @@ public class PSMetadataExtractorServiceTests {
             "inline script must be stripped from metadata properties: " + value);
       }
     }
+  }
+
+  /**
+   * Issue #2355: HTML with unbound XML-style prefixes (Google CSE {@code gcse:search} without
+   * {@code xmlns:gcse}) must not throw out of {@link PSMetadataExtractorService}; RDFa/dcterms
+   * present elsewhere on the page must still be extracted.
+   */
+  @Test
+  public void testUnboundPrefixGcseSearch() throws IOException {
+    InputStream is =
+        PSMetadataExtractorServiceTests.class.getResourceAsStream(
+            "/com/percussion/delivery/unbound-prefix-gcse.html");
+    assertNotNull(is, "unbound-prefix-gcse.html fixture must be on the test classpath");
+
+    try (InputStreamReader inputStreamReader =
+        new InputStreamReader(is, StandardCharsets.UTF_8)) {
+      PSMetadataExtractorService svc = new PSMetadataExtractorService();
+      PSMetadataEntry entry =
+          assertDoesNotThrow(
+              () ->
+                  svc.process(
+                      inputStreamReader,
+                      "text/html",
+                      "/Sites/test/error.html",
+                      null),
+              "unbound gcse: prefix must not fail metadata extraction");
+
+      assertNotNull(entry);
+      assertEquals("page", entry.getType());
+      assertEquals("/Sites/test/error.html", entry.getPagepath());
+
+      HashMap<String, String> map = new HashMap<>();
+      for (IPSMetadataProperty prop : entry.getProperties()) {
+        map.put(prop.getName(), prop.getValue());
+      }
+
+      assertEquals("gcse-fixture", map.get("dcterms:source"));
+      assertEquals("CSE Page Title", map.get("dcterms:title"));
+      assertEquals("Page with Google CSE embed", map.get("dcterms:description"));
+
+      String abstractText = map.get("dcterms:abstract");
+      assertNotNull(abstractText, "dcterms:abstract should still be extracted");
+      assertTrue(
+          abstractText.contains("Abstract survives unbound vendor prefix strip"),
+          "abstract content should survive prefix sanitize: " + abstractText);
+    }
+  }
+
+  /**
+   * Minimal inline HTML: unbound {@code gcse:search} alone must not throw; page still gets a
+   * default type of {@code page}.
+   */
+  @Test
+  public void testUnboundPrefixOnlyDoesNotThrow() {
+    String html =
+        "<!DOCTYPE html><html><head><title>x</title></head>"
+            + "<body><gcse:search></gcse:search><p>ok</p></body></html>";
+    PSMetadataExtractorService svc = new PSMetadataExtractorService();
+    PSMetadataEntry entry =
+        assertDoesNotThrow(
+            () ->
+                svc.process(
+                    new StringReader(html),
+                    "text/html",
+                    "/Sites/test/minimal-gcse.html",
+                    null));
+    assertNotNull(entry);
+    assertEquals("page", entry.getType());
+    assertEquals("/Sites/test/minimal-gcse.html", entry.getPagepath());
   }
 }
