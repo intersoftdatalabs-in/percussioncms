@@ -36,6 +36,8 @@ import java.util.Set;
  */
 public class UniqueIdLocatorSet extends HashSet<PSLocator>
     implements Set<PSLocator>, Iterable<PSLocator> {
+  private static final long serialVersionUID = 1L;
+
   /** */
   public UniqueIdLocatorSet() {
     super();

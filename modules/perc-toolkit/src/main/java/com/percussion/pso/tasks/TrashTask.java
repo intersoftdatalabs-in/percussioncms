@@ -910,6 +910,8 @@ public class TrashTask implements IPSTask {
 
   /** */
   public class FatalTaskException extends Exception {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Constructor for FatalTaskException.
      *

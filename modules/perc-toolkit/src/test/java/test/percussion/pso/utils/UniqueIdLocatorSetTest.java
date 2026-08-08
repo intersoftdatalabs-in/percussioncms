@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.pso.utils.UniqueIdLocatorSet;
+import java.io.ObjectStreamClass;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
@@ -98,6 +99,12 @@ public class UniqueIdLocatorSetTest {
     assertTrue(has);
     has = cut.contains(l3);
     assertFalse(has);
+  }
+
+  @Test
+  void testDefinesSerialVersionUid() {
+    long uid = ObjectStreamClass.lookup(UniqueIdLocatorSet.class).getSerialVersionUID();
+    assertEquals(1L, uid);
   }
 
   @Test

@@ -174,6 +174,14 @@ public class PSOSlotContents {
       }
       return super.equals(obj);
     }
+
+    /**
+     * All instances of this comparator are equal, so all share one hash code.
+     */
+    @Override
+    public int hashCode() {
+      return 1;
+    }
   }
 
   /**

@@ -118,12 +118,11 @@ public class PSOProxyQueryResource extends PSDefaultExtension
     }
   }
 
-  @SuppressWarnings({"unused", "unchecked"})
   private String buildUrlQueryString(IPSRequestContext request, List<String> ignore) {
-    Iterator it = request.getParametersIterator();
-    List<String> params = new ArrayList<String>();
+    Iterator<Entry<String, Object>> it = request.getParametersIterator();
+    List<String> params = new ArrayList<>();
     while (it.hasNext()) {
-      Entry<String, Object> element = (Entry<String, Object>) it.next();
+      Entry<String, Object> element = it.next();
       String name = element.getKey();
       if (ignore != null && ignore.contains(name)) continue;
       Object value = element.getValue();

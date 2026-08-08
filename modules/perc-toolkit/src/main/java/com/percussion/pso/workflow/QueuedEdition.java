@@ -31,6 +31,7 @@ package com.percussion.pso.workflow;
  * @author DavidBenua
  * @deprecated use the IPSRxPublisherService classes directly instead.
  */
+@Deprecated
 public class QueuedEdition {
   private boolean isLocal = false;
   private String editionId;

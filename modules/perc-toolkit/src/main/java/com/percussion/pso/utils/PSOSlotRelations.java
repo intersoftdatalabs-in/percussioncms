@@ -183,10 +183,10 @@ public class PSOSlotRelations {
    */
   private static List<PSAaRelationship> fromRelList(PSAaRelationshipList relList)
       throws PSCmsException {
-    List<PSAaRelationship> relations = new ArrayList<PSAaRelationship>();
-    Iterator<PSAaRelationship> itr = relList.iterator();
+    List<PSAaRelationship> relations = new ArrayList<>();
+    Iterator<?> itr = relList.iterator();
     while (itr.hasNext()) {
-      relations.add(itr.next());
+      relations.add((PSAaRelationship) itr.next());
     }
     return relations;
   }

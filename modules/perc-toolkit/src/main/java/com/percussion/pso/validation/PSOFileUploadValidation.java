@@ -150,7 +150,7 @@ public class PSOFileUploadValidation implements IPSFieldValidator {
       }
     }
 
-    return new Boolean(doValidation(request));
+    return Boolean.valueOf(doValidation(request));
   }
 
   /**

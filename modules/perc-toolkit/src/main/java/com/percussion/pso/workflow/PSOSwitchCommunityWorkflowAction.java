@@ -352,9 +352,9 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction {
       PSFolder folder = m_cws.loadFolders(folders).get(0);
 
       // Convert the folder properties into a map and return the result
-      Iterator<PSFolderProperty> it = folder.getProperties();
+      Iterator<?> it = folder.getProperties();
       while (it.hasNext()) {
-        PSFolderProperty prop = it.next();
+        PSFolderProperty prop = (PSFolderProperty) it.next();
         props.put(prop.getName(), prop.getValue());
       }
     } catch (PSErrorResultsException | PSCmsException | PSNotFoundException e) {

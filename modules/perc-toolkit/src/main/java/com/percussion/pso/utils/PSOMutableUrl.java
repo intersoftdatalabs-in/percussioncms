@@ -93,11 +93,11 @@ public class PSOMutableUrl {
     sb.append(m_base);
 
     char sep = QUERY_SEP;
-    Iterator iter = this.m_param.entrySet().iterator();
+    Iterator<Map.Entry<String, Object>> iter = this.m_param.entrySet().iterator();
     while (iter.hasNext()) {
-      Map.Entry entry = (Map.Entry) iter.next();
+      Map.Entry<String, Object> entry = iter.next();
       sb.append(sep);
-      sb.append(entry.getKey().toString());
+      sb.append(entry.getKey());
       sb.append('=');
       sb.append(entry.getValue().toString());
       sep = PARAM_SEP;

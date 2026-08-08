@@ -249,7 +249,7 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
       if (box.height > 0) {
         scale = size.getWidth() / box.getWidth();
         log.debug("scale is {}", scale);
-        height = new Long(Math.round(box.getHeight() * scale)).intValue();
+        height = (int) Math.round(box.getHeight() * scale);
       } else {
         height = 0;
       }
@@ -257,7 +257,7 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
       height = size.height;
       if (box.height > 0) {
         scale = size.getHeight() / box.getHeight();
-        width = new Long(Math.round(box.getWidth() * scale)).intValue();
+        width = (int) Math.round(box.getWidth() * scale);
       } else {
         width = 0;
       }

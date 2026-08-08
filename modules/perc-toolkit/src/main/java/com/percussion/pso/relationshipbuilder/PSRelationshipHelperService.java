@@ -400,8 +400,8 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
             + trueOwnerIdsFalseDependentIds);
 
     // remove any relationships from the set that are not being removed
-    for (Iterator iter = relationships.iterator(); iter.hasNext(); ) {
-      PSRelationship relationship = (PSRelationship) iter.next();
+    for (Iterator<PSRelationship> iter = relationships.iterator(); iter.hasNext(); ) {
+      PSRelationship relationship = iter.next();
       Integer ownerId;
       if (trueOwnerIdsFalseDependentIds)
         ownerId = Integer.valueOf((relationship.getOwner().getId()));

@@ -341,7 +341,7 @@ public class ItemRestServiceImpl implements IItemRestService {
           log.debug("Folder communityname is {}", aclComm);
           List<AclItem> aclitems = new ArrayList<AclItem>();
 
-          Iterator entries = acls[0].iterator();
+          Iterator<?> entries = acls[0].iterator();
           PSObjectAclEntry entry;
           while (entries.hasNext()) {
             log.debug("Found AclEntry");
@@ -939,12 +939,12 @@ public class ItemRestServiceImpl implements IItemRestService {
           rows.add(cr);
           List<Field> fields = new ArrayList<Field>();
           cr.setFields(fields);
-          Iterator<PSField> iterator = child.getEveryField();
+          Iterator<?> fieldIter = child.getEveryField();
 
-          while (iterator.hasNext()) {
+          while (fieldIter.hasNext()) {
 
             try {
-              PSField psfield = iterator.next();
+              PSField psfield = (PSField) fieldIter.next();
               String type = psfield.getDataType();
               String fieldname = psfield.getSubmitName();
               log.debug("adding child field " + fieldname);
@@ -1456,7 +1456,7 @@ public class ItemRestServiceImpl implements IItemRestService {
     StringWriter sw = new StringWriter();
     try {
 
-      JAXBContext jc = JAXBContext.newInstance(new Class[] {Item.class});
+      JAXBContext jc = JAXBContext.newInstance(Item.class);
       Marshaller m = jc.createMarshaller();
       m.setProperty("jaxb.fragment", Boolean.TRUE);
       m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
@@ -1478,7 +1478,7 @@ public class ItemRestServiceImpl implements IItemRestService {
    * @throws JAXBException
    */
   public Item getItemFromStream(InputStream is) throws JAXBException {
-    JAXBContext jc = JAXBContext.newInstance(new Class[] {Item.class});
+    JAXBContext jc = JAXBContext.newInstance(Item.class);
     Unmarshaller um = jc.createUnmarshaller();
     return (Item) um.unmarshal(is);
   }
@@ -1493,7 +1493,7 @@ public class ItemRestServiceImpl implements IItemRestService {
     DocumentResult dr = new DocumentResult();
     try {
 
-      JAXBContext jc = JAXBContext.newInstance(new Class[] {Item.class});
+      JAXBContext jc = JAXBContext.newInstance(Item.class);
       Marshaller m = jc.createMarshaller();
       m.setProperty("jaxb.fragment", Boolean.TRUE);
       m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);

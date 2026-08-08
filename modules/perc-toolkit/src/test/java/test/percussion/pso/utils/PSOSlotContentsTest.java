@@ -125,4 +125,24 @@ public class PSOSlotContentsTest {
       log.error("Unexpected Exception " + ex, ex);
     }
   }
+
+  /**
+   * SlotItemComparator treats all instances as equal; hashCode must be consistent with equals.
+   */
+  @Test
+  public void testSlotItemComparatorEqualsHashCodeContract() {
+    TestableSlotContents contents = new TestableSlotContents();
+    Object c1 = contents.newComparator();
+    Object c2 = contents.newComparator();
+    assertEquals(c1, c2);
+    assertEquals(c1.hashCode(), c2.hashCode());
+    assertNotEquals(c1, new Object());
+  }
+
+  /** Exposes protected SlotItemComparator for contract checks. */
+  private static final class TestableSlotContents extends PSOSlotContents {
+    Object newComparator() {
+      return new SlotItemComparator();
+    }
+  }
 }
