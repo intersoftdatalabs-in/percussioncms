@@ -44,7 +44,7 @@ These beans have high constructor fan-in and sit on or next to the known cycle p
 |------|------|----------------------------------------|-------|
 | 1 | `PSPageService` | out ~11 / in ~28 | Injects `contentItemDao`, `folderHelper`, `recycleService`, `widgetAsset`, `itemWorkflow`. Class `@Lazy`. |
 | 2 | `PSItemWorkflowService` | out ~7 / in ~23 | Injects `assetDao`, `folderHelper`, `recycleService`, `widgetAsset`. Class `@Lazy`. |
-| 3 | `PSTemplateService` | out ~6 / in ~20 | **Not** class `@Lazy`. Injects `widgetAsset`, page/template DAOs. |
+| 3 | `PSTemplateService` | out ~6 / in ~20 | Class `@Lazy` (2026-08-08, #2477). Injects `widgetAsset`, page/template DAOs. Belt-and-braces reverse-edge ban covered by `PSTemplateServiceCycleWiringTest`. |
 | 4 | `PSWidgetAssetRelationshipService` | out ~4 / in ~18 | **Not** class `@Lazy`. On known cycle path. |
 | 5 | `PSAssetService` | out ~8 / in ~14 | Ctor takes `IPSPageService` with param `@Lazy` (#2476) (and folder/asset/widget/item). Class `@Lazy`. |
 | 6 | `PSSiteDataService` | out ~15 / in ~12 | Wide hub; class `@Lazy`; field injects page/path. |
@@ -104,7 +104,7 @@ Many path/item services inject `IPSFolderHelper` without parameter `@Lazy` (e.g.
 2. ~~Optional: add `@Lazy` on `PSAssetService`'s `IPSPageService` ctor param~~ — **done (#2476)**.
 3. Keep Docker `qa-up` / Rhythmyx health smoke (#2437) as the production-level gate.
 4. When adding new `@Autowired` constructors on cycle peers, re-run this inventory method (or extend the reflection tests).
-5. Hub hardening still open as separate residuals: templateService (#2477), itemWorkflow reverse-edge tests (#2478).
+5. Hub hardening: `PSTemplateService` class `@Lazy` + reverse-edge tests landed (#2477, 2026-08-08). Residual: `itemWorkflow` reverse-edge tests (#2478).
 
 ## Related
 
