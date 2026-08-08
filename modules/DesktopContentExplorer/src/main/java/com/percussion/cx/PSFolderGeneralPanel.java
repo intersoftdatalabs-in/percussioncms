@@ -165,7 +165,7 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
         PSContentExploreAppletUtils.getResourceMnemonic(getClass(), "@Description:", 'D'));
     m_textFolderDescription.setEnabled(m_editable);
 
-    m_comboFolderLocale = new JComboBox();
+    m_comboFolderLocale = new JComboBox<>();
     m_comboFolderLocale.setPreferredSize(new Dimension(150, 20));
     m_comboFolderLocale.setMaximumSize(new Dimension(150, 20));
     m_comboFolderLocale.setEditable(false);
@@ -187,7 +187,7 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
     }
     m_comboFolderLocale.setEnabled(m_isNewFolder && m_editable);
 
-    m_comboDisplayFormat = new JComboBox();
+    m_comboDisplayFormat = new JComboBox<>();
     m_comboDisplayFormat.setPreferredSize(new Dimension(150, 20));
     m_comboDisplayFormat.setMaximumSize(new Dimension(150, 20));
     m_comboDisplayFormat.setEditable(false);
@@ -207,11 +207,15 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
 
     // sort disp formats
     List<PSDisplayFormat> dispFormats = new ArrayList<>();
-    while (formatIter.hasNext()) dispFormats.add(formatIter.next());
+    while (formatIter.hasNext()) {
+      dispFormats.add(formatIter.next());
+    }
 
-    Collections.sort(dispFormats, Comparator.comparing(Object::toString));
+    Collections.sort(dispFormats, DISPLAY_FORMAT_BY_NAME);
 
-    for (PSDisplayFormat format : dispFormats) m_comboDisplayFormat.addItem(format);
+    for (PSDisplayFormat format : dispFormats) {
+      m_comboDisplayFormat.addItem(format);
+    }
     if (m_isNewFolder) m_comboDisplayFormat.setSelectedIndex(0);
     else {
       PSDisplayFormat format =
@@ -227,7 +231,7 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
     focusBorder.addToAllNavigable(this);
 
     // global template selector
-    m_comboGlobalTemplate = new JComboBox();
+    m_comboGlobalTemplate = new JComboBox<>();
     m_comboGlobalTemplate.setPreferredSize(new Dimension(150, 20));
     m_comboGlobalTemplate.setMaximumSize(new Dimension(150, 20));
     m_comboGlobalTemplate.setEditable(false);
@@ -253,7 +257,9 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
       Iterator<String> globalTemplates =
           m_folderMgr.getGlobalTemplateCataloger().getGlobalTemplates().iterator();
       m_comboGlobalTemplate.addItem(m_applet.getResourceString(getClass(), "Use default"));
-      while (globalTemplates.hasNext()) m_comboGlobalTemplate.addItem(globalTemplates.next());
+      while (globalTemplates.hasNext()) {
+        m_comboGlobalTemplate.addItem(globalTemplates.next());
+      }
 
       String globalTemplate = m_folder.getGlobalTemplateProperty();
       if (globalTemplate == null || globalTemplate.trim().length() == 0)
@@ -284,7 +290,7 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
    * @throws PSCmsException if error occurs.
    */
   private void initCommunityComboBox(int currCommunityId, int folderCommId) throws PSCmsException {
-    m_comboFolderCommunity = new JComboBox();
+    m_comboFolderCommunity = new JComboBox<>();
     m_comboFolderCommunity.setPreferredSize(new Dimension(150, 20));
     m_comboFolderCommunity.setMaximumSize(new Dimension(150, 20));
     m_comboFolderCommunity.setEditable(false);
@@ -361,10 +367,10 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
 
     if (m_isNewFolder) {
       // Validate that it is not a duplicate name
-      Iterator children = m_parentFolderNode.getChildren();
+      Iterator<PSNode> children = m_parentFolderNode.getChildren();
       if (children != null) {
         while (children.hasNext()) {
-          PSNode child = (PSNode) children.next();
+          PSNode child = children.next();
           // If we are editing a folder, we should ignore that folder node
           // for comparison.
           if (child.isOfType(PSNode.TYPE_FOLDER) && child != m_folderNode) {
@@ -405,7 +411,7 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
     // set folder name
     m_folder.setName(m_textFolderName.getText().trim());
 
-    // set folder community id
+    // set folder community id (getSelectedItem is typed Object on JComboBox)
     PSCommunityCataloger.Community selectedComm =
         (PSCommunityCataloger.Community) m_comboFolderCommunity.getSelectedItem();
 
@@ -516,7 +522,7 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
    * <code>
    * initDialog()</code> and never <code>null</code> after that.
    */
-  private JComboBox m_comboFolderCommunity = null;
+  private JComboBox<PSCommunityCataloger.Community> m_comboFolderCommunity = null;
 
   /**
    * The text field to enter the folder description, initialized in <code>
@@ -528,13 +534,13 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
    * Dropdown list box that allows user to choose a locale for the new folder, initialized in <code>
    *  initDialog()</code> and never <code>null</code> after that.
    */
-  private JComboBox m_comboFolderLocale = null;
+  private JComboBox<PSEntry> m_comboFolderLocale = null;
 
   /**
    * The combo-box to show all display formats available for folders, initialized in <code>
    * initDialog()</code> and never <code>null</code> or modified after that.
    */
-  private JComboBox m_comboDisplayFormat = null;
+  private JComboBox<PSDisplayFormat> m_comboDisplayFormat = null;
 
   /**
    * The checkbox representing a folder publish flag, initialized in <code> initDialog()</code> and
@@ -546,7 +552,15 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
    * The combo-box to show all global templates available, initialized in <code>initDialog()</code>
    * and never <code>null</code> or modified after that.
    */
-  private JComboBox m_comboGlobalTemplate = null;
+  private JComboBox<String> m_comboGlobalTemplate = null;
+
+  /**
+   * Sort display formats by {@link Object#toString()} for the combo; null elements last
+   * (package-visible for tests).
+   */
+  static final Comparator<PSDisplayFormat> DISPLAY_FORMAT_BY_NAME =
+      Comparator.nullsLast(
+          Comparator.comparing(Object::toString, Comparator.nullsLast(String::compareTo)));
 
   /** default serial# to avoid warning */
   private static final long serialVersionUID = 1L;
