@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * The PSFileSystemDatabaseMetaData class provides access to database meta data for the File System
@@ -1495,12 +1496,12 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
 
     int size = (fileList == null) ? 0 : fileList.length;
 
-    ArrayList alFileList = new ArrayList(size),
-        tableNames = new ArrayList(size),
-        tableSchemas = new ArrayList(size),
-        tableTypes = new ArrayList(size),
-        tableCatalogs = new ArrayList(size),
-        tableRemarks = new ArrayList(size);
+    ArrayList<File> alFileList = new ArrayList<>(size);
+    ArrayList<String> tableNames = new ArrayList<>(size);
+    ArrayList<String> tableSchemas = new ArrayList<>(size);
+    ArrayList<String> tableTypes = new ArrayList<>(size);
+    ArrayList<String> tableCatalogs = new ArrayList<>(size);
+    ArrayList<String> tableRemarks = new ArrayList<>(size);
 
     boolean includeDirectories = false;
     boolean includeFiles = false;
@@ -1517,15 +1518,7 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
     }
 
     // compare file objects by their names
-    Comparator c =
-        new Comparator() {
-          public int compare(Object left, Object right) {
-            File fLeft = (File) left;
-            File fRight = (File) right;
-
-            return fLeft.getName().compareTo(fRight.getName());
-          }
-        };
+    Comparator<File> c = Comparator.comparing(File::getName);
 
     // put an array of File objects into an ArrayList for further sorting
     for (int i = 0; i < size; i++) {
@@ -1535,10 +1528,10 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
     // sort by table name
     Collections.sort(alFileList, c);
 
-    Iterator it = alFileList.iterator();
+    Iterator<File> it = alFileList.iterator();
 
     while (it.hasNext()) {
-      File f = (File) it.next();
+      File f = it.next();
 
       if (f.isDirectory()) {
         if (!includeDirectories) // not interested in directories
@@ -1559,7 +1552,7 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
     }
 
     // build the column name -> number mapping
-    HashMap columnNames = new HashMap();
+    HashMap<String, Integer> columnNames = new HashMap<>();
     columnNames.put("TABLE_CAT", Integer.valueOf(1));
     columnNames.put("TABLE_SCHEM", Integer.valueOf(2));
     columnNames.put("TABLE_NAME", Integer.valueOf(3));
@@ -1568,7 +1561,7 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
 
     // put it all in the result set and return it
     return new PSResultSet(
-        new ArrayList[] {
+        new List<?>[] {
           tableCatalogs, tableSchemas,
           tableNames, tableTypes,
           tableRemarks
@@ -1635,25 +1628,18 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
     File[] dirs =
         catDir.listFiles((java.io.FileFilter) (new PSFileFilter(PSFileFilter.IS_DIRECTORY)));
 
-    ArrayList v = new ArrayList(dirs.length);
+    ArrayList<String> v = new ArrayList<>(dirs.length);
 
     for (int i = 0; i < dirs.length; i++) {
       if (atRoot) v.add(dirs[i].getName()); // avoid "./" in path name
       else v.add(dirs[i].getPath());
     }
 
-    Collections.sort(
-        v,
-        new java.util.Comparator() {
-          public int compare(Object left, Object right) {
-            String leftStr = (String) left, rightStr = (String) right;
-            return leftStr.compareTo(rightStr);
-          }
-        });
+    Collections.sort(v);
 
-    java.util.HashMap columnNames = new java.util.HashMap();
+    java.util.HashMap<String, Integer> columnNames = new java.util.HashMap<>();
     columnNames.put("TABLE_CAT", Integer.valueOf(1));
-    return new PSResultSet(new ArrayList[] {v}, columnNames, ms_getCatalogsRSMeta);
+    return new PSResultSet(new List<?>[] {v}, columnNames, ms_getCatalogsRSMeta);
   }
 
   /**
@@ -1670,12 +1656,12 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
    * @throws SQLException if an error occurs
    */
   public java.sql.ResultSet getTableTypes() throws SQLException {
-    ArrayList v = new ArrayList();
+    ArrayList<String> v = new ArrayList<>();
     v.add("DIRECTORY");
     v.add("FILE");
-    java.util.HashMap columnNames = new java.util.HashMap();
+    java.util.HashMap<String, Integer> columnNames = new java.util.HashMap<>();
     columnNames.put("TABLE_TYPE", Integer.valueOf(1));
-    return new PSResultSet(new ArrayList[] {v}, columnNames, ms_getTableTypesRSMeta);
+    return new PSResultSet(new List<?>[] {v}, columnNames, ms_getTableTypesRSMeta);
   }
 
   /**
@@ -1765,68 +1751,68 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
     PSPatternMatcher columnNameFilt = PSPatternMatcher.SQLPatternMatcher(columnNamePattern);
 
     // table catalog
-    ArrayList table_cat = new ArrayList();
+    ArrayList<String> table_cat = new ArrayList<>();
 
     // String => table schema (may be null)
-    ArrayList table_schem = new ArrayList();
+    ArrayList<String> table_schem = new ArrayList<>();
 
     // String => table name
-    ArrayList table_name = new ArrayList();
+    ArrayList<String> table_name = new ArrayList<>();
 
     // String => column name
-    ArrayList column_name = new ArrayList();
+    ArrayList<String> column_name = new ArrayList<>();
 
     // short => SQL type from java.sql.Types
-    ArrayList data_type = new ArrayList();
+    ArrayList<Integer> data_type = new ArrayList<>();
 
     // String => Data source dependent type name
-    ArrayList type_name = new ArrayList();
+    ArrayList<String> type_name = new ArrayList<>();
 
     /* int => column size. For char or date types this is the maximum
      * number of characters, for numeric or decimal types this is
      * precision.
      */
-    ArrayList column_size = new ArrayList();
+    ArrayList<Integer> column_size = new ArrayList<>();
 
     // is not used
-    ArrayList buffer_length = new ArrayList();
+    ArrayList<Integer> buffer_length = new ArrayList<>();
 
     // int => the number of fractional digits
-    ArrayList decimal_digits = new ArrayList();
+    ArrayList<Integer> decimal_digits = new ArrayList<>();
 
     // int => Radix (typically either 10 or 2)
-    ArrayList num_prec_radix = new ArrayList();
+    ArrayList<Integer> num_prec_radix = new ArrayList<>();
 
     /* int => is NULL allowed?
      * columnNoNulls - might not allow NULL values
      * columnNullable - definitely allows NULL values
      * columnNullableUnknown - nullability unknown
      */
-    ArrayList nullable = new ArrayList();
+    ArrayList<Integer> nullable = new ArrayList<>();
 
     // String => comment describing column (may be null)
-    ArrayList remarks = new ArrayList();
+    ArrayList<String> remarks = new ArrayList<>();
 
     // String => default value (may be null)
-    ArrayList column_def = new ArrayList();
+    ArrayList<String> column_def = new ArrayList<>();
 
     // int => unused
-    ArrayList sql_data_type = new ArrayList();
+    ArrayList<Integer> sql_data_type = new ArrayList<>();
 
     // int => unused
-    ArrayList sql_datetime_sub = new ArrayList();
+    ArrayList<Integer> sql_datetime_sub = new ArrayList<>();
 
     // int => for char types the maximum number of bytes in the column
-    ArrayList char_octet_length = new ArrayList();
+    ArrayList<Integer> char_octet_length = new ArrayList<>();
 
     // int => index of column in table (starting at 1)
-    ArrayList ordinal_position = new ArrayList();
+    ArrayList<Integer> ordinal_position = new ArrayList<>();
 
     /* String => "NO" means column definitely doesn't allow NULL values;
      * "YES" means the column might allow NULL values. An empty string
      * means nobody knows.
      */
-    ArrayList is_nullable = new ArrayList();
+    ArrayList<String> is_nullable = new ArrayList<>();
 
     Integer zero = Integer.valueOf(0);
 
@@ -1955,7 +1941,7 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
       is_nullable.add("");
     }
 
-    java.util.HashMap columnNames = new java.util.HashMap();
+    java.util.HashMap<String, Integer> columnNames = new java.util.HashMap<>();
     columnNames.put("TABLE_CAT", Integer.valueOf(1));
     columnNames.put("TABLE_SCHEM", Integer.valueOf(2));
     columnNames.put("TABLE_NAME", Integer.valueOf(3));
@@ -1976,7 +1962,7 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
     columnNames.put("IS_NULLABLE", Integer.valueOf(18));
 
     return new PSResultSet(
-        new ArrayList[] {
+        new List<?>[] {
           table_cat,
           table_schem,
           table_name,
@@ -2174,12 +2160,12 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
   public java.sql.ResultSet getPrimaryKeys(
       java.lang.String catalog, java.lang.String schema, java.lang.String table)
       throws SQLException {
-    ArrayList table_cat = new ArrayList();
-    ArrayList table_schem = new ArrayList();
-    ArrayList table_name = new ArrayList();
-    ArrayList column_name = new ArrayList();
-    ArrayList key_seq = new ArrayList();
-    ArrayList pk_name = new ArrayList();
+    ArrayList<String> table_cat = new ArrayList<>();
+    ArrayList<String> table_schem = new ArrayList<>();
+    ArrayList<String> table_name = new ArrayList<>();
+    ArrayList<String> column_name = new ArrayList<>();
+    ArrayList<Integer> key_seq = new ArrayList<>();
+    ArrayList<String> pk_name = new ArrayList<>();
 
     table_cat.add(catalog);
     table_schem.add(schema);
@@ -2188,7 +2174,7 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
     key_seq.add(Integer.valueOf(1));
     pk_name.add(null);
 
-    java.util.HashMap columnNames = new java.util.HashMap();
+    java.util.HashMap<String, Integer> columnNames = new java.util.HashMap<>();
 
     columnNames.put("TABLE_CAT", Integer.valueOf(1));
     columnNames.put("TABLE_SCHEM", Integer.valueOf(2));
@@ -2198,7 +2184,7 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
     columnNames.put("PK_NAME", Integer.valueOf(6));
 
     return new PSResultSet(
-        new ArrayList[] {table_cat, table_schem, table_name, column_name, key_seq, pk_name},
+        new List<?>[] {table_cat, table_schem, table_name, column_name, key_seq, pk_name},
         columnNames,
         ms_getPrimaryKeysRSMeta);
   }
