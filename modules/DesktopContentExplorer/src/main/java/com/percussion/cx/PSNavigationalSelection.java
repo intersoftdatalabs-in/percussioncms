@@ -31,7 +31,8 @@ public class PSNavigationalSelection extends PSSelection {
    *     null</code> or empty.
    * @param path the selection path, may not be <code>null</code> or empty.
    */
-  public PSNavigationalSelection(PSUiMode uiMode, PSNode parent, Iterator nodeList, String path) {
+  public PSNavigationalSelection(
+      PSUiMode uiMode, PSNode parent, Iterator<? extends PSNode> nodeList, String path) {
     super(uiMode, parent, nodeList);
 
     if (path == null || path.trim().length() == 0)

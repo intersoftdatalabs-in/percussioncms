@@ -69,7 +69,7 @@ public class PSColumnWidthsOption implements IPSClientObjects {
 
         String tmp = PSXMLDomUtil.getElementData(el);
         if (tmp != null && tmp.trim().length() > 0) {
-          List tmpList = PSStringOperation.getSplittedList(tmp, ',');
+          List<String> tmpList = PSStringOperation.getSplittedList(tmp, ',');
 
           addItemColumnWidths(itemPath, tmpList);
         }
@@ -92,10 +92,10 @@ public class PSColumnWidthsOption implements IPSClientObjects {
     // create temp element
     Element el = null;
 
-    Iterator iter = m_map.keySet().iterator();
+    Iterator<String> iter = m_map.keySet().iterator();
     while (iter.hasNext()) {
-      String itemPath = (String) iter.next();
-      List widths = (List) m_map.get(itemPath);
+      String itemPath = iter.next();
+      List<String> widths = m_map.get(itemPath);
       if (widths != null) {
         String strWidths = PSStringOperation.append(widths, ",");
 
@@ -149,11 +149,11 @@ public class PSColumnWidthsOption implements IPSClientObjects {
    * @return a list representing the saved column widths for the given item path, if the item path
    *     is not found returns null.
    */
-  public List getItemColumnWidths(String itemPath) {
+  public List<String> getItemColumnWidths(String itemPath) {
     if (itemPath == null || itemPath.trim().length() == 0)
       throw new IllegalArgumentException("itemPath must not be null or empty");
 
-    return (List) m_map.get(itemPath);
+    return m_map.get(itemPath);
   }
 
   /**
@@ -164,7 +164,7 @@ public class PSColumnWidthsOption implements IPSClientObjects {
    * @param widths a list representing the width of each column for the specified item path, may be
    *     <code>null</code> or empty.
    */
-  public void addItemColumnWidths(String itemPath, List widths) {
+  public void addItemColumnWidths(String itemPath, List<String> widths) {
     if (itemPath == null || itemPath.trim().length() == 0)
       throw new IllegalArgumentException("itemPath must not be null or empty");
 
@@ -197,7 +197,7 @@ public class PSColumnWidthsOption implements IPSClientObjects {
    * The map representing the items column widths, set to an empty map here, may be changed. The key
    * is the item path, the value is the column width list for the specific item.
    */
-  private Map m_map = new HashMap();
+  private Map<String, List<String>> m_map = new HashMap<>();
 
   /** Name of the Root element of the XML document representing a item column width list option. */
   private static final String ELEM_COLUMN_WIDTHS_OPTION = "PSXColumnWidthsOption";

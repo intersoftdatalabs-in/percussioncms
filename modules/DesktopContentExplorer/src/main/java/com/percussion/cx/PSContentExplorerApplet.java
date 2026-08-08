@@ -20,6 +20,7 @@ package com.percussion.cx;
 import com.percussion.border.PSFocusBorder;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSDisplayFormat;
+import com.percussion.cms.objectstore.client.PSContentEditorFieldCataloger;
 import com.percussion.cms.objectstore.PSRelationshipInfo;
 import com.percussion.cms.objectstore.PSRelationshipInfoSet;
 import com.percussion.cms.objectstore.PSUserInfo;
@@ -96,6 +97,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /** The main class for 'Content Explorer Applet'. */
+@SuppressWarnings("removal") // still extends javax.swing.JApplet for legacy desktop embed
 public class PSContentExplorerApplet extends JApplet implements IPSActionListener {
 
   private static final String RESOURCE_NAME = "com.percussion.cx.PSContentExplorerResources";
@@ -113,7 +115,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
   static Logger log = LogManager.getLogger(PSContentExplorerApplet.class);
 
   /** The HTTP connection used to communicate with the Rhythmyx server. */
-  private PSHttpConnection m_httpConnection;
+  private transient PSHttpConnection m_httpConnection;
 
   /** Set to <code>true</code> once the applet has completed initialization. */
   private boolean m_initialized = false;
@@ -128,19 +130,19 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
   private boolean isApplication = false;
 
   /** Session manager used to monitor the user session. */
-  private PSCESessionManager check = null;
+  private transient PSCESessionManager check = null;
 
   /** The header panel rendered at the top of the CX view, may be <code>null</code>. */
-  private PSContentExplorerHeader dceHeader = null;
+  private transient PSContentExplorerHeader dceHeader = null;
 
   /** The JavaFX web engine associated with the applet, may be <code>null</code>. */
-  private WebEngine webEngine = null;
+  private transient WebEngine webEngine = null;
 
   /** <code>true</code> if this applet was created from a hosting frame rather than as an applet. */
   private boolean m_createdFromFrame = false;
 
   /** The Server Admin resources */
-  private ResourceBundle m_res = null;
+  private transient ResourceBundle m_res = null;
 
   /**
    * Gets the resource bundle used by the applet for localized strings, lazily loading it from the
@@ -333,7 +335,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
       // default to cache the searchable fields per JVM
       m_searchableFields = ms_searchableFieldsPerJVM;
       if (cacheSearchFields != null && cacheSearchFields.equalsIgnoreCase("CachePerApplet"))
-        m_searchableFields = new HashMap();
+        m_searchableFields = new HashMap<>();
       else if (cacheSearchFields != null && cacheSearchFields.equalsIgnoreCase("None"))
         m_searchableFields = null;
 
@@ -709,7 +711,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    * @return the column widths for the specified node, <code>null</code> if the node is not found or
    *     the column width options have not been initialized properly
    */
-  public List getColumnWidthsFromOptions(PSNode node) {
+  public List<String> getColumnWidthsFromOptions(PSNode node) {
     if (m_cwo == null) return null;
 
     String nodePath = ((PSMainView) m_mainView).getNavTree().convertNodeToPath(node);
@@ -726,7 +728,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    * @param widths the column widths of the specified node. If <code>null</code> or empty, we remove
    *     this entry from the column widths object map.
    */
-  public void saveColumnWidthsToOptions(PSNode node, List widths) {
+  public void saveColumnWidthsToOptions(PSNode node, List<String> widths) {
     if (m_cwo == null) m_cwo = new PSColumnWidthsOption();
 
     if (node != null) {
@@ -1029,7 +1031,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
       PSRelationshipInfoSet relationships =
           m_actManager.getRelationshipsManager().getRelationships();
       getRelMap().clear();
-      Iterator iter = relationships.getComponents();
+      Iterator<?> iter = relationships.getComponents();
       while (iter.hasNext()) {
         PSRelationshipInfo info = (PSRelationshipInfo) iter.next();
         getRelMap().put(info.getName(), info);
@@ -1163,7 +1165,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
 
     // execute the search
     PSNode tmpNode = new PSNode("temp", "temp", PSNode.TYPE_PARENT, null, null, false, -1);
-    Iterator results = search.executeSearch(tmpNode).iterator();
+    Iterator<?> results = search.executeSearch(tmpNode).iterator();
     PSNode resNode = (PSNode) results.next();
     return resNode.getProperties();
   }
@@ -1736,7 +1738,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    *     None</code>.
    * @see PSContentExplorerConstants#PARAM_CACHE_SEARCHABLE_FIELDS
    */
-  public Map getSearachableFieldsCache() {
+  public Map<String, PSContentEditorFieldCataloger> getSearachableFieldsCache() {
     return m_searchableFields;
   }
 
@@ -1879,7 +1881,8 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
   public Icon getIcon(String strUrl) throws MalformedURLException {
     URL url = new URL(getRhythmyxCodeBase(), strUrl);
 
-    ImageIcon icon = (ImageIcon) m_imgCache.get(url.toString());
+    Icon cached = m_imgCache.get(url.toString());
+    ImageIcon icon = cached instanceof ImageIcon ? (ImageIcon) cached : null;
     if (icon == null) {
       Image image = Toolkit.getDefaultToolkit().createImage(url);
       icon = new ImageIcon(image);
@@ -1889,7 +1892,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
     return icon;
   }
 
-  private static HashMap m_imgCache = new HashMap();
+  private static final HashMap<String, Icon> m_imgCache = new HashMap<>();
 
   /**
    * Determine if an external search engine is available on the server.
@@ -1974,8 +1977,8 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    *
    * @return Never <code>null</code>.
    */
-  public Set getFlaggedFolderSet() {
-    return new HashSet(ms_flaggedFolders);
+  public Set<String> getFlaggedFolderSet() {
+    return new HashSet<>(ms_flaggedFolders);
   }
 
   /**
@@ -2011,7 +2014,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    */
   public void loadFlaggedFoldersSet()
       throws IOException, SAXException, ParserConfigurationException {
-    Set flags = new HashSet();
+    Set<String> flags = new HashSet<>();
     final Document doc = getXMLDocument(PSContentExplorerConstants.APP_RESOURCE_FLAGGED_FOLDERS);
     final NodeList nl = doc.getElementsByTagName(PSContentExplorerConstants.ELEM_PUBLISH_FLAG);
     Element flag = null;
@@ -2024,7 +2027,8 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
         flags.add(flag.getAttribute(PSContentExplorerConstants.ATTR_FOLDERID));
       }
     }
-    ms_flaggedFolders = flags;
+    ms_flaggedFolders.clear();
+    ms_flaggedFolders.addAll(flags);
   }
 
   /**
@@ -2108,7 +2112,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
      * Reference to the parent frame for which the cursor style was set, initialized in the
      * constructor, never <code>null</code> after that.
      */
-    private Frame m_frame = null;
+    private transient Frame m_frame = null;
 
     /**
      * Cursor which is set for the Parent frame for every designated interval of time. Initialized
@@ -2254,32 +2258,32 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    * Reference to the self correcting cursor object that is constructed during initialization of the
    * applet, never <code>null</code> after that.
    */
-  private CxCursor m_cursor = null;
+  private transient CxCursor m_cursor = null;
 
   /**
    * The singleton instance of the help to hold on for not garbage collecting, initialized when the
    * first time the applet is loaded and never <code>null
    * </code> or modified after that.
    */
-  private PSJavaHelp ms_help = null;
+  private transient PSJavaHelp ms_help = null;
 
   /**
    * The action manager to handle all actions (local, system and custom actions), initialized in
    * <code>init()</code> method and is not modified and never <code>null</code> after that.
    */
-  PSActionManager m_actManager;
+  transient PSActionManager m_actManager;
 
   /**
    * The manager that handles loading and saving of options, initialized in <code>init()</code>
    * method and is not modified and never <code>null</code> after that.
    */
-  private PSOptionManager m_optionsManager;
+  private transient PSOptionManager m_optionsManager;
 
   /**
    * The object that holds on to the loaded applets and updates the display options when it is
    * informed, initialized when the applet is loaded and never <code>null</code> after that.
    */
-  private OptionsUpdater ms_optChangeUpdater = null;
+  private transient OptionsUpdater ms_optChangeUpdater = null;
 
   /**
    * The main view panel that represents the current view of the applet, initialized in the <code>
@@ -2291,7 +2295,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    * The action bar that represents the menu bar of the applet, initialized in the <code>initView()
    * </code> and never <code>null</code> or modified after that.
    */
-  private PSActionBar m_actionBar;
+  private transient PSActionBar m_actionBar;
 
   /**
    * The current view represented by this applet, initialized in <code>
@@ -2314,29 +2318,29 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
   private boolean ms_isManagedNavUsed = false;
 
   /** Initialized in the init, never <code>null</code> after that and invariant. */
-  private PSI18NTranslationKeyValues ms_i18nKeyValue = null;
+  private transient PSI18NTranslationKeyValues ms_i18nKeyValue = null;
 
   /**
    * The menu bar that represents the global menu of the applet, initialized in <code>initView()
    * </code> and never <code>null</code> or modified after that.
    */
-  private PSContentExplorerMenuBar m_globalMenuBar;
+  private transient PSContentExplorerMenuBar m_globalMenuBar;
 
   /** Set of all folders with the publish folder flag set */
-  private Set ms_flaggedFolders = new HashSet();
+  private final HashSet<String> ms_flaggedFolders = new HashSet<>();
 
   /**
    * Object representing current user's state inofrmation. Initialized on applet initialization.
    * Povides easy access to all required user state variables such as user name, community etc.,
    * never <code>null</code> after applet is successfully initialized.
    */
-  PSUserInfo ms_userInfo;
+  transient PSUserInfo ms_userInfo;
 
   /**
    * SessionKeeper object that is initialized during applet start and never <code>null</code> after
    * that.
    */
-  PSCESessionManager m_sessionCheck = null;
+  transient PSCESessionManager m_sessionCheck = null;
 
   /**
    * The parent frame of this applet, initialized when this applet is initialized and never <code>
@@ -2351,25 +2355,25 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
   private boolean ms_restrictContent = false;
 
   /** The splash screen\progress screen used while waiting for cx to load. */
-  SplashScreen m_splash;
+  transient SplashScreen m_splash;
 
   /**
    * static reference to the instance of this applet. Never <code>null</code> after successful
    * initialization of the applet.
    */
-  private PSContentExplorerApplet ms_thisApplet = null;
+  private transient PSContentExplorerApplet ms_thisApplet = null;
 
   /**
    * Storage for the column width options, need to keep in memory since the columns when refreshed
    * lose the widths.
    */
-  private PSColumnWidthsOption m_cwo = null;
+  private transient PSColumnWidthsOption m_cwo = null;
 
   /**
    * Storage for the display format options, need to keep in memory since the folders when refreshed
    * lose the display format.
    */
-  private PSDisplayFormatOption m_dfo = null;
+  private transient PSDisplayFormatOption m_dfo = null;
 
   /** Storage for the initial selection path stored as user options */
   String m_selPath = null;
@@ -2442,7 +2446,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    * behavior". Set only by both {@link #registerKeyEventPostProcessor()}and {@link
    * #unregisterKeyEventPostProcessor()}
    */
-  private PSKeyEventPostProcessor m_keyEventPostProcessor = null;
+  private transient PSKeyEventPostProcessor m_keyEventPostProcessor = null;
 
   /**
    * This is used to (lazily) cache the catalogged searchable fields. It maps cataloger flag of the
@@ -2453,7 +2457,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    *
    * @see PSContentExplorerConstants#PARAM_CACHE_SEARCHABLE_FIELDS
    */
-  private Map m_searchableFields = null;
+  private transient Map<String, PSContentEditorFieldCataloger> m_searchableFields = null;
 
   /**
    * Just like {@link #m_searchableFields}, except this is used when cached per JVM. It is never
@@ -2463,7 +2467,8 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    *
    * @see PSContentExplorerConstants#PARAM_CACHE_SEARCHABLE_FIELDS
    */
-  private Map ms_searchableFieldsPerJVM = new HashMap();
+  private final transient Map<String, PSContentEditorFieldCataloger> ms_searchableFieldsPerJVM =
+      new HashMap<>();
 
   /** The flag is used to indicate if AjaxSwing is being used to access the applet. */
   private boolean ms_useAjaxSwing = false;
