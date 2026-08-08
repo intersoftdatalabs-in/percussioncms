@@ -151,4 +151,16 @@ export const EXPLORER_MSG = {
   SECURITY_PRINCIPAL_REMOVE: "perc.ui.explorer@Remove",
   SECURITY_PRINCIPAL_ADD: "perc.ui.explorer@Add principal",
   SECURITY_PRINCIPAL_NAME_LABEL: "perc.ui.explorer@Principal name",
+  // US7 P-Adv / multi-select + clipboard panel (FR-026, #2400 #2408).
+  SELECT_COLUMN_HEADER: "perc.ui.explorer@Select",
+  SELECT_ROW_LABEL: "perc.ui.explorer@Select item",
+  SELECT_ALL_LABEL: "perc.ui.explorer@Select all items on this page",
+  SELECT_ALL_CLEAR_LABEL: "perc.ui.explorer@Clear all items on this page",
+  SELECTED_COUNT_SINGULAR: "perc.ui.explorer@1 item selected",
+  SELECTED_COUNT_PLURAL: "perc.ui.explorer@{count} items selected",
+  TOGGLE_CLIPBOARD_ARIA: "perc.ui.explorer@Show or hide clipboard",
+  CLIPBOARD_REGION: "perc.ui.explorer@Clipboard",
+  CLIPBOARD_SUMMARY_ADDED_SINGULAR: "perc.ui.explorer@1 item added to clipboard",
+  CLIPBOARD_SUMMARY_ADDED_PLURAL:
+    "perc.ui.explorer@{count} items added to clipboard",
 } as const;
