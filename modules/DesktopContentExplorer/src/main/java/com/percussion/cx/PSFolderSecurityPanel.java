@@ -37,13 +37,12 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -132,11 +131,12 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
   public boolean onOk() {
     if (!m_enabled) return true;
 
-    DefaultListModel aclListModel = (DefaultListModel) m_aclList.getModel();
+    DefaultListModel<PSObjectAclEntry> aclListModel =
+        (DefaultListModel<PSObjectAclEntry>) m_aclList.getModel();
 
-    Enumeration enumAcls = aclListModel.elements();
+    Enumeration<PSObjectAclEntry> enumAcls = aclListModel.elements();
 
-    Collection collAcls = new ArrayList();
+    Collection<PSObjectAclEntry> collAcls = new ArrayList<>();
 
     while (enumAcls.hasMoreElements()) {
       collAcls.add(enumAcls.nextElement());
@@ -232,20 +232,27 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
         // additional calculation is necessary
         permissions = objectAclEntry.getPermissions();
       } else {
-        Iterator it = acl.iterator();
+        Iterator<?> it = acl.iterator();
         while (it.hasNext()) {
-          PSObjectAclEntry aclEntry = (PSObjectAclEntry) it.next();
-          if (aclEntry != null) {
-            switch (aclEntry.getType()) {
+          Object next = it.next();
+          if (!(next instanceof PSObjectAclEntry)) {
+            continue;
+          }
+          PSObjectAclEntry aclEntry = (PSObjectAclEntry) next;
+          switch (aclEntry.getType()) {
               case PSObjectAclEntry.ACL_ENTRY_TYPE_USER:
                 // already processed the user.
                 break;
 
               case PSObjectAclEntry.ACL_ENTRY_TYPE_ROLE:
                 String aclRole = aclEntry.getName();
-                Iterator itRole = m_userInfo.getRoles();
+                Iterator<?> itRole = m_userInfo.getRoles();
                 while (itRole.hasNext()) {
-                  String userRole = (String) itRole.next();
+                  Object roleObj = itRole.next();
+                  if (!(roleObj instanceof String)) {
+                    continue;
+                  }
+                  String userRole = (String) roleObj;
                   if (userRole.equalsIgnoreCase(aclRole))
                     permissions = permissions | aclEntry.getPermissions();
                 }
@@ -267,7 +274,6 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
               default:
                 break;
             }
-          }
         }
       }
     }
@@ -282,8 +288,9 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
      *
      * @see ListCellRenderer#getListCellRendererComponent
      */
+    @Override
     public Component getListCellRendererComponent(
-        JList list,
+        JList<?> list,
         Object value,
         @SuppressWarnings("unused") int index,
         boolean isSelected,
@@ -342,14 +349,16 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
    * tooltips with provider type and instance name.
    */
   private class AclListMouseMotion extends MouseMotionAdapter {
+    @Override
     public void mouseMoved(MouseEvent event) {
       if (event.getSource() == m_aclList) {
-        DefaultListModel aclListModel = (DefaultListModel) m_aclList.getModel();
+        DefaultListModel<PSObjectAclEntry> aclListModel =
+            (DefaultListModel<PSObjectAclEntry>) m_aclList.getModel();
 
         int index = m_aclList.locationToIndex(event.getPoint());
 
         if (index > -1 && index < aclListModel.size()) {
-          PSObjectAclEntry aclEntry = (PSObjectAclEntry) m_aclList.getModel().getElementAt(index);
+          PSObjectAclEntry aclEntry = m_aclList.getModel().getElementAt(index);
 
           String tooltip = getToolTipText(aclEntry);
 
@@ -404,7 +413,7 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
     aclPanel.add(label);
     aclPanel.add(Box.createVerticalStrut(5));
 
-    m_aclList = new JList(new DefaultListModel());
+    m_aclList = new JList<>(new DefaultListModel<>());
     m_aclList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     m_aclList.addMouseMotionListener(new AclListMouseMotion());
     m_aclList.setCellRenderer(new AclListCellRenderer());
@@ -425,6 +434,7 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
 
     m_aclList.addKeyListener(
         new KeyAdapter() {
+          @Override
           public void keyPressed(KeyEvent e) {
             if (e.getKeyCode() == KeyEvent.VK_DELETE) onRemove();
           }
@@ -532,15 +542,20 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
   private void loadAclList(PSObjectAcl acl) {
     if (acl == null) throw new IllegalArgumentException("acl must not be null");
 
-    Iterator acls = acl.iterator();
+    Iterator<?> acls = acl.iterator();
 
-    ArrayList listCurEntries = new ArrayList();
+    List<PSObjectAclEntry> listCurEntries = new ArrayList<>();
 
-    while (acls.hasNext()) listCurEntries.add(acls.next());
+    while (acls.hasNext()) {
+      Object next = acls.next();
+      if (next instanceof PSObjectAclEntry) {
+        listCurEntries.add((PSObjectAclEntry) next);
+      }
+    }
 
     addUniqueListAclEntries(listCurEntries);
 
-    sortListModelEntries((DefaultListModel) m_aclList.getModel());
+    sortListModelEntries((DefaultListModel<PSObjectAclEntry>) m_aclList.getModel());
 
     m_aclList.setSelectedIndex(0);
 
@@ -639,9 +654,10 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
   private void onAdd() {
     if (!m_enabled) return;
 
-    DefaultListModel aclListModel = (DefaultListModel) m_aclList.getModel();
+    DefaultListModel<PSObjectAclEntry> aclListModel =
+        (DefaultListModel<PSObjectAclEntry>) m_aclList.getModel();
 
-    Enumeration curAcls = aclListModel.elements();
+    Enumeration<PSObjectAclEntry> curAcls = aclListModel.elements();
 
     // launch the ACL list editor dialog
     PSFolderAclEditorDialog aclEditorDlg =
@@ -653,7 +669,7 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
 
     m_modified = true;
 
-    Collection resultAclEntries = aclEditorDlg.getResultAclEntries();
+    Collection<?> resultAclEntries = aclEditorDlg.getResultAclEntries();
 
     aclListModel.removeAllElements();
 
@@ -663,7 +679,7 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
     addUniqueListAclEntries(resultAclEntries);
 
     // sort List
-    sortListModelEntries((DefaultListModel) m_aclList.getModel());
+    sortListModelEntries((DefaultListModel<PSObjectAclEntry>) m_aclList.getModel());
   }
 
   /**
@@ -672,20 +688,23 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
    * @param aclNewEntries a collection of ACL Entries to add to the list, never <code>null</code>,
    *     may be <code>empty</code>.
    */
-  private void addUniqueListAclEntries(Collection aclNewEntries) {
+  private void addUniqueListAclEntries(Collection<?> aclNewEntries) {
     if (aclNewEntries == null) throw new IllegalArgumentException("aclEntries may not be null");
 
-    if (aclNewEntries.size() <= 0) return;
+    if (aclNewEntries.isEmpty()) return;
 
-    DefaultListModel aclListModel = (DefaultListModel) m_aclList.getModel();
+    DefaultListModel<PSObjectAclEntry> aclListModel =
+        (DefaultListModel<PSObjectAclEntry>) m_aclList.getModel();
 
-    Iterator itNewAcls = aclNewEntries.iterator();
-
-    while (itNewAcls.hasNext()) {
-      Object objNewAcl = itNewAcls.next();
-
+    for (Object objNewAcl : aclNewEntries) {
+      if (!(objNewAcl instanceof PSObjectAclEntry)) {
+        continue;
+      }
+      PSObjectAclEntry entry = (PSObjectAclEntry) objNewAcl;
       // see if list already has this one
-      if (!aclListModel.contains(objNewAcl)) aclListModel.addElement(objNewAcl);
+      if (!aclListModel.contains(entry)) {
+        aclListModel.addElement(entry);
+      }
     }
   }
 
@@ -694,16 +713,18 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
    *
    * @param listModel ACL list model to sort, never <code>null</code>
    */
-  private void sortListModelEntries(DefaultListModel listModel) {
+  private void sortListModelEntries(DefaultListModel<PSObjectAclEntry> listModel) {
     if (listModel == null) throw new IllegalArgumentException("sorted listModel may not be null");
 
     if (listModel.isEmpty()) return;
 
-    Enumeration enumEntries = listModel.elements();
+    Enumeration<PSObjectAclEntry> enumEntries = listModel.elements();
 
-    ArrayList entriesToSort = new ArrayList();
+    List<PSObjectAclEntry> entriesToSort = new ArrayList<>();
 
-    while (enumEntries.hasMoreElements()) entriesToSort.add(enumEntries.nextElement());
+    while (enumEntries.hasMoreElements()) {
+      entriesToSort.add(enumEntries.nextElement());
+    }
 
     // sort ACL entries
     sortAclEntries(entriesToSort);
@@ -712,53 +733,65 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
     listModel.removeAllElements();
 
     // add sorted ones
-    Iterator itSortedEntries = entriesToSort.iterator();
-
-    while (itSortedEntries.hasNext()) listModel.addElement(itSortedEntries.next());
+    for (PSObjectAclEntry entry : entriesToSort) {
+      listModel.addElement(entry);
+    }
   }
 
   /**
    * Sorts given ACL entries. The sorting is done first by the ACL Entry type, in order VIRTUAL then
    * ROLE then USER; then each type group is also sorted by the ACL names to alpha-order them.
    *
+   * <p>Package-visible for unit tests (no product behavior change).
+   *
    * @param listAclEntries a list of ACL Entries to sort, never <code>null</code>
    */
-  private void sortAclEntries(AbstractList listAclEntries) {
+  static void sortAclEntries(List<PSObjectAclEntry> listAclEntries) {
     if (listAclEntries == null)
       throw new IllegalArgumentException("listAclEntries may not be null");
 
-    if (listAclEntries.size() <= 0) return;
+    if (listAclEntries.isEmpty()) return;
 
-    /** Special ACL Entry comparator class that is used to sort ACL Entries */
-    class AclComparator implements Comparator {
-      public int compare(Object left, Object right) {
-        PSObjectAclEntry leftAcl = (PSObjectAclEntry) left;
-        PSObjectAclEntry rightAcl = (PSObjectAclEntry) right;
-
-        if (leftAcl.equals(rightAcl)) return 0;
-
-        int leftType = leftAcl.getType();
-        int rightType = rightAcl.getType();
-
-        if (leftType == PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL) {
-          // we want VIRTUAL acls to show up first
-          if (rightType != PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL) return -1;
-        } else if (leftType == PSObjectAclEntry.ACL_ENTRY_TYPE_ROLE) {
-          // we want ROLE acls to show up after VIRTUALs
-          if (rightType == PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL) return 1;
-          if (rightType == PSObjectAclEntry.ACL_ENTRY_TYPE_USER) return -1;
-        } else if (leftType == PSObjectAclEntry.ACL_ENTRY_TYPE_USER) {
-          // we want USER acls to show up after ROLEs
-          if (rightType != PSObjectAclEntry.ACL_ENTRY_TYPE_USER) return 1;
-        }
-
-        // same type ACLs should be sorted in alpha order
-        return leftAcl.getName().compareTo(rightAcl.getName());
-      }
-    }
-
-    Collections.sort(listAclEntries, new AclComparator());
+    listAclEntries.sort(ACL_ENTRY_COMPARATOR);
   }
+
+  /**
+   * Null-safe comparator for ACL list display order: nulls last; then VIRTUAL, ROLE, USER; alpha
+   * within type. Package-visible for unit tests.
+   */
+  static final Comparator<PSObjectAclEntry> ACL_ENTRY_COMPARATOR =
+      Comparator.nullsLast(
+          (leftAcl, rightAcl) -> {
+            if (leftAcl.equals(rightAcl)) {
+              return 0;
+            }
+
+            int leftType = leftAcl.getType();
+            int rightType = rightAcl.getType();
+
+            if (leftType == PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL) {
+              // we want VIRTUAL acls to show up first
+              if (rightType != PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL) {
+                return -1;
+              }
+            } else if (leftType == PSObjectAclEntry.ACL_ENTRY_TYPE_ROLE) {
+              // we want ROLE acls to show up after VIRTUALs
+              if (rightType == PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL) {
+                return 1;
+              }
+              if (rightType == PSObjectAclEntry.ACL_ENTRY_TYPE_USER) {
+                return -1;
+              }
+            } else if (leftType == PSObjectAclEntry.ACL_ENTRY_TYPE_USER) {
+              // we want USER acls to show up after ROLEs
+              if (rightType != PSObjectAclEntry.ACL_ENTRY_TYPE_USER) {
+                return 1;
+              }
+            }
+
+            // same type ACLs should be sorted in alpha order
+            return leftAcl.getName().compareTo(rightAcl.getName());
+          });
 
   /**
    * Removes selected ACL Entry from the list. Invoked by the action listener in response to the
@@ -767,7 +800,8 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
   private void onRemove() {
     if (!m_enabled) return;
 
-    DefaultListModel aclListModel = (DefaultListModel) m_aclList.getModel();
+    DefaultListModel<PSObjectAclEntry> aclListModel =
+        (DefaultListModel<PSObjectAclEntry>) m_aclList.getModel();
 
     if (aclListModel.isEmpty()) return;
 
@@ -775,8 +809,8 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
 
     if (selInd < 0 || selInd >= aclListModel.size()) return;
 
-    Object selObj = aclListModel.getElementAt(selInd);
-    m_folder.getAcl().remove((PSObjectAclEntry) selObj);
+    PSObjectAclEntry selObj = aclListModel.getElementAt(selInd);
+    m_folder.getAcl().remove(selObj);
 
     aclListModel.removeElementAt(selInd);
 
@@ -801,7 +835,8 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
    * @return currently selected single ACL Entry, may be <code>null</code>
    */
   private PSObjectAclEntry getCurAclEntry() {
-    DefaultListModel aclListModel = (DefaultListModel) m_aclList.getModel();
+    DefaultListModel<PSObjectAclEntry> aclListModel =
+        (DefaultListModel<PSObjectAclEntry>) m_aclList.getModel();
 
     if (aclListModel.isEmpty()) return null;
 
@@ -809,13 +844,11 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
 
     if (selInd < 0 || selInd >= aclListModel.size()) return null;
 
-    Object selObj = aclListModel.getElementAt(selInd);
-
-    return (PSObjectAclEntry) selObj;
+    return aclListModel.getElementAt(selInd);
   }
 
   /** JList of ACL Entries. */
-  private JList m_aclList;
+  private JList<PSObjectAclEntry> m_aclList;
 
   /** Checkbox for the "read" permission. */
   private JCheckBox m_cbReadPermission;

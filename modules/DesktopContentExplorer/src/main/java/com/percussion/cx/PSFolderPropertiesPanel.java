@@ -93,7 +93,7 @@ public class PSFolderPropertiesPanel extends UTPropertiesTablePanel {
 
     // create the combo box editor with the known property name,
     // sys_pubFilename
-    JComboBox comboBox = new JComboBox(new String[] {PSFolder.PROPERTY_PUB_FILE_NAME});
+    JComboBox<String> comboBox = new JComboBox<>(new String[] {PSFolder.PROPERTY_PUB_FILE_NAME});
     comboBox.setEditable(true);
     DefaultCellEditor editor = new DefaultCellEditor(comboBox);
 
@@ -104,21 +104,25 @@ public class PSFolderPropertiesPanel extends UTPropertiesTablePanel {
 
   /** loads folder properties into the table. */
   private void loadTableData() {
-    Iterator iter = m_folder.getProperties();
+    Iterator<?> iter = m_folder.getProperties();
 
     DefaultTableModel model = (DefaultTableModel) getTableModel();
 
     clearAllRows();
 
     while (iter.hasNext()) {
-      PSFolderProperty property = (PSFolderProperty) iter.next();
+      Object next = iter.next();
+      if (!(next instanceof PSFolderProperty)) {
+        continue;
+      }
+      PSFolderProperty property = (PSFolderProperty) next;
 
       // skip properties which are handled in other tab's
       if (PSFolder.isDisplayFormatProperty(property)
           || PSFolder.isFolderPublishProperty(property)
           || PSFolder.isFolderGlobalTemplateProperty(property)) continue;
 
-      Vector<String> vRow = new Vector<String>();
+      Vector<String> vRow = new Vector<>();
 
       vRow.add(property.getName());
       vRow.add(property.getValue());
@@ -146,14 +150,15 @@ public class PSFolderPropertiesPanel extends UTPropertiesTablePanel {
 
     DefaultTableModel model = (DefaultTableModel) getTableModel();
 
-    Vector vRows = model.getDataVector();
+    @SuppressWarnings("unchecked")
+    Vector<Vector> vRows = model.getDataVector();
 
     for (int i = 0; i < vRows.size(); i++) {
-      Vector vColumns = (Vector) vRows.elementAt(i);
+      Vector<?> vColumns = vRows.elementAt(i);
 
-      String name = (String) vColumns.elementAt(0);
-      String value = (String) vColumns.elementAt(1);
-      String desc = (String) vColumns.elementAt(2);
+      String name = stringCell(vColumns, 0);
+      String value = stringCell(vColumns, 1);
+      String desc = stringCell(vColumns, 2);
 
       if (name == null || name.trim().length() <= 0) continue;
 
@@ -173,20 +178,29 @@ public class PSFolderPropertiesPanel extends UTPropertiesTablePanel {
     }
 
     // if any properties were removed, remove them from the PSFolder
-    if (m_mapLoadedProperties.size() > 0) {
-      Iterator entries = m_mapLoadedProperties.entrySet().iterator();
-
-      while (entries.hasNext()) {
-        Map.Entry entry = (Map.Entry) entries.next();
-
-        String deletedName = (String) entry.getKey();
-
+    if (!m_mapLoadedProperties.isEmpty()) {
+      for (Map.Entry<String, PSFolderProperty> entry : m_mapLoadedProperties.entrySet()) {
         // delete this property
-        m_folder.deleteProperty(deletedName);
+        m_folder.deleteProperty(entry.getKey());
       }
     }
 
     return true;
+  }
+
+  /**
+   * Reads a table cell as a string (null-safe). Package-visible for unit tests.
+   *
+   * @param row row vector, may be <code>null</code>
+   * @param index column index
+   * @return string value or <code>null</code>
+   */
+  static String stringCell(Vector<?> row, int index) {
+    if (row == null || index < 0 || index >= row.size()) {
+      return null;
+    }
+    Object cell = row.elementAt(index);
+    return cell == null ? null : cell.toString();
   }
 
   /**
@@ -205,8 +219,7 @@ public class PSFolderPropertiesPanel extends UTPropertiesTablePanel {
    * Remembers which properties where loaded into the table. On save allows to detect and delete
    * properties that were removed.
    */
-  private Map<String, PSFolderProperty> m_mapLoadedProperties =
-      new HashMap<String, PSFolderProperty>();
+  private Map<String, PSFolderProperty> m_mapLoadedProperties = new HashMap<>();
 
   /** A reference back to the applet. */
   private PSContentExplorerApplet m_applet;
