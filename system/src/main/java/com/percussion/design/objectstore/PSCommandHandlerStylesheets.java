@@ -36,6 +36,8 @@ import org.w3c.dom.Node;
  */
 @SuppressWarnings("serial")
 public class PSCommandHandlerStylesheets extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Create a new map of command handler stylesheets for the provided name and default stylesheet.
    *

@@ -26,6 +26,8 @@ import org.w3c.dom.Element;
 
 /** Implementation for the PSXControlRef DTD in BasicObjects.dtd. */
 public class PSControlRef extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Constructs a new <code>PSControlRef</code> as a (shallow) copy of <code>source</code>.
    *

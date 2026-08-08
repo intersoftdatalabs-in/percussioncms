@@ -29,6 +29,8 @@ import org.w3c.dom.Element;
  * &lt;psxctl:ControlMeta&gt; node in <code>sys_LibraryControlDef.dtd</code>
  */
 public class PSControlMeta extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Initializes a newly created <code>PSControlMeta</code> object, from an XML representation. See
    * {@link #toXml(Document)} for the format.

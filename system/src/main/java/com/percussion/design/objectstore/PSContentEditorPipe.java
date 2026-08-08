@@ -30,6 +30,8 @@ import org.w3c.dom.Node;
 
 /** Implements the PSXContentEditorPipe DTD defined in ContentEditorLocalDef.dtd. */
 public class PSContentEditorPipe extends PSPipe {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Create a new content editor pipe.
    *
