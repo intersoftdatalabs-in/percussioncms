@@ -233,8 +233,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     return children;
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  private static Iterator<PSNode> asNodeListIterator(List results) {
+  private static Iterator<PSNode> asNodeListIterator(List<PSNode> results) {
     return results == null ? Collections.emptyIterator() : results.iterator();
   }
 

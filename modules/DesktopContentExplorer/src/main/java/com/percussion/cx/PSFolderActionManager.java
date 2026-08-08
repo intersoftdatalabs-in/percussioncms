@@ -350,7 +350,7 @@ public class PSFolderActionManager {
           new PSExecutableSearch(m_appletBase, format, search, getApplet());
       searchEx.addColumnName(IPSHtmlParameters.SYS_PERMISSIONS);
 
-      List itemNodes = searchEx.executeSearch(parentFolderNode, true, false);
+      List<PSNode> itemNodes = searchEx.executeSearch(parentFolderNode, true, false);
 
       removeSystemFolder(itemNodes);
       if (parentFolderNode.getName().equals("Sites")) {

@@ -111,7 +111,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
   public PSExecutableSearch(
       URL documentBaseURL,
       PSDisplayFormat displayFormat,
-      List contentIdList,
+      List<Integer> contentIdList,
       PSContentExplorerApplet applet) {
     this(documentBaseURL, displayFormat, contentIdList, null, null, applet);
   }
@@ -135,8 +135,8 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
   public PSExecutableSearch(
       URL documentBaseURL,
       PSDisplayFormat displayFormat,
-      List contentIdList,
-      Collection contentTypeIdList,
+      List<Integer> contentIdList,
+      Collection<?> contentTypeIdList,
       PSSearch search,
       PSContentExplorerApplet applet) {
     if (documentBaseURL == null || documentBaseURL.getPath().length() == 0)
@@ -167,7 +167,10 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    *     </code>.
    */
   public PSExecutableSearch(
-      URL documentBaseURL, List columnNames, List contentIdList, PSContentExplorerApplet applet) {
+      URL documentBaseURL,
+      List<String> columnNames,
+      List<Integer> contentIdList,
+      PSContentExplorerApplet applet) {
     if (documentBaseURL == null || documentBaseURL.getPath().length() == 0)
       throw new IllegalArgumentException("documentBaseURL must not be null or empty");
 
@@ -224,11 +227,11 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    */
   private void init(
       URL documentBaseURL,
-      List columnNames,
+      List<String> columnNames,
       PSSearch search,
       PSDisplayFormat displayFormat,
-      List contentIdList,
-      Collection contentTypeIdList) {
+      List<Integer> contentIdList,
+      Collection<?> contentTypeIdList) {
     PSRemoteAppletRequester requester =
         new PSRemoteAppletRequester(m_applet.getHttpConnection(), documentBaseURL);
     if (columnNames == null) columnNames = getColumnNames(displayFormat);
@@ -263,9 +266,9 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    * @param displayFormat Provides the column names, assumed not <code>null</code>.
    * @return The list of column names as <code>String</code> objects, never <code>null</code>.
    */
-  private List getColumnNames(PSDisplayFormat displayFormat) {
-    List result = new ArrayList();
-    Iterator resultFieldIter = displayFormat.getColumns();
+  private List<String> getColumnNames(PSDisplayFormat displayFormat) {
+    List<String> result = new ArrayList<>();
+    Iterator<?> resultFieldIter = displayFormat.getColumns();
     while (resultFieldIter.hasNext()) {
       PSDisplayColumn dc = (PSDisplayColumn) resultFieldIter.next();
       result.add(dc.getSource());
@@ -282,7 +285,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    * @return a list of search results, never <code>null</code>, may be empty.
    * @throws PSContentExplorerException if an error happens executing search.
    */
-  public List executeSearch(PSNode node) throws PSContentExplorerException {
+  public List<PSNode> executeSearch(PSNode node) throws PSContentExplorerException {
     return executeSearch(node, false, true);
   }
 
@@ -302,19 +305,19 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    * @return a list of search results, never <code>null</code>, may be empty
    * @throws PSContentExplorerException if an error happens executing search.
    */
-  public List executeSearch(PSNode node, boolean includeFolders, boolean useFolderRefs)
+  public List<PSNode> executeSearch(PSNode node, boolean includeFolders, boolean useFolderRefs)
       throws PSContentExplorerException {
     if (node == null) throw new IllegalArgumentException("node may not be null.");
 
     // see if only searching on dirty child item nodes
     boolean hasDirty = node.hasDirtyChildren();
     boolean hasDirtyItems = false;
-    List contentIdList = new ArrayList();
-    List<Integer> dirtyIds = new ArrayList<Integer>();
+    List<Integer> contentIdList = new ArrayList<>();
+    List<Integer> dirtyIds = new ArrayList<>();
     List<Integer> refreshIds = null;
-    List origContentIdList = getContentIdList();
-    Iterator dirtyIter;
-    Map origSearchState = null;
+    @SuppressWarnings("unchecked")
+    List<Integer> origContentIdList = (List<Integer>) getContentIdList();
+    Map<String, String> origSearchState = null;
 
     boolean expandSynonyms = false;
     try {
@@ -337,9 +340,9 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
     try {
       if (hasDirty) {
         // get list of dirty item node ids
-        Iterator nodes = node.getDirtyChildren(!node.isAnyFolderType());
+        Iterator<PSNode> nodes = node.getDirtyChildren(!node.isAnyFolderType());
         while (nodes.hasNext()) {
-          PSNode dirty = (PSNode) nodes.next();
+          PSNode dirty = nodes.next();
           String strContentId = dirty.getContentId();
           if (!StringUtils.isBlank(strContentId)) {
             Integer contentId;
@@ -354,7 +357,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
             if (contentId.intValue() == -1) {
               hasDirty = false;
               dirtyIds.clear();
-              refreshIds = new ArrayList<Integer>();
+              refreshIds = new ArrayList<>();
               break;
             }
             dirtyIds.add(contentId);
@@ -363,19 +366,17 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
 
         // if we didn't find dummy id, add all dirty
         if (refreshIds == null) {
-          refreshIds = new ArrayList<Integer>();
+          refreshIds = new ArrayList<>();
           refreshIds.addAll(dirtyIds);
         }
 
         hasDirtyItems = !dirtyIds.isEmpty();
 
         // now get intersection of dirty ids and original search ids
-        Set idSet = null;
+        Set<Integer> idSet = null;
         if (origContentIdList != null && !origContentIdList.isEmpty())
-          idSet = new HashSet(origContentIdList);
-        dirtyIter = dirtyIds.iterator();
-        while (dirtyIter.hasNext()) {
-          Integer ctId = (Integer) dirtyIter.next();
+          idSet = new HashSet<>(origContentIdList);
+        for (Integer ctId : dirtyIds) {
           // add is no original ids or if in that set
           if (idSet == null || idSet.contains(ctId)) contentIdList.add(ctId);
         }
@@ -399,7 +400,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
         if (!hasDirtyItems && (origContentIdList != null)) contentIdList.addAll(origContentIdList);
 
         // perform the search
-        Map params = new HashMap();
+        Map<String, String> params = new HashMap<>();
 
         if (m_displayFormat != null)
           params.put(
@@ -426,7 +427,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
            * again. We accomplish this be setting the defaults now and
            * restoring the original values before exiting this method.
            */
-          origSearchState = new HashMap();
+          origSearchState = new HashMap<>();
           for (int i = 0; i < advancedProps.length; i++) {
             String value = m_search.getProperty(advancedProps[i][0]);
             if (value != null && value.trim().length() > 0) {
@@ -453,11 +454,11 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
         else curRows = new PSWSSearchResponse(lastSearchResults);
 
         // create row list with dirty id rows removed
-        List newRowList = new ArrayList();
-        Set<Integer> dirtySet = new HashSet<Integer>(dirtyIds);
-        Iterator rows = curRows.getRows();
+        List<IPSSearchResultRow> newRowList = new ArrayList<>();
+        Set<Integer> dirtySet = new HashSet<>(dirtyIds);
+        Iterator<IPSSearchResultRow> rows = curRows.getRows();
         while (rows.hasNext()) {
-          IPSSearchResultRow row = (IPSSearchResultRow) rows.next();
+          IPSSearchResultRow row = rows.next();
           if (!dirtySet.contains(
               Integer.valueOf(row.getColumnValue(IPSHtmlParameters.SYS_CONTENTID)))) {
             newRowList.add(row);
@@ -493,7 +494,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
       // save results for next selective refresh processing
       node.setSearchResults(searchResultDoc);
 
-      if (node.getChildren() == null) return new ArrayList();
+      if (node.getChildren() == null) return new ArrayList<>();
 
       return PSIteratorUtils.cloneList(node.getChildren());
     } catch (Exception ex) {
@@ -530,8 +531,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
       // restore the search to its previous state
       if (origSearchState != null) {
         for (int i = 0; i < advancedProps.length; i++) {
-          Object prop = origSearchState.get(advancedProps[i][0]);
-          String value = null == prop ? null : prop.toString();
+          String value = origSearchState.get(advancedProps[i][0]);
           if (null != value) m_search.setProperty(advancedProps[i][0], value);
         }
         m_search.setCaseSensitive(originallyCaseSensitive);
@@ -552,7 +552,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
   private boolean addObjectFilterField() {
     if (m_search == null) throw new IllegalStateException("m_search has not been set yet.");
 
-    Iterator fields = m_search.getFields();
+    Iterator<?> fields = m_search.getFields();
     boolean found = false;
     while (fields.hasNext() && !found) {
       PSSearchField field = (PSSearchField) fields.next();
@@ -578,7 +578,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    */
   private void removeObjectFilterField() {
     PSSFields fields = m_search.getFieldContainer();
-    Iterator fieldIter = fields.iterator();
+    Iterator<?> fieldIter = fields.iterator();
     while (fieldIter.hasNext()) {
       PSSearchField field = (PSSearchField) fieldIter.next();
       if (field.getFieldName().equalsIgnoreCase(PROPERTY_OBJECTTYPE)) {
@@ -628,14 +628,14 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
 
     // build lists of categories, flat fields, and table meta columns, as well
     // column display name map
-    List categorized = new ArrayList();
-    List flat = new ArrayList();
-    List tableCols = new ArrayList();
-    List colDefs = null; // will be null if no display format, or no columns
-    Map colNames = new HashMap();
+    List<String> categorized = new ArrayList<>();
+    List<String> flat = new ArrayList<>();
+    List<Map.Entry<String, String>> tableCols = new ArrayList<>();
+    List<Map.Entry<String, String>> colDefs = null; // will be null if no display format, or no columns
+    Map<String, String> colNames = new HashMap<>();
 
     if (df != null) {
-      Iterator cols = df.getColumns();
+      Iterator<?> cols = df.getColumns();
       while (cols.hasNext()) {
         PSDisplayColumn col = (PSDisplayColumn) cols.next();
         String name = col.getSource();
@@ -644,7 +644,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
         if (col.isCategorized()) categorized.add(name);
         else {
           flat.add(col.getSource());
-          tableCols.add(new PSEntrySet(dispName, col.getRenderType()));
+          tableCols.add(new PSEntrySet<>(dispName, col.getRenderType()));
         }
       }
 
@@ -659,7 +659,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
     if (!categorized.isEmpty()) {
       baseNode.clearChildrenDisplayFormat();
     } else {
-      Iterator colDefIter = colDefs != null ? colDefs.iterator() : null;
+      Iterator<Map.Entry<String, String>> colDefIter = colDefs != null ? colDefs.iterator() : null;
       baseNode.setChildrenDisplayFormat(colDefIter);
     }
 
@@ -667,31 +667,27 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
      * Generate a property set to add to node. The set is the static set
      * for the search type combined with the display columns.
      */
-    Set propList = null;
-    if (isRCSearch) propList = new HashSet(ms_cxRCPropSet);
-    else propList = new HashSet(ms_cxPropSet);
-    Iterator colIter = colNames.keySet().iterator();
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    Set<String> propList =
+        isRCSearch ? new HashSet<String>(ms_cxRCPropSet) : new HashSet<String>(ms_cxPropSet);
     /*
      * With Rhythmyx 5.6, every display column by internal name is eleigible
      * to be submitted to server if a server action is configured to do so by
      * specifying $params. So add all display column internal names to the
      * standard set too.
      */
-    while (colIter.hasNext()) {
-      String colName = (String) colIter.next();
-      propList.add(colName);
-    }
+    propList.addAll(colNames.keySet());
 
     // Get the icon map
 
     Map<String, String> iconMap = getIconPathMap(resp);
     // walk each row and create a node for it
-    Iterator rows = resp.getRows();
+    Iterator<IPSSearchResultRow> rows = resp.getRows();
     String folder_type = useFolderRefs ? PSNode.TYPE_FOLDER_REF : PSNode.TYPE_FOLDER;
     PSFolderActionManager folderMgr =
         m_applet.getApplet().getActionManager().getFolderActionManager();
     while (rows.hasNext()) {
-      IPSSearchResultRow row = (IPSSearchResultRow) rows.next();
+      IPSSearchResultRow row = rows.next();
       String title = row.getColumnDisplayValue("sys_title");
       String ctypeId = row.getColumnValue(PROPERTY_CONTENTTYPEID).toString();
       Integer contentId = Integer.valueOf(row.getColumnValue(PROPERTY_CONTENTID));
@@ -724,17 +720,17 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
         itemNode = new PSNode(title, title, nodeType, null, iconKey, false, Integer.parseInt(perm));
 
         // add props and cols
-        Map rowData = new HashMap();
-        Iterator cols = row.getColumnNames().iterator();
+        Map<String, Object> rowData = new HashMap<>();
+        Iterator<String> cols = row.getColumnNames().iterator();
         while (cols.hasNext()) {
-          String name = cols.next().toString();
+          String name = cols.next();
           if (propList.contains(name)) {
             itemNode.setProperty(name, row.getColumnValue(name));
           }
 
           if (flat.contains(name)) {
             // get the display name of the column
-            String colName = (String) colNames.get(name);
+            String colName = colNames.get(name);
             if (colName == null) colName = name;
             rowData.put(colName, row.getColumnDisplayValue(name));
           }
@@ -747,9 +743,9 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
       if (!categorized.isEmpty()) {
         // need to build nested groups of results
         PSNode parent = baseNode;
-        Iterator catIter = categorized.iterator();
+        Iterator<String> catIter = categorized.iterator();
         while (catIter.hasNext()) {
-          String field = (String) catIter.next();
+          String field = catIter.next();
           String catVal = row.getColumnDisplayValue(field);
           String catName = catVal;
           // String catName = (String)colNames.get(field);
@@ -764,11 +760,11 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
           }
 
           // get the category node, add if not already found
-          Iterator children = parent.getChildren();
+          Iterator<PSNode> children = parent.getChildren();
           PSNode catNode = null;
           if (children != null) {
             while (children.hasNext() && catNode == null) {
-              PSNode child = (PSNode) children.next();
+              PSNode child = children.next();
               if (child.getType().equals(PSNode.TYPE_CATEGORY)
                   && child.getName().equals(catName)
                   && child.getLabel().equals(catVal)) {
@@ -786,7 +782,8 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
             // set table meta columns on the category node that will
             // contain the items.
             if (onLast) {
-              Iterator colDefIter = colDefs != null ? colDefs.iterator() : null;
+              Iterator<Map.Entry<String, String>> colDefIter =
+                  colDefs != null ? colDefs.iterator() : null;
               catNode.setChildrenDisplayFormat(colDefIter);
             }
           }
@@ -804,15 +801,18 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
 
     // now sort categories ascending
     if (!categorized.isEmpty()) {
-      Comparator comp =
-          new Comparator() {
-            public int compare(Object o1, Object o2) {
-              return o1.toString().compareTo(o2.toString());
-            }
-          };
-
-      sortCategories(baseNode, comp);
+      sortCategoryChildren(baseNode, categoryLabelComparator());
     }
+  }
+
+  /**
+   * Comparator used to sort category nodes by label ({@link PSNode#toString()}). Package-private
+   * for unit tests.
+   *
+   * @return a comparator that never returns {@code null}
+   */
+  static Comparator<PSNode> categoryLabelComparator() {
+    return (o1, o2) -> o1.toString().compareTo(o2.toString());
   }
 
   /**
@@ -824,12 +824,12 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    *     {@see PSCxUtil#getItemIcons(List)} for more details.
    */
   private Map<String, String> getIconPathMap(PSWSSearchResponse resp) {
-    Map<String, String> iconMap = new HashMap<String, String>();
-    Iterator rowiter = resp.getRows();
-    List<PSLocator> locs = new ArrayList<PSLocator>();
+    Map<String, String> iconMap = new HashMap<>();
+    Iterator<IPSSearchResultRow> rowiter = resp.getRows();
+    List<PSLocator> locs = new ArrayList<>();
     String curUser = StringUtils.defaultString(m_applet.getUserInfo().getUserName());
     while (rowiter.hasNext()) {
-      IPSSearchResultRow row = (IPSSearchResultRow) rowiter.next();
+      IPSSearchResultRow row = rowiter.next();
       String cid = row.getColumnValue(PROPERTY_CONTENTID);
       String rid = row.getColumnValue("sys_currentrevision");
       String chkUser = row.getColumnValue("sys_contentcheckoutusername");
@@ -851,21 +851,23 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    * then all children are of this type and they should be sorted, and the method should recurse
    * into these children. Otherwise, they are not sorted and the method does not recurse.
    *
+   * <p>Package-private static for unit tests (no instance state).
+   *
    * @param node The node whose children are to be sorted, assumed not <code>null</code>.
    * @param comp The comparator to use, assumed not <code>null</code>.
    */
-  private void sortCategories(PSNode node, Comparator comp) {
+  static void sortCategoryChildren(PSNode node, Comparator<? super PSNode> comp) {
     if (node.getChildren() == null) return;
 
-    List childList = PSIteratorUtils.cloneList(node.getChildren());
-    if (!childList.isEmpty() && ((PSNode) childList.get(0)).isOfType(PSNode.TYPE_CATEGORY)) {
+    List<PSNode> childList = PSIteratorUtils.cloneList(node.getChildren());
+    if (!childList.isEmpty() && childList.get(0).isOfType(PSNode.TYPE_CATEGORY)) {
       Collections.sort(childList, comp);
       node.setChildren(childList.iterator());
 
       // now recurse children
-      Iterator children = node.getChildren();
+      Iterator<PSNode> children = node.getChildren();
       while (children.hasNext()) {
-        sortCategories((PSNode) children.next(), comp);
+        sortCategoryChildren(children.next(), comp);
       }
     }
   }
