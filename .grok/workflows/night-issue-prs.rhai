@@ -301,7 +301,8 @@ discover_prompt += "HARD RULES:\n";
 discover_prompt += "1) Before any gh command: run `gh auth status` and ensure the active account\n";
 discover_prompt += "   can access " + repo + " (prefer natechadwick-intsof if listed).\n";
 discover_prompt += "2) Do NOT invent issue numbers. Only report issues returned by gh.\n";
-discover_prompt += "3) Do NOT close issues, merge PRs, or force-push.\n\n";
+discover_prompt += "3) Do NOT merge PRs or force-push. Discover does not close issues (Work agents may\n";
+discover_prompt += "   close issues only under ISSUE LIFECYCLE rules when no remaining work).\n\n";
 discover_prompt += "TASK:\n";
 discover_prompt += "List open issues for " + repo + ".\n";
 discover_prompt += "unassigned_only=" + unassigned_only.to_string() + "\n";
@@ -856,6 +857,30 @@ for item in queue {
         work_prompt += "HUMAN QA HANDOFF: include_human_qa=false — do not create QA issues this run.\n\n";
     }
 
+    work_prompt += "ISSUE LIFECYCLE / CLOSE RULES (HARD — no empty trackers):\n";
+    work_prompt += "No open issue may be left open as a pure tracker with zero related open child /\n";
+    work_prompt += "residual / QA issues AND no remaining implementable steps.\n";
+    work_prompt += "Apply to the issue you worked (#" + inum.to_string() + ") and to PARENT_TRACKER when you own the lifecycle:\n";
+    work_prompt += "L1) Inventory open related issues: children/residuals with Parent: #N, QA (#N) issues,\n";
+    work_prompt += "    and open PRs still linked to this issue. Use gh issue list / search + body links.\n";
+    work_prompt += "L2) If the issue is BLOCKED ON HUMAN QA (or ready for human QA) and no open QA issue\n";
+    work_prompt += "    exists for it: CREATE the QA issue (test plan + assign @" + qa_assignee
+        + " / label \"" + qa_label + "\") — see HUMAN QA HANDOFF.\n";
+    work_prompt += "    Do NOT leave the parent open with only a chat note that QA is needed.\n";
+    work_prompt += "L3) If remaining agent work exists: file PR-sized residual/child issues (not empty\n";
+    work_prompt += "    trackers). Parent may stay open while children exist.\n";
+    work_prompt += "L4) If NO remaining steps AND NO open related child/residual/QA issues AND your PR\n";
+    work_prompt += "    (if any) fully covers the issue (or issue was split_only with children only):\n";
+    work_prompt += "    - Comment with final status + PR/child links\n";
+    work_prompt += "    - Remove In Progress\n";
+    work_prompt += "    - gh issue close #" + inum.to_string() + " --repo " + repo
+        + " with a short reason (e.g. work complete; see PR #… / children #…)\n";
+    work_prompt += "L5) HARD BAN: leaving an epic/tracker open with zero open children and no next step\n";
+    work_prompt += "    (\"tracking only\"). Either file real children/QA or close it.\n";
+    work_prompt += "L6) Do NOT close issues that still have open children, open QA tasks, or open PRs\n";
+    work_prompt += "    that have not been superseded. Do NOT close other humans' active work.\n";
+    work_prompt += "L7) dry_run=true: describe close/QA decisions only; do not close or create.\n\n";
+
     if disp == "skip" {
         work_prompt += "ACTION: disposition is skip. Do not change code. Confirm why in summary.\n";
         work_prompt += "status=skipped. Optional: comment on the issue only if dry_run is false and\n";
@@ -882,6 +907,9 @@ for item in queue {
             work_prompt += "   can finish gates tonight; default is split-only.\n";
             work_prompt += "6) If you ship a first-slice PR, update that row to pr_opened + PR link on PARENT,\n";
             work_prompt += "   and file residual issues for remaining slices if not already children.\n";
+            work_prompt += "7) PARENT must not remain open without open children: after filing children, leave\n";
+            work_prompt += "   PARENT open; if you somehow created zero children and have no more steps, CLOSE\n";
+            work_prompt += "   PARENT only after re-checking lifecycle (should not happen on a true split).\n";
             work_prompt += "status=split_only (or pr_opened if you also shipped the first slice).\n";
         }
     } else {
@@ -916,6 +944,9 @@ for item in queue {
             work_prompt += "   (status pr_opened/blocked + PR URL + notes) and post a PARENT comment.\n";
             work_prompt += "K) Do not resolve review threads on OTHER people PRs in this step.\n";
             work_prompt += "L) Do not write multi-phase progress into docs/ai-generated markdown trackers.\n";
+            work_prompt += "M) Apply ISSUE LIFECYCLE / CLOSE RULES: QA issue if blocked on human QA; residual\n";
+            work_prompt += "   children if more agent work remains; otherwise close #" + inum.to_string()
+                + " when no open children/QA remain.\n";
             work_prompt += "status=pr_opened on success, status=failed with summary of blockers on failure.\n";
         }
     }
@@ -1060,7 +1091,10 @@ if require_residual_quota {
         rq_prompt += "GOAL: Ensure this overnight PASS logged at least min_residual_issues NEW,\n";
         rq_prompt += "REAL **PR-sized** residual/child issues under parents that are ALREADY p1–p4,\n";
         rq_prompt += "each residual inheriting the parent pN. Important unfinished work — NOT three\n";
-        rq_prompt += "micro-issues invented to pad a number, and NOT three low-priority fillers.\n\n";
+        rq_prompt += "micro-issues invented to pad a number, and NOT three low-priority fillers.\n";
+        rq_prompt += "Parents must not sit open as empty trackers: if a p1–p4 parent has remaining work,\n";
+        rq_prompt += "it needs open children/QA; if blocked on human QA with no QA issue, file QA (@"
+            + qa_assignee + "). Empty trackers with zero children/QA should be closed by Work agents.\n\n";
 
         rq_prompt += "SIZE / ANTI-PADDING (HARD — overrides quota pressure):\n";
         rq_prompt += "  - Count ONLY issues that are independently implementable as one PR (1–3 modules,\n";

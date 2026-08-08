@@ -104,6 +104,17 @@ When Work finishes a change that is **ready for human QA** (product UI, installe
 
 Human QA issues are **not** unassigned residuals and usually **do not** count toward residual quota.
 
+### Issue lifecycle / close rules (no empty trackers)
+
+| Situation | Required action |
+|-----------|-----------------|
+| Work complete, **no** open children / residuals / QA issues, **no** remaining steps | **Close** the issue (comment + reason + PR/child links). Do **not** leave it open “for tracking.” |
+| Blocked on **human QA** and no open QA issue | **Create** QA issue with test plan, assign `qa_assignee`, link Parent + PR; parent may stay open while QA is open |
+| Remaining agent work | File **PR-sized** residual/child issues; parent stays open while children exist |
+| Open children or open QA or active linked PRs | **Do not close** the parent |
+
+Hard ban: epic/tracker issues open with **zero** related open child/QA issues and no next step.
+
 ### Residual quota + circuit breaker
 
 Live runs must **grow backlog under existing high-priority parents**, not invent low-priority noise.
