@@ -20,9 +20,11 @@ import com.percussion.delivery.metadata.IPSMetadataEntry;
 import com.percussion.delivery.metadata.IPSMetadataProperty;
 import com.percussion.delivery.metadata.data.PSMetadataDatedEntries;
 import com.percussion.delivery.metadata.data.PSMetadataDatedEvent;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
  * This class is responsible for process the dates of the page and return the JSONObject with the
@@ -41,9 +43,9 @@ public class PSDatedEntriesHelper {
   private static final String START_DATE_PROPERTY_NAME = "perc:start_date";
   private static final String END_DATE_PROPERTY_NAME = "perc:end_date";
 
-  /** Constant for the date formater. */
   /** Date formatter used to render the start / end timestamps of the dated event payload. */
-  private FastDateFormat formatter = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+  private static final DateTimeFormatter FORMATTER =
+      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
   /**
    * Returns the dated-entries payload assembled from the supplied metadata index results:
@@ -84,11 +86,14 @@ public class PSDatedEntriesHelper {
           }
 
           if (START_DATE_PROPERTY_NAME.equals(prop.getName()) && prop.getDatevalue() != null) {
-            event.setStart(formatter.format(prop.getDatevalue()));
+            ZonedDateTime start =
+                prop.getDatevalue().atZone(ZoneId.systemDefault());
+            event.setStart(FORMATTER.format(start));
           }
 
           if (END_DATE_PROPERTY_NAME.equals(prop.getName()) && prop.getDatevalue() != null) {
-            event.setEnd(formatter.format(prop.getDatevalue()));
+            ZonedDateTime end = prop.getDatevalue().atZone(ZoneId.systemDefault());
+            event.setEnd(FORMATTER.format(end));
           }
         }
 

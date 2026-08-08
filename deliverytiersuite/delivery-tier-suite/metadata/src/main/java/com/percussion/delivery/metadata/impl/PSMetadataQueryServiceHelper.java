@@ -21,11 +21,12 @@ import com.percussion.delivery.metadata.IPSMetadataQueryService;
 import com.percussion.delivery.metadata.data.impl.PSCriteriaElement;
 import com.percussion.delivery.metadata.utils.PSHashCalculator;
 import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
  * Static utility helpers shared by the metadata query services and friends. The class centralises
@@ -60,7 +61,8 @@ public abstract class PSMetadataQueryServiceHelper {
   }
 
   /** ISO-8601 formatter for dates such as {@code 2011-01-21T09:36:05} used in metadata queries. */
-  public static FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
+  public static final DateTimeFormatter dateFormat =
+      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
   /**
    * Resolves the declared {@link VALUETYPE} for the supplied property name, stripping any namespace
@@ -84,7 +86,7 @@ public abstract class PSMetadataQueryServiceHelper {
   /**
    * Parses the supplied comma / quoted value into the typed list expected by an HQL {@code IN}
    * expression. Returns a list of {@link Double} for {@link VALUETYPE#NUMBER} entries, {@link
-   * java.util.Date} for {@link VALUETYPE#DATE} entries, and string hashes for text entries.
+   * LocalDateTime} for {@link VALUETYPE#DATE} entries, and string hashes for text entries.
    *
    * @param key the property key; may not be {@code null}.
    * @param val the raw value list string; may not be {@code null}.
@@ -105,12 +107,16 @@ public abstract class PSMetadataQueryServiceHelper {
 
     if (type == VALUETYPE.NUMBER) {
       for (String s : val.split(",")) {
-        results.add(new Double(s));
+        results.add(Double.valueOf(s));
       }
     } else if (type == VALUETYPE.DATE) {
       for (String s : val.split("'")) {
         if (s.trim().equals(",") || s.trim().equals("")) continue;
-        results.add(dateFormat.parse(s));
+        try {
+          results.add(LocalDateTime.parse(s, dateFormat));
+        } catch (Exception e) {
+          throw new ParseException("Unparseable date: \"" + s + "\"", 0);
+        }
       }
     } else { // For text / string use value hash if it is a property
       boolean calcHash = true;

@@ -63,7 +63,7 @@ public class PSJunitFileSelector extends BaseExtendSelector {
 
     try {
       // try to load it
-      Class theClass = loadClass(className);
+      Class<?> theClass = loadClass(className);
 
       // load JUnit4 test annotation class
       loadTestAnnotation();
@@ -73,7 +73,7 @@ public class PSJunitFileSelector extends BaseExtendSelector {
       if (!Modifier.isPublic(mods) || Modifier.isInterface(mods) || Modifier.isAbstract(mods))
         return false;
 
-      final Class clazzTestCase = loadClass("junit.framework.TestCase");
+      final Class<?> clazzTestCase = loadClass("junit.framework.TestCase");
       // automatically exclude all non JUnit/JUnit4 TestCase classes.
       if (!clazzTestCase.isAssignableFrom(theClass) && !isJUnit4(theClass)) return false;
 
@@ -121,7 +121,7 @@ public class PSJunitFileSelector extends BaseExtendSelector {
    *     <code>className</code>.
    * @return <code>true</code> if it should be excluded, <code>false</code> if not.
    */
-  private boolean isClassExcluded(String className, Class theClass) {
+  private boolean isClassExcluded(String className, Class<?> theClass) {
     boolean isExcluded = false;
 
     // see if name is excluded
@@ -141,7 +141,7 @@ public class PSJunitFileSelector extends BaseExtendSelector {
    *     <code>className</code>.
    * @return <code>true</code> if it should be included, <code>false</code> if not.
    */
-  private boolean isClassIncluded(String className, Class theClass) {
+  private boolean isClassIncluded(String className, Class<?> theClass) {
     // default to true is no filters provided
     boolean isIncluded = m_classNameIncludes.isEmpty() && m_classImplIncludes.isEmpty();
 
@@ -186,11 +186,11 @@ public class PSJunitFileSelector extends BaseExtendSelector {
    * @return <code>true</code> if the name matches any patterns, or if <code>patterns</code> is
    *     empty and <code>matchEmpty</code> is <code>true</code>, <code>false</code> otherwise.
    */
-  private boolean hasMatch(String name, Iterator patterns, boolean matchEmpty) {
+  private boolean hasMatch(String name, Iterator<String> patterns, boolean matchEmpty) {
     boolean hasMatch = (matchEmpty && !patterns.hasNext());
 
     while (patterns.hasNext() && !hasMatch) {
-      hasMatch = SelectorUtils.match((String) patterns.next(), name);
+      hasMatch = SelectorUtils.match(patterns.next(), name);
     }
 
     return hasMatch;
@@ -209,12 +209,12 @@ public class PSJunitFileSelector extends BaseExtendSelector {
    *     classNames</code> is empty and <code>matchEmpty</code> is <code>true</code>, <code>false
    *     </code> otherwise.
    */
-  private boolean hasMatch(Class theClass, Iterator classNames, boolean matchEmpty) {
+  private boolean hasMatch(Class<?> theClass, Iterator<String> classNames, boolean matchEmpty) {
     boolean hasMatch = (matchEmpty && !classNames.hasNext());
 
     while (classNames.hasNext() && !hasMatch) {
-      Class testClass;
-      String testName = (String) classNames.next();
+      Class<?> testClass;
+      String testName = classNames.next();
       try {
         testClass = loadClass(testName);
         hasMatch = testClass.isAssignableFrom(theClass);
@@ -374,8 +374,8 @@ public class PSJunitFileSelector extends BaseExtendSelector {
    * @return The class, never <code>null</code>.
    * @throws ClassNotFoundException If the class cannot be loaded.
    */
-  private Class loadClass(String className) throws ClassNotFoundException {
-    Class theClass = null;
+  private Class<?> loadClass(String className) throws ClassNotFoundException {
+    Class<?> theClass;
     if (ms_classLoader == null) theClass = Class.forName(className);
     else theClass = ms_classLoader.loadClass(className);
 
@@ -389,7 +389,7 @@ public class PSJunitFileSelector extends BaseExtendSelector {
    * @param theClass The test class to inspect, assumed not <code>null</code>.
    * @return <code>true</code> if the test class is JUnit4, <code>false</code> otherwise.
    */
-  private boolean isJUnit4(Class theClass) {
+  private boolean isJUnit4(Class<?> theClass) {
     Method[] methods = theClass.getMethods();
     for (Method m : methods) {
       Annotation[] annotations = m.getDeclaredAnnotations();
@@ -487,5 +487,5 @@ public class PSJunitFileSelector extends BaseExtendSelector {
    * Stores the test annotation class used by JUnit4-style test classes. Initialized in {@link
    * #loadTestAnnotation()}.
    */
-  private static Class ms_testAnnotation = null;
+  private static Class<?> ms_testAnnotation = null;
 }

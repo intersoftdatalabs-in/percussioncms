@@ -27,9 +27,9 @@ import com.percussion.delivery.metadata.data.PSVisitQuery;
 import com.percussion.security.error.PSExceptionUtils;
 import jakarta.annotation.PreDestroy;
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -171,7 +171,7 @@ public class PSBlogPostVisitService implements IPSBlogPostVisitService, Initiali
   public void trackBlogPost(String pagePath) {
     IPSBlogPostVisit visit = inMemoryVisitMap.get(pagePath);
     if (visit == null) {
-      inMemoryVisitMap.put(pagePath, new PSBlogPostVisit(pagePath, new Date(), BigInteger.ONE));
+      inMemoryVisitMap.put(pagePath, new PSBlogPostVisit(pagePath, LocalDate.now(), BigInteger.ONE));
     } else {
       visit.setHitCount(visit.getHitCount().add(BigInteger.ONE));
     }

@@ -25,9 +25,14 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-/** Base class for REST exceptions in Percussion CMS. Sunny Sal: "Exception ka baap yeh hai!" */
+/**
+ * Base class for REST exceptions in Percussion CMS. Sunny Sal: "Exception ka baap yeh hai!"
+ *
+ * <p>{@link #errorData} is {@code transient}: it may hold arbitrary non-{@link
+ * java.io.Serializable} payloads used only for in-process JAX-RS mapping, not for Java
+ * serialization of the exception hierarchy.
+ */
 @XmlRootElement(name = "Error")
-@SuppressWarnings("serial")
 public class RestExceptionBase extends WebApplicationException {
 
   private static final long serialVersionUID = 1L;
@@ -35,7 +40,8 @@ public class RestExceptionBase extends WebApplicationException {
   private RestErrorCode errorCode;
   private String message;
   private String detailMessage;
-  private Object errorData;
+  /** In-process error payload; not part of Java serialization. */
+  private transient Object errorData;
   private Status status;
 
   public RestExceptionBase() {
@@ -44,7 +50,7 @@ public class RestExceptionBase extends WebApplicationException {
 
   public RestExceptionBase(
       RestErrorCode errorCode, String detailMessage, Object errorData, Status status) {
-    this(errorCode, null, detailMessage, errorData, status);
+    this(errorCode, null, detailMessage, errorData, status, null);
   }
 
   public RestExceptionBase(
@@ -53,8 +59,32 @@ public class RestExceptionBase extends WebApplicationException {
       String detailMessage,
       Object errorData,
       Status status) {
+    this(errorCode, message, detailMessage, errorData, status, null);
+  }
+
+  /**
+   * Constructs a REST exception with an optional causal throwable attached via {@code super(cause)}
+   * so subclasses need not call {@link #initCause(Throwable)} after construction (avoids {@code
+   * this-escape} under {@code -Xlint:all}).
+   *
+   * @param errorCode the REST error code, may be {@code null} only for framework/default use
+   * @param message the message; when {@code null} and {@code errorCode} is non-null, resolved from
+   *     the error messages bundle
+   * @param detailMessage optional detail text
+   * @param errorData optional in-process payload (not Java-serialized)
+   * @param status HTTP status; defaults to {@link Status#INTERNAL_SERVER_ERROR} when {@code null}
+   * @param cause optional cause, may be {@code null}
+   */
+  public RestExceptionBase(
+      RestErrorCode errorCode,
+      String message,
+      String detailMessage,
+      Object errorData,
+      Status status,
+      Throwable cause) {
+    super(cause);
     this.errorCode = errorCode;
-    if (message == null) {
+    if (message == null && errorCode != null) {
       var errorMsg = ResourceBundle.getBundle("com.percussion.rest.errors.ErrorMessages");
       this.message = errorMsg.getString(Integer.toString(errorCode.getNumVal()));
     } else {

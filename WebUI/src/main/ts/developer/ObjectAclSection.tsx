@@ -23,6 +23,7 @@ import {
   saveObjectAcl,
   type AclPermissionName,
 } from "../api/developer/aclApi";
+import { loadDefaultAclTemplate } from "../api/developer/preferencesApi";
 import type {
   ObjectAcl,
   ObjectAclEntry,
@@ -30,7 +31,32 @@ import type {
 } from "../api/developer/types";
 import { isSessionRedirectError, type ApiError } from "../api/client";
 import { catalogColors, errorAlert, tableHeaderRow, tableRow } from "./catalogStyles";
+import {
+  mergeTemplateOntoAclEntries,
+  shouldApplyDefaultAclTemplate,
+} from "./defaultAclTemplate";
 import { DEV_MSG } from "./messages";
+import {
+  DESIGN_ACCESS_PERMISSIONS,
+  RUNTIME_ACCESS_PERMISSIONS,
+  hasRuntimeAccessPermission,
+  shouldShowRuntimeAccessColumns,
+  type AclDesignObjectKind,
+  type AclPermissionLayer,
+  visibleAclPermissionsForObject,
+} from "./objectAclPermissionModel";
+import {
+  canRemoveAclEntry,
+  createSpecialAclEntryTemplate,
+  isDuplicateAclEntry,
+  missingSpecialAclKinds,
+  orderAclEntriesWithSpecialsFirst,
+  specialAclKind,
+  specialAclKindFromName,
+  specialAclPrincipalName,
+  specialAclPrincipalType,
+  type SpecialAclKind,
+} from "./objectAclSpecialEntries";
 
 /** Principal types supported when adding an ACL entry (REST TypedPrincipal / PrincipalTypes). */
 export const ACL_ENTRY_TYPES = ["ROLE", "USER", "COMMUNITY", "GROUP"] as const;
@@ -109,7 +135,8 @@ function stableServerKey(e: ObjectAclEntry, index: number): string {
 }
 
 function toDraftEntries(list: ObjectAclEntry[]): DraftEntry[] {
-  return list.map((e, i) => ({
+  const ordered = orderAclEntriesWithSpecialsFirst(list);
+  return ordered.map((e, i) => ({
     ...e,
     principal: e.principal ? { ...e.principal } : undefined,
     type: e.type ? { ...e.type } : undefined,
@@ -121,6 +148,9 @@ function toDraftEntries(list: ObjectAclEntry[]): DraftEntry[] {
 }
 
 function entryLabel(e: ObjectAclEntry): string {
+  const kind = specialAclKind(e);
+  if (kind === "default") return DEV_MSG.ACL_SPECIAL_DEFAULT_LABEL;
+  if (kind === "any-community") return DEV_MSG.ACL_SPECIAL_ANY_COMMUNITY_LABEL;
   return (
     e.name ||
     e.principal?.name ||
@@ -130,6 +160,9 @@ function entryLabel(e: ObjectAclEntry): string {
 }
 
 function entryTypeLabel(e: ObjectAclEntry): string {
+  const kind = specialAclKind(e);
+  if (kind === "default") return DEV_MSG.ACL_SPECIAL_TYPE_DEFAULT;
+  if (kind === "any-community") return DEV_MSG.ACL_SPECIAL_TYPE_ANY_COMMUNITY;
   // Prefer PrincipalTypes enum on type.type; fall back to type.name / principal.type
   return e.type?.type || e.type?.name || e.principal?.type || "—";
 }
@@ -158,15 +191,41 @@ function structureEqual(a: DraftEntry[], b: DraftEntry[]): boolean {
   return true;
 }
 
+/** i18n label for a known REST permission column (Workbench wording). */
+function permissionColumnLabel(perm: AclPermissionName): string {
+  switch (perm) {
+    case "READ":
+      return DEV_MSG.ACL_PERM_READ;
+    case "UPDATE":
+      return DEV_MSG.ACL_PERM_UPDATE;
+    case "DELETE":
+      return DEV_MSG.ACL_PERM_DELETE;
+    case "OWNER":
+      return DEV_MSG.ACL_PERM_OWNER;
+    case "RUNTIME_VISIBLE":
+      return DEV_MSG.ACL_PERM_RUNTIME_VISIBLE;
+    default:
+      return String(perm).replace(/_/g, " ");
+  }
+}
+
 /**
- * Object ACL viewer/editor for Developer detail panels (SE-04).
- * Toggle permissions, add/remove entries, save via PUT /acls/bulk.
+ * Object ACL viewer/editor for Developer detail panels (SE-04 / CD-19).
+ * Design vs runtime permission columns (Workbench parity), toggle permissions,
+ * add/remove entries, save via PUT /acls/bulk.
  */
 export function ObjectAclSection({
   objectGuid,
+  objectKind = null,
   testIdPrefix = "developer-acl",
 }: {
   objectGuid: string | null | undefined;
+  /**
+   * Design-object kind for runtime-visibility column gating (CD-19).
+   * Content types / templates / etc. show Runtime visibility; others hide it
+   * unless an entry already carries RUNTIME_VISIBLE.
+   */
+  objectKind?: AclDesignObjectKind | null;
   testIdPrefix?: string;
 }): React.ReactElement {
   const [acl, setAcl] = useState<ObjectAcl | null>(null);
@@ -244,6 +303,35 @@ export function ObjectAclSection({
     return !permsEqual(cur, init);
   });
   const dirty = acl != null && (structureDirty || permsDirty);
+  const missingSpecials = useMemo(
+    () => missingSpecialAclKinds(draftEntries),
+    [draftEntries],
+  );
+
+  /** Force-show runtime columns when any draft entry already has runtime bits. */
+  const forceShowRuntime = useMemo(() => {
+    for (const e of draftEntries) {
+      const chosen = selected[e.clientKey];
+      if (chosen && hasRuntimeAccessPermission(chosen)) return true;
+      if (hasRuntimeAccessPermission(asPermissions(e))) return true;
+    }
+    return false;
+  }, [draftEntries, selected]);
+
+  const showRuntimeColumns = shouldShowRuntimeAccessColumns(objectKind, {
+    forceShow: forceShowRuntime,
+  });
+
+  const visiblePermissions = useMemo(
+    () =>
+      visibleAclPermissionsForObject(objectKind, {
+        forceShowRuntime: forceShowRuntime,
+      }),
+    [objectKind, forceShowRuntime],
+  );
+
+  const designPerms = DESIGN_ACCESS_PERMISSIONS;
+  const runtimePerms = showRuntimeColumns ? RUNTIME_ACCESS_PERMISSIONS : [];
 
   function togglePerm(key: string, perm: AclPermissionName) {
     setSelected((prev) => {
@@ -256,6 +344,10 @@ export function ObjectAclSection({
   }
 
   function removeEntry(clientKey: string) {
+    const target = draftEntries.find((e) => e.clientKey === clientKey);
+    if (target && !canRemoveAclEntry(target)) {
+      return;
+    }
     setDraftEntries((prev) => prev.filter((e) => e.clientKey !== clientKey));
     setSelected((prev) => {
       const copy = { ...prev };
@@ -266,31 +358,55 @@ export function ObjectAclSection({
     setNotice(null);
   }
 
-  function addEntry() {
-    const name = newName.trim();
-    if (!name) return;
-    const dup = draftEntries.some(
-      (e) =>
-        (e.name || e.principal?.name || "").toLowerCase() === name.toLowerCase() &&
-        (e.type?.type || "").toUpperCase() === newType,
-    );
-    if (dup) {
-      setError(DEV_MSG.ACL_ENTRY_DUP);
-      return;
-    }
+  function appendDraftEntry(partial: ObjectAclEntry) {
     const seq = newSeq + 1;
     setNewSeq(seq);
     const clientKey = `__new:${seq}`;
     const entry: DraftEntry = {
+      ...partial,
       clientKey,
-      name,
-      principal: { name },
-      type: { type: newType, name },
+      permissions: Array.isArray(partial.permissions)
+        ? partial.permissions.map((p) => ({ ...p }))
+        : partial.permissions,
+    };
+    setDraftEntries((prev) => orderAclEntriesWithSpecialsFirst([...prev, entry]));
+    setSelected((prev) => ({
+      ...prev,
+      [clientKey]: new Set<string>(asPermissions(entry).length ? asPermissions(entry) : ["READ"]),
+    }));
+    return clientKey;
+  }
+
+  function addSpecialEntry(kind: SpecialAclKind) {
+    if (isDuplicateAclEntry(draftEntries, specialAclPrincipalName(kind), specialAclPrincipalType(kind))) {
+      setError(DEV_MSG.ACL_ENTRY_DUP);
+      return;
+    }
+    appendDraftEntry(createSpecialAclEntryTemplate(kind, acl?.id));
+    setError(null);
+    setNotice(null);
+  }
+
+  function addEntry() {
+    const name = newName.trim();
+    if (!name) return;
+    // Coerce special names to server PrincipalTypes (USER / COMMUNITY).
+    const special = specialAclKindFromName(name);
+    const effectiveType: AclEntryTypeName = special
+      ? specialAclPrincipalType(special)
+      : newType;
+    const effectiveName = special ? specialAclPrincipalName(special) : name;
+    if (isDuplicateAclEntry(draftEntries, effectiveName, effectiveType)) {
+      setError(DEV_MSG.ACL_ENTRY_DUP);
+      return;
+    }
+    appendDraftEntry({
+      name: effectiveName,
+      principal: { name: effectiveName, type: effectiveType },
+      type: { type: effectiveType, name: effectiveName },
       permissions: [{ permission: "READ" }],
       aclId: acl?.id,
-    };
-    setDraftEntries((prev) => [...prev, entry]);
-    setSelected((prev) => ({ ...prev, [clientKey]: new Set<string>(["READ"]) }));
+    });
     setNewName("");
     setError(null);
     setNotice(null);
@@ -335,22 +451,29 @@ export function ObjectAclSection({
     return draftEntries.map((e) => {
       const chosen = selected[e.clientKey] ?? new Set<string>();
       // Preserve name fallbacks used by the pre-add/remove save path
-      const principalName =
-        e.name || e.principal?.name || e.type?.name || "";
-      const typeName = e.type?.type || "ROLE";
+      const special = specialAclKind(e);
+      const principalName = special
+        ? specialAclPrincipalName(special)
+        : e.name || e.principal?.name || e.type?.name || "";
+      // Specials always use server PrincipalTypes (USER / COMMUNITY), even if a
+      // historical payload mis-typed Default as ROLE.
+      const typeName = special
+        ? specialAclPrincipalType(special)
+        : e.type?.type || "ROLE";
       // Preserve extra fields from server principal/type objects when present
       const principal = e.principal
         ? {
             ...e.principal,
             name: principalName || e.principal.name,
+            type: special ? typeName : e.principal.type || typeName,
           }
         : principalName
-          ? { name: principalName }
+          ? { name: principalName, type: typeName }
           : undefined;
       const type = e.type
         ? {
             ...e.type,
-            type: e.type.type || typeName,
+            type: special ? typeName : e.type.type || typeName,
             name: principalName || e.type.name,
           }
         : {
@@ -411,16 +534,49 @@ export function ObjectAclSection({
     setError(null);
     setNotice(null);
     try {
-      const created = await createObjectAcl(objectGuid, {
+      let created = await createObjectAcl(objectGuid, {
         name,
         type: ownerType,
       });
+      // Workbench parity: merge default ACL template preference onto the new ACL.
+      let templateApplied = false;
+      let templateApplyFailed = false;
+      try {
+        const { template } = await loadDefaultAclTemplate();
+        if (shouldApplyDefaultAclTemplate(template)) {
+          const existing = asEntries(created);
+          const { entries: merged, added } = mergeTemplateOntoAclEntries(
+            existing,
+            template,
+            created.id,
+          );
+          if (added > 0) {
+            await saveObjectAcl({ ...created, aclEntries: merged });
+            try {
+              created = await getAclForObject(objectGuid);
+            } catch {
+              created = { ...created, aclEntries: merged };
+            }
+            templateApplied = true;
+          }
+        }
+      } catch {
+        // Create succeeded; template is best-effort (pref API / bulk save).
+        templateApplyFailed = true;
+      }
       setMissing(false);
       setAcl(created);
       const entries = toDraftEntries(asEntries(created));
       setDraftEntries(entries);
       setSelected(buildSelectedMap(entries));
-      setNotice(DEV_MSG.ACL_SAVED);
+      if (templateApplied) {
+        setNotice(DEV_MSG.ACL_TEMPLATE_APPLIED);
+      } else {
+        setNotice(DEV_MSG.ACL_SAVED);
+      }
+      if (templateApplyFailed) {
+        setError(DEV_MSG.ACL_TEMPLATE_APPLY_ERROR);
+      }
     } catch (err: unknown) {
       setError(formatApiErr(DEV_MSG.ACL_CREATE_ERROR, err));
     } finally {
@@ -441,6 +597,12 @@ export function ObjectAclSection({
     <section style={{ marginBottom: "16px" }} data-testid={`${testIdPrefix}-section`}>
       <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.ACL_TITLE}</h3>
       <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.ACL_HINT}</p>
+      <p
+        style={{ color: catalogColors.muted, fontSize: "0.85rem" }}
+        data-testid={`${testIdPrefix}-special-hint`}
+      >
+        {DEV_MSG.ACL_SPECIAL_HINT}
+      </p>
 
       {loading ? (
         <div data-testid={`${testIdPrefix}-loading`}>{DEV_MSG.ACL_LOADING}</div>
@@ -549,6 +711,8 @@ export function ObjectAclSection({
             <div style={{ overflowX: "auto", marginTop: "8px" }}>
               <table
                 data-testid={`${testIdPrefix}-table`}
+                data-acl-show-runtime={showRuntimeColumns ? "true" : "false"}
+                data-acl-object-kind={objectKind ?? "unknown"}
                 style={{
                   width: "100%",
                   borderCollapse: "collapse",
@@ -556,18 +720,73 @@ export function ObjectAclSection({
                 }}
               >
                 <thead>
-                  <tr style={tableHeaderRow}>
-                    <th style={{ padding: "8px" }}>{DEV_MSG.ACL_COL_ENTRY}</th>
-                    <th style={{ padding: "8px" }}>{DEV_MSG.ACL_COL_TYPE}</th>
-                    {ACL_PERMISSIONS.map((p) => (
+                  {/* Layer group headers — Design access | Runtime visibility (CD-19) */}
+                  <tr
+                    style={tableHeaderRow}
+                    data-testid={`${testIdPrefix}-layer-headers`}
+                  >
+                    <th style={{ padding: "8px" }} rowSpan={2}>
+                      {DEV_MSG.ACL_COL_ENTRY}
+                    </th>
+                    <th style={{ padding: "8px" }} rowSpan={2}>
+                      {DEV_MSG.ACL_COL_TYPE}
+                    </th>
+                    <th
+                      colSpan={designPerms.length}
+                      style={{
+                        padding: "6px 8px",
+                        textAlign: "center",
+                        fontSize: "0.8rem",
+                        borderBottom: `1px solid ${catalogColors.softBorder}`,
+                        background: "rgba(0,0,0,0.02)",
+                      }}
+                      title={DEV_MSG.ACL_LAYER_DESIGN_HINT}
+                      data-testid={`${testIdPrefix}-layer-design`}
+                      data-acl-layer={"design" satisfies AclPermissionLayer}
+                    >
+                      {DEV_MSG.ACL_LAYER_DESIGN}
+                    </th>
+                    {showRuntimeColumns ? (
+                      <th
+                        colSpan={runtimePerms.length}
+                        style={{
+                          padding: "6px 8px",
+                          textAlign: "center",
+                          fontSize: "0.8rem",
+                          borderBottom: `1px solid ${catalogColors.softBorder}`,
+                          background: "rgba(0,0,0,0.02)",
+                        }}
+                        title={DEV_MSG.ACL_LAYER_RUNTIME_HINT}
+                        data-testid={`${testIdPrefix}-layer-runtime`}
+                        data-acl-layer={"runtime" satisfies AclPermissionLayer}
+                      >
+                        {DEV_MSG.ACL_LAYER_RUNTIME}
+                      </th>
+                    ) : null}
+                    <th style={{ padding: "8px" }} rowSpan={2}>
+                      {DEV_MSG.ACL_COL_ACTIONS}
+                    </th>
+                  </tr>
+                  <tr
+                    style={tableHeaderRow}
+                    data-testid={`${testIdPrefix}-perm-headers`}
+                  >
+                    {visiblePermissions.map((p) => (
                       <th
                         key={p}
-                        style={{ padding: "8px", textAlign: "center", fontSize: "0.8rem" }}
+                        style={{
+                          padding: "8px",
+                          textAlign: "center",
+                          fontSize: "0.8rem",
+                          fontWeight: 500,
+                        }}
+                        data-testid={`${testIdPrefix}-perm-header-${p}`}
+                        data-acl-permission={p}
+                        title={p}
                       >
-                        {p.replace("_", " ")}
+                        {permissionColumnLabel(p)}
                       </th>
                     ))}
-                    <th style={{ padding: "8px" }}>{DEV_MSG.ACL_COL_ACTIONS}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -575,17 +794,37 @@ export function ObjectAclSection({
                     const key = e.clientKey;
                     const chosen = selected[key] ?? new Set<string>();
                     const label = entryLabel(e);
+                    const kind = specialAclKind(e);
+                    const removable = canRemoveAclEntry(e);
                     return (
                       <tr
                         key={key}
                         style={tableRow}
                         data-testid={`${testIdPrefix}-row-${key}`}
+                        data-special-acl={kind ?? undefined}
                       >
-                        <td style={{ padding: "8px" }}>{label}</td>
-                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                        <td style={{ padding: "8px" }}>
+                          <span data-testid={`${testIdPrefix}-label-${key}`}>{label}</span>
+                          {kind ? (
+                            <span
+                              data-testid={`${testIdPrefix}-special-badge-${kind}`}
+                              style={{
+                                marginLeft: "8px",
+                                fontSize: "0.75rem",
+                                color: catalogColors.muted,
+                              }}
+                            >
+                              {DEV_MSG.ACL_SPECIAL_PROTECTED}
+                            </span>
+                          ) : null}
+                        </td>
+                        <td
+                          style={{ padding: "8px", fontFamily: "monospace" }}
+                          data-testid={`${testIdPrefix}-type-${key}`}
+                        >
                           {entryTypeLabel(e)}
                         </td>
-                        {ACL_PERMISSIONS.map((p) => (
+                        {visiblePermissions.map((p) => (
                           <td key={p} style={{ padding: "8px", textAlign: "center" }}>
                             <input
                               type="checkbox"
@@ -593,24 +832,34 @@ export function ObjectAclSection({
                               checked={chosen.has(p)}
                               disabled={busy}
                               onChange={() => togglePerm(key, p)}
-                              aria-label={`${p} for ${label}`}
+                              aria-label={`${permissionColumnLabel(p)} (${p}) for ${label}`}
                             />
                           </td>
                         ))}
                         <td style={{ padding: "8px" }}>
-                          <button
-                            type="button"
-                            data-testid={`${testIdPrefix}-remove-${key}`}
-                            aria-label={`Remove ACL entry ${label}`}
-                            disabled={busy}
-                            onClick={() => removeEntry(key)}
-                            style={{
-                              ...smallBtnStyle,
-                              cursor: busy ? "not-allowed" : "pointer",
-                            }}
-                          >
-                            {DEV_MSG.ACL_ENTRY_REMOVE}
-                          </button>
+                          {removable ? (
+                            <button
+                              type="button"
+                              data-testid={`${testIdPrefix}-remove-${key}`}
+                              aria-label={`Remove ACL entry ${label}`}
+                              disabled={busy}
+                              onClick={() => removeEntry(key)}
+                              style={{
+                                ...smallBtnStyle,
+                                cursor: busy ? "not-allowed" : "pointer",
+                              }}
+                            >
+                              {DEV_MSG.ACL_ENTRY_REMOVE}
+                            </button>
+                          ) : (
+                            <span
+                              data-testid={`${testIdPrefix}-protected-${key}`}
+                              style={{ color: catalogColors.muted, fontSize: "0.85rem" }}
+                              title={DEV_MSG.ACL_SPECIAL_HINT}
+                            >
+                              {DEV_MSG.ACL_SPECIAL_PROTECTED}
+                            </span>
+                          )}
                         </td>
                       </tr>
                     );
@@ -619,6 +868,50 @@ export function ObjectAclSection({
               </table>
             </div>
           )}
+
+          {missingSpecials.length > 0 ? (
+            <div
+              style={{
+                marginTop: "12px",
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "8px",
+                alignItems: "center",
+              }}
+              data-testid={`${testIdPrefix}-special-actions`}
+            >
+              {missingSpecials.includes("default") ? (
+                <button
+                  type="button"
+                  data-testid={`${testIdPrefix}-add-default`}
+                  disabled={busy}
+                  onClick={() => addSpecialEntry("default")}
+                  style={{
+                    ...smallBtnStyle,
+                    padding: "8px 12px",
+                    cursor: busy ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {DEV_MSG.ACL_SPECIAL_ADD_DEFAULT}
+                </button>
+              ) : null}
+              {missingSpecials.includes("any-community") ? (
+                <button
+                  type="button"
+                  data-testid={`${testIdPrefix}-add-any-community`}
+                  disabled={busy}
+                  onClick={() => addSpecialEntry("any-community")}
+                  style={{
+                    ...smallBtnStyle,
+                    padding: "8px 12px",
+                    cursor: busy ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {DEV_MSG.ACL_SPECIAL_ADD_ANY_COMMUNITY}
+                </button>
+              ) : null}
+            </div>
+          ) : null}
 
           <div
             style={{

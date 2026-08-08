@@ -193,9 +193,9 @@ Details: [perc-qa-automation/README.md](../../modules/perc-qa-automation/README.
 
 **Related slices:** Playwright env `TEST_CMS_URL` without host install → #1928 / #2064; golden smoke → #2065; optional CI job → #1930 (workflow + section below).
 
-#### Agent instructions (productized; AGENTS.md rule commits need human review)
+#### Agent instructions (rule files applied — #2073)
 
-Root and module `AGENTS.md` / night-issue workflow rule files are **hard-gated for human review** before commit (see root `AGENTS.md`). Until those rule diffs are approved, treat the following as **binding product process** for unattended UI work:
+Root / module `AGENTS.md` and night-issue workflow rules encode this process (human-approved apply: **#2073**). Binding product process for unattended UI work:
 
 1. **Do not blanket-skip Playwright** for a user-visible surface solely because `agent_safe_only` is true **when** the H2 QA path is available: `perc-devctl qa-up` → `TEST_CMS_URL` → **surface-filtered** Playwright → `qa-down`.
 2. Prefer **path / grep / tag** surface filters (`npm run test:surface` or native CLI). Do not run the full suite as the default overnight gate.
@@ -203,15 +203,13 @@ Root and module `AGENTS.md` / night-issue workflow rule files are **hard-gated f
 4. Collect failure artifacts under `frontend/test-results/` (+ HTML report); attach per #2066 when that doc is present.
 5. **Still skip** work that needs host install only, secrets, or multi-RDBMS matrix unless the issue explicitly opts into those.
 
-**Proposed rule-file edits (draft for human approval — do not merge without explicit OK):**
+**Rule files (source of truth for agents):**
 
-|                      File                       |                                                                      Proposed change                                                                       |
-|-------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `modules/perc-qa-automation/AGENTS.md`          | Add **QA mode surface filter** section pointing at `test:surface`, `TEST_CMS_URL` / `qa-up`, artifact paths                                                |
-| Root `AGENTS.md`                                | In WebUI / Playwright HARD GATE pointers, note unattended path = H2 QA + surface filter (not permanent skip)                                               |
-| `.grok/workflows/night-issue-prs.rhai` + README | Clarify `agent_safe_only`: host-install / secrets still skipped; **QA-mode surface Playwright** is allowed when stack + filter are documented on the issue |
-
-Operators may apply those drafts in a follow-up after human review. Product docs and npm scripts above are mergeable without that gate.
+| File | Content |
+|------|---------|
+| `modules/perc-qa-automation/AGENTS.md` | **QA mode surface filter** — `test:surface`, `TEST_CMS_URL` / `qa-up`, artifacts |
+| Root `AGENTS.md` | Unattended path = H2 QA + surface filter (not permanent Playwright skip) |
+| `.grok/workflows/night-issue-prs.rhai` + README | `agent_safe_only`: host-install / secrets still skipped; **QA-mode surface Playwright** allowed |
 
 **Failure artifacts (night-issue attach):** when Playwright fails in QA or dev mode, collect paths under `modules/perc-qa-automation/frontend` (`test-results/`, optional `playwright-report/`, screenshots) and attach them to the PR/issue using the conventions in [playwright-failure-artifacts.md](./playwright-failure-artifacts.md). CI artifact upload is wired in the optional workflow below (#1930).
 

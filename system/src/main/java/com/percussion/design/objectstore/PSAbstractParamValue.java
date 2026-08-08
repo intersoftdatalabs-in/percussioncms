@@ -30,6 +30,10 @@ import org.w3c.dom.Element;
  */
 public abstract class PSAbstractParamValue extends PSComponent implements IPSParameter {
 
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
+
   /**
    * Constructs this object from its XML representation. See the {@link #toXml(Document) toXml()}
    * method for the DTD of the <code>sourceNode</code> element.
@@ -42,7 +46,7 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
    *     XML element node is not of the appropriate type
    */
   public PSAbstractParamValue(
-      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
@@ -189,7 +193,8 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
    * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is <code>null</code> or does not
    *     conform to the DTD specified in {@link #toXml(Document) toXml()}
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

@@ -23,8 +23,10 @@ import {
 } from "../app/deepLinks/allowlists";
 import { ActionMenusPanel } from "./ActionMenusPanel";
 import { CommunitiesPanel } from "./CommunitiesPanel";
+import { CommunityVisibilityNavigatorPanel } from "./CommunityVisibilityNavigatorPanel";
 import { ContentTypesPanel } from "./ContentTypesPanel";
 import { ControlsPanel } from "./ControlsPanel";
+import { DeveloperPreferencesPanel } from "./DeveloperPreferencesPanel";
 import { ExtensionsPanel } from "./ExtensionsPanel";
 import { DisplayFormatsPanel } from "./DisplayFormatsPanel";
 import { ItemFiltersPanel } from "./ItemFiltersPanel";
@@ -67,7 +69,9 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   "ce-controls": DEV_MSG.TAB_CE_CONTROLS,
   sites: DEV_MSG.TAB_SITES,
   communities: DEV_MSG.TAB_COMMUNITIES,
+  "community-visibility": DEV_MSG.TAB_COMMUNITY_VISIBILITY,
   pipelines: DEV_MSG.TAB_PIPELINES,
+  preferences: DEV_MSG.TAB_PREFERENCES,
 };
 
 /** Shell default when raw section is missing/unknown (allowlist returns undefined). */
@@ -198,8 +202,12 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <SitesPanel />
         ) : active === "communities" ? (
           <CommunitiesPanel />
-        ) : (
+        ) : active === "community-visibility" ? (
+          <CommunityVisibilityNavigatorPanel />
+        ) : active === "pipelines" ? (
           <PipelinesPanel />
+        ) : (
+          <DeveloperPreferencesPanel />
         )}
       </div>
     </div>

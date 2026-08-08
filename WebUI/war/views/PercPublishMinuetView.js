@@ -1074,5 +1074,33 @@ function processServerPropertiesForm(eventData) {
         }
     };
 
+    // Issue #2284: S3 Access/Secret/ARN are not hard-required. Non-modal footer warning when empty.
+    // Field labels + body use I18N (lock-step with src PercPublishMinuetView.js).
+    if (driver === "AMAZONS3") {
+        var emptyS3Fields = [];
+        var accessKeyVal = ($("#perc-access-key").val() || "").trim();
+        var secretKeyVal = ($("#perc-security-key").val() || "").trim();
+        var arnRoleVal = ($("#ARNRole").val() || "").trim();
+        if (!accessKeyVal) {
+            emptyS3Fields.push(I18N.message("perc.ui.publish.servers.s3@Access Key"));
+        }
+        if (!secretKeyVal) {
+            emptyS3Fields.push(I18N.message("perc.ui.publish.servers.s3@Security Key"));
+        }
+        if ($("#useAssumeRole").is(":checked") && !arnRoleVal) {
+            emptyS3Fields.push(I18N.message("perc.ui.publish.servers.s3@Role ARN"));
+        }
+        if (emptyS3Fields.length > 0) {
+            var s3Warn = {};
+            s3Warn.result = {};
+            s3Warn.source = I18N.message("perc.ui.publish.title@Server Configuration");
+            s3Warn.result.warning = I18N.message(
+                "perc.ui.publish.servers.s3@Empty credentials warning",
+                [emptyS3Fields.join(", ")]
+            );
+            processAlert(s3Warn);
+        }
+    }
+
     updateServerProperties(selectedSiteData.siteId, serverName, newServerPropObj);
 }

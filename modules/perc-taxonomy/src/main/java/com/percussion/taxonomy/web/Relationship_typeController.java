@@ -17,6 +17,7 @@
 
 package com.percussion.taxonomy.web;
 
+import com.percussion.taxonomy.domain.Relationship_type;
 import com.percussion.taxonomy.TaxonomySecurityHelper;
 import com.percussion.taxonomy.service.Relationship_typeService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,7 +52,7 @@ public class Relationship_typeController {
       throws Exception {
     // --------------------------- Templated - Modify or replace -----------------------------
     TaxonomySecurityHelper.raise_error_if_cannot_admin();
-    Collection all = relationship_typeService.getAllRelationship_types();
+    Collection<Relationship_type> all = relationship_typeService.getAllRelationship_types();
     Map<String, Object> myModel = new HashMap<String, Object>();
     myModel.put("all", all);
     return new ModelAndView("relationship_type", "model", myModel);

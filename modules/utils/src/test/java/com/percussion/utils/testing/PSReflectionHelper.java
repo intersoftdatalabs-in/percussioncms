@@ -64,7 +64,7 @@ public class PSReflectionHelper {
      * @param set The set method, must never be <code>null</code>
      * @param type The type, must never be <code>null</code>
      */
-    public Accessor(Method get, Method set, Class type) {
+    public Accessor(Method get, Method set, Class<?> type) {
       if (get == null) {
         throw new IllegalArgumentException("get must never be null");
       }
@@ -103,7 +103,7 @@ public class PSReflectionHelper {
      *
      * @return the class, will never be <code>null</code>.
      */
-    public Class getValuetype() {
+    public Class<?> getValuetype() {
       return m_valuetype;
     }
 
@@ -124,7 +124,7 @@ public class PSReflectionHelper {
     private Method m_setMethod;
 
     /** The class for a specific field. This is never <code>null</code> after construction. */
-    private Class m_valuetype;
+    private Class<?> m_valuetype;
   }
 
   /**
@@ -193,7 +193,7 @@ public class PSReflectionHelper {
      * This maps class objects to a structure that describes the class's accessors in a matched
      * fashion.
      */
-    static Map<Class, AccessorMap> ms_classAccessors = new HashMap<Class, AccessorMap>();
+    static Map<Class<?>, AccessorMap> ms_classAccessors = new HashMap<>();
   }
 
   /** Invocation handler used to "test" interfaces */
@@ -208,7 +208,6 @@ public class PSReflectionHelper {
       }
     }
   }
-  ;
 
   /**
    * Are these objects basically different? To answer this question, check that both the object
@@ -242,15 +241,15 @@ public class PSReflectionHelper {
 
     if (a == b) return false;
 
-    List methods = findGetMethods(a.getClass(), filter);
+    List<Method> methods = findGetMethods(a.getClass(), filter);
 
     // For each get method, check the return type and invoke for object
     // types
-    Iterator iter = methods.iterator();
-    Object emptyArgs[] = new Object[0];
-    Set copyingNotRequired = getImmutableSet();
+    Iterator<Method> iter = methods.iterator();
+    Object[] emptyArgs = new Object[0];
+    Set<Class<?>> copyingNotRequired = getImmutableSet();
     while (iter.hasNext()) {
-      Method m = (Method) iter.next();
+      Method m = iter.next();
       Object result1, result2;
 
       result1 = m.invoke(a, emptyArgs);
@@ -266,16 +265,16 @@ public class PSReflectionHelper {
         return false;
       }
 
-      if (result1 instanceof Set) {
-        if (!testSet(result1, result2)) {
+      if (result1 instanceof Set && result2 instanceof Set) {
+        if (!testSet((Set<?>) result1, (Set<?>) result2)) {
           return false;
         }
-      } else if (result1 instanceof List) {
-        if (!testList(result1, result2)) {
+      } else if (result1 instanceof List && result2 instanceof List) {
+        if (!testList((List<?>) result1, (List<?>) result2)) {
           return false;
         }
-      } else if (result1 instanceof Map) {
-        if (!testMap(result1, result2)) {
+      } else if (result1 instanceof Map && result2 instanceof Map) {
+        if (!testMap((Map<?, ?>) result1, (Map<?, ?>) result2)) {
           return false;
         }
       }
@@ -287,22 +286,22 @@ public class PSReflectionHelper {
   /**
    * Test two lists for proper cloning behavior.
    *
-   * @param result1 The first object, must be of type <code>java.util.List</code>.
-   * @param result2 The second object, must be of type <code>java.util.List</code>.
+   * @param result1 The first list.
+   * @param result2 The second list.
    * @return <code>true</code> if the test succeeds, <code>false</code> otherwise.
    */
-  private static boolean testList(Object result1, Object result2) {
-    if (((List) result1).size() != ((List) result2).size()) {
+  private static boolean testList(List<?> result1, List<?> result2) {
+    if (result1.size() != result2.size()) {
       return false;
     }
     // Check that elements are different, note that
     // instanceof handles null reasonably
-    Iterator i1 = ((List) result1).iterator();
-    Iterator i2 = ((List) result2).iterator();
+    Iterator<?> i1 = result1.iterator();
+    Iterator<?> i2 = result2.iterator();
     while (i1.hasNext()) {
       Object o1 = i1.next();
       Object o2 = i2.next();
-      if (isNotImmutable(o1) && o1 == o2) return false;
+      if (o1 != null && isNotImmutable(o1) && o1 == o2) return false;
     }
     return true;
   }
@@ -310,18 +309,18 @@ public class PSReflectionHelper {
   /**
    * Test two maps for proper cloning behavior.
    *
-   * @param result1 The first object, must be of type <code>java.util.Map</code>.
-   * @param result2 The second object, must be of type <code>java.util.Map</code>.
+   * @param result1 The first map.
+   * @param result2 The second map.
    * @return <code>true</code> if the test succeeds, <code>false</code> otherwise.
    */
-  private static boolean testMap(Object result1, Object result2) {
-    if (((Map) result1).size() != ((Map) result2).size()) {
+  private static boolean testMap(Map<?, ?> result1, Map<?, ?> result2) {
+    if (result1.size() != result2.size()) {
       return false;
     }
     // Check that elements are different, note that
     // instanceof handles null reasonably
-    Set keySet1 = ((Map) result1).keySet();
-    Set keySet2 = ((Map) result2).keySet();
+    Set<?> keySet1 = result1.keySet();
+    Set<?> keySet2 = result2.keySet();
     // Test set members for proper cloning
     if (!testSet(keySet1, keySet2)) {
       return false;
@@ -330,12 +329,12 @@ public class PSReflectionHelper {
     if (keySet1.equals(keySet2) == false) {
       return false;
     }
-    Iterator i1 = keySet1.iterator();
+    Iterator<?> i1 = keySet1.iterator();
     while (i1.hasNext()) {
       Object key = i1.next();
-      Object o1 = ((Map) result1).get(key);
-      Object o2 = ((Map) result2).get(key);
-      if (isNotImmutable(o1) && o1 == o2) return false;
+      Object o1 = result1.get(key);
+      Object o2 = result2.get(key);
+      if (o1 != null && isNotImmutable(o1) && o1 == o2) return false;
     }
     return true;
   }
@@ -343,18 +342,16 @@ public class PSReflectionHelper {
   /**
    * Test two sets for proper cloning behavior.
    *
-   * @param keySet1 The first object, must be of type <code>java.util.Set</code>.
-   * @param keySet2 The second object, must be of type <code>java.util.Set</code>.
+   * @param keySet1 The first set.
+   * @param keySet2 The second set.
    * @return <code>true</code> if the test succeeds, <code>false</code> otherwise.
    */
-  private static boolean testSet(Object keySet1, Object keySet2) {
-    for (Iterator iter = ((Set) keySet1).iterator(); iter.hasNext(); ) {
-      Object element = iter.next();
+  private static boolean testSet(Set<?> keySet1, Set<?> keySet2) {
+    for (Object element : keySet1) {
       // Now, if the element is mutable, walk the other set
       // looking for an == match
-      if (isNotImmutable(element)) {
-        for (Iterator iter2 = ((Set) keySet2).iterator(); iter2.hasNext(); ) {
-          Object comparison = iter2.next();
+      if (element != null && isNotImmutable(element)) {
+        for (Object comparison : keySet2) {
           if (element == comparison) {
             return false;
           }
@@ -374,7 +371,7 @@ public class PSReflectionHelper {
     if (obj == null) {
       throw new IllegalArgumentException("obj must never be null");
     }
-    Set immutables = getImmutableSet();
+    Set<Class<?>> immutables = getImmutableSet();
     return !immutables.contains(obj.getClass());
   }
 
@@ -422,9 +419,9 @@ public class PSReflectionHelper {
      * as the contract on <code>Object</code> states.
      */
     AccessorMap mappings = getAccessors(a.getClass(), filter);
-    Iterator fields = mappings.getFields().iterator();
+    Iterator<String> fields = mappings.getFields().iterator();
     while (fields.hasNext()) {
-      String field = (String) fields.next();
+      String field = fields.next();
       Accessor accessor = mappings.getMapping(field);
 
       // don't test static accessors
@@ -477,7 +474,8 @@ public class PSReflectionHelper {
    * @return the accessor map for the given class, never <code>null</code>
    * @throws Exception
    */
-  public static AccessorMap getAccessors(Class clazz, IPSReflectionFilter filter) throws Exception {
+  public static AccessorMap getAccessors(Class<?> clazz, IPSReflectionFilter filter)
+      throws Exception {
     if (clazz == null) {
       throw new IllegalArgumentException("Class may never be null");
     }
@@ -488,15 +486,13 @@ public class PSReflectionHelper {
     List<Method> getters = findGetMethods(clazz, filter);
 
     // Build a map going from field names to setters
-    Iterator siter = setters.iterator();
-    Map<String, List<Method>> smap = new HashMap<String, List<Method>>();
-    while (siter.hasNext()) {
-      Method setter = (Method) siter.next();
+    Map<String, List<Method>> smap = new HashMap<>();
+    for (Method setter : setters) {
       String name = setter.getName();
       name = name.substring(3).toLowerCase(); // Strip "set", downcase
       List<Method> mapsetters = smap.get(name);
       if (mapsetters == null) {
-        mapsetters = new ArrayList<Method>();
+        mapsetters = new ArrayList<>();
         smap.put(name, mapsetters);
       }
       mapsetters.add(setter);
@@ -505,22 +501,18 @@ public class PSReflectionHelper {
     // Walk through the getters and map a setter to each. Throw
     // an exception if no match found. A match is defined as a setter
     // that takes the same type as the getter returns
-    Iterator giter = getters.iterator();
     AccessorMap mappings = new AccessorMap();
-    while (giter.hasNext()) {
-      Method getter = (Method) giter.next();
+    for (Method getter : getters) {
       String name = getter.getName();
-      name = name.substring(3).toLowerCase(); // Strip "set"
-      Class rtype = getter.getReturnType();
+      name = name.substring(3).toLowerCase(); // Strip "get"
+      Class<?> rtype = getter.getReturnType();
       // Get possible setters
-      List slist = (List) smap.get(name);
+      List<Method> slist = smap.get(name);
 
       boolean found = false;
       if (slist != null) {
-        Iterator sliter = slist.iterator();
-        while (sliter.hasNext()) {
-          Method setter = (Method) sliter.next();
-          Class args[] = setter.getParameterTypes();
+        for (Method setter : slist) {
+          Class<?>[] args = setter.getParameterTypes();
           if (args[0].equals(rtype)) {
             // Found
             found = true;
@@ -552,14 +544,14 @@ public class PSReflectionHelper {
    *     <code>true</code> if the method is accepted.
    * @return a list of methods, must never be <code>null</code>, but conceivably could be empty.
    */
-  private static List<Method> findSetMethods(Class clazz, IPSReflectionFilter filter) {
-    List<Method> rval = new ArrayList<Method>();
-    Method methods[] = clazz.getMethods();
+  private static List<Method> findSetMethods(Class<?> clazz, IPSReflectionFilter filter) {
+    List<Method> rval = new ArrayList<>();
+    Method[] methods = clazz.getMethods();
     for (int i = 0; i < methods.length; i++) {
       Method method = methods[i];
       String name = method.getName();
       if (name.startsWith("set")) {
-        Class types[] = method.getParameterTypes();
+        Class<?>[] types = method.getParameterTypes();
         if (types.length == 1) {
           if (filter != null) {
             if (filter.acceptMethod(name)) {
@@ -591,14 +583,14 @@ public class PSReflectionHelper {
    *     <code>true</code> if the method is accepted.
    * @return a list of methods, must never be <code>null</code>, but conceivably could be empty.
    */
-  private static List<Method> findGetMethods(Class clazz, IPSReflectionFilter filter) {
-    List<Method> rval = new ArrayList<Method>();
-    Method methods[] = clazz.getMethods();
+  private static List<Method> findGetMethods(Class<?> clazz, IPSReflectionFilter filter) {
+    List<Method> rval = new ArrayList<>();
+    Method[] methods = clazz.getMethods();
     for (int i = 0; i < methods.length; i++) {
       Method method = methods[i];
       String name = method.getName();
       if (name.startsWith("get") && method.getDeclaringClass().equals(Object.class) == false) {
-        Class types[] = method.getParameterTypes();
+        Class<?>[] types = method.getParameterTypes();
         if (types.length == 0) {
           if (filter != null) {
             if (filter.acceptMethod(name)) {
@@ -615,7 +607,7 @@ public class PSReflectionHelper {
   }
 
   /** The immutable classes are stored in this set. */
-  private static Set<Class> ms_immutableSet = new HashSet<Class>();
+  private static Set<Class<?>> ms_immutableSet = new HashSet<>();
 
   /**
    * Gets a list of classes that are known to be immutable. Immutable objects are those that cannot
@@ -624,10 +616,10 @@ public class PSReflectionHelper {
    *
    * @return a set of immutable classes, will never be <code>null</code>.
    */
-  private static Set<Class> getImmutableSet() {
+  private static Set<Class<?>> getImmutableSet() {
     if (ms_immutableSet.size() == 0) {
       for (int i = 0; i < ms_immutables.length; i++) {
-        Class clazz = ms_immutables[i];
+        Class<?> clazz = ms_immutables[i];
         ms_immutableSet.add(clazz);
       }
     }
@@ -636,8 +628,8 @@ public class PSReflectionHelper {
 
   /**
    * Returns an appropriate new value according to type. For unknown classes it simply calls {@link
-   * Class#newInstance()}. Note that this requires that the class in question have a default
-   * constructor.
+   * Class#getDeclaredConstructor()} then {@code newInstance()}. Note that this requires that the
+   * class in question have a default constructor.
    *
    * @param clazz the class to instantiate, assumed not <code>null</code>.
    * @return a new value of the same class, which is guaranteed to be at least !=, and which will be
@@ -645,7 +637,7 @@ public class PSReflectionHelper {
    * @throws InstantiationException
    * @throws IllegalAccessException
    */
-  private static Object getNewValue(Class clazz)
+  private static Object getNewValue(Class<?> clazz)
       throws InstantiationException, IllegalAccessException {
     if (clazz.equals(String.class)) {
       return getNextStringValue();
@@ -685,8 +677,8 @@ public class PSReflectionHelper {
    * @param clazz a class that is an interface, assumed not <code>null</code>
    * @return a proxy that obeys the given interface
    */
-  private static Object getProxyInstance(Class clazz) {
-    Class xface[] = new Class[] {clazz};
+  private static Object getProxyInstance(Class<?> clazz) {
+    Class<?>[] xface = new Class<?>[] {clazz};
 
     return Proxy.newProxyInstance(clazz.getClassLoader(), xface, new TestInvocationHandler());
   }
@@ -714,7 +706,7 @@ public class PSReflectionHelper {
   private static Long getNextLongValue() {
     ms_nextValue++;
 
-    return new Long(ms_nextValue);
+    return Long.valueOf(ms_nextValue);
   }
 
   /**
@@ -740,7 +732,7 @@ public class PSReflectionHelper {
   private static Short getNextShortValue() {
     ms_nextValue++;
 
-    return new Short((short) ms_nextValue);
+    return Short.valueOf((short) ms_nextValue);
   }
 
   /**
@@ -753,7 +745,7 @@ public class PSReflectionHelper {
   private static Byte getNextByteValue() {
     ms_nextValue++;
 
-    return new Byte((byte) ms_nextValue);
+    return Byte.valueOf((byte) ms_nextValue);
   }
 
   /**
@@ -762,8 +754,8 @@ public class PSReflectionHelper {
    *
    * @return A new value of an empty list.
    */
-  private static List getNextListValue() {
-    return new ArrayList(); // Just needs to be !=, not different
+  private static List<Object> getNextListValue() {
+    return new ArrayList<>(); // Just needs to be !=, not different
   }
 
   /**
@@ -772,8 +764,8 @@ public class PSReflectionHelper {
    *
    * @return A new value of an empty map.
    */
-  private static Map getNextMapValue() {
-    return new HashMap(); // Just needs to be !=, not different
+  private static Map<Object, Object> getNextMapValue() {
+    return new HashMap<>(); // Just needs to be !=, not different
   }
 
   /** This is used by the code that creates new values of various types */
@@ -783,7 +775,7 @@ public class PSReflectionHelper {
    * A list of classes that cannot be modified after construction. This is not a complete list, and
    * should be extended as required. Classes on this list are not required to be copied in clones.
    */
-  private static Class ms_immutables[] = {
+  private static Class<?>[] ms_immutables = {
     Long.class, String.class, Integer.class, Short.class, Byte.class, Character.class
   };
 }

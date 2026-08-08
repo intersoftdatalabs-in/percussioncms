@@ -36,7 +36,7 @@ public class PSTestResourceUtils {
    * @param dir  May be null
    *
    */
-  public static File getFile(Class clazz, String resourcePath, File dir) throws IOException {
+  public static File getFile(Class<?> clazz, String resourcePath, File dir) throws IOException {
     File ret = File.createTempFile("test", "tmp", dir);
     ret.deleteOnExit();
 
@@ -52,7 +52,7 @@ public class PSTestResourceUtils {
     return ret;
   }
 
-  public static File getFakeRxDirFile(Class clazz, String resourcePath) throws IOException {
+  public static File getFakeRxDirFile(Class<?> clazz, String resourcePath) throws IOException {
     return getFile(clazz, resourcePath, getFakeRxDir());
   }
 }

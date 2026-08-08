@@ -75,18 +75,36 @@ public class PSDbComponentCollection extends PSDbComponent {
    *     getComponentType} method of the components being stored in this collection. If the default
    *     is being used, you can use the 1 param ctor instead of this one. Never <code>null</code> or
    *     empty.
-   * @throws ClassNotFoundException If a class by the supplied name cannot be found.
+   * @throws ClassNotFoundException If a class by the supplied name cannot be found, or if the
+   *     loaded class does not implement {@link IPSDbComponent} (the missing-interface case is
+   *     wrapped so callers that only catch {@code ClassNotFoundException} still see the failure).
    * @throws NullPointerException if className is <code>null</code>.
    */
   public PSDbComponentCollection(String className, String compType) throws ClassNotFoundException {
-    this(Class.forName(className), compType);
+    this(loadIpsDbComponentClass(className), compType);
+  }
+
+  /**
+   * Loads {@code className} and ensures it implements {@link IPSDbComponent}. Wrong-type loads are
+   * reported as {@link ClassNotFoundException} (with {@link ClassCastException} cause) so callers
+   * that only catch {@code ClassNotFoundException} still observe the failure.
+   */
+  private static Class<? extends IPSDbComponent> loadIpsDbComponentClass(String className)
+      throws ClassNotFoundException {
+    Class<?> loaded = Class.forName(className);
+    try {
+      return loaded.asSubclass(IPSDbComponent.class);
+    } catch (ClassCastException e) {
+      throw new ClassNotFoundException(
+          "Class " + className + " does not implement " + IPSDbComponent.class.getName(), e);
+    }
   }
 
   /**
    * Convenience method that calls {@link #PSDbComponentCollection(Class, String)
    * PSDbComponentCollection(className, null)}.
    */
-  public PSDbComponentCollection(Class compClass) {
+  public PSDbComponentCollection(Class<? extends IPSDbComponent> compClass) {
     this(compClass, null);
   }
 
@@ -98,7 +116,7 @@ public class PSDbComponentCollection extends PSDbComponent {
    *     the base class name and replacing the leading PS with PSX. If there is no leading PS, the
    *     base class name is used. Each component added to this collection must match this name.
    */
-  public PSDbComponentCollection(Class compClass, String compType) {
+  public PSDbComponentCollection(Class<? extends IPSDbComponent> compClass, String compType) {
     this();
     m_list = new PSDbComponentList(compClass, compType, false);
   }
@@ -131,7 +149,7 @@ public class PSDbComponentCollection extends PSDbComponent {
    * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
    *     defined in the {@link #fromXml} method.
    */
-  public PSDbComponentCollection(Element[] items, Class compClass)
+  public PSDbComponentCollection(Element[] items, Class<? extends IPSDbComponent> compClass)
       throws PSUnknownNodeTypeException {
     this();
     m_list = new PSDbComponentList(items, compClass);
@@ -154,7 +172,8 @@ public class PSDbComponentCollection extends PSDbComponent {
    * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
    *     defined in the {@link #fromXml} method.
    */
-  public PSDbComponentCollection(Element[] items, Class compClass, String compType)
+  public PSDbComponentCollection(
+      Element[] items, Class<? extends IPSDbComponent> compClass, String compType)
       throws PSUnknownNodeTypeException {
     this();
     m_list = new PSDbComponentList(items, compClass, compType);
@@ -182,7 +201,7 @@ public class PSDbComponentCollection extends PSDbComponent {
    *
    * @return class object contained by this list. Never <code>null</code>.
    */
-  public Class getMemberClass() {
+  public Class<? extends IPSDbComponent> getMemberClass() {
     return m_list.getMemberClass();
   }
 
@@ -274,7 +293,7 @@ public class PSDbComponentCollection extends PSDbComponent {
 
     // Ignore delete list and ordering
     // Threshold - check class child object matches
-    Class otherClass = other.m_list.getMemberClass();
+    Class<? extends IPSDbComponent> otherClass = other.m_list.getMemberClass();
     if (otherClass != m_list.getMemberClass()) return false;
 
     PSDbComponentList c = other.m_list;
@@ -392,17 +411,17 @@ public class PSDbComponentCollection extends PSDbComponent {
    * @return <code>true</code> means they are equal without respect to ordering, <code>false</code>
    *     otherwise.
    */
-  static boolean equalsIgnoreOrder(Iterator thisIter, Iterator otherIter) {
+  static boolean equalsIgnoreOrder(Iterator<?> thisIter, Iterator<?> otherIter) {
     /* We build a map of all elements in the first iterator. Each entry in
-    the map has a key equal to the compoent and a value Integer that is
+    the map has a key equal to the component and a value Integer that is
     the number of components that are equal to this entry. This prevents
     us from thinking that 2 sets, one of which has a duplicate element,
     are the same */
-    Map coll = new HashMap();
+    Map<Object, Integer> coll = new HashMap<>();
     while (thisIter.hasNext()) {
       Object o = thisIter.next();
-      if (null != coll.get(o)) {
-        Integer count = (Integer) coll.get(o);
+      Integer count = coll.get(o);
+      if (null != count) {
         coll.put(o, Integer.valueOf(count.intValue() + 1));
       } else coll.put(o, Integer.valueOf(1));
     }
@@ -411,7 +430,7 @@ public class PSDbComponentCollection extends PSDbComponent {
     while (otherIter.hasNext()) {
       Object o = otherIter.next();
       if (coll.containsKey(o)) {
-        Integer count = (Integer) coll.get(o);
+        Integer count = coll.get(o);
         int newCount = count.intValue() - 1;
         if (newCount > 0) coll.put(o, Integer.valueOf(newCount));
         else coll.remove(o);
@@ -430,7 +449,7 @@ public class PSDbComponentCollection extends PSDbComponent {
    *    </code>.
    * @return A value independent of the order. 0 is returned for the empty iterator.
    */
-  static int hashCodeIgnoresOrder(Iterator comps) {
+  static int hashCodeIgnoresOrder(Iterator<?> comps) {
     if (null == comps) throw new IllegalArgumentException("Iterator cannot be null.");
 
     int hash = 0;
@@ -460,8 +479,8 @@ public class PSDbComponentCollection extends PSDbComponent {
     PSDbComponentCollection c = (PSDbComponentCollection) obj;
 
     // threshold delete size
-    Collection mine = m_list.getDeleteCollection();
-    Collection other = c.m_list.getDeleteCollection();
+    Collection<? extends IPSDbComponent> mine = m_list.getDeleteCollection();
+    Collection<? extends IPSDbComponent> other = c.m_list.getDeleteCollection();
     if (mine.size() != other.size()) return false;
 
     if (!equalsIgnoreOrder(mine.iterator(), other.iterator())) return false;

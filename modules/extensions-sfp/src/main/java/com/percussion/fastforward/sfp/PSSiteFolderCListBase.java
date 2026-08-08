@@ -51,7 +51,7 @@ import org.w3c.dom.NodeList;
  *
  * @author James Schultz
  */
-@SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
+@SuppressWarnings("this-escape")
 public abstract class PSSiteFolderCListBase {
 
   /**
@@ -72,7 +72,7 @@ public abstract class PSSiteFolderCListBase {
         "http",
         PSServer.getHostAddress(),
         Integer.toString(PSServer.getListenerPort()),
-        new HashSet());
+        new HashSet<>());
   }
 
   /**
@@ -117,7 +117,7 @@ public abstract class PSSiteFolderCListBase {
         "http",
         PSServer.getHostAddress(),
         Integer.toString(PSServer.getListenerPort()),
-        new HashSet());
+        new HashSet<>());
   }
 
   /**
@@ -154,7 +154,7 @@ public abstract class PSSiteFolderCListBase {
       String protocol,
       String host,
       String port,
-      Set paramSetToPass) {
+      Set<String> paramSetToPass) {
     if (request == null)
       throw new IllegalArgumentException("PSSiteFolderContentList's request may not be null");
 
@@ -219,7 +219,7 @@ public abstract class PSSiteFolderCListBase {
       String protocol,
       String host,
       String port,
-      Set paramSetToPass) {
+      Set<String> paramSetToPass) {
     if (paramSetToPass != null) m_paramSetToPass = paramSetToPass;
 
     m_request = request;
@@ -348,7 +348,7 @@ public abstract class PSSiteFolderCListBase {
           // We need to find the parent folder path by their published
           // folder names.
           String temp = publishFolderPath;
-          List fnLst = new ArrayList();
+          List<String> fnLst = new ArrayList<>();
           temp = temp.substring(0, temp.lastIndexOf("/"));
           while (!temp.equals(siteFolderPath) && temp.lastIndexOf("/") > -1) {
             PSLocator floc = m_helper.getFolderLocatorByPath(temp);
@@ -359,7 +359,7 @@ public abstract class PSSiteFolderCListBase {
           StringBuilder folderPathBuf = new StringBuilder();
           for (int i = fnLst.size() - 1; i >= 0; i--) {
             folderPathBuf.append("/");
-            folderPathBuf.append((String) fnLst.get(i));
+            folderPathBuf.append(fnLst.get(i));
           }
           folderPathBuf.append("/");
           folderPath = folderPathBuf.toString();
@@ -419,12 +419,12 @@ public abstract class PSSiteFolderCListBase {
             publishFolder,
             siteFolderPath);
       } else {
-        List parents =
+        List<PSLocator> parents =
             m_helper
                 .getRelationshipProcessor()
                 .getParents(PSRelationshipConfig.TYPE_FOLDER_CONTENT, folderLocator);
         // has to have only one parent folder
-        PSLocator parentLocator = (PSLocator) parents.get(0);
+        PSLocator parentLocator = parents.get(0);
 
         // to be published folder is an immediate sub folder of the site.
         if (parentLocator.getId() == rootLocator.getId()) {
@@ -600,10 +600,10 @@ public abstract class PSSiteFolderCListBase {
    *
    * @return a set of folder id's of all folders that have the publish flag set to "true"
    */
-  private Set getAllPublishFlaggedFolders() {
-    Set flags = new HashSet();
+  private Set<String> getAllPublishFlaggedFolders() {
+    Set<String> flags = new HashSet<>();
     IPSInternalRequest iRequest =
-        m_request.getInternalRequest(LOOKUP_FOLDER_PUBLISH_FLAGS, new HashMap(), false);
+        m_request.getInternalRequest(LOOKUP_FOLDER_PUBLISH_FLAGS, new HashMap<>(), false);
     if (iRequest == null) {
       log.error("Cannot find query resource: {}", LOOKUP_FOLDER_PUBLISH_FLAGS);
     } else {
@@ -648,7 +648,7 @@ public abstract class PSSiteFolderCListBase {
   /**
    * Set of all folders whose publish flag is set to "true". Never <code>null</code>, may be empty.
    */
-  protected Set m_flaggedFolders = new HashSet();
+  protected Set<String> m_flaggedFolders = new HashSet<>();
 
   /**
    * The relationship engine adaptor. Initialized by <code>initializeMembers</code> during
@@ -711,7 +711,7 @@ public abstract class PSSiteFolderCListBase {
    * Set of non-standard HTML parameters to pass from request context to each content item url in
    * the content list, may be <code>null</code> or empty.
    */
-  protected Set m_paramSetToPass = null;
+  protected Set<String> m_paramSetToPass = null;
 
   /**
    * Protocol for the HTTP request to be constructed for the content URL. Never <code>null</code> or

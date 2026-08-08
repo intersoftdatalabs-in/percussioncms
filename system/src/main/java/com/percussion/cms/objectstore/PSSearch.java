@@ -50,6 +50,10 @@ import org.w3c.dom.Element;
  * @see PSVersionableDbComponent for base class description.
  */
 public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSummary, IPSCloneTuner {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * When a custom view is created, this value is set as the URL. This allows the object to be saved
    * w/o error. A custom view can be created w/ the following {@link #PSSearch(String, boolean)}
@@ -864,11 +868,9 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @param communities list of communities this search is visible to. Must not be <code>null</code>
    *     or empty.
    */
-  public void setShowTo(Collection communities) {
-    Iterator iter = communities.iterator();
-    while (iter.hasNext()) {
-      String element = (String) iter.next();
-      setShowTo(SHOW_TO_COMMUNITY, element);
+  public void setShowTo(Collection<?> communities) {
+    for (Object community : communities) {
+      setShowTo(SHOW_TO_COMMUNITY, (String) community);
     }
   }
 
@@ -1049,7 +1051,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
       throw new IllegalArgumentException("communityIds cannot be null or empty");
     }
 
-    Collection currentIds = new ArrayList();
+    Collection<String> currentIds = new ArrayList<>();
     String[] vals = getPropertyValues(type);
     if (null != vals) currentIds.addAll(Arrays.asList(vals));
 
@@ -1277,22 +1279,21 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   public String[] getPropertyValues(String strName) {
     if (strName == null || strName.trim().length() == 0) return null;
 
-    Iterator iter = m_properties.iterator();
-    Collection results = null;
+    Iterator<?> iter = m_properties.iterator();
+    Collection<String> results = null;
     while (iter.hasNext()) {
       PSSearchMultiProperty prop = (PSSearchMultiProperty) iter.next();
       if (prop.getName().equalsIgnoreCase(strName)) {
-        Iterator propIter = prop.iterator();
-        results = new ArrayList();
+        Iterator<?> propIter = prop.iterator();
+        results = new ArrayList<>();
         while (propIter.hasNext()) {
-          results.add(propIter.next());
+          results.add((String) propIter.next());
         }
       }
     }
     String[] retVal = null;
     if (null != results) {
-      retVal = new String[results.size()];
-      results.toArray(retVal);
+      retVal = results.toArray(new String[0]);
     }
     return retVal;
   }
@@ -1479,8 +1480,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @return the map that was supplied or a new <code>HashMap</code> if <code>null</code> was
    *     supplied with all query parameters filled in, never <code>null</code>, may be empty.
    */
-  public static Map parseParameters(String url, Map params) {
-    if (params == null) params = new HashMap();
+  public static Map<String, String> parseParameters(String url, Map<String, String> params) {
+    if (params == null) params = new HashMap<>();
 
     if (url == null) return params;
 
@@ -1681,7 +1682,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    *
    * @return A read-only collection of property names, never <code>null</code> or empty.
    */
-  public Collection getInternalPropertyNames() {
+  public Collection<String> getInternalPropertyNames() {
     return Collections.unmodifiableCollection(ms_internalSearchProps);
   }
 
@@ -2130,7 +2131,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * List of properties that cannot be modifed over the life cycle of this object. Initialized in
    * definition, setup with elements in ctor, never <code>null</code>.
    */
-  private List m_nonEditableProps = new ArrayList();
+  private List<String> m_nonEditableProps = new ArrayList<>();
 
   /**
    * A flag to indicate whether this search of type custom view that should contain a url that is

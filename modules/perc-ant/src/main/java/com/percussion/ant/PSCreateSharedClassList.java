@@ -103,9 +103,9 @@ public class PSCreateSharedClassList extends Task {
    *
    * @param macros the makefile interpreter macros, should not be <code>null</code>.
    */
-  private void createEntries(Map macros) {
-    String thePackage = ((String) macros.get(PACKAGE_MACRO)).trim().replace('.', '/');
-    String shared = (String) macros.get(SHARED_CLASSES_MACRO);
+  private void createEntries(Map<String, String> macros) {
+    String thePackage = macros.get(PACKAGE_MACRO).trim().replace('.', '/');
+    String shared = macros.get(SHARED_CLASSES_MACRO);
     StringTokenizer st = new StringTokenizer(shared, " \t\r\n");
     if (st.hasMoreTokens()) {
       addBreak();

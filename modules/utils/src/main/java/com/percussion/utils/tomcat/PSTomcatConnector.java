@@ -44,8 +44,11 @@ import org.xml.sax.SAXException;
  * Provides an object representation and implements XML serialization for a Tomcat Connector
  * element. See http://jakarta.apache.org/tomcat/tomcat-4.1- doc/config/coyote.html for details and
  * the XML format.
+ *
+ * <p>This class is {@code final} so constructors may safely call instance methods without a
+ * subclass observing a partially constructed instance ({@code this-escape} under {@code -Xlint}).
  */
-public class PSTomcatConnector extends PSAbstractConnector implements XMLEnabled {
+public final class PSTomcatConnector extends PSAbstractConnector implements XMLEnabled {
 
   /*/
    * Xml node name of the Connector element.

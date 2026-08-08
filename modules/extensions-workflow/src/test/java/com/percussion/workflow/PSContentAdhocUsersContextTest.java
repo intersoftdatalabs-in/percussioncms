@@ -19,6 +19,8 @@ package com.percussion.workflow;
 import com.percussion.security.error.PSExceptionUtils;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
@@ -55,18 +57,18 @@ public class PSContentAdhocUsersContextTest extends PSAbstractWorkflowTest {
     int minAssignmentType = PSWorkFlowUtils.ASSIGNMENT_TYPE_ASSIGNEE;
     int assignmentType = 0;
     String user = "";
-    HashMap assnMap = null;
+    HashMap<Integer, Integer> assnMap = null;
     PSContentAdhocUsersContext cauc = new PSContentAdhocUsersContext(newContentID);
-    int GERTRUDE_ADHOC_NORMAL_STATE_ROLEID_ARRAY[] = {2, 3};
+    int[] GERTRUDE_ADHOC_NORMAL_STATE_ROLEID_ARRAY = {2, 3};
 
-    int SHANIA_ADHOC_NORMAL_STATE_ROLEID_ARRAY[] = {1, 3};
-    String ADHOC_ANONYMOUS_USER_NAMES_ARRAY[] = {"Yves", "Alice", "Malcolm"};
-    int ADHOC_ANONYMOUS_USER_ROLEID_ARRAY[] = {4, 7};
-    List adhocAnonymousUserNames = PSWorkFlowUtils.arrayToList(ADHOC_ANONYMOUS_USER_NAMES_ARRAY);
+    int[] SHANIA_ADHOC_NORMAL_STATE_ROLEID_ARRAY = {1, 3};
+    String[] ADHOC_ANONYMOUS_USER_NAMES_ARRAY = {"Yves", "Alice", "Malcolm"};
+    int[] ADHOC_ANONYMOUS_USER_ROLEID_ARRAY = {4, 7};
+    List<String> adhocAnonymousUserNames = Arrays.asList(ADHOC_ANONYMOUS_USER_NAMES_ARRAY);
 
-    List userAdhocAnonymousRoles = PSWorkFlowUtils.arrayToList(ADHOC_ANONYMOUS_USER_ROLEID_ARRAY);
-    int ADHOC_TEST_ARRAY[] = {1, 2, 3, 4, 5, 6, 7};
-    List adhocTestList = PSWorkFlowUtils.arrayToList(ADHOC_TEST_ARRAY);
+    List<Integer> userAdhocAnonymousRoles = toIntegerList(ADHOC_ANONYMOUS_USER_ROLEID_ARRAY);
+    int[] ADHOC_TEST_ARRAY = {1, 2, 3, 4, 5, 6, 7};
+    List<Integer> adhocTestList = toIntegerList(ADHOC_TEST_ARRAY);
 
     int recordCount = 0;
 
@@ -80,9 +82,9 @@ public class PSContentAdhocUsersContextTest extends PSAbstractWorkflowTest {
       cauc = new PSContentAdhocUsersContext(newContentID);
 
       cauc.addUserAdhocNormalRoleIDs(
-          "Gertrude", PSWorkFlowUtils.arrayToList(GERTRUDE_ADHOC_NORMAL_STATE_ROLEID_ARRAY));
+          "Gertrude", toIntegerList(GERTRUDE_ADHOC_NORMAL_STATE_ROLEID_ARRAY));
       cauc.addUserAdhocNormalRoleIDs(
-          "Shania", PSWorkFlowUtils.arrayToList(SHANIA_ADHOC_NORMAL_STATE_ROLEID_ARRAY));
+          "Shania", toIntegerList(SHANIA_ADHOC_NORMAL_STATE_ROLEID_ARRAY));
       cauc.setAdhocAnonymousUsersAndRoles(adhocAnonymousUserNames, userAdhocAnonymousRoles);
       recordCount = cauc.commit(connection);
       log.info("records inserted = {}", recordCount);
@@ -118,5 +120,14 @@ public class PSContentAdhocUsersContextTest extends PSAbstractWorkflowTest {
   public static void main(String[] args) {
     PSContentAdhocUsersContextTest wfTest = new PSContentAdhocUsersContextTest(args);
     wfTest.Test();
+  }
+
+  /** Boxes a primitive int array into a mutable {@link List} of {@link Integer}. */
+  private static List<Integer> toIntegerList(int[] values) {
+    List<Integer> list = new ArrayList<>(values.length);
+    for (int value : values) {
+      list.add(value);
+    }
+    return list;
   }
 }

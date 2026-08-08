@@ -24,11 +24,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Optional;
+import java.time.Instant;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -36,13 +32,15 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  * Hibernate-managed entity backing a single cookie-consent entry as recorded by the DTS metadata
  * micro-service.
  *
+ * <p>{@code consentDate} is an {@link Instant} so Hibernate 7 maps the TIMESTAMP column without
+ * deprecated {@code @Temporal}.
+ *
  * @author chriswright
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSCookieConsent")
 @Table(name = "PERC_COOKIE_CONSENT")
-public class PSDbCookieConsent implements IPSCookieConsent, Serializable {
-  private static final long serialVersionUID = 1L;
+public final class PSDbCookieConsent implements IPSCookieConsent {
 
   /** Surrogate primary key for this consent entry. */
   @Id
@@ -70,11 +68,10 @@ public class PSDbCookieConsent implements IPSCookieConsent, Serializable {
   @Column(name = "OPT_IN")
   private boolean optIn;
 
-  /** Date the consent was captured. */
+  /** Instant the consent was captured. */
   @Basic
-  @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "CONSENT_DATE")
-  private Date consentDate;
+  private Instant consentDate;
 
   /** No-arg constructor required by Hibernate. */
   public PSDbCookieConsent() {}
@@ -84,23 +81,24 @@ public class PSDbCookieConsent implements IPSCookieConsent, Serializable {
    *
    * @param siteName the site the consent was captured for; may not be {@code null}.
    * @param serviceName the service / cookie name the consent applies to; may not be {@code null}.
-   * @param consentDate the date the consent was captured; may not be {@code null}.
+   * @param consentDate the instant the consent was captured; may not be {@code null}.
    * @param ip the originating client IP; may not be {@code null}.
    * @param optIn {@code true} if the client opted in, {@code false} otherwise.
    */
   public PSDbCookieConsent(
-      String siteName, String serviceName, Date consentDate, String ip, boolean optIn) {
+      String siteName, String serviceName, Instant consentDate, String ip, boolean optIn) {
 
     if (siteName == null) throw new IllegalArgumentException("siteName may not be null");
     if (serviceName == null) throw new IllegalArgumentException("serviceName may not be null");
     if (consentDate == null) throw new IllegalArgumentException("consentDate may not be null");
     if (ip == null) throw new IllegalArgumentException("ip may not be null");
 
-    setSiteName(siteName);
-    setService(serviceName);
-    setConsentDate(consentDate);
-    setIP(ip);
-    setOptIn(optIn);
+    // Direct field assignment; class is final (no this-escape via overridable setters).
+    this.siteName = siteName;
+    this.serviceName = serviceName;
+    this.consentDate = consentDate;
+    this.ip = ip;
+    this.optIn = optIn;
   }
 
   @Override
@@ -124,14 +122,13 @@ public class PSDbCookieConsent implements IPSCookieConsent, Serializable {
   }
 
   @Override
-  public void setConsentDate(Date consentDate) {
-    this.consentDate =
-        Optional.ofNullable(consentDate).map(Date::getTime).map(Date::new).orElse(null);
+  public void setConsentDate(Instant consentDate) {
+    this.consentDate = consentDate;
   }
 
   @Override
-  public Date getConsentDate() {
-    return Optional.ofNullable(consentDate).map(Date::getTime).map(Date::new).orElse(null);
+  public Instant getConsentDate() {
+    return consentDate;
   }
 
   @Override

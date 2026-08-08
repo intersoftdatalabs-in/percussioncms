@@ -24,7 +24,7 @@ import com.percussion.util.PSProperties;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,7 +50,7 @@ import org.apache.logging.log4j.Logger;
  *
  * </pre>
  */
-public class PSRenameDeprecatedApps extends PSAction {
+public final class PSRenameDeprecatedApps extends PSAction {
   /** Creates a new deprecated apps rename task. */
   public PSRenameDeprecatedApps() {}
 
@@ -98,7 +98,7 @@ public class PSRenameDeprecatedApps extends PSAction {
     String appName = null;
     File appFile = null;
     String[] apps = objDir.list();
-    HashSet depApps = (HashSet) PSPreUpgradePluginDeprecatedSysApps.getDeprecatedSysApps();
+    Set<?> depApps = PSPreUpgradePluginDeprecatedSysApps.getDeprecatedSysApps();
     int renamedApps = 0;
 
     for (int i = 0; i < apps.length; i++) {

@@ -82,17 +82,18 @@ public class PSTomcatConnectorTest {
 
     ciphers.addAll(
         FunctionalUtils.commaStringToStream(DEFAULT_CIPHERS).collect(Collectors.toSet()));
-    IPSConnector tc =
-        new PSAbstractConnector.HttpsBuilder()
-            .setPort(port)
-            .setHttps()
-            .setKeystoreFile(Paths.get(file))
-            .setKeystorePass(pass)
-            .setCiphers(ciphers)
-            .setSslProtocols(sslProtocols)
-            .build();
+    // Sequential calls on a parameterized HttpsBuilder — fluent chaining would widen to the
+    // raw return types still declared on PSAbstractConnector.HttpsBuilder setters.
+    PSAbstractConnector.HttpsBuilder<?> https = new PSAbstractConnector.HttpsBuilder<>();
+    https.setPort(port);
+    https.setHttps();
+    https.setKeystoreFile(Paths.get(file));
+    https.setKeystorePass(pass);
+    https.setCiphers(ciphers);
+    https.setSslProtocols(sslProtocols);
+    IPSConnector tc = https.build();
     assertEquals(port, tc.getPort());
-    assertEquals(tc.SCHEME_HTTPS, tc.getScheme());
+    assertEquals(IPSConnector.SCHEME_HTTPS, tc.getScheme());
 
     assertEquals(pass, tc.getKeystorePass());
     assertEquals(ciphers, tc.getCiphers());
@@ -139,7 +140,7 @@ public class PSTomcatConnectorTest {
 
     PSAbstractConnector tc2 = PSAbstractConnector.getBuilder().setSource(e).build();
     assertEquals(port, tc2.getPort());
-    assertEquals(tc.SCHEME_HTTP, tc2.getScheme());
+    assertEquals(PSAbstractConnector.SCHEME_HTTP, tc2.getScheme());
 
     port = 8443;
     String file = "myFile";
@@ -147,14 +148,13 @@ public class PSTomcatConnectorTest {
     Set<String> ciphers = new HashSet<>();
     ciphers.addAll(
         FunctionalUtils.commaStringToStream(DEFAULT_CIPHERS).collect(Collectors.toSet()));
-    tc =
-        PSAbstractConnector.getBuilder()
-            .setPort(port)
-            .setHttps()
-            .setKeystoreFile(Paths.get(file))
-            .setKeystorePass(pass)
-            .setCiphers(ciphers)
-            .build();
+    PSAbstractConnector.HttpsBuilder<?> httpsBuilder = new PSAbstractConnector.HttpsBuilder<>();
+    httpsBuilder.setPort(port);
+    httpsBuilder.setHttps();
+    httpsBuilder.setKeystoreFile(Paths.get(file));
+    httpsBuilder.setKeystorePass(pass);
+    httpsBuilder.setCiphers(ciphers);
+    tc = httpsBuilder.build();
     e =
         (Element)
             tc.toXml(tc.getProperties())
@@ -187,7 +187,6 @@ public class PSTomcatConnectorTest {
    * @param port The connector's expected port.
    * @throws Exception If there are any errors or failures.
    */
-  @Test
   private void doTestHttpConnector(IPSConnector tc, int port) throws Exception {
     assertEquals(port, tc.getPort());
     assertEquals(PSTomcatConnector.SCHEME_HTTP, tc.getScheme());

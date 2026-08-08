@@ -47,17 +47,17 @@ public class HibernateNodeDAO implements NodeDAO {
 
   @Autowired private SessionFactory sessionFactory;
 
-  private Object executeQuery(String queryString) {
+  private <T> List<T> executeQuery(String queryString, Class<T> resultClass) {
     Session session = sessionFactory.getCurrentSession();
-    Query<?> query = session.createQuery(queryString, Object.class);
-    return query.list();
+    return session.createQuery(queryString, resultClass).list();
   }
 
-  private Object executeQuery(String queryString, Map<String, String> substitutions) {
+  private <T> List<T> executeQuery(
+      String queryString, Class<T> resultClass, Map<String, ?> substitutions) {
     Session session = sessionFactory.getCurrentSession();
-    Query<?> query = session.createQuery(queryString, Object.class);
+    Query<T> query = session.createQuery(queryString, resultClass);
     if (substitutions != null) {
-      for (Map.Entry<String, String> entry : substitutions.entrySet()) {
+      for (Map.Entry<String, ?> entry : substitutions.entrySet()) {
         query.setParameter(entry.getKey(), entry.getValue());
       }
     }
@@ -89,7 +89,7 @@ public class HibernateNodeDAO implements NodeDAO {
     queryString += "and al.language.id = " + langID + " ";
     queryString += "and v.lang.id = " + langID + "order by n.id";
 
-    return ((Collection<Node>) executeQuery(queryString)).iterator().next();
+    return executeQuery(queryString, Node.class).iterator().next();
   }
 
   public Collection<Node> getAllNodes(int taxID, int langID) {
@@ -108,7 +108,7 @@ public class HibernateNodeDAO implements NodeDAO {
     queryString += "and al.language.id = " + langID + " ";
     queryString += "and v.lang.id = " + langID + "order by n.id";
 
-    return (Collection<Node>) executeQuery(queryString);
+    return executeQuery(queryString, Node.class);
   }
 
   public Collection<Node> getNodesFromSearch(
@@ -136,7 +136,7 @@ public class HibernateNodeDAO implements NodeDAO {
     queryString += "and v.lang.id = " + langID + " ";
     queryString += "and lower(v.Name)  like ? order by n.id";
 
-    Query query = session.createQuery(queryString);
+    Query<Node> query = session.createQuery(queryString, Node.class);
     int paramIndex = 0;
 
     if (exclude_disabled) {
@@ -244,7 +244,7 @@ public class HibernateNodeDAO implements NodeDAO {
             + langID
             + " order by v.node.id, v.attribute.Is_node_name";
 
-    return concatNames(((Collection<Object[]>) executeQuery(queryString)));
+    return concatNames(executeQuery(queryString, Object[].class));
   }
 
   /** Return nodeID, parentID, and name of all nodes for a given taxonomy */
@@ -258,7 +258,7 @@ public class HibernateNodeDAO implements NodeDAO {
             + langID
             + " order by v.node.id, v.attribute.Is_node_name";
 
-    return concatNames(((Collection<Object[]>) executeQuery(queryString)));
+    return concatNames(executeQuery(queryString, Object[].class));
   }
 
   /** Return nodes for ides */
@@ -266,7 +266,7 @@ public class HibernateNodeDAO implements NodeDAO {
     String queryString =
         "select n from Node n where n.id in(" + StringUtils.join(ids.toArray(), ',') + ")";
 
-    return ((Collection<Node>) executeQuery(queryString));
+    return executeQuery(queryString, Node.class);
   }
 
   /** Return all values associated with a given node */
@@ -276,7 +276,7 @@ public class HibernateNodeDAO implements NodeDAO {
             + nodeID
             + " and v.lang.id = "
             + langID;
-    return (Collection<Value>) executeQuery(queryString);
+    return executeQuery(queryString, Value.class);
   }
 
   /** Return all values associated with a given node and attribute combo */
@@ -289,7 +289,7 @@ public class HibernateNodeDAO implements NodeDAO {
             + " and v.attribute.id = "
             + attrID;
 
-    return (Collection<Value>) executeQuery(queryString);
+    return executeQuery(queryString, Value.class);
   }
 
   /** Return all nodes 'related to' the given node */
@@ -325,7 +325,7 @@ public class HibernateNodeDAO implements NodeDAO {
     String queryString =
         "select n from Node n left join fetch n.nodeEditors ne where n.parent.id = " + nodeID;
 
-    return (Collection<Node>) executeQuery(queryString);
+    return executeQuery(queryString, Node.class);
   }
 
   /** Return all NodeEditors for the given node */
@@ -333,7 +333,7 @@ public class HibernateNodeDAO implements NodeDAO {
 
     String queryString = "select ne from Node_editor ne where ne.node.id = " + nodeID;
 
-    return (Collection<Node_editor>) executeQuery(queryString);
+    return executeQuery(queryString, Node_editor.class);
   }
 
   /** Return a nodeName for the given node */
@@ -346,7 +346,7 @@ public class HibernateNodeDAO implements NodeDAO {
             + langID
             + " order by v.node.id, v.attribute.Is_node_name";
 
-    return (Collection<String>) executeQuery(queryString);
+    return executeQuery(queryString, String.class);
   }
 
   public Map<String, String> deleteNodeAndFriends(int nodeID, int taxonomyID) {
@@ -354,7 +354,7 @@ public class HibernateNodeDAO implements NodeDAO {
     String queryString = "select n.id from Node n where n.parent.id = " + nodeID;
 
     Map<String, String> errors = null;
-    List<?> result = (List<?>) executeQuery(queryString);
+    List<Integer> result = executeQuery(queryString, Integer.class);
 
     if (result.size() == 0) {
 
@@ -397,9 +397,7 @@ public class HibernateNodeDAO implements NodeDAO {
             + languageID
             + " order by v.node.id";
 
-    Object raw = executeQuery(queryString);
-
-    return (Collection<Object[]>) raw;
+    return executeQuery(queryString, Object[].class);
   }
 
   /** Change the parent of a node */
@@ -445,8 +443,10 @@ public class HibernateNodeDAO implements NodeDAO {
   public Collection<Node> findNodesByAttribute(Attribute attribute) {
     Session session = sessionFactory.getCurrentSession();
     Collection<Node> nodes = null;
-    Query query =
-        session.createNamedQuery("findNodesByAttribute").setParameter("attribute", attribute);
+    Query<Node> query =
+        session
+            .createNamedQuery("findNodesByAttribute", Node.class)
+            .setParameter("attribute", attribute);
     nodes = query.list();
 
     return nodes;

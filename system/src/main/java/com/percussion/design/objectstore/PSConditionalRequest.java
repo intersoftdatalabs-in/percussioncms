@@ -26,6 +26,10 @@ import org.w3c.dom.Element;
 
 /** Implements the PSXConditionalRequest DTD defined in BasicObjects.dtd. */
 public class PSConditionalRequest extends PSUrlRequest {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates a new conditional request for the provided conditions.
    *

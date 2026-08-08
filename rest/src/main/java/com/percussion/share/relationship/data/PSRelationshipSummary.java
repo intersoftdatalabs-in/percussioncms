@@ -51,7 +51,6 @@ import java.util.Objects;
  */
 @XmlRootElement(name = "PSRelationshipSummary")
 @JsonRootName("PSRelationshipSummary")
-@SuppressWarnings("serial")
 public class PSRelationshipSummary extends PSAbstractDataObject {
 
   private static final long serialVersionUID = 1L;
@@ -64,9 +63,10 @@ public class PSRelationshipSummary extends PSAbstractDataObject {
 
   /**
    * Per-type breakdown, e.g. {@code [{"type": "translation", "count": 3}]}. Empty (rather than
-   * {@code null}) when the supplied item has no relationships in this dimension.
+   * {@code null}) when the supplied item has no relationships in this dimension. Stored as {@link
+   * ArrayList} so the field type is {@link java.io.Serializable} under {@code -Xlint:serial}.
    */
-  private List<PSRelationshipTypeBucket> byType = new ArrayList<>();
+  private ArrayList<PSRelationshipTypeBucket> byType = new ArrayList<>();
 
   public PSRelationshipSummary() {
     super();
@@ -74,7 +74,7 @@ public class PSRelationshipSummary extends PSAbstractDataObject {
 
   public PSRelationshipSummary(long count, List<PSRelationshipTypeBucket> byType) {
     this.count = count;
-    this.byType = byType == null ? new ArrayList<>() : byType;
+    this.byType = byType == null ? new ArrayList<>() : new ArrayList<>(byType);
   }
 
   public long getCount() {
@@ -90,7 +90,7 @@ public class PSRelationshipSummary extends PSAbstractDataObject {
   }
 
   public void setByType(List<PSRelationshipTypeBucket> byType) {
-    this.byType = byType == null ? new ArrayList<>() : byType;
+    this.byType = byType == null ? new ArrayList<>() : new ArrayList<>(byType);
   }
 
   /** One per relationship config (translation / linkback / AA / local). */

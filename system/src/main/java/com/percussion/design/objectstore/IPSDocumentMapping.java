@@ -55,6 +55,7 @@ public interface IPSDocumentMapping {
   public abstract Element toXml(Document doc);
 
   /** Abstract fromXml function for DocumentMappings */
-  public abstract void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public abstract void fromXml(
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException;
 }

@@ -30,6 +30,9 @@ import org.w3c.dom.Element;
 public abstract class PSGroupProviderInstance extends PSComponent
     implements IPSGroupProviderInstance {
 
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Parameterless constructor for this class. Used for serialization. Should always call <code>
    * fromXml</code> following use of this constructor.

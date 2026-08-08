@@ -29,16 +29,22 @@ import org.springframework.validation.ObjectError;
 /**
  * An adapter to Spring Validation Framework.
  *
+ * <p>{@link #springValidationErrors} is {@code transient}: Spring's {@link Errors} is not {@link
+ * java.io.Serializable}. Validation results are exposed via {@link #getValidationErrors()} for
+ * JAXB / REST transport, not via Java serialization of this exception.
+ *
  * @author adamgent
  */
-@SuppressWarnings({"serial", "this-escape"})
 public abstract class PSSpringValidationException extends PSValidationException
     implements Errors, IPSValidationException {
 
   private static final long serialVersionUID = 1L;
 
-  /** The wrapped Spring {@link Errors} container; may be {@code null} when not configured. */
-  private Errors springValidationErrors;
+  /**
+   * The wrapped Spring {@link Errors} container; may be {@code null} when not configured. Not part
+   * of Java serialization.
+   */
+  private transient Errors springValidationErrors;
 
   /**
    * Constructs a Spring validation exception that wraps the given cause.
@@ -61,12 +67,62 @@ public abstract class PSSpringValidationException extends PSValidationException
   /**
    * Constructs a Spring validation exception with the given message and cause.
    *
+   * <p>Does not record a global rejection here: the Spring {@link Errors} container is configured
+   * via {@link #PSSpringValidationException(String, Throwable, Errors)} or {@link
+   * #setSpringValidationErrors(Errors)}. Callers that need the cause as a global error should
+   * invoke {@link #reject(Throwable, String)} after the binding result exists.
+   *
    * @param message the detail message, may be {@code null}.
    * @param cause the underlying cause, may be {@code null}.
    */
   public PSSpringValidationException(String message, Throwable cause) {
     super(message, cause);
-    reject(cause, message);
+  }
+
+  /**
+   * Constructs a Spring validation exception with message and a pre-built Spring {@link Errors}
+   * container assigned by direct field write (no overridable method calls; {@code this-escape}
+   * free under {@code -Xlint:all}).
+   *
+   * @param message the detail message, may be {@code null}.
+   * @param springValidationErrors the Spring errors container, may be {@code null}.
+   */
+  protected PSSpringValidationException(String message, Errors springValidationErrors) {
+    super(message);
+    this.springValidationErrors = springValidationErrors;
+  }
+
+  /**
+   * Constructs a Spring validation exception with message, cause, and a pre-built Spring {@link
+   * Errors} container assigned by direct field write.
+   *
+   * @param message the detail message, may be {@code null}.
+   * @param cause the underlying cause, may be {@code null}.
+   * @param springValidationErrors the Spring errors container, may be {@code null}.
+   */
+  protected PSSpringValidationException(
+      String message, Throwable cause, Errors springValidationErrors) {
+    this(message, cause, springValidationErrors, false);
+  }
+
+  /**
+   * Constructs a Spring validation exception with message, cause, and a pre-built Spring {@link
+   * Errors} container. When {@code rejectCause} is {@code true} and {@code cause} is non-null, the
+   * cause is recorded as a global rejection using only the local field (no instance method calls on
+   * {@code this}).
+   *
+   * @param message the detail message, may be {@code null}.
+   * @param cause the underlying cause, may be {@code null}.
+   * @param springValidationErrors the Spring errors container, may be {@code null}.
+   * @param rejectCause when {@code true}, record {@code cause} as a global Spring rejection
+   */
+  protected PSSpringValidationException(
+      String message, Throwable cause, Errors springValidationErrors, boolean rejectCause) {
+    super(message, cause);
+    this.springValidationErrors = springValidationErrors;
+    if (rejectCause && cause != null && springValidationErrors != null) {
+      springValidationErrors.reject(cause.getClass().getCanonicalName(), message);
+    }
   }
 
   /**
@@ -100,16 +156,19 @@ public abstract class PSSpringValidationException extends PSValidationException
    *
    * @return the Spring errors container, may be {@code null} when none has been configured.
    */
-  protected Errors getSpringValidationErrors() {
+  protected final Errors getSpringValidationErrors() {
     return springValidationErrors;
   }
 
   /**
    * Replaces the underlying Spring {@link Errors} container.
    *
+   * <p>{@code final} so subclass constructors may configure the binding result without {@code
+   * this-escape} under {@code -Xlint:all}.
+   *
    * @param validationErrors the new Spring errors container, may be {@code null}.
    */
-  protected void setSpringValidationErrors(Errors validationErrors) {
+  protected final void setSpringValidationErrors(Errors validationErrors) {
     this.springValidationErrors = validationErrors;
   }
 
@@ -120,7 +179,7 @@ public abstract class PSSpringValidationException extends PSValidationException
    * @param exception the throwable to reject, never {@code null}.
    * @param defaultMessage the default message to associate with the rejection, may be {@code null}.
    */
-  public void reject(Throwable exception, String defaultMessage) {
+  public final void reject(Throwable exception, String defaultMessage) {
     reject(exception.getClass().getCanonicalName(), defaultMessage);
   }
 
@@ -422,7 +481,7 @@ public abstract class PSSpringValidationException extends PSValidationException
    * @param errorCode the error code, may be {@code null}.
    * @param defaultMessage the default message, may be {@code null}.
    */
-  public void reject(String errorCode, String defaultMessage) {
+  public final void reject(String errorCode, String defaultMessage) {
     springValidationErrors.reject(errorCode, defaultMessage);
   }
 

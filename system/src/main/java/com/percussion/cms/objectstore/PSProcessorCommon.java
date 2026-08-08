@@ -161,7 +161,7 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
    *     modified by this class.
    *     <p>All key names should be lowercased to allow case-insensitive compares.
    */
-  protected PSProcessorCommon(Map props) {
+  protected PSProcessorCommon(Map<String, Map<String, Object>> props) {
     if (null == props) throw new IllegalArgumentException("A property map must be supplied.");
     m_props = props;
   }
@@ -183,11 +183,11 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
   public PSSaveResults save(IPSDbComponent[] components) throws PSCmsException {
     if (null == components) throw new IllegalArgumentException("Null array not allowed.");
 
-    Collection groups = groupComponents(components);
-    Iterator groupsIter = groups.iterator();
+    Collection<PSDbComponentCollection> groups = groupComponents(components);
+    Iterator<PSDbComponentCollection> groupsIter = groups.iterator();
     PSProcessingStatistics totals = new PSProcessingStatistics(0, 0);
     while (groupsIter.hasNext()) {
-      PSDbComponentCollection comps = (PSDbComponentCollection) groupsIter.next();
+      PSDbComponentCollection comps = groupsIter.next();
       Document inputDoc = PSXmlDocumentBuilder.createXmlDocument();
 
       // check for all required props up front
@@ -250,7 +250,7 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
    * @throws PSCmsException If the property for the requested type cannot be found in the config.
    */
   private String getProperty(String type, String propName) throws PSCmsException {
-    Map values = (Map) m_props.get(type.toLowerCase());
+    Map<String, Object> values = m_props.get(type.toLowerCase());
     if (null == values) {
       String[] args = {
         type, getClass().getName().substring(getClass().getName().lastIndexOf('.') + 1)
@@ -259,13 +259,25 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
     }
 
     String lcPropName = propName.toLowerCase();
-    String value = (String) values.get(lcPropName);
-    if (null == value && !values.containsKey(lcPropName)) {
+    Object raw = values.get(lcPropName);
+    if (null == raw && !values.containsKey(lcPropName)) {
       String[] args = {propName, type};
       throw new PSCmsException(IPSCmsErrors.MISSING_PROPERTY, args);
     }
 
-    return value == null ? "" : value;
+    // Fail-fast: config values must be Strings (legacy cast). Do not toString()
+    // non-String entries (e.g. Element) — that masks misconfiguration.
+    if (raw == null) return "";
+    if (!(raw instanceof String)) {
+      throw new ClassCastException(
+          "Property '"
+              + propName
+              + "' for component type '"
+              + type
+              + "' must be a String, was "
+              + raw.getClass().getName());
+    }
+    return (String) raw;
   }
 
   /**
@@ -277,32 +289,30 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
    * @return A set of PSDbComponentCollections. Any <code>null</code> entries in comps will not be
    *     included in the returned collections. Never <code>null</code>, may be empty.
    */
-  private Collection groupComponents(IPSDbComponent[] comps) {
+  private Collection<PSDbComponentCollection> groupComponents(IPSDbComponent[] comps) {
     try {
-      Collection groups = new ArrayList();
-      Map compGroups = new HashMap();
+      Collection<PSDbComponentCollection> groups = new ArrayList<>();
+      Map<String, Collection<IPSDbComponent>> compGroups = new HashMap<>();
       for (int i = 0; i < comps.length; i++) {
-        if (comps[i] instanceof PSDbComponentCollection) groups.add(comps[i]);
-        else {
+        if (comps[i] instanceof PSDbComponentCollection)
+          groups.add((PSDbComponentCollection) comps[i]);
+        else if (comps[i] != null) {
           String type = comps[i].getComponentType();
-          Collection c = (Collection) compGroups.get(type);
+          Collection<IPSDbComponent> c = compGroups.get(type);
           if (null == c) {
-            c = new ArrayList();
+            c = new ArrayList<>();
             compGroups.put(type, c);
           }
           c.add(comps[i]);
         }
       }
 
-      Iterator iter = compGroups.keySet().iterator();
-      while (iter.hasNext()) {
-        String type = (String) iter.next();
-        Collection c = (Collection) compGroups.get(type);
-        IPSDbComponent comp = (IPSDbComponent) c.iterator().next();
+      for (Map.Entry<String, Collection<IPSDbComponent>> entry : compGroups.entrySet()) {
+        Collection<IPSDbComponent> c = entry.getValue();
+        IPSDbComponent comp = c.iterator().next();
         PSDbComponentCollection compColl = new PSDbComponentCollection(comp.getClass().getName());
-        Iterator sameTypes = c.iterator();
-        while (sameTypes.hasNext()) {
-          compColl.add((IPSDbComponent) sameTypes.next());
+        for (IPSDbComponent sameType : c) {
+          compColl.add(sameType);
         }
         groups.add(compColl);
       }
@@ -331,7 +341,7 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
    * </ol>
    */
   public Element[] load(String componentType, PSKey[] locators) throws PSCmsException {
-    Map ids = prepareForModify(componentType, locators);
+    Map<String, String[]> ids = prepareForModify(componentType, locators);
 
     // check for all required props up front
     String resourceName = getProperty(componentType, "loadResource");
@@ -361,15 +371,13 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
 
     Element comp = walker.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
 
-    Collection c = new ArrayList();
+    Collection<Element> c = new ArrayList<>();
     while (null != comp) {
       c.add(comp);
       comp = walker.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
     }
 
-    Element[] e = new Element[c.size()];
-    c.toArray(e);
-    return e;
+    return c.toArray(new Element[0]);
   }
 
   /**
@@ -383,7 +391,7 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
    *     values for that part.
    * @throws PSCmsException
    */
-  private Map prepareForModify(String componentType, PSKey[] locators) {
+  private Map<String, String[]> prepareForModify(String componentType, PSKey[] locators) {
     if (null == componentType || componentType.trim().length() == 0)
       throw new IllegalArgumentException("Invalid component type.");
     // validate the entries
@@ -400,7 +408,7 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
       }
     }
 
-    Map ids = new HashMap();
+    Map<String, String[]> ids = new HashMap<>();
     if (null != locators && locators.length > 0) {
       int keyParts = locators[0].getPartCount();
       String[] keyDef = locators[0].getDefinition();
@@ -427,7 +435,7 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
    *     were located.
    * @throws PSCmsException If the save can't be performed for any reason, including authorization.
    */
-  protected Document doLoad(String resourceName, Map ids) throws PSCmsException {
+  protected Document doLoad(String resourceName, Map<String, String[]> ids) throws PSCmsException {
     throw new UnsupportedOperationException("Not supported by this processor.");
   }
 
@@ -443,7 +451,7 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
    * @throws PSCmsException If the delete can't be performed for any reason, including
    *     authorization.
    */
-  protected int doDelete(String resourceName, Map ids) throws PSCmsException {
+  protected int doDelete(String resourceName, Map<String, String[]> ids) throws PSCmsException {
     throw new UnsupportedOperationException("Not supported by this processor.");
   }
 
@@ -465,7 +473,7 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
    */
   public int delete(String componentType, PSKey[] locators) throws PSCmsException {
     // TODO: implement the generic cascaded delete version.
-    Map ids = prepareForModify(componentType, locators);
+    Map<String, String[]> ids = prepareForModify(componentType, locators);
     // required by the resource or nothing will happen
     ids.put("DBActionType", new String[] {"DELETE"});
 
@@ -513,7 +521,7 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
   public int allocateId(String lookup) throws PSCmsException {
     lookup = lookup.toLowerCase();
     int id = Integer.MIN_VALUE;
-    int[] cachedIds = (int[]) m_cachedIds.get(lookup);
+    int[] cachedIds = m_cachedIds.get(lookup);
     if (null != cachedIds) {
       for (int i = 0; i < cachedIds.length; i++) {
         if (cachedIds[i] != Integer.MIN_VALUE) {
@@ -551,14 +559,14 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
    * @param comps The db component collection, assumed not <code>null</code>.
    */
   private void updateDbComponentVersions(PSDbComponentCollection comps) {
-    Iterator iter = comps.iterator();
+    Iterator<? extends IPSDbComponent> iter = comps.iterator();
     while (iter.hasNext()) {
-      Object component = iter.next();
+      IPSDbComponent component = iter.next();
 
       if (component instanceof PSDbComponentCollection
           || component instanceof PSDbComponentList
           || component instanceof PSDbComponentSet) {
-        Iterator compIter = null;
+        Iterator<? extends IPSDbComponent> compIter = null;
         if (component instanceof PSDbComponentCollection) {
           PSDbComponentCollection dbCompColl = (PSDbComponentCollection) component;
           compIter = dbCompColl.iterator();
@@ -566,7 +574,7 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
           PSDbComponentList dbCompList = (PSDbComponentList) component;
           compIter = dbCompList.iterator();
         } else if (component instanceof PSDbComponentSet) {
-          PSDbComponentSet dbCompSet = (PSDbComponentSet) component;
+          PSDbComponentSet<?> dbCompSet = (PSDbComponentSet<?>) component;
           compIter = dbCompSet.iterator();
         }
 
@@ -583,9 +591,9 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
    *
    * @param iter The iterator, assumed not <code>null</code>.
    */
-  private void updateDbComponentVersions(Iterator iter) {
+  private void updateDbComponentVersions(Iterator<? extends IPSDbComponent> iter) {
     while (iter.hasNext()) {
-      Object obj = iter.next();
+      IPSDbComponent obj = iter.next();
       if (obj instanceof PSVersionableDbComponent) {
         PSVersionableDbComponent dbComponent = (PSVersionableDbComponent) obj;
         dbComponent.setVersion(dbComponent.getVersion() + 1);
@@ -595,9 +603,10 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
 
   /**
    * Stores the configuration information for the supported components. Set in ctor, never <code>
-   * null</code> after that.
+   * null</code> after that. Outer key is component type (lowercased); inner map is property name
+   * (lowercased) to String or Element value.
    */
-  private Map m_props;
+  private Map<String, Map<String, Object>> m_props;
 
   /**
    * How many ids should be allocated the next time allocateId is called (the extras are cached).
@@ -611,5 +620,5 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
    * Integer.MIN_VALUE. When there are no more entries in the array, the whole entry is removed from
    * the map.
    */
-  private Map m_cachedIds = new HashMap();
+  private final Map<String, int[]> m_cachedIds = new HashMap<>();
 }

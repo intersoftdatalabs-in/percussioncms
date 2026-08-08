@@ -39,6 +39,10 @@ import org.w3c.dom.Text;
 /** The class that is used to represent menu actions as defined by 'sys_Action.dtd'. */
 public class PSAction extends PSVersionableDbComponent implements IPSCatalogSummary, IPSCloneTuner {
 
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
+
   @Override
   public String getType() {
     return PSTypeEnum.ACTION.name();

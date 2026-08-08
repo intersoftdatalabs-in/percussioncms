@@ -48,11 +48,14 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
- * Represents JSR-170 properties that can contain a set of values
+ * Represents JSR-170 properties that can contain a set of values.
+ *
+ * <p>This class is {@code final} so the constructor may call inherited property accessors without a
+ * subclass observing a partially constructed instance ({@code this-escape} under {@code -Xlint}).
  *
  * @author dougrand
  */
-public class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCacheItem, IPSProperty {
+public final class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCacheItem, IPSProperty {
   /** The name of this property, never <code>null</code> after construction */
   public String m_name;
 
@@ -95,7 +98,12 @@ public class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCacheIte
     } else {
       propname = m_name;
     }
-    Collection<Object> values = (Collection<Object>) super.getPropertyValue(propname);
+    Object rawValues = super.getPropertyValue(propname);
+    // Cast deliberately raw: a non-Collection property value is a configuration / data
+    // corruption symptom, and should surface as ClassCastException (matches pre-PR behavior
+    // and is documented by review thread PRRT_kwDOKZBp3M6XPfAm).
+    @SuppressWarnings("unchecked")
+    Collection<?> values = (Collection<?>) rawValues;
     // Getting values.size() is a costly db call use a list so we only query for the
     // actual values.  values.iterator() is called in the for loop, this calls the db
     List<Value> valuesList = new ArrayList<>();

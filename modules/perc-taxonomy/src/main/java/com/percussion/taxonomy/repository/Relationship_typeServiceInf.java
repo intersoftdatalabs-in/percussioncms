@@ -31,7 +31,7 @@ public interface Relationship_typeServiceInf {
    *
    * @return a collection of all Relationship_type entities, or an empty collection
    */
-  public Collection getAllRelationship_types();
+  public Collection<Relationship_type> getAllRelationship_types();
 
   /**
    * Retrieves a specific relationship type by its unique identifier.

@@ -20,20 +20,21 @@ package com.percussion.delivery.polls.service.rdbms;
 import com.percussion.delivery.polls.data.IPSPoll;
 import com.percussion.delivery.polls.data.IPSPollAnswer;
 import jakarta.persistence.*;
-import java.io.Serializable;
 import java.util.Set;
 
 // REFACTORED: CP-JAVA11
 /**
  * JPA entity mapping for a poll stored in the {@code PERC_POLLS} table. Implements the {@link
  * IPSPoll} contract and serves as the persistence-side parent of {@link PSPollAnswer}.
+ *
+ * <p>Not {@link java.io.Serializable}: JPA entities are managed by the persistence context, and
+ * declaring {@code Serializable} forced {@code -Xlint:serial} diagnostics on the Hibernate {@link
+ * Set} of answers (the {@code Set} interface is not serializable). Poll state is exchanged via
+ * REST DTOs ({@code PSRestPoll}), not Java serialization.
  */
 @Entity
 @Table(name = "PERC_POLLS")
-@SuppressWarnings("serial")
-public class PSPoll implements IPSPoll, Serializable {
-
-  private static final long serialVersionUID = 1L;
+public class PSPoll implements IPSPoll {
 
   /** Default constructor required by JPA; do not use to create new instances outside the DAO. */
   public PSPoll() {}

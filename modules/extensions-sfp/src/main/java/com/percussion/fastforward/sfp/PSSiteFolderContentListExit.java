@@ -25,7 +25,7 @@ import java.util.Set;
  * @deprecated This Exit may have poor performance with large amount of items. Use {@link
  *     PSSiteFolderContentListBulkExit} instead.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
+@Deprecated
 public class PSSiteFolderContentListExit extends PSSiteFolderContentListBaseExit {
 
   /** Default constructor for PSSiteFolderContentListExit. */
@@ -43,7 +43,7 @@ public class PSSiteFolderContentListExit extends PSSiteFolderContentListBaseExit
       String protocol,
       String host,
       String port,
-      Set paramSetToPass) {
+      Set<String> paramSetToPass) {
     return new PSSiteFolderContentList(
         request,
         isIncremental,

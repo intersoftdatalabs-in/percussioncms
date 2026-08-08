@@ -22,7 +22,7 @@ import java.util.Collection;
 
 public interface Attribute_langDAO {
 
-  public Collection getAllAttribute_langs();
+  public Collection<Attribute_lang> getAllAttribute_langs();
 
   public Attribute_lang getAttribute_lang(int id);
 

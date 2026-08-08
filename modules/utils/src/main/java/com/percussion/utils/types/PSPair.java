@@ -85,9 +85,11 @@ public class PSPair<A, B> {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof PSPair)) return false;
-    PSPair<A, B> b = (PSPair<A, B>) obj;
-    return new EqualsBuilder().append(m_first, b.m_first).append(m_second, b.m_second).isEquals();
+    if (!(obj instanceof PSPair<?, ?> other)) return false;
+    return new EqualsBuilder()
+        .append(m_first, other.getFirst())
+        .append(m_second, other.getSecond())
+        .isEquals();
   }
 
   /*

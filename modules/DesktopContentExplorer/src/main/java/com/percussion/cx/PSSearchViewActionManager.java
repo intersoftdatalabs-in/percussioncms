@@ -33,12 +33,12 @@ import com.percussion.error.PSException;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSHtmlParamDocument;
 import com.percussion.util.PSStringOperation;
-import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -440,7 +440,7 @@ public class PSSearchViewActionManager {
                   && idList.size() >= search.getMaximumResultSize()) break;
             }
             if (idList.isEmpty()) {
-              searchNode.setChildren(PSIteratorUtils.emptyIterator());
+              searchNode.setChildren(Collections.emptyIterator());
               return searchNode.getChildren();
             }
             List retIdList = new ArrayList();
@@ -466,7 +466,7 @@ public class PSSearchViewActionManager {
         }
       } else // If not initialized simply set empty children
       {
-        searchNode.setChildren(PSIteratorUtils.emptyIterator());
+        searchNode.setChildren(Collections.emptyIterator());
       }
     } finally {
       // Call listeners for end of search

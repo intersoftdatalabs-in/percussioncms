@@ -28,6 +28,10 @@ import org.w3c.dom.Element;
  * types of supported parameters)
  */
 public class PSFunctionParamValue extends PSAbstractParamValue implements IPSParameter {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Constructs this object from its XML representation. See the {@link #toXml(Document) toXml()}
    * method for the DTD of the <code>sourceNode</code> element.
@@ -39,7 +43,8 @@ public class PSFunctionParamValue extends PSAbstractParamValue implements IPSPar
    * @exception PSUnknownNodeTypeException if <code>sourceNode</code> is <code>null</code> or the
    *     XML element node is not of the appropriate type
    */
-  public PSFunctionParamValue(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSFunctionParamValue(
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     super(sourceNode, parentDoc, parentComponents);
   }

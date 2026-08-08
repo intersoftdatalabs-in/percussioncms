@@ -24,14 +24,17 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
-import java.text.ParseException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
  * Represents a metadata property name value pair.
@@ -45,7 +48,8 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
   private static final long serialVersionUID = 1L;
 
   /** ISO-8601 formatter used when parsing date-typed properties from their string form. */
-  FastDateFormat sdf = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
+  private static final DateTimeFormatter DATE_TIME =
+      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
   /** Property name. For example: {@code dcterms:creator}. */
   private String name;
@@ -54,8 +58,9 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
   @XmlTransient private VALUETYPE valuetype = VALUETYPE.STRING;
 
   /**
-   * Value of the metadata property. It may be a {@link String}, {@link Date} or {@link Double}. The
-   * runtime value type can be inspected via the {@link #getValuetype() valuetype} field.
+   * Value of the metadata property. It may be a {@link String}, {@link LocalDateTime} or {@link
+   * Double}. The runtime value type can be inspected via the {@link #getValuetype() valuetype}
+   * field.
    */
   private Serializable value;
 
@@ -139,13 +144,23 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
   }
 
   /**
-   * Convenience ctor to create a Date value type property.
+   * Convenience ctor to create a Date value type property from a {@link LocalDateTime}.
+   *
+   * @param name name cannot be <code>null</code> or empty.
+   * @param value may be <code>null</code>.
+   */
+  public PSMetadataProperty(String name, LocalDateTime value) {
+    this(name, VALUETYPE.DATE, value);
+  }
+
+  /**
+   * Convenience ctor to create a Date value type property from a legacy {@link Date}.
    *
    * @param name name cannot be <code>null</code> or empty.
    * @param value may be <code>null</code>.
    */
   public PSMetadataProperty(String name, Date value) {
-    this(name, VALUETYPE.DATE, value);
+    this(name, VALUETYPE.DATE, toLocalDateTime(value));
   }
 
   /* (non-Javadoc)
@@ -260,15 +275,15 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
   }
 
   /**
-   * Returns the property as a {@link Date} when the declared value type is {@code DATE}.
+   * Returns the property as a {@link LocalDateTime} when the declared value type is {@code DATE}.
    *
    * @return the date value.
    * @throws RuntimeException if the value type is not {@code DATE}.
    */
-  public Date getDatevalue() {
+  public LocalDateTime getDatevalue() {
     if (valuetype != VALUETYPE.DATE)
       throw new RuntimeException("Cannot return a date for property type " + valuetype.toString());
-    return (Date) value;
+    return (LocalDateTime) value;
   }
 
   /**
@@ -299,7 +314,7 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
    * @param val the date value to set; may be {@code null}.
    */
   @XmlTransient
-  public void setDatevalue(Date val) {
+  public void setDatevalue(LocalDateTime val) {
     valuetype = VALUETYPE.DATE;
     value = val;
   }
@@ -368,7 +383,7 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
         valuetype = type;
         return val;
       } else if (type == VALUETYPE.NUMBER) {
-        if (NumberUtils.isNumber((String) val)) {
+        if (NumberUtils.isCreatable((String) val)) {
           Double doub = Double.parseDouble((String) val);
           valuetype = VALUETYPE.NUMBER;
           return doub;
@@ -376,10 +391,10 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
         throw new IllegalArgumentException("value does not match number type");
       } else if (type == VALUETYPE.DATE) {
         try {
-          Date date = sdf.parse((String) val);
+          LocalDateTime date = LocalDateTime.parse((String) val, DATE_TIME);
           valuetype = VALUETYPE.DATE;
           return date;
-        } catch (ParseException e) {
+        } catch (DateTimeParseException e) {
           throw new IllegalArgumentException("value does not match date type");
         }
       }
@@ -387,10 +402,37 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
       return val;
     } else if (val instanceof Double && type != VALUETYPE.NUMBER) {
       throw new IllegalArgumentException("value type does not match Double");
-    } else if (val instanceof Date && type != VALUETYPE.DATE) {
-      throw new IllegalArgumentException("value type does not match Date");
+    } else if (val instanceof LocalDateTime && type != VALUETYPE.DATE) {
+      throw new IllegalArgumentException("value type does not match LocalDateTime");
+    } else if (val instanceof Date) {
+      if (type != VALUETYPE.DATE) {
+        throw new IllegalArgumentException("value type does not match Date");
+      }
+      valuetype = VALUETYPE.DATE;
+      return toLocalDateTime(val);
+    } else if (type == VALUETYPE.DATE) {
+      valuetype = VALUETYPE.DATE;
+      return toLocalDateTime(val);
     }
     valuetype = type;
     return val;
+  }
+
+  private static LocalDateTime toLocalDateTime(Object value) {
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof LocalDateTime) {
+      return (LocalDateTime) value;
+    }
+    if (value instanceof Instant) {
+      return LocalDateTime.ofInstant((Instant) value, ZoneId.systemDefault());
+    }
+    // java.sql.Date#toInstant() throws UnsupportedOperationException — use millis instead.
+    if (value instanceof Date) {
+      return LocalDateTime.ofInstant(
+          Instant.ofEpochMilli(((Date) value).getTime()), ZoneId.systemDefault());
+    }
+    throw new IllegalArgumentException("value does not match date type");
   }
 }

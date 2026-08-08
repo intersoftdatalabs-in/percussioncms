@@ -19,7 +19,13 @@
 
 package com.percussion.rest.errors;
 
-/** Exception thrown when a folder is not found. */
+/**
+ * Exception thrown when a folder is not found.
+ *
+ * <p>The cause is passed through {@link RestExceptionBase}'s cause-aware constructor (not via
+ * {@link #initCause(Throwable)} after {@code super}), so construction is {@code this-escape} free
+ * under {@code -Xlint:all}.
+ */
 public class FolderNotFoundException extends RestExceptionBase {
 
   private static final long serialVersionUID = -4398063672305185319L;
@@ -28,12 +34,8 @@ public class FolderNotFoundException extends RestExceptionBase {
     this((Throwable) null);
   }
 
-  @SuppressWarnings("this-escape")
   public FolderNotFoundException(Throwable cause) {
-    // always set the folder not found code, attach cause if present
-    super(RestErrorCode.FOLDER_NOT_FOUND, null, null, null, null);
-    if (cause != null) {
-      initCause(cause);
-    }
+    // always set the folder not found code; attach cause via super (not initCause)
+    super(RestErrorCode.FOLDER_NOT_FOUND, null, null, null, null, cause);
   }
 }

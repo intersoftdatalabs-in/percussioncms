@@ -31,6 +31,9 @@ import org.w3c.dom.Element;
  */
 public class PSLocator extends PSKey implements Serializable {
 
+  /** Serialization id for {@link Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   private static final Logger log = LogManager.getLogger(PSLocator.class);
 
   /**

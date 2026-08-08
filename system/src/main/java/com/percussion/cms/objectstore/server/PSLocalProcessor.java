@@ -41,7 +41,6 @@ import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -65,7 +64,7 @@ public class PSLocalProcessor extends PSProcessorCommon {
    *
    * @param req Never null. All work is performed as the user authenticated in req.
    */
-  public PSLocalProcessor(PSRequest req, Map procConfig) {
+  public PSLocalProcessor(PSRequest req, Map<String, Map<String, Object>> procConfig) {
     super(procConfig);
     if (null == req) throw new IllegalArgumentException("Request must be supplied.");
 
@@ -79,7 +78,7 @@ public class PSLocalProcessor extends PSProcessorCommon {
    *
    * @param ctx Never null. All work is performed as the user authenticated in ctx.
    */
-  public PSLocalProcessor(IPSRequestContext ctx, Map procConfig) {
+  public PSLocalProcessor(IPSRequestContext ctx, Map<String, Map<String, Object>> procConfig) {
     super(procConfig);
     if (null == ctx) {
       throw new IllegalArgumentException("Request context must be supplied.");
@@ -98,23 +97,14 @@ public class PSLocalProcessor extends PSProcessorCommon {
    *   <li>Generate an internal request to the resource specified in loadResource.
    * </ul>
    */
-  protected Document doLoad(String resourceName, Map ids) throws PSCmsException {
+  @Override
+  protected Document doLoad(String resourceName, Map<String, String[]> ids) throws PSCmsException {
     if (resourceName == null || resourceName.trim().length() < 1)
       throw new UnsupportedOperationException(
           "Empty resource name is Not supported by this processor.");
 
     try {
-      Map params = new HashMap();
-      Iterator pairs = ids.keySet().iterator();
-      while (pairs.hasNext()) {
-        String keyPartName = (String) pairs.next();
-        String[] idSet = (String[]) ids.get(keyPartName);
-        if (idSet.length > 1) {
-          ArrayList l = new ArrayList();
-          for (int i = 0; i < idSet.length; i++) l.add(idSet[i]);
-          params.put(keyPartName, l);
-        } else params.put(keyPartName, idSet[0]);
-      }
+      Map<String, Object> params = toRequestParams(ids);
 
       Document doc = null;
       PSInternalRequest ireq = getRequest(resourceName, params, null);
@@ -161,23 +151,14 @@ public class PSLocalProcessor extends PSProcessorCommon {
   }
 
   // see interface for description
-  protected int doDelete(String resourceName, Map ids) throws PSCmsException {
+  @Override
+  protected int doDelete(String resourceName, Map<String, String[]> ids) throws PSCmsException {
     if (resourceName == null || resourceName.trim().length() < 1)
       throw new UnsupportedOperationException(
           "Empty resource name is Not supported by this processor.");
 
     try {
-      Map params = new HashMap();
-      Iterator pairs = ids.keySet().iterator();
-      while (pairs.hasNext()) {
-        String keyPartName = (String) pairs.next();
-        String[] idSet = (String[]) ids.get(keyPartName);
-        if (idSet.length > 1) {
-          ArrayList l = new ArrayList();
-          for (int i = 0; i < idSet.length; i++) l.add(idSet[i]);
-          params.put(keyPartName, l);
-        } else params.put(keyPartName, idSet[0]);
-      }
+      Map<String, Object> params = toRequestParams(ids);
       PSInternalRequest ireq = getRequest(resourceName, params, null);
       PSRequest req = ireq.getRequest();
       req.setAllowsCloning(false);
@@ -202,8 +183,8 @@ public class PSLocalProcessor extends PSProcessorCommon {
    * @return Never <code>null</code>.
    * @throws PSCmsException If the handler can't be found.
    */
-  private PSInternalRequest getRequest(String resourceName, Map params, Document input)
-      throws PSCmsException {
+  private PSInternalRequest getRequest(
+      String resourceName, Map<String, Object> params, Document input) throws PSCmsException {
     PSInternalRequest req;
     if (null != m_req) {
       req = PSServer.getInternalRequest(resourceName, m_req, params, true);
@@ -220,7 +201,28 @@ public class PSLocalProcessor extends PSProcessorCommon {
     return req;
   }
 
+  /**
+   * Converts key-part id arrays into request parameters: multi-valued parts become a {@link
+   * ArrayList} of strings, single-valued parts become a plain string.
+   */
+  private static Map<String, Object> toRequestParams(Map<String, String[]> ids) {
+    Map<String, Object> params = new HashMap<>();
+    for (Map.Entry<String, String[]> entry : ids.entrySet()) {
+      String keyPartName = entry.getKey();
+      String[] idSet = entry.getValue();
+      if (idSet.length > 1) {
+        ArrayList<String> l = new ArrayList<>(idSet.length);
+        for (int i = 0; i < idSet.length; i++) l.add(idSet[i]);
+        params.put(keyPartName, l);
+      } else {
+        params.put(keyPartName, idSet[0]);
+      }
+    }
+    return params;
+  }
+
   // see base class
+  @Override
   protected int[] doAllocateIds(String lookup, int count) throws PSCmsException {
     try {
       return PSIdGenerator.getNextIdBlock(lookup, count);
@@ -231,6 +233,7 @@ public class PSLocalProcessor extends PSProcessorCommon {
   }
 
   // see base class for description
+  @Override
   protected PSProcessingStatistics doSave(String resourceName, Document input)
       throws PSCmsException {
     try {

@@ -29,7 +29,9 @@ import com.percussion.soln.linkback.codec.impl.StringLinkBackTokenImpl;
 import com.percussion.soln.linkback.servlet.ActionPanelLinkbackController;
 import com.percussion.soln.linkback.utils.LinkbackUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -70,6 +72,16 @@ public class ActionPanelLinkbackControllerTest {
     pmap.remove(IPSHtmlParameters.SYS_FOLDERID);
     pmap.remove(IPSHtmlParameters.SYS_SITEID);
     token_nofoldersiteid = impl.encode(pmap);
+  }
+
+  @Test
+  public final void testConstructorSeedsActionPanelDefaults() {
+    assertTrue(Modifier.isFinal(ActionPanelLinkbackController.class.getModifiers()));
+    assertEquals("/ui/actionpage/panel", cut.getRedirectPath());
+    assertEquals(List.of(IPSHtmlParameters.SYS_CONTENTID), cut.getRequiredParameterNames());
+    assertEquals(
+        List.of(IPSHtmlParameters.SYS_FOLDERID, IPSHtmlParameters.SYS_SITEID),
+        cut.getOptionalParameterNames());
   }
 
   @Test

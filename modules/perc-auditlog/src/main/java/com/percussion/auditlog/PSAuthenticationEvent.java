@@ -23,8 +23,12 @@ import jakarta.servlet.http.HttpServletRequest;
  * Audit event emitted whenever a user authenticates against the CMS — covering login, renewal,
  * session revocation, and logout actions. Carries the session id, role claims, and community name
  * so the downstream audit sink can attribute the action.
+ *
+ * <p>This class is {@code final} and own-field setters used only after construction assign fields
+ * directly from constructors so no overridable method observes a partially constructed instance
+ * ({@code this-escape}).
  */
-public class PSAuthenticationEvent extends AbstractEvent {
+public final class PSAuthenticationEvent extends AbstractEvent {
 
   /** Tag identifying the HTTP session id associated with the authentication action. */
   public static final String SESSIONID_TAG = "sessionid";
@@ -41,17 +45,28 @@ public class PSAuthenticationEvent extends AbstractEvent {
   /** Resource URI for the system security service that records authentication events. */
   public static final String SYSTEM_SECURITY_URI = "service/bss/cms/security";
 
-  /** Constructs an empty event with the security observer pre-assigned. */
-  @SuppressWarnings("this-escape")
+  private AuthenticationEventActions action;
+
+  private String sessionId;
+  private String roles;
+  private String communityName;
+
+  /**
+   * Constructs an empty event with the security observer pre-assigned.
+   *
+   * <p>Uses {@code final} parent setters after {@code super()} completes.
+   */
   public PSAuthenticationEvent() {
     super();
-
-    this.setObserverName(SYSTEM_SECURITY_URI);
+    setObserverName(SYSTEM_SECURITY_URI);
   }
 
   /**
    * Constructs an authentication event fully populated from the supplied servlet request and
    * metadata.
+   *
+   * <p>Own fields are assigned directly; parent CADF fields use {@code final} setters after {@code
+   * super()} completes.
    *
    * @param outcome the action outcome (typically {@code SUCCESS} or {@code FAILURE}), never {@code
    *     null}.
@@ -59,19 +74,18 @@ public class PSAuthenticationEvent extends AbstractEvent {
    * @param request the HTTP request that triggered the event, never {@code null}.
    * @param username the user name captured by the authentication attempt, never {@code null}.
    */
-  @SuppressWarnings("this-escape")
   public PSAuthenticationEvent(
       String outcome,
       AuthenticationEventActions action,
       HttpServletRequest request,
       String username) {
     super();
-    this.setObserverName(SYSTEM_SECURITY_URI);
-    this.setOutcome(outcome);
-    this.setAction(action);
-    this.setInitiatorIP(request.getRemoteAddr());
-    this.setTargetUsername(username);
-    this.setAgentName(request.getHeader("User-Agent"));
+    setObserverName(SYSTEM_SECURITY_URI);
+    setOutcome(outcome);
+    this.action = action;
+    setInitiatorIP(request.getRemoteAddr());
+    setTargetUsername(username);
+    setAgentName(request.getHeader("User-Agent"));
   }
 
   /** Enumerates the authentication lifecycle actions recorded by {@link PSAuthenticationEvent}. */
@@ -85,12 +99,6 @@ public class PSAuthenticationEvent extends AbstractEvent {
     /** The user signed out, terminating the session. */
     logout
   }
-
-  private AuthenticationEventActions action;
-
-  private String sessionId;
-  private String roles;
-  private String communityName;
 
   /**
    * Returns the action recorded for this event.

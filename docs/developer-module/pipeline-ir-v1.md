@@ -119,21 +119,49 @@ Not imported in v1 (deferred): full where-clause trees, join graphs, exits/hooks
 
 ## Service API
 
+### IR (Slice A part 1 — #2247)
+
 `IPSPipelineIrService` / `PSPipelineIrService` / `PSPipelineIrServiceLocator`:
 
 - `importClassicXml` / `importClassicApplication`
 - `toJson` / `fromJson`
 - `save` / `load` / `exists`
 
-No REST surface in this slice (catalog list remains `GET /services/pipelines`).
+### Runtime (Slice A part 2 — #2248)
+
+`IPSPipelineRuntimeService` / `PSPipelineRuntimeService` / `PSPipelineRuntimeServiceLocator`:
+
+- `execute(appName, resourceName, request)` — load native IR, run resource
+- `execute(document, resource, request)` — in-memory IR (tests / callers)
+- SQL via `IPSPipelineSqlAdapter` / `PSJdbcPipelineSqlAdapter` (parameterized JDBC only)
+- Planner: `PSPipelineSqlPlanner` (generated single-table SELECT/INSERT, or native SELECT with `:param`)
+- Pre/post hooks: `IPSPipelinePreExecuteHook` / `IPSPipelinePostExecuteHook`
+- JSON I/O: `PipelineExecuteRequest` / `PipelineExecuteResult` + `PSPipelineExecuteJsonCodec`
+
+**Not** calling classic `PSQueryHandler` / `PSUpdateHandler` as the public path.
+
+Catalog list remains `GET /services/pipelines`. Optional thin REST **invoke** is deferred (Developer smoke residual).
+
+### Runtime security
+
+| Default | Behavior |
+|---------|----------|
+| Parameterized SQL | Request values bound as JDBC `?` only |
+| Generated identifiers | Table/column must match `[A-Za-z_][A-Za-z0-9_]*` |
+| Native SQL escape hatch | Single `SELECT`/`WITH` only; named `:param`; rejects `;`, DML/DDL keywords |
+| Joins / multi-table | Not supported in Slice A2 planner |
+
+Manual raw multi-statement SQL is **not** a product surface.
 
 ## Tests
 
 - IR JSON round-trip + file load/save
 - Golden classic fixture `sys_adminCataloger` → IR stage inventory (backend tank, mapper, selector, page tank)
+- H2 runtime: generated query + JSON params, native SELECT, pre/post hooks, minimal INSERT (`PSPipelineRuntimeServiceTest`)
 
 ## Evolution
 
 - **1.x** additive fields preferred; bump `irVersion` only for breaking shape changes.
-- Slice A2 (#2248): SQL execute + JSON I/O + hooks consume this IR.
+- Slice A2 (#2248): SQL execute + JSON I/O + hooks consume this IR (landed).
+- Residual: thin REST invoke for Developer smoke; richer UPDATE (update/delete); join graphs; full where-clause IR.
 - Slice B: designer writes native IR (`source=NATIVE`).

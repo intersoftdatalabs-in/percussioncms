@@ -31,7 +31,7 @@ public interface Related_nodeServiceInf {
    *
    * @return a collection of all Related_node entities, or an empty collection
    */
-  public Collection getAllRelated_nodes();
+  public Collection<Related_node> getAllRelated_nodes();
 
   /**
    * Retrieves a specific related node by its unique identifier.

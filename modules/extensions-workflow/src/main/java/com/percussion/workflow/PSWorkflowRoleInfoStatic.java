@@ -226,7 +226,7 @@ public class PSWorkflowRoleInfoStatic {
 
         // for Adhoc normal the user needs to belong to the role
         emptyAdhocNormalRoles =
-            PSWorkFlowUtils.intersectLists(emptyAdhocNormalRoles, actorAdhocNormalRoles);
+            PSTypedWorkflowLists.intersectLists(emptyAdhocNormalRoles, actorAdhocNormalRoles);
       }
 
       if (null != emptyAdhocNormalRoles && !emptyAdhocNormalRoles.isEmpty()) {
@@ -275,7 +275,7 @@ public class PSWorkflowRoleInfoStatic {
 
     if (authUser && stateAdhocRoles != null) {
 
-      resAdhocRoles = PSWorkFlowUtils.intersectLists(userAdhocRoles, stateAdhocRoles);
+      resAdhocRoles = PSTypedWorkflowLists.intersectLists(userAdhocRoles, stateAdhocRoles);
     } else {
       resAdhocRoles = userAdhocRoles;
     }
@@ -407,7 +407,8 @@ public class PSWorkflowRoleInfoStatic {
     }
     actorAdhocNormalRoles =
         PSWorkFlowUtils.applyMapList(
-            PSWorkFlowUtils.lowerCaseList(userRoleNameList), adhocNormalStateRoleNameToRoleIDMap);
+            PSTypedWorkflowLists.lowerCaseList(userRoleNameList),
+            adhocNormalStateRoleNameToRoleIDMap);
     PSWorkFlowUtils.printWorkflowMessage(request, "    Exiting Method findAdhocNormalRoles");
     return actorAdhocNormalRoles;
   }
@@ -515,7 +516,7 @@ public class PSWorkflowRoleInfoStatic {
   static List<Integer> filterRolesNotificationEnabled(
       List<Integer> roleList, PSStateRolesContext src) {
     Map<Integer, Boolean> notifyEnabledMap = src.getIsNotificationOnMap();
-    return PSWorkFlowUtils.filterList(roleList, notifyEnabledMap);
+    return PSTypedWorkflowLists.filterList(roleList, notifyEnabledMap);
   }
 
   /**
@@ -536,7 +537,7 @@ public class PSWorkflowRoleInfoStatic {
     filterNotifyEnabledMapByCommunity(contentId, notifyEnabledMap);
 
     List<Integer> nonAdhocStateRoleIDs = src.getNonAdhocStateRoleIDs();
-    return PSWorkFlowUtils.filterList(nonAdhocStateRoleIDs, notifyEnabledMap);
+    return PSTypedWorkflowLists.filterList(nonAdhocStateRoleIDs, notifyEnabledMap);
   }
 
   /**
@@ -633,7 +634,7 @@ public class PSWorkflowRoleInfoStatic {
     }
 
     stateNotificationEnabledAdhocNormalRoles =
-        PSWorkFlowUtils.filterList(stateAdhocNormalRoles, notifyEnabledMap);
+        PSTypedWorkflowLists.filterList(stateAdhocNormalRoles, notifyEnabledMap);
     List<Integer> unnotifiedAdhocRoleIds = new ArrayList<>();
 
     /*
@@ -643,9 +644,9 @@ public class PSWorkflowRoleInfoStatic {
      */
 
     notificationEnabledAdhocAnonymousRoles =
-        PSWorkFlowUtils.intersectLists(userAdhocAnonymousRoles, stateAdhocAnonymousRoles);
+        PSTypedWorkflowLists.intersectLists(userAdhocAnonymousRoles, stateAdhocAnonymousRoles);
     notificationEnabledAdhocAnonymousRoles =
-        PSWorkFlowUtils.filterList(notificationEnabledAdhocAnonymousRoles, notifyEnabledMap);
+        PSTypedWorkflowLists.filterList(notificationEnabledAdhocAnonymousRoles, notifyEnabledMap);
     if (null != notificationEnabledAdhocAnonymousRoles
         && !notificationEnabledAdhocAnonymousRoles.isEmpty()) {
       stateAdhocActorSet.addAll(adhocAnonymousUserNames);
@@ -653,7 +654,7 @@ public class PSWorkflowRoleInfoStatic {
       // if no anonymous adhoc users were assigned for roles with notify on,
       // then notify all users for those roles
       unnotifiedAdhocRoleIds.addAll(
-          PSWorkFlowUtils.filterList(stateAdhocAnonymousRoles, notifyEnabledMap));
+          PSTypedWorkflowLists.filterList(stateAdhocAnonymousRoles, notifyEnabledMap));
     }
 
     if (null != adhocNormalUserNames) {
@@ -665,13 +666,14 @@ public class PSWorkflowRoleInfoStatic {
           userAdhocNormalRoles = cauc.getUserAdhocNormalRoleIDs(userName);
         }
         userAdhocNormalRoles =
-            PSWorkFlowUtils.intersectLists(
+            PSTypedWorkflowLists.intersectLists(
                 userAdhocNormalRoles, stateNotificationEnabledAdhocNormalRoles);
         if (validateRoleMembership
             && null != userAdhocNormalRoles
             && !userAdhocNormalRoles.isEmpty()) {
           userRoleList = getSubjectRoleIDs(userName, src, request);
-          userRoleList = PSWorkFlowUtils.intersectLists(userAdhocNormalRoles, userRoleList);
+          userRoleList =
+              PSTypedWorkflowLists.intersectLists(userAdhocNormalRoles, userRoleList);
         }
         if (null != userRoleList && !userRoleList.isEmpty()) {
           stateAdhocActorSet.add(userName);
@@ -762,7 +764,8 @@ public class PSWorkflowRoleInfoStatic {
     }
     subjectRoleIDs =
         PSWorkFlowUtils.applyMapList(
-            PSWorkFlowUtils.lowerCaseList(subjectRoleNames), src.getLowerCaseRoleNameToIDMap());
+            PSTypedWorkflowLists.lowerCaseList(subjectRoleNames),
+            src.getLowerCaseRoleNameToIDMap());
 
     if (null == subjectRoleIDs || subjectRoleIDs.isEmpty()) {
       return null;

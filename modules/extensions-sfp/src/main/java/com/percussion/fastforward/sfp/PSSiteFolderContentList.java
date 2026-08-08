@@ -47,7 +47,7 @@ import org.w3c.dom.NodeList;
  *     PSSiteFolderCListBulk} instead.
  * @author James Schultz
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
+@Deprecated
 public class PSSiteFolderContentList extends PSSiteFolderCListBase {
   /**
    * Constructs a site-folder-driven, full-publishing, public-items content list builder.
@@ -118,7 +118,7 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
       String protocol,
       String host,
       String port,
-      Set paramSetToPass) {
+      Set<String> paramSetToPass) {
     super(
         request,
         isIncremental,
@@ -222,9 +222,10 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
       // Force include for all child folders
       bOverrideInclude = true;
     }
-    Iterator items = m_helper.getFolderContents(folder.getCurrentLocator()).iterator();
-    while (items.hasNext()) {
-      PSComponentSummary item = (PSComponentSummary) items.next();
+    for (Iterator<PSComponentSummary> items =
+            m_helper.getFolderContents(folder.getCurrentLocator()).iterator();
+        items.hasNext(); ) {
+      PSComponentSummary item = items.next();
       if (item.getType() == PSComponentSummary.TYPE_ITEM) {
         if (!bExclude) appendItemVariants(folderPath, item, folder, filenameContext);
       } else if (item.getType() == PSComponentSummary.TYPE_FOLDER) {
@@ -270,7 +271,7 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
 
     if (isPublishable) {
       // lookup the publishable variants for this item's site/item
-      Set variants =
+      Set<Variant> variants =
           lookupVariantsForItem(contentId, revision, folder, filenameContext, contentTypeId);
       PSContentListItem contentListItem;
 
@@ -293,9 +294,7 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
         }
       } else {
         // for each variant, generate a contentitem element
-        for (Iterator i = variants.iterator(); i.hasNext(); ) {
-          Variant variant = (Variant) i.next();
-
+        for (Variant variant : variants) {
           contentListItem =
               generateListItem(
                   contentId,
@@ -429,7 +428,7 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
    * @return Never <code>null</code> but will be empty if no variants are registered for the content
    *     item in the current site, or if an error occurs while performing the lookup.
    */
-  private Set lookupVariantsForItem(
+  private Set<Variant> lookupVariantsForItem(
       String contentId,
       String revision,
       PSComponentSummary folder,
@@ -438,8 +437,8 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
     if (contentId == null || contentId.trim().length() == 0)
       throw new IllegalArgumentException("contentId may not be null");
 
-    Set variants = null;
-    Map lookupParams = new HashMap(6);
+    Set<Variant> variants = null;
+    Map<String, Object> lookupParams = new HashMap<>(6);
     lookupParams.put(
         IPSHtmlParameters.SYS_SITEID, m_request.getParameter(IPSHtmlParameters.SYS_SITEID));
     lookupParams.put(IPSHtmlParameters.SYS_CONTENTID, contentId);
@@ -465,7 +464,7 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
         log.error("ERROR: while making internal request to {}", m_contentResourceName);
         log.error(getClass().getName(), e);
         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        variants = new HashSet(); // never return a null
+        variants = new HashSet<>(); // never return a null
       }
     }
 
@@ -484,8 +483,8 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
    * @return a set of the <code>Variant</code> objects, extracted from the XML document. Never
    *     <code>null</code> but will be empty if no variant elements exist in document.
    */
-  private Set parseVariantLookupXML(Document resultXml) {
-    Set variantsSet = new HashSet();
+  private Set<Variant> parseVariantLookupXML(Document resultXml) {
+    Set<Variant> variantsSet = new HashSet<>();
     if (resultXml != null) {
       Element root = resultXml.getDocumentElement();
       if (root != null) {

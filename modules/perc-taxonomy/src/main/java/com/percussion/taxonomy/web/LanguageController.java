@@ -17,6 +17,7 @@
 
 package com.percussion.taxonomy.web;
 
+import com.percussion.taxonomy.domain.Language;
 import com.percussion.taxonomy.TaxonomySecurityHelper;
 import com.percussion.taxonomy.service.LanguageService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,7 +52,7 @@ public class LanguageController {
       throws Exception {
     // --------------------------- Templated - Modify or replace -----------------------------
     TaxonomySecurityHelper.raise_error_if_cannot_admin();
-    Collection all = languageService.getAllLanguages();
+    Collection<Language> all = languageService.getAllLanguages();
     Map<String, Object> myModel = new HashMap<String, Object>();
     myModel.put("all", all);
     return new ModelAndView("language", "model", myModel);

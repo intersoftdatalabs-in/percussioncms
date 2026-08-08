@@ -33,13 +33,12 @@ public class HibernateAttribute_langDAO implements Attribute_langDAO {
 
   public Attribute_lang getAttribute_lang(int id) {
     Session session = sessionFactory.getCurrentSession();
-    return session.get(Attribute_lang.class, id);
+    return session.find(Attribute_lang.class, id);
   }
 
-  public Collection getAllAttribute_langs() {
+  public Collection<Attribute_lang> getAllAttribute_langs() {
     Session session = sessionFactory.getCurrentSession();
-    return (Collection)
-        (Collection<?>) session.createQuery("from Attribute_lang att", Attribute_lang.class).list();
+    return session.createQuery("from Attribute_lang att", Attribute_lang.class).list();
   }
 
   public void saveAttribute_lang(Attribute_lang attribute_lang) {

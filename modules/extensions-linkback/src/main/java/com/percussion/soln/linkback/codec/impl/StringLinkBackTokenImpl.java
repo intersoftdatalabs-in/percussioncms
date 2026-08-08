@@ -140,28 +140,25 @@ public class StringLinkBackTokenImpl implements LinkbackTokenCodec {
    * @param value a string, string array, list, or other object
    * @return the first value represented as a string, or {@code null} when the input is null
    */
-  @SuppressWarnings("rawtypes")
   public static String simplifyValue(Object value) {
     if (value == null) {
       log.debug("null value");
       return null;
     }
     String sval;
-    if (value instanceof String[]) {
-      String[] x = (String[]) value;
+    if (value instanceof String[] x) {
       if (x.length == 0) {
         log.trace("Empty String array");
         return "";
       }
       sval = x[0];
       log.trace("Converted String[] to {} {}", sval, value);
-    } else if (value instanceof List) {
-      List x = (List) value;
-      if (x.isEmpty()) {
+    } else if (value instanceof List<?> list) {
+      if (list.isEmpty()) {
         log.debug("Empty List");
         return "";
       }
-      sval = x.get(0).toString();
+      sval = list.get(0).toString();
       log.trace("Converted List to {} {}", sval, value);
     } else {
       sval = value.toString();

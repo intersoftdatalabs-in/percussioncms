@@ -49,6 +49,8 @@ public class PSFacadeMapTest {
   @Test
   public void testClone() throws Exception {
     fmap = new PSFacadeMap<String, String>(inner);
+    // HashMap.clone() is Object; production does not override with a typed return.
+    @SuppressWarnings("unchecked")
     PSFacadeMap<String, String> c = (PSFacadeMap<String, String>) fmap.clone();
 
     assertEquals(fmap, c);

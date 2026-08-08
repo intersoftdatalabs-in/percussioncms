@@ -42,7 +42,6 @@ import org.w3c.dom.NodeList;
  *
  * @author James Schultz
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSExpandRecurringEvents extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
 
@@ -179,9 +178,9 @@ public class PSExpandRecurringEvents extends PSDefaultExtension
 
           // extract all iterations of the RecurringEvent and add to XML
           Calendar c;
-          Iterator eventIterator = event.getRecurrenceIterator();
+          Iterator<Calendar> eventIterator = event.getRecurrenceIterator();
 
-          while ((c = (Calendar) eventIterator.next()) != null) {
+          while ((c = eventIterator.next()) != null) {
             Date d = c.getTime();
 
             // make sure the date is in bounds for the calendar

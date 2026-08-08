@@ -16,14 +16,14 @@
  */
 package com.percussion.fastforward.calendar;
 
+import java.util.Calendar;
 import java.util.Iterator;
 
 /**
  * Extension of {@link java.util.Iterator iterator} to specify the enent object and recurrence
  * value.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
-public class PSRecurrenceIterator implements Iterator {
+public class PSRecurrenceIterator implements Iterator<Calendar> {
 
   /**
    * Constructor. Takes the recusrring even object.
@@ -45,7 +45,7 @@ public class PSRecurrenceIterator implements Iterator {
   /* (non-Javadoc)
    * @see java.util.Iterator#next()
    */
-  public Object next() {
+  public Calendar next() {
     return m_event.getRecurrence(m_recurrence++);
   }
 

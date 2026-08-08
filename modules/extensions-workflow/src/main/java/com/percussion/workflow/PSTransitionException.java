@@ -20,6 +20,10 @@ import com.percussion.error.PSException;
 
 /** Exception thrown when an error occurs while performing a workflow transition. */
 public class PSTransitionException extends PSException {
+
+  /** Serialization UID. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Construct an exception for messages taking locale and msgCode arguments.
    *

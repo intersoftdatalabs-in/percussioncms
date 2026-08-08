@@ -20,6 +20,10 @@ import com.percussion.error.PSException;
 
 /** This exception is throws when an invalid parameter is detected. */
 public class PSInvalidParameterTypeException extends PSException {
+
+  /** Serialization UID. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Construct an exception for messages taking locale and msgCode arguments.
    *

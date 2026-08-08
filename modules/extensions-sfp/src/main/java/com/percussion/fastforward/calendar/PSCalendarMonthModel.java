@@ -42,7 +42,6 @@ import org.apache.logging.log4j.Logger;
  * @author James Schultz
  * @since 6.0
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSCalendarMonthModel extends PSJexlUtilBase {
 
   /** Default constructor required by Jexl utility framework. */
@@ -217,10 +216,12 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
    * @return a collection of assembled events for the specified day. will be <code>null</code> if no
    *     events have been set or events occur on the specified day
    */
+  @SuppressWarnings("unchecked")
   public Collection<IPSAssemblyResult> getEvents(int day) {
     if (getModel().m_eventsByDay == null) {
       return null;
     } else {
+      // MultiMap from commons-collections is untyped; elements are IPSAssemblyResult.
       return (Collection<IPSAssemblyResult>) getModel().m_eventsByDay.get(day);
     }
   }

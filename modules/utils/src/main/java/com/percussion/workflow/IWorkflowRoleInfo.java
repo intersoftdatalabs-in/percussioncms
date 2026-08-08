@@ -23,7 +23,12 @@ public interface IWorkflowRoleInfo {
 
   String WORKFLOW_ROLE_INFO_PRIVATE_OBJECT = "workflowroleinfoprivateobject";
 
-  void setUserActingRoleNames(List actorRoleNames);
+  /**
+   * Sets the list of names of state roles in which a user is acting.
+   *
+   * @param actorRoleNames role names; may be {@code null}
+   */
+  void setUserActingRoleNames(List<String> actorRoleNames);
 
   IPSContentAdhocUsersContext getFromStateCauc();
 

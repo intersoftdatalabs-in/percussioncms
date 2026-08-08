@@ -17,6 +17,7 @@
 
 package com.percussion.taxonomy.web;
 
+import com.percussion.taxonomy.domain.Attribute_lang;
 import com.percussion.taxonomy.TaxonomySecurityHelper;
 import com.percussion.taxonomy.service.Attribute_langService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,7 +53,7 @@ public class Attribute_langController {
       throws Exception {
     // --------------------------- Templated - Modify or replace -----------------------------
     TaxonomySecurityHelper.raise_error_if_cannot_admin();
-    Collection all = attribute_langService.getAllAttribute_langs();
+    Collection<Attribute_lang> all = attribute_langService.getAllAttribute_langs();
     Map<String, Object> myModel = new HashMap<String, Object>();
     myModel.put("all", all);
     return new ModelAndView("attribute_lang", "model", myModel);

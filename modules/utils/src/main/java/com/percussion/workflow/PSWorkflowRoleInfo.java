@@ -37,7 +37,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @return the list of IDs of state roles in which a user is acting
    */
-  public List getUserActingRoleIDs() {
+  public List<Integer> getUserActingRoleIDs() {
     return m_userActingRoleIDs;
   }
 
@@ -46,7 +46,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @return the list of names of state roles in which a user is acting
    */
-  public List getUserActingRoleNames() {
+  public List<String> getUserActingRoleNames() {
     return m_userActingRoleNames;
   }
 
@@ -73,7 +73,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @param userActingRoleIDs list of IDs of state roles in which a user is acting
    */
-  public void setUserActingRoleIDs(List userActingRoleIDs) {
+  public void setUserActingRoleIDs(List<Integer> userActingRoleIDs) {
     m_userActingRoleIDs = userActingRoleIDs;
   }
 
@@ -82,7 +82,8 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
    *
    * @param userActingRoleNames list of names of state roles in which a user is acting
    */
-  public void setUserActingRoleNames(List userActingRoleNames) {
+  @Override
+  public void setUserActingRoleNames(List<String> userActingRoleNames) {
     m_userActingRoleNames = userActingRoleNames;
   }
 
@@ -104,11 +105,11 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
     m_fromStateCauc = fromStateCauc;
   }
 
-  /** list of IDs of state roles in which a user is acting */
-  private List m_userActingRoleIDs = null;
+  /** List of IDs of state roles in which a user is acting. */
+  private List<Integer> m_userActingRoleIDs = null;
 
-  /** list of names of state roles in which a user is acting */
-  private List m_userActingRoleNames = null;
+  /** List of names of state roles in which a user is acting. */
+  private List<String> m_userActingRoleNames = null;
 
   /** Content adhoc users context for the transition "to" state */
   private IPSContentAdhocUsersContext m_toStateCauc = null;

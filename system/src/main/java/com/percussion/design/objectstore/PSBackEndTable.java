@@ -35,6 +35,10 @@ import org.w3c.dom.Element;
  * @see PSBackEndColumn
  */
 public class PSBackEndTable extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /** Provide a suitable key for indexing database connections */
   public class PSServerKey {
 

@@ -69,6 +69,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * @throws IllegalArgumentException if <code>name</code> or <code>label</code> or <code>type
    *     </code> or <code>permissions</code> is invalid
    */
+  @SuppressWarnings("this-escape")
   public PSNode(
       String name,
       String label,
@@ -95,6 +96,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
     m_childrenURL = (childrenURL == null) ? "" : childrenURL;
     m_isExpand = expand;
 
+    // isAnyFolderType() is overridable; intentional for legacy subclass wiring.
     if (isAnyFolderType()) {
       if (permissions < 0)
         throw new IllegalArgumentException("Invalid permissions for folder : " + name);
@@ -110,9 +112,11 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * @throws IllegalArgumentException if element is <code>null</code>
    * @throws PSUnknownNodeTypeException if element is not of expected format.
    */
+  @SuppressWarnings("this-escape")
   public PSNode(Element element) throws PSUnknownNodeTypeException {
     if (element == null) throw new IllegalArgumentException("element may not be null.");
 
+    // fromXml is overridable; intentional for legacy subclass wiring.
     fromXml(element);
   }
 
@@ -182,10 +186,11 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
     if (rowDataEl != null) m_rowData = new RowData(rowDataEl);
 
     m_children = null;
-    Iterator<Element> childNodes = PSComponentUtils.getChildElements(sourceNode, XML_NODE_NAME);
+    // PSComponentUtils.getChildElements returns a raw Iterator of Element nodes.
+    Iterator<?> childNodes = PSComponentUtils.getChildElements(sourceNode, XML_NODE_NAME);
     if (childNodes.hasNext()) {
-      m_children = new ArrayList<PSNode>();
-      while (childNodes.hasNext()) m_children.add(new PSNode(childNodes.next()));
+      m_children = new ArrayList<>();
+      while (childNodes.hasNext()) m_children.add(new PSNode((Element) childNodes.next()));
     }
   }
 
@@ -205,7 +210,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
     int i = 0;
     int childIndex = -1;
     while (children.hasNext()) {
-      PSNode child = (PSNode) children.next();
+      PSNode child = children.next();
       if (child.getName().equals(newChild.getName())) childIndex = i;
       i++;
     }
@@ -223,7 +228,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
   public void addChild(PSNode child) {
     if (child == null) throw new IllegalArgumentException("child may not be null.");
 
-    if (m_children == null) m_children = new ArrayList<PSNode>();
+    if (m_children == null) m_children = new ArrayList<>();
 
     m_children.add(child);
   }
@@ -292,7 +297,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
 
     if (m_children != null) {
       Iterator<PSNode> children = m_children.iterator();
-      while (children.hasNext()) root.appendChild(((PSNode) children.next()).toXml(doc));
+      while (children.hasNext()) root.appendChild(children.next().toXml(doc));
     }
 
     return root;
@@ -343,8 +348,8 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    *     data type. Both are <code>String</code> objects. May be <code>null</code> if it is not
    *     supported. Never empty.
    */
-  public Iterator getChildrenDisplayFormat() {
-    Iterator columnDefs = null;
+  public Iterator<Map.Entry<String, String>> getChildrenDisplayFormat() {
+    Iterator<Map.Entry<String, String>> columnDefs = null;
 
     if (m_tableMeta != null) columnDefs = m_tableMeta.getColumnDefs();
 
@@ -359,7 +364,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    *     </code> objects. See {@link #getChildrenDisplayFormat()} for more info. May be <code>null
    *     </code> to clear the display format, may not be empty.
    */
-  public void setChildrenDisplayFormat(Iterator columnDefs) {
+  public void setChildrenDisplayFormat(Iterator<? extends Map.Entry<String, String>> columnDefs) {
     if (columnDefs != null) {
       if (!columnDefs.hasNext()) throw new IllegalArgumentException("columnDefs may not be empty");
 
@@ -396,14 +401,14 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    *     on the data type of the column. May be <code>null</code> if it is not supported. Any
    *     additions or deletions to returned map does not effect this node's row data in any way.
    */
-  public Map getRowData() {
-    Map rowData = null;
+  public Map<String, Object> getRowData() {
+    Map<String, Object> rowData = null;
 
     if (m_rowData != null) {
-      Iterator columns = m_rowData.getRowData();
-      rowData = new HashMap();
+      Iterator<Map.Entry<String, Object>> columns = m_rowData.getRowData();
+      rowData = new HashMap<>();
       while (columns.hasNext()) {
-        Map.Entry entry = (Map.Entry) columns.next();
+        Map.Entry<String, Object> entry = columns.next();
         rowData.put(entry.getKey(), entry.getValue());
       }
     }
@@ -418,7 +423,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * String</code> and value is column value as an <code>Object</code>. May not be <code>null</code>
    *     or empty.
    */
-  public void setRowData(Map rowData) {
+  public void setRowData(Map<String, Object> rowData) {
     if (rowData == null || rowData.isEmpty())
       throw new IllegalArgumentException("rowData may not be null or empty.");
 
@@ -440,7 +445,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * @return the iterator over zero or more <code>PSNode</code> objects, may be <code>null</code> if
    *     this node is not set with children.
    */
-  public Iterator getChildren() {
+  public Iterator<PSNode> getChildren() {
     if (m_children != null) return m_children.iterator();
     else return null;
   }
@@ -510,14 +515,14 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * null</code> to clear the children.
    * @throws IllegalArgumentException if children is invalid.
    */
-  public void setChildren(Iterator children) {
+  public void setChildren(Iterator<? extends PSNode> children) {
     if (children == null) m_children = null;
     else {
-      m_children = new ArrayList();
+      m_children = new ArrayList<>();
       while (children.hasNext()) {
-        Object obj = children.next();
-        if (obj instanceof PSNode) {
-          m_children.add(obj);
+        PSNode node = children.next();
+        if (node != null) {
+          m_children.add(node);
         } else
           throw new IllegalArgumentException("Elements of children must be instances of PSNode");
       }
@@ -535,7 +540,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * @return the sort order.
    */
   public int getSortOrder() {
-    Integer sortOrder = (Integer) ms_nodeOrder.get(getType());
+    Integer sortOrder = ms_nodeOrder.get(getType());
     if (sortOrder == null) return 0;
     else return sortOrder.intValue();
   }
@@ -944,7 +949,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    *
    * @return The collection, never <code>null</code> or empty.
    */
-  public static Collection getFolderTypes() {
+  public static Collection<String> getFolderTypes() {
     return Collections.unmodifiableCollection(ms_folderTypes);
   }
 
@@ -953,7 +958,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    *
    * @return The collection, never <code>null</code> or empty.
    */
-  public static Collection getSearchTypes() {
+  public static Collection<String> getSearchTypes() {
     return Collections.unmodifiableCollection(ms_searchTypes);
   }
 
@@ -1024,12 +1029,12 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
     try {
       copy = (PSNode) super.clone();
       if (m_children != null) {
-        copy.m_children = new ArrayList();
+        copy.m_children = new ArrayList<>();
 
-        Iterator i = m_children.iterator();
+        Iterator<PSNode> i = m_children.iterator();
         while (i.hasNext()) {
-          PSNode obj = (PSNode) i.next();
-          copy.m_children.add(obj.clone());
+          PSNode obj = i.next();
+          copy.m_children.add((PSNode) obj.clone());
         }
       }
 
@@ -1070,13 +1075,13 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
      *     PSNode#setChildrenDisplayFormat(Iterator)} for more info. May not be <code>null</code> or
      *     empty.
      */
-    public TableMeta(Iterator columnDefs) {
+    public TableMeta(Iterator<? extends Map.Entry<String, String>> columnDefs) {
       if (columnDefs == null || !columnDefs.hasNext())
         throw new IllegalArgumentException("columnDefs may not be null or empty");
 
       while (columnDefs.hasNext()) {
-        Object entry = columnDefs.next();
-        if (!(entry instanceof Map.Entry))
+        Map.Entry<String, String> entry = columnDefs.next();
+        if (entry == null)
           throw new IllegalArgumentException("columnDefs must contain Map.Entry objects");
 
         m_columnDefs.add(entry);
@@ -1092,7 +1097,8 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
 
-      Iterator columns = PSComponentUtils.getChildElements(sourceNode, COLUMN_NODE);
+      // PSComponentUtils.getChildElements returns a raw Iterator of Element nodes.
+      Iterator<?> columns = PSComponentUtils.getChildElements(sourceNode, COLUMN_NODE);
       if (!columns.hasNext()) {
         Object[] args = {TABLEMETA_NODE, COLUMN_NODE, "null"};
         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
@@ -1110,7 +1116,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
         String dataType =
             PSComponentUtils.getEnumeratedAttribute(columnDef, TYPE_ATTR, ms_dataTypes);
 
-        PSEntrySet entry = new PSEntrySet(name, dataType);
+        PSEntrySet<String, String> entry = new PSEntrySet<>(name, dataType);
 
         m_columnDefs.add(entry);
       }
@@ -1122,12 +1128,12 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
       if (doc == null) throw new IllegalArgumentException("doc may not be null.");
 
       Element root = doc.createElement(TABLEMETA_NODE);
-      Iterator columns = m_columnDefs.iterator();
+      Iterator<Map.Entry<String, String>> columns = m_columnDefs.iterator();
       while (columns.hasNext()) {
-        Map.Entry column = (Map.Entry) columns.next();
+        Map.Entry<String, String> column = columns.next();
         Element colEl = doc.createElement(COLUMN_NODE);
-        colEl.setAttribute(NAME_ATTR, (String) column.getKey());
-        colEl.appendChild(doc.createTextNode((String) column.getValue()));
+        colEl.setAttribute(NAME_ATTR, column.getKey());
+        colEl.appendChild(doc.createTextNode(column.getValue()));
         /*
          * todo: uncomment next line to fix method. Not implementing now due
          * to poosible risk.
@@ -1144,7 +1150,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
      * @return an iterator over one or more <code>Map.Entry</code> whose key represents column name
      *     and value the datatype. The allowed datatypes are DATA_TYPE_xxx values.
      */
-    public Iterator getColumnDefs() {
+    public Iterator<Map.Entry<String, String>> getColumnDefs() {
       return m_columnDefs.iterator();
     }
 
@@ -1173,7 +1179,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
       TableMeta copy = null;
       try {
         copy = (TableMeta) super.clone();
-        List columnDefs = new ArrayList();
+        List<Map.Entry<String, String>> columnDefs = new ArrayList<>();
         columnDefs.addAll(m_columnDefs);
         copy.m_columnDefs = columnDefs;
       } catch (CloneNotSupportedException ex) {
@@ -1188,7 +1194,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
      * </code>) and datatype as value (<code>String</code>) Initialized in the ctor, and never
      * <code>null</code> or empty.
      */
-    private List m_columnDefs = new ArrayList();
+    private List<Map.Entry<String, String>> m_columnDefs = new ArrayList<>();
   }
 
   /**
@@ -1203,7 +1209,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
      *     empty.
      * @throws IllegalArgumentException if rowData is invalid.
      */
-    public RowData(Map columnData) {
+    public RowData(Map<String, Object> columnData) {
       if (columnData == null || columnData.isEmpty())
         throw new IllegalArgumentException("columnData may not be null or empty.");
 
@@ -1233,7 +1239,8 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
 
-      Iterator columns = PSComponentUtils.getChildElements(sourceNode, COLDATA_NODE);
+      // PSComponentUtils.getChildElements returns a raw Iterator of Element nodes.
+      Iterator<?> columns = PSComponentUtils.getChildElements(sourceNode, COLDATA_NODE);
       if (!columns.hasNext()) {
         Object[] args = {ROWDATA_NODE, "null"};
         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
@@ -1260,11 +1267,11 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
       if (doc == null) throw new IllegalArgumentException("doc may not be null.");
 
       Element root = doc.createElement(ROWDATA_NODE);
-      Iterator columns = m_columnData.entrySet().iterator();
+      Iterator<Map.Entry<String, Object>> columns = m_columnData.entrySet().iterator();
       while (columns.hasNext()) {
-        Map.Entry column = (Map.Entry) columns.next();
+        Map.Entry<String, Object> column = columns.next();
         Element colEl = doc.createElement(COLDATA_NODE);
-        colEl.setAttribute(NAME_ATTR, (String) column.getKey());
+        colEl.setAttribute(NAME_ATTR, column.getKey());
         colEl.appendChild(doc.createTextNode(column.getValue().toString()));
         /*
          * todo: uncomment next line to fix method. Not implementing now due
@@ -1281,7 +1288,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
      * @return an iterator over one or more <code>Map.Entry</code> whose key represents column name
      *     and value represents data.
      */
-    public Iterator getRowData() {
+    public Iterator<Map.Entry<String, Object>> getRowData() {
       return m_columnData.entrySet().iterator();
     }
 
@@ -1310,7 +1317,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
       RowData copy = null;
       try {
         copy = (RowData) super.clone();
-        copy.m_columnData = new HashMap(m_columnData);
+        copy.m_columnData = new HashMap<>(m_columnData);
       } catch (CloneNotSupportedException ex) {
         /* does not happen */
       }
@@ -1323,7 +1330,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
      * </code>) and data as value (<code>Object</code>) Initialized in the ctor, and never <code>
      * null</code> or empty.
      */
-    private Map m_columnData = new HashMap();
+    private Map<String, Object> m_columnData = new HashMap<>();
   }
 
   /**
@@ -1503,15 +1510,15 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * @return An iterator over zero or more child <code>PSNode</code> objects, never <code>null
    *     </code>, may be empty.
    */
-  public Iterator getDirtyChildren(boolean recurse) {
-    List dirty = new ArrayList();
-    Iterator children = getChildren();
+  public Iterator<PSNode> getDirtyChildren(boolean recurse) {
+    List<PSNode> dirty = new ArrayList<>();
+    Iterator<PSNode> children = getChildren();
     if (children != null) {
       while (children.hasNext()) {
-        PSNode child = (PSNode) children.next();
+        PSNode child = children.next();
         if (child.isDirty()) dirty.add(child);
         if (recurse) {
-          Iterator dirtyChildren = child.getDirtyChildren(recurse);
+          Iterator<PSNode> dirtyChildren = child.getDirtyChildren(recurse);
           while (dirtyChildren.hasNext()) dirty.add(dirtyChildren.next());
         }
       }
@@ -1528,8 +1535,8 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    *     node, <code>false</code> otherwise.
    */
   public void clearDirtyChildren(boolean recurse) {
-    Iterator dirty = getDirtyChildren(recurse);
-    while (dirty.hasNext()) ((PSNode) dirty.next()).setIsDirty(false);
+    Iterator<PSNode> dirty = getDirtyChildren(recurse);
+    while (dirty.hasNext()) dirty.next().setIsDirty(false);
   }
 
   /**
@@ -1554,10 +1561,10 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
   private boolean hasDirtyChildren(boolean recurse) {
     boolean hasDirty = false;
 
-    Iterator children = getChildren();
+    Iterator<PSNode> children = getChildren();
     if (children != null) {
       while (children.hasNext() && !hasDirty) {
-        PSNode child = (PSNode) children.next();
+        PSNode child = children.next();
         if (child.isDirty()) hasDirty = true;
         else if (recurse) hasDirty = child.hasDirtyChildren(recurse);
       }
@@ -1579,11 +1586,11 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
   public PSNode findChildNode(String contentId, String nodeType, boolean recurse) {
     PSNode result = null;
 
-    Iterator children = getChildren();
+    Iterator<PSNode> children = getChildren();
     if (children == null) return result;
 
     while (children.hasNext() && result == null) {
-      PSNode child = (PSNode) children.next();
+      PSNode child = children.next();
       if (child.getType().equals(nodeType)) {
         String test = child.getProp(IPSHtmlParameters.SYS_CONTENTID);
         if (contentId.equals(test)) {
@@ -1650,7 +1657,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
 
     Iterator<PSNode> children = m_children.iterator();
     while (children.hasNext() && result == false) {
-      PSNode child = (PSNode) children.next();
+      PSNode child = children.next();
       if (child.isOfType(type)) {
         result = true;
       }
@@ -1716,7 +1723,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * @return A list of column indexes as <code>Integer</code> objects, or <code>null</code> if no
    *     previous list is currently stored.
    */
-  public List getLastSortColumns() {
+  public List<Integer> getLastSortColumns() {
     return m_lastSortCols;
   }
 
@@ -1736,7 +1743,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * @param indexes The indexes of the last sorted columns as <code>Integer</code> objects, or
    *     <code>null</code> to clear the list.
    */
-  public void setLastSortColumns(List indexes) {
+  public void setLastSortColumns(List<Integer> indexes) {
     m_lastSortCols = indexes;
   }
 
@@ -1865,7 +1872,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * </code>. May be <code>null</code> if it is not yet loaded with children. May be empty after
    * initialization.
    */
-  private List m_children = null;
+  private List<PSNode> m_children = null;
 
   /**
    * Specifies the permissions set on the node encapsulated by this object for the user accessing
@@ -1971,34 +1978,34 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
   public static final String DATA_TYPE_IMAGE = "Image";
 
   /** The list of node types. */
-  private static List ms_nodeTypes = new ArrayList();
+  private static List<String> ms_nodeTypes = new ArrayList<>();
 
   /**
    * A list of node types that represent system folder objects. Initialized by static initializer,
    * never modified after that.
    */
-  private static List ms_systemFolderTypes = new ArrayList();
+  private static List<String> ms_systemFolderTypes = new ArrayList<>();
 
   /**
    * A list of node types that represent folder objects. Initialized by static initializer, never
    * modified after that.
    */
-  private static List ms_folderTypes = new ArrayList();
+  private static List<String> ms_folderTypes = new ArrayList<>();
 
   /**
    * The list of node types that represent search or view objects. Initialized by a static
    * initializer, never modified after that.
    */
-  private static List ms_searchTypes = new ArrayList();
+  private static List<String> ms_searchTypes = new ArrayList<>();
 
   /** The list of data types for a column data. */
-  static List ms_dataTypes = new ArrayList();
+  static List<String> ms_dataTypes = new ArrayList<>();
 
   /**
    * The list of allowed help type hints. Initialized by a static initializer, never modified after
    * that.
    */
-  private static List ms_helpTypeHints = new ArrayList();
+  private static List<String> ms_helpTypeHints = new ArrayList<>();
 
   /**
    * Determines if dynamic properties have been set on this object. Initially <code>false</code>,
@@ -2024,7 +2031,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * #setDisplayFormatId(String)} is called with a different display format id than is was
    * previsously set.
    */
-  private List m_lastSortCols = null;
+  private List<Integer> m_lastSortCols = null;
 
   /**
    * Determines if the last sort direction was ascending. <code>true</code> if it was, <code>false
@@ -2053,7 +2060,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * </code> comes before <code>TYPE_ITEM</code> in ascending order. All other node types have equal
    * priority in ordering.
    */
-  private static Map ms_nodeOrder = new HashMap();
+  private static Map<String, Integer> ms_nodeOrder = new HashMap<>();
 
   static {
     ms_nodeTypes.add(TYPE_ROOT);

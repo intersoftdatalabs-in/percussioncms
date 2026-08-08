@@ -17,6 +17,7 @@ package com.percussion.utils.jexl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +32,6 @@ import org.junit.jupiter.api.TestMethodOrder;
  *
  * @author dougrand
  */
-@SuppressWarnings(value = "unchecked")
 @TestMethodOrder(MethodName.class)
 @Tag("UnitTest")
 public class PSJexlEvaluatorTest {
@@ -45,6 +45,7 @@ public class PSJexlEvaluatorTest {
    * @throws Exception
    */
   @Test
+  @SuppressWarnings("unchecked")
   public void test_01_Binder() throws Exception {
     PSJexlEvaluator eval = new PSJexlEvaluator();
 
@@ -61,15 +62,16 @@ public class PSJexlEvaluatorTest {
     eval.evaluate("$e", PSJexlEvaluator.createScript("if ($x > 1) {3;} else {4;}"));
 
     Map<String, Object> vars = eval.getVars();
-    Map z = (Map) vars.get("$z");
-    Map a = (Map) z.get("a");
-    Map b = (Map) z.get("b");
-    Map z_a_b = (Map) a.get("b");
-    List y = (List) vars.get("$y");
-    List z_a_c = (List) a.get("c");
-    Map z_b_x = (Map) b.get("x");
-    List z_b_x_y = (List) z_b_x.get("y");
-    Map y_0 = (Map) z_b_x_y.get(0);
+    // Binder builds nested Map/List graphs as Object values; cast once per navigation step.
+    Map<String, Object> z = (Map<String, Object>) vars.get("$z");
+    Map<String, Object> a = (Map<String, Object>) z.get("a");
+    Map<String, Object> b = (Map<String, Object>) z.get("b");
+    Map<String, Object> z_a_b = (Map<String, Object>) a.get("b");
+    List<Object> y = (List<Object>) vars.get("$y");
+    List<Object> z_a_c = (List<Object>) a.get("c");
+    Map<String, Object> z_b_x = (Map<String, Object>) b.get("x");
+    List<Object> z_b_x_y = (List<Object>) z_b_x.get("y");
+    Map<String, Object> y_0 = (Map<String, Object>) z_b_x_y.get(0);
     assertEquals("n3", z_a_c.get(0));
     assertEquals("n2", z_a_c.get(1));
     assertEquals("n1", z_a_b.get("c"));
@@ -103,6 +105,17 @@ public class PSJexlEvaluatorTest {
     eval.bind("$foo.bar.bletch", 3);
 
     assertEquals(3, eval.evaluate(PSJexlEvaluator.createExpression("$foo.bar.bletch")));
+  }
+
+  @Test
+  public void testMapCtorRejectsNullBindings() {
+    assertThrows(IllegalArgumentException.class, () -> new PSJexlEvaluator(null));
+  }
+
+  @Test
+  public void testSetValuesRejectsNullBindings() {
+    PSJexlEvaluator eval = new PSJexlEvaluator();
+    assertThrows(IllegalArgumentException.class, () -> eval.setValues(null));
   }
 
   @Test
@@ -148,7 +161,8 @@ public class PSJexlEvaluatorTest {
 
     PSJexlEvaluator eval = new PSJexlEvaluator(initial);
     IPSScript exp =
-        eval.createScript("if ($c) {$a = $val1;} else {$a = $val2;}\n$b = $a + ' brown fox'");
+        PSJexlEvaluator.createScript(
+            "if ($c) {$a = $val1;} else {$a = $val2;}\n$b = $a + ' brown fox'");
     assertEquals("the quick brown fox", eval.evaluate(exp));
   }
 
@@ -164,9 +178,9 @@ public class PSJexlEvaluatorTest {
     initial.put("$a", 4);
 
     PSJexlEvaluator eval = new PSJexlEvaluator(initial);
-    IPSScript exp = eval.createScript("$c");
+    IPSScript exp = PSJexlEvaluator.createScript("$c");
     assertEquals(Integer.valueOf(2147483647), eval.evaluate(exp));
-    exp = eval.createScript("$c * $a");
+    exp = PSJexlEvaluator.createScript("$c * $a");
     Object result = eval.evaluate(exp);
     assertEquals(Long.valueOf(8589934588L), result);
   }
@@ -198,7 +212,7 @@ public class PSJexlEvaluatorTest {
    */
   private void doExceptionTest(PSJexlEvaluator eval, String expression) throws Exception {
     try {
-      IPSScript exp = eval.createExpression(expression);
+      IPSScript exp = PSJexlEvaluator.createExpression(expression);
 
       exp.setUseDebugMode(true);
       exp.setUseSilentMode(false);

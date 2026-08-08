@@ -44,7 +44,7 @@ public class PSContentEditorDependencyMacroResolver {
    *     parameters</code> contains objects other than <code>IPSParameter</code>.
    * @throws IllegalStateException if a macro is contained in an immutable replacement value
    */
-  public static void replaceMacroWithValue(PSDisplayMapping mapping, Iterator<Object> parameters) {
+  public static void replaceMacroWithValue(PSDisplayMapping mapping, Iterator<?> parameters) {
     if (null == mapping) throw new IllegalArgumentException("mapping may not be null");
     if (null == parameters) throw new IllegalArgumentException("parameters may not be null");
 
@@ -93,8 +93,8 @@ public class PSContentEditorDependencyMacroResolver {
    */
   public static void replaceValueWithMacro(
       PSDisplayMapping context,
-      Iterator<Object> templateParameters,
-      Iterator<Object> instanceParameters) {
+      Iterator<?> templateParameters,
+      Iterator<?> instanceParameters) {
     if (null == context) throw new IllegalArgumentException("context may not be null");
     if (null == templateParameters || null == instanceParameters)
       throw new IllegalArgumentException("neither parameters may be null");

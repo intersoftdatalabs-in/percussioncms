@@ -73,7 +73,6 @@ public class MainProxy {
               new URL[] {startJar.toURI().toURL()}, MainProxy.class.getClassLoader());
       Thread.currentThread().setContextClassLoader(child);
 
-      @SuppressWarnings({"rawtypes", "unchecked"})
       Class<?> cls = Class.forName(JETTY_START_MAIN_CLASS, true, child);
       Constructor<?> constructor = cls.getConstructor();
       main = constructor.newInstance();

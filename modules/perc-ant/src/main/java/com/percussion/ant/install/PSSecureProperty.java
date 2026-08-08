@@ -156,7 +156,7 @@ public class PSSecureProperty {
         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
 
-      for (Map.Entry entry : props.entrySet()) {
+      for (Map.Entry<Object, Object> entry : props.entrySet()) {
         String value = (String) entry.getValue();
         if (isValueClouded(value)) {
           props.put(entry.getKey(), getValue(value, null));

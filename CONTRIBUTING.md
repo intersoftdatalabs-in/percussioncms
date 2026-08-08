@@ -627,6 +627,16 @@ Those types of errors will get written to SDTERR or STDOUT and will either only 
 
 If you see code like above, it should be refactored to use a Log4j2 logger.
 
+## Publishing a GitHub Release (installers + checksums)
+
+When attaching CMS / DTS installer JARs to a GitHub Release:
+
+1. Upload the **final** `perc-distribution-tree.jar` and `delivery-tier-distribution.jar`.
+2. Compute SHA-256 **after** that final upload (or of the exact bytes you uploaded). Never reuse an interim package-build checksum.
+3. Publish matching `*.jar.sha256` sidecars and confirm `hash(JAR) == sidecar` before calling the release complete.
+
+Full operator checklist (including how to correct a wrong published sidecar): [docs/release/github-release-assets-checklist.md](docs/release/github-release-assets-checklist.md). This process was tightened after issue [#2212](https://github.com/intersoftdatalabs-in/percussioncms/issues/2212) (v8.1.7 interim checksum).
+
 ### Pull Request Review / Approval
 
 All pull requests are subject to a number of automated checks, as well as manual review by at least one core maintainer. The check / review process is intended to ensure quality of changes and consistency of the system.

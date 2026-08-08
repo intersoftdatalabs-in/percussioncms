@@ -24,12 +24,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.Date;
-import java.util.Optional;
+import java.time.LocalDate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.Cache;
@@ -38,13 +34,13 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 /**
  * Hibernate-backed entity that represents a single recorded visit to a published blog post.
  *
- * <p>Page visit object.
+ * <p>Page visit object. {@code hitDate} is a {@link LocalDate} (JPA DATE) so Hibernate 7 maps it
+ * without deprecated {@code @Temporal}.
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSBlogPostVisit")
 @Table(name = "BLOG_POST_VISIT")
-public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable {
-  private static final long serialVersionUID = 1L;
+public final class PSDbBlogPostVisit implements IPSBlogPostVisit {
 
   /** Surrogate primary key for this visit row. */
   @Id
@@ -57,9 +53,7 @@ public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable {
   private String pagepath;
 
   /** Calendar date of the visit. */
-  @Basic
-  @Temporal(TemporalType.DATE)
-  private Date hitDate;
+  @Basic private LocalDate hitDate;
 
   /** Cumulative hit count for the page path on {@link #hitDate}. */
   @Basic private BigInteger hitCount;
@@ -74,15 +68,16 @@ public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable {
    * @param hitDate the date the visit occurred; may not be {@code null}.
    * @param hitCount the cumulative hit count for this page path; may not be {@code null}.
    */
-  public PSDbBlogPostVisit(String pagepath, Date hitDate, BigInteger hitCount) {
+  public PSDbBlogPostVisit(String pagepath, LocalDate hitDate, BigInteger hitCount) {
     if (pagepath == null || pagepath.length() == 0)
       throw new IllegalArgumentException("pagepath cannot be null or empty");
     if (hitDate == null) throw new IllegalArgumentException("hitDate cannot be null");
     if (hitCount == null) throw new IllegalArgumentException("hitCount cannot be null");
 
-    setHitCount(hitCount);
-    setHitDate(hitDate);
-    setPagepath(pagepath);
+    // Direct field assignment; class is final (no this-escape via overridable setters).
+    this.hitCount = hitCount;
+    this.hitDate = hitDate;
+    this.pagepath = pagepath;
   }
 
   /**
@@ -104,8 +99,8 @@ public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable {
    *
    * @return the hit date, may be {@code null}.
    */
-  public Date getHitDate() {
-    return Optional.ofNullable(hitDate).map(Date::getTime).map(Date::new).orElse(null);
+  public LocalDate getHitDate() {
+    return hitDate;
   }
 
   /**
@@ -113,8 +108,8 @@ public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable {
    *
    * @param hitDate the hit date to set; may be {@code null}.
    */
-  public void setHitDate(Date hitDate) {
-    this.hitDate = Optional.ofNullable(hitDate).map(Date::getTime).map(Date::new).orElse(null);
+  public void setHitDate(LocalDate hitDate) {
+    this.hitDate = hitDate;
   }
 
   /**

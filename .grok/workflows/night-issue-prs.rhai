@@ -12,7 +12,8 @@
 //   prefer_easy       bool   - within the same pN tier, prefer tech-debt / javadoc / small bugs (default true)
 //   low_priority_quota_pct int - percent of max_issues reserved for p7+p8 labels (default 20).
 //                                Example max_issues=10 → 8 priority-pool (p1–p6/unset) + 2 low (p7/p8).
-//   agent_safe_only   bool   - skip issues that need live CMS / Playwright / manual QA (default true)
+//   agent_safe_only   bool   - skip host-install / secrets / full-suite / multi-RDBMS / manual QA
+//                                (default true). H2 Docker QA + surface-filtered Playwright is ALLOWED.
 //   unassigned_only     bool   - only work issues with no assignees (default true)
 //   include_pr_followup bool   - drain merge blockers on OUR open PRs (default true).
 //                                Runs BEFORE issue Work; second pass AFTER Work for new PRs.
@@ -302,8 +303,14 @@ triage_prompt += "- prefer_easy=" + prefer_easy.to_string()
 triage_prompt += "  Do NOT let prefer_easy outrank p1 over p5, or p6 over p8.\n";
 triage_prompt += "- agent_safe_only=" + agent_safe_only.to_string() + "\n";
 triage_prompt += "  When true, SKIP or SPLIT-only (do not implement) issues that require:\n";
-triage_prompt += "  live CMS install, Playwright E2E against running server, manual QA, secrets,\n";
-triage_prompt += "  production config, or multi-day product design without a clear first slice.\n";
+triage_prompt += "  host CMS install (DEV_PERCUSSION_INSTALL only), multi-RDBMS matrix, secrets,\n";
+triage_prompt += "  production config, full Playwright suite without a surface filter, manual QA,\n";
+triage_prompt += "  or multi-day product design without a clear first slice.\n";
+triage_prompt += "  ALLOW when the issue/docs support H2 QA mode: perc-devctl qa-up → TEST_CMS_URL →\n";
+triage_prompt += "  surface-filtered Playwright (npm run test:surface path/grep/tag) → qa-down.\n";
+triage_prompt += "  Do NOT blanket-skip all Playwright solely because agent_safe_only is true.\n";
+triage_prompt += "  See docs/developer-module/workbench-rest-and-qa-modes.md and\n";
+triage_prompt += "  modules/perc-qa-automation/AGENTS.md (QA mode surface filter).\n";
 triage_prompt += "- unassigned_only=" + unassigned_only.to_string() + "\n";
 triage_prompt += "  When true: NEVER queue an issue that has any assignee. Skip assigned work even if\n";
 triage_prompt += "  it leaked into the inventory. Overnight runs must not step on humans mid-task.\n";

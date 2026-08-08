@@ -63,7 +63,6 @@ import org.w3c.dom.Element;
  * setting for Authtype is <code>ALL CONTENT</code> and the default for communities is <code>ignore
  * </code>.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSRelationshipHelper {
   /**
    * Constructs a new relationship helper, using the specified request as the context for resolving
@@ -457,7 +456,7 @@ public class PSRelationshipHelper {
    * @throws PSUnknownNodeTypeException if the folder definition is not a recognized node type
    * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
-  public Set getSiteFolders(PSLocator locator)
+  public Set<PSFolder> getSiteFolders(PSLocator locator)
       throws PSUnknownNodeTypeException, PSCmsException, PSExtensionProcessingException {
     if (locator == null) {
       throw new IllegalArgumentException("locator must not be null");
@@ -474,7 +473,7 @@ public class PSRelationshipHelper {
    * @throws PSCmsException if an error occurs while loading the folders
    * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
-  public Set getFolders(PSLocator locator)
+  public Set<PSFolder> getFolders(PSLocator locator)
       throws PSUnknownNodeTypeException, PSCmsException, PSExtensionProcessingException {
     if (locator == null) {
       throw new IllegalArgumentException("locator must not be null");
@@ -492,21 +491,21 @@ public class PSRelationshipHelper {
    * @throws PSCmsException if an error occurs while loading the folders
    * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
-  private Set getFoldersCommon(PSLocator locator, boolean allFolders)
+  private Set<PSFolder> getFoldersCommon(PSLocator locator, boolean allFolders)
       throws PSUnknownNodeTypeException, PSCmsException, PSExtensionProcessingException {
     if (locator == null) {
       throw new IllegalArgumentException("locator must not be null");
     }
-    Set folders = new HashSet();
+    Set<PSFolder> folders = new HashSet<>();
     getRelationshipProcessor();
     PSRelationshipFilter filter = new PSRelationshipFilter();
     filter.setDependent(locator);
     filter.setName(PSRelationshipFilter.FILTER_NAME_FOLDER_CONTENT);
     filter.setCommunityFiltering(m_useCommunities);
 
-    Iterator it = m_relProcessor.getRelationships(filter).iterator();
+    Iterator<PSRelationship> it = m_relProcessor.getRelationships(filter).iterator();
     while (it.hasNext()) {
-      PSRelationship rel = (PSRelationship) it.next();
+      PSRelationship rel = it.next();
       if (allFolders || isSiteFolder(rel.getOwner())) {
         PSFolder folder = getFolder(rel.getOwner());
         folders.add(folder);
@@ -529,7 +528,7 @@ public class PSRelationshipHelper {
    * @throws PSExtensionProcessingException when the slot cannot be found.
    * @throws PSUnknownNodeTypeException if the slot definition is not a recognized node type
    */
-  public List getSlotContents(PSLocator item, String slotName)
+  public List<PSComponentSummary> getSlotContents(PSLocator item, String slotName)
       throws PSExtensionProcessingException, PSCmsException, PSUnknownNodeTypeException {
     if (item == null) {
       throw new IllegalArgumentException("item must not be null");
@@ -559,11 +558,11 @@ public class PSRelationshipHelper {
    * @throws PSUnknownNodeTypeException if the slot definition is not a recognized node type
    * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
-  public List getSlotContents(PSLocator item, PSSlotType slot)
+  public List<PSComponentSummary> getSlotContents(PSLocator item, PSSlotType slot)
       throws PSCmsException, PSUnknownNodeTypeException, PSExtensionProcessingException {
-    List locList = new ArrayList();
+    List<PSComponentSummary> locList = new ArrayList<>();
     getAaProxy();
-    Iterator relations = m_aaProxy.getSlotRelationships(item, slot, m_authType).iterator();
+    Iterator<?> relations = m_aaProxy.getSlotRelationships(item, slot, m_authType).iterator();
     while (relations.hasNext()) {
       PSAaRelationship rel = (PSAaRelationship) relations.next();
       PSComponentSummary summary = getComponentSummary(rel.getDependent());

@@ -44,7 +44,6 @@ import org.w3c.dom.Document;
  *
  * @author James Schultz
  */
-@SuppressWarnings({"rawtypes", "unchecked", "cast"})
 public abstract class PSSiteFolderContentListBaseExit implements IPSResultDocumentProcessor {
 
   /** Default constructor for PSSiteFolderContentListBaseExit. */
@@ -136,11 +135,11 @@ public abstract class PSSiteFolderContentListBaseExit implements IPSResultDocume
     String port = PSUtils.getParameter(params, 9, Integer.toString(PSServer.getListenerPort()));
     String publishFolderPath = PSUtils.getParameter(params, 10, folderPath);
 
-    Set paramSetToPass = new HashSet();
+    Set<String> paramSetToPass = new HashSet<>();
     if (paramString != null && paramString.length() > 0) {
       StringTokenizer tokenizer = new StringTokenizer(paramString, ",");
       while (tokenizer.hasMoreTokens()) {
-        String element = (String) tokenizer.nextToken().trim();
+        String element = tokenizer.nextToken().trim();
         if (element.length() > 0) paramSetToPass.add(element);
       }
     }
@@ -222,7 +221,7 @@ public abstract class PSSiteFolderContentListBaseExit implements IPSResultDocume
       String protocol,
       String host,
       String port,
-      Set paramSetToPass);
+      Set<String> paramSetToPass);
 
   /**
    * Implementation of the interface method. Does nothing.

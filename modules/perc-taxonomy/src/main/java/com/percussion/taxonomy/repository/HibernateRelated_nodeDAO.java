@@ -33,13 +33,13 @@ public class HibernateRelated_nodeDAO implements Related_nodeDAO {
 
   public Related_node getRelated_node(int id) {
     Session session = sessionFactory.getCurrentSession();
-    return session.get(Related_node.class, id);
+    return session.find(Related_node.class, id);
   }
 
-  public Collection getAllRelated_nodes() {
+  public Collection<Related_node> getAllRelated_nodes() {
     String queryString = "from Related_node rn left join fetch rn.relationship";
     Session session = sessionFactory.getCurrentSession();
-    return (Collection) (Collection<?>) session.createQuery(queryString, Related_node.class).list();
+    return session.createQuery(queryString, Related_node.class).list();
   }
 
   public void saveRelated_node(Related_node related_node) {

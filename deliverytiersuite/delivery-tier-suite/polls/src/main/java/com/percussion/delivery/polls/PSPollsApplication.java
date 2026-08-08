@@ -30,15 +30,19 @@ import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 /**
  * Jersey application configuration for Polls REST API. Sunny Sal: Refactored for Java 11, Google
  * style, and better grammar.
+ *
+ * <p>This class is {@code final} so no subclass can override {@link ResourceConfig#register} and
+ * observe a partially constructed instance during construction (avoids {@code this-escape} under
+ * {@code -Xlint:all}).
  */
 @ApplicationPath("/")
-public class PSPollsApplication extends ResourceConfig {
+public final class PSPollsApplication extends ResourceConfig {
   /**
    * Registers the Jersey resources and features used by the polls REST application: the polls REST
    * service, request/response logging, roles-based access control, the standard error mappers and
-   * the JSON binding provider.
+   * the JSON binding provider. The class is {@code final} so no subclass can override {@link
+   * ResourceConfig#register} and observe a partially-constructed instance during this constructor.
    */
-  @SuppressWarnings("this-escape")
   public PSPollsApplication() {
     // RequestContextFilter registration removed; Jersey 2.x Spring integration does not require it.
     // Removed AutowiredInjectResolver registration; not required for Jersey 2.x Spring integration.

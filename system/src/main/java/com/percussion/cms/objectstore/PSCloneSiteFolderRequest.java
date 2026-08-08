@@ -34,6 +34,10 @@ import org.w3c.dom.Node;
  * schema sys_FolderParameters.xsd.
  */
 public class PSCloneSiteFolderRequest extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Construct a new clone site folder request object.
    *

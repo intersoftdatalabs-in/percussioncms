@@ -17,6 +17,7 @@
 
 package com.percussion.cms.objectstore;
 
+import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +29,7 @@ import org.w3c.dom.Element;
 /**
  * The PSComponentSummaries is a container class which contains a set of PSComponentSummary objects
  */
-public class PSComponentSummaries extends PSDbComponentSet {
+public class PSComponentSummaries extends PSDbComponentSet<PSComponentSummary> {
   /** Default constructor. */
   public PSComponentSummaries() {
     super(PSComponentSummary.class);
@@ -72,12 +73,10 @@ public class PSComponentSummaries extends PSDbComponentSet {
    * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
    *     defined in the <code>fromXml</code> method.
    */
-  public PSComponentSummaries(List source) throws PSUnknownNodeTypeException {
+  public PSComponentSummaries(List<?> source) throws PSUnknownNodeTypeException {
     super(PSComponentSummary.class);
 
-    Iterator elemts = source.iterator();
-    while (elemts.hasNext()) {
-      Object elem = elemts.next();
+    for (Object elem : source) {
       if (!(elem instanceof Element))
         throw new IllegalArgumentException("source must contain a list of Element objects");
 
@@ -119,8 +118,8 @@ public class PSComponentSummaries extends PSDbComponentSet {
    * @param type The type of the returned component. It must be <code>TYPE_XXX</code>.
    * @return An iterator over <code>0</code> or more <code>PSComponentSummary</code> objects.
    */
-  public Iterator getComponents(int type) {
-    return getComponents(type, PSComponentSummary.GET_SUMMARY).iterator();
+  public Iterator<PSComponentSummary> getComponents(int type) {
+    return getComponentList(type).iterator();
   }
 
   /**
@@ -129,53 +128,54 @@ public class PSComponentSummaries extends PSDbComponentSet {
    * @return A list of <code>PSComponentSummary</code> objects, never <code>null</code>, but may be
    *     empty.
    */
-  public List getComponentList(int type) {
-    return getComponents(type, PSComponentSummary.GET_SUMMARY);
+  public List<PSComponentSummary> getComponentList(int type) {
+    PSComponentSummary.validateType(type);
+    List<PSComponentSummary> items = new ArrayList<>();
+    Iterator<PSComponentSummary> comps = iterator();
+    while (comps.hasNext()) {
+      PSComponentSummary summary = comps.next();
+      if (summary.getType() == type) {
+        items.add(summary);
+      }
+    }
+    return items;
   }
 
   /**
-   * Convenience method to get a list of component locators for a specified type
+   * Convenience method to get a list of component locators for a specified type.
+   *
+   * <p>Unlike the pre-generics mixed-type helper this method always returns {@link PSLocator}
+   * instances only. Unsupported {@code locatorType} values fail fast with {@link
+   * IllegalArgumentException} rather than silently returning a summary object (legacy default) or
+   * inventing a locator.
    *
    * @param objectType The type of the returned component locators. It must be <code>TYPE_XXX</code>
    *     .
-   * @param locatorType The type of the locator requested. It must be one of the <code>
-   *     PSComponentSummary.GET_XXX_LOCATOR</code> values.
+   * @param locatorType The type of the locator requested. It must be one of {@link
+   *     PSComponentSummary#GET_LOCATOR}, {@link PSComponentSummary#GET_CURRENT_LOCATOR}, or {@link
+   *     PSComponentSummary#GET_TIP_LOCATOR}.
    * @return A list over <code>0</code> or more <code>PSLocator</code> objects.
+   * @throws IllegalArgumentException if {@code objectType} is invalid or {@code locatorType} is not
+   *     one of the locator constants above
+   * @throws IllegalStateException if a summary's component key is not a {@link PSLocator} when
+   *     {@code locatorType} is {@link PSComponentSummary#GET_LOCATOR}
    */
-  public List getComponentLocators(int objectType, int locatorType) {
-    return getComponents(objectType, locatorType);
-  }
-
-  /**
-   * Just like the {@link #getComponentLocators(int, int)}, except it returns a list of names for
-   * the specified type.
-   */
-  public List getComponentNames(int type) {
-    return getComponents(type, PSComponentSummary.GET_NAME);
-  }
-
-  /**
-   * Convenience method to get a list of component summaries, locators, or names for a specified
-   * type
-   *
-   * @param type The type of the returned component locators. It must be <code>TYPE_XXX</code>.
-   * @param whichInfo Specify with part of the summaries need to get. Assume it is of the <code>
-   *     GET_XXX</code> values.
-   * @return A list over <code>0</code> or more <code>PSLocator</code> or <code>PSComponentSummary
-   *     </code> objects.
-   */
-  private List getComponents(int type, int whichInfo) {
-    PSComponentSummary.validateType(type);
-
-    Iterator comps = super.iterator();
-
-    List items = new ArrayList();
+  public List<PSLocator> getComponentLocators(int objectType, int locatorType) {
+    PSComponentSummary.validateType(objectType);
+    List<PSLocator> items = new ArrayList<>();
+    Iterator<PSComponentSummary> comps = iterator();
     while (comps.hasNext()) {
-      PSComponentSummary summary = (PSComponentSummary) comps.next();
-      if (summary.getType() == type) {
-        switch (whichInfo) {
+      PSComponentSummary summary = comps.next();
+      if (summary.getType() == objectType) {
+        switch (locatorType) {
           case PSComponentSummary.GET_LOCATOR:
-            items.add(summary.getLocator());
+            Object key = summary.getLocator();
+            if (!(key instanceof PSLocator)) {
+              throw new IllegalStateException(
+                  "Component key is always expected to be a PSLocator for summaries, got: "
+                      + (key == null ? "null" : key.getClass().getName()));
+            }
+            items.add((PSLocator) key);
             break;
           case PSComponentSummary.GET_CURRENT_LOCATOR:
             items.add(summary.getCurrentLocator());
@@ -183,16 +183,31 @@ public class PSComponentSummaries extends PSDbComponentSet {
           case PSComponentSummary.GET_TIP_LOCATOR:
             items.add(summary.getTipLocator());
             break;
-          case PSComponentSummary.GET_NAME:
-            items.add(summary.getName());
-            break;
           default:
-            items.add(summary);
-            break;
+            throw new IllegalArgumentException(
+                "Unsupported locatorType for getComponentLocators: "
+                    + locatorType
+                    + " (expected GET_LOCATOR, GET_CURRENT_LOCATOR, or GET_TIP_LOCATOR)");
         }
       }
     }
+    return items;
+  }
 
+  /**
+   * Just like the {@link #getComponentLocators(int, int)}, except it returns a list of names for
+   * the specified type.
+   */
+  public List<String> getComponentNames(int type) {
+    PSComponentSummary.validateType(type);
+    List<String> items = new ArrayList<>();
+    Iterator<PSComponentSummary> comps = iterator();
+    while (comps.hasNext()) {
+      PSComponentSummary summary = comps.next();
+      if (summary.getType() == type) {
+        items.add(summary.getName());
+      }
+    }
     return items;
   }
 
@@ -201,15 +216,12 @@ public class PSComponentSummaries extends PSDbComponentSet {
    *
    * @return A list over <code>0</code> or more <code>PSLocator</code> objects.
    */
-  public List getLocators() {
-    Iterator comps = super.iterator();
-    List locators = new ArrayList();
-
+  public List<PSLocator> getLocators() {
+    List<PSLocator> locators = new ArrayList<>();
+    Iterator<PSComponentSummary> comps = iterator();
     while (comps.hasNext()) {
-      PSComponentSummary summary = (PSComponentSummary) comps.next();
-      locators.add(summary.getCurrentLocator());
+      locators.add(comps.next().getCurrentLocator());
     }
-
     return locators;
   }
 
@@ -220,11 +232,9 @@ public class PSComponentSummaries extends PSDbComponentSet {
    * @return the searched component summary object. It may be <code>null</code> if cannot find one.
    */
   public PSComponentSummary getComponentFromId(int id) {
-    Iterator comps = super.iterator();
-
-    PSComponentSummary summary;
+    Iterator<PSComponentSummary> comps = iterator();
     while (comps.hasNext()) {
-      summary = (PSComponentSummary) comps.next();
+      PSComponentSummary summary = comps.next();
       if (summary.getContentId() == id) return summary;
     }
     return null;
@@ -244,7 +254,7 @@ public class PSComponentSummaries extends PSDbComponentSet {
    * (non-Javadoc)
    * @see com.percussion.cms.objectstore.PSDbComponentSet#iterator()
    */
-
+  @Override
   public Iterator<PSComponentSummary> iterator() {
     return super.iterator();
   }
@@ -255,14 +265,11 @@ public class PSComponentSummaries extends PSDbComponentSet {
    */
   public PSComponentSummary[] toArray() {
     PSComponentSummary[] sArray = new PSComponentSummary[super.size()];
-
     int i = 0;
-    Iterator summaries = super.iterator();
+    Iterator<PSComponentSummary> summaries = iterator();
     while (summaries.hasNext()) {
-      PSComponentSummary summary = (PSComponentSummary) summaries.next();
-      sArray[i++] = summary;
+      sArray[i++] = summaries.next();
     }
-
     return sArray;
   }
 

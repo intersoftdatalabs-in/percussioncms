@@ -18,10 +18,14 @@ package linkback;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.percussion.soln.linkback.codec.impl.StringLinkBackTokenImpl;
 import com.percussion.system.utils.IPSHtmlParameters;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,5 +87,17 @@ public class StringLinkBackTokenTest {
      */
     assertEquals("301", omap.get(IPSHtmlParameters.SYS_TEMPLATE));
     log.info("Finished testEncode");
+  }
+
+  @Test
+  public final void testSimplifyValueHandlesSupportedShapes() {
+    assertNull(StringLinkBackTokenImpl.simplifyValue(null));
+    assertEquals("", StringLinkBackTokenImpl.simplifyValue(new String[0]));
+    assertEquals("first", StringLinkBackTokenImpl.simplifyValue(new String[] {"first", "second"}));
+    assertEquals("", StringLinkBackTokenImpl.simplifyValue(Collections.emptyList()));
+    assertEquals("42", StringLinkBackTokenImpl.simplifyValue(List.of(42, 99)));
+    assertEquals("only", StringLinkBackTokenImpl.simplifyValue(Arrays.asList("only")));
+    assertEquals("plain", StringLinkBackTokenImpl.simplifyValue("plain"));
+    assertEquals("7", StringLinkBackTokenImpl.simplifyValue(Integer.valueOf(7)));
   }
 }

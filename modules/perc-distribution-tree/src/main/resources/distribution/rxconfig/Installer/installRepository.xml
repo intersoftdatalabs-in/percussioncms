@@ -202,7 +202,7 @@
 
 		<!-- Optional sample sites (Corporate Investments / Enterprise Investments).
 			Driven by the Java preinstall's demo-sites flag, propagated to ANT as -Dinstall.demo.sites=true
-			from Phase-1 options (wizard Yes / --demo-sites) via Main.execJar (#2192).
+			from Phase-1 options (wizard Yes / demo-sites CLI flag) via Main.execJar (#2192).
 			When true on new installs and upgrades: antcall installSampleSites chains an
 			RxffTableData/RxffTableDef PSTableAction pass that seeds the two sample sites plus
 			their ACLs, content types, nav, etc. RXLOCALE / RXLOCALEFORMAT are protected by
@@ -720,40 +720,17 @@
 		<echo>Sample sites seeded.</echo>
 	</target>
 
+	<!-- Nested ant does not inherit parent taskdefs; re-register from perc-ant
+		(same pattern as migration_i18n_locales.xml). Pure Java strip: no Nashorn /
+		javax.script (issue 2303). Algorithm lockstep with
+		com.percussion.distribution.install.SampleSiteLocaleStrip. -->
+	<taskdef name="PSStripSampleLocales"
+		classname="com.percussion.ant.install.PSStripSampleLocales" />
+
 	<target name="stripSampleLocales"
 		description="Strip RXLOCALE and RXLOCALEFORMAT table blocks from the sample seed XML to a staging copy. Source file is never modified.">
-		<loadfile property="sample.input.contents"
-			srcFile="${sample.input.file}" encoding="UTF-8" />
-		<script language="javascript"><![CDATA[
-			// Mirror of SampleSiteLocaleStripTest.stripLocaleBlocks in the Java test
-			// harness. Keep both in sync so a regex drift fails both the unit test
-			// and the install-time strip.
-			var xml = project.getProperty("sample.input.contents");
-			var stripped = xml;
-			// 1. Replace opening tag with a marker, capturing the table name token.
-			stripped = stripped.replace(
-				/<table\s+name\s*=\s*(['"])RXLOCALE\1[^>]*>/gi,
-				"__STRIPPED_DEMO_SAMPLE__");
-			stripped = stripped.replace(
-				/<table\s+name\s*=\s*(['"])RXLOCALEFORMAT\1[^>]*>/gi,
-				"__STRIPPED_DEMO_SAMPLE__");
-			// 2. Delete everything from the marker to the next </table> closing tag.
-			var marker = "__STRIPPED_DEMO_SAMPLE__";
-			var out = "";
-			var cursor = 0;
-			while (true) {
-				var idx = stripped.indexOf(marker, cursor);
-				if (idx < 0) { out += stripped.substring(cursor); break; }
-				out += stripped.substring(cursor, idx);
-				var close = stripped.indexOf("</table>", idx);
-				if (close < 0) { out += stripped.substring(idx); break; }
-				cursor = close + "</table>".length;
-			}
-			project.setProperty("sample.stripped.contents", out);
-		]]></script>
-		<echo file="${sample.staging.file}" encoding="UTF-8">${sample.stripped.contents}</echo>
-		<echo>stripSampleLocales: wrote stripped copy to
-			${sample.staging.file}</echo>
+		<PSStripSampleLocales inputFile="${sample.input.file}"
+			stagingFile="${sample.staging.file}" />
 	</target>
 
 </project>

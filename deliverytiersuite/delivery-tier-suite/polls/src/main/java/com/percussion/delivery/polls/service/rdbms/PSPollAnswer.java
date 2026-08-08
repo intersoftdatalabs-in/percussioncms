@@ -26,18 +26,19 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-import java.io.Serializable;
 
 // REFACTORED: CP-JAVA11
 /**
  * JPA entity mapping for a poll answer stored in the {@code PERC_ANSWERS} table. Implements the
  * {@link IPSPollAnswer} contract and is owned by {@link PSPoll}.
+ *
+ * <p>Not {@link java.io.Serializable}: remains a pure JPA entity (see {@link PSPoll}). The owning
+ * {@link #poll} back-reference would not be a serializable field type without reintroducing the
+ * parent entity into the Java-serialization graph.
  */
 @Entity
 @Table(name = "PERC_ANSWERS")
-public class PSPollAnswer implements IPSPollAnswer, Serializable {
-
-  private static final long serialVersionUID = 1L;
+public class PSPollAnswer implements IPSPollAnswer {
 
   /** Default constructor required by JPA; do not use to create new instances outside the DAO. */
   public PSPollAnswer() {}

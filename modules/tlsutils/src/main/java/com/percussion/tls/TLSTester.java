@@ -26,12 +26,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
 import java.security.Provider;
 import java.security.Security;
 import java.security.cert.Certificate;
@@ -241,7 +241,7 @@ public class TLSTester {
     URL url;
     try {
 
-      url = new URL(https_url);
+      url = toUrl(https_url);
       HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
 
       // dumpl all cert info
@@ -272,10 +272,9 @@ public class TLSTester {
       // Adapt how you load the keystore to your needs
 
       myTrustStore.load(myKeys, KEYSTORE_PASS.toCharArray());
-      Principal DN = caCert.getSubjectDN();
       try (ByteArrayInputStream bis = new ByteArrayInputStream(pem.getBytes())) {
         Certificate cert = cf.generateCertificate(bis);
-        String alias = caCert.getSubjectDN().getName().replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+        String alias = certificateAlias(caCert);
         log.debug("Adding certificate alias: {}", alias);
         myTrustStore.setCertificateEntry(alias, cert);
       }
@@ -416,6 +415,33 @@ public class TLSTester {
     String pemCertPre = new String(Base64.encodeBase64(derCert, true));
     String pemCert = cert_begin + pemCertPre + end_cert;
     return pemCert;
+  }
+
+  /**
+   * Builds a keystore-safe alias from an X.509 certificate subject.
+   *
+   * <p>Uses {@link X509Certificate#getSubjectX500Principal()} (not the deprecated {@code
+   * getSubjectDN()}) and retains only ASCII letters and digits so the alias is suitable as a
+   * keystore entry name.
+   *
+   * @param cert the certificate whose subject is used for the alias, never {@code null}
+   * @return a lowercase alphanumeric alias derived from the subject DN
+   */
+  static String certificateAlias(X509Certificate cert) {
+    return cert.getSubjectX500Principal().getName().replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+  }
+
+  /**
+   * Converts an HTTPS URL string to a {@link URL} without using the deprecated {@code URL(String)}
+   * constructor.
+   *
+   * @param httpsUrl absolute HTTPS URL string, never {@code null}
+   * @return the corresponding {@link URL}
+   * @throws MalformedURLException if the URI cannot be converted to a URL
+   * @throws IllegalArgumentException if {@code httpsUrl} is not a valid URI
+   */
+  static URL toUrl(String httpsUrl) throws MalformedURLException {
+    return URI.create(httpsUrl).toURL();
   }
 
   private static KeyStore getJKSKeystore(File store, String password, boolean create)

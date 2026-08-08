@@ -33,13 +33,12 @@ public class HibernateNode_editorDAO implements Node_editorDAO {
 
   public Node_editor getNode_editor(int id) {
     Session session = sessionFactory.getCurrentSession();
-    return session.get(Node_editor.class, id);
+    return session.find(Node_editor.class, id);
   }
 
   public Collection<Node_editor> getAllNode_editors() {
     Session session = sessionFactory.getCurrentSession();
-    return (Collection<Node_editor>)
-        (Collection<?>) session.createQuery("from Node_editor nod", Node_editor.class).list();
+    return session.createQuery("from Node_editor nod", Node_editor.class).list();
   }
 
   public void saveNode_editor(Node_editor node_editor) {

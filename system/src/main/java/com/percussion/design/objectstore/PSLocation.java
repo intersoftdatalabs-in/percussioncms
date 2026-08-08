@@ -28,6 +28,10 @@ import org.w3c.dom.Element;
  * custom actions are to be displayed.
  */
 public class PSLocation extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates a new custom action location.
    *

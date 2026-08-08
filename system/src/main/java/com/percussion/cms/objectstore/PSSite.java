@@ -37,6 +37,10 @@ import org.w3c.dom.NodeList;
 
 /** This object represents a site definition. See {@link #toXml(Document)} for the expected DTD. */
 public class PSSite extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Constructs the site from its XML representation.
    *

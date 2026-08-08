@@ -82,6 +82,10 @@ import org.w3c.dom.Node;
  * @since 1.0
  */
 public class PSConditional extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Use the boolean AND operator to join conditionals. AND has a higher precedence than OR. This
    * means all AND conditions will be evaluated, then the ORs will be evaluated.

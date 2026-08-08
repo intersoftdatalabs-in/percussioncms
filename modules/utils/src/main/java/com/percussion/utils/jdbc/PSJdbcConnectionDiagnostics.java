@@ -121,8 +121,9 @@ public final class PSJdbcConnectionDiagnostics {
     final String table = "PSX_H2_VALUE_PROBE_" + Long.toHexString(System.nanoTime());
     try (Statement st = conn.createStatement()) {
       st.execute("CREATE LOCAL TEMPORARY TABLE " + table + "(VALUE VARCHAR(1))");
-      try (ResultSet rs = st.executeQuery("SELECT VALUE FROM " + table + " WHERE 1=0")) {
-        // empty result is success
+      try {
+        // executeQuery validates the unquoted VALUE identifier; result rows are not needed.
+        st.executeQuery("SELECT VALUE FROM " + table + " WHERE 1=0").close();
         return true;
       } finally {
         try {

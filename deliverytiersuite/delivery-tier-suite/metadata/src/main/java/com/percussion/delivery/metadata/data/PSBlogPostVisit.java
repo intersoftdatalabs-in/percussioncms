@@ -19,8 +19,7 @@ package com.percussion.delivery.metadata.data;
 
 import com.percussion.delivery.metadata.IPSBlogPostVisit;
 import java.math.BigInteger;
-import java.util.Date;
-import java.util.Optional;
+import java.time.LocalDate;
 
 /**
  * Lightweight transport model for blog-post visit data captured by the DTS blog visit tracking
@@ -32,8 +31,8 @@ public class PSBlogPostVisit implements IPSBlogPostVisit {
   /** Published site-relative page path of the visited blog post. */
   private String pagePath;
 
-  /** Date the visit occurred. Stored defensively-copied to keep the value immutable. */
-  private Date date;
+  /** Calendar date the visit occurred. {@link LocalDate} is immutable. */
+  private LocalDate date;
 
   /** Cumulative hit count for this page path. */
   private BigInteger hitCount;
@@ -48,9 +47,9 @@ public class PSBlogPostVisit implements IPSBlogPostVisit {
    * @param date the date the visit occurred; may be {@code null}.
    * @param hitCount the cumulative hit count; may be {@code null}.
    */
-  public PSBlogPostVisit(String pagePath, Date date, BigInteger hitCount) {
+  public PSBlogPostVisit(String pagePath, LocalDate date, BigInteger hitCount) {
     this.pagePath = pagePath;
-    this.date = Optional.ofNullable(date).map(Date::getTime).map(Date::new).orElse(null);
+    this.date = date;
     this.hitCount = hitCount;
   }
 
@@ -65,13 +64,13 @@ public class PSBlogPostVisit implements IPSBlogPostVisit {
   }
 
   @Override
-  public Date getHitDate() {
-    return Optional.ofNullable(date).map(Date::getTime).map(Date::new).orElse(null);
+  public LocalDate getHitDate() {
+    return date;
   }
 
   @Override
-  public void setHitDate(Date date) {
-    this.date = Optional.ofNullable(date).map(Date::getTime).map(Date::new).orElse(null);
+  public void setHitDate(LocalDate date) {
+    this.date = date;
   }
 
   @Override

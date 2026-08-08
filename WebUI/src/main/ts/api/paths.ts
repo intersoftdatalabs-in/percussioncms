@@ -341,6 +341,10 @@ export const PATHS = {
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;
   },
+  /** User preferences (persistent name/value; Developer default ACL template). */
+  get PREFERENCES() {
+    return `${SERVICES_ROOT}/preferences`;
+  },
 
   /** Workflow management (workflowmanagement) — Feature 993 */
   get WORKFLOWS() {

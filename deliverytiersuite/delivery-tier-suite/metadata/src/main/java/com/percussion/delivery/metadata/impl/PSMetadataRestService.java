@@ -61,6 +61,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
@@ -525,7 +526,7 @@ public class PSMetadataRestService extends PSAbstractRestService implements IPSM
       List<String> promotedPagePaths =
           new ArrayList<>(
               Arrays.asList(
-                  StringUtils.defaultString(visitQuery.getPromotedPagePaths(), "").split(";")));
+                  Objects.toString(visitQuery.getPromotedPagePaths(), "").split(";")));
 
       for (String path : promotedPagePaths) {
         if (StringUtils.isBlank(path)) {
@@ -590,8 +591,7 @@ public class PSMetadataRestService extends PSAbstractRestService implements IPSM
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed("deliverymanager")
   public Response exportAllSiteCookieConsentStats(@PathParam("csvFileName") String csvFileName) {
-    if ((StringUtils.isBlank(csvFileName))
-        || (!StringUtils.contains(csvFileName.toLowerCase(), ".csv"))) {
+    if ((StringUtils.isBlank(csvFileName)) || (!csvFileName.toLowerCase().contains(".csv"))) {
       log.error("CSV filename may not be blank and must contain .CSV as file extension.");
       return Response.serverError().build();
     }
@@ -623,7 +623,7 @@ public class PSMetadataRestService extends PSAbstractRestService implements IPSM
       @PathParam("siteName") String siteName, @PathParam("csvFileName") String csvFileName) {
     if ((StringUtils.isBlank(siteName))
         || (StringUtils.isBlank(csvFileName))
-        || (!StringUtils.contains(csvFileName.toLowerCase(), ".csv"))) {
+        || (!csvFileName.toLowerCase().contains(".csv"))) {
       log.error("Site name or CSV file name may not be blank and file name must contain .csv.");
       return Response.serverError().build();
     }

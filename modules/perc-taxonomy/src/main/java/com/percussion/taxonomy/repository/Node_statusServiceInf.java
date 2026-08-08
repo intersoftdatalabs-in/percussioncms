@@ -31,7 +31,7 @@ public interface Node_statusServiceInf {
    *
    * @return a collection of all Node_status entities, or an empty collection
    */
-  public Collection getAllNode_statuss();
+  public Collection<Node_status> getAllNode_statuss();
 
   /**
    * Retrieves a specific node status by its unique identifier.

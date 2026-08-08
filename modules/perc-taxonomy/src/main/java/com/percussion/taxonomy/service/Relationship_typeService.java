@@ -27,7 +27,7 @@ public class Relationship_typeService implements Relationship_typeServiceInf {
 
   public Relationship_typeDAO relationship_typeDAO;
 
-  public Collection getAllRelationship_types() {
+  public Collection<Relationship_type> getAllRelationship_types() {
     try {
       return relationship_typeDAO.getAllRelationship_types();
     } catch (HibernateException e) {

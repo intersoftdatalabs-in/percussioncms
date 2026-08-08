@@ -292,24 +292,24 @@ public class PSBrandCodeMapVersion {
         PSBrandCodeUtil.toInt(
             bce.getAttributeValue(IPSBrandCodeMap.ATTR_UNSELECTED_OPTIONAL_PART_ID, true), errMsg);
 
-    int reqoptPartId = 0;
-    //noinspection FallThroughInSwitchStatement
+    // Explicit per-type accumulation (no switch fall-through) — preserves historical masks:
+    // ALL = req+sel+unsel; REQUIRED = req; OPTIONAL / OPTIONAL_UNSELECTED = sel+unsel;
+    // OPTIONAL_SELECTED = sel only.
+    final int reqoptPartId;
     switch (partsType) {
       case IPSBrandCodeMap.PARTS_TYPE_ALL:
-      case IPSBrandCodeMap.PARTS_TYPE_REQUIRED:
-        reqoptPartId += reqPartId;
-        if (partsType == IPSBrandCodeMap.PARTS_TYPE_REQUIRED) break;
-      // fall through intentionally
-      case IPSBrandCodeMap.PARTS_TYPE_OPTIONAL:
-      case IPSBrandCodeMap.PARTS_TYPE_OPTIONAL_SELECTED:
-        reqoptPartId += selOptPartId;
-        if (partsType == IPSBrandCodeMap.PARTS_TYPE_OPTIONAL_SELECTED) break;
-      // fall through intentionally
-
-      case IPSBrandCodeMap.PARTS_TYPE_OPTIONAL_UNSELECTED:
-        reqoptPartId += unselOptPartId;
+        reqoptPartId = reqPartId + selOptPartId + unselOptPartId;
         break;
-
+      case IPSBrandCodeMap.PARTS_TYPE_REQUIRED:
+        reqoptPartId = reqPartId;
+        break;
+      case IPSBrandCodeMap.PARTS_TYPE_OPTIONAL:
+      case IPSBrandCodeMap.PARTS_TYPE_OPTIONAL_UNSELECTED:
+        reqoptPartId = selOptPartId + unselOptPartId;
+        break;
+      case IPSBrandCodeMap.PARTS_TYPE_OPTIONAL_SELECTED:
+        reqoptPartId = selOptPartId;
+        break;
       default:
         throw new IllegalArgumentException("Invalid parts type");
     }

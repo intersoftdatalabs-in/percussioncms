@@ -31,7 +31,7 @@ public interface Attribute_langServiceInf {
    *
    * @return a collection of all Attribute_lang entities, or an empty collection
    */
-  public Collection getAllAttribute_langs();
+  public Collection<Attribute_lang> getAllAttribute_langs();
 
   /**
    * Retrieves a specific attribute language by its unique identifier.

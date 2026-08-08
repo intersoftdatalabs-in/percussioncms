@@ -78,23 +78,15 @@ public class PSDsnReader {
     File inputOdbcIniFile = new File(m_odbcIni);
     if (!inputOdbcIniFile.canRead()) return null;
 
-    BufferedReader iniReader = null;
-
-    try {
-      iniReader = new BufferedReader(new FileReader(inputOdbcIniFile));
-    } catch (FileNotFoundException e) {
-      // Do nothing here, this file should be available.
-      return null;
-    }
-
     /* We have a file we can read, so find the DSNs */
-    ArrayList dsnList = new ArrayList();
+    ArrayList<String> dsnList = new ArrayList<>();
 
     String line = "";
 
     boolean processingDsnArea = false;
 
-    try {
+    try (BufferedReader iniReader =
+        new BufferedReader(new FileReader(inputOdbcIniFile))) {
       /* Process Line by line */
       while (line != null) {
         String nextDsn = null;
@@ -119,17 +111,16 @@ public class PSDsnReader {
           if (nextDsn != null) dsnList.add(nextDsn);
         }
       }
+    } catch (FileNotFoundException e) {
+      // Do nothing here, this file should be available.
+      return null;
     } catch (IOException e) {
       /* stop here  -- something has gone wrong, but return any
       DSNs we've located (don't return error) */
     }
 
     if (dsnList.size() > 0) {
-      String[] retArray = new String[dsnList.size()];
-
-      for (int i = 0; i < dsnList.size(); i++) retArray[i] = (String) dsnList.get(i);
-
-      return retArray;
+      return dsnList.toArray(new String[dsnList.size()]);
     }
 
     return null;

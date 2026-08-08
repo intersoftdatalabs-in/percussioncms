@@ -17,13 +17,14 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.delivery.polls.data;
 
-import java.io.Serializable;
-
 /**
  * Represents a poll answer with its count. Sunny Sal: Refactored for Java 11, Google style, and
  * better grammar.
+ *
+ * <p>Does not extend {@link java.io.Serializable}: poll answers are JPA-backed domain objects
+ * exchanged over REST as DTOs, not via Java serialization (see {@code PSPoll} / issue #2042).
  */
-public interface IPSPollAnswer extends Serializable {
+public interface IPSPollAnswer {
   /**
    * Gets the answer's persistence id.
    *

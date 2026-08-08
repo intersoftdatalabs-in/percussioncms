@@ -21,10 +21,13 @@ import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Audit event emitted for user-management administrative actions (create, update, delete, disable,
- * revoke) initiated through the CMS console. Subclasses or callers may attach additional tags at
- * the time the event is constructed.
+ * revoke) initiated through the CMS console. Callers may attach additional tags at the time the
+ * event is constructed.
+ *
+ * <p>This class is {@code final}; the constructor assigns the action field directly and uses {@code
+ * final} parent setters after {@code super()} completes (no {@code this-escape}).
  */
-public class PSUserManagementEvent extends AbstractEvent {
+public final class PSUserManagementEvent extends AbstractEvent {
   // Add any user specific tags here that would be useful to an auditor
 
   /** Enumerates the user-management lifecycle actions recorded by {@link PSUserManagementEvent}. */
@@ -64,20 +67,21 @@ public class PSUserManagementEvent extends AbstractEvent {
   /**
    * Constructs a user-management event populated from the originating servlet request.
    *
+   * <p>Own fields are assigned directly; parent CADF fields use {@code final} setters after {@code
+   * super()} completes.
+   *
    * @param request the HTTP request that triggered the event, never {@code null}.
    * @param action the user-management action being recorded, never {@code null}.
    * @param outcome the outcome of the action, never {@code null}.
    */
-  @SuppressWarnings("this-escape")
   public PSUserManagementEvent(
       HttpServletRequest request, UserEventActions action, PSActionOutcome outcome) {
     super();
-
-    this.setIniatorName(request.getRemoteUser());
-    this.setInitiatorIP(request.getRemoteAddr());
-    this.setTargetName(request.getRemoteUser());
-    this.setAction(action);
-    this.setOutcome(outcome.name());
-    this.setAgentName(request.getHeader("User-Agent"));
+    this.action = action;
+    setIniatorName(request.getRemoteUser());
+    setInitiatorIP(request.getRemoteAddr());
+    setTargetName(request.getRemoteUser());
+    setOutcome(outcome.name());
+    setAgentName(request.getHeader("User-Agent"));
   }
 }

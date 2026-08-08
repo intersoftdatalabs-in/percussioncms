@@ -22,11 +22,11 @@ import com.percussion.delivery.metadata.data.PSMetadataBlogEntry;
 import com.percussion.delivery.metadata.data.PSMetadataBlogMonth;
 import com.percussion.delivery.metadata.data.PSMetadataBlogYear;
 import com.percussion.delivery.metadata.data.PSMetadataRestBlogList;
+import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -61,23 +61,21 @@ public class PSBlogsHelper {
       for (IPSMetadataEntry entryPage : results) {
         for (IPSMetadataProperty prop : entryPage.getProperties()) {
           if (BLOG_PROPERTY_NAME.equals(prop.getName()) && !prop.getStringvalue().isEmpty()) {
-            Calendar cal = Calendar.getInstance();
-            Date currentDate =
-                cal.getTime(); // used to check whether or not a page is set to publish in the
-            // future
-            cal.setTime(prop.getDatevalue());
-            Date pageDate = cal.getTime();
+            LocalDateTime pageDate = prop.getDatevalue();
+            if (pageDate == null) {
+              break;
+            }
 
             // if page date is in future, we don't want to return that value
-            if (pageDate.compareTo(currentDate) > 0) {
+            if (pageDate.isAfter(LocalDateTime.now())) {
               break;
             }
 
             PSMetadataBlogYear selectedYear = null;
             PSMetadataBlogMonth selectedMonth = null;
-            Integer currentPostYear = cal.get(Calendar.YEAR);
+            Integer currentPostYear = pageDate.getYear();
             String currentPostMonth =
-                cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+                pageDate.getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault());
 
             for (PSMetadataBlogYear year : blogs.getYears()) {
               if (year.getYear().equals(currentPostYear)) {
@@ -86,7 +84,7 @@ public class PSBlogsHelper {
               }
             }
             if (selectedYear == null) {
-              selectedYear = new PSMetadataBlogYear(cal.get(Calendar.YEAR));
+              selectedYear = new PSMetadataBlogYear(pageDate.getYear());
             }
             if (selectedYear != null) {
               for (PSMetadataBlogMonth month : selectedYear.getMonths()) {

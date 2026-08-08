@@ -124,10 +124,10 @@ public class PSPropertyWrapperTest {
         return mi_aaa;
       }
       if (prop.equals("bbb")) {
-        return new Long(mi_bbb);
+        return Long.valueOf(mi_bbb);
       }
       if (prop.equals("ccc")) {
-        return new Double(mi_ccc);
+        return Double.valueOf(mi_ccc);
       }
       throw new IllegalArgumentException("Unknown property " + prop);
     }
@@ -156,7 +156,7 @@ public class PSPropertyWrapperTest {
   public void testLongAccess() throws Exception {
     Object rval = testWrapper.getPropertyValue("bbb");
     assertEquals(rval.getClass(), Long.class);
-    assertEquals(rval, new Long(testObj.getBbb()));
+    assertEquals(rval, Long.valueOf(testObj.getBbb()));
   }
 
   /**
@@ -169,7 +169,7 @@ public class PSPropertyWrapperTest {
   public void testDoubleAccess() throws Exception {
     Object rval = testWrapper.getPropertyValue("ccc");
     assertEquals(rval.getClass(), Double.class);
-    assertEquals(rval, new Double(testObj.getCcc()));
+    assertEquals(rval, Double.valueOf(testObj.getCcc()));
   }
 
   /**

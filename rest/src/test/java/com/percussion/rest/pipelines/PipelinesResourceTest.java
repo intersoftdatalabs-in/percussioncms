@@ -29,11 +29,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.services.pipeline.model.PipelineExecuteRequest;
+import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.UriInfo;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -130,5 +133,84 @@ public class PipelinesResourceTest {
         assertThrows(WebApplicationException.class, () -> resource.getApplication("sys_foo"));
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause(), "cause chain must preserve the original failure");
+  }
+
+  @Test
+  public void executeDelegatesToAdaptor() {
+    PipelineExecuteRequest req = PipelineExecuteRequest.ofParams(Map.of("TYPE", "workflow"));
+    PipelineExecuteResult expected = new PipelineExecuteResult();
+    expected.setAppName("lookupApp");
+    expected.setResourceName("DatasetQ");
+    expected.setOperation("query");
+    expected.setRows(List.of(Map.of("TYPE", "workflow", "NAME", "wf1")));
+    when(adaptor.execute(any(), eq("lookupApp"), eq("DatasetQ"), eq(req))).thenReturn(expected);
+
+    PipelineExecuteResult out = resource.execute("lookupApp", "DatasetQ", req);
+
+    assertEquals("lookupApp", out.getAppName());
+    assertEquals("DatasetQ", out.getResourceName());
+    assertEquals("query", out.getOperation());
+    assertEquals(1, out.getRowCount());
+    verify(adaptor).execute(any(), eq("lookupApp"), eq("DatasetQ"), eq(req));
+  }
+
+  @Test
+  public void executePassesNullBodyThrough() {
+    PipelineExecuteResult expected = new PipelineExecuteResult();
+    expected.setOperation("query");
+    when(adaptor.execute(any(), eq("app"), eq("res"), isNull())).thenReturn(expected);
+
+    assertEquals("query", resource.execute("app", "res", null).getOperation());
+    verify(adaptor).execute(any(), eq("app"), eq("res"), isNull());
+  }
+
+  @Test
+  public void executeRethrowsWebApplicationException() {
+    when(adaptor.execute(any(), eq("missing"), eq("r"), any()))
+        .thenThrow(new WebApplicationException("Pipeline application or resource not found", 404));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.execute("missing", "r", PipelineExecuteRequest.empty()));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Pipeline application or resource not found", ex.getMessage());
+  }
+
+  @Test
+  public void executeMapsIllegalArgumentTo400() {
+    when(adaptor.execute(any(), eq("app"), eq("res"), any()))
+        .thenThrow(new IllegalArgumentException("bad params"));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.execute("app", "res", PipelineExecuteRequest.empty()));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("bad params", ex.getMessage());
+  }
+
+  @Test
+  public void executeWrapsUnexpectedFailuresAs500() {
+    IllegalStateException boom = new IllegalStateException("runtime not configured");
+    when(adaptor.execute(any(), eq("app"), eq("res"), any())).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.execute("app", "res", PipelineExecuteRequest.empty()));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void executeWithoutInjectionFailsWithDiagnostic() {
+    PipelinesResource bare = new PipelinesResource();
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> bare.execute("app", "res", PipelineExecuteRequest.empty()));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertInstanceOf(IllegalStateException.class, ex.getCause());
   }
 }

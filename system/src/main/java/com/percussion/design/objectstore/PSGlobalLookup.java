@@ -25,6 +25,10 @@ import org.w3c.dom.Element;
 
 /** Represents a global lookup choice, with {@link PSEntry} children. */
 public class PSGlobalLookup extends PSComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Initializes a newly created <code>PSGlobalLookup</code> object, from an XML representation. See
    * {@link #toXml(Document)} for the format.

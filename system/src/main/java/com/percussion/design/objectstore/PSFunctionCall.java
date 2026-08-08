@@ -21,12 +21,12 @@ import com.percussion.data.PSMetaDataCache;
 import com.percussion.extension.PSDatabaseFunctionDef;
 import com.percussion.extension.PSDatabaseFunctionManager;
 import com.percussion.server.PSConsole;
-import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.utils.jdbc.PSConnectionHelper;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -45,6 +45,9 @@ import org.w3c.dom.Element;
 public class PSFunctionCall extends PSNamedReplacementValue
     implements IPSMutatableReplacementValue {
 
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Constructs this object from its XML representation. See the {@link #toXml(Document) toXml()}
    * method for the DTD of the <code>sourceNode</code> element.
@@ -56,7 +59,8 @@ public class PSFunctionCall extends PSNamedReplacementValue
    * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is <code>null</code> or the XML
    *     element node is not of the appropriate type
    */
-  public PSFunctionCall(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSFunctionCall(
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     super(sourceNode, parentDoc, parentComponents);
     m_parentComponents = new ArrayList<>();
@@ -77,13 +81,13 @@ public class PSFunctionCall extends PSNamedReplacementValue
       String dbFuncName,
       PSFunctionParamValue[] params,
       IPSDocument parentDoc,
-      List parentComponents) {
+      List<IPSComponent> parentComponents) {
     super(dbFuncName);
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;
 
-    m_parentComponents = new ArrayList();
-    if (parentComponents != null) m_parentComponents.addAll(parentComponents);
+    m_parentComponents = new ArrayList<>();
+    m_parentComponents.addAll(parentComponents);
 
     m_dbFuncName = dbFuncName;
     setParamValues(params);
@@ -121,7 +125,11 @@ public class PSFunctionCall extends PSNamedReplacementValue
    *     empty if this database function does not require any parameters.
    */
   public void setParamValues(PSFunctionParamValue[] params) {
-    setParamValues(PSIteratorUtils.iterator(params));
+    if (params == null) {
+      setParamValues((Iterator<? extends PSFunctionParamValue>) null);
+    } else {
+      setParamValues(Arrays.asList(params).iterator());
+    }
   }
 
   /**
@@ -131,22 +139,21 @@ public class PSFunctionCall extends PSNamedReplacementValue
    * @param params An Iterator over zero or more <code>PSFunctionParamValue</code> objects, may be
    *     <code>null</code> or empty if this database function does not require any parameters.
    */
-  public void setParamValues(Iterator params) {
-    m_params = new ArrayList();
+  public void setParamValues(Iterator<? extends PSFunctionParamValue> params) {
+    m_params = new ArrayList<>();
     // build column names which need to be mapped
-    List cols = new ArrayList();
+    List<String> cols = new ArrayList<>();
     if (params != null) {
       // get the back-end column names
       while (params.hasNext()) {
-        PSFunctionParamValue val = (PSFunctionParamValue) (params.next());
+        PSFunctionParamValue val = params.next();
         if (val != null) {
           if (val.isBackEndColumn()) cols.add(val.getValue().getValueText());
           m_params.add(val);
         }
       }
     }
-    m_columns = new String[cols.size()];
-    cols.toArray(m_columns);
+    m_columns = cols.toArray(new String[0]);
   }
 
   /**
@@ -178,7 +185,7 @@ public class PSFunctionCall extends PSNamedReplacementValue
    *     guaranteed to be non-<code>null</code>.
    * @see #getParamValues()
    */
-  public Collection getParameters() {
+  public Collection<PSFunctionParamValue> getParameters() {
     return m_params;
   }
 
@@ -196,10 +203,12 @@ public class PSFunctionCall extends PSNamedReplacementValue
    */
   public Object clone() {
     PSFunctionCall copy = (PSFunctionCall) super.clone();
-    copy.m_params = new ArrayList(m_params.size());
-    for (Iterator iter = m_params.iterator(); iter.hasNext(); ) {
-      PSFunctionParamValue value = (PSFunctionParamValue) iter.next();
-      copy.m_params.add(value.clone());
+    copy.m_params = new ArrayList<>(m_params.size());
+    for (PSFunctionParamValue value : m_params) {
+      copy.m_params.add((PSFunctionParamValue) value.clone());
+    }
+    if (m_parentComponents != null) {
+      copy.m_parentComponents = new ArrayList<>(m_parentComponents);
     }
     return copy;
   }
@@ -222,12 +231,10 @@ public class PSFunctionCall extends PSNamedReplacementValue
     StringBuilder buffer = new StringBuilder();
     buffer.append(m_dbFuncName);
     buffer.append("(");
-    Iterator it = m_params.iterator();
     boolean first = true;
-    while (it.hasNext()) {
+    for (PSFunctionParamValue paramVal : m_params) {
       if (first) first = false;
       else buffer.append(", ");
-      PSFunctionParamValue paramVal = (PSFunctionParamValue) it.next();
       if (displayText) buffer.append(paramVal.getValue().getValueDisplayText());
       else buffer.append(paramVal.getValue().getValueText());
     }
@@ -379,8 +386,7 @@ public class PSFunctionCall extends PSNamedReplacementValue
     root.setAttribute(ATTR_ID, String.valueOf(m_id));
     PSXmlDocumentBuilder.addElement(doc, root, EL_NAME, m_dbFuncName);
 
-    for (Iterator i = m_params.iterator(); i.hasNext(); ) {
-      PSFunctionParamValue val = (PSFunctionParamValue) (i.next());
+    for (PSFunctionParamValue val : m_params) {
       if (val != null) {
         Element node = val.toXml(doc);
         root.appendChild(node);
@@ -399,7 +405,8 @@ public class PSFunctionCall extends PSNamedReplacementValue
    * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is <code>null</code> or does not
    *     conform to the DTD specified in {@link #toXml(Document) toXml()}
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;
@@ -440,7 +447,7 @@ public class PSFunctionCall extends PSNamedReplacementValue
 
       // process "PSXFunctionParamValue" elements
       tree.setCurrent(sourceNode);
-      List params = new ArrayList();
+      List<PSFunctionParamValue> params = new ArrayList<>();
       Element paramEl = tree.getNextElement(PSFunctionParamValue.NODE_NAME, firstFlags);
       while (paramEl != null) {
         params.add(new PSFunctionParamValue(paramEl, parentDoc, parentComponents));
@@ -472,8 +479,7 @@ public class PSFunctionCall extends PSNamedReplacementValue
 
     cxt.pushParent(this);
     try {
-      for (Iterator i = m_params.iterator(); i.hasNext(); ) {
-        PSFunctionParamValue val = (PSFunctionParamValue) (i.next());
+      for (PSFunctionParamValue val : m_params) {
         if (null != val) val.validate(cxt);
       }
     } finally {
@@ -540,12 +546,11 @@ public class PSFunctionCall extends PSNamedReplacementValue
 
     // if the function param values contains a backend column, then get
     // driver for the database containing the column
-    Iterator itParams = m_params.iterator();
-    while (itParams.hasNext()) {
-      IPSReplacementValue val = ((PSFunctionParamValue) itParams.next()).getValue();
+    for (PSFunctionParamValue param : m_params) {
+      IPSReplacementValue val = param.getValue();
       if (val instanceof PSBackEndColumn) {
         PSBackEndTable table = ((PSBackEndColumn) val).getTable();
-        driver = driver = getDriverFromTable(table);
+        driver = getDriverFromTable(table);
         if (driver != null) break;
       }
     }
@@ -553,9 +558,9 @@ public class PSFunctionCall extends PSNamedReplacementValue
     // try to get the driver from the parent WHERE clause
     if ((driver == null) && (m_parentComponents != null) && (!m_parentComponents.isEmpty())) {
       PSWhereClause whereClause = null;
-      Object obj = null;
+      IPSComponent obj = null;
       boolean found = false;
-      ListIterator itParent = m_parentComponents.listIterator();
+      ListIterator<IPSComponent> itParent = m_parentComponents.listIterator();
       while ((itParent.hasNext()) && (!found)) {
         obj = itParent.next();
         if ((obj != null) && (obj == this)) {
@@ -566,7 +571,7 @@ public class PSFunctionCall extends PSNamedReplacementValue
         }
       }
 
-      if (found && (obj != null) && (obj instanceof PSWhereClause)) {
+      if (found && (obj instanceof PSWhereClause)) {
         whereClause = (PSWhereClause) obj;
       }
 
@@ -585,16 +590,12 @@ public class PSFunctionCall extends PSNamedReplacementValue
 
     // try to get the driver from the data set
     if ((driver == null) && (m_parentComponents != null) && (!m_parentComponents.isEmpty())) {
-      Object obj = null;
       PSDataSet dataSet = null;
-      Iterator itDs = m_parentComponents.iterator();
-      boolean foundDataSet = false;
 
-      while (itDs.hasNext() && (!foundDataSet)) {
-        obj = itDs.next();
-        if ((obj != null) && (obj instanceof PSDataSet)) {
+      for (IPSComponent obj : m_parentComponents) {
+        if (obj instanceof PSDataSet) {
           dataSet = (PSDataSet) obj;
-          foundDataSet = true;
+          break;
         }
       }
 
@@ -603,10 +604,10 @@ public class PSFunctionCall extends PSNamedReplacementValue
         if (pipe != null) {
           PSBackEndDataTank tank = pipe.getBackEndDataTank();
           if (tank != null) {
-            Iterator itTbl = tank.getTables().iterator();
+            Iterator<?> itTbl = tank.getTables().iterator();
             if (itTbl.hasNext()) {
               PSBackEndTable table = (PSBackEndTable) itTbl.next();
-              driver = driver = getDriverFromTable(table);
+              driver = getDriverFromTable(table);
             }
           }
         }
@@ -706,7 +707,7 @@ public class PSFunctionCall extends PSNamedReplacementValue
    * Initialized in ctor, modified in the <code>fromXml()</code> and <code>setParamValues()</code>
    * methods, never <code>null</code> after initialization, may be empty.
    */
-  private Collection m_params;
+  private Collection<PSFunctionParamValue> m_params;
 
   /**
    * An array of zero or more columns which need to be mapped in order for the param values to be
@@ -719,7 +720,7 @@ public class PSFunctionCall extends PSNamedReplacementValue
   /**
    * the parent objects of this object, initialized in the ctor, may be <code>null</code> or empty
    */
-  private ArrayList m_parentComponents;
+  private ArrayList<IPSComponent> m_parentComponents;
 
   /**
    * The tag name of the root element from which this object can be constructed.

@@ -22,7 +22,7 @@ import java.util.Collection;
 
 public interface LanguageDAO {
 
-  public Collection getAllLanguages();
+  public Collection<Language> getAllLanguages();
 
   public Language getLanguage(int id);
 

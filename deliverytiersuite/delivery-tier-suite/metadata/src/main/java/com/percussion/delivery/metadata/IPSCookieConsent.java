@@ -17,7 +17,7 @@
 
 package com.percussion.delivery.metadata;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Object to store information related to client cookie consent.
@@ -63,18 +63,18 @@ public interface IPSCookieConsent {
   public String getIP();
 
   /**
-   * Sets the date consent to use cookies was given.
+   * Sets the instant consent to use cookies was given.
    *
-   * @param consentDate the date object of consent date
+   * @param consentDate the instant consent was given
    */
-  public void setConsentDate(Date consentDate);
+  public void setConsentDate(Instant consentDate);
 
   /**
-   * Gets the date consent was given to use cookies.
+   * Gets the instant consent was given to use cookies.
    *
-   * @return the date consent was given
+   * @return the instant consent was given
    */
-  public Date getConsentDate();
+  public Instant getConsentDate();
 
   /**
    * Sets the services approved to use cookies.

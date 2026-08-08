@@ -31,7 +31,7 @@ public interface Node_editorServiceInf {
    *
    * @return a collection of all Node_editor entities, or an empty collection
    */
-  public Collection getAllNode_editors();
+  public Collection<Node_editor> getAllNode_editors();
 
   /**
    * Retrieves a specific node editor by its unique identifier.

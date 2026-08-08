@@ -31,11 +31,10 @@ import jakarta.persistence.JoinColumns;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -43,6 +42,9 @@ import org.hibernate.annotations.Nationalized;
 
 /**
  * Represents a metadata property name / value pair attached to a {@link PSDbMetadataEntry}.
+ *
+ * <p>{@code datevalue} is a {@link LocalDateTime} so Hibernate 7 maps the TIMESTAMP column without
+ * deprecated {@code @Temporal}.
  *
  * @author erikserating
  */
@@ -55,9 +57,7 @@ import org.hibernate.annotations.Nationalized;
       @Index(columnList = "NAME,DATEVALUE", name = "name_date_hidx"),
       @Index(columnList = "NAME,VALUE_HASH", name = "name_valuehash_hidx")
     })
-public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
-
-  private static final long serialVersionUID = 1L;
+public final class PSDbMetadataProperty implements IPSMetadataProperty {
 
   /** Surrogate primary key for this property row. */
   @Id
@@ -86,9 +86,7 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
   private String textvalue;
 
   /** Date value of this property (used for {@link VALUETYPE#DATE} entries). */
-  @Basic
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date datevalue;
+  @Basic private LocalDateTime datevalue;
 
   /** Numeric value of this property (used for {@link VALUETYPE#NUMBER} entries). */
   @Basic private Double numbervalue;
@@ -126,10 +124,7 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
     this.setName(name);
     boolean nan = true;
     if (type == VALUETYPE.DATE) {
-      if (!(value instanceof Date))
-        throw new IllegalArgumentException(
-            "Value type 'Date' was specified but the passed in value is not a date object.");
-      setDatevalue((Date) value);
+      setDatevalue(toLocalDateTime(value));
     } else if (type == VALUETYPE.NUMBER) {
       Double d = null;
       if (value instanceof Integer
@@ -227,7 +222,17 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
   }
 
   /**
-   * Convenience ctor to create a Date value type property.
+   * Convenience ctor to create a Date value type property from a {@link LocalDateTime}.
+   *
+   * @param name name cannot be <code>null</code> or empty.
+   * @param value may be <code>null</code>.
+   */
+  public PSDbMetadataProperty(String name, LocalDateTime value) {
+    this(name, VALUETYPE.DATE, value);
+  }
+
+  /**
+   * Convenience ctor to create a Date value type property from a legacy {@link Date}.
    *
    * @param name name cannot be <code>null</code> or empty.
    * @param value may be <code>null</code>.
@@ -346,7 +351,7 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
     if (valuetype == VALUETYPE.STRING) return stringvalue;
     if (valuetype == VALUETYPE.TEXT) return textvalue;
     if (valuetype == VALUETYPE.DATE) {
-      return datevalue.toString();
+      return datevalue == null ? "" : datevalue.toString();
     }
     if (valuetype == VALUETYPE.NUMBER) {
       return numbervalue.toString();
@@ -387,16 +392,16 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
   /**
    * @return the datevalue
    */
-  public Date getDatevalue() {
-    return Optional.ofNullable(datevalue).map(Date::getTime).map(Date::new).orElse(null);
+  public LocalDateTime getDatevalue() {
+    return datevalue;
   }
 
   /**
    * @param datevalue the datevalue to set
    */
-  public void setDatevalue(Date datevalue) {
+  public void setDatevalue(LocalDateTime datevalue) {
     this.valuetype = VALUETYPE.DATE;
-    this.datevalue = Optional.ofNullable(datevalue).map(Date::getTime).map(Date::new).orElse(null);
+    this.datevalue = datevalue;
 
     calculateHash(this.datevalue);
   }
@@ -425,5 +430,31 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
    */
   public int getId() {
     return this.id;
+  }
+
+  /**
+   * Coerces supported date-like inputs to {@link LocalDateTime} using the JVM default zone for
+   * legacy {@link Date} / {@link Instant} values.
+   *
+   * @param value the raw date value; may be {@code null}.
+   * @return the coerced local date-time, or {@code null} when {@code value} is {@code null}.
+   */
+  static LocalDateTime toLocalDateTime(Object value) {
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof LocalDateTime) {
+      return (LocalDateTime) value;
+    }
+    if (value instanceof Instant) {
+      return LocalDateTime.ofInstant((Instant) value, ZoneId.systemDefault());
+    }
+    // java.sql.Date#toInstant() throws UnsupportedOperationException — use millis instead.
+    if (value instanceof Date) {
+      return LocalDateTime.ofInstant(
+          Instant.ofEpochMilli(((Date) value).getTime()), ZoneId.systemDefault());
+    }
+    throw new IllegalArgumentException(
+        "Value type 'Date' was specified but the passed in value is not a date object.");
   }
 }

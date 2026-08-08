@@ -252,7 +252,7 @@ public class PSXmlDocumentBuilder {
    * @param cache The list to get the object from, assumed not <code>null</code>, may be empty.
    * @return The object, or <code>null</code> if the list was emtpy.
    */
-  private static Object popFromCache(List cache) {
+  private static Object popFromCache(List<?> cache) {
     Object object = null;
 
     synchronized (PSXmlDocumentBuilder.class) {
@@ -1389,8 +1389,9 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * @deprecated Use #removeElement(Element) instead
+   * @deprecated Use {@link #removeElement(Element)} instead
    */
+  @Deprecated
   public static void removeElement(Document parentDoc, Element elementNode) {
     if (parentDoc != null) {
       ;

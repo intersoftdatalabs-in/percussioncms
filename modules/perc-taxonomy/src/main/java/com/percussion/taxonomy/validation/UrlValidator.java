@@ -70,6 +70,8 @@ import org.apache.oro.text.perl.Perl5Util;
  */
 public class UrlValidator implements Serializable {
 
+  private static final long serialVersionUID = 1L;
+
   /**
    * Allows all validly formatted schemes to pass validation instead of supplying a set of valid
    * schemes.
@@ -151,7 +153,7 @@ public class UrlValidator implements Serializable {
   private Flags options;
 
   /** The set of schemes that are allowed to be in a URL. */
-  private Set allowedSchemes = new HashSet();
+  private final HashSet<String> allowedSchemes = new HashSet<>();
 
   /** If no schemes are provided, default to this set. */
   protected String[] defaultSchemes = {"http", "https", "ftp"};

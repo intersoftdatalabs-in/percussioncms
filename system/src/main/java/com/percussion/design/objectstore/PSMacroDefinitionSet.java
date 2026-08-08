@@ -24,6 +24,10 @@ import org.w3c.dom.Element;
 
 /** This class represents a collection of <code>PSMacroDefinition</code> objects. */
 public class PSMacroDefinitionSet extends PSCollectionComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /** Constucts an empty macro set. */
   public PSMacroDefinitionSet() {
     super(PSMacroDefinition.class);

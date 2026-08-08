@@ -35,7 +35,7 @@ import java.util.Collections;
  */
 @Deprecated
 @SuppressWarnings({"rawtypes", "unchecked", "serial"})
-public class PSContentTypesContext implements IPSContentTypesContext {
+public final class PSContentTypesContext implements IPSContentTypesContext {
   private boolean invokedStandalone = false;
 
   private int contentTypeID = 0;

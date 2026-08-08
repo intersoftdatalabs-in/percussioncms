@@ -68,7 +68,7 @@ import org.w3c.dom.Document;
  *
  * </pre>
  */
-public class PSTableAction extends PSAction {
+public final class PSTableAction extends PSAction {
   /** Creates a new table action task. */
   public PSTableAction() {}
 
@@ -150,12 +150,12 @@ public class PSTableAction extends PSAction {
           else dataColl.addAll(new PSJdbcTableDataCollection(doc));
         }
 
-        Iterator it = schemaColl.iterator();
+        Iterator<PSJdbcTableSchema> it = schemaColl.iterator();
 
         int index = 0;
 
         while (it.hasNext()) {
-          schema = (PSJdbcTableSchema) it.next();
+          schema = it.next();
           String tblName = schema.getName();
           data = dataColl.getTableData(tblName);
           // getTableData may return null if this table has no data associated

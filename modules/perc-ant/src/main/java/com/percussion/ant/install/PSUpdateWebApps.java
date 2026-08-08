@@ -46,7 +46,7 @@ import java.io.IOException;
  *
  * </pre>
  */
-public class PSUpdateWebApps extends PSAction {
+public final class PSUpdateWebApps extends PSAction {
   /** Creates a new web apps update task. */
   public PSUpdateWebApps() {}
 

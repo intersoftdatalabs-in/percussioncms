@@ -43,6 +43,10 @@ import org.w3c.dom.Element;
  */
 public class PSDisplayFormat extends PSVersionableDbComponent
     implements IPSCatalogSummary, IPSCloneTuner {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates a new format with default values for the label, internal name, display type and
    * community. The label defaults to something of the form 'Display Format n', where n is a small

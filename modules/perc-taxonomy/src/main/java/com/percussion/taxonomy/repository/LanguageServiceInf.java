@@ -31,7 +31,7 @@ public interface LanguageServiceInf {
    *
    * @return a collection of all Language entities, or an empty collection if none exist
    */
-  public Collection getAllLanguages();
+  public Collection<Language> getAllLanguages();
 
   /**
    * Retrieves a specific language by its unique identifier.

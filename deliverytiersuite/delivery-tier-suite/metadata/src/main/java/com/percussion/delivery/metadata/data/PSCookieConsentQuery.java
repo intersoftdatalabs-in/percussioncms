@@ -20,7 +20,7 @@ package com.percussion.delivery.metadata.data;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -31,7 +31,7 @@ import java.util.List;
  * @author chriswright
  */
 @XmlRootElement(name = "consent")
-public class PSCookieConsentQuery extends PSCookieConsent {
+public final class PSCookieConsentQuery extends PSCookieConsent {
 
   private List<String> services;
 
@@ -44,14 +44,14 @@ public class PSCookieConsentQuery extends PSCookieConsent {
    * Constructor used to call {@link PSCookieConsent} super and create PSCookieConsentQuery.
    *
    * @param siteName name of the site accessed.
-   * @param consentDate date the cookie consent was given.
+   * @param consentDate instant the cookie consent was given.
    * @param optIn <code>true</code> always. No information is saved if user does not opt in.
    * @param services the list of services/cookies approved by the client.
    */
   @JsonCreator
   public PSCookieConsentQuery(
       @JsonProperty("siteName") String siteName,
-      @JsonProperty("consentDate") Date consentDate,
+      @JsonProperty("consentDate") Instant consentDate,
       @JsonProperty("optIn") boolean optIn,
       @JsonProperty("services") List<String> services) {
     // Here "undefined" is passed for the serviceName as
@@ -63,7 +63,8 @@ public class PSCookieConsentQuery extends PSCookieConsent {
     if (services == null)
       throw new IllegalArgumentException("List of cookies approved by client may not be null.");
 
-    setServices(services);
+    // Direct field assignment; class is final so no this-escape via overridable setter.
+    this.services = services;
   }
 
   /**

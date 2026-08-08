@@ -98,6 +98,21 @@ public interface IPSWidgetAssetRelationshipService {
       throws PSWidgetAssetRelationshipServiceException;
 
   /**
+   * Clears all page/template asset-widget relationships where the given asset is the dependent.
+   *
+   * <p>Used when recycling a shared (or local) asset so owners do not remain bound to a recycled
+   * content id (GH #777 / #2238). Does <strong>not</strong> delete the asset itself. Inline
+   * ActiveAssembly relationships are left alone (managed-link / rich-text path).
+   *
+   * @param assetId string form of the asset guid (or content id resolvable by id mapper), never
+   *     blank
+   * @return number of relationships deleted
+   * @throws PSWidgetAssetRelationshipServiceException if relationships cannot be loaded or deleted
+   */
+  int clearAssetWidgetRelationshipsForAsset(String assetId)
+      throws PSWidgetAssetRelationshipServiceException;
+
+  /**
    * Gets The criteria for a widget to allow an asset drop on a Page.
    *
    * @param page never <code>null</code>.

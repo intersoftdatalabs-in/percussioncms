@@ -58,7 +58,8 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    * java.lang.String, java.lang.String, java.util.List, com.percussion.
    * cms.objectstore.PSKey)
    */
-  public void add(String componentType, String relationshipType, List children, PSKey targetParent)
+  public void add(
+      String componentType, String relationshipType, List<?> children, PSKey targetParent)
       throws PSCmsException {
     validateComponentType(componentType);
     add(relationshipType, children, (PSLocator) targetParent);
@@ -68,14 +69,13 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#add(java.
    * lang.String, java.util.List, com.percussion.design.objectstore.PSLocator)
    */
-  public void add(String relationshipType, List children, PSLocator targetParent)
+  public void add(String relationshipType, List<?> children, PSLocator targetParent)
       throws PSCmsException {
     PSRelationshipConfig config = getConfig(relationshipType);
 
     PSRelationshipSet set = new PSRelationshipSet();
-    Iterator dependentKeys = children.iterator();
-    while (dependentKeys.hasNext()) {
-      PSLocator dependent = validateKey((PSKey) dependentKeys.next());
+    for (Object child : children) {
+      PSLocator dependent = validateKey((PSKey) child);
       set.add(new PSRelationship(-1, validateKey(targetParent), dependent, config));
     }
     m_dbProcessor.modifyRelationships(set);
@@ -84,7 +84,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   /* (non-Javadoc)
    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#copy(java.lang.String, java.util.List, com.percussion.cms.objectstore.PSKey)
    */
-  public void copy(String relationshipType, List children, PSKey parent) throws PSCmsException {
+  public void copy(String relationshipType, List<?> children, PSKey parent) throws PSCmsException {
     throw new UnsupportedOperationException("Not supported by this processor.");
   }
 
@@ -151,7 +151,8 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    *     silently be skipped.
    * @throws PSCmsException if any errors occur processing the request.
    */
-  public void delete(String relationshipType, PSKey owner, List dependents) throws PSCmsException {
+  public void delete(String relationshipType, PSKey owner, List<?> dependents)
+      throws PSCmsException {
     PSRelationshipSet deletes = new PSRelationshipSet();
     // Get all the relationships irrespective of community and permissions
     PSRelationshipSet relationships =
@@ -161,9 +162,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
             PSRelationshipConfig.FILTER_TYPE_COMMUNITY
                 | PSRelationshipConfig.FILTER_TYPE_FOLDER_PERMISSIONS);
 
-    Iterator it = relationships.iterator();
-    while (it.hasNext()) {
-      PSRelationship relationship = (PSRelationship) it.next();
+    for (PSRelationship relationship : (Iterable<PSRelationship>) relationships) {
       if (dependents == null || containsDependent(dependents.iterator(), relationship)) {
         deletes.add(relationship);
       }
@@ -207,7 +206,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    */
   public PSComponentSummary[] getChildren(String relationshipType, PSKey parent)
       throws PSCmsException {
-    List locatorList = getDependentLocators(relationshipType, parent);
+    List<PSLocator> locatorList = getDependentLocators(relationshipType, parent);
 
     return getComponentSummaries(locatorList);
   }
@@ -281,7 +280,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   public PSComponentSummary[] getChildren(String type, String relationshipType, PSKey parent)
       throws PSCmsException {
     validateComponentType(type);
-    List locatorList = getDependentLocators(relationshipType, parent);
+    List<PSLocator> locatorList = getDependentLocators(relationshipType, parent);
 
     return getComponentSummaries(locatorList);
   }
@@ -290,7 +289,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    * Convenience method that calls {@link #getDependentLocators(String, PSKey, int)
    * getDependentLocators(String, PSKey, 0)}
    */
-  public List getDependentLocators(String type, PSKey owner) throws PSCmsException {
+  public List<PSLocator> getDependentLocators(String type, PSKey owner) throws PSCmsException {
     return getDependentLocators(type, owner, 0);
   }
 
@@ -391,7 +390,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   /** See {@link IPSRelationshipProcessor#getParents(String, String, PSKey) interface} */
   public PSComponentSummary[] getParents(String type, String relationshipType, PSKey locator)
       throws PSCmsException {
-    List locatorList = getParents(relationshipType, locator);
+    List<PSLocator> locatorList = getParents(relationshipType, locator);
 
     return getComponentSummaries(locatorList);
   }
@@ -437,7 +436,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    * Convenience method that calls {@link #getSiblings(String, PSKey, int)} passes doNotApplyFilters
    * = 0.
    */
-  public List getSiblings(String type, PSKey owner) throws PSCmsException {
+  public List<PSLocator> getSiblings(String type, PSKey owner) throws PSCmsException {
     return getSiblings(type, owner, 0);
   }
 
@@ -451,34 +450,25 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    *     folder permissions (bitwise OR the FILTER_BY_xxx constants defined in <code>
    *     PSRelationshipConfig</code> to restrict filtering on both), should be set to <code>0</code>
    *     if filtering is to be performed.
-   * @return a list of <code>List</code> objects for each parent found, each containing a <code>List
-   *     </code> of <code>PSKey</code> objects for all siblings found in that particular parent. The
+   * @return a list of <code>PSLocator</code> objects for all siblings found across all parents. The
    *     returned list does not include the object key itself. Never <code>null</code>, may be
    *     empty.
    * @throws PSCmsException if any errors occur processing the request.
    */
-  public List getSiblings(String type, PSKey object, int doNotApplyFilters) throws PSCmsException {
+  public List<PSLocator> getSiblings(String type, PSKey object, int doNotApplyFilters)
+      throws PSCmsException {
     validateKey(object);
     PSLocator locator = (PSLocator) object;
-    List siblings = new ArrayList();
+    List<PSLocator> siblings = new ArrayList<>();
 
-    Iterator parents = getParents(type, object).iterator();
-    while (parents.hasNext()) {
-      PSKey parent = (PSKey) parents.next();
-
-      List parentSiblings = new ArrayList();
-      Iterator relationships =
-          m_dbProcessor
-              .queryRelationships(getConfig(type), validateKey(parent), doNotApplyFilters)
-              .iterator();
-      while (relationships.hasNext()) {
-        PSRelationship sibling = (PSRelationship) relationships.next();
-
+    for (PSLocator parent : getParents(type, object)) {
+      for (PSRelationship sibling :
+          (Iterable<PSRelationship>)
+              m_dbProcessor.queryRelationships(
+                  getConfig(type), validateKey(parent), doNotApplyFilters)) {
         // don't add object itself
-        if (!equalsDependent(locator, sibling)) parentSiblings.add(sibling.getDependent());
+        if (!equalsDependent(locator, sibling)) siblings.add(sibling.getDependent());
       }
-
-      siblings.addAll(parentSiblings);
     }
 
     return siblings;
@@ -493,10 +483,8 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
     PSRelationshipSet relationships = getRelationships(filter);
     if (relationships.isEmpty()) return new PSComponentSummaries();
 
-    Set itemSet = new HashSet();
-    Iterator iter = relationships.iterator();
-    while (iter.hasNext()) {
-      PSRelationship rel = (PSRelationship) iter.next();
+    Set<PSLocator> itemSet = new HashSet<>();
+    for (PSRelationship rel : (Iterable<PSRelationship>) relationships) {
       PSLocator loc = owner ? rel.getOwner() : rel.getDependent();
       itemSet.add(loc);
     }
@@ -514,7 +502,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
     int itemId = getIdByPath(componentType, path, relationshipTypeName);
     if (itemId == -1) return null;
 
-    Collection locators = new ArrayList(1);
+    Collection<PSLocator> locators = new ArrayList<>(1);
     locators.add(new PSLocator(itemId));
 
     return getComponentSummaries(locators)[0];
@@ -552,7 +540,8 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    *     bigger then the current size of relationships, the new dependents will be appendend.
    * @throws PSCmsException if any errors occur processing the request.
    */
-  public void insert(String type, PSKey owner, List dependents, int index) throws PSCmsException {
+  public void insert(String type, PSKey owner, List<?> dependents, int index)
+      throws PSCmsException {
     if (index <= 0) throw new IllegalArgumentException("index must be > 0");
 
     PSRelationshipConfig config = getConfig(type);
@@ -568,9 +557,8 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
 
     // build the insert set starting the sortrank at the supplied index
     PSRelationshipSet inserts = new PSRelationshipSet();
-    Iterator dependentKeys = dependents.iterator();
-    while (dependentKeys.hasNext()) {
-      PSLocator dependent = validateKey((PSKey) dependentKeys.next());
+    for (Object dependentKey : dependents) {
+      PSLocator dependent = validateKey((PSKey) dependentKey);
       PSRelationship relationship = new PSRelationship(-1, validateKey(owner), dependent, config);
       relationship.setProperty(IPSHtmlParameters.SYS_SORTRANK, Integer.toString(sortrank++));
 
@@ -597,7 +585,10 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    * java.util.List, com.percussion.design.objectstore.PSLocator)
    */
   public void move(
-      String relationshipTypeName, PSLocator sourceParent, List children, PSLocator targetParent)
+      String relationshipTypeName,
+      PSLocator sourceParent,
+      List<?> children,
+      PSLocator targetParent)
       throws PSCmsException {
     if (children == null) throw new IllegalArgumentException("children must not be null");
     if (sourceParent == null) throw new IllegalArgumentException("sourceParent must not be null");
@@ -640,7 +631,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    * com.percussion.cms.objectstore.PSKey)
    */
   public void move(
-      String relationshipTypeName, PSKey sourceParent, List children, PSKey targetParent)
+      String relationshipTypeName, PSKey sourceParent, List<?> children, PSKey targetParent)
       throws PSCmsException {
     move(relationshipTypeName, (PSLocator) sourceParent, children, (PSLocator) targetParent);
   }
@@ -674,7 +665,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    *     otherwise.
    * @throws PSCmsException if the supplied list contains invalid locators.
    */
-  private boolean containsDependent(Iterator possibleDeps, PSRelationship relationship)
+  private boolean containsDependent(Iterator<?> possibleDeps, PSRelationship relationship)
       throws PSCmsException {
     boolean found = false;
 
@@ -715,12 +706,15 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    *     .
    * @throws PSCmsException if encounters any problems while fetching or parsing the XML document.
    */
-  private PSComponentSummary[] getComponentSummaries(Collection locators) throws PSCmsException {
+  private PSComponentSummary[] getComponentSummaries(Collection<? extends PSLocator> locators)
+      throws PSCmsException {
     if (locators.isEmpty()) return new PSComponentSummary[0];
 
+    // Copy into a concrete list so the iterator is Iterator<PSLocator> for the folder API.
+    List<PSLocator> locatorList = new ArrayList<>(locators);
     PSComponentSummaries sums =
         PSServerFolderProcessor.getInstance()
-            .getComponentSummaries(locators.iterator(), null, true);
+            .getComponentSummaries(locatorList.iterator(), null, true);
 
     return sums.toArray();
   }
@@ -780,10 +774,8 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
     if (relationshipTypeName == null)
       throw new IllegalArgumentException("relationshipTypeName must not be null");
 
-    List ancestors = m_dbProcessor.getOwnerLocators(child, relationshipTypeName);
-    Iterator iter = ancestors.iterator();
-    while (iter.hasNext()) {
-      PSLocator element = (PSLocator) iter.next();
+    List<PSLocator> ancestors = m_dbProcessor.getOwnerLocators(child, relationshipTypeName);
+    for (PSLocator element : ancestors) {
       if (element.getId() == parent.getId()) return true;
     }
 
@@ -796,10 +788,10 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
     if (relationshipTypeName == null)
       throw new IllegalArgumentException("relationshipTypeName must not be null");
 
-    List results = new ArrayList();
+    List<PSLocator> results = new ArrayList<>();
     getDescendentLocators(relationshipTypeName, parent, results);
 
-    return (PSKey[]) results.toArray(new PSKey[results.size()]);
+    return results.toArray(new PSKey[0]);
   }
 
   /**
@@ -813,16 +805,12 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    *     {@link PSLocator} objects. Assume it is not <code>null</code>, may be empty.
    * @throws PSCmsException if any error occurs
    */
-  private void getDescendentLocators(String relationshipTypeName, PSKey parent, List results)
-      throws PSCmsException {
+  private void getDescendentLocators(
+      String relationshipTypeName, PSKey parent, List<PSLocator> results) throws PSCmsException {
 
     PSRelationshipSet dependents = getDependents(relationshipTypeName, parent);
-    Iterator rels = dependents.iterator();
-    PSRelationship rel;
-    PSLocator depLocator;
-    while (rels.hasNext()) {
-      rel = (PSRelationship) rels.next();
-      depLocator = rel.getDependent();
+    for (PSRelationship rel : (Iterable<PSRelationship>) dependents) {
+      PSLocator depLocator = rel.getDependent();
 
       // First check to be sure that this item has
       // not yet been processed, we don't want to
@@ -889,12 +877,11 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    * @return <code>true</code> if the list contains the specified locator, <code>false</code>
    *     otherwise.
    */
-  private boolean listContains(List locatorList, PSLocator locator, boolean revisionSensitive) {
+  private boolean listContains(List<?> locatorList, PSLocator locator, boolean revisionSensitive) {
     if (revisionSensitive) return locatorList.contains(locator);
 
-    Iterator iter = locatorList.iterator();
-    while (iter.hasNext()) {
-      PSLocator element = (PSLocator) iter.next();
+    for (Object obj : locatorList) {
+      PSLocator element = (PSLocator) obj;
       if (element.getId() == locator.getId()) return true;
     }
     return false;

@@ -48,7 +48,6 @@ import org.w3c.dom.Document;
  * variants registered in the system. Add this extension to a content list generator resource. Items
  * will be touched regardless of their state.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSTouchAutoIndex extends PSDefaultExtension
     implements IPSResultDocumentProcessor, IPSRequestPreProcessor {
   /** Default constructor. */
@@ -146,13 +145,13 @@ public class PSTouchAutoIndex extends PSDefaultExtension
    * @throws PSUnknownNodeTypeException
    * @throws PSCacheException
    */
-  @SuppressWarnings({"deprecation", "unchecked"})
+  @SuppressWarnings("deprecation")
   private Set<IPSGuid> buildContentTypeSet(IPSRequestContext req)
       throws PSCmsException, PSUnknownNodeTypeException, PSCacheException {
     Set<IPSGuid> ctSet = new HashSet<>();
 
     PSRelationshipHelper helper = new PSRelationshipHelper(req);
-    Iterator variants = helper.getVariantSet().iterator();
+    Iterator<?> variants = helper.getVariantSet().iterator();
     while (variants.hasNext()) {
       PSContentTypeTemplate vart = (PSContentTypeTemplate) variants.next();
       if (vart.getActiveAssemblyType() == 1) {

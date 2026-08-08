@@ -30,8 +30,7 @@ import org.apache.commons.collections4.iterators.FilterIterator;
  * @param <M> the type of elements iterated the type of elements iterated
  * @author dougrand
  */
-@SuppressWarnings("rawtypes")
-public abstract class PSItemIterator<M> implements Iterator {
+public abstract class PSItemIterator<M> {
   /** Hold the current position */
   int m_current = 0;
 
@@ -40,12 +39,13 @@ public abstract class PSItemIterator<M> implements Iterator {
 
   /**
    * The original map that's being iterated. Needs to be kept to enable this to return the size of
-   * the collection.
+   * the collection. The map may be either a multi-map (values are {@code Collection<M>}) or a
+   * simple map (values are {@code M}); the iteration strategy is chosen at runtime.
    */
-  Map m_map = null;
+  Map<?, ?> m_map = null;
 
   /** The filter, may be <code>null</code> as the filter is not required */
-  Predicate m_filter = null;
+  Predicate<? super M> m_filter = null;
 
   /**
    * Ctor, may only be used from subclasses
@@ -53,7 +53,7 @@ public abstract class PSItemIterator<M> implements Iterator {
    * @param things the map of things, never <code>null</code>
    * @param filterpattern the filter pattern, may be <code>null</code>
    */
-  protected PSItemIterator(Map things, String filterpattern) {
+  protected PSItemIterator(Map<?, ?> things, String filterpattern) {
     if (things == null) {
       throw new IllegalArgumentException("things may not be null");
     }
@@ -72,17 +72,48 @@ public abstract class PSItemIterator<M> implements Iterator {
    */
   private Iterator<M> calculateIter() {
     if (m_map instanceof Map<?, ?> && !(m_map instanceof HashMap<?, ?>)) {
-      return new PSMultiMapIterator<>(m_map, m_filter);
-    } else if (m_filter != null) {
-      Collection<M> values = new ArrayList<>();
-      values.addAll(m_map.values());
-      return new FilterIterator<>(values.iterator(), m_filter);
-    } else {
-      Collection<M> values = new ArrayList<>();
-      values.addAll(m_map.values());
-      return values.iterator();
+      // Multi map: values are Collection<M>
+      return new PSMultiMapIterator<>(toMultiMap(m_map), m_filter);
     }
+    // Simple map: values are individual M. The map's values are typed as Object by the field
+    // declaration; the cast to M is safe per the iteration contract documented on m_map.
+    List<M> values = new ArrayList<>();
+    for (Object v : m_map.values()) {
+      @SuppressWarnings("unchecked")
+      M m = (M) v;
+      values.add(m);
+    }
+    if (m_filter != null) {
+      FilterIterator<M> fi = new FilterIterator<>(values.iterator(), m_filter);
+      return fi;
+    }
+    return values.iterator();
   }
+
+  private Map<Object, Collection<? extends M>> toMultiMap(Map<?, ?> source) {
+    Map<Object, Collection<? extends M>> multi = new HashMap<>();
+    for (Map.Entry<?, ?> e : source.entrySet()) {
+      Object value = e.getValue();
+      Collection<? extends M> collection;
+      if (value instanceof Collection<?>) {
+        // Per the iteration contract, the collection's elements are M. The unchecked cast is
+        // documented on the field declaration; this site is the single rewrap that needs it.
+        @SuppressWarnings("unchecked")
+        Collection<? extends M> typed = (Collection<? extends M>) value;
+        collection = typed;
+      } else if (value == null) {
+        collection = null;
+      } else {
+        throw new ClassCastException(
+            "PSItemIterator expected Collection value for multi-map entry but found "
+                + value.getClass().getName());
+      }
+      multi.put(e.getKey(), collection);
+    }
+    return multi;
+  }
+
+  // Type and ParameterizedType imports removed; no longer used.
 
   public M next() {
     m_current++;
@@ -109,7 +140,7 @@ public abstract class PSItemIterator<M> implements Iterator {
   public long getSize() {
     // Get a fresh iterator and exhaust it
     int count = 0;
-    Iterator i = calculateIter();
+    Iterator<M> i = calculateIter();
     while (i.hasNext()) {
       i.next();
       count++;
@@ -142,7 +173,7 @@ public abstract class PSItemIterator<M> implements Iterator {
    *
    * @return the map, never <code>null</code>
    */
-  public Map getMap() {
+  public Map<?, ?> getMap() {
     return m_map;
   }
 
@@ -153,7 +184,7 @@ public abstract class PSItemIterator<M> implements Iterator {
    *
    * @param newmap
    */
-  public void setMap(Map newmap) {
+  public void setMap(Map<?, ?> newmap) {
     m_map = newmap;
     m_iter = calculateIter();
   }

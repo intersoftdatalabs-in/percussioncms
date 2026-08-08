@@ -115,8 +115,8 @@ public class PSSaxHelper {
       if (args != null) {
         System.arraycopy(args, 0, cargs, 1, args.length);
       }
-      Constructor c = null;
-      for (Constructor constructor : handler.getConstructors()) {
+      Constructor<?> c = null;
+      for (Constructor<?> constructor : handler.getConstructors()) {
         if (constructor.getParameterTypes().length == len
             && constructor.getParameterTypes()[0].isAssignableFrom(XMLStreamWriter.class)) {
           c = constructor;

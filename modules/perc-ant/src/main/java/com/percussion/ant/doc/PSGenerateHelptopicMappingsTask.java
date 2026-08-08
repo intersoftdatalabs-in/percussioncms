@@ -25,7 +25,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
@@ -128,13 +127,11 @@ public class PSGenerateHelptopicMappingsTask extends Task {
                 new PSXmlSecurityOptions(true, true, true, false, true, false));
         DocumentBuilder builder = fact.newDocumentBuilder();
 
-        Map topics = readKeys(builder, keyFile);
-        Map mappings = readMappings(builder, mapFile);
+        Map<String, String> topics = readKeys(builder, keyFile);
+        Map<String, String> mappings = readMappings(builder, mapFile);
 
-        Iterator kiter = topics.keySet().iterator();
-        while (kiter.hasNext()) {
-          String key = (String) kiter.next();
-          String desturl = (String) topics.get(key);
+        for (String key : topics.keySet()) {
+          String desturl = topics.get(key);
 
           if (desturl.trim().length() == 0) {
             if (m_suppressError) {
@@ -143,7 +140,7 @@ public class PSGenerateHelptopicMappingsTask extends Task {
               throw new BuildException("Error, " + key + " is missing a destination url");
             }
           } else {
-            String index = (String) mappings.get(desturl);
+            String index = mappings.get(desturl);
             if (index != null) {
               out.println(key + "=" + index);
             } else {
@@ -174,7 +171,8 @@ public class PSGenerateHelptopicMappingsTask extends Task {
    * @throws IOException
    * @throws SAXException
    */
-  private Map readMappings(DocumentBuilder builder, File mapFile) throws SAXException, IOException {
+  private Map<String, String> readMappings(DocumentBuilder builder, File mapFile)
+      throws SAXException, IOException {
     return readKeyValueData(builder, mapFile, "mapID", "url", "target");
   }
 
@@ -188,7 +186,7 @@ public class PSGenerateHelptopicMappingsTask extends Task {
    * @throws IOException
    */
   // TODO: Remove me @SuppressFBWarnings("XXE_DOCUMENT")  // False positive - see PSSecureXMLUtils
-  private Map readKeyValueData(
+  private Map<String, String> readKeyValueData(
       DocumentBuilder builder, File mapFile, String nodeName, String keyName, String valName)
       throws SAXException, IOException {
     Document d = builder.parse(mapFile);
@@ -210,7 +208,8 @@ public class PSGenerateHelptopicMappingsTask extends Task {
    * @throws IOException
    * @throws SAXException
    */
-  private Map readKeys(DocumentBuilder builder, File keyFile) throws SAXException, IOException {
+  private Map<String, String> readKeys(DocumentBuilder builder, File keyFile)
+      throws SAXException, IOException {
     return readKeyValueData(builder, keyFile, "mapping", "key", "url");
   }
 

@@ -355,6 +355,14 @@ External compose DBs (`percussion-postgres` / `percussion-mysql` / `percussion-s
 
 If a DB container was already running before the harness (e.g. long-lived dev stack), the default path **reuses** it and **does not** stop it at the end. Use `--stop-db` only when you intentionally want those containers stopped. Never uses `compose down -v` by default (named volumes / operator data are preserved).
 
+### EC2 IMDS / S3 publish from containers (issue #2284)
+
+When CMS runs **on EC2** (including this compose stack on an EC2 host) and uses Amazon S3 publish with **instance profile** credentials:
+
+* Prefer **IMDSv2** (`HttpTokens=required` on Amazon Linux 2023+). CMS probes IMDS with a session token; IMDSv1-only is no longer required for EC2 detection.
+* If CMS is **containerized**, set the instance metadata option **`HttpPutResponseHopLimit` ≥ 2** so the IMDSv2 token PUT can leave the container network namespace. Hop limit `1` is a common cause of “not on EC2” false negatives and forced Access Key / Secret fields.
+* See system site doc `s3-publish-ec2-imds.md` for the full operator checklist.
+
 ### DTS packaging notes (HTTP 9980)
 
 DTS Tomcat listens on **`${http.port}`** from `conf/perc/perc-catalina.properties` (default **9980**), not stock Tomcat 8080. The shipping tree requires:

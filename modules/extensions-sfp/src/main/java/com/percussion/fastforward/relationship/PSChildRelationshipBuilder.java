@@ -42,7 +42,6 @@ import org.apache.logging.log4j.Logger;
  * @author James Schultz
  * @since 6.0
  */
-@SuppressWarnings("unchecked")
 public class PSChildRelationshipBuilder extends PSChildRelationshipBase {
   /**
    * Constructs an instance of <code>PSChildRelationshipBuilder</code> that will use the specified
@@ -170,8 +169,7 @@ public class PSChildRelationshipBuilder extends PSChildRelationshipBase {
     m_log.debug("to be removed: " + idsToRemove);
 
     // remove any relationships from the set that are not being removed
-    for (@SuppressWarnings("unchecked") Iterator<PSRelationship> iter = relationships.iterator();
-        iter.hasNext(); ) {
+    for (Iterator<PSRelationship> iter = relationships.iterator(); iter.hasNext(); ) {
       PSRelationship r = iter.next();
       Integer ownerId = Integer.valueOf(r.getOwner().getId());
       if (!idsToRemove.contains(ownerId)) {

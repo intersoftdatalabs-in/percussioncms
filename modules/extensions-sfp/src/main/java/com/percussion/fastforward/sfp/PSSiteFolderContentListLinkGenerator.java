@@ -30,13 +30,11 @@ import com.percussion.system.utils.PSUrlUtils;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /** Defines methods to generate various types of assembly locations. */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSSiteFolderContentListLinkGenerator {
 
   /** Default constructor for PSSiteFolderContentListLinkGenerator. */
@@ -78,14 +76,14 @@ public class PSSiteFolderContentListLinkGenerator {
       String protocol,
       String host,
       int port,
-      Set paramSetToPass) {
+      Set<String> paramSetToPass) {
     if (protocol == null || protocol.trim().length() == 0) {
       throw new IllegalArgumentException("protocol must not be null or empty");
     }
     if (host == null || host.trim().length() == 0) {
       throw new IllegalArgumentException("host must not be null or empty");
     }
-    HashMap paramMap = new HashMap(10);
+    HashMap<String, String> paramMap = new HashMap<>(10);
     paramMap.put(IPSHtmlParameters.SYS_CONTENTID, contentId);
     paramMap.put(IPSHtmlParameters.SYS_REVISION, revision);
     paramMap.put(
@@ -95,9 +93,7 @@ public class PSSiteFolderContentListLinkGenerator {
 
     // Add non-standard HTML parameters (if any) from the request.
     if (paramSetToPass != null) {
-      Iterator iter = paramSetToPass.iterator();
-      while (iter.hasNext()) {
-        String paramName = (String) iter.next();
+      for (String paramName : paramSetToPass) {
         String paramvalue = request.getParameter(paramName);
         if (paramvalue != null) paramMap.put(paramName, paramvalue);
       }
@@ -155,6 +151,7 @@ public class PSSiteFolderContentListLinkGenerator {
    *     IPSRequestContext)} Created a new method that takes the folderid parameter to fix the bug
    *     RX-13461.
    */
+  @Deprecated
   public String generatePubLocation(
       String contentId,
       String revision,

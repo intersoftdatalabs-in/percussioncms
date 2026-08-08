@@ -44,7 +44,6 @@ import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
@@ -93,9 +92,10 @@ public class PSMetadataDao implements IPSMetadataDao {
     try (Session session = getSession()) {
       String hql = "delete from PSDbMetadataEntry  where pagepathHash in (:paths)";
       tx = session.beginTransaction();
-      Query<?> q = session.createQuery(hql);
-      q.setParameterList("paths", pagepathHashes);
-      q.executeUpdate();
+      session
+          .createMutationQuery(hql)
+          .setParameterList("paths", pagepathHashes)
+          .executeUpdate();
       tx.commit();
     } catch (Exception e) {
       if (tx != null && tx.isActive()) {
@@ -144,7 +144,7 @@ public class PSMetadataDao implements IPSMetadataDao {
           builder.createCriteriaDelete(PSDbMetadataEntry.class);
       Root<PSDbMetadataEntry> root = deleteQuery.from(PSDbMetadataEntry.class);
       deleteQuery.where(builder.like(root.get("site"), prevSiteName));
-      session.createQuery(deleteQuery).executeUpdate();
+      session.createMutationQuery(deleteQuery).executeUpdate();
       tx.commit();
     } catch (Exception e) {
       if (tx != null && tx.isActive()) {
@@ -164,13 +164,13 @@ public class PSMetadataDao implements IPSMetadataDao {
       CriteriaDelete<PSDbMetadataProperty> deleteQuery =
           builder.createCriteriaDelete(PSDbMetadataProperty.class);
       deleteQuery.from(PSDbMetadataProperty.class);
-      session.createQuery(deleteQuery).executeUpdate();
+      session.createMutationQuery(deleteQuery).executeUpdate();
 
       CriteriaBuilder builder2 = session.getCriteriaBuilder();
       CriteriaDelete<PSDbMetadataEntry> deleteQuery2 =
           builder2.createCriteriaDelete(PSDbMetadataEntry.class);
       deleteQuery2.from(PSDbMetadataEntry.class);
-      session.createQuery(deleteQuery2).executeUpdate();
+      session.createMutationQuery(deleteQuery2).executeUpdate();
       tx.commit();
 
     } catch (Exception e) {
@@ -383,7 +383,7 @@ public class PSMetadataDao implements IPSMetadataDao {
     String pagePath = metadataEntry.getPagepath();
     if (pagePath != null) {
       String pagePathHash = hashCalculator.calculateHash(pagePath);
-      dbMetadataEntry = session.get(PSDbMetadataEntry.class, pagePathHash);
+      dbMetadataEntry = session.find(PSDbMetadataEntry.class, pagePathHash);
     }
 
     boolean isNewEntry = dbMetadataEntry == null;
@@ -421,7 +421,7 @@ public class PSMetadataDao implements IPSMetadataDao {
     Object value = metadataProperty.getValue();
     switch (metadataProperty.getValuetype()) {
       case DATE:
-        copiedProperty.setDatevalue((java.util.Date) value);
+        copiedProperty.setDatevalue(PSDbMetadataProperty.toLocalDateTime(value));
         break;
       case NUMBER:
         copiedProperty.setNumbervalue(toDouble(value));
@@ -474,7 +474,7 @@ public class PSMetadataDao implements IPSMetadataDao {
               criteriaBuilder.and(
                   criteriaBuilder.equal(employeeRoot.get("stringvalue"), oldCategoryName),
                   criteriaBuilder.equal(employeeRoot.get("name"), "perc:category")));
-      updatedRows = session.createQuery(criteriaUpdate).executeUpdate();
+      updatedRows = session.createMutationQuery(criteriaUpdate).executeUpdate();
       tx.commit();
     } catch (Exception e) {
       if (tx != null && tx.isActive()) {

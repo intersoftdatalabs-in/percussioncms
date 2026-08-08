@@ -81,7 +81,6 @@ public class WrappedTrustManager implements X509TrustManager {
       throws CertificateException {
 
     CertificateException exception = null;
-    Exception ex = null;
     for (Map.Entry<String, X509TrustManager> thistm : wrappedManagers.entrySet()) {
       String successTm = thistm.getKey();
       try {

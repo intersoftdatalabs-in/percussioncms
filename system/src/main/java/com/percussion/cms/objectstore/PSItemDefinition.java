@@ -58,6 +58,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, IPSCloneTuner {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Create a new definition.
    *

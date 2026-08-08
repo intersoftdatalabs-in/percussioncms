@@ -142,9 +142,9 @@ public class PSDelete extends Delete {
         dirs.add(dir);
       }
 
-      Iterator it = dirs.iterator();
+      Iterator<File> it = dirs.iterator();
       while (it.hasNext()) {
-        File f = (File) it.next();
+        File f = it.next();
         if (isUsingMapping && !f.exists()) {
           if (m_verbosity == Project.MSG_VERBOSE) {
             log("Skipping non-existant directory " + f.getAbsolutePath());
