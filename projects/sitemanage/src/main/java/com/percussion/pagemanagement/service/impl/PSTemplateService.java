@@ -85,16 +85,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Will CRUD templates using the {@link IPSTemplateDao}.
  *
+ * <p>Class-level {@link Lazy @Lazy} aligns this high fan-in hub with {@code pageService} / {@code
+ * assetService} peers (#2477 / #2463). Class {@code @Lazy} is lazy <em>init</em>, not a constructor
+ * cycle breaker — reverse-edge bans on widgetAsset / pageDao peers are covered by {@code
+ * PSTemplateServiceHubNearCycleWiringTest}.
+ *
  * @author YuBingChen
  * @author adamgent
  */
 @Component("sys_templateService")
+@Lazy
 @Transactional(noRollbackFor = Exception.class)
 public class PSTemplateService implements IPSTemplateService {
 
