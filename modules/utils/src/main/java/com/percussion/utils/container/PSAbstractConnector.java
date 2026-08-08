@@ -32,10 +32,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.w3c.dom.Element;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
 
-  @SuppressWarnings("rawtypes")
   /** Scheme constant for the "http" protocol. */
   public static final String SCHEME_HTTP = "http";
 
@@ -303,10 +301,9 @@ public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
       return this;
     }
 
-    @SuppressWarnings("rawtypes")
     public HttpsBuilder setHttps() {
       scheme = SCHEME_HTTPS;
-      return (this instanceof HttpsBuilder) ? (HttpsBuilder) this : new HttpsBuilder(this);
+      return (this instanceof HttpsBuilder hb) ? hb : new HttpsBuilder(this);
     }
 
     public PSAbstractConnector build() {
@@ -327,7 +324,7 @@ public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
     }
   }
 
-  public static class HttpsBuilder<T extends PSAbstractConnector> extends Builder {
+  public static class HttpsBuilder extends Builder {
 
     protected Path truststoreFile;
     protected String truststorePass;

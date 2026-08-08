@@ -348,9 +348,13 @@ public class PSBaseHttpUtils {
         else if (urlDecode) value = URLDecoder.decode(value, "UTF8");
         if (results.containsKey(name)) {
           Object current = results.get(name);
-          if (current instanceof List) {
-            @SuppressWarnings("unchecked")
-            List<String> values = (List<String>) current;
+          if (current instanceof List<?>) {
+            // Rebuild as List<String> without an unchecked cast of the existing list.
+            List<?> existing = (List<?>) current;
+            List<String> values = new ArrayList<>(existing.size() + 1);
+            for (Object item : existing) {
+              values.add(item == null ? null : item.toString());
+            }
             values.add(value);
             results.put(name, values);
           } else {

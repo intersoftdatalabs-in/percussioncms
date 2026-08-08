@@ -47,7 +47,7 @@ public class PSMultiMapIterator<M> implements Iterator<M> {
    * If specified, this predicate limits the values returned by the iterator to those whose keys
    * match the predicate. Initialized in the ctor and never updated. May be <code>null</code>.
    */
-  private org.apache.commons.collections4.Predicate<Object> m_filterPredicate = null;
+  private org.apache.commons.collections4.Predicate<? super Object> m_filterPredicate = null;
 
   /**
    * Ctor
@@ -56,13 +56,12 @@ public class PSMultiMapIterator<M> implements Iterator<M> {
    * @param filter filter predicate to limit results, may be <code>null</code> if no filtering is
    *     desired
    */
-  @SuppressWarnings("unchecked")
   public PSMultiMapIterator(
       Map<?, ? extends Collection<? extends M>> map,
-      org.apache.commons.collections4.Predicate<?> filter) {
+      org.apache.commons.collections4.Predicate<? super Object> filter) {
     m_sourceMap = map;
     m_keyIter = map.keySet().iterator();
-    m_filterPredicate = (org.apache.commons.collections4.Predicate<Object>) filter;
+    m_filterPredicate = filter;
     m_next = null;
   }
 

@@ -29,9 +29,8 @@ public abstract class PSIteratorUtils {
   }
 
   /** Returns an iterator over this object N times. */
-  @SuppressWarnings("unchecked")
   public static <T> Iterator<T> iterator(T o, int numIterations) {
-    return (Iterator<T>) new CountedIterator(o, numIterations);
+    return new CountedIterator<>(o, numIterations);
   }
 
   /**
@@ -88,9 +87,9 @@ public abstract class PSIteratorUtils {
     return entries;
   }
 
-  private static class CountedIterator implements Iterator<Object> {
+  private static class CountedIterator<T> implements Iterator<T> {
     /** Constructs a counted iterator over a single object N times. */
-    CountedIterator(Object o, int iterations) {
+    CountedIterator(T o, int iterations) {
       if (iterations < 0) throw new IllegalArgumentException("iterations must be >= 0");
 
       m_ob = o;
@@ -101,7 +100,7 @@ public abstract class PSIteratorUtils {
       return (m_remainingIterations > 0);
     }
 
-    public Object next() {
+    public T next() {
       if (!hasNext()) {
         throw new NoSuchElementException();
       }
@@ -109,7 +108,7 @@ public abstract class PSIteratorUtils {
       m_remainingIterations--;
 
       // aid the garbage collector
-      Object ret = m_ob;
+      T ret = m_ob;
       if (!hasNext()) {
         m_ob = null;
       }
@@ -125,7 +124,7 @@ public abstract class PSIteratorUtils {
     private int m_remainingIterations;
 
     /** The object over which we iterate */
-    private Object m_ob;
+    private T m_ob;
   }
 
   /** An iterator over two objects. */

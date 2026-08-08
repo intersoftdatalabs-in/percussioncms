@@ -16,7 +16,6 @@
  */
 package com.percussion.utils.jndi;
 
-import java.util.Iterator;
 import java.util.Map;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -29,13 +28,12 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author dougrand
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSNamingContextHelper {
   /** The actual naming context to use. This is setup to use the mock naming provider. */
   Context m_ctx = null;
 
   /** The initial bindings to set, never used afterward. */
-  Map m_bindings = null;
+  Map<?, ?> m_bindings = null;
 
   /** The root jndi path */
   String m_root = null;
@@ -50,7 +48,7 @@ public class PSNamingContextHelper {
   /**
    * @return Returns the props.
    */
-  public Map getBindings() {
+  public Map<?, ?> getBindings() {
     return m_bindings;
   }
 
@@ -58,16 +56,15 @@ public class PSNamingContextHelper {
    * @param props The props to set, never <code>null</code>
    * @throws NamingException If there is a problem storing a name/value
    */
-  @SuppressWarnings(value = "unchecked")
-  public void setBindings(Map props) throws NamingException {
+  public void setBindings(Map<?, ?> props) throws NamingException {
     if (props == null) {
       throw new IllegalArgumentException("props may not be null");
     }
     m_bindings = props;
-    Iterator<Map.Entry> iter = m_bindings.entrySet().iterator();
-    while (iter.hasNext()) {
-      Map.Entry entry = iter.next();
-      m_ctx.bind(m_root + (String) entry.getKey(), entry.getValue());
+    for (Map.Entry<?, ?> entry : m_bindings.entrySet()) {
+      Object key = entry.getKey();
+      String name = key == null ? null : key.toString();
+      m_ctx.bind(m_root + name, entry.getValue());
     }
   }
 

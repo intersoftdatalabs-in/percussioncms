@@ -82,9 +82,8 @@ public class PSTomcatConnectorTest {
 
     ciphers.addAll(
         FunctionalUtils.commaStringToStream(DEFAULT_CIPHERS).collect(Collectors.toSet()));
-    // Sequential calls on a parameterized HttpsBuilder — fluent chaining would widen to the
-    // raw return types still declared on PSAbstractConnector.HttpsBuilder setters.
-    PSAbstractConnector.HttpsBuilder<?> https = new PSAbstractConnector.HttpsBuilder<>();
+    // Sequential calls on HttpsBuilder (non-generic after utils batch 5 suppress strip).
+    PSAbstractConnector.HttpsBuilder https = new PSAbstractConnector.HttpsBuilder();
     https.setPort(port);
     https.setHttps();
     https.setKeystoreFile(Paths.get(file));
@@ -148,7 +147,7 @@ public class PSTomcatConnectorTest {
     Set<String> ciphers = new HashSet<>();
     ciphers.addAll(
         FunctionalUtils.commaStringToStream(DEFAULT_CIPHERS).collect(Collectors.toSet()));
-    PSAbstractConnector.HttpsBuilder<?> httpsBuilder = new PSAbstractConnector.HttpsBuilder<>();
+    PSAbstractConnector.HttpsBuilder httpsBuilder = new PSAbstractConnector.HttpsBuilder();
     httpsBuilder.setPort(port);
     httpsBuilder.setHttps();
     httpsBuilder.setKeystoreFile(Paths.get(file));

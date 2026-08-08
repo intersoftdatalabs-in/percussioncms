@@ -17,7 +17,6 @@
 package com.percussion.utils.collections;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -35,12 +34,12 @@ public class PSCopier {
    */
   public static <K, V> Map<K, V> deepCopy(Map<K, V> input) {
     Map<K, V> rval = new HashMap<>();
-    Iterator<? extends Map.Entry<K, V>> eiter = input.entrySet().iterator();
-    while (eiter.hasNext()) {
-      Map.Entry<K, V> entry = eiter.next();
+    for (Map.Entry<K, V> entry : input.entrySet()) {
       V value = entry.getValue();
-      if (value instanceof Map) {
-        Map<?, ?> nested = (Map<?, ?>) value;
+      if (value instanceof Map<?, ?> nested) {
+        // Nested map values are re-copied and reintroduced as V under the same contract as the
+        // input map (values that are maps are themselves Map structures). The unchecked cast is
+        // inherent to recursive map deep-copy when V is not constrained to Map.
         @SuppressWarnings("unchecked")
         V copiedValue = (V) deepCopy(nested);
         rval.put(entry.getKey(), copiedValue);

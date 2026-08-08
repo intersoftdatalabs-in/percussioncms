@@ -31,7 +31,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * @author dougrand
  * @param <Type> the value type encapsulated by the subclass of this abstract class.
  */
-@SuppressWarnings("rawtypes")
 public abstract class PSBaseValue<Type> implements Value, IPSJcrCacheItem {
   /** Holds value, never <code>null</code> after ctor */
   protected Type m_value;
@@ -76,12 +75,10 @@ public abstract class PSBaseValue<Type> implements Value, IPSJcrCacheItem {
    */
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof PSBaseValue)) return false;
-
-    PSBaseValue b = (PSBaseValue) obj;
-    EqualsBuilder eb = new EqualsBuilder();
-
-    return eb.append(m_value, b.m_value).isEquals();
+    if (!(obj instanceof PSBaseValue<?> other)) {
+      return false;
+    }
+    return new EqualsBuilder().append(m_value, other.m_value).isEquals();
   }
 
   /* (non-Javadoc)
