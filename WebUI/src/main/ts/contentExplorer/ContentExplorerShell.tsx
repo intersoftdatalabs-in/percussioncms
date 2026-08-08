@@ -125,12 +125,17 @@ async function defaultLoadMenuActions(
   return mapActionMenusToMenuActions(menus);
 }
 
+/** Stable default — module scope so useEffect deps do not refetch every render. */
+async function defaultLoadDisplayFormats(): Promise<DisplayFormat[]> {
+  return listDisplayFormats({ validForFolder: true });
+}
+
 export function ContentExplorerShell({
   initialPath = "/",
   onOpenItem = openInEditor,
   actionHandlers,
   onFolderActivated,
-  loadDisplayFormats = () => listDisplayFormats({ validForFolder: true }),
+  loadDisplayFormats = defaultLoadDisplayFormats,
   loadMenuActions = defaultLoadMenuActions,
 }: ContentExplorerShellProps): React.ReactElement {
   const [selection, setSelection] = useState<Selection>(EMPTY_SELECTION);

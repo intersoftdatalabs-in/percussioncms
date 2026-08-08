@@ -95,6 +95,32 @@ public class DisplayFormatResourceTest {
   }
 
   @Test
+  public void listDisplayFormatsFiltersCombinedValidForFolderAndViews() throws Exception {
+    DisplayFormat both = new DisplayFormat();
+    both.setName("Both");
+    both.setValidForFolder(true);
+    both.setValidForViewsAndSearches(true);
+    DisplayFormat folderOnly = new DisplayFormat();
+    folderOnly.setName("FolderOnly");
+    folderOnly.setValidForFolder(true);
+    folderOnly.setValidForViewsAndSearches(false);
+    DisplayFormat searchOnly = new DisplayFormat();
+    searchOnly.setName("SearchOnly");
+    searchOnly.setValidForFolder(false);
+    searchOnly.setValidForViewsAndSearches(true);
+    DisplayFormat neither = new DisplayFormat();
+    neither.setName("Neither");
+    neither.setValidForFolder(false);
+    neither.setValidForViewsAndSearches(false);
+    when(adaptor.findAllDisplayFormats())
+        .thenReturn(List.of(both, folderOnly, searchOnly, neither));
+
+    List<DisplayFormat> out = resource.listDisplayFormats(true, true);
+    assertEquals(1, out.size());
+    assertEquals("Both", out.get(0).getName());
+  }
+
+  @Test
   public void getDisplayFormatDelegates() {
     DisplayFormat f = new DisplayFormat();
     f.setName("Default");

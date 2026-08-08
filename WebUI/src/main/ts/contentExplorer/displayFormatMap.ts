@@ -58,6 +58,7 @@ export function mapDisplayFormatToDetailColumns(
   }
   const out: DetailColumnId[] = [];
   for (const col of columns) {
+    if (!col) continue;
     const source = (col.source ?? col.displayName ?? "").trim().toLowerCase();
     if (!source) continue;
     const mapped =

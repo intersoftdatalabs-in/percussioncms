@@ -40,6 +40,16 @@ describe("displayFormatMap", () => {
     expect(toDetailDisplayFormat([{ source: "nope" }])).toBeUndefined();
   });
 
+  it("skips null column entries without throwing", () => {
+    const cols = mapDisplayFormatToDetailColumns([
+      null as unknown as { source: string },
+      { source: "sys_title" },
+      undefined as unknown as { source: string },
+      { source: "path" },
+    ]);
+    expect(cols).toEqual(["title", "path"]);
+  });
+
   it("toDetailDisplayFormat wraps mapped columns", () => {
     expect(
       toDetailDisplayFormat([{ source: "name" }, { source: "path" }]),
