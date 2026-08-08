@@ -18,12 +18,18 @@ package com.percussion.data;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.server.PSRequest;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /** Behavioral tests for typed {@link PSErrorCollector} maps and item error lists. */
 @Tag("UnitTest")
@@ -45,12 +51,33 @@ class PSErrorCollectorTypedTest {
     collector.add(Integer.valueOf(0), submit, display, "bad value {0}", Arrays.asList("x"));
     assertEquals(2, collector.getErrorCount());
     assertTrue(collector.maxErrorsExceeded());
+
+    // Assert MessageFormat result and stored submit/display names via public document API.
+    PSRequest request = new PSRequest(null, null, null, null);
+    Document errorDoc = collector.getErrorDocument(request);
+    assertNotNull(errorDoc);
+    NodeList fields = errorDoc.getElementsByTagName(PSErrorCollector.ERROR_FIELD_ELEM);
+    assertEquals(1, fields.getLength());
+    Element field = (Element) fields.item(0);
+    assertEquals("title", field.getAttribute(PSErrorCollector.SUBMIT_NAME_ATTR));
+    assertEquals("Title", field.getAttribute(PSErrorCollector.DISPLAY_NAME_ATTR));
+    NodeList messages = errorDoc.getElementsByTagName(PSErrorCollector.ERROR_MESSAGE_ELEM);
+    assertEquals(1, messages.getLength());
+    String messageText = messages.item(0).getTextContent();
+    assertTrue(
+        messageText.startsWith("bad value x"),
+        "expected formatted message prefix, got: " + messageText);
   }
 
   @Test
-  void genericMessageSetAndItemDocumentsIncrementCount() {
+  void genericMessageSetAndItemDocumentsIncrementCount() throws Exception {
     PSErrorCollector collector = new PSErrorCollector(PSErrorCollector.TYPE_ITEM, 10);
     collector.set("generic failure");
+    // set() does not increment error count; assert stored generic message is retained.
+    Field generic = PSErrorCollector.class.getDeclaredField("m_genericError");
+    generic.setAccessible(true);
+    assertEquals("generic failure", generic.get(collector));
+
     org.w3c.dom.Document empty =
         com.percussion.xml.PSXmlDocumentBuilder.createXmlDocument();
     collector.add(empty);

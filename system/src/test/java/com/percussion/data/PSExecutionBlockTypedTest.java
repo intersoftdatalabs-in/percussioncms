@@ -17,8 +17,11 @@
 package com.percussion.data;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -29,17 +32,24 @@ class PSExecutionBlockTypedTest {
   @Test
   void unconditionalBlockRunsAllStepsInOrder() throws Exception {
     AtomicInteger counter = new AtomicInteger();
+    AtomicReference<PSExecutionData> seen = new AtomicReference<>();
+    // Non-null fixture: IPSExecutionStep.execute contract requires non-null data.
+    PSExecutionData data = new PSExecutionData(null, null, null);
     PSExecutionBlock block = new PSExecutionBlock(null);
     block.add(
-        data -> {
+        execData -> {
+          assertNotNull(execData);
+          seen.set(execData);
           assertEquals(0, counter.getAndIncrement());
         });
     block.add(
-        data -> {
+        execData -> {
+          assertSame(data, execData);
           assertEquals(1, counter.getAndIncrement());
         });
 
-    block.execute(null);
+    block.execute(data);
     assertEquals(2, counter.get());
+    assertSame(data, seen.get());
   }
 }
