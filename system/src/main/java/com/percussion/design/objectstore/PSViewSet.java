@@ -17,14 +17,23 @@
 
 package com.percussion.design.objectstore;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-/** Container for a set of {@link PSView} objects. */
-public class PSViewSet {
+/**
+ * Container for a set of {@link PSView} objects.
+ *
+ * <p>Implements {@link Serializable} so it may be held on {@link PSContentEditor} under {@code
+ * -Xlint:serial}.
+ */
+public class PSViewSet implements Serializable {
+
+  /** Serialization id for {@link Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Adds a view to this view set. Only one PSView may be added for each view name, but multiple
    * conditional views may be added with the same name. See {@link
@@ -118,14 +127,17 @@ public class PSViewSet {
   /**
    * Map of views by name. Key is the view name lowercased and stored as a String. Value is the
    * PSView object, never <code>null</code>. Map is instantiated at construction and never <code>
-   * null</code> after that.
+   * null</code> after that. Declared as {@link HashMap} (not {@link Map}) so the field type is
+   * {@link Serializable} under {@code -Xlint:serial}.
    */
-  private Map m_views = new HashMap();
+  private HashMap m_views = new HashMap();
 
   /**
    * Map of <code>PSConditionalView</code> objects. The key is the view name as a lowercase String,
    * and the value is a List of <code>PSConditionalView</code> objects, never <code>null</code>. Map
-   * is instantiated at runtime, never <code>null</code> after that, may be empty.
+   * is instantiated at runtime, never <code>null</code> after that, may be empty. Declared as
+   * {@link HashMap} (not {@link Map}) so the field type is {@link Serializable} under {@code
+   * -Xlint:serial}.
    */
-  private Map m_conditionalViews = new HashMap();
+  private HashMap m_conditionalViews = new HashMap();
 }

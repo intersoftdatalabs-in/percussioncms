@@ -2651,8 +2651,10 @@ public class PSField extends PSComponent {
    * Map of occurrence settings. The key is the transition id as an Integer, and the value is a
    * PSOccurrenceSetting object. Never <code>null</code> once this field is constructed. A default
    * occurrence settings (no transition id) may be in the map with a <code>null</code> key.
+   * Declared as {@link HashMap} (not {@link Map}) so the field type is {@link Serializable} under
+   * {@code -Xlint:serial}.
    */
-  private Map m_occurrenceSettings = new HashMap();
+  private HashMap m_occurrenceSettings = new HashMap();
 
   /**
    * Optional set of choices to use for this field. Modified only by a call to {@link
@@ -2662,9 +2664,10 @@ public class PSField extends PSComponent {
 
   /**
    * A map of field properties, initialized while constructed. Never <code>null</code>, may be empty
-   * after that.
+   * after that. Declared as {@link HashMap} (not {@link Map}) so the field type is {@link
+   * Serializable} under {@code -Xlint:serial}.
    */
-  private Map m_properties = new HashMap();
+  private HashMap m_properties = new HashMap();
 
   /**
    * Groups all search related attributes. Valid except during <code>fromXml

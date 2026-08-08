@@ -26,7 +26,6 @@ import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -1075,9 +1074,11 @@ public class PSContentEditor extends PSDataSet {
   /**
    * A set of PSCustomActionGroup objects. Never <code>null</code>, may be empty. A custom action
    * group allows the designer to add to or replace actions in various parts of the editors
-   * (example: the main form button could be replaced with the designer specific action).
+   * (example: the main form button could be replaced with the designer specific action). Declared
+   * as {@link ArrayList} (not {@link Collection}) so the field type is {@link
+   * java.io.Serializable} under {@code -Xlint:serial}.
    */
-  private Collection m_customActionGroups = new ArrayList();
+  private ArrayList m_customActionGroups = new ArrayList();
 
   /**
    * This content editor's viewset, contains the set of views used to filter which fields will be

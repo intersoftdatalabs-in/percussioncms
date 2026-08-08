@@ -1285,9 +1285,10 @@ public class PSFieldSet extends PSComponent {
 
   /**
    * An ordered map storing PSField and/or PSFieldSet objects, ordered and keyed by their name.
-   * Never <code>null</code>, might be empty.
+   * Never <code>null</code>, might be empty. Declared as {@link TreeMap} (not {@link Map}) so the
+   * field type is {@link java.io.Serializable} under {@code -Xlint:serial}.
    */
-  private Map<String, PSComponent> m_fields = new TreeMap<>();
+  private TreeMap<String, PSComponent> m_fields = new TreeMap<>();
 
   /** The fieldset source type. */
   private int m_sourceType = PSField.TYPE_LOCAL;

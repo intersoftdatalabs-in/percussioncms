@@ -424,19 +424,23 @@ public class PSControlMeta extends PSComponent {
 
   /**
    * Contains any parameters this control supports as <code>PSControlParameter</code> objects. May
-   * be empty.
+   * be empty. Declared as {@link ArrayList} (not {@link List}) so the field type is {@link
+   * java.io.Serializable} under {@code -Xlint:serial}.
    */
-  private List m_params = new ArrayList();
+  private ArrayList m_params = new ArrayList();
 
   /**
    * Contains any dependencies defined for this control, as <code>
-   * PSDependency</code> objects. May be empty.
+   * PSDependency</code> objects. May be empty. Declared as {@link ArrayList} (not {@link List}) so
+   * the field type is {@link java.io.Serializable} under {@code -Xlint:serial}.
    */
-  private List m_dependencies = new ArrayList();
+  private ArrayList m_dependencies = new ArrayList();
 
   /**
    * Contains any associated files defined for this control, as <code>
-   * PSFileDescriptor</code> objects. Never <code>null</code>, may be empty.
+   * PSFileDescriptor</code> objects. Never <code>null</code>, may be empty. Declared as {@link
+   * ArrayList} (not {@link List}) so the field type is {@link java.io.Serializable} under {@code
+   * -Xlint:serial}.
    */
-  private List m_files = new ArrayList();
+  private ArrayList m_files = new ArrayList();
 }
