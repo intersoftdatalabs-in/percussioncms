@@ -370,6 +370,40 @@ npm run test:surface:list -- --tag locale
 
 Does **not** expand Spanish/#961 residual matrix scope (tracked separately).
 
+#### Folder + recycle REST smoke (#2464 / parent #2423)
+
+Surface-filtered regression after the `folderHelper` → `recycleService` Spring
+cycle break. Proves pathmanagement is up (hard fail if Rhythmyx context is dead),
+then create folder under Assets → soft-delete (recycle) → restore by guid when
+available, else purge via empty Recycling. Optional Admin login check when
+context is healthy.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/folder-recycle-smoke.spec.js` |
+| Tags | `@folder-recycle` `@smoke` |
+| Unit (no CMS) | `npm run test:unit` (includes `folder-recycle-smoke.test.js`) |
+| Helper | `frontend/tests/helpers/folder-recycle-smoke.js` |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/folder-recycle-smoke.spec.js
+
+# Tag form
+npm run test:surface -- --tag folder-recycle
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/folder-recycle-smoke.spec.js
+npm run test:surface:list -- --tag folder-recycle
+```
+
+**Hard fail contract:** if pathmanagement returns connection error / 5xx (or body
+mentions `BeanCurrentlyInCreationException` / `folderHelper`), the smoke fails
+with an explicit message citing #2464 / #2423 — do not treat as soft skip.
+
 **`run-surface` refuses the full suite** unless you pass `--allow-full` (agents must
 not use that by default).
 
