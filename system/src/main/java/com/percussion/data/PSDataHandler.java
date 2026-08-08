@@ -168,7 +168,7 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
    * @throws PSErrorException any Exceptions (validation/authorization, etc.) wrapped as an
    *     ErrorException.
    */
-  public void runPreProcessingExtensions(PSExecutionData data, Iterator extensionRunners)
+  public void runPreProcessingExtensions(PSExecutionData data, Iterator<? extends PSExtensionRunner> extensionRunners)
       throws PSErrorException {
 
     /* Run the pre-processing extensions before validating */
@@ -177,7 +177,7 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
 
       try {
         while (extensionRunners.hasNext()) {
-          PSExtensionRunner proc = (PSExtensionRunner) extensionRunners.next();
+          PSExtensionRunner proc = extensionRunners.next();
 
           if (restoreParamsOnError == false
               && proc.getExtensionDef().isRestoreRequestParamsOnError() == true) {
@@ -270,7 +270,7 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
    * @throws PSExtensionProcessingException if any other errors occur.
    */
   public Document runPostProcessingExtensions(
-      PSExecutionData data, Document doc, Iterator extensionRunners)
+      PSExecutionData data, Document doc, Iterator<? extends PSExtensionRunner> extensionRunners)
       throws PSExtensionProcessingException,
           PSDataExtractionException,
           PSParameterMismatchException {
@@ -283,7 +283,7 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
     Document retDoc = doc;
 
     while (extensionRunners.hasNext()) {
-      PSExtensionRunner proc = (PSExtensionRunner) extensionRunners.next();
+      PSExtensionRunner proc = extensionRunners.next();
       retDoc = proc.processResultDoc(data, retDoc);
     }
 
@@ -377,7 +377,7 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
    *     PSExtensionRef as a key.
    */
   public static void loadExtensions(
-      PSApplicationHandler appHandler, PSCollection extCalls, String interfaceName, List instances)
+      PSApplicationHandler appHandler, PSCollection extCalls, String interfaceName, List<? super PSExtensionRunner> instances)
       throws PSNotFoundException, PSExtensionException {
     final int size = (extCalls == null) ? 0 : extCalls.size();
     for (int i = 0; i < size; i++) {
@@ -457,7 +457,7 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
       params.append("=");
       if (value instanceof ArrayList) {
         boolean first = true;
-        for (Object oneValue : (ArrayList) value) {
+        for (Object oneValue : (ArrayList<?>) value) {
           if (!first) {
             params.append(',');
           }
@@ -482,13 +482,13 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
    * List of prepared extensions to be run against the input data. May be empty, never <code>null
    * </code>.
    */
-  protected List m_preparedPreProcExts = new ArrayList(3);
+  protected List<PSExtensionRunner> m_preparedPreProcExts = new ArrayList<>(3);
 
   /**
    * List of prepared extensions to be run against the result doc. May be empty, never <code>null
    * </code>.
    */
-  protected List m_preparedPostProcExts = new ArrayList(3);
+  protected List<PSExtensionRunner> m_preparedPostProcExts = new ArrayList<>(3);
 
   protected PSApplicationHandler m_appHandler;
   protected String m_dataSetName;

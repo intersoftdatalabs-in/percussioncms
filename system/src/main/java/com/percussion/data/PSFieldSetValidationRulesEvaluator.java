@@ -65,13 +65,13 @@ public class PSFieldSetValidationRulesEvaluator {
     if (pageId == null || page == null || errorCollector == null)
       throw new IllegalArgumentException("parameters cannot be null");
 
-    List submitNames = new ArrayList();
+    List<String> submitNames = new ArrayList<>();
     submitNames.add(m_fieldSet.getName());
-    List displayNames = new ArrayList();
+    List<String> displayNames = new ArrayList<>();
     String label = "unlabeled";
     if (m_uiSet.getLabel() != null) label = m_uiSet.getLabel().getText();
     displayNames.add(label);
-    List args = new ArrayList();
+    List<Object> args = new ArrayList<>();
     args.add(m_fieldSet.getName());
     String pattern = "";
     switch (m_fieldSet.getRepeatability()) {

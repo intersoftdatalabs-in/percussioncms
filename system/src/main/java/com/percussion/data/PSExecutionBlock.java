@@ -45,7 +45,7 @@ public class PSExecutionBlock implements IPSExecutionStep {
     } else {
       m_ConditionsChecker = null;
     }
-    m_Executables = new ArrayList();
+    m_Executables = new ArrayList<>();
   }
 
   /**
@@ -81,10 +81,10 @@ public class PSExecutionBlock implements IPSExecutionStep {
     // met the condition, execute the objects one by one
     int size = m_Executables.size();
     for (int i = 0; i < size; i++) {
-      ((IPSExecutionStep) m_Executables.get(i)).execute(data);
+      m_Executables.get(i).execute(data);
     }
   }
 
   private PSConditionalEvaluator m_ConditionsChecker;
-  private ArrayList m_Executables;
+  private ArrayList<IPSExecutionStep> m_Executables;
 }

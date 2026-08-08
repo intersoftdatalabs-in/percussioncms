@@ -55,12 +55,12 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
    */
   PSSqlQueryBuilder() {
     super();
-    m_Tables = new ArrayList();
-    m_Joins = new ArrayList();
-    m_Columns = new ArrayList();
-    m_JoinOnlyColumns = new ArrayList();
-    m_Wheres = new ArrayList();
-    m_Sorts = new ArrayList();
+    m_Tables = new ArrayList<>();
+    m_Joins = new ArrayList<>();
+    m_Columns = new ArrayList<>();
+    m_JoinOnlyColumns = new ArrayList<>();
+    m_Wheres = new ArrayList<>();
+    m_Sorts = new ArrayList<>();
     m_isUnique = false;
   }
 
@@ -72,7 +72,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
   /** Add a table to this SELECT against the specified table. */
   void addTable(PSBackEndTable table) {
     if (m_Tables.size() > 0) {
-      PSBackEndTable refTab = (PSBackEndTable) m_Tables.get(0);
+      PSBackEndTable refTab = m_Tables.get(0);
       String refDs = refTab.getDataSource();
       if (refDs == null) refDs = "";
 
@@ -183,7 +183,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
    * @return PSQueryStatement A statement that will execute the query, will never return <code>null
    *     </code>
    */
-  PSQueryStatement generate(List logins, ConcurrentHashMap connKeys) {
+  PSQueryStatement generate(List<PSBackEndLogin> logins, ConcurrentHashMap<?, Integer> connKeys) {
     int tableCount = m_Tables.size();
     if (tableCount == 0) {
       throw new IllegalArgumentException("sql builder no back-end tables");
@@ -207,15 +207,15 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
     context.addText(" FROM ");
 
     // get the driver/server which is used to get our connection key
-    PSBackEndTable table = (PSBackEndTable) m_Tables.get(0);
+    PSBackEndTable table = m_Tables.get(0);
     Object connectionKey = table.getServerKey();
-    Integer iConnKey = (Integer) connKeys.get(connectionKey);
+    Integer iConnKey = connKeys.get(connectionKey);
     if (iConnKey == null) {
       throw new IllegalArgumentException("sql builder no conn defined for " + connectionKey);
     }
 
-    PSBackEndLogin login = (PSBackEndLogin) logins.get(iConnKey.intValue());
-    HashMap dtHash = new HashMap();
+    PSBackEndLogin login = logins.get(iConnKey.intValue());
+    HashMap<String, Integer> dtHash = new HashMap<>();
     if (joinCount > 0) buildMultiTableFrom(login, context, dtHash);
     else buildSingleTableFrom(login, context, dtHash);
 
@@ -238,19 +238,19 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
     String[] cols = new String[totalSize];
     PSBackEndColumn col;
 
-    List colArray = m_JoinOnlyColumns;
+    List<PSBackEndColumn> colArray = m_JoinOnlyColumns;
     int size = colArray.size();
     int colNo = 0;
 
     for (int i = 0; i < size; i++) {
-      col = (PSBackEndColumn) colArray.get(i);
+      col = colArray.get(i);
       cols[colNo++] = col.getColumnsForSelect()[0];
     }
 
     colArray = m_Columns;
     size = colArray.size();
     for (int i = 0; i < size; i++) {
-      col = (PSBackEndColumn) colArray.get(i);
+      col = colArray.get(i);
       cols[colNo++] = col.getColumnsForSelect()[0];
     }
 
@@ -258,12 +258,12 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
   }
 
   /** Get the columns to be used in the SELECT column list as an array. */
-  String[] columnArrayToStringArray(List colArray) {
+  String[] columnArrayToStringArray(List<? extends PSBackEndColumn> colArray) {
     int size = colArray.size();
     String[] cols = new String[size];
     PSBackEndColumn col;
     for (int i = 0; i < size; i++) {
-      col = (PSBackEndColumn) colArray.get(i);
+      col = colArray.get(i);
       cols[i] = col.getColumnsForSelect()[0];
     }
 
@@ -281,20 +281,22 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
      */
     int size;
     if ((m_Wheres != null) && ((size = m_Wheres.size()) != 0)) {
-      java.util.List colArray = new java.util.ArrayList();
+      java.util.List<PSBackEndColumn> colArray = new java.util.ArrayList<>();
 
       IPSReplacementValue replValue;
       for (int i = 0; i < size; i++) {
-        PSWhereClause curClause = (PSWhereClause) m_Wheres.get(i);
+        PSWhereClause curClause = m_Wheres.get(i);
 
         replValue = curClause.getVariable();
         if (replValue instanceof com.percussion.design.objectstore.PSBackEndColumn) {
-          if (!colArray.contains(replValue)) colArray.add(replValue);
+          PSBackEndColumn beCol = (PSBackEndColumn) replValue;
+          if (!colArray.contains(beCol)) colArray.add(beCol);
         }
 
         replValue = curClause.getValue();
         if (replValue instanceof com.percussion.design.objectstore.PSBackEndColumn) {
-          if (!colArray.contains(replValue)) colArray.add(replValue);
+          PSBackEndColumn beCol = (PSBackEndColumn) replValue;
+          if (!colArray.contains(beCol)) colArray.add(beCol);
         }
       }
 
@@ -310,9 +312,9 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
   }
 
   private void buildSingleTableFrom(
-      PSBackEndLogin login, PSSqlBuilderContext context, HashMap dtHash) {
+      PSBackEndLogin login, PSSqlBuilderContext context, HashMap<String, Integer> dtHash) {
     // single table must be in element 0
-    addTableName(login, (PSBackEndTable) m_Tables.get(0), context, dtHash);
+    addTableName(login, m_Tables.get(0), context, dtHash);
 
     // make sure there's at least once space char after the FROM info
     context.addText(" ");
@@ -326,7 +328,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
   public boolean hasOuterJoins() {
     int joinCount = m_Joins.size();
     for (int j = 0; j < joinCount; j++) {
-      PSBackEndJoin curJoin = (PSBackEndJoin) m_Joins.get(j);
+      PSBackEndJoin curJoin = m_Joins.get(j);
 
       if (curJoin.isLeftOuterJoin() || curJoin.isRightOuterJoin() || curJoin.isFullOuterJoin()) {
         return true;
@@ -344,7 +346,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
   public boolean hasInnerJoins() {
     int joinCount = m_Joins.size();
     for (int j = 0; j < joinCount; j++) {
-      PSBackEndJoin curJoin = (PSBackEndJoin) m_Joins.get(j);
+      PSBackEndJoin curJoin = m_Joins.get(j);
 
       if (curJoin.isInnerJoin()) {
         return true;
@@ -355,7 +357,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
   }
 
   private void buildMultiTableFrom(
-      PSBackEndLogin login, PSSqlBuilderContext context, HashMap dtHash) {
+      PSBackEndLogin login, PSSqlBuilderContext context, HashMap<String, Integer> dtHash) {
     /* when performing multi-table queries, we have a more complex task
      * to build the statement. We need to see if we have outer joins or
      * only inners. When only inners exist, the syntax is similar to
@@ -405,11 +407,11 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
     /* since we can't include the alias name twice in the FROM clause,
      * we need to deal with this by checking if we've already used it.
      */
-    List knownTables = new ArrayList();
+    List<PSBackEndTable> knownTables = new ArrayList<>();
 
     final int joinCount = m_Joins.size();
     for (int j = 0; j < joinCount; j++) {
-      PSBackEndJoin curJoin = (PSBackEndJoin) m_Joins.get(j);
+      PSBackEndJoin curJoin = m_Joins.get(j);
 
       PSBackEndColumn lCol = curJoin.getLeftColumn();
       PSBackEndColumn rCol = curJoin.getRightColumn();
@@ -494,8 +496,8 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
   private void addInnerJoinCondition(
       PSBackEndLogin login,
       PSSqlBuilderContext context,
-      HashMap dtHash,
-      java.util.List knownTables,
+      HashMap<String, Integer> dtHash,
+      java.util.List<PSBackEndTable> knownTables,
       PSBackEndJoin join) {
     boolean needComma = (knownTables.size() > 0);
 
@@ -570,7 +572,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
     // SELECT list expressions, or expressions whose operands are constants
     // or SELECT list expressions.
     boolean hasCols = ((m_JoinOnlyColumns.size() == 0) && (m_Columns.size() == 0)) ? false : true;
-    List sortedColumns = getSortedColumnsSelectList();
+    List<PSSortedColumn> sortedColumns = getSortedColumnsSelectList();
     addSelectColumnToText(context, sortedColumns, hasCols);
   }
 
@@ -580,16 +582,16 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
    *
    * @return list of <code>PSSortedColumn</code> objects, never <code>null</code>, may be empty
    */
-  private List getSortedColumnsSelectList() {
-    List sortedCols = new ArrayList();
-    Iterator it = m_Sorts.iterator();
+  private List<PSSortedColumn> getSortedColumnsSelectList() {
+    List<PSSortedColumn> sortedCols = new ArrayList<>();
+    Iterator<PSSortedColumn> it = m_Sorts.iterator();
     while (it.hasNext()) {
-      PSSortedColumn col = (PSSortedColumn) it.next();
+      PSSortedColumn col = it.next();
       // cannot use Collections.contains() method since PSSortedColumn
       // returns false if the object is not an instance of PSSortedColumn
       // and both the lists (m_Columns and m_JoinOnlyColumns) contains
       // PSBackEndColumn objects
-      Iterator selCols =
+      Iterator<?> selCols =
           PSIteratorUtils.joinedIterator(m_Columns.iterator(), m_JoinOnlyColumns.iterator());
       boolean found = false;
       while (selCols.hasNext() && !found) {
@@ -603,7 +605,8 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
     return sortedCols;
   }
 
-  private void addSelectColumnToText(PSSqlBuilderContext context, List colArray, boolean hasCols) {
+  private void addSelectColumnToText(
+      PSSqlBuilderContext context, List<? extends PSBackEndColumn> colArray, boolean hasCols) {
     boolean supportsColumnAliases = true;
     // todo: get this from the back-end driver
     // dmd.supportsColumnAliasing();
@@ -612,7 +615,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
     String[] colList;
     int size = colArray.size();
     for (int i = 0; i < size; i++) {
-      col = (PSBackEndColumn) colArray.get(i);
+      col = colArray.get(i);
       colList = col.getColumnsForSelect();
 
       // this really is impossible, as it must always return 1 column
@@ -707,7 +710,8 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
    *     <code>Integer</code>), assumed not <code>null</code>, may be empty
    * @param colStart not used
    */
-  protected void buildWhereClauses(PSSqlBuilderContext context, HashMap datatypes, int colStart) {
+  protected void buildWhereClauses(
+      PSSqlBuilderContext context, HashMap<String, Integer> datatypes, int colStart) {
     if (colStart > 0)
       ;
 
@@ -731,7 +735,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
     int bindColCount = 0;
     for (int i = 0; i < size; i++) {
       // now go through the where clauses
-      PSWhereClause curClause = (PSWhereClause) m_Wheres.get(i);
+      PSWhereClause curClause = m_Wheres.get(i);
       IPSReplacementValue curVar = curClause.getVariable();
       IPSReplacementValue replValue = curClause.getValue();
 
@@ -762,7 +766,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
       } else {
         if (curVar == null) throw new IllegalArgumentException("curVar may not be null");
         colName = curVar.getValueText();
-        Integer iJdbcType = (Integer) datatypes.get(colName.toLowerCase());
+        Integer iJdbcType = datatypes.get(colName.toLowerCase());
         if (iJdbcType != null) jdbcType = iJdbcType.intValue();
         context.addText(colName);
         context.addText(" ");
@@ -979,7 +983,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
 
       PSSortedColumn sort;
       for (int i = 0; i < size; ) {
-        sort = (PSSortedColumn) m_Sorts.get(i);
+        sort = m_Sorts.get(i);
         sTemp =
             getExpandedColumnName(sort.getTable(), true, sort.getColumn())
                 + (sort.isAscending() ? " ASC" : " DESC");
@@ -996,12 +1000,12 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
     context.closeTextRun();
   }
 
-  private List m_Tables;
-  private List m_Joins;
-  private List m_JoinOnlyColumns;
-  private List m_Columns;
-  private List m_Wheres;
-  private List m_Sorts;
+  private List<PSBackEndTable> m_Tables;
+  private List<PSBackEndJoin> m_Joins;
+  private List<PSBackEndColumn> m_JoinOnlyColumns;
+  private List<PSBackEndColumn> m_Columns;
+  private List<PSWhereClause> m_Wheres;
+  private List<PSSortedColumn> m_Sorts;
   private boolean m_isUnique;
   private PSJoinFormatter m_joinFormatter = null;
 }

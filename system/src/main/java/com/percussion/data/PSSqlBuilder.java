@@ -53,7 +53,7 @@ public abstract class PSSqlBuilder {
   public abstract PSBackEndColumn[] getLookupColumns();
 
   protected void addTableName(
-      PSBackEndLogin login, PSBackEndTable curTable, PSSqlBuilderContext context, HashMap dtHash) {
+      PSBackEndLogin login, PSBackEndTable curTable, PSSqlBuilderContext context, HashMap<String, Integer> dtHash) {
     /* use "TABLE ALIAS" syntax (if an alias exists) */
 
     String tableName = getTableName(login, curTable, false);
@@ -267,7 +267,7 @@ public abstract class PSSqlBuilder {
    *     java.sql.Types.xxx data type will be stored as the value
    * @param table the table to catalog
    */
-  protected void loadDataTypes(PSBackEndLogin login, HashMap dtHash, PSBackEndTable table) {
+  protected void loadDataTypes(PSBackEndLogin login, HashMap<String, Integer> dtHash, PSBackEndTable table) {
     try {
       PSTableMetaData tmd = PSMetaDataCache.getTableMetaData(login, table);
       dtHash.putAll(tmd.loadDataTypes(table.getAlias()));

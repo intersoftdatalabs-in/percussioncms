@@ -52,12 +52,12 @@ public class PSSqlUpdateInsertBuilder extends PSSqlUpdateBuilder {
    * @throws PSIllegalArgumentException if this exception is thrown by any of the superclass'
    *     methods
    */
-  PSUpdateStatement generate(List logins, ConcurrentHashMap connKeys)
+  PSUpdateStatement generate(List<PSBackEndLogin> logins, ConcurrentHashMap<?, Integer> connKeys)
       throws PSIllegalArgumentException {
-    HashMap dtHash = new HashMap();
+    HashMap<String, Integer> dtHash = new HashMap<>();
 
     int iConnKey = validateBuilderConnection(dtHash, connKeys, logins);
 
-    return generateUpdateInsert(dtHash, iConnKey, (PSBackEndLogin) logins.get(iConnKey));
+    return generateUpdateInsert(dtHash, iConnKey, logins.get(iConnKey));
   }
 }

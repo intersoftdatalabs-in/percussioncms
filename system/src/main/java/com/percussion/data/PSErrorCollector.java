@@ -113,8 +113,8 @@ public class PSErrorCollector {
     if (pageId == null || eval == null)
       throw new IllegalArgumentException("parameters cannot be null");
 
-    List errors = (List) m_fieldErrors.get(pageId);
-    if (errors == null) errors = new ArrayList();
+    List<PSFieldValidationRulesEvaluator> errors = m_fieldErrors.get(pageId);
+    if (errors == null) errors = new ArrayList<>();
     errors.add(eval);
 
     m_fieldErrors.put(pageId, errors);
@@ -134,19 +134,24 @@ public class PSErrorCollector {
    *     </code>.
    * @throws IllegalArgumentException if any parameter is <code>null</code>.
    */
-  public void add(Integer pageId, List submitNames, List displayNames, String message, List args) {
+  public void add(
+      Integer pageId,
+      List<String> submitNames,
+      List<String> displayNames,
+      String message,
+      List<?> args) {
     if (pageId == null || submitNames == null || displayNames == null || message == null)
       throw new IllegalArgumentException("parameters cannot be null");
 
     if (args != null) message = MessageFormat.format(message, args.toArray());
 
-    List error = new ArrayList();
+    List<Object> error = new ArrayList<>();
     error.add(submitNames);
     error.add(displayNames);
     error.add(message);
 
-    List errors = (List) m_itemErrors.get(pageId);
-    if (errors == null) errors = new ArrayList();
+    List<List<Object>> errors = m_itemErrors.get(pageId);
+    if (errors == null) errors = new ArrayList<>();
     errors.add(error);
 
     m_itemErrors.put(pageId, errors);
@@ -195,24 +200,24 @@ public class PSErrorCollector {
    *     appropriate page.
    * @throws IllegalArgumentException if the provided pageMap is <code>null</code>.
    */
-  public void createItemErrors(Map pageMap) {
+  public void createItemErrors(Map<Integer, Map<Integer, Document>> pageMap) {
     if (pageMap == null) throw new IllegalArgumentException("the page map cannot be null");
 
     for (int i = 0; i < m_itemErrorDocuments.size(); i++) {
-      Document doc = (Document) m_itemErrorDocuments.get(i);
+      Document doc = m_itemErrorDocuments.get(i);
       NodeList errors = doc.getElementsByTagName(VALIDATION_ERROR_ELEM);
       for (int j = 0; j < errors.getLength(); j++) {
         Element error = (Element) errors.item(j);
 
         NodeList fields = error.getElementsByTagName(ERROR_FIELD_ELEM);
-        List submitNames = getNames(fields, SUBMIT_NAME_ATTR);
-        List displayNames = getNames(fields, DISPLAY_NAME_ATTR);
+        List<String> submitNames = getNames(fields, SUBMIT_NAME_ATTR);
+        List<String> displayNames = getNames(fields, DISPLAY_NAME_ATTR);
 
         NodeList messages = error.getElementsByTagName(ERROR_MESSAGE_ELEM);
-        List args = new ArrayList();
+        List<Object> args = new ArrayList<>();
         String pattern = getPatternAndArgs(messages, args);
 
-        Integer pageId = getPageId((String) submitNames.get(0), pageMap);
+        Integer pageId = getPageId(submitNames.get(0), pageMap);
 
         add(pageId, submitNames, displayNames, pattern, args);
       }
@@ -234,10 +239,10 @@ public class PSErrorCollector {
       Element itemErrorElem = doc.createElement(ITEM_ERROR_ELEM);
       doc.appendChild(itemErrorElem);
 
-      Iterator errors = m_itemErrors.keySet().iterator();
+      Iterator<Integer> errors = m_itemErrors.keySet().iterator();
       while (errors.hasNext()) {
-        Integer pageId = (Integer) errors.next();
-        List pageErrors = (List) m_itemErrors.get(pageId);
+        Integer pageId = errors.next();
+        List<List<Object>> pageErrors = m_itemErrors.get(pageId);
 
         Element errorSet = doc.createElement(ERROR_SET_ELEM);
         itemErrorElem.appendChild(errorSet);
@@ -249,7 +254,7 @@ public class PSErrorCollector {
         errorSet.appendChild(errorMessage);
 
         String url = request.getRequestFileURL();
-        Map params = new HashMap();
+        Map<String, Object> params = new HashMap<>();
         params.put(PSContentEditorHandler.COMMAND_PARAM_NAME, PSPreviewCommandHandler.COMMAND_NAME);
         params.put(
             IPSHtmlParameters.SYS_CONTENTID,
@@ -263,14 +268,16 @@ public class PSErrorCollector {
         errorScreen.setAttribute(SCREEN_URL_ATTR, completeUrl.toExternalForm());
 
         for (int i = 0; i < pageErrors.size(); i++) {
-          List itemError = (List) pageErrors.get(i);
+          List<Object> itemError = pageErrors.get(i);
 
           Element errorFieldSet = doc.createElement(ERROR_FIELD_SET_ELEM);
           errorSet.appendChild(errorFieldSet);
 
           // create the error field set
-          List submitNames = (List) itemError.get(0);
-          List displayNames = (List) itemError.get(1);
+          @SuppressWarnings("unchecked")
+          List<String> submitNames = (List<String>) itemError.get(0);
+          @SuppressWarnings("unchecked")
+          List<String> displayNames = (List<String>) itemError.get(1);
           for (int j = 0; j < submitNames.size(); j++) {
             Element errorField = doc.createElement(ERROR_FIELD_ELEM);
             errorFieldSet.appendChild(errorField);
@@ -278,7 +285,7 @@ public class PSErrorCollector {
             errorField.setAttribute(DISPLAY_NAME_ATTR, displayNames.get(j).toString());
           }
 
-          Text messageText = doc.createTextNode((String) itemError.get(2) + "<br id=\"xsplit\">");
+          Text messageText = doc.createTextNode(itemError.get(2) + "<br id=\"xsplit\">");
           errorMessage.appendChild(messageText);
           errorMessage.setAttribute("no-escaping", "yes");
         }
@@ -298,14 +305,14 @@ public class PSErrorCollector {
    * @param pageMap a map of all pages contained in this item, assumed not <code>null</code>.
    * @return the first pageid found, never <code>null</code>.
    */
-  private Integer getPageId(String submitName, Map pageMap) {
-    Iterator pages = pageMap.keySet().iterator();
+  private Integer getPageId(String submitName, Map<Integer, Map<Integer, Document>> pageMap) {
+    Iterator<Integer> pages = pageMap.keySet().iterator();
     while (pages.hasNext()) {
-      Integer pageId = (Integer) pages.next();
-      Map childpageMap = (Map) pageMap.get(pageId);
-      Iterator iter = childpageMap.values().iterator();
+      Integer pageId = pages.next();
+      Map<Integer, Document> childpageMap = pageMap.get(pageId);
+      Iterator<Document> iter = childpageMap.values().iterator();
       while (iter.hasNext()) {
-        Document page = (Document) iter.next();
+        Document page = iter.next();
         NodeList controls = page.getElementsByTagName(PSDisplayFieldElementBuilder.CONTROL_NAME);
         for (int i = 0; i < controls.getLength(); i++) {
           Element control = (Element) controls.item(i);
@@ -328,8 +335,8 @@ public class PSErrorCollector {
    *     .
    * @return a list of attribute values found in the provided field list, never <code>null</code>.
    */
-  private List getNames(NodeList fields, String attrName) {
-    ArrayList attrs = new ArrayList();
+  private List<String> getNames(NodeList fields, String attrName) {
+    ArrayList<String> attrs = new ArrayList<>();
     for (int i = 0; i < fields.getLength(); i++) {
       Element field = (Element) fields.item(i);
       attrs.add(field.getAttribute(attrName));
@@ -345,7 +352,7 @@ public class PSErrorCollector {
    * @param args the list to be filled with all arguments, aeeumed not <code>null</code>.
    * @return the pattern string, never <code>null</code> .
    */
-  private String getPatternAndArgs(NodeList messages, List args) {
+  private String getPatternAndArgs(NodeList messages, List<Object> args) {
     Element message = (Element) messages.item(0);
 
     Element patternElem = (Element) message.getFirstChild();
@@ -414,7 +421,7 @@ public class PSErrorCollector {
     // create the element that contains all error messages
     Element displayError = createDisplayError(doc);
 
-    List errorFields = (List) m_fieldErrors.get(pageId);
+    List<PSFieldValidationRulesEvaluator> errorFields = m_fieldErrors.get(pageId);
     if (errorFields == null) return;
 
     Element details = doc.createElement(DETAILS_ELEM);
@@ -426,10 +433,10 @@ public class PSErrorCollector {
      * value= PSDisplayText). The map value is set to the regular label if
      * no error label is specified (either null or blank)
      */
-    Map labelMap = new HashMap();
-    Iterator evals = errorFields.iterator();
+    Map<String, PSDisplayText> labelMap = new HashMap<>();
+    Iterator<PSFieldValidationRulesEvaluator> evals = errorFields.iterator();
     while (evals.hasNext()) {
-      PSFieldValidationRulesEvaluator eval = (PSFieldValidationRulesEvaluator) evals.next();
+      PSFieldValidationRulesEvaluator eval = evals.next();
 
       PSField field = eval.getField();
       PSUISet uiSet = eval.getUISet();
@@ -471,7 +478,7 @@ public class PSErrorCollector {
         // set the DisplayField to error
         Element displayField = (Element) control.getParentNode();
 
-        PSDisplayText errorLabel = (PSDisplayText) labelMap.get(paramName);
+        PSDisplayText errorLabel = labelMap.get(paramName);
         if (errorLabel != null) {
           displayField.setAttribute(
               PSDisplayFieldElementBuilder.DISPLAYTYPE_NAME,
@@ -511,17 +518,19 @@ public class PSErrorCollector {
     Element details = doc.createElement(DETAILS_ELEM);
     displayError.appendChild(details);
 
-    Iterator pageIds = m_itemErrors.keySet().iterator();
+    Iterator<Integer> pageIds = m_itemErrors.keySet().iterator();
     while (pageIds.hasNext()) {
-      Integer pageId = (Integer) pageIds.next();
+      Integer pageId = pageIds.next();
 
       Element itemError = doc.createElement(ITEM_ERROR_ELEM);
-      itemError.setAttribute(PAGE_URL_ATTR, (String) m_errorPages.get(pageId));
+      itemError.setAttribute(PAGE_URL_ATTR, m_errorPages.get(pageId));
       details.appendChild(itemError);
 
-      List itemErrors = (List) m_itemErrors.get(pageId);
+      List<List<Object>> itemErrors = m_itemErrors.get(pageId);
       for (int i = 0; i < itemErrors.size(); i++) {
-        Text errorText = doc.createTextNode((String) itemErrors.get(i));
+        // Historical path cast each stored entry as String (nested list is used by getErrorDocument).
+        Object entry = itemErrors.get(i);
+        Text errorText = doc.createTextNode((String) entry);
         itemError.appendChild(errorText);
       }
     }
@@ -621,24 +630,24 @@ public class PSErrorCollector {
    * list. Element 0 is an array of String objects for the field submit names, element 1 is an array
    * of String objects for the field display names and element 2 is the error message.
    */
-  private Map m_itemErrors = new HashMap();
+  private Map<Integer, List<List<Object>>> m_itemErrors = new HashMap<>();
 
   /**
    * A list of item error documents collected during item validation. The documents conform to the
    * sys_ItemValidation.dtd. Never <code>null</code> after construction, might be empty.
    */
-  private List m_itemErrorDocuments = new ArrayList();
+  private List<Document> m_itemErrorDocuments = new ArrayList<>();
 
   /**
    * A map of lists of field errors. The map key is the pageid where the error occurred while the
    * value is a list of PSFieldValidationRulesEvaluator objects for all fields that had validation
    * errors on the appropriate page. Never <code>null</code>, might be empty.
    */
-  private Map m_fieldErrors = new HashMap();
+  private Map<Integer, List<PSFieldValidationRulesEvaluator>> m_fieldErrors = new HashMap<>();
 
   /**
    * A map of error page urls. The key is the pageid, while the value is a String containing the
    * complete url (including all paramaeters) to the error page.
    */
-  private Map m_errorPages = new HashMap();
+  private Map<Integer, String> m_errorPages = new HashMap<>();
 }

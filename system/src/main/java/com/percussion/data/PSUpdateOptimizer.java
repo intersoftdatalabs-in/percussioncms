@@ -121,8 +121,8 @@ public class PSUpdateOptimizer extends PSOptimizer {
     }
 
     // create the login plan for the back-ends
-    ArrayList logins = new ArrayList();
-    ConcurrentHashMap connKeys = new ConcurrentHashMap();
+    ArrayList<PSBackEndLogin> logins = new ArrayList<>();
+    ConcurrentHashMap<Object, Integer> connKeys = new ConcurrentHashMap<>();
     createLoginPlan(ah, beTables, logins, connKeys, null);
 
     // now create the builder map (keyed on back-end table)
