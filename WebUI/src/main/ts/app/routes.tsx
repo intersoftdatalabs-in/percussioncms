@@ -24,6 +24,7 @@ import { DeveloperRoute } from "./routes/DeveloperRoute";
 import { ExplorerRoute } from "./routes/ExplorerRoute";
 import { HomeRoute } from "./routes/HomeRoute";
 import { PublishRoute } from "./routes/PublishRoute";
+import { ProfileRoute } from "./routes/ProfileRoute";
 import { WidgetBuilderRoute } from "./routes/WidgetBuilderRoute";
 import { WorkflowRoute } from "./routes/WorkflowRoute";
 
@@ -49,6 +50,7 @@ export function AppRoutes(): React.ReactElement {
         <Route path="developer" element={<DeveloperRoute />} />
         <Route path="developer/:section" element={<DeveloperRoute />} />
         <Route path="explorer" element={<ExplorerRoute />} />
+        <Route path="profile" element={<ProfileRoute />} />
         <Route
           path="unavailable"
           element={

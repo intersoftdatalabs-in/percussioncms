@@ -203,6 +203,7 @@ describe("PR-9 path-based SPA URLs + fallback filter", () => {
     expect(text).toContain("spa.jsp?entry=");
     expect(text).toContain("widget-builder");
     expect(text).toContain("explorer");
+    expect(text).toContain("profile");
     expect(text).not.toMatch(/sendRedirect/);
   });
 });

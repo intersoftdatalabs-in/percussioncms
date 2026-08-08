@@ -29,6 +29,7 @@ const ALLOWED_ENTRIES = new Set([
   "admin",
   "widget-builder",
   "explorer",
+  "profile",
   "unavailable",
 ]);
 

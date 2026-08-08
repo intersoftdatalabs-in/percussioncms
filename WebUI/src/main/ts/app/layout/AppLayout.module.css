@@ -81,14 +81,23 @@
   color: var(--color-text, #181c2c);
 }
 
+.profileLink,
 .logoutLink {
   color: var(--color-primary, #4a6aa3);
   font-weight: 600;
   text-decoration: none;
 }
 
+.profileLink:hover,
 .logoutLink:hover {
   text-decoration: underline;
+}
+
+.profileLink:focus-visible,
+.logoutLink:focus-visible {
+  outline: 2px solid var(--color-primary, #4a6aa3);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .placeholder {

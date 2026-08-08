@@ -30,6 +30,7 @@ describe("login redirect helpers", () => {
 
   it("allowlists entries and rejects unknown", () => {
     expect(buildSpaEntryRedirect("publish")).toContain("entry=publish");
+    expect(buildSpaEntryRedirect("profile")).toContain("entry=profile");
     expect(buildSpaEntryRedirect("evil")).toBe("/cm/app/spa.jsp?entry=home");
   });
 

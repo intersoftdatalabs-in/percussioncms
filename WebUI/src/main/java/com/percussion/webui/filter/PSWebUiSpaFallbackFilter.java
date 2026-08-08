@@ -58,6 +58,7 @@ public class PSWebUiSpaFallbackFilter implements Filter {
           "widget-builder",
           "developer",
           "explorer",
+          "profile",
           "unavailable");
 
   private static final String APP_PREFIX = "/cm/app";

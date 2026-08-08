@@ -65,6 +65,16 @@ public class PSWebUiSpaFallbackFilterTest {
   }
 
   @Test
+  public void forwardsProfileEntry() {
+    assertEquals(
+        "/cm/app/spa.jsp?entry=profile",
+        PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/profile", null));
+    assertEquals(
+        "/cm/pages/app/spa.jsp?entry=profile",
+        PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/pages/app/profile", null));
+  }
+
+  @Test
   public void forwardsDeveloperWithSection() {
     assertEquals(
         "/cm/app/spa.jsp?entry=developer",

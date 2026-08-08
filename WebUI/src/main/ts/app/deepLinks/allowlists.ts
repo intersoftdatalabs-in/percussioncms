@@ -24,6 +24,7 @@ export const SPA_ENTRIES = [
   "widget-builder",
   "developer",
   "explorer",
+  "profile",
   "unavailable",
 ] as const;
 

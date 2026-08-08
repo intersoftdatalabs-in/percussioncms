@@ -16,9 +16,11 @@
  */
 
 import React from "react";
+import { Link } from "react-router";
 import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
 import { i18nKeyAttr } from "../../i18n/i18nDom";
 import { message, MSG } from "../../i18n/message";
+import { PROFILE_MSG } from "../../profile/messages";
 import styles from "./AppLayout.module.css";
 
 export function UserMenu(): React.ReactElement {
@@ -40,6 +42,14 @@ export function UserMenu(): React.ReactElement {
           {name}
         </span>
       </span>
+      <Link
+        className={styles.profileLink}
+        to="/profile"
+        data-testid="perc-spa-my-profile"
+        {...i18nKeyAttr(PROFILE_MSG.MENU_MY_PROFILE)}
+      >
+        {message(PROFILE_MSG.MENU_MY_PROFILE)}
+      </Link>
       <a
         className={styles.logoutLink}
         href="/logout"
