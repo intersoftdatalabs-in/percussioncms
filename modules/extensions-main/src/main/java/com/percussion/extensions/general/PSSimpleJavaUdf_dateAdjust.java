@@ -135,7 +135,7 @@ public class PSSimpleJavaUdf_dateAdjust extends PSSimpleJavaUdfExtension {
     for (int i = 1; i < size; i++) {
       if (params[i] != null && !params[i].toString().equals("")) {
         try {
-          paramArray[i - 1] = (Number) (PSCalculation.numberVerify(params[i]));
+          paramArray[i - 1] = PSCalculation.numberVerify(params[i]);
         } catch (IllegalArgumentException e) {
           int errCode = 0;
           Object[] args = {e.toString(), "PSSimpleJavaUdf_dateAdjust/processUdf"};

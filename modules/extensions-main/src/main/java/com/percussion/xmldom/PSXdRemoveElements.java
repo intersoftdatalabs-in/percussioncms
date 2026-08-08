@@ -71,7 +71,7 @@ public class PSXdRemoveElements extends PSDefaultExtension implements IPSResultD
       PSXmlTreeWalker nodeWalker = new PSXmlTreeWalker(resultDoc);
       Element docRoot = (Element) nodeWalker.getCurrent();
       Element elementNode =
-          nodeWalker.getNextElement(sourceNodeName, nodeWalker.GET_NEXT_ALLOW_CHILDREN);
+          nodeWalker.getNextElement(sourceNodeName, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
 
       if (null == elementNode) {
         request.printTraceMessage("Element not found:" + sourceNodeName);

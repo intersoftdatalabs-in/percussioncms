@@ -112,7 +112,7 @@ public class PSFileInfo extends PSDefaultExtension implements IPSRequestPreProce
             && (wifxFlag.equalsIgnoreCase("true") || (wifxFlag.equalsIgnoreCase("yes")));
     if (isWifxUpload) parseWifxMultiValueFields(request);
     while (iter.hasNext()) {
-      String paramName = (String) iter.next();
+      String paramName = iter.next();
       Object obj = request.getParameterObject(paramName);
 
       if (obj instanceof PSPurgableTempFile) {

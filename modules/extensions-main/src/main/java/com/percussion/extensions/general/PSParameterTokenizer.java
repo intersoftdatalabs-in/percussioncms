@@ -124,7 +124,7 @@ public class PSParameterTokenizer extends PSDefaultExtension implements IPSReque
 
         // iterate across the list of input parameters
         for (String o : inputList) {
-          String inputValue = (String) o;
+          String inputValue = o;
           StringTokenizer tok = new StringTokenizer(inputValue, SEPARATORS);
           // now iterate across the tokens of the string
           for (HTMLParameter currParam : outputParams) {

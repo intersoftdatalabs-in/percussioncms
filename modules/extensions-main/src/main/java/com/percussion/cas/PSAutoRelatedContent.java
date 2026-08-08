@@ -152,7 +152,7 @@ public class PSAutoRelatedContent extends PSDefaultExtension implements IPSResul
         request.printTraceMessage("Query result \n" + PSXmlDocumentBuilder.toString(results));
 
         Element resultLink =
-            resultWalker.getNextElement(RELATEDLINKURL, resultWalker.GET_NEXT_ALLOW_CHILDREN);
+            resultWalker.getNextElement(RELATEDLINKURL, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
         String authtype = request.getParameter(IPSHtmlParameters.SYS_AUTHTYPE, "0").trim();
 
         int resultCount = 0;
@@ -164,7 +164,7 @@ public class PSAutoRelatedContent extends PSDefaultExtension implements IPSResul
               request.printTraceMessage(
                   "Skipping non-publishable url \n" + PSXmlDocumentBuilder.toString(resultLink));
               resultLink =
-                  resultWalker.getNextElement(RELATEDLINKURL, resultWalker.GET_NEXT_ALLOW_SIBLINGS);
+                  resultWalker.getNextElement(RELATEDLINKURL, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
               continue;
             }
 
@@ -191,7 +191,7 @@ public class PSAutoRelatedContent extends PSDefaultExtension implements IPSResul
                             + PSXmlDocumentBuilder.toString(resultLink));
                     resultLink =
                         resultWalker.getNextElement(
-                            RELATEDLINKURL, resultWalker.GET_NEXT_ALLOW_SIBLINGS);
+                            RELATEDLINKURL, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
                     continue;
                   }
                   valElem.setAttribute("current", correctedUrl);
@@ -202,7 +202,7 @@ public class PSAutoRelatedContent extends PSDefaultExtension implements IPSResul
                           + PSXmlDocumentBuilder.toString(resultLink));
                   resultLink =
                       resultWalker.getNextElement(
-                          RELATEDLINKURL, resultWalker.GET_NEXT_ALLOW_SIBLINGS);
+                          RELATEDLINKURL, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
                   continue;
                 }
               }
@@ -215,7 +215,7 @@ public class PSAutoRelatedContent extends PSDefaultExtension implements IPSResul
 
           resultCount++;
           resultLink =
-              resultWalker.getNextElement(RELATEDLINKURL, resultWalker.GET_NEXT_ALLOW_SIBLINGS);
+              resultWalker.getNextElement(RELATEDLINKURL, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
         }
       }
     } catch (PSExtensionProcessingException e) {

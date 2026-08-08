@@ -129,17 +129,17 @@ public class PSXdDomToParams extends PSDefaultExtension implements IPSRequestPre
       }
     }
     // Find the first child of PSXParam
-    Element currNode = walker.getNextElement(walker.GET_NEXT_ALLOW_CHILDREN);
+    Element currNode = walker.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     for (int i = 0; currNode != null; i++) {
       String tagName = currNode.getTagName();
-      String tagData = walker.getElementData(currNode);
+      String tagData = PSXmlTreeWalker.getElementData(currNode);
       if (m_appendParam) {
         request.appendParameter(tagName, tagData);
       } else {
         request.setParameter(tagName, tagData);
       }
 
-      currNode = walker.getNextElement(walker.GET_NEXT_ALLOW_SIBLINGS);
+      currNode = walker.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
     }
   }
 

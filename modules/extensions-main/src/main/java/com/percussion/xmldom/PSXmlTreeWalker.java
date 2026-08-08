@@ -29,7 +29,12 @@ import org.w3c.dom.Node;
  *
  * @deprecated Use com.percussion.xml.PSXmlTreeWalker instead
  */
+@Deprecated
 public class PSXmlTreeWalker extends com.percussion.xml.PSXmlTreeWalker implements Serializable {
+
+  /** Serialization version for this compatibility shim. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Constructs a new tree walker for the supplied document.
    *

@@ -111,10 +111,8 @@ public class PSPublishEditionForPreview extends PSDefaultExtension
           try (InputStreamReader inputReader = new InputStreamReader(content)) {
             try (BufferedReader reader = new BufferedReader(inputReader)) {
               String tmpStatus = toString(reader);
-              reader.close();
 
               stat = tmpStatus;
-              content.close();
               // TODO: Ideally this code should check for the edition
               // being in an in process state and continue rather than
               // counting down.

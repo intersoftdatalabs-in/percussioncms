@@ -134,8 +134,6 @@ public class PSDatabasePublisher implements IPSResultDocumentProcessor {
       log.error(t.getMessage());
       log.debug(t.getMessage(), t);
       throw new PSExtensionProcessingException(0, t.getLocalizedMessage());
-    } finally {
-      return resultDoc;
     }
   }
 
@@ -383,9 +381,8 @@ public class PSDatabasePublisher implements IPSResultDocumentProcessor {
       result = resultDoc.getDocumentElement();
     } catch (PSInternalRequestCallException e) {
       throw new PSExtensionProcessingException(ms_fullExtensionName, e);
-    } finally {
-      return result;
     }
+    return result;
   }
 
   /**
