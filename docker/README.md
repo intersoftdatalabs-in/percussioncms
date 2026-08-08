@@ -222,14 +222,38 @@ python docker/scripts/perc-devctl.py down
 |                   Artifact                    |                                            Role                                            |
 |-----------------------------------------------|--------------------------------------------------------------------------------------------|
 | `docker/scripts/perc_host_ports.py`           | `find_free_port` / `is_port_free` / `resolve_host_port`                                    |
-| `docker/scripts/perc-devctl.py`               | `up` / `verify` / `qa-up` pin + print ports                                                |
+| `docker/scripts/perc-devctl.py`               | `up` / `verify` / `qa-up` / `qa-preflight` pin + print ports                               |
+| `docker/scripts/qa_preflight.py`              | Rebuild-chain freshness (m2 sitemanage vs WebUI WAR vs dist) (#2486)                       |
 | `docker/scripts/matrix-install-smoke.py`      | Matrix CMS/DTS freeport publish + probe                                                    |
 | `docker/scripts/freeport-concurrent-smoke.py` | Tier 0 allocation smoke (#2006)                                                            |
-| Unit tests                                    | `test_perc_devctl.py`, `test_matrix_install_smoke.py`, `test_freeport_concurrent_smoke.py` |
+| Unit tests                                    | `test_perc_devctl.py`, `test_qa_preflight.py`, `test_matrix_install_smoke.py`, `test_freeport_concurrent_smoke.py` |
 
-#### QA mode (`qa-up` / `qa-health` / `qa-down`)
+#### QA mode (`qa-up` / `qa-preflight` / `qa-health` / `qa-down`)
 
 Starts an ephemeral **CMS + H2** matrix cell (same stack as `matrix-install-smoke.py --product cms --db h2 --keep`), waits for the resolved probe URL (`http://127.0.0.1:<QA_CMS_HOST_PORT>/Rhythmyx/login`), prints `TEST_CMS_URL` / admin username (password from generated install file when available), and tears down with `docker rm -f perc-matrix-cms-h2` so ports and disk are freed (no multi-GB named volume by default). Full operator flow: [workbench-rest-and-qa-modes.md](../docs/developer-module/workbench-rest-and-qa-modes.md) → **QA mode** section. Concurrent freeport checklist: **Two-worktree concurrent freeport smoke** above.
+
+##### QA rebuild preflight (#2486)
+
+`perc-distribution-tree` unpacks `WebUI/target/perc-web-ui-*.war` into Rhythmyx `WEB-INF/lib` (including `sitemanage-*.jar`). Installing only `sitemanage` into m2 **without** repackaging WebUI + dist leaves a **stale** jar in the image path — Docker then proves the old wiring even when m2 has the fix.
+
+| Command | Role |
+|---------|------|
+| `python docker/scripts/perc-devctl.py qa-preflight` | Fail-loud (exit 2) when WebUI WAR or dist is older than m2 sitemanage, or missing |
+| `python docker/scripts/qa_preflight.py --repo-root .` | Same check without perc-devctl RESULT wrapper |
+| `qa-up` (default) | Runs preflight first; blocks on STALE |
+| `qa-up --skip-preflight` | Bypass (e.g. intentional use of prebuilt dist only) |
+| `qa-up --preflight-warn-only` | Print STALE but continue |
+
+Required rebuild order when `STALE:`:
+
+```bash
+cd projects/sitemanage && ../../mvnw clean install
+cd ../../WebUI && ../mvnw package -DskipTests
+cd ../modules/perc-distribution-tree && ../../mvnw clean package -DskipTests
+python docker/scripts/perc-devctl.py qa-up
+```
+
+Unit tests: `python docker/scripts/test_qa_preflight.py` (also covered from `test_perc_devctl.py` dry-run paths). Details: [workbench-rest-and-qa-modes.md](../docs/developer-module/workbench-rest-and-qa-modes.md) → **Rebuild preflight**.
 
 ##### Rhythmyx ApplicationContext fail-fast (#2462 / #2480 / #2423)
 

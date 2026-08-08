@@ -11,7 +11,10 @@ docker compose stack and exposes every subcommand the original
 
 QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
 
-* ``qa-up`` — one-shot CMS on H2 via matrix cell (``--keep``), health wait
+* ``qa-up`` — one-shot CMS on H2 via matrix cell (``--keep``), health wait;
+  runs rebuild-chain preflight first unless ``--skip-preflight`` (#2486)
+* ``qa-preflight`` — fail-loud check that WebUI WAR + dist are not older
+  than m2 sitemanage SNAPSHOT (sitemanage → WebUI → dist → qa-up)
 * ``qa-health`` — poll published CMS URL until ready (clear timeout);
   fail-fast when Jetty logs show Rhythmyx ApplicationContext failure
   (``Failed startup of context`` / ``BeanCurrentlyInCreationException``)
@@ -378,7 +381,44 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Pass --skip-image-build to matrix-install-smoke (reuse local image).",
     )
+    pqu.add_argument(
+        "--skip-preflight",
+        action="store_true",
+        help=(
+            "Skip sitemanage→WebUI→dist rebuild preflight before qa-up (#2486). "
+            "Default is fail-loud when WAR/dist is older than m2 sitemanage."
+        ),
+    )
+    pqu.add_argument(
+        "--preflight-warn-only",
+        action="store_true",
+        help=(
+            "Run rebuild preflight but do not block qa-up on STALE "
+            "(prints STALE: / RESULT:OK for preflight)."
+        ),
+    )
     pqu.add_argument("--dry-run", action="store_true")
+
+    # --- Rebuild-chain preflight — #2486 ---
+    pqp = sub.add_parser(
+        "qa-preflight",
+        help=(
+            "Detect stale WebUI WAR / dist vs m2 sitemanage before qa-up "
+            "(#2486). Default fail-loud (exit 2) when stale."
+        ),
+    )
+    pqp.add_argument(
+        "--no-strict",
+        action="store_true",
+        help="Print STALE: but exit 0 (warn-only).",
+    )
+    pqp.add_argument(
+        "--m2-root",
+        type=Path,
+        default=None,
+        help="Maven local repository root (default: ~/.m2/repository).",
+    )
+    pqp.add_argument("--dry-run", action="store_true")
 
     pqh = sub.add_parser(
         "qa-health",
@@ -1196,6 +1236,65 @@ def _qa_fetch_admin_password(container_name: str) -> Optional[str]:
     return None
 
 
+def _run_qa_preflight(
+    repo_root: Path,
+    *,
+    strict: bool,
+    dry_run: bool,
+    m2_root: Optional[Path] = None,
+) -> int:
+    """Run rebuild-chain preflight and emit RESULT:OK/FAIL STEP:qa-preflight.
+
+    Returns exit code from :mod:`qa_preflight` (0 fresh/skip/non-strict,
+    2 stale under strict). Dry-run skips filesystem checks.
+    """
+    # Local import keeps perc-devctl loadable when qa_preflight is absent
+    # in partial checkouts; scripts dir is already on sys.path.
+    import qa_preflight  # type: ignore
+
+    log_dir = _log_dir(repo_root)
+    log_file = _new_log_file(log_dir, "qa-preflight")
+    if dry_run:
+        print(f"RESULT:OK STEP:qa-preflight LOG:{log_file}")
+        print("PREFLIGHT: dry-run — skipping filesystem checks")
+        return EXIT_OK
+
+    argv: List[str] = [
+        "--repo-root",
+        str(repo_root),
+        "--log-file",
+        str(log_file),
+    ]
+    if strict:
+        argv.append("--strict")
+    else:
+        argv.append("--no-strict")
+    if m2_root is not None:
+        argv.extend(["--m2-root", str(m2_root)])
+
+    rc = int(qa_preflight.main(argv))
+    if rc == 0:
+        print(f"RESULT:OK STEP:qa-preflight LOG:{log_file}")
+    else:
+        print(f"RESULT:FAIL STEP:qa-preflight LOG:{log_file}")
+    return rc
+
+
+def cmd_qa_preflight(
+    args: argparse.Namespace, paths: tuple[Path, Path, Path]
+) -> int:
+    """Operator entry for rebuild-chain preflight (#2486)."""
+    repo_root, _env_file, _compose_file = paths
+    strict = not bool(getattr(args, "no_strict", False))
+    m2_root = getattr(args, "m2_root", None)
+    return _run_qa_preflight(
+        repo_root,
+        strict=strict,
+        dry_run=bool(args.dry_run),
+        m2_root=m2_root,
+    )
+
+
 def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     """Bring up CMS on H2 in Docker and wait until the probe URL is ready.
 
@@ -1206,6 +1305,10 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     Host port is resolved via :func:`ensure_qa_cms_host_port` (env override
     or freeport) and exported as ``QA_CMS_HOST_PORT`` / ``CMS_HOST_PORT`` so
     matrix-install-smoke docker ``-p`` and operators / Playwright agree (#2005).
+
+    By default runs rebuild-chain preflight first (#2486) so a stale WebUI
+    WAR / dist cannot silently ship an old sitemanage SNAPSHOT. Use
+    ``--skip-preflight`` or ``--preflight-warn-only`` to override.
     """
     repo_root, _env_file, _compose_file = paths
     log_dir = _log_dir(repo_root)
@@ -1213,6 +1316,18 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     probe_timeout = int(args.timeout_seconds)
     skip_image_build = bool(args.skip_image_build)
     host_port = ensure_qa_cms_host_port()
+
+    if not bool(getattr(args, "skip_preflight", False)):
+        strict = not bool(getattr(args, "preflight_warn_only", False))
+        pf_rc = _run_qa_preflight(repo_root, strict=strict, dry_run=dry_run)
+        if pf_rc != EXIT_OK:
+            print(
+                "QA_DETAIL:rebuild preflight failed — "
+                "sitemanage → WebUI package → dist package → qa-up "
+                f"(see PREFLIGHT: lines; --skip-preflight to bypass) "
+                f"QA_CMS_HOST_PORT={host_port}"
+            )
+            return pf_rc
 
     matrix_argv = _qa_matrix_up_argv(
         repo_root,
@@ -1417,6 +1532,7 @@ _DISPATCH = {
     "inspect-install": cmd_inspect_install,
     "show-generated-passwords": cmd_show_generated_passwords,
     "qa-up": cmd_qa_up,
+    "qa-preflight": cmd_qa_preflight,
     "qa-health": cmd_qa_health,
     "qa-down": cmd_qa_down,
 }

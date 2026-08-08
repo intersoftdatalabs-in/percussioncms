@@ -123,14 +123,32 @@ cd modules/perc-distribution-tree && ../../mvnw package -DskipTests
 # Windows: cd modules\perc-distribution-tree && ..\..\mvnw.cmd package -DskipTests
 ```
 
+**Rebuild preflight (#2486):** fail-loud if the WebUI WAR or dist jar is older than the m2 sitemanage SNAPSHOT (or missing) before qa-up. See also [docker/README.md](../../docker/README.md) → **QA rebuild preflight**.
+
+`ash
+# Standalone (default: exit 2 when STALE):
+python docker/scripts/perc-devctl.py qa-preflight
+# or: python docker/scripts/qa_preflight.py --repo-root .
+# Unit tests: python docker/scripts/test_qa_preflight.py
+
+# qa-up runs preflight first by default:
+python docker/scripts/perc-devctl.py qa-up
+# overrides: --skip-preflight | --preflight-warn-only
+`
+
+When preflight prints STALE:, re-run the full chain above (sitemanage → WebUI → dist) before retrying qa-up.
+
 **Post-cycle-fix smoke (#2423 / #2437):** after the rebuild chain, `qa-up` logs must show `ServletContextHandler] Started` for ROOT/Rhythmyx and **must not** contain `BeanCurrentlyInCreationException` / `Failed startup of context`. `qa-health` → login page HTTP 200/302 is the operator gate before Playwright.
 
 **Lifecycle (always use this order for unattended QA):**
 
 ```bash
+# 0) PREFLIGHT — optional explicit check (also runs inside qa-up by default)
+python docker/scripts/perc-devctl.py qa-preflight
+
 # 1) UP — silent install + start CMS on H2; waits until /Rhythmyx/login is ready
 python docker/scripts/perc-devctl.py qa-up
-# optional: --timeout-seconds 900  --skip-image-build
+# optional: --timeout-seconds 900  --skip-image-build  --skip-preflight
 # Host port: QA_CMS_HOST_PORT / CMS_HOST_PORT env, else preferred 9993 when free, else freeport.
 # qa-up prints QA_CMS_HOST_PORT=… and TEST_CMS_URL=http://127.0.0.1:<port>
 

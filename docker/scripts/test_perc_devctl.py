@@ -214,11 +214,88 @@ class TestSubcommandDryRun(unittest.TestCase):
         self.addCleanup(_clear_port_env)
         rc, out = self.runner.run(["qa-up", "--timeout-seconds", "60"])
         self.assertEqual(rc, pdc.EXIT_OK)
+        # Preflight runs first under dry-run (#2486).
+        self.assertIn("RESULT:OK STEP:qa-preflight", out)
         self.assertIn("RESULT:OK STEP:qa-up", out)
         self.assertIn("TEST_CMS_URL=", out)
         self.assertIn("QA_CMS_HOST_PORT=", out)
         self.assertRegex(out, r"TEST_CMS_URL=http://127\.0\.0\.1:\d+")
         self.assertIn(f"ADMIN_USERNAME={pdc.QA_ADMIN_USERNAME}", out)
+
+    def test_qa_up_skip_preflight_dry_run(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+        rc, out = self.runner.run(
+            ["qa-up", "--timeout-seconds", "60", "--skip-preflight"]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertNotIn("RESULT:OK STEP:qa-preflight", out)
+        self.assertIn("RESULT:OK STEP:qa-up", out)
+
+    def test_qa_preflight_dry_run(self):
+        rc, out = self.runner.run(["qa-preflight"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-preflight", out)
+        self.assertIn("PREFLIGHT: dry-run", out)
+
+    def test_qa_preflight_strict_stale_fails(self):
+        """Non-dry-run: m2 sitemanage newer than missing WAR/dist → FAIL (#2486)."""
+        # Lay out m2 under a temp root and point preflight at it via --m2-root.
+        m2 = Path(self.td.name) / "m2"
+        jar = (
+            m2
+            / "com"
+            / "percussion"
+            / "sitemanage"
+            / "8.2.0-SNAPSHOT"
+            / "sitemanage-8.2.0-SNAPSHOT.jar"
+        )
+        jar.parent.mkdir(parents=True)
+        jar.write_bytes(b"jar")
+        # Repo has no WebUI WAR / dist → STALE when m2 present.
+        rc, out = self.runner.run(
+            ["qa-preflight", "--m2-root", str(m2)],
+            dry_run=False,
+        )
+        self.assertEqual(rc, 2)
+        self.assertIn("RESULT:FAIL STEP:qa-preflight", out)
+        self.assertIn("STALE", out)
+
+    def test_qa_up_blocks_on_stale_preflight(self):
+        """qa-up must not start matrix when rebuild preflight is STALE (#2486)."""
+        m2 = Path(self.td.name) / "m2-up"
+        jar = (
+            m2
+            / "com"
+            / "percussion"
+            / "sitemanage"
+            / "8.2.0-SNAPSHOT"
+            / "sitemanage-8.2.0-SNAPSHOT.jar"
+        )
+        jar.parent.mkdir(parents=True)
+        jar.write_bytes(b"jar")
+
+        # Force preflight to use our m2 by patching qa_preflight default root.
+        import qa_preflight as qpf  # type: ignore
+
+        original = qpf._default_m2_root
+        qpf._default_m2_root = lambda: m2  # type: ignore
+        self.addCleanup(lambda: setattr(qpf, "_default_m2_root", original))
+
+        matrix = self.repo_root / "docker" / "scripts" / "matrix-install-smoke.py"
+        matrix.write_text("# stub\n", encoding="utf-8")
+
+        def boom(*_a, **_k):
+            raise AssertionError("matrix must not run when preflight is stale")
+
+        rc, out = self.runner.run(
+            ["qa-up", "--timeout-seconds", "30"],
+            dry_run=False,
+            fake_run=boom,
+        )
+        self.assertEqual(rc, 2)
+        self.assertIn("RESULT:FAIL STEP:qa-preflight", out)
+        self.assertIn("QA_DETAIL:rebuild preflight failed", out)
 
     def test_qa_health_dry_run(self):
         _clear_port_env()
