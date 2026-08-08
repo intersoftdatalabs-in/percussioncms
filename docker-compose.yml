@@ -20,14 +20,16 @@ services:
     volumes:
       - ${PROJECT_ROOT:-.}:/workspace:ro
       - /opt/Percussion:/opt/Percussion
+    # #2481: HTTP ready codes + in-container Jetty log scan for dead Rhythmyx
+    # ApplicationContext (same markers as docker/scripts/rhythmyx_ready.py).
+    # Operators: docker inspect -f "{{.State.Health.Status}}" percussion-cms-dts
+    #   healthy   = login/probe ready and no context-failure markers in logs
+    #   unhealthy = context failed and/or login not ready (do not run Playwright)
+    #   starting  = within start_period (first boot)
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          'cms=$$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:9992/Rhythmyx/login || true); ([ "$$cms" = "200" ] || [ "$$cms" = "302" ])',
-        ]
+      test: ["CMD", "python3", "/usr/local/bin/rhythmyx_healthcheck.py"]
       interval: 20s
-      timeout: 5s
+      timeout: 10s
       retries: ${PERC_HEALTHCHECK_RETRIES:-60}
       start_period: ${PERC_HEALTHCHECK_START_PERIOD:-30s}
 

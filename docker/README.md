@@ -243,8 +243,20 @@ Jetty can report the HTTP connector **Started** while the ROOT/Rhythmyx Spring `
 | `RESULT:FAIL … DETAIL:timeout after Ns (last_http=…)` | `qa-health` | Probe never became ready; if logs later show context fail, re-run `qa-health` or `docker logs perc-matrix-cms-h2` |
 | `RESULT:FAIL … DETAIL:timeout after Ns (cms_http=… dts_http=… health=…)` | `verify` | Stack never became ready; scan `docker logs percussion-cms-dts` for context markers |
 | Matrix `status=fail` + `detail` containing `rhythmyx_context_failed` | `matrix-install-smoke.py` CMS cells | Same fail-fast during cell HTTP wait (container log scan) |
+| Docker `Health.Status=healthy` | matrix cell / cms-dts image HEALTHCHECK (#2481) | In-container login probe ready **and** local Jetty logs have **no** context-failure markers |
+| Docker `Health.Status=unhealthy` | same | Context failed and/or login not ready — **do not** attach Playwright; inspect health log + `docker logs` |
+| Docker `Health.Status=starting` | same | Still inside HEALTHCHECK `start_period` (matrix cells: long install window) |
 
 Markers (shared helper `docker/scripts/rhythmyx_ready.py`): `Failed startup of context`, `BeanCurrentlyInCreationException`, `Requested bean is currently in creation`, `Is there an unresolvable circular reference`.
+
+##### Docker `Health.Status` (in-image HEALTHCHECK, #2481)
+
+Matrix cells (`percussion-matrix-cell:local`) and the cms-dts image bake `docker/scripts/rhythmyx_healthcheck.py`, which reuses `rhythmyx_ready` markers:
+
+| Container | Inspect | When **unhealthy** means |
+|-----------|---------|---------------------------|
+| `perc-matrix-cms-h2` (qa-up / matrix `--keep`) | `docker inspect -f "{{.State.Health.Status}}" perc-matrix-cms-h2` | Dead Rhythmyx context and/or `/Rhythmyx/login` not ready **inside** the cell |
+| `percussion-cms-dts` (compose) | `docker inspect -f "{{.State.Health.Status}}" percussion-cms-dts` | Same for bind-mounted host install |
 
 ```bash
 # After qa-up (or matrix --keep), re-check readiness with log scan:
@@ -254,15 +266,24 @@ python docker/scripts/perc-devctl.py qa-health
 docker logs perc-matrix-cms-h2 2>&1 | findstr /i "Failed startup BeanCurrently circular folderHelper"
 # Unix: docker logs perc-matrix-cms-h2 2>&1 | grep -E 'Failed startup|BeanCurrently|circular'
 
+# Docker HEALTHCHECK (orchestrators / docker ps HEALTH column) — #2481:
+docker inspect -f "{{.State.Health.Status}}" perc-matrix-cms-h2
+# healthy | unhealthy | starting
+docker inspect -f "{{json .State.Health}}" perc-matrix-cms-h2
+# Last health log lines include assessor detail (e.g. rhythmyx_context_failed …)
+
 # After compose up, verify also scans cms-dts logs (#2480):
 python docker/scripts/perc-devctl.py verify
 # FAIL example:
 # RESULT:FAIL STEP:verify DETAIL:rhythmyx_context_failed MATCH:Failed startup of context …
 docker logs percussion-cms-dts 2>&1 | findstr /i "Failed startup BeanCurrently circular folderHelper"
 # Unix: docker logs percussion-cms-dts 2>&1 | grep -E 'Failed startup|BeanCurrently|circular'
+docker inspect -f "{{.State.Health.Status}}" percussion-cms-dts
 ```
 
-Unit tests: `python -m pytest docker/scripts/test_rhythmyx_ready.py docker/scripts/test_perc_devctl.py docker/scripts/test_matrix_install_smoke.py -q`.
+**Rebuild note:** matrix image build context is `docker/` (not `docker/matrix/` alone) so HEALTHCHECK scripts are copied in. After pulling this change, rebuild with `matrix-install-smoke.py` (default) or `docker build -t percussion-matrix-cell:local -f docker/matrix/Dockerfile docker/`. Compose cms-dts: `docker compose build cms-dts`.
+
+Unit tests: `python -m pytest docker/scripts/test_rhythmyx_ready.py docker/scripts/test_rhythmyx_healthcheck.py docker/scripts/test_perc_devctl.py docker/scripts/test_matrix_install_smoke.py -q`.
 
 ### `docker/scripts/freeport-concurrent-smoke.py`
 

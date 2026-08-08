@@ -14,7 +14,8 @@ This module provides pure, stdlib-only helpers:
 * A small assessor that combines HTTP + log scan for fail-fast
 
 Callers: ``perc-devctl.py`` (``qa-health``, compose ``verify`` /
-``_verify_inline``), ``matrix-install-smoke.py`` (``wait_for_http``).
+``_verify_inline``), ``matrix-install-smoke.py`` (``wait_for_http``),
+and in-image ``rhythmyx_healthcheck.py`` (Docker HEALTHCHECK / #2481).
 No secrets; no network I/O here.
 """
 
