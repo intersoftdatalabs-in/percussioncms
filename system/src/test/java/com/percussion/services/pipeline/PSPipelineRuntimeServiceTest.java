@@ -32,6 +32,7 @@ import com.percussion.services.pipeline.model.PipelineResourceIr;
 import com.percussion.services.pipeline.model.PipelineStagesIr;
 import com.percussion.services.pipeline.model.SelectorStageIr;
 import com.percussion.services.pipeline.model.UpdaterStageIr;
+import com.percussion.services.pipeline.model.WhereClauseIr;
 import com.percussion.services.pipeline.sql.PSJdbcPipelineSqlAdapter;
 import com.percussion.services.pipeline.sql.PSPipelineSqlPlan;
 import com.percussion.services.pipeline.sql.PSPipelineSqlPlanner;
@@ -219,6 +220,170 @@ class PSPipelineRuntimeServiceTest {
     assertEquals(-1, sql.indexOf("\"TYPE\" = ?", idx + 1), sql);
     assertEquals(1, plan.getParameters().size());
     assertEquals("workflow", plan.getParameters().get(0));
+  }
+
+  @Test
+  @DisplayName("where-clause IR: PARAM filter executes against H2 (classic import shape)")
+  void executeQuery_whereClauseIrParam() throws Exception {
+    PipelineIrDocument doc = nativeQueryDoc("whereIrApp", "W1");
+    PipelineResourceIr res = doc.findResource("W1");
+    SelectorStageIr selector = res.getStages().getSelector();
+    WhereClauseIr clause = new WhereClauseIr();
+    clause.setLeftKind(WhereClauseIr.KIND_COLUMN);
+    clause.setLeft("PSX_ADMINLOOKUP.TYPE");
+    clause.setOperator("=");
+    clause.setRightKind(WhereClauseIr.KIND_PARAM);
+    clause.setRight("sys_key");
+    clause.setBooleanOp(WhereClauseIr.BOOL_AND);
+    clause.setOmitWhenNull(false);
+    selector.setWhereClauses(List.of(clause));
+    irService.save(doc);
+
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
+    PipelineExecuteResult result =
+        runtime.execute(
+            "whereIrApp", "W1", PipelineExecuteRequest.ofParams(Map.of("sys_key", "locale")));
+
+    assertEquals(1, result.getRowCount());
+    assertEquals("locale", result.getRows().get(0).get("Type"));
+  }
+
+  @Test
+  @DisplayName("where-clause IR: LIKE + LITERAL bind; omitWhenNull skips missing param")
+  void planQuery_whereClauseIrLikeAndOmit() throws Exception {
+    PipelineIrDocument doc = nativeQueryDoc("likeApp", "L1");
+    PipelineResourceIr res = doc.findResource("L1");
+    SelectorStageIr selector = res.getStages().getSelector();
+
+    WhereClauseIr typeLike = new WhereClauseIr();
+    typeLike.setLeftKind(WhereClauseIr.KIND_COLUMN);
+    typeLike.setLeft("TYPE");
+    typeLike.setOperator("LIKE");
+    typeLike.setRightKind(WhereClauseIr.KIND_LITERAL);
+    typeLike.setRight("work%");
+    typeLike.setBooleanOp(WhereClauseIr.BOOL_AND);
+
+    WhereClauseIr optionalName = new WhereClauseIr();
+    optionalName.setLeftKind(WhereClauseIr.KIND_COLUMN);
+    optionalName.setLeft("NAME");
+    optionalName.setOperator("=");
+    optionalName.setRightKind(WhereClauseIr.KIND_PARAM);
+    optionalName.setRight("nameFilter");
+    optionalName.setOmitWhenNull(true);
+    optionalName.setBooleanOp(WhereClauseIr.BOOL_AND);
+
+    selector.setWhereClauses(List.of(typeLike, optionalName));
+
+    PSPipelineSqlPlan plan =
+        PSPipelineSqlPlanner.planQuery(res, PipelineExecuteRequest.empty());
+    String sql = plan.getSql();
+    assertTrue(sql.contains("\"TYPE\" LIKE ?"), sql);
+    assertFalse(
+        sql.contains("\"NAME\" = ?"), "optional param must not appear in WHERE: " + sql);
+    assertEquals(List.of("work%"), plan.getParameters());
+
+    // With param present, both predicates appear
+    PSPipelineSqlPlan plan2 =
+        PSPipelineSqlPlanner.planQuery(
+            res, PipelineExecuteRequest.ofParams(Map.of("nameFilter", "wf1")));
+    assertTrue(plan2.getSql().contains("\"TYPE\" LIKE ?"), plan2.getSql());
+    assertTrue(plan2.getSql().contains("\"NAME\" = ?"), plan2.getSql());
+    assertTrue(plan2.getSql().contains(" AND "), plan2.getSql());
+    assertEquals(List.of("work%", "wf1"), plan2.getParameters());
+  }
+
+  @Test
+  @DisplayName("where-clause IR: OR connector and missing required PARAM rejected")
+  void planQuery_whereClauseIrOrAndMissingParam() {
+    PipelineIrDocument doc = nativeQueryDoc("orApp", "O1");
+    PipelineResourceIr res = doc.findResource("O1");
+    SelectorStageIr selector = res.getStages().getSelector();
+
+    WhereClauseIr a = new WhereClauseIr();
+    a.setLeftKind(WhereClauseIr.KIND_COLUMN);
+    a.setLeft("TYPE");
+    a.setOperator("=");
+    a.setRightKind(WhereClauseIr.KIND_LITERAL);
+    a.setRight("workflow");
+    a.setBooleanOp(WhereClauseIr.BOOL_OR);
+
+    WhereClauseIr b = new WhereClauseIr();
+    b.setLeftKind(WhereClauseIr.KIND_COLUMN);
+    b.setLeft("TYPE");
+    b.setOperator("=");
+    b.setRightKind(WhereClauseIr.KIND_PARAM);
+    b.setRight("altType");
+    b.setOmitWhenNull(false);
+
+    selector.setWhereClauses(List.of(a, b));
+
+    PSPipelineIrException missing =
+        assertThrows(
+            PSPipelineIrException.class,
+            () -> PSPipelineSqlPlanner.planQuery(res, PipelineExecuteRequest.empty()));
+    assertTrue(missing.getMessage().contains("altType"), missing.getMessage());
+  }
+
+  @Test
+  @DisplayName("product limit: joinCount > 0 rejected with documented message")
+  void planQuery_rejectsJoins_productLimit() {
+    PipelineIrDocument doc = nativeQueryDoc("joinApp", "J1");
+    PipelineResourceIr res = doc.findResource("J1");
+    res.getStages().getBackendTank().setJoinCount(1);
+
+    PSPipelineIrException ex =
+        assertThrows(
+            PSPipelineIrException.class,
+            () -> PSPipelineSqlPlanner.planQuery(res, PipelineExecuteRequest.empty()));
+    assertTrue(
+        ex.getMessage().contains(PSPipelineSqlPlanner.JOIN_PRODUCT_LIMIT_MESSAGE)
+            || ex.getMessage().contains("multi-table joins"),
+        ex.getMessage());
+    assertTrue(ex.getMessage().contains("J1"), ex.getMessage());
+  }
+
+  @Test
+  @DisplayName("product limit: multi-table tank without join also rejected")
+  void planQuery_rejectsMultiTableWithoutJoin() {
+    PipelineIrDocument doc = nativeQueryDoc("mtApp", "M1");
+    PipelineResourceIr res = doc.findResource("M1");
+    BackendTableRefIr t2 = new BackendTableRefIr();
+    t2.setTable("OTHER");
+    t2.setAlias("OTHER");
+    List<BackendTableRefIr> tables = new ArrayList<>(res.getStages().getBackendTank().getTables());
+    tables.add(t2);
+    res.getStages().getBackendTank().setTables(tables);
+    res.getStages().getBackendTank().setJoinCount(0);
+
+    PSPipelineIrException ex =
+        assertThrows(
+            PSPipelineIrException.class,
+            () -> PSPipelineSqlPlanner.planQuery(res, PipelineExecuteRequest.empty()));
+    assertTrue(ex.getMessage().contains("exactly one backend table"), ex.getMessage());
+  }
+
+  @Test
+  @DisplayName("where-clause IR executes LIKE against H2 end-to-end")
+  void executeQuery_whereClauseIrLikeH2() throws Exception {
+    PipelineIrDocument doc = nativeQueryDoc("likeH2", "LH");
+    PipelineResourceIr res = doc.findResource("LH");
+    WhereClauseIr clause = new WhereClauseIr();
+    clause.setLeftKind(WhereClauseIr.KIND_COLUMN);
+    clause.setLeft("NAME");
+    clause.setOperator("LIKE");
+    clause.setRightKind(WhereClauseIr.KIND_LITERAL);
+    clause.setRight("wf%");
+    res.getStages().getSelector().setWhereClauses(List.of(clause));
+    irService.save(doc);
+
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
+    PipelineExecuteResult result =
+        runtime.execute("likeH2", "LH", PipelineExecuteRequest.empty());
+
+    assertEquals(2, result.getRowCount());
+    assertTrue(
+        result.getRows().stream()
+            .allMatch(r -> String.valueOf(r.get("Name")).startsWith("wf")));
   }
 
   @Test
