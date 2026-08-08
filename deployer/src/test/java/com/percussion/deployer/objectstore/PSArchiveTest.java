@@ -224,8 +224,7 @@ public class PSArchiveTest {
           "Archive detail is: " + (info.getArchiveDetail() == null ? "NULL" : "PRESENT"));
 
       if (info.getArchiveDetail() != null) {
-        @SuppressWarnings("unchecked")
-        Iterator<PSDependency> pkgs = info.getArchiveDetail().getPackages();
+        Iterator<PSDeployableElement> pkgs = info.getArchiveDetail().getPackages();
         long pkgCount =
             java.util.stream.StreamSupport.stream(
                     java.util.Spliterators.spliteratorUnknownSize(pkgs, 0), false)
@@ -233,11 +232,10 @@ public class PSArchiveTest {
         System.out.println("Detail contains " + pkgCount + " packages");
 
         // Reset iterator since we consumed it
-        @SuppressWarnings("unchecked")
-        Iterator<PSDependency> pkgs2 = info.getArchiveDetail().getPackages();
+        Iterator<PSDeployableElement> pkgs2 = info.getArchiveDetail().getPackages();
         int pkgIndex = 0;
         while (pkgs2.hasNext()) {
-          PSDependency pkg = pkgs2.next();
+          PSDeployableElement pkg = pkgs2.next();
           Iterator<PSDependency> deps = pkg.getDependencies();
           long depCount =
               java.util.stream.StreamSupport.stream(

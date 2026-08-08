@@ -141,7 +141,7 @@ public class PSLogHandler {
     if (tData != null) {
       var rows = tData.getRows();
       while (rows.hasNext()) {
-        var row = (PSJdbcRowData) rows.next();
+        var row = rows.next();
         asList.add(getArchiveSummary(row));
       }
     }
@@ -175,7 +175,7 @@ public class PSLogHandler {
       PSJdbcRowData latestRow = null;
       var rows = tData.getRows();
       while (rows.hasNext()) {
-        var row = (PSJdbcRowData) rows.next();
+        var row = rows.next();
         var date = m_dbmsHandle.getColumnDate(ALS_TABLE_NAME, ALS_INSTALL_DATE, row);
         if ((latestDate == null) || (date.compareTo(latestDate) > 0)) {
           latestDate = date;
@@ -210,7 +210,7 @@ public class PSLogHandler {
     if (tData != null) {
       var rows = tData.getRows();
       if (rows.hasNext()) {
-        var row = (PSJdbcRowData) rows.next();
+        var row = rows.next();
         arSummary = getArchiveSummary(row);
       }
     }
@@ -266,7 +266,7 @@ public class PSLogHandler {
     if (tData != null) {
       var rows = tData.getRows();
       while (rows.hasNext()) {
-        var row = (PSJdbcRowData) rows.next();
+        var row = rows.next();
         var name = m_dbmsHandle.getColumnString(AP_TABLE_NAME, AP_PACKAGE_NAME, row);
         var type = m_dbmsHandle.getColumnString(AP_TABLE_NAME, AP_PACKAGE_TYPE, row);
         int status = m_dbmsHandle.getColumnInt(AP_TABLE_NAME, AP_STATUS, row);
@@ -299,7 +299,7 @@ public class PSLogHandler {
     if (tableData != null) {
       var rows = tableData.getRows();
       while (rows.hasNext()) {
-        var row = (PSJdbcRowData) rows.next();
+        var row = rows.next();
         logSmryList.add(getLogSummary(row, false));
       }
     }
@@ -331,7 +331,7 @@ public class PSLogHandler {
     if (tData != null) {
       var rows = tData.getRows();
       while (rows.hasNext()) {
-        var row = (PSJdbcRowData) rows.next();
+        var row = rows.next();
         var archiveId = m_dbmsHandle.getColumnString(ALS_TABLE_NAME, ALS_ARCHIVE_LOG_ID, row);
         if (sArchiveIds.length() == 0) sArchiveIds.append("(").append(archiveId);
         else sArchiveIds.append(",").append(archiveId);
@@ -384,7 +384,7 @@ public class PSLogHandler {
     if (tData != null) {
       var rows = tData.getRows();
       if (rows.hasNext()) {
-        var row = (PSJdbcRowData) rows.next();
+        var row = rows.next();
         logSummary = getLogSummary(row, includeDetail);
       }
     }
@@ -461,7 +461,7 @@ public class PSLogHandler {
 
       var rows = tData.getRows();
       while (rows.hasNext()) {
-        var row = (PSJdbcRowData) rows.next();
+        var row = rows.next();
         var depDesc = m_dbmsHandle.getColumnString(TXN_TABLE_NAME, TXN_DEPENDENCY, row);
         var name = m_dbmsHandle.getColumnString(TXN_TABLE_NAME, TXN_ELEMENT_NAME, row);
         var type = m_dbmsHandle.getColumnString(TXN_TABLE_NAME, TXN_ELEMENT_TYPE, row);
@@ -600,13 +600,13 @@ public class PSLogHandler {
     // get all summaries for this ref
     Iterator<PSArchiveSummary> summmaries = getArchiveSummaries(null, archiveRef);
     while (summmaries.hasNext()) {
-      PSArchiveSummary sum = (PSArchiveSummary) summmaries.next();
+      PSArchiveSummary sum = summmaries.next();
       int archiveId = sum.getId();
 
       // walk the packages and delete their logs
       Iterator<PSArchivePackage> pkgs = sum.getPackageList();
       while (pkgs.hasNext()) {
-        PSArchivePackage pkg = (PSArchivePackage) pkgs.next();
+        PSArchivePackage pkg = pkgs.next();
         if (pkg.isInstalled()) deleteLog(pkg.getLogId(), false);
       }
 
@@ -1067,12 +1067,12 @@ public class PSLogHandler {
    * @return The created table data object, never <code>null</code>.
    */
   private PSJdbcTableData getTableDataForAddPackages(
-      int archiveLogId, Iterator<PSDependency> pkgList) {
+      int archiveLogId, Iterator<? extends PSDependency> pkgList) {
     List<PSJdbcRowData> rowDataList = new ArrayList<>();
     PSJdbcRowData rowData;
 
     while (pkgList.hasNext()) {
-      PSDependency pkg = (PSDependency) pkgList.next();
+      PSDependency pkg = pkgList.next();
       rowData = getRowDataForAddPackage(archiveLogId, pkg);
       rowDataList.add(rowData);
     }

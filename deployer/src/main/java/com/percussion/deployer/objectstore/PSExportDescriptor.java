@@ -181,7 +181,7 @@ public class PSExportDescriptor extends PSDescriptor {
    * @return A set of strings representing the keys of dependencies that should not be added to the
    *     exported archive, or <code>null</code> if no such set is defined.
    */
-  public Set getDepKeysToExclude() {
+  public Set<String> getDepKeysToExclude() {
     return m_depKeysToExclude;
   }
 
@@ -204,7 +204,7 @@ public class PSExportDescriptor extends PSDescriptor {
    *
    * @return Iterator over zero or more package names as <code>String</code> objects.
    */
-  public Iterator getModifiedPackages() {
+  public Iterator<String> getModifiedPackages() {
     return m_modifiedPackageNames.iterator();
   }
 
@@ -229,7 +229,7 @@ public class PSExportDescriptor extends PSDescriptor {
    *
    * @return Iterator over zero or more package names as <code>String</code> objects.
    */
-  public Iterator getMissingPackages() {
+  public Iterator<String> getMissingPackages() {
     return m_missingPackageNames.iterator();
   }
 
@@ -241,7 +241,7 @@ public class PSExportDescriptor extends PSDescriptor {
    *     be <code>null</code>.
    * @throws IllegalArgumentException if <code>names</code> is <code>null</code>.
    */
-  public void setMissingPackages(Iterator names) {
+  public void setMissingPackages(Iterator<String> names) {
     if (names == null) throw new IllegalArgumentException("names may not be null");
 
     clearMissingPackages();

@@ -102,7 +102,7 @@ public class PSArchiveDetail implements IPSDeployComponent {
    * @return An Iterator over one or more <code>PSDeployableElement</code> objects. Never <code>null
    *     </code>.
    */
-  public Iterator getPackages() {
+  public Iterator<PSDeployableElement> getPackages() {
     return m_exportDescriptor.getPackages();
   }
 

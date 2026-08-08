@@ -70,7 +70,7 @@ public class PSArchiveSummaryTest {
         new PSArchivePackage("pkg2", "pkgType2", PSArchivePackage.STATUS_IN_PROGRESS, -1);
     PSArchivePackage pkg3 =
         new PSArchivePackage("pkg3", "pkgType2", PSArchivePackage.STATUS_IN_PROGRESS, -1);
-    List pkgList = new ArrayList();
+    List<PSArchivePackage> pkgList = new ArrayList<>();
     pkgList.add(pkg1);
     pkgList.add(pkg2);
     pkgList.add(pkg3);
@@ -92,5 +92,13 @@ public class PSArchiveSummaryTest {
     as.setArchiveManifest(archman);
 
     return as;
+  }
+
+  /** Verifies typed package list lookup after Iterator&lt;PSArchivePackage&gt; cleanup. */
+  @Test
+  public void testGetPackageType() {
+    PSArchiveSummary as = getArchiveSummaryNoManifest();
+    assertEquals("pkgType1", as.getPackageType("pkg1"));
+    assertEquals("pkgType2", as.getPackageType("pkg2"));
   }
 }

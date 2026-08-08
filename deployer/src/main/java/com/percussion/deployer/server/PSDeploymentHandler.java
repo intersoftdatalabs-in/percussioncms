@@ -253,9 +253,9 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
     respDoc.appendChild(newRoot);
 
     // get the elements
-    Iterator deps = m_depMgr.getDependencies(req.getSecurityToken(), type);
+    Iterator<PSDependency> deps = m_depMgr.getDependencies(req.getSecurityToken(), type);
     while (deps.hasNext()) {
-      Object o = deps.next();
+      PSDependency o = deps.next();
 
       if (o instanceof PSDeployableElement) {
         PSDeployableElement de = (PSDeployableElement) o;
@@ -299,9 +299,9 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
     respDoc.appendChild(newRoot);
 
     // get the elements
-    Iterator deps = m_depMgr.getDependencies(req.getSecurityToken(), type, parentId);
+    Iterator<PSDependency> deps = m_depMgr.getDependencies(req.getSecurityToken(), type, parentId);
     while (deps.hasNext()) {
-      PSDependency dep = (PSDependency) deps.next();
+      PSDependency dep = deps.next();
       newRoot.appendChild(dep.toXml(respDoc));
     }
 
@@ -482,7 +482,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
 
     // if no dependencies, get all dependencies that support id types and are
     // deployable.
-    Iterator deps;
+    Iterator<PSDependency> deps;
     if (depList.isEmpty())
       deps =
           m_depMgr.getDependencies(
@@ -491,13 +491,13 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
     else deps = depList.iterator();
 
     // get the types for all dependencies in our list
-    Iterator types = PSIdTypeManager.loadIdTypes(req.getSecurityToken(), deps);
+    Iterator<PSApplicationIDTypes> types = PSIdTypeManager.loadIdTypes(req.getSecurityToken(), deps);
 
     // create the response
     Document respDoc = PSXmlDocumentBuilder.createXmlDocument();
     Element root = PSXmlDocumentBuilder.createRoot(respDoc, "PSXDeployGetIdTypesResponse");
     while (types.hasNext()) {
-      PSApplicationIDTypes type = (PSApplicationIDTypes) types.next();
+      PSApplicationIDTypes type = types.next();
       root.appendChild(type.toXml(respDoc));
     }
 
@@ -1549,7 +1549,8 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
    * @throws PSDeployException if there are any errors.
    */
   private IPSDeployComponent getRequiredComponentFromRequest(
-      PSRequest req, Class compClass, String xmlNodeName) throws PSDeployException {
+      PSRequest req, Class<? extends IPSDeployComponent> compClass, String xmlNodeName)
+      throws PSDeployException {
     Document doc = req.getInputDocument();
     if (doc == null) throw new PSDeployException(IPSDeploymentErrors.NULL_INPUT_DOC);
 
@@ -1569,8 +1570,9 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
 
     IPSDeployComponent comp = null;
     try {
-      Constructor compCtor = compClass.getConstructor(new Class[] {Element.class});
-      comp = (IPSDeployComponent) compCtor.newInstance(new Object[] {compEl});
+      Constructor<? extends IPSDeployComponent> compCtor =
+          compClass.getConstructor(Element.class);
+      comp = compCtor.newInstance(compEl);
     } catch (Exception e) {
       if (e instanceof PSUnknownNodeTypeException) {
         Object[] args = {compEl.getTagName(), e.toString()};
@@ -1980,7 +1982,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
 
     // get the dependency
     PSDependency dep = getDependencyFromRequestDoc(doc);
-    List deps =
+    List<PSDependency> deps =
         PSDeployComponentUtils.cloneList(m_depMgr.getDependencies(req.getSecurityToken(), dep));
 
     // check max count to return
@@ -2346,7 +2348,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
     if (req == null) throw new IllegalArgumentException(NULL_REQUEST_ERROR);
 
     // get the file to save
-    Iterator params = req.getParametersIterator();
+    Iterator<?> params = req.getParametersIterator();
 
     String archiveRef = req.getParameter("archiveRef");
     if (archiveRef == null || archiveRef.trim().length() == 0) {
@@ -2356,7 +2358,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
 
     File inFile = null;
     while (params.hasNext() && inFile == null) {
-      Map.Entry entry = (Map.Entry) params.next();
+      Map.Entry<?, ?> entry = (Map.Entry<?, ?>) params.next();
       Object val = entry.getValue();
       if (val instanceof File) {
         inFile = (File) val;
@@ -2413,7 +2415,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
     if (req == null) throw new IllegalArgumentException(NULL_REQUEST_ERROR);
 
     // get the file to save
-    Iterator params = req.getParametersIterator();
+    Iterator<?> params = req.getParametersIterator();
 
     String configRef = req.getParameter("configRef");
     if (configRef == null || configRef.trim().length() == 0) {
@@ -2423,7 +2425,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
 
     File inFile = null;
     while (params.hasNext() && inFile == null) {
-      Map.Entry entry = (Map.Entry) params.next();
+      Map.Entry<?, ?> entry = (Map.Entry<?, ?>) params.next();
       Object val = entry.getValue();
       if (val instanceof File) {
         inFile = (File) val;
@@ -2564,13 +2566,13 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
 
     // build our response node
     Element respRoot = PSXmlDocumentBuilder.createRoot(respDoc, "PSXDeployGetParentTypesResponse");
-    Map types = m_depMgr.getParentTypes();
-    Iterator entries = types.entrySet().iterator();
+    Map<String, String> types = m_depMgr.getParentTypes();
+    Iterator<Map.Entry<String, String>> entries = types.entrySet().iterator();
     while (entries.hasNext()) {
-      Map.Entry entry = (Map.Entry) entries.next();
+      Map.Entry<String, String> entry = entries.next();
       Element entryEl = PSXmlDocumentBuilder.addEmptyElement(respDoc, respRoot, "entry");
-      entryEl.setAttribute("childType", (String) entry.getKey());
-      entryEl.setAttribute("parentType", (String) entry.getValue());
+      entryEl.setAttribute("childType", entry.getKey());
+      entryEl.setAttribute("parentType", entry.getValue());
     }
 
     return respDoc;
@@ -2683,7 +2685,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
   }
 
   // Methods generated from interface IPSLoadableRequestHandler
-  public void init(Collection requestRoots, InputStream cfgFileIn) throws PSServerException {
+  public void init(Collection<String> requestRoots, InputStream cfgFileIn) throws PSServerException {
     PSConsole.printMsg(activeSubsystem.name(), "Initializing Deployment Handler");
     m_requestRoots = requestRoots;
 
@@ -2720,7 +2722,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
    *     least one entry, and should not contain duplicates. Never <code>null</code> or empty. If
    *     <code>null</code> or empty the server will ignore this handler.
    */
-  public Iterator getRequestRoots() {
+  public Iterator<String> getRequestRoots() {
     if (m_requestRoots != null) {
       return m_requestRoots.iterator();
     } else {
@@ -3164,7 +3166,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
     pkgInfo.setPackageDescription(desc.getDescription());
     pkgInfo.setPackageVersion(desc.getVersion());
     pkgInfo.setLastActionByUser(installerName);
-    pkgInfo.setPackageDescriptorGuid(new PSGuid(new Long(desc.getId())));
+    pkgInfo.setPackageDescriptorGuid(new PSGuid(Long.valueOf(desc.getId())));
 
     // Save package info object
     pkgInfoService.savePkgInfo(pkgInfo);
@@ -3202,7 +3204,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
       PSPkgDependency dep = pkgInfoService.createPkgDependency();
       dep.setOwnerPackageGuid(pkgInfo.getGuid());
       dep.setDependentPackageGuid(pkgNameToGuid.get(pkgDep.get(PSDescriptor.XML_PKG_DEP_NAME)));
-      dep.setImpliedDep(new Boolean(pkgDep.get(PSDescriptor.XML_PKG_DEP_IMPLIED)));
+      dep.setImpliedDep(Boolean.valueOf(pkgDep.get(PSDescriptor.XML_PKG_DEP_IMPLIED)));
       pkgInfoService.savePkgDependency(dep);
     }
 
@@ -3390,7 +3392,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
    * Request roots this handler will support, initialized during the <code>init()</code> method,
    * never <code>null</code>, empty, or modified after that.
    */
-  private Collection m_requestRoots;
+  private Collection<String> m_requestRoots;
 
   /**
    * Singleton instance of the deployment handler. Not <code>null</code> after call to ctor by the

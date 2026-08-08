@@ -91,7 +91,7 @@ public class PSCatalogHandler {
     for (var i = 0; i < children.getLength(); i++) {
       var child = children.item(i);
       if (child instanceof Element element) {
-        props.setProperty(element.getTagName(), tree.getElementData(child));
+        props.setProperty(element.getTagName(), PSXmlTreeWalker.getElementData(child));
       }
     }
 
@@ -372,10 +372,10 @@ public class PSCatalogHandler {
       throws PSDeployException, PSNotFoundException {
     if (props == null
         || props.getProperty("type") == null
-        || ((String) props.getProperty("type")).trim().length() == 0)
+        || props.getProperty("type").trim().length() == 0)
       throw new PSDeployException(IPSDeploymentErrors.CATALOG_REQD_PROP_NOT_SPECIFIED, "type");
 
-    String type = (String) props.getProperty("type");
+    String type = props.getProperty("type");
     PSCatalogResultSet typeObjects = new PSCatalogResultSet();
     PSDependencyManager mgr = (PSDependencyManager) ms_depHandler.getDependencyManager();
     mgr.getDependencies(tok, type)
