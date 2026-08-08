@@ -88,15 +88,15 @@ public class FolderHelperCycleContextTest {
   @Test
   void cycleBeansHaveUniqueNoArgOrInterfaceCollaborators() {
     for (Class<?> bean : CYCLE_BEANS) {
-      Constructor<?> ctor = singlePublicCtor(bean);
+      Constructor<?> ctor = singleDeclaredCtor(bean);
       for (Parameter p : ctor.getParameters()) {
         Class<?> dep = p.getType();
-        // Every cycle-edge dependency must be an interface or a class
-        // not in the cycle itself. If a constructor takes a cycle-bean
-        // concrete type without @Lazy, Spring's constructor injection
-        // would deadlock at context refresh time.
+        // Every cycle-edge dependency must be an interface, a class not in the
+        // cycle, or a concrete cycle-bean marked @Lazy (Spring defers that
+        // edge). Without one of those, constructor injection deadlocks at
+        // context refresh time.
         assertTrue(
-            dep.isInterface() || !isInCycle(dep),
+            dep.isInterface() || !isInCycle(dep) || p.isAnnotationPresent(Lazy.class),
             bean.getSimpleName()
                 + " constructor parameter "
                 + dep.getSimpleName()
@@ -117,7 +117,7 @@ public class FolderHelperCycleContextTest {
     // would deadlock at context refresh — so this test asserts the
     // @Lazy marker is the actual mechanism that keeps the cycle
     // broken end-to-end.
-    Constructor<?> ctor = singlePublicCtor(PSContentItemDao.class);
+    Constructor<?> ctor = singleDeclaredCtor(PSContentItemDao.class);
     Parameter[] params = ctor.getParameters();
     Parameter folderHelperParam = null;
     for (Parameter p : params) {
@@ -135,11 +135,19 @@ public class FolderHelperCycleContextTest {
             + "folderHelper<->contentItemDao Spring cycle (#2423 / #2435).");
   }
 
-  private static Constructor<?> singlePublicCtor(Class<?> bean) {
+  /**
+   * Returns the single declared constructor (any visibility). Cycle beans are
+   * expected to have exactly one constructor so Spring constructor injection
+   * has an unambiguous wiring path.
+   */
+  private static Constructor<?> singleDeclaredCtor(Class<?> bean) {
     Constructor<?>[] ctors = bean.getDeclaredConstructors();
     assertTrue(
         ctors.length == 1,
-        bean.getSimpleName() + " should have exactly one constructor (got " + ctors.length + ")");
+        bean.getSimpleName()
+            + " should have exactly one declared constructor (got "
+            + ctors.length
+            + ")");
     return ctors[0];
   }
 

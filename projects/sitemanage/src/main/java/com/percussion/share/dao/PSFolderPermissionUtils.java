@@ -85,7 +85,7 @@ public class PSFolderPermissionUtils {
 
     var iter = acl.iterator();
     while (iter.hasNext()) {
-      var entry = (PSObjectAclEntry) iter.next();
+      var entry = iter.next();
       if (entry.isUser()) {
         var p = new Principal();
         p.setName(entry.getName());
@@ -404,7 +404,7 @@ public class PSFolderPermissionUtils {
     if (acl == null) return null;
     var iter = acl.iterator();
     while (iter.hasNext()) {
-      var entry = (PSObjectAclEntry) iter.next();
+      var entry = iter.next();
       if (entry.getType() == type && (name == null || entry.getName().equalsIgnoreCase(name))) {
         return entry;
       }
@@ -422,7 +422,7 @@ public class PSFolderPermissionUtils {
     var entries = new ArrayList<PSObjectAclEntry>();
     var iter = acl.iterator();
     while (iter.hasNext()) {
-      var entry = (PSObjectAclEntry) iter.next();
+      var entry = iter.next();
       if (!entry.isVirtual()) entries.add(entry);
     }
     entries.forEach(acl::remove);
