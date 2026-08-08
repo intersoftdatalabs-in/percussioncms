@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.percussion.security.SecureStringUtils;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -1584,7 +1585,9 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
     tableNamePattern = getFixedupIdentifier(tableNamePattern);
     columnNamePattern = getFixedupIdentifier(columnNamePattern);
 
-    return m_md.getColumns(catalog, schemaPattern, tableNamePattern, columnNamePattern);
+    // JDBC metadata API (not string SQL); identifiers/patterns allow-listed in getFixedup*
+    return m_md.getColumns(
+        catalog, schemaPattern, tableNamePattern, columnNamePattern); // codeql[java/sql-injection]
   }
 
   /**
@@ -1776,7 +1779,8 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
     schema = getFixedupSchema(schema);
     table = getFixedupIdentifier(table);
 
-    return m_md.getPrimaryKeys(catalog, schema, table);
+    // JDBC metadata API (not string SQL); identifiers allow-listed in getFixedup*
+    return m_md.getPrimaryKeys(catalog, schema, table); // codeql[java/sql-injection]
   }
 
   /**
@@ -2324,6 +2328,9 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
     if ((m_flags & FLAGS_SUPPORTS_CATALOG) == 0) catalog = null;
     else if ((catalog != null) && (catalog.length() == 0)) catalog = null;
 
+    // CWE-89 / java/sql-injection #1941/#1942: allow-list before DatabaseMetaData
+    catalog = SecureStringUtils.requireJdbcMetadataPatternOrNull(catalog);
+
     if (catalog != null) {
       if ((m_flags & FLAGS_STORES_UPPERCASE) != 0) catalog = catalog.toUpperCase();
       else if ((m_flags & FLAGS_STORES_LOWERCASE) != 0) catalog = catalog.toLowerCase();
@@ -2336,6 +2343,9 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
     if ((m_flags & FLAGS_SUPPORTS_SCHEMA) == 0) schema = null;
     else if ((schema != null) && (schema.length() == 0)) schema = null;
 
+    // CWE-89 / java/sql-injection #1941/#1942: allow-list before DatabaseMetaData
+    schema = SecureStringUtils.requireJdbcMetadataPatternOrNull(schema);
+
     if (schema != null) {
       if ((m_flags & FLAGS_STORES_UPPERCASE) != 0) schema = schema.toUpperCase();
       else if ((m_flags & FLAGS_STORES_LOWERCASE) != 0) schema = schema.toLowerCase();
@@ -2345,6 +2355,9 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
   }
 
   public String getFixedupIdentifier(String identifier) {
+    // CWE-89 / java/sql-injection #1941/#1942: allow-list before DatabaseMetaData
+    identifier = SecureStringUtils.requireJdbcMetadataPatternOrNull(identifier);
+
     if (identifier != null) {
       if ((m_flags & FLAGS_STORES_UPPERCASE) != 0) identifier = identifier.toUpperCase();
       else if ((m_flags & FLAGS_STORES_LOWERCASE) != 0) identifier = identifier.toLowerCase();

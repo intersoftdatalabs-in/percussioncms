@@ -329,3 +329,19 @@ query-filters:
   # --- High java/sql-injection residuals (SecureStringUtils barriers not
   # loaded as model pack — GHA rejects local packs; workflow relies on
   # runtime + sink-line // codeql + path query-filters). ---
+  - exclude:
+      id: java/sql-injection
+      paths:
+        - "system/src/main/java/com/percussion/data/PSDatabasePoolDatabaseMetaData.java"
+      reason: >-
+        Documented residuals for code-scanning alerts #1941 (getColumns) and
+        #1942 (getPrimaryKeys). Runtime: getFixedupCatalog/Schema/Identifier
+        call SecureStringUtils.requireJdbcMetadataPatternOrNull before any
+        DatabaseMetaData API (allow-list: unquoted identifier chars + JDBC
+        %/_ wildcards; rejects quotes, spaces, stacked-query markers).
+        DatabaseMetaData is a JDBC metadata API, not string-SQL execution.
+        Sink-line // codeql[java/sql-injection] on both sinks. Model pack
+        barrier for requireJdbcMetadataPatternOrNull (GHA may not load local
+        packs). Tests: SecureStringUtilsSqlInjectionTest,
+        PSDatabasePoolDatabaseMetaDataSqlInjectionTest. Same family as
+        PSJdbcTableMetaData #659/#660.

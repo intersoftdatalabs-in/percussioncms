@@ -1458,6 +1458,17 @@ public class SecureStringUtils {
   private static final Pattern SAFE_METADATA_TOKEN = Pattern.compile("^[A-Za-z0-9_.:-]+$");
 
   /**
+   * JDBC {@link java.sql.DatabaseMetaData} name/pattern token. Allows unquoted identifier
+   * characters plus the JDBC LIKE wildcards {@code %} and {@code _} (and {@code $} used by some
+   * vendors). Rejects quotes, spaces, semicolons, and comment markers so values cannot be turned
+   * into stacked SQL if a driver concatenates them.
+   *
+   * <p>CodeQL barrier target for {@code java/sql-injection} on DatabaseMetaData call sites (alerts
+   * #1941 / #1942).
+   */
+  private static final Pattern JDBC_METADATA_PATTERN = Pattern.compile("^[A-Za-z0-9_%$]+$");
+
+  /**
    * Validates a SQL object name (table, column, schema, catalog) before it is concatenated into
    * SQL. Returns the same string if valid.
    *
@@ -1506,6 +1517,27 @@ public class SecureStringUtils {
       throw new IllegalArgumentException("Invalid metadata token: " + token);
     }
     return token;
+  }
+
+  /**
+   * Validates a JDBC {@code DatabaseMetaData} catalog/schema/table/column name or pattern.
+   * {@code null} and empty strings are preserved (callers and fix-up helpers map empty catalog /
+   * schema to {@code null} as required by driver quirks).
+   *
+   * @param pattern candidate name or pattern, may be null or empty
+   * @return the same value when valid
+   * @throws IllegalArgumentException if non-empty and not a safe JDBC metadata pattern
+   */
+  public static String requireJdbcMetadataPatternOrNull(String pattern) {
+    if (pattern == null || pattern.isEmpty()) {
+      return pattern;
+    }
+    if (!JDBC_METADATA_PATTERN.matcher(pattern).matches()) {
+      throw new IllegalArgumentException(
+          "Invalid JDBC metadata name/pattern (expected unquoted identifier or %/_ wildcards): "
+              + pattern);
+    }
+    return pattern;
   }
 
   /**
