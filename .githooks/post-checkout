@@ -41,7 +41,7 @@ if [ "$CURRENT_WORKTREE_DIR" != "$PARENT_REPO_DIR" ]; then
         if [ -e "$src_path" ]; then
             # Ensure parent directories exist in the new worktree
             mkdir -p "$(dirname "$target_dest")"
-            
+
             # Use cp -R to safely handle both single files and folders (like .grok/rules)
             cp -R "$src_path" "$target_dest"
             echo "✅ Synchronized: $relative_path"
@@ -56,12 +56,12 @@ if [ "$CURRENT_WORKTREE_DIR" != "$PARENT_REPO_DIR" ]; then
     find . -type f -name "AGENTS.local.md" | while read -r relative_path; do
         clean_path="${relative_path#./}"
         target_dest="$CURRENT_WORKTREE_DIR/$clean_path"
-        
+
         mkdir -p "$(dirname "$target_dest")"
         cp "$clean_path" "$target_dest"
         echo "✅ Synchronized: $clean_path"
     done
-    
+
     # 3. spotless indexes
     cd "$CURRENT_WORKTREE_DIR" || exit
 
