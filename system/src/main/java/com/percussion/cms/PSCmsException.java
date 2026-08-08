@@ -21,6 +21,10 @@ import java.util.Objects;
 
 /** This class is used when an error occurs during CMS operations. */
 public class PSCmsException extends PSException {
+
+  /** Serialization id for {@link java.io.Serializable} ({@code -Xlint:serial}). */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Construct an exception for messages taking no arguments.
    *
