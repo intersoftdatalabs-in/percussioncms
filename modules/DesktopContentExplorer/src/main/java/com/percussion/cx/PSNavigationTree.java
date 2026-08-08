@@ -83,6 +83,7 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
    * @param ignoreRoot supply <code>true</code> to not to show the root node in the tree and do not
    *     consider the root in the path, otherwise supply <code>false</code>
    */
+  @SuppressWarnings("this-escape") // Swing selection model / listeners registered in ctor
   public PSNavigationTree(PSNode root, String view, PSActionManager manager, boolean ignoreRoot) {
     if (root == null) throw new IllegalArgumentException("root may not be null.");
 
@@ -250,16 +251,16 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
    *
    * @return a list of expanded items as <code>String</code> objects
    */
-  public List getExpandedList() {
+  public List<String> getExpandedList() {
     DefaultTreeModel model = getTreeModel();
     PSTreeNode root = (PSTreeNode) model.getRoot();
 
     TreePath tp = new TreePath(model.getPathToRoot(root));
-    Enumeration e = getExpandedDescendants(tp);
+    Enumeration<TreePath> e = getExpandedDescendants(tp);
 
-    List ret = new ArrayList();
+    List<String> ret = new ArrayList<>();
     while (e.hasMoreElements()) {
-      tp = (TreePath) e.nextElement();
+      tp = e.nextElement();
       ret.add(convertTreePathToString(tp, true));
     }
     return ret;
@@ -271,10 +272,10 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
    * @param expandSet the list of strings representing the paths to the nodes, if a node is not
    *     found it is skipped.
    */
-  public void setExpandedList(Set expandSet) {
-    Iterator iter = expandSet.iterator();
+  public void setExpandedList(Set<String> expandSet) {
+    Iterator<String> iter = expandSet.iterator();
     while (iter.hasNext()) {
-      String path = (String) iter.next();
+      String path = iter.next();
 
       PSTreeNode treeNode = getTreeNode(path, true);
       if (treeNode != null) {
@@ -487,10 +488,10 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
   private PSNode getMatchingNode(PSNode checkNode, PSNode matchNode) {
     // check child nodes for matches
     PSNode match = null;
-    Iterator children = checkNode.getChildren();
+    Iterator<PSNode> children = checkNode.getChildren();
     if (children != null) {
       while (children.hasNext() && match == null) {
-        PSNode test = (PSNode) children.next();
+        PSNode test = children.next();
         if (test.isMatchingType(matchNode.getType())
             && test.getContentId().equals(matchNode.getContentId())) {
           match = test;
@@ -511,7 +512,7 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
    * @param types A collection of types defining which types of nodes the child should be dirtied
    *     in/added to. May not be <code>null</code> or emtpy.
    */
-  public void dirtyChildNodes(PSNode node, Collection types) {
+  public void dirtyChildNodes(PSNode node, Collection<String> types) {
     if (node == null) throw new IllegalArgumentException("node may not be null");
     if (types == null || types.isEmpty())
       throw new IllegalArgumentException("types may not be null or empty");
@@ -530,7 +531,7 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
    * @param node The node to dirty or add, assumed not <code>null</code>.
    * @param types The collection of types, assumed not <code>null</code>.
    */
-  private void dirtyChildNode(PSNode parent, PSNode node, Collection types) {
+  private void dirtyChildNode(PSNode parent, PSNode node, Collection<String> types) {
     PSNode addNode = null;
     if (types.contains(parent.getType()) && parent.getChildren() != null) {
       PSNode match = getMatchingNode(parent, node);
@@ -563,9 +564,9 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
     }
 
     // now recurse children
-    Iterator children = parent.getChildren();
+    Iterator<PSNode> children = parent.getChildren();
     if (children != null) {
-      while (children.hasNext()) dirtyChildNode((PSNode) children.next(), node, types);
+      while (children.hasNext()) dirtyChildNode(children.next(), node, types);
     }
 
     // if no match, add clone as child marked as dirty.  Must do this after
@@ -947,9 +948,9 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
     // expand the node if the user node specifies to expand other wise not.
     PSNode node = (PSNode) treeNode.getUserObject();
     if (node.shouldExpand()) {
-      Iterator leafNodes = treeNode.getLeafChildren().iterator();
+      Iterator<DefaultMutableTreeNode> leafNodes = treeNode.getLeafChildren().iterator();
       while (leafNodes.hasNext()) {
-        DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) leafNodes.next();
+        DefaultMutableTreeNode childNode = leafNodes.next();
         makeVisible(new TreePath(childNode.getPath()));
       }
     }
@@ -967,8 +968,9 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
      * @param node the user object of the node, may not be <code>null</code>
      * @throws IllegalArgumentException if node is <code>null</code>
      */
+    @SuppressWarnings("this-escape") // associates this node with user object after super()
     public PSTreeNode(PSNode node) {
-      super(node, new Vector());
+      super(node, new Vector<>());
 
       if (node == null) throw new IllegalArgumentException("node may not be null.");
       node.setAssociatedTreeNode(this);
@@ -983,7 +985,7 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
       if (loadedChildren) return;
       PSNode node = (PSNode) getUserObject();
 
-      Iterator lchildren = node.getChildren();
+      Iterator<PSNode> lchildren = node.getChildren();
 
       if (lchildren == null) lchildren = m_actManager.loadChildren(node);
 
@@ -991,7 +993,7 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
       int i = 0;
       if (lchildren != null) {
         while (lchildren.hasNext()) {
-          PSNode child = (PSNode) lchildren.next();
+          PSNode child = lchildren.next();
           // Nodes that are container only should be added to the tree
           if (child.isContainer()) {
             PSTreeNode childNode = new PSTreeNode(child);
@@ -1010,10 +1012,10 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
      *
      * @return the list of leaf child nodes, never <code>null</code> or empty.
      */
-    public List getLeafChildren() {
+    public List<DefaultMutableTreeNode> getLeafChildren() {
       DefaultMutableTreeNode node = this;
 
-      List lchildren = new ArrayList();
+      List<DefaultMutableTreeNode> lchildren = new ArrayList<>();
       getLeafChildren(node, lchildren);
 
       return lchildren;
@@ -1027,12 +1029,13 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
      * @param uchildren the list of child leaf nodes that gets updated, assumed not to be <code>null
      *     </code>
      */
-    private void getLeafChildren(DefaultMutableTreeNode node, List uchildren) {
+    private void getLeafChildren(
+        DefaultMutableTreeNode node, List<DefaultMutableTreeNode> uchildren) {
       // A node is leaf if it does not have any children loaded.
       PSNode userObj = (PSNode) node.getUserObject();
       if (node.isLeaf() || !userObj.shouldExpand()) uchildren.add(node);
       else {
-        for (Enumeration e = node.children(); e.hasMoreElements(); ) {
+        for (Enumeration<?> e = node.children(); e.hasMoreElements(); ) {
           getLeafChildren((DefaultMutableTreeNode) e.nextElement(), uchildren);
         }
       }
@@ -1045,9 +1048,7 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
      *     <code>true</code>.
      */
     public void setLoadedChildren(boolean flag) {
-      if (flag)
-        ;
-      loadedChildren = false;
+      loadedChildren = flag;
     }
 
     /**
@@ -1114,7 +1115,8 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
     }
 
     /** Create the accessible context for this node */
-    private AccessibleContext m_accessibleContext =
+    @SuppressWarnings("this-escape") // accessibility context needs outer/this refs
+    private final transient AccessibleContext m_accessibleContext =
         new PSTreeNodeAccContext(PSNavigationTree.this, this);
 
     /**
@@ -1213,7 +1215,7 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
    */
   JPopupMenu displayPopupMenu(PSMenuAction action, TreePath path, Point loc) {
     DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-    Iterator selNodes = PSIteratorUtils.iterator(node.getUserObject());
+    Iterator<PSNode> selNodes = PSIteratorUtils.iterator((PSNode) node.getUserObject());
 
     PSNode parent = null;
     TreePath parentPath = path.getParentPath();
@@ -1283,12 +1285,12 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
    * @param nodes the nodes to refresh, may not be <code>null</code>
    * @throws IllegalArgumentException if nodes are <code>null</code>
    */
-  public void refreshNodes(Iterator nodes) {
+  public void refreshNodes(Iterator<? extends PSNode> nodes) {
     if (nodes == null) throw new IllegalArgumentException("nodes may not be null.");
 
     PSNode firstNode = null;
     while (nodes.hasNext()) {
-      PSNode refreshNode = (PSNode) nodes.next();
+      PSNode refreshNode = nodes.next();
       PSTreeNode treeNode = getTreeNode(refreshNode);
       if (treeNode != null) {
         refresh(refreshNode, treeNode);
@@ -1366,7 +1368,7 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
    * The action manager to use to load the children for a specific node, initialized in the ctor and
    * never <code>null</code> or modified after that.
    */
-  PSActionManager m_actManager;
+  transient PSActionManager m_actManager;
 
   /**
    * The current view of the tree, one of the <code>PSUiMode.TYPE_VIEW_xxx
@@ -1425,5 +1427,5 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
   private boolean m_isInDragUnder = false;
 
   /** A reference back to the applet that initiated this action manager. */
-  private PSContentExplorerApplet m_applet;
+  private transient PSContentExplorerApplet m_applet;
 }

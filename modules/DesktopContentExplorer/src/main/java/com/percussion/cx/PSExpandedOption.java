@@ -56,7 +56,7 @@ public class PSExpandedOption implements IPSClientObjects {
    *
    * @param paths a list of paths of the expanded items, may not be <code>null</code>
    */
-  public PSExpandedOption(List paths) {
+  public PSExpandedOption(List<String> paths) {
     setPaths(paths);
   }
 
@@ -95,7 +95,7 @@ public class PSExpandedOption implements IPSClientObjects {
     // create temp text node
     Text StringNode = null;
 
-    Iterator iter = m_paths.iterator();
+    Iterator<String> iter = m_paths.iterator();
     while (iter.hasNext()) {
       el = doc.createElement(ELEM_PATH);
       StringNode = doc.createTextNode((String) iter.next());
@@ -144,12 +144,12 @@ public class PSExpandedOption implements IPSClientObjects {
    * @param paths a list of strings respresenting the expanded items, must not be <code>null</code>,
    *     may be an empty list.
    */
-  public void setPaths(List paths) {
+  public void setPaths(List<String> paths) {
     if (paths == null) throw new IllegalArgumentException("paths must not be null");
 
-    Iterator iter = paths.iterator();
+    Iterator<String> iter = paths.iterator();
     while (iter.hasNext()) {
-      String path = (String) iter.next();
+      String path = iter.next();
       addPath(path);
     }
   }
@@ -159,7 +159,7 @@ public class PSExpandedOption implements IPSClientObjects {
    *
    * @return the set of expanded paths, never <code>null</code>.
    */
-  public Set getPaths() {
+  public Set<String> getPaths() {
     return m_paths;
   }
 
@@ -179,7 +179,7 @@ public class PSExpandedOption implements IPSClientObjects {
   /**
    * The list of paths representing the expanded items, set to an empty list here, may be changed.
    */
-  private Set m_paths = new TreeSet();
+  private final Set<String> m_paths = new TreeSet<>();
 
   /** Name of the Root element of the XML document representing an expanded item. */
   private static final String ELEM_EXPANDED = "PSXExpandedOption";
