@@ -13,8 +13,12 @@ Unattended overnight worker:
 3. **PR follow-up PRE** (optional, default on) - **merge-blocker drain** before new issue PRs (conflicts + open review threads only, **no CI polling**; oldest first)  
 4. **Work** sequential implement or split - **file residual follow-up issues** for leftover work  
 5. **PR follow-up POST** - catch PRs opened this run + remaining merge blockers  
-6. **PR cluster** (optional, default on) - absorb same-file thrash into one superseding PR  
-7. **Report** -> `scratch/night-report.md`
+6. **Residual quota** (default on) - require **≥ `min_residual_issues` (default 3)** new real residual/child GH issues whose **parent is already p1–p4** and residual **inherits parent pN** (no p8 padding / no invented priority); one backfill agent if short; **circuit breaker** stops the run if still short  
+7. **PR cluster** (optional, default on) - absorb same-file thrash into one superseding PR  
+8. **Security audit** (optional, default on) - if open CodeQL code-scanning alerts exist, ensure **one** open tracking issue `[night-issues: Security Audit - Fix Pass]` per `base_branch`, then open capped mitigation PRs  
+9. **Report** -> `scratch/night-report.md`
+
+**Human QA handoff (during Work, default on):** when a task is **ready for human QA**, create a **`qa task`** issue with a numbered **test plan**, assign **`vijaya-boddipudi`**, link Parent + PR. Not the same as residual quota.
 
 Opens **PRs only** (never merges). Oversized issues become child issues, not mega-PRs.
 
@@ -77,9 +81,57 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | `include_pr_followup` | bool | `true` | Run PR merge-blocker drain **before and after** issue Work |
 | `include_pr_cluster` | bool | `true` | After POST follow-up, absorb same-file thrash PRs into one cluster PR (**independent of** `include_pr_followup`) |
 | `cluster_min_prs` | int | `3` | Min owned open PRs sharing thrash files to open a cluster (2–8) |
+| `include_security_audit` | bool | `true` | After PR cluster: inventory open code-scanning alerts; singleton Security Audit issue + mitigation PRs |
+| `max_security_prs` | int | `3` | Max CodeQL mitigation PRs per Security Audit pass (capped 1–8) |
+| `min_residual_issues` | int | `3` | Min **new** residual/child issues under **p1–p4 parents** this pass (capped 1–12). Residual pN = parent pN. |
+| `require_residual_quota` | bool | `true` | Enforce residual quota; trip **circuit breaker** if unmet after one backfill attempt. Skipped on `dry_run`. |
+| `include_human_qa` | bool | `true` | When Work item is ready for human QA, create a QA issue with test plan and assign designated QA |
+| `qa_assignee` | string | `vijaya-boddipudi` | GitHub login for human QA handoff |
+| `qa_label` | string | `qa task` | Label applied to human QA issues |
 | `max_prs` | int | `6` | Max open PRs per follow-up pass (capped 1-12). Raise on heavy conflict/thread debt nights |
 | `worktree_path` | string | empty | Override dedicated overnight worktree; empty = portable default under home |
 | `sync_branch` | string | `night-issue-prs-main` | Local mirror of `origin/<base_branch>` in the worktree |
+
+### Human QA handoff
+
+When Work finishes a change that is **ready for human QA** (product UI, installer/UAT, acceptance needs human eyes, or agent cannot fully prove on live/QA CMS):
+
+1. Create a GitHub issue (avoid duplicates for same parent/PR).
+2. **Title:** `QA (#N): <what to verify>` (peer pattern also uses `QA (#N residual): …`).
+3. **Assign:** `qa_assignee` (default **`vijaya-boddipudi`**).
+4. **Label:** `qa task` (+ `8.2`, operator labels).
+5. **Body:** Parent, PR URL(s), **numbered test plan**, pass/fail criteria, out of scope, agent evidence.
+
+Human QA issues are **not** unassigned residuals and usually **do not** count toward residual quota.
+
+### Residual quota + circuit breaker
+
+Live runs must **grow backlog under existing high-priority parents**, not invent low-priority noise.
+
+| Rule | Behavior |
+|------|----------|
+| **Quota** | At least `min_residual_issues` (default **3**) **new** residual/child issues this pass |
+| **Parent filter** | Parent issue must **already** be labeled **p1, p2, p3, or p4**. Residuals of Unset/p5–p8 parents **do not count** |
+| **Priority on residual** | **Copy parent pN exactly** onto the residual. Do **not** invent a higher priority. Do **not** pad with p8 residuals |
+| **What counts** | `residual_issue_urls` + `child_issue_urls` from Work (+ PR follow-up residuals): open, real body, filed this pass, parent p1–p4, residual pN matches parent |
+| **Backfill** | If short, one residual-quota agent files more real slices **only under existing p1–p4 parents**, inheriting that pN. **No fake padding; no priority upgrades.** |
+| **Circuit breaker** | If still short: **stop** overnight post-processing (skip PR cluster + security audit), write Report, complete with `residual_circuit_breaker: true` |
+| **Disable** | `require_residual_quota: false` (not recommended for overnight) |
+
+### Security audit Fix Pass (post-processing)
+
+Runs **after** PR cluster (live runs only; skipped on `dry_run`).
+
+| Rule | Behavior |
+|------|----------|
+| **Trigger** | One or more **open** GitHub code-scanning alerts on the repo |
+| **Tracking issue title** | Exact: `[night-issues: Security Audit - Fix Pass]` |
+| **Singleton** | At most **one open** issue with that title for the same `base_branch` (body records `base_branch: …`). Duplicates closed with a pointer to the kept issue. |
+| **No alerts** | Do **not** create the tracking issue; phase status `skipped` |
+| **Mitigation** | Up to `max_security_prs` PRs to `base_branch`, severity-first, linked to the audit parent; playbook disposition ladder (no dismiss-only) |
+| **Disable** | `include_security_audit: false` |
+
+Playbook: `docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md`.
 
 ### Dedicated worktree (portable)
 
@@ -120,9 +172,19 @@ Rough agent use:
 | Work | 1 per queued issue |
 | PR follow-up pre | 0-1 |
 | PR follow-up post | 0-1 |
+| PR cluster | 0-1 |
+| Security audit | 0-1 |
 | Report | 1 |
 
-**3 issues + dual PR follow-up ~ 8 agents.** Default 128 is plenty.
+**3 issues + dual PR follow-up + security audit ~ 9 agents.** Default 128 is plenty.
+
+```text
+# Security audit heavy night (many open CodeQL alerts)
+name=night-issue-prs args={"max_issues": 1, "max_security_prs": 5, "include_security_audit": true}
+
+# Skip security pass
+name=night-issue-prs args={"include_security_audit": false}
+```
 
 ### How to run
 
