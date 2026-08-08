@@ -27,7 +27,6 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import org.w3c.dom.Document;
@@ -43,6 +42,12 @@ import org.w3c.dom.NodeList;
  * server. It only contains the commmunities which contain a list of non empty content types.
  */
 public class PSCommunityContentTypeMapperCataloger {
+  /**
+   * Default constructor for offline construction and tests. Must be followed by {@link
+   * #fromXml(Element)}.
+   */
+  PSCommunityContentTypeMapperCataloger() {}
+
   /**
    * Constructor meant to be used in the context of an applet. This may not work in other contexts
    * since there is no way of supplying credentials for logging in.
@@ -68,23 +73,26 @@ public class PSCommunityContentTypeMapperCataloger {
    * @return a list of zero or more <code>PSCommunityCataloger.Community</code> objects. It may be
    *     <code>null</code> if the source community is not in the mapper.
    */
-  public Collection getCompatibleCommunities(Integer srcCommunityId) {
+  public Collection<PSCommunityCataloger.Community> getCompatibleCommunities(
+      Integer srcCommunityId) {
     if (srcCommunityId == null) throw new IllegalArgumentException("srcCommunityId cannot be null");
 
-    Set retCommunities = new HashSet();
+    Set<PSCommunityCataloger.Community> retCommunities = new HashSet<>();
 
     PSCommunityCataloger.Community srcCommunity = getCommunity(srcCommunityId);
     if (srcCommunity == null) return null;
 
-    Collection srcContentTypes = (Collection) m_commCtMapper.get(srcCommunity);
+    Collection<PSEntry> srcContentTypes = m_commCtMapper.get(srcCommunity);
 
-    Collection tgtContentTypes;
-    Iterator communities = m_commCtMapper.keySet().iterator();
-    PSCommunityCataloger.Community community;
-    while (communities.hasNext()) {
-      community = (PSCommunityCataloger.Community) communities.next();
-      tgtContentTypes = (Collection) m_commCtMapper.get(community);
-      if (tgtContentTypes.containsAll(srcContentTypes)) retCommunities.add(community);
+    for (Map.Entry<PSCommunityCataloger.Community, Collection<PSEntry>> entry :
+        m_commCtMapper.entrySet()) {
+      PSCommunityCataloger.Community community = entry.getKey();
+      Collection<PSEntry> tgtContentTypes = entry.getValue();
+      if (tgtContentTypes != null
+          && srcContentTypes != null
+          && tgtContentTypes.containsAll(srcContentTypes)) {
+        retCommunities.add(community);
+      }
     }
 
     return retCommunities;
@@ -108,7 +116,7 @@ public class PSCommunityContentTypeMapperCataloger {
    * @param elemRoot the XML representation, assme not <code>null</code>.
    * @exception PSUnknownNodeTypeException if the XML does not conform its DTD.
    */
-  private void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
+  void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
     m_commCtMapper.clear();
 
     PSXMLDomUtil.checkNode(elemRoot, XML_ELEM_ROOT);
@@ -151,7 +159,7 @@ public class PSCommunityContentTypeMapperCataloger {
     PSCommunityCataloger.Community community = PSCommunityCataloger.createCommunity(id, name, null);
 
     // get a set of content types for this community
-    Collection<PSEntry> ctSet = new HashSet<PSEntry>();
+    Collection<PSEntry> ctSet = new HashSet<>();
     Element ctElem = PSXMLDomUtil.getFirstElementChild(mapping);
     while (ctElem != null) {
       PSXMLDomUtil.checkNode(ctElem, XML_ELEM_CONTENTTYPE);
@@ -165,7 +173,7 @@ public class PSCommunityContentTypeMapperCataloger {
     }
 
     if (m_commCtMapper.containsKey(community)) {
-      ((Collection<PSEntry>) m_commCtMapper.get(community)).addAll(ctSet);
+      m_commCtMapper.get(community).addAll(ctSet);
     } else {
       m_commCtMapper.put(community, ctSet);
     }
@@ -179,11 +187,7 @@ public class PSCommunityContentTypeMapperCataloger {
    *     the supplied id.
    */
   private PSCommunityCataloger.Community getCommunity(Integer id) {
-    Collection communitySet = m_commCtMapper.keySet();
-    Iterator communities = communitySet.iterator();
-    PSCommunityCataloger.Community community;
-    while (communities.hasNext()) {
-      community = (PSCommunityCataloger.Community) communities.next();
+    for (PSCommunityCataloger.Community community : m_commCtMapper.keySet()) {
       if (community.getId() == id.intValue()) return community;
     }
 
@@ -192,11 +196,12 @@ public class PSCommunityContentTypeMapperCataloger {
 
   /**
    * It maps a community to a list of content types which are specified for the community. The map
-   * key is <code>PSCommunityCataloger.PSCommunity</code> object. The map value is a <code>
+   * key is <code>PSCommunityCataloger.Community</code> object. The map value is a <code>
    * Collection</code> of zero or more <code>PSEntry</code> object, which contain the id and name of
    * the content type.
    */
-  private Map m_commCtMapper = new HashMap();
+  private Map<PSCommunityCataloger.Community, Collection<PSEntry>> m_commCtMapper =
+      new HashMap<>();
 
   /** Constants for XML elements and attributes */
   private static final String XML_ELEM_ROOT = "CommunityContentTypeMapper";

@@ -32,6 +32,12 @@ import org.w3c.dom.NodeList;
 /** This class catalogs all global template names found in rhythmyx. */
 public class PSGlobalTemplateCataloger {
   /**
+   * Default constructor for offline construction and tests. Must be followed by {@link
+   * #fromXml(Element)}.
+   */
+  PSGlobalTemplateCataloger() {}
+
+  /**
    * Constructs a new global template cataloger.
    *
    * @param urlBase the base URL to use for the catalog request, not <code>null</code>.
@@ -59,7 +65,7 @@ public class PSGlobalTemplateCataloger {
    *     <code>null</code>.
    * @throws PSUnknownNodeTypeException for any unknown XML node.
    */
-  private void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
+  void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
     m_globalTemplates.clear();
 
     PSXMLDomUtil.checkNode(elemRoot, ROOT_ELEM);
@@ -77,7 +83,7 @@ public class PSGlobalTemplateCataloger {
    * @return a collection of all global template names as <code>String</code> objects, never <code>
    *     null</code>, may be empty.
    */
-  public Collection getGlobalTemplates() {
+  public Collection<String> getGlobalTemplates() {
     return Collections.unmodifiableCollection(m_globalTemplates);
   }
 
@@ -85,7 +91,7 @@ public class PSGlobalTemplateCataloger {
    * The collection of all global template names, reset with each call to {@link #fromXml(Element)},
    * never <code>null</code>, may be empty.
    */
-  private Collection m_globalTemplates = new ArrayList();
+  private Collection<String> m_globalTemplates = new ArrayList<>();
 
   // private XML constants
   private static final String ROOT_ELEM = "GlobalTemplates";

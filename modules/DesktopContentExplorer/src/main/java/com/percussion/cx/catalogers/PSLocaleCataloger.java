@@ -86,7 +86,7 @@ public class PSLocaleCataloger {
    * @return iterator of {@link PSEntry} object representing each locale in the system. Never <code>
    *     null</code>.
    */
-  public Iterator getLocales() {
+  public Iterator<PSEntry> getLocales() {
     return m_locales.iterator();
   }
 
@@ -94,5 +94,5 @@ public class PSLocaleCataloger {
    * Collection of {@link PSEntry} objects. Each objects represents a locale in the CMS. Filled in
    * the constructor.
    */
-  private Collection m_locales = new ArrayList();
+  private Collection<PSEntry> m_locales = new ArrayList<>();
 }

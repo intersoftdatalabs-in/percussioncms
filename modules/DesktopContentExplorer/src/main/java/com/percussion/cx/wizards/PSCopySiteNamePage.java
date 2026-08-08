@@ -151,10 +151,9 @@ public class PSCopySiteNamePage extends PSWizardPanel {
     super.setData(data);
 
     // update the main panel depending on the supplied input data
-    Collection sitesToCopy = m_input.getSitesToCopy();
+    Collection<PSSite> sitesToCopy = m_input.getSitesToCopy();
 
-    Iterator sites = sitesToCopy.iterator();
-    while (sites.hasNext()) m_siteSelector.addItem(sites.next());
+    for (PSSite site : sitesToCopy) m_siteSelector.addItem(site);
 
     if (sitesToCopy.size() > 0) m_siteSelector.setSelectedIndex(0);
   }
@@ -196,7 +195,8 @@ public class PSCopySiteNamePage extends PSWizardPanel {
      * @param folderNames all folder names already existing in the target folder of the copy action
      *     as collection of <code>String</code> objects.
      */
-    public InputData(PSNode source, Collection sites, Collection folderNames) {
+    public InputData(
+        PSNode source, Collection<PSSite> sites, Collection<String> folderNames) {
       if (source == null) throw new IllegalArgumentException("source cannot be null");
 
       if (sites == null) throw new IllegalArgumentException("sites cannot be null");
@@ -223,10 +223,9 @@ public class PSCopySiteNamePage extends PSWizardPanel {
      * @return a collection with all site names existing in the system as <code>String</code>
      *     objects, never <code>null</code>, may be empty.
      */
-    public Collection getSiteNames() {
-      Collection siteNames = new ArrayList();
-      Iterator sites = m_sites.iterator();
-      while (sites.hasNext()) siteNames.add(((PSSite) sites.next()).getName());
+    public Collection<String> getSiteNames() {
+      Collection<String> siteNames = new ArrayList<>();
+      for (PSSite site : m_sites) siteNames.add(site.getName());
 
       return siteNames;
     }
@@ -238,14 +237,12 @@ public class PSCopySiteNamePage extends PSWizardPanel {
      * @return a list will all site names which have the supplied folder root, never <code>null
      *     </code>, may be empty.
      */
-    public Collection getSitesToCopy() {
-      Collection siteNames = new ArrayList();
+    public Collection<PSSite> getSitesToCopy() {
+      Collection<PSSite> siteNames = new ArrayList<>();
 
       String folderRoot = m_source.getName().toLowerCase();
 
-      Iterator sites = m_sites.iterator();
-      while (sites.hasNext()) {
-        PSSite site = (PSSite) sites.next();
+      for (PSSite site : m_sites) {
         String test = site.getFolderRoot();
         if (test == null) continue;
 
@@ -270,7 +267,7 @@ public class PSCopySiteNamePage extends PSWizardPanel {
      * @return a collection with all folder names already existing in the target folder as <code>
      *     String</code> objects, never <code>null</code>, may be empty.
      */
-    public Collection getFolderNames() {
+    public Collection<String> getFolderNames() {
       return m_folderNames;
     }
 
@@ -284,13 +281,13 @@ public class PSCopySiteNamePage extends PSWizardPanel {
      * The collection of all existing sites as <code>PSSite</code> objects, initialized during
      * construction, never <code>null</code> or changed after that.
      */
-    private Collection m_sites = null;
+    private Collection<PSSite> m_sites = null;
 
     /**
      * The collection of all existing folder names in the target folder as <code>String</code>
      * objects, initialized during construction, never <code>null</code> or changed after that.
      */
-    private Collection m_folderNames = null;
+    private Collection<String> m_folderNames = null;
   }
 
   /** The data object returned by this wizard page. */

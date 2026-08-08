@@ -26,7 +26,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -65,10 +64,14 @@ public class PSRoleCataloger {
     try {
       clone = (PSRoleCataloger) super.clone();
 
-      Collection clonedRoles = new ArrayList();
+      Collection<Role> clonedRoles = new ArrayList<>();
 
-      Iterator it = m_collRoles.iterator();
-      while (it.hasNext()) clonedRoles.add(((Role) it.next()).clone());
+      for (Role role : m_collRoles) {
+        Object roleClone = role.clone();
+        if (roleClone instanceof Role) {
+          clonedRoles.add((Role) roleClone);
+        }
+      }
 
       clone.m_collRoles = clonedRoles;
 
@@ -224,12 +227,12 @@ public class PSRoleCataloger {
    *
    * @return unmodifiable collection of cataloged Role instances , never <code>null</code>.
    */
-  public Collection getRoles() {
+  public Collection<Role> getRoles() {
     return Collections.unmodifiableCollection(m_collRoles);
   }
 
   /** Collection of cataloged Role instances. */
-  private Collection m_collRoles = new ArrayList();
+  private Collection<Role> m_collRoles = new ArrayList<>();
 
   /** Root element name in the catalog response. */
   public static final String XML_ELEM_ROOT = "getRole";

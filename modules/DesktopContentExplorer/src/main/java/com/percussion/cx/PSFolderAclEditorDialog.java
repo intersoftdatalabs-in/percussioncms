@@ -259,15 +259,11 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
 
         // get Role ACLs
         PSRoleCataloger roleCatalog = m_folderMgr.getRoleCataloger();
-        Collection roles = roleCatalog.getRoles();
+        Collection<PSRoleCataloger.Role> roles = roleCatalog.getRoles();
 
-        Iterator itRoles = roles.iterator();
+        m_catalogedRoleAcls = new ArrayList<>();
 
-        m_catalogedRoleAcls = new ArrayList();
-
-        while (itRoles.hasNext()) {
-          PSRoleCataloger.Role role = (PSRoleCataloger.Role) itRoles.next();
-
+        for (PSRoleCataloger.Role role : roles) {
           // create ACL Entry out of the role
 
           PSObjectAclEntry aclEntry =
@@ -286,15 +282,11 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
 
         // get User ACLs
         PSSubjectCataloger subjectCatalog = m_folderMgr.getSubjectCataloger();
-        Collection subjects = subjectCatalog.getSubjects();
+        Collection<PSSubjectCataloger.Subject> subjects = subjectCatalog.getSubjects();
 
-        Iterator itSubjects = subjects.iterator();
+        m_catalogedUserAcls = new ArrayList<>();
 
-        m_catalogedUserAcls = new ArrayList();
-
-        while (itSubjects.hasNext()) {
-          PSSubjectCataloger.Subject subject = (PSSubjectCataloger.Subject) itSubjects.next();
-
+        for (PSSubjectCataloger.Subject subject : subjects) {
           // create ACL Entry out of the user
 
           PSObjectAclEntry aclEntry =

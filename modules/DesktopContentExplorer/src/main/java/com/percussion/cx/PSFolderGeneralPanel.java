@@ -178,9 +178,9 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
         m_comboFolderLocale,
         PSContentExploreAppletUtils.getResourceMnemonic(getClass(), "@Locale:", 'e'));
 
-    Iterator iter = m_folderMgr.getLocaleCataloger().getLocales();
-    while (iter.hasNext()) {
-      PSEntry element = (PSEntry) iter.next();
+    Iterator<PSEntry> localeIter = m_folderMgr.getLocaleCataloger().getLocales();
+    while (localeIter.hasNext()) {
+      PSEntry element = localeIter.next();
       m_comboFolderLocale.addItem(element);
       if (element.getValue().equals(m_folder.getLocale()))
         m_comboFolderLocale.setSelectedItem(element);
@@ -203,25 +203,15 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
         PSContentExploreAppletUtils.getResourceMnemonic(
             getClass(), "@Default display format:", 'f'));
 
-    iter = m_folderMgr.getDisplayFormats();
+    Iterator<PSDisplayFormat> formatIter = m_folderMgr.getDisplayFormats();
 
     // sort disp formats
-    List dispFormats = new ArrayList();
-    while (iter.hasNext()) dispFormats.add(iter.next());
+    List<PSDisplayFormat> dispFormats = new ArrayList<>();
+    while (formatIter.hasNext()) dispFormats.add(formatIter.next());
 
-    class DispFormatComparator implements Comparator {
-      public DispFormatComparator() {}
+    Collections.sort(dispFormats, Comparator.comparing(Object::toString));
 
-      public int compare(Object left, Object right) {
-        return left.toString().compareTo(right.toString());
-      }
-    }
-
-    Collections.sort(dispFormats, new DispFormatComparator());
-
-    iter = dispFormats.iterator();
-
-    while (iter.hasNext()) m_comboDisplayFormat.addItem(iter.next());
+    for (PSDisplayFormat format : dispFormats) m_comboDisplayFormat.addItem(format);
     if (m_isNewFolder) m_comboDisplayFormat.setSelectedIndex(0);
     else {
       PSDisplayFormat format =
@@ -260,11 +250,10 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
           m_comboGlobalTemplate,
           PSContentExploreAppletUtils.getResourceMnemonic(getClass(), "@Global Template:", 'T'));
 
-      Iterator globalTemplates =
+      Iterator<String> globalTemplates =
           m_folderMgr.getGlobalTemplateCataloger().getGlobalTemplates().iterator();
       m_comboGlobalTemplate.addItem(m_applet.getResourceString(getClass(), "Use default"));
-      while (globalTemplates.hasNext())
-        m_comboGlobalTemplate.addItem(globalTemplates.next().toString());
+      while (globalTemplates.hasNext()) m_comboGlobalTemplate.addItem(globalTemplates.next());
 
       String globalTemplate = m_folder.getGlobalTemplateProperty();
       if (globalTemplate == null || globalTemplate.trim().length() == 0)
@@ -308,14 +297,15 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
         m_comboFolderCommunity,
         PSContentExploreAppletUtils.getResourceMnemonic(getClass(), "@Folder Community:", 'M'));
     PSCommunityCataloger commCataloger = m_folderMgr.getCommunityCataloger();
-    Iterator itComm = commCataloger.getCommunities().iterator();
+    Iterator<PSCommunityCataloger.Community> itComm =
+        commCataloger.getCommunities().iterator();
 
     /*make an extra instance of the Community class, so that we
       can add a "All" entry to the combo box with the id = -1.
       The commCataloger itself is not holding to this new community instance.
     */
     PSCommunityCataloger.Community commAll =
-        commCataloger.createCommunity(
+        PSCommunityCataloger.createCommunity(
             -1, m_applet.getResourceString(getClass(), "All communities"), "");
 
     m_comboFolderCommunity.addItem(commAll);
@@ -325,7 +315,7 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
     // add only one entry for the current community and pick the community to
     // select
     while (itComm.hasNext()) {
-      PSCommunityCataloger.Community comm = (PSCommunityCataloger.Community) itComm.next();
+      PSCommunityCataloger.Community comm = itComm.next();
 
       if (comm.getId() == currCommunityId) {
         m_comboFolderCommunity.addItem(comm);
