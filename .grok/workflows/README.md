@@ -104,6 +104,17 @@ When Work finishes a change that is **ready for human QA** (product UI, installe
 
 Human QA issues are **not** unassigned residuals and usually **do not** count toward residual quota.
 
+### Issue lifecycle / close rules (no empty trackers)
+
+| Situation | Required action |
+|-----------|-----------------|
+| Work complete, **no** open children / residuals / QA issues, **no** remaining steps | **Close** the issue (comment + reason + PR/child links). Do **not** leave it open “for tracking.” |
+| Blocked on **human QA** and no open QA issue | **Create** QA issue with test plan, assign `qa_assignee`, link Parent + PR; parent may stay open while QA is open |
+| Remaining agent work | File **PR-sized** residual/child issues; parent stays open while children exist |
+| Open children or open QA or active linked PRs | **Do not close** the parent |
+
+Hard ban: epic/tracker issues open with **zero** related open child/QA issues and no next step.
+
 ### Residual quota + circuit breaker
 
 Live runs must **grow backlog under existing high-priority parents**, not invent low-priority noise.
@@ -113,9 +124,10 @@ Live runs must **grow backlog under existing high-priority parents**, not invent
 | **Quota** | At least `min_residual_issues` (default **3**) **new** residual/child issues this pass |
 | **Parent filter** | Parent issue must **already** be labeled **p1, p2, p3, or p4**. Residuals of Unset/p5–p8 parents **do not count** |
 | **Priority on residual** | **Copy parent pN exactly** onto the residual. Do **not** invent a higher priority. Do **not** pad with p8 residuals |
-| **What counts** | `residual_issue_urls` + `child_issue_urls` from Work (+ PR follow-up residuals): open, real body, filed this pass, parent p1–p4, residual pN matches parent |
-| **Backfill** | If short, one residual-quota agent files more real slices **only under existing p1–p4 parents**, inheriting that pN. **No fake padding; no priority upgrades.** |
-| **Circuit breaker** | If still short: **stop** overnight post-processing (skip PR cluster + security audit), write Report, complete with `residual_circuit_breaker: true` |
+| **Size (anti-padding)** | Each residual must be a **full PR-sized** unit (coherent acceptance, typically 1–3 modules + tests). **Prefer under-quota / circuit breaker over micro-slices** invented to hit the number |
+| **What counts** | `residual_issue_urls` + `child_issue_urls` from Work (+ PR follow-up residuals): open, **PR-sized** real body, filed this pass, parent p1–p4, residual pN matches parent |
+| **Backfill** | If short, one residual-quota agent files more **PR-sized** slices **only under existing p1–p4 parents**, inheriting that pN. **No fake padding, no micro-split, no priority upgrades.** |
+| **Circuit breaker** | If still short of real PR-sized residuals: **stop** overnight post-processing (skip PR cluster + security audit), write Report, complete with `residual_circuit_breaker: true` |
 | **Disable** | `require_residual_quota: false` (not recommended for overnight) |
 
 ### Security audit Fix Pass (post-processing)
