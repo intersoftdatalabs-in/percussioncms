@@ -266,9 +266,10 @@ Do **not** ship without evidence which hypothesis holds.
 
 | Slice | Goal | Status |
 |-------|------|--------|
-| **1 (this PR)** | Inventory publish/cache/stale-relationship surfaces | Done (docs) |
-| **2** | Live / customer-env repro when snapshot available; classify H1–H9 | Done — see [01-classification.md](./01-classification.md) (#2334); primary **H1**, product defect not repro without snapshot |
-| **3** | Minimal product fix once root cause classified | Open #2335 — ops-first per Slice 2 recommendation |
+| **1 (this PR)** | Inventory publish/cache/stale-relationship surfaces | Done (docs) — PR #2336 |
+| **2** | Live / customer-env repro when snapshot available; classify H1–H9 | Classification: primary **H1**; product full-publish defect not repro without snapshot — #2334 / PR #2356 · [01-classification.md](./01-classification.md) |
+| **3** | Minimal fix once classified | **Ops runbook shipped** (docs-only per H1) — #2335 · [02-ops-runbook.md](./02-ops-runbook.md). Product query/publish change only if snapshot proves H6/H8 residual |
+
 
 ---
 
