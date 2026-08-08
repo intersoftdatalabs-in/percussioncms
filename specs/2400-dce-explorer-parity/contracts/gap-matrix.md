@@ -47,7 +47,7 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Subfolder copy wizard | CE wizards | `SubfolderCopyWizard`; not in shell | **Partial** | advanced chrome |
 | Dependency viewer | `PSDependencyViewer` | Components + `rest` relationship summary; not in shell | **Partial** | advanced chrome |
 | IA / relationships view | Managers | `RelationshipsView`; not in shell | **Partial** | advanced chrome |
-| Translation workflow | CE translation | Matrix P-Trans; not productized | **Missing** | #2411 |
+| Translation workflow | CE translation | Catalog Present (`/rest/locales`); create-variant **Legacy-only** (SOAP/CX); item variants + in-flight **Missing** — see [p-trans-api-inventory.md](../research/p-trans-api-inventory.md) | **Missing** | #2411 → #2428 inventory, #2429 REST, #2430 UI |
 | Workflow transitions in menus | CE workflow | Actions path partial | **Partial** | workflow actions |
 
 ## Explicit OUT (for now)
@@ -63,3 +63,4 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 - Highest leverage: **compose shell** (#2401) using existing components + `rest/actions` + `rest/displayformats`.
 - REST enhancement for #2401: `GET /rest/displayformats?validForFolder=true` (and optional `validForViewsAndSearches`).
 - Re-audit after each slice merges; flip Partial → Present only when product route demonstrates the capability.
+- **P-Trans (#2411):** overnight inventory under `research/p-trans-api-inventory.md`. Public REST has locale **catalog** only; create locale variant remains SOAP/CX/DCE (`NewTranslations`, `sys_CreateTranslations`, `ACTION_PASTE_NEW_TRNSL`). Children: inventory #2428, REST façade #2429, Explorer UI #2430.
