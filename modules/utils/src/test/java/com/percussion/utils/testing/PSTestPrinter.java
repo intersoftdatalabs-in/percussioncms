@@ -16,7 +16,6 @@
  */
 package com.percussion.utils.testing;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -32,20 +31,18 @@ public class PSTestPrinter {
    *
    * @param map the map, never <code>null</code>
    */
-  public static void printMapEntries(Map map) {
+  public static void printMapEntries(Map<?, ?> map) {
     if (map == null) {
       throw new IllegalArgumentException("map may not be null");
     }
-    Map<String, String> values = new TreeMap<String, String>();
-    Iterator<Map.Entry> i = map.entrySet().iterator();
-    while (i.hasNext()) {
-      Map.Entry e = i.next();
-      values.put(e.getKey().toString(), e.getValue().toString());
+    Map<String, String> values = new TreeMap<>();
+    for (Map.Entry<?, ?> e : map.entrySet()) {
+      Object key = e.getKey();
+      Object value = e.getValue();
+      values.put(String.valueOf(key), String.valueOf(value));
     }
 
-    Iterator<Map.Entry<String, String>> is = values.entrySet().iterator();
-    while (is.hasNext()) {
-      Map.Entry<String, String> e = is.next();
+    for (Map.Entry<String, String> e : values.entrySet()) {
       System.out.println(e.getKey() + ": " + e.getValue());
     }
   }
@@ -59,16 +56,12 @@ public class PSTestPrinter {
     if (props == null) {
       throw new IllegalArgumentException("props may not be null");
     }
-    Map<String, String> values = new TreeMap<String, String>();
-    Iterator<Map.Entry<Object, Object>> i = props.entrySet().iterator();
-    while (i.hasNext()) {
-      Map.Entry e = i.next();
-      values.put(e.getKey().toString(), e.getValue().toString());
+    Map<String, String> values = new TreeMap<>();
+    for (Map.Entry<Object, Object> e : props.entrySet()) {
+      values.put(String.valueOf(e.getKey()), String.valueOf(e.getValue()));
     }
 
-    Iterator<Map.Entry<String, String>> is = values.entrySet().iterator();
-    while (is.hasNext()) {
-      Map.Entry<String, String> e = is.next();
+    for (Map.Entry<String, String> e : values.entrySet()) {
       System.out.println(e.getKey() + ": " + e.getValue());
     }
   }
