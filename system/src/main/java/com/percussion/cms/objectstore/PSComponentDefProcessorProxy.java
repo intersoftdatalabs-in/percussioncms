@@ -76,9 +76,9 @@ public class PSComponentDefProcessorProxy extends PSProcessorProxy {
 
         Element[] elems = proxy.load("PSContentTypeVariantSet", keys);
 
-        PSDbComponentSet vs = new PSContentTypeVariantSet(elems);
+        PSDbComponentSet<?> vs = new PSContentTypeVariantSet(elems);
 
-        Iterator it = vs.iterator();
+        Iterator<?> it = vs.iterator();
         while (it.hasNext()) {
           PSContentTypeTemplate v = (PSContentTypeTemplate) it.next();
 
@@ -95,9 +95,9 @@ public class PSComponentDefProcessorProxy extends PSProcessorProxy {
 
         Element[] elems = proxy.load("PSSlotTypeSet", keys);
 
-        PSDbComponentSet slots = new PSSlotTypeSet(elems);
+        PSDbComponentSet<?> slots = new PSSlotTypeSet(elems);
 
-        Iterator it = slots.iterator();
+        Iterator<?> it = slots.iterator();
         while (it.hasNext()) {
           PSSlotType s = (PSSlotType) it.next();
 
@@ -113,9 +113,9 @@ public class PSComponentDefProcessorProxy extends PSProcessorProxy {
         PSKey[] keys = PSContentType.createKeys(ctIds);
         Element[] elems = proxy.load("PSContentTypeSet", keys);
 
-        PSDbComponentSet cts = new PSContentTypeSet(elems);
+        PSDbComponentSet<?> cts = new PSContentTypeSet(elems);
 
-        Iterator it = cts.iterator();
+        Iterator<?> it = cts.iterator();
         while (it.hasNext()) {
           PSContentType ct = (PSContentType) it.next();
         }
@@ -127,13 +127,13 @@ public class PSComponentDefProcessorProxy extends PSProcessorProxy {
   }
 
   private static void checkContentVariant(PSContentTypeTemplate v) {
-    PSDbComponentSet slots = v.getVariantSlots();
+    PSDbComponentSet<?> slots = v.getVariantSlots();
 
     if (slots == null) {
       System.out.println("No slots for the variant");
     }
 
-    Iterator it1 = slots.iterator();
+    Iterator<?> it1 = slots.iterator();
 
     while (it1.hasNext()) {
       PSVariantSlotType slot = (PSVariantSlotType) it1.next();
@@ -150,9 +150,9 @@ public class PSComponentDefProcessorProxy extends PSProcessorProxy {
     int systemSlot = s.getSystemSlot();
     int slotType = s.getSlotType();
 
-    PSDbComponentSet slotV = s.getSlotVariants();
+    PSDbComponentSet<?> slotV = s.getSlotVariants();
 
-    Iterator it1 = slotV.iterator();
+    Iterator<?> it1 = slotV.iterator();
 
     while (it1.hasNext()) {
       PSSlotTypeContentTypeVariant vslot = (PSSlotTypeContentTypeVariant) it1.next();

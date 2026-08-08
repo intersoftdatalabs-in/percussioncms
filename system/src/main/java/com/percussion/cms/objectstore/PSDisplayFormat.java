@@ -117,9 +117,9 @@ public class PSDisplayFormat extends PSVersionableDbComponent
     boolean ctTypeExists = false;
     boolean variantExists = false;
 
-    Iterator columns = getColumns();
+    Iterator<PSDisplayColumn> columns = getColumns();
     while (columns.hasNext() && (!ctTypeExists || !variantExists)) {
-      PSDisplayColumn column = (PSDisplayColumn) columns.next();
+      PSDisplayColumn column = columns.next();
       if (!ctTypeExists
           && (column.getSource().equals(COL_CONTENTTYPEID)
               || column.getSource().equals(COL_CONTENTTYPENAME))) ctTypeExists = true;
@@ -202,11 +202,11 @@ public class PSDisplayFormat extends PSVersionableDbComponent
       throw new IllegalArgumentException(
           "property name must not exceed " + PSDFProperty.NAME_LENGTH + " characters");
 
-    Iterator iter = m_properties.iterator();
+    Iterator<PSDFMultiProperty> iter = m_properties.iterator();
     boolean bFound = false;
 
     while (iter.hasNext()) {
-      PSDFMultiProperty prop = (PSDFMultiProperty) iter.next();
+      PSDFMultiProperty prop = iter.next();
 
       if (prop.getName().equalsIgnoreCase(strName)) {
         // Threshold - if prop already contains this value
@@ -219,10 +219,10 @@ public class PSDisplayFormat extends PSVersionableDbComponent
           // Remove the values of the old property
           // add the new one and clone it to bring over
           // any other attributes (e.g. description ...)
-          Iterator values = prop.iterator(); // cms property(s)
+          Iterator<String> values = prop.iterator(); // cms property(s)
           while (values.hasNext()) {
             // remove each entry and add
-            prop.remove((String) values.next());
+            prop.remove(values.next());
           }
 
           // Single value
@@ -262,10 +262,10 @@ public class PSDisplayFormat extends PSVersionableDbComponent
     if (strName == null || strName.trim().length() == 0)
       throw new IllegalArgumentException("strName must not be null or empty");
 
-    Iterator iter = m_properties.iterator();
+    Iterator<PSDFMultiProperty> iter = m_properties.iterator();
 
     while (iter.hasNext()) {
-      PSDFMultiProperty prop = (PSDFMultiProperty) iter.next();
+      PSDFMultiProperty prop = iter.next();
 
       if (prop.getName().equalsIgnoreCase(strName)) return true;
     }
@@ -296,10 +296,10 @@ public class PSDisplayFormat extends PSVersionableDbComponent
     // Threshold
     if (m_properties.size() < 1) return;
 
-    Iterator iter = m_properties.iterator();
+    Iterator<PSDFMultiProperty> iter = m_properties.iterator();
     boolean bFound = false;
     while (!bFound && iter.hasNext()) {
-      PSDFMultiProperty prop = (PSDFMultiProperty) iter.next();
+      PSDFMultiProperty prop = iter.next();
       if (prop.getName().equalsIgnoreCase(strName)) {
         if (bMulti) {
           if (strValue == null)
@@ -342,9 +342,9 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   public boolean isValidForFolder() {
     boolean valid = !isValidForRelatedContent();
 
-    Iterator columns = getColumns();
+    Iterator<PSDisplayColumn> columns = getColumns();
     while (columns.hasNext() && valid) {
-      PSDisplayColumn column = (PSDisplayColumn) columns.next();
+      PSDisplayColumn column = columns.next();
       if (column.isCategorized()) valid = false;
 
       for (String name : ms_invalidFolderFields) {
@@ -378,9 +378,9 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   public void removeInvalidFolderColums() {
     List<IPSDbComponent> deletes = new ArrayList<>();
 
-    Iterator columns = getColumns();
+    Iterator<PSDisplayColumn> columns = getColumns();
     while (columns.hasNext()) {
-      PSDisplayColumn column = (PSDisplayColumn) columns.next();
+      PSDisplayColumn column = columns.next();
       for (String name : ms_invalidFolderFields) {
         if (column.getSource().equals(name)) {
           deletes.add(column);
@@ -418,10 +418,10 @@ public class PSDisplayFormat extends PSVersionableDbComponent
     // Threshold
     if (m_properties.size() < 1) return false;
 
-    Iterator iter = m_properties.iterator();
+    Iterator<PSDFMultiProperty> iter = m_properties.iterator();
 
     while (iter.hasNext()) {
-      PSDFMultiProperty prop = (PSDFMultiProperty) iter.next();
+      PSDFMultiProperty prop = iter.next();
 
       if (prop.getName().equalsIgnoreCase(name) && prop.contains(value)) return true;
     }
@@ -444,11 +444,12 @@ public class PSDisplayFormat extends PSVersionableDbComponent
 
     String val = null;
 
-    Iterator iter = m_properties.iterator();
+    Iterator<PSDFMultiProperty> iter = m_properties.iterator();
     while (iter.hasNext() && val == null) {
-      PSDFMultiProperty prop = (PSDFMultiProperty) iter.next();
+      PSDFMultiProperty prop = iter.next();
       if (prop.getName().equalsIgnoreCase(name)) {
-        if (prop.iterator().hasNext()) val = (String) prop.iterator().next();
+        Iterator<String> values = prop.iterator();
+        if (values.hasNext()) val = values.next();
       }
     }
 
@@ -573,7 +574,7 @@ public class PSDisplayFormat extends PSVersionableDbComponent
    *
    * @return list never <code>null</code> or empty.
    */
-  public Iterator getProperties() {
+  public Iterator<PSDFMultiProperty> getProperties() {
     return m_properties.iterator();
   }
 
@@ -603,8 +604,11 @@ public class PSDisplayFormat extends PSVersionableDbComponent
    *
    * @return list never <code>null</code> or empty.
    */
-  public Iterator getColumns() {
-    return m_columns.iterator();
+  public Iterator<PSDisplayColumn> getColumns() {
+    // PSDFColumns is a typed list of PSDisplayColumn
+    @SuppressWarnings("unchecked")
+    Iterator<PSDisplayColumn> cols = (Iterator<PSDisplayColumn>) (Iterator<?>) m_columns.iterator();
+    return cols;
   }
 
   /**
@@ -619,7 +623,9 @@ public class PSDisplayFormat extends PSVersionableDbComponent
 
     int index = -1;
     for (int i = 0; i < m_columns.size(); i++) {
-      if (((PSDisplayColumn) m_columns.get(i)).getSource().equals(columnName)) {
+      IPSDbComponent component = m_columns.get(i);
+      if (component instanceof PSDisplayColumn
+          && ((PSDisplayColumn) component).getSource().equals(columnName)) {
         index = i;
         break;
       }
@@ -786,10 +792,12 @@ public class PSDisplayFormat extends PSVersionableDbComponent
    */
   private void addSystemTitle(PSDFColumns columns) {
     boolean found = false;
-    Iterator walker = columns.iterator();
+    Iterator<IPSDbComponent> walker = columns.iterator();
     while (!found && walker.hasNext()) {
-      PSDisplayColumn column = (PSDisplayColumn) walker.next();
-      found = column.getSource().equalsIgnoreCase(SYS_TITLE);
+      IPSDbComponent component = walker.next();
+      if (component instanceof PSDisplayColumn) {
+        found = ((PSDisplayColumn) component).getSource().equalsIgnoreCase(SYS_TITLE);
+      }
     }
 
     if (!found) {
@@ -1004,14 +1012,16 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   public Object tuneClone(long newId) {
     PSKey newKey = createKey(new String[] {newId + ""});
     setKey(newKey);
-    Iterator cols = m_columns.iterator();
+    Iterator<IPSDbComponent> cols = m_columns.iterator();
     while (cols.hasNext()) {
-      PSDisplayColumn col = (PSDisplayColumn) cols.next();
-      col.setKey(newKey);
+      IPSDbComponent component = cols.next();
+      if (component instanceof PSDisplayColumn) {
+        ((PSDisplayColumn) component).setKey(newKey);
+      }
     }
-    Iterator props = m_properties.iterator();
+    Iterator<PSDFMultiProperty> props = m_properties.iterator();
     while (props.hasNext()) {
-      PSDFMultiProperty prop = (PSDFMultiProperty) props.next();
+      PSDFMultiProperty prop = props.next();
       prop.setKey(newKey);
     }
     return this;

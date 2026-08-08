@@ -1220,9 +1220,9 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
       relatedParams.put(IPSHtmlParameters.SYS_RELATIONSHIPTYPE, related.getRelatedType());
 
       // put all the properties into the param map
-      Iterator propIter = related.getAllProperties();
+      Iterator<String> propIter = related.getAllProperties();
       while (propIter.hasNext()) {
-        String key = (String) propIter.next();
+        String key = propIter.next();
         String val = related.getProperty(key);
 
         relatedParams.put(key, val);

@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
@@ -237,6 +238,37 @@ public class PSFolderTest {
     folderSet.add(folder3);
 
     assertTrue(folderSet.size() == 2);
+  }
+
+  /**
+   * Typed property iterator coverage for generics parameterization (issue #2401).
+   *
+   * @throws Exception on error
+   */
+  @Test
+  public void testTypedPropertyIterator() throws Exception {
+    PSFolder folder = new PSFolder("f1", 10, -1, PSObjectPermissions.ACCESS_ADMIN, "description");
+    folder.setProperty("p1", "value1");
+    folder.setProperty("p2", "value2", "desc2");
+
+    Iterator<PSFolderProperty> props = folder.getProperties();
+    Set<String> names = new HashSet<>();
+    while (props.hasNext()) {
+      PSFolderProperty prop = props.next();
+      assertNotNull(prop.getName());
+      names.add(prop.getName());
+    }
+    assertTrue(names.contains("p1"));
+    assertTrue(names.contains("p2"));
+    assertEquals(2, folder.getPropertySize());
+
+    PSObjectAcl acl = new PSObjectAcl();
+    PSObjectAclEntry entry =
+        new PSObjectAclEntry(
+            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "qa1", PSObjectAclEntry.ACCESS_READ);
+    acl.add(entry);
+    assertNotNull(acl.getAclEntry("qa1", PSObjectAclEntry.ACL_ENTRY_TYPE_USER));
+    assertNull(acl.getAclEntry("missing", PSObjectAclEntry.ACL_ENTRY_TYPE_USER));
   }
 
   /**

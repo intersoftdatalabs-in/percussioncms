@@ -254,18 +254,14 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
     copy.init();
 
     // clone fields:
-    Iterator i = m_fieldNameFieldMap.keySet().iterator();
-    while (i.hasNext()) {
-      Object key = i.next();
-      PSItemField val = (PSItemField) m_fieldNameFieldMap.get(key);
+    for (String key : m_fieldNameFieldMap.keySet()) {
+      PSItemField val = m_fieldNameFieldMap.get(key);
       copy.addField((PSItemField) val.clone());
     }
 
     // clone children:
-    Iterator k = m_childNameChildMap.keySet().iterator();
-    while (k.hasNext()) {
-      Object key = k.next();
-      PSItemChild val = (PSItemChild) m_childNameChildMap.get(key);
+    for (String key : m_childNameChildMap.keySet()) {
+      PSItemChild val = m_childNameChildMap.get(key);
       copy.addChild((PSItemChild) val.clone());
     }
 
@@ -277,10 +273,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
     if (m_itemDefinition != null) copy.m_itemDefinition = m_itemDefinition;
 
     if (m_relatedItemsMap != null) {
-      Iterator l = m_relatedItemsMap.keySet().iterator();
-      while (l.hasNext()) {
-        String key = (String) l.next();
-        PSItemRelatedItem val = (PSItemRelatedItem) m_relatedItemsMap.get(key);
+      for (String key : m_relatedItemsMap.keySet()) {
+        PSItemRelatedItem val = m_relatedItemsMap.get(key);
         copy.m_relatedItemsMap.put(key, (PSItemRelatedItem) val.clone());
       }
     }
@@ -548,14 +542,14 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
         serverItem.setAction(relItem.getAction());
         serverItem.setDependentId(relItem.getDependentId());
         serverItem.setRelatedItemData(relItem.getRelatedItemData());
-        Iterator propsIter = relItem.getAllProperties();
+        Iterator<String> propsIter = relItem.getAllProperties();
         while (propsIter.hasNext()) {
-          String prop = (String) propsIter.next();
+          String prop = propsIter.next();
           serverItem.addProperty(prop, relItem.getProperty(prop));
         }
-        Iterator keyFieldsIter = relItem.getAllKeyFields();
+        Iterator<String> keyFieldsIter = relItem.getAllKeyFields();
         while (keyFieldsIter.hasNext()) {
-          String keyField = (String) keyFieldsIter.next();
+          String keyField = keyFieldsIter.next();
           serverItem.addKeyField(keyField, relItem.getKeyField(keyField));
         }
       }
@@ -583,7 +577,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
     if (fieldName == null || fieldName.trim().length() == 0)
       throw new IllegalArgumentException("fieldname must not be null or empty");
 
-    return (PSItemField) m_fieldNameFieldMap.get(fieldName);
+    return m_fieldNameFieldMap.get(fieldName);
   }
 
   /**
@@ -701,7 +695,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
     if (childName == null || childName.length() == 0)
       throw new IllegalArgumentException("childName must not be null or empty");
 
-    return (PSItemChild) m_childNameChildMap.get(childName);
+    return m_childNameChildMap.get(childName);
   }
 
   /**
@@ -713,9 +707,9 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   public PSItemChild getChildById(int childId) {
     PSItemChild child = null;
 
-    Iterator children = getAllChildren();
+    Iterator<PSItemChild> children = getAllChildren();
     while (children.hasNext() && child == null) {
-      PSItemChild test = (PSItemChild) children.next();
+      PSItemChild test = children.next();
       if (test.getChildId() == childId) child = test;
     }
 
