@@ -345,8 +345,11 @@ public abstract class PSDbComponent implements IPSDbComponent {
       nodeName = getNodeName();
     }
 
-    // Must restore key first because it has higher priority than state
-    setLocatorInternal(createKey(PSXMLDomUtil.getFirstElementChild(source)));
+    // Must restore key first because it has higher priority than state.
+    // Element super-ctor path uses non-overridable default createKey to avoid
+    // this-escape; public fromXml (after full construction) still uses virtual createKey.
+    Element keyEl = PSXMLDomUtil.getFirstElementChild(source);
+    setLocatorInternal(checkNodeName ? createKey(keyEl) : createKeyDefault(keyEl));
 
     // Threshold
     String strState = PSXMLDomUtil.checkAttribute(source, XML_ATTR_STATE, false);
@@ -408,46 +411,72 @@ public abstract class PSDbComponent implements IPSDbComponent {
    * @return Never <code>null</code>.
    */
   protected PSKey createKey(Element el) throws PSUnknownNodeTypeException {
+    return createKeyDefault(el);
+  }
+
+  /**
+   * Default key restoration used by {@link #createKey(Element)} and by the Element super-ctor path
+   * in {@link #fromXmlBase(Element, boolean)} (non-virtual, this-escape safe). Subclasses may still
+   * override {@link #createKey(Element)}; that override is honored from public {@link
+   * #fromXml(Element)} after construction.
+   *
+   * <p>Resolves the key class from the element node name (PSXFoo → PSFoo) by trying known key
+   * packages in order: {@code com.percussion.cms.objectstore} first (typical {@link PSKey} /
+   * {@link PSSimpleKey}), then {@code com.percussion.design.objectstore} (e.g. {@code PSLocator}).
+   * Virtual {@link #createKey(Element)} overrides remain the path for specialized keys after full
+   * construction.
+   */
+  private PSKey createKeyDefault(Element el) throws PSUnknownNodeTypeException {
     if (el == null) throw new IllegalArgumentException("Source element cannot be null.");
 
     String strNodeName = el.getNodeName();
-    String strClassName = "com.percussion.cms.objectstore.";
-    if (strNodeName.startsWith("PSX"))
-      strClassName += PSStringOperation.replace(strNodeName, "PSX", "PS");
-    else strClassName += strNodeName;
+    String simpleName =
+        strNodeName.startsWith("PSX")
+            ? PSStringOperation.replace(strNodeName, "PSX", "PS")
+            : strNodeName;
 
-    PSKey key = null;
+    // Non-virtual package search — no subclass createKey during Element super-ctor.
+    final String[] keyPackages = {
+      "com.percussion.cms.objectstore.", "com.percussion.design.objectstore."
+    };
 
-    try {
-
-      Class<? extends PSKey> c = (Class<? extends PSKey>) Class.forName(strClassName);
-      Constructor<? extends PSKey> ctor = c.getConstructor(Element.class);
-      key = ctor.newInstance(el);
-    } catch (ClassNotFoundException cnfe) {
-      String[] args = {strClassName, getComponentType(), cnfe.getLocalizedMessage()};
-      throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
-    } catch (InstantiationException ie) {
-      String[] args = {strClassName, getComponentType(), ie.getLocalizedMessage()};
-      throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
-    } catch (IllegalAccessException iae) {
-      String[] args = {strClassName, getComponentType(), iae.getLocalizedMessage()};
-      throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
-    } catch (InvocationTargetException ite) {
-      Throwable origException = ite.getTargetException();
-      String msg = origException.getLocalizedMessage();
-      String[] args = {
-        strClassName, getComponentType(), origException.getClass().getName() + ": " + msg
-      };
-      throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
-    } catch (NoSuchMethodException nsme) {
-      String[] args = {strClassName, getComponentType(), nsme.getLocalizedMessage()};
-      throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
-    } catch (IllegalArgumentException iae) {
-      // this should never happen because we checked ahead of time
-      throw new RuntimeException("Ctor parameter count changed unexpectedly.");
+    String lastClassName = keyPackages[0] + simpleName;
+    ClassNotFoundException lastCnfe = null;
+    for (String pkg : keyPackages) {
+      String strClassName = pkg + simpleName;
+      lastClassName = strClassName;
+      try {
+        Class<? extends PSKey> c = (Class<? extends PSKey>) Class.forName(strClassName);
+        Constructor<? extends PSKey> ctor = c.getConstructor(Element.class);
+        return ctor.newInstance(el);
+      } catch (ClassNotFoundException cnfe) {
+        lastCnfe = cnfe;
+        // try next package
+      } catch (InstantiationException ie) {
+        String[] args = {strClassName, getComponentType(), ie.getLocalizedMessage()};
+        throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
+      } catch (IllegalAccessException iae) {
+        String[] args = {strClassName, getComponentType(), iae.getLocalizedMessage()};
+        throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
+      } catch (InvocationTargetException ite) {
+        Throwable origException = ite.getTargetException();
+        String msg = origException.getLocalizedMessage();
+        String[] args = {
+          strClassName, getComponentType(), origException.getClass().getName() + ": " + msg
+        };
+        throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
+      } catch (NoSuchMethodException nsme) {
+        String[] args = {strClassName, getComponentType(), nsme.getLocalizedMessage()};
+        throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
+      } catch (IllegalArgumentException iae) {
+        // this should never happen because we checked ahead of time
+        throw new RuntimeException("Ctor parameter count changed unexpectedly.");
+      }
     }
 
-    return key;
+    String cnfeMsg = lastCnfe != null ? lastCnfe.getLocalizedMessage() : "class not found";
+    String[] args = {lastClassName, getComponentType(), cnfeMsg};
+    throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
   }
 
   // see interface for description

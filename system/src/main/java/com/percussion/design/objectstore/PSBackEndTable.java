@@ -154,7 +154,7 @@ public class PSBackEndTable extends PSComponent {
    *     used in the data tank. If it is non-unique, an exception will be thrown when the back-end
    *     table is associated with a data tank.
    */
-  public void setAlias(java.lang.String alias) {
+  public final void setAlias(java.lang.String alias) {
     IllegalArgumentException ex = validateAlias(alias);
     if (ex != null) throw ex;
 
@@ -181,7 +181,7 @@ public class PSBackEndTable extends PSComponent {
   /**
    * @param dataSource The dataSource to set.
    */
-  public void setDataSource(String dataSource) {
+  public final void setDataSource(String dataSource) {
     m_dataSource = dataSource;
   }
 
@@ -223,7 +223,7 @@ public class PSBackEndTable extends PSComponent {
    *
    * @param table the name of the back-end table.
    */
-  public void setTable(java.lang.String table) {
+  public final void setTable(java.lang.String table) {
     if (table == null) table = "";
 
     IllegalArgumentException ex = validateTable(table);
@@ -296,7 +296,7 @@ public class PSBackEndTable extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXBackEndTable
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

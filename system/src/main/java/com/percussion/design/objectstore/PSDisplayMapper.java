@@ -90,7 +90,7 @@ public class PSDisplayMapper extends PSCollectionComponent {
    *
    * @param fieldSetRef the new field set reference name, never <code>null</code> or empty.
    */
-  public void setFieldSetRef(String fieldSetRef) {
+  public final void setFieldSetRef(String fieldSetRef) {
     if (fieldSetRef == null || fieldSetRef.trim().length() == 0)
       throw new IllegalArgumentException("field set reference annot be null or empty");
 
@@ -103,7 +103,7 @@ public class PSDisplayMapper extends PSCollectionComponent {
    *
    * @param c a valid PSDisplayMapper, not <code>null</code>.
    */
-  public void copyFrom(PSDisplayMapper c) {
+  public final void copyFrom(PSDisplayMapper c) {
     try {
       super.copyFrom(c);
     } catch (IllegalArgumentException e) {
@@ -151,7 +151,7 @@ public class PSDisplayMapper extends PSCollectionComponent {
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

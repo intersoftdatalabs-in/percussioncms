@@ -164,7 +164,7 @@ public class PSApplicationFlow extends PSComponent {
    * @throws IllegalArgumentException if the provided command handler name is <code>null</code> or
    *     empty or if the redirect is <code>null</code>.
    */
-  public void setDefaultRedirect(String name, PSUrlRequest redirect) {
+  public final void setDefaultRedirect(String name, PSUrlRequest redirect) {
     validate(name);
     if (redirect == null) throw new IllegalArgumentException("the redirect cannot be null");
 
@@ -209,7 +209,7 @@ public class PSApplicationFlow extends PSComponent {
    * @throws IllegalArgumentException if the provided command handler name is <code>null</code> or
    *     empty or if the redirect collection is <code>null</code>.
    */
-  public void addRedirects(String name, PSCollection redirects) {
+  public final void addRedirects(String name, PSCollection redirects) {
     validate(name);
     validate(redirects);
 
@@ -227,7 +227,7 @@ public class PSApplicationFlow extends PSComponent {
    *     empty or if the redirect collection is <code>null</code> or if no command handler was found
    *     for the provided name.
    */
-  public void addConditionalRedirects(String name, PSCollection redirects) {
+  public final void addConditionalRedirects(String name, PSCollection redirects) {
     validate(name);
     if (redirects == null) throw new IllegalArgumentException("the redirects cannot be null");
 
@@ -289,7 +289,7 @@ public class PSApplicationFlow extends PSComponent {
    *
    * @param c a valid PSApplicationFlow, not <code>null</code>.
    */
-  public void copyFrom(PSApplicationFlow c) {
+  public final void copyFrom(PSApplicationFlow c) {
     try {
       super.copyFrom(c);
     } catch (IllegalArgumentException e) {
@@ -317,7 +317,7 @@ public class PSApplicationFlow extends PSComponent {
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

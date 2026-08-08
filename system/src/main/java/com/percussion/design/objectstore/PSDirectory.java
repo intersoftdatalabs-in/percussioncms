@@ -97,7 +97,7 @@ public class PSDirectory extends PSComponent {
    *
    * @param name the new name for this directory, not <code>null</code> or empty.
    */
-  public void setName(String name) {
+  public final void setName(String name) {
     if (name == null) throw new IllegalArgumentException("name cannot be null");
 
     name = name.trim();
@@ -344,7 +344,7 @@ public class PSDirectory extends PSComponent {
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

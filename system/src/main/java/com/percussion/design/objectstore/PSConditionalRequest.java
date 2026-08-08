@@ -105,7 +105,7 @@ public class PSConditionalRequest extends PSUrlRequest {
    * @throws IllegalArgumentException if the provided conditions are <code>null</code>, empty or of
    *     a wrong type.
    */
-  public void setConditions(PSCollection conditions) {
+  public final void setConditions(PSCollection conditions) {
     if (conditions == null || conditions.isEmpty())
       throw new IllegalArgumentException("conditions cannot be null or empty");
 
@@ -156,7 +156,7 @@ public class PSConditionalRequest extends PSUrlRequest {
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

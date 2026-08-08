@@ -63,7 +63,7 @@ public class PSProperty extends PSComponent {
    * @param name the name of the property, may not be <code>null</code> or empty.
    * @throws IllegalArgumentException if name is invalid.
    */
-  public void setName(String name) {
+  public final void setName(String name) {
     if (name == null || name.trim().length() == 0)
       throw new IllegalArgumentException("name may not be null or empty.");
 
@@ -76,7 +76,7 @@ public class PSProperty extends PSComponent {
    * @param type data type of the property value, must be one of the TYPE_xxx values
    * @throws IllegalArgumentException if type is invalid.
    */
-  public void setType(int type) {
+  public final void setType(int type) {
     if (type < 0 && type >= TYPE_ENUM.length)
       throw new IllegalArgumentException("type must be between 0 and " + TYPE_ENUM.length);
 
@@ -88,7 +88,7 @@ public class PSProperty extends PSComponent {
    *
    * @param value the value of the property, may be <code>null</code>.
    */
-  public void setValue(Object value) {
+  public final void setValue(Object value) {
     if (value != null) {
       if (m_type == TYPE_BOOLEAN) {
         if (value instanceof String) {
@@ -110,7 +110,7 @@ public class PSProperty extends PSComponent {
    *
    * @param lock supply <code>true</code> to lock the property, otherwise <code>false</code>
    */
-  public void setLock(boolean lock) {
+  public final void setLock(boolean lock) {
     m_lock = lock;
   }
 
@@ -120,7 +120,7 @@ public class PSProperty extends PSComponent {
    * @param description the description of the property, may be <code>null
    * </code> or empty.
    */
-  public void setDescription(String description) {
+  public final void setDescription(String description) {
     m_description = description;
   }
 
@@ -221,7 +221,7 @@ public class PSProperty extends PSComponent {
    * @see IPSComponent
    */
   @Override
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

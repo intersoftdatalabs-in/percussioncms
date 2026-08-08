@@ -39,9 +39,10 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
    * @param parameters a collection of PSParam objects, never <code>null</code>, may be empty.
    */
   public PSUrlRequest(String name, String href, PSCollection parameters) {
-    setName(name);
-    setHref(href);
-    setQueryParameters(parameters);
+    // Private helpers avoid virtual setters during construction (this-escape).
+    applyName(name);
+    applyHref(href);
+    applyQueryParameters(parameters);
   }
 
   /**
@@ -52,8 +53,8 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
    * @param converter a UDF which returns a URL. Never <code>null</code>.
    */
   public PSUrlRequest(String name, PSExtensionCall converter) {
-    setName(name);
-    setConverter(converter);
+    applyName(name);
+    applyConverter(converter);
   }
 
   /**
@@ -66,8 +67,8 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
    */
   public PSUrlRequest(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
-    // allow subclasses to override (don't use "this")
-    fromXml(sourceNode, parentDoc, parentComponents);
+    // Private path avoids virtual fromXml dispatch before subclass fields initialize.
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
 
   /**
@@ -78,7 +79,8 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   public PSUrlRequest(PSUrlRequest source) {
     if (source == null) throw new IllegalArgumentException("source cannot be null");
 
-    this.copyFrom(source); // make sure we don't get overridden
+    // Non-virtual load for this-escape safety (same as copyFrom body).
+    copyFromBase(source);
   }
 
   /**
@@ -118,6 +120,10 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
    * @param name the name for this request. May be <code>null</code> but not empty.
    */
   public void setName(String name) {
+    applyName(name);
+  }
+
+  private void applyName(String name) {
     if (name != null && name.trim().length() == 0)
       throw new IllegalArgumentException("the name cannot be empty");
 
@@ -172,6 +178,10 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
    * @param href the base part of the URL, might be <code>null</code> or empty.
    */
   public void setHref(String href) {
+    applyHref(href);
+  }
+
+  private void applyHref(String href) {
     if (href == null) m_href = "";
     else m_href = href;
   }
@@ -191,6 +201,10 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
    * @param queryParameters a collection of PSParam objects. Not <code>null</code>, might be empty.
    */
   public void setQueryParameters(PSCollection queryParameters) {
+    applyQueryParameters(queryParameters);
+  }
+
+  private void applyQueryParameters(PSCollection queryParameters) {
     if (queryParameters == null)
       throw new IllegalArgumentException("queryPramaters cannot be null");
 
@@ -283,12 +297,16 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
    * @param converter the new converter extension, not <code>null</code>.
    */
   public void setConverter(PSExtensionCall converter) {
+    applyConverter(converter);
+  }
+
+  private void applyConverter(PSExtensionCall converter) {
     if (converter == null) throw new IllegalArgumentException("converter cannot be null");
 
     m_converter = converter;
 
     // href and query parameters are not used when converter is set
-    setHref("");
+    applyHref("");
     m_queryParameters.clear();
   }
 
@@ -299,12 +317,16 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
    * @param c a valid PSUrlRequest, not <code>null</code>.
    */
   public void copyFrom(PSUrlRequest c) {
+    copyFromBase(c);
+  }
+
+  /** Non-overridable copy used from constructors and {@link #copyFrom(PSUrlRequest)}. */
+  private void copyFromBase(PSUrlRequest c) {
     try {
       super.copyFrom(c);
     } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException(e.getLocalizedMessage());
     }
-    ;
 
     m_converter = c.getConverter();
     m_href = c.getHref();
@@ -317,6 +339,15 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
+  }
+
+  /**
+   * Shared load for {@link #fromXml} and the Element constructor. Avoids virtual fromXml dispatch
+   * during construction for subclasses such as {@link PSConditionalRequest}.
+   */
+  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
@@ -356,7 +387,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
           throw new PSUnknownNodeTypeException(
               IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
         }
-        setHref(PSXmlTreeWalker.getElementData(node));
+        applyHref(PSXmlTreeWalker.getElementData(node));
 
         node = tree.getNextElement(PSParam.XML_NODE_NAME, nextFlags);
         while (node != null) {

@@ -45,8 +45,9 @@ public class PSEntry extends PSComponent {
    * @param label the label for this entry, not <code>null</code>, may be empty.
    */
   public PSEntry(String value, PSDisplayText label) {
-    setValue(value);
-    setLabel(label);
+    // Private helpers avoid virtual setValue/setLabel during construction (this-escape).
+    applyValue(value);
+    applyLabel(label);
   }
 
   /**
@@ -59,8 +60,8 @@ public class PSEntry extends PSComponent {
    */
   public PSEntry(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
-    // allow subclasses to override (don't use "this")
-    fromXml(sourceNode, parentDoc, parentComponents);
+    // Private path avoids virtual fromXml dispatch before subclass fields initialize.
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
 
   /** Constructor for XML serialization by subclasses. */
@@ -110,6 +111,11 @@ public class PSEntry extends PSComponent {
    * @throws IllegalArgumentException if the provided value is <code>null</code>.
    */
   public void setValue(String value) {
+    applyValue(value);
+  }
+
+  /** Non-overridable assignment used from constructors and {@link #setValue(String)}. */
+  private void applyValue(String value) {
     if (value == null) throw new IllegalArgumentException("the value cannot be null");
 
     m_value = value;
@@ -161,6 +167,11 @@ public class PSEntry extends PSComponent {
    * @param label the new display text, never <code>null</code>.
    */
   public void setLabel(PSDisplayText label) {
+    applyLabel(label);
+  }
+
+  /** Non-overridable assignment used from constructors and {@link #setLabel(PSDisplayText)}. */
+  private void applyLabel(PSDisplayText label) {
     if (label == null) throw new IllegalArgumentException("the label cannot be null");
 
     m_label = label;
@@ -242,6 +253,16 @@ public class PSEntry extends PSComponent {
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
+  }
+
+  /**
+   * Shared load for {@link #fromXml} and the Element constructor. Keeps construction free of
+   * virtual {@code fromXml} dispatch so subclasses (e.g. {@link PSNullEntry}) can initialize
+   * safely.
+   */
+  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
