@@ -158,7 +158,7 @@ public class PSItemRelatedItem extends PSItemComponent {
    * @return unmodifiable <code>Iterator</code> of all of the <code>key</code> names as <code>
    *     Strings</code>. May be empty but not <code>null</code>.
    */
-  public Iterator getAllProperties() {
+  public Iterator<String> getAllProperties() {
     return Collections.unmodifiableCollection(m_propertyMap.keySet()).iterator();
   }
 

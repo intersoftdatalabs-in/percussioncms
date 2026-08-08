@@ -38,7 +38,7 @@ import org.w3c.dom.Element;
  * used while serializing it to the database (in the <code>PSServerFolderProcessor</code> class).
  * Each ACL entry in this collection should be in one of the DBSTATE_xxx state.
  */
-public class PSObjectAcl extends PSDbComponentSet {
+public class PSObjectAcl extends PSDbComponentSet<PSObjectAclEntry> {
   /** The default constructor to create an empty ACL. */
   public PSObjectAcl() {
     super(PSObjectAclEntry.class);
@@ -78,10 +78,9 @@ public class PSObjectAcl extends PSDbComponentSet {
    *     not exist.
    */
   public PSObjectAclEntry getAclEntry(String name, int type) {
-    Iterator entries = iterator();
-    PSObjectAclEntry entry;
+    Iterator<PSObjectAclEntry> entries = iterator();
     while (entries.hasNext()) {
-      entry = (PSObjectAclEntry) entries.next();
+      PSObjectAclEntry entry = entries.next();
       if (entry.getName().equalsIgnoreCase(name) && entry.getType() == type) {
         return entry;
       }

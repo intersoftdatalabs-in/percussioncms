@@ -190,8 +190,8 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
       }
 
       List resultColumns = new ArrayList();
-      Iterator columns = displayFormat.getColumns();
-      while (columns.hasNext()) resultColumns.add(((PSDisplayColumn) columns.next()).getSource());
+      Iterator<PSDisplayColumn> columns = displayFormat.getColumns();
+      while (columns.hasNext()) resultColumns.add(columns.next().getSource());
 
       PSRequest req = new PSRequest(request.getSecurityToken());
       req.setParameters(request.getParametersIterator());
@@ -378,8 +378,8 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
      * level, then all other columns.
      */
     List displayedColumns = new ArrayList();
-    Iterator columns = displayFormat.getColumns();
-    while (columns.hasNext()) addColumn(displayedColumns, (PSDisplayColumn) columns.next());
+    Iterator<PSDisplayColumn> columns = displayFormat.getColumns();
+    while (columns.hasNext()) addColumn(displayedColumns, columns.next());
 
     // create the header element
     Element header = PSXmlDocumentBuilder.addEmptyElement(doc, root, HEADER_ELEM);

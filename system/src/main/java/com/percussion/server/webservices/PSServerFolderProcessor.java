@@ -315,9 +315,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       throw new PSCmsException(IPSCmsErrors.INVALID_FOLDER_NAME, args);
     }
 
-    Iterator props = folder.getProperties();
+    Iterator<PSFolderProperty> props = folder.getProperties();
     while (props.hasNext()) {
-      PSFolderProperty prop = (PSFolderProperty) props.next();
+      PSFolderProperty prop = props.next();
 
       if (prop.getName().length() > PROP_NAME_MAX)
         throwInvalidException("property name", prop.getName().length(), PROP_NAME_MAX);
@@ -642,9 +642,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     PSItemChild child = fItem.getChildByName(CHILD_NAME_PROPERTIES);
 
     // set the inserted and modified properties
-    Iterator childs = folder.getProperties();
+    Iterator<PSFolderProperty> childs = folder.getProperties();
     while (childs.hasNext()) {
-      PSFolderProperty prop = (PSFolderProperty) childs.next();
+      PSFolderProperty prop = childs.next();
 
       if (prop.getState() == IPSDbComponent.DBSTATE_UNMODIFIED) continue;
 
@@ -676,7 +676,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     // take care the deleted properties
     childs = folder.getDeletedProperties();
     while (childs.hasNext()) {
-      PSFolderProperty prop = (PSFolderProperty) childs.next();
+      PSFolderProperty prop = childs.next();
 
       PSItemChildEntry childEntry = child.createChildEntry();
       childEntry.setAction(PSItemChildEntry.CHILD_ACTION_DELETE);

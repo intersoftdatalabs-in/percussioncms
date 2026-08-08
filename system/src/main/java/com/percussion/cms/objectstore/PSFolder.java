@@ -703,9 +703,9 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
     PSObjectAclEntry entry, srcEntry, tgtEntry;
 
     // Base on the current ACL, handles the modified and deleted ACLs
-    Iterator entries = origAcl.iterator();
+    Iterator<PSObjectAclEntry> entries = origAcl.iterator();
     while (entries.hasNext()) {
-      entry = (PSObjectAclEntry) entries.next();
+      entry = entries.next();
       tgtEntry = m_acl.getAclEntry(entry.getName(), entry.getType());
 
       srcEntry = srcAclClone.getAclEntry(entry.getName(), entry.getType());
@@ -718,7 +718,7 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
     // Base on the source ACLs, handles the new ACLs
     entries = srcAclClone.iterator();
     while (entries.hasNext()) {
-      srcEntry = (PSObjectAclEntry) entries.next();
+      srcEntry = entries.next();
       if (srcEntry.isPersisted())
         throw new IllegalStateException(
             "The new ACL entry, ("
@@ -739,9 +739,13 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
 
     // handles the modified and deleted properties, based on current object.
     PSDbComponentList origProps = (PSDbComponentList) m_properties.cloneFull();
-    Iterator props = origProps.iterator();
+    Iterator<IPSDbComponent> props = origProps.iterator();
     while (props.hasNext()) {
-      prop = (PSFolderProperty) props.next();
+      IPSDbComponent component = props.next();
+      if (!(component instanceof PSFolderProperty)) {
+        continue;
+      }
+      prop = (PSFolderProperty) component;
       String pname = prop.getName();
       srcProp = getProperty(pname, srcProps);
       if (srcProp != null) {
@@ -759,7 +763,11 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
     // (or new) properties.
     props = srcProps.iterator();
     while (props.hasNext()) {
-      prop = (PSFolderProperty) props.next();
+      IPSDbComponent component = props.next();
+      if (!(component instanceof PSFolderProperty)) {
+        continue;
+      }
+      prop = (PSFolderProperty) component;
       if (getProperty(prop.getName()) == null) {
         if (prop.isPersisted())
           throw new IllegalStateException(
@@ -842,8 +850,11 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
    * @return An iterator with zero or more <code>PSFolderProperty</code> object. Never <code>null
    *     </code>, but may be empty.
    */
-  public Iterator getProperties() {
-    return m_properties.iterator();
+  public Iterator<PSFolderProperty> getProperties() {
+    @SuppressWarnings("unchecked")
+    Iterator<PSFolderProperty> props =
+        (Iterator<PSFolderProperty>) (Iterator<?>) m_properties.iterator();
+    return props;
   }
 
   /**
@@ -852,8 +863,11 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
    * @return An iterator with zero or more <code>PSFolderProperty</code> object. Never <code>null
    *     </code>, but may be empty.
    */
-  public Iterator getDeletedProperties() {
-    return m_properties.getDeleteCollection().iterator();
+  public Iterator<PSFolderProperty> getDeletedProperties() {
+    @SuppressWarnings("unchecked")
+    Iterator<PSFolderProperty> props =
+        (Iterator<PSFolderProperty>) (Iterator<?>) m_properties.getDeleteCollection().iterator();
+    return props;
   }
 
   /**
@@ -976,10 +990,13 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
    *     exist in the specified property list.
    */
   private PSFolderProperty getProperty(String name, PSDbComponentList props) {
-    Iterator entries = props.iterator();
+    Iterator<IPSDbComponent> entries = props.iterator();
     while (entries.hasNext()) {
-      PSFolderProperty prop = (PSFolderProperty) entries.next();
-      if (name.equalsIgnoreCase(prop.getName())) return prop;
+      IPSDbComponent component = entries.next();
+      if (component instanceof PSFolderProperty) {
+        PSFolderProperty prop = (PSFolderProperty) component;
+        if (name.equalsIgnoreCase(prop.getName())) return prop;
+      }
     }
 
     return null;
