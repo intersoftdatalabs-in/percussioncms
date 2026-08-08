@@ -18,6 +18,9 @@
 package com.percussion.security;
 
 import com.percussion.data.PSResultSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * The PSWebServerProviderMetaData class implements cataloging for the Web Server security provider.
@@ -115,11 +118,11 @@ public class PSWebServerProviderMetaData extends PSSecurityProviderMetaData {
       "keyStrength"
     };
 
-    java.util.ArrayList obType = new java.util.ArrayList();
-    java.util.ArrayList attribName = new java.util.ArrayList();
-    java.util.ArrayList attribDesc = new java.util.ArrayList();
+    List<Object> obType = new ArrayList<>();
+    List<Object> attribName = new ArrayList<>();
+    List<Object> attribDesc = new ArrayList<>();
 
-    java.util.HashMap columnNames = new java.util.HashMap();
+    HashMap<String, Integer> columnNames = new HashMap<>();
 
     for (int onAttrib = 0; onAttrib < attribs.length; onAttrib++) {
       obType.add("");
@@ -132,9 +135,7 @@ public class PSWebServerProviderMetaData extends PSSecurityProviderMetaData {
     columnNames.put("ATTRIBUTE_DESC", Integer.valueOf(3));
 
     return new PSResultSet(
-        new java.util.ArrayList[] {obType, attribName, attribDesc},
-        columnNames,
-        ms_GetAttributesRSMeta);
+        new List<?>[] {obType, attribName, attribDesc}, columnNames, ms_GetAttributesRSMeta);
   }
 
   /**

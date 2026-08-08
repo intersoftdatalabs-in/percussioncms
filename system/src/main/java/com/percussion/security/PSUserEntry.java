@@ -22,7 +22,6 @@ import com.percussion.util.PSXMLDomUtil;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Iterator;
 import org.apache.commons.lang3.ArrayUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -255,11 +254,8 @@ public class PSUserEntry extends PSEntry {
 
     Element attributes = doc.createElement("Attributes");
     if (m_attributes != null) {
-      Iterator attrs = m_attributes.keySet().iterator();
-      while (attrs.hasNext()) {
+      for (String key : m_attributes.keySet()) {
         Element attribute = doc.createElement("Attribute");
-
-        String key = (String) attrs.next();
 
         // make sure that the key is a valid XML name - fixes Rx-02-11-0056
         String xmlKey = PSXMLDomUtil.makeXmlName(key);

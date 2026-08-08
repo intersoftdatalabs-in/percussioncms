@@ -88,11 +88,11 @@ abstract class PSJndiProviderMetaData extends PSSecurityProviderMetaData {
    * @return an empty result set
    */
   public ResultSet getServers() throws SQLException {
-    ArrayList serverNameCol = new ArrayList(1);
-    HashMap columnNames = new HashMap();
+    List<Object> serverNameCol = new ArrayList<>(1);
+    HashMap<String, Integer> columnNames = new HashMap<>();
 
     columnNames.put("SERVER_NAME", Integer.valueOf(1));
-    return new PSResultSet(new ArrayList[] {serverNameCol}, columnNames, ms_GetServerRSMeta);
+    return new PSResultSet(new List<?>[] {serverNameCol}, columnNames, ms_GetServerRSMeta);
   }
 
   /**
@@ -110,12 +110,12 @@ abstract class PSJndiProviderMetaData extends PSSecurityProviderMetaData {
    * @return a result set containing one object type per row
    */
   public ResultSet getObjectTypes() {
-    List objectTypeCol = getSupportedTypes();
+    List<String> objectTypeCol = getSupportedTypes();
 
-    HashMap columnNames = new HashMap();
+    HashMap<String, Integer> columnNames = new HashMap<>();
     columnNames.put("OBJECT_TYPE", Integer.valueOf(1));
 
-    return new PSResultSet(new List[] {objectTypeCol}, columnNames, ms_GetObjectTypesRSMeta);
+    return new PSResultSet(new List<?>[] {objectTypeCol}, columnNames, ms_GetObjectTypesRSMeta);
   }
 
   // see IPSSecurityProviderMetaData interface for description
@@ -190,8 +190,8 @@ abstract class PSJndiProviderMetaData extends PSSecurityProviderMetaData {
    *     IPSSecurityProviderMetaData#OBJECT_TYPE_USER} and will include {@link
    *     IPSSecurityProviderMetaData#OBJECT_TYPE_GROUP} if there is at least one group provider.
    */
-  protected List getSupportedTypes() {
-    List objectTypes = new ArrayList(2);
+  protected List<String> getSupportedTypes() {
+    List<String> objectTypes = new ArrayList<>(2);
     objectTypes.add(OBJECT_TYPE_USER);
     if (m_instance.getGroupProviders().hasNext()) objectTypes.add(OBJECT_TYPE_GROUP);
 

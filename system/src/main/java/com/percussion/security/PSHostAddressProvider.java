@@ -63,7 +63,7 @@ public class PSHostAddressProvider extends Object {
    *     to authenticate the user
    */
   public PSUserEntry[] getAuthenticatedUserEntries(PSRequest req) {
-    List entries = new ArrayList();
+    List<PSUserEntry> entries = new ArrayList<>();
 
     /* we need to get the user's host name and address. Furthermore, we
      * need to support filters, so we store the user entry in the

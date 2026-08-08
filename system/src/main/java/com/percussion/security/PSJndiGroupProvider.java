@@ -158,7 +158,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
    * @throws IllegalArgumentException if filter is invalid.
    * @throws PSSecurityException if any errors occur.
    */
-  public Collection getGroups(String filter) throws PSSecurityException {
+  public Collection<String> getGroups(String filter) throws PSSecurityException {
     if (filter != null && filter.trim().length() == 0)
       throw new IllegalArgumentException("filter may not be empty");
 
@@ -177,7 +177,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
       searchFilter = getGroupsSearchFilter();
     }
 
-    Collection groups = new ArrayList();
+    Collection<String> groups = new ArrayList<>();
 
     // if empty, no objectClasses defined, return empty collection
     if (searchFilter.trim().length() == 0) return groups;
@@ -243,9 +243,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
 
     String fullUserName = getFullUserName(userName);
     if (fullUserName != null) {
-      Iterator groups = getGroups(null).iterator();
-      while (groups.hasNext()) {
-        String groupName = groups.next().toString();
+      for (String groupName : getGroups(null)) {
         if (isMember(fullUserName, groupName)) userGroups.add(groupName);
       }
     }

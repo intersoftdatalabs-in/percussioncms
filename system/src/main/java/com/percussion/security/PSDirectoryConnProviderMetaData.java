@@ -33,7 +33,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.naming.CompoundName;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -103,9 +102,9 @@ public class PSDirectoryConnProviderMetaData extends PSJndiProviderMetaData {
    * </ul>
    */
   public ResultSet getObjects(String[] objectTypes, String[] filterPattern) throws SQLException {
-    List obType = new ArrayList();
-    List obId = new ArrayList();
-    List obName = new ArrayList();
+    List<Object> obType = new ArrayList<>();
+    List<Object> obId = new ArrayList<>();
+    List<Object> obName = new ArrayList<>();
 
     if (m_instance instanceof PSDirectoryConnProvider) {
       PSDirectoryConnProvider provider = (PSDirectoryConnProvider) m_instance;
@@ -120,9 +119,10 @@ public class PSDirectoryConnProviderMetaData extends PSJndiProviderMetaData {
           directorySet.getRequiredAttributeName(PSDirectorySet.OBJECT_ATTRIBUTE_KEY);
       String[] attrIDs = {objectAttributeName};
 
-      Iterator references = directorySet.iterator();
+      @SuppressWarnings("unchecked")
+      Iterator<PSReference> references = directorySet.iterator();
       while (references.hasNext()) {
-        PSReference reference = (PSReference) references.next();
+        PSReference reference = references.next();
         PSDirectory directory = config.getDirectory(reference.getName());
         PSAuthentication authentication =
             config.getAuthentication(directory.getAuthenticationRef().getName());
@@ -130,14 +130,13 @@ public class PSDirectoryConnProviderMetaData extends PSJndiProviderMetaData {
         provider.setProviderProperties(directory, authentication);
 
         DirContext ctx = null;
-        NamingEnumeration results = null;
-        NamingEnumeration attrs = null;
-        NamingEnumeration attVals = null;
+        NamingEnumeration<SearchResult> results = null;
+        NamingEnumeration<? extends Attribute> attrs = null;
+        NamingEnumeration<?> attVals = null;
         try {
           if (objectTypes == null) {
-            List types = getSupportedTypes();
-            objectTypes = new String[types.size()];
-            types.toArray(objectTypes);
+            List<String> types = getSupportedTypes();
+            objectTypes = types.toArray(new String[0]);
           }
 
           for (int i = 0; i < objectTypes.length; i++) {
@@ -166,11 +165,11 @@ public class PSDirectoryConnProviderMetaData extends PSJndiProviderMetaData {
               results = ctx.search("", searchFilter, controls);
 
               // use a set to return unique results.
-              Set valSet = new HashSet();
+              Set<String> valSet = new HashSet<>();
               while (results.hasMore()) {
-                SearchResult result = (SearchResult) results.next();
+                SearchResult result = results.next();
                 for (attrs = result.getAttributes().getAll(); attrs.hasMore(); ) {
-                  Attribute attr = (Attribute) attrs.next();
+                  Attribute attr = attrs.next();
 
                   attVals = attr.getAll();
                   while (attVals.hasMoreElements()) {
@@ -190,37 +189,34 @@ public class PSDirectoryConnProviderMetaData extends PSJndiProviderMetaData {
               ctx.close();
               ctx = null;
 
-              Iterator values = valSet.iterator();
-              while (values.hasNext()) {
-                String name = (String) values.next();
+              for (String name : valSet) {
                 obType.add(OBJECT_TYPE_USER);
                 obId.add(name);
                 obName.add(name); // name and id are the same
               }
             } else if (objectTypes[i].equalsIgnoreCase(OBJECT_TYPE_GROUP)) {
               // catalog all groups through this provider
-              Set valSet = new HashSet();
+              Set<String> valSet = new HashSet<>();
 
-              Iterator groupProviders = m_instance.getGroupProviders();
+              Iterator<IPSGroupProvider> groupProviders = m_instance.getGroupProviders();
               while (groupProviders.hasNext()) {
-                IPSGroupProvider gp = (IPSGroupProvider) groupProviders.next();
+                IPSGroupProvider gp = groupProviders.next();
                 if (gp instanceof PSJndiGroupProvider)
                   ((PSJndiGroupProvider) gp).setProviderUrl(directory.getProviderUrl());
 
                 if (filterPattern == null) valSet.addAll(gp.getGroups(null));
                 else {
                   for (int j = 0; j < filterPattern.length; j++) {
+                    // intentional: original code used objectTypes index i for filter selection
                     valSet.addAll(gp.getGroups(filterPattern[i]));
                   }
                 }
               }
 
-              Iterator values = valSet.iterator();
-              while (values.hasNext()) {
-                CompoundName name = (CompoundName) values.next();
+              for (String name : valSet) {
                 obType.add(OBJECT_TYPE_GROUP);
-                obId.add(name.toString());
-                obName.add(name.toString()); // name and id are the same
+                obId.add(name);
+                obName.add(name); // name and id are the same
               }
             }
           }
@@ -259,13 +255,13 @@ public class PSDirectoryConnProviderMetaData extends PSJndiProviderMetaData {
       }
     }
 
-    HashMap columnNames = new HashMap();
+    HashMap<String, Integer> columnNames = new HashMap<>();
     columnNames.put("OBJECT_TYPE", Integer.valueOf(1));
     columnNames.put("OBJECT_ID", Integer.valueOf(2));
     columnNames.put("OBJECT_NAME", Integer.valueOf(3));
 
-    List[] results = new List[] {obType, obId, obName};
+    List<?>[] resultCols = new List<?>[] {obType, obId, obName};
 
-    return new PSResultSet(results, columnNames, ms_GetObjectsRSMeta);
+    return new PSResultSet(resultCols, columnNames, ms_GetObjectsRSMeta);
   }
 }
