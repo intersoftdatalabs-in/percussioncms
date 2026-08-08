@@ -185,8 +185,8 @@ public class PSItemRelationshipsManager {
       }
     }
 
-    List resList = new ArrayList();
-    List idList = new ArrayList();
+    List<PSNode> resList = new ArrayList<>();
+    List<Integer> idList = new ArrayList<>();
     // Set the 'relationship', 'rs_type' and the locator as properties of each
     // node
     Iterator it = summaries.iterator();
@@ -232,21 +232,16 @@ public class PSItemRelationshipsManager {
               .getDisplayFormatById("0"); // get the default display format
 
       PSExecutableSearch searchEx = new PSExecutableSearch(m_docBase, format, idList, m_applet);
-      List list = searchEx.executeSearch(parentNode);
-      PSNode node = null;
-      Map rowData = null;
-      Iterator values = null;
-      String label = null;
-      for (int i = 0; i < list.size(); i++) {
-        node = (PSNode) list.get(i);
+      List<PSNode> list = searchEx.executeSearch(parentNode);
+      for (PSNode node : list) {
         node.setType(PSNode.TYPE_DTITEM);
         node.setProperty(IPSConstants.PROPERTY_RELATIONSHIP, relationship);
 
         node.setProperty(PROP_RS_LOOKUP_TYPE, rsType);
-        label = node.getLabel();
-        rowData = node.getRowData();
+        String label = node.getLabel();
+        Map<String, Object> rowData = node.getRowData();
         if (rowData != null) {
-          values = rowData.values().iterator();
+          Iterator<Object> values = rowData.values().iterator();
           int ii = 0;
           while (values.hasNext()) {
             if (ii == 0) label += " (";
