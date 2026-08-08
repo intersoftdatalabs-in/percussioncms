@@ -12,7 +12,7 @@
 - Portable paths: PSPropagateFile now uses `Path.resolve` instead of `"/" +` string join.
 - Intentional `@SuppressWarnings("deprecation")` only on legacy upgrade crypto / PSEntityResolver / Ant Main(String[]) — no blanket suppressions.
 - New `PSInstallIoUtils` covered by 6 unit tests; module suite 49 tests green.
-- Residual (not module-zero for issue acceptance): javadoc "no main description" on PSMigrateI18nLocaleCodes / PSStripSampleLocales (~8). Original issue "200" was inventory-cap noise; live main Xlint:all was 34.
+- Residual (not module-zero for issue acceptance at batch-1 time): javadoc "no main description" on PSMigrateI18nLocaleCodes / PSStripSampleLocales (~8) — **cleared in #2416** (one-line main descriptions on dryRun/failOnError and inputFile/stagingFile getters/setters). Original issue "200" was inventory-cap noise; live main Xlint:all was 34.
 
 ## Hard gates
 - [x] No new non-portable path I/O

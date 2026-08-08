@@ -51,6 +51,8 @@ public class PSMigrateI18nLocaleCodes extends PSAction {
   private boolean failOnError = true;
 
   /**
+   * Sets whether migration runs in dry-run mode (count/log only).
+   *
    * @param dryRun when true, count and log only (rollback / no updates)
    */
   public void setDryRun(boolean dryRun) {
@@ -58,6 +60,8 @@ public class PSMigrateI18nLocaleCodes extends PSAction {
   }
 
   /**
+   * Returns whether dry-run mode is enabled.
+   *
    * @return whether dry-run mode is enabled
    */
   public boolean isDryRun() {
@@ -65,6 +69,8 @@ public class PSMigrateI18nLocaleCodes extends PSAction {
   }
 
   /**
+   * Sets whether SQL/config failures abort the install task.
+   *
    * @param failOnError when true (default), SQL/config failures throw {@link BuildException}
    */
   public void setFailOnError(boolean failOnError) {
@@ -72,6 +78,8 @@ public class PSMigrateI18nLocaleCodes extends PSAction {
   }
 
   /**
+   * Returns whether failures abort the install.
+   *
    * @return whether failures abort the install
    */
   public boolean isFailOnError() {

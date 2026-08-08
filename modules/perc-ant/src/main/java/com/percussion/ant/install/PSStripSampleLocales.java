@@ -64,6 +64,8 @@ public class PSStripSampleLocales extends Task {
   public PSStripSampleLocales() {}
 
   /**
+   * Sets the path to the shipped sample seed XML (never modified).
+   *
    * @param inputFile path to the shipped sample seed XML (never modified)
    */
   public void setInputFile(String inputFile) {
@@ -71,6 +73,8 @@ public class PSStripSampleLocales extends Task {
   }
 
   /**
+   * Returns the input file path.
+   *
    * @return input file path
    */
   public String getInputFile() {
@@ -78,6 +82,8 @@ public class PSStripSampleLocales extends Task {
   }
 
   /**
+   * Sets the path for the stripped staging copy written for {@code PSTableAction}.
+   *
    * @param stagingFile path for the stripped staging copy written for {@code PSTableAction}
    */
   public void setStagingFile(String stagingFile) {
@@ -85,6 +91,8 @@ public class PSStripSampleLocales extends Task {
   }
 
   /**
+   * Returns the staging output path.
+   *
    * @return staging output path
    */
   public String getStagingFile() {
