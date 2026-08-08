@@ -37,7 +37,7 @@ public class PSSelection {
    * @param nodeList the list of <code>PSNode</code> objects that are selected, may not be <code>
    *     null</code> or empty.
    */
-  public PSSelection(PSUiMode uiMode, PSNode parent, Iterator nodeList) {
+  public PSSelection(PSUiMode uiMode, PSNode parent, Iterator<? extends PSNode> nodeList) {
     if (uiMode == null) throw new IllegalArgumentException("uiMode may not be null.");
 
     if (nodeList == null || !nodeList.hasNext())
@@ -46,7 +46,7 @@ public class PSSelection {
     m_uiMode = uiMode;
     m_parent = parent;
     while (nodeList.hasNext()) {
-      PSNode sel = (PSNode) nodeList.next();
+      PSNode sel = nodeList.next();
 
       if (sel == null)
         throw new IllegalArgumentException("Elements in the nodeList may not ne null.");
@@ -60,7 +60,7 @@ public class PSSelection {
    *
    * @return the iterator of <code>PSNode</code> objects, never <code>null</code> or empty.
    */
-  public Iterator getNodeList() {
+  public Iterator<PSNode> getNodeList() {
     return Collections.unmodifiableCollection(m_nodeList).iterator();
   }
 
@@ -138,9 +138,9 @@ public class PSSelection {
    *     of the same node type. Empty string if the selection is not of the same type.
    */
   public String getType() {
-    String type = ((PSNode) m_nodeList.get(0)).getType();
+    String type = m_nodeList.get(0).getType();
     for (int i = 1; i < m_nodeList.size(); i++) {
-      if (!type.equals(((PSNode) m_nodeList.get(i)).getType())) return "";
+      if (!type.equals(m_nodeList.get(i).getType())) return "";
     }
 
     return type;
@@ -152,11 +152,10 @@ public class PSSelection {
    * @return the list of node types in the selection. Each selection type in the list is one of the
    *     PSNode types. Never <code>null</code> or <code>empty</code>.
    */
-  public List getTypes() {
-    List list = new ArrayList();
-    String type = "";
+  public List<String> getTypes() {
+    List<String> list = new ArrayList<>();
     for (int i = 0; i < m_nodeList.size(); i++) {
-      type = ((PSNode) m_nodeList.get(i)).getType();
+      String type = m_nodeList.get(i).getType();
       if (!list.contains(type)) list.add(type);
     }
     return list;
@@ -212,7 +211,7 @@ public class PSSelection {
    * The content of the selection, initialized in the ctor, never <code>null
    * </code> or empty or modified after that.
    */
-  private List m_nodeList = new ArrayList();
+  private final List<PSNode> m_nodeList = new ArrayList<>();
 
   /**
    * The parent node of the selection object, intiailized in the ctor and may be <code>null</code>.
