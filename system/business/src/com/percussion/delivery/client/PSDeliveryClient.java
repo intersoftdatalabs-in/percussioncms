@@ -725,15 +725,23 @@ public class PSDeliveryClient implements IPSDeliveryClient
             if (!successfulHttpStatusCodes.contains(statusCode)) {
                 failureCount = 0;
                 offline = false;
+                String snippet =
+                        PSDeliveryHttpErrorSupport.firstLineSnippet(
+                                responseData, PSDeliveryHttpErrorSupport.DEFAULT_BODY_SNIPPET_MAX);
                 String msg;
                 if (statusCode == 401) {
-                    msg = String.format("Authentication error. Check user and password for this delivery server. HTTP status: %s",
-                            statusCode);
+                    msg = String.format(
+                            "Authentication error. Check user and password for this delivery server. %s %s (HTTP %s)%s",
+                            methodLabel,
+                            url,
+                            statusCode,
+                            snippet.isEmpty() ? "" : ": " + snippet);
                 } else {
-                    msg = String.format("Error when executing method : %s %s : %s", methodLabel, url, responseData);
+                    msg = PSDeliveryHttpErrorSupport.formatExecutionError(
+                            methodLabel, url, statusCode, responseData);
                 }
                 log.error(msg);
-                throw new PSDeliveryClientException(msg);
+                throw new PSDeliveryClientException(msg, statusCode, methodLabel, url, snippet);
             } else {
                 if (statusCode == 204)
                     return "";

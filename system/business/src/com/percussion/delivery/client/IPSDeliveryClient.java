@@ -304,12 +304,25 @@ public interface IPSDeliveryClient
          */
         private static final long serialVersionUID = -7552921159505062022L;
 
+        /** HTTP status when known; {@code -1} if not an HTTP response failure. */
+        private final int statusCode;
+
+        /** HTTP method label (e.g. PUT); may be {@code null}. */
+        private final String httpMethod;
+
+        /** Full request URL when known; may be {@code null}. */
+        private final String requestUrl;
+
+        /**
+         * Short truncated response snippet (not multi-KB HTML); may be {@code null}.
+         */
+        private final String responseSnippet;
+
         /**
          *
          */
         public PSDeliveryClientException() {
-            super();
-
+            this(null, null, -1, null, null, null);
         }
 
         /**
@@ -317,24 +330,74 @@ public interface IPSDeliveryClient
          * @param cause
          */
         public PSDeliveryClientException(String message, Throwable cause) {
-            super(message, cause);
-
+            this(message, cause, -1, null, null, null);
         }
 
         /**
          * @param message
          */
         public PSDeliveryClientException(String message) {
-            super(message);
-
+            this(message, null, -1, null, null, null);
         }
 
         /**
          * @param cause
          */
         public PSDeliveryClientException(Throwable cause) {
-            super(cause);
+            this(cause != null ? cause.getMessage() : null, cause, -1, null, null, null);
+        }
 
+        /**
+         * Structured HTTP failure for operators and callers that need status/URL without parsing
+         * the message.
+         *
+         * @param message log/exception message (already truncated if body was included)
+         * @param statusCode HTTP status, or {@code -1} when unknown
+         * @param httpMethod method label; may be {@code null}
+         * @param requestUrl full URL; may be {@code null}
+         * @param responseSnippet short body snippet; may be {@code null}
+         */
+        public PSDeliveryClientException(
+                String message,
+                int statusCode,
+                String httpMethod,
+                String requestUrl,
+                String responseSnippet) {
+            this(message, null, statusCode, httpMethod, requestUrl, responseSnippet);
+        }
+
+        private PSDeliveryClientException(
+                String message,
+                Throwable cause,
+                int statusCode,
+                String httpMethod,
+                String requestUrl,
+                String responseSnippet) {
+            super(message, cause);
+            this.statusCode = statusCode;
+            this.httpMethod = httpMethod;
+            this.requestUrl = requestUrl;
+            this.responseSnippet = responseSnippet;
+        }
+
+        /** @return HTTP status when known; {@code -1} otherwise */
+        public int getStatusCode() {
+            return statusCode;
+        }
+
+        /** @return HTTP method label, or {@code null} */
+        public String getHttpMethod() {
+            return httpMethod;
+        }
+
+        /** @return full request URL when known, or {@code null} */
+        public String getRequestUrl() {
+            return requestUrl;
+        }
+
+        /** @return short response snippet when known, or {@code null} */
+        public String getResponseSnippet() {
+            return responseSnippet;
         }
     }
 }
