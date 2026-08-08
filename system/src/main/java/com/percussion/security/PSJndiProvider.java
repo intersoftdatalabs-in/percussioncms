@@ -181,7 +181,9 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
       else m_credentialFilter = null;
 
       // All attributes remaining in the map now are user attributes.
-      m_userAttributes.putAll(providerAttrs);
+      for (String key : providerAttrs.stringPropertyNames()) {
+        m_userAttributes.put(key, providerAttrs.getProperty(key));
+      }
 
       m_baseContext = PSJndiUtils.getBaseContext(m_providerURL);
       if (m_baseContext == null) throw new IllegalArgumentException("malformed provider url");
@@ -219,9 +221,10 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
       m_credentialFilter = PSJndiUtils.initPasswordFilter(filterClass);
 
     if (directory.getAttributes() != null) {
-      Iterator attributes = directory.getAttributes().iterator();
+      @SuppressWarnings("unchecked")
+      Iterator<String> attributes = directory.getAttributes().iterator();
       while (attributes.hasNext()) {
-        String attribute = (String) attributes.next();
+        String attribute = attributes.next();
         m_userAttributes.put(attribute, attribute);
       }
     }
@@ -265,15 +268,13 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
     if (userName == null || StringUtils.isBlank(userName))
       throw new IllegalArgumentException("userName may not be null or empty");
 
-    Set memberSet = new HashSet();
+    Set<PSGroupEntry> memberSet = new HashSet<>();
 
-    Iterator providers = getGroupProviders();
+    Iterator<IPSGroupProvider> providers = getGroupProviders();
     while (providers.hasNext()) {
-      IPSGroupProvider provider = (IPSGroupProvider) providers.next();
-      Iterator<String> groups = provider.getUserGroups(userName.toString()).iterator();
-      while (groups.hasNext()) {
-        PSGroupEntry groupEntry = new PSGroupEntry(groups.next(), 0);
-        memberSet.add(groupEntry);
+      IPSGroupProvider provider = providers.next();
+      for (String groupName : provider.getUserGroups(userName)) {
+        memberSet.add(new PSGroupEntry(groupName, 0));
       }
     }
 
@@ -319,7 +320,7 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
     if (url == null || url.trim().length() == 0)
       throw new IllegalArgumentException("url may not be null or empty");
 
-    Hashtable env = new Hashtable(); // the connection properties
+    Hashtable<String, Object> env = new Hashtable<>(); // the connection properties
 
     // need to set the context factory (provided by user)
     env.put(Context.INITIAL_CONTEXT_FACTORY, m_providerClassName);
@@ -645,7 +646,7 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
    * security provider and attribute aliases for storing the values in authenticated user entry.
    * Updated in the constructor and never modified after that.
    */
-  private Map m_userAttributes = new HashMap();
+  private Map<String, String> m_userAttributes = new HashMap<>();
 
   /**
    * For directory based authentication, the password may be stored using some type of hash

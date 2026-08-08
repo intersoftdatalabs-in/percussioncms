@@ -29,7 +29,7 @@ import java.util.Iterator;
  * @version 1.0
  * @since 1.0
  */
-public class PSUserAttributes extends HashMap {
+public class PSUserAttributes extends HashMap<String, String> {
   /** Construct an empty set of attributes. */
   public PSUserAttributes() {}
 
@@ -46,9 +46,9 @@ public class PSUserAttributes extends HashMap {
         PSAttribute attribute = (PSAttribute) attributes.get(i);
 
         StringBuilder valueBuffer = new StringBuilder();
-        Iterator values = attribute.getValues().iterator();
+        Iterator<String> values = attribute.getValues().iterator();
         while (values.hasNext()) {
-          String value = (String) values.next();
+          String value = values.next();
           valueBuffer.append(value);
 
           if (values.hasNext()) valueBuffer.append(",");
@@ -66,6 +66,6 @@ public class PSUserAttributes extends HashMap {
    * @return the attribute value, or <code>null</code> if the attribute does not exist
    */
   public String getString(String key) {
-    return (String) super.get((Object) key);
+    return super.get(key);
   }
 }

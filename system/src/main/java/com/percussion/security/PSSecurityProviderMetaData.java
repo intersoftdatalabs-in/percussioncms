@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * The PSSecurityProviderMetaData abstract class is used as the base class for all security provider
@@ -55,7 +56,7 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
    * @return an empty result set with the above mentioned column, never <code>null</code>.
    */
   protected PSResultSet getEmptyServers() {
-    HashMap columnNames = new HashMap();
+    HashMap<String, Integer> columnNames = new HashMap<>();
     columnNames.put("SERVER_NAME", Integer.valueOf(1));
     return createEmptyResultSet(columnNames, ms_GetServerRSMeta);
   }
@@ -84,7 +85,7 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
    * @return an empty result set with the above mentioned column.
    */
   protected PSResultSet getEmptyObjectTypes() {
-    HashMap columnNames = new HashMap();
+    HashMap<String, Integer> columnNames = new HashMap<>();
     columnNames.put("OBJECT_TYPE", Integer.valueOf(1));
     return createEmptyResultSet(columnNames, ms_GetObjectTypesRSMeta);
   }
@@ -117,7 +118,7 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
    * @return an empty result set with the above mentioned columns.
    */
   protected PSResultSet getEmptyObjects() {
-    HashMap columnNames = new HashMap();
+    HashMap<String, Integer> columnNames = new HashMap<>();
     columnNames.put("OBJECT_TYPE", Integer.valueOf(1));
     columnNames.put("OBJECT_ID", Integer.valueOf(2));
     columnNames.put("OBJECT_NAME", Integer.valueOf(3));
@@ -153,10 +154,13 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
    * @return A empty result set containing the columns in the map in the order identified in the
    *     map.
    */
-  private PSResultSet createEmptyResultSet(HashMap columnNames, PSResultSetMetaData rsMeta) {
+  private PSResultSet createEmptyResultSet(
+      HashMap<String, Integer> columnNames, PSResultSetMetaData rsMeta) {
     int cols = columnNames.size();
-    ArrayList[] colSet = new ArrayList[cols];
-    for (int i = 0; i < cols; ++i) colSet[i] = new ArrayList();
+    List<?>[] colSet = new List<?>[cols];
+    for (int i = 0; i < cols; ++i) {
+      colSet[i] = new ArrayList<>();
+    }
     return new PSResultSet(colSet, columnNames, rsMeta);
   }
 
@@ -178,7 +182,7 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
    * @return an empty result set with the above mentioned columns.
    */
   protected PSResultSet getEmptyAttributes() {
-    HashMap columnNames = new HashMap();
+    HashMap<String, Integer> columnNames = new HashMap<>();
     columnNames.put("OBJECT_TYPE", Integer.valueOf(1));
     columnNames.put("ATTRIBUTE_NAME", Integer.valueOf(2));
     columnNames.put("ATTRIBUTE_DESC", Integer.valueOf(3));

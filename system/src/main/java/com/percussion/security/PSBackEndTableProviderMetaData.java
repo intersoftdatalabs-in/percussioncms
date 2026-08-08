@@ -23,13 +23,10 @@ import com.percussion.error.PSSqlException;
 import com.percussion.log.PSLogManager;
 import com.percussion.log.PSLogServerWarning;
 import com.percussion.util.PSSQLStatement;
-import com.percussion.utils.collections.PSIteratorUtils;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Properties;
 
 /**
@@ -172,10 +169,9 @@ public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
   public ResultSet getObjectTypes() throws SQLException {
     PSResultSet rs = super.getEmptyObjectTypes();
     String[] objectTypes = {USER_OBJECT_NAME};
-    Iterator iter = PSIteratorUtils.iterator(objectTypes);
     Object[] row = new String[1];
-    while (iter.hasNext()) {
-      row[0] = iter.next();
+    for (String objectType : objectTypes) {
+      row[0] = objectType;
       rs.addRow(row);
     }
     rs.beforeFirst();
@@ -246,17 +242,14 @@ public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
   @Override
   public ResultSet getAttributes(String[] objectTypes) throws SQLException {
     PSResultSet rs = super.getEmptyAttributes();
-    if (m_userAttributes.length > 0) {
-      Iterator<String> types = Arrays.asList(objectTypes).iterator();
-      Iterator<String> attribs = Arrays.asList(m_userAttributes).iterator();
-      while (types.hasNext()) {
-        String type = (String) types.next();
-        if (!type.equalsIgnoreCase(USER_OBJECT_NAME)) continue;
+    if (m_userAttributes.length > 0 && objectTypes != null) {
+      for (String type : objectTypes) {
+        if (type == null || !type.equalsIgnoreCase(USER_OBJECT_NAME)) continue;
         Object[] row = new String[3];
         row[0] = type;
         row[2] = "";
-        while (attribs.hasNext()) {
-          row[1] = attribs.next();
+        for (String attrib : m_userAttributes) {
+          row[1] = attrib;
           rs.addRow(row);
         }
       }

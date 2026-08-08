@@ -46,7 +46,8 @@ public class PSAuthenticationFailedExException extends PSAuthenticationFailedExc
    * @throws ClassCastException If any entry in the supplied list is not a
    *     PSAuthenticationFailedException
    */
-  public PSAuthenticationFailedExException(Iterator failedSPExceptions) {
+  public PSAuthenticationFailedExException(
+      Iterator<? extends PSAuthenticationFailedException> failedSPExceptions) {
     /* Note: Iterator was used instead of [] for future extensibility.
     We may want to return different kinds of objects with more info at a
     later time. */
@@ -57,8 +58,7 @@ public class PSAuthenticationFailedExException extends PSAuthenticationFailedExc
 
     StringBuilder msg = new StringBuilder(255);
     while (failedSPExceptions.hasNext()) {
-      PSAuthenticationFailedException e =
-          (PSAuthenticationFailedException) failedSPExceptions.next();
+      PSAuthenticationFailedException e = failedSPExceptions.next();
       if (null == e)
         throw new IllegalArgumentException("Invalid entry for security provider exception");
       msg.append("\r\n");
