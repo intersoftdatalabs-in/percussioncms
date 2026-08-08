@@ -89,8 +89,90 @@ public final class PSPipelineSqlPlanner {
   }
 
   /**
-   * Plan a minimal UPDATE-resource insert when updater allows insert and request has rows (or
-   * params as a single row).
+   * Resolve the mutation operation for an UPDATE resource from request + updater flags.
+   *
+   * <p>If {@code request.operation} is set, it must be allowed by the updater. If omitted and
+   * exactly one of insert/update/delete is allowed, that operation is chosen. If multiple are
+   * allowed and operation is omitted, a clear API error is raised.
+   *
+   * @return one of {@link PipelineExecuteRequest#OP_INSERT}, {@link
+   *     PipelineExecuteRequest#OP_UPDATE}, {@link PipelineExecuteRequest#OP_DELETE}
+   */
+  public static String resolveMutationOperation(
+      PipelineResourceIr resource, PipelineExecuteRequest request) throws PSPipelineIrException {
+    Objects.requireNonNull(resource, "resource");
+    Objects.requireNonNull(request, "request");
+    if (!PipelineResourceIr.KIND_UPDATE.equals(resource.getKind())) {
+      throw new PSPipelineIrException(
+          "Resource kind is not UPDATE: " + resource.getKind() + " (" + resource.getName() + ")");
+    }
+    UpdaterStageIr updater =
+        resource.getStages() != null ? resource.getStages().getUpdater() : null;
+    if (updater == null || !updater.isPresent()) {
+      throw new PSPipelineIrException(
+          "UPDATE resource has no updater stage: " + resource.getName());
+    }
+    boolean ins = updater.isAllowInsert();
+    boolean upd = updater.isAllowUpdate();
+    boolean del = updater.isAllowDelete();
+    if (!ins && !upd && !del) {
+      throw new PSPipelineIrException(
+          "UPDATE resource allows none of insert/update/delete: " + resource.getName());
+    }
+
+    String op = request.getOperation();
+    if (op != null && !op.isBlank()) {
+      String normalized = op.trim().toLowerCase(Locale.ROOT);
+      switch (normalized) {
+        case PipelineExecuteRequest.OP_INSERT:
+          if (!ins) {
+            throw new PSPipelineIrException(
+                "UPDATE resource does not allow insert (updater.allowInsert=false): "
+                    + resource.getName());
+          }
+          return PipelineExecuteRequest.OP_INSERT;
+        case PipelineExecuteRequest.OP_UPDATE:
+          if (!upd) {
+            throw new PSPipelineIrException(
+                "UPDATE resource does not allow update (updater.allowUpdate=false): "
+                    + resource.getName());
+          }
+          return PipelineExecuteRequest.OP_UPDATE;
+        case PipelineExecuteRequest.OP_DELETE:
+          if (!del) {
+            throw new PSPipelineIrException(
+                "UPDATE resource does not allow delete (updater.allowDelete=false): "
+                    + resource.getName());
+          }
+          return PipelineExecuteRequest.OP_DELETE;
+        default:
+          throw new PSPipelineIrException(
+              "Unknown mutation operation '"
+                  + op
+                  + "' (expected insert, update, or delete): "
+                  + resource.getName());
+      }
+    }
+
+    int allowed = (ins ? 1 : 0) + (upd ? 1 : 0) + (del ? 1 : 0);
+    if (allowed > 1) {
+      throw new PSPipelineIrException(
+          "UPDATE resource allows multiple mutations; request.operation is required"
+              + " (insert/update/delete): "
+              + resource.getName());
+    }
+    if (ins) {
+      return PipelineExecuteRequest.OP_INSERT;
+    }
+    if (upd) {
+      return PipelineExecuteRequest.OP_UPDATE;
+    }
+    return PipelineExecuteRequest.OP_DELETE;
+  }
+
+  /**
+   * Plan INSERT statements when updater allows insert and request has rows (or params as a single
+   * row).
    */
   public static List<PSPipelineSqlPlan> planInserts(
       PipelineResourceIr resource, PipelineExecuteRequest request) throws PSPipelineIrException {
@@ -104,7 +186,8 @@ public final class PSPipelineSqlPlanner {
         resource.getStages() != null ? resource.getStages().getUpdater() : null;
     if (updater == null || !updater.isPresent() || !updater.isAllowInsert()) {
       throw new PSPipelineIrException(
-          "UPDATE resource does not allow insert: " + resource.getName());
+          "UPDATE resource does not allow insert (updater.allowInsert=false): "
+              + resource.getName());
     }
 
     String table = requireSingleTable(resource);
@@ -114,14 +197,7 @@ public final class PSPipelineSqlPlanner {
           "UPDATE resource has no COLUMN mappings for insert: " + resource.getName());
     }
 
-    List<Map<String, Object>> rows = new ArrayList<>();
-    if (request.getRows() != null && !request.getRows().isEmpty()) {
-      rows.addAll(request.getRows());
-    } else if (request.getParams() != null && !request.getParams().isEmpty()) {
-      rows.add(new LinkedHashMap<>(request.getParams()));
-    } else {
-      throw new PSPipelineIrException("Insert requires request.rows or request.params");
-    }
+    List<Map<String, Object>> rows = mutationRows(request, "Insert");
 
     List<PSPipelineSqlPlan> plans = new ArrayList<>();
     for (Map<String, Object> row : rows) {
@@ -157,6 +233,310 @@ public final class PSPipelineSqlPlanner {
               PSPipelineSqlPlan.Kind.UPDATE, sql.toString(), values, "insert:" + table));
     }
     return plans;
+  }
+
+  /**
+   * Plan UPDATE statements when updater allows update.
+   *
+   * <p>Each row produces {@code UPDATE table SET col=? ... WHERE key=? AND ...}. Key columns come
+   * from {@code request.keyColumns}, or — when empty — from {@code request.params} keys that map to
+   * columns (params supply shared WHERE values applied to every row). SET columns are mapped
+   * columns present on the row that are not keys.
+   */
+  public static List<PSPipelineSqlPlan> planUpdates(
+      PipelineResourceIr resource, PipelineExecuteRequest request) throws PSPipelineIrException {
+    Objects.requireNonNull(resource, "resource");
+    Objects.requireNonNull(request, "request");
+    if (!PipelineResourceIr.KIND_UPDATE.equals(resource.getKind())) {
+      throw new PSPipelineIrException(
+          "Resource kind is not UPDATE: " + resource.getKind() + " (" + resource.getName() + ")");
+    }
+    UpdaterStageIr updater =
+        resource.getStages() != null ? resource.getStages().getUpdater() : null;
+    if (updater == null || !updater.isPresent() || !updater.isAllowUpdate()) {
+      throw new PSPipelineIrException(
+          "UPDATE resource does not allow update (updater.allowUpdate=false): "
+              + resource.getName());
+    }
+
+    String table = requireSingleTable(resource);
+    List<ColumnMapping> mappings = columnMappings(resource);
+    if (mappings.isEmpty()) {
+      throw new PSPipelineIrException(
+          "UPDATE resource has no COLUMN mappings for update: " + resource.getName());
+    }
+
+    KeySpec keys = resolveKeySpec(mappings, request, "Update");
+    List<Map<String, Object>> rows = mutationRows(request, "Update");
+
+    List<PSPipelineSqlPlan> plans = new ArrayList<>();
+    for (Map<String, Object> row : rows) {
+      List<String> setCols = new ArrayList<>();
+      List<Object> setValues = new ArrayList<>();
+      for (ColumnMapping m : mappings) {
+        if (keys.keyColumnNames.contains(m.column.toUpperCase(Locale.ROOT))) {
+          continue;
+        }
+        Object v = findValue(row, m);
+        if (v != null) {
+          setCols.add(m.column);
+          setValues.add(v);
+        }
+      }
+      if (setCols.isEmpty()) {
+        throw new PSPipelineIrException(
+            "Update row has no SET values (non-key mapped columns required)");
+      }
+
+      List<Object> whereValues = new ArrayList<>();
+      List<String> whereCols = new ArrayList<>();
+      for (String keyCol : keys.orderedKeyColumns) {
+        Object kv = resolveKeyValue(row, keyCol, keys.sharedParams, mappings);
+        if (kv == null && !hasKeyPresent(row, keyCol, keys.sharedParams, mappings)) {
+          throw new PSPipelineIrException(
+              "Update row missing key column value for WHERE: " + keyCol);
+        }
+        whereCols.add(keyCol);
+        whereValues.add(kv);
+      }
+
+      StringBuilder sql = new StringBuilder("UPDATE ").append(quoteIdent(table)).append(" SET ");
+      for (int i = 0; i < setCols.size(); i++) {
+        if (i > 0) {
+          sql.append(", ");
+        }
+        sql.append(quoteIdent(setCols.get(i))).append(" = ?");
+      }
+      sql.append(" WHERE ");
+      for (int i = 0; i < whereCols.size(); i++) {
+        if (i > 0) {
+          sql.append(" AND ");
+        }
+        sql.append(quoteIdent(whereCols.get(i))).append(" = ?");
+      }
+
+      List<Object> binds = new ArrayList<>(setValues.size() + whereValues.size());
+      binds.addAll(setValues);
+      binds.addAll(whereValues);
+      plans.add(
+          new PSPipelineSqlPlan(
+              PSPipelineSqlPlan.Kind.UPDATE, sql.toString(), binds, "update:" + table));
+    }
+    return plans;
+  }
+
+  /**
+   * Plan DELETE statements when updater allows delete.
+   *
+   * <p>WHERE is built from {@code keyColumns} (preferred) or mapped columns present on each row /
+   * shared {@code params}. Unrestricted deletes (empty WHERE) are rejected.
+   */
+  public static List<PSPipelineSqlPlan> planDeletes(
+      PipelineResourceIr resource, PipelineExecuteRequest request) throws PSPipelineIrException {
+    Objects.requireNonNull(resource, "resource");
+    Objects.requireNonNull(request, "request");
+    if (!PipelineResourceIr.KIND_UPDATE.equals(resource.getKind())) {
+      throw new PSPipelineIrException(
+          "Resource kind is not UPDATE: " + resource.getKind() + " (" + resource.getName() + ")");
+    }
+    UpdaterStageIr updater =
+        resource.getStages() != null ? resource.getStages().getUpdater() : null;
+    if (updater == null || !updater.isPresent() || !updater.isAllowDelete()) {
+      throw new PSPipelineIrException(
+          "UPDATE resource does not allow delete (updater.allowDelete=false): "
+              + resource.getName());
+    }
+
+    String table = requireSingleTable(resource);
+    List<ColumnMapping> mappings = columnMappings(resource);
+    if (mappings.isEmpty()) {
+      throw new PSPipelineIrException(
+          "UPDATE resource has no COLUMN mappings for delete: " + resource.getName());
+    }
+
+    boolean keysExplicit = hasExplicitKeys(request);
+    KeySpec keys =
+        keysExplicit
+            ? resolveKeySpec(mappings, request, "Delete")
+            : new KeySpec(List.of(), Set.of(), Map.of());
+    List<Map<String, Object>> rows = mutationRows(request, "Delete");
+
+    List<PSPipelineSqlPlan> plans = new ArrayList<>();
+    for (Map<String, Object> row : rows) {
+      List<String> whereCols = new ArrayList<>();
+      List<Object> whereValues = new ArrayList<>();
+      if (keysExplicit) {
+        for (String keyCol : keys.orderedKeyColumns) {
+          Object kv = resolveKeyValue(row, keyCol, keys.sharedParams, mappings);
+          if (kv == null && !hasKeyPresent(row, keyCol, keys.sharedParams, mappings)) {
+            throw new PSPipelineIrException(
+                "Delete row missing key column value for WHERE: " + keyCol);
+          }
+          whereCols.add(keyCol);
+          whereValues.add(kv);
+        }
+      } else {
+        // No keyColumns/params: WHERE from mapped columns present on this row only
+        for (ColumnMapping m : mappings) {
+          if (!containsKeyForMapping(row, m)) {
+            continue;
+          }
+          whereCols.add(m.column);
+          whereValues.add(findValue(row, m));
+        }
+      }
+      if (whereCols.isEmpty()) {
+        throw new PSPipelineIrException(
+            "Delete requires a non-empty WHERE (keyColumns, params, or row key values): "
+                + resource.getName());
+      }
+
+      StringBuilder sql =
+          new StringBuilder("DELETE FROM ").append(quoteIdent(table)).append(" WHERE ");
+      for (int i = 0; i < whereCols.size(); i++) {
+        if (i > 0) {
+          sql.append(" AND ");
+        }
+        sql.append(quoteIdent(whereCols.get(i))).append(" = ?");
+      }
+      plans.add(
+          new PSPipelineSqlPlan(
+              PSPipelineSqlPlan.Kind.UPDATE, sql.toString(), whereValues, "delete:" + table));
+    }
+    return plans;
+  }
+
+  private static boolean hasExplicitKeys(PipelineExecuteRequest request) {
+    return (request.getKeyColumns() != null && !request.getKeyColumns().isEmpty())
+        || (request.getParams() != null && !request.getParams().isEmpty());
+  }
+
+  private static List<Map<String, Object>> mutationRows(
+      PipelineExecuteRequest request, String label) throws PSPipelineIrException {
+    List<Map<String, Object>> rows = new ArrayList<>();
+    if (request.getRows() != null && !request.getRows().isEmpty()) {
+      rows.addAll(request.getRows());
+    } else if (request.getParams() != null && !request.getParams().isEmpty()) {
+      rows.add(new LinkedHashMap<>(request.getParams()));
+    } else {
+      throw new PSPipelineIrException(label + " requires request.rows or request.params");
+    }
+    return rows;
+  }
+
+  private static KeySpec resolveKeySpec(
+      List<ColumnMapping> mappings, PipelineExecuteRequest request, String label)
+      throws PSPipelineIrException {
+    List<String> ordered = new ArrayList<>();
+    Set<String> upper = new HashSet<>();
+    Map<String, Object> shared =
+        request.getParams() != null ? request.getParams() : Map.of();
+
+    if (request.getKeyColumns() != null && !request.getKeyColumns().isEmpty()) {
+      for (String raw : request.getKeyColumns()) {
+        if (raw == null || raw.isBlank()) {
+          continue;
+        }
+        ColumnMapping match = findMappingForParam(mappings, raw.trim());
+        if (match == null) {
+          throw new PSPipelineIrException(
+              label + " keyColumns entry does not match a mapped column: " + raw);
+        }
+        String colKey = match.column.toUpperCase(Locale.ROOT);
+        if (upper.add(colKey)) {
+          ordered.add(match.column);
+        }
+      }
+    } else if (!shared.isEmpty()) {
+      // Shared params keys that map to columns become WHERE keys
+      for (Map.Entry<String, Object> e : shared.entrySet()) {
+        ColumnMapping match = findMappingForParam(mappings, e.getKey());
+        if (match == null) {
+          continue;
+        }
+        String colKey = match.column.toUpperCase(Locale.ROOT);
+        if (upper.add(colKey)) {
+          ordered.add(match.column);
+        }
+      }
+    }
+
+    if (ordered.isEmpty()) {
+      throw new PSPipelineIrException(
+          label
+              + " requires keyColumns or mapped params for WHERE (unrestricted mutation rejected): "
+              + "provide request.keyColumns or request.params matching mapped columns");
+    }
+    return new KeySpec(ordered, upper, shared);
+  }
+
+  private static Object resolveKeyValue(
+      Map<String, Object> row,
+      String keyCol,
+      Map<String, Object> sharedParams,
+      List<ColumnMapping> mappings) {
+    ColumnMapping m = findMappingForParam(mappings, keyCol);
+    if (m != null) {
+      Object fromRow = findValue(row, m);
+      if (fromRow != null || containsKeyForMapping(row, m)) {
+        return fromRow;
+      }
+    }
+    // Shared params (case-insensitive)
+    Object fromShared = findParamIgnoreCase(sharedParams, keyCol);
+    if (fromShared != null || containsKeyIgnoreCase(sharedParams, keyCol)) {
+      return fromShared;
+    }
+    if (m != null) {
+      Object byJson = findParamIgnoreCase(sharedParams, m.jsonField);
+      if (byJson != null || containsKeyIgnoreCase(sharedParams, m.jsonField)) {
+        return byJson;
+      }
+    }
+    return null;
+  }
+
+  private static boolean hasKeyPresent(
+      Map<String, Object> row,
+      String keyCol,
+      Map<String, Object> sharedParams,
+      List<ColumnMapping> mappings) {
+    ColumnMapping m = findMappingForParam(mappings, keyCol);
+    if (m != null && containsKeyForMapping(row, m)) {
+      return true;
+    }
+    if (containsKeyIgnoreCase(sharedParams, keyCol)) {
+      return true;
+    }
+    return m != null && containsKeyIgnoreCase(sharedParams, m.jsonField);
+  }
+
+  private static boolean containsKeyForMapping(Map<String, Object> row, ColumnMapping m) {
+    if (row.containsKey(m.column) || row.containsKey(m.jsonField)) {
+      return true;
+    }
+    for (String k : row.keySet()) {
+      if (k != null
+          && (k.equalsIgnoreCase(m.column) || k.equalsIgnoreCase(m.jsonField))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static final class KeySpec {
+    final List<String> orderedKeyColumns;
+    final Set<String> keyColumnNames;
+    final Map<String, Object> sharedParams;
+
+    KeySpec(
+        List<String> orderedKeyColumns,
+        Set<String> keyColumnNames,
+        Map<String, Object> sharedParams) {
+      this.orderedKeyColumns = orderedKeyColumns;
+      this.keyColumnNames = keyColumnNames;
+      this.sharedParams = sharedParams != null ? sharedParams : Map.of();
+    }
   }
 
   private static PSPipelineSqlPlan planNativeSelect(String nativeSql, PipelineExecuteRequest request)

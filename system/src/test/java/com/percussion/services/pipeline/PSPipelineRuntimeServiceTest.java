@@ -39,6 +39,7 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -299,11 +300,265 @@ class PSPipelineRuntimeServiceTest {
   }
 
   @Test
+  @DisplayName("update: UPDATE when allowUpdate; SET non-keys WHERE keyColumns")
+  void executeUpdate_whenAllowed() throws Exception {
+    PipelineIrDocument doc =
+        nativeUpdateDocFlags("updAll", "Upd", true, true, false);
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
+
+    Map<String, Object> row = new LinkedHashMap<>();
+    row.put("TYPE", "workflow");
+    row.put("NAME", "wf1");
+    row.put("LOOKUPVALUE", "42");
+    PipelineExecuteRequest req = new PipelineExecuteRequest();
+    req.setOperation(PipelineExecuteRequest.OP_UPDATE);
+    req.setKeyColumns(List.of("TYPE", "NAME"));
+    req.setRows(List.of(row));
+
+    PipelineExecuteResult result = runtime.execute(doc, doc.findResource("Upd"), req);
+    assertEquals("update", result.getOperation());
+    assertEquals(1, result.getAffectedRows());
+
+    PipelineIrDocument qdoc = nativeQueryDoc("qUpd", "Q");
+    PipelineExecuteResult q =
+        runtime.execute(
+            qdoc,
+            qdoc.findResource("Q"),
+            PipelineExecuteRequest.ofParams(Map.of("TYPE", "workflow", "NAME", "wf1")));
+    assertEquals(1, q.getRowCount());
+    assertEquals("42", String.valueOf(q.getRows().get(0).get("Value")));
+  }
+
+  @Test
+  @DisplayName("update: DELETE when allowDelete")
+  void executeDelete_whenAllowed() throws Exception {
+    PipelineIrDocument doc =
+        nativeUpdateDocFlags("delApp", "Del", false, false, true);
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
+
+    Map<String, Object> row = new LinkedHashMap<>();
+    row.put("TYPE", "locale");
+    row.put("NAME", "en-us");
+    PipelineExecuteRequest req = new PipelineExecuteRequest();
+    req.setKeyColumns(List.of("TYPE", "NAME"));
+    req.setRows(List.of(row));
+
+    PipelineExecuteResult result = runtime.execute(doc, doc.findResource("Del"), req);
+    assertEquals("delete", result.getOperation());
+    assertEquals(1, result.getAffectedRows());
+
+    PipelineIrDocument qdoc = nativeQueryDoc("qDel", "Q");
+    PipelineExecuteResult q =
+        runtime.execute(
+            qdoc,
+            qdoc.findResource("Q"),
+            PipelineExecuteRequest.ofParams(Map.of("TYPE", "locale")));
+    assertEquals(0, q.getRowCount());
+  }
+
+  @Test
+  @DisplayName("update: reject UPDATE when allowUpdate=false with clear API error")
+  void executeUpdate_rejectedWhenNotAllowed() {
+    PipelineIrDocument doc = nativeUpdateDoc("noUpd", "InsOnly");
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
+
+    PipelineExecuteRequest req = new PipelineExecuteRequest();
+    req.setOperation(PipelineExecuteRequest.OP_UPDATE);
+    req.setKeyColumns(List.of("TYPE", "NAME"));
+    Map<String, Object> row = new LinkedHashMap<>();
+    row.put("TYPE", "workflow");
+    row.put("NAME", "wf1");
+    row.put("LOOKUPVALUE", "x");
+    req.setRows(List.of(row));
+
+    PSPipelineIrException ex =
+        assertThrows(
+            PSPipelineIrException.class,
+            () -> runtime.execute(doc, doc.findResource("InsOnly"), req));
+    assertTrue(
+        ex.getMessage().contains("does not allow update"),
+        () -> "message should mention allowUpdate: " + ex.getMessage());
+  }
+
+  @Test
+  @DisplayName("update: reject DELETE when allowDelete=false with clear API error")
+  void executeDelete_rejectedWhenNotAllowed() {
+    PipelineIrDocument doc = nativeUpdateDoc("noDel", "InsOnly");
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
+
+    PipelineExecuteRequest req = new PipelineExecuteRequest();
+    req.setOperation(PipelineExecuteRequest.OP_DELETE);
+    req.setKeyColumns(List.of("TYPE", "NAME"));
+    Map<String, Object> row = new LinkedHashMap<>();
+    row.put("TYPE", "workflow");
+    row.put("NAME", "wf1");
+    req.setRows(List.of(row));
+
+    PSPipelineIrException ex =
+        assertThrows(
+            PSPipelineIrException.class,
+            () -> runtime.execute(doc, doc.findResource("InsOnly"), req));
+    assertTrue(
+        ex.getMessage().contains("does not allow delete"),
+        () -> "message should mention allowDelete: " + ex.getMessage());
+  }
+
+  @Test
+  @DisplayName("update: multi-flag resource requires request.operation")
+  void execute_multiFlagRequiresOperation() {
+    PipelineIrDocument doc =
+        nativeUpdateDocFlags("multi", "M", true, true, true);
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
+    Map<String, Object> row = new LinkedHashMap<>();
+    row.put("TYPE", "x");
+    row.put("NAME", "y");
+    row.put("LOOKUPVALUE", "z");
+    PipelineExecuteRequest req = new PipelineExecuteRequest();
+    req.setRows(List.of(row));
+
+    PSPipelineIrException ex =
+        assertThrows(
+            PSPipelineIrException.class,
+            () -> runtime.execute(doc, doc.findResource("M"), req));
+    assertTrue(
+        ex.getMessage().contains("request.operation is required"),
+        () -> "message: " + ex.getMessage());
+  }
+
+  @Test
+  @DisplayName("multi-row transactionMode=all commits all plans together")
+  void multiRow_transactionAll_commits() throws Exception {
+    PipelineIrDocument doc =
+        nativeUpdateDocFlags("txAll", "Ins", true, false, false);
+    doc.findResource("Ins").setTransactionMode("all");
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
+
+    Map<String, Object> r1 = new LinkedHashMap<>();
+    r1.put("TYPE", "tx");
+    r1.put("NAME", "a");
+    r1.put("LOOKUPVALUE", "1");
+    Map<String, Object> r2 = new LinkedHashMap<>();
+    r2.put("TYPE", "tx");
+    r2.put("NAME", "b");
+    r2.put("LOOKUPVALUE", "2");
+    PipelineExecuteRequest req = new PipelineExecuteRequest();
+    req.setRows(List.of(r1, r2));
+
+    PipelineExecuteResult result = runtime.execute(doc, doc.findResource("Ins"), req);
+    assertEquals(2, result.getAffectedRows());
+    assertEquals("all", result.getMeta().get("transactionMode"));
+
+    PipelineIrDocument qdoc = nativeQueryDoc("qTx", "Q");
+    PipelineExecuteResult q =
+        runtime.execute(
+            qdoc, qdoc.findResource("Q"), PipelineExecuteRequest.ofParams(Map.of("TYPE", "tx")));
+    assertEquals(2, q.getRowCount());
+  }
+
+  @Test
+  @DisplayName("multi-row transactionMode=all rolls back entire batch on failure")
+  void multiRow_transactionAll_rollsBackOnFailure() throws Exception {
+    // Seed one row; second insert in batch targets a not-null constrained table via dual plans:
+    // use DELETE of non-existent is fine; force failure with a plan against missing column via
+    // adapter updateAll directly after a successful first insert under same TX would need bad SQL.
+    // Instead: use two inserts then a third plan that fails — execute via adapter with mixed plans.
+    try (Connection c = DriverManager.getConnection(jdbcUrl);
+        Statement st = c.createStatement()) {
+      st.execute(
+          "CREATE TABLE \"TX_STRICT\" (\"ID\" VARCHAR(32) PRIMARY KEY, \"VAL\" VARCHAR(32) NOT NULL)");
+    }
+
+    List<Object> okBinds = new ArrayList<>();
+    okBinds.add("k1");
+    okBinds.add("v1");
+    List<Object> failBinds = new ArrayList<>();
+    failBinds.add("k2");
+    failBinds.add(null);
+    List<PSPipelineSqlPlan> plans =
+        List.of(
+            new PSPipelineSqlPlan(
+                PSPipelineSqlPlan.Kind.UPDATE,
+                "INSERT INTO \"TX_STRICT\" (\"ID\", \"VAL\") VALUES (?, ?)",
+                okBinds,
+                "ok1"),
+            new PSPipelineSqlPlan(
+                PSPipelineSqlPlan.Kind.UPDATE,
+                "INSERT INTO \"TX_STRICT\" (\"ID\", \"VAL\") VALUES (?, ?)",
+                failBinds,
+                "fail-null"));
+
+    PSPipelineIrException ex =
+        assertThrows(
+            PSPipelineIrException.class, () -> sqlAdapter.updateAll(plans, "all"));
+    assertTrue(
+        ex.getMessage().toLowerCase().contains("rolled back")
+            || ex.getMessage().toLowerCase().contains("batch failed"),
+        () -> "expected rollback message: " + ex.getMessage());
+
+    try (Connection c = DriverManager.getConnection(jdbcUrl);
+        Statement st = c.createStatement();
+        var rs = st.executeQuery("SELECT COUNT(*) FROM \"TX_STRICT\"")) {
+      assertTrue(rs.next());
+      assertEquals(0, rs.getInt(1), "first insert must roll back with the failed batch");
+    }
+  }
+
+  @Test
+  @DisplayName("multi-row transactionMode=row commits successful plans before a failure")
+  void multiRow_transactionRow_commitsPriorPlans() throws Exception {
+    try (Connection c = DriverManager.getConnection(jdbcUrl);
+        Statement st = c.createStatement()) {
+      st.execute(
+          "CREATE TABLE \"TX_ROW\" (\"ID\" VARCHAR(32) PRIMARY KEY, \"VAL\" VARCHAR(32) NOT NULL)");
+    }
+
+    List<Object> okBinds = new ArrayList<>();
+    okBinds.add("r1");
+    okBinds.add("ok");
+    List<Object> failBinds = new ArrayList<>();
+    failBinds.add("r2");
+    failBinds.add(null);
+    List<PSPipelineSqlPlan> plans =
+        List.of(
+            new PSPipelineSqlPlan(
+                PSPipelineSqlPlan.Kind.UPDATE,
+                "INSERT INTO \"TX_ROW\" (\"ID\", \"VAL\") VALUES (?, ?)",
+                okBinds,
+                "ok1"),
+            new PSPipelineSqlPlan(
+                PSPipelineSqlPlan.Kind.UPDATE,
+                "INSERT INTO \"TX_ROW\" (\"ID\", \"VAL\") VALUES (?, ?)",
+                failBinds,
+                "fail-null"));
+
+    assertThrows(PSPipelineIrException.class, () -> sqlAdapter.updateAll(plans, "row"));
+
+    try (Connection c = DriverManager.getConnection(jdbcUrl);
+        Statement st = c.createStatement();
+        var rs = st.executeQuery("SELECT COUNT(*) FROM \"TX_ROW\"")) {
+      assertTrue(rs.next());
+      assertEquals(1, rs.getInt(1), "row mode keeps prior committed plans");
+    }
+  }
+
+  @Test
   @DisplayName("JSON request codec parses params")
   void requestJsonCodec() throws Exception {
     PipelineExecuteRequest req =
         PSPipelineExecuteJsonCodec.requestFromJson("{\"params\":{\"TYPE\":\"workflow\"}}");
     assertEquals("workflow", req.getParams().get("TYPE"));
+  }
+
+  @Test
+  @DisplayName("JSON request codec parses operation and keyColumns")
+  void requestJsonCodec_operationAndKeys() throws Exception {
+    PipelineExecuteRequest req =
+        PSPipelineExecuteJsonCodec.requestFromJson(
+            "{\"operation\":\"update\",\"keyColumns\":[\"TYPE\",\"NAME\"],"
+                + "\"rows\":[{\"TYPE\":\"workflow\",\"NAME\":\"wf1\",\"LOOKUPVALUE\":\"1\"}]}");
+    assertEquals("update", req.getOperation());
+    assertEquals(List.of("TYPE", "NAME"), req.getKeyColumns());
+    assertEquals(1, req.getRows().size());
   }
 
   @Test
@@ -368,6 +623,15 @@ class PSPipelineRuntimeServiceTest {
   }
 
   private static PipelineIrDocument nativeUpdateDoc(String appName, String resourceName) {
+    return nativeUpdateDocFlags(appName, resourceName, true, false, false);
+  }
+
+  private static PipelineIrDocument nativeUpdateDocFlags(
+      String appName,
+      String resourceName,
+      boolean allowInsert,
+      boolean allowUpdate,
+      boolean allowDelete) {
     PipelineIrDocument doc = new PipelineIrDocument();
     doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
     doc.getApp().setName(appName);
@@ -396,9 +660,9 @@ class PSPipelineRuntimeServiceTest {
 
     UpdaterStageIr updater = new UpdaterStageIr();
     updater.setPresent(true);
-    updater.setAllowInsert(true);
-    updater.setAllowUpdate(false);
-    updater.setAllowDelete(false);
+    updater.setAllowInsert(allowInsert);
+    updater.setAllowUpdate(allowUpdate);
+    updater.setAllowDelete(allowDelete);
     stages.setUpdater(updater);
 
     res.setStages(stages);

@@ -28,6 +28,20 @@ import java.util.Map;
 public interface IPSPipelineSqlAdapter {
 
   /**
+   * Transaction modes for multi-plan mutation batches (mirrors IR {@code transactionMode}).
+   *
+   * <ul>
+   *   <li>{@link #TX_NONE} — each plan auto-commits independently (default when unset)
+   *   <li>{@link #TX_ROW} — each plan runs in its own explicit transaction (commit per plan)
+   *   <li>{@link #TX_ALL} — all plans share one connection/transaction; any failure rolls back all
+   * </ul>
+   */
+  String TX_NONE = "none";
+
+  String TX_ROW = "row";
+  String TX_ALL = "all";
+
+  /**
    * Execute a SELECT plan and return rows as ordered maps (column label → value).
    *
    * @param plan must be {@link PSPipelineSqlPlan.Kind#QUERY}
@@ -35,10 +49,19 @@ public interface IPSPipelineSqlAdapter {
   List<Map<String, Object>> query(PSPipelineSqlPlan plan) throws PSPipelineIrException;
 
   /**
-   * Execute an INSERT/UPDATE/DELETE plan.
+   * Execute a single INSERT/UPDATE/DELETE plan (auto-commit / connection-per-call).
    *
    * @param plan must be {@link PSPipelineSqlPlan.Kind#UPDATE}
    * @return total affected row count
    */
   int update(PSPipelineSqlPlan plan) throws PSPipelineIrException;
+
+  /**
+   * Execute multiple mutation plans under the given transaction mode.
+   *
+   * @param plans non-null; each must be {@link PSPipelineSqlPlan.Kind#UPDATE}
+   * @param transactionMode {@link #TX_NONE}, {@link #TX_ROW}, or {@link #TX_ALL} (null/blank → none)
+   * @return sum of affected row counts
+   */
+  int updateAll(List<PSPipelineSqlPlan> plans, String transactionMode) throws PSPipelineIrException;
 }

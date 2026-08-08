@@ -29,6 +29,7 @@ import com.percussion.services.pipeline.sql.PSPipelineSqlPlan;
 import com.percussion.services.pipeline.sql.PSPipelineSqlPlanner;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -112,15 +113,28 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
       result.getMeta().put("sqlDescription", plan.getDescription());
       result.getMeta().put("parameterCount", plan.getParameters().size());
     } else if (PipelineResourceIr.KIND_UPDATE.equals(resource.getKind())) {
-      List<PSPipelineSqlPlan> plans = PSPipelineSqlPlanner.planInserts(resource, req);
-      int affected = 0;
-      for (PSPipelineSqlPlan plan : plans) {
-        affected += sqlAdapter.update(plan);
+      String mutation = PSPipelineSqlPlanner.resolveMutationOperation(resource, req);
+      List<PSPipelineSqlPlan> plans;
+      if (PipelineExecuteRequest.OP_INSERT.equals(mutation)) {
+        plans = PSPipelineSqlPlanner.planInserts(resource, req);
+      } else if (PipelineExecuteRequest.OP_UPDATE.equals(mutation)) {
+        plans = PSPipelineSqlPlanner.planUpdates(resource, req);
+      } else if (PipelineExecuteRequest.OP_DELETE.equals(mutation)) {
+        plans = PSPipelineSqlPlanner.planDeletes(resource, req);
+      } else {
+        throw new PSPipelineIrException("Unsupported mutation operation: " + mutation);
       }
-      result.setOperation("insert");
+      String txMode = resource.getTransactionMode();
+      int affected = sqlAdapter.updateAll(plans, txMode);
+      result.setOperation(mutation);
       result.setAffectedRows(affected);
       result.setRowCount(0);
       result.getMeta().put("planCount", plans.size());
+      result.getMeta().put(
+          "transactionMode",
+          txMode != null && !txMode.isBlank()
+              ? txMode.trim().toLowerCase(Locale.ROOT)
+              : "none");
     } else {
       throw new PSPipelineIrException(
           "Unsupported resource kind for runtime execute: " + resource.getKind());
