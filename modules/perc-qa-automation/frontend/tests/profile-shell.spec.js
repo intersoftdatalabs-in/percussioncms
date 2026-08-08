@@ -15,16 +15,25 @@
  */
 
 /**
- * Profile hub shell smoke (#2393 / parent #2374 slice 1).
+ * Profile hub shell smoke (#2393 / #2425 / parent #2374 slice 1 residual).
  *
  * Surface-filtered only — not full suite:
  *   npm run test:surface -- --path tests/profile-shell.spec.js
  *
- * QA mode: perc-devctl qa-up → TEST_CMS_URL + ADMIN_* → test:surface → qa-down.
+ * QA mode: perc-devctl qa-up → TEST_CMS_URL + ADMIN_* / EDITOR_* / CONTRIBUTOR_*
+ * → test:surface → qa-down.
+ *
+ * Covers Admin deep link + UserMenu entry, plus non-admin (Editor, Contributor)
+ * deep-link access so profile is not admin-only (#2374 acceptance).
  */
 
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const {
+  loginAsAdmin,
+  loginAsEditor,
+  loginAsContributor,
+  BASE_URL,
+} = require("./helpers/auth");
 
 function profileDeepLink() {
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=profile&_=${Date.now()}`;
@@ -32,6 +41,31 @@ function profileDeepLink() {
 
 function homeUrl() {
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=home&_=${Date.now()}`;
+}
+
+/**
+ * Assert profile hub shell landmarks after navigation to the profile entry.
+ * @param {import('@playwright/test').Page} page
+ */
+async function expectProfileShellLandmarks(page) {
+  await expect(page.getByTestId("perc-spa-app")).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(page.getByTestId("perc-profile-shell")).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(page.getByTestId("perc-profile-title")).toContainText(
+    /my profile/i,
+  );
+  await expect(page.getByTestId("perc-profile-section-account")).toBeVisible();
+  await expect(page.getByTestId("perc-profile-section-security")).toBeVisible();
+  await expect(
+    page.getByTestId("perc-profile-section-preferences"),
+  ).toBeVisible();
+  await expect(page.getByTestId("perc-profile-section-avatar")).toBeVisible();
+
+  // Client path after entry handoff (or still query — accept either)
+  await expect(page).toHaveURL(/profile/i, { timeout: 15_000 });
 }
 
 test.describe("Profile shell @profile @smoke", () => {
@@ -42,25 +76,7 @@ test.describe("Profile shell @profile @smoke", () => {
     await loginAsAdmin(page);
 
     await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
-
-    await expect(page.getByTestId("perc-spa-app")).toBeVisible({
-      timeout: 30_000,
-    });
-    await expect(page.getByTestId("perc-profile-shell")).toBeVisible({
-      timeout: 30_000,
-    });
-    await expect(page.getByTestId("perc-profile-title")).toContainText(
-      /my profile/i,
-    );
-    await expect(page.getByTestId("perc-profile-section-account")).toBeVisible();
-    await expect(page.getByTestId("perc-profile-section-security")).toBeVisible();
-    await expect(
-      page.getByTestId("perc-profile-section-preferences"),
-    ).toBeVisible();
-    await expect(page.getByTestId("perc-profile-section-avatar")).toBeVisible();
-
-    // Client path after entry handoff (or still query — accept either)
-    await expect(page).toHaveURL(/profile/i, { timeout: 15_000 });
+    await expectProfileShellLandmarks(page);
   });
 
   test("My profile menu entry navigates to profile shell", async ({ page }) => {
@@ -84,5 +100,23 @@ test.describe("Profile shell @profile @smoke", () => {
       /my profile/i,
     );
     await expect(page).toHaveURL(/profile/i, { timeout: 15_000 });
+  });
+
+  test("Editor deep link opens profile shell (non-admin)", async ({ page }) => {
+    test.setTimeout(90_000);
+    await loginAsEditor(page);
+
+    await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
+    await expectProfileShellLandmarks(page);
+  });
+
+  test("Contributor deep link opens profile shell (non-admin)", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    await loginAsContributor(page);
+
+    await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
+    await expectProfileShellLandmarks(page);
   });
 });
