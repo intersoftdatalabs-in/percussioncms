@@ -42,8 +42,15 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
-/** The dialog to create and modify Folder options. */
-public class PSFolderDialog extends PSDialog {
+/**
+ * The dialog to create and modify Folder options.
+ *
+ * <p>Declared {@code final} so Swing/UI initialization from the constructor cannot observe a
+ * partially constructed subclass (javac {@code this-escape}). Session-only collaborator fields that
+ * are not {@link java.io.Serializable} are {@code transient} (dialogs are never serialized in
+ * practice).
+ */
+public final class PSFolderDialog extends PSDialog {
 
   /**
    * Constructs the dialog with supplied options.
@@ -76,7 +83,8 @@ public class PSFolderDialog extends PSDialog {
             .getResourceString(
                 PSFolderDialog.class, folderNode == null ? "Create folder" : "Edit folder"));
 
-    setResizable(true);
+    // Resizable is applied after full field init in {@link #initDialog()} (avoids early
+    // this-escape via overridable JDialog#setResizable before collaborators are set).
 
     if (userInfo == null) throw new IllegalArgumentException("userInfo may not be null.");
 
@@ -319,25 +327,25 @@ public class PSFolderDialog extends PSDialog {
    * is invoked to create a new folder and never modified after that. <code>null</code> if the
    * dialog is invoked to edit the folder.
    */
-  private PSNode m_parentFolderNode;
+  private transient PSNode m_parentFolderNode;
 
   /**
    * The folder node of the folder being modified, initialized in the ctor and never modified after
    * that. <code>null</code> if the dialog is invoked to create the folder.
    */
-  private PSNode m_folderNode;
+  private transient PSNode m_folderNode;
 
   /**
    * The manager that handles the creating or updating folders, initialized in the ctor and never
    * <code>null</code> or modified after that.
    */
-  private PSFolderActionManager m_folderMgr;
+  private transient PSFolderActionManager m_folderMgr;
 
   /**
    * The info of the user editing or creating the folder, initialized in the ctor and never <code>
    * null</code> or modified after that.
    */
-  private PSUserInfo m_userInfo;
+  private transient PSUserInfo m_userInfo;
 
   /**
    * The flag that specifies whether folder is being created or edited, <code>
@@ -361,9 +369,9 @@ public class PSFolderDialog extends PSDialog {
    */
   private boolean m_publishFolderFlagInitialState;
 
-  /** default serail# avoid warning */
+  /** Default serialVersionUID to satisfy {@code -Xlint:serial}. */
   private static final long serialVersionUID = 1L;
 
   /** A reference back to the applet that initiated the action manager. */
-  private PSContentExplorerApplet m_applet;
+  private transient PSContentExplorerApplet m_applet;
 }
