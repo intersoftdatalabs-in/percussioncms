@@ -28,6 +28,8 @@ import org.w3c.dom.Node;
 
 /** Implementation for the PSCustomActionGroup DTD in BasicObjects.dtd. */
 public class PSCustomActionGroup extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Creates a new custom action group for the provided location and actions.
    *

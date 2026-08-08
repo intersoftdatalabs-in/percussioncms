@@ -25,6 +25,8 @@ import org.w3c.dom.Element;
 
 /** Represents a content type from the content management system. */
 public class PSContentType extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Initializes a newly created <code>PSContentType</code> object, from an XML representation. See
    * {@link #toXml(Document)} for the format.

@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Java serialization checks for design.objectstore types that received {@code serialVersionUID} in
- * the #2313 D–M and #2319 N–Z batches (parent #2022).
+ * the #2313 D–M, #2319 N–Z, and #2366 A–C leftover batches (parent #2022).
  */
 public class PSObjectStoreSerialVersionUidTest {
 
@@ -116,6 +116,55 @@ public class PSObjectStoreSerialVersionUidTest {
     assertEquals(1L, readSerialVersionUid(PSTableSet.class));
     assertEquals(1L, readSerialVersionUid(PSSystemValidationException.class));
     assertEquals(1L, readSerialVersionUid(PSRelationshipPropertyDataPk.class));
+  }
+
+  @Test
+  public void testAcLeftoverNamedValueSerialization() throws Exception {
+    PSCookie cookie = new PSCookie("rx_session");
+    cookie.setId(21);
+
+    PSContentItemData itemData = new PSContentItemData("sys_title");
+    itemData.setId(22);
+
+    PSContentItemStatus itemStatus = new PSContentItemStatus("CONTENTSTATUS", "CONTENTID");
+    itemStatus.setId(23);
+
+    byte[] bytes;
+    try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+      oos.writeObject(cookie);
+      oos.writeObject(itemData);
+      oos.writeObject(itemStatus);
+      bytes = bos.toByteArray();
+    }
+
+    try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+      PSCookie serCookie = (PSCookie) ois.readObject();
+      PSContentItemData serData = (PSContentItemData) ois.readObject();
+      PSContentItemStatus serStatus = (PSContentItemStatus) ois.readObject();
+
+      assertEquals("rx_session", serCookie.getName());
+      assertEquals(21, serCookie.getId());
+      assertEquals("sys_title", serData.getName());
+      assertEquals(22, serData.getId());
+      assertEquals("CONTENTSTATUS.CONTENTID", serStatus.getName());
+      assertEquals(23, serStatus.getId());
+    }
+
+    assertEquals(1L, readSerialVersionUid(PSCookie.class));
+    assertEquals(1L, readSerialVersionUid(PSContentItemData.class));
+    assertEquals(1L, readSerialVersionUid(PSContentItemStatus.class));
+    assertEquals(1L, readSerialVersionUid(PSApplicationFlow.class));
+    assertEquals(1L, readSerialVersionUid(PSCommandHandlerStylesheets.class));
+    assertEquals(1L, readSerialVersionUid(PSContentEditorMapper.class));
+    assertEquals(1L, readSerialVersionUid(PSContentEditorPipe.class));
+    assertEquals(1L, readSerialVersionUid(PSContentEditorSharedDef.class));
+    assertEquals(1L, readSerialVersionUid(PSContentType.class));
+    assertEquals(1L, readSerialVersionUid(PSControlMeta.class));
+    assertEquals(1L, readSerialVersionUid(PSControlParameter.class));
+    assertEquals(1L, readSerialVersionUid(PSControlRef.class));
+    assertEquals(1L, readSerialVersionUid(PSCustomActionGroup.class));
+    assertEquals(1L, readSerialVersionUid(PSCustomError.class));
   }
 
   private static long readSerialVersionUid(Class<?> type) throws Exception {

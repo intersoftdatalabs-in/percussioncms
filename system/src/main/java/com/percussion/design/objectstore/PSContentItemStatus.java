@@ -23,6 +23,8 @@ import org.w3c.dom.Element;
 
 /** The replacement values used for content item status information. */
 public class PSContentItemStatus extends PSNamedReplacementValue {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Constructs a new content itme status from its XML representation.
    *
