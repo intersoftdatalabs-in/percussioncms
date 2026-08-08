@@ -1,34 +1,35 @@
 /* Region CSS
 ----------------------------------*/
-
+/*
+ * Region span sizing for editor/preview decoration (GH-2352).
+ * Do not force the legacy fixed pixel grid with !important — that stomps
+ * responsive customer themes that set height/width: auto (or fluid sizes).
+ * Published default-theme #757 footer/sidebar min-height lives in theme.css.
+ */
 .vspan_2 {
-  height: 120px !important;
-  min-height: 0 !important;
+  height: auto;
 }
 .vspan_4 {
-  height: 240px !important;
-  min-height: 0 !important;
+  height: auto;
 }
 .vspan_6 {
-  height: 360px !important;
-  min-height: 0 !important;
+  height: auto;
 }
 .vspan_8 {
-  height: 480px !important;
-  min-height: 0 !important;
+  height: auto;
 }
 
 .hspan_2 {
-  width: 160px;
+  width: auto;
 }
 .hspan_8 {
-  width: 640px;
+  width: auto;
 }
 .hspan_10 {
-  width: 800px;
+  width: auto;
 }
 .hspan_12 {
-  width: 960px;
+  width: auto;
 }
 
 #perc-content {
