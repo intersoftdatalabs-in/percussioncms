@@ -71,7 +71,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /** The InstallUtil class contains some utility methods for the installer. */
-@SuppressWarnings("all")
 public class InstallUtil {
 
   private static final Logger log = LogManager.getLogger(InstallUtil.class);

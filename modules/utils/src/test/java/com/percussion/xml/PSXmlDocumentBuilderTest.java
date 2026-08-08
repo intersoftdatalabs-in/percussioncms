@@ -62,7 +62,7 @@ public class PSXmlDocumentBuilderTest {
 
     buf.append("<BookList>\n");
     for (int i = 0; i < m_books.size(); i++) {
-      buf.append(((Book) (m_books.get(i))).toXmlString());
+      buf.append(m_books.get(i).toXmlString());
     }
     buf.append("</BookList>");
     StringReader docStringReader = new StringReader(buf.toString());
@@ -85,7 +85,7 @@ public class PSXmlDocumentBuilderTest {
       String isbn = walker.getElementData("isbn", false);
 
       Element authorEl = walker.getNextElement("author", PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      String author = walker.getElementData(authorEl);
+      String author = PSXmlTreeWalker.getElementData(authorEl);
       String authorId = authorEl.getAttribute("id");
 
       assertEquals(new Book(title, isbn, author, authorId), m_books.get(i++));
@@ -172,7 +172,7 @@ public class PSXmlDocumentBuilderTest {
 
     for (int i = 0; i < b.getLength(); i++) {
       Attr att = (Attr) b.item(i);
-      String aVal = (String) aNodes.remove(att.getName());
+      String aVal = aNodes.remove(att.getName());
       assertTrue(aVal != null);
       assertEquals(aVal, att.getValue());
     }
@@ -207,7 +207,7 @@ public class PSXmlDocumentBuilderTest {
 
   private ArrayList<Book> m_books;
 
-  protected class Book implements Comparable {
+  protected class Book implements Comparable<Book> {
     public Book(String title, String isbn, String author, String authorId) {
       m_title = title;
       m_isbn = isbn;
@@ -231,8 +231,8 @@ public class PSXmlDocumentBuilderTest {
       return Objects.hash(m_title, m_isbn, m_author, m_authorId);
     }
 
-    public int compareTo(Object o) {
-      Book b = (Book) o;
+    @Override
+    public int compareTo(Book b) {
       int compare = m_title.compareTo(b.m_title);
       if (compare != 0) return compare;
       compare = m_isbn.compareTo(b.m_isbn);
