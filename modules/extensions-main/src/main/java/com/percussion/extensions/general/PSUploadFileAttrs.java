@@ -86,11 +86,11 @@ public class PSUploadFileAttrs extends PSDefaultExtension implements IPSRequestP
       dateFormatString = "MM/dd/yyyy hh:mm:ss a";
     } else dateFormatString = dateFormatString.trim();
 
-    Long fileSizeMax = new Long(0L);
+    Long fileSizeMax = Long.valueOf(0L);
     if (params.length > 4) {
       try {
         String tmp = params[4].toString().trim();
-        if (null != tmp) fileSizeMax = new Long(tmp);
+        if (null != tmp) fileSizeMax = Long.valueOf(tmp);
       } catch (Exception e) {
       }
     }
@@ -106,7 +106,7 @@ public class PSUploadFileAttrs extends PSDefaultExtension implements IPSRequestP
     PSPurgableTempFile tmpFile = (PSPurgableTempFile) htmlParams.get(fileNameParam);
 
     if (tmpFile != null) {
-      Long fileSize = new Long(tmpFile.length());
+      Long fileSize = Long.valueOf(tmpFile.length());
 
       // check for maximum size limit
       if (fileSizeMax.intValue() > 0 && fileSize.compareTo(fileSizeMax) > 0) {

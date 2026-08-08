@@ -30,6 +30,7 @@ import java.io.Writer;
  *     in a class in com.percussion.cms package. This class is a deprecated class that simply
  *     extends com.percussion.xml.PSNodePrinter and is kept around for backward compatibility.
  */
+@Deprecated
 public class PSNodePrinter extends com.percussion.xml.PSNodePrinter {
   /**
    * Only constructor. Takes the print writer as the argument.

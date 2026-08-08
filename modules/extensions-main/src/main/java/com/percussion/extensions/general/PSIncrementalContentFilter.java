@@ -147,17 +147,17 @@ public class PSIncrementalContentFilter extends PSDefaultExtension
       PSXmlTreeWalker resultWalker = new PSXmlTreeWalker(rootNode);
 
       Element resElem =
-          resultWalker.getNextElement(NODE_CONTENTITEM, resultWalker.GET_NEXT_ALLOW_CHILDREN);
+          resultWalker.getNextElement(NODE_CONTENTITEM, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
       while (resElem != null) {
         if (PSUtils.isValid(resElem, request, internalReqName, context)) {
           request.printTraceMessage("Keeping Item");
           isEmpty = false;
           resElem =
-              resultWalker.getNextElement(NODE_CONTENTITEM, resultWalker.GET_NEXT_ALLOW_SIBLINGS);
+              resultWalker.getNextElement(NODE_CONTENTITEM, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
         } else {
           request.printTraceMessage("Removing Item");
           Element nextRes =
-              resultWalker.getNextElement(NODE_CONTENTITEM, resultWalker.GET_NEXT_ALLOW_SIBLINGS);
+              resultWalker.getNextElement(NODE_CONTENTITEM, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
           rootNode.removeChild((Node) resElem);
           resElem = nextRes;
         }

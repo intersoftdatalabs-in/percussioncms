@@ -71,7 +71,7 @@ public class PSValidateStringLength extends PSRangeValidator {
       return false;
     }
 
-    return checkRange(toDouble(min), new Double(value.length()), toDouble(max), true, true);
+    return checkRange(toDouble(min), Double.valueOf(value.length()), toDouble(max), true, true);
   }
 
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}

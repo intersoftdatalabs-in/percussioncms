@@ -221,7 +221,7 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(doc);
     Element el = tree.getNextElement("CommunityId");
-    String ret = tree.getElementData(el);
+    String ret = PSXmlTreeWalker.getElementData(el);
 
     if (ret == null || ret.trim().length() == 0)
       throw new PSInternalRequestCallException(

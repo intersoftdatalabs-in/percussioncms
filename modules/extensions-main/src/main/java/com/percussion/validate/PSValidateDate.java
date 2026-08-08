@@ -100,7 +100,7 @@ public class PSValidateDate extends PSRangeValidator {
   private Double toDouble(Date value) {
     if (value == null) return null;
 
-    return new Double((double) value.getTime());
+    return Double.valueOf((double) value.getTime());
   }
 
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {

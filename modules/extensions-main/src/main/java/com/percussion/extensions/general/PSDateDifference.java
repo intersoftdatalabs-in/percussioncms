@@ -78,7 +78,7 @@ public class PSDateDifference extends PSDefaultExtension implements IPSUdfProces
     long diffMillis = Math.abs(cal1.getTimeInMillis() - cal2.getTimeInMillis());
     long diffDays = diffMillis / (24 * 60 * 60 * 1000);
 
-    return new Long(diffDays);
+    return Long.valueOf(diffDays);
   }
 
   /**

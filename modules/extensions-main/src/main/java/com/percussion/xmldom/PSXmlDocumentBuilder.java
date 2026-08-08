@@ -20,6 +20,7 @@ package com.percussion.xmldom;
 /**
  * @deprecated Use com.percussion.xml.PSXmlDocumentBuilder instead
  */
+@Deprecated
 public class PSXmlDocumentBuilder extends com.percussion.xml.PSXmlDocumentBuilder {
   /** Creates a new PSXmlDocumentBuilder. */
   public PSXmlDocumentBuilder() {}

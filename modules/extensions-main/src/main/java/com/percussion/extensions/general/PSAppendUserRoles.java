@@ -59,10 +59,10 @@ public class PSAppendUserRoles implements IPSResultDocumentProcessor {
         String tmp = params[0].toString().trim();
         if (tmp.length() > 0) userRolesElemeName = tmp;
       }
-      urelem = (Element) resultDoc.createElement(userRolesElemeName);
+      urelem = resultDoc.createElement(userRolesElemeName);
       while (tokenizer.hasMoreTokens()) {
         role = tokenizer.nextElement().toString().trim();
-        elem = (Element) resultDoc.createElement("Role");
+        elem = resultDoc.createElement("Role");
         elem.appendChild(resultDoc.createTextNode(role));
         urelem.appendChild(elem);
       }

@@ -39,7 +39,7 @@ import org.apache.logging.log4j.Logger;
  * @author adamgent
  * @see #getParameter(String)
  */
-public class PSExtensionParamsHelper {
+public final class PSExtensionParamsHelper {
 
   Object[] params;
   IPSExtensionDef extensionDef;
@@ -50,7 +50,7 @@ public class PSExtensionParamsHelper {
   IPSRequestContext request;
 
   /** The log instance to use for this class if one is not provided, never <code>null</code>. */
-  private static Logger log = LogManager.getLogger(PSExtensionParamsHelper.class);
+  private Logger log = LogManager.getLogger(PSExtensionParamsHelper.class);
 
   /**
    * Constructor
@@ -296,8 +296,7 @@ public class PSExtensionParamsHelper {
   public Boolean paramToBoolean(String paramName, String param) {
     Converter cvt = new BooleanConverter();
     try {
-      Boolean val = (Boolean) cvt.convert(Boolean.class, param);
-      return val;
+      return cvt.convert(Boolean.class, param);
     } catch (ConversionException ex) {
       String message = "Parameter " + paramName + " is not a boolean. " + "Param value=" + param;
       log.error(message, ex);
@@ -317,16 +316,18 @@ public class PSExtensionParamsHelper {
   }
 
   /**
-   * Sets the logger for this helper.
+   * Sets the logger for this helper. Null keeps the default class logger.
    *
-   * @param log the logger to use.
+   * @param log the logger to use, or null to keep the default.
    */
-  protected void doLog(Logger log) {
-    this.log = log;
+  private void doLog(Logger log) {
+    if (log != null) {
+      this.log = log;
+    }
   }
 
   /** Populates the extension parameters map from the extension definition. */
-  protected void doParameters() {
+  private void doParameters() {
     extensionParameters = new HashMap<>();
 
     if (params != null) {

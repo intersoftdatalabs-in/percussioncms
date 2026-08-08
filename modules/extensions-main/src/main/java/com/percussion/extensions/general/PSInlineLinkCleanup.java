@@ -134,7 +134,7 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
 
-    args[0] = new Long((System.currentTimeMillis() - startTime) / 1000);
+    args[0] = Long.valueOf((System.currentTimeMillis() - startTime) / 1000);
     traceMessage(request, "Completed the cleanup process in {0} seconds", args);
   }
 
