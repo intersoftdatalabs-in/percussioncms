@@ -58,7 +58,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 public class PSFileSystemStatement implements Statement {
 
   public PSFileSystemStatement(PSFileSystemConnection conn) {
-    m_columnNames = new java.util.HashMap();
+    m_columnNames = new java.util.HashMap<>();
     m_conn = conn;
     m_metaData = new PSResultSetMetaData();
   }
@@ -628,9 +628,11 @@ public class PSFileSystemStatement implements Statement {
         int[] columnConstants)
         throws java.io.IOException {
       m_columnConstants = columnConstants;
-      m_fileColumns = new Vector[m_columnConstants.length];
+      @SuppressWarnings("unchecked")
+      Vector<Object>[] cols = (Vector<Object>[]) new Vector<?>[m_columnConstants.length];
+      m_fileColumns = cols;
 
-      for (int i = 0; i < m_fileColumns.length; i++) m_fileColumns[i] = new Vector();
+      for (int i = 0; i < m_fileColumns.length; i++) m_fileColumns[i] = new Vector<>();
 
       if (fileFilter == null) fileFilter = new FileFilterAcceptAll();
 
@@ -685,13 +687,13 @@ public class PSFileSystemStatement implements Statement {
       }
     }
 
-    public Vector[] getResults() {
+    public Vector<Object>[] getResults() {
       return m_fileColumns;
     }
 
     private FastDateFormat m_df = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss:SS00");
 
-    private Vector[] m_fileColumns;
+    private Vector<Object>[] m_fileColumns;
     private int[] m_columnConstants;
 
     // for internal use -- a file filter that always returns true
@@ -704,10 +706,10 @@ public class PSFileSystemStatement implements Statement {
     }
   }
 
-  protected java.util.HashMap m_columnNames;
+  protected java.util.HashMap<String, Integer> m_columnNames;
 
   private PSResultSetMetaData m_metaData;
-  private Vector[] m_results;
+  private Vector<Object>[] m_results;
   private SQLParser m_parser;
 
   protected PSFileSystemConnection m_conn;

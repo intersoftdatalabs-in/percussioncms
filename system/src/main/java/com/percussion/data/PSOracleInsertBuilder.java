@@ -62,20 +62,20 @@ public class PSOracleInsertBuilder extends PSOracleUpdateBuilder {
    * @throws PSIllegalArgumentException If there are multiple tables or a PSDataExtractionException
    *     occurs.
    */
-  PSUpdateStatement generate(java.util.List logins, ConcurrentHashMap connKeys)
+  PSUpdateStatement generate(java.util.List<PSBackEndLogin> logins, ConcurrentHashMap<?, Integer> connKeys)
       throws PSIllegalArgumentException {
-    HashMap dtHash = new HashMap();
+    HashMap<String, Integer> dtHash = new HashMap<>();
 
     int iConnKey = validateBuilderConnection(dtHash, connKeys, logins);
 
-    PSBackEndLogin login = (PSBackEndLogin) logins.get(iConnKey);
+    PSBackEndLogin login = logins.get(iConnKey);
 
     /* check datatypes for LOB types */
     if (m_lobColumnInitializer == null) {
       return generateInsert(dtHash, iConnKey, login);
     }
 
-    PSBackEndTable table = (PSBackEndTable) m_Tables.get(0);
+    PSBackEndTable table = m_Tables.get(0);
 
     try {
       return new PSOracleUpdateStatement(

@@ -69,8 +69,8 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   protected boolean buildColumnAndPlaceholderList(
       PSSqlBuilderContext context,
       PSBackEndTable table,
-      HashMap dataTypes,
-      ArrayList columnList,
+      HashMap<String, Integer> dataTypes,
+      ArrayList<? extends IPSBackEndMapping> columnList,
       String delimiter,
       boolean ignoreAutoIncrements)
       throws PSIllegalArgumentException {
@@ -102,9 +102,9 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   protected void buildColumnList(
       PSSqlBuilderContext context,
       PSBackEndTable table,
-      HashMap datatypes,
+      HashMap<String, Integer> datatypes,
       boolean usePlaceHolder,
-      List columns)
+      List<? extends IPSBackEndMapping> columns)
       throws PSIllegalArgumentException {
     /* call the super with our lob column initializer */
     super.buildColumnList(
@@ -128,14 +128,14 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   protected boolean buildLobColumnList(
       PSSqlBuilderContext context,
       PSBackEndTable table,
-      HashMap dataTypes,
-      ArrayList columnList,
+      HashMap<String, Integer> dataTypes,
+      ArrayList<? extends IPSBackEndMapping> columnList,
       String delimiter)
       throws PSIllegalArgumentException {
     int colCount = 0; // keep track of the number of cols we set
     int size = columnList.size();
     for (int i = 0; i < size; i++) {
-      IPSBackEndMapping beMap = (IPSBackEndMapping) columnList.get(i);
+      IPSBackEndMapping beMap = columnList.get(i);
       if (!(beMap instanceof PSBackEndColumn)) { // UDF's are not yet supported in UPDATEs
         PSExtensionCall call = (PSExtensionCall) beMap;
         Object[] args = {call.getExtensionRef()};
@@ -148,7 +148,7 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
 
       String columnName = col.getColumn();
 
-      Integer jdbcType = (Integer) dataTypes.get(columnName.toLowerCase());
+      Integer jdbcType = dataTypes.get(columnName.toLowerCase());
       if (jdbcType != null) {
         int colType = jdbcType.intValue();
         if (colType == java.sql.Types.BLOB || colType == java.sql.Types.CLOB) {
@@ -170,13 +170,13 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
    * @param dataTypes The map of data types for this builder. Can be <code>null</code>.
    * @return <code>true</code> if so, <code>false</code> if not
    */
-  boolean typeMapContainsLobs(HashMap dataTypes) {
+  boolean typeMapContainsLobs(HashMap<String, Integer> dataTypes) {
     boolean foundLob = false;
-    Set colNames = m_Mappings.keySet();
-    Iterator iter = colNames.iterator();
+    Set<String> colNames = m_Mappings.keySet();
+    Iterator<String> iter = colNames.iterator();
     while (iter.hasNext() && !foundLob) {
-      String colName = (String) iter.next();
-      Integer jdbcType = (Integer) dataTypes.get(colName.toLowerCase());
+      String colName = iter.next();
+      Integer jdbcType = dataTypes.get(colName.toLowerCase());
       if (null != jdbcType
           && (jdbcType.equals(BLOB_TYPE_VALUE) || jdbcType.equals(CLOB_TYPE_VALUE))) {
         foundLob = true;
@@ -196,7 +196,7 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
    * @throws PSIllegalArgumentException If any support method throws this exception.
    */
   PSSqlBuilderContext getRowIdsFromKeysContext(
-      PSBackEndTable table, PSBackEndLogin login, HashMap dtHash)
+      PSBackEndTable table, PSBackEndLogin login, HashMap<String, Integer> dtHash)
       throws PSIllegalArgumentException {
     /* Build the context for querying ROWIDs based on the keys */
     PSSqlBuilderContext getRowidQueryContext = new PSSqlBuilderContext();
@@ -231,7 +231,7 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
    * @throws PSIllegalArgumentException If any support method throws this exception.
    */
   PSSqlBuilderContext getRowRetrievalByRowidContext(
-      PSBackEndTable table, PSBackEndLogin login, HashMap dtHash)
+      PSBackEndTable table, PSBackEndLogin login, HashMap<String, Integer> dtHash)
       throws PSIllegalArgumentException {
     /* Build the context for selecting a row based on a ROWID,
     which will be used to update the LOB columns */
@@ -266,7 +266,7 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
    * @throws PSIllegalArgumentException If any support method throws this exception.
    */
   PSSqlBuilderContext getSingleRowidUpdateContext(
-      PSBackEndTable table, PSBackEndLogin login, HashMap dtHash)
+      PSBackEndTable table, PSBackEndLogin login, HashMap<String, Integer> dtHash)
       throws PSIllegalArgumentException {
     /* Build the context for updating a single row with the rowid */
     PSSqlBuilderContext singleRowidUpdateContext = new PSSqlBuilderContext();
@@ -304,7 +304,7 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
    * @throws PSIllegalArgumentException If any support method throws this exception.
    */
   PSSqlBuilderContext getInsertContext(
-      PSBackEndTable table, PSBackEndLogin login, HashMap dtHash, List columnList)
+      PSBackEndTable table, PSBackEndLogin login, HashMap<String, Integer> dtHash, List<? extends IPSBackEndMapping> columnList)
       throws PSIllegalArgumentException {
     PSSqlBuilderContext context = new PSSqlBuilderContext();
 
@@ -346,7 +346,7 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
    * @throws PSIllegalArgumentException If the builder does not have one table defined, any argument
    *     is invalid or the connection key is undefined.
    */
-  int validateBuilderConnection(HashMap dtHash, ConcurrentHashMap connKeys, List logins)
+  int validateBuilderConnection(HashMap<String, Integer> dtHash, ConcurrentHashMap<?, Integer> connKeys, List<PSBackEndLogin> logins)
       throws PSIllegalArgumentException {
     int connKey = super.validateBuilderConnection(dtHash, connKeys, logins);
 
@@ -373,13 +373,13 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
    * @throws PSIllegalArgumentException If there are multiple tables or a PSDataExtractionException
    *     occurs.
    */
-  PSUpdateStatement generate(java.util.List logins, ConcurrentHashMap connKeys)
+  PSUpdateStatement generate(java.util.List<PSBackEndLogin> logins, ConcurrentHashMap<?, Integer> connKeys)
       throws PSIllegalArgumentException {
-    HashMap dtHash = new HashMap();
+    HashMap<String, Integer> dtHash = new HashMap<>();
 
     int iConnKey = validateBuilderConnection(dtHash, connKeys, logins);
 
-    PSBackEndLogin login = (PSBackEndLogin) logins.get(iConnKey);
+    PSBackEndLogin login = logins.get(iConnKey);
 
     /* If don't we have lob types to deal with return a normal
     update statement */

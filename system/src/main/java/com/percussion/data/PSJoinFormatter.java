@@ -110,7 +110,7 @@ public abstract class PSJoinFormatter {
     return new PSSql92JoinFormatter();
   }
 
-  public static java.util.List getReorderedJoins(java.util.List joins) {
+  public static java.util.List<PSBackEndJoin> getReorderedJoins(java.util.List<PSBackEndJoin> joins) {
     /* when performing multi-table queries, we have a more complex task
      * to build the statement. We need to see if we have outer joins or
      * only inners. When only inners exist, the syntax is similar to
@@ -133,18 +133,18 @@ public abstract class PSJoinFormatter {
      * relationship between the join parts, we then use separate
      * chains (t1 outer join t2, t3 outer join t4, ...)
      */
-    HashMap tableIndex = new HashMap();
+    HashMap<PSBackEndTable, Integer> tableIndex = new HashMap<>();
     int joinCount = joins.size();
-    ArrayList reorderedJoins = new ArrayList();
+    ArrayList<PSBackEndJoin> reorderedJoins = new ArrayList<>();
     int lastOuterJoin = 0;
     for (int j = 0; j < joinCount; j++) {
-      PSBackEndJoin join = (PSBackEndJoin) joins.get(j);
+      PSBackEndJoin join = joins.get(j);
       if (join.isLeftOuterJoin() || join.isRightOuterJoin() || join.isFullOuterJoin()) {
         PSBackEndTable lTable = join.getLeftColumn().getTable();
-        Integer lPos = (Integer) tableIndex.get(lTable);
+        Integer lPos = tableIndex.get(lTable);
 
         PSBackEndTable rTable = join.getRightColumn().getTable();
-        Integer rPos = (Integer) tableIndex.get(rTable);
+        Integer rPos = tableIndex.get(rTable);
 
         int storeAtPos;
         if (lPos != null) storeAtPos = lPos.intValue() + 1;

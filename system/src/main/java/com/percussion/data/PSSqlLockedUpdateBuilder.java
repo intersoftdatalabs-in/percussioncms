@@ -57,7 +57,7 @@ public class PSSqlLockedUpdateBuilder extends PSSqlUpdateBuilder {
    * @return an update statement for the table passed to the ctor, this will never be <code>null
    *     </code>
    */
-  PSUpdateStatement generate(java.util.List logins, ConcurrentHashMap connKeys)
+  PSUpdateStatement generate(java.util.List<PSBackEndLogin> logins, ConcurrentHashMap<?, Integer> connKeys)
       throws PSIllegalArgumentException {
     if (logins == null) {
       throw new IllegalArgumentException("logins must never be null");
@@ -76,16 +76,16 @@ public class PSSqlLockedUpdateBuilder extends PSSqlUpdateBuilder {
 
     PSSqlBuilderContext context = new PSSqlBuilderContext();
     PSSqlBuilderContext queryContext = new PSSqlBuilderContext();
-    PSBackEndTable table = (PSBackEndTable) m_Tables.get(0);
+    PSBackEndTable table = m_Tables.get(0);
     Object serverKey = table.getServerKey();
-    Integer iConnKey = (Integer) connKeys.get(serverKey);
+    Integer iConnKey = connKeys.get(serverKey);
     if (iConnKey == null) {
       Object[] args = {serverKey};
       throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_NO_CONN_DEFINED, args);
     }
 
-    HashMap dtHash = new HashMap();
-    PSBackEndLogin login = (PSBackEndLogin) logins.get(iConnKey.intValue());
+    HashMap<String, Integer> dtHash = new HashMap<>();
+    PSBackEndLogin login = logins.get(iConnKey.intValue());
 
     boolean supportsLocking = false;
     java.sql.Connection conn = null;

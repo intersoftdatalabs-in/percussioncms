@@ -53,12 +53,12 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   PSSqlUpdateBuilder(PSBackEndTable table) throws PSIllegalArgumentException {
     super();
 
-    m_Tables = new ArrayList(1); // only allowing 1 entry at this time
+    m_Tables = new ArrayList<>(1); // only allowing 1 entry at this time
     addTable(table);
 
-    m_Mappings = new HashMap();
-    m_Columns = new ArrayList();
-    m_Keys = new ArrayList();
+    m_Mappings = new HashMap<>();
+    m_Columns = new ArrayList<>();
+    m_Keys = new ArrayList<>();
   }
 
   /**
@@ -71,7 +71,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
     if (m_Tables.size() == 0) {
       m_Tables.add(table);
     } else if (!m_Tables.contains(table)) {
-      PSBackEndTable curTab = (PSBackEndTable) m_Tables.get(0);
+      PSBackEndTable curTab = m_Tables.get(0);
       Object[] args = {curTab.getAlias(), table.getAlias()};
       throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_MOD_SINGLE_TAB_ONLY, args);
     }
@@ -135,13 +135,14 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
    *     database and server, and indecies into the <code>logins</code> list passed to this method,
    *     must never be <code>null</code>
    */
-  PSUpdateStatement generate(java.util.List logins, ConcurrentHashMap connKeys)
+  PSUpdateStatement generate(
+      java.util.List<PSBackEndLogin> logins, ConcurrentHashMap<?, Integer> connKeys)
       throws PSIllegalArgumentException {
-    HashMap dtHash = new HashMap();
+    HashMap<String, Integer> dtHash = new HashMap<>();
 
     int iConnKey = validateBuilderConnection(dtHash, connKeys, logins);
 
-    return generateUpdate(dtHash, iConnKey, (PSBackEndLogin) logins.get(iConnKey));
+    return generateUpdate(dtHash, iConnKey, logins.get(iConnKey));
   }
 
   /**
@@ -159,7 +160,10 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
    * @throws PSIllegalArgumentException If the builder does not have one table defined, any argument
    *     is invalid or the connection key is undefined.
    */
-  int validateBuilderConnection(HashMap dtHash, ConcurrentHashMap connKeys, List logins)
+  int validateBuilderConnection(
+      HashMap<String, Integer> dtHash,
+      ConcurrentHashMap<?, Integer> connKeys,
+      List<PSBackEndLogin> logins)
       throws PSIllegalArgumentException {
     int size = m_Tables.size();
 
@@ -170,15 +174,15 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
       throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_MOD_SINGLE_TAB_ONLY);
     }
 
-    PSBackEndTable table = (PSBackEndTable) m_Tables.get(0);
+    PSBackEndTable table = m_Tables.get(0);
     Object serverKey = table.getServerKey();
-    Integer iConnKey = (Integer) connKeys.get(serverKey);
+    Integer iConnKey = connKeys.get(serverKey);
     if (iConnKey == null) {
       Object[] args = {serverKey};
       throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_NO_CONN_DEFINED, args);
     }
 
-    PSBackEndLogin login = (PSBackEndLogin) logins.get(iConnKey.intValue());
+    PSBackEndLogin login = logins.get(iConnKey.intValue());
 
     /* get the data types for this table */
     loadDataTypes(login, dtHash, table);
@@ -195,14 +199,15 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
    * @return The appropriate update statement.
    * @throws PSIllegalArgumentException if any called method fails and throws this exception.
    */
-  PSUpdateStatement generateUpdate(HashMap dtHash, int iConnKey, PSBackEndLogin login)
+  PSUpdateStatement generateUpdate(
+      HashMap<String, Integer> dtHash, int iConnKey, PSBackEndLogin login)
       throws PSIllegalArgumentException {
     PSSqlBuilderContext context = new PSSqlBuilderContext();
 
     /* there's only one table permitted per statement */
     context.addText("UPDATE ");
 
-    PSBackEndTable table = (PSBackEndTable) m_Tables.get(0);
+    PSBackEndTable table = m_Tables.get(0);
 
     buildTableName(login, context, table);
 
@@ -233,7 +238,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
      */
     int size;
     if ((m_Keys != null) && ((size = m_Keys.size()) != 0)) {
-      java.util.ArrayList colArray = new java.util.ArrayList(size);
+      java.util.ArrayList<PSBackEndColumn> colArray = new java.util.ArrayList<>(size);
 
       for (int i = 0; i < size; i++) colArray.add(m_Keys.get(i));
 
@@ -278,7 +283,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
    * @param datatypes the data type hash map containing the table.column to data type mapping
    */
   protected void buildSetClause(
-      PSSqlBuilderContext context, PSBackEndTable table, HashMap datatypes)
+      PSSqlBuilderContext context, PSBackEndTable table, HashMap<String, Integer> datatypes)
       throws PSIllegalArgumentException {
     int size = m_Columns.size();
     /* if there are no columns, this is an error */
@@ -303,7 +308,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
    * @param datatypes the data type hash map containing the table.column to data type mapping
    */
   protected void buildWhereClauseFromKeys(
-      PSSqlBuilderContext context, PSBackEndTable table, HashMap datatypes)
+      PSSqlBuilderContext context, PSBackEndTable table, HashMap<String, Integer> datatypes)
       throws PSIllegalArgumentException {
     int size;
 
@@ -347,8 +352,8 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   protected boolean buildColumnAndPlaceholderList(
       PSSqlBuilderContext context,
       PSBackEndTable table,
-      HashMap datatypes,
-      ArrayList columnList,
+      HashMap<String, Integer> datatypes,
+      ArrayList<? extends IPSBackEndMapping> columnList,
       String delimiter,
       boolean ignoreAutoIncrements)
       throws PSIllegalArgumentException {
@@ -374,8 +379,8 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   protected boolean buildColumnAndPlaceholderList(
       PSSqlBuilderContext context,
       PSBackEndTable table,
-      HashMap datatypes,
-      ArrayList columnList,
+      HashMap<String, Integer> datatypes,
+      ArrayList<? extends IPSBackEndMapping> columnList,
       String delimiter,
       boolean ignoreAutoIncrements,
       IPSLobColumnInitializer lci)
@@ -383,7 +388,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
     int colCount = 0; // keep track of the number of cols we set
     int size = columnList.size();
     for (int i = 0; i < size; i++) {
-      IPSBackEndMapping beMap = (IPSBackEndMapping) columnList.get(i);
+      IPSBackEndMapping beMap = columnList.get(i);
       if (!(beMap
           instanceof
           com.percussion.design.objectstore
@@ -398,7 +403,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
       if (!table.equals(col.getTable())) continue;
 
       String columnName = col.getColumn();
-      PSDataMapping map = (PSDataMapping) m_Mappings.get(columnName);
+      PSDataMapping map = m_Mappings.get(columnName);
       if (map == null) {
         Object[] args = {columnName};
         throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_MOD_MAP_REQD, args);
@@ -416,7 +421,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
       context.addText(" = ");
 
       IPSReplacementValue replValue = (IPSReplacementValue) map.getDocumentMapping();
-      Integer jdbcType = (Integer) datatypes.get(columnName.toLowerCase());
+      Integer jdbcType = datatypes.get(columnName.toLowerCase());
       try {
         if (jdbcType != null) context.addReplacementField(replValue, jdbcType.intValue(), col, lci);
         else
@@ -502,7 +507,10 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
    * MS SQL identity columns) are not included in the list.
    */
   protected void buildColumnList(
-      PSSqlBuilderContext context, PSBackEndTable table, HashMap datatypes, boolean usePlaceHolder)
+      PSSqlBuilderContext context,
+      PSBackEndTable table,
+      HashMap<String, Integer> datatypes,
+      boolean usePlaceHolder)
       throws PSIllegalArgumentException {
     buildColumnList(context, table, datatypes, usePlaceHolder, m_Columns);
   }
@@ -515,9 +523,9 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   protected void buildColumnList(
       PSSqlBuilderContext context,
       PSBackEndTable table,
-      HashMap datatypes,
+      HashMap<String, Integer> datatypes,
       boolean usePlaceHolder,
-      List columns)
+      List<? extends IPSBackEndMapping> columns)
       throws PSIllegalArgumentException {
     buildColumnList(context, table, datatypes, usePlaceHolder, columns, null);
   }
@@ -529,15 +537,15 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   protected void buildColumnList(
       PSSqlBuilderContext context,
       PSBackEndTable table,
-      HashMap datatypes,
+      HashMap<String, Integer> datatypes,
       boolean usePlaceHolder,
-      List columns,
+      List<? extends IPSBackEndMapping> columns,
       IPSLobColumnInitializer lci)
       throws PSIllegalArgumentException {
     int size = columns.size();
     int colCount = 0;
     for (int i = 0; i < size; i++) {
-      IPSBackEndMapping beMap = (IPSBackEndMapping) columns.get(i);
+      IPSBackEndMapping beMap = columns.get(i);
       if (!(beMap
           instanceof
           com.percussion.design.objectstore
@@ -551,7 +559,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
       PSBackEndColumn col = (PSBackEndColumn) beMap;
       if (table.equals(col.getTable())) {
         String columnName = col.getColumn();
-        PSDataMapping map = (PSDataMapping) m_Mappings.get(columnName);
+        PSDataMapping map = m_Mappings.get(columnName);
         if (map == null) {
           Object[] args = {columnName};
           throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_MOD_MAP_REQD, args);
@@ -567,7 +575,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
 
         if (usePlaceHolder) {
           IPSReplacementValue replValue = (IPSReplacementValue) map.getDocumentMapping();
-          Integer jdbcType = (Integer) datatypes.get(columnName.toLowerCase());
+          Integer jdbcType = datatypes.get(columnName.toLowerCase());
           try {
             if (jdbcType != null)
               context.addReplacementField(replValue, jdbcType.intValue(), col, lci);
@@ -604,10 +612,11 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
    * @return The appropriate insert statement.
    * @throws PSIllegalArgumentException if any called method fails and throws this exception.
    */
-  PSUpdateStatement generateInsert(HashMap dtHash, int iConnKey, PSBackEndLogin login)
+  PSUpdateStatement generateInsert(
+      HashMap<String, Integer> dtHash, int iConnKey, PSBackEndLogin login)
       throws PSIllegalArgumentException {
     PSSqlBuilderContext context = new PSSqlBuilderContext();
-    PSBackEndTable table = (PSBackEndTable) m_Tables.get(0);
+    PSBackEndTable table = m_Tables.get(0);
 
     /* there's only one table here */
     context.addText("INSERT INTO ");
@@ -645,11 +654,12 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
    * @return The appropriate update with insert statement.
    * @throws PSIllegalArgumentException if any called method fails and throws this exception.
    */
-  PSUpdateStatement generateUpdateInsert(HashMap dtHash, int iConnKey, PSBackEndLogin login)
+  PSUpdateStatement generateUpdateInsert(
+      HashMap<String, Integer> dtHash, int iConnKey, PSBackEndLogin login)
       throws PSIllegalArgumentException {
     PSSqlBuilderContext context = new PSSqlBuilderContext();
     PSSqlBuilderContext insertContext = new PSSqlBuilderContext();
-    PSBackEndTable table = (PSBackEndTable) m_Tables.get(0);
+    PSBackEndTable table = m_Tables.get(0);
 
     /* there's only one table permitted per statement */
     context.addText("UPDATE ");
@@ -668,7 +678,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
 
     // for the INSERT statement, we need all key and update columns
     // in the column list
-    ArrayList columnList = new ArrayList();
+    ArrayList<PSBackEndColumn> columnList = new ArrayList<>();
     columnList.addAll(m_Keys);
     columnList.addAll(m_Columns);
 
@@ -695,14 +705,14 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
    * The back-end tables to build the statement(s) for. Some day, we may use this to build
    * statements across tables. For now, we're using the array list, but allowing only one entry.
    */
-  protected ArrayList m_Tables;
+  protected ArrayList<PSBackEndTable> m_Tables;
 
   /** The XML field - back-end column mappings (PSDataMapping). */
-  protected HashMap m_Mappings;
+  protected HashMap<String, PSDataMapping> m_Mappings;
 
   /** The PSBackEndColumn for each updatable column (PSUpdateColumn.isUpdateable == true). */
-  protected ArrayList m_Columns;
+  protected ArrayList<PSBackEndColumn> m_Columns;
 
   /** the PSBackEndColumn for each key column to use in the WHERE (PSUpdateColumn.isKey == true). */
-  protected ArrayList m_Keys;
+  protected ArrayList<PSBackEndColumn> m_Keys;
 }

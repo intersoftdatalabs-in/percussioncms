@@ -168,7 +168,7 @@ public class PSQueryOptimizer extends PSOptimizer {
       PSApplicationHandler ah, PSDataSet ds, PSQueryPipe pipe)
       throws java.sql.SQLException, PSNotFoundException, PSExtensionException {
     var steps = new ArrayList<IPSExecutionStep>();
-    var logins = new ArrayList<Object>();
+    var logins = new ArrayList<PSBackEndLogin>();
     var connKeys = new ConcurrentHashMap<Object, Integer>();
     IPSExecutionStep[] curSteps;
     IPSExecutionStep[] ret = null;
@@ -254,7 +254,7 @@ public class PSQueryOptimizer extends PSOptimizer {
   private static IPSExecutionStep[] createStatements(
       PSApplicationHandler ah,
       PSDataSet ds,
-      List<Object> logins,
+      List<PSBackEndLogin> logins,
       ConcurrentHashMap<Object, Integer> connKeys,
       PSBackEndDataTank backEnds,
       PSDataMapper cols,
@@ -277,7 +277,7 @@ public class PSQueryOptimizer extends PSOptimizer {
       // get the current table object
       var curTable = (PSBackEndTable) tables.get(i);
       // create the meta data for this db
-      var login = (PSBackEndLogin) logins.get(connKeys.get(curTable.getServerKey()));
+      var login = logins.get(connKeys.get(curTable.getServerKey()));
       getCachedDatabaseMetaData(login);
     }
 
@@ -419,7 +419,7 @@ public class PSQueryOptimizer extends PSOptimizer {
   private static IPSExecutionStep[] createJoinPlan(
       PSApplicationHandler ah,
       PSDataSet ds,
-      List<Object> logins,
+      List<PSBackEndLogin> logins,
       ConcurrentHashMap<Object, Integer> connKeys,
       PSBackEndDataTank backEnds,
       PSCollection beTables,
@@ -462,7 +462,7 @@ public class PSQueryOptimizer extends PSOptimizer {
 
       // create the meta data for this table
       PSBackEndLogin login =
-          (PSBackEndLogin) logins.get(((Integer) connKeys.get(curTable.getServerKey())).intValue());
+          logins.get(((Integer) connKeys.get(curTable.getServerKey())).intValue());
       PSDatabaseMetaData dmdCur = getCachedDatabaseMetaData(login);
       PSMetaDataCache.loadConnectionDetail(curTable);
       PSTableMetaData tmdCur =

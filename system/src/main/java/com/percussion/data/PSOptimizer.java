@@ -169,8 +169,8 @@ public abstract class PSOptimizer {
   protected static int createLoginPlan(
       PSApplicationHandler ah,
       PSCollection beTables,
-      List logins,
-      ConcurrentHashMap connKeys,
+      List<PSBackEndLogin> logins,
+      ConcurrentHashMap<Object, Integer> connKeys,
       PSCollection joins)
       throws java.sql.SQLException {
     if (ah == null) {
@@ -188,10 +188,10 @@ public abstract class PSOptimizer {
 
     int loginCount = logins.size();
 
-    HashMap beTableDoubles = null;
+    HashMap<Object, Object> beTableDoubles = null;
 
     if (joins != null) {
-      beTableDoubles = new HashMap();
+      beTableDoubles = new HashMap<>();
       for (int i = 0; i < joins.size(); i++) {
         PSBackEndJoin j = (PSBackEndJoin) joins.get(i);
         if (j.getTranslator() != null) {
@@ -220,7 +220,7 @@ public abstract class PSOptimizer {
     for (int j = 0; j < beTables.size(); j++) {
       PSBackEndTable beTable = (PSBackEndTable) beTables.get(j);
       Object driverServerCombo = beTable.getServerKey();
-      Integer iTemp = (Integer) connKeys.get(driverServerCombo);
+      Integer iTemp = connKeys.get(driverServerCombo);
       if (iTemp == null) // if we haven't added a step for this B.E. yet
       {
         // add to hash to mark this as done
