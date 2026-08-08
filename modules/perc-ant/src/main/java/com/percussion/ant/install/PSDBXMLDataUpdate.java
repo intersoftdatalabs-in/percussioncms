@@ -30,7 +30,6 @@ import com.percussion.tablefactory.PSJdbcTableFactory;
 import com.percussion.tablefactory.PSJdbcTableSchema;
 import com.percussion.tablefactory.install.RxLogTables;
 import com.percussion.tablefactory.tools.DbUtils;
-import com.percussion.util.IOTools;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -288,7 +287,7 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
       super.execute();
       fr = new FileReader(tempFile);
       sw = new StringWriter();
-      IOTools.writeStream(fr, sw);
+      PSInstallIoUtils.writeStream(fr, sw);
       String newColValue = sw.toString();
       columnData = new PSJdbcColumnData(columnName, newColValue);
     } catch (Exception e) {

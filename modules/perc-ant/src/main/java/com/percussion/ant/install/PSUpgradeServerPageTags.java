@@ -18,7 +18,6 @@
 package com.percussion.ant.install;
 
 import com.percussion.install.PSLogger;
-import com.percussion.util.IOTools;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.io.File;
@@ -89,13 +88,13 @@ public class PSUpgradeServerPageTags extends PSAction {
         return;
       } else {
         // create a backup of the existing file
-        File backupFile = IOTools.createBackupFile(diskXmlFile);
+        File backupFile = PSInstallIoUtils.createBackupFile(diskXmlFile);
       }
 
       // Create a temp file for serverPageTags.xml
       String xmlResFile;
       File archiveXmlFile = new File(serverPageTagsXmlE2FilePath);
-      xmlResFile = IOTools.createTempFile(archiveXmlFile).getAbsolutePath();
+      xmlResFile = PSInstallIoUtils.createTempFile(archiveXmlFile).getAbsolutePath();
 
       InputStream diskStream = null;
       InputStream resStream = null;

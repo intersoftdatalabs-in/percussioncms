@@ -18,7 +18,6 @@
 package com.percussion.ant.install;
 
 import com.percussion.install.PSLogger;
-import com.percussion.util.IOTools;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -143,7 +142,7 @@ public class PSCopyFileAction extends PSAction {
       }
 
       PSLogger.logInfo("Copying : " + resolvedSource + " to " + resolvedDestination);
-      if (!destFile.exists() || destFile.canWrite()) IOTools.copyFileStreams(srcFile, destFile);
+      if (!destFile.exists() || destFile.canWrite()) PSInstallIoUtils.copyFile(srcFile, destFile);
       if (deleteSourceFile) srcFile.delete();
     } catch (IOException io) {
       PSLogger.logInfo(

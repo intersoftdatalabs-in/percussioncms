@@ -16,7 +16,6 @@
  */
 package com.percussion.ant.install;
 
-import com.percussion.util.IOTools;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -62,7 +61,7 @@ public class PSCheckInstallLog extends PSAction {
     File antLog = new File(rootDir, ANT_LOG_FILE);
 
     try {
-      String fullcontents = IOTools.getFileContent(installLog);
+      String fullcontents = PSInstallIoUtils.getFileContent(installLog);
       int index = fullcontents.lastIndexOf(START_ENTRY);
       if (index == -1) {
         // The log may have been rotated. TODO: Look into how to detect log rotation so this is more
@@ -74,7 +73,7 @@ public class PSCheckInstallLog extends PSAction {
       String antcontents = null;
 
       if (antLog.exists()) {
-        antcontents = IOTools.getFileContent(antLog);
+        antcontents = PSInstallIoUtils.getFileContent(antLog);
       }
 
       Iterator<String> iter = m_errorKeywords.iterator();

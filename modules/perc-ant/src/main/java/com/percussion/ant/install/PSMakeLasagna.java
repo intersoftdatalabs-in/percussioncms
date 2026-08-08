@@ -80,6 +80,7 @@ public class PSMakeLasagna extends Task {
   // see base class
   // TODO: Remove me @SuppressFBWarnings({"HARD_CODE_PASSWORD", "HARD_CODE_PASSWORD"})
   @Override
+  @SuppressWarnings("deprecation") // last-resort PSLegacyEncrypter / getPartOneKey for upgrades
   public void execute() throws BuildException {
     FileOutputStream out = null;
     try {

@@ -67,6 +67,7 @@ public class PSSecureProperty {
    * @param encryptionType Optional. They type of encryption to use.
    */
   @ToDoVulnerability
+  @SuppressWarnings("deprecation") // default key still sourced from PSLegacyEncrypter for upgrades
   public static void secureProperties(
       File filepath, Collection<String> propnames, String k, String encryptionType) {
     if (propnames == null) throw new IllegalArgumentException(ERROR_PROPS);
@@ -194,6 +195,7 @@ public class PSSecureProperty {
    *     <code>null</code>.
    * @return the decrypted string, never <code>null</code>, may be empty.
    */
+  @SuppressWarnings("deprecation") // legacy decrypt fallbacks for pre-PSEncryptor values
   public static String getValue(String s, String k) {
     if (s == null) throw new IllegalArgumentException();
 

@@ -62,6 +62,7 @@ public class PSAction extends Task {
    * for upgrades, and setting of the entity resolver's resolution home used to find DTD's. It also
    * determines if all files should be refreshed by date.
    */
+  @SuppressWarnings("deprecation") // PSEntityResolver remains the install-time DTD resolver
   public void execute() throws BuildException {
     PSLogger.init(ms_rootDir);
     InstallUtil.writePreviousVersion(ms_rootDir);

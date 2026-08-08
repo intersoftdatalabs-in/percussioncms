@@ -32,6 +32,7 @@ public class PSMain extends org.apache.tools.ant.Main {
    * @param args command-line arguments
    * @throws BuildException if an error occurs
    */
+  @SuppressWarnings("deprecation") // Ant Main(String[]) still required to processArgs before run
   public PSMain(String[] args) throws BuildException {
     super(args);
   }

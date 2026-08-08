@@ -143,7 +143,7 @@ public class PSHelpHintFileCreator {
       String content = null;
       StartTag tagA = descTags.get(i);
       if (i == descTags.size() - 1) {
-        Tag lastTag = tagA.findEndTag();
+        Tag lastTag = tagA.getElement().getEndTag();
         while (true) {
           Tag nextTag = source.findNextTag(lastTag.getEnd());
           if (nextTag == null) break;
@@ -271,7 +271,7 @@ public class PSHelpHintFileCreator {
    */
   private boolean isRelatedItemTable(String text, StartTag tag) {
     if (!tag.getName().equals(ELEM_TABLE)) return false;
-    EndTag eTag = tag.findEndTag();
+    EndTag eTag = tag.getElement().getEndTag();
     Source source = new Source(text.substring(tag.getBegin(), eTag.getEnd()));
     for (Object tagObj : source.findAllStartTags(ELEM_P)) {
       StartTag sTag = (StartTag) tagObj;
@@ -312,7 +312,7 @@ public class PSHelpHintFileCreator {
       Attributes attrs = sTag.getAttributes();
       Attribute attr = attrs.get(ATTR_CLASS);
       if (attr != null && attr.getValue().equals(FIELDNAME)) {
-        EndTag eTag = sTag.findEndTag();
+        EndTag eTag = sTag.getElement().getEndTag();
         return stripTags(content.substring(sTag.getEnd(), eTag.getBegin()));
       }
     }

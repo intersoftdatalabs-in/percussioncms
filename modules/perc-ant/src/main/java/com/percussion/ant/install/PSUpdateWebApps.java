@@ -18,7 +18,6 @@
 package com.percussion.ant.install;
 
 import com.percussion.install.PSLogger;
-import com.percussion.util.IOTools;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -113,7 +112,7 @@ public final class PSUpdateWebApps extends PSAction {
         File[] webappFiles = webapp.listFiles();
         for (int j = 0; j < webappFiles.length; j++) {
           try {
-            IOTools.copyToDir(webappFiles[j], newWebapp);
+            PSInstallIoUtils.copyToDir(webappFiles[j], newWebapp);
           } catch (IOException e) {
             PSLogger.logError("Error deploying webapp: " + webappName);
             PSLogger.logError("Exception: " + e.getMessage());
