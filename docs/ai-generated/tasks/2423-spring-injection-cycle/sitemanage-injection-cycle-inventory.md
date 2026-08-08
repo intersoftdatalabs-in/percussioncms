@@ -2,8 +2,13 @@
 
 **Issue:** #2463 (residual of #2423); reverse-edge inventory refresh **#2485**  
 **Module:** `projects/sitemanage`  
+<<<<<<< HEAD
 **Date:** 2026-08-08 (updated 2026-08-09 for #2485)  
 **Method:** Static scan of `@Autowired` constructors + field `@Autowired` among high-fan-in sitemanage beans (interfaces mapped to primary impls). Reflection peers: `PSContentItemDaoCycleLazyWiringTest`, `PSPageDaoHelperCycleLazyWiringTest`, `PSFolderHelperRecycleLazyWiringTest`, `PSFolderHelperReverseEdgeInventoryWiringTest` (#2485), `FolderHelperCycleContextTest` (#2436).
+=======
+**Date:** 2026-08-08 (updated 2026-08-09 for #2485; cluster union with #2477)  
+**Method:** Static scan of `@Autowired` constructors + field `@Autowired` among high-fan-in sitemanage beans (interfaces mapped to primary impls). Reflection peers: `PSContentItemDaoCycleLazyWiringTest`, `PSPageDaoHelperCycleLazyWiringTest`, `PSFolderHelperRecycleLazyWiringTest`, `PSFolderHelperReverseEdgeInventoryWiringTest` (#2485), `PSTemplateServiceCycleWiringTest` (#2477), `PSPageServiceCycleWiringTest` (#2514), `PSItemWorkflowServiceHubReverseEdgeWiringTest` (#2478), `FolderHelperCycleContextTest` (#2436).
+>>>>>>> bbfff8456b (feat(sitemanage): #2514 pageService hub reverse-edge freeze)
 
 This is an analysis note for humans/agents — **not** an agent rule file.
 
@@ -77,7 +82,7 @@ Class-level `@Lazy` on these beans is **lazy init only** — it is **false safet
 
 | Class | Class `@Lazy`? | Disposition |
 |-------|----------------|-------------|
-| `PSPageService` | yes | consumer / hub — reverse-edge hub work: #2514 (do not duplicate here) |
+| `PSPageService` | yes | consumer / hub — reverse-edge freeze done (#2514 / `PSPageServiceCycleWiringTest`) |
 | `PSItemWorkflowService` | yes | consumer / hub — #2478 / #2515 |
 | `PSSiteDataService` | yes | consumer / hub — #2516 |
 | `PSAssetService` | yes | consumer; folderHelper param **not** `@Lazy` (pageService param **is** `@Lazy` #2476) |
@@ -106,7 +111,7 @@ These beans have high constructor fan-in and sit on or next to the known cycle p
 
 | Rank | Bean | Approx. ctor out / in (interest graph) | Notes |
 |------|------|----------------------------------------|-------|
-| 1 | `PSPageService` | out ~11 / in ~28 | Injects `contentItemDao`, `folderHelper`, `recycleService`, `widgetAsset`, `itemWorkflow`. Class `@Lazy`. |
+| 1 | `PSPageService` | out ~11 / in ~28 | Injects `contentItemDao`, `folderHelper`, `recycleService`, `widgetAsset`, `itemWorkflow`. Class `@Lazy`. Reverse-edge freeze covered by `PSPageServiceCycleWiringTest` (2026-08-08, #2514). |
 | 2 | `PSItemWorkflowService` | out ~7 / in ~23 | Injects `assetDao`, `folderHelper`, `recycleService`, `widgetAsset`. Class `@Lazy`. |
 | 3 | `PSTemplateService` | out ~6 / in ~20 | Class `@Lazy` (2026-08-08, #2477). Injects `widgetAsset`, page/template DAOs. Belt-and-braces reverse-edge ban covered by `PSTemplateServiceCycleWiringTest`. |
 | 4 | `PSWidgetAssetRelationshipService` | out ~4 / in ~18 | **Not** class `@Lazy`. On known cycle path. |
@@ -188,10 +193,20 @@ Many path/item services inject `IPSFolderHelper` without parameter `@Lazy` (e.g.
 2. ~~Optional: add `@Lazy` on `PSAssetService`'s `IPSPageService` ctor param as belt-and-braces.~~ **Done (#2476)**.
 3. ~~ItemWorkflow hub reverse-edge tests.~~ Done: `PSItemWorkflowServiceHubReverseEdgeWiringTest` (#2478).
 4. ~~Hub hardening: `PSTemplateService` class `@Lazy` + reverse-edge tests.~~ **Done (#2477)** — `PSTemplateServiceCycleWiringTest`.
+<<<<<<< HEAD
 5. Keep Docker `qa-up` / Rhythmyx health smoke (#2437) as the production-level gate.
 6. When adding new `@Autowired` constructors on cycle peers, re-run this inventory method (or extend the reflection tests).
 7. Optional next hubs (same pattern as #2478): `PSPageService` (rank 1) reverse-edge freezes; further residual edges under parent #2423.
 >>>>>>> 3755d4d465 (feat(sitemanage): #2477 templateService hub @Lazy hardening)
+=======
+5. ~~folderHelper reverse-edge inventory freeze.~~ **Done (#2485)** — `PSFolderHelperReverseEdgeInventoryWiringTest`.
+6. ~~`PSPageService` reverse-edge freeze.~~ **Done (#2514)** — `PSPageServiceCycleWiringTest`.
+7. Keep Docker `qa-up` / Rhythmyx health smoke (#2437) as the production-level gate.
+8. When adding new `@Autowired` constructors on cycle peers, re-run this inventory method (or extend the reflection tests).
+9. Optional next hubs: siteData (#2516); widgetAsset class `@Lazy` (#2519).
+10. Optional residual: field-injection inventory for `IPSFolderHelper` / recycle subgraph (ctor inventory is complete under #2485; field `@Autowired` is a separate scan).
+11. Optional residual: belt-and-braces param `@Lazy` on high-fan-in consumer hubs that inject both `folderHelper` and recycle peers (`pageService`, `itemWorkflow`) — only if product risk warrants; do not treat class `@Lazy` as the fix.
+>>>>>>> bbfff8456b (feat(sitemanage): #2514 pageService hub reverse-edge freeze)
 
 ## Related
 
@@ -202,4 +217,8 @@ Many path/item services inject `IPSFolderHelper` without parameter `@Lazy` (e.g.
 - #2463 — high-fan-in inventory beyond folderHelper  
 - #2476 — param `@Lazy` on assetService→pageService  
 - #2485 — folderHelper reverse-edge inventory (this refresh)  
+<<<<<<< HEAD
+=======
+- #2514 — pageService hub reverse-edge freeze (`PSPageServiceCycleWiringTest`)
+>>>>>>> bbfff8456b (feat(sitemanage): #2514 pageService hub reverse-edge freeze)
 - #2457 / PR #2469 — JDK 21 lambda compile fix often needed to build sitemanage tests
