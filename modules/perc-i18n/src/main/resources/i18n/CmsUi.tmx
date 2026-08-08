@@ -26730,5 +26730,42 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
     <tu tuid="perc.ui.publish.servers.s3@Optional credentials hint">
       <tuv xml:lang="en-us"><seg>Optional when using an EC2 instance profile or Assume Role. Leave empty only if alternate AWS credentials will be available at publish time. Saving with empty fields shows a footer warning.</seg></tuv>
     <tuv xml:lang="lou"><seg>Optional when using yon EC2 instance profile oswa Assume Role. Leave vid only if alternate AWS credentials will été disponib at pibliyé time. Saving épi vid fields shows yon footer warning.</seg></tuv></tu>
+      <!-- Issue #2393 / parent #2374 slice 1: Profile hub shell + My profile entry (en-us source; other locales fall back / translate later) -->
+    <tu tuid="perc.ui.profile.modern@My profile">
+      <tuv xml:lang="en-us"><seg>My profile</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@View and manage your account settings. Sections below will open as they become available.">
+      <tuv xml:lang="en-us"><seg>View and manage your account settings. Sections below will open as they become available.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Profile sections">
+      <tuv xml:lang="en-us"><seg>Profile sections</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Account">
+      <tuv xml:lang="en-us"><seg>Account</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Your name, login id, email, and role summary will appear here.">
+      <tuv xml:lang="en-us"><seg>Your name, login id, email, and role summary will appear here.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Security">
+      <tuv xml:lang="en-us"><seg>Security</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Password and authentication options for your account will appear here.">
+      <tuv xml:lang="en-us"><seg>Password and authentication options for your account will appear here.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Preferences">
+      <tuv xml:lang="en-us"><seg>Preferences</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Language and personal UI preferences will appear here.">
+      <tuv xml:lang="en-us"><seg>Language and personal UI preferences will appear here.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Avatar">
+      <tuv xml:lang="en-us"><seg>Avatar</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Avatar and Gravatar email settings will appear here.">
+      <tuv xml:lang="en-us"><seg>Avatar and Gravatar email settings will appear here.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Coming soon">
+      <tuv xml:lang="en-us"><seg>Coming soon</seg></tuv>
+    </tu>
   </body>
 </tmx>

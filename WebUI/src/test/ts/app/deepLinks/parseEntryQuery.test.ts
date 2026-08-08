@@ -70,6 +70,13 @@ describe("parseEntryQuery", () => {
     expect(parseEntryQuery("?entry=nope").entry).toBe("home");
   });
 
+  it("maps profile entry to /profile client path", () => {
+    expect(parseEntryQuery("?entry=profile").entry).toBe("profile");
+    expect(parseEntryQuery("?entry=profile").clientPath).toBe("/profile");
+    expect(parseClientPath("/profile").entry).toBe("profile");
+    expect(parseClientPath("/profile").clientPath).toBe("/profile");
+  });
+
   it("toSpaEntryUrl rebuilds query contract", () => {
     const url = toSpaEntryUrl({
       entry: "home",

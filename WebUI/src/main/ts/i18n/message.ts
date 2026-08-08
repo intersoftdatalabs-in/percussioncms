@@ -219,6 +219,8 @@ export const MSG = {
   USER_SIGNED_IN_AS: "perc.ui.dashboard.modern@Signed in as",
   USER_DEFAULT_NAME: "perc.ui.dashboard.modern@user",
   USER_LOGOUT: "perc.ui.common.label@Log Out",
+  /** Profile hub menu entry (#2393) — prefer PROFILE_MSG in profile/messages.ts for new code */
+  USER_MY_PROFILE: "perc.ui.profile.modern@My profile",
   // Dashboard / Gadgets chrome
   DASHBOARD_TITLE: "perc.ui.dashboard.title@Dashboard",
   DASHBOARD_EMBEDDED_TITLE: "perc.ui.dashboard.modern@Gadgets",

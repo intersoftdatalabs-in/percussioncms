@@ -117,6 +117,8 @@ export function parseEntryQuery(
       }
       return { entry, path, clientPath };
     }
+    case "profile":
+      return { entry, clientPath: "/profile" };
     case "unavailable":
       return { entry, clientPath: "/unavailable" };
     default:
@@ -225,6 +227,8 @@ export function parseClientPath(
       }
       return { entry, path: explorerPath, clientPath: cp };
     }
+    case "profile":
+      return { entry, clientPath: "/profile" };
     case "unavailable":
       return { entry, clientPath: "/unavailable" };
     default:

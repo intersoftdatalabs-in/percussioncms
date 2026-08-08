@@ -54,6 +54,7 @@
         if ("home".equals(n) || "publish".equals(n) || "workflow".equals(n)
                 || "admin".equals(n) || "widget-builder".equals(n)
                 || "explorer".equals(n) || "developer".equals(n)
+                || "profile".equals(n)
                 || "unavailable".equals(n)) {
             return n;
         }
