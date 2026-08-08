@@ -24,6 +24,7 @@ import com.percussion.design.objectstore.IPSDocument;
 import com.percussion.design.objectstore.IPSValidationContext;
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndTable;
+import com.percussion.design.objectstore.PSComponent;
 import com.percussion.design.objectstore.PSContainerLocator;
 import com.percussion.design.objectstore.PSContentEditor;
 import com.percussion.design.objectstore.PSContentEditorMapper;
@@ -185,9 +186,10 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
     PSContentEditorMapper mapper = getContentEditorMapper();
     PSUIDefinition def = mapper.getUIDefinition();
     PSDisplayMapper parent = def.getDisplayMapper();
-    Iterator mappings = parent.iterator();
+    @SuppressWarnings("unchecked")
+    Iterator<PSDisplayMapping> mappings = parent.iterator();
     while (mappings.hasNext()) {
-      PSDisplayMapping mapping = (PSDisplayMapping) mappings.next();
+      PSDisplayMapping mapping = mappings.next();
       PSDisplayMapper childMapper = mapping.getDisplayMapper();
       if (childMapper != null) childMappers.add(childMapper);
     }
@@ -233,9 +235,10 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
    */
   private List<PSField> getFields(PSFieldSet fieldSet, PSDisplayMapper mapper) {
     List<PSField> fields = new ArrayList<>();
-    Iterator mappings = mapper.iterator();
+    @SuppressWarnings("unchecked")
+    Iterator<PSDisplayMapping> mappings = mapper.iterator();
     while (mappings.hasNext()) {
-      PSDisplayMapping mapping = (PSDisplayMapping) mappings.next();
+      PSDisplayMapping mapping = mappings.next();
       String fieldName = mapping.getFieldRef();
 
       Object o = fieldSet.get(fieldName);
@@ -257,9 +260,10 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
         PSFieldSet childFs = (PSFieldSet) o;
         if (childFs.getType() == PSFieldSet.TYPE_SIMPLE_CHILD) {
           PSDisplayMapper childMapper = mapping.getDisplayMapper();
-          Iterator childMappings = childMapper.iterator();
+          @SuppressWarnings("unchecked")
+          Iterator<PSDisplayMapping> childMappings = childMapper.iterator();
           while (childMappings.hasNext()) {
-            PSDisplayMapping childMapping = (PSDisplayMapping) childMappings.next();
+            PSDisplayMapping childMapping = childMappings.next();
             fieldName = childMapping.getFieldRef();
             o = fieldSet.getChildField(fieldName, PSFieldSet.TYPE_SIMPLE_CHILD);
           }
@@ -315,10 +319,11 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   public List<String> getSingleDimensionParentTextFieldNames() {
     List<String> fn = new ArrayList<>();
     PSContentEditorMapper mapper = getContentEditorMapper();
-    Iterator iter = mapper.getUIDefinition().getDisplayMapper().iterator();
+    @SuppressWarnings("unchecked")
+    Iterator<PSDisplayMapping> iter = mapper.getUIDefinition().getDisplayMapper().iterator();
     PSFieldSet fieldSet = mapper.getFieldSet();
     while (iter.hasNext()) {
-      PSDisplayMapping dm = (PSDisplayMapping) iter.next();
+      PSDisplayMapping dm = iter.next();
       if (dm.getDisplayMapper() == null) {
         String fieldName = dm.getFieldRef();
         PSField fld = fieldSet.getFieldByName(fieldName);
@@ -458,7 +463,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
     PSFieldSet fs = def.getFieldSet();
     PSUIDefinition ui = def.getUIDefinition();
     Collection<PSField> results = new ArrayList<>();
-    Iterator fields = fs.getAll(false);
+    Iterator<PSComponent> fields = fs.getAll(false);
     while (fields.hasNext()) {
       PSField field = (PSField) fields.next();
       if (!field.isReadOnly() && null == ui.getMapping(field.getSubmitName())) {
@@ -476,7 +481,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /** Returns clone of Options map */
-  protected Map getOptionsMap() {
+  protected Map<String, PSCollection> getOptionsMap() {
     return null;
   }
 
@@ -494,7 +499,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
    *
    * @return <code>null</code>.
    */
-  public Iterator getSlotNames() {
+  public Iterator<String> getSlotNames() {
     return null;
   }
 
@@ -503,7 +508,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
    *
    * @return <code>null</code>.
    */
-  public Iterator getSlotIds() {
+  public Iterator<Integer> getSlotIds() {
     return null;
   }
 
@@ -513,7 +518,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
    * @param slotName
    * @return <code>null</code>.
    */
-  public Iterator getVariantNames(@SuppressWarnings("unused") String slotName) {
+  public Iterator<String> getVariantNames(@SuppressWarnings("unused") String slotName) {
     return null;
   }
 
@@ -522,7 +527,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
    *
    * @param slotId
    */
-  public Iterator getVariantIds(@SuppressWarnings("unused") int slotId) {
+  public Iterator<Integer> getVariantIds(@SuppressWarnings("unused") int slotId) {
     return null;
   }
 
@@ -713,15 +718,15 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
       PSContentEditorPipe pipe = (PSContentEditorPipe) m_contentEditorDef.getPipe();
       PSContentEditorMapper ceMapper = pipe.getMapper();
       PSFieldSet fs = ceMapper.getFieldSet(); // Get parent
-      Iterator setiter = fs.getAll();
+      Iterator<PSComponent> setiter = fs.getAll();
       while (setiter.hasNext()) {
-        Object x = setiter.next();
+        PSComponent x = setiter.next();
         if (x instanceof PSFieldSet) {
           PSFieldSet set = (PSFieldSet) x;
           if (set.getType() == PSFieldSet.TYPE_SIMPLE_CHILD) {
-            Iterator fields = set.getAll();
+            Iterator<PSComponent> fields = set.getAll();
             while (fields.hasNext()) {
-              Object f = fields.next();
+              PSComponent f = fields.next();
               if (f instanceof PSField) {
                 PSField field = (PSField) f;
                 m_simpleChildFieldSets.put(field.getSubmitName(), set);
@@ -780,9 +785,10 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   private int getPageId(String fieldName, PSDisplayMapper mapper, PSFieldSet fs, int[] curPageId) {
     int pageId = -1;
     int currentPage = curPageId[0];
-    Iterator mappings = mapper.iterator();
+    @SuppressWarnings("unchecked")
+    Iterator<PSDisplayMapping> mappings = mapper.iterator();
     while (mappings.hasNext() && pageId == -1) {
-      PSDisplayMapping mapping = (PSDisplayMapping) mappings.next();
+      PSDisplayMapping mapping = mappings.next();
       Object o = fs.get(mapping.getFieldRef());
       if (o == null) continue;
       boolean isComplexChild =
@@ -945,8 +951,10 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
     List<PSFieldSet> results = new ArrayList<>();
     PSUIDefinition def = mapper.getUIDefinition();
     PSDisplayMapper dmapper = def.getDisplayMapper();
-    for (Iterator mappingIter = dmapper.iterator(); mappingIter.hasNext(); ) {
-      PSDisplayMapping entry = (PSDisplayMapping) mappingIter.next();
+    @SuppressWarnings("unchecked")
+    Iterator<PSDisplayMapping> mappingIter = dmapper.iterator();
+    while (mappingIter.hasNext()) {
+      PSDisplayMapping entry = mappingIter.next();
       PSDisplayMapper childMapper = entry.getDisplayMapper();
       if (childMapper == null) continue;
 

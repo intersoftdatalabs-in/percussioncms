@@ -23,7 +23,6 @@ import com.percussion.design.objectstore.PSComponent;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Document;
@@ -44,7 +43,11 @@ public class PSCloningOptions extends PSComponent {
    * @see #PSCloningOptions(int, String, String, String, int, int, Map) for documentation
    */
   public PSCloningOptions(
-      int type, String folderName, int copyOption, int copyContentOption, Map communityMappings) {
+      int type,
+      String folderName,
+      int copyOption,
+      int copyContentOption,
+      Map<? extends Integer, ? extends Integer> communityMappings) {
     this(type, null, null, folderName, copyOption, copyContentOption, communityMappings);
   }
 
@@ -70,7 +73,7 @@ public class PSCloningOptions extends PSComponent {
       String folderName,
       int copyOption,
       int copyContentOption,
-      Map communityMappings) {
+      Map<? extends Integer, ? extends Integer> communityMappings) {
     if (!isValid(type, ms_typeEnum))
       throw new IllegalArgumentException("type must be one of TYPE_XXX");
     m_type = type;
@@ -327,7 +330,7 @@ public class PSCloningOptions extends PSComponent {
    *
    * @return the source - target community mappings, never <code>null</code>, may be empty.
    */
-  public Map getCommunityMappings() {
+  public Map<Integer, Integer> getCommunityMappings() {
     return m_communityMappings;
   }
 
@@ -336,7 +339,7 @@ public class PSCloningOptions extends PSComponent {
    *
    * @return the source to target site id mappings, never <code>null</code>, may be empty.
    */
-  public Map getSiteMappings() {
+  public Map<Integer, Integer> getSiteMappings() {
     return m_siteMappings;
   }
 
@@ -491,14 +494,10 @@ public class PSCloningOptions extends PSComponent {
       Element communityMappings = doc.createElement(COMMUNITY_MAPPINGS_ELEM);
       root.appendChild(communityMappings);
 
-      Iterator sources = m_communityMappings.keySet().iterator();
-      while (sources.hasNext()) {
-        Integer source = (Integer) sources.next();
-        Integer target = (Integer) m_communityMappings.get(source);
-
+      for (Map.Entry<Integer, Integer> entry : m_communityMappings.entrySet()) {
         Element mapping = doc.createElement(MAPPING_ELEM);
-        mapping.setAttribute(SOURCEID_ATTR, source.toString());
-        mapping.setAttribute(TARGETID_ATTR, target.toString());
+        mapping.setAttribute(SOURCEID_ATTR, entry.getKey().toString());
+        mapping.setAttribute(TARGETID_ATTR, entry.getValue().toString());
         communityMappings.appendChild(mapping);
       }
     }
@@ -507,14 +506,10 @@ public class PSCloningOptions extends PSComponent {
       Element siteMappings = doc.createElement(SITE_MAPPINGS_ELEM);
       root.appendChild(siteMappings);
 
-      Iterator sources = m_siteMappings.keySet().iterator();
-      while (sources.hasNext()) {
-        Integer source = (Integer) sources.next();
-        Integer target = (Integer) m_siteMappings.get(source);
-
+      for (Map.Entry<Integer, Integer> entry : m_siteMappings.entrySet()) {
         Element mapping = doc.createElement(MAPPING_ELEM);
-        mapping.setAttribute(SOURCEID_ATTR, source.toString());
-        mapping.setAttribute(TARGETID_ATTR, target.toString());
+        mapping.setAttribute(SOURCEID_ATTR, entry.getKey().toString());
+        mapping.setAttribute(TARGETID_ATTR, entry.getValue().toString());
         siteMappings.appendChild(mapping);
       }
     }
@@ -655,7 +650,7 @@ public class PSCloningOptions extends PSComponent {
    * Maps source site ids as <code>Integer</code> to target site ids as <code>Integer</code>.
    * Initialized to an empty map, updated through {@link #addSiteMapping(Integer, Integer)}.
    */
-  private Map m_siteMappings = new HashMap();
+  private Map<Integer, Integer> m_siteMappings = new HashMap<>();
 
   /**
    * Indicates if source items workflow should be used as long as it is valid. Transient value that

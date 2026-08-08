@@ -239,4 +239,38 @@ public class PSKeyTest {
       assertEquals(99, serSimple.getKeyValueAsInt());
     }
   }
+
+  /**
+   * After {@code HashMap<String,String>} parameterization (#2376): multi-part keys retain part
+   * names/values across toXml/fromXml and clone.
+   */
+  @Test
+  public void testTypedNameValueMapRoundTrip() throws Exception {
+    String[] def = new String[] {"CONTENTID", "REVISIONID", "FOLDERID"};
+    String[] vals = new String[] {"1001", "3", "55"};
+    PSKey key = new PSKey(def, vals, true);
+
+    assertEquals(3, key.getPartCount());
+    assertEquals("1001", key.getPart("CONTENTID"));
+    assertEquals("3", key.getPart("REVISIONID"));
+    assertEquals("55", key.getPart("FOLDERID"));
+    // map keys are lower-cased internally; part lookup is case-insensitive
+    assertEquals("1001", key.getPart("contentid"));
+
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = key.toXml(doc);
+    PSKey fromXml = new PSKey(el);
+    assertEquals(key, fromXml);
+    assertEquals("1001", fromXml.getPart("CONTENTID"));
+    assertEquals("3", fromXml.getPart("REVISIONID"));
+    assertEquals("55", fromXml.getPart("FOLDERID"));
+
+    PSKey clone = (PSKey) key.clone();
+    assertEquals(key, clone);
+    assertEquals("55", clone.getPart("FOLDERID"));
+    // mutate clone; original must stay independent
+    clone.setPart("FOLDERID", "99");
+    assertEquals("55", key.getPart("FOLDERID"));
+    assertEquals("99", clone.getPart("FOLDERID"));
+  }
 }

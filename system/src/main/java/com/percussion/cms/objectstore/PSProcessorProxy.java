@@ -32,7 +32,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.w3c.dom.Document;
@@ -189,7 +188,6 @@ public abstract class PSProcessorProxy {
       String procType, PSXmlTreeWalker walker, ProcessorConfig cfg)
       throws PSUnknownNodeTypeException {
     final String COMPONENT_NODE = "CmsComponent";
-    Map result = new HashMap();
     Element e =
         walker.getNextElement(
             COMPONENT_NODE,
@@ -307,16 +305,16 @@ public abstract class PSProcessorProxy {
    * @throws PSCmsException If the processor cannot be found or instantiated for any of the
    *     components.
    */
-  protected Map createComponentProcessorGroups(IPSDbComponent[] components) throws PSCmsException {
-    Map procGroups = new HashMap();
+  protected Map<PSProcessorCommon, Collection<IPSDbComponent>> createComponentProcessorGroups(
+      IPSDbComponent[] components) throws PSCmsException {
+    Map<PSProcessorCommon, Collection<IPSDbComponent>> procGroups = new HashMap<>();
     for (int i = 0; i < components.length; i++) {
       IPSDbComponent c = components[i];
       if (null == c) continue;
-      Object proc = m_processorConfig.getProcessor(c);
-      Collection coll;
-      if (procGroups.containsKey(proc)) coll = (Collection) procGroups.get(proc);
-      else {
-        coll = new ArrayList();
+      PSProcessorCommon proc = (PSProcessorCommon) m_processorConfig.getProcessor(c);
+      Collection<IPSDbComponent> coll = procGroups.get(proc);
+      if (coll == null) {
+        coll = new ArrayList<>();
         procGroups.put(proc, coll);
       }
       coll.add(c);
@@ -345,17 +343,14 @@ public abstract class PSProcessorProxy {
       }
     }
 
-    Map procGroups = createComponentProcessorGroups(comps);
+    Map<PSProcessorCommon, Collection<IPSDbComponent>> procGroups =
+        createComponentProcessorGroups(comps);
 
-    int total = 0;
-    Iterator iter = procGroups.keySet().iterator();
-    while (iter.hasNext()) {
-      PSProcessorCommon proc = (PSProcessorCommon) iter.next();
-      Collection coll = (Collection) procGroups.get(proc);
+    for (Map.Entry<PSProcessorCommon, Collection<IPSDbComponent>> entry : procGroups.entrySet()) {
+      PSProcessorCommon proc = entry.getKey();
+      Collection<IPSDbComponent> coll = entry.getValue();
       proc.setNextAllocationSize(coll.size());
-      Iterator it = coll.iterator();
-      while (it.hasNext()) {
-        IPSDbComponent c = (IPSDbComponent) it.next();
+      for (IPSDbComponent c : coll) {
         c.assignKey(proc, parentKey);
       }
     }
@@ -408,7 +403,8 @@ public abstract class PSProcessorProxy {
      * @return <code>true</code> if the property already existed in this configuration, <code>false
      *     </code> otherwise.
      */
-    public boolean addComponentPropertySet(String componentType, Map props, String procClassName) {
+    public boolean addComponentPropertySet(
+        String componentType, Map<String, Object> props, String procClassName) {
       String type = componentType.toLowerCase();
       boolean present = m_componentProps.containsKey(type);
       m_componentProps.put(type, props);
@@ -437,7 +433,7 @@ public abstract class PSProcessorProxy {
 
         if (m_cachedProcs.containsKey(name)) return m_cachedProcs.get(name);
 
-        Class cl = Class.forName(name);
+        Class<?> cl = Class.forName(name);
 
         try {
           Method instanceMethod = cl.getMethod("getInstance");
@@ -449,7 +445,7 @@ public abstract class PSProcessorProxy {
           // Ignore
         }
 
-        Constructor[] ctors = cl.getConstructors();
+        Constructor<?>[] ctors = cl.getConstructors();
         // find the one w/ the Map param
         String paramType = "java.util.Map";
         boolean found = false;
@@ -458,8 +454,8 @@ public abstract class PSProcessorProxy {
         for (; i < ctors.length && !found; i++) {
           /* If no context, look for ctor(Map), otherwise look for
           ctor(m_context.getClass(), Map) */
-          Constructor ctor = ctors[i];
-          Class[] paramTypes = ctor.getParameterTypes();
+          Constructor<?> ctor = ctors[i];
+          Class<?>[] paramTypes = ctor.getParameterTypes();
           if (paramTypes.length == 2
               && paramTypes[paramIndex].getName().equals(paramType)
               && (m_context == null || paramTypes[0].isAssignableFrom(m_context.getClass()))) {
@@ -549,7 +545,7 @@ public abstract class PSProcessorProxy {
      *     contain name/value pairs. The value is either a String or an Element. This should be
      *     treated read- only by the caller.
      */
-    public Map getComponentPropertySets() {
+    public Map<String, Map<String, Object>> getComponentPropertySets() {
       return m_componentProps;
     }
 

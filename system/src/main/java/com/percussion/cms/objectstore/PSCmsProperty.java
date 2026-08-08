@@ -23,7 +23,6 @@ import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -136,12 +135,10 @@ public abstract class PSCmsProperty extends PSDbComponent {
   protected String[] getKeyPartValues(IPSKeyGenerator gen) throws PSCmsException {
     if (m_keyControl == 0) return super.getKeyPartValues(gen);
 
-    List keyParts = new ArrayList();
+    List<String> keyParts = new ArrayList<>();
     if ((m_keyControl & KEYASSIGN_NAME_AS_KEYPART) == 0) keyParts.add(m_strName);
     if ((m_keyControl & KEYASSIGN_VALUE_AS_KEYPART) == 0) keyParts.add(m_strValue);
-    String[] keyValues = new String[keyParts.size()];
-    keyParts.toArray(keyValues);
-    return keyValues;
+    return keyParts.toArray(new String[0]);
   }
 
   /**
@@ -225,10 +222,8 @@ public abstract class PSCmsProperty extends PSDbComponent {
     root.setAttribute(XML_ATTR_PROPERTYNAME, m_strName);
     if (m_keyControl != 0) root.setAttribute(XML_ATTR_KEYCONTROL, "" + m_keyControl);
 
-    Iterator it = getValues().iterator();
-    while (it.hasNext()) {
-      Element elVal =
-          PSXmlDocumentBuilder.addElement(doc, root, XML_NODE_PROPERTYVALUE, (String) it.next());
+    for (String value : getValues()) {
+      Element elVal = PSXmlDocumentBuilder.addElement(doc, root, XML_NODE_PROPERTYVALUE, value);
 
       if (elVal == null)
         throw new IllegalStateException("Unable to create " + XML_NODE_PROPERTYVALUE + " element.");
@@ -253,8 +248,8 @@ public abstract class PSCmsProperty extends PSDbComponent {
    * @return Never <code>null</code>. Must contain at least 1 entry. All entries must be of type
    *     String.
    */
-  protected Collection getValues() {
-    Collection c = new ArrayList();
+  protected Collection<String> getValues() {
+    Collection<String> c = new ArrayList<>();
     c.add(getValue());
     return c;
   }
@@ -270,13 +265,13 @@ public abstract class PSCmsProperty extends PSDbComponent {
     int keyControl = PSXMLDomUtil.checkAttributeInt(src, XML_ATTR_KEYCONTROL, false);
     if (keyControl >= 0) m_keyControl = keyControl & KEYASSIGN_ALL;
 
-    Collection values = new ArrayList();
+    Collection<String> values = new ArrayList<>();
     Element el = PSXMLDomUtil.getNextElementSibling(kEl);
     while (el != null && el.getTagName().equals(XML_NODE_PROPERTYVALUE)) {
       values.add(PSXMLDomUtil.getElementData(el));
       el = PSXMLDomUtil.getNextElementSibling(el);
     }
-    if (values.size() == 0) {
+    if (values.isEmpty()) {
       String[] args = {getNodeName(), "Value", "missing node"};
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
     }
@@ -297,10 +292,10 @@ public abstract class PSCmsProperty extends PSDbComponent {
    *     type String. This class only uses the first entry.
    * @see #getValues
    */
-  protected void setValues(Collection values) {
-    if (null == values || values.size() == 0)
+  protected void setValues(Collection<String> values) {
+    if (null == values || values.isEmpty())
       throw new IllegalArgumentException("Must supply at least 1 value.");
-    m_strValue = (String) values.iterator().next();
+    m_strValue = values.iterator().next();
   }
 
   // see interface for description
