@@ -49,7 +49,6 @@ import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.util.PSStringComparator;
 import com.percussion.util.PSXMLDomUtil;
-import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -196,7 +195,7 @@ public class PSFolderActionManager {
         m_folderProxy.getDescendentFolderLocators(
             new PSLocator(folder.getLocator().getPartAsInt()));
     // Create list of flagged descendant folders
-    Set flaggedFolders = getApplet().getFlaggedFolderSet();
+    Set<?> flaggedFolders = getApplet().getFlaggedFolderSet();
     List<PSLocator> flaggedKeys = new ArrayList<PSLocator>();
     for (int i = 0; i < descendentKeys.length; i++) {
       if (flaggedFolders.contains(descendentKeys[i].getPart(PSLocator.KEY_ID)))
@@ -283,12 +282,11 @@ public class PSFolderActionManager {
    * @throws PSContentExplorerException if an error happens loading the folder or its children with
    *     all columns according to its display format.
    */
-  public Iterator loadChildren(PSNode parentFolderNode) throws PSContentExplorerException {
+  public Iterator<PSNode> loadChildren(PSNode parentFolderNode) throws PSContentExplorerException {
     validateNodeAsFolder(parentFolderNode);
 
     // Call listeners for start of loading
-    for (Iterator iter = m_searchListeners.iterator(); iter.hasNext(); ) {
-      IPSSearchListener listener = (IPSSearchListener) iter.next();
+    for (IPSSearchListener listener : m_searchListeners) {
       listener.searchInitiated(parentFolderNode);
     }
 
@@ -324,7 +322,7 @@ public class PSFolderActionManager {
       PSDisplayFormat format = getDisplayFormatById(formatid, true);
 
       // now do item search and add resulting item nodes
-      List<PSNode> resList = new ArrayList();
+      List<PSNode> resList = new ArrayList<>();
       PSSearch search = new PSSearch();
       search.setMaximumNumber(PSSearch.UNLIMITED_MAX);
       String folderId = parentFolderNode.getContentId();
@@ -372,8 +370,7 @@ public class PSFolderActionManager {
       throw ex;
     } finally {
       // Call listeners for end of loading
-      for (Iterator iter = m_searchListeners.iterator(); iter.hasNext(); ) {
-        IPSSearchListener listener = (IPSSearchListener) iter.next();
+      for (IPSSearchListener listener : m_searchListeners) {
         listener.searchCompleted(parentFolderNode);
       }
     }
@@ -429,18 +426,19 @@ public class PSFolderActionManager {
    *     TYPE_FOLDER</code>
    * @throws PSCmsException if an error happens while processing the request.
    */
-  public void add(PSNode tgtFolderNode, Iterator nodeList) throws PSCmsException {
+  public void add(PSNode tgtFolderNode, Iterator<? extends PSNode> nodeList) throws PSCmsException {
     validateNodeAsFolder(tgtFolderNode);
     PSLocator targetLocator = PSActionManager.nodeToLocator(tgtFolderNode);
 
-    List childNodes = PSIteratorUtils.cloneList(nodeList);
+    List<PSNode> childNodes = new ArrayList<>();
+    nodeList.forEachRemaining(childNodes::add);
     validateChildrenForFolderActions(tgtFolderNode.getType(), childNodes.iterator());
 
     removeFoldersWithExistingNames(tgtFolderNode, childNodes);
 
     // Get all locators and request proxy to execute add request
     if (!childNodes.isEmpty()) {
-      List childLocators = PSActionManager.nodesToLocators(childNodes.iterator());
+      List<PSLocator> childLocators = PSActionManager.nodesToLocators(childNodes.iterator());
 
       m_folderProxy.addChildren(childLocators, targetLocator);
     }
@@ -454,10 +452,10 @@ public class PSFolderActionManager {
    * @param tgtFolderNode the target parent folder node, assumed not to be <code>null</code>
    * @param childNodes the list of child nodes to check, assumed not to be <code>null</code>
    */
-  private void removeFoldersWithExistingNames(PSNode tgtFolderNode, List childNodes) {
-    Iterator children = childNodes.iterator();
+  private void removeFoldersWithExistingNames(PSNode tgtFolderNode, List<PSNode> childNodes) {
+    Iterator<PSNode> children = childNodes.iterator();
     while (children.hasNext()) {
-      PSNode child = (PSNode) children.next();
+      PSNode child = children.next();
       if (child.isOfType(PSNode.TYPE_FOLDER)
           && containsChildWithName(tgtFolderNode, child.getName())) {
         getApplet()
@@ -489,18 +487,19 @@ public class PSFolderActionManager {
    *     TYPE_FOLDER</code>
    * @throws PSCmsException if an error happens while processing the request.
    */
-  public void copy(PSNode tgtFolderNode, Iterator nodeList) throws PSCmsException {
+  public void copy(PSNode tgtFolderNode, Iterator<? extends PSNode> nodeList) throws PSCmsException {
     validateNodeAsFolder(tgtFolderNode);
     PSLocator targetLocator = PSActionManager.nodeToLocator(tgtFolderNode);
 
-    List childNodes = PSIteratorUtils.cloneList(nodeList);
+    List<PSNode> childNodes = new ArrayList<>();
+    nodeList.forEachRemaining(childNodes::add);
     validateChildrenForFolderActions(tgtFolderNode.getType(), childNodes.iterator());
 
     removeFoldersWithExistingNames(tgtFolderNode, childNodes);
 
     // Get all locators and request proxy to execute add request
     if (!childNodes.isEmpty()) {
-      List childLocators = PSActionManager.nodesToLocators(childNodes.iterator());
+      List<PSLocator> childLocators = PSActionManager.nodesToLocators(childNodes.iterator());
       m_folderProxy.copyChildren(childLocators, targetLocator);
 
       // add dummy, dirty item node so selective refresh will take effect
@@ -517,7 +516,7 @@ public class PSFolderActionManager {
    *     bottom as <code>Integer</code> objects, never <code>null</code>, may be empty.
    * @throws PSCmsException for any error.
    */
-  public Set getFolderCommunities(PSNode source) throws PSCmsException {
+  public Set<?> getFolderCommunities(PSNode source) throws PSCmsException {
     if (source == null) throw new IllegalArgumentException("source cannot be null");
 
     return m_folderProxy.getFolderCommunities(PSActionManager.nodeToLocator(source));
@@ -730,16 +729,17 @@ public class PSFolderActionManager {
    *     cross site links. <code>false</code> to error out in such a case.
    * @throws PSCmsException if an error happens while processing the request.
    */
-  public void delete(PSNode parentNode, Iterator nodeList, boolean force)
+  public void delete(PSNode parentNode, Iterator<? extends PSNode> nodeList, boolean force)
       throws PSCmsException, PSNotFoundException {
     validateNodeAsFolder(parentNode);
     PSLocator parentLocator = PSActionManager.nodeToLocator(parentNode);
 
-    List childNodes = PSIteratorUtils.cloneList(nodeList);
+    List<PSNode> childNodes = new ArrayList<>();
+    nodeList.forEachRemaining(childNodes::add);
     validateChildrenForFolderActions(parentNode.getType(), childNodes.iterator());
 
     // Get all locators and request proxy to execute add request
-    List childLocators = PSActionManager.nodesToLocators(childNodes.iterator());
+    List<PSLocator> childLocators = PSActionManager.nodesToLocators(childNodes.iterator());
 
     m_folderProxy.removeChildren(parentLocator, childLocators, force);
   }
@@ -759,7 +759,7 @@ public class PSFolderActionManager {
    *     allowed for parent of type <code>TYPE_FOLDER</code>
    * @throws PSCmsException if an error happens while processing the request.
    */
-  public void purgeAllContent(PSNode parentNode, Iterator nodeList) throws PSCmsException {
+  public void purgeAllContent(PSNode parentNode, Iterator<? extends PSNode> nodeList) throws PSCmsException {
     PSLocator parentLocator = null;
     if (parentNode.isAnyFolderType()) {
       parentLocator = PSActionManager.nodeToLocator(parentNode);
@@ -767,11 +767,12 @@ public class PSFolderActionManager {
       parentLocator = new PSLocator(0);
     }
 
-    List childNodes = PSIteratorUtils.cloneList(nodeList);
+    List<PSNode> childNodes = new ArrayList<>();
+    nodeList.forEachRemaining(childNodes::add);
     validateChildrenForPurge(childNodes.iterator());
 
     // Get all locators and request proxy to execute add request
-    List childLocators = PSActionManager.nodesToLocators(childNodes.iterator());
+    List<PSLocator> childLocators = PSActionManager.nodesToLocators(childNodes.iterator());
 
     m_folderProxy.purgeFolderAndChildItems(parentLocator, childLocators);
   }
@@ -809,12 +810,13 @@ public class PSFolderActionManager {
    * @param targetNodeType the target node type to validate for, assumed not <code>null</code>.
    * @param childNodes the list of child nodes, may not be <code>null</code> or empty.
    */
-  private void validateChildrenForFolderActions(String targetNodeType, Iterator childNodes) {
+  private void validateChildrenForFolderActions(
+      String targetNodeType, Iterator<? extends PSNode> childNodes) {
     if (childNodes == null || !childNodes.hasNext())
       throw new IllegalArgumentException("childNodes may not be null or empty.");
 
     while (childNodes.hasNext()) {
-      PSNode node = (PSNode) childNodes.next();
+      PSNode node = childNodes.next();
       if (node.isOfType(PSNode.TYPE_ITEM)) {
         if (!PSActionManager.isFolderType(targetNodeType))
           throw new IllegalArgumentException(
@@ -830,12 +832,12 @@ public class PSFolderActionManager {
    *
    * @param childNodes the list of child nodes, may not be <code>null</code> or empty.
    */
-  private void validateChildrenForPurge(Iterator childNodes) {
+  private void validateChildrenForPurge(Iterator<? extends PSNode> childNodes) {
     if (childNodes == null || !childNodes.hasNext())
       throw new IllegalArgumentException("childNodes may not be null or empty.");
 
     while (childNodes.hasNext()) {
-      PSNode node = (PSNode) childNodes.next();
+      PSNode node = childNodes.next();
       if (!node.isOfType(PSNode.TYPE_ITEM) && !node.isFolderType()) {
         throw new IllegalArgumentException("Only folders and items can be purged");
       }
@@ -864,7 +866,11 @@ public class PSFolderActionManager {
    *     attempting to update the site folder paths, all processing is completed and all errors are
    *     grouped together in 1 message.
    */
-  public void move(PSNode srcFolderNode, PSNode tgtFolderNode, Iterator nodeList, boolean force)
+  public void move(
+      PSNode srcFolderNode,
+      PSNode tgtFolderNode,
+      Iterator<? extends PSNode> nodeList,
+      boolean force)
       throws PSCmsException {
     // check source folder node
     validateNodeAsFolder(srcFolderNode);
@@ -874,19 +880,18 @@ public class PSFolderActionManager {
     validateNodeAsFolder(tgtFolderNode);
     PSLocator tgtLocator = PSActionManager.nodeToLocator(tgtFolderNode);
 
-    List childNodes = PSIteratorUtils.cloneList(nodeList);
+    List<PSNode> childNodes = new ArrayList<>();
+    nodeList.forEachRemaining(childNodes::add);
     validateChildrenForFolderActions(tgtFolderNode.getType(), childNodes.iterator());
 
     removeFoldersWithExistingNames(tgtFolderNode, childNodes);
 
-    Collection<String> errors = new ArrayList<String>();
+    Collection<String> errors = new ArrayList<>();
     // Get all locators and request proxy to execute add request
     if (!childNodes.isEmpty()) {
-      List childLocators = PSActionManager.nodesToLocators(childNodes.iterator());
+      List<PSLocator> childLocators = PSActionManager.nodesToLocators(childNodes.iterator());
       m_folderProxy.moveChildren(srcLocator, childLocators, tgtLocator, force);
-      Iterator children = childNodes.iterator();
-      while (children.hasNext()) {
-        PSNode node = (PSNode) children.next();
+      for (PSNode node : childNodes) {
         if (node.getType() == PSNode.TYPE_SITE
             && !(tgtFolderNode.getType() == PSNode.TYPE_SITE
                 || tgtFolderNode.getType() == PSNode.TYPE_SITESUBFOLDER)) {
@@ -906,8 +911,8 @@ public class PSFolderActionManager {
 
     if (errors.size() > 0) {
       String errorText = "";
-      for (Iterator iter = errors.iterator(); iter.hasNext(); ) {
-        errorText += iter.hasNext();
+      for (String err : errors) {
+        errorText += err;
         errorText += "\r\n";
       }
       throw new PSCmsException(IPSContentExplorerErrors.SITEDEF_UPDATE_FAILURES, errorText);
@@ -966,10 +971,10 @@ public class PSFolderActionManager {
    *     cache) of the parent folder, otherwise <code>false</code>
    */
   private boolean containsChildWithName(PSNode parentFolderNode, String folderName) {
-    Iterator children = parentFolderNode.getChildren();
+    Iterator<PSNode> children = parentFolderNode.getChildren();
     if (children != null) {
       while (children.hasNext()) {
-        PSNode child = (PSNode) children.next();
+        PSNode child = children.next();
         if (child.isOfType(PSNode.TYPE_FOLDER)) {
           if (child.getName().equalsIgnoreCase(folderName)) {
             return true;
@@ -996,7 +1001,7 @@ public class PSFolderActionManager {
    *
    * @return the list of display formats, never <code>null</code> or empty.
    */
-  public Iterator getDisplayFormats() {
+  public Iterator<?> getDisplayFormats() {
     PSDisplayFormatCatalog dispFormatCatalog = m_actionManager.getDisplayFormatCatalog();
 
     return dispFormatCatalog.getFolderDisplayFormats();
@@ -1087,7 +1092,7 @@ public class PSFolderActionManager {
       throw new IllegalArgumentException("formatid may not be null or empty.");
 
     PSDisplayFormat match = null;
-    Iterator iter = getDisplayFormats();
+    Iterator<?> iter = getDisplayFormats();
     while (iter.hasNext()) {
       PSDisplayFormat format = (PSDisplayFormat) iter.next();
       String id = String.valueOf(format.getDisplayId());
@@ -1163,37 +1168,30 @@ public class PSFolderActionManager {
    * @return the list of <code>PSFolder</code>s, never <code>null</code>, may be empty if the
    *     supplied list is empty.
    */
-  public static List<PSFolder> nodesToFolders(Iterator nodeList) {
+  public static List<PSFolder> nodesToFolders(Iterator<? extends PSNode> nodeList) {
     if (nodeList == null) throw new IllegalArgumentException("nodeList must not be null");
 
-    List<PSFolder> list = new ArrayList<PSFolder>();
+    List<PSFolder> list = new ArrayList<>();
     while (nodeList.hasNext()) {
-      list.add(nodeToFolder((PSNode) nodeList.next()));
+      list.add(nodeToFolder(nodeList.next()));
     }
     return list;
   }
 
   /**
-   * Convenience method to convert a list of PSFolder objects to PSNode objects.
-   *
-   * @param folderList must not be <code>null</code>
-   * @return iterator of converted nodes, never <code>null</code>
-   */
-  /**
    * Convenience method to convert a list of <code>PSFolder</code> objects to <code>PSNode</code>
-   * objects. See {@link #folderToNode(PSFolder)}for description of converted objects.
+   * objects. See {@link #folderToNode(PSFolder)} for description of converted objects.
    *
-   * @param folderList the list of folders to convert, may not be <code>null
-   * </code>
+   * @param folderList the list of folders to convert, may not be <code>null</code>
    * @return the list of <code>PSNode</code>s, never <code>null</code>, may be empty if the supplied
    *     list is empty.
    */
-  public static Iterator<PSNode> foldersToNodes(Iterator folderList) {
+  public static Iterator<PSNode> foldersToNodes(Iterator<? extends PSFolder> folderList) {
     if (folderList == null) throw new IllegalArgumentException("folderList must not be null");
 
-    List<PSNode> list = new ArrayList<PSNode>();
+    List<PSNode> list = new ArrayList<>();
     while (folderList.hasNext()) {
-      list.add(folderToNode((PSFolder) folderList.next()));
+      list.add(folderToNode(folderList.next()));
     }
     return list.iterator();
   }
@@ -1246,9 +1244,8 @@ public class PSFolderActionManager {
         String path = getFolderPath(parent);
         if (!path.endsWith("/")) path += "/";
         path += folderName;
-        Iterator sites = getSiteCataloger().getSites().iterator();
-        while (sites.hasNext()) {
-          PSSite site = (PSSite) sites.next();
+        for (Object siteObj : getSiteCataloger().getSites()) {
+          PSSite site = (PSSite) siteObj;
           String sitePath = site.getFolderRoot();
           sitePath = sitePath.replace('\\', '/');
           if (sitePath.endsWith("/")) sitePath = sitePath.substring(0, sitePath.length() - 1);
@@ -1329,9 +1326,7 @@ public class PSFolderActionManager {
     if (current == null) {
       throw new IllegalArgumentException("current must never be null");
     }
-    Iterator iter = m_searchListeners.iterator();
-    while (iter.hasNext()) {
-      IPSSearchListener listener = (IPSSearchListener) iter.next();
+    for (IPSSearchListener listener : m_searchListeners) {
       listener.searchCompleted(current);
     }
   }
@@ -1408,7 +1403,10 @@ public class PSFolderActionManager {
    * @return a new list containing the filtered children, never <code>null</code>.
    */
   public static List<PSNode> removeCM1SiteFolders(List<PSNode> childrenNodes) {
-    List newChildrenList = new ArrayList();
+    List<PSNode> newChildrenList = new ArrayList<>();
+    if (childrenNodes == null) {
+      return newChildrenList;
+    }
     for (PSNode child : childrenNodes) {
       if (!cm1SiteRootFolder.contains(child.getName())) {
         newChildrenList.add(child);
