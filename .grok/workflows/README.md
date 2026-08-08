@@ -113,9 +113,10 @@ Live runs must **grow backlog under existing high-priority parents**, not invent
 | **Quota** | At least `min_residual_issues` (default **3**) **new** residual/child issues this pass |
 | **Parent filter** | Parent issue must **already** be labeled **p1, p2, p3, or p4**. Residuals of Unset/p5–p8 parents **do not count** |
 | **Priority on residual** | **Copy parent pN exactly** onto the residual. Do **not** invent a higher priority. Do **not** pad with p8 residuals |
-| **What counts** | `residual_issue_urls` + `child_issue_urls` from Work (+ PR follow-up residuals): open, real body, filed this pass, parent p1–p4, residual pN matches parent |
-| **Backfill** | If short, one residual-quota agent files more real slices **only under existing p1–p4 parents**, inheriting that pN. **No fake padding; no priority upgrades.** |
-| **Circuit breaker** | If still short: **stop** overnight post-processing (skip PR cluster + security audit), write Report, complete with `residual_circuit_breaker: true` |
+| **Size (anti-padding)** | Each residual must be a **full PR-sized** unit (coherent acceptance, typically 1–3 modules + tests). **Prefer under-quota / circuit breaker over micro-slices** invented to hit the number |
+| **What counts** | `residual_issue_urls` + `child_issue_urls` from Work (+ PR follow-up residuals): open, **PR-sized** real body, filed this pass, parent p1–p4, residual pN matches parent |
+| **Backfill** | If short, one residual-quota agent files more **PR-sized** slices **only under existing p1–p4 parents**, inheriting that pN. **No fake padding, no micro-split, no priority upgrades.** |
+| **Circuit breaker** | If still short of real PR-sized residuals: **stop** overnight post-processing (skip PR cluster + security audit), write Report, complete with `residual_circuit_breaker: true` |
 | **Disable** | `require_residual_quota: false` (not recommended for overnight) |
 
 ### Security audit Fix Pass (post-processing)

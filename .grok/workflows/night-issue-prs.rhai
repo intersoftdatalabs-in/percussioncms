@@ -31,10 +31,12 @@
 //                                ONLY residuals whose PARENT issue is already p1–p4 count.
 //                                Residual priority MUST be copied from the parent (same pN) — never invent
 //                                a higher priority and never pad the quota with p5–p8 (or parent-p8) residuals.
+//                                Each residual must be a REAL PR-sized unit (see SIZE RULES) — never split
+//                                one PR of work into three tiny issues just to hit the quota.
 //                                Counts residual_issue_urls + child_issue_urls from Work and PR follow-up.
 //                                After Work+PR-POST: if under quota, one residual-backfill agent may file more
-//                                REAL residuals under existing p1–p4 parents only. If still under quota →
-//                                CIRCUIT BREAKER (stop run).
+//                                REAL PR-sized residuals under existing p1–p4 parents only. If still under
+//                                quota → CIRCUIT BREAKER (stop run) — prefer circuit breaker over micro-slices.
 //   require_residual_quota bool - enforce min_residual_issues gate (default true). dry_run skips the gate.
 //   include_human_qa    bool   - when Work item is ready for human QA, create QA issue with test plan
 //                                and assign designated QA resource (default true).
@@ -414,6 +416,8 @@ triage_prompt += "- One PR should touch a small module set (ideally 1-3 Maven mo
 triage_prompt += "- Javadoc-only module cleanup is implement.\n";
 triage_prompt += "- Multi-module product features without a narrow first slice are split.\n";
 triage_prompt += "- If implement is a slice of a large issue, set slice_title + put the rest in split_plan.\n";
+triage_prompt += "- Do NOT over-split: each child/slice must be independently PR-sized. Prefer fewer\n";
+triage_prompt += "  larger children over many micro-tasks. Never split just to create residual count.\n";
 triage_prompt += "- Prefer open child/slice issues that already list a Parent #N over inventing new\n";
 triage_prompt += "  markdown task trackers. Multi-phase status lives on the PARENT GitHub issue.\n\n";
 triage_prompt += "Use tools (gh issue view, codebase grep/read) to refine scope before deciding.\n";
@@ -776,8 +780,18 @@ for item in queue {
     work_prompt += "Residual priority MUST equal the parent's priority label (copy pN exactly).\n";
     work_prompt += "Do NOT invent a higher priority. Do NOT pad the quota with p5–p8 residuals or with\n";
     work_prompt += "residuals of Unset/p5–p8 parents. Those may exist outside quota but do not count.\n";
+    work_prompt += "SIZE / ANTI-PADDING (HARD — more important than hitting the number):\n";
+    work_prompt += "  - Each residual/child MUST be a full PR-sized unit (ideally 1–3 Maven modules,\n";
+    work_prompt += "    shippable tests, coherent acceptance) — same SIZE RULES as triage implement.\n";
+    work_prompt += "  - Prefer ONE solid residual over THREE micro-issues that could be one PR.\n";
+    work_prompt += "  - FORBIDDEN: splitting one unfinished feature into tiny label-only or single-file\n";
+    work_prompt += "    residuals just to hit the run quota (quota padding).\n";
+    work_prompt += "  - FORBIDDEN: parallel residuals that only differ by wording / the same acceptance.\n";
+    work_prompt += "  - If you only have 1–2 real PR-sized leftovers, file those only — the residual-quota\n";
+    work_prompt += "    phase may circuit-break; that is BETTER than inventing micro-slices.\n";
+    work_prompt += "  - Split children: only when each child is independently implementable and reviewable.\n";
     work_prompt += "Circuit breaker if the pass ends short of " + min_residual_issues.to_string()
-        + " residuals under p1–p4 parents — do your part; no fake issues.\n";
+        + " real PR-sized residuals under p1–p4 parents — no fake/tiny issues.\n";
     work_prompt += "If dry_run=false: create GitHub issues with gh issue create for each residual slice\n";
     work_prompt += "  (title/body link PARENT tracker + this issue #" + inum.to_string() + " and any PR URL;\n";
     work_prompt += "  leave unassigned).\n";
@@ -793,13 +807,14 @@ for item in queue {
     work_prompt += "  Do NOT put In Progress on residual/child issues you only file (not working now).\n";
     work_prompt += "  Then update PARENT ## Agent progress table + comment (P2/P3).\n";
     work_prompt += "REAL/actionable only: PR-sized units with clear acceptance, module hints, Parent: #N.\n";
-    work_prompt += "  Forbidden: placeholder titles, empty bodies, duplicates, priority upgrades, p8 padding.\n";
+    work_prompt += "  Forbidden: placeholder titles, empty bodies, duplicates, priority upgrades, p8 padding,\n";
+    work_prompt += "  micro-slices / quota padding (see SIZE / ANTI-PADDING).\n";
     work_prompt += "Even full pr_opened success: if more work remains on a p1–p4 parent epic, file residual\n";
-    work_prompt += "  children with the parent's pN.\n";
+    work_prompt += "  children with the parent's pN — only when each child is PR-sized.\n";
     work_prompt += "If dry_run=true: list planned residual titles + parent # + inherited pN in summary only.\n";
     work_prompt += "Put created URLs in residual_issue_urls (space-separated). child_issue_urls is for\n";
     work_prompt += "planned split slices; residual_issue_urls is for leftover after a partial implement.\n";
-    work_prompt += "Only residuals of p1–p4 parents (with matching pN) count toward the pass residual quota.\n\n";
+    work_prompt += "Only PR-sized residuals of p1–p4 parents (with matching pN) count toward residual quota.\n\n";
 
     if include_human_qa {
         work_prompt += "HUMAN QA HANDOFF (when ready for human verification):\n";
@@ -1043,9 +1058,18 @@ if require_residual_quota {
         rq_prompt += "Triage notes:\n" + json_encode(triage_notes) + "\n\n";
 
         rq_prompt += "GOAL: Ensure this overnight PASS logged at least min_residual_issues NEW,\n";
-        rq_prompt += "REAL residual/child issues under parents that are ALREADY p1–p4, each residual\n";
-        rq_prompt += "inheriting the parent pN. Important unfinished work on high-priority parents —\n";
-        rq_prompt += "not three new low-priority issues.\n\n";
+        rq_prompt += "REAL **PR-sized** residual/child issues under parents that are ALREADY p1–p4,\n";
+        rq_prompt += "each residual inheriting the parent pN. Important unfinished work — NOT three\n";
+        rq_prompt += "micro-issues invented to pad a number, and NOT three low-priority fillers.\n\n";
+
+        rq_prompt += "SIZE / ANTI-PADDING (HARD — overrides quota pressure):\n";
+        rq_prompt += "  - Count ONLY issues that are independently implementable as one PR (1–3 modules,\n";
+        rq_prompt += "    clear acceptance, own tests). If body is a one-liner, single-file chore, or\n";
+        rq_prompt += "    could merge into a sibling residual in <1 day of work, EXCLUDE from count\n";
+        rq_prompt += "    (and do not create more like them).\n";
+        rq_prompt += "  - Prefer under-quota + circuit_breaker over filing tiny slices.\n";
+        rq_prompt += "  - Prefer consolidating related leftovers into fewer larger residuals.\n";
+        rq_prompt += "  - Never create N near-duplicate residuals that differ only by title wording.\n\n";
 
         rq_prompt += "COUNTING RULES (residual_count):\n";
         rq_prompt += "1) Collect every URL/number from:\n";
@@ -1058,40 +1082,44 @@ if require_residual_quota {
         rq_prompt += "3) Count R only if ALL are true:\n";
         rq_prompt += "   - R is OPEN (or just created this run)\n";
         rq_prompt += "   - R was filed this overnight pass (operator labels OR body links this run)\n";
-        rq_prompt += "   - R is REAL (acceptance or concrete slice goal; no TBD-only / empty)\n";
+        rq_prompt += "   - R is REAL and PR-SIZED (acceptance + modules; not TBD-only / empty / micro)\n";
         rq_prompt += "   - PARENT has label p1 OR p2 OR p3 OR p4 (if multiple pN on parent, highest wins)\n";
         rq_prompt += "   - R has the SAME pN label as the resolved parent priority (exact copy)\n";
         rq_prompt += "4) EXCLUDE if parent is Unset or p5–p8, or residual pN differs from parent pN,\n";
         rq_prompt += "   or residual has no pN while parent is p1–p4 (must fix label to match parent).\n";
-        rq_prompt += "5) Do NOT count parent work issues themselves, closed junk, duplicates, or\n";
+        rq_prompt += "5) EXCLUDE micro-slices / quota padding (see SIZE / ANTI-PADDING).\n";
+        rq_prompt += "6) Do NOT count parent work issues themselves, closed junk, duplicates, or\n";
         rq_prompt += "   pre-existing backlog not filed this pass.\n\n";
 
         rq_prompt += "IF residual_count >= min_residual_issues:\n";
         rq_prompt += "  status=quota_met, quota_met=true, circuit_breaker=false, list URLs/numbers.\n";
-        rq_prompt += "  Do not create extra issues for quota.\n\n";
+        rq_prompt += "  Do not create extra issues for quota. Do not split large residuals further.\n\n";
 
         rq_prompt += "IF residual_count < min_residual_issues:\n";
-        rq_prompt += "  BACKFILL only under existing p1–p4 parents (need shortfall more issues):\n";
+        rq_prompt += "  BACKFILL only under existing p1–p4 parents — PR-sized only:\n";
         rq_prompt += "  Sources (must attach to a p1–p4 Parent):\n";
-        rq_prompt += "  A) Partial implement leftovers on p1–p4 parents worked this run\n";
-        rq_prompt += "  B) Split plans on p1–p4 epics not yet filed as children\n";
+        rq_prompt += "  A) Partial implement leftovers on p1–p4 parents worked this run (one PR each)\n";
+        rq_prompt += "  B) Split plans on p1–p4 epics not yet filed as children (each child = one PR)\n";
         rq_prompt += "  C) PR follow-up deferred product work that links to a p1–p4 parent issue\n";
-        rq_prompt += "  D) Open p1–p4 issues/epics from triage with clear next slices not yet filed\n";
+        rq_prompt += "  D) Open p1–p4 issues/epics from triage with clear next PR-sized slices\n";
         rq_prompt += "  For each backfill issue:\n";
         rq_prompt += "    - Parent MUST already be p1–p4 (verify labels before create)\n";
         rq_prompt += "    - Copy parent's pN onto the residual (same label; do not change severity)\n";
+        rq_prompt += "    - Scope must need a dedicated PR (not a one-line follow-up)\n";
         rq_prompt += "    gh issue create --repo " + repo + " with:\n";
         rq_prompt += "    - Title: concrete, PR-sized (e.g. issue N residual: <action>)\n";
         rq_prompt += "    - Body: Parent: #N, goal, acceptance, modules, out of scope\n";
         rq_prompt += "    - Labels: operator:grok, operator:night-issue-prs, model:grok-4.5, <parent pN>\n";
         rq_prompt += "    - Leave unassigned. No In Progress.\n";
         rq_prompt += "    - Comment on Parent.\n";
-        rq_prompt += "  HARD BAN: fake padding; new residuals under p5–p8 parents for quota; inventing\n";
-        rq_prompt += "  p1–p4; upgrading parent priority; empty 'misc cleanup' issues.\n";
-        rq_prompt += "  If not enough REAL leftover work under p1–p4 parents, do NOT invent fakes.\n\n";
+        rq_prompt += "  HARD BAN: fake padding; micro-slices; new residuals under p5–p8 parents for quota;\n";
+        rq_prompt += "  inventing p1–p4; upgrading parent priority; empty 'misc cleanup' issues;\n";
+        rq_prompt += "  splitting one leftover into three issues to hit min_residual_issues.\n";
+        rq_prompt += "  If not enough REAL PR-sized leftover work under p1–p4 parents, do NOT invent\n";
+        rq_prompt += "  fakes or shrink scope — leave under-quota and circuit-break.\n\n";
 
         rq_prompt += "AFTER BACKFILL (or if none possible):\n";
-        rq_prompt += "  Re-count with parent p1–p4 + matching pN rules only.\n";
+        rq_prompt += "  Re-count with parent p1–p4 + matching pN + PR-sized rules only.\n";
         rq_prompt += "  Set residual_count, residual_issue_urls, residual_issue_numbers.\n";
         rq_prompt += "  backfill_created = number newly created this step that meet counting rules.\n";
         rq_prompt += "  If residual_count >= min_residual_issues:\n";
@@ -1099,7 +1127,7 @@ if require_residual_quota {
         rq_prompt += "  Else:\n";
         rq_prompt += "    status=circuit_breaker, quota_met=false, circuit_breaker=true\n";
         rq_prompt += "    summary MUST explain shortfall (e.g. only p8 parents worked; not enough\n";
-        rq_prompt += "    residual scope under p1–p4 parents).\n";
+        rq_prompt += "    PR-sized residual scope under p1–p4 parents; refused micro-padding).\n";
         rq_prompt += "    blocked=residual_quota\n\n";
 
         rq_prompt += "Return structured fields. circuit_breaker true STOPS the overnight run\n";
