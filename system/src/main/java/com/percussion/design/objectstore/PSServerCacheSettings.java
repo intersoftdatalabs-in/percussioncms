@@ -24,6 +24,8 @@ import org.w3c.dom.Element;
 
 /** Contains the configuration settings for the cache used by the server. */
 public class PSServerCacheSettings extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Intializes the default storage and aging settings for the manager. Caching is disabled by

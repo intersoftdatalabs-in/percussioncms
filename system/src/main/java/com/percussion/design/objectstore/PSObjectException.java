@@ -24,6 +24,8 @@ import com.percussion.error.PSException;
  * should be derived from this class.
  */
 public class PSObjectException extends PSException {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Pass-through constructor to super class.
    *

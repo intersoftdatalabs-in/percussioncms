@@ -209,11 +209,14 @@ public class PSNavonNodeInvocationHandler implements InvocationHandler
             PSPropertyIterator iter =
                (PSPropertyIterator) method.invoke(m_containedNode, args);
 
-            // Add nav properties (copy from Map<?,?> returned by getMap)
+            // Add nav properties. Copy from Map<?,?> (PSItemIterator.getMap) into a
+            // typed HashMap — diamond + wildcard source does not infer K=String.
             Map<String, Property> map = new HashMap<>();
             for (Map.Entry<?, ?> e : iter.getMap().entrySet())
             {
-               map.put((String) e.getKey(), (Property) e.getValue());
+               @SuppressWarnings("unchecked")
+               Map.Entry<String, Property> entry = (Map.Entry<String, Property>) e;
+               map.put(entry.getKey(), entry.getValue());
             }
             for(String prop : NAV_PROPERTIES)
             {

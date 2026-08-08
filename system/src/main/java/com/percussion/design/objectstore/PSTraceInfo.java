@@ -32,6 +32,8 @@ import org.w3c.dom.Element;
 
 /** Encapsulates all trace options contained in the application. */
 public class PSTraceInfo extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Constructor for this class. Calls fromXml to initialize itself using the supplied xml. The

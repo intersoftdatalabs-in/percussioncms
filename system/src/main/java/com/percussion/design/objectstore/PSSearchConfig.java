@@ -39,6 +39,8 @@ import org.w3c.dom.Element;
  * attempts to be unaware of the implementation.
  */
 public class PSSearchConfig extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * This is the name of the custom property that contains the default value for the synonym
    * expansion. The presence of this property is optional. If present and has a value of yes then

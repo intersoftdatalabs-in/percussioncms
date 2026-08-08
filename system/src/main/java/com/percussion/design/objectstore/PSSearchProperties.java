@@ -39,6 +39,8 @@ import org.w3c.dom.Element;
  * @author paulhoward
  */
 public class PSSearchProperties extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   // we don't override clone as all members are immutable
 
   /**

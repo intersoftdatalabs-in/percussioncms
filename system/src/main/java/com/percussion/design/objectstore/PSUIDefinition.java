@@ -27,6 +27,8 @@ import org.w3c.dom.Node;
 
 /** Implementation for the PSXUIDefinition DTD in BasicObjects.dtd. */
 public class PSUIDefinition extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Creates a new UI definition.
    *

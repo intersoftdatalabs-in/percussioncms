@@ -27,6 +27,8 @@ import org.w3c.dom.Node;
 
 /** Implements the PSXProcessCheck element defined in sys_CloneHandlerConfig.dtd. */
 public class PSProcessCheck extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Construct a Java object from its XML representation.
    *

@@ -32,6 +32,8 @@ import org.w3c.dom.Element;
  * @see PSContentEditor
  */
 public class PSWorkflowInfo extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Initializes a newly created <code>PSWorkflowInfo</code> object, from an XML representation. See

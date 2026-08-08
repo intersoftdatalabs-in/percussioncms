@@ -23,6 +23,8 @@ import org.w3c.dom.Element;
 
 /** Implementation for the PSXNullEntry DTD in BasicObjects.dtd. */
 public class PSNullEntry extends PSEntry {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Creates a new null entry for the provided parameters.
    *

@@ -33,6 +33,8 @@ import org.w3c.dom.Element;
  * @see com.percussion.design.objectstore.PSRevisionHistory
  */
 public class PSRevisionEntry extends PSComponent {
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Construct a new revision entry.
    *
