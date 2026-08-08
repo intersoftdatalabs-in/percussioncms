@@ -777,7 +777,7 @@ public abstract class PSDependency
    */
   @Override
   public int compareTo(PSDependency dep) {
-    if (dep == null) throw new IllegalArgumentException("obj may not be null");
+    if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
     int result = getDisplayIdentifier().compareToIgnoreCase(dep.getDisplayIdentifier());
     if (result == 0) result = getDependencyId().compareToIgnoreCase(dep.getDependencyId());

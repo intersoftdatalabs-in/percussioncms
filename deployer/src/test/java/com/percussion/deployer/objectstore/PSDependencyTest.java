@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.utils.collections.PSIteratorUtils;
@@ -31,6 +32,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeSet;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
@@ -84,6 +86,48 @@ public class PSDependencyTest {
     assertEquals(0, lower.compareTo(lower));
     // same display identifier falls back to dependency id
     assertTrue(lower.compareTo(sameDisplayDifferentId) < 0);
+
+    IllegalArgumentException npeMsg =
+        assertThrows(IllegalArgumentException.class, () -> lower.compareTo(null));
+    assertEquals("dep may not be null", npeMsg.getMessage());
+  }
+
+  /**
+   * {@code Comparable<PSDependency>} is safe: no concrete subclass overrides {@code compareTo},
+   * and mixed {@link PSDeployableElement}/{@link PSDeployableObject} instances order correctly via
+   * the base implementation (and via {@link TreeSet}, which is how children are stored).
+   */
+  @Test
+  public void testCompareToAcrossSubclassesAndTreeSet() {
+    PSDeployableElement elem =
+        new PSDeployableElement(
+            PSDependency.TYPE_SHARED,
+            "e1",
+            "TypeE",
+            "Type E",
+            "alpha",
+            true,
+            false,
+            false);
+    PSDeployableObject obj =
+        new PSDeployableObject(
+            PSDependency.TYPE_SHARED,
+            "o1",
+            "TypeO",
+            "Type O",
+            "beta",
+            true,
+            false,
+            false);
+
+    // Polymorphic typed compare (not Object overload) — both use PSDependency.compareTo
+    assertTrue(elem.compareTo(obj) < 0);
+    assertTrue(obj.compareTo(elem) > 0);
+
+    TreeSet<PSDependency> set = new TreeSet<>();
+    set.add(obj);
+    set.add(elem);
+    assertEquals(List.of(elem, obj), new ArrayList<>(set));
   }
 
   /**
