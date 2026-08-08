@@ -32,17 +32,25 @@ import org.eclipse.rdf4j.rio.RDFParser;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.contains;
 import static org.apache.commons.lang3.StringUtils.endsWith;
@@ -72,6 +80,20 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
     public static final String TYPE_PROPERTY_NAME = "dterms:type";
 
     private static final String APPS_SUFFIX = "apps";
+
+    /**
+     * HTML named entities that are not the five XML predefined entities and must be
+     * rewritten to numeric character references before SAX/RDFa parse.
+     */
+    private static final Pattern NON_XML_NAMED_ENTITY =
+            Pattern.compile("&(?!(?:lt|gt|amp|apos|quot);)([a-zA-Z0-9]+);");
+
+    /**
+     * SAX / RDF parse messages that indicate an undeclared XML-style namespace prefix
+     * (e.g. vendor tags such as {@code gcse:search} without {@code xmlns:gcse}).
+     */
+    private static final Pattern UNBOUND_PREFIX_MESSAGE =
+            Pattern.compile("prefix\\s+\"([^\"]+)\"\\s+for\\s+(?:element|attribute)", Pattern.CASE_INSENSITIVE);
 
     public PSMetadataExtractorService() {
 
@@ -234,7 +256,8 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
              parser.setRDFHandler(handler);
 
              // Parse the document to extract RDF triples (RDFa metadata)
-             // Sanitize HTML first to handle malformed entities (e.g., bare '&')
+             // Sanitize HTML first: entities, scripts, and unbound XML-style prefixes
+             // (e.g. <gcse:search> without xmlns:gcse) so SAX does not fail the whole page.
              String baseIri = documentSource.getDocumentIRI();
              String sanitizedHtml;
              try (InputStream inputStream = documentSource.openInputStream()) {
@@ -242,35 +265,39 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
                    // Remove script/style to avoid malformed entities (&) within text nodes breaking XML parsing
                    // But preserve JSON-LD scripts
                    doc.select("script:not([type='application/ld+json']), style").remove();
+                 // Vendor embeds often use prefixed custom elements without xmlns declarations.
+                 // Strip those before XHTML-like serialization so RDFa SAX parse stays lenient.
+                 stripUnboundPrefixedMarkup(doc, pagePath);
                  doc.outputSettings()
                         .escapeMode(org.jsoup.nodes.Entities.EscapeMode.base)
                         .charset("UTF-8")
                         .syntax(Document.OutputSettings.Syntax.xml); // XHTML-like output
-                 sanitizedHtml = doc.outerHtml();
-
-                 // Regex replace named entities that are NOT XML predefined (lt, gt, amp, apos, quot)
-                 // to numeric entities, because the SAX parser used by RDF4J/Semargl doesn't know HTML entities.
-                 java.util.regex.Pattern entityPattern = java.util.regex.Pattern.compile("&(?!(?:lt|gt|amp|apos|quot);)([a-zA-Z0-9]+);");
-                 java.util.regex.Matcher matcher = entityPattern.matcher(sanitizedHtml);
-                 StringBuffer sb = new StringBuffer();
-                 while (matcher.find()) {
-                     String entityName = matcher.group(1);
-                     // Use StringEscapeUtils to resolve the entity to a character
-                     String resolved = org.apache.commons.text.StringEscapeUtils.unescapeHtml4("&" + entityName + ";");
-                     if (resolved.length() == 1) {
-                         // Replace with numeric entity
-                         matcher.appendReplacement(sb, "&#" + (int) resolved.charAt(0) + ";");
-                     } else {
-                         // Fallback: keep as is if resolution fails or returns multiple chars
-                         matcher.appendReplacement(sb, matcher.group());
-                     }
-                 }
-                 matcher.appendTail(sb);
-                 sanitizedHtml = sb.toString();
+                 sanitizedHtml = rewriteNonXmlNamedEntities(doc.outerHtml());
              }
 
              try (java.io.Reader rdr = new java.io.StringReader(sanitizedHtml)) {
                  parser.parse(rdr, baseIri);
+             } catch (Exception parseEx) {
+                 if (!isUnboundPrefixParseFailure(parseEx)) {
+                     throw parseEx;
+                 }
+                 // Defensive fallback: pre-sanitize should prevent this path, but if SAX still
+                 // reports an unbound prefix, do not fail the whole page's metadata delivery.
+                 String unboundPrefix = extractUnboundPrefix(parseEx);
+                 if (unboundPrefix != null) {
+                     log.warn(
+                             "RDFa metadata parse hit unbound prefix '{}' for page path {}. "
+                                     + "Continuing with non-RDFa fields only. Cause: {}",
+                             unboundPrefix,
+                             pagePath,
+                             parseEx.getMessage());
+                 } else {
+                     log.warn(
+                             "RDFa metadata parse hit unbound XML-style prefix for page path {}. "
+                                     + "Continuing with non-RDFa fields only. Cause: {}",
+                             pagePath,
+                             parseEx.getMessage());
+                 }
              }
 
              /** Redo Abstract as any23 is corrupting it. */
@@ -438,5 +465,172 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
     private boolean metadataEntryHasRequiredFields(IPSMetadataEntry metadataEntry)
     {
         return true;
+    }
+
+    /**
+     * Rewrite HTML named entities that are not among the five XML predefined entities
+     * ({@code lt}, {@code gt}, {@code amp}, {@code apos}, {@code quot}) to numeric
+     * character references. SAX used by RDF4J/Semargl does not understand HTML entities.
+     *
+     * @param html HTML/XHTML text after Jsoup serialization; never {@code null}
+     * @return HTML with non-XML named entities rewritten where resolvable
+     */
+    private static String rewriteNonXmlNamedEntities(String html) {
+        Matcher matcher = NON_XML_NAMED_ENTITY.matcher(html);
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            String entityName = matcher.group(1);
+            String resolved =
+                    org.apache.commons.text.StringEscapeUtils.unescapeHtml4("&" + entityName + ";");
+            if (resolved.length() == 1) {
+                matcher.appendReplacement(sb, "&#" + (int) resolved.charAt(0) + ";");
+            } else {
+                matcher.appendReplacement(sb, Matcher.quoteReplacement(matcher.group()));
+            }
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
+    }
+
+    /**
+     * Remove or unwrap elements and attributes that use XML-style namespace prefixes
+     * not declared via {@code xmlns:*} on the document. Customer pages often embed vendor
+     * tags such as {@code <gcse:search>} without a corresponding namespace declaration;
+     * those are fine in browsers but cause SAX {@code SAXParseException} during RDFa parse.
+     *
+     * <p>RDFa metadata of interest ({@code property="dcterms:…"}, {@code og:…} values, etc.)
+     * lives in attribute <em>values</em>, not in unbound element/attribute names, so stripping
+     * unbound prefixed markup preserves normal metadata extraction.
+     *
+     * @param doc Jsoup document mutated in place
+     * @param pagePath page path for WARN log context
+     */
+    void stripUnboundPrefixedMarkup(Document doc, String pagePath) {
+        Set<String> declared = new HashSet<>();
+        // Always allow the reserved XML prefixes
+        declared.add("xml");
+        declared.add("xmlns");
+
+        for (Element el : doc.getAllElements()) {
+            for (Attribute attr : el.attributes()) {
+                String key = attr.getKey();
+                if (key.regionMatches(true, 0, "xmlns:", 0, 6) && key.length() > 6) {
+                    declared.add(key.substring(6).toLowerCase(Locale.ROOT));
+                }
+            }
+        }
+
+        Set<String> unboundPrefixes = new LinkedHashSet<>();
+        List<Element> elementsToUnwrap = new ArrayList<>();
+
+        for (Element el : doc.getAllElements()) {
+            String tag = el.tagName();
+            int colon = tag.indexOf(':');
+            if (colon > 0) {
+                String prefix = tag.substring(0, colon).toLowerCase(Locale.ROOT);
+                if (!declared.contains(prefix)) {
+                    unboundPrefixes.add(prefix);
+                    elementsToUnwrap.add(el);
+                }
+            }
+
+            List<String> attrsToRemove = new ArrayList<>();
+            for (Attribute attr : el.attributes()) {
+                String key = attr.getKey();
+                if (key.regionMatches(true, 0, "xmlns:", 0, 6)) {
+                    continue;
+                }
+                int attrColon = key.indexOf(':');
+                if (attrColon > 0) {
+                    String prefix = key.substring(0, attrColon).toLowerCase(Locale.ROOT);
+                    if (!declared.contains(prefix)) {
+                        unboundPrefixes.add(prefix);
+                        attrsToRemove.add(key);
+                    }
+                }
+            }
+            for (String attrKey : attrsToRemove) {
+                el.removeAttr(attrKey);
+            }
+        }
+
+        // Deepest first so children move to the parent before the parent is unwrapped
+        elementsToUnwrap.sort(Comparator.comparingInt(this::elementDepth).reversed());
+        for (Element el : elementsToUnwrap) {
+            // Element may already have been detached if an ancestor was unwrapped
+            if (el.parent() != null) {
+                el.unwrap();
+            }
+        }
+
+        if (!unboundPrefixes.isEmpty()) {
+            log.warn(
+                    "Stripped unbound XML-style prefix(es) {} from page path {} before RDFa metadata extraction",
+                    unboundPrefixes,
+                    pagePath);
+        }
+    }
+
+    /**
+     * Nesting depth of an element under its document root (root == 0).
+     */
+    private int elementDepth(Element el) {
+        int depth = 0;
+        Element cur = el;
+        while (cur.parent() instanceof Element) {
+            depth++;
+            cur = cur.parent();
+        }
+        return depth;
+    }
+
+    /**
+     * @return {@code true} if the failure (or a cause) is a SAX unbound-prefix parse error
+     */
+    static boolean isUnboundPrefixParseFailure(Throwable ex) {
+        Throwable cur = ex;
+        while (cur != null) {
+            if (cur instanceof org.xml.sax.SAXParseException
+                    || (cur.getClass().getName().contains("SAX")
+                            && cur.getMessage() != null
+                            && cur.getMessage().toLowerCase(Locale.ROOT).contains("not bound"))) {
+                String msg = cur.getMessage();
+                if (msg != null) {
+                    String lower = msg.toLowerCase(Locale.ROOT);
+                    if (lower.contains("not bound") || UNBOUND_PREFIX_MESSAGE.matcher(msg).find()) {
+                        return true;
+                    }
+                }
+            }
+            String msg = cur.getMessage();
+            if (msg != null) {
+                String lower = msg.toLowerCase(Locale.ROOT);
+                if (lower.contains("is not bound") && lower.contains("prefix")) {
+                    return true;
+                }
+            }
+            cur = cur.getCause();
+        }
+        return false;
+    }
+
+    /**
+     * Best-effort extraction of the unbound prefix name from a SAX/RDF parse failure message.
+     *
+     * @return prefix without colon, or {@code null} if not found
+     */
+    static String extractUnboundPrefix(Throwable ex) {
+        Throwable cur = ex;
+        while (cur != null) {
+            String msg = cur.getMessage();
+            if (msg != null) {
+                Matcher m = UNBOUND_PREFIX_MESSAGE.matcher(msg);
+                if (m.find()) {
+                    return m.group(1);
+                }
+            }
+            cur = cur.getCause();
+        }
+        return null;
     }
 }
