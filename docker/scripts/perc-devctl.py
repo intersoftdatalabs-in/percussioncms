@@ -12,7 +12,10 @@ docker compose stack and exposes every subcommand the original
 QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
 
 * ``qa-up`` — one-shot CMS on H2 via matrix cell (``--keep``), health wait
-* ``qa-health`` — poll published CMS URL until ready (clear timeout)
+* ``qa-health`` — poll published CMS URL until ready (clear timeout);
+  fail-fast when Jetty logs show Rhythmyx ApplicationContext failure
+  (``Failed startup of context`` / ``BeanCurrentlyInCreationException``)
+  even if HTTP still answers (#2462 / #2423)
 * ``qa-down`` — destroy the QA cell (frees ports; no multi-GB orphans)
 
 Each subcommand logs its full output to a timestamped file under
@@ -73,6 +76,11 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 from perc_host_ports import find_free_port, is_port_free, resolve_host_port  # noqa: E402
+from rhythmyx_ready import (  # noqa: E402
+    DETAIL_CONTEXT_FAILED,
+    assess_rhythmyx_ready,
+    find_rhythmyx_context_failure,
+)
 
 LOG = logging.getLogger("perc-devctl")
 
@@ -119,6 +127,8 @@ QA_PASSWORDS_REL = "var/config/generated/passwords"
 # Matrix silent install can take several minutes on first run.
 QA_PROBE_TIMEOUT_SECONDS_DEFAULT = 900
 QA_PROBE_INTERVAL_SECONDS_DEFAULT = 5
+# Tail size for docker logs when scanning for Rhythmyx context failure (#2462).
+QA_LOG_SCAN_TAIL_LINES = 800
 
 
 # Freeport primitives live in perc_host_ports.py (shared with matrix) — #2001/#2005.
@@ -624,6 +634,46 @@ def _docker_health(container_name: str) -> str:
     return (completed.stdout or "").strip() or "unknown"
 
 
+def _docker_logs_tail(
+    container_name: str,
+    *,
+    tail: int = QA_LOG_SCAN_TAIL_LINES,
+    timeout: float = 30.0,
+) -> str:
+    """Return recent ``docker logs`` text for ``container_name``, or empty.
+
+    Used by ``qa-health`` to fail-fast when Jetty reports Rhythmyx context
+    startup failure while the HTTP port may still answer (#2462).
+    """
+    if not container_name:
+        return ""
+    try:
+        completed = subprocess.run(
+            [
+                "docker",
+                "logs",
+                "--tail",
+                str(max(1, int(tail))),
+                container_name,
+            ],
+            shell=False,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+    if completed.returncode != 0:
+        return ""
+    # docker logs may put stream content on stderr depending on version.
+    out = completed.stdout or ""
+    err = completed.stderr or ""
+    if out and err:
+        return out + "\n" + err
+    return out or err
+
+
 def cmd_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     repo_root, env_file, compose_file = paths
     log_dir = _log_dir(repo_root)
@@ -1068,68 +1118,129 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
 
 
 def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
-    """Poll the QA CMS probe URL until ready or a clear timeout error."""
+    """Poll the QA CMS probe URL until ready or a clear timeout / context fail.
+
+    Ready means:
+
+    * HTTP status on the probe URL is in the ready set (200/302/401/403), **and**
+    * Recent ``docker logs`` for the QA cell do **not** contain Rhythmyx
+      ApplicationContext failure markers (see :mod:`rhythmyx_ready`).
+
+    Context-failure markers cause **immediate** FAIL even when HTTP answers
+    (Jetty up, Spring webapp dead — #2462 residual of #2423).
+    """
     repo_root, _env_file, _compose_file = paths
     log_dir = _log_dir(repo_root)
     timeout = int(args.timeout_seconds)
     interval = int(args.interval_seconds)
     host_port = resolve_qa_cms_host_port()
     url = args.url or qa_cms_probe_url(host_port)
+    container = QA_CMS_CONTAINER
     max_checks = max(1, timeout // interval) if interval > 0 else 1
     log_file = _new_log_file(log_dir, "qa-health")
 
     if args.dry_run:
         LOG.info(
-            "DRY-RUN: qa-health plan: %d checks x %ds interval against %s",
+            "DRY-RUN: qa-health plan: %d checks x %ds interval against %s "
+            "(+ Rhythmyx context log scan on %s)",
             max_checks,
             interval,
             url,
+            container,
         )
         with log_file.open("w", encoding="utf-8") as f:
             f.write(
                 f"DRY-RUN: qa-health max_checks={max_checks} interval={interval}\n"
                 f"url={url}\n"
-                f"container={QA_CMS_CONTAINER}\n"
+                f"container={container}\n"
+                f"log_scan=rhythmyx_context_fail_markers\n"
             )
         print(
             f"RESULT:OK STEP:qa-health HTTP:200 URL:{url} "
-            f"CONTAINER:{QA_CMS_CONTAINER} LOG:{log_file}"
+            f"CONTAINER:{container} LOG:{log_file}"
         )
         return EXIT_OK
 
     last_code = 0
+    last_detail = "not_checked"
     for check in range(1, max_checks + 1):
         last_code = _curl_status(url, timeout=5.0)
-        if last_code in (200, 302, 401, 403):
+        logs = _docker_logs_tail(container)
+        ready, last_detail = assess_rhythmyx_ready(last_code, logs)
+        if ready:
             with log_file.open("w", encoding="utf-8") as f:
                 f.write("qa-health success\n")
                 f.write(f"url={url}\n")
                 f.write(f"http={last_code}\n")
                 f.write(f"check={check}\n")
-                f.write(f"container={QA_CMS_CONTAINER}\n")
+                f.write(f"container={container}\n")
+                f.write("rhythmyx_context=ok\n")
             print(
                 f"RESULT:OK STEP:qa-health HTTP:{last_code} URL:{url} "
-                f"CONTAINER:{QA_CMS_CONTAINER} LOG:{log_file}"
+                f"CONTAINER:{container} LOG:{log_file}"
             )
             return EXIT_OK
+
+        # Fail-fast when Spring/Jetty already reported a dead Rhythmyx context.
+        if DETAIL_CONTEXT_FAILED in last_detail:
+            match = find_rhythmyx_context_failure(logs) or "unknown"
+            with log_file.open("w", encoding="utf-8") as f:
+                f.write("qa-health failed\n")
+                f.write(f"url={url}\n")
+                f.write(f"last_http={last_code}\n")
+                f.write(f"check={check}\n")
+                f.write(f"container={container}\n")
+                f.write(f"detail={last_detail}\n")
+                f.write(f"match={match}\n")
+                f.write(
+                    "hint: Rhythmyx ApplicationContext failed; Jetty HTTP may "
+                    "still bind. Inspect docker logs for Spring cycle / bean "
+                    "errors (parent #2423). Do not treat port-up as ready.\n"
+                )
+            print(
+                f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_CONTEXT_FAILED} "
+                f"MATCH:{match} HTTP:{last_code} URL:{url} "
+                f"CONTAINER:{container} LOG:{log_file}"
+            )
+            return EXIT_SUBPROCESS_FAILED
+
         time.sleep(interval)
 
+    # Timeout path: re-scan logs once more so DETAIL prefers context failure.
+    final_logs = _docker_logs_tail(container)
+    final_match = find_rhythmyx_context_failure(final_logs)
     with log_file.open("w", encoding="utf-8") as f:
         f.write("qa-health failed\n")
         f.write(f"url={url}\n")
         f.write(f"last_http={last_code}\n")
         f.write(f"timeout_seconds={timeout}\n")
         f.write(f"interval_seconds={interval}\n")
-        f.write(f"container={QA_CMS_CONTAINER}\n")
-        f.write(
-            "hint: run qa-up first; ensure installer jar is built "
-            "(modules/perc-distribution-tree package)\n"
+        f.write(f"container={container}\n")
+        f.write(f"last_detail={last_detail}\n")
+        if final_match:
+            f.write(f"match={final_match}\n")
+            f.write(
+                "hint: Rhythmyx context failure markers found in docker logs; "
+                "see parent #2423. HTTP-only ready is insufficient.\n"
+            )
+        else:
+            f.write(
+                "hint: run qa-up first; ensure installer jar is built "
+                "(modules/perc-distribution-tree package); if Jetty is up but "
+                "login fails, scan docker logs for Failed startup of context\n"
+            )
+    if final_match:
+        print(
+            f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_CONTEXT_FAILED} "
+            f"MATCH:{final_match} HTTP:{last_code} URL:{url} "
+            f"CONTAINER:{container} LOG:{log_file}"
         )
-    print(
-        f"RESULT:FAIL STEP:qa-health DETAIL:timeout after {timeout}s "
-        f"(last_http={last_code}) URL:{url} CONTAINER:{QA_CMS_CONTAINER} "
-        f"LOG:{log_file}"
-    )
+    else:
+        print(
+            f"RESULT:FAIL STEP:qa-health DETAIL:timeout after {timeout}s "
+            f"(last_http={last_code}) URL:{url} CONTAINER:{container} "
+            f"LOG:{log_file}"
+        )
     return EXIT_SUBPROCESS_FAILED
 
 

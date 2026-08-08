@@ -85,6 +85,11 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 from perc_host_ports import find_free_port, is_port_free, resolve_host_port  # noqa: E402
+from rhythmyx_ready import (  # noqa: E402
+    DETAIL_CONTEXT_FAILED,
+    find_rhythmyx_context_failure,
+    is_http_ready_code,
+)
 
 LOG = logging.getLogger("matrix-install-smoke")
 
@@ -912,33 +917,113 @@ def destroy_container(name: str, *, dry_run: bool) -> None:
     _run(["docker", "rm", "-f", name], dry_run=dry_run, check=False)
 
 
+def _docker_logs_tail(
+    container_name: str,
+    *,
+    tail: int = 800,
+    timeout: float = 30.0,
+) -> str:
+    """Return recent ``docker logs`` for context-failure scanning (#2462)."""
+    if not container_name:
+        return ""
+    try:
+        completed = subprocess.run(
+            [
+                "docker",
+                "logs",
+                "--tail",
+                str(max(1, int(tail))),
+                container_name,
+            ],
+            shell=False,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+    if completed.returncode != 0:
+        return ""
+    out = completed.stdout or ""
+    err = completed.stderr or ""
+    if out and err:
+        return out + "\n" + err
+    return out or err
+
+
 def wait_for_http(
     url: str,
     *,
     timeout_seconds: int,
     interval_seconds: float = 5.0,
     dry_run: bool,
+    container_name: Optional[str] = None,
 ) -> Tuple[bool, str]:
+    """Poll ``url`` until HTTP ready codes, or fail-fast on Rhythmyx context death.
+
+    When ``container_name`` is set (CMS cells), each poll also scans recent
+    ``docker logs`` for Spring/Jetty ApplicationContext failure markers.
+    A dead Rhythmyx context fails the probe **immediately** even if Jetty
+    still answers HTTP (#2462 residual of #2423).
+    """
     if dry_run:
         return True, "dry-run"
     deadline = time.time() + timeout_seconds
     last = ""
     while time.time() < deadline:
+        # Fail-fast: Jetty up + Spring context dead must not wait full timeout.
+        if container_name:
+            logs = _docker_logs_tail(container_name)
+            match = find_rhythmyx_context_failure(logs)
+            if match is not None:
+                return (
+                    False,
+                    f"{DETAIL_CONTEXT_FAILED} match={match!r} last={last or 'n/a'}",
+                )
         try:
             req = urllib.request.Request(url, method="GET")
             with urllib.request.urlopen(req, timeout=10) as resp:
                 code = resp.getcode()
-                if code in (200, 302, 401, 403):
+                if is_http_ready_code(code):
+                    # Re-check logs after a "ready" HTTP so false positives fail.
+                    if container_name:
+                        logs = _docker_logs_tail(container_name)
+                        match = find_rhythmyx_context_failure(logs)
+                        if match is not None:
+                            return (
+                                False,
+                                f"{DETAIL_CONTEXT_FAILED} match={match!r} "
+                                f"http={code}",
+                            )
                     return True, f"HTTP {code}"
                 last = f"HTTP {code}"
         except urllib.error.HTTPError as exc:
             # Some login paths return 401/403 before auth — treat as up.
-            if exc.code in (200, 302, 401, 403):
+            if is_http_ready_code(exc.code):
+                if container_name:
+                    logs = _docker_logs_tail(container_name)
+                    match = find_rhythmyx_context_failure(logs)
+                    if match is not None:
+                        return (
+                            False,
+                            f"{DETAIL_CONTEXT_FAILED} match={match!r} "
+                            f"http={exc.code}",
+                        )
                 return True, f"HTTP {exc.code}"
             last = f"HTTPError {exc.code}"
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
             last = str(exc)
         time.sleep(interval_seconds)
+    # Final log scan so timeout DETAIL prefers context failure when present.
+    if container_name:
+        logs = _docker_logs_tail(container_name)
+        match = find_rhythmyx_context_failure(logs)
+        if match is not None:
+            return (
+                False,
+                f"{DETAIL_CONTEXT_FAILED} match={match!r} last={last or 'timeout'}",
+            )
     return False, last or "timeout"
 
 
@@ -1044,11 +1129,14 @@ def run_cell(
             log_path=str(cell_log),
         )
 
-    # Capture container logs while waiting
+    # Capture container logs while waiting. CMS cells pass container_name so
+    # a dead Rhythmyx ApplicationContext fails the probe even if Jetty HTTP
+    # still answers (#2462 / #2423).
     ok, detail = wait_for_http(
         probe_url,
         timeout_seconds=probe_timeout,
         dry_run=dry_run,
+        container_name=name if cell.product == "cms" else None,
     )
     if not dry_run:
         logs = _run(

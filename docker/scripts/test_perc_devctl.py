@@ -516,8 +516,10 @@ class TestQaHealthRealMode(unittest.TestCase):
 
     def test_qa_health_success_on_first_check(self):
         with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc, "_docker_logs_tail") as mock_logs, \
              unittest.mock.patch.object(pdc.time, "sleep"):
             mock_curl.return_value = 200
+            mock_logs.return_value = "INFO [Server] Started @7879ms\n"
             import io
             from contextlib import redirect_stdout
             buf = io.StringIO()
@@ -530,11 +532,14 @@ class TestQaHealthRealMode(unittest.TestCase):
         self.assertEqual(rc, pdc.EXIT_OK)
         self.assertIn("RESULT:OK STEP:qa-health", out)
         self.assertIn("HTTP:200", out)
+        mock_logs.assert_called()
 
     def test_qa_health_timeout_emits_clear_error(self):
         with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc, "_docker_logs_tail") as mock_logs, \
              unittest.mock.patch.object(pdc.time, "sleep"):
             mock_curl.return_value = 0
+            mock_logs.return_value = ""
             import io
             from contextlib import redirect_stdout
             buf = io.StringIO()
@@ -551,6 +556,61 @@ class TestQaHealthRealMode(unittest.TestCase):
         self.assertIn("timeout", out)
         self.assertIn("LOG:", out)
         self.assertNotIn("LOG:\n", out)
+
+    def test_qa_health_fails_when_http_ok_but_context_failed(self):
+        """#2462: Jetty HTTP ready + dead Rhythmyx context must FAIL (not OK)."""
+        dead_ctx = (
+            "WARN  [WebAppContext] Failed startup of context "
+            "oeje11w.WebAppContext Rhythmyx\n"
+            "BeanCurrentlyInCreationException: folderHelper\n"
+            "INFO  [AbstractConnector] Started {HTTP/1.1}{0.0.0.0:9992}\n"
+        )
+        with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc, "_docker_logs_tail") as mock_logs, \
+             unittest.mock.patch.object(pdc.time, "sleep") as mock_sleep:
+            mock_curl.return_value = 200
+            mock_logs.return_value = dead_ctx
+            import io
+            from contextlib import redirect_stdout
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc.main([
+                    "--repo-root", str(self.repo_root),
+                    "qa-health",
+                    "--timeout-seconds", "30",
+                    "--interval-seconds", "5",
+                ])
+            out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("RESULT:FAIL STEP:qa-health", out)
+        self.assertIn("rhythmyx_context_failed", out)
+        self.assertIn("Failed startup of context", out)
+        # Fail-fast: must not burn the full poll budget.
+        mock_sleep.assert_not_called()
+
+    def test_qa_health_timeout_prefers_context_failure_detail(self):
+        """When HTTP never ready but logs show context fail, DETAIL uses that."""
+        dead_ctx = "Failed startup of context Rhythmyx\n"
+        with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc, "_docker_logs_tail") as mock_logs, \
+             unittest.mock.patch.object(pdc.time, "sleep"):
+            mock_curl.return_value = 0
+            # max_checks=1 (5//5): one in-loop scan (empty) + one final scan (fail).
+            mock_logs.side_effect = ["", dead_ctx]
+            import io
+            from contextlib import redirect_stdout
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc.main([
+                    "--repo-root", str(self.repo_root),
+                    "qa-health",
+                    "--timeout-seconds", "5",
+                    "--interval-seconds", "5",
+                ])
+            out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("rhythmyx_context_failed", out)
+        self.assertIn("Failed startup of context", out)
 
 
 class TestQaDownRealMode(unittest.TestCase):

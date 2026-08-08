@@ -231,6 +231,30 @@ python docker/scripts/perc-devctl.py down
 
 Starts an ephemeral **CMS + H2** matrix cell (same stack as `matrix-install-smoke.py --product cms --db h2 --keep`), waits for the resolved probe URL (`http://127.0.0.1:<QA_CMS_HOST_PORT>/Rhythmyx/login`), prints `TEST_CMS_URL` / admin username (password from generated install file when available), and tears down with `docker rm -f perc-matrix-cms-h2` so ports and disk are freed (no multi-GB named volume by default). Full operator flow: [workbench-rest-and-qa-modes.md](../docs/developer-module/workbench-rest-and-qa-modes.md) → **QA mode** section. Concurrent freeport checklist: **Two-worktree concurrent freeport smoke** above.
 
+##### Rhythmyx ApplicationContext fail-fast (#2462 / #2423)
+
+Jetty can report the HTTP connector **Started** while the ROOT/Rhythmyx Spring `ApplicationContext` failed (e.g. `BeanCurrentlyInCreationException` / circular `folderHelper` wiring). A port-up or HTTP-only probe is **not** sufficient.
+
+| Signal | Where | Operator meaning |
+|--------|--------|------------------|
+| `RESULT:OK STEP:qa-health HTTP:…` | `perc-devctl.py qa-health` | Probe URL ready **and** recent `docker logs` have **no** Rhythmyx context-failure markers |
+| `RESULT:FAIL … DETAIL:rhythmyx_context_failed MATCH:…` | `qa-health` or matrix cell `detail` | **Fail-fast**: Spring/Jetty context death detected in logs; treat cell as unusable even if HTTP answered |
+| `RESULT:FAIL … DETAIL:timeout after Ns (last_http=…)` | `qa-health` | Probe never became ready; if logs later show context fail, re-run `qa-health` or `docker logs perc-matrix-cms-h2` |
+| Matrix `status=fail` + `detail` containing `rhythmyx_context_failed` | `matrix-install-smoke.py` CMS cells | Same fail-fast during cell HTTP wait (container log scan) |
+
+Markers (shared helper `docker/scripts/rhythmyx_ready.py`): `Failed startup of context`, `BeanCurrentlyInCreationException`, `Requested bean is currently in creation`, `Is there an unresolvable circular reference`.
+
+```bash
+# After qa-up (or matrix --keep), re-check readiness with log scan:
+python docker/scripts/perc-devctl.py qa-health
+# FAIL example (do not attach Playwright):
+# RESULT:FAIL STEP:qa-health DETAIL:rhythmyx_context_failed MATCH:Failed startup of context …
+docker logs perc-matrix-cms-h2 2>&1 | findstr /i "Failed startup BeanCurrently circular folderHelper"
+# Unix: docker logs perc-matrix-cms-h2 2>&1 | grep -E 'Failed startup|BeanCurrently|circular'
+```
+
+Unit tests: `python -m pytest docker/scripts/test_rhythmyx_ready.py docker/scripts/test_perc_devctl.py docker/scripts/test_matrix_install_smoke.py -q`.
+
 ### `docker/scripts/freeport-concurrent-smoke.py`
 
 Allocation-only smoke for multi-worktree freeport (#2006). No Docker and no CMS install — holds preferred ports with stdlib sockets, asserts second-cell freeport and env override, prints `RESULT:OK|FAIL STEP:freeport-concurrent-smoke`. See **Two-worktree concurrent freeport smoke** above. Unit tests: `test_freeport_concurrent_smoke.py`.

@@ -278,6 +278,102 @@ class DockerRunArgvTests(unittest.TestCase):
         )
 
 
+class WaitForHttpContextFailTests(unittest.TestCase):
+    """#2462: matrix probe must fail-fast on Rhythmyx context death."""
+
+    def test_wait_for_http_dry_run(self):
+        ok, detail = smoke.wait_for_http(
+            "http://127.0.0.1:9993/Rhythmyx/login",
+            timeout_seconds=1,
+            dry_run=True,
+            container_name="perc-matrix-cms-h2",
+        )
+        self.assertTrue(ok)
+        self.assertEqual(detail, "dry-run")
+
+    def test_wait_for_http_context_fail_without_http(self):
+        import unittest.mock
+
+        dead = "WARN [WebAppContext] Failed startup of context Rhythmyx\n"
+        with unittest.mock.patch.object(
+            smoke, "_docker_logs_tail", return_value=dead
+        ), unittest.mock.patch.object(smoke.time, "sleep"):
+            ok, detail = smoke.wait_for_http(
+                "http://127.0.0.1:9993/Rhythmyx/login",
+                timeout_seconds=30,
+                interval_seconds=5,
+                dry_run=False,
+                container_name="perc-matrix-cms-h2",
+            )
+        self.assertFalse(ok)
+        self.assertIn("rhythmyx_context_failed", detail)
+        self.assertIn("Failed startup of context", detail)
+
+    def test_wait_for_http_http_ok_but_context_failed(self):
+        import unittest.mock
+        import urllib.error
+
+        dead = (
+            "Failed startup of context Rhythmyx\n"
+            "BeanCurrentlyInCreationException: folderHelper\n"
+        )
+
+        class _Resp:
+            def getcode(self):
+                return 200
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+        with unittest.mock.patch.object(
+            smoke, "_docker_logs_tail", return_value=dead
+        ), unittest.mock.patch.object(
+            smoke.urllib.request, "urlopen", return_value=_Resp()
+        ), unittest.mock.patch.object(smoke.time, "sleep"):
+            # First loop iteration: log scan runs before HTTP and fails immediately.
+            ok, detail = smoke.wait_for_http(
+                "http://127.0.0.1:9993/Rhythmyx/login",
+                timeout_seconds=30,
+                interval_seconds=5,
+                dry_run=False,
+                container_name="perc-matrix-cms-h2",
+            )
+        self.assertFalse(ok)
+        self.assertIn("rhythmyx_context_failed", detail)
+
+    def test_wait_for_http_no_container_skips_log_scan(self):
+        """DTS / no container: HTTP-only path unchanged."""
+        import unittest.mock
+
+        class _Resp:
+            def getcode(self):
+                return 200
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+        with unittest.mock.patch.object(
+            smoke, "_docker_logs_tail"
+        ) as mock_logs, unittest.mock.patch.object(
+            smoke.urllib.request, "urlopen", return_value=_Resp()
+        ):
+            ok, detail = smoke.wait_for_http(
+                "http://127.0.0.1:9983/",
+                timeout_seconds=5,
+                dry_run=False,
+                container_name=None,
+            )
+        self.assertTrue(ok)
+        self.assertEqual(detail, "HTTP 200")
+        mock_logs.assert_not_called()
+
+
 class InstallArgvTests(unittest.TestCase):
     def test_cms_postgres_silent_argv(self):
         argv = cell.build_install_argv(

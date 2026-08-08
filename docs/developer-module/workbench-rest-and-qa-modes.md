@@ -122,9 +122,13 @@ python docker/scripts/perc-devctl.py qa-up
 # Host port: QA_CMS_HOST_PORT / CMS_HOST_PORT env, else preferred 9993 when free, else freeport.
 # qa-up prints QA_CMS_HOST_PORT=… and TEST_CMS_URL=http://127.0.0.1:<port>
 
-# 2) HEALTH — re-check readiness (clear RESULT:FAIL + timeout if not ready)
+# 2) HEALTH — re-check readiness (clear RESULT:FAIL + timeout if not ready).
+#    Also fail-fast if docker logs show Rhythmyx ApplicationContext death
+#    (Failed startup of context / BeanCurrentlyInCreationException) even when
+#    Jetty HTTP still answers (#2462 / #2423). Do not treat port-up alone as ready.
 python docker/scripts/perc-devctl.py qa-health
 # optional: --timeout-seconds 120  --interval-seconds 5
+# DETAIL:rhythmyx_context_failed → cell unusable; inspect docker logs; do not run Playwright
 
 # 3) Playwright against the stack only — no DEV_PERCUSSION_INSTALL
 #    (#2064 env + #2065 golden smoke + #1929 surface filter)
@@ -157,6 +161,7 @@ python docker/scripts/perc-devctl.py qa-down
 | Container name       | `perc-matrix-cms-h2`                                                     |
 | Admin user           | `Admin` (password from install generated passwords)                      |
 | RESULT line contract | `RESULT:OK\|FAIL STEP:qa-up\|qa-health\|qa-down LOG:…`                   |
+| Context fail-fast    | `DETAIL:rhythmyx_context_failed MATCH:…` when Jetty logs show dead Rhythmyx Spring context (#2462); helper `docker/scripts/rhythmyx_ready.py` |
 
 **Tear-down policy:** `qa-down` runs `docker rm -f` on the QA cell. The install lives **inside** the container (no named multi-GB volume by default), so removing the container frees ports and disk. Prefer `qa-down` after every agent session; do not leave `perc-matrix-cms-h2` running overnight unless debugging.
 
