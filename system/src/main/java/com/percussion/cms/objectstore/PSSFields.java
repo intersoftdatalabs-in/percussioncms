@@ -60,7 +60,7 @@ public class PSSFields extends PSDbComponentList {
   public PSSearchField haveThisFieldKey(PSSearchField field) {
     if (field == null) throw new IllegalArgumentException("field must not be null");
 
-    Iterator iter = iterator();
+    Iterator<IPSDbComponent> iter = iterator();
     PSKey key = field.getLocator();
 
     while (iter.hasNext()) {
@@ -81,14 +81,14 @@ public class PSSFields extends PSDbComponentList {
    *     com.percussion.cms.objectstore.PSSearchField} objects.
    * @throws ClassCastException if the objects returned by the iterator are not PSSearchFields.
    */
-  public void setFields(Iterator fields) {
+  public void setFields(Iterator<? extends PSSearchField> fields) {
     if (fields == null || !fields.hasNext()) {
       clear();
       return;
     }
 
     for (int i = 0; fields.hasNext(); i++) {
-      PSSearchField f = (PSSearchField) fields.next();
+      PSSearchField f = fields.next();
       if (i < size() && ((PSSearchField) get(i)).equals(f)) continue;
       set(i, f);
     }
@@ -101,9 +101,9 @@ public class PSSFields extends PSDbComponentList {
    *     removed
    * @throws ClassCastException if the objects returned by the iterator are not PSSearchFields.
    */
-  public void removeFields(Iterator fields) {
+  public void removeFields(Iterator<? extends PSSearchField> fields) {
     if (fields == null) return;
-    while (fields.hasNext()) remove((IPSDbComponent) fields.next());
+    while (fields.hasNext()) remove(fields.next());
   }
 
   /** The XML node name for this class. */

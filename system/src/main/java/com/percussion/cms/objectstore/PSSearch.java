@@ -291,8 +291,9 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @return An iterator containing one or more {@link com.percussion.cms.objectstore.PSSearchField}
    *     objects. Never <code>null</code>.
    */
-  public Iterator getFields() {
-    return m_fields.iterator();
+  @SuppressWarnings("unchecked")
+  public Iterator<PSSearchField> getFields() {
+    return (Iterator<PSSearchField>) (Iterator<?>) m_fields.iterator();
   }
 
   /**
@@ -321,7 +322,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @param fields iterator over {@link com.percussion.cms.objectstore.PSSearchField} objects. Never
    *     <code>null</code>.
    */
-  public void setFields(Iterator fields) {
+  public void setFields(Iterator<? extends PSSearchField> fields) {
     if (fields == null) throw new IllegalArgumentException("fields must not be null");
 
     m_fields.setFields(fields);
@@ -346,7 +347,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @param fields iterator over {@link com.percussion.cms.objectstore.PSSearchField} objects. If
    *     <code>null</code> fields will not be removed.
    */
-  public void removeFields(Iterator fields) {
+  public void removeFields(Iterator<? extends PSSearchField> fields) {
     if (fields == null || !fields.hasNext()) return;
     m_fields.removeFields(fields);
   }
@@ -368,9 +369,10 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Get this search objects properties.
    *
-   * @return a iterator containing zero or more objects. Never <code>null</code>.
+   * @return a iterator containing zero or more {@link PSSearchMultiProperty} objects. Never <code>
+   *     null</code>.
    */
-  public Iterator getProperties() {
+  public Iterator<PSSearchMultiProperty> getProperties() {
     return m_properties.iterator();
   }
 
@@ -769,10 +771,10 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
     // Threshold
     if (m_properties.size() < 1) return false;
 
-    Iterator iter = m_properties.iterator();
+    Iterator<PSSearchMultiProperty> iter = m_properties.iterator();
 
     while (iter.hasNext()) {
-      PSSearchMultiProperty prop = (PSSearchMultiProperty) iter.next();
+      PSSearchMultiProperty prop = iter.next();
 
       if (prop.getName().equalsIgnoreCase(name) && prop.contains(value)) return true;
     }
@@ -1201,11 +1203,11 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
 
     resetAllowedCommunities();
 
-    Iterator iter = m_properties.iterator();
+    Iterator<PSSearchMultiProperty> iter = m_properties.iterator();
     boolean bFound = false;
 
     while (iter.hasNext()) {
-      PSSearchMultiProperty prop = (PSSearchMultiProperty) iter.next();
+      PSSearchMultiProperty prop = iter.next();
 
       if (prop.getName().equalsIgnoreCase(strName)) {
         // Threshold - if prop already contains this value
@@ -1223,10 +1225,10 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
           // Remove the values of the old property
           // add the new one and clone it to bring over
           // any other attributes (e.g. description ...)
-          Iterator values = newProp.iterator(); // cms property(s)
+          Iterator<String> values = newProp.iterator(); // cms property(s)
           while (values.hasNext()) {
             // remove each entry and add
-            newProp.remove((String) values.next());
+            newProp.remove(values.next());
           }
 
           // Single value
@@ -1279,15 +1281,15 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   public String[] getPropertyValues(String strName) {
     if (strName == null || strName.trim().length() == 0) return null;
 
-    Iterator<?> iter = m_properties.iterator();
+    Iterator<PSSearchMultiProperty> iter = m_properties.iterator();
     Collection<String> results = null;
     while (iter.hasNext()) {
-      PSSearchMultiProperty prop = (PSSearchMultiProperty) iter.next();
+      PSSearchMultiProperty prop = iter.next();
       if (prop.getName().equalsIgnoreCase(strName)) {
-        Iterator<?> propIter = prop.iterator();
+        Iterator<String> propIter = prop.iterator();
         results = new ArrayList<>();
         while (propIter.hasNext()) {
-          results.add((String) propIter.next());
+          results.add(propIter.next());
         }
       }
     }
@@ -1308,10 +1310,10 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
     if (strName == null || strName.trim().length() == 0)
       throw new IllegalArgumentException("strName must not be null or empty");
 
-    Iterator iter = m_properties.iterator();
+    Iterator<PSSearchMultiProperty> iter = m_properties.iterator();
 
     while (iter.hasNext()) {
-      PSSearchMultiProperty prop = (PSSearchMultiProperty) iter.next();
+      PSSearchMultiProperty prop = iter.next();
 
       if (prop.getName().equalsIgnoreCase(strName)) return true;
     }
@@ -1348,10 +1350,10 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
     // Threshold
     if (m_properties.size() < 1) return;
 
-    Iterator iter = m_properties.iterator();
+    Iterator<PSSearchMultiProperty> iter = m_properties.iterator();
 
     while (iter.hasNext()) {
-      PSSearchMultiProperty prop = (PSSearchMultiProperty) iter.next();
+      PSSearchMultiProperty prop = iter.next();
 
       if (prop.getName().equalsIgnoreCase(strName)) {
         if (bMulti) {
@@ -1703,9 +1705,9 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
     removeProperty(PSSearch.PROP_FULLTEXTQUERY, null);
 
     // now convert the fields
-    Iterator fields = getFields();
+    Iterator<PSSearchField> fields = getFields();
     while (fields.hasNext()) {
-      PSSearchField field = (PSSearchField) fields.next();
+      PSSearchField field = fields.next();
       field.setExternalOperator(null);
     }
   }
@@ -1763,14 +1765,14 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   public Object tuneClone(long newId) {
     PSKey newKey = createKey(new String[] {newId + ""});
     setKey(newKey);
-    Iterator cols = m_fields.iterator();
+    Iterator<IPSDbComponent> cols = m_fields.iterator();
     while (cols.hasNext()) {
       PSSearchField field = (PSSearchField) cols.next();
       field.setKey(newKey);
     }
-    Iterator props = m_properties.iterator();
+    Iterator<PSSearchMultiProperty> props = m_properties.iterator();
     while (props.hasNext()) {
-      PSSearchMultiProperty prop = (PSSearchMultiProperty) props.next();
+      PSSearchMultiProperty prop = props.next();
       prop.setKey(newKey);
     }
     return this;
