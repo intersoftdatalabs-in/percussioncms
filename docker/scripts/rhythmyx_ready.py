@@ -13,8 +13,9 @@ This module provides pure, stdlib-only helpers:
 * Log-text markers that mean the Rhythmyx webapp context failed
 * A small assessor that combines HTTP + log scan for fail-fast
 
-Callers: ``perc-devctl.py`` (``qa-health``), ``matrix-install-smoke.py``
-(``wait_for_http``). No secrets; no network I/O here.
+Callers: ``perc-devctl.py`` (``qa-health``, compose ``verify`` /
+``_verify_inline``), ``matrix-install-smoke.py`` (``wait_for_http``).
+No secrets; no network I/O here.
 """
 
 from __future__ import annotations

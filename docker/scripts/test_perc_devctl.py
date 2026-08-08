@@ -290,14 +290,16 @@ class TestVerifyRealMode(unittest.TestCase):
         self.runner = _CliRunner(self.repo_root)
 
     def test_verify_first_check_succeeds(self):
-        """When curl + docker inspect all return success values, the
-        verify loop exits on the first check with RESULT:OK.
+        """When curl + docker inspect + clean logs all return success values,
+        the verify loop exits on the first check with RESULT:OK.
         """
         with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
              unittest.mock.patch.object(pdc, "_docker_health") as mock_health, \
+             unittest.mock.patch.object(pdc, "_docker_logs_tail") as mock_logs, \
              unittest.mock.patch.object(pdc.time, "sleep"):
             mock_curl.side_effect = lambda url, **kw: 200
             mock_health.return_value = "healthy"
+            mock_logs.return_value = "INFO [Server] Started @7879ms\n"
             import io
             from contextlib import redirect_stdout
             buf = io.StringIO()
@@ -311,6 +313,72 @@ class TestVerifyRealMode(unittest.TestCase):
         self.assertIn("RESULT:OK STEP:verify", out)
         self.assertIn("CMS_HTTP:200", out)
         self.assertIn("HEALTH:healthy", out)
+        mock_logs.assert_called()
+
+    def test_verify_fails_when_http_ok_but_context_failed(self):
+        """#2480: CMS/DTS HTTP ready + docker healthy + dead Rhythmyx context
+        must FAIL (not OK), and fail-fast without burning the poll budget.
+        """
+        dead_ctx = (
+            "WARN  [WebAppContext] Failed startup of context "
+            "oeje11w.WebAppContext Rhythmyx\n"
+            "BeanCurrentlyInCreationException: folderHelper\n"
+            "INFO  [AbstractConnector] Started {HTTP/1.1}{0.0.0.0:9992}\n"
+        )
+        with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc, "_docker_health") as mock_health, \
+             unittest.mock.patch.object(pdc, "_docker_logs_tail") as mock_logs, \
+             unittest.mock.patch.object(pdc.time, "sleep") as mock_sleep:
+            mock_curl.return_value = 200
+            mock_health.return_value = "healthy"
+            mock_logs.return_value = dead_ctx
+            import io
+            from contextlib import redirect_stdout
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc.main([
+                    "--repo-root", str(self.repo_root),
+                    "verify",
+                    "--timeout-seconds", "30",
+                    "--interval-seconds", "5",
+                ])
+            out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("RESULT:FAIL STEP:verify", out)
+        self.assertIn("rhythmyx_context_failed", out)
+        self.assertIn("Failed startup of context", out)
+        self.assertIn(pdc.DEFAULT_CONTAINER, out)
+        mock_sleep.assert_not_called()
+
+    def test_verify_timeout_prefers_context_failure_detail(self):
+        """When HTTP/health never ready but logs show context fail, DETAIL uses that."""
+        dead_ctx = "Failed startup of context Rhythmyx\n"
+        with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc, "_docker_health") as mock_health, \
+             unittest.mock.patch.object(pdc, "_docker_logs_tail") as mock_logs, \
+             unittest.mock.patch.object(pdc.subprocess, "run") as mock_run, \
+             unittest.mock.patch.object(pdc.time, "sleep"):
+            mock_curl.return_value = 0
+            mock_health.return_value = "starting"
+            # max_checks=1 (5//5): one in-loop scan (empty) + one final scan (fail).
+            mock_logs.side_effect = ["", dead_ctx]
+            mock_run.return_value = subprocess.CompletedProcess(
+                args=[], returncode=0, stdout="", stderr=""
+            )
+            import io
+            from contextlib import redirect_stdout
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc.main([
+                    "--repo-root", str(self.repo_root),
+                    "verify",
+                    "--timeout-seconds", "5",
+                    "--interval-seconds", "5",
+                ])
+            out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("rhythmyx_context_failed", out)
+        self.assertIn("Failed startup of context", out)
 
 
 class TestVerifyFixRealMode(unittest.TestCase):
