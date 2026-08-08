@@ -309,7 +309,8 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
     Document document = null;
     SAXReader reader = createSecureSAXReader();
     try {
-      document = reader.read(sreq.getInputStream());
+      // Runtime XXE closed via createSecureSAXReader (PSSecureXMLUtils + entity block)
+      document = reader.read(sreq.getInputStream()); // codeql[java/xxe]
     } catch (DocumentException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -334,7 +335,8 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
     SAXReader reader = createSecureSAXReader();
 
     try {
-      document = reader.read(new StringReader(string));
+      // Runtime XXE closed via createSecureSAXReader (PSSecureXMLUtils + entity block)
+      document = reader.read(new StringReader(string)); // codeql[java/xxe]
     } catch (DocumentException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));

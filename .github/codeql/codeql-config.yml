@@ -90,6 +90,22 @@ query-filters:
         docs/ai-generated/tasks/gh-codeql-alerts/suppressions.md
         (alert_id=2) document this exception per contracts/C2 and C3.
   - exclude:
+      id: java/xxe
+      paths:
+        - "modules/perc-toolkit/src/main/java/com/percussion/pso/restservice/jexl/PSOImportJexl.java"
+      reason: >-
+        Documented residual for code-scanning alert #666 (T039 / PR #1216
+        runtime already closed). createSecureSAXReader builds the SAXReader
+        from PSSecureXMLUtils.getSecuredSaxParserFactory (Xerces pinned,
+        disallow-doctype-decl + external-entity features disabled) and a
+        fail-closed EntityResolver that rejects all external entity
+        resolution. getPostDom / getDomFromString only parse through that
+        reader. Tests: PSOImportJexlTest (safe parse + XXE DOCTYPE returns
+        null). CodeQL does not model the factory/feature propagation into
+        dom4j SAXReader.read as an XXE barrier; same blind spot as
+        PSSerializerUtils #1710. Sink-line // codeql[java/xxe] on both
+        read sinks. See suppressions.md alert_id=666.
+  - exclude:
       id: js/xss-through-dom
       paths:
         - "WebUI/src/main/webapp/cm/widgets/perc_page_edit_dialog.js"
