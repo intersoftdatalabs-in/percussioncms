@@ -198,6 +198,67 @@ public class PSRequestTest {
     assertEquals(PSRequest.PAGE_TYPE_JSON, request.getRequestPageType());
   }
 
+  /** Accept star/star alone does not select JSON (product default stays XML). */
+  @Test
+  public void testAcceptStarStarAloneDefaultsToXml() {
+    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/Rhythmyx/MyApp/products");
+    req.setContextPath("");
+    req.setServletPath("/Rhythmyx/MyApp/products");
+    req.addHeader("Accept", "*/*");
+    MockHttpServletResponse res = new MockHttpServletResponse();
+
+    PSRequest request = new PSRequest(req, res, null, null);
+
+    assertEquals(PSRequest.PAGE_TYPE_XML, request.getRequestPageType());
+  }
+
+  /** Explicit rejection of JSON ({@code q=0}) keeps product default XML. */
+  @Test
+  public void testAcceptJsonQZeroDoesNotSelectJson() {
+    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/Rhythmyx/MyApp/products");
+    req.setContextPath("");
+    req.setServletPath("/Rhythmyx/MyApp/products");
+    req.addHeader("Accept", "application/json;q=0");
+    MockHttpServletResponse res = new MockHttpServletResponse();
+
+    PSRequest request = new PSRequest(req, res, null, null);
+
+    assertEquals(PSRequest.PAGE_TYPE_XML, request.getRequestPageType());
+  }
+
+  /** XML rejected via {@code q=0} while JSON has positive q → JSON selected. */
+  @Test
+  public void testAcceptXmlQZeroJsonSelected() {
+    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/Rhythmyx/MyApp/products");
+    req.setContextPath("");
+    req.setServletPath("/Rhythmyx/MyApp/products");
+    req.addHeader("Accept", "application/xml;q=0, application/json;q=0.5");
+    MockHttpServletResponse res = new MockHttpServletResponse();
+
+    PSRequest request = new PSRequest(req, res, null, null);
+
+    assertEquals(PSRequest.PAGE_TYPE_JSON, request.getRequestPageType());
+  }
+
+  /**
+   * q-values above 1 are clamped to 1.0 (RFC 7231), so {@code application/json;q=1.5} ties
+   * default-q XML and stays XML (strict preference required).
+   */
+  @Test
+  public void testAcceptJsonQAboveOneClampedDoesNotBeatDefaultXml() {
+    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/Rhythmyx/MyApp/products");
+    req.setContextPath("");
+    req.setServletPath("/Rhythmyx/MyApp/products");
+    // Without clamp, q=1.5 would beat implicit XML competitors incorrectly if any were present;
+    // with equal-quality application/xml (q=1), clamp keeps JSON from winning solely via q>1.
+    req.addHeader("Accept", "application/json;q=1.5, application/xml");
+    MockHttpServletResponse res = new MockHttpServletResponse();
+
+    PSRequest request = new PSRequest(req, res, null, null);
+
+    assertEquals(PSRequest.PAGE_TYPE_XML, request.getRequestPageType());
+  }
+
   /** Known extension always wins over Accept (XML extension + Accept JSON → XML). */
   @Test
   public void testExtensionWinsOverAcceptJson() {

@@ -617,7 +617,8 @@ public class PSRequest {
           String param = paramTok.nextToken().trim();
           if (param.regionMatches(true, 0, "q=", 0, 2)) {
             try {
-              q = Double.parseDouble(param.substring(2).trim());
+              // RFC 7231: q-values are weight in [0, 1]; clamp out-of-range values.
+              q = Math.min(1.0, Math.max(0.0, Double.parseDouble(param.substring(2).trim())));
             } catch (NumberFormatException e) {
               q = 1.0;
             }
