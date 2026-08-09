@@ -37,13 +37,16 @@ SystemErrorCode (*ErrorCodes) → AuditLogService
 - [x] Retention job skeleton `PSSystemAuditLogRetentionJob`
 - [x] PR merge for #2614
 
-## Phase 2b status (auth/security first slice)
+## Phase 2b status (auth/security + residual catalogs)
 
-- [x] `SecurityErrorCodes` for `IPSSecurityErrors` general auth (9001–9026) + directory auth login codes
+- [x] `SecurityErrorCodes` for full defined `IPSSecurityErrors` ints (9001–9026, host/OS/role, dir 98xx, cataloger 99xx)
+- [x] `PathItemErrorCodes` for CMS path/folder/item (`IPSCmsErrors` subset) with `isAuditable`
+- [x] `DesignErrorCodes` for design lifecycle (2901–2903) + objectstore ACL subset with `isAuditable`
 - [x] `LegacyErrorCodeRegistry` int → `SystemErrorCode` with safe non-auditable default
-- [x] `IPSSecurityErrors` bridged ints for that slice; `PSSystemAuditLogger.logLegacyIfAuditable`
-- [x] Unit tests: non-auditable skip dual-write; auditable SEC-9002 dual-write
-- [ ] Follow-on: content/workflow ErrorCodes batch; share/path/item; design-object; remaining legacy ints; central exception-handler wiring residuals
+- [x] `IPSSecurityErrors` bridged ints; `PSSystemAuditLogger.logLegacyIfAuditable`
+- [x] Central `PSErrorHandler.appendError` dual-writes only when registry marks auditable
+- [x] Unit tests: non-auditable skip dual-write; auditable SEC/path/design dual-write
+- [ ] Follow-on: content/workflow ErrorCodes residual (#2635) when not yet merged; bulk remaining objectstore validation ints as needed
 
 ## Phase 3 — Role property + REST query (#2618)
 

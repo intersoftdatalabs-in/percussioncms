@@ -17,6 +17,7 @@
 
 package com.percussion.error;
 
+import com.intsof.percussioncms.auditlog.AuditContext;
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.data.PSConversionException;
 import com.percussion.data.PSStyleSheetMerger;
@@ -31,6 +32,7 @@ import com.percussion.mail.PSSmtpMailProvider;
 import com.percussion.server.IPSHttpErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSResponse;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.util.PSCharSets;
 import com.percussion.util.PSMapClassToObject;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -152,8 +154,33 @@ public class PSErrorHandler {
           PSXmlDocumentBuilder.addElement(respDoc, argsNode, "arg", argText);
         }
       }
+      // Phase 2b: dual-write only when LegacyErrorCodeRegistry marks the int isAuditable.
+      // Never let audit sink failures break error XML generation.
+      logLegacyExceptionIfAuditable(e);
     }
     return root;
+  }
+
+  /**
+   * Bridge legacy {@link PSException#getErrorCode()} to the system audit log when the code is
+   * cataloged and {@code isAuditable}. Non-auditable / unregistered codes are a no-op.
+   */
+  static void logLegacyExceptionIfAuditable(PSException exception) {
+    if (exception == null) {
+      return;
+    }
+    try {
+      Object[] args = exception.getErrorArguments();
+      if (args == null || args.length == 0) {
+        PSSystemAuditLogger.logLegacyIfAuditable(
+            exception.getErrorCode(), AuditContext.empty());
+      } else {
+        PSSystemAuditLogger.logLegacyIfAuditable(
+            exception.getErrorCode(), AuditContext.empty(), args);
+      }
+    } catch (RuntimeException | Error ignored) {
+      // audit must never break error response path
+    }
   }
 
   /**

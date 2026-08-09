@@ -17,6 +17,8 @@
 package com.intsof.percussioncms.auditlog;
 
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
 import java.util.Map;
@@ -29,9 +31,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Maps legacy {@code IPS*Errors} integer codes to {@link SystemErrorCode} until catalogs are fully
  * migrated. Unregistered codes are treated as <strong>not auditable</strong> (no dual-write).
  *
- * <p>Phase 2b registers {@link SecurityErrorCodes} (auth/security), {@link ContentErrorCodes}
- * (content lifecycle + conversion), and {@link WorkflowErrorCodes} (workflow transition + service
- * errors). Residual slices may register design/path catalogs via {@link #register(int,
+ * <p>Phase 2b registers {@link SecurityErrorCodes} (full SEC range), {@link ContentErrorCodes}
+ * (content lifecycle + conversion), {@link WorkflowErrorCodes} (workflow transition + service),
+ * {@link PathItemErrorCodes} (CMS path/item/folder), and {@link DesignErrorCodes} (design lifecycle
+ * + objectstore ACL). Residual slices may register additional catalogs via {@link #register(int,
  * SystemErrorCode)}.
  */
 public final class LegacyErrorCodeRegistry {
@@ -45,14 +48,16 @@ public final class LegacyErrorCodeRegistry {
   private LegacyErrorCodeRegistry() {}
 
   /**
-   * Ensure Phase 2b catalogs are loaded (auth/security, content, workflow). Safe to call
-   * repeatedly; catalogs register themselves in their own static initializers.
+   * Ensure Phase 2b catalogs are loaded (auth/security, content, workflow, path/item, design). Safe
+   * to call repeatedly; catalogs register themselves in their own static initializers.
    */
   public static void bootstrap() {
     if (BOOTSTRAPPED.compareAndSet(false, true)) {
       SecurityErrorCodes.ensureRegistered();
       ContentErrorCodes.ensureRegistered();
       WorkflowErrorCodes.ensureRegistered();
+      PathItemErrorCodes.ensureRegistered();
+      DesignErrorCodes.ensureRegistered();
     }
   }
 

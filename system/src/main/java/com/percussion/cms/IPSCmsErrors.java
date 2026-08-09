@@ -18,8 +18,13 @@ package com.percussion.cms;
 
 /**
  * This inteface is provided as a convenient mechanism for accessing the various CMS system related
- * error codes. Errors are in the range 13001 - 14000. Within this range, errors are further broken
- * down as follows:
+ * error codes. Errors are in the range 13001 - 14000.
+ *
+ * <p><strong>Phase 2b bridge:</strong> path/folder/item subset is cataloged in {@code
+ * com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes} with explicit {@code isAuditable}.
+ * Prefer that enum / {@code LegacyErrorCodeRegistry} for dual-write decisions.
+ *
+ * <p>Within this range, errors are further broken down as follows:
  *
  * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
  * <TR><TH>Range</TH><TH>Component</TH></TR>

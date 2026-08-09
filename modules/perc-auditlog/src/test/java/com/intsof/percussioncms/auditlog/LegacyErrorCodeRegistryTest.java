@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
 import com.intsof.percussioncms.auditlog.sink.CapturingAuditLogSink;
@@ -120,8 +122,7 @@ class LegacyErrorCodeRegistryTest {
   @Test
   void contentLifecycleLegacyCodeIsAuditableAndResolves() {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(2001));
-    assertSame(
-        ContentErrorCodes.CREATE, LegacyErrorCodeRegistry.find(2001).orElseThrow());
+    assertSame(ContentErrorCodes.CREATE, LegacyErrorCodeRegistry.find(2001).orElseThrow());
     assertTrue(ContentErrorCodes.CREATE.isAuditable());
   }
 
@@ -172,8 +173,7 @@ class LegacyErrorCodeRegistryTest {
   @Test
   void workflowAccessDeniedIsAuditableAndResolves() {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(6));
-    assertSame(
-        WorkflowErrorCodes.ACCESS_DENIED, LegacyErrorCodeRegistry.find(6).orElseThrow());
+    assertSame(WorkflowErrorCodes.ACCESS_DENIED, LegacyErrorCodeRegistry.find(6).orElseThrow());
     assertTrue(WorkflowErrorCodes.ACCESS_DENIED.isAuditable());
   }
 
@@ -223,13 +223,95 @@ class LegacyErrorCodeRegistryTest {
   @Test
   void workflowTransitionHighLevelIsAuditable() {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(4001));
-    assertSame(
-        WorkflowErrorCodes.TRANSITION, LegacyErrorCodeRegistry.find(4001).orElseThrow());
+    assertSame(WorkflowErrorCodes.TRANSITION, LegacyErrorCodeRegistry.find(4001).orElseThrow());
   }
 
   @Test
-  void registryContainsContentAndWorkflowSlice() {
-    // SEC (~30) + CONT (16) + WF (11) — allow headroom for residual growth
-    assertTrue(LegacyErrorCodeRegistry.size() >= 50);
+  void residualOsImpersonateIsAuditableAndResolves() {
+    assertTrue(LegacyErrorCodeRegistry.isAuditable(9601));
+    assertSame(
+        SecurityErrorCodes.OS_IMPERSONATE_FAILURE,
+        LegacyErrorCodeRegistry.find(9601).orElseThrow());
+  }
+
+  @Test
+  void residualHostFilterIsNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(9501));
+    assertSame(
+        SecurityErrorCodes.HOST_ADDR_FILTER_INVALID,
+        LegacyErrorCodeRegistry.find(9501).orElseThrow());
+  }
+
+  @Test
+  void folderPermissionDeniedDualWrites() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            PathItemErrorCodes.FOLDER_PERMISSION_DENIED.numericCode(),
+            AuditContext.builder().actor("jdoe").build());
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(1, sink.records().size());
+    assertEquals(PathItemErrorCodes.FOLDER_PERMISSION_DENIED, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[CONT-13007]-"));
+  }
+
+  @Test
+  void invalidFolderIdSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            PathItemErrorCodes.INVALID_FOLDER_ID.numericCode(),
+            AuditContext.builder().actor("jdoe").build(),
+            "42");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void designAclNoAdminDualWrites() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            DesignErrorCodes.SRV_ACL_NO_ADMIN.numericCode(),
+            AuditContext.builder().actor("admin").build());
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(DesignErrorCodes.SRV_ACL_NO_ADMIN, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[DESN-2353]-"));
+  }
+
+  @Test
+  void designAclEntryNullSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc, DesignErrorCodes.ACL_ENTRYLIST_NULL.numericCode(), AuditContext.empty());
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void registryCoversContentWorkflowSecPathAndDesign() {
+    // SEC residual + CONT + WF + path/item + design ACL (well beyond first-slice 30)
+    assertTrue(LegacyErrorCodeRegistry.size() >= 70);
+    assertTrue(LegacyErrorCodeRegistry.find(9903).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(13007).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2353).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2001).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(6).isPresent());
   }
 }
