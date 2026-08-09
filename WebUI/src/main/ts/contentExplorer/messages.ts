@@ -180,4 +180,40 @@ export const EXPLORER_MSG = {
   CLIPBOARD_SUMMARY_ADDED_SINGULAR: "perc.ui.explorer@1 item added to clipboard",
   CLIPBOARD_SUMMARY_ADDED_PLURAL:
     "perc.ui.explorer@{count} items added to clipboard",
+  // P-Trans / #2430 — item locales + create-variant (consumes public REST)
+  TRANSLATIONS_TITLE: "perc.ui.explorer@Translations",
+  TOGGLE_TRANSLATIONS_ARIA: "perc.ui.explorer@Show or hide translations",
+  TRANSLATIONS_PANEL_REGION: "perc.ui.explorer@Translations panel",
+  TRANSLATIONS_SELECT_ITEM:
+    "perc.ui.explorer@Select a content item to view locales and create translation variants.",
+  TRANSLATIONS_LOADING: "perc.ui.explorer@Loading translation locales…",
+  TRANSLATIONS_ERROR: "perc.ui.explorer@Could not load translation locales",
+  TRANSLATIONS_CURRENT_LOCALE: "perc.ui.explorer@Current locale",
+  TRANSLATIONS_LOCALE_UNKNOWN: "perc.ui.explorer@Unknown",
+  TRANSLATIONS_VARIANTS_HEADING: "perc.ui.explorer@Locale variants",
+  TRANSLATIONS_VARIANTS_EMPTY:
+    "perc.ui.explorer@No related translation variants",
+  TRANSLATIONS_COL_LOCALE: "perc.ui.explorer@Locale",
+  TRANSLATIONS_COL_ROLE: "perc.ui.explorer@Role",
+  TRANSLATIONS_COL_CONTENT_ID: "perc.ui.explorer@Content id",
+  TRANSLATIONS_ROLE_SOURCE: "perc.ui.explorer@Source",
+  TRANSLATIONS_ROLE_TRANSLATION: "perc.ui.explorer@Translation",
+  TRANSLATIONS_CREATE_HEADING: "perc.ui.explorer@Create translation variant",
+  TRANSLATIONS_TARGET_LOCALES: "perc.ui.explorer@Target locales",
+  TRANSLATIONS_NO_TARGET_LOCALES:
+    "perc.ui.explorer@No additional target locales available",
+  TRANSLATIONS_CREATE_ACTION: "perc.ui.explorer@Create variants",
+  TRANSLATIONS_CREATING: "perc.ui.explorer@Creating…",
+  TRANSLATIONS_SELECT_LOCALE:
+    "perc.ui.explorer@Select at least one target locale",
+  TRANSLATIONS_INVALID_ITEM:
+    "perc.ui.explorer@Selected item does not have a numeric content id",
+  TRANSLATIONS_CREATE_ERROR:
+    "perc.ui.explorer@Could not create translation variants",
+  TRANSLATIONS_CREATE_SUCCESS_SINGULAR:
+    "perc.ui.explorer@Created 1 translation variant",
+  TRANSLATIONS_CREATE_SUCCESS_PLURAL:
+    "perc.ui.explorer@Created {count} translation variants",
+  TRANSLATIONS_INFLIGHT_OUT:
+    "perc.ui.explorer@In-flight translation queue status is not available (product disposition).",
 } as const;

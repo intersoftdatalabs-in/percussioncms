@@ -562,6 +562,35 @@ npm run test:surface:list -- --tag explorer-recycle-restore
 class as #2464; Admin login that remains on `/Rhythmyx/login` fails with an
 explicit #2542 / #2423 message — do not soft-skip.
 
+#### Explorer translations / P-Trans UI (#2430 / parent #2411)
+
+Surface-filtered companion for content-item locale variants + create-variant in
+the modern React Content Explorer. Consumes public REST
+`GET|POST /rest/content-explorer/translations` (slice B / PR #2601). Asserts
+shell toggle chrome, select-item hint, and optional panel load when a content
+row is selected. In-flight queue is product OUT (panel note only).
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-translations.spec.js` |
+| Tags | `@explorer-translations` `@p-trans` `@smoke` |
+| Vitest peer | `WebUI` `translationsApi` / `TranslationsPanel` / shell tests |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/explorer-translations.spec.js
+
+# Tag form
+npm run test:surface -- --tag explorer-translations
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/explorer-translations.spec.js
+npm run test:surface:list -- --tag explorer-translations
+```
+
 #### Profile shell + axe WCAG + locale title (#2393 / #2425 / #2427 / #2497 / #2498 / #2499 / #2501 / parent #2374)
 
 Smoke opens the **My profile** hub via deep link and user-menu entry (Admin,
