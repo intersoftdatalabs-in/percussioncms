@@ -463,6 +463,42 @@ export interface SearchDef {
   designGaps?: string[];
 }
 
+/**
+ * Optional overrides for {@code POST /services/searches/{idOrName}/execute}.
+ * Mirrors {@code com.percussion.rest.searches.SearchExecuteRequest}.
+ */
+export interface SearchExecuteRequest {
+  folderPath?: string;
+  startIndex?: number;
+  maxResults?: number;
+  sortColumn?: string;
+  sortOrder?: string;
+}
+
+/**
+ * One result row from design-search execute.
+ * Mirrors {@code com.percussion.rest.searches.SearchResultItem}.
+ */
+export interface SearchResultItem {
+  id?: string;
+  name?: string;
+  title?: string;
+  folderPath?: string;
+  type?: string;
+}
+
+/**
+ * Paged result envelope for design-search execute.
+ * Mirrors {@code com.percussion.rest.searches.SearchExecuteResult}.
+ */
+export interface SearchExecuteResult {
+  children?: SearchResultItem[];
+  totalCount?: number;
+  startIndex?: number;
+  searchName?: string;
+  displayFormatId?: string;
+}
+
 /** View field criterion from GET /services/views. */
 export interface ViewFieldSummary {
   fieldName?: string;

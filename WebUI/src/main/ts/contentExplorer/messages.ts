@@ -119,6 +119,16 @@ export const EXPLORER_MSG = {
   SEARCH_REVEAL: "perc.ui.explorer@Reveal in folder",
   SEARCH_PERMISSION_DENIED:
     "perc.ui.explorer@You do not have permission to open this item",
+  // Saved / design-search picker (#2506 / #2409 slice C)
+  SEARCH_SAVED_LABEL: "perc.ui.explorer@Saved search",
+  SEARCH_SAVED_PLACEHOLDER: "perc.ui.explorer@Select a saved search…",
+  SEARCH_SAVED_RUN: "perc.ui.explorer@Run saved search",
+  SEARCH_SAVED_LOADING: "perc.ui.explorer@Loading saved searches…",
+  SEARCH_SAVED_EMPTY: "perc.ui.explorer@No saved searches available",
+  SEARCH_SAVED_ERROR: "perc.ui.explorer@Could not load saved searches",
+  SEARCH_SAVED_RETRY: "perc.ui.explorer@Retry loading saved searches",
+  SEARCH_SAVED_CUSTOM_UNSUPPORTED:
+    "perc.ui.explorer@Custom URL searches cannot be run from Explorer",
   DISPLAY_FORMAT_LABEL: "perc.ui.explorer@Display format",
   DISPLAY_FORMAT_DEFAULT: "perc.ui.explorer@Default columns",
   /** Product shell: server-driven action toolbar (US3 / #2400). */
