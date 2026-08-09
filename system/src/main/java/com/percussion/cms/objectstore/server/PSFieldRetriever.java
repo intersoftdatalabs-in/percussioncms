@@ -81,7 +81,7 @@ public class PSFieldRetriever {
   public byte[] getFieldContent(PSRequest req, PSLocator itemId, String fieldName, int childRowId)
       throws PSCmsException, PSInvalidContentTypeException {
     String urlToApp = getRequestUrl(req, itemId, fieldName, childRowId);
-    Map params = prepareParams(itemId, fieldName, childRowId);
+    Map<String, Object> params = prepareParams(itemId, fieldName, childRowId);
 
     byte[] results = requestData(req, urlToApp, params);
     if (null == results) results = new byte[0];
@@ -112,7 +112,7 @@ public class PSFieldRetriever {
       PSRequest req, PSLocator itemId, String fieldName, int childRowId)
       throws PSCmsException, PSInvalidContentTypeException {
     String urlToApp = getRequestUrl(req, itemId, fieldName, childRowId);
-    Map params = prepareParams(itemId, fieldName, childRowId);
+    Map<String, Object> params = prepareParams(itemId, fieldName, childRowId);
 
     PSMimeContentResult mimeContent = requestMimeContent(req, urlToApp, params);
     if (mimeContent != null) return mimeContent.getFileResource();
@@ -159,7 +159,9 @@ public class PSFieldRetriever {
   }
 
   /**
-   * Add the necessary parameters.
+   * Add the necessary parameters for a binary field retrieval request.
+   *
+   * <p>Package-private for unit tests (issue #2624).
    *
    * @param itemId assumed not <code>null</code> and valid. See {@link #getFieldContent(PSRequest,
    *     PSLocator, String, int) getFieldContent} for more info.
@@ -167,15 +169,18 @@ public class PSFieldRetriever {
    *     PSLocator, String, int) getFieldContent} for more info.
    * @param childRowId the childRowId for retrieving the correct child row data. If < 0 then we are
    *     not trying to retrieve a child row.
+   * @return never {@code null}; keys are HTML parameter names, values are request parameter objects
    */
-  private Map prepareParams(PSLocator itemId, String fieldName, int childRowId) {
+  Map<String, Object> prepareParams(PSLocator itemId, String fieldName, int childRowId) {
     Map<String, Object> params = new HashMap<>();
     params.put(IPSHtmlParameters.SYS_COMMAND, IPSMimeContentTypes.MIME_ENC_BINARY);
     params.put(IPSHtmlParameters.SYS_CONTENTID, Integer.valueOf(itemId.getId()));
     params.put(IPSHtmlParameters.SYS_REVISION, Integer.valueOf(itemId.getRevision()));
     params.put(IPSConstants.SUBMITNAME_PARAM_NAME, fieldName);
 
-    if (childRowId >= 0) params.put("sys_childrowid", Integer.toString(childRowId));
+    if (childRowId >= 0) {
+      params.put("sys_childrowid", Integer.toString(childRowId));
+    }
 
     return params;
   }
@@ -259,7 +264,7 @@ public class PSFieldRetriever {
    * @return the data, may be <code>null</code> if there is no data.
    * @throws PSCmsException if there is a problem acquiring the data.
    */
-  private byte[] requestData(PSRequest request, String requestUrl, Map params)
+  private byte[] requestData(PSRequest request, String requestUrl, Map<String, Object> params)
       throws PSCmsException {
     InputStream inStream = null;
     byte[] data = null;
@@ -296,8 +301,8 @@ public class PSFieldRetriever {
    * @return the mime content result, may be <code>null</code> if there is no data.
    * @throws PSCmsException if there is a problem acquiring the result.
    */
-  private PSMimeContentResult requestMimeContent(PSRequest request, String requestUrl, Map params)
-      throws PSCmsException {
+  private PSMimeContentResult requestMimeContent(
+      PSRequest request, String requestUrl, Map<String, Object> params) throws PSCmsException {
     PSExecutionData execData = null;
     try {
       PSInternalRequest ir = PSServer.getInternalRequest(requestUrl, request, params, false);

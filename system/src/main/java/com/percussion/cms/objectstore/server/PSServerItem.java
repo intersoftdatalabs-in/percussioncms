@@ -865,9 +865,11 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
    *     returned by the above mentioned method).
    * @throws PSCmsException If {@link PSInternalRequest#getResultDoc()} throws and exception.
    */
-  private Document makeRequest(String path, PSRequest request, Map params, boolean inherit)
+  private Document makeRequest(
+      String path, PSRequest request, Map<String, ?> params, boolean inherit)
       throws PSCmsException {
     try {
+      // PSServer still exposes a raw Map API; Map<String, ?> is the call-site contract here.
       PSInternalRequest iReq = PSServer.getInternalRequest(path, request, params, inherit);
 
       return iReq.getResultDoc();
@@ -954,9 +956,9 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   private void validateRelatedItems(PSRequest request) throws PSCmsException {
     PSRelationshipProcessor processor = PSRelationshipProcessor.getInstance();
 
-    Iterator relatedItems = getAllRelatedItems();
+    Iterator<PSItemRelatedItem> relatedItems = getAllRelatedItems();
     while (relatedItems.hasNext()) {
-      PSItemRelatedItem relatedItem = (PSItemRelatedItem) relatedItems.next();
+      PSItemRelatedItem relatedItem = relatedItems.next();
 
       PSRelationshipConfig config = processor.getConfig(relatedItem.getRelatedType());
       if (config == null)
@@ -986,7 +988,7 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
     fieldParams.put(PSContentEditorHandler.PAGE_ID_PARAM_NAME, "0");
     fieldParams.put(DB_ACTION_TYPE, (getContentId() == -1) ? DB_ACTION_INSERT : DB_ACTION_UPDATE);
 
-    Iterator fieldIter = getAllFields();
+    Iterator<PSItemField> fieldIter = getAllFields();
     populateFieldParams(fieldParams, fieldIter);
 
     processUpdateAction(path, request, fieldParams);
@@ -996,16 +998,20 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
    * Iterates over the supplied fields and adds entries to the params in preparation for calling
    * {@link #processUpdateAction(String, PSRequest, Map)}.
    *
+   * <p>Package-private for unit tests (issue #2624). Values may be {@link String}, {@link List} of
+   * strings (multi-value fields), or binary file objects.
+   *
    * @param fieldParams Map of html params to which field values are added, assumed not <code>null
-   *     </code>, key are <code>String</code> objects and values are objects.
+   *     </code>, keys are parameter names and values are request parameter objects.
    * @param fieldIter An iterator over zero or more {@link PSItemField} objects, assumed not <code>
    *     null</code>.
    * @throws PSCmsException If there is an error converting a field value to it's string
    *     representation
    */
-  private void populateFieldParams(Map fieldParams, Iterator fieldIter) throws PSCmsException {
+  void populateFieldParams(Map<String, Object> fieldParams, Iterator<PSItemField> fieldIter)
+      throws PSCmsException {
     while (fieldIter.hasNext()) {
-      PSItemField field = (PSItemField) fieldIter.next();
+      PSItemField field = fieldIter.next();
 
       // ignore the binary field if it has no value and never loaded.
       if (field.getItemFieldMeta().isBinary()
@@ -1025,9 +1031,9 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
         fieldParams.put(field.getName(), val.getValueFile());
       } else if (field.getItemFieldMeta().isMultiValueField()) {
         List<String> newVals = new ArrayList<>();
-        Iterator values = field.getAllValues();
+        Iterator<IPSFieldValue> values = field.getAllValues();
         while (values.hasNext()) {
-          IPSFieldValue val = (IPSFieldValue) values.next();
+          IPSFieldValue val = values.next();
           newVals.add(val.getValueAsString());
         }
         fieldParams.put(field.getName(), newVals);
@@ -1049,18 +1055,18 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
    */
   private void saveAllChilds(PSRequest request, String path) throws PSCmsException {
     // update the children
-    Iterator childIter = getAllChildren();
+    Iterator<PSItemChild> childIter = getAllChildren();
     while (childIter.hasNext()) {
-      Map<String, String> baseParams = new HashMap<>();
+      Map<String, Object> baseParams = new HashMap<>();
 
-      PSItemChild child = (PSItemChild) childIter.next();
+      PSItemChild child = childIter.next();
       baseParams.put(
           PSContentEditorHandler.CHILD_ID_PARAM_NAME, String.valueOf(child.getChildId()));
 
-      Iterator childEntryIter = child.getAllEntries();
+      Iterator<PSItemChildEntry> childEntryIter = child.getAllEntries();
       while (childEntryIter.hasNext()) {
-        Map<String, String> childParams = new HashMap<>(baseParams);
-        PSItemChildEntry childEntry = (PSItemChildEntry) childEntryIter.next();
+        Map<String, Object> childParams = new HashMap<>(baseParams);
+        PSItemChildEntry childEntry = childEntryIter.next();
 
         String action = childEntry.getAction();
         if (action != null && !action.equals("") && !action.equalsIgnoreCase("ignore")) {
@@ -1071,7 +1077,7 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
                 PSContentEditorHandler.CHILD_ROW_ID_PARAM_NAME, Integer.toString(childRowId));
           }
 
-          Iterator childFieldIter = childEntry.getAllFields();
+          Iterator<PSItemField> childFieldIter = childEntry.getAllFields();
           populateFieldParams(childParams, childFieldIter);
           processUpdateAction(path, request, childParams);
 
@@ -1097,9 +1103,9 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
       // if so then collect the rowIds and sortRanks and then update
       if (child.isSequenced()) {
         StringBuilder childIdRows = new StringBuilder();
-        Iterator seqIter = child.getAllEntries();
+        Iterator<PSItemChildEntry> seqIter = child.getAllEntries();
         while (seqIter.hasNext()) {
-          PSItemChildEntry childEntry = (PSItemChildEntry) seqIter.next();
+          PSItemChildEntry childEntry = seqIter.next();
 
           if (!childEntry.getAction().equalsIgnoreCase(PSItemChildEntry.CHILD_ACTION_DELETE)) {
             childIdRows.append(childEntry.getChildRowId());
@@ -1108,7 +1114,7 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
           }
         }
         if (childIdRows.length() > 0) {
-          Map<String, String> seqParams = new HashMap<>(baseParams);
+          Map<String, Object> seqParams = new HashMap<>(baseParams);
           seqParams.put(PSContentEditorHandler.CHILD_ROW_ID_PARAM_NAME, childIdRows.toString());
           seqParams.put(DB_ACTION_TYPE, PSContentEditorHandler.DB_ACTION_RESEQUENCE);
 
@@ -1134,11 +1140,11 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
    */
   private void saveAllRelated(PSRequest request, String path) throws PSCmsException {
     // update the related items
-    Iterator relIter = getAllRelatedItems();
+    Iterator<PSItemRelatedItem> relIter = getAllRelatedItems();
 
     // insert any new content first
     while (relIter.hasNext()) {
-      PSItemRelatedItem related = (PSItemRelatedItem) relIter.next();
+      PSItemRelatedItem related = relIter.next();
       if (related
           .getAction()
           .equalsIgnoreCase(PSItemRelatedItem.PSRelatedItemAction.INSERT.toString())) {
@@ -1190,9 +1196,9 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
     // now do the proper relationship actions (insert, update, delete)
     relIter = getAllRelatedItems();
     while (relIter.hasNext()) {
-      Map<String, String> relatedParams = new HashMap<>();
+      Map<String, Object> relatedParams = new HashMap<>();
 
-      PSItemRelatedItem related = (PSItemRelatedItem) relIter.next();
+      PSItemRelatedItem related = relIter.next();
       String action = related.getAction();
       if (action.equalsIgnoreCase(PSItemRelatedItem.PSRelatedItemAction.INSERT.toString())) {
         relatedParams.put(
@@ -1287,7 +1293,7 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
    * @param request the original request being worked on, assumed not <code>null</code>
    * @param params a set of extra parameters to pass with the request, may be <code>null</code>
    */
-  private void processUpdateAction(String path, PSRequest request, Map params)
+  private void processUpdateAction(String path, PSRequest request, Map<String, Object> params)
       throws PSCmsException {
     try {
       PSInternalRequest iReq = PSServer.getInternalRequest(path, request, params, true);

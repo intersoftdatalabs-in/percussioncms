@@ -25,7 +25,6 @@ import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -98,17 +97,11 @@ public class PSLoadChildDataExit extends PSDefaultExtension implements IPSResult
     NodeList elements = root.getElementsByTagName(baseElementName);
     if (elements == null) return resultDoc;
 
-    // need to collect elements into list since modifying the doc as we go
-    // will slow down the performance of traversing the NodeList
-    int len = elements.getLength();
-    List nodeList = new ArrayList(len);
-    for (int i = 0; i < len; i++) {
-      nodeList.add(elements.item(i));
-    }
+    // Snapshot elements before mutation: live NodeList traversal while
+    // replacing children would skip/duplicate nodes under W3C DOM.
+    List<Element> baseElements = snapshotElements(elements);
 
-    Iterator nodes = nodeList.iterator();
-    while (nodes.hasNext()) {
-      Element baseEl = (Element) nodes.next();
+    for (Element baseEl : baseElements) {
       PSXmlTreeWalker tree = new PSXmlTreeWalker(baseEl);
       Element childEl =
           tree.getNextElement(childElementName, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
@@ -124,6 +117,29 @@ public class PSLoadChildDataExit extends PSDefaultExtension implements IPSResult
     }
 
     return resultDoc;
+  }
+
+  /**
+   * Copy a {@link NodeList} of elements into an independent list so callers can mutate the document
+   * without live-list side effects.
+   *
+   * <p>Package-private for unit tests (issue #2624).
+   *
+   * @param elements may be {@code null}; treated as empty
+   * @return never {@code null}; may be empty; only {@link Element} nodes are included
+   */
+  static List<Element> snapshotElements(NodeList elements) {
+    if (elements == null) {
+      return List.of();
+    }
+    int len = elements.getLength();
+    List<Element> nodeList = new ArrayList<>(len);
+    for (int i = 0; i < len; i++) {
+      if (elements.item(i) instanceof Element el) {
+        nodeList.add(el);
+      }
+    }
+    return nodeList;
   }
 
   /**

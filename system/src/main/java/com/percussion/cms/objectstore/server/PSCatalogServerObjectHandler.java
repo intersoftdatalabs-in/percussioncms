@@ -57,8 +57,9 @@ import org.xml.sax.SAXException;
 /** Loadable handler for getting shared, system and local content editor fields from the server. */
 public class PSCatalogServerObjectHandler implements IPSLoadableRequestHandler {
   // see the interface.
+  @Override
   @SuppressWarnings("unused")
-  public void init(Collection requestRoots, InputStream cfgFileIn) throws PSServerException {
+  public void init(Collection<String> requestRoots, InputStream cfgFileIn) throws PSServerException {
     // do nothing.
   }
 
@@ -103,16 +104,8 @@ public class PSCatalogServerObjectHandler implements IPSLoadableRequestHandler {
           controlFlags = controlFlags | PSLocalCataloger.FLAG_EXCLUDE_CHOICES;
         }
 
-        Set<String> fieldNames = new HashSet<>();
-        Object obj = request.getParameters().get(IPSHtmlParameters.SYS_CE_FIELD_NAME);
-        if (obj instanceof List) {
-          List names = (List) obj;
-          for (Object name : names) {
-            if (name != null) fieldNames.add(name.toString());
-          }
-        } else if (obj != null) {
-          fieldNames.add(obj.toString());
-        }
+        Set<String> fieldNames = collectFieldNames(
+            request.getParameters().get(IPSHtmlParameters.SYS_CE_FIELD_NAME));
 
         Element ceFieldElem = cataloger.getCEFieldXml(controlFlags, fieldNames);
         responseDoc = ceFieldElem.getOwnerDocument();
@@ -347,8 +340,33 @@ public class PSCatalogServerObjectHandler implements IPSLoadableRequestHandler {
   }
 
   // see {@link com.percussion.server.IPSRootedHandler}
-  public Iterator getRequestRoots() {
+  @Override
+  public Iterator<String> getRequestRoots() {
     return null;
+  }
+
+  /**
+   * Normalize a request parameter value for {@link IPSHtmlParameters#SYS_CE_FIELD_NAME} into a set
+   * of field names. Multi-valued parameters arrive as a {@link List}; a single value is treated as
+   * one name.
+   *
+   * <p>Package-private for unit tests (issue #2624).
+   *
+   * @param obj parameter value from the request map; may be {@code null}
+   * @return never {@code null}; may be empty; never contains {@code null} entries
+   */
+  static Set<String> collectFieldNames(Object obj) {
+    Set<String> fieldNames = new HashSet<>();
+    if (obj instanceof List<?> names) {
+      for (Object name : names) {
+        if (name != null) {
+          fieldNames.add(name.toString());
+        }
+      }
+    } else if (obj != null) {
+      fieldNames.add(obj.toString());
+    }
+    return fieldNames;
   }
 
   /** Name of the custom application for web services. */
