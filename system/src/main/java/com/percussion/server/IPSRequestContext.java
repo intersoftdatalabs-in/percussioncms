@@ -1137,4 +1137,7 @@ public interface IPSRequestContext {
 
   /** The desired format for the request page is text. */
   public static final int PAGE_TYPE_TEXT = 0x00000004;
+
+  /** The desired format for the request page is JSON ({@code application/json}). */
+  public static final int PAGE_TYPE_JSON = 0x00000008;
 }

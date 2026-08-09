@@ -99,6 +99,16 @@ public class PSRequestTest {
     return new PSRequest(req, res, null, null);
   }
 
+  @Test
+  public void testJsonPageTypeFromExtension() {
+    // null servlet request avoids MockHttpServletRequest cast issues in setRequestFileURL
+    PSRequest request = new PSRequest(null, null, null, null);
+    request.setRequestFileURL("/Rhythmyx/MyApp/products.json");
+
+    assertEquals(PSRequest.PAGE_TYPE_JSON, request.getRequestPageType());
+    assertEquals(".json", request.getRequestPageExtension().toLowerCase());
+  }
+
   /**
    * Tests the putAllParameters method to make sure it add parameters and replaces existing values.
    */

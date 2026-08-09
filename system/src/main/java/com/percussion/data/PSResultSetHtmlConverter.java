@@ -16,6 +16,7 @@
  */
 package com.percussion.data;
 
+import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.design.objectstore.PSDataSet;
 import com.percussion.design.objectstore.PSResultPage;
 import com.percussion.error.PSCatalogException;
@@ -33,6 +34,7 @@ import com.percussion.util.PSCollection;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Properties;
 import org.w3c.dom.Document;
@@ -96,12 +98,25 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
 
     PSRequest request = data.getRequest();
 
+    String extension = request.getRequestPageExtension();
+    if (extension == null) {
+      extension = "";
+    }
+    extension = extension.toLowerCase();
+    if (!extension.isEmpty() && extension.charAt(0) != '.') {
+      extension = "." + extension;
+    }
+
+    /* JSON: build the same result document as XML, then encode (no XSL). */
+    if (request.getRequestPageType() == PSRequest.PAGE_TYPE_JSON
+        || ".json".equals(extension)) {
+      convertToJson(data, filter, request);
+      return;
+    }
+
     boolean callSuper = false;
 
-    String extension = request.getRequestPageExtension().toLowerCase();
     if (m_requestor.getMimeType(extension) == null) {
-      if (extension.charAt(0) != '.') extension = "." + extension;
-
       if (extension.equals(".xml") || extension.equals(".txt")) {
         /* Need to also check the request pages!!! */
         PSCollection pages = m_resultPageSet.getResultPages();
@@ -230,6 +245,49 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
   }
 
   /**
+   * Convert the result set to JSON: build the XML result document (including post exits), encode
+   * with {@link PSXmlDocumentJsonCodec}, and write {@code application/json} to the response.
+   */
+  private void convertToJson(
+      PSExecutionData data, IPSResultSetDataFilter filter, PSRequest request)
+      throws PSConversionException, PSUnsupportedConversionException {
+    Document doc = createXmlDocument(data, filter, true);
+
+    PSResponse resp = request.getResponse();
+    if (resp == null) {
+      throw new PSConversionException(IPSDataErrors.NO_RESPONSE_OBJECT);
+    }
+
+    if (doc == null) {
+      resp.setStatus(IPSHttpErrors.HTTP_NOT_FOUND);
+      return;
+    }
+
+    String encoding = m_requestor.getCharacterEncoding();
+    if (encoding == null || encoding.isEmpty()) {
+      encoding = StandardCharsets.UTF_8.name();
+    }
+
+    String json = PSXmlDocumentJsonCodec.toJson(doc);
+    byte[] bytes;
+    try {
+      bytes = json.getBytes(encoding);
+    } catch (UnsupportedEncodingException e) {
+      bytes = json.getBytes(StandardCharsets.UTF_8);
+      encoding = StandardCharsets.UTF_8.name();
+    }
+
+    String contentHeader = request.getContentHeaderOverride();
+    if (contentHeader == null) {
+      contentHeader =
+          PSBaseHttpUtils.constructContentTypeHeader(IPSMimeContentTypes.MIME_TYPE_JSON, encoding);
+    }
+
+    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+    resp.setContent(in, bytes.length, contentHeader, false);
+  }
+
+  /**
    * What is the default MIME type for this converter?
    *
    * @return the default MIME type
@@ -267,6 +325,10 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
     if (reqPageURL == null) return false;
 
     reqPageURL = reqPageURL.toLowerCase();
+    if (reqPageURL.endsWith(".json")) {
+      return true;
+    }
+
     int slashIndex = reqPageURL.lastIndexOf('/');
     if (slashIndex > -1) {
       String resourcePortion = reqPageURL.substring(slashIndex + 1);

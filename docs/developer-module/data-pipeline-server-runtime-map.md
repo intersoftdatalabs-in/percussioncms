@@ -33,7 +33,8 @@ Client HTTP request (app resource URL / internal request)
        • PSQueryHandler   — read path (Selector → SQL plan → map → document)
        • PSUpdateHandler  — write path (XML/doc → statements → backend)
   → back-end JDBC / statement builders (same package)
-  → response converters (XML/HTML/MIME under com.percussion.data)
+  → response converters (XML/HTML/JSON/MIME under com.percussion.data)
+       • JSON I/O: see [classic-xml-app-json-io.md](./classic-xml-app-json-io.md)
 ```
 
 ### Entry / dispatch (server)
