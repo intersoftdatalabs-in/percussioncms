@@ -106,6 +106,7 @@
                             </includes>
                             <excludes>
                                 <exclude>scripts/.cache/**</exclude>
+                                <exclude>scripts/cache/**</exclude>
                                 <exclude>**/target/**</exclude>
                                 <exclude>**/node_modules/**</exclude>
                             </excludes>

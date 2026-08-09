@@ -52,6 +52,47 @@ List or remove **stale git worktrees** left by agent sessions (Kilo / Grok / etc
 - **Prereqs**: `git`; `gh` authenticated (unless `--skip-gh` with `--include-no-pr` only).
 - **Tests**: `python3 -m pytest scripts/test_prune_stale_worktrees.py -v` (or `python3 scripts/test_prune_stale_worktrees.py`).
 
+### `nightly-i18n-refresh.sh` / `nightly_i18n_refresh.py`
+
+Automated nightly i18n translation refresh for the 16 base locales.
+
+- **Purpose**: Rotate through 16 base locales (`ar`, `bn`, `de`, `es`, `fr`, `he`, `hi`, `it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`, `uk`) using `day_of_year % 16`, translate missing TUVs in TMX files, and create a PR with the changes.
+- **Dedicated worktree**: Uses a persistent worktree at `~/.kilo/worktrees/nightly-i18n-refresh` (override with `--worktree <path>`). This isolates the cron job from developer checkouts and matches the worktree-hygiene rules in root `AGENTS.md`. The worktree is auto-created on first run from `origin/main` and reused thereafter.
+- **Locale selection**: Default rotation via `day_of_year % 16`; override with `--locale <code>` for manual backfills.
+- **Usage**:
+
+  ```bash
+  # Run with default locale rotation
+  python3 scripts/nightly_i18n_refresh.py
+
+  # Override to a specific locale (e.g., German backfill)
+  python3 scripts/nightly_i18n_refresh.py --locale de
+
+  # Dry-run (limits to 5 keys, no git operations)
+  python3 scripts/nightly_i18n_refresh.py --locale de --dry-run
+
+  # Use a custom worktree path
+  python3 scripts/nightly_i18n_refresh.py --worktree /path/to/worktree
+
+  # Verbose logging
+  python3 scripts/nightly_i18n_refresh.py --verbose
+  ```
+
+  Or via the shell wrapper (recommended for cron):
+
+  ```bash
+  ./scripts/nightly-i18n-refresh.sh --locale de
+  ```
+
+- **Pre-flight checks**: Verifies `trans` (translate-shell) is on PATH, working tree is clean (in the worktree), on `main` branch (or detached HEAD at `origin/main` — git disallows two worktrees on the same branch), and `gh` is authenticated.
+- **Pipeline**: Ensures worktree exists → fetches origin/main → checks for existing PR → creates branch → runs `i18n_translate_direct.py --target <locale>` → runs `i18n_translate_direct.py --target <locale> --fix-matching-en` → commits → pushes → creates PR.
+- **No spotless**: This wrapper does **not** invoke `mvnw spotless:apply`. The perc-i18n spotless config targets JSON (which we exclude due to the 4 MB translation cache) and the eclipseWtp XML formatter hangs on this environment's Eclipse OSGi classloader. TMX formatting is left to the translation script itself per `modules/perc-i18n/AGENTS.md`. The `scripts/cache/**` exclude in `modules/perc-i18n/pom.xml` is kept as defense in depth for manual spotless runs.
+- **Locking**: Uses `flock` on `tmp/nightly-i18n.lock` to prevent concurrent runs.
+- **PR labels**: Applies `operator:kilo` and `model:minimax-m3`.
+- **Logging**: Writes to `~/logs/nightly-i18n-refresh.log` with rotation (10MB × 5 backups).
+- **Platform**: Linux/macOS only. The wrapper imports `fcntl` for `flock`; Windows is unsupported (use WSL2).
+- **Tests**: `python3 scripts/test_nightly_i18n_refresh.py`
+
 ### `derby-surface-inventory.py` / `derby-surface-inventory.bat`
 
 Repo-wide inventory of Apache Derby surface area for feature **#548** (default embedded DB migration).
