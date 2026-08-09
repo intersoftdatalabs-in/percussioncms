@@ -43,7 +43,7 @@ import java.util.Vector;
 @Deprecated
 public final class Response implements RoResponse, GlobalConstants, Cloneable {
   /** This contains a list of headers which may only have a single value */
-  private static final Hashtable singleValueHeaders;
+  private static final Hashtable<String, String> singleValueHeaders;
 
   /** our http connection */
   private HTTPConnection connection;
@@ -149,7 +149,7 @@ public final class Response implements RoResponse, GlobalConstants, Cloneable {
       "retry-after",
     };
 
-    singleValueHeaders = new Hashtable(singleValueHeaderNames.length);
+    singleValueHeaders = new Hashtable<>(singleValueHeaderNames.length);
     for (int idx = 0; idx < singleValueHeaderNames.length; idx++)
       singleValueHeaders.put(singleValueHeaderNames[idx], singleValueHeaderNames[idx]);
   }
@@ -647,15 +647,15 @@ public final class Response implements RoResponse, GlobalConstants, Cloneable {
     // parse the Transfer-Encoding header
 
     boolean te_chunked = false, te_is_identity = true, ct_mpbr = false;
-    Vector te_hdr = null;
+    Vector<HttpHeaderElement> te_hdr = null;
     try {
       te_hdr = Util.parseHeader((String) Headers.get("Transfer-Encoding"));
     } catch (ParseException pe) {
     }
     if (te_hdr != null) {
-      te_chunked = ((HttpHeaderElement) te_hdr.lastElement()).getName().equalsIgnoreCase("chunked");
+      te_chunked = te_hdr.lastElement().getName().equalsIgnoreCase("chunked");
       for (int idx = 0; idx < te_hdr.size(); idx++)
-        if (((HttpHeaderElement) te_hdr.elementAt(idx)).getName().equalsIgnoreCase("identity"))
+        if (te_hdr.elementAt(idx).getName().equalsIgnoreCase("identity"))
           te_hdr.removeElementAt(idx--);
         else te_is_identity = false;
     }
@@ -665,7 +665,7 @@ public final class Response implements RoResponse, GlobalConstants, Cloneable {
     try {
       String hdr;
       if ((hdr = (String) Headers.get("Content-Type")) != null) {
-        Vector phdr = Util.parseHeader(hdr);
+        Vector<HttpHeaderElement> phdr = Util.parseHeader(hdr);
         ct_mpbr =
             phdr.contains(new HttpHeaderElement("multipart/byteranges"))
                 || phdr.contains(new HttpHeaderElement("multipart/x-byteranges"));
@@ -733,7 +733,7 @@ public final class Response implements RoResponse, GlobalConstants, Cloneable {
       if (connection.getProxyHost() != null) deleteHeader("Connection");
       else deleteHeader("Proxy-Connection");
 
-      Vector pco;
+      Vector<HttpHeaderElement> pco;
       try {
         pco = Util.parseHeader((String) Headers.get("Connection"));
       } catch (ParseException pe) {
@@ -742,7 +742,7 @@ public final class Response implements RoResponse, GlobalConstants, Cloneable {
 
       if (pco != null) {
         for (int idx = 0; idx < pco.size(); idx++) {
-          String name = ((HttpHeaderElement) pco.elementAt(idx)).getName();
+          String name = pco.elementAt(idx).getName();
           if (!name.equalsIgnoreCase("keep-alive")) {
             pco.removeElementAt(idx);
             deleteHeader(name);

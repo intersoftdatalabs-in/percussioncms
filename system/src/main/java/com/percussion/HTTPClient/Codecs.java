@@ -774,7 +774,7 @@ public class Codecs {
         }
 
         if (!hdr.regionMatches(true, 0, "Content-Disposition", 0, 19)) continue;
-        Vector pcd = Util.parseHeader(hdr.substring(hdr.indexOf(':') + 1));
+        Vector<HttpHeaderElement> pcd = Util.parseHeader(hdr.substring(hdr.indexOf(':') + 1));
         HttpHeaderElement elem = Util.getElement(pcd, "form-data");
 
         if (elem == null)

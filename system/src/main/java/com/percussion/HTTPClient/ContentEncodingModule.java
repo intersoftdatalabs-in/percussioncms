@@ -42,11 +42,11 @@ class ContentEncodingModule implements HTTPClientModule {
     for (idx = 0; idx < hdrs.length; idx++)
       if (hdrs[idx].getName().equalsIgnoreCase("Accept-Encoding")) break;
 
-    Vector pae;
+    Vector<HttpHeaderElement> pae;
     if (idx == hdrs.length) {
       hdrs = Util.resizeArray(hdrs, idx + 1);
       req.setHeaders(hdrs);
-      pae = new Vector();
+      pae = new Vector<>();
     } else {
       try {
         pae = Util.parseHeader(hdrs[idx].getValue());
@@ -108,7 +108,7 @@ class ContentEncodingModule implements HTTPClientModule {
     String ce = resp.getHeader("Content-Encoding");
     if (ce == null || req.getMethod().equals("HEAD") || resp.getStatusCode() == 206) return;
 
-    Vector pce;
+    Vector<HttpHeaderElement> pce;
     try {
       pce = Util.parseHeader(ce);
     } catch (ParseException pe) {
@@ -117,7 +117,7 @@ class ContentEncodingModule implements HTTPClientModule {
 
     if (pce.size() == 0) return;
 
-    String encoding = ((HttpHeaderElement) pce.firstElement()).getName();
+    String encoding = pce.firstElement().getName();
     if (encoding.equalsIgnoreCase("gzip") || encoding.equalsIgnoreCase("x-gzip")) {
       Log.write(Log.MODS, "CEM:   pushing gzip-input-stream");
 

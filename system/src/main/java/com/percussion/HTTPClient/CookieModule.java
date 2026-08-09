@@ -66,7 +66,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Deprecated
 public class CookieModule implements HTTPClientModule {
   /** the list of known cookies */
-  private static ConcurrentHashMap cookie_cntxt_list = new ConcurrentHashMap();
+  private static final ConcurrentHashMap<Object, ConcurrentHashMap<Cookie, Cookie>> cookie_cntxt_list =
+      new ConcurrentHashMap<>();
 
   /** the file to use for persistent cookie storage */
   private static File cookie_jar = null;
@@ -113,8 +114,10 @@ public class CookieModule implements HTTPClientModule {
         String filterSpec = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
         ois.setObjectInputFilter(Config.createFilter(filterSpec));
 
-        cookie_cntxt_list.put(
-            HTTPConnection.getDefaultContext(), (ConcurrentHashMap) ois.readObject());
+        @SuppressWarnings("unchecked")
+        ConcurrentHashMap<Cookie, Cookie> loaded =
+            (ConcurrentHashMap<Cookie, Cookie>) ois.readObject();
+        cookie_cntxt_list.put(HTTPConnection.getDefaultContext(), loaded);
       } catch (IOException | ClassNotFoundException e) {
         cookie_jar = null;
       }
@@ -124,14 +127,14 @@ public class CookieModule implements HTTPClientModule {
   private static void saveCookies() {
     if (cookie_jar != null
         && (!cookie_jar.exists() || cookie_jar.isFile() && cookie_jar.canWrite())) {
-      ConcurrentHashMap cookie_list = new ConcurrentHashMap();
-      Enumeration e =
+      ConcurrentHashMap<Cookie, Cookie> cookie_list = new ConcurrentHashMap<>();
+      Enumeration<Cookie> e =
           Util.getList(cookie_cntxt_list, HTTPConnection.getDefaultContext()).elements();
 
       // discard cookies which are not to be kept across sessions
 
       while (e.hasMoreElements()) {
-        Cookie cookie = (Cookie) e.nextElement();
+        Cookie cookie = e.nextElement();
         if (!cookie.discard()) cookie_list.put(cookie, cookie);
       }
 
@@ -208,23 +211,23 @@ public class CookieModule implements HTTPClientModule {
 
     // Now set any new cookie headers
 
-    Vector names = new Vector();
-    Vector lens = new Vector();
+    Vector<String> names = new Vector<>();
+    Vector<Integer> lens = new Vector<>();
     int version = 0;
 
-    ConcurrentHashMap cookie_list =
+    ConcurrentHashMap<Cookie, Cookie> cookie_list =
         Util.getList(cookie_cntxt_list, req.getConnection().getContext());
     if (cookie_list.size() == 0) return REQ_CONTINUE; // no need to create a lot of objects
 
-    Enumeration list = cookie_list.elements();
-    Vector remove_list = null;
+    Enumeration<Cookie> list = cookie_list.elements();
+    Vector<Cookie> remove_list = null;
 
     while (list.hasMoreElements()) {
-      Cookie cookie = (Cookie) list.nextElement();
+      Cookie cookie = list.nextElement();
 
       if (cookie.hasExpired()) {
         Log.write(Log.COOKI, "CookM: cookie has expired and is " + "being removed: " + cookie);
-        if (remove_list == null) remove_list = new Vector();
+        if (remove_list == null) remove_list = new Vector<>();
         remove_list.addElement(cookie);
         continue;
       }
@@ -236,7 +239,7 @@ public class CookieModule implements HTTPClientModule {
 
         // insert in correct position
         for (idx = 0; idx < lens.size(); idx++)
-          if (((Integer) lens.elementAt(idx)).intValue() < len) break;
+          if (lens.elementAt(idx).intValue() < len) break;
 
         names.insertElementAt(cookie.toExternalForm(), idx);
         lens.insertElementAt(Integer.valueOf(len), idx);
@@ -257,10 +260,10 @@ public class CookieModule implements HTTPClientModule {
 
       if (version > 0) value.append("$Version=\"" + version + "\"; ");
 
-      value.append((String) names.elementAt(0));
+      value.append(names.elementAt(0));
       for (int idx = 1; idx < names.size(); idx++) {
         value.append("; ");
-        value.append((String) names.elementAt(idx));
+        value.append(names.elementAt(idx));
       }
       hdrs = Util.resizeArray(hdrs, hdrs.length + 1);
       hdrs[hdrs.length - 1] = new NVPair("Cookie", value.toString());
@@ -338,11 +341,11 @@ public class CookieModule implements HTTPClientModule {
         Log.write(Log.COOKI, "CookM: Cookie " + idx + ": " + cookies[idx]);
     }
 
-    ConcurrentHashMap cookie_list =
+    ConcurrentHashMap<Cookie, Cookie> cookie_list =
         Util.getList(cookie_cntxt_list, req.getConnection().getContext());
 
     for (int idx = 0; idx < cookies.length; idx++) {
-      Cookie cookie = (Cookie) cookie_list.get(cookies[idx]);
+      Cookie cookie = cookie_list.get(cookies[idx]);
       if (cookie != null && cookies[idx].hasExpired()) {
         Log.write(Log.COOKI, "CookM: cookie has expired and is " + "being removed: " + cookie);
         cookie_list.remove(cookie); // expired, so remove
@@ -384,13 +387,13 @@ public class CookieModule implements HTTPClientModule {
     Cookie[] cookies = new Cookie[0];
     int idx = 0;
 
-    Enumeration cntxt_list = cookie_cntxt_list.elements();
+    Enumeration<ConcurrentHashMap<Cookie, Cookie>> cntxt_list = cookie_cntxt_list.elements();
     while (cntxt_list.hasMoreElements()) {
-      ConcurrentHashMap cntxt = (ConcurrentHashMap) cntxt_list.nextElement();
+      ConcurrentHashMap<Cookie, Cookie> cntxt = cntxt_list.nextElement();
 
       cookies = Util.resizeArray(cookies, idx + cntxt.size());
-      Enumeration cookie_list = cntxt.elements();
-      while (cookie_list.hasMoreElements()) cookies[idx++] = (Cookie) cookie_list.nextElement();
+      Enumeration<Cookie> cookie_list = cntxt.elements();
+      while (cookie_list.hasMoreElements()) cookies[idx++] = cookie_list.nextElement();
     }
 
     return cookies;
@@ -404,13 +407,13 @@ public class CookieModule implements HTTPClientModule {
    * @since V0.3-1
    */
   public static Cookie[] listAllCookies(Object context) {
-    ConcurrentHashMap cookie_list = Util.getList(cookie_cntxt_list, context);
+    ConcurrentHashMap<Cookie, Cookie> cookie_list = Util.getList(cookie_cntxt_list, context);
 
     Cookie[] cookies = new Cookie[cookie_list.size()];
     int idx = 0;
 
-    Enumeration e = cookie_list.elements();
-    while (e.hasMoreElements()) cookies[idx++] = (Cookie) e.nextElement();
+    Enumeration<Cookie> e = cookie_list.elements();
+    while (e.hasMoreElements()) cookies[idx++] = e.nextElement();
 
     return cookies;
   }
@@ -424,7 +427,7 @@ public class CookieModule implements HTTPClientModule {
    * @since V0.3-1
    */
   public static void addCookie(Cookie cookie) {
-    ConcurrentHashMap cookie_list =
+    ConcurrentHashMap<Cookie, Cookie> cookie_list =
         Util.getList(cookie_cntxt_list, HTTPConnection.getDefaultContext());
     cookie_list.put(cookie, cookie);
   }
@@ -439,7 +442,7 @@ public class CookieModule implements HTTPClientModule {
    * @since V0.3-1
    */
   public static void addCookie(Cookie cookie, Object context) {
-    ConcurrentHashMap cookie_list = Util.getList(cookie_cntxt_list, context);
+    ConcurrentHashMap<Cookie, Cookie> cookie_list = Util.getList(cookie_cntxt_list, context);
     cookie_list.put(cookie, cookie);
   }
 
@@ -451,7 +454,7 @@ public class CookieModule implements HTTPClientModule {
    * @since V0.3-1
    */
   public static void removeCookie(Cookie cookie) {
-    ConcurrentHashMap cookie_list =
+    ConcurrentHashMap<Cookie, Cookie> cookie_list =
         Util.getList(cookie_cntxt_list, HTTPConnection.getDefaultContext());
     cookie_list.remove(cookie);
   }
@@ -465,7 +468,7 @@ public class CookieModule implements HTTPClientModule {
    * @since V0.3-1
    */
   public static void removeCookie(Cookie cookie, Object context) {
-    ConcurrentHashMap cookie_list = Util.getList(cookie_cntxt_list, context);
+    ConcurrentHashMap<Cookie, Cookie> cookie_list = Util.getList(cookie_cntxt_list, context);
     cookie_list.remove(cookie);
   }
 

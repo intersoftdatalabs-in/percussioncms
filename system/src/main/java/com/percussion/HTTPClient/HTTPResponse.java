@@ -315,7 +315,7 @@ public class HTTPResponse implements HTTPClientModuleConstants {
    * @exception IOException If any exception occurs on the socket.
    * @exception ModuleException if any module encounters an exception.
    */
-  public Enumeration listHeaders() throws IOException, ModuleException {
+  public Enumeration<Object> listHeaders() throws IOException, ModuleException {
     if (!initialized) handleResponse();
     return Headers.keys();
   }
@@ -399,7 +399,7 @@ public class HTTPResponse implements HTTPClientModuleConstants {
    * @exception IOException If any exception occurs on the socket.
    * @exception ModuleException if any module encounters an exception.
    */
-  public Enumeration listTrailers() throws IOException, ModuleException {
+  public Enumeration<Object> listTrailers() throws IOException, ModuleException {
     if (!got_trailers) getTrailers();
     return Trailers.keys();
   }
@@ -582,7 +582,7 @@ public class HTTPResponse implements HTTPClientModuleConstants {
       str.append(nl);
     }
 
-    Enumeration hdr_list = Headers.keys();
+    Enumeration<Object> hdr_list = Headers.keys();
     while (hdr_list.hasMoreElements()) {
       String hdr = (String) hdr_list.nextElement();
       str.append(hdr);

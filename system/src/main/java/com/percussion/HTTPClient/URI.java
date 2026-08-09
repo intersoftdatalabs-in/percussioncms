@@ -68,9 +68,11 @@ public class URI {
    */
   public static final boolean ENABLE_BACKWARDS_COMPATIBILITY = true;
 
-  protected static final ConcurrentHashMap defaultPorts = new ConcurrentHashMap();
-  protected static final ConcurrentHashMap usesGenericSyntax = new ConcurrentHashMap();
-  protected static final ConcurrentHashMap usesSemiGenericSyntax = new ConcurrentHashMap();
+  protected static final ConcurrentHashMap<String, Integer> defaultPorts = new ConcurrentHashMap<>();
+  protected static final ConcurrentHashMap<String, Boolean> usesGenericSyntax =
+      new ConcurrentHashMap<>();
+  protected static final ConcurrentHashMap<String, Boolean> usesSemiGenericSyntax =
+      new ConcurrentHashMap<>();
 
   /* various character classes as defined in the draft */
   protected static final BitSet alphanumChar;
@@ -721,7 +723,7 @@ public class URI {
    * @return the port number, or 0 if unknown
    */
   public static final int defaultPort(String protocol) {
-    Integer port = (Integer) defaultPorts.get(protocol.trim().toLowerCase());
+    Integer port = defaultPorts.get(protocol.trim().toLowerCase());
     return (port != null) ? port.intValue() : 0;
   }
 

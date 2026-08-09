@@ -392,7 +392,7 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
 
       // count number of headers
       int num = 1;
-      Enumeration e = resp.listHeaders();
+      Enumeration<Object> e = resp.listHeaders();
       while (e.hasMoreElements()) {
         num++;
         e.nextElement();
