@@ -16,7 +16,9 @@
  */
 package com.intsof.percussioncms.auditlog;
 
+import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,8 +29,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Maps legacy {@code IPS*Errors} integer codes to {@link SystemErrorCode} until catalogs are fully
  * migrated. Unregistered codes are treated as <strong>not auditable</strong> (no dual-write).
  *
- * <p>Phase 2b first slice registers {@link SecurityErrorCodes} (auth/security). Later slices
- * register content/workflow/design catalogs via {@link #register(int, SystemErrorCode)}.
+ * <p>Phase 2b registers {@link SecurityErrorCodes} (auth/security), {@link ContentErrorCodes}
+ * (content lifecycle + conversion), and {@link WorkflowErrorCodes} (workflow transition + service
+ * errors). Residual slices may register design/path catalogs via {@link #register(int,
+ * SystemErrorCode)}.
  */
 public final class LegacyErrorCodeRegistry {
 
@@ -41,12 +45,14 @@ public final class LegacyErrorCodeRegistry {
   private LegacyErrorCodeRegistry() {}
 
   /**
-   * Ensure Phase 2b auth/security catalog is loaded. Safe to call repeatedly; catalogs register
-   * themselves in their own static initializers.
+   * Ensure Phase 2b catalogs are loaded (auth/security, content, workflow). Safe to call
+   * repeatedly; catalogs register themselves in their own static initializers.
    */
   public static void bootstrap() {
     if (BOOTSTRAPPED.compareAndSet(false, true)) {
       SecurityErrorCodes.ensureRegistered();
+      ContentErrorCodes.ensureRegistered();
+      WorkflowErrorCodes.ensureRegistered();
     }
   }
 

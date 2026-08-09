@@ -23,6 +23,13 @@ import java.util.Set;
  * An enumeration of possible error conditions for the workflow service with Java 11 modernization.
  * Each message code enumerated here must correspond to a message in the bundle for this package.
  *
+ * <p><strong>Phase 2b bridge:</strong> package-local ints (1–10) are cataloged in {@code
+ * com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes} with explicit {@code isAuditable}
+ * (access-denied / invalid-transition / assignment dual-write; load/config noise does not). Int
+ * literals remain here so they stay <em>compile-time constants</em>. Prefer {@code
+ * WorkflowErrorCodes} / {@code LegacyErrorCodeRegistry} for dual-write decisions; keep this
+ * interface for legacy exception constructors and message bundles.
+ *
  * <h2>Java 11 Features</h2>
  * <ul>
  * <li>Immutable collections for error metadata</li>
