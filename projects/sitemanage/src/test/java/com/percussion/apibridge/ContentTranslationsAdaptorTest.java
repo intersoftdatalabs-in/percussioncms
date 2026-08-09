@@ -46,7 +46,14 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.system.IPSSystemWs;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -65,12 +72,32 @@ class ContentTranslationsAdaptorTest {
   @Mock private IPSCmsObjectMgr objectMgr;
 
   private ContentTranslationsAdaptor adaptor;
+  private CapturingAppender logAppender;
+  private Logger logger;
+  private Level previousLevel;
 
   @BeforeEach
   void init() {
     adaptor =
         new ContentTranslationsAdaptor(
             contentWs, systemWs, idMapper, () -> objectMgr, idMapper::getGuid);
+    logAppender = new CapturingAppender("ContentTranslationsAdaptorTest");
+    logAppender.start();
+    logger = (Logger) LogManager.getLogger(ContentTranslationsAdaptor.class);
+    previousLevel = logger.getLevel();
+    logger.addAppender(logAppender);
+    logger.setLevel(Level.WARN);
+  }
+
+  @AfterEach
+  void tearDownLogs() {
+    if (logger != null) {
+      logger.removeAppender(logAppender);
+      logger.setLevel(previousLevel);
+    }
+    if (logAppender != null) {
+      logAppender.stop();
+    }
   }
 
   @Test
@@ -229,5 +256,75 @@ class ContentTranslationsAdaptorTest {
     RuntimeException wrapped =
         new RuntimeException("outer", new SecurityException("not allowed"));
     assertTrue(ContentTranslationsAdaptor.isAuthzFailure(wrapped));
+  }
+
+  @Test
+  void listPropagatesLoadSummaryInfrastructureErrors() {
+    // loadSummary used to swallow RuntimeException as null (404). Infrastructure failures must
+    // now surface so the REST layer can map them to 500 instead of a false 404.
+    PSLegacyGuid sourceGuid = new PSLegacyGuid(100L);
+    when(idMapper.getGuid("100")).thenReturn(sourceGuid);
+    when(objectMgr.loadComponentSummary(100))
+        .thenThrow(new IllegalStateException("cms object manager unavailable"));
+
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class,
+            () -> adaptor.listItemVariants(URI.create("http://localhost/rest"), "100"));
+    assertTrue(ex.getMessage().contains("unavailable"));
+    assertTrue(
+        logAppender.getEvents().stream()
+            .anyMatch(
+                event ->
+                    event.getLevel() == Level.WARN
+                        && event
+                            .getMessage()
+                            .getFormattedMessage()
+                            .contains("loadComponentSummary(100) failed")),
+        "loadSummary must warn before rethrowing infrastructure failures");
+  }
+
+  @Test
+  void readLocaleFieldLogsWarnAndReturnsNullOnException() {
+    PSCoreItem item = mock(PSCoreItem.class);
+    when(item.getContentId()).thenReturn(42);
+    when(item.getFieldByName("sys_lang")).thenThrow(new RuntimeException("sys_lang unreadable"));
+
+    assertNull(ContentTranslationsAdaptor.readLocaleField(item));
+    assertTrue(
+        logAppender.getEvents().stream()
+            .anyMatch(
+                event ->
+                    event.getLevel() == Level.WARN
+                        && event
+                            .getMessage()
+                            .getFormattedMessage()
+                            .contains("Could not read sys_lang locale from content id 42")),
+        "readLocaleField must log a warning when sys_lang cannot be read");
+  }
+
+  /**
+   * Minimal log4j2 appender that captures emitted {@link LogEvent}s (same approach as {@code
+   * PSCategoryLockInfoLocationTest} — sitemanage does not depend on log4j-core-test).
+   */
+  static final class CapturingAppender extends AbstractAppender {
+    private final List<LogEvent> events = new ArrayList<>();
+
+    CapturingAppender(String name) {
+      super(name, null, null, true);
+    }
+
+    @Override
+    public void append(LogEvent event) {
+      synchronized (events) {
+        events.add(event.toImmutable());
+      }
+    }
+
+    List<LogEvent> getEvents() {
+      synchronized (events) {
+        return new ArrayList<>(events);
+      }
+    }
   }
 }
