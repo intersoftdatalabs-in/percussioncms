@@ -404,6 +404,40 @@ npm run test:surface:list -- --tag folder-recycle
 mentions `BeanCurrentlyInCreationException` / `folderHelper`), the smoke fails
 with an explicit message citing #2464 / #2423 — do not treat as soft skip.
 
+#### Classic Finder UI recycle / restore companion (#2489 / parent #2423)
+
+Surface-filtered UI companion for the folder+recycle REST smoke (#2464). Exercises
+classic Finder chrome: soft-delete (recycle) a seeded Assets folder, then
+**restore** via `#perc-finder-restore-item` when path/selection allows, else
+**Empty Recycling** via Actions menu (`data-testid="perc-finder-empty-recycling"`,
+#2207 peer). Hard fails when pathmanagement context or Admin login is down.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/finder-recycle-restore-ui.spec.js` |
+| Tags | `@finder-recycle-restore` `@folder-recycle` `@smoke` |
+| Unit (no CMS) | `npm run test:unit` (includes `finder-recycle-restore-ui.test.js`) |
+| Helper | `frontend/tests/helpers/finder-recycle-restore-ui.js` |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/finder-recycle-restore-ui.spec.js
+
+# Tag form
+npm run test:surface -- --tag finder-recycle-restore
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/finder-recycle-restore-ui.spec.js
+npm run test:surface:list -- --tag finder-recycle-restore
+```
+
+**Hard fail contract:** pathmanagement probe uses the same context-down message
+class as #2464; Admin login that remains on `/Rhythmyx/login` fails with an
+explicit #2489 / #2423 message — do not soft-skip.
+
 #### Profile shell + axe WCAG (#2393 / #2425 / #2427 / parent #2374)
 
 Smoke opens the **My profile** hub via deep link and user-menu entry (Admin,
