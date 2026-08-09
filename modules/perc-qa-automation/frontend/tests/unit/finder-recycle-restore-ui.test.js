@@ -24,6 +24,14 @@ const {
   emptyRecyclingApiPathFragment,
   recycledFolderFinderPath,
   exactFinderItemNameMatcher,
+  cssAttrEscape,
+  finderListingIdSelector,
+  folderFinderPath,
+  isDeleteEligiblePath,
+  pathBarReflectsFolderName,
+  finderRecycleSelectStrategies,
+  shouldUseRestRecycleFallback,
+  millerSelectionFailureMessage,
   chooseRestoreOrEmptyBranch,
   PATH_RESTORE_FOLDER,
   PATH_DELETE_FOLDER,
@@ -39,6 +47,9 @@ describe("finder-recycle-restore-ui helpers", () => {
     );
     assert.equal(SELECTORS.actionsButton, "#perc-finder-actions-button");
     assert.equal(SELECTORS.pathSummary, "#mcol-path-summary");
+    assert.equal(SELECTORS.millerListing, ".mcol-listing");
+    assert.equal(SELECTORS.listViewRow, ".perc-datatable-row");
+    assert.equal(SELECTORS.chooseColumnView, "#perc-finder-choose-columnview");
     assert.ok(SURFACE_TAGS.includes("finder-recycle-restore"));
     assert.ok(SURFACE_TAGS.includes("folder-recycle"));
     assert.ok(SURFACE_TAGS.includes("smoke"));
@@ -167,5 +178,103 @@ describe("finder-recycle-restore-ui helpers", () => {
       "empty",
     );
     assert.equal(chooseRestoreOrEmptyBranch({}), "empty");
+  });
+
+  it("cssAttrEscape and finderListingIdSelector are safe", () => {
+    assert.equal(cssAttrEscape('a"b'), 'a\\"b');
+    assert.equal(cssAttrEscape("a\\b"), "a\\\\b");
+    assert.equal(finderListingIdSelector(""), "");
+    assert.equal(
+      finderListingIdSelector("0-101-456"),
+      "#perc-finder-listing-0-101-456",
+    );
+    assert.equal(
+      finderListingIdSelector('x"y'),
+      '[id="perc-finder-listing-x\\"y"]',
+    );
+  });
+
+  it("folderFinderPath and isDeleteEligiblePath match product depth rule", () => {
+    assert.equal(folderFinderPath("seed-a"), "/Assets/seed-a");
+    assert.equal(folderFinderPath("seed-a", "Sites"), "/Sites/seed-a");
+    assert.equal(folderFinderPath("", "Assets"), "/Assets");
+    assert.equal(isDeleteEligiblePath("/Assets"), false);
+    assert.equal(isDeleteEligiblePath("/Assets/seed-a"), true);
+    assert.equal(isDeleteEligiblePath(["", "Assets", "seed-a"]), true);
+    assert.equal(isDeleteEligiblePath("/"), false);
+  });
+
+  it("pathBarReflectsFolderName matches path leaf only", () => {
+    assert.equal(pathBarReflectsFolderName("/Assets/seed-a", "seed-a"), true);
+    assert.equal(pathBarReflectsFolderName("/Assets/seed-a/", "seed-a"), true);
+    assert.equal(pathBarReflectsFolderName("/Assets", "seed-a"), false);
+    assert.equal(pathBarReflectsFolderName("/Assets/seed-ab", "seed-a"), false);
+    assert.equal(pathBarReflectsFolderName("", "seed-a"), false);
+  });
+
+  it("finderRecycleSelectStrategies orders path-bar then miller then list", () => {
+    const withGuid = finderRecycleSelectStrategies({
+      name: "qa-folder-1",
+      parentPath: "Assets",
+      guid: "0-101-99",
+    });
+    assert.equal(withGuid[0].kind, "path-bar");
+    assert.equal(withGuid[0].path, "/Assets/qa-folder-1");
+    assert.equal(withGuid[1].kind, "listing-id");
+    assert.equal(withGuid[1].selector, "#perc-finder-listing-0-101-99");
+    assert.equal(withGuid[2].kind, "miller-title");
+    assert.match(withGuid[2].selector, /mcol-listing\[title=/);
+    assert.equal(withGuid[3].kind, "miller-name");
+    assert.equal(withGuid[4].kind, "list-row");
+
+    const noGuid = finderRecycleSelectStrategies({ name: "only-name" });
+    assert.equal(noGuid[0].kind, "path-bar");
+    assert.ok(!noGuid.some((s) => s.kind === "listing-id"));
+    assert.equal(finderRecycleSelectStrategies({}).length, 0);
+  });
+
+  it("shouldUseRestRecycleFallback is false on UI happy path", () => {
+    assert.equal(
+      shouldUseRestRecycleFallback({
+        selected: true,
+        deleteEnabled: true,
+        recycledViaUi: true,
+      }),
+      false,
+    );
+    assert.equal(
+      shouldUseRestRecycleFallback({
+        selected: true,
+        deleteEnabled: true,
+        recycledViaUi: false,
+      }),
+      false,
+    );
+    assert.equal(
+      shouldUseRestRecycleFallback({
+        selected: false,
+        deleteEnabled: false,
+      }),
+      true,
+    );
+    assert.equal(
+      shouldUseRestRecycleFallback({
+        selected: true,
+        deleteEnabled: false,
+      }),
+      true,
+    );
+  });
+
+  it("millerSelectionFailureMessage cites #2541 and residual chrome gaps", () => {
+    const msg = millerSelectionFailureMessage({
+      name: "seed",
+      strategiesTried: ["path-bar", "miller-title"],
+      pathBar: "/Assets",
+    });
+    assert.match(msg, /#2541/);
+    assert.match(msg, /data-testid/i);
+    assert.match(msg, /seed/);
+    assert.match(msg, /path-bar/);
   });
 });

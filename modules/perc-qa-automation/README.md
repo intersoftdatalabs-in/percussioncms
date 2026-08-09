@@ -474,13 +474,26 @@ npm run test:surface:list -- --tag folder-recycle
 mentions `BeanCurrentlyInCreationException` / `folderHelper`), the smoke fails
 with an explicit message citing #2464 / #2423 — do not treat as soft skip.
 
-#### Classic Finder UI recycle / restore companion (#2489 / parent #2423)
+#### Classic Finder UI recycle / restore companion (#2489 / residual #2541 / parent #2423)
 
 Surface-filtered UI companion for the folder+recycle REST smoke (#2464). Exercises
 classic Finder chrome: soft-delete (recycle) a seeded Assets folder, then
 **restore** via `#perc-finder-restore-item` when path/selection allows, else
 **Empty Recycling** via Actions menu (`data-testid="perc-finder-empty-recycling"`,
 #2207 peer). Hard fails when pathmanagement context or Admin login is down.
+
+**#2541 selection reliability:** happy-path recycle uses ordered strategies so
+`#perc-finder-delete` enables without REST soft-delete fallback:
+
+1. Path-bar navigate to `/Assets/{name}` (fires path_changed depth &gt; 2)
+2. Click `#perc-finder-listing-{guid}` when seed guid is known
+3. Miller column: `.mcol-listing[title=…]` / `.perc-finder-item-name` parent
+4. List view: `.perc-datatable-row` exact name
+
+REST `deleteFolder` remains only as last-resort residual-shell recovery (annotated
+warning). Residual product chrome gaps: no `data-testid` on miller listings or
+list rows; delete/restore enablement is class-based (`ui-enabled` /
+`ui-disabled`) only — Empty Recycling is the main `data-testid` control.
 
 | Item | Value |
 |------|--------|
