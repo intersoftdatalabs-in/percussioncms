@@ -11,6 +11,7 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 const {
   isContextHealthyStatus,
+  isProductPathErrorBody,
   contextDownFailureMessage,
   extractPathItem,
   extractPathItemGuid,
@@ -33,6 +34,26 @@ describe("folder-recycle-smoke helpers", () => {
     assert.equal(isContextHealthyStatus(0), false);
     assert.equal(isContextHealthyStatus(null), false);
     assert.equal(isContextHealthyStatus(undefined), false);
+  });
+
+
+  it("isProductPathErrorBody classifies product vs context-down bodies (#2488)", () => {
+    assert.equal(isProductPathErrorBody(404, '{"Errors":{"global":["Path not found"]}}'), true);
+    assert.equal(isProductPathErrorBody(404, "Path not found for Assets"), true);
+    assert.equal(isProductPathErrorBody(500, "Transaction silently rolled back"), true);
+    // Lone parentFolders / PropertyAccessException must not match (docs/noise).
+    assert.equal(isProductPathErrorBody(500, "docs mention parentFolders field"), false);
+    assert.equal(isProductPathErrorBody(500, "PropertyAccessException alone"), false);
+    // #2488 Hibernate stack: both markers required.
+    assert.equal(
+      isProductPathErrorBody(
+        500,
+        "PropertyAccessException: Could not set value of type [PersistentSet] on parentFolders",
+      ),
+      true,
+    );
+    assert.equal(isProductPathErrorBody(503, "Path not found"), false);
+    assert.equal(isProductPathErrorBody(200, "Path not found"), false);
   });
 
   it("contextDownFailureMessage cites #2464/#2423 and folderHelper cycle", () => {
