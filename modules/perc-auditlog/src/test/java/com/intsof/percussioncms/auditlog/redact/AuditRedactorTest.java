@@ -55,5 +55,48 @@ class AuditRedactorTest {
         "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U";
     String out = redactor.redact("token=" + jwt);
     assertFalse(out.contains("eyJhbGciOiJIUzI1NiJ9"));
+    assertTrue(out.contains(AuditRedactor.REDACTED));
+  }
+
+  @Test
+  void redactsJwtLikeTokenInMiddleOfMessage() {
+    String jwt =
+        "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U";
+    String out = redactor.redact("Bearer " + jwt + " ok");
+    assertFalse(out.contains("eyJhbGciOiJIUzI1NiJ9"));
+    assertTrue(out.endsWith(" ok") || out.contains(" ok"));
+    assertTrue(out.contains(AuditRedactor.REDACTED));
+  }
+
+  @Test
+  void leavesNonJwtEyJPrefixAlone() {
+    String out = redactor.redact("prefix eyJnotatoken suffix");
+    assertTrue(out.contains("eyJnotatoken"));
+  }
+
+  /**
+   * Pathological "many eyJ" input that used to stress the old JWT {@code Pattern} (CodeQL
+   * java/polynomial-redos #1948). Linear scanner must finish quickly and not hang.
+   */
+  @Test
+  void pathologicalJwtishPrefixDoesNotHang() {
+    StringBuilder sb = new StringBuilder(20_000);
+    for (int i = 0; i < 500; i++) {
+      sb.append("beyJ");
+    }
+    sb.append(" padding");
+    long start = System.nanoTime();
+    String out = redactor.redact(sb.toString());
+    long ms = (System.nanoTime() - start) / 1_000_000L;
+    assertTrue(ms < 2_000L, "redact took too long: " + ms + "ms");
+    assertFalse(out.isEmpty());
+  }
+
+  @Test
+  void truncatesVeryLongInputBeforeMatching() {
+    String longInput = "x".repeat(5000) + " password=secret";
+    String out = redactor.redact(longInput);
+    assertTrue(out.length() <= 4001); // 4000 + ellipsis
+    // password may be past the truncation point — length bound is the contract
   }
 }
