@@ -15,7 +15,9 @@ QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
 * ``qa-health`` — poll published CMS URL until ready (clear timeout);
   fail-fast when Jetty logs show Rhythmyx ApplicationContext failure
   (``Failed startup of context`` / ``BeanCurrentlyInCreationException``)
-  even if HTTP still answers (#2462 / #2423)
+  even if HTTP still answers (#2462 / #2423). RESULT lines include
+  ``HEALTH:healthy|unhealthy|starting|none`` from ``docker inspect``
+  (matrix cell HEALTHCHECK — #2481 residual #2537)
 * ``qa-down`` — destroy the QA cell (frees ports; no multi-GB orphans)
 * ``qa-preflight`` — rebuild-chain preflight; detect a stale WebUI WAR vs
   a freshly built sitemanage SNAPSHOT (#2486)
@@ -23,6 +25,8 @@ QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
 Compose ``verify`` / ``verify-fix`` / ``deploy-jar --verify`` apply the same
 Rhythmyx context log scan against the cms-dts container (#2480 companion to
 #2462): HTTP + docker health alone is not enough when Spring context is dead.
+Both ``qa-health`` (matrix cell) and ``verify`` (cms-dts) print ``HEALTH:``
+from ``_docker_health`` so host log-scan and inspect status share one RESULT.
 
 Each subcommand logs its full output to a timestamped file under
 ``docker/logs/`` and emits a single ``RESULT:OK STEP:<step> LOG:<path>``
@@ -638,11 +642,26 @@ def _curl_status(url: str, *, timeout: float) -> int:
 
 
 def _docker_health(container_name: str) -> str:
-    """Return the docker health status string for ``container_name``,
-    or 'unknown' if docker is missing / container absent.
+    """Return docker ``Health.Status`` for ``container_name``.
+
+    Values typically seen by operators / RESULT lines (#2481 / #2537):
+
+    * ``healthy`` / ``unhealthy`` / ``starting`` — when the image has a HEALTHCHECK
+    * ``none`` — container exists but has no ``.State.Health`` block
+    * ``unknown`` — docker missing, inspect failed, or empty output
     """
+    if not container_name:
+        return "unknown"
     completed = subprocess.run(
-        ["docker", "inspect", "-f", "{{.State.Health.Status}}", container_name],
+        [
+            "docker",
+            "inspect",
+            "-f",
+            # Prefer explicit none over docker template error when Health is absent
+            # (same pattern as matrix-install-smoke wait-for-health).
+            "{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}",
+            container_name,
+        ],
         shell=False,
         check=False,
         capture_output=True,
@@ -1272,7 +1291,12 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
 
     * HTTP status on the probe URL is in the ready set (200/302/401/403), **and**
     * Recent ``docker logs`` for the QA cell do **not** contain Rhythmyx
-      ApplicationContext failure markers (see :mod:`rhythmyx_ready`).
+      ApplicationContext failure markers (see :mod:`rhythmyx_ready`), **and**
+    * Docker ``Health.Status`` for the QA cell is ``healthy`` (matrix HEALTHCHECK
+      after #2481 — same gate as compose ``verify`` for cms-dts).
+
+    RESULT lines always include ``HEALTH:<status>`` so operators see host
+    log-scan **and** inspect health in one line (#2537 residual of #2481).
 
     Context-failure markers cause **immediate** FAIL even when HTTP answers
     (Jetty up, Spring webapp dead — #2462 residual of #2423).
@@ -1290,7 +1314,7 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
     if args.dry_run:
         LOG.info(
             "DRY-RUN: qa-health plan: %d checks x %ds interval against %s "
-            "(+ Rhythmyx context log scan on %s)",
+            "(+ Rhythmyx context log scan + docker Health.Status on %s)",
             max_checks,
             interval,
             url,
@@ -1302,32 +1326,22 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
                 f"url={url}\n"
                 f"container={container}\n"
                 f"log_scan=rhythmyx_context_fail_markers\n"
+                f"docker_health=inspect Health.Status\n"
             )
         print(
             f"RESULT:OK STEP:qa-health HTTP:200 URL:{url} "
-            f"CONTAINER:{container} LOG:{log_file}"
+            f"HEALTH:healthy CONTAINER:{container} LOG:{log_file}"
         )
         return EXIT_OK
 
     last_code = 0
+    last_health = "unknown"
     last_detail = "not_checked"
     for check in range(1, max_checks + 1):
         last_code = _curl_status(url, timeout=5.0)
+        last_health = _docker_health(container)
         logs = _docker_logs_tail(container)
         ready, last_detail = assess_rhythmyx_ready(last_code, logs)
-        if ready:
-            with log_file.open("w", encoding="utf-8") as f:
-                f.write("qa-health success\n")
-                f.write(f"url={url}\n")
-                f.write(f"http={last_code}\n")
-                f.write(f"check={check}\n")
-                f.write(f"container={container}\n")
-                f.write("rhythmyx_context=ok\n")
-            print(
-                f"RESULT:OK STEP:qa-health HTTP:{last_code} URL:{url} "
-                f"CONTAINER:{container} LOG:{log_file}"
-            )
-            return EXIT_OK
 
         # Fail-fast when Spring/Jetty already reported a dead Rhythmyx context.
         if DETAIL_CONTEXT_FAILED in last_detail:
@@ -1336,6 +1350,7 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
                 f.write("qa-health failed\n")
                 f.write(f"url={url}\n")
                 f.write(f"last_http={last_code}\n")
+                f.write(f"container_health={last_health}\n")
                 f.write(f"check={check}\n")
                 f.write(f"container={container}\n")
                 f.write(f"detail={last_detail}\n")
@@ -1347,10 +1362,26 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
                 )
             print(
                 f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_CONTEXT_FAILED} "
-                f"MATCH:{match} HTTP:{last_code} URL:{url} "
-                f"CONTAINER:{container} LOG:{log_file}"
+                f"MATCH:{match} HTTP:{last_code} HEALTH:{last_health} "
+                f"URL:{url} CONTAINER:{container} LOG:{log_file}"
             )
             return EXIT_SUBPROCESS_FAILED
+
+        # HTTP + clean logs + docker healthy (parity with compose verify).
+        if ready and last_health == "healthy":
+            with log_file.open("w", encoding="utf-8") as f:
+                f.write("qa-health success\n")
+                f.write(f"url={url}\n")
+                f.write(f"http={last_code}\n")
+                f.write(f"container_health={last_health}\n")
+                f.write(f"check={check}\n")
+                f.write(f"container={container}\n")
+                f.write("rhythmyx_context=ok\n")
+            print(
+                f"RESULT:OK STEP:qa-health HTTP:{last_code} HEALTH:{last_health} "
+                f"URL:{url} CONTAINER:{container} LOG:{log_file}"
+            )
+            return EXIT_OK
 
         time.sleep(interval)
 
@@ -1361,6 +1392,7 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
         f.write("qa-health failed\n")
         f.write(f"url={url}\n")
         f.write(f"last_http={last_code}\n")
+        f.write(f"container_health={last_health}\n")
         f.write(f"timeout_seconds={timeout}\n")
         f.write(f"interval_seconds={interval}\n")
         f.write(f"container={container}\n")
@@ -1375,19 +1407,20 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
             f.write(
                 "hint: run qa-up first; ensure installer jar is built "
                 "(modules/perc-distribution-tree package); if Jetty is up but "
-                "login fails, scan docker logs for Failed startup of context\n"
+                "login fails, scan docker logs for Failed startup of context; "
+                "also check docker inspect Health.Status on the QA cell\n"
             )
     if final_match:
         print(
             f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_CONTEXT_FAILED} "
-            f"MATCH:{final_match} HTTP:{last_code} URL:{url} "
-            f"CONTAINER:{container} LOG:{log_file}"
+            f"MATCH:{final_match} HTTP:{last_code} HEALTH:{last_health} "
+            f"URL:{url} CONTAINER:{container} LOG:{log_file}"
         )
     else:
         print(
             f"RESULT:FAIL STEP:qa-health DETAIL:timeout after {timeout}s "
-            f"(last_http={last_code}) URL:{url} CONTAINER:{container} "
-            f"LOG:{log_file}"
+            f"(last_http={last_code} health={last_health}) URL:{url} "
+            f"CONTAINER:{container} LOG:{log_file}"
         )
     return EXIT_SUBPROCESS_FAILED
 
