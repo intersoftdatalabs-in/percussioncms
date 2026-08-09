@@ -376,9 +376,16 @@ public class PSRecycleService implements IPSRecycleService {
         // created one first when deleting a child item.
 
         renameIfRequired(guid, FOLDER_TYPE, true);
-        // We need to delete this relationship, not just update config id
-        // as we already created a new realtionship for recycle folder
-        systemWs.deleteRelationships(Collections.singletonList(rel.getGuid()));
+        // Convert the folder relationship to recycled type (parity with
+        // {@link #recycleItem}). Deleting the FOLDER relationship alone
+        // orphaned empty folders: they left Assets/Sites but never appeared
+        // under Recycling, so folder-recycle smoke failed after create
+        // (#2488 residual of #2423 / #2464). createRootSiteDeleteRelationship
+        // above prepares structural recycle path; this converts the leaf.
+        updateRelationshipConfigId(RECYCLED_TYPE, rel);
+        if (cache != null) {
+          updateParentFolders(guid, FOLDER_TYPE, RECYCLED_TYPE);
+        }
       }
     } catch (PSErrorsException
         | PSErrorException

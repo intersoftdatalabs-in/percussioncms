@@ -231,8 +231,15 @@ async function createNamedFolder(request, baseUrl, headers, opts = {}) {
   }
   if (!addRes.ok()) {
     const text = await addRes.text().catch(() => "");
+    // Product 404 JSON (Path not found / Errors) means pathmanagement is live —
+    // do not mis-label as the pre-#2423 "context dead" class of bug (#2488).
+    const productPathError =
+      (addRes.status() === 404 || addRes.status() === 500) &&
+      /"Errors"|Path not found|Transaction silently rolled back|parentFolders|PropertyAccessException/i.test(
+        text,
+      );
     // Surface context-down class failures with the hard-fail message.
-    if (!isContextHealthyStatus(addRes.status())) {
+    if (!isContextHealthyStatus(addRes.status()) && !productPathError) {
       throw new Error(
         contextDownFailureMessage({
           status: addRes.status(),

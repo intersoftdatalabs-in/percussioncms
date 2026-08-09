@@ -276,4 +276,31 @@ public class PSComponentSummaryTest {
 
     assertNotNull(timezone);
   }
+
+  /**
+   * Hibernate 6 injects {@code PersistentSet} into association fields. The {@code parentFolders}
+   * field must be typed as {@link java.util.Set} (interface), not {@link java.util.HashSet}, or
+   * Assets path listing / addNewFolder fails with PropertyAccessException (#2488).
+   */
+  @Test
+  public void testParentFoldersFieldAcceptsNonHashSetCollection() throws Exception {
+    var field = PSComponentSummary.class.getDeclaredField("parentFolders");
+    assertEquals(
+        java.util.Set.class,
+        field.getType(),
+        "parentFolders must be Set (not HashSet) so Hibernate can inject PersistentSet");
+
+    field.setAccessible(true);
+    // Fresh summary via valid folder ctor path used elsewhere in this class
+    var summary =
+        new PSComponentSummary(
+            300, 1, 1, 1, PSComponentSummary.TYPE_FOLDER, "folder_parent_folders", 301, 3);
+
+    // Simulate Hibernate field injection with a Set that is not HashSet (e.g. PersistentSet)
+    java.util.Set<?> injected = new java.util.LinkedHashSet<>();
+    field.set(summary, injected);
+
+    assertSame(injected, field.get(summary));
+    assertNotNull(summary.getParentFolderRelationships());
+  }
 }

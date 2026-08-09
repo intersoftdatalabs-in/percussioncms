@@ -1481,6 +1481,12 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
    * Owning relationship information, used for folder restrictions in JCR searches. Lazy loaded to
    * avoid issues with performance and transient to avoid issues with lazy loading and any
    * serialization.
+   *
+   * <p>Field type <strong>must</strong> be the {@link Set} interface (not {@link HashSet}):
+   * Hibernate 6 injects {@code org.hibernate.collection.spi.PersistentSet} into association fields.
+   * A concrete {@code HashSet} field type fails with {@code PropertyAccessException: Could not set
+   * value of type [PersistentSet] ... parentFolders (setter)} and breaks Assets path listing /
+   * addNewFolder (folder-recycle smoke #2488 residual of #2423 / #2464).
    */
   @SuppressWarnings("unused")
   @OneToMany(targetEntity = PSRelationshipData.class, fetch = FetchType.LAZY)
@@ -1488,8 +1494,7 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   @Filter(
       name = "relationshipConfigFilter",
       condition = "CONFIG_ID = " + PSRelationshipConfig.ID_FOLDER_CONTENT)
-  // HashSet (not Set) so the field type is Serializable under -Xlint:serial
-  private HashSet<PSRelationshipData> parentFolders = new HashSet<>();
+  private Set<PSRelationshipData> parentFolders = new HashSet<>();
 
   /**
    * Specifies the permissions set on the item encapsulated by this object for the user accessing
