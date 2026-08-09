@@ -47,6 +47,8 @@ class CatalogRestJaxrsRegistrationTest {
     "restSharedFieldsResource",
     "restSystemDefResource",
     "restExtensionsResource",
+    // #2429 P-Trans create-variant / item-locale façade
+    "restContentTranslationsResource",
   };
 
   @Test
