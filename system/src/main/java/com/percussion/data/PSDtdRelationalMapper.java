@@ -65,10 +65,10 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
    */
   public PSDtdRelationalMapper(PSDtdTree dtd, PrintStream traceOut) {
     m_dtdTree = dtd;
-    m_tables = new HashMap();
-    m_tablesInOrder = new ArrayList();
+    m_tables = new HashMap<>();
+    m_tablesInOrder = new ArrayList<>();
     m_currentColumnPrefix = "";
-    m_parentNames = new HashMap();
+    m_parentNames = new HashMap<>();
 
     if (traceOut != null) enableTrace(traceOut);
 
@@ -101,8 +101,8 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
    * @param out
    */
   public void printTableDefs(PrintStream out) {
-    for (Iterator i = m_tablesInOrder.iterator(); i.hasNext(); ) {
-      TableDef table = (TableDef) i.next();
+    for (Iterator<TableDef> i = m_tablesInOrder.iterator(); i.hasNext(); ) {
+      TableDef table = i.next();
       out.println("******************** " + table.getName() + " ********************");
 
       for (int j = 1; j <= table.getNumColumns(); j++) {
@@ -136,7 +136,7 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
    * @return TableDef
    */
   public TableDef getTable(int ordinal) {
-    return (TableDef) m_tablesInOrder.get(ordinal - 1);
+    return m_tablesInOrder.get(ordinal - 1);
   }
 
   /**
@@ -147,7 +147,7 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
    * @return TableDef
    */
   public TableDef getTable(String tableName) {
-    return (TableDef) m_tables.get(tableName);
+    return m_tables.get(tableName);
   }
 
   public int getTableOrdinal(String tableName) {
@@ -354,7 +354,7 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
       // if the given foreign key is not null, then set our key to it
       if (foreignKey != null) setForeignKey(foreignKey);
 
-      m_pKeys = new ArrayList();
+      m_pKeys = new ArrayList<>();
       m_ordinal = 0;
     }
 
@@ -384,7 +384,7 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
     }
 
     public ColumnDef getPkeyReference(int i) {
-      return (ColumnDef) m_pKeys.get(i);
+      return m_pKeys.get(i);
     }
 
     public void setTable(TableDef table) {
@@ -415,7 +415,7 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
     private String m_colName;
     private ColumnDef m_fgnKey; // could be null
     private TableDef m_table;
-    private List m_pKeys;
+    private List<ColumnDef> m_pKeys;
     private int m_ordinal;
   } // end inner class ColumnDef
 
@@ -423,8 +423,8 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
   public class TableDef {
     public TableDef(String tableName) {
       m_tableName = tableName;
-      m_columns = new ArrayList();
-      m_columnMap = new HashMap();
+      m_columns = new ArrayList<>();
+      m_columnMap = new HashMap<>();
       m_uniqueColOrdinal = 0;
 
       try {
@@ -467,7 +467,7 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
 
       // bump the other columns up by one
       for (int i = m_uniqueColOrdinal; i < m_columns.size(); i++) {
-        ColumnDef bumpCol = (ColumnDef) m_columns.get(i);
+        ColumnDef bumpCol = m_columns.get(i);
         bumpCol.setOrdinal(bumpCol.getOrdinal() + 1);
       }
 
@@ -486,11 +486,11 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
     }
 
     public ColumnDef getColumn(int ordinal /* 1-based */) {
-      return (ColumnDef) m_columns.get(ordinal - 1);
+      return m_columns.get(ordinal - 1);
     }
 
     public ColumnDef getColumn(String colName) {
-      return (ColumnDef) m_columnMap.get(colName);
+      return m_columnMap.get(colName);
     }
 
     public int getNumColumns() {
@@ -517,14 +517,19 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
      * @param rs The result set to initialize.
      */
     public void initResultSet(PSResultSet rs) throws SQLException {
-      List[] rsCols = new List[m_columns.size()];
+      @SuppressWarnings("unchecked")
+      List<Object>[] rsCols = (List<Object>[]) new List<?>[m_columns.size()];
+      HashMap<String, Integer> nameToIndex = new HashMap<>();
       for (int i = 0; i < rsCols.length; i++) {
-        rsCols[i] = new ArrayList();
+        rsCols[i] = new ArrayList<>();
+        ColumnDef col = m_columns.get(i);
+        // SQL column numbers are 1-based (see PSResultSet.setResultData)
+        nameToIndex.put(col.getName(), Integer.valueOf(i + 1));
       }
 
       // --+trace("Setting result set with " + rsCols.length + " columns");
 
-      rs.setResultData(rsCols, (HashMap) (m_columnMap.clone()));
+      rs.setResultData(rsCols, nameToIndex);
       PSResultSetMetaData meta = new PSResultSetMetaData();
       initResultSetMetaData(meta);
       rs.setMetaData(meta);
@@ -567,9 +572,9 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
     }
 
     private String m_tableName;
-    private List m_columns;
+    private List<ColumnDef> m_columns;
     private int m_uniqueColOrdinal;
-    private HashMap m_columnMap;
+    private HashMap<String, ColumnDef> m_columnMap;
     private PSBackEndTable m_backEndTable;
   } // end inner class TableDef
 
@@ -598,10 +603,10 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
   }
 
   private PSDtdTree m_dtdTree;
-  private Map m_tables;
-  private List m_tablesInOrder;
+  private Map<String, TableDef> m_tables;
+  private List<TableDef> m_tablesInOrder;
   private boolean m_trace;
   private PrintStream m_traceOut;
   private String m_currentColumnPrefix;
-  private Map m_parentNames;
+  private Map<String, String> m_parentNames;
 }

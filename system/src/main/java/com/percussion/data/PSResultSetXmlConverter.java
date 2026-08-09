@@ -114,7 +114,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
     }
 
     /* now copy over the column/xml field mapping info */
-    m_DataMappings = new HashMap();
+    m_DataMappings = new HashMap<>();
 
     PSPipe pipe = def.getPipe();
     PSDataMapper maps = pipe.getDataMapper();
@@ -179,7 +179,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
       // Hash map for field/generators
       // We assume that validation happened in PSDataSet so
       // all link generator types will correspond to one xml field
-      HashMap linkGenerators = new HashMap();
+      HashMap<String, PSRequestLinkGenerator> linkGenerators = new HashMap<>();
 
       for (int i = 0; i < pages.size(); i++) {
         // now build the style sheet object
@@ -212,7 +212,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
                 linkGenerators.put(link.getXmlField(), genLink);
 
                 String xmlField = genLink.getXmlFieldName();
-                PSXmlNode node = (PSXmlNode) m_DataMappings.get(xmlField);
+                PSXmlNode node = m_DataMappings.get(xmlField);
                 if (node != null) {
                   // this is an error!!!
                   throw new IllegalArgumentException("XML var link and mapping " + xmlField);
@@ -240,7 +240,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
     initCollapseKeys();
 
     // and our final step, prepare the extensions
-    m_resultDocExtensions = new Vector(3);
+    m_resultDocExtensions = new Vector<>(3);
     /* not now uses a vector for extensions */
     PSDataHandler.loadExtensions(
         m_appHandler,
@@ -437,7 +437,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
     PSDebugLogHandler dh = (PSDebugLogHandler) data.getLogHandler();
     int traceResourceHandlerFlag = PSTraceMessageFactory.RESOURCE_HANDLER_FLAG;
     int traceResultSetFlag = PSTraceMessageFactory.RESULT_SET;
-    ArrayList traceRows = new ArrayList();
+    ArrayList<Object> traceRows = new ArrayList<>();
 
     /* use the mapper(s) to convert from the result set data to the
      * XML tree. Be sure to order items correctly, grouping related
@@ -709,7 +709,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
         int size = m_resultDocExtensions.size();
         if (size > 0) {
           for (int i = 0; i < size; i++) {
-            PSExtensionRunner proc = (PSExtensionRunner) m_resultDocExtensions.elementAt(i);
+            PSExtensionRunner proc = m_resultDocExtensions.elementAt(i);
             doc = proc.processResultDoc(data, doc);
 
             // we treat this as a special condition meaning file not found
@@ -856,7 +856,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
       IPSDataExtractor dataExtract,
       PSCollection conditionals,
       Format textFormatter) {
-    ArrayList names = new ArrayList();
+    ArrayList<String> names = new ArrayList<>();
     int pos;
     int lastPos = 0;
     for (; (pos = xmlField.indexOf('/', lastPos)) != -1; ) {
@@ -879,16 +879,16 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
     for (pos = 0; pos < nodeCount; pos++) {
       if (pos == 0) {
         parentField = null;
-        xmlField = (String) names.get(pos);
+        xmlField = names.get(pos);
       } else {
         parentField = xmlField;
-        xmlField += "/" + (String) names.get(pos);
+        xmlField += "/" + names.get(pos);
       }
 
       // is this a data node?
       boolean isDataNode = (pos == (nodeCount - 1));
 
-      xmlNode = (PSXmlNode) m_DataMappings.get(xmlField);
+      xmlNode = m_DataMappings.get(xmlField);
       if (xmlNode != null) {
         boolean checkChildren = false;
         if (xmlNode.isForData()) { // treating prior data node as parent
@@ -905,10 +905,10 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
 
         if (checkChildren) {
           // search all children to verify they're all attributes
-          ArrayList kids = xmlNode.getChildren();
+          ArrayList<PSXmlNode> kids = xmlNode.getChildren();
           int kidCount = kids.size();
           for (int i = 0; i < kidCount; i++) {
-            PSXmlNode xNode = (PSXmlNode) kids.get(i);
+            PSXmlNode xNode = kids.get(i);
             if (xNode.isForData() && !xNode.isAttribute()) {
               throw new IllegalArgumentException("XML parent mapping not supported " + xmlField);
             }
@@ -920,7 +920,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
           if (conditionals != null && conditionals.size() > 0) {
             xmlNode.addConditionalNode(
                 new PSXmlNode(
-                    (String) names.get(pos),
+                    names.get(pos),
                     xmlNode.m_nodeId,
                     xmlNode.getParent(),
                     dataExtract,
@@ -938,7 +938,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
       // create the new node
       xmlNode =
           new PSXmlNode(
-              (String) names.get(pos),
+              names.get(pos),
               m_nodeCount++,
               parentNode,
               (isDataNode ? dataExtract : null),
@@ -952,7 +952,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
         if (m_xmlRoot != null) {
           // two roots are not allowed!!!
           throw new IllegalArgumentException(
-              "XML two root elements " + m_xmlRoot.getName() + " " + (String) names.get(0));
+              "XML two root elements " + m_xmlRoot.getName() + " " + names.get(0));
         }
         m_xmlRoot = xmlNode;
       }
@@ -986,7 +986,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
     if ((m_clearOnRowset != null) || ((m_collapseKeys != null) && (m_collapseKeys.length != 0))) {
       if (m_clearOnRowset != null) {
         for (int i = 0; i < m_clearOnRowset.size(); i++) {
-          PSXmlNode node = (PSXmlNode) m_clearOnRowset.get(i);
+          PSXmlNode node = m_clearOnRowset.get(i);
           node.clearChildElementData(dataStruct);
         }
       }
@@ -1012,10 +1012,10 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
       throws com.percussion.data.PSDataExtractionException {
     if ((node == null) || (dataStruct == null)) return;
 
-    ArrayList kids = node.getChildren();
+    ArrayList<PSXmlNode> kids = node.getChildren();
     int size = kids.size();
     for (int i = 0; i < size; i++) {
-      PSXmlNode xNode = (PSXmlNode) kids.get(i);
+      PSXmlNode xNode = kids.get(i);
       if (xNode.isCollapseKey() && xNode.isSet(dataStruct)) { // this means the key did not change
         // we don't need to waste time trying to set it
         continue;
@@ -1042,17 +1042,17 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
      * branches at the same level. If we're only effecting one of them,
      * we don't want to clear the other.
      */
-    ArrayList collapseKeys = new ArrayList();
+    ArrayList<PSXmlCollapseNode> collapseKeys = new ArrayList<>();
     addCollapseKeys(m_xmlRoot, collapseKeys);
     if (collapseKeys.size() > 0) {
       m_collapseKeys = new PSXmlCollapseNode[collapseKeys.size()];
       for (int i = 0; i < collapseKeys.size(); i++) {
-        m_collapseKeys[i] = (PSXmlCollapseNode) collapseKeys.get(i);
+        m_collapseKeys[i] = collapseKeys.get(i);
       }
     }
   }
 
-  private void addCollapseKeys(PSXmlNode node, ArrayList collapseKeys) {
+  private void addCollapseKeys(PSXmlNode node, ArrayList<PSXmlCollapseNode> collapseKeys) {
     // check the DTD def to see what we're collapsing on.
     if (node != null) {
       if (node.isForData()) {
@@ -1061,13 +1061,13 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
           evaluateNodeForCollapse(node, collapseKeys);
         }
       }
-      ArrayList kids = node.getChildren();
+      ArrayList<PSXmlNode> kids = node.getChildren();
       int size = kids.size();
-      for (int i = 0; i < size; i++) addCollapseKeys((PSXmlNode) kids.get(i), collapseKeys);
+      for (int i = 0; i < size; i++) addCollapseKeys(kids.get(i), collapseKeys);
     }
   }
 
-  void evaluateNodeForCollapse(PSXmlNode node, ArrayList collapseKeys) {
+  void evaluateNodeForCollapse(PSXmlNode node, ArrayList<PSXmlCollapseNode> collapseKeys) {
     if (node != null) {
       boolean isCollapseKey = false;
       PSXmlCollapseNode collapseNode = null;
@@ -1238,10 +1238,10 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
         curNode = m_xmlRoot; // mark it as found
       } else {
         int nodeNo = ((Integer) ((Object[]) data)[1]).intValue();
-        ArrayList kids = parentNode.getChildren();
+        ArrayList<PSXmlNode> kids = parentNode.getChildren();
         int size = kids.size();
         for (int i = nodeNo; i < size; i++) {
-          PSXmlNode xNode = (PSXmlNode) kids.get(i);
+          PSXmlNode xNode = kids.get(i);
           if (xNode.getName().equals(name)) {
             if (i != nodeNo) nodeSwap(kids, i /* fromIndex */, nodeNo /* toIndex */);
             ((Object[]) data)[1] = Integer.valueOf(nodeNo + 1);
@@ -1257,7 +1257,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
       if (curNode == null) return null;
 
       int onChild = 0;
-      ArrayList kids = curNode.getChildren();
+      ArrayList<PSXmlNode> kids = curNode.getChildren();
       int size = kids.size();
 
       // process the attributes
@@ -1266,7 +1266,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
         PSDtdAttribute attr = el.getAttribute(i);
         String attrName = attr.getName();
         for (int j = onChild; j < size; j++) {
-          PSXmlNode xNode = (PSXmlNode) kids.get(j);
+          PSXmlNode xNode = kids.get(j);
           if (xNode.getName().equals(attrName)) {
             if (j != onChild) nodeSwap(kids, j /* fromIndex */, onChild /* toIndex */);
             onChild++;
@@ -1292,9 +1292,9 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
       return null;
     }
 
-    private void nodeSwap(ArrayList list, int fromIndex, int toIndex) {
-      PSXmlNode fromNode = (PSXmlNode) list.get(fromIndex);
-      PSXmlNode toNode = (PSXmlNode) list.get(toIndex);
+    private void nodeSwap(ArrayList<PSXmlNode> list, int fromIndex, int toIndex) {
+      PSXmlNode fromNode = list.get(fromIndex);
+      PSXmlNode toNode = list.get(toIndex);
 
       list.set(fromIndex, toNode);
       list.set(toIndex, fromNode);
@@ -1351,7 +1351,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
 
       m_nodeId = nodeId;
       m_parent = parent;
-      m_children = new ArrayList();
+      m_children = new ArrayList<>();
       m_dataSource = dataSource;
       m_textFormatter = textFormatter;
 
@@ -1431,7 +1431,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
       if (addAsChild && m_parent != null) m_parent.m_children.add(this);
     }
 
-    ArrayList getChildren() {
+    ArrayList<PSXmlNode> getChildren() {
       return m_children;
     }
 
@@ -1452,7 +1452,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
       else {
         /* If anything under me repeats, then allow the collapse */
         for (int i = 0; i < m_children.size(); i++) {
-          PSXmlNode curChild = (PSXmlNode) m_children.get(i);
+          PSXmlNode curChild = m_children.get(i);
           if ((curChild.m_maxOccurrences != PSDtdNode.OCCURS_ONCE)
               && (curChild.m_maxOccurrences != PSDtdNode.OCCURS_OPTIONAL)) {
             return true;
@@ -1493,7 +1493,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
             clear us, so all requesting children are to be denied */
             m_flags &= m_flags & ~FLAG_COLLAPSEABLE_NODE;
 
-            if (m_clearOnRowset == null) m_clearOnRowset = new ArrayList();
+            if (m_clearOnRowset == null) m_clearOnRowset = new ArrayList<>();
 
             m_clearOnRowset.add(this);
           } else m_flags |= FLAG_COLLAPSEABLE_NODE;
@@ -1519,9 +1519,9 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
         throws PSDataExtractionException {
       boolean processed = setConditionalValue(data, doc, dataStructs);
       if (!processed) {
-        Iterator conditionalNodes = getConditionalNodes();
+        Iterator<PSXmlNode> conditionalNodes = getConditionalNodes();
         while (!processed && conditionalNodes.hasNext()) {
-          PSXmlNode conditionalNode = (PSXmlNode) conditionalNodes.next();
+          PSXmlNode conditionalNode = conditionalNodes.next();
 
           processed = conditionalNode.setConditionalValue(data, doc, dataStructs);
         }
@@ -1684,7 +1684,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
           || (this.m_maxOccurrences == PSDtdNode.OCCURS_OPTIONAL)) {
         int size = m_children.size();
         for (int i = 0; i < size; i++) {
-          ((PSXmlNode) m_children.get(i)).clearElementDataTopDown(dataStructs);
+          m_children.get(i).clearElementDataTopDown(dataStructs);
         }
       } else {
         this.clearChildElementData(dataStructs);
@@ -1701,7 +1701,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
       // go through this node and all its children to clear them out
       int size = m_children.size();
       for (int i = 0; i < size; i++) {
-        ((PSXmlNode) m_children.get(i)).clearChildElementData(dataStructs);
+        m_children.get(i).clearChildElementData(dataStructs);
       }
     }
 
@@ -1801,7 +1801,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
       if (node.m_conditionChecker == null)
         throw new IllegalArgumentException("conditional node must contain conditions");
 
-      if (m_conditionalNodes == null) m_conditionalNodes = new ArrayList();
+      if (m_conditionalNodes == null) m_conditionalNodes = new ArrayList<>();
 
       m_conditionalNodes.add(node);
     }
@@ -1812,7 +1812,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
      * @return an <code>Iterator</code> over <code>PSXmlNode</code> objects representing all
      *     conditional nodes, never <code>null</code>, may be empty.
      */
-    public Iterator getConditionalNodes() {
+    public Iterator<PSXmlNode> getConditionalNodes() {
       if (m_conditionalNodes == null) return PSIteratorUtils.emptyIterator();
 
       return m_conditionalNodes.iterator();
@@ -1821,7 +1821,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
     java.lang.String m_nodeName;
     int m_nodeId;
     PSXmlNode m_parent;
-    ArrayList m_children;
+    ArrayList<PSXmlNode> m_children;
     java.lang.String m_curValue;
     IPSDataExtractor m_dataSource;
     PSConditionalEvaluator m_conditionChecker;
@@ -1834,7 +1834,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
      * addConditionalNode(PSXmlNode)</code>. May be <code>null</code> if there are no conditional
      * nodes. The order of this list is the order in which the nodes will be processed.
      */
-    private List m_conditionalNodes = null;
+    private List<PSXmlNode> m_conditionalNodes = null;
   }
 
   private static final int FLAG_IS_COLLAPSE_KEY = 0x0001;
@@ -1901,16 +1901,16 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
    * A map with all data mappings, the key is the fully qualified XML name while the value is a
    * <code>PSXmlNode</code>.
    */
-  private HashMap m_DataMappings;
+  private HashMap<String, PSXmlNode> m_DataMappings;
 
-  private Vector m_resultDocExtensions = null;
+  private Vector<PSExtensionRunner> m_resultDocExtensions = null;
 
   private PSRequestLinkGenerator[] m_pagerLinkGenerators;
 
   private PSDtdTree m_DTDTree;
   private PSXmlNode m_xmlRoot;
   private int m_nodeCount = 0;
-  private ArrayList m_clearOnRowset;
+  private ArrayList<PSXmlNode> m_clearOnRowset;
   private PSXmlCollapseNode[] m_collapseKeys;
 
   /** Does this converter consider a result set to indicate no Xml data? */

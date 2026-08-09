@@ -129,8 +129,8 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
     m_useSSL = (encr != null) && encr.isSSLRequired();
 
     // for link type query/delete we can properly build the URL
-    ArrayList params = new ArrayList();
-    ArrayList lookupVals = new ArrayList();
+    ArrayList<String> params = new ArrayList<>();
+    ArrayList<IPSDataExtractor> lookupVals = new ArrayList<>();
 
     switch (type) {
       case PSRequestLink.RL_TYPE_QUERY:
@@ -351,8 +351,8 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
       PSDataSet sourceDS,
       PSDataSet targetDS,
       int type,
-      java.util.List params,
-      java.util.List extractors) {
+      java.util.List<String> params,
+      java.util.List<IPSDataExtractor> extractors) {
     PSRequestor req = targetDS.getRequestor();
 
     PSCollection conds = req.getSelectionCriteria();
@@ -385,8 +385,8 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
       PSDataSet sourceDS,
       PSDataSet targetDS,
       int type,
-      java.util.List params,
-      java.util.List extractors) {
+      java.util.List<String> params,
+      java.util.List<IPSDataExtractor> extractors) {
     PSPipe pipe = targetDS.getPipe();
     if (pipe instanceof PSQueryPipe) {
       // this is a query pipe, get the parameters/cols from it
@@ -445,8 +445,8 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
       PSDataSet sourceDS,
       PSDataSet targetDS,
       int type,
-      java.util.List params,
-      java.util.List extractors) {
+      java.util.List<String> params,
+      java.util.List<IPSDataExtractor> extractors) {
     PSPipe pipe = targetDS.getPipe();
     if (pipe instanceof PSUpdatePipe) {
       // this is an update pipe, get the parameters/keys from it
@@ -520,8 +520,8 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
       PSHtmlParameter param,
       IPSReplacementValue expectedSource,
       PSDataSet sourceDS,
-      java.util.List params,
-      java.util.List extractors) {
+      java.util.List<String> params,
+      java.util.List<IPSDataExtractor> extractors) {
     IPSDataExtractor extractor = null;
 
     // only add HTML params to the list
@@ -752,7 +752,7 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
   }
 
   protected boolean addColumnSource(
-      PSBackEndColumn col, PSDataSet sourceDS, java.util.List extractors) {
+      PSBackEndColumn col, PSDataSet sourceDS, java.util.List<IPSDataExtractor> extractors) {
     IPSReplacementValue source = getMatch(col, sourceDS);
 
     if (source != null) {
