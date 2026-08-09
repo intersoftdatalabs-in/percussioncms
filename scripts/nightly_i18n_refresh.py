@@ -61,7 +61,12 @@ I18N_MODULE = REPO_ROOT / "modules" / "perc-i18n"
 I18N_SCRIPTS_DIR = I18N_MODULE / "scripts"
 TRANSLATE_SCRIPT = I18N_SCRIPTS_DIR / "i18n_translate_direct.py"
 
-TMX_FILES = ("CmsUi.tmx", "SystemResources.tmx", "DeveloperUi.tmx")
+TMX_DIR = Path("modules/perc-i18n/src/main/resources/i18n")
+TMX_FILES = (
+    "modules/perc-i18n/src/main/resources/i18n/CmsUi.tmx",
+    "modules/perc-i18n/src/main/resources/i18n/SystemResources.tmx",
+    "modules/perc-i18n/src/main/resources/i18n/DeveloperUi.tmx",
+)
 CACHE_FILE = I18N_SCRIPTS_DIR / "cache" / "i18n_translate.json"
 
 
@@ -205,7 +210,7 @@ def branch_age_days(branch: str, cwd: Optional[Path] = None) -> Optional[int]:
     try:
         commit_date = datetime.datetime.strptime(cp.stdout.strip(), "%Y-%m-%d %H:%M:%S %z")
         now = datetime.datetime.now(datetime.timezone.utc)
-        return (now - commit_date.replace(tzinfo=datetime.timezone.utc)).days
+        return (now - commit_date.astimezone(datetime.timezone.utc)).days
     except (ValueError, TypeError):
         return None
 
@@ -381,7 +386,7 @@ def run_translate(locale: str, dry_run: bool, worktree: Path, fix_matching: bool
     logger = logging.getLogger("nightly_i18n_refresh")
     logger.debug(f"Running: {' '.join(args)}")
 
-    captured = {"stdout": "", "stderr": ""}
+    captured = {"stdout": ""}
     log_handle = open(LOG_FILE, "a", encoding="utf-8")
     proc = None
     try:
@@ -398,7 +403,6 @@ def run_translate(locale: str, dry_run: bool, worktree: Path, fix_matching: bool
             log_handle.flush()
             captured["stdout"] += line
         proc.wait()
-        captured["stderr"] = captured["stdout"]
     except BaseException:
         if proc is not None:
             try:
@@ -410,7 +414,7 @@ def run_translate(locale: str, dry_run: bool, worktree: Path, fix_matching: bool
     finally:
         log_handle.close()
 
-    output = captured["stdout"] + "\n" + captured["stderr"]
+    output = captured["stdout"]
     result = parse_translate_output(output)
 
     if proc.returncode != 0 and not result.had_error:
@@ -434,10 +438,24 @@ def get_cache_diff(worktree: Path) -> bool:
 
 
 def stage_and_commit(locale: str, result: TranslationResult, dry_run: bool, worktree: Path) -> bool:
-    """Stage TMX + cache changes and commit."""
+    """Stage changed TMX + cache files and commit.
+
+    Stages only TMX files that have a diff under
+    ``modules/perc-i18n/src/main/resources/i18n/`` plus the cache file if
+    it changed. Using diff-driven paths (not the full ``TMX_FILES``
+    tuple) ensures we never ``git add`` a path that does not exist on
+    the current branch.
+    """
     logger = logging.getLogger("nightly_i18n_refresh")
 
-    files_to_stage = list(TMX_FILES)
+    cp = run(
+        ["git", "diff", "--name-only", "--", *[str(p) for p in TMX_DIR.glob("*.tmx")]],
+        cwd=worktree,
+    )
+    if cp.returncode != 0:
+        logger.error(f"Failed to enumerate changed TMX files: {cp.stderr}")
+        return False
+    files_to_stage = [f for f in cp.stdout.splitlines() if f]
     if get_cache_diff(worktree):
         files_to_stage.append(str(CACHE_FILE.relative_to(REPO_ROOT)))
 
@@ -708,9 +726,15 @@ def main(argv: Optional[list[str]] = None) -> int:
             age = branch_age_days(branch_name, worktree)
             logger.debug(f"Branch {branch_name} exists, age: {age} days")
             if is_branch_stale(age, threshold_days=7):
-                logger.info(f"Branch {branch_name} is stale (>7 days), deleting")
-                delete_branch(branch_name, worktree)
-                local_branch_exists = False
+                if has_unpushed_commits(branch_name, worktree):
+                    logger.warning(
+                        f"Branch {branch_name} is stale (>7 days) but has unpushed "
+                        f"commits; keeping for manual recovery"
+                    )
+                else:
+                    logger.info(f"Branch {branch_name} is stale (>7 days), deleting")
+                    delete_branch(branch_name, worktree)
+                    local_branch_exists = False
 
         if local_branch_exists:
             logger.info(f"Reusing existing branch: {branch_name}")
@@ -750,9 +774,9 @@ def main(argv: Optional[list[str]] = None) -> int:
             return 0
 
         if not stage_and_commit(locale, combined_result, args.dry_run, worktree):
-            logger.error("Failed to commit changes")
-            if not args.dry_run:
-                delete_branch(branch_name, worktree)
+            logger.error(
+                "Failed to commit changes; leaving worktree intact for manual recovery"
+            )
             return 1
 
         if not push_and_create_pr(locale, branch_name, combined_result, args.dry_run, worktree):
