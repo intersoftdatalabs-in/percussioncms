@@ -256,8 +256,8 @@ Jetty can report the HTTP connector **Started** while the ROOT/Rhythmyx Spring `
 
 | Signal | Where | Operator meaning |
 |--------|--------|------------------|
-| `RESULT:OK STEP:qa-health HTTP:… HEALTH:healthy …` | `perc-devctl.py qa-health` | Probe URL ready, docker `Health.Status=healthy` for the QA cell, **and** recent `docker logs` have **no** Rhythmyx context-failure markers (#2537 / #2481) |
-| `RESULT:OK STEP:verify CMS_HTTP:… DTS_HTTP:… HEALTH:healthy` | `perc-devctl.py verify` (and `verify-fix` / `deploy-jar --verify`) | CMS+DTS HTTP ready, docker health healthy, **and** cms-dts logs have **no** Rhythmyx context-failure markers |
+| `RESULT:OK STEP:qa-health HTTP:… HEALTH:healthy …` | `perc-devctl.py qa-health` | Probe URL ready, docker `Health.Status=healthy` for the QA cell, **and** recent `docker logs` have **no** Rhythmyx context-failure markers (#2537 / #2481). Default probe URL is the matrix-recommended primary `/Rhythmyx/rest/mimetypes` (Spring-managed `MimeTypeResource.ping()` — returns 404 when the Rhythmyx Spring context is dead; #2482). Override with env `RHYTHMYX_HEALTH_PATH=…` |
+| `RESULT:OK STEP:verify CMS_HTTP:… DTS_HTTP:… HEALTH:healthy` | `perc-devctl.py verify` (and `verify-fix` / `deploy-jar --verify`) | CMS+DTS HTTP ready, docker health healthy, **and** cms-dts logs have **no** Rhythmyx context-failure markers; `VERIFY_CMS_PATH` is the matrix-recommended secondary (`/Rhythmyx/rest/folders/by-path/Assets`) (#2482) |
 | `RESULT:… HEALTH:healthy\|unhealthy\|starting\|none` | `qa-health` (matrix cell) and `verify` / `_verify_inline` (cms-dts) | Inspect status from `_docker_health` on every RESULT (OK and FAIL); `none` = container has no Health block; `unknown` = docker/container missing |
 | `RESULT:FAIL … DETAIL:rhythmyx_context_failed MATCH:…` | `qa-health`, compose `verify` / `_verify_inline`, or matrix cell `detail` | **Fail-fast**: Spring/Jetty context death detected in logs; treat stack as unusable even if HTTP / docker health answered green |
 | `RESULT:FAIL … DETAIL:timeout after Ns (last_http=… health=…)` | `qa-health` | Probe never became ready (HTTP and/or Health not green); if logs later show context fail, re-run `qa-health` or `docker logs perc-matrix-cms-h2` |
@@ -265,10 +265,11 @@ Jetty can report the HTTP connector **Started** while the ROOT/Rhythmyx Spring `
 | Matrix `status=fail` + `detail` containing `rhythmyx_context_failed` | `matrix-install-smoke.py` CMS cells | Same fail-fast during cell HTTP wait (container log scan) |
 | Matrix `status=fail` + `detail` containing `docker_health_unhealthy` | `matrix-install-smoke.py` CMS cells / `qa-up` | **Fail-fast** when `docker inspect` already reports `Health.Status=unhealthy` — does **not** burn full `--probe-timeout` (#2535 / #2481) |
 | Matrix `status=fail` + `detail` containing `docker_health_timeout` | same | Probe timed out while health was still `starting` / not `healthy` |
-| Docker `Health.Status=healthy` | matrix cell / cms-dts image HEALTHCHECK (#2481) | In-container login probe ready **and** local Jetty logs have **no** context-failure markers |
-| Docker `Health.Status=unhealthy` | same | Context failed and/or login not ready — **do not** attach Playwright; inspect health log + `docker logs` |
+| Docker `Health.Status=healthy` | matrix cell / cms-dts image HEALTHCHECK (#2481) | In-container probe ready **and** local Jetty logs have **no** context-failure markers |
+| Docker `Health.Status=unhealthy` | same | Context failed and/or probe not ready — **do not** attach Playwright; inspect health log + `docker logs` |
 | Docker `Health.Status=starting` | same | Still inside HEALTHCHECK `start_period` (matrix cells: long install window) |
 | Docker `Health.Status=none` | container without HEALTHCHECK | Inspect has no `.State.Health` block (`_docker_health` → `none`) |
+| **Probe URL matrix (#2482)** | `docs/ai-generated/tasks/2482-readiness-signal/rhythmyx-readiness-probe-matrix.md` + `PROBE_URL_MATRIX` constant in `docker/scripts/rhythmyx_ready.py` | Capability matrix of existing product endpoints (login, REST `ping()`, REST `Folders`, openapi) + which ones **actually** imply the Rhythmyx Spring `ApplicationContext` is up. Default in `qa-health` already flips to the matrix-recommended primary |
 
 ##### Matrix / qa-up wait policy (CMS cells, #2535)
 

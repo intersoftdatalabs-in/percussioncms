@@ -112,5 +112,82 @@ class AssessReadyTests(unittest.TestCase):
             self.assertFalse(rr.is_http_ready_code(code), code)
 
 
+class ProbeUrlMatrixTests(unittest.TestCase):
+    """#2482 — documented probe URL matrix + assess_probe_url."""
+
+    def test_matrix_invariants(self):
+        """Every matrix entry has a valid path, role, and source note."""
+        self.assertGreater(len(rr.PROBE_URL_MATRIX), 0)
+        seen_roles = set()
+        for path, spec in rr.PROBE_URL_MATRIX.items():
+            self.assertTrue(path.startswith("/"), f"path {path!r} must start with /")
+            self.assertEqual(spec.path, path)
+            self.assertIn(
+                spec.recommended_role,
+                {"primary", "secondary", "fallback", "avoid"},
+                f"unknown role {spec.recommended_role!r} for {path}",
+            )
+            self.assertTrue(
+                spec.source,
+                f"empty source note for {path}",
+            )
+            seen_roles.add(spec.recommended_role)
+        # Matrix must include at least one primary and at least one avoid
+        # entry — otherwise it is not a real matrix.
+        self.assertIn("primary", seen_roles)
+        self.assertIn("avoid", seen_roles)
+
+    def test_default_primary_is_known_primary(self):
+        """DEFAULT_PROBE_URL_PRIMARY is in the matrix and tagged ``primary``."""
+        self.assertIsNotNone(rr.DEFAULT_PROBE_URL_PRIMARY)
+        spec, verdict = rr.assess_probe_url(rr.DEFAULT_PROBE_URL_PRIMARY)  # type: ignore[arg-type]
+        self.assertIsNotNone(spec)
+        self.assertEqual(verdict, "known_primary")
+        self.assertTrue(spec.implies_spring_context)  # type: ignore[union-attr]
+
+    def test_default_secondary_is_known_secondary(self):
+        """DEFAULT_PROBE_URL_SECONDARY is in the matrix and tagged ``secondary``."""
+        self.assertIsNotNone(rr.DEFAULT_PROBE_URL_SECONDARY)
+        spec, verdict = rr.assess_probe_url(rr.DEFAULT_PROBE_URL_SECONDARY)  # type: ignore[arg-type]
+        self.assertIsNotNone(spec)
+        self.assertEqual(verdict, "known_secondary")
+
+    def test_login_path_is_fallback_not_spring_implied(self):
+        """Legacy ``/Rhythmyx/login`` is matrix-tagged fallback — proves the
+        weak-signal warning is encoded in the matrix (not just in docs)."""
+        spec, verdict = rr.assess_probe_url("/Rhythmyx/login")
+        self.assertIsNotNone(spec)
+        self.assertEqual(verdict, "known_fallback")
+        self.assertFalse(spec.implies_spring_context)  # type: ignore[union-attr]
+
+    def test_openapi_paths_are_avoided(self):
+        """The /openapi webapp is independent of the Rhythmyx Spring context."""
+        for path in ("/Rhythmyx/openapi/openapi.json", "/Rhythmyx/openapi/index.html"):
+            spec, verdict = rr.assess_probe_url(path)
+            self.assertIsNotNone(spec, path)
+            self.assertEqual(verdict, "known_avoid", path)
+            self.assertFalse(spec.implies_spring_context)  # type: ignore[union-attr]
+
+    def test_unknown_path_is_not_a_matrix_member(self):
+        """Unrecognized paths get ``unknown`` verdict, never a fake ``known_*``."""
+        spec, verdict = rr.assess_probe_url("/Rhythmyx/rest/widgets/zzz")
+        self.assertIsNone(spec)
+        self.assertEqual(verdict, "unknown")
+
+    def test_empty_path_is_empty(self):
+        """Empty / None path yields ``empty`` verdict (never raises)."""
+        for raw in ("", None, "   "):
+            spec, verdict = rr.assess_probe_url(raw)  # type: ignore[arg-type]
+            self.assertIsNone(spec)
+            self.assertEqual(verdict, "empty")
+
+    def test_assess_rhythmyx_ready_unchanged_by_matrix(self):
+        """Adding the matrix must not regress the existing assessor contract."""
+        # Same ready / not-ready verdicts as the AssessReadyTests cases above.
+        self.assertTrue(rr.assess_rhythmyx_ready(200, "")[0])
+        self.assertFalse(rr.assess_rhythmyx_ready(200, "Failed startup of context")[0])
+        self.assertFalse(rr.assess_rhythmyx_ready(0, "")[0])
+
+
 if __name__ == "__main__":
     unittest.main()

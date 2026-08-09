@@ -130,7 +130,11 @@ QA_CMS_PRODUCT = "cms"
 QA_CMS_DB = "h2"
 QA_CMS_CELL_ID = f"{QA_CMS_PRODUCT}-{QA_CMS_DB}"
 QA_CMS_CONTAINER = f"perc-matrix-{QA_CMS_CELL_ID}"
-QA_CMS_PROBE_PATH = "/Rhythmyx/login"
+# Probe URL path for ``qa-health`` (#2482). The matrix-recommended primary
+# is ``/Rhythmyx/rest/mimetypes`` (Spring-managed ``MimeTypeResource.ping()``
+# — returns 404 when the Rhythmyx Spring ApplicationContext is dead, instead
+# of the legacy ``/Rhythmyx/login`` 200 from the JSP renderer).
+QA_CMS_PROBE_PATH = "/Rhythmyx/rest/mimetypes"
 QA_ADMIN_USERNAME = "Admin"
 QA_INSTALL_ROOT = "/opt/Percussion"
 QA_PASSWORDS_REL = "var/config/generated/passwords"
@@ -139,6 +143,10 @@ QA_PROBE_TIMEOUT_SECONDS_DEFAULT = 900
 QA_PROBE_INTERVAL_SECONDS_DEFAULT = 5
 # Tail size for docker logs when scanning for Rhythmyx context failure (#2462).
 QA_LOG_SCAN_TAIL_LINES = 800
+# Env var that overrides the QA probe path. Same name as the in-image
+# ``rhythmyx_healthcheck.py`` (``RHYTHMYX_HEALTH_PATH``) so host, Docker,
+# and matrix cells can be configured from one place. ``#2482`` matrix.
+QA_CMS_PROBE_PATH_ENV = "RHYTHMYX_HEALTH_PATH"
 
 
 # Freeport primitives live in perc_host_ports.py (shared with matrix) — #2001/#2005.
@@ -195,8 +203,17 @@ def qa_cms_base_url(port: int) -> str:
 
 
 def qa_cms_probe_url(port: int) -> str:
-    """Health probe URL for the QA CMS cell."""
-    return f"{qa_cms_base_url(port)}{QA_CMS_PROBE_PATH}"
+    """Health probe URL for the QA CMS cell.
+
+    Honors :data:`QA_CMS_PROBE_PATH_ENV` (``RHYTHMYX_HEALTH_PATH``) so the
+    QA cell, in-image ``rhythmyx_healthcheck.py`` (#2481), and any
+    external orchestrator can be configured from the same env var. The
+    default path is the matrix-recommended primary (#2482); see
+    :data:`PROBE_URL_MATRIX` in :mod:`rhythmyx_ready`.
+    """
+    env_override = os.environ.get(QA_CMS_PROBE_PATH_ENV, "").strip()
+    path = env_override or QA_CMS_PROBE_PATH
+    return f"{qa_cms_base_url(port)}{path}"
 
 
 def ensure_compose_db_host_ports() -> dict[str, int]:
