@@ -403,17 +403,22 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     pqu.add_argument("--dry-run", action="store_true")
 
-    # --- Rebuild-chain preflight — #2486 ---
+    # --- Rebuild-chain preflight — #2486 / #2532 ---
     pqp = sub.add_parser(
         "qa-preflight",
         help=(
             "Detect a stale WebUI WAR vs a freshly built sitemanage "
-            "SNAPSHOT before qa-up (#2486). Exits non-zero in --strict "
-            "mode when stale; otherwise prints the STALE: line and "
-            "returns OK."
+            "SNAPSHOT before qa-up (#2486 / #2532). Default content-hash "
+            "(SHA-256 m2 jar vs WAR zip entry); --no-content-hash for "
+            "mtime-only. Exits non-zero in --strict mode when stale."
         ),
     )
     pqp.add_argument("--strict", action="store_true")
+    pqp.add_argument(
+        "--no-content-hash",
+        action="store_true",
+        help="Mtime-only comparison (disable default SHA-256 content hash).",
+    )
     pqp.add_argument("--dry-run", action="store_true")
 
     pqh = sub.add_parser(
@@ -1470,12 +1475,14 @@ def cmd_qa_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int
 def cmd_qa_preflight(
     args: argparse.Namespace, paths: tuple[Path, Path, Path]
 ) -> int:
-    """Run the rebuild-chain preflight (#2486).
+    """Run the rebuild-chain preflight (#2486 / #2532).
 
     Detects a stale WebUI WAR vs a freshly built sitemanage SNAPSHOT
     so the operator / agent does not launch a container that
     silently ships an outdated ``sitemanage-*.jar`` inside the WAR.
-    Delegates to ``docker/scripts/qa_preflight.py``.
+    Default uses SHA-256 content hash (mtime-resistant); pass
+    ``--no-content-hash`` for legacy mtime-only. Delegates to
+    ``docker/scripts/qa_preflight.py``.
     """
     import qa_preflight
 
@@ -1486,13 +1493,14 @@ def cmd_qa_preflight(
         print("RESULT:OK STEP:qa-preflight LOG:")
         print("PREFLIGHT: dry-run — skipping filesystem checks")
         return EXIT_OK
-    rc = qa_preflight.main(
-        [
-            "--repo-root", str(repo_root),
-            "--log-file", str(log_file),
-            "--strict" if args.strict else "--no-strict",
-        ]
-    )
+    argv = [
+        "--repo-root", str(repo_root),
+        "--log-file", str(log_file),
+        "--strict" if args.strict else "--no-strict",
+    ]
+    if getattr(args, "no_content_hash", False):
+        argv.append("--no-content-hash")
+    rc = qa_preflight.main(argv)
     # Mirror the rest of perc-devctl: emit a single RESULT line for agents.
     if rc == 0:
         print(f"RESULT:OK STEP:qa-preflight LOG:{log_file}")
