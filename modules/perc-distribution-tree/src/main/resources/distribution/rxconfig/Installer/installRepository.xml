@@ -25,13 +25,19 @@
 
 		<mkdir dir="${install.dir}/logs" />
 
+		<!-- Fresh H2/Derby installs do not have these upgrade cleanup tables.
+		     MySQL/H2: IF EXISTS avoids noise. Derby has no DROP IF EXISTS — keep
+		     plain DROP + failonerror=false (PSExecSQLStmt maps missing-table to WARN).
+		     failonerror=false on all dialects so first-time matrix cells stay green
+		     under #2556 / qa-up server_log_errors gates. -->
 		<echo>Dropping selected tables...</echo>
 		<PSExecSQLStmt rootDir="${install.dir}"
 			printExceptionStackTrace="true" qualifyViewNames="PSX_QJOB_LISTENERS"
 			sql="DROP TABLE PSX_QJOB_LISTENERS"
 			sqlOracle="DROP TABLE PSX_QJOB_LISTENERS"
 			sqlMysql="DROP TABLE IF EXISTS PSX_QJOB_LISTENERS"
-			sqlDerby="DROP TABLE PSX_QJOB_LISTENERS" failonerror="false"
+			sqlDerby="DROP TABLE PSX_QJOB_LISTENERS"
+			sqlH2="DROP TABLE IF EXISTS PSX_QJOB_LISTENERS" failonerror="false"
 			silenceerrors="false" />
 
 		<PSExecSQLStmt rootDir="${install.dir}"
@@ -41,6 +47,7 @@
 			sqlOracle="DROP TABLE PSX_PUBLICATION_SITE_ITEM_BAK_PATCH"
 			sqlMysql="DROP TABLE IF EXISTS PSX_PUBLICATION_SITE_ITEM_BAK_PATCH"
 			sqlDerby="DROP TABLE PSX_PUBLICATION_SITE_ITEM_BAK_PATCH"
+			sqlH2="DROP TABLE IF EXISTS PSX_PUBLICATION_SITE_ITEM_BAK_PATCH"
 			failonerror="false" silenceerrors="false" />
 
 		<!-- Cleanup to make sure new FK can be created -->

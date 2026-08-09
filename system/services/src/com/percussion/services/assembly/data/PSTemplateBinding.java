@@ -29,7 +29,6 @@ import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
@@ -43,7 +42,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.GenericGenerator;
 import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
@@ -88,9 +86,17 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
     */
    private static final long serialVersionUID = 1L;
 
+   /**
+    * Application- and package-assigned id (not Hibernate {@code @GeneratedValue}).
+    *
+    * <p>Package import sets archive binding ids before {@code session.merge}. With
+    * {@code @GeneratedValue} + null {@code @Version}, Hibernate 6/7 rejects the graph
+    * ({@code Detached entity with generated id has an uninitialized version value
+    * 'null'}); forcing version {@code 0} then fails insert with {@code
+    * StaleObjectStateException} when the row is new. Assigned ids + null version
+    * allow merge-as-insert; create paths assign ids via the GUID manager (#2540).
+    */
    @Id
-   @GenericGenerator(name = "id", strategy = "com.percussion.data.utils.PSGuidHibernateGenerator")
-   @GeneratedValue(generator = "id")
    @Column(name = "BINDING_ID", nullable = false)
    private long m_bindingId;
 

@@ -1348,37 +1348,49 @@ public class PSAssemblyService implements IPSAssemblyService
       {
          if (type.equals(PSTypeEnum.TEMPLATE))
          {
-            PSAssemblyTemplate temp;
             var guid = PSXmlSerializationHelper.getIdFromXml(PSTypeEnum.TEMPLATE, item);
             Integer tversion = null;
-            Map<Long, Integer> bversions = null;
+            Map<Long, Integer> bversions = new HashMap<>();
 
+            // Snapshot optimistic-lock versions only — never fromXML onto the
+            // managed loadTemplate instance (Hibernate 7 treats that as a dirty
+            // managed graph and merge fails with StaleObjectStateException /
+            // package install abort / maintenance mode, #2540).
             try
             {
-               temp = loadTemplate(guid, false);
-               // Remember the versions of the template and bindings so
-               // they can be restored
-               tversion = temp.getVersion();
-               bversions = new HashMap<>();
-               for (var b : temp.getBindings())
+               var existing = loadTemplate(guid, false);
+               tversion = existing.getVersion();
+               for (var b : existing.getBindings())
                {
-                  bversions.put(b.getId(), b.getVersion());
+                  // getId() boxes primitive long — never null; guard binding only.
+                  if (b != null)
+                  {
+                     bversions.put(b.getId(), b.getVersion());
+                  }
                }
-               temp.setVersion(null);
+               session.evict(existing);
             }
             catch (PSAssemblyException e)
             {
-               temp = createTemplate();
+               // New template for this GUID — versions stay null until ensure.
             }
+
+            // Always deserialize into a fresh detached instance.
+            var temp = new PSAssemblyTemplate();
             temp.fromXML(item);
 
-            // Restore bindings if available
+            // Restore optimistic-lock versions from the previously loaded row so
+            // merge updates rather than fighting a null @Version on assigned ids.
             if (tversion != null)
             {
                temp.setVersion(null);
                temp.setVersion(tversion);
                for (var b : temp.getBindings())
                {
+                  if (b == null)
+                  {
+                     continue;
+                  }
                   var bversion = bversions.get(b.getId());
                   if (bversion != null)
                   {
@@ -1386,8 +1398,6 @@ public class PSAssemblyService implements IPSAssemblyService
                      b.setVersion(bversion);
                   }
                }
-               session.merge(temp);
-
             }
 
             saveTemplate(temp);
@@ -1613,6 +1623,14 @@ public class PSAssemblyService implements IPSAssemblyService
          //
          // so we arse not check the saved object against the object stored in
          // "memory" region of EHcache, which is the same way in 6.5.2.
+         //
+         // Package install (loadByType → fromXML → saveTemplate) assigns archive
+         // GUIDs while @Version stays null (suppressed from design XML). Hibernate
+         // 6/7 then rejects merge with "Detached entity with generated id has an
+         // uninitialized version value 'null'" on PSTemplateBinding.VERSION /
+         // PSAssemblyTemplate.version — perc.Baseline / FileAsset / image packages
+         // fail and PSStartupPkgInstaller enters maintenance mode (#2540 / H2 qa-up).
+         ensureOptimisticLockVersions(var);
          session.merge(var);
          session.flush();
 
@@ -1629,6 +1647,40 @@ public class PSAssemblyService implements IPSAssemblyService
          throw new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_CRUD_ERROR, e);
       }
 
+   }
+
+   /**
+    * Ensure every binding has an application-assigned id before merge/persist.
+    *
+    * <p>{@link PSTemplateBinding} uses assigned ids (no {@code @GeneratedValue}) so
+    * package import can merge with null {@code @Version}. Create paths that build
+    * bindings without ids get a GUID here. Package-private for unit tests.
+    *
+    * @param template template being saved; may be {@code null} (no-op)
+    */
+   static void ensureOptimisticLockVersions(IPSAssemblyTemplate template) {
+      if (!(template instanceof PSAssemblyTemplate assemblyTemplate)) {
+         return;
+      }
+      // Leave template/binding @Version null when unset so Hibernate merge treats
+      // the graph as insert (non-null version + missing row → StaleObjectState).
+      var bindings = assemblyTemplate.getBindings();
+      if (bindings == null) {
+         return;
+      }
+      IPSGuidManager gmgr = null;
+      for (var binding : bindings) {
+         if (binding == null) {
+            continue;
+         }
+         if (binding.getBindingId() == 0L) {
+            if (gmgr == null) {
+               gmgr = PSGuidManagerLocator.getGuidMgr();
+            }
+            // INTERNAL next-number block (historical PSGuidHibernateGenerator default).
+            binding.setBindingId(gmgr.createGuid(PSTypeEnum.INTERNAL).longValue());
+         }
+      }
    }
 
 

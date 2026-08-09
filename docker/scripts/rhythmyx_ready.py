@@ -71,7 +71,14 @@ _SERVER_LOG_SEVERITY_RE = re.compile(
 )
 
 # Known non-fatal noise (prefer empty — keep startup clean).
-SERVER_LOG_ERROR_ALLOWLIST: Tuple[str, ...] = ()
+# Fresh H2/Derby installs run upgrade-cleanup SQL (failonerror=false) before
+# schema create; PSLogger still emits ERROR for missing tables/views. Those
+# must not fail #2556 / qa-up server_log_errors gates (#2540).
+SERVER_LOG_ERROR_ALLOWLIST: Tuple[str, ...] = (
+    "not found (this database is empty)",
+    'Table "PSX_QJOB_LISTENERS" not found',
+    'Table "PSX_PUBLICATION_SITE_ITEM_BAK_PATCH" not found',
+)
 
 # Max characters of the matched line returned in DETAIL/MATCH.
 _MATCH_LINE_MAX = 240
@@ -278,6 +285,21 @@ def _is_allowlisted_error_line(line: str) -> bool:
     for needle in SERVER_LOG_ERROR_ALLOWLIST:
         if needle and needle in line:
             return True
+    # Install-time noise from failonerror=false SQL / dialect cleanup
+    # (missing tables, RENAME COLUMN on H2, etc.). Anchor to the Ant task
+    # logger prefix so a package-failure stack that merely mentions PSLogger
+    # or PSExecSQL still fails qa-up (#2540 review). Real package / runtime
+    # failures use ERROR [Server] Package: / ERROR [Assembly] / context markers
+    # and are NOT allowlisted (#2540 / #2556 fresh H2 qa-up).
+    stripped = (line or "").lstrip()
+    if stripped.startswith("[PSExecSQLStmt]") or stripped.startswith(
+        "[PSExecSQL"
+    ):
+        return True
+    # Content-type handler child inserts during first package install can log a
+    # single ERROR line then succeed; do not fail-fast qa-up mid-install.
+    if "PSDataHandler" in line and "sys_CEHandler" in line:
+        return True
     return False
 
 
