@@ -25,7 +25,8 @@ import org.w3c.dom.Element;
  * This wrapps up a relationship between the parent CONTENTVARIANTS and the child RXSLOTCONTENT
  * tables.
  */
-public class PSSlotTypeContentTypeVariantSet extends PSDbComponentSet {
+public class PSSlotTypeContentTypeVariantSet
+    extends PSDbComponentSet<PSSlotTypeContentTypeVariant> {
   /** Default constructor. See {@link PSDbComponentSet#PSDbComponentSet(Class)} for more details. */
   public PSSlotTypeContentTypeVariantSet() {
     super(PSSlotTypeContentTypeVariant.class);
@@ -74,9 +75,9 @@ public class PSSlotTypeContentTypeVariantSet extends PSDbComponentSet {
    *     otherwise.
    */
   public boolean isVariantAllowed(int variantid) {
-    Iterator iter = iterator();
+    Iterator<PSSlotTypeContentTypeVariant> iter = iterator();
     while (iter.hasNext()) {
-      PSSlotTypeContentTypeVariant element = (PSSlotTypeContentTypeVariant) iter.next();
+      PSSlotTypeContentTypeVariant element = iter.next();
       if (element.getVariantId() == variantid) return true;
     }
     return false;

@@ -76,11 +76,11 @@ public class PSComponentDefProcessorProxy extends PSProcessorProxy {
 
         Element[] elems = proxy.load("PSContentTypeVariantSet", keys);
 
-        PSDbComponentSet<?> vs = new PSContentTypeVariantSet(elems);
+        PSContentTypeVariantSet vs = new PSContentTypeVariantSet(elems);
 
-        Iterator<?> it = vs.iterator();
+        Iterator<PSContentTypeTemplate> it = vs.iterator();
         while (it.hasNext()) {
-          PSContentTypeTemplate v = (PSContentTypeTemplate) it.next();
+          PSContentTypeTemplate v = it.next();
 
           checkContentVariant(v);
         }
@@ -95,11 +95,11 @@ public class PSComponentDefProcessorProxy extends PSProcessorProxy {
 
         Element[] elems = proxy.load("PSSlotTypeSet", keys);
 
-        PSDbComponentSet<?> slots = new PSSlotTypeSet(elems);
+        PSSlotTypeSet slots = new PSSlotTypeSet(elems);
 
-        Iterator<?> it = slots.iterator();
+        Iterator<PSSlotType> it = slots.iterator();
         while (it.hasNext()) {
-          PSSlotType s = (PSSlotType) it.next();
+          PSSlotType s = it.next();
 
           checkSlotType(s);
         }
@@ -113,11 +113,11 @@ public class PSComponentDefProcessorProxy extends PSProcessorProxy {
         PSKey[] keys = PSContentType.createKeys(ctIds);
         Element[] elems = proxy.load("PSContentTypeSet", keys);
 
-        PSDbComponentSet<?> cts = new PSContentTypeSet(elems);
+        PSContentTypeSet cts = new PSContentTypeSet(elems);
 
-        Iterator<?> it = cts.iterator();
+        Iterator<PSContentType> it = cts.iterator();
         while (it.hasNext()) {
-          PSContentType ct = (PSContentType) it.next();
+          PSContentType ct = it.next();
         }
       }
     } catch (Throwable ex) {
@@ -127,16 +127,16 @@ public class PSComponentDefProcessorProxy extends PSProcessorProxy {
   }
 
   private static void checkContentVariant(PSContentTypeTemplate v) {
-    PSDbComponentSet<?> slots = v.getVariantSlots();
+    PSVariantSlotTypeSet slots = v.getVariantSlots();
 
     if (slots == null) {
       System.out.println("No slots for the variant");
     }
 
-    Iterator<?> it1 = slots.iterator();
+    Iterator<PSVariantSlotType> it1 = slots.iterator();
 
     while (it1.hasNext()) {
-      PSVariantSlotType slot = (PSVariantSlotType) it1.next();
+      PSVariantSlotType slot = it1.next();
       int slotid = slot.getSlotId();
       int vid1 = slot.getVariantId();
       int bp = 0;
@@ -150,12 +150,12 @@ public class PSComponentDefProcessorProxy extends PSProcessorProxy {
     int systemSlot = s.getSystemSlot();
     int slotType = s.getSlotType();
 
-    PSDbComponentSet<?> slotV = s.getSlotVariants();
+    PSSlotTypeContentTypeVariantSet slotV = s.getSlotVariants();
 
-    Iterator<?> it1 = slotV.iterator();
+    Iterator<PSSlotTypeContentTypeVariant> it1 = slotV.iterator();
 
     while (it1.hasNext()) {
-      PSSlotTypeContentTypeVariant vslot = (PSSlotTypeContentTypeVariant) it1.next();
+      PSSlotTypeContentTypeVariant vslot = it1.next();
       int slotid = vslot.getSlotId();
       long ctypeid = vslot.getContentTypeId();
       int vid = vslot.getVariantId();

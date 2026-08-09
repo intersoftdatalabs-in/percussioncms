@@ -254,9 +254,9 @@ public class PSNavUtil {
     }
     PSContentTypeVariantSet variants = loadVariantSet(req);
 
-    Iterator iter = variants.iterator();
+    Iterator<PSContentTypeTemplate> iter = variants.iterator();
     while (iter.hasNext()) {
-      PSContentTypeTemplate current = (PSContentTypeTemplate) iter.next();
+      PSContentTypeTemplate current = iter.next();
       if (current.supportsContentType((int) contentTypeId)
           && current.getName().equals(variantName)) {
         return current;
@@ -286,9 +286,9 @@ public class PSNavUtil {
     PSNavConfig config = PSNavConfig.getInstance(req);
     PSContentTypeVariantSet variants = config.getAllVariants();
 
-    Iterator iter = variants.iterator();
+    Iterator<PSContentTypeTemplate> iter = variants.iterator();
     while (iter.hasNext()) {
-      PSContentTypeTemplate current = (PSContentTypeTemplate) iter.next();
+      PSContentTypeTemplate current = iter.next();
       if ((contentTypeId == -1 || current.supportsContentType((int) contentTypeId))
           && current.getVariantId() == variantId) {
         return current;

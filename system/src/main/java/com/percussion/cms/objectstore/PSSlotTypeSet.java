@@ -24,7 +24,7 @@ import org.w3c.dom.Element;
 /**
  * This class is a thin wrapper of the PSDbComponentSet that represents a set of PSSlotType objects.
  */
-public class PSSlotTypeSet extends PSDbComponentSet {
+public class PSSlotTypeSet extends PSDbComponentSet<PSSlotType> {
   /** Default constructor. See {@link PSDbComponentSet#PSDbComponentSet(Class)} for more details. */
   public PSSlotTypeSet() throws PSCmsException {
     super(PSSlotType.class);
@@ -58,9 +58,9 @@ public class PSSlotTypeSet extends PSDbComponentSet {
     if (slotName == null || slotName.length() < 1)
       throw new IllegalArgumentException("slotName must not be null");
 
-    Iterator iter = iterator();
+    Iterator<PSSlotType> iter = iterator();
     while (iter.hasNext()) {
-      PSSlotType element = (PSSlotType) iter.next();
+      PSSlotType element = iter.next();
       if (element.getSlotName().equalsIgnoreCase(slotName)) return element;
     }
     return null;
@@ -75,9 +75,9 @@ public class PSSlotTypeSet extends PSDbComponentSet {
   public PSSlotType getSlotTypeById(int slotId) {
     if (slotId < 0) throw new IllegalArgumentException("slotId must be greater than 0");
 
-    Iterator iter = iterator();
+    Iterator<PSSlotType> iter = iterator();
     while (iter.hasNext()) {
-      PSSlotType element = (PSSlotType) iter.next();
+      PSSlotType element = iter.next();
       if (element.getSlotId() == slotId) return element;
     }
     return null;

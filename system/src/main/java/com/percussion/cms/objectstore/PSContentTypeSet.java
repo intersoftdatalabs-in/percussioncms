@@ -25,7 +25,7 @@ import org.w3c.dom.Element;
  * This class is a thin wrapper of the PSDbComponentSet that represents a set of PSContentType
  * objects.
  */
-public class PSContentTypeSet extends PSDbComponentSet {
+public class PSContentTypeSet extends PSDbComponentSet<PSContentType> {
   /** Default constructor. See {@link PSDbComponentSet#PSDbComponentSet(Class)} for more details. */
   @SuppressWarnings("unused")
   public PSContentTypeSet() throws PSCmsException {
@@ -56,9 +56,9 @@ public class PSContentTypeSet extends PSDbComponentSet {
     if (name == null || name.length() < 1)
       throw new IllegalArgumentException("name must not be null");
 
-    Iterator iter = iterator();
+    Iterator<PSContentType> iter = iterator();
     while (iter.hasNext()) {
-      PSContentType element = (PSContentType) iter.next();
+      PSContentType element = iter.next();
       if (element.getName().equalsIgnoreCase(name)) return element;
     }
     return null;
@@ -74,9 +74,9 @@ public class PSContentTypeSet extends PSDbComponentSet {
     if (contentTypeId < 0)
       throw new IllegalArgumentException("contentTypeId must be greater than 0");
 
-    Iterator iter = iterator();
+    Iterator<PSContentType> iter = iterator();
     while (iter.hasNext()) {
-      PSContentType element = (PSContentType) iter.next();
+      PSContentType element = iter.next();
       if (element.getTypeId() == contentTypeId) return element;
     }
     return null;

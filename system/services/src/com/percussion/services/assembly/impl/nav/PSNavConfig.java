@@ -194,11 +194,11 @@ public class PSNavConfig
       {
          throw new PSNavException(this.getClass().getName(), e);
       }
-      Iterator variants = m_allVariants.iterator();
+      Iterator<PSContentTypeTemplate> variants = m_allVariants.iterator();
       log.debug("scanning all variants");
       while (variants.hasNext())
       {
-         PSContentTypeTemplate current = (PSContentTypeTemplate) variants.next();
+         PSContentTypeTemplate current = variants.next();
          log.debug("variant {}" , current.getName());
          for(IPSGuid g : m_navonTypes) {
             if (current.supportsContentType(g.getUUID())) {

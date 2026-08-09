@@ -30,7 +30,7 @@ import org.w3c.dom.Element;
  * @deprecated Use the assembly service to load and manipulate variant information
  */
 @Deprecated
-public class PSContentTypeVariantSet extends PSDbComponentSet {
+public class PSContentTypeVariantSet extends PSDbComponentSet<PSContentTypeTemplate> {
   /** Default constructor. See {@link PSDbComponentSet#PSDbComponentSet(Class)} for more details. */
   @SuppressWarnings("unused")
   public PSContentTypeVariantSet() throws PSCmsException {
@@ -85,9 +85,9 @@ public class PSContentTypeVariantSet extends PSDbComponentSet {
     if (variantName == null || variantName.length() < 1)
       throw new IllegalArgumentException("variantName must not be null");
 
-    Iterator iter = iterator();
+    Iterator<PSContentTypeTemplate> iter = iterator();
     while (iter.hasNext()) {
-      PSContentTypeTemplate element = (PSContentTypeTemplate) iter.next();
+      PSContentTypeTemplate element = iter.next();
       if (element.getName().equalsIgnoreCase(variantName)) return element;
     }
     return null;
@@ -102,9 +102,9 @@ public class PSContentTypeVariantSet extends PSDbComponentSet {
   public PSContentTypeTemplate getContentVariantById(int variantId) {
     if (variantId < 0) throw new IllegalArgumentException("variantId must be greater than 0");
 
-    Iterator iter = iterator();
+    Iterator<PSContentTypeTemplate> iter = iterator();
     while (iter.hasNext()) {
-      PSContentTypeTemplate element = (PSContentTypeTemplate) iter.next();
+      PSContentTypeTemplate element = iter.next();
       if (element.getVariantId() == variantId) return element;
     }
     return null;
