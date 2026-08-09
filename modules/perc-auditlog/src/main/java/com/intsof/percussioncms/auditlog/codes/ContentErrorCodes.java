@@ -69,7 +69,7 @@ public enum ContentErrorCodes implements SystemErrorCode {
   PAGE_REMOVAL_SCHEDULE(
       2006,
       true,
-      AuditEventType.CONTENT_UPDATE,
+      AuditEventType.CONTENT_PUBLISH,
       AuditOutcome.SUCCESS,
       "Page removal scheduled for {}",
       "Page removal schedule guid={} contentId={} path={}");

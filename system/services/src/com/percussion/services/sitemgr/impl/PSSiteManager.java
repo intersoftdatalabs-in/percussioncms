@@ -168,14 +168,15 @@ public class PSSiteManager implements IPSSiteManager {
 
         try {
             var currentRequest = PSSecurityFilter.getCurrentRequest();
-            var servletRequest =
-                currentRequest != null ? currentRequest.getServletRequest() : null;
-            PSSystemAuditLogger.contentCreate(
-                servletRequest,
-                AuditOutcome.SUCCESS,
-                newsite.getSiteId().toString(),
-                newsite.getSiteId().toString(),
-                newsite.getBaseUrl());
+            // Match legacy CADF semantics: skip audit when there is no request context.
+            if (currentRequest != null && currentRequest.getServletRequest() != null) {
+                PSSystemAuditLogger.contentCreate(
+                    currentRequest.getServletRequest(),
+                    AuditOutcome.SUCCESS,
+                    newsite.getSiteId().toString(),
+                    newsite.getSiteId().toString(),
+                    newsite.getBaseUrl());
+            }
         } catch (Exception e) {
             log.warn("Failed to log content event for site creation: {}", e.getMessage());
             log.debug("Full stack trace:", e);

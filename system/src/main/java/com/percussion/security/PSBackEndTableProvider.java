@@ -82,7 +82,9 @@ public class PSBackEndTableProvider extends PSSecurityProvider {
       // fall through with null request
     }
     try {
-      PSSystemAuditLogger.userUpdate(httpRequest, AuditOutcome.SUCCESS, uid, activityMsg);
+      // Automated password re-encryption is system-initiated (legacy CADF setIniatorName("system")).
+      PSSystemAuditLogger.userUpdate(
+          httpRequest, AuditOutcome.SUCCESS, uid, activityMsg, "system");
     } catch (Exception auditEx) {
       log.error("Failed to write user-management audit event: {}", auditEx.getMessage());
       log.debug(auditEx);

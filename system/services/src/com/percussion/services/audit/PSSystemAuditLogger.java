@@ -204,7 +204,28 @@ public final class PSSystemAuditLogger {
       AuditOutcome outcome,
       String targetUser,
       String activity) {
-    String actor = remoteUser(request);
+    userManagement(code, request, outcome, targetUser, activity, null);
+  }
+
+  /**
+   * User-management dual-write with an optional explicit actor (e.g. {@code "system"} for automated
+   * password re-encryption during authentication when {@link HttpServletRequest#getRemoteUser()} is
+   * not yet the operator of record).
+   *
+   * @param actorOverride when non-blank, used as the audit actor instead of {@code
+   *     request.getRemoteUser()}
+   */
+  public static void userManagement(
+      UserManagementErrorCodes code,
+      HttpServletRequest request,
+      AuditOutcome outcome,
+      String targetUser,
+      String activity,
+      String actorOverride) {
+    String actor =
+        (actorOverride != null && !actorOverride.isBlank())
+            ? actorOverride.trim()
+            : remoteUser(request);
     String target = nullToEmpty(targetUser);
     if (target.isEmpty()) {
       target = actor;
@@ -233,6 +254,18 @@ public final class PSSystemAuditLogger {
   public static void userUpdate(
       HttpServletRequest request, AuditOutcome outcome, String targetUser, String activity) {
     userManagement(UserManagementErrorCodes.UPDATE, request, outcome, targetUser, activity);
+  }
+
+  /**
+   * User update with an explicit actor (use {@code "system"} for automated security maintenance).
+   */
+  public static void userUpdate(
+      HttpServletRequest request,
+      AuditOutcome outcome,
+      String targetUser,
+      String activity,
+      String actor) {
+    userManagement(UserManagementErrorCodes.UPDATE, request, outcome, targetUser, activity, actor);
   }
 
   public static void userDelete(

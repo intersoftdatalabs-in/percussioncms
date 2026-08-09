@@ -145,6 +145,14 @@ class PSSystemAuditLoggerTest {
     assertTrue(codes.contains(2004));
     assertTrue(codes.contains(2005));
     assertTrue(codes.contains(2006));
+    // Publish + removal schedules share the publishing lifecycle event type.
+    assertTrue(
+        ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().stream()
+            .filter(r -> r.code().numericCode() == 2005 || r.code().numericCode() == 2006)
+            .allMatch(
+                r ->
+                    r.code().eventType()
+                        == com.intsof.percussioncms.auditlog.AuditEventType.CONTENT_PUBLISH));
   }
 
   @Test
@@ -181,6 +189,24 @@ class PSSystemAuditLoggerTest {
     assertEquals(4001, rec.code().numericCode());
     assertTrue(rec.formattedLine().contains("Draft"));
     assertTrue(rec.formattedLine().contains("Pending"));
+    // fromState then toState (not action labels) must appear in that semantic order.
+    int fromIdx = rec.formattedLine().indexOf("Draft");
+    int toIdx = rec.formattedLine().indexOf("Pending");
+    assertTrue(fromIdx >= 0 && toIdx > fromIdx);
+    assertEquals("Draft", rec.attributes().get("fromState"));
+    assertEquals("Pending", rec.attributes().get("toState"));
+  }
+
+  @Test
+  void userUpdateAcceptsExplicitSystemActor() {
+    HttpServletRequest request = mockRequest("jdoe", "10.0.0.7");
+    PSSystemAuditLogger.userUpdate(
+        request, AuditOutcome.SUCCESS, "jdoe", "password re-encrypt", "system");
+
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals(3002, rec.code().numericCode());
+    assertEquals("system", rec.actor().orElse(""));
+    assertEquals("jdoe", rec.target().orElse(""));
   }
 
   @Test
