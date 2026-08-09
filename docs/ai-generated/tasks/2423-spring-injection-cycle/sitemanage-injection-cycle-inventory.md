@@ -1,9 +1,9 @@
 # Sitemanage Spring constructor-injection cycle inventory
 
-**Issue:** #2463 (residual of #2423); reverse-edge inventory refresh **#2485**; hub freezes **#2477** / **#2514**; itemWorkflow param `@Lazy` **#2515**  
+**Issue:** #2463 (residual of #2423); reverse-edge inventory refresh **#2485**; hub freezes **#2477** / **#2514**; itemWorkflow param `@Lazy` **#2515**; field/setter injection inventory **#2525**  
 **Module:** `projects/sitemanage`  
-**Date:** 2026-08-08 (updated 2026-08-09 for #2485 / #2515 / #2521)  
-**Method:** Static scan of `@Autowired` constructors + field `@Autowired` among high-fan-in sitemanage beans (interfaces mapped to primary impls). Reflection peers: `PSContentItemDaoCycleLazyWiringTest`, `PSPageDaoHelperCycleLazyWiringTest`, `PSFolderHelperRecycleLazyWiringTest`, `PSFolderHelperReverseEdgeInventoryWiringTest` (#2485), `PSTemplateServiceCycleWiringTest` (#2477), `PSPageServiceCycleWiringTest` (#2514), `PSItemWorkflowServiceHubReverseEdgeWiringTest` (#2478), `PSItemWorkflowServiceCycleLazyWiringTest` (#2515), `PSAssetServicePageServiceNearCycleWiringTest`, `PSAssetServiceTemplateServiceNearCycleWiringTest` (#2521), `FolderHelperCycleContextTest` (#2436).
+**Date:** 2026-08-08 (updated 2026-08-09 for #2485 / #2515 / #2521 / #2525)  
+**Method:** Static scan of `@Autowired` constructors + field `@Autowired` among high-fan-in sitemanage beans (interfaces mapped to primary impls). Reflection peers: `PSContentItemDaoCycleLazyWiringTest`, `PSPageDaoHelperCycleLazyWiringTest`, `PSFolderHelperRecycleLazyWiringTest`, `PSFolderHelperReverseEdgeInventoryWiringTest` (#2485), `PSFolderHelperFieldInjectionInventoryWiringTest` (#2525), `PSTemplateServiceCycleWiringTest` (#2477), `PSPageServiceCycleWiringTest` (#2514), `PSItemWorkflowServiceHubReverseEdgeWiringTest` (#2478), `PSItemWorkflowServiceCycleLazyWiringTest` (#2515), `PSAssetServicePageServiceNearCycleWiringTest`, `PSAssetServiceTemplateServiceNearCycleWiringTest` (#2521), `FolderHelperCycleContextTest` (#2436).
 
 This is an analysis note for humans/agents ΓÇö **not** an agent rule file.
 
@@ -56,6 +56,84 @@ Class-level `@Lazy` is present on `folderHelper` and `recycleService` but is **n
 | `PSFolderHelper` | ctor ΓåÆ `IPSRecycleService` | **param `@Lazy`** (forward deferral, #2437) | `PSFolderHelperRecycleLazyWiringTest` |
 
 **#2485 result:** no additional live reverse ctor edges into `folderHelper` were found. No further production `@Lazy` changes required on this slice.
+
+## folderHelper field / setter injection inventory (#2525)
+
+**Definition — field/setter edge:** a `@Autowired` / `@Resource` / `@Inject` annotation on a **field** declaration, or on a `setXxx` setter method, where the injected type is one of the cycle interfaces. Field/setter injection bypasses constructor `@Lazy` breaks because Spring resolves the dependency after construction has started — the field-injected dependency must already exist (or a proxy) when the bean is being instantiated.
+
+### Cycle-subgraph classes (force-creatable while `folderHelper` is constructing)
+
+These seven classes sit on the recycle subgraph and can be forced to construct while `folderHelper` is still being created (paths A/B above). Any field/setter inject of a target interface on these classes would be a **live reverse field edge**.
+
+| Class | Injection mechanism for target interface | Disposition |
+|-------|-------------------------------------------|-------------|
+| `PSFolderHelper` → `IPSRecycleService` | ctor only (field `recycleService` is plain; only assigned in ctor; no setter; no field `@Autowired`) | OK — no field edge |
+| `PSRecycleService` → `IPSWidgetAssetRelationshipService` | ctor only (field `widgetAssetRelationshipService` is plain; no setter; no field `@Autowired`) | OK — no field edge |
+| `PSWidgetAssetRelationshipService` → `IPSAssetDao`, `IPSPageIndexService` | ctor only (fields `assetDao`, `pageIndexService` are plain; assigned in ctor; no setter; no field `@Autowired`) | OK — no field edge |
+| `PSAssetDao` → `IPSContentItemDao` | ctor only (field `contentItemDao` is `final`, assigned in ctor; no setter; no field `@Autowired`) | OK — no field edge |
+| `PSContentItemDao` → `IPSFolderHelper` | ctor only (`@Lazy`; field `folderHelper` is plain; assigned in ctor; no setter; no field `@Autowired`) | OK — no field edge |
+| `PSPageIndexService` → `IPSPageDaoHelper` | ctor only (field `pageDaoHelper` is `final`, assigned in ctor; no setter; no field `@Autowired`) | OK — no field edge |
+| `PSPageDaoHelper` → `IPSFolderHelper` | ctor only (`@Lazy`; field `folderHelper` is plain; assigned in ctor; no setter; no field `@Autowired`) | OK — no field edge |
+
+**Result:** **No live reverse field/setter edges** were found in the cycle subgraph. The #2485 ctor work fully converted the recycle subgraph to pure constructor injection (no surviving setter or field `@Autowired` for any of the target interfaces), so the `@Lazy` parameter breaks remain the only protection needed.
+
+**No production code change is required for #2525.** The peer reflection test `PSFolderHelperFieldInjectionInventoryWiringTest` (#2525) freezes this state by asserting that none of the target fields on the cycle subgraph carry a `@Autowired` annotation (Spring would otherwise be free to re-introduce field injection).
+
+### Downstream consumer field injectors (informational, NOT reverse edges)
+
+These classes have field `@Autowired` of a target interface but are **downstream consumers** of `folderHelper` (not on its construction subgraph), so forcing their construction does **not** force `folderHelper` creation. They are listed here to document the full scan and to clarify why no `@Lazy` is required on their fields.
+
+| Class | Field-injected target type | Disposition |
+|-------|----------------------------|-------------|
+| `FolderAdaptor` (REST adaptor) | `IPSFolderHelper`, `IPSPageDaoHelper`, `IPSPageDao` | downstream consumer (also ctor-injected; field annotations are redundant with ctor). Class `@Lazy`. Not on folderHelper ctor path. |
+| `AssetAdaptor` (REST adaptor) | `IPSAssetDao` (final field) | downstream consumer (also ctor-injected). Class `@Lazy`. Not on folderHelper ctor path. |
+| `PageAdaptor` (REST adaptor) | `IPSFolderHelper`, `IPSContentItemDao`, `IPSWidgetAssetRelationshipService`, `IPSAssetService` | downstream consumer (ctor-injected `final` fields; field `@Autowired` annotations redundant with ctor). Class `@Lazy`. Not on folderHelper ctor path. |
+| `PSAssetRestService` | `IPSAssetService`, `IPSWidgetAssetRelationshipService`, `IPSRecycleService`, `IPSFolderHelper` | downstream REST facade (ctor-injected). Class `@Lazy`. Not on folderHelper ctor path. |
+| `PSPageRestService` | `IPSRecycleService`, `IPSFolderHelper` | downstream REST facade (ctor-injected). Class `@Lazy`. Not on folderHelper ctor path. |
+| `PSPageService` | `IPSPageDaoHelper`, `IPSFolderHelper`, `IPSWidgetAssetRelationshipService`, `IPSContentItemDao`, `IPSRecycleService` | downstream consumer hub (#2514 freeze). Class `@Lazy`. Not on folderHelper ctor path. |
+| `PSItemService` | `IPSRecycleService` (field `@Autowired`) | downstream consumer. Not on folderHelper ctor path. |
+| `PSAbstractWorkflowExtension` | `IPSWidgetAssetRelationshipService`, `IPSFolderHelper` | downstream extension. Not on folderHelper ctor path. |
+| `PSLivePublishChangeHandler` | `IPSFolderHelper`, `IPSWidgetAssetRelationshipService` | downstream handler. Not on folderHelper ctor path. |
+| `PSBulkApprovalJob` | `IPSFolderHelper` | downstream async job. Not on folderHelper ctor path. |
+| `PSFolderService` | `IPSFolderHelper` | downstream REST facade. Not on folderHelper ctor path. |
+| `PSTemplateService` | `IPSWidgetAssetRelationshipService`, `IPSPageDaoHelper` | downstream hub (#2477 freeze). Class `@Lazy`. Not on folderHelper ctor path. |
+| `PSPageListViewProcessor` | `IPSPageDaoHelper` | downstream extension. Not on folderHelper ctor path. |
+| `PSSiteTemplateService` | `IPSFolderHelper`, `IPSAssetService`, `IPSWidgetAssetRelationshipService` | downstream service. Not on folderHelper ctor path. |
+| `PSSiteSectionService` | `IPSPageDaoHelper`, `IPSFolderHelper` | downstream service. Not on folderHelper ctor path. |
+| `PSSiteSectionMetaDataService` | `IPSFolderHelper` | downstream service. Not on folderHelper ctor path. |
+| `PSPageChangeHandler` | `IPSContentItemDao` | downstream handler. Not on folderHelper ctor path. |
+| `PSSitePublishServiceWebAdapter` | `IPSFolderHelper` | downstream adapter. Not on folderHelper ctor path. |
+| `PSPageCatalogService` | `IPSFolderHelper`, `IPSPageDaoHelper` | downstream REST facade. Not on folderHelper ctor path. |
+| `PSSitePublishServiceHelper` | `IPSAssetService` | downstream helper. Not on folderHelper ctor path. |
+| `PSSitePublishService` | `IPSWidgetAssetRelationshipService` | downstream service. Not on folderHelper ctor path. |
+| `PSSiteDataService` | `IPSWidgetAssetRelationshipService`, `IPSAssetDao`, `IPSFolderHelper` | downstream hub (#2516). Class `@Lazy`. Not on folderHelper ctor path. |
+| `PSAssetUploadFolderPathMap` | `IPSFolderHelper` | downstream helper. Not on folderHelper ctor path. |
+| `PSAssemblyItemBridge` | `IPSFolderHelper`, `IPSAssetService` | downstream assembler. Not on folderHelper ctor path. |
+| `PSResourceAssemblyLocation` | `IPSFolderHelper`, `IPSAssetService` | downstream assembler. Not on folderHelper ctor path. |
+| `PSResourceInstanceHelper` | `IPSAssetService` | downstream assembler. Not on folderHelper ctor path. |
+| `PSRecyclePathItemService` | `IPSRecycleService` | downstream path item service. Not on folderHelper ctor path. |
+| `PSDesignPathItemService` | `IPSFolderHelper` | downstream path item service. Not on folderHelper ctor path. |
+| `PSPageUtils` | `IPSRecycleService`, `IPSContentItemDao` | downstream utility (static `@Autowired` fields). Not on folderHelper ctor path. |
+| `PSPathService` | `IPSFolderHelper`, `IPSRecycleService` | downstream service. Class `@Lazy`. Not on folderHelper ctor path. |
+| `PSDispatchingPathService` | `IPSRecycleService`, `IPSFolderHelper` | downstream service. Not on folderHelper ctor path. |
+| `PSRedirectService` | `IPSFolderHelper` | downstream service. Not on folderHelper ctor path. |
+| `PSTemplateDao` | `IPSContentItemDao`, `IPSFolderHelper` | downstream DAO. Not on folderHelper ctor path. |
+| `PSEmptyRecycleService` | `IPSFolderHelper` | downstream empty-recycle service. Class `@Lazy`. Not on folderHelper ctor path. |
+| `PSSharedRelationshipDeleteListener` | `IPSPageIndexService` | downstream listener. Not on folderHelper ctor path. |
+| `PSSearchService` | `IPSFolderHelper`, `IPSRecycleService` | downstream search service. Not on folderHelper ctor path. |
+| `PSSearchIndexFieldValueModifier` | `IPSFolderHelper` | downstream modifier. Not on folderHelper ctor path. |
+| `PSAssetChangeListener` | `IPSWidgetAssetRelationshipService`, `IPSPageIndexService` | downstream listener. Not on folderHelper ctor path. |
+| `PSSiteContentDao` | `IPSFolderHelper`, `IPSContentItemDao`, `IPSPageDaoHelper`, `IPSRecycleService` | downstream DAO. Class `@Lazy`. Not on folderHelper ctor path. |
+| `PSRelationshipSummaryService` | `IPSWidgetAssetRelationshipService` | downstream service. Not on folderHelper ctor path. |
+| `PSLinkExtractionHelper` | `IPSFolderHelper` | downstream importer helper. Not on folderHelper ctor path. |
+| `PSPageExtractorHelper` | `IPSAssetService` | downstream importer helper. Not on folderHelper ctor path. |
+| `PSCommentsService` | `IPSFolderHelper` | downstream service. Not on folderHelper ctor path. |
+| `PSIntegrityCheckerService` | `IPSAssetService` | downstream service. Not on folderHelper ctor path. |
+| `PSRecentService` | `IPSAssetService` | downstream service. Not on folderHelper ctor path. |
+| `PSSiteImportLogViewer` | `IPSFolderHelper` (static field) | downstream importer. Not on folderHelper ctor path. |
+| `PSTrafficService` | `IPSFolderHelper` (`final`) | downstream service (ctor-injected). Not on folderHelper ctor path. |
+
+**Conclusion:** Every observed field-injected target type lives on a downstream consumer bean. None of the seven cycle-subgraph beans (`PSFolderHelper`, `PSRecycleService`, `PSWidgetAssetRelationshipService`, `PSAssetDao`, `PSContentItemDao`, `PSPageIndexService`, `PSPageDaoHelper`) carry any `@Autowired` / `@Resource` / `@Inject` field annotation on the target interfaces, nor any public setter that takes a target interface. The cycle subgraph is fully converted to constructor injection, so the existing `@Lazy` parameter breaks remain the only required protection.
 
 ### Cycle-subgraph intermediates that must NOT construct-require `folderHelper`
 
@@ -209,6 +287,17 @@ Many path/item services inject `IPSFolderHelper` without parameter `@Lazy` (e.g.
 | Link #2463 / #2476+ without duplicating hubs | Hub residuals stay #2476ΓÇô#2478 / #2514ΓÇô#2521; this slice freezes folderHelper reverse edges only |
 | Regression peer | `PSFolderHelperReverseEdgeInventoryWiringTest` |
 
+## Disposition for #2525
+
+| Acceptance item | Status |
+|-----------------|--------|
+| Field/setter inject inventory table (edge + disposition) linked from parent progress | **folderHelper field / setter injection inventory (#2525)** section above |
+| Any live reverse field edges fixed with param/field `@Lazy` + unit tests | **None** — cycle subgraph (7 classes) uses pure ctor injection; no field/setter target-type injection found; no production `@Lazy` change required |
+| No duplication of hub ctor work (#2476–#2478 / #2514–#2521) — field-only scope | Respected — only field-only scan + freeze test; no ctor changes; no peer-rebuild of hub tests |
+| `projects/sitemanage` standalone `mvnw clean install` green | Required on PR |
+| Regression peer | `PSFolderHelperFieldInjectionInventoryWiringTest` |
+| Residual | Item 10 of the residual recommendations below is closed by this slice |
+
 ## Residual recommendations (file as GitHub issues under #2423)
 
 1. Optional: protect intermediate known-cycle reverse edges with reflection tests (assetDao/widgetAsset/recycle one-way) ΓÇö **covered in** `PSAssetServicePageServiceNearCycleWiringTest` (#2463) + `PSFolderHelperReverseEdgeInventoryWiringTest` (#2485).
@@ -221,7 +310,7 @@ Many path/item services inject `IPSFolderHelper` without parameter `@Lazy` (e.g.
 8. Keep Docker `qa-up` / Rhythmyx health smoke (#2437) as the production-level gate.
 9. When adding new `@Autowired` constructors on cycle peers, re-run this inventory method (or extend the reflection tests).
 10. Optional next hubs: siteData (#2516); widgetAsset class `@Lazy` (#2519).
-11. Optional residual: field-injection inventory for `IPSFolderHelper` / recycle subgraph (ctor inventory complete under #2485).
+11. ~~Optional residual: field-injection inventory for `IPSFolderHelper` / recycle subgraph (ctor inventory complete under #2485).~~ **Done (#2525)** — `PSFolderHelperFieldInjectionInventoryWiringTest`; cycle subgraph is fully ctor-injected, no live reverse field edges.
 12. Optional residual: belt-and-braces param `@Lazy` on other high-fan-in consumer hubs (e.g. pageService / siteData) that inject cycle peers ΓÇö only if product risk warrants; do not treat class `@Lazy` as the fix.
 
 ## Related
@@ -238,5 +327,6 @@ Many path/item services inject `IPSFolderHelper` without parameter `@Lazy` (e.g.
 - #2514 ΓÇö pageService hub reverse-edge freeze (`PSPageServiceCycleWiringTest`)  
 - #2515 ΓÇö itemWorkflow cycle-peer param `@Lazy` (`PSItemWorkflowServiceCycleLazyWiringTest`)  
 - #2521 — assetService↔templateService one-way freeze + reverse ban  
+- #2525 — folderHelper field / setter injection inventory (`PSFolderHelperFieldInjectionInventoryWiringTest`)  
 
 - #2457 / PR #2469 ΓÇö JDK 21 lambda compile fix often needed to build sitemanage tests
