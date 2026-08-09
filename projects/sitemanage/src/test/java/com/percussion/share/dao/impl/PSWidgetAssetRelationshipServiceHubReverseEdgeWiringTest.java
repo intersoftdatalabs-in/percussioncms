@@ -16,7 +16,9 @@
  */
 package com.percussion.share.dao.impl;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -24,6 +26,8 @@ import com.percussion.assetmanagement.dao.IPSAssetDao;
 import com.percussion.assetmanagement.dao.impl.PSAssetDao;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.assetmanagement.service.impl.PSWidgetAssetRelationshipService;
+import com.percussion.linkmanagement.service.IPSManagedLinkService;
+import com.percussion.linkmanagement.service.impl.PSManagedLinkService;
 import com.percussion.pagemanagement.dao.impl.PSPageDaoHelper;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.IPSTemplateService;
@@ -47,7 +51,7 @@ import org.springframework.context.annotation.Lazy;
 
 /**
  * Protection for the {@link PSWidgetAssetRelationshipService} rank-4 hub on the known folderHelper
- * cycle path (#2423 residual #2519).
+ * cycle path (#2423 residual #2519; path-C managedLink #2527).
  *
  * <p>Static inventory (#2463) ranks {@code PSWidgetAssetRelationshipService} as the fourth-hottest
  * sitemanage hub (ctor out ~4 / in ~18). It sits <em>on</em> the known creation chain:
@@ -58,6 +62,10 @@ import org.springframework.context.annotation.Lazy;
  *
  * folderHelper → recycleService → widgetAssetRelationshipService → pageIndexService
  *       → pageDaoHelper → folderHelper   (@Lazy on pageDaoHelper)
+ *
+ * Path C (latent — keep off ctor):
+ *   widgetAsset ↛ managedLinkService  (context lookup only; #2527)
+ *   managedLinkService → pageService → folderHelper
  * </pre>
  *
  * <p><strong>Disposition (#2519):</strong> class-level {@code @Lazy} on {@link
@@ -65,17 +73,20 @@ import org.springframework.context.annotation.Lazy;
  * reverse-edge freezes. Class {@code @Lazy} is lazy init only — not a constructor-edge cycle
  * breaker when an eager consumer forces full construction.
  *
+ * <p><strong>Path C (#2527):</strong> {@link IPSManagedLinkService} must remain application-context
+ * lookup (or, if converted to DI, param/field {@code @Lazy} with inventory update). A plain ctor
+ * inject forces {@code managedLink → pageService → folderHelper} while folderHelper may still be
+ * creating on paths A/B.
+ *
  * <p>Forward fan-in into this hub from {@code recycleService} / {@code pageService} / {@code
  * templateService} is intentional product wiring and is frozen positive below. The dangerous edges
  * are reverse of known one-ways (assetDao → widgetAsset; widgetAsset → recycle / page / template)
  * and eager reverse field inject of the hub on cycle-path peers.
  *
  * <p>Peers: {@link PSItemWorkflowServiceHubReverseEdgeWiringTest} (#2478), {@code
- * PSTemplateServiceCycleWiringTest} (#2477), {@link PSAssetServicePageServiceNearCycleWiringTest}.
- * Inventory: {@code
+ * PSTemplateServiceCycleWiringTest} (#2477), {@link PSAssetServicePageServiceNearCycleWiringTest},
+ * {@link PSFolderHelperReverseEdgeInventoryWiringTest} (#2485 path-C seed ban). Inventory: {@code
  * docs/ai-generated/tasks/2423-spring-injection-cycle/sitemanage-injection-cycle-inventory.md}.
- *
- * <p>Out of scope: managedLink path-C ctor inject (#2527).
  */
 @Tag("UnitTest")
 public class PSWidgetAssetRelationshipServiceHubReverseEdgeWiringTest {
@@ -262,6 +273,85 @@ public class PSWidgetAssetRelationshipServiceHubReverseEdgeWiringTest {
         PSFolderHelper.class,
         IPSWidgetAssetRelationshipService.class,
         "folderHelper → widgetAsset would short-circuit recycle on the known cycle path");
+  }
+
+  // -------------------------------------------------------------------------
+  // Path C — managedLink (#2527)
+  // -------------------------------------------------------------------------
+
+  /**
+   * Hard ban: widgetAsset must not construct-require {@link IPSManagedLinkService}. Prefer keep
+   * application-context lookup ({@code getManagedLinkService()}). If DI is introduced later, it
+   * must use param {@code @Lazy} and this test must be updated with inventory.
+   */
+  @Test
+  public void widgetAssetMustNotConstructRequireManagedLinkService() throws NoSuchMethodException {
+    Constructor<?> ctor = singlePublicConstructor(PSWidgetAssetRelationshipService.class);
+    Parameter managedLink = findParamOfType(ctor, IPSManagedLinkService.class);
+    assertNull(
+        managedLink,
+        "PSWidgetAssetRelationshipService must not construct-require IPSManagedLinkService"
+            + " (path C: managedLink→pageService→folderHelper while folderHelper may still be"
+            + " creating; keep application-context lookup — #2527 / inventory). If converting to"
+            + " DI, use param @Lazy and update this freeze + inventory.");
+  }
+
+  /**
+   * The {@code managedLinkService} field is a post-lookup cache only. Eager field {@code
+   * @Autowired} (without {@code @Lazy}) is the same class of reverse edge as a ctor param.
+   */
+  @Test
+  public void widgetAssetManagedLinkFieldIsNotEagerAutowired() throws NoSuchFieldException {
+    Field field = PSWidgetAssetRelationshipService.class.getDeclaredField("managedLinkService");
+    assertTrue(
+        IPSManagedLinkService.class.isAssignableFrom(field.getType()),
+        "Expected managedLinkService field type IPSManagedLinkService");
+    assertFalse(
+        field.isAnnotationPresent(Autowired.class) && !field.isAnnotationPresent(Lazy.class),
+        "PSWidgetAssetRelationshipService.managedLinkService must not be eagerly @Autowired"
+            + " without @Lazy (path C; keep context lookup cache — #2527)");
+  }
+
+  /**
+   * Documents the force chain that makes path C dangerous: managedLink construct-requires
+   * pageService (which construct-requires folderHelper).
+   */
+  @Test
+  public void managedLinkServiceStillConstructRequiresPageService() throws NoSuchMethodException {
+    assertNotNull(
+        findParamOfType(singlePublicConstructor(PSManagedLinkService.class), IPSPageService.class),
+        "PSManagedLinkService must still construct-require IPSPageService — path C hazard chain"
+            + " (managedLink→pageService→folderHelper); if removed, reassess path C and inventory"
+            + " #2527");
+  }
+
+  /** managedLink must not gain a direct folderHelper reverse edge (would amplify path C). */
+  @Test
+  public void managedLinkServiceMustNotConstructRequireFolderHelper() throws NoSuchMethodException {
+    assertNoEagerCtorParam(
+        PSManagedLinkService.class,
+        IPSFolderHelper.class,
+        "managedLink → folderHelper would be a direct reverse into the cycle hub (#2527 path C)");
+  }
+
+  /** managedLink must not reverse-require the widgetAsset hub (closes path C both ways). */
+  @Test
+  public void managedLinkServiceMustNotConstructRequireWidgetAsset() throws NoSuchMethodException {
+    assertNoEagerCtorParam(
+        PSManagedLinkService.class,
+        IPSWidgetAssetRelationshipService.class,
+        "managedLink → widgetAsset would reverse the path-C dependency direction (#2527)");
+  }
+
+  /** managedLink must not construct-require recycle (mid-chain peer on paths A/B). */
+  @Test
+  public void managedLinkServiceMustNotConstructRequireRecycleService()
+      throws NoSuchMethodException {
+    assertNoEagerCtorParam(
+        PSManagedLinkService.class,
+        IPSRecycleService.class,
+        "managedLink → recycleService would couple managedLink into the folderHelper mid-chain"
+            + " (#2527)");
   }
 
   private static Constructor<?> singlePublicConstructor(Class<?> type)
