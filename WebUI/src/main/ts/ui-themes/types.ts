@@ -66,8 +66,19 @@ export type SemanticColors = Readonly<{
   surfaceAlt: string;
   /** Border / divider color. */
   border: string;
-  /** Danger / destructive actions. */
+  /** Danger / destructive actions (iconic red; may be low-contrast on white for body text). */
   danger: string;
+  /**
+   * Darker danger text for body copy on light surfaces (axe AA contrast on white).
+   * Prefer this over {@link SemanticColors.danger} for field/form error messages.
+   */
+  dangerText: string;
+  /** Strong danger text for error cards / emphasis on light surfaces. */
+  dangerStrong: string;
+  /** Soft danger border for error cards. */
+  dangerBorder: string;
+  /** Soft danger surface fill for error cards. */
+  dangerSurface: string;
   /** Success / positive states. */
   success: string;
   /** Warning / attention. */
