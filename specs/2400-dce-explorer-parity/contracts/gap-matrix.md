@@ -1,7 +1,7 @@
 # Gap matrix: Desktop Content Explorer → SPA Explorer
 
 **Parent:** #2400  
-**Evidence date:** 2026-08-08  
+**Evidence date:** 2026-08-09 (refreshed after merged #2412 / #2522 / #2579)  
 **Rule:** Status reflects **product route** (`ExplorerRoute` → `ContentExplorerShell`), not isolated components in the registry.
 
 Legend: **Present** | **Partial** | **Missing** | **OUT**
@@ -12,43 +12,43 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 |------------|------------|------------------------|--------|-------|
 | Sites/folders tree | `PSNavigationTree` | `ExplorerTree` + path APIs | Present | — |
 | Detail list of children | Main list | `DetailList` + `paginatedFolder` | Present | — |
-| Full product shell composition | Frame + panels | Shell composes search, menus, DF, security (#2407) | **Partial→Present (in PR)** | #2407 |
-| Menu bar (Content / View / Help) | `ContentExplorerMenu.xml` | Not in SPA shell | **Missing** | #2407 follow-up |
-| Server-driven toolbar/context menus | Action manager + server menus | Wired in shell (#2407) | **Present (in PR)** | #2407 |
+| Full product shell composition | Frame + panels | Shell composes search, menus, DF, security on product route | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) (merged) · QA [#2588](https://github.com/intersoftdatalabs-in/percussioncms/issues/2588) |
+| Menu bar (Content / View / Help) | `ContentExplorerMenu.xml` | Not in SPA shell (toolbar/context only) | **Missing** | Deferred shell chrome; no separate child yet (not blocking #2410 / #2409 / #2411) |
+| Server-driven toolbar/context menus | Action manager + server menus | `ActionToolbar` + `ContextMenu` + `actionMenuApi` wired in shell | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) |
 | Reduced create/rename/move/copy/delete | Folder actions | `ReducedActions` in shell | Present | — |
-| Open / preview item | Open handlers | `openInEditor`; preview default no-op | **Partial** | preview slice |
-| Multi-select list | Selection model | Single-select only in shell | **Missing** | #2408 |
-| Display formats for columns | Display format catalog | REST filter + shell selector + displayProperties (#2407) | **Partial→Present (in PR)** | #2407 |
-| View options / refresh | View menu | Partial (list reload on path change) | **Partial** | shell |
+| Open / preview item | Open handlers | `openInEditor`; preview default no-op | **Partial** | preview polish (no dedicated child; track under future shell residual if product prioritizes) |
+| Multi-select list | Selection model | `multiSelectedIds` / `DetailList` multi-select in shell | **Present** | #2408 · [PR #2522](https://github.com/intersoftdatalabs-in/percussioncms/pull/2522) (merged) |
+| Display formats for columns | Display format catalog | `GET /rest/displayformats?validForFolder=true` + shell selector + `displayProperties` | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) |
+| View options / refresh | View menu | List reload on path change; no full View menu | **Partial** | shell residual with menu bar if prioritized |
 
 ## Search
 
 | Capability | DCE source | Explorer / REST today | Status | Slice |
 |------------|------------|------------------------|--------|-------|
-| Simple / extended search | `PSSearchDialog` | Search panel toggle in product shell (#2407) | **Present (in PR)** | #2407 |
+| Simple / extended search | `PSSearchDialog` | `SearchPanel` toggle in product shell | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) |
 | Open / reveal from results | Search results | Callbacks on panel | Present | #2407 |
-| Saved searches catalog + run | CE saved search | `GET /rest/searches` design catalog; **no execute-in-Explorer UX**. Disposition: **façade** (`POST /rest/searches/{idOrName}/execute`) — see [saved-search-execute-disposition.md](../research/saved-search-execute-disposition.md) (#2504); implement #2505–#2507 | **Missing** | #2409 |
-| Search in ContentBrowser hosts | Dialogs | Host integration pending | **Partial** | host follow-up |
+| Saved searches catalog + run | CE saved search | Catalog `GET /rest/searches` Present; **execute UX Missing**. Disposition **façade** complete (#2504 / [PR #2579](https://github.com/intersoftdatalabs-in/percussioncms/pull/2579)) — see [saved-search-execute-disposition.md](../research/saved-search-execute-disposition.md). Implement #2505–#2507 | **Partial** | #2409 · A done #2504 · B–D open #2505–#2507 |
+| Search in ContentBrowser hosts | Dialogs | Host integration pending | **Partial** | host follow-up (outside primary Explorer route) |
 
 ## Security & properties
 
 | Capability | DCE source | Explorer / REST today | Status | Slice |
 |------------|------------|------------------------|--------|-------|
-| Folder ACL view/edit | `PSFolderSecurityPanel` | Panel toggle in shell; identities polish remaining | **Partial** | #2410 |
-| Object ACL editor (full) | CE ACL dialogs | Partial other epics (#2274 family) | **Partial** | link existing |
-| Folder properties (community, locale, DF, workflow) | `PSFolder*Panel` | path `folderProperties` partial UI | **Partial** | properties slice |
+| Folder ACL view/edit | `PSFolderSecurityPanel` | Panel toggle in shell (#2407); identities / polish remaining | **Partial** | #2410 |
+| Object ACL editor (full) | CE ACL dialogs | Partial other epics (#2274 family) | **Partial** | link existing ACL epics |
+| Folder properties (community, locale, DF, workflow) | `PSFolder*Panel` | path `folderProperties` partial UI | **Partial** | #2410 |
 
 ## Advanced / power user
 
 | Capability | DCE source | Explorer / REST today | Status | Slice |
 |------------|------------|------------------------|--------|-------|
-| Clipboard cut/copy/paste multi | `PSClipBoard` | `ClipboardPanel` + APIs; **not in shell** | **Partial** | #2408 |
-| Site copy wizard | CE wizards | `SiteCopyWizard`; not in shell | **Partial** | advanced chrome |
-| Subfolder copy wizard | CE wizards | `SubfolderCopyWizard`; not in shell | **Partial** | advanced chrome |
-| Dependency viewer | `PSDependencyViewer` | Components + `rest` relationship summary; not in shell | **Partial** | advanced chrome |
-| IA / relationships view | Managers | `RelationshipsView`; not in shell | **Partial** | advanced chrome |
-| Translation workflow | CE translation | Catalog Present (`/rest/locales`); create-variant **Legacy-only** (SOAP/CX); item variants + in-flight **Missing** — see [p-trans-api-inventory.md](../research/p-trans-api-inventory.md) | **Missing** | #2411 → #2428 inventory, #2429 REST, #2430 UI |
-| Workflow transitions in menus | CE workflow | Actions path partial | **Partial** | workflow actions |
+| Clipboard cut/copy/paste multi | `PSClipBoard` | `ClipboardPanel` + multi-select wired in product shell | **Present** | #2408 · [PR #2522](https://github.com/intersoftdatalabs-in/percussioncms/pull/2522) (merged) |
+| Site copy wizard | CE wizards | `SiteCopyWizard` component exists; **not** primary shell chrome | **Partial** | advanced chrome (phase 4; no open child — open only when prioritized) |
+| Subfolder copy wizard | CE wizards | `SubfolderCopyWizard`; not in shell | **Partial** | advanced chrome (phase 4) |
+| Dependency viewer | `PSDependencyViewer` | Components + `rest` relationship summary; not in shell | **Partial** | advanced chrome (phase 4) |
+| IA / relationships view | Managers | `RelationshipsView`; not in shell | **Partial** | advanced chrome (phase 4) |
+| Translation workflow | CE translation | Catalog Present (`/rest/locales`); create-variant **Legacy-only** (SOAP/CX); item variants + in-flight **Missing** — see [p-trans-api-inventory.md](../research/p-trans-api-inventory.md) | **Missing** | #2411 → #2428 inventory (PR #2431 merged), #2429 REST, #2430 UI |
+| Workflow transitions in menus | CE workflow | Actions path partial | **Partial** | workflow actions (under menus / future residual) |
 
 ## Explicit OUT (for now)
 
@@ -58,9 +58,18 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | DCE help JavaHelp topics 1:1 | Product help site / in-app help later |
 | DCE-only packaging residual | Decommission program after parity |
 
-## Implementation notes (2026-08-08)
+## Implementation notes
 
-- Highest leverage: **compose shell** (#2401) using existing components + `rest/actions` + `rest/displayformats`.
-- REST enhancement for #2401: `GET /rest/displayformats?validForFolder=true` (and optional `validForViewsAndSearches`).
+### 2026-08-09 refresh (docs; no product code)
+
+- **#2407 / PR #2412 merged:** product shell composition, server action toolbar/context menu, search panel toggle, folder-valid display formats + column path, folder security toggle → **Present** (human QA still open on #2588).
+- **#2408 / PR #2522 merged:** multi-select list + clipboard panel in shell → **Present**.
+- **#2504 / PR #2579 merged:** saved-search execute disposition = **façade**; matrix row stays **Partial** until #2505–#2507 land execute + UI + Playwright.
+- **Residual children not filed this run** for menu bar / advanced chrome: components mostly exist; next implement slices stay on open children **#2410**, **#2409→#2505–#2507**, **#2411→#2429–#2430**. File PR-sized children only when those land or product prioritizes phase 4.
+
+### 2026-08-08 baseline
+
+- Highest leverage was **compose shell** using existing components + `rest/actions` + `rest/displayformats` (landed).
+- REST enhancement: `GET /rest/displayformats?validForFolder=true` (and optional `validForViewsAndSearches`).
 - Re-audit after each slice merges; flip Partial → Present only when product route demonstrates the capability.
-- **P-Trans (#2411):** overnight inventory under `research/p-trans-api-inventory.md`. Public REST has locale **catalog** only; create locale variant remains SOAP/CX/DCE (`NewTranslations`, `sys_CreateTranslations`, `ACTION_PASTE_NEW_TRNSL`). Children: inventory #2428, REST façade #2429, Explorer UI #2430.
+- **P-Trans (#2411):** inventory under `research/p-trans-api-inventory.md` (PR #2431). Public REST has locale **catalog** only; create locale variant remains SOAP/CX/DCE. Children: inventory #2428, REST façade #2429, Explorer UI #2430.
