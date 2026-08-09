@@ -233,6 +233,32 @@ class SearchAdaptorExecuteTest {
     assertFalse(SearchAdaptor.isSafeSearchKey("a\\b"));
   }
 
+  @Test
+  void findPsSearchByKey_matchesGuidStringAndUntyped() throws Exception {
+    PSSearch s = mockSearch("ByGuid", false, true);
+    stubLoadedSearches(List.of(s));
+    // stubLoadedSearches attaches GUID "0-301-0"; add untyped for dual-key match
+    IPSGuid g = s.getGUID();
+    when(g.toStringUntyped()).thenReturn("42");
+
+    assertEquals(s, adaptor.findPsSearchByKey("0-301-0"));
+    assertEquals(s, adaptor.findPsSearchByKey("42"));
+  }
+
+  @Test
+  void findPsSearchByKey_skipsBlankGuidString() throws Exception {
+    PSSearch s = mockSearch("BlankGuid", false, true);
+    stubLoadedSearches(List.of(s));
+    IPSGuid g = s.getGUID();
+    when(g.toString()).thenReturn("   ");
+    when(g.toStringUntyped()).thenReturn("");
+    when(s.getId()).thenReturn(99);
+
+    // blank GUID tokens must not match; numeric id still works
+    assertNull(adaptor.findPsSearchByKey("   "));
+    assertEquals(s, adaptor.findPsSearchByKey("99"));
+  }
+
   private static SearchResultItem item(String id, String title) {
     SearchResultItem i = new SearchResultItem();
     i.setId(id);

@@ -144,9 +144,8 @@ public class SearchAdaptor implements ISearchAdaptor {
       result.setSearchName(design.getName());
       result.setDisplayFormatId(design.getDisplayFormatId());
       return result;
-    } catch (IllegalArgumentException e) {
-      throw e;
     } catch (RuntimeException e) {
+      // IllegalArgumentException (400) and other runtime errors propagate to JAX-RS as-is
       throw e;
     } catch (Exception e) {
       log.error("Failed to execute search {}", idOrName, e);
@@ -303,8 +302,13 @@ public class SearchAdaptor implements ISearchAdaptor {
       log.debug("Skipping non-numeric content id from search row: {}", contentId);
       return null;
     } catch (Exception e) {
-      // Keep partial row so execute still returns engine hits when enrichment fails
-      log.debug("Could not enrich search result for content id {}: {}", contentId, e.toString());
+      // Keep partial row so execute still returns engine hits when enrichment fails.
+      // Expected gaps (checked/service) stay DEBUG; unexpected runtime at WARN for ops.
+      if (e instanceof RuntimeException) {
+        log.warn("Could not enrich search result for content id {}: {}", contentId, e.toString());
+      } else {
+        log.debug("Could not enrich search result for content id {}: {}", contentId, e.toString());
+      }
       item.setId(contentId);
     }
     return item;
@@ -342,8 +346,13 @@ public class SearchAdaptor implements ISearchAdaptor {
           return s;
         }
         if (s.getGUID() != null) {
+          // IPSGuid has no Optional string; guard blank/sentinel toString before match
           String gsv = s.getGUID().toString();
-          if (key.equalsIgnoreCase(gsv)) {
+          if (StringUtils.isNotBlank(gsv) && key.equalsIgnoreCase(gsv)) {
+            return s;
+          }
+          String untyped = s.getGUID().toStringUntyped();
+          if (StringUtils.isNotBlank(untyped) && key.equalsIgnoreCase(untyped)) {
             return s;
           }
         }
