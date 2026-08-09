@@ -148,6 +148,32 @@ Canonical inventory (unit-tested lockstep with package.json):
 (use freeport `TEST_CMS_URL` from `qa-up`). Do **not** replace `test:golden` with the
 full suite; use path/tag/`test:golden-extended` only.
 
+#### Stale matrix image — fail-fast on `--skip-image-build` (#2484)
+
+`perc-devctl qa-up` waits on Docker `Health.Status=healthy` for the matrix
+cell (#2481). When `qa-up --skip-image-build` reuses a cached
+`percussion-matrix-cell:local` image whose `HEALTHCHECK` block is absent
+(a pre-#2481 bake, or one built without the `rhythmyx_healthcheck.py`
+script), the smoke would otherwise spin the full
+`--probe-timeout` window (default 900 s) and then report a confusing
+`docker_health_timeout health=none`.
+
+The Python entrypoint now detects that condition up front: when
+`--skip-image-build` is set, `qa-up` inspects the local image and emits
+`RESULT:FAIL STEP:qa-up DETAIL:matrix_image_stale` with a one-line rebuild
+hint before waiting on the smoke. Operators and agents should:
+
+1. Drop `--skip-image-build` (default) — the smoke will rebuild the image
+   from `docker/matrix/Dockerfile` automatically.
+2. Or rebuild the matrix image directly (faster when only the
+   `docker/scripts/*` health scripts changed):
+   `docker build -t percussion-matrix-cell:local -f docker/matrix/Dockerfile docker/`
+   (Windows: same command via PowerShell or `cmd /c`).
+
+Full context: `docker/README.md` → *Docker `Health.Status` (in-image
+HEALTHCHECK)* and `docs/developer-module/workbench-rest-and-qa-modes.md`
+§ *H2 Docker one-shot*.
+
 ### Demo-sites Sample Site residual (#1750 / #2194)
 
 Regression coverage that **Corporate Investments** and **Enterprise Investments**
