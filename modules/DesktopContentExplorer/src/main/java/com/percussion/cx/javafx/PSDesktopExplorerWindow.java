@@ -57,8 +57,11 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
   /**
    * State provider for the embedded JavaFX web view debugger, exposing a JSON-serializable state
    * blob to the page so it can be restored on reload.
+   *
+   * <p>Declared {@code static} so construction of the provider does not capture the enclosing
+   * window instance (javac {@code this-escape}).
    */
-  public class PSDesktopExplorerStateProvider implements JfxScriptStateProvider {
+  public static class PSDesktopExplorerStateProvider implements JfxScriptStateProvider {
     /** Default constructor. Initializes the state to an empty boxed JSON object. */
     public PSDesktopExplorerStateProvider() {
       // no-op
@@ -77,14 +80,22 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
     }
   }
 
-  /** State provider for the embedded web view, one per window instance. */
-  protected PSDesktopExplorerStateProvider myStateProvider = new PSDesktopExplorerStateProvider();
+  /**
+   * State provider for the embedded web view, one per window instance. Initialized with a static
+   * nested type so the window constructor does not publish {@code this}.
+   */
+  protected transient PSDesktopExplorerStateProvider myStateProvider =
+      new PSDesktopExplorerStateProvider();
 
   /** Logger for this class. */
   static Logger log = LogManager.getLogger(PSDesktopExplorerWindow.class);
 
-  /** The Java bridge exposed to the page's JavaScript as {@code java}. */
-  protected PSJavaBridge bridge = new PSJavaBridge(this);
+  /**
+   * The Java bridge exposed to the page's JavaScript as {@code java}. Lazily created by {@link
+   * #getBridge()} so field initializers and constructors do not publish {@code this} (javac {@code
+   * this-escape}).
+   */
+  protected transient volatile PSJavaBridge bridge;
 
   /** This window's target identifier used by the window manager. */
   protected String target;
@@ -147,6 +158,29 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
    */
   public PSDesktopExplorerWindow(String string) {
     super(string);
+  }
+
+  /**
+   * Returns the {@link PSJavaBridge} for this window, creating it on first use.
+   *
+   * <p>Lazy initialization avoids publishing {@code this} from instance field initializers during
+   * construction (javac {@code this-escape}). Safe to call after the window instance is fully
+   * constructed; used when installing the bridge on the page's JavaScript {@code window}.
+   *
+   * @return the bridge for this window, never {@code null}
+   */
+  protected PSJavaBridge getBridge() {
+    PSJavaBridge existing = bridge;
+    if (existing == null) {
+      synchronized (this) {
+        existing = bridge;
+        if (existing == null) {
+          existing = new PSJavaBridge(this);
+          bridge = existing;
+        }
+      }
+    }
+    return existing;
   }
 
   /**
@@ -404,7 +438,7 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
 
       Object currJava = (Object) window.getMember("java");
       if (currJava == null || currJava.toString().equals("undefined")) {
-        window.setMember("java", this.bridge);
+        window.setMember("java", getBridge());
         if (applet != null) window.setMember("contentexplorer", applet);
 
         getEngine()
