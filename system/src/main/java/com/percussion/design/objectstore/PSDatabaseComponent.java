@@ -316,8 +316,10 @@ public abstract class PSDatabaseComponent implements IPSDatabaseComponent {
    * @throws IllegalArgumentException if e is <code>null</code>.
    * @throws PSUnknownNodeTypeException if the provided element does not contain the expected
    *     attributes.
+   *     <p>Final so Element constructors / {@code fromXml} can call this without this-escape
+   *     virtual dispatch. Subclasses must not override component-state load.
    */
-  protected void getComponentState(Element e) throws PSUnknownNodeTypeException {
+  protected final void getComponentState(Element e) throws PSUnknownNodeTypeException {
     if (e == null) throw new IllegalArgumentException("Element may not be null");
 
     /* get the component state, if not found, assume this xml is from the

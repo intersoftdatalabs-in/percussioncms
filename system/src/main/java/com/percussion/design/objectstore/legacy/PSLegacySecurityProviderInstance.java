@@ -56,7 +56,8 @@ public class PSLegacySecurityProviderInstance extends PSSecurityProviderInstance
       Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     this();
-    fromXml(sourceNode, parentDoc, parentComponents);
+    // Private path avoids virtual fromXml dispatch during construction (this-escape).
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
 
   /** Constructor for serialization, fromXml, etc. */
@@ -73,9 +74,8 @@ public class PSLegacySecurityProviderInstance extends PSSecurityProviderInstance
    *     invalid.
    */
   public PSLegacySecurityProviderInstance(String name, int type) throws PSIllegalArgumentException {
-    super();
-    setName(name);
-    setType(type);
+    // Base name/type ctor applies non-virtual helpers (this-escape safe).
+    super(name, type);
   }
 
   @Override
@@ -102,7 +102,15 @@ public class PSLegacySecurityProviderInstance extends PSSecurityProviderInstance
    *
    * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXBackEndConnection
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
+  }
+
+  /**
+   * Shared load for {@link #fromXml} and the Element constructor (this-escape safe; non-virtual).
+   */
+  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

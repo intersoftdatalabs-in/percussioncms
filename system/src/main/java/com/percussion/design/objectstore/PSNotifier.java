@@ -98,7 +98,7 @@ public class PSNotifier extends PSComponent {
    *     supported.
    * @exception PSIllegalArgumentException if provider is invalid
    */
-  public void setProviderType(int provider) throws PSIllegalArgumentException {
+  public final void setProviderType(int provider) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateProviderType(provider);
     if (ex != null) throw ex;
 
@@ -131,7 +131,7 @@ public class PSNotifier extends PSComponent {
    * @param name the name of the mail server
    * @exception PSIllegalArgumentException if name is null, empty or exceeds the specified limit
    */
-  public void setServer(java.lang.String name) throws PSIllegalArgumentException {
+  public final void setServer(java.lang.String name) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateServer(name);
     if (ex != null) throw ex;
 
@@ -166,7 +166,7 @@ public class PSNotifier extends PSComponent {
    * @param from the name of the mail originator
    * @exception PSIllegalArgumentException if from exceeds the specified limit
    */
-  public void setFrom(java.lang.String from) throws PSIllegalArgumentException {
+  public final void setFrom(java.lang.String from) throws PSIllegalArgumentException {
     if ((null == from) || (from.length() == 0)) from = DEFAULT_FROM;
 
     PSIllegalArgumentException ex = validateFrom(from);
@@ -206,7 +206,7 @@ public class PSNotifier extends PSComponent {
    * @see #getRecipients
    * @see PSRecipient
    */
-  public void setRecipients(com.percussion.util.PSCollection recipients)
+  public final void setRecipients(com.percussion.util.PSCollection recipients)
       throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateRecipients(recipients);
     if (ex != null) throw ex;
@@ -322,7 +322,7 @@ public class PSNotifier extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXNotifier
    */
-  public void fromXml(
+  public final void fromXml(
       Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);

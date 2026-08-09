@@ -130,9 +130,10 @@ public abstract class PSSubject extends PSDatabaseComponent {
    *     list will be assigned.
    */
   protected PSSubject(String name, int type, PSAttributeList atts) {
-    setName(name);
-    setType(type);
-    setAttributes(atts);
+    // Private helpers avoid virtual setName/setAttributes during construction (this-escape).
+    applyName(name);
+    applyType(type);
+    applyAttributes(atts);
   }
 
   /**
@@ -149,7 +150,8 @@ public abstract class PSSubject extends PSDatabaseComponent {
       throws PSUnknownNodeTypeException {
     this();
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
-    fromXml(sourceNode, parentDoc, parentComponents);
+    // Private path avoids virtual fromXml dispatch before subclass fields initialize.
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
 
   /** Empty constructor for creating from serialization, fromXml() etc */
@@ -186,6 +188,11 @@ public abstract class PSSubject extends PSDatabaseComponent {
    * @throws IllegalArgumentException if name is invalid
    */
   void setName(String name) {
+    applyName(name);
+  }
+
+  /** Non-overridable assignment used from constructors and {@link #setName(String)}. */
+  private void applyName(String name) {
     if ((null == name) || (name.trim().length() == 0)) {
       throw new IllegalArgumentException("Subject name must be specified.");
     } else if (name.length() > SUBJECT_MAX_NAME_LEN)
@@ -205,6 +212,13 @@ public abstract class PSSubject extends PSDatabaseComponent {
    *     empty attribute list will be set.
    */
   void setAttributes(PSAttributeList attributes) {
+    applyAttributes(attributes);
+  }
+
+  /**
+   * Non-overridable assignment used from constructors and {@link #setAttributes(PSAttributeList)}.
+   */
+  private void applyAttributes(PSAttributeList attributes) {
     if (attributes == null) m_attributes = new PSAttributeList();
     else m_attributes = attributes;
   }
@@ -359,6 +373,16 @@ public abstract class PSSubject extends PSDatabaseComponent {
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
+  }
+
+  /**
+   * Shared load for {@link #fromXml} and the Element constructor. Keeps construction free of
+   * virtual {@code fromXml} dispatch so subclasses ({@link PSGlobalSubject}, {@link
+   * PSRelativeSubject}) can initialize safely.
+   */
+  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
     }
@@ -386,7 +410,7 @@ public abstract class PSSubject extends PSDatabaseComponent {
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
     } else {
       try {
-        setType(Integer.valueOf(sTemp).intValue());
+        applyType(Integer.valueOf(sTemp).intValue());
       } catch (NumberFormatException nfe) {
         Object[] args = {ms_NodeType, "type", sTemp};
         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
@@ -402,7 +426,7 @@ public abstract class PSSubject extends PSDatabaseComponent {
     // Read name element of the Subject
     sTemp = tree.getElementData("name");
     try {
-      setName(sTemp);
+      applyName(sTemp);
     } catch (IllegalArgumentException e) {
       Object[] args = {ms_NodeType, "name", e.toString()};
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
@@ -468,6 +492,11 @@ public abstract class PSSubject extends PSDatabaseComponent {
    * @throws IllegalArgumentException if the type is not valid.
    */
   private void setType(int type) {
+    applyType(type);
+  }
+
+  /** Non-overridable assignment used from constructors and {@link #setType(int)}. */
+  private void applyType(int type) {
     if ((type != SUBJECT_TYPE_USER) && (type != SUBJECT_TYPE_GROUP))
       throw new IllegalArgumentException("The subject type supplied is invalid.");
 

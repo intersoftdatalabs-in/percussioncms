@@ -95,7 +95,7 @@ public class PSLoginWebPage extends PSComponent {
    * @param isSecure <code>true</code> if the login page may only be sent over secure channels (eg,
    *     HTTPS)
    */
-  public void setSecure(boolean isSecure) {
+  public final void setSecure(boolean isSecure) {
     m_isSecure = isSecure;
   }
 
@@ -113,7 +113,7 @@ public class PSLoginWebPage extends PSComponent {
    *
    * @param url the URL of the login page
    */
-  public void setUrl(java.net.URL url) {
+  public final void setUrl(java.net.URL url) {
     m_url = url;
   }
 
@@ -183,7 +183,7 @@ public class PSLoginWebPage extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXLoginWebPage
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

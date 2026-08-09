@@ -268,7 +268,7 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
    *     MAX_ROLE_NAME_LEN</code> in length.
    * @throws IllegalArgumentException if name is null, empty or exceeds the specified size limit
    */
-  void setName(String name) {
+  final void setName(String name) {
     if ((null == name) || (name.length() == 0))
       throw new IllegalArgumentException("Role name must be specified.");
     else if (name.length() > MAX_ROLE_NAME_LEN)
@@ -360,7 +360,7 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
    *
    * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXRole
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

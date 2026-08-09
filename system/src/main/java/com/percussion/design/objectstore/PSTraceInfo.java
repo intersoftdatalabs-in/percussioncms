@@ -287,7 +287,7 @@ public class PSTraceInfo extends PSComponent {
    * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
    *     by the class.
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
 
     if (sourceNode == null) {

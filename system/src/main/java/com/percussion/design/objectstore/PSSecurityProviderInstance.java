@@ -62,7 +62,8 @@ public class PSSecurityProviderInstance extends PSComponent {
       Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     this();
-    fromXml(sourceNode, parentDoc, parentComponents);
+    // Private path avoids virtual fromXml dispatch before subclass fields initialize.
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
 
   /** Constructor for serialization, fromXml, etc. */
@@ -80,8 +81,9 @@ public class PSSecurityProviderInstance extends PSComponent {
    */
   public PSSecurityProviderInstance(String name, int type) throws PSIllegalArgumentException {
     super();
-    setName(name);
-    setType(type);
+    // Private helpers avoid virtual setName/setType during construction (this-escape).
+    applyName(name);
+    applyType(type);
   }
 
   @Override
@@ -117,7 +119,12 @@ public class PSSecurityProviderInstance extends PSComponent {
    * @param type the appropriate SP_TYPE_xxx flag
    * @throws PSIllegalArgumentException if type is invalid
    */
-  public void setType(int type) throws PSIllegalArgumentException {
+  public final void setType(int type) throws PSIllegalArgumentException {
+    applyType(type);
+  }
+
+  /** Non-overridable assignment used from constructors and {@link #setType(int)}. */
+  private void applyType(int type) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateType(type);
     if (ex != null) throw ex;
 
@@ -170,7 +177,12 @@ public class PSSecurityProviderInstance extends PSComponent {
    * @param name the unique security provider instance name
    * @throws PSIllegalArgumentException if name exceeds the specified size limit
    */
-  public void setName(java.lang.String name) throws PSIllegalArgumentException {
+  public final void setName(java.lang.String name) throws PSIllegalArgumentException {
+    applyName(name);
+  }
+
+  /** Non-overridable assignment used from constructors and {@link #setName(String)}. */
+  private void applyName(java.lang.String name) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateName(name);
     if (ex != null) throw ex;
 
@@ -298,6 +310,16 @@ public class PSSecurityProviderInstance extends PSComponent {
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
+  }
+
+  /**
+   * Shared load for {@link #fromXml} and the Element constructor. Keeps construction free of
+   * virtual {@code fromXml} dispatch so subclasses (e.g. legacy security provider instances) can
+   * initialize safely while still overriding public {@code fromXml}.
+   */
+  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
 
@@ -331,7 +353,7 @@ public class PSSecurityProviderInstance extends PSComponent {
     // get the instance name
     sTemp = tree.getElementData("name");
     try {
-      setName(sTemp);
+      applyName(sTemp);
     } catch (PSIllegalArgumentException e) {
       throw new PSUnknownNodeTypeException(ms_NodeType, "name", e);
     }
