@@ -30,10 +30,13 @@
  *   TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
  *     ADMIN_USERNAME=Admin ADMIN_PASSWORD=&lt;from-qa-up&gt; TEST_DB_TYPE=h2 \
  *     npm run test:golden
+ *   # optional extended (#2490): golden + @folder-recycle multi-path
+ *   # npm run test:golden-extended
  *   python docker/scripts/perc-devctl.py qa-down
  * </pre>
  *
- * <p>Windows (cmd) one-shot: see module README → Golden unattended smoke.</p>
+ * <p>Windows (cmd) one-shot: see module README → Golden unattended smoke.
+ * Extended set inventory: {@code helpers/golden-unattended-smoke-set.js}.</p>
  *
  * <p>Failure artifacts: {@code test-results/}, {@code playwright-report/}
  * under this frontend directory. Attach runbook:

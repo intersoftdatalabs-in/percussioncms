@@ -35,12 +35,16 @@
  *     npm run test:surface -- --path tests/folder-recycle-smoke.spec.js
  *   # tags:
  *   npm run test:surface -- --tag folder-recycle
+ *   # extended golden multi-path (baseline + this surface) — #2490:
+ *   npm run test:golden-extended
+ *   npm run test:golden-extended:list
  *   python docker/scripts/perc-devctl.py qa-down
  * </pre>
  *
  * <p>List only (no live CMS):
  * {@code npm run test:surface:list -- --path tests/folder-recycle-smoke.spec.js}
- * or {@code --tag folder-recycle}.</p>
+ * or {@code --tag folder-recycle}. Inventory:
+ * {@code helpers/golden-unattended-smoke-set.js}.</p>
  */
 
 const { test, expect } = require("@playwright/test");

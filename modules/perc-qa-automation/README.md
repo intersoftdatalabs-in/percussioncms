@@ -74,6 +74,10 @@ npm run test:golden
 # npm run test:surface -- --path tests/golden-unattended-smoke.spec.js
 # npx playwright test tests/golden-unattended-smoke.spec.js --grep @golden
 
+# Optional extended set (#2490): golden + @folder-recycle multi-path (not full suite)
+# npm run test:golden-extended
+# npm run test:golden-extended:list   # no live CMS
+
 cd ../../..
 python docker/scripts/perc-devctl.py qa-down
 ```
@@ -95,6 +99,7 @@ set TEST_DB_TYPE=h2
 set TEST_PRODUCT=cms
 
 call npm run test:golden
+REM Optional extended: call npm run test:golden-extended
 
 cd ..\..\..
 python docker\scripts\perc-devctl.py qa-down
@@ -102,16 +107,46 @@ python docker\scripts\perc-devctl.py qa-down
 
 | Item | Value |
 |------|--------|
-| Spec | `frontend/tests/golden-unattended-smoke.spec.js` |
-| npm | `npm run test:golden` |
-| Tags | `@smoke` / `@golden` (also via `npm run test:surface -- --tag golden`) |
+| Spec (baseline) | `frontend/tests/golden-unattended-smoke.spec.js` |
+| npm (baseline) | `npm run test:golden` |
+| Tags (baseline) | `@smoke` / `@golden` (also via `npm run test:surface -- --tag golden`) |
+| Specs (extended) | baseline + `frontend/tests/folder-recycle-smoke.spec.js` (`@folder-recycle`) |
+| npm (extended) | `npm run test:golden-extended` / `npm run test:golden-extended:list` |
+| Inventory helper | `frontend/tests/helpers/golden-unattended-smoke-set.js` (#2490) |
 | Failure artifacts | `modules/perc-qa-automation/frontend/test-results/` |
 | HTML report | `modules/perc-qa-automation/frontend/playwright-report/` |
 | Attach runbook | [playwright-failure-artifacts.md](../../docs/developer-module/playwright-failure-artifacts.md) |
 | Stack lifecycle | [workbench-rest-and-qa-modes.md](../../docs/developer-module/workbench-rest-and-qa-modes.md) §2 |
 
+#### Extended golden + `@folder-recycle` (#2490 / parent #2423)
+
+**Decision: include** `@folder-recycle` in the **optional extended** golden/unattended
+multi-path set — not in the minimal default and **not** the full Playwright suite.
+
+| Tier | npm | Specs | When to use |
+|------|-----|-------|-------------|
+| **Baseline** (default) | `npm run test:golden` | `golden-unattended-smoke.spec.js` only | Fastest unattended login + Explorer gate |
+| **Extended** | `npm run test:golden-extended` | baseline + `folder-recycle-smoke.spec.js` | Overnight / post-#2423 recycle REST smoke without full suite |
+
+```bash
+# List only (no live CMS) — proves surface wiring
+cd modules/perc-qa-automation/frontend
+npm run test:golden-extended:list
+# or surface-filter form:
+npm run test:surface:list -- --path tests/folder-recycle-smoke.spec.js
+npm run test:surface:list -- --tag folder-recycle
+
+# Live after qa-up
+TEST_CMS_URL=… ADMIN_USERNAME=Admin ADMIN_PASSWORD=… npm run test:golden-extended
+```
+
+Canonical inventory (unit-tested lockstep with package.json):
+`frontend/tests/helpers/golden-unattended-smoke-set.js`. Live H2 proof residual:
+#2488. Finder UI companion is separate (#2489 / `@finder-recycle-restore`).
+
 **Hard bans:** do not commit passwords; do not hardcode host port `:9993` as the only URL
-(use freeport `TEST_CMS_URL` from `qa-up`).
+(use freeport `TEST_CMS_URL` from `qa-up`). Do **not** replace `test:golden` with the
+full suite; use path/tag/`test:golden-extended` only.
 
 ### Demo-sites Sample Site residual (#1750 / #2194)
 
@@ -370,7 +405,7 @@ npm run test:surface:list -- --tag locale
 
 Does **not** expand Spanish/#961 residual matrix scope (tracked separately).
 
-#### Folder + recycle REST smoke (#2464 / parent #2423)
+#### Folder + recycle REST smoke (#2464 / parent #2423 / #2490)
 
 Surface-filtered regression after the `folderHelper` → `recycleService` Spring
 cycle break. Proves pathmanagement is up (hard fail if Rhythmyx context is dead),
@@ -378,12 +413,17 @@ then create folder under Assets → soft-delete (recycle) → restore by guid wh
 available, else purge via empty Recycling. Optional Admin login check when
 context is healthy.
 
+**Golden/unattended placement (#2490):** included in **`npm run test:golden-extended`**
+(multi-path with baseline golden). **Not** in default `npm run test:golden`.
+Still available as a standalone surface path/tag below.
+
 | Item | Value |
 |------|--------|
 | Spec | `frontend/tests/folder-recycle-smoke.spec.js` |
 | Tags | `@folder-recycle` `@smoke` |
-| Unit (no CMS) | `npm run test:unit` (includes `folder-recycle-smoke.test.js`) |
+| Unit (no CMS) | `npm run test:unit` (includes `folder-recycle-smoke.test.js`, `golden-unattended-smoke-set.test.js`) |
 | Helper | `frontend/tests/helpers/folder-recycle-smoke.js` |
+| Extended golden | `npm run test:golden-extended` / `test:golden-extended:list` |
 
 ```bash
 # After qa-up — path-filtered only (do not run full suite)
@@ -394,6 +434,10 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 
 # Tag form
 npm run test:surface -- --tag folder-recycle
+
+# Extended golden multi-path (baseline + this surface) — #2490
+npm run test:golden-extended
+npm run test:golden-extended:list
 
 # List only (no live CMS)
 npm run test:surface:list -- --path tests/folder-recycle-smoke.spec.js
