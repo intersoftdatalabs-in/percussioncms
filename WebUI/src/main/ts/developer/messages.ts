@@ -103,7 +103,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Workbench-parity preferences for design-time tools. Security preferences control the default ACL template applied when you create an object ACL.",
   PREF_SECURITY_TITLE: "perc.ui.developer@Security",
   PREF_ACL_HINT:
-    "perc.ui.developer@Default object ACL template for newly created ACLs (Workbench Security preferences). Entries are merged onto the owner ACL after Create ACL on an object that has none.",
+    "perc.ui.developer@Default object ACL template for newly created ACLs (Workbench Security preferences). Permission columns are grouped under Design access and Runtime visibility. Entries are merged onto the owner ACL after Create ACL on an object that has none.",
   PREF_ACL_LOADING: "perc.ui.developer@Loading default ACL template...",
   PREF_ACL_LOAD_ERROR: "perc.ui.developer@Could not load default ACL template preference.",
   PREF_ACL_SAVE: "perc.ui.developer@Save default ACL template",
