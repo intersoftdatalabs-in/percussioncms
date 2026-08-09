@@ -6416,6 +6416,24 @@ The result doc has the following DTD:
       <interface name="com.percussion.services.assembly.IPSAssembler"/>
       <suppliedResources/>
    </Extension>
+   <Extension name="htmlAssembler" context="global/percussion/assembly" handler="Java" categorystring="assembly" deprecated="no">
+      <initParam name="com.percussion.user.description">Assemble content using an HTML-first template with ${path} placeholders filled from JEXL bindings. No Velocity directives. Prefer for simple snippets; use velocityAssembler for macros and loops.</initParam>
+      <initParam name="com.percussion.extension.version">1</initParam>
+      <initParam name="className">com.percussion.services.assembly.impl.plugin.PSHtmlAssembler</initParam>
+      <initParam name="com.percussion.extension.reentrant">yes</initParam>
+      <initParam name="com.percussion.extension.assembly.fileSuffix">.html</initParam>
+      <interface name="com.percussion.services.assembly.IPSAssembler"/>
+      <suppliedResources/>
+   </Extension>
+   <Extension name="markdownAssembler" context="global/percussion/assembly" handler="Java" categorystring="assembly" deprecated="no">
+      <initParam name="com.percussion.user.description">Assemble content using CommonMark Markdown with ${path} placeholders from JEXL bindings, then render to HTML.</initParam>
+      <initParam name="com.percussion.extension.version">1</initParam>
+      <initParam name="className">com.percussion.services.assembly.impl.plugin.PSMarkdownAssembler</initParam>
+      <initParam name="com.percussion.extension.reentrant">yes</initParam>
+      <initParam name="com.percussion.extension.assembly.fileSuffix">.md</initParam>
+      <interface name="com.percussion.services.assembly.IPSAssembler"/>
+      <suppliedResources/>
+   </Extension>
    <Extension name="legacyAssembler" context="global/percussion/assembly" handler="Java" categorystring="assembly" deprecated="no">
       <initParam name="com.percussion.user.description">Assemble content using a legacy query app and stylesheet</initParam>
       <initParam name="com.percussion.extension.version">1</initParam>
