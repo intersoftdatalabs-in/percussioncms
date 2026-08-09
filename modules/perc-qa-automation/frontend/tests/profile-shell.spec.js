@@ -15,10 +15,13 @@
  */
 
 /**
- * Profile hub shell smoke (#2393 / #2425 / parent #2374 slice 1 residual).
+ * Profile hub shell smoke + axe WCAG gate (#2393 / #2425 / #2427 / parent #2374).
  *
  * Surface-filtered only — not full suite:
  *   npm run test:surface -- --path tests/profile-shell.spec.js
+ *
+ * Axe-only subset (serious/critical zero on hub after deep link + menu entry):
+ *   npm run test:surface -- --path tests/profile-shell.spec.js --grep "axe-core"
  *
  * QA mode: perc-devctl qa-up → TEST_CMS_URL + ADMIN_* / EDITOR_* / CONTRIBUTOR_*
  * → test:surface → qa-down.
@@ -34,6 +37,10 @@ const {
   loginAsContributor,
   BASE_URL,
 } = require("./helpers/auth");
+const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
+
+/** Stable CSS scope for axe — matches data-testid on ProfileShell root. */
+const PROFILE_SHELL_SCOPE = '[data-testid="perc-profile-shell"]';
 
 function profileDeepLink() {
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=profile&_=${Date.now()}`;
@@ -44,10 +51,12 @@ function homeUrl() {
 }
 
 /**
- * Assert profile hub shell landmarks after navigation to the profile entry.
+ * Wait until the profile hub shell and section landmarks are mounted.
+ * Shared by smoke and axe tests so a11y scans run only after React paint.
+ *
  * @param {import('@playwright/test').Page} page
  */
-async function expectProfileShellLandmarks(page) {
+async function expectProfileShellMounted(page) {
   await expect(page.getByTestId("perc-spa-app")).toBeVisible({
     timeout: 30_000,
   });
@@ -63,7 +72,6 @@ async function expectProfileShellLandmarks(page) {
     page.getByTestId("perc-profile-section-preferences"),
   ).toBeVisible();
   await expect(page.getByTestId("perc-profile-section-avatar")).toBeVisible();
-
   // Client path after entry handoff (or still query — accept either)
   await expect(page).toHaveURL(/profile/i, { timeout: 15_000 });
 }
@@ -76,7 +84,7 @@ test.describe("Profile shell @profile @smoke", () => {
     await loginAsAdmin(page);
 
     await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
-    await expectProfileShellLandmarks(page);
+    await expectProfileShellMounted(page);
   });
 
   test("My profile menu entry navigates to profile shell", async ({ page }) => {
@@ -93,13 +101,50 @@ test.describe("Profile shell @profile @smoke", () => {
     await expect(menuLink).toBeEnabled();
     await menuLink.click();
 
-    await expect(page.getByTestId("perc-profile-shell")).toBeVisible({
+    await expectProfileShellMounted(page);
+  });
+
+  /**
+   * #2427 — axe WCAG 2.1 A/AA serious/critical zero on hub after deep link.
+   * Reuses tests/helpers/a11y.js (expectNoSeriousA11yViolations).
+   */
+  test("axe-core a11y gate — profile shell via deep link (#2427)", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    await loginAsAdmin(page);
+
+    await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
+    await expectProfileShellMounted(page);
+
+    await expectNoSeriousA11yViolations(page, {
+      scope: PROFILE_SHELL_SCOPE,
+    });
+  });
+
+  /**
+   * #2427 — same axe gate after opening My profile from the user menu so
+   * menu-driven navigation does not leave a different a11y tree than deep link.
+   */
+  test("axe-core a11y gate — profile shell via My profile menu (#2427)", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    await loginAsAdmin(page);
+
+    await page.goto(homeUrl(), { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("perc-spa-user-menu")).toBeVisible({
       timeout: 30_000,
     });
-    await expect(page.getByTestId("perc-profile-title")).toContainText(
-      /my profile/i,
-    );
-    await expect(page).toHaveURL(/profile/i, { timeout: 15_000 });
+
+    const menuLink = page.getByTestId("perc-spa-my-profile");
+    await expect(menuLink).toBeVisible();
+    await menuLink.click();
+    await expectProfileShellMounted(page);
+
+    await expectNoSeriousA11yViolations(page, {
+      scope: PROFILE_SHELL_SCOPE,
+    });
   });
 
   test("Editor deep link opens profile shell (non-admin)", async ({ page }) => {
@@ -107,7 +152,7 @@ test.describe("Profile shell @profile @smoke", () => {
     await loginAsEditor(page);
 
     await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
-    await expectProfileShellLandmarks(page);
+    await expectProfileShellMounted(page);
   });
 
   test("Contributor deep link opens profile shell (non-admin)", async ({
@@ -117,6 +162,6 @@ test.describe("Profile shell @profile @smoke", () => {
     await loginAsContributor(page);
 
     await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
-    await expectProfileShellLandmarks(page);
+    await expectProfileShellMounted(page);
   });
 });

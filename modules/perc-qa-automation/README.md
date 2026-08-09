@@ -404,6 +404,34 @@ npm run test:surface:list -- --tag folder-recycle
 mentions `BeanCurrentlyInCreationException` / `folderHelper`), the smoke fails
 with an explicit message citing #2464 / #2423 — do not treat as soft skip.
 
+#### Profile shell + axe WCAG (#2393 / #2425 / #2427 / parent #2374)
+
+Smoke opens the **My profile** hub via deep link and user-menu entry (Admin,
+Editor, Contributor); axe-core gates assert **zero serious/critical** WCAG 2.1
+A/AA violations on `[data-testid="perc-profile-shell"]` (helper:
+`tests/helpers/a11y.js`).
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/profile-shell.spec.js` |
+| Tags | `@profile` `@smoke` |
+| Axe helper | `tests/helpers/a11y.js` → `expectNoSeriousA11yViolations` |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/profile-shell.spec.js
+
+# Axe gates only
+npm run test:surface -- --path tests/profile-shell.spec.js --grep "axe-core"
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/profile-shell.spec.js
+npm run test:surface:list -- --tag profile
+```
+
 **`run-surface` refuses the full suite** unless you pass `--allow-full` (agents must
 not use that by default).
 
