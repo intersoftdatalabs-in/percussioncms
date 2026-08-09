@@ -70,12 +70,13 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
     if (null == editorUrl) {
       throw new IllegalArgumentException("editorUrl cannot be null");
     }
-    setName(name);
-    setLabel(label);
-    setTypeId(typeId);
-    setEditorUrl(editorUrl);
-    setDescription(description);
-    setHideFromMenu(hideFromMenu);
+    // Direct field assignment during construction — avoid overridable setters (this-escape).
+    m_name = name;
+    m_label = label == null ? "" : label;
+    m_typeId = typeId;
+    m_editorUrl = editorUrl;
+    m_description = description == null ? "" : description;
+    m_hideFromMenu = hideFromMenu;
   }
 
   public PSItemDefSummary(
@@ -109,7 +110,7 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
    *     defined in the <code>fromXml</code> method.
    */
   public PSItemDefSummary(Element source) throws PSUnknownNodeTypeException {
-    fromXml(source, null, null);
+    fromXmlLoad(source);
   }
 
   /**
@@ -268,11 +269,32 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
       @SuppressWarnings("unused") IPSDocument parentDoc,
       @SuppressWarnings("unused") List parentComponents)
       throws PSUnknownNodeTypeException {
+    fromXmlLoad(source);
+  }
+
+  /**
+   * Package helper for {@link PSItemDefinition} Element construction — restores summary fields
+   * without dispatching through overridable public {@link #fromXml}.
+   *
+   * @param source never {@code null}
+   */
+  final void restoreSummaryFromXml(Element source) throws PSUnknownNodeTypeException {
+    fromXmlLoad(source);
+  }
+
+  /**
+   * Shared Element restore for construction and public {@link #fromXml}. Uses static {@link
+   * #getNodeName()} and direct field writes (no overridable setters) for this-escape safety.
+   *
+   * @param source never {@code null}
+   */
+  private void fromXmlLoad(Element source) throws PSUnknownNodeTypeException {
     if (null == source) throw new IllegalArgumentException("sourceNode must be supplied");
 
-    // make sure we got the correct root node tag
-    if (false == getNodeName().equals(source.getNodeName())) {
-      Object[] args = {getNodeName(), source.getNodeName()};
+    // Static getNodeName — no virtual dispatch.
+    final String nodeName = getNodeName();
+    if (false == nodeName.equals(source.getNodeName())) {
+      Object[] args = {nodeName, source.getNodeName()};
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
     }
 
@@ -281,7 +303,7 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
     String attrName = "name";
     temp = walker.getElementData(attrName);
     if (null == temp || temp.trim().length() == 0) {
-      Object[] args = {getNodeName(), attrName, temp};
+      Object[] args = {nodeName, attrName, temp};
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
     } else m_name = temp;
 
@@ -296,13 +318,13 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
     attrName = "typeId";
     temp = walker.getElementData(attrName);
     if (null == temp || temp.trim().length() == 0) {
-      Object[] args = {getNodeName(), attrName, temp};
+      Object[] args = {nodeName, attrName, temp};
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
     } else {
       try {
-        setTypeId(Integer.parseInt(temp));
+        m_typeId = Integer.parseInt(temp);
       } catch (NumberFormatException nfe) {
-        Object[] args = {getNodeName(), attrName, temp};
+        Object[] args = {nodeName, attrName, temp};
         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
       }
     }
@@ -310,20 +332,20 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
     attrName = "hideFromMenu";
     temp = walker.getElementData(attrName);
     if (null == temp || temp.trim().length() == 0) {
-      setHideFromMenu(false);
+      m_hideFromMenu = false;
     } else {
-      setHideFromMenu(Boolean.getBoolean(temp));
+      m_hideFromMenu = Boolean.getBoolean(temp);
     }
 
     attrName = "editorUrl";
     temp = walker.getElementData(attrName);
     if (null == temp || temp.trim().length() == 0) {
-      Object[] args = {getNodeName(), attrName, temp};
+      Object[] args = {nodeName, attrName, temp};
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
     } else m_editorUrl = temp;
 
-    String elemName = "Description";
-    setDescription(walker.getElementData(elemName));
+    String desc = walker.getElementData("Description");
+    m_description = desc == null ? "" : desc;
   }
 
   /**

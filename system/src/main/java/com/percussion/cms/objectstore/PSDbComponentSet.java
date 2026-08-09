@@ -182,14 +182,14 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
     m_class = compClass;
     m_memberComponentType = compType;
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
-    // create a root element which name is constructed from the item class
-    Element root = PSXmlDocumentBuilder.createRoot(doc, getNodeName());
+    // Class-derived node name during construction (no virtual getNodeName / this-escape).
+    Element root = PSXmlDocumentBuilder.createRoot(doc, defaultNodeNameFor(getClass()));
     for (int i = 0; items != null && i < items.length; i++) {
       Node node = doc.importNode(items[i], true);
       root.appendChild(node);
     }
-    // now we can reuse existing fromXml to create this Set.
-    fromXml(root);
+    // Construction-safe load (explicit node name, no virtual getNodeName).
+    fromXmlLoad(root, defaultNodeNameFor(getClass()));
   }
 
   /**
@@ -203,7 +203,34 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
     the key and db state */
     this();
     if (null == src) throw new IllegalArgumentException("Source element cannot be null.");
-    fromXml(src, nodeName);
+    // Prefer supplied node name; else class-derived default (subclass overrides of getNodeName
+    // that match PS→PSX mapping are equivalent; custom constants should pass nodeName explicitly).
+    String effective =
+        (nodeName == null || nodeName.trim().isEmpty())
+            ? defaultNodeNameFor(getClass())
+            : nodeName;
+    fromXmlLoad(src, effective);
+  }
+
+  /**
+   * Default XML root name for a component class without virtual dispatch (PS → PSX).
+   *
+   * @param clazz runtime class, never {@code null}
+   * @return node name, never {@code null} or empty
+   */
+  private static String defaultNodeNameFor(Class<?> clazz) {
+    String name = clazz.getName();
+    name = name.substring(name.lastIndexOf('.') + 1);
+    if (name.startsWith("PS")) name = "PSX" + name.substring(2);
+    return name;
+  }
+
+  /** Non-virtual type label for error messages during Element load. */
+  private String componentTypeLabel() {
+    if (m_memberComponentType != null && !m_memberComponentType.isEmpty()) {
+      return m_memberComponentType;
+    }
+    return getComponentType(getClass());
   }
 
   /** For use when constructing from xml. */
@@ -300,7 +327,8 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
    */
   @Override
   public void fromXml(Element src) throws PSUnknownNodeTypeException {
-    fromXml(src, null);
+    // After full construction: honor getNodeName overrides.
+    fromXml(src, getNodeName());
   }
 
   /**
@@ -310,8 +338,23 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
    * @param nodeName If <code>null</code> or empty, getNodeName() is used.
    */
   void fromXml(Element src, String nodeName) throws PSUnknownNodeTypeException {
+    if ((nodeName == null) || (nodeName.trim().length() < 1)) nodeName = getNodeName();
+    fromXmlLoad(src, nodeName);
+  }
+
+  /**
+   * Shared member restore used by public/package {@link #fromXml} and Element construction. Callers
+   * must supply a non-empty expected root node name (no virtual {@link #getNodeName()} here).
+   *
+   * @param src never {@code null}
+   * @param nodeName expected root element name, never {@code null} or empty
+   */
+  private void fromXmlLoad(Element src, String nodeName) throws PSUnknownNodeTypeException {
     // don't call super.fromXml because we don't use the key and state
     if (src == null) throw new IllegalArgumentException("Source element cannot be null.");
+    if (nodeName == null || nodeName.trim().isEmpty()) {
+      throw new IllegalArgumentException("nodeName must be supplied");
+    }
 
     m_set.clear();
     m_deleteList.clear();
@@ -319,8 +362,6 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
 
     String strClass = null;
     try {
-      if ((nodeName == null) || (nodeName.trim().length() < 1)) nodeName = getNodeName();
-
       PSXMLDomUtil.checkNode(src, nodeName);
 
       // if classname is already set, the xml must match that, otherwise we
@@ -339,7 +380,7 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
         if (strClass.length() == 0) {
           strClass = "com.percussion.cms.objectstore.";
           if (!strNodeName.startsWith("PSX")) {
-            String[] args = {strClass, getComponentType()};
+            String[] args = {strClass, componentTypeLabel()};
             throw new PSUnknownNodeTypeException(IPSCmsErrors.INVALID_ENTRY_CLASSNAME, args);
           } else strClass += PSStringOperation.replace(strNodeName, "PSX", "PS");
         }
@@ -362,30 +403,30 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
           // add to delete list
           m_deleteList.add(aCmp);
         } else {
-          // Add to Set
-          add(aCmp);
+          // Direct set insert during load — avoid overridable add() (this-escape).
+          m_set.add(aCmp);
         }
         // Get the next sibling node
         aEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
       }
     } catch (ClassNotFoundException e) {
-      String[] args = {strClass, getComponentType(), e.getLocalizedMessage()};
+      String[] args = {strClass, componentTypeLabel(), e.getLocalizedMessage()};
       throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
     } catch (InstantiationException ie) {
-      String[] args = {strClass, getComponentType(), ie.getLocalizedMessage()};
+      String[] args = {strClass, componentTypeLabel(), ie.getLocalizedMessage()};
       throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
     } catch (IllegalAccessException iae) {
-      String[] args = {strClass, getComponentType(), iae.getLocalizedMessage()};
+      String[] args = {strClass, componentTypeLabel(), iae.getLocalizedMessage()};
       throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
     } catch (InvocationTargetException ite) {
       Throwable origException = ite.getTargetException();
       String msg = origException.getLocalizedMessage();
       String[] args = {
-        strClass, getComponentType(), origException.getClass().getName() + ": " + msg
+        strClass, componentTypeLabel(), origException.getClass().getName() + ": " + msg
       };
       throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
     } catch (NoSuchMethodException nsme) {
-      String[] args = {strClass, getComponentType(), nsme.getLocalizedMessage()};
+      String[] args = {strClass, componentTypeLabel(), nsme.getLocalizedMessage()};
       throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
     } catch (IllegalArgumentException iae) {
       // this should never happen because we checked ahead of time

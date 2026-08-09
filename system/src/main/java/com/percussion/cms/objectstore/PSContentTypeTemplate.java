@@ -50,8 +50,9 @@ public class PSContentTypeTemplate extends PSDbComponent {
    *     defined in the <code>fromXml</code> method.
    */
   public PSContentTypeTemplate(Element source) throws PSUnknownNodeTypeException {
+    // super(Element) restores key/state via createKeyDefault; fields loaded without re-fromXml.
     super(source);
-    fromXml(source);
+    loadFieldsFromXml(source);
   }
 
   /**
@@ -244,7 +245,13 @@ public class PSContentTypeTemplate extends PSDbComponent {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode must be supplied");
 
     super.fromXml(sourceNode);
+    loadFieldsFromXml(sourceNode);
+  }
 
+  /**
+   * Loads non-key fields from XML without re-applying key/state (avoids Element double-load).
+   */
+  private void loadFieldsFromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     m_outputFormat = PSXMLDomUtil.checkAttributeInt(sourceNode, XML_ATTR_outputFormat, true);
 
     m_aaType = PSXMLDomUtil.checkAttributeInt(sourceNode, XML_ATTR_aaType, false);
@@ -326,8 +333,12 @@ public class PSContentTypeTemplate extends PSDbComponent {
     return copy;
   }
 
-  /** Override to create our own Key which is {@link PSLocator}. */
-  protected PSKey createKey(Element el) throws PSUnknownNodeTypeException {
+  /**
+   * Override to create our own Key which is {@link PSKey}. Final — leaf type; honored from public
+   * {@link #fromXml(Element)} after construction.
+   */
+  @Override
+  protected final PSKey createKey(Element el) throws PSUnknownNodeTypeException {
     if (el == null) throw new IllegalArgumentException("Source element cannot be null.");
 
     return new PSKey(el);

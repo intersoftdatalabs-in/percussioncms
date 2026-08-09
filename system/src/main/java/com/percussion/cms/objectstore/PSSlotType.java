@@ -44,8 +44,9 @@ public class PSSlotType extends PSDbComponent {
    *     defined in the <code>fromXml</code> method.
    */
   public PSSlotType(Element source) throws PSUnknownNodeTypeException {
+    // super(Element) restores key/state via createKeyDefault; fields loaded without re-fromXml.
     super(source);
-    fromXml(source);
+    loadFieldsFromXml(source);
   }
 
   /**
@@ -174,7 +175,13 @@ public class PSSlotType extends PSDbComponent {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode must be supplied");
 
     super.fromXml(sourceNode);
+    loadFieldsFromXml(sourceNode);
+  }
 
+  /**
+   * Loads non-key fields from XML without re-applying key/state (avoids Element double-load).
+   */
+  private void loadFieldsFromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     m_systemSlot = PSXMLDomUtil.checkAttributeInt(sourceNode, XML_ATTR_systemSlot, false);
 
     m_slotType = PSXMLDomUtil.checkAttributeInt(sourceNode, XML_ATTR_slotType, false);
@@ -256,9 +263,11 @@ public class PSSlotType extends PSDbComponent {
   }
 
   /**
-   * Override to create our own Key which is {@link com.percussion.design.objectstore.PSLocator}.
+   * Override to create our own Key which is {@link PSKey}. Final — leaf type; honored from public
+   * {@link #fromXml(Element)} after construction.
    */
-  protected PSKey createKey(Element el) throws PSUnknownNodeTypeException {
+  @Override
+  protected final PSKey createKey(Element el) throws PSUnknownNodeTypeException {
     if (el == null) throw new IllegalArgumentException("Source element cannot be null.");
 
     return new PSKey(el);

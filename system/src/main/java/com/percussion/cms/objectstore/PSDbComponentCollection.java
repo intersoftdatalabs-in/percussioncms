@@ -133,7 +133,21 @@ public class PSDbComponentCollection extends PSDbComponent {
     the key and db state */
     this();
     if (null == src) throw new IllegalArgumentException("Source element cannot be null.");
-    m_list = new PSDbComponentList(src, getNodeName());
+    // Class-derived node name during construction (no virtual getNodeName / this-escape).
+    m_list = new PSDbComponentList(src, defaultNodeNameFor(getClass()));
+  }
+
+  /**
+   * Default XML root name for a component class without virtual dispatch (PS → PSX).
+   *
+   * @param clazz runtime class, never {@code null}
+   * @return node name, never {@code null} or empty
+   */
+  private static String defaultNodeNameFor(Class<?> clazz) {
+    String name = clazz.getName();
+    name = name.substring(name.lastIndexOf('.') + 1);
+    if (name.startsWith("PS")) name = "PSX" + name.substring(2);
+    return name;
   }
 
   /**
@@ -188,7 +202,11 @@ public class PSDbComponentCollection extends PSDbComponent {
   PSDbComponentCollection(Element src, String nodeName) throws PSUnknownNodeTypeException {
     this();
     if (null == src) throw new IllegalArgumentException("Source element cannot be null.");
-    fromXml(src, nodeName);
+    String effective =
+        (nodeName == null || nodeName.trim().isEmpty())
+            ? defaultNodeNameFor(getClass())
+            : nodeName;
+    fromXml(src, effective);
   }
 
   /** For use when constructing from xml. */
@@ -246,7 +264,8 @@ public class PSDbComponentCollection extends PSDbComponent {
    */
   @Override
   public void fromXml(Element src) throws PSUnknownNodeTypeException {
-    fromXml(src, null);
+    // After full construction: honor getNodeName overrides.
+    fromXml(src, getNodeName());
   }
 
   /**

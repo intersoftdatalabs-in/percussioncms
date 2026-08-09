@@ -39,8 +39,9 @@ public class PSVariantSlotType extends PSDbComponent {
    *     defined in the <code>fromXml</code> method.
    */
   public PSVariantSlotType(Element source) throws PSUnknownNodeTypeException {
+    // super(Element) restores key/state via createKeyDefault; no field load needed beyond that.
+    // (fromXml only re-applies key/state — avoid double-load by not calling it from the ctor.)
     super(source);
-    fromXml(source);
   }
 
   /**
