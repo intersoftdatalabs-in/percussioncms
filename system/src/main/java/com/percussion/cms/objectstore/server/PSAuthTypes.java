@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -107,30 +106,10 @@ public class PSAuthTypes implements Observer {
    */
   private synchronized void loadProperties(PSObservableFile configFile) throws IOException {
     m_authTypeMap.clear();
-    InputStream is = null;
-    try {
-      is = new FileInputStream(configFile.getFile());
+    try (InputStream is = new FileInputStream(configFile.getFile())) {
       Properties props = new Properties();
       props.load(is);
-      Iterator iter = props.keySet().iterator();
-      final String AUTHTYPE_PREFIX = "authtype.";
-      while (iter.hasNext()) {
-        String name = (String) iter.next();
-        String value = props.getProperty(name);
-        if (value != null && value.length() > 0) {
-          String key = null;
-          if (name.length() > AUTHTYPE_PREFIX.length())
-            key = name.substring(AUTHTYPE_PREFIX.length());
-          if (key != null) m_authTypeMap.put(key, value);
-        }
-      }
-    } finally {
-      if (is != null) {
-        try {
-          is.close();
-        } catch (Exception e) {
-        }
-      }
+      m_authTypeMap.putAll(PSAuthTypePropertiesParser.parse(props));
     }
   }
 
