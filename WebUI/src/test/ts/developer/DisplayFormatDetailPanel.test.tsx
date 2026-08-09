@@ -16,6 +16,21 @@ vi.mock("../../../main/ts/api/developer/displayFormatsApi", () => ({
   normalizeColumns: (c: unknown) => (Array.isArray(c) ? c : []),
 }));
 
+// ObjectAclSection loads ACL via separate API; stub to isolate detail load + assert wiring.
+vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
+  ObjectAclSection: (props: {
+    objectGuid?: string | null;
+    objectKind?: string | null;
+    testIdPrefix?: string;
+  }) => (
+    <div
+      data-testid={`${props.testIdPrefix ?? "developer-acl"}-stub`}
+      data-object-guid={props.objectGuid ?? ""}
+      data-object-kind={props.objectKind ?? ""}
+    />
+  ),
+}));
+
 const getDisplayFormatDetail = displayFormatsApi.getDisplayFormatDetail as ReturnType<
   typeof vi.fn
 >;
@@ -54,6 +69,17 @@ describe("DisplayFormatDetailPanel", () => {
     expect(getDisplayFormatDetail).toHaveBeenCalledWith("Default");
     fireEvent.click(screen.getByTestId("developer-df-back"));
     expect(onBack).toHaveBeenCalled();
+  });
+
+  it("mounts ObjectAclSection with display-format kind and object guid", async () => {
+    getDisplayFormatDetail.mockResolvedValue(sampleDetail);
+    render(<DisplayFormatDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-acl-stub")).toBeTruthy();
+    });
+    const acl = screen.getByTestId("developer-df-acl-stub");
+    expect(acl.getAttribute("data-object-kind")).toBe("display-format");
+    expect(acl.getAttribute("data-object-guid")).toBe("0-1-100");
   });
 
   it("shows empty columns section when detail has none", async () => {

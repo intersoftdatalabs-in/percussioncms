@@ -9,6 +9,21 @@ import type { SiteDef } from "../../../main/ts/api/developer/types";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { SiteDetailPanel } from "../../../main/ts/developer/SiteDetailPanel";
 
+// ObjectAclSection loads ACL via separate API; stub to isolate detail render + assert wiring.
+vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
+  ObjectAclSection: (props: {
+    objectGuid?: string | null;
+    objectKind?: string | null;
+    testIdPrefix?: string;
+  }) => (
+    <div
+      data-testid={`${props.testIdPrefix ?? "developer-acl"}-stub`}
+      data-object-guid={props.objectGuid ?? ""}
+      data-object-kind={props.objectKind ?? ""}
+    />
+  ),
+}));
+
 /**
  * SiteDetailPanel is prop-driven from the Sites list payload (no separate detail GET).
  * panelErrMsg ladders for load failures live on SitesPanel; this suite covers success +
@@ -22,6 +37,7 @@ const sampleSite: SiteDef = {
   defaultDocument: "index.html",
   defaultFileExtention: "html",
   pageBasedSite: true,
+  guid: { stringValue: "0-10-1" },
   designGaps: ["gap-a"],
 };
 
@@ -39,6 +55,9 @@ describe("SiteDetailPanel", () => {
     expect(screen.getByTestId("developer-site-detail-title").textContent).toContain("Corporate");
     expect(screen.getByTestId("developer-site-gaps").textContent).toContain("gap-a");
     expect(screen.getByText("https://example.com")).toBeTruthy();
+    const acl = screen.getByTestId("developer-site-acl-stub");
+    expect(acl.getAttribute("data-object-kind")).toBe("site");
+    expect(acl.getAttribute("data-object-guid")).toBe("0-10-1");
     fireEvent.click(screen.getByTestId("developer-site-back"));
     expect(onBack).toHaveBeenCalled();
   });

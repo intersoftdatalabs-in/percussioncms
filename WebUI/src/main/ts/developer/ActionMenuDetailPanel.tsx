@@ -8,6 +8,7 @@ import type { ActionMenu } from "../api/developer/types";
 import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { ObjectAclSection } from "./ObjectAclSection";
 
 export function ActionMenuDetailPanel({
   idOrName,
@@ -155,6 +156,12 @@ export function ActionMenuDetailPanel({
               </div>
             )}
           </section>
+
+          <ObjectAclSection
+            objectGuid={detail.guid?.stringValue}
+            objectKind="action-menu"
+            testIdPrefix="developer-am-acl"
+          />
 
           <section style={{ marginTop: "16px" }} data-testid="developer-am-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.AM_GAPS}</h3>

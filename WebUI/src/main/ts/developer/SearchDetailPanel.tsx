@@ -8,6 +8,7 @@ import type { SearchDef } from "../api/developer/types";
 import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { ObjectAclSection } from "./ObjectAclSection";
 
 export function SearchDetailPanel({
   idOrName,
@@ -120,6 +121,12 @@ export function SearchDetailPanel({
               </div>
             )}
           </section>
+
+          <ObjectAclSection
+            objectGuid={detail.guid?.stringValue}
+            objectKind="search"
+            testIdPrefix="developer-sr-acl"
+          />
 
           <section style={{ marginTop: "16px" }} data-testid="developer-sr-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SR_GAPS}</h3>

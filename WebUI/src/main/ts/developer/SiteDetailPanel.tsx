@@ -6,6 +6,7 @@ import React from "react";
 import type { SiteDef } from "../api/developer/types";
 import { catalogColors, backButton, metaGrid, monoCell } from "./catalogStyles";
 import { DEV_MSG } from "./messages";
+import { ObjectAclSection } from "./ObjectAclSection";
 
 export function SiteDetailPanel({
   site,
@@ -49,6 +50,12 @@ export function SiteDetailPanel({
           </dd>
         </dl>
       </header>
+
+      <ObjectAclSection
+        objectGuid={site.guid?.stringValue}
+        objectKind="site"
+        testIdPrefix="developer-site-acl"
+      />
 
       <section data-testid="developer-site-gaps">
         <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SITE_GAPS}</h3>
