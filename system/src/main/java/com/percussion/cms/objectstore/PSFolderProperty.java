@@ -25,7 +25,8 @@ import org.w3c.dom.Element;
  * "properties" as the child name. The folder property represent one entry in the child table, or
  * child entry.
  */
-public class PSFolderProperty extends PSCmsProperty {
+// Final leaf — Element ctor uses non-virtual super path (this-escape free).
+public final class PSFolderProperty extends PSCmsProperty {
   /** Creates an empty object. */
   public PSFolderProperty(String name) {
     super(new PSSimpleKey(KEY_ID), name);
@@ -40,8 +41,9 @@ public class PSFolderProperty extends PSCmsProperty {
    */
   public PSFolderProperty(String name, String value, String desc) {
     super(new PSSimpleKey(KEY_ID), name);
-    super.setValue(value);
-    super.setDescription(desc);
+    // Direct field assignment — avoid overridable setValue/setDescription (this-escape).
+    m_strValue = (value == null) ? "" : value;
+    m_strDescription = (desc == null) ? "" : desc;
   }
 
   /**
@@ -61,16 +63,18 @@ public class PSFolderProperty extends PSCmsProperty {
    * <code>KEY_ID</code>.
    */
   public PSFolderProperty(Element src) throws PSUnknownNodeTypeException {
-    super(new PSSimpleKey(KEY_ID), "dummy");
-    super.fromXml(src);
+    // Key/state via non-virtual Element super path + field load (this-escape free).
+    // Public fromXml still uses createKey override after full construction.
+    super(src);
   }
 
   /**
    * Override the key because this property uses different key part definition. see {@link
-   * PSCmsProperty#createKey(Element)} more detail
+   * PSCmsProperty#createKey(Element)} more detail. Final — no further subclasses; safe for public
+   * fromXml after construction.
    */
   @Override
-  protected PSKey createKey(Element el) throws PSUnknownNodeTypeException {
+  protected final PSKey createKey(Element el) throws PSUnknownNodeTypeException {
     PSKey k = new PSSimpleKey(KEY_ID);
     k.fromXml(el);
 

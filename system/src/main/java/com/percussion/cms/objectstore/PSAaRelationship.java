@@ -42,7 +42,8 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author RammohanVangapalli
  */
-public class PSAaRelationship extends PSRelationship {
+// Final leaf — constructors call final setConfig/setProperty/setSlot without subclass this-escape.
+public final class PSAaRelationship extends PSRelationship {
   /**
    * Construct a new active assembly relaionship knowing the owner locator, contentid of the
    * dependent, id of the slot the dependent belongs and the variantid of the dependent.
@@ -203,8 +204,12 @@ public class PSAaRelationship extends PSRelationship {
    *     registered user properties.
    * @deprecated use {@link #setSlot(IPSTemplateSlot)} instead.
    */
+  /**
+   * Final so constructors can assign slot without this-escape. Uses final {@link
+   * PSRelationship#setProperty(String, String)}.
+   */
   @Deprecated
-  public void setSlot(PSSlotType slot) {
+  public final void setSlot(PSSlotType slot) {
     if (slot == null) throw new IllegalArgumentException("slot must not be null");
 
     m_slot = slot;
@@ -241,8 +246,12 @@ public class PSAaRelationship extends PSRelationship {
    * @throws IllegalArgumentException if the {@link IPSHtmlParameters#SYS_VARIANTID} is not one of
    *     the registered user properties.
    */
+  /**
+   * Final so constructors can assign variant/template without this-escape. Uses final {@link
+   * PSRelationship#setProperty(String, String)}.
+   */
   @SuppressWarnings("deprecation")
-  public void setVariant(PSContentTypeTemplate variant) {
+  public final void setVariant(PSContentTypeTemplate variant) {
     if (variant == null) throw new IllegalArgumentException("variant must not be null");
 
     m_variant = variant;

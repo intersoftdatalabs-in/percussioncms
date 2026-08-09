@@ -19,7 +19,8 @@ package com.percussion.cms.objectstore;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
-public class PSActionProperty extends PSCmsProperty {
+// Final leaf — Element ctor uses non-virtual super path (this-escape free).
+public final class PSActionProperty extends PSCmsProperty {
   /** no-args constructor */
   public PSActionProperty() {}
 
@@ -47,8 +48,8 @@ public class PSActionProperty extends PSCmsProperty {
    * @throws PSUnknownNodeTypeException
    */
   public PSActionProperty(Element src) throws PSUnknownNodeTypeException {
-    super(getKeyDef(), "dummy");
-    fromXml(src);
+    // Key/state via non-virtual Element super path; fields via loadFieldsFromXml (this-escape free).
+    super(src);
   }
 
   /**
