@@ -10,17 +10,38 @@ Unattended overnight worker:
 
 1. **Discover** open GitHub issues  
 2. **Triage** (implement / split / skip)  
-3. **PR follow-up PRE** (optional, default on) - **merge-blocker drain** before new issue PRs (conflicts + open review threads only, **no CI polling**; oldest first)  
-4. **Work** sequential implement or split - **file residual follow-up issues** for leftover work  
-5. **PR follow-up POST** - catch PRs opened this run + remaining merge blockers  
-6. **Residual quota** (default on) - require **≥ `min_residual_issues` (default 3)** new real residual/child GH issues whose **parent is already p1–p4** and residual **inherits parent pN** (no p8 padding / no invented priority); one backfill agent if short; **circuit breaker** stops the run if still short  
+3. **PR follow-up PRE** (optional, default on) - **merge-blocker drain** on **our** open PRs (conflicts + open review threads only, **no CI polling**; oldest first)  
+4. **Peer PR review** (optional, default on) - independent code review of open PRs **missing reviews** that are **co-authored by another model** or have **no `model:*` labels** (agent-shaped only); **APPROVE** when solid; **squash-merge** when checks green + threads clear (`allow_peer_squash_merge`, default true)  
+5. **Work** sequential implement or split - **claim-check In Progress just before start** (skip if already claimed); **file residual follow-up issues only when real work remains** (no residual-quota phase / no minimum count)  
+6. **PR follow-up POST** - catch PRs opened this run + remaining merge blockers  
 7. **PR cluster** (optional, default on) - absorb same-file thrash into one superseding PR  
 8. **Security audit** (optional, default on) - if open CodeQL code-scanning alerts exist, ensure **one** open tracking issue `[night-issues: Security Audit - Fix Pass]` per `base_branch`, then open capped mitigation PRs  
 9. **Report** -> `scratch/night-report.md`
 
-**Human QA handoff (during Work, default on):** when a task is **ready for human QA**, create a **`qa task`** issue with a numbered **test plan**, assign **`vijaya-boddipudi`**, link Parent + PR. Not the same as residual quota.
+**Human QA handoff (during Work, default on):** when a task is **ready for human QA**, create a **`qa task`** issue with a numbered **test plan**, assign **`vijaya-boddipudi`**, link Parent + PR.
 
-Opens **PRs only** (never merges). Oversized issues become child issues, not mega-PRs.
+**Merge policy:** Work phase still **opens PRs only** (does not auto-merge its own night Work PRs). **Peer PR review** may **squash-merge** eligible other-model / no-model agent PRs after an independent review when checks are green. Oversized issues become child issues, not mega-PRs.
+
+### Peer PR review (other model / no model labels)
+
+| Rule | Behavior |
+|------|----------|
+| **When** | After PR follow-up PRE, before Work |
+| **Targets** | Open PRs **missing** an independent approving review, and either **(A)** labeled/co-authored by a **non-grok** model (`model:kilo`, Co-Authored Claude/Codex/Cursor/Kilo, etc.) or **(B)** **no `model:*` labels** but still **agent-shaped** (`operator:*`, Co-Authored footer, `fix/issue-*` / `feat/issue-*` branch) |
+| **Action** | Erlang-style code review → APPROVE or REQUEST_CHANGES |
+| **Squash merge** | Only if `allow_peer_squash_merge=true` (default), review APPROVE, no open threads, mergeable, **checks green** |
+| **Hard bans** | Pure human PRs with no agent markers; rule-only PRs without human approval; CONFLICTING/DIRTY (leave for follow-up); this night’s own `model:grok-4.5` Work PRs (POST follow-up only) |
+| **Disable** | `include_peer_pr_review: false` or `allow_peer_squash_merge: false` (review without merge) |
+
+### In Progress claim-check (Work)
+
+Just **before** any git/code work on a queued issue:
+
+1. Fresh `gh issue view --json labels,assignees,state`
+2. If **In Progress** already present → `status=skipped_in_progress`, **do not** claim, continue to next queue item
+3. Only if clear → add **In Progress**, work, then **always remove** on exit
+
+Triage may still prefer skipping In Progress issues; Work re-checks live so concurrent agents do not double-start.
 
 ### Multi-phase status → parent GitHub issue (not repo markdown)
 
@@ -79,12 +100,13 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | `agent_safe_only` | bool | `true` | Skip host-install, secrets, multi-RDBMS, full-suite E2E; **allow** H2 QA + `test:surface` |
 | `unassigned_only` | bool | `true` | Only issues with **no assignees** |
 | `include_pr_followup` | bool | `true` | Run PR merge-blocker drain **before and after** issue Work |
+| `include_peer_pr_review` | bool | `true` | After PRE: review other-model / no-model agent PRs missing reviews; optional squash-merge |
+| `max_peer_reviews` | int | `4` | Max peer PRs fully reviewed per run (capped 1–8) |
+| `allow_peer_squash_merge` | bool | `true` | When peer review APPROVEs and checks are green, squash-merge eligible PRs |
 | `include_pr_cluster` | bool | `true` | After POST follow-up, absorb same-file thrash PRs into one cluster PR (**independent of** `include_pr_followup`) |
 | `cluster_min_prs` | int | `3` | Min owned open PRs sharing thrash files to open a cluster (2–8) |
 | `include_security_audit` | bool | `true` | After PR cluster: inventory open code-scanning alerts; singleton Security Audit issue + mitigation PRs |
 | `max_security_prs` | int | `3` | Max CodeQL mitigation PRs per Security Audit pass (capped 1–8) |
-| `min_residual_issues` | int | `3` | Min **new** residual/child issues under **p1–p4 parents** this pass (capped 1–12). Residual pN = parent pN. |
-| `require_residual_quota` | bool | `true` | Enforce residual quota; trip **circuit breaker** if unmet after one backfill attempt. Skipped on `dry_run`. |
 | `include_human_qa` | bool | `true` | When Work item is ready for human QA, create a QA issue with test plan and assign designated QA |
 | `qa_assignee` | string | `vijaya-boddipudi` | GitHub login for human QA handoff |
 | `qa_label` | string | `qa task` | Label applied to human QA issues |
@@ -102,7 +124,7 @@ When Work finishes a change that is **ready for human QA** (product UI, installe
 4. **Label:** `qa task` (+ `8.2`, operator labels).
 5. **Body:** Parent, PR URL(s), **numbered test plan**, pass/fail criteria, out of scope, agent evidence.
 
-Human QA issues are **not** unassigned residuals and usually **do not** count toward residual quota.
+Human QA issues are handoff work (assigned), not unassigned residual implement slices.
 
 ### Issue lifecycle / close rules (no empty trackers)
 
@@ -115,20 +137,9 @@ Human QA issues are **not** unassigned residuals and usually **do not** count to
 
 Hard ban: epic/tracker issues open with **zero** related open child/QA issues and no next step.
 
-### Residual quota + circuit breaker
+### Residual issues (no quota phase)
 
-Live runs must **grow backlog under existing high-priority parents**, not invent low-priority noise.
-
-| Rule | Behavior |
-|------|----------|
-| **Quota** | At least `min_residual_issues` (default **3**) **new** residual/child issues this pass |
-| **Parent filter** | Parent issue must **already** be labeled **p1, p2, p3, or p4**. Residuals of Unset/p5–p8 parents **do not count** |
-| **Priority on residual** | **Copy parent pN exactly** onto the residual. Do **not** invent a higher priority. Do **not** pad with p8 residuals |
-| **Size (anti-padding)** | Each residual must be a **full PR-sized** unit (coherent acceptance, typically 1–3 modules + tests). **Prefer under-quota / circuit breaker over micro-slices** invented to hit the number |
-| **What counts** | `residual_issue_urls` + `child_issue_urls` from Work (+ PR follow-up residuals): open, **PR-sized** real body, filed this pass, parent p1–p4, residual pN matches parent |
-| **Backfill** | If short, one residual-quota agent files more **PR-sized** slices **only under existing p1–p4 parents**, inheriting that pN. **No fake padding, no micro-split, no priority upgrades.** |
-| **Circuit breaker** | If still short of real PR-sized residuals: **stop** overnight post-processing (skip PR cluster + security audit), write Report, complete with `residual_circuit_breaker: true` |
-| **Disable** | `require_residual_quota: false` (not recommended for overnight) |
+There is **no residual-quota phase** and **no minimum residual count**. Work agents still file **real PR-sized** residual/child issues when unfinished work remains (copy parent pN; no micro-padding). Zero residuals is fine when nothing is left.
 
 ### Security audit Fix Pass (post-processing)
 
@@ -181,14 +192,15 @@ Rough agent use:
 |-------|--------|
 | Discover | 1 |
 | Triage | 1 |
-| Work | 1 per queued issue |
 | PR follow-up pre | 0-1 |
+| Peer PR review | 0-1 |
+| Work | 1 per queued issue |
 | PR follow-up post | 0-1 |
 | PR cluster | 0-1 |
 | Security audit | 0-1 |
 | Report | 1 |
 
-**3 issues + dual PR follow-up + security audit ~ 9 agents.** Default 128 is plenty.
+**3 issues + dual PR follow-up + peer review + security audit ~ 10 agents.** Default 128 is plenty.
 
 ```text
 # Security audit heavy night (many open CodeQL alerts)
@@ -196,6 +208,12 @@ name=night-issue-prs args={"max_issues": 1, "max_security_prs": 5, "include_secu
 
 # Skip security pass
 name=night-issue-prs args={"include_security_audit": false}
+
+# Peer review without auto-merge
+name=night-issue-prs args={"allow_peer_squash_merge": false}
+
+# Skip peer PR reviews entirely
+name=night-issue-prs args={"include_peer_pr_review": false}
 ```
 
 ### How to run

@@ -1,6 +1,8 @@
 // Overnight / unattended open-issue worker for Percussion CMS.
 // Discovers open GitHub issues, triages size, splits oversized work, implements
-// bounded slices, and opens PRs against main (never merges).
+// bounded slices, and opens PRs against main. Own Work PRs are NOT auto-merged.
+// Peer PR review phase may squash-merge OTHER-model / no-model agent PRs after
+// an independent code review when checks are green (see include_peer_pr_review).
 //
 // Args (all optional):
 //   max_issues        int    - max issues/slices to fully process this run (default 3)
@@ -17,6 +19,12 @@
 //   unassigned_only     bool   - only work issues with no assignees (default true)
 //   include_pr_followup bool   - drain merge blockers on OUR open PRs (default true).
 //                                Runs BEFORE issue Work; second pass AFTER Work for new PRs.
+//   include_peer_pr_review bool - after PRE follow-up: independent code review of open PRs that
+//                                lack reviews and are co-authored by ANOTHER model (not grok-4.5)
+//                                OR have no model:* labels (agent-shaped only). Default true.
+//                                When review is APPROVE, threads clear, and checks green: squash-merge.
+//   max_peer_reviews    int    - max peer PRs to fully review per run (default 4, cap 8)
+//   allow_peer_squash_merge bool - if true (default), peer review may squash-merge eligible PRs
 //   max_prs             int    - max open PRs to babysit per follow-up pass (default 6, cap 12)
 //   include_pr_cluster  bool   - after POST follow-up, absorb same-file thrash PRs into one cluster PR (default true)
 //   cluster_min_prs     int    - min owned open PRs sharing thrash files to form a cluster (default 3, range 2-8)
@@ -27,17 +35,6 @@
 //                                mitigation PRs (capped) for alerts. Never open a second concurrent
 //                                Security Audit issue for the same base_branch.
 //   max_security_prs    int    - max mitigation PRs to open per Security Audit pass (default 3, cap 8)
-//   min_residual_issues int    - min NEW residual/child GH issues this run must file (default 3, cap 12).
-//                                ONLY residuals whose PARENT issue is already p1–p4 count.
-//                                Residual priority MUST be copied from the parent (same pN) — never invent
-//                                a higher priority and never pad the quota with p5–p8 (or parent-p8) residuals.
-//                                Each residual must be a REAL PR-sized unit (see SIZE RULES) — never split
-//                                one PR of work into three tiny issues just to hit the quota.
-//                                Counts residual_issue_urls + child_issue_urls from Work and PR follow-up.
-//                                After Work+PR-POST: if under quota, one residual-backfill agent may file more
-//                                REAL PR-sized residuals under existing p1–p4 parents only. If still under
-//                                quota → CIRCUIT BREAKER (stop run) — prefer circuit breaker over micro-slices.
-//   require_residual_quota bool - enforce min_residual_issues gate (default true). dry_run skips the gate.
 //   include_human_qa    bool   - when Work item is ready for human QA, create QA issue with test plan
 //                                and assign designated QA resource (default true).
 //   qa_assignee         string - GitHub login for human QA (default vijaya-boddipudi)
@@ -58,19 +55,23 @@
 // slots for the whole run (default 128). See README.
 //
 // MERGE BLOCKERS (agent follow-up scope): CONFLICTING/DIRTY OR any unresolved review
-// thread (human or bot). Co-equal - open threads must not starve. Do NOT poll CI checks.
+// thread (human or bot). Co-equal - open threads must not starve. Do NOT poll CI checks
+// in PR follow-up (peer review phase MAY require green checks before squash-merge).
+//
+// IN PROGRESS CLAIM (Work): re-check issue labels immediately before starting each task.
+// If another agent already applied In Progress, skip that issue and continue the queue.
 
 let meta = #{
     name: "night-issue-prs",
-    description: "Unassigned issues to PRs, residual follow-ups, PR merge-blocker drain",
-    when_to_use: "Overnight: unassigned issues, residual GH follow-ups, unstick our open PRs",
+    description: "Unassigned issues to PRs, residual follow-ups, peer PR review/merge, merge-blocker drain",
+    when_to_use: "Overnight: unassigned issues, residual GH follow-ups, peer-model PR reviews, unstick our open PRs",
     phases: [
         #{ title: "Discover", detail: "list open issues via gh; resolve p1–p8 labels" },
         #{ title: "Triage", detail: "p1-first queue (p1 highest…p8 lowest) + ~20% p7/p8 quota" },
         #{ title: "PR follow-up (pre)", detail: "drain merge blockers before new issue PRs" },
-        #{ title: "Work", detail: "In Progress label lifecycle; implement/split; parent GH progress" },
+        #{ title: "Peer PR review", detail: "review other-model/no-model open PRs; squash-merge if clean" },
+        #{ title: "Work", detail: "In Progress claim-check; implement/split; parent GH progress" },
         #{ title: "PR follow-up (post)", detail: "catch PRs opened this run + remaining blockers" },
-        #{ title: "Residual quota", detail: "≥N real residual GH issues this pass or circuit breaker" },
         #{ title: "PR cluster", detail: "same-file thrash: interim branch + superseding PR" },
         #{ title: "Security audit", detail: "CodeQL open alerts → one Audit Fix Pass issue + mitigation PRs" },
         #{ title: "Report", detail: "scratch night report (run-local only; not epic status)" },
@@ -135,6 +136,22 @@ let pr_followup_schema = #{
     },
 };
 
+let peer_pr_review_schema = #{
+    "type": "object",
+    "required": ["status", "summary", "prs_reviewed"],
+    "properties": #{
+        "status": #{ "type": "string" },
+        "summary": #{ "type": "string" },
+        "prs_reviewed": #{ "type": "string" },
+        "prs_approved": #{ "type": "string" },
+        "prs_merged": #{ "type": "string" },
+        "prs_changes_requested": #{ "type": "string" },
+        "prs_skipped": #{ "type": "string" },
+        "residual_issue_urls": #{ "type": "string" },
+        "blocked": #{ "type": "string" },
+    },
+};
+
 let pr_cluster_schema = #{
     "type": "object",
     "required": ["status", "summary"],
@@ -167,22 +184,6 @@ let security_audit_schema = #{
     },
 };
 
-let residual_quota_schema = #{
-    "type": "object",
-    "required": ["status", "summary", "residual_count", "quota_met", "circuit_breaker"],
-    "properties": #{
-        "status": #{ "type": "string" },
-        "summary": #{ "type": "string" },
-        "residual_count": #{ "type": "integer" },
-        "quota_met": #{ "type": "boolean" },
-        "circuit_breaker": #{ "type": "boolean" },
-        "residual_issue_urls": #{ "type": "string" },
-        "residual_issue_numbers": #{ "type": "string" },
-        "backfill_created": #{ "type": "integer" },
-        "blocked": #{ "type": "string" },
-    },
-};
-
 // Canonical tracking issue title (exact match for singleton search).
 // Per base_branch: at most ONE open issue with this title may exist.
 let security_audit_title = "[night-issues: Security Audit - Fix Pass]";
@@ -202,16 +203,15 @@ let low_priority_quota_pct = 20;
 let agent_safe_only = true;
 let unassigned_only = true;
 let include_pr_followup = true;
+let include_peer_pr_review = true;
 let include_pr_cluster = true;
 let include_security_audit = true;
-let require_residual_quota = true;
 let include_human_qa = true;
+let allow_peer_squash_merge = true;
 let max_prs = 6;
+let max_peer_reviews = 4;
 let cluster_min_prs = 3;
 let max_security_prs = 3;
-// Min NEW residual/child GitHub issues filed this overnight pass (backlog growth).
-// Only residuals of parents already labeled p1–p4 count; residual pN must match parent.
-let min_residual_issues = 3;
 let issue_numbers = ();
 // Dedicated overnight workspace. Empty = agent resolves portable path under home:
 //   %USERPROFILE% or $HOME + /.grok/worktrees/intersoft-workspace-percussioncms/night-issue-prs
@@ -232,16 +232,17 @@ if args != () {
     if args.agent_safe_only != () { agent_safe_only = args.agent_safe_only; }
     if args.unassigned_only != () { unassigned_only = args.unassigned_only; }
     if args.include_pr_followup != () { include_pr_followup = args.include_pr_followup; }
+    if args.include_peer_pr_review != () { include_peer_pr_review = args.include_peer_pr_review; }
     if args.include_pr_cluster != () { include_pr_cluster = args.include_pr_cluster; }
     if args.include_security_audit != () { include_security_audit = args.include_security_audit; }
-    if args.require_residual_quota != () { require_residual_quota = args.require_residual_quota; }
     if args.include_human_qa != () { include_human_qa = args.include_human_qa; }
+    if args.allow_peer_squash_merge != () { allow_peer_squash_merge = args.allow_peer_squash_merge; }
     if args.qa_assignee != () { qa_assignee = args.qa_assignee; }
     if args.qa_label != () { qa_label = args.qa_label; }
     if args.max_prs != () { max_prs = args.max_prs; }
+    if args.max_peer_reviews != () { max_peer_reviews = args.max_peer_reviews; }
     if args.cluster_min_prs != () { cluster_min_prs = args.cluster_min_prs; }
     if args.max_security_prs != () { max_security_prs = args.max_security_prs; }
-    if args.min_residual_issues != () { min_residual_issues = args.min_residual_issues; }
     if args.issue_numbers != () { issue_numbers = args.issue_numbers; }
     if args.worktree_path != () { worktree_path = args.worktree_path; }
     if args.sync_branch != () { sync_branch = args.sync_branch; }
@@ -251,12 +252,12 @@ if max_issues < 1 { max_issues = 1; }
 if max_issues > 12 { max_issues = 12; }
 if max_prs < 1 { max_prs = 1; }
 if max_prs > 12 { max_prs = 12; }
+if max_peer_reviews < 1 { max_peer_reviews = 1; }
+if max_peer_reviews > 8 { max_peer_reviews = 8; }
 if cluster_min_prs < 2 { cluster_min_prs = 2; }
 if cluster_min_prs > 8 { cluster_min_prs = 8; }
 if max_security_prs < 1 { max_security_prs = 1; }
 if max_security_prs > 8 { max_security_prs = 8; }
-if min_residual_issues < 1 { min_residual_issues = 1; }
-if min_residual_issues > 12 { min_residual_issues = 12; }
 if low_priority_quota_pct < 0 { low_priority_quota_pct = 0; }
 if low_priority_quota_pct > 50 { low_priority_quota_pct = 50; }
 
@@ -275,10 +276,11 @@ log("night-issue-prs: repo=" + repo + " base=" + base_branch
     + " agent_safe_only=" + agent_safe_only.to_string()
     + " unassigned_only=" + unassigned_only.to_string()
     + " include_pr_followup=" + include_pr_followup.to_string()
+    + " include_peer_pr_review=" + include_peer_pr_review.to_string()
+    + " allow_peer_squash_merge=" + allow_peer_squash_merge.to_string()
+    + " max_peer_reviews=" + max_peer_reviews.to_string()
     + " include_pr_cluster=" + include_pr_cluster.to_string()
     + " include_security_audit=" + include_security_audit.to_string()
-    + " require_residual_quota=" + require_residual_quota.to_string()
-    + " min_residual_issues=" + min_residual_issues.to_string()
     + " include_human_qa=" + include_human_qa.to_string()
     + " qa_assignee=" + qa_assignee
     + " qa_label=" + qa_label
@@ -405,6 +407,8 @@ triage_prompt += "- unassigned_only=" + unassigned_only.to_string() + "\n";
 triage_prompt += "  When true: NEVER queue an issue that has any assignee. Skip assigned work even if\n";
 triage_prompt += "  it leaked into the inventory. Overnight runs must not step on humans mid-task.\n";
 triage_prompt += "- In Progress: PREFER skip (disposition=skip) for issues already labeled In Progress\n";
+triage_prompt += "  (Work will re-check live labels just before start and skip_in_progress if another\n";
+triage_prompt += "  agent claimed after triage — still prefer not queuing already In Progress items)\n";
 triage_prompt += "  unless they are clearly abandoned and you note why in rationale (default: skip).\n";
 triage_prompt += "- Base branch for eventual PRs: " + base_branch + "\n";
 triage_prompt += "- dry_run=" + dry_run.to_string() + " (still produce the same queue plan)\n\n";
@@ -461,26 +465,24 @@ if queue.len() == 0 {
 
 // ========== Work + PR follow-up ==========
 // dry_run: triage plan only.
-// Live: PR follow-up PRE (drain blockers) -> Work -> PR follow-up POST (new PRs).
+// Live: PR follow-up PRE -> Peer PR review -> Work -> PR follow-up POST (new PRs).
 let results = [];
 let pr_followup_result = ();
 let pr_followup_post_result = ();
+let peer_pr_review_result = ();
 let pr_cluster_result = ();
 let security_audit_result = ();
-let residual_quota_result = ();
-// When true after residual-quota phase: skip cluster + security audit and finish via Report.
-let residual_circuit_breaker = false;
 if dry_run {
-    log("dry_run=true: skipping Work, PR follow-up, residual-quota, cluster, and security-audit agents (triage plan only).");
-    residual_quota_result = #{
+    log("dry_run=true: skipping Work, PR follow-up, peer review, cluster, and security-audit agents (triage plan only).");
+    peer_pr_review_result = #{
         status: "skipped",
-        summary: "dry_run=true (residual quota not enforced)",
-        residual_count: 0,
-        quota_met: true,
-        circuit_breaker: false,
+        summary: "dry_run=true (no peer PR reviews)",
+        prs_reviewed: "",
+        prs_approved: "",
+        prs_merged: "",
+        prs_changes_requested: "",
+        prs_skipped: "",
         residual_issue_urls: "",
-        residual_issue_numbers: "",
-        backfill_created: 0,
         blocked: "",
     };
     security_audit_result = #{
@@ -654,6 +656,136 @@ if include_pr_followup {
     log("PR follow-up disabled (include_pr_followup=false).");
 }
 
+// ========== Peer PR review (other-model / no-model open PRs) ==========
+// Independent code review + optional squash-merge when checks are green.
+if include_peer_pr_review {
+    phase("Peer PR review");
+    let b_peer = budget();
+    if b_peer.remaining < 2 {
+        log("Skipping peer PR review: agent budget low.");
+        peer_pr_review_result = #{
+            status: "skipped",
+            summary: "Skipped: insufficient agent budget",
+            prs_reviewed: "",
+            prs_approved: "",
+            prs_merged: "",
+            prs_changes_requested: "",
+            prs_skipped: "",
+            residual_issue_urls: "",
+            blocked: "budget",
+        };
+    } else {
+        let peer_prompt = "";
+        peer_prompt += "You are the overnight PEER PR REVIEW agent for Percussion CMS.\n";
+        peer_prompt += "Repo: " + repo + "\n";
+        peer_prompt += "Base branch: " + base_branch + "\n";
+        peer_prompt += "max_peer_reviews=" + max_peer_reviews.to_string() + "\n";
+        peer_prompt += "allow_peer_squash_merge=" + allow_peer_squash_merge.to_string() + "\n";
+        peer_prompt += "Your identity for this pass: Grok Build / model:grok-4.5 (independent reviewer).\n\n";
+
+        peer_prompt += "GOAL:\n";
+        peer_prompt += "Review open PRs that are MISSING independent code reviews and that were either:\n";
+        peer_prompt += "  (A) co-authored / labeled by ANOTHER model (not model:grok-4.5 / not this Grok night run), OR\n";
+        peer_prompt += "  (B) have NO model:* labels at all (agent-shaped PRs only — see HARD BANS).\n";
+        peer_prompt += "If the PR looks good (approve), threads clear, and checks are green, you MAY squash-merge\n";
+        peer_prompt += "when allow_peer_squash_merge=true. Otherwise request changes or leave a review comment.\n\n";
+
+        peer_prompt += "IDENTITY / AUTH:\n";
+        peer_prompt += "1) gh auth status first; active account for " + repo + ".\n";
+        peer_prompt += "2) Prefer reviewing as a different model/agent than the PR author (you are grok-4.5).\n\n";
+
+        peer_prompt += "SELECTION (inventory then pick up to max_peer_reviews):\n";
+        peer_prompt += "S1) List open PRs to " + base_branch + " (not draft preferred; include draft only if ready-for-review).\n";
+        peer_prompt += "S2) A PR is ELIGIBLE only if ALL of:\n";
+        peer_prompt += "    - Missing independent code review: no approving REVIEW from a human or from an agent\n";
+        peer_prompt += "      other than the PR author (pending/comment-only does not count as complete review).\n";
+        peer_prompt += "    - AND one of:\n";
+        peer_prompt += "      (A) OTHER MODEL: has model:* label that is NOT model:grok-4.5, OR commit/PR body\n";
+        peer_prompt += "          Co-Authored-By / Operator footer names Claude, Codex, Cursor, Kilo, Gemini,\n";
+        peer_prompt += "          or operator:kilo / other non-grok operator; OR\n";
+        peer_prompt += "      (B) NO MODEL LABELS: zero model:* labels on the PR, AND agent-shaped signals\n";
+        peer_prompt += "          (operator:* label, Co-Authored footer, branch fix/issue-* or feat/issue-*,\n";
+        peer_prompt += "           or night-issue-prs / pickup-issue mention).\n";
+        peer_prompt += "S3) Prefer oldest eligible first. Cap at max_peer_reviews full reviews this pass.\n";
+        peer_prompt += "S4) SKIP (list under prs_skipped):\n";
+        peer_prompt += "    - Pure human product PRs with no agent markers (even if no model: labels)\n";
+        peer_prompt += "    - PRs already approved by a human or independent agent review\n";
+        peer_prompt += "    - Your own same-run Work PRs opened later tonight (those go through POST follow-up only)\n";
+        peer_prompt += "    - PRs that only change agent rules / AGENTS.md / .kilocode / .grok rules without\n";
+        peer_prompt += "      explicit human approval in the PR (do not merge rule-only PRs)\n";
+        peer_prompt += "    - CONFLICTING/DIRTY (leave for PR follow-up; do not merge)\n\n";
+
+        peer_prompt += "PER SELECTED PR:\n";
+        peer_prompt += "R1) Diff: gh pr diff / view files. Read linked issue(s). Check tests + module scope.\n";
+        peer_prompt += "R2) Apply Erlang-style review (bugs, missing behavioral tests, non-portable paths,\n";
+        peer_prompt += "    change-class companions). Reference skill/agents if present under modules/ai-shared-develop.\n";
+        peer_prompt += "R3) If NOT ready: submit a REQUEST_CHANGES or COMMENT review with concrete findings;\n";
+        peer_prompt += "    open residual issues for out-of-scope leftovers; do NOT merge.\n";
+        peer_prompt += "R4) If READY to approve:\n";
+        peer_prompt += "    - No unresolved review threads (or you resolve only threads you fully fixed yourself\n";
+        peer_prompt += "      with mitigation reply + resolveReviewThread — rare for pure review pass).\n";
+        peer_prompt += "    - mergeable is MERGEABLE / not CONFLICTING; not blocked by required conversations.\n";
+        peer_prompt += "    - Checks: take a fresh `gh pr checks` snapshot. Require required/green checks.\n";
+        peer_prompt += "      If checks pending/failing: APPROVE only if policy allows pending, but DO NOT merge;\n";
+        peer_prompt += "      note under blocked. Prefer wait-free: skip merge when not green this pass.\n";
+        peer_prompt += "    - Submit APPROVE review with a short summary of what was verified.\n";
+        peer_prompt += "R5) SQUASH MERGE (only if allow_peer_squash_merge=true AND R4 fully satisfied):\n";
+        peer_prompt += "    gh pr merge <N> --repo " + repo + " --squash --delete-branch\n";
+        peer_prompt += "    (use --admin only if already authorized and required; prefer normal merge path).\n";
+        peer_prompt += "    Comment that night-issue-prs peer review approved + squash-merged.\n";
+        peer_prompt += "    Close linked issues only if GitHub auto-close applies or issue has no remaining\n";
+        peer_prompt += "    children/QA (follow ISSUE LIFECYCLE — no empty trackers).\n";
+        peer_prompt += "R6) If allow_peer_squash_merge=false: stop after APPROVE review; do not merge.\n\n";
+
+        peer_prompt += "HARD BANS:\n";
+        peer_prompt += "- Do not merge your own model:grok-4.5 Work PRs from this night run here.\n";
+        peer_prompt += "- Do not merge human-only PRs without agent markers.\n";
+        peer_prompt += "- Do not bare-resolve review threads.\n";
+        peer_prompt += "- Do not poll CI in a long loop; one or two check snapshots max per PR.\n";
+        peer_prompt += "- Do not force-push author branches unless fixing a trivial conflict you own.\n\n";
+
+        peer_prompt += "Return structured: status (completed|skipped|failed), summary, prs_reviewed,\n";
+        peer_prompt += "prs_approved, prs_merged, prs_changes_requested, prs_skipped, residual_issue_urls, blocked.\n";
+
+        let peer_agent = agent(peer_prompt, #{
+            label: "peer-pr-review",
+            capability_mode: "all",
+            output_schema: peer_pr_review_schema,
+        });
+
+        if peer_agent != () && peer_agent.success && peer_agent.output != () {
+            peer_pr_review_result = peer_agent.output;
+            log("Peer PR review: " + peer_pr_review_result.summary);
+        } else {
+            peer_pr_review_result = #{
+                status: "failed",
+                summary: "Peer PR review agent failed",
+                prs_reviewed: "",
+                prs_approved: "",
+                prs_merged: "",
+                prs_changes_requested: "",
+                prs_skipped: "",
+                residual_issue_urls: "",
+                blocked: "agent_failed",
+            };
+            log("Peer PR review agent failed");
+        }
+    }
+} else {
+    log("Peer PR review disabled (include_peer_pr_review=false).");
+    peer_pr_review_result = #{
+        status: "skipped",
+        summary: "include_peer_pr_review=false",
+        prs_reviewed: "",
+        prs_approved: "",
+        prs_merged: "",
+        prs_changes_requested: "",
+        prs_skipped: "",
+        residual_issue_urls: "",
+        blocked: "",
+    };
+}
+
 // ========== Work (sequential - shared workspace) ==========
 if queue.len() > 0 {
 phase("Work");
@@ -706,7 +838,7 @@ for item in queue {
     work_prompt += "- Before any gh: `gh auth status` (active account for this repo).\n";
     work_prompt += "- Commit footer: Co-Authored by Grok Build using grok-4.5 with agent main.\n\n";
 
-    work_prompt += "IN PROGRESS LABEL LIFECYCLE (hard — humans use this to see live work):\n";
+    work_prompt += "IN PROGRESS CLAIM + LABEL LIFECYCLE (HARD):\n";
     work_prompt += "Label name: \"In Progress\" (create if missing; if repo has \"in progress\" use that exact name).\n";
     work_prompt += "Create once if needed: gh label create \"In Progress\" --repo " + repo
         + " --color 5CD5E1 --description \"Agent or human actively working\" --force\n";
@@ -717,11 +849,26 @@ for item in queue {
     } else if disp == "skip" {
         work_prompt += "disposition=skip: do NOT add In Progress. Leave labels unchanged.\n\n";
     } else {
-        work_prompt += "START (before any git/code work, after reading the issue):\n";
-        work_prompt += "  gh issue edit " + inum.to_string() + " --repo " + repo + " --add-label \"In Progress\"\n";
-        work_prompt += "  (If add fails because label already present, continue.)\n";
-        work_prompt += "  Optional: comment once \"night-issue-prs: starting work\".\n";
-        work_prompt += "END (ALWAYS — success, failure, blocked, split-only, abandon — every exit path):\n";
+        work_prompt += "CLAIM CHECK (MANDATORY — just before starting this task, AFTER reading the issue,\n";
+        work_prompt += "BEFORE any git/code work, BEFORE you add In Progress):\n";
+        work_prompt += "  1) Fresh fetch: gh issue view " + inum.to_string() + " --repo " + repo
+            + " --json labels,assignees,state\n";
+        work_prompt += "  2) If state is not OPEN: status=skipped, summary why; do not work.\n";
+        work_prompt += "  3) If labels already include \"In Progress\" or \"in progress\" (case-insensitive):\n";
+        work_prompt += "     ANOTHER agent or human already claimed this issue.\n";
+        work_prompt += "     → status=skipped_in_progress\n";
+        work_prompt += "     → summary must say who/that In Progress was already present\n";
+        work_prompt += "     → do NOT add labels, do NOT comment starting work, do NOT code/git\n";
+        work_prompt += "     → RETURN immediately so the workflow can pick the next queue item\n";
+        work_prompt += "  4) If assignees became non-empty and unassigned_only policy applies to humans:\n";
+        work_prompt += "     prefer status=skipped with reason assigned (unless assignee is only a bot).\n";
+        work_prompt += "  5) ONLY if NOT already In Progress: claim now:\n";
+        work_prompt += "     gh issue edit " + inum.to_string() + " --repo " + repo + " --add-label \"In Progress\"\n";
+        work_prompt += "     Optional: comment once \"night-issue-prs: starting work\".\n";
+        work_prompt += "  6) Race safety: if add fails because label appeared, re-run claim check; if now\n";
+        work_prompt += "     In Progress from someone else, status=skipped_in_progress and exit.\n";
+        work_prompt += "END (ALWAYS — success, failure, blocked, split-only, abandon — every exit path\n";
+        work_prompt += "except skipped_in_progress where you never added the label):\n";
         work_prompt += "  gh issue edit " + inum.to_string() + " --repo " + repo + " --remove-label \"In Progress\"\n";
         work_prompt += "  Also try --remove-label \"in progress\" if the add used the existing lowercase name.\n";
         work_prompt += "  Never leave In Progress on after this agent finishes. Prefer remove even if add failed.\n";
@@ -774,25 +921,19 @@ for item in queue {
     work_prompt += "    - Product/code docs that are part of the fix itself are fine; progress trackers are not.\n";
     work_prompt += "P5) Child/residual issue bodies must link PARENT and state their slice role; leave unassigned.\n\n";
 
-    work_prompt += "RESIDUAL WORK (hard requirement — p1–p4 parent backlog growth):\n";
+    work_prompt += "RESIDUAL WORK (when unfinished work remains — no run quota):\n";
     work_prompt += "Anything not finished in this PR/session must not only live in chat.\n";
-    work_prompt += "RUN QUOTA: this overnight pass must file at least " + min_residual_issues.to_string()
-        + " NEW real residual/child GitHub issues whose PARENT is already p1–p4.\n";
-    work_prompt += "Residual priority MUST equal the parent's priority label (copy pN exactly).\n";
-    work_prompt += "Do NOT invent a higher priority. Do NOT pad the quota with p5–p8 residuals or with\n";
-    work_prompt += "residuals of Unset/p5–p8 parents. Those may exist outside quota but do not count.\n";
-    work_prompt += "SIZE / ANTI-PADDING (HARD — more important than hitting the number):\n";
+    work_prompt += "There is NO residual-quota phase and NO minimum residual count this run.\n";
+    work_prompt += "File residual/child issues ONLY for real leftover work — never pad.\n";
+    work_prompt += "SIZE / ANTI-PADDING (HARD):\n";
     work_prompt += "  - Each residual/child MUST be a full PR-sized unit (ideally 1–3 Maven modules,\n";
     work_prompt += "    shippable tests, coherent acceptance) — same SIZE RULES as triage implement.\n";
     work_prompt += "  - Prefer ONE solid residual over THREE micro-issues that could be one PR.\n";
     work_prompt += "  - FORBIDDEN: splitting one unfinished feature into tiny label-only or single-file\n";
-    work_prompt += "    residuals just to hit the run quota (quota padding).\n";
+    work_prompt += "    residuals (padding).\n";
     work_prompt += "  - FORBIDDEN: parallel residuals that only differ by wording / the same acceptance.\n";
-    work_prompt += "  - If you only have 1–2 real PR-sized leftovers, file those only — the residual-quota\n";
-    work_prompt += "    phase may circuit-break; that is BETTER than inventing micro-slices.\n";
+    work_prompt += "  - If nothing real remains, file ZERO residuals (and close parent per lifecycle if appropriate).\n";
     work_prompt += "  - Split children: only when each child is independently implementable and reviewable.\n";
-    work_prompt += "Circuit breaker if the pass ends short of " + min_residual_issues.to_string()
-        + " real PR-sized residuals under p1–p4 parents — no fake/tiny issues.\n";
     work_prompt += "If dry_run=false: create GitHub issues with gh issue create for each residual slice\n";
     work_prompt += "  (title/body link PARENT tracker + this issue #" + inum.to_string() + " and any PR URL;\n";
     work_prompt += "  leave unassigned).\n";
@@ -800,22 +941,18 @@ for item in queue {
     work_prompt += "  AND the parent's pN when parent has p1|p2|p3|p4 (copy exactly; one pN only).\n";
     work_prompt += "  Priority rules for residual/child issues:\n";
     work_prompt += "    - Resolve PARENT_TRACKER (P1). Read parent's labels for p1–p8.\n";
-    work_prompt += "    - If parent has p1–p4: label residual with that SAME pN (copy). These count for quota.\n";
-    work_prompt += "    - If parent is Unset or p5–p8: residual may still be filed for honesty, but it does\n";
-    work_prompt += "      NOT count toward the run quota; copy parent pN if present, else omit pN.\n";
-    work_prompt += "      NEVER upgrade a p8 parent residual to p1–p4 to meet quota.\n";
-    work_prompt += "    - Prefer working / filing residuals under p1–p4 parents so the quota can be met.\n";
+    work_prompt += "    - If parent has p1–p4: label residual with that SAME pN (copy).\n";
+    work_prompt += "    - If parent is Unset or p5–p8: copy parent pN if present, else omit pN.\n";
+    work_prompt += "      NEVER upgrade a p8 parent residual to p1–p4.\n";
     work_prompt += "  Do NOT put In Progress on residual/child issues you only file (not working now).\n";
     work_prompt += "  Then update PARENT ## Agent progress table + comment (P2/P3).\n";
     work_prompt += "REAL/actionable only: PR-sized units with clear acceptance, module hints, Parent: #N.\n";
-    work_prompt += "  Forbidden: placeholder titles, empty bodies, duplicates, priority upgrades, p8 padding,\n";
-    work_prompt += "  micro-slices / quota padding (see SIZE / ANTI-PADDING).\n";
-    work_prompt += "Even full pr_opened success: if more work remains on a p1–p4 parent epic, file residual\n";
+    work_prompt += "  Forbidden: placeholder titles, empty bodies, duplicates, priority upgrades, micro-slices.\n";
+    work_prompt += "Even full pr_opened success: if more work remains on a parent epic, file residual\n";
     work_prompt += "  children with the parent's pN — only when each child is PR-sized.\n";
     work_prompt += "If dry_run=true: list planned residual titles + parent # + inherited pN in summary only.\n";
     work_prompt += "Put created URLs in residual_issue_urls (space-separated). child_issue_urls is for\n";
-    work_prompt += "planned split slices; residual_issue_urls is for leftover after a partial implement.\n";
-    work_prompt += "Only PR-sized residuals of p1–p4 parents (with matching pN) count toward residual quota.\n\n";
+    work_prompt += "planned split slices; residual_issue_urls is for leftover after a partial implement.\n\n";
 
     if include_human_qa {
         work_prompt += "HUMAN QA HANDOFF (when ready for human verification):\n";
@@ -849,7 +986,7 @@ for item in queue {
         work_prompt += "  4) Comment on Parent #" + inum.to_string() + " and on the PR with the QA issue URL.\n";
         work_prompt += "  5) Mention qa_issue_url in summary. QA issues use label \"" + qa_label + "\"\n";
         work_prompt += "     and assignee @" + qa_assignee + " — they are NOT unassigned residuals.\n";
-        work_prompt += "  6) QA issues usually do NOT count toward residual quota (different purpose).\n";
+        work_prompt += "  6) QA issues are handoff work, not residual implement slices.\n";
         work_prompt += "If not ready for human QA (pure tech-debt, fully agent-proven, no UI/install):\n";
         work_prompt += "  skip human QA issue; note why in summary.\n";
         work_prompt += "If dry_run=true: describe planned QA issue + test plan outline only.\n\n";
@@ -1044,229 +1181,11 @@ if include_pr_followup {
     }
 }
 
-// ========== Residual quota (p1–p4 PARENT backlog + circuit breaker) ==========
-// Live runs must file at least min_residual_issues NEW real residual/child GH issues
-// whose PARENT is already p1–p4; residual pN must match parent. Residuals of p5–p8
-// parents do NOT count. Never invent priority. One backfill agent may file under
-// existing p1–p4 parents only. If still short → stop the run.
-if require_residual_quota {
-    phase("Residual quota");
-    let b_rq = budget();
-    if b_rq.remaining < 2 {
-        log("Residual quota: agent budget low — treating as circuit breaker.");
-        residual_quota_result = #{
-            status: "failed",
-            summary: "Circuit breaker: insufficient agent budget to verify residual quota",
-            residual_count: 0,
-            quota_met: false,
-            circuit_breaker: true,
-            residual_issue_urls: "",
-            residual_issue_numbers: "",
-            backfill_created: 0,
-            blocked: "budget",
-        };
-        residual_circuit_breaker = true;
-    } else {
-        let rq_prompt = "";
-        rq_prompt += "You are the residual-quota agent for night-issue-prs (p1–p4 parent residuals only).\n";
-        rq_prompt += "Repo: " + repo + "\n";
-        rq_prompt += "base_branch: " + base_branch + "\n";
-        rq_prompt += "min_residual_issues (HARD QUOTA): " + min_residual_issues.to_string() + "\n";
-        rq_prompt += "PRIORITY RULES (HARD):\n";
-        rq_prompt += "  - Only residuals whose PARENT issue is labeled p1|p2|p3|p4 count.\n";
-        rq_prompt += "  - Residual must carry the SAME pN as the parent (copied, not invented).\n";
-        rq_prompt += "  - Residuals of Unset/p5–p8 parents NEVER count (including new p8 residuals).\n";
-        rq_prompt += "  - NEVER upgrade priority to meet quota. NEVER invent p1–p4 on a p8 parent chain.\n\n";
-
-        rq_prompt += "AGENTS.local.md: if missing in night worktree, read from primary checkout\n";
-        rq_prompt += "(git worktree list --porcelain → first worktree path). Do not commit it.\n";
-        rq_prompt += "gh auth status before gh writes; match AGENTS.local identity.\n\n";
-
-        rq_prompt += "CONTEXT (this run):\n";
-        rq_prompt += "Issue work results (JSON):\n" + json_encode(results) + "\n";
-        rq_prompt += "PR follow-up PRE (JSON):\n" + json_encode(pr_followup_result) + "\n";
-        rq_prompt += "PR follow-up POST (JSON):\n" + json_encode(pr_followup_post_result) + "\n";
-        rq_prompt += "Triage notes:\n" + json_encode(triage_notes) + "\n\n";
-
-        rq_prompt += "GOAL: Ensure this overnight PASS logged at least min_residual_issues NEW,\n";
-        rq_prompt += "REAL **PR-sized** residual/child issues under parents that are ALREADY p1–p4,\n";
-        rq_prompt += "each residual inheriting the parent pN. Important unfinished work — NOT three\n";
-        rq_prompt += "micro-issues invented to pad a number, and NOT three low-priority fillers.\n";
-        rq_prompt += "Parents must not sit open as empty trackers: if a p1–p4 parent has remaining work,\n";
-        rq_prompt += "it needs open children/QA; if blocked on human QA with no QA issue, file QA (@"
-            + qa_assignee + "). Empty trackers with zero children/QA should be closed by Work agents.\n\n";
-
-        rq_prompt += "SIZE / ANTI-PADDING (HARD — overrides quota pressure):\n";
-        rq_prompt += "  - Count ONLY issues that are independently implementable as one PR (1–3 modules,\n";
-        rq_prompt += "    clear acceptance, own tests). If body is a one-liner, single-file chore, or\n";
-        rq_prompt += "    could merge into a sibling residual in <1 day of work, EXCLUDE from count\n";
-        rq_prompt += "    (and do not create more like them).\n";
-        rq_prompt += "  - Prefer under-quota + circuit_breaker over filing tiny slices.\n";
-        rq_prompt += "  - Prefer consolidating related leftovers into fewer larger residuals.\n";
-        rq_prompt += "  - Never create N near-duplicate residuals that differ only by title wording.\n\n";
-
-        rq_prompt += "COUNTING RULES (residual_count):\n";
-        rq_prompt += "1) Collect every URL/number from:\n";
-        rq_prompt += "   - each work result residual_issue_urls and child_issue_urls\n";
-        rq_prompt += "   - pr_followup residual_issue_urls (pre + post)\n";
-        rq_prompt += "2) Deduplicate by issue number. For each candidate residual R:\n";
-        rq_prompt += "   a) gh issue view R --repo " + repo + " --json number,title,state,url,labels,body\n";
-        rq_prompt += "   b) Parse Parent: #N / Part of #N / Parent tracker from body (required).\n";
-        rq_prompt += "   c) gh issue view PARENT --json number,labels\n";
-        rq_prompt += "3) Count R only if ALL are true:\n";
-        rq_prompt += "   - R is OPEN (or just created this run)\n";
-        rq_prompt += "   - R was filed this overnight pass (operator labels OR body links this run)\n";
-        rq_prompt += "   - R is REAL and PR-SIZED (acceptance + modules; not TBD-only / empty / micro)\n";
-        rq_prompt += "   - PARENT has label p1 OR p2 OR p3 OR p4 (if multiple pN on parent, highest wins)\n";
-        rq_prompt += "   - R has the SAME pN label as the resolved parent priority (exact copy)\n";
-        rq_prompt += "4) EXCLUDE if parent is Unset or p5–p8, or residual pN differs from parent pN,\n";
-        rq_prompt += "   or residual has no pN while parent is p1–p4 (must fix label to match parent).\n";
-        rq_prompt += "5) EXCLUDE micro-slices / quota padding (see SIZE / ANTI-PADDING).\n";
-        rq_prompt += "6) Do NOT count parent work issues themselves, closed junk, duplicates, or\n";
-        rq_prompt += "   pre-existing backlog not filed this pass.\n\n";
-
-        rq_prompt += "IF residual_count >= min_residual_issues:\n";
-        rq_prompt += "  status=quota_met, quota_met=true, circuit_breaker=false, list URLs/numbers.\n";
-        rq_prompt += "  Do not create extra issues for quota. Do not split large residuals further.\n\n";
-
-        rq_prompt += "IF residual_count < min_residual_issues:\n";
-        rq_prompt += "  BACKFILL only under existing p1–p4 parents — PR-sized only:\n";
-        rq_prompt += "  Sources (must attach to a p1–p4 Parent):\n";
-        rq_prompt += "  A) Partial implement leftovers on p1–p4 parents worked this run (one PR each)\n";
-        rq_prompt += "  B) Split plans on p1–p4 epics not yet filed as children (each child = one PR)\n";
-        rq_prompt += "  C) PR follow-up deferred product work that links to a p1–p4 parent issue\n";
-        rq_prompt += "  D) Open p1–p4 issues/epics from triage with clear next PR-sized slices\n";
-        rq_prompt += "  For each backfill issue:\n";
-        rq_prompt += "    - Parent MUST already be p1–p4 (verify labels before create)\n";
-        rq_prompt += "    - Copy parent's pN onto the residual (same label; do not change severity)\n";
-        rq_prompt += "    - Scope must need a dedicated PR (not a one-line follow-up)\n";
-        rq_prompt += "    gh issue create --repo " + repo + " with:\n";
-        rq_prompt += "    - Title: concrete, PR-sized (e.g. issue N residual: <action>)\n";
-        rq_prompt += "    - Body: Parent: #N, goal, acceptance, modules, out of scope\n";
-        rq_prompt += "    - Labels: operator:grok, operator:night-issue-prs, model:grok-4.5, <parent pN>\n";
-        rq_prompt += "    - Leave unassigned. No In Progress.\n";
-        rq_prompt += "    - Comment on Parent.\n";
-        rq_prompt += "  HARD BAN: fake padding; micro-slices; new residuals under p5–p8 parents for quota;\n";
-        rq_prompt += "  inventing p1–p4; upgrading parent priority; empty 'misc cleanup' issues;\n";
-        rq_prompt += "  splitting one leftover into three issues to hit min_residual_issues.\n";
-        rq_prompt += "  If not enough REAL PR-sized leftover work under p1–p4 parents, do NOT invent\n";
-        rq_prompt += "  fakes or shrink scope — leave under-quota and circuit-break.\n\n";
-
-        rq_prompt += "AFTER BACKFILL (or if none possible):\n";
-        rq_prompt += "  Re-count with parent p1–p4 + matching pN + PR-sized rules only.\n";
-        rq_prompt += "  Set residual_count, residual_issue_urls, residual_issue_numbers.\n";
-        rq_prompt += "  backfill_created = number newly created this step that meet counting rules.\n";
-        rq_prompt += "  If residual_count >= min_residual_issues:\n";
-        rq_prompt += "    status=backfill_ok, quota_met=true, circuit_breaker=false\n";
-        rq_prompt += "  Else:\n";
-        rq_prompt += "    status=circuit_breaker, quota_met=false, circuit_breaker=true\n";
-        rq_prompt += "    summary MUST explain shortfall (e.g. only p8 parents worked; not enough\n";
-        rq_prompt += "    PR-sized residual scope under p1–p4 parents; refused micro-padding).\n";
-        rq_prompt += "    blocked=residual_quota\n\n";
-
-        rq_prompt += "Return structured fields. circuit_breaker true STOPS the overnight run\n";
-        rq_prompt += "(no PR cluster, no security audit).\n";
-
-        let rq_agent = agent(rq_prompt, #{
-            label: "residual-quota",
-            capability_mode: "all",
-            output_schema: residual_quota_schema,
-        });
-
-        if rq_agent != () && rq_agent.success && rq_agent.output != () {
-            residual_quota_result = rq_agent.output;
-            log("Residual quota: " + residual_quota_result.summary);
-            if residual_quota_result.circuit_breaker == true {
-                residual_circuit_breaker = true;
-            } else if residual_quota_result.quota_met == false {
-                // Defensive: under quota without explicit flag still trips breaker.
-                residual_circuit_breaker = true;
-                let rq_count = residual_quota_result.residual_count;
-                if rq_count == () { rq_count = 0; }
-                let rq_urls = residual_quota_result.residual_issue_urls;
-                if rq_urls == () { rq_urls = ""; }
-                let rq_nums = residual_quota_result.residual_issue_numbers;
-                if rq_nums == () { rq_nums = ""; }
-                let rq_bf = residual_quota_result.backfill_created;
-                if rq_bf == () { rq_bf = 0; }
-                let rq_sum = residual_quota_result.summary;
-                if rq_sum == () { rq_sum = "residual quota not met"; }
-                residual_quota_result = #{
-                    status: "circuit_breaker",
-                    summary: rq_sum,
-                    residual_count: rq_count,
-                    quota_met: false,
-                    circuit_breaker: true,
-                    residual_issue_urls: rq_urls,
-                    residual_issue_numbers: rq_nums,
-                    backfill_created: rq_bf,
-                    blocked: "residual_quota",
-                };
-            }
-        } else {
-            residual_quota_result = #{
-                status: "failed",
-                summary: "Circuit breaker: residual-quota agent failed",
-                residual_count: 0,
-                quota_met: false,
-                circuit_breaker: true,
-                residual_issue_urls: "",
-                residual_issue_numbers: "",
-                backfill_created: 0,
-                blocked: "agent_failed",
-            };
-            residual_circuit_breaker = true;
-            log("Residual quota agent failed — circuit breaker");
-        }
-    }
-    if residual_circuit_breaker {
-        log("CIRCUIT BREAKER: residual quota not met (need >= "
-            + min_residual_issues.to_string()
-            + " residuals under p1–p4 parents this pass). Skipping PR cluster + security audit.");
-        pr_cluster_result = #{
-            status: "skipped",
-            summary: "Skipped: residual-quota circuit breaker",
-            cluster_branch: "",
-            cluster_pr_url: "",
-            superseded_prs: "",
-            thrash_files: "",
-            prs_absorbed: 0,
-            blocked: "residual_quota_circuit_breaker",
-        };
-        security_audit_result = #{
-            status: "skipped",
-            summary: "Skipped: residual-quota circuit breaker",
-            open_alert_count: 0,
-            audit_issue_url: "",
-            audit_issue_number: 0,
-            mitigation_pr_urls: "",
-            alerts_addressed: 0,
-            alerts_deferred: "",
-            duplicate_audit_issues_closed: "",
-            blocked: "residual_quota_circuit_breaker",
-        };
-    }
-} else {
-    log("Residual quota disabled (require_residual_quota=false).");
-    residual_quota_result = #{
-        status: "skipped",
-        summary: "require_residual_quota=false",
-        residual_count: 0,
-        quota_met: true,
-        circuit_breaker: false,
-        residual_issue_urls: "",
-        residual_issue_numbers: "",
-        backfill_created: 0,
-        blocked: "",
-    };
-}
-
-
 // ========== PR cluster (same-file thrash absorption) ==========
 // When many owned open PRs all edit the same hot paths (smoke specs, sitemanage-beans,
 // package.json, etc.), rebasing each onto main still leaves them conflicting with each
 // other. Prefer one interim cluster branch + one superseding PR.
-if !residual_circuit_breaker && include_pr_cluster {
+if include_pr_cluster {
     phase("PR cluster");
     let b_cl = budget();
     if b_cl.remaining < 2 {
@@ -1383,7 +1302,7 @@ if !residual_circuit_breaker && include_pr_cluster {
             log("PR cluster agent failed");
         }
     }
-} else if !residual_circuit_breaker && include_pr_cluster == false {
+} else {
     log("PR cluster disabled (include_pr_cluster=false).");
     pr_cluster_result = #{
         status: "skipped",
@@ -1401,8 +1320,7 @@ if !residual_circuit_breaker && include_pr_cluster {
 // Post-processing: if code-scanning has open alerts, ensure exactly one open
 // tracking issue titled security_audit_title for this base_branch, then open
 // up to max_security_prs mitigation PRs (one alert per PR when practical).
-// Skipped when residual_circuit_breaker already tripped.
-if !residual_circuit_breaker && include_security_audit {
+if include_security_audit {
     phase("Security audit");
     let b_sec = budget();
     if b_sec.remaining < 2 {
@@ -1539,7 +1457,7 @@ if !residual_circuit_breaker && include_security_audit {
             log("Security audit agent failed");
         }
     }
-} else if !residual_circuit_breaker {
+} else {
     log("Security audit disabled (include_security_audit=false).");
     security_audit_result = #{
         status: "skipped",
@@ -1571,26 +1489,25 @@ report_prompt += "## Agent progress (night-issue-prs). Do not recommend committi
 report_prompt += "Triage notes:\n" + json_encode(triage_notes) + "\n\n";
 report_prompt += "Issue work results (JSON):\n" + json_encode(results) + "\n\n";
 report_prompt += "PR follow-up PRE result (JSON, may be empty):\n" + json_encode(pr_followup_result) + "\n\n";
+report_prompt += "Peer PR review result (JSON, may be empty):\n" + json_encode(peer_pr_review_result) + "\n\n";
 report_prompt += "PR follow-up POST result (JSON, may be empty):\n" + json_encode(pr_followup_post_result) + "\n\n";
 report_prompt += "PR cluster result (JSON, may be empty):\n" + json_encode(pr_cluster_result) + "\n\n";
 report_prompt += "Security audit result (JSON, may be empty):\n" + json_encode(security_audit_result) + "\n\n";
-report_prompt += "Residual quota result (JSON, may be empty):\n" + json_encode(residual_quota_result) + "\n\n";
 report_prompt += "Include:\n";
 report_prompt += "1) Table: issue | pN priority | status | PR | child/residual | parent | summary\n";
-report_prompt += "2) Table: open PRs followed up | conflicts | threads resolved | residual issues\n";
-report_prompt += "3) List still-open HUMAN review threads AND merge_blockers_still_open (conflicts\n";
+report_prompt += "   (include status=skipped_in_progress when claim-check lost the race)\n";
+report_prompt += "2) Table: open PRs followed up | conflicts | threads resolved | residual issues filed\n";
+report_prompt += "3) Peer PR review: prs_reviewed / approved / merged (squash) / changes_requested / skipped\n";
+report_prompt += "4) List still-open HUMAN review threads AND merge_blockers_still_open (conflicts\n";
 report_prompt += "   and unresolved bot/human threads only - not CI wait state)\n";
-report_prompt += "4) Residual quota (parent must be p1–p4; residual pN = parent pN): residual_count vs min ("
-    + min_residual_issues.to_string()
-    + "), backfill_created, residual_issue_urls;\n";
-report_prompt += "   list each counted residual with Parent # and pN; **call out CIRCUIT BREAKER** if tripped;\n";
-report_prompt += "   note residuals excluded (parent Unset/p5–p8 or priority mismatch)\n";
-report_prompt += "5) PR cluster: if a cluster PR was opened, put it FIRST in morning review; list superseded PRs\n";
-report_prompt += "6) Security audit: open alert count, audit issue URL (singleton), mitigation PRs,\n";
+report_prompt += "5) Residual issues filed this run (from work results only — no residual-quota phase):\n";
+report_prompt += "   list residual_issue_urls / child_issue_urls with Parent # and pN when known\n";
+report_prompt += "6) PR cluster: if a cluster PR was opened, put it FIRST in morning review; list superseded PRs\n";
+report_prompt += "7) Security audit: open alert count, audit issue URL (singleton), mitigation PRs,\n";
 report_prompt += "   deferred alerts; flag if more than one Security Audit issue was found (should not happen)\n";
-report_prompt += "7) Morning review order and what was deferred\n";
-report_prompt += "8) Note any PARENT issues whose ## Agent progress section should be checked\n";
-report_prompt += "9) Flag any issues that may still have In Progress left on (worker crash risk)\n";
+report_prompt += "8) Morning review order and what was deferred\n";
+report_prompt += "9) Note any PARENT issues whose ## Agent progress section should be checked\n";
+report_prompt += "10) Flag any issues that may still have In Progress left on (worker crash risk)\n";
 report_prompt += "Return ONLY the markdown body (no code fence wrapper).\n";
 
 let report_agent = agent(report_prompt, #{
@@ -1629,6 +1546,9 @@ let summary = "PRs opened=" + opened.to_string()
 if pr_followup_result != () && pr_followup_result.summary != () {
     summary = summary + "; pr_pre: " + pr_followup_result.summary;
 }
+if peer_pr_review_result != () && peer_pr_review_result.summary != () {
+    summary = summary + "; peer_review: " + peer_pr_review_result.summary;
+}
 if pr_followup_post_result != () && pr_followup_post_result.summary != () {
     summary = summary + "; pr_post: " + pr_followup_post_result.summary;
 }
@@ -1638,12 +1558,6 @@ if pr_cluster_result != () && pr_cluster_result.summary != () {
 if security_audit_result != () && security_audit_result.summary != () {
     summary = summary + "; security_audit: " + security_audit_result.summary;
 }
-if residual_quota_result != () && residual_quota_result.summary != () {
-    summary = summary + "; residual_quota: " + residual_quota_result.summary;
-}
-if residual_circuit_breaker {
-    summary = "CIRCUIT_BREAKER residual_quota; " + summary;
-}
 
 log(summary);
 complete(#{
@@ -1651,12 +1565,10 @@ complete(#{
     path: report_path,
     results: results,
     pr_followup: pr_followup_result,
+    peer_pr_review: peer_pr_review_result,
     pr_followup_post: pr_followup_post_result,
     pr_cluster: pr_cluster_result,
     security_audit: security_audit_result,
-    residual_quota: residual_quota_result,
-    residual_circuit_breaker: residual_circuit_breaker,
-    min_residual_issues: min_residual_issues,
     notes: triage_notes,
     dry_run: dry_run,
 });
