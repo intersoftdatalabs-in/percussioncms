@@ -80,4 +80,15 @@ class PSBindingPlaceholderRendererTest {
     Map<String, Object> bindings = Map.of("title", "T");
     assertEquals("T", PSBindingPlaceholderRenderer.resolve(bindings, "title"));
   }
+
+  @Test
+  void render_jcrPropertyReadFailure_rendersEmpty() throws Exception {
+    javax.jcr.Property prop = org.mockito.Mockito.mock(javax.jcr.Property.class);
+    org.mockito.Mockito.when(prop.getString())
+        .thenThrow(new javax.jcr.RepositoryException("access denied"));
+    Map<String, Object> bindings = new HashMap<>();
+    bindings.put("body", prop);
+    // Present-but-unreadable JCR values fall back to empty (warn logged); must not throw.
+    assertEquals("x", PSBindingPlaceholderRenderer.render("x${body}", bindings));
+  }
 }

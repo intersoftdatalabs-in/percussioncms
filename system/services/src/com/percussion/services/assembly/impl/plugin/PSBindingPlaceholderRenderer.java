@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Substitutes {@code ${path}} placeholders in template source using assembly
@@ -43,6 +45,8 @@ import javax.jcr.Value;
  * @see PSMarkdownAssembler
  */
 public final class PSBindingPlaceholderRenderer {
+
+  private static final Logger log = LogManager.getLogger(PSBindingPlaceholderRenderer.class);
 
   /** Matches {@code ${dotted.path}} only — no bare {@code $name} (avoids HTML/JS false positives). */
   private static final Pattern PLACEHOLDER =
@@ -121,6 +125,12 @@ public final class PSBindingPlaceholderRenderer {
         return jcrValue.getString();
       }
     } catch (RepositoryException e) {
+      // Missing bindings resolve to empty by design; a present Property/Value that cannot be
+      // read (ACL, lock, corruption) is a real failure class — log before empty fallback.
+      log.warn(
+          "JCR value could not be stringified for placeholder binding; rendering empty: {}",
+          e.getMessage());
+      log.debug("JCR stringify failure detail", e);
       return "";
     }
     return value;

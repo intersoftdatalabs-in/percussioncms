@@ -17,14 +17,19 @@
 package com.percussion.services.assembly.impl.plugin;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.services.assembly.impl.plugin.PSTextAssemblerSupport.TextAssembleOutcome;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 /**
- * Pure render path for HTML-first assembler (does not load {@link PSAssemblerBase} /
- * Spring).
+ * Pure render + assemble path for HTML-first assembler (does not load {@link PSAssemblerBase} /
+ * Spring). Covers the non-trivial branches of {@code assembleSingle} via {@link
+ * PSTextAssemblerSupport#assembleHtmlFirst}.
  */
 class PSHtmlAssemblerTest {
 
@@ -40,5 +45,51 @@ class PSHtmlAssemblerTest {
   @Test
   void renderHtmlFirst_blankTemplate() {
     assertEquals("", PSTextAssemblerSupport.renderHtmlFirst("", Map.of()));
+  }
+
+  @Test
+  void assembleHtmlFirst_successFromSysTemplate() {
+    Map<String, Object> sys = new HashMap<>();
+    sys.put("template", "<p>${title}</p>");
+    Map<String, Object> bindings = new HashMap<>();
+    bindings.put("$sys", sys);
+    bindings.put("$title", "Hello");
+
+    TextAssembleOutcome o = PSTextAssemblerSupport.assembleHtmlFirst(bindings, null);
+    assertTrue(o.success());
+    assertEquals("<p>Hello</p>", o.body());
+    assertTrue(o.contentType().startsWith("text/html"));
+    assertEquals(StandardCharsets.UTF_8, o.charset());
+  }
+
+  @Test
+  void assembleHtmlFirst_fallsBackToTemplateSource() {
+    Map<String, Object> bindings = new HashMap<>();
+    bindings.put("$title", "X");
+    TextAssembleOutcome o =
+        PSTextAssemblerSupport.assembleHtmlFirst(bindings, "<span>${title}</span>");
+    assertTrue(o.success());
+    assertEquals("<span>X</span>", o.body());
+  }
+
+  @Test
+  void assembleHtmlFirst_missingTemplateFails() {
+    TextAssembleOutcome o = PSTextAssemblerSupport.assembleHtmlFirst(Map.of(), null);
+    assertFalse(o.success());
+    assertEquals("no HTML template present", o.errorMessage());
+  }
+
+  @Test
+  void assembleHtmlFirst_respectsCharsetBinding() {
+    Map<String, Object> sys = new HashMap<>();
+    sys.put("template", "ok");
+    sys.put("charset", "ISO-8859-1");
+    Map<String, Object> bindings = new HashMap<>();
+    bindings.put("$sys", sys);
+
+    TextAssembleOutcome o = PSTextAssemblerSupport.assembleHtmlFirst(bindings, null);
+    assertTrue(o.success());
+    assertEquals("ISO-8859-1", o.charsetName());
+    assertTrue(o.contentType().contains("ISO-8859-1"));
   }
 }

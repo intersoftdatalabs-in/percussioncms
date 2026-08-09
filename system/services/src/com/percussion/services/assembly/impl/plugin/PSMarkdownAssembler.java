@@ -16,21 +16,12 @@
  */
 package com.percussion.services.assembly.impl.plugin;
 
-import static com.percussion.cms.IPSConstants.DEFAULT_MIMETYPE;
-import static com.percussion.cms.IPSConstants.SYS_PARAM_CHARSET;
-import static com.percussion.cms.IPSConstants.SYS_PARAM_MIMETYPE;
-import static com.percussion.cms.IPSConstants.SYS_PARAM_TEMPLATE;
-
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.IPSAssemblyResult.Status;
-import com.percussion.utils.jexl.IPSScript;
-import com.percussion.utils.jexl.PSJexlEvaluator;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import com.percussion.services.assembly.impl.plugin.PSTextAssemblerSupport.TextAssembleOutcome;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -40,6 +31,9 @@ import org.apache.logging.log4j.Logger;
  *
  * <p>Extension name: {@code Java/global/percussion/assembly/markdownAssembler}
  *
+ * <p>Non-trivial assemble branches live in {@link PSTextAssemblerSupport#assembleMarkdown} (unit
+ * tested without Spring).
+ *
  * @see PSTextAssemblerSupport
  * @see PSHtmlAssembler
  */
@@ -47,61 +41,20 @@ public class PSMarkdownAssembler extends PSAssemblerBase {
 
   private static final Logger log = LogManager.getLogger(PSMarkdownAssembler.class);
 
-  private static final IPSScript SYS_TEMPLATE =
-      PSJexlEvaluator.createStaticExpression(SYS_PARAM_TEMPLATE);
-  private static final IPSScript SYS_MIMETYPE =
-      PSJexlEvaluator.createStaticExpression(SYS_PARAM_MIMETYPE);
-  private static final IPSScript SYS_CHARSET =
-      PSJexlEvaluator.createStaticExpression(SYS_PARAM_CHARSET);
-
   @Override
   @SuppressWarnings("unchecked")
   public IPSAssemblyResult assembleSingle(IPSAssemblyItem item) {
-    PSJexlEvaluator eval = new PSJexlEvaluator(item.getBindings());
     try {
-      String template;
-      try {
-        template = (String) eval.evaluate(SYS_TEMPLATE);
-      } catch (Exception e) {
-        return getFailureResult(
-            item, "Exception retrieving template: " + PSExceptionUtils.getMessageForLog(e));
+      String fallback =
+          item.getTemplate() != null ? item.getTemplate().getTemplate() : null;
+      TextAssembleOutcome outcome =
+          PSTextAssemblerSupport.assembleMarkdown(
+              (Map<String, Object>) item.getBindings(), fallback);
+      if (!outcome.success()) {
+        return getFailureResult(item, outcome.errorMessage());
       }
-      if (StringUtils.isBlank(template) && item.getTemplate() != null) {
-        template = item.getTemplate().getTemplate();
-      }
-      if (StringUtils.isBlank(template)) {
-        return getFailureResult(item, "no Markdown template present");
-      }
-
-      Map<String, Object> bindings = item.getBindings();
-      String result = PSTextAssemblerSupport.renderMarkdown(template, bindings);
-
-      String mtype;
-      try {
-        mtype = (String) eval.evaluate(SYS_MIMETYPE);
-      } catch (Exception e) {
-        mtype = null;
-      }
-      if (StringUtils.isBlank(mtype)) {
-        mtype = DEFAULT_MIMETYPE;
-      }
-
-      String charset;
-      try {
-        charset = (String) eval.evaluate(SYS_CHARSET);
-      } catch (Exception e) {
-        charset = null;
-      }
-      Charset cset = StandardCharsets.UTF_8;
-      if (StringUtils.isNotBlank(charset)) {
-        cset = Charset.forName(charset);
-        charset = cset.name();
-      } else {
-        charset = cset.name();
-      }
-
-      item.setResultData(result.getBytes(cset));
-      item.setMimeType(mtype + ";charset=" + charset);
+      item.setResultData(outcome.body().getBytes(outcome.charset()));
+      item.setMimeType(outcome.contentType());
       item.setStatus(Status.SUCCESS);
       return (IPSAssemblyResult) item;
     } catch (Exception e) {
