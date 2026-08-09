@@ -147,6 +147,7 @@ class PercDoctorPackagingTest {
             && (guideText.contains("diagnose") || guideText.contains("health"))
             && guideText.contains("clean-temp")
             && guideText.contains("check-config")
+            && guideText.contains("check-logs")
             && guideText.contains("fix-permissions"),
         "install guide must cover all shipped commands including diagnose/health");
     assertTrue(

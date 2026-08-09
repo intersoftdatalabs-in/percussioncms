@@ -275,6 +275,7 @@ Jetty can report the HTTP connector **Started** while the ROOT/Rhythmyx Spring `
 | `RESULT:OK STEP:verify CMS_HTTP:… DTS_HTTP:… HEALTH:healthy` | `perc-devctl.py verify` (and `verify-fix` / `deploy-jar --verify`) | CMS+DTS HTTP ready, docker health healthy, **and** cms-dts logs have **no** Rhythmyx context-failure markers; `VERIFY_CMS_PATH` is the matrix-recommended secondary (`/Rhythmyx/rest/folders/by-path/Assets`) (#2482) |
 | `RESULT:… HEALTH:healthy\|unhealthy\|starting\|none` | `qa-health` (matrix cell) and `verify` / `_verify_inline` (cms-dts) | Inspect status from `_docker_health` on every RESULT (OK and FAIL); `none` = container has no Health block; `unknown` = docker/container missing |
 | `RESULT:FAIL … DETAIL:rhythmyx_context_failed MATCH:…` | `qa-health`, compose `verify` / `_verify_inline`, or matrix cell `detail` | **Fail-fast**: Spring/Jetty context death detected in logs; treat stack as unusable even if HTTP / docker health answered green |
+| `RESULT:FAIL … DETAIL:server_log_errors MATCH:…` | same | **Fail-fast**: ERROR/FATAL/SEVERE in product/install logs (`server.log`, InstallPackages, install, tablefactory — same set as `perc-doctor check-logs` / #2556) |
 | `RESULT:FAIL … DETAIL:timeout after Ns (last_http=… health=…)` | `qa-health` | Probe never became ready (HTTP and/or Health not green); if logs later show context fail, re-run `qa-health` or `docker logs perc-matrix-cms-h2` |
 | `RESULT:FAIL … DETAIL:timeout after Ns (cms_http=… dts_http=… health=…)` | `verify` | Stack never became ready; scan `docker logs percussion-cms-dts` for context markers |
 | Matrix `status=fail` + `detail` containing `rhythmyx_context_failed` | `matrix-install-smoke.py` CMS cells | Same fail-fast during cell HTTP wait (container log scan) |
@@ -305,6 +306,8 @@ docker inspect -f "{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end
 ```
 
 Markers (shared helper `docker/scripts/rhythmyx_ready.py`): `Failed startup of context`, `BeanCurrentlyInCreationException`, `Requested bean is currently in creation`, `Is there an unresolvable circular reference`.
+
+**CMS product/install log gate (#2556):** host probes also `docker exec` tail `jetty/base/logs/server.log`, `rxconfig/Installer/InstallPackages.log` (or `logs/…`), `install.log`, and `tablefactory.log`. Operator CLI: `perc-doctor check-logs` on an install root.
 
 ##### Docker `Health.Status` (in-image HEALTHCHECK, #2481)
 

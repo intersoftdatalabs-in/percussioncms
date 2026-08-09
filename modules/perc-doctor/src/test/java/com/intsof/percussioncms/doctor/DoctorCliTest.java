@@ -89,6 +89,59 @@ class DoctorCliTest {
   }
 
   @Test
+  void checkLogsViaCliFailsOnServerError() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("install-check-logs"));
+    Path log =
+        Files.createDirectories(root.resolve("jetty").resolve("base").resolve("logs"))
+            .resolve("server.log");
+    Files.writeString(log, "INFO ok\nERROR [x] bad\n", StandardCharsets.UTF_8);
+
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {
+              "--install-root",
+              root.toString(),
+              "-v",
+              "check-logs",
+              "--phase",
+              "startup",
+              "--require-startup"
+            },
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+
+    assertEquals(DoctorCli.EXIT_ERROR, code);
+    String out = outBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(out.contains("healthy=false"));
+    assertTrue(out.contains("RESULT:FAIL STEP:check-logs"));
+    assertTrue(out.contains("ERROR"));
+  }
+
+  @Test
+  void checkLogsViaCliCleanExitOk() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("install-check-logs-ok"));
+    Path log =
+        Files.createDirectories(root.resolve("jetty").resolve("base").resolve("logs"))
+            .resolve("server.log");
+    Files.writeString(log, "INFO [Server] Started\n", StandardCharsets.UTF_8);
+
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    int code =
+        DoctorCli.run(
+            new String[] {
+              "--install-root", root.toString(), "check-logs", "--phase", "startup"
+            },
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+
+    assertEquals(DoctorCli.EXIT_OK, code);
+    assertTrue(outBuf.toString(StandardCharsets.UTF_8).contains("RESULT:OK STEP:check-logs"));
+  }
+
+  @Test
   void unknownOptionIsUsageError() {
     ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
     ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
