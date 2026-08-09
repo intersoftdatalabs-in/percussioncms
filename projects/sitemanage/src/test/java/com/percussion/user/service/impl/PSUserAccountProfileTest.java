@@ -107,6 +107,7 @@ class PSUserAccountProfileTest {
     void acceptsCommonAddresses() {
       assertTrue(PSUserService.isValidEmailAddress("user@example.com"));
       assertTrue(PSUserService.isValidEmailAddress("first.last+tag@sub.example.co.uk"));
+      assertTrue(PSUserService.isValidEmailAddress("a@b.co"));
     }
 
     @Test
@@ -118,6 +119,10 @@ class PSUserAccountProfileTest {
       assertFalse(PSUserService.isValidEmailAddress("missing-domain@"));
       assertFalse(PSUserService.isValidEmailAddress("@nodomain.com"));
       assertFalse(PSUserService.isValidEmailAddress("spaces emma@example.com"));
+      // Domain label hygiene (PR #2593 review): consecutive dots / hyphen edges
+      assertFalse(PSUserService.isValidEmailAddress("user@domain..com"));
+      assertFalse(PSUserService.isValidEmailAddress("user@-domain.com"));
+      assertFalse(PSUserService.isValidEmailAddress("user@domain-.com"));
     }
   }
 
@@ -127,9 +132,9 @@ class PSUserAccountProfileTest {
 
     @Test
     void persistsEmailForInternalCurrentUser() throws Exception {
+      // Single getCurrentUser() — response is the loaded user with email applied (no re-fetch).
       PSCurrentUser current = internalUser("Editor1", "old@example.com");
-      PSCurrentUser refreshed = internalUser("Editor1", "new@example.com");
-      doReturn(current, refreshed).when(userService).getCurrentUser();
+      doReturn(current).when(userService).getCurrentUser();
 
       PSUserAccountUpdate update = new PSUserAccountUpdate();
       update.setEmail("new@example.com");
@@ -140,20 +145,39 @@ class PSUserAccountProfileTest {
       verify(backEndRoleMgr).setSubjectEmail(eq("Editor1"), emailCap.capture());
       assertEquals("new@example.com", emailCap.getValue());
       assertEquals("new@example.com", result.getEmail());
+      assertEquals("Editor1", result.getName());
     }
 
     @Test
     void allowsClearingEmailWhenBlank() throws Exception {
       PSCurrentUser current = internalUser("Admin", "old@example.com");
-      PSCurrentUser refreshed = internalUser("Admin", "");
-      doReturn(current, refreshed).when(userService).getCurrentUser();
+      doReturn(current).when(userService).getCurrentUser();
 
       PSUserAccountUpdate update = new PSUserAccountUpdate();
       update.setEmail("  ");
 
-      userService.updateMyAccount(update);
+      PSCurrentUser result = userService.updateMyAccount(update);
 
       verify(backEndRoleMgr).setSubjectEmail("Admin", "");
+      assertEquals("", result.getEmail());
+    }
+
+    @Test
+    void propagatesBackendFailureWithoutSilentSuccess() throws Exception {
+      PSCurrentUser current = internalUser("Editor1", "old@example.com");
+      doReturn(current).when(userService).getCurrentUser();
+      org.mockito.Mockito.doThrow(new RuntimeException("backend write failed"))
+          .when(backEndRoleMgr)
+          .setSubjectEmail(eq("Editor1"), eq("new@example.com"));
+
+      PSUserAccountUpdate update = new PSUserAccountUpdate();
+      update.setEmail("new@example.com");
+
+      RuntimeException thrown =
+          assertThrows(RuntimeException.class, () -> userService.updateMyAccount(update));
+      assertEquals("backend write failed", thrown.getMessage());
+      // Email on the session object must remain pre-update (no apply-after-failure)
+      assertEquals("old@example.com", current.getEmail());
     }
 
     @Test

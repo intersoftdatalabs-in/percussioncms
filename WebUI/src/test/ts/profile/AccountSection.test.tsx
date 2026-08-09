@@ -77,6 +77,9 @@ describe("normalizeCurrentUser / isValidEmailAddress", () => {
     expect(isValidEmailAddress("")).toBe(true);
     expect(isValidEmailAddress("a@b.co")).toBe(true);
     expect(isValidEmailAddress("bad")).toBe(false);
+    expect(isValidEmailAddress("user@domain..com")).toBe(false);
+    expect(isValidEmailAddress("user@-domain.com")).toBe(false);
+    expect(isValidEmailAddress("user@domain-.com")).toBe(false);
   });
 });
 

@@ -85,7 +85,9 @@ vi.mock("../../../main/ts/api/user/userProfileApi", () => ({
     if (value.length > 254) {
       return false;
     }
-    return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
+    return /^[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,}$/.test(
+      value,
+    );
   },
   normalizeCurrentUser: vi.fn(),
 }));

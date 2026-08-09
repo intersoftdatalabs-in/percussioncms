@@ -138,7 +138,10 @@ export async function updateMyAccountEmail(
   return normalizeCurrentUser(data);
 }
 
-/** Client-side email shape check (mirrors server practical regex). */
+/**
+ * Client-side email shape check (mirrors server practical regex).
+ * Domain labels may not start/end with hyphen or contain consecutive dots.
+ */
 export function isValidEmailAddress(email: string): boolean {
   const value = (email ?? "").trim();
   if (!value) {
@@ -148,5 +151,7 @@ export function isValidEmailAddress(email: string): boolean {
   if (value.length > 254) {
     return false;
   }
-  return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
+  return /^[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,}$/.test(
+    value,
+  );
 }

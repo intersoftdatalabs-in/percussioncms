@@ -878,11 +878,18 @@ public class PSUserService implements IPSUserService {
     PSCurrentUser currUser = new PSCurrentUser(user);
 
     // Self-profile needs directory email too; find() intentionally omits it for non-INTERNAL.
+    // Catalog failure is best-effort: leave email empty and surface the failure in server logs
+    // so operators can diagnose directory issues without failing the whole self-profile load.
     if (currUser.getProviderType() != PSUserProviderType.INTERNAL) {
       try {
         currUser.setEmail(getSubjectEmail(userName));
       } catch (PSSecurityCatalogException e) {
-        log.error("Failed to get the email for the user: {}", userName);
+        currUser.setEmail("");
+        log.warn(
+            "Directory email catalog failed for user {} — returning empty email: {}",
+            userName,
+            PSExceptionUtils.getMessageForLog(e));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
     }
 
@@ -934,8 +941,33 @@ public class PSUserService implements IPSUserService {
           .throwIfInvalid();
     }
 
-    backEndRoleMgr.setSubjectEmail(current.getName(), email);
+    try {
+      backEndRoleMgr.setSubjectEmail(current.getName(), email);
+    } catch (RuntimeException e) {
+      // Persist failed — audit FAILURE so the trail is not silent, then rethrow.
+      logSelfServiceAccountUpdateAudit(PSActionOutcome.FAILURE);
+      log.error(
+          "Self-service email update failed for user {}: {}",
+          current.getName(),
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw e;
+    }
 
+    // Persist succeeded — only then record SUCCESS (not before end-to-end completion of the write).
+    logSelfServiceAccountUpdateAudit(PSActionOutcome.SUCCESS);
+
+    // Return the already-loaded session user with the new email applied. Avoid a second
+    // getCurrentUser() which can fail after the write (session/directory) with no rollback.
+    current.setEmail(email);
+    return current;
+  }
+
+  /**
+   * Best-effort audit for self-service account updates. Never throws — audit infrastructure must
+   * not mask the primary operation outcome.
+   */
+  private void logSelfServiceAccountUpdateAudit(PSActionOutcome outcome) {
     try {
       PSRequest req = PSSecurityFilter.getCurrentRequest();
       if (req != null && req.getServletRequest() != null) {
@@ -943,15 +975,13 @@ public class PSUserService implements IPSUserService {
             new PSUserManagementEvent(
                 req.getServletRequest(),
                 PSUserManagementEvent.UserEventActions.update,
-                PSActionOutcome.SUCCESS);
+                outcome);
         psAuditLogService.logUserManagementEvent(psUserManagementEvent);
       }
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
-
-    return getCurrentUser();
   }
 
   /**
@@ -982,8 +1012,11 @@ public class PSUserService implements IPSUserService {
   }
 
   /**
-   * Lightweight email shape check for self-service updates. Empty email is allowed (clears stored
-   * value).
+   * Lightweight email shape check for self-service updates. Empty email is allowed at the call
+   * site (clears stored value) and is rejected here so callers must special-case blank.
+   *
+   * <p>Domain labels may not start/end with hyphen or contain consecutive dots (rejects e.g.
+   * {@code user@domain..com}, {@code user@-domain.com}, {@code user@domain-.com}).
    */
   static boolean isValidEmailAddress(String email) {
     if (email == null) {
@@ -993,8 +1026,9 @@ public class PSUserService implements IPSUserService {
     if (value.isEmpty() || value.length() > 254) {
       return false;
     }
-    // Practical subset: local@domain with at least one dot in domain (no spaces).
-    return value.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+    // local@label(.label)+ — each label starts/ends alnum; TLD at least 2 letters
+    return value.matches(
+        "^[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,}$");
   }
 
   /**
