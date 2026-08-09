@@ -16,12 +16,13 @@
  */
 
 /**
- * Golden / unattended Playwright smoke surface inventory (#2490 / parent #2423).
+ * Golden / unattended Playwright smoke surface inventory
+ * (#2490 / parent #2423; #2498 / parent #2374).
  *
- * <p><strong>Decision:</strong> include {@code @folder-recycle} in the
- * <em>extended</em> golden unattended multi-path set. The minimal default
- * ({@code npm run test:golden}) remains login + Content Explorer only so agents
- * never default to the full suite.</p>
+ * <p><strong>Decision:</strong> include {@code @folder-recycle} and
+ * {@code @profile} in the <em>extended</em> golden unattended multi-path set.
+ * The minimal default ({@code npm run test:golden}) remains login + Content
+ * Explorer only so agents never default to the full suite.</p>
  *
  * <p>Used by unit tests and docs; keep in lockstep with package.json scripts
  * {@code test:golden} and {@code test:golden-extended}.</p>
@@ -75,6 +76,15 @@ const GOLDEN_UNATTENDED_SMOKE_SET = [
     notes:
       "Post-#2423 pathmanagement + recycle REST smoke; optional overnight extended set (#2490)",
   },
+  {
+    id: "profile-shell",
+    file: "profile-shell.spec.js",
+    path: `${TESTS_PREFIX}profile-shell.spec.js`,
+    tag: "profile",
+    tier: "extended",
+    notes:
+      "Profile hub deep-link + UserMenu entry + axe gates (#2393/#2425/#2427); overnight extended multi-path (#2498 / parent #2374)",
+  },
 ];
 
 /**
@@ -88,7 +98,7 @@ function listBaselineEntries() {
 
 /**
  * Entries in the extended golden set ({@code npm run test:golden-extended}):
- * baseline plus optional surfaces such as folder-recycle.
+ * baseline plus optional surfaces such as folder-recycle and profile-shell.
  *
  * @returns {GoldenSmokeEntry[]}
  */

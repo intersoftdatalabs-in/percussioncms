@@ -74,4 +74,18 @@ describe("ProfileShell", () => {
     expect(statuses.length).toBe(4);
     expect(PROFILE_MSG.COMING_SOON).toContain("Coming soon");
   });
+
+  it("makes section landmarks focusable skip targets (tabIndex=-1)", () => {
+    render(<ProfileShell embedded />);
+    for (const id of [
+      "perc-profile-section-account",
+      "perc-profile-section-security",
+      "perc-profile-section-preferences",
+      "perc-profile-section-avatar",
+    ]) {
+      const section = screen.getByTestId(id);
+      expect(section.getAttribute("tabindex")).toBe("-1");
+      expect(section.id).toMatch(/^perc-profile-/);
+    }
+  });
 });
