@@ -710,6 +710,53 @@ npm run test:surface:list -- --path tests/profile-shell-keyboard.spec.js
 npm run test:surface:list -- --tag keyboard
 ```
 
+#### Profile form axe WCAG (account / preferences / avatar) (#2503 / residual #2427 / parent #2374)
+
+When profile **form** slices land, extend the shell axe pattern
+(`expectNoSeriousA11yViolations`) to each **form root** testid — not only the
+hub chrome (`perc-profile-shell`).
+
+| Surface | Spec | Form root scope | Product issue |
+|---------|------|-----------------|---------------|
+| Account edit | `tests/profile-account.spec.js` | `[data-testid="perc-profile-account"]` | #2395 |
+| Preferences | `tests/profile-preferences.spec.js` | `[data-testid="perc-profile-preferences"]` | #2396 |
+| Avatar / Gravatar | `tests/profile-avatar.spec.js` | `[data-testid="perc-profile-avatar"]` | #2397 |
+| Password (local auth) | *not on main yet* | — | #2394 (still open) — residual when form lands |
+
+Account also scans after a client email-validation error so `aria-invalid` /
+error live region stay free of serious/critical issues. Password form axe is
+intentionally out of scope until #2394 merges.
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/profile-account.spec.js --grep "axe-core"
+
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/profile-preferences.spec.js --grep "axe-core"
+
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/profile-avatar.spec.js --grep "axe-core"
+
+# Multi-path landed form surfaces (axe only)
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- \
+    --path tests/profile-account.spec.js \
+    --path tests/profile-preferences.spec.js \
+    --path tests/profile-avatar.spec.js \
+    --grep "axe-core"
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/profile-account.spec.js
+npm run test:surface:list -- --path tests/profile-preferences.spec.js
+npm run test:surface:list -- --path tests/profile-avatar.spec.js
+```
+
 **`run-surface` refuses the full suite** unless you pass `--allow-full` (agents must
 not use that by default).
 

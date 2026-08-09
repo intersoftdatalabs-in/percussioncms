@@ -100,7 +100,8 @@
 .fieldError,
 .formError {
   margin: 0;
-  color: var(--color-danger, #b42318);
+  /* Darker than theme --color-danger (#d63637) so axe AA contrast holds on white. */
+  color: #7a1a12;
   font-size: 0.85rem;
   line-height: 1.4;
 }
@@ -167,14 +168,17 @@
   gap: 0.65rem;
   padding: 0.75rem 0.9rem;
   border-radius: 8px;
-  border: 1px solid var(--color-danger, #b42318);
-  background: #fef3f2;
-  color: var(--color-danger, #b42318);
+  /* Pair matches login error card: solid AA contrast (axe color-contrast). */
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
 }
 
 .errorBox p {
   margin: 0;
   line-height: 1.45;
+  color: #991b1b;
+  word-break: break-word;
 }
 
 .statusRegion {
