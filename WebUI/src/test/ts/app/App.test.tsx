@@ -101,6 +101,7 @@ const bootstrap: SpaBootstrap = {
   isAdmin: true,
   isDesigner: true,
   isWidgetBuilderActive: true,
+  allowExternalAvatarFetch: true,
 };
 
 describe("App shell", () => {

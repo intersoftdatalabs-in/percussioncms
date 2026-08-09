@@ -31,6 +31,7 @@ const adminBootstrap: SpaBootstrap = {
   isAdmin: true,
   isDesigner: false,
   isWidgetBuilderActive: false,
+  allowExternalAvatarFetch: true,
 };
 
 function renderShell(

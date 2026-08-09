@@ -46,6 +46,8 @@ export function loadSpaBootstrap(
       isAdmin: raw.isAdmin === true,
       isDesigner: raw.isDesigner === true,
       isWidgetBuilderActive: raw.isWidgetBuilderActive === true,
+      // Default true when omitted (older spa.jsp / missing prop).
+      allowExternalAvatarFetch: raw.allowExternalAvatarFetch !== false,
     };
   } catch {
     console.error(`[PercModernUI] Failed to parse SPA bootstrap (#${elementId})`);

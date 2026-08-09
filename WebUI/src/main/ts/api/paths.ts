@@ -385,7 +385,10 @@ export const PATHS = {
   get USER_CHANGE_PW() {
     return `${SERVICES_ROOT}/user/user/changepw`;
   },
-  /** Current signed-in user identity (GET). */
+  /**
+   * Signed-in user identity (GET {@code /user/user/current}).
+   * Used by profile account (#2395) and avatar (#2397) for primary email.
+   */
   get USER_CURRENT() {
     return `${SERVICES_ROOT}/user/user/current`;
   },

@@ -15,20 +15,76 @@
  * limitations under the License.
  */
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
+import { getCurrentUserBasic } from "../../api/user/userCurrentApi";
+import { isSessionRedirectError } from "../../api/client";
 import { i18nKeyAttr } from "../../i18n/i18nDom";
 import { message, MSG } from "../../i18n/message";
+import { loadGravatarEmailOverride } from "../../profile/avatarPrefs";
+import { resolveAvatarPresentation } from "../../profile/gravatar";
 import { PROFILE_MSG } from "../../profile/messages";
+import { UserAvatar } from "../../profile/UserAvatar";
+import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
 import styles from "./AppLayout.module.css";
 
 export function UserMenu(): React.ReactElement {
-  const { userName } = useSpaBootstrap();
-  const name = userName?.trim() || message(MSG.USER_DEFAULT_NAME);
+  const bootstrap = useSpaBootstrap();
+  const name = bootstrap.userName?.trim() || message(MSG.USER_DEFAULT_NAME);
+  const allowExternal = bootstrap.allowExternalAvatarFetch !== false;
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        // Do not swallow SessionRedirectError on getCurrentUserBasic — let the
+        // outer guard see it so login redirect is not silently skipped.
+        const [basic, override] = await Promise.all([
+          getCurrentUserBasic(),
+          loadGravatarEmailOverride().catch((err: unknown) => {
+            if (isSessionRedirectError(err)) {
+              throw err;
+            }
+            return "";
+          }),
+        ]);
+        if (cancelled) {
+          return;
+        }
+        const presentation = await resolveAvatarPresentation({
+          displayName: name,
+          overrideEmail: override,
+          primaryEmail: basic.email,
+          allowExternalAvatarFetch: allowExternal,
+          size: 64,
+        });
+        if (!cancelled) {
+          setImageUrl(presentation.imageUrl);
+        }
+      } catch (err) {
+        if (isSessionRedirectError(err) || cancelled) {
+          return;
+        }
+        if (!cancelled) {
+          setImageUrl(null);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [name, bootstrap.userName, allowExternal]);
 
   return (
     <div className={styles.userMenu} data-testid="perc-spa-user-menu">
+      <UserAvatar
+        displayName={name}
+        imageUrl={imageUrl}
+        size={32}
+        className={styles.userAvatar}
+        testId="perc-spa-user-avatar"
+      />
       <span
         className="mkd-lang-target"
         {...i18nKeyAttr(MSG.USER_SIGNED_IN_AS)}

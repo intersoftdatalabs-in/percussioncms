@@ -76,6 +76,10 @@
   color: var(--color-text-muted, #5b6478);
 }
 
+.userAvatar {
+  flex-shrink: 0;
+}
+
 .userName {
   font-weight: 600;
   color: var(--color-text, #181c2c);

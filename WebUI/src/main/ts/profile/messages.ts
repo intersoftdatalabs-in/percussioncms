@@ -36,7 +36,7 @@ export const PROFILE_MSG = {
     "perc.ui.profile.modern@Choose your default CMS landing page and view preferences stored for your account.",
   SECTION_AVATAR: "perc.ui.profile.modern@Avatar",
   SECTION_AVATAR_BODY:
-    "perc.ui.profile.modern@Avatar and Gravatar email settings will appear here.",
+    "perc.ui.profile.modern@Choose the email used for your Gravatar avatar and preview how it appears in the header.",
   COMING_SOON: "perc.ui.profile.modern@Coming soon",
 
   // Preferences section (#2396)
@@ -88,4 +88,34 @@ export const PROFILE_MSG = {
   EMAIL_INVALID: "perc.ui.profile.modern@Enter a valid email address.",
   EMPTY_VALUE: "perc.ui.profile.modern@Not set",
   NONE_LISTED: "perc.ui.profile.modern@None",
+
+  // Avatar / Gravatar section (#2397)
+  AVATAR_LOADING: "perc.ui.profile.modern@Loading avatar settings…",
+  AVATAR_LOAD_ERROR: "perc.ui.profile.modern@Could not load avatar settings.",
+  AVATAR_RETRY: "perc.ui.profile.modern@Try again",
+  AVATAR_PREVIEW_LABEL: "perc.ui.profile.modern@Avatar preview",
+  AVATAR_EMAIL_LABEL: "perc.ui.profile.modern@Gravatar email",
+  AVATAR_EMAIL_HINT:
+    "perc.ui.profile.modern@Used only to look up your public Gravatar image. Leave the box checked to use your primary account email.",
+  AVATAR_USE_PRIMARY:
+    "perc.ui.profile.modern@Use primary account email for Gravatar",
+  AVATAR_PRIMARY_EMAIL: "perc.ui.profile.modern@Primary email: {0}",
+  AVATAR_PRIMARY_MISSING:
+    "perc.ui.profile.modern@No primary account email is stored yet. Enter a Gravatar email below or set your account email when available.",
+  AVATAR_NO_EMAIL:
+    "perc.ui.profile.modern@No email selected — initials will be shown.",
+  AVATAR_PRIVACY_NOTE:
+    "perc.ui.profile.modern@Privacy: the browser loads the avatar image from Gravatar using a one-way hash of the email. Your email is not shown to other users in the header.",
+  AVATAR_EXTERNAL_DISABLED:
+    "perc.ui.profile.modern@External avatar images are disabled on this server. Your initials are shown instead.",
+  AVATAR_SSO_NOTE:
+    "perc.ui.profile.modern@If you sign in with directory/SSO, your primary email may be managed by your identity provider. You can still set a separate Gravatar email here.",
+  AVATAR_SAVE: "perc.ui.profile.modern@Save avatar settings",
+  AVATAR_SAVING: "perc.ui.profile.modern@Saving…",
+  AVATAR_SAVE_SUCCESS: "perc.ui.profile.modern@Avatar settings saved.",
+  AVATAR_SAVE_ERROR: "perc.ui.profile.modern@Could not save avatar settings.",
+  AVATAR_EMAIL_INVALID:
+    "perc.ui.profile.modern@Enter a valid email address, or use your primary account email.",
+  AVATAR_ARIA: "perc.ui.profile.modern@Avatar for {0}",
+  AVATAR_DEFAULT_NAME: "perc.ui.profile.modern@user",
 } as const;

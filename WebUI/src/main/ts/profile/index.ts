@@ -21,4 +21,8 @@ export { ProfileShell } from "./ProfileShell";
 export type { ProfileShellProps } from "./ProfileShell";
 export { PreferencesSection } from "./PreferencesSection";
 export type { PreferencesSectionProps } from "./PreferencesSection";
+export { AvatarSection } from "./AvatarSection";
+export type { AvatarSectionProps } from "./AvatarSection";
+export { UserAvatar } from "./UserAvatar";
+export type { UserAvatarProps } from "./UserAvatar";
 export { PROFILE_MSG } from "./messages";
