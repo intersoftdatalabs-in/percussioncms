@@ -21,8 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.intsof.percussioncms.auditlog.AuditContext;
 import com.intsof.percussioncms.auditlog.DefaultAuditLogService;
+import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.spi.ConcurrentMemoryAuditLogRepository;
+import com.percussion.security.IPSSecurityErrors;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,5 +88,45 @@ class PSSystemAuditLoggerTest {
     var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
     assertEquals(1003, rec.code().numericCode());
     assertEquals(com.intsof.percussioncms.auditlog.AuditOutcome.SUCCESS, rec.outcome());
+  }
+
+  @Test
+  void legacyAuthFailureDualWritesViaBridge() {
+    var id =
+        PSSystemAuditLogger.logLegacyIfAuditable(
+            IPSSecurityErrors.AUTHENTICATION_FAILED,
+            AuditContext.builder().actor("jdoe").sourceIp("10.0.0.1").build(),
+            "Directory",
+            "ldap1",
+            "jdoe");
+
+    assertTrue(!id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(1, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals(SecurityErrorCodes.AUTHENTICATION_FAILED, rec.code());
+    assertTrue(rec.formattedLine().startsWith("[SEC-9002]-"));
+  }
+
+  @Test
+  void legacyNonAuditableProviderNoiseSkipsDualWrite() {
+    var id =
+        PSSystemAuditLogger.logLegacyIfAuditable(
+            IPSSecurityErrors.PROVIDER_UNKNOWN,
+            AuditContext.builder().actor("system").build(),
+            "Directory",
+            "ldap1");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertEquals(0, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+  }
+
+  @Test
+  void ipsSecurityErrorsIntsMatchSecurityErrorCodes() {
+    assertEquals(
+        SecurityErrorCodes.GENERIC_AUTHENTICATION_FAILED.numericCode(),
+        IPSSecurityErrors.GENERIC_AUTHENTICATION_FAILED);
+    assertEquals(
+        SecurityErrorCodes.SESS_NOT_AUTHORIZED.numericCode(),
+        IPSSecurityErrors.SESS_NOT_AUTHORIZED);
   }
 }

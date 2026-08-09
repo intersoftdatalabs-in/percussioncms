@@ -22,8 +22,12 @@ import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.intsof.percussioncms.auditlog.SystemErrorCode;
 
 /**
- * Reference package-local error codes for authentication (Phase 1 sample). Production auth codes
- * should eventually live under {@code com.percussion.security} once call sites migrate.
+ * High-level authentication <em>audit events</em> (login success/failure/logout).
+ *
+ * <p>Exception catalog codes that bridge legacy {@code IPSSecurityErrors} ints live in {@link
+ * SecurityErrorCodes} (Phase 2b). Prefer this enum for intentional audit emits from login
+ * servlets; prefer {@link SecurityErrorCodes} / {@code LegacyErrorCodeRegistry} when handling
+ * {@code PSException} error codes.
  *
  * <p>Every constant sets {@link #isAuditable()} explicitly.
  */
