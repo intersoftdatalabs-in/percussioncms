@@ -110,6 +110,155 @@ public class PSRequestTest {
   }
 
   /**
+   * Extensionless URL + {@code Accept: application/json} selects JSON page type (Accept
+   * negotiation).
+   */
+  @Test
+  public void testJsonPageTypeFromAcceptHeaderWhenNoExtension() {
+    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/Rhythmyx/MyApp/products");
+    req.setContextPath("");
+    req.setServletPath("/Rhythmyx/MyApp/products");
+    req.addHeader("Accept", "application/json");
+    MockHttpServletResponse res = new MockHttpServletResponse();
+
+    PSRequest request = new PSRequest(req, res, null, null);
+
+    assertEquals(PSRequest.PAGE_TYPE_JSON, request.getRequestPageType());
+    assertEquals(".json", request.getRequestPageExtension().toLowerCase());
+  }
+
+  /** Structured JSON Accept types ({@code application/*+json}) also select JSON. */
+  @Test
+  public void testJsonPageTypeFromStructuredJsonAccept() {
+    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/Rhythmyx/MyApp/products");
+    req.setContextPath("");
+    req.setServletPath("/Rhythmyx/MyApp/products");
+    req.addHeader("Accept", "application/ld+json");
+    MockHttpServletResponse res = new MockHttpServletResponse();
+
+    PSRequest request = new PSRequest(req, res, null, null);
+
+    assertEquals(PSRequest.PAGE_TYPE_JSON, request.getRequestPageType());
+  }
+
+  /** Extensionless with no Accept remains product default XML. */
+  @Test
+  public void testExtensionlessWithoutAcceptRemainsXml() {
+    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/Rhythmyx/MyApp/products");
+    req.setContextPath("");
+    req.setServletPath("/Rhythmyx/MyApp/products");
+    MockHttpServletResponse res = new MockHttpServletResponse();
+
+    PSRequest request = new PSRequest(req, res, null, null);
+
+    assertEquals(PSRequest.PAGE_TYPE_XML, request.getRequestPageType());
+  }
+
+  /** Extensionless + Accept XML remains XML (does not force JSON). */
+  @Test
+  public void testExtensionlessWithAcceptXmlRemainsXml() {
+    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/Rhythmyx/MyApp/products");
+    req.setContextPath("");
+    req.setServletPath("/Rhythmyx/MyApp/products");
+    req.addHeader("Accept", "application/xml, text/xml");
+    MockHttpServletResponse res = new MockHttpServletResponse();
+
+    PSRequest request = new PSRequest(req, res, null, null);
+
+    assertEquals(PSRequest.PAGE_TYPE_XML, request.getRequestPageType());
+  }
+
+  /**
+   * When JSON and XML share the same quality, default stays XML (JSON must be strictly preferred).
+   */
+  @Test
+  public void testEqualQualityJsonAndXmlDefaultsToXml() {
+    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/Rhythmyx/MyApp/products");
+    req.setContextPath("");
+    req.setServletPath("/Rhythmyx/MyApp/products");
+    req.addHeader("Accept", "application/json, application/xml");
+    MockHttpServletResponse res = new MockHttpServletResponse();
+
+    PSRequest request = new PSRequest(req, res, null, null);
+
+    assertEquals(PSRequest.PAGE_TYPE_XML, request.getRequestPageType());
+  }
+
+  /** Higher JSON quality factor wins over lower XML quality. */
+  @Test
+  public void testHigherJsonQualityWinsOverXml() {
+    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/Rhythmyx/MyApp/products");
+    req.setContextPath("");
+    req.setServletPath("/Rhythmyx/MyApp/products");
+    req.addHeader("Accept", "application/json;q=0.9, application/xml;q=0.5");
+    MockHttpServletResponse res = new MockHttpServletResponse();
+
+    PSRequest request = new PSRequest(req, res, null, null);
+
+    assertEquals(PSRequest.PAGE_TYPE_JSON, request.getRequestPageType());
+  }
+
+  /** Known extension always wins over Accept (XML extension + Accept JSON → XML). */
+  @Test
+  public void testExtensionWinsOverAcceptJson() {
+    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/Rhythmyx/MyApp/products.xml");
+    req.setContextPath("");
+    req.setServletPath("/Rhythmyx/MyApp/products.xml");
+    req.addHeader("Accept", "application/json");
+    MockHttpServletResponse res = new MockHttpServletResponse();
+
+    PSRequest request = new PSRequest(req, res, null, null);
+
+    assertEquals(PSRequest.PAGE_TYPE_XML, request.getRequestPageType());
+    assertEquals(".xml", request.getRequestPageExtension().toLowerCase());
+  }
+
+  /** Known JSON extension wins even when Accept prefers XML. */
+  @Test
+  public void testJsonExtensionWinsOverAcceptXml() {
+    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/Rhythmyx/MyApp/products.json");
+    req.setContextPath("");
+    req.setServletPath("/Rhythmyx/MyApp/products.json");
+    req.addHeader("Accept", "text/xml, application/xml");
+    MockHttpServletResponse res = new MockHttpServletResponse();
+
+    PSRequest request = new PSRequest(req, res, null, null);
+
+    assertEquals(PSRequest.PAGE_TYPE_JSON, request.getRequestPageType());
+  }
+
+  /** Unknown extensions stay UNKNOWN; Accept does not override. */
+  @Test
+  public void testUnknownExtensionNotOverriddenByAccept() {
+    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/Rhythmyx/MyApp/products.bin");
+    req.setContextPath("");
+    req.setServletPath("/Rhythmyx/MyApp/products.bin");
+    req.addHeader("Accept", "application/json");
+    MockHttpServletResponse res = new MockHttpServletResponse();
+
+    PSRequest request = new PSRequest(req, res, null, null);
+
+    assertEquals(PSRequest.PAGE_TYPE_UNKNOWN, request.getRequestPageType());
+  }
+
+  @Test
+  public void testIsJsonAcceptMediaTypeHelpers() {
+    assertTrue(PSRequest.isJsonAcceptMediaType("application/json"));
+    assertTrue(PSRequest.isJsonAcceptMediaType("application/ld+json"));
+    assertTrue(PSRequest.isJsonAcceptMediaType("application/vnd.api+json"));
+    assertFalse(PSRequest.isJsonAcceptMediaType("text/json"));
+    assertFalse(PSRequest.isJsonAcceptMediaType("application/xml"));
+    assertFalse(PSRequest.isJsonAcceptMediaType("*/*"));
+
+    assertTrue(PSRequest.isXmlOrHtmlAcceptMediaType("application/xml"));
+    assertTrue(PSRequest.isXmlOrHtmlAcceptMediaType("text/xml"));
+    assertTrue(PSRequest.isXmlOrHtmlAcceptMediaType("text/html"));
+    assertTrue(PSRequest.isXmlOrHtmlAcceptMediaType("application/xhtml+xml"));
+    assertTrue(PSRequest.isXmlOrHtmlAcceptMediaType("application/atom+xml"));
+    assertFalse(PSRequest.isXmlOrHtmlAcceptMediaType("application/json"));
+  }
+
+  /**
    * Tests the putAllParameters method to make sure it add parameters and replaces existing values.
    */
   @Test

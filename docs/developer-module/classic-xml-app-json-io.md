@@ -10,29 +10,51 @@
 
 Classic XML Applications historically return **XML** (`.xml` / `.txt`) or **HTML** (`.html` / `.htm` via XSL result pages). This feature adds first-class **JSON** as:
 
-1. **Response format** — request page extension `.json` → `Content-Type: application/json`
+1. **Response format** — request page extension `.json`, or extensionless URL with `Accept` preferring `application/json` (see [precedence](#precedence-extension--accept--default-xml)) → `Content-Type: application/json`
 2. **Request body format** — `Content-Type: application/json` → input document for update pipes (and any consumer of `PSRequest.getInputDocument()`)
 
 The server still builds and consumes the same **XML DOM** used by mappers, exits, and page tanks. JSON is a wire encoding of that document.
 
 ## Response: selecting JSON
 
+### Precedence (extension > Accept > default XML)
+
+| Priority | Rule | Result |
+|----------|------|--------|
+| **1** | Known page extension (`.xml` / `.html` / `.htm` / `.txt` / `.json`) | That extension's page type **always wins** |
+| **2** | **No** extension + `Accept` prefers JSON | `PAGE_TYPE_JSON` |
+| **3** | Otherwise | Product default **XML** |
+
+JSON is preferred from `Accept` only when:
+
+- Media type is `application/json`, or a structured JSON type `application/*+json` (e.g. `application/ld+json`), and
+- Its quality (`q`) is **strictly greater** than any competing XML/HTML type (`application/xml`, `text/xml`, `text/html`, `application/xhtml+xml`, `*+xml`).
+
+Missing `Accept`, `*/*` alone, Accept that prefers XML/HTML, or equal `q` for JSON and XML → still **XML**. Unknown extensions (e.g. `.bin`) stay `PAGE_TYPE_UNKNOWN` and are **not** negotiated via Accept.
+
 Same URL model as XML/HTML:
 
 | Extension | MIME type | Notes |
 |-----------|-----------|--------|
-| *(none)* / `.xml` | `text/xml` | Default result document |
+| *(none)* (no Accept / Accept XML) | `text/xml` | Default result document |
+| *(none)* + `Accept: application/json` | **`application/json`** | Same document as XML, **no XSL** |
+| `.xml` | `text/xml` | Extension wins even if Accept asks for JSON |
 | `.txt` | `text/plain` | Same document as XML |
 | `.html` / `.htm` | `text/html` | XSL merge when result pages configured |
-| **`.json`** | **`application/json`** | Same document as XML, **no XSL** |
+| **`.json`** | **`application/json`** | Extension wins; same document as XML, **no XSL** |
 
-Example:
+Examples:
 
 ```http
 GET /Rhythmyx/MyApp/products.json HTTP/1.1
 ```
 
-`PSRequest.PAGE_TYPE_JSON` (`0x08`) is set from the extension. Query resources use `PSResultSetHtmlConverter`; update stats/results use `PSUpdateHandler`; Content Editor query uses `PSQueryCommandHandler`.
+```http
+GET /Rhythmyx/MyApp/products HTTP/1.1
+Accept: application/json
+```
+
+`PSRequest.PAGE_TYPE_JSON` (`0x08`) is set from the extension or from Accept negotiation when there is no extension. Query resources use `PSResultSetHtmlConverter`; update stats/results use `PSUpdateHandler`; Content Editor query uses `PSQueryCommandHandler`.
 
 ## Request: JSON input document
 
@@ -92,8 +114,9 @@ These are complementary, not replacements.
 
 ## Non-goals (v1)
 
-- Accept header content negotiation without extension  
+- Changing a **present** `.xml` / `.html` / `.txt` URL to JSON via Accept alone (extension remains authoritative)  
+- Accept negotiation for **request** bodies (already Content-Type driven)  
 - XSL that emits JSON  
 - JSON Schema validation against page-tank DTDs  
 - Designer UI for “JSON page tank”  
-- Changing the default when no extension is present (still XML)
+- Changing the default when Accept is missing or prefers XML/HTML (still XML)
