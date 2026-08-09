@@ -127,6 +127,17 @@ class ServerLogErrorTests(unittest.TestCase):
         self.assertIsNotNone(match)
         self.assertIn("perc.Baseline", match)
 
+    def test_pslogger_mentioned_in_stack_not_allowlisted(self):
+        """Broad PSLogger/PSExecSQL substrings must not mask runtime failures."""
+        text = (
+            "ERROR [Assembly] Failed to save template\n"
+            "\tat com.percussion.install.PSLogger.logError(PSLogger.java:42)\n"
+            "\tat com.foo.PSExecSQLHelper.fail(PSExecSQLHelper.java:9)\n"
+        )
+        match = rr.find_server_log_startup_error(text)
+        self.assertIsNotNone(match)
+        self.assertIn("Failed to save template", match)
+
     def test_psdatahandler_cehandler_allowlisted(self):
         text = (
             "ERROR [com.percussion.data.PSDataHandler] Application .sys_CEHandler1, "

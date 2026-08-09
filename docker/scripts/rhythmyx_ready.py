@@ -286,12 +286,15 @@ def _is_allowlisted_error_line(line: str) -> bool:
         if needle and needle in line:
             return True
     # Install-time noise from failonerror=false SQL / dialect cleanup
-    # (missing tables, RENAME COLUMN on H2, etc.). Real package / runtime
-    # failures use ERROR [Server] Package: / ERROR [Assembly] / context markers and
-    # are NOT allowlisted (#2540 / #2556 fresh H2 qa-up).
-    if "com.percussion.install.PSLogger" in line:
-        return True
-    if "PSExecSQL" in line:
+    # (missing tables, RENAME COLUMN on H2, etc.). Anchor to the Ant task
+    # logger prefix so a package-failure stack that merely mentions PSLogger
+    # or PSExecSQL still fails qa-up (#2540 review). Real package / runtime
+    # failures use ERROR [Server] Package: / ERROR [Assembly] / context markers
+    # and are NOT allowlisted (#2540 / #2556 fresh H2 qa-up).
+    stripped = (line or "").lstrip()
+    if stripped.startswith("[PSExecSQLStmt]") or stripped.startswith(
+        "[PSExecSQL"
+    ):
         return True
     # Content-type handler child inserts during first package install can log a
     # single ERROR line then succeed; do not fail-fast qa-up mid-install.

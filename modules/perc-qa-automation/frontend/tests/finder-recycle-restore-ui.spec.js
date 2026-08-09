@@ -561,8 +561,20 @@ test.describe("classic Finder UI recycle / restore companion", () => {
         )
         .first();
       if ((await detailRow.count()) > 0) {
-        await detailRow.click({ timeout: 15_000 }).catch(() => {});
-        selection.selected = true;
+        const clicked = await detailRow
+          .click({ timeout: 15_000 })
+          .then(() => true)
+          .catch(() => false);
+        // Trust UI selection signal (DetailList aria-selected), not click alone.
+        if (clicked) {
+          const ariaSelected = await detailRow
+            .getAttribute("aria-selected")
+            .catch(() => null);
+          const className =
+            (await detailRow.getAttribute("class").catch(() => "")) || "";
+          selection.selected =
+            ariaSelected === "true" || /\bselected\b/i.test(className);
+        }
       }
 
       let deleteEnabled = false;

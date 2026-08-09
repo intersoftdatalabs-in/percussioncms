@@ -1362,7 +1362,8 @@ public class PSAssemblyService implements IPSAssemblyService
                tversion = existing.getVersion();
                for (var b : existing.getBindings())
                {
-                  if (b != null && b.getId() != null)
+                  // getId() boxes primitive long — never null; guard binding only.
+                  if (b != null)
                   {
                      bversions.put(b.getId(), b.getVersion());
                   }
