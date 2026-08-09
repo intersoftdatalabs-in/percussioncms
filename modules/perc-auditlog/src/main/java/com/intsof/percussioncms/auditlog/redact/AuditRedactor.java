@@ -25,19 +25,21 @@ import java.util.regex.Pattern;
  * Redacts sensitive material from user and log messages (and attribute maps) before dual-write.
  *
  * <p>Applied to <em>both</em> userMessage and logMessage channels.
+ *
+ * <p>Regex usage is intentionally bounded and linear-time where practical (length cap before
+ * matching; JWT redaction uses a linear scan instead of a backtracking {@code Pattern} — CodeQL
+ * {@code java/polynomial-redos} / alert #1948).
  */
 public final class AuditRedactor {
 
   public static final String REDACTED = "[REDACTED]";
 
+  /** Max characters processed for redaction; longer inputs are truncated first (ReDoS bound). */
   private static final int MAX_FIELD_LENGTH = 4000;
 
   private static final Pattern PASSWORD_KV =
       Pattern.compile(
           "(?i)(password|passwd|pwd|secret|token|api[_-]?key|authorization|bearer)\\s*([:=])\\s*([^\\s,;]+)");
-
-  private static final Pattern JWT =
-      Pattern.compile("\\beyJ[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\b");
 
   private static final Pattern BASIC_AUTH =
       Pattern.compile("(?i)(basic)\\s+[A-Za-z0-9+/=]{8,}");
@@ -55,16 +57,130 @@ public final class AuditRedactor {
     if (input == null || input.isEmpty()) {
       return input == null ? "" : input;
     }
-    String s = input;
+    // Bound input length before any regex so match cost cannot grow unbounded (ReDoS).
+    String s =
+        input.length() > MAX_FIELD_LENGTH
+            ? input.substring(0, MAX_FIELD_LENGTH) + "…"
+            : input;
     s = PASSWORD_KV.matcher(s).replaceAll("$1$2" + REDACTED);
     s = CONNECTION_PASSWORD.matcher(s).replaceAll("$1=" + REDACTED);
     s = URL_CREDENTIALS.matcher(s).replaceAll("$1" + REDACTED + ":" + REDACTED + "@");
-    s = JWT.matcher(s).replaceAll(REDACTED);
+    s = redactJwtLikeTokens(s);
     s = BASIC_AUTH.matcher(s).replaceAll("$1 " + REDACTED);
-    if (s.length() > MAX_FIELD_LENGTH) {
-      s = s.substring(0, MAX_FIELD_LENGTH) + "…";
-    }
     return s;
+  }
+
+  /**
+   * Linear-time redaction of JWT-shaped tokens ({@code eyJ...eyJ...sig}) without a backtracking
+   * regex. Replaces the former {@code Pattern} that CodeQL flagged as polynomial ReDoS.
+   */
+  static String redactJwtLikeTokens(String s) {
+    if (s == null || s.length() < 10) {
+      return s;
+    }
+    final int n = s.length();
+    StringBuilder out = null;
+    int copyFrom = 0;
+    int i = 0;
+    while (i < n) {
+      int start = indexOfJwtPrefix(s, i);
+      if (start < 0) {
+        break;
+      }
+      int end = matchJwtFrom(s, start);
+      if (end < 0) {
+        i = start + 1;
+        continue;
+      }
+      if (out == null) {
+        out = new StringBuilder(n);
+      }
+      out.append(s, copyFrom, start);
+      out.append(REDACTED);
+      copyFrom = end;
+      i = end;
+    }
+    if (out == null) {
+      return s;
+    }
+    out.append(s, copyFrom, n);
+    return out.toString();
+  }
+
+  /**
+   * Find next index of {@code eyJ} that can start a JWT (word-ish boundary before it).
+   *
+   * @return start index or -1
+   */
+  private static int indexOfJwtPrefix(String s, int from) {
+    final int n = s.length();
+    int i = from;
+    while (i <= n - 3) {
+      int at = s.indexOf("eyJ", i);
+      if (at < 0) {
+        return -1;
+      }
+      if (at == 0 || !isJwtBodyChar(s.charAt(at - 1))) {
+        return at;
+      }
+      i = at + 1;
+    }
+    return -1;
+  }
+
+  /**
+   * If {@code start} begins a three-segment base64url JWT ({@code header.payload.sig}), return the
+   * exclusive end index; otherwise -1.
+   */
+  private static int matchJwtFrom(String s, int start) {
+    // header: eyJ + base64url body
+    int i = start;
+    if (i + 3 > s.length() || !s.startsWith("eyJ", i)) {
+      return -1;
+    }
+    i = consumeJwtBody(s, i + 3);
+    if (i < 0 || i >= s.length() || s.charAt(i) != '.') {
+      return -1;
+    }
+    i++; // skip '.'
+    // payload must also look like base64 JSON (eyJ…)
+    if (i + 3 > s.length() || !s.startsWith("eyJ", i)) {
+      return -1;
+    }
+    i = consumeJwtBody(s, i + 3);
+    if (i < 0 || i >= s.length() || s.charAt(i) != '.') {
+      return -1;
+    }
+    i++; // skip '.'
+    // signature: at least one base64url char
+    int sigStart = i;
+    i = consumeJwtBody(s, i);
+    if (i < 0 || i == sigStart) {
+      return -1;
+    }
+    // trailing boundary: end or non-body char
+    if (i < s.length() && isJwtBodyChar(s.charAt(i))) {
+      return -1;
+    }
+    return i;
+  }
+
+  /** Consume maximal {@code [A-Za-z0-9_-]} run starting at {@code from}; return end index. */
+  private static int consumeJwtBody(String s, int from) {
+    int i = from;
+    final int n = s.length();
+    while (i < n && isJwtBodyChar(s.charAt(i))) {
+      i++;
+    }
+    return i;
+  }
+
+  private static boolean isJwtBodyChar(char c) {
+    return (c >= 'A' && c <= 'Z')
+        || (c >= 'a' && c <= 'z')
+        || (c >= '0' && c <= '9')
+        || c == '_'
+        || c == '-';
   }
 
   /** Redact each value in a map; keys are preserved as-is. */
