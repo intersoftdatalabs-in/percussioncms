@@ -28,9 +28,13 @@ import com.percussion.util.PSBaseHttpUtils;
 import com.percussion.util.PSCharSets;
 import com.percussion.util.PSCharSetsConstants;
 import com.percussion.util.PSInputStreamReader;
+import com.percussion.util.PSPurgableTempFile;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.Arrays;
 import org.w3c.dom.Document;
 
@@ -38,6 +42,12 @@ import org.w3c.dom.Document;
  * Parses {@code application/json} request bodies into an input XML {@link Document} using {@link
  * PSXmlDocumentJsonCodec}, so classic update pipes and other input-document consumers can accept
  * JSON without changing mapper/exit code.
+ *
+ * <p>Large-body intake matches {@link PSXmlContentParser}: the request stream is copied into a
+ * purgable temp file in fixed-size chunks (no single {@code byte[Content-Length]} allocation), then
+ * decoded via a charset-aware {@link Reader}. There is no additional hard max-size beyond the
+ * Content-Length {@code int} used by the request parser (same as the classic XML path). Nesting is
+ * limited by {@link PSXmlDocumentJsonCodec#MAX_DEPTH}.
  */
 public class PSJsonContentParser extends PSContentParser {
 
@@ -77,42 +87,50 @@ public class PSJsonContentParser extends PSContentParser {
       throw new PSRequestParsingException("Unsupported character set for JSON body: " + charset);
     }
 
-    byte[] buf = new byte[length];
-    int bytesRead = getContentFromReader(content, buf, length);
-    if (bytesRead != length) {
-      Object[] args = {
-        request.getUserSessionId(),
-        mimeType,
-        String.valueOf(length),
-        String.valueOf(bytesRead)
-      };
-      com.percussion.log.PSLogManager.write(
-          new com.percussion.log.PSLogServerWarning(
-              IPSServerErrors.CONTENT_LENGTH_DOES_NOT_MATCH_DATA_READ,
-              args,
-              true,
-              "PSJsonContentParser"));
-    }
-
-    String jsonText = new String(buf, 0, bytesRead, javaCharset);
-
-    Document doc;
+    /*
+     * Stream body to a purgable temp file (same pattern as PSXmlContentParser) so hostile or
+     * large Content-Length values do not force a single heap buffer for the entire body.
+     */
+    PSPurgableTempFile tempFile =
+        readContentIntoPurgableTempFile("psj", ".json", null, content, length);
     try {
-      doc = PSXmlDocumentJsonCodec.fromJson(jsonText);
-    } catch (PSConversionException e) {
-      Object[] args = {e.getLocalizedMessage()};
-      throw new PSRequestParsingException(IPSServerErrors.JSON_PARSER_ERROR, args);
-    }
+      long fileLength = tempFile.length();
+      if (length != fileLength) {
+        Object[] args = {
+          request.getUserSessionId(),
+          mimeType,
+          String.valueOf(length),
+          String.valueOf(fileLength)
+        };
+        com.percussion.log.PSLogManager.write(
+            new com.percussion.log.PSLogServerWarning(
+                IPSServerErrors.CONTENT_LENGTH_DOES_NOT_MATCH_DATA_READ,
+                args,
+                true,
+                "PSJsonContentParser"));
+      }
 
-    /* Reject embedded file URLs (same security rule as XML content parser). */
-    PSXmlTreeWalker walker = new PSXmlTreeWalker(doc);
-    String str =
-        walker.getElementData("@" + PSXmlFieldExtractor.XML_URL_REFERENCE_ATTRIBUTE, true);
-    if (str != null) {
-      doc = null;
-    }
+      Document doc;
+      try (Reader reader =
+          new InputStreamReader(Files.newInputStream(tempFile.toPath()), javaCharset)) {
+        doc = PSXmlDocumentJsonCodec.fromJson(reader);
+      } catch (PSConversionException e) {
+        Object[] args = {e.getLocalizedMessage()};
+        throw new PSRequestParsingException(IPSServerErrors.JSON_PARSER_ERROR, args);
+      }
 
-    request.setInputDocument(doc);
+      /* Reject embedded file URLs (same security rule as XML content parser). */
+      PSXmlTreeWalker walker = new PSXmlTreeWalker(doc);
+      String str =
+          walker.getElementData("@" + PSXmlFieldExtractor.XML_URL_REFERENCE_ATTRIBUTE, true);
+      if (str != null) {
+        doc = null;
+      }
+
+      request.setInputDocument(doc);
+    } finally {
+      tempFile.release();
+    }
   }
 
   @Override
