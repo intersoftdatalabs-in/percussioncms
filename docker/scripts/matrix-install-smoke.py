@@ -447,13 +447,47 @@ def check_cms_rebuild_preflight(
     (strict refuse). Missing m2 sitemanage is not STALE (check is a no-op
     NOTE); see :func:`qa_preflight.is_stale`.
 
+    Corrupt / truncated WARs (``zipfile.BadZipFile``) and other preflight I/O
+    errors are treated as not-ok so callers can emit ``RESULT:FAIL
+    STEP:matrix-preflight DETAIL:preflight_stale`` instead of a traceback.
+
     Pure filesystem — no docker, curl, or maven. Safe to call from dry-run
     and unit tests with a stub ``repo_root`` / ``m2_root``.
     """
+    import zipfile
+
     m2 = m2_root if m2_root is not None else qa_preflight._default_m2_root()
-    rows = qa_preflight.run_preflight(repo_root, m2)
-    report = qa_preflight.format_report(rows, strict=True)
-    return (not qa_preflight.is_stale(rows), report)
+    try:
+        rows = qa_preflight.run_preflight(repo_root, m2)
+        report = qa_preflight.format_report(rows, strict=True)
+        ok = not qa_preflight.is_stale(rows)
+        # qa_preflight already swallows BadZipFile as "war:sitemanage missing";
+        # annotate explicitly when the WAR exists but is not a valid zip so
+        # CI logs are actionable without a traceback.
+        if not ok:
+            war = qa_preflight.find_webui_war(repo_root)
+            if war is not None and war.is_file():
+                try:
+                    with zipfile.ZipFile(war, "r") as zf:
+                        zf.namelist()
+                except zipfile.BadZipFile as exc:
+                    report = (
+                        "STALE: WebUI WAR is not a valid zip "
+                        f"(corrupt or truncated): {exc}\n{report}"
+                    )
+                    LOG.error("%s", report.splitlines()[0])
+        return (ok, report)
+    except zipfile.BadZipFile as exc:
+        # Defense in depth if qa_preflight starts re-raising BadZipFile.
+        report = (
+            f"STALE: WebUI WAR is not a valid zip (corrupt or truncated): {exc}"
+        )
+        LOG.error("%s", report)
+        return (False, report)
+    except OSError as exc:
+        report = f"STALE: rebuild-chain preflight I/O error: {exc}"
+        LOG.error("%s", report)
+        return (False, report)
 
 
 # Customer-shipped installer assembly names (maven-assembly finalName, not *-SNAPSHOT.jar).

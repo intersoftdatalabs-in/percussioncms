@@ -1204,17 +1204,26 @@ class DryRunCliTests(unittest.TestCase):
 class CmsPreflightGateTests(unittest.TestCase):
     """#2531 — matrix CMS path refuses STALE rebuild-chain (strict + skip)."""
 
+    # Shared payload so content-hash mode (#2532) treats m2 jar and WAR entry
+    # as FRESH when mtimes also allow it.
+    _SITEMANAGE_PAYLOAD = b"sitemanage-preflight-test-payload-v1"
+
     def _touch(self, path: Path, mtime: float) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(b"")
+        path.write_bytes(self._SITEMANAGE_PAYLOAD)
         os.utime(path, (mtime, mtime))
 
-    def _make_war(self, war_path: Path) -> None:
+    def _make_war(self, war_path: Path, mtime: float | None = None) -> None:
         import zipfile
 
         war_path.parent.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(war_path, "w") as zf:
-            zf.writestr("WEB-INF/lib/sitemanage-8.2.0-SNAPSHOT.jar", b"PK fake")
+            zf.writestr(
+                "WEB-INF/lib/sitemanage-8.2.0-SNAPSHOT.jar",
+                self._SITEMANAGE_PAYLOAD,
+            )
+        if mtime is not None:
+            os.utime(war_path, (mtime, mtime))
 
     def _layout(self, root: Path) -> tuple[Path, Path]:
         """Return (repo, m2) under root with matrix CMS jar layout."""
@@ -1242,6 +1251,8 @@ class CmsPreflightGateTests(unittest.TestCase):
         return repo, m2
 
     def test_check_cms_rebuild_preflight_stale(self):
+        import zipfile
+
         with tempfile.TemporaryDirectory() as td:
             repo, m2 = self._layout(Path(td))
             jar = (
@@ -1253,8 +1264,13 @@ class CmsPreflightGateTests(unittest.TestCase):
                 / "sitemanage-8.2.0-SNAPSHOT.jar"
             )
             war = repo / "WebUI" / "target" / "perc-web-ui-8.2.0-SNAPSHOT.war"
-            self._make_war(war)
+            # Content-hash primary (#2532): different jar vs WAR-entry bytes → STALE.
             self._touch(jar, 300)
+            with zipfile.ZipFile(war, "w") as zf:
+                zf.writestr(
+                    "WEB-INF/lib/sitemanage-8.2.0-SNAPSHOT.jar",
+                    b"stale-war-entry-different-bytes",
+                )
             os.utime(war, (200, 200))
             ok, report = smoke.check_cms_rebuild_preflight(repo, m2)
             self.assertFalse(ok)
@@ -1279,7 +1295,31 @@ class CmsPreflightGateTests(unittest.TestCase):
             self.assertTrue(ok)
             self.assertIn("FRESH", report)
 
-    def test_main_refuses_stale_cms_before_cells(self):
+    def test_check_cms_rebuild_preflight_corrupt_war(self):
+        """Zero-byte / truncated WAR must not traceback; refuse as STALE (#2531)."""
+        with tempfile.TemporaryDirectory() as td:
+            repo, m2 = self._layout(Path(td))
+            jar = (
+                m2
+                / "com"
+                / "percussion"
+                / "sitemanage"
+                / "sitemanage"
+                / "sitemanage-8.2.0-SNAPSHOT.jar"
+            )
+            war = repo / "WebUI" / "target" / "perc-web-ui-8.2.0-SNAPSHOT.war"
+            # Corrupt: not a zip (empty or truncated garbage). qa_preflight
+            # swallows BadZipFile and reports war:sitemanage missing → STALE;
+            # matrix wrapper also catches raised BadZipFile if that changes.
+            war.write_bytes(b"not-a-zip")
+            self._touch(jar, 300)
+            ok, report = smoke.check_cms_rebuild_preflight(repo, m2)
+            self.assertFalse(ok)
+            self.assertIn("STALE", report)
+
+
+    def test_main_refuses_corrupt_war_before_cells(self):
+        """main() must RESULT:FAIL matrix-preflight on corrupt WAR, not crash."""
         import io
         from contextlib import redirect_stdout
 
@@ -1294,8 +1334,52 @@ class CmsPreflightGateTests(unittest.TestCase):
                 / "sitemanage-8.2.0-SNAPSHOT.jar"
             )
             war = repo / "WebUI" / "target" / "perc-web-ui-8.2.0-SNAPSHOT.war"
-            self._make_war(war)
+            war.write_bytes(b"")  # zero-byte WAR
             self._touch(jar, 300)
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = smoke.main(
+                    [
+                        "--repo-root",
+                        str(repo),
+                        "--m2-root",
+                        str(m2),
+                        "--product",
+                        "cms",
+                        "--db",
+                        "h2",
+                        "--dry-run",
+                        "--skip-image-build",
+                    ]
+                )
+            out = buf.getvalue()
+            self.assertEqual(rc, smoke.EXIT_CELL_FAILED)
+            self.assertIn("matrix-preflight", out)
+            self.assertIn(smoke.DETAIL_PREFLIGHT_STALE, out)
+            self.assertIn("RESULT:FAIL", out)
+
+    def test_main_refuses_stale_cms_before_cells(self):
+        import io
+        import zipfile
+        from contextlib import redirect_stdout
+
+        with tempfile.TemporaryDirectory() as td:
+            repo, m2 = self._layout(Path(td))
+            jar = (
+                m2
+                / "com"
+                / "percussion"
+                / "sitemanage"
+                / "sitemanage"
+                / "sitemanage-8.2.0-SNAPSHOT.jar"
+            )
+            war = repo / "WebUI" / "target" / "perc-web-ui-8.2.0-SNAPSHOT.war"
+            self._touch(jar, 300)
+            with zipfile.ZipFile(war, "w") as zf:
+                zf.writestr(
+                    "WEB-INF/lib/sitemanage-8.2.0-SNAPSHOT.jar",
+                    b"stale-war-entry-different-bytes",
+                )
             os.utime(war, (200, 200))
             buf = io.StringIO()
             with redirect_stdout(buf):
@@ -1321,6 +1405,7 @@ class CmsPreflightGateTests(unittest.TestCase):
 
     def test_main_skip_preflight_allows_stale(self):
         import io
+        import zipfile
         from contextlib import redirect_stdout
 
         with tempfile.TemporaryDirectory() as td:
@@ -1334,8 +1419,12 @@ class CmsPreflightGateTests(unittest.TestCase):
                 / "sitemanage-8.2.0-SNAPSHOT.jar"
             )
             war = repo / "WebUI" / "target" / "perc-web-ui-8.2.0-SNAPSHOT.war"
-            self._make_war(war)
             self._touch(jar, 300)
+            with zipfile.ZipFile(war, "w") as zf:
+                zf.writestr(
+                    "WEB-INF/lib/sitemanage-8.2.0-SNAPSHOT.jar",
+                    b"stale-war-entry-different-bytes",
+                )
             os.utime(war, (200, 200))
             buf = io.StringIO()
             with redirect_stdout(buf):
