@@ -20,7 +20,7 @@ import {
   loadDefaultAclTemplate,
   saveDefaultAclTemplate,
 } from "../api/developer/preferencesApi";
-import { ACL_PERMISSIONS, type AclPermissionName } from "../api/developer/aclApi";
+import { type AclPermissionName } from "../api/developer/aclApi";
 import { isSessionRedirectError, type ApiError } from "../api/client";
 import { useSpaBootstrap } from "../app/bootstrap/BootstrapContext";
 import { catalogColors, errorAlert } from "./catalogStyles";
@@ -34,6 +34,12 @@ import {
   type DefaultAclTemplateEntryType,
 } from "./defaultAclTemplate";
 import { DEV_MSG } from "./messages";
+import {
+  DESIGN_ACCESS_PERMISSIONS,
+  LAYERED_ACL_PERMISSIONS,
+  RUNTIME_ACCESS_PERMISSIONS,
+  type AclPermissionLayer,
+} from "./objectAclPermissionModel";
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
@@ -74,9 +80,28 @@ function fromDraft(rows: DraftRow[]): DefaultAclTemplate {
   };
 }
 
+/** Workbench-aligned short labels for permission columns (same as ObjectAclSection). */
+function permissionColumnLabel(perm: AclPermissionName): string {
+  switch (perm) {
+    case "READ":
+      return DEV_MSG.ACL_PERM_READ;
+    case "UPDATE":
+      return DEV_MSG.ACL_PERM_UPDATE;
+    case "DELETE":
+      return DEV_MSG.ACL_PERM_DELETE;
+    case "OWNER":
+      return DEV_MSG.ACL_PERM_OWNER;
+    case "RUNTIME_VISIBLE":
+      return DEV_MSG.ACL_PERM_RUNTIME_VISIBLE;
+    default:
+      return String(perm).replace(/_/g, " ");
+  }
+}
+
 /**
  * Developer Preferences — Security: default ACL template for new object ACLs
  * (Workbench parity FR §5.9 / §5.4 #7).
+ * Permission columns are grouped under Design access / Runtime visibility (CD-19 B5).
  */
 export function DeveloperPreferencesPanel(): React.ReactElement {
   const bootstrap = useSpaBootstrap();
@@ -252,7 +277,10 @@ export function DeveloperPreferencesPanel(): React.ReactElement {
         <h3 style={{ fontSize: "1rem", marginTop: 0 }}>
           {DEV_MSG.PREF_SECURITY_TITLE}
         </h3>
-        <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+        <p
+          style={{ color: catalogColors.muted, fontSize: "0.9rem" }}
+          data-testid="developer-prefs-acl-hint"
+        >
           {DEV_MSG.PREF_ACL_HINT}
         </p>
         <p
@@ -302,6 +330,8 @@ export function DeveloperPreferencesPanel(): React.ReactElement {
           <div style={{ overflowX: "auto", marginTop: "8px" }}>
             <table
               data-testid="developer-prefs-acl-table"
+              data-acl-show-runtime="true"
+              data-acl-layered="true"
               style={{
                 width: "100%",
                 borderCollapse: "collapse",
@@ -309,27 +339,77 @@ export function DeveloperPreferencesPanel(): React.ReactElement {
               }}
             >
               <thead>
+                {/* Layer group headers — Design access | Runtime visibility (CD-19 B5) */}
                 <tr
                   style={{
                     borderBottom: `1px solid ${catalogColors.headerBorder}`,
                     textAlign: "left",
                   }}
+                  data-testid="developer-prefs-acl-layer-headers"
                 >
-                  <th style={{ padding: "8px" }}>{DEV_MSG.ACL_COL_ENTRY}</th>
-                  <th style={{ padding: "8px" }}>{DEV_MSG.ACL_COL_TYPE}</th>
-                  {ACL_PERMISSIONS.map((p) => (
+                  <th style={{ padding: "8px" }} rowSpan={2}>
+                    {DEV_MSG.ACL_COL_ENTRY}
+                  </th>
+                  <th style={{ padding: "8px" }} rowSpan={2}>
+                    {DEV_MSG.ACL_COL_TYPE}
+                  </th>
+                  <th
+                    colSpan={DESIGN_ACCESS_PERMISSIONS.length}
+                    style={{
+                      padding: "6px 8px",
+                      textAlign: "center",
+                      fontSize: "0.8rem",
+                      borderBottom: `1px solid ${catalogColors.softBorder}`,
+                      background: "rgba(0,0,0,0.02)",
+                    }}
+                    title={DEV_MSG.ACL_LAYER_DESIGN_HINT}
+                    data-testid="developer-prefs-acl-layer-design"
+                    data-acl-layer={"design" satisfies AclPermissionLayer}
+                  >
+                    {DEV_MSG.ACL_LAYER_DESIGN}
+                  </th>
+                  <th
+                    colSpan={RUNTIME_ACCESS_PERMISSIONS.length}
+                    style={{
+                      padding: "6px 8px",
+                      textAlign: "center",
+                      fontSize: "0.8rem",
+                      borderBottom: `1px solid ${catalogColors.softBorder}`,
+                      background: "rgba(0,0,0,0.02)",
+                    }}
+                    title={DEV_MSG.ACL_LAYER_RUNTIME_HINT}
+                    data-testid="developer-prefs-acl-layer-runtime"
+                    data-acl-layer={"runtime" satisfies AclPermissionLayer}
+                  >
+                    {DEV_MSG.ACL_LAYER_RUNTIME}
+                  </th>
+                  <th style={{ padding: "8px" }} rowSpan={2}>
+                    {DEV_MSG.ACL_COL_ACTIONS}
+                  </th>
+                </tr>
+                <tr
+                  style={{
+                    borderBottom: `1px solid ${catalogColors.headerBorder}`,
+                    textAlign: "left",
+                  }}
+                  data-testid="developer-prefs-acl-perm-headers"
+                >
+                  {LAYERED_ACL_PERMISSIONS.map((p) => (
                     <th
                       key={p}
                       style={{
                         padding: "8px",
                         textAlign: "center",
                         fontSize: "0.8rem",
+                        fontWeight: 500,
                       }}
+                      data-testid={`developer-prefs-acl-perm-header-${p}`}
+                      data-acl-permission={p}
+                      title={p}
                     >
-                      {p.replace("_", " ")}
+                      {permissionColumnLabel(p)}
                     </th>
                   ))}
-                  <th style={{ padding: "8px" }}>{DEV_MSG.ACL_COL_ACTIONS}</th>
                 </tr>
               </thead>
               <tbody>
@@ -389,7 +469,7 @@ export function DeveloperPreferencesPanel(): React.ReactElement {
                           ))}
                         </select>
                       </td>
-                      {ACL_PERMISSIONS.map((p) => (
+                      {LAYERED_ACL_PERMISSIONS.map((p) => (
                         <td
                           key={p}
                           style={{ padding: "8px", textAlign: "center" }}
@@ -400,7 +480,7 @@ export function DeveloperPreferencesPanel(): React.ReactElement {
                             checked={chosen.has(p)}
                             disabled={busy}
                             onChange={() => togglePerm(r.clientKey, p)}
-                            aria-label={`${p} for ${r.name || "entry"}`}
+                            aria-label={`${permissionColumnLabel(p)} (${p}) for ${r.name || "entry"}`}
                           />
                         </td>
                       ))}

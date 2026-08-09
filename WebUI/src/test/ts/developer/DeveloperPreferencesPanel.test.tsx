@@ -84,6 +84,49 @@ describe("DeveloperPreferencesPanel", () => {
     expect(loadDefaultAclTemplate).toHaveBeenCalled();
   });
 
+  it("groups permission columns under Design access and Runtime visibility", async () => {
+    renderPanel();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-prefs-acl-table")).toBeTruthy();
+    });
+
+    const table = screen.getByTestId("developer-prefs-acl-table");
+    expect(table.getAttribute("data-acl-show-runtime")).toBe("true");
+    expect(table.getAttribute("data-acl-layered")).toBe("true");
+
+    const designLayer = screen.getByTestId("developer-prefs-acl-layer-design");
+    expect(designLayer.getAttribute("data-acl-layer")).toBe("design");
+    expect(designLayer.textContent).toMatch(/Design access/i);
+
+    const runtimeLayer = screen.getByTestId("developer-prefs-acl-layer-runtime");
+    expect(runtimeLayer.getAttribute("data-acl-layer")).toBe("runtime");
+    expect(runtimeLayer.textContent).toMatch(/Runtime visibility/i);
+
+    expect(
+      screen.getByTestId("developer-prefs-acl-perm-header-READ").textContent,
+    ).toMatch(/Read/i);
+    expect(
+      screen.getByTestId("developer-prefs-acl-perm-header-UPDATE").textContent,
+    ).toMatch(/Update/i);
+    expect(
+      screen.getByTestId("developer-prefs-acl-perm-header-DELETE").textContent,
+    ).toMatch(/Delete/i);
+    expect(
+      screen.getByTestId("developer-prefs-acl-perm-header-OWNER").textContent,
+    ).toMatch(/Modify ACL/i);
+    expect(
+      screen.getByTestId("developer-prefs-acl-perm-header-RUNTIME_VISIBLE")
+        .textContent,
+    ).toMatch(/Visible/i);
+
+    // Layered checkbox still present for Default row
+    expect(
+      screen.getByTestId(
+        "developer-prefs-acl-perm-row:0:Default:USER-RUNTIME_VISIBLE",
+      ),
+    ).toBeTruthy();
+  });
+
   it("saves dirty template via preferences API", async () => {
     renderPanel();
     await waitFor(() => {
