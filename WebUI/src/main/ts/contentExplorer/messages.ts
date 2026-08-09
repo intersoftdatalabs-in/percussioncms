@@ -132,7 +132,7 @@ export const EXPLORER_MSG = {
   // US4 P-ACL / folder security (FR-014–FR-016, SC-004)
   SECURITY_TITLE: "perc.ui.explorer@Folder Security",
   SECURITY_SELECT_FOLDER:
-    "perc.ui.explorer@Select a folder item to edit ACL.",
+    "perc.ui.explorer@Open or select a folder to edit security and properties.",
   SECURITY_LOADING: "perc.ui.explorer@Loading permissions",
   SECURITY_LOAD_ERROR: "perc.ui.explorer@Failed to load folder permissions",
   SECURITY_SAVE_SUCCESS: "perc.ui.explorer@Permissions saved",
@@ -151,6 +151,13 @@ export const EXPLORER_MSG = {
   SECURITY_PRINCIPAL_REMOVE: "perc.ui.explorer@Remove",
   SECURITY_PRINCIPAL_ADD: "perc.ui.explorer@Add principal",
   SECURITY_PRINCIPAL_NAME_LABEL: "perc.ui.explorer@Principal name",
+  /** Folder properties block (community / locale / display format / workflow). */
+  FOLDER_PROPS_TITLE: "perc.ui.explorer@Folder properties",
+  FOLDER_PROPS_COMMUNITY: "perc.ui.explorer@Community",
+  FOLDER_PROPS_COMMUNITY_ID: "perc.ui.explorer@Community id",
+  FOLDER_PROPS_LOCALE: "perc.ui.explorer@Locale",
+  FOLDER_PROPS_DISPLAY_FORMAT: "perc.ui.explorer@Display format",
+  FOLDER_PROPS_WORKFLOW_ID: "perc.ui.explorer@Workflow id",
   // US7 P-Adv / multi-select + clipboard panel (FR-026, #2400 #2408).
   SELECT_COLUMN_HEADER: "perc.ui.explorer@Select",
   SELECT_ROW_LABEL: "perc.ui.explorer@Select item",

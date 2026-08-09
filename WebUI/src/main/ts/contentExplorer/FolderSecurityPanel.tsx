@@ -308,6 +308,11 @@ export function FolderSecurityPanel(
           {message(EXPLORER_MSG.SECURITY_READ_ONLY)}
         </p>
       ) : null}
+      <FolderPropertiesEditor
+        props={current}
+        editable={editable}
+        onChange={(next) => patchProps(() => next)}
+      />
       {drafts.map((d) => (
         <PrincipalListEditor
           key={d.level}
@@ -341,6 +346,89 @@ export function FolderSecurityPanel(
         </span>
       </div>
     </section>
+  );
+}
+
+/**
+ * Community / locale / display-format / workflow fields from
+ * {@link PSFolderProperties} (pathmanagement REST). Editable when the
+ * session has ADMIN on the folder; otherwise read-only display.
+ */
+function FolderPropertiesEditor(props: {
+  props: PSFolderProperties;
+  editable: boolean;
+  onChange: (next: PSFolderProperties) => void;
+}): React.JSX.Element {
+  const { props: folder, editable, onChange } = props;
+
+  function field(
+    testId: string,
+    labelKey: string,
+    value: string,
+    onValue: (v: string) => void,
+  ): React.JSX.Element {
+    const id = `folder-props-${testId}`;
+    return (
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "minmax(8rem, 12rem) 1fr",
+          gap: 8,
+          alignItems: "center",
+          marginBottom: 6,
+        }}
+      >
+        <label htmlFor={id}>{message(labelKey)}</label>
+        <input
+          id={id}
+          type="text"
+          value={value}
+          disabled={!editable}
+          onChange={(e) => onValue(e.target.value)}
+          data-testid={`folder-props-${testId}`}
+          style={{ maxWidth: 320 }}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <fieldset
+      data-testid="folder-properties"
+      style={{ border: "1px solid #ccc", padding: 8, marginBottom: 12 }}
+    >
+      <legend>{message(EXPLORER_MSG.FOLDER_PROPS_TITLE)}</legend>
+      {field(
+        "community-name",
+        EXPLORER_MSG.FOLDER_PROPS_COMMUNITY,
+        folder.communityName ?? "",
+        (v) => onChange({ ...folder, communityName: v }),
+      )}
+      {field(
+        "community-id",
+        EXPLORER_MSG.FOLDER_PROPS_COMMUNITY_ID,
+        folder.communityId != null ? String(folder.communityId) : "",
+        (v) => onChange({ ...folder, communityId: v }),
+      )}
+      {field(
+        "locale",
+        EXPLORER_MSG.FOLDER_PROPS_LOCALE,
+        folder.locale ?? "",
+        (v) => onChange({ ...folder, locale: v }),
+      )}
+      {field(
+        "display-format",
+        EXPLORER_MSG.FOLDER_PROPS_DISPLAY_FORMAT,
+        folder.displayFormatName ?? "",
+        (v) => onChange({ ...folder, displayFormatName: v }),
+      )}
+      {field(
+        "workflow-id",
+        EXPLORER_MSG.FOLDER_PROPS_WORKFLOW_ID,
+        folder.workflowId != null ? String(folder.workflowId) : "",
+        (v) => onChange({ ...folder, workflowId: v }),
+      )}
+    </fieldset>
   );
 }
 

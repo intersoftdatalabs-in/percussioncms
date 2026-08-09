@@ -117,7 +117,7 @@ The legacy Miller-column Finder is hard-cut in 8.2:
 | `ReducedActions`       | inside Shell               | Per-item menu (open/preview/createFolder/rename/move/copy/delete)               |
 | `ContextMenu`          | inside Shell               | Right-click menu driven by server `actions/...` REST                            |
 | `ActionToolbar`        | inside Shell               | Top toolbar driven by the same server action set                                |
-| `FolderSecurityPanel`  | `folderSecurityModern.jsp` | ACL viewer + editor; `aclLockout.ts` client gate                                |
+| `FolderSecurityPanel`  | Explorer shell + `folderSecurityModern.jsp` | ACL + folder properties (community/locale/DF/workflow); `aclLockout.ts` + bootstrap identities |
 | `SearchPanel`          | `searchModern.jsp`         | Extended search with retry / open / reveal                                      |
 | `ClipboardPanel`       | `us7AdvancedModern.jsp`    | Copy / cut / paste to a target folder                                           |
 | `SiteCopyWizard`       | same                       | 5-step site copy wizard                                                         |
