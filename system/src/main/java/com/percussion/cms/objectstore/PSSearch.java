@@ -49,7 +49,8 @@ import org.w3c.dom.Element;
  *
  * @see PSVersionableDbComponent for base class description.
  */
-public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSummary, IPSCloneTuner {
+// Final leaf — default/named Element ctors assign without subclass this-escape risk.
+public final class PSSearch extends PSVersionableDbComponent implements IPSCatalogSummary, IPSCloneTuner {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
@@ -78,15 +79,15 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
     m_fields = new PSSFields();
     m_properties = new PSSProperties();
 
-    // Default required values for db consistency
+    // Default required values for db consistency — direct fields / private helpers (this-escape).
     String name = "search" + ms_nameSuffix++;
-    setInternalName(name);
-    setDisplayName(Character.toUpperCase(name.charAt(0)) + name.substring(1));
-    setMaximumNumber(DEFAULT_MAX);
-    setDisplayFormatId("1");
-    setParentCategory(1);
-    setShowTo(SHOW_TO_ALL_COMMUNITIES, null);
-    setUserCustomizable(false);
+    m_strInternalName = name;
+    m_strDisplayName = Character.toUpperCase(name.charAt(0)) + name.substring(1);
+    m_nMaxResults = DEFAULT_MAX;
+    m_strDisplayId = "1";
+    m_nParentCat = 1;
+    applyShowToAllCommunities();
+    applyUserCustomizable(false);
   }
 
   /**
@@ -920,6 +921,26 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
     if (doesPropertyHaveValue(PROP_USER_CUSTOMIZABLE, userCustomizable)) return;
 
     setProperty(PROP_USER_CUSTOMIZABLE, userCustomizable);
+  }
+
+  /**
+   * Construction-only: community visibility defaults to all communities without overridable
+   * setShowTo/setProperty (this-escape).
+   */
+  private void applyShowToAllCommunities() {
+    PSSearchMultiProperty mp = new PSSearchMultiProperty(PROP_COMMUNITY);
+    mp.add(PROP_COMMUNITY_ALL);
+    m_properties.add(mp);
+  }
+
+  /**
+   * Construction-only: user-customizable flag without overridable setProperty (this-escape).
+   */
+  private void applyUserCustomizable(boolean isUserCustomizable) {
+    String userCustomizable = isUserCustomizable ? BOOL_YES : BOOL_NO;
+    PSSearchMultiProperty mp = new PSSearchMultiProperty(PROP_USER_CUSTOMIZABLE);
+    mp.add(userCustomizable);
+    m_properties.add(mp);
   }
 
   /**

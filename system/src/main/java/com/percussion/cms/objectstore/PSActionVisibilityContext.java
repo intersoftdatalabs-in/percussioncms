@@ -19,7 +19,8 @@ package com.percussion.cms.objectstore;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
-public class PSActionVisibilityContext extends PSMultiValuedProperty {
+// Final leaf — multi-value construction without subclass this-escape risk.
+public final class PSActionVisibilityContext extends PSMultiValuedProperty {
   /** no-args constructor */
   public PSActionVisibilityContext() {}
 
@@ -51,12 +52,12 @@ public class PSActionVisibilityContext extends PSMultiValuedProperty {
    */
   public PSActionVisibilityContext(String name, String[] values, String desc) {
     super(PSVisibilityContextEntry.class, name);
+    // Direct multi-value add via non-virtual helper — avoid overridable add/setDescription
+    // during construction (this-escape).
     if (null != values) {
-      for (int i = 0; i < values.length; i++) {
-        add(values[i]);
-      }
+      addValuesInternal(values);
     }
-    setDescription(desc);
+    applyDescription(desc);
   }
 
   /**
@@ -71,8 +72,9 @@ public class PSActionVisibilityContext extends PSMultiValuedProperty {
     super(src);
   }
 
-  // see base class for description
-  protected PSCmsProperty createProperty(String name, String value) {
+  // Final so multi-value construction can call createProperty without this-escape.
+  @Override
+  protected final PSCmsProperty createProperty(String name, String value) {
     return new PSVisibilityContextEntry(name, value);
   }
 

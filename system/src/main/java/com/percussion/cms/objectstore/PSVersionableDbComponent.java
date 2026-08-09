@@ -33,6 +33,16 @@ public abstract class PSVersionableDbComponent extends PSDbComponent {
     super(locator);
   }
 
+  /**
+   * Element super-ctor path: key/state via non-virtual {@code PSDbComponent} restore (this-escape
+   * free). Subclasses load their own fields after {@code super(src)}.
+   *
+   * @param src never {@code null}
+   */
+  protected PSVersionableDbComponent(Element src) throws PSUnknownNodeTypeException {
+    super(src);
+  }
+
   @Override
   public void fromXml(Element source) throws PSUnknownNodeTypeException {
     super.fromXml(source);

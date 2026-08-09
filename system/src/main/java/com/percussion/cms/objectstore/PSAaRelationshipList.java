@@ -36,7 +36,8 @@ import org.w3c.dom.Element;
  * @author Ram
  */
 // REFACTORED: CP-JAVA11
-public class PSAaRelationshipList extends PSCollectionComponent {
+// Final leaf — Element ctor restores via private fromXmlLoad without subclass this-escape.
+public final class PSAaRelationshipList extends PSCollectionComponent {
   /** Constructs an empty active assembly relationship list. */
   public PSAaRelationshipList() {
     super(PSAaRelationship.class);
@@ -53,7 +54,8 @@ public class PSAaRelationshipList extends PSCollectionComponent {
   public PSAaRelationshipList(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     super(PSAaRelationship.class);
-    fromXml(sourceNode, parentDoc, parentComponents);
+    // Private load avoids virtual fromXml/add during construction (this-escape).
+    fromXmlLoad(sourceNode, parentDoc, parentComponents);
   }
 
   /**
@@ -61,6 +63,16 @@ public class PSAaRelationshipList extends PSCollectionComponent {
    */
   @Override
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
+    fromXmlLoad(sourceNode, parentDoc, parentComponents);
+  }
+
+  /**
+   * Non-virtual Element restore. Uses {@link java.util.Collection#add} via direct super path after
+   * full construction when called from public {@link #fromXml}; during Element ctor the collection
+   * is empty and only non-overridable list storage is used.
+   */
+  private void fromXmlLoad(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
@@ -82,7 +94,8 @@ public class PSAaRelationshipList extends PSCollectionComponent {
       while (node != null) {
         PSRelationship relationship =
             new PSRelationship(node, parentDoc, (List<IPSComponent>) parentComponents);
-        add(relationship);
+        // Direct list insert — avoid overridable add() during construction (this-escape).
+        super.add(relationship);
         node = tree.getNextElement(PSRelationship.XML_NODE_NAME, nextFlags);
       }
     } finally {

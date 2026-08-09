@@ -37,7 +37,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 /** The class that is used to represent menu actions as defined by 'sys_Action.dtd'. */
-public class PSAction extends PSVersionableDbComponent implements IPSCatalogSummary, IPSCloneTuner {
+// Final leaf — Element/ctor paths use private helpers; no subclass this-escape risk.
+public final class PSAction extends PSVersionableDbComponent implements IPSCatalogSummary, IPSCloneTuner {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
@@ -94,7 +95,9 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
 
     m_name = name;
     m_label = label;
-    setMenuType(type);
+    // Private validate + field write — avoid overridable setMenuType (this-escape).
+    validateType(type);
+    m_type = type;
     m_handler = handler;
     m_actionURL = (url == null) ? "" : url;
     m_sortrank = sortrank;
@@ -114,9 +117,9 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
    * @throws PSUnknownNodeTypeException if element is not of expected format.
    */
   public PSAction(Element element) throws PSUnknownNodeTypeException {
-    super.fromXml(element);
-
-    fromXml(element);
+    // Key/state via non-virtual Element super path; fields without virtual fromXml (this-escape).
+    super(element);
+    loadFieldsFromXml(element);
   }
 
   /** Creates the correct key for this component. */
@@ -204,15 +207,27 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   // of the xml element.
   @Override
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    // After full construction: virtual createKey / getNodeName still honored via super.
     super.fromXml(sourceNode);
+    loadFieldsFromXml(sourceNode);
+  }
 
+  /**
+   * Loads non-key action fields from XML. Used by Element ctor (after super key/state) and public
+   * {@link #fromXml(Element)} so key restore is not double-applied and construction stays
+   * this-escape free.
+   */
+  private void loadFieldsFromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     // attributes
     m_name = PSComponentUtils.getRequiredAttribute(sourceNode, NAME_ATTR);
     m_label = PSComponentUtils.getRequiredAttribute(sourceNode, LABEL_ATTR);
     m_type = PSComponentUtils.getEnumeratedAttribute(sourceNode, TYPE_ATTR, ms_menuTypes);
     String url = sourceNode.getAttribute(URL_ATTR);
     m_actionURL = (url == null) ? "" : (url.equals(URL_PLACEHOLDER) ? "" : url);
-    setMenuDynamic(!StringUtils.isBlank(m_actionURL));
+    // Direct field write for dynamic flag — avoid overridable setMenuDynamic during Element load.
+    if (m_type != null && m_type.equals(TYPE_MENU)) {
+      m_isDynamic = !StringUtils.isBlank(m_actionURL);
+    }
     m_handler = PSComponentUtils.getEnumeratedAttribute(sourceNode, HANDLER_ATTR, ms_handlers);
 
     m_sortrank = 0;
@@ -224,9 +239,15 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
     }
 
     try {
-      setVersion(Integer.parseInt(PSComponentUtils.getRequiredAttribute(sourceNode, VERSION_ATTR)));
+      // Direct field — avoid overridable setVersion during construction / loadFields path.
+      int ver = Integer.parseInt(PSComponentUtils.getRequiredAttribute(sourceNode, VERSION_ATTR));
+      if (ver < 0) {
+        Object[] args = {getNodeNameSafe(), VERSION_ATTR, "negative"};
+        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      }
+      m_version = ver;
     } catch (NumberFormatException e) {
-      Object[] args = {getNodeName(), VERSION_ATTR, e.getLocalizedMessage()};
+      Object[] args = {getNodeNameSafe(), VERSION_ATTR, e.getLocalizedMessage()};
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
     }
 
@@ -264,6 +285,11 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
         PSComponentUtils.getChildElement(sourceNode, PSChildActions.XML_NODE_NAME, false);
     if (actions != null) m_children.fromXml(actions);
     else m_children.clear();
+  }
+
+  /** Node name without virtual {@code getNodeName()} — safe during Element construction. */
+  private static String getNodeNameSafe() {
+    return XML_NODE_NAME;
   }
 
   /**
