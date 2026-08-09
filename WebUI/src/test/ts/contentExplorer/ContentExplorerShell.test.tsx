@@ -211,6 +211,25 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     });
   });
 
+  it("security stays on hint when resolveFolderId rejects (#2410)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        resolveFolderId={async () => {
+          throw new Error("lookup failed");
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("explorer-toggle-security"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-security-hint")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("folder-security-panel")).toBeNull();
+  });
+
   it("security panel mounts with resolved folder id and session identities (#2410)", async () => {
     stubPathFetch();
     const resolveFolderId = vi.fn(async () => "folder-42");

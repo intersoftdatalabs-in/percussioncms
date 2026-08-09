@@ -450,8 +450,14 @@ export function ContentExplorerShell({
         if (!cancelled) setSecurityFolderId(undefined);
         return;
       }
-      const id = await resolveFolderId(path);
-      if (!cancelled) setSecurityFolderId(id);
+      try {
+        const id = await resolveFolderId(path);
+        if (!cancelled) setSecurityFolderId(id);
+      } catch {
+        // Custom injectors may reject; defaultResolveFolderId already swallows.
+        // Treat failure as unresolved so security stays read-only hint, not crash.
+        if (!cancelled) setSecurityFolderId(undefined);
+      }
     }
     void resolve();
     return () => {
