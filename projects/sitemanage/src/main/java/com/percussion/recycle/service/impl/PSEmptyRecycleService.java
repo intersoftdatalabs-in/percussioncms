@@ -57,7 +57,7 @@ public class PSEmptyRecycleService implements IPSEmptyRecycleService {
   public PSEmptyRecycleService(
       @Qualifier("pathService") IPSPathService pathService,
       IPSUserService userService,
-      IPSFolderHelper folderHelper) {
+      @Lazy IPSFolderHelper folderHelper) {
     this.pathService = pathService;
     this.userService = userService;
     this.folderHelper = folderHelper;
