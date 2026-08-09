@@ -385,6 +385,17 @@ export const PATHS = {
   get USER_CHANGE_PW() {
     return `${SERVICES_ROOT}/user/user/changepw`;
   },
+  /** Current signed-in user identity (GET). */
+  get USER_CURRENT() {
+    return `${SERVICES_ROOT}/user/user/current`;
+  },
+  /**
+   * Self-service account profile update (PUT) — current user only, no path
+   * user name (no IDOR). Body: UserAccountUpdate { email }.
+   */
+  get USER_PROFILE() {
+    return `${SERVICES_ROOT}/user/user/profile`;
+  },
   get USER_LDAP_FIND() {
     return `${SERVICES_ROOT}/user/user/external/find`;
   },

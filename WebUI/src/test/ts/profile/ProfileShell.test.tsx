@@ -62,6 +62,36 @@ function renderShell() {
   );
 }
 
+vi.mock("../../../main/ts/api/user/userProfileApi", () => ({
+  getCurrentUserProfile: vi.fn().mockResolvedValue({
+    name: "Admin",
+    email: "admin@example.com",
+    providerType: "INTERNAL",
+    roles: ["Admin"],
+    communities: ["Default"],
+    currentCommunity: "Default",
+    adminUser: true,
+    designerUser: false,
+    accessibilityUser: false,
+    emailEditable: true,
+  }),
+  updateMyAccountEmail: vi.fn(),
+  // Mirror production isValidEmailAddress (userProfileApi) so shell tests do not mask shape bugs.
+  isValidEmailAddress: (email: string) => {
+    const value = (email ?? "").trim();
+    if (!value) {
+      return true;
+    }
+    if (value.length > 254) {
+      return false;
+    }
+    return /^[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,}$/.test(
+      value,
+    );
+  },
+  normalizeCurrentUser: vi.fn(),
+}));
+
 describe("ProfileShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
@@ -72,7 +102,7 @@ describe("ProfileShell", () => {
     };
   });
 
-  it("renders title, intro, four sections, and live preferences", async () => {
+  it("renders title, intro, four sections, live account and preferences", async () => {
     renderShell();
     expect(screen.getByTestId("perc-profile-shell")).toBeTruthy();
     expect(screen.getByTestId("perc-profile-title").textContent).toBe("My profile");
@@ -83,7 +113,12 @@ describe("ProfileShell", () => {
     expect(screen.getByTestId("perc-profile-section-security")).toBeTruthy();
     expect(screen.getByTestId("perc-profile-section-preferences")).toBeTruthy();
     expect(screen.getByTestId("perc-profile-section-avatar")).toBeTruthy();
+
     await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-account")).toBeTruthy();
+      expect(screen.getByTestId("perc-profile-account-login").textContent).toBe(
+        "Admin",
+      );
       expect(screen.getByTestId("perc-profile-preferences")).toBeTruthy();
     });
   });
@@ -91,6 +126,7 @@ describe("ProfileShell", () => {
   it("exposes landmark heading hierarchy and section jump links", async () => {
     renderShell();
     await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-account")).toBeTruthy();
       expect(screen.getByTestId("perc-profile-preferences")).toBeTruthy();
     });
     const h1 = screen.getByRole("heading", { level: 1, name: "My profile" });
@@ -118,20 +154,24 @@ describe("ProfileShell", () => {
     );
   });
 
-  it("marks non-preferences sections as coming soon", async () => {
+  it("marks only security and avatar sections as coming soon", async () => {
     renderShell();
     await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-account")).toBeTruthy();
       expect(screen.getByTestId("perc-profile-preferences")).toBeTruthy();
     });
     const statuses = screen.getAllByText("Coming soon");
-    expect(statuses.length).toBe(3);
+    // Security + Avatar remain placeholders (account and preferences are live)
+    expect(statuses.length).toBe(2);
     expect(PROFILE_MSG.COMING_SOON).toContain("Coming soon");
+    expect(screen.queryByTestId("perc-profile-section-account-status")).toBeNull();
     expect(screen.queryByTestId("perc-profile-section-preferences-status")).toBeNull();
   });
 
   it("makes section landmarks focusable skip targets (tabIndex=-1)", async () => {
     renderShell();
     await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-account")).toBeTruthy();
       expect(screen.getByTestId("perc-profile-preferences")).toBeTruthy();
     });
     for (const id of [

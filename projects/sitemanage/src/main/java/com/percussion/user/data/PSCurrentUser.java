@@ -21,7 +21,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
-/** Represents the current user, including role flags. */
+import java.util.ArrayList;
+import java.util.List;
+
+/** Represents the current user, including role flags and session community summary. */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @XmlRootElement(name = "CurrentUser")
 @JsonRootName("CurrentUser")
@@ -29,6 +32,12 @@ public class PSCurrentUser extends PSUser {
   private boolean accessibilityUser = false;
   private boolean adminUser = false;
   private boolean designerUser = false;
+
+  /** Role-resolved community names for the signed-in user (read-only summary). */
+  private List<String> communities = new ArrayList<>();
+
+  /** Active community name for the current session, or empty when unknown. */
+  private String currentCommunity = "";
 
   public PSCurrentUser() {
     super();
@@ -64,5 +73,21 @@ public class PSCurrentUser extends PSUser {
 
   public void setDesignerUser(boolean designerUser) {
     this.designerUser = designerUser;
+  }
+
+  public List<String> getCommunities() {
+    return communities;
+  }
+
+  public void setCommunities(List<String> communities) {
+    this.communities = communities != null ? communities : new ArrayList<>();
+  }
+
+  public String getCurrentCommunity() {
+    return currentCommunity;
+  }
+
+  public void setCurrentCommunity(String currentCommunity) {
+    this.currentCommunity = currentCommunity == null ? "" : currentCommunity;
   }
 }

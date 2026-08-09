@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+export { AccountSection } from "./AccountSection";
+export type { AccountSectionProps } from "./AccountSection";
 export { ProfileShell } from "./ProfileShell";
 export type { ProfileShellProps } from "./ProfileShell";
 export { PreferencesSection } from "./PreferencesSection";

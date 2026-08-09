@@ -99,6 +99,7 @@ import com.percussion.user.data.PSImportedUser.ImportStatus;
 import com.percussion.user.data.PSImportedUserList;
 import com.percussion.user.data.PSRoleList;
 import com.percussion.user.data.PSUser;
+import com.percussion.user.data.PSUserAccountUpdate;
 import com.percussion.user.data.PSUserList;
 import com.percussion.user.data.PSUserLogin;
 import com.percussion.user.data.PSUserProviderType;
@@ -625,6 +626,8 @@ public class PSUserService implements IPSUserService {
     List<String> roles = findRoles(name);
     roles = filterOutSystemRoles(roles);
     user.setRoles(roles);
+    // /find keeps historical INTERNAL-only email exposure for other users (privacy for API
+    // consumers). Directory email is loaded on self-profile via getCurrentUser().
     if (provider.equals(PSUserProviderType.INTERNAL)) {
       try {
         user.setEmail(getSubjectEmail(name));
@@ -874,6 +877,22 @@ public class PSUserService implements IPSUserService {
     PSUser user = find(userName);
     PSCurrentUser currUser = new PSCurrentUser(user);
 
+    // Self-profile needs directory email too; find() intentionally omits it for non-INTERNAL.
+    // Catalog failure is best-effort: leave email empty and surface the failure in server logs
+    // so operators can diagnose directory issues without failing the whole self-profile load.
+    if (currUser.getProviderType() != PSUserProviderType.INTERNAL) {
+      try {
+        currUser.setEmail(getSubjectEmail(userName));
+      } catch (PSSecurityCatalogException e) {
+        currUser.setEmail("");
+        log.warn(
+            "Directory email catalog failed for user {} — returning empty email: {}",
+            userName,
+            PSExceptionUtils.getMessageForLog(e));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      }
+    }
+
     boolean isAdmin = currUser.getRoles().contains(ADMINISTRATOR_ROLE);
     currUser.setAdminUser(isAdmin);
 
@@ -883,7 +902,133 @@ public class PSUserService implements IPSUserService {
     boolean isAccessibility = containsAny(currUser.getRoles(), getAccessibilityRoles());
     currUser.setAccessibilityUser(isAccessibility);
 
+    enrichCurrentUserCommunities(currUser);
+
     return currUser;
+  }
+
+  /**
+   * Self-service account update for the signed-in user only (issue #2395 / parent #2374).
+   *
+   * <p>No user name on the path or body — always mutates the session user (no IDOR). Only email
+   * for {@link PSUserProviderType#INTERNAL} accounts is persisted; directory-managed accounts
+   * reject email changes. Roles, name, password, and provider type are never accepted here.
+   */
+  @Override
+  @PUT
+  @Path("/profile")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSCurrentUser updateMyAccount(PSUserAccountUpdate update) throws PSDataServiceException {
+    PSParameterValidationUtils.validateParameters("updateMyAccount")
+        .rejectIfNull("update", update)
+        .throwIfInvalid();
+
+    String email = StringUtils.trimToEmpty(update.getEmail());
+    if (isNotBlank(email) && !isValidEmailAddress(email)) {
+      PSParameterValidationUtils.validateParameters("updateMyAccount")
+          .rejectField("email", "Enter a valid email address.", email)
+          .throwIfInvalid();
+    }
+
+    PSCurrentUser current = getCurrentUser();
+    if (current.getProviderType() != PSUserProviderType.INTERNAL) {
+      PSParameterValidationUtils.validateParameters("updateMyAccount")
+          .rejectField(
+              "email",
+              "Email is managed by the directory service and cannot be changed here.",
+              email)
+          .throwIfInvalid();
+    }
+
+    try {
+      backEndRoleMgr.setSubjectEmail(current.getName(), email);
+    } catch (RuntimeException e) {
+      // Persist failed — audit FAILURE so the trail is not silent, then rethrow.
+      logSelfServiceAccountUpdateAudit(PSActionOutcome.FAILURE);
+      log.error(
+          "Self-service email update failed for user {}: {}",
+          current.getName(),
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw e;
+    }
+
+    // Persist succeeded — only then record SUCCESS (not before end-to-end completion of the write).
+    logSelfServiceAccountUpdateAudit(PSActionOutcome.SUCCESS);
+
+    // Return the already-loaded session user with the new email applied. Avoid a second
+    // getCurrentUser() which can fail after the write (session/directory) with no rollback.
+    current.setEmail(email);
+    return current;
+  }
+
+  /**
+   * Best-effort audit for self-service account updates. Never throws — audit infrastructure must
+   * not mask the primary operation outcome.
+   */
+  private void logSelfServiceAccountUpdateAudit(PSActionOutcome outcome) {
+    try {
+      PSRequest req = PSSecurityFilter.getCurrentRequest();
+      if (req != null && req.getServletRequest() != null) {
+        psUserManagementEvent =
+            new PSUserManagementEvent(
+                req.getServletRequest(),
+                PSUserManagementEvent.UserEventActions.update,
+                outcome);
+        psAuditLogService.logUserManagementEvent(psUserManagementEvent);
+      }
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
+
+  /**
+   * Best-effort session community summary for the profile hub. Failures are logged and left empty
+   * so account identity still returns.
+   */
+  private void enrichCurrentUserCommunities(PSCurrentUser currUser) {
+    try {
+      PSRequest req = PSSecurityFilter.getCurrentRequest();
+      if (req == null || req.getUserSession() == null) {
+        return;
+      }
+      String currentCommunity = req.getUserSession().getUserCurrentCommunity();
+      if (isNotBlank(currentCommunity)) {
+        currUser.setCurrentCommunity(currentCommunity);
+      }
+      List<String> names = req.getUserSession().getUserCommunityNames(req);
+      if (names != null && !names.isEmpty()) {
+        List<String> sorted = new ArrayList<>(names);
+        sort(sorted);
+        currUser.setCommunities(sorted);
+      }
+    } catch (Exception e) {
+      log.debug(
+          "Unable to load community summary for current user: {}",
+          PSExceptionUtils.getMessageForLog(e));
+    }
+  }
+
+  /**
+   * Lightweight email shape check for self-service updates. Empty email is allowed at the call
+   * site (clears stored value) and is rejected here so callers must special-case blank.
+   *
+   * <p>Domain labels may not start/end with hyphen or contain consecutive dots (rejects e.g.
+   * {@code user@domain..com}, {@code user@-domain.com}, {@code user@domain-.com}).
+   */
+  static boolean isValidEmailAddress(String email) {
+    if (email == null) {
+      return false;
+    }
+    String value = email.trim();
+    if (value.isEmpty() || value.length() > 254) {
+      return false;
+    }
+    // local@label(.label)+ — each label starts/ends alnum; TLD at least 2 letters
+    return value.matches(
+        "^[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,}$");
   }
 
   /**

@@ -16,7 +16,7 @@
  */
 
 /**
- * User profile hub catalog keys (slice 1 shell — #2393 / parent #2374).
+ * User profile hub catalog keys (#2393 shell + #2395 account + #2396 preferences — parent #2374).
  * English after {@code @} is the source fallback when TMX is not loaded.
  */
 export const PROFILE_MSG = {
@@ -27,7 +27,7 @@ export const PROFILE_MSG = {
   SECTIONS_NAV: "perc.ui.profile.modern@Profile sections",
   SECTION_ACCOUNT: "perc.ui.profile.modern@Account",
   SECTION_ACCOUNT_BODY:
-    "perc.ui.profile.modern@Your name, login id, email, and role summary will appear here.",
+    "perc.ui.profile.modern@Your login id, email, provider, and role summary for this account.",
   SECTION_SECURITY: "perc.ui.profile.modern@Security",
   SECTION_SECURITY_BODY:
     "perc.ui.profile.modern@Password and authentication options for your account will appear here.",
@@ -38,6 +38,7 @@ export const PROFILE_MSG = {
   SECTION_AVATAR_BODY:
     "perc.ui.profile.modern@Avatar and Gravatar email settings will appear here.",
   COMING_SOON: "perc.ui.profile.modern@Coming soon",
+
   // Preferences section (#2396)
   PREF_LOADING: "perc.ui.profile.modern@Loading preferences…",
   PREF_LOAD_ERROR: "perc.ui.profile.modern@Could not load preferences.",
@@ -53,4 +54,38 @@ export const PROFILE_MSG = {
   PREF_SAVING: "perc.ui.profile.modern@Saving…",
   PREF_SAVE_SUCCESS: "perc.ui.profile.modern@Preferences saved.",
   PREF_SAVE_ERROR: "perc.ui.profile.modern@Could not save preferences.",
+
+  // Account section (#2395)
+  ACCOUNT_LOADING: "perc.ui.profile.modern@Loading account information…",
+  ACCOUNT_LOAD_ERROR:
+    "perc.ui.profile.modern@Unable to load your account information. Try again later.",
+  ACCOUNT_RETRY: "perc.ui.profile.modern@Retry",
+  FIELD_LOGIN_ID: "perc.ui.profile.modern@Login ID",
+  FIELD_EMAIL: "perc.ui.profile.modern@Email",
+  FIELD_PROVIDER: "perc.ui.profile.modern@Account type",
+  FIELD_ROLES: "perc.ui.profile.modern@Roles",
+  FIELD_COMMUNITIES: "perc.ui.profile.modern@Communities",
+  FIELD_CURRENT_COMMUNITY: "perc.ui.profile.modern@Current community",
+  PROVIDER_INTERNAL: "perc.ui.profile.modern@Internal",
+  PROVIDER_DIRECTORY: "perc.ui.profile.modern@Directory",
+  READONLY_HINT:
+    "perc.ui.profile.modern@This field is managed by your directory and cannot be changed here.",
+  LOGIN_READONLY_HINT:
+    "perc.ui.profile.modern@Your login ID cannot be changed from this page.",
+  ROLES_READONLY_HINT:
+    "perc.ui.profile.modern@Roles are assigned by an administrator and cannot be changed here.",
+  COMMUNITIES_READONLY_HINT:
+    "perc.ui.profile.modern@Communities are determined by your roles and cannot be changed here.",
+  EMAIL_HELP_EDITABLE:
+    "perc.ui.profile.modern@This email is stored with your CMS account and used for notifications.",
+  EMAIL_HELP_DIRECTORY:
+    "perc.ui.profile.modern@Email for directory accounts is managed by your organization.",
+  SAVE_EMAIL: "perc.ui.profile.modern@Save email",
+  SAVING: "perc.ui.profile.modern@Saving…",
+  SAVE_SUCCESS: "perc.ui.profile.modern@Your email was saved.",
+  SAVE_ERROR:
+    "perc.ui.profile.modern@Unable to save your email. Check the address and try again.",
+  EMAIL_INVALID: "perc.ui.profile.modern@Enter a valid email address.",
+  EMPTY_VALUE: "perc.ui.profile.modern@Not set",
+  NONE_LISTED: "perc.ui.profile.modern@None",
 } as const;
