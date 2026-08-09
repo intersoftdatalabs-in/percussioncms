@@ -39,6 +39,7 @@ import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -51,16 +52,6 @@ import org.w3c.dom.NodeList;
 
 /** The manager class to use to get ancestors or descendants of an item for a relationship. */
 public class PSItemRelationshipsManager {
-  /**
-   * Constructs the manager with supplied parameters.
-   *
-   * @param proxy the remote proxy to use to execute a relationship request to the server, may not
-   *     be <code>null</code>.
-   * @param folderMgr Never <code>null</code>.
-   * @param remCataloger the remote cataloger to use to get list of available relationships, may not
-   *     be <code>null</code>
-   * @param docBase applet base Url to make any server requests, may not be <code>null</code>
-   */
   /**
    * Constructs the manager with supplied parameters.
    *
@@ -124,7 +115,7 @@ public class PSItemRelationshipsManager {
    * @throws PSCmsException if an error happens loading dependencies
    * @throws PSContentExplorerException if an error happens loading details of dependencies
    */
-  public Iterator loadDependencies(PSNode parentNode)
+  public Iterator<PSNode> loadDependencies(PSNode parentNode)
       throws PSCmsException, PSContentExplorerException {
     if (parentNode == null) throw new IllegalArgumentException("parentNode may not be null.");
 
@@ -169,9 +160,9 @@ public class PSItemRelationshipsManager {
 
         // filter dependents for current revision
         summaries = new PSComponentSummaries();
-        Iterator walker = testSummaries.iterator();
+        Iterator<PSComponentSummary> walker = testSummaries.iterator();
         while (walker.hasNext()) {
-          PSComponentSummary summary = (PSComponentSummary) walker.next();
+          PSComponentSummary summary = walker.next();
           filter.setOwner(summary.getCurrentLocator());
           if (!m_proxy.getSummaries(filter, true).isEmpty()) summaries.add(summary);
         }
@@ -189,9 +180,9 @@ public class PSItemRelationshipsManager {
     List<Integer> idList = new ArrayList<>();
     // Set the 'relationship', 'rs_type' and the locator as properties of each
     // node
-    Iterator it = summaries.iterator();
+    Iterator<PSComponentSummary> it = summaries.iterator();
     while (it.hasNext()) {
-      PSComponentSummary dependent = (PSComponentSummary) it.next();
+      PSComponentSummary dependent = it.next();
 
       PSLocator locator = dependent.getCurrentLocator();
       int id = locator.getId();
@@ -238,26 +229,84 @@ public class PSItemRelationshipsManager {
         node.setProperty(IPSConstants.PROPERTY_RELATIONSHIP, relationship);
 
         node.setProperty(PROP_RS_LOOKUP_TYPE, rsType);
-        String label = node.getLabel();
-        Map<String, Object> rowData = node.getRowData();
-        if (rowData != null) {
-          Iterator<Object> values = rowData.values().iterator();
-          int ii = 0;
-          while (values.hasNext()) {
-            if (ii == 0) label += " (";
-            else if (ii > 0) label += " - ";
-            label += values.next().toString();
-            ii++;
-          }
-          if (ii > 0) label += ")";
-          node.setLabel(label);
-        }
+        node.setLabel(formatDependencyLabel(node.getLabel(), node.getRowData()));
       }
       resList.addAll(list);
     }
 
     parentNode.setChildren(resList.iterator());
     return resList.iterator();
+  }
+
+  /**
+   * Appends display-format row values to a dependency node label. Pure helper for unit tests.
+   *
+   * @param baseLabel the node label before row data, may be <code>null</code>
+   * @param rowData display-format column values, may be <code>null</code> or empty
+   * @return the formatted label, never <code>null</code>
+   */
+  public static String formatDependencyLabel(String baseLabel, Map<String, ?> rowData) {
+    String label = baseLabel == null ? "" : baseLabel;
+    if (rowData == null || rowData.isEmpty()) {
+      return label;
+    }
+    StringBuilder result = new StringBuilder(label);
+    int ii = 0;
+    for (Object value : rowData.values()) {
+      if (ii == 0) {
+        result.append(" (");
+      } else {
+        result.append(" - ");
+      }
+      result.append(value == null ? "null" : value.toString());
+      ii++;
+    }
+    if (ii > 0) {
+      result.append(')');
+    }
+    return result.toString();
+  }
+
+  /**
+   * Returns whether a relationship slot is still allowed (registered template slot or inline).
+   * Pure helper for unit tests.
+   *
+   * @param slotId the relationship <code>sys_slotid</code>, may be <code>null</code>
+   * @param registeredSlots slots registered to the owner content type templates, may be <code>null
+   *     </code>
+   * @param inlineSlots known inline slot ids, may be <code>null</code>
+   * @return <code>true</code> when the slot is registered or inline
+   */
+  public static boolean isAllowedRelationshipSlot(
+      String slotId, Collection<String> registeredSlots, Collection<String> inlineSlots) {
+    if (slotId == null) {
+      return false;
+    }
+    return (registeredSlots != null && registeredSlots.contains(slotId))
+        || (inlineSlots != null && inlineSlots.contains(slotId));
+  }
+
+  /**
+   * Filters component summaries to those whose content id is in the allowed set. Pure helper for
+   * unit tests.
+   *
+   * @param summaries summaries to filter, may be <code>null</code>
+   * @param allowedContentIds content ids as strings, may be <code>null</code>
+   * @return matching summaries in encounter order, never <code>null</code>
+   */
+  public static List<PSComponentSummary> filterSummariesByContentIds(
+      Iterator<PSComponentSummary> summaries, Collection<String> allowedContentIds) {
+    List<PSComponentSummary> result = new ArrayList<>();
+    if (summaries == null || allowedContentIds == null || allowedContentIds.isEmpty()) {
+      return result;
+    }
+    while (summaries.hasNext()) {
+      PSComponentSummary sum = summaries.next();
+      if (sum != null && allowedContentIds.contains(String.valueOf(sum.getContentId()))) {
+        result.add(sum);
+      }
+    }
+    return result;
   }
 
   /**
@@ -309,20 +358,13 @@ public class PSItemRelationshipsManager {
         Object[] args = new Object[] {e.getLocalizedMessage()};
         throw new PSCmsException(IPSCmsErrors.UNEXPECTED_ERROR, args);
       }
-      if (slotId != null && cid != null) {
-        if (regSlots.contains(slotId) || inlineSlots.contains(slotId)) {
-          contentIds.add(cid);
-        }
+      if (cid != null && isAllowedRelationshipSlot(slotId, regSlots, inlineSlots)) {
+        contentIds.add(cid);
       }
     }
     PSComponentSummaries allsummaries = m_proxy.getSummaries(filter, false);
-    Iterator siter = allsummaries.getSummaries();
-    while (siter.hasNext()) {
-      PSComponentSummary sum = (PSComponentSummary) siter.next();
-      String cid = "" + sum.getContentId();
-      if (contentIds.contains(cid)) {
-        summaries.add(sum);
-      }
+    for (PSComponentSummary sum : filterSummariesByContentIds(allsummaries.getSummaries(), contentIds)) {
+      summaries.add(sum);
     }
     return summaries;
   }

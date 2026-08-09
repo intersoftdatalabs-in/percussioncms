@@ -30,22 +30,54 @@ public class PSProcessMonitor {
    * Constructs this object to monitor the processing of supplied number of nodes.
    *
    * @param total the total number of nodes to process, may not be &lt;= 0.
-   * @throws IllegalArgumentException if total is invalid.
-   */
-  /**
-   * Constructs this object to monitor the processing of supplied number of nodes.
-   *
-   * @param total the total number of nodes to process, may not be &lt;= 0.
    * @param applet the content explorer applet, may not be <code>null</code>.
-   * @throws IllegalArgumentException if total is invalid.
+   * @throws IllegalArgumentException if total is invalid or applet is <code>null</code>.
    */
   public PSProcessMonitor(int total, PSContentExplorerApplet applet) {
-    if (total <= 0) throw new IllegalArgumentException("total may not be <= 0");
+    if (!isValidTotal(total)) throw new IllegalArgumentException("total may not be <= 0");
 
     if (applet == null) throw new IllegalArgumentException("applet must not be null");
     m_applet = applet;
 
     m_total = total;
+  }
+
+  /**
+   * Returns whether a total node count is valid for construction. Pure helper for unit tests.
+   *
+   * @param total candidate total
+   * @return <code>true</code> when total is positive
+   */
+  public static boolean isValidTotal(int total) {
+    return total > 0;
+  }
+
+  /**
+   * Returns whether a status constant is one of {@code STATUS_xxx}. Pure helper for unit tests.
+   *
+   * @param status candidate status value
+   * @return <code>true</code> when status is in range
+   */
+  public static boolean isValidStatus(int status) {
+    return status >= STATUS_INIT && status <= STATUS_COMPLETE;
+  }
+
+  /**
+   * Computes dialog percent-complete for the current node index. Pure helper for unit tests.
+   *
+   * @param current 1-based index of the node being processed
+   * @param total total nodes being processed, must be &gt; 0
+   * @return percent in range 0..100
+   * @throws IllegalArgumentException if current/total are invalid
+   */
+  public static int computePercentDone(int current, int total) {
+    if (!isValidTotal(total)) {
+      throw new IllegalArgumentException("total may not be <= 0");
+    }
+    if (current <= 0 || current > total) {
+      throw new IllegalArgumentException("current may not be <= 0 or > actual total");
+    }
+    return (current - 1) * 100 / total;
   }
 
   /**
@@ -69,8 +101,8 @@ public class PSProcessMonitor {
    * @throws IllegalArgumentException if any parameter is invalid
    */
   public void updateStatus(int current, PSNode processingNode) {
-    if (current > m_total || current <= 0)
-      throw new IllegalArgumentException("current may not be <= 0 or > actual total");
+    // validate range via pure helper (throws on invalid)
+    int percentDone = computePercentDone(current, m_total);
 
     if (processingNode == null)
       throw new IllegalArgumentException("processingNode may not be null.");
@@ -82,9 +114,9 @@ public class PSProcessMonitor {
       String msg =
           MessageFormat.format(
               m_applet.getResourceString(getClass(), "Processing the {0} <{1}>"),
-              new String[] {m_curProcessNode.getType(), m_curProcessNode.getLabel()});
+              m_curProcessNode.getType(),
+              m_curProcessNode.getLabel());
 
-      int percentDone = (m_current - 1) * 100 / m_total;
       m_dlg.updateStatus(msg, percentDone);
     }
   }
@@ -109,8 +141,7 @@ public class PSProcessMonitor {
    * @throws IllegalArgumentException if any currentStatus is invalid
    */
   public synchronized void setStatus(int currentStatus) {
-    if (currentStatus < STATUS_INIT || currentStatus > STATUS_COMPLETE)
-      throw new IllegalArgumentException("invalid status");
+    if (!isValidStatus(currentStatus)) throw new IllegalArgumentException("invalid status");
 
     synchronized (m_syncObject) {
       m_status = currentStatus;

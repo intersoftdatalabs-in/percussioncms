@@ -1814,7 +1814,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       // Load children using Item Relationship Manager for dependency tree
       // mode
       if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_DT)) {
-        children = asNodes(m_irsManager.loadDependencies(node));
+        children = m_irsManager.loadDependencies(node);
       } else {
         /**
          * If the node type is "Folder" or "SystemFolder" or "SystemSite" load the children using
