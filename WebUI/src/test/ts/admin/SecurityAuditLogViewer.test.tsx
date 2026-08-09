@@ -20,6 +20,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   formatAuditPageSummary,
   SecurityAuditLogViewer,
+  truncate,
 } from "../../../main/ts/admin/tools/SecurityAuditLogViewer";
 import * as auditApi from "../../../main/ts/api/auditlog/auditLogApi";
 import { AuditLogForbiddenError } from "../../../main/ts/api/auditlog/auditLogApi";
@@ -56,6 +57,15 @@ describe("SecurityAuditLogViewer", () => {
     expect(formatAuditPageSummary(1, 50, 120)).toContain("1");
     expect(formatAuditPageSummary(1, 50, 120)).toContain("50");
     expect(formatAuditPageSummary(1, 50, 120)).toContain("120");
+  });
+
+  it("truncate keeps max chars then ellipsis (no off-by-one)", () => {
+    expect(truncate("short", 40)).toBe("short");
+    expect(truncate(undefined)).toBe("—");
+    const long = "a".repeat(50);
+    const out = truncate(long, 40);
+    expect(out.endsWith("…")).toBe(true);
+    expect(out.slice(0, -1)).toHaveLength(40);
   });
 
   it("renders table rows after successful load", async () => {

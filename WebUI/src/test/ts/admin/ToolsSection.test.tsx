@@ -48,6 +48,28 @@ describe("ToolsSection", () => {
     expect(screen.getByTestId("mock-security-audit")).toBeDefined();
   });
 
+  it("tabs expose aria-controls linked to tabpanel ids", () => {
+    render(<ToolsSection />);
+    const auditTab = screen.getByTestId("tool-tab-security-audit");
+    expect(auditTab.getAttribute("aria-controls")).toBe("panel-security-audit");
+    expect(auditTab.getAttribute("id")).toBe("tab-security-audit");
+    expect(screen.getByTestId("panel-security-audit").getAttribute("role")).toBe(
+      "tabpanel",
+    );
+    expect(
+      screen.getByTestId("panel-security-audit").getAttribute("aria-labelledby"),
+    ).toBe("tab-security-audit");
+
+    fireEvent.click(screen.getByTestId("tool-tab-consistency"));
+    const consistencyTab = screen.getByTestId("tool-tab-consistency");
+    expect(consistencyTab.getAttribute("aria-controls")).toBe(
+      "panel-consistency",
+    );
+    expect(screen.getByTestId("panel-consistency").getAttribute("role")).toBe(
+      "tabpanel",
+    );
+  });
+
   it("switches to consistency checker", () => {
     render(<ToolsSection />);
     fireEvent.click(screen.getByTestId("tool-tab-consistency"));
@@ -55,3 +77,4 @@ describe("ToolsSection", () => {
     expect(screen.queryByTestId("mock-security-audit")).toBeNull();
   });
 });
+

@@ -79,6 +79,8 @@ export const ToolsSection: React.FC<ToolsSectionProps> = ({
             key={id}
             type="button"
             role="tab"
+            id={`tab-${id}`}
+            aria-controls={`panel-${id}`}
             aria-selected={activeTool === id}
             onClick={() => setActiveTool(id)}
             style={tabStyle(id)}
@@ -91,8 +93,26 @@ export const ToolsSection: React.FC<ToolsSectionProps> = ({
         ))}
       </div>
 
-      {activeTool === "security-audit" && <SecurityAuditLogViewer />}
-      {activeTool === "consistency" && <ConsistencyChecker />}
+      {activeTool === "security-audit" && (
+        <div
+          role="tabpanel"
+          id="panel-security-audit"
+          aria-labelledby="tab-security-audit"
+          data-testid="panel-security-audit"
+        >
+          <SecurityAuditLogViewer />
+        </div>
+      )}
+      {activeTool === "consistency" && (
+        <div
+          role="tabpanel"
+          id="panel-consistency"
+          aria-labelledby="tab-consistency"
+          data-testid="panel-consistency"
+        >
+          <ConsistencyChecker />
+        </div>
+      )}
     </div>
   );
 };

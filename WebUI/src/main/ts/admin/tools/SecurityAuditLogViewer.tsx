@@ -57,7 +57,8 @@ function formatEventTime(iso: string | undefined): string {
   return d.toLocaleString();
 }
 
-function truncate(text: string | undefined, max = 80): string {
+/** Truncate for table cells; when longer than max, keeps {@code max} chars then ellipsis. */
+export function truncate(text: string | undefined, max = 80): string {
   if (!text) {
     return "—";
   }
@@ -65,7 +66,7 @@ function truncate(text: string | undefined, max = 80): string {
   if (t.length <= max) {
     return t;
   }
-  return `${t.slice(0, max - 1)}…`;
+  return `${t.slice(0, max)}…`;
 }
 
 /** Apply simple {0}/{1}/… placeholders after TMX resolve (works with key fallbacks). */
