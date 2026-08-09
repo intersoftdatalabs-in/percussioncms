@@ -364,4 +364,84 @@ describe("FolderSecurityPanel", () => {
     });
     await renderA11yGate(container);
   });
+
+  it("renders folder properties (community / locale / display format / workflow) (#2410)", () => {
+    const props = makeProps({
+      permission: permission(["Admin"], [], [], []),
+      communityName: "Default",
+      communityId: "10",
+      locale: "en-us",
+      displayFormatName: "FolderList",
+      workflowId: "6",
+    });
+    render(
+      <FolderSecurityPanel
+        folderId={props.id}
+        currentUserIdentities={["Admin"]}
+        initial={props}
+      />,
+    );
+    expect(screen.getByTestId("folder-properties")).toBeTruthy();
+    expect(
+      (screen.getByTestId("folder-props-community-name") as HTMLInputElement)
+        .value,
+    ).toBe("Default");
+    expect(
+      (screen.getByTestId("folder-props-locale") as HTMLInputElement).value,
+    ).toBe("en-us");
+    expect(
+      (screen.getByTestId("folder-props-display-format") as HTMLInputElement)
+        .value,
+    ).toBe("FolderList");
+    expect(
+      (screen.getByTestId("folder-props-workflow-id") as HTMLInputElement)
+        .value,
+    ).toBe("6");
+  });
+
+  it("editing folder properties flips dirty and is included in save payload (#2410)", async () => {
+    const props = makeProps({
+      permission: permission(["Admin"], [], [], []),
+      locale: "en-us",
+      communityName: "Default",
+    });
+    const saveMock = vi.fn().mockResolvedValue(undefined);
+    render(
+      <FolderSecurityPanel
+        folderId={props.id}
+        currentUserIdentities={["Admin"]}
+        initial={props}
+        save={saveMock}
+      />,
+    );
+    const locale = screen.getByTestId(
+      "folder-props-locale",
+    ) as HTMLInputElement;
+    fireEvent.change(locale, { target: { value: "fr-fr" } });
+    expect(screen.getByTestId("folder-security-dirty").textContent).toBe("●");
+    fireEvent.click(screen.getByTestId("folder-security-save"));
+    await waitFor(() => {
+      expect(saveMock).toHaveBeenCalledTimes(1);
+    });
+    const saved = saveMock.mock.calls[0]![0] as PSFolderProperties;
+    expect(saved.locale).toBe("fr-fr");
+    expect(saved.permission?.adminPrincipals?.[0]?.name).toBe("Admin");
+  });
+
+  it("folder property inputs are disabled in read-only mode (#2410)", () => {
+    const props = makeProps({
+      permission: permission([], [], [], [], "READ"),
+      locale: "en-us",
+    });
+    render(
+      <FolderSecurityPanel
+        folderId={props.id}
+        currentUserIdentities={["Editor"]}
+        initial={props}
+      />,
+    );
+    expect(
+      (screen.getByTestId("folder-props-locale") as HTMLInputElement).disabled,
+    ).toBe(true);
+  });
 });

@@ -116,4 +116,36 @@ test.describe("US4 P-ACL — folder security panel (SC-004)", () => {
         '[data-testid="perc-folder-security-root"], [data-testid="folder-security-panel"]',
     });
   });
+
+  test("Explorer shell security toggle opens panel or folder-select hint (#2410)", async ({
+    page,
+  }) => {
+    // Product path: spa.jsp?entry=explorer — ADMIN opens folder security
+    // from view tools. Without a resolved folder id the shell shows a
+    // polite hint; with a tree folder the panel mounts (folderProperties).
+    const explorerUrl = `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&_=${Date.now()}`;
+    await page.goto(explorerUrl, { waitUntil: "networkidle" });
+    const shell = page.locator('[data-testid="content-explorer-shell"]');
+    await expect(shell).toBeVisible({ timeout: 15_000 });
+    const toggle = page.locator('[data-testid="explorer-toggle-security"]');
+    await expect(toggle).toBeVisible();
+    await toggle.click();
+    // Either the security panel region or the select-folder hint is shown.
+    const panelOrHint = page.locator(
+      '[data-testid="explorer-security-panel"], [data-testid="explorer-security-hint"]',
+    );
+    await expect(panelOrHint.first()).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("Explorer shell security surface has no miller-column chrome (#2410)", async ({
+    page,
+  }) => {
+    const explorerUrl = `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&_=${Date.now()}`;
+    await page.goto(explorerUrl, { waitUntil: "networkidle" });
+    await expect(
+      page.locator('[data-testid="content-explorer-shell"]'),
+    ).toBeVisible({ timeout: 15_000 });
+    await page.locator('[data-testid="explorer-toggle-security"]').click();
+    await expect(page.locator(".perc-mcol")).toHaveCount(0);
+  });
 });

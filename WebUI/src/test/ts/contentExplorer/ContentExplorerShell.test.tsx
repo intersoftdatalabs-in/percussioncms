@@ -15,11 +15,32 @@
  */
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapContext";
+import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
 import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentExplorerShell";
 import { EXPLORER_MSG } from "../../../main/ts/contentExplorer/messages";
 import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
+
+const adminBootstrap: SpaBootstrap = {
+  userName: "Admin",
+  locale: "en-us",
+  entry: "explorer",
+  isAdmin: true,
+  isDesigner: false,
+  isWidgetBuilderActive: false,
+};
+
+function renderShell(
+  ui: ReactElement,
+  bootstrap: SpaBootstrap = adminBootstrap,
+) {
+  return render(
+    <BootstrapProvider value={bootstrap}>{ui}</BootstrapProvider>,
+  );
+}
 
 function stubPathFetch() {
   mockFetch(async (input) => {
@@ -48,7 +69,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
   it("renders search toggle, display format select, and server action toolbar", async () => {
     stubPathFetch();
 
-    render(
+    renderShell(
       <ContentExplorerShell
         initialPath="/Sites"
         loadDisplayFormats={async () => [
@@ -105,7 +126,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     const loadMenuActions = vi.fn(async () => []);
     stubPathFetch();
 
-    render(
+    renderShell(
       <ContentExplorerShell
         loadDisplayFormats={loadDisplayFormats}
         loadMenuActions={loadMenuActions}
@@ -133,6 +154,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       EXPLORER_MSG.SEARCH_PANEL_REGION,
       EXPLORER_MSG.SECURITY_PANEL_REGION,
       EXPLORER_MSG.SECURITY_SELECT_FOLDER,
+      EXPLORER_MSG.FOLDER_PROPS_TITLE,
+      EXPLORER_MSG.FOLDER_PROPS_COMMUNITY,
+      EXPLORER_MSG.FOLDER_PROPS_LOCALE,
     ];
     for (const key of chromeKeys) {
       expect(key.startsWith("perc.ui.explorer@")).toBe(true);
@@ -141,7 +165,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
 
   it("passes the zero serious/critical axe-core gate (T082a / 508)", async () => {
     stubPathFetch();
-    const { container } = render(
+    const { container } = renderShell(
       <ContentExplorerShell
         initialPath="/Sites"
         loadDisplayFormats={async () => []}
@@ -156,7 +180,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
 
   it("passes axe with search panel expanded", async () => {
     stubPathFetch();
-    const { container } = render(
+    const { container } = renderShell(
       <ContentExplorerShell
         loadDisplayFormats={async () => []}
         loadMenuActions={async () => []}
@@ -170,5 +194,101 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       expect(screen.getByTestId("explorer-search-panel")).toBeInTheDocument(),
     );
     await renderA11yGate(container);
+  });
+
+  it("security toggle shows hint when no folder id is available (#2410)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        resolveFolderId={async () => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("explorer-toggle-security"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-security-hint")).toBeInTheDocument();
+    });
+  });
+
+  it("security stays on hint when resolveFolderId rejects (#2410)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        resolveFolderId={async () => {
+          throw new Error("lookup failed");
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("explorer-toggle-security"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-security-hint")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("folder-security-panel")).toBeNull();
+  });
+
+  it("security panel mounts with resolved folder id and session identities (#2410)", async () => {
+    stubPathFetch();
+    const resolveFolderId = vi.fn(async () => "folder-42");
+    // FolderSecurityPanel will fetch properties for folder-42 — stub returns empty.
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("folderProperties") || url.includes("folderproperties")) {
+        return new Response(
+          JSON.stringify({
+            id: "folder-42",
+            name: "Sites",
+            permission: {
+              accessLevel: "ADMIN",
+              adminPrincipals: [{ type: "USER", name: "Admin" }],
+            },
+            communityName: "Default",
+            locale: "en-us",
+            displayFormatName: "FolderList",
+            workflowId: "6",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [],
+              childrenCount: 0,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        resolveFolderId={resolveFolderId}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("explorer-toggle-security"));
+    await waitFor(() => {
+      expect(resolveFolderId).toHaveBeenCalled();
+      expect(screen.getByTestId("explorer-security-panel")).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("folder-security-panel")).toBeInTheDocument();
+      expect(screen.getByTestId("folder-properties")).toBeInTheDocument();
+    });
   });
 });

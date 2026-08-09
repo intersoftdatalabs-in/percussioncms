@@ -33,6 +33,7 @@ import {
   normalizeDisplayFormatColumns,
   type DisplayFormat,
 } from "../api/contentExplorer/displayFormatsApi";
+import { findItemByPath } from "../api/contentExplorer/pathApi";
 import type {
   Clipboard,
   ClipboardItem,
@@ -40,11 +41,13 @@ import type {
   PSItemProperties,
   PSPathItem,
 } from "../api/contentExplorer/types";
+import { useSpaBootstrap } from "../app/bootstrap/BootstrapContext";
 import { message } from "../i18n/message";
 import { ActionToolbar } from "./ActionToolbar";
 import { ClipboardPanel } from "./clipboard/ClipboardPanel";
 import { EMPTY_CLIPBOARD, setClipboard as buildClipboard } from "./clipboard/model";
 import { ContextMenu } from "./ContextMenu";
+import { resolveCurrentUserIdentities } from "./currentUserIdentities";
 import { DetailList } from "./DetailList";
 import {
   displayFormatOptionKey,
@@ -84,6 +87,17 @@ export interface ContentExplorerShellProps {
   loadDisplayFormats?: () => Promise<DisplayFormat[]>;
   /** Test seam: override action menu load. */
   loadMenuActions?: (item: PSPathItem | null) => Promise<MenuAction[]>;
+  /**
+   * Identities for folder ACL self-lockout (USER name + ROLE names).
+   * When omitted, derived from SPA bootstrap ({@code userName}, admin/designer
+   * flags). Tests inject an explicit list so lockout gates stay deterministic.
+   */
+  currentUserIdentities?: ReadonlyArray<string>;
+  /**
+   * Test seam: resolve a CMS folder id from a path for the security panel.
+   * Default uses pathmanagement {@link findItemByPath}.
+   */
+  resolveFolderId?: (path: string) => Promise<string | undefined>;
 }
 
 type ContextMenuState = {
@@ -162,6 +176,19 @@ async function defaultLoadDisplayFormats(): Promise<DisplayFormat[]> {
   return listDisplayFormats({ validForFolder: true });
 }
 
+async function defaultResolveFolderId(
+  path: string,
+): Promise<string | undefined> {
+  try {
+    const item = await findItemByPath(path);
+    return item?.id != null && String(item.id).length > 0
+      ? String(item.id)
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function ContentExplorerShell({
   initialPath = "/",
   onOpenItem = openInEditor,
@@ -169,8 +196,33 @@ export function ContentExplorerShell({
   onFolderActivated,
   loadDisplayFormats = defaultLoadDisplayFormats,
   loadMenuActions = defaultLoadMenuActions,
+  currentUserIdentities: currentUserIdentitiesProp,
+  resolveFolderId = defaultResolveFolderId,
 }: ContentExplorerShellProps): React.ReactElement {
-  const [selection, setSelection] = useState<Selection>(EMPTY_SELECTION);
+  const bootstrap = useSpaBootstrap();
+  const currentUserIdentities = useMemo(() => {
+    if (currentUserIdentitiesProp) {
+      return [...currentUserIdentitiesProp];
+    }
+    return resolveCurrentUserIdentities({
+      userName: bootstrap.userName,
+      isAdmin: bootstrap.isAdmin,
+      isDesigner: bootstrap.isDesigner,
+    });
+  }, [
+    currentUserIdentitiesProp,
+    bootstrap.userName,
+    bootstrap.isAdmin,
+    bootstrap.isDesigner,
+  ]);
+
+  // Seed from initialPath so deep-links and the security/properties panel
+  // resolve a folder without requiring an extra tree click (#2410).
+  const [selection, setSelection] = useState<Selection>(() =>
+    initialPath
+      ? { folderPath: initialPath, item: null }
+      : EMPTY_SELECTION,
+  );
   const [error, setError] = useState<string | null>(null);
   const [showSearch, setShowSearch] = useState(false);
   const [showSecurity, setShowSecurity] = useState(false);
@@ -188,6 +240,10 @@ export function ContentExplorerShell({
   >(() => new Map<string, PSPathItem>());
   const [clipboard, setClipboardState] = useState<Clipboard>(EMPTY_CLIPBOARD);
   const [clipboardMode, setClipboardMode] = useState<"copy" | "cut">("copy");
+  /** Folder content id for security/properties (resolved from selection or path). */
+  const [securityFolderId, setSecurityFolderId] = useState<string | undefined>(
+    undefined,
+  );
 
   const handlers: ReducedActionHandlers = {
     ...defaultReducedActionHandlers(),
@@ -370,7 +426,7 @@ export function ContentExplorerShell({
       ? selection.item
       : selection.folderPath
         ? ({
-            id: undefined,
+            id: securityFolderId,
             path: selection.folderPath,
             name: selection.folderPath,
             type: "folder",
@@ -378,10 +434,36 @@ export function ContentExplorerShell({
           } as PSPathItem)
         : null;
 
-  const securityFolderId =
-    selection.item?.type === "folder"
-      ? selection.item.id
-      : undefined;
+  // Resolve the folder id for security/properties: prefer a selected
+  // folder row, otherwise look up the active folder path (tree navigation
+  // sets item=null and only folderPath). Without path resolution ADMIN
+  // could not open ACL for the folder they are browsing (#2410).
+  useEffect(() => {
+    let cancelled = false;
+    async function resolve(): Promise<void> {
+      if (selection.item?.type === "folder" && selection.item.id) {
+        if (!cancelled) setSecurityFolderId(String(selection.item.id));
+        return;
+      }
+      const path = selection.folderPath;
+      if (!path) {
+        if (!cancelled) setSecurityFolderId(undefined);
+        return;
+      }
+      try {
+        const id = await resolveFolderId(path);
+        if (!cancelled) setSecurityFolderId(id);
+      } catch {
+        // Custom injectors may reject; defaultResolveFolderId already swallows.
+        // Treat failure as unresolved so security stays read-only hint, not crash.
+        if (!cancelled) setSecurityFolderId(undefined);
+      }
+    }
+    void resolve();
+    return () => {
+      cancelled = true;
+    };
+  }, [selection.item, selection.folderPath, resolveFolderId]);
 
   return (
     <div
@@ -603,7 +685,7 @@ export function ContentExplorerShell({
         >
           <FolderSecurityPanel
             folderId={securityFolderId}
-            currentUserIdentities={[]}
+            currentUserIdentities={currentUserIdentities}
           />
         </section>
       )}
