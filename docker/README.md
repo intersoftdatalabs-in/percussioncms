@@ -59,9 +59,17 @@ perc-devctl.py qa-health [--timeout-seconds N] [--interval-seconds N] [--url URL
 perc-devctl.py qa-down [--container NAME]
 ```
 
-#### Rebuild-chain preflight (#2486 / #2532)
+#### Rebuild-chain preflight (#2486 / #2532 / matrix wire-up #2531)
 
 `perc-devctl.py qa-preflight [--strict]` (or the standalone `python3 docker/scripts/qa_preflight.py`) detects a **stale WebUI WAR** vs a freshly built sitemanage SNAPSHOT **before** `qa-up`. Without this gate, re-running only `sitemanage → install` and then `qa-up` leaves the old `sitemanage-*.jar` bundled inside the `perc-web-ui-*.war` (which `perc-distribution-tree` unpacks into `Rhythmyx/WEB-INF/lib`). The container then loads the stale classpath and the cycle / DI fix appears to regress even though the m2 snapshot is correct.
+
+**Matrix CMS path (strict by default):** `matrix-install-smoke.py` runs the same preflight **before install/start** whenever `--product` includes `cms` (including GHA / operator matrix entrypoints that call the harness directly without `perc-devctl qa-up`). On `STALE` it exits with code `2` and prints `RESULT:FAIL STEP:matrix-preflight DETAIL:preflight_stale` — no cell is started. Opt out only when intentionally debugging:
+
+```bash
+python3 docker/scripts/matrix-install-smoke.py --product cms --db h2 --skip-preflight
+```
+
+DTS-only matrices (`--product dts`) skip this gate (no WebUI WAR on that path). See **Matrix install smoke** below for the full CLI matrix.
 
 The preflight compares:
 
@@ -77,11 +85,16 @@ The preflight compares:
 
 Use `--no-content-hash` for mtime-only comparison. With `--strict`, STALE returns exit code `2`; without `--strict` it prints the same line and returns `0` so callers can log without blocking.
 
+Matrix CMS cells always use the **strict** policy unless --skip-preflight is set.
+
+
 Run order recommended for agents and CI:
 
 ```bash
 python3 docker/scripts/perc-devctl.py qa-preflight --strict \
   && python3 docker/scripts/perc-devctl.py qa-up
+# or matrix directly (preflight is built-in for --product cms):
+python3 docker/scripts/matrix-install-smoke.py --product cms --db h2
 ```
 
 Standalone (same flags):
@@ -420,15 +433,17 @@ cd modules/perc-distribution-tree && ../../mvnw package -DskipTests
 cd deliverytiersuite/delivery-tier-suite/delivery-tier-distribution && ../../../../mvnw package -DskipTests
 
 # CMS + H2 (no external DB container)
+# Strict rebuild-chain preflight runs first (#2531 / #2486); STALE → exit 2
 python3 docker/scripts/matrix-install-smoke.py --product cms --db h2
 
 # CMS + PostgreSQL (starts compose profile postgres)
 python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql
 
-# Both products × H2 and PostgreSQL
+# Both products × H2 and PostgreSQL (CMS preflight still runs once before cells)
 python3 docker/scripts/matrix-install-smoke.py --product cms,dts --db h2,postgresql
 
 # DTS only × Layer-1 DB matrix without Oracle (H2 + common external profiles)
+# DTS-only skips WebUI WAR preflight
 python3 docker/scripts/matrix-install-smoke.py --product dts --db h2,postgresql,mysql,sqlserver
 
 # CMS + Oracle XE (opt-in; heavy image — see Oracle section below)
@@ -448,10 +463,14 @@ python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql --k
 # Force-stop every external DB used by this matrix (including pre-existing)
 python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql,mysql --stop-db
 
-# Dry-run (no docker)
+# Dry-run (no docker) — preflight still runs (filesystem-only) unless skipped
 python3 docker/scripts/matrix-install-smoke.py --product cms --db h2 --dry-run --skip-image-build
 # Dry-run Oracle cell metadata (still needs passwords in env / .env.compose)
 python3 docker/scripts/matrix-install-smoke.py --product cms --db oracle --dry-run --skip-image-build
+
+# Opt out of strict CMS preflight only when debugging a known-stale tree
+# (not recommended for CI). See Rebuild-chain preflight above.
+python3 docker/scripts/matrix-install-smoke.py --product cms --db h2 --skip-preflight
 ```
 
 ### Oracle compose profile (#1508 / live residual #2083)
