@@ -585,6 +585,34 @@ npm run test:surface:list -- --path tests/profile-shell.spec.js
 npm run test:surface:list -- --tag profile
 ```
 
+#### Profile shell keyboard section-nav / focus (#2502 / residual #2427)
+
+Beyond axe: keyboard path Tab → `perc-profile-nav-*` → Enter focuses and
+scrolls `perc-profile-section-*` (`tabIndex={-1}` hash targets); asserts
+focus-visible rings stay usable on nav links after activation.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/profile-shell-keyboard.spec.js` |
+| Tags | `@profile` `@a11y` `@keyboard` |
+| Product focus ring | `WebUI/.../ProfileShell.module.css` `.sectionNavLink:focus-visible` + `.section:focus-visible` |
+
+```bash
+# After qa-up — path-filtered only
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/profile-shell-keyboard.spec.js
+
+# With axe/smoke peers
+npm run test:surface -- --path tests/profile-shell.spec.js \
+  --path tests/profile-shell-keyboard.spec.js
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/profile-shell-keyboard.spec.js
+npm run test:surface:list -- --tag keyboard
+```
+
 **`run-surface` refuses the full suite** unless you pass `--allow-full` (agents must
 not use that by default).
 
