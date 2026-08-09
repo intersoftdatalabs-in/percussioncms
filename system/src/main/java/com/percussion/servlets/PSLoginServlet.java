@@ -22,10 +22,8 @@ import static com.percussion.utils.request.PSRequestInfoBase.KEY_PSREQUEST;
 import static com.percussion.utils.request.PSRequestInfoBase.getRequestInfo;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import com.percussion.auditlog.PSActionOutcome;
-import com.percussion.auditlog.PSAuditLogService;
-import com.percussion.auditlog.PSAuthenticationEvent;
 import com.percussion.content.IPSMimeContentTypes;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.security.IPSSecurityErrors;
 import com.percussion.security.PSAuthenticationFailedException;
@@ -72,8 +70,6 @@ import org.apache.logging.log4j.Logger;
 public class PSLoginServlet extends HttpServlet {
   /** Serial version id */
   private static final long serialVersionUID = 1L;
-
-  private final PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
 
   /**
    * Handles requests to login and logout. Initial GET requests to "/login" are returned an include
@@ -158,13 +154,7 @@ public class PSLoginServlet extends HttpServlet {
   private void logout(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
     try {
-      PSAuthenticationEvent psAuthenticationEvent =
-          new PSAuthenticationEvent(
-              PSActionOutcome.SUCCESS.name(),
-              PSAuthenticationEvent.AuthenticationEventActions.logout,
-              request,
-              request.getRemoteUser());
-      psAuditLogService.logAuthenticationEvent(psAuthenticationEvent);
+      PSSystemAuditLogger.logout(request, request.getRemoteUser());
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -524,27 +514,28 @@ public class PSLoginServlet extends HttpServlet {
 
       request = PSSecurityFilter.authenticate(request, response, uid, pwd);
 
+      // Audit immediately after successful authentication (before redirect), so a redirect
+      // failure cannot drop the security audit record.
+      try {
+        PSSystemAuditLogger.loginSuccess(request, uid);
+      } catch (Exception auditEx) {
+        log.error(PSExceptionUtils.getMessageForLog(auditEx));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(auditEx));
+      }
+
       // Jetty 12 UriCompliance: normalize separators; then PSRedirectValidation + URI rebuild
       // before sendRedirect (java/unvalidated-url-redirection residual on session redirect).
       String safeRedirect = resolveSafePostLoginRedirect(request, redirect);
       response.sendRedirect(safeRedirect); // codeql[java/unvalidated-url-redirection]
 
       sess.removeAttribute(REDIRECT_URL);
-      PSAuthenticationEvent psAuthenticationEvent =
-          new PSAuthenticationEvent(
-              PSActionOutcome.SUCCESS.name(),
-              PSAuthenticationEvent.AuthenticationEventActions.login,
-              request,
-              uid);
-      psAuditLogService.logAuthenticationEvent(psAuthenticationEvent);
     } catch (LoginException e) {
-      PSAuthenticationEvent psAuthenticationEvent =
-          new PSAuthenticationEvent(
-              PSActionOutcome.FAILURE.name(),
-              PSAuthenticationEvent.AuthenticationEventActions.login,
-              request,
-              uid);
-      psAuditLogService.logAuthenticationEvent(psAuthenticationEvent);
+      try {
+        PSSystemAuditLogger.loginFailure(request, uid, e.getClass().getSimpleName());
+      } catch (Exception auditEx) {
+        log.error(PSExceptionUtils.getMessageForLog(auditEx));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(auditEx));
+      }
       Exception ex;
 
       if (e instanceof PSMissingRoleException) {
