@@ -134,26 +134,31 @@ public class PSTemplateServiceHubNearCycleWiringTest {
   public void hubPeersMustNotEagerFieldInjectTemplateService() {
     List<String> violations = new ArrayList<>();
     for (Class<?> peer : HUB_PEERS) {
-      for (Field field : peer.getDeclaredFields()) {
-        if (!IPSTemplateService.class.isAssignableFrom(field.getType())) {
-          continue;
+      // Walk hierarchy: getDeclaredFields() alone misses inherited reverse edges.
+      for (Class<?> type = peer; type != null && type != Object.class; type = type.getSuperclass()) {
+        for (Field field : type.getDeclaredFields()) {
+          if (!IPSTemplateService.class.isAssignableFrom(field.getType())) {
+            continue;
+          }
+          if (field.isAnnotationPresent(Lazy.class)) {
+            continue; // documented intentional reverse edge
+          }
+          boolean autowired = field.isAnnotationPresent(Autowired.class);
+          String owner =
+              type.equals(peer) ? peer.getSimpleName() : peer.getSimpleName() + ":" + type.getSimpleName();
+          violations.add(
+              owner
+                  + "."
+                  + field.getName()
+                  + (autowired ? " (@Autowired)" : " (field type)")
+                  + " — reverse field edge without @Lazy");
         }
-        if (field.isAnnotationPresent(Lazy.class)) {
-          continue; // documented intentional reverse edge
-        }
-        boolean autowired = field.isAnnotationPresent(Autowired.class);
-        violations.add(
-            peer.getSimpleName()
-                + "."
-                + field.getName()
-                + (autowired ? " (@Autowired)" : " (field type)")
-                + " — reverse field edge without @Lazy");
       }
     }
     assertTrue(
         violations.isEmpty(),
         "Hub peers must not eagerly field-inject IPSTemplateService (use @Lazy or remove the"
-            + " edge). Violations: "
+            + " edge; includes inherited fields). Violations: "
             + String.join("; ", violations));
   }
 
