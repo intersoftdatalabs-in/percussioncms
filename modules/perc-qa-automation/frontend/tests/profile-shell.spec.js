@@ -16,7 +16,7 @@
 
 /**
  * Profile hub shell smoke + axe WCAG gate
- * (#2393 / #2425 / #2427 / #2497 / #2498 / parent #2374).
+ * (#2393 / #2425 / #2427 / #2497 / #2498 / #2501 / parent #2374).
  *
  * Surface-filtered only — not full suite:
  *   npm run test:surface -- --path tests/profile-shell.spec.js
@@ -27,6 +27,9 @@
  * Non-admin menu click only (#2497 residual):
  *   npm run test:surface -- --path tests/profile-shell.spec.js --grep "menu entry"
  *
+ * Non-admin axe only (#2501 residual of #2427):
+ *   npm run test:surface -- --path tests/profile-shell.spec.js --grep "Editor|Contributor"
+ *
  * Extended golden multi-path (baseline + folder-recycle + this surface) — #2498:
  *   npm run test:golden-extended
  *   npm run test:golden-extended:list
@@ -35,8 +38,9 @@
  * → test:surface or test:golden-extended → qa-down.
  *
  * Covers Admin deep link + UserMenu entry, non-admin (Editor, Contributor)
- * deep-link access, and non-admin UserMenu → My profile click path (#2497)
- * so profile is not admin-only (#2374 acceptance).
+ * deep-link smoke + axe, non-admin UserMenu → My profile click path (#2497),
+ * and non-admin UserMenu → My profile axe (#2501) so profile is not admin-only
+ * (#2374 acceptance / #2427 residual).
  * Inventory: helpers/golden-unattended-smoke-set.js (id profile-shell, tier extended).
  */
 
@@ -215,5 +219,93 @@ test.describe("Profile shell @profile @smoke", () => {
     await menuLink.click();
 
     await expectProfileShellMounted(page);
+  });
+
+  /**
+   * #2501 residual of #2427 — axe serious/critical zero for Editor after deep link.
+   * Admin-only axe is insufficient; same shell must pass for non-admin roles.
+   */
+  test("axe-core a11y gate — Editor profile shell via deep link (#2501)", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    await loginAsEditor(page);
+
+    await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
+    await expectProfileShellMounted(page);
+
+    await expectNoSeriousA11yViolations(page, {
+      scope: PROFILE_SHELL_SCOPE,
+    });
+  });
+
+  /**
+   * #2501 — axe after Editor UserMenu → My profile (menu tree vs deep link).
+   * Menu smoke for non-admin is #2497; this gates a11y on that path.
+   */
+  test("axe-core a11y gate — Editor profile shell via My profile menu (#2501)", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    await loginAsEditor(page);
+
+    await page.goto(homeUrl(), { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("perc-spa-user-menu")).toBeVisible({
+      timeout: 30_000,
+    });
+
+    const menuLink = page.getByTestId("perc-spa-my-profile");
+    await expect(menuLink).toBeVisible();
+    await expect(menuLink).toBeEnabled();
+    await menuLink.click();
+
+    await expectProfileShellMounted(page);
+
+    await expectNoSeriousA11yViolations(page, {
+      scope: PROFILE_SHELL_SCOPE,
+    });
+  });
+
+  /**
+   * #2501 residual of #2427 — axe serious/critical zero for Contributor after deep link.
+   */
+  test("axe-core a11y gate — Contributor profile shell via deep link (#2501)", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    await loginAsContributor(page);
+
+    await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
+    await expectProfileShellMounted(page);
+
+    await expectNoSeriousA11yViolations(page, {
+      scope: PROFILE_SHELL_SCOPE,
+    });
+  });
+
+  /**
+   * #2501 — axe after Contributor UserMenu → My profile.
+   */
+  test("axe-core a11y gate — Contributor profile shell via My profile menu (#2501)", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    await loginAsContributor(page);
+
+    await page.goto(homeUrl(), { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("perc-spa-user-menu")).toBeVisible({
+      timeout: 30_000,
+    });
+
+    const menuLink = page.getByTestId("perc-spa-my-profile");
+    await expect(menuLink).toBeVisible();
+    await expect(menuLink).toBeEnabled();
+    await menuLink.click();
+
+    await expectProfileShellMounted(page);
+
+    await expectNoSeriousA11yViolations(page, {
+      scope: PROFILE_SHELL_SCOPE,
+    });
   });
 });

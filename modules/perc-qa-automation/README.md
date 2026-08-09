@@ -562,12 +562,13 @@ npm run test:surface:list -- --tag explorer-recycle-restore
 class as #2464; Admin login that remains on `/Rhythmyx/login` fails with an
 explicit #2542 / #2423 message — do not soft-skip.
 
-#### Profile shell + axe WCAG (#2393 / #2425 / #2427 / #2498 / parent #2374)
+#### Profile shell + axe WCAG (#2393 / #2425 / #2427 / #2497 / #2498 / #2501 / parent #2374)
 
 Smoke opens the **My profile** hub via deep link and user-menu entry (Admin,
 Editor, Contributor); axe-core gates assert **zero serious/critical** WCAG 2.1
-A/AA violations on `[data-testid="perc-profile-shell"]` (helper:
-`tests/helpers/a11y.js`).
+A/AA violations on `[data-testid="perc-profile-shell"]` for **Admin, Editor,
+and Contributor** (helper: `tests/helpers/a11y.js`). #2501 extends the #2427
+Admin-only axe residual to non-admin roles (deep link + My profile menu).
 
 **Unattended matrix:** `@profile` is on the **extended** golden multi-path set
 (`npm run test:golden-extended`) so overnight/CI reference gates do not miss
@@ -586,14 +587,19 @@ Baseline `test:golden` stays login + Explorer only.
 cd modules/perc-qa-automation/frontend
 TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
   ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  EDITOR_USERNAME=Editor EDITOR_PASSWORD=<from-qa-up> \
+  CONTRIBUTOR_USERNAME=Contributor CONTRIBUTOR_PASSWORD=<from-qa-up> \
   npm run test:surface -- --path tests/profile-shell.spec.js
 
 # Extended golden multi-path (baseline + folder-recycle + profile)
 npm run test:golden-extended
 npm run test:golden-extended:list
 
-# Axe gates only
+# Axe gates only (Admin + Editor + Contributor)
 npm run test:surface -- --path tests/profile-shell.spec.js --grep "axe-core"
+
+# Non-admin axe residual (#2501)
+npm run test:surface -- --path tests/profile-shell.spec.js --grep "#2501"
 
 # List only (no live CMS)
 npm run test:surface:list -- --path tests/profile-shell.spec.js
