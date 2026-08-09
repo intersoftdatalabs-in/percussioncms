@@ -1681,6 +1681,15 @@
             <column name="LIMITTOLIST"/>
             <column name="CATALOGURL"/>
         </row>
+        <!-- System security audit log viewer (#2618): Admin always allowed; property grants non-Admin roles -->
+        <row onTableCreateOnly="no" action="i">
+            <column name="ID">6</column>
+            <column name="TYPE">role</column>
+            <column name="CATEGORY">SYS_ATTRIBUTENAME</column>
+            <column name="NAME">sys_securityAuditLogViewer</column>
+            <column name="LIMITTOLIST"/>
+            <column name="CATALOGURL"/>
+        </row>
     </table>
     <table name="PSX_ATTRIBUTE_NAMES" onCreateOnly="no">
             <row action="i" onTableCreateOnly="no">
@@ -1700,6 +1709,13 @@
             <column name="NAME">sys_defaultCommunity</column>
             <column name="COMPONENTID">0</column>
             <column name="NORMALNAME">sys_defaultcommunity</column>
+        </row>
+        <!-- Seed sys_securityAuditLogViewer=true on Admin (ROLEID 1); Admin is always allowed without this row -->
+        <row action="i" onTableCreateOnly="no">
+            <column name="ID">30</column>
+            <column name="NAME">sys_securityAuditLogViewer</column>
+            <column name="COMPONENTID">0</column>
+            <column name="NORMALNAME">sys_securityauditlogviewer</column>
         </row>
 
     </table>
@@ -1722,11 +1738,21 @@
             <column name="VALUE">Default</column>
             <column name="COMPONENTID">0</column>
         </row>
+        <row action="i" onTableCreateOnly="no">
+            <column name="ID">30</column>
+            <column name="ATTRIBUTEID">30</column>
+            <column name="VALUE">true</column>
+            <column name="COMPONENTID">0</column>
+        </row>
     </table>
     <table name="PSX_ROLE_ATTRIBUTES" onCreateOnly="no">
             <row action="i" onTableCreateOnly="no">
             <column name="ROLEID">1</column>
             <column name="ATTRIBUTEID">7</column>
+        </row>
+            <row action="i" onTableCreateOnly="no">
+            <column name="ROLEID">1</column>
+            <column name="ATTRIBUTEID">30</column>
         </row>
             <row action="i" onTableCreateOnly="no">
             <column name="ROLEID">4</column>

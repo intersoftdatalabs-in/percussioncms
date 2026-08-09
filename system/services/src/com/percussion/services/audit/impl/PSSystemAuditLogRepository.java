@@ -26,7 +26,12 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import java.time.Instant;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -108,5 +113,156 @@ public class PSSystemAuditLogRepository implements AuditLogRepository, Initializ
               return q.getSingleResult();
             });
     return count == null ? 0L : count;
+  }
+
+  /**
+   * Load one durable audit row by primary key.
+   *
+   * @param auditId UUID string (AUDIT_ID); may not be blank
+   * @return entry if present
+   */
+  public Optional<PSSystemAuditLogEntry> findById(String auditId) {
+    Objects.requireNonNull(auditId, "auditId");
+    if (auditId.isBlank()) {
+      throw new IllegalArgumentException("auditId may not be blank");
+    }
+    Objects.requireNonNull(transactionTemplate, "transactionTemplate");
+    return Optional.ofNullable(
+        transactionTemplate.execute(status -> entityManager.find(PSSystemAuditLogEntry.class, auditId)));
+  }
+
+  /**
+   * Query durable audit rows with optional filters, newest first.
+   *
+   * <p>Null/blank filter arguments are ignored. {@code offset} defaults to 0 when negative; {@code
+   * limit} is clamped to {@code 1..MAX_PAGE_SIZE}.
+   */
+  public List<PSSystemAuditLogEntry> findEntries(
+      Instant fromInclusive,
+      Instant toExclusive,
+      String moduleCode,
+      String eventType,
+      String outcome,
+      String actor,
+      int offset,
+      int limit) {
+    Objects.requireNonNull(transactionTemplate, "transactionTemplate");
+    int safeOffset = Math.max(0, offset);
+    int safeLimit = clampLimit(limit);
+    List<PSSystemAuditLogEntry> rows =
+        transactionTemplate.execute(
+            status -> {
+              QueryParts qp =
+                  buildWhere(
+                      fromInclusive, toExclusive, moduleCode, eventType, outcome, actor);
+              String jpql =
+                  "SELECT e FROM PSSystemAuditLogEntry e"
+                      + qp.where
+                      + " ORDER BY e.eventTime DESC, e.auditId DESC";
+              TypedQuery<PSSystemAuditLogEntry> q =
+                  entityManager.createQuery(jpql, PSSystemAuditLogEntry.class);
+              qp.apply(q);
+              q.setFirstResult(safeOffset);
+              q.setMaxResults(safeLimit);
+              return q.getResultList();
+            });
+    return rows == null ? List.of() : rows;
+  }
+
+  /**
+   * Count rows matching the same filters as {@link #findEntries(Instant, Instant, String, String,
+   * String, String, int, int)} (offset/limit ignored).
+   */
+  public long countEntries(
+      Instant fromInclusive,
+      Instant toExclusive,
+      String moduleCode,
+      String eventType,
+      String outcome,
+      String actor) {
+    Objects.requireNonNull(transactionTemplate, "transactionTemplate");
+    Long count =
+        transactionTemplate.execute(
+            status -> {
+              QueryParts qp =
+                  buildWhere(
+                      fromInclusive, toExclusive, moduleCode, eventType, outcome, actor);
+              String jpql = "SELECT COUNT(e) FROM PSSystemAuditLogEntry e" + qp.where;
+              TypedQuery<Long> q = entityManager.createQuery(jpql, Long.class);
+              qp.apply(q);
+              return q.getSingleResult();
+            });
+    return count == null ? 0L : count;
+  }
+
+  /** Maximum page size for REST / ops queries (hard cap). */
+  public static final int MAX_PAGE_SIZE = 200;
+
+  /** Default page size when caller omits or passes non-positive limit. */
+  public static final int DEFAULT_PAGE_SIZE = 50;
+
+  public static int clampLimit(int limit) {
+    if (limit <= 0) {
+      return DEFAULT_PAGE_SIZE;
+    }
+    return Math.min(limit, MAX_PAGE_SIZE);
+  }
+
+  private static QueryParts buildWhere(
+      Instant fromInclusive,
+      Instant toExclusive,
+      String moduleCode,
+      String eventType,
+      String outcome,
+      String actor) {
+    StringBuilder where = new StringBuilder();
+    Map<String, Object> params = new LinkedHashMap<>();
+    if (fromInclusive != null) {
+      where.append(where.isEmpty() ? " WHERE " : " AND ");
+      where.append("e.eventTime >= :fromTime");
+      params.put("fromTime", Date.from(fromInclusive));
+    }
+    if (toExclusive != null) {
+      where.append(where.isEmpty() ? " WHERE " : " AND ");
+      where.append("e.eventTime < :toTime");
+      params.put("toTime", Date.from(toExclusive));
+    }
+    if (moduleCode != null && !moduleCode.isBlank()) {
+      where.append(where.isEmpty() ? " WHERE " : " AND ");
+      where.append("e.moduleCode = :moduleCode");
+      params.put("moduleCode", moduleCode.trim());
+    }
+    if (eventType != null && !eventType.isBlank()) {
+      where.append(where.isEmpty() ? " WHERE " : " AND ");
+      where.append("e.eventType = :eventType");
+      params.put("eventType", eventType.trim());
+    }
+    if (outcome != null && !outcome.isBlank()) {
+      where.append(where.isEmpty() ? " WHERE " : " AND ");
+      where.append("e.outcome = :outcome");
+      params.put("outcome", outcome.trim());
+    }
+    if (actor != null && !actor.isBlank()) {
+      where.append(where.isEmpty() ? " WHERE " : " AND ");
+      where.append("LOWER(e.actor) = :actor");
+      params.put("actor", actor.trim().toLowerCase(Locale.ROOT));
+    }
+    return new QueryParts(where.toString(), params);
+  }
+
+  private static final class QueryParts {
+    final String where;
+    final Map<String, Object> params;
+
+    QueryParts(String where, Map<String, Object> params) {
+      this.where = where;
+      this.params = params;
+    }
+
+    void apply(TypedQuery<?> q) {
+      for (Map.Entry<String, Object> e : params.entrySet()) {
+        q.setParameter(e.getKey(), e.getValue());
+      }
+    }
   }
 }

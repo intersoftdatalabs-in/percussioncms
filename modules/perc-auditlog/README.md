@@ -38,6 +38,19 @@ Production durable store: table `PSX_SYSTEM_AUDIT_LOG` with JPA entity
 
 Login smoke path: `PSSystemAuditLogger` / `PSLoginServlet` (success, failure, logout).
 
+## Phase 3 — REST query + role property (#2618)
+
+**Permission:** Rhythmyx role property `sys_securityAuditLogViewer` (truthy `true`/`yes`/`1`/`y`). Members of **Admin** always may view. Pure helper: `com.percussion.services.audit.PSSystemAuditLogPermission`.
+
+**REST** (public adaptor pattern):
+
+* Resource: `com.percussion.rest.auditlog.AuditLogResource` → `/auditlog/entries`
+* Interface: `IAuditLogAdaptor`
+* Impl: `com.percussion.apibridge.AuditLogAdaptor` (sitemanage) → `PSSystemAuditLogRepository` query helpers
+* Seed: installer `cmsTableData.xml` registers the property and seeds Admin=`true`
+
+Unauthorized callers receive HTTP **403**. Admin UI for browsing is Phase 4 (#2619).
+
 ## Building
 
 ```bash

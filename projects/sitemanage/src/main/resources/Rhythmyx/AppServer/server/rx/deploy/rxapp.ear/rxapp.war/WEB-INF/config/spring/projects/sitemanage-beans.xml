@@ -107,6 +107,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restViewResource" />
             <ref bean="restControlsResource" />
             <ref bean="restServerConfigsResource" />
+            <ref bean="restAuditLogResource" />
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
             <entry key="json" value="application/json" />

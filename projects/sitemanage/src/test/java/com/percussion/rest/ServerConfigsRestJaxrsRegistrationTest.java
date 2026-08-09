@@ -37,6 +37,7 @@ class ServerConfigsRestJaxrsRegistrationTest {
   /** Peers already registered (#1714) stay locked so they cannot regress silently. */
   private static final String[] REQUIRED_REFS = {
     "restServerConfigsResource",
+    "restAuditLogResource",
     "restKeywordsResource",
     "restLocalesResource",
     "restSlotsResource",

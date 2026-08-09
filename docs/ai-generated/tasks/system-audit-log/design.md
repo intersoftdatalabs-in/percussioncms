@@ -37,6 +37,34 @@ SystemErrorCode (*ErrorCodes) → AuditLogService
 - [x] Retention job skeleton `PSSystemAuditLogRetentionJob`
 - [ ] PR merge for #2614
 
+## Phase 3 — Role property + REST query (#2618)
+
+### Operator notes (Admin Manual style)
+
+**Role property:** `sys_securityAuditLogViewer`
+
+| Setting | Meaning |
+|---------|---------|
+| Role **Admin** | Always allowed to query the system security audit log (even without the property) |
+| Role property `sys_securityAuditLogViewer=true` | Grants query access to members of that role |
+| Truthy values | `true`, `yes`, `y`, `1` (case-insensitive) |
+| Falsy / absent | No access for non-Admin roles |
+
+**Fresh install seed:** installer data registers the property name under `PSX_ADMINLOOKUP` (so Server Admin can assign it) and seeds `true` on the **Admin** role (`PSX_ATTRIBUTE_*` / `PSX_ROLE_ATTRIBUTES`). Existing sites may add the property on Admin or other roles via Server Admin → Roles.
+
+**Public REST (read-only):**
+
+| Method | Path | AuthZ |
+|--------|------|-------|
+| `GET` | `/Rhythmyx/rest/auditlog/entries` | Admin or property |
+| `GET` | `/Rhythmyx/rest/auditlog/entries/{auditId}` | Admin or property |
+
+Query parameters on list: `from`, `to` (ISO-8601 instants), `module`, `eventType`, `outcome`, `actor`, `offset`, `limit` (default 50, max 200).
+
+Responses: `200` page/entry, `403` without permission, `404` missing id, `400` bad dates.
+
+**Not in Phase 3:** Admin WebUI viewer / Playwright (#2619).
+
 ## Phase tracking (GitHub)
 
 | Phase | Issue |
