@@ -19,6 +19,8 @@ package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.searches.ISearchAdaptor;
 import com.percussion.rest.searches.SearchDef;
+import com.percussion.rest.searches.SearchExecuteRequest;
+import com.percussion.rest.searches.SearchExecuteResult;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -34,5 +36,14 @@ public class TestSearchAdaptor implements ISearchAdaptor {
   @Override
   public SearchDef findSearchByKey(String idOrName) {
     return null;
+  }
+
+  @Override
+  public SearchExecuteResult executeSearch(String idOrName, SearchExecuteRequest request) {
+    SearchExecuteResult empty = new SearchExecuteResult();
+    empty.setChildren(List.of());
+    empty.setTotalCount(0);
+    empty.setStartIndex(1);
+    return empty;
   }
 }
