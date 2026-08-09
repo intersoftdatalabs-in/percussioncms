@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.content.IPSMimeContentTypes;
+import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestParsingException;
 import com.percussion.util.PSInputStreamReader;
@@ -86,11 +87,13 @@ class PSJsonContentParserTest {
         new PSInputStreamReader(
             new ByteArrayInputStream(bytes), false, PSContentParser.MIN_PUSHBACK_BUF_SIZE);
 
-    assertThrows(
-        PSRequestParsingException.class,
-        () ->
-            parser.parse(
-                request, IPSMimeContentTypes.MIME_TYPE_JSON, "UTF-8", reader, bytes.length));
+    PSRequestParsingException ex =
+        assertThrows(
+            PSRequestParsingException.class,
+            () ->
+                parser.parse(
+                    request, IPSMimeContentTypes.MIME_TYPE_JSON, "UTF-8", reader, bytes.length));
+    assertEquals(IPSServerErrors.JSON_PARSER_ERROR, ex.getErrorCode());
   }
 
   private static String textChild(Element parent, String name) {

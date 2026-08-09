@@ -101,7 +101,7 @@ public class PSJsonContentParser extends PSContentParser {
       doc = PSXmlDocumentJsonCodec.fromJson(jsonText);
     } catch (PSConversionException e) {
       Object[] args = {e.getLocalizedMessage()};
-      throw new PSRequestParsingException(IPSServerErrors.XML_PARSER_SAX_ERROR, args);
+      throw new PSRequestParsingException(IPSServerErrors.JSON_PARSER_ERROR, args);
     }
 
     /* Reject embedded file URLs (same security rule as XML content parser). */

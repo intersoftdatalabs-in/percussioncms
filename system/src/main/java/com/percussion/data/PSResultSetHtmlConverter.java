@@ -263,19 +263,12 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
       return;
     }
 
-    String encoding = m_requestor.getCharacterEncoding();
-    if (encoding == null || encoding.isEmpty()) {
-      encoding = StandardCharsets.UTF_8.name();
-    }
+    // RFC 8259: JSON text is Unicode; always encode JSON responses as UTF-8
+    // (match PSQueryCommandHandler / PSUpdateHandler).
+    String encoding = StandardCharsets.UTF_8.name();
 
     String json = PSXmlDocumentJsonCodec.toJson(doc);
-    byte[] bytes;
-    try {
-      bytes = json.getBytes(encoding);
-    } catch (UnsupportedEncodingException e) {
-      bytes = json.getBytes(StandardCharsets.UTF_8);
-      encoding = StandardCharsets.UTF_8.name();
-    }
+    byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
 
     String contentHeader = request.getContentHeaderOverride();
     if (contentHeader == null) {

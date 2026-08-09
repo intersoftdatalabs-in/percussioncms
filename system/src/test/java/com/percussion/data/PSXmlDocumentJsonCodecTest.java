@@ -103,6 +103,45 @@ class PSXmlDocumentJsonCodecTest {
   }
 
   @Test
+  void mixedContent_roundTripPreservesInterleaving() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element p = doc.createElement("p");
+    doc.appendChild(p);
+    p.appendChild(doc.createTextNode("Hello "));
+    Element b = doc.createElement("b");
+    b.appendChild(doc.createTextNode("world"));
+    p.appendChild(b);
+    p.appendChild(doc.createTextNode("!"));
+
+    String json = PSXmlDocumentJsonCodec.toJson(doc);
+    assertTrue(json.contains(PSXmlDocumentJsonCodec.MIXED_KEY), "encode should use #mixed: " + json);
+
+    Document round = PSXmlDocumentJsonCodec.fromJson(json);
+    Element root = round.getDocumentElement();
+    assertEquals("p", root.getNodeName());
+    java.util.List<Node> kids = new java.util.ArrayList<>();
+    NodeList nl = root.getChildNodes();
+    for (int i = 0; i < nl.getLength(); i++) {
+      Node n = nl.item(i);
+      if (n.getNodeType() == Node.ELEMENT_NODE) {
+        kids.add(n);
+      } else if (n.getNodeType() == Node.TEXT_NODE || n.getNodeType() == Node.CDATA_SECTION_NODE) {
+        if (n.getNodeValue() != null && !n.getNodeValue().trim().isEmpty()) {
+          kids.add(n);
+        }
+      }
+    }
+    assertEquals(3, kids.size());
+    assertEquals(Node.TEXT_NODE, kids.get(0).getNodeType());
+    assertEquals("Hello ", kids.get(0).getNodeValue());
+    assertEquals(Node.ELEMENT_NODE, kids.get(1).getNodeType());
+    assertEquals("b", kids.get(1).getNodeName());
+    assertEquals("world", kids.get(1).getTextContent());
+    assertEquals(Node.TEXT_NODE, kids.get(2).getNodeType());
+    assertEquals("!", kids.get(2).getNodeValue());
+  }
+
+  @Test
   void numberAndBooleanLeaves_stringifyOnDecode() throws Exception {
     Document doc =
         PSXmlDocumentJsonCodec.fromJson("{\"Root\":{\"n\":42,\"flag\":true,\"s\":\"x\"}}");

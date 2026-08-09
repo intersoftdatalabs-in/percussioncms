@@ -47,7 +47,9 @@ import tools.jackson.databind.json.JsonMapper;
  *   <li>XML attributes become JSON properties with the {@value #ATTR_PREFIX} prefix.
  *   <li>Text-only elements become JSON strings; empty elements become JSON {@code null}.
  *   <li>Elements with attributes and/or child elements become JSON objects; character data is
- *       stored under {@value #TEXT_KEY} when mixed with attributes or children.
+ *       stored under {@value #TEXT_KEY} when only trailing text (or text with attributes only).
+ *   <li>True mixed content (significant text before or between element children) is stored as an
+ *       ordered array under {@value #MIXED_KEY} so encode/decode preserves interleaving.
  *   <li>Repeated same-name sibling elements become a JSON array.
  *   <li>On decode, numbers and booleans are stringified (XML leaf values are always text).
  * </ul>
@@ -59,6 +61,12 @@ public final class PSXmlDocumentJsonCodec {
 
   /** Property name used for element character data when the element is not text-only. */
   public static final String TEXT_KEY = "#text";
+
+  /**
+   * Property name for an ordered array of mixed content parts (strings and single-key element
+   * objects) when text and element children interleave.
+   */
+  public static final String MIXED_KEY = "#mixed";
 
   /** Maximum nesting depth for encode/decode (hostile payloads). */
   public static final int MAX_DEPTH = 64;
@@ -163,6 +171,8 @@ public final class PSXmlDocumentJsonCodec {
       }
     }
 
+    // Ordered significant children for mixed-content detection / encoding.
+    List<Node> ordered = new ArrayList<>();
     Map<String, List<Element>> childGroups = new LinkedHashMap<>();
     StringBuilder text = new StringBuilder();
     NodeList children = element.getChildNodes();
@@ -171,18 +181,27 @@ public final class PSXmlDocumentJsonCodec {
       short type = n.getNodeType();
       if (type == Node.ELEMENT_NODE) {
         Element child = (Element) n;
+        ordered.add(child);
         childGroups.computeIfAbsent(child.getNodeName(), k -> new ArrayList<>()).add(child);
       } else if (type == Node.TEXT_NODE || type == Node.CDATA_SECTION_NODE) {
-        text.append(((Text) n).getData());
+        String data = ((Text) n).getData();
+        text.append(data);
+        if (data != null && !data.trim().isEmpty()) {
+          ordered.add(n);
+        }
       }
       // ignore comments, PIs, etc.
     }
 
     String textContent = text.toString();
-    // Collapse pure-whitespace text when we have element children (pretty-printed XML)
     boolean hasElementChildren = !childGroups.isEmpty();
+    // Collapse pure-whitespace text when we have element children (pretty-printed XML)
     if (hasElementChildren && textContent.trim().isEmpty()) {
       textContent = "";
+      ordered.removeIf(
+          n ->
+              n.getNodeType() == Node.TEXT_NODE
+                  || n.getNodeType() == Node.CDATA_SECTION_NODE);
     }
 
     boolean hasAttrs = !attrMap.isEmpty();
@@ -195,8 +214,50 @@ public final class PSXmlDocumentJsonCodec {
       return textContent;
     }
 
+    // True mixed content: significant text appears before or between element children.
+    boolean needsMixed = false;
+    if (hasElementChildren && hasText) {
+      int lastElementIndex = -1;
+      for (int i = 0; i < ordered.size(); i++) {
+        if (ordered.get(i).getNodeType() == Node.ELEMENT_NODE) {
+          lastElementIndex = i;
+        }
+      }
+      for (int i = 0; i < lastElementIndex; i++) {
+        short t = ordered.get(i).getNodeType();
+        if (t == Node.TEXT_NODE || t == Node.CDATA_SECTION_NODE) {
+          needsMixed = true;
+          break;
+        }
+      }
+    }
+
     Map<String, Object> obj = new LinkedHashMap<>();
     obj.putAll(attrMap);
+
+    if (needsMixed) {
+      List<Object> mixed = new ArrayList<>();
+      StringBuilder run = new StringBuilder();
+      for (Node n : ordered) {
+        if (n.getNodeType() == Node.ELEMENT_NODE) {
+          if (run.length() > 0) {
+            mixed.add(run.toString());
+            run.setLength(0);
+          }
+          Element child = (Element) n;
+          Map<String, Object> wrapper = new LinkedHashMap<>(1);
+          wrapper.put(child.getNodeName(), elementToJsonValue(child, depth + 1));
+          mixed.add(wrapper);
+        } else {
+          run.append(((Text) n).getData());
+        }
+      }
+      if (run.length() > 0) {
+        mixed.add(run.toString());
+      }
+      obj.put(MIXED_KEY, mixed);
+      return obj;
+    }
 
     for (Map.Entry<String, List<Element>> entry : childGroups.entrySet()) {
       List<Element> group = entry.getValue();
@@ -239,7 +300,7 @@ public final class PSXmlDocumentJsonCodec {
 
     if (value instanceof Map<?, ?> mapRaw) {
       Map<String, Object> map = (Map<String, Object>) mapRaw;
-      // Attributes first, then children, then #text
+      // Attributes first
       for (Map.Entry<String, Object> e : map.entrySet()) {
         String key = e.getKey();
         if (key == null) {
@@ -254,9 +315,17 @@ public final class PSXmlDocumentJsonCodec {
           element.setAttribute(attrName, stringifyLeaf(e.getValue()));
         }
       }
+      // Ordered mixed content takes precedence over named children + trailing #text
+      if (map.containsKey(MIXED_KEY)) {
+        applyMixedContent(doc, element, map.get(MIXED_KEY), depth);
+        return;
+      }
       for (Map.Entry<String, Object> e : map.entrySet()) {
         String key = e.getKey();
-        if (key == null || key.startsWith(ATTR_PREFIX) || TEXT_KEY.equals(key)) {
+        if (key == null
+            || key.startsWith(ATTR_PREFIX)
+            || TEXT_KEY.equals(key)
+            || MIXED_KEY.equals(key)) {
           continue;
         }
         appendChildFromJson(doc, element, key, e.getValue(), depth);
@@ -276,6 +345,44 @@ public final class PSXmlDocumentJsonCodec {
     }
 
     throw new IllegalArgumentException("Unsupported JSON value type: " + value.getClass().getName());
+  }
+
+  @SuppressWarnings("unchecked")
+  private static void applyMixedContent(
+      Document doc, Element element, Object mixedValue, int depth) {
+    if (!(mixedValue instanceof List<?> list)) {
+      throw new IllegalArgumentException(MIXED_KEY + " must be a JSON array");
+    }
+    for (Object item : list) {
+      if (item == null) {
+        continue;
+      }
+      if (item instanceof String
+          || item instanceof Number
+          || item instanceof Boolean) {
+        element.appendChild(doc.createTextNode(stringifyLeaf(item)));
+        continue;
+      }
+      if (item instanceof Map<?, ?> mapRaw) {
+        Map<String, Object> map = (Map<String, Object>) mapRaw;
+        if (map.size() != 1) {
+          throw new IllegalArgumentException(
+              MIXED_KEY + " element entries must be single-key objects");
+        }
+        Map.Entry<String, Object> only = map.entrySet().iterator().next();
+        String name = only.getKey();
+        if (name == null
+            || name.startsWith(ATTR_PREFIX)
+            || TEXT_KEY.equals(name)
+            || MIXED_KEY.equals(name)) {
+          throw new IllegalArgumentException("Invalid " + MIXED_KEY + " element name: " + name);
+        }
+        appendChildFromJson(doc, element, name, only.getValue(), depth);
+        continue;
+      }
+      throw new IllegalArgumentException(
+          "Unsupported " + MIXED_KEY + " entry type: " + item.getClass().getName());
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -304,7 +411,7 @@ public final class PSXmlDocumentJsonCodec {
     if (name == null || name.isEmpty()) {
       throw new IllegalArgumentException("Invalid XML " + role + " name: empty");
     }
-    if (name.startsWith(ATTR_PREFIX) || TEXT_KEY.equals(name)) {
+    if (name.startsWith(ATTR_PREFIX) || TEXT_KEY.equals(name) || MIXED_KEY.equals(name)) {
       throw new IllegalArgumentException("Invalid XML " + role + " name: " + name);
     }
     // Simplified XML Name: NameStartChar then NameChar* (no colons — no namespaces in v1)
