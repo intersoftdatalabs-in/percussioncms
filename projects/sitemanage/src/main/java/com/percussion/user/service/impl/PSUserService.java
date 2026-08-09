@@ -626,11 +626,14 @@ public class PSUserService implements IPSUserService {
     List<String> roles = findRoles(name);
     roles = filterOutSystemRoles(roles);
     user.setRoles(roles);
-    // Email is stored as a subject attribute for both internal and directory users when present.
-    try {
-      user.setEmail(getSubjectEmail(name));
-    } catch (PSSecurityCatalogException e) {
-      log.error("Failed to get the email for the user: {}", name);
+    // /find keeps historical INTERNAL-only email exposure for other users (privacy for API
+    // consumers). Directory email is loaded on self-profile via getCurrentUser().
+    if (provider.equals(PSUserProviderType.INTERNAL)) {
+      try {
+        user.setEmail(getSubjectEmail(name));
+      } catch (PSSecurityCatalogException e) {
+        log.error("Failed to get the email for the user: {}", name);
+      }
     }
     return user;
   }
@@ -873,6 +876,15 @@ public class PSUserService implements IPSUserService {
     }
     PSUser user = find(userName);
     PSCurrentUser currUser = new PSCurrentUser(user);
+
+    // Self-profile needs directory email too; find() intentionally omits it for non-INTERNAL.
+    if (currUser.getProviderType() != PSUserProviderType.INTERNAL) {
+      try {
+        currUser.setEmail(getSubjectEmail(userName));
+      } catch (PSSecurityCatalogException e) {
+        log.error("Failed to get the email for the user: {}", userName);
+      }
+    }
 
     boolean isAdmin = currUser.getRoles().contains(ADMINISTRATOR_ROLE);
     currUser.setAdminUser(isAdmin);

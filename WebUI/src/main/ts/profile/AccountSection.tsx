@@ -412,7 +412,6 @@ export function AccountSection({
         {formError && (
           <p
             className={styles.formError}
-            role="alert"
             data-testid="perc-profile-account-form-error"
           >
             {formError}

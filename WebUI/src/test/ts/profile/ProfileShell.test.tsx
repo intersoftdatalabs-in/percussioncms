@@ -76,7 +76,17 @@ vi.mock("../../../main/ts/api/user/userProfileApi", () => ({
     emailEditable: true,
   }),
   updateMyAccountEmail: vi.fn(),
-  isValidEmailAddress: (e: string) => !e || e.includes("@"),
+  // Mirror production isValidEmailAddress (userProfileApi) so shell tests do not mask shape bugs.
+  isValidEmailAddress: (email: string) => {
+    const value = (email ?? "").trim();
+    if (!value) {
+      return true;
+    }
+    if (value.length > 254) {
+      return false;
+    }
+    return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
+  },
   normalizeCurrentUser: vi.fn(),
 }));
 
