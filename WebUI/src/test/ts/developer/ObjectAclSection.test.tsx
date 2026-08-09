@@ -108,6 +108,30 @@ describe("ObjectAclSection special Default / AnyCommunity UX", () => {
     expect(screen.queryByTestId("t-acl-add-default")).toBeNull();
   });
 
+  it("shows specials and runtime columns for display-format peer kind (B4)", async () => {
+    getAclForObject.mockResolvedValue(aclWithBothSpecials);
+    render(
+      <ObjectAclSection
+        objectGuid="0-1-100"
+        objectKind="display-format"
+        testIdPrefix="df-acl"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("df-acl-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("df-acl-table").getAttribute("data-acl-object-kind")).toBe(
+      "display-format",
+    );
+    expect(screen.getByTestId("df-acl-table").getAttribute("data-acl-show-runtime")).toBe(
+      "true",
+    );
+    expect(screen.getByTestId("df-acl-special-badge-default")).toBeTruthy();
+    expect(screen.getByTestId("df-acl-special-badge-any-community")).toBeTruthy();
+    expect(screen.getByTestId("df-acl-layer-runtime")).toBeTruthy();
+  });
+
   it("groups permission columns under Design access and Runtime visibility (CD-19)", async () => {
     getAclForObject.mockResolvedValue(aclWithBothSpecials);
     render(

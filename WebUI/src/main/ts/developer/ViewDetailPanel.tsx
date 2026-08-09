@@ -8,6 +8,7 @@ import type { ViewDef } from "../api/developer/types";
 import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { ObjectAclSection } from "./ObjectAclSection";
 
 export function ViewDetailPanel({
   idOrName,
@@ -120,6 +121,12 @@ export function ViewDetailPanel({
               </div>
             )}
           </section>
+
+          <ObjectAclSection
+            objectGuid={detail.guid?.stringValue}
+            objectKind="view"
+            testIdPrefix="developer-vw-acl"
+          />
 
           <section style={{ marginTop: "16px" }} data-testid="developer-vw-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.VW_GAPS}</h3>

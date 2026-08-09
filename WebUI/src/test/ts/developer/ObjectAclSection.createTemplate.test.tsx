@@ -179,4 +179,93 @@ describe("ObjectAclSection create + default template apply", () => {
     );
     expect(saveObjectAcl).not.toHaveBeenCalled();
   });
+
+  /**
+   * B4 peer mount evidence: default-template apply path works when objectKind is a
+   * runtime-relevant design-object peer (display-format), not only content-type/template.
+   */
+  it("applies default template for display-format peer kind with runtime columns", async () => {
+    const mergedAfterSave = {
+      id: 60,
+      name: "df-acl",
+      guid: { stringValue: "0-4-60", uuid: 60 },
+      aclEntries: [
+        {
+          id: 600,
+          name: "admin",
+          type: { type: "USER", name: "admin" },
+          permissions: [{ permission: "OWNER" }],
+        },
+        {
+          id: 601,
+          name: "Default",
+          type: { type: "USER", name: "Default" },
+          permissions: [
+            { permission: "READ" },
+            { permission: "UPDATE" },
+            { permission: "DELETE" },
+            { permission: "OWNER" },
+          ],
+        },
+        {
+          id: 602,
+          name: "AnyCommunity",
+          type: { type: "COMMUNITY", name: "AnyCommunity" },
+          permissions: [{ permission: "RUNTIME_VISIBLE" }],
+        },
+      ],
+    };
+    vi.mocked(getAclForObject)
+      .mockRejectedValueOnce({ status: 404, statusText: "Not Found", body: null })
+      .mockResolvedValueOnce(mergedAfterSave);
+    vi.mocked(createObjectAcl).mockImplementation(async (_guid, owner) => ({
+      id: 60,
+      name: "df-acl",
+      guid: { stringValue: "0-4-60", uuid: 60 },
+      aclEntries: [
+        {
+          id: 600,
+          name: owner.name,
+          type: { type: owner.type, name: owner.name },
+          permissions: [{ permission: "OWNER" }],
+        },
+      ],
+    }));
+
+    render(
+      <ObjectAclSection
+        objectGuid="0-1-100"
+        objectKind="display-format"
+        testIdPrefix="developer-df-acl"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-acl-empty")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-df-acl-owner-name"), {
+      target: { value: "admin" },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-acl-create"));
+
+    await waitFor(() => {
+      expect(createObjectAcl).toHaveBeenCalledWith("0-1-100", {
+        name: "admin",
+        type: "USER",
+      });
+    });
+    await waitFor(() => {
+      expect(saveObjectAcl).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-acl-notice").textContent).toMatch(
+        /template applied/i,
+      );
+    });
+    const table = screen.getByTestId("developer-df-acl-table");
+    expect(table.getAttribute("data-acl-object-kind")).toBe("display-format");
+    expect(table.getAttribute("data-acl-show-runtime")).toBe("true");
+    expect(screen.getByTestId("developer-df-acl-special-badge-default")).toBeTruthy();
+    expect(screen.getByTestId("developer-df-acl-special-badge-any-community")).toBeTruthy();
+  });
 });
