@@ -18,7 +18,9 @@
 package com.percussion.services.pipeline.sql;
 
 import com.percussion.services.pipeline.PSPipelineIrException;
+import com.percussion.services.pipeline.model.BackendJoinIr;
 import com.percussion.services.pipeline.model.BackendTableRefIr;
+import com.percussion.services.pipeline.model.BackendTankStageIr;
 import com.percussion.services.pipeline.model.MapperStageIr;
 import com.percussion.services.pipeline.model.MappingEntryIr;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
@@ -28,7 +30,9 @@ import com.percussion.services.pipeline.model.UpdaterStageIr;
 import com.percussion.services.pipeline.model.WhereClauseIr;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -47,8 +51,10 @@ import java.util.regex.Pattern;
  *   <li>Generated identifiers (table/column) are restricted to {@code [A-Za-z_][A-Za-z0-9_]*}.
  *   <li>Native SQL (selector {@code nativeStatement}) is an escape hatch: single {@code SELECT}
  *       only, named {@code :param} placeholders; multi-statement and non-SELECT rejected.
- *   <li>Multi-table joins are a documented product limit: {@code joinCount &gt; 0} is rejected
- *       (use native SELECT escape hatch or a residual join-graph planner).
+ *   <li>QUERY multi-table SELECT uses IR join edges ({@code backendTank.joins}) with ANSI JOIN
+ *       ({@code INNER}/{@code LEFT}/{@code RIGHT}/{@code FULL OUTER}). Join edges with classic
+ *       translators, disconnected graphs, or multi-table tanks without edges are rejected.
+ *   <li>INSERT/UPDATE/DELETE remain single-table only.
  * </ul>
  */
 public final class PSPipelineSqlPlanner {
@@ -63,13 +69,18 @@ public final class PSPipelineSqlPlanner {
   private static final Set<String> UNARY_OPS = Set.of("IS NULL", "IS NOT NULL");
 
   /**
-   * Product-limit message for multi-table backend tanks. Keep stable for tests and API clients.
+   * Rejection message when join inventory is present without executable join edges (legacy IR) or
+   * multi-table tank has no graph. Keep stable for tests and API clients.
    */
   public static final String JOIN_PRODUCT_LIMIT_MESSAGE =
-      "Product limit: multi-table joins are not supported by the pipeline SQL planner"
-          + " (joinCount > 0). Use a single backend table, or the selector nativeStatement"
-          + " escape hatch for hand-authored SELECT with joins. Residual join-graph planner"
-          + " tracked under parent pipeline epic.";
+      "Product limit: multi-table join SQL requires backendTank.joins edges"
+          + " (joinCount alone is not enough). Provide join graph IR, use a single backend table,"
+          + " or the selector nativeStatement escape hatch for hand-authored SELECT with joins.";
+
+  /** Rejection when a join edge carries a classic extension translator. */
+  public static final String JOIN_TRANSLATOR_LIMIT_MESSAGE =
+      "Product limit: join edges with classic translators are not supported by the generated"
+          + " planner; use selector nativeStatement for translated join predicates.";
 
   private PSPipelineSqlPlanner() {}
 
@@ -613,7 +624,32 @@ public final class PSPipelineSqlPlanner {
 
   private static PSPipelineSqlPlan planGeneratedSelect(
       PipelineResourceIr resource, PipelineExecuteRequest request) throws PSPipelineIrException {
-    String table = requireSingleTable(resource);
+    BackendTankStageIr tank = requireBackendTank(resource);
+    List<BackendTableRefIr> tables = tank.getTables();
+    if (tables == null || tables.isEmpty()) {
+      throw new PSPipelineIrException(
+          "Pipeline SQL planner requires at least one backend table. Resource: "
+              + resource.getName());
+    }
+    List<BackendJoinIr> joins =
+        tank.getJoins() != null ? tank.getJoins() : List.of();
+
+    // Multi-table without edges, or legacy joinCount without edges → reject.
+    if (tables.size() > 1 && joins.isEmpty()) {
+      throw new PSPipelineIrException(
+          JOIN_PRODUCT_LIMIT_MESSAGE + " Resource: " + resource.getName());
+    }
+    if (joins.isEmpty() && tank.getJoinCount() > 0) {
+      throw new PSPipelineIrException(
+          JOIN_PRODUCT_LIMIT_MESSAGE + " Resource: " + resource.getName());
+    }
+    // Single table with stray join edges is invalid.
+    if (tables.size() == 1 && !joins.isEmpty()) {
+      throw new PSPipelineIrException(
+          "Backend tank has join edges but only one table; remove joins or add tables. Resource: "
+              + resource.getName());
+    }
+
     List<ColumnMapping> mappings = columnMappings(resource);
     if (mappings.isEmpty()) {
       throw new PSPipelineIrException(
@@ -623,6 +659,7 @@ public final class PSPipelineSqlPlanner {
     SelectorStageIr selector =
         resource.getStages() != null ? resource.getStages().getSelector() : null;
     boolean distinct = selector != null && selector.isUnique();
+    boolean multiTable = !joins.isEmpty();
 
     StringBuilder sql = new StringBuilder("SELECT ");
     if (distinct) {
@@ -633,9 +670,19 @@ public final class PSPipelineSqlPlanner {
       if (i > 0) {
         sql.append(", ");
       }
-      sql.append(quoteIdent(m.column)).append(" AS ").append(quoteIdent(m.jsonField));
+      sql.append(columnSql(m, multiTable)).append(" AS ").append(quoteIdent(m.jsonField));
     }
-    sql.append(" FROM ").append(quoteIdent(table));
+
+    String planLabel;
+    List<QualifiedColumn> deferredJoinEquals = List.of();
+    if (!multiTable) {
+      String table = tableName(tables.get(0));
+      sql.append(" FROM ").append(quoteIdent(table));
+      planLabel = "generatedSelect:" + table;
+    } else {
+      deferredJoinEquals = appendMultiTableFrom(sql, tables, joins, resource.getName());
+      planLabel = "generatedSelect:join:" + tables.size() + "t/" + joins.size() + "j";
+    }
 
     List<Object> binds = new ArrayList<>();
     Map<String, Object> params =
@@ -645,26 +692,307 @@ public final class PSPipelineSqlPlanner {
         selector != null && selector.getWhereClauses() != null
             ? selector.getWhereClauses()
             : List.of();
+    boolean whereStarted = false;
     if (!irClauses.isEmpty()) {
-      appendWhereFromIr(sql, binds, irClauses, params, resource.getName());
+      whereStarted = appendWhereFromIr(sql, binds, irClauses, params, resource.getName(), multiTable);
     } else if (!params.isEmpty()) {
-      appendWhereFromRequestParams(sql, binds, mappings, params);
+      whereStarted = appendWhereFromRequestParams(sql, binds, mappings, params, multiTable);
+    }
+    appendDeferredJoinEquals(sql, deferredJoinEquals, whereStarted);
+
+    return new PSPipelineSqlPlan(PSPipelineSqlPlan.Kind.QUERY, sql.toString(), binds, planLabel);
+  }
+
+  /**
+   * Emit {@code FROM t0 a0 JOIN t1 a1 ON ...} for a connected join graph. Returns equality
+   * predicates for join edges that connect already-included tables (cycles), to fold into WHERE.
+   */
+  private static List<QualifiedColumn> appendMultiTableFrom(
+      StringBuilder sql,
+      List<BackendTableRefIr> tables,
+      List<BackendJoinIr> joins,
+      String resourceName)
+      throws PSPipelineIrException {
+    Map<String, BackendTableRefIr> byAlias = new LinkedHashMap<>();
+    for (BackendTableRefIr t : tables) {
+      if (t == null) {
+        continue;
+      }
+      String alias = tableAlias(t);
+      String key = alias.toUpperCase(Locale.ROOT);
+      if (byAlias.containsKey(key)) {
+        throw new PSPipelineIrException(
+            "Duplicate backend table alias '" + alias + "' on resource: " + resourceName);
+      }
+      byAlias.put(key, t);
+    }
+    if (byAlias.isEmpty()) {
+      throw new PSPipelineIrException(
+          "Pipeline SQL planner requires at least one backend table. Resource: " + resourceName);
     }
 
-    return new PSPipelineSqlPlan(
-        PSPipelineSqlPlan.Kind.QUERY, sql.toString(), binds, "generatedSelect:" + table);
+    List<ResolvedJoin> resolved = new ArrayList<>();
+    for (BackendJoinIr edge : joins) {
+      if (edge == null) {
+        continue;
+      }
+      if (edge.isTranslatorPresent()) {
+        throw new PSPipelineIrException(
+            JOIN_TRANSLATOR_LIMIT_MESSAGE + " Resource: " + resourceName);
+      }
+      resolved.add(resolveJoin(edge, byAlias, resourceName));
+    }
+    if (resolved.isEmpty()) {
+      throw new PSPipelineIrException(
+          JOIN_PRODUCT_LIMIT_MESSAGE + " Resource: " + resourceName);
+    }
+
+    // Root = first table in tank order.
+    BackendTableRefIr root = byAlias.values().iterator().next();
+    String rootAlias = tableAlias(root);
+    sql.append(" FROM ");
+    appendTableRef(sql, root);
+
+    Set<String> included = new LinkedHashSet<>();
+    included.add(rootAlias.toUpperCase(Locale.ROOT));
+
+    List<ResolvedJoin> remaining = new ArrayList<>(resolved);
+    List<ResolvedJoin> deferred = new ArrayList<>();
+
+    while (!remaining.isEmpty()) {
+      boolean progress = false;
+      Iterator<ResolvedJoin> it = remaining.iterator();
+      while (it.hasNext()) {
+        ResolvedJoin j = it.next();
+        boolean leftIn = included.contains(j.leftAlias.toUpperCase(Locale.ROOT));
+        boolean rightIn = included.contains(j.rightAlias.toUpperCase(Locale.ROOT));
+        if (leftIn && rightIn) {
+          deferred.add(j);
+          it.remove();
+          progress = true;
+        } else if (leftIn && !rightIn) {
+          appendAnsiJoin(sql, j.joinType, byAlias.get(j.rightAlias.toUpperCase(Locale.ROOT)), j);
+          included.add(j.rightAlias.toUpperCase(Locale.ROOT));
+          it.remove();
+          progress = true;
+        } else if (rightIn && !leftIn) {
+          // Introduce left table; flip outer-join direction to preserve semantics.
+          String flipped = flipJoinType(j.joinType);
+          ResolvedJoin flippedJoin =
+              new ResolvedJoin(
+                  flipped, j.rightAlias, j.rightColumn, j.leftAlias, j.leftColumn);
+          appendAnsiJoin(sql, flipped, byAlias.get(j.leftAlias.toUpperCase(Locale.ROOT)), flippedJoin);
+          included.add(j.leftAlias.toUpperCase(Locale.ROOT));
+          it.remove();
+          progress = true;
+        }
+      }
+      if (!progress) {
+        throw new PSPipelineIrException(
+            "Disconnected join graph: cannot attach remaining join edges from root table '"
+                + rootAlias
+                + "' on resource: "
+                + resourceName);
+      }
+    }
+
+    if (included.size() != byAlias.size()) {
+      throw new PSPipelineIrException(
+          "Join graph does not include all backend tables on resource: " + resourceName);
+    }
+
+    // Cycle edges (both tables already in FROM): fold into WHERE as equality pairs.
+    List<QualifiedColumn> deferredMarker = new ArrayList<>();
+    for (ResolvedJoin d : deferred) {
+      deferredMarker.add(new QualifiedColumn(d.leftAlias, d.leftColumn));
+      deferredMarker.add(new QualifiedColumn(d.rightAlias, d.rightColumn));
+    }
+    return deferredMarker;
+  }
+
+  private static void appendDeferredJoinEquals(
+      StringBuilder sql, List<QualifiedColumn> deferredPairs, boolean whereAlreadyStarted) {
+    if (deferredPairs == null || deferredPairs.isEmpty()) {
+      return;
+    }
+    // pairs: (left0, right0, left1, right1, ...)
+    List<String> parts = new ArrayList<>();
+    for (int i = 0; i + 1 < deferredPairs.size(); i += 2) {
+      QualifiedColumn left = deferredPairs.get(i);
+      QualifiedColumn right = deferredPairs.get(i + 1);
+      parts.add(qualifiedColumnSql(left) + " = " + qualifiedColumnSql(right));
+    }
+    if (parts.isEmpty()) {
+      return;
+    }
+    if (whereAlreadyStarted) {
+      sql.append(" AND ");
+    } else {
+      sql.append(" WHERE ");
+    }
+    sql.append(String.join(" AND ", parts));
+  }
+
+  private static ResolvedJoin resolveJoin(
+      BackendJoinIr edge, Map<String, BackendTableRefIr> byAlias, String resourceName)
+      throws PSPipelineIrException {
+    QualifiedColumn left = parseBackendColumn(edge.getLeft() != null ? edge.getLeft() : "");
+    QualifiedColumn right = parseBackendColumn(edge.getRight() != null ? edge.getRight() : "");
+    if (left.tableAlias == null || right.tableAlias == null) {
+      throw new PSPipelineIrException(
+          "Join edge columns must be qualified as alias.column on resource: " + resourceName);
+    }
+    String leftKey = left.tableAlias.toUpperCase(Locale.ROOT);
+    String rightKey = right.tableAlias.toUpperCase(Locale.ROOT);
+    if (!byAlias.containsKey(leftKey) || !byAlias.containsKey(rightKey)) {
+      throw new PSPipelineIrException(
+          "Join edge references unknown table alias (left="
+              + left.tableAlias
+              + ", right="
+              + right.tableAlias
+              + ") on resource: "
+              + resourceName);
+    }
+    if (leftKey.equals(rightKey)) {
+      throw new PSPipelineIrException(
+          "Join edge cannot join a table to itself on resource: " + resourceName);
+    }
+    String type = normalizeJoinType(edge.getJoinType());
+    return new ResolvedJoin(type, left.tableAlias, left.column, right.tableAlias, right.column);
+  }
+
+  private static String normalizeJoinType(String raw) throws PSPipelineIrException {
+    if (raw == null || raw.isBlank()) {
+      return BackendJoinIr.TYPE_INNER;
+    }
+    String t = raw.trim().toUpperCase(Locale.ROOT);
+    // Accept classic-style names too.
+    if ("INNER".equals(t) || "INNERJOIN".equals(t)) {
+      return BackendJoinIr.TYPE_INNER;
+    }
+    if ("LEFT".equals(t) || "LEFTOUTER".equals(t) || "LEFT_OUTER".equals(t) || "LEFT OUTER".equals(t)) {
+      return BackendJoinIr.TYPE_LEFT;
+    }
+    if ("RIGHT".equals(t)
+        || "RIGHTOUTER".equals(t)
+        || "RIGHT_OUTER".equals(t)
+        || "RIGHT OUTER".equals(t)) {
+      return BackendJoinIr.TYPE_RIGHT;
+    }
+    if ("FULL".equals(t)
+        || "FULLOUTER".equals(t)
+        || "FULL_OUTER".equals(t)
+        || "FULL OUTER".equals(t)) {
+      return BackendJoinIr.TYPE_FULL;
+    }
+    throw new PSPipelineIrException("Unsupported join type: " + raw);
+  }
+
+  private static String flipJoinType(String type) {
+    if (BackendJoinIr.TYPE_LEFT.equals(type)) {
+      return BackendJoinIr.TYPE_RIGHT;
+    }
+    if (BackendJoinIr.TYPE_RIGHT.equals(type)) {
+      return BackendJoinIr.TYPE_LEFT;
+    }
+    return type; // INNER / FULL are symmetric
+  }
+
+  private static void appendAnsiJoin(
+      StringBuilder sql, String joinType, BackendTableRefIr newTable, ResolvedJoin on)
+      throws PSPipelineIrException {
+    if (newTable == null) {
+      throw new PSPipelineIrException("Join introduces unknown table");
+    }
+    sql.append(' ').append(ansiJoinKeyword(joinType)).append(' ');
+    appendTableRef(sql, newTable);
+    sql.append(" ON ")
+        .append(quoteIdent(on.leftAlias))
+        .append('.')
+        .append(quoteIdent(on.leftColumn))
+        .append(" = ")
+        .append(quoteIdent(on.rightAlias))
+        .append('.')
+        .append(quoteIdent(on.rightColumn));
+  }
+
+  private static String ansiJoinKeyword(String joinType) throws PSPipelineIrException {
+    return switch (joinType) {
+      case BackendJoinIr.TYPE_INNER -> "INNER JOIN";
+      case BackendJoinIr.TYPE_LEFT -> "LEFT OUTER JOIN";
+      case BackendJoinIr.TYPE_RIGHT -> "RIGHT OUTER JOIN";
+      case BackendJoinIr.TYPE_FULL -> "FULL OUTER JOIN";
+      default -> throw new PSPipelineIrException("Unsupported join type: " + joinType);
+    };
+  }
+
+  private static void appendTableRef(StringBuilder sql, BackendTableRefIr t)
+      throws PSPipelineIrException {
+    String table = tableName(t);
+    String alias = tableAlias(t);
+    sql.append(quoteIdent(table)).append(' ').append(quoteIdent(alias));
+  }
+
+  private static String tableName(BackendTableRefIr t) throws PSPipelineIrException {
+    String table = t.getTable();
+    if (table == null || table.isBlank()) {
+      table = t.getAlias();
+    }
+    return requireSafeIdent(table, "table");
+  }
+
+  private static String tableAlias(BackendTableRefIr t) throws PSPipelineIrException {
+    String alias = t.getAlias();
+    if (alias == null || alias.isBlank()) {
+      alias = t.getTable();
+    }
+    return requireSafeIdent(alias, "table alias");
+  }
+
+  private static final class ResolvedJoin {
+    final String joinType;
+    final String leftAlias;
+    final String leftColumn;
+    final String rightAlias;
+    final String rightColumn;
+
+    ResolvedJoin(
+        String joinType,
+        String leftAlias,
+        String leftColumn,
+        String rightAlias,
+        String rightColumn) {
+      this.joinType = joinType;
+      this.leftAlias = leftAlias;
+      this.leftColumn = leftColumn;
+      this.rightAlias = rightAlias;
+      this.rightColumn = rightColumn;
+    }
+  }
+
+  private static final class QualifiedColumn {
+    final String tableAlias; // nullable
+    final String column;
+
+    QualifiedColumn(String tableAlias, String column) {
+      this.tableAlias = tableAlias;
+      this.column = column;
+    }
   }
 
   /**
    * Build WHERE from selector where-clause IR (classic import / native IR). Values are always JDBC
    * binds; identifiers are validated.
+   *
+   * @return true when a WHERE clause was appended
    */
-  private static void appendWhereFromIr(
+  private static boolean appendWhereFromIr(
       StringBuilder sql,
       List<Object> binds,
       List<WhereClauseIr> clauses,
       Map<String, Object> params,
-      String resourceName)
+      String resourceName,
+      boolean multiTable)
       throws PSPipelineIrException {
     List<String> parts = new ArrayList<>();
     // Connector after each emitted part (classic: boolean on a clause joins it to the next).
@@ -673,7 +1001,7 @@ public final class PSPipelineSqlPlanner {
       if (clause == null) {
         continue;
       }
-      PredicateFrag frag = compileWherePredicate(clause, params, resourceName);
+      PredicateFrag frag = compileWherePredicate(clause, params, resourceName, multiTable);
       if (frag == null) {
         // omitWhenNull skipped this predicate — do not consume its boolean either
         continue;
@@ -683,7 +1011,7 @@ public final class PSPipelineSqlPlanner {
       trailingConnectors.add(frag.booleanOpAfter);
     }
     if (parts.isEmpty()) {
-      return;
+      return false;
     }
     sql.append(" WHERE ");
     for (int i = 0; i < parts.size(); i++) {
@@ -693,13 +1021,14 @@ public final class PSPipelineSqlPlanner {
       }
       sql.append(parts.get(i));
     }
+    return true;
   }
 
   /**
    * @return null when predicate should be omitted (omitWhenNull + missing/null param)
    */
   private static PredicateFrag compileWherePredicate(
-      WhereClauseIr clause, Map<String, Object> params, String resourceName)
+      WhereClauseIr clause, Map<String, Object> params, String resourceName, boolean multiTable)
       throws PSPipelineIrException {
     String opRaw = clause.getOperator();
     if (opRaw == null || opRaw.isBlank()) {
@@ -716,8 +1045,8 @@ public final class PSPipelineSqlPlanner {
               + resourceName
               + " — use nativeStatement for non-column predicates");
     }
-    String leftCol = columnFromBackend(clause.getLeft() != null ? clause.getLeft() : "");
-    String leftSql = quoteIdent(leftCol);
+    String leftSql =
+        backendColumnSql(clause.getLeft() != null ? clause.getLeft() : "", multiTable);
 
     String bool =
         clause.getBooleanOp() != null && !clause.getBooleanOp().isBlank()
@@ -746,8 +1075,9 @@ public final class PSPipelineSqlPlanner {
 
     String rightKind = clause.getRightKind() != null ? clause.getRightKind() : WhereClauseIr.KIND_OTHER;
     if (WhereClauseIr.KIND_COLUMN.equals(rightKind)) {
-      String rightCol = columnFromBackend(clause.getRight() != null ? clause.getRight() : "");
-      return new PredicateFrag(leftSql + " " + sqlOp + " " + quoteIdent(rightCol), List.of(), bool);
+      String rightSql =
+          backendColumnSql(clause.getRight() != null ? clause.getRight() : "", multiTable);
+      return new PredicateFrag(leftSql + " " + sqlOp + " " + rightSql, List.of(), bool);
     }
     if (WhereClauseIr.KIND_PARAM.equals(rightKind)) {
       String paramName = clause.getRight();
@@ -797,11 +1127,15 @@ public final class PSPipelineSqlPlanner {
     return upper;
   }
 
-  private static void appendWhereFromRequestParams(
+  /**
+   * @return true when a WHERE clause was appended
+   */
+  private static boolean appendWhereFromRequestParams(
       StringBuilder sql,
       List<Object> binds,
       List<ColumnMapping> mappings,
-      Map<String, Object> params) {
+      Map<String, Object> params,
+      boolean multiTable) {
     List<String> whereParts = new ArrayList<>();
     // Deduplicate by mapped column so case variants of the same param (TYPE vs type) do not
     // produce duplicate WHERE "TYPE" = ? AND "TYPE" = ? with conflicting binds.
@@ -813,17 +1147,21 @@ public final class PSPipelineSqlPlanner {
         // become filters.
         continue;
       }
-      String colKey = match.column.toUpperCase(Locale.ROOT);
+      String colKey =
+          (match.tableAlias != null ? match.tableAlias + "." : "")
+              + match.column.toUpperCase(Locale.ROOT);
       if (!usedColumns.add(colKey)) {
         continue;
       }
-      whereParts.add(quoteIdent(match.column) + " = ?");
+      whereParts.add(columnSql(match, multiTable) + " = ?");
       binds.add(e.getValue());
     }
-    if (!whereParts.isEmpty()) {
-      sql.append(" WHERE ");
-      sql.append(String.join(" AND ", whereParts));
+    if (whereParts.isEmpty()) {
+      return false;
     }
+    sql.append(" WHERE ");
+    sql.append(String.join(" AND ", whereParts));
+    return true;
   }
 
   private static final class PredicateFrag {
@@ -839,17 +1177,29 @@ public final class PSPipelineSqlPlanner {
     }
   }
 
-  private static String requireSingleTable(PipelineResourceIr resource) throws PSPipelineIrException {
+  private static BackendTankStageIr requireBackendTank(PipelineResourceIr resource)
+      throws PSPipelineIrException {
     if (resource.getStages() == null
         || resource.getStages().getBackendTank() == null
         || !resource.getStages().getBackendTank().isPresent()) {
       throw new PSPipelineIrException("Resource missing backend tank: " + resource.getName());
     }
-    if (resource.getStages().getBackendTank().getJoinCount() > 0) {
+    return resource.getStages().getBackendTank();
+  }
+
+  /**
+   * Mutations (INSERT/UPDATE/DELETE) require exactly one backend table and no join graph.
+   */
+  private static String requireSingleTable(PipelineResourceIr resource)
+      throws PSPipelineIrException {
+    BackendTankStageIr tank = requireBackendTank(resource);
+    List<BackendJoinIr> joins = tank.getJoins() != null ? tank.getJoins() : List.of();
+    if (tank.getJoinCount() > 0 || !joins.isEmpty()) {
       throw new PSPipelineIrException(
-          JOIN_PRODUCT_LIMIT_MESSAGE + " Resource: " + resource.getName());
+          "Pipeline SQL planner mutations require a single backend table without joins. Resource: "
+              + resource.getName());
     }
-    List<BackendTableRefIr> tables = resource.getStages().getBackendTank().getTables();
+    List<BackendTableRefIr> tables = tank.getTables();
     if (tables == null || tables.size() != 1) {
       throw new PSPipelineIrException(
           "Pipeline SQL planner requires exactly one backend table (got "
@@ -857,11 +1207,7 @@ public final class PSPipelineSqlPlanner {
               + "); multi-table tanks without joins are also unsupported. Resource: "
               + resource.getName());
     }
-    String table = tables.get(0).getTable();
-    if (table == null || table.isBlank()) {
-      table = tables.get(0).getAlias();
-    }
-    return requireSafeIdent(table, "table");
+    return tableName(tables.get(0));
   }
 
   private static List<ColumnMapping> columnMappings(PipelineResourceIr resource)
@@ -886,18 +1232,53 @@ public final class PSPipelineSqlPlanner {
       if (backend == null || backend.isBlank()) {
         continue;
       }
-      String column = columnFromBackend(backend);
-      String jsonField = jsonFieldFromDocument(entry.getDocumentField(), column);
-      out.add(new ColumnMapping(column, jsonField, entry.getDocumentField()));
+      QualifiedColumn qc = parseBackendColumn(backend);
+      String jsonField = jsonFieldFromDocument(entry.getDocumentField(), qc.column);
+      out.add(new ColumnMapping(qc.tableAlias, qc.column, jsonField, entry.getDocumentField()));
     }
     return out;
   }
 
   static String columnFromBackend(String backend) throws PSPipelineIrException {
+    return parseBackendColumn(backend).column;
+  }
+
+  static QualifiedColumn parseBackendColumn(String backend) throws PSPipelineIrException {
     String b = backend.trim();
     int dot = b.lastIndexOf('.');
-    String col = dot >= 0 ? b.substring(dot + 1) : b;
-    return requireSafeIdent(col, "column");
+    if (dot >= 0) {
+      // Prefer last segment as column; previous segment as table alias (alias.col or *.alias.col).
+      String col = b.substring(dot + 1).trim();
+      String prefix = b.substring(0, dot).trim();
+      int prev = prefix.lastIndexOf('.');
+      String alias = prev >= 0 ? prefix.substring(prev + 1).trim() : prefix;
+      return new QualifiedColumn(
+          requireSafeIdent(alias, "table alias"), requireSafeIdent(col, "column"));
+    }
+    return new QualifiedColumn(null, requireSafeIdent(b, "column"));
+  }
+
+  private static String backendColumnSql(String backend, boolean multiTable)
+      throws PSPipelineIrException {
+    QualifiedColumn qc = parseBackendColumn(backend);
+    if (multiTable && qc.tableAlias != null) {
+      return qualifiedColumnSql(qc);
+    }
+    return quoteIdent(qc.column);
+  }
+
+  private static String columnSql(ColumnMapping m, boolean multiTable) {
+    if (multiTable && m.tableAlias != null) {
+      return quoteIdent(m.tableAlias) + "." + quoteIdent(m.column);
+    }
+    return quoteIdent(m.column);
+  }
+
+  private static String qualifiedColumnSql(QualifiedColumn qc) {
+    if (qc.tableAlias != null) {
+      return quoteIdent(qc.tableAlias) + "." + quoteIdent(qc.column);
+    }
+    return quoteIdent(qc.column);
   }
 
   static String jsonFieldFromDocument(String documentField, String fallbackColumn) {
@@ -1026,11 +1407,13 @@ public final class PSPipelineSqlPlanner {
   }
 
   private static final class ColumnMapping {
+    final String tableAlias; // nullable
     final String column;
     final String jsonField;
     final String documentField;
 
-    ColumnMapping(String column, String jsonField, String documentField) {
+    ColumnMapping(String tableAlias, String column, String jsonField, String documentField) {
+      this.tableAlias = tableAlias;
       this.column = column;
       this.jsonField = jsonField;
       this.documentField = documentField;

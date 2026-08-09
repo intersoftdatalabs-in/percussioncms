@@ -21,6 +21,7 @@ import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndDataTank;
+import com.percussion.design.objectstore.PSBackEndJoin;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.design.objectstore.PSContentEditor;
 import com.percussion.design.objectstore.PSDataMapper;
@@ -43,6 +44,7 @@ import com.percussion.design.objectstore.PSUpdatePipe;
 import com.percussion.design.objectstore.PSUnknownDocTypeException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.design.objectstore.PSWhereClause;
+import com.percussion.services.pipeline.model.BackendJoinIr;
 import com.percussion.services.pipeline.model.BackendTableRefIr;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
 import com.percussion.services.pipeline.model.MapperStageIr;
@@ -224,9 +226,48 @@ public final class PSClassicPipelineImporter {
       }
     }
     stage.setTables(tables);
+    List<BackendJoinIr> joinEdges = new ArrayList<>();
     PSCollection joins = tank.getJoins();
-    stage.setJoinCount(joins != null ? joins.size() : 0);
+    if (joins != null) {
+      for (Object o : joins) {
+        if (o instanceof PSBackEndJoin j) {
+          joinEdges.add(mapJoin(j));
+        }
+      }
+    }
+    stage.setJoins(joinEdges);
+    stage.setJoinCount(joinEdges.size());
     return stage;
+  }
+
+  private static BackendJoinIr mapJoin(PSBackEndJoin join) {
+    BackendJoinIr edge = new BackendJoinIr();
+    if (join.isFullOuterJoin()) {
+      edge.setJoinType(BackendJoinIr.TYPE_FULL);
+    } else if (join.isLeftOuterJoin()) {
+      edge.setJoinType(BackendJoinIr.TYPE_LEFT);
+    } else if (join.isRightOuterJoin()) {
+      edge.setJoinType(BackendJoinIr.TYPE_RIGHT);
+    } else {
+      edge.setJoinType(BackendJoinIr.TYPE_INNER);
+    }
+    edge.setLeft(backendColumnRef(join.getLeftColumn()));
+    edge.setRight(backendColumnRef(join.getRightColumn()));
+    edge.setTranslatorPresent(join.getTranslator() != null);
+    return edge;
+  }
+
+  /** Classic {@link PSBackEndColumn} → {@code alias.column} or bare column name. */
+  private static String backendColumnRef(PSBackEndColumn col) {
+    if (col == null) {
+      return null;
+    }
+    String alias = col.getTable() != null ? col.getTable().getAlias() : null;
+    String column = col.getColumn();
+    if (StringUtils.isNotBlank(alias) && StringUtils.isNotBlank(column)) {
+      return alias + "." + column;
+    }
+    return column;
   }
 
   private static MapperStageIr mapMapper(PSDataMapper mapper) {

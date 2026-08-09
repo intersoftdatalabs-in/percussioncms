@@ -21,11 +21,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/** Backend data tank stage (classic {@code PSBackEndDataTank}). */
+/**
+ * Backend data tank stage (classic {@code PSBackEndDataTank}).
+ *
+ * <p>{@link #joins} holds the join-graph edges used by the multi-table SQL planner. {@link
+ * #joinCount} remains for inventory / legacy IR and should match {@code joins.size()} when edges
+ * were imported.
+ */
 public class BackendTankStageIr {
 
   private boolean present;
   private List<BackendTableRefIr> tables = new ArrayList<>();
+  private List<BackendJoinIr> joins = new ArrayList<>();
   private int joinCount;
 
   public boolean isPresent() {
@@ -42,6 +49,14 @@ public class BackendTankStageIr {
 
   public void setTables(List<BackendTableRefIr> tables) {
     this.tables = tables != null ? tables : new ArrayList<>();
+  }
+
+  public List<BackendJoinIr> getJoins() {
+    return joins;
+  }
+
+  public void setJoins(List<BackendJoinIr> joins) {
+    this.joins = joins != null ? joins : new ArrayList<>();
   }
 
   public int getJoinCount() {
@@ -62,11 +77,12 @@ public class BackendTankStageIr {
     }
     return present == that.present
         && joinCount == that.joinCount
-        && Objects.equals(tables, that.tables);
+        && Objects.equals(tables, that.tables)
+        && Objects.equals(joins, that.joins);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(present, tables, joinCount);
+    return Objects.hash(present, tables, joins, joinCount);
   }
 }
