@@ -141,6 +141,11 @@ python docker/scripts/perc-devctl.py qa-up
 python docker/scripts/perc-devctl.py qa-health
 # optional: --timeout-seconds 120  --interval-seconds 5
 # DETAIL:rhythmyx_context_failed → cell unusable; inspect docker logs; do not run Playwright
+# Docker Health.Status (in-image HEALTHCHECK, #2481) — orchestrators / docker ps:
+#   docker inspect -f "{{.State.Health.Status}}" perc-matrix-cms-h2
+#   healthy = login ready + no context-failure markers in cell Jetty logs
+#   unhealthy = context failed and/or login not ready (same signal as qa-health fail-fast)
+#   starting = still within HEALTHCHECK start_period (matrix install window)
 
 # 3) Playwright against the stack only — no DEV_PERCUSSION_INSTALL
 #    (#2064 env + #2065 golden smoke + #1929 surface filter)
@@ -174,6 +179,7 @@ python docker/scripts/perc-devctl.py qa-down
 | Admin user           | `Admin` (password from install generated passwords)                      |
 | RESULT line contract | `RESULT:OK\|FAIL STEP:qa-up\|qa-health\|qa-down LOG:…`                   |
 | Context fail-fast    | `DETAIL:rhythmyx_context_failed MATCH:…` when Jetty logs show dead Rhythmyx Spring context (#2462); helper `docker/scripts/rhythmyx_ready.py` |
+| Docker Health.Status | `healthy` / `unhealthy` / `starting` via in-image `rhythmyx_healthcheck.py` (#2481); same markers as `rhythmyx_ready` |
 
 **Tear-down policy:** `qa-down` runs `docker rm -f` on the QA cell. The install lives **inside** the container (no named multi-GB volume by default), so removing the container frees ports and disk. Prefer `qa-down` after every agent session; do not leave `perc-matrix-cms-h2` running overnight unless debugging.
 

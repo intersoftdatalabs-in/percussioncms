@@ -666,9 +666,14 @@ def ensure_network(network: str, *, dry_run: bool) -> None:
 
 
 def build_matrix_image(repo_root: Path, *, dry_run: bool) -> None:
-    """Build from ``docker/matrix/`` context only (small; not the monorepo root)."""
-    matrix_dir = repo_root / "docker" / "matrix"
-    dockerfile = matrix_dir / "Dockerfile"
+    """Build matrix cell image with context ``docker/`` (matrix + scripts).
+
+    Context is the ``docker/`` tree (not monorepo root, not ``docker/matrix/``
+    alone) so the image can COPY ``scripts/rhythmyx_ready.py`` and
+    ``scripts/rhythmyx_healthcheck.py`` for the in-image HEALTHCHECK (#2481).
+    """
+    docker_dir = repo_root / "docker"
+    dockerfile = docker_dir / "matrix" / "Dockerfile"
     _run(
         [
             "docker",
@@ -677,7 +682,7 @@ def build_matrix_image(repo_root: Path, *, dry_run: bool) -> None:
             MATRIX_IMAGE_TAG,
             "-f",
             str(dockerfile),
-            str(matrix_dir),
+            str(docker_dir),
         ],
         dry_run=dry_run,
         check=not dry_run,

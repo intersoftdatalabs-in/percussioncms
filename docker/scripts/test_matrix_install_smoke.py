@@ -277,6 +277,35 @@ class DockerRunArgvTests(unittest.TestCase):
             )
         )
 
+    def test_build_matrix_image_uses_docker_dir_context(self):
+        """#2481: build context is docker/ so HEALTHCHECK scripts can COPY in."""
+        captured: list = []
+
+        def fake_run(argv, *, dry_run, check=False, capture=False, timeout=None):
+            captured.append(list(argv))
+            return __import__("subprocess").CompletedProcess(argv, 0, "", "")
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "docker" / "matrix").mkdir(parents=True)
+            (root / "docker" / "matrix" / "Dockerfile").write_text(
+                "FROM scratch\n", encoding="utf-8"
+            )
+            (root / "docker" / "scripts").mkdir(parents=True)
+            orig = smoke._run
+            smoke._run = fake_run  # type: ignore[assignment]
+            try:
+                smoke.build_matrix_image(root, dry_run=False)
+            finally:
+                smoke._run = orig  # type: ignore[assignment]
+        self.assertEqual(len(captured), 1)
+        argv = captured[0]
+        self.assertEqual(argv[0:3], ["docker", "build", "-t"])
+        self.assertIn(smoke.MATRIX_IMAGE_TAG, argv)
+        # Context path is …/docker (parent of matrix/), not …/docker/matrix alone.
+        self.assertEqual(Path(argv[-1]), root / "docker")
+        self.assertEqual(Path(argv[argv.index("-f") + 1]), root / "docker" / "matrix" / "Dockerfile")
+
 
 class WaitForHttpContextFailTests(unittest.TestCase):
     """#2462: matrix probe must fail-fast on Rhythmyx context death."""
