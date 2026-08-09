@@ -263,7 +263,8 @@ public class PSUserConfiguration extends java.util.concurrent.ConcurrentHashMap
    */
   private java.lang.String m_userName = "";
 
-  private Document m_propertyTree = null;
+  /** DOM property tree rebuilt from XML; not a durable Java-serialization field. */
+  private transient Document m_propertyTree = null;
 
   /* package access on this so they may reference each other in fromXml */
   static final String ms_NodeType = "PSXUserConfiguration";

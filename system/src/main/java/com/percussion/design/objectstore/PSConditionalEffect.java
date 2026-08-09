@@ -272,7 +272,7 @@ public class PSConditionalEffect extends PSComponent {
       if (!PSExecutionContext.isContextValid(ctx.intValue()))
         throw new IllegalArgumentException("The Execution Context, '" + ctx + "' is not valid.");
     }
-    m_exeContexts = exeContexts;
+    m_exeContexts = new ArrayList<>(exeContexts);
   }
 
   /**
@@ -394,7 +394,7 @@ public class PSConditionalEffect extends PSComponent {
    * A list of Execution Contexts that is relevent for this effect. It may be EMPTY if unknown,
    * never <code>null</code>.
    */
-  private Collection<Integer> m_exeContexts = new ArrayList<>();
+  private ArrayList<Integer> m_exeContexts = new ArrayList<>();
 
   /** Computed number */
   private static final long serialVersionUID = -8339993723317778994L;

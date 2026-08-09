@@ -16,14 +16,22 @@
  */
 package com.percussion.design.objectstore;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/** This class represents the Details element of the sys_ContentEditor.dtd. */
-public class PSDetails {
+/**
+ * This class represents the Details element of the sys_ContentEditor.dtd.
+ *
+ * <p>Implements {@link Serializable} as a companion of {@link PSDisplayError}.
+ */
+public class PSDetails implements Serializable {
+
+  /** Serialization id for {@link Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Ctor
    *
@@ -82,7 +90,7 @@ public class PSDetails {
    * Represents the list of the FieldError elements from the sourceNode. Initialized in ctor, may be
    * empty but never <code>null</code> afetr that.
    */
-  private List<PSFieldError> m_fieldErrors;
+  private ArrayList<PSFieldError> m_fieldErrors;
 
   /** XML element node name for the root element of this class. */
   public static final String XML_NODE_NAME = "Details";

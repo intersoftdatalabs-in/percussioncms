@@ -58,6 +58,7 @@ public class PSFieldValidationException extends PSCmsException {
    * The display error object associated with this exception, initialized in the ctor and never
    * <code>null</code> after that.
    */
+  /** Display error payload for UI; kept with exception (must be Serializable). */
   private PSDisplayError m_displayError;
 
   /**

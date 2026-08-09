@@ -343,14 +343,14 @@ public class PSResourceCacheSettings extends PSComponent {
    * caching data for this resource. Never <code>null</code>, may be empty. Modified by calls to
    * <code>fromXml()</code> and <code>setAdditionalKeys()</code>
    */
-  private List m_extraKeys = new ArrayList();
+  private ArrayList m_extraKeys = new ArrayList();
 
   /**
    * List of <code>String</code> objects that identify resources whose data this resource is
    * dependent upon (see {@link #getDependencies()} for more info). Never <code>null</code>, may be
    * empty. Modified by calls to <code>fromXml()</code> and <code>setDependencies()</code>
    */
-  private List m_dependencies = new ArrayList();
+  private ArrayList m_dependencies = new ArrayList();
 
   /**
    * The flag to determine whether the caching is enabled/disabled, gets initialized to <code>false

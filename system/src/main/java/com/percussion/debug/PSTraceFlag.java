@@ -17,6 +17,7 @@
 
 package com.percussion.debug;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
@@ -24,9 +25,15 @@ import java.util.Arrays;
  * groups of flags. Each flag is an int used to specify a trace option. The highest two bits of each
  * flag are reserved as an indicator of 4 possible groups (00-11). Thus there is support for 30
  * flags in each of 4 groups.
+ *
+ * <p>Implements {@link Serializable} so holders such as {@code PSTraceInfo} clear {@code
+ * -Xlint:serial} serial-field diagnostics. State is a plain {@code int[]} of flag groups.
  */
 // REFACTORED: CP-JAVA11
-public class PSTraceFlag {
+public class PSTraceFlag implements Serializable {
+
+  /** Serialization id for {@link Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Replaces this objects internal flag with the provided flag for the specfied group.
    *

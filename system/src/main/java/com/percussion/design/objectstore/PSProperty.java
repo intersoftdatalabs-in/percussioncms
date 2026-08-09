@@ -93,10 +93,10 @@ public class PSProperty extends PSComponent {
       if (m_type == TYPE_BOOLEAN) {
         if (value instanceof String) {
           m_value = ((String) value).equalsIgnoreCase(XML_BOOL_YES);
-        } else if (value instanceof Boolean) m_value = value;
+        } else if (value instanceof Boolean) m_value = (Boolean) value;
         else throw new IllegalArgumentException("invalid value for type PSProperty.TYPE_BOOLEAN");
       } else {
-        if (value instanceof String) m_value = value;
+        if (value instanceof String) m_value = (String) value;
         else
           throw new IllegalArgumentException(
               "invalid value for type PSProperty.TYPE_DATE, "
@@ -371,7 +371,8 @@ public class PSProperty extends PSComponent {
    * <code>setValue(Object)</code>, may be <code>
    * null</code>.
    */
-  private Object m_value = null;
+  /** Property value (Boolean or String per type); declared Serializable for serial-field. */
+  private java.io.Serializable m_value = null;
 
   /**
    * The lock state of the property (value), initialized in the constructor and may be modified

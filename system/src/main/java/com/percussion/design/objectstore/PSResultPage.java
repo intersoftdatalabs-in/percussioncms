@@ -220,7 +220,10 @@ public class PSResultPage extends PSComponent {
     m_requestLinks = page.getRequestLinks();
     m_encoding = page.getCharacterEncoding();
     m_mimeType = page.getMimeType();
-    m_extensions = page.getExtensions();
+    m_extensions =
+        page.getExtensions() == null
+            ? new HashSet()
+            : new HashSet(page.getExtensions());
     setAllowNamespaceCleanup(page.allowNamespaceCleanup());
   }
 
@@ -661,7 +664,7 @@ public class PSResultPage extends PSComponent {
     if (c != null) {
       if (c.contains(null))
         throw new IllegalArgumentException("extension collection cannot contain null");
-      m_extensions = c;
+      m_extensions = new HashSet(c);
     } else m_extensions = new HashSet();
   }
 
@@ -718,7 +721,7 @@ public class PSResultPage extends PSComponent {
    * The collection of supported extensions, never <code>null</code>, and will not contain any null
    * entries in the set.
    */
-  private Collection m_extensions = new HashSet();
+  private HashSet m_extensions = new HashSet();
 
   /**
    * The replacement value signifying the MIME type to be used when this result page is selected.

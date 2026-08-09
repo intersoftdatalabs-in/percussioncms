@@ -127,7 +127,7 @@ public class PSRelationship extends PSComponent {
    */
   private void initUserProperties() {
     if (m_config.getUserProperties().isEmpty()) {
-      m_userProperties = Collections.emptyList();
+      m_userProperties = new ArrayList<>();
     } else {
       Set<Map.Entry<String, String>> entries = m_config.getUserProperties().entrySet();
       m_userProperties = new ArrayList<>(entries.size());
@@ -918,7 +918,7 @@ public class PSRelationship extends PSComponent {
    * {@link List} for the user properties; otherwise the {@link #equals(Object)} method may not work
    * correctly.
    */
-  private List<PSRelationshipPropertyData> m_userProperties = Collections.emptyList();
+  private ArrayList<PSRelationshipPropertyData> m_userProperties = new ArrayList<>();
 
   /** The logger for this class. */
   private static final Logger log = LogManager.getLogger(PSRelationship.class);

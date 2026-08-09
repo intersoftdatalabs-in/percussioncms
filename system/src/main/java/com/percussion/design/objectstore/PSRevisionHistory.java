@@ -289,7 +289,7 @@ public class PSRevisionHistory extends PSComponent {
   private PSRevisionEntry m_latestEntry = null;
 
   /** the revision entries. never null (but can have 0 entries) */
-  private List m_revs;
+  private ArrayList m_revs;
 
   static final String ms_nodeType = "PSXRevisionHistory";
 }
