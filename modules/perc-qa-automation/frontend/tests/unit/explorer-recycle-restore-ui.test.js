@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
  * Unit tests for modern Content Explorer recycle/restore pure helpers (no live CMS).
  *
@@ -15,6 +32,8 @@ const {
   modernExplorerUrl,
   normalizeExplorerPath,
   treeNodeSelectors,
+  cssAttrEscape,
+  fuzzyTreeNodeSelector,
   isActionControlEnabled,
   isStillOnLoginPage,
   loginContextDownFailureMessage,
@@ -126,7 +145,32 @@ describe("explorer-recycle-restore-ui helpers", () => {
     assert.match(emptyRecyclingApiPathFragment(), /recycle\/empty$/);
     assert.match(PATH_DELETE_FOLDER, /deleteFolder$/);
     assert.match(PATH_RESTORE_FOLDER, /restoreFolder$/);
+    // Re-exported full service constants must stay lockstep with fragment helpers
+    // (constants are /Rhythmyx/services/...; fragments are the pathmanagement suffix).
+    assert.ok(
+      PATH_DELETE_FOLDER.endsWith(deleteFolderApiPathFragment()),
+      "PATH_DELETE_FOLDER must end with deleteFolderApiPathFragment()",
+    );
+    assert.ok(
+      PATH_RESTORE_FOLDER.endsWith(restoreFolderApiPathFragment()),
+      "PATH_RESTORE_FOLDER must end with restoreFolderApiPathFragment()",
+    );
   });
+  it("cssAttrEscape / fuzzyTreeNodeSelector harden CSS attribute selectors", () => {
+    assert.equal(cssAttrEscape('ab"c'), 'ab\\"c');
+    assert.equal(cssAttrEscape("a\\b"), "a\\\\b");
+    assert.equal(cssAttrEscape(null), "");
+    assert.equal(cssAttrEscape(undefined), "");
+    assert.equal(fuzzyTreeNodeSelector('seg"ment'), '[data-testid*="seg\\"ment"]');
+    const [withSlash] = treeNodeSelectors("Assets");
+    assert.match(withSlash, /^\[data-testid="/);
+    assert.match(withSlash, /Assets/);
+    const [quoted] = treeNodeSelectors('Assets/x"y');
+    assert.match(quoted, /x\\"y/);
+    assert.ok(quoted.startsWith('[data-testid="'));
+    assert.ok(quoted.endsWith('"]'));
+  });
+
 
   it("recycledFolderExplorerPath builds structural Recycling paths", () => {
     assert.equal(

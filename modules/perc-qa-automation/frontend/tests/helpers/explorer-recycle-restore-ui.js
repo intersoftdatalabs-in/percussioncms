@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
  * Pure helpers + modern Content Explorer UI utilities for folder recycle/restore
  * companion smoke (#2542 / parent #2423; classic Finder peer #2489; REST peer #2464).
@@ -98,12 +115,37 @@ function normalizeExplorerPath(path) {
  * @param {string | null | undefined} path e.g. "Assets" or "/Assets/"
  * @returns {string[]} full CSS selectors for the tree node
  */
+/**
+ * Escape a value for use inside a double-quoted CSS attribute selector.
+ * Prevents selector breakage when path segments or action names contain
+ * quotes, backslashes, or other special characters.
+ *
+ * @param {string | null | undefined} value
+ * @returns {string}
+ */
+function cssAttrEscape(value) {
+  return String(value ?? "")
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"');
+}
+
+/**
+ * Fuzzy tree-node selector: any data-testid containing the path segment.
+ *
+ * @param {string | null | undefined} segment
+ * @returns {string} CSS selector
+ */
+function fuzzyTreeNodeSelector(segment) {
+  const safe = cssAttrEscape(segment);
+  return `[data-testid*="${safe}"]`;
+}
+
 function treeNodeSelectors(path) {
   const normalized = normalizeExplorerPath(path);
   if (normalized === "/") {
     return [
-      `[data-testid="${SELECTORS.treeNodePrefix}/"]`,
-      `[data-testid="${SELECTORS.treeNodePrefix}"]`,
+      `[data-testid="${cssAttrEscape(`${SELECTORS.treeNodePrefix}/`)}"]`,
+      `[data-testid="${cssAttrEscape(SELECTORS.treeNodePrefix)}"]`,
     ];
   }
   const withSlash = normalized.endsWith("/") ? normalized : `${normalized}/`;
@@ -111,8 +153,8 @@ function treeNodeSelectors(path) {
     ? normalized.slice(0, -1)
     : normalized;
   return [
-    `[data-testid="${SELECTORS.treeNodePrefix}${withSlash}"]`,
-    `[data-testid="${SELECTORS.treeNodePrefix}${withoutSlash}"]`,
+    `[data-testid="${cssAttrEscape(SELECTORS.treeNodePrefix + withSlash)}"]`,
+    `[data-testid="${cssAttrEscape(SELECTORS.treeNodePrefix + withoutSlash)}"]`,
   ];
 }
 
@@ -306,7 +348,7 @@ function isEmptyRecyclingActionName(actionName) {
  * @returns {string}
  */
 function actionToolbarItemSelector(actionName) {
-  const safe = String(actionName || "").trim();
+  const safe = cssAttrEscape(String(actionName || "").trim());
   return `[data-testid="action-toolbar-item-${safe}"]`;
 }
 
@@ -317,7 +359,7 @@ function actionToolbarItemSelector(actionName) {
  * @returns {string}
  */
 function contextMenuItemSelector(actionName) {
-  const safe = String(actionName || "").trim();
+  const safe = cssAttrEscape(String(actionName || "").trim());
   return `[data-testid="context-menu-item-${safe}"]`;
 }
 
@@ -327,6 +369,8 @@ module.exports = {
   modernExplorerUrl,
   normalizeExplorerPath,
   treeNodeSelectors,
+  cssAttrEscape,
+  fuzzyTreeNodeSelector,
   isActionControlEnabled,
   isStillOnLoginPage,
   loginContextDownFailureMessage,

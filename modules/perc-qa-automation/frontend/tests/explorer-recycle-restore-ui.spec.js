@@ -65,7 +65,7 @@ const {
   extractPathItemGuid,
   contextDownFailureMessage,
 } = require("./helpers/folder-recycle-smoke");
-const {
+const { fuzzyTreeNodeSelector,
   SELECTORS,
   modernExplorerUrl,
   treeNodeSelectors,
@@ -114,7 +114,7 @@ async function selectTreePath(page, path) {
     .pop();
   if (segment) {
     const fuzzy = page.locator(
-      `${SELECTORS.explorerTree} [data-testid*="${segment}"]`,
+      `${SELECTORS.explorerTree} ${fuzzyTreeNodeSelector(segment)}`,
     );
     if ((await fuzzy.count()) > 0) {
       await fuzzy.first().click({ timeout: 10_000 }).catch(() => {});
