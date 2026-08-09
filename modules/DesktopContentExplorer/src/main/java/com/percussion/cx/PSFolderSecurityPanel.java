@@ -232,13 +232,9 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
         // additional calculation is necessary
         permissions = objectAclEntry.getPermissions();
       } else {
-        Iterator<?> it = acl.iterator();
+        Iterator<PSObjectAclEntry> it = acl.iterator();
         while (it.hasNext()) {
-          Object next = it.next();
-          if (!(next instanceof PSObjectAclEntry)) {
-            continue;
-          }
-          PSObjectAclEntry aclEntry = (PSObjectAclEntry) next;
+          PSObjectAclEntry aclEntry = it.next();
           switch (aclEntry.getType()) {
               case PSObjectAclEntry.ACL_ENTRY_TYPE_USER:
                 // already processed the user.
@@ -542,15 +538,12 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
   private void loadAclList(PSObjectAcl acl) {
     if (acl == null) throw new IllegalArgumentException("acl must not be null");
 
-    Iterator<?> acls = acl.iterator();
+    Iterator<PSObjectAclEntry> acls = acl.iterator();
 
     List<PSObjectAclEntry> listCurEntries = new ArrayList<>();
 
     while (acls.hasNext()) {
-      Object next = acls.next();
-      if (next instanceof PSObjectAclEntry) {
-        listCurEntries.add((PSObjectAclEntry) next);
-      }
+      listCurEntries.add(acls.next());
     }
 
     addUniqueListAclEntries(listCurEntries);

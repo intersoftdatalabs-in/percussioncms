@@ -301,13 +301,13 @@ public class PSFolderConverter extends PSConverter
       List<PSFolderSecurityAclEntry> tgtAclEntries =
          new ArrayList<PSFolderSecurityAclEntry>();
 
-      java.util.Iterator<?> sourceAcls = source.getAcl().iterator();
+      java.util.Iterator<PSObjectAclEntry> sourceAcls = source.getAcl().iterator();
       PSObjectAclEntry srcAcl;
       PSFolderSecurityAclEntry tgtAcl;
       PSFolderSecurityAclEntryType tgtType;
       while (sourceAcls.hasNext())
       {
-         srcAcl = (PSObjectAclEntry) sourceAcls.next();
+         srcAcl = sourceAcls.next();
 
          // get the ACL type
          if (srcAcl.getType() == PSObjectAclEntry.ACL_ENTRY_TYPE_ROLE)

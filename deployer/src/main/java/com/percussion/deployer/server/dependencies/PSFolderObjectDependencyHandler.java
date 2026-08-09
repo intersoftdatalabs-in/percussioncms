@@ -285,9 +285,9 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
         // get roles
         PSDependencyHandler roleHandler =
             getDependencyHandler(PSRoleDefDependencyHandler.DEPENDENCY_TYPE);
-        Iterator aclEntries = folder.getAcl().iterator();
+        Iterator<PSObjectAclEntry> aclEntries = folder.getAcl().iterator();
         while (aclEntries.hasNext()) {
-          PSObjectAclEntry aclEntry = (PSObjectAclEntry) aclEntries.next();
+          PSObjectAclEntry aclEntry = aclEntries.next();
           if (aclEntry.isRole()) {
             PSDependency roleDep = roleHandler.getDependency(tok, aclEntry.getName());
             if (roleDep != null) childDeps.add(roleDep);
