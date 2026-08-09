@@ -151,6 +151,29 @@ class PSJsonContentParserTest {
   }
 
   @Test
+  void parse_contentLengthLongerThanStream_invalidTruncatedJson_throwsJsonParserError() {
+    PSRequest request = new PSRequest(null, null, null, null);
+    // Incomplete JSON body with Content-Length claiming more bytes than available. Temp-file path
+    // must still surface JSON_PARSER_ERROR (not an unexpected exception) after the short read.
+    byte[] bytes = "{\"Item\":{\"Id\":".getBytes(StandardCharsets.UTF_8);
+    PSInputStreamReader reader =
+        new PSInputStreamReader(
+            new ByteArrayInputStream(bytes), false, PSContentParser.MIN_PUSHBACK_BUF_SIZE);
+
+    PSRequestParsingException ex =
+        assertThrows(
+            PSRequestParsingException.class,
+            () ->
+                parser.parse(
+                    request,
+                    IPSMimeContentTypes.MIME_TYPE_JSON,
+                    "UTF-8",
+                    reader,
+                    bytes.length + 50));
+    assertEquals(IPSServerErrors.JSON_PARSER_ERROR, ex.getErrorCode());
+  }
+
+  @Test
   void parse_moderateBody_viaTempFilePath() throws Exception {
     PSRequest request = new PSRequest(null, null, null, null);
     // Large enough to span multiple 2KB read chunks in readContentIntoPurgableTempFile.
