@@ -27,7 +27,6 @@ import com.percussion.rest.translations.CreateTranslationsResult;
 import com.percussion.rest.translations.IContentTranslationsAdaptor;
 import com.percussion.rest.translations.ItemTranslationVariants;
 import com.percussion.rest.translations.TranslationVariant;
-import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.content.data.PSAutoTranslation;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
@@ -227,10 +226,11 @@ public class ContentTranslationsAdaptor implements IContentTranslationsAdaptor {
       return null;
     }
     try {
+      // null = not found → resource 404; RuntimeException = infrastructure → 500
       return objectMgr.get().loadComponentSummary(contentId);
     } catch (RuntimeException e) {
-      log.debug("loadComponentSummary({}) failed: {}", contentId, e.getMessage());
-      return null;
+      log.warn("loadComponentSummary({}) failed: {}", contentId, e.getMessage());
+      throw e;
     }
   }
 
@@ -296,6 +296,10 @@ public class ContentTranslationsAdaptor implements IContentTranslationsAdaptor {
       }
       return field.getValue().getValueAsString();
     } catch (Exception e) {
+      log.warn(
+          "Could not read sys_lang locale from content id {}: {}",
+          item.getContentId(),
+          e.toString());
       return null;
     }
   }
@@ -323,15 +327,16 @@ public class ContentTranslationsAdaptor implements IContentTranslationsAdaptor {
     if (guid instanceof PSLegacyGuid legacy) {
       return legacy.getContentId();
     }
-    // Untyped / typed guids: UUID portion is content id for item type
-    if (guid.getType() == PSTypeEnum.ITEM.getOrdinal() || guid.getType() == 0) {
-      return guid.getUUID();
-    }
+    // Non-legacy guids: UUID is the best available numeric id for any type (item or
+    // untyped). Callers still validate via loadComponentSummary (null → not found).
     return guid.getUUID();
   }
 
+  /** Max path token length for content id / guid string (path-injection surface). */
+  static final int MAX_ITEM_KEY_LENGTH = 128;
+
   static boolean isSafeItemKey(String key) {
-    if (StringUtils.isBlank(key)) {
+    if (StringUtils.isBlank(key) || key.length() > MAX_ITEM_KEY_LENGTH) {
       return false;
     }
     return !key.contains("..")
@@ -351,16 +356,23 @@ public class ContentTranslationsAdaptor implements IContentTranslationsAdaptor {
         && key.length() <= 64;
   }
 
-  private static boolean isAuthzFailure(RuntimeException e) {
-    String msg = e.getMessage();
-    if (msg == null) {
-      return false;
+  /**
+   * Prefer exception type hierarchy over message keywords so unrelated errors that mention
+   * "access"/"permission" are not mis-mapped to 403.
+   */
+  static boolean isAuthzFailure(Throwable e) {
+    for (Throwable t = e; t != null; t = t.getCause()) {
+      if (t instanceof SecurityException) {
+        return true;
+      }
+      String simple = t.getClass().getSimpleName();
+      if (simple.contains("Authorization")
+          || simple.contains("AccessDenied")
+          || simple.contains("NotAuthorized")
+          || simple.contains("Forbidden")) {
+        return true;
+      }
     }
-    String lower = msg.toLowerCase();
-    return lower.contains("access")
-        || lower.contains("denied")
-        || lower.contains("permission")
-        || lower.contains("not authorized")
-        || lower.contains("forbidden");
+    return false;
   }
 }

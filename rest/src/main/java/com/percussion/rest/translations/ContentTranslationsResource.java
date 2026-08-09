@@ -105,20 +105,29 @@ public class ContentTranslationsResource {
       })
   public CreateTranslationsResult createTranslations(CreateTranslationsRequest body) {
     if (body == null) {
-      throw new WebApplicationException("Request body is required.", 400);
+      throw new WebApplicationException(
+          Response.status(Response.Status.BAD_REQUEST)
+              .entity("Request body is required.")
+              .build());
     }
     try {
       return requireAdaptor().createTranslations(baseUri(), body);
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {
-      throw new WebApplicationException(e.getMessage(), e, 400);
+      throw new WebApplicationException(
+          e, Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
     } catch (SecurityException e) {
-      throw new WebApplicationException(e.getMessage(), e, 403);
+      throw new WebApplicationException(
+          e, Response.status(Response.Status.FORBIDDEN).entity(e.getMessage()).build());
     } catch (Exception e) {
       log.error(
           "Failed to create translations ({}): {}", e.getClass().getName(), e.getMessage(), e);
-      throw new WebApplicationException("Failed to create translations.", e, 500);
+      throw new WebApplicationException(
+          e,
+          Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+              .entity("Failed to create translations.")
+              .build());
     }
   }
 
@@ -149,15 +158,18 @@ public class ContentTranslationsResource {
     try {
       ItemTranslationVariants out = requireAdaptor().listItemVariants(baseUri(), itemId);
       if (out == null) {
-        throw new WebApplicationException("Item not found", 404);
+        throw new WebApplicationException(
+            Response.status(Response.Status.NOT_FOUND).entity("Item not found").build());
       }
       return out;
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {
-      throw new WebApplicationException(e.getMessage(), e, 400);
+      throw new WebApplicationException(
+          e, Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
     } catch (SecurityException e) {
-      throw new WebApplicationException(e.getMessage(), e, 403);
+      throw new WebApplicationException(
+          e, Response.status(Response.Status.FORBIDDEN).entity(e.getMessage()).build());
     } catch (Exception e) {
       log.error(
           "Failed to list translation variants for {} ({}): {}",
@@ -165,7 +177,11 @@ public class ContentTranslationsResource {
           e.getClass().getName(),
           e.getMessage(),
           e);
-      throw new WebApplicationException("Failed to list translation variants.", e, 500);
+      throw new WebApplicationException(
+          e,
+          Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+              .entity("Failed to list translation variants.")
+              .build());
     }
   }
 

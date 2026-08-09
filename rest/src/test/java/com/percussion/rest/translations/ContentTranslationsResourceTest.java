@@ -94,7 +94,7 @@ class ContentTranslationsResourceTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.createTranslations(body));
     assertEquals(400, ex.getResponse().getStatus());
-    assertEquals("itemIds is required", ex.getMessage());
+    assertEquals("itemIds is required", String.valueOf(ex.getResponse().getEntity()));
   }
 
   @Test

@@ -211,4 +211,23 @@ class ContentTranslationsAdaptorTest {
     assertTrue(!ContentTranslationsAdaptor.isSafeItemKey("../etc"));
     assertTrue(!ContentTranslationsAdaptor.isSafeItemKey("a/b"));
   }
+
+  @Test
+  void isSafeItemKeyRejectsOverlong() {
+    String ok = "x".repeat(ContentTranslationsAdaptor.MAX_ITEM_KEY_LENGTH);
+    String tooLong = ok + "y";
+    assertTrue(ContentTranslationsAdaptor.isSafeItemKey(ok));
+    assertTrue(!ContentTranslationsAdaptor.isSafeItemKey(tooLong));
+  }
+
+  @Test
+  void isAuthzFailurePrefersTypeOverMessageKeywords() {
+    assertTrue(ContentTranslationsAdaptor.isAuthzFailure(new SecurityException("x")));
+    assertTrue(
+        !ContentTranslationsAdaptor.isAuthzFailure(
+            new IllegalStateException("access to cache denied by config")));
+    RuntimeException wrapped =
+        new RuntimeException("outer", new SecurityException("not allowed"));
+    assertTrue(ContentTranslationsAdaptor.isAuthzFailure(wrapped));
+  }
 }
