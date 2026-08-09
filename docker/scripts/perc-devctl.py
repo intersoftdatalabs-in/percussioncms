@@ -21,6 +21,11 @@ QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
 * ``qa-down`` — destroy the QA cell (frees ports; no multi-GB orphans)
 * ``qa-preflight`` — rebuild-chain preflight; detect a stale WebUI WAR vs
   a freshly built sitemanage SNAPSHOT (#2486)
+* ``qa-up --skip-image-build`` — fail fast when the cached
+  ``percussion-matrix-cell:local`` image lacks the in-image HEALTHCHECK
+  (#2481); the precheck runs ``docker inspect`` and prints a clear
+  rebuild hint instead of waiting the full ``--probe-timeout`` for
+  ``docker_health_timeout health=none`` (#2484)
 
 Compose ``verify`` / ``verify-fix`` / ``deploy-jar --verify`` apply the same
 Rhythmyx context log scan against the cms-dts container (#2480 companion to
@@ -147,6 +152,16 @@ QA_LOG_SCAN_TAIL_LINES = 800
 # ``rhythmyx_healthcheck.py`` (``RHYTHMYX_HEALTH_PATH``) so host, Docker,
 # and matrix cells can be configured from one place. ``#2482`` matrix.
 QA_CMS_PROBE_PATH_ENV = "RHYTHMYX_HEALTH_PATH"
+# Local matrix image tag baked by ``matrix-install-smoke.py`` (also matches
+# docker/README.md → "Rebuild note"). Kept here so agent preflight can
+# detect a stale image that lacks HEALTHCHECK (#2481) before we wait for a
+# 20-minute ``docker_health_timeout`` to surface the same condition.
+QA_MATRIX_IMAGE_TAG = "percussion-matrix-cell:local"
+
+# Status returned by :func:`_qa_matrix_image_healthcheck_status` (#2484).
+QA_IMAGE_HEALTHCHECK_OK = "ok"
+QA_IMAGE_HEALTHCHECK_MISSING = "missing"
+QA_IMAGE_HEALTHCHECK_ABSENT = "absent"
 
 
 # Freeport primitives live in perc_host_ports.py (shared with matrix) — #2001/#2005.
@@ -1147,6 +1162,85 @@ def cmd_show_generated_passwords(args: argparse.Namespace, paths: tuple[Path, Pa
 # ---------------------------------------------------------------------------
 
 
+def _qa_matrix_image_healthcheck_status(
+    image_tag: str = QA_MATRIX_IMAGE_TAG,
+    *,
+    runner=None,
+) -> str:
+    """Detect whether the local matrix image has HEALTHCHECK baked in (#2484).
+
+    Used by ``qa-up --skip-image-build`` to fail fast when the cached
+    ``percussion-matrix-cell:local`` image is too old to flip to
+    ``Health.Status=healthy`` (#2481). Without this precheck the smoke
+    waits the full ``--probe-timeout`` (default 900s, 1800s on slow boxes)
+    and then reports a confusing ``docker_health_timeout health=none``.
+    See docker/README.md → "Docker ``Health.Status`` (in-image HEALTHCHECK)".
+
+    Returns one of:
+
+    * :data:`QA_IMAGE_HEALTHCHECK_OK` — image exists and has a HEALTHCHECK
+      block with a non-empty ``Test`` array (the in-image
+      ``rhythmyx_healthcheck.py`` script per ``docker/matrix/Dockerfile``).
+    * :data:`QA_IMAGE_HEALTHCHECK_MISSING` — image exists but the
+      HEALTHCHECK block is absent or empty (pre-#2481 bake). Caller must
+      surface a rebuild hint.
+    * :data:`QA_IMAGE_HEALTHCHECK_ABSENT` — image not present locally.
+      Caller can proceed; the downstream ``matrix-install-smoke.py`` will
+      build it normally when ``--skip-image-build`` is *not* set, or the
+      user can let the normal build path handle it.
+
+    Pure helper. ``runner`` defaults to :func:`subprocess.run`; tests
+    inject a stub. ``docker inspect`` failures other than "no such image"
+    map to :data:`QA_IMAGE_HEALTHCHECK_ABSENT` so the caller does not
+    block on a transient docker daemon hiccup — the downstream smoke will
+    still surface the real failure.
+    """
+    import json  # local import keeps top-of-file imports compact
+
+    if runner is None:
+        runner = subprocess.run
+
+    # ``--format '{{json .Config.Healthcheck}}'`` keeps the JSON small and
+    # avoids pulling the whole inspect payload; the image config has no
+    # secrets we care about here.
+    completed = runner(
+        ["docker", "inspect", "--format", "{{json .Config.Healthcheck}}", image_tag],
+        shell=False,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        # docker inspect exits non-zero when the image is missing
+        # ("Error response from daemon: No such image: ..."). Any other
+        # failure (daemon down, etc.) is also treated as "absent" so the
+        # smoke can still attempt a normal bring-up.
+        return QA_IMAGE_HEALTHCHECK_ABSENT
+    raw = (completed.stdout or "").strip()
+    # ``Healthcheck=null`` means the image exists but the Dockerfile baked
+    # no HEALTHCHECK directive — that is exactly the stale pre-#2481 case
+    # we want to detect. Only an empty/garbage payload (without the
+    # explicit ``null`` token) is treated as "absent" so we do not false-
+    # positive on a daemon hiccup.
+    if raw == "null":
+        return QA_IMAGE_HEALTHCHECK_MISSING
+    if not raw:
+        return QA_IMAGE_HEALTHCHECK_ABSENT
+    try:
+        parsed = json.loads(raw)
+    except ValueError:
+        return QA_IMAGE_HEALTHCHECK_ABSENT
+    if not isinstance(parsed, dict):
+        return QA_IMAGE_HEALTHCHECK_ABSENT
+    # Pre-#2481 images have a Healthcheck key but its Test array is empty
+    # (a no-op healthcheck) — treat that as missing too so the rebuild
+    # hint always fires when the smoke would otherwise time out.
+    test = parsed.get("Test")
+    if not test or not isinstance(test, list) or not any(test):
+        return QA_IMAGE_HEALTHCHECK_MISSING
+    return QA_IMAGE_HEALTHCHECK_OK
+
+
 def _qa_matrix_up_argv(
     repo_root: Path,
     *,
@@ -1267,6 +1361,41 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     probe_timeout = int(args.timeout_seconds)
     skip_image_build = bool(args.skip_image_build)
     host_port = ensure_qa_cms_host_port()
+
+    # Fail fast when --skip-image-build reuses a stale local matrix image
+    # whose HEALTHCHECK was baked before #2481 — without this the smoke
+    # waits the full --probe-timeout window then reports a confusing
+    # ``docker_health_timeout health=none``. See docker/README.md →
+    # "Docker Health.Status (in-image HEALTHCHECK)" and #2484.
+    if skip_image_build and not dry_run:
+        hc_status = _qa_matrix_image_healthcheck_status()
+        if hc_status == QA_IMAGE_HEALTHCHECK_MISSING:
+            rebuild_hint = (
+                "docker build -t "
+                f"{QA_MATRIX_IMAGE_TAG} "
+                f"-f {repo_root / 'docker' / 'matrix' / 'Dockerfile'} "
+                f"{repo_root / 'docker'}"
+            )
+            LOG.warning(
+                "Local matrix image %s lacks HEALTHCHECK (#2481); "
+                "qa-up --skip-image-build would otherwise hit "
+                "docker_health_timeout after %ss. Rebuild hint: %s",
+                QA_MATRIX_IMAGE_TAG,
+                probe_timeout,
+                rebuild_hint,
+            )
+            print(
+                f"RESULT:FAIL STEP:qa-up "
+                f"DETAIL:matrix_image_stale "
+                f"IMAGE:{QA_MATRIX_IMAGE_TAG} "
+                f"HINT:rebuild-image"
+            )
+            print(
+                f"QA_DETAIL:matrix image {QA_MATRIX_IMAGE_TAG} has no "
+                f"HEALTHCHECK (pre-#2481 bake). Drop --skip-image-build or "
+                f"run: {rebuild_hint}"
+            )
+            return EXIT_SUBPROCESS_FAILED
 
     matrix_argv = _qa_matrix_up_argv(
         repo_root,

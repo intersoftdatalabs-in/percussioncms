@@ -622,6 +622,78 @@ class TestQaHelpers(unittest.TestCase):
         argv = pdc._qa_destroy_argv("perc-matrix-cms-h2")
         self.assertEqual(argv, ["docker", "rm", "-f", "perc-matrix-cms-h2"])
 
+    def test_qa_matrix_image_healthcheck_status_ok(self):
+        """Image with a HEALTHCHECK Test array reports ok (#2484)."""
+        completed = unittest.mock.Mock(
+            returncode=0,
+            stdout='{"Test":["CMD-SHELL","/usr/local/bin/rhythmyx_healthcheck.py"],'
+                   '"Interval":30000000000}',
+        )
+        runner = unittest.mock.Mock(return_value=completed)
+        status = pdc._qa_matrix_image_healthcheck_status(
+            "percussion-matrix-cell:local", runner=runner
+        )
+        self.assertEqual(status, pdc.QA_IMAGE_HEALTHCHECK_OK)
+
+    def test_qa_matrix_image_healthcheck_status_missing(self):
+        """Pre-#2481 image (Healthcheck=null) reports missing so qa-up fails fast."""
+        completed = unittest.mock.Mock(returncode=0, stdout="null")
+        runner = unittest.mock.Mock(return_value=completed)
+        status = pdc._qa_matrix_image_healthcheck_status(
+            "percussion-matrix-cell:local", runner=runner
+        )
+        self.assertEqual(status, pdc.QA_IMAGE_HEALTHCHECK_MISSING)
+
+    def test_qa_matrix_image_healthcheck_status_missing_empty_test(self):
+        """Image with empty Test array (no-op healthcheck) still reports missing."""
+        completed = unittest.mock.Mock(returncode=0, stdout='{"Test":[]}')
+        runner = unittest.mock.Mock(return_value=completed)
+        status = pdc._qa_matrix_image_healthcheck_status(
+            "percussion-matrix-cell:local", runner=runner
+        )
+        self.assertEqual(status, pdc.QA_IMAGE_HEALTHCHECK_MISSING)
+
+    def test_qa_matrix_image_healthcheck_status_absent(self):
+        """Image not present locally (docker inspect non-zero) reports absent."""
+        completed = unittest.mock.Mock(returncode=1, stdout="", stderr="No such image")
+        runner = unittest.mock.Mock(return_value=completed)
+        status = pdc._qa_matrix_image_healthcheck_status(
+            "percussion-matrix-cell:local", runner=runner
+        )
+        self.assertEqual(status, pdc.QA_IMAGE_HEALTHCHECK_ABSENT)
+
+    def test_qa_up_skip_image_build_stale_image_fails_fast(self):
+        """qa-up --skip-image-build short-circuits when image lacks HEALTHCHECK (#2484)."""
+        with unittest.mock.patch.object(
+            pdc, "_qa_matrix_image_healthcheck_status",
+            return_value=pdc.QA_IMAGE_HEALTHCHECK_MISSING,
+        ), unittest.mock.patch.object(pdc, "_run_logged") as mock_run:
+            rc = pdc.main([
+                "--repo-root", str(self.repo_root),
+                "qa-up", "--skip-image-build", "--timeout-seconds", "120",
+            ])
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        mock_run.assert_not_called()
+
+    def test_qa_up_skip_image_build_fresh_image_proceeds(self):
+        """qa-up --skip-image-build proceeds when image HEALTHCHECK is ok (#2484)."""
+        fake_log = self.repo_root / "docker" / "logs" / "qa-up-fake.log"
+        fake_log.parent.mkdir(parents=True, exist_ok=True)
+        fake_log.write_text("RESULT:OK STEP:qa-up LOG:...\n", encoding="utf-8")
+        with unittest.mock.patch.object(
+            pdc, "_qa_matrix_image_healthcheck_status",
+            return_value=pdc.QA_IMAGE_HEALTHCHECK_OK,
+        ), unittest.mock.patch.object(
+            pdc, "_run_logged", return_value=(pdc.EXIT_OK, fake_log),
+        ), unittest.mock.patch.object(
+            pdc, "_qa_fetch_admin_password", return_value="ADMIN_PASSWORD=demo",
+        ):
+            rc = pdc.main([
+                "--repo-root", str(self.repo_root),
+                "qa-up", "--skip-image-build", "--timeout-seconds", "120",
+            ])
+        self.assertEqual(rc, pdc.EXIT_OK)
+
     def test_qa_preferred_port_and_container_constants(self):
         """Preferred baseline aligns with matrix-install-smoke CMS host port."""
         self.assertEqual(pdc.PREFERRED_QA_CMS_HOST_PORT, 9993)
