@@ -101,6 +101,12 @@ public class PSUserServiceRestClient extends PSObjectRestClient implements IPSUs
   }
 
   @Override
+  public PSCurrentUser updateMyAccount(final PSUserAccountUpdate update)
+      throws PSDataServiceException {
+    return putObjectToPath(concatPath(getPath(), "profile"), update, PSCurrentUser.class);
+  }
+
+  @Override
   public PSAccessLevel getAccessLevel(final PSAccessLevelRequest request) {
     return postObjectToPath(concatPath(getPath(), "accessLevel"), request, PSAccessLevel.class);
   }

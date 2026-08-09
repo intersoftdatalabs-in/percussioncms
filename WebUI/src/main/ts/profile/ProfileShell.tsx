@@ -18,6 +18,7 @@
 import React, { useId } from "react";
 import { i18nKeyAttr } from "../i18n/i18nDom";
 import { message } from "../i18n/message";
+import { AccountSection } from "./AccountSection";
 import { PROFILE_MSG } from "./messages";
 import { PreferencesSection } from "./PreferencesSection";
 import styles from "./ProfileShell.module.css";
@@ -66,8 +67,8 @@ const SECTIONS: {
 
 /**
  * User profile hub shell: landmarks, heading hierarchy, and section content.
- * Preferences (#2396) is live; account / security / avatar remain placeholders
- * until their slices land.
+ * Account (#2395) and Preferences (#2396) are live; security / avatar remain
+ * placeholders until their slices land.
  */
 export function ProfileShell(_props: ProfileShellProps = {}): React.ReactElement {
   const reactId = useId();
@@ -127,6 +128,7 @@ export function ProfileShell(_props: ProfileShellProps = {}): React.ReactElement
       <div className={styles.sections}>
         {SECTIONS.map((section) => {
           const headingId = `perc-profile-${section.id}-heading`;
+          const isAccount = section.id === "account";
           const isPreferences = section.id === "preferences";
           return (
             <section
@@ -147,7 +149,9 @@ export function ProfileShell(_props: ProfileShellProps = {}): React.ReactElement
               <p className={styles.sectionBody} {...i18nKeyAttr(section.bodyKey)}>
                 {message(section.bodyKey)}
               </p>
-              {isPreferences ? (
+              {isAccount ? (
+                <AccountSection />
+              ) : isPreferences ? (
                 <PreferencesSection />
               ) : (
                 <p

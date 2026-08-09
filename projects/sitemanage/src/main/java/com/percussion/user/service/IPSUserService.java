@@ -27,6 +27,7 @@ import com.percussion.user.data.PSExternalUser;
 import com.percussion.user.data.PSImportedUser;
 import com.percussion.user.data.PSRoleList;
 import com.percussion.user.data.PSUser;
+import com.percussion.user.data.PSUserAccountUpdate;
 import com.percussion.user.data.PSUserList;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -131,6 +132,18 @@ public interface IPSUserService {
    * @throws PSDataServiceException
    */
   public PSUser changePassword(PSUser user) throws PSDataServiceException;
+
+  /**
+   * Self-service account update for the <strong>current</strong> signed-in user only (no target
+   * user name on the path — no IDOR). Currently persists email for {@link
+   * com.percussion.user.data.PSUserProviderType#INTERNAL} users; directory-managed accounts reject
+   * mutation with a validation error.
+   *
+   * @param update never {@code null}; {@link PSUserAccountUpdate#getEmail()} may be blank
+   * @return refreshed {@link PSCurrentUser}, never {@code null}
+   * @throws PSDataServiceException when validation fails or persistence fails
+   */
+  public PSCurrentUser updateMyAccount(PSUserAccountUpdate update) throws PSDataServiceException;
 
   /**
    * Deletes the user with the given user name.

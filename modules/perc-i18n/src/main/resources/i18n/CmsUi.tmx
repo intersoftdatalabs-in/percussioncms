@@ -26743,6 +26743,10 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
     <tu tuid="perc.ui.profile.modern@Account">
       <tuv xml:lang="en-us"><seg>Account</seg></tuv>
     <tuv xml:lang="ar"><seg>حساب</seg></tuv><tuv xml:lang="bn"><seg>হিসাব</seg></tuv><tuv xml:lang="de"><seg>Konto</seg></tuv><tuv xml:lang="es"><seg>Cuenta</seg></tuv><tuv xml:lang="fr"><seg>Compte</seg></tuv><tuv xml:lang="he"><seg>חֶשְׁבּוֹן</seg></tuv><tuv xml:lang="hi"><seg>खाता</seg></tuv><tuv xml:lang="it"><seg>Account</seg></tuv><tuv xml:lang="nl"><seg>Rekening</seg></tuv><tuv xml:lang="pl"><seg>Konto</seg></tuv><tuv xml:lang="pt"><seg>Conta</seg></tuv><tuv xml:lang="ru"><seg>Счет</seg></tuv><tuv xml:lang="sv"><seg>Konto</seg></tuv><tuv xml:lang="te"><seg>ఖాతా</seg></tuv><tuv xml:lang="tr"><seg>Hesap</seg></tuv><tuv xml:lang="uk"><seg>Обліковий запис</seg></tuv><tuv xml:lang="zh-cn"><seg>帐户</seg></tuv><tuv xml:lang="zh-tw"><seg>帳戶</seg></tuv><tuv xml:lang="lou"><seg>Kont</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Your login id, email, provider, and role summary for this account.">
+      <tuv xml:lang="en-us"><seg>Your login id, email, provider, and role summary for this account.</seg></tuv>
+    <tuv xml:lang="lou"><seg>To koneksyon id, imèl, provider, épi ròl summary pou this account.</seg></tuv></tu>
+    <!-- Replaced #2393 body key; keep old tuid for any residual catalogs until next TMX prune -->
     <tu tuid="perc.ui.profile.modern@Your name, login id, email, and role summary will appear here.">
       <tuv xml:lang="en-us"><seg>Your name, login id, email, and role summary will appear here.</seg></tuv>
     <tuv xml:lang="ar"><seg>سيظهر هنا اسمك ومعرف تسجيل الدخول والبريد الإلكتروني وملخص الدور.</seg></tuv><tuv xml:lang="bn"><seg>আপনার নাম, লগইন আইডি, ইমেল, এবং ভূমিকা সারাংশ এখানে প্রদর্শিত হবে.</seg></tuv><tuv xml:lang="de"><seg>Ihr Name, Ihre Login-ID, Ihre E-Mail-Adresse und Ihre Rollenübersicht werden hier angezeigt.</seg></tuv><tuv xml:lang="es"><seg>Su nombre, identificación de inicio de sesión, correo electrónico y resumen de funciones aparecerán aquí.</seg></tuv><tuv xml:lang="fr"><seg>Votre nom, votre identifiant de connexion, votre adresse e-mail et votre résumé de rôle apparaîtront ici.</seg></tuv><tuv xml:lang="he"><seg>שמך, מזהה הכניסה, האימייל וסיכום התפקיד שלך יופיעו כאן.</seg></tuv><tuv xml:lang="hi"><seg>आपका नाम, लॉगिन आईडी, ईमेल और भूमिका सारांश यहां दिखाई देगा।</seg></tuv><tuv xml:lang="it"><seg>Il tuo nome, ID di accesso, email e riepilogo del ruolo verranno visualizzati qui.</seg></tuv><tuv xml:lang="nl"><seg>Uw naam, inlog-ID, e-mailadres en roloverzicht verschijnen hier.</seg></tuv><tuv xml:lang="pl"><seg>Tutaj pojawi się Twoje imię i nazwisko, identyfikator logowania, adres e-mail i podsumowanie roli.</seg></tuv><tuv xml:lang="pt"><seg>Seu nome, ID de login, e-mail e resumo da função aparecerão aqui.</seg></tuv><tuv xml:lang="ru"><seg>Здесь появится ваше имя, идентификатор входа, адрес электронной почты и сводная информация о роли.</seg></tuv><tuv xml:lang="sv"><seg>Ditt namn, inloggnings-id, e-postadress och rollöversikt kommer att visas här.</seg></tuv><tuv xml:lang="te"><seg>మీ పేరు, లాగిన్ ఐడి, ఇమెయిల్ మరియు పాత్ర సారాంశం ఇక్కడ కనిపిస్తాయి.</seg></tuv><tuv xml:lang="tr"><seg>Adınız, giriş kimliğiniz, e-posta adresiniz ve rol özetiniz burada görünecektir.</seg></tuv><tuv xml:lang="uk"><seg>Тут відображатимуться ваше ім’я, ідентифікатор для входу, адреса електронної пошти та короткий опис ролі.</seg></tuv><tuv xml:lang="zh-cn"><seg>您的姓名、登录 ID、电子邮件和角色摘要将显示在此处。</seg></tuv><tuv xml:lang="zh-tw"><seg>您的姓名、登入 ID、電子郵件和角色摘要將顯示在此處。</seg></tuv><tuv xml:lang="lou"><seg>To non, koneksyon id, imèl, épi ròl summary will appear here.</seg></tuv></tu>
@@ -26807,5 +26811,78 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
     <tu tuid="perc.ui.profile.modern@Coming soon">
       <tuv xml:lang="en-us"><seg>Coming soon</seg></tuv>
     <tuv xml:lang="ar"><seg>قريباً</seg></tuv><tuv xml:lang="bn"><seg>শীঘ্রই আসছে</seg></tuv><tuv xml:lang="de"><seg>Kommt bald</seg></tuv><tuv xml:lang="es"><seg>Muy pronto</seg></tuv><tuv xml:lang="fr"><seg>À venir</seg></tuv><tuv xml:lang="he"><seg>בקרוב</seg></tuv><tuv xml:lang="hi"><seg>जल्द आ रहा है</seg></tuv><tuv xml:lang="it"><seg>Prossimamente</seg></tuv><tuv xml:lang="nl"><seg>Binnenkort beschikbaar</seg></tuv><tuv xml:lang="pl"><seg>Już wkrótce</seg></tuv><tuv xml:lang="pt"><seg>Em breve</seg></tuv><tuv xml:lang="ru"><seg>Вскоре</seg></tuv><tuv xml:lang="sv"><seg>Kommer snart</seg></tuv><tuv xml:lang="te"><seg>త్వరలో వస్తుంది</seg></tuv><tuv xml:lang="tr"><seg>Yakında gelecek</seg></tuv><tuv xml:lang="uk"><seg>Скоро буде</seg></tuv><tuv xml:lang="zh-cn"><seg>即将推出</seg></tuv><tuv xml:lang="zh-tw"><seg>即將推出</seg></tuv><tuv xml:lang="lou"><seg>Coming soon</seg></tuv></tu>
+    <!-- Issue #2395 / parent #2374 slice 2: Account information view/edit (en-us source; other locales fall back / translate later) -->
+    <tu tuid="perc.ui.profile.modern@Loading account information…">
+      <tuv xml:lang="en-us"><seg>Loading account information…</seg></tuv>
+    <tuv xml:lang="lou"><seg>Loading account information…</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Unable to load your account information. Try again later.">
+      <tuv xml:lang="en-us"><seg>Unable to load your account information. Try again later.</seg></tuv>
+    <tuv xml:lang="lou"><seg>Unable to load to account information. Try again later.</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Retry">
+      <tuv xml:lang="en-us"><seg>Retry</seg></tuv>
+    <tuv xml:lang="lou"><seg>Retry</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Login ID">
+      <tuv xml:lang="en-us"><seg>Login ID</seg></tuv>
+    <tuv xml:lang="lou"><seg>Koneksyon ID</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Email">
+      <tuv xml:lang="en-us"><seg>Email</seg></tuv>
+    <tuv xml:lang="lou"><seg>Imèl</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Account type">
+      <tuv xml:lang="en-us"><seg>Account type</seg></tuv>
+    <tuv xml:lang="lou"><seg>Account type</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Roles">
+      <tuv xml:lang="en-us"><seg>Roles</seg></tuv>
+    <tuv xml:lang="lou"><seg>Ròl-yé</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Communities">
+      <tuv xml:lang="en-us"><seg>Communities</seg></tuv>
+    <tuv xml:lang="lou"><seg>Communities</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Current community">
+      <tuv xml:lang="en-us"><seg>Current community</seg></tuv>
+    <tuv xml:lang="lou"><seg>Current community</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Internal">
+      <tuv xml:lang="en-us"><seg>Internal</seg></tuv>
+    <tuv xml:lang="lou"><seg>Internal</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Directory">
+      <tuv xml:lang="en-us"><seg>Directory</seg></tuv>
+    <tuv xml:lang="lou"><seg>Directory</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@This field is managed by your directory and cannot be changed here.">
+      <tuv xml:lang="en-us"><seg>This field is managed by your directory and cannot be changed here.</seg></tuv>
+    <tuv xml:lang="lou"><seg>This field is managed by to directory and cannot be changed here.</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Your login ID cannot be changed from this page.">
+      <tuv xml:lang="en-us"><seg>Your login ID cannot be changed from this page.</seg></tuv>
+    <tuv xml:lang="lou"><seg>To koneksyon ID cannot be changed from this page.</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Roles are assigned by an administrator and cannot be changed here.">
+      <tuv xml:lang="en-us"><seg>Roles are assigned by an administrator and cannot be changed here.</seg></tuv>
+    <tuv xml:lang="lou"><seg>Ròl-yé are assigned by an administrator and cannot be changed here.</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Communities are determined by your roles and cannot be changed here.">
+      <tuv xml:lang="en-us"><seg>Communities are determined by your roles and cannot be changed here.</seg></tuv>
+    <tuv xml:lang="lou"><seg>Communities are determined by to ròl-yé and cannot be changed here.</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@This email is stored with your CMS account and used for notifications.">
+      <tuv xml:lang="en-us"><seg>This email is stored with your CMS account and used for notifications.</seg></tuv>
+    <tuv xml:lang="lou"><seg>This imèl is stored with to CMS account and used for notifications.</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Email for directory accounts is managed by your organization.">
+      <tuv xml:lang="en-us"><seg>Email for directory accounts is managed by your organization.</seg></tuv>
+    <tuv xml:lang="lou"><seg>Imèl for directory accounts is managed by to organization.</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Save email">
+      <tuv xml:lang="en-us"><seg>Save email</seg></tuv>
+    <tuv xml:lang="lou"><seg>Save imèl</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Saving…">
+      <tuv xml:lang="en-us"><seg>Saving…</seg></tuv>
+    <tuv xml:lang="lou"><seg>Saving…</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Your email was saved.">
+      <tuv xml:lang="en-us"><seg>Your email was saved.</seg></tuv>
+    <tuv xml:lang="lou"><seg>To imèl was saved.</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Unable to save your email. Check the address and try again.">
+      <tuv xml:lang="en-us"><seg>Unable to save your email. Check the address and try again.</seg></tuv>
+    <tuv xml:lang="lou"><seg>Unable to save to imèl. Check the address and try again.</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Enter a valid email address.">
+      <tuv xml:lang="en-us"><seg>Enter a valid email address.</seg></tuv>
+    <tuv xml:lang="lou"><seg>Enter a valid imèl address.</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Not set">
+      <tuv xml:lang="en-us"><seg>Not set</seg></tuv>
+    <tuv xml:lang="lou"><seg>Not set</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@None">
+      <tuv xml:lang="en-us"><seg>None</seg></tuv>
+    <tuv xml:lang="lou"><seg>None</seg></tuv></tu>
   </body>
 </tmx>
