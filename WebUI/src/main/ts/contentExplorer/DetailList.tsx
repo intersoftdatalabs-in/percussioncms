@@ -248,6 +248,17 @@ export interface DetailListProps {
   displayFormatId?: string | null;
   /** Optional multi-select / context-menu affordance on row right-click. */
   onItemContextMenu?: (item: PSPathItem, clientX: number, clientY: number) => void;
+  /**
+   * Optional multi-select state (#2400 / #2408). When supplied, a leading
+   * checkbox column is rendered and toggle events flow through
+   * {@link onToggleSelectItem}. The primary single-click `onSelectItem`
+   * is independent: a row can be both the focused row and a checked
+   * row. Undefined (default) preserves the legacy single-select
+   * rendering with no checkbox column.
+   */
+  selectedItemIds?: ReadonlySet<string>;
+  /** Fires when the user toggles a row's checkbox. */
+  onToggleSelectItem?: (item: PSPathItem, next: boolean) => void;
 }
 
 export function DetailList({
@@ -258,6 +269,8 @@ export function DetailList({
   displayFormat,
   displayFormatId,
   onItemContextMenu,
+  selectedItemIds,
+  onToggleSelectItem,
 }: DetailListProps): React.ReactElement {
   const [page, setPage] = useState(0);
   const [data, setData] = useState<PSPagedResult | null>(null);
@@ -340,6 +353,23 @@ export function DetailList({
     [displayFormat?.columns],
   );
 
+  const multiSelectEnabled = onToggleSelectItem != null;
+  const multiSelected: ReadonlySet<string> = selectedItemIds ?? new Set();
+
+  const visibleCheckedCount = useMemo(() => {
+    if (!multiSelectEnabled) return 0;
+    let n = 0;
+    for (const child of children) {
+      const id = child.id ?? child.path;
+      if (id != null && multiSelected.has(id)) n += 1;
+    }
+    return n;
+  }, [children, multiSelectEnabled, multiSelected]);
+  const allVisibleChecked =
+    multiSelectEnabled && children.length > 0 && visibleCheckedCount === children.length;
+  const someVisibleChecked =
+    multiSelectEnabled && visibleCheckedCount > 0 && !allVisibleChecked;
+
   if (!folderPath) {
     return (
       <div style={listStyle} data-testid="detail-list">
@@ -376,6 +406,42 @@ export function DetailList({
       <table style={tableStyle}>
         <thead style={theadStyle}>
           <tr>
+            {multiSelectEnabled ? (
+              <th
+                style={thCellStyle}
+                data-testid="detail-col-header-select"
+                aria-label={message(
+                  allVisibleChecked
+                    ? EXPLORER_MSG.SELECT_ALL_CLEAR_LABEL
+                    : EXPLORER_MSG.SELECT_ALL_LABEL,
+                )}
+              >
+                <input
+                  type="checkbox"
+                  data-testid="detail-select-all"
+                  aria-label={message(
+                    allVisibleChecked
+                      ? EXPLORER_MSG.SELECT_ALL_CLEAR_LABEL
+                      : EXPLORER_MSG.SELECT_ALL_LABEL,
+                  )}
+                  checked={allVisibleChecked}
+                  ref={(el) => {
+                    if (el) el.indeterminate = someVisibleChecked;
+                  }}
+                  onChange={(e) => {
+                    const next = e.currentTarget.checked;
+                    for (const child of children) {
+                      const id = child.id ?? child.path;
+                      if (id == null) continue;
+                      const isOn = multiSelected.has(id);
+                      if (isOn !== next) {
+                        onToggleSelectItem!(child, next);
+                      }
+                    }
+                  }}
+                />
+              </th>
+            ) : null}
             {columnsToRender.map((c) => (
               <th
                 key={c}
@@ -390,11 +456,14 @@ export function DetailList({
         <tbody {...{ [MKD_LANG_IGNORE_ATTR]: "1" as const }}>
           {children.map((item) => {
             const selected = selectedItemId === item.id;
+            const idKey = item.id ?? item.path;
+            const isChecked = multiSelectEnabled && multiSelected.has(idKey);
             const visible = canRead(item);
             return (
               <tr
-                key={item.id ?? item.path}
-                data-testid={`detail-row-${item.id ?? item.path}`}
+                key={idKey}
+                data-testid={`detail-row-${idKey}`}
+                data-selected={isChecked ? "true" : undefined}
                 style={rowStyle(selected)}
                 role="row"
                 aria-selected={selected}
@@ -413,11 +482,26 @@ export function DetailList({
                 }}
                 tabIndex={visible ? 0 : -1}
               >
+                {multiSelectEnabled ? (
+                  <td style={tdCellStyle}>
+                    <input
+                      type="checkbox"
+                      data-testid={`detail-select-${idKey}`}
+                      aria-label={message(EXPLORER_MSG.SELECT_ROW_LABEL)}
+                      checked={Boolean(isChecked)}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        onToggleSelectItem!(item, e.currentTarget.checked);
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </td>
+                ) : null}
                 {columnsToRender.map((c) => (
                   <td
                     key={c}
                     style={tdCellStyle}
-                    data-testid={`detail-cell-${c}-${item.id ?? item.path}`}
+                    data-testid={`detail-cell-${c}-${idKey}`}
                     title={renderDisplayFormatCell(c, item)}
                   >
                     {renderDisplayFormatCell(c, item)}

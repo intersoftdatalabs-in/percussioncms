@@ -204,6 +204,233 @@ describe("DetailList", () => {
     await waitFor(() => expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0));
     await renderA11yGate(container);
   });
+
+  // Multi-select / #2400 #2408 ----------------------------------------------------
+
+  it("does not render the checkbox column when onToggleSelectItem is absent", async () => {
+    mockFetch(async () =>
+      new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: CHILDREN,
+            childrenCount: CHILDREN.length,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
+    );
+    expect(screen.queryByTestId("detail-col-header-select")).toBeNull();
+    expect(screen.queryByTestId("detail-select-p-1")).toBeNull();
+  });
+
+  it("renders the checkbox column when onToggleSelectItem is supplied", async () => {
+    mockFetch(async () =>
+      new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: CHILDREN,
+            childrenCount: CHILDREN.length,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        selectedItemIds={new Set<string>()}
+        onToggleSelectItem={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
+    );
+    expect(
+      screen.getByTestId("detail-col-header-select"),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("detail-select-p-1")).toBeInTheDocument();
+    expect(screen.getByTestId("detail-select-p-2")).toBeInTheDocument();
+    expect(screen.getByTestId("detail-select-all")).toBeInTheDocument();
+  });
+
+  it("fires onToggleSelectItem with the next checked state", async () => {
+    mockFetch(async () =>
+      new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: CHILDREN,
+            childrenCount: CHILDREN.length,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const calls: Array<{ id: string | undefined; next: boolean }> = [];
+    render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        selectedItemIds={new Set<string>()}
+        onToggleSelectItem={(item, next) => {
+          calls.push({ id: item.id, next });
+        }}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("detail-select-p-1"));
+    expect(calls).toEqual([{ id: "p-1", next: true }]);
+  });
+
+  it("does not trigger row onSelectItem when a checkbox is clicked", async () => {
+    mockFetch(async () =>
+      new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: CHILDREN,
+            childrenCount: CHILDREN.length,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    let rowClicks = 0;
+    const toggleCalls: string[] = [];
+    render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId={null}
+        onSelectItem={() => {
+          rowClicks += 1;
+        }}
+        selectedItemIds={new Set<string>()}
+        onToggleSelectItem={(item, next) => {
+          if (next) toggleCalls.push(item.id ?? "");
+        }}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("detail-select-p-1"));
+    expect(rowClicks).toBe(0);
+    expect(toggleCalls).toEqual(["p-1"]);
+  });
+
+  it("reflects the parent-controlled selectedItemIds on the row checkbox", async () => {
+    mockFetch(async () =>
+      new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: CHILDREN,
+            childrenCount: CHILDREN.length,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        selectedItemIds={new Set<string>(["p-1"])}
+        onToggleSelectItem={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
+    );
+    const cb1 = screen.getByTestId("detail-select-p-1") as HTMLInputElement;
+    const cb2 = screen.getByTestId("detail-select-p-2") as HTMLInputElement;
+    expect(cb1.checked).toBe(true);
+    expect(cb2.checked).toBe(false);
+    expect(screen.getByTestId("detail-row-p-1").getAttribute("data-selected")).toBe(
+      "true",
+    );
+  });
+
+  it("toggles all visible rows via the header select-all checkbox", async () => {
+    mockFetch(async () =>
+      new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: CHILDREN,
+            childrenCount: CHILDREN.length,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const calls: Array<{ id: string | undefined; next: boolean }> = [];
+    render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        selectedItemIds={new Set<string>()}
+        onToggleSelectItem={(item, next) => {
+          calls.push({ id: item.id, next });
+        }}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("detail-select-all"));
+    expect(calls).toEqual([
+      { id: "p-1", next: true },
+      { id: "p-2", next: true },
+    ]);
+  });
+
+  it("passes the zero serious/critical axe-core gate (multi-select populated)", async () => {
+    mockFetch(async () =>
+      new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: CHILDREN,
+            childrenCount: CHILDREN.length,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const { container } = render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId="p-1"
+        onSelectItem={() => undefined}
+        selectedItemIds={new Set<string>(["p-1", "p-2"])}
+        onToggleSelectItem={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0),
+    );
+    await renderA11yGate(container);
+  });
 });
 describe("T092b / FR-027: display-format column resolution", () => {
   const sample: PSPathItem = {
