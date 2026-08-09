@@ -92,6 +92,34 @@ type ContextMenuState = {
   y: number;
 } | null;
 
+/**
+ * Map a `PSPathItem` (detail-list / tree row shape) into a `ClipboardItem`
+ * (clipboard-panel input shape). Single source of truth so the
+ * "Add to clipboard" handler and the `<ClipboardPanel items>` prop
+ * never disagree on the kind / name / accessLevel mapping.
+ *
+ * Returns `null` when the item has no stable id (`item.id` and
+ * `item.path` both missing) so the caller can skip it instead of
+ * injecting a row that would later fail the paste transport.
+ */
+function toClipboardItem(item: PSPathItem): ClipboardItem | null {
+  const id = item.id ?? item.path;
+  if (id == null) return null;
+  const kind: ClipboardItem["kind"] =
+    item.type === "folder"
+      ? "folder"
+      : item.category === "asset" || item.type === "asset"
+        ? "asset"
+        : "page";
+  return {
+    id,
+    path: item.path,
+    kind,
+    name: item.name ?? item.title ?? item.path,
+    sourceAccessLevel: item.accessLevel,
+  };
+}
+
 const sidePanelStyle: React.CSSProperties = {
   gridColumn: "1 / -1",
   borderTop: "1px solid #ddd",
@@ -291,21 +319,9 @@ export function ContentExplorerShell({
     if (multiSelectedItems.size === 0) return;
     const items: ClipboardItem[] = [];
     for (const item of multiSelectedItems.values()) {
-      const id = item.id ?? item.path;
-      if (id == null) continue;
-      const kind: ClipboardItem["kind"] =
-        item.type === "folder"
-          ? "folder"
-          : item.category === "asset" || item.type === "asset"
-            ? "asset"
-            : "page";
-      items.push({
-        id,
-        path: item.path,
-        kind,
-        name: item.name ?? item.title ?? item.path,
-        sourceAccessLevel: item.accessLevel,
-      });
+      const clipboard = toClipboardItem(item);
+      if (clipboard == null) continue;
+      items.push(clipboard);
     }
     setClipboardState((prev) => buildClipboard(prev, clipboardMode, items));
     setShowClipboard(true);
@@ -554,22 +570,9 @@ export function ContentExplorerShell({
           <ClipboardPanel
             clipboard={clipboard}
             onClipboardChange={setClipboardState}
-            items={Array.from(multiSelectedItems.values()).map((it) => {
-              const id = it.id ?? it.path;
-              const kind: ClipboardItem["kind"] =
-                it.type === "folder"
-                  ? "folder"
-                  : it.category === "asset" || it.type === "asset"
-                    ? "asset"
-                    : "page";
-              return {
-                id,
-                path: it.path,
-                kind,
-                name: it.name ?? it.title ?? it.path,
-                sourceAccessLevel: it.accessLevel,
-              };
-            })}
+            items={Array.from(multiSelectedItems.values())
+              .map((it) => toClipboardItem(it))
+              .filter((it): it is ClipboardItem => it != null)}
             mode={clipboardMode}
             onModeChange={setClipboardMode}
             target={

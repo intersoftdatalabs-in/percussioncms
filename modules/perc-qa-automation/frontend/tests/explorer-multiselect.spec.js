@@ -69,22 +69,26 @@ test.describe("modern React Content Explorer — multi-select + clipboard (#2408
   });
 
   test("selecting two rows surfaces the multi-select count", async ({ page }) => {
-    const cb1 = page.locator('[data-testid="detail-select-p-1"]').first();
-    const cb2 = page.locator('[data-testid="detail-select-p-2"]').first();
-    await cb1.waitFor({ timeout: 10_000 });
-    await cb1.click();
-    await cb2.click();
+    // Read whichever row ids the live list exposes so the spec does
+    // not couple to fixture-specific ids (e.g. "p-1") the server
+    // may not return on every CMS install. We click the first two
+    // row checkboxes regardless of their ids.
+    const list = page.locator('[data-testid="detail-list"]');
+    await list.waitFor({ timeout: 10_000 });
+    const rowCheckboxes = list.locator('tbody tr input[type="checkbox"]');
+    await expect(rowCheckboxes.nth(0)).toBeVisible();
+    await rowCheckboxes.nth(0).check();
+    await rowCheckboxes.nth(1).check();
     const count = page.locator('[data-testid="explorer-multi-select-count"]');
     await expect(count).toContainText("2");
   });
 
   test("add to clipboard + paste panel flow", async ({ page }) => {
-    // Select two rows.
-    const cb1 = page.locator('[data-testid="detail-select-p-1"]').first();
-    const cb2 = page.locator('[data-testid="detail-select-p-2"]').first();
-    await cb1.waitFor({ timeout: 10_000 });
-    await cb1.click();
-    await cb2.click();
+    const list = page.locator('[data-testid="detail-list"]');
+    await list.waitFor({ timeout: 10_000 });
+    const rowCheckboxes = list.locator('tbody tr input[type="checkbox"]');
+    await rowCheckboxes.nth(0).check();
+    await rowCheckboxes.nth(1).check();
 
     // Add to clipboard.
     await page.locator('[data-testid="explorer-clipboard-add"]').click();
