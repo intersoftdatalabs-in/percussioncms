@@ -85,6 +85,13 @@ Legacy CADF types remain in this module until Phase 2c (#2617).
 
 Unauthorized callers receive HTTP **403**. Admin UI for browsing is Phase 4 (#2619).
 
+## Phase 4 — Admin UI + Playwright (#2619)
+
+* WebUI Admin → System Tools → **Security Audit Log** (`SecurityAuditLogViewer`)
+* Client: `WebUI/src/main/ts/api/auditlog/*` → existing REST list/detail (no new endpoints)
+* TMX: `perc.ui.admin.auditlog@*` in `modules/perc-i18n` `CmsUi.tmx`
+* Playwright surface: `modules/perc-qa-automation/frontend/tests/admin-security-audit-log.spec.js`
+
 ## Building
 
 ```bash

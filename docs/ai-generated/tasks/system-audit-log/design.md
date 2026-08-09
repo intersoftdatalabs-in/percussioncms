@@ -73,6 +73,16 @@ Responses: `200` page/entry, `403` without permission, `404` missing id, `400` b
 
 **Not in Phase 3:** Admin WebUI viewer / Playwright (#2619).
 
+## Phase 4 — Admin UI + i18n + Playwright (#2619)
+
+- [x] Admin Tools → **Security Audit Log** viewer (filters, pagination, detail for `userMessage` / `logMessage`)
+- [x] REST client uses existing `GET /services/auditlog/entries` + `…/{auditId}` (no new REST)
+- [x] TMX keys under `perc.ui.admin.auditlog@*` / tools tab chrome in `CmsUi.tmx` (en-us + lou)
+- [x] Vitest: query builder, viewer list/detail/403/filters, tools section
+- [x] Playwright surface: `modules/perc-qa-automation/frontend/tests/admin-security-audit-log.spec.js` (`@security-audit-log`)
+
+**AuthZ (UI):** Admin shell remains Admin-only (`RequireRole gate=admin`). Server REST still enforces Admin **or** `sys_securityAuditLogViewer` for any non-UI clients.
+
 ## Phase tracking (GitHub)
 
 | Phase | Issue |

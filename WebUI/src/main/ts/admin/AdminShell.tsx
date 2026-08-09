@@ -127,7 +127,7 @@ export const AdminShell: React.FC<AdminShellProps> = ({
           className={tabClass("tools")}
           data-testid="tab-tools"
         >
-          System Tools
+          {message(ADMIN_MSG.TAB_TOOLS)}
         </button>
       </nav>
 
