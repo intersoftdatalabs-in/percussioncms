@@ -845,10 +845,10 @@ public class PSNavFolderUtils {
 
     int variantId = -1;
     PSSlotTypeContentTypeVariantSet cvs = ourSlot.getSlotVariants();
-    Iterator it = cvs.iterator();
+    Iterator<PSSlotTypeContentTypeVariant> it = cvs.iterator();
 
     while (it.hasNext()) {
-      PSSlotTypeContentTypeVariant xtv = (PSSlotTypeContentTypeVariant) it.next();
+      PSSlotTypeContentTypeVariant xtv = it.next();
       if (config.getNavonTypeIds().contains(xtv.getContentTypeId())) {
         variantId = xtv.getVariantId();
         break;

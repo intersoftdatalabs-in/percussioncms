@@ -58,9 +58,9 @@ public class PSNavSlot {
       log.debug("no child variants");
       return;
     }
-    Iterator children = childVars.iterator();
+    Iterator<PSSlotTypeContentTypeVariant> children = childVars.iterator();
     while (children.hasNext()) { // loop through all allowed variants in this slot
-      PSSlotTypeContentTypeVariant childVar = (PSSlotTypeContentTypeVariant) children.next();
+      PSSlotTypeContentTypeVariant childVar = children.next();
       PSContentTypeTemplate navonVar = navonVariants.getContentVariantById(childVar.getVariantId());
       if (navonVar != null
           && config

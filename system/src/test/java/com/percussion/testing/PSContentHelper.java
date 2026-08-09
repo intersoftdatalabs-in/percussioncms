@@ -489,9 +489,9 @@ public class PSContentHelper implements IPSResultDocumentProcessor {
           config.getAllSlots().getSlotTypeByName(config.getNavLandingPageSlotNames().get(0));
       PSSlotTypeContentTypeVariantSet cvs = landingSlot.getSlotVariants();
       int variantId = -1;
-      Iterator it = cvs.iterator();
+      Iterator<PSSlotTypeContentTypeVariant> it = cvs.iterator();
       while (it.hasNext()) {
-        PSSlotTypeContentTypeVariant xtv = (PSSlotTypeContentTypeVariant) it.next();
+        PSSlotTypeContentTypeVariant xtv = it.next();
         if (xtv.getContentTypeId() == itemDef.getTypeId()) {
           variantId = xtv.getVariantId();
           break;
