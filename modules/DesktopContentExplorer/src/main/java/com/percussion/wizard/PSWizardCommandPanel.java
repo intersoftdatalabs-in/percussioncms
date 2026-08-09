@@ -47,12 +47,12 @@ public class PSWizardCommandPanel extends JPanel implements ActionListener {
    * Constructs a new wizard panel.
    *
    * @param dialog the wizard dialog instance for which to create the command panel, not <code>null
-   *     </code>, must be an instance of <code>IPSWizardDialog</code>.
+   *     </code>.
    */
   public PSWizardCommandPanel(IPSWizardDialog dialog) {
-    if (!(dialog instanceof IPSWizardDialog))
-      throw new IllegalArgumentException(
-          "dialog cannot be null and must be an instanceof IPSWizardDialog");
+    if (dialog == null) {
+      throw new IllegalArgumentException("dialog cannot be null");
+    }
 
     m_dialog = dialog;
     initPanel();
@@ -110,11 +110,9 @@ public class PSWizardCommandPanel extends JPanel implements ActionListener {
    * @param type the panel type to be validated.
    */
   private void validateType(int type) {
-    for (int i = 0; i < IPSWizardDialog.TYPES.length; i++) {
-      if (IPSWizardDialog.TYPES[i] == type) return;
+    if (!PSWizardDialog.isValidPageType(type)) {
+      throw new IllegalArgumentException("type must be one of the IPSWizardDialog.TYPE_XXX values");
     }
-
-    throw new IllegalArgumentException("type must be one of the IPSWizardDialog.TYPE_XXX values");
   }
 
   /** Initializes the panel UI. */

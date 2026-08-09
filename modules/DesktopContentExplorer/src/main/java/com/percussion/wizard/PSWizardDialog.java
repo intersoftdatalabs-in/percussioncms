@@ -25,7 +25,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.lang.reflect.Constructor;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.swing.JPanel;
@@ -65,13 +66,142 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
     initDialog(pages);
   }
 
+  /**
+   * Resolves the wizard page type for a zero-based page index. Pure helper for unit tests.
+   *
+   * @param pageIndex zero-based index of the active page
+   * @param pageCount total number of pages, must be &gt; 0
+   * @return one of {@link IPSWizardDialog#TYPE_FIRST}, {@link IPSWizardDialog#TYPE_MID}, {@link
+   *     IPSWizardDialog#TYPE_LAST}
+   * @throws IllegalArgumentException if pageCount or pageIndex is invalid
+   */
+  public static int resolvePageType(int pageIndex, int pageCount) {
+    if (pageCount <= 0) {
+      throw new IllegalArgumentException("pageCount must be > 0");
+    }
+    if (pageIndex < 0 || pageIndex >= pageCount) {
+      throw new IllegalArgumentException("pageIndex out of range");
+    }
+    if (pageIndex == 0) {
+      return TYPE_FIRST;
+    }
+    if (pageIndex >= pageCount - 1) {
+      return TYPE_LAST;
+    }
+    return TYPE_MID;
+  }
+
+  /**
+   * Returns whether {@code type} is one of {@link IPSWizardDialog#TYPES}. Pure helper for unit
+   * tests.
+   *
+   * @param type candidate page type
+   * @return <code>true</code> when type is valid
+   */
+  public static boolean isValidPageType(int type) {
+    for (int t : TYPES) {
+      if (t == type) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Builds the last-page summary body from ordered page summaries, preserving historical append
+   * rules: a non-empty summary is appended with a trailing newline only when it is not the last
+   * page index in the wizard (skipped pages are {@code null} entries; empty summaries are
+   * omitted). Pure helper for unit tests.
+   *
+   * @param summaries ordered by page index; {@code null} entry means the page was skipped
+   * @return summary body without the original instruction prefix, never <code>null</code>
+   */
+  public static String collectSummaryBody(List<String> summaries) {
+    if (summaries == null || summaries.isEmpty()) {
+      return "";
+    }
+    StringBuilder summary = new StringBuilder();
+    int n = summaries.size();
+    for (int i = 0; i < n; i++) {
+      String sum = summaries.get(i);
+      if (sum == null) {
+        continue;
+      }
+      if (sum.trim().isEmpty()) {
+        continue;
+      }
+      // Matches Iterator.hasNext() after next(): only non-final map keys append.
+      if (i < n - 1) {
+        summary.append(sum).append('\n');
+      }
+    }
+    return summary.toString();
+  }
+
+  /**
+   * Collects non-skipped page summaries in page-index order for {@link #collectSummaryBody(List)}.
+   * Pure helper for unit tests.
+   *
+   * @param pages wizard pages keyed by page index, may not be <code>null</code>
+   * @param skippedPages skipped pages keyed by page index, may be <code>null</code>
+   * @return ordered list with {@code null} for skipped pages, never <code>null</code>
+   */
+  public static List<String> collectOrderedSummaries(
+      Map<Integer, IPSWizardPanel> pages, Map<Integer, IPSWizardPanel> skippedPages) {
+    if (pages == null) {
+      throw new IllegalArgumentException("pages cannot be null");
+    }
+    List<String> summaries = new ArrayList<>(pages.size());
+    for (Map.Entry<Integer, IPSWizardPanel> e : pages.entrySet()) {
+      if (skippedPages != null && skippedPages.get(e.getKey()) != null) {
+        summaries.add(null);
+        continue;
+      }
+      IPSWizardPanel panel = e.getValue();
+      summaries.add(panel == null ? "" : panel.getSummary());
+    }
+    return summaries;
+  }
+
+  /**
+   * Prepends the original last-page instruction to a collected summary body. Pure helper for unit
+   * tests.
+   *
+   * @param originalInstruction instruction saved from the last page, may be <code>null</code>
+   * @param summaryBody body from {@link #collectSummaryBody(List)}, may be <code>null</code>
+   * @return combined last-page instruction text, never <code>null</code>
+   */
+  public static String prependLastPageInstruction(String originalInstruction, String summaryBody) {
+    String orig = originalInstruction == null ? "" : originalInstruction;
+    String body = summaryBody == null ? "" : summaryBody;
+    return orig + "\n\n" + body;
+  }
+
+  /**
+   * Collects panel data in page-index order. Pure helper for unit tests.
+   *
+   * @param pages wizard pages keyed by page index, may not be <code>null</code>
+   * @return array of page data (each element may be <code>null</code>), never <code>null</code>
+   */
+  public static Object[] collectPageData(Map<Integer, IPSWizardPanel> pages) {
+    if (pages == null) {
+      throw new IllegalArgumentException("pages cannot be null");
+    }
+    Object[] data = new Object[pages.size()];
+    for (int i = 0; i < pages.size(); i++) {
+      IPSWizardPanel panel = pages.get(Integer.valueOf(i));
+      data[i] = panel == null ? null : panel.getData();
+    }
+    return data;
+  }
+
   /* (non-Javadoc)
    * @see IPSWizardDialog#onNext()
    */
   public void onNext() {
     try {
       Integer key = Integer.valueOf(m_pageIndex);
-      IPSWizardPanel panel = (IPSWizardPanel) m_pages.get(key);
+      IPSWizardPanel panel = m_pages.get(key);
       panel.validatePanel();
 
       while (panel.skipNext()) {
@@ -80,7 +210,7 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
 
         key = Integer.valueOf(m_pageIndex);
         m_skippedPages.put(key, m_pages.get(key));
-        panel = (IPSWizardPanel) m_pages.get(key);
+        panel = m_pages.get(key);
       }
 
       m_cards.next(m_mainPanel);
@@ -101,7 +231,7 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
     --m_pageIndex;
 
     Integer key = Integer.valueOf(m_pageIndex);
-    IPSWizardPanel panel = (IPSWizardPanel) m_skippedPages.get(key);
+    IPSWizardPanel panel = m_skippedPages.get(key);
     while (panel != null) {
       m_skippedPages.remove(key);
 
@@ -109,7 +239,7 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
       --m_pageIndex;
 
       key = Integer.valueOf(m_pageIndex);
-      panel = (IPSWizardPanel) m_skippedPages.get(key);
+      panel = m_skippedPages.get(key);
     }
 
     updateControls();
@@ -133,11 +263,7 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
    * @see Object[] IPSWizardDialog#getData()
    */
   public Object[] getData() {
-    Object[] data = new Object[m_pages.size()];
-    for (int i = 0; i < m_pages.size(); i++)
-      data[i] = ((IPSWizardPanel) m_pages.get(Integer.valueOf(i))).getData();
-
-    return data;
+    return collectPageData(m_pages);
   }
 
   /**
@@ -178,7 +304,7 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
     panel.setPreferredSize(new Dimension(600, 300));
     System.out.println("Number of pages =" + pages.length);
     for (int i = 0; i < pages.length; i++) {
-      Object[] page = (Object[]) pages[i];
+      Object[] page = pages[i];
       System.out.println("create page " + (String) page[PAGE_PANEL]);
 
       Integer key = Integer.valueOf(i);
@@ -198,15 +324,6 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
   }
 
   /**
-   * Are we on the first wizard page?
-   *
-   * @return <code>true</code> if we are, <code>false</code> otherwise.
-   */
-  private boolean isFirst() {
-    return m_pageIndex == 0;
-  }
-
-  /**
    * Are we on the last wizard page?
    *
    * @return <code>true</code> if we are, <code>false</code> otherwise.
@@ -221,10 +338,7 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
    * @return the type of the currently active page, one of the <code>TYPE_XXX</code> values.
    */
   private int getPageType() {
-    if (isFirst()) return TYPE_FIRST;
-    else if (isLast()) return TYPE_LAST;
-
-    return TYPE_MID;
+    return resolvePageType(m_pageIndex, m_pages.size());
   }
 
   /**
@@ -240,29 +354,14 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
        * Collect the summaries from all pages to build the instruction
        * set on the last wizard page.
        */
-      StringBuffer summary = new StringBuffer();
+      List<String> summaries = collectOrderedSummaries(m_pages, m_skippedPages);
+      String body = collectSummaryBody(summaries);
 
-      IPSWizardPanel page = null;
-      Iterator keys = m_pages.keySet().iterator();
-      while (keys.hasNext()) {
-        Integer key = (Integer) keys.next();
-        page = (IPSWizardPanel) m_pages.get(key);
-        if (m_skippedPages.get(key) != null) continue;
-
-        String sum = page.getSummary();
-        if (sum.trim().length() == 0) continue;
-
-        if (keys.hasNext()) summary.append(sum + "\n");
+      IPSWizardPanel page = m_pages.get(Integer.valueOf(m_pages.size() - 1));
+      if (m_lastPageInstruction == null) {
+        m_lastPageInstruction = page.getInstruction();
       }
-
-      /*
-       * Pre-pend the last page instruction to the summaries collected
-       * from all pages and set the new instruction for the last wizard
-       * page.
-       */
-      if (m_lastPageInstruction == null) m_lastPageInstruction = page.getInstruction();
-      summary.insert(0, m_lastPageInstruction + "\n\n");
-      page.setInstruction(summary.toString());
+      page.setInstruction(prependLastPageInstruction(m_lastPageInstruction, body));
     }
   }
 
@@ -277,10 +376,10 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
     System.out.println("Instantiate PSWizardPanel");
     PSWizardPanel page = null;
     try {
-      Class c = Class.forName(className);
-      Constructor ctor = c.getConstructor(new Class[] {PSContentExplorerApplet.class});
+      Class<?> c = Class.forName(className);
+      Constructor<?> ctor = c.getConstructor(PSContentExplorerApplet.class);
 
-      page = (PSWizardPanel) ctor.newInstance(new Object[] {m_applet});
+      page = (PSWizardPanel) ctor.newInstance(m_applet);
     } catch (Exception e) {
       System.out.println("Error finding class " + className);
       e.printStackTrace();
@@ -303,17 +402,17 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
    * 0) while the map value is the page as <code>IPSWizardPanel</code>. Initialized in {@link
    * #createMainPanel(Object[][])}, never changed after that.
    */
-  private Map m_pages = new TreeMap();
+  private final Map<Integer, IPSWizardPanel> m_pages = new TreeMap<>();
 
   /**
    * The map used to keep track of skipped wizard pages. The map key is an <code>Integer</code> with
    * the page index (starting at 0) while the map value is the page as <code>IPSWizardPanel</code>.
    * Initialized to an empty map, updated on calls to {@link #onNext()} or {@link #onBack()}.
    */
-  private Map m_skippedPages = new TreeMap();
+  private final Map<Integer, IPSWizardPanel> m_skippedPages = new TreeMap<>();
 
   /** The card layout used for the wizards main panel. */
-  private CardLayout m_cards = new CardLayout();
+  private final CardLayout m_cards = new CardLayout();
 
   /**
    * The main wizard panel, initialized during construction, never <code>null</code> or changed
