@@ -108,8 +108,19 @@ Productized entrypoint on `docker/scripts/perc-devctl.py` (cross-platform Python
 
 **Prereq (once per machine / after installer or sitemanage/WebUI SNAPSHOT changes):** rebuild the chain that feeds the installer. The matrix cell **bind-mounts** `modules/perc-distribution-tree/target/perc-distribution-tree.jar`; that jar unpacks **`WebUI/target/perc-web-ui-*.war`** into `Rhythmyx/WEB-INF/lib` (including `sitemanage-*.jar`). Packaging only `perc-distribution-tree` after a sitemanage-only install **does not** pick up a new sitemanage if the WebUI WAR is stale.
 
+**Preferred driver (#2533):** use the portable `perc-devctl` / `qa_rebuild_chain.py` entry point instead of hand-typed `cd` + `mvnw` (wrong order and skipped WebUI were common agent failures). It runs repo-root `mvnw`/`mvnw.cmd` with `shell=False`, prints `PLANNED STEP:` / `RESULT:OK|FAIL` lines, and supports `--dry-run`.
+
 ```bash
 # After sitemanage (or other Rhythmyx WEB-INF/lib) changes — full QA rebuild chain:
+python docker/scripts/perc-devctl.py qa-rebuild-chain --skip-tests
+# equivalent standalone:
+# python docker/scripts/qa_rebuild_chain.py --skip-tests
+# plan only: add --dry-run
+```
+
+Manual equivalent (same order the driver executes):
+
+```bash
 cd projects/sitemanage && ../../mvnw clean install   # or package if tests already green
 cd ../../WebUI && ../mvnw package -DskipTests
 cd ../modules/perc-distribution-tree && ../../mvnw clean package -DskipTests
@@ -119,9 +130,12 @@ cd ../modules/perc-distribution-tree && ../../mvnw clean package -DskipTests
 If only installer packaging scripts/resources changed (no Java SNAPSHOT under the WAR):
 
 ```bash
-cd modules/perc-distribution-tree && ../../mvnw package -DskipTests
+python docker/scripts/perc-devctl.py qa-rebuild-chain --dist-only
+# manual: cd modules/perc-distribution-tree && ../../mvnw package -DskipTests
 # Windows: cd modules\perc-distribution-tree && ..\..\mvnw.cmd package -DskipTests
 ```
+
+When `qa-preflight --strict` reports `STALE:`, run `qa-rebuild-chain` (not dist-only) then re-check preflight before `qa-up`. Optional one-shot: `qa-rebuild-chain --skip-tests --then-qa-up`.
 
 **Post-cycle-fix smoke (#2423 / #2437):** after the rebuild chain, `qa-up` logs must show `ServletContextHandler] Started` for ROOT/Rhythmyx and **must not** contain `BeanCurrentlyInCreationException` / `Failed startup of context`. `qa-health` → `HTTP 200/302/401/403` on the **probe URL** is the operator gate before Playwright. The default probe URL is the matrix-recommended primary `/Rhythmyx/rest/mimetypes` (#2482; Spring-managed `MimeTypeResource.ping()` — returns 404 instead of 200 when the Rhythmyx Spring `ApplicationContext` is dead). Legacy `/Rhythmyx/login` is still accepted as a fallback but only proves Jetty is up, not Spring. Override with env `RHYTHMYX_HEALTH_PATH=…` (honored by `perc-devctl.py qa-health`, in-image `rhythmyx_healthcheck.py`, and any external orchestrator). Full matrix + capability analysis: [`../ai-generated/tasks/2482-readiness-signal/rhythmyx-readiness-probe-matrix.md`](../ai-generated/tasks/2482-readiness-signal/rhythmyx-readiness-probe-matrix.md).
 
