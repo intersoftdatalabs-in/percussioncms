@@ -95,6 +95,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(screen.getByTestId("content-explorer-shell")).toBeInTheDocument();
     expect(screen.getByTestId("explorer-toggle-search")).toBeInTheDocument();
     expect(screen.getByTestId("explorer-toggle-security")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("explorer-toggle-translations"),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("explorer-display-format")).toBeInTheDocument();
 
     await waitFor(() => {
@@ -152,8 +155,12 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       EXPLORER_MSG.VIEW_TOOLS_ARIA,
       EXPLORER_MSG.TOGGLE_SEARCH_ARIA,
       EXPLORER_MSG.TOGGLE_SECURITY_ARIA,
+      EXPLORER_MSG.TOGGLE_TRANSLATIONS_ARIA,
       EXPLORER_MSG.SEARCH_PANEL_REGION,
       EXPLORER_MSG.SECURITY_PANEL_REGION,
+      EXPLORER_MSG.TRANSLATIONS_PANEL_REGION,
+      EXPLORER_MSG.TRANSLATIONS_TITLE,
+      EXPLORER_MSG.TRANSLATIONS_SELECT_ITEM,
       EXPLORER_MSG.SECURITY_SELECT_FOLDER,
       EXPLORER_MSG.FOLDER_PROPS_TITLE,
       EXPLORER_MSG.FOLDER_PROPS_COMMUNITY,
@@ -210,6 +217,23 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("explorer-security-hint")).toBeInTheDocument();
     });
+  });
+
+  it("translations toggle shows select-item hint without a content selection (#2430)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("explorer-toggle-translations"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-translations-hint"),
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("translations-panel")).toBeNull();
   });
 
   it("security stays on hint when resolveFolderId rejects (#2410)", async () => {

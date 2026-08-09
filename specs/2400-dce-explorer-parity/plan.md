@@ -36,7 +36,7 @@ Wire existing Explorer panels into `ContentExplorerShell` so `/cm/app/explorer` 
 | Column cell data | Use `PSPathItem.displayProperties` / `columnData` when `displayFormatId` set on paginatedFolder | **Done** for shell path (PR #2412) |
 | Workflow / modified columns empty | If still empty after format id, extend path list DTO in sitemanage (not invent on client) | Open if QA finds empty columns |
 | Saved search **execute** | **Façade** `POST /rest/searches/{idOrName}/execute` (disposition #2504 / [research note](./research/saved-search-execute-disposition.md)); implement #2505 + Explorer #2506 + Playwright #2507 | Disposition **Done** (#2504 / [PR #2579](https://github.com/intersoftdatalabs-in/percussioncms/pull/2579)); implement B–D **open** |
-| Translation workflow | Spike existing i18n/item endpoints; new façade only if needed | Inventory **Done** (#2428 / [PR #2431](https://github.com/intersoftdatalabs-in/percussioncms/pull/2431)); REST #2429 + UI #2430 **open** |
+| Translation workflow | Spike existing i18n/item endpoints; new façade only if needed | Inventory **Done** (#2428 / [PR #2431](https://github.com/intersoftdatalabs-in/percussioncms/pull/2431)); REST #2429 **Done** ([PR #2601](https://github.com/intersoftdatalabs-in/percussioncms/pull/2601)); Explorer UI #2430 **in PR** (locales + create Present; in-flight OUT) |
 
 ## Phase 3 — Action / workflow depth
 
@@ -59,7 +59,8 @@ Wire existing Explorer panels into `ContentExplorerShell` so `/cm/app/explorer` 
 
 1. **#2410** — folder security polish + properties parity  
 2. **#2409** — saved searches: **#2505** REST execute → **#2506** SearchPanel UI → **#2507** Playwright  
-3. **#2411** — translation: **#2429** REST façade (if needed) → **#2430** Explorer UI (#2428 inventory already merged)  
+3. **#2411** — translation: **#2429** REST **Done** → **#2430** Explorer UI (locales + create); in-flight/session remain product OUT  
+
 4. Phase 4 advanced chrome / menu bar — file children only when prioritized
 
 ## Test strategy
