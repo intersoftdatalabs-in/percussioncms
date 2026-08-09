@@ -31,7 +31,8 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 /**
- * Behavioral tests for typed cataloger APIs after Collection/Iterator rawtypes cleanup (#2384).
+ * Behavioral tests for typed cataloger APIs after Collection/Iterator rawtypes cleanup (#2384) and
+ * this-escape real-fix pure static parse helpers (#2547).
  */
 public class PSCatalogerTypingTest {
 
@@ -70,6 +71,23 @@ public class PSCatalogerTypingTest {
   }
 
   @Test
+  public void communityParseHelperIsPureAndIndependentOfInstance() throws Exception {
+    Collection<PSCommunityCataloger.Community> parsed =
+        PSCommunityCataloger.parseCommunities(
+            parse(
+                    "<communities>"
+                        + "<list>"
+                        + "<communityname>Solo</communityname>"
+                        + "<communityid>7</communityid>"
+                        + "<communitydesc>one</communitydesc>"
+                        + "</list>"
+                        + "</communities>")
+                .getDocumentElement());
+    assertEquals(1, parsed.size());
+    assertEquals(7, parsed.iterator().next().getId());
+  }
+
+  @Test
   public void roleCatalogFromXml() throws Exception {
     PSRoleCataloger cataloger = new PSRoleCataloger();
     cataloger.fromXml(
@@ -83,6 +101,16 @@ public class PSCatalogerTypingTest {
     Collection<PSRoleCataloger.Role> roles = cataloger.getRoles();
     assertEquals(2, roles.size());
     assertEquals("Admin", roles.iterator().next().getName());
+  }
+
+  @Test
+  public void roleParseHelperRejectsWrongRoot() {
+    assertThrows(
+        Exception.class,
+        () ->
+            PSRoleCataloger.parseRoles(
+                parse("<wrongRoot><PSXRole><name>x</name></PSXRole></wrongRoot>")
+                    .getDocumentElement()));
   }
 
   @Test
@@ -108,6 +136,15 @@ public class PSCatalogerTypingTest {
   }
 
   @Test
+  public void subjectParseHelperRequiresAtLeastOneSubject() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            PSSubjectCataloger.parseSubjects(
+                parse("<getSubject></getSubject>").getDocumentElement()));
+  }
+
+  @Test
   public void localeCatalogFromXml() throws Exception {
     PSLocaleCataloger cataloger = new PSLocaleCataloger();
     // PSEntry expects PSXDisplayText child then Value sibling
@@ -128,6 +165,22 @@ public class PSCatalogerTypingTest {
   }
 
   @Test
+  public void localeParseHelperReturnsEntries() throws Exception {
+    Collection<PSEntry> locales =
+        PSLocaleCataloger.parseLocales(
+            parse(
+                    "<locales>"
+                        + "<PSXEntry>"
+                        + "<PSXDisplayText>French</PSXDisplayText>"
+                        + "<Value>fr-fr</Value>"
+                        + "</PSXEntry>"
+                        + "</locales>")
+                .getDocumentElement());
+    assertEquals(1, locales.size());
+    assertEquals("fr-fr", locales.iterator().next().getValue());
+  }
+
+  @Test
   public void globalTemplateCatalogFromXml() throws Exception {
     PSGlobalTemplateCataloger cataloger = new PSGlobalTemplateCataloger();
     cataloger.fromXml(
@@ -142,6 +195,19 @@ public class PSCatalogerTypingTest {
     assertEquals(2, templates.size());
     assertTrue(templates.contains("rffGiFin"));
     assertTrue(templates.contains("rffGiCal"));
+  }
+
+  @Test
+  public void globalTemplateParseHelper() throws Exception {
+    Collection<String> templates =
+        PSGlobalTemplateCataloger.parseGlobalTemplates(
+            parse(
+                    "<GlobalTemplates>"
+                        + "<Template name=\"onlyOne\"/>"
+                        + "</GlobalTemplates>")
+                .getDocumentElement());
+    assertEquals(1, templates.size());
+    assertTrue(templates.contains("onlyOne"));
   }
 
   @Test
@@ -174,6 +240,41 @@ public class PSCatalogerTypingTest {
     assertNull(mapper.getCompatibleCommunities(Integer.valueOf(99)));
     assertThrows(
         IllegalArgumentException.class, () -> mapper.getCompatibleCommunities(null));
+  }
+
+  @Test
+  public void communityContentTypeMapperParseHelper() throws Exception {
+    var map =
+        PSCommunityContentTypeMapperCataloger.parseMapper(
+            parse(
+                    "<CommunityContentTypeMapper>"
+                        + "<CommunityContentTypeMapping communityName=\"A\" communityId=\"1\">"
+                        + "<ContentType name=\"Page\" id=\"10\"/>"
+                        + "</CommunityContentTypeMapping>"
+                        + "</CommunityContentTypeMapper>")
+                .getDocumentElement());
+    assertEquals(1, map.size());
+    assertEquals(1, map.keySet().iterator().next().getId());
+  }
+
+  @Test
+  public void communityCloneCopiesEntriesWithoutSharingCollection() throws Exception {
+    PSCommunityCataloger cataloger = new PSCommunityCataloger();
+    cataloger.fromXml(
+        parse(
+                "<communities>"
+                    + "<list>"
+                    + "<communityname>Default</communityname>"
+                    + "<communityid>1001</communityid>"
+                    + "<communitydesc>Default community</communitydesc>"
+                    + "</list>"
+                    + "</communities>")
+            .getDocumentElement());
+
+    PSCommunityCataloger clone = (PSCommunityCataloger) cataloger.clone();
+    assertEquals(1, clone.getCommunities().size());
+    assertEquals(cataloger.getCommunities().iterator().next().getId(),
+        clone.getCommunities().iterator().next().getId());
   }
 
   private static Document parse(String xml) throws Exception {

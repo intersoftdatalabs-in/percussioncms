@@ -31,14 +31,21 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/** Catalogs all server roles by querying the ../sys_components/getRole.xml app. */
-public class PSRoleCataloger {
+/**
+ * Catalogs all server roles by querying the ../sys_components/getRole.xml app.
+ *
+ * <p>Declared {@code final} with a {@code final} collection field and a pure static XML parse
+ * helper so constructors never call overridable instance methods (javac {@code this-escape}).
+ */
+public final class PSRoleCataloger {
   /**
    * Default constructor. Does nothing. Must be followed by call to fromXml() method. This is useful
    * only to build an object in the fly means the state information might not come from the Rhythmyx
    * server.
    */
-  public PSRoleCataloger() {}
+  public PSRoleCataloger() {
+    m_collRoles = new ArrayList<>();
+  }
 
   /**
    * Constructor meant to be used in the context of an applet. This may not work in other contexts
@@ -48,11 +55,10 @@ public class PSRoleCataloger {
    * @throws PSCmsException if request to server to get the data fails for any reason.
    */
   public PSRoleCataloger(URL urlBase) throws PSCmsException {
-    m_collRoles.clear();
     try {
       URL url = new URL(urlBase, "sys_components/getRole.xml");
       Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
-      fromXml(doc.getDocumentElement());
+      m_collRoles = parseRoles(doc.getDocumentElement());
     } catch (Exception e) {
       throw new PSCmsException(IPSContentExplorerErrors.CATALOG_ERROR, e.getMessage());
     }
@@ -60,24 +66,15 @@ public class PSRoleCataloger {
 
   /** Implementation of the clone. */
   public Object clone() {
-    PSRoleCataloger clone = null;
-    try {
-      clone = (PSRoleCataloger) super.clone();
+    PSRoleCataloger clone = new PSRoleCataloger();
 
-      Collection<Role> clonedRoles = new ArrayList<>();
-
-      for (Role role : m_collRoles) {
-        Object roleClone = role.clone();
-        if (roleClone instanceof Role) {
-          clonedRoles.add((Role) roleClone);
-        }
+    for (Role role : m_collRoles) {
+      Object roleClone = role.clone();
+      if (roleClone instanceof Role) {
+        clone.m_collRoles.add((Role) roleClone);
       }
-
-      clone.m_collRoles = clonedRoles;
-
-    } catch (CloneNotSupportedException e) {
-      // ????
     }
+
     return clone;
   }
 
@@ -89,20 +86,23 @@ public class PSRoleCataloger {
     PSRoleCataloger that = (PSRoleCataloger) object;
 
     return new org.apache.commons.lang3.builder.EqualsBuilder()
-        .appendSuper(super.equals(object))
         .append(m_collRoles, that.m_collRoles)
         .isEquals();
   }
 
   public int hashCode() {
     return new org.apache.commons.lang3.builder.HashCodeBuilder(17, 37)
-        .appendSuper(super.hashCode())
         .append(m_collRoles)
         .toHashCode();
   }
 
-  /** Represents a single role. */
-  public class Role {
+  /**
+   * Represents a single role.
+   *
+   * <p>Static nested type so constructing a {@code Role} never captures the enclosing cataloger
+   * (javac {@code this-escape}).
+   */
+  public static final class Role {
     /**
      * Default constructor. Does nothing. Must be followed by call to fromXml() method. This is
      * useful only to build an object in the fly means the state information might not come from the
@@ -111,13 +111,13 @@ public class PSRoleCataloger {
     public Role() {}
 
     /**
-     * Constructor that calls fromXml.
+     * Constructor that loads from XML via the private apply helper.
      *
      * @param elemRoot the element that contains data for a single Role, never <code>null</code>.
      * @throws PSUnknownNodeTypeException if the element is not in the expected format.
      */
     public Role(Element elemRoot) throws PSUnknownNodeTypeException {
-      fromXml(elemRoot);
+      applyFromXml(elemRoot);
     }
 
     /**
@@ -128,6 +128,10 @@ public class PSRoleCataloger {
      * @throws PSUnknownNodeTypeException if the element is not in the expected format.
      */
     public void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
+      applyFromXml(elemRoot);
+    }
+
+    private void applyFromXml(Element elemRoot) throws PSUnknownNodeTypeException {
       PSXMLDomUtil.checkNode(elemRoot, XML_ELEM_PSXROLE);
       Element el = PSXMLDomUtil.getFirstElementChild(elemRoot, XML_ELEM_NAME);
       m_name = PSXMLDomUtil.getElementData(el);
@@ -156,16 +160,8 @@ public class PSRoleCataloger {
      * Implementation of the interface method
      */
     public Object clone() {
-      Role clone = null;
-      try {
-        clone = (Role) super.clone();
-
-        clone.m_name = m_name;
-
-      } catch (CloneNotSupportedException e) {
-        // ????
-      }
-
+      Role clone = new Role();
+      clone.m_name = m_name;
       return clone;
     }
 
@@ -194,7 +190,20 @@ public class PSRoleCataloger {
    * @throws PSUnknownNodeTypeException if the element is not in the expected format.
    */
   public void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
+    Collection<Role> parsed = parseRoles(elemRoot);
     m_collRoles.clear();
+    m_collRoles.addAll(parsed);
+  }
+
+  /**
+   * Pure parse of role catalog XML into a new mutable collection. Package-private for unit tests.
+   *
+   * @param elemRoot the root element of the catalog response, may not be <code>null</code>
+   * @return newly allocated collection of roles, never <code>null</code>
+   * @throws PSUnknownNodeTypeException if the element is not in the expected format
+   */
+  static Collection<Role> parseRoles(Element elemRoot) throws PSUnknownNodeTypeException {
+    Collection<Role> roles = new ArrayList<>();
 
     PSXMLDomUtil.checkNode(elemRoot, XML_ELEM_ROOT);
 
@@ -204,10 +213,10 @@ public class PSRoleCataloger {
       Node n = nl.item(i);
       if (n.getNodeType() != Node.ELEMENT_NODE) continue;
 
-      Role role = new Role((Element) n);
-
-      m_collRoles.add(role);
+      roles.add(new Role((Element) n));
     }
+
+    return roles;
   }
 
   /**
@@ -231,8 +240,10 @@ public class PSRoleCataloger {
     return Collections.unmodifiableCollection(m_collRoles);
   }
 
-  /** Collection of cataloged Role instances. */
-  private Collection<Role> m_collRoles = new ArrayList<>();
+  /**
+   * Collection of cataloged Role instances. Final reference; contents replaced via clear / addAll.
+   */
+  private final Collection<Role> m_collRoles;
 
   /** Root element name in the catalog response. */
   public static final String XML_ELEM_ROOT = "getRole";

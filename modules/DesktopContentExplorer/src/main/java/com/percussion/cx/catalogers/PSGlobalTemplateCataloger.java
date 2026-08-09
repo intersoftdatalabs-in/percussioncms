@@ -29,13 +29,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/** This class catalogs all global template names found in rhythmyx. */
-public class PSGlobalTemplateCataloger {
+/**
+ * This class catalogs all global template names found in rhythmyx.
+ *
+ * <p>Declared {@code final} with a {@code final} collection field and a pure static XML parse
+ * helper so constructors never call overridable instance methods (javac {@code this-escape}).
+ */
+public final class PSGlobalTemplateCataloger {
   /**
    * Default constructor for offline construction and tests. Must be followed by {@link
    * #fromXml(Element)}.
    */
-  PSGlobalTemplateCataloger() {}
+  PSGlobalTemplateCataloger() {
+    m_globalTemplates = new ArrayList<>();
+  }
 
   /**
    * Constructs a new global template cataloger.
@@ -50,7 +57,7 @@ public class PSGlobalTemplateCataloger {
       URL url = new URL(urlBase, "sys_psxCataloger/getGlobalTemplates.xml");
       Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
 
-      fromXml(doc.getDocumentElement());
+      m_globalTemplates = parseGlobalTemplates(doc.getDocumentElement());
     } catch (Exception e) {
       throw new PSCmsException(IPSContentExplorerErrors.CATALOG_ERROR, e.getMessage());
     }
@@ -66,15 +73,33 @@ public class PSGlobalTemplateCataloger {
    * @throws PSUnknownNodeTypeException for any unknown XML node.
    */
   void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
+    Collection<String> parsed = parseGlobalTemplates(elemRoot);
     m_globalTemplates.clear();
+    m_globalTemplates.addAll(parsed);
+  }
+
+  /**
+   * Pure parse of global template catalog XML into a new mutable collection. Package-private for
+   * unit tests.
+   *
+   * @param elemRoot the XML element from which to load the global template names, assumed not
+   *     <code>null</code>
+   * @return newly allocated collection of template names, never <code>null</code>
+   * @throws PSUnknownNodeTypeException for any unknown XML node
+   */
+  static Collection<String> parseGlobalTemplates(Element elemRoot)
+      throws PSUnknownNodeTypeException {
+    Collection<String> templates = new ArrayList<>();
 
     PSXMLDomUtil.checkNode(elemRoot, ROOT_ELEM);
 
-    NodeList templates = elemRoot.getElementsByTagName(TEMPLATE_ELEM);
-    for (int i = 0; i < templates.getLength(); i++) {
-      Element template = (Element) templates.item(i);
-      m_globalTemplates.add(template.getAttribute(NAME_ATTR));
+    NodeList templateNodes = elemRoot.getElementsByTagName(TEMPLATE_ELEM);
+    for (int i = 0; i < templateNodes.getLength(); i++) {
+      Element template = (Element) templateNodes.item(i);
+      templates.add(template.getAttribute(NAME_ATTR));
     }
+
+    return templates;
   }
 
   /**
@@ -88,10 +113,10 @@ public class PSGlobalTemplateCataloger {
   }
 
   /**
-   * The collection of all global template names, reset with each call to {@link #fromXml(Element)},
-   * never <code>null</code>, may be empty.
+   * The collection of all global template names. Final reference; contents replaced via clear /
+   * addAll with each call to {@link #fromXml(Element)}.
    */
-  private Collection<String> m_globalTemplates = new ArrayList<>();
+  private final Collection<String> m_globalTemplates;
 
   // private XML constants
   private static final String ROOT_ELEM = "GlobalTemplates";

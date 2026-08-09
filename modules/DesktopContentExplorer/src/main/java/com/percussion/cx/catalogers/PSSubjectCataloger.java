@@ -31,14 +31,21 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/** Catalogs all server users by querying the ../sys_components/getSubject.xml app. */
-public class PSSubjectCataloger {
+/**
+ * Catalogs all server users by querying the ../sys_components/getSubject.xml app.
+ *
+ * <p>Declared {@code final} with a {@code final} collection field and a pure static XML parse
+ * helper so constructors never call overridable instance methods (javac {@code this-escape}).
+ */
+public final class PSSubjectCataloger {
   /**
    * Default constructor. Does nothing. Must be followed by call to fromXml() method. This is useful
    * only to build an object in the fly means the state information might not come from the Rhythmyx
    * server.
    */
-  public PSSubjectCataloger() {}
+  public PSSubjectCataloger() {
+    m_collSubjects = new ArrayList<>();
+  }
 
   /**
    * Constructor meant to be used in the context of an applet. This may not work in other contexts
@@ -48,11 +55,10 @@ public class PSSubjectCataloger {
    * @throws PSCmsException if request to server to get the data fails for any reason.
    */
   public PSSubjectCataloger(URL urlBase) throws PSCmsException {
-    m_collSubjects.clear();
     try {
       URL url = new URL(urlBase, "sys_components/getSubject.xml");
       Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
-      fromXml(doc.getDocumentElement());
+      m_collSubjects = parseSubjects(doc.getDocumentElement());
     } catch (Exception e) {
       throw new PSCmsException(IPSContentExplorerErrors.CATALOG_ERROR, e.getMessage());
     }
@@ -62,24 +68,15 @@ public class PSSubjectCataloger {
    * Implementation of the interface method.
    */
   public Object clone() {
-    PSSubjectCataloger clone = null;
-    try {
-      clone = (PSSubjectCataloger) super.clone();
+    PSSubjectCataloger clone = new PSSubjectCataloger();
 
-      Collection<Subject> clonedSubjects = new ArrayList<>();
-
-      for (Subject subject : m_collSubjects) {
-        Object subjectClone = subject.clone();
-        if (subjectClone instanceof Subject) {
-          clonedSubjects.add((Subject) subjectClone);
-        }
+    for (Subject subject : m_collSubjects) {
+      Object subjectClone = subject.clone();
+      if (subjectClone instanceof Subject) {
+        clone.m_collSubjects.add((Subject) subjectClone);
       }
-
-      clone.m_collSubjects = clonedSubjects;
-
-    } catch (CloneNotSupportedException e) {
-      // TODO:  Fix ME ????
     }
+
     return clone;
   }
 
@@ -91,20 +88,23 @@ public class PSSubjectCataloger {
     PSSubjectCataloger that = (PSSubjectCataloger) object;
 
     return new org.apache.commons.lang3.builder.EqualsBuilder()
-        .appendSuper(super.equals(object))
         .append(m_collSubjects, that.m_collSubjects)
         .isEquals();
   }
 
   public int hashCode() {
     return new org.apache.commons.lang3.builder.HashCodeBuilder(17, 37)
-        .appendSuper(super.hashCode())
         .append(m_collSubjects)
         .toHashCode();
   }
 
-  /** Represents a single Subject */
-  public class Subject {
+  /**
+   * Represents a single Subject.
+   *
+   * <p>Static nested type so constructing a {@code Subject} never captures the enclosing cataloger
+   * (javac {@code this-escape}).
+   */
+  public static final class Subject {
     /**
      * Default constructor. Does nothing. Must be followed by call to fromXml() method. This is
      * useful only to build an object in the fly means the state information might not come from the
@@ -113,13 +113,13 @@ public class PSSubjectCataloger {
     public Subject() {}
 
     /**
-     * Constructor that calls fromXml.
+     * Constructor that loads from XML via the private apply helper.
      *
      * @param elemRoot the element that contains data for a single Subject, never <code>null</code>.
      * @throws PSUnknownNodeTypeException if the element is not in the expected format.
      */
     public Subject(Element elemRoot) throws PSUnknownNodeTypeException {
-      fromXml(elemRoot);
+      applyFromXml(elemRoot);
     }
 
     /**
@@ -130,6 +130,10 @@ public class PSSubjectCataloger {
      * @throws PSUnknownNodeTypeException if the element is not in the expected format.
      */
     public void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
+      applyFromXml(elemRoot);
+    }
+
+    private void applyFromXml(Element elemRoot) throws PSUnknownNodeTypeException {
       PSXMLDomUtil.checkNode(elemRoot, XML_ELEM_PSXSUBJECT);
       Element el = PSXMLDomUtil.getFirstElementChild(elemRoot, XML_ELEM_NAME);
       m_name = PSXMLDomUtil.getElementData(el);
@@ -195,18 +199,10 @@ public class PSSubjectCataloger {
      * Implementation of the interface method.
      */
     public Object clone() {
-      Subject clone = null;
-      try {
-        clone = (Subject) super.clone();
-
-        clone.m_name = m_name;
-
-        clone.m_securityProviderType = m_securityProviderType;
-        clone.m_securityProviderInstance = m_securityProviderInstance;
-      } catch (CloneNotSupportedException e) {
-        // ????
-      }
-
+      Subject clone = new Subject();
+      clone.m_name = m_name;
+      clone.m_securityProviderType = m_securityProviderType;
+      clone.m_securityProviderInstance = m_securityProviderInstance;
       return clone;
     }
 
@@ -250,7 +246,21 @@ public class PSSubjectCataloger {
    * @throws PSUnknownNodeTypeException if the element is not in the expected format.
    */
   public void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
+    Collection<Subject> parsed = parseSubjects(elemRoot);
     m_collSubjects.clear();
+    m_collSubjects.addAll(parsed);
+  }
+
+  /**
+   * Pure parse of subject catalog XML into a new mutable collection. Package-private for unit
+   * tests.
+   *
+   * @param elemRoot the root element of the catalog response, may not be <code>null</code>
+   * @return newly allocated collection of subjects, never <code>null</code>
+   * @throws PSUnknownNodeTypeException if the element is not in the expected format
+   */
+  static Collection<Subject> parseSubjects(Element elemRoot) throws PSUnknownNodeTypeException {
+    Collection<Subject> subjects = new ArrayList<>();
 
     PSXMLDomUtil.checkNode(elemRoot, XML_ELEM_ROOT);
 
@@ -262,10 +272,10 @@ public class PSSubjectCataloger {
       Node n = nl.item(i);
       if (n.getNodeType() != Node.ELEMENT_NODE) continue;
 
-      Subject subject = new Subject((Element) n);
-
-      m_collSubjects.add(subject);
+      subjects.add(new Subject((Element) n));
     }
+
+    return subjects;
   }
 
   /**
@@ -277,8 +287,11 @@ public class PSSubjectCataloger {
     return Collections.unmodifiableCollection(m_collSubjects);
   }
 
-  /** Collection of cataloged Subject instances. */
-  private Collection<Subject> m_collSubjects = new ArrayList<>();
+  /**
+   * Collection of cataloged Subject instances. Final reference; contents replaced via clear /
+   * addAll.
+   */
+  private final Collection<Subject> m_collSubjects;
 
   /** Root element name in the catalog response. */
   public static final String XML_ELEM_ROOT = "getSubject";

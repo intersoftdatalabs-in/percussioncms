@@ -32,16 +32,19 @@ import org.w3c.dom.NodeList;
 /**
  * Catalogs all locales in the CMS by querying the ../sys_i18nSupport/languagelookup.xml app.
  *
+ * <p>Declared {@code final} with a {@code final} collection field and a pure static XML parse
+ * helper so constructors never call overridable instance methods (javac {@code this-escape}).
+ *
  * @author RammohanVangapalli
  */
-public class PSLocaleCataloger {
+public final class PSLocaleCataloger {
   /**
    * Default constructor. Does nothing. Must be followed by call to fromXml() method. This is useful
    * only to build an object in the fly means the state information might not come from the Rhythmyx
    * server.
    */
   public PSLocaleCataloger() {
-    super();
+    m_locales = new ArrayList<>();
   }
 
   /**
@@ -55,7 +58,7 @@ public class PSLocaleCataloger {
     try {
       URL url = new URL(urlBase, "sys_i18nSupport/languagelookup.xml");
       Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
-      fromXml(doc.getDocumentElement());
+      m_locales = parseLocales(doc.getDocumentElement());
     } catch (Exception e) {
       throw new PSCmsException(IPSContentExplorerErrors.CATALOG_ERROR, e.getMessage());
     }
@@ -68,7 +71,20 @@ public class PSLocaleCataloger {
    * @throws PSUnknownNodeTypeException if the element does not have the expected structure.
    */
   public void fromXml(Element elemSrc) throws PSUnknownNodeTypeException {
+    Collection<PSEntry> parsed = parseLocales(elemSrc);
     m_locales.clear();
+    m_locales.addAll(parsed);
+  }
+
+  /**
+   * Pure parse of locale catalog XML into a new mutable collection. Package-private for unit tests.
+   *
+   * @param elemSrc the element representing the catalog response, may not be <code>null</code>
+   * @return newly allocated collection of locale entries, never <code>null</code>
+   * @throws PSUnknownNodeTypeException if the element does not have the expected structure
+   */
+  static Collection<PSEntry> parseLocales(Element elemSrc) throws PSUnknownNodeTypeException {
+    Collection<PSEntry> locales = new ArrayList<>();
 
     NodeList nl = elemSrc.getElementsByTagName(PSEntry.XML_NODE_NAME);
     Element elem = null;
@@ -76,8 +92,10 @@ public class PSLocaleCataloger {
     for (int i = 0; i < nl.getLength(); i++) {
       elem = (Element) nl.item(i);
       entry = new PSEntry(elem, null, null);
-      m_locales.add(entry);
+      locales.add(entry);
     }
+
+    return locales;
   }
 
   /**
@@ -91,8 +109,8 @@ public class PSLocaleCataloger {
   }
 
   /**
-   * Collection of {@link PSEntry} objects. Each objects represents a locale in the CMS. Filled in
-   * the constructor.
+   * Collection of {@link PSEntry} objects. Each objects represents a locale in the CMS. Final
+   * reference; contents replaced via clear / addAll.
    */
-  private Collection<PSEntry> m_locales = new ArrayList<>();
+  private final Collection<PSEntry> m_locales;
 }
