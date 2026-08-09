@@ -40,8 +40,14 @@ import javax.swing.border.EmptyBorder;
  * The status dialog to show the progress bar for the status of the current job set with this
  * dialog. Creates a new thread to poll on the job controller and receive status and updates the
  * progress bar and status message for each job set.
+ *
+ * <p>Declared {@code final} so Swing/UI initialization from the constructor cannot observe a
+ * partially constructed subclass (javac {@code this-escape}). Session-only collaborator fields that
+ * are not {@link java.io.Serializable} are {@code transient} (dialogs are never serialized in
+ * practice).
  */
-public class PSContentExplorerStatusDialog extends PSDialog {
+public final class PSContentExplorerStatusDialog extends PSDialog {
+  /** Default serialVersionUID to satisfy {@code -Xlint:serial}. */
   private static final long serialVersionUID = 1L;
 
   /**
@@ -107,6 +113,9 @@ public class PSContentExplorerStatusDialog extends PSDialog {
     m_cancelButton.setAction(
         new AbstractAction(
             m_applet.getResourceString(PSContentExplorerStatusDialog.class, "Cancel")) {
+          private static final long serialVersionUID = 1L;
+
+          @Override
           public void actionPerformed(ActionEvent e) {
             onCancel();
           }
@@ -209,17 +218,11 @@ public class PSContentExplorerStatusDialog extends PSDialog {
     messagepane.setEditable(false);
     messagepane.setAutoscrolls(true);
     messagepane.setPreferredSize(new Dimension(600, 400));
-    int temp = message.indexOf(HTML_OPEN_TAG);
-    int temp1 = message.indexOf(HTML_CLOSE_TAG);
-    if (temp > -1 && temp1 > temp) {
-      message = message.substring(temp, temp1 + HTML_OPEN_TAG.length());
-      messagepane.setContentType(TEXT_BY_HTML);
-    } else {
-      messagepane.setContentType(TEXT_BY_TEXT);
-    }
 
+    ErrorMessageView view = resolveErrorMessageView(message);
+    messagepane.setContentType(view.contentType());
     messagepane.getDocument().putProperty("IgnoreCharsetDirective", Boolean.TRUE);
-    messagepane.setText(message);
+    messagepane.setText(view.displayText());
 
     JScrollPane pane = new JScrollPane(messagepane);
 
@@ -234,6 +237,36 @@ public class PSContentExplorerStatusDialog extends PSDialog {
 
     return Integer.parseInt(optPane.getValue().toString());
   }
+
+  /**
+   * Pure helper: resolve how an error message should be shown in {@link #displayErrorDialog}.
+   * Preserves historical HTML fragment extraction (open/close tag scan with the same substring end
+   * offset as the pre-refactor implementation).
+   *
+   * @param message the raw error message, may be {@code null}
+   * @return view model with content type and text to display; never {@code null}
+   */
+  static ErrorMessageView resolveErrorMessageView(String message) {
+    if (message == null) {
+      return new ErrorMessageView(TEXT_BY_TEXT, "");
+    }
+    int openIdx = message.indexOf(HTML_OPEN_TAG);
+    int closeIdx = message.indexOf(HTML_CLOSE_TAG);
+    if (openIdx > -1 && closeIdx > openIdx) {
+      // Historical end index used HTML_OPEN_TAG length (same char count as HTML_CLOSE_TAG).
+      String htmlFragment = message.substring(openIdx, closeIdx + HTML_OPEN_TAG.length());
+      return new ErrorMessageView(TEXT_BY_HTML, htmlFragment);
+    }
+    return new ErrorMessageView(TEXT_BY_TEXT, message);
+  }
+
+  /**
+   * Immutable view of error message presentation for the status error dialog.
+   *
+   * @param contentType Swing content type ({@link #TEXT_BY_HTML} or {@link #TEXT_BY_TEXT})
+   * @param displayText text to put into the editor pane
+   */
+  record ErrorMessageView(String contentType, String displayText) {}
 
   /**
    * The progress bar for the currently monitored job. Never <code>null</code> after it is
@@ -258,7 +291,7 @@ public class PSContentExplorerStatusDialog extends PSDialog {
    * The process monitor to use to cancel the process and get the progress of the process,
    * initialized in the ctor and never <code>null</code> or modified after that.
    */
-  private PSProcessMonitor m_monitor;
+  private transient PSProcessMonitor m_monitor;
 
   /** Constant for html open tag */
   public static final String HTML_OPEN_TAG = "<html>";
@@ -272,6 +305,6 @@ public class PSContentExplorerStatusDialog extends PSDialog {
   /** Constant for content type text/text */
   public static final String TEXT_BY_TEXT = "text/text";
 
-  /** A reference back to the applet that initiated this action manager. */
-  private PSContentExplorerApplet m_applet;
+  /** A reference back to the applet that initiated this status dialog. */
+  private transient PSContentExplorerApplet m_applet;
 }
