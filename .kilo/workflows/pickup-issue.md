@@ -135,7 +135,7 @@ gh pr list --state open \
     | select(
         ((.labels | map(.name) | any(. == "operator:kilo")) | not)
         and (
-          (.labels | map(.name) | any(startswith("operator:grok") or startswith("operator:night-issue-prs") or startswith("operator:minimax")))
+          (.labels | map(.name) | any(startswith("model:")))
           or ((.labels | map(.name) | any(startswith("model:"))) | not)
         )
       )
@@ -147,13 +147,20 @@ gh pr list --state open \
 oldest-first (matches the Review instructions below). Without it,
 GitHub's default sort does not guarantee age order.
 
-The filter (per the user's direction):
+The filter (per the user's direction) is **model-based**, not
+operator-based:
 
 | Condition | Meaning |
 |-----------|---------|
 | Not `operator:kilo` | Kilo has not claimed it; an independent review is owed. |
-| Has `operator:grok` / `operator:night-issue-prs` / `operator:minimax` | Other-agent work ΓÇö Kilo reviews it. |
+| Has **any** `model:*` label | Another model wrote it ΓÇö Kilo reviews it. |
 | Has **no** `model:*` label | Per the user's rule: "if no model is listed then you should select it for review." |
+
+Note: `operator:*` is workflow attribution (which agent produced the
+work), not assignment (who should review it). Per
+`.kilo/rules/operator-pr-labels.md`, it does **not** gate Kilo's
+review pick ΓÇö only the `model:*` label determines whether Kilo
+takes the PR.
 
 PRs authored by the human owner (`natechadwick-intsof`) without an
 agent attribution fall into the "no model listed" branch and are
@@ -168,21 +175,23 @@ For each candidate PR, in the order returned by
 > (2026-08-08). Use `gh api -X POST .../pulls/<n>/comments` with
 > `path` + `line` + `commit_id` to attach the comment to the
 > specific file:line in the diff. Top-level PR comments via
-> `gh pr review --comment` are reserved for summary verdicts
-> (APPROVE / REQUEST CHANGES / DUPLICATE / NEEDS REBASE) only;
-> substantive findings always go inline. The inline-comment helper:
+> `gh pr review` are reserved for summary verdicts only (see the
+> flag table below); substantive findings always go inline. The
+> inline-comment helper:
 >
 > ```bash
+> # Replace <owner>/<repo> with the actual values, <n> = PR number,
+> # <file> = repo-relative path, <line> = line in the diff,
+> # <head-sha> = SHA from `gh pr view <n> --json headRefOid --jq .headRefOid`.
 > gh api -X POST repos/<owner>/<repo>/pulls/<n>/comments \
 >   -f body='<finding>' \
 >   -f path='<file>' \
->   -F line=<n> \
+>   -F line=<line> \
 >   -F side='RIGHT' \
 >   -F commit_id='<head-sha>'
 > ```
 >
-> Use `gh pr view <n> --json headRefOid --jq .headRefOid` for the
-> commit SHA. For multi-line selections use `start_line` +
+> For multi-line selections use `start_line` +
 > `start_side='RIGHT'` + `line` (end) on the same call.
 
 1. **Erlang review** ΓÇö fetch `gh pr diff <n>` and run a strict Erlang
@@ -228,10 +237,19 @@ The PR is **squash-merged** if **all** of the following hold:
   the conflict before posting a rebase request.
 
 If **any** condition fails, post the substantive finding as an
-**inline** review comment at the relevant file:line, post a short
-top-level **summary** verdict (REQUEST CHANGES / DUPLICATE /
-NEEDS REBASE) via `gh pr review --comment`, do **not** merge, and
-move to the next candidate.
+**inline** review comment at the relevant file:line, then post a
+short top-level **summary** verdict with the right `gh pr review`
+flag (do **not** always use `--comment` — that submits a neutral
+review, not a blocking one):
+
+| Verdict | Command |
+|---------|---------|
+| APPROVE (clean) | `gh pr review <n> --approve -b "<one-line summary>"` |
+| REQUEST CHANGES (blocker) | `gh pr review <n> --request-changes -b "<inline-finding pointers + one-line summary>"` |
+| DUPLICATE | `gh pr review <n> --comment -b "DUPLICATE of #<other>: <reason>"` |
+| NEEDS REBASE | `gh pr review <n> --comment -b "NEEDS REBASE: <conflict-summary>"` |
+
+Do **not** merge and move to the next candidate.
 
 ### Conflict resolution (when `mergeable == CONFLICTING`)
 
@@ -257,8 +275,9 @@ covers three cases and is ordered least-invasive first:
 
    ```bash
    # High file-overlap = |intersection| / |target files| >= 0.5
+   TARGET=$(gh pr view <n> --json number --jq .number)
    gh pr list --state open --json number,title,files --limit 200 \
-     | jq --argjson target <pr-number> '
+     | jq --argjson target "$TARGET" '
        (map(select(.number == $target) | .files[].path) | unique) as $tf
        | .[]
        | select(.number != $target)
@@ -272,6 +291,8 @@ covers three cases and is ordered least-invasive first:
            overlap_pct: (($inter / ($tf | length)) * 100 | floor)
          }'
    ```
+   `<n>` is the PR being reviewed; `TARGET` resolves it to the
+   authoritative `number` from the GitHub API.
 
    If a candidate surfaces with high file-overlap (>= 50% of the
    target's touched files), post the close-as-duplicate comment.
@@ -294,27 +315,32 @@ matches root `AGENTS.md` ΓåÆ **Cross-Platform File I/O & Paths** and
 
 ```bash
 # Portable: repo-local disposable worktree (Windows + Unix) ΓÇö never /tmp or %TEMP%
-WORKTREE_DIR=".kilo/worktrees/review-<n>"
+PR_BRANCH="<pr-branch>"            # e.g. feat/foo
+PR_NUMBER=<n>                      # PR number (int)
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+WORKTREE_DIR="${REPO_ROOT}/.kilo/worktrees/review-${PR_NUMBER}"
+git worktree remove --force "$WORKTREE_DIR" 2>/dev/null || true   # idempotent
 git fetch origin main
-git fetch origin "<pr-branch>"
-git worktree add "$WORKTREE_DIR" "origin/<pr-branch>"
+git fetch origin "$PR_BRANCH"
+git worktree add "$WORKTREE_DIR" "origin/$PR_BRANCH"
 cd "$WORKTREE_DIR"
 if git rebase origin/main; then
-  # From each changed module: resolve the repo-root Maven wrapper portably
-  # (adjust ../ depth so the path points at the monorepo root wrapper).
-  cd <module>
-  if [ -f ../../mvnw.cmd ]; then
-    ../../mvnw.cmd clean install
-  elif [ -f ../../mvnw ]; then
-    ../../mvnw clean install
-  elif [ -f ../mvnw.cmd ]; then
-    ../mvnw.cmd clean install
-  else
-    ../mvnw clean install
+  # Resolve the monorepo-root Maven wrapper once (works for any module depth).
+  if   [ -f "$REPO_ROOT/mvnw.cmd" ]; then WRAPPER="$REPO_ROOT/mvnw.cmd"
+  elif [ -f "$REPO_ROOT/mvnw" ];     then WRAPPER="$REPO_ROOT/mvnw"
+  else echo "FATAL: no mvnw / mvnw.cmd at $REPO_ROOT" >&2; exit 1
   fi
-  cd "$WORKTREE_DIR"
-  git push --force-with-lease origin "HEAD:<pr-branch>"
-  cd - && git worktree remove --force "$WORKTREE_DIR"
+  # Run pre-PR build per changed module. Discover modules from the diff
+  # vs origin/main (post-rebase) so we cover every module the PR touched.
+  mapfile -t MODULES < <(git diff --name-only origin/main..HEAD \
+    | xargs -I{} dirname {} | sort -u \
+    | awk -F/ 'NF==1{print "."} NF>1{print $1}' | sort -u)
+  for m in "${MODULES[@]}"; do
+    [ -f "$m/pom.xml" ] || continue
+    ( cd "$WORKTREE_DIR/$m" && "$WRAPPER" clean install )
+  done
+  git push --force-with-lease origin "HEAD:$PR_BRANCH"
+  git worktree remove --force "$WORKTREE_DIR"
   # proceed to squash-merge
 else
   git rebase --abort
@@ -323,12 +349,13 @@ else
 fi
 ```
 
-`--force-with-lease` is permitted here per the user's explicit
-instruction for review-driven rebases of third-party PRs.
-**Never force-push to `main`** ΓÇö only to the PR's own branch.
-Feature-branch rewriting still disturbs any reviewers who have based
-work on the branch, so log the rebase in the review comment so the
-author knows their branch tip moved.
+`--force-with-lease` is permitted here only because the rebase is
+against `origin/main` (not `main`) and the push target is the PR's
+own branch (never `main`). Per `.kilo/rules/no-force-push-development.md`
+this is the explicitly documented exception for **review-driven
+rebases of third-party PRs**; the comment "log the rebase in the
+review comment" is mandatory so the original author knows their
+branch tip moved. **Never** force-push to `main`.
 
 ### Squash-merge command
 
@@ -410,10 +437,14 @@ already claimed.
      --limit 500 \
      | jq --arg issue "$ISSUE" '
        [.[] | select(
-         (.body | test("#" + $issue + "\\b"))
-         or ((.closingIssuesReferences // []) | index(($issue | tonumber)) != null)
+         (.body // "" | test("(^|[^0-9])#" + $issue + "($|[^0-9])"))
+         or (((.closingIssuesReferences // []) | map(.number // empty)) | any(. == ($issue | tonumber)))
        ) | {number, state}]'
    ```
+   Note: jq `test` is POSIX ERE (no `\b`), so the regex anchors with
+   explicit non-digit boundaries to avoid `#1` matching `#10`, `#11`, ….
+   `closingIssuesReferences` is an array of `{number, …}` objects, so
+   we map to `.number` before the integer comparison.
 3. **Comment-based claim check.** The latest 5 comments include an
    agent-attributed pickup signal ΓÇö any of: `picking this up`,
    `starting work`, `picked up`, `agent progress`, `pr_opened`,
