@@ -31,6 +31,13 @@ import java.util.Objects;
  */
 @SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
 public class PSCollection extends PSConcurrentList {
+
+  /**
+   * Serialization id. Parent {@link PSConcurrentList} owns list payload serialization; this class
+   * adds {@link #m_memberClass} via default field serialization.
+   */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Construct a collection object to store objects of the specified type.
    *

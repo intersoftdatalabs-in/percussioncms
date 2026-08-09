@@ -33,6 +33,13 @@ import org.w3c.dom.Element;
  */
 public abstract class PSCollectionComponent extends com.percussion.util.PSCollection
     implements IPSComponent {
+
+  /**
+   * Serialization id. Inherits list + member-class serialization from {@link PSCollection}; this
+   * class adds {@link #m_id} via default field serialization.
+   */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Simplified method for converted a collection to XML.
    *
