@@ -100,9 +100,10 @@ public class PSContentType extends PSDbComponent {
    *     values.
    */
   public PSContentType(Element source) throws PSUnknownNodeTypeException {
+    // super(Element) restores key/state via createKeyDefault (non-virtual); field load is separate
+    // so we do not double-call super.fromXml / virtual createKey during construction.
     super(source);
-
-    fromXml(source);
+    loadFieldsFromXml(source);
   }
 
   /**
@@ -216,8 +217,16 @@ public class PSContentType extends PSDbComponent {
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode must be supplied");
 
+    // After full construction: virtual createKey is honored.
     super.fromXml(sourceNode);
+    loadFieldsFromXml(sourceNode);
+  }
 
+  /**
+   * Loads non-key fields from XML. Used by the Element ctor (after super key/state restore) and by
+   * public {@link #fromXml(Element)} so key restore is not double-applied.
+   */
+  private void loadFieldsFromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     m_name = PSXMLDomUtil.checkAttribute(sourceNode, XML_ATTR_name, true);
 
     m_label =
@@ -243,7 +252,8 @@ public class PSContentType extends PSDbComponent {
     if (el != null) m_queryRequest = PSXmlTreeWalker.getElementData(el);
 
     if (!verifyUrlFormat(m_queryRequest)) {
-      Object[] args = {getNodeName(), XML_ELEM_QueryRequest, m_queryRequest};
+      // Fixed node name for error args (loadFieldsFromXml may run from Element ctor).
+      Object[] args = {"PSXContentType", XML_ELEM_QueryRequest, m_queryRequest};
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
     }
 
@@ -277,9 +287,12 @@ public class PSContentType extends PSDbComponent {
     throw new UnsupportedOperationException("PSContentType is read-only.");
   }
 
-  /** Override to create our own Key which is {@link PSLocator}. */
+  /**
+   * Override to create our own Key which is {@link PSKey}. Final — no subclasses; safe for public
+   * {@link #fromXml(Element)} after construction.
+   */
   @Override
-  protected PSKey createKey(Element el) throws PSUnknownNodeTypeException {
+  protected final PSKey createKey(Element el) throws PSUnknownNodeTypeException {
     if (el == null) throw new IllegalArgumentException("Source element cannot be null.");
 
     return new PSKey(el);

@@ -83,10 +83,10 @@ public abstract class PSDbComponent implements IPSDbComponent {
    */
   protected PSDbComponent(Element src) throws PSUnknownNodeTypeException {
     if (null == src) throw new IllegalArgumentException("Source element cannot be null.");
-    // Private path avoids virtual dispatch to subclass fromXml during super construction.
-    // Skip node-name check here: custom constants (e.g. PSSFields → PSX_FIELDS) differ from
-    // the PS→PSX class mapping; subclasses re-validate in their fromXml when needed.
-    fromXmlBase(src, false);
+    // Construction-only path: never calls overridable getNodeName/createKey (this-escape free).
+    // Custom node-name constants (e.g. PSSFields → PSX_FIELDS) are re-validated in subclass
+    // fromXml after full construction when needed.
+    fromXmlKeyAndStateDefault(src);
   }
 
   /**
@@ -315,58 +315,60 @@ public abstract class PSDbComponent implements IPSDbComponent {
    *     (see {@link PSKey#fromXml(Element)}) or the state name is not valid.
    */
   public void fromXml(Element source) throws PSUnknownNodeTypeException {
-    fromXmlBase(source, true);
-  }
-
-  /**
-   * Shared implementation for {@link #fromXml(Element)} and the Element constructor. Keeps the
-   * constructor from virtually dispatching to a subclass {@code fromXml} before subclass fields are
-   * initialized. Note: {@link #createKey(Element)} remains overridable so specialized key types
-   * (e.g. {@code PSLocator}) still work when restoring from XML after construction.
-   *
-   * @param checkNodeName when {@code true} (public fromXml), validate against {@link
-   *     #getNodeName()}; when {@code false} (Element super ctor), skip that check to avoid
-   *     this-escape and allow custom node-name constants.
-   */
-  private void fromXmlBase(Element source, boolean checkNodeName)
-      throws PSUnknownNodeTypeException {
     // Threshold
     if (null == source) throw new IllegalArgumentException("Source must be provided.");
 
-    String nodeName = nodeNameFor(getClass());
-    if (checkNodeName) {
-      // Safe after full construction: honor getNodeName overrides (e.g. PSX_FIELDS).
-      if (!getNodeName().equalsIgnoreCase(source.getNodeName())) {
-        String[] args = new String[] {"PSDbComponent.fromXml node: " + getNodeName()};
+    // After full construction: honor getNodeName overrides (e.g. PSX_FIELDS).
+    if (!getNodeName().equalsIgnoreCase(source.getNodeName())) {
+      String[] args = new String[] {"PSDbComponent.fromXml node: " + getNodeName()};
 
-        // @todo change exceptions if needed!!
-        throw new PSUnknownNodeTypeException(IPSCmsErrors.INVALID_CONTENT_TYPE_ID, args);
-      }
-      nodeName = getNodeName();
+      // @todo change exceptions if needed!!
+      throw new PSUnknownNodeTypeException(IPSCmsErrors.INVALID_CONTENT_TYPE_ID, args);
     }
 
     // Must restore key first because it has higher priority than state.
-    // Element super-ctor path uses non-overridable default createKey to avoid
-    // this-escape; public fromXml (after full construction) still uses virtual createKey.
+    // Public fromXml uses virtual createKey so specialized keys (e.g. PSLocator) work.
     Element keyEl = PSXMLDomUtil.getFirstElementChild(source);
-    setLocatorInternal(checkNodeName ? createKey(keyEl) : createKeyDefault(keyEl));
+    setLocatorInternal(createKey(keyEl));
+    restoreStateAttribute(source, getNodeName());
+  }
 
-    // Threshold
+  /**
+   * Element super-ctor path only: restores key via non-overridable {@link #createKeyDefault} and
+   * state via {@link #setStateInternal}. Never calls {@link #getNodeName()} or {@link
+   * #createKey(Element)} so subclass overrides are not dispatched before subclass init.
+   *
+   * @param source never {@code null}
+   */
+  private void fromXmlKeyAndStateDefault(Element source) throws PSUnknownNodeTypeException {
+    Element keyEl = PSXMLDomUtil.getFirstElementChild(source);
+    setLocatorInternal(createKeyDefault(keyEl));
+    restoreStateAttribute(source, nodeNameFor(getClass()));
+  }
+
+  /**
+   * Parses the component {@code state} attribute into {@link #setStateInternal(int)}.
+   *
+   * @param source root element, never {@code null}
+   * @param nodeName for error messages only (not validated here)
+   */
+  private void restoreStateAttribute(Element source, String nodeName)
+      throws PSUnknownNodeTypeException {
     String strState = PSXMLDomUtil.checkAttribute(source, XML_ATTR_STATE, false);
-    if (strState.length() == 0) setStateInternal(DBSTATE_NEW);
-    else {
-      boolean found = false;
-      int i = 0;
-      for (; i < STATE_LABELS.length && !found; i++) {
-        if (STATE_LABELS[i].equalsIgnoreCase(strState)) found = true;
-      }
-      if (!found) {
-        String[] args = {nodeName, XML_ATTR_STATE, strState};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
-      }
-      // Handles validation of state.
-      setStateInternal(i - 1);
+    if (strState.length() == 0) {
+      setStateInternal(DBSTATE_NEW);
+      return;
     }
+    boolean found = false;
+    int i = 0;
+    for (; i < STATE_LABELS.length && !found; i++) {
+      if (STATE_LABELS[i].equalsIgnoreCase(strState)) found = true;
+    }
+    if (!found) {
+      String[] args = {nodeName, XML_ATTR_STATE, strState};
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+    }
+    setStateInternal(i - 1);
   }
 
   /**
@@ -387,10 +389,13 @@ public abstract class PSDbComponent implements IPSDbComponent {
    * construction).
    */
   private void setStateInternal(int newState) {
-    if (!isValidState(newState)) throw new IllegalArgumentException("Invalid state.");
-
-    if ((isPersisted() && newState == DBSTATE_NEW)
-        || (!isPersisted()
+    // Inline validity + key.persisted checks — do not call overridable isValidState/isPersisted.
+    if (newState <= 0 || newState >= STATE_LABELS.length) {
+      throw new IllegalArgumentException("Invalid state.");
+    }
+    boolean keyPersisted = m_key != null && m_key.isPersisted();
+    if ((keyPersisted && newState == DBSTATE_NEW)
+        || (!keyPersisted
             && (newState == DBSTATE_UNMODIFIED
                 || newState == DBSTATE_MODIFIED
                 || newState == DBSTATE_MARKEDFORDELETE))) {
@@ -416,8 +421,8 @@ public abstract class PSDbComponent implements IPSDbComponent {
 
   /**
    * Default key restoration used by {@link #createKey(Element)} and by the Element super-ctor path
-   * in {@link #fromXmlBase(Element, boolean)} (non-virtual, this-escape safe). Subclasses may still
-   * override {@link #createKey(Element)}; that override is honored from public {@link
+   * in {@link #fromXmlKeyAndStateDefault(Element)} (non-virtual, this-escape safe). Subclasses may
+   * still override {@link #createKey(Element)}; that override is honored from public {@link
    * #fromXml(Element)} after construction.
    *
    * <p>Resolves the key class from the element node name (PSXFoo → PSFoo) by trying known key
@@ -440,6 +445,9 @@ public abstract class PSDbComponent implements IPSDbComponent {
       "com.percussion.cms.objectstore.", "com.percussion.design.objectstore."
     };
 
+    // Non-virtual type label for error messages (do not call overridable getComponentType()).
+    String typeLabel = getComponentType(getClass());
+
     String lastClassName = keyPackages[0] + simpleName;
     ClassNotFoundException lastCnfe = null;
     for (String pkg : keyPackages) {
@@ -453,20 +461,20 @@ public abstract class PSDbComponent implements IPSDbComponent {
         lastCnfe = cnfe;
         // try next package
       } catch (InstantiationException ie) {
-        String[] args = {strClassName, getComponentType(), ie.getLocalizedMessage()};
+        String[] args = {strClassName, typeLabel, ie.getLocalizedMessage()};
         throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
       } catch (IllegalAccessException iae) {
-        String[] args = {strClassName, getComponentType(), iae.getLocalizedMessage()};
+        String[] args = {strClassName, typeLabel, iae.getLocalizedMessage()};
         throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
       } catch (InvocationTargetException ite) {
         Throwable origException = ite.getTargetException();
         String msg = origException.getLocalizedMessage();
         String[] args = {
-          strClassName, getComponentType(), origException.getClass().getName() + ": " + msg
+          strClassName, typeLabel, origException.getClass().getName() + ": " + msg
         };
         throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
       } catch (NoSuchMethodException nsme) {
-        String[] args = {strClassName, getComponentType(), nsme.getLocalizedMessage()};
+        String[] args = {strClassName, typeLabel, nsme.getLocalizedMessage()};
         throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
       } catch (IllegalArgumentException iae) {
         // this should never happen because we checked ahead of time
@@ -475,7 +483,7 @@ public abstract class PSDbComponent implements IPSDbComponent {
     }
 
     String cnfeMsg = lastCnfe != null ? lastCnfe.getLocalizedMessage() : "class not found";
-    String[] args = {lastClassName, getComponentType(), cnfeMsg};
+    String[] args = {lastClassName, typeLabel, cnfeMsg};
     throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
   }
 
@@ -534,12 +542,13 @@ public abstract class PSDbComponent implements IPSDbComponent {
       throw new IllegalArgumentException("Key type must match existing key.");
 
     m_key = (PSKey) locator.clone();
-    if (isPersisted()) {
-      if (getState() == DBSTATE_NEW || getState() == DBSTATE_MARKEDFORDELETE) {
+    // Use key + m_state directly — not overridable isPersisted()/getState() (this-escape safe).
+    if (m_key.isPersisted()) {
+      if (m_state == DBSTATE_NEW || m_state == DBSTATE_MARKEDFORDELETE) {
         setStateInternal(DBSTATE_MODIFIED);
       }
     } else {
-      if (getState() == DBSTATE_MODIFIED || getState() == DBSTATE_UNMODIFIED) {
+      if (m_state == DBSTATE_MODIFIED || m_state == DBSTATE_UNMODIFIED) {
         setStateInternal(DBSTATE_NEW);
       }
     }

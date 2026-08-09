@@ -104,7 +104,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
    * @param contentTypeDef
    */
   public PSItemDefinition(Element contentTypeDef) throws PSUnknownNodeTypeException {
-    fromXml(contentTypeDef, null, null);
+    fromXmlLoad(contentTypeDef, null, null, false);
   }
 
   /**
@@ -114,7 +114,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
    */
   public PSItemDefinition(Element contentTypeDef, boolean isCopy)
       throws PSUnknownNodeTypeException {
-    fromXml(contentTypeDef, null, null, isCopy);
+    fromXmlLoad(contentTypeDef, null, null, isCopy);
   }
 
   /** Ctor to be used by subclasses */
@@ -592,7 +592,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   @Override
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
-    fromXml(sourceNode, parentDoc, parentComponents, false);
+    fromXmlLoad(sourceNode, parentDoc, parentComponents, false);
   }
 
   /**
@@ -614,7 +614,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
    * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
    *     by the class.
    */
-  private void fromXml(
+  private void fromXmlLoad(
       Element sourceNode, IPSDocument parentDoc, List parentComponents, boolean isCopy)
       throws PSUnknownNodeTypeException {
     // validate the root element
@@ -633,7 +633,8 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
     Element el1 = PSXMLDomUtil.getFirstElementChild(sourceNode);
     Element el2 = PSXMLDomUtil.getNextElementSibling(el1);
 
-    super.fromXml(el1, null, null);
+    // Final package helper — no overridable public fromXml during Element construction.
+    restoreSummaryFromXml(el1);
     if (m_contentEditorDef == null) {
       m_contentEditorDef = new PSContentEditor(el2, parentDoc, parentComponents, !isCopy);
     } else {

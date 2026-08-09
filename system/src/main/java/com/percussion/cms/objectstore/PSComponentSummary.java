@@ -159,10 +159,14 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
    *     defined in the <code>fromXml()</code> method.
    */
   public PSComponentSummary(Element source) throws PSUnknownNodeTypeException {
-    // Avoid PSDbComponent(Element) which virtual-dispatches createKey before subclass init.
-    // Dummy locator is replaced by fromXml (same pattern as the no-arg Hibernate ctor).
+    // Avoid PSDbComponent(Element). Dummy locator replaced with final createKey (PSLocator).
     super(createKey(0, -1));
-    fromXml(source);
+    if (null == source) throw new IllegalArgumentException("sourceNode must be supplied");
+    Element keyEl = PSXMLDomUtil.getFirstElementChild(source);
+    // Package setKey avoids overridable setLocator during construction.
+    setKey(createKey(keyEl));
+    applyStateFromXml(source);
+    loadFieldsFromXml(source);
   }
 
   /**
@@ -944,8 +948,36 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   public final void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode must be supplied");
 
+    // After full construction: super.fromXml uses final createKey (PSLocator).
     super.fromXml(sourceNode);
+    loadFieldsFromXml(sourceNode);
+  }
 
+  /**
+   * Applies the {@code state} attribute via {@link #setState(int)} (safe here: this class is not
+   * subclassed and does not override setState).
+   */
+  private void applyStateFromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    String strState = PSXMLDomUtil.checkAttribute(sourceNode, XML_ATTR_STATE, false);
+    if (strState.length() == 0) {
+      setState(DBSTATE_NEW);
+      return;
+    }
+    boolean found = false;
+    int i = 0;
+    for (; i < STATE_LABELS.length && !found; i++) {
+      if (STATE_LABELS[i].equalsIgnoreCase(strState)) found = true;
+    }
+    if (!found) {
+      String[] args = {"PSXComponentSummary", XML_ATTR_STATE, strState};
+      throw new PSUnknownNodeTypeException(
+          com.percussion.design.objectstore.IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+    }
+    setState(i - 1);
+  }
+
+  /** Loads non-key fields from the summary Element. */
+  private void loadFieldsFromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     // Title
     m_name = PSXMLDomUtil.checkAttribute(sourceNode, XML_ATTR_NAME, true);
 
@@ -1199,7 +1231,12 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   }
 
   /** Override to create our own Key which is {@link PSLocator}. */
-  protected PSKey createKey(Element el) throws PSUnknownNodeTypeException {
+  /**
+   * Final — {@code PSComponentSummary} is not subclassed; Element restore after dummy key uses this
+   * path from public {@link #fromXml(Element)}.
+   */
+  @Override
+  protected final PSKey createKey(Element el) throws PSUnknownNodeTypeException {
     if (el == null) throw new IllegalArgumentException("Source element cannot be null.");
 
     return new PSLocator(el);
