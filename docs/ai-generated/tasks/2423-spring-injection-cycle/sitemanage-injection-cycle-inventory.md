@@ -2,58 +2,58 @@
 
 **Issue:** #2463 (residual of #2423); reverse-edge inventory refresh **#2485**; hub freezes **#2477** / **#2514**; itemWorkflow param `@Lazy` **#2515**  
 **Module:** `projects/sitemanage`  
-**Date:** 2026-08-08 (updated 2026-08-09 for #2485 / #2515)  
-**Method:** Static scan of `@Autowired` constructors + field `@Autowired` among high-fan-in sitemanage beans (interfaces mapped to primary impls). Reflection peers: `PSContentItemDaoCycleLazyWiringTest`, `PSPageDaoHelperCycleLazyWiringTest`, `PSFolderHelperRecycleLazyWiringTest`, `PSFolderHelperReverseEdgeInventoryWiringTest` (#2485), `PSTemplateServiceCycleWiringTest` (#2477), `PSPageServiceCycleWiringTest` (#2514), `PSItemWorkflowServiceHubReverseEdgeWiringTest` (#2478), `PSItemWorkflowServiceCycleLazyWiringTest` (#2515), `FolderHelperCycleContextTest` (#2436).
+**Date:** 2026-08-08 (updated 2026-08-09 for #2485 / #2515 / #2521)  
+**Method:** Static scan of `@Autowired` constructors + field `@Autowired` among high-fan-in sitemanage beans (interfaces mapped to primary impls). Reflection peers: `PSContentItemDaoCycleLazyWiringTest`, `PSPageDaoHelperCycleLazyWiringTest`, `PSFolderHelperRecycleLazyWiringTest`, `PSFolderHelperReverseEdgeInventoryWiringTest` (#2485), `PSTemplateServiceCycleWiringTest` (#2477), `PSPageServiceCycleWiringTest` (#2514), `PSItemWorkflowServiceHubReverseEdgeWiringTest` (#2478), `PSItemWorkflowServiceCycleLazyWiringTest` (#2515), `PSAssetServicePageServiceNearCycleWiringTest`, `PSAssetServiceTemplateServiceNearCycleWiringTest` (#2521), `FolderHelperCycleContextTest` (#2436).
 
-This is an analysis note for humans/agents — **not** an agent rule file.
+This is an analysis note for humans/agents ΓÇö **not** an agent rule file.
 
 ## Known cycles (fixed)
 
 ```text
 Path A (slice A #2435):
 folderHelper
-  → recycleService
-    → widgetAssetRelationshipService
-      → assetDao
-        → contentItemDao
-          → folderHelper   ← @Lazy on PSContentItemDao ctor param
+  ΓåÆ recycleService
+    ΓåÆ widgetAssetRelationshipService
+      ΓåÆ assetDao
+        ΓåÆ contentItemDao
+          ΓåÆ folderHelper   ΓåÉ @Lazy on PSContentItemDao ctor param
 
 Path B (slice C #2437 / PR #2483):
 folderHelper
-  → recycleService
-    → widgetAssetRelationshipService
-      → pageIndexService
-        → pageDaoHelper
-          → folderHelper   ← @Lazy on PSPageDaoHelper ctor param
+  ΓåÆ recycleService
+    ΓåÆ widgetAssetRelationshipService
+      ΓåÆ pageIndexService
+        ΓåÆ pageDaoHelper
+          ΓåÆ folderHelper   ΓåÉ @Lazy on PSPageDaoHelper ctor param
 
 Forward deferral (also #2437):
-folderHelper → recycleService   ← @Lazy on PSFolderHelper ctor param
+folderHelper ΓåÆ recycleService   ΓåÉ @Lazy on PSFolderHelper ctor param
 ```
 
 | Edge | Type | Breaker |
 |------|------|---------|
-| `PSFolderHelper` → `IPSRecycleService` | ctor | **`@Lazy`** (#2437) |
-| `PSRecycleService` → `IPSWidgetAssetRelationshipService` | ctor | none (forward) |
-| `PSWidgetAssetRelationshipService` → `IPSAssetDao` | ctor | none (forward) |
-| `PSAssetDao` → `IPSContentItemDao` | ctor | none (forward) |
-| `PSContentItemDao` → `IPSFolderHelper` | ctor | **`@Lazy`** (#2435) |
-| `PSWidgetAssetRelationshipService` → `IPSPageIndexService` | ctor | none (forward) |
-| `PSPageIndexService` → `IPSPageDaoHelper` | ctor | none (forward) |
-| `PSPageDaoHelper` → `IPSFolderHelper` | ctor | **`@Lazy`** (#2437) |
+| `PSFolderHelper` ΓåÆ `IPSRecycleService` | ctor | **`@Lazy`** (#2437) |
+| `PSRecycleService` ΓåÆ `IPSWidgetAssetRelationshipService` | ctor | none (forward) |
+| `PSWidgetAssetRelationshipService` ΓåÆ `IPSAssetDao` | ctor | none (forward) |
+| `PSAssetDao` ΓåÆ `IPSContentItemDao` | ctor | none (forward) |
+| `PSContentItemDao` ΓåÆ `IPSFolderHelper` | ctor | **`@Lazy`** (#2435) |
+| `PSWidgetAssetRelationshipService` ΓåÆ `IPSPageIndexService` | ctor | none (forward) |
+| `PSPageIndexService` ΓåÆ `IPSPageDaoHelper` | ctor | none (forward) |
+| `PSPageDaoHelper` ΓåÆ `IPSFolderHelper` | ctor | **`@Lazy`** (#2437) |
 
 Class-level `@Lazy` is present on `folderHelper` and `recycleService` but is **not** sufficient alone: an eager consumer (e.g. field inject on `pSRedirectService`) still forces full construction and re-enters the cycle without a parameter-level `@Lazy` proxy.
 
 ## folderHelper reverse-edge inventory (#2485)
 
-**Definition — reverse edge:** a constructor (or field) dependency **into** `IPSFolderHelper` from a bean that is itself on `folderHelper`'s construction subgraph (or can be forced while `folderHelper` is still creating). Only reverse edges need param `@Lazy` (or equivalent). Downstream product consumers of `folderHelper` are **not** reverse edges.
+**Definition ΓÇö reverse edge:** a constructor (or field) dependency **into** `IPSFolderHelper` from a bean that is itself on `folderHelper`'s construction subgraph (or can be forced while `folderHelper` is still creating). Only reverse edges need param `@Lazy` (or equivalent). Downstream product consumers of `folderHelper` are **not** reverse edges.
 
 ### Live reverse edges (must keep param `@Lazy`)
 
 | From bean | Edge | Disposition | Regression test |
 |-----------|------|-------------|-----------------|
-| `PSContentItemDao` | ctor → `IPSFolderHelper` | **param `@Lazy`** (#2435) | `PSContentItemDaoCycleLazyWiringTest` |
-| `PSPageDaoHelper` | ctor → `IPSFolderHelper` | **param `@Lazy`** (#2437) | `PSPageDaoHelperCycleLazyWiringTest` |
-| `PSFolderHelper` | ctor → `IPSRecycleService` | **param `@Lazy`** (forward deferral, #2437) | `PSFolderHelperRecycleLazyWiringTest` |
+| `PSContentItemDao` | ctor ΓåÆ `IPSFolderHelper` | **param `@Lazy`** (#2435) | `PSContentItemDaoCycleLazyWiringTest` |
+| `PSPageDaoHelper` | ctor ΓåÆ `IPSFolderHelper` | **param `@Lazy`** (#2437) | `PSPageDaoHelperCycleLazyWiringTest` |
+| `PSFolderHelper` | ctor ΓåÆ `IPSRecycleService` | **param `@Lazy`** (forward deferral, #2437) | `PSFolderHelperRecycleLazyWiringTest` |
 
 **#2485 result:** no additional live reverse ctor edges into `folderHelper` were found. No further production `@Lazy` changes required on this slice.
 
@@ -63,26 +63,26 @@ These sit on path A/B. Adding a ctor edge to `IPSFolderHelper` would short-circu
 
 | Bean | Current ctor deps of interest | Disposition |
 |------|------------------------------|-------------|
-| `PSRecycleService` | widgetAsset (+ system peers) | **Ban** ctor → folderHelper (would reverse `folderHelper→recycle`) |
-| `PSWidgetAssetRelationshipService` | assetDao, pageIndexService, … | **Ban** ctor → folderHelper |
-| `PSAssetDao` | contentItemDao only | **Ban** ctor → folderHelper |
-| `PSPageIndexService` | pageDao, pageDaoHelper, … | **Ban** ctor → folderHelper |
-| `PSPageDao` | contentItemDao, … | **Ban** ctor → folderHelper |
+| `PSRecycleService` | widgetAsset (+ system peers) | **Ban** ctor ΓåÆ folderHelper (would reverse `folderHelperΓåÆrecycle`) |
+| `PSWidgetAssetRelationshipService` | assetDao, pageIndexService, ΓÇª | **Ban** ctor ΓåÆ folderHelper |
+| `PSAssetDao` | contentItemDao only | **Ban** ctor ΓåÆ folderHelper |
+| `PSPageIndexService` | pageDao, pageDaoHelper, ΓÇª | **Ban** ctor ΓåÆ folderHelper |
+| `PSPageDao` | contentItemDao, ΓÇª | **Ban** ctor ΓåÆ folderHelper |
 
-`managedLinkService` is resolved by `PSWidgetAssetRelationshipService` via application-context lookup (not ctor) — keep it that way; a ctor inject of `IPSManagedLinkService` would pull `pageService` → `folderHelper` and form path C.
+`managedLinkService` is resolved by `PSWidgetAssetRelationshipService` via application-context lookup (not ctor) ΓÇö keep it that way; a ctor inject of `IPSManagedLinkService` would pull `pageService` ΓåÆ `folderHelper` and form path C.
 
 ### Consumer-only injectors of `IPSFolderHelper` (no param `@Lazy` required)
 
-Class-level `@Lazy` on these beans is **lazy init only** — it is **false safety** for constructor cycles when an eager peer forces creation. OK **only while** live reverse edges above keep param `@Lazy`.
+Class-level `@Lazy` on these beans is **lazy init only** ΓÇö it is **false safety** for constructor cycles when an eager peer forces creation. OK **only while** live reverse edges above keep param `@Lazy`.
 
 | Class | Class `@Lazy`? | Disposition |
 |-------|----------------|-------------|
-| `PSPageService` | yes | consumer / hub — reverse-edge freeze done (#2514 / `PSPageServiceCycleWiringTest`) |
-| `PSItemWorkflowService` | yes | consumer / hub — reverse freeze #2478; cycle-peer **param `@Lazy`** #2515 |
-| `PSSiteDataService` | yes | consumer / hub — #2516 |
+| `PSPageService` | yes | consumer / hub ΓÇö reverse-edge freeze done (#2514 / `PSPageServiceCycleWiringTest`) |
+| `PSItemWorkflowService` | yes | consumer / hub ΓÇö reverse freeze #2478; cycle-peer **param `@Lazy`** #2515 |
+| `PSSiteDataService` | yes | consumer / hub ΓÇö #2516 |
 | `PSAssetService` | yes | consumer; folderHelper param **not** `@Lazy` (pageService param **is** `@Lazy` #2476) |
 | `PSItemService` | no | consumer |
-| `PSSiteContentDao` | yes | consumer (also takes pageDaoHelper — not a reverse edge into folderHelper creation) |
+| `PSSiteContentDao` | yes | consumer (also takes pageDaoHelper ΓÇö not a reverse edge into folderHelper creation) |
 | `PSTemplateDao` | yes | consumer |
 | `PSEmptyRecycleService` | yes | consumer; not on folderHelper ctor path (depends on pathService) |
 | `PSPathService` / path item services (`PSSitePathItemService`, `PSAssetPathItemService`, `PSRecyclePathItemService`, `PSSearchPathItemService`, `PSFileSystemPathItemService`, `PSDesignPathItemService`, `PSWebResourcesPathItemService`, `PSPathItemService`, `PSDispatchingPathService`) | mixed | path consumers |
@@ -94,11 +94,11 @@ Spring class-level `@Lazy` defers bean *creation until first request*. It does *
 
 ## Inventory result: other constructor cycles
 
-Among the mapped interest set (folder/recycle/asset/content/page/item/template/workflow/site hubs), the **only constructor cycle of length 2–6** is the known folderHelper chain above.
+Among the mapped interest set (folder/recycle/asset/content/page/item/template/workflow/site hubs), the **only constructor cycle of length 2ΓÇô6** is the known folderHelper chain above.
 
 No second closed constructor cycle was found in the current tree.
 
-Field injection adds a few edges (e.g. `PSItemService` → `IPSRecycleService` field; `PSSiteDataService` → `IPSPageService` / path service field) but does not form an additional closed cycle in the combo graph under the same mapping.
+Field injection adds a few edges (e.g. `PSItemService` ΓåÆ `IPSRecycleService` field; `PSSiteDataService` ΓåÆ `IPSPageService` / path service field) but does not form an additional closed cycle in the combo graph under the same mapping.
 
 ## High-risk hubs (near-miss / future cycle fuel)
 
@@ -113,22 +113,22 @@ These beans have high constructor fan-in and sit on or next to the known cycle p
 | 5 | `PSAssetService` | out ~8 / in ~14 | Ctor takes `IPSPageService` with param `@Lazy` (#2476) (and folder/asset/widget/item). Class `@Lazy`. |
 | 6 | `PSSiteDataService` | out ~15 / in ~12 | Wide hub; class `@Lazy`; field injects page/path. |
 
-### Next hottest near-cycle edge (protected — #2476)
+### Next hottest near-cycle edge (protected ΓÇö #2476)
 
-**`PSAssetService` → `IPSPageService` (constructor, param `@Lazy` as of #2476)** with **no reverse** `PSPageService` → `IPSAssetService`.
+**`PSAssetService` ΓåÆ `IPSPageService` (constructor, param `@Lazy` as of #2476)** with **no reverse** `PSPageService` ΓåÆ `IPSAssetService`.
 
 | Aspect | Disposition |
 |--------|-------------|
 | Class-level `@Lazy` on both beans | Present but **not** a cycle breaker when an eager consumer forces construction |
-| Param `@Lazy` on forward edge | **Added (#2476)** — Spring injects a pageService proxy; safe because `PSAssetService` only calls `pageService` post-construction (`load` / `notifyPageChange` / `isPageItem` / etc.), never during the ctor body beyond a non-null check (proxy is non-null) |
-| Reverse edge ban | Kept — `PSPageService` must not construct-require `IPSAssetService` |
+| Param `@Lazy` on forward edge | **Added (#2476)** ΓÇö Spring injects a pageService proxy; safe because `PSAssetService` only calls `pageService` post-construction (`load` / `notifyPageChange` / `isPageItem` / etc.), never during the ctor body beyond a non-null check (proxy is non-null) |
+| Reverse edge ban | Kept ΓÇö `PSPageService` must not construct-require `IPSAssetService` |
 | Why not skip param `@Lazy` | Inventory residual after #2463: without it, a future reverse edge or multi-hop eager path would form a second `BeanCurrentlyInCreationException` independent of the folderHelper fix |
 
 Protection test: `PSAssetServicePageServiceNearCycleWiringTest` (asserts one-way ctor edge + param `@Lazy` + no reverse).
 
 ### ItemWorkflow hub cycle-peer param `@Lazy` (#2515)
 
-**`PSItemWorkflowService` → known-cycle peers (constructor, param `@Lazy` as of #2515)** with **no reverse** peer → `IPSItemWorkflowService` (frozen by #2478).
+**`PSItemWorkflowService` ΓåÆ known-cycle peers (constructor, param `@Lazy` as of #2515)** with **no reverse** peer ΓåÆ `IPSItemWorkflowService` (frozen by #2478).
 
 Behavior review of call sites (safe for lazy proxy):
 
@@ -142,11 +142,24 @@ Behavior review of call sites (safe for lazy proxy):
 | Aspect | Disposition |
 |--------|-------------|
 | Class-level `@Lazy` on hub | Present but **not** a cycle breaker when an eager consumer forces construction |
-| Param `@Lazy` on four forward edges | **Added (#2515)** — Spring injects proxies; safe because ctor never method-calls peers |
-| Reverse edge ban | Kept — #2478 / `PSItemWorkflowServiceHubReverseEdgeWiringTest` |
+| Param `@Lazy` on four forward edges | **Added (#2515)** ΓÇö Spring injects proxies; safe because ctor never method-calls peers |
+| Reverse edge ban | Kept ΓÇö #2478 / `PSItemWorkflowServiceHubReverseEdgeWiringTest` |
 | Why apply now | Residual after #2478 reverse-edge freezes: belt-and-braces peer of #2476 so multi-hop eager paths through cycle peers cannot form a second `BeanCurrentlyInCreationException` independent of the folderHelper fix |
 
 Protection test: `PSItemWorkflowServiceCycleLazyWiringTest` (asserts construct-require + param `@Lazy` on each chosen peer).
+
+### assetServiceΓåötemplateService near-cycle (protected ΓÇö #2521)
+
+**`PSAssetService` ΓåÆ `IPSTemplateService` (constructor, one-way)** with **no reverse** `PSTemplateService` ΓåÆ `IPSAssetService` (ctor or non-`@Lazy` field).
+
+| Aspect | Disposition |
+|--------|-------------|
+| Forward edge | **Frozen** ΓÇö `PSAssetService` still construct-requires `@Qualifier("sys_templateService") IPSTemplateService` |
+| Param `@Lazy` on forward edge | **Optional / not required** ΓÇö `templateService` is only used post-construction (`load` / `find`); ctor body does a non-null check only (proxy-safe if `@Lazy` were added later). Reverse-edge ban is the hard gate; do not treat class `@Lazy` on assetService as a cycle breaker |
+| Reverse edge ban | **Hard** ΓÇö `PSTemplateService` must not construct-require or eagerly field-inject `IPSAssetService` without param/field `@Lazy` |
+| Relation to #2477 | #2477 hardens templateService as a hub vs cycle peers (class `@Lazy`, peer reverse bans). This slice freezes the **assetServiceΓåötemplateService pair** specifically; do not absorb into pageService/template/folderHelper cluster PRs without reconciling the forward freeze |
+
+Protection test: `PSAssetServiceTemplateServiceNearCycleWiringTest` (one-way freeze + reverse ctor/field ban; param `@Lazy` disposition documented, not required).
 
 ### Other one-way edges to keep one-way (known cycle intermediate)
 
@@ -154,10 +167,10 @@ These must not gain reverse constructor dependencies:
 
 | From | To | Reverse would mean |
 |------|----|--------------------|
-| `PSAssetDao` | `IPSContentItemDao` | contentItemDao → assetDao closes dao sub-cycle |
-| `PSWidgetAssetRelationshipService` | `IPSAssetDao` | assetDao → widgetAsset skips contentItemDao break |
-| `PSRecycleService` | `IPSWidgetAssetRelationshipService` | widgetAsset → recycle closes mid-chain |
-| `PSFolderHelper` | `IPSRecycleService` | recycle → folderHelper bypasses contentItemDao `@Lazy` |
+| `PSAssetDao` | `IPSContentItemDao` | contentItemDao ΓåÆ assetDao closes dao sub-cycle |
+| `PSWidgetAssetRelationshipService` | `IPSAssetDao` | assetDao ΓåÆ widgetAsset skips contentItemDao break |
+| `PSRecycleService` | `IPSWidgetAssetRelationshipService` | widgetAsset ΓåÆ recycle closes mid-chain |
+| `PSFolderHelper` | `IPSRecycleService` | recycle ΓåÆ folderHelper bypasses contentItemDao `@Lazy` |
 
 `FolderHelperCycleContextTest` (#2436) + `PSContentItemDaoCycleLazyWiringTest` (#2435) cover the `@Lazy` break; intermediate reverse edges are residual hardening candidates.
 
@@ -165,12 +178,12 @@ These must not gain reverse constructor dependencies:
 
 Constructor-parameter `@Lazy` remains rare in this module. Scan snapshot (after #2485):
 
-- `PSContentItemDao` → `IPSFolderHelper` (`@Lazy`) — known reverse edge path A (#2435)
-- `PSPageDaoHelper` → `IPSFolderHelper` (`@Lazy`) — known reverse edge path B (#2437)
-- `PSFolderHelper` → `IPSRecycleService` (`@Lazy`) — forward deferral of recycle subgraph (#2437)
-- `PSAssetService` → `IPSPageService` (`@Lazy`) — near-cycle belt-and-braces (#2476)
-- `PSItemWorkflowService` → `IPSAssetDao` / `IPSFolderHelper` / `IPSRecycleService` / `IPSWidgetAssetRelationshipService` (`@Lazy`) — hub cycle-peer belt-and-braces (#2515)
-- `PSRecentRestService` → `IPSRecentService` (`@Lazy`) — rest convenience, not cycle-related
+- `PSContentItemDao` ΓåÆ `IPSFolderHelper` (`@Lazy`) ΓÇö known reverse edge path A (#2435)
+- `PSPageDaoHelper` ΓåÆ `IPSFolderHelper` (`@Lazy`) ΓÇö known reverse edge path B (#2437)
+- `PSFolderHelper` ΓåÆ `IPSRecycleService` (`@Lazy`) ΓÇö forward deferral of recycle subgraph (#2437)
+- `PSAssetService` ΓåÆ `IPSPageService` (`@Lazy`) ΓÇö near-cycle belt-and-braces (#2476)
+- `PSItemWorkflowService` ΓåÆ `IPSAssetDao` / `IPSFolderHelper` / `IPSRecycleService` / `IPSWidgetAssetRelationshipService` (`@Lazy`) ΓÇö hub cycle-peer belt-and-braces (#2515)
+- `PSRecentRestService` ΓåÆ `IPSRecentService` (`@Lazy`) ΓÇö rest convenience, not cycle-related
 
 Class-level `@Lazy` is common on REST facades and many services; treat it as lazy *init*, not a cycle breaker.
 
@@ -192,36 +205,37 @@ Many path/item services inject `IPSFolderHelper` without parameter `@Lazy` (e.g.
 | Acceptance item | Status |
 |-----------------|--------|
 | Inventory table of folderHelper reverse edges + disposition | **folderHelper reverse-edge inventory (#2485)** section above |
-| Any remaining live cycle edges fixed + unit tests | **None remaining** — path A/B already `@Lazy`; freeze tests added |
-| Link #2463 / #2476+ without duplicating hubs | Hub residuals stay #2476–#2478 / #2514–#2521; this slice freezes folderHelper reverse edges only |
+| Any remaining live cycle edges fixed + unit tests | **None remaining** ΓÇö path A/B already `@Lazy`; freeze tests added |
+| Link #2463 / #2476+ without duplicating hubs | Hub residuals stay #2476ΓÇô#2478 / #2514ΓÇô#2521; this slice freezes folderHelper reverse edges only |
 | Regression peer | `PSFolderHelperReverseEdgeInventoryWiringTest` |
 
 ## Residual recommendations (file as GitHub issues under #2423)
 
-1. Optional: protect intermediate known-cycle reverse edges with reflection tests (assetDao/widgetAsset/recycle one-way) — **covered in** `PSAssetServicePageServiceNearCycleWiringTest` (#2463) + `PSFolderHelperReverseEdgeInventoryWiringTest` (#2485).
-2. ~~Optional: add `@Lazy` on `PSAssetService`'s `IPSPageService` ctor param~~ — **done (#2476)**.
+1. Optional: protect intermediate known-cycle reverse edges with reflection tests (assetDao/widgetAsset/recycle one-way) ΓÇö **covered in** `PSAssetServicePageServiceNearCycleWiringTest` (#2463) + `PSFolderHelperReverseEdgeInventoryWiringTest` (#2485).
+2. ~~Optional: add `@Lazy` on `PSAssetService`'s `IPSPageService` ctor param~~ ΓÇö **done (#2476)**.
 3. ~~ItemWorkflow hub reverse-edge tests.~~ Done: `PSItemWorkflowServiceHubReverseEdgeWiringTest` (#2478).
-4. ~~Hub hardening: `PSTemplateService` class `@Lazy` + reverse-edge tests.~~ **Done (#2477)** — `PSTemplateServiceCycleWiringTest`.
-5. ~~`PSPageService` reverse-edge freeze.~~ **Done (#2514)** — `PSPageServiceCycleWiringTest`.
-6. ~~Optional: param `@Lazy` on itemWorkflow → cycle peers.~~ **Done (#2515)** — `PSItemWorkflowServiceCycleLazyWiringTest`.
-7. Keep Docker `qa-up` / Rhythmyx health smoke (#2437) as the production-level gate.
-8. When adding new `@Autowired` constructors on cycle peers, re-run this inventory method (or extend the reflection tests).
-9. Optional next hubs: siteData (#2516); widgetAsset class `@Lazy` (#2519).
-10. Optional residual: field-injection inventory for `IPSFolderHelper` / recycle subgraph (ctor inventory complete under #2485).
-11. Optional residual: belt-and-braces param `@Lazy` on other high-fan-in consumer hubs (e.g. pageService / siteData) that inject cycle peers — only if product risk warrants; do not treat class `@Lazy` as the fix.
+4. ~~Hub hardening: `PSTemplateService` class `@Lazy` + reverse-edge tests.~~ **Done (#2477)** ΓÇö `PSTemplateServiceCycleWiringTest`.
+5. ~~`PSPageService` reverse-edge freeze.~~ **Done (#2514)** ΓÇö `PSPageServiceCycleWiringTest`.
+6. ~~Optional: param `@Lazy` on itemWorkflow ΓåÆ cycle peers.~~ **Done (#2515)** ΓÇö `PSItemWorkflowServiceCycleLazyWiringTest`.
+7. ~~assetService↔templateService one-way freeze.~~ **Done (#2521)** — `PSAssetServiceTemplateServiceNearCycleWiringTest`.
+8. Keep Docker `qa-up` / Rhythmyx health smoke (#2437) as the production-level gate.
+9. When adding new `@Autowired` constructors on cycle peers, re-run this inventory method (or extend the reflection tests).
+10. Optional next hubs: siteData (#2516); widgetAsset class `@Lazy` (#2519).
+11. Optional residual: field-injection inventory for `IPSFolderHelper` / recycle subgraph (ctor inventory complete under #2485).
+12. Optional residual: belt-and-braces param `@Lazy` on other high-fan-in consumer hubs (e.g. pageService / siteData) that inject cycle peers ΓÇö only if product risk warrants; do not treat class `@Lazy` as the fix.
 
 ## Related
 
-- Parent #2423 — startup cycle epic  
-- #2435 — `@Lazy` break contentItemDao (merged)  
-- #2436 — `FolderHelperCycleContextTest` graph witness  
-- #2437 — Docker qa-up health/login smoke + pageDaoHelper / recycle `@Lazy` (PR #2483)  
-- #2463 — high-fan-in inventory beyond folderHelper  
-- #2476 — param `@Lazy` on assetService→pageService  
-- #2477 — templateService hub hardening (`PSTemplateServiceCycleWiringTest`)  
-- #2478 — itemWorkflow hub reverse-edge protection (`PSItemWorkflowServiceHubReverseEdgeWiringTest`)  
-- #2485 — folderHelper reverse-edge inventory  
-- #2514 — pageService hub reverse-edge freeze (`PSPageServiceCycleWiringTest`)  
-- #2515 — itemWorkflow cycle-peer param `@Lazy` (`PSItemWorkflowServiceCycleLazyWiringTest`)  
+- Parent #2423 ΓÇö startup cycle epic  
+- #2435 ΓÇö `@Lazy` break contentItemDao (merged)  
+- #2436 ΓÇö `FolderHelperCycleContextTest` graph witness  
+- #2437 ΓÇö Docker qa-up health/login smoke + pageDaoHelper / recycle `@Lazy` (PR #2483)  
+- #2463 ΓÇö high-fan-in inventory beyond folderHelper  
+- #2476 ΓÇö param `@Lazy` on assetServiceΓåÆpageService  
+- #2477 ΓÇö templateService hub hardening (`PSTemplateServiceCycleWiringTest`)  
+- #2478 ΓÇö itemWorkflow hub reverse-edge protection (`PSItemWorkflowServiceHubReverseEdgeWiringTest`)  
+- #2485 ΓÇö folderHelper reverse-edge inventory  
+- #2514 ΓÇö pageService hub reverse-edge freeze (`PSPageServiceCycleWiringTest`)  
+- #2515 ΓÇö itemWorkflow cycle-peer param `@Lazy` (`PSItemWorkflowServiceCycleLazyWiringTest`)  
 
-- #2457 / PR #2469 — JDK 21 lambda compile fix often needed to build sitemanage tests
+- #2457 / PR #2469 ΓÇö JDK 21 lambda compile fix often needed to build sitemanage tests
