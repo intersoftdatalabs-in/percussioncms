@@ -16,11 +16,17 @@
 
 /**
  * Classic Finder UI recycle / restore companion for folder-recycle REST smoke
- * (#2489 / parent #2423; REST peer #2464 / PR #2487; empty-recycling UI #2207).
+ * (#2489 residual #2541 / parent #2423; REST peer #2464 / PR #2487;
+ * empty-recycling UI #2207).
  *
  * <p>Proves classic Finder chrome can recycle a folder (delete → soft-delete)
  * and either restore it or empty Recycling via UI controls. Hard fails when
  * pathmanagement context or Admin login is down (no soft skip).</p>
+ *
+ * <p>#2541 hardens miller-column / list selection so happy-path recycle uses
+ * {@code #perc-finder-delete} without REST soft-delete fallback. Strategies:
+ * path-bar to /Assets/{name}, listing-id, miller title/name, list-row. REST
+ * recycle remains only as last-resort residual-shell recovery (logged).</p>
  *
  * <h3>Unattended surface (QA mode)</h3>
  * <pre>
@@ -73,6 +79,11 @@ const {
   emptyRecyclingApiPathFragment,
   recycledFolderFinderPath,
   exactFinderItemNameMatcher,
+  finderRecycleSelectStrategies,
+  isDeleteEligiblePath,
+  pathBarReflectsFolderName,
+  shouldUseRestRecycleFallback,
+  millerSelectionFailureMessage,
   chooseRestoreOrEmptyBranch,
 } = require("./helpers/finder-recycle-restore-ui");
 
@@ -109,38 +120,206 @@ async function navigateFinderPath(page, finderPath) {
   } else {
     await pathInput.press("Enter");
   }
-  // Allow path-changed listeners (delete/restore enablement).
-  await page.waitForTimeout(750);
+  // Allow path-changed listeners (delete/restore enablement) + column load.
+  await page.waitForTimeout(900);
 }
 
 /**
- * Best-effort select a miller-column / list item by exact display name.
+ * Prefer miller column view when the chooser is present (list-view variance).
+ * @param {import("@playwright/test").Page} page
+ */
+async function preferColumnView(page) {
+  const col = page.locator(SELECTORS.chooseColumnView);
+  if ((await col.count()) === 0) {
+    return;
+  }
+  const disabled = await col.first().getAttribute("class").catch(() => "");
+  if (String(disabled || "").includes("ui-state-disabled")) {
+    return;
+  }
+  await col.first().click({ timeout: 3_000 }).catch(() => {});
+  await page.waitForTimeout(400);
+}
+
+/**
+ * Click a miller listing / list row by exact display name (column + list).
+ * Prefers clicking the listing parent (.mcol-listing) so path_changed fires.
  * @param {import("@playwright/test").Page} page
  * @param {string} name
  * @returns {Promise<boolean>} true when a matching item was clicked
  */
 async function selectFinderItemByName(page, name) {
   const match = exactFinderItemNameMatcher(name);
+
+  // 1) Miller listing by title attribute (product sets title = displayLabel).
+  const byTitle = page.locator(
+    `${SELECTORS.millerListing}[title="${String(name).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"]`,
+  );
+  if ((await byTitle.count()) > 0) {
+    await byTitle.first().click({ timeout: 5_000 }).catch(() => {});
+    await page.waitForTimeout(500);
+    return true;
+  }
+
+  // 2) Miller item-name text → click parent listing.
   const names = page.locator(SELECTORS.finderItemName);
   const count = await names.count();
   for (let i = 0; i < count; i++) {
     const text = await names.nth(i).innerText().catch(() => "");
     if (match(text)) {
-      await names.nth(i).click({ timeout: 5_000 }).catch(() => {});
-      await page.waitForTimeout(400);
+      const listing = names.nth(i).locator("xpath=ancestor-or-self::*[contains(@class,'mcol-listing')][1]");
+      if ((await listing.count()) > 0) {
+        await listing.first().click({ timeout: 5_000 }).catch(() => {});
+      } else {
+        await names.nth(i).click({ timeout: 5_000 }).catch(() => {});
+      }
+      await page.waitForTimeout(500);
       return true;
     }
   }
-  // Fallback: any element with exact text under finder outer.
+
+  // 3) List view rows (PercFinderListView).
+  const rows = page.locator(SELECTORS.listViewRow);
+  const rowCount = await rows.count();
+  for (let i = 0; i < rowCount; i++) {
+    const text = await rows.nth(i).innerText().catch(() => "");
+    const lines = String(text || "")
+      .split(/\r?\n/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (lines.some((line) => match(line)) || match(text)) {
+      await rows.nth(i).click({ timeout: 5_000 }).catch(() => {});
+      await page.waitForTimeout(500);
+      return true;
+    }
+  }
+
+  // 4) Any exact text under finder outer.
   const byText = page
     .locator(SELECTORS.finderOuter)
     .getByText(name, { exact: true });
   if ((await byText.count()) > 0) {
     await byText.first().click({ timeout: 5_000 }).catch(() => {});
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(500);
     return true;
   }
   return false;
+}
+
+/**
+ * Poll until #perc-finder-delete looks enabled (ui-enabled / not ui-disabled).
+ * @param {import("@playwright/test").Locator} deleteBtn
+ * @param {number} [timeoutMs=15_000]
+ * @returns {Promise<boolean>}
+ */
+async function waitForDeleteEnabled(deleteBtn, timeoutMs = 15_000) {
+  try {
+    await expect
+      .poll(
+        async () => {
+          const cls = (await deleteBtn.getAttribute("class")) || "";
+          return isFinderControlEnabled(cls);
+        },
+        { timeout: timeoutMs },
+      )
+      .toBe(true);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Apply ordered #2541 strategies so selection enables UI recycle.
+ * @param {import("@playwright/test").Page} page
+ * @param {import("@playwright/test").Locator} deleteBtn
+ * @param {{ name: string, parentPath?: string, guid?: string }} target
+ * @returns {Promise<{ selected: boolean, deleteEnabled: boolean, strategiesTried: string[], pathBar: string }>}
+ */
+async function selectForUiRecycle(page, deleteBtn, target) {
+  const strategies = finderRecycleSelectStrategies(target);
+  /** @type {string[]} */
+  const strategiesTried = [];
+  let selected = false;
+  let deleteEnabled = false;
+
+  await preferColumnView(page);
+
+  for (const strategy of strategies) {
+    strategiesTried.push(strategy.kind);
+
+    if (strategy.kind === "path-bar" && strategy.path) {
+      await navigateFinderPath(page, strategy.path);
+      const barAfter = await page
+        .locator(SELECTORS.pathSummary)
+        .inputValue()
+        .catch(() => "");
+      selected =
+        pathBarReflectsFolderName(barAfter, target.name) ||
+        isDeleteEligiblePath(barAfter);
+    } else if (strategy.kind === "listing-id" && strategy.selector) {
+      // Ensure parent column is open first so listing exists.
+      await navigateFinderPath(page, normalizeFinderPathInput(target.parentPath || "Assets"));
+      const listing = page.locator(strategy.selector);
+      if ((await listing.count()) > 0) {
+        await listing.first().click({ timeout: 5_000 }).catch(() => {});
+        await page.waitForTimeout(500);
+        selected = true;
+      }
+    } else if (
+      strategy.kind === "miller-title" ||
+      strategy.kind === "miller-name" ||
+      strategy.kind === "list-row"
+    ) {
+      await navigateFinderPath(page, normalizeFinderPathInput(target.parentPath || "Assets"));
+      // Wait briefly for seeded folder to appear in column/list.
+      try {
+        await expect
+          .poll(
+            async () => {
+              const names = page.locator(SELECTORS.finderItemName);
+              const n = await names.count();
+              for (let i = 0; i < n; i++) {
+                const t = await names.nth(i).innerText().catch(() => "");
+                if (exactFinderItemNameMatcher(target.name)(t)) {
+                  return true;
+                }
+              }
+              const rows = page.locator(SELECTORS.listViewRow);
+              const rc = await rows.count();
+              for (let i = 0; i < rc; i++) {
+                const t = await rows.nth(i).innerText().catch(() => "");
+                if (String(t || "").includes(target.name)) {
+                  return true;
+                }
+              }
+              return false;
+            },
+            { timeout: 12_000 },
+          )
+          .toBe(true);
+      } catch {
+        // Item not visible yet — still try click strategies below.
+      }
+      selected = (await selectFinderItemByName(page, target.name)) || selected;
+    }
+
+    deleteEnabled = await waitForDeleteEnabled(deleteBtn, 12_000);
+    if (selected && deleteEnabled) {
+      break;
+    }
+    // If path-bar made delete eligible path but control still disabled, keep trying.
+    if (deleteEnabled) {
+      selected = true;
+      break;
+    }
+  }
+
+  const pathBar = await page
+    .locator(SELECTORS.pathSummary)
+    .inputValue()
+    .catch(() => "");
+  return { selected, deleteEnabled, strategiesTried, pathBar };
 }
 
 /**
@@ -251,63 +430,68 @@ test.describe("classic Finder UI recycle / restore companion", () => {
       "classic Finder delete control (#perc-finder-delete) should exist",
     ).toBeVisible({ timeout: 30_000 });
 
-    await navigateFinderPath(page, "/Assets");
-    const selectedLive = await selectFinderItemByName(page, created.name);
+    // #2541: ordered strategies (path-bar / listing-id / miller / list) so
+    // #perc-finder-delete enables without relying on REST soft-delete first.
+    const selection = await selectForUiRecycle(page, deleteBtn, {
+      name: created.name,
+      parentPath: "Assets",
+      guid: created.guid,
+    });
 
     let recycledViaUi = false;
-    if (selectedLive) {
-      // Admin folder delete often skips confirm and soft-deletes immediately.
-      // Selection may not enable delete on all skins — fall through to REST.
-      let deleteEnabled = false;
+    if (selection.selected && selection.deleteEnabled) {
+      await deleteBtn.click();
+      // Optional confirm (page/asset paths use it; Admin folders often do not).
+      const confirm = page.locator(SELECTORS.deleteConfirm);
+      if (
+        (await confirm.count()) > 0 &&
+        (await confirm.isVisible().catch(() => false))
+      ) {
+        await page.locator(SELECTORS.confirmOk).click().catch(() => {});
+      }
       try {
         await expect
-          .poll(
-            async () => {
-              const cls = (await deleteBtn.getAttribute("class")) || "";
-              return isFinderControlEnabled(cls);
-            },
-            { timeout: 15_000 },
-          )
+          .poll(() => deleteCalls.length > 0, { timeout: 20_000 })
           .toBe(true);
-        deleteEnabled = true;
       } catch {
-        deleteEnabled = false;
+        // Network may not surface if soft-delete used a different path.
       }
-
-      if (deleteEnabled) {
-        await deleteBtn.click();
-        // Optional confirm (page/asset paths use it; Admin folders often do not).
-        const confirm = page.locator(SELECTORS.deleteConfirm);
-        if (
-          (await confirm.count()) > 0 &&
-          (await confirm.isVisible().catch(() => false))
-        ) {
-          await page.locator(SELECTORS.confirmOk).click().catch(() => {});
-        }
-        try {
-          await expect
-            .poll(() => deleteCalls.length > 0, { timeout: 20_000 })
-            .toBe(true);
-        } catch {
-          // Network may not surface if soft-delete used a different path.
-        }
-        recycledViaUi = deleteCalls.length > 0;
-        // Also accept when REST listing shows recycled even without captured call.
-        if (!recycledViaUi) {
-          const probeBin = await findInRecycling(
-            request,
-            BASE_URL,
-            headers,
-            created.name,
-          );
-          recycledViaUi = probeBin.found;
-        }
+      recycledViaUi = deleteCalls.length > 0;
+      // Also accept when REST listing shows recycled even without captured call.
+      if (!recycledViaUi) {
+        const probeBin = await findInRecycling(
+          request,
+          BASE_URL,
+          headers,
+          created.name,
+        );
+        recycledViaUi = probeBin.found;
       }
     }
 
-    // Fallback: REST recycle so restore/empty UI can still run when miller
-    // selection is flaky on a residual shell. UI chrome already asserted above.
-    if (!recycledViaUi) {
+    // Last-resort REST only when UI selection/enablement failed (residual shell).
+    // Happy path must not need this (#2541).
+    if (
+      shouldUseRestRecycleFallback({
+        selected: selection.selected,
+        deleteEnabled: selection.deleteEnabled,
+        recycledViaUi,
+      })
+    ) {
+      test.info().annotations.push({
+        type: "warning",
+        description: millerSelectionFailureMessage({
+          name: created.name,
+          strategiesTried: selection.strategiesTried,
+          pathBar: selection.pathBar,
+        }),
+      });
+      await recycleFolder(request, BASE_URL, headers, {
+        path: created.path,
+        guid: created.guid,
+      });
+    } else if (!recycledViaUi) {
+      // Selected + enabled but click did not recycle — still try REST recover.
       await recycleFolder(request, BASE_URL, headers, {
         path: created.path,
         guid: created.guid,

@@ -1,6 +1,6 @@
 /**
  * Pure helpers + classic Finder UI utilities for folder recycle/restore
- * companion smoke (#2489 / parent #2423; REST peer #2464).
+ * companion smoke (#2489 residual #2541 / parent #2423; REST peer #2464).
  *
  * <p>Reuses empty-recycling selectors and folder-recycle-smoke REST helpers.
  * No machine hard-coded install paths. Base URL and credentials come from
@@ -8,6 +8,25 @@
  *
  * <p>Surface tags: {@code @finder-recycle-restore} {@code @folder-recycle}
  * {@code @smoke}.</p>
+ *
+ * <h3>Selection reliability (#2541)</h3>
+ * <p>Classic Finder delete (#perc-finder-delete) enables only after path_changed
+ * with depth &gt; 2 (see perc_delete_page_button.js). Happy path must select or
+ * path-navigate to the seeded Assets folder so UI recycle works without REST
+ * soft-delete fallback. Strategies cover miller column + list view skins.</p>
+ *
+ * <h3>Residual product chrome / testid gaps</h3>
+ * <ul>
+ *   <li>Miller listings use id {@code perc-finder-listing-{id}} and class
+ *       {@code mcol-listing} / {@code perc-finder-item-name} — no stable
+ *       {@code data-testid} on individual folder rows.</li>
+ *   <li>List view rows use {@code perc-datatable-row} with jQuery row data —
+ *       no {@code data-testid} per path item.</li>
+ *   <li>Delete/restore enablement is class-based ({@code ui-enabled} /
+ *       {@code ui-disabled}), not aria-disabled / HTML disabled.</li>
+ *   <li>Only Empty Recycling has {@code data-testid="perc-finder-empty-recycling"}
+ *       (#2206); recycle/restore still rely on id selectors.</li>
+ * </ul>
  */
 
 "use strict";
@@ -35,8 +54,13 @@ const SELECTORS = Object.freeze({
   confirmCancel: "#perc-confirm-generic-cancel",
   finderItemName: ".perc-finder-item-name",
   lastSelected: ".mcol-opened.perc_last_selected",
+  millerListing: ".mcol-listing",
   listingCategoryFolder: ".perc-listing-category-FOLDER",
   finderListingPrefix: "perc-finder-listing-",
+  listViewRow: ".perc-datatable-row",
+  listViewRowHighlighted: ".perc-datatable-row-highlighted",
+  chooseColumnView: "#perc-finder-choose-columnview",
+  chooseListView: "#perc-finder-choose-listview",
   finderOuter: ".perc-finder-outer",
   pathSummary: "#mcol-path-summary",
   pathGo: "#perc-finder-go-action",
@@ -223,6 +247,194 @@ function exactFinderItemNameMatcher(name) {
 }
 
 /**
+ * Escape a value for use inside a double-quoted CSS attribute selector.
+ * Prevents selector breakage when folder names contain quotes or backslashes.
+ *
+ * @param {string | null | undefined} value
+ * @returns {string}
+ */
+function cssAttrEscape(value) {
+  return String(value ?? "")
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"');
+}
+
+/**
+ * CSS id selector for a miller listing built from product idFromItem:
+ * {@code #perc-finder-listing-{id}}.
+ *
+ * @param {string | null | undefined} itemId content id / guid postfix
+ * @returns {string} empty when id missing
+ */
+function finderListingIdSelector(itemId) {
+  const raw = String(itemId || "").trim();
+  if (!raw) {
+    return "";
+  }
+  // Product: id = "perc-finder-listing-" + item.id (ids often start with digits).
+  // Full id always starts with a letter (prefix), so #id is valid when raw is
+  // word/colon/hyphen characters; otherwise fall back to attribute selector.
+  const fullId = `${SELECTORS.finderListingPrefix}${raw}`;
+  if (/^[\w:-]+$/.test(raw)) {
+    return `#${fullId}`;
+  }
+  return `[id="${cssAttrEscape(fullId)}"]`;
+}
+
+/**
+ * Full finder path to a named folder under a structural parent (default Assets).
+ *
+ * @param {string} folderName
+ * @param {string} [parentPath="Assets"]
+ * @returns {string} e.g. "/Assets/qa-folder-1"
+ */
+function folderFinderPath(folderName, parentPath = "Assets") {
+  const name = String(folderName || "").trim();
+  const parent = normalizeFinderPathInput(parentPath);
+  if (!name) {
+    return parent;
+  }
+  if (parent === "/") {
+    return normalizeFinderPathInput(`/${name}`);
+  }
+  return normalizeFinderPathInput(`${parent}/${name}`);
+}
+
+/**
+ * True when path-bar / path_changed depth is deep enough for delete enablement.
+ * Product rule: mcol_path.length &gt; 2 (e.g. ["", "Assets", "seed"]).
+ *
+ * @param {string | string[] | null | undefined} path
+ * @returns {boolean}
+ */
+function isDeleteEligiblePath(path) {
+  const segments = Array.isArray(path) ? path : finderPathSegments(path);
+  return Array.isArray(segments) && segments.length > 2;
+}
+
+/**
+ * True when the path bar value indicates the named item is the current path leaf.
+ *
+ * @param {string | null | undefined} pathBarValue
+ * @param {string | null | undefined} folderName
+ * @returns {boolean}
+ */
+function pathBarReflectsFolderName(pathBarValue, folderName) {
+  const name = String(folderName || "").trim();
+  if (!name) {
+    return false;
+  }
+  const segments = finderPathSegments(pathBarValue);
+  if (segments.length < 2) {
+    return false;
+  }
+  return String(segments[segments.length - 1] || "").trim() === name;
+}
+
+/**
+ * Ordered pure strategies to put a named Assets (or parent) folder in selection
+ * so #perc-finder-delete can enable. Spec applies these against live DOM.
+ *
+ * <ol>
+ *   <li>{@code path-bar} — navigate path bar to /Parent/Name (most reliable;
+ *       fires path_changed with depth &gt; 2 without miller click races)</li>
+ *   <li>{@code listing-id} — click #perc-finder-listing-{guid} when known</li>
+ *   <li>{@code miller-title} — click .mcol-listing[title=name]</li>
+ *   <li>{@code miller-name} — click parent listing of matching item-name text</li>
+ *   <li>{@code list-row} — click .perc-datatable-row containing exact name</li>
+ * </ol>
+ *
+ * @param {{ name: string, parentPath?: string, guid?: string }} opts
+ * @returns {Array<{
+ *   kind: "path-bar" | "listing-id" | "miller-title" | "miller-name" | "list-row",
+ *   path?: string,
+ *   selector?: string,
+ *   name?: string
+ * }>}
+ */
+function finderRecycleSelectStrategies(opts = {}) {
+  const name = String(opts.name || "").trim();
+  const parentPath = opts.parentPath != null ? opts.parentPath : "Assets";
+  const guid = String(opts.guid || "").trim();
+  /** @type {Array<{ kind: string, path?: string, selector?: string, name?: string }>} */
+  const strategies = [];
+
+  if (name) {
+    strategies.push({
+      kind: "path-bar",
+      path: folderFinderPath(name, parentPath),
+    });
+  }
+
+  if (guid) {
+    const sel = finderListingIdSelector(guid);
+    if (sel) {
+      strategies.push({ kind: "listing-id", selector: sel, name });
+    }
+  }
+
+  if (name) {
+    const safe = cssAttrEscape(name);
+    strategies.push({
+      kind: "miller-title",
+      selector: `${SELECTORS.millerListing}[title="${safe}"]`,
+      name,
+    });
+    strategies.push({
+      kind: "miller-name",
+      selector: SELECTORS.finderItemName,
+      name,
+    });
+    strategies.push({
+      kind: "list-row",
+      selector: SELECTORS.listViewRow,
+      name,
+    });
+  }
+
+  return strategies;
+}
+
+/**
+ * Whether REST soft-delete fallback is still needed after UI selection attempts.
+ * Happy path (#2541): selected + delete enabled ⇒ no REST.
+ *
+ * @param {{ selected?: boolean, deleteEnabled?: boolean, recycledViaUi?: boolean }} flags
+ * @returns {boolean}
+ */
+function shouldUseRestRecycleFallback(flags = {}) {
+  if (flags.recycledViaUi) {
+    return false;
+  }
+  if (flags.selected && flags.deleteEnabled) {
+    // Selection + enablement succeeded; caller should click delete — not REST yet.
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Operator message when UI selection never enabled delete (residual chrome gap).
+ *
+ * @param {{ name?: string, strategiesTried?: string[], pathBar?: string }} detail
+ * @returns {string}
+ */
+function millerSelectionFailureMessage(detail = {}) {
+  const name = detail.name || "(unknown)";
+  const tried = Array.isArray(detail.strategiesTried)
+    ? detail.strategiesTried.join(", ")
+    : "(n/a)";
+  const pathBar = detail.pathBar ? ` pathBar=${detail.pathBar}` : "";
+  return (
+    `Classic Finder miller/list selection did not enable #perc-finder-delete` +
+    ` for folder "${name}" (strategies tried: ${tried}).` +
+    ` Residual chrome gaps: no data-testid on miller listings / list rows;` +
+    ` delete uses ui-enabled/ui-disabled classes only (#2541).` +
+    pathBar
+  );
+}
+
+/**
  * Choose restore vs empty-recycling UI branch when selection is uncertain.
  * Prefer restore when path is restore-eligible and restore control is enabled;
  * otherwise empty Recycling (Admin bulk purge) is the proven #2207 path.
@@ -252,6 +464,14 @@ module.exports = {
   emptyRecyclingApiPathFragment,
   recycledFolderFinderPath,
   exactFinderItemNameMatcher,
+  cssAttrEscape,
+  finderListingIdSelector,
+  folderFinderPath,
+  isDeleteEligiblePath,
+  pathBarReflectsFolderName,
+  finderRecycleSelectStrategies,
+  shouldUseRestRecycleFallback,
+  millerSelectionFailureMessage,
   chooseRestoreOrEmptyBranch,
   // Re-export peer constants used by the spec for convenience.
   PATH_RESTORE_FOLDER,
