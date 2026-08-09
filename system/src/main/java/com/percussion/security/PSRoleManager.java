@@ -65,7 +65,6 @@ import org.apache.logging.log4j.Logger;
  * document (no elements), or a valid document for the request type. See the Rhythmyx 4.0 functional
  * for a description of the resource names and dtds they use.
  */
-@SuppressWarnings(value = {"unchecked"})
 public class PSRoleManager {
   /**
    * Gets the one and only instance of this class. If one doesn't exist, it is created.
@@ -84,7 +83,7 @@ public class PSRoleManager {
    * @return a list with all roles found for all defined security providers. The list is never
    *     <code>null</code>, may be empty and does not contain duplicates.
    */
-  public List getRoles() {
+  public List<String> getRoles() {
     return getRoles(null, 0);
   }
 
@@ -99,15 +98,15 @@ public class PSRoleManager {
    *     is a member for the provided subject type. The list is never <code>null</code>, may be
    *     empty and does not contain duplicates.
    */
-  public List getRoles(String subjectName, int subjectType) {
+  public List<String> getRoles(String subjectName, int subjectType) {
     // use a set to remove duplicates
-    Set resultSet = new HashSet();
+    Set<String> resultSet = new HashSet<>();
 
     // add all roles from all security providers role catalogers
     resultSet.addAll(getSecurityProviderRoles(subjectName, subjectType));
 
     // make sure we return an alpha ordered list
-    List resultList = new ArrayList(resultSet);
+    List<String> resultList = new ArrayList<>(resultSet);
     Collections.sort(resultList);
 
     return resultList;
@@ -138,7 +137,7 @@ public class PSRoleManager {
    * #memberRoleList(PSUserSession, PSSubject)} will use type <code>PSSubject.SUBJECT_TYPE_USER
    * </code>.
    */
-  public List memberRoleList(PSUserSession session, String subjectName) {
+  public List<String> memberRoleList(PSUserSession session, String subjectName) {
     PSSubject subject = new PSGlobalSubject(subjectName, PSSubject.SUBJECT_TYPE_USER, null);
 
     return memberRoleList(session, subject);
@@ -162,8 +161,6 @@ public class PSRoleManager {
 
     if (subject == null) throw new IllegalArgumentException("subject may not be null");
 
-    List<String> roles = null;
-
     if (subject.getType() == PSSubject.SUBJECT_TYPE_USER
         && session.hasAuthenticatedUserEntry(subject.getName())) {
       return session.getUserRoles();
@@ -179,7 +176,7 @@ public class PSRoleManager {
       resultSet.addAll(getGroupRoles(subject));
     }
 
-    roles = new ArrayList(resultSet);
+    List<String> roles = new ArrayList<>(resultSet);
 
     // make sure we return an alpha ordered list
     Collections.sort(roles);
@@ -403,9 +400,11 @@ public class PSRoleManager {
     for (PSSubject subject : subjects) {
       // pattern match on all attributes
       PSAttributeList newAttrs = new PSAttributeList();
-      Iterator attrs = subject.getAttributes().iterator();
+      // objectstore PSAttributeList.iterator() is raw; narrow at the boundary
+      @SuppressWarnings("unchecked")
+      Iterator<PSAttribute> attrs = subject.getAttributes().iterator();
       while (attrs.hasNext()) {
-        PSAttribute attr = (PSAttribute) attrs.next();
+        PSAttribute attr = attrs.next();
         if (!patternMatch.doesMatchPattern(attr.getName())) continue;
 
         if (!attr.getValues().isEmpty()) newAttrs.add(attr);
@@ -633,7 +632,7 @@ public class PSRoleManager {
    * Convenience method that calls {@link #roleMembers(String, int, String) roleMembers(roleName,
    * memberFlags, null)}.
    */
-  public List roleMembers(String roleName, int memberFlags) {
+  public List<PSSubject> roleMembers(String roleName, int memberFlags) {
     return roleMembers(roleName, memberFlags, null);
   }
 
@@ -652,10 +651,10 @@ public class PSRoleManager {
    */
   public List<PSSubject> roleMembers(String roleName, int memberFlags, String subjectNameFilter) {
     Set<PSSubject> members = getSubjects(roleName, subjectNameFilter);
-    if (members.size() > 0 && memberFlags > 0) {
+    if (!members.isEmpty() && memberFlags > 0) {
       Iterator<PSSubject> iter = members.iterator();
       while (iter.hasNext()) {
-        PSSubject member = (PSSubject) iter.next();
+        PSSubject member = iter.next();
         if ((member.getType() & memberFlags) == 0) iter.remove();
       }
     }
@@ -688,15 +687,7 @@ public class PSRoleManager {
 
     final PSStringComparator comp =
         new PSStringComparator(PSStringComparator.SORT_CASE_INSENSITIVE_ASC);
-    Comparator<PSAttribute> comparator =
-        new Comparator<PSAttribute>() {
-
-          public int compare(PSAttribute o1, PSAttribute o2) {
-            return comp.compare(o1.getName(), o2.getName());
-          }
-        };
-
-    Collections.sort(attrList, comparator);
+    attrList.sort((o1, o2) -> comp.compare(o1.getName(), o2.getName()));
 
     return attrList;
   }
@@ -720,37 +711,75 @@ public class PSRoleManager {
    * @return a valid list of 0 or more PSSubjects containing 1 or more attributes, ordered in
    *     ascending alpha order by subject name. The caller takes ownership of the list.
    */
-  public List getSubjectAttributes(
+  public List<PSSubject> getSubjectAttributes(
       String subjectNameFilter, int subjectType, String roleName, String attributeNameFilter) {
-    List results;
     if (null == roleName || roleName.trim().length() == 0) {
-      results =
-          getSubjectGlobalAttributes(subjectNameFilter, subjectType, roleName, attributeNameFilter);
-    } else {
-      results =
-          getSubjectRoleAttributes(subjectNameFilter, subjectType, roleName, attributeNameFilter);
-      List global =
-          getSubjectGlobalAttributes(subjectNameFilter, subjectType, roleName, attributeNameFilter);
+      return getSubjectGlobalAttributes(
+          subjectNameFilter, subjectType, roleName, attributeNameFilter);
+    }
 
-      Iterator iter = global.iterator();
-      int size = results.size();
-      while (iter.hasNext()) {
-        PSAttribute attrib = (PSAttribute) iter.next();
-        for (int i = 0; i < size; i++) {
-          PSAttribute roleAttrib = (PSAttribute) results.get(i);
-          int comparison = roleAttrib.getName().compareTo(attrib.getName());
-          if (comparison == 0) break;
-          else if (comparison > 0) {
-            int pos = i - 1;
-            if (pos < 0) pos = 0;
-            results.add(pos, attrib);
-            break;
-          }
+    List<PSSubject> roleSubjects =
+        getSubjectRoleAttributes(subjectNameFilter, subjectType, roleName, attributeNameFilter);
+    List<PSSubject> globalSubjects =
+        getSubjectGlobalAttributes(subjectNameFilter, subjectType, roleName, attributeNameFilter);
+
+    return mergeRoleAndGlobalSubjects(roleSubjects, globalSubjects);
+  }
+
+  /**
+   * Merges role-specific subjects with global subjects. Role attribute values win when the same
+   * attribute name is present on both; subjects present only in the global set are appended. Result
+   * is ordered by subject name (case-insensitive).
+   *
+   * <p>Package-visible for unit tests (issue #2459).
+   *
+   * @param roleSubjects subjects with role attributes, may be empty, never <code>null</code>
+   * @param globalSubjects subjects with global attributes, may be empty, never <code>null</code>
+   * @return merged subject list, never <code>null</code>
+   */
+  static List<PSSubject> mergeRoleAndGlobalSubjects(
+      List<PSSubject> roleSubjects, List<PSSubject> globalSubjects) {
+    Map<String, PSSubject> byKey = new HashMap<>();
+
+    for (PSSubject roleSubject : roleSubjects) {
+      byKey.put(subjectIdentityKey(roleSubject), roleSubject);
+    }
+
+    for (PSSubject globalSubject : globalSubjects) {
+      String key = subjectIdentityKey(globalSubject);
+      PSSubject existing = byKey.get(key);
+      if (existing == null) {
+        byKey.put(key, globalSubject);
+        continue;
+      }
+
+      // Prefer role attributes: only add global attributes that role subject does not define.
+      // objectstore PSAttributeList.iterator() is raw; narrow at the boundary.
+      @SuppressWarnings("unchecked")
+      Iterator<PSAttribute> globalAttrs = globalSubject.getAttributes().iterator();
+      while (globalAttrs.hasNext()) {
+        PSAttribute attr = globalAttrs.next();
+        if (existing.getAttributes().getAttribute(attr.getName()) == null) {
+          existing.getAttributes().add(attr);
         }
       }
     }
 
+    List<PSSubject> results = new ArrayList<>(byKey.values());
+    final PSStringComparator nameComp =
+        new PSStringComparator(PSStringComparator.SORT_CASE_INSENSITIVE_ASC);
+    results.sort((s1, s2) -> nameComp.compare(s1.getName(), s2.getName()));
     return results;
+  }
+
+  /**
+   * Identity key for a subject used when merging role/global attribute sets.
+   *
+   * @param subject never <code>null</code>
+   * @return name:type key, never <code>null</code>
+   */
+  private static String subjectIdentityKey(PSSubject subject) {
+    return subject.getName() + ":" + subject.getType();
   }
 
   /**
@@ -759,7 +788,7 @@ public class PSRoleManager {
    * #getSubjectGlobalAttributes(String, int, String, String, boolean) getSubjectGlobalAttributes}
    * for details of params.
    */
-  public List getSubjectGlobalAttributes(
+  public List<PSSubject> getSubjectGlobalAttributes(
       String subjectNameFilter, int subjectType, String roleName, String attributeNameFilter) {
     return getSubjectGlobalAttributes(
         subjectNameFilter,
@@ -773,7 +802,7 @@ public class PSRoleManager {
    * Convenience method which calls {@link #getSubjectGlobalAttributes(String, int, String, String,
    * boolean, String)} with <code>communityId</code> parameter set to <code>null</code>.
    */
-  public List getSubjectGlobalAttributes(
+  public List<PSSubject> getSubjectGlobalAttributes(
       String subjectNameFilter,
       int subjectType,
       String roleName,
@@ -817,7 +846,11 @@ public class PSRoleManager {
       boolean includeEmptySubjects,
       String communityId) {
     // use treeset to prevent duplicates and enforce ordering
-    Set<PSSubject> subjects = new TreeSet<PSSubject>(PSSubject.getSubjectIdentifierComparator());
+    // objectstore comparator is raw; narrow at the boundary
+    @SuppressWarnings("unchecked")
+    Comparator<PSSubject> subjectIdComparator =
+        (Comparator<PSSubject>) PSSubject.getSubjectIdentifierComparator();
+    Set<PSSubject> subjects = new TreeSet<>(subjectIdComparator);
 
     // add all subjects from all security providers
     subjects.addAll(
@@ -858,7 +891,11 @@ public class PSRoleManager {
       String communityId,
       boolean includeEmpty) {
     // use treeset to prevent duplicates and enforce ordering
-    Set<PSSubject> results = new TreeSet<>(PSSubject.getSubjectIdentifierComparator());
+    // objectstore comparator is raw; narrow at the boundary
+    @SuppressWarnings("unchecked")
+    Comparator<PSSubject> subjectIdComparator =
+        (Comparator<PSSubject>) PSSubject.getSubjectIdentifierComparator();
+    Set<PSSubject> results = new TreeSet<>(subjectIdComparator);
 
     // add all subjects from all security providers
     results.addAll(
@@ -914,7 +951,7 @@ public class PSRoleManager {
    * @return a valid list of 0 or more PSSubjects with their attributes, no duplicates and ordered
    *     in ascending alpha order by subject name. The caller takes ownership of the list.
    */
-  public List getSubjectRoleAttributes(
+  public List<PSSubject> getSubjectRoleAttributes(
       String subjectNameFilter, int subjectType, String roleName, String attributeNameFilter) {
     if (roleName == null) throw new IllegalArgumentException("roleName cannot be null");
 
@@ -922,7 +959,11 @@ public class PSRoleManager {
     if (roleName.length() == 0) throw new IllegalArgumentException("roleName cannot be empty");
 
     // use treeset to prevent duplicates and enforce ordering
-    Set subjects = new TreeSet(PSSubject.getSubjectIdentifierComparator());
+    // objectstore comparator is raw; narrow at the boundary
+    @SuppressWarnings("unchecked")
+    Comparator<PSSubject> subjectIdComparator =
+        (Comparator<PSSubject>) PSSubject.getSubjectIdentifierComparator();
+    Set<PSSubject> subjects = new TreeSet<>(subjectIdComparator);
 
     // add all subjects from all security providers
     subjects.addAll(
@@ -935,7 +976,7 @@ public class PSRoleManager {
             null,
             BACKEND_SUBJECT_ROLE_ATTRIBUTES));
 
-    return new ArrayList(subjects);
+    return new ArrayList<>(subjects);
   }
 
   /**
@@ -956,7 +997,10 @@ public class PSRoleManager {
    *     <code>null</code>, may be empty.
    */
   public Set<PSNotificationEmailAddress> getRoleEmailAddresses(
-      String roleName, String emailAttributeName, String community, Set subjectsWithoutEmail) {
+      String roleName,
+      String emailAttributeName,
+      String community,
+      Set<? super PSSubject> subjectsWithoutEmail) {
     if (StringUtils.isBlank(roleName))
       throw new IllegalArgumentException("roleName may not be null or empty");
 
@@ -1043,7 +1087,7 @@ public class PSRoleManager {
       // group attributes can only be defined in the backend
       if (!groupnames.isEmpty()) {
         IPSBackEndRoleMgr beRoleMgr = PSRoleMgrLocator.getBackEndRoleManager();
-        for (String groupName : new ArrayList<String>(groupnames.keySet())) {
+        for (String groupName : new ArrayList<>(groupnames.keySet())) {
           for (Subject subject : beRoleMgr.getGlobalSubjectAttributes(groupName, null, true)) {
             PSNotificationEmailAddress email =
                 processSubjectEmail(emailAttributeName, groupnames, subject);
