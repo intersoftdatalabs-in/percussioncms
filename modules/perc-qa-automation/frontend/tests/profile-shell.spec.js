@@ -15,7 +15,8 @@
  */
 
 /**
- * Profile hub shell smoke + axe WCAG gate (#2393 / #2425 / #2427 / parent #2374).
+ * Profile hub shell smoke + axe WCAG gate
+ * (#2393 / #2425 / #2427 / #2497 / parent #2374).
  *
  * Surface-filtered only — not full suite:
  *   npm run test:surface -- --path tests/profile-shell.spec.js
@@ -23,11 +24,15 @@
  * Axe-only subset (serious/critical zero on hub after deep link + menu entry):
  *   npm run test:surface -- --path tests/profile-shell.spec.js --grep "axe-core"
  *
+ * Non-admin menu click only (#2497 residual):
+ *   npm run test:surface -- --path tests/profile-shell.spec.js --grep "menu entry"
+ *
  * QA mode: perc-devctl qa-up → TEST_CMS_URL + ADMIN_* / EDITOR_* / CONTRIBUTOR_*
  * → test:surface → qa-down.
  *
- * Covers Admin deep link + UserMenu entry, plus non-admin (Editor, Contributor)
- * deep-link access so profile is not admin-only (#2374 acceptance).
+ * Covers Admin deep link + UserMenu entry, non-admin (Editor, Contributor)
+ * deep-link access, and non-admin UserMenu → My profile click path (#2497)
+ * so profile is not admin-only (#2374 acceptance).
  */
 
 const { test, expect } = require("@playwright/test");
@@ -162,6 +167,48 @@ test.describe("Profile shell @profile @smoke", () => {
     await loginAsContributor(page);
 
     await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
+    await expectProfileShellMounted(page);
+  });
+
+  /**
+   * #2497 residual of #2425 — non-admin UserMenu → My profile click path.
+   * Deep link alone is not enough; menu entry must navigate for Editor/Contributor.
+   */
+  test("Editor My profile menu entry navigates to profile shell (#2497)", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    await loginAsEditor(page);
+
+    await page.goto(homeUrl(), { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("perc-spa-user-menu")).toBeVisible({
+      timeout: 30_000,
+    });
+
+    const menuLink = page.getByTestId("perc-spa-my-profile");
+    await expect(menuLink).toBeVisible();
+    await expect(menuLink).toBeEnabled();
+    await menuLink.click();
+
+    await expectProfileShellMounted(page);
+  });
+
+  test("Contributor My profile menu entry navigates to profile shell (#2497)", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    await loginAsContributor(page);
+
+    await page.goto(homeUrl(), { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("perc-spa-user-menu")).toBeVisible({
+      timeout: 30_000,
+    });
+
+    const menuLink = page.getByTestId("perc-spa-my-profile");
+    await expect(menuLink).toBeVisible();
+    await expect(menuLink).toBeEnabled();
+    await menuLink.click();
+
     await expectProfileShellMounted(page);
   });
 });
