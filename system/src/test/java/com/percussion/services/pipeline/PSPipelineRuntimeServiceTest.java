@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.services.pipeline.hooks.IPSPipelinePostExecuteHook;
 import com.percussion.services.pipeline.hooks.IPSPipelinePreExecuteHook;
+import com.percussion.services.pipeline.model.BackendJoinIr;
 import com.percussion.services.pipeline.model.BackendTableRefIr;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
 import com.percussion.services.pipeline.model.MapperStageIr;
@@ -78,6 +79,13 @@ class PSPipelineRuntimeServiceTest {
               + "('workflow', 'wf1', '1'),"
               + "('workflow', 'wf2', '2'),"
               + "('locale', 'en-us', 'en')");
+      st.execute(
+          "CREATE TABLE \"PSX_LOOKUP_EXTRA\" ("
+              + "\"LOOKUP_NAME\" VARCHAR(128), \"NOTE\" VARCHAR(256))");
+      st.execute(
+          "INSERT INTO \"PSX_LOOKUP_EXTRA\" (\"LOOKUP_NAME\", \"NOTE\") VALUES "
+              + "('wf1', 'note-one'),"
+              + "('wf2', 'note-two')");
     }
     irService = new PSPipelineIrService(tempDir);
     sqlAdapter =
@@ -325,11 +333,12 @@ class PSPipelineRuntimeServiceTest {
   }
 
   @Test
-  @DisplayName("product limit: joinCount > 0 rejected with documented message")
-  void planQuery_rejectsJoins_productLimit() {
+  @DisplayName("product limit: joinCount > 0 without join edges rejected")
+  void planQuery_rejectsJoinCountWithoutEdges() {
     PipelineIrDocument doc = nativeQueryDoc("joinApp", "J1");
     PipelineResourceIr res = doc.findResource("J1");
     res.getStages().getBackendTank().setJoinCount(1);
+    res.getStages().getBackendTank().setJoins(List.of());
 
     PSPipelineIrException ex =
         assertThrows(
@@ -337,13 +346,13 @@ class PSPipelineRuntimeServiceTest {
             () -> PSPipelineSqlPlanner.planQuery(res, PipelineExecuteRequest.empty()));
     assertTrue(
         ex.getMessage().contains(PSPipelineSqlPlanner.JOIN_PRODUCT_LIMIT_MESSAGE)
-            || ex.getMessage().contains("multi-table joins"),
+            || ex.getMessage().contains("backendTank.joins"),
         ex.getMessage());
     assertTrue(ex.getMessage().contains("J1"), ex.getMessage());
   }
 
   @Test
-  @DisplayName("product limit: multi-table tank without join also rejected")
+  @DisplayName("product limit: multi-table tank without join edges rejected")
   void planQuery_rejectsMultiTableWithoutJoin() {
     PipelineIrDocument doc = nativeQueryDoc("mtApp", "M1");
     PipelineResourceIr res = doc.findResource("M1");
@@ -354,12 +363,92 @@ class PSPipelineRuntimeServiceTest {
     tables.add(t2);
     res.getStages().getBackendTank().setTables(tables);
     res.getStages().getBackendTank().setJoinCount(0);
+    res.getStages().getBackendTank().setJoins(List.of());
 
     PSPipelineIrException ex =
         assertThrows(
             PSPipelineIrException.class,
             () -> PSPipelineSqlPlanner.planQuery(res, PipelineExecuteRequest.empty()));
-    assertTrue(ex.getMessage().contains("exactly one backend table"), ex.getMessage());
+    assertTrue(
+        ex.getMessage().contains(PSPipelineSqlPlanner.JOIN_PRODUCT_LIMIT_MESSAGE)
+            || ex.getMessage().contains("joins"),
+        ex.getMessage());
+  }
+
+  @Test
+  @DisplayName("join-graph: INNER JOIN generates parameterized multi-table SELECT")
+  void planQuery_innerJoinSql() throws Exception {
+    PipelineIrDocument doc = nativeJoinQueryDoc("innerPlan", "IJ", BackendJoinIr.TYPE_INNER);
+    PipelineResourceIr res = doc.findResource("IJ");
+
+    PSPipelineSqlPlan plan =
+        PSPipelineSqlPlanner.planQuery(
+            res, PipelineExecuteRequest.ofParams(Map.of("TYPE", "workflow")));
+
+    String sql = plan.getSql();
+    assertTrue(sql.contains("INNER JOIN"), sql);
+    assertTrue(sql.contains("\"PSX_ADMINLOOKUP\" \"L\""), sql);
+    assertTrue(sql.contains("\"PSX_LOOKUP_EXTRA\" \"X\""), sql);
+    assertTrue(sql.contains("ON \"L\".\"NAME\" = \"X\".\"LOOKUP_NAME\""), sql);
+    assertTrue(sql.contains("\"L\".\"TYPE\" = ?") || sql.contains("\"TYPE\" = ?"), sql);
+    assertEquals(List.of("workflow"), plan.getParameters());
+    assertTrue(plan.getDescription().contains("join"), plan.getDescription());
+  }
+
+  @Test
+  @DisplayName("join-graph: INNER JOIN executes against H2")
+  void executeQuery_innerJoinH2() throws Exception {
+    PipelineIrDocument doc = nativeJoinQueryDoc("innerH2", "IJH", BackendJoinIr.TYPE_INNER);
+    irService.save(doc);
+
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
+    PipelineExecuteResult result =
+        runtime.execute(
+            "innerH2", "IJH", PipelineExecuteRequest.ofParams(Map.of("TYPE", "workflow")));
+
+    assertEquals(2, result.getRowCount());
+    assertTrue(
+        result.getRows().stream()
+            .allMatch(r -> String.valueOf(r.get("Type")).equals("workflow")));
+    assertTrue(
+        result.getRows().stream()
+            .map(r -> String.valueOf(r.get("Note")))
+            .anyMatch(n -> n.startsWith("note-")));
+  }
+
+  @Test
+  @DisplayName("join-graph: LEFT OUTER JOIN executes against H2 (orphan left row kept)")
+  void executeQuery_leftOuterJoinH2() throws Exception {
+    PipelineIrDocument doc = nativeJoinQueryDoc("leftH2", "LJH", BackendJoinIr.TYPE_LEFT);
+    irService.save(doc);
+
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
+    // locale has no matching PSX_LOOKUP_EXTRA row — INNER would drop it; LEFT keeps it.
+    PipelineExecuteResult result =
+        runtime.execute(
+            "leftH2", "LJH", PipelineExecuteRequest.ofParams(Map.of("TYPE", "locale")));
+
+    assertEquals(1, result.getRowCount());
+    assertEquals("locale", result.getRows().get(0).get("Type"));
+    assertEquals("en-us", result.getRows().get(0).get("Name"));
+    assertNull(result.getRows().get(0).get("Note"));
+  }
+
+  @Test
+  @DisplayName("join-graph: translator edges rejected")
+  void planQuery_rejectsJoinTranslator() {
+    PipelineIrDocument doc = nativeJoinQueryDoc("trApp", "TR", BackendJoinIr.TYPE_INNER);
+    PipelineResourceIr res = doc.findResource("TR");
+    res.getStages().getBackendTank().getJoins().get(0).setTranslatorPresent(true);
+
+    PSPipelineIrException ex =
+        assertThrows(
+            PSPipelineIrException.class,
+            () -> PSPipelineSqlPlanner.planQuery(res, PipelineExecuteRequest.empty()));
+    assertTrue(
+        ex.getMessage().contains(PSPipelineSqlPlanner.JOIN_TRANSLATOR_LIMIT_MESSAGE)
+            || ex.getMessage().contains("translator"),
+        ex.getMessage());
   }
 
   @Test
@@ -775,6 +864,59 @@ class PSPipelineRuntimeServiceTest {
             mapping("Properties/@Type", "PSX_ADMINLOOKUP.TYPE"),
             mapping("Properties/@Name", "PSX_ADMINLOOKUP.NAME"),
             mapping("Properties/@Value", "PSX_ADMINLOOKUP.LOOKUPVALUE")));
+    stages.setMapper(mapper);
+
+    SelectorStageIr selector = new SelectorStageIr();
+    selector.setPresent(true);
+    selector.setMethod(SelectorStageIr.METHOD_WHERE);
+    stages.setSelector(selector);
+
+    res.setStages(stages);
+    doc.getResources().add(res);
+    return doc;
+  }
+
+  /**
+   * Two-table QUERY IR: {@code L} = PSX_ADMINLOOKUP, {@code X} = PSX_LOOKUP_EXTRA, join on
+   * L.NAME = X.LOOKUP_NAME.
+   */
+  private static PipelineIrDocument nativeJoinQueryDoc(
+      String appName, String resourceName, String joinType) {
+    PipelineIrDocument doc = new PipelineIrDocument();
+    doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
+    doc.getApp().setName(appName);
+
+    PipelineResourceIr res = new PipelineResourceIr();
+    res.setName(resourceName);
+    res.setKind(PipelineResourceIr.KIND_QUERY);
+
+    PipelineStagesIr stages = new PipelineStagesIr();
+
+    BackendTankStageIr tank = new BackendTankStageIr();
+    tank.setPresent(true);
+    BackendTableRefIr left = new BackendTableRefIr();
+    left.setTable("PSX_ADMINLOOKUP");
+    left.setAlias("L");
+    BackendTableRefIr right = new BackendTableRefIr();
+    right.setTable("PSX_LOOKUP_EXTRA");
+    right.setAlias("X");
+    tank.setTables(List.of(left, right));
+
+    BackendJoinIr join = new BackendJoinIr();
+    join.setJoinType(joinType);
+    join.setLeft("L.NAME");
+    join.setRight("X.LOOKUP_NAME");
+    tank.setJoins(List.of(join));
+    tank.setJoinCount(1);
+    stages.setBackendTank(tank);
+
+    MapperStageIr mapper = new MapperStageIr();
+    mapper.setPresent(true);
+    mapper.setMappings(
+        List.of(
+            mapping("Properties/@Type", "L.TYPE"),
+            mapping("Properties/@Name", "L.NAME"),
+            mapping("Properties/@Note", "X.NOTE")));
     stages.setMapper(mapper);
 
     SelectorStageIr selector = new SelectorStageIr();
