@@ -93,7 +93,7 @@ public class PSErrorWebPages extends PSCollectionComponent {
    * @param returnHtml <code>true</code> to return the error page as HTML, <code>false</code> to
    *     return it as XML
    */
-  public void setHtmlReturned(boolean returnHtml) {
+  public final void setHtmlReturned(boolean returnHtml) {
     m_html = returnHtml;
   }
 
@@ -191,7 +191,7 @@ public class PSErrorWebPages extends PSCollectionComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXErrorWebPages
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

@@ -141,4 +141,121 @@ public class PSDesignObjectStoreThisEscapeTest {
     assertEquals(original.getName(), restored.getName());
     assertEquals(original.getType(), restored.getType());
   }
+
+  @Test
+  public void relativeSubjectNameCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSRelativeSubject original =
+        new PSRelativeSubject("alice", PSSubject.SUBJECT_TYPE_USER, null);
+    Element elem = original.toXml(doc);
+
+    PSRelativeSubject restored = new PSRelativeSubject(elem, null, null);
+    assertEquals(original.getName(), restored.getName());
+    assertEquals(original.getType(), restored.getType());
+    assertTrue(restored.isUser());
+  }
+
+  @Test
+  public void globalSubjectNameCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSGlobalSubject original =
+        new PSGlobalSubject("editors", PSSubject.SUBJECT_TYPE_GROUP, null);
+    Element elem = original.toXml(doc);
+
+    PSGlobalSubject restored = new PSGlobalSubject(elem, null, null);
+    assertEquals(original.getName(), restored.getName());
+    assertEquals(original.getType(), restored.getType());
+    assertTrue(restored.isGroup());
+  }
+
+  @Test
+  public void attributeNameCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSAttribute original = new PSAttribute("department");
+    Element elem = original.toXml(doc);
+
+    PSAttribute restored = new PSAttribute(elem, null, null);
+    assertEquals(original.getName(), restored.getName());
+  }
+
+  @Test
+  public void attributeListElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSAttributeList original = new PSAttributeList();
+    original.setAttribute("dept", java.util.List.of("eng"));
+    Element elem = original.toXml(doc);
+
+    PSAttributeList restored = new PSAttributeList(elem);
+    assertEquals("eng", restored.getAttribute("dept").getValues().get(0));
+  }
+
+  @Test
+  public void notifierProviderCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSNotifier original = new PSNotifier(PSNotifier.MP_TYPE_SMTP, "mail.example.intsof");
+    original.setFrom("cms@example.intsof");
+    Element elem = original.toXml(doc);
+
+    PSNotifier restored = new PSNotifier(elem, null, null);
+    assertEquals(original.getServer(), restored.getServer());
+    assertEquals(original.getFrom(), restored.getFrom());
+    assertEquals(PSNotifier.MP_TYPE_SMTP, restored.getProviderType());
+  }
+
+  @Test
+  public void loginWebPageCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSLoginWebPage original =
+        new PSLoginWebPage(new java.net.URL("https://example.intsof/login"), true);
+    Element elem = original.toXml(doc);
+
+    PSLoginWebPage restored = new PSLoginWebPage(elem, null, null);
+    assertEquals(original.getUrl().toExternalForm(), restored.getUrl().toExternalForm());
+    assertTrue(restored.isSecure());
+  }
+
+  @Test
+  public void errorWebPagesElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSErrorWebPages original = new PSErrorWebPages(false);
+    Element elem = original.toXml(doc);
+
+    PSErrorWebPages restored = new PSErrorWebPages(elem, null, null);
+    assertEquals(original.isHtmlReturned(), restored.isHtmlReturned());
+  }
+
+  @Test
+  public void roleNameCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSRole original = new PSRole("Admin");
+    Element elem = original.toXml(doc);
+
+    PSRole restored = new PSRole(elem, null, null);
+    assertEquals(original.getName(), restored.getName());
+  }
+
+  @Test
+  public void securityProviderInstanceNameCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    // SP_TYPE_WEB_SERVER is a stable supported type used in unit tests
+    PSSecurityProviderInstance original =
+        new PSSecurityProviderInstance(
+            "web1", com.percussion.security.PSSecurityProvider.SP_TYPE_WEB_SERVER);
+    Element elem = original.toXml(doc);
+
+    PSSecurityProviderInstance restored = new PSSecurityProviderInstance(elem, null, null);
+    assertEquals(original.getName(), restored.getName());
+    assertEquals(original.getType(), restored.getType());
+  }
+
+  @Test
+  public void traceInfoDefaultAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSTraceInfo original = new PSTraceInfo();
+    Element elem = original.toXml(doc);
+
+    PSTraceInfo restored = new PSTraceInfo(elem, null, null);
+    assertEquals(original.getColumnWidth(), restored.getColumnWidth());
+    assertEquals(original.isTraceEnabled(), restored.isTraceEnabled());
+  }
 }
