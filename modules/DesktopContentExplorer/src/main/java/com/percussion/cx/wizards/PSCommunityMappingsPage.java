@@ -27,8 +27,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EventObject;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -243,29 +243,72 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
     private PSCommunityContentTypeMapperCataloger m_commCtMapper;
   }
 
-  /** The data object returned by this wizard page. */
-  public class OutputData extends HashMap {
+  /**
+   * Source → target community id map produced by this wizard page. Typed for direct use as {@link
+   * Map}{@code <? extends Integer, ? extends Integer>} (e.g. {@code PSCloningOptions} constructors)
+   * without unchecked conversion. Only entries where source and target ids differ are included.
+   */
+  public static class OutputData extends HashMap<Integer, Integer> {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Constructs a new source - target community id map as specified by the wizard user. The map
      * key is the source community id and the map value the target community id both as <code>
-     * Integer</code>. Only mappings where the target community id differes from the source
-     * community id are returned.
+     * Integer</code>. Only mappings where the target community id differs from the source community
+     * id are returned.
      *
      * @param model the table model from which to construct the data object, assumed not <code>null
      *     </code>.
      */
     private OutputData(TableModel model) {
+      putAll(buildMappingsFromModel(model));
+    }
+
+    /**
+     * Builds differing source→target community id mappings from a table model whose cells hold
+     * {@link PSCommunityCataloger.Community} values in the source and target columns. Scan stops at
+     * the first row with a null source or target (legacy wizard semantics).
+     *
+     * @param model table model, not <code>null</code>
+     * @return map of source id → target id for remapped communities only; never <code>null</code>,
+     *     may be empty
+     */
+    static Map<Integer, Integer> buildMappingsFromModel(TableModel model) {
+      if (model == null) throw new IllegalArgumentException("model may not be null");
+
+      Map<Integer, Integer> map = new HashMap<>();
       for (int i = 0; i < model.getRowCount(); i++) {
         PSCommunityCataloger.Community source =
             (PSCommunityCataloger.Community) model.getValueAt(i, SOURCE_COLUMN_INDEX);
         PSCommunityCataloger.Community target =
             (PSCommunityCataloger.Community) model.getValueAt(i, TARGET_COLUMN_INDEX);
 
-        if (source == null || target == null) break;
-
-        if (source.getId() != target.getId())
-          put(Integer.valueOf(source.getId()), Integer.valueOf(target.getId()));
+        if (!appendMappingIfDifferent(map, source, target)) break;
       }
+      return map;
+    }
+
+    /**
+     * Appends a community remapping when both communities are non-null and their ids differ.
+     *
+     * @param map destination map, not <code>null</code>
+     * @param source source community, may be <code>null</code>
+     * @param target target community, may be <code>null</code>
+     * @return <code>false</code> if either community is <code>null</code> (caller should stop
+     *     scanning); <code>true</code> if the row was processed (mapping added or skipped as
+     *     identity)
+     */
+    static boolean appendMappingIfDifferent(
+        Map<Integer, Integer> map,
+        PSCommunityCataloger.Community source,
+        PSCommunityCataloger.Community target) {
+      if (map == null) throw new IllegalArgumentException("map may not be null");
+      if (source == null || target == null) return false;
+
+      if (source.getId() != target.getId()) {
+        map.put(Integer.valueOf(source.getId()), Integer.valueOf(target.getId()));
+      }
+      return true;
     }
   }
 
