@@ -146,7 +146,7 @@ public class PSObjectAcl extends PSDbComponentSet<PSObjectAclEntry> {
    * @return An iterator with zero or more <code>PSObjectAclEntry</code> objects. Never <code>null
    *     </code>, but may be empty.
    */
-  public Iterator getDeletedAclEntries() {
+  public Iterator<PSObjectAclEntry> getDeletedAclEntries() {
     return getDeleteCollection().iterator();
   }
 

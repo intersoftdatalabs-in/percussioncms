@@ -690,9 +690,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     child = fItem.getChildByName(CHILD_NAME_ACL);
 
     // set the inserted and modified properties
-    Iterator it = folder.getAcl().iterator();
+    Iterator<PSObjectAclEntry> it = folder.getAcl().iterator();
     while (it.hasNext()) {
-      PSObjectAclEntry aclEntry = (PSObjectAclEntry) it.next();
+      PSObjectAclEntry aclEntry = it.next();
       if (aclEntry.getState() == IPSDbComponent.DBSTATE_UNMODIFIED) continue;
 
       PSItemChildEntry childEntry = child.createChildEntry();
@@ -725,7 +725,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     // take care the deleted ACL entries
     it = folder.getAcl().getDeletedAclEntries();
     while (it.hasNext()) {
-      PSObjectAclEntry aclEntry = (PSObjectAclEntry) it.next();
+      PSObjectAclEntry aclEntry = it.next();
 
       PSItemChildEntry childEntry = child.createChildEntry();
       childEntry.setAction(PSItemChildEntry.CHILD_ACTION_DELETE);
@@ -3276,9 +3276,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
         // folder will fail, resulting in an orphaned folder.
         PSFolderAcl folderAcl = new PSFolderAcl(locator.getId(), folder.getCommunityId());
 
-        Iterator it = folder.getAcl().iterator();
+        Iterator<PSObjectAclEntry> it = folder.getAcl().iterator();
         while (it.hasNext()) {
-          PSObjectAclEntry aclEntry = (PSObjectAclEntry) it.next();
+          PSObjectAclEntry aclEntry = it.next();
           if (aclEntry != null) folderAcl.add(aclEntry);
         }
 
