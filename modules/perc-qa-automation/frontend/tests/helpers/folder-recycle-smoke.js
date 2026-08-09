@@ -214,6 +214,38 @@ async function probePathmanagementContext(request, baseUrl, headers) {
  * @param {{ parentPath?: string, name?: string }} [opts]
  * @returns {Promise<{ name: string, path: string, guid: string, raw: object }>}
  */
+
+/**
+ * True when an addNewFolder/pathmanagement failure body is a *product* path error
+ * (context is live) rather than the pre-#2423 "context dead" class of bug.
+ *
+ * <p>Stable product markers: Jackson {@code "Errors"}, "Path not found", and Spring
+ * {@code Transaction silently rolled back}. The #2488 Hibernate 6 regression is
+ * matched only when {@code parentFolders} co-occurs with PersistentSet /
+ * PropertyAccessException stack markers — those substrings alone can appear in
+ * docs or other payloads, so they are never used as lone matchers.</p>
+ *
+ * @param {number} status HTTP status
+ * @param {string | null | undefined} body response text
+ * @returns {boolean}
+ */
+function isProductPathErrorBody(status, body) {
+  if (status !== 404 && status !== 500) {
+    return false;
+  }
+  const text = String(body || "");
+  if (/"Errors"|Path not found|Transaction silently rolled back/i.test(text)) {
+    return true;
+  }
+  // #2488: HashSet parentFolders + Hibernate PersistentSet injection failure.
+  return (
+    /parentFolders/i.test(text) &&
+    /PropertyAccessException|PersistentSet|Could not set value of type/i.test(
+      text,
+    )
+  );
+}
+
 async function createNamedFolder(request, baseUrl, headers, opts = {}) {
   const parent = String(opts.parentPath || "Assets").replace(/^\/+|\/+$/g, "");
   const name = opts.name || uniqueSeedFolderName("qa-folder-recycle");
@@ -231,8 +263,11 @@ async function createNamedFolder(request, baseUrl, headers, opts = {}) {
   }
   if (!addRes.ok()) {
     const text = await addRes.text().catch(() => "");
+    // Product 404 JSON (Path not found / Errors) means pathmanagement is live —
+    // do not mis-label as the pre-#2423 "context dead" class of bug (#2488).
+    const productPathError = isProductPathErrorBody(addRes.status(), text);
     // Surface context-down class failures with the hard-fail message.
-    if (!isContextHealthyStatus(addRes.status())) {
+    if (!isContextHealthyStatus(addRes.status()) && !productPathError) {
       throw new Error(
         contextDownFailureMessage({
           status: addRes.status(),
@@ -410,6 +445,7 @@ module.exports = {
   PATH_DELETE_FOLDER,
   RECYCLE_EMPTY_PATH,
   isContextHealthyStatus,
+  isProductPathErrorBody,
   contextDownFailureMessage,
   extractPathItem,
   extractPathItemGuid,
