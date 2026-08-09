@@ -110,23 +110,24 @@ python docker\scripts\perc-devctl.py qa-down
 | Spec (baseline) | `frontend/tests/golden-unattended-smoke.spec.js` |
 | npm (baseline) | `npm run test:golden` |
 | Tags (baseline) | `@smoke` / `@golden` (also via `npm run test:surface -- --tag golden`) |
-| Specs (extended) | baseline + `frontend/tests/folder-recycle-smoke.spec.js` (`@folder-recycle`) |
+| Specs (extended) | baseline + `folder-recycle-smoke.spec.js` (`@folder-recycle`) + `profile-shell.spec.js` (`@profile`) |
 | npm (extended) | `npm run test:golden-extended` / `npm run test:golden-extended:list` |
-| Inventory helper | `frontend/tests/helpers/golden-unattended-smoke-set.js` (#2490) |
+| Inventory helper | `frontend/tests/helpers/golden-unattended-smoke-set.js` (#2490 / #2498) |
 | Failure artifacts | `modules/perc-qa-automation/frontend/test-results/` |
 | HTML report | `modules/perc-qa-automation/frontend/playwright-report/` |
 | Attach runbook | [playwright-failure-artifacts.md](../../docs/developer-module/playwright-failure-artifacts.md) |
 | Stack lifecycle | [workbench-rest-and-qa-modes.md](../../docs/developer-module/workbench-rest-and-qa-modes.md) §2 |
 
-#### Extended golden + `@folder-recycle` (#2490 / parent #2423)
+#### Extended golden multi-path (`@folder-recycle` + `@profile`)
 
-**Decision: include** `@folder-recycle` in the **optional extended** golden/unattended
-multi-path set — not in the minimal default and **not** the full Playwright suite.
+**Decision: include** `@folder-recycle` (#2490 / parent #2423) and `@profile`
+(#2498 / parent #2374) in the **optional extended** golden/unattended multi-path
+set — not in the minimal default and **not** the full Playwright suite.
 
 | Tier | npm | Specs | When to use |
 |------|-----|-------|-------------|
 | **Baseline** (default) | `npm run test:golden` | `golden-unattended-smoke.spec.js` only | Fastest unattended login + Explorer gate |
-| **Extended** | `npm run test:golden-extended` | baseline + `folder-recycle-smoke.spec.js` | Overnight / post-#2423 recycle REST smoke without full suite |
+| **Extended** | `npm run test:golden-extended` | baseline + `folder-recycle-smoke.spec.js` + `profile-shell.spec.js` | Overnight recycle REST + profile hub entry without full suite |
 
 ```bash
 # List only (no live CMS) — proves surface wiring
@@ -135,14 +136,18 @@ npm run test:golden-extended:list
 # or surface-filter form:
 npm run test:surface:list -- --path tests/folder-recycle-smoke.spec.js
 npm run test:surface:list -- --tag folder-recycle
+npm run test:surface:list -- --path tests/profile-shell.spec.js
+npm run test:surface:list -- --tag profile
 
 # Live after qa-up
 TEST_CMS_URL=… ADMIN_USERNAME=Admin ADMIN_PASSWORD=… npm run test:golden-extended
 ```
 
 Canonical inventory (unit-tested lockstep with package.json):
-`frontend/tests/helpers/golden-unattended-smoke-set.js`. Live H2 proof residual:
-#2488. Finder UI companion is separate (#2489 / `@finder-recycle-restore`).
+`frontend/tests/helpers/golden-unattended-smoke-set.js`. Live H2 proof residual
+for folder-recycle: #2488. Finder UI companion is separate
+(#2489 / `@finder-recycle-restore`). Profile path-only residual was #2425;
+this entry keeps `@profile` on the overnight extended matrix (#2498).
 
 **Hard bans:** do not commit passwords; do not hardcode host port `:9993` as the only URL
 (use freeport `TEST_CMS_URL` from `qa-up`). Do **not** replace `test:golden` with the
@@ -557,17 +562,23 @@ npm run test:surface:list -- --tag explorer-recycle-restore
 class as #2464; Admin login that remains on `/Rhythmyx/login` fails with an
 explicit #2542 / #2423 message — do not soft-skip.
 
-#### Profile shell + axe WCAG (#2393 / #2425 / #2427 / parent #2374)
+#### Profile shell + axe WCAG (#2393 / #2425 / #2427 / #2498 / parent #2374)
 
 Smoke opens the **My profile** hub via deep link and user-menu entry (Admin,
 Editor, Contributor); axe-core gates assert **zero serious/critical** WCAG 2.1
 A/AA violations on `[data-testid="perc-profile-shell"]` (helper:
 `tests/helpers/a11y.js`).
 
+**Unattended matrix:** `@profile` is on the **extended** golden multi-path set
+(`npm run test:golden-extended`) so overnight/CI reference gates do not miss
+profile entry regressions when operators only run golden-extended (#2498).
+Baseline `test:golden` stays login + Explorer only.
+
 | Item | Value |
 |------|--------|
 | Spec | `frontend/tests/profile-shell.spec.js` |
 | Tags | `@profile` `@smoke` |
+| Golden inventory id | `profile-shell` (tier `extended`) |
 | Axe helper | `tests/helpers/a11y.js` → `expectNoSeriousA11yViolations` |
 
 ```bash
@@ -576,6 +587,10 @@ cd modules/perc-qa-automation/frontend
 TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
   ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
   npm run test:surface -- --path tests/profile-shell.spec.js
+
+# Extended golden multi-path (baseline + folder-recycle + profile)
+npm run test:golden-extended
+npm run test:golden-extended:list
 
 # Axe gates only
 npm run test:surface -- --path tests/profile-shell.spec.js --grep "axe-core"

@@ -16,9 +16,9 @@
  */
 
 /**
- * Unit tests for golden unattended smoke inventory (#2490).
- * Ensures @folder-recycle is wired into the extended set only, and package.json
- * scripts stay in lockstep with the inventory paths.
+ * Unit tests for golden unattended smoke inventory (#2490 / #2498).
+ * Ensures @folder-recycle and @profile are wired into the extended set only,
+ * and package.json scripts stay in lockstep with the inventory paths.
  *
  * Run: npm run test:unit  (from frontend/)
  */
@@ -50,10 +50,11 @@ function scriptMentionsPath(scriptBody, relPath) {
 }
 
 describe("GOLDEN_UNATTENDED_SMOKE_SET", () => {
-  it("includes baseline golden and extended folder-recycle (#2490)", () => {
+  it("includes baseline golden and extended folder-recycle + profile (#2490/#2498)", () => {
     const ids = new Set(GOLDEN_UNATTENDED_SMOKE_SET.map((e) => e.id));
     assert.ok(ids.has("golden-login-explorer"));
     assert.ok(ids.has("folder-recycle"));
+    assert.ok(ids.has("profile-shell"));
   });
 
   it("requires unique ids", () => {
@@ -70,13 +71,15 @@ describe("GOLDEN_UNATTENDED_SMOKE_SET", () => {
     ]);
   });
 
-  it("extended includes folder-recycle without becoming full suite", () => {
+  it("extended includes folder-recycle and profile without becoming full suite", () => {
     const extended = listExtendedEntries();
-    assert.ok(extended.length >= 2);
+    assert.ok(extended.length >= 3);
     assert.ok(extended.some((e) => e.id === "folder-recycle"));
+    assert.ok(extended.some((e) => e.id === "profile-shell"));
     const paths = pathsForTier("extended");
     assert.ok(paths.includes("tests/golden-unattended-smoke.spec.js"));
     assert.ok(paths.includes("tests/folder-recycle-smoke.spec.js"));
+    assert.ok(paths.includes("tests/profile-shell.spec.js"));
     // Guard: do not silently grow into a full-suite default
     assert.ok(
       paths.length <= 8,
@@ -92,6 +95,14 @@ describe("GOLDEN_UNATTENDED_SMOKE_SET", () => {
     assert.equal(entry.file, "folder-recycle-smoke.spec.js");
   });
 
+  it("profile-shell entry uses surface tag and path peers (#2498)", () => {
+    const entry = getGoldenEntry("profile-shell");
+    assert.equal(entry.tier, "extended");
+    assert.equal(entry.tag, "profile");
+    assert.equal(entry.path, "tests/profile-shell.spec.js");
+    assert.equal(entry.file, "profile-shell.spec.js");
+  });
+
   it("pathsForTier rejects unknown tier", () => {
     assert.throws(() => pathsForTier("full-suite"), /Unknown golden tier/);
   });
@@ -101,15 +112,15 @@ describe("GOLDEN_UNATTENDED_SMOKE_SET", () => {
   });
 });
 
-describe("package.json golden scripts lockstep (#2490)", () => {
-  it("test:golden stays baseline-only; test:golden-extended wires folder-recycle", () => {
+describe("package.json golden scripts lockstep (#2490 / #2498)", () => {
+  it("test:golden stays baseline-only; test:golden-extended wires folder-recycle + profile", () => {
     const pkg = JSON.parse(fs.readFileSync(PACKAGE_JSON, "utf8"));
     const scripts = pkg.scripts || {};
 
     assert.ok(scripts["test:golden"], "test:golden required");
     assert.ok(
       scripts["test:golden-extended"],
-      "test:golden-extended required for optional @folder-recycle overnight set",
+      "test:golden-extended required for optional overnight multi-path set",
     );
     assert.ok(
       scripts["test:golden-extended:list"],
@@ -125,10 +136,14 @@ describe("package.json golden scripts lockstep (#2490)", () => {
         `test:golden must include ${p}`,
       );
     }
-    // Minimal golden must NOT pull folder-recycle by default
+    // Minimal golden must NOT pull extended surfaces by default
     assert.ok(
       !scriptMentionsPath(scripts["test:golden"], "folder-recycle-smoke.spec.js"),
       "test:golden must remain minimal (no folder-recycle path)",
+    );
+    assert.ok(
+      !scriptMentionsPath(scripts["test:golden"], "profile-shell.spec.js"),
+      "test:golden must remain minimal (no profile-shell path)",
     );
 
     for (const p of extendedPaths) {
