@@ -17,6 +17,10 @@
 
 package com.percussion.util;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -28,9 +32,32 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.UnaryOperator;
 
-public class PSConcurrentList<T> implements List<T> {
-  private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-  private final ReentrantLock rentrantLock = new ReentrantLock();
+/**
+ * Thread-safe {@link List} backed by an {@link ArrayList} and read/write locks.
+ *
+ * <p>Implements {@link Serializable} so product types that hold {@code PSCollection} / collection
+ * subclasses clear {@code -Xlint:serial} serial-field diagnostics. Locks are not serializable and
+ * are reinitialized on deserialization; only list contents are persisted.
+ *
+ * @param <T> element type
+ */
+public class PSConcurrentList<T> implements List<T>, Serializable {
+
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * Read/write lock protecting {@link #list}. Transient: recreated in {@link
+   * #readObject(ObjectInputStream)}.
+   */
+  private transient ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+
+  /**
+   * Exclusive lock used by {@link #sort(Comparator)}. Transient: recreated in {@link
+   * #readObject(ObjectInputStream)}.
+   */
+  private transient ReentrantLock rentrantLock = new ReentrantLock();
+
+  /** Backing list; transient so custom serialization owns the payload. */
   private transient volatile List<T> list;
 
   public PSConcurrentList() {
@@ -46,7 +73,51 @@ public class PSConcurrentList<T> implements List<T> {
   }
 
   public PSConcurrentList(List<T> list) {
-    this.list = list;
+    this.list = list != null ? list : new ArrayList<>();
+  }
+
+  /**
+   * Serialize list contents under a read lock. Locks themselves are not written.
+   *
+   * @param out the stream
+   * @throws IOException on write failure
+   */
+  private void writeObject(ObjectOutputStream out) throws IOException {
+    out.defaultWriteObject();
+    List<T> snapshot;
+    ReadWriteLock lock = readWriteLock;
+    if (lock == null) {
+      lock = new ReentrantReadWriteLock();
+      readWriteLock = lock;
+    }
+    lock.readLock().lock();
+    try {
+      List<T> current = list;
+      snapshot = current == null ? new ArrayList<>() : new ArrayList<>(current);
+    } finally {
+      lock.readLock().unlock();
+    }
+    out.writeObject(snapshot);
+  }
+
+  /**
+   * Restore list contents and reinitialize non-serializable locks.
+   *
+   * @param in the stream
+   * @throws IOException on read failure
+   * @throws ClassNotFoundException if an element class is missing
+   */
+  @SuppressWarnings("unchecked")
+  private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+    in.defaultReadObject();
+    readWriteLock = new ReentrantReadWriteLock();
+    rentrantLock = new ReentrantLock();
+    Object raw = in.readObject();
+    if (raw == null) {
+      list = new ArrayList<>();
+    } else {
+      list = new ArrayList<>((List<T>) raw);
+    }
   }
 
   public boolean remove(Object o) {
