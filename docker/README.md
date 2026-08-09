@@ -322,7 +322,36 @@ docker inspect -f "{{.State.Health.Status}}" percussion-cms-dts
 
 **Rebuild note:** matrix image build context is `docker/` (not `docker/matrix/` alone) so HEALTHCHECK scripts are copied in. After pulling this change, rebuild with `matrix-install-smoke.py` (default) or `docker build -t percussion-matrix-cell:local -f docker/matrix/Dockerfile docker/`. Compose cms-dts: `docker compose build cms-dts`.
 
-Unit tests: `python -m pytest docker/scripts/test_rhythmyx_ready.py docker/scripts/test_rhythmyx_healthcheck.py docker/scripts/test_perc_devctl.py docker/scripts/test_matrix_install_smoke.py -q`.
+Unit tests: `python -m pytest docker/scripts/test_rhythmyx_ready.py docker/scripts/test_rhythmyx_healthcheck.py docker/scripts/test_healthcheck_unhealthy_inject_proof.py docker/scripts/test_perc_devctl.py docker/scripts/test_matrix_install_smoke.py -q`.
+
+##### HEALTHCHECK unhealthy inject proof (#2536 residual of #2481)
+
+Agent-safe harness that proves the assessor (and optionally a keep cell) reports **unhealthy** when a known Rhythmyx context-failure marker is present in the Jetty log path the in-image HEALTHCHECK tails.
+
+| Mode | Needs Docker / full install? | What it proves |
+|------|------------------------------|----------------|
+| **mock** (default) | No — temp fixture tree + HTTP override | Healthy path (clean logs + HTTP 200) → exit 0; inject `Failed startup of context` into `jetty/base/logs/jetty.log` → exit 1 + `rhythmyx_context_failed`; recovery after clean rewrite → exit 0 |
+| **live** | Yes — running keep cell (`perc-matrix-cms-h2` or `--container`) | `docker exec` appends marker into container Jetty log; re-runs baked `rhythmyx_healthcheck.py`; optional `--require-inspect-unhealthy` for `docker inspect` Health.Status |
+
+```bash
+# CI / overnight (no Docker, no CMS install):
+python docker/scripts/healthcheck_unhealthy_inject_proof.py
+# RESULT:OK STEP:healthcheck-unhealthy-inject-proof MODE:mock DETAIL:healthy+inject_unhealthy_ok
+
+# Quiet (RESULT line only):
+python docker/scripts/healthcheck_unhealthy_inject_proof.py --quiet
+
+# After qa-up / matrix --keep (optional live inject):
+python docker/scripts/perc-devctl.py qa-up
+python docker/scripts/healthcheck_unhealthy_inject_proof.py --mode live
+# RESULT:OK STEP:healthcheck-unhealthy-inject-proof MODE:live …
+# Optional: also wait for Docker HEALTHCHECK interval to flip inspect:
+python docker/scripts/healthcheck_unhealthy_inject_proof.py --mode live --require-inspect-unhealthy
+docker inspect -f "{{.State.Health.Status}}" perc-matrix-cms-h2
+# unhealthy
+```
+
+Cross-platform: host paths use `pathlib.Path` (Windows/macOS/Linux); container paths always use `/`. Unit tests: `docker/scripts/test_healthcheck_unhealthy_inject_proof.py`.
 
 ### `docker/scripts/freeport-concurrent-smoke.py`
 
