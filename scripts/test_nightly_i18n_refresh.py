@@ -356,7 +356,7 @@ class TestModuleConstants(unittest.TestCase):
 
     def test_tmx_dir_constant(self):
         self.assertEqual(
-            str(m.TMX_DIR),
+            m.TMX_DIR.as_posix(),
             "modules/perc-i18n/src/main/resources/i18n",
         )
 
