@@ -35,7 +35,15 @@ SystemErrorCode (*ErrorCodes) → AuditLogService
 - [x] Entity `PSSystemAuditLogEntry` + `PSSystemAuditLogRepository` (`@PSBaseBean`)
 - [x] Login/logout smoke path via `PSSystemAuditLogger` in `PSLoginServlet`
 - [x] Retention job skeleton `PSSystemAuditLogRetentionJob`
-- [ ] PR merge for #2614
+- [x] PR merge for #2614
+
+## Phase 2b status (auth/security first slice)
+
+- [x] `SecurityErrorCodes` for `IPSSecurityErrors` general auth (9001–9026) + directory auth login codes
+- [x] `LegacyErrorCodeRegistry` int → `SystemErrorCode` with safe non-auditable default
+- [x] `IPSSecurityErrors` bridged ints for that slice; `PSSystemAuditLogger.logLegacyIfAuditable`
+- [x] Unit tests: non-auditable skip dual-write; auditable SEC-9002 dual-write
+- [ ] Follow-on: content/workflow ErrorCodes batch; share/path/item; design-object; remaining legacy ints; central exception-handler wiring residuals
 
 ## Phase tracking (GitHub)
 

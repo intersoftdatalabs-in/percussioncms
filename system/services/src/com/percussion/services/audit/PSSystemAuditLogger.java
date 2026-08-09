@@ -17,9 +17,11 @@
 package com.percussion.services.audit;
 
 import com.intsof.percussioncms.auditlog.AuditContext;
+import com.intsof.percussioncms.auditlog.AuditLogId;
 import com.intsof.percussioncms.auditlog.AuditLogService;
 import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.intsof.percussioncms.auditlog.DefaultAuditLogService;
+import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
 import com.intsof.percussioncms.auditlog.SystemErrorCode;
 import com.intsof.percussioncms.auditlog.codes.AuthenticationErrorCodes;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,6 +30,9 @@ import jakarta.servlet.http.HttpServletRequest;
  * Thin facade for system code to emit system-wide audit events without depending on Spring at the
  * call site. Uses {@link DefaultAuditLogService.Holder} (Log4j + memory until JPA repository
  * registers).
+ *
+ * <p>Phase 2b: use {@link #logLegacyIfAuditable(int, AuditContext, Object...)} for legacy {@code
+ * IPS*Errors} ints so non-auditable codes never dual-write.
  */
 public final class PSSystemAuditLogger {
 
@@ -40,6 +45,30 @@ public final class PSSystemAuditLogger {
   public static void log(
       SystemErrorCode code, AuditContext context, AuditOutcome outcome, Object... params) {
     service().log(code, context == null ? AuditContext.empty() : context, outcome, params);
+  }
+
+  /**
+   * Resolve a legacy {@code IPS*Errors} int via {@link LegacyErrorCodeRegistry} and dual-write only
+   * when the catalog marks the code {@code isAuditable}. Unregistered or non-auditable codes are a
+   * no-op (returns the skipped audit id).
+   */
+  public static AuditLogId logLegacyIfAuditable(
+      int legacyErrorCode, AuditContext context, Object... params) {
+    return LegacyErrorCodeRegistry.logIfAuditable(
+        service(), legacyErrorCode, context == null ? AuditContext.empty() : context, params);
+  }
+
+  /**
+   * Same as {@link #logLegacyIfAuditable(int, AuditContext, Object...)} with an explicit outcome.
+   */
+  public static AuditLogId logLegacyIfAuditable(
+      int legacyErrorCode, AuditContext context, AuditOutcome outcome, Object... params) {
+    return LegacyErrorCodeRegistry.logIfAuditable(
+        service(),
+        legacyErrorCode,
+        context == null ? AuditContext.empty() : context,
+        outcome,
+        params);
   }
 
   public static void loginSuccess(HttpServletRequest request, String username) {
