@@ -138,7 +138,7 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
        * No clone exists based on the user effect(s) attached to the
        * relationship type, create clone now.
        */
-      Map childRowMappings = new HashMap();
+      Map<String, String> childRowMappings = new HashMap<>();
       Iterator<PSRelationship> dedupedRels = relationships;
       if (!cloneExists) {
         // see if the target folder for creating the item is present
@@ -523,7 +523,7 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
      * may be empty. See {@link PSCloneFactory#CHILD_ROW_MAPPINGS_PRIVATE_OBJECT} for details of the
      * map.
      */
-    Map mi_childRowMappings;
+    Map<String, String> mi_childRowMappings;
   }
 
   /**
@@ -544,7 +544,7 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
       PSRequest request,
       PSLocator clone,
       List<ProcessedRelationship> psRelationships,
-      Map childRowMappings)
+      Map<String, String> childRowMappings)
       throws PSException {
     List<PSRelationship> createdRels = new ArrayList<>();
     CollectionUtils.addAll(createdRels, request.getRelationships());
@@ -881,7 +881,7 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
       PSRequest request,
       Iterator<PSRelationship> relationships,
       List<ProcessedRelationship> processedRelationships,
-      Map childRowMappings)
+      Map<String, String> childRowMappings)
       throws PSCmsException {
     if (childRowMappings.isEmpty()) return;
 
@@ -897,7 +897,7 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
           PSRelationship relationship = relationships.next();
           String test = relationship.getProperty(PSRelationshipConfig.PDU_INLINERELATIONSHIP);
           if (test != null && test.trim().length() > 0 && originalInlineRsId.equals(test)) {
-            String newInlineRsId = (String) childRowMappings.get(originalInlineRsId);
+            String newInlineRsId = childRowMappings.get(originalInlineRsId);
             if (newInlineRsId != null) {
               relationship.setProperty(PSRelationshipConfig.PDU_INLINERELATIONSHIP, newInlineRsId);
               needModification.add(relationship);

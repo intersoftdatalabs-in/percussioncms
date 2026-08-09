@@ -48,15 +48,19 @@ public class PSFieldFinderUtil {
   private static List<String> getFields(
       PSDisplayMapper mapper, String propertyName, String propertyValue) {
     List<String> fieldNames = new ArrayList<>();
-    Iterator mappings = mapper.iterator();
+    // PSDisplayMapper extends raw PSCollection; narrow at the boundary
+    @SuppressWarnings("unchecked")
+    Iterator<PSDisplayMapping> mappings = mapper.iterator();
     while (mappings.hasNext()) {
-      PSDisplayMapping mapping = (PSDisplayMapping) mappings.next();
+      PSDisplayMapping mapping = mappings.next();
       String name = mapping.getFieldRef();
       PSControlRef controlMeta = mapping.getUISet().getControl();
       if (controlMeta != null) {
-        Iterator params = controlMeta.getParameters();
+        // design.objectstore getParameters() is a raw iterator boundary
+        @SuppressWarnings("unchecked")
+        Iterator<PSParam> params = controlMeta.getParameters();
         while (params.hasNext()) {
-          PSParam param = (PSParam) params.next();
+          PSParam param = params.next();
           if (param.getName().equals(propertyName)
               && param.getValue().getValueDisplayText().equals(propertyValue)) {
             fieldNames.add(name);

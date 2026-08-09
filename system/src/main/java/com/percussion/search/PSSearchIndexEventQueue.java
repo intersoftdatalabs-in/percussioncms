@@ -1002,7 +1002,7 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
     // get system field catalog
     PSRequest req = PSRequest.getContextForRequest();
     PSLocalCataloger cat = new PSLocalCataloger(req);
-    Set systemFieldNames =
+    Set<String> systemFieldNames =
         cat.getSystemFields(
             IPSFieldCataloger.FLAG_USER_SEARCH | IPSFieldCataloger.FLAG_INCLUDE_HIDDEN);
 

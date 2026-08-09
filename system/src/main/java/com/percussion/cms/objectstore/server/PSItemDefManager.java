@@ -1053,7 +1053,7 @@ public class PSItemDefManager {
     }
 
     // Check if the content type id supplied is listed for the community.
-    Map params = new HashMap();
+    Map<String, Object> params = new HashMap<>();
     params.put(IPSHtmlParameters.SYS_CONTENTTYPEID, "" + contentTypeId);
     params.put(IPSHtmlParameters.SYS_COMMUNITYID, "" + communityId);
 

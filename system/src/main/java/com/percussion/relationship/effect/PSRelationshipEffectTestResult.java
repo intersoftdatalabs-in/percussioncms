@@ -69,7 +69,7 @@ public class PSRelationshipEffectTestResult {
    * @return and iterator of <code>EffectTestResultPair</code> objects representing the effect test
    *     results for the relationship, never <code>null</code>
    */
-  public Iterator getResults() {
+  public Iterator<PSEffectTestResultPair> getResults() {
     return m_list.iterator();
   }
 
@@ -89,8 +89,8 @@ public class PSRelationshipEffectTestResult {
   private PSRelationship m_relationship = null;
 
   /**
-   * List of {@link EffectTestResultPair objects} representing all effects and results for the
+   * List of {@link PSEffectTestResultPair} objects representing all effects and results for the
    * relationship.
    */
-  private List m_list = new ArrayList();
+  private final List<PSEffectTestResultPair> m_list = new ArrayList<>();
 }
