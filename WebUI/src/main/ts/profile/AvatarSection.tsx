@@ -38,7 +38,8 @@ import styles from "./AvatarSection.module.css";
 
 export interface AvatarSectionProps {
   loadPrimaryEmail?: () => Promise<string>;
-  loadOverride?: (userName: string) => Promise<string>;
+  /** Session-scoped override load (user name is not required). */
+  loadOverride?: () => Promise<string>;
   saveOverride?: (userName: string, email: string) => Promise<string>;
   /** Test override for kill-switch (defaults to bootstrap). */
   allowExternalAvatarFetch?: boolean;
@@ -102,7 +103,7 @@ export function AvatarSection({
     try {
       const [primaryEmail, overrideEmail] = await Promise.all([
         loadPrimaryEmail(),
-        loadOverride(userName),
+        loadOverride(),
       ]);
       const primary = (primaryEmail ?? "").trim();
       const override = (overrideEmail ?? "").trim();
