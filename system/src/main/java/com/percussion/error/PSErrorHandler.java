@@ -31,17 +31,24 @@ import com.percussion.mail.PSMailSendException;
 import com.percussion.mail.PSSmtpMailProvider;
 import com.percussion.server.IPSHttpErrors;
 import com.percussion.server.PSConsole;
+import com.percussion.server.PSRequest;
 import com.percussion.server.PSResponse;
 import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.util.PSCharSets;
 import com.percussion.util.PSMapClassToObject;
+import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.Locale;
 import java.util.Properties;
 import org.w3c.dom.Document;
@@ -164,22 +171,95 @@ public class PSErrorHandler {
   /**
    * Bridge legacy {@link PSException#getErrorCode()} to the system audit log when the code is
    * cataloged and {@code isAuditable}. Non-auditable / unregistered codes are a no-op.
+   *
+   * <p>Catches only {@link RuntimeException} so audit never breaks the error response path, while
+   * still allowing {@link Error} (including {@link VirtualMachineError}) to propagate so the JVM
+   * can handle serious failures.
    */
   static void logLegacyExceptionIfAuditable(PSException exception) {
     if (exception == null) {
       return;
     }
     try {
+      AuditContext context = auditContextFromThreadLocal();
       Object[] args = exception.getErrorArguments();
       if (args == null || args.length == 0) {
-        PSSystemAuditLogger.logLegacyIfAuditable(
-            exception.getErrorCode(), AuditContext.empty());
+        PSSystemAuditLogger.logLegacyIfAuditable(exception.getErrorCode(), context);
       } else {
-        PSSystemAuditLogger.logLegacyIfAuditable(
-            exception.getErrorCode(), AuditContext.empty(), args);
+        PSSystemAuditLogger.logLegacyIfAuditable(exception.getErrorCode(), context, args);
       }
-    } catch (RuntimeException | Error ignored) {
+    } catch (RuntimeException ignored) {
       // audit must never break error response path
+    }
+  }
+
+  /**
+   * Best-effort request context for legacy exception audits: actor, source IP/host, and a hashed
+   * session id when thread-local {@link PSRequestInfo} is populated. Never throws; returns {@link
+   * AuditContext#empty()} when no request is bound or any lookup fails.
+   */
+  static AuditContext auditContextFromThreadLocal() {
+    try {
+      AuditContext.Builder builder = AuditContext.builder();
+      boolean any = false;
+      String actor = null;
+
+      Object userObj = PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+      if (userObj instanceof String user && !user.isEmpty()) {
+        actor = user;
+      }
+
+      Object jsessionObj = PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+      if (jsessionObj instanceof String jsid && !jsid.isEmpty()) {
+        String hash = sha256HexPrefix(jsid);
+        if (hash != null) {
+          builder.sessionIdHash(hash);
+          any = true;
+        }
+      }
+
+      Object reqObj = PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
+      if (reqObj instanceof PSRequest psRequest) {
+        HttpServletRequest http = psRequest.getServletRequest();
+        if (http != null) {
+          if (actor == null || actor.isEmpty()) {
+            String remoteUser = http.getRemoteUser();
+            if (remoteUser != null && !remoteUser.isEmpty()) {
+              actor = remoteUser;
+            }
+          }
+          String ip = http.getRemoteAddr();
+          if (ip != null && !ip.isEmpty()) {
+            builder.sourceIp(ip);
+            any = true;
+          }
+          String host = http.getRemoteHost();
+          if (host != null && !host.isEmpty()) {
+            builder.sourceHost(host);
+            any = true;
+          }
+        }
+      }
+
+      if (actor != null && !actor.isEmpty()) {
+        builder.actor(actor);
+        any = true;
+      }
+
+      return any ? builder.build() : AuditContext.empty();
+    } catch (RuntimeException e) {
+      return AuditContext.empty();
+    }
+  }
+
+  /** First 16 hex chars of SHA-256 of {@code value}, or null if hashing unavailable. */
+  private static String sha256HexPrefix(String value) {
+    try {
+      byte[] digest =
+          MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));
+      return HexFormat.of().formatHex(digest).substring(0, 16);
+    } catch (NoSuchAlgorithmException e) {
+      return null;
     }
   }
 

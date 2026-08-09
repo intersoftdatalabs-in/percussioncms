@@ -17,13 +17,27 @@
 package com.percussion.error;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.intsof.percussioncms.auditlog.AuditContext;
+import com.intsof.percussioncms.auditlog.AuditLogId;
+import com.intsof.percussioncms.auditlog.AuditLogService;
+import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.intsof.percussioncms.auditlog.DefaultAuditLogService;
+import com.intsof.percussioncms.auditlog.SystemErrorCode;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.spi.ConcurrentMemoryAuditLogRepository;
 import com.percussion.security.IPSSecurityErrors;
+import com.percussion.server.PSRequest;
+import com.percussion.utils.request.PSRequestInfo;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,12 +54,18 @@ class PSErrorHandlerAuditBridgeTest {
   void setUp() {
     ConcurrentMemoryAuditLogRepository.INSTANCE.clear();
     DefaultAuditLogService.Holder.resetToDefault();
+    if (PSRequestInfo.isInited()) {
+      PSRequestInfo.resetRequestInfo();
+    }
   }
 
   @AfterEach
   void tearDown() {
     ConcurrentMemoryAuditLogRepository.INSTANCE.clear();
     DefaultAuditLogService.Holder.resetToDefault();
+    if (PSRequestInfo.isInited()) {
+      PSRequestInfo.resetRequestInfo();
+    }
   }
 
   @Test
@@ -92,5 +112,78 @@ class PSErrorHandlerAuditBridgeTest {
   void nullExceptionIsNoOp() {
     PSErrorHandler.logLegacyExceptionIfAuditable(null);
     assertEquals(0, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+  }
+
+  @Test
+  void auditContextFromThreadLocalEnrichesActorIpAndSessionHash() {
+    Map<String, Object> initial = new HashMap<>();
+    initial.put(PSRequestInfo.KEY_USER, "jdoe");
+    initial.put(PSRequestInfo.KEY_JSESSIONID, "sess-abc-123");
+    PSRequestInfo.initRequestInfo(initial);
+
+    HttpServletRequest http = mock(HttpServletRequest.class);
+    when(http.getRemoteAddr()).thenReturn("10.0.0.9");
+    when(http.getRemoteHost()).thenReturn("client.example");
+    when(http.getRemoteUser()).thenReturn(null);
+    PSRequest psRequest = mock(PSRequest.class);
+    when(psRequest.getServletRequest()).thenReturn(http);
+    PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_PSREQUEST, psRequest);
+
+    AuditContext ctx = PSErrorHandler.auditContextFromThreadLocal();
+    assertEquals(Optional.of("jdoe"), ctx.actor());
+    assertEquals(Optional.of("10.0.0.9"), ctx.sourceIp());
+    assertEquals(Optional.of("client.example"), ctx.sourceHost());
+    assertTrue(ctx.sessionIdHash().isPresent());
+    assertEquals(16, ctx.sessionIdHash().get().length());
+  }
+
+  @Test
+  void runtimeExceptionFromAuditIsSwallowed() {
+    DefaultAuditLogService.Holder.set(throwingService(new IllegalStateException("forced")));
+    PSException ex =
+        new PSException(PathItemErrorCodes.FOLDER_PERMISSION_DENIED.numericCode(), (Object[]) null);
+
+    PSErrorHandler.logLegacyExceptionIfAuditable(ex); // must not throw
+
+    assertEquals(0, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+  }
+
+  @Test
+  void errorFromAuditPropagates() {
+    DefaultAuditLogService.Holder.set(throwingService(new LinkageError("forced-error")));
+    PSException ex =
+        new PSException(PathItemErrorCodes.FOLDER_PERMISSION_DENIED.numericCode(), (Object[]) null);
+
+    assertThrows(LinkageError.class, () -> PSErrorHandler.logLegacyExceptionIfAuditable(ex));
+  }
+
+  private static AuditLogService throwingService(Throwable t) {
+    return new AuditLogService() {
+      private RuntimeException fail() {
+        if (t instanceof RuntimeException re) {
+          throw re;
+        }
+        if (t instanceof Error err) {
+          throw err;
+        }
+        throw new IllegalStateException(t);
+      }
+
+      @Override
+      public AuditLogId log(SystemErrorCode code, Object... params) {
+        throw fail();
+      }
+
+      @Override
+      public AuditLogId log(SystemErrorCode code, AuditContext context, Object... params) {
+        throw fail();
+      }
+
+      @Override
+      public AuditLogId log(
+          SystemErrorCode code, AuditContext context, AuditOutcome outcome, Object... params) {
+        throw fail();
+      }
+    };
   }
 }
