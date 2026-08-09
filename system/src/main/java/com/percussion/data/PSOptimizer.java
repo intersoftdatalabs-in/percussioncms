@@ -251,12 +251,13 @@ public abstract class PSOptimizer {
 
   /** Join the login and execution plans (logins appear first) to get a unified execution plan. */
   protected static IPSExecutionStep[] joinLoginAndExecutionPlans(
-      java.util.List loginPlans, java.util.List execPlans) {
+      java.util.List<? extends IPSExecutionStep> loginPlans,
+      java.util.List<? extends IPSExecutionStep> execPlans) {
     IPSExecutionStep[] ret = new IPSExecutionStep[loginPlans.size() + execPlans.size()];
     loginPlans.toArray(ret); /* logins go first!!! */
     int iDest = loginPlans.size();
     for (int i = 0; i < execPlans.size(); i++) {
-      ret[iDest] = (IPSExecutionStep) execPlans.get(i);
+      ret[iDest] = execPlans.get(i);
       iDest++;
     }
     return ret;

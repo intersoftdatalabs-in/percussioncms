@@ -31,6 +31,9 @@ import com.percussion.server.PSApplicationHandler;
 import com.percussion.util.PSCollection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.naming.NamingException;
 
@@ -128,21 +131,21 @@ public class PSUpdateOptimizer extends PSOptimizer {
     // now create the builder map (keyed on back-end table)
 
     // dbreslau 12/19/02:
-    // builderMaps uses both Strings and PSSqlUpdateBuilder
-    // as key types.  This is risky enough, but also note
-    // that PSSqlUpdateBuilder is a class that defines equals()
-    // but not hashcode().  This means that two different keys
-    // that are equal to each other will NOT hash to the same
-    // value; you have to make sure that the same instance is used
-    // both for insertion and for lookup.
-    java.util.HashMap builderMaps = new java.util.HashMap();
+    // builderMaps uses both Strings and PSBackEndTable as key types, with
+    // values of PSSqlUpdateBuilder or List<PSSqlUpdateBuilder>. This is
+    // risky enough, but also note that PSSqlUpdateBuilder is a class that
+    // defines equals() but not hashcode(). That means two different keys
+    // that are equal to each other will NOT hash to the same value; you
+    // have to make sure that the same instance is used both for insertion
+    // and for lookup. Heterogeneous key/value map is retained intentionally.
+    Map<Object, Object> builderMaps = new HashMap<>();
 
     PSSqlUpdateBuilder curBuilder; // this is the base for all builders
 
     // now we can create our builders (one for each back-end
     PSBackEndTable curTable;
     PSBackEndColumn beCol;
-    java.util.List tableBuilders;
+    List<PSSqlUpdateBuilder> tableBuilders;
 
     // add all the column - xml field mappings for this table
     PSDataMapper mapper = updatePipe.getDataMapper();
@@ -163,22 +166,25 @@ public class PSUpdateOptimizer extends PSOptimizer {
       if (curBuilder == null) {
         Object serverKey = curTable.getServerKey();
 
-        int connKey = ((Integer) connKeys.get(serverKey)).intValue();
+        int connKey = connKeys.get(serverKey).intValue();
 
         try {
           curBuilder =
               PSSqlUpdateBuilderFactory.getSqlUpdateBuilder(
                   planType,
                   curTable,
-                  (PSBackEndLogin) logins.get(connKey),
+                  logins.get(connKey),
                   dataSync.isInsertingAllowed());
         } catch (NamingException e) {
           throw new SQLException(e.getLocalizedMessage());
         }
 
         builderMaps.put(builderKey, curBuilder);
-        tableBuilders = (java.util.List) builderMaps.get(curTable);
-        if (tableBuilders == null) tableBuilders = new java.util.ArrayList();
+        @SuppressWarnings("unchecked")
+        List<PSSqlUpdateBuilder> existing =
+            (List<PSSqlUpdateBuilder>) builderMaps.get(curTable);
+        tableBuilders = existing;
+        if (tableBuilders == null) tableBuilders = new ArrayList<>();
         tableBuilders.add(curBuilder);
         builderMaps.put(curTable, tableBuilders);
       }
@@ -192,7 +198,10 @@ public class PSUpdateOptimizer extends PSOptimizer {
       PSUpdateColumn col = (PSUpdateColumn) updateColumns.get(j);
       beCol = col.getColumn();
 
-      tableBuilders = (java.util.List) builderMaps.get(beCol.getTable());
+      @SuppressWarnings("unchecked")
+      List<PSSqlUpdateBuilder> buildersForCol =
+          (List<PSSqlUpdateBuilder>) builderMaps.get(beCol.getTable());
+      tableBuilders = buildersForCol;
       if (tableBuilders == null) {
         // though this makes no sense, it's ignorable so don't error
         if (!col.isUpdateable() && !col.isKey()) continue;
@@ -215,7 +224,7 @@ public class PSUpdateOptimizer extends PSOptimizer {
         }
 
         for (int t = 0; t < tableBuilders.size(); t++) {
-          curBuilder = (PSSqlUpdateBuilder) tableBuilders.get(t);
+          curBuilder = tableBuilders.get(t);
           curBuilder.addUpdateColumn(beCol);
         }
       }
@@ -224,7 +233,7 @@ public class PSUpdateOptimizer extends PSOptimizer {
         // use key columns in the where clause
 
         for (int t = 0; t < tableBuilders.size(); t++) {
-          curBuilder = (PSSqlUpdateBuilder) tableBuilders.get(t);
+          curBuilder = tableBuilders.get(t);
           curBuilder.addKeyColumn(beCol);
         }
       }
@@ -236,16 +245,19 @@ public class PSUpdateOptimizer extends PSOptimizer {
      * the table collection and lookup the table in the builder map.
      * This is part of the fix for bug id TGIS-4BWNFK
      */
-    java.util.List execSteps =
-        new ArrayList(builderMaps.size() - tableCount); // each table is stored +
+    List<IPSExecutionStep> execSteps =
+        new ArrayList<>(builderMaps.size() - tableCount); // each table is stored +
     // a builder for each table/group
     for (int i = 0; i < tableCount; i++) {
       curTable = (PSBackEndTable) beTables.get(i);
-      tableBuilders = (java.util.List) builderMaps.get(curTable);
+      @SuppressWarnings("unchecked")
+      List<PSSqlUpdateBuilder> buildersForTable =
+          (List<PSSqlUpdateBuilder>) builderMaps.get(curTable);
+      tableBuilders = buildersForTable;
       int builderCount = (tableBuilders == null) ? 0 : tableBuilders.size();
 
       for (int j = 0; j < builderCount; j++) {
-        curBuilder = (PSSqlUpdateBuilder) tableBuilders.get(j);
+        curBuilder = tableBuilders.get(j);
 
         /* remove builders for tables which are not actually
          * being modified.
@@ -320,8 +332,11 @@ public class PSUpdateOptimizer extends PSOptimizer {
    * @param execSteps the execution steps to reorder
    * @return the reordered execution steps
    */
-  private static java.util.List reorderExecutionSteps(
-      int planType, PSCollection beTables, java.util.List execSteps, java.util.Map builderMaps)
+  private static List<IPSExecutionStep> reorderExecutionSteps(
+      int planType,
+      PSCollection beTables,
+      List<IPSExecutionStep> execSteps,
+      Map<Object, Object> builderMaps)
       throws PSIllegalArgumentException, java.sql.SQLException {
     /* for inserts, we must insert into the primary key table first.
      * otherwise, the foreign key insert will fail as it cannot find
@@ -351,7 +366,7 @@ public class PSUpdateOptimizer extends PSOptimizer {
     PSBackEndTable curTable;
     int tableCount = (null == beTables) ? 0 : beTables.size();
     if (tableCount > 1) { // no reordering for single tables
-      java.util.HashMap dependencyMap = new java.util.HashMap();
+      Map<String, List<String>> dependencyMap = new HashMap<>();
       for (int i = 0; i < tableCount; i++) {
         curTable = (PSBackEndTable) beTables.get(i);
         if (builderMaps.get(curTable) == null)
@@ -369,9 +384,9 @@ public class PSUpdateOptimizer extends PSOptimizer {
           for (int j = 0; j < colCount; j++) {
             String columnName = keyCols[j];
             String tableName = columnName.substring(0, columnName.indexOf('.'));
-            java.util.List dependentTables = (java.util.List) dependencyMap.get(tableName);
+            List<String> dependentTables = dependencyMap.get(tableName);
             if (dependentTables == null) {
-              dependentTables = new ArrayList();
+              dependentTables = new ArrayList<>();
               dependencyMap.put(tableName, dependentTables);
             }
             dependentTables.add(curTable.getTable());
@@ -426,9 +441,9 @@ public class PSUpdateOptimizer extends PSOptimizer {
 
           if (nextTable == null) break;
 
-          java.util.List dependentTables = (java.util.List) dependencyMap.get(curTable.getTable());
+          List<String> dependentTables = dependencyMap.get(curTable.getTable());
           if (dependentTables == null) {
-            dependentTables = new ArrayList();
+            dependentTables = new ArrayList<>();
             dependencyMap.put(curTable.getTable(), dependentTables);
           }
           dependentTables.add(nextTable.getTable());
@@ -445,8 +460,9 @@ public class PSUpdateOptimizer extends PSOptimizer {
        * to build the final execution plan, we make two passes. One
        * to sort the tables into their appropriate order. The second
        * to replace the table slots with execution plan entries.
+       * Intermediate list holds table names then IPSExecutionStep slots.
        */
-      java.util.List newSteps = new ArrayList(tableCount);
+      List<Object> newSteps = new ArrayList<>(tableCount);
       for (int i = 0; i < tableCount; i++) {
         /* though we don't need the builder, we must first verify that
          * the table is indeed part of the data modification action.
@@ -459,16 +475,18 @@ public class PSUpdateOptimizer extends PSOptimizer {
          * data modifications. Also, it may be repeated if update
          * groups exist
          */
-        java.util.List tableBuilders = (java.util.List) builderMaps.get(curTable);
+        @SuppressWarnings("unchecked")
+        List<PSSqlUpdateBuilder> tableBuilders =
+            (List<PSSqlUpdateBuilder>) builderMaps.get(curTable);
         int builderCount = (tableBuilders == null) ? 0 : tableBuilders.size();
 
         String tableName = curTable.getTable();
-        java.util.List dependentTables = (java.util.List) dependencyMap.get(tableName);
+        List<String> dependentTables = dependencyMap.get(tableName);
         String crossDependentTable =
             getCrossDependentTable(tableName, dependencyMap, dependentTables);
 
         for (int j = 0; j < builderCount; j++) {
-          PSSqlUpdateBuilder curBuilder = (PSSqlUpdateBuilder) tableBuilders.get(j);
+          PSSqlUpdateBuilder curBuilder = tableBuilders.get(j);
 
           if ((planType == PLAN_TYPE_UPDATE) && !curBuilder.hasUpdateColumns()) {
             // if there are no update columns, a plan was not built
@@ -518,11 +536,13 @@ public class PSUpdateOptimizer extends PSOptimizer {
         curTable = (PSBackEndTable) beTables.get(i);
         String tableName = curTable.getTable();
 
-        java.util.List tableBuilders = (java.util.List) builderMaps.get(curTable);
+        @SuppressWarnings("unchecked")
+        List<PSSqlUpdateBuilder> tableBuilders =
+            (List<PSSqlUpdateBuilder>) builderMaps.get(curTable);
         int builderCount = (tableBuilders == null) ? 0 : tableBuilders.size();
 
         for (int j = 0; j < builderCount; j++) {
-          final PSSqlUpdateBuilder curBuilder = (PSSqlUpdateBuilder) tableBuilders.get(j);
+          final PSSqlUpdateBuilder curBuilder = tableBuilders.get(j);
 
           if ((planType == PLAN_TYPE_UPDATE) && !curBuilder.hasUpdateColumns()) {
             // if there are no update columns, a plan was not built
@@ -536,7 +556,7 @@ public class PSUpdateOptimizer extends PSOptimizer {
            */
           int pos = newSteps.indexOf(tableName);
           if (pos != -1) {
-            final IPSExecutionStep s = (IPSExecutionStep) execSteps.get(onExecStep++);
+            final IPSExecutionStep s = execSteps.get(onExecStep++);
             // System.out.println("  storing " + tableName + " in position " + pos);
             // System.out.println("    >> " + s.toString());
             newSteps.set(pos, s);
@@ -544,8 +564,12 @@ public class PSUpdateOptimizer extends PSOptimizer {
         }
       }
 
-      // we've probably done some swaps, so save it at this point
-      execSteps = newSteps;
+      // convert ordered slots (table names then steps) to typed steps
+      List<IPSExecutionStep> ordered = new ArrayList<>(newSteps.size());
+      for (Object step : newSteps) {
+        ordered.add((IPSExecutionStep) step);
+      }
+      execSteps = ordered;
     }
 
     return execSteps;
@@ -559,7 +583,7 @@ public class PSUpdateOptimizer extends PSOptimizer {
    * @return the name of the cross-dependent table; <code>null</code> if no cross-dependencies exist
    */
   private static String getCrossDependentTable(
-      String tableName, java.util.Map dependencyMap, java.util.List dependentTables) {
+      String tableName, Map<String, List<String>> dependencyMap, List<String> dependentTables) {
     if ((dependentTables == null) || (dependentTables.size() == 0)) return null;
 
     // dbreslau 12/19/02:
@@ -570,8 +594,8 @@ public class PSUpdateOptimizer extends PSOptimizer {
     // is listed as a dependent
     for (int i = 0; i < dependentTables.size(); i++) {
       // Examine the dependents for this dependent
-      String table = (String) dependentTables.get(i);
-      java.util.List dependents = (java.util.List) dependencyMap.get(table);
+      String table = dependentTables.get(i);
+      List<String> dependents = dependencyMap.get(table);
       if ((dependents != null) && dependents.contains(tableName)) return table;
     }
 

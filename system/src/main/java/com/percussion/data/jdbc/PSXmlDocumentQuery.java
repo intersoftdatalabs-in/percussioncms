@@ -1085,7 +1085,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     String searchCol = colName;
     if (!searchCol.startsWith("/")) searchCol = "/" + searchCol;
 
-    ArrayList occurrences = new ArrayList();
+    ArrayList<PSDtdRelationalMapper.ColumnDef> occurrences = new ArrayList<>();
 
     PSDtdRelationalMapper.TableDef startTable = null;
 
@@ -1118,8 +1118,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     // warn about it
     String warnText = "";
     for (int i = 1; i < occurrences.size(); i++) {
-      PSDtdRelationalMapper.ColumnDef matchingCol =
-          (PSDtdRelationalMapper.ColumnDef) occurrences.get(i);
+      PSDtdRelationalMapper.ColumnDef matchingCol = occurrences.get(i);
 
       warnText +=
           "\n\tColumn ref "
@@ -1130,8 +1129,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
               + matchingCol.getTable().getName();
     }
 
-    PSDtdRelationalMapper.ColumnDef qualifiedCol =
-        (PSDtdRelationalMapper.ColumnDef) occurrences.get(0);
+    PSDtdRelationalMapper.ColumnDef qualifiedCol = occurrences.get(0);
 
     if (warnText.length() > 0) {
       warnText =
@@ -1174,7 +1172,10 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
    * @param colName The column name fragment to disambiguate.
    */
   void findColumnName(
-      List occurrences, String prefix, PSDtdRelationalMapper.TableDef tabDef, String colName) {
+      List<PSDtdRelationalMapper.ColumnDef> occurrences,
+      String prefix,
+      PSDtdRelationalMapper.TableDef tabDef,
+      String colName) {
     // are we a column in the given table ?
     for (int i = 1; i <= tabDef.getNumColumns(); i++) // 1 based
     {
@@ -1214,7 +1215,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
    *     <p>Gets the warnings, useful for adding to SQL objects.
    * @return Collection
    */
-  Collection getWarnings() {
+  Collection<String> getWarnings() {
     return Collections.unmodifiableCollection(m_warnings);
   }
 
@@ -1231,7 +1232,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   private int m_state = STATE_INVALID;
 
   /** a collection of warning strings * */
-  private Collection m_warnings = new ArrayList();
+  private Collection<String> m_warnings = new ArrayList<>();
 
   private static final int STATE_INVALID = 0;
   private static final int STATE_FROM_CLAUSE = 10;
@@ -1249,15 +1250,15 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
    */
   private class QueryContext {
     public QueryContext() {
-      m_tableCorrelations = new HashMap();
-      m_selectColumns = new HashMap();
-      m_selectColumnsOrdered = new ArrayList();
-      m_resultSets = new HashMap();
-      m_resultSetsInOrder = new ArrayList();
-      m_postJoinSelectionCriteria = new HashMap();
-      m_preJoinSelectionCriteria = new HashMap();
-      m_docs = new ArrayList();
-      m_whereColumnNames = new ArrayList();
+      m_tableCorrelations = new HashMap<>();
+      m_selectColumns = new HashMap<>();
+      m_selectColumnsOrdered = new ArrayList<>();
+      m_resultSets = new HashMap<>();
+      m_resultSetsInOrder = new ArrayList<>();
+      m_postJoinSelectionCriteria = new HashMap<>();
+      m_preJoinSelectionCriteria = new HashMap<>();
+      m_docs = new ArrayList<>();
+      m_whereColumnNames = new ArrayList<>();
 
       // we initialize m_selectColumnNames only when needed, because
       // we rely on it being null if it wasn't needed
@@ -1284,7 +1285,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
       }
 
       if (dCol instanceof PSBackEndColumn) {
-        if (m_selectColumnNames == null) m_selectColumnNames = new ArrayList();
+        if (m_selectColumnNames == null) m_selectColumnNames = new ArrayList<>();
 
         PSBackEndColumn beCol = (PSBackEndColumn) dCol;
 
@@ -1336,14 +1337,14 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     }
 
     public IPSReplacementValue getSelectColumn(String asName) {
-      return (IPSReplacementValue) m_selectColumns.get(asName);
+      return m_selectColumns.get(asName);
     }
 
     public String getTableName(String alias) {
-      return (String) m_tableCorrelations.get(alias);
+      return m_tableCorrelations.get(alias);
     }
 
-    public Set getTableCorrelations() {
+    public Set<String> getTableCorrelations() {
       return m_tableCorrelations.keySet();
     }
 
@@ -1353,7 +1354,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     }
 
     public PSResultSet getResultSet(String tableName) {
-      return (PSResultSet) m_resultSets.get(tableName);
+      return m_resultSets.get(tableName);
     }
 
     public int getNumResultSets() {
@@ -1362,7 +1363,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
 
     public PSResultSet getResultSet(int i) // 0 based
         {
-      return (PSResultSet) m_resultSetsInOrder.get(i);
+      return m_resultSetsInOrder.get(i);
     }
 
     public PSDtdRelationalMapper getRelationalMapper() {
@@ -1378,7 +1379,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     }
 
     public Document getDocument(int i) {
-      return (Document) m_docs.get(i);
+      return m_docs.get(i);
     }
 
     public int getNumDocuments() {
@@ -1492,7 +1493,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     }
 
     protected void addPostJoinSelectionConditional(String tableName, PSConditional cond) {
-      PSCollection coll = (PSCollection) m_postJoinSelectionCriteria.get(tableName);
+      PSCollection coll = m_postJoinSelectionCriteria.get(tableName);
       if (null == coll) {
         coll = new PSCollection(cond.getClass());
         m_postJoinSelectionCriteria.put(tableName, coll);
@@ -1501,7 +1502,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     }
 
     protected void addPreJoinSelectionConditional(String tableName, PSConditional cond) {
-      PSCollection coll = (PSCollection) m_preJoinSelectionCriteria.get(tableName);
+      PSCollection coll = m_preJoinSelectionCriteria.get(tableName);
       if (null == coll) {
         coll = new PSCollection(cond.getClass());
         m_preJoinSelectionCriteria.put(tableName, coll);
@@ -1517,7 +1518,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
      *     joining it with anything.
      */
     public PSCollection getPreJoinSelectionConditionals(String tableName) {
-      return (PSCollection) m_preJoinSelectionCriteria.get(tableName);
+      return m_preJoinSelectionCriteria.get(tableName);
     }
 
     /**
@@ -1528,7 +1529,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
      *     joined to the appropriate parent table(s).
      */
     public PSCollection getPostJoinSelectionConditionals(String tableName) {
-      return (PSCollection) m_postJoinSelectionCriteria.get(tableName);
+      return m_postJoinSelectionCriteria.get(tableName);
     }
 
     public PSResultSet runJoins() {
@@ -1568,7 +1569,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
         // old result set of the root table.
         {
           PSDtdRelationalMapper.TableDef highTab = m_dtdMapper.getTable(highTableOrdinal);
-          parentJoinResult = (PSResultSet) m_resultSets.get(highTab.getName());
+          parentJoinResult = m_resultSets.get(highTab.getName());
           joinStack.push(parentJoinResult);
 
           // get and run the the prejoin selection conditions, if there are any
@@ -1638,7 +1639,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
           // the parent (left) table is already pushed onto the stack, so
           // just push the child (right) table onto the stack here
           {
-            PSResultSet childRS = (PSResultSet) m_resultSets.get(tab.getName());
+            PSResultSet childRS = m_resultSets.get(tab.getName());
             childRS.setBeforeFirst();
             joinStack.push(childRS);
 
@@ -1676,15 +1677,15 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
                 cColumnNames[k - 1] = tab.getColumn(k).getName();
               }
 
-              ArrayList tmpParentOmitCols = new ArrayList();
+              ArrayList<String> tmpParentOmitCols = new ArrayList<>();
               if (m_selectColumnNames != null) tmpParentOmitCols.removeAll(m_selectColumnNames);
               if (m_whereColumnNames != null) tmpParentOmitCols.removeAll(m_whereColumnNames);
-              parentOmitCols = (String[]) tmpParentOmitCols.toArray(new String[0]);
+              parentOmitCols = tmpParentOmitCols.toArray(new String[0]);
 
-              ArrayList tmpChildOmitCols = new ArrayList();
+              ArrayList<String> tmpChildOmitCols = new ArrayList<>();
               if (m_selectColumnNames != null) tmpChildOmitCols.removeAll(m_selectColumnNames);
               if (m_whereColumnNames != null) tmpChildOmitCols.removeAll(m_whereColumnNames);
-              childOmitCols = (String[]) tmpChildOmitCols.toArray(new String[0]);
+              childOmitCols = tmpChildOmitCols.toArray(new String[0]);
             }
           }
 
@@ -1736,13 +1737,13 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
           }
         }
 
-        List selectCols = m_selectColumnNames;
+        List<String> selectCols = m_selectColumnNames;
         // if there are no select column names, then the user
         // specified select ALL columns (select *), so build the list
         // now
         if (selectCols == null) {
           // for all tables T, for all columns C of T, add C to the select list
-          selectCols = new ArrayList(m_dtdMapper.getNumTables() * 3); // TODO: tune size
+          selectCols = new ArrayList<>(m_dtdMapper.getNumTables() * 3); // TODO: tune size
 
           for (int i = 1; i <= m_dtdMapper.getNumTables(); i++) // 1-based
           {
@@ -1756,11 +1757,12 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
 
         // finally, use and re-order only those columns we desire and
         // build a result set out of them
-        List[] finalColumns = new List[selectCols.size()];
+        @SuppressWarnings("unchecked")
+        List<Object>[] finalColumns = (List<Object>[]) new List<?>[selectCols.size()];
 
-        HashMap colNameMap = new HashMap();
+        HashMap<String, Integer> colNameMap = new HashMap<>();
         for (int k = 0; k < selectCols.size(); k++) {
-          String colName = (String) selectCols.get(k);
+          String colName = selectCols.get(k);
           // --+trace("SELECT column: " + colName);
           finalColumns[k] = parentJoinResult.getColumnData(colName);
           colNameMap.put(colName, Integer.valueOf(k + 1));
@@ -1838,37 +1840,37 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     }
 
     /** a map from SELECT column names to IPSReplacementValues */
-    private Map m_selectColumns;
+    private Map<String, IPSReplacementValue> m_selectColumns;
 
     /** a list, in order, of the SELECT columns as IPSReplacementValues */
-    private List m_selectColumnsOrdered;
+    private List<IPSReplacementValue> m_selectColumnsOrdered;
 
     /** a list, in order, of the SELECT column names */
-    private List m_selectColumnNames;
+    private List<String> m_selectColumnNames;
 
     /** a list, in order, of the WHERE column names */
-    private List m_whereColumnNames;
+    private List<String> m_whereColumnNames;
 
     /** a map from table alias to table name */
-    private Map m_tableCorrelations;
+    private Map<String, String> m_tableCorrelations;
 
     /** a map from table names to result sets */
-    private Map m_resultSets;
+    private Map<String, PSResultSet> m_resultSets;
 
     /** the result sets, in the order they were created (parent to child) */
-    private List m_resultSetsInOrder;
+    private List<PSResultSet> m_resultSetsInOrder;
 
     /** the mapping from XML document(s) to a relational structure */
     private PSDtdRelationalMapper m_dtdMapper;
 
     /** the documents against which the query will be run */
-    private List m_docs;
+    private List<Document> m_docs;
 
     /** a Map from table name to PSCollection of PSConditionals */
-    private Map m_preJoinSelectionCriteria;
+    private Map<String, PSCollection> m_preJoinSelectionCriteria;
 
     /** a Map from table name to PSCollection of PSConditionals */
-    private Map m_postJoinSelectionCriteria;
+    private Map<String, PSCollection> m_postJoinSelectionCriteria;
 
     private int m_highestJoinOrdinal = -1;
 

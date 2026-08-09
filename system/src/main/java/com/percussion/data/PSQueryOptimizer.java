@@ -1560,23 +1560,15 @@ public class PSQueryOptimizer extends PSOptimizer {
    * joins eg: a.c1 = b.c1 AND c.c1 = d.c1 is not enough as we need table a or b to join with table
    * c or d
    */
-  static PSJoinTree validateJoins(PSCollection tables, PSCollection joins) {
-    // convert the collections so we call just one method
-    java.util.List tableList = (tables == null) ? null : tables.subList(0, tables.size());
-
-    java.util.List joinList = (joins == null) ? null : joins.subList(0, joins.size());
-
-    return validateJoins(tableList, joinList);
-  }
-
   /**
    * Verify the joins are properly defined.
    *
    * <p>- make sure a join exists for each table - make sure all tables are joined through those
    * joins eg: a.c1 = b.c1 AND c.c1 = d.c1 is not enough as we need table a or b to join with table
-   * c or d
+   * c or d. Accepts both {@link PSCollection} and plain {@link java.util.List} views (single
+   * overload avoids ambiguity because PSCollection implements List).
    */
-  static PSJoinTree validateJoins(java.util.List tables, java.util.List joins) {
+  static PSJoinTree validateJoins(java.util.List<?> tables, java.util.List<?> joins) {
     // if there's 0 or 1 tables, we clearly have no join issues
     int tableCount = (tables == null) ? 0 : tables.size();
     if (tableCount <= 1) return null;
@@ -1590,7 +1582,9 @@ public class PSQueryOptimizer extends PSOptimizer {
 
     // this class contains a tree with the path from table to table
     // we can use it to determine if everything's joined
-    PSJoinTree jTree = new PSJoinTree(joins);
+    @SuppressWarnings("unchecked")
+    java.util.List<PSBackEndJoin> typedJoins = (java.util.List<PSBackEndJoin>) joins;
+    PSJoinTree jTree = new PSJoinTree(typedJoins);
 
     // see if we can get from the first table to all the other
     PSBackEndTable firstTable = (PSBackEndTable) tables.get(0);
