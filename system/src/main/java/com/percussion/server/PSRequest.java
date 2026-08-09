@@ -33,6 +33,7 @@ import com.percussion.security.PSUserEntry;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.content.PSContentParser;
 import com.percussion.server.content.PSFormContentParser;
+import com.percussion.server.content.PSJsonContentParser;
 import com.percussion.server.content.PSXmlContentParser;
 import com.percussion.services.security.IPSRoleMgr;
 import com.percussion.services.security.PSRoleMgrLocator;
@@ -545,6 +546,7 @@ public class PSRequest {
       else if (reqExtension.equalsIgnoreCase("HTML")) m_reqPageType = PAGE_TYPE_HTML;
       else if (reqExtension.equalsIgnoreCase("HTM")) m_reqPageType = PAGE_TYPE_HTML;
       else if (reqExtension.equalsIgnoreCase("TXT")) m_reqPageType = PAGE_TYPE_TEXT;
+      else if (reqExtension.equalsIgnoreCase("JSON")) m_reqPageType = PAGE_TYPE_JSON;
       else m_reqPageType = PAGE_TYPE_UNKNOWN;
     } else m_reqPageType = PAGE_TYPE_XML;
   }
@@ -612,6 +614,10 @@ public class PSRequest {
 
       case PAGE_TYPE_TEXT:
         reqExtension = ".txt";
+        break;
+
+      case PAGE_TYPE_JSON:
+        reqExtension = ".json";
         break;
 
       default:
@@ -2239,8 +2245,13 @@ public class PSRequest {
   /** The desired format for the request page is text. */
   public static final int PAGE_TYPE_TEXT = 0x00000004;
 
-  /** The desired page type is json */
-  public static final int PAGE_TYPE_JSON = 0x00000006;
+  /**
+   * The desired format for the request page is JSON ({@code application/json}).
+   *
+   * <p>Uses the next free power-of-two bit after {@link #PAGE_TYPE_TEXT} so page types remain
+   * distinct flags (previous value {@code 0x06} overlapped {@code HTML|TEXT}).
+   */
+  public static final int PAGE_TYPE_JSON = 0x00000008;
 
   /**
    * A HashMap to store temp file resources, so that PurgeableTempFile information can be retrieved
@@ -2402,6 +2413,7 @@ public class PSRequest {
      */
     addParser(new PSXmlContentParser());
     addParser(new PSFormContentParser());
+    addParser(new PSJsonContentParser());
   }
 
   /**

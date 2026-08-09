@@ -94,6 +94,8 @@ public class PSRequestor extends PSComponent {
    *                      output (MIME type text/html). If HTML output
    *                      generation is not enabled, an error occurs.
    *                      </td></tr>
+   * <tr><td>.json</td><td>JSON data derived from the result XML document
+   *                      (MIME type application/json).</td></tr>
    * <tr><td>other</td><td>An error occurs</td></tr>
    * </table>
    *
@@ -129,6 +131,8 @@ public class PSRequestor extends PSComponent {
    *                      output (MIME type text/html). If HTML output
    *                      generation is not enabled, an error occurs.
    *                      </td></tr>
+   * <tr><td>.json</td><td>JSON data derived from the result XML document
+   *                      (MIME type application/json).</td></tr>
    * <tr><td>other</td><td>An error occurs</td></tr>
    * </table>
    *
@@ -779,6 +783,7 @@ public class PSRequestor extends PSComponent {
   static {
     ms_defaultMimeMap.put("html", new PSTextLiteral(IPSMimeContentTypes.MIME_TYPE_TEXT_HTML));
     ms_defaultMimeMap.put("htm", new PSTextLiteral(IPSMimeContentTypes.MIME_TYPE_TEXT_HTML));
+    ms_defaultMimeMap.put("json", new PSTextLiteral(IPSMimeContentTypes.MIME_TYPE_JSON));
   }
 
   /* NOTE: when adding members, be sure to update the copyFrom,

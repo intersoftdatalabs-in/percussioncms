@@ -281,7 +281,8 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
           // TODO can't get stylesheet so passing "" for now
           err = new PSHtmlProcessingError(m_appHandler.getId(), sessId, errorCode, errorArgs, "");
         } else if ((pageType == PSRequest.PAGE_TYPE_XML)
-            || (pageType == PSRequest.PAGE_TYPE_TEXT)) {
+            || (pageType == PSRequest.PAGE_TYPE_TEXT)
+            || (pageType == PSRequest.PAGE_TYPE_JSON)) {
           // TODO can't get xml element so passing null for now
           err = new PSXmlProcessingError(m_appHandler.getId(), sessId, errorCode, errorArgs, null);
         } else {

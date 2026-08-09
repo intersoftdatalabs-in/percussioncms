@@ -367,6 +367,15 @@ public class PSUpdateHandler extends PSDataHandler {
             PSStyleSheetMerger.merge(request, doc, bout);
             java.io.ByteArrayInputStream in = new java.io.ByteArrayInputStream(bout.toByteArray());
             resp.setContent(in, bout.size(), IPSMimeContentTypes.MIME_TYPE_TEXT_HTML);
+          } else if (request.getRequestPageType() == PSRequest.PAGE_TYPE_JSON) {
+            String json = PSXmlDocumentJsonCodec.toJson(doc);
+            byte[] bytes = json.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            java.io.ByteArrayInputStream in = new java.io.ByteArrayInputStream(bytes);
+            resp.setContent(
+                in,
+                bytes.length,
+                IPSMimeContentTypes.MIME_TYPE_JSON + "; charset=UTF-8",
+                false);
           } else {
             // we test this again as we will send raw XML if we can't
             // find a merger for the specified style sheet (which

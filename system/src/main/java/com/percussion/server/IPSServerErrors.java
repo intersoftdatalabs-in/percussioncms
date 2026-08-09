@@ -1325,6 +1325,18 @@ public interface IPSServerErrors {
   public static final int XML_PARSER_SAX_ERROR = 1306;
 
   /**
+   * PSJsonContentParser throws this when JSON body decoding fails.
+   *
+   * <p>The arguments passed in for this message are:
+   *
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
+   * <TR><TH>Arg</TH><TH>Description</TH></TR>
+   * <TR><TD>0</TD><TD>parser exception message</TD></TR>
+   * </TABLE>
+   */
+  public static final int JSON_PARSER_ERROR = 1316;
+
+  /**
    * PSFormContentParser throws this when it encounters a hex char not in %XX format.
    *
    * <p>The arguments passed in for this message are:
