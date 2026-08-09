@@ -15,7 +15,8 @@
  */
 
 /**
- * Profile hub shell smoke + axe WCAG gate (#2393 / #2425 / #2427 / parent #2374).
+ * Profile hub shell smoke + axe WCAG gate
+ * (#2393 / #2425 / #2427 / #2498 / parent #2374).
  *
  * Surface-filtered only — not full suite:
  *   npm run test:surface -- --path tests/profile-shell.spec.js
@@ -23,11 +24,16 @@
  * Axe-only subset (serious/critical zero on hub after deep link + menu entry):
  *   npm run test:surface -- --path tests/profile-shell.spec.js --grep "axe-core"
  *
+ * Extended golden multi-path (baseline + folder-recycle + this surface) — #2498:
+ *   npm run test:golden-extended
+ *   npm run test:golden-extended:list
+ *
  * QA mode: perc-devctl qa-up → TEST_CMS_URL + ADMIN_* / EDITOR_* / CONTRIBUTOR_*
- * → test:surface → qa-down.
+ * → test:surface or test:golden-extended → qa-down.
  *
  * Covers Admin deep link + UserMenu entry, plus non-admin (Editor, Contributor)
  * deep-link access so profile is not admin-only (#2374 acceptance).
+ * Inventory: helpers/golden-unattended-smoke-set.js (id profile-shell, tier extended).
  */
 
 const { test, expect } = require("@playwright/test");

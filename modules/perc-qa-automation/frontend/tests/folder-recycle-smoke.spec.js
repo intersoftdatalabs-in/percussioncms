@@ -35,7 +35,7 @@
  *     npm run test:surface -- --path tests/folder-recycle-smoke.spec.js
  *   # tags:
  *   npm run test:surface -- --tag folder-recycle
- *   # extended golden multi-path (baseline + this surface) — #2490:
+ *   # extended golden multi-path (baseline + this surface + @profile) — #2490/#2498:
  *   npm run test:golden-extended
  *   npm run test:golden-extended:list
  *   python docker/scripts/perc-devctl.py qa-down
