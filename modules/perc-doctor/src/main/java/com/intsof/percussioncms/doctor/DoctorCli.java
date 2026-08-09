@@ -31,7 +31,7 @@ import java.time.Duration;
  *
  * <p>Commands: {@code diagnose}/{@code health}, {@code clean-heap-dumps}, {@code
  * clean-install-backups}, {@code clean-logs}, {@code clean-temp}, {@code check-config}, {@code
- * fix-permissions}.
+ * check-logs}, {@code fix-permissions}.
  */
 public final class DoctorCli {
 
@@ -91,6 +91,8 @@ public final class DoctorCli {
               + CleanTempCommand.COMMAND_NAME
               + ", "
               + CheckConfigCommand.COMMAND_NAME
+              + ", "
+              + CheckLogsCommand.COMMAND_NAME
               + ", or "
               + FixPermissionsCommand.COMMAND_NAME);
       printHelp(err);
@@ -154,6 +156,18 @@ public final class DoctorCli {
         printCheckConfigReport(report, parsed.verbose, out);
         return report.isHealthy() ? EXIT_OK : EXIT_ERROR;
       }
+      if (CheckLogsCommand.isCheckLogsCommand(parsed.command)) {
+        CheckLogsCommand.Options logOpts =
+            new CheckLogsCommand.Options(
+                parsed.logPhase,
+                parsed.logTailLines,
+                parsed.requireStartupLogs,
+                parsed.requireInstallLogs);
+        CheckLogsReport report =
+            CheckLogsCommand.execute(installRoot, parsed.dryRun, logOpts);
+        printCheckLogsReport(report, parsed.verbose, out);
+        return report.isHealthy() ? EXIT_OK : EXIT_ERROR;
+      }
       if (FixPermissionsCommand.COMMAND_NAME.equals(parsed.command)) {
         FixPermissionsReport report = FixPermissionsCommand.execute(installRoot, parsed.dryRun);
         printFixPermissionsReport(report, parsed.verbose, out);
@@ -175,6 +189,10 @@ public final class DoctorCli {
               + CleanTempCommand.COMMAND_NAME
               + ", "
               + CheckConfigCommand.COMMAND_NAME
+              + ", "
+              + CheckLogsCommand.COMMAND_NAME
+              + "/"
+              + CheckLogsCommand.COMMAND_ALIAS
               + ", "
               + FixPermissionsCommand.COMMAND_NAME);
       printHelp(err);
@@ -200,6 +218,14 @@ public final class DoctorCli {
     boolean keepCurrent = true;
     /** True when the user passed {@code --keep-current} or {@code --no-keep-current}. */
     boolean keepCurrentExplicit;
+    /** {@code check-logs} phase: all | startup | install. */
+    String logPhase = CheckLogsCommand.PHASE_ALL;
+    /** {@code check-logs} tail line count. */
+    int logTailLines = CheckLogsCommand.DEFAULT_TAIL_LINES;
+    /** {@code check-logs}: FAIL when startup server.log missing. */
+    boolean requireStartupLogs;
+    /** {@code check-logs}: FAIL when no install-phase logs present. */
+    boolean requireInstallLogs;
   }
 
   /**
@@ -236,6 +262,28 @@ public final class DoctorCli {
       } else if ("--no-keep-current".equals(a)) {
         parsed.keepCurrent = false;
         parsed.keepCurrentExplicit = true;
+      } else if ("--phase".equals(a)) {
+        if (i + 1 >= args.length) {
+          throw new IllegalArgumentException(
+              "--phase requires all|startup|install");
+        }
+        parsed.logPhase = CheckLogsCommand.parsePhase(args[++i]);
+      } else if ("--tail-lines".equals(a)) {
+        if (i + 1 >= args.length) {
+          throw new IllegalArgumentException("--tail-lines requires a positive integer");
+        }
+        try {
+          parsed.logTailLines = Integer.parseInt(args[++i]);
+        } catch (NumberFormatException e) {
+          throw new IllegalArgumentException("--tail-lines must be an integer");
+        }
+        if (parsed.logTailLines < 1) {
+          throw new IllegalArgumentException("--tail-lines must be >= 1");
+        }
+      } else if ("--require-startup".equals(a)) {
+        parsed.requireStartupLogs = true;
+      } else if ("--require-install".equals(a)) {
+        parsed.requireInstallLogs = true;
       } else if (a.startsWith("-")) {
         throw new IllegalArgumentException("unknown option: " + a);
       } else if (parsed.command == null) {
@@ -253,7 +301,7 @@ public final class DoctorCli {
     stream.println(
         "CMS Doctor — install diagnose + safe install-tree maintenance"
             + " (diagnose/health, clean-heap-dumps, clean-install-backups, clean-logs,"
-            + " clean-temp, check-config, fix-permissions).");
+            + " clean-temp, check-config, check-logs, fix-permissions).");
     stream.println();
     stream.println("Options:");
     stream.println("  --install-root <path>  CMS install root (default: current working directory)");
@@ -276,6 +324,11 @@ public final class DoctorCli {
     stream.println(
         "  check-config           Read-only value/misconfig checks (server + repository props)");
     stream.println(
+        "  check-logs             Read-only ERROR/FATAL scan of CMS install/startup logs"
+            + " (server.log, InstallPackages, install, tablefactory)");
+    stream.println(
+        "  check-startup-logs     Alias for check-logs");
+    stream.println(
         "  fix-permissions        Report/fix allowlisted launcher + log-dir modes (POSIX)");
     stream.println();
     stream.println("clean-logs options:");
@@ -285,6 +338,16 @@ public final class DoctorCli {
         "  --keep-current         Never delete active current *.log/*.out (default)");
     stream.println(
         "  --no-keep-current      Allow deleting active current log basenames");
+    stream.println();
+    stream.println("check-logs options:");
+    stream.println(
+        "  --phase all|startup|install   Which log groups to scan (default: all)");
+    stream.println(
+        "  --tail-lines N                Max lines from end of each log (default: 4000)");
+    stream.println(
+        "  --require-startup             FAIL if jetty/base/logs/server.log is missing");
+    stream.println(
+        "  --require-install             FAIL if no install-phase logs are present");
     stream.println();
     stream.println("Examples:");
     stream.println("  perc-doctor --install-root /opt/Percussion -v diagnose");
@@ -304,6 +367,10 @@ public final class DoctorCli {
     stream.println(
         "  perc-doctor --install-root /opt/Percussion --dry-run -v check-config");
     stream.println("  perc-doctor --install-root C:\\Percussion -v check-config");
+    stream.println(
+        "  perc-doctor --install-root /opt/Percussion -v check-logs --require-startup");
+    stream.println(
+        "  perc-doctor --install-root C:\\Percussion -v check-logs --phase install");
     stream.println(
         "  perc-doctor --install-root /opt/Percussion --dry-run -v fix-permissions");
     stream.println("  perc-doctor --install-root C:\\Percussion -v fix-permissions");
@@ -365,6 +432,41 @@ public final class DoctorCli {
       for (CheckConfigReport.Check c : report.getChecks()) {
         String pathPart = c.getPath() == null ? "" : " path=" + c.getPath();
         out.println("  " + c.getStatus() + " " + c.getId() + " " + c.getMessage() + pathPart);
+      }
+    } else if (report.getCheckCount() > 0) {
+      out.println("(use -v/--verbose for check list)");
+    }
+  }
+
+  static void printCheckLogsReport(CheckLogsReport report, boolean verbose, PrintStream out) {
+    out.println("command=" + report.getCommand());
+    out.println("install-root=" + report.getInstallRoot());
+    out.println("dry-run=" + report.isDryRun());
+    out.println("phase=" + report.getPhase());
+    out.println("read-only=true");
+    out.println("checks=" + report.getCheckCount());
+    out.println("pass=" + report.getPassCount());
+    out.println("skip=" + report.getSkipCount());
+    out.println("warn=" + report.getWarnCount());
+    out.println("fail=" + report.getFailCount());
+    out.println("info=" + report.getInfoCount());
+    out.println("healthy=" + report.isHealthy());
+    if (!report.isHealthy()) {
+      String match = report.firstFailMatch();
+      if (match != null) {
+        out.println("RESULT:FAIL STEP:check-logs DETAIL:server_log_errors MATCH:" + match);
+      } else {
+        out.println("RESULT:FAIL STEP:check-logs DETAIL:server_log_errors");
+      }
+    } else {
+      out.println("RESULT:OK STEP:check-logs");
+    }
+    if (verbose) {
+      for (CheckLogsReport.Check c : report.getChecks()) {
+        String pathPart = c.getPath() == null ? "" : " path=" + c.getPath();
+        String matchPart = c.getMatch() == null ? "" : " match=" + c.getMatch();
+        out.println(
+            "  " + c.getStatus() + " " + c.getId() + " " + c.getMessage() + pathPart + matchPart);
       }
     } else if (report.getCheckCount() > 0) {
       out.println("(use -v/--verbose for check list)");

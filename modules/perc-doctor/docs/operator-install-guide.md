@@ -88,6 +88,25 @@ bin\perc-doctor.bat -v diagnose
 
 Exit code is non-zero when any check is `FAIL` (e.g. missing `jetty/base` or `rxconfig`). WARN-only outcomes still exit 0.
 
+### `check-logs` / `check-startup-logs` (read-only)
+
+Scan CMS install/startup log **content** for ERROR/FATAL/SEVERE and Spring/Jetty context-death markers. Does not delete logs. Prefer after install and after first CMS start.
+
+| Phase | Logs |
+|-------|------|
+| startup | `jetty/base/logs/server.log` |
+| install | `InstallPackages.log`, `install.log`, `tablefactory.log` (under `rxconfig/Installer` or known alternates) |
+
+```bash
+# Linux / macOS — require a clean server.log after startup
+./bin/perc-doctor -v check-logs --require-startup
+
+# Windows — install-phase logs only
+bin\perc-doctor.bat -v check-logs --phase install
+```
+
+Exit non-zero when any scanned log has ERROR/FATAL/SEVERE. Missing optional files are skipped unless `--require-startup` / `--require-install`.
+
 ### `clean-heap-dumps`
 
 Removes recursive `*.hprof` under the install root (case-insensitive). Scope is hard-limited to `--install-root`.

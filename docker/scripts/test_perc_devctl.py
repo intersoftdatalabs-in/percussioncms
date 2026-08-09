@@ -340,6 +340,11 @@ class TestVerifyRealMode(unittest.TestCase):
         self.addCleanup(self.td.cleanup)
         self.repo_root = _stub_repo_root(Path(self.td.name))
         self.runner = _CliRunner(self.repo_root)
+        self._slog = unittest.mock.patch.object(
+            pdc, "_docker_read_server_log", return_value=""
+        )
+        self._slog.start()
+        self.addCleanup(self._slog.stop)
 
     def test_verify_first_check_succeeds(self):
         """When curl + docker inspect + clean logs all return success values,
@@ -713,6 +718,12 @@ class TestQaHealthRealMode(unittest.TestCase):
         self.td = tempfile.TemporaryDirectory()
         self.addCleanup(self.td.cleanup)
         self.repo_root = _stub_repo_root(Path(self.td.name))
+        # Do not docker-exec a live CMS from unit tests (#2556 product log scan).
+        self._slog = unittest.mock.patch.object(
+            pdc, "_docker_read_server_log", return_value=""
+        )
+        self._slog.start()
+        self.addCleanup(self._slog.stop)
 
     def test_qa_health_success_on_first_check(self):
         with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \

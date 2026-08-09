@@ -404,6 +404,13 @@ class WaitForContainerHealthyPolicyTests(unittest.TestCase):
 class WaitForHttpContextFailTests(unittest.TestCase):
     """#2462: matrix probe must fail-fast on Rhythmyx context death."""
 
+    def setUp(self):
+        self._slog = unittest.mock.patch.object(
+            smoke, "_docker_read_server_log", return_value=""
+        )
+        self._slog.start()
+        self.addCleanup(self._slog.stop)
+
     def test_wait_for_http_dry_run(self):
         ok, detail = smoke.wait_for_http(
             "http://127.0.0.1:9993/Rhythmyx/login",
@@ -499,6 +506,14 @@ class WaitForHttpContextFailTests(unittest.TestCase):
 
 class WaitForHttpDockerHealthTests(unittest.TestCase):
     """#2535: CMS wait requires Health.Status=healthy + host belt-and-braces."""
+
+    def setUp(self):
+        # Isolate from live docker exec of product logs (#2556).
+        self._slog = unittest.mock.patch.object(
+            smoke, "_docker_read_server_log", return_value=""
+        )
+        self._slog.start()
+        self.addCleanup(self._slog.stop)
 
     def test_require_health_fail_fast_unhealthy(self):
         """Unhealthy inspect must not wait the full probe timeout."""

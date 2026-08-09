@@ -93,8 +93,12 @@ if str(_SCRIPTS_DIR) not in sys.path:
 from perc_host_ports import find_free_port, is_port_free, resolve_host_port  # noqa: E402
 from rhythmyx_ready import (  # noqa: E402
     DETAIL_CONTEXT_FAILED,
+    DETAIL_SERVER_LOG_ERRORS,
     assess_rhythmyx_ready,
+    container_cms_log_paths,
+    container_server_log_path,
     find_rhythmyx_context_failure,
+    find_server_log_startup_error,
 )
 
 LOG = logging.getLogger("perc-devctl")
@@ -162,6 +166,9 @@ QA_MATRIX_IMAGE_TAG = "percussion-matrix-cell:local"
 QA_IMAGE_HEALTHCHECK_OK = "ok"
 QA_IMAGE_HEALTHCHECK_MISSING = "missing"
 QA_IMAGE_HEALTHCHECK_ABSENT = "absent"
+
+# Tail size when reading jetty/base/logs + install logs inside the container (#2556).
+QA_SERVER_LOG_TAIL_LINES = 4000
 
 
 # Freeport primitives live in perc_host_ports.py (shared with matrix) — #2001/#2005.
@@ -750,6 +757,74 @@ def _docker_logs_tail(
     return out or err
 
 
+def _docker_read_server_log(
+    container_name: str,
+    *,
+    install_root: str = QA_INSTALL_ROOT,
+    tail_lines: int = QA_SERVER_LOG_TAIL_LINES,
+    timeout: float = 30.0,
+) -> str:
+    """Tail CMS startup + install logs inside the container (perc-doctor #2556 set).
+
+    Paths always use POSIX ``/``. Missing files are skipped.
+    """
+    if not container_name:
+        return ""
+    paths = container_cms_log_paths(install_root)
+    server_log = container_server_log_path(install_root)
+    logs_dir = server_log.rsplit("/", 1)[0]
+    n = max(1, int(tail_lines))
+    parts: list[str] = []
+    for p in paths:
+        parts.append(
+            f'if [ -f "{p}" ]; then echo "--- {p} ---"; '
+            f'tail -n {n} "{p}" 2>/dev/null || true; fi'
+        )
+    parts.append(
+        f'for f in "{logs_dir}"/*jetty*.log; do '
+        f'[ -f "$f" ] && echo "--- $f ---" && tail -n 500 "$f" 2>/dev/null || true; '
+        f"done"
+    )
+    script = "; ".join(parts)
+    try:
+        completed = subprocess.run(
+            ["docker", "exec", container_name, "sh", "-c", script],
+            shell=False,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+    return (completed.stdout or "") + (completed.stderr or "")
+
+
+def _log_scan_fail_detail(docker_logs: str, server_logs: str) -> Optional[str]:
+    """Return assessor detail when docker logs or product logs show startup fail."""
+    _, detail = assess_rhythmyx_ready(
+        200,
+        docker_logs,
+        server_log_text=server_logs,
+        require_http=False,
+    )
+    if DETAIL_CONTEXT_FAILED in detail or DETAIL_SERVER_LOG_ERRORS in detail:
+        return detail
+    return None
+
+
+def _match_from_logs(docker_logs: str, server_logs: str, detail: str) -> str:
+    """Pick a human MATCH string from the failing log scan."""
+    if DETAIL_SERVER_LOG_ERRORS in detail:
+        return (
+            find_server_log_startup_error(server_logs, also_context_markers=False)
+            or find_server_log_startup_error(server_logs)
+            or "unknown"
+        )
+    combined = (docker_logs or "") + "\n" + (server_logs or "")
+    return find_rhythmyx_context_failure(combined) or "unknown"
+
+
 def cmd_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     """Poll CMS/DTS HTTP + docker health until ready or timeout / context fail.
 
@@ -774,7 +849,7 @@ def cmd_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     if args.dry_run:
         LOG.info(
             "DRY-RUN: verify plan: %d checks x %ds interval against %s + %s "
-            "(+ Rhythmyx context log scan on %s)",
+            "(+ Rhythmyx context + CMS product log scan on %s)",
             max_checks, interval, cms_url, dts_url, container,
         )
         with log_file.open("w", encoding="utf-8") as f:
@@ -782,7 +857,7 @@ def cmd_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
                 f"DRY-RUN: verify max_checks={max_checks} interval={interval}\n"
                 f"endpoints={cms_url} {dts_url}\n"
                 f"container={container}\n"
-                f"log_scan=rhythmyx_context_fail_markers\n"
+                f"log_scan=rhythmyx_context_fail_markers+server_log_errors\n"
             )
         print(f"RESULT:OK STEP:verify CMS_HTTP:200 DTS_HTTP:200 HEALTH:healthy LOG:{log_file}")
         return EXIT_OK
@@ -796,15 +871,21 @@ def cmd_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
         last_dts = _curl_status(dts_url, timeout=5.0)
         last_health = _docker_health(container)
         logs = _docker_logs_tail(container)
+        server_logs = _docker_read_server_log(container)
         # require_http=False: HTTP readiness is still gated by the verify
-        # code set below; this assessor is for context-fail markers only.
+        # code set below; this assessor is for log fail markers only.
         _ready_ctx, last_detail = assess_rhythmyx_ready(
-            last_cms, logs, require_http=False,
+            last_cms, logs, server_log_text=server_logs, require_http=False,
         )
 
-        # Fail-fast when Spring/Jetty already reported a dead Rhythmyx context.
-        if DETAIL_CONTEXT_FAILED in last_detail:
-            match = find_rhythmyx_context_failure(logs) or "unknown"
+        # Fail-fast: dead Spring context or ERROR/FATAL in product/install logs.
+        if DETAIL_CONTEXT_FAILED in last_detail or DETAIL_SERVER_LOG_ERRORS in last_detail:
+            match = _match_from_logs(logs, server_logs, last_detail)
+            detail_token = (
+                DETAIL_SERVER_LOG_ERRORS
+                if DETAIL_SERVER_LOG_ERRORS in last_detail
+                else DETAIL_CONTEXT_FAILED
+            )
             with log_file.open("w", encoding="utf-8") as f:
                 f.write("verify failed\n")
                 f.write(f"cms_http={last_cms}\n")
@@ -817,13 +898,13 @@ def cmd_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
                 f.write(f"cms_url={cms_url}\n")
                 f.write(f"dts_url={dts_url}\n")
                 f.write(
-                    "hint: Rhythmyx ApplicationContext failed; Jetty HTTP / "
+                    "hint: Rhythmyx startup not clean; Jetty HTTP / "
                     "docker health may still look green. Inspect docker logs "
-                    "for Spring cycle / bean errors (parent #2423 / #2480). "
-                    "Do not treat port-up as ready.\n"
+                    "and jetty/base/logs/server.log + Installer logs "
+                    "(parent #2423 / #2480 / #2556). Do not treat port-up as ready.\n"
                 )
             print(
-                f"RESULT:FAIL STEP:verify DETAIL:{DETAIL_CONTEXT_FAILED} "
+                f"RESULT:FAIL STEP:verify DETAIL:{detail_token} "
                 f"MATCH:{match} CMS_HTTP:{last_cms} DTS_HTTP:{last_dts} "
                 f"HEALTH:{last_health} CONTAINER:{container} LOG:{log_file}"
             )
@@ -842,6 +923,7 @@ def cmd_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
                 f.write(f"cms_url={cms_url}\n")
                 f.write(f"dts_url={dts_url}\n")
                 f.write("rhythmyx_context=ok\n")
+                f.write("server_log=ok\n")
             print(
                 f"RESULT:OK STEP:verify CMS_HTTP:{last_cms} DTS_HTTP:{last_dts} "
                 f"HEALTH:{last_health} LOG:{log_file}"
@@ -849,9 +931,15 @@ def cmd_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
             return EXIT_OK
         time.sleep(interval)
 
-    # Timeout path: re-scan logs once more so DETAIL prefers context failure.
+    # Timeout path: re-scan logs once more so DETAIL prefers startup failure.
     final_logs = _docker_logs_tail(container)
-    final_match = find_rhythmyx_context_failure(final_logs)
+    final_server = _docker_read_server_log(container)
+    final_detail = _log_scan_fail_detail(final_logs, final_server)
+    final_match = (
+        _match_from_logs(final_logs, final_server, final_detail)
+        if final_detail
+        else None
+    )
     with log_file.open("w", encoding="utf-8") as f:
         f.write("verify failed\n")
         f.write(f"timeout_seconds={timeout}\n")
@@ -864,8 +952,8 @@ def cmd_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
         if final_match:
             f.write(f"match={final_match}\n")
             f.write(
-                "hint: Rhythmyx context failure markers found in docker logs; "
-                "see parent #2423 / #2480. HTTP-only / health-only ready is "
+                "hint: startup failure markers found in docker logs / product logs; "
+                "see parent #2423 / #2480 / #2556. HTTP-only / health-only ready is "
                 "insufficient.\n"
             )
         f.write("--- compose ps\n")
@@ -880,7 +968,13 @@ def cmd_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
                 stderr=subprocess.STDOUT,
             )
         f.write(f"see {compose_ps_log}\n")
-    if final_match:
+    if final_detail and DETAIL_SERVER_LOG_ERRORS in final_detail:
+        print(
+            f"RESULT:FAIL STEP:verify DETAIL:{DETAIL_SERVER_LOG_ERRORS} "
+            f"MATCH:{final_match} CMS_HTTP:{last_cms} DTS_HTTP:{last_dts} "
+            f"HEALTH:{last_health} CONTAINER:{container} LOG:{log_file}"
+        )
+    elif final_match:
         print(
             f"RESULT:FAIL STEP:verify DETAIL:{DETAIL_CONTEXT_FAILED} "
             f"MATCH:{final_match} CMS_HTTP:{last_cms} DTS_HTTP:{last_dts} "
@@ -1017,7 +1111,7 @@ def _verify_inline(
                 f"DRY-RUN: verify-inline max_checks={max_checks} interval={interval_seconds}\n"
                 f"endpoints={cms_url} {dts_url}\n"
                 f"container={container}\n"
-                f"log_scan=rhythmyx_context_fail_markers\n"
+                f"log_scan=rhythmyx_context_fail_markers+server_log_errors\n"
             )
         return EXIT_OK, log_file
 
@@ -1029,11 +1123,17 @@ def _verify_inline(
         last_dts = _curl_status(dts_url, timeout=5.0)
         last_health = _docker_health(container)
         logs = _docker_logs_tail(container)
+        server_logs = _docker_read_server_log(container)
         _ready_ctx, detail = assess_rhythmyx_ready(
-            last_cms, logs, require_http=False,
+            last_cms, logs, server_log_text=server_logs, require_http=False,
         )
-        if DETAIL_CONTEXT_FAILED in detail:
-            match = find_rhythmyx_context_failure(logs) or "unknown"
+        if DETAIL_CONTEXT_FAILED in detail or DETAIL_SERVER_LOG_ERRORS in detail:
+            match = _match_from_logs(logs, server_logs, detail)
+            detail_token = (
+                DETAIL_SERVER_LOG_ERRORS
+                if DETAIL_SERVER_LOG_ERRORS in detail
+                else DETAIL_CONTEXT_FAILED
+            )
             with log_file.open("w", encoding="utf-8") as f:
                 f.write("verify failed\n")
                 f.write(f"cms_http={last_cms}\n")
@@ -1043,11 +1143,11 @@ def _verify_inline(
                 f.write(f"detail={detail}\n")
                 f.write(f"match={match}\n")
                 f.write(
-                    "hint: Rhythmyx ApplicationContext failed during "
-                    "verify-inline (#2480 / #2423).\n"
+                    "hint: Rhythmyx startup not clean during "
+                    "verify-inline (#2480 / #2423 / #2556).\n"
                 )
             print(
-                f"RESULT:FAIL STEP:verify DETAIL:{DETAIL_CONTEXT_FAILED} "
+                f"RESULT:FAIL STEP:verify DETAIL:{detail_token} "
                 f"MATCH:{match} CMS_HTTP:{last_cms} DTS_HTTP:{last_dts} "
                 f"HEALTH:{last_health} CONTAINER:{container} LOG:{log_file}"
             )
@@ -1063,6 +1163,7 @@ def _verify_inline(
                 f.write(f"dts_http={last_dts}\n")
                 f.write(f"container_health={last_health}\n")
                 f.write("rhythmyx_context=ok\n")
+                f.write("server_log=ok\n")
             print(
                 f"RESULT:OK STEP:verify CMS_HTTP:{last_cms} DTS_HTTP:{last_dts} "
                 f"HEALTH:{last_health} LOG:{log_file}"
@@ -1071,7 +1172,13 @@ def _verify_inline(
         time.sleep(interval_seconds)
 
     final_logs = _docker_logs_tail(container)
-    final_match = find_rhythmyx_context_failure(final_logs)
+    final_server = _docker_read_server_log(container)
+    final_detail = _log_scan_fail_detail(final_logs, final_server)
+    final_match = (
+        _match_from_logs(final_logs, final_server, final_detail)
+        if final_detail
+        else None
+    )
     with log_file.open("w", encoding="utf-8") as f:
         f.write("verify failed\n")
         f.write(f"cms_http={last_cms}\n")
@@ -1079,7 +1186,13 @@ def _verify_inline(
         f.write(f"container_health={last_health}\n")
         if final_match:
             f.write(f"match={final_match}\n")
-    if final_match:
+    if final_detail and DETAIL_SERVER_LOG_ERRORS in final_detail:
+        print(
+            f"RESULT:FAIL STEP:verify DETAIL:{DETAIL_SERVER_LOG_ERRORS} "
+            f"MATCH:{final_match} CMS_HTTP:{last_cms} DTS_HTTP:{last_dts} "
+            f"HEALTH:{last_health} CONTAINER:{container} LOG:{log_file}"
+        )
+    elif final_match:
         print(
             f"RESULT:FAIL STEP:verify DETAIL:{DETAIL_CONTEXT_FAILED} "
             f"MATCH:{final_match} CMS_HTTP:{last_cms} DTS_HTTP:{last_dts} "
@@ -1443,14 +1556,16 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
     * HTTP status on the probe URL is in the ready set (200/302/401/403), **and**
     * Recent ``docker logs`` for the QA cell do **not** contain Rhythmyx
       ApplicationContext failure markers (see :mod:`rhythmyx_ready`), **and**
+    * Product/install logs (``server.log``, InstallPackages, install,
+      tablefactory — #2556 / perc-doctor check-logs) have no ERROR/FATAL/SEVERE, **and**
     * Docker ``Health.Status`` for the QA cell is ``healthy`` (matrix HEALTHCHECK
       after #2481 — same gate as compose ``verify`` for cms-dts).
 
     RESULT lines always include ``HEALTH:<status>`` so operators see host
     log-scan **and** inspect health in one line (#2537 residual of #2481).
 
-    Context-failure markers cause **immediate** FAIL even when HTTP answers
-    (Jetty up, Spring webapp dead — #2462 residual of #2423).
+    Context-failure markers or product-log ERRORs cause **immediate** FAIL even
+    when HTTP answers (Jetty up, dirty startup — #2462 / #2556).
     """
     repo_root, _env_file, _compose_file = paths
     log_dir = _log_dir(repo_root)
@@ -1465,7 +1580,7 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
     if args.dry_run:
         LOG.info(
             "DRY-RUN: qa-health plan: %d checks x %ds interval against %s "
-            "(+ Rhythmyx context log scan + docker Health.Status on %s)",
+            "(+ Rhythmyx context + product log scan + docker Health.Status on %s)",
             max_checks,
             interval,
             url,
@@ -1476,7 +1591,7 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
                 f"DRY-RUN: qa-health max_checks={max_checks} interval={interval}\n"
                 f"url={url}\n"
                 f"container={container}\n"
-                f"log_scan=rhythmyx_context_fail_markers\n"
+                f"log_scan=rhythmyx_context_fail_markers+server_log_errors\n"
                 f"docker_health=inspect Health.Status\n"
             )
         print(
@@ -1492,11 +1607,19 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
         last_code = _curl_status(url, timeout=5.0)
         last_health = _docker_health(container)
         logs = _docker_logs_tail(container)
-        ready, last_detail = assess_rhythmyx_ready(last_code, logs)
+        server_logs = _docker_read_server_log(container)
+        ready, last_detail = assess_rhythmyx_ready(
+            last_code, logs, server_log_text=server_logs,
+        )
 
-        # Fail-fast when Spring/Jetty already reported a dead Rhythmyx context.
-        if DETAIL_CONTEXT_FAILED in last_detail:
-            match = find_rhythmyx_context_failure(logs) or "unknown"
+        # Fail-fast: dead Spring context or ERROR/FATAL in product/install logs.
+        if DETAIL_CONTEXT_FAILED in last_detail or DETAIL_SERVER_LOG_ERRORS in last_detail:
+            match = _match_from_logs(logs, server_logs, last_detail)
+            detail_token = (
+                DETAIL_SERVER_LOG_ERRORS
+                if DETAIL_SERVER_LOG_ERRORS in last_detail
+                else DETAIL_CONTEXT_FAILED
+            )
             with log_file.open("w", encoding="utf-8") as f:
                 f.write("qa-health failed\n")
                 f.write(f"url={url}\n")
@@ -1507,12 +1630,12 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
                 f.write(f"detail={last_detail}\n")
                 f.write(f"match={match}\n")
                 f.write(
-                    "hint: Rhythmyx ApplicationContext failed; Jetty HTTP may "
-                    "still bind. Inspect docker logs for Spring cycle / bean "
-                    "errors (parent #2423). Do not treat port-up as ready.\n"
+                    "hint: Rhythmyx startup not clean; Jetty HTTP may "
+                    "still bind. Inspect docker logs and jetty/base/logs/server.log "
+                    "+ Installer logs (parent #2423 / #2556). Do not treat port-up as ready.\n"
                 )
             print(
-                f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_CONTEXT_FAILED} "
+                f"RESULT:FAIL STEP:qa-health DETAIL:{detail_token} "
                 f"MATCH:{match} HTTP:{last_code} HEALTH:{last_health} "
                 f"URL:{url} CONTAINER:{container} LOG:{log_file}"
             )
@@ -1528,6 +1651,7 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
                 f.write(f"check={check}\n")
                 f.write(f"container={container}\n")
                 f.write("rhythmyx_context=ok\n")
+                f.write("server_log=ok\n")
             print(
                 f"RESULT:OK STEP:qa-health HTTP:{last_code} HEALTH:{last_health} "
                 f"URL:{url} CONTAINER:{container} LOG:{log_file}"
@@ -1536,9 +1660,15 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
 
         time.sleep(interval)
 
-    # Timeout path: re-scan logs once more so DETAIL prefers context failure.
+    # Timeout path: re-scan logs once more so DETAIL prefers startup failure.
     final_logs = _docker_logs_tail(container)
-    final_match = find_rhythmyx_context_failure(final_logs)
+    final_server = _docker_read_server_log(container)
+    final_detail = _log_scan_fail_detail(final_logs, final_server)
+    final_match = (
+        _match_from_logs(final_logs, final_server, final_detail)
+        if final_detail
+        else None
+    )
     with log_file.open("w", encoding="utf-8") as f:
         f.write("qa-health failed\n")
         f.write(f"url={url}\n")
@@ -1551,17 +1681,23 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
         if final_match:
             f.write(f"match={final_match}\n")
             f.write(
-                "hint: Rhythmyx context failure markers found in docker logs; "
-                "see parent #2423. HTTP-only ready is insufficient.\n"
+                "hint: startup failure markers found in docker logs / product logs; "
+                "see parent #2423 / #2556. HTTP-only ready is insufficient.\n"
             )
         else:
             f.write(
                 "hint: run qa-up first; ensure installer jar is built "
                 "(modules/perc-distribution-tree package); if Jetty is up but "
-                "login fails, scan docker logs for Failed startup of context; "
+                "login fails, scan docker logs and jetty/base/logs/server.log; "
                 "also check docker inspect Health.Status on the QA cell\n"
             )
-    if final_match:
+    if final_detail and DETAIL_SERVER_LOG_ERRORS in final_detail:
+        print(
+            f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_SERVER_LOG_ERRORS} "
+            f"MATCH:{final_match} HTTP:{last_code} HEALTH:{last_health} "
+            f"URL:{url} CONTAINER:{container} LOG:{log_file}"
+        )
+    elif final_match:
         print(
             f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_CONTEXT_FAILED} "
             f"MATCH:{final_match} HTTP:{last_code} HEALTH:{last_health} "

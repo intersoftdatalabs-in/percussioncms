@@ -77,6 +77,23 @@ class FindContextFailureTests(unittest.TestCase):
         self.assertIsNone(rr.find_rhythmyx_context_failure(text))
 
 
+class ServerLogErrorTests(unittest.TestCase):
+    def test_error_line(self):
+        text = "INFO boot\nERROR [PSX] boom failed\n"
+        match = rr.find_server_log_startup_error(text)
+        self.assertIsNotNone(match)
+        self.assertIn("ERROR", match)
+
+    def test_empty_clean(self):
+        self.assertIsNone(rr.find_server_log_startup_error(""))
+
+    def test_container_cms_log_paths(self):
+        paths = rr.container_cms_log_paths("/opt/Percussion")
+        self.assertIn("/opt/Percussion/jetty/base/logs/server.log", paths)
+        self.assertIn("/opt/Percussion/rxconfig/Installer/install.log", paths)
+        self.assertIn("/opt/Percussion/rxconfig/Installer/tablefactory.log", paths)
+
+
 class AssessReadyTests(unittest.TestCase):
     def test_http_ready_clean_logs(self):
         ok, detail = rr.assess_rhythmyx_ready(200, "Server Started")
@@ -91,6 +108,15 @@ class AssessReadyTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn(rr.DETAIL_CONTEXT_FAILED, detail)
         self.assertIn("Failed startup of context", detail)
+
+    def test_http_ready_but_server_log_error(self):
+        ok, detail = rr.assess_rhythmyx_ready(
+            200,
+            "INFO docker clean",
+            server_log_text="INFO ok\nERROR [PSX] residual\n",
+        )
+        self.assertFalse(ok)
+        self.assertIn(rr.DETAIL_SERVER_LOG_ERRORS, detail)
 
     def test_http_not_ready_clean_logs(self):
         ok, detail = rr.assess_rhythmyx_ready(0, "")

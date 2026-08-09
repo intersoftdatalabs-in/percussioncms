@@ -89,8 +89,9 @@ if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 from perc_host_ports import find_free_port, is_port_free, resolve_host_port  # noqa: E402
 from rhythmyx_ready import (  # noqa: E402
-    DETAIL_CONTEXT_FAILED,
-    find_rhythmyx_context_failure,
+    DETAIL_CONTEXT_FAILED,  # used in DETAIL strings via assess_rhythmyx_ready
+    DETAIL_SERVER_LOG_ERRORS,  # noqa: F401 — stable DETAIL token for agents
+    assess_rhythmyx_ready,
     is_http_ready_code,
 )
 
@@ -1030,6 +1031,66 @@ def _docker_logs_tail(
     return out or err
 
 
+def _docker_read_server_log(
+    container_name: str,
+    *,
+    install_root: str = "/opt/Percussion",
+    tail_lines: int = 4000,
+    timeout: float = 30.0,
+) -> str:
+    """Tail CMS startup + install logs inside the cell (perc-doctor #2556 set)."""
+    if not container_name:
+        return ""
+    from rhythmyx_ready import container_cms_log_paths
+
+    root = install_root.rstrip("/")
+    paths = container_cms_log_paths(root)
+    logs_dir = f"{root}/jetty/base/logs"
+    n = max(1, int(tail_lines))
+    parts: list[str] = []
+    for p in paths:
+        parts.append(
+            f'if [ -f "{p}" ]; then echo "--- {p} ---"; '
+            f'tail -n {n} "{p}" 2>/dev/null || true; fi'
+        )
+    parts.append(
+        f'for f in "{logs_dir}"/*jetty*.log; do '
+        f'[ -f "$f" ] && echo "--- $f ---" && tail -n 500 "$f" 2>/dev/null || true; '
+        f"done"
+    )
+    script = "; ".join(parts)
+    try:
+        completed = subprocess.run(
+            ["docker", "exec", container_name, "sh", "-c", script],
+            shell=False,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+    return (completed.stdout or "") + (completed.stderr or "")
+
+
+def _startup_log_fail_detail(
+    docker_logs: str,
+    server_logs: str,
+    *,
+    http_code: int = 0,
+) -> Optional[str]:
+    """Return DETAIL when docker logs / product logs show startup fail."""
+    _, detail = assess_rhythmyx_ready(
+        http_code if http_code else 200,
+        docker_logs,
+        server_log_text=server_logs,
+        require_http=False,
+    )
+    if DETAIL_CONTEXT_FAILED in detail or DETAIL_SERVER_LOG_ERRORS in detail:
+        return detail
+    return None
+
+
 def wait_for_http(
     url: str,
     *,
@@ -1065,19 +1126,19 @@ def wait_for_http(
     last = ""
     last_health = "unknown"
     while time.time() < deadline:
-        # Fail-fast: Jetty up + Spring context dead must not wait full timeout.
+        # Fail-fast: Jetty up + dirty Spring / product logs must not wait full timeout.
         if container_name:
             logs = _docker_logs_tail(container_name)
-            match = find_rhythmyx_context_failure(logs)
-            if match is not None:
+            server_logs = _docker_read_server_log(container_name)
+            fail_detail = _startup_log_fail_detail(logs, server_logs)
+            if fail_detail is not None:
                 health_suffix = ""
                 if require_docker_health:
                     last_health, _st = inspect_container_health(container_name)
                     health_suffix = f" health={last_health}"
                 return (
                     False,
-                    f"{DETAIL_CONTEXT_FAILED} match={match!r} "
-                    f"last={last or 'n/a'}{health_suffix}",
+                    f"{fail_detail} last={last or 'n/a'}{health_suffix}",
                 )
             if require_docker_health:
                 last_health, status = inspect_container_health(container_name)
@@ -1101,13 +1162,12 @@ def wait_for_http(
                     # Re-check logs after a "ready" HTTP so false positives fail.
                     if container_name:
                         logs = _docker_logs_tail(container_name)
-                        match = find_rhythmyx_context_failure(logs)
-                        if match is not None:
-                            return (
-                                False,
-                                f"{DETAIL_CONTEXT_FAILED} match={match!r} "
-                                f"http={code}",
-                            )
+                        server_logs = _docker_read_server_log(container_name)
+                        fail_detail = _startup_log_fail_detail(
+                            logs, server_logs, http_code=code,
+                        )
+                        if fail_detail is not None:
+                            return False, fail_detail
                     if require_docker_health:
                         # Host HTTP ready is not enough — need inspect healthy.
                         if last_health != "healthy":
@@ -1122,13 +1182,12 @@ def wait_for_http(
             if is_http_ready_code(exc.code):
                 if container_name:
                     logs = _docker_logs_tail(container_name)
-                    match = find_rhythmyx_context_failure(logs)
-                    if match is not None:
-                        return (
-                            False,
-                            f"{DETAIL_CONTEXT_FAILED} match={match!r} "
-                            f"http={exc.code}",
-                        )
+                    server_logs = _docker_read_server_log(container_name)
+                    fail_detail = _startup_log_fail_detail(
+                        logs, server_logs, http_code=exc.code,
+                    )
+                    if fail_detail is not None:
+                        return False, fail_detail
                 if require_docker_health:
                     if last_health != "healthy":
                         last = f"HTTP {exc.code} health={last_health}"
@@ -1140,16 +1199,16 @@ def wait_for_http(
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
             last = str(exc)
         time.sleep(interval_seconds)
-    # Final log scan so timeout DETAIL prefers context failure when present.
+    # Final log scan so timeout DETAIL prefers startup failure when present.
     if container_name:
         logs = _docker_logs_tail(container_name)
-        match = find_rhythmyx_context_failure(logs)
-        if match is not None:
+        server_logs = _docker_read_server_log(container_name)
+        fail_detail = _startup_log_fail_detail(logs, server_logs)
+        if fail_detail is not None:
             health_suffix = f" health={last_health}" if require_docker_health else ""
             return (
                 False,
-                f"{DETAIL_CONTEXT_FAILED} match={match!r} "
-                f"last={last or 'timeout'}{health_suffix}",
+                f"{fail_detail} last={last or 'timeout'}{health_suffix}",
             )
         if require_docker_health:
             last_health, status = inspect_container_health(container_name)

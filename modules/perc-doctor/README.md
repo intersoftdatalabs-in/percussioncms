@@ -2,10 +2,10 @@
 
 Operator CLI for diagnosing and safely cleaning Percussion CMS install trees.
 
-**Issues:** [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213) (parent), [#2232](https://github.com/intersoftdatalabs-in/percussioncms/issues/2232) (`clean-temp`), [#2233](https://github.com/intersoftdatalabs-in/percussioncms/issues/2233) (`check-config` / `fix-permissions`), [#2217](https://github.com/intersoftdatalabs-in/percussioncms/issues/2217) (`clean-install-backups`), [#2218](https://github.com/intersoftdatalabs-in/percussioncms/issues/2218) (`clean-logs`), [#2219](https://github.com/intersoftdatalabs-in/percussioncms/issues/2219) (admin HTTP API), [#2220](https://github.com/intersoftdatalabs-in/percussioncms/issues/2220) (dist packaging + install guide)  
+**Issues:** [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213) (parent), [#2556](https://github.com/intersoftdatalabs-in/percussioncms/issues/2556) (`check-logs`), [#2232](https://github.com/intersoftdatalabs-in/percussioncms/issues/2232) (`clean-temp`), [#2233](https://github.com/intersoftdatalabs-in/percussioncms/issues/2233) (`check-config` / `fix-permissions`), [#2217](https://github.com/intersoftdatalabs-in/percussioncms/issues/2217) (`clean-install-backups`), [#2218](https://github.com/intersoftdatalabs-in/percussioncms/issues/2218) (`clean-logs`), [#2219](https://github.com/intersoftdatalabs-in/percussioncms/issues/2219) (admin HTTP API), [#2220](https://github.com/intersoftdatalabs-in/percussioncms/issues/2220) (dist packaging + install guide)  
 **Package:** `com.intsof.percussioncms.doctor` (+ `...doctor.api` for HTTP)  
-**Shipped commands:** `diagnose`/`health` (read-only), `clean-heap-dumps`, `clean-install-backups`, `clean-logs`, `clean-temp`, `check-config`, `fix-permissions` with global `--dry-run` / `--install-root` / `-v`  
-**HTTP:** Admin-only `POST .../maintenance/doctor/{command}` for clean-* commands (wired in sitemanage); diagnose / `check-config` / `fix-permissions` are CLI-first
+**Shipped commands:** `diagnose`/`health` (read-only), `clean-heap-dumps`, `clean-install-backups`, `clean-logs`, `clean-temp`, `check-config`, `check-logs`, `fix-permissions` with global `--dry-run` / `--install-root` / `-v`  
+**HTTP:** Admin-only `POST .../maintenance/doctor/{command}` for clean-* commands (wired in sitemanage); diagnose / `check-config` / `check-logs` / `fix-permissions` are CLI-first
 
 **Operator install guide (dry-run-first examples):** [docs/operator-install-guide.md](docs/operator-install-guide.md)
 
@@ -244,6 +244,30 @@ java -jar target/perc-doctor-8.2.0-SNAPSHOT.jar \
 # Apply (Windows example)
 java -jar target\perc-doctor-8.2.0-SNAPSHOT.jar ^
   --install-root C:\Percussion -v clean-temp
+```
+
+#### `check-logs` / `check-startup-logs`
+
+Read-only scan of known CMS **install and startup logs** for ERROR / FATAL / SEVERE and Rhythmyx context-death markers. **Never deletes or writes.** Alias: `check-startup-logs`.
+
+| Phase | Paths (relative to `--install-root`; first existing alternate wins) |
+|-------|---------------------------------------------------------------------|
+| **startup** | `jetty/base/logs/server.log` |
+| **install** | `rxconfig/Installer/InstallPackages.log` or `logs/InstallPackages.log`; `rxconfig/Installer/install.log`; `rxconfig/Installer/tablefactory.log` or `tablefactory.log` |
+| **all** (default) | startup + install |
+
+| Option | Meaning |
+|--------|---------|
+| `--phase all\|startup\|install` | Which groups to scan (default `all`) |
+| `--tail-lines N` | Max lines from the end of each log (default 4000) |
+| `--require-startup` | FAIL if `server.log` is missing |
+| `--require-install` | FAIL if no install-phase logs are present |
+
+Missing optional files are **SKIP** (not FAIL) unless require flags are set. Exit non-zero when any FAIL. Emits `RESULT:OK|FAIL STEP:check-logs` for agents. Rules align with Docker `qa-health` (`docker/scripts/rhythmyx_ready.py`).
+
+```bash
+perc-doctor --install-root /opt/Percussion -v check-logs --require-startup
+perc-doctor --install-root C:\Percussion -v check-logs --phase install
 ```
 
 #### `check-config`
