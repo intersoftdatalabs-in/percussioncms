@@ -983,6 +983,7 @@ class ComposeDbHostPortFreeportTests(unittest.TestCase):
                         "postgresql",
                         "--dry-run",
                         "--skip-image-build",
+                        "--skip-preflight",
                     ]
                 )
             self.assertEqual(rc, 0)
@@ -1135,6 +1136,8 @@ class DryRunCliTests(unittest.TestCase):
     def test_dry_run_exits_zero_for_h2(self):
         # dry-run still needs a jar on disk for resolve in run_cell —
         # dry-run path resolves jar before docker; create a stub tree.
+        # --skip-preflight: this case exercises cell/docker planning, not
+        # the rebuild-chain gate (see CmsPreflightGateTests).
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             self._stub_repo(root)
@@ -1148,6 +1151,7 @@ class DryRunCliTests(unittest.TestCase):
                     "h2",
                     "--dry-run",
                     "--skip-image-build",
+                    "--skip-preflight",
                 ]
             )
             self.assertEqual(rc, 0)
@@ -1167,6 +1171,7 @@ class DryRunCliTests(unittest.TestCase):
                     "postgresql",
                     "--dry-run",
                     "--skip-image-build",
+                    "--skip-preflight",
                 ]
             )
             self.assertEqual(rc, 0)
@@ -1193,6 +1198,7 @@ class DryRunCliTests(unittest.TestCase):
                         "oracle",
                         "--dry-run",
                         "--skip-image-build",
+                        "--skip-preflight",
                     ]
                 )
             self.assertEqual(rc, 0)
@@ -1208,6 +1214,350 @@ class DryRunCliTests(unittest.TestCase):
         with self.assertRaises(SystemExit) as ctx:
             smoke._build_parser().parse_args(["--keep-db", "--stop-db"])
         self.assertNotEqual(ctx.exception.code, 0)
+
+
+class CmsPreflightGateTests(unittest.TestCase):
+    """#2531 — matrix CMS path refuses STALE rebuild-chain (strict + skip)."""
+
+    # Shared payload so content-hash mode (#2532) treats m2 jar and WAR entry
+    # as FRESH when mtimes also allow it.
+    _SITEMANAGE_PAYLOAD = b"sitemanage-preflight-test-payload-v1"
+
+    def _touch(self, path: Path, mtime: float) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(self._SITEMANAGE_PAYLOAD)
+        os.utime(path, (mtime, mtime))
+
+    def _make_war(self, war_path: Path, mtime: float | None = None) -> None:
+        import zipfile
+
+        war_path.parent.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(war_path, "w") as zf:
+            zf.writestr(
+                "WEB-INF/lib/sitemanage-8.2.0-SNAPSHOT.jar",
+                self._SITEMANAGE_PAYLOAD,
+            )
+        if mtime is not None:
+            os.utime(war_path, (mtime, mtime))
+
+    def _layout(self, root: Path) -> tuple[Path, Path]:
+        """Return (repo, m2) under root with matrix CMS jar layout."""
+        repo = root / "repo"
+        m2 = root / "m2"
+        target = repo / "modules" / "perc-distribution-tree" / "target"
+        target.mkdir(parents=True)
+        (target / "perc-distribution-tree.jar").write_bytes(b"stub-jar-content")
+        (repo / "docker" / "logs").mkdir(parents=True)
+        (repo / "docker" / "matrix").mkdir(parents=True)
+        (repo / "docker" / "matrix" / "Dockerfile").write_text(
+            "FROM scratch\n", encoding="utf-8"
+        )
+        (repo / "docker-compose.yml").write_text("services: {}\n", encoding="utf-8")
+        (repo / ".env.compose.example").write_text(
+            "POSTGRES_PASSWORD=test-local-only\n"
+            "MYSQL_PASSWORD=test-local-only\n"
+            "MSSQL_SA_PASSWORD=test-local-only\n"
+            "ORACLE_APP_PASSWORD=test-local-only\n"
+            "ORACLE_PASSWORD=test-local-only\n",
+            encoding="utf-8",
+        )
+        (repo / "WebUI" / "target").mkdir(parents=True)
+        (m2 / "com" / "percussion" / "sitemanage" / "sitemanage").mkdir(parents=True)
+        return repo, m2
+
+    def test_check_cms_rebuild_preflight_stale(self):
+        import zipfile
+
+        with tempfile.TemporaryDirectory() as td:
+            repo, m2 = self._layout(Path(td))
+            jar = (
+                m2
+                / "com"
+                / "percussion"
+                / "sitemanage"
+                / "sitemanage"
+                / "sitemanage-8.2.0-SNAPSHOT.jar"
+            )
+            war = repo / "WebUI" / "target" / "perc-web-ui-8.2.0-SNAPSHOT.war"
+            # Content-hash primary (#2532): different jar vs WAR-entry bytes → STALE.
+            self._touch(jar, 300)
+            with zipfile.ZipFile(war, "w") as zf:
+                zf.writestr(
+                    "WEB-INF/lib/sitemanage-8.2.0-SNAPSHOT.jar",
+                    b"stale-war-entry-different-bytes",
+                )
+            os.utime(war, (200, 200))
+            ok, report = smoke.check_cms_rebuild_preflight(repo, m2)
+            self.assertFalse(ok)
+            self.assertIn("STALE", report)
+
+    def test_check_cms_rebuild_preflight_fresh(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo, m2 = self._layout(Path(td))
+            jar = (
+                m2
+                / "com"
+                / "percussion"
+                / "sitemanage"
+                / "sitemanage"
+                / "sitemanage-8.2.0-SNAPSHOT.jar"
+            )
+            war = repo / "WebUI" / "target" / "perc-web-ui-8.2.0-SNAPSHOT.war"
+            self._make_war(war)
+            self._touch(jar, 200)
+            os.utime(war, (300, 300))
+            ok, report = smoke.check_cms_rebuild_preflight(repo, m2)
+            self.assertTrue(ok)
+            self.assertIn("FRESH", report)
+
+    def test_check_cms_rebuild_preflight_corrupt_war(self):
+        """Zero-byte / truncated WAR must not traceback; refuse as STALE (#2531)."""
+        with tempfile.TemporaryDirectory() as td:
+            repo, m2 = self._layout(Path(td))
+            jar = (
+                m2
+                / "com"
+                / "percussion"
+                / "sitemanage"
+                / "sitemanage"
+                / "sitemanage-8.2.0-SNAPSHOT.jar"
+            )
+            war = repo / "WebUI" / "target" / "perc-web-ui-8.2.0-SNAPSHOT.war"
+            # Corrupt: not a zip (empty or truncated garbage). qa_preflight
+            # swallows BadZipFile and reports war:sitemanage missing → STALE;
+            # matrix wrapper also catches raised BadZipFile if that changes.
+            war.write_bytes(b"not-a-zip")
+            self._touch(jar, 300)
+            ok, report = smoke.check_cms_rebuild_preflight(repo, m2)
+            self.assertFalse(ok)
+            self.assertIn("STALE", report)
+
+
+    def test_main_refuses_corrupt_war_before_cells(self):
+        """main() must RESULT:FAIL matrix-preflight on corrupt WAR, not crash."""
+        import io
+        from contextlib import redirect_stdout
+
+        with tempfile.TemporaryDirectory() as td:
+            repo, m2 = self._layout(Path(td))
+            jar = (
+                m2
+                / "com"
+                / "percussion"
+                / "sitemanage"
+                / "sitemanage"
+                / "sitemanage-8.2.0-SNAPSHOT.jar"
+            )
+            war = repo / "WebUI" / "target" / "perc-web-ui-8.2.0-SNAPSHOT.war"
+            war.write_bytes(b"")  # zero-byte WAR
+            self._touch(jar, 300)
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = smoke.main(
+                    [
+                        "--repo-root",
+                        str(repo),
+                        "--m2-root",
+                        str(m2),
+                        "--product",
+                        "cms",
+                        "--db",
+                        "h2",
+                        "--dry-run",
+                        "--skip-image-build",
+                    ]
+                )
+            out = buf.getvalue()
+            self.assertEqual(rc, smoke.EXIT_CELL_FAILED)
+            self.assertIn("matrix-preflight", out)
+            self.assertIn(smoke.DETAIL_PREFLIGHT_STALE, out)
+            self.assertIn("RESULT:FAIL", out)
+
+    def test_main_refuses_stale_cms_before_cells(self):
+        import io
+        import zipfile
+        from contextlib import redirect_stdout
+
+        with tempfile.TemporaryDirectory() as td:
+            repo, m2 = self._layout(Path(td))
+            jar = (
+                m2
+                / "com"
+                / "percussion"
+                / "sitemanage"
+                / "sitemanage"
+                / "sitemanage-8.2.0-SNAPSHOT.jar"
+            )
+            war = repo / "WebUI" / "target" / "perc-web-ui-8.2.0-SNAPSHOT.war"
+            self._touch(jar, 300)
+            with zipfile.ZipFile(war, "w") as zf:
+                zf.writestr(
+                    "WEB-INF/lib/sitemanage-8.2.0-SNAPSHOT.jar",
+                    b"stale-war-entry-different-bytes",
+                )
+            os.utime(war, (200, 200))
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = smoke.main(
+                    [
+                        "--repo-root",
+                        str(repo),
+                        "--m2-root",
+                        str(m2),
+                        "--product",
+                        "cms",
+                        "--db",
+                        "h2",
+                        "--dry-run",
+                        "--skip-image-build",
+                    ]
+                )
+            out = buf.getvalue()
+            self.assertEqual(rc, smoke.EXIT_CELL_FAILED)
+            self.assertIn("STALE", out)
+            self.assertIn("matrix-preflight", out)
+            self.assertIn(smoke.DETAIL_PREFLIGHT_STALE, out)
+
+    def test_main_skip_preflight_allows_stale(self):
+        import io
+        import zipfile
+        from contextlib import redirect_stdout
+
+        with tempfile.TemporaryDirectory() as td:
+            repo, m2 = self._layout(Path(td))
+            jar = (
+                m2
+                / "com"
+                / "percussion"
+                / "sitemanage"
+                / "sitemanage"
+                / "sitemanage-8.2.0-SNAPSHOT.jar"
+            )
+            war = repo / "WebUI" / "target" / "perc-web-ui-8.2.0-SNAPSHOT.war"
+            self._touch(jar, 300)
+            with zipfile.ZipFile(war, "w") as zf:
+                zf.writestr(
+                    "WEB-INF/lib/sitemanage-8.2.0-SNAPSHOT.jar",
+                    b"stale-war-entry-different-bytes",
+                )
+            os.utime(war, (200, 200))
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = smoke.main(
+                    [
+                        "--repo-root",
+                        str(repo),
+                        "--m2-root",
+                        str(m2),
+                        "--product",
+                        "cms",
+                        "--db",
+                        "h2",
+                        "--dry-run",
+                        "--skip-image-build",
+                        "--skip-preflight",
+                    ]
+                )
+            out = buf.getvalue()
+            self.assertEqual(rc, 0)
+            self.assertIn("skip-preflight", out)
+            self.assertNotIn("matrix-preflight", out)
+
+    def test_main_fresh_preflight_continues_dry_run(self):
+        import io
+        from contextlib import redirect_stdout
+
+        with tempfile.TemporaryDirectory() as td:
+            repo, m2 = self._layout(Path(td))
+            jar = (
+                m2
+                / "com"
+                / "percussion"
+                / "sitemanage"
+                / "sitemanage"
+                / "sitemanage-8.2.0-SNAPSHOT.jar"
+            )
+            war = repo / "WebUI" / "target" / "perc-web-ui-8.2.0-SNAPSHOT.war"
+            self._make_war(war)
+            self._touch(jar, 200)
+            os.utime(war, (300, 300))
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = smoke.main(
+                    [
+                        "--repo-root",
+                        str(repo),
+                        "--m2-root",
+                        str(m2),
+                        "--product",
+                        "cms",
+                        "--db",
+                        "h2",
+                        "--dry-run",
+                        "--skip-image-build",
+                    ]
+                )
+            out = buf.getvalue()
+            self.assertEqual(rc, 0)
+            self.assertIn("FRESH", out)
+            self.assertIn("RESULT:OK STEP:matrix", out)
+
+    def test_main_dts_only_skips_preflight_gate(self):
+        """DTS product path does not require WebUI WAR preflight."""
+        import io
+        from contextlib import redirect_stdout
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            # DTS installer jar only; no WebUI / m2 — would be STALE for CMS.
+            dts_target = (
+                root
+                / "deliverytiersuite"
+                / "delivery-tier-suite"
+                / "delivery-tier-distribution"
+                / "target"
+            )
+            dts_target.mkdir(parents=True)
+            (dts_target / "delivery-tier-distribution.jar").write_bytes(b"dts-stub")
+            (root / "docker" / "logs").mkdir(parents=True)
+            (root / "docker" / "matrix").mkdir(parents=True)
+            (root / "docker" / "matrix" / "Dockerfile").write_text(
+                "FROM scratch\n", encoding="utf-8"
+            )
+            (root / "docker-compose.yml").write_text("services: {}\n", encoding="utf-8")
+            (root / ".env.compose.example").write_text(
+                "POSTGRES_PASSWORD=test-local-only\n",
+                encoding="utf-8",
+            )
+            empty_m2 = root / "empty-m2"
+            empty_m2.mkdir()
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = smoke.main(
+                    [
+                        "--repo-root",
+                        str(root),
+                        "--m2-root",
+                        str(empty_m2),
+                        "--product",
+                        "dts",
+                        "--db",
+                        "h2",
+                        "--dry-run",
+                        "--skip-image-build",
+                    ]
+                )
+            out = buf.getvalue()
+            self.assertEqual(rc, 0)
+            self.assertNotIn("matrix-preflight", out)
+            self.assertNotIn("STALE", out)
+
+    def test_parser_exposes_skip_preflight_and_m2_root(self):
+        args = smoke._build_parser().parse_args(
+            ["--skip-preflight", "--m2-root", "/tmp/fake-m2"]
+        )
+        self.assertTrue(args.skip_preflight)
+        self.assertEqual(args.m2_root, Path("/tmp/fake-m2"))
 
 
 if __name__ == "__main__":

@@ -58,11 +58,15 @@ Usage
     # Dry-run (no docker/mvn)
     python3 docker/scripts/matrix-install-smoke.py --product cms --db h2 --dry-run
 
+    # CMS cells run rebuild-chain preflight by default (strict STALE refuse).
+    # Override only when intentionally debugging a known-stale tree:
+    python3 docker/scripts/matrix-install-smoke.py --product cms --db h2 --skip-preflight
+
 Exit codes
 ----------
 0  all selected cells passed
 1  invocation / config error
-2  one or more cells failed
+2  one or more cells failed (including CMS preflight STALE)
 """
 
 from __future__ import annotations
@@ -94,6 +98,7 @@ from rhythmyx_ready import (  # noqa: E402
     assess_rhythmyx_ready,
     is_http_ready_code,
 )
+import qa_preflight  # noqa: E402  # rebuild-chain preflight (#2531 / #2486)
 
 LOG = logging.getLogger("matrix-install-smoke")
 
@@ -106,6 +111,8 @@ EXIT_CELL_FAILED = 2
 DETAIL_DOCKER_UNHEALTHY = "docker_health_unhealthy"
 DETAIL_DOCKER_HEALTH_TIMEOUT = "docker_health_timeout"
 DETAIL_CONTAINER_NOT_RUNNING = "container_not_running"
+# Rebuild-chain preflight refused CMS matrix cells (#2531 residual of #2486).
+DETAIL_PREFLIGHT_STALE = "preflight_stale"
 
 # docker inspect format shared by DB + CMS health waits (#2481 / #2535).
 _DOCKER_HEALTH_INSPECT_FMT = (
@@ -425,6 +432,63 @@ def parse_csv(value: str, allowed: Sequence[str], label: str) -> List[str]:
 
 def expand_matrix(products: Sequence[str], dbs: Sequence[str]) -> List[CellSpec]:
     return [CellSpec(product=p, db_type=d) for p in products for d in dbs]
+
+
+def check_cms_rebuild_preflight(
+    repo_root: Path,
+    m2_root: Optional[Path] = None,
+) -> Tuple[bool, str]:
+    """Run rebuild-chain preflight for CMS product cells (#2531 / #2486).
+
+    Compares the newest ``sitemanage-*.jar`` under the maven local repo with
+    the ``perc-web-ui-*.war`` under ``WebUI/target`` so a stale WAR cannot
+    silently ship into the matrix cell installer path.
+
+    Returns ``(ok, report)`` where ``ok`` is False when the tree is STALE
+    (strict refuse). Missing m2 sitemanage is not STALE (check is a no-op
+    NOTE); see :func:`qa_preflight.is_stale`.
+
+    Corrupt / truncated WARs (``zipfile.BadZipFile``) and other preflight I/O
+    errors are treated as not-ok so callers can emit ``RESULT:FAIL
+    STEP:matrix-preflight DETAIL:preflight_stale`` instead of a traceback.
+
+    Pure filesystem — no docker, curl, or maven. Safe to call from dry-run
+    and unit tests with a stub ``repo_root`` / ``m2_root``.
+    """
+    import zipfile
+
+    m2 = m2_root if m2_root is not None else qa_preflight._default_m2_root()
+    try:
+        rows = qa_preflight.run_preflight(repo_root, m2)
+        report = qa_preflight.format_report(rows, strict=True)
+        ok = not qa_preflight.is_stale(rows)
+        # qa_preflight already swallows BadZipFile as "war:sitemanage missing";
+        # annotate explicitly when the WAR exists but is not a valid zip so
+        # CI logs are actionable without a traceback.
+        if not ok:
+            war = qa_preflight.find_webui_war(repo_root)
+            if war is not None and war.is_file():
+                try:
+                    with zipfile.ZipFile(war, "r") as zf:
+                        zf.namelist()
+                except zipfile.BadZipFile as exc:
+                    report = (
+                        "STALE: WebUI WAR is not a valid zip "
+                        f"(corrupt or truncated): {exc}\n{report}"
+                    )
+                    LOG.error("%s", report.splitlines()[0])
+        return (ok, report)
+    except zipfile.BadZipFile as exc:
+        # Defense in depth if qa_preflight starts re-raising BadZipFile.
+        report = (
+            f"STALE: WebUI WAR is not a valid zip (corrupt or truncated): {exc}"
+        )
+        LOG.error("%s", report)
+        return (False, report)
+    except OSError as exc:
+        report = f"STALE: rebuild-chain preflight I/O error: {exc}"
+        LOG.error("%s", report)
+        return (False, report)
 
 
 # Customer-shipped installer assembly names (maven-assembly finalName, not *-SNAPSHOT.jar).
@@ -1462,6 +1526,23 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Do not docker build the matrix cell image",
     )
     p.add_argument(
+        "--skip-preflight",
+        action="store_true",
+        help=(
+            "Skip CMS rebuild-chain preflight (WebUI WAR vs m2 sitemanage). "
+            "Default is strict: refuse CMS cells when STALE (#2531 / #2486)."
+        ),
+    )
+    p.add_argument(
+        "--m2-root",
+        type=Path,
+        default=None,
+        help=(
+            "Maven local repository root for CMS preflight "
+            "(default: ~/.m2/repository). Intended for tests / CI overrides."
+        ),
+    )
+    p.add_argument(
         "--dry-run",
         action="store_true",
         help="Print planned docker/compose commands without executing",
@@ -1502,6 +1583,39 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     LOG.info("Using compose env file %s", env_file)
     cells = expand_matrix(products, dbs)
+
+    # CMS rebuild-chain preflight (#2531): refuse before install/start when the
+    # WebUI WAR is older than m2 sitemanage (or WAR missing while m2 present).
+    # DTS-only matrices skip this gate. Operators who intentionally bypass use
+    # --skip-preflight (e.g. known-stale debug; not recommended for CI).
+    if "cms" in products:
+        if args.skip_preflight:
+            LOG.warning(
+                "Skipping CMS rebuild-chain preflight (--skip-preflight); "
+                "cells may install a stale WebUI WAR"
+            )
+            print("PREFLIGHT: skipped (--skip-preflight)")
+        else:
+            m2_root = (
+                args.m2_root.resolve()
+                if args.m2_root is not None
+                else None
+            )
+            preflight_ok, preflight_report = check_cms_rebuild_preflight(
+                repo_root, m2_root
+            )
+            print(preflight_report)
+            if not preflight_ok:
+                LOG.error(
+                    "CMS rebuild-chain preflight STALE — refusing matrix "
+                    "before install/start (use --skip-preflight to override)"
+                )
+                print(
+                    f"RESULT:FAIL STEP:matrix-preflight "
+                    f"DETAIL:{DETAIL_PREFLIGHT_STALE}"
+                )
+                return EXIT_CELL_FAILED
+
     # Pin compose DB host publishes once for the whole matrix so concurrent
     # worktrees get a stable freeport set before any compose up (#2004).
     db_host_ports = ensure_compose_db_host_ports(dbs)
