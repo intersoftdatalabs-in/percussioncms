@@ -1611,7 +1611,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
     // check if module implements HTTPClientModule
     try {
-      HTTPClientModule tmp = (HTTPClientModule) module.getDeclaredConstructor().newInstance();
+      HTTPClientModule tmp = newModuleInstance(module);
     } catch (RuntimeException re) {
       throw re;
     } catch (Exception e) {
@@ -2206,7 +2206,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
       for (int idx = 0; idx < ModuleList.size(); idx++) {
         Class<?> mod = ModuleList.elementAt(idx);
         try {
-          mod_insts[idx] = (HTTPClientModule) mod.getDeclaredConstructor().newInstance();
+          mod_insts[idx] = newModuleInstance(mod);
         } catch (Exception e) {
           throw new Error(
               "HTTPClient Internal Error: could not "
@@ -2219,6 +2219,20 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
       return mod_insts;
     }
+  }
+
+  /**
+   * Instantiate an {@link HTTPClientModule} via its no-arg constructor.
+   *
+   * <p>Uses {@link Class#getDeclaredConstructor()} (not {@link Class#getConstructor()}) because
+   * several built-in modules are package-private with package-private constructors (e.g. {@code
+   * DefaultModule}, {@code AuthorizationModule}). {@code getConstructor()} only sees public
+   * constructors and would throw {@link NoSuchMethodException} for those classes. Module classes
+   * must declare a no-arg constructor on the concrete class itself (Java default constructors
+   * count; constructors are never inherited from superclasses).
+   */
+  private static HTTPClientModule newModuleInstance(Class<?> module) throws Exception {
+    return (HTTPClientModule) module.getDeclaredConstructor().newInstance();
   }
 
   /**
