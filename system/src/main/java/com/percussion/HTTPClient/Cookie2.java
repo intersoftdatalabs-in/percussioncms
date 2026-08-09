@@ -136,7 +136,7 @@ public class Cookie2 extends Cookie {
    * @exception ProtocolException if an error occurs during parsing
    */
   protected static Cookie[] parse(String set_cookie, RoRequest req) throws ProtocolException {
-    Vector cookies;
+    Vector<HttpHeaderElement> cookies;
     try {
       cookies = Util.parseHeader(set_cookie);
     } catch (ParseException pe) {
@@ -146,7 +146,7 @@ public class Cookie2 extends Cookie {
     Cookie cookie_arr[] = new Cookie[cookies.size()];
     int cidx = 0;
     for (int idx = 0; idx < cookie_arr.length; idx++) {
-      HttpHeaderElement c_elem = (HttpHeaderElement) cookies.elementAt(idx);
+      HttpHeaderElement c_elem = cookies.elementAt(idx);
 
       // set NAME and VALUE
 

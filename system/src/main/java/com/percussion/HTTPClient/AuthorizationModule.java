@@ -32,10 +32,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Deprecated
 class AuthorizationModule implements HTTPClientModule {
   /** This holds the current Proxy-Authorization-Info for each HTTPConnection */
-  private static ConcurrentHashMap proxy_cntxt_list = new ConcurrentHashMap();
+  private static final ConcurrentHashMap<Object, ConcurrentHashMap<String, AuthorizationInfo>>
+      proxy_cntxt_list = new ConcurrentHashMap<>();
 
   /** a list of deferred authorization retries (used with Response.retryRequest()) */
-  private static ConcurrentHashMap deferred_auth_list = new ConcurrentHashMap();
+  private static final ConcurrentHashMap<HttpOutputStream, AuthorizationModule> deferred_auth_list =
+      new ConcurrentHashMap<>();
 
   /** counters for challenge and auth-info lists */
   private int auth_lst_idx, prxy_lst_idx, auth_scm_idx, prxy_scm_idx;
@@ -93,7 +95,7 @@ class AuthorizationModule implements HTTPClientModule {
 
     HttpOutputStream out = req.getStream();
     if (out != null && deferred_auth_list.get(out) != null) {
-      copyFrom((AuthorizationModule) deferred_auth_list.remove(out));
+      copyFrom(deferred_auth_list.remove(out));
       req.copyFrom(saved_req);
 
       Log.write(Log.AUTH, "AuthM: Handling deferred auth challenge");
@@ -121,9 +123,9 @@ class AuthorizationModule implements HTTPClientModule {
           break;
         }
       }
-      ConcurrentHashMap proxy_auth_list = Util.getList(proxy_cntxt_list, con.getContext());
-      guess =
-          (AuthorizationInfo) proxy_auth_list.get(con.getProxyHost() + ":" + con.getProxyPort());
+      ConcurrentHashMap<String, AuthorizationInfo> proxy_auth_list =
+          Util.getList(proxy_cntxt_list, con.getContext());
+      guess = proxy_auth_list.get(con.getProxyHost() + ":" + con.getProxyPort());
       if (guess == null) break Proxy;
 
       if (auth_handler != null) {

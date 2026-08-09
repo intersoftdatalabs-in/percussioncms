@@ -30,10 +30,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Deprecated
 public class RedirectionModule implements HTTPClientModule {
   /** a list of permanent redirections (301) */
-  private static ConcurrentHashMap perm_redir_cntxt_list = new ConcurrentHashMap();
+  private static final ConcurrentHashMap<Object, ConcurrentHashMap<URI, URI>> perm_redir_cntxt_list =
+      new ConcurrentHashMap<>();
 
   /** a list of deferred redirections (used with Response.retryRequest()) */
-  private static ConcurrentHashMap deferred_redir_list = new ConcurrentHashMap();
+  private static final ConcurrentHashMap<HttpOutputStream, RedirectionModule> deferred_redir_list =
+      new ConcurrentHashMap<>();
 
   /** the level of redirection */
   private int level;
@@ -67,7 +69,7 @@ public class RedirectionModule implements HTTPClientModule {
 
     HttpOutputStream out = req.getStream();
     if (out != null && deferred_redir_list.get(out) != null) {
-      copyFrom((RedirectionModule) deferred_redir_list.remove(out));
+      copyFrom(deferred_redir_list.remove(out));
       req.copyFrom(saved_req);
 
       if (new_con) return REQ_NEWCON_RST;
@@ -86,9 +88,9 @@ public class RedirectionModule implements HTTPClientModule {
 
     // handle permanent redirections
 
-    ConcurrentHashMap perm_redir_list =
+    ConcurrentHashMap<URI, URI> perm_redir_list =
         Util.getList(perm_redir_cntxt_list, req.getConnection().getContext());
-    if ((new_loc = (URI) perm_redir_list.get(cur_loc)) != null) {
+    if ((new_loc = perm_redir_list.get(cur_loc)) != null) {
       /* copy query if present in old url but not in new url. This
           * isn't strictly conforming, but some scripts fail to properly
           * propagate the query string to the Location header.
@@ -399,7 +401,8 @@ public class RedirectionModule implements HTTPClientModule {
     }
 
     if (!cur_loc.equals(new_loc)) {
-      ConcurrentHashMap perm_redir_list = Util.getList(perm_redir_cntxt_list, con.getContext());
+      ConcurrentHashMap<URI, URI> perm_redir_list =
+          Util.getList(perm_redir_cntxt_list, con.getContext());
       perm_redir_list.put(cur_loc, new_loc);
     }
   }

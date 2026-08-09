@@ -228,7 +228,7 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
       throws ParseException, IOException {
     if (auth_info == null) return;
 
-    Vector pai = Util.parseHeader(auth_info);
+    Vector<HttpHeaderElement> pai = Util.parseHeader(auth_info);
     HttpHeaderElement elem;
 
     if (handle_nextnonce(prev, req, elem = Util.getElement(pai, "nextnonce")))
@@ -690,7 +690,11 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
 
   /** Handle rspauth field of the Authentication-Info response header. */
   private static boolean handle_rspauth(
-      AuthorizationInfo prev, Response resp, RoRequest req, Vector auth_info, String hdr_name)
+      AuthorizationInfo prev,
+      Response resp,
+      RoRequest req,
+      Vector<HttpHeaderElement> auth_info,
+      String hdr_name)
       throws IOException {
     if (prev == null) return false;
 
@@ -1084,7 +1088,7 @@ class VerifyRspAuth implements HashVerifier, GlobalConstants {
     if (auth_info == null) auth_info = resp.getTrailer(hdr);
     if (auth_info == null) return;
 
-    Vector pai;
+    Vector<HttpHeaderElement> pai;
     try {
       pai = Util.parseHeader(auth_info);
     } catch (ParseException pe) {
@@ -1170,7 +1174,7 @@ class VerifyDigest implements HashVerifier, GlobalConstants {
     if (auth_info == null) auth_info = resp.getTrailer(hdr);
     if (auth_info == null) return;
 
-    Vector pai;
+    Vector<HttpHeaderElement> pai;
     try {
       pai = Util.parseHeader(auth_info);
     } catch (ParseException pe) {

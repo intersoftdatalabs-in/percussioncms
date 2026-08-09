@@ -28,7 +28,7 @@ import java.util.Hashtable;
  * @deprecated
  */
 @Deprecated
-class CIHashtable extends Hashtable {
+class CIHashtable extends Hashtable<Object, Object> {
   // Constructors
 
   /**
@@ -116,7 +116,8 @@ class CIHashtable extends Hashtable {
    * @return the requested Enumerator
    * @see java.util.Hashtable#keys()
    */
-  public Enumeration keys() {
+  @Override
+  public Enumeration<Object> keys() {
     return new CIHashtableEnumeration(super.keys());
   }
 }
@@ -125,10 +126,10 @@ class CIHashtable extends Hashtable {
  * A simple enumerator which delegates everything to the real enumerator. If a CIString element is
  * returned, then the string it represents is returned instead.
  */
-final class CIHashtableEnumeration implements Enumeration {
-  Enumeration HTEnum;
+final class CIHashtableEnumeration implements Enumeration<Object> {
+  private final Enumeration<?> HTEnum;
 
-  public CIHashtableEnumeration(Enumeration e) {
+  public CIHashtableEnumeration(Enumeration<?> e) {
     HTEnum = e;
   }
 
