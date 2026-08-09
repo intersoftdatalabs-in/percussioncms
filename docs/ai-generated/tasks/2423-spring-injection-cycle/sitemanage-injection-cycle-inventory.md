@@ -1,9 +1,9 @@
 # Sitemanage Spring constructor-injection cycle inventory
 
-**Issue:** #2463 (residual of #2423); reverse-edge inventory refresh **#2485**; hub freezes **#2477** / **#2514**; itemWorkflow param `@Lazy` **#2515**; field/setter injection inventory **#2525**  
+**Issue:** #2463 (residual of #2423); reverse-edge inventory refresh **#2485**; hub freezes **#2477** / **#2514** / **#2519**; itemWorkflow param `@Lazy` **#2515**; field/setter injection inventory **#2525**  
 **Module:** `projects/sitemanage`  
-**Date:** 2026-08-08 (updated 2026-08-09 for #2485 / #2515 / #2521 / #2525)  
-**Method:** Static scan of `@Autowired` constructors + field `@Autowired` among high-fan-in sitemanage beans (interfaces mapped to primary impls). Reflection peers: `PSContentItemDaoCycleLazyWiringTest`, `PSPageDaoHelperCycleLazyWiringTest`, `PSFolderHelperRecycleLazyWiringTest`, `PSFolderHelperReverseEdgeInventoryWiringTest` (#2485), `PSFolderHelperFieldInjectionInventoryWiringTest` (#2525), `PSTemplateServiceCycleWiringTest` (#2477), `PSPageServiceCycleWiringTest` (#2514), `PSItemWorkflowServiceHubReverseEdgeWiringTest` (#2478), `PSItemWorkflowServiceCycleLazyWiringTest` (#2515), `PSAssetServicePageServiceNearCycleWiringTest`, `PSAssetServiceTemplateServiceNearCycleWiringTest` (#2521), `FolderHelperCycleContextTest` (#2436).
+**Date:** 2026-08-08 (updated 2026-08-09 for #2485 / #2515 / #2519 / #2521 / #2525)  
+**Method:** Static scan of `@Autowired` constructors + field `@Autowired` among high-fan-in sitemanage beans (interfaces mapped to primary impls). Reflection peers: `PSContentItemDaoCycleLazyWiringTest`, `PSPageDaoHelperCycleLazyWiringTest`, `PSFolderHelperRecycleLazyWiringTest`, `PSFolderHelperReverseEdgeInventoryWiringTest` (#2485), `PSFolderHelperFieldInjectionInventoryWiringTest` (#2525), `PSTemplateServiceCycleWiringTest` (#2477), `PSPageServiceCycleWiringTest` (#2514), `PSItemWorkflowServiceHubReverseEdgeWiringTest` (#2478), `PSItemWorkflowServiceCycleLazyWiringTest` (#2515), `PSWidgetAssetRelationshipServiceHubReverseEdgeWiringTest` (#2519), `PSAssetServicePageServiceNearCycleWiringTest`, `PSAssetServiceTemplateServiceNearCycleWiringTest` (#2521), `FolderHelperCycleContextTest` (#2436).
 
 This is an analysis note for humans/agents ΓÇö **not** an agent rule file.
 
@@ -187,9 +187,23 @@ These beans have high constructor fan-in and sit on or next to the known cycle p
 | 1 | `PSPageService` | out ~11 / in ~28 | Injects `contentItemDao`, `folderHelper`, `recycleService`, `widgetAsset`, `itemWorkflow`. Class `@Lazy`. Reverse-edge freeze covered by `PSPageServiceCycleWiringTest` (2026-08-08, #2514). |
 | 2 | `PSItemWorkflowService` | out ~7 / in ~23 | Injects `assetDao`, `folderHelper`, `recycleService`, `widgetAsset` with **param `@Lazy`** (#2515). Class `@Lazy`. Reverse-edge freeze: `PSItemWorkflowServiceHubReverseEdgeWiringTest` (#2478). |
 | 3 | `PSTemplateService` | out ~6 / in ~20 | Class `@Lazy` (2026-08-08, #2477). Injects `widgetAsset`, page/template DAOs. Belt-and-braces reverse-edge ban covered by `PSTemplateServiceCycleWiringTest`. |
-| 4 | `PSWidgetAssetRelationshipService` | out ~4 / in ~18 | **Not** class `@Lazy`. On known cycle path. |
+| 4 | `PSWidgetAssetRelationshipService` | out ~4 / in ~18 | Class `@Lazy` (2026-08-09, #2519). On known cycle path. Reverse-edge freeze: `PSWidgetAssetRelationshipServiceHubReverseEdgeWiringTest`. |
 | 5 | `PSAssetService` | out ~8 / in ~14 | Ctor takes `IPSPageService` with param `@Lazy` (#2476) (and folder/asset/widget/item). Class `@Lazy`. |
 | 6 | `PSSiteDataService` | out ~15 / in ~12 | Wide hub; class `@Lazy`; field injects page/path. |
+
+### WidgetAsset hub class `@Lazy` + reverse-edge freezes (#2519)
+
+**`PSWidgetAssetRelationshipService`** sits **on** the known folderHelper creation path (paths A/B above) with high fan-in from recycle / page / template / itemWorkflow / assetService.
+
+| Aspect | Disposition |
+|--------|-------------|
+| Class-level `@Lazy` on hub | **Added (#2519)** — hub alignment with page/template/itemWorkflow; defers init until first use. **Not** a constructor-edge cycle breaker when an eager consumer forces construction |
+| Forward edges kept | widgetAsset → `IPSAssetDao` / `IPSPageIndexService` (path A/B); recycle / page / template still construct-require the hub (intentional fan-in) |
+| Reverse edge ban | **Hard** — cycle-path peers (`assetDao`, `contentItemDao`, `folderHelper`, `pageIndexService`, `pageDaoHelper`) must not construct-require or eagerly field-inject `IPSWidgetAssetRelationshipService` without param/field `@Lazy`. Hub must not reverse-require `IPSRecycleService` / `IPSPageService` / `IPSTemplateService` (would reverse known fan-in / mid-chain edges) |
+| Param `@Lazy` on forward cycle edges | **Not** added here — contentItemDao / pageDaoHelper already carry the cycle breaks; optional belt-and-braces on consumers remains separate residual territory |
+| managedLink path C | **Out of scope** — remains #2527 (do not ctor-inject `IPSManagedLinkService` onto this hub) |
+
+Protection test: `PSWidgetAssetRelationshipServiceHubReverseEdgeWiringTest` (class `@Lazy` + forward freezes + reverse ctor/field bans + named assetDao/recycle/page/template assertions).
 
 ### Next hottest near-cycle edge (protected ΓÇö #2476)
 
@@ -309,7 +323,7 @@ Many path/item services inject `IPSFolderHelper` without parameter `@Lazy` (e.g.
 7. ~~assetService↔templateService one-way freeze.~~ **Done (#2521)** — `PSAssetServiceTemplateServiceNearCycleWiringTest`.
 8. Keep Docker `qa-up` / Rhythmyx health smoke (#2437) as the production-level gate.
 9. When adding new `@Autowired` constructors on cycle peers, re-run this inventory method (or extend the reflection tests).
-10. Optional next hubs: siteData (#2516); widgetAsset class `@Lazy` (#2519).
+10. ~~Optional next hubs: siteData (#2516); widgetAsset class `@Lazy` (#2519).~~ **widgetAsset done (#2519)** — class `@Lazy` + `PSWidgetAssetRelationshipServiceHubReverseEdgeWiringTest`. siteData remains #2516 if still open.
 11. ~~Optional residual: field-injection inventory for `IPSFolderHelper` / recycle subgraph (ctor inventory complete under #2485).~~ **Done (#2525)** — `PSFolderHelperFieldInjectionInventoryWiringTest`; cycle subgraph is fully ctor-injected, no live reverse field edges.
 12. Optional residual: belt-and-braces param `@Lazy` on other high-fan-in consumer hubs (e.g. pageService / siteData) that inject cycle peers ΓÇö only if product risk warrants; do not treat class `@Lazy` as the fix.
 
