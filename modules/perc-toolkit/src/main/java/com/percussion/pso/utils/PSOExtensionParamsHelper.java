@@ -259,11 +259,13 @@ public class PSOExtensionParamsHelper {
     return this.extensionParameters;
   }
 
-  protected void doLog(Logger log) {
+  /** Private: ctor-only; must not be overridable (this-escape). */
+  private void doLog(Logger log) {
     this.log = log == null ? PSOExtensionParamsHelper.defaultLog : log;
   }
 
-  protected void doParameters() {
+  /** Private: ctor-only; must not be overridable (this-escape). */
+  private void doParameters() {
     extensionParameters = new HashMap<>();
 
     if (params != null) {

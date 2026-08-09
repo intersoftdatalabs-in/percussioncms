@@ -22,7 +22,6 @@
  */
 package com.percussion.pso.utils;
 
-import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
 import com.percussion.system.utils.IPSHtmlParameters;
@@ -31,9 +30,15 @@ import com.percussion.system.utils.IPSHtmlParameters;
  * A system request that overrides the PSRequestContext. Use this class to obtain an
  * IPSRequestContext for the system user (RxServer).
  *
+ * <p>{@link PSRequestContext} still exposes several raw-typed methods that implement generic
+ * {@code IPSRequestContext} methods. Compiling any subclass under {@code -Xlint} re-emits those
+ * unchecked conversion diagnostics here; they are suppressed until perc-system types the parent
+ * API. Prefer fixing {@code PSRequestContext} in a dedicated perc-system change.
+ *
  * @author DavidBenua
  */
-public class PSORequestContext extends PSRequestContext implements IPSRequestContext {
+@SuppressWarnings({"unchecked", "rawtypes"}) // parent PSRequestContext raw → IPSRequestContext
+public final class PSORequestContext extends PSRequestContext {
   /**
    * Gets a the system user request. This system request is always forced to be local to the server,
    * even if the original user request came from elsewhere.
@@ -45,11 +50,12 @@ public class PSORequestContext extends PSRequestContext implements IPSRequestCon
   /**
    * Gets the system user request, specifying a community.
    *
-   * @param CommunityId
+   * @param CommunityId community id to set on the system request
    */
+  @SuppressWarnings("this-escape") // setPrivateObject on parent is overridable; no typed API
   public PSORequestContext(String CommunityId) {
-    this();
-    this.setCommunity(CommunityId);
+    super(PSRequest.getContextForRequest(true));
+    super.setPrivateObject(IPSHtmlParameters.SYS_COMMUNITY, CommunityId);
   }
 
   /**
@@ -58,6 +64,7 @@ public class PSORequestContext extends PSRequestContext implements IPSRequestCon
    *
    * @see com.percussion.server.IPSRequestContext#isTraceEnabled()
    */
+  @Override
   public boolean isTraceEnabled() {
     return false;
   }

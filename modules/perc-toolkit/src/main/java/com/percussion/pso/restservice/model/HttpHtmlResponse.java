@@ -39,7 +39,8 @@ public class HttpHtmlResponse extends BaseHttpResponse {
    * @param head
    */
   public HttpHtmlResponse(Document doc, HttpHeaders head) {
-    this.setHeaders(head);
+    // Direct field assignment (headers is package-visible on base) — no this-escape.
+    this.headers = head;
     this.document = doc;
   }
 }

@@ -46,6 +46,14 @@ public abstract class PSActiveAssemblyRelationshipBuilder extends PSRelationship
 
   public PSActiveAssemblyRelationshipBuilder() {}
 
+  /**
+   * @param isParent {@code true} when the updated item is the relationship owner
+   * @see PSRelationshipBuilder#PSRelationshipBuilder(boolean)
+   */
+  protected PSActiveAssemblyRelationshipBuilder(boolean isParent) {
+    super(isParent);
+  }
+
   public void init() {
     if (m_assemblyService == null) {
       m_assemblyService = PSAssemblyServiceLocator.getAssemblyService();
