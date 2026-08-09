@@ -194,7 +194,7 @@ public class PSRelationshipEffectProcessor {
    *     by the locator), never <code>null</code>, may be empty.
    * @exception PSCmsException if an error occurs.
    */
-  private Iterator getAllRelationships(PSLocator locator) throws PSCmsException {
+  private Iterator<PSRelationship> getAllRelationships(PSLocator locator) throws PSCmsException {
     Collection<PSRelationshipConfig> configs = getReleventRelationships();
     if (configs.isEmpty()) return Collections.emptyIterator();
 
@@ -272,15 +272,17 @@ public class PSRelationshipEffectProcessor {
   private Collection<PSRelationshipConfig> getReleventRelationships() {
     int exeCtx = m_executionContext.getContextType();
     HashSet<PSRelationshipConfig> retConfigs = new HashSet<>();
-    Iterator configs = PSRelationshipCommandHandler.getConfigurationSet().iterator();
-    PSRelationshipConfig config;
-    Iterator cdEffects;
-    PSConditionalEffect cdEffect;
+    // relationship configuration set is a raw PSCollection boundary
+    @SuppressWarnings("unchecked")
+    Iterator<PSRelationshipConfig> configs =
+        PSRelationshipCommandHandler.getConfigurationSet().iterator();
     while (configs.hasNext()) {
-      config = (PSRelationshipConfig) configs.next();
-      cdEffects = config.getEffects();
+      PSRelationshipConfig config = configs.next();
+      // design.objectstore getEffects() is a raw iterator boundary
+      @SuppressWarnings("unchecked")
+      Iterator<PSConditionalEffect> cdEffects = config.getEffects();
       while (cdEffects.hasNext()) {
-        cdEffect = (PSConditionalEffect) cdEffects.next();
+        PSConditionalEffect cdEffect = cdEffects.next();
         if (cdEffect.hasExecutionContext(exeCtx)) retConfigs.add(config);
       }
     }
@@ -320,18 +322,22 @@ public class PSRelationshipEffectProcessor {
    *     configuration, i.e. one of teh {link PSRelationshipConfig} ACTIVATION_ENDPOINT_XXXX
    *     strings. Assumed not <code>null</code>.
    */
-  private boolean isProcessThisEffect(boolean isOwner, String activationEndPoint) {
-    boolean result = false;
+  /**
+   * Pure activation-endpoint filter (package-visible for unit tests).
+   *
+   * @param isOwner <code>true</code> if processing the owner end
+   * @param activationEndPoint one of {@link PSRelationshipConfig} ACTIVATION_ENDPOINT_XXXX values
+   * @return whether the effect should run for this end of the relationship
+   */
+  static boolean isProcessThisEffect(boolean isOwner, String activationEndPoint) {
     if (activationEndPoint.equals(PSRelationshipConfig.ACTIVATION_ENDPOINT_EITHER)) {
-      result = true;
-    } else if (activationEndPoint.equals(PSRelationshipConfig.ACTIVATION_ENDPOINT_OWNER)
-        && isOwner) {
-      result = true;
-    } else if (activationEndPoint.equals(PSRelationshipConfig.ACTIVATION_ENDPOINT_DEPENDENT)
-        && !isOwner) {
-      result = true;
+      return true;
     }
-    return result;
+    if (activationEndPoint.equals(PSRelationshipConfig.ACTIVATION_ENDPOINT_OWNER) && isOwner) {
+      return true;
+    }
+    return activationEndPoint.equals(PSRelationshipConfig.ACTIVATION_ENDPOINT_DEPENDENT)
+        && !isOwner;
   }
 
   /**
@@ -357,9 +363,9 @@ public class PSRelationshipEffectProcessor {
           PSExtensionProcessingException,
           PSParameterMismatchException,
           PSCmsException {
-    Iterator relationships = getAllRelationships(firstEnd);
+    Iterator<PSRelationship> relationships = getAllRelationships(firstEnd);
     while (relationships.hasNext()) {
-      PSRelationship currentRel = (PSRelationship) relationships.next();
+      PSRelationship currentRel = relationships.next();
       runTests(currentRel, isOwner(currentRel, firstEnd));
     }
   }
@@ -438,12 +444,14 @@ public class PSRelationshipEffectProcessor {
       }
       m_execData.setSourceRelationship(sourceRel);
 
-      Iterator effects = currentRel.getConfig().getEffects();
+      // design.objectstore getEffects() is a raw iterator boundary
+      @SuppressWarnings("unchecked")
+      Iterator<PSConditionalEffect> effects = currentRel.getConfig().getEffects();
       PSRelationshipEffectTestResult relEffectResults =
           new PSRelationshipEffectTestResult(currentRel);
 
       while (effects.hasNext()) {
-        PSConditionalEffect effect = (PSConditionalEffect) effects.next();
+        PSConditionalEffect effect = effects.next();
         String activationEndPoint = effect.getActivationEndPoint();
         boolean processThisEffect = isProcessThisEffect(isOwner, activationEndPoint);
         if (!processThisEffect) continue;
@@ -469,9 +477,9 @@ public class PSRelationshipEffectProcessor {
        * @todo: do we test for success or failure here and stop recursing through dependents in case
        *     of failure or walk entire web and then report?
        */
-      Iterator iter = relEffectResults.getResults();
+      Iterator<PSEffectTestResultPair> iter = relEffectResults.getResults();
       while (iter.hasNext()) {
-        PSEffectTestResultPair effectResult = (PSEffectTestResultPair) iter.next();
+        PSEffectTestResultPair effectResult = iter.next();
         if (!effectResult.getResult().getRecurseDependents()) continue;
         PSRelationship rel = relEffectResults.getRelationship();
         PSLocator next = null;
@@ -511,14 +519,13 @@ public class PSRelationshipEffectProcessor {
     IPSExtensionManager manager = PSServer.getExtensionManager(null);
     PSExtensionRunner runner = null;
     PSAttemptResult attemptResult = new PSAttemptResult();
-    Iterator keys = m_relationshipsProcessed.keySet().iterator();
     PSRelationship relationship = null;
     PSRelationshipEffectTestResult result = null;
 
     try {
-      while (keys.hasNext()) {
-        Integer key = (Integer) keys.next();
-        result = (PSRelationshipEffectTestResult) m_relationshipsProcessed.get(key);
+      for (Map.Entry<Integer, PSRelationshipEffectTestResult> entry :
+          m_relationshipsProcessed.entrySet()) {
+        result = entry.getValue();
 
         relationship = result.getRelationship();
 
@@ -538,12 +545,10 @@ public class PSRelationshipEffectProcessor {
         }
         m_execData.setSourceRelationship(sourceRel);
 
-        Iterator iter = result.getResults();
-        PSEffectTestResultPair pair = null;
-        PSConditionalEffect effect = null;
+        Iterator<PSEffectTestResultPair> iter = result.getResults();
         while (iter.hasNext()) {
-          pair = (PSEffectTestResultPair) iter.next();
-          effect = pair.getEffect();
+          PSEffectTestResultPair pair = iter.next();
+          PSConditionalEffect effect = pair.getEffect();
           if (pair.getResult().hasWarning()) continue;
 
           m_executionContext.setActivationEndPoint(pair.getResult().isActivationEndPointOwner());
@@ -588,15 +593,10 @@ public class PSRelationshipEffectProcessor {
    *     null</code> if there was no error processing the test() mthod of the effects.
    */
   private PSException isAllTestsSuccess() {
-    Iterator keys = m_relationshipsProcessed.keySet().iterator();
-    PSRelationshipEffectTestResult result = null;
-    PSEffectTestResultPair effectResultPair = null;
-    while (keys.hasNext()) {
-      Integer key = (Integer) keys.next();
-      result = (PSRelationshipEffectTestResult) m_relationshipsProcessed.get(key);
-      Iterator iter = result.getResults();
+    for (PSRelationshipEffectTestResult result : m_relationshipsProcessed.values()) {
+      Iterator<PSEffectTestResultPair> iter = result.getResults();
       while (iter.hasNext()) {
-        effectResultPair = (PSEffectTestResultPair) iter.next();
+        PSEffectTestResultPair effectResultPair = iter.next();
         if (!effectResultPair.getResult().isSuccess()) {
           return effectResultPair.getResult().getException();
         }
@@ -650,10 +650,11 @@ public class PSRelationshipEffectProcessor {
   }
 
   /**
-   * Map of all relationships processed by the engine. The key is the relationship object. and the
-   * value is the {@link PSRelationshipEffectTestResult} object that contains the test result data.
+   * Map of all relationships processed by the engine. The key is the relationship id, and the value
+   * is the {@link PSRelationshipEffectTestResult} object that contains the test result data.
    */
-  private Map m_relationshipsProcessed = new HashMap();
+  private final Map<Integer, PSRelationshipEffectTestResult> m_relationshipsProcessed =
+      new HashMap<>();
 
   /**
    * Reference to the execution data, set in the constructor, never <code>null</code> after that.

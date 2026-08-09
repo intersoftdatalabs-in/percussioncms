@@ -21,7 +21,6 @@ import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.relationship.effect.PSRelationshipEffectTestResult;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,7 +48,10 @@ public class PSExecutionContext implements IPSExecutionContext {
    *     because this type was readily available by the creator of this class and I was trying to
    *     minimize changes.]
    */
-  public PSExecutionContext(int context, PSExecutionData data, Map processedRelationships) {
+  public PSExecutionContext(
+      int context,
+      PSExecutionData data,
+      Map<Integer, PSRelationshipEffectTestResult> processedRelationships) {
     if (data == null) throw new IllegalArgumentException("data must not be null");
 
     if (!isContextValid(context))
@@ -273,12 +275,11 @@ public class PSExecutionContext implements IPSExecutionContext {
   }
 
   // see IPSExecutionContext for documentation
-  public Set getProcessedRelationships() {
-    Set result = new HashSet();
+  public Set<PSRelationship> getProcessedRelationships() {
+    Set<PSRelationship> result = new HashSet<>();
     if (m_processedRelationships != null) {
-      Iterator values = m_processedRelationships.values().iterator();
-      while (values.hasNext()) {
-        result.add(((PSRelationshipEffectTestResult) values.next()).getRelationship());
+      for (PSRelationshipEffectTestResult testResult : m_processedRelationships.values()) {
+        result.add(testResult.getRelationship());
       }
     }
     return result;
@@ -317,5 +318,5 @@ public class PSExecutionContext implements IPSExecutionContext {
   private int m_activationEndPoint = RS_ENDPOINT_OWNER;
 
   /** May be <code>null</code>. */
-  private Map m_processedRelationships;
+  private Map<Integer, PSRelationshipEffectTestResult> m_processedRelationships;
 }

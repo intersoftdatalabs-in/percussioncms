@@ -104,7 +104,7 @@ public class PSLocalCataloger implements IPSCataloger {
    * @return Never <code>null</code>. Each entry is the internal name of a system field that matches
    *     the supplied flags.
    */
-  public Set getSystemFields(int controlFlags) {
+  public Set<String> getSystemFields(int controlFlags) {
     initFieldCatalog();
 
     processSystemOnlyFields(PSServer.getContentEditorSystemDef(), controlFlags);
@@ -182,15 +182,15 @@ public class PSLocalCataloger implements IPSCataloger {
   private void addSharedFields(PSContentEditorSharedDef sharedDef, int controlFlags) {
     if (sharedDef == null) return;
 
-    Iterator entries = m_sharedFields.entrySet().iterator();
-    while (entries.hasNext()) {
-      Map.Entry entry = (Entry) entries.next();
-      String fsName = (String) entry.getKey();
-      Set fieldNameSet = (Set) entry.getValue();
+    for (Entry<String, Set<String>> entry : m_sharedFields.entrySet()) {
+      String fsName = entry.getKey();
+      Set<String> fieldNameSet = entry.getValue();
 
-      Iterator groups = sharedDef.getFieldGroups();
+      // design.objectstore shared-def field groups iterator is raw
+      @SuppressWarnings("unchecked")
+      Iterator<PSSharedFieldGroup> groups = sharedDef.getFieldGroups();
       while (groups.hasNext()) {
-        PSSharedFieldGroup group = (PSSharedFieldGroup) groups.next();
+        PSSharedFieldGroup group = groups.next();
         PSUIDefinition uiDef = group.getUIDefinition();
 
         PSFieldSet fs = group.getFieldSet();
@@ -198,7 +198,7 @@ public class PSLocalCataloger implements IPSCataloger {
         if (!fs.getName().equals(fsName)) {
           // try for child
           Object o = fs.get(fsName);
-          if (o != null && o instanceof PSFieldSet) {
+          if (o instanceof PSFieldSet) {
             fs = (PSFieldSet) o;
             if (!fs.getName().equals(fsName)) continue;
             mapper = uiDef.getDisplayMapper(fsName);
@@ -207,9 +207,7 @@ public class PSLocalCataloger implements IPSCataloger {
 
         if (mapper == null) continue;
 
-        Iterator fields = fieldNameSet.iterator();
-        while (fields.hasNext()) {
-          String fieldName = (String) fields.next();
+        for (String fieldName : fieldNameSet) {
           PSField field = fs.findFieldByName(fieldName);
           PSDisplayMapping mapping = mapper.getMapping(fieldName);
           if (mapping != null && field != null) {
@@ -232,9 +230,10 @@ public class PSLocalCataloger implements IPSCataloger {
   public PSRelationshipInfoSet getRelationshipInfoSet() throws PSCmsException {
     PSRelationshipInfoSet infoSet = new PSRelationshipInfoSet();
 
-    Iterator configs = PSRelationshipCommandHandler.getRelationshipConfigs();
+    Iterator<PSRelationshipConfig> configs =
+        PSRelationshipCommandHandler.getRelationshipConfigs();
     while (configs.hasNext()) {
-      PSRelationshipConfig config = (PSRelationshipConfig) configs.next();
+      PSRelationshipConfig config = configs.next();
       PSRelationshipInfo info = new PSRelationshipInfo(config);
       infoSet.add(info);
     }
@@ -308,12 +307,14 @@ public class PSLocalCataloger implements IPSCataloger {
 
     PSContentEditorSystemDef sysDef = PSServer.getContentEditorSystemDef();
 
-    Iterator mappings = dispMapper.iterator();
+    // PSDisplayMapper extends raw PSCollection; narrow at the boundary
+    @SuppressWarnings("unchecked")
+    Iterator<PSDisplayMapping> mappings = dispMapper.iterator();
     PSDisplayMapping mapping = null;
     PSUISet uiSet = null;
     if (mappings != null) {
       while (mappings.hasNext()) {
-        mapping = (PSDisplayMapping) mappings.next();
+        mapping = mappings.next();
         PSDisplayMapper displayMapper = mapping.getDisplayMapper();
         if (displayMapper != null) {
           recurseMapping(displayMapper, mapper, contentType, controlFlags);
@@ -330,7 +331,7 @@ public class PSLocalCataloger implements IPSCataloger {
                   mapping.getFieldRef(), fieldSet.TYPE_MULTI_PROPERTY_SIMPLE_CHILD);
         }
 
-        if (o != null && o instanceof PSField) {
+        if (o instanceof PSField) {
           PSField field = (PSField) o;
           uiSet = mapping.getUISet();
 
@@ -476,7 +477,7 @@ public class PSLocalCataloger implements IPSCataloger {
             m_request.getUserSession().getSessionObject(PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG);
     if (lang == null) lang = PSI18nUtils.DEFAULT_LANG;
 
-    Map map = null;
+    Map<String, Collection<FieldObject>> map = null;
     if (field.isSystemField()) {
       map = m_systemMap;
       choices = localizeChoices(choices, lang, "psx.ce.system." + field.getSubmitName() + "@");
@@ -529,10 +530,12 @@ public class PSLocalCataloger implements IPSCataloger {
     newChoices.copyFrom(choices);
 
     // build list of translated entries
+    // PSChoices.getLocal() is a raw design.objectstore iterator boundary
+    @SuppressWarnings("unchecked")
+    Iterator<PSEntry> oldChoices = choices.getLocal();
     List<PSEntry> newChoiceList = new ArrayList<>();
-    Iterator oldChoices = choices.getLocal();
     while (oldChoices.hasNext()) {
-      PSEntry entry = (PSEntry) oldChoices.next();
+      PSEntry entry = oldChoices.next();
       PSDisplayText newText =
           new PSDisplayText(PSI18nUtils.getString(keyBase + entry.getLabel().getText()));
       PSEntry newEntry = new PSEntry(entry.getValue(), newText);
@@ -554,10 +557,10 @@ public class PSLocalCataloger implements IPSCataloger {
    * @param f Assumed not <code>null</code>.
    * @param key Assumed not <code>null</code> or empty. Lowercased before performing search on map.
    */
-  private void addToMap(Map map, FieldObject f, String key) {
-    Collection c = (Collection) map.get(key);
+  private void addToMap(Map<String, Collection<FieldObject>> map, FieldObject f, String key) {
+    Collection<FieldObject> c = map.get(key);
     if (null == c) {
-      c = new ArrayList();
+      c = new ArrayList<>();
       map.put(key, c);
     }
 
@@ -591,27 +594,32 @@ public class PSLocalCataloger implements IPSCataloger {
    * @param doc parent document, assumed to be not <code>null</code>.
    * @param controlFlags The control flags supplied to {@link #getCEFieldXml(int)}
    */
-  private void addElement(String type, Element root, Map map, Document doc, int controlFlags) {
+  private void addElement(
+      String type,
+      Element root,
+      Map<String, Collection<FieldObject>> map,
+      Document doc,
+      int controlFlags) {
     Element elem = doc.createElement(type);
-    Iterator itr = map.keySet().iterator();
     String key = null;
     FieldObject value = null;
     Element fieldElem = null;
     String id = null;
     String dataType = null;
     String displayName = null;
-    while (itr.hasNext()) {
+    for (String mapKey : map.keySet()) {
       Element fieldInstancesEl = doc.createElement(SEARCH_FIELD);
-      key = (String) itr.next();
+      key = mapKey;
       fieldInstancesEl.setAttribute(INTERNALNAME, key);
 
-      Iterator fobs = ((Collection) map.get(key)).iterator();
+      Collection<FieldObject> fieldObjects = map.get(key);
+      Iterator<FieldObject> fobs = fieldObjects.iterator();
       boolean firstPass = false;
 
       while (fobs.hasNext()) {
         fieldElem = doc.createElement(FIELD);
 
-        value = (FieldObject) fobs.next();
+        value = fobs.next();
         if (!firstPass) {
           firstPass = true;
           if (value.isReadOnly()) fieldInstancesEl.setAttribute(RESULT_ONLY, RESULT_ONLY_VALUE);
@@ -860,7 +868,7 @@ public class PSLocalCataloger implements IPSCataloger {
    * </code> types, abstracting display name, data type and content type id. Never <code>null</code>
    * .
    */
-  private Map m_systemMap = new HashMap();
+  private final Map<String, Collection<FieldObject>> m_systemMap = new HashMap<>();
 
   /**
    * Shared map for shared content editor fields. The key is the internal name of the field and the
@@ -868,12 +876,12 @@ public class PSLocalCataloger implements IPSCataloger {
    * and content type id. Since any given name could occur in multiple editors, we provide all the
    * data so the client can display the results in different ways. Never <code>null</code>.
    */
-  private Map m_sharedMap = new HashMap();
+  private final Map<String, Collection<FieldObject>> m_sharedMap = new HashMap<>();
 
   /**
    * Local map for local fields. See <code>m_sharedMap</code> for details. Never <code>null</code>.
    */
-  private Map m_localMap = new HashMap();
+  private final Map<String, Collection<FieldObject>> m_localMap = new HashMap<>();
 
   /**
    * Map of shared fields to process in order to use the source field rather than the overriden

@@ -37,7 +37,6 @@ import com.percussion.services.legacy.IPSItemEntry;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSCms;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -60,7 +59,8 @@ public class PSCloneFactory {
    * @return the locator of the newly created clone, never <code>null</code>.
    * @throws PSCmsException for any error creating the clone.
    */
-  public static PSLocator createClone(PSRequest request, PSLocator source, Map childRowMappings)
+  public static PSLocator createClone(
+      PSRequest request, PSLocator source, Map<String, String> childRowMappings)
       throws PSCmsException {
     try {
       PSLocator clone = null;
@@ -113,14 +113,14 @@ public class PSCloneFactory {
 
     PSFolder tgt = (PSFolder) src[0].clone();
 
-    Map overrides =
-        (Map)
+    @SuppressWarnings("unchecked")
+    Map<String, String> overrides =
+        (Map<String, String>)
             request.getParameterObject(
-                PSCloneCommandHandler.SYS_CLONE_OVERRIDE_FIELDSET, new HashMap());
-    Iterator keys = overrides.keySet().iterator();
-    while (keys.hasNext()) {
-      String name = (String) keys.next();
-      String value = (String) overrides.get(name);
+                PSCloneCommandHandler.SYS_CLONE_OVERRIDE_FIELDSET, new HashMap<String, String>());
+    for (Map.Entry<String, String> entry : overrides.entrySet()) {
+      String name = entry.getKey();
+      String value = entry.getValue();
 
       if (value != null) {
         if (name.equals("sys_title")) tgt.setName(value);
@@ -152,14 +152,13 @@ public class PSCloneFactory {
    * @throws PSCmsException for any error creating the new clone.
    */
   private static PSLocator createItemClone(
-      PSRequest request, PSLocator source, String cloneResource, Map childRowMappings)
+      PSRequest request,
+      PSLocator source,
+      String cloneResource,
+      Map<String, String> childRowMappings)
       throws PSCmsException {
-    // avoid eclipse warning
-    if (childRowMappings == null)
-      ;
-
     try {
-      HashMap cloneParams = new HashMap();
+      Map<String, String> cloneParams = new HashMap<>();
       cloneParams.put(IPSHtmlParameters.SYS_COMMAND, PSCloneCommandHandler.COMMAND_NAME);
       cloneParams.put(IPSHtmlParameters.SYS_CONTENTID, Integer.toString(source.getId()));
       cloneParams.put(IPSHtmlParameters.SYS_REVISION, Integer.toString(source.getRevision()));
@@ -174,8 +173,11 @@ public class PSCloneFactory {
       ir.performUpdate();
 
       Object test = ir.getRequest().getPrivateObject(CHILD_ROW_MAPPINGS_PRIVATE_OBJECT);
-      if (test instanceof Map) {
-        childRowMappings.putAll((Map) test);
+      if (test instanceof Map && childRowMappings != null) {
+        // CHILD_ROW_MAPPINGS_PRIVATE_OBJECT is String → String (see field javadoc)
+        @SuppressWarnings("unchecked")
+        Map<String, String> mappings = (Map<String, String>) test;
+        childRowMappings.putAll(mappings);
       }
 
       // create the locater for the cloned object

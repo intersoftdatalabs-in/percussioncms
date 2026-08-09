@@ -93,10 +93,10 @@ public class PSFolderSecurityManager {
     // This method is not normally called directly and folder ACL will be pulled from
     // PSItemSummaryCache through PSServerFolderProcessor and
     // when populating the cache initially.
-    Map params = new HashMap<>();
+    Map<String, Object> params = new HashMap<>();
 
     if (ids != null) {
-      List idList = new ArrayList<>();
+      List<String> idList = new ArrayList<>();
       for (int i = 0; i < ids.length; i++) idList.add(String.valueOf(ids[i]));
       params.put(IPSHtmlParameters.SYS_CONTENTID, idList);
     }
@@ -110,7 +110,7 @@ public class PSFolderSecurityManager {
             null);
     if (ir == null)
       throw new PSCmsException(IPSCmsErrors.REQUIRED_RESOURCE_MISSING, FOLDER_ACL_RESOURCE);
-    List aclList = new ArrayList<>();
+    List<PSFolderAcl> aclList = new ArrayList<>();
     ResultSet rs = null;
     try {
       // to improve the performance, we process the result set directly.
@@ -135,7 +135,7 @@ public class PSFolderSecurityManager {
         folderAcl.add(aclEntry);
       }
 
-      return (PSFolderAcl[]) aclList.toArray(new PSFolderAcl[aclList.size()]);
+      return aclList.toArray(new PSFolderAcl[0]);
     } catch (SQLException e) {
       throw new PSCmsException(IPSServerErrors.CE_SQL_ERRORS, e.toString());
     } catch (PSException e) {

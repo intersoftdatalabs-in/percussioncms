@@ -61,8 +61,8 @@ public class PSInlineLinkProcessor {
    * processInlineLinkItem(request, item, relationships,
    * request.getSecurityToken().getCommunityId())}.
    */
-  public static void processInlineLinkItem(PSRequest request, PSLocator item, Map relationships)
-      throws PSException {
+  public static void processInlineLinkItem(
+      PSRequest request, PSLocator item, Map<?, ?> relationships) throws PSException {
     // convenience methods don't need to validate contract
     processInlineLinkItem(
         request, item, relationships, request.getSecurityToken().getCommunityId());
@@ -72,7 +72,8 @@ public class PSInlineLinkProcessor {
    * Convenience method that calls {@link #processInlineLinkItem(PSRequest, PSLocator, Map, int)}
    */
   public static void processInlineLinkItem(
-      PSRequest request, PSLocator item, Map relationships, int communityId) throws PSException {
+      PSRequest request, PSLocator item, Map<?, ?> relationships, int communityId)
+      throws PSException {
     // convenience methods don't need to validate contract
     processInlineLinkItem(request, item, relationships, communityId, true, true);
   }
@@ -94,7 +95,7 @@ public class PSInlineLinkProcessor {
   public static void processInlineLinkItem(
       PSRequest request,
       PSLocator item,
-      Map relationships,
+      Map<?, ?> relationships,
       int communityId,
       boolean bCheckout,
       boolean checkin)
@@ -186,7 +187,7 @@ public class PSInlineLinkProcessor {
       PSRequest request,
       PSLocator locator,
       PSItemDefinition itemDef,
-      Map relationshipMap,
+      Map<?, ?> relationshipMap,
       Iterator<PSInlineLinkField> fields,
       int communityId,
       boolean bCheckout,
@@ -253,7 +254,7 @@ public class PSInlineLinkProcessor {
    *     empty.
    * @throws PSCmsException if an error occurs.
    */
-  private static void processInlineLinkField(PSItemField itemField, Map relationshipMap)
+  private static void processInlineLinkField(PSItemField itemField, Map<?, ?> relationshipMap)
       throws PSCmsException {
     IPSFieldValue fieldValue = itemField.getValue();
     if (!(fieldValue instanceof PSTextValue)) return;
