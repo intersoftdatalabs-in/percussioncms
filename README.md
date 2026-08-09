@@ -7,7 +7,7 @@
 [![Latest Release](https://img.shields.io/github/v/release/intersoftdatalabs-in/percussioncms?label=Latest%20Release)](https://github.com/intersoftdatalabs-in/percussioncms/releases)
 
 <p align="center">
-  <img src="docs/images/login-screen.png" alt="Percussion CMS Login Screen" width="720">
+  <img src="docs/8.2-login.png" alt="Percussion CMS Login Screen" width="720">
 </p>
 
 *The refreshed login experience in the current development line (heading toward 8.2).*
