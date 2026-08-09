@@ -20,7 +20,11 @@ import type {
   PSItemProperties,
   PSSearchResults,
 } from "../../../main/ts/api/contentExplorer/types";
-import { SearchPanel } from "../../../main/ts/contentExplorer/SearchPanel";
+import type { SearchDef } from "../../../main/ts/api/developer/types";
+import {
+  SearchPanel,
+  toSearchResults,
+} from "../../../main/ts/contentExplorer/SearchPanel";
 import { renderA11yGate } from "./a11y";
 
 function makeResults(children: PSItemProperties[]): PSSearchResults {
@@ -36,11 +40,53 @@ const ONE_ROW: PSItemProperties[] = [
   },
 ];
 
+const SAVED: SearchDef[] = [
+  {
+    name: "All Content",
+    label: "All Content",
+    standardSearch: true,
+  },
+  {
+    name: "My Pages",
+    label: "My Pages",
+    userSearch: true,
+  },
+  {
+    name: "Custom URL",
+    label: "Custom URL",
+    customSearch: true,
+  },
+];
+
+function emptyCatalog() {
+  return vi.fn().mockResolvedValue([] as SearchDef[]);
+}
+
+function readyCatalog(items: SearchDef[] = SAVED) {
+  return vi.fn().mockResolvedValue(items);
+}
+
+describe("toSearchResults", () => {
+  it("maps execute wire rows into PSSearchResults", () => {
+    const out = toSearchResults({
+      children: [{ id: "9", title: "T", folderPath: "/Sites/X", type: "page" }],
+      totalCount: 1,
+      startIndex: 1,
+    });
+    expect(out.children).toHaveLength(1);
+    expect(out.children[0]?.id).toBe("9");
+    expect(out.totalCount).toBe(1);
+  });
+});
+
 describe("SearchPanel", () => {
-  it("renders the search input and submit button", () => {
-    render(<SearchPanel />);
+  it("renders the search input and submit button", async () => {
+    render(<SearchPanel listSavedSearches={emptyCatalog()} />);
     expect(screen.getByTestId("search-panel-input")).toBeTruthy();
     expect(screen.getByTestId("search-panel-submit")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
+    });
   });
 
   it("submitting the form invokes the search and renders results", async () => {
@@ -48,7 +94,12 @@ describe("SearchPanel", () => {
     const onReveal = vi.fn();
     const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
     render(
-      <SearchPanel search={search} onOpen={onOpen} onReveal={onReveal} />,
+      <SearchPanel
+        search={search}
+        onOpen={onOpen}
+        onReveal={onReveal}
+        listSavedSearches={emptyCatalog()}
+      />,
     );
     const input = screen.getByTestId("search-panel-input") as HTMLInputElement;
     fireEvent.change(input, { target: { value: "Welcome" } });
@@ -77,18 +128,28 @@ describe("SearchPanel", () => {
             resolveSearch = res;
           }),
       );
-    render(<SearchPanel search={search} />);
+    render(
+      <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
+    });
     fireEvent.change(screen.getByTestId("search-panel-input"), {
       target: { value: "q" },
     });
     fireEvent.click(screen.getByTestId("search-panel-submit"));
     expect(await screen.findByTestId("search-panel-loading")).toBeTruthy();
     resolveSearch(makeResults([]));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-empty")).toBeTruthy();
+    });
   });
 
   it("renders the empty state when the search returns no rows", async () => {
     const search = vi.fn().mockResolvedValue(makeResults([]));
-    render(<SearchPanel search={search} />);
+    render(
+      <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
+    );
     fireEvent.change(screen.getByTestId("search-panel-input"), {
       target: { value: "nothing" },
     });
@@ -100,7 +161,9 @@ describe("SearchPanel", () => {
 
   it("renders the error state when the search rejects", async () => {
     const search = vi.fn().mockRejectedValue(new Error("boom"));
-    render(<SearchPanel search={search} />);
+    render(
+      <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
+    );
     fireEvent.change(screen.getByTestId("search-panel-input"), {
       target: { value: "q" },
     });
@@ -118,7 +181,9 @@ describe("SearchPanel", () => {
         ? Promise.reject(new Error("first attempt failed"))
         : Promise.resolve(makeResults([]));
     });
-    render(<SearchPanel search={search} />);
+    render(
+      <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
+    );
     fireEvent.change(screen.getByTestId("search-panel-input"), {
       target: { value: "retry-test" },
     });
@@ -144,7 +209,12 @@ describe("SearchPanel", () => {
 
   it("skip-trim: an empty query returns to idle without calling search", async () => {
     const search = vi.fn().mockResolvedValue(makeResults([]));
-    render(<SearchPanel search={search} />);
+    render(
+      <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
+    });
     fireEvent.click(screen.getByTestId("search-panel-submit"));
     expect(search).not.toHaveBeenCalled();
   });
@@ -152,7 +222,11 @@ describe("SearchPanel", () => {
   it("initialQuery triggers a search on mount", async () => {
     const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
     render(
-      <SearchPanel initialQuery="deep link" search={search} />,
+      <SearchPanel
+        initialQuery="deep link"
+        search={search}
+        listSavedSearches={emptyCatalog()}
+      />,
     );
     await waitFor(() => {
       expect(search).toHaveBeenCalledTimes(1);
@@ -160,20 +234,32 @@ describe("SearchPanel", () => {
     expect(search.mock.calls[0]?.[0]?.query).toBe("deep link");
   });
 
-  it("empty initial query does not auto-fire a search", () => {
+  it("empty initial query does not auto-fire a search", async () => {
     const search = vi.fn();
-    render(<SearchPanel search={search} />);
+    render(
+      <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
+    });
     expect(search).not.toHaveBeenCalled();
   });
 
   it("passes the zero serious/critical axe-core gate (idle state)", async () => {
-    const { container } = render(<SearchPanel />);
+    const { container } = render(
+      <SearchPanel listSavedSearches={emptyCatalog()} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
+    });
     await renderA11yGate(container);
   });
 
   it("passes the zero serious/critical axe-core gate (results state)", async () => {
     const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
-    const { container } = render(<SearchPanel search={search} />);
+    const { container } = render(
+      <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
+    );
     fireEvent.change(screen.getByTestId("search-panel-input"), {
       target: { value: "Welcome" },
     });
@@ -186,9 +272,8 @@ describe("SearchPanel", () => {
 
   it("passes the zero serious/critical axe-core gate (error state with retry)", async () => {
     const search = vi.fn().mockRejectedValue(new Error("boom"));
-    const onRetry = vi.fn();
     const { container } = render(
-      <SearchPanel search={search} onRetry={onRetry} />,
+      <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
     );
     fireEvent.change(screen.getByTestId("search-panel-input"), {
       target: { value: "anything" },
@@ -198,5 +283,160 @@ describe("SearchPanel", () => {
       expect(screen.getByTestId("search-panel-retry")).toBeTruthy();
     });
     await renderA11yGate(container);
+  });
+
+  describe("saved-search picker (#2506)", () => {
+    it("shows loading then catalog select options", async () => {
+      let resolveList!: (items: SearchDef[]) => void;
+      const listSavedSearches = vi.fn(
+        () =>
+          new Promise<SearchDef[]>((res) => {
+            resolveList = res;
+          }),
+      );
+      render(<SearchPanel listSavedSearches={listSavedSearches} />);
+      expect(screen.getByTestId("search-panel-saved-loading")).toBeTruthy();
+      resolveList(SAVED);
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-picker")).toBeTruthy();
+      });
+      const select = screen.getByTestId(
+        "search-panel-saved-select",
+      ) as HTMLSelectElement;
+      expect(select.options.length).toBeGreaterThan(1);
+      expect(Array.from(select.options).some((o) => o.value === "All Content")).toBe(
+        true,
+      );
+    });
+
+    it("shows empty catalog state", async () => {
+      render(<SearchPanel listSavedSearches={emptyCatalog()} />);
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
+      });
+    });
+
+    it("shows catalog error and retries load", async () => {
+      let attempt = 0;
+      const listSavedSearches = vi.fn().mockImplementation(() => {
+        attempt += 1;
+        if (attempt === 1) {
+          return Promise.reject(new Error("catalog down"));
+        }
+        return Promise.resolve(SAVED);
+      });
+      render(<SearchPanel listSavedSearches={listSavedSearches} />);
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-error")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("search-panel-saved-retry"));
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-picker")).toBeTruthy();
+      });
+      expect(attempt).toBe(2);
+    });
+
+    it("runs a selected saved search via execute and shows results", async () => {
+      const executeSavedSearch = vi.fn().mockResolvedValue({
+        children: ONE_ROW,
+        totalCount: 1,
+        startIndex: 1,
+        searchName: "All Content",
+      });
+      const onOpen = vi.fn();
+      render(
+        <SearchPanel
+          listSavedSearches={readyCatalog()}
+          executeSavedSearch={executeSavedSearch}
+          onOpen={onOpen}
+          initialCriteria={{ folderPath: "/Sites/Foo", maxResults: 10 }}
+        />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
+        target: { value: "All Content" },
+      });
+      fireEvent.click(screen.getByTestId("search-panel-saved-run"));
+      await waitFor(() => {
+        expect(executeSavedSearch).toHaveBeenCalledTimes(1);
+      });
+      expect(executeSavedSearch.mock.calls[0]?.[0]).toBe("All Content");
+      expect(executeSavedSearch.mock.calls[0]?.[1]).toMatchObject({
+        folderPath: "/Sites/Foo",
+        maxResults: 10,
+        startIndex: 1,
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-results")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("search-panel-open-1"));
+      expect(onOpen).toHaveBeenCalledTimes(1);
+    });
+
+    it("blocks custom URL searches with a clear error", async () => {
+      const executeSavedSearch = vi.fn();
+      render(
+        <SearchPanel
+          listSavedSearches={readyCatalog()}
+          executeSavedSearch={executeSavedSearch}
+        />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
+        target: { value: "Custom URL" },
+      });
+      // Run is disabled for custom; force onRun path via enabling then click is blocked
+      expect(
+        (screen.getByTestId("search-panel-saved-run") as HTMLButtonElement).disabled,
+      ).toBe(true);
+      expect(executeSavedSearch).not.toHaveBeenCalled();
+    });
+
+    it("retries a failed saved-search execute", async () => {
+      let attempt = 0;
+      const executeSavedSearch = vi.fn().mockImplementation(() => {
+        attempt += 1;
+        if (attempt === 1) {
+          return Promise.reject(new Error("execute failed"));
+        }
+        return Promise.resolve(makeResults([]));
+      });
+      render(
+        <SearchPanel
+          listSavedSearches={readyCatalog()}
+          executeSavedSearch={executeSavedSearch}
+        />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
+        target: { value: "My Pages" },
+      });
+      fireEvent.click(screen.getByTestId("search-panel-saved-run"));
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-error")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("search-panel-retry"));
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-empty")).toBeTruthy();
+      });
+      expect(attempt).toBe(2);
+      expect(executeSavedSearch.mock.calls[1]?.[0]).toBe("My Pages");
+    });
+
+    it("passes axe-core with saved picker visible", async () => {
+      const { container } = render(
+        <SearchPanel listSavedSearches={readyCatalog()} />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-picker")).toBeTruthy();
+      });
+      await renderA11yGate(container);
+    });
   });
 });

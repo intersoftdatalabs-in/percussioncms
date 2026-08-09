@@ -15,38 +15,48 @@
  */
 
 /**
- * Search panel for the modern Content Explorer (US5 / T068).
+ * Search panel for the modern Content Explorer (US5 / T068 + #2506 saved-search picker).
  *
- * <p>Renders a server-backed search input + results list. The
- * {@link SearchPanelProps.onOpen} callback receives the selected result
+ * <p>Renders a server-backed free-text search input + results list, and a
+ * saved/design-search picker fed by {@code GET /services/searches} that
+ * executes via {@code POST /services/searches/{idOrName}/execute}.</p>
+ *
+ * <p>The {@link SearchPanelProps.onOpen} callback receives the selected result
  * for the host (typically the explorer shell) to navigate to the item;
  * the {@link SearchPanelProps.onReveal} callback asks the host to
- * select the parent folder in the tree. Results come from the
+ * select the parent folder in the tree. Free-text results come from the
  * sitemanage extended-search REST endpoint via the typed
- * {@link searchExtended} client; the panel defers all transport so
- * the host can stub it in tests.</p>
+ * {@link searchExtended} client; saved searches use the design-search
+ * execute façade. The panel defers all transport so the host can stub
+ * it in tests.</p>
  *
- * <p>State machine:</p>
+ * <p>State machine (results):</p>
  * <ul>
- *   <li>{@code idle} — initial; submit the form to search.</li>
+ *   <li>{@code idle} — initial; submit the form or run a saved search.</li>
  *   <li>{@code loading} — fetch in flight.</li>
  *   <li>{@code ready} — has results (possibly empty).</li>
- *   <li>{@code error} — fetch rejected / server error; the
- *       {@code SearchStatusView} renders a Retry button that re-issues
- *       the last query. The handler is wired by the parent
- *       {@link SearchPanel} (which owns the transport); see the
- *       {@code onRetry} prop description in the local
- *       {@code SearchStatusView} function component below.</li>
+ *   <li>{@code error} — fetch rejected / server error; Retry re-issues
+ *       the last free-text query or last saved-search execute.</li>
  * </ul>
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   searchExtended,
   type PSItemProperties,
   type PSSearchCriteria,
   type PSSearchResults,
 } from "../api/contentExplorer/searchApi";
+import {
+  executeSearch as executeSearchApi,
+  listSearches as listSearchesApi,
+} from "../api/developer/searchesApi";
+import type {
+  SearchDef,
+  SearchExecuteRequest,
+  SearchExecuteResult,
+} from "../api/developer/types";
+import { formatApiError } from "../api/client";
 import { message } from "../i18n/message";
 import { EXPLORER_MSG } from "./messages";
 
@@ -55,8 +65,24 @@ export interface SearchPanelProps {
   initialQuery?: string;
   /** Optional initial criteria (folder scope + sortColumn + maxResults). */
   initialCriteria?: PSSearchCriteria;
-  /** Override for the search transport (default: {@link searchExtended}). */
+  /** Override for the free-text search transport (default: {@link searchExtended}). */
   search?: (criteria: PSSearchCriteria) => Promise<PSSearchResults>;
+  /**
+   * Override for the saved-search catalog load
+   * (default: {@link listSearchesApi}).
+   */
+  listSavedSearches?: () => Promise<SearchDef[]>;
+  /**
+   * Override for design-search execute
+   * (default: {@link executeSearchApi}). Return value is normalized to
+   * {@link PSSearchResults} by the panel when callers return the wire
+   * {@link SearchExecuteResult} shape — inject a function that already
+   * returns {@link PSSearchResults} for simple test stubs.
+   */
+  executeSavedSearch?: (
+    idOrName: string,
+    request?: SearchExecuteRequest | null,
+  ) => Promise<PSSearchResults | SearchExecuteResult>;
   /** Triggered when the user clicks "Open" on a result. */
   onOpen?: (result: PSItemProperties) => void;
   /** Triggered when the user clicks "Reveal in folder" on a result. */
@@ -72,11 +98,58 @@ type Status =
   | { kind: "ready"; query: string; results: PSSearchResults }
   | { kind: "error"; query: string; message: string };
 
+type CatalogStatus =
+  | { kind: "loading" }
+  | { kind: "ready"; items: SearchDef[] }
+  | { kind: "empty" }
+  | { kind: "error"; message: string };
+
+/** Last results request so Retry can re-issue free-text or saved execute. */
+type LastRun =
+  | { mode: "query"; query: string }
+  | { mode: "saved"; idOrName: string; label: string };
+
+function searchKey(def: SearchDef): string {
+  return (def.name || def.guid?.stringValue || (def.id != null ? String(def.id) : "")).trim();
+}
+
+function searchLabel(def: SearchDef): string {
+  return (def.label || def.name || searchKey(def) || "—").trim();
+}
+
+/**
+ * Map design-search execute wire (or already-normalized results) into the
+ * Explorer {@link PSSearchResults} shape used by the results list.
+ */
+export function toSearchResults(
+  payload: PSSearchResults | SearchExecuteResult | null | undefined,
+): PSSearchResults {
+  if (payload == null) {
+    return { children: [], totalCount: 0, startIndex: 1 };
+  }
+  const children = Array.isArray(payload.children)
+    ? payload.children.map((row) => ({
+        id: row.id,
+        name: row.name,
+        title: row.title,
+        folderPath: row.folderPath,
+        type: row.type,
+      }))
+    : [];
+  const startIndex =
+    typeof payload.startIndex === "number" ? payload.startIndex : 1;
+  const totalCount =
+    typeof payload.totalCount === "number" ? payload.totalCount : children.length;
+  return { children, totalCount, startIndex };
+}
+
 export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
   const {
     initialQuery = "",
     initialCriteria = {},
     search = searchExtended,
+    listSavedSearches = listSearchesApi,
+    executeSavedSearch = executeSearchApi,
     onOpen,
     onReveal,
     ariaLabel,
@@ -87,6 +160,10 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
     query: initialQuery,
   });
   const [draft, setDraft] = useState(initialQuery);
+  const [catalog, setCatalog] = useState<CatalogStatus>({ kind: "loading" });
+  const [selectedSaved, setSelectedSaved] = useState("");
+  const [lastRun, setLastRun] = useState<LastRun | null>(null);
+  const [catalogEpoch, setCatalogEpoch] = useState(0);
 
   useEffect(() => {
     setDraft(initialQuery);
@@ -98,12 +175,52 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialQuery]);
 
+  useEffect(() => {
+    let cancelled = false;
+    setCatalog({ kind: "loading" });
+    listSavedSearches()
+      .then((items) => {
+        if (cancelled) return;
+        const list = Array.isArray(items) ? items : [];
+        if (list.length === 0) {
+          setCatalog({ kind: "empty" });
+          return;
+        }
+        setCatalog({ kind: "ready", items: list });
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setCatalog({
+          kind: "error",
+          message: formatApiError(err, message(EXPLORER_MSG.SEARCH_SAVED_ERROR)),
+        });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [listSavedSearches, catalogEpoch]);
+
+  const sortedCatalog = useMemo(() => {
+    if (catalog.kind !== "ready") return [];
+    return [...catalog.items].sort((a, b) =>
+      searchLabel(a).localeCompare(searchLabel(b), undefined, {
+        sensitivity: "base",
+      }),
+    );
+  }, [catalog]);
+
+  const selectedDef =
+    catalog.kind === "ready"
+      ? sortedCatalog.find((d) => searchKey(d) === selectedSaved)
+      : undefined;
+
   async function runSearch(query: string): Promise<void> {
     const trimmed = query.trim();
     if (trimmed.length === 0) {
       setStatus({ kind: "idle", query: "" });
       return;
     }
+    setLastRun({ mode: "query", query: trimmed });
     setStatus({ kind: "loading", query: trimmed });
     try {
       const results = await search({
@@ -114,15 +231,72 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
       });
       setStatus({ kind: "ready", query: trimmed, results });
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : String(err ?? "unknown");
-      setStatus({ kind: "error", query: trimmed, message: msg });
+      setStatus({
+        kind: "error",
+        query: trimmed,
+        message: formatApiError(err, message(EXPLORER_MSG.SEARCH_ERROR)),
+      });
+    }
+  }
+
+  async function runSavedSearch(idOrName: string, label: string): Promise<void> {
+    const key = idOrName.trim();
+    if (!key) {
+      return;
+    }
+    const display = (label || key).trim();
+    setLastRun({ mode: "saved", idOrName: key, label: display });
+    setStatus({ kind: "loading", query: display });
+    try {
+      const request: SearchExecuteRequest = {
+        folderPath: initialCriteria.folderPath,
+        startIndex: initialCriteria.startIndex ?? 1,
+        maxResults: initialCriteria.maxResults ?? 25,
+        sortColumn: initialCriteria.sortColumn,
+        sortOrder: initialCriteria.sortOrder,
+      };
+      const raw = await executeSavedSearch(key, request);
+      const results = toSearchResults(raw);
+      setStatus({ kind: "ready", query: display, results });
+    } catch (err: unknown) {
+      setStatus({
+        kind: "error",
+        query: display,
+        message: formatApiError(err, message(EXPLORER_MSG.SEARCH_ERROR)),
+      });
     }
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
     void runSearch(draft);
+  }
+
+  function handleRunSaved(): void {
+    if (!selectedDef) return;
+    if (selectedDef.customSearch) {
+      setStatus({
+        kind: "error",
+        query: searchLabel(selectedDef),
+        message: message(EXPLORER_MSG.SEARCH_SAVED_CUSTOM_UNSUPPORTED),
+      });
+      return;
+    }
+    void runSavedSearch(searchKey(selectedDef), searchLabel(selectedDef));
+  }
+
+  function handleRetry(): void {
+    if (lastRun?.mode === "saved") {
+      void runSavedSearch(lastRun.idOrName, lastRun.label);
+      return;
+    }
+    if (lastRun?.mode === "query") {
+      void runSearch(lastRun.query);
+      return;
+    }
+    if (status.kind === "error") {
+      void runSearch(status.query);
+    }
   }
 
   return (
@@ -154,13 +328,146 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
           {message(EXPLORER_MSG.SEARCH_SUBMIT)}
         </button>
       </form>
+
+      <SavedSearchPicker
+        catalog={catalog}
+        sortedItems={sortedCatalog}
+        selectedKey={selectedSaved}
+        onSelectKey={setSelectedSaved}
+        onRun={handleRunSaved}
+        onRetryCatalog={() => setCatalogEpoch((n) => n + 1)}
+        runDisabled={
+          status.kind === "loading" ||
+          !selectedSaved ||
+          (selectedDef?.customSearch === true)
+        }
+        selectedIsCustom={selectedDef?.customSearch === true}
+      />
+
       <SearchStatusView
         status={status}
         onOpen={onOpen}
         onReveal={onReveal}
-        onRetry={() => void runSearch(status.kind === "error" ? status.query : draft.trim())}
+        onRetry={handleRetry}
       />
     </section>
+  );
+}
+
+function SavedSearchPicker(props: {
+  catalog: CatalogStatus;
+  sortedItems: SearchDef[];
+  selectedKey: string;
+  onSelectKey: (key: string) => void;
+  onRun: () => void;
+  onRetryCatalog: () => void;
+  runDisabled: boolean;
+  selectedIsCustom: boolean;
+}): React.JSX.Element {
+  const {
+    catalog,
+    sortedItems,
+    selectedKey,
+    onSelectKey,
+    onRun,
+    onRetryCatalog,
+    runDisabled,
+    selectedIsCustom,
+  } = props;
+
+  if (catalog.kind === "loading") {
+    return (
+      <p
+        role="status"
+        aria-live="polite"
+        data-testid="search-panel-saved-loading"
+        style={{ marginTop: 10, color: "#666" }}
+      >
+        {message(EXPLORER_MSG.SEARCH_SAVED_LOADING)}
+      </p>
+    );
+  }
+
+  if (catalog.kind === "error") {
+    return (
+      <div role="alert" style={{ marginTop: 10, color: "#a00" }}>
+        <p data-testid="search-panel-saved-error" style={{ margin: "0 0 6px 0" }}>
+          {message(EXPLORER_MSG.SEARCH_SAVED_ERROR)}: {catalog.message}
+        </p>
+        <button
+          type="button"
+          data-testid="search-panel-saved-retry"
+          onClick={onRetryCatalog}
+        >
+          {message(EXPLORER_MSG.SEARCH_SAVED_RETRY)}
+        </button>
+      </div>
+    );
+  }
+
+  if (catalog.kind === "empty") {
+    return (
+      <p
+        role="status"
+        data-testid="search-panel-saved-empty"
+        style={{ marginTop: 10, color: "#888" }}
+      >
+        {message(EXPLORER_MSG.SEARCH_SAVED_EMPTY)}
+      </p>
+    );
+  }
+
+  return (
+    <div
+      data-testid="search-panel-saved-picker"
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 8,
+        alignItems: "center",
+        marginTop: 10,
+      }}
+    >
+      <label
+        htmlFor="search-panel-saved-select"
+        style={{ fontSize: 13, color: "#333" }}
+      >
+        {message(EXPLORER_MSG.SEARCH_SAVED_LABEL)}
+      </label>
+      <select
+        id="search-panel-saved-select"
+        data-testid="search-panel-saved-select"
+        value={selectedKey}
+        onChange={(e) => onSelectKey(e.target.value)}
+        style={{ flex: "1 1 160px", minWidth: 140, padding: "4px 6px" }}
+        aria-label={message(EXPLORER_MSG.SEARCH_SAVED_LABEL)}
+      >
+        <option value="">{message(EXPLORER_MSG.SEARCH_SAVED_PLACEHOLDER)}</option>
+        {sortedItems.map((def, idx) => {
+          const key = searchKey(def);
+          if (!key) return null;
+          return (
+            <option key={`${key}-${idx}`} value={key}>
+              {searchLabel(def)}
+              {def.customSearch ? " (URL)" : ""}
+            </option>
+          );
+        })}
+      </select>
+      <button
+        type="button"
+        data-testid="search-panel-saved-run"
+        disabled={runDisabled}
+        onClick={onRun}
+        title={
+          selectedIsCustom
+            ? message(EXPLORER_MSG.SEARCH_SAVED_CUSTOM_UNSUPPORTED)
+            : undefined
+        }
+      >
+        {message(EXPLORER_MSG.SEARCH_SAVED_RUN)}
+      </button>
+    </div>
   );
 }
 
@@ -169,7 +476,7 @@ function SearchStatusView(props: {
   onOpen?: (r: PSItemProperties) => void;
   onReveal?: (r: PSItemProperties) => void;
   /** Re-issues the failed search. Optional to keep the helper pure; the
-   * parent {@link SearchPanel} wires its own {@code runSearch} closure
+   * parent {@link SearchPanel} wires its own retry closure
    * here so the parent stays the single owner of the transport.
    *
    * <p>(Plain-text reference; {@code SearchStatusView.onRetry} is a
