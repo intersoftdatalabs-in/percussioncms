@@ -237,5 +237,6 @@ Many path/item services inject `IPSFolderHelper` without parameter `@Lazy` (e.g.
 - #2485 ΓÇö folderHelper reverse-edge inventory  
 - #2514 ΓÇö pageService hub reverse-edge freeze (`PSPageServiceCycleWiringTest`)  
 - #2515 ΓÇö itemWorkflow cycle-peer param `@Lazy` (`PSItemWorkflowServiceCycleLazyWiringTest`)  
+- #2521 — assetService↔templateService one-way freeze + reverse ban  
 
 - #2457 / PR #2469 ΓÇö JDK 21 lambda compile fix often needed to build sitemanage tests
