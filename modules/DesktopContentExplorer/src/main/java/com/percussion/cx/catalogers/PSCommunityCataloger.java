@@ -31,14 +31,21 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/** Catalogs all server communities by querying the ../sys_cmpCommunities/communities.xml app. */
-public class PSCommunityCataloger {
+/**
+ * Catalogs all server communities by querying the ../sys_cmpCommunities/communities.xml app.
+ *
+ * <p>Declared {@code final} with a {@code final} collection field and a pure static XML parse
+ * helper so constructors never call overridable instance methods (javac {@code this-escape}).
+ */
+public final class PSCommunityCataloger {
   /**
    * Default constructor. Does nothing. Must be followed by call to fromXml() method. This is useful
    * only to build an object in the fly means the state information might not come from the Rhythmyx
    * server.
    */
-  public PSCommunityCataloger() {}
+  public PSCommunityCataloger() {
+    m_collCommunities = new ArrayList<>();
+  }
 
   /**
    * Constructor meant to be used in the context of an applet. This may not work in other contexts
@@ -48,11 +55,10 @@ public class PSCommunityCataloger {
    * @throws PSCmsException if request to server to get the data fails for any reason.
    */
   public PSCommunityCataloger(URL urlBase) throws PSCmsException {
-    m_collCommunities.clear();
     try {
       URL url = new URL(urlBase, "sys_cmpCommunities/communities.xml");
       Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
-      fromXml(doc.getDocumentElement());
+      m_collCommunities = parseCommunities(doc.getDocumentElement());
     } catch (Exception e) {
       throw new PSCmsException(IPSContentExplorerErrors.CATALOG_ERROR, e.getMessage());
     }
@@ -62,24 +68,15 @@ public class PSCommunityCataloger {
    * Implementation of the interface method.
    */
   public Object clone() {
-    PSCommunityCataloger clone = null;
-    try {
-      clone = (PSCommunityCataloger) super.clone();
+    PSCommunityCataloger clone = new PSCommunityCataloger();
 
-      Collection<Community> clonedComm = new ArrayList<>();
-
-      for (Community community : m_collCommunities) {
-        Object communityClone = community.clone();
-        if (communityClone instanceof Community) {
-          clonedComm.add((Community) communityClone);
-        }
+    for (Community community : m_collCommunities) {
+      Object communityClone = community.clone();
+      if (communityClone instanceof Community) {
+        clone.m_collCommunities.add((Community) communityClone);
       }
-
-      clone.m_collCommunities = clonedComm;
-
-    } catch (CloneNotSupportedException e) {
-      // ????
     }
+
     return clone;
   }
 
@@ -91,20 +88,18 @@ public class PSCommunityCataloger {
     PSCommunityCataloger that = (PSCommunityCataloger) object;
 
     return new org.apache.commons.lang3.builder.EqualsBuilder()
-        .appendSuper(super.equals(object))
         .append(m_collCommunities, that.m_collCommunities)
         .isEquals();
   }
 
   public int hashCode() {
     return new org.apache.commons.lang3.builder.HashCodeBuilder(17, 37)
-        .appendSuper(super.hashCode())
         .append(m_collCommunities)
         .toHashCode();
   }
 
   /** Represents a single community. */
-  public static class Community {
+  public static final class Community {
     /**
      * Default constructor. Does nothing. Must be followed by call to fromXml() method. This is
      * useful only to build an object in the fly means the state information might not come from the
@@ -130,7 +125,8 @@ public class PSCommunityCataloger {
     }
 
     /**
-     * Constructor that calls fromXml.
+     * Constructor that loads from XML via the private apply helper (no overridable method on
+     * {@code this} during construction).
      *
      * @param elemRoot the element that contains data for a single community, never <code>null
      *     </code>
@@ -138,7 +134,7 @@ public class PSCommunityCataloger {
      *     schema.
      */
     public Community(Element elemRoot) throws PSUnknownNodeTypeException {
-      fromXml(elemRoot);
+      applyFromXml(elemRoot);
     }
 
     /**
@@ -150,6 +146,14 @@ public class PSCommunityCataloger {
      *     schema.
      */
     public void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
+      applyFromXml(elemRoot);
+    }
+
+    /**
+     * Applies community XML fields onto this instance. Private so constructors do not invoke an
+     * overridable method.
+     */
+    private void applyFromXml(Element elemRoot) throws PSUnknownNodeTypeException {
       PSXMLDomUtil.checkNode(elemRoot, XML_ELEM_LIST);
       Element el = PSXMLDomUtil.getFirstElementChild(elemRoot, XML_ELEM_COMMUNITYNAME);
       m_communityName = PSXMLDomUtil.getElementData(el);
@@ -207,19 +211,7 @@ public class PSCommunityCataloger {
      * Implementation of the interface method
      */
     public Object clone() {
-      Community clone = null;
-      try {
-        clone = (Community) super.clone();
-
-        clone.m_communityName = m_communityName;
-        clone.m_communityId = m_communityId;
-        clone.m_communityDesc = m_communityDesc;
-
-      } catch (CloneNotSupportedException e) {
-        // ????
-      }
-
-      return clone;
+      return new Community(m_communityId, m_communityName, m_communityDesc);
     }
 
     /*
@@ -254,7 +246,23 @@ public class PSCommunityCataloger {
    * @throws PSUnknownNodeTypeException if the supplied element does not match the expected schema.
    */
   public void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
+    Collection<Community> parsed = parseCommunities(elemRoot);
     m_collCommunities.clear();
+    m_collCommunities.addAll(parsed);
+  }
+
+  /**
+   * Pure parse of community catalog XML into a new mutable collection. Package-private for unit
+   * tests; used by the URL constructor and {@link #fromXml(Element)} so constructors never call
+   * overridable instance methods.
+   *
+   * @param elemRoot the root element containing the communities data, never <code>null</code>
+   * @return newly allocated collection of communities, never <code>null</code>
+   * @throws PSUnknownNodeTypeException if the element does not match the expected schema
+   */
+  static Collection<Community> parseCommunities(Element elemRoot)
+      throws PSUnknownNodeTypeException {
+    Collection<Community> communities = new ArrayList<>();
 
     PSXMLDomUtil.checkNode(elemRoot, XML_ELEM_ROOT);
 
@@ -266,10 +274,10 @@ public class PSCommunityCataloger {
       Node n = nl.item(i);
       if (n.getNodeType() != Node.ELEMENT_NODE) continue;
 
-      Community comm = new Community((Element) n);
-
-      m_collCommunities.add(comm);
+      communities.add(new Community((Element) n));
     }
+
+    return communities;
   }
 
   /**
@@ -295,8 +303,11 @@ public class PSCommunityCataloger {
     return new Community(id, name, description);
   }
 
-  /** collection of cataloged Community instances */
-  private Collection<Community> m_collCommunities = new ArrayList<>();
+  /**
+   * Collection of cataloged Community instances. Final reference; contents are replaced via clear /
+   * addAll so constructors never reassign after init (javac {@code this-escape}).
+   */
+  private final Collection<Community> m_collCommunities;
 
   /** The XML root element name containing all cataloged communities. */
   public static final String XML_ELEM_ROOT = "communities";

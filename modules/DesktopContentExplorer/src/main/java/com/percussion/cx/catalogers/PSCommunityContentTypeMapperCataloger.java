@@ -40,13 +40,18 @@ import org.w3c.dom.NodeList;
  *
  * <p>Note, the communities in the mapper may not contain all communities that are defined in the
  * server. It only contains the commmunities which contain a list of non empty content types.
+ *
+ * <p>Declared {@code final} with a {@code final} map field and pure static XML parse helpers so
+ * constructors never call overridable instance methods (javac {@code this-escape}).
  */
-public class PSCommunityContentTypeMapperCataloger {
+public final class PSCommunityContentTypeMapperCataloger {
   /**
    * Default constructor for offline construction and tests. Must be followed by {@link
    * #fromXml(Element)}.
    */
-  PSCommunityContentTypeMapperCataloger() {}
+  PSCommunityContentTypeMapperCataloger() {
+    m_commCtMapper = new HashMap<>();
+  }
 
   /**
    * Constructor meant to be used in the context of an applet. This may not work in other contexts
@@ -59,7 +64,7 @@ public class PSCommunityContentTypeMapperCataloger {
     try {
       URL url = new URL(urlBase, "sys_commSupport/CommunityContentTypeMapper.xml");
       Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
-      fromXml(doc.getDocumentElement());
+      m_commCtMapper = parseMapper(doc.getDocumentElement());
     } catch (Exception e) {
       throw new PSCmsException(IPSContentExplorerErrors.CATALOG_ERROR, e.getMessage());
     }
@@ -117,7 +122,21 @@ public class PSCommunityContentTypeMapperCataloger {
    * @exception PSUnknownNodeTypeException if the XML does not conform its DTD.
    */
   void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
+    Map<PSCommunityCataloger.Community, Collection<PSEntry>> parsed = parseMapper(elemRoot);
     m_commCtMapper.clear();
+    m_commCtMapper.putAll(parsed);
+  }
+
+  /**
+   * Pure parse of community/content-type mapper XML into a new map. Package-private for unit tests.
+   *
+   * @param elemRoot the XML representation, assumed not <code>null</code>
+   * @return newly allocated map, never <code>null</code>
+   * @throws PSUnknownNodeTypeException if the XML does not conform its DTD
+   */
+  static Map<PSCommunityCataloger.Community, Collection<PSEntry>> parseMapper(Element elemRoot)
+      throws PSUnknownNodeTypeException {
+    Map<PSCommunityCataloger.Community, Collection<PSEntry>> mapper = new HashMap<>();
 
     PSXMLDomUtil.checkNode(elemRoot, XML_ELEM_ROOT);
 
@@ -130,28 +149,22 @@ public class PSCommunityContentTypeMapperCataloger {
       Node mapping = nl.item(i);
       if (mapping.getNodeType() != Node.ELEMENT_NODE) continue;
 
-      addMapping((Element) mapping);
+      addMapping(mapper, (Element) mapping);
     }
+
+    return mapper;
   }
 
   /**
-   * Adds the community and content type mapping from the supplied XML element.
+   * Adds the community and content type mapping from the supplied XML element into {@code mapper}.
    *
-   * <p>The DTD of its XML represenation is:
-   *
-   * <pre><code>
-   * &lt;!ELEMENT ContentType EMPTY>
-   * &lt;!ATTLIST  ContentType name CDATA #REQUIRED>
-   * &lt;!ATTLIST  ContentType id CDATA #REQUIRED>
-   * &lt;!ELEMENT CommunityContentTypeMapping (ContentType* )>
-   * &lt;!ATTLIST  CommunityContentTypeMapping communityName CDATA #REQUIRED>
-   * &lt;!ATTLIST  CommunityContentTypeMapping communityId CDATA #REQUIRED>
-   * </code></pre>
-   *
+   * @param mapper the destination map, never <code>null</code>
    * @param mapping the XML representation of the mapping. Assume not <code>null</code>.
    * @throws PSUnknownNodeTypeException if the element does not conform the DTD.
    */
-  private void addMapping(Element mapping) throws PSUnknownNodeTypeException {
+  private static void addMapping(
+      Map<PSCommunityCataloger.Community, Collection<PSEntry>> mapper, Element mapping)
+      throws PSUnknownNodeTypeException {
     // get the community
     String name = PSXMLDomUtil.checkAttribute(mapping, XML_ATTR_COMMUNITYNAME, true);
     int id = PSXMLDomUtil.checkAttributeInt(mapping, XML_ATTR_COMMUNITYID, true);
@@ -172,10 +185,10 @@ public class PSCommunityContentTypeMapperCataloger {
       ctElem = PSXMLDomUtil.getNextElementSibling(ctElem);
     }
 
-    if (m_commCtMapper.containsKey(community)) {
-      m_commCtMapper.get(community).addAll(ctSet);
+    if (mapper.containsKey(community)) {
+      mapper.get(community).addAll(ctSet);
     } else {
-      m_commCtMapper.put(community, ctSet);
+      mapper.put(community, ctSet);
     }
   }
 
@@ -198,10 +211,9 @@ public class PSCommunityContentTypeMapperCataloger {
    * It maps a community to a list of content types which are specified for the community. The map
    * key is <code>PSCommunityCataloger.Community</code> object. The map value is a <code>
    * Collection</code> of zero or more <code>PSEntry</code> object, which contain the id and name of
-   * the content type.
+   * the content type. Final reference; contents replaced via clear / putAll.
    */
-  private Map<PSCommunityCataloger.Community, Collection<PSEntry>> m_commCtMapper =
-      new HashMap<>();
+  private final Map<PSCommunityCataloger.Community, Collection<PSEntry>> m_commCtMapper;
 
   /** Constants for XML elements and attributes */
   private static final String XML_ELEM_ROOT = "CommunityContentTypeMapper";
