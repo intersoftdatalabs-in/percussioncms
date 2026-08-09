@@ -23,6 +23,12 @@ export interface SpaBootstrap {
   isAdmin: boolean;
   isDesigner: boolean;
   isWidgetBuilderActive: boolean;
+  /**
+   * When false, SPA must not load external Gravatar (or similar) avatar URLs
+   * and must show initials fallback. From server.properties
+   * {@code allowExternalAvatarFetch} (default true).
+   */
+  allowExternalAvatarFetch: boolean;
 }
 
 export const DEFAULT_SPA_BOOTSTRAP: SpaBootstrap = {
@@ -32,4 +38,5 @@ export const DEFAULT_SPA_BOOTSTRAP: SpaBootstrap = {
   isAdmin: false,
   isDesigner: false,
   isWidgetBuilderActive: false,
+  allowExternalAvatarFetch: true,
 };

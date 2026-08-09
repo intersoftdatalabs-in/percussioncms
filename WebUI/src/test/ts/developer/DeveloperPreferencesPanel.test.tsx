@@ -45,6 +45,7 @@ function renderPanel(userName = "admin") {
         isAdmin: true,
         isDesigner: true,
         isWidgetBuilderActive: false,
+        allowExternalAvatarFetch: true,
       }}
     >
       <DeveloperPreferencesPanel />

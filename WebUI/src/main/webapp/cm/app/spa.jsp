@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="com.percussion.server.PSServer" %>
 <%@ page import="com.percussion.services.utils.jspel.PSRoleUtilities" %>
 <%@ page import="com.percussion.user.data.PSCurrentUser" %>
 <%@ page import="com.percussion.user.service.impl.PSUserService" %>
@@ -80,6 +81,19 @@
     boolean isAdmin = false;
     boolean isDesigner = false;
     boolean isWdgActive = false;
+    // server.properties allowExternalAvatarFetch (default true). When false, SPA
+    // shows initials only and does not fetch Gravatar (enterprise privacy).
+    boolean allowExternalAvatarFetch = true;
+    try {
+        if (PSServer.getServerProps() != null) {
+            String prop = PSServer.getServerProps().getProperty(
+                    "allowExternalAvatarFetch", "true");
+            allowExternalAvatarFetch = !"false".equalsIgnoreCase(
+                    prop == null ? "true" : prop.trim());
+        }
+    } catch (Exception e) {
+        allowExternalAvatarFetch = true;
+    }
     try {
         PSUserService userService =
             (PSUserService) PSSpringBeanProvider.getBean("userService");
@@ -135,7 +149,8 @@
     "entry":<%= jsonString(entry) %>,
     "isAdmin":<%= isAdmin %>,
     "isDesigner":<%= isDesigner %>,
-    "isWidgetBuilderActive":<%= isWdgActive %>
+    "isWidgetBuilderActive":<%= isWdgActive %>,
+    "allowExternalAvatarFetch":<%= allowExternalAvatarFetch %>
 }</script>
 <div id="perc-spa-root" data-testid="perc-spa-root"></div>
 </body>

@@ -29,6 +29,7 @@ const bootstrap: SpaBootstrap = {
   isAdmin: true,
   isDesigner: true,
   isWidgetBuilderActive: false,
+  allowExternalAvatarFetch: true,
 };
 
 function renderPrefs(
