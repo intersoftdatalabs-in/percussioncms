@@ -57,8 +57,6 @@ Class-level `@Lazy` is present on `folderHelper` and `recycleService` but is **n
 
 **#2485 result:** no additional live reverse ctor edges into `folderHelper` were found. No further production `@Lazy` changes required on this slice.
 
-<<<<<<< HEAD
-=======
 ## folderHelper field / setter injection inventory (#2525)
 
 **Definition — field/setter edge:** a `@Autowired` / `@Resource` / `@Inject` annotation on a **field** declaration, or on a `setXxx` setter method, where the injected type is one of the cycle interfaces. Field/setter injection bypasses constructor `@Lazy` breaks because Spring resolves the dependency after construction has started — the field-injected dependency must already exist (or a proxy) when the bean is being instantiated.
@@ -137,7 +135,6 @@ These classes have field `@Autowired` of a target interface but are **downstream
 
 **Conclusion:** Every observed field-injected target type lives on a downstream consumer bean. None of the seven cycle-subgraph beans (`PSFolderHelper`, `PSRecycleService`, `PSWidgetAssetRelationshipService`, `PSAssetDao`, `PSContentItemDao`, `PSPageIndexService`, `PSPageDaoHelper`) carry any `@Autowired` / `@Resource` / `@Inject` field annotation on the target interfaces, nor any public setter that takes a target interface. The cycle subgraph is fully converted to constructor injection, so the existing `@Lazy` parameter breaks remain the only required protection.
 
->>>>>>> 6d56ede3d2 (test(sitemanage): siteDataService hub reverse-edge freeze (#2516))
 ### Cycle-subgraph intermediates that must NOT construct-require `folderHelper`
 
 These sit on path A/B. Adding a ctor edge to `IPSFolderHelper` would short-circuit the known breaks:
@@ -392,13 +389,8 @@ listed in the original inventory and is out of scope for #2526.
 7. ~~assetService↔templateService one-way freeze.~~ **Done (#2521)** — `PSAssetServiceTemplateServiceNearCycleWiringTest`.
 8. Keep Docker `qa-up` / Rhythmyx health smoke (#2437) as the production-level gate.
 9. When adding new `@Autowired` constructors on cycle peers, re-run this inventory method (or extend the reflection tests).
-<<<<<<< HEAD
-10. Optional next hubs: siteData (#2516); widgetAsset class `@Lazy` (#2519).
-11. Optional residual: field-injection inventory for `IPSFolderHelper` / recycle subgraph (ctor inventory complete under #2485).
-=======
 10. ~~Optional next hubs: siteData reverse-edge freeze.~~ **Done (#2516)** — `PSSiteDataServiceHubReverseEdgeWiringTest`. Optional remaining: widgetAsset class `@Lazy` (#2519).
 11. ~~Optional residual: field-injection inventory for `IPSFolderHelper` / recycle subgraph (ctor inventory complete under #2485).~~ **Done (#2525)** — `PSFolderHelperFieldInjectionInventoryWiringTest`; cycle subgraph is fully ctor-injected, no live reverse field edges.
->>>>>>> 6d56ede3d2 (test(sitemanage): siteDataService hub reverse-edge freeze (#2516))
 12. Optional residual: belt-and-braces param `@Lazy` on other high-fan-in consumer hubs (e.g. pageService / siteData) that inject cycle peers ΓÇö only if product risk warrants; do not treat class `@Lazy` as the fix.
 
 ## Related
@@ -415,11 +407,8 @@ listed in the original inventory and is out of scope for #2526.
 - #2514 ΓÇö pageService hub reverse-edge freeze (`PSPageServiceCycleWiringTest`)  
 - #2515 ΓÇö itemWorkflow cycle-peer param `@Lazy` (`PSItemWorkflowServiceCycleLazyWiringTest`)  
 - #2521 — assetService↔templateService one-way freeze + reverse ban  
-<<<<<<< HEAD
 - #2526 — emptyRecycle / pathService near-cycle belt-and-braces (`PSEmptyRecycleServiceCycleLazyWiringTest`)
-=======
 - #2525 — folderHelper field / setter injection inventory (`PSFolderHelperFieldInjectionInventoryWiringTest`)  
 - #2516 — siteDataService hub reverse-edge freeze (`PSSiteDataServiceHubReverseEdgeWiringTest`)  
->>>>>>> 6d56ede3d2 (test(sitemanage): siteDataService hub reverse-edge freeze (#2516))
 
 - #2457 / PR #2469 ΓÇö JDK 21 lambda compile fix often needed to build sitemanage tests

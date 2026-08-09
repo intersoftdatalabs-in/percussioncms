@@ -154,22 +154,23 @@ public class PSSiteDataServiceHubReverseEdgeWiringTest {
   }
 
   @Test
-  public void cyclePeersAndPageItemHubsMustNotConstructRequireSiteDataService()
-      throws NoSuchMethodException {
+  public void cyclePeersAndPageItemHubsMustNotConstructRequireSiteDataService() {
     for (Class<?> peer : CYCLE_PEERS_AND_PAGE_ITEM_HUBS) {
-      Constructor<?> ctor = singlePublicConstructor(peer);
-      Parameter siteData = findParamOfType(ctor, IPSSiteDataService.class);
-      if (siteData == null) {
-        continue; // desired: no reverse ctor edge
+      // Scan all declared constructors so a non-public @Autowired wiring ctor is not missed.
+      for (Constructor<?> ctor : peer.getDeclaredConstructors()) {
+        Parameter siteData = findParamOfType(ctor, IPSSiteDataService.class);
+        if (siteData == null) {
+          continue; // desired: no reverse ctor edge on this ctor
+        }
+        // Intentional exception path: only allowed with parameter @Lazy
+        assertTrue(
+            siteData.isAnnotationPresent(Lazy.class),
+            peer.getSimpleName()
+                + " construct-requires IPSSiteDataService without @Lazy — that closes a reverse"
+                + " cycle with the siteDataService hub (see #2516). Prefer method-level lookup,"
+                + " setter injection, or @Lazy on the injection point; document intentional @Lazy"
+                + " reverse edges in sitemanage-injection-cycle-inventory.md.");
       }
-      // Intentional exception path: only allowed with parameter @Lazy
-      assertTrue(
-          siteData.isAnnotationPresent(Lazy.class),
-          peer.getSimpleName()
-              + " construct-requires IPSSiteDataService without @Lazy — that closes a reverse"
-              + " cycle with the siteDataService hub (see #2516). Prefer method-level lookup,"
-              + " setter injection, or @Lazy on the injection point; document intentional @Lazy"
-              + " reverse edges in sitemanage-injection-cycle-inventory.md.");
     }
   }
 
@@ -189,7 +190,8 @@ public class PSSiteDataServiceHubReverseEdgeWiringTest {
   public void cyclePeersAndPageItemHubsMustNotEagerFieldInjectSiteDataService() {
     List<String> violations = new ArrayList<>();
     for (Class<?> peer : CYCLE_PEERS_AND_PAGE_ITEM_HUBS) {
-      for (Field field : peer.getDeclaredFields()) {
+      // Walk hierarchy so inherited reverse edges are not silently skipped (#2516 review).
+      for (Field field : declaredFieldsIncludingInherited(peer)) {
         if (!IPSSiteDataService.class.isAssignableFrom(field.getType())
             && !PSSiteDataService.class.isAssignableFrom(field.getType())) {
           continue;
@@ -239,16 +241,44 @@ public class PSSiteDataServiceHubReverseEdgeWiringTest {
         "itemWorkflow → siteDataService would reverse siteData→itemWorkflow forward edge");
   }
 
+  /**
+   * Prefer a single {@code @Autowired} declared constructor (Spring wiring ctor), then fall back
+   * to the single public constructor. Avoids missing a non-public wiring ctor when a public
+   * no-arg also exists (#2516 review).
+   */
   private static Constructor<?> singlePublicConstructor(Class<?> type)
       throws NoSuchMethodException {
-    Constructor<?>[] ctors = type.getConstructors();
-    if (ctors.length != 1) {
+    List<Constructor<?>> autowired = new ArrayList<>();
+    for (Constructor<?> ctor : type.getDeclaredConstructors()) {
+      if (ctor.isAnnotationPresent(Autowired.class)) {
+        autowired.add(ctor);
+      }
+    }
+    if (autowired.size() == 1) {
+      return autowired.get(0);
+    }
+    if (autowired.size() > 1) {
       fail(
           type.getSimpleName()
-              + " expected exactly one public constructor for wiring inspection, found "
-              + ctors.length);
+              + " expected at most one @Autowired constructor for wiring inspection, found "
+              + autowired.size());
     }
-    return ctors[0];
+    Constructor<?>[] publicCtors = type.getConstructors();
+    if (publicCtors.length == 1) {
+      return publicCtors[0];
+    }
+    Constructor<?>[] declared = type.getDeclaredConstructors();
+    if (declared.length == 1) {
+      return declared[0];
+    }
+    fail(
+        type.getSimpleName()
+            + " expected exactly one public (or single declared / @Autowired) constructor for"
+            + " wiring inspection, found public="
+            + publicCtors.length
+            + " declared="
+            + declared.length);
+    return null; // unreachable
   }
 
   private static Parameter findParamOfType(Constructor<?> ctor, Class<?> paramType) {
@@ -260,8 +290,21 @@ public class PSSiteDataServiceHubReverseEdgeWiringTest {
     return null;
   }
 
+  /** Declared fields on {@code bean} and all superclasses (stops at {@link Object}). */
+  private static List<Field> declaredFieldsIncludingInherited(Class<?> bean) {
+    List<Field> fields = new ArrayList<>();
+    Class<?> current = bean;
+    while (current != null && current != Object.class) {
+      for (Field field : current.getDeclaredFields()) {
+        fields.add(field);
+      }
+      current = current.getSuperclass();
+    }
+    return fields;
+  }
+
   private static boolean hasFieldOfType(Class<?> bean, Class<?> fieldType) {
-    for (Field field : bean.getDeclaredFields()) {
+    for (Field field : declaredFieldsIncludingInherited(bean)) {
       if (fieldType.isAssignableFrom(field.getType())) {
         return true;
       }
@@ -269,19 +312,19 @@ public class PSSiteDataServiceHubReverseEdgeWiringTest {
     return false;
   }
 
-  private static void assertNoEagerCtorParam(Class<?> bean, Class<?> forbidden, String why)
-      throws NoSuchMethodException {
-    Constructor<?> ctor = singlePublicConstructor(bean);
-    Parameter p = findParamOfType(ctor, forbidden);
-    if (p == null) {
-      return;
+  private static void assertNoEagerCtorParam(Class<?> bean, Class<?> forbidden, String why) {
+    for (Constructor<?> ctor : bean.getDeclaredConstructors()) {
+      Parameter p = findParamOfType(ctor, forbidden);
+      if (p == null) {
+        continue;
+      }
+      assertTrue(
+          p.isAnnotationPresent(Lazy.class),
+          bean.getSimpleName()
+              + " must not construct-require "
+              + forbidden.getSimpleName()
+              + " without @Lazy: "
+              + why);
     }
-    assertTrue(
-        p.isAnnotationPresent(Lazy.class),
-        bean.getSimpleName()
-            + " must not construct-require "
-            + forbidden.getSimpleName()
-            + " without @Lazy: "
-            + why);
   }
 }
