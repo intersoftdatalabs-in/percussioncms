@@ -1,50 +1,105 @@
 # Percussion CMS
 
-This is the main project for Percussion CMS - the next version of Percussion CM1 and Rhythmyx.
+**Actively maintained by [Intersoft Data Labs](https://www.intsof.com)** · Apache 2.0 · Formerly Percussion CM1 / Rhythmyx / CM System
 
-This project follows the [Universal Code v1.0.0](docs/policies/UC-v1.0.0.md) (vendored; [upstream](https://github.com/monkeyking-hq/universal-code)).
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/)
+[![Latest Release](https://img.shields.io/github/v/release/intersoftdatalabs-in/percussioncms?label=Latest%20Release)](https://github.com/intersoftdatalabs-in/percussioncms/releases)
+
+<p align="center">
+  <img src="docs/images/login-screen.png" alt="Percussion CMS Login Screen" width="720">
+</p>
+
+*The refreshed login experience in the current development line (heading toward 8.2).*
+
+---
 
 ## What is Percussion CMS?
 
-Percussion CMS is the next generation of Percussion Software's proprietary Rhythmyx and CM1 content management products.  The original headless CMS (1999), Percussion CMS has a long history of de-coupled deployments wth easily extensible integration points for delivering content in different formats to different channels.
+Percussion CMS is a mature, enterprise-grade, decoupled / headless-capable content management system with roots going back to 1999. It unifies the content production strengths of the original CM1 with the deep development and integration capabilities of Rhythmyx.
 
-Our goal is to empower the developer and the marketer. Smart architecture, smart API's, smart UI.
+It was designed from the beginning for multi-channel delivery — websites, static sites, XML/JSON feeds, databases, and custom channels — with strong workflow, permissions, and extensibility for both marketers and developers.
 
-## What can I do with it?
+**Smart architecture. Smart APIs. Smart UI.**
 
-* Create and manage one or more web sites - small or large.
-* Re-purpose Website content to database or XML channels.
-* Generate static Web site
-* Control content editorial through Workflows and Permissions.
+Intersoft Data Labs assumed full responsibility for support, maintenance, and ongoing development of the Percussion CMS product line in July 2023 after Percussion Software ended commercial support. This repository is the official open-source home of the product under the Apache 2.0 license.
+
+---
+
+## Current Status (August 2026)
+
+| Version     | Status                          | Notes |
+|-------------|----------------------------------|-------|
+| **8.1.7**   | Current stable release           | June 2026 – security hardening, WCAG 2.1 AA accessibility improvements, Google Analytics 4 support, REST API fixes, and dozens of quality-of-life updates |
+| **8.2**     | Active development / modernization | Performance, headless capabilities, UI modernization (including the new login experience shown above), and platform updates |
+
+The 8.1.x line remains fully supported. Work on the 8.2 release is underway on the `development` branch with a focus on platform modernization, improved developer experience, and continued accessibility/security investment.
+
+**Upgrading to the latest 8.1.x release is strongly recommended** — recent releases contain important security patches.
+
+---
+
+## What can you do with it?
+
+- Create and manage one or more websites (small sites to large multi-site deployments)
+- Re-purpose content to databases, XML/JSON channels, or other delivery endpoints
+- Generate static websites
+- Enforce editorial control through robust workflows and fine-grained permissions
+- Extend the platform with custom applications, templates, and integrations
+- Run fully decoupled / headless or hybrid delivery models
+
+---
 
 ## How do I get it?
 
-Download links are available on the project [Releases page](https://github.com/intersoftdatalabs-in/percussioncms/releases)
+**Binaries and installers** are published on the [Releases page](https://github.com/intersoftdatalabs-in/percussioncms/releases).
 
-### Commercial Providers
+The latest stable release is always featured there.
 
-* [Intersoft Data Labs](https://www.intsof.com) will offer commercial support for Percussion CMS since July 2023.
+### Commercial Support & Services
 
-[Percussion](https://www.percussion.com) ended support for Percussion CMS products in June 2023.
+**Intersoft Data Labs** is the exclusive commercial support and maintenance provider for Percussion CMS (all versions of CMS and Rhythmyx) since July 2023.
 
-## I was a Percussion customer, is this where I download updates?
+- Production support and SLAs
+- Upgrade and migration assistance
+- Custom development and integrations
+- Hosting / managed services options
 
-Yes.  The latest release will be featured in the [Releases page](https://github.com/intersoftdatalabs-in/percussioncms/releases) on this GitHub project.  For Technical Support please see the [Intersoft support portal](https://percussionsupport.intsof.com). The documentation can be found on https://percussioncmshelp.intsof.com and the old Percussion community has been re-homed to https://percussioncmshelp.intsof.com.
+Contact: [inquire@intsof.com](mailto:inquire@intsof.com) · [intsof.com](https://www.intsof.com) · [Support Portal](https://percussionsupport.intsof.com)
+
+Documentation lives at [percussioncmshelp.intsof.com](https://percussioncmshelp.intsof.com).
+
+---
 
 ## Building from Source
 
-This project requires JDK 21 (`JAVA_HOME` must point at a JDK 21 install). Use the repo Maven wrapper to build:
+**Requirements:** JDK 21 (`JAVA_HOME` must point to a JDK 21 installation).
 
 ```bash
-# Linux/macOS
+# Linux / macOS
 ./mvnw clean install
 
 # Windows
 mvnw.cmd clean install
 ```
 
-For detailed build instructions, environment setup, CodeQL scanning, and development guides, see the [Contributor Page](https://github.com/intersoftdatalabs-in/percussioncms/blob/development/CONTRIBUTING.md).
+Detailed build instructions, environment setup, CodeQL configuration, and development guidelines are in the [Contributor Guide](https://github.com/intersoftdatalabs-in/percussioncms/blob/development/CONTRIBUTING.md).
 
-## Interested in Contributing?
+---
 
-Check out our [Contributor Page](https://github.com/intersoftdatalabs-in/percussioncms/blob/development/CONTRIBUTING.md) for more information.
+## Contributing
+
+We welcome contributions. Please see the [Contributor Guide](https://github.com/intersoftdatalabs-in/percussioncms/blob/development/CONTRIBUTING.md) for coding standards, pull-request process, and development workflow.
+
+This project follows the [Universal Code v1.0.0](docs/policies/UC-v1.0.0.md) (vendored; [upstream](https://github.com/monkeyking-hq/universal-code)).
+
+---
+
+## License
+
+Apache License 2.0 — see [LICENSE](LICENSE) for details.
+
+---
+
+**Maintained with care by Intersoft Data Labs**  
+Questions? Open an issue or reach out via the support portal.
