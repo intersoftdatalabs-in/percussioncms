@@ -271,11 +271,11 @@ class DockerRunArgvTests(unittest.TestCase):
         self.assertIn("WAIT_DB_SECONDS=600", joined)
 
     def test_wait_for_container_healthy_dry_run(self):
-        self.assertTrue(
-            smoke.wait_for_container_healthy(
-                "percussion-oracle", 30, dry_run=True
-            )
+        ok, detail = smoke.wait_for_container_healthy(
+            "percussion-oracle", 30, dry_run=True
         )
+        self.assertTrue(ok)
+        self.assertEqual(detail, "dry-run")
 
     def test_build_matrix_image_uses_docker_dir_context(self):
         """#2481: build context is docker/ so HEALTHCHECK scripts can COPY in."""
@@ -305,6 +305,100 @@ class DockerRunArgvTests(unittest.TestCase):
         # Context path is …/docker (parent of matrix/), not …/docker/matrix alone.
         self.assertEqual(Path(argv[-1]), root / "docker")
         self.assertEqual(Path(argv[argv.index("-f") + 1]), root / "docker" / "matrix" / "Dockerfile")
+
+
+class WaitForContainerHealthyPolicyTests(unittest.TestCase):
+    """#2535: docker Health.Status wait policy (fail-fast unhealthy)."""
+
+    def test_inspect_container_health_parses_format(self):
+        import unittest.mock
+        import subprocess as sp
+
+        proc = sp.CompletedProcess(
+            args=[], returncode=0, stdout="healthy|running\n", stderr=""
+        )
+        with unittest.mock.patch.object(smoke.subprocess, "run", return_value=proc):
+            health, status = smoke.inspect_container_health("perc-matrix-cms-h2")
+        self.assertEqual(health, "healthy")
+        self.assertEqual(status, "running")
+
+    def test_inspect_container_health_none_when_no_healthblock(self):
+        import unittest.mock
+        import subprocess as sp
+
+        proc = sp.CompletedProcess(
+            args=[], returncode=0, stdout="none|running\n", stderr=""
+        )
+        with unittest.mock.patch.object(smoke.subprocess, "run", return_value=proc):
+            health, status = smoke.inspect_container_health("some-db")
+        self.assertEqual(health, "none")
+        self.assertEqual(status, "running")
+
+    def test_wait_for_container_healthy_fail_fast_unhealthy(self):
+        """Do not burn the full timeout when inspect already reports unhealthy."""
+        import unittest.mock
+
+        with unittest.mock.patch.object(
+            smoke, "inspect_container_health", return_value=("unhealthy", "running")
+        ) as mock_inspect, unittest.mock.patch.object(
+            smoke.time, "sleep"
+        ) as mock_sleep:
+            ok, detail = smoke.wait_for_container_healthy(
+                "perc-matrix-cms-h2",
+                timeout_seconds=600,
+                dry_run=False,
+                interval_seconds=5,
+            )
+        self.assertFalse(ok)
+        self.assertIn(smoke.DETAIL_DOCKER_UNHEALTHY, detail)
+        self.assertIn("health=unhealthy", detail)
+        mock_inspect.assert_called()
+        mock_sleep.assert_not_called()
+
+    def test_wait_for_container_healthy_success(self):
+        import unittest.mock
+
+        with unittest.mock.patch.object(
+            smoke, "inspect_container_health", return_value=("healthy", "running")
+        ), unittest.mock.patch.object(smoke.time, "sleep") as mock_sleep:
+            ok, detail = smoke.wait_for_container_healthy(
+                "percussion-oracle",
+                timeout_seconds=30,
+                dry_run=False,
+            )
+        self.assertTrue(ok)
+        self.assertIn("healthy", detail)
+        mock_sleep.assert_not_called()
+
+    def test_wait_for_container_healthy_no_healthcheck_allowed(self):
+        import unittest.mock
+
+        with unittest.mock.patch.object(
+            smoke, "inspect_container_health", return_value=("none", "running")
+        ):
+            ok, detail = smoke.wait_for_container_healthy(
+                "percussion-mysql",
+                timeout_seconds=30,
+                dry_run=False,
+                allow_no_healthcheck=True,
+            )
+        self.assertTrue(ok)
+        self.assertIn("no_healthcheck", detail)
+
+    def test_wait_for_container_healthy_exited_fail_fast(self):
+        import unittest.mock
+
+        with unittest.mock.patch.object(
+            smoke, "inspect_container_health", return_value=("none", "exited")
+        ), unittest.mock.patch.object(smoke.time, "sleep") as mock_sleep:
+            ok, detail = smoke.wait_for_container_healthy(
+                "dead-box",
+                timeout_seconds=100,
+                dry_run=False,
+            )
+        self.assertFalse(ok)
+        self.assertIn(smoke.DETAIL_CONTAINER_NOT_RUNNING, detail)
+        mock_sleep.assert_not_called()
 
 
 class WaitForHttpContextFailTests(unittest.TestCase):
@@ -401,6 +495,134 @@ class WaitForHttpContextFailTests(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(detail, "HTTP 200")
         mock_logs.assert_not_called()
+
+
+class WaitForHttpDockerHealthTests(unittest.TestCase):
+    """#2535: CMS wait requires Health.Status=healthy + host belt-and-braces."""
+
+    def test_require_health_fail_fast_unhealthy(self):
+        """Unhealthy inspect must not wait the full probe timeout."""
+        import unittest.mock
+
+        with unittest.mock.patch.object(
+            smoke, "_docker_logs_tail", return_value="Jetty started\n"
+        ), unittest.mock.patch.object(
+            smoke, "inspect_container_health", return_value=("unhealthy", "running")
+        ), unittest.mock.patch.object(
+            smoke.time, "sleep"
+        ) as mock_sleep, unittest.mock.patch.object(
+            smoke.urllib.request, "urlopen"
+        ) as mock_http:
+            ok, detail = smoke.wait_for_http(
+                "http://127.0.0.1:9993/Rhythmyx/login",
+                timeout_seconds=600,
+                interval_seconds=5,
+                dry_run=False,
+                container_name="perc-matrix-cms-h2",
+                require_docker_health=True,
+            )
+        self.assertFalse(ok)
+        self.assertIn(smoke.DETAIL_DOCKER_UNHEALTHY, detail)
+        self.assertIn("health=unhealthy", detail)
+        mock_http.assert_not_called()
+        mock_sleep.assert_not_called()
+
+    def test_require_health_success_when_healthy_and_http_ok(self):
+        import unittest.mock
+
+        class _Resp:
+            def getcode(self):
+                return 200
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+        with unittest.mock.patch.object(
+            smoke, "_docker_logs_tail", return_value="Server Started\n"
+        ), unittest.mock.patch.object(
+            smoke, "inspect_container_health", return_value=("healthy", "running")
+        ), unittest.mock.patch.object(
+            smoke.urllib.request, "urlopen", return_value=_Resp()
+        ), unittest.mock.patch.object(smoke.time, "sleep") as mock_sleep:
+            ok, detail = smoke.wait_for_http(
+                "http://127.0.0.1:9993/Rhythmyx/login",
+                timeout_seconds=30,
+                interval_seconds=5,
+                dry_run=False,
+                container_name="perc-matrix-cms-h2",
+                require_docker_health=True,
+            )
+        self.assertTrue(ok)
+        self.assertIn("HTTP 200", detail)
+        self.assertIn("health=healthy", detail)
+        mock_sleep.assert_not_called()
+
+    def test_require_health_waits_while_starting_even_if_http_ok(self):
+        """HTTP green during start_period is not enough — need healthy."""
+        import unittest.mock
+
+        class _Resp:
+            def getcode(self):
+                return 200
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+        # First poll: starting; second: healthy.
+        health_seq = iter(
+            [("starting", "running"), ("healthy", "running")]
+        )
+
+        def _inspect(_name, **_kw):
+            return next(health_seq)
+
+        with unittest.mock.patch.object(
+            smoke, "_docker_logs_tail", return_value="ok\n"
+        ), unittest.mock.patch.object(
+            smoke, "inspect_container_health", side_effect=_inspect
+        ), unittest.mock.patch.object(
+            smoke.urllib.request, "urlopen", return_value=_Resp()
+        ), unittest.mock.patch.object(smoke.time, "sleep") as mock_sleep:
+            ok, detail = smoke.wait_for_http(
+                "http://127.0.0.1:9993/Rhythmyx/login",
+                timeout_seconds=30,
+                interval_seconds=0.01,
+                dry_run=False,
+                container_name="perc-matrix-cms-h2",
+                require_docker_health=True,
+            )
+        self.assertTrue(ok)
+        self.assertIn("health=healthy", detail)
+        mock_sleep.assert_called()
+
+    def test_require_health_still_fail_fast_on_context_log_markers(self):
+        """Host rhythmyx_ready log scan remains belt-and-braces (#2462)."""
+        import unittest.mock
+
+        dead = "Failed startup of context Rhythmyx\n"
+        with unittest.mock.patch.object(
+            smoke, "_docker_logs_tail", return_value=dead
+        ), unittest.mock.patch.object(
+            smoke, "inspect_container_health", return_value=("starting", "running")
+        ), unittest.mock.patch.object(smoke.time, "sleep") as mock_sleep:
+            ok, detail = smoke.wait_for_http(
+                "http://127.0.0.1:9993/Rhythmyx/login",
+                timeout_seconds=600,
+                interval_seconds=5,
+                dry_run=False,
+                container_name="perc-matrix-cms-h2",
+                require_docker_health=True,
+            )
+        self.assertFalse(ok)
+        self.assertIn(smoke.DETAIL_CONTEXT_FAILED, detail)
+        self.assertIn("health=starting", detail)
+        mock_sleep.assert_not_called()
 
 
 class InstallArgvTests(unittest.TestCase):

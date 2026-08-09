@@ -248,7 +248,7 @@ python docker/scripts/perc-devctl.py down
 
 #### QA mode (`qa-up` / `qa-health` / `qa-down`)
 
-Starts an ephemeral **CMS + H2** matrix cell (same stack as `matrix-install-smoke.py --product cms --db h2 --keep`), waits for the resolved probe URL (`http://127.0.0.1:<QA_CMS_HOST_PORT>/Rhythmyx/login`), prints `TEST_CMS_URL` / admin username (password from generated install file when available), and tears down with `docker rm -f perc-matrix-cms-h2` so ports and disk are freed (no multi-GB named volume by default). Full operator flow: [workbench-rest-and-qa-modes.md](../docs/developer-module/workbench-rest-and-qa-modes.md) → **QA mode** section. Concurrent freeport checklist: **Two-worktree concurrent freeport smoke** above.
+Starts an ephemeral **CMS + H2** matrix cell (same stack as `matrix-install-smoke.py --product cms --db h2 --keep`), waits for docker `Health.Status=healthy` **and** the resolved host probe URL (`http://127.0.0.1:<QA_CMS_HOST_PORT>/Rhythmyx/login`) with host log scan, prints `TEST_CMS_URL` / admin username (password from generated install file when available), and tears down with `docker rm -f perc-matrix-cms-h2` so ports and disk are freed (no multi-GB named volume by default). Full operator flow: [workbench-rest-and-qa-modes.md](../docs/developer-module/workbench-rest-and-qa-modes.md) → **QA mode** section. Concurrent freeport checklist: **Two-worktree concurrent freeport smoke** above.
 
 ##### Rhythmyx ApplicationContext fail-fast (#2462 / #2480 / #2423)
 
@@ -262,9 +262,29 @@ Jetty can report the HTTP connector **Started** while the ROOT/Rhythmyx Spring `
 | `RESULT:FAIL … DETAIL:timeout after Ns (last_http=…)` | `qa-health` | Probe never became ready; if logs later show context fail, re-run `qa-health` or `docker logs perc-matrix-cms-h2` |
 | `RESULT:FAIL … DETAIL:timeout after Ns (cms_http=… dts_http=… health=…)` | `verify` | Stack never became ready; scan `docker logs percussion-cms-dts` for context markers |
 | Matrix `status=fail` + `detail` containing `rhythmyx_context_failed` | `matrix-install-smoke.py` CMS cells | Same fail-fast during cell HTTP wait (container log scan) |
+| Matrix `status=fail` + `detail` containing `docker_health_unhealthy` | `matrix-install-smoke.py` CMS cells / `qa-up` | **Fail-fast** when `docker inspect` already reports `Health.Status=unhealthy` — does **not** burn full `--probe-timeout` (#2535 / #2481) |
+| Matrix `status=fail` + `detail` containing `docker_health_timeout` | same | Probe timed out while health was still `starting` / not `healthy` |
 | Docker `Health.Status=healthy` | matrix cell / cms-dts image HEALTHCHECK (#2481) | In-container login probe ready **and** local Jetty logs have **no** context-failure markers |
 | Docker `Health.Status=unhealthy` | same | Context failed and/or login not ready — **do not** attach Playwright; inspect health log + `docker logs` |
 | Docker `Health.Status=starting` | same | Still inside HEALTHCHECK `start_period` (matrix cells: long install window) |
+
+##### Matrix / qa-up wait policy (CMS cells, #2535)
+
+After the in-image HEALTHCHECK lands (#2481), **CMS** matrix cells (and therefore `perc-devctl qa-up`, which delegates to `matrix-install-smoke.py --product cms --db h2 --keep`) wait with this combined policy:
+
+1. **Host log scan** (`rhythmyx_ready` markers) — fail-fast on context death (unchanged belt-and-braces from #2462).
+2. **Docker `Health.Status`** — require `healthy`; **fail-fast** when inspect already reports `unhealthy` (do not wait full `--probe-timeout`).
+3. **Host HTTP probe** — `/Rhythmyx/login` ready codes (200/302/401/403).
+
+HTTP alone during HEALTHCHECK `start_period` (status still `starting`) is **not** enough. Rebuild the matrix image after pulling HEALTHCHECK changes so the cell has a real health block.
+
+```bash
+# CMS cell / qa-up wait DETAIL tokens (matrix JSON detail / probe failed: …):
+#   docker_health_unhealthy health=unhealthy status=running …
+#   docker_health_timeout health=starting status=running last=HTTP 200 …
+#   rhythmyx_context_failed match='Failed startup of context' …
+docker inspect -f "{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}" perc-matrix-cms-h2
+```
 
 Markers (shared helper `docker/scripts/rhythmyx_ready.py`): `Failed startup of context`, `BeanCurrentlyInCreationException`, `Requested bean is currently in creation`, `Is there an unresolvable circular reference`.
 

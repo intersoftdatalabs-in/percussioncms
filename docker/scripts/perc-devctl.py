@@ -1212,11 +1212,14 @@ def _qa_fetch_admin_password(container_name: str) -> Optional[str]:
 
 
 def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
-    """Bring up CMS on H2 in Docker and wait until the probe URL is ready.
+    """Bring up CMS on H2 in Docker and wait until the cell is ready.
 
     Delegates install/start/health-wait to ``matrix-install-smoke.py`` with
-    ``--product cms --db h2 --keep``. On success prints ``TEST_CMS_URL`` and
-    admin credential guidance for Playwright / agents.
+    ``--product cms --db h2 --keep``. CMS wait requires docker
+    ``Health.Status=healthy`` (fail-fast when already unhealthy — #2535 /
+    #2481), host HTTP probe, and host ``rhythmyx_ready`` log scan. On success
+    prints ``TEST_CMS_URL`` and admin credential guidance for Playwright /
+    agents.
 
     Host port is resolved via :func:`ensure_qa_cms_host_port` (env override
     or freeport) and exported as ``QA_CMS_HOST_PORT`` / ``CMS_HOST_PORT`` so
