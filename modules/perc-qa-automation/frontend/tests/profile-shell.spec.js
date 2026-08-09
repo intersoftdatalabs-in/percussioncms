@@ -15,11 +15,14 @@
  */
 
 /**
- * Profile hub shell smoke + axe WCAG gate
- * (#2393 / #2425 / #2427 / #2497 / #2498 / #2501 / parent #2374).
+ * Profile hub shell smoke + axe WCAG gate + locale title residual
+ * (#2393 / #2425 / #2427 / #2497 / #2498 / #2499 / #2501 / parent #2374).
  *
  * Surface-filtered only — not full suite:
  *   npm run test:surface -- --path tests/profile-shell.spec.js
+ *
+ * Locale title residual only (#2499):
+ *   npm run test:surface -- --path tests/profile-shell.spec.js --grep "locale"
  *
  * Axe-only subset (serious/critical zero on hub after deep link + menu entry):
  *   npm run test:surface -- --path tests/profile-shell.spec.js --grep "axe-core"
@@ -41,6 +44,8 @@
  * deep-link smoke + axe, non-admin UserMenu → My profile click path (#2497),
  * and non-admin UserMenu → My profile axe (#2501) so profile is not admin-only
  * (#2374 acceptance / #2427 residual).
+ * Locale residual: login with de or es and assert perc-profile-title via TMX
+ * string — not English-only /my profile/i.
  * Inventory: helpers/golden-unattended-smoke-set.js (id profile-shell, tier extended).
  */
 
@@ -49,9 +54,20 @@ const {
   loginAsAdmin,
   loginAsEditor,
   loginAsContributor,
+  listModernLoginLocales,
   BASE_URL,
 } = require("./helpers/auth");
 const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
+const {
+  pickPreferredLocaleTag,
+  localeLanguageFamily,
+} = require("./helpers/pick-locale-tag");
+const {
+  expectedProfileTitle,
+  profileTitleMatcher,
+  PROFILE_TITLE_PREFERRED_LOCALES,
+  ENGLISH_PROFILE_TITLE_MATCHER,
+} = require("./helpers/profile-shell-title");
 
 /** Stable CSS scope for axe — matches data-testid on ProfileShell root. */
 const PROFILE_SHELL_SCOPE = '[data-testid="perc-profile-shell"]';
@@ -69,8 +85,11 @@ function homeUrl() {
  * Shared by smoke and axe tests so a11y scans run only after React paint.
  *
  * @param {import('@playwright/test').Page} page
+ * @param {object} [opts]
+ * @param {RegExp|string} [opts.titleMatcher] title text match; default English smoke
  */
-async function expectProfileShellMounted(page) {
+async function expectProfileShellMounted(page, opts = {}) {
+  const titleMatcher = opts.titleMatcher || ENGLISH_PROFILE_TITLE_MATCHER;
   await expect(page.getByTestId("perc-spa-app")).toBeVisible({
     timeout: 30_000,
   });
@@ -78,7 +97,7 @@ async function expectProfileShellMounted(page) {
     timeout: 30_000,
   });
   await expect(page.getByTestId("perc-profile-title")).toContainText(
-    /my profile/i,
+    titleMatcher,
   );
   await expect(page.getByTestId("perc-profile-section-account")).toBeVisible();
   await expect(page.getByTestId("perc-profile-section-security")).toBeVisible();
@@ -88,6 +107,53 @@ async function expectProfileShellMounted(page) {
   await expect(page.getByTestId("perc-profile-section-avatar")).toBeVisible();
   // Client path after entry handoff (or still query — accept either)
   await expect(page).toHaveURL(/profile/i, { timeout: 15_000 });
+}
+
+/**
+ * Pick de-de/de/es from the live login locale list (modern or legacy).
+ *
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<{ tag: string, family: string, title: string, titleRe: RegExp }>}
+ */
+async function resolveProfileTitleLocale(page) {
+  await page.goto(`${BASE_URL}/Rhythmyx/login`);
+  await page.waitForLoadState("domcontentloaded");
+  // Both root + page may be present; .first() avoids strict-mode dual match.
+  await expect(
+    page
+      .getByTestId("perc-login-page")
+      .or(page.getByTestId("perc-login-root"))
+      .first(),
+  ).toBeVisible({ timeout: 20_000 });
+
+  let available = await listModernLoginLocales(page);
+  if (available.length === 0) {
+    const native = page.locator('select[name="j_locale"]');
+    if ((await native.count()) > 0) {
+      available = await native
+        .locator("option")
+        .evaluateAll((opts) => opts.map((o) => o.value).filter(Boolean));
+    }
+  }
+
+  const tag = pickPreferredLocaleTag(
+    available,
+    PROFILE_TITLE_PREFERRED_LOCALES,
+  );
+  expect(
+    tag,
+    `install must expose de-de, de, or es for profile title locale residual (available=${JSON.stringify(available)})`,
+  ).toBeTruthy();
+
+  const family = localeLanguageFamily(tag);
+  const title = expectedProfileTitle(family);
+  const titleRe = profileTitleMatcher(family);
+  expect(
+    title && titleRe,
+    `no profile title map for language family ${family} (tag=${tag})`,
+  ).toBeTruthy();
+
+  return { tag, family, title, titleRe };
 }
 
 test.describe("Profile shell @profile @smoke", () => {
@@ -307,5 +373,34 @@ test.describe("Profile shell @profile @smoke", () => {
     await expectNoSeriousA11yViolations(page, {
       scope: PROFILE_SHELL_SCOPE,
     });
+  });
+
+  /**
+   * #2499 / parent #2374 — after modern-locale TMX (#2426), non-English
+   * login must render perc-profile-title from CmsUi.tmx (de: Mein Profil,
+   * es: mi perfil), not English-only /my profile/i.
+   *
+   * Surface filter:
+   *   npm run test:surface -- --path tests/profile-shell.spec.js --grep "locale"
+   */
+  test("non-English locale shows localized profile title (#2499)", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+
+    const { tag, family, title, titleRe } =
+      await resolveProfileTitleLocale(page);
+
+    await loginAsAdmin(page, { locale: tag });
+    await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
+    await expectProfileShellMounted(page, { titleMatcher: titleRe });
+
+    const titleEl = page.getByTestId("perc-profile-title");
+    await expect(titleEl).toHaveText(titleRe, { timeout: 15_000 });
+    // Guard against English fallback when session locale is de/es.
+    if (family !== "en") {
+      await expect(titleEl).not.toHaveText(/^\s*My profile\s*$/i);
+      await expect(titleEl).toContainText(title, { ignoreCase: true });
+    }
   });
 });

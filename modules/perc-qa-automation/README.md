@@ -562,13 +562,19 @@ npm run test:surface:list -- --tag explorer-recycle-restore
 class as #2464; Admin login that remains on `/Rhythmyx/login` fails with an
 explicit #2542 / #2423 message — do not soft-skip.
 
-#### Profile shell + axe WCAG (#2393 / #2425 / #2427 / #2497 / #2498 / #2501 / parent #2374)
+#### Profile shell + axe WCAG + locale title (#2393 / #2425 / #2427 / #2497 / #2498 / #2499 / #2501 / parent #2374)
 
 Smoke opens the **My profile** hub via deep link and user-menu entry (Admin,
-Editor, Contributor); axe-core gates assert **zero serious/critical** WCAG 2.1
-A/AA violations on `[data-testid="perc-profile-shell"]` for **Admin, Editor,
+Editor, Contributor); English smoke keeps `/my profile/i` on
+`perc-profile-title`. Locale residual (**#2499**): login with **de** or **es**
+(prefer `de-de`/`de`, then `es`) and assert the title via TMX
+`perc.ui.profile.modern@My profile` (`Mein Profil` / `mi perfil`) — not
+English-only. Axe-core gates assert **zero serious/critical** WCAG 2.1 A/AA
+violations on `[data-testid="perc-profile-shell"]` for **Admin, Editor,
 and Contributor** (helper: `tests/helpers/a11y.js`). #2501 extends the #2427
 Admin-only axe residual to non-admin roles (deep link + My profile menu).
+Title map helper: `tests/helpers/profile-shell-title.js`
+(unit: `npm run test:unit` → `profile-shell-title.test.js`).
 
 **Unattended matrix:** `@profile` is on the **extended** golden multi-path set
 (`npm run test:golden-extended`) so overnight/CI reference gates do not miss
@@ -580,6 +586,8 @@ Baseline `test:golden` stays login + Explorer only.
 | Spec | `frontend/tests/profile-shell.spec.js` |
 | Tags | `@profile` `@smoke` |
 | Golden inventory id | `profile-shell` (tier `extended`) |
+| Locale residual | `#2499` — `--grep "locale"` |
+| Title helper | `tests/helpers/profile-shell-title.js` |
 | Axe helper | `tests/helpers/a11y.js` → `expectNoSeriousA11yViolations` |
 
 ```bash
@@ -594,6 +602,9 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 # Extended golden multi-path (baseline + folder-recycle + profile)
 npm run test:golden-extended
 npm run test:golden-extended:list
+
+# Locale title residual only (#2499)
+npm run test:surface -- --path tests/profile-shell.spec.js --grep "locale"
 
 # Axe gates only (Admin + Editor + Contributor)
 npm run test:surface -- --path tests/profile-shell.spec.js --grep "axe-core"
