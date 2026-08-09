@@ -90,9 +90,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+/**
+ * Widget/asset relationship hub on the known {@code folderHelper} creation path (inventory #2463
+ * rank-4). Class-level {@link Lazy @Lazy} defers bean creation until first use (hub alignment with
+ * page/template/itemWorkflow; #2519). Class {@code @Lazy} is <em>not</em> a constructor-edge cycle
+ * breaker when an eager consumer forces full construction — reverse-edge freezes live in {@code
+ * PSWidgetAssetRelationshipServiceHubReverseEdgeWiringTest}.
+ */
 @Component("widgetAssetRelationshipService")
+@Lazy
 public class PSWidgetAssetRelationshipService implements IPSWidgetAssetRelationshipService {
   private IPSWidgetService widgetService;
 
