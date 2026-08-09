@@ -10,7 +10,10 @@ Layer 1 harness:
        - copies/mounts the installer jar
        - silent + no-tty install with ``--db.*``
        - starts Jetty (CMS) or Tomcat (DTS)
-  4. Probe login / health URL from the host
+  4. Probe login / health URL from the host; CMS cells also require
+     docker ``Health.Status=healthy`` (fail-fast when already unhealthy —
+     #2535 residual of #2481 HEALTHCHECK) while keeping host
+     ``rhythmyx_ready`` log scan as belt-and-braces
   5. Record JSON + RESULT line under ``docker/logs/``
   6. Destroy the cell unless ``--keep``
   7. Stop external DBs this process started (unless ``--keep`` / ``--keep-db``)
@@ -96,6 +99,18 @@ LOG = logging.getLogger("matrix-install-smoke")
 EXIT_OK = 0
 EXIT_INVOCATION = 1
 EXIT_CELL_FAILED = 2
+
+# DETAIL tokens for docker Health.Status wait policy (#2535 residual of #2481).
+# Coordinate RESULT shape with perc-devctl HEALTH: column (#2537): same tokens.
+DETAIL_DOCKER_UNHEALTHY = "docker_health_unhealthy"
+DETAIL_DOCKER_HEALTH_TIMEOUT = "docker_health_timeout"
+DETAIL_CONTAINER_NOT_RUNNING = "container_not_running"
+
+# docker inspect format shared by DB + CMS health waits (#2481 / #2535).
+_DOCKER_HEALTH_INSPECT_FMT = (
+    "{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}"
+    "|{{.State.Status}}"
+)
 
 DEFAULT_COMPOSE_FILE = "docker-compose.yml"
 DEFAULT_ENV_FILE = ".env.compose"
@@ -771,14 +786,58 @@ def start_db(
         except ValueError:
             healthy_timeout = 0
         if healthy_timeout > 0:
-            if not wait_for_container_healthy(
+            ok, detail = wait_for_container_healthy(
                 container, healthy_timeout, dry_run=dry_run
-            ):
+            )
+            if not ok:
                 raise RuntimeError(
-                    f"Timed out waiting for healthy status on {container} "
-                    f"after {healthy_timeout}s (db_type={db_type})"
+                    f"Waiting for healthy status on {container} failed after "
+                    f"{healthy_timeout}s (db_type={db_type}): {detail}"
                 )
     return started_by_matrix
+
+
+def inspect_container_health(
+    container: str,
+    *,
+    timeout: float = 30.0,
+) -> Tuple[str, str]:
+    """Return ``(health_status, container_status)`` from ``docker inspect``.
+
+    * ``health_status`` — ``healthy`` / ``unhealthy`` / ``starting`` / ``none``
+      when inspect succeeds; ``unknown`` when docker is missing or inspect fails.
+    * ``container_status`` — e.g. ``running`` / ``exited`` / empty / ``unknown``.
+
+    Pure side-effect: one ``docker inspect`` call. Unit-testable via
+    ``subprocess.run`` mock (#2535).
+    """
+    if not container:
+        return "unknown", "unknown"
+    try:
+        proc = subprocess.run(
+            [
+                "docker",
+                "inspect",
+                "--format",
+                _DOCKER_HEALTH_INSPECT_FMT,
+                container,
+            ],
+            shell=False,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        LOG.debug("inspect_container_health %s: %s", container, exc)
+        return "unknown", "unknown"
+    if proc.returncode != 0:
+        return "unknown", "unknown"
+    raw = (proc.stdout or "").strip()
+    health, _, status = raw.partition("|")
+    health = health.strip().lower() or "unknown"
+    status = status.strip().lower() or "unknown"
+    return health, status
 
 
 def wait_for_container_healthy(
@@ -787,63 +846,77 @@ def wait_for_container_healthy(
     *,
     dry_run: bool,
     interval_seconds: float = 5.0,
-) -> bool:
+    allow_no_healthcheck: bool = True,
+) -> Tuple[bool, str]:
     """Wait until ``docker inspect`` reports Health.Status == healthy.
 
-    Containers without a healthcheck (Status empty / none) are treated as ready
-    once they are running, so other compose DB profiles stay non-blocking.
+    Returns ``(ok, detail)`` where ``detail`` is a short machine-friendly token
+    string for cell / RuntimeError messages (#2535).
+
+    Policy:
+
+    * ``healthy`` → success immediately.
+    * ``unhealthy`` → **fail-fast** (do not wait remaining timeout). Docker has
+      already decided the HEALTHCHECK failed (DB or CMS cell).
+    * ``exited`` / ``dead`` / ``removing`` → fail-fast.
+    * ``starting`` → keep polling until timeout.
+    * No healthcheck (``none`` / empty) + running:
+      - if ``allow_no_healthcheck`` (default, compose DB profiles without a
+        healthcheck) → treat as ready;
+      - else keep waiting / timeout (CMS cells require a real HEALTHCHECK).
+
+    Host-side log scan is **not** done here — CMS cells use
+    :func:`wait_for_http` with ``require_docker_health=True`` for the combined
+    policy (Health.Status + host HTTP + ``rhythmyx_ready`` log scan).
     """
     if dry_run:
         LOG.info("DRY-RUN: wait for healthy %s (%ss)", container, timeout_seconds)
-        return True
+        return True, "dry-run"
     deadline = time.time() + timeout_seconds
+    last_health = "unknown"
+    last_status = "unknown"
     while time.time() < deadline:
-        try:
-            proc = subprocess.run(
-                [
-                    "docker",
-                    "inspect",
-                    "--format",
-                    "{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}|{{.State.Status}}",
-                    container,
-                ],
-                shell=False,
-                check=False,
-                capture_output=True,
-                text=True,
-                timeout=30,
+        health, status = inspect_container_health(container)
+        last_health, last_status = health, status
+        if health == "healthy":
+            LOG.info("Container %s is healthy", container)
+            return True, f"healthy status={status}"
+        if health == "unhealthy":
+            detail = (
+                f"{DETAIL_DOCKER_UNHEALTHY} health={health} status={status}"
             )
-            raw = (proc.stdout or "").strip()
-            health, _, status = raw.partition("|")
-            health = health.strip().lower()
-            status = status.strip().lower()
-            if health == "healthy":
-                LOG.info("Container %s is healthy", container)
-                return True
-            if health in ("", "none") and status == "running":
-                LOG.info(
-                    "Container %s is running (no healthcheck); treating as ready",
-                    container,
-                )
-                return True
-            if status in ("exited", "dead", "removing"):
-                LOG.error("Container %s is %s (health=%s)", container, status, health)
-                return False
+            LOG.error("Container %s is unhealthy — fail-fast (%s)", container, detail)
+            return False, detail
+        if status in ("exited", "dead", "removing"):
+            detail = (
+                f"{DETAIL_CONTAINER_NOT_RUNNING} status={status} health={health}"
+            )
+            LOG.error("Container %s is %s (health=%s)", container, status, health)
+            return False, detail
+        if allow_no_healthcheck and health in ("", "none") and status == "running":
             LOG.info(
-                "Waiting for %s healthy (health=%s status=%s)",
+                "Container %s is running (no healthcheck); treating as ready",
                 container,
-                health or "?",
-                status or "?",
             )
-        except (OSError, subprocess.SubprocessError) as exc:
-            LOG.debug("wait_for_container_healthy %s: %s", container, exc)
+            return True, f"no_healthcheck status={status}"
+        LOG.info(
+            "Waiting for %s healthy (health=%s status=%s)",
+            container,
+            health or "?",
+            status or "?",
+        )
         time.sleep(interval_seconds)
+    detail = (
+        f"{DETAIL_DOCKER_HEALTH_TIMEOUT} health={last_health} "
+        f"status={last_status} timeout={timeout_seconds}s"
+    )
     LOG.error(
-        "Timed out waiting for healthy status on %s after %ss",
+        "Timed out waiting for healthy status on %s after %ss (%s)",
         container,
         timeout_seconds,
+        detail,
     )
-    return False
+    return False, detail
 
 
 def stop_external_dbs(
@@ -964,6 +1037,7 @@ def wait_for_http(
     interval_seconds: float = 5.0,
     dry_run: bool,
     container_name: Optional[str] = None,
+    require_docker_health: bool = False,
 ) -> Tuple[bool, str]:
     """Poll ``url`` until HTTP ready codes, or fail-fast on Rhythmyx context death.
 
@@ -971,21 +1045,54 @@ def wait_for_http(
     ``docker logs`` for Spring/Jetty ApplicationContext failure markers.
     A dead Rhythmyx context fails the probe **immediately** even if Jetty
     still answers HTTP (#2462 residual of #2423).
+
+    When ``require_docker_health`` is True (CMS matrix cells / qa-up path after
+    #2481 — issue #2535), each poll also reads ``docker inspect`` Health.Status:
+
+    * ``unhealthy`` → fail-fast with :data:`DETAIL_DOCKER_UNHEALTHY` (do not
+      wait the full ``timeout_seconds``).
+    * Success requires Health.Status ``healthy`` **and** HTTP ready **and**
+      no context-failure markers (host log scan remains belt-and-braces).
+    * ``starting`` / ``none`` / ``unknown`` → keep polling until timeout.
+
+    DETAIL strings use stable tokens so agents / RESULT parsers can match
+    ``docker_health_unhealthy`` and ``rhythmyx_context_failed`` (coordinate
+    with perc-devctl ``HEALTH:`` column from #2537).
     """
     if dry_run:
         return True, "dry-run"
     deadline = time.time() + timeout_seconds
     last = ""
+    last_health = "unknown"
     while time.time() < deadline:
         # Fail-fast: Jetty up + Spring context dead must not wait full timeout.
         if container_name:
             logs = _docker_logs_tail(container_name)
             match = find_rhythmyx_context_failure(logs)
             if match is not None:
+                health_suffix = ""
+                if require_docker_health:
+                    last_health, _st = inspect_container_health(container_name)
+                    health_suffix = f" health={last_health}"
                 return (
                     False,
-                    f"{DETAIL_CONTEXT_FAILED} match={match!r} last={last or 'n/a'}",
+                    f"{DETAIL_CONTEXT_FAILED} match={match!r} "
+                    f"last={last or 'n/a'}{health_suffix}",
                 )
+            if require_docker_health:
+                last_health, status = inspect_container_health(container_name)
+                if last_health == "unhealthy":
+                    return (
+                        False,
+                        f"{DETAIL_DOCKER_UNHEALTHY} health={last_health} "
+                        f"status={status} last={last or 'n/a'}",
+                    )
+                if status in ("exited", "dead", "removing"):
+                    return (
+                        False,
+                        f"{DETAIL_CONTAINER_NOT_RUNNING} status={status} "
+                        f"health={last_health} last={last or 'n/a'}",
+                    )
         try:
             req = urllib.request.Request(url, method="GET")
             with urllib.request.urlopen(req, timeout=10) as resp:
@@ -1001,7 +1108,14 @@ def wait_for_http(
                                 f"{DETAIL_CONTEXT_FAILED} match={match!r} "
                                 f"http={code}",
                             )
-                    return True, f"HTTP {code}"
+                    if require_docker_health:
+                        # Host HTTP ready is not enough — need inspect healthy.
+                        if last_health != "healthy":
+                            last = f"HTTP {code} health={last_health}"
+                        else:
+                            return True, f"HTTP {code} health={last_health}"
+                    else:
+                        return True, f"HTTP {code}"
                 last = f"HTTP {code}"
         except urllib.error.HTTPError as exc:
             # Some login paths return 401/403 before auth — treat as up.
@@ -1015,7 +1129,13 @@ def wait_for_http(
                             f"{DETAIL_CONTEXT_FAILED} match={match!r} "
                             f"http={exc.code}",
                         )
-                return True, f"HTTP {exc.code}"
+                if require_docker_health:
+                    if last_health != "healthy":
+                        last = f"HTTP {exc.code} health={last_health}"
+                    else:
+                        return True, f"HTTP {exc.code} health={last_health}"
+                else:
+                    return True, f"HTTP {exc.code}"
             last = f"HTTPError {exc.code}"
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
             last = str(exc)
@@ -1025,9 +1145,24 @@ def wait_for_http(
         logs = _docker_logs_tail(container_name)
         match = find_rhythmyx_context_failure(logs)
         if match is not None:
+            health_suffix = f" health={last_health}" if require_docker_health else ""
             return (
                 False,
-                f"{DETAIL_CONTEXT_FAILED} match={match!r} last={last or 'timeout'}",
+                f"{DETAIL_CONTEXT_FAILED} match={match!r} "
+                f"last={last or 'timeout'}{health_suffix}",
+            )
+        if require_docker_health:
+            last_health, status = inspect_container_health(container_name)
+            if last_health == "unhealthy":
+                return (
+                    False,
+                    f"{DETAIL_DOCKER_UNHEALTHY} health={last_health} "
+                    f"status={status} last={last or 'timeout'}",
+                )
+            return (
+                False,
+                f"{DETAIL_DOCKER_HEALTH_TIMEOUT} health={last_health} "
+                f"status={status} last={last or 'timeout'}",
             )
     return False, last or "timeout"
 
@@ -1136,12 +1271,16 @@ def run_cell(
 
     # Capture container logs while waiting. CMS cells pass container_name so
     # a dead Rhythmyx ApplicationContext fails the probe even if Jetty HTTP
-    # still answers (#2462 / #2423).
+    # still answers (#2462 / #2423). After #2481 HEALTHCHECK, CMS cells also
+    # require docker Health.Status=healthy and fail-fast when already
+    # unhealthy (#2535). Host log scan remains belt-and-braces.
+    is_cms = cell.product == "cms"
     ok, detail = wait_for_http(
         probe_url,
         timeout_seconds=probe_timeout,
         dry_run=dry_run,
-        container_name=name if cell.product == "cms" else None,
+        container_name=name if is_cms else None,
+        require_docker_health=is_cms,
     )
     if not dry_run:
         logs = _run(
