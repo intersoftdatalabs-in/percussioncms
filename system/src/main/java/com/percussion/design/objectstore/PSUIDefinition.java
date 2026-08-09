@@ -509,11 +509,15 @@ public class PSUIDefinition extends PSComponent {
   /**
    * A collection of PSUISet objects, gets initialized when this object is read from xml, may be
    * <code>null</code> if the xml does not define this element. If it is not <code>null</code> it is
-   * never empty.
+   * never empty. Typed as {@link PSCollection} which is {@link java.io.Serializable} (utils #2450 /
+   * #2452 serial-field residual).
    */
   private PSCollection m_defaultUI = null;
 
-  /** The display mapper, never <code>null</code> after construction. */
+  /**
+   * The display mapper, never <code>null</code> after construction. {@link PSDisplayMapper} extends
+   * {@link PSCollectionComponent} / {@link PSCollection} and is Serializable (#2450 / #2452).
+   */
   private PSDisplayMapper m_displayMapper = null;
 
   /*
