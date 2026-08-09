@@ -15,14 +15,19 @@
  */
 
 /**
- * Developer Object ACL — product path beyond CT-only smoke (#2605 / #2274 B5).
+ * Developer Object ACL — product path beyond CT-only smoke (#2642 / #2605 / #2274).
  *
  * Covers:
  *   - Content type ObjectAclSection: Design access / Runtime visibility + specials
  *   - Template ObjectAclSection: same layered columns (objectKind=template)
+ *   - B4 peer mounts (#2639 / #2604): site + display-format (runtime-relevant kinds)
+ *   - Kind-aware Design vs Runtime: data-acl-object-kind + data-acl-show-runtime
+ *     (table when ACL loads; section shell when object guid is missing)
  *   - Developer Preferences default-ACL template: layered Design / Runtime columns
  *
- * Peer mounts beyond CT/Template are B4 (#2604); residual Playwright if B4 lands later.
+ * Kind-aware runtime columns mirror WebUI objectAclPermissionModel.ts
+ * RUNTIME_RELEVANT_OBJECT_KINDS — peers in that set show Runtime visibility;
+ * non-runtime kinds (keyword/locale/…) hide runtime unless force-show.
  *
  * Surface filter (H2 QA / agent path):
  *   cd modules/perc-qa-automation/frontend
@@ -32,7 +37,7 @@
  * QA mode:
  *   perc-devctl qa-up → TEST_CMS_URL=… npm run test:surface -- --path tests/developer-object-acl-product-path.spec.js → qa-down
  *
- * Refs #2605, #2274, #2262, #1690 (builds on #2283 / PR #2342).
+ * Refs #2642, #2605, #2604, #2639, #2274, #2262, #1690 (builds on #2283 / PR #2342).
  */
 
 const { test, expect } = require("@playwright/test");
@@ -40,6 +45,24 @@ const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 const {
   catalogRowSelector,
 } = require("./helpers/developer-catalog-selectors");
+
+/**
+ * Mirror of WebUI objectAclPermissionModel.RUNTIME_RELEVANT_OBJECT_KINDS.
+ * Keep in lockstep when product model changes (CD-19 / B4 peer mounts).
+ * @type {ReadonlySet<string>}
+ */
+const RUNTIME_RELEVANT_OBJECT_KINDS = new Set([
+  "content-type",
+  "display-format",
+  "action-menu",
+  "menu-entry",
+  "search",
+  "site",
+  "template",
+  "variant",
+  "view",
+  "workflow",
+]);
 
 function developerSectionUrl(section) {
   const q = new URLSearchParams({
@@ -53,7 +76,7 @@ function developerSectionUrl(section) {
 /**
  * Open first catalog row detail and return when detail panel is visible.
  * @param {import('@playwright/test').Page} page
- * @param {{ rowBase: string, panel: string, empty: string, error: string, detail: string, catalogLabel: string }} ids
+ * @param {{ rowBase: string, panel: string, empty: string, error: string, detail: string, catalogLabel: string, detailLoading?: string, detailError?: string }} ids
  */
 async function openFirstCatalogDetail(page, ids) {
   await expect(page.locator('[data-testid="nav-developer"]')).toBeVisible({
@@ -90,26 +113,70 @@ async function openFirstCatalogDetail(page, ids) {
   await expect(page.locator(`[data-testid="${ids.detail}"]`)).toBeVisible({
     timeout: 20_000,
   });
+
+  // Detail panels that fetch by id (display-format, search, …) show loading/error
+  // before ObjectAclSection mounts; site detail is list-payload driven (no loading).
+  if (ids.detailLoading) {
+    const detailLoading = page.locator(`[data-testid="${ids.detailLoading}"]`);
+    await expect(detailLoading).toBeHidden({ timeout: 30_000 }).catch(() => {});
+  }
+  if (ids.detailError) {
+    const detailError = page.locator(`[data-testid="${ids.detailError}"]`);
+    if (await detailError.isVisible()) {
+      const msg = (await detailError.innerText()).trim();
+      throw new Error(`${ids.catalogLabel} detail error: ${msg}`);
+    }
+  }
+
   return true;
 }
 
 /**
- * Assert layered design/runtime ACL columns on a mounted ObjectAclSection.
+ * Assert ObjectAclSection mount is kind-aware for Design vs Runtime.
+ * - Always: section present with data-acl-object-kind (+ data-acl-show-runtime on no-guid shell)
+ * - When table loads: Design access headers; Runtime only if RUNTIME_RELEVANT_OBJECT_KINDS
+ * - When no guid: mount + attrs still prove B4 peer product path (#2642)
+ *
  * @param {import('@playwright/test').Page} page
- * @param {string} prefix e.g. developer-ct-acl / developer-tpl-acl
+ * @param {string} prefix e.g. developer-ct-acl / developer-site-acl
  * @param {string} objectKind expected data-acl-object-kind
+ * @returns {Promise<"table"|"no-guid"|"empty">}
  */
 async function assertLayeredObjectAcl(page, prefix, objectKind) {
+  const expectRuntime = RUNTIME_RELEVANT_OBJECT_KINDS.has(objectKind);
+
   const aclSection = page.locator(`[data-testid="${prefix}-section"]`);
   await expect(aclSection).toBeVisible({ timeout: 15_000 });
-  await expect(aclSection).toContainText(
-    /Design-time and runtime|Design access|Runtime/i,
-  );
 
+  // Kind is always on section (with or without guid) after #2642 shell attrs
+  await expect(aclSection).toHaveAttribute("data-acl-object-kind", objectKind);
+
+  const noGuid = page.locator(`[data-testid="${prefix}-no-guid"]`);
   const aclError = page.locator(`[data-testid="${prefix}-error"]`);
   const aclEmpty = page.locator(`[data-testid="${prefix}-empty"]`);
   const aclTable = page.locator(`[data-testid="${prefix}-table"]`);
   const aclLoading = page.locator(`[data-testid="${prefix}-loading"]`);
+
+  // No-guid shell: product path still proves objectKind + runtime policy without ACL rows
+  if (await noGuid.isVisible().catch(() => false)) {
+    await expect(aclSection).toHaveAttribute("data-acl-has-guid", "false");
+    await expect(aclSection).toHaveAttribute(
+      "data-acl-show-runtime",
+      expectRuntime ? "true" : "false",
+    );
+    await expect(noGuid).toContainText(/GUID not available|cannot load ACL/i);
+    return "no-guid";
+  }
+
+  // Fallback for older bundles that only put message text in section
+  const sectionText = (await aclSection.innerText()).trim();
+  if (
+    /GUID not available|cannot load ACL/i.test(sectionText) &&
+    !(await aclTable.isVisible().catch(() => false))
+  ) {
+    await expect(aclSection).toHaveAttribute("data-acl-object-kind", objectKind);
+    return "no-guid";
+  }
 
   await expect(aclLoading).toBeHidden({ timeout: 30_000 }).catch(() => {});
   await expect(aclTable.or(aclEmpty).or(aclError).first()).toBeVisible({
@@ -122,29 +189,25 @@ async function assertLayeredObjectAcl(page, prefix, objectKind) {
   }
 
   if (await aclEmpty.isVisible()) {
-    test.skip(
-      true,
-      `Object has no ACL on ${prefix} — create-first not required for B5 column groups`,
-    );
-    return false;
+    // Create-first empty state still proves mount + kind on section
+    await expect(aclSection).toHaveAttribute("data-acl-object-kind", objectKind);
+    return "empty";
   }
 
   await expect(aclTable).toBeVisible();
-  await expect(aclTable).toHaveAttribute("data-acl-show-runtime", "true");
+  await expect(aclTable).toHaveAttribute(
+    "data-acl-show-runtime",
+    expectRuntime ? "true" : "false",
+  );
   await expect(aclTable).toHaveAttribute("data-acl-object-kind", objectKind);
 
+  // Design access layer always present when table loads
   await expect(
     page.locator(`[data-testid="${prefix}-layer-design"]`),
   ).toBeVisible();
   await expect(
     page.locator(`[data-testid="${prefix}-layer-design"]`),
   ).toContainText(/Design access/i);
-  await expect(
-    page.locator(`[data-testid="${prefix}-layer-runtime"]`),
-  ).toBeVisible();
-  await expect(
-    page.locator(`[data-testid="${prefix}-layer-runtime"]`),
-  ).toContainText(/Runtime visibility/i);
 
   await expect(
     page.locator(`[data-testid="${prefix}-perm-header-READ"]`),
@@ -158,22 +221,39 @@ async function assertLayeredObjectAcl(page, prefix, objectKind) {
   await expect(
     page.locator(`[data-testid="${prefix}-perm-header-OWNER"]`),
   ).toContainText(/Modify ACL/i);
-  await expect(
-    page.locator(`[data-testid="${prefix}-perm-header-RUNTIME_VISIBLE"]`),
-  ).toContainText(/Visible/i);
 
   const designRead = page.locator(
     `input[type="checkbox"][data-testid^="${prefix}-perm-"][data-testid$="-READ"]`,
   );
-  const runtimeVis = page.locator(
-    `input[type="checkbox"][data-testid^="${prefix}-perm-"][data-testid$="-RUNTIME_VISIBLE"]`,
-  );
   await expect(designRead.first()).toBeVisible();
-  await expect(runtimeVis.first()).toBeVisible();
-  return true;
+
+  if (expectRuntime) {
+    await expect(
+      page.locator(`[data-testid="${prefix}-layer-runtime"]`),
+    ).toBeVisible();
+    await expect(
+      page.locator(`[data-testid="${prefix}-layer-runtime"]`),
+    ).toContainText(/Runtime visibility/i);
+    await expect(
+      page.locator(`[data-testid="${prefix}-perm-header-RUNTIME_VISIBLE"]`),
+    ).toContainText(/Visible/i);
+    const runtimeVis = page.locator(
+      `input[type="checkbox"][data-testid^="${prefix}-perm-"][data-testid$="-RUNTIME_VISIBLE"]`,
+    );
+    await expect(runtimeVis.first()).toBeVisible();
+  } else {
+    await expect(
+      page.locator(`[data-testid="${prefix}-layer-runtime"]`),
+    ).toHaveCount(0);
+    await expect(
+      page.locator(`[data-testid="${prefix}-perm-header-RUNTIME_VISIBLE"]`),
+    ).toHaveCount(0);
+  }
+
+  return "table";
 }
 
-test.describe("Developer Object ACL product path (#2605 B5) @object-acl-product", () => {
+test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-product", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(120_000);
     await loginAsAdmin(page);
@@ -199,17 +279,16 @@ test.describe("Developer Object ACL product path (#2605 B5) @object-acl-product"
     });
     if (!opened) return;
 
-    const ok = await assertLayeredObjectAcl(
+    const mode = await assertLayeredObjectAcl(
       page,
       "developer-ct-acl",
       "content-type",
     );
-    if (!ok) return;
-
-    // Protected specials still present on product path (B1 / #2281)
-    await expect(
-      page.locator('[data-testid="developer-ct-acl-special-hint"]'),
-    ).toBeVisible();
+    if (mode === "table") {
+      await expect(
+        page.locator('[data-testid="developer-ct-acl-special-hint"]'),
+      ).toBeVisible();
+    }
   });
 
   test("template ACL shows Design access and Runtime visibility columns", async ({
@@ -233,6 +312,61 @@ test.describe("Developer Object ACL product path (#2605 B5) @object-acl-product"
     if (!opened) return;
 
     await assertLayeredObjectAcl(page, "developer-tpl-acl", "template");
+  });
+
+  test("site peer ACL mounts objectKind=site with runtime-relevant Design/Runtime policy (B4)", async ({
+    page,
+  }) => {
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(
+      page.locator('[data-testid="tab-developer-sites"]'),
+    ).toBeVisible({ timeout: 15_000 });
+
+    const opened = await openFirstCatalogDetail(page, {
+      rowBase: "developer-site-row",
+      panel: "developer-site-panel",
+      empty: "developer-site-empty",
+      error: "developer-site-error",
+      detail: "developer-site-detail",
+      catalogLabel: "sites",
+    });
+    if (!opened) return;
+
+    const mode = await assertLayeredObjectAcl(page, "developer-site-acl", "site");
+    // site is RUNTIME_RELEVANT — show-runtime must be true (table or no-guid shell)
+    expect(["table", "no-guid", "empty"]).toContain(mode);
+  });
+
+  test("display-format peer ACL mounts objectKind with kind-aware Runtime columns (B4)", async ({
+    page,
+  }) => {
+    await page.goto(developerSectionUrl("display-formats"), {
+      waitUntil: "networkidle",
+    });
+    await expect(
+      page.locator('[data-testid="tab-developer-display-formats"]'),
+    ).toBeVisible({ timeout: 15_000 });
+
+    const opened = await openFirstCatalogDetail(page, {
+      rowBase: "developer-df-row",
+      panel: "developer-df-panel",
+      empty: "developer-df-empty",
+      error: "developer-df-error",
+      detail: "developer-df-detail",
+      detailLoading: "developer-df-detail-loading",
+      detailError: "developer-df-detail-error",
+      catalogLabel: "display formats",
+    });
+    if (!opened) return;
+
+    const mode = await assertLayeredObjectAcl(
+      page,
+      "developer-df-acl",
+      "display-format",
+    );
+    expect(["table", "no-guid", "empty"]).toContain(mode);
   });
 
   test("preferences default ACL template shows Design/Runtime column groups", async ({

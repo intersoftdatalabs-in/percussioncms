@@ -585,16 +585,34 @@ export function ObjectAclSection({
   }
 
   if (!objectGuid) {
+    // Still expose kind + runtime gating so product-path / peer mounts can assert
+    // Workbench-aligned column policy when list/detail payloads omit guid (#2642).
+    const showRuntimeNoGuid = shouldShowRuntimeAccessColumns(objectKind, {
+      forceShow: false,
+    });
     return (
-      <section style={{ marginBottom: "16px" }} data-testid={`${testIdPrefix}-section`}>
+      <section
+        style={{ marginBottom: "16px" }}
+        data-testid={`${testIdPrefix}-section`}
+        data-acl-object-kind={objectKind ?? "unknown"}
+        data-acl-show-runtime={showRuntimeNoGuid ? "true" : "false"}
+        data-acl-has-guid="false"
+      >
         <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.ACL_TITLE}</h3>
-        <p style={{ color: catalogColors.empty }}>{DEV_MSG.ACL_NO_GUID}</p>
+        <p style={{ color: catalogColors.empty }} data-testid={`${testIdPrefix}-no-guid`}>
+          {DEV_MSG.ACL_NO_GUID}
+        </p>
       </section>
     );
   }
 
   return (
-    <section style={{ marginBottom: "16px" }} data-testid={`${testIdPrefix}-section`}>
+    <section
+      style={{ marginBottom: "16px" }}
+      data-testid={`${testIdPrefix}-section`}
+      data-acl-object-kind={objectKind ?? "unknown"}
+      data-acl-has-guid="true"
+    >
       <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.ACL_TITLE}</h3>
       <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.ACL_HINT}</p>
       <p
