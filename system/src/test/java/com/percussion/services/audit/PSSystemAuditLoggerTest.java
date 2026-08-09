@@ -26,6 +26,8 @@ import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.intsof.percussioncms.auditlog.DefaultAuditLogService;
 import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
 import com.intsof.percussioncms.auditlog.spi.ConcurrentMemoryAuditLogRepository;
@@ -267,6 +269,49 @@ class PSSystemAuditLoggerTest {
     assertEquals(
         SecurityErrorCodes.SESS_NOT_AUTHORIZED.numericCode(),
         IPSSecurityErrors.SESS_NOT_AUTHORIZED);
+    assertEquals(
+        SecurityErrorCodes.OS_IMPERSONATE_FAILURE.numericCode(),
+        IPSSecurityErrors.OS_IMPERSONATE_FAILURE);
+    assertEquals(
+        SecurityErrorCodes.HOST_ADDR_FILTER_INVALID.numericCode(),
+        IPSSecurityErrors.HOST_ADDR_FILTER_INVALID);
+  }
+
+  @Test
+  void legacyFolderPermissionDeniedDualWrites() {
+    var id =
+        PSSystemAuditLogger.logLegacyIfAuditable(
+            PathItemErrorCodes.FOLDER_PERMISSION_DENIED.numericCode(),
+            AuditContext.builder().actor("editor").build());
+
+    assertTrue(!id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(1, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    assertEquals(
+        PathItemErrorCodes.FOLDER_PERMISSION_DENIED,
+        ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0).code());
+  }
+
+  @Test
+  void legacyDesignServerAclNoAdminDualWrites() {
+    var id =
+        PSSystemAuditLogger.logLegacyIfAuditable(
+            DesignErrorCodes.SRV_ACL_NO_ADMIN.numericCode(),
+            AuditContext.builder().actor("admin").build());
+
+    assertTrue(!id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(
+        DesignErrorCodes.SRV_ACL_NO_ADMIN,
+        ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0).code());
+  }
+
+  @Test
+  void legacyOsMetaNoiseSkipsDualWrite() {
+    var id =
+        PSSystemAuditLogger.logLegacyIfAuditable(
+            IPSSecurityErrors.OSMETA_GET_OBJECTS_FAILURE, AuditContext.empty());
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertEquals(0, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
   }
 
   @Test

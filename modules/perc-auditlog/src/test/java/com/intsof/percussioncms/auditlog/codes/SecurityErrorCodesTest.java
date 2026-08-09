@@ -84,5 +84,21 @@ class SecurityErrorCodesTest {
     assertEquals(9009, SecurityErrorCodes.USER_NOT_AUTHORIZED.numericCode());
     assertEquals(9021, SecurityErrorCodes.GENERIC_AUTHENTICATION_FAILED.numericCode());
     assertEquals(9801, SecurityErrorCodes.DIR_AUTHENTICATION_FAILED.numericCode());
+    assertEquals(9501, SecurityErrorCodes.HOST_ADDR_FILTER_INVALID.numericCode());
+    assertEquals(9601, SecurityErrorCodes.OS_IMPERSONATE_FAILURE.numericCode());
+    assertEquals(9701, SecurityErrorCodes.LOCAL_ROLE_NOT_DEFINED.numericCode());
+    assertEquals(9852, SecurityErrorCodes.BETABLE_ERROR_UID_NOT_UNIQUE.numericCode());
+    assertEquals(9903, SecurityErrorCodes.PARSE_JNDI_PROVIDER_URL_ERROR.numericCode());
+  }
+
+  @Test
+  void residualSecRangesAuditableFlags() {
+    assertTrue(SecurityErrorCodes.OS_IMPERSONATE_FAILURE.isAuditable());
+    assertTrue(SecurityErrorCodes.BETABLE_ERROR_UID_NOT_UNIQUE.isAuditable());
+    assertTrue(SecurityErrorCodes.LOCAL_ROLE_ALREADY_DEFINED.isAuditable());
+    assertFalse(SecurityErrorCodes.HOST_ADDR_FILTER_INVALID.isAuditable());
+    assertFalse(SecurityErrorCodes.OSMETA_GET_OBJECTS_FAILURE.isAuditable());
+    assertFalse(SecurityErrorCodes.DIR_PASSWORD_FILTER_INIT_ERROR.isAuditable());
+    assertFalse(SecurityErrorCodes.MISSING_REQUIRED_ATTRIBUTE.isAuditable());
   }
 }
