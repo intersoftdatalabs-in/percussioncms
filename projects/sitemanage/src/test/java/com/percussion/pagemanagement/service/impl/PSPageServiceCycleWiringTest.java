@@ -19,38 +19,79 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.percussion.assetmanagement.dao.impl.PSAssetDao;
+import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
+import com.percussion.assetmanagement.service.impl.PSAssetService;
+import com.percussion.assetmanagement.service.impl.PSWidgetAssetRelationshipService;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
+import com.percussion.itemmanagement.service.impl.PSItemWorkflowService;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.recycle.service.IPSRecycleService;
+import com.percussion.recycle.service.impl.PSRecycleService;
 import com.percussion.share.dao.IPSContentItemDao;
 import com.percussion.share.dao.IPSFolderHelper;
+import com.percussion.share.dao.impl.PSContentItemDao;
+import com.percussion.share.dao.impl.PSFolderHelper;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
 /**
- * Reverse-edge cycle protection for {@link PSPageService} (#2423 residual #2514).
+ * Reverse-edge cycle protection for the {@link PSPageService} high fan-in hub (#2423 residual
+ * #2514).
  *
  * <p>Per the static inventory in {@code
  * docs/ai-generated/tasks/2423-spring-injection-cycle/sitemanage-injection-cycle-inventory.md},
  * {@code PSPageService} is the rank-1 sitemanage fan-in hub (out ~11 / in ~28) and
- * construct-requires the cycle peers {@code contentItemDao}, {@code folderHelper},
- * {@code recycleService}, {@code widgetAssetRelationshipService}, and {@code
- * itemWorkflow}. The forward edges are intentional and broken on the {@code contentItemDao}
- * side via class {@code @Lazy} there. This test forbids the reverse edges: cycle peers and
- * other high-risk partners must not construct-require {@link IPSPageService}, since adding
- * such a reverse edge would close a new cycle path even with class {@code @Lazy} on
- * {@code PSPageService} (peer-cycle reasoning — see {@code
- * PSAssetServicePageServiceNearCycleWiringTest}).</p>
+ * construct-requires the cycle peers:
  *
- * <p>Peers: {@code PSAssetServicePageServiceNearCycleWiringTest} ({@code PSAssetService}
- * ↔ {@code PSPageService}), {@code PSContentItemDaoCycleLazyWiringTest} (folderHelper cycle
- * break), {@code PSTemplateServiceCycleWiringTest} (#2477).</p>
+ * <pre>
+ * pageService
+ *   → contentItemDao
+ *   → folderHelper
+ *   → recycleService
+ *   → widgetAssetRelationshipService
+ *   → itemWorkflow
+ * </pre>
+ *
+ * <p>The forward edges are intentional and broken on the {@code contentItemDao} side via param
+ * {@code @Lazy} there (path A). This test freezes the reverse direction: cycle peers and related
+ * high-risk hubs must not construct-require or eagerly field-inject {@link IPSPageService} without
+ * parameter/field {@link Lazy @Lazy}, since adding such a reverse edge would close a new cycle path
+ * independent of the contentItemDao break.
+ *
+ * <p><strong>Intentional {@code @Lazy} exception (documented, not banned):</strong> {@link
+ * PSAssetService} construct-requires {@code IPSPageService} with param {@code @Lazy} (#2476). That
+ * is a product consumer edge, not a cycle-peer reverse. It is asserted as present + {@code @Lazy}
+ * below; the companion reverse ban ({@code PSPageService ↛ IPSAssetService}) lives in {@code
+ * PSAssetServicePageServiceNearCycleWiringTest}.
+ *
+ * <p>Peers: {@code PSItemWorkflowServiceHubReverseEdgeWiringTest} (#2478 pattern this class
+ * mirrors), {@code PSAssetServicePageServiceNearCycleWiringTest}, {@code
+ * PSContentItemDaoCycleLazyWiringTest}, {@code PSTemplateServiceCycleWiringTest} (#2477).
  */
 @Tag("UnitTest")
 public class PSPageServiceCycleWiringTest {
+
+  /**
+   * Cycle peers and high-risk intermediates that pageService construct-requires (or that sit on
+   * the known folderHelper→…→contentItemDao chain). None of these may reverse-require {@link
+   * IPSPageService} without {@code @Lazy}.
+   */
+  private static final Class<?>[] CYCLE_PEERS = {
+    PSFolderHelper.class,
+    PSContentItemDao.class,
+    PSRecycleService.class,
+    PSWidgetAssetRelationshipService.class,
+    PSItemWorkflowService.class,
+    PSAssetDao.class
+  };
 
   @Test
   public void pageServiceIsClassLevelLazy() {
@@ -59,63 +100,124 @@ public class PSPageServiceCycleWiringTest {
         "PSPageService must carry class-level @Lazy to harden against cycle formation"
             + " (#2423 residual #2514 / #2463 inventory). Class @Lazy defers the bean until"
             + " first use, breaking any eager consumer path that could close a cycle through"
-            + " pageService.");
+            + " pageService. Class @Lazy is lazy-init only — not a substitute for reverse-edge"
+            + " bans or param @Lazy on reverse partners.");
+  }
+
+  @Test
+  public void pageServiceConstructRequiresCyclePeers() throws NoSuchMethodException {
+    Constructor<?> ctor = singlePublicConstructor(PSPageService.class);
+
+    assertNotNull(
+        findParamOfType(ctor, IPSFolderHelper.class),
+        "PSPageService must still construct-require IPSFolderHelper — inventory #2463 / #2514 hub"
+            + " model; the cycle is broken on contentItemDao, not by removing this forward edge");
+    assertNotNull(
+        findParamOfType(ctor, IPSContentItemDao.class),
+        "PSPageService must still construct-require IPSContentItemDao; removing the edge would"
+            + " invalidate the contentItemDao @Lazy break relative to this hub");
+    assertNotNull(
+        findParamOfType(ctor, IPSRecycleService.class),
+        "PSPageService must still construct-require IPSRecycleService; reverse-edge into recycle is"
+            + " forbidden below");
+    assertNotNull(
+        findParamOfType(ctor, IPSWidgetAssetRelationshipService.class),
+        "PSPageService must still construct-require IPSWidgetAssetRelationshipService (inventory"
+            + " #2463 cycle peer)");
+    assertNotNull(
+        findParamOfType(ctor, IPSItemWorkflowService.class),
+        "PSPageService must still construct-require IPSItemWorkflowService (inventory #2463 cycle"
+            + " peer); reverse itemWorkflow→pageService is banned below");
   }
 
   /**
-   * The reverse edges are the dangerous ones: cycle peers must not construct-require
-   * IPSPageService. This locks down the four cycle peers the #2463 inventory named.
-   *
-   * <p>Note: {@code PSAssetService} already takes {@link IPSPageService} as a forward
-   * ctor edge (param {@code @Lazy}, peer #2476 / #2463). That edge is intentional and
-   * mitigated by the param-level {@code @Lazy} on {@code PSAssetService}, so it is
-   * <em>not</em> banned here. The companion reverse-edge check lives in
-   * {@code PSAssetServicePageServiceNearCycleWiringTest}: that test forbids
-   * {@code PSPageService → IPSAssetService} (the other direction of the near-cycle).</p>
+   * Reverse edges are the dangerous ones: cycle peers must not construct-require {@link
+   * IPSPageService} without param {@code @Lazy}. Intentional reverse edges (none among cycle peers
+   * today) must use parameter {@code @Lazy} and be documented in the inventory note.
    */
   @Test
   public void cyclePeersMustNotConstructRequirePageService() throws NoSuchMethodException {
-    assertNoCtorParam(
-        singlePublicConstructor(
-            com.percussion.share.dao.impl.PSFolderHelper.class),
-        IPSPageService.class,
-        "folderHelper → pageService would close a folderHelper↔pageService cycle");
-    assertNoCtorParam(
-        singlePublicConstructor(
-            com.percussion.share.dao.impl.PSContentItemDao.class),
-        IPSPageService.class,
-        "contentItemDao → pageService would reverse the existing pageService→contentItemDao"
-            + " forward edge and form a new cycle path");
-    assertNoCtorParam(
-        singlePublicConstructor(
-            com.percussion.recycle.service.impl.PSRecycleService.class),
-        IPSPageService.class,
-        "recycleService → pageService would close a pageService↔recycleService cycle branch");
-    assertNoCtorParam(
-        singlePublicConstructor(
-            com.percussion.itemmanagement.service.impl.PSItemWorkflowService.class),
-        IPSPageService.class,
-        "itemWorkflow → pageService would close a pageService↔itemWorkflow cycle branch");
+    for (Class<?> peer : CYCLE_PEERS) {
+      Constructor<?> ctor = singlePublicConstructor(peer);
+      Parameter page = findParamOfType(ctor, IPSPageService.class);
+      if (page == null) {
+        continue; // desired: no reverse ctor edge
+      }
+      // Intentional exception path: only allowed with parameter @Lazy
+      assertTrue(
+          page.isAnnotationPresent(Lazy.class),
+          peer.getSimpleName()
+              + " construct-requires IPSPageService without @Lazy — that closes a reverse cycle"
+              + " with the pageService hub (see #2514). Prefer method-level lookup, setter"
+              + " injection, or @Lazy on the injection point; document intentional @Lazy reverse"
+              + " edges in sitemanage-injection-cycle-inventory.md.");
+    }
   }
 
   /**
-   * Belt-and-braces: PSPageService must keep construct-requiring its cycle peers (forward
-   * edges). The cycle is broken by contentItemDao's class @Lazy, not by removing the
-   * forward edges. If anyone removes a forward edge they should also remove the
-   * corresponding reverse-edge ban here AND update the inventory.
+   * Eager {@code @Autowired} field inject of {@link IPSPageService} on a cycle peer is the same
+   * class of reverse edge as a constructor param (class-level {@code @Lazy} on the peer does not
+   * break an eager field edge from a bean already under construction).
+   *
+   * <p>Also flags unannotated fields of that type (legacy XML/setter surfaces) unless marked {@code
+   * @Lazy}.
    */
   @Test
-  public void pageServiceConstructorKeepsCyclePeerForwardEdges() throws NoSuchMethodException {
-    Constructor<?> ctor = singlePublicConstructor(PSPageService.class);
-    assertHasCtorParam(ctor, IPSFolderHelper.class, "PSPageService must still construct-require"
-        + " folderHelper (cycle inventory #2463); the cycle is broken on contentItemDao, not"
-        + " here");
-    assertHasCtorParam(ctor, IPSContentItemDao.class, "PSPageService must still construct-require"
-        + " contentItemDao (cycle inventory #2463); removing the edge would invalidate the"
-        + " contentItemDao @Lazy break");
-    assertHasCtorParam(ctor, IPSRecycleService.class, "PSPageService must still construct-require"
-        + " recycleService (cycle inventory #2463); reverse-edge into recycle is forbidden"
-        + " above");
+  public void cyclePeersMustNotEagerFieldInjectPageService() {
+    List<String> violations = new ArrayList<>();
+    for (Class<?> peer : CYCLE_PEERS) {
+      for (Field field : peer.getDeclaredFields()) {
+        if (!IPSPageService.class.isAssignableFrom(field.getType())) {
+          continue;
+        }
+        if (field.isAnnotationPresent(Lazy.class)) {
+          continue; // documented intentional reverse edge
+        }
+        boolean autowired = field.isAnnotationPresent(Autowired.class);
+        violations.add(
+            peer.getSimpleName()
+                + "."
+                + field.getName()
+                + (autowired ? " (@Autowired)" : " (field type)")
+                + " — reverse field edge without @Lazy");
+      }
+    }
+    assertTrue(
+        violations.isEmpty(),
+        "Cycle peers must not eagerly field-inject IPSPageService (use @Lazy or remove the edge)."
+            + " Violations: "
+            + String.join("; ", violations));
+  }
+
+  /**
+   * Documented intentional reverse partner: {@link PSAssetService} → {@link IPSPageService} with
+   * param {@code @Lazy} (#2476). Not a cycle peer of the folderHelper chain, but the next-hottest
+   * near-cycle consumer of pageService. Must remain {@code @Lazy}; bare reverse would re-open
+   * assetService↔pageService risk independent of folderHelper.
+   */
+  @Test
+  public void assetServiceIntentionalPageServiceEdgeIsLazy() throws NoSuchMethodException {
+    Constructor<?> ctor = singlePublicConstructor(PSAssetService.class);
+    Parameter pageParam = findParamOfType(ctor, IPSPageService.class);
+    assertNotNull(
+        pageParam,
+        "PSAssetService must still construct-require IPSPageService — inventory #2463 / #2476"
+            + " intentional reverse partner of the pageService hub; if removed, update inventory"
+            + " and PSAssetServicePageServiceNearCycleWiringTest");
+    assertTrue(
+        pageParam.isAnnotationPresent(Lazy.class),
+        "IPSPageService constructor parameter on PSAssetService must remain @Lazy (intentional"
+            + " reverse partner of the pageService hub; see #2476 / #2514). Do not drop @Lazy"
+            + " without a new cycle break documented in the inventory.");
+  }
+
+  @Test
+  public void contentItemDaoStillHasNoPageServiceConstructorEdge() throws NoSuchMethodException {
+    // Explicit named assertion for the known-cycle break peer (contentItemDao is the @Lazy site)
+    assertNoEagerCtorParam(
+        PSContentItemDao.class,
+        IPSPageService.class,
+        "contentItemDao → pageService would couple the cycle-break peer to the rank-1 hub");
   }
 
   @Test
@@ -123,8 +225,10 @@ public class PSPageServiceCycleWiringTest {
     // Sanity guard: PSPageService must declare exactly one public constructor for Spring
     // wiring inspection; this test enforces the assumption shared by all assertions above.
     Constructor<?> ctor = singlePublicConstructor(PSPageService.class);
-    assertNotNull(ctor, "PSPageService must declare exactly one public constructor for Spring"
-        + " wiring inspection; this test enforces the assumption");
+    assertNotNull(
+        ctor,
+        "PSPageService must declare exactly one public constructor for Spring wiring inspection;"
+            + " this test enforces the assumption");
   }
 
   private static Constructor<?> singlePublicConstructor(Class<?> type)
@@ -139,32 +243,28 @@ public class PSPageServiceCycleWiringTest {
     return ctors[0];
   }
 
-  private static void assertNoCtorParam(
-      Constructor<?> ctor, Class<?> forbidden, String why) {
+  private static Parameter findParamOfType(Constructor<?> ctor, Class<?> paramType) {
     for (Parameter p : ctor.getParameters()) {
-      if (forbidden.isAssignableFrom(p.getType())) {
-        fail(
-            ctor.getDeclaringClass().getSimpleName()
-                + " must not construct-require "
-                + forbidden.getSimpleName()
-                + ": "
-                + why);
+      if (paramType.isAssignableFrom(p.getType())) {
+        return p;
       }
     }
+    return null;
   }
 
-  private static void assertHasCtorParam(
-      Constructor<?> ctor, Class<?> expected, String why) {
-    for (Parameter p : ctor.getParameters()) {
-      if (expected.isAssignableFrom(p.getType())) {
-        return;
-      }
+  private static void assertNoEagerCtorParam(Class<?> bean, Class<?> forbidden, String why)
+      throws NoSuchMethodException {
+    Constructor<?> ctor = singlePublicConstructor(bean);
+    Parameter p = findParamOfType(ctor, forbidden);
+    if (p == null) {
+      return;
     }
-    fail(
-        ctor.getDeclaringClass().getSimpleName()
-            + " must still construct-require "
-            + expected.getSimpleName()
-            + ": "
+    assertTrue(
+        p.isAnnotationPresent(Lazy.class),
+        bean.getSimpleName()
+            + " must not construct-require "
+            + forbidden.getSimpleName()
+            + " without @Lazy: "
             + why);
   }
 }
