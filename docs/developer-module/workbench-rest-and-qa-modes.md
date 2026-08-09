@@ -123,7 +123,7 @@ cd modules/perc-distribution-tree && ../../mvnw package -DskipTests
 # Windows: cd modules\perc-distribution-tree && ..\..\mvnw.cmd package -DskipTests
 ```
 
-**Post-cycle-fix smoke (#2423 / #2437):** after the rebuild chain, `qa-up` logs must show `ServletContextHandler] Started` for ROOT/Rhythmyx and **must not** contain `BeanCurrentlyInCreationException` / `Failed startup of context`. `qa-health` → login page HTTP 200/302 is the operator gate before Playwright.
+**Post-cycle-fix smoke (#2423 / #2437):** after the rebuild chain, `qa-up` logs must show `ServletContextHandler] Started` for ROOT/Rhythmyx and **must not** contain `BeanCurrentlyInCreationException` / `Failed startup of context`. `qa-health` → `HTTP 200/302/401/403` on the **probe URL** is the operator gate before Playwright. The default probe URL is the matrix-recommended primary `/Rhythmyx/rest/mimetypes` (#2482; Spring-managed `MimeTypeResource.ping()` — returns 404 instead of 200 when the Rhythmyx Spring `ApplicationContext` is dead). Legacy `/Rhythmyx/login` is still accepted as a fallback but only proves Jetty is up, not Spring. Override with env `RHYTHMYX_HEALTH_PATH=…` (honored by `perc-devctl.py qa-health`, in-image `rhythmyx_healthcheck.py`, and any external orchestrator). Full matrix + capability analysis: [`../ai-generated/tasks/2482-readiness-signal/rhythmyx-readiness-probe-matrix.md`](../ai-generated/tasks/2482-readiness-signal/rhythmyx-readiness-probe-matrix.md).
 
 **Lifecycle (always use this order for unattended QA):**
 
@@ -174,12 +174,13 @@ python docker/scripts/perc-devctl.py qa-down
 | Published base URL   | `TEST_CMS_URL` from `qa-up` (`http://127.0.0.1:<port>`)                  |
 | Preferred baseline   | Host port `9993` when free and no env override                           |
 | Env override         | `QA_CMS_HOST_PORT` or `CMS_HOST_PORT` (matrix docker `-p` uses the same) |
-| Probe path           | `/Rhythmyx/login`                                                        |
+| Probe path           | `/Rhythmyx/rest/mimetypes` (default #2482; override via `RHYTHMYX_HEALTH_PATH`) |
 | Container name       | `perc-matrix-cms-h2`                                                     |
 | Admin user           | `Admin` (password from install generated passwords)                      |
 | RESULT line contract | `RESULT:OK\|FAIL STEP:qa-up\|qa-health\|qa-down LOG:…`                   |
 | Context fail-fast    | `DETAIL:rhythmyx_context_failed MATCH:…` when Jetty logs show dead Rhythmyx Spring context (#2462); helper `docker/scripts/rhythmyx_ready.py` |
 | Docker Health.Status | `healthy` / `unhealthy` / `starting` via in-image `rhythmyx_healthcheck.py` (#2481); same markers as `rhythmyx_ready` |
+| Probe URL matrix     | See [`../ai-generated/tasks/2482-readiness-signal/rhythmyx-readiness-probe-matrix.md`](../ai-generated/tasks/2482-readiness-signal/rhythmyx-readiness-probe-matrix.md) (#2482); `PROBE_URL_MATRIX` constant in `docker/scripts/rhythmyx_ready.py` |
 
 **Tear-down policy:** `qa-down` runs `docker rm -f` on the QA cell. The install lives **inside** the container (no named multi-GB volume by default), so removing the container frees ports and disk. Prefer `qa-down` after every agent session; do not leave `perc-matrix-cms-h2` running overnight unless debugging.
 

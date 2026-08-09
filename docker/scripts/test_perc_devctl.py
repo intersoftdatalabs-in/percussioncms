@@ -34,6 +34,9 @@ _PORT_ENV_KEYS = (
     "MSSQL_PORT",
     "VERIFY_CMS_URL",
     "VERIFY_DTS_URL",
+    # #2482 — ``qa_cms_probe_url`` honors this override so host + Docker +
+    # in-image healthcheck can agree on the probe path.
+    "RHYTHMYX_HEALTH_PATH",
 )
 
 
@@ -569,6 +572,8 @@ class TestQaHelpers(unittest.TestCase):
     """Pure helpers for QA mode (H2 Docker entrypoint) — no docker."""
 
     def setUp(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
         self.td = tempfile.TemporaryDirectory()
         self.addCleanup(self.td.cleanup)
         self.repo_root = _stub_repo_root(Path(self.td.name))
@@ -621,7 +626,13 @@ class TestQaHelpers(unittest.TestCase):
         """Preferred baseline aligns with matrix-install-smoke CMS host port."""
         self.assertEqual(pdc.PREFERRED_QA_CMS_HOST_PORT, 9993)
         self.assertEqual(pdc.QA_CMS_CONTAINER, "perc-matrix-cms-h2")
-        self.assertTrue(pdc.qa_cms_probe_url(9993).endswith("/Rhythmyx/login"))
+        # #2482 — default probe path is the matrix-recommended primary
+        # (Spring-managed ``MimeTypeResource.ping()``). The env override
+        # ``RHYTHMYX_HEALTH_PATH`` is honored by ``qa_cms_probe_url`` and
+        # tested separately in ``TestFreeportAndUrlWiring``.
+        self.assertTrue(
+            pdc.qa_cms_probe_url(9993).endswith("/Rhythmyx/rest/mimetypes")
+        )
         self.assertEqual(pdc.qa_cms_base_url(9993), "http://127.0.0.1:9993")
 
 
@@ -908,10 +919,41 @@ class TestFreeportAndUrlWiring(unittest.TestCase):
 
     def test_qa_url_helpers_wire_port(self):
         self.assertEqual(pdc.qa_cms_base_url(12345), "http://127.0.0.1:12345")
+        # #2482 — default probe path is the matrix-recommended primary
+        # (``/Rhythmyx/rest/mimetypes`` — Spring-managed ``ping()``).
         self.assertEqual(
             pdc.qa_cms_probe_url(12345),
-            "http://127.0.0.1:12345/Rhythmyx/login",
+            "http://127.0.0.1:12345/Rhythmyx/rest/mimetypes",
         )
+
+    def test_qa_probe_url_env_override(self):
+        """#2482 — RHYTHMYX_HEALTH_PATH env override wins over default."""
+        # Default (setUp cleared the env, so the module default applies):
+        self.assertTrue(
+            pdc.qa_cms_probe_url(12345).endswith("/Rhythmyx/rest/mimetypes")
+        )
+        os.environ[pdc.QA_CMS_PROBE_PATH_ENV] = "/Rhythmyx/rest/health"
+        try:
+            self.assertEqual(
+                pdc.qa_cms_probe_url(12345),
+                "http://127.0.0.1:12345/Rhythmyx/rest/health",
+            )
+        finally:
+            os.environ.pop(pdc.QA_CMS_PROBE_PATH_ENV, None)
+        # Back to default after the env is cleared.
+        self.assertTrue(
+            pdc.qa_cms_probe_url(12345).endswith("/Rhythmyx/rest/mimetypes")
+        )
+
+    def test_qa_probe_url_env_override_blank_falls_back_to_default(self):
+        """#2482 — an empty env value falls back to the default path."""
+        os.environ[pdc.QA_CMS_PROBE_PATH_ENV] = "   "
+        try:
+            self.assertTrue(
+                pdc.qa_cms_probe_url(12345).endswith("/Rhythmyx/rest/mimetypes")
+            )
+        finally:
+            os.environ.pop(pdc.QA_CMS_PROBE_PATH_ENV, None)
 
     def test_ensure_qa_cms_host_port_pins_env(self):
         os.environ["QA_CMS_HOST_PORT"] = "17777"
