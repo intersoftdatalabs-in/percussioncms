@@ -481,4 +481,12 @@ export const PATHS = {
   get CONSISTENCY_CHECK() {
     return `${SERVICES_ROOT}/taskmanagement/tasks/consistency`;
   },
+  /**
+   * System security audit log (rest AuditLogResource / Phase 3 #2618).
+   * {@code GET /services/auditlog/entries} and {@code …/entries/{auditId}}.
+   * AuthZ: Admin or role property {@code sys_securityAuditLogViewer}.
+   */
+  get AUDIT_LOG_ENTRIES() {
+    return `${SERVICES_ROOT}/auditlog/entries`;
+  },
 } as const;
