@@ -91,6 +91,12 @@
   box-sizing: border-box;
 }
 
+/* Hash / skip targets use tabIndex={-1}; keep keyboard focus ring after nav Enter. */
+.section:focus-visible {
+  outline: 2px solid var(--color-primary, #4a6aa3);
+  outline-offset: 2px;
+}
+
 .sectionHeading {
   margin: 0 0 0.5rem;
   font-size: 1.1rem;
