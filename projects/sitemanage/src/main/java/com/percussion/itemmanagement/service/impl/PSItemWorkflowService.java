@@ -143,19 +143,25 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
       IPSContentWs contentWs,
       IPSIdMapper idMapper,
       IPSSecurityWs securityWs,
-      IPSWidgetAssetRelationshipService widgetAssetRelationshipService,
+      // Belt-and-braces (#2515 / #2463): class-level @Lazy does not break constructor edges when an
+      // eager consumer forces creation. Param @Lazy injects cycle-peer proxies so a future reverse
+      // edge (or multi-hop eager path through the folderHelper→…→contentItemDao chain) cannot form
+      // BeanCurrentlyInCreationException independent of the contentItemDao @Lazy break (#2478 hub).
+      // All four peers are used only post-construction (field assign in ctor; never method-called
+      // during construction). See PSItemWorkflowServiceCycleLazyWiringTest.
+      @Lazy IPSWidgetAssetRelationshipService widgetAssetRelationshipService,
       IPSPageDao pageDao,
       IPSSystemService systemService,
       IPSWorkflowHelper workflowHelper,
-      IPSAssetDao assetDao,
+      @Lazy IPSAssetDao assetDao,
       IPSDataItemSummaryService dataItemSummaryService,
-      IPSFolderHelper folderHelper,
+      @Lazy IPSFolderHelper folderHelper,
       IPSWorkflowService workflowService,
       IPSiteDao siteDao,
       IPSSiteManager siteMgr,
       IPSSystemWs systemWs,
       IPSAsyncJobService asyncJobService,
-      IPSRecycleService recycleService) {
+      @Lazy IPSRecycleService recycleService) {
     super();
     this.contentWs = contentWs;
     this.idMapper = idMapper;
