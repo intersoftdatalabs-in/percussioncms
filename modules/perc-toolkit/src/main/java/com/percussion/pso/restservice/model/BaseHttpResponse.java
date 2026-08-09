@@ -22,13 +22,15 @@ import org.apache.commons.lang3.StringUtils;
 public abstract class BaseHttpResponse {
 
   private Item existingItem;
-  private HttpHeaders headers;
+
+  /** Package-visible for subclass single-shot constructors (avoids this-escape). */
+  HttpHeaders headers;
 
   /***
    * Sets the HTTP Headers collection for this response.
    * @param headers
    */
-  public void setHeaders(HttpHeaders headers) {
+  public final void setHeaders(HttpHeaders headers) {
     this.headers = headers;
   }
 

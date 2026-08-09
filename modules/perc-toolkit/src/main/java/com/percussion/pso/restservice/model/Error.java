@@ -36,22 +36,23 @@ public class Error {
   private Integer contentId;
 
   public Error() {
-    setErrorCode(ErrorCode.UNKNOWN_ERROR);
+    // Direct field assignment avoids this-escape from overridable setters in ctor.
+    this.errorCode = ErrorCode.UNKNOWN_ERROR;
   }
 
   public Error(ErrorCode errorCode, String message) {
-    setErrorCode(errorCode);
-    setErrorMessage(message);
+    this.errorCode = errorCode;
+    this.errorMessage = message;
   }
 
   public Error(ErrorCode errorCode, Integer contentId, String message) {
-    setErrorCode(errorCode);
-    setErrorMessage(message);
-    setContentId(contentId);
+    this.errorCode = errorCode;
+    this.errorMessage = message;
+    this.contentId = contentId;
   }
 
   public Error(ErrorCode errorCode) {
-    setErrorCode(errorCode);
+    this.errorCode = errorCode;
   }
 
   @XmlAttribute

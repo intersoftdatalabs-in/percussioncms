@@ -27,9 +27,9 @@ package com.percussion.pso.relationshipbuilder;
  * @see PSAaDependentRelationshipBuilder
  * @see #retrieve(int)
  */
-public class PSAaOwnerRelationshipBuilder extends PSActiveAssemblyRelationshipBuilder {
+public final class PSAaOwnerRelationshipBuilder extends PSActiveAssemblyRelationshipBuilder {
 
   public PSAaOwnerRelationshipBuilder() {
-    setParent(true);
+    super(true);
   }
 }

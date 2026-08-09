@@ -17,9 +17,8 @@
 
 package com.percussion.soln.jcr.data;
 
-import static java.util.Collections.singletonList;
-
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PropertyData implements Serializable {
@@ -27,7 +26,11 @@ public class PropertyData implements Serializable {
   /** Safe to serialize */
   private static final long serialVersionUID = 428038730570607863L;
 
-  private List<ValueData> values;
+  /**
+   * Concrete {@link ArrayList} (not bare {@link List}) so the field type is serializable under
+   * {@code -Xlint:serial}.
+   */
+  private ArrayList<ValueData> values;
 
   private boolean multiple;
 
@@ -44,7 +47,8 @@ public class PropertyData implements Serializable {
   public PropertyData(ValueData data) {
     if ((data) == null) throw new IllegalArgumentException("Value Data cannot be null");
     multiple = false;
-    values = singletonList(data);
+    values = new ArrayList<>(1);
+    values.add(data);
   }
 
   public boolean isMultiple() {
@@ -60,7 +64,7 @@ public class PropertyData implements Serializable {
   }
 
   public void setValues(List<ValueData> values) {
-    this.values = values;
+    this.values = values == null ? null : new ArrayList<>(values);
   }
 
   public String getName() {

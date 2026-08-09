@@ -83,7 +83,8 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
     init(contentWs, guidManager);
   }
 
-  protected void init(IPSContentWs contentWs, IPSGuidManager guidManager) {
+  /** Final so the preferred constructor may call without this-escape. */
+  protected final void init(IPSContentWs contentWs, IPSGuidManager guidManager) {
     this.contentWs = contentWs;
     this.guidManager = guidManager;
   }
