@@ -23,6 +23,10 @@ import org.w3c.dom.Element;
 
 /** Implementation for the PSXOutputTranslations DTD in BasicObjects.dtd. */
 public class PSOutputTranslations extends PSCollectionComponent {
+
+  /** Serialization id for {@link java.io.Serializable}. */
+  private static final long serialVersionUID = 1L;
+
   /** Creates a new collection of PSConditionalExit objects. */
   public PSOutputTranslations() {
     super((new PSConditionalExit()).getClass());

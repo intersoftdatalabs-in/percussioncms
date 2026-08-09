@@ -413,9 +413,11 @@ public class PSLocation extends PSComponent {
    * If <code>m_page</code> is <code>PAGE_SUMMARY_VIEW</code> or it's <code>
    * PAGE_ROW_EDIT</code> and the type is TYPE_FIELD, then this list contains the names of the field
    * sets to which the action applies, otherwise it is empty. Each entry is a String. Never <code>
-   * null</code>.
+   * null</code>. Declared as {@link ArrayList} (not {@link List}) so the field type is {@link
+   * java.io.Serializable} under {@code -Xlint:serial} (mapper companion of {@link
+   * PSCustomActionGroup}, #2452).
    */
-  private List m_fieldRefs = new ArrayList();
+  private ArrayList m_fieldRefs = new ArrayList();
 
   /**
    * What's the position of this button relative to the existing buttons. A value of 1 indicates

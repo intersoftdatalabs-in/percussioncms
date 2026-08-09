@@ -18,6 +18,7 @@ package com.percussion.design.objectstore;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.util.PSCollection;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -26,13 +27,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 
 /**
  * Java serialization surface checks for design.objectstore serial-field cleanup on hottest content
- * editor types (#2405 / parent #2022). Field declared types use concrete {@link Serializable}
- * collections/maps; companion holders implement {@link Serializable}.
+ * editor types (#2405) and editor mapper companions (#2452 / parent #2022). Field declared types use
+ * concrete {@link Serializable} collections/maps or Serializable {@link PSCollection} hierarchy
+ * (utils #2450); companion holders implement {@link Serializable}.
  */
 public class PSObjectStoreSerialFieldEditorsTest {
 
@@ -107,5 +110,130 @@ public class PSObjectStoreSerialFieldEditorsTest {
     assertEquals(
         HashMap.class,
         PSControlDependencyMap.class.getDeclaredField("m_controlDependencies").getType());
+  }
+
+  /**
+   * Mapper companions (#2452): declared field types must remain Serializable concrete types after
+   * PSCollection/PSConcurrentList became Serializable (#2450).
+   */
+  @Test
+  public void testMapperCompanionFieldTypesAreSerializable() throws Exception {
+    assertEquals(
+        PSCollection.class, PSUIDefinition.class.getDeclaredField("m_defaultUI").getType());
+    assertEquals(
+        PSDisplayMapper.class, PSUIDefinition.class.getDeclaredField("m_displayMapper").getType());
+    assertEquals(
+        PSCollection.class, PSCustomActionGroup.class.getDeclaredField("m_removeActions").getType());
+    assertEquals(
+        PSActionLinkList.class,
+        PSCustomActionGroup.class.getDeclaredField("m_actionLinkList").getType());
+    assertEquals(
+        PSLocation.class, PSCustomActionGroup.class.getDeclaredField("m_location").getType());
+    assertEquals(
+        PSFormAction.class, PSCustomActionGroup.class.getDeclaredField("m_formAction").getType());
+    assertEquals(
+        PSDisplayMapper.class,
+        PSDisplayMapping.class.getDeclaredField("m_displayMapper").getType());
+    assertEquals(PSUISet.class, PSDisplayMapping.class.getDeclaredField("m_uiSet").getType());
+    assertEquals(
+        ArrayList.class, PSLocation.class.getDeclaredField("m_fieldRefs").getType());
+
+    assertEquals(
+        PSCollection.class, PSContentEditor.class.getDeclaredField("m_sectionLinkList").getType());
+    assertEquals(
+        PSValidationRules.class,
+        PSContentEditor.class.getDeclaredField("m_validationRules").getType());
+    assertEquals(
+        PSInputTranslations.class,
+        PSContentEditor.class.getDeclaredField("m_inputTranslations").getType());
+    assertEquals(
+        PSOutputTranslations.class,
+        PSContentEditor.class.getDeclaredField("m_outputTranslations").getType());
+
+    // Direct field types must be Serializable for -Xlint:serial serial-field.
+    assertTrue(Serializable.class.isAssignableFrom(PSCollection.class));
+    assertTrue(Serializable.class.isAssignableFrom(PSDisplayMapper.class));
+    assertTrue(Serializable.class.isAssignableFrom(PSActionLinkList.class));
+    assertTrue(Serializable.class.isAssignableFrom(PSLocation.class));
+    assertTrue(Serializable.class.isAssignableFrom(PSFormAction.class));
+    assertTrue(Serializable.class.isAssignableFrom(PSUISet.class));
+    assertTrue(Serializable.class.isAssignableFrom(PSValidationRules.class));
+    assertTrue(Serializable.class.isAssignableFrom(PSInputTranslations.class));
+    assertTrue(Serializable.class.isAssignableFrom(PSOutputTranslations.class));
+    assertTrue(Serializable.class.isAssignableFrom(ArrayList.class));
+  }
+
+  @Test
+  public void testUiDefinitionJavaSerializationRoundTrip() throws Exception {
+    PSDisplayMapper mapper = new PSDisplayMapper("main");
+    PSUISet uiSet = new PSUISet();
+    mapper.add(new PSDisplayMapping("sys_title", uiSet));
+    PSCollection defaultUI = new PSCollection(PSUISet.class);
+    defaultUI.add(new PSUISet());
+    PSUIDefinition def = new PSUIDefinition(mapper, defaultUI);
+
+    PSUIDefinition ser = roundTrip(def);
+    assertEquals(def, ser);
+    assertEquals("main", ser.getDisplayMapper().getFieldSetRef());
+    assertNotNull(ser.getDefaultUI());
+    assertTrue(ser.getDefaultUI().hasNext());
+  }
+
+  @Test
+  public void testDisplayMappingJavaSerializationRoundTrip() throws Exception {
+    PSUISet uiSet = new PSUISet();
+    PSDisplayMapping mapping = new PSDisplayMapping("body", uiSet);
+    mapping.setDisplayMapper(new PSDisplayMapper("childSet"));
+
+    PSDisplayMapping ser = roundTrip(mapping);
+    assertEquals(mapping, ser);
+    assertEquals("body", ser.getFieldRef());
+    assertNotNull(ser.getDisplayMapper());
+    assertEquals("childSet", ser.getDisplayMapper().getFieldSetRef());
+  }
+
+  @Test
+  public void testCustomActionGroupJavaSerializationRoundTrip() throws Exception {
+    PSParam param = new PSParam("pssessionid", new PSUserContext("/User/SessionId"));
+    PSCollection parameters = new PSCollection(param.getClass());
+    parameters.add(param);
+
+    PSActionLink actionLink = new PSActionLink(new PSDisplayText("Go"));
+    actionLink.setParameters(parameters);
+    PSActionLinkList actions = new PSActionLinkList(actionLink);
+
+    PSLocation location = new PSLocation(PSLocation.PAGE_SUMMARY_VIEW, PSLocation.TYPE_ROW);
+    location.setFieldRefs(Collections.singletonList("testField").iterator());
+
+    PSCustomActionGroup group = new PSCustomActionGroup(location, actions);
+    PSCollection removeActions = new PSCollection(String.class);
+    removeActions.add("remove1");
+    removeActions.add("remove2");
+    group.setRemoveActions(removeActions);
+
+    PSCustomActionGroup ser = roundTrip(group);
+    assertEquals(group, ser);
+
+    Iterator removeIt = ser.getRemoveActions();
+    assertTrue(removeIt.hasNext());
+    assertEquals("remove1", removeIt.next());
+    assertEquals("remove2", removeIt.next());
+    assertFalse(removeIt.hasNext());
+
+    assertTrue(ser.getActionLinkList().hasNext());
+    assertEquals(PSLocation.PAGE_SUMMARY_VIEW, ser.getLocation().getPage());
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> T roundTrip(T value) throws Exception {
+    byte[] bytes;
+    try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+      oos.writeObject(value);
+      bytes = bos.toByteArray();
+    }
+    try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+      return (T) ois.readObject();
+    }
   }
 }
