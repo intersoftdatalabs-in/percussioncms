@@ -19,6 +19,7 @@ import React, { useId } from "react";
 import { i18nKeyAttr } from "../i18n/i18nDom";
 import { message } from "../i18n/message";
 import { PROFILE_MSG } from "./messages";
+import { PreferencesSection } from "./PreferencesSection";
 import styles from "./ProfileShell.module.css";
 
 export interface ProfileShellProps {
@@ -64,9 +65,9 @@ const SECTIONS: {
 ];
 
 /**
- * User profile hub shell (slice 1): landmarks, heading hierarchy, and
- * placeholder sections for later account / security / preferences / avatar work.
- * Does not load or mutate account data.
+ * User profile hub shell: landmarks, heading hierarchy, and section content.
+ * Preferences (#2396) is live; account / security / avatar remain placeholders
+ * until their slices land.
  */
 export function ProfileShell(_props: ProfileShellProps = {}): React.ReactElement {
   const reactId = useId();
@@ -126,6 +127,7 @@ export function ProfileShell(_props: ProfileShellProps = {}): React.ReactElement
       <div className={styles.sections}>
         {SECTIONS.map((section) => {
           const headingId = `perc-profile-${section.id}-heading`;
+          const isPreferences = section.id === "preferences";
           return (
             <section
               key={section.id}
@@ -145,13 +147,17 @@ export function ProfileShell(_props: ProfileShellProps = {}): React.ReactElement
               <p className={styles.sectionBody} {...i18nKeyAttr(section.bodyKey)}>
                 {message(section.bodyKey)}
               </p>
-              <p
-                className={styles.comingSoon}
-                data-testid={`${section.testId}-status`}
-                {...i18nKeyAttr(PROFILE_MSG.COMING_SOON)}
-              >
-                {message(PROFILE_MSG.COMING_SOON)}
-              </p>
+              {isPreferences ? (
+                <PreferencesSection />
+              ) : (
+                <p
+                  className={styles.comingSoon}
+                  data-testid={`${section.testId}-status`}
+                  {...i18nKeyAttr(PROFILE_MSG.COMING_SOON)}
+                >
+                  {message(PROFILE_MSG.COMING_SOON)}
+                </p>
+              )}
             </section>
           );
         })}
