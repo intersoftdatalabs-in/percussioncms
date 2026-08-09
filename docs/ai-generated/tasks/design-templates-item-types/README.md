@@ -5,7 +5,7 @@
 | **Status**      | **Placeholder** — planning only; not started as product surface                                                                                                                             |
 | **Created**     | 2026-07-28                                                                                                                                                                                  |
 | **Depends on**  | Home Wave 1 (in progress); blog create partially blocked by template prerequisites                                                                                                          |
-| **Related**     | [unified-ui-plan](../#000-unified-ui-plan/unified-ui-plan.md) Wave 3 “Design / Architecture”; [home-acceptance-status](../home-acceptance-status.md) (when present); PR #1577 Gadgets/Blogs |
+| **Related**     | [unified-ui-plan](../#000-unified-ui-plan/unified-ui-plan.md) Wave 3 “Design / Architecture”; [home-acceptance-status](../home-acceptance-status.md) (when present); PR #1577 Gadgets/Blogs; **[template-assembler-normalization](../template-assembler-normalization/README.md)** (8.2 assemblers / widgets→CT+templates / no definition XML) |
 | **Out of wave** | Full Active Assembly / page editor rewrite (larger than this track)                                                                                                                         |
 
 ## 1. Why this track exists
