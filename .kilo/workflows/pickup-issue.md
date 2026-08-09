@@ -1,26 +1,30 @@
 ---
-description: Pick up the highest-priority open GitHub issue that is not already in progress, mark it in-progress, swap the operator labels to Kilo, and start a feature branch + PR for it. Iterates priorities p1 to p8 and stops at the first available issue.
+description: Triage the open GitHub issue backlog and select up to N (default 5) high-priority candidates that have actionable engineering work for a Kilo session. Outputs a triage dataset and stops; does not pick, branch, or commit on its own.
 ---
 
 ## Goal
 
-Find the **highest-priority** open issue that is **not** already being
-worked (no `in progress` label) and pick it up.
+Produce a **triage dataset** — a ranked list of the first `MAX_TASKS`
+(default `5`) open p1..p8 issues that have actionable engineering
+work for a Kilo session. The output is a list, not a single pick,
+so the human (or a follow-up session) can decide which candidate to
+actually drive to a PR.
 
-1. **Search order:** `p1`, `p2`, `p3`, … `p8`. Stop at the first
-   priority that yields at least one available issue; if a priority
-   yields none, move to the next. Stop entirely only when **every**
-   priority returned zero issues.
-2. **Available =** state == `OPEN` **AND** does **not** carry the
-   `in progress` label. The `operator:*` and `model:*` labels are
-   workflow attribution, not assignment (see
-   `.kilo/rules/operator-pr-labels.md`); do **not** filter on them.
-3. Among available issues at the chosen priority, pick the **oldest**
-   one by `createdAt` (first row in the ascending sort below).
+- **`MAX_TASKS`** (default `5`): cap on candidates returned per
+  workflow run. Workflow stops once the cap is reached.
+- **`MAX_PRIORITY`** (default `p1`): highest priority bucket the
+  walk starts from. Discovery walks `p1` → `p2` → … and stops once
+  `MAX_TASKS` survivors are accumulated **or** every priority is
+  exhausted, whichever comes first.
+
+The workflow **reads only**. It does **not** apply `in progress`
+labels, does **not** open branches, and does **not** commit or push.
+A separate `pick-and-work` invocation (or the human) picks one row
+from the dataset and drives it to a PR.
 
 ## Discovery
 
-For each priority `p<N>` in `p1..p8`, query with explicit
+For each priority `p<N>` in `p1`..`p8`, query with explicit
 ascending-`createdAt` order so "first row" = "oldest":
 
 ```bash
@@ -34,158 +38,163 @@ gh issue list \
 ```
 
 For each candidate, filter out any issue whose `labels[].name` equals
-`in progress`. The first survivor at the highest non-empty priority is
-the chosen issue. Capture `ISSUE=<number>` and
-`TITLE=<title>` from that row for the steps below.
+`in progress`. The first survivor at the highest non-empty priority
+becomes the next candidate to scope-check. Capture `ISSUE=<number>`
+and `TITLE=<title>` for the steps below.
 
-If every `p1..p8` query returns an empty filtered list, report
-`No open p1..p8 issue is available.` and **stop** — do not invent work.
+## Scope check — there must be engineering to do
 
-## Take the issue
+After the candidate row is chosen, read the issue body and recent
+comments to confirm there is real engineering work a Kilo worktree
+can execute in this session. **Skip the candidate** (and resume
+Discovery with the next oldest survivor at the same priority) if
+**all** of the following hold:
 
-On the chosen issue, perform the **state transition** before any code
-work.
+1. The issue body or recent comments list the slice PRs that
+   implement the acceptance criteria and every one of those PRs is
+   `MERGED` (or the linked child issues are closed with no open
+   residual).
+2. The comments contain a tracker directive — any of:
+   `leave open as tracker`, `parent stays open until residual`,
+   `close gate: #<n>`, `no further engineering slices scheduled`,
+   `all AC met`. The directive must be from the issue's own audit
+   comment, not a one-off remark.
+3. The remaining open child issues (if any) are documented as
+   blocked on customer data (`requires customer env`, `verify ops
+   path`, etc.) — i.e. nothing in this issue is actionable from a
+   Kilo worktree.
 
-### Resolve `KILO_MODEL`
+If the candidate is a **research / spec parent** (e.g. #2400), the
+scope check passes only if there is a deliverable to author in this
+session: a checked-in spec/plan file under `specs/`, a capability
+matrix, or an open engineering slice child. Bare "research"
+parents with no concrete artifact to ship in this session are also
+skipped.
 
-`KILO_MODEL` is the **session model id** reported by the host (e.g.
-`minimax-coding-plan/MiniMax-M3`). Use a stable lowercase slug with no
-spaces.
-
-> **Hard rule: do not invent a label name.** If `$KILO_MODEL` is unset,
-> `echo` a clear error and stop:
->
-> ```bash
-> : "${KILO_MODEL:?KILO_MODEL is required (session model id); aborting.}"
-> ```
->
-> This is a fatal guard, not a fallback. The previous `: "${...:-unknown}"`
-> pattern silently created an undocumented `model:unknown` label that is
-> not in the documented allowlist. Fail loudly instead.
-
-### Strip stale attribution
-
-`gh issue edit` cannot remove labels by glob. Fetch the current label
-list, filter to `operator:*` and `model:*`, and remove those — so any
-new operator/model label added under
-`.kilo/rules/operator-pr-labels.md` is also handled without a code edit:
-
-```bash
-mapfile -t STALE < <(
-  gh issue view "$ISSUE" --json labels \
-    --jq '.labels[].name | select(startswith("operator:") or startswith("model:"))'
-)
-if [ "${#STALE[@]}" -gt 0 ]; then
-  gh issue edit "$ISSUE" "${STALE[@]/#/--remove-label }"
-fi
-```
-
-> Maintainer note: if `.kilo/rules/operator-pr-labels.md` adds a label
-> prefix outside `operator:` / `model:`, update the `select(...)` filter
-> here too.
-
-### Apply Kilo attribution + `in progress`
+Use this query to fetch the audit comment and the open children:
 
 ```bash
-# 1. Make sure the in-progress label exists (idempotent).
-gh label create "in progress" --force --color "5CD5E1" \
-  --description "Agent or human actively working"
+# Latest 5 comments — to find the tracker directive
+gh issue view "$ISSUE" --comments --json comments --jq '.comments
+  | sort_by(.createdAt) | reverse | .[0:5]
+  | map({author: .author.login, body: .body[0:200]})'
 
-# 2. Kilo + session model labels (idempotent).
-gh label create "operator:kilo" --force --color "d73a4a" \
-  --description "Work produced by Kilo Code agent"
-gh label create "model:$KILO_MODEL" --force --color "1d76db" \
-  --description "Model: $KILO_MODEL"
-
-# 3. Apply them.
-gh issue edit "$ISSUE" \
-  --add-label "in progress" \
-  --add-label "operator:kilo" \
-  --add-label "model:$KILO_MODEL"
+# Open children — to see if any are engineering slices
+gh issue list --state open --json number,title --limit 200 \
+  | jq --arg issue "$ISSUE" '[.[]
+      | select(.title | test("issue " + $issue + "( |$)", "i"))
+      | {number, title}]'
 ```
 
-> **Never** force-push to `main` and never commit directly to `main`.
-> Create a feature branch first — see
-> `.kilo/rules/no-force-push-development.md`.
+When a candidate passes the scope check, summarize **why it is
+actionable** in one or two sentences for the triage dataset:
 
-## Start the feature branch
+- Open slice count + names (e.g. "2 open engineering slices
+  #2435/#2436; #2435 needs `@Lazy` ctor-param fix").
+- For research parents, the concrete artifact to ship (e.g.
+  "spec/plan file under `specs/2400-dce-explorer-parity.md`").
+- For unknown / under-specified bodies, "needs scoping" — the
+  next session must read the issue body and decide.
 
-Use the captured `$ISSUE` and `$TITLE` (from the Discovery row) to
-produce a meaningful branch slug:
+## Accumulate, then stop
+
+After each successful scope check, append the candidate to the
+in-memory dataset and stop once `MAX_TASKS` entries are present:
 
 ```bash
-git fetch origin
-git worktree list --porcelain          # see whether to reuse a worktree
-
-# Title -> kebab-case slug, max 60 chars, no leading/trailing dashes.
-SLUG=$(printf '%s' "$TITLE" \
-  | tr '[:upper:]' '[:lower:]' \
-  | tr -cs 'a-z0-9' '-' \
-  | sed 's/^-*//;s/-*$//' \
-  | cut -c1-60)
-BRANCH="fix/${ISSUE}-${SLUG}"
-
-git checkout -b "$BRANCH" origin/main
+MAX_TASKS="${MAX_TASKS:-5}"
+MAX_PRIORITY="${MAX_PRIORITY:-p1}"
 ```
 
-If `$SLUG` is empty after normalization (rare but possible — e.g. a
-title that is purely punctuation), fall back to `fix/${ISSUE}` with no
-suffix and log a warning. **Never** create `fix/<issue>-` with a
-trailing dash.
+If the priority walk reaches `p8` with fewer than `MAX_TASKS`
+candidates, the workflow still stops — a short dataset is more
+useful than padding it with low-priority work.
 
-Prefer a fresh worktree under `.kilo/worktrees/<branch>/` if one does
-not already exist; otherwise work in the current checkout. Record the
-worktree path in the session summary so
-`.kilo/rules/worktree-hygiene.md` cleanup can find it later.
+## Triage dataset output
 
-## Work the issue to a PR
+Emit the dataset as both a human-readable block and a JSON object
+so downstream tooling can parse it:
 
-Follow the standard Kilo flow for this repo (see root `AGENTS.md`):
+### Human-readable
 
-- **Companion closure** for the change class (peer production + test +
-  docs; see root **Change-class completeness**).
-- **Pre-PR build:** `cd <module> && …/mvnw[.cmd] clean install` (not a
-  default root `-pl -am` reactor build).
-- **Pre-commit Erlang review** before `git commit` / `git push` /
-  `gh pr create`.
-- **Operator + model labels** on the PR (see
-  `.kilo/rules/operator-pr-labels.md`).
-- **Co-Authored footer** on commits (see
-  `.kilo/rules/co-author-attribution.md`).
+```
+TRIAGE — Kilo pickup (model: $KILO_MODEL, max: $MAX_TASKS)
 
-## Close the loop — remove `in progress` on PR submission
+1.  #1234  p1  <title>
+        scope: <one-line summary>
+        link:  https://github.com/<owner>/<repo>/issues/1234
 
-When the PR is **opened or updated** (not just when work ends), remove
-the `in progress` label so other agents and humans see the issue is no
-longer available:
+2.  #5678  p1  <title>
+        scope: <one-line summary>
+        link:  https://github.com/<owner>/<repo>/issues/5678
 
-```bash
-gh issue edit "$ISSUE" --remove-label "in progress"
+(2 candidates, 3 priorities scanned)
+
+Skipped during this run:
+  - #804  tracker-only — all engineering merged, audit says leave open
+  - #934  tracker-only — gap-matrix says AC1/2/3/4/5/6 met
 ```
 
-If the PR is later closed without merging, **re-add** `in progress` so
-the next pickup pass does not re-pick it as fresh work.
+### JSON
 
-## Output
+```json
+{
+  "workflow": "pickup-issue",
+  "model": "$KILO_MODEL",
+  "max_tasks": 5,
+  "max_priority": "p1",
+  "priorities_scanned": 3,
+  "candidates": [
+    {
+      "number": 1234,
+      "title": "<title>",
+      "priority": "p1",
+      "createdAt": "<iso8601>",
+      "labels": ["p1", "bug"],
+      "url": "https://github.com/<owner>/<repo>/issues/1234",
+      "scope": "<one-line summary>"
+    }
+  ],
+  "skipped": [
+    { "number": 804, "reason": "tracker-only — all engineering merged, audit says leave open" },
+    { "number": 934, "reason": "tracker-only — gap-matrix says AC1/2/3/4/5/6 met" }
+  ]
+}
+```
 
-Report back to the user with:
+The session's final response should include **only** the human-
+readable block (so it is visible in the chat) and offer the JSON
+on request. Do **not** auto-write the dataset to disk unless the
+human asks; keep the chat output as the source of truth.
 
-- Chosen issue number, title, priority, and link
-- Branch name and worktree path
-- One-line summary of the implementation plan
-- PR URL once opened
+## Stop
+
+After emitting the dataset, the workflow is done. Do **not**:
+
+- Apply `in progress` to a candidate.
+- Open a feature branch, commit, push, or create a PR.
+- Re-run Discovery within the same session.
+
+The human reads the triage, picks one row (or none), and either
+runs a follow-up `pick-and-work` workflow on it or directs the
+agent to drive that one issue to a PR.
 
 ## Do **not** do
 
 - Do **not** filter on `operator:*` labels — they are workflow
-  attribution, not assignment.
-- Do **not** invent a `daily-status` label or any new label outside this
-  command's allowlist.
-- Do **not** silently default `KILO_MODEL` to a placeholder. If it is
-  unset, stop.
-- Do **not** skip the empty-check when a priority returns zero issues;
-  continue to the next priority.
-- Do **not** commit or push to `main` directly — always branch.
-- Do **not** skip the pre-PR Maven `clean install` for changed modules.
-- Do **not** mark `in progress` removed without first opening or
-  updating the PR (i.e. keep the label while still drafting locally).
+  attribution, not assignment, and must not disqualify a candidate.
+- Do **not** pick, branch, commit, push, or open a PR. This
+  workflow is triage-only.
+- Do **not** pad the dataset to `MAX_TASKS` if the priority walk
+  ran out earlier. Short dataset beats low-priority padding.
+- Do **not** write the dataset to disk unless the human asks. The
+  chat output is the source of truth.
+- Do **not** invoke Discovery more than once per session. If the
+  human asks for a refresh, start a new workflow run.
+- Do **not** silently default `MAX_TASKS` to a value the human did
+  not set; respect the env var if it is provided, otherwise use
+  `5`.
+- Do **not** silently default `KILO_MODEL` to a placeholder. If it
+  is unset, stop.
+- Do **not** invent a `daily-status` label or any new label outside
+  this workflow's allowlist.
