@@ -173,6 +173,40 @@ class TestQaPreflight(unittest.TestCase):
         self.assertIn("dry-run", out.lower())
 
 
+class TestDockerHealth(unittest.TestCase):
+    """#2537 / #2481: ``_docker_health`` maps inspect output to RESULT HEALTH: values."""
+
+    def test_empty_container_name_is_unknown(self):
+        self.assertEqual(pdc._docker_health(""), "unknown")
+
+    def test_inspect_failure_is_unknown(self):
+        with unittest.mock.patch.object(pdc.subprocess, "run") as mock_run:
+            mock_run.return_value = subprocess.CompletedProcess(
+                args=[], returncode=1, stdout="", stderr="Error: No such object"
+            )
+            self.assertEqual(pdc._docker_health("missing"), "unknown")
+            argv = mock_run.call_args[0][0]
+            self.assertEqual(argv[0:3], ["docker", "inspect", "-f"])
+            self.assertIn("{{if .State.Health}}", argv[3])
+            self.assertEqual(argv[4], "missing")
+
+    def test_health_status_passed_through(self):
+        for status in ("healthy", "unhealthy", "starting", "none"):
+            with self.subTest(status=status):
+                with unittest.mock.patch.object(pdc.subprocess, "run") as mock_run:
+                    mock_run.return_value = subprocess.CompletedProcess(
+                        args=[], returncode=0, stdout=status + "\n", stderr=""
+                    )
+                    self.assertEqual(pdc._docker_health("perc-matrix-cms-h2"), status)
+
+    def test_blank_stdout_is_unknown(self):
+        with unittest.mock.patch.object(pdc.subprocess, "run") as mock_run:
+            mock_run.return_value = subprocess.CompletedProcess(
+                args=[], returncode=0, stdout="  \n", stderr=""
+            )
+            self.assertEqual(pdc._docker_health("c"), "unknown")
+
+
 class TestSubcommandDryRun(unittest.TestCase):
     """Every subcommand that supports ``--dry-run`` returns EXIT_OK and
     emits RESULT:OK without invoking docker / curl / mvn.
@@ -241,6 +275,7 @@ class TestSubcommandDryRun(unittest.TestCase):
         self.assertEqual(rc, pdc.EXIT_OK)
         self.assertIn("RESULT:OK STEP:qa-health", out)
         self.assertIn("HTTP:200", out)
+        self.assertIn("HEALTH:healthy", out)
         self.assertIn(pdc.QA_CMS_CONTAINER, out)
 
     def test_qa_down_dry_run(self):
@@ -598,9 +633,11 @@ class TestQaHealthRealMode(unittest.TestCase):
 
     def test_qa_health_success_on_first_check(self):
         with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc, "_docker_health") as mock_health, \
              unittest.mock.patch.object(pdc, "_docker_logs_tail") as mock_logs, \
              unittest.mock.patch.object(pdc.time, "sleep"):
             mock_curl.return_value = 200
+            mock_health.return_value = "healthy"
             mock_logs.return_value = "INFO [Server] Started @7879ms\n"
             import io
             from contextlib import redirect_stdout
@@ -614,13 +651,17 @@ class TestQaHealthRealMode(unittest.TestCase):
         self.assertEqual(rc, pdc.EXIT_OK)
         self.assertIn("RESULT:OK STEP:qa-health", out)
         self.assertIn("HTTP:200", out)
+        self.assertIn("HEALTH:healthy", out)
         mock_logs.assert_called()
+        mock_health.assert_called_with(pdc.QA_CMS_CONTAINER)
 
     def test_qa_health_timeout_emits_clear_error(self):
         with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc, "_docker_health") as mock_health, \
              unittest.mock.patch.object(pdc, "_docker_logs_tail") as mock_logs, \
              unittest.mock.patch.object(pdc.time, "sleep"):
             mock_curl.return_value = 0
+            mock_health.return_value = "starting"
             mock_logs.return_value = ""
             import io
             from contextlib import redirect_stdout
@@ -636,6 +677,7 @@ class TestQaHealthRealMode(unittest.TestCase):
         self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
         self.assertIn("RESULT:FAIL STEP:qa-health", out)
         self.assertIn("timeout", out)
+        self.assertIn("health=starting", out)
         self.assertIn("LOG:", out)
         self.assertNotIn("LOG:\n", out)
 
@@ -648,9 +690,11 @@ class TestQaHealthRealMode(unittest.TestCase):
             "INFO  [AbstractConnector] Started {HTTP/1.1}{0.0.0.0:9992}\n"
         )
         with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc, "_docker_health") as mock_health, \
              unittest.mock.patch.object(pdc, "_docker_logs_tail") as mock_logs, \
              unittest.mock.patch.object(pdc.time, "sleep") as mock_sleep:
             mock_curl.return_value = 200
+            mock_health.return_value = "unhealthy"
             mock_logs.return_value = dead_ctx
             import io
             from contextlib import redirect_stdout
@@ -667,6 +711,7 @@ class TestQaHealthRealMode(unittest.TestCase):
         self.assertIn("RESULT:FAIL STEP:qa-health", out)
         self.assertIn("rhythmyx_context_failed", out)
         self.assertIn("Failed startup of context", out)
+        self.assertIn("HEALTH:unhealthy", out)
         # Fail-fast: must not burn the full poll budget.
         mock_sleep.assert_not_called()
 
@@ -674,9 +719,11 @@ class TestQaHealthRealMode(unittest.TestCase):
         """When HTTP never ready but logs show context fail, DETAIL uses that."""
         dead_ctx = "Failed startup of context Rhythmyx\n"
         with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc, "_docker_health") as mock_health, \
              unittest.mock.patch.object(pdc, "_docker_logs_tail") as mock_logs, \
              unittest.mock.patch.object(pdc.time, "sleep"):
             mock_curl.return_value = 0
+            mock_health.return_value = "unhealthy"
             # max_checks=1 (5//5): one in-loop scan (empty) + one final scan (fail).
             mock_logs.side_effect = ["", dead_ctx]
             import io
@@ -693,6 +740,56 @@ class TestQaHealthRealMode(unittest.TestCase):
         self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
         self.assertIn("rhythmyx_context_failed", out)
         self.assertIn("Failed startup of context", out)
+        self.assertIn("HEALTH:unhealthy", out)
+
+    def test_qa_health_http_ok_but_health_starting_not_ready(self):
+        """#2537: HTTP ready alone is insufficient until Health.Status=healthy."""
+        with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc, "_docker_health") as mock_health, \
+             unittest.mock.patch.object(pdc, "_docker_logs_tail") as mock_logs, \
+             unittest.mock.patch.object(pdc.time, "sleep"):
+            mock_curl.return_value = 200
+            mock_health.return_value = "starting"
+            mock_logs.return_value = "INFO [Server] Started @7879ms\n"
+            import io
+            from contextlib import redirect_stdout
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc.main([
+                    "--repo-root", str(self.repo_root),
+                    "qa-health",
+                    "--timeout-seconds", "5",
+                    "--interval-seconds", "5",
+                ])
+            out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("RESULT:FAIL STEP:qa-health", out)
+        self.assertIn("timeout", out)
+        self.assertIn("health=starting", out)
+        mock_health.assert_called_with(pdc.QA_CMS_CONTAINER)
+
+    def test_qa_health_surfaces_health_none(self):
+        """#2537: HEALTH:none when container has no Health block."""
+        with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc, "_docker_health") as mock_health, \
+             unittest.mock.patch.object(pdc, "_docker_logs_tail") as mock_logs, \
+             unittest.mock.patch.object(pdc.time, "sleep"):
+            mock_curl.return_value = 200
+            mock_health.return_value = "none"
+            mock_logs.return_value = "INFO [Server] Started\n"
+            import io
+            from contextlib import redirect_stdout
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc.main([
+                    "--repo-root", str(self.repo_root),
+                    "qa-health",
+                    "--timeout-seconds", "5",
+                    "--interval-seconds", "5",
+                ])
+            out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("health=none", out)
 
 
 class TestQaDownRealMode(unittest.TestCase):
