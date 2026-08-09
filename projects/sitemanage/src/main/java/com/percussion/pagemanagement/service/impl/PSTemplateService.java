@@ -131,10 +131,10 @@ public class PSTemplateService implements IPSTemplateService {
 
   @Autowired
   public PSTemplateService(
-      IPSTemplateDao templateDao,
-      IPSWidgetAssetRelationshipService widgetAssetRelationshipService,
-      IPSPageDao pageDao,
-      IPSPageDaoHelper pageDaoHelper,
+      @Lazy IPSTemplateDao templateDao,
+      @Lazy IPSWidgetAssetRelationshipService widgetAssetRelationshipService,
+      @Lazy IPSPageDao pageDao,
+      @Lazy IPSPageDaoHelper pageDaoHelper,
       IPSWidgetService widgetService,
       IPSWorkflowHelper workflowHelper,
       IPSWidgetDao widgetDao,
