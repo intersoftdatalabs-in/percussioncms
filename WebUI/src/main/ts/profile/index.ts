@@ -17,4 +17,6 @@
 
 export { ProfileShell } from "./ProfileShell";
 export type { ProfileShellProps } from "./ProfileShell";
+export { PreferencesSection } from "./PreferencesSection";
+export type { PreferencesSectionProps } from "./PreferencesSection";
 export { PROFILE_MSG } from "./messages";

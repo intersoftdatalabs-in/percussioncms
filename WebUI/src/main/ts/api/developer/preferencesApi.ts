@@ -15,8 +15,11 @@
  * limitations under the License.
  */
 
-import { get, put, type ApiError } from "../client";
-import { PATHS } from "../paths";
+import {
+  loadUserPreference,
+  saveUserPreference,
+  type UserPreference,
+} from "../preferences/preferencesApi";
 import {
   DEFAULT_ACL_TEMPLATE_PREF_CATEGORY,
   DEFAULT_ACL_TEMPLATE_PREF_CONTEXT,
@@ -27,56 +30,9 @@ import {
   type DefaultAclTemplate,
 } from "../../developer/defaultAclTemplate";
 
-/** REST UserPreference DTO (PreferenceResource). */
-export type UserPreference = {
-  name: string;
-  value: string;
-  category?: string;
-  context?: string;
-  userName?: string;
-  extraParam?: string;
-};
-
-function isNotFound(err: unknown): boolean {
-  const api = err as ApiError;
-  return !!api && typeof api.status === "number" && api.status === 404;
-}
-
-/**
- * GET /services/preferences/{preference}
- *
- * @returns null when the preference is not stored (404)
- */
-export async function loadUserPreference(
-  preferenceName: string,
-): Promise<UserPreference | null> {
-  const key = encodeURIComponent(preferenceName);
-  try {
-    return await get<UserPreference>(`${PATHS.PREFERENCES}/${key}`);
-  } catch (err: unknown) {
-    if (isNotFound(err)) return null;
-    throw err;
-  }
-}
-
-/**
- * PUT /services/preferences/ — save a single preference for the current user.
- *
- * <p>{@code userName} must be set (server requires it on the DTO).
- */
-export async function saveUserPreference(
-  pref: UserPreference,
-): Promise<UserPreference> {
-  // PreferenceResource is @Path("/preferences") with @PUT @Path("/") on save.
-  return put<UserPreference>(PATHS.PREFERENCES, {
-    name: pref.name,
-    value: pref.value ?? "",
-    category: pref.category || DEFAULT_ACL_TEMPLATE_PREF_CATEGORY,
-    context: pref.context || DEFAULT_ACL_TEMPLATE_PREF_CONTEXT,
-    userName: pref.userName ?? "",
-    extraParam: pref.extraParam,
-  });
-}
+/** Re-export shared PreferenceResource DTO + load/save for Developer callers. */
+export type { UserPreference };
+export { loadUserPreference, saveUserPreference };
 
 export type LoadDefaultAclTemplateResult = {
   /** Effective template (system default when no valid stored pref). */

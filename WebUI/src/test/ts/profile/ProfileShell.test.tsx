@@ -16,20 +16,64 @@
  */
 
 import React from "react";
-import { beforeEach, describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
 import { ProfileShell } from "../../../main/ts/profile/ProfileShell";
 import { PROFILE_MSG } from "../../../main/ts/profile/messages";
+import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapContext";
+
+vi.mock("../../../main/ts/api/user/userHomepageApi", () => ({
+  getMyHomepageOverride: vi.fn().mockResolvedValue(""),
+  setMyHomepageOverride: vi.fn().mockResolvedValue(""),
+  HOMEPAGE_TYPES: {
+    HOME: "Home",
+    DASHBOARD: "Dashboard",
+    EDITOR: "Editor",
+    DESIGNER: "Designer",
+    ARCHITECTURE: "Architecture",
+    PUBLISH: "Publish",
+    WORKFLOW: "Workflow",
+    WIDGET_BUILDER: "WidgetBuilder",
+  },
+}));
+
+vi.mock("../../../main/ts/api/preferences/preferencesApi", () => ({
+  getAllUserPreferences: vi.fn().mockResolvedValue([]),
+  loadUserPreference: vi.fn().mockResolvedValue(null),
+  saveUserPreference: vi.fn(),
+  PREF_CATEGORY_SYS: "sys_preferences",
+  PREF_CONTEXT_PRIVATE: "private",
+}));
+
+const bootstrap = {
+  userName: "Admin",
+  locale: "en-us",
+  entry: "profile",
+  isAdmin: true,
+  isDesigner: true,
+  isWidgetBuilderActive: false,
+};
+
+function renderShell() {
+  return render(
+    <BootstrapProvider value={bootstrap}>
+      <ProfileShell embedded />
+    </BootstrapProvider>,
+  );
+}
 
 describe("ProfileShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
-      message: (key: string) => key,
+      message: (key: string) => {
+        const at = key.indexOf("@");
+        return at >= 0 ? key.slice(at + 1) : key;
+      },
     };
   });
 
-  it("renders title, intro, and four placeholder sections", () => {
-    render(<ProfileShell embedded />);
+  it("renders title, intro, four sections, and live preferences", async () => {
+    renderShell();
     expect(screen.getByTestId("perc-profile-shell")).toBeTruthy();
     expect(screen.getByTestId("perc-profile-title").textContent).toBe("My profile");
     expect(screen.getByTestId("perc-profile-intro").textContent).toContain(
@@ -39,10 +83,16 @@ describe("ProfileShell", () => {
     expect(screen.getByTestId("perc-profile-section-security")).toBeTruthy();
     expect(screen.getByTestId("perc-profile-section-preferences")).toBeTruthy();
     expect(screen.getByTestId("perc-profile-section-avatar")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-preferences")).toBeTruthy();
+    });
   });
 
-  it("exposes landmark heading hierarchy and section jump links", () => {
-    render(<ProfileShell embedded />);
+  it("exposes landmark heading hierarchy and section jump links", async () => {
+    renderShell();
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-preferences")).toBeTruthy();
+    });
     const h1 = screen.getByRole("heading", { level: 1, name: "My profile" });
     expect(h1).toBeTruthy();
 
@@ -68,15 +118,22 @@ describe("ProfileShell", () => {
     );
   });
 
-  it("marks section status as coming soon via catalog keys", () => {
-    render(<ProfileShell embedded />);
+  it("marks non-preferences sections as coming soon", async () => {
+    renderShell();
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-preferences")).toBeTruthy();
+    });
     const statuses = screen.getAllByText("Coming soon");
-    expect(statuses.length).toBe(4);
+    expect(statuses.length).toBe(3);
     expect(PROFILE_MSG.COMING_SOON).toContain("Coming soon");
+    expect(screen.queryByTestId("perc-profile-section-preferences-status")).toBeNull();
   });
 
-  it("makes section landmarks focusable skip targets (tabIndex=-1)", () => {
-    render(<ProfileShell embedded />);
+  it("makes section landmarks focusable skip targets (tabIndex=-1)", async () => {
+    renderShell();
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-preferences")).toBeTruthy();
+    });
     for (const id of [
       "perc-profile-section-account",
       "perc-profile-section-security",

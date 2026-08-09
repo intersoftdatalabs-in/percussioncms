@@ -59,9 +59,10 @@ function asPlainString(data: unknown): string {
 
 /**
  * GET persisted override for a user. Returns {@code ""} when unset/invalid.
+ * Pass blank {@code userName} for the signed-in self endpoint.
  */
 export async function getUserHomepageOverride(
-  userName: string,
+  userName?: string,
 ): Promise<string> {
   const data = await get<unknown>(homepageUrl(userName));
   return asPlainString(data);
@@ -70,9 +71,10 @@ export async function getUserHomepageOverride(
 /**
  * PUT override. Blank {@code homepage} clears (role/Home fallback).
  * Returns the stored canonical type or {@code ""}.
+ * Pass blank {@code userName} for the signed-in self endpoint.
  */
 export async function setUserHomepageOverride(
-  userName: string,
+  userName: string | undefined,
   homepage: string,
 ): Promise<string> {
   const body = homepage == null ? "" : String(homepage).trim();
@@ -84,9 +86,24 @@ export async function setUserHomepageOverride(
   return asPlainString(data) || body;
 }
 
-/** DELETE override for a named user. */
+/** DELETE override for a named user (or self when name omitted). */
 export async function clearUserHomepageOverride(
-  userName: string,
+  userName?: string,
 ): Promise<void> {
   await del(homepageUrl(userName));
+}
+
+/** GET self default landing override (no user name on path — no IDOR). */
+export async function getMyHomepageOverride(): Promise<string> {
+  return getUserHomepageOverride();
+}
+
+/**
+ * PUT self default landing override. Blank clears to role/Home fallback.
+ * No user name on path — always the signed-in session user.
+ */
+export async function setMyHomepageOverride(
+  homepage: string,
+): Promise<string> {
+  return setUserHomepageOverride(undefined, homepage);
 }

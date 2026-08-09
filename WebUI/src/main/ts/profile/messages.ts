@@ -33,9 +33,24 @@ export const PROFILE_MSG = {
     "perc.ui.profile.modern@Password and authentication options for your account will appear here.",
   SECTION_PREFERENCES: "perc.ui.profile.modern@Preferences",
   SECTION_PREFERENCES_BODY:
-    "perc.ui.profile.modern@Language and personal UI preferences will appear here.",
+    "perc.ui.profile.modern@Choose your default CMS landing page and view preferences stored for your account.",
   SECTION_AVATAR: "perc.ui.profile.modern@Avatar",
   SECTION_AVATAR_BODY:
     "perc.ui.profile.modern@Avatar and Gravatar email settings will appear here.",
   COMING_SOON: "perc.ui.profile.modern@Coming soon",
+  // Preferences section (#2396)
+  PREF_LOADING: "perc.ui.profile.modern@Loading preferences…",
+  PREF_LOAD_ERROR: "perc.ui.profile.modern@Could not load preferences.",
+  PREF_RETRY: "perc.ui.profile.modern@Try again",
+  PREF_LANDING_LABEL: "perc.ui.profile.modern@Default landing page",
+  PREF_LANDING_HINT:
+    "perc.ui.profile.modern@Where you land after sign-in. Leave as role default to use your role homepage.",
+  PREF_STACK_NOTE:
+    "perc.ui.profile.modern@Personal preferences use the product preference services already available for your account.",
+  PREF_STORED_COUNT:
+    "perc.ui.profile.modern@Stored preference entries: {0}",
+  PREF_SAVE: "perc.ui.profile.modern@Save preferences",
+  PREF_SAVING: "perc.ui.profile.modern@Saving…",
+  PREF_SAVE_SUCCESS: "perc.ui.profile.modern@Preferences saved.",
+  PREF_SAVE_ERROR: "perc.ui.profile.modern@Could not save preferences.",
 } as const;

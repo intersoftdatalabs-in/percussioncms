@@ -26758,6 +26758,46 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
     <tu tuid="perc.ui.profile.modern@Language and personal UI preferences will appear here.">
       <tuv xml:lang="en-us"><seg>Language and personal UI preferences will appear here.</seg></tuv>
     <tuv xml:lang="ar"><seg>ستظهر هنا تفضيلات اللغة وواجهة المستخدم الشخصية.</seg></tuv><tuv xml:lang="bn"><seg>ভাষা এবং ব্যক্তিগত UI পছন্দগুলি এখানে উপস্থিত হবে৷</seg></tuv><tuv xml:lang="de"><seg>Hier werden Sprach- und persönliche Benutzeroberflächeneinstellungen angezeigt.</seg></tuv><tuv xml:lang="es"><seg>Las preferencias de idioma y de interfaz de usuario personal aparecerán aquí.</seg></tuv><tuv xml:lang="fr"><seg>Les préférences de langue et d’interface utilisateur personnelles apparaîtront ici.</seg></tuv><tuv xml:lang="he"><seg>העדפות שפה וממשק משתמש אישי יופיעו כאן.</seg></tuv><tuv xml:lang="hi"><seg>भाषा और व्यक्तिगत यूआई प्राथमिकताएँ यहाँ दिखाई देंगी।</seg></tuv><tuv xml:lang="it"><seg>La lingua e le preferenze personali dell'interfaccia utente verranno visualizzate qui.</seg></tuv><tuv xml:lang="nl"><seg>Taal- en persoonlijke UI-voorkeuren verschijnen hier.</seg></tuv><tuv xml:lang="pl"><seg>Tutaj pojawią się preferencje dotyczące języka i osobistego interfejsu użytkownika.</seg></tuv><tuv xml:lang="pt"><seg>As preferências de idioma e de interface pessoal aparecerão aqui.</seg></tuv><tuv xml:lang="ru"><seg>Здесь появятся языковые и персональные настройки пользовательского интерфейса.</seg></tuv><tuv xml:lang="sv"><seg>Språk och personliga gränssnittsinställningar visas här.</seg></tuv><tuv xml:lang="te"><seg>భాష మరియు వ్యక్తిగత UI ప్రాధాన్యతలు ఇక్కడ కనిపిస్తాయి.</seg></tuv><tuv xml:lang="tr"><seg>Dil ve kişisel kullanıcı arayüzü tercihleri u200bu200bburada görünecektir.</seg></tuv><tuv xml:lang="uk"><seg>Тут відображатимуться мова та особисті налаштування інтерфейсу користувача.</seg></tuv><tuv xml:lang="zh-cn"><seg>语言和个人 UI 首选项将显示在此处。</seg></tuv><tuv xml:lang="zh-tw"><seg>語言和個人 UI 偏好設定將顯示在此處。</seg></tuv><tuv xml:lang="lou"><seg>Lang épi personal UI preferences will appear here.</seg></tuv></tu>
+    <!-- Issue #2396 / parent #2374 slice 4: profile Preferences section (en-us + lou; other locales fall back) -->
+    <tu tuid="perc.ui.profile.modern@Choose your default CMS landing page and view preferences stored for your account.">
+      <tuv xml:lang="en-us"><seg>Choose your default CMS landing page and view preferences stored for your account.</seg></tuv>
+    <tuv xml:lang="lou"><seg>Choose to default CMS landing page épi view preferences stored pou to account.</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Loading preferences…">
+      <tuv xml:lang="en-us"><seg>Loading preferences…</seg></tuv>
+    <tuv xml:lang="lou"><seg>Loading preferences…</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Could not load preferences.">
+      <tuv xml:lang="en-us"><seg>Could not load preferences.</seg></tuv>
+    <tuv xml:lang="lou"><seg>Could not load preferences.</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Try again">
+      <tuv xml:lang="en-us"><seg>Try again</seg></tuv>
+    <tuv xml:lang="lou"><seg>Try again</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Default landing page">
+      <tuv xml:lang="en-us"><seg>Default landing page</seg></tuv>
+    <tuv xml:lang="lou"><seg>Default landing page</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Where you land after sign-in. Leave as role default to use your role homepage.">
+      <tuv xml:lang="en-us"><seg>Where you land after sign-in. Leave as role default to use your role homepage.</seg></tuv>
+    <tuv xml:lang="lou"><seg>Where you land after sign-in. Leave as role default to use to role homepage.</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Use role default">
+      <tuv xml:lang="en-us"><seg>Use role default</seg></tuv>
+    <tuv xml:lang="lou"><seg>Use role default</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Personal preferences use the product preference services already available for your account.">
+      <tuv xml:lang="en-us"><seg>Personal preferences use the product preference services already available for your account.</seg></tuv>
+    <tuv xml:lang="lou"><seg>Personal preferences use the product preference services already available pou to account.</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Stored preference entries: {0}">
+      <tuv xml:lang="en-us"><seg>Stored preference entries: {0}</seg></tuv>
+    <tuv xml:lang="lou"><seg>Stored preference entries: {0}</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Save preferences">
+      <tuv xml:lang="en-us"><seg>Save preferences</seg></tuv>
+    <tuv xml:lang="lou"><seg>Save preferences</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Saving…">
+      <tuv xml:lang="en-us"><seg>Saving…</seg></tuv>
+    <tuv xml:lang="lou"><seg>Saving…</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Preferences saved.">
+      <tuv xml:lang="en-us"><seg>Preferences saved.</seg></tuv>
+    <tuv xml:lang="lou"><seg>Preferences saved.</seg></tuv></tu>
+    <tu tuid="perc.ui.profile.modern@Could not save preferences.">
+      <tuv xml:lang="en-us"><seg>Could not save preferences.</seg></tuv>
+    <tuv xml:lang="lou"><seg>Could not save preferences.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Avatar">
       <tuv xml:lang="en-us"><seg>Avatar</seg></tuv>
     <tuv xml:lang="ar"><seg>الصورة الرمزية</seg></tuv><tuv xml:lang="bn"><seg>অবতার</seg></tuv><tuv xml:lang="de"><seg>Avatar</seg></tuv><tuv xml:lang="es"><seg>Avatar</seg></tuv><tuv xml:lang="fr"><seg>Avatar</seg></tuv><tuv xml:lang="he"><seg>גִלגוּל</seg></tuv><tuv xml:lang="hi"><seg>अवतार</seg></tuv><tuv xml:lang="it"><seg>Avatar</seg></tuv><tuv xml:lang="nl"><seg>Avatar</seg></tuv><tuv xml:lang="pl"><seg>Awatara</seg></tuv><tuv xml:lang="pt"><seg>avatar</seg></tuv><tuv xml:lang="ru"><seg>Аватар</seg></tuv><tuv xml:lang="sv"><seg>Avatar</seg></tuv><tuv xml:lang="te"><seg>అవతార్</seg></tuv><tuv xml:lang="tr"><seg>avatar</seg></tuv><tuv xml:lang="uk"><seg>Аватар</seg></tuv><tuv xml:lang="zh-cn"><seg>阿凡达</seg></tuv><tuv xml:lang="zh-tw"><seg>頭像</seg></tuv><tuv xml:lang="lou"><seg>Avatar</seg></tuv></tu>
