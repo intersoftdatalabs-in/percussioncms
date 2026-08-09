@@ -54,12 +54,12 @@ perc-devctl.py inspect-install
 perc-devctl.py show-generated-passwords
 # QA mode — H2-in-Docker CMS for Playwright (no host install) — #1827 / #1927
 perc-devctl.py qa-up [--timeout-seconds N] [--skip-image-build]
-perc-devctl.py qa-preflight [--strict]
+perc-devctl.py qa-preflight [--strict] [--no-content-hash]
 perc-devctl.py qa-health [--timeout-seconds N] [--interval-seconds N] [--url URL]
 perc-devctl.py qa-down [--container NAME]
 ```
 
-#### Rebuild-chain preflight (#2486)
+#### Rebuild-chain preflight (#2486 / #2532)
 
 `perc-devctl.py qa-preflight [--strict]` (or the standalone `python3 docker/scripts/qa_preflight.py`) detects a **stale WebUI WAR** vs a freshly built sitemanage SNAPSHOT **before** `qa-up`. Without this gate, re-running only `sitemanage → install` and then `qa-up` leaves the old `sitemanage-*.jar` bundled inside the `perc-web-ui-*.war` (which `perc-distribution-tree` unpacks into `Rhythmyx/WEB-INF/lib`). The container then loads the stale classpath and the cycle / DI fix appears to regress even though the m2 snapshot is correct.
 
@@ -67,14 +67,29 @@ The preflight compares:
 
 - `~/.m2/repository/com/percussion/sitemanage/sitemanage-*.jar` — the freshly installed snapshot, and
 - `WebUI/target/perc-web-ui-*.war` — the WAR whose `WEB-INF/lib/sitemanage-*.jar` the dist tree will unpack.
+- Optionally a loose `sitemanage-*.jar` under `modules/perc-distribution-tree/target` when present.
 
-If the WAR was built **before** the m2 jar was last installed (or the WAR / WAR-side jar is missing), it prints `STALE:` plus the file paths and mtimes and (with `--strict`) returns exit code `2`. Without `--strict` it prints the same line and returns `0` so callers can log without blocking.
+**Content-hash mode (default, #2532):** SHA-256 of the m2 jar bytes is compared to the `WEB-INF/lib/sitemanage-*.jar` zip entry inside the WAR (streamed; no full WAR extract). When both hashes are available they are the **primary** signal:
+
+- Hashes differ → `STALE: sitemanage content hash mismatch (m2 vs war)` even if mtimes look fresh (clock skew, cache restore, `touch`-only rebuilds).
+- Hashes match → `FRESH` even if WAR mtime is older than m2 (mtime false positive).
+- Hashes unavailable → fall back to WAR mtime vs m2 mtime (legacy #2486 behaviour).
+
+Use `--no-content-hash` for mtime-only comparison. With `--strict`, STALE returns exit code `2`; without `--strict` it prints the same line and returns `0` so callers can log without blocking.
 
 Run order recommended for agents and CI:
 
 ```bash
 python3 docker/scripts/perc-devctl.py qa-preflight --strict \
   && python3 docker/scripts/perc-devctl.py qa-up
+```
+
+Standalone (same flags):
+
+```bash
+python3 docker/scripts/qa_preflight.py --strict --repo-root .
+# mtime-only fallback:
+python3 docker/scripts/qa_preflight.py --strict --no-content-hash
 ```
 
 Each subcommand writes full output to a timestamped file under `docker/logs/<label>-<ts>.log` and emits a single `RESULT:OK STEP:<label> LOG:<path>` (or `RESULT:FAIL`) line on stdout so agent workflows can parse the result without parsing free-form output.
