@@ -19,10 +19,9 @@ package com.percussion.cms.handlers;
 
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
-import com.percussion.auditlog.PSActionOutcome;
-import com.percussion.auditlog.PSAuditLogService;
-import com.percussion.auditlog.PSWorkflowEvent;
+import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.percussion.cms.IPSConstants;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.cms.PSApplicationBuilder;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.PSDisplayFieldElementBuilder;
@@ -103,9 +102,6 @@ import org.w3c.dom.Text;
 
 /** This class encapsulates behaviour to handle all workflow related commands. */
 public class PSWorkflowCommandHandler extends PSCommandHandler {
-  private PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
-  private PSWorkflowEvent psWorkflowEvent;
-
   /** Logger */
   private static final Logger ms_logger = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
 
@@ -534,17 +530,18 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
         wfAction = "Quick Edit";
       }
 
-      psWorkflowEvent =
-          new PSWorkflowEvent(
-              wfAction,
-              currentState,
-              PSWorkflowEvent.WorkflowEventActions.update,
-              req.getServletRequest(),
-              req.getParameter("sys_contentid"),
-              ps.toString(),
-              PSActionOutcome.SUCCESS.name());
-
-      psAuditLogService.logWorkflowEvent(psWorkflowEvent);
+      try {
+        PSSystemAuditLogger.workflowTransition(
+            req.getServletRequest(),
+            AuditOutcome.SUCCESS,
+            req.getParameter("sys_contentid"),
+            ps.toString(),
+            wfAction,
+            currentState);
+      } catch (Exception auditEx) {
+        ms_logger.error("Failed to write workflow audit event: {}", auditEx.getMessage());
+        ms_logger.debug(auditEx);
+      }
 
       return execData;
     } finally {

@@ -16,10 +16,9 @@
  */
 package com.percussion.security;
 
-import com.percussion.auditlog.PSActionOutcome;
-import com.percussion.auditlog.PSAuditLogService;
-import com.percussion.auditlog.PSUserManagementEvent;
+import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.percussion.design.objectstore.PSAttributeList;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.design.objectstore.PSProvider;
 import com.percussion.design.objectstore.PSSubject;
 import jakarta.servlet.http.HttpServletRequest;
@@ -72,19 +71,22 @@ public class PSBackEndTableProvider extends PSSecurityProvider {
    * @param action The activity taken
    * @param activityMsg The action taken
    */
-  private void auditlogUserActivity(
-      String uid, PSUserManagementEvent.UserEventActions action, String activityMsg) {
-
-    PSAuditLogService auditLogService = PSAuditLogService.getInstance();
-
-    HttpServletRequest httpRequest = PSThreadRequestUtils.getPSRequest().getServletRequest();
-
-    PSUserManagementEvent event =
-        new PSUserManagementEvent(httpRequest, action, PSActionOutcome.SUCCESS);
-    event.setTargetUsername(uid);
-    event.setIniatorName("system");
-    event.setActivity(activityMsg);
-    auditLogService.logUserManagementEvent(event);
+  private void auditlogUserActivity(String uid, String activityMsg) {
+    HttpServletRequest httpRequest = null;
+    try {
+      var psRequest = PSThreadRequestUtils.getPSRequest();
+      if (psRequest != null) {
+        httpRequest = psRequest.getServletRequest();
+      }
+    } catch (Exception ignored) {
+      // fall through with null request
+    }
+    try {
+      PSSystemAuditLogger.userUpdate(httpRequest, AuditOutcome.SUCCESS, uid, activityMsg);
+    } catch (Exception auditEx) {
+      log.error("Failed to write user-management audit event: {}", auditEx.getMessage());
+      log.debug(auditEx);
+    }
   }
 
   /**
@@ -159,7 +161,6 @@ public class PSBackEndTableProvider extends PSSecurityProvider {
             m_backendConnection.updateUserPassword(uid, filter.encrypt(pw));
             auditlogUserActivity(
                 uid,
-                PSUserManagementEvent.UserEventActions.update,
                 String.format(
                     "Security Update: Re-encrypting password for database user: {%s} from legacy"
                         + " algorithm {%s} to current algorithm {%s}",
@@ -187,7 +188,6 @@ public class PSBackEndTableProvider extends PSSecurityProvider {
             m_backendConnection.updateUserPassword(uid, filter.encrypt(pw));
             auditlogUserActivity(
                 uid,
-                PSUserManagementEvent.UserEventActions.update,
                 String.format(
                     "Security Update: Re-encrypting password for database user: {%s} from legacy"
                         + " algorithm: {%s} to current algorithm: {%s}",

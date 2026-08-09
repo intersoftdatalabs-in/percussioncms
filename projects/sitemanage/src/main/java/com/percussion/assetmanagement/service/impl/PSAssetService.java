@@ -38,10 +38,9 @@ import com.percussion.assetmanagement.data.PSInspectedElementsData;
 import com.percussion.assetmanagement.data.PSReportFailedToRunException;
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
-import com.percussion.auditlog.PSActionOutcome;
-import com.percussion.auditlog.PSAuditLogService;
-import com.percussion.auditlog.PSContentEvent;
+import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.percussion.cms.IPSConstants;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSItemDefinition;
@@ -138,8 +137,6 @@ import org.springframework.stereotype.Component;
 public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSummary>
     implements IPSAssetService {
   private IPSItemService itemService;
-  private PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
-  private PSContentEvent psContentEvent;
 
   /**
    * Constructs an instance of the class.
@@ -1416,27 +1413,21 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     final String substring = assetId.substring(assetId.lastIndexOf("-") + 1, assetId.length());
     try {
       assetDao.addItemToPath(item, folderPath);
-
-      psContentEvent =
-          new PSContentEvent(
-              assetId,
-              substring,
-              folderPath,
-              PSContentEvent.ContentEventActions.create,
-              PSSecurityFilter.getCurrentRequest().getServletRequest(),
-              PSActionOutcome.SUCCESS);
-      psAuditLogService.logContentEvent(psContentEvent);
+      auditAssetCreate(assetId, substring, folderPath, AuditOutcome.SUCCESS);
     } catch (Exception e) {
-      psContentEvent =
-          new PSContentEvent(
-              assetId,
-              substring,
-              folderPath,
-              PSContentEvent.ContentEventActions.create,
-              PSSecurityFilter.getCurrentRequest().getServletRequest(),
-              PSActionOutcome.FAILURE);
-      psAuditLogService.logContentEvent(psContentEvent);
+      auditAssetCreate(assetId, substring, folderPath, AuditOutcome.FAILURE);
       throw new PSAssetServiceException("Failed to add asset to folder", e);
+    }
+  }
+
+  private void auditAssetCreate(
+      String guid, String contentId, String path, AuditOutcome outcome) {
+    try {
+      var current = PSSecurityFilter.getCurrentRequest();
+      var servletRequest = current != null ? current.getServletRequest() : null;
+      PSSystemAuditLogger.contentCreate(servletRequest, outcome, guid, contentId, path);
+    } catch (Exception ignored) {
+      // audit must not mask primary failure
     }
   }
 

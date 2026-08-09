@@ -22,57 +22,49 @@ import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.intsof.percussioncms.auditlog.SystemErrorCode;
 
 /**
- * High-level authentication <em>audit events</em> (login success/failure/logout).
- *
- * <p>Exception catalog codes that bridge legacy {@code IPSSecurityErrors} ints live in {@link
- * SecurityErrorCodes} (Phase 2b). Prefer this enum for intentional audit emits from login
- * servlets; prefer {@link SecurityErrorCodes} / {@code LegacyErrorCodeRegistry} when handling
- * {@code PSException} error codes.
- *
- * <p>Every constant sets {@link #isAuditable()} explicitly.
+ * User-management administrative audit codes (create / update / delete / password re-encrypt).
+ * Outcome is set at the call site when success and failure share the same code.
  */
-public enum AuthenticationErrorCodes implements SystemErrorCode {
-  LOGIN_SUCCESS(
-      1001,
+public enum UserManagementErrorCodes implements SystemErrorCode {
+  CREATE(
+      3001,
       true,
-      AuditEventType.AUTH_LOGIN,
+      AuditEventType.USER_CREATE,
       AuditOutcome.SUCCESS,
-      "User {} logged in successfully",
-      "Login success actor={} sourceIp={}"),
+      "User {} created",
+      "User create actor={} target={}"),
 
-  LOGIN_FAILURE(
-      1002,
+  UPDATE(
+      3002,
       true,
-      AuditEventType.AUTH_FAILURE,
-      AuditOutcome.FAILURE,
-      "Login failed for user {}",
-      "Login failure actor={} reason={} sourceIp={}"),
-
-  LOGOUT(
-      1003,
-      true,
-      AuditEventType.AUTH_LOGOUT,
+      AuditEventType.USER_UPDATE,
       AuditOutcome.SUCCESS,
-      "User {} logged out",
-      "Logout actor={} sourceIp={}"),
+      "User {} updated",
+      "User update actor={} target={} activity={}"),
 
-  /** Session nearing timeout was revoked / released. */
-  SESSION_REVOKE(
-      1004,
+  DELETE(
+      3003,
       true,
-      AuditEventType.AUTH_SESSION_TIMEOUT,
+      AuditEventType.USER_DELETE,
       AuditOutcome.SUCCESS,
-      "Session revoked for user {}",
-      "Session revoke actor={} sourceIp={}"),
+      "User {} deleted",
+      "User delete actor={} target={}"),
 
-  /** Non-auditable operational noise example. */
-  SESSION_CACHE_MISS(
-      1099,
-      false,
-      null,
-      AuditOutcome.UNKNOWN,
-      "Session cache miss for key {}",
-      "Session cache miss key={} detail={}");
+  DISABLE(
+      3004,
+      true,
+      AuditEventType.USER_DISABLE,
+      AuditOutcome.SUCCESS,
+      "User {} disabled",
+      "User disable actor={} target={}"),
+
+  REVOKE(
+      3005,
+      true,
+      AuditEventType.ROLE_REMOVE,
+      AuditOutcome.SUCCESS,
+      "Permissions revoked for user {}",
+      "User revoke actor={} target={} activity={}");
 
   private final int numericCode;
   private final boolean auditable;
@@ -81,7 +73,7 @@ public enum AuthenticationErrorCodes implements SystemErrorCode {
   private final String userMessageTemplate;
   private final String logMessageTemplate;
 
-  AuthenticationErrorCodes(
+  UserManagementErrorCodes(
       int numericCode,
       boolean auditable,
       AuditEventType eventType,
@@ -98,7 +90,7 @@ public enum AuthenticationErrorCodes implements SystemErrorCode {
 
   @Override
   public AuditModule module() {
-    return AuditModule.AUTH;
+    return AuditModule.USER;
   }
 
   @Override
