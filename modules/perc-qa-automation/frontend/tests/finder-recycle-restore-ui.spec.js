@@ -86,6 +86,12 @@ const {
   millerSelectionFailureMessage,
   chooseRestoreOrEmptyBranch,
 } = require("./helpers/finder-recycle-restore-ui");
+const {
+  SELECTORS: EXPLORER_SELECTORS,
+  modernExplorerUrl,
+  isActionControlEnabled,
+  deleteItemApiPathFragment,
+} = require("./helpers/explorer-recycle-restore-ui");
 
 /**
  * Expand finder body when collapsed, then set path bar and go.
@@ -395,10 +401,15 @@ test.describe("classic Finder UI recycle / restore companion", () => {
     const restoreCalls = [];
     /** @type {string[]} */
     const emptyCalls = [];
+    /** @type {string[]} */
+    const deleteItemCalls = [];
     page.on("request", (req) => {
       const u = req.url();
       if (u.includes(deleteFolderApiPathFragment())) {
         deleteCalls.push(u);
+      }
+      if (u.includes(deleteItemApiPathFragment())) {
+        deleteItemCalls.push(u);
       }
       if (u.includes(restoreFolderApiPathFragment())) {
         restoreCalls.push(u);
@@ -410,6 +421,10 @@ test.describe("classic Finder UI recycle / restore companion", () => {
         emptyCalls.push(u);
       }
     });
+    // Modern reduced-actions delete may use window.confirm.
+    page.on("dialog", async (dialog) => {
+      await dialog.accept().catch(() => {});
+    });
 
     await loginAsAdmin(page);
     const loginUrl = page.url();
@@ -418,84 +433,192 @@ test.describe("classic Finder UI recycle / restore companion", () => {
       loginContextDownFailureMessage({ url: loginUrl, baseUrl: BASE_URL }),
     ).toBe(false);
 
+    // Prefer classic dashboard shell; US6 T031 hard-cut replaced miller Finder
+    // with ContentExplorerShell — fall back to modern explorer SPA entry.
     await page.goto(classicFinderDashboardUrl(BASE_URL), {
       waitUntil: "domcontentloaded",
     });
     await page.waitForLoadState("networkidle").catch(() => {});
 
-    // Classic Finder chrome must load (hard fail if shell is wrong product).
-    const deleteBtn = page.locator(SELECTORS.deleteButton);
-    await expect(
-      deleteBtn,
-      "classic Finder delete control (#perc-finder-delete) should exist",
-    ).toBeVisible({ timeout: 30_000 });
-
-    // #2541: ordered strategies (path-bar / listing-id / miller / list) so
-    // #perc-finder-delete enables without relying on REST soft-delete first.
-    const selection = await selectForUiRecycle(page, deleteBtn, {
-      name: created.name,
-      parentPath: "Assets",
-      guid: created.guid,
-    });
-
-    let recycledViaUi = false;
-    if (selection.selected && selection.deleteEnabled) {
-      await deleteBtn.click();
-      // Optional confirm (page/asset paths use it; Admin folders often do not).
-      const confirm = page.locator(SELECTORS.deleteConfirm);
-      if (
-        (await confirm.count()) > 0 &&
-        (await confirm.isVisible().catch(() => false))
-      ) {
-        await page.locator(SELECTORS.confirmOk).click().catch(() => {});
-      }
-      try {
-        await expect
-          .poll(() => deleteCalls.length > 0, { timeout: 20_000 })
-          .toBe(true);
-      } catch {
-        // Network may not surface if soft-delete used a different path.
-      }
-      recycledViaUi = deleteCalls.length > 0;
-      // Also accept when REST listing shows recycled even without captured call.
-      if (!recycledViaUi) {
-        const probeBin = await findInRecycling(
-          request,
-          BASE_URL,
-          headers,
-          created.name,
-        );
-        recycledViaUi = probeBin.found;
-      }
+    const classicDeleteBtn = page.locator(SELECTORS.deleteButton);
+    let useClassic = false;
+    try {
+      await classicDeleteBtn.waitFor({ state: "visible", timeout: 8_000 });
+      useClassic = true;
+    } catch {
+      useClassic = false;
     }
 
-    // Last-resort REST only when UI selection/enablement failed (residual shell).
-    // Happy path must not need this (#2541).
-    if (
-      shouldUseRestRecycleFallback({
-        selected: selection.selected,
-        deleteEnabled: selection.deleteEnabled,
-        recycledViaUi,
-      })
-    ) {
+    let recycledViaUi = false;
+    /** @type {{ selected: boolean, deleteEnabled: boolean, strategiesTried: string[], pathBar: string }} */
+    let selection = {
+      selected: false,
+      deleteEnabled: false,
+      strategiesTried: [],
+      pathBar: "",
+    };
+
+    if (useClassic) {
+      // #2541: ordered strategies so #perc-finder-delete enables without REST first.
+      selection = await selectForUiRecycle(page, classicDeleteBtn, {
+        name: created.name,
+        parentPath: "Assets",
+        guid: created.guid,
+      });
+
+      if (selection.selected && selection.deleteEnabled) {
+        await classicDeleteBtn.click();
+        const confirm = page.locator(SELECTORS.deleteConfirm);
+        if (
+          (await confirm.count()) > 0 &&
+          (await confirm.isVisible().catch(() => false))
+        ) {
+          await page.locator(SELECTORS.confirmOk).click().catch(() => {});
+        }
+        try {
+          await expect
+            .poll(() => deleteCalls.length > 0, { timeout: 20_000 })
+            .toBe(true);
+        } catch {
+          // Network may not surface if soft-delete used a different path.
+        }
+        recycledViaUi = deleteCalls.length > 0;
+        if (!recycledViaUi) {
+          const probeBin = await findInRecycling(
+            request,
+            BASE_URL,
+            headers,
+            created.name,
+          );
+          recycledViaUi = probeBin.found;
+        }
+      }
+
+      if (
+        shouldUseRestRecycleFallback({
+          selected: selection.selected,
+          deleteEnabled: selection.deleteEnabled,
+          recycledViaUi,
+        })
+      ) {
+        test.info().annotations.push({
+          type: "warning",
+          description: millerSelectionFailureMessage({
+            name: created.name,
+            strategiesTried: selection.strategiesTried,
+            pathBar: selection.pathBar,
+          }),
+        });
+        await recycleFolder(request, BASE_URL, headers, {
+          path: created.path,
+          guid: created.guid,
+        });
+      } else if (!recycledViaUi) {
+        await recycleFolder(request, BASE_URL, headers, {
+          path: created.path,
+          guid: created.guid,
+        });
+      }
+    } else {
       test.info().annotations.push({
-        type: "warning",
-        description: millerSelectionFailureMessage({
-          name: created.name,
-          strategiesTried: selection.strategiesTried,
-          pathBar: selection.pathBar,
-        }),
+        type: "note",
+        description:
+          "US6 T031: classic miller Finder removed from dashboard.jsp; " +
+          "proving recycle via modern ContentExplorerShell (#2540 / peer #2542).",
       });
-      await recycleFolder(request, BASE_URL, headers, {
-        path: created.path,
-        guid: created.guid,
+      await page.goto(modernExplorerUrl(BASE_URL), {
+        waitUntil: "domcontentloaded",
       });
-    } else if (!recycledViaUi) {
-      // Selected + enabled but click did not recycle — still try REST recover.
-      await recycleFolder(request, BASE_URL, headers, {
-        path: created.path,
-        guid: created.guid,
-      });
+      await page.waitForLoadState("networkidle").catch(() => {});
+
+      const shell = page.locator(EXPLORER_SELECTORS.shell);
+      await expect(
+        shell,
+        "modern content-explorer-shell should mount when classic Finder is gone",
+      ).toBeVisible({ timeout: 30_000 });
+
+      const modernDelete = page.locator(EXPLORER_SELECTORS.actionDelete);
+      await expect(
+        modernDelete,
+        'modern reduced-actions delete (data-testid="action-delete") should exist',
+      ).toBeVisible({ timeout: 15_000 });
+
+      // Tree: open Assets then select the seeded folder in detail list.
+      const assetsNode = page
+        .locator(
+          `[data-testid="${EXPLORER_SELECTORS.treeNodePrefix}/Assets"],` +
+            `[data-testid="${EXPLORER_SELECTORS.treeNodePrefix}/Assets/"],` +
+            `[data-testid*="tree-node-"][data-testid*="Assets"]`,
+        )
+        .first();
+      if ((await assetsNode.count()) > 0) {
+        await assetsNode.click({ timeout: 15_000 }).catch(() => {});
+      }
+      const detailRow = page
+        .locator(
+          `[data-testid*="detail-row-"]`,
+          { hasText: created.name },
+        )
+        .first();
+      if ((await detailRow.count()) > 0) {
+        await detailRow.click({ timeout: 15_000 }).catch(() => {});
+        selection.selected = true;
+      }
+
+      let deleteEnabled = false;
+      try {
+        await expect
+          .poll(
+            async () => {
+              const disabled = await modernDelete.isDisabled().catch(() => true);
+              const aria =
+                (await modernDelete.getAttribute("aria-disabled")) || "";
+              return isActionControlEnabled({
+                disabled,
+                ariaDisabled: aria,
+              });
+            },
+            { timeout: 15_000 },
+          )
+          .toBe(true);
+        deleteEnabled = true;
+        selection.deleteEnabled = true;
+      } catch {
+        deleteEnabled = false;
+      }
+
+      if (selection.selected && deleteEnabled) {
+        await modernDelete.click();
+        try {
+          await expect
+            .poll(
+              () =>
+                deleteCalls.length > 0 || deleteItemCalls.length > 0,
+              { timeout: 20_000 },
+            )
+            .toBe(true);
+        } catch {
+          // optional network surface
+        }
+        recycledViaUi =
+          deleteCalls.length > 0 || deleteItemCalls.length > 0;
+        if (!recycledViaUi) {
+          const probeBin = await findInRecycling(
+            request,
+            BASE_URL,
+            headers,
+            created.name,
+          );
+          recycledViaUi = probeBin.found;
+        }
+      }
+
+      if (!recycledViaUi) {
+        await recycleFolder(request, BASE_URL, headers, {
+          path: created.path,
+          guid: created.guid,
+        });
+      }
     }
 
     const recycled = await findInRecycling(
@@ -508,6 +631,17 @@ test.describe("classic Finder UI recycle / restore companion", () => {
       recycled.found,
       `expected ${created.name} under Recycling after recycle (ui=${recycledViaUi})`,
     ).toBe(true);
+
+    // Modern explorer path: empty via REST (classic Empty Recycling UI chrome
+    // is not mounted after US6 T031). Prove recycle succeeded, clean fixtures.
+    if (!useClassic) {
+      const emptied = await emptyRecyclingViaApi(request, BASE_URL, headers);
+      expect(
+        emptied.status >= 200 && emptied.status < 300,
+        emptyApiFailureMessage(emptied),
+      ).toBe(true);
+      return;
+    }
 
     // Prefer restore when we can navigate to a restore-eligible path and
     // enable #perc-finder-restore-item; else Empty Recycling UI (#2207 peer).

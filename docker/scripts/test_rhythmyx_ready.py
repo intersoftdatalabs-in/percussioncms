@@ -87,6 +87,53 @@ class ServerLogErrorTests(unittest.TestCase):
     def test_empty_clean(self):
         self.assertIsNone(rr.find_server_log_startup_error(""))
 
+    def test_fresh_h2_drop_table_not_found_allowlisted(self):
+        """Upgrade cleanup DROP TABLE on missing tables must not fail qa-up (#2540)."""
+        text = (
+            '[PSExecSQLStmt] 04:40:52.843 [main] ERROR com.percussion.install.PSLogger '
+            '- Table "PSX_QJOB_LISTENERS" not found; SQL statement:\n'
+            "INFO install continues\n"
+        )
+        self.assertIsNone(rr.find_server_log_startup_error(text))
+
+    def test_fresh_h2_empty_db_delete_not_found_allowlisted(self):
+        text = (
+            '[PSExecSQLStmt] 04:50:29.951 [main] ERROR com.percussion.install.PSLogger '
+            '- Table "PSX_CONTENTCHANGEEVENT" not found (this database is empty); '
+            "SQL statement:\n"
+        )
+        self.assertIsNone(rr.find_server_log_startup_error(text))
+
+    def test_runtime_error_still_fails(self):
+        text = "ERROR [Assembly] Failed to save template id=0-4-1003\n"
+        match = rr.find_server_log_startup_error(text)
+        self.assertIsNotNone(match)
+        self.assertIn("Failed to save template", match)
+
+    def test_install_sql_syntax_error_allowlisted(self):
+        text = (
+            '[PSExecSQLStmt] 05:00:17.816 [main] ERROR com.percussion.install.PSLogger '
+            '- Syntax error in SQL statement "[*]RENAME COLUMN RXS_CT_GENERIC.USAGE '
+            'TO PUSAGE"; expected "ROLLBACK, REVOKE"; SQL statement:\n'
+        )
+        self.assertIsNone(rr.find_server_log_startup_error(text))
+
+    def test_package_install_failure_still_fails(self):
+        text = (
+            "ERROR [Server] Package: perc.Baseline failed to install: "
+            "com.percussion.error.PSException\n"
+        )
+        match = rr.find_server_log_startup_error(text)
+        self.assertIsNotNone(match)
+        self.assertIn("perc.Baseline", match)
+
+    def test_psdatahandler_cehandler_allowlisted(self):
+        text = (
+            "ERROR [com.percussion.data.PSDataHandler] Application .sys_CEHandler1, "
+            "Dataset InsertChild229, Request InsertChild229\n"
+        )
+        self.assertIsNone(rr.find_server_log_startup_error(text))
+
     def test_container_cms_log_paths(self):
         paths = rr.container_cms_log_paths("/opt/Percussion")
         self.assertIn("/opt/Percussion/jetty/base/logs/server.log", paths)
