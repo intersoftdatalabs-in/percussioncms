@@ -9,8 +9,9 @@ System-wide Percussion CMS audit logging and unified error-code support.
 * `SystemErrorCode` / package `*ErrorCodes` with explicit **`isAuditable`**
 * `AuditLogService` dual-writes auditable events to Log4j (`server.log`) and an `AuditLogRepository` SPI
 * Message form: `[AUTH-1001]-[<uuid>] …` with separate user/log message templates and redaction
-* **Phase 2b:** `SecurityErrorCodes` + `LegacyErrorCodeRegistry` bridge legacy `IPSSecurityErrors` ints
-  (auth/security first slice). Non-auditable / unregistered ints never dual-write.
+* **Phase 2b:** `SecurityErrorCodes`, `ContentErrorCodes`, `WorkflowErrorCodes` + `LegacyErrorCodeRegistry`
+  bridge legacy `IPS*Errors` ints (auth/security, content conversion + lifecycle, workflow service).
+  Non-auditable / unregistered ints never dual-write.
 
 **Legacy (to be removed after migration):** `com.percussion.auditlog` + IBM CADF (`auditlogger` module)
 
@@ -29,19 +30,31 @@ audit.log(
     "10.0.0.1");
 ```
 
-## Legacy IPS*Errors bridge (Phase 2b auth/security)
+## Legacy IPS*Errors bridge (Phase 2b)
 
 ```java
 import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
+import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
 
 // Prefer enum when available:
 audit.log(SecurityErrorCodes.AUTHENTICATION_FAILED, ctx, "Directory", "ldap1", "jdoe");
+audit.log(ContentErrorCodes.CREATE, ctx, AuditOutcome.SUCCESS, "guid", "42", "/Sites/demo");
+audit.log(WorkflowErrorCodes.ACCESS_DENIED, ctx, "5", "jdoe");
 
 // Central handlers with only a legacy int (e.g. PSException.getErrorCode()):
-LegacyErrorCodeRegistry.logIfAuditable(audit, 9002, ctx, "Directory", "ldap1", "jdoe");
-// Provider config noise (isAuditable=false) and unknown ints → no dual-write
+LegacyErrorCodeRegistry.logIfAuditable(audit, 9002, ctx, "Directory", "ldap1", "jdoe"); // SEC
+LegacyErrorCodeRegistry.logIfAuditable(audit, 17001, ctx); // CONT conversion — non-auditable skip
+LegacyErrorCodeRegistry.logIfAuditable(audit, 6, ctx, "5", "jdoe"); // WF access denied
+// Provider/config/conversion noise (isAuditable=false) and unknown ints → no dual-write
 ```
+
+| Catalog | Ranges | Notes |
+|---------|--------|-------|
+| `SecurityErrorCodes` | 9001–9026, dir-auth 9801+ | Auth/security exception bridge |
+| `ContentErrorCodes` | 2001–2006 lifecycle; 17001–17010 conversion | Aligns Phase 2a lifecycle numbering |
+| `WorkflowErrorCodes` | 4001 transition; 1–10 service | Aligns Phase 2a transition numbering |
 
 Non-auditable codes (`isAuditable() == false`) never create audit rows.
 

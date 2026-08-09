@@ -17,8 +17,15 @@
 package com.percussion.services.content;
 
 /**
- * Error numbers for use with the bundle 
- * <code>PSContentErrorStringBundle.properties</code>
+ * Error numbers for use with the bundle
+ * <code>PSContentErrorStringBundle.properties</code>.
+ *
+ * <p><strong>Phase 2b note:</strong> {@link #MISSING_KEYWORD} is package-local ({@code 1}) and is
+ * <em>not</em> registered in the flat {@code LegacyErrorCodeRegistry} (would collide with other
+ * package-local catalogs such as workflow). Prefer typed {@code ContentErrorCodes} high-level
+ * lifecycle codes for intentional content audit emits. Conversion-range content errors live on
+ * {@code com.percussion.content.IPSContentErrors} (17001+) and are bridged in {@code
+ * ContentErrorCodes}.
  */
 public interface IPSContentErrors
 {

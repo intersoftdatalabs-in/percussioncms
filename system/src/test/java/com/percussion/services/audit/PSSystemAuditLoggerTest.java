@@ -25,9 +25,13 @@ import com.intsof.percussioncms.auditlog.AuditContext;
 import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.intsof.percussioncms.auditlog.DefaultAuditLogService;
 import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
+import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
 import com.intsof.percussioncms.auditlog.spi.ConcurrentMemoryAuditLogRepository;
+import com.percussion.content.IPSContentErrors;
 import com.percussion.security.IPSSecurityErrors;
+import com.percussion.services.workflow.IPSWorkflowErrors;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -263,5 +267,77 @@ class PSSystemAuditLoggerTest {
     assertEquals(
         SecurityErrorCodes.SESS_NOT_AUTHORIZED.numericCode(),
         IPSSecurityErrors.SESS_NOT_AUTHORIZED);
+  }
+
+  @Test
+  void legacyContentConversionNoiseSkipsDualWrite() {
+    var id =
+        PSSystemAuditLogger.logLegacyIfAuditable(
+            IPSContentErrors.UNSUPPORTED_FILE_TYPE,
+            AuditContext.builder().actor("jdoe").build());
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertEquals(0, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+  }
+
+  @Test
+  void legacyContentCreateDualWritesViaBridge() {
+    var id =
+        PSSystemAuditLogger.logLegacyIfAuditable(
+            ContentErrorCodes.CREATE.numericCode(),
+            AuditContext.builder().actor("jdoe").build(),
+            "guid-1",
+            "42",
+            "/Sites/demo");
+
+    assertTrue(!id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(1, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals(ContentErrorCodes.CREATE, rec.code());
+    assertTrue(rec.formattedLine().startsWith("[CONT-2001]-"));
+  }
+
+  @Test
+  void legacyWorkflowAccessDeniedDualWritesViaBridge() {
+    var id =
+        PSSystemAuditLogger.logLegacyIfAuditable(
+            IPSWorkflowErrors.ACCESS_DENIED,
+            AuditContext.builder().actor("jdoe").build(),
+            "5",
+            "jdoe");
+
+    assertTrue(!id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(1, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals(WorkflowErrorCodes.ACCESS_DENIED, rec.code());
+    assertTrue(rec.formattedLine().startsWith("[WF-6]-"));
+  }
+
+  @Test
+  void legacyWorkflowNotFoundSkipsDualWrite() {
+    var id =
+        PSSystemAuditLogger.logLegacyIfAuditable(
+            IPSWorkflowErrors.WORKFLOW_NOT_FOUND,
+            AuditContext.builder().actor("jdoe").build(),
+            "99");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertEquals(0, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+  }
+
+  @Test
+  void ipsContentAndWorkflowErrorsIntsMatchCatalogs() {
+    assertEquals(
+        ContentErrorCodes.UNSUPPORTED_FILE_TYPE.numericCode(),
+        IPSContentErrors.UNSUPPORTED_FILE_TYPE);
+    assertEquals(
+        ContentErrorCodes.UNSUPPORTED_CONVERT_CONSTRUCTOR.numericCode(),
+        IPSContentErrors.UNSUPPORTED_CONVERT_CONSTRUCTOR);
+    assertEquals(
+        WorkflowErrorCodes.WORKFLOW_NOT_FOUND.numericCode(), IPSWorkflowErrors.WORKFLOW_NOT_FOUND);
+    assertEquals(
+        WorkflowErrorCodes.ACCESS_DENIED.numericCode(), IPSWorkflowErrors.ACCESS_DENIED);
+    assertEquals(
+        WorkflowErrorCodes.INVALID_TRANSITION.numericCode(), IPSWorkflowErrors.INVALID_TRANSITION);
   }
 }

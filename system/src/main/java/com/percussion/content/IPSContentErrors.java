@@ -26,6 +26,13 @@ package com.percussion.content;
  * <TR><TD>17001 - 17100</TD><TD>conversion errors</TD></TR>
  * <TR><TD>17101 - 17500</TD><TD>general errors</TD></TR>
  * </TABLE>
+ *
+ * <p><strong>Phase 2b bridge:</strong> conversion ints (17001–17010) are cataloged in {@code
+ * com.intsof.percussioncms.auditlog.codes.ContentErrorCodes} with explicit {@code isAuditable}
+ * (operational conversion noise is not auditable). Int literals remain here so they stay
+ * <em>compile-time constants</em>. Prefer {@code ContentErrorCodes} / {@code
+ * LegacyErrorCodeRegistry} for dual-write decisions; keep this interface for legacy exception
+ * constructors and message bundles.
  */
 public interface IPSContentErrors {
   /**
