@@ -25,10 +25,9 @@ import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import com.percussion.auditlog.PSActionOutcome;
-import com.percussion.auditlog.PSAuditLogService;
-import com.percussion.auditlog.PSContentEvent;
+import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.percussion.cms.IPSConstants;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.cms.objectstore.IPSFieldValue;
 import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.cms.objectstore.server.PSPurgableFileValue;
@@ -83,9 +82,6 @@ public class PSContentItemDao implements IPSContentItemDao {
   private IPSFolderHelper folderHelper;
   private IPSRelationshipCataloger relationshipHelper;
   private IPSSystemWs systemWs;
-  private PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
-  private PSContentEvent psContentEvent;
-
   @Autowired
   public PSContentItemDao(
       IPSContentDesignWs contentDesignWs,
@@ -233,26 +229,21 @@ public class PSContentItemDao implements IPSContentItemDao {
       }
       contentWs.deleteItems(asList(guid));
       substring = uid.substring(uid.lastIndexOf("-") + 1, id.length());
-      psContentEvent =
-          new PSContentEvent(
-              id,
-              substring,
-              path,
-              PSContentEvent.ContentEventActions.delete,
-              PSSecurityFilter.getCurrentRequest().getServletRequest(),
-              PSActionOutcome.SUCCESS);
-      psAuditLogService.logContentEvent(psContentEvent);
+      auditContentDelete(id, substring, path, AuditOutcome.SUCCESS);
     } catch (Exception e) {
-      psContentEvent =
-          new PSContentEvent(
-              id,
-              substring,
-              path,
-              PSContentEvent.ContentEventActions.delete,
-              PSSecurityFilter.getCurrentRequest().getServletRequest(),
-              PSActionOutcome.FAILURE);
-      psAuditLogService.logContentEvent(psContentEvent);
+      auditContentDelete(id, substring, path, AuditOutcome.FAILURE);
       throw new DeleteException("Failed to delete content item: " + id, convertException(e));
+    }
+  }
+
+  private void auditContentDelete(
+      String guid, String contentId, String path, AuditOutcome outcome) {
+    try {
+      var current = PSSecurityFilter.getCurrentRequest();
+      var servletRequest = current != null ? current.getServletRequest() : null;
+      PSSystemAuditLogger.contentDelete(servletRequest, outcome, guid, contentId, path);
+    } catch (Exception auditEx) {
+      // audit must not mask primary failure
     }
   }
 

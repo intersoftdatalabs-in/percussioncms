@@ -24,12 +24,17 @@ import com.intsof.percussioncms.auditlog.DefaultAuditLogService;
 import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
 import com.intsof.percussioncms.auditlog.SystemErrorCode;
 import com.intsof.percussioncms.auditlog.codes.AuthenticationErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.UserManagementErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Thin facade for system code to emit system-wide audit events without depending on Spring at the
- * call site. Uses {@link DefaultAuditLogService.Holder} (Log4j + memory until JPA repository
- * registers).
+ * Thin facade for system and sitemanage code to emit system-wide audit events without depending on
+ * Spring or legacy CADF event classes at the call site. Uses {@link DefaultAuditLogService.Holder}
+ * (Log4j + memory until JPA repository registers).
+ *
+ * <p>Phase 2a migrates production {@code PSAuditLogService} call sites to these helpers.
  *
  * <p>Phase 2b: use {@link #logLegacyIfAuditable(int, AuditContext, Object...)} for legacy {@code
  * IPS*Errors} ints so non-auditable codes never dual-write.
@@ -105,12 +110,224 @@ public final class PSSystemAuditLogger {
         ip);
   }
 
+  /**
+   * Session near-timeout revoke (formerly {@code PSAuthenticationEvent} with action {@code
+   * revoke}).
+   */
+  public static void sessionRevoke(HttpServletRequest request, String username) {
+    String actor = nullToEmpty(username);
+    String ip = clientIp(request);
+    log(
+        AuthenticationErrorCodes.SESSION_REVOKE,
+        context(request, actor),
+        AuditOutcome.SUCCESS,
+        actor,
+        ip);
+  }
+
+  /** Content create / update / delete / recycle / schedule dual-write. */
+  public static void content(
+      ContentErrorCodes code,
+      HttpServletRequest request,
+      AuditOutcome outcome,
+      String guid,
+      String contentId,
+      String path) {
+    String g = nullToEmpty(guid);
+    String cid = nullToEmpty(contentId);
+    String p = nullToEmpty(path);
+    AuditOutcome o = outcome != null ? outcome : code.defaultOutcome();
+    log(code, contentContext(request, g), o, g, cid, p);
+  }
+
+  public static void contentCreate(
+      HttpServletRequest request,
+      AuditOutcome outcome,
+      String guid,
+      String contentId,
+      String path) {
+    content(ContentErrorCodes.CREATE, request, outcome, guid, contentId, path);
+  }
+
+  public static void contentUpdate(
+      HttpServletRequest request,
+      AuditOutcome outcome,
+      String guid,
+      String contentId,
+      String path) {
+    content(ContentErrorCodes.UPDATE, request, outcome, guid, contentId, path);
+  }
+
+  public static void contentDelete(
+      HttpServletRequest request,
+      AuditOutcome outcome,
+      String guid,
+      String contentId,
+      String path) {
+    content(ContentErrorCodes.DELETE, request, outcome, guid, contentId, path);
+  }
+
+  public static void contentRecycle(
+      HttpServletRequest request,
+      AuditOutcome outcome,
+      String guid,
+      String contentId,
+      String path) {
+    content(ContentErrorCodes.RECYCLE, request, outcome, guid, contentId, path);
+  }
+
+  public static void pagePublishSchedule(
+      HttpServletRequest request,
+      AuditOutcome outcome,
+      String guid,
+      String contentId,
+      String path) {
+    content(ContentErrorCodes.PAGE_PUBLISH_SCHEDULE, request, outcome, guid, contentId, path);
+  }
+
+  public static void pageRemovalSchedule(
+      HttpServletRequest request,
+      AuditOutcome outcome,
+      String guid,
+      String contentId,
+      String path) {
+    content(ContentErrorCodes.PAGE_REMOVAL_SCHEDULE, request, outcome, guid, contentId, path);
+  }
+
+  /**
+   * User-management dual-write. {@code targetUser} is the account being acted on; actor comes from
+   * the request remote user when present.
+   */
+  public static void userManagement(
+      UserManagementErrorCodes code,
+      HttpServletRequest request,
+      AuditOutcome outcome,
+      String targetUser,
+      String activity) {
+    userManagement(code, request, outcome, targetUser, activity, null);
+  }
+
+  /**
+   * User-management dual-write with an optional explicit actor (e.g. {@code "system"} for automated
+   * password re-encryption during authentication when {@link HttpServletRequest#getRemoteUser()} is
+   * not yet the operator of record).
+   *
+   * @param actorOverride when non-blank, used as the audit actor instead of {@code
+   *     request.getRemoteUser()}
+   */
+  public static void userManagement(
+      UserManagementErrorCodes code,
+      HttpServletRequest request,
+      AuditOutcome outcome,
+      String targetUser,
+      String activity,
+      String actorOverride) {
+    String actor =
+        (actorOverride != null && !actorOverride.isBlank())
+            ? actorOverride.trim()
+            : remoteUser(request);
+    String target = nullToEmpty(targetUser);
+    if (target.isEmpty()) {
+      target = actor;
+    }
+    AuditOutcome o = outcome != null ? outcome : code.defaultOutcome();
+    AuditContext ctx =
+        AuditContext.builder()
+            .actor(actor)
+            .target(target)
+            .sourceIp(clientIp(request))
+            .sourceHost(sourceHost(request))
+            .attribute("activity", nullToEmpty(activity))
+            .build();
+    if (code == UserManagementErrorCodes.CREATE || code == UserManagementErrorCodes.DELETE) {
+      log(code, ctx, o, actor, target);
+    } else {
+      log(code, ctx, o, actor, target, nullToEmpty(activity));
+    }
+  }
+
+  public static void userCreate(
+      HttpServletRequest request, AuditOutcome outcome, String targetUser) {
+    userManagement(UserManagementErrorCodes.CREATE, request, outcome, targetUser, "");
+  }
+
+  public static void userUpdate(
+      HttpServletRequest request, AuditOutcome outcome, String targetUser, String activity) {
+    userManagement(UserManagementErrorCodes.UPDATE, request, outcome, targetUser, activity);
+  }
+
+  /**
+   * User update with an explicit actor (use {@code "system"} for automated security maintenance).
+   */
+  public static void userUpdate(
+      HttpServletRequest request,
+      AuditOutcome outcome,
+      String targetUser,
+      String activity,
+      String actor) {
+    userManagement(UserManagementErrorCodes.UPDATE, request, outcome, targetUser, activity, actor);
+  }
+
+  public static void userDelete(
+      HttpServletRequest request, AuditOutcome outcome, String targetUser) {
+    userManagement(UserManagementErrorCodes.DELETE, request, outcome, targetUser, "");
+  }
+
+  /** Workflow transition dual-write. */
+  public static void workflowTransition(
+      HttpServletRequest request,
+      AuditOutcome outcome,
+      String contentId,
+      String guid,
+      String fromState,
+      String toState) {
+    String cid = nullToEmpty(contentId);
+    String g = nullToEmpty(guid);
+    String from = nullToEmpty(fromState);
+    String to = nullToEmpty(toState);
+    AuditOutcome o = outcome != null ? outcome : AuditOutcome.SUCCESS;
+    AuditContext ctx =
+        AuditContext.builder()
+            .actor(remoteUser(request))
+            .target(g.isEmpty() ? cid : g)
+            .sourceIp(clientIp(request))
+            .sourceHost(sourceHost(request))
+            .attribute("contentId", cid)
+            .attribute("fromState", from)
+            .attribute("toState", to)
+            .build();
+    log(WorkflowErrorCodes.TRANSITION, ctx, o, cid, g, from, to);
+  }
+
+  private static AuditContext contentContext(HttpServletRequest request, String guid) {
+    return AuditContext.builder()
+        .actor(remoteUser(request))
+        .target(nullToEmpty(guid))
+        .sourceIp(clientIp(request))
+        .sourceHost(sourceHost(request))
+        .build();
+  }
+
   private static AuditContext context(HttpServletRequest request, String actor) {
     AuditContext.Builder b = AuditContext.builder().actor(actor);
     if (request != null) {
       b.sourceIp(clientIp(request)).sourceHost(request.getRemoteHost());
     }
     return b.build();
+  }
+
+  private static String remoteUser(HttpServletRequest request) {
+    if (request == null) {
+      return "";
+    }
+    return nullToEmpty(request.getRemoteUser());
+  }
+
+  private static String sourceHost(HttpServletRequest request) {
+    if (request == null) {
+      return "";
+    }
+    return nullToEmpty(request.getRemoteHost());
   }
 
   private static String clientIp(HttpServletRequest request) {

@@ -17,10 +17,9 @@
  */
 package com.percussion.sitemanage.dao.impl;
 
-import com.percussion.auditlog.PSActionOutcome;
-import com.percussion.auditlog.PSAuditLogService;
-import com.percussion.auditlog.PSUserManagementEvent;
+import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.percussion.cms.IPSConstants;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.exception.PSDataServiceException;
@@ -52,9 +51,6 @@ public class PSUserLoginDao implements IPSUserLoginDao {
 
   private static final Logger log = LogManager.getLogger(IPSConstants.SECURITY_LOG);
 
-  private final PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
-  private PSUserManagementEvent psUserManagementEvent;
-
   /* (non-Javadoc)
    * Legacy delete that used to be declared on IPSGenericDao.  The current
    * interface now uses `remove` instead, so this method is kept for
@@ -73,12 +69,7 @@ public class PSUserLoginDao implements IPSUserLoginDao {
       }
       session.remove(login);
     } catch (HibernateException he) {
-      psUserManagementEvent =
-          new PSUserManagementEvent(
-              PSSecurityFilter.getCurrentRequest().getServletRequest(),
-              PSUserManagementEvent.UserEventActions.delete,
-              PSActionOutcome.FAILURE);
-      psAuditLogService.logUserManagementEvent(psUserManagementEvent);
+      auditUser(name, UserAuditKind.DELETE, AuditOutcome.FAILURE);
       emsg = "database error " + he.getMessage();
       log.error(emsg);
       throw new IPSGenericDao.DeleteException(emsg, he);
@@ -191,12 +182,7 @@ public class PSUserLoginDao implements IPSUserLoginDao {
       l2.setPassword(login.getPassword());
       session.merge(l2);
     } catch (HibernateException he) {
-      psUserManagementEvent =
-          new PSUserManagementEvent(
-              PSSecurityFilter.getCurrentRequest().getServletRequest(),
-              PSUserManagementEvent.UserEventActions.update,
-              PSActionOutcome.FAILURE);
-      psAuditLogService.logUserManagementEvent(psUserManagementEvent);
+      auditUser(login.getUserid(), UserAuditKind.UPDATE, AuditOutcome.FAILURE);
       emsg = "database error " + he.getMessage();
       log.error(emsg);
       throw new IPSGenericDao.SaveException(emsg, he);
@@ -216,25 +202,37 @@ public class PSUserLoginDao implements IPSUserLoginDao {
     var session = getSession();
     try {
       session.persist(login);
-      psUserManagementEvent =
-          new PSUserManagementEvent(
-              PSSecurityFilter.getCurrentRequest().getServletRequest(),
-              PSUserManagementEvent.UserEventActions.create,
-              PSActionOutcome.SUCCESS);
-      psAuditLogService.logUserManagementEvent(psUserManagementEvent);
+      auditUser(login.getUserid(), UserAuditKind.CREATE, AuditOutcome.SUCCESS);
     } catch (HibernateException he) {
       emsg = "database error " + he.getMessage();
       log.error(emsg);
-      psUserManagementEvent =
-          new PSUserManagementEvent(
-              PSSecurityFilter.getCurrentRequest().getServletRequest(),
-              PSUserManagementEvent.UserEventActions.create,
-              PSActionOutcome.FAILURE);
-      psAuditLogService.logUserManagementEvent(psUserManagementEvent);
+      auditUser(login.getUserid(), UserAuditKind.CREATE, AuditOutcome.FAILURE);
       throw new IPSGenericDao.SaveException(emsg, he);
     } finally {
       session.flush();
     }
     return login;
+  }
+
+  private enum UserAuditKind {
+    CREATE,
+    UPDATE,
+    DELETE
+  }
+
+  private void auditUser(String targetUser, UserAuditKind kind, AuditOutcome outcome) {
+    try {
+      var current = PSSecurityFilter.getCurrentRequest();
+      var servletRequest = current != null ? current.getServletRequest() : null;
+      switch (kind) {
+        case CREATE -> PSSystemAuditLogger.userCreate(servletRequest, outcome, targetUser);
+        case UPDATE ->
+            PSSystemAuditLogger.userUpdate(servletRequest, outcome, targetUser, "login-dao");
+        case DELETE -> PSSystemAuditLogger.userDelete(servletRequest, outcome, targetUser);
+      }
+    } catch (Exception e) {
+      log.error("Failed to write user audit event: {}", e.getMessage());
+      log.debug(e);
+    }
   }
 }

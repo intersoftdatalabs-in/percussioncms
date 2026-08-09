@@ -20,9 +20,8 @@ package com.percussion.recycle.service.impl;
 
 import static org.apache.commons.lang3.Validate.notEmpty;
 
-import com.percussion.auditlog.PSActionOutcome;
-import com.percussion.auditlog.PSAuditLogService;
-import com.percussion.auditlog.PSContentEvent;
+import com.intsof.percussioncms.auditlog.AuditOutcome;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.handlers.PSRelationshipCommandHandler;
 import com.percussion.cms.objectstore.IPSFieldValue;
@@ -87,8 +86,7 @@ import org.springframework.stereotype.Component;
 @Component("recycleService")
 @Lazy
 public class PSRecycleService implements IPSRecycleService {
-  private final PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
-  private PSContentEvent psContentEvent;
+
 
   /** Logger for this class. */
   private static final Logger log = LogManager.getLogger(PSRecycleService.class);
@@ -291,35 +289,30 @@ public class PSRecycleService implements IPSRecycleService {
       // Detach page/template widgets still bound to this content id so assembly does not keep
       // rendering recycled assets (perc-recycled-asset chrome / red border). See #777 / #2238.
       clearWidgetRelationshipsForRecycledItem(itemGuid);
-      psContentEvent =
-          new PSContentEvent(
-              itemGuid.toString(),
-              String.valueOf(dependentId),
-              path,
-              PSContentEvent.ContentEventActions.recycle,
-              PSSecurityFilter.getCurrentRequest().getServletRequest(),
-              PSActionOutcome.SUCCESS);
-      psAuditLogService.logContentEvent(psContentEvent);
+      auditRecycle(itemGuid.toString(), String.valueOf(dependentId), path, AuditOutcome.SUCCESS);
     } catch (PSErrorsException
         | PSErrorException
         | PSErrorResultsException
         | PSCmsException
         | IPSDataService.DataServiceLoadException
         | PSValidationException e) {
-      psContentEvent =
-          new PSContentEvent(
-              itemGuid.toString(),
-              String.valueOf(dependentId),
-              path,
-              PSContentEvent.ContentEventActions.recycle,
-              PSSecurityFilter.getCurrentRequest().getServletRequest(),
-              PSActionOutcome.FAILURE);
-      psAuditLogService.logContentEvent(psContentEvent);
+      auditRecycle(itemGuid.toString(), String.valueOf(dependentId), path, AuditOutcome.FAILURE);
       log.error(
           "Unable to recycle item with dependent id: {} Error: {}",
           dependentId,
           PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
+
+  private void auditRecycle(
+      String guid, String contentId, String path, AuditOutcome outcome) {
+    try {
+      var current = PSSecurityFilter.getCurrentRequest();
+      var servletRequest = current != null ? current.getServletRequest() : null;
+      PSSystemAuditLogger.contentRecycle(servletRequest, outcome, guid, contentId, path);
+    } catch (Exception ignored) {
+      // audit must not mask primary failure
     }
   }
 

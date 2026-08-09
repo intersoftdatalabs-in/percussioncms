@@ -22,6 +22,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.intsof.percussioncms.auditlog.AuditContext;
+import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.intsof.percussioncms.auditlog.DefaultAuditLogService;
 import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
@@ -73,7 +74,7 @@ class PSSystemAuditLoggerTest {
     assertEquals(1, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
     var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
     assertEquals(1002, rec.code().numericCode());
-    assertEquals(com.intsof.percussioncms.auditlog.AuditOutcome.FAILURE, rec.outcome());
+    assertEquals(AuditOutcome.FAILURE, rec.outcome());
   }
 
   @Test
@@ -87,7 +88,141 @@ class PSSystemAuditLoggerTest {
     assertEquals(1, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
     var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
     assertEquals(1003, rec.code().numericCode());
-    assertEquals(com.intsof.percussioncms.auditlog.AuditOutcome.SUCCESS, rec.outcome());
+    assertEquals(AuditOutcome.SUCCESS, rec.outcome());
+  }
+
+  @Test
+  void sessionRevokeIsAuditable() {
+    HttpServletRequest request = mockRequest("admin", "10.0.0.1");
+    PSSystemAuditLogger.sessionRevoke(request, "admin");
+
+    assertEquals(1, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals(1004, rec.code().numericCode());
+    assertEquals("AUTH", rec.code().module().code());
+  }
+
+  @Test
+  void contentCreateWritesContCode() {
+    HttpServletRequest request = mockRequest("editor", "10.0.0.2");
+    PSSystemAuditLogger.contentCreate(
+        request, AuditOutcome.SUCCESS, "guid-1", "42", "/Sites/demo");
+
+    assertEquals(1, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals("CONT", rec.code().module().code());
+    assertEquals(2001, rec.code().numericCode());
+    assertTrue(rec.formattedLine().contains("guid-1"));
+    assertEquals(AuditOutcome.SUCCESS, rec.outcome());
+  }
+
+  @Test
+  void contentDeleteFailureOutcome() {
+    HttpServletRequest request = mockRequest("editor", "10.0.0.3");
+    PSSystemAuditLogger.contentDelete(
+        request, AuditOutcome.FAILURE, "guid-2", "99", "/Sites/x");
+
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals(2003, rec.code().numericCode());
+    assertEquals(AuditOutcome.FAILURE, rec.outcome());
+  }
+
+  @Test
+  void contentRecycleAndSchedules() {
+    HttpServletRequest request = mockRequest("editor", "10.0.0.4");
+    PSSystemAuditLogger.contentRecycle(
+        request, AuditOutcome.SUCCESS, "g-r", "1", "/path");
+    PSSystemAuditLogger.pagePublishSchedule(
+        request, AuditOutcome.SUCCESS, "g-p", "2", "/path");
+    PSSystemAuditLogger.pageRemovalSchedule(
+        request, AuditOutcome.SUCCESS, "g-m", "3", "/path");
+
+    assertEquals(3, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var codes =
+        ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().stream()
+            .map(r -> r.code().numericCode())
+            .collect(java.util.stream.Collectors.toSet());
+    assertTrue(codes.contains(2004));
+    assertTrue(codes.contains(2005));
+    assertTrue(codes.contains(2006));
+    // Publish + removal schedules share the publishing lifecycle event type.
+    assertTrue(
+        ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().stream()
+            .filter(r -> r.code().numericCode() == 2005 || r.code().numericCode() == 2006)
+            .allMatch(
+                r ->
+                    r.code().eventType()
+                        == com.intsof.percussioncms.auditlog.AuditEventType.CONTENT_PUBLISH));
+  }
+
+  @Test
+  void userManagementCreateUpdateDelete() {
+    HttpServletRequest request = mockRequest("admin", "10.0.0.5");
+    PSSystemAuditLogger.userCreate(request, AuditOutcome.SUCCESS, "newuser");
+    PSSystemAuditLogger.userUpdate(request, AuditOutcome.SUCCESS, "newuser", "roles");
+    PSSystemAuditLogger.userDelete(request, AuditOutcome.FAILURE, "newuser");
+
+    assertEquals(3, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var codes =
+        ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().stream()
+            .map(r -> r.code().numericCode())
+            .collect(java.util.stream.Collectors.toSet());
+    assertTrue(codes.contains(3001));
+    assertTrue(codes.contains(3002));
+    assertTrue(codes.contains(3003));
+    assertTrue(
+        ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().stream()
+            .anyMatch(
+                r ->
+                    r.code().numericCode() == 3003
+                        && r.outcome() == AuditOutcome.FAILURE));
+  }
+
+  @Test
+  void workflowTransitionWritesWfCode() {
+    HttpServletRequest request = mockRequest("approver", "10.0.0.6");
+    PSSystemAuditLogger.workflowTransition(
+        request, AuditOutcome.SUCCESS, "55", "guid-wf", "Draft", "Pending");
+
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals("WF", rec.code().module().code());
+    assertEquals(4001, rec.code().numericCode());
+    assertTrue(rec.formattedLine().contains("Draft"));
+    assertTrue(rec.formattedLine().contains("Pending"));
+    // fromState then toState (not action labels) must appear in that semantic order.
+    int fromIdx = rec.formattedLine().indexOf("Draft");
+    int toIdx = rec.formattedLine().indexOf("Pending");
+    assertTrue(fromIdx >= 0 && toIdx > fromIdx);
+    assertEquals("Draft", rec.attributes().get("fromState"));
+    assertEquals("Pending", rec.attributes().get("toState"));
+  }
+
+  @Test
+  void userUpdateAcceptsExplicitSystemActor() {
+    HttpServletRequest request = mockRequest("jdoe", "10.0.0.7");
+    PSSystemAuditLogger.userUpdate(
+        request, AuditOutcome.SUCCESS, "jdoe", "password re-encrypt", "system");
+
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals(3002, rec.code().numericCode());
+    assertEquals("system", rec.actor().orElse(""));
+    assertEquals("jdoe", rec.target().orElse(""));
+  }
+
+  @Test
+  void nullRequestDoesNotThrow() {
+    PSSystemAuditLogger.contentCreate(null, AuditOutcome.SUCCESS, "g", "1", "/p");
+    PSSystemAuditLogger.userCreate(null, AuditOutcome.SUCCESS, "u");
+    PSSystemAuditLogger.workflowTransition(null, AuditOutcome.SUCCESS, "1", "g", "a", "b");
+    assertEquals(3, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+  }
+
+  private static HttpServletRequest mockRequest(String user, String ip) {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getRemoteUser()).thenReturn(user);
+    when(request.getRemoteAddr()).thenReturn(ip);
+    when(request.getRemoteHost()).thenReturn("host.example");
+    return request;
   }
 
   @Test

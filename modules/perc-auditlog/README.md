@@ -54,6 +54,11 @@ Production durable store: table `PSX_SYSTEM_AUDIT_LOG` with JPA entity
 
 Login smoke path: `PSSystemAuditLogger` / `PSLoginServlet` (success, failure, logout).
 
+Phase 2a migrates production call sites off legacy CADF `PSAuditLogService` to
+`PSSystemAuditLogger` helpers + package `*ErrorCodes` (`ContentErrorCodes`,
+`UserManagementErrorCodes`, `WorkflowErrorCodes`, extended `AuthenticationErrorCodes`).
+Legacy CADF types remain in this module until Phase 2c (#2617).
+
 ## Phase 3 — REST query + role property (#2618)
 
 **Permission:** Rhythmyx role property `sys_securityAuditLogViewer` (truthy `true`/`yes`/`1`/`y`). Members of **Admin** always may view. Pure helper: `com.percussion.services.audit.PSSystemAuditLogPermission`.
