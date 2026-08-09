@@ -34,7 +34,7 @@ Wire existing Explorer panels into `ContentExplorerShell` so `/cm/app/explorer` 
 | Folder-valid display format list | `GET /rest/displayformats?validForFolder=true` (filter on existing catalog) |
 | Column cell data | Use `PSPathItem.displayProperties` / `columnData` when `displayFormatId` set on paginatedFolder; map sources in UI |
 | Workflow / modified columns empty | If still empty after format id, extend path list DTO in sitemanage (not invent on client) |
-| Saved search **execute** | New or extended `rest` search runtime API mapping design `SearchDef` → criteria (slice) |
+| Saved search **execute** | **Façade** `POST /rest/searches/{idOrName}/execute` (disposition #2504 / [research note](./research/saved-search-execute-disposition.md)); implement #2505 + Explorer #2506 + Playwright #2507 |
 | Translation workflow | Spike existing i18n/item endpoints; new façade only if needed |
 
 ## Phase 3 — Action / workflow depth

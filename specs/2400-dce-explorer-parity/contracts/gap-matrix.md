@@ -27,7 +27,7 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 |------------|------------|------------------------|--------|-------|
 | Simple / extended search | `PSSearchDialog` | Search panel toggle in product shell (#2407) | **Present (in PR)** | #2407 |
 | Open / reveal from results | Search results | Callbacks on panel | Present | #2407 |
-| Saved searches catalog + run | CE saved search | `GET /rest/searches` design catalog; **no execute-in-Explorer UX** | **Missing** | #2409 |
+| Saved searches catalog + run | CE saved search | `GET /rest/searches` design catalog; **no execute-in-Explorer UX**. Disposition: **façade** (`POST /rest/searches/{idOrName}/execute`) — see [saved-search-execute-disposition.md](../research/saved-search-execute-disposition.md) (#2504); implement #2505–#2507 | **Missing** | #2409 |
 | Search in ContentBrowser hosts | Dialogs | Host integration pending | **Partial** | host follow-up |
 
 ## Security & properties
