@@ -131,7 +131,8 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
   IPSFolderHelper folderHelper;
   IPSWorkflowService workflowService;
   IPSiteDao siteDao;
-  IPSPageService pageService;
+  // pageService field intentionally omitted — was an unused reverse edge into the rank-1 hub
+  // (see #2514 / PSPageServiceCycleWiringTest). Use IPSPageService.PAGE_CONTENT_TYPE only.
   IPSSiteManager siteMgr;
   IPSSystemWs systemWs;
   private IPSRecycleService recycleService;
