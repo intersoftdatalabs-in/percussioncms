@@ -176,6 +176,38 @@ class TestQaPreflight(unittest.TestCase):
         self.assertIn("dry-run", out.lower())
 
 
+class TestQaRebuildChain(unittest.TestCase):
+    """#2533: perc-devctl qa-rebuild-chain dry-run + dispatch."""
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo_root = _stub_repo_root(Path(self.td.name))
+        # Module dirs required only for real runs; dry-run still plans them.
+        (self.repo_root / "projects" / "sitemanage").mkdir(parents=True)
+        (self.repo_root / "WebUI").mkdir(parents=True)
+        (self.repo_root / "modules" / "perc-distribution-tree").mkdir(parents=True)
+        (self.repo_root / "mvnw.cmd").write_text("@echo stub\r\n", encoding="utf-8")
+        self.runner = _CliRunner(self.repo_root)
+
+    def test_qa_rebuild_chain_dry_run(self):
+        rc, out = self.runner.run(["qa-rebuild-chain", "--skip-tests"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("PLANNED STEP:qa-rebuild-sitemanage", out)
+        self.assertIn("RESULT:OK STEP:qa-rebuild-chain", out)
+
+    def test_qa_rebuild_chain_then_qa_up_dry_run(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+        rc, out = self.runner.run(
+            ["qa-rebuild-chain", "--skip-tests", "--then-qa-up"]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-rebuild-chain", out)
+        self.assertIn("RESULT:OK STEP:qa-up", out)
+        self.assertIn("TEST_CMS_URL=", out)
+
+
 class TestDockerHealth(unittest.TestCase):
     """#2537 / #2481: ``_docker_health`` maps inspect output to RESULT HEALTH: values."""
 
@@ -286,6 +318,17 @@ class TestSubcommandDryRun(unittest.TestCase):
         self.assertEqual(rc, pdc.EXIT_OK)
         self.assertIn("RESULT:OK STEP:qa-down", out)
         self.assertIn(f"QA_CONTAINER:{pdc.QA_CMS_CONTAINER}", out)
+
+    def test_qa_rebuild_chain_dry_run(self):
+        (self.repo_root / "projects" / "sitemanage").mkdir(parents=True, exist_ok=True)
+        (self.repo_root / "WebUI").mkdir(parents=True, exist_ok=True)
+        (self.repo_root / "modules" / "perc-distribution-tree").mkdir(
+            parents=True, exist_ok=True
+        )
+        (self.repo_root / "mvnw.cmd").write_text("@echo stub\r\n", encoding="utf-8")
+        rc, out = self.runner.run(["qa-rebuild-chain", "--dist-only"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-rebuild-chain", out)
 
     def test_it_verify_dry_run(self):
         rc, out = self.runner.run(["it-verify"])

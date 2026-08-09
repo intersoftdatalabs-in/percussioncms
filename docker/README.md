@@ -55,6 +55,7 @@ perc-devctl.py show-generated-passwords
 # QA mode — H2-in-Docker CMS for Playwright (no host install) — #1827 / #1927
 perc-devctl.py qa-up [--timeout-seconds N] [--skip-image-build]
 perc-devctl.py qa-preflight [--strict] [--no-content-hash]
+perc-devctl.py qa-rebuild-chain [--skip-tests] [--dist-only] [--then-qa-up] [--dry-run]
 perc-devctl.py qa-health [--timeout-seconds N] [--interval-seconds N] [--url URL]
 perc-devctl.py qa-down [--container NAME]
 ```
@@ -87,10 +88,38 @@ Use `--no-content-hash` for mtime-only comparison. With `--strict`, STALE return
 
 Matrix CMS cells always use the **strict** policy unless --skip-preflight is set.
 
+#### Rebuild-chain driver (#2533)
+
+When preflight reports `STALE:` (or after any sitemanage / WebUI SNAPSHOT change that must land in the installer jar), run the portable driver instead of hand-typed `cd` + `mvnw` sequences:
+
+```bash
+# Plan only (prints PLANNED STEP:… ARGV:… and RESULT:OK; no Maven)
+python3 docker/scripts/perc-devctl.py qa-rebuild-chain --dry-run
+
+# Full chain: sitemanage clean install → WebUI package -DskipTests →
+# modules/perc-distribution-tree clean package -DskipTests
+python3 docker/scripts/perc-devctl.py qa-rebuild-chain --skip-tests
+
+# Same via the standalone module (identical argv contract)
+python3 docker/scripts/qa_rebuild_chain.py --skip-tests
+
+# Installer packaging only (WAR inputs already fresh)
+python3 docker/scripts/perc-devctl.py qa-rebuild-chain --dist-only
+
+# Optional: rebuild then qa-up in one invocation
+python3 docker/scripts/perc-devctl.py qa-rebuild-chain --skip-tests --then-qa-up
+```
+
+Cross-platform notes: each step `cwd`s into the module directory and invokes the **repo-root** `mvnw` / `mvnw.cmd` with `subprocess.run([...], shell=False)` (no shell quoting). Per-step and overall `RESULT:OK` / `RESULT:FAIL` lines are agent-parseable; Maven stdout/stderr goes under `docker/logs/`.
 
 Run order recommended for agents and CI:
 
 ```bash
+# 1) Detect stale WAR vs m2 sitemanage
+python3 docker/scripts/perc-devctl.py qa-preflight --strict
+# 2) If STALE / FAIL — drive the full Maven order (do not skip WebUI)
+python3 docker/scripts/perc-devctl.py qa-rebuild-chain --skip-tests
+# 3) Confirm fresh, then bring up QA H2 cell
 python3 docker/scripts/perc-devctl.py qa-preflight --strict \
   && python3 docker/scripts/perc-devctl.py qa-up
 # or matrix directly (preflight is built-in for --product cms):

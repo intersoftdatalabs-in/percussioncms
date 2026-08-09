@@ -26,6 +26,10 @@ QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
   (#2481); the precheck runs ``docker inspect`` and prints a clear
   rebuild hint instead of waiting the full ``--probe-timeout`` for
   ``docker_health_timeout health=none`` (#2484)
+* ``qa-rebuild-chain`` — drive the documented Maven order
+  (sitemanage install → WebUI package → perc-distribution-tree package)
+  via repo-root ``mvnw``/``mvnw.cmd``, portable paths, ``shell=False``
+  (#2533 residual of #2423 / #2486)
 
 Compose ``verify`` / ``verify-fix`` / ``deploy-jar --verify`` apply the same
 Rhythmyx context log scan against the cms-dts container (#2480 companion to
@@ -442,6 +446,47 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help="Mtime-only comparison (disable default SHA-256 content hash).",
     )
     pqp.add_argument("--dry-run", action="store_true")
+
+    # --- Rebuild-chain driver — #2533 ---
+    pqrc = sub.add_parser(
+        "qa-rebuild-chain",
+        help=(
+            "Run sitemanage install → WebUI package → "
+            "perc-distribution-tree package via repo-root mvnw "
+            "(#2533). Use after STALE preflight or SNAPSHOT changes."
+        ),
+    )
+    pqrc.add_argument(
+        "--skip-tests",
+        action="store_true",
+        help="Pass -DskipTests on the sitemanage step (WebUI/dist always skip).",
+    )
+    pqrc.add_argument(
+        "--dist-only",
+        action="store_true",
+        help="Only package perc-distribution-tree (WAR inputs already fresh).",
+    )
+    pqrc.add_argument(
+        "--timeout-seconds",
+        type=int,
+        default=None,
+        metavar="N",
+        help="Optional wall-clock timeout per Maven step.",
+    )
+    pqrc.add_argument(
+        "--then-qa-up",
+        action="store_true",
+        help=(
+            "After a successful rebuild chain, run qa-up "
+            "(narrow optional handoff; fails if chain fails)."
+        ),
+    )
+    pqrc.add_argument(
+        "--skip-image-build",
+        action="store_true",
+        help="With --then-qa-up: pass --skip-image-build to qa-up.",
+    )
+    pqrc.add_argument("--dry-run", action="store_true")
 
     pqh = sub.add_parser(
         "qa-health",
@@ -1774,6 +1819,47 @@ def cmd_qa_preflight(
     return rc
 
 
+def cmd_qa_rebuild_chain(
+    args: argparse.Namespace, paths: tuple[Path, Path, Path]
+) -> int:
+    """Drive the documented Maven rebuild chain (#2533).
+
+    Delegates to ``docker/scripts/qa_rebuild_chain.py`` (portable
+    ``mvnw``/``mvnw.cmd``, ``shell=False``, RESULT lines). Optional
+    ``--then-qa-up`` runs ``cmd_qa_up`` after a successful chain only.
+    """
+    import qa_rebuild_chain
+
+    repo_root, _env_file, _compose_file = paths
+    log_dir = _log_dir(repo_root)
+    rc = qa_rebuild_chain.run_chain(
+        repo_root,
+        dry_run=args.dry_run,
+        skip_tests=args.skip_tests,
+        dist_only=args.dist_only,
+        log_dir=log_dir,
+        timeout_seconds=args.timeout_seconds,
+    )
+    if rc != EXIT_OK:
+        return rc
+    if not args.then_qa_up:
+        return rc
+    # Narrow handoff: reuse qa-up after a green rebuild chain.
+    # Rebuild-chain ``--timeout-seconds`` is optional (None = no Maven
+    # cap); qa-up requires a concrete probe timeout — fall back to the
+    # standard QA default when the operator did not pass one.
+    qa_up_args = argparse.Namespace(
+        dry_run=bool(args.dry_run),
+        timeout_seconds=(
+            args.timeout_seconds
+            if args.timeout_seconds is not None
+            else QA_PROBE_TIMEOUT_SECONDS_DEFAULT
+        ),
+        skip_image_build=bool(getattr(args, "skip_image_build", False)),
+    )
+    return cmd_qa_up(qa_up_args, paths)
+
+
 # ---------------------------------------------------------------------------
 # Dispatch
 # ---------------------------------------------------------------------------
@@ -1795,6 +1881,7 @@ _DISPATCH = {
     "qa-health": cmd_qa_health,
     "qa-down": cmd_qa_down,
     "qa-preflight": cmd_qa_preflight,
+    "qa-rebuild-chain": cmd_qa_rebuild_chain,
 }
 
 
