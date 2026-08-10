@@ -28,6 +28,7 @@ Unattended overnight worker:
 |------|----------|
 | **Phase A — higher work** | p1 → p6 (then Unset): implement-ready items **and** PR-sized **slices** from oversized work. **Never** queue p7/p8 while any eligible higher item remains (including large but sliceable epics) |
 | **Phase B — backfill** | Once Phase A cannot produce more priority items (after 3-slice expansion), **p7/p8 may fill remaining slots** — unused priority_slots **and** reserved `low_slots`. Intentional tech-debt burn when important work is done |
+| **prefer_easy** | Secondary **within** the same pN tier only — never a reason to pick p8 during Phase A |
 
 **p7/p8 does not relax build quality.** Tech-debt / Xlint batches use the same Maven gates as p1 work.
 
@@ -46,7 +47,6 @@ Hard bans:
 * Open PR after only `compile` (without test-compile) or only a single focused unit test class when the module suite is the gate.
 * Claim “install green” without recording the command in `build_evidence`.
 * Treat p8 as exempt from C1–C3.
-| **prefer_easy** | Secondary **within** the same pN tier only — never a reason to pick p8 during Phase A |
 
 ### Oversized priority work → 3 slices into the pool
 

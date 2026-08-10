@@ -1310,7 +1310,7 @@ for item in queue {
             work_prompt += "   (If this agent is actually Kilo, use operator:kilo + model:<exact model id> instead of grok labels.)\n";
             work_prompt += "G) git push -u origin HEAD and gh pr create --base " + base_branch + "\n";
             work_prompt += "   with --label operator:grok --label operator:night-issue-prs --label model:grok-4.5\n";
-            work_prompt += "   body: Summary, Test plan, gates evidence (commands + BUILD SUCCESS), Fixes or Partial.\n";
+            work_prompt += "   body: Summary, Test plan, C3 evidence (modules_built, build_evidence commands+BUILD SUCCESS, downstream_checked), Fixes or Partial.\n";
             work_prompt += "   Also put Operator: Grok: night-issue-prs (model grok-4.5) in the PR body.\n";
             work_prompt += "   Link PARENT tracker issue in the PR body when this is a slice.\n";
             work_prompt += "H) Do not merge.\n";
@@ -1323,7 +1323,7 @@ for item in queue {
             work_prompt += "M) Apply ISSUE LIFECYCLE / CLOSE RULES: QA issue if blocked on human QA; residual\n";
             work_prompt += "   children if more agent work remains; otherwise close #" + inum.to_string()
                 + " when no open children/QA remain.\n";
-            work_prompt += "status=pr_opened on success (with build_evidence + modules_built filled),\n";
+            work_prompt += "status=pr_opened on success (with modules_built, build_evidence, downstream_checked filled),\n";
             work_prompt += "status=failed with summary of blockers on failure.\n";
         }
     }
