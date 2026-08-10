@@ -36,7 +36,10 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/** Unit + golden parity tests for Widget XML → Component Package Manifest compiler (#2751). */
+/**
+ * Unit + golden parity tests for Widget XML → Component Package Manifest compiler (#2751 baseWidgets,
+ * #2772 high-traffic residual batch).
+ */
 class PSWidgetXmlCompilerTest {
 
   private static final String FIXTURE_SIMPLE = "/widgetxml/percSimpleText.xml";
@@ -44,6 +47,23 @@ class PSWidgetXmlCompilerTest {
       "/widgetxml/golden/percSimpleText.component-package.json";
   private static final String GOLDEN_SIMPLE_TEMPLATE =
       "/widgetxml/golden/percSimpleTextSnippet.vm";
+
+  private static final String FIXTURE_TITLE = "/widgetxml/percTitle.xml";
+  private static final String GOLDEN_TITLE_MANIFEST =
+      "/widgetxml/golden/percTitle.component-package.json";
+  private static final String GOLDEN_TITLE_TEMPLATE = "/widgetxml/golden/percTitleSnippet.vm";
+
+  private static final String FIXTURE_LIST = "/widgetxml/simplePageAutoList.xml";
+  private static final String GOLDEN_LIST_MANIFEST =
+      "/widgetxml/golden/simplePageAutoList.component-package.json";
+  private static final String GOLDEN_LIST_TEMPLATE =
+      "/widgetxml/golden/simplePageAutoListSnippet.vm";
+
+  private static final String FIXTURE_BREADCRUMB = "/widgetxml/percNavBreadcrumb.xml";
+  private static final String GOLDEN_BREADCRUMB_MANIFEST =
+      "/widgetxml/golden/percNavBreadcrumb.component-package.json";
+  private static final String GOLDEN_BREADCRUMB_TEMPLATE =
+      "/widgetxml/golden/percNavBreadcrumbSnippet.vm";
 
   @TempDir Path tempDir;
 
@@ -241,6 +261,188 @@ class PSWidgetXmlCompilerTest {
     assertEquals("markdownAssembler", PSWidgetXmlCompiler.mapAssembler("markdown"));
   }
 
+  @Test
+  void parseTitle_userPrefEnumsAndCreateSharedAsset() throws Exception {
+    PSWidgetXmlModel model = parseClasspath(FIXTURE_TITLE, "percTitle.xml");
+    assertEquals("Title", model.getTitle());
+    assertEquals("percTitleAsset", model.getContentTypeName());
+    assertEquals(1, model.getUserPrefs().size());
+    assertEquals("wrapper", model.getUserPrefs().get(0).getName());
+    assertEquals("enum", model.getUserPrefs().get(0).getDatatype());
+    assertEquals(8, model.getUserPrefs().get(0).getEnumValues().size());
+    assertEquals(Boolean.FALSE, model.getCreateSharedAsset());
+    assertTrue(model.getResources().isEmpty());
+  }
+
+  @Test
+  void compileTitle_matchesGoldenManifestAndTemplate() throws Exception {
+    assertGoldenParity(
+        FIXTURE_TITLE,
+        "percTitle.xml",
+        "perc.widget.title",
+        GOLDEN_TITLE_MANIFEST,
+        GOLDEN_TITLE_TEMPLATE,
+        "templates/percTitleSnippet.vm");
+  }
+
+  @Test
+  void parseSimplePageAutoList_resourcesAndLayoutPrefs() throws Exception {
+    PSWidgetXmlModel model = parseClasspath(FIXTURE_LIST, "simplePageAutoList.xml");
+    assertEquals("Auto List", model.getTitle());
+    assertEquals(1, model.getResources().size());
+    assertEquals("/rx_resources/widgets/simpleList/css/style.css", model.getResources().get(0).getHref());
+    assertEquals("css", model.getResources().get(0).getType());
+    assertEquals("head", model.getResources().get(0).getPlacement());
+    assertTrue(model.getUserPrefs().stream().anyMatch(p -> "layout".equals(p.getName())));
+    assertTrue(model.getUserPrefs().stream().anyMatch(p -> "maxlength".equals(p.getName())));
+  }
+
+  @Test
+  void compileSimplePageAutoList_matchesGolden_andEmitsCssResource() throws Exception {
+    PSWidgetXmlCompileResult result =
+        assertGoldenParity(
+            FIXTURE_LIST,
+            "simplePageAutoList.xml",
+            "perc.widgets.lists",
+            GOLDEN_LIST_MANIFEST,
+            GOLDEN_LIST_TEMPLATE,
+            "templates/simplePageAutoListSnippet.vm");
+    assertTrue(
+        result.getManifest().getResources().stream()
+            .anyMatch(r -> "css".equals(r.getType()) && r.getTarget().endsWith("style.css")),
+        "list widget must emit declared CSS Resource");
+    assertEquals(
+        "0",
+        String.valueOf(result.getManifest().getSlots().get(0).getLayout().get("maxlength")));
+  }
+
+  @Test
+  void parseNavBreadcrumb_chromeWidgetNoContentType_withResource() throws Exception {
+    PSWidgetXmlModel model = parseClasspath(FIXTURE_BREADCRUMB, "percNavBreadcrumb.xml");
+    assertEquals("Breadcrumb", model.getTitle());
+    assertTrue(
+        model.getContentTypeName() == null || model.getContentTypeName().isBlank(),
+        "nav breadcrumb is chrome (no asset CT)");
+    assertEquals(1, model.getResources().size());
+    assertEquals("css", model.getResources().get(0).getType());
+    assertFalse(model.getUserPrefs().isEmpty());
+  }
+
+  @Test
+  void compileNavBreadcrumb_matchesGolden_chromeSlotAndCssResource() throws Exception {
+    PSWidgetXmlCompileResult result =
+        assertGoldenParity(
+            FIXTURE_BREADCRUMB,
+            "percNavBreadcrumb.xml",
+            "perc.widgets.nav",
+            GOLDEN_BREADCRUMB_MANIFEST,
+            GOLDEN_BREADCRUMB_TEMPLATE,
+            "templates/percNavBreadcrumbSnippet.vm");
+    assertTrue(
+        result.getManifest().getContentTypes() == null
+            || result.getManifest().getContentTypes().isEmpty());
+    assertEquals("percNavBreadcrumbChrome", result.getManifest().getSlots().get(0).getName());
+    assertTrue(
+        result.getManifest().getResources().stream().anyMatch(r -> "css".equals(r.getType())));
+  }
+
+  @Test
+  void compileHighTrafficPackages_allValidate() throws Exception {
+    Path packagesRoot = locatePackagesRoot();
+    if (packagesRoot == null) {
+      System.err.println("WARN: Packages root not found; skipping high-traffic package test");
+      return;
+    }
+
+    List<PSWidgetXmlCompileResult> results =
+        PSWidgetXmlPackageCompiler.compileHighTrafficPackages(packagesRoot);
+    // title(1) + lists(2) + nav(2) + file(1) + image(1) = 7 widgets
+    assertEquals(
+        7,
+        results.size(),
+        "high-traffic batch should compile title, lists×2, nav×2, file, image");
+
+    Map<String, PSWidgetXmlCompileResult> byId =
+        results.stream()
+            .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
+
+    for (String id :
+        List.of(
+            "percTitle",
+            "simplePageAutoList",
+            "simpleTextAutoList",
+            "percNavBar",
+            "percNavBreadcrumb",
+            "percFile",
+            "percImage")) {
+      assertTrue(byId.containsKey(id), "missing compiled widget: " + id);
+      PSComponentPackageManifestValidator.validate(byId.get(id).getManifest());
+      assertFalse(byId.get(id).getTextArtifacts().isEmpty());
+      assertEquals("velocityAssembler", byId.get(id).getManifest().getTemplates().get(0).getAssembler());
+    }
+
+    // Image declares CSS Resource + asset CT.
+    assertTrue(
+        byId.get("percImage").getManifest().getResources().stream()
+            .anyMatch(r -> "css".equals(r.getType())));
+    assertEquals("percImageAsset", byId.get("percImage").getManifest().getContentTypes().get(0).getName());
+
+    // NavBar is chrome (no CT) with styles slot.
+    assertTrue(
+        byId.get("percNavBar").getManifest().getContentTypes() == null
+            || byId.get("percNavBar").getManifest().getContentTypes().isEmpty());
+    assertEquals("percNavBarChrome", byId.get("percNavBar").getManifest().getSlots().get(0).getName());
+
+    Path outRoot = tempDir.resolve("high-traffic-out");
+    PSWidgetXmlPackageCompiler.writeAll(results, outRoot);
+    for (String stem :
+        List.of(
+            "percTitle",
+            "simplePageAutoList",
+            "simpleTextAutoList",
+            "percNavBar",
+            "percNavBreadcrumb",
+            "percFile",
+            "percImage")) {
+      assertTrue(
+          Files.isRegularFile(
+              outRoot
+                  .resolve(stem)
+                  .resolve(PSComponentPackageManifest.DEFAULT_MANIFEST_FILE_NAME)),
+          "writeAll missing manifest for " + stem);
+    }
+  }
+
+  private static PSWidgetXmlCompileResult assertGoldenParity(
+      String fixtureResource,
+      String fileName,
+      String packageDirName,
+      String goldenManifestResource,
+      String goldenTemplateResource,
+      String templateArtifactKey)
+      throws Exception {
+    Path packageDir = locatePackage(packageDirName);
+    assertNotNull(packageDir, "package sources missing: " + packageDirName);
+    PSWidgetXmlPackageContext ctx = PSWidgetXmlPackageContext.fromPackageDir(packageDir);
+    PSWidgetXmlModel model = parseClasspath(fixtureResource, fileName);
+    PSWidgetXmlCompileResult result = PSWidgetXmlCompiler.compile(model, ctx);
+    PSComponentPackageManifestValidator.validate(result.getManifest());
+
+    String expectedJson = readClasspath(goldenManifestResource);
+    PSComponentPackageManifest reparsed =
+        PSComponentPackageManifestIo.parse(PSComponentPackageManifestIo.toJson(result.getManifest()));
+    assertEquals(
+        PSComponentPackageManifestIo.parse(expectedJson),
+        reparsed,
+        "compiled manifest must equal golden for " + fileName);
+
+    String expectedTemplate = normalizeNewlines(readClasspath(goldenTemplateResource));
+    String actualTemplate =
+        normalizeNewlines(result.getTextArtifacts().get(templateArtifactKey));
+    assertEquals(expectedTemplate, actualTemplate, "template source golden parity for " + fileName);
+    return result;
+  }
+
   private static PSWidgetXmlPackageContext baseWidgetsLikeContext() {
     PSWidgetXmlPackageContext ctx = new PSWidgetXmlPackageContext();
     ctx.setPackageId("perc.baseWidgets");
@@ -278,19 +480,26 @@ class PSWidgetXmlCompilerTest {
    * surefire cwd = module root).
    */
   private static Path locateBaseWidgetsPackage() {
-    Path candidate =
-        Path.of("src", "main", "resources", "Packages", "perc.baseWidgets");
+    return locatePackage("perc.baseWidgets");
+  }
+
+  private static Path locatePackage(String packageDirName) {
+    Path packages = locatePackagesRoot();
+    if (packages == null) {
+      return null;
+    }
+    Path candidate = packages.resolve(packageDirName);
+    return Files.isDirectory(candidate) ? candidate : null;
+  }
+
+  private static Path locatePackagesRoot() {
+    Path candidate = Path.of("src", "main", "resources", "Packages");
     if (Files.isDirectory(candidate)) {
       return candidate.toAbsolutePath().normalize();
     }
-    // Fallback: walk up from user.dir (rarely needed).
     Path cwd = Path.of(System.getProperty("user.dir", ".")).toAbsolutePath().normalize();
     Path alt =
-        cwd.resolve("src")
-            .resolve("main")
-            .resolve("resources")
-            .resolve("Packages")
-            .resolve("perc.baseWidgets");
+        cwd.resolve("src").resolve("main").resolve("resources").resolve("Packages");
     return Files.isDirectory(alt) ? alt : null;
   }
 }

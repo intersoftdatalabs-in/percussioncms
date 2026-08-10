@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Widget>
+	<WidgetPrefs title="Breadcrumb" contenttype_name=""
+		category="navigation"
+		description="Display a navigation breadcrumb in your site"
+		author="Percussion Software Inc"
+		thumbnail="/web_resources/widgets/navBar/images/widgetIconBreadcrumb.png"
+		is_responsive="true" />
+	<Resource
+		href="/web_resources/widgets/navBar/css/breadcrumb.css" type="css"
+		placement="head" />
+	<UserPref name="showHome" display_name="Show home"
+		default_value="true" datatype="bool" />
+	<UserPref name="showCurrentPage"
+		display_name="Show current page" default_value="true" datatype="bool" />
+	<UserPref name="separator" display_name="Separator"
+		default_value=" &gt; " datatype="string" />
+	<UserPref name="ariaLabel" display_name="Aria Label"
+		default_value="" datatype="string" />
+	<UserPref name="navLabel" display_name="Navigation Label"
+		default_value="Breadcrumb Navigation" datatype="string" />
+	<CssPref name="rootclass" display_name="CSS root class"
+		datatype="string" />
+	<Code type="jexl">
+        <![CDATA[
+    $linkContext = $perc.linkContext;
+    $showHome = $perc.widget.item.properties.get('showHome');
+    $showCurrentPage = $perc.widget.item.properties.get('showCurrentPage');
+    $ariaLabel = $perc.widget.item.properties.get('ariaLabel');
+    $rootclass = $perc.widget.item.cssProperties.get('rootclass');
+    if (!empty($rootclass))
+        $rootclass = $rootclass + " ";
+    $separator = $perc.widget.item.properties.get('separator');
+    $finderName="Java/global/percussion/widgetcontentfinder/perc_NavWidgetContentFinder";
+    $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, null, true);
+    if ( ! $assetItems.isEmpty() ) {
+        $navSelf = $assetItems.get(0).getNode();
+        $sampleTooltip = '';
+    }
+    else if ($perc.isEditMode()){
+		$navTooltip = $rx.pageutils.getWidgetTooltip($perc, $perc.widget, "This navBreadCrumb is showing sample content.");
+        $sampleTooltip = ' title="' + $navTooltip + '"';
+    }
+    ]]>
+	</Code>
+	<Content type="velocity">
+        <![CDATA[
+<div class="$!{rootclass}perc-breadcrumb" aria-label="$!{ariaLabel}" role="navigation">
+#if ($navSelf)##
+#set($ancestors = $navSelf.getAncestors())##
+#if($ancestors.size()>0 && !$showHome)##
+#set($d=$ancestors.remove(0))##
+#end##
+#if($showCurrentPage)##
+#set($d=$ancestors.add($navSelf))##
+#end##
+#if ($ancestors.size() > 0)##
+<nav aria-label="$!{navLabel}">
+<ul class="perc-breadcrumb-main">
+#foreach($node in $ancestors)##
+#set($liclass="perc-list-element")##
+#if ($velocityCount==1)##
+#set($liclass="$liclass perc-list-first")##
+#end##
+#if ($velocityCount == $ancestors.size())##
+#set($liclass="$liclass perc-list-last")##
+#end##
+#if ($velocityCount % 2 == 0)##
+#set($liclass="$liclass perc-list-even")##
+#else##
+#set($liclass="$liclass perc-list-odd")##
+#end##
+#set($landing_page = $tools.esc.html($rx.pageutils.navLink($linkContext, $node)))##
+#set($title = $rx.pageutils.html($node,"displaytitle"))##
+<li class="$liclass">##
+#if ($velocityCount > 1 )$separator#end##
+#if($velocityCount == $ancestors.size() && $showCurrentPage)##
+<a href="$landing_page">$!{title}</a>##
+#else##
+<a href="$landing_page">$!{title}</a>##
+#end##
+</li>
+#end##
+</ul>
+</nav>
+#end##
+#elseif ($perc.isEditMode())##
+<nav aria-label="$!{navLabel}">
+<ul class="perc-breadcrumb-main" $sampleTooltip>
+#set ($sampleContent = ["Section 1", "Section 2"])##
+#foreach($node in $sampleContent)##
+#set($liclass="perc-list-element")##
+#if ($velocityCount==1)##
+#set($liclass="$liclass perc-list-first")##
+#end##
+#if ($velocityCount == $sampleContent.size())##
+#set($liclass="$liclass perc-list-last")##
+#end##
+#if ($velocityCount % 2 == 0)##
+#set($liclass="$liclass perc-list-even")##
+#else##
+#set($liclass="$liclass perc-list-odd")##
+#end##
+#set($title = $node)##
+<li class="$liclass">##
+#if ($velocityCount > 1 )$separator#end##
+#if($velocityCount == $ancestors.size() && $showCurrentPage)##
+$!{title}
+#else##
+<a href="#">$title</a>##
+#end</li>##
+#end##
+</ul>
+</nav>
+#end##
+</div>]]>
+	</Content>
+</Widget>

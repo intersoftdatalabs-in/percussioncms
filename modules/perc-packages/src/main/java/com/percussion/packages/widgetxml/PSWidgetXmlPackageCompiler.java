@@ -31,14 +31,26 @@ import java.util.Objects;
  * Compiles all Widget definition XML files found in a legacy product package source directory.
  *
  * <p>Looks under {@code sys__UserDependency--rxconfig/Widgets/*.xml} (product packaging layout used
- * by {@code modules/perc-packages}). Suitable for the baseWidgets subset first; residual packages
- * are tracked in the widget XML inventory.
+ * by {@code modules/perc-packages}). Covers baseWidgets and high-traffic product packages (#2772);
+ * residual packages are tracked in the widget XML inventory.
  */
 public final class PSWidgetXmlPackageCompiler {
 
   /** Legacy staging folder name for user-dependency config inside a package source tree. */
   public static final String WIDGETS_RELATIVE =
       "sys__UserDependency--rxconfig/Widgets";
+
+  /**
+   * Named high-traffic product package directory names under {@code Packages/} covered by the
+   * residual batch in issue #2772 (beyond {@code perc.baseWidgets}).
+   */
+  public static final List<String> HIGH_TRAFFIC_PACKAGE_DIRS =
+      List.of(
+          "perc.widget.title",
+          "perc.widgets.lists",
+          "perc.widgets.nav",
+          "perc.FileAssetWidget",
+          "perc.widgets.image");
 
   private PSWidgetXmlPackageCompiler() {
     // utility
@@ -89,6 +101,36 @@ public final class PSWidgetXmlPackageCompiler {
       results.add(PSWidgetXmlCompiler.compile(widgetXml, ctx));
     }
     return results;
+  }
+
+  /**
+   * Compile every high-traffic product package under a {@code Packages/} root directory.
+   * Missing package directories under the root are skipped (soft) so partial checkouts can
+   * still exercise available packages.
+   *
+   * @param packagesRoot non-null directory containing package folders (e.g. {@code
+   *     src/main/resources/Packages})
+   * @return compile results sorted by package then widget stem (may be empty if none present)
+   * @throws PSWidgetXmlException on parse/compile failure of a present package
+   * @throws IOException on I/O failure
+   */
+  public static List<PSWidgetXmlCompileResult> compileHighTrafficPackages(Path packagesRoot)
+      throws PSWidgetXmlException, IOException {
+    Objects.requireNonNull(packagesRoot, "packagesRoot");
+    if (!Files.isDirectory(packagesRoot)) {
+      throw new PSWidgetXmlException("Packages root does not exist: " + packagesRoot);
+    }
+    List<PSWidgetXmlCompileResult> all = new ArrayList<>();
+    for (String dirName : HIGH_TRAFFIC_PACKAGE_DIRS) {
+      Path packageDir = packagesRoot.resolve(dirName);
+      // Soft-skip missing package dirs so partial checkouts / CI fixtures still exercise
+      // the packages that are present (matches baseWidgets soft-skip tests).
+      if (!Files.isDirectory(packageDir)) {
+        continue;
+      }
+      all.addAll(compilePackage(packageDir));
+    }
+    return all;
   }
 
   /**

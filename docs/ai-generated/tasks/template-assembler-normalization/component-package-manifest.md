@@ -65,8 +65,8 @@ Paths inside the manifest are **package-relative**, always with `/` separators (
 | `cmsVersion` | object | no | `{ "min", "max" }` compatible CMS range |
 | `dependencies` | array | no | `{ "name", "version", "implied" }` |
 | `catalog` | object | no | Palette / UI metadata (see below) |
-| `contentTypes` | array | * | At least one of `contentTypes` or `templates` required |
-| `templates` | array | * | At least one of `contentTypes` or `templates` required |
+| `contentTypes` | array | * | Required (with templates) for non-gadget packages; optional when `catalog.kind = "gadget"` (#2771) |
+| `templates` | array | * | Required (with contentTypes) for non-gadget packages; optional when `catalog.kind = "gadget"` |
 | `slots` | array | no | Composition holes with optional layout/styles |
 | `resources` | array | no | CSS/JS/images |
 | `userPreferences` | array | no | Transitional from Widget `UserPref` |
@@ -77,8 +77,8 @@ Paths inside the manifest are **package-relative**, always with `/` separators (
 | Field | Type | Notes |
 |-------|------|-------|
 | `kind` | string | Default `component`; also `page`, `gadget`, … |
-| `title` | string | Palette title |
-| `category` | string | e.g. `content` |
+| `title` | string | Palette title (**required** when `kind = "gadget"`) |
+| `category` | string | e.g. `content` (gadget registry **group** maps here) |
 | `description` | string | |
 | `thumbnail` / `icon` | string | Package-relative resource path |
 | `author` | string | |
@@ -175,16 +175,16 @@ String json = PSComponentPackageManifestIo.toJson(m);
 - **Today:** `PSPackageBuilder` zips legacy package source trees into `.ppkg` for the deployer (`psx_archiveInfo.xml` / dependency trees). That path remains for install compatibility.
 - **This manifest:** extends the packaging story with an explicit, tool-friendly **component** model that does not require Widget/Page/Gadget XML. Future slices wire compiler output and install recognition; this slice lands model + schema + tests only.
 
-## Widget XML compiler (slice #2751)
+## Widget XML compiler (slices #2751 / #2772)
 
-Upgrade-input path for simple / **baseWidgets** widgets:
+Upgrade-input path for **baseWidgets** and the **high-traffic residual batch**:
 
 | Type | Role |
 |------|------|
-| `PSWidgetXmlParser` | Secure DOM parse of `<Widget>` definition XML |
+| `PSWidgetXmlParser` | Secure DOM parse of `<Widget>` definition XML (prefs, code, content, **Resource**) |
 | `PSWidgetXmlCompiler` | XML model → `PSComponentPackageManifest` + template text artifacts |
-| `PSWidgetXmlPackageCompiler` | Scan `sys__UserDependency--rxconfig/Widgets/*.xml` under a package root |
-| Golden fixtures | `modules/perc-packages/src/test/resources/widgetxml/golden/` (percSimpleText) |
+| `PSWidgetXmlPackageCompiler` | Scan `sys__UserDependency--rxconfig/Widgets/*.xml` under a package root; `compileHighTrafficPackages` |
+| Golden fixtures | `modules/perc-packages/src/test/resources/widgetxml/golden/` (percSimpleText, percTitle, simplePageAutoList, percNavBreadcrumb) |
 
 Inventory + residual packages: [widget-xml-inventory.md](./widget-xml-inventory.md).
 
@@ -193,7 +193,7 @@ Inventory + residual packages: [widget-xml-inventory.md](./widget-xml-inventory.
 | Slice | Issue | Role |
 |-------|-------|------|
 | Runtime legacy shim | #2752 | Load customer XML when modern package absent |
-| High-traffic package conversion | residual under #2630 | nav, blog, lists, forms, … (see inventory) |
+| Remaining high-traffic / long-tail widgets | residual under #2630 | blog, calendar, directory, social, forms, auto-lists, … (see inventory) |
 | Delete product Widget XML from source | later | After install path consumes modern artifacts |
 
 ## Validation summary

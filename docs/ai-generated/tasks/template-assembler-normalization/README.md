@@ -52,6 +52,7 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | [component-package-manifest.md](./component-package-manifest.md) | Phase 3 ship-format manifest schema v1.0 + Java model |
 | [widget-xml-inventory.md](./widget-xml-inventory.md) | Product widget matrix (48 defs) |
 | [widget-xml-inventory.csv](./widget-xml-inventory.csv) | Machine-readable inventory |
+| [page-definition-inventory.md](./page-definition-inventory.md) | Product page `*.templateDef` inventory + compiler (#2770) |
 | [gadget-definition-inventory.md](./gadget-definition-inventory.md) | Gadget XML / SPA survey |
 | [dual-run-legacy-definition-xml-shim.md](./dual-run-legacy-definition-xml-shim.md) | Phase 3 dual-run operator policy + runtime shim selection (#2752) |
 | [adr/](./adr/) | Architecture decision records |
@@ -75,9 +76,12 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | Widget DAO (legacy XML load) | `projects/sitemanage/.../dao/impl/PSWidgetDao.java` (`rxconfig/Widgets`) |
 | Widget packages | `modules/perc-packages/.../rxconfig/Widgets/` |
 | Component package manifest | `modules/perc-packages/.../manifest/PSComponentPackageManifest*.java` |
-| Widget XML compiler | `modules/perc-packages/.../widgetxml/PSWidgetXmlCompiler.java` (#2751) |
+| Widget XML compiler | `modules/perc-packages/.../widgetxml/PSWidgetXmlCompiler.java` (#2751 baseWidgets, #2772 high-traffic) |
+| Page templateDef compiler | `modules/perc-packages/.../pagexml/PSPageXmlCompiler.java` (#2770) |
+| Gadget registry compiler | `modules/perc-packages/.../gadgetxml/PSGadgetRegistryCompiler.java` (#2771) |
+| Modern gadget catalog (ship) | `modules/perc-packages/src/main/resources/catalogs/gadgets/gadget-catalog.json` |
 | Dual-run definition source shim | `modules/perc-packages/.../shim/PSLegacyDefinitionXmlShim.java` |
-| Gadget registry | `WebUI/src/main/resources/com/percussion/webui/gadget/servlets/GadgetRegistry.xml` |
+| Gadget registry (legacy upgrade input) | `WebUI/src/main/resources/com/percussion/webui/gadget/servlets/GadgetRegistry.xml` |
 
 ## Immediate next work
 
