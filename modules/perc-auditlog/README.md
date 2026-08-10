@@ -4,7 +4,7 @@ System-wide Percussion CMS audit logging and unified error-code support.
 
 ## Package
 
-**New (preferred):** `com.intsof.percussioncms.auditlog`
+**Only supported package:** `com.intsof.percussioncms.auditlog`
 
 * `SystemErrorCode` / package `*ErrorCodes` with explicit **`isAuditable`**
 * `AuditLogService` dual-writes auditable events to Log4j (`server.log`) and an `AuditLogRepository` SPI
@@ -15,7 +15,27 @@ System-wide Percussion CMS audit logging and unified error-code support.
   dual-write. Central `PSErrorHandler.appendError` dual-writes only when the registry marks the legacy
   int auditable.
 
-**Legacy (to be removed after migration):** `com.percussion.auditlog` + IBM CADF (`auditlogger` module)
+### Retired (Phase 2c / #2675)
+
+* IBM CADF module `modules/jcadf-master` (`com.ibm.cadf:auditlogger`) — **removed from reactor**
+* Legacy package `com.percussion.auditlog` (CADF-facing `PSAuditLogService` / event types) — **purged**
+* Grep gate: `python3 scripts/verify-no-cadf-legacy-auditlog.py` (Windows: same via `python`)
+
+Do **not** reintroduce CADF or the legacy package. Call sites must use
+`com.intsof.percussioncms.auditlog` / `PSSystemAuditLogger`.
+
+### Legacy design-object table (not CADF)
+
+Design-object auditor rows remain on table **`PSX_DESIGN_AUDIT_LOG`** via JPA entity
+`com.percussion.services.audit.data.PSAuditLogEntry` (package
+`com.percussion.services.audit` — **not** the retired `com.percussion.auditlog`).
+
+**Disposition (#2675 / Phase 2c):** keep the table and entity for existing design-audit
+history and current `PSDesignObjectAuditor` writes. New system-wide security audit
+events go to **`PSX_SYSTEM_AUDIT_LOG`** only. Dual-write of design lifecycle DESN codes
+into the system store is Phase 2c slice 1 (#2673); this module no longer provides a
+CADF/file third sink. Dropping or read-only-freezing `PSX_DESIGN_AUDIT_LOG` is a
+follow-on schema decision outside this removal PR.
 
 ## Usage (Phase 1)
 
@@ -84,10 +104,8 @@ daily as a daemon worker (same lifecycle style as the design-object audit reaper
 
 Login smoke path: `PSSystemAuditLogger` / `PSLoginServlet` (success, failure, logout).
 
-Phase 2a migrates production call sites off legacy CADF `PSAuditLogService` to
-`PSSystemAuditLogger` helpers + package `*ErrorCodes` (`ContentErrorCodes`,
-`UserManagementErrorCodes`, `WorkflowErrorCodes`, extended `AuthenticationErrorCodes`).
-Legacy CADF types remain in this module until Phase 2c (#2617).
+Phase 2a migrated production call sites to `PSSystemAuditLogger` helpers + package
+`*ErrorCodes`. Phase 2c (#2617 / #2675) removed CADF and the legacy package entirely.
 
 ## Phase 3 — REST query + role property (#2618)
 

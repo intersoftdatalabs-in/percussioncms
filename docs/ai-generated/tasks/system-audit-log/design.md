@@ -14,7 +14,10 @@
 | Placeholders | Sequential `{}` (SLF4J-style) |
 | Permission | Rhythmyx Role model; Role property `sys_securityAuditLogViewer`; Admin always allowed |
 | Log id | UUID string, same id on both sinks |
-| CADF / jcadf | Remove after call-site migration |
+| CADF / jcadf | **Removed** Phase 2c (#2675): `modules/jcadf-master` deleted; no `com.ibm.cadf` product dependency |
+| Legacy `com.percussion.auditlog` | **Purged** Phase 2c (#2675); keep only `com.intsof.percussioncms.auditlog` |
+| Design audit table `PSX_DESIGN_AUDIT_LOG` | **Keep** for design-object history (`PSAuditLogEntry` / `PSDesignObjectAuditor`). Not a CADF store. System security events use `PSX_SYSTEM_AUDIT_LOG` only. Read-only freeze or drop is a later schema decision; no silent dual-store without this note. |
+| Grep gate | `scripts/verify-no-cadf-legacy-auditlog.py` — no `com.ibm.cadf` / `com.percussion.auditlog` in production Java/POMs; no `modules/jcadf-master` tree |
 
 ## Architecture
 
@@ -86,6 +89,16 @@ Responses: `200` page/entry, `403` without permission, `404` missing id, `400` b
 
 **AuthZ (UI):** Admin shell remains Admin-only (`RequireRole gate=admin`). Server REST still enforces Admin **or** `sys_securityAuditLogViewer` for any non-UI clients.
 
+## Phase 2c status — retire CADF / jcadf (#2617 / #2675)
+
+- [x] Confirm production no longer imports `com.ibm.cadf` or `com.percussion.auditlog` (call sites on `PSSystemAuditLogger` / intsof API)
+- [x] Remove reactor module `modules/jcadf-master` and delete tree
+- [x] Purge legacy CADF-facing types from `modules/perc-auditlog` (keep intsof API)
+- [x] Drop `com.ibm.cadf:auditlogger` Maven dependency from `audit-log` POM
+- [x] Portable grep gate `scripts/verify-no-cadf-legacy-auditlog.py` + unit tests
+- [x] Document `PSX_DESIGN_AUDIT_LOG` disposition (keep / not CADF; system events on `PSX_SYSTEM_AUDIT_LOG`)
+- [ ] Sibling slices (separate PRs): design auditor dual-write DESN → system store (#2673); retention job wiring (#2674)
+
 ## Phase tracking (GitHub)
 
 | Phase | Issue |
@@ -93,7 +106,7 @@ Responses: `200` page/entry, `403` without permission, `404` missing id, `400` b
 | 0+1 Core API | [#2614](https://github.com/intersoftdatalabs-in/percussioncms/issues/2614) |
 | 2a Call-site migrate | [#2615](https://github.com/intersoftdatalabs-in/percussioncms/issues/2615) |
 | 2b ErrorCodes unification | [#2616](https://github.com/intersoftdatalabs-in/percussioncms/issues/2616) |
-| 2c Design auditor + retire CADF | [#2617](https://github.com/intersoftdatalabs-in/percussioncms/issues/2617) |
+| 2c Design auditor + retire CADF | [#2617](https://github.com/intersoftdatalabs-in/percussioncms/issues/2617) (slice 3 removal: [#2675](https://github.com/intersoftdatalabs-in/percussioncms/issues/2675)) |
 | 3 Role property + REST | [#2618](https://github.com/intersoftdatalabs-in/percussioncms/issues/2618) |
 | 4 Admin UI + Playwright | [#2619](https://github.com/intersoftdatalabs-in/percussioncms/issues/2619) |
 | 5 Hardening | [#2620](https://github.com/intersoftdatalabs-in/percussioncms/issues/2620) |
