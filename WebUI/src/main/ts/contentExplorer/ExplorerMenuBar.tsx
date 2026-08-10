@@ -46,6 +46,8 @@ export interface ExplorerMenuBarProps {
   showClipboard: boolean;
   /** Content → Site Copy panel open (#2767). */
   showSiteCopy?: boolean;
+  /** Content → Subfolder Copy panel open (#2792). */
+  showSubfolderCopy?: boolean;
   /** Multi-select size for clipboard-add disable + status badge. */
   multiSelectedCount: number;
   /** Clipboard size — enables View → Clipboard when non-empty. */
@@ -55,6 +57,11 @@ export interface ExplorerMenuBarProps {
    * Enables Content → Site Copy (#2767).
    */
   hasSiteContext?: boolean;
+  /**
+   * True when a non-root folder path is in context (selected folder or active
+   * tree folder). Enables Content → Subfolder Copy (#2792).
+   */
+  hasFolderContext?: boolean;
   displayFormats: ReadonlyArray<DisplayFormat>;
   selectedFormatKey: string;
   onSelectFormat: (key: string) => void;
@@ -131,6 +138,7 @@ function isToggleChecked(
     | "hasDependencyItem"
     | "showClipboard"
     | "showSiteCopy"
+    | "showSubfolderCopy"
   >,
 ): boolean {
   switch (id) {
@@ -148,6 +156,8 @@ function isToggleChecked(
       return props.showClipboard;
     case "content-site-copy":
       return props.showSiteCopy === true;
+    case "content-subfolder-copy":
+      return props.showSubfolderCopy === true;
     default:
       return false;
   }
@@ -158,6 +168,7 @@ function isItemDisabled(
   multiSelectedCount: number,
   clipboardItemCount: number,
   hasSiteContext: boolean,
+  hasFolderContext: boolean,
 ): boolean {
   if (item.disabledWhen === "noSelection") {
     return multiSelectedCount === 0;
@@ -167,6 +178,9 @@ function isItemDisabled(
   }
   if (item.disabledWhen === "noSiteContext") {
     return !hasSiteContext;
+  }
+  if (item.disabledWhen === "noFolderContext") {
+    return !hasFolderContext;
   }
   return false;
 }
@@ -181,9 +195,11 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
     hasDependencyItem = false,
     showClipboard,
     showSiteCopy = false,
+    showSubfolderCopy = false,
     multiSelectedCount,
     clipboardItemCount,
     hasSiteContext = false,
+    hasFolderContext = false,
     displayFormats,
     selectedFormatKey,
     onSelectFormat,
@@ -233,14 +249,15 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
         multiSelectedCount,
         clipboardItemCount,
         hasSiteContext,
+        hasFolderContext,
       )
     ) {
       return;
     }
     onCommand(item.id);
     // Keep View open for toggles so users can flip multiple panels; close
-    // Content/Help after a one-shot command. Site Copy is a Content toggle —
-    // close the Content menu after flip so the panel is not obscured.
+    // Content/Help after a one-shot command. Site/Subfolder Copy are Content
+    // toggles — close the Content menu after flip so the panel is not obscured.
     if (item.id.startsWith("view-") && item.toggle) {
       return;
     }
@@ -301,6 +318,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                       multiSelectedCount,
                       clipboardItemCount,
                       hasSiteContext,
+                      hasFolderContext,
                     );
                     const checked = item.toggle
                       ? isToggleChecked(item.id, {
@@ -312,6 +330,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                           hasDependencyItem,
                           showClipboard,
                           showSiteCopy,
+                          showSubfolderCopy,
                         })
                       : undefined;
                     const label = message(item.labelKey);
@@ -351,7 +370,11 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                                           ? hasSiteContext
                                             ? "explorer-site-copy-panel"
                                             : "explorer-site-copy-hint"
-                                          : undefined
+                                          : item.id === "content-subfolder-copy"
+                                            ? hasFolderContext
+                                              ? "explorer-subfolder-copy-panel"
+                                              : "explorer-subfolder-copy-hint"
+                                            : undefined
                           }
                           data-testid={
                             item.testId ?? `explorer-menu-item-${item.id}`

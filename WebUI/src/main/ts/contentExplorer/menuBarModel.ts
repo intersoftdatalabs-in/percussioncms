@@ -30,6 +30,7 @@ export type ExplorerMenuCommandId =
   | "content-search"
   | "content-clipboard-add"
   | "content-site-copy"
+  | "content-subfolder-copy"
   | "view-refresh"
   | "view-search"
   | "view-security"
@@ -54,7 +55,11 @@ export interface ExplorerMenuBarItem {
   /** When true, item is rendered as a checked toggle (aria-checked). */
   toggle?: boolean;
   /** Optional disabled predicate flag name resolved by the host. */
-  disabledWhen?: "noSelection" | "noClipboardContext" | "noSiteContext";
+  disabledWhen?:
+    | "noSelection"
+    | "noClipboardContext"
+    | "noSiteContext"
+    | "noFolderContext";
 }
 
 export interface ExplorerMenuBarGroup {
@@ -98,6 +103,14 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           testId: "explorer-content-site-copy",
           toggle: true,
           disabledWhen: "noSiteContext",
+        },
+        {
+          id: "content-subfolder-copy",
+          labelKey: EXPLORER_MSG.SUBFOLDER_COPY_TITLE,
+          ariaLabelKey: EXPLORER_MSG.TOGGLE_SUBFOLDER_COPY_ARIA,
+          testId: "explorer-content-subfolder-copy",
+          toggle: true,
+          disabledWhen: "noFolderContext",
         },
       ],
     },

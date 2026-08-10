@@ -112,6 +112,25 @@ describe("ExplorerMenuBar (#2731)", () => {
     expect(onCommand).toHaveBeenCalledWith("content-site-copy");
   });
 
+  it("Content → Subfolder Copy is disabled without folder context (#2792)", () => {
+    renderBar({ hasFolderContext: false });
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    const item = screen.getByTestId(
+      "explorer-content-subfolder-copy",
+    ) as HTMLButtonElement;
+    expect(item.disabled).toBe(true);
+  });
+
+  it("Content → Subfolder Copy invokes when folder context present (#2792)", () => {
+    const { onCommand } = renderBar({
+      hasFolderContext: true,
+      showSubfolderCopy: false,
+    });
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-content-subfolder-copy"));
+    expect(onCommand).toHaveBeenCalledWith("content-subfolder-copy");
+  });
+
   it("shows multi-select status badge outside dropdowns", () => {
     renderBar({ multiSelectedCount: 2 });
     expect(screen.getByTestId("explorer-multi-select-count")).toBeTruthy();
