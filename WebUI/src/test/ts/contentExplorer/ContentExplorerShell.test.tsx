@@ -875,7 +875,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       });
     });
 
-    renderShell(
+    const { container } = renderShell(
       <ContentExplorerShell
         initialPath="/Sites"
         loadDisplayFormats={async () => []}
@@ -904,6 +904,8 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       expect(loadDependencySummary).toHaveBeenCalledWith("1001");
     });
     expect(screen.queryByTestId("explorer-dependencies-hint")).toBeNull();
+    // T082a — a11y gate with dependencies panel expanded (search-panel peer).
+    await renderA11yGate(container);
   });
 
   it("security stays on hint when resolveFolderId rejects (#2410)", async () => {

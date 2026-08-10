@@ -31,6 +31,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
 /** Wait until the detail list region is present (folder navigation settled). */
 async function listWaitReady(page) {
@@ -53,6 +54,11 @@ test.describe("modern React Content Explorer — dependency viewer (#2768)", () 
     async ({ page }) => {
       const shell = page.locator('[data-testid="content-explorer-shell"]');
       await expect(shell).toBeVisible({ timeout: 15_000 });
+
+      // T082b / WebUI AGENTS.md — a11y gate on product Explorer shell surface.
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="content-explorer-shell"]',
+      });
 
       // #2731 / #2768: dependency toggle lives under the View menu dropdown.
       await page.locator('[data-testid="explorer-menu-view"]').click();
@@ -91,7 +97,8 @@ test.describe("modern React Content Explorer — dependency viewer (#2768)", () 
         )
         .first();
       if ((await sitesNode.count()) > 0) {
-        await sitesNode.click({ force: true, timeout: 10_000 }).catch(() => {});
+        // No force:true / silent catch — surface navigation failures.
+        await sitesNode.click({ timeout: 10_000 });
         await listWaitReady(page);
         await page.waitForLoadState("networkidle").catch(() => {});
       }
@@ -118,12 +125,14 @@ test.describe("modern React Content Explorer — dependency viewer (#2768)", () 
       }
 
       const target = enabledCount > 0 ? enabledRows.first() : anyRows.first();
-      await target.click({ force: true, timeout: 10_000 }).catch(async () => {
+      try {
+        await target.click({ timeout: 10_000 });
+      } catch (err) {
         const again = list
           .locator('tbody tr[data-testid^="detail-row-"]')
           .first();
-        await again.click({ force: true, timeout: 10_000 }).catch(() => {});
-      });
+        await again.click({ timeout: 10_000 });
+      }
 
       await page.locator('[data-testid="explorer-menu-view"]').click();
       await page.locator('[data-testid="explorer-toggle-dependencies"]').click();
