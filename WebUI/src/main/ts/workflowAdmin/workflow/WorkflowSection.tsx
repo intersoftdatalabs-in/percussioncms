@@ -33,12 +33,16 @@ export const WorkflowSection: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const [wfList, roleList] = await Promise.all([
+      // Role names for the workflow editor come from user/roles (GET), not
+      // role/find. POST role/find expects PSStringWrapper root "psstring"
+      // ({ psstring: { value } }); a bare { name: "" } body fails Jackson with
+      // "Root name ('name') does not match expected ('psstring')" (#2701).
+      const [wfList, rolesRes] = await Promise.all([
         get<WorkflowDefinition[]>(PATHS.WORKFLOW_METADATA),
-        post<{ name: string }[]>(PATHS.ROLES_FIND, { name: "" }).catch(() => []),
+        get<{ RoleList: { roles: string[] } }>(PATHS.USER_ROLES).catch(() => null),
       ]);
       setWorkflows(wfList || []);
-      setAvailableRoles((roleList || []).map((r) => r.name));
+      setAvailableRoles(rolesRes?.RoleList?.roles || []);
     } catch (err) {
       setError(message(WF_ADMIN_MSG.ERROR_GENERIC));
     } finally {
