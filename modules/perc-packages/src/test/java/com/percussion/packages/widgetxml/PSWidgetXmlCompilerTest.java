@@ -38,7 +38,8 @@ import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Unit + golden parity tests for Widget XML → Component Package Manifest compiler (#2751
- * baseWidgets, #2772 high-traffic residual batch, #2789 remaining product residual batch).
+ * baseWidgets, #2772 high-traffic residual batch, #2789 residual product batch, #2802 remaining
+ * product residual batch).
  */
 class PSWidgetXmlCompilerTest {
 
@@ -79,6 +80,23 @@ class PSWidgetXmlCompilerTest {
   private static final String GOLDEN_IFRAME_MANIFEST =
       "/widgetxml/golden/percIframe.component-package.json";
   private static final String GOLDEN_IFRAME_TEMPLATE = "/widgetxml/golden/percIframeSnippet.vm";
+
+  // #2802 remaining residual representatives
+  private static final String FIXTURE_IMAGE_AUTO_LIST = "/widgetxml/percImageAutoList.xml";
+  private static final String GOLDEN_IMAGE_AUTO_LIST_MANIFEST =
+      "/widgetxml/golden/percImageAutoList.component-package.json";
+  private static final String GOLDEN_IMAGE_AUTO_LIST_TEMPLATE =
+      "/widgetxml/golden/percImageAutoListSnippet.vm";
+
+  private static final String FIXTURE_COMMENTS = "/widgetxml/percComments.xml";
+  private static final String GOLDEN_COMMENTS_MANIFEST =
+      "/widgetxml/golden/percComments.component-package.json";
+  private static final String GOLDEN_COMMENTS_TEMPLATE = "/widgetxml/golden/percCommentsSnippet.vm";
+
+  private static final String FIXTURE_EVENT = "/widgetxml/percEvent.xml";
+  private static final String GOLDEN_EVENT_MANIFEST =
+      "/widgetxml/golden/percEvent.component-package.json";
+  private static final String GOLDEN_EVENT_TEMPLATE = "/widgetxml/golden/percEventSnippet.vm";
 
   @TempDir Path tempDir;
 
@@ -617,6 +635,204 @@ class PSWidgetXmlCompilerTest {
           "residual must not re-list high-traffic package: " + high);
     }
     assertEquals(9, PSWidgetXmlPackageCompiler.RESIDUAL_PRODUCT_PACKAGE_DIRS.size());
+  }
+
+  @Test
+  void parseImageAutoList_autoListWithManyPrefsAndCss() throws Exception {
+    PSWidgetXmlModel model = parseClasspath(FIXTURE_IMAGE_AUTO_LIST, "percImageAutoList.xml");
+    assertEquals("Image Auto List", model.getTitle());
+    assertEquals("percImageAutoList", model.getContentTypeName());
+    assertTrue(model.getCategory() != null && model.getCategory().contains("search"));
+    assertEquals(16, model.getUserPrefs().size());
+    assertTrue(model.getCssPrefs().size() >= 3);
+  }
+
+  @Test
+  void compileImageAutoList_matchesGoldenManifestAndTemplate() throws Exception {
+    PSWidgetXmlCompileResult result =
+        assertGoldenParity(
+            FIXTURE_IMAGE_AUTO_LIST,
+            "percImageAutoList.xml",
+            "perc.ImageAutoListWidget",
+            GOLDEN_IMAGE_AUTO_LIST_MANIFEST,
+            GOLDEN_IMAGE_AUTO_LIST_TEMPLATE,
+            "templates/percImageAutoListSnippet.vm");
+    assertEquals(
+        "percImageAutoList", result.getManifest().getContentTypes().get(0).getName());
+    assertTrue(result.getManifest().getUserPreferences().size() >= 10);
+    assertTrue(result.getManifest().getCssPreferences().size() >= 3);
+  }
+
+  @Test
+  void parseComments_chromeWidgetNoContentType() throws Exception {
+    PSWidgetXmlModel model = parseClasspath(FIXTURE_COMMENTS, "percComments.xml");
+    assertEquals("Comments", model.getTitle());
+    assertTrue(
+        model.getContentTypeName() == null || model.getContentTypeName().isBlank(),
+        "comments is chrome/logic (no asset CT)");
+    assertEquals(1, model.getUserPrefs().size());
+    assertEquals(1, model.getCssPrefs().size());
+  }
+
+  @Test
+  void compileComments_matchesGolden_chromeSlotWithoutContentType() throws Exception {
+    PSWidgetXmlCompileResult result =
+        assertGoldenParity(
+            FIXTURE_COMMENTS,
+            "percComments.xml",
+            "perc.widgets.comments",
+            GOLDEN_COMMENTS_MANIFEST,
+            GOLDEN_COMMENTS_TEMPLATE,
+            "templates/percCommentsSnippet.vm");
+    assertTrue(
+        result.getManifest().getContentTypes() == null
+            || result.getManifest().getContentTypes().isEmpty());
+    assertEquals("percCommentsChrome", result.getManifest().getSlots().get(0).getName());
+  }
+
+  @Test
+  void parseEvent_contentWidgetWithUserPrefs() throws Exception {
+    PSWidgetXmlModel model = parseClasspath(FIXTURE_EVENT, "percEvent.xml");
+    assertEquals("Event", model.getTitle());
+    assertEquals("percEventAsset", model.getContentTypeName());
+    assertEquals(9, model.getUserPrefs().size());
+    assertEquals(1, model.getCssPrefs().size());
+  }
+
+  @Test
+  void compileEvent_matchesGoldenManifestAndTemplate() throws Exception {
+    PSWidgetXmlCompileResult result =
+        assertGoldenParity(
+            FIXTURE_EVENT,
+            "percEvent.xml",
+            "perc.eventWidget",
+            GOLDEN_EVENT_MANIFEST,
+            GOLDEN_EVENT_TEMPLATE,
+            "templates/percEventSnippet.vm");
+    assertEquals("percEventAsset", result.getManifest().getContentTypes().get(0).getName());
+    assertEquals("percEventContent", result.getManifest().getSlots().get(0).getName());
+    assertEquals(9, result.getManifest().getUserPreferences().size());
+  }
+
+  @Test
+  void compileRemainingProductPackages_allValidate() throws Exception {
+    Path packagesRoot = locatePackagesRoot();
+    if (packagesRoot == null) {
+      System.err.println(
+          "WARN: Packages root not found; skipping remaining product package test");
+      return;
+    }
+
+    List<PSWidgetXmlCompileResult> results =
+        PSWidgetXmlPackageCompiler.compileRemainingProductPackages(packagesRoot);
+    // auto-lists(3)+blog companions(5)+social/comments/cards(5)+misc(11 widgets in 10 pkgs)
+    // defaultLanguage has 2 widgets; all others 1 → 3+5+5+10+1(defaultLang second)+1? =
+    // 23 packages: 22 single-widget + defaultLanguage(2) = 24 widgets
+    assertEquals(
+        24,
+        results.size(),
+        "remaining #2802 batch should compile 24 product widgets across 23 packages");
+
+    Map<String, PSWidgetXmlCompileResult> byId =
+        results.stream()
+            .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
+
+    for (String id :
+        List.of(
+            "percImageAutoList",
+            "percPageAutoList",
+            "percFileAutoList",
+            "percBlogIndexPage",
+            "percArchiveList",
+            "percCategoryList",
+            "percTagList",
+            "percMostReadBlogPosts",
+            "percComments",
+            "percLiked",
+            "percCommentsForm",
+            "percOpenGraph",
+            "percTwitterSummaryCards",
+            "percEvent",
+            "percImageSlider",
+            "percCookieConsent",
+            "percJQueryWidget",
+            "percJQueryUIWidget",
+            "percRegistration",
+            "percSecureLogin",
+            "percResult",
+            "percRedirect",
+            "percDefaultLang",
+            "percLocalLang")) {
+      assertTrue(byId.containsKey(id), "missing compiled remaining widget: " + id);
+      PSComponentPackageManifestValidator.validate(byId.get(id).getManifest());
+      assertFalse(byId.get(id).getTextArtifacts().isEmpty());
+      assertEquals(
+          "velocityAssembler",
+          byId.get(id).getManifest().getTemplates().get(0).getAssembler());
+    }
+
+    // Auto-list shape: asset CT + many user prefs.
+    assertEquals(
+        "percImageAutoList",
+        byId.get("percImageAutoList").getManifest().getContentTypes().get(0).getName());
+    assertTrue(byId.get("percImageAutoList").getManifest().getUserPreferences().size() >= 10);
+
+    // Chrome widgets without CT.
+    for (String chromeId :
+        List.of(
+            "percComments",
+            "percLiked",
+            "percMostReadBlogPosts",
+            "percResult",
+            "percJQueryWidget",
+            "percJQueryUIWidget")) {
+      assertTrue(
+          byId.get(chromeId).getManifest().getContentTypes() == null
+              || byId.get(chromeId).getManifest().getContentTypes().isEmpty(),
+          chromeId + " should be chrome (no CT)");
+    }
+
+    // defaultLanguage multi-widget package shares version.
+    assertEquals(
+        byId.get("percDefaultLang").getManifest().getVersion(),
+        byId.get("percLocalLang").getManifest().getVersion());
+
+    Path outRoot = tempDir.resolve("remaining-out");
+    PSWidgetXmlPackageCompiler.writeAll(results, outRoot);
+    for (String stem :
+        List.of(
+            "percImageAutoList",
+            "percComments",
+            "percEvent",
+            "percDefaultLang",
+            "percLocalLang",
+            "percRedirect")) {
+      assertTrue(
+          Files.isRegularFile(
+              outRoot
+                  .resolve(stem)
+                  .resolve(PSComponentPackageManifest.DEFAULT_MANIFEST_FILE_NAME)),
+          "writeAll missing remaining manifest for " + stem);
+    }
+  }
+
+  @Test
+  void remainingProductPackageDirs_disjointFromPriorBatches() {
+    assertFalse(
+        PSWidgetXmlPackageCompiler.REMAINING_PRODUCT_PACKAGE_DIRS.contains("perc.baseWidgets"));
+    assertFalse(
+        PSWidgetXmlPackageCompiler.REMAINING_PRODUCT_PACKAGE_DIRS.contains("perc.Test"));
+    for (String high : PSWidgetXmlPackageCompiler.HIGH_TRAFFIC_PACKAGE_DIRS) {
+      assertFalse(
+          PSWidgetXmlPackageCompiler.REMAINING_PRODUCT_PACKAGE_DIRS.contains(high),
+          "remaining must not re-list high-traffic package: " + high);
+    }
+    for (String residual : PSWidgetXmlPackageCompiler.RESIDUAL_PRODUCT_PACKAGE_DIRS) {
+      assertFalse(
+          PSWidgetXmlPackageCompiler.REMAINING_PRODUCT_PACKAGE_DIRS.contains(residual),
+          "remaining must not re-list #2789 residual package: " + residual);
+    }
+    assertEquals(23, PSWidgetXmlPackageCompiler.REMAINING_PRODUCT_PACKAGE_DIRS.size());
   }
 
   private static PSWidgetXmlCompileResult assertGoldenParity(

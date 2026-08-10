@@ -36,14 +36,16 @@ import java.util.regex.Pattern;
 
 /**
  * Compiles legacy Widget definition XML into a modern {@link PSComponentPackageManifest} plus
- * template source artifacts (Phase 3 / ADR-004 / issues #2751, #2772).
+ * template source artifacts (Phase 3 / ADR-004 / issues #2751, #2772, #2789, #2802).
  *
  * <p><strong>Scope:</strong> baseWidgets-shaped widgets, high-traffic product packages (title,
- * lists, nav chrome, file, image — #2772), and residual long-tail product packages (blog, calendar,
- * directory, social, forms, poll, login, rss, iframe — #2789): JEXL code + Velocity content +
- * optional asset content type + UserPref/CssPref + {@code <Resource>} CSS/JS refs. Further residual
- * packages (auto-lists, jquery, comments, …) remain dual-run Widget XML and are tracked in {@code
- * docs/ai-generated/tasks/template-assembler-normalization/widget-xml-inventory.md}.
+ * lists, nav chrome, file, image — #2772), residual long-tail product packages (blog, calendar,
+ * directory, social, forms, poll, login, rss, iframe — #2789), and remaining product packages
+ * (auto-lists, blog/list companions, comments/liked/cards, event/slider/cookie/jquery, login
+ * variants, Result/Redirect, defaultLanguage — #2802): JEXL code + Velocity content + optional
+ * asset content type + UserPref/CssPref + {@code <Resource>} CSS/JS refs. Product Widget XML
+ * remains dual-run until Phase 5 exit; inventory:
+ * {@code docs/ai-generated/tasks/template-assembler-normalization/widget-xml-inventory.md}.
  *
  * <p>Assembler mapping: {@code Content type="velocity"} → {@code velocityAssembler}; {@code html}
  * → {@code htmlAssembler}; {@code markdown} → {@code markdownAssembler}. Code language is always

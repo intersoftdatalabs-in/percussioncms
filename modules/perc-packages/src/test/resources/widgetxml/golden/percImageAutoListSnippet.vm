@@ -1,0 +1,106 @@
+#define($ariaLabelString)##
+#if($title && $title.length() > 0)##
+aria-labelledby="$!{headerId}"##
+#else##
+$!{listAriaLabel}##
+#end##
+#end##
+##Setup Date Formatting
+#set($formatterOut = $rx.pageutils.getDateFormatFromLocale("$!{postDateTimeFormat}",$locale))##
+#set($postDateObject="")##
+#set($postDate="")##
+<div id="$!{autoListDivId}" class="$!{rootclass} $!{layout} perc-image-auto-list" #if($perc_hide_when_empty && $relresults.size() <= 0)hidden #end $!{ariaLabelString} $!{listAriaRole} data-query="$!{dynamicListData}">
+#if( ! $perc.widgetContents.isEmpty() )
+#if($title && $title.length() > 0)##
+$!{titleFormatStartTag}$title$!{titleFormatEndTag}
+#end
+#if($relresults && $relresults.size() > 0)
+#if($rendering == "ordered")##
+<ol class="$!{listclass} perc-list-main">##
+#else##
+<ul class="$!{listclass} perc-list-main">##
+#end##
+#foreach($result in $relresults)
+#set($postDateObject = $result.node.getProperty('rx:sys_contentpostdate'))##
+#set($postDateObjectString = $result.node.getProperty('rx:sys_contentpostdate').String)##
+#if("$!{postDateObjectString}" == "")##
+#set($postDateObject = $tools.date.getDate())##
+#else##
+#set($postDateObject = $result.node.getProperty('rx:sys_contentpostdate').getDate())##
+#end##
+#if("$!{postDateObject}" != "")##
+#set($postDate = $formatterOut.format($postDateObject.getTime()))##
+#end##
+#if($velocityCount == 1)##
+#set($firstrow = 'perc-list-first')##
+#else##
+#set($firstrow = ' ')##
+#end##
+#if($velocityCount == $relresults.size())##
+#set($lastrow = 'perc-list-last')##
+#else
+#set($lastrow = ' ')##
+#end
+#set($pagelink = $tools.esc.html($rx.pageutils.itemLink($linkContext, $result)))##
+#set($linkTitle = $rx.pageutils.html($result.node,"resource_link_title,sys_title", "-no-title-"))##
+#set($link = $tools.esc.html($rx.pageutils.itemLink($linkContext, $result, "percSystem.imageMainBinary")))##
+#set($img_alt = $rx.pageutils.html($result,'alttext'))##
+#if(!$perc.isEditMode())##
+#set($img_title=$rx.pageutils.html($result,'displaytitle'))##
+#else##
+#set($img_title="")##
+#end
+#if($perc.isEditMode() && $img_title == "")##
+#set($img_title_attr = "")##
+#else##
+#set($img_title_attr = 'title="' + $img_title + '"')##
+#end
+$!{itemFormatStartTag}<li class="$rowtag $!{firstrow} $!{lastrow} perc-list-element">
+#if($renderingformat == 'image')
+#set($img_height=$result.node.getProperty('rx:img_height').getString())##
+#set($img_width=$result.node.getProperty('rx:img_width').getString())##
+#if($img_height.length() > 0 && $img_width.length() > 0)
+<img src="$link" $img_title_attr alt="$img_alt" aria-label="$!{img_title}" height="$img_height" width="$img_width" />
+#else##
+<img src="$link" $img_title_attr />
+#end
+#if($showPostDate)##
+#if("$!{postDate}" != "")##
+<span class="perc-image-auto-list-date">$!{postDate}</span>
+#end##
+#end##
+#else##
+#set($img_height=$result.node.getProperty('rx:img2_height').getString())##
+#set($img_width=$result.node.getProperty('rx:img2_width').getString())##
+#set($thumblink=$tools.esc.html($rx.pageutils.itemLink($linkContext, $result, "percSystem.imageThumbBinary")))##
+#if($renderingformat == 'thumbnail')##
+#if($img_height.length() > 0 && $img_width.length() > 0)
+<img src="$thumblink" $img_title_attr alt="$img_alt" height="$img_height" width="$img_width" />
+#else##
+<img src="$thumblink" $img_title_attr />
+#end
+#end
+#if($renderingformat == 'thumbnail_link')
+<a ${thumblinkclass} href="$link" $img_title_attr target="$target">
+<img src="$thumblink"  alt="$img_alt" height="$img_height" width="$img_width"/>
+</a>
+#end
+#end
+#if ($caption)
+#set($caption_text=$result.node.getProperty('rx:resource_link_title').getString())##
+<div class="$!{captionclass} perc-caption">
+${caption_text}
+</div>
+#end
+</li>$!{itemFormatEndTag}
+#end##
+#if($rendering == "ordered")##
+</ol>##
+#else##
+</ul>##
+#end##
+#end##
+#elseif ($perc.isEditMode())
+#createEmptyWidgetContent("imagelist-sample-content", "This image auto list widget is showing sample content.")
+#end
+</div>

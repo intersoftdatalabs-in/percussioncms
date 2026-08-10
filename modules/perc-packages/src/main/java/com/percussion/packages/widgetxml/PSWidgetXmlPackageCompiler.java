@@ -31,9 +31,9 @@ import java.util.Objects;
  * Compiles all Widget definition XML files found in a legacy product package source directory.
  *
  * <p>Looks under {@code sys__UserDependency--rxconfig/Widgets/*.xml} (product packaging layout used
- * by {@code modules/perc-packages}). Covers baseWidgets, high-traffic product packages (#2772), and
- * the residual long-tail batch (#2789). Further residual packages remain in the widget XML
- * inventory until dual-run exit.
+ * by {@code modules/perc-packages}). Covers baseWidgets, high-traffic product packages (#2772), the
+ * residual long-tail batch (#2789), and the remaining product residual batch (#2802). Product Widget
+ * XML remains dual-run until install consumes modern packages (Phase 5 exit).
  */
 public final class PSWidgetXmlPackageCompiler {
 
@@ -70,6 +70,43 @@ public final class PSWidgetXmlPackageCompiler {
           "perc.widget.login",
           "perc.widget.rss",
           "perc.widget.iframe");
+
+  /**
+   * Remaining product package directory names under {@code Packages/} covered by issue #2802
+   * (auto-lists, blog/list companions, social/comments cards, event/slider/cookie/jquery, login
+   * variants, Result/Redirect, defaultLanguage). Beyond {@link #RESIDUAL_PRODUCT_PACKAGE_DIRS},
+   * {@link #HIGH_TRAFFIC_PACKAGE_DIRS}, and {@code perc.baseWidgets}. Excludes {@code perc.Test}.
+   * Dual-run: product Widget XML remains until install consumes modern packages.
+   */
+  public static final List<String> REMAINING_PRODUCT_PACKAGE_DIRS =
+      List.of(
+          // auto-lists
+          "perc.ImageAutoListWidget",
+          "perc.PageAutoListWidget",
+          "perc.widget.fileAutoList",
+          // blog / list companions
+          "perc.widget.blogIndexPage",
+          "perc.widget.archiveList",
+          "perc.widget.categoryList",
+          "perc.widget.taglist",
+          "perc.widget.MostReadBlogPosts",
+          // social / comments / cards
+          "perc.widgets.comments",
+          "perc.widgets.liked",
+          "perc.widget.commentForm",
+          "perc.openGraphWidget",
+          "perc.twitterSummaryCards",
+          // other residual product widgets
+          "perc.eventWidget",
+          "perc.widget.imageSlider",
+          "perc.widget.cookieConsent",
+          "perc.widget.jquery",
+          "perc.widget.jqueryUI",
+          "perc.widget.registration",
+          "perc.widget.secureLogin",
+          "perc.widget.Result",
+          "perc.widgets.Redirect",
+          "perc.defaultLanguage");
 
   private PSWidgetXmlPackageCompiler() {
     // utility
@@ -150,6 +187,21 @@ public final class PSWidgetXmlPackageCompiler {
   public static List<PSWidgetXmlCompileResult> compileResidualProductPackages(Path packagesRoot)
       throws PSWidgetXmlException, IOException {
     return compileNamedPackages(packagesRoot, RESIDUAL_PRODUCT_PACKAGE_DIRS);
+  }
+
+  /**
+   * Compile remaining product packages under a {@code Packages/} root directory (issue #2802 —
+   * residual after #2789). Missing package directories are soft-skipped (same policy as prior
+   * batches).
+   *
+   * @param packagesRoot non-null directory containing package folders
+   * @return compile results sorted by package then widget stem (may be empty if none present)
+   * @throws PSWidgetXmlException on parse/compile failure of a present package
+   * @throws IOException on I/O failure
+   */
+  public static List<PSWidgetXmlCompileResult> compileRemainingProductPackages(Path packagesRoot)
+      throws PSWidgetXmlException, IOException {
+    return compileNamedPackages(packagesRoot, REMAINING_PRODUCT_PACKAGE_DIRS);
   }
 
   /**

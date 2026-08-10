@@ -49,17 +49,17 @@ Ship-format model and docs landed as Phase 3 slice 1 (#2750):
 
 **Upgrade-input XML** remains compiler/shim only; **product ship format** is `component-package.json` plus content types, templates, slots, catalog metadata, and resources.
 
-## Widget XML compiler (slices #2751 / #2772)
+## Widget XML compiler (slices #2751 / #2772 / #2789 / #2802)
 
-Compiler for upgrade-input Widget XML → Component Package Manifest (baseWidgets + high-traffic batch):
+Compiler for upgrade-input Widget XML → Component Package Manifest (baseWidgets + high-traffic + residual + remaining product batches):
 
 | Artifact | Location |
 |----------|----------|
 | Parser / compiler / package scanner | `modules/perc-packages/.../widgetxml/PSWidgetXml*.java` |
-| Golden parity (simple + high-traffic) | `modules/perc-packages/src/test/resources/widgetxml/golden/` |
-| Inventory + residuals | [../widget-xml-inventory.md](../widget-xml-inventory.md) |
+| Golden parity (all product batches) | `modules/perc-packages/src/test/resources/widgetxml/golden/` |
+| Inventory | [../widget-xml-inventory.md](../widget-xml-inventory.md) |
 
-Remaining long-tail product packages and product Widget XML removal remain residual under #2630.
+Product package compile coverage is complete for all product widgets except `perc.Test`. Product Widget XML dual-run exit (delete package Widget XML) remains residual under #2630 / Phase 5 (#2632).
 
 ## Page templateDef compiler (slice #2770)
 
