@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.base.invertedLRightFullSidebar",
+  "name": "Inverted \"L\" Right Full Sidebar",
+  "version": "1.1.5",
+  "description": "Percussion base layout templates.",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "http://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "page",
+    "title": "Inverted \"L\" Right Full Sidebar",
+    "category": "page",
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.base.invertedLRightFullSidebar",
+      "type": "page",
+      "assembler": "pageAssembler",
+      "sourceRef": "templates/perc.base.invertedLRightFullSidebar.vm",
+      "bindings": []
+    }
+  ],
+  "slots": [
+    {
+      "name": "header",
+      "allowedContentTypes": [],
+      "layout": {
+        "orientation": "vertical",
+        "vspan": "2"
+      },
+      "styles": {
+        "rootclass": "perc-region perc-vertical vspan_2"
+      }
+    },
+    {
+      "name": "content",
+      "allowedContentTypes": [],
+      "layout": {
+        "orientation": "vertical",
+        "vspan": "6"
+      },
+      "styles": {
+        "rootclass": "perc-region perc-vertical vspan_6"
+      }
+    },
+    {
+      "name": "rightsidebar",
+      "allowedContentTypes": [],
+      "layout": {
+        "orientation": "vertical",
+        "vspan": "8",
+        "hspan": "2"
+      },
+      "styles": {
+        "rootclass": "perc-region perc-vertical vspan_8 hspan_2"
+      }
+    }
+  ],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}

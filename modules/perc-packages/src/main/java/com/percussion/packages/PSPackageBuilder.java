@@ -17,6 +17,8 @@
 
 package com.percussion.packages;
 
+import com.percussion.packages.pagexml.PSPageXmlDualShip;
+import com.percussion.packages.pagexml.PSPageXmlException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -34,6 +36,10 @@ import java.util.zip.ZipOutputStream;
  * Builds .ppkg package files from source directories. Replaces the Ant-based foreach/antcall build
  * with a single-pass Java builder that supports incremental builds (skips packages whose sources
  * haven't changed).
+ *
+ * <p>Page layout packages that author modern {@code pages/&lt;id&gt;/component-package.json} (ADR-004
+ * / #2786) dual-ship install {@code *.templateDef} into the staging copy before zip so deployer
+ * {@code TemplateDef} install parity is preserved.
  *
  * <p>Usage: {@code PSPackageBuilder <packagesDir> <outputDir> <tempDir>}
  */
@@ -134,6 +140,9 @@ public final class PSPackageBuilder {
       // Step 1: Copy source files to temp1
       copyDirectory(packageDir, temp1);
 
+      // Step 1b: Dual-ship modern page packages → install *.templateDef (ADR-004 / #2786)
+      dualShipPageTemplateDefs(temp1, dirName);
+
       // Step 2: Read mapping properties
       var propsFile = packageDir.resolve(dirName + MAPPING_EXT);
       var props = new Properties();
@@ -154,6 +163,25 @@ public final class PSPackageBuilder {
     }
 
     built++;
+  }
+
+  /**
+   * When a package authors modern {@code pages/} component packages, materialize root-level {@code
+   * *.templateDef} for deployer install parity. Fail the package build if dual-ship cannot run.
+   */
+  private static void dualShipPageTemplateDefs(Path stagingPackageDir, String packageName)
+      throws IOException {
+    try {
+      if (!PSPageXmlDualShip.hasModernPageSources(stagingPackageDir)) {
+        return;
+      }
+      int n = PSPageXmlDualShip.materializeInstallTemplateDefs(stagingPackageDir);
+      System.out.println(
+          "  dual-ship page templateDefs for " + packageName + ": " + n + " written");
+    } catch (PSPageXmlException e) {
+      throw new IOException(
+          "Page dual-ship failed for package " + packageName + ": " + e.getMessage(), e);
+    }
   }
 
   /** Check if the output .ppkg is newer than all source files. */

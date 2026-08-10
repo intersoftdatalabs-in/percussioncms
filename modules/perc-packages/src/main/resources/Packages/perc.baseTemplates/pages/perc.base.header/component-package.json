@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.base.header",
+  "name": "Header",
+  "version": "1.1.5",
+  "description": "Percussion base layout templates.",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "http://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "page",
+    "title": "Header",
+    "category": "page",
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.base.header",
+      "type": "page",
+      "assembler": "pageAssembler",
+      "sourceRef": "templates/perc.base.header.vm",
+      "bindings": []
+    }
+  ],
+  "slots": [
+    {
+      "name": "header",
+      "allowedContentTypes": [],
+      "layout": {
+        "orientation": "vertical",
+        "vspan": "2"
+      },
+      "styles": {
+        "rootclass": "perc-region perc-vertical vspan_2"
+      }
+    },
+    {
+      "name": "content",
+      "allowedContentTypes": [],
+      "layout": {
+        "orientation": "vertical",
+        "vspan": "6"
+      },
+      "styles": {
+        "rootclass": "perc-region perc-vertical vspan_6"
+      }
+    }
+  ],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}

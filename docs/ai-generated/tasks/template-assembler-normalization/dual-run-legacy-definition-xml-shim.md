@@ -49,7 +49,7 @@ Hard order for a package root or definition id:
 | Package source trees | `modules/perc-packages/src/main/resources/Packages/<pkg>/` | Ships product `.ppkg` content including `sys__UserDependency--rxconfig/Widgets/*.xml` | Product conversion (#2751+) emits modern manifest; product source of truth moves off XML (ADR-004) |
 | Package staging Widgets | `sys__UserDependency--rxconfig/Widgets/` or `rxconfig/Widgets/` under a package root | Upgrade-input / deploy layout | Shim package-root API resolves either layout |
 | Gadget registry | `WebUI/.../GadgetRegistry.xml` (+ residual definition XML) | Registry; per-gadget XML largely gone | Modern: `gadget-catalog.json` + per-gadget packages (#2771); dual-load residual for WebUI |
-| Page meta / definition XML | Site/page storage dialects | Composition authoring legacy | Page conversion is Phase 3 residual; shim recognizes `rxconfig/Pages` if present |
+| Page meta / definition XML | Site/page storage dialects | Composition authoring legacy | Product layout packages (`perc.baseTemplates`, `perc.responsiveTemplates`) author modern `pages/` (#2786); dual-ship still emits install `*.templateDef` into `.ppkg`. Shim recognizes `rxconfig/Pages` if present for customer defs |
 
 **Selection API (no Spring wiring required for unit use):**
 
@@ -88,7 +88,8 @@ Deep rewiring of `PSWidgetDao` to call the shim for every load is **incremental*
 
 The dual-run window ends when **all** of the following hold:
 
-- [ ] Product packages in repo/install are **not** authored as Page / Widget / Gadget definition XML (ADR-004 ship bar).
+- [x] Product **page layout** packages `perc.baseTemplates` / `perc.responsiveTemplates` are **not** authored as `*.templateDef` (#2786; dual-ship for install only).
+- [ ] Remaining product packages in repo/install are **not** authored as Page / Widget / Gadget definition XML (ADR-004 ship bar) — Baseline page templates, widgets, etc. still residual.
 - [ ] Customer upgrade path documented and used for remaining XML.
 - [ ] Runtime metrics (or support inventory) show no production dependence on legacy definition XML loads — or remaining cases are explicitly waived.
 - [ ] Phase 5 (#2632) removes or hard-disables the shim and updates help.

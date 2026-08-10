@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.base.rightSidebar",
+  "name": "Right Sidebar",
+  "version": "1.1.5",
+  "description": "Percussion base layout templates.",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "http://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "page",
+    "title": "Right Sidebar",
+    "category": "page",
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.base.rightSidebar",
+      "type": "page",
+      "assembler": "pageAssembler",
+      "sourceRef": "templates/perc.base.rightSidebar.vm",
+      "bindings": []
+    }
+  ],
+  "slots": [
+    {
+      "name": "content",
+      "allowedContentTypes": [],
+      "layout": {
+        "orientation": "vertical",
+        "hspan": "10",
+        "vspan": "8"
+      },
+      "styles": {
+        "rootclass": "perc-region perc-vertical hspan_10 vspan_8"
+      }
+    },
+    {
+      "name": "rightsidebar",
+      "allowedContentTypes": [],
+      "layout": {
+        "orientation": "vertical",
+        "hspan": "2",
+        "vspan": "8"
+      },
+      "styles": {
+        "rootclass": "perc-region perc-vertical hspan_2 vspan_8"
+      }
+    }
+  ],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}

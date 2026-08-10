@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.resp.Basic",
+  "name": "Basic",
+  "version": "1.1.5",
+  "description": "Basic responsive template, it is an inverted C-clamp style template.",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "3.2.4",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "page",
+    "title": "Basic",
+    "category": "page",
+    "description": "Basic responsive template, it is an inverted C-clamp style template.",
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.resp.Basic",
+      "type": "page",
+      "assembler": "pageAssembler",
+      "sourceRef": "templates/perc.resp.Basic.vm",
+      "bindings": []
+    }
+  ],
+  "slots": [
+    {
+      "name": "perc-resp-header-left",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": "large-12 columns perc-region"
+      }
+    },
+    {
+      "name": "perc-resp-body-content",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": "large-9 columns perc-region"
+      }
+    },
+    {
+      "name": "perc-resp-body-sidebar",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": "large-3 columns perc-region"
+      }
+    },
+    {
+      "name": "perc-resp-footer-content",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": "large-12 columns perc-region"
+      }
+    }
+  ],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}

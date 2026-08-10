@@ -41,8 +41,9 @@ import java.util.Objects;
  * assembler extension short-names map to the Component Package Manifest assembler field; Velocity
  * body is the canonical template source.
  *
- * <p>Product packages may still ship dual-run {@code *.templateDef} until a residual removes them;
- * this compiler is the upgrade / modern authoring path.
+ * <p>Product page layout packages author modern {@code pages/&lt;id&gt;/} sources; install dual-ship
+ * emits {@code *.templateDef} at package-build time ({@link PSPageXmlDualShip}, issue #2786). This
+ * compiler remains the upgrade path for legacy {@code *.templateDef} input.
  */
 public final class PSPageXmlCompiler {
 

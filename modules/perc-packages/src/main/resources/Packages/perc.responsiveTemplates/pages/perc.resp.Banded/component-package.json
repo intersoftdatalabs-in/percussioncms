@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.resp.Banded",
+  "name": "Banded",
+  "version": "1.1.5",
+  "description": "Banded responsive template.",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "3.2.4",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "page",
+    "title": "Banded",
+    "category": "page",
+    "description": "Banded responsive template.",
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.resp.Banded",
+      "type": "page",
+      "assembler": "pageAssembler",
+      "sourceRef": "templates/perc.resp.Banded.vm",
+      "bindings": []
+    }
+  ],
+  "slots": [
+    {
+      "name": "perc-resp-header-left",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": "large-3 columns perc-region"
+      }
+    },
+    {
+      "name": "perc-resp-header-right",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": "large-9 columns perc-region"
+      }
+    },
+    {
+      "name": "perc-resp-banner-content",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": "large-12 columns perc-region"
+      }
+    },
+    {
+      "name": "perc-resp-content-top-left",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": "large-4 columns perc-region"
+      }
+    },
+    {
+      "name": "perc-resp-content-top-right",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": "large-8 columns perc-region"
+      }
+    },
+    {
+      "name": "perc-resp-content-bottom-left",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": "large-8 columns perc-region"
+      }
+    },
+    {
+      "name": "perc-resp-content-bottom-right",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": "large-4 columns perc-region"
+      }
+    },
+    {
+      "name": "perc-resp-footer-content",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": "large-12 columns perc-region"
+      }
+    }
+  ],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}

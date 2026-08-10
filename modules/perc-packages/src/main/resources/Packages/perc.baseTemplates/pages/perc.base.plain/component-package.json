@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.base.plain",
+  "name": "Plain",
+  "version": "1.1.5",
+  "description": "Percussion base layout templates.",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "http://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "page",
+    "title": "Plain",
+    "category": "page",
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.base.plain",
+      "type": "page",
+      "assembler": "pageAssembler",
+      "sourceRef": "templates/perc.base.plain.vm",
+      "bindings": []
+    }
+  ],
+  "slots": [
+    {
+      "name": "perc-content",
+      "allowedContentTypes": [],
+      "layout": {
+        "orientation": "vertical"
+      },
+      "styles": {
+        "rootclass": "perc-region perc-vertical"
+      }
+    }
+  ],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}
