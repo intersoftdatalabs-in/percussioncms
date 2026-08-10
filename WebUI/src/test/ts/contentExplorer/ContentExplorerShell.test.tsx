@@ -128,18 +128,117 @@ describe("ContentExplorerShell product composition (#2400)", () => {
   it("uses injected loaders only (no real network for menus/formats)", async () => {
     const loadDisplayFormats = vi.fn(async () => []);
     const loadMenuActions = vi.fn(async () => []);
+    const loadWorkflowMenuActions = vi.fn(async () => null);
     stubPathFetch();
 
     renderShell(
       <ContentExplorerShell
         loadDisplayFormats={loadDisplayFormats}
         loadMenuActions={loadMenuActions}
+        loadWorkflowMenuActions={loadWorkflowMenuActions}
       />,
     );
 
     await waitFor(() => {
       expect(loadDisplayFormats).toHaveBeenCalled();
       expect(loadMenuActions).toHaveBeenCalled();
+      expect(loadWorkflowMenuActions).toHaveBeenCalled();
+    });
+  });
+
+  it("merges workflow transition group into toolbar and invokes transition (#2732)", async () => {
+    const runWorkflowTransition = vi.fn(async () => undefined);
+    const loadWorkflowMenuActions = vi.fn(async (item) => {
+      if (!item?.id) return null;
+      return {
+        name: "workflow",
+        label: "Workflow",
+        sortRank: 9000,
+        menuType: "MENU" as const,
+        children: [
+          {
+            name: "workflow-transition:Submit",
+            label: "Submit",
+            sortRank: 1,
+            menuType: "MENUITEM" as const,
+          },
+        ],
+      };
+    });
+
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "33554432-101-1",
+                  name: "page-one",
+                  path: "/Sites/page-one",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 1,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => [
+          {
+            name: "open",
+            label: "Open",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ]}
+        loadWorkflowMenuActions={loadWorkflowMenuActions}
+        runWorkflowTransition={runWorkflowTransition}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("detail-row-33554432-101-1") ||
+          screen.getByText("page-one"),
+      ).toBeTruthy();
+    });
+
+    const row =
+      screen.queryByTestId("detail-row-33554432-101-1") ??
+      screen.getByText("page-one");
+    fireEvent.click(row);
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("action-toolbar-group-workflow"),
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(
+      screen.getByTestId("action-toolbar-item-workflow-transition:Submit"),
+    );
+
+    await waitFor(() => {
+      expect(runWorkflowTransition).toHaveBeenCalledWith(
+        "33554432-101-1",
+        "Submit",
+      );
     });
   });
 
@@ -165,6 +264,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       EXPLORER_MSG.FOLDER_PROPS_TITLE,
       EXPLORER_MSG.FOLDER_PROPS_COMMUNITY,
       EXPLORER_MSG.FOLDER_PROPS_LOCALE,
+      EXPLORER_MSG.WORKFLOW_MENU_LABEL,
+      EXPLORER_MSG.WORKFLOW_TRANSITION_FAILED,
+      EXPLORER_MSG.WORKFLOW_TRANSITION_SUCCESS,
     ];
     for (const key of chromeKeys) {
       expect(key.startsWith("perc.ui.explorer@")).toBe(true);

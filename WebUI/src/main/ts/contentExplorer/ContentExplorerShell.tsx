@@ -33,6 +33,10 @@ import {
   normalizeDisplayFormatColumns,
   type DisplayFormat,
 } from "../api/contentExplorer/displayFormatsApi";
+import {
+  getItemWorkflowTransitions,
+  transitionItem,
+} from "../api/contentExplorer/itemWorkflowApi";
 import { findItemByPath } from "../api/contentExplorer/pathApi";
 import type {
   Clipboard,
@@ -71,6 +75,11 @@ import {
   shellStyle,
 } from "./styles";
 import { TranslationsPanel } from "./TranslationsPanel";
+import {
+  buildWorkflowTransitionMenu,
+  mergeWorkflowMenuActions,
+  parseWorkflowTransitionTrigger,
+} from "./workflowMenuActions";
 
 export interface ContentExplorerShellProps {
   /** Folder path to display on mount; defaults to product root. */
@@ -89,6 +98,14 @@ export interface ContentExplorerShellProps {
   /** Test seam: override action menu load. */
   loadMenuActions?: (item: PSPathItem | null) => Promise<MenuAction[]>;
   /**
+   * Test seam: override workflow-transition menu enrichment for a selected
+   * content item (#2732). Default loads triggers via itemmanagement.
+   * Return {@code null} to skip workflow group (folders / no triggers).
+   */
+  loadWorkflowMenuActions?: (
+    item: PSPathItem | null,
+  ) => Promise<MenuAction | null>;
+  /**
    * Identities for folder ACL self-lockout (USER name + ROLE names).
    * When omitted, derived from SPA bootstrap ({@code userName}, admin/designer
    * flags). Tests inject an explicit list so lockout gates stay deterministic.
@@ -99,6 +116,14 @@ export interface ContentExplorerShellProps {
    * Default uses pathmanagement {@link findItemByPath}.
    */
   resolveFolderId?: (path: string) => Promise<string | undefined>;
+  /**
+   * Test seam: execute a workflow transition. Default uses itemmanagement
+   * {@code transitionWithComments}.
+   */
+  runWorkflowTransition?: (
+    itemId: string,
+    trigger: string,
+  ) => Promise<void>;
 }
 
 type ContextMenuState = {
@@ -158,6 +183,14 @@ function parseContentId(id: string | undefined): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/** True when the selection can receive workflow transitions (not a folder). */
+function isWorkflowEligibleItem(item: PSPathItem | null | undefined): boolean {
+  if (!item) return false;
+  if (item.type === "folder") return false;
+  const id = item.id != null ? String(item.id).trim() : "";
+  return id.length > 0;
+}
+
 async function defaultLoadMenuActions(
   item: PSPathItem | null,
 ): Promise<MenuAction[]> {
@@ -170,6 +203,35 @@ async function defaultLoadMenuActions(
   }
   const menus = await findActions({ item: true });
   return mapActionMenusToMenuActions(menus);
+}
+
+/**
+ * Load Workflow cascade from itemmanagement allowed transitions.
+ * Returns {@code null} when the item is ineligible or has no triggers.
+ */
+async function defaultLoadWorkflowMenuActions(
+  item: PSPathItem | null,
+): Promise<MenuAction | null> {
+  if (!isWorkflowEligibleItem(item)) {
+    return null;
+  }
+  try {
+    const state = await getItemWorkflowTransitions(String(item!.id));
+    return buildWorkflowTransitionMenu(state?.transitionTriggers ?? [], {
+      groupLabel: message(EXPLORER_MSG.WORKFLOW_MENU_LABEL),
+      stateName: state?.stateName,
+    });
+  } catch {
+    // Non-fatal: keep server action menus without workflow group.
+    return null;
+  }
+}
+
+async function defaultRunWorkflowTransition(
+  itemId: string,
+  trigger: string,
+): Promise<void> {
+  await transitionItem(itemId, trigger);
 }
 
 /** Stable default — module scope so useEffect deps do not refetch every render. */
@@ -197,8 +259,10 @@ export function ContentExplorerShell({
   onFolderActivated,
   loadDisplayFormats = defaultLoadDisplayFormats,
   loadMenuActions = defaultLoadMenuActions,
+  loadWorkflowMenuActions = defaultLoadWorkflowMenuActions,
   currentUserIdentities: currentUserIdentitiesProp,
   resolveFolderId = defaultResolveFolderId,
+  runWorkflowTransition = defaultRunWorkflowTransition,
 }: ContentExplorerShellProps): React.ReactElement {
   const bootstrap = useSpaBootstrap();
   const currentUserIdentities = useMemo(() => {
@@ -283,17 +347,27 @@ export function ContentExplorerShell({
 
   useEffect(() => {
     let cancelled = false;
-    loadMenuActions(selection.item)
-      .then((actions) => {
-        if (!cancelled) setMenuActions(actions ?? []);
-      })
-      .catch(() => {
+    async function loadMenus(): Promise<void> {
+      try {
+        const base = await loadMenuActions(selection.item);
+        if (cancelled) return;
+        let workflow: MenuAction | null = null;
+        try {
+          workflow = await loadWorkflowMenuActions(selection.item);
+        } catch {
+          workflow = null;
+        }
+        if (cancelled) return;
+        setMenuActions(mergeWorkflowMenuActions(base ?? [], workflow));
+      } catch {
         if (!cancelled) setMenuActions([]);
-      });
+      }
+    }
+    void loadMenus();
     return () => {
       cancelled = true;
     };
-  }, [selection.item, loadMenuActions, listEpoch]);
+  }, [selection.item, loadMenuActions, loadWorkflowMenuActions, listEpoch]);
 
   const selectedFormat = useMemo(() => {
     if (!selectedFormatKey) return null;
@@ -394,15 +468,68 @@ export function ContentExplorerShell({
   const handleItemContextMenu = useCallback(
     (item: PSPathItem, clientX: number, clientY: number) => {
       setSelection((prev) => ({ ...prev, item }));
-      void loadMenuActions(item).then((actions) => {
-        setContextMenu({
-          actions: actions ?? [],
-          x: clientX,
-          y: clientY,
-        });
-      });
+      void (async () => {
+        try {
+          const base = await loadMenuActions(item);
+          let workflow: MenuAction | null = null;
+          try {
+            workflow = await loadWorkflowMenuActions(item);
+          } catch {
+            workflow = null;
+          }
+          setContextMenu({
+            actions: mergeWorkflowMenuActions(base ?? [], workflow),
+            x: clientX,
+            y: clientY,
+          });
+        } catch {
+          setContextMenu({
+            actions: [],
+            x: clientX,
+            y: clientY,
+          });
+        }
+      })();
     },
-    [loadMenuActions],
+    [loadMenuActions, loadWorkflowMenuActions],
+  );
+
+  /**
+   * Route toolbar / context-menu activations. Workflow transition names are
+   * client-tagged ({@code workflow-transition:Trigger}); other actions fall
+   * through to list refresh (URL actions already navigated in the child).
+   */
+  const handleMenuInvoke = useCallback(
+    (actionName: string, _action: MenuAction) => {
+      const trigger = parseWorkflowTransitionTrigger(actionName);
+      if (trigger != null) {
+        const item = selection.item;
+        const itemId =
+          item?.id != null && isWorkflowEligibleItem(item)
+            ? String(item.id)
+            : "";
+        if (!itemId) {
+          setError(message(EXPLORER_MSG.WORKFLOW_TRANSITION_FAILED));
+          return;
+        }
+        void (async () => {
+          try {
+            await runWorkflowTransition(itemId, trigger);
+            setError(null);
+            setListEpoch((n) => n + 1);
+          } catch (err: unknown) {
+            const detail =
+              err instanceof Error && err.message
+                ? err.message
+                : message(EXPLORER_MSG.WORKFLOW_TRANSITION_FAILED);
+            setError(detail);
+          }
+        })();
+        return;
+      }
+      setListEpoch((n) => n + 1);
+    },
+    [selection.item, runWorkflowTransition],
   );
 
   const handleSearchOpen = useCallback((result: PSItemProperties) => {
@@ -495,10 +622,7 @@ export function ContentExplorerShell({
             <ActionToolbar
               actions={menuActions}
               ariaLabel={message(EXPLORER_MSG.SERVER_ACTIONS_ARIA)}
-              onInvoke={() => {
-                // Server URL actions navigate; client-only refresh list.
-                setListEpoch((n) => n + 1);
-              }}
+              onInvoke={handleMenuInvoke}
             />
           </div>
           <div
@@ -766,9 +890,9 @@ export function ContentExplorerShell({
           <ContextMenu
             actions={contextMenu.actions}
             onClose={() => setContextMenu(null)}
-            onInvoke={() => {
+            onInvoke={(actionName, action) => {
               setContextMenu(null);
-              setListEpoch((n) => n + 1);
+              handleMenuInvoke(actionName, action);
             }}
           />
         </div>
