@@ -1,7 +1,7 @@
 # Gap matrix: Desktop Content Explorer → SPA Explorer
 
 **Parent:** #2400  
-**Evidence date:** 2026-08-10 (closeout re-audit #2794 against `origin/main` after #2748 / #2773 / #2775 / #2777 / #2782)  
+**Evidence date:** 2026-08-10 (closeout re-audit #2794 against `origin/main` after #2748 / #2773 / #2775 / #2777 / #2782; re-confirmed #2827 after #2792/#2793 merges)  
 **Rule:** Status reflects **product route** (`ExplorerRoute` → `ContentExplorerShell`), not isolated components in the registry.
 
 Legend: **Present** | **Partial** | **Missing** | **OUT**
@@ -59,6 +59,17 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | DCE-only packaging residual | Decommission program after parity |
 
 ## Implementation notes
+
+### 2026-08-10 Present re-confirm after Subfolder/ContentBrowser merges (#2827)
+
+Re-audited `main` after #2792 / [PR #2796](https://github.com/intersoftdatalabs-in/percussioncms/pull/2796) and #2793 / [PR #2798](https://github.com/intersoftdatalabs-in/percussioncms/pull/2798) landed (and after #2794 / [PR #2800](https://github.com/intersoftdatalabs-in/percussioncms/pull/2800) matrix closeout). **No status flips required** — product-route evidence still matches **Present**:
+
+| Capability | Status | Product-route evidence on main |
+|------------|--------|--------------------------------|
+| Subfolder copy wizard | **Present** | `ContentExplorerShell` Content → Subfolder Copy (`content-subfolder-copy`) mounts `SubfolderCopyWizard`; Vitest shell/menu + Playwright `explorer-subfolder-copy.spec.js`; human QA #2797 |
+| Search in ContentBrowser hosts | **Present** | `ContentBrowser` mounts shared `SearchPanel` when `enableSearch`; residual host `assetPickerModern.jsp` sets `enableSearch: true`; Vitest `ContentBrowser.test.tsx`; human QA #2799 |
+
+Stale **Partial** / open-PR wording for those two chrome rows is incorrect after merge. Remaining intentional **Partial**: translation in-flight/session under #2411; object ACL under existing ACL epics (#2274 family / residual #2828).
 
 ### 2026-08-10 closeout re-audit (#2794)
 
