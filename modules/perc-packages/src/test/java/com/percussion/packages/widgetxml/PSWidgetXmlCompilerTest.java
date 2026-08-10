@@ -37,8 +37,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Unit + golden parity tests for Widget XML → Component Package Manifest compiler (#2751 baseWidgets,
- * #2772 high-traffic residual batch).
+ * Unit + golden parity tests for Widget XML → Component Package Manifest compiler (#2751
+ * baseWidgets, #2772 high-traffic residual batch, #2789 remaining product residual batch).
  */
 class PSWidgetXmlCompilerTest {
 
@@ -64,6 +64,21 @@ class PSWidgetXmlCompilerTest {
       "/widgetxml/golden/percNavBreadcrumb.component-package.json";
   private static final String GOLDEN_BREADCRUMB_TEMPLATE =
       "/widgetxml/golden/percNavBreadcrumbSnippet.vm";
+
+  private static final String FIXTURE_FORM = "/widgetxml/percForm.xml";
+  private static final String GOLDEN_FORM_MANIFEST =
+      "/widgetxml/golden/percForm.component-package.json";
+  private static final String GOLDEN_FORM_TEMPLATE = "/widgetxml/golden/percFormSnippet.vm";
+
+  private static final String FIXTURE_POLL = "/widgetxml/percPoll.xml";
+  private static final String GOLDEN_POLL_MANIFEST =
+      "/widgetxml/golden/percPoll.component-package.json";
+  private static final String GOLDEN_POLL_TEMPLATE = "/widgetxml/golden/percPollSnippet.vm";
+
+  private static final String FIXTURE_IFRAME = "/widgetxml/percIframe.xml";
+  private static final String GOLDEN_IFRAME_MANIFEST =
+      "/widgetxml/golden/percIframe.component-package.json";
+  private static final String GOLDEN_IFRAME_TEMPLATE = "/widgetxml/golden/percIframeSnippet.vm";
 
   @TempDir Path tempDir;
 
@@ -411,6 +426,197 @@ class PSWidgetXmlCompilerTest {
                   .resolve(PSComponentPackageManifest.DEFAULT_MANIFEST_FILE_NAME)),
           "writeAll missing manifest for " + stem);
     }
+  }
+
+  @Test
+  void parseForm_integrationWidgetWithLabelAlignPref() throws Exception {
+    PSWidgetXmlModel model = parseClasspath(FIXTURE_FORM, "percForm.xml");
+    assertEquals("Form", model.getTitle());
+    assertEquals("percFormAsset", model.getContentTypeName());
+    assertEquals("integration", model.getCategory());
+    assertEquals(1, model.getUserPrefs().size());
+    assertEquals("labelalign", model.getUserPrefs().get(0).getName());
+    assertEquals(1, model.getCssPrefs().size());
+  }
+
+  @Test
+  void compileForm_matchesGoldenManifestAndTemplate() throws Exception {
+    PSWidgetXmlCompileResult result =
+        assertGoldenParity(
+            FIXTURE_FORM,
+            "percForm.xml",
+            "perc.widget.form",
+            GOLDEN_FORM_MANIFEST,
+            GOLDEN_FORM_TEMPLATE,
+            "templates/percFormSnippet.vm");
+    assertEquals("percFormAsset", result.getManifest().getContentTypes().get(0).getName());
+    assertEquals("percFormContent", result.getManifest().getSlots().get(0).getName());
+    assertTrue(
+        result
+            .getTextArtifacts()
+            .get("templates/percFormSnippet.vm")
+            .contains("perc-form"));
+  }
+
+  @Test
+  void parsePoll_socialBlogWidgetWithRestrictionPref() throws Exception {
+    PSWidgetXmlModel model = parseClasspath(FIXTURE_POLL, "percPoll.xml");
+    assertEquals("Polls", model.getTitle());
+    assertEquals("percPollAsset", model.getContentTypeName());
+    assertTrue(model.getCategory() != null && model.getCategory().contains("social"));
+    assertEquals(7, model.getUserPrefs().size());
+    assertTrue(
+        model.getUserPrefs().stream().anyMatch(p -> "pollRestrictionType".equals(p.getName())));
+  }
+
+  @Test
+  void compilePoll_matchesGoldenManifestAndTemplate() throws Exception {
+    PSWidgetXmlCompileResult result =
+        assertGoldenParity(
+            FIXTURE_POLL,
+            "percPoll.xml",
+            "perc.widget.poll",
+            GOLDEN_POLL_MANIFEST,
+            GOLDEN_POLL_TEMPLATE,
+            "templates/percPollSnippet.vm");
+    assertEquals("percPollAsset", result.getManifest().getContentTypes().get(0).getName());
+    assertTrue(
+        result.getManifest().getUserPreferences().stream()
+            .anyMatch(p -> "pollRestrictionType".equals(p.getName())));
+    assertTrue(
+        result
+            .getTextArtifacts()
+            .get("templates/percPollSnippet.vm")
+            .contains("perc-polls"));
+  }
+
+  @Test
+  void parseIframe_chromeWidgetNoContentType_withUserPrefs() throws Exception {
+    PSWidgetXmlModel model = parseClasspath(FIXTURE_IFRAME, "percIframe.xml");
+    assertEquals("Iframe", model.getTitle());
+    assertTrue(
+        model.getContentTypeName() == null || model.getContentTypeName().isBlank(),
+        "iframe is chrome/logic (no asset CT)");
+    assertEquals(11, model.getUserPrefs().size());
+    assertEquals(1, model.getCssPrefs().size());
+  }
+
+  @Test
+  void compileIframe_matchesGolden_chromeSlotWithoutContentType() throws Exception {
+    PSWidgetXmlCompileResult result =
+        assertGoldenParity(
+            FIXTURE_IFRAME,
+            "percIframe.xml",
+            "perc.widget.iframe",
+            GOLDEN_IFRAME_MANIFEST,
+            GOLDEN_IFRAME_TEMPLATE,
+            "templates/percIframeSnippet.vm");
+    assertTrue(
+        result.getManifest().getContentTypes() == null
+            || result.getManifest().getContentTypes().isEmpty());
+    assertEquals("percIframeChrome", result.getManifest().getSlots().get(0).getName());
+    assertTrue(
+        result.getManifest().getSlots().get(0).getStyles().containsKey("rootclass"));
+  }
+
+  @Test
+  void compileResidualProductPackages_allValidate() throws Exception {
+    Path packagesRoot = locatePackagesRoot();
+    if (packagesRoot == null) {
+      System.err.println("WARN: Packages root not found; skipping residual product package test");
+      return;
+    }
+
+    List<PSWidgetXmlCompileResult> results =
+        PSWidgetXmlPackageCompiler.compileResidualProductPackages(packagesRoot);
+    // blog(1)+calendar(2)+directory(4)+social(1)+form(1)+poll(1)+login(1)+rss(1)+iframe(1)=13
+    assertEquals(
+        13,
+        results.size(),
+        "residual #2789 batch should compile blog, calendar×2, directory×4, social, form, poll,"
+            + " login, rss, iframe");
+
+    Map<String, PSWidgetXmlCompileResult> byId =
+        results.stream()
+            .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
+
+    for (String id :
+        List.of(
+            "percBlogPost",
+            "percCalendar",
+            "percCalendarTwo",
+            "percDepartment",
+            "percDirectory",
+            "percOrganization",
+            "percPerson",
+            "percSocialButtons",
+            "percForm",
+            "percPoll",
+            "percLogin",
+            "percRss",
+            "percIframe")) {
+      assertTrue(byId.containsKey(id), "missing compiled residual widget: " + id);
+      PSComponentPackageManifestValidator.validate(byId.get(id).getManifest());
+      assertFalse(byId.get(id).getTextArtifacts().isEmpty());
+      assertEquals(
+          "velocityAssembler",
+          byId.get(id).getManifest().getTemplates().get(0).getAssembler());
+    }
+
+    // Blog post is content CT with many user prefs (title format, locales, …).
+    assertEquals(
+        "percBlogPostAsset",
+        byId.get("percBlogPost").getManifest().getContentTypes().get(0).getName());
+    assertTrue(byId.get("percBlogPost").getManifest().getUserPreferences().size() >= 10);
+
+    // Directory multi-widget package shares package context version.
+    String dirVersion = byId.get("percDirectory").getManifest().getVersion();
+    assertEquals(dirVersion, byId.get("percPerson").getManifest().getVersion());
+    assertEquals(dirVersion, byId.get("percDepartment").getManifest().getVersion());
+
+    // Iframe residual golden shape: chrome slot, no CT.
+    assertTrue(
+        byId.get("percIframe").getManifest().getContentTypes() == null
+            || byId.get("percIframe").getManifest().getContentTypes().isEmpty());
+    assertEquals(
+        "percIframeChrome", byId.get("percIframe").getManifest().getSlots().get(0).getName());
+
+    Path outRoot = tempDir.resolve("residual-out");
+    PSWidgetXmlPackageCompiler.writeAll(results, outRoot);
+    for (String stem :
+        List.of(
+            "percBlogPost",
+            "percCalendar",
+            "percCalendarTwo",
+            "percDepartment",
+            "percDirectory",
+            "percOrganization",
+            "percPerson",
+            "percSocialButtons",
+            "percForm",
+            "percPoll",
+            "percLogin",
+            "percRss",
+            "percIframe")) {
+      assertTrue(
+          Files.isRegularFile(
+              outRoot
+                  .resolve(stem)
+                  .resolve(PSComponentPackageManifest.DEFAULT_MANIFEST_FILE_NAME)),
+          "writeAll missing residual manifest for " + stem);
+    }
+  }
+
+  @Test
+  void residualProductPackageDirs_disjointFromHighTrafficAndBase() {
+    assertFalse(
+        PSWidgetXmlPackageCompiler.RESIDUAL_PRODUCT_PACKAGE_DIRS.contains("perc.baseWidgets"));
+    for (String high : PSWidgetXmlPackageCompiler.HIGH_TRAFFIC_PACKAGE_DIRS) {
+      assertFalse(
+          PSWidgetXmlPackageCompiler.RESIDUAL_PRODUCT_PACKAGE_DIRS.contains(high),
+          "residual must not re-list high-traffic package: " + high);
+    }
+    assertEquals(9, PSWidgetXmlPackageCompiler.RESIDUAL_PRODUCT_PACKAGE_DIRS.size());
   }
 
   private static PSWidgetXmlCompileResult assertGoldenParity(

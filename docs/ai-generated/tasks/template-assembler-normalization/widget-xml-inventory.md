@@ -4,16 +4,17 @@
 **Source:** `modules/perc-packages/src/main/resources/Packages/**/rxconfig/Widgets/*.xml`  
 **Machine-readable:** [widget-xml-inventory.csv](./widget-xml-inventory.csv)
 
-## Compiler status (#2751 / #2772 / parent #2630)
+## Compiler status (#2751 / #2772 / #2789 / parent #2630)
 
 | Area | Status | Notes |
 |------|--------|-------|
-| **Widget XML → Component Package Manifest compiler** | Landed for **baseWidgets + high-traffic batch** | `com.percussion.packages.widgetxml.PSWidgetXmlCompiler` (+ package scanner) in `modules/perc-packages` |
+| **Widget XML → Component Package Manifest compiler** | Landed for **baseWidgets + high-traffic + residual long-tail batch** | `com.percussion.packages.widgetxml.PSWidgetXmlCompiler` (+ package scanner) in `modules/perc-packages` |
 | Golden parity (baseWidgets) | **percSimpleText** (+ package compile of all 3 baseWidgets) | Fixtures under `modules/perc-packages/src/test/resources/widgetxml/` |
 | Golden parity (high-traffic #2772) | **percTitle**, **simplePageAutoList**, **percNavBreadcrumb** | Plus package compile of title, lists×2, nav×2, file, image (7 widgets) |
-| Compiler extensions (#2772) | `<Resource href/type/placement>`, chrome slots without CT, layout UserPref → slot.layout | CSS/JS resources + nav chrome (no asset CT) |
+| Golden parity (residual #2789) | **percForm**, **percPoll**, **percIframe** | Plus package compile of blog/calendar×2/directory×4/social/form/poll/login/rss/iframe (**13** widgets) |
+| Compiler extensions (#2772) | `<Resource href/type/placement>`, chrome slots without CT, layout UserPref → slot.layout | CSS/JS resources + nav chrome (no asset CT); residual batch needed no new shapes |
 | **Product packages still ship Widget XML** | Yes (dual-run) | Compiler produces modern artifacts; does **not** yet remove product `rxconfig/Widgets/*.xml` from source trees |
-| Residual product packages | Open | blog, calendar, directory, social, forms, auto-lists (image/page/file), jquery, poll, login, etc. — see matrix below |
+| Residual product packages (after #2789) | Open | auto-lists (image/page/file), jquery/jqueryUI, comments/liked, event, social cards, blog index, etc. — see matrix |
 | Runtime legacy XML shim | Landed (cluster #2766) | #2752 |
 
 ### High-traffic batch covered by #2772
@@ -26,7 +27,23 @@
 | `perc.FileAssetWidget` | percFile | Content + rich media |
 | `perc.widgets.image` | percImage | Content + rich media + CSS resource |
 
-Measurable reduction: **7** product widget definition XMLs now have a validated modern compile path with goldens (beyond the original 3 baseWidgets).
+Measurable reduction (#2772): **7** product widget definition XMLs with validated modern compile path + goldens (beyond 3 baseWidgets).
+
+### Residual long-tail batch covered by #2789
+
+| Package | Widgets | Notes |
+|---------|---------|-------|
+| `perc.widgets.blog` | percBlogPost | Blog content CT + large UserPref set |
+| `perc.widget.calendar` | percCalendar, percCalendarTwo | Shared CT `percCalendarAsset` |
+| `perc.widget.directory` | percDepartment, percDirectory, percOrganization, percPerson | Multi-widget directory package |
+| `perc.widget.socialButtons` | percSocialButtons | Social CT + placement UserPrefs |
+| `perc.widget.form` | percForm | Integration form; golden |
+| `perc.widget.poll` | percPoll | Social/blog poll; golden |
+| `perc.widget.login` | percLogin | Membership login |
+| `perc.widget.rss` | percRss | Blog/social RSS |
+| `perc.widget.iframe` | percIframe | Chrome (no CT); golden |
+
+Measurable reduction (#2789): **+13** product widget definition XMLs on the validated modern compile path (cumulative product widgets with package compile coverage: **3 base + 7 high-traffic + 13 residual = 23**, excluding `perc.Test`).
 
 Ship format: [component-package-manifest.md](./component-package-manifest.md). ADR: [004-no-definition-xml-packaging.md](./adr/004-no-definition-xml-packaging.md).
 

@@ -31,8 +31,9 @@ import java.util.Objects;
  * Compiles all Widget definition XML files found in a legacy product package source directory.
  *
  * <p>Looks under {@code sys__UserDependency--rxconfig/Widgets/*.xml} (product packaging layout used
- * by {@code modules/perc-packages}). Covers baseWidgets and high-traffic product packages (#2772);
- * residual packages are tracked in the widget XML inventory.
+ * by {@code modules/perc-packages}). Covers baseWidgets, high-traffic product packages (#2772), and
+ * the residual long-tail batch (#2789). Further residual packages remain in the widget XML
+ * inventory until dual-run exit.
  */
 public final class PSWidgetXmlPackageCompiler {
 
@@ -51,6 +52,24 @@ public final class PSWidgetXmlPackageCompiler {
           "perc.widgets.nav",
           "perc.FileAssetWidget",
           "perc.widgets.image");
+
+  /**
+   * Residual long-tail product package directory names under {@code Packages/} covered by issue
+   * #2789 (blog / calendar / directory / social / forms / poll / login / rss / iframe). Beyond
+   * {@link #HIGH_TRAFFIC_PACKAGE_DIRS} and {@code perc.baseWidgets}. Dual-run: product Widget XML
+   * remains until install consumes modern packages.
+   */
+  public static final List<String> RESIDUAL_PRODUCT_PACKAGE_DIRS =
+      List.of(
+          "perc.widgets.blog",
+          "perc.widget.calendar",
+          "perc.widget.directory",
+          "perc.widget.socialButtons",
+          "perc.widget.form",
+          "perc.widget.poll",
+          "perc.widget.login",
+          "perc.widget.rss",
+          "perc.widget.iframe");
 
   private PSWidgetXmlPackageCompiler() {
     // utility
@@ -116,12 +135,44 @@ public final class PSWidgetXmlPackageCompiler {
    */
   public static List<PSWidgetXmlCompileResult> compileHighTrafficPackages(Path packagesRoot)
       throws PSWidgetXmlException, IOException {
+    return compileNamedPackages(packagesRoot, HIGH_TRAFFIC_PACKAGE_DIRS);
+  }
+
+  /**
+   * Compile residual long-tail product packages under a {@code Packages/} root directory (issue
+   * #2789). Missing package directories are soft-skipped (same policy as high-traffic).
+   *
+   * @param packagesRoot non-null directory containing package folders
+   * @return compile results sorted by package then widget stem (may be empty if none present)
+   * @throws PSWidgetXmlException on parse/compile failure of a present package
+   * @throws IOException on I/O failure
+   */
+  public static List<PSWidgetXmlCompileResult> compileResidualProductPackages(Path packagesRoot)
+      throws PSWidgetXmlException, IOException {
+    return compileNamedPackages(packagesRoot, RESIDUAL_PRODUCT_PACKAGE_DIRS);
+  }
+
+  /**
+   * Compile every package directory name listed under {@code packagesRoot}. Missing package
+   * directories are soft-skipped so partial checkouts can still exercise available packages.
+   *
+   * @param packagesRoot non-null Packages root
+   * @param packageDirNames non-null ordered package directory names
+   * @return compile results in package-list then widget-stem order
+   */
+  public static List<PSWidgetXmlCompileResult> compileNamedPackages(
+      Path packagesRoot, List<String> packageDirNames)
+      throws PSWidgetXmlException, IOException {
     Objects.requireNonNull(packagesRoot, "packagesRoot");
+    Objects.requireNonNull(packageDirNames, "packageDirNames");
     if (!Files.isDirectory(packagesRoot)) {
       throw new PSWidgetXmlException("Packages root does not exist: " + packagesRoot);
     }
     List<PSWidgetXmlCompileResult> all = new ArrayList<>();
-    for (String dirName : HIGH_TRAFFIC_PACKAGE_DIRS) {
+    for (String dirName : packageDirNames) {
+      if (dirName == null || dirName.isBlank()) {
+        continue;
+      }
       Path packageDir = packagesRoot.resolve(dirName);
       // Soft-skip missing package dirs so partial checkouts / CI fixtures still exercise
       // the packages that are present (matches baseWidgets soft-skip tests).

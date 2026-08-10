@@ -1,0 +1,330 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percIframe",
+  "name": "Iframe",
+  "version": "1.1.4",
+  "description": "Embed an external web page within a Percussion page",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.3.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Iframe",
+    "category": "integration",
+    "description": "Embed an external web page within a Percussion page",
+    "thumbnail": "resources/widgetIconIframe.jpg",
+    "icon": "resources/widgetIconIframe.jpg",
+    "author": "Percussion Software Inc",
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "percIframeSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percIframeSnippet.vm",
+      "bindings": [
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$rootclass"
+        },
+        {
+          "variable": "props",
+          "expression": "$perc.widget.item.properties"
+        },
+        {
+          "variable": "iframeurl",
+          "expression": "$props.get(\"iframeurl\")"
+        },
+        {
+          "variable": "referalPolicy",
+          "expression": "$props.get(\"referalPolicy\")"
+        },
+        {
+          "variable": "iframeurl",
+          "expression": "\"http://\" + $iframeurl"
+        },
+        {
+          "variable": "height",
+          "expression": "$props.get(\"height\")"
+        },
+        {
+          "variable": "defaultHeight",
+          "expression": "$props.get(\"height\")"
+        },
+        {
+          "variable": "width",
+          "expression": "$props.get(\"width\")"
+        },
+        {
+          "variable": "defaultWidth",
+          "expression": "$props.get(\"width\")"
+        },
+        {
+          "variable": "frameborder",
+          "expression": "$props.get(\"frameborder\")"
+        },
+        {
+          "variable": "scrollbar",
+          "expression": "$props.get(\"scrollbar\")"
+        },
+        {
+          "variable": "iframeid",
+          "expression": "\"perc-iframe-\" + $perc.widget.item.id"
+        },
+        {
+          "variable": "title",
+          "expression": "$props.get(\"title\")"
+        },
+        {
+          "variable": "marginheight",
+          "expression": "$props.get(\"marginheight\")"
+        },
+        {
+          "variable": "marginwidth",
+          "expression": "$props.get(\"marginwidth\")"
+        },
+        {
+          "variable": "ariaLabel",
+          "expression": "$props.get(\"ariaLabel\")"
+        },
+        {
+          "variable": "alternateContent",
+          "expression": "$props.get(\"alternateContent\")"
+        },
+        {
+          "variable": "frameborder",
+          "expression": "\"0\""
+        },
+        {
+          "variable": "frameborder",
+          "expression": "\"1\""
+        },
+        {
+          "variable": "overflow",
+          "expression": "\"auto\""
+        },
+        {
+          "variable": "overflow",
+          "expression": "'visible'"
+        },
+        {
+          "variable": "overflow",
+          "expression": "'hidden'"
+        },
+        {
+          "variable": "height",
+          "expression": "'100%'"
+        },
+        {
+          "variable": "width",
+          "expression": "'100%'"
+        },
+        {
+          "variable": "marginheight",
+          "expression": "'0px'"
+        },
+        {
+          "variable": "marginwidth",
+          "expression": "'0px'"
+        },
+        {
+          "variable": "width",
+          "expression": "$width + 'px'"
+        },
+        {
+          "variable": "height",
+          "expression": "$height + 'px'"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "\"\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\")"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$rootclass = $perc.widget.item.cssProperties.get('rootclass');\n\t\t\tif(!empty($rootclass)) {\n\t\t\t\t$rootclass = $rootclass;\n\t\t\t}\n\t\t\t$props = $perc.widget.item.properties;\n\t\t\t$iframeurl = $props.get(\"iframeurl\");\n\t\t\t$referalPolicy = $props.get(\"referalPolicy\");\n\t\t\tif($iframeurl.startsWith(\"www\"))\n\t\t\t\t$iframeurl = \"http://\" + $iframeurl;\n\t\t\t$height = $props.get(\"height\");\n\t\t\t$defaultHeight = $props.get(\"height\");\n\t\t\t$width = $props.get(\"width\");\n\t\t\t$defaultWidth = $props.get(\"width\");\n\t\t\t$frameborder = $props.get(\"frameborder\");\n\t\t\t$scrollbar = $props.get(\"scrollbar\");\n\t\t\t$iframeid=\"perc-iframe-\" + $perc.widget.item.id;\n\t\t\t$title = $props.get(\"title\");\n\t\t\t$marginheight = $props.get(\"marginheight\");\n\t\t\t$marginwidth = $props.get(\"marginwidth\");\n\t\t\t$ariaLabel = $props.get(\"ariaLabel\");\n\t\t\t$alternateContent = $props.get(\"alternateContent\");\n\n\t\t\tif($frameborder == \"disable\"){\n\t\t\t\t$frameborder = \"0\";\n\t\t\t}\n\t\t\telse{\n\t\t\t\t$frameborder = \"1\";\n\t\t\t}\n\t\t\t$overflow = \"auto\";\n\t\t\tif($scrollbar == \"yes\"){\n\t\t\t\t$overflow='visible';\n\t\t\t}\n\t\t\telse if($scrollbar == \"no\"){\n\t\t\t\t$overflow='hidden';\n\t\t\t}\n\n\t\t\tif(empty($height)){\n\t\t\t\t$height='100%';\n\t\t\t}\n\t\t\tif(empty($width)){\n\t\t\t\t$width='100%';\n\t\t\t}\n\n\t\t\tif(empty($marginheight)){\n\t\t\t\t$marginheight = '0px';\n\t\t\t}\n\t\t\tif(empty($marginwidth)){\n\t\t\t\t$marginwidth = '0px';\n\t\t\t}\n\n\t\t\tif($width.indexOf('p') == -1 && $width.indexOf('%') == -1){\n\t\t\t\t$width = $width + 'px';\n\t\t\t}\n\t\t\tif($height.indexOf('p') == -1 && $height.indexOf('%') == -1){\n\t\t\t\t$height = $height + 'px';\n\t\t\t}\n\n            $dsUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n        \tif ($dsUrl.indexOf(\"http://localhost\") != -1 )\n\t\t\t    $dsUrl = \"\";\n            $dynamicListData = $tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\");"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percIframeChrome",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconIframe.jpg",
+      "target": "rx_resources/widgets/iframe/images/widgetIconIframe.jpg",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "title",
+      "displayName": "Title",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "iframeurl",
+      "displayName": "URL",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "height",
+      "displayName": "Height in pixels or percent",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "width",
+      "displayName": "Width in pixels or percent",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "marginheight",
+      "displayName": "Top and Bottom margin in pixels",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "marginwidth",
+      "displayName": "Left and Right margin in pixels",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "frameborder",
+      "displayName": "Frame border",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "disable",
+      "enumValues": [
+        {
+          "value": "disable",
+          "displayValue": "Disable border"
+        },
+        {
+          "value": "enable",
+          "displayValue": "Enable border"
+        }
+      ]
+    },
+    {
+      "name": "referalPolicy",
+      "displayName": "Referrer-Policy",
+      "datatype": "enum",
+      "required": false,
+      "enumValues": [
+        {
+          "value": "no-referrer",
+          "displayValue": "no-referrer"
+        },
+        {
+          "value": "no-referrer-when-downgrade",
+          "displayValue": "no-referrer-when-downgrade"
+        },
+        {
+          "value": "origin",
+          "displayValue": "origin"
+        },
+        {
+          "value": "origin-when-cross-origin",
+          "displayValue": "origin-when-cross-origin"
+        },
+        {
+          "value": "same-origin",
+          "displayValue": "same-origin"
+        },
+        {
+          "value": "strict-origin",
+          "displayValue": "strict-origin"
+        },
+        {
+          "value": "strict-origin-when-cross-origin",
+          "displayValue": "strict-origin-when-cross-origin"
+        },
+        {
+          "value": "unsafe-url",
+          "displayValue": "unsafe-url"
+        }
+      ]
+    },
+    {
+      "name": "scrollbar",
+      "displayName": "Scrolling",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "auto",
+      "enumValues": [
+        {
+          "value": "auto",
+          "displayValue": "Auto"
+        },
+        {
+          "value": "no",
+          "displayValue": "No"
+        },
+        {
+          "value": "yes",
+          "displayValue": "Yes"
+        }
+      ]
+    },
+    {
+      "name": "ariaLabel",
+      "displayName": "Aria Label",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "alternateContent",
+      "displayName": "Alternate Content",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS Root Class",
+      "datatype": "string"
+    }
+  ]
+}
