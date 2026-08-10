@@ -357,12 +357,13 @@ This is multi-quarter work even if labeled “8.2.” Split so 8.2 can ship **fo
 
 **Goals:** **ship product out of XML definition files.**
 
-1. Define **Component Package Manifest** (reuse package system where possible) listing content types, templates, slots, catalog metadata, resources.
-2. **Compiler/upgrade tool:** Widget XML → manifest + templates + slots (incl. layout/styles).
+1. Define **Component Package Manifest** (reuse package system where possible) listing content types, templates, slots, catalog metadata, resources.  
+   **Done (slice 1 / #2750):** schema docs + Java model + parse/validate/round-trip tests — see [component-package-manifest.md](./component-package-manifest.md) and `com.percussion.packages.manifest` in `modules/perc-packages`.
+2. **Compiler/upgrade tool:** Widget XML → manifest + templates + slots (incl. layout/styles). *(#2751)*
 3. **Page meta upgrade:** region/widget instances → composition + templates; assembler source canonical.
 4. **Gadget XML** conversion path for remaining XML-defined gadgets.
 5. Convert **baseline / baseWidgets** first; then high-traffic packages (nav, blog, lists, rich text).
-6. Runtime **compatibility shim:** if old XML still present and no modern package, load as today; product **source tree** no longer maintains those XML files as the authoring format.
+6. Runtime **compatibility shim:** if old XML still present and no modern package, load as today; product **source tree** no longer maintains those XML files as the authoring format. *(#2752)*
 7. Widget Builder / Design tools write modern package format only.
 
 **Exit criterion for “ship”:** product packages in repo/install are **not** defined by Page/Widget/Gadget XML files; upgrade converts customer XML; shim optional and time-boxed.

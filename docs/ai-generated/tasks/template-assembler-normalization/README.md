@@ -49,6 +49,7 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | Doc | Purpose |
 |-----|---------|
 | [plan.md](./plan.md) | Full strategic plan (canonical) |
+| [component-package-manifest.md](./component-package-manifest.md) | Phase 3 ship-format manifest schema v1.0 + Java model |
 | [widget-xml-inventory.md](./widget-xml-inventory.md) | Product widget matrix (48 defs) |
 | [widget-xml-inventory.csv](./widget-xml-inventory.csv) | Machine-readable inventory |
 | [gadget-definition-inventory.md](./gadget-definition-inventory.md) | Gadget XML / SPA survey |
@@ -71,6 +72,7 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | CM1 page assembler | `projects/sitemanage/.../assembler/PSPageAssembler.java` |
 | Widget model | `projects/sitemanage/.../data/PSWidgetDefinition.java` |
 | Widget packages | `modules/perc-packages/.../rxconfig/Widgets/` |
+| Component package manifest | `modules/perc-packages/.../manifest/PSComponentPackageManifest*.java` |
 | Gadget registry | `WebUI/src/main/resources/com/percussion/webui/gadget/servlets/GadgetRegistry.xml` |
 
 ## Immediate next work

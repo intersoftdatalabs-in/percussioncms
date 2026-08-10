@@ -7,8 +7,11 @@
 | [003](./003-slot-layout-styles.md) | Slot layout and slot styles | Accepted (direction) |
 | [004](./004-no-definition-xml-packaging.md) | No Page/Widget/Gadget XML for product packaging | Accepted |
 
-Open follow-ups before Phase 1 coding freezes:
+Related schema (not a separate ADR):
 
-- HTML-first placeholder syntax choice (ADR-002)
+- [Component Package Manifest v1.0](../component-package-manifest.md) — ship format + Java model (Phase 3 / #2750); grounded in ADR-004
+
+Open follow-ups:
+
 - Exact assembly context keys for slot layout/styles (ADR-003)
-- Component package manifest format (new ADR when drafted)
+- Compiler (#2751) and runtime shim (#2752) consumption of the manifest
