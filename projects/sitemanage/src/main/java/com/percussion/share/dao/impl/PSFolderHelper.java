@@ -322,7 +322,11 @@ public class PSFolderHelper implements IPSFolderHelper {
 
     PSFolder folder = contentWs.loadFolder(idMapper.getGuid(folderProps.getId()), false);
     folder.setName(folderProps.getName());
-    setFolderPermission(folder, folderProps.getPermission());
+    // Permission may be omitted by partial clients; only apply ACL when present
+    // so setFolderPermission does not Validate.notNull(null) (#2749).
+    if (folderProps.getPermission() != null) {
+      setFolderPermission(folder, folderProps.getPermission());
+    }
 
     // Store the workflow ID only if it's greater than zero.
     if (folderProps.getWorkflowId() > 0) {
@@ -364,6 +368,9 @@ public class PSFolderHelper implements IPSFolderHelper {
         validateParameters("saveFolderProperties")
             .rejectIfNull("folderProps", folderProps)
             .throwIfInvalid();
+    // Reject blank id before idMapper.getGuid — avoids Apache Validate.notNull
+    // "The validated object is null" from a missing wire field (#2749).
+    builder.rejectIfBlank("id", folderProps.getId()).throwIfInvalid();
 
     IPSGuid id = idMapper.getGuid(folderProps.getId());
     int folderId = ((PSLegacyGuid) id).getContentId();
@@ -471,7 +478,23 @@ public class PSFolderHelper implements IPSFolderHelper {
     props.setId(id);
     props.setName(folder.getName());
     PSFolderPermission permission = getFolderPermission(folder);
+    // Never return a null permission DTO — clients and save re-hydrate need it (#2749).
+    if (permission == null) {
+      permission = new PSFolderPermission();
+    }
     props.setPermission(permission);
+
+    // Community / locale / display-format parity for Folder Security panel (#2410 / #2749).
+    props.setCommunityId(folder.getCommunityId());
+    if (folder.getCommunityName() != null) {
+      props.setCommunityName(folder.getCommunityName());
+    }
+    if (folder.getLocale() != null) {
+      props.setLocale(folder.getLocale());
+    }
+    if (folder.getDisplayFormatName() != null) {
+      props.setDisplayFormatName(folder.getDisplayFormatName());
+    }
 
     String folderPropertyValue = folder.getPropertyValue(IPSHtmlParameters.SYS_WORKFLOWID);
     props.setWorkflowId(
@@ -504,7 +527,16 @@ public class PSFolderHelper implements IPSFolderHelper {
    */
   private PSFolder loadFolder(String id) throws PSValidationException {
     try {
-      return contentWs.loadFolder(idMapper.getGuid(id), false);
+      // loadTransientData=true so community/display-format names are available
+      // on the Folder Security / properties panel (#2410 / #2749).
+      PSFolder folder = contentWs.loadFolder(idMapper.getGuid(id), true);
+      if (folder == null) {
+        PSValidationErrorsBuilder builder = validateParameters("findFolderProperties");
+        builder
+            .reject("invalid.folder.id", "Cannot find folder with id = \"" + id + "\".")
+            .throwIfInvalid();
+      }
+      return folder;
     } catch (PSErrorException e) {
       PSValidationErrorsBuilder builder = validateParameters("findFolderProperties");
       builder

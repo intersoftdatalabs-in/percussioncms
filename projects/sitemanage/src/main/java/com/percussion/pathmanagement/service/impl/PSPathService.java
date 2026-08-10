@@ -17,6 +17,8 @@
  */
 package com.percussion.pathmanagement.service.impl;
 
+import static com.percussion.share.service.exception.PSParameterValidationUtils.validateParameters;
+
 import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
@@ -205,6 +207,15 @@ public class PSPathService extends PSDispatchingPathService
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSNoContent saveFolderProperties(PSFolderProperties props) throws PSValidationException {
+    // Validate body/id *before* idMapper.getGuid — a missing Jackson root wrap
+    // (UNWRAP_ROOT_VALUE) or flat null id previously became
+    // Validate.notNull → "The validated object is null" (#2749).
+    if (props == null || StringUtils.isBlank(props.getId())) {
+      validateParameters("saveFolderProperties")
+          .rejectIfNull("folderProps", props)
+          .rejectIfBlank("id", props == null ? null : props.getId())
+          .throwIfInvalid();
+    }
 
     List<IPSSite> sites = publishingWs.getItemSites(idMapper.getGuid(props.getId()));
     if ((sites != null) && (!sites.isEmpty())) {

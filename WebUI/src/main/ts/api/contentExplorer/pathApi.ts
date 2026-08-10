@@ -188,18 +188,91 @@ export async function deleteItem(path: string): Promise<void> {
   await post<PSPathItemResponse>(joinPathUrl(PATHS.PATH_DELETE_ITEM, path));
 }
 
+/**
+ * Jackson {@code @JsonRootName("FolderProperties")} for sitemanage
+ * {@code PSFolderProperties}. {@code JacksonContextResolver} enables
+ * WRAP_ROOT_VALUE / UNWRAP_ROOT_VALUE, so GET responses and POST bodies use
+ * {@code { "FolderProperties": { ... } }} (same class of wire contract as
+ * {@code UserPreference} / #2708 / #2749).
+ */
+export const FOLDER_PROPERTIES_ROOT = "FolderProperties";
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (value != null && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return null;
+}
+
+/**
+ * Normalize a folderProperties GET response (or already-flat object) to a
+ * client {@link PSFolderProperties}. Prefers the Jackson root wrap; accepts a
+ * flat body for tests / legacy callers.
+ *
+ * @returns unwrapped props, or {@code null} when the payload has neither a
+ *   FolderProperties root nor a flat {@code id} field.
+ */
+export function unwrapFolderProperties(
+  data: unknown,
+): PSFolderProperties | null {
+  const root = asRecord(data);
+  if (!root) {
+    return null;
+  }
+  const nested = asRecord(root[FOLDER_PROPERTIES_ROOT]);
+  if (nested && (typeof nested.id === "string" || typeof nested.name === "string")) {
+    return nested as unknown as PSFolderProperties;
+  }
+  // Flat body (unit tests, already-unwrapped). Require an id so a bare
+  // envelope mis-shape is not treated as success.
+  if (typeof root.id === "string" || typeof root.name === "string") {
+    return root as unknown as PSFolderProperties;
+  }
+  return null;
+}
+
+/**
+ * Wrap flat folder properties for POST {@code saveFolderProperties}.
+ * Server UNWRAP_ROOT_VALUE rejects a bare object without the
+ * {@code FolderProperties} root (#2749 — null id / Validate.notNull).
+ */
+export function wrapFolderProperties(
+  props: PSFolderProperties,
+): Record<string, PSFolderProperties> {
+  return { [FOLDER_PROPERTIES_ROOT]: props };
+}
+
 export async function folderProperties(
   id: string,
 ): Promise<PSFolderProperties> {
-  return get<PSFolderProperties>(
+  if (id == null || String(id).trim().length === 0) {
+    throw new Error("folderProperties requires a non-empty folder id");
+  }
+  const raw = await get<unknown>(
     `${PATHS.PATH_FOLDER_PROPERTIES}/${encodeURIComponent(id)}`,
   );
+  const props = unwrapFolderProperties(raw);
+  if (!props) {
+    throw new Error(
+      `folderProperties: response missing ${FOLDER_PROPERTIES_ROOT} (or flat id) for id=${id}`,
+    );
+  }
+  return props;
 }
 
 export async function saveFolderProperties(
   props: PSFolderProperties,
 ): Promise<void> {
-  await post<void>(PATHS.PATH_SAVE_FOLDER_PROPERTIES, props);
+  if (props == null || props.id == null || String(props.id).trim().length === 0) {
+    throw new Error("saveFolderProperties requires props.id");
+  }
+  // Ensure permission is present so server setFolderPermission does not
+  // Validate.notNull on a null PSFolderPermission (#2749).
+  const body: PSFolderProperties = {
+    ...props,
+    permission: props.permission ?? { accessLevel: "ADMIN" },
+  };
+  await post<void>(PATHS.PATH_SAVE_FOLDER_PROPERTIES, wrapFolderProperties(body));
 }
 
 export async function validatePath(path: string): Promise<string> {
