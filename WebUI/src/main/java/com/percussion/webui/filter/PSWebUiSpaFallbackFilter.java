@@ -57,6 +57,7 @@ public class PSWebUiSpaFallbackFilter implements Filter {
           "admin",
           "widget-builder",
           "developer",
+          "design",
           "explorer",
           "profile",
           "unavailable");
@@ -217,7 +218,10 @@ public class PSWebUiSpaFallbackFilter implements Filter {
 
     if (segments.length >= 2) {
       String second = segments[1];
-      if ("home".equals(entry) || "publish".equals(entry) || "developer".equals(entry)) {
+      if ("home".equals(entry)
+          || "publish".equals(entry)
+          || "developer".equals(entry)
+          || "design".equals(entry)) {
         forward.append("&section=").append(urlEncode(second));
       } else if ("workflow".equals(entry) || "admin".equals(entry)) {
         forward.append("&tab=").append(urlEncode(second));
