@@ -220,6 +220,5 @@ export const EXPLORER_MSG = {
   WORKFLOW_MENU_LABEL: "perc.ui.explorer@Workflow",
   WORKFLOW_TRANSITION_FAILED:
     "perc.ui.explorer@Workflow transition failed",
-  WORKFLOW_TRANSITION_SUCCESS:
-    "perc.ui.explorer@Workflow transition completed",
+  // Success path refreshes the list silently (error banner is fail-only).
 } as const;

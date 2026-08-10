@@ -141,27 +141,3 @@ export function mergeWorkflowMenuActions(
   }
   return [...base, workflowMenu].sort((a, b) => a.sortRank - b.sortRank);
 }
-
-/**
- * Flatten cascading Workflow children for one-click toolbar buttons while
- * keeping non-workflow menus intact (parents without children stay as-is).
- *
- * <p>Context menus keep the cascading tree; the toolbar prefers a flat
- * strip of invokable transition buttons under the Workflow label via
- * ActionToolbar group rendering — callers may pass either shape.</p>
- */
-export function flattenMenuActionsForToolbar(
-  actions: readonly MenuAction[] | null | undefined,
-): MenuAction[] {
-  const out: MenuAction[] = [];
-  for (const a of actions ?? []) {
-    if (a == null) continue;
-    if (a.name === WORKFLOW_MENU_NAME && (a.children?.length ?? 0) > 0) {
-      // Keep the parent so ActionToolbar can render a labeled group.
-      out.push(a);
-      continue;
-    }
-    out.push(a);
-  }
-  return out;
-}

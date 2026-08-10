@@ -22,7 +22,13 @@
  * SPA route approaches Desktop Content Explorer parity.</p>
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   findActions,
   findAllowedContentTypeMenus,
@@ -297,6 +303,12 @@ export function ContentExplorerShell({
   const [selectedFormatKey, setSelectedFormatKey] = useState<string>("");
   const [menuActions, setMenuActions] = useState<MenuAction[]>([]);
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
+  /**
+   * Monotonic generation for context-menu loads. Rapid right-clicks on
+   * different rows race two async IIFEs; only the latest generation may
+   * call setContextMenu (avoids stale workflow menus at the first item's XY).
+   */
+  const contextMenuRequestIdRef = useRef(0);
   const [listEpoch, setListEpoch] = useState(0);
   const [multiSelectedIds, setMultiSelectedIds] = useState<ReadonlySet<string>>(
     () => new Set<string>(),
@@ -468,21 +480,25 @@ export function ContentExplorerShell({
   const handleItemContextMenu = useCallback(
     (item: PSPathItem, clientX: number, clientY: number) => {
       setSelection((prev) => ({ ...prev, item }));
+      const requestId = ++contextMenuRequestIdRef.current;
       void (async () => {
         try {
           const base = await loadMenuActions(item);
+          if (requestId !== contextMenuRequestIdRef.current) return;
           let workflow: MenuAction | null = null;
           try {
             workflow = await loadWorkflowMenuActions(item);
           } catch {
             workflow = null;
           }
+          if (requestId !== contextMenuRequestIdRef.current) return;
           setContextMenu({
             actions: mergeWorkflowMenuActions(base ?? [], workflow),
             x: clientX,
             y: clientY,
           });
         } catch {
+          if (requestId !== contextMenuRequestIdRef.current) return;
           setContextMenu({
             actions: [],
             x: clientX,

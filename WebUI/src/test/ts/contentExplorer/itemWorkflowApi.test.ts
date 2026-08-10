@@ -53,7 +53,7 @@ describe("itemWorkflowApi (#2732)", () => {
     expect(result.transitionTriggers).toEqual([]);
   });
 
-  it("transitionItem posts trigger via transitionWithComments path", async () => {
+  it("transitionItem fetches trigger via transitionWithComments path", async () => {
     vi.mocked(client.get).mockResolvedValue({ itemId: "55" });
     await transitionItem("55", "Submit");
     expect(client.get).toHaveBeenCalledWith(

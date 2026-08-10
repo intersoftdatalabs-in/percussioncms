@@ -31,6 +31,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
 async function listWaitReady(page) {
   await page.locator('[data-testid="detail-list"]').waitFor({ timeout: 15_000 });
@@ -66,6 +67,10 @@ test.describe("modern React Content Explorer - workflow transitions (#2732)", ()
       await expect(
         page.locator('[data-testid="explorer-server-actions"]'),
       ).toBeVisible();
+      // T082b / WebUI AGENTS.md — a11y gate on product Explorer shell surface.
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="content-explorer-shell"]',
+      });
     },
   );
 
