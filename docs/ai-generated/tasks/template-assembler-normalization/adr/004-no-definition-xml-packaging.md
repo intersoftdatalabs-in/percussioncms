@@ -71,7 +71,9 @@ Compiler for upgrade-input Page / assembly `*.templateDef` → Component Package
 | Golden parity (`perc.base.plain`) | `modules/perc-packages/src/test/resources/pagexml/golden/` |
 | Inventory + dual-run note | [../page-definition-inventory.md](../page-definition-inventory.md) |
 
-**#2786 (landed):** `perc.baseTemplates` and `perc.responsiveTemplates` **author** modern `pages/<id>/component-package.json` + sources. Package build dual-ships install `*.templateDef` via `PSPageXmlDualShip` / `PSPackageBuilder` so deployer `TemplateDef` install parity is preserved. Baseline system templates and native modern install remain residual under #2630.
+**#2786 (landed):** `perc.baseTemplates` and `perc.responsiveTemplates` **author** modern `pages/<id>/component-package.json` + sources.
+
+**#2806 (landed):** native package install — those packages set `page.installMode=native` so dual-ship root `*.templateDef` generation is off; `PSPageXmlNativeInstall` stages archive `TemplateDef-N/` from modern pages. Dual-ship remains default for packages that have not opted in. Retirement checklist: [../dual-ship-page-template-retirement.md](../dual-ship-page-template-retirement.md). Baseline system templates remain residual under #2630.
 
 ## Gadget registry compiler (slice #2771)
 

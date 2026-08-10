@@ -39,17 +39,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Dual-ship bridge for product page layout packages (ADR-004 / issue #2786).
+ * Dual-ship bridge for product page layout packages (ADR-004 / issues #2786 + #2806).
  *
  * <p><strong>Authoring truth:</strong> {@code pages/&lt;templateId&gt;/component-package.json} plus
  * template sources under the product package tree (e.g. {@code perc.baseTemplates}, {@code
  * perc.responsiveTemplates}, {@code perc.Baseline} system assembly templates).
  *
- * <p><strong>Install path:</strong> package build materializes root-level {@code *.templateDef}
- * files (legacy {@code TemplateDef} dependency) so {@code .ppkg} install parity is preserved until
- * deployer consumes modern manifests natively.
+ * <p><strong>Install path (dual-ship mode):</strong> package build materializes root-level {@code
+ * *.templateDef} files (legacy {@code TemplateDef} dependency) so reorganize + {@code .ppkg}
+ * install parity is preserved. Prefer {@link PSPageXmlNativeInstall} / {@link
+ * PSPageXmlInstallMode#NATIVE} (package-local or system property) to stage archive {@code
+ * TemplateDef-N/} folders without dual-ship root files — see {@link PSPageXmlInstallPolicy}.
  *
- * <p>GUIDs for dual-ship templateDefs are derived from {@code &lt;package&gt;.mapping.properties}
+ * <p>GUIDs for install templateDefs are derived from {@code &lt;package&gt;.mapping.properties}
  * entries ({@code TemplateDef-N} → {@code 0-4-N}).
  */
 public final class PSPageXmlDualShip {

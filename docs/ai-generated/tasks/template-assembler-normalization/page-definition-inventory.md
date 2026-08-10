@@ -27,8 +27,8 @@ CM1 **page item** region trees / widget instances live in site storage (sitemana
 
 | Package | Modern `pages/` count | Assembler (typical) | Output format | Notes |
 |---------|----------------------:|---------------------|---------------|-------|
-| `perc.baseTemplates` | 20 | `pageAssembler` | Page | **Modern authoring (#2786)**; dual-ship generates install `*.templateDef` at package build |
-| `perc.responsiveTemplates` | 3 | `pageAssembler` | Page | **Modern authoring (#2786)**; Banded / Basic / plain |
+| `perc.baseTemplates` | 20 | `pageAssembler` | Page | **Modern authoring (#2786)**; **native install** (#2806) — dual-ship roots off |
+| `perc.responsiveTemplates` | 3 | `pageAssembler` | Page | **Modern authoring (#2786)**; **native install** (#2806); Banded / Basic / plain |
 | `perc.Baseline` | (still `*.templateDef`) | mix (`pageAssembler`, `velocityAssembler`, …) | Page / Global | System templates residual — convert carefully |
 
 Snippet-style `*.templateDef` files also appear inside **widget** packages (e.g. file/image binary templates). Those are **not** page layout packages; leave them to widget conversion residuals unless inventory shows Page `output-format`.
@@ -37,6 +37,7 @@ Snippet-style `*.templateDef` files also appear inside **widget** packages (e.g.
 
 ```text
 Packages/perc.baseTemplates/
+  package-install.properties    ← page.installMode=native (#2806)
   pages/<templateId>/component-package.json
   pages/<templateId>/templates/<templateId>.vm
   *.templateDef.aclDef          ← ACL side-cars (unchanged)
@@ -45,7 +46,7 @@ Packages/perc.baseTemplates/
   sys__UserDependency--rx_resources/…
 ```
 
-Install dual-ship (package build): root `*.templateDef` regenerated into staging from `pages/` with GUIDs from mapping (`TemplateDef-N` → `0-4-N`). Product source trees **do not** author root `*.templateDef`.
+Native install (package build, #2806): archive `TemplateDef-N/<stem>.templateDef` staged from `pages/` with GUIDs from mapping (`TemplateDef-N` → `0-4-N`). Dual-ship root materialization is off for this package. Product source trees **do not** author root `*.templateDef`.
 
 | Template name | Label (sample) | Regions (`#region`) |
 |---------------|----------------|---------------------|
@@ -80,7 +81,7 @@ Install dual-ship (package build): root `*.templateDef` regenerated into staging
 | Matching `id="…" class="perc-region perc-vertical …"` | `slots[].layout.orientation`, `slots[].styles.rootclass` (+ span hints) |
 | `catalog.kind` | always `page` for this compiler |
 
-**Dual-ship (install parity, #2786):** product **authors** modern `pages/` only for `perc.baseTemplates` and `perc.responsiveTemplates`. `PSPackageBuilder` calls `PSPageXmlDualShip.materializeInstallTemplateDefs` so `.ppkg` still contains root `*.templateDef` for deployer `TemplateDef` handlers. Semantic parity (name, assembler, body, GUID, slots) is unit-tested in `PSPageXmlDualShipTest`. Native deployer install of `component-package.json` remains a follow-on.
+**Install packaging (#2786 dual-ship + #2806 native):** product **authors** modern `pages/` only for `perc.baseTemplates` and `perc.responsiveTemplates`. Package-local `package-install.properties` sets `page.installMode=native` so dual-ship root `*.templateDef` generation is **off**; `PSPageXmlNativeInstall` stages archive `TemplateDef-N/<stem>.templateDef` from modern pages (same XML/GUID semantics as dual-ship). Default for other packages remains dual-ship until they opt in. Policy: `PSPageXmlInstallPolicy`. Retirement checklist: [dual-ship-page-template-retirement.md](./dual-ship-page-template-retirement.md).
 
 ## Golden fixtures
 
@@ -91,14 +92,17 @@ Install dual-ship (package build): root `*.templateDef` regenerated into staging
 | Template golden | `…/pagexml/golden/perc.base.plain.vm` |
 | Compiler tests | `com.percussion.packages.pagexml.PSPageXmlCompilerTest` |
 | Dual-ship tests | `com.percussion.packages.pagexml.PSPageXmlDualShipTest` |
+| Native install tests | `com.percussion.packages.pagexml.PSPageXmlNativeInstallTest` |
 | Product modern sources | `…/Packages/perc.baseTemplates/pages/`, `…/Packages/perc.responsiveTemplates/pages/` |
+| Native opt-in | `…/Packages/perc.baseTemplates/package-install.properties` (and responsive) |
 
 ## Residuals (not this PR)
 
-1. **Native deployer install** of modern page `component-package.json` (then dual-ship generator can retire).
+1. **Runtime deployer** reading `component-package.json` from archive (today native path is package-build staging into TemplateDef wire format).
 2. **Thumbnails / resources** wiring for template images into `resources[]`.
-3. **Baseline system templates** conversion matrix (Global / Xml / Database / Dispatcher).
+3. **Baseline system templates** conversion matrix (Global / Xml / Database / Dispatcher) + native opt-in when ready.
 4. **Page item composition** (site storage region trees) → slot composition IR — depends on Phase 2 storage / REST (#2690 family).
+5. **Delete dual-ship code path** when all page packages use native (see retirement checklist).
 
 ## Related
 
