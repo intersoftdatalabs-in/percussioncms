@@ -16,7 +16,7 @@
 
 /**
  * ContentBrowser — embeddable navigate / search / select dialog
- * (feature 992-react-content-explorer US2).
+ * (feature 992-react-content-explorer US2 + #2793 SearchPanel host).
  *
  * <p>Hosts call {@code window.PercModernUI.mount(el, "ContentBrowser", props)}
  * to render a dialog with a folder tree on the left, a list of items
@@ -25,10 +25,15 @@
  * select mode. On confirm, the component calls
  * {@code onConfirm(selectionResult)}; on cancel, {@code onCancel()}.</p>
  *
+ * <p>When {@code enableSearch} is true, the shared {@link SearchPanel} is
+ * mounted (same catalog + free-text + saved-search execute clients as the
+ * product Explorer shell — no new REST). Open selects the hit for confirm;
+ * Reveal navigates the tree/list to the result's parent folder.</p>
+ *
  * <p>The component reuses {@code ExplorerTree} + {@code DetailList} +
- * {@code ReducedActions} from the {@code contentExplorer/} module. The
- * selection filter is applied client-side (defense in depth; the server
- * is authoritative on AuthZ).</p>
+ * {@code ReducedActions} + {@code SearchPanel} from the
+ * {@code contentExplorer/} module. The selection filter is applied
+ * client-side (defense in depth; the server is authoritative on AuthZ).</p>
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -39,35 +44,44 @@ import {
   defaultReducedActionHandlers,
   type ReducedActionHandlers,
 } from "../contentExplorer/ReducedActions";
+import { SearchPanel } from "../contentExplorer/SearchPanel";
 import { message } from "../i18n/message";
 import { canRead } from "../contentExplorer/selection";
 import type {
+  PSItemProperties,
   PSPathItem,
   SelectionItem,
   SelectionResult,
 } from "../api/contentExplorer/types";
 import type { ContentBrowserProps } from "./types";
-import { appendUniqueById } from "./selectionHelpers";
 import {
-  emptyStateStyle,
+  appendUniqueById,
+  selectionItemFromSearchResult,
+} from "./selectionHelpers";
+import {
   errorStateStyle,
-  listStyle,
   shellStyle,
-  treeStyle,
-  actionsBarStyle,
   actionButtonStyle,
 } from "../contentExplorer/styles";
 
 /** CSS-only styling for the dialog chrome (re-uses the explorer shell layout). */
-const dialogStyle: React.CSSProperties = {
+const dialogStyleBase: React.CSSProperties = {
   ...shellStyle,
-  gridTemplateAreas: '"header header" "tree list" "footer footer"',
   border: "1px solid #999",
   minWidth: 720,
   minHeight: 360,
   background: "#fff",
   position: "relative",
   padding: 0,
+};
+
+const searchPanelHostStyle: React.CSSProperties = {
+  gridArea: "search",
+  borderTop: "1px solid #ddd",
+  padding: 8,
+  background: "#fcfcfc",
+  maxHeight: "36vh",
+  overflow: "auto",
 };
 
 const headerStyle: React.CSSProperties = {
@@ -106,6 +120,7 @@ const BROWSER_MSG = {
   EMPTY: "perc.ui.contentBrowser@No items selected",
   TYPE_MISMATCH: "perc.ui.contentBrowser@Selected item type is not allowed",
   CATEGORY_MISMATCH: "perc.ui.contentBrowser@Selected item category is not allowed",
+  SEARCH_REGION: "perc.ui.contentBrowser@Search",
 };
 
 function toSelectionItem(item: PSPathItem): SelectionItem {
@@ -150,6 +165,9 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = (props) => {
     initialPath = null,
     roots: _roots = "all",
     enableSearch = false,
+    search: searchTransport,
+    listSavedSearches,
+    executeSavedSearch,
     enablePreview = true,
     previewTemplate: _previewTemplate = null,
     title = null,
@@ -165,6 +183,19 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = (props) => {
   const [busy, setBusy] = useState(false);
 
   const titleText = title ?? message(BROWSER_MSG.TITLE);
+
+  const dialogStyle = useMemo<React.CSSProperties>(
+    () => ({
+      ...dialogStyleBase,
+      gridTemplateRows: enableSearch
+        ? "auto 1fr auto auto"
+        : "auto 1fr auto",
+      gridTemplateAreas: enableSearch
+        ? '"header header" "tree list" "search search" "footer footer"'
+        : '"header header" "tree list" "footer footer"',
+    }),
+    [enableSearch],
+  );
 
   // Select mode helpers — single vs multi. Multi is a controlled list.
   const isSelected = useCallback(
@@ -301,6 +332,65 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = (props) => {
     return () => window.clearTimeout(t);
   }, [error]);
 
+  /**
+   * SearchPanel "Open": map the hit into selection (select mode) so Confirm
+   * can hand the host a SelectionResult. Filters still apply.
+   */
+  const handleSearchOpen = useCallback(
+    (result: PSItemProperties) => {
+      const sel = selectionItemFromSearchResult(result);
+      // Synthesize a minimal PSPathItem for the same client-side filters.
+      const probe: PSPathItem = {
+        id: sel.id,
+        path: sel.path,
+        name: sel.name ?? sel.path,
+        type: sel.type,
+        category: sel.category,
+      };
+      if (!passesFilters(probe, allowedTypes, allowedCategories)) {
+        setError(message(BROWSER_MSG.TYPE_MISMATCH));
+        return;
+      }
+      if (!allowFolderSelect && (sel.type === "folder" || sel.category === "folder")) {
+        return;
+      }
+      if (!allowItemSelect && sel.type !== "folder" && sel.category !== "folder") {
+        return;
+      }
+      if (mode !== "select") {
+        // Browse hosts: navigate to parent when known.
+        if (result.folderPath) {
+          setFolderPath(result.folderPath);
+        }
+        return;
+      }
+      setSelected((prev) => {
+        if (multiSelect) {
+          return appendUniqueById(prev, sel);
+        }
+        return [sel];
+      });
+      setError(null);
+    },
+    [
+      mode,
+      multiSelect,
+      allowedTypes,
+      allowedCategories,
+      allowFolderSelect,
+      allowItemSelect,
+    ],
+  );
+
+  /** SearchPanel "Reveal in folder": drive tree/list to the parent path. */
+  const handleSearchReveal = useCallback((result: PSItemProperties) => {
+    const folder = result.folderPath?.trim();
+    if (folder) {
+      setFolderPath(folder);
+      setError(null);
+    }
+  }, []);
+
   // Render the row-level checkbox column when multi-select + select mode.
   const isSelectMode = mode === "select";
 
@@ -312,6 +402,7 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = (props) => {
       data-component="ContentBrowser"
       data-feature="992-react-content-explorer"
       data-mode={mode}
+      data-enable-search={enableSearch ? "true" : "false"}
       data-testid="content-browser"
     >
       <header style={headerStyle}>
@@ -335,17 +426,6 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = (props) => {
             onError={(msg) => {
               setError(msg);
               onError?.(msg);
-            }}
-          />
-        )}
-        {enableSearch && (
-          <input
-            type="search"
-            placeholder="Search…"
-            data-testid="content-browser-search"
-            style={{ padding: "4px 8px", minWidth: 180 }}
-            onChange={() => {
-              // US5 (T067) wires this to searchmanagement. Placeholder for now.
             }}
           />
         )}
@@ -374,6 +454,25 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = (props) => {
         onSelectItem={handleListSelect}
         onActivateItem={handleListActivate}
       />
+
+      {enableSearch && (
+        <section
+          style={searchPanelHostStyle}
+          data-testid="content-browser-search-panel"
+          aria-label={message(BROWSER_MSG.SEARCH_REGION)}
+        >
+          <SearchPanel
+            search={searchTransport}
+            listSavedSearches={listSavedSearches}
+            executeSavedSearch={executeSavedSearch}
+            onOpen={handleSearchOpen}
+            onReveal={handleSearchReveal}
+            initialCriteria={
+              folderPath ? { folderPath } : undefined
+            }
+          />
+        </section>
+      )}
 
       <footer style={footerStyle} data-testid="content-browser-footer">
         {isSelectMode && (

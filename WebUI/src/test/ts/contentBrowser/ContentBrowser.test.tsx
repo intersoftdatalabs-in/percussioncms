@@ -29,7 +29,10 @@ import "@testing-library/jest-dom/vitest";
 import { ContentBrowser } from "../../../main/ts/contentBrowser/ContentBrowser";
 import * as pathApi from "../../../main/ts/api/contentExplorer/pathApi";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
-import { appendUniqueById } from "../../../main/ts/contentBrowser/selectionHelpers";
+import {
+  appendUniqueById,
+  selectionItemFromSearchResult,
+} from "../../../main/ts/contentBrowser/selectionHelpers";
 import { renderA11yGate } from "../contentExplorer/a11y";
 
 /** Children of {@code /Sites} — must not include a node whose path equals the parent. */
@@ -192,5 +195,168 @@ describe("ContentBrowser", () => {
       expect(document.querySelector('[data-testid="explorer-tree"]')).toBeInTheDocument(),
     );
     await renderA11yGate(baseElement);
+  });
+
+  it("does not mount SearchPanel when enableSearch is false (default)", () => {
+    render(<ContentBrowser mode="select" onConfirm={() => {}} />);
+    expect(
+      screen.queryByTestId("content-browser-search-panel"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("content-browser")).toHaveAttribute(
+      "data-enable-search",
+      "false",
+    );
+  });
+
+  it("mounts SearchPanel with catalog + free-text when enableSearch is true (#2793)", async () => {
+    const listSavedSearches = vi.fn().mockResolvedValue([
+      { name: "All Content", label: "All Content", standardSearch: true },
+    ]);
+    const search = vi.fn().mockResolvedValue({
+      children: [
+        {
+          id: "hit-1",
+          title: "Welcome",
+          name: "Welcome",
+          folderPath: "/Sites/Foo",
+          type: "page",
+        },
+      ],
+      totalCount: 1,
+      startIndex: 1,
+    });
+    render(
+      <ContentBrowser
+        mode="select"
+        enableSearch
+        listSavedSearches={listSavedSearches}
+        search={search}
+        allowedTypes={["page", "asset"]}
+        onConfirm={() => {}}
+      />,
+    );
+    expect(screen.getByTestId("content-browser")).toHaveAttribute(
+      "data-enable-search",
+      "true",
+    );
+    const host = screen.getByTestId("content-browser-search-panel");
+    expect(host).toBeInTheDocument();
+    expect(screen.getByTestId("search-panel-input")).toBeInTheDocument();
+    expect(screen.getByTestId("search-panel-submit")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(listSavedSearches).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-saved-picker")).toBeInTheDocument();
+    });
+  });
+
+  it("search Open selects the hit so Confirm can fire (#2793 host wiring)", async () => {
+    const onConfirm = vi.fn();
+    const listSavedSearches = vi.fn().mockResolvedValue([]);
+    const search = vi.fn().mockResolvedValue({
+      children: [
+        {
+          id: "hit-1",
+          title: "Welcome",
+          name: "Welcome",
+          folderPath: "/Sites/Foo",
+          type: "page",
+        },
+      ],
+      totalCount: 1,
+      startIndex: 1,
+    });
+    render(
+      <ContentBrowser
+        mode="select"
+        enableSearch
+        listSavedSearches={listSavedSearches}
+        search={search}
+        allowedTypes={["page"]}
+        onConfirm={onConfirm}
+      />,
+    );
+    const input = screen.getByTestId("search-panel-input");
+    fireEvent.change(input, { target: { value: "Welcome" } });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("search-panel-open-hit-1"));
+    const confirm = screen.getByTestId("content-browser-confirm");
+    await waitFor(() => {
+      expect(confirm).not.toBeDisabled();
+    });
+    fireEvent.click(confirm);
+    await waitFor(() => {
+      expect(onConfirm).toHaveBeenCalledTimes(1);
+    });
+    const payload = onConfirm.mock.calls[0]?.[0];
+    expect(payload?.items?.[0]?.id).toBe("hit-1");
+    expect(payload?.items?.[0]?.type).toBe("page");
+  });
+
+  it("search Reveal navigates the browser folderPath (#2793)", async () => {
+    const listSavedSearches = vi.fn().mockResolvedValue([]);
+    const search = vi.fn().mockResolvedValue({
+      children: [
+        {
+          id: "hit-2",
+          title: "Asset",
+          name: "Asset",
+          folderPath: "/Sites/Bar",
+          type: "asset",
+        },
+      ],
+      totalCount: 1,
+      startIndex: 1,
+    });
+    const paginated = vi.spyOn(pathApi, "paginatedFolder").mockResolvedValue({
+      children: [],
+      totalCount: 0,
+      startIndex: 0,
+    });
+    render(
+      <ContentBrowser
+        mode="select"
+        enableSearch
+        initialPath="/Sites"
+        listSavedSearches={listSavedSearches}
+        search={search}
+        onConfirm={() => {}}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "Asset" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("search-panel-reveal-hit-2"));
+    // DetailList loads via paginatedFolder when folderPath changes.
+    await waitFor(() => {
+      expect(paginated).toHaveBeenCalledWith(
+        "/Sites/Bar",
+        expect.anything(),
+      );
+    });
+  });
+});
+
+describe("selectionItemFromSearchResult", () => {
+  it("maps search row id/path/name for ContentBrowser selection", () => {
+    const sel = selectionItemFromSearchResult({
+      id: "42",
+      title: "Home",
+      name: "Home",
+      folderPath: "/Sites/Demo",
+      type: "page",
+    });
+    expect(sel.id).toBe("42");
+    expect(sel.path).toBe("/Sites/Demo/Home");
+    expect(sel.name).toBe("Home");
+    expect(sel.type).toBe("page");
   });
 });

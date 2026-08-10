@@ -28,7 +28,7 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Simple / extended search | `PSSearchDialog` | `SearchPanel` toggle in product shell | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) |
 | Open / reveal from results | Search results | Callbacks on panel | Present | #2407 |
 | Saved searches catalog + run | CE saved search | Catalog `GET /rest/searches` Present; **execute UX Missing**. Disposition **façade** complete (#2504 / [PR #2579](https://github.com/intersoftdatalabs-in/percussioncms/pull/2579)) — see [saved-search-execute-disposition.md](../research/saved-search-execute-disposition.md). Implement #2505–#2507 | **Partial** | #2409 · A done #2504 · B–D open #2505–#2507 |
-| Search in ContentBrowser hosts | Dialogs | Host integration pending | **Partial** | host follow-up (outside primary Explorer route) |
+| Search in ContentBrowser hosts | Dialogs | `ContentBrowser` mounts shared `SearchPanel` when `enableSearch` (asset picker host on); catalog + free-text + saved execute reuse Explorer APIs | **Present** | #2793 |
 
 ## Security & properties
 
@@ -59,6 +59,10 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | DCE-only packaging residual | Decommission program after parity |
 
 ## Implementation notes
+
+### 2026-08-10 refresh (ContentBrowser search host #2793)
+
+- **#2793 Search in ContentBrowser hosts:** `enableSearch` mounts shared `SearchPanel` (not a stub input). Open → selection for confirm; Reveal → folderPath navigation. Transport seams optional for Vitest. Primary residual host `assetPickerModern.jsp` sets `enableSearch: true`. Playwright `host-asset-picker` soft-skips when host fixture lacks the flag. Matrix row **Present**.
 
 ### 2026-08-10 refresh (site copy shell #2767)
 

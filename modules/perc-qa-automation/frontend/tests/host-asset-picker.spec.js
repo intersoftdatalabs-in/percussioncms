@@ -110,4 +110,41 @@ test.describe("US2 host-asset-picker migration (SC-002)", () => {
       scope: '[data-testid="perc-content-browser-root"]',
     });
   });
+
+  /**
+   * #2793 ContentBrowser host search: asset picker mounts shared SearchPanel
+   * (catalog chrome + free-text). Soft-skip when modern bundle/host fixture
+   * has not yet shipped enableSearch (stale WAR / pre-merge deploy).
+   */
+  test("asset-picker SearchPanel mounts when enableSearch is on @content-browser-search @host-asset-picker", async ({
+    page,
+  }) => {
+    await page.goto(DIALOG_URL, { waitUntil: "networkidle" });
+    const dialog = page.locator('[data-testid="content-browser"]');
+    await expect(dialog).toBeVisible({ timeout: 15_000 });
+
+    const enableSearch = await dialog.getAttribute("data-enable-search");
+    if (enableSearch !== "true") {
+      test.skip(
+        true,
+        "Host fixture does not enable SearchPanel (data-enable-search!=true); soft-skip until #2793 WAR is deployed",
+      );
+      return;
+    }
+
+    const searchHost = page.locator(
+      '[data-testid="content-browser-search-panel"]',
+    );
+    await expect(searchHost).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('[data-testid="search-panel-input"]')).toBeVisible();
+    await expect(page.locator('[data-testid="search-panel-submit"]')).toBeVisible();
+    // Catalog settles to empty, error, or picker (same pattern as explorer-saved-search).
+    await expect(
+      page
+        .locator(
+          '[data-testid="search-panel-saved-picker"], [data-testid="search-panel-saved-empty"], [data-testid="search-panel-saved-error"]',
+        )
+        .first(),
+    ).toBeVisible({ timeout: 20_000 });
+  });
 });
