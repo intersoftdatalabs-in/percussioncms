@@ -78,6 +78,7 @@ import {
 } from "./ReducedActions";
 import { SearchPanel } from "./SearchPanel";
 import { EMPTY_SELECTION, type Selection } from "./selection";
+import { resolveSiteNameFromSelection } from "./sitePath";
 import {
   errorStateStyle,
   headerStyle,
@@ -85,6 +86,7 @@ import {
   shellStyle,
 } from "./styles";
 import { TranslationsPanel } from "./TranslationsPanel";
+import { SiteCopyWizard } from "./wizards/SiteCopyWizard";
 import {
   buildWorkflowTransitionMenu,
   mergeWorkflowMenuActions,
@@ -303,6 +305,8 @@ export function ContentExplorerShell({
   const [showSecurity, setShowSecurity] = useState(false);
   const [showClipboard, setShowClipboard] = useState(false);
   const [showTranslations, setShowTranslations] = useState(false);
+  /** Content → Site Copy wizard panel (#2767 / parent #2400). */
+  const [showSiteCopy, setShowSiteCopy] = useState(false);
   const [displayFormats, setDisplayFormats] = useState<DisplayFormat[]>([]);
   const [selectedFormatKey, setSelectedFormatKey] = useState<string>("");
   const [menuActions, setMenuActions] = useState<MenuAction[]>([]);
@@ -582,6 +586,16 @@ export function ContentExplorerShell({
     }
   }, []);
 
+  const siteNameForCopy = useMemo(
+    () =>
+      resolveSiteNameFromSelection(
+        selection.folderPath,
+        selection.item?.path,
+      ),
+    [selection.folderPath, selection.item?.path],
+  );
+  const hasSiteContext = siteNameForCopy != null;
+
   const handleMenuBarCommand = useCallback(
     (id: ExplorerMenuCommandId) => {
       switch (id) {
@@ -591,6 +605,12 @@ export function ContentExplorerShell({
           break;
         case "content-clipboard-add":
           handleAddToClipboard();
+          break;
+        case "content-site-copy":
+          // Only open when a site is in context; menu item is disabled otherwise.
+          if (siteNameForCopy) {
+            setShowSiteCopy((v) => !v);
+          }
           break;
         case "view-refresh":
           handleRefreshList();
@@ -623,7 +643,7 @@ export function ContentExplorerShell({
           break;
       }
     },
-    [handleAddToClipboard, handleRefreshList],
+    [handleAddToClipboard, handleRefreshList, siteNameForCopy],
   );
 
   const folderForActions: PSPathItem | null =
@@ -685,8 +705,10 @@ export function ContentExplorerShell({
             showSecurity={showSecurity}
             showTranslations={showTranslations}
             showClipboard={showClipboard}
+            showSiteCopy={showSiteCopy}
             multiSelectedCount={multiSelectedIds.size}
             clipboardItemCount={clipboard.items.length}
+            hasSiteContext={hasSiteContext}
             displayFormats={displayFormats}
             selectedFormatKey={selectedFormatKey}
             onSelectFormat={setSelectedFormatKey}
@@ -874,6 +896,39 @@ export function ContentExplorerShell({
             {message(EXPLORER_MSG.TRANSLATIONS_SELECT_ITEM)}
           </div>
         )}
+      {showSiteCopy && siteNameForCopy && (
+        <section
+          id="explorer-site-copy-panel"
+          style={sidePanelStyle}
+          data-testid="explorer-site-copy-panel"
+          aria-label={message(EXPLORER_MSG.SITE_COPY_PANEL_REGION)}
+        >
+          {/*
+            key remounts wizard when source site changes so initialSource
+            seeds the first step (useState does not re-apply props).
+          */}
+          <SiteCopyWizard
+            key={`site-copy-${siteNameForCopy}`}
+            initialSource={siteNameForCopy}
+            onSettled={(ok) => {
+              if (ok) {
+                setListEpoch((n) => n + 1);
+              }
+            }}
+          />
+        </section>
+      )}
+      {showSiteCopy && !siteNameForCopy && (
+        <div
+          id="explorer-site-copy-hint"
+          style={sidePanelStyle}
+          data-testid="explorer-site-copy-hint"
+          role="status"
+          aria-live="polite"
+        >
+          {message(EXPLORER_MSG.SITE_COPY_SELECT_SITE)}
+        </div>
+      )}
       {contextMenu && (
         <div
           style={{

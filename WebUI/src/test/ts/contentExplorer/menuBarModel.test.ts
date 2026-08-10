@@ -56,4 +56,13 @@ describe("buildExplorerMenuBarGroups (#2731 DCE ContentExplorerMenu.xml)", () =>
     const add = content?.items.find((i) => i.id === "content-clipboard-add");
     expect(add?.testId).toBe("explorer-clipboard-add");
   });
+
+  it("puts Site Copy under Content with site-context disable (#2767)", () => {
+    const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
+    const siteCopy = content?.items.find((i) => i.id === "content-site-copy");
+    expect(siteCopy?.testId).toBe("explorer-content-site-copy");
+    expect(siteCopy?.disabledWhen).toBe("noSiteContext");
+    expect(siteCopy?.toggle).toBe(true);
+    expect(siteCopy?.labelKey).toBe(EXPLORER_MSG.SITE_COPY_TITLE);
+  });
 });

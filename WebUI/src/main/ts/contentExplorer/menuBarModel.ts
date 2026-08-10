@@ -29,6 +29,7 @@ import { EXPLORER_MSG } from "./messages";
 export type ExplorerMenuCommandId =
   | "content-search"
   | "content-clipboard-add"
+  | "content-site-copy"
   | "view-refresh"
   | "view-search"
   | "view-security"
@@ -51,7 +52,7 @@ export interface ExplorerMenuBarItem {
   /** When true, item is rendered as a checked toggle (aria-checked). */
   toggle?: boolean;
   /** Optional disabled predicate flag name resolved by the host. */
-  disabledWhen?: "noSelection" | "noClipboardContext";
+  disabledWhen?: "noSelection" | "noClipboardContext" | "noSiteContext";
 }
 
 export interface ExplorerMenuBarGroup {
@@ -87,6 +88,14 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           ariaLabelKey: EXPLORER_MSG.CLIPBOARD_ADD,
           testId: "explorer-clipboard-add",
           disabledWhen: "noSelection",
+        },
+        {
+          id: "content-site-copy",
+          labelKey: EXPLORER_MSG.SITE_COPY_TITLE,
+          ariaLabelKey: EXPLORER_MSG.TOGGLE_SITE_COPY_ARIA,
+          testId: "explorer-content-site-copy",
+          toggle: true,
+          disabledWhen: "noSiteContext",
         },
       ],
     },

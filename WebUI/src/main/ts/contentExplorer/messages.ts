@@ -92,6 +92,11 @@ export const EXPLORER_MSG = {
   SITE_COPY_STEP_OPTIONS: "perc.ui.explorer@Options",
   SITE_COPY_STEP_CONFIRM: "perc.ui.explorer@Confirm",
   SITE_COPY_STEP_PROGRESS: "perc.ui.explorer@Progress",
+  /** Product shell: Content → Site Copy panel region (#2767). */
+  SITE_COPY_PANEL_REGION: "perc.ui.explorer@Site copy panel",
+  TOGGLE_SITE_COPY_ARIA: "perc.ui.explorer@Show or hide site copy wizard",
+  SITE_COPY_SELECT_SITE:
+    "perc.ui.explorer@Open a site under Sites to copy it.",
 
   SUBFOLDER_COPY_TITLE: "perc.ui.explorer@Subfolder Copy",
   SUBFOLDER_COPY_STEP_SOURCE: "perc.ui.explorer@Source folder",

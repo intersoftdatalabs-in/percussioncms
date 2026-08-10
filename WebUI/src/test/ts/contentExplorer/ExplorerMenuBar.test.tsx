@@ -83,6 +83,25 @@ describe("ExplorerMenuBar (#2731)", () => {
     expect(onCommand).toHaveBeenCalledWith("content-clipboard-add");
   });
 
+  it("Content → Site Copy is disabled without site context (#2767)", () => {
+    renderBar({ hasSiteContext: false });
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    const item = screen.getByTestId(
+      "explorer-content-site-copy",
+    ) as HTMLButtonElement;
+    expect(item.disabled).toBe(true);
+  });
+
+  it("Content → Site Copy invokes when site context present (#2767)", () => {
+    const { onCommand } = renderBar({
+      hasSiteContext: true,
+      showSiteCopy: false,
+    });
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-content-site-copy"));
+    expect(onCommand).toHaveBeenCalledWith("content-site-copy");
+  });
+
   it("shows multi-select status badge outside dropdowns", () => {
     renderBar({ multiSelectedCount: 2 });
     expect(screen.getByTestId("explorer-multi-select-count")).toBeTruthy();
