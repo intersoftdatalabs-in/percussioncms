@@ -27,7 +27,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  *
  * @author vamsinukala
  */
-public class PSJexlBinding {
+public final class PSJexlBinding {
   /**
    * The name of this binding, some bindings may not have a name i.e may be <code>null</code> or
    * empty

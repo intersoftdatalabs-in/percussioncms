@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** ID Context to represent an extension call */
-public class PSAppExtensionCallIdContext extends PSApplicationIdContext {
+public final class PSAppExtensionCallIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from an extension call. This version does not set an index, assuming the
    * call's parent context is not a list of extension calls.

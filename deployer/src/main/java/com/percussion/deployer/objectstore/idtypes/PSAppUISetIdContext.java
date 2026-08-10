@@ -28,7 +28,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** ID Context to represent a ui set */
-public class PSAppUISetIdContext extends PSApplicationIdContext {
+public final class PSAppUISetIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from a ui set.
    *

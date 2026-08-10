@@ -51,6 +51,7 @@ import com.percussion.design.objectstore.PSChoices;
 import com.percussion.design.objectstore.PSCloneOverrideField;
 import com.percussion.design.objectstore.PSCloneOverrideFieldList;
 import com.percussion.design.objectstore.PSCommandHandlerStylesheets;
+import com.percussion.design.objectstore.PSComponent;
 import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSConditionalEffect;
 import com.percussion.design.objectstore.PSConditionalExit;
@@ -237,13 +238,9 @@ public class PSAppTransformer {
                   mappings.add(mapping);
                 }
               } else {
-
-                var paramMap =
-                    (java.util.Map<String, String>) PSDeployComponentUtils.parseParams(val, null);
-                for (var entry : paramMap.entrySet()) {
-
-                  List<PSParam> params =
-                      (List<PSParam>) PSDeployComponentUtils.convertToParams(entry);
+                Map<String, Object> paramMap = PSDeployComponentUtils.parseParams(val, null);
+                for (Map.Entry<String, Object> entry : paramMap.entrySet()) {
+                  List<PSParam> params = PSDeployComponentUtils.convertToParams(entry);
                   // curCtx is modified above, so create an effectively final copy
                   PSApplicationIdContext lambdaCtx = curCtx;
                   params.forEach(param -> checkParam(mappings, param, lambdaCtx));
@@ -337,27 +334,25 @@ public class PSAppTransformer {
     ctx.resetCurrentRootCtx();
 
     // walk the fieldset looking for match on field name
-    Iterator fields = fieldSet.getAll(false);
+    Iterator<PSComponent> fields = fieldSet.getAll(false);
     while (fields.hasNext()) {
-      Object o = fields.next();
-      if (o instanceof PSField) {
-        PSField field = (PSField) o;
+      PSComponent component = fields.next();
+      if (component instanceof PSField field) {
         if (field.getSubmitName().equals(fieldName)) {
           transformFieldData(field, itemData, mapping, idMap);
         }
-      } else {
-        PSFieldSet fs = (PSFieldSet) o;
-
+      } else if (component instanceof PSFieldSet fs) {
         // see if we are expecting a complex child field
         ctx.getCurrentRootCtx(); // pop the previously checked ctx
         PSAppNamedItemIdContext nextCtx = (PSAppNamedItemIdContext) ctx.getNextRootCtx();
-        if (nextCtx.getType() == fieldCtx.TYPE_CHILD_ITEM && fs.getName().equals(fieldName)) {
+        if (nextCtx.getType() == PSAppNamedItemIdContext.TYPE_CHILD_ITEM
+            && fs.getName().equals(fieldName)) {
           // leave the child item ctx as next root and recurse
           transformFieldSetData(fs, itemData, mapping, idMap);
           // push the item field context back as root now that we're done
           ctx.resetCurrentRootCtx();
-        } else if (fs.getType() != fs.TYPE_COMPLEX_CHILD
-            && nextCtx.getType() != fieldCtx.TYPE_CHILD_ITEM) {
+        } else if (fs.getType() != PSFieldSet.TYPE_COMPLEX_CHILD
+            && nextCtx.getType() != PSAppNamedItemIdContext.TYPE_CHILD_ITEM) {
           // its a simple or shared field, so push the field ctx back as
           // root as we'll need it to find the field in the child fieldset
           ctx.resetCurrentRootCtx();
@@ -395,7 +390,7 @@ public class PSAppTransformer {
     try {
       boolean isChild = false;
       PSApplicationIdContext nextCtx;
-      if (fieldCtx.getType() == fieldCtx.TYPE_CHILD_ITEM) {
+      if (fieldCtx.getType() == PSAppNamedItemIdContext.TYPE_CHILD_ITEM) {
         isChild = true;
         childItemCtx = fieldCtx;
         nextCtx = ctx.getNextRootCtx();
@@ -404,51 +399,48 @@ public class PSAppTransformer {
         fieldCtx = (PSAppNamedItemIdContext) ctx.getCurrentRootCtx();
       }
 
-      if (fieldCtx.getType() != fieldCtx.TYPE_ITEM_FIELD)
+      if (fieldCtx.getType() != PSAppNamedItemIdContext.TYPE_ITEM_FIELD)
         throw new IllegalArgumentException("invalid field data ctx");
 
       // make sure it's our table
       IPSBackEndMapping locator = field.getLocator();
-      if (!(locator instanceof PSBackEndColumn)) {
+      if (!(locator instanceof PSBackEndColumn beCol)) {
         return;
       }
 
-      PSBackEndColumn beCol = (PSBackEndColumn) locator;
       if (!beCol.getTable().getAlias().equalsIgnoreCase(itemData.getTableAlias())) {
         return;
       }
 
       // check for simple child values
       nextCtx = ctx.getNextRootCtx();
-      if (nextCtx instanceof PSAppNamedItemIdContext) {
-        PSAppNamedItemIdContext test = (PSAppNamedItemIdContext) nextCtx;
-        if (test.getType() == test.TYPE_SIMPLE_CHILD_VALUE) {
-          simpleCtx = (PSAppNamedItemIdContext) ctx.getCurrentRootCtx();
-          fieldCtx = simpleCtx;
-        }
+      if (nextCtx instanceof PSAppNamedItemIdContext test
+          && test.getType() == PSAppNamedItemIdContext.TYPE_SIMPLE_CHILD_VALUE) {
+        simpleCtx = (PSAppNamedItemIdContext) ctx.getCurrentRootCtx();
+        fieldCtx = simpleCtx;
       }
 
       // see if we have a literal, or a url pattern
       boolean isUrl = false;
       nextCtx = ctx.getNextRootCtx();
-      if (nextCtx instanceof PSAppNamedItemIdContext) {
-        PSAppNamedItemIdContext paramCtx = (PSAppNamedItemIdContext) nextCtx;
-        if (paramCtx.getType() == PSAppNamedItemIdContext.TYPE_PARAM) isUrl = true;
+      if (nextCtx instanceof PSAppNamedItemIdContext paramCtx
+          && paramCtx.getType() == PSAppNamedItemIdContext.TYPE_PARAM) {
+        isUrl = true;
       }
 
       // transform the field, checking source values and updating target values
       // as some target values may have already changed, so we can't use them
       // to identify field values to transform.  Walk target in tandem.
       String mappedSrcVal = mapping.getValue();
-      Iterator srcRows = itemData.getSrcTableData().getRows();
-      Iterator tgtRows = itemData.getTgtTableData().getRows();
+      Iterator<PSJdbcRowData> srcRows = itemData.getSrcTableData().getRows();
+      Iterator<PSJdbcRowData> tgtRows = itemData.getTgtTableData().getRows();
       while (srcRows.hasNext()) {
         if (!tgtRows.hasNext()) {
           throw new IllegalArgumentException("target data has fewer rows than source");
         }
 
-        PSJdbcRowData srcRow = (PSJdbcRowData) srcRows.next();
-        PSJdbcRowData tgtRow = (PSJdbcRowData) tgtRows.next();
+        PSJdbcRowData srcRow = srcRows.next();
+        PSJdbcRowData tgtRow = tgtRows.next();
 
         // find our column value
         PSJdbcColumnData srcCol = srcRow.getColumn(beCol.getColumn(), true);
@@ -479,17 +471,13 @@ public class PSAppTransformer {
           // in it may have been modified aleady, and these can be
           // identified by their name.
           StringBuilder base = new StringBuilder();
-          Map paramMap = PSDeployComponentUtils.parseParams(tgtCol.getValue(), base);
+          Map<String, Object> paramMap =
+              PSDeployComponentUtils.parseParams(tgtCol.getValue(), base);
 
-          Iterator entries = paramMap.entrySet().iterator();
-          while (entries.hasNext()) {
-            Map.Entry entry = (Map.Entry) entries.next();
-
+          for (Map.Entry<String, Object> entry : paramMap.entrySet()) {
             // convert to PSParam to leverage existing transformer code
-            List valList = new ArrayList();
-            Iterator params = PSDeployComponentUtils.convertToParams(entry).iterator();
-            while (params.hasNext()) {
-              PSParam param = (PSParam) params.next();
+            List<String> valList = new ArrayList<>();
+            for (PSParam param : PSDeployComponentUtils.convertToParams(entry)) {
               transformParam(param, mapping, idMap);
               valList.add(param.getValue().getValueText());
             }
@@ -542,7 +530,7 @@ public class PSAppTransformer {
     PSAppNamedItemIdContext fsCtx =
         new PSAppNamedItemIdContext(PSAppNamedItemIdContext.TYPE_FIELD_SET, fs.getName());
     fsCtx.setParentCtx(ctx);
-    Iterator fields = fs.getEveryField();
+    Iterator<?> fields = fs.getEveryField();
     while (fields.hasNext()) {
       Object o = fields.next();
       if (o instanceof PSField) {
@@ -731,7 +719,7 @@ public class PSAppTransformer {
     if (uiDef == null) throw new IllegalArgumentException("uiDef may not be null");
 
     // check default ui
-    Iterator uiSets = uiDef.getDefaultUI();
+    Iterator<?> uiSets = uiDef.getDefaultUI();
     if (uiSets != null) {
       PSAppCEItemIdContext uiDefCtx =
           new PSAppCEItemIdContext(PSAppCEItemIdContext.TYPE_DEFAULT_UI);
@@ -772,7 +760,7 @@ public class PSAppTransformer {
       if (defUICtx.getType() != PSAppCEItemIdContext.TYPE_DEFAULT_UI)
         throw new IllegalArgumentException("invalid default ui ctx");
 
-      Iterator uiSets = uiDef.getDefaultUI();
+      Iterator<?> uiSets = uiDef.getDefaultUI();
       if (ctx.getNextRootCtx() instanceof PSAppUISetIdContext && uiSets.hasNext()) {
         PSAppUISetIdContext setCtx = (PSAppUISetIdContext) ctx.getNextRootCtx();
         String setName = setCtx.getName();
@@ -813,7 +801,7 @@ public class PSAppTransformer {
 
     PSAppDisplayMapperIdContext mapperCtx = new PSAppDisplayMapperIdContext(mapper);
     mapperCtx.setParentCtx(ctx);
-    Iterator dispMappings = mapper.iterator();
+    Iterator<?> dispMappings = mapper.iterator();
     while (dispMappings.hasNext()) {
       PSDisplayMapping mapping = (PSDisplayMapping) dispMappings.next();
 
@@ -859,7 +847,7 @@ public class PSAppTransformer {
     if (mappingCtx.getType() != PSAppNamedItemIdContext.TYPE_DISPLAY_MAPPING)
       throw new IllegalArgumentException("invalid display mapping ctx");
 
-    Iterator dispMappings = mapper.iterator();
+    Iterator<?> dispMappings = mapper.iterator();
     while (dispMappings.hasNext()) {
       PSDisplayMapping dispMapping = (PSDisplayMapping) dispMappings.next();
       if (!mappingCtx.getName().equals(dispMapping.getFieldRef())) continue;
@@ -893,7 +881,7 @@ public class PSAppTransformer {
 
     if (appFlow == null) throw new IllegalArgumentException("appFlow may not be null");
 
-    Iterator names = appFlow.getCommandHandlerNames();
+    Iterator<?> names = appFlow.getCommandHandlerNames();
     while (names.hasNext()) {
       String name = (String) names.next();
       PSAppNamedItemIdContext flowCtx =
@@ -901,7 +889,7 @@ public class PSAppTransformer {
       flowCtx.setParentCtx(ctx);
 
       int index = 0;
-      Iterator redirects = appFlow.getRedirects(name);
+      Iterator<?> redirects = appFlow.getRedirects(name);
       while (redirects.hasNext()) {
         PSConditionalRequest req = (PSConditionalRequest) redirects.next();
         PSAppIndexedItemIdContext reqCtx =
@@ -941,7 +929,7 @@ public class PSAppTransformer {
     PSAppNamedItemIdContext flowCtx = (PSAppNamedItemIdContext) root;
     if (flowCtx.getType() != PSAppNamedItemIdContext.TYPE_APP_FLOW)
       throw new IllegalArgumentException("invalid appflow ctx");
-    Iterator redirects = appFlow.getRedirects(flowCtx.getName());
+    Iterator<?> redirects = appFlow.getRedirects(flowCtx.getName());
 
     root = ctx.getCurrentRootCtx();
     if (!(root instanceof PSAppIndexedItemIdContext))
@@ -980,7 +968,7 @@ public class PSAppTransformer {
     if (mapper == null) throw new IllegalArgumentException("mapper may not be null");
 
     // check mappings
-    Iterator dataMappings = mapper.iterator();
+    Iterator<?> dataMappings = mapper.iterator();
     while (dataMappings.hasNext()) {
       PSDataMapping mapping = (PSDataMapping) dataMappings.next();
       if (mapping.getBackEndMapping() instanceof IPSReplacementValue) {
@@ -1034,7 +1022,7 @@ public class PSAppTransformer {
       throw new IllegalArgumentException("invalid data mapping ctx");
     PSAppDataMappingIdContext mappingCtx = (PSAppDataMappingIdContext) root;
 
-    Iterator dataMappings = mapper.iterator();
+    Iterator<?> dataMappings = mapper.iterator();
     while (dataMappings.hasNext()) {
       PSDataMapping dataMapping = (PSDataMapping) dataMappings.next();
       if (mappingCtx.isSameMapping(dataMapping, true)) {
@@ -1064,7 +1052,7 @@ public class PSAppTransformer {
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkConditionalExits(
-      List<PSApplicationIDTypeMapping> mappings, Iterator exits, PSApplicationIdContext ctx) {
+      List<PSApplicationIDTypeMapping> mappings, Iterator<?> exits, PSApplicationIdContext ctx) {
     if (mappings == null) throw new IllegalArgumentException("mappings may not be null");
 
     if (exits == null) throw new IllegalArgumentException("exits may not be null");
@@ -1092,7 +1080,7 @@ public class PSAppTransformer {
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformConditionalExits(
-      Iterator exits, PSApplicationIDTypeMapping mapping, PSIdMap idMap) throws PSDeployException {
+      Iterator<?> exits, PSApplicationIDTypeMapping mapping, PSIdMap idMap) throws PSDeployException {
     if (exits == null) throw new IllegalArgumentException("exits may not be null");
 
     if (mapping == null) throw new IllegalArgumentException("mapping may not be null");
@@ -1133,7 +1121,7 @@ public class PSAppTransformer {
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkConditionalEffects(
-      List<PSApplicationIDTypeMapping> mappings, Iterator effects, PSApplicationIdContext ctx) {
+      List<PSApplicationIDTypeMapping> mappings, Iterator<?> effects, PSApplicationIdContext ctx) {
     if (mappings == null) throw new IllegalArgumentException("mappings may not be null");
 
     if (effects == null) throw new IllegalArgumentException("effects may not be null");
@@ -1164,7 +1152,7 @@ public class PSAppTransformer {
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformConditionalEffects(
-      Iterator effects, PSApplicationIDTypeMapping mapping, PSIdMap idMap)
+      Iterator<?> effects, PSApplicationIDTypeMapping mapping, PSIdMap idMap)
       throws PSDeployException {
     if (effects == null) throw new IllegalArgumentException("effects may not be null");
 
@@ -1208,7 +1196,7 @@ public class PSAppTransformer {
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkConditionalExtensions(
-      List<PSApplicationIDTypeMapping> mappings, Iterator extensions, PSApplicationIdContext ctx) {
+      List<PSApplicationIDTypeMapping> mappings, Iterator<?> extensions, PSApplicationIdContext ctx) {
     if (mappings == null) throw new IllegalArgumentException("mappings may not be null");
 
     if (extensions == null) throw new IllegalArgumentException("extensions may not be null");
@@ -1240,7 +1228,7 @@ public class PSAppTransformer {
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformConditionalExtensions(
-      Iterator extensions, PSApplicationIDTypeMapping mapping, PSIdMap idMap)
+      Iterator<?> extensions, PSApplicationIDTypeMapping mapping, PSIdMap idMap)
       throws PSDeployException {
     if (extensions == null) throw new IllegalArgumentException("effects may not be null");
 
@@ -1284,7 +1272,7 @@ public class PSAppTransformer {
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkCustomActionGroups(
-      List<PSApplicationIDTypeMapping> mappings, Iterator groups, PSApplicationIdContext ctx) {
+      List<PSApplicationIDTypeMapping> mappings, Iterator<?> groups, PSApplicationIdContext ctx) {
     if (mappings == null) throw new IllegalArgumentException("mappings may not be null");
 
     if (groups == null) throw new IllegalArgumentException("groups may not be null");
@@ -1319,7 +1307,7 @@ public class PSAppTransformer {
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformCustomActionGroups(
-      Iterator groups, PSApplicationIDTypeMapping mapping, PSIdMap idMap) throws PSDeployException {
+      Iterator<?> groups, PSApplicationIDTypeMapping mapping, PSIdMap idMap) throws PSDeployException {
     if (groups == null) throw new IllegalArgumentException("groups may not be null");
 
     if (mapping == null) throw new IllegalArgumentException("mapping may not be null");
@@ -1369,14 +1357,14 @@ public class PSAppTransformer {
 
     if (sheets == null) throw new IllegalArgumentException("sheets may not be null");
 
-    Iterator names = sheets.getCommandHandlerNames();
+    Iterator<?> names = sheets.getCommandHandlerNames();
     while (names.hasNext()) {
       String name = (String) names.next();
       PSAppNamedItemIdContext sheetsCtx =
           new PSAppNamedItemIdContext(PSAppNamedItemIdContext.TYPE_STYLESHEET_SET, name);
       sheetsCtx.setParentCtx(ctx);
       int index = 0;
-      Iterator styleSheets = sheets.getStylesheets(name);
+      Iterator<?> styleSheets = sheets.getStylesheets(name);
       while (styleSheets.hasNext()) {
         PSAppIndexedItemIdContext sheetCtx =
             new PSAppIndexedItemIdContext(
@@ -1416,7 +1404,7 @@ public class PSAppTransformer {
     if (sheetsCtx.getType() != PSAppNamedItemIdContext.TYPE_STYLESHEET_SET)
       throw new IllegalArgumentException("invalid stylesheet set ctx");
 
-    Iterator names = sheets.getCommandHandlerNames();
+    Iterator<?> names = sheets.getCommandHandlerNames();
     while (names.hasNext()) {
       String name = (String) names.next();
       if (!sheetsCtx.getName().equals(name)) continue;
@@ -1426,7 +1414,7 @@ public class PSAppTransformer {
         throw new IllegalArgumentException("invalid stylesheet ctx");
       PSAppIndexedItemIdContext sheetCtx = (PSAppIndexedItemIdContext) root;
       int index = 0;
-      Iterator styleSheets = sheets.getStylesheets(name);
+      Iterator<?> styleSheets = sheets.getStylesheets(name);
       while (styleSheets.hasNext()) {
         PSConditionalStylesheet sheet = (PSConditionalStylesheet) styleSheets.next();
 
@@ -1533,14 +1521,14 @@ public class PSAppTransformer {
       PSAppNamedItemIdContext ctlCtx =
           new PSAppNamedItemIdContext(PSAppNamedItemIdContext.TYPE_CONTROL, control.getName());
       ctlCtx.setParentCtx(uiSetCtx);
-      Iterator ctlParams = control.getParameters();
+      Iterator<?> ctlParams = control.getParameters();
       while (ctlParams.hasNext()) {
         checkParam(mappings, (PSParam) ctlParams.next(), ctlCtx);
       }
     }
 
     // chek uiset's readonly rules
-    Iterator rules = uiSet.getReadOnlyRules();
+    Iterator<?> rules = uiSet.getReadOnlyRules();
     PSAppCEItemIdContext rulesCtx =
         new PSAppCEItemIdContext(PSAppCEItemIdContext.TYPE_READ_ONLY_RULES);
     rulesCtx.setParentCtx(uiSetCtx);
@@ -1582,7 +1570,7 @@ public class PSAppTransformer {
         if (rulesCtx.getType() != PSAppCEItemIdContext.TYPE_READ_ONLY_RULES)
           throw new IllegalArgumentException("invalid rules ctx");
 
-        Iterator rules = uiSet.getReadOnlyRules();
+        Iterator<?> rules = uiSet.getReadOnlyRules();
         transformRules(rules, mapping, idMap);
         ctx.resetCurrentRootCtx();
       }
@@ -1593,7 +1581,7 @@ public class PSAppTransformer {
 
       PSControlRef control = uiSet.getControl();
       if (control != null && ctlCtx.getName().equals(control.getName())) {
-        Iterator ctlParams = control.getParameters();
+        Iterator<?> ctlParams = control.getParameters();
         while (ctlParams.hasNext()) {
           transformParam((PSParam) ctlParams.next(), mapping, idMap);
         }
@@ -1619,7 +1607,7 @@ public class PSAppTransformer {
     if (choices == null) throw new IllegalArgumentException("choices may not be null");
 
     // check the entry
-    Iterator choiceList = choices.getLocal();
+    Iterator<?> choiceList = choices.getLocal();
     PSAppCEItemIdContext choiceCtx = new PSAppCEItemIdContext(PSAppCEItemIdContext.TYPE_CHOICES);
     choiceCtx.setParentCtx(ctx);
     while (choiceList.hasNext()) {
@@ -1671,7 +1659,7 @@ public class PSAppTransformer {
       throw new IllegalArgumentException("invalid choices ctx");
 
     if (ctx.getNextRootCtx() instanceof PSAppEntryIdContext) {
-      Iterator choiceList = choices.getLocal();
+      Iterator<?> choiceList = choices.getLocal();
       while (choiceList.hasNext()) {
         PSEntry entry = (PSEntry) choiceList.next();
         transformEntry(entry, mapping, idMap);
@@ -1759,7 +1747,7 @@ public class PSAppTransformer {
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkRules(
-      List<PSApplicationIDTypeMapping> mappings, Iterator rules, PSApplicationIdContext ctx) {
+      List<PSApplicationIDTypeMapping> mappings, Iterator<?> rules, PSApplicationIdContext ctx) {
     if (mappings == null) throw new IllegalArgumentException("mappings may not be null");
 
     if (rules == null) throw new IllegalArgumentException("rules may not be null");
@@ -1770,7 +1758,7 @@ public class PSAppTransformer {
       PSAppIndexedItemIdContext ruleCtx =
           new PSAppIndexedItemIdContext(PSAppIndexedItemIdContext.TYPE_RULE, iRule++);
       ruleCtx.setParentCtx(ctx);
-      Iterator condRules = rule.getConditionalRules();
+      Iterator<?> condRules = rule.getConditionalRules();
       if (condRules != null) checkConditionals(mappings, condRules, ruleCtx);
       PSExtensionCallSet callSet = rule.getExtensionRules();
       if (callSet != null) checkExtensionCalls(mappings, callSet.iterator(), ruleCtx);
@@ -1788,7 +1776,7 @@ public class PSAppTransformer {
    * @throws IllegalArgumentException if any param is invalid.
    */
   public static void checkProcessChecks(
-      List<PSApplicationIDTypeMapping> mappings, Iterator procChecks, PSApplicationIdContext ctx) {
+      List<PSApplicationIDTypeMapping> mappings, Iterator<?> procChecks, PSApplicationIdContext ctx) {
     if (mappings == null) throw new IllegalArgumentException("mappings may not be null");
 
     if (procChecks == null) throw new IllegalArgumentException("process checks may not be null");
@@ -1800,7 +1788,7 @@ public class PSAppTransformer {
           new PSAppNamedItemIdContext(PSAppNamedItemIdContext.TYPE_PROCESS_CHECK, check.getName());
       procCheckCtx.setParentCtx(ctx);
 
-      Iterator rules = check.getConditions();
+      Iterator<?> rules = check.getConditions();
       if (rules != null) checkRules(mappings, rules, procCheckCtx);
     }
   }
@@ -1815,7 +1803,7 @@ public class PSAppTransformer {
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformRules(
-      Iterator rules, PSApplicationIDTypeMapping mapping, PSIdMap idMap) throws PSDeployException {
+      Iterator<?> rules, PSApplicationIDTypeMapping mapping, PSIdMap idMap) throws PSDeployException {
     if (rules == null) throw new IllegalArgumentException("rules may not be null");
 
     if (mapping == null) throw new IllegalArgumentException("mapping may not be null");
@@ -1833,7 +1821,7 @@ public class PSAppTransformer {
     while (rules.hasNext()) {
       PSRule rule = (PSRule) rules.next();
       if (index++ == ruleCtx.getIndex()) {
-        Iterator condRules = rule.getConditionalRules();
+        Iterator<?> condRules = rule.getConditionalRules();
         if (ctx.getNextRootCtx() instanceof PSAppConditionalIdContext && condRules != null) {
           transformConditionals(condRules, mapping, idMap);
         }
@@ -1862,7 +1850,7 @@ public class PSAppTransformer {
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformProcessChecks(
-      Iterator procChecks, PSApplicationIDTypeMapping mapping, PSIdMap idMap)
+      Iterator<?> procChecks, PSApplicationIDTypeMapping mapping, PSIdMap idMap)
       throws PSDeployException {
     if (procChecks == null) throw new IllegalArgumentException("process checks may not be null");
 
@@ -1882,7 +1870,7 @@ public class PSAppTransformer {
     while (procChecks.hasNext()) {
       PSProcessCheck check = (PSProcessCheck) procChecks.next();
       if (check.getName().equals(procCheckCtx.getName())) {
-        Iterator rules = check.getConditions();
+        Iterator<?> rules = check.getConditions();
         if ((ctx.getNextRootCtx() instanceof PSAppIndexedItemIdContext) && (rules != null)) {
           transformRules(rules, mapping, idMap);
         }
@@ -1909,7 +1897,7 @@ public class PSAppTransformer {
     if (overrideList == null) throw new IllegalArgumentException("overrideList may not be null");
 
     int index = 0;
-    Iterator overrides = overrideList.iterator();
+    Iterator<?> overrides = overrideList.iterator();
     while (overrides.hasNext()) {
       PSCloneOverrideField override = (PSCloneOverrideField) overrides.next();
       PSAppIndexedItemIdContext overrideCtx =
@@ -1950,7 +1938,7 @@ public class PSAppTransformer {
     }
 
     int index = 0;
-    Iterator overrides = overrideList.iterator();
+    Iterator<?> overrides = overrideList.iterator();
     while (overrides.hasNext()) {
       PSCloneOverrideField override = (PSCloneOverrideField) overrides.next();
       if (index++ == overrideCtx.getIndex()) {
@@ -2038,7 +2026,7 @@ public class PSAppTransformer {
 
     PSAppUrlRequestIdContext urlCtx = new PSAppUrlRequestIdContext(urlRequest);
     urlCtx.setParentCtx(ctx);
-    Iterator params = urlRequest.getQueryParameters();
+    Iterator<?> params = urlRequest.getQueryParameters();
     while (params.hasNext()) {
       checkParam(mappings, (PSParam) params.next(), urlCtx);
     }
@@ -2084,7 +2072,7 @@ public class PSAppTransformer {
           ctx.resetCurrentRootCtx();
         }
       } else {
-        Iterator params = urlRequest.getQueryParameters();
+        Iterator<?> params = urlRequest.getQueryParameters();
         while (params.hasNext()) {
           transformParam((PSParam) params.next(), mapping, idMap);
         }
@@ -2385,7 +2373,7 @@ public class PSAppTransformer {
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkProperties(
-      List<PSApplicationIDTypeMapping> mappings, Iterator props, PSApplicationIdContext ctx) {
+      List<PSApplicationIDTypeMapping> mappings, Iterator<?> props, PSApplicationIdContext ctx) {
     if (mappings == null) throw new IllegalArgumentException("mappings may not be null");
 
     if (props == null) throw new IllegalArgumentException("props may not be null");
@@ -2396,7 +2384,9 @@ public class PSAppTransformer {
           new PSAppNamedItemIdContext(PSAppNamedItemIdContext.TYPE_PSPROPERTY, prop.getName());
       propCtx.setParentCtx(ctx);
       Object value = prop.getValue();
-      if (value != null && prop.getType() == prop.TYPE_STRING && isNumeric(value.toString())) {
+      if (value != null
+          && prop.getType() == PSProperty.TYPE_STRING
+          && isNumeric(value.toString())) {
         PSApplicationIDTypeMapping mapping =
             new PSApplicationIDTypeMapping(propCtx, value.toString());
         mappings.add(mapping);
@@ -2414,7 +2404,7 @@ public class PSAppTransformer {
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformProperties(
-      Iterator props, PSApplicationIDTypeMapping mapping, PSIdMap idMap) throws PSDeployException {
+      Iterator<?> props, PSApplicationIDTypeMapping mapping, PSIdMap idMap) throws PSDeployException {
     if (props == null) throw new IllegalArgumentException("props may not be null");
 
     if (mapping == null) throw new IllegalArgumentException("mapping may not be null");
@@ -2450,7 +2440,7 @@ public class PSAppTransformer {
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkExtensionCalls(
-      List<PSApplicationIDTypeMapping> mappings, Iterator calls, PSApplicationIdContext ctx) {
+      List<PSApplicationIDTypeMapping> mappings, Iterator<?> calls, PSApplicationIdContext ctx) {
     if (mappings == null) throw new IllegalArgumentException("mappings may not be null");
 
     if (calls == null) throw new IllegalArgumentException("calls may not be null");
@@ -2473,7 +2463,7 @@ public class PSAppTransformer {
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformExtensionCalls(
-      Iterator calls, PSApplicationIDTypeMapping mapping, PSIdMap idMap) throws PSDeployException {
+      Iterator<?> calls, PSApplicationIDTypeMapping mapping, PSIdMap idMap) throws PSDeployException {
     if (calls == null) throw new IllegalArgumentException("calls may not be null");
 
     if (mapping == null) throw new IllegalArgumentException("mapping may not be null");
@@ -2562,7 +2552,7 @@ public class PSAppTransformer {
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkConditionals(
-      List<PSApplicationIDTypeMapping> mappings, Iterator conds, PSApplicationIdContext ctx) {
+      List<PSApplicationIDTypeMapping> mappings, Iterator<?> conds, PSApplicationIdContext ctx) {
     if (mappings == null) throw new IllegalArgumentException("mappings may not be null");
 
     if (conds == null) throw new IllegalArgumentException("conds may not be null");
@@ -2602,7 +2592,7 @@ public class PSAppTransformer {
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformConditionals(
-      Iterator conds, PSApplicationIDTypeMapping mapping, PSIdMap idMap) throws PSDeployException {
+      Iterator<?> conds, PSApplicationIDTypeMapping mapping, PSIdMap idMap) throws PSDeployException {
     if (conds == null) throw new IllegalArgumentException("conds may not be null");
 
     if (mapping == null) throw new IllegalArgumentException("mapping may not be null");
@@ -2640,7 +2630,7 @@ public class PSAppTransformer {
    * @param ctx The current context, may not be <code>null</code>.
    */
   public static void checkCallParams(
-      List<PSApplicationIDTypeMapping> mappings, Iterator params, PSApplicationIdContext ctx) {
+      List<PSApplicationIDTypeMapping> mappings, Iterator<?> params, PSApplicationIdContext ctx) {
     if (mappings == null) throw new IllegalArgumentException("mappings may not be null");
 
     if (params == null) throw new IllegalArgumentException("params may not be null");
@@ -2665,7 +2655,7 @@ public class PSAppTransformer {
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformCallParams(
-      Iterator params, PSApplicationIDTypeMapping mapping, PSIdMap idMap) throws PSDeployException {
+      Iterator<?> params, PSApplicationIDTypeMapping mapping, PSIdMap idMap) throws PSDeployException {
     if (params == null) throw new IllegalArgumentException("params may not be null");
 
     if (mapping == null) throw new IllegalArgumentException("mapping may not be null");

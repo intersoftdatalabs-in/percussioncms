@@ -31,7 +31,7 @@ import org.w3c.dom.Element;
  * ID Context to represent an item whose context is determined only by its ordinal position in its
  * parent context.
  */
-public class PSAppIndexedItemIdContext extends PSApplicationIdContext {
+public final class PSAppIndexedItemIdContext extends PSApplicationIdContext {
   /**
    * Construct this context specifying its ordinal position in its parent context.
    *

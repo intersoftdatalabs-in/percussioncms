@@ -28,7 +28,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** ID Context to represent a <code>PSEntry</code> object */
-public class PSAppEntryIdContext extends PSApplicationIdContext {
+public final class PSAppEntryIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from the entry object
    *

@@ -28,7 +28,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Context to represent an item in an application identified only by its name. */
-public class PSAppNamedItemIdContext extends PSApplicationIdContext {
+public final class PSAppNamedItemIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from its name and type.
    *
