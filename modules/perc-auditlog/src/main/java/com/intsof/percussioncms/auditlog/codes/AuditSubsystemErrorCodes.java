@@ -21,15 +21,32 @@ import com.intsof.percussioncms.auditlog.AuditModule;
 import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.intsof.percussioncms.auditlog.SystemErrorCode;
 
-/** Self-codes for the audit subsystem (viewer access, retention, sink failures). */
+/**
+ * Self-codes for the audit subsystem (viewer/export access, retention, sink failures).
+ *
+ * <p>Phase 5 / #2716: {@link #VIEWER_ACCESS}, {@link #VIEWER_ACCESS_DENIED}, {@link #EXPORT_ACCESS},
+ * and {@link #EXPORT_ACCESS_DENIED} make audit-log viewer and export access itself auditable
+ * (audit-of-audit). Nested dual-write is suppressed by {@code DefaultAuditLogService} reentrancy
+ * guard so access events cannot storm.
+ */
 public enum AuditSubsystemErrorCodes implements SystemErrorCode {
+  /**
+   * Successful list or detail view of the system security audit log.
+   *
+   * <p><strong>Log template note (Phase 5 / #2716):</strong> the durable log message shape is
+   * {@code actor={} action={} detail={}} (action = {@code list}/{@code detail}, detail = filter
+   * summary or audit id). Pre-#2716 main only had a two-arg {@code actor={} filters={}} form with
+   * no list/detail split. SIEM / log parsers for {@link AuditEventType#AUDIT_VIEW} success must
+   * match the three-arg template; structured attributes on the audit row still carry {@code
+   * action} and {@code detail} independently of free-text log format.
+   */
   VIEWER_ACCESS(
       1,
       true,
       AuditEventType.AUDIT_VIEW,
       AuditOutcome.SUCCESS,
       "Audit log viewed by {}",
-      "Audit log viewed actor={} filters={}"),
+      "Audit log viewed actor={} action={} detail={}"),
 
   SINK_FAILURE(
       2,
@@ -37,7 +54,34 @@ public enum AuditSubsystemErrorCodes implements SystemErrorCode {
       AuditEventType.AUDIT_SINK_FAILURE,
       AuditOutcome.ERROR,
       "Audit sink failure",
-      "Audit sink failure sink={} logId={} detail={}");
+      "Audit sink failure sink={} logId={} detail={}"),
+
+  /** Explicit deny when a principal lacks Admin / sys_securityAuditLogViewer. */
+  VIEWER_ACCESS_DENIED(
+      3,
+      true,
+      AuditEventType.AUDIT_VIEW,
+      AuditOutcome.FAILURE,
+      "Audit log view denied for {}",
+      "Audit log view denied actor={} action={} reason={}"),
+
+  /** Successful CSV/JSON export of the system security audit log. */
+  EXPORT_ACCESS(
+      4,
+      true,
+      AuditEventType.AUDIT_EXPORT,
+      AuditOutcome.SUCCESS,
+      "Audit log exported by {}",
+      "Audit log export actor={} format={} detail={}"),
+
+  /** Explicit deny on export when the principal is not authorized. */
+  EXPORT_ACCESS_DENIED(
+      5,
+      true,
+      AuditEventType.AUDIT_EXPORT,
+      AuditOutcome.FAILURE,
+      "Audit log export denied for {}",
+      "Audit log export denied actor={} reason={}");
 
   private final int numericCode;
   private final boolean auditable;
