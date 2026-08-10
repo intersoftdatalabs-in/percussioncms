@@ -811,24 +811,48 @@ public class InstallUtil {
   /**
    * Checks whether a TCP port can be bound.
    *
+   * <p>This is a <strong>TCP-only</strong> probe. Callers (DTS Tomcat connector / Server shutdown
+   * ports, Derby JDBC, CMS Jetty bind checks) care about TCP listeners only. A UDP-only binding on
+   * the same port number must not make the port look unavailable.
+   *
+   * <p>Implementation uses a two-phase bind to stay deterministic on Windows Winsock (GH-2779):
+   *
+   * <ol>
+   *   <li>Bind without {@code SO_REUSEADDR}. Succeeds when no TCP socket holds the port (including
+   *       when only UDP is bound). Avoids the flaky {@code SO_REUSEADDR}+UDP exclusive-use race on
+   *       Windows.
+   *   <li>If that fails, bind with {@code SO_REUSEADDR} so a port briefly in {@code TIME_WAIT} from
+   *       a previous close is still reported available (Linux holds TIME_WAIT ~60s; without this
+   *       path offline-detection tests flake after a recent DTS close on the same host).
+   * </ol>
+   *
    * @param port the TCP port to check for availability
    * @return {@code true} when the TCP port can be bound, otherwise {@code false}
    */
   public static boolean portAvailable(int port) {
+    InetSocketAddress address = new InetSocketAddress(port);
+
+    // Phase 1: exclusive-style TCP bind (SO_REUSEADDR off). UDP-only holders do not block this
+    // path; active TCP listeners and TIME_WAIT do.
     try (ServerSocket ss = new ServerSocket()) {
-      // SO_REUSEADDR must be set BEFORE bind() so a probe can succeed on a port that is
-      // briefly in TIME_WAIT from a previous close (including on Linux where the OS holds
-      // the socket for ~60s). Without this, an immediately re-probed port appears busy
-      // and unrelated offline-detection tests fail when a deployed DTS server is running
-      // on the same host.
+      ss.setReuseAddress(false);
+      ss.bind(address);
+      return true;
+    } catch (IOException ignored) {
+      // occupied by TCP listener or TIME_WAIT — try reuse path below
+    }
+
+    // Phase 2: SO_REUSEADDR before bind so TIME_WAIT ports probe as free. Still fails when a live
+    // TCP listener holds the port. Do not use this phase alone: on Windows, SO_REUSEADDR + a
+    // concurrent UDP bind on the same port number can intermittently throw BindException.
+    try (ServerSocket ss = new ServerSocket()) {
       ss.setReuseAddress(true);
-      ss.bind(new InetSocketAddress(port));
+      ss.bind(address);
       return true;
     } catch (IOException e) {
       logError("Port Availability Check Failed." + e.getMessage());
+      return false;
     }
-
-    return false;
   }
 
   /**
