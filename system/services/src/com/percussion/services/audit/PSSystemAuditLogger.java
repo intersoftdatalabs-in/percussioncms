@@ -31,10 +31,9 @@ import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Thin facade for system and sitemanage code to emit system-wide audit events without depending on
- * Spring or legacy CADF event classes at the call site. Uses {@link DefaultAuditLogService.Holder}
- * (Log4j + memory until JPA repository registers).
- *
- * <p>Phase 2a migrates production {@code PSAuditLogService} call sites to these helpers.
+ * Spring at the call site. Uses {@link DefaultAuditLogService.Holder} (Log4j + memory until JPA
+ * repository registers). Production API is {@code com.intsof.percussioncms.auditlog} only (CADF /
+ * former file-JSON audit types removed in Phase 2c).
  *
  * <p>Phase 2b: use {@link #logLegacyIfAuditable(int, AuditContext, Object...)} for legacy {@code
  * IPS*Errors} ints so non-auditable codes never dual-write.

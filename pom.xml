@@ -23,7 +23,6 @@
         <module>modules/perc-legacy</module>
         <module>modules/utils</module>
         <module>modules/perc-shared-test-resources</module>
-        <module>modules/jcadf-master</module>
         <module>modules/perc-auditlog</module>
         <module>modules/Simple</module>
         <module>modules/TableFactory</module>
@@ -2857,7 +2856,6 @@
                                     <exclude>**/WEB-INF/**</exclude>
                                     <exclude>**/src/test/resources/**/*.json</exclude>
                                     <!-- Exclude specific legacy/third-party JSON that Prettier can't safely format -->
-                                    <exclude>modules/jcadf-master/audit_events.json</exclude>
                                     <exclude>**/audit_events.json</exclude>
                                     <exclude>**/docker/dev-data/**</exclude>
                                 </excludes>

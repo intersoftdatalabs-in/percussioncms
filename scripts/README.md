@@ -217,6 +217,7 @@ Each entry below has been ported to cross-platform Python 3.9+ with pytest cover
 - `resolve-conflicts.py` — git conflict resolution helper (ours / theirs / manual). Test: `test_resolve_conflicts.py`.
 - `verify-no-finder-jsp-references.py` — CI-gate artifact-grep for spec 992 / FR-019a (modern Track B shell, hard-cut in PR #1390). Test: `test_verify_no_finder_jsp_references.py`.
 - `verify-no-jqplot-vendor-refs.py` — CI-gate guard that the removed jqplot vendor library stays gone. Test: `test_verify_no_jqplot_vendor_refs.py`.
+- `verify-no-cadf-legacy-auditlog.py` — Phase 2c (#2675) grep gate: `modules/jcadf-master` stays gone; no `com.ibm.cadf` / `com.percussion.auditlog` in production Java/POMs (docs/specs may still mention CADF historically). Test: `test_verify_no_cadf_legacy_auditlog.py`. Run: `python3 scripts/verify-no-cadf-legacy-auditlog.py` (Windows: `python scripts\verify-no-cadf-legacy-auditlog.py`).
 - `verify-codeql-analyzer-of-record.py` — asserts the advanced CodeQL workflow + config + playbook are in place and that the default-setup is `not-configured`. Test: `test_verify_codeql_analyzer_of_record.py`.
 
 ### `004-zero-code-scanning-alerts` workflow scripts
