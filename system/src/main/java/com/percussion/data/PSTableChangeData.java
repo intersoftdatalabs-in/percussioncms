@@ -35,10 +35,10 @@ public class PSTableChangeData {
    *     objects, may not be <code>null</code> or empty.
    * @throws IllegalArgumentException if <code>listeners</code> is <code>null</code> or empty.
    */
-  public PSTableChangeData(Iterator listeners) {
+  public PSTableChangeData(Iterator<? extends IPSTableChangeListener> listeners) {
     if (listeners == null || !listeners.hasNext())
       throw new IllegalArgumentException("listeners may not be null or empty");
-    m_listeners = new ArrayList();
+    m_listeners = new ArrayList<>();
     while (listeners.hasNext()) m_listeners.add(listeners.next());
   }
 
@@ -82,9 +82,7 @@ public class PSTableChangeData {
           "Can not check for expected column " + "without specifying the action type");
     }
 
-    Iterator listeners = m_listeners.iterator();
-    while (listeners.hasNext()) {
-      IPSTableChangeListener listener = (IPSTableChangeListener) listeners.next();
+    for (IPSTableChangeListener listener : m_listeners) {
       if (expectsColumn(listener, tableName, colName)) return true;
     }
     return false;
@@ -104,9 +102,9 @@ public class PSTableChangeData {
     if (m_actionType == PSTableChangeEvent.ACTION_UNDEFINED)
       throw new IllegalStateException("Can not add a table without specifying the action type");
 
-    Map columnData = (Map) m_tableColumns.get(tableName);
+    Map<String, String> columnData = m_tableColumns.get(tableName);
     if (columnData == null) {
-      columnData = new HashMap();
+      columnData = new HashMap<>();
       m_tableColumns.put(tableName, columnData);
     }
   }
@@ -134,7 +132,7 @@ public class PSTableChangeData {
     if (m_actionType == PSTableChangeEvent.ACTION_UNDEFINED)
       throw new IllegalStateException("Can not add column data without specifying the action type");
 
-    Map columnData = (Map) m_tableColumns.get(tableName);
+    Map<String, String> columnData = m_tableColumns.get(tableName);
     if (columnData == null)
       throw new IllegalStateException("Cannot add column data without first adding the table");
 
@@ -146,14 +144,8 @@ public class PSTableChangeData {
    * for the entire update request.
    */
   public void notifyListeners() {
-    Iterator events = m_tableChangeEvents.iterator();
-    while (events.hasNext()) {
-      PSTableChangeEvent event = (PSTableChangeEvent) events.next();
-
-      Iterator listeners = m_listeners.iterator();
-      while (listeners.hasNext()) {
-        IPSTableChangeListener listener = (IPSTableChangeListener) listeners.next();
-
+    for (PSTableChangeEvent event : m_tableChangeEvents) {
+      for (IPSTableChangeListener listener : m_listeners) {
         if (isListenerInterested(listener, event.getTableName())) listener.tableChanged(event);
       }
     }
@@ -169,11 +161,9 @@ public class PSTableChangeData {
    */
   public void collectTableChangeEvent(int rowCount) {
     if (rowCount > 0) {
-      Iterator tableColumns = m_tableColumns.entrySet().iterator();
-      while (tableColumns.hasNext()) {
-        Map.Entry tableColumn = (Map.Entry) tableColumns.next();
-        String tableName = (String) tableColumn.getKey();
-        Map columnData = (Map) tableColumn.getValue();
+      for (Map.Entry<String, Map<String, String>> tableColumn : m_tableColumns.entrySet()) {
+        String tableName = tableColumn.getKey();
+        Map<String, String> columnData = tableColumn.getValue();
         PSTableChangeEvent changeEvent =
             new PSTableChangeEvent(tableName, m_actionType, columnData);
 
@@ -203,7 +193,7 @@ public class PSTableChangeData {
    * @return <code>true</code> if the listener is interested in, otherwise <code>false</code>
    */
   private boolean expectsColumn(IPSTableChangeListener listener, String tableName, String colName) {
-    List intColumns = getInterestedColumns(listener, tableName);
+    List<String> intColumns = getInterestedColumns(listener, tableName);
 
     // Now check whether the column is interested by listener or not
     if (intColumns != null && intColumns.contains(colName)) return true;
@@ -223,27 +213,23 @@ public class PSTableChangeData {
    *     empty if it is interested in table changed event for the current action, but not interested
    *     in any of the columns.
    */
-  private List getInterestedColumns(IPSTableChangeListener listener, String tableName) {
-    List intColumns = null;
+  private List<String> getInterestedColumns(IPSTableChangeListener listener, String tableName) {
+    List<String> intColumns = null;
 
     // Check whether this listener has cache
-    List intrstChanges = (List) m_listenerInterestedChanges.get(listener);
+    List<ListenerInterestedChanges> intrstChanges = m_listenerInterestedChanges.get(listener);
     if (intrstChanges == null) // if not get from listener and cache
     {
       intColumns = getColumnsFromListener(listener, tableName);
       ListenerInterestedChanges change =
           new ListenerInterestedChanges(m_actionType, tableName, intColumns);
-      intrstChanges = new ArrayList();
+      intrstChanges = new ArrayList<>();
       intrstChanges.add(change);
       m_listenerInterestedChanges.put(listener, intrstChanges);
     } else // check cache
     {
-      Iterator changes = intrstChanges.iterator();
-
       boolean found = false;
-      while (changes.hasNext()) {
-        ListenerInterestedChanges change = (ListenerInterestedChanges) changes.next();
-
+      for (ListenerInterestedChanges change : intrstChanges) {
         if (change.getActionType() == m_actionType && change.getTableName().equals(tableName)) {
           found = true;
           intColumns = change.getColumns();
@@ -274,12 +260,12 @@ public class PSTableChangeData {
    *     empty if it is interested in table changed event for the current action, but not interested
    *     in any of the columns.
    */
-  private List getColumnsFromListener(IPSTableChangeListener listener, String tableName) {
-    List intColumns = null;
+  private List<String> getColumnsFromListener(IPSTableChangeListener listener, String tableName) {
+    List<String> intColumns = null;
 
-    Iterator columns = listener.getColumns(tableName, m_actionType);
+    Iterator<String> columns = listener.getColumns(tableName, m_actionType);
     if (columns != null) {
-      intColumns = new ArrayList();
+      intColumns = new ArrayList<>();
       while (columns.hasNext()) intColumns.add(columns.next());
     }
     return intColumns;
@@ -296,7 +282,7 @@ public class PSTableChangeData {
    * </code>
    */
   private boolean isListenerInterested(IPSTableChangeListener listener, String tableName) {
-    List intColumns = getInterestedColumns(listener, tableName);
+    List<String> intColumns = getInterestedColumns(listener, tableName);
     return intColumns != null;
   }
 
@@ -307,7 +293,7 @@ public class PSTableChangeData {
    * <code>null
    * </code> or modified after that.
    */
-  private List m_listeners;
+  private List<IPSTableChangeListener> m_listeners;
 
   /**
    * The map of listener interested column changes with {@link IPSTableChangeListener} as key and
@@ -316,7 +302,8 @@ public class PSTableChangeData {
    * expectsColumn(String, String)</code> is called by querying the listeners. Never <code>null
    * </code>
    */
-  private Map m_listenerInterestedChanges = new HashMap();
+  private final Map<IPSTableChangeListener, List<ListenerInterestedChanges>>
+      m_listenerInterestedChanges = new HashMap<>();
 
   /**
    * Represents the data modified by the update event, where the key is the table name as a <code>
@@ -326,7 +313,7 @@ public class PSTableChangeData {
    * converted to a <code>String</code>. Initialized to an empty map, never <code>null</code> after
    * that.
    */
-  private Map m_tableColumns = new HashMap();
+  private final Map<String, Map<String, String>> m_tableColumns = new HashMap<>();
 
   /**
    * The current action type that this instance is dealing with, set in <code>setActionType(int)
@@ -340,7 +327,7 @@ public class PSTableChangeData {
    * one row changed. The list may be empty or contains objects of type <code>PSTableChangeEvent
    * </code>.
    */
-  private List m_tableChangeEvents = new ArrayList();
+  private final List<PSTableChangeEvent> m_tableChangeEvents = new ArrayList<>();
 
   /**
    * Utility class to represent the interested column changes of a listener for a table and action.
@@ -356,7 +343,7 @@ public class PSTableChangeData {
      *     empty.
      * @throws IllegalArgumentException if any param is invalid.
      */
-    public ListenerInterestedChanges(int actionType, String tableName, List columns) {
+    public ListenerInterestedChanges(int actionType, String tableName, List<String> columns) {
       if (!PSTableChangeEvent.isValidAction(actionType)) {
         throw new IllegalArgumentException("Invalid actionType");
       }
@@ -396,7 +383,7 @@ public class PSTableChangeData {
      *     getting notified. May be empty if the listener is interested in getting notified, but not
      *     interested in any of the columns.
      */
-    public List getColumns() {
+    public List<String> getColumns() {
       return m_columns;
     }
 
@@ -404,18 +391,18 @@ public class PSTableChangeData {
      * The action type that the listener is interested in, must be one of the <code>
      * PSTableChangeEvent.ACTION_xxx</code> types. Set in ctor and never modified after that.
      */
-    private int m_actType;
+    private final int m_actType;
 
     /**
      * The name of the table that the listener is interested in, initialized in ctor and never
      * <code>null</code> or modified after that.
      */
-    private String m_tableName;
+    private final String m_tableName;
 
     /**
      * The list of column names that the listener is interested in for the specifed table and action
      * type, initialized in ctor and never modified after that.
      */
-    private List m_columns;
+    private final List<String> m_columns;
   }
 }

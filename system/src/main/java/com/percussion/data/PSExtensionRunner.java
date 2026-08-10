@@ -210,7 +210,7 @@ public class PSExtensionRunner {
    * @return An Iterator over 0 or more possibly <CODE>null</CODE> IPSDataExtractor objects. Never
    *     <CODE>null</CODE>.
    */
-  public Iterator getExtractors() {
+  public Iterator<IPSDataExtractor> getExtractors() {
     return m_extractors.iterator();
   }
 
@@ -324,6 +324,11 @@ public class PSExtensionRunner {
    * Run the search result processsor given the data and the search result rows to be processed by
    * the runner.
    *
+   * <p>Accepts any list of search result rows (historically raw {@code List}); elements are
+   * typically {@code IPSSearchResultRow}. Remains raw-typed at the API boundary because callers
+   * pass {@code List<IPSSearchResultRow>} while {@link IPSSearchResultsProcessor#processRows}
+   * declares {@code List<Object>} (Java list invariance).
+   *
    * @param data execution data object, must not be <code>null</code>.
    * @param searchResultRows search result rows to be processed, must not be <code>null</code> or
    *     empty.
@@ -333,6 +338,7 @@ public class PSExtensionRunner {
    * @throws PSExtensionProcessingException if thrown by the extension implementation.
    * @see IPSSearchResultsProcessor#processRows(Object[], List, IPSRequestContext)
    */
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public List runSearchResultProcessor(PSExecutionData data, List searchResultRows)
       throws PSDataExtractionException, PSExtensionProcessingException {
     if (data == null) throw new IllegalArgumentException("data must not be null");
@@ -552,8 +558,7 @@ public class PSExtensionRunner {
 
     Object[] args = new Object[m_extractors.size()];
     int extractorNum = 0;
-    for (Object m_extractor : m_extractors) {
-      IPSDataExtractor extractor = (IPSDataExtractor) m_extractor;
+    for (IPSDataExtractor extractor : m_extractors) {
       if (extractor != null) args[extractorNum++] = extractor.extract(data);
       else args[extractorNum++] = null;
     }
@@ -569,7 +574,7 @@ public class PSExtensionRunner {
    * @param call The extension call. Must not be <CODE>null</CODE>.
    */
   private void buildExtractors(PSExtensionCall call) {
-    ArrayList extractors = new ArrayList();
+    ArrayList<IPSDataExtractor> extractors = new ArrayList<>();
     PSExtensionParamValue[] vals = call.getParamValues();
     for (int i = 0; i < vals.length; i++) {
       PSExtensionParamValue val = vals[i];
@@ -602,8 +607,8 @@ public class PSExtensionRunner {
   /** extension def interface, once this runner is created never <code>null</code> */
   private IPSExtensionDef m_extDef;
 
-  /** Extractors. */
-  private Collection m_extractors;
+  /** Extractors (entries may be {@code null} when the param value was null). */
+  private Collection<IPSDataExtractor> m_extractors;
 
   /** The PSExtensionCall */
   private PSExtensionCall m_extCall;

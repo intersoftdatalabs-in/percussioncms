@@ -137,7 +137,7 @@ public class PSSqlLockedUpdateBuilder extends PSSqlUpdateBuilder {
 
     // and the extractors for the UPDATE data to use to compare against
     // the retrieved SELECT data
-    java.util.List targetExtractors = buildComparators(table);
+    java.util.List<IPSDataExtractor> targetExtractors = buildComparators(table);
 
     try {
       return new PSLockedUpdateStatement(
@@ -159,9 +159,9 @@ public class PSSqlLockedUpdateBuilder extends PSSqlUpdateBuilder {
    * @param table the table to get extractors for
    * @return the list of IPSDataExtractor objects
    */
-  protected java.util.List buildComparators(PSBackEndTable table)
+  protected java.util.List<IPSDataExtractor> buildComparators(PSBackEndTable table)
       throws PSIllegalArgumentException {
-    java.util.ArrayList extractors = null;
+    java.util.ArrayList<IPSDataExtractor> extractors = null;
 
     int size = m_Columns.size();
     for (int i = 0; i < size; i++) {
@@ -188,7 +188,7 @@ public class PSSqlLockedUpdateBuilder extends PSSqlUpdateBuilder {
         IPSDataExtractor extractor =
             PSDataExtractorFactory.createReplacementValueExtractor(
                 (IPSReplacementValue) map.getDocumentMapping());
-        if (extractors == null) extractors = new java.util.ArrayList();
+        if (extractors == null) extractors = new java.util.ArrayList<>();
         extractors.add(extractor);
       }
     }

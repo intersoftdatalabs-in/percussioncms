@@ -79,7 +79,7 @@ public class PSStatementBlock implements IPSStatementBlock {
   public PSStatementBlock(boolean isStatic) {
     super();
     m_isStatic = isStatic;
-    m_blocks = new java.util.ArrayList();
+    m_blocks = new java.util.ArrayList<>();
   }
 
   /**
@@ -135,7 +135,7 @@ public class PSStatementBlock implements IPSStatementBlock {
   }
 
   /** */
-  public List getLobStatementColumns() {
+  public List<PSStatementColumn> getLobStatementColumns() {
     return m_lobStatementColumns;
   }
 
@@ -207,8 +207,8 @@ public class PSStatementBlock implements IPSStatementBlock {
    *
    * @return the list of replacement values
    */
-  public List getReplacementValueExtractors() {
-    java.util.ArrayList retList = new java.util.ArrayList();
+  public List<IPSDataExtractor> getReplacementValueExtractors() {
+    java.util.ArrayList<IPSDataExtractor> retList = new java.util.ArrayList<>();
     Object cur;
 
     for (Object m_block : m_blocks) {
@@ -275,12 +275,13 @@ public class PSStatementBlock implements IPSStatementBlock {
   }
 
   private boolean m_isStatic;
-  protected List m_blocks;
+  /** Heterogeneous block list: static SQL {@link String}s and {@link PSStatementColumn}s. */
+  protected List<Object> m_blocks;
 
   /**
    * A place to store the statement columns for LOB-based columns. These need to be accessed by
    * DBMS-specific PSStatement-based classes so that they can update LOB columns as required. Never
    * <code>null</code> but may be empty.
    */
-  private List m_lobStatementColumns = new ArrayList();
+  private final List<PSStatementColumn> m_lobStatementColumns = new ArrayList<>();
 }

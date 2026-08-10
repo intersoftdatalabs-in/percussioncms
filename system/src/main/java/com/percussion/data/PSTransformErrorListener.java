@@ -205,7 +205,7 @@ public class PSTransformErrorListener implements ErrorListener {
    *
    * @return iterator of errors list, never <code>null</code>.
    */
-  public Iterator errors() {
+  public Iterator<TransformerException> errors() {
     return m_errors.iterator();
   }
 
@@ -214,7 +214,7 @@ public class PSTransformErrorListener implements ErrorListener {
    *
    * @return iterator of fatal errors list, never <code>null</code>.
    */
-  public Iterator fatalErrors() {
+  public Iterator<TransformerException> fatalErrors() {
     return m_fatalErrors.iterator();
   }
 
@@ -223,23 +223,23 @@ public class PSTransformErrorListener implements ErrorListener {
    *
    * @return iterator of warnings list, never <code>null</code>.
    */
-  public Iterator warnings() {
+  public Iterator<TransformerException> warnings() {
     return m_warnings.iterator();
   }
 
   /** The list of errors, initialized to empty array list and never <code>null</code> after that. */
-  private List m_errors = new ArrayList();
+  private final List<TransformerException> m_errors = new ArrayList<>();
 
   /**
    * The list of fatal errors, initialized to empty array list and never <code>null</code> after
    * that.
    */
-  private List m_fatalErrors = new ArrayList();
+  private final List<TransformerException> m_fatalErrors = new ArrayList<>();
 
   /**
    * The list of warnings, initialized to empty array list and never <code>null</code> after that.
    */
-  private List m_warnings = new ArrayList();
+  private final List<TransformerException> m_warnings = new ArrayList<>();
 
   /**
    * The Print Writer to which warnings, errors and fatal errors should be written if it is

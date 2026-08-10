@@ -54,8 +54,8 @@ public class PSRuleListEvaluator {
    * <code>PSRules</code>, see the <code>PSCollection</code> constructor for
    * more information.
    */
-  public PSRuleListEvaluator(Iterator rules) throws PSNotFoundException, PSExtensionException {
-    List andRules = null;
+  public PSRuleListEvaluator(Iterator<?> rules) throws PSNotFoundException, PSExtensionException {
+    List<PSRuleEvaluator> andRules = null;
     if (rules != null) {
       while (rules.hasNext()) {
         PSRule rule = (PSRule) rules.next();
@@ -64,7 +64,7 @@ public class PSRuleListEvaluator {
         if (rules.hasNext()) {
           if (rule.getOperator() == PSRule.BOOLEAN_AND) {
             if (andRules == null) {
-              andRules = new ArrayList();
+              andRules = new ArrayList<>();
               m_andGroups.add(andRules);
             }
 
@@ -108,12 +108,12 @@ public class PSRuleListEvaluator {
     boolean isMatch = true;
 
     // first evaluate all AND groups and collect the results
-    List andResults = new ArrayList();
+    List<Boolean> andResults = new ArrayList<>();
     for (int i = 0; i < m_andGroups.size(); i++) {
       isMatch = true;
-      Iterator evaluators = ((List) m_andGroups.get(i)).iterator();
+      Iterator<PSRuleEvaluator> evaluators = m_andGroups.get(i).iterator();
       while (isMatch && evaluators.hasNext()) {
-        PSRuleEvaluator evaluator = (PSRuleEvaluator) evaluators.next();
+        PSRuleEvaluator evaluator = evaluators.next();
         isMatch = evaluator.isMatch(data);
       }
 
@@ -122,16 +122,16 @@ public class PSRuleListEvaluator {
 
     // then OR all group results
     isMatch = false;
-    Iterator results = andResults.iterator();
+    Iterator<Boolean> results = andResults.iterator();
     while (!isMatch && results.hasNext()) {
-      Boolean result = (Boolean) results.next();
+      Boolean result = results.next();
       isMatch = result.booleanValue();
     }
 
     // finally evaluate all OR evaluators
-    Iterator evaluators = m_orRules.iterator();
+    Iterator<PSRuleEvaluator> evaluators = m_orRules.iterator();
     while (!isMatch && evaluators.hasNext()) {
-      PSRuleEvaluator evaluator = (PSRuleEvaluator) evaluators.next();
+      PSRuleEvaluator evaluator = evaluators.next();
       isMatch = evaluator.isMatch(data);
     }
 
@@ -144,11 +144,11 @@ public class PSRuleListEvaluator {
    * ORed together. Initialized in the constructor and never changed after that, never <code>null
    * </code>, may be empty.
    */
-  private List m_andGroups = new ArrayList();
+  private final List<List<PSRuleEvaluator>> m_andGroups = new ArrayList<>();
 
   /**
    * A list with <code>PSRuleEvaluator</code> objects ORd together. Initialized in the constructor
    * and never changed after that, never <code>null</code>, may be empty.
    */
-  private List m_orRules = new ArrayList();
+  private final List<PSRuleEvaluator> m_orRules = new ArrayList<>();
 }

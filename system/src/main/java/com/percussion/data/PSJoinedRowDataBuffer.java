@@ -44,7 +44,7 @@ class PSJoinedRowDataBuffer {
   PSJoinedRowDataBuffer(
       ResultSet lRS,
       ResultSet rRS,
-      HashMap columnMap,
+      HashMap<String, Integer> columnMap,
       boolean[] omitColumns,
       int expectedSelectivity)
       throws java.sql.SQLException {
@@ -65,7 +65,10 @@ class PSJoinedRowDataBuffer {
    * @exception SQLException if a SQL error occurs
    */
   PSJoinedRowDataBuffer(
-      ResultSet lRS, HashMap columnMap, boolean[] omitColumns, int expectedSelectivity)
+      ResultSet lRS,
+      HashMap<String, Integer> columnMap,
+      boolean[] omitColumns,
+      int expectedSelectivity)
       throws java.sql.SQLException {
     super();
 
@@ -157,9 +160,11 @@ class PSJoinedRowDataBuffer {
       // build the data array for this if we haven't yet
       if (m_joinedRSData == null) {
         int colCount = m_joinedColumnCount - m_omitColumnCount;
-        m_joinedRSData = new ArrayList[colCount];
+        @SuppressWarnings("unchecked")
+        ArrayList<Object>[] cols = (ArrayList<Object>[]) new ArrayList<?>[colCount];
+        m_joinedRSData = cols;
         for (int i = 0; i < colCount; i++) {
-          m_joinedRSData[i] = new ArrayList(java.lang.Math.max(m_expectedSelectivity, 25));
+          m_joinedRSData[i] = new ArrayList<>(java.lang.Math.max(m_expectedSelectivity, 25));
         }
       }
     }
@@ -418,7 +423,7 @@ class PSJoinedRowDataBuffer {
 
       // then we can add in the right side columns
       for (; rsCol < colCount; rsCol++) {
-        java.util.ArrayList colList = m_joinedRSData[rsCol];
+        java.util.ArrayList<Object> colList = m_joinedRSData[rsCol];
         colList.add(colList.get(i));
       }
     }
@@ -459,9 +464,9 @@ class PSJoinedRowDataBuffer {
 
   private int m_expectedSelectivity;
   private int m_joinedColumnCount; // m_lCols + m_rCols
-  private ArrayList[] m_joinedRSData = null;
+  private ArrayList<Object>[] m_joinedRSData = null;
   private PSResultSetMetaData m_joinedRSMetaData;
-  private HashMap m_columnHash;
+  private HashMap<String, Integer> m_columnHash;
   private boolean[] m_omitColumns;
   private int m_omitColumnCount;
 

@@ -58,13 +58,14 @@ public class PSOdbcDriverMetaData implements IPSDriverMetaData {
    */
   public java.sql.ResultSet getServers() throws SQLException {
 
-    HashMap cols = new HashMap(1);
+    HashMap<String, Integer> cols = new HashMap<>(1);
     cols.put("SERVER_NAME", Integer.valueOf(1));
 
     /* the native method returns an array of strings with each string
      * representing one DSN
      */
-    ArrayList[] data = {new ArrayList()};
+    @SuppressWarnings("unchecked")
+    ArrayList<Object>[] data = (ArrayList<Object>[]) new ArrayList<?>[] {new ArrayList<>()};
     String[] servers = null;
     if (ms_libraryLoaded) servers = getDSNArray();
     else if (ms_useFileSystemOdbcIni) {
@@ -99,7 +100,7 @@ public class PSOdbcDriverMetaData implements IPSDriverMetaData {
       return (0); /* This is not supported */
     }
 
-    Enumeration keys = serverAttributes.propertyNames();
+    Enumeration<?> keys = serverAttributes.propertyNames();
     if (keys != null) {
       String strAttributes = new String("");
       while (keys.hasMoreElements()) {
@@ -134,7 +135,7 @@ public class PSOdbcDriverMetaData implements IPSDriverMetaData {
     // we will separate key=value with /t and end the attribute string with /t
     // this is done because our native code will replace the /t with /0 which is
     // what SQLConfig wants
-    Enumeration keys = serverAttributes.propertyNames();
+    Enumeration<?> keys = serverAttributes.propertyNames();
     if (keys != null) {
       String strAttributes = new String("");
       while (keys.hasMoreElements()) {
@@ -169,7 +170,7 @@ public class PSOdbcDriverMetaData implements IPSDriverMetaData {
     // we will separate key=value with /t and end the attribute string with /t
     // this is done because our native code will replace the /t with /0 which is
     // what SQLConfig wants
-    Enumeration keys = serverAttributes.propertyNames();
+    Enumeration<?> keys = serverAttributes.propertyNames();
     if (keys != null) {
       String strAttributes = new String("");
       while (keys.hasMoreElements()) {

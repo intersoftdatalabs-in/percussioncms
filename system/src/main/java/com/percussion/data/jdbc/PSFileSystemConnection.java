@@ -405,9 +405,9 @@ public class PSFileSystemConnection implements Connection {
    * @return the java.util.Map object associated with this Connection object
    * @deprecated Not supported
    */
-  public Map getTypeMap() throws SQLException {
+  public Map<String, Class<?>> getTypeMap() throws SQLException {
     checkClosed();
-    return new HashMap();
+    return new HashMap<>();
   }
 
   /**

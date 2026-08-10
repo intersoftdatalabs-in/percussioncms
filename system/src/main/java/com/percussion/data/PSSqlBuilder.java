@@ -99,12 +99,12 @@ public abstract class PSSqlBuilder {
       PSBackEndTable table,
       boolean useAlias,
       PSSqlBuilder builder,
-      HashMap expandedTableNames) {
+      HashMap<PSBackEndTable, String> expandedTableNames) {
     String tableName;
 
     // if they don't want alias only, see if we've previously built this
     if (!useAlias) {
-      tableName = (String) expandedTableNames.get(table);
+      tableName = expandedTableNames.get(table);
       if (tableName != null) return tableName;
     } else // use the alias, if it's been defined
     tableName = table.getAlias();
@@ -321,7 +321,7 @@ public abstract class PSSqlBuilder {
    * Stores the expanded table names using the PSBackEndTable object as the key and the expanded
    * table name String as the value.
    */
-  protected HashMap m_expandedTableNames = new HashMap();
+  protected HashMap<PSBackEndTable, String> m_expandedTableNames = new HashMap<>();
 
   protected boolean supportsSchemaInName = false;
 }

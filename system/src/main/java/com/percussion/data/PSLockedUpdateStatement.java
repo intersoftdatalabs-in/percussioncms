@@ -52,7 +52,7 @@ public class PSLockedUpdateStatement extends PSUpdateStatement {
       int connKey,
       IPSStatementBlock[] updateBlocks,
       IPSStatementBlock[] queryBlocks,
-      java.util.List targetExtractors,
+      java.util.List<IPSDataExtractor> targetExtractors,
       int type)
       throws com.percussion.data.PSDataExtractionException {
     super(connKey, updateBlocks, type);
@@ -190,5 +190,5 @@ public class PSLockedUpdateStatement extends PSUpdateStatement {
   protected boolean m_isPositioned;
 
   /** The extractors to use to get the data for comparison. These are IPSDataExtractor objects. */
-  protected java.util.List m_targetExtractors;
+  protected java.util.List<IPSDataExtractor> m_targetExtractors;
 }

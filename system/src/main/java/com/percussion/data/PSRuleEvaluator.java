@@ -67,7 +67,7 @@ public class PSRuleEvaluator extends PSConditionalEvaluator {
       /* if the rule has an extensioncallset, use that instead of the
         default behavior (conditional evaluator with no conditions)
       */
-      m_extensions = new ArrayList();
+      m_extensions = new ArrayList<>();
       loadExtensions(rule.getExtensionRules(), IPSUdfProcessor.class.getName(), m_extensions);
     }
   }
@@ -82,7 +82,8 @@ public class PSRuleEvaluator extends PSConditionalEvaluator {
    *     the referenced extensions will be prepared. Assumed not <code>null</code>.
    * @param instances The List into which prepared extensions will be put.
    */
-  private void loadExtensions(PSCollection extCalls, String interfaceName, List instances)
+  private void loadExtensions(
+      PSCollection extCalls, String interfaceName, List<PSExtensionRunner> instances)
       throws PSNotFoundException, PSExtensionException {
     try {
       IPSExtensionManager extMgr = PSServer.getExtensionManager(null);
@@ -122,10 +123,10 @@ public class PSRuleEvaluator extends PSConditionalEvaluator {
 
     IPSExtensionDef def = extMgr.getExtensionDef(ref);
     try {
-      Class toTest = Class.forName(interfaceName);
-      for (Iterator i = def.getInterfaces(); i.hasNext(); ) {
-        String iface = (String) (i.next());
-        Class clazz = Class.forName(iface);
+      Class<?> toTest = Class.forName(interfaceName);
+      for (Iterator<String> i = def.getInterfaces(); i.hasNext(); ) {
+        String iface = i.next();
+        Class<?> clazz = Class.forName(iface);
         if (toTest.isAssignableFrom(clazz)) {
           return true;
         }
@@ -140,7 +141,7 @@ public class PSRuleEvaluator extends PSConditionalEvaluator {
   /**
    * The extension runners for this rule. Can be <code>null</code> after construction, but not empty
    */
-  private ArrayList m_extensions = null;
+  private ArrayList<PSExtensionRunner> m_extensions = null;
 
   /**
    * Checks the conditionals or extensions using the specified data. Tokens representing variables
@@ -164,9 +165,7 @@ public class PSRuleEvaluator extends PSConditionalEvaluator {
   public boolean isMatch(PSExecutionData data) {
     if (m_extensions != null) {
       try {
-        Iterator it = m_extensions.iterator();
-        while (it.hasNext()) {
-          PSExtensionRunner udfRunner = (PSExtensionRunner) it.next();
+        for (PSExtensionRunner udfRunner : m_extensions) {
           Object retObj = udfRunner.processUdfCallExtractor(data);
           if (retObj instanceof Boolean) {
             if (!((Boolean) retObj).booleanValue()) return false;

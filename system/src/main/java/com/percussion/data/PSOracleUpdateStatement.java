@@ -115,10 +115,10 @@ public class PSOracleUpdateStatement extends PSUpdateStatement {
   }
 
   // see base class
-  public List getReplacementValueExtractors() {
+  public List<IPSDataExtractor> getReplacementValueExtractors() {
     // need to include fields from the query statements so they are fixed up
     // appropriately by the transaction set when it initializes.
-    ArrayList retList = new ArrayList();
+    ArrayList<IPSDataExtractor> retList = new ArrayList<>();
 
     retList.addAll(super.getReplacementValueExtractors());
     retList.addAll(m_lobQueryStatement.getReplacementValueExtractors());
@@ -424,10 +424,10 @@ public class PSOracleUpdateStatement extends PSUpdateStatement {
       int colNum = 1;
       /* Traverse LOB columns and update the LOBs by locator */
       for (int i = 0; i < m_blocks.length; i++) {
-        List lobCols = m_blocks[i].getLobStatementColumns();
+        List<PSStatementColumn> lobCols = m_blocks[i].getLobStatementColumns();
         if (lobCols.size() > 0) {
           for (int j = 0; j < lobCols.size(); j++) {
-            PSStatementColumn col = (PSStatementColumn) lobCols.get(j);
+            PSStatementColumn col = lobCols.get(j);
 
             if (col.getType() == java.sql.Types.BLOB) // Blob
             setBlob(rs, colNum, col, data);
@@ -484,7 +484,7 @@ public class PSOracleUpdateStatement extends PSUpdateStatement {
       /* Get the result set from the stack and retrieve the rowids*/
       ResultSet rs = (ResultSet) data.getResultSetStack().pop();
 
-      ArrayList rowIds = new ArrayList();
+      ArrayList<String> rowIds = new ArrayList<>();
 
       while (rs.next()) {
         rowIds.add(rs.getString(1));
@@ -493,9 +493,9 @@ public class PSOracleUpdateStatement extends PSUpdateStatement {
 
       /* Now close the statement.  The query adds it to
       the end of a list in the executiondata */
-      List stmts = data.getPreparedStatements();
+      List<PreparedStatement> stmts = data.getPreparedStatements();
       if ((stmts != null) && (stmts.size() > 0)) {
-        PreparedStatement stmt = (PreparedStatement) stmts.get(stmts.size() - 1);
+        PreparedStatement stmt = stmts.get(stmts.size() - 1);
         stmt.close();
       }
 
@@ -512,9 +512,7 @@ public class PSOracleUpdateStatement extends PSUpdateStatement {
       }
 
       /* Now traverse the rowid list, doing the updates w/ initializers */
-      for (Iterator i = rowIds.iterator(); i.hasNext(); ) {
-        String rowid = (String) i.next();
-
+      for (String rowid : rowIds) {
         stmt.setString(bindStart, rowid);
 
         stmt.executeUpdate();
@@ -525,9 +523,7 @@ public class PSOracleUpdateStatement extends PSUpdateStatement {
       /* Now do the query for update... */
       String queryBegin = m_lobQueryStatement.buildSqlString(data);
 
-      for (Iterator i = rowIds.iterator(); i.hasNext(); ) {
-        String rowid = (String) i.next();
-
+      for (String rowid : rowIds) {
         String query =
             queryBegin + "'" + SecureStringUtils.sanitizeStringForSQLStatement(rowid) + "'";
 
@@ -542,10 +538,10 @@ public class PSOracleUpdateStatement extends PSUpdateStatement {
         int colNum = 1;
         /* Traverse LOB columns and update the LOBs by locator */
         for (int blockCnt = 0; blockCnt < m_blocks.length; blockCnt++) {
-          List lobCols = m_blocks[blockCnt].getLobStatementColumns();
+          List<PSStatementColumn> lobCols = m_blocks[blockCnt].getLobStatementColumns();
           if (lobCols.size() > 0) {
             for (int j = 0; j < lobCols.size(); j++) {
-              PSStatementColumn col = (PSStatementColumn) lobCols.get(j);
+              PSStatementColumn col = lobCols.get(j);
 
               if (col.getType() == java.sql.Types.BLOB) // Blob
               setBlob(rs, colNum, col, data);
