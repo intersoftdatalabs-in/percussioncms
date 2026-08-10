@@ -107,6 +107,20 @@ export function TopNav(): React.ReactElement {
                   </a>
                 </li>
               );
+            case "design":
+              return (
+                <li key={id}>
+                  <NavLink
+                    to="/design"
+                    className={linkClass}
+                    data-testid="nav-design"
+                    title={message(MSG.NAV_DESIGN_TITLE)}
+                    {...i18nKeyAttr(MSG.NAV_DESIGN)}
+                  >
+                    {message(MSG.NAV_DESIGN)}
+                  </NavLink>
+                </li>
+              );
             case "developer":
               return (
                 <li key={id}>

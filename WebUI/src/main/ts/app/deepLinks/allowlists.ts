@@ -23,6 +23,7 @@ export const SPA_ENTRIES = [
   "admin",
   "widget-builder",
   "developer",
+  "design",
   "explorer",
   "profile",
   "unavailable",
@@ -109,6 +110,18 @@ export const DEVELOPER_SECTIONS = [
 ] as const;
 
 export type DeveloperSection = (typeof DEVELOPER_SECTIONS)[number];
+
+/** Design SPA sections (lockstep with DesignShell) — #2808 template library. */
+export const DESIGN_SECTIONS = ["templates"] as const;
+
+export type DesignSection = (typeof DESIGN_SECTIONS)[number];
+
+const DESIGN_SECTION_ALIASES: Record<string, DesignSection> = {
+  template: "templates",
+  tpl: "templates",
+  library: "templates",
+  "template-library": "templates",
+};
 
 const DEVELOPER_SECTION_ALIASES: Record<string, DeveloperSection> = {
   contenttypes: "content-types",
@@ -228,6 +241,17 @@ export function normalizeDeveloperSection(
     return n as DeveloperSection;
   }
   return DEVELOPER_SECTION_ALIASES[n];
+}
+
+export function normalizeDesignSection(
+  raw: string | null | undefined,
+): DesignSection | undefined {
+  if (raw == null || !raw.trim()) return undefined;
+  const n = raw.trim().toLowerCase().replace(/_/g, "-");
+  if ((DESIGN_SECTIONS as readonly string[]).includes(n)) {
+    return n as DesignSection;
+  }
+  return DESIGN_SECTION_ALIASES[n];
 }
 
 export function normalizeId(raw: string | null | undefined): string | undefined {

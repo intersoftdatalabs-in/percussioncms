@@ -85,6 +85,16 @@ public class PSWebUiSpaFallbackFilterTest {
   }
 
   @Test
+  public void forwardsDesignWithSection() {
+    assertEquals(
+        "/cm/app/spa.jsp?entry=design",
+        PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/design", null));
+    assertEquals(
+        "/cm/app/spa.jsp?entry=design&section=templates",
+        PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/design/templates", null));
+  }
+
+  @Test
   public void dualTreePagesAppSupported() {
     assertEquals(
         "/cm/pages/app/spa.jsp?entry=home&section=recent",
