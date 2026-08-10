@@ -1,0 +1,88 @@
+#define($ariaLabelString)##
+#if($title && $title.length() > 0)##
+aria-labelledby="$!{headerId}"##
+#else##
+$!{listAriaLabel}##
+#end##
+#end##
+##Setup Date Formatting
+#set($formatterOut = $rx.pageutils.getDateFormatFromLocale("$!{postDateTimeFormat}",$locale))##
+#set($postDateObject="")##
+#set($postDate="")##
+<div id="$!{autoListDivId}" $!{ariaLabelString} class="$!{rootclass} $!{layout} perc-file-auto-list" $!{listAriaRole} #if($perc_hide_when_empty && $relresults.size() <= 0)hidden #end data-query="$!{dynamicListData}">
+#if( ! $perc.widgetContents.isEmpty() )
+#if($title && $title.length() > 0)##
+$!{titleFormatStartTag}$title$!{titleFormatEndTag}
+#end
+#if($relresults && $relresults.size() > 0)
+#if($rendering == "ordered")##
+<ol class="$!{listclass} perc-list-main">##
+#else##
+<ul class="$!{listclass} perc-list-main">##
+#end##
+#foreach($result in $relresults)
+#set($postDateObject=$result.node.getProperty('rx:sys_contentpostdate'))##
+#set($postDateObjectString=$result.node.getProperty('rx:sys_contentpostdate').String)##
+#if("$!{postDateObjectString}" == "")##
+#set($postDateObject=$tools.date.getDate())##
+#else##
+#set($postDateObject=$result.node.getProperty('rx:sys_contentpostdate').getDate())##
+#end##
+#if("$!{postDateObject}" != "")##
+#set($postDate = $formatterOut.format($postDateObject.getTime()))##
+#end##
+#if($velocityCount == 1)##
+#set($firstrow = 'perc-list-first')##
+#else##
+#set($firstrow = ' ')##
+#end##
+#if($velocityCount == $relresults.size())##
+#set($lastrow = 'perc-list-last')##
+#else
+#set($lastrow = ' ')##
+#end
+#set($pagelink=$tools.esc.html($rx.pageutils.itemLink($linkContext, $result)))##
+#set($linkTitle=$rx.pageutils.html($result.node,"resource_link_title,sys_title", "-no-title-"))##
+#set($link=$tools.esc.html($rx.pageutils.itemLink($linkContext, $result, "percSystem.fileBinary")))##
+#set($file_title=$rx.pageutils.html($result,'displaytitle'))##
+##
+#set( $analyticsId = "" )##
+#if ( $result.getNode().hasProperty('analyticsId') )##
+#set( $analyticsId_raw = $result.getNode().getProperty('analyticsId').String )##
+#if( $analyticsId_raw.length() == 1 && $analyticsId_raw != "?" )##
+#set( $analyticsId = $tools.esc.url($analyticsId_raw) )##
+#end##
+#if ($analyticsId_raw.length() > 1 )
+#set( $analyticsId_Array = $analyticsId_raw.toCharArray() )##
+#set( $analyticsId_firstChar = $analyticsId_Array.get(0).toString() )##
+#if( $analyticsId_firstChar == "?" )##
+#set( $analyticsId = "?" + $tools.esc.url( $analyticsId_raw.substring( 1, $analyticsId_raw.length() ) ) )##
+#else##
+#set( $analyticsId = $tools.esc.url( $analyticsId_raw ) )##
+#end##
+#end##
+#end##
+#if($perc.isEditMode() && $file_title == "")##
+#set($file_title_attr = "")##
+#else##
+#set($file_title_attr = 'title="' + $file_title + '"')##
+#end
+<li class="$rowtag $!{firstrow} $!{lastrow} perc-list-element">$!{itemFormatStartTag}
+<a href="${link}$!{analyticsId}" $file_title_attr target="$target">$file_title</a>
+#if($showPostDate)##
+#if("$!{postDate}" != "")##
+<span class="perc-file-auto-list-date">$!{postDate}</span>
+#end##
+#end##
+$!{itemFormatEndTag}</li>
+#end##
+#if($rendering == "ordered")##
+</ol>##
+#else##
+</ul>##
+#end##
+#end##
+#elseif ($perc.isEditMode())
+#createEmptyWidgetContent("filelist-sample-content", "This file auto list widget is showing sample content.")
+#end
+</div>

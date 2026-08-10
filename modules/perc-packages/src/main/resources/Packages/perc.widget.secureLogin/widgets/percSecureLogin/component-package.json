@@ -1,0 +1,253 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percSecureLogin",
+  "name": "Secure Login (Deprecated)",
+  "version": "1.1.7",
+  "description": "Login widget to access secured content. (Deprecated)",
+  "publisher": {
+    "name": "Percussion Software",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "2.6.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Secure Login (Deprecated)",
+    "category": "integration",
+    "description": "Login widget to access secured content. (Deprecated)",
+    "thumbnail": "resources/widgetIconLogin.gif",
+    "icon": "resources/widgetIconLogin.gif",
+    "author": "Percussion Software Inc.",
+    "preferredEditorWidth": 780,
+    "preferredEditorHeight": 450,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percSecureLogin",
+      "ref": "contentTypes/percSecureLogin"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percSecureLoginSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percSecureLoginSnippet.vm",
+      "contentType": "percSecureLogin",
+      "bindings": [
+        {
+          "variable": "props",
+          "expression": "$perc.widget.item.properties"
+        },
+        {
+          "variable": "cssprops",
+          "expression": "$perc.widget.item.cssProperties"
+        },
+        {
+          "variable": "labelalignclass",
+          "expression": "\"percLogin-form-label-top\""
+        },
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "widgetId",
+          "expression": "$perc.widget.item.id"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$cssprops.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "\"percLogin-form\""
+        },
+        {
+          "variable": "labelclass",
+          "expression": "$cssprops.get('labelclass')"
+        },
+        {
+          "variable": "labelclass",
+          "expression": "\"percLogin-form-label-top\""
+        },
+        {
+          "variable": "labelclass",
+          "expression": "\"field-label-container\""
+        },
+        {
+          "variable": "inputclass",
+          "expression": "$cssprops.get('inputclass')"
+        },
+        {
+          "variable": "inputclass",
+          "expression": "\"percLogin-form-input\""
+        },
+        {
+          "variable": "inputclass",
+          "expression": "\"field-input-container\""
+        },
+        {
+          "variable": "buttonclass",
+          "expression": "$cssprops.get('buttonclass')"
+        },
+        {
+          "variable": "buttonclass",
+          "expression": "\"percLogin-form-button\""
+        },
+        {
+          "variable": "thisItem",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "innerItem",
+          "expression": "$thisItem.get(0)"
+        },
+        {
+          "variable": "mainTitle",
+          "expression": "$innerItem.getNode().getProperty('mainTitle').String"
+        },
+        {
+          "variable": "usernameLabel",
+          "expression": "$innerItem.getNode().getProperty('usernameLabel').String"
+        },
+        {
+          "variable": "passwordLabel",
+          "expression": "$innerItem.getNode().getProperty('passwordLabel').String"
+        },
+        {
+          "variable": "buttonLabel",
+          "expression": "$innerItem.getNode().getProperty('buttonLabel').String"
+        },
+        {
+          "variable": "labelalignclass",
+          "expression": "\"percLogin-form-label-left\""
+        },
+        {
+          "variable": "forgotPasswordLinkHTML",
+          "expression": "\"\""
+        },
+        {
+          "variable": "pwresetPage",
+          "expression": "\"\""
+        },
+        {
+          "variable": "finderPath",
+          "expression": "$rx.pageutils.getItemPath($pageId)"
+        },
+        {
+          "variable": "pathParts",
+          "expression": "$finderPath.split(\"\\/\")"
+        },
+        {
+          "variable": "pwresetPage",
+          "expression": "$rx.pageutils.getSiteResetRequestPasswordPage($pathParts[2])"
+        },
+        {
+          "variable": "pwresetPageLink",
+          "expression": "\"#\""
+        },
+        {
+          "variable": "pwresetPageLink",
+          "expression": "$pwresetPage"
+        },
+        {
+          "variable": "forgotPasswordLinkHTML",
+          "expression": "'<div class=\"percLogin-form-field-row\"><a href=\"' + $pwresetPageLink + '\">Forgot password?</a></div>'"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "\"\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\")"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$props = $perc.widget.item.properties;\n\t\t$cssprops = $perc.widget.item.cssProperties;\n\n\t\t$labelalignclass = \"percLogin-form-label-top\";\n\n\t\t$pageId = $perc.page.id;\n\t\t$widgetId = $perc.widget.item.id;\n\t\t$rootclass = $cssprops.get('rootclass');\n\t\tif (empty($rootclass)) {\n\t\t\t$rootclass = \"percLogin-form\";\n\t\t}\n\t\t$labelclass = $cssprops.get('labelclass');\n\t\tif (empty($labelclass)) {\n\t\t\t$labelclass = \"percLogin-form-label-top\";\n\t\t\t$labelclass = \"field-label-container\";\n\t\t}\n\t\t$inputclass = $cssprops.get('inputclass');\n\t\tif (empty($inputclass)) {\n\t\t\t$inputclass = \"percLogin-form-input\";\n\t\t\t$inputclass = \"field-input-container\";\n\t\t}\n\t\t$buttonclass = $cssprops.get('buttonclass');\n\t\tif (empty($buttonclass)) {\n\t\t\t$buttonclass = \"percLogin-form-button\";\n\t\t}\n\n\t\t$thisItem = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n\n\t\tif(! $thisItem.isEmpty()) {\n\n\t\t\t$innerItem = $thisItem.get(0);\n\t\t\t$mainTitle = $innerItem.getNode().getProperty('mainTitle').String;\n\t\t\t$usernameLabel = $innerItem.getNode().getProperty('usernameLabel').String;\n\t\t\t$passwordLabel = $innerItem.getNode().getProperty('passwordLabel').String;\n\t\t\t$buttonLabel = $innerItem.getNode().getProperty('buttonLabel').String;\n\t\t}\n\t\tif($props.get(\"labelAlign\") != null && $props.get(\"labelAlign\").equals(\"left\")) {\n\t\t\t$labelalignclass = \"percLogin-form-label-left\";\n\t\t}\n\n        ## Code to include the forgot password link (which redirects to the reset password\n        ## page configured in site preferences)\n        $forgotPasswordLinkHTML = \"\";\n        if($props.get(\"showForgotPasswordLink\") != null && $props.get(\"showForgotPasswordLink\")) {\n            $pwresetPage = \"\";\n            ## Only retrieve the password reset page if the option is enabled\n            if (! empty($pageId)) {\n                ## Retrieve loginPage for the current site\n                $finderPath = $rx.pageutils.getItemPath($pageId);\n                $pathParts = $finderPath.split(\"\\/\");\n                ## current site name == $pathParts[2]\n                $pwresetPage = $rx.pageutils.getSiteResetRequestPasswordPage($pathParts[2]);\n            }\n            ## If it's empty, won't redirect anywhere\n            if ($pwresetPage == null || $pwresetPage == \"\")\n            {\n                $pwresetPageLink = \"#\";\n            }\n            else\n            {\n                $pwresetPageLink = $pwresetPage;\n            }\n\n            $forgotPasswordLinkHTML = '<div class=\"percLogin-form-field-row\"><a href=\"' + $pwresetPageLink + '\">Forgot password?</a></div>';\n\t\t}\n\n\t\t$dsUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n        if ($dsUrl.indexOf(\"http://localhost\") != -1 )\n\t\t\t$dsUrl = \"\";\n        $dynamicListData = $tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\");"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percSecureLoginContent",
+      "allowedContentTypes": [
+        "percSecureLogin"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": "",
+        "labelclass": "",
+        "inputclass": "",
+        "buttonclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconLogin.gif",
+      "target": "rx_resources/widgets/percSecureLogin/images/widgetIconLogin.gif",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "labelAlign",
+      "displayName": "Label align",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "top",
+      "enumValues": [
+        {
+          "value": "top",
+          "displayValue": "Top of the control"
+        },
+        {
+          "value": "left",
+          "displayValue": "Left of the control"
+        }
+      ]
+    },
+    {
+      "name": "showForgotPasswordLink",
+      "displayName": "Show forgot password link",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS root class",
+      "datatype": "string"
+    },
+    {
+      "name": "labelclass",
+      "displayName": "CSS field label class",
+      "datatype": "string"
+    },
+    {
+      "name": "inputclass",
+      "displayName": "CSS input class",
+      "datatype": "string"
+    },
+    {
+      "name": "buttonclass",
+      "displayName": "CSS button class",
+      "datatype": "string"
+    }
+  ]
+}

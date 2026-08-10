@@ -1,0 +1,13 @@
+#if(($perc.widget.item.definitionId !='percRedirect' && ! $perc.widgetContents.isEmpty() && ! $perc.isEditMode()) ||  (! $perc.isEditMode() && ! $perc.isPreviewMode()))##
+	#if( "$!enabled" != "no")##
+
+		#set($addlHead = $perc.page.getAdditionalHeadContent())##
+		#set($quot = '"')##
+		$perc.page.setAdditionalHeadContent("<meta http-equiv=$!{quot}refresh$!{quot} content=$!{quot}$!{delayInSeconds};URL='$!{targetUrl}'$!{quot} />")##
+       #end##
+        #end##
+        #if ($perc.isEditMode())##
+           <div style="background: transparent url(/Rhythmyx/rx_resources/widgets/percRedirect/images/redirect-widget-placeholder-small.png) no-repeat scroll center center;filter: alpha(opacity=50);opacity: .50;" title="Client Side Redirect Widget">
+	   <h3>Client side redirect widget</h3>
+	   </div>
+        #end##

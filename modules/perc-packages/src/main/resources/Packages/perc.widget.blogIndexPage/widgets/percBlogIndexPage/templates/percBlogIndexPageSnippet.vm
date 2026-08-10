@@ -1,0 +1,262 @@
+#define($ariaLabelString)##
+#if($title && $title.length() > 0)##
+aria-labelledby="$!{headerId}"##
+#else##
+$!{listAriaLabel}##
+#end##
+#end##
+#if( "" != "$!{relresults}" && 0 < $relresults.size() )##
+#if($feedname)##
+<div style="display:none" hidden data-name="feedQuery_$feedname" data-query="$!{feedDynamicListData}"></div>
+#end##
+<div id="$!{autoListDivId}" $!{ariaLabelString} class="#cleanClass("$!{rootclass} perc-blog-list-container")" #if($perc_hide_when_empty && $relresults.size() <= 0)hidden #end aria-live="polite" $!{listAriaRole} aria-busy="true" aria-relevant="additions" aria-atomic="true" data-query="$!{dynamicListData}" data-title="$!{titleResults}">
+## The large number of #*  *# and ## notations prevent extra spacing from being output by velocity.  This makes the html line up correctly.
+#if("$navLoc" != "")##
+#if(0 < $relresults.size())##
+#if($enableRssIcon && $enableRssField == "Enable Rss feed" && $rssIconPosition == "perc-list-top")##Keep link class name perc-rss-icon in sync with delivery tier.
+<span class='perc-rss-icon-top'><a class='perc-rss-icon' href="$!{sUrl}" aria-label="$!{rssLinkText}" title="$!{rssLinkText}" >$!{rssLinkText}</a></span>
+#end##
+<ol style="visibility:hidden" class="perc-blog-list perc-list-main">
+#foreach($result in $relresults)##
+#set($catMap = $rx.string.stringToMap(null))##
+#set($catClass = "")##
+## Row alternator stuff, providing necessary classes for styling
+#if($velocityCount == 1)##
+#set($firstrow = ' ui-perc-list-first')##
+#else##
+#set($firstrow = ' ')##
+#end##
+#if($velocityCount == $relresults.size())##
+#set($lastrow = ' ui-perc-list-last')##
+#else##
+#set($lastrow = ' ')##
+#end##
+#set($hidden = "")##
+#if($velocityCount > $perc_max_post_entries)##
+#set($hidden = ' style="display:none"')##
+#end##
+## Obtain various properties from the given page.
+#set($pagelink=$tools.esc.html($rx.pageutils.itemLink($linkContext, $result)))##
+#set($linkTitle=$rx.pageutils.html($result.node,"resource_link_title,sys_title", "-no-title-"))##
+#if($result.node.hasProperty('rx:page_summary'))##
+#set($pageSummary = $result.node.getProperty('rx:page_summary').getString().replace('<span class="perc-blog-more-link"></span>', "<a href='$!{pagelink}' aria-label='Read more about $!{linkTitle}' title='$!{linkTitle}'>$!{blogPostReadMoreText}</a>"))##
+#end##
+#set($formatterOut = $rx.pageutils.getDateFormatFromLocale("$!{blogPostDateTimeFormat}",$locale))##
+#set($postDateObject="")##
+#set($postDate="")##
+#if($result.node.hasProperty('rx:sys_contentpostdate'))##
+#set($postDateObject=$result.node.getProperty('rx:sys_contentpostdate'))##
+#if("$!{postDateObject.Date}" != "")##
+#set($dummy = $formatterOut.applyPattern($!{blogPostDateTimeFormat}))##
+#set($postDate = $formatterOut.format($postDateObject.Date.Time))##
+#end##
+#end##
+#if("$!{postDate}" == "")##
+#set($dummy = $formatterOut.applyPattern($!{blogPostDateTimeFormat}))##
+#set($postDate = $formatterOut.format($tools.date.getDate()))##
+#end##
+#if($result.node.hasProperty('rx:page_authorname'))##
+#set($author=$tools.esc.html($result.node.getProperty('rx:page_authorname').getString().trim()))##
+#end##
+#if($result.node.hasProperty('rx:page_categories_tree'))##
+#set($postCategories=$result.node.getProperty('rx:page_categories_tree').getValues())##
+#foreach($category in $postCategories)##
+#foreach($node in $category.getString().split("/"))##
+#if("$!{node}" !="" && "$!{node}" != "Categories")##
+#set($leaf=$node)##
+#set($leaf = $leaf.replaceAll("[^a-zA-Z0-9]+","").trim().toLowerCase())##
+#set($dummy = $catMap.put($leaf,$leaf))##
+#end##
+#end##
+#end##
+#foreach($c in $catMap.entrySet())##
+#if(""=="$!{catClass}")##
+#set($catClass = " perc-bloglist-category-$!{c.key}")##
+#else##
+#set($catClass = "$!{catClass} perc-bloglist-category-$!{c.key}")##
+#end##if
+#end##for
+#end##if
+<li$!{hidden} class="#cleanClass("$!{rowtag}$!{firstrow}$!{lastrow} ui-perc-list-element$!{catClass}")">##
+##start calendar icon support##
+#if($enableCalenderIcon)##
+#set($calPostDateObject="")##
+#set($calPostDate="")##
+#set($calPostDateObject=$result.node.getProperty('rx:sys_contentpostdate'))##
+#set($calPostDateObjectString=$result.node.getProperty('rx:sys_contentpostdate').String)##
+#if("$!{calPostDateObjectString}" == "")##
+#set($calPostDateObject=$tools.date.getDate())##
+#else##
+#set($calPostDateObject=$result.node.getProperty('rx:sys_contentpostdate').getDate())##
+#end##
+#if("$!{calPostDateObject}" != "")##
+#set($calPostDate = $formatterOut.format($calPostDateObject.getTime()))##
+#end##
+<div class="perc-blog-list-calicon">
+<div class="perc-blog-list-calicon-month">
+#set($formatterOut2 = $rx.pageutils.getDateFormatFromLocale("MMM",$locale))##
+#set($calPostDate = $formatterOut2.format($calPostDateObject.getTime()))##
+$calPostDate##
+</div>
+<div class="perc-blog-list-calicon-day">
+#set($formatterOut3 = $rx.pageutils.getDateFormatFromLocale("dd",$locale))##
+#set($calPostDate = $formatterOut3.format($calPostDateObject.getTime()))##
+$calPostDate##
+</div>
+</div>
+#end##
+##end calendar icon support##
+#if( ! $perc_hidefield_title)##
+#if("$!{linkTitle}" != "")##
+$!{titleFormatStartTag}<a href="$!{pagelink}" aria-label="$!{linkTitle}" title="$!{linkTitle}">$!{linkTitle}</a>$!{titleFormatEndTag}
+#end##
+#end##
+#if(!$perc_hidefield_byline || !$perc_hidefield_blog_date)##
+<div class="perc-blog-list-dateByline-container">
+#end##
+#if(!$perc_hidefield_byline)##
+<div class="perc-blog-list-byline-container">
+#if("$!{author}" != "")##
+$!{blogPostBylineText} $!{author}##
+#end##
+</div>
+#end##
+#if(!$perc_hidefield_blog_date)##
+#set( $postDateTz = $result.node.getProperty('rx:sys_contentpostdatetz').String  )##
+#if($postDateTz == "Default")##
+#set( $postDateTz = "" )##
+#end##
+<div class="perc-blog-list-date-container">
+$!{postDate} $postDateTz
+</div>
+#end##
+#if(!$perc_hidefield_byline || !$perc_hidefield_blog_date)##
+</div>
+#end##
+#if(!$perc_hidefield_summary)##
+<div class="perc-blog-list-summary-container">
+$!{pageSummary}
+</div>
+#end##
+#if(!$perc_hidefield_tags)##
+#if($result.node.hasProperty('rx:page_tags'))##
+#set($postTags=$result.node.getProperty('rx:page_tags').getValues())##
+#if($postTags.size()>0)##
+#set($noValue="")##
+#else##
+#set($noValue="perc-blog-hide-container")##
+#end##
+<div class="perc-blog-list-tag-container $noValue">
+<span>$!{perc_tag_label}</span>
+#set($sep=",")##
+#foreach($tag in $postTags)##
+#if($velocityCount == $postTags.size())##
+#set($sep="")##
+#end##
+<a href="javascript:void(0)" aria-label="Tag: $tools.esc.html($tag.getString())" title="$tools.esc.html($tag.getString())">$tools.esc.html($tag.getString())$sep</a>
+#end##
+</div>
+#else##
+<div class="perc-blog-list-tag-container perc-blog-list-hide-container">
+<span>$tools.esc.html($!{perc_tag_label})</span>
+</div>
+#end##
+#end##
+#if(!$perc_hidefield_categories)##
+#if($result.node.hasProperty('rx:page_categories_tree'))##
+#set($postCategories=$result.node.getProperty('rx:page_categories_tree').getValues())##
+#if($postCategories.size()>0)##
+#set($noValue="")##
+#else##
+#set($noValue="perc-blog-hide-container")##
+#end##
+<div class="#cleanClass("perc-blog-list-category-container $noValue")">
+<span>$!{perc_category_label}</span>
+#set($sep=",")##
+#foreach($category in $postCategories)##
+#if($velocityCount == $postCategories.size())##
+#set($sep="")##
+#end##
+#foreach($node in $category.getString().split("/"))##
+#set($leaf=$node)##
+#end##
+<a href="javascript:void(0)" aria-label="Category: $tools.esc.html($!{leaf})" title="$tools.esc.html($!{leaf})">$tools.esc.html($!{leaf})$!{sep}</a>
+#end##
+</div>
+#else##
+<div class="perc-blog-list-category-container perc-blog-list-hide-container">
+<span>$tools.esc.html($!{perc_category_label})</span>
+</div>
+#end##
+#end##
+#if(!$perc_hidefield_comments)##
+<div class="perc-blog-list-comment-container">
+#set($blogPostCommentsText = $tools.esc.html($blogPostCommentsText))##
+<p><a href="$!{pagelink}" aria-label="Comments for: $!{linkTitle}" title="$!{blogPostCommentsText}">$!{blogPostCommentsText}</a></p>
+</div>
+#end##
+</li>
+#end##
+</ol>
+#if($enableRssIcon && $enableRssField == "Enable Rss feed" && $rssIconPosition == "perc-list-bottom")##Keep link class name perc-rss-icon in sync with delivery tier.
+<span class = 'perc-rss-icon-bottom'><a class = 'perc-rss-icon' href="$!{sUrl}" aria-label="$!{rssLinkText}" title="$!{rssLinkText}">$!{rssLinkText}</a></span>
+#end##
+#else##
+<div class = "perc-no-post">$!{blogPostNoContentText}</div>
+#end##
+## Blog List Structure for useage by delivery tier services. Must be kept in sync with regular structure.
+<div style="display:none" role="presentation" class="perc-blog-list-structure">
+<ol class="perc-blog-list">
+<li class="#cleanClass("$rowtag ui-perc-list-element")">##
+##start calendar icon structure##
+#if($enableCalenderIcon)##
+<div class="perc-blog-list-calicon">
+<div class="perc-blog-list-calicon-month"></div>
+<div class="perc-blog-list-calicon-day"></div>
+</div>
+#end##
+##end calendar icon structure##
+#if( ! $perc_hidefield_title)##
+$!{titleFormatStartTag}<a>Placeholder Text</a>$!{titleFormatEndTag}
+#end##
+#if(!$perc_hidefield_byline || !$perc_hidefield_blog_date)##
+<div class="perc-blog-list-dateByline-container">
+#end##
+#if(!$perc_hidefield_byline)##
+<div class="perc-blog-list-byline-container">
+</div>
+#end##
+#if(!$perc_hidefield_blog_date)##
+<div class="perc-blog-list-date-container">
+</div>
+#end##
+#if(!$perc_hidefield_byline || !$perc_hidefield_blog_date)##
+</div>
+#end##
+#if(!$perc_hidefield_summary)##
+<div class="perc-blog-list-summary-container">
+</div>
+#end##
+#if(!$perc_hidefield_tags)##
+<div class="perc-blog-list-tag-container">
+<span>$!{perc_tag_label}</span>
+</div>
+#end##
+#if(!$perc_hidefield_categories)##
+<div class="perc-blog-list-category-container">
+<span>$!{perc_category_label}</span>
+</div>
+#end##
+#if(!$perc_hidefield_comments)##
+<div class="perc-blog-list-comment-container">
+<p><a class="perc-no-update-link-text" title="$!{blogPostCommentsText}">$!{blogPostCommentsText}</a></p>
+</div>
+#end##
+</li>
+</ol>
+#end##
+</div>
+#else##
+#createEmptyWidgetContent("bloglist-sample-content", "This blog list widget is showing sample content.")##
+#end##
+</div>

@@ -1,0 +1,156 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percJQueryUIWidget",
+  "name": "jQuery UI Widget",
+  "version": "1.1.4",
+  "description": "Select your desired version of jQuery UI",
+  "publisher": {
+    "name": "Percussion Software, Inc.",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "5.3.15",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "jQuery UI Widget",
+    "category": "Design",
+    "description": "Select your desired version of jQuery UI",
+    "thumbnail": "resources/widgeticonjqueryui.png",
+    "icon": "resources/widgeticonjqueryui.png",
+    "author": "Percussion Software, Inc.",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 685,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "percJQueryUIWidgetSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percJQueryUIWidgetSnippet.vm",
+      "bindings": [
+        {
+          "variable": "jQueryUILocation",
+          "expression": "$perc.widget.item.properties.get('jQueryUILocation')"
+        },
+        {
+          "variable": "isUIDeferred",
+          "expression": "$perc.widget.item.properties.get('isUIDeferred')"
+        },
+        {
+          "variable": "scriptUILocation",
+          "expression": "$perc.widget.item.properties.get('scriptUILocation')"
+        },
+        {
+          "variable": "includeUIOnPublishedPage",
+          "expression": "$perc.widget.item.properties.get('includeUIOnPublishedPage')"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$jQueryUILocation = $perc.widget.item.properties.get('jQueryUILocation');\n    $isUIDeferred = $perc.widget.item.properties.get('isUIDeferred');\n    $scriptUILocation = $perc.widget.item.properties.get('scriptUILocation');\n    $includeUIOnPublishedPage = $perc.widget.item.properties.get('includeUIOnPublishedPage');"
+        }
+      ]
+    }
+  ],
+  "slots": [],
+  "resources": [
+    {
+      "path": "resources/widgeticonjqueryui.png",
+      "target": "rx_resources/widgets/percJQueryUIWidget/images/widgeticonjqueryui.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "jQueryUILocation",
+      "displayName": "jQuery UI CDN Link (http or https):",
+      "datatype": "string",
+      "required": true,
+      "defaultValue": "/web_resources/cm/jslib/jquery-ui.js",
+      "enumValues": []
+    },
+    {
+      "name": "jQueryUILocationIntegrity",
+      "displayName": "jQuery UI SRI Hash",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "jQueryUILocationCrossOrigin",
+      "displayName": "jQuery UI Cross Origin",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "jQueryUICSSTheme",
+      "displayName": "jQuery UI CSS",
+      "datatype": "string",
+      "required": true,
+      "defaultValue": "/web_resources/cm/themes/smoothness/jquery-ui-1.8.9.custom.css",
+      "enumValues": []
+    },
+    {
+      "name": "isUIDeferred",
+      "displayName": "Defer Loading",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "no",
+      "enumValues": [
+        {
+          "value": "no",
+          "displayValue": "No"
+        },
+        {
+          "value": "yes",
+          "displayValue": "Yes"
+        }
+      ]
+    },
+    {
+      "name": "scriptUILocation",
+      "displayName": "Script Location",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "additionalHeadContent",
+      "enumValues": [
+        {
+          "value": "additionalHeadContent",
+          "displayValue": "Head"
+        },
+        {
+          "value": "afterBodyStart",
+          "displayValue": "After Body Start"
+        },
+        {
+          "value": "beforeBodyClose",
+          "displayValue": "Before Body Close"
+        }
+      ]
+    },
+    {
+      "name": "includeUIOnPublishedPage",
+      "displayName": "Include on Published Page",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "yes",
+      "enumValues": [
+        {
+          "value": "no",
+          "displayValue": "No"
+        },
+        {
+          "value": "yes",
+          "displayValue": "Yes"
+        }
+      ]
+    }
+  ],
+  "cssPreferences": []
+}

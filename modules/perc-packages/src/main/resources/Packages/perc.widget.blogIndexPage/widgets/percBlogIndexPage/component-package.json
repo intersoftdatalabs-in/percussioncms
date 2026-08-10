@@ -1,0 +1,1304 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percBlogIndexPage",
+  "name": "Blog List",
+  "version": "1.3.5",
+  "description": "Blog list page for dispaying all blog post",
+  "publisher": {
+    "name": "Percussion Software",
+    "url": "http://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.9.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.PageAutoListWidget",
+      "version": "1.4.4",
+      "implied": true
+    }
+  ],
+  "catalog": {
+    "kind": "component",
+    "title": "Blog List",
+    "category": "blog",
+    "description": "Blog list page for dispaying all blog post",
+    "thumbnail": "resources/widgetIconBlogIndex.gif",
+    "icon": "resources/widgetIconBlogIndex.gif",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 780,
+    "preferredEditorHeight": 520,
+    "createSharedAsset": false,
+    "editableOnTemplate": false,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percBlogIndexAsset",
+      "ref": "contentTypes/percBlogIndexAsset"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percBlogIndexPageSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percBlogIndexPageSnippet.vm",
+      "contentType": "percBlogIndexAsset",
+      "bindings": [
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "isEditMode",
+          "expression": "$perc.isEditMode() || $perc.isPreviewMode()"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "titleFormat",
+          "expression": "$perc.widget.item.properties.get('titleFormat')"
+        },
+        {
+          "variable": "blogPostDateTimeFormat",
+          "expression": "$perc.widget.item.properties.get('blogPostDateTimeFormat')"
+        },
+        {
+          "variable": "enableCalenderIcon",
+          "expression": "$perc.widget.item.properties.get('enableCalenderIcon')"
+        },
+        {
+          "variable": "blogPostReadMoreText",
+          "expression": "$perc.widget.item.properties.get('blogPostReadMoreText')"
+        },
+        {
+          "variable": "perc_hidefield_title",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_title')"
+        },
+        {
+          "variable": "perc_hidefield_summary",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_summary')"
+        },
+        {
+          "variable": "perc_hidefield_blog_date",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_blog_date')"
+        },
+        {
+          "variable": "perc_hidefield_byline",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_byline')"
+        },
+        {
+          "variable": "perc_hidefield_comments",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_comments')"
+        },
+        {
+          "variable": "resultEntriesTextPlural",
+          "expression": "$perc.widget.item.properties.get('resultEntriesTextPlural')"
+        },
+        {
+          "variable": "resultEntriesTextSingular",
+          "expression": "$perc.widget.item.properties.get('resultEntriesTextSingular')"
+        },
+        {
+          "variable": "autoListDivId",
+          "expression": "$perc.widget.item.properties.get('autoListDivId')"
+        },
+        {
+          "variable": "blogPostCommentsText",
+          "expression": "$perc.widget.item.properties.get('blogPostCommentsText')"
+        },
+        {
+          "variable": "totalMaxResults",
+          "expression": "$perc.widget.item.properties.get('totalMaxResults')"
+        },
+        {
+          "variable": "perc_max_post_entries",
+          "expression": "$perc.widget.item.properties.get('blogPostMaxResults')"
+        },
+        {
+          "variable": "pagingPagesText",
+          "expression": "$perc.widget.item.properties.get('pagingPagesText')"
+        },
+        {
+          "variable": "listAriaLabel",
+          "expression": "$perc.widget.item.properties.get('listAriaLabel')"
+        },
+        {
+          "variable": "listAriaRole",
+          "expression": "$perc.widget.item.properties.get('listAriaRole')"
+        },
+        {
+          "variable": "perc_hide_when_empty",
+          "expression": "$perc.widget.item.properties.get('perc_hide_when_empty')"
+        },
+        {
+          "variable": "pagingOfText",
+          "expression": "$perc.widget.item.properties.get('pagingOfText')"
+        },
+        {
+          "variable": "blogPostNoContentText",
+          "expression": "$perc.widget.item.properties.get('blogPostNoContentText')"
+        },
+        {
+          "variable": "rssLinkText",
+          "expression": "$perc.widget.item.properties.get('rssLinkText')"
+        },
+        {
+          "variable": "perc_hidefield_tags",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_tags')"
+        },
+        {
+          "variable": "perc_tag_label",
+          "expression": "$perc.widget.item.properties.get('perc_tag_label')"
+        },
+        {
+          "variable": "perc_hidefield_categories",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_categories')"
+        },
+        {
+          "variable": "perc_category_label",
+          "expression": "$perc.widget.item.properties.get('perc_category_label')"
+        },
+        {
+          "variable": "blogPostBylineText",
+          "expression": "$perc.widget.item.properties.get('blogPostBylineText')"
+        },
+        {
+          "variable": "results_title",
+          "expression": "$perc.widget.item.properties.get('blogListHeaderText')"
+        },
+        {
+          "variable": "sortByVal",
+          "expression": "$perc.widget.item.properties.get('sortby')"
+        },
+        {
+          "variable": "sortDirection",
+          "expression": "$perc.widget.item.properties.get('sortDirection')"
+        },
+        {
+          "variable": "sortByVal",
+          "expression": "\"rx:sys_contentpostdate\""
+        },
+        {
+          "variable": "sortDirection",
+          "expression": "\"desc\""
+        },
+        {
+          "variable": "pageTitle",
+          "expression": "$perc.page.title"
+        },
+        {
+          "variable": "listAriaLabel",
+          "expression": "'aria-label=\"' + $pageTitle + ' blog list\"'"
+        },
+        {
+          "variable": "listAriaLabel",
+          "expression": "'aria-label=\"Blog list\"'"
+        },
+        {
+          "variable": "listAriaLabel",
+          "expression": "'aria-label=\"' + $listAriaLabel + '\"'"
+        },
+        {
+          "variable": "listAriaRole",
+          "expression": "'role=\"region\"'"
+        },
+        {
+          "variable": "listAriaRole",
+          "expression": "'role=\"' + $listAriaRole + '\"'"
+        },
+        {
+          "variable": "autoListDivId",
+          "expression": "$perc.widget.item.id + \"_list\""
+        },
+        {
+          "variable": "resultEntriesTextPlural",
+          "expression": "'results'"
+        },
+        {
+          "variable": "resultEntriesTextSingular",
+          "expression": "'result'"
+        },
+        {
+          "variable": "titleFormatStartTag",
+          "expression": "'<' + $titleFormat +' class=\"perc-blog-list-title\">'"
+        },
+        {
+          "variable": "titleFormatEndTag",
+          "expression": "'</' + $titleFormat + '>'"
+        },
+        {
+          "variable": "enableRssIcon",
+          "expression": "$perc.widget.item.properties.get('enable_rss_icon')"
+        },
+        {
+          "variable": "rssIconPosition",
+          "expression": "$perc.widget.item.properties.get('rssIconPosition')"
+        },
+        {
+          "variable": "locale",
+          "expression": "$perc.widget.item.properties.get('locale')"
+        },
+        {
+          "variable": "locale",
+          "expression": "\"en-US\""
+        },
+        {
+          "variable": "rootclass",
+          "expression": "\"\""
+        },
+        {
+          "variable": "baseUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assetItems.get(0)"
+        },
+        {
+          "variable": "enableRssField",
+          "expression": "$assetItem.getNode().getProperty('enable_rss_feed').String"
+        },
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "feedname",
+          "expression": "$assetItem.getNode().getProperty('feed_name').String"
+        },
+        {
+          "variable": "finderPath",
+          "expression": "$rx.pageutils.getItemPath($pageId)"
+        },
+        {
+          "variable": "pathParts",
+          "expression": "$finderPath.split(\"\\/\")"
+        },
+        {
+          "variable": "siteName",
+          "expression": "$pathParts[2]"
+        },
+        {
+          "variable": "sUrl",
+          "expression": "$baseUrl + \"/feeds/rss/\" + $siteName + \"/\" + $feedname +\"/\""
+        },
+        {
+          "variable": "navFinder",
+          "expression": "\"Java/global/percussion/widgetcontentfinder/perc_NavWidgetContentFinder\""
+        },
+        {
+          "variable": "navContainer",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $navFinder, null, true)"
+        },
+        {
+          "variable": "navLoc",
+          "expression": "\"\""
+        },
+        {
+          "variable": "navLoc",
+          "expression": "$navContainer.get(0).getFolderPath()"
+        },
+        {
+          "variable": "blogPostTempId",
+          "expression": "$rx.pageutils.getBlogPostTemplateId($navLoc)"
+        },
+        {
+          "variable": "linkContext",
+          "expression": "$perc.linkContext"
+        },
+        {
+          "variable": "query",
+          "expression": "\"select rx:sys_contentid, rx:sys_folderid from rx:percPage  where jcr:path like '\" + $navLoc + \"/%'\""
+        },
+        {
+          "variable": "query",
+          "expression": "$query + \" and rx:templateid = '\" + $blogPostTempId + \"'\""
+        },
+        {
+          "variable": "query",
+          "expression": "$query + \" order by \" + $sortByVal + \"  desc\""
+        },
+        {
+          "variable": "query",
+          "expression": "$query + \" order by \" + $sortByVal + \" \" + $sortDirection"
+        },
+        {
+          "variable": "perc_max_post_entries",
+          "expression": "10"
+        },
+        {
+          "variable": "totalMaxResults",
+          "expression": "500"
+        },
+        {
+          "variable": "maxResults",
+          "expression": "$perc_max_post_entries"
+        },
+        {
+          "variable": "params",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "finderName",
+          "expression": "\"Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder\""
+        },
+        {
+          "variable": "relresults",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params)"
+        },
+        {
+          "variable": "rowtag",
+          "expression": "$tools.alternator.auto('ui-perc-list-odd', 'ui-perc-list-even')"
+        },
+        {
+          "variable": "tagValues",
+          "expression": "$post.node.getProperty('rx:page_tags').getValues()"
+        },
+        {
+          "variable": "catValues",
+          "expression": "$post.node.getProperty('rx:page_categories_tree').getValues()"
+        },
+        {
+          "variable": "criteria",
+          "expression": "\"[\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria + \"&quot;type = 'page'&quot;\""
+        },
+        {
+          "variable": "criteriaSep",
+          "expression": "\", \""
+        },
+        {
+          "variable": "temppath",
+          "expression": "$navLoc.replace(\"//Sites/\", \"\")"
+        },
+        {
+          "variable": "temppaths",
+          "expression": "$temppath.split(\"/\")"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppaths[0] + \"'&quot;\""
+        },
+        {
+          "variable": "folderpath",
+          "expression": "\"\""
+        },
+        {
+          "variable": "counter",
+          "expression": "1"
+        },
+        {
+          "variable": "folderpath",
+          "expression": "$folderpath + \"/\" + $temppaths[$counter]"
+        },
+        {
+          "variable": "counter",
+          "expression": "$counter + 1"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;folder LIKE '\" + $folderpath + \"/%'&quot;\""
+        },
+        {
+          "variable": "templateNameList",
+          "expression": "$rx.pageutils.templateNames($blogPostTempId)"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;dcterms:source = '\" + $templateNameList.get(0).toString() + \"'&quot;\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppath + \"'&quot;\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria + \"]\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"linktext_lower asc\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"linktext_lower \" + $sortDirection"
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"dcterms:title asc, linktext_lower asc\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"dcterms:title  \" + $sortDirection +\", linktext_lower asc\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"dcterms:created desc, linktext_lower asc\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"dcterms:created asc, linktext_lower asc\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "\"{\" + \"&quot;criteria&quot;:\" + $criteria"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;orderBy&quot;:&quot;\" + $orderby + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;maxResults&quot;:\" + $perc_max_post_entries"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;pagingPagesText&quot;:\" + \"&quot;\" + $pagingPagesText + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;pagingOfText&quot;:\" + \"&quot;\" + $pagingOfText + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;blogPostReadMoreText&quot;:\" + \"&quot;\" + $blogPostReadMoreText + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;blogPostBylineText&quot;:\" + \"&quot;\" + $blogPostBylineText + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;blogPostCommentsText&quot;:\" + \"&quot;\" + $blogPostCommentsText + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;rssLinkText&quot;:\" + \"&quot;\" + $rssLinkText + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;locale&quot;:\" + \"&quot;\" + $locale + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;dateFormat&quot;:\" + \"&quot;\" + $blogPostDateTimeFormat + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;entriesTextPlural&quot;:&quot;\" + $resultEntriesTextPlural + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;entriesTextSingular&quot;:&quot;\" + $resultEntriesTextSingular + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;totalMaxResults&quot;:\" + $totalMaxResults"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;deliveryurl&quot; : &quot;\" + $baseUrl + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;isEditMode&quot; : &quot;\" + $isEditMode + \"&quot;\""
+        },
+        {
+          "variable": "feedDynamicListData",
+          "expression": "$dynamicListData + \"}\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \"}\""
+        },
+        {
+          "variable": "titleResults",
+          "expression": "\"{&quot;resultsTitle&quot; : &quot;\" + $results_title + \"&quot;}\""
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n    $perc.setWidgetContents($assetItems);\n    ## Initialize Properties\n    $isEditMode = $perc.isEditMode() || $perc.isPreviewMode();\n    $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n    $titleFormat = $perc.widget.item.properties.get('titleFormat');\n    $blogPostDateTimeFormat = $perc.widget.item.properties.get('blogPostDateTimeFormat');\n    $enableCalenderIcon = $perc.widget.item.properties.get('enableCalenderIcon');\n    $blogPostReadMoreText = $perc.widget.item.properties.get('blogPostReadMoreText');\n    $perc_hidefield_title = $perc.widget.item.properties.get('perc_hidefield_title');\n    $perc_hidefield_summary = $perc.widget.item.properties.get('perc_hidefield_summary');\n    $perc_hidefield_blog_date = $perc.widget.item.properties.get('perc_hidefield_blog_date');\n    $perc_hidefield_byline = $perc.widget.item.properties.get('perc_hidefield_byline');\n    $perc_hidefield_comments = $perc.widget.item.properties.get('perc_hidefield_comments');\n    $resultEntriesTextPlural = $perc.widget.item.properties.get('resultEntriesTextPlural');\n    $resultEntriesTextSingular = $perc.widget.item.properties.get('resultEntriesTextSingular');\n    $autoListDivId = $perc.widget.item.properties.get('autoListDivId');\n    $blogPostCommentsText = $perc.widget.item.properties.get('blogPostCommentsText');\n    $totalMaxResults = $perc.widget.item.properties.get('totalMaxResults');\n    $perc_max_post_entries = $perc.widget.item.properties.get('blogPostMaxResults');\n    $pagingPagesText = $perc.widget.item.properties.get('pagingPagesText');\n    $listAriaLabel = $perc.widget.item.properties.get('listAriaLabel');\n    $listAriaRole = $perc.widget.item.properties.get('listAriaRole');\n    $perc_hide_when_empty = $perc.widget.item.properties.get('perc_hide_when_empty');\n    $pagingOfText = $perc.widget.item.properties.get('pagingOfText');\n    $blogPostNoContentText = $perc.widget.item.properties.get('blogPostNoContentText');\n    $rssLinkText = $perc.widget.item.properties.get('rssLinkText');\n    $perc_hidefield_tags = $perc.widget.item.properties.get('perc_hidefield_tags');\n    $perc_tag_label = $perc.widget.item.properties.get('perc_tag_label');\n    $perc_hidefield_categories = $perc.widget.item.properties.get('perc_hidefield_categories');\n    $perc_category_label = $perc.widget.item.properties.get('perc_category_label');\n    $blogPostBylineText = $perc.widget.item.properties.get('blogPostBylineText');\n    $results_title = $perc.widget.item.properties.get('blogListHeaderText');\n    $sortByVal = $perc.widget.item.properties.get('sortby');\n    $sortDirection = $perc.widget.item.properties.get('sortDirection');\n    if($sortByVal == null || $sortByVal == \"none\") {\n        $sortByVal = \"rx:sys_contentpostdate\";\n\t\t$sortDirection = \"desc\";\n    }\n\n    $pageTitle = $perc.page.title;\n    if ($listAriaLabel == '' || $listAriaLabel == null) {\n        if ($pageTitle != null && $pageTitle != '') {\n            $listAriaLabel = 'aria-label=\"' + $pageTitle + ' blog list\"';\n        } else {\n            $listAriaLabel = 'aria-label=\"Blog list\"';\n        }\n    } else {\n        $listAriaLabel = 'aria-label=\"' + $listAriaLabel + '\"';\n    }\n    if ($listAriaRole == '' || $listAriaRole == null) {\n        $listAriaRole = 'role=\"region\"';\n    }\n    else {\n        $listAriaRole = 'role=\"' + $listAriaRole + '\"';\n    }\n    if($autoListDivId == '' || $autoListDivId == null) {\n       $autoListDivId = $perc.widget.item.id + \"_list\";\n    }\n    if ($resultEntriesTextPlural == \"\" || $resultEntriesTextPlural == null)\n    {\n        $resultEntriesTextPlural = 'results';\n    }\n    if ($resultEntriesTextSingular == \"\" || $resultEntriesTextSingular == null)\n    {\n        $resultEntriesTextSingular = 'result';\n    }\n    $titleFormatStartTag = '<' + $titleFormat +' class=\"perc-blog-list-title\">';\n    $titleFormatEndTag = '</' + $titleFormat + '>';\n    $enableRssIcon = $perc.widget.item.properties.get('enable_rss_icon');\n    $rssIconPosition = $perc.widget.item.properties.get('rssIconPosition');\n    $locale = $perc.widget.item.properties.get('locale');\n    if($locale == null)\n        $locale = \"en-US\";\n    if (empty($rootclass)) {\n        $rootclass = \"\";\n    }\n    $baseUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n    if ( ! $assetItems.isEmpty() ) {\n        $assetItem = $assetItems.get(0);\n        $enableRssField = $assetItem.getNode().getProperty('enable_rss_feed').String;\n        $pageId = $perc.page.id;\n        $feedname = $assetItem.getNode().getProperty('feed_name').String;\n        if(!empty($pageId))\n        {\n            $finderPath = $rx.pageutils.getItemPath($pageId);\n            $pathParts = $finderPath.split(\"\\/\");\n            $siteName = $pathParts[2];\n            $sUrl = $baseUrl + \"/feeds/rss/\" + $siteName + \"/\" + $feedname +\"/\";\n        }\n    }\n    ## Get navigation.  If we can't find it, we're probably in a template.\n    $navFinder=\"Java/global/percussion/widgetcontentfinder/perc_NavWidgetContentFinder\";\n    $navContainer = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $navFinder, null, true);\n    $navLoc = \"\";\n    if ( ! $navContainer.isEmpty() ) {\n        $navLoc = $navContainer.get(0).getFolderPath();\n        $blogPostTempId = $rx.pageutils.getBlogPostTemplateId($navLoc);\n        ## Building the jcr query to get a list of appropriate pages.\n        $linkContext = $perc.linkContext;\n        $query = \"select rx:sys_contentid, rx:sys_folderid from rx:percPage  where jcr:path like '\" + $navLoc + \"/%'\";\n        ## Filter by the blog post templates only - if we don't find a template - filter by -1 so non blog pages don't get picked up\n        if ($blogPostTempId != null)\n        {\n            $query = $query + \" and rx:templateid = '\" + $blogPostTempId + \"'\";\n        }\n         if($sortDirection == null){\n            $query = $query + \" order by \" + $sortByVal + \"  desc\";\n        }else{\n           $query = $query + \" order by \" + $sortByVal + \" \" + $sortDirection;\n        }\n        if ($perc_max_post_entries == '' || $perc_max_post_entries == null) {\n            $perc_max_post_entries = 10;\n        }\n        if(empty($totalMaxResults)) {\n          $totalMaxResults = 500;\n        }\n        $maxResults = $perc_max_post_entries;\n        $params = $rx.string.stringToMap(null);\n        $params.put('query', $query);\n        $params.put('max_results', $totalMaxResults);\n        $finderName=\"Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder\";\n        $relresults=  $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params);\n        $rowtag = $tools.alternator.auto('ui-perc-list-odd', 'ui-perc-list-even');\n        ##Apply the alpha order to the list of tags and categories\n        for($post : $relresults){\n            if($post.node.hasProperty('rx:page_tags')){\n                $tagValues = $post.node.getProperty('rx:page_tags').getValues();\n                $rx.pageutils.alphaOrderTag($tagValues);\n            }\n            if($post.node.hasProperty('rx:page_tags')){\n                $catValues = $post.node.getProperty('rx:page_categories_tree').getValues();\n                $rx.pageutils.alphaOrderCategory($catValues);\n            }\n        }\n        ## Builds the criteria object for use on the delivery tier\n        $criteria = \"[\";\n        $criteria = $criteria + \"&quot;type = 'page'&quot;\";\n        $criteriaSep = \", \";\n        if ($navLoc != null && $navLoc != \"\" && $navLoc != \"//Sites\")\n        {\n            $temppath = $navLoc.replace(\"//Sites/\", \"\");\n            if($temppath.indexOf(\"/\") > 0)\n            {\n                $temppaths = $temppath.split(\"/\");\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppaths[0] + \"'&quot;\";\n                $folderpath = \"\";\n                $counter = 1;\n                while($counter < $temppaths.size())\n                {\n                    $folderpath = $folderpath + \"/\" + $temppaths[$counter];\n                    $counter = $counter + 1;\n                }\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;folder LIKE '\" + $folderpath + \"/%'&quot;\";\n                if ($blogPostTempId != null)\n                {\n                   $templateNameList = $rx.pageutils.templateNames($blogPostTempId);\n                   if($templateNameList.size() > 0)\n                   {\n                       $criteria = $criteria  +  $criteriaSep +  \"&quot;dcterms:source = '\" + $templateNameList.get(0).toString() + \"'&quot;\";\n                   }\n                }\n            }\n            else\n            {\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppath + \"'&quot;\";\n            }\n        }\n        $criteria = $criteria + \"]\";\n        ##builds the order by clause\n        $orderby = \"\";\n        if($sortByVal == \"rx:resource_link_title\")\n        {\n            if($sortDirection == null){\n               $orderby = \"linktext_lower asc\";\n            }else{\n               $orderby = \"linktext_lower \" + $sortDirection;\n            }\n\n        }\n        else if ($sortByVal == \"rx:page_title\")\n      {\n            if($sortDirection == null){\n               $orderby = \"dcterms:title asc, linktext_lower asc\";\n            }else{\n               $orderby = \"dcterms:title  \" + $sortDirection +\", linktext_lower asc\";\n            }\n\n      }\n        else if($sortbyVal == \"rx:sys_contentpostdate\" || $sortbyVal == \"none\" || $sortbyVal == null)\n        {\n             if($sortDirection == null || $sortDirection == \"desc\"){\n                  $orderby = \"dcterms:created desc, linktext_lower asc\";\n                }else{\n                  $orderby = \"dcterms:created asc, linktext_lower asc\";\n              }\n\n        }\n\n\n        ##Build the query string for the delivery side blog list\n        $dynamicListData = \"{\" + \"&quot;criteria&quot;:\" + $criteria;\n        if($orderby != \"\")\n        {\n            $dynamicListData = $dynamicListData + \", &quot;orderBy&quot;:&quot;\" + $orderby + \"&quot;\";\n        }\n\n        if ($perc_max_post_entries != null && $perc_max_post_entries != \"\")\n        {\n            $dynamicListData = $dynamicListData + \", &quot;maxResults&quot;:\" + $perc_max_post_entries;\n        }\n        if ($pagingPagesText != null && $pagingPagesText != \"\")\n        {\n            $dynamicListData = $dynamicListData + \", &quot;pagingPagesText&quot;:\" + \"&quot;\" + $pagingPagesText + \"&quot;\" ;\n        }\n        if ($pagingOfText != null && $pagingOfText != \"\")\n        {\n            $dynamicListData = $dynamicListData + \", &quot;pagingOfText&quot;:\" + \"&quot;\" + $pagingOfText + \"&quot;\" ;\n        }\n        if ($blogPostReadMoreText != null && $blogPostReadMoreText != \"\")\n        {\n            $dynamicListData = $dynamicListData + \", &quot;blogPostReadMoreText&quot;:\" + \"&quot;\" + $blogPostReadMoreText + \"&quot;\" ;\n        }\n        if ($blogPostBylineText != null && $blogPostBylineText != \"\")\n        {\n            $dynamicListData = $dynamicListData + \", &quot;blogPostBylineText&quot;:\" + \"&quot;\" + $blogPostBylineText + \"&quot;\" ;\n        }\n        if ($blogPostCommentsText != null && $blogPostCommentsText != \"\")\n        {\n            $dynamicListData = $dynamicListData + \", &quot;blogPostCommentsText&quot;:\" + \"&quot;\" + $blogPostCommentsText + \"&quot;\" ;\n        }\n        if ($rssLinkText != null && $rssLinkText != \"\")\n        {\n            $dynamicListData = $dynamicListData + \", &quot;rssLinkText&quot;:\" + \"&quot;\" + $rssLinkText + \"&quot;\" ;\n        }\n        if ($locale != null && $locale != \"\")\n        {\n            $dynamicListData = $dynamicListData + \", &quot;locale&quot;:\" + \"&quot;\" + $locale + \"&quot;\" ;\n        }\n        if ($blogPostDateTimeFormat != null && $blogPostDateTimeFormat != \"\")\n        {\n            $dynamicListData = $dynamicListData + \", &quot;dateFormat&quot;:\" + \"&quot;\" + $blogPostDateTimeFormat + \"&quot;\" ;\n        }\n        if ($resultEntriesTextPlural != \"\" && $resultEntriesTextPlural != null)\n        {\n            $dynamicListData = $dynamicListData + \", &quot;entriesTextPlural&quot;:&quot;\" + $resultEntriesTextPlural + \"&quot;\";\n        }\n        if ($resultEntriesTextSingular != \"\" && $resultEntriesTextSingular != null)\n        {\n            $dynamicListData = $dynamicListData + \", &quot;entriesTextSingular&quot;:&quot;\" + $resultEntriesTextSingular + \"&quot;\";\n        }\n        if($totalMaxResults != \"\")\n        {\n        \t$dynamicListData = $dynamicListData + \", &quot;totalMaxResults&quot;:\" + $totalMaxResults;\n        }\n        $dynamicListData = $dynamicListData + \", &quot;deliveryurl&quot; : &quot;\" + $baseUrl + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;isEditMode&quot; : &quot;\" + $isEditMode + \"&quot;\";\n\n        $feedDynamicListData = $dynamicListData + \"}\";\n        $dynamicListData = $dynamicListData + \"}\";\n\n        ##Blog list query ends\n        $titleResults = \"{&quot;resultsTitle&quot; : &quot;\" + $results_title + \"&quot;}\";\n    }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percBlogIndexPageContent",
+      "allowedContentTypes": [
+        "percBlogIndexAsset"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconBlogIndex.gif",
+      "target": "rx_resources/widgets/blogIndexPage/images/widgetIconBlogIndex.gif",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "titleFormat",
+      "displayName": "Format of blog post title",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "h2",
+      "enumValues": [
+        {
+          "value": "h1",
+          "displayValue": "Heading 1"
+        },
+        {
+          "value": "h2",
+          "displayValue": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "displayValue": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "displayValue": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "displayValue": "Heading 5"
+        },
+        {
+          "value": "h6",
+          "displayValue": "Heading 6"
+        },
+        {
+          "value": "p",
+          "displayValue": "Paragraph"
+        }
+      ]
+    },
+    {
+      "name": "autoListDivId",
+      "displayName": "Blog list div id",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "sortby",
+      "displayName": "Sort by",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "rx:sys_contentpostdate",
+      "enumValues": [
+        {
+          "value": "none",
+          "displayValue": "None"
+        },
+        {
+          "value": "rx:resource_link_title",
+          "displayValue": "Link text"
+        },
+        {
+          "value": "rx:page_title",
+          "displayValue": "Title"
+        },
+        {
+          "value": "rx:sys_contentpostdate",
+          "displayValue": "Post Date"
+        }
+      ]
+    },
+    {
+      "name": "sortDirection",
+      "displayName": "Sort Order",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "desc",
+      "enumValues": [
+        {
+          "value": "desc",
+          "displayValue": "Descending"
+        },
+        {
+          "value": "asc",
+          "displayValue": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "blogPostDateTimeFormat",
+      "displayName": "Format of blog post date",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "EEE MMM d, yyyy hh:mm a",
+      "enumValues": []
+    },
+    {
+      "name": "locale",
+      "displayName": "Date Format Locale",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "en-US",
+      "enumValues": [
+        {
+          "value": "sq-AL",
+          "displayValue": "Albanian Albania (AL)"
+        },
+        {
+          "value": "ar-DZ",
+          "displayValue": "Arabic Algeria (DZ)"
+        },
+        {
+          "value": "ar-BH",
+          "displayValue": "Arabic Bahrain (BH)"
+        },
+        {
+          "value": "ar-EG",
+          "displayValue": "Arabic Egypt (EG)"
+        },
+        {
+          "value": "ar-IQ",
+          "displayValue": "Arabic Iraq (IQ)"
+        },
+        {
+          "value": "ar-JO",
+          "displayValue": "Arabic Jordan (JO)"
+        },
+        {
+          "value": "ar-KW",
+          "displayValue": "Arabic Kuwait (KW)"
+        },
+        {
+          "value": "ar-LB",
+          "displayValue": "Arabic Lebanon (LB)"
+        },
+        {
+          "value": "ar-LY",
+          "displayValue": "Arabic Libya (LY)"
+        },
+        {
+          "value": "ar-MA",
+          "displayValue": "Arabic Morocco (MA)"
+        },
+        {
+          "value": "ar-OM",
+          "displayValue": "Arabic Oman (OM)"
+        },
+        {
+          "value": "ar-QA",
+          "displayValue": "Arabic Qatar (QA)"
+        },
+        {
+          "value": "ar-SA",
+          "displayValue": "Arabic Saudi Arabia (SA)"
+        },
+        {
+          "value": "ar-SD",
+          "displayValue": "Arabic Sudan (SD)"
+        },
+        {
+          "value": "ar-SY",
+          "displayValue": "Arabic Syria (SY)"
+        },
+        {
+          "value": "ar-TN",
+          "displayValue": "Arabic Tunisia (TN)"
+        },
+        {
+          "value": "ar-AE",
+          "displayValue": "Arabic United Arab Emirates (AE)"
+        },
+        {
+          "value": "ar-YE",
+          "displayValue": "Arabic Yemen (YE)"
+        },
+        {
+          "value": "be-BY",
+          "displayValue": "Belarusian Belarus (BY)"
+        },
+        {
+          "value": "bg-BG",
+          "displayValue": "Bulgarian Bulgaria (BG)"
+        },
+        {
+          "value": "ca-ES",
+          "displayValue": "Catalan Spain (ES)"
+        },
+        {
+          "value": "zh-CN",
+          "displayValue": "Chinese China (CN)"
+        },
+        {
+          "value": "zh-SG",
+          "displayValue": "Chinese Singapore (SG)"
+        },
+        {
+          "value": "zh-HK",
+          "displayValue": "Chinese Hong Kong (HK)"
+        },
+        {
+          "value": "zh-TW",
+          "displayValue": "Chinese Taiwan (TW)"
+        },
+        {
+          "value": "hr-HR",
+          "displayValue": "Croatian Croatia (HR)"
+        },
+        {
+          "value": "cs-CZ",
+          "displayValue": "Czech Czech Republic (CZ)"
+        },
+        {
+          "value": "da-DK",
+          "displayValue": "Danish Denmark (DK)"
+        },
+        {
+          "value": "nl-BE",
+          "displayValue": "Dutch Belgium (BE)"
+        },
+        {
+          "value": "nl-NL",
+          "displayValue": "Dutch Netherlands (NL)"
+        },
+        {
+          "value": "en-AU",
+          "displayValue": "English Australia (AU)"
+        },
+        {
+          "value": "en-CA",
+          "displayValue": "English Canada (CA)"
+        },
+        {
+          "value": "en-IN",
+          "displayValue": "English India (IN)"
+        },
+        {
+          "value": "en-IE",
+          "displayValue": "English Ireland (IE)"
+        },
+        {
+          "value": "en-MT",
+          "displayValue": "English Malta (MT)"
+        },
+        {
+          "value": "en-NZ",
+          "displayValue": "English New Zealand (NZ)"
+        },
+        {
+          "value": "en-PH",
+          "displayValue": "English Philippines (PH)"
+        },
+        {
+          "value": "en-SG",
+          "displayValue": "English Singapore (SG)"
+        },
+        {
+          "value": "en-ZA",
+          "displayValue": "English South Africa (ZA)"
+        },
+        {
+          "value": "en-GB",
+          "displayValue": "English United Kingdom (GB)"
+        },
+        {
+          "value": "en-US",
+          "displayValue": "English United States (US)"
+        },
+        {
+          "value": "et-EE",
+          "displayValue": "Estonian Estonia (EE)"
+        },
+        {
+          "value": "fi-FI",
+          "displayValue": "Finnish Finland (FI)"
+        },
+        {
+          "value": "fr-BE",
+          "displayValue": "French Belgium (BE)"
+        },
+        {
+          "value": "fr-CA",
+          "displayValue": "French Canada (CA)"
+        },
+        {
+          "value": "fr-FR",
+          "displayValue": "French France (FR)"
+        },
+        {
+          "value": "fr-LU",
+          "displayValue": "French Luxembourg (LU)"
+        },
+        {
+          "value": "fr-CH",
+          "displayValue": "French Switzerland (CH)"
+        },
+        {
+          "value": "de-AT",
+          "displayValue": "German Austria (AT)"
+        },
+        {
+          "value": "de-DE",
+          "displayValue": "German Germany (DE)"
+        },
+        {
+          "value": "de-LU",
+          "displayValue": "German Luxembourg (LU)"
+        },
+        {
+          "value": "de-CH",
+          "displayValue": "German Switzerland (CH)"
+        },
+        {
+          "value": "el-CY",
+          "displayValue": "Greek Cyprus (CY)"
+        },
+        {
+          "value": "el-GR",
+          "displayValue": "Greek Greece (GR)"
+        },
+        {
+          "value": "iw-IL",
+          "displayValue": "Hebrew Israel (IL)"
+        },
+        {
+          "value": "hi-IN",
+          "displayValue": "Hindi India (IN)"
+        },
+        {
+          "value": "hu-HU",
+          "displayValue": "Hungarian Hungary (HU)"
+        },
+        {
+          "value": "is-IS",
+          "displayValue": "Icelandic Iceland (IS)"
+        },
+        {
+          "value": "in-ID",
+          "displayValue": "Indonesian Indonesia (ID)"
+        },
+        {
+          "value": "ga-IE",
+          "displayValue": "Irish Ireland (IE)"
+        },
+        {
+          "value": "it-IT",
+          "displayValue": "Italian Italy (IT)"
+        },
+        {
+          "value": "it-CH",
+          "displayValue": "Italian Switzerland (CH)"
+        },
+        {
+          "value": "ja-JP",
+          "displayValue": "Japanese Japan (JP)"
+        },
+        {
+          "value": "ko-KR",
+          "displayValue": "Korean South Korea (KR)"
+        },
+        {
+          "value": "lv-LV",
+          "displayValue": "Latvian Latvia (LV)"
+        },
+        {
+          "value": "lt-LT",
+          "displayValue": "Lithuanian Lithuania (LT)"
+        },
+        {
+          "value": "mk-MK",
+          "displayValue": "Macedonian Macedonia (MK)"
+        },
+        {
+          "value": "ms-MY",
+          "displayValue": "Malay Malaysia (MY)"
+        },
+        {
+          "value": "mt-MT",
+          "displayValue": "Maltese (mt) Malta (MT)"
+        },
+        {
+          "value": "no-NO",
+          "displayValue": "Norwegian Norway (NO)"
+        },
+        {
+          "value": "nb-NO",
+          "displayValue": "Norwegian Bokmal Norway (NO)"
+        },
+        {
+          "value": "nn-NO",
+          "displayValue": "Norwegian Nynorsk Norway (NO)"
+        },
+        {
+          "value": "pl-PL",
+          "displayValue": "Polish Poland (PL)"
+        },
+        {
+          "value": "pt-BR",
+          "displayValue": "Portuguese Brazil (BR)"
+        },
+        {
+          "value": "pt-PT",
+          "displayValue": "Portuguese Portugal (PT)"
+        },
+        {
+          "value": "ro-RO",
+          "displayValue": "Romanian Romania (RO)"
+        },
+        {
+          "value": "ru-RU",
+          "displayValue": "Russian Russia (RU)"
+        },
+        {
+          "value": "sr-BA",
+          "displayValue": "Serbian Bosnia and Herzegovina (BA)"
+        },
+        {
+          "value": "sr-ME",
+          "displayValue": "Serbian Montenegro (ME)"
+        },
+        {
+          "value": "sr-RS",
+          "displayValue": "Serbian Serbia (RS)"
+        },
+        {
+          "value": "sk-SK",
+          "displayValue": "Slovak Slovakia (SK)"
+        },
+        {
+          "value": "sl-SI",
+          "displayValue": "Slovenian Slovenia (SI)"
+        },
+        {
+          "value": "es-AR",
+          "displayValue": "Spanish Argentina (AR)"
+        },
+        {
+          "value": "es-BO",
+          "displayValue": "Spanish Bolivia (BO)"
+        },
+        {
+          "value": "es-CL",
+          "displayValue": "Spanish Chile (CL)"
+        },
+        {
+          "value": "es-CO",
+          "displayValue": "Spanish Colombia (CO)"
+        },
+        {
+          "value": "es-CR",
+          "displayValue": "Spanish Costa Rica (CR)"
+        },
+        {
+          "value": "es-DO",
+          "displayValue": "Spanish Dominican Republic (DO)"
+        },
+        {
+          "value": "es-EC",
+          "displayValue": "Spanish Ecuador (EC)"
+        },
+        {
+          "value": "es-SV",
+          "displayValue": "Spanish El Salvador (SV)"
+        },
+        {
+          "value": "es-GT",
+          "displayValue": "Spanish Guatemala (GT)"
+        },
+        {
+          "value": "es-HN",
+          "displayValue": "Spanish Honduras (HN)"
+        },
+        {
+          "value": "es-MX",
+          "displayValue": "Spanish Mexico (MX)"
+        },
+        {
+          "value": "es-NI",
+          "displayValue": "Spanish Nicaragua (NL)"
+        },
+        {
+          "value": "es-PA",
+          "displayValue": "Spanish Panama (PA)"
+        },
+        {
+          "value": "es-PY",
+          "displayValue": "Spanish Paraguay (PY)"
+        },
+        {
+          "value": "es-PE",
+          "displayValue": "Spanish Peru (PE)"
+        },
+        {
+          "value": "es-PR",
+          "displayValue": "Spanish Puerto Rico (PR)"
+        },
+        {
+          "value": "es-ES",
+          "displayValue": "Spanish Spain (ES)"
+        },
+        {
+          "value": "es-US",
+          "displayValue": "Spanish United States (US)"
+        },
+        {
+          "value": "es-UY",
+          "displayValue": "Spanish Uruguay (UY)"
+        },
+        {
+          "value": "es-VE",
+          "displayValue": "Spanish Venezuela (VE)"
+        },
+        {
+          "value": "sv-SE",
+          "displayValue": "Swedish Sweden (SE)"
+        },
+        {
+          "value": "th-TH",
+          "displayValue": "Thai Thailand (TH)"
+        },
+        {
+          "value": "tr-TR",
+          "displayValue": "Turkish Turkey (TR)"
+        },
+        {
+          "value": "uk-UA",
+          "displayValue": "Ukrainian Ukraine (UA)"
+        },
+        {
+          "value": "vi-VN",
+          "displayValue": "Vietnamese Vietnam (VN)"
+        }
+      ]
+    },
+    {
+      "name": "perc_hidefield_title",
+      "displayName": "Hide post title",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_summary",
+      "displayName": "Hide post summary",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_blog_date",
+      "displayName": "Hide date and time",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_byline",
+      "displayName": "Hide byline",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_comments",
+      "displayName": "Hide comments",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_tags",
+      "displayName": "Hide tags",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_tag_label",
+      "displayName": "Text to use for \"tags\" label",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "Tags:",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_categories",
+      "displayName": "Hide categories",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_category_label",
+      "displayName": "Text to use for \"categories\" label",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "Categories:",
+      "enumValues": []
+    },
+    {
+      "name": "totalMaxResults",
+      "displayName": "Maximum number of total results",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "500",
+      "enumValues": []
+    },
+    {
+      "name": "blogPostMaxResults",
+      "displayName": "Number of posts per page",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "10",
+      "enumValues": []
+    },
+    {
+      "name": "pagingPagesText",
+      "displayName": "Text to use for <em>pages</em> (X of Y <strong>pages</strong>)",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "pages",
+      "enumValues": []
+    },
+    {
+      "name": "resultEntriesTextPlural",
+      "displayName": "Text for \"entries\" in list count",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "entries",
+      "enumValues": []
+    },
+    {
+      "name": "resultEntriesTextSingular",
+      "displayName": "Text for \"entry\" when one list has one item",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "entry",
+      "enumValues": []
+    },
+    {
+      "name": "listAriaLabel",
+      "displayName": "Blog List aria-label",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "listAriaRole",
+      "displayName": "Blog List aria-role",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "perc_hide_when_empty",
+      "displayName": "Hide blog list when empty",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "blogListHeaderText",
+      "displayName": "Text to use for result header",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "Results for",
+      "enumValues": []
+    },
+    {
+      "name": "blogPostReadMoreText",
+      "displayName": "Text to use for \"more link\"",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "more...",
+      "enumValues": []
+    },
+    {
+      "name": "blogPostCommentsText",
+      "displayName": "Text to use for \"Comments\"",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "Comments",
+      "enumValues": []
+    },
+    {
+      "name": "blogPostBylineText",
+      "displayName": "Text to use for \"Author Byline\"",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "by",
+      "enumValues": []
+    },
+    {
+      "name": "enable_rss_icon",
+      "displayName": "Include rss icon",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "rssIconPosition",
+      "displayName": "RSS icon position",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "perc-list-top",
+      "enumValues": [
+        {
+          "value": "perc-list-top",
+          "displayValue": "Top of list"
+        },
+        {
+          "value": "perc-list-bottom",
+          "displayValue": "Bottom of list"
+        }
+      ]
+    },
+    {
+      "name": "rssLinkText",
+      "displayName": "Text to use for \"RSS Link\"",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "RSS Link",
+      "enumValues": []
+    },
+    {
+      "name": "enableCalenderIcon",
+      "displayName": "Enable Calendar Icon",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS Root Class",
+      "datatype": "string"
+    }
+  ]
+}

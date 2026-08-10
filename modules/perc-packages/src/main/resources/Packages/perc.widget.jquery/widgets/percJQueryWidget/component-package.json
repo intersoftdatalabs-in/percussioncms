@@ -1,0 +1,173 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percJQueryWidget",
+  "name": "jQuery Widget",
+  "version": "1.1.4",
+  "description": "Select your desired version of jQuery",
+  "publisher": {
+    "name": "Percussion Software, Inc.",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "5.3.15",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "jQuery Widget",
+    "category": "Design",
+    "description": "Select your desired version of jQuery",
+    "thumbnail": "resources/widgeticonjquery.png",
+    "icon": "resources/widgeticonjquery.png",
+    "author": "Percussion Software, Inc.",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 685,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "percJQueryWidgetSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percJQueryWidgetSnippet.vm",
+      "bindings": [
+        {
+          "variable": "jQueryLocation",
+          "expression": "$perc.widget.item.properties.get('jQueryLocation')"
+        },
+        {
+          "variable": "jQueryMigrateLocation",
+          "expression": "$perc.widget.item.properties.get('jQueryMigrateLocation')"
+        },
+        {
+          "variable": "isDeferred",
+          "expression": "$perc.widget.item.properties.get('isDeferred')"
+        },
+        {
+          "variable": "scriptLocation",
+          "expression": "$perc.widget.item.properties.get('scriptLocation')"
+        },
+        {
+          "variable": "includeOnPublishedPage",
+          "expression": "$perc.widget.item.properties.get('includeOnPublishedPage')"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$jQueryLocation = $perc.widget.item.properties.get('jQueryLocation');\n    $jQueryMigrateLocation = $perc.widget.item.properties.get('jQueryMigrateLocation');\n    $isDeferred = $perc.widget.item.properties.get('isDeferred');\n    $scriptLocation = $perc.widget.item.properties.get('scriptLocation');\n    $includeOnPublishedPage = $perc.widget.item.properties.get('includeOnPublishedPage');"
+        }
+      ]
+    }
+  ],
+  "slots": [],
+  "resources": [
+    {
+      "path": "resources/widgeticonjquery.png",
+      "target": "rx_resources/widgets/percJQueryWidget/images/widgeticonjquery.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "jQueryLocation",
+      "displayName": "jQuery CDN Link (http or https):",
+      "datatype": "string",
+      "required": true,
+      "defaultValue": "/web_resources/cm/jslib/jquery.js",
+      "enumValues": []
+    },
+    {
+      "name": "jQueryLocationIntegrity",
+      "displayName": "jQuery SRI Hash",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "jQueryLocationCrossOrigin",
+      "displayName": "jQuery Cross Origin",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "jQueryMigrateLocation",
+      "displayName": "jQuery Migrate location (Absolute, Relative, or Remote paths are allowed)",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "jQueryMigrateLocationIntegrity",
+      "displayName": "jQuery Migrate SRI Hash",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "jQueryMigrateLocationCrossOrigin",
+      "displayName": "jQuery Migrate Cross Origin",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "isDeferred",
+      "displayName": "Defer Loading",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "no",
+      "enumValues": [
+        {
+          "value": "no",
+          "displayValue": "No"
+        },
+        {
+          "value": "yes",
+          "displayValue": "Yes"
+        }
+      ]
+    },
+    {
+      "name": "scriptLocation",
+      "displayName": "Script Location",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "additionalHeadContent",
+      "enumValues": [
+        {
+          "value": "additionalHeadContent",
+          "displayValue": "Head"
+        },
+        {
+          "value": "afterBodyStart",
+          "displayValue": "After Body Start"
+        },
+        {
+          "value": "beforeBodyClose",
+          "displayValue": "Before Body Close"
+        }
+      ]
+    },
+    {
+      "name": "includeOnPublishedPage",
+      "displayName": "Include on Published Page",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "yes",
+      "enumValues": [
+        {
+          "value": "no",
+          "displayValue": "No"
+        },
+        {
+          "value": "yes",
+          "displayValue": "Yes"
+        }
+      ]
+    }
+  ],
+  "cssPreferences": []
+}

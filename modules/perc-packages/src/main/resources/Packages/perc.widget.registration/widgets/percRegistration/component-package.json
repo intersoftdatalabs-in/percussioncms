@@ -1,0 +1,244 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percRegistration",
+  "name": "Registration (Deprecated)",
+  "version": "1.1.8",
+  "description": "Widget to build and render a registration form. (Deprecated)",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "http://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "2.5.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Registration (Deprecated)",
+    "category": "integration",
+    "description": "Widget to build and render a registration form. (Deprecated)",
+    "thumbnail": "resources/widgetIconRegistration.gif",
+    "icon": "resources/widgetIconRegistration.gif",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 450,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percRegistrationAsset",
+      "ref": "contentTypes/percRegistrationAsset"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percRegistrationSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percRegistrationSnippet.vm",
+      "contentType": "percRegistrationAsset",
+      "bindings": [
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "widgetId",
+          "expression": "$perc.widget.item.id"
+        },
+        {
+          "variable": "widgetProps",
+          "expression": "$perc.widget.item.properties"
+        },
+        {
+          "variable": "percLabelLayout",
+          "expression": "$widgetProps.get('perc-label-layout')"
+        },
+        {
+          "variable": "percregMode",
+          "expression": "$widgetProps.get('perc-registration-mode')"
+        },
+        {
+          "variable": "percEmailConfirmRequired",
+          "expression": "$widgetProps.get('perc-email-verification-required')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$rootclass + \" \""
+        },
+        {
+          "variable": "siteName",
+          "expression": "\"\""
+        },
+        {
+          "variable": "finderPath",
+          "expression": "$rx.pageutils.getItemPath($pageId)"
+        },
+        {
+          "variable": "pathParts",
+          "expression": "$finderPath.split(\"\\/\")"
+        },
+        {
+          "variable": "siteName",
+          "expression": "$pathParts[2]"
+        },
+        {
+          "variable": "percConfirmationPage",
+          "expression": "$rx.pageutils.getSiteRegistrationConfirmationPage($pathParts[2])"
+        },
+        {
+          "variable": "percConfirmationPage",
+          "expression": "\"\""
+        },
+        {
+          "variable": "data",
+          "expression": "\"\""
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assetItems.get(0)"
+        },
+        {
+          "variable": "percEmailLabel",
+          "expression": "$rx.pageutils.html($assetItem, 'email_label')"
+        },
+        {
+          "variable": "percPasswordLabel",
+          "expression": "$rx.pageutils.html($assetItem, 'password_label')"
+        },
+        {
+          "variable": "percConfirmPasswordLabel",
+          "expression": "$rx.pageutils.html($assetItem, 'confirm_password_label')"
+        },
+        {
+          "variable": "percSubmitLabel",
+          "expression": "$rx.pageutils.html($assetItem, 'submit_label')"
+        },
+        {
+          "variable": "pwResetPage",
+          "expression": "\"\""
+        },
+        {
+          "variable": "pwResetPage",
+          "expression": "$rx.pageutils.getSiteResetPage($siteName)"
+        },
+        {
+          "variable": "finder",
+          "expression": "\"Java/global/percussion/widgetcontentfinder/perc_NavWidgetContentFinder\""
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finder, null, true)"
+        },
+        {
+          "variable": "linkContext",
+          "expression": "$perc.linkContext"
+        },
+        {
+          "variable": "nav",
+          "expression": "$assetItems.get(0).getNode()"
+        },
+        {
+          "variable": "homePageLink",
+          "expression": "$tools.esc.html($rx.pageutils.navLink($linkContext, $nav))"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "\"\""
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$pageId = $perc.page.id;\n        $widgetId = $perc.widget.item.id;\n        $widgetProps =  $perc.widget.item.properties;\n        $percLabelLayout = $widgetProps.get('perc-label-layout');\n        $percregMode = $widgetProps.get('perc-registration-mode');\n        $percEmailConfirmRequired = $widgetProps.get('perc-email-verification-required');\n        $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n        if (!empty($rootclass))\n        {\n            $rootclass = $rootclass + \" \";\n        }\n        ## If we are in a template it doesn't have a $pageId\n        $siteName = \"\";\n        if (!empty($pageId))\n        {\n            $finderPath = $rx.pageutils.getItemPath($pageId);\n            $pathParts = $finderPath.split(\"\\/\");\n            $siteName = $pathParts[2];\n            $percConfirmationPage  = $rx.pageutils.getSiteRegistrationConfirmationPage($pathParts[2]);\n        }\n\n        ## Set default values for some variables if they are empty\n        if (empty($percConfirmationPage)) {\n            $percConfirmationPage = \"\";\n        }\n\n        $data = \"\";\n        $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n        $perc.setWidgetContents($assetItems);\n        if ( ! $assetItems.isEmpty())\n        {\n            $assetItem = $assetItems.get(0);\n            $percEmailLabel = $rx.pageutils.html($assetItem, 'email_label');\n            $percPasswordLabel = $rx.pageutils.html($assetItem, 'password_label');\n            $percConfirmPasswordLabel = $rx.pageutils.html($assetItem, 'confirm_password_label');\n            $percSubmitLabel = $rx.pageutils.html($assetItem, 'submit_label');\n            $pwResetPage = \"\";\n            if(!empty($siteName))\n            {\n                $pwResetPage = $rx.pageutils.getSiteResetPage($siteName);\n            }\n\n            ## If the user didn't configure the Confirmation page, we must redirect to the home page\n            $finder=\"Java/global/percussion/widgetcontentfinder/perc_NavWidgetContentFinder\";\n            $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finder, null, true);\n            if ( ! $assetItems.isEmpty() ) {\n                $linkContext = $perc.linkContext;\n                $nav = $assetItems.get(0).getNode();\n                $homePageLink = $tools.esc.html($rx.pageutils.navLink($linkContext, $nav));\n            }\n        }\n\t\t$dsUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n        if ($dsUrl.indexOf(\"http://localhost\") != -1 )\n\t\t\t$dsUrl = \"\";"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percRegistrationContent",
+      "allowedContentTypes": [
+        "percRegistrationAsset"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconRegistration.gif",
+      "target": "rx_resources/widgets/registration/images/widgetIconRegistration.gif",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "perc-label-layout",
+      "displayName": "Label layout",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "align_above",
+      "enumValues": [
+        {
+          "value": "align_above",
+          "displayValue": "Align above the field"
+        },
+        {
+          "value": "align_left",
+          "displayValue": "Align to the left of the field"
+        }
+      ]
+    },
+    {
+      "name": "perc-registration-mode",
+      "displayName": "Registration mode",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "registration",
+      "enumValues": [
+        {
+          "value": "registration",
+          "displayValue": "Registration"
+        },
+        {
+          "value": "password_request",
+          "displayValue": "Password request"
+        },
+        {
+          "value": "password_reset",
+          "displayValue": "Password reset"
+        }
+      ]
+    },
+    {
+      "name": "perc-email-verification-required",
+      "displayName": "Email verification required",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS root class",
+      "datatype": "string"
+    }
+  ]
+}

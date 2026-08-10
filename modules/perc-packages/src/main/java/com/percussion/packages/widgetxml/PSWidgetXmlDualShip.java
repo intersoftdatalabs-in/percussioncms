@@ -35,7 +35,7 @@ import java.util.Objects;
 
 /**
  * Dual-ship bridge for product Widget packages (ADR-004 / issues #2831 batch A, #2832 batch B,
- * parent #2630).
+ * #2844 batch C, parent #2630).
  *
  * <p><strong>Authoring truth (modern):</strong> {@code widgets/&lt;widgetStem&gt;/component-package.json}
  * plus template sources under the product package tree (e.g. {@code perc.baseWidgets}).
@@ -52,6 +52,10 @@ import java.util.Objects;
  * <p>Batch B (#2832): high-traffic (#2772) + residual long-tail (#2789) product packages —
  * title/lists/nav/file/image + blog/calendar/directory/social/form/poll/login/rss/iframe (20
  * widgets / 14 packages).
+ *
+ * <p>Batch C (#2844): remaining product residual (#2802) after A/B — auto-lists, blog companions,
+ * comments/liked/commentForm, imageSlider, cookieConsent, jquery/jqueryUI, registration/secureLogin,
+ * Result/Redirect (19 widgets / 19 packages). Excludes {@code perc.Test} (#2830).
  *
  * @see PSWidgetXmlCompiler
  * @see PSWidgetXmlPackageCompiler
@@ -135,6 +139,66 @@ public final class PSWidgetXmlDualShip {
           "percRss",
           "percIframe");
 
+  /**
+   * Batch C dual-ship exit package directory names under {@code Packages/} (issue #2844). Remaining
+   * product residual after batches A/B (#2802 subset not already dual-shipped in A): auto-lists,
+   * blog companions, comments/liked/commentForm, imageSlider, cookieConsent, jquery*, login
+   * variants, Result/Redirect. Excludes packages already in batch A (openGraph, twitter, event,
+   * defaultLanguage) and {@code perc.Test}.
+   */
+  public static final List<String> BATCH_C_PACKAGE_DIRS =
+      List.of(
+          // auto-lists
+          "perc.ImageAutoListWidget",
+          "perc.PageAutoListWidget",
+          "perc.widget.fileAutoList",
+          // blog / list companions
+          "perc.widget.blogIndexPage",
+          "perc.widget.archiveList",
+          "perc.widget.categoryList",
+          "perc.widget.taglist",
+          "perc.widget.MostReadBlogPosts",
+          // social / comments
+          "perc.widgets.comments",
+          "perc.widgets.liked",
+          "perc.widget.commentForm",
+          // other residual product widgets
+          "perc.widget.imageSlider",
+          "perc.widget.cookieConsent",
+          "perc.widget.jquery",
+          "perc.widget.jqueryUI",
+          "perc.widget.registration",
+          "perc.widget.secureLogin",
+          "perc.widget.Result",
+          "perc.widgets.Redirect");
+
+  /** Expected modern widget stems for batch C (stable for tests / residual counting). */
+  public static final List<String> BATCH_C_WIDGET_STEMS =
+      List.of(
+          // auto-lists
+          "percImageAutoList",
+          "percPageAutoList",
+          "percFileAutoList",
+          // blog / list companions
+          "percBlogIndexPage",
+          "percArchiveList",
+          "percCategoryList",
+          "percTagList",
+          "percMostReadBlogPosts",
+          // social / comments
+          "percComments",
+          "percLiked",
+          "percCommentsForm",
+          // other residual
+          "percImageSlider",
+          "percCookieConsent",
+          "percJQueryWidget",
+          "percJQueryUIWidget",
+          "percRegistration",
+          "percSecureLogin",
+          "percResult",
+          "percRedirect");
+
   private PSWidgetXmlDualShip() {
     // utility
   }
@@ -148,11 +212,12 @@ public final class PSWidgetXmlDualShip {
    *   <li>{@code materialize-modern &lt;packageDir&gt;} — Widget XML → {@code widgets/}
    *   <li>{@code materialize-modern-batch-a &lt;packagesRoot&gt;} — batch A packages only
    *   <li>{@code materialize-modern-batch-b &lt;packagesRoot&gt;} — batch B packages only
+   *   <li>{@code materialize-modern-batch-c &lt;packagesRoot&gt;} — batch C packages only
    * </ul>
    */
   public static void main(String[] args) throws Exception {
     final String usage =
-        "Usage: PSWidgetXmlDualShip materialize-modern|materialize-modern-batch-a|materialize-modern-batch-b <path>";
+        "Usage: PSWidgetXmlDualShip materialize-modern|materialize-modern-batch-a|materialize-modern-batch-b|materialize-modern-batch-c <path>";
     if (args.length < 2) {
       System.err.println(usage);
       System.exit(1);
@@ -164,6 +229,7 @@ public final class PSWidgetXmlDualShip {
       case "materialize-modern" -> n = materializeModernWidgetSources(path);
       case "materialize-modern-batch-a" -> n = materializeModernBatchA(path);
       case "materialize-modern-batch-b" -> n = materializeModernBatchB(path);
+      case "materialize-modern-batch-c" -> n = materializeModernBatchC(path);
       default -> {
         System.err.println("Unknown command: " + args[0]);
         System.err.println(usage);
@@ -240,6 +306,18 @@ public final class PSWidgetXmlDualShip {
   public static int materializeModernBatchB(Path packagesRoot)
       throws PSWidgetXmlException, IOException {
     return materializeModernNamedPackages(packagesRoot, BATCH_B_PACKAGE_DIRS);
+  }
+
+  /**
+   * Materialize modern widget sources for every batch C package under {@code packagesRoot}. Missing
+   * package directories are soft-skipped.
+   *
+   * @param packagesRoot {@code Packages/} directory
+   * @return total modern widget packages written across batch C
+   */
+  public static int materializeModernBatchC(Path packagesRoot)
+      throws PSWidgetXmlException, IOException {
+    return materializeModernNamedPackages(packagesRoot, BATCH_C_PACKAGE_DIRS);
   }
 
   /**

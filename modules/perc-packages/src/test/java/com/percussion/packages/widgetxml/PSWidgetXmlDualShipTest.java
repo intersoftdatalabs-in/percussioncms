@@ -41,7 +41,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Dual-ship modern widget authoring tests (issues #2831 batch A, #2832 batch B / parent #2630).
+ * Dual-ship modern widget authoring tests (issues #2831 batch A, #2832 batch B, #2844 batch C /
+ * parent #2630).
  *
  * <p>Product packages keep install Widget XML under {@code
  * sys__UserDependency--rxconfig/Widgets} while committing modern {@code widgets/&lt;stem&gt;/}
@@ -330,6 +331,111 @@ class PSWidgetXmlDualShipTest {
     assertTrue(
         PSWidgetXmlDualShip.BATCH_B_PACKAGE_DIRS.containsAll(
             PSWidgetXmlPackageCompiler.RESIDUAL_PRODUCT_PACKAGE_DIRS));
+  }
+
+  @Test
+  void productBatchC_modernAuthoringRoots_presentAndParityWithXmlCompile() throws Exception {
+    Path packagesRoot = locatePackagesRoot();
+    if (packagesRoot == null) {
+      System.err.println("WARN: Packages root not found; skipping product batch C dual-ship test");
+      return;
+    }
+
+    Set<String> foundStems = new HashSet<>();
+    int packagesWithModern = 0;
+
+    for (String pkgName : PSWidgetXmlDualShip.BATCH_C_PACKAGE_DIRS) {
+      Path product = packagesRoot.resolve(pkgName);
+      if (!Files.isDirectory(product)) {
+        System.err.println("WARN: missing package " + pkgName + "; soft-skip");
+        continue;
+      }
+
+      assertTrue(
+          PSWidgetXmlDualShip.hasModernWidgetSources(product),
+          pkgName + " must author modern widgets/ sources (#2844 batch C)");
+
+      // Dual-run: install Widget XML remains until native install path (do not mass-delete).
+      Path xmlDir = PSWidgetXmlPackageCompiler.resolveWidgetsDir(product);
+      assertTrue(Files.isDirectory(xmlDir), pkgName + " still dual-ships Widget XML for install");
+
+      List<PSWidgetXmlCompileResult> fromXml = PSWidgetXmlPackageCompiler.compilePackage(product);
+      List<PSWidgetXmlCompileResult> fromModern = PSWidgetXmlDualShip.compileModernWidgets(product);
+      assertEquals(
+          fromXml.size(),
+          fromModern.size(),
+          pkgName + " modern widget count must match Widget XML count");
+
+      Map<String, PSWidgetXmlCompileResult> xmlById =
+          fromXml.stream()
+              .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
+      Map<String, PSWidgetXmlCompileResult> modernById =
+          fromModern.stream()
+              .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
+
+      for (Map.Entry<String, PSWidgetXmlCompileResult> e : xmlById.entrySet()) {
+        String id = e.getKey();
+        assertTrue(modernById.containsKey(id), pkgName + " missing modern widget " + id);
+        PSComponentPackageManifest expected = e.getValue().getManifest();
+        PSComponentPackageManifest actual = modernById.get(id).getManifest();
+        PSComponentPackageManifest expectedRound =
+            PSComponentPackageManifestIo.parse(PSComponentPackageManifestIo.toJson(expected));
+        PSComponentPackageManifest actualRound =
+            PSComponentPackageManifestIo.parse(PSComponentPackageManifestIo.toJson(actual));
+        assertEquals(expectedRound, actualRound, "modern manifest parity for " + id);
+
+        String templateKey =
+            expected.getTemplates().isEmpty()
+                ? null
+                : expected.getTemplates().get(0).getSourceRef();
+        if (templateKey != null) {
+          assertEquals(
+              normalizeNewlines(e.getValue().getTextArtifacts().get(templateKey)),
+              normalizeNewlines(modernById.get(id).getTextArtifacts().get(templateKey)),
+              "template parity for " + id);
+        }
+        foundStems.add(id);
+      }
+
+      PSDefinitionSourceSelection sel = PSLegacyDefinitionXmlShim.selectForPackageRoot(product);
+      assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, sel.getKind(), pkgName);
+      assertFalse(
+          PSLegacyDefinitionXmlShim.wouldUseLegacyShim(product),
+          pkgName + " dual-ship modern roots should win selection");
+
+      packagesWithModern++;
+    }
+
+    assertEquals(
+        PSWidgetXmlDualShip.BATCH_C_PACKAGE_DIRS.size(),
+        packagesWithModern,
+        "all batch C packages should be present with modern roots");
+    assertEquals(
+        new HashSet<>(PSWidgetXmlDualShip.BATCH_C_WIDGET_STEMS),
+        foundStems,
+        "batch C must cover the 19 named widget stems");
+  }
+
+  @Test
+  void batchC_packageDirs_disjointFromBatchABAndTestAndSized() {
+    assertFalse(PSWidgetXmlDualShip.BATCH_C_PACKAGE_DIRS.contains("perc.Test"));
+    assertEquals(19, PSWidgetXmlDualShip.BATCH_C_PACKAGE_DIRS.size());
+    assertEquals(19, PSWidgetXmlDualShip.BATCH_C_WIDGET_STEMS.size());
+    assertEquals(
+        PSWidgetXmlDualShip.BATCH_C_PACKAGE_DIRS,
+        PSWidgetXmlPackageCompiler.DUAL_SHIP_BATCH_C_PACKAGE_DIRS);
+    // Batches must not overlap packages.
+    Set<String> earlier = new HashSet<>(PSWidgetXmlDualShip.BATCH_A_PACKAGE_DIRS);
+    earlier.addAll(PSWidgetXmlDualShip.BATCH_B_PACKAGE_DIRS);
+    for (String pkg : PSWidgetXmlDualShip.BATCH_C_PACKAGE_DIRS) {
+      assertFalse(earlier.contains(pkg), "batch C must not re-cover batch A/B package " + pkg);
+    }
+    // Batch C is the remaining residual product set after A took openGraph/twitter/event/defaultLang.
+    for (String pkg : PSWidgetXmlDualShip.BATCH_C_PACKAGE_DIRS) {
+      assertTrue(
+          PSWidgetXmlPackageCompiler.REMAINING_PRODUCT_PACKAGE_DIRS.contains(pkg),
+          "batch C package " + pkg + " should be in REMAINING_PRODUCT_PACKAGE_DIRS");
+    }
   }
 
   @Test

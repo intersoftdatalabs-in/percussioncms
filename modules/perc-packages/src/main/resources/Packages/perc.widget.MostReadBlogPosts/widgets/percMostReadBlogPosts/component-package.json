@@ -1,0 +1,825 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percMostReadBlogPosts",
+  "name": "Most Read Blog Posts",
+  "version": "1.1.6",
+  "description": "Display most read blog posts",
+  "publisher": {
+    "name": "Percussion",
+    "url": "www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "5.3.15",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Most Read Blog Posts",
+    "category": "search",
+    "description": "Display most read blog posts",
+    "thumbnail": "resources/percMostReadBlogPostsIcon.png",
+    "icon": "resources/percMostReadBlogPostsIcon.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 685,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "percMostReadBlogPostsSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percMostReadBlogPostsSnippet.vm",
+      "bindings": [
+        {
+          "variable": "sectionPath",
+          "expression": "$perc.widget.item.properties.get('sectionPath')"
+        },
+        {
+          "variable": "promotedPagePaths",
+          "expression": "$perc.widget.item.properties.get('promotedPagePaths')"
+        },
+        {
+          "variable": "summary",
+          "expression": "$perc.widget.item.properties.get('summary')"
+        },
+        {
+          "variable": "mostReadMoreText",
+          "expression": "$perc.widget.item.properties.get('mostReadMoreText')"
+        },
+        {
+          "variable": "timePeriod",
+          "expression": "$perc.widget.item.properties.get('timePeriod')"
+        },
+        {
+          "variable": "hideDate",
+          "expression": "$perc.widget.item.properties.get('hideDate')"
+        },
+        {
+          "variable": "headingStyle",
+          "expression": "$perc.widget.item.properties.get('headingStyle')"
+        },
+        {
+          "variable": "ariaRole",
+          "expression": "$perc.widget.item.properties.get('ariaRole')"
+        },
+        {
+          "variable": "ariaLabel",
+          "expression": "$perc.widget.item.properties.get('ariaLabel')"
+        },
+        {
+          "variable": "numberOfResults",
+          "expression": "$perc.widget.item.properties.get('numberOfResults')"
+        },
+        {
+          "variable": "sortOrderByHits",
+          "expression": "$perc.widget.item.properties.get('sortOrderByHits')"
+        },
+        {
+          "variable": "listDateTimeFormat",
+          "expression": "$perc.widget.item.properties.get('listDateTimeFormat')"
+        },
+        {
+          "variable": "locale",
+          "expression": "$perc.widget.item.properties.get('locale')"
+        },
+        {
+          "variable": "listTitle",
+          "expression": "$perc.widget.item.properties.get('listTitle')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$rootclass + \" \""
+        },
+        {
+          "variable": "ariaLabel",
+          "expression": "' aria-label=' + '\"' + $ariaLabel + '\"'"
+        },
+        {
+          "variable": "ariaRole",
+          "expression": "' role=' + '\"' + $ariaRole + '\"'"
+        },
+        {
+          "variable": "data",
+          "expression": "\"{\""
+        },
+        {
+          "variable": "data",
+          "expression": "$data + \"&quot;sectionPath&quot;:&quot;\" + $sectionPath  + \"&quot;\""
+        },
+        {
+          "variable": "data",
+          "expression": "$data + \",&quot;promotedPagePaths&quot;:&quot;\" + $promotedPagePaths  + \"&quot;\""
+        },
+        {
+          "variable": "data",
+          "expression": "$data + \", &quot;summary&quot;:\" + $summary"
+        },
+        {
+          "variable": "data",
+          "expression": "$data + \", &quot;readMoreLink&quot;:\" + \"&quot;\" + $mostReadMoreText + \"&quot;\""
+        },
+        {
+          "variable": "data",
+          "expression": "$data + \", &quot;dateFormat&quot;:\" + \"&quot;\" + $listDateTimeFormat + \"&quot;\""
+        },
+        {
+          "variable": "data",
+          "expression": "$data + \", &quot;locale&quot;:\" + \"&quot;\" + $locale + \"&quot;\""
+        },
+        {
+          "variable": "data",
+          "expression": "$data + \", &quot;timePeriod&quot;:&quot;\" + $timePeriod  + \"&quot;\""
+        },
+        {
+          "variable": "data",
+          "expression": "$data + \", &quot;headingStyle&quot;:&quot;\" + $headingStyle  + \"&quot;\""
+        },
+        {
+          "variable": "data",
+          "expression": "$data + \", &quot;hideDate&quot;:&quot;\" + $hideDate  + \"&quot;\""
+        },
+        {
+          "variable": "data",
+          "expression": "$data + \", &quot;numberOfResults&quot;:&quot;\" + $numberOfResults  + \"&quot;\""
+        },
+        {
+          "variable": "data",
+          "expression": "$data + \", &quot;sortOrderByHits&quot;:&quot;\" + $sortOrderByHits  + \"&quot;\""
+        },
+        {
+          "variable": "data",
+          "expression": "$data + \", &quot;listTitle&quot;:&quot;\" + $listTitle  + \"&quot;\""
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "data",
+          "expression": "$data + \", &quot;deliveryurl&quot;:&quot;\" + $dsUrl + \"&quot;\""
+        },
+        {
+          "variable": "data",
+          "expression": "$data + \"}\""
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$sectionPath = $perc.widget.item.properties.get('sectionPath');\n    $promotedPagePaths = $perc.widget.item.properties.get('promotedPagePaths');\n    $summary = $perc.widget.item.properties.get('summary');\n    $mostReadMoreText = $perc.widget.item.properties.get('mostReadMoreText');\n    $timePeriod = $perc.widget.item.properties.get('timePeriod');\n    $hideDate = $perc.widget.item.properties.get('hideDate');\n    $headingStyle = $perc.widget.item.properties.get('headingStyle');\n    $ariaRole = $perc.widget.item.properties.get('ariaRole');\n    $ariaLabel = $perc.widget.item.properties.get('ariaLabel');\n    $numberOfResults = $perc.widget.item.properties.get('numberOfResults');\n    $sortOrderByHits = $perc.widget.item.properties.get('sortOrderByHits');\n    $listDateTimeFormat = $perc.widget.item.properties.get('listDateTimeFormat');\n    $locale = $perc.widget.item.properties.get('locale');\n    $listTitle = $perc.widget.item.properties.get('listTitle');\n    $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n    if (!empty($rootclass)) {\n       $rootclass = $rootclass + \" \";\n    }\n\n    if ($ariaLabel != '' && $ariaLabel != null) {\n        $ariaLabel = ' aria-label=' + '\"' + $ariaLabel + '\"';\n    }\n\n    if ($ariaRole != '' && $ariaRole != null) {\n        $ariaRole = ' role=' + '\"' + $ariaRole + '\"';\n    }\n\n    $data = \"{\";\n\n    $data = $data + \"&quot;sectionPath&quot;:&quot;\" + $sectionPath  + \"&quot;\";\n    $data = $data + \",&quot;promotedPagePaths&quot;:&quot;\" + $promotedPagePaths  + \"&quot;\";\n    $data = $data + \", &quot;summary&quot;:\" + $summary;\n    if ($mostReadMoreText != null && $mostReadMoreText != \"\")\n    {\n        $data = $data + \", &quot;readMoreLink&quot;:\" + \"&quot;\" + $mostReadMoreText + \"&quot;\" ;\n    }\n    if ($listDateTimeFormat != null && $listDateTimeFormat != \"\")\n    {\n        $data = $data + \", &quot;dateFormat&quot;:\" + \"&quot;\" + $listDateTimeFormat + \"&quot;\" ;\n    }\n\n    if ($locale != null && $locale != \"\")\n    {\n        $data = $data + \", &quot;locale&quot;:\" + \"&quot;\" + $locale + \"&quot;\" ;\n    }\n    $data = $data + \", &quot;timePeriod&quot;:&quot;\" + $timePeriod  + \"&quot;\";\n    $data = $data + \", &quot;headingStyle&quot;:&quot;\" + $headingStyle  + \"&quot;\";\n    $data = $data + \", &quot;hideDate&quot;:&quot;\" + $hideDate  + \"&quot;\";\n    $data = $data + \", &quot;numberOfResults&quot;:&quot;\" + $numberOfResults  + \"&quot;\";\n    $data = $data + \", &quot;sortOrderByHits&quot;:&quot;\" + $sortOrderByHits  + \"&quot;\";\n    $data = $data + \", &quot;listTitle&quot;:&quot;\" + $listTitle  + \"&quot;\";\n\n    $dsUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n\n    $data = $data + \", &quot;deliveryurl&quot;:&quot;\" + $dsUrl + \"&quot;\";\n\n\t$data = $data + \"}\";\n    ##result query ends"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percMostReadBlogPostsChrome",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/percMostReadBlogPostsIcon.png",
+      "target": "rx_resources/widgets/percMostReadBlogPosts/images/percMostReadBlogPostsIcon.png",
+      "type": "image"
+    },
+    {
+      "path": "resources/perc_common_ui.js",
+      "target": "perc-common-ui/js/perc_common_ui.js",
+      "type": "javascript",
+      "placement": "head"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "sectionPath",
+      "displayName": "Section path",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "promotedPagePaths",
+      "displayName": "Promoted page paths",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "summary",
+      "displayName": "Show page summary",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "hideDate",
+      "displayName": "Hide date and time",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "listDateTimeFormat",
+      "displayName": "Format of blog post date",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "EEE MMM d, yyyy hh:mm a",
+      "enumValues": []
+    },
+    {
+      "name": "locale",
+      "displayName": "Date Format Locale",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "en-US",
+      "enumValues": [
+        {
+          "value": "sq-AL",
+          "displayValue": "Albanian Albania (AL)"
+        },
+        {
+          "value": "ar-DZ",
+          "displayValue": "Arabic Algeria (DZ)"
+        },
+        {
+          "value": "ar-BH",
+          "displayValue": "Arabic Bahrain (BH)"
+        },
+        {
+          "value": "ar-EG",
+          "displayValue": "Arabic Egypt (EG)"
+        },
+        {
+          "value": "ar-IQ",
+          "displayValue": "Arabic Iraq (IQ)"
+        },
+        {
+          "value": "ar-JO",
+          "displayValue": "Arabic Jordan (JO)"
+        },
+        {
+          "value": "ar-KW",
+          "displayValue": "Arabic Kuwait (KW)"
+        },
+        {
+          "value": "ar-LB",
+          "displayValue": "Arabic Lebanon (LB)"
+        },
+        {
+          "value": "ar-LY",
+          "displayValue": "Arabic Libya (LY)"
+        },
+        {
+          "value": "ar-MA",
+          "displayValue": "Arabic Morocco (MA)"
+        },
+        {
+          "value": "ar-OM",
+          "displayValue": "Arabic Oman (OM)"
+        },
+        {
+          "value": "ar-QA",
+          "displayValue": "Arabic Qatar (QA)"
+        },
+        {
+          "value": "ar-SA",
+          "displayValue": "Arabic Saudi Arabia (SA)"
+        },
+        {
+          "value": "ar-SD",
+          "displayValue": "Arabic Sudan (SD)"
+        },
+        {
+          "value": "ar-SY",
+          "displayValue": "Arabic Syria (SY)"
+        },
+        {
+          "value": "ar-TN",
+          "displayValue": "Arabic Tunisia (TN)"
+        },
+        {
+          "value": "ar-AE",
+          "displayValue": "Arabic United Arab Emirates (AE)"
+        },
+        {
+          "value": "ar-YE",
+          "displayValue": "Arabic Yemen (YE)"
+        },
+        {
+          "value": "be-BY",
+          "displayValue": "Belarusian Belarus (BY)"
+        },
+        {
+          "value": "bg-BG",
+          "displayValue": "Bulgarian Bulgaria (BG)"
+        },
+        {
+          "value": "ca-ES",
+          "displayValue": "Catalan Spain (ES)"
+        },
+        {
+          "value": "zh-CN",
+          "displayValue": "Chinese China (CN)"
+        },
+        {
+          "value": "zh-SG",
+          "displayValue": "Chinese Singapore (SG)"
+        },
+        {
+          "value": "zh-HK",
+          "displayValue": "Chinese Hong Kong (HK)"
+        },
+        {
+          "value": "zh-TW",
+          "displayValue": "Chinese Taiwan (TW)"
+        },
+        {
+          "value": "hr-HR",
+          "displayValue": "Croatian Croatia (HR)"
+        },
+        {
+          "value": "cs-CZ",
+          "displayValue": "Czech Czech Republic (CZ)"
+        },
+        {
+          "value": "da-DK",
+          "displayValue": "Danish Denmark (DK)"
+        },
+        {
+          "value": "nl-BE",
+          "displayValue": "Dutch Belgium (BE)"
+        },
+        {
+          "value": "nl-NL",
+          "displayValue": "Dutch Netherlands (NL)"
+        },
+        {
+          "value": "en-AU",
+          "displayValue": "English Australia (AU)"
+        },
+        {
+          "value": "en-CA",
+          "displayValue": "English Canada (CA)"
+        },
+        {
+          "value": "en-IN",
+          "displayValue": "English India (IN)"
+        },
+        {
+          "value": "en-IE",
+          "displayValue": "English Ireland (IE)"
+        },
+        {
+          "value": "en-MT",
+          "displayValue": "English Malta (MT)"
+        },
+        {
+          "value": "en-NZ",
+          "displayValue": "English New Zealand (NZ)"
+        },
+        {
+          "value": "en-PH",
+          "displayValue": "English Philippines (PH)"
+        },
+        {
+          "value": "en-SG",
+          "displayValue": "English Singapore (SG)"
+        },
+        {
+          "value": "en-ZA",
+          "displayValue": "English South Africa (ZA)"
+        },
+        {
+          "value": "en-GB",
+          "displayValue": "English United Kingdom (GB)"
+        },
+        {
+          "value": "en-US",
+          "displayValue": "English United States (US)"
+        },
+        {
+          "value": "et-EE",
+          "displayValue": "Estonian Estonia (EE)"
+        },
+        {
+          "value": "fi-FI",
+          "displayValue": "Finnish Finland (FI)"
+        },
+        {
+          "value": "fr-BE",
+          "displayValue": "French Belgium (BE)"
+        },
+        {
+          "value": "fr-CA",
+          "displayValue": "French Canada (CA)"
+        },
+        {
+          "value": "fr-FR",
+          "displayValue": "French France (FR)"
+        },
+        {
+          "value": "fr-LU",
+          "displayValue": "French Luxembourg (LU)"
+        },
+        {
+          "value": "fr-CH",
+          "displayValue": "French Switzerland (CH)"
+        },
+        {
+          "value": "de-AT",
+          "displayValue": "German Austria (AT)"
+        },
+        {
+          "value": "de-DE",
+          "displayValue": "German Germany (DE)"
+        },
+        {
+          "value": "de-LU",
+          "displayValue": "German Luxembourg (LU)"
+        },
+        {
+          "value": "de-CH",
+          "displayValue": "German Switzerland (CH)"
+        },
+        {
+          "value": "el-CY",
+          "displayValue": "Greek Cyprus (CY)"
+        },
+        {
+          "value": "el-GR",
+          "displayValue": "Greek Greece (GR)"
+        },
+        {
+          "value": "iw-IL",
+          "displayValue": "Hebrew Israel (IL)"
+        },
+        {
+          "value": "hi-IN",
+          "displayValue": "Hindi India (IN)"
+        },
+        {
+          "value": "hu-HU",
+          "displayValue": "Hungarian Hungary (HU)"
+        },
+        {
+          "value": "is-IS",
+          "displayValue": "Icelandic Iceland (IS)"
+        },
+        {
+          "value": "in-ID",
+          "displayValue": "Indonesian Indonesia (ID)"
+        },
+        {
+          "value": "ga-IE",
+          "displayValue": "Irish Ireland (IE)"
+        },
+        {
+          "value": "it-IT",
+          "displayValue": "Italian Italy (IT)"
+        },
+        {
+          "value": "it-CH",
+          "displayValue": "Italian Switzerland (CH)"
+        },
+        {
+          "value": "ja-JP",
+          "displayValue": "Japanese Japan (JP)"
+        },
+        {
+          "value": "ko-KR",
+          "displayValue": "Korean South Korea (KR)"
+        },
+        {
+          "value": "lv-LV",
+          "displayValue": "Latvian Latvia (LV)"
+        },
+        {
+          "value": "lt-LT",
+          "displayValue": "Lithuanian Lithuania (LT)"
+        },
+        {
+          "value": "mk-MK",
+          "displayValue": "Macedonian Macedonia (MK)"
+        },
+        {
+          "value": "ms-MY",
+          "displayValue": "Malay Malaysia (MY)"
+        },
+        {
+          "value": "mt-MT",
+          "displayValue": "Maltese (mt) Malta (MT)"
+        },
+        {
+          "value": "no-NO",
+          "displayValue": "Norwegian Norway (NO)"
+        },
+        {
+          "value": "nb-NO",
+          "displayValue": "Norwegian Bokmal Norway (NO)"
+        },
+        {
+          "value": "nn-NO",
+          "displayValue": "Norwegian Nynorsk Norway (NO)"
+        },
+        {
+          "value": "pl-PL",
+          "displayValue": "Polish Poland (PL)"
+        },
+        {
+          "value": "pt-BR",
+          "displayValue": "Portuguese Brazil (BR)"
+        },
+        {
+          "value": "pt-PT",
+          "displayValue": "Portuguese Portugal (PT)"
+        },
+        {
+          "value": "ro-RO",
+          "displayValue": "Romanian Romania (RO)"
+        },
+        {
+          "value": "ru-RU",
+          "displayValue": "Russian Russia (RU)"
+        },
+        {
+          "value": "sr-BA",
+          "displayValue": "Serbian Bosnia and Herzegovina (BA)"
+        },
+        {
+          "value": "sr-ME",
+          "displayValue": "Serbian Montenegro (ME)"
+        },
+        {
+          "value": "sr-RS",
+          "displayValue": "Serbian Serbia (RS)"
+        },
+        {
+          "value": "sk-SK",
+          "displayValue": "Slovak Slovakia (SK)"
+        },
+        {
+          "value": "sl-SI",
+          "displayValue": "Slovenian Slovenia (SI)"
+        },
+        {
+          "value": "es-AR",
+          "displayValue": "Spanish Argentina (AR)"
+        },
+        {
+          "value": "es-BO",
+          "displayValue": "Spanish Bolivia (BO)"
+        },
+        {
+          "value": "es-CL",
+          "displayValue": "Spanish Chile (CL)"
+        },
+        {
+          "value": "es-CO",
+          "displayValue": "Spanish Colombia (CO)"
+        },
+        {
+          "value": "es-CR",
+          "displayValue": "Spanish Costa Rica (CR)"
+        },
+        {
+          "value": "es-DO",
+          "displayValue": "Spanish Dominican Republic (DO)"
+        },
+        {
+          "value": "es-EC",
+          "displayValue": "Spanish Ecuador (EC)"
+        },
+        {
+          "value": "es-SV",
+          "displayValue": "Spanish El Salvador (SV)"
+        },
+        {
+          "value": "es-GT",
+          "displayValue": "Spanish Guatemala (GT)"
+        },
+        {
+          "value": "es-HN",
+          "displayValue": "Spanish Honduras (HN)"
+        },
+        {
+          "value": "es-MX",
+          "displayValue": "Spanish Mexico (MX)"
+        },
+        {
+          "value": "es-NI",
+          "displayValue": "Spanish Nicaragua (NL)"
+        },
+        {
+          "value": "es-PA",
+          "displayValue": "Spanish Panama (PA)"
+        },
+        {
+          "value": "es-PY",
+          "displayValue": "Spanish Paraguay (PY)"
+        },
+        {
+          "value": "es-PE",
+          "displayValue": "Spanish Peru (PE)"
+        },
+        {
+          "value": "es-PR",
+          "displayValue": "Spanish Puerto Rico (PR)"
+        },
+        {
+          "value": "es-ES",
+          "displayValue": "Spanish Spain (ES)"
+        },
+        {
+          "value": "es-US",
+          "displayValue": "Spanish United States (US)"
+        },
+        {
+          "value": "es-UY",
+          "displayValue": "Spanish Uruguay (UY)"
+        },
+        {
+          "value": "es-VE",
+          "displayValue": "Spanish Venezuela (VE)"
+        },
+        {
+          "value": "sv-SE",
+          "displayValue": "Swedish Sweden (SE)"
+        },
+        {
+          "value": "th-TH",
+          "displayValue": "Thai Thailand (TH)"
+        },
+        {
+          "value": "tr-TR",
+          "displayValue": "Turkish Turkey (TR)"
+        },
+        {
+          "value": "uk-UA",
+          "displayValue": "Ukrainian Ukraine (UA)"
+        },
+        {
+          "value": "vi-VN",
+          "displayValue": "Vietnamese Vietnam (VN)"
+        }
+      ]
+    },
+    {
+      "name": "mostReadMoreText",
+      "displayName": "Text to use for \"more link\"",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "more...",
+      "enumValues": []
+    },
+    {
+      "name": "timePeriod",
+      "displayName": "Time period",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "WEEK",
+      "enumValues": [
+        {
+          "value": "TODAY",
+          "displayValue": "Today"
+        },
+        {
+          "value": "WEEK",
+          "displayValue": "Week"
+        },
+        {
+          "value": "MONTH",
+          "displayValue": "Month"
+        },
+        {
+          "value": "YEAR",
+          "displayValue": "Year"
+        },
+        {
+          "value": "ALLTIME",
+          "displayValue": "All time"
+        }
+      ]
+    },
+    {
+      "name": "headingStyle",
+      "displayName": "Heading style",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "H3",
+      "enumValues": [
+        {
+          "value": "H2",
+          "displayValue": "H2"
+        },
+        {
+          "value": "H3",
+          "displayValue": "H3"
+        },
+        {
+          "value": "H4",
+          "displayValue": "H4"
+        },
+        {
+          "value": "H5",
+          "displayValue": "H5"
+        },
+        {
+          "value": "SPAN",
+          "displayValue": "span"
+        },
+        {
+          "value": "DIV",
+          "displayValue": "div"
+        }
+      ]
+    },
+    {
+      "name": "ariaRole",
+      "displayName": "Aria role",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "ariaLabel",
+      "displayName": "Aria label",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "numberOfResults",
+      "displayName": "Number of results",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "R-5",
+      "enumValues": [
+        {
+          "value": "R-3",
+          "displayValue": "3"
+        },
+        {
+          "value": "R-5",
+          "displayValue": "5"
+        },
+        {
+          "value": "R-10",
+          "displayValue": "10"
+        },
+        {
+          "value": "R-25",
+          "displayValue": "25"
+        },
+        {
+          "value": "R-50",
+          "displayValue": "50"
+        }
+      ]
+    },
+    {
+      "name": "sortOrderByHits",
+      "displayName": "Sort order by hits",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "desc",
+      "enumValues": [
+        {
+          "value": "desc",
+          "displayValue": "Descending"
+        },
+        {
+          "value": "asc",
+          "displayValue": "Asscending"
+        }
+      ]
+    },
+    {
+      "name": "listTitle",
+      "displayName": "List Title",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "Most read blog posts",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS root class",
+      "datatype": "string"
+    }
+  ]
+}

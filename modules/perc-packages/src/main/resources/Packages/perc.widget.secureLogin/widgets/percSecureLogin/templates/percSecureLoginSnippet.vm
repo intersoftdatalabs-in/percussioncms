@@ -1,0 +1,44 @@
+#loadRelatedWidgetContents()
+		<div class="$!{rootclass} percLogin-form" data="$!{dynamicListData}">
+	#if(! $thisItem.isEmpty())
+			<form name="login_form" method="POST" id="login-form" action="/perc-login" >
+		#if($mainTitle.length()>0)
+				<h2>$mainTitle</h2>
+		#end
+				<div class="percLogin-form-field-row">
+					<div class="$labelalignclass">
+						<span class="perc-form-error-asterisk">*</span>
+						<label> $!usernameLabel</label>
+					</div>
+					<div class="$inputclass">
+						<input type="text" value="" name="j_username" class="form200" size="20" maxlength="64" tabindex="1">
+					</div>
+				</div>
+				<div class="percLogin-form-field-row">
+					<div class="$labelalignclass">
+						<span class="perc-form-error-asterisk">*</span>
+						<label> $!passwordLabel</label>
+					</div>
+					<div class="$inputclass">
+						<input type="password" name="j_password" class="form200" size="20" autocomplete="off" tabindex="2">
+					</div>
+				</div>
+                $!forgotPasswordLinkHTML
+                    <div class="perc-secure-login-error-message form-error-msg" style="display:none">
+                        Authentication failed, invalid username or password
+                    </div>
+					<div class="percLogin-form-field-row $buttonclass">
+						<input type="submit" value="$buttonLabel">
+					</div>
+		#if($perc.isPreviewMode())
+					<script>
+					window.addEventListener('DOMContentLoaded', function() {
+						jQuery("input[type = 'submit']").attr('disabled', true);
+						});
+					</script>
+		#end
+			</form>
+	#elseif ($perc.isEditMode())
+        #createEmptyWidgetContent("secure-login-sample-content", "This login form widget is showing sample content.")
+	#end
+		</div>

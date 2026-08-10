@@ -1,0 +1,18 @@
+<div class="$!{rootclass} perc-like-widget perc-disabled"  style="width:100%" siteName="$siteName" $sampleTooltip data="$!{dynamicListData}">
+        <div class="perc-like-button">
+            <button type="button" title="Like">
+                <span class="perc-likedWidget-button-noScript">Like This</span>
+            </button>
+        </div>
+        <div class="perc-like-counter">
+            <div class="perc-like-counter-left">
+                <div class="perc-like-counter-right">
+                    <div class="perc-like-counter-value">
+                        <div class="perc-like-counter-text">
+                            <span class="perc-like-total-likes">0</span> <span class="perc-like-people">people</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

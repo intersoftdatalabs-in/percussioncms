@@ -1,0 +1,5 @@
+#if ($perc.isEditMode())
+         #createEmptyWidgetContent("comments-sample-content", "This Comments widget is showing sample content.")
+     #elseif (!$perc.isPreviewMode())
+         <div class="$!rootclass perc-comments perc-comments-view" data-query="$dynamicListData"></div>
+     #end

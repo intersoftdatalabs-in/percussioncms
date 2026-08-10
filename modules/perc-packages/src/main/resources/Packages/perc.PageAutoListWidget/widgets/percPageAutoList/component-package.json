@@ -1,0 +1,1381 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percPageAutoList",
+  "name": "Page Auto List",
+  "version": "1.7.1",
+  "description": "Display a dynamic list of page links",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Page Auto List",
+    "category": "content,search",
+    "description": "Display a dynamic list of page links",
+    "thumbnail": "resources/widgetIconLinkAutoList.png",
+    "icon": "resources/widgetIconLinkAutoList.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 685,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percPageAutoList",
+      "ref": "contentTypes/percPageAutoList"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percPageAutoListSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percPageAutoListSnippet.vm",
+      "contentType": "percPageAutoList",
+      "bindings": [
+        {
+          "variable": "isEditMode",
+          "expression": "$perc.isEditMode() || $perc.isPreviewMode()"
+        },
+        {
+          "variable": "linkContext",
+          "expression": "$perc.linkContext"
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "pagingPagesText",
+          "expression": "$perc.widget.item.properties.get('pagingPagesText')"
+        },
+        {
+          "variable": "itemTitleFormat",
+          "expression": "$perc.widget.item.properties.get('itemTitleFormat')"
+        },
+        {
+          "variable": "rendering",
+          "expression": "$perc.widget.item.properties.get('listType')"
+        },
+        {
+          "variable": "listTitleFormat",
+          "expression": "$perc.widget.item.properties.get('listTitleFormat')"
+        },
+        {
+          "variable": "autoListDivId",
+          "expression": "$perc.widget.item.properties.get('autoListDivId')"
+        },
+        {
+          "variable": "perc_hidefield_title",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_title')"
+        },
+        {
+          "variable": "summary",
+          "expression": "$perc.widget.item.properties.get('summary')"
+        },
+        {
+          "variable": "listAriaLabel",
+          "expression": "$perc.widget.item.properties.get('listAriaLabel')"
+        },
+        {
+          "variable": "listAriaRole",
+          "expression": "$perc.widget.item.properties.get('listAriaRole')"
+        },
+        {
+          "variable": "perc_hide_when_empty",
+          "expression": "$perc.widget.item.properties.get('perc_hide_when_empty')"
+        },
+        {
+          "variable": "enableRssIcon",
+          "expression": "$perc.widget.item.properties.get('enable_rss_icon')"
+        },
+        {
+          "variable": "rssIconPosition",
+          "expression": "$perc.widget.item.properties.get('rssIconPosition')"
+        },
+        {
+          "variable": "summaryclass",
+          "expression": "$perc.widget.item.cssProperties.get('summaryclass')"
+        },
+        {
+          "variable": "showPostDate",
+          "expression": "$perc.widget.item.properties.get('showPostDate')"
+        },
+        {
+          "variable": "rssLinkText",
+          "expression": "$perc.widget.item.properties.get('rssLinkText')"
+        },
+        {
+          "variable": "postDateTimeFormat",
+          "expression": "$perc.widget.item.properties.get('postDateTimeFormat')"
+        },
+        {
+          "variable": "enableCalenderIcon",
+          "expression": "$perc.widget.item.properties.get('enableCalenderIcon')"
+        },
+        {
+          "variable": "listItemFormatStartTag",
+          "expression": "'<' + $itemTitleFormat + '>'"
+        },
+        {
+          "variable": "listItemFormatEndTag",
+          "expression": "'</' + $itemTitleFormat + '>'"
+        },
+        {
+          "variable": "postDateTimeFormat",
+          "expression": "\"EEEE MM dd, yyyy\""
+        },
+        {
+          "variable": "locale",
+          "expression": "$perc.widget.item.properties.get('locale')"
+        },
+        {
+          "variable": "locale",
+          "expression": "\"en-US\""
+        },
+        {
+          "variable": "summaryclass",
+          "expression": "$summaryclass.trim()"
+        },
+        {
+          "variable": "summaryclass",
+          "expression": "\"\""
+        },
+        {
+          "variable": "listAriaRole",
+          "expression": "'role=\"region\"'"
+        },
+        {
+          "variable": "listAriaRole",
+          "expression": "'role=\"' + $listAriaRole + '\"'"
+        },
+        {
+          "variable": "target",
+          "expression": "$perc.widget.item.properties.get('target')"
+        },
+        {
+          "variable": "layout",
+          "expression": "$perc.widget.item.properties.get('layout')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$rootclass + \" \""
+        },
+        {
+          "variable": "totalMaxResults",
+          "expression": "$perc.widget.item.properties.get('totalMaxResults')"
+        },
+        {
+          "variable": "totalMaxResults",
+          "expression": "500"
+        },
+        {
+          "variable": "maxlength",
+          "expression": "$perc.widget.item.properties.get('maxlength')"
+        },
+        {
+          "variable": "maxlength",
+          "expression": "$totalMaxResults"
+        },
+        {
+          "variable": "sortDirection",
+          "expression": "$perc.widget.item.properties.get('sortDirection')"
+        },
+        {
+          "variable": "autoListDivId",
+          "expression": "$perc.widget.item.id + \"_list\""
+        },
+        {
+          "variable": "headerId",
+          "expression": "$autoListDivId + '_header'"
+        },
+        {
+          "variable": "sortbyVal",
+          "expression": "$perc.widget.item.properties.get('sortby')"
+        },
+        {
+          "variable": "sortbyVal",
+          "expression": "\"rx:resource_link_title\""
+        },
+        {
+          "variable": "sortDirection",
+          "expression": "\"asc\""
+        },
+        {
+          "variable": "enableRssField",
+          "expression": "\"\""
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assetItems.get(0)"
+        },
+        {
+          "variable": "enableRssField",
+          "expression": "$assetItem.getNode().getProperty('enable_rss_feed').String"
+        },
+        {
+          "variable": "params",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "query",
+          "expression": "$assetItem.getNode().getProperty('query').String"
+        },
+        {
+          "variable": "currentDate",
+          "expression": "$tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $tools.date.getDate())"
+        },
+        {
+          "variable": "hidePastResults",
+          "expression": "$assetItem.getNode().getProperty('hide_past_results').String"
+        },
+        {
+          "variable": "hidePastResultsFilterType",
+          "expression": "$assetItem.getNode().getProperty('hide_past_results_filter').String"
+        },
+        {
+          "variable": "query",
+          "expression": "$query + \" and \" +  $hidePastResultsFilterType + \" > '\" + $currentDate + \"'\""
+        },
+        {
+          "variable": "query",
+          "expression": "$query + \" where \" +  $hidePastResultsFilterType + \" > '\" + $currentDate + \"'\""
+        },
+        {
+          "variable": "query",
+          "expression": "$query + \" order by \" + $sortbyVal + \" desc\""
+        },
+        {
+          "variable": "query",
+          "expression": "$query + \" order by \" + $sortbyVal + \" \" + $sortDirection"
+        },
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "sitePath",
+          "expression": "$assetItem.getNode().getProperty('site_path').String"
+        },
+        {
+          "variable": "feedname",
+          "expression": "$assetItem.getNode().getProperty('feed_name').String"
+        },
+        {
+          "variable": "baseUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "finderPath",
+          "expression": "$rx.pageutils.getItemPath($pageId)"
+        },
+        {
+          "variable": "pathParts",
+          "expression": "$finderPath.split(\"\\/\")"
+        },
+        {
+          "variable": "siteName",
+          "expression": "$pathParts[2]"
+        },
+        {
+          "variable": "sUrl",
+          "expression": "$baseUrl + \"/feeds/rss/\" + $siteName + \"/\" + $feedname +\"/\""
+        },
+        {
+          "variable": "finderName",
+          "expression": "\"Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder\""
+        },
+        {
+          "variable": "relresults",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params)"
+        },
+        {
+          "variable": "maxlength",
+          "expression": "$totalMaxResults"
+        },
+        {
+          "variable": "title",
+          "expression": "$rx.pageutils.html($assetItem, 'displaytitle')"
+        },
+        {
+          "variable": "titleFormatStartTag",
+          "expression": "'<' + $listTitleFormat + ' id=\"' + $headerId +'\" class=\"perc-list-title\" aria-label=\"' + $title + '\" title=\"' + $title + '\"' + '>'"
+        },
+        {
+          "variable": "titleFormatEndTag",
+          "expression": "'</' + $listTitleFormat + '>'"
+        },
+        {
+          "variable": "listAriaLabel",
+          "expression": "'aria-label=\"' + $title + ' page list\"'"
+        },
+        {
+          "variable": "listAriaLabel",
+          "expression": "'aria-label=\"Page list\"'"
+        },
+        {
+          "variable": "listAriaLabel",
+          "expression": "'aria-label=\"' + $listAriaLabel + '\"'"
+        },
+        {
+          "variable": "rowtag",
+          "expression": "$tools.alternator.auto('perc-list-odd', 'perc-list-even')"
+        },
+        {
+          "variable": "titleContains",
+          "expression": "$assetItem.getNode().getProperty('title_contains').String"
+        },
+        {
+          "variable": "starDate",
+          "expression": "$assetItem.getNode().getProperty('start_date').String"
+        },
+        {
+          "variable": "endDate",
+          "expression": "$assetItem.getNode().getProperty('end_date').String"
+        },
+        {
+          "variable": "hidePastResultsFilterType",
+          "expression": "\"dcterms:created\""
+        },
+        {
+          "variable": "hidePastResultsFilterType",
+          "expression": "\"perc:end_date\""
+        },
+        {
+          "variable": "templatesList",
+          "expression": "$assetItem.getNode().getProperty('page_templates_list').String"
+        },
+        {
+          "variable": "categoryList",
+          "expression": "$assetItem.getNode().getProperty('page_category_list').String"
+        },
+        {
+          "variable": "tagsList",
+          "expression": "$assetItem.getNode().getProperty('page_tags_list').String"
+        },
+        {
+          "variable": "criteria",
+          "expression": "\"[\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria + \"&quot;type = 'page'&quot;\""
+        },
+        {
+          "variable": "criteriaSep",
+          "expression": "\", \""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria + $criteriaSep + \"&quot;linktext LIKE '%\" + $titleContains +\"%'&quot;\""
+        },
+        {
+          "variable": "sd",
+          "expression": "$tools.date.toDate(\"MM/dd/yyyy\",$starDate)"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria +  $criteriaSep + \"&quot;dcterms:created >= '\" + $tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $sd) + \"'&quot;\""
+        },
+        {
+          "variable": "ed",
+          "expression": "$tools.date.toDate(\"MM/dd/yyyy\",$endDate)"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria +  $criteriaSep +  \"&quot;dcterms:created < '\" + $tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $ed) + \"'&quot;\""
+        },
+        {
+          "variable": "temppath",
+          "expression": "$sitePath.replace(\"//Sites/\", \"\")"
+        },
+        {
+          "variable": "temppaths",
+          "expression": "$temppath.split(\"/\")"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppaths[0] + \"'&quot;\""
+        },
+        {
+          "variable": "folderpath",
+          "expression": "\"\""
+        },
+        {
+          "variable": "counter",
+          "expression": "1"
+        },
+        {
+          "variable": "folderpath",
+          "expression": "$folderpath + \"/\" + $temppaths[$counter]"
+        },
+        {
+          "variable": "counter",
+          "expression": "$counter + 1"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;folder LIKE '\" + $folderpath + \"/%'&quot;\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppath + \"'&quot;\""
+        },
+        {
+          "variable": "categoryPathList",
+          "expression": "$categoryList.split(\",\")"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;perc:category = '\" + $rx.pageutils.getCategoryLabel($categoryPathList[0]) + \"'&quot;\""
+        },
+        {
+          "variable": "inCl",
+          "expression": "\"(\""
+        },
+        {
+          "variable": "counter",
+          "expression": "0"
+        },
+        {
+          "variable": "inCl",
+          "expression": "$inCl + \"'\" + $rx.pageutils.getCategoryLabel($categoryPathList[$counter]) + \"'\""
+        },
+        {
+          "variable": "inCl",
+          "expression": "$inCl + \", \""
+        },
+        {
+          "variable": "counter",
+          "expression": "$counter + 1"
+        },
+        {
+          "variable": "inCl",
+          "expression": "$inCl + \")\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;perc:category IN \" + $inCl + \"&quot;\""
+        },
+        {
+          "variable": "templateNameList",
+          "expression": "$rx.pageutils.templateNames($templatesList)"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;dcterms:source = '\" + $templateNameList.get(0).toString() + \"'&quot;\""
+        },
+        {
+          "variable": "inCl",
+          "expression": "\"(\""
+        },
+        {
+          "variable": "counter",
+          "expression": "0"
+        },
+        {
+          "variable": "templNameArray",
+          "expression": "$templateNameList.toArray()"
+        },
+        {
+          "variable": "inCl",
+          "expression": "$inCl + \"'\" + $templNameArray[$counter] + \"'\""
+        },
+        {
+          "variable": "inCl",
+          "expression": "$inCl + \", \""
+        },
+        {
+          "variable": "counter",
+          "expression": "$counter + 1"
+        },
+        {
+          "variable": "inCl",
+          "expression": "$inCl + \")\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;dcterms:source IN \" + $inCl + \"&quot;\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria + \"]\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"linktext_lower asc\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"linktext_lower \" + $sortDirection"
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"dcterms:title asc, linktext_lower asc\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"dcterms:title \" + $sortDirection +\", linktext_lower \" + $sortDirection"
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"name asc, linktext_lower asc\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"name \" + $sortDirection +\", linktext_lower asc\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"dcterms:date desc, linktext_lower asc\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"dcterms:date \" + $sortDirection + \", linktext_lower asc\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"dcterms:created desc , linktext_lower asc\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"dcterms:created \" + $sortDirection + \", linktext_lower asc\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"dcterms:created desc , linktext_lower asc\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "\"{\" + \"&quot;criteria&quot;:\" + $criteria"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;maxResults&quot;:\" + $maxlength"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;pagingPagesText&quot;:\" + \"&quot;\" + $pagingPagesText + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;orderBy&quot;:&quot;\" + $orderby + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;totalMaxResults&quot;:\" + $totalMaxResults"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;deliveryurl&quot;:&quot;\" + $baseUrl + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;isEditMode&quot;:&quot;\" + $isEditMode + \"&quot;\""
+        },
+        {
+          "variable": "feedDynamicListData",
+          "expression": "$dynamicListData + \"}\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \"}\""
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$isEditMode = $perc.isEditMode() || $perc.isPreviewMode();\n    $linkContext = $perc.linkContext;\n    $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n    $perc.setWidgetContents($assetItems);\n    $pagingPagesText = $perc.widget.item.properties.get('pagingPagesText');\n    $itemTitleFormat = $perc.widget.item.properties.get('itemTitleFormat');\n    $rendering = $perc.widget.item.properties.get('listType');\n    $listTitleFormat = $perc.widget.item.properties.get('listTitleFormat');\n    $autoListDivId = $perc.widget.item.properties.get('autoListDivId');\n    $perc_hidefield_title = $perc.widget.item.properties.get('perc_hidefield_title');\n    $summary = $perc.widget.item.properties.get('summary');\n    $listAriaLabel = $perc.widget.item.properties.get('listAriaLabel');\n    $listAriaRole = $perc.widget.item.properties.get('listAriaRole');\n    $perc_hide_when_empty = $perc.widget.item.properties.get('perc_hide_when_empty');\n    $enableRssIcon = $perc.widget.item.properties.get('enable_rss_icon');\n    $rssIconPosition = $perc.widget.item.properties.get('rssIconPosition');\n    $summaryclass = $perc.widget.item.cssProperties.get('summaryclass');\n    $showPostDate = $perc.widget.item.properties.get('showPostDate');\n    $rssLinkText = $perc.widget.item.properties.get('rssLinkText');\n    $postDateTimeFormat = $perc.widget.item.properties.get('postDateTimeFormat');\n    $enableCalenderIcon = $perc.widget.item.properties.get('enableCalenderIcon');\n\n    if ($itemTitleFormat != 'none') {\n        $listItemFormatStartTag = '<' + $itemTitleFormat + '>';\n        $listItemFormatEndTag = '</' + $itemTitleFormat + '>';\n    }\n\n    if($postDateTimeFormat == null){\n        $postDateTimeFormat = \"EEEE MM dd, yyyy\";\n    }\n\n    $locale = $perc.widget.item.properties.get('locale');\n\n    if($locale == null) {\n        $locale = \"en-US\";\n    }\n\n    if (!empty($summaryclass)) {\n        $summaryclass = $summaryclass.trim();\n    }\n    else {\n        $summaryclass = \"\";\n    }\n\n    if ($listAriaRole == '' || $listAriaRole == null) {\n        $listAriaRole = 'role=\"region\"';\n    }\n    else {\n        $listAriaRole = 'role=\"' + $listAriaRole + '\"';\n    }\n\n    $target = $perc.widget.item.properties.get('target');\n    $layout = $perc.widget.item.properties.get('layout');\n    $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n\n    if (!empty($rootclass)) {\n        $rootclass = $rootclass + \" \";\n    }\n\n\t$totalMaxResults = $perc.widget.item.properties.get('totalMaxResults');\n\n\tif (empty($totalMaxResults)) {\n        $totalMaxResults = 500;\n    }\n\n    $maxlength = $perc.widget.item.properties.get('maxlength');\n\n    if (empty($maxlength)) {\n        $maxlength = $totalMaxResults;\n    }\n\n    $sortDirection = $perc.widget.item.properties.get('sortDirection');\n\n    if($autoListDivId == '' || $autoListDivId == null) {\n        $autoListDivId = $perc.widget.item.id + \"_list\";\n    }\n\n    $headerId = $autoListDivId + '_header';\n    $sortbyVal = $perc.widget.item.properties.get('sortby');\n\n    if($sortbyVal == null || $sortbyVal == \"none\"){\n        $sortbyVal = \"rx:resource_link_title\";\n        $sortDirection = \"asc\";\n    }\n\n    $enableRssField = \"\";\n\n    if ( ! $assetItems.isEmpty() ) {\n        $assetItem = $assetItems.get(0);\n        $enableRssField = $assetItem.getNode().getProperty('enable_rss_feed').String;\n        $params = $rx.string.stringToMap(null);\n        $query = $assetItem.getNode().getProperty('query').String;\n        $currentDate =  $tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $tools.date.getDate());\n        $hidePastResults = $assetItem.getNode().getProperty('hide_past_results').String;\n        $hidePastResultsFilterType = $assetItem.getNode().getProperty('hide_past_results_filter').String;\n\n        if ($hidePastResults == 'true')\n        {\n            if ($query.contains('where'))\n            {\n                $query = $query + \" and \" +  $hidePastResultsFilterType + \" > '\" + $currentDate + \"'\";\n            }\n            else\n            {\n                $query = $query + \" where \" +  $hidePastResultsFilterType + \" > '\" + $currentDate + \"'\";\n            }\n        }\n\n        if($sortDirection == null){\n            $query = $query + \" order by \" + $sortbyVal + \" desc\";\n        }else{\n           $query = $query + \" order by \" + $sortbyVal + \" \" + $sortDirection;\n        }\n\n\n\n        $params.put('query', $query);\n        $params.put('max_results', $totalMaxResults);\n        $pageId = $perc.page.id;\n        $sitePath = $assetItem.getNode().getProperty('site_path').String;\n        $feedname = $assetItem.getNode().getProperty('feed_name').String;\n        $baseUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n\n        if(!empty($pageId))\n        {\n            $finderPath = $rx.pageutils.getItemPath($pageId);\n            $pathParts = $finderPath.split(\"\\/\");\n            $siteName = $pathParts[2];\n            $sUrl = $baseUrl + \"/feeds/rss/\" + $siteName + \"/\" + $feedname +\"/\";\n        }\n        $finderName=\"Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder\";\n        $relresults=  $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params);\n\n        if ($maxlength == -1) {\n            $maxlength = $totalMaxResults;\n        }\n\n        $title = $rx.pageutils.html($assetItem, 'displaytitle');\n\n        if ($listTitleFormat != 'none') {\n           $titleFormatStartTag = '<' + $listTitleFormat + ' id=\"' + $headerId +'\" class=\"perc-list-title\" aria-label=\"' + $title + '\" title=\"' + $title + '\"' + '>';\n           $titleFormatEndTag = '</' + $listTitleFormat + '>';\n        }\n\n        if ($listAriaLabel == '' || $listAriaLabel == null)\n        {\n            if ($title != null && $title != '')\n            {\n                $listAriaLabel = 'aria-label=\"' + $title + ' page list\"';\n            }\n            else\n            {\n                $listAriaLabel = 'aria-label=\"Page list\"';\n            }\n        }\n        else\n        {\n            $listAriaLabel = 'aria-label=\"' + $listAriaLabel + '\"';\n        }\n\n        $rowtag = $tools.alternator.auto('perc-list-odd', 'perc-list-even');\n\n        ##Page auto list query starts\n        ##Gets the individual field values\n        $titleContains = $assetItem.getNode().getProperty('title_contains').String;\n        $starDate = $assetItem.getNode().getProperty('start_date').String;\n        $endDate = $assetItem.getNode().getProperty('end_date').String;\n\n        ##\n        ## update the Past Results Filter Type to use the correct type for the dynamic DTS call\n        ##\n        if ($hidePastResultsFilterType == \"rx:sys_contentpostdate\")\n        {\n            $hidePastResultsFilterType = \"dcterms:created\";\n        }\n        if ($hidePastResultsFilterType == \"rx:page_end_date\")\n        {\n            $hidePastResultsFilterType = \"perc:end_date\";\n        }\n\n        $templatesList = $assetItem.getNode().getProperty('page_templates_list').String;\n        ## Tags and Categories\n        if($assetItem.getNode().hasProperty('page_category_list'))\n            $categoryList = $assetItem.getNode().getProperty('page_category_list').String;\n        if($assetItem.getNode().hasProperty('page_tags_list'))\n            $tagsList = $assetItem.getNode().getProperty('page_tags_list').String;\n\n        ##Builds the criteria\n        $criteria = \"[\";\n        $criteria = $criteria + \"&quot;type = 'page'&quot;\";\n        $criteriaSep = \", \";\n        if ($titleContains != null && $titleContains != \"\")\n        {\n             $criteria = $criteria + $criteriaSep + \"&quot;linktext LIKE '%\" + $titleContains +\"%'&quot;\";\n        }\n        if ($starDate != null && $starDate != \"\"){\n             $sd = $tools.date.toDate(\"MM/dd/yyyy\",$starDate);\n             $criteria = $criteria +  $criteriaSep + \"&quot;dcterms:created >= '\" + $tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $sd) + \"'&quot;\";\n        }\n        if ($endDate != null && $endDate != \"\"){\n             $ed = $tools.date.toDate(\"MM/dd/yyyy\",$endDate);\n             $criteria = $criteria +  $criteriaSep +  \"&quot;dcterms:created < '\" + $tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $ed) + \"'&quot;\";\n        }\n        if ($sitePath != null && $sitePath != \"\" && $sitePath != \"//Sites\")\n        {\n            $temppath = $sitePath.replace(\"//Sites/\", \"\");\n            if($temppath.indexOf(\"/\") > 0)\n            {\n                $temppaths = $temppath.split(\"/\");\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppaths[0] + \"'&quot;\";\n                $folderpath = \"\";\n                $counter = 1;\n                while($counter < $temppaths.size())\n                {\n                    $folderpath = $folderpath + \"/\" + $temppaths[$counter];\n                    $counter = $counter + 1;\n                }\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;folder LIKE '\" + $folderpath + \"/%'&quot;\";\n            }\n            else\n            {\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppath + \"'&quot;\";\n            }\n        }\n\n        if(!empty($categoryList) && $categoryList != \"\") {\n            $categoryPathList = $categoryList.split(\",\");\n            if($categoryPathList.size()== 1){\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;perc:category = '\" + $rx.pageutils.getCategoryLabel($categoryPathList[0]) + \"'&quot;\";\n            }\n            else if($categoryPathList.size() > 1)\n            {\n                $inCl = \"(\";\n                $counter = 0;\n\n                while($counter < $categoryPathList.size())\n                {\n                    $inCl = $inCl + \"'\" + $rx.pageutils.getCategoryLabel($categoryPathList[$counter]) + \"'\";\n                    if($counter != $categoryPathList.size()-1)\n                        $inCl = $inCl + \", \";\n                    $counter = $counter + 1;\n                }\n                $inCl = $inCl + \")\";\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;perc:category IN \" + $inCl + \"&quot;\";\n            }\n        }\n\n        if($templatesList != null && $templatesList != \"\")\n        {\n            $templateNameList = $rx.pageutils.templateNames($templatesList);\n            if($templateNameList.size() == 1)\n            {\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;dcterms:source = '\" + $templateNameList.get(0).toString() + \"'&quot;\";\n            }\n            else if($templateNameList.size() > 1)\n            {\n                $inCl = \"(\";\n                $counter = 0;\n                $templNameArray = $templateNameList.toArray();\n\n                while($counter < $templNameArray.size())\n                {\n                    $inCl = $inCl + \"'\" + $templNameArray[$counter] + \"'\";\n                    if($counter != $templNameArray.size()-1)\n                        $inCl = $inCl + \", \";\n                    $counter = $counter + 1;\n                }\n                $inCl = $inCl + \")\";\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;dcterms:source IN \" + $inCl + \"&quot;\";\n            }\n        }\n\n        $criteria = $criteria + \"]\";\n\n        ##builds the order by clause\n        $orderby = \"\";\n        if($sortbyVal == \"none\" || $sortbyVal == \"rx:resource_link_title\")\n        {\n             if($sortDirection == null){\n                $orderby = \"linktext_lower asc\";\n            }else{\n               $orderby = \"linktext_lower \" + $sortDirection;\n            }\n\n        }\n        else if ( $sortbyVal == \"rx:page_title\")\n        {\n           if($sortDirection == null){\n                $orderby = \"dcterms:title asc, linktext_lower asc\";\n            }else{\n               $orderby = \"dcterms:title \" + $sortDirection +\", linktext_lower \" + $sortDirection;\n            }\n\n        }\n        else if( $sortbyVal == \"rx:sys_title\" )  {\n            if($sortDirection == null){\n               $orderby = \"name asc, linktext_lower asc\";\n            }else{\n               $orderby = \"name \" + $sortDirection +\", linktext_lower asc\";\n            }\n\n\n        }\n        else if($sortbyVal == \"rx:sys_contentcreateddate\")\n        {\n           if($sortDirection == null){\n               $orderby = \"dcterms:date desc, linktext_lower asc\";\n            }else{\n               $orderby = \"dcterms:date \" + $sortDirection + \", linktext_lower asc\";\n            }\n\n        }\n        else if($sortbyVal == \"rx:sys_contentpostdate\")\n        {\n\n          if($sortDirection == null){\n               $orderby = \"dcterms:created desc , linktext_lower asc\";\n            }else{\n               $orderby = \"dcterms:created \" + $sortDirection + \", linktext_lower asc\";\n            }\n\n        }\n        else if($sortbyVal == null)\n        {\n            $orderby = \"dcterms:created desc , linktext_lower asc\";\n        }\n\n        ##Build the query string for the delivery side auto list\n        $dynamicListData = \"{\" + \"&quot;criteria&quot;:\" + $criteria;\n\n        if ($maxlength != null && $maxlength != \"\")\n        {\n            $dynamicListData = $dynamicListData + \", &quot;maxResults&quot;:\" + $maxlength ;\n        }\n        if ($pagingPagesText != null && $pagingPagesText != \"\")\n        {\n            $dynamicListData = $dynamicListData + \", &quot;pagingPagesText&quot;:\" + \"&quot;\" + $pagingPagesText + \"&quot;\" ;\n        }\n        if($orderby != \"\")\n        {\n            $dynamicListData = $dynamicListData + \", &quot;orderBy&quot;:&quot;\" + $orderby + \"&quot;\";\n        }\n        if($totalMaxResults != \"\")\n        {\n        \t$dynamicListData = $dynamicListData + \", &quot;totalMaxResults&quot;:\" + $totalMaxResults;\n        }\n\n        $dynamicListData = $dynamicListData + \", &quot;deliveryurl&quot;:&quot;\" + $baseUrl + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;isEditMode&quot;:&quot;\" + $isEditMode + \"&quot;\";\n\n        $feedDynamicListData = $dynamicListData + \"}\";\n        $dynamicListData = $dynamicListData + \"}\";\n        ##Page auto list query ends\n   }\n   else {\n      ;\n   }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percPageAutoListContent",
+      "allowedContentTypes": [
+        "percPageAutoList"
+      ],
+      "layout": {
+        "layout": "perc-list-vertical",
+        "maxlength": "10"
+      },
+      "styles": {
+        "rootclass": "",
+        "summaryclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconLinkAutoList.png",
+      "target": "rx_resources/widgets/pageAutoList/images/widgetIconLinkAutoList.png",
+      "type": "image"
+    },
+    {
+      "path": "resources/perc_common_ui.js",
+      "target": "perc-common-ui/js/perc_common_ui.js",
+      "type": "javascript",
+      "placement": "head"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "listType",
+      "displayName": "List Type",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "unordered",
+      "enumValues": [
+        {
+          "value": "unordered",
+          "displayValue": "Unordered List"
+        },
+        {
+          "value": "ordered",
+          "displayValue": "Ordered List"
+        }
+      ]
+    },
+    {
+      "name": "listTitleFormat",
+      "displayName": "Format of list title",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "div",
+      "enumValues": [
+        {
+          "value": "h1",
+          "displayValue": "Heading 1"
+        },
+        {
+          "value": "h2",
+          "displayValue": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "displayValue": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "displayValue": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "displayValue": "Heading 5"
+        },
+        {
+          "value": "h6",
+          "displayValue": "Heading 6"
+        },
+        {
+          "value": "p",
+          "displayValue": "Paragraph"
+        },
+        {
+          "value": "div",
+          "displayValue": "Div"
+        }
+      ]
+    },
+    {
+      "name": "autoListDivId",
+      "displayName": "Page Auto List div id",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "itemTitleFormat",
+      "displayName": "Format of list items",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "none",
+      "enumValues": [
+        {
+          "value": "h1",
+          "displayValue": "Heading 1"
+        },
+        {
+          "value": "h2",
+          "displayValue": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "displayValue": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "displayValue": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "displayValue": "Heading 5"
+        },
+        {
+          "value": "h6",
+          "displayValue": "Heading 6"
+        },
+        {
+          "value": "p",
+          "displayValue": "Paragraph"
+        },
+        {
+          "value": "div",
+          "displayValue": "Div"
+        },
+        {
+          "value": "none",
+          "displayValue": "None"
+        }
+      ]
+    },
+    {
+      "name": "sortby",
+      "displayName": "Sort by",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "rx:sys_contentpostdate",
+      "enumValues": [
+        {
+          "value": "none",
+          "displayValue": "None"
+        },
+        {
+          "value": "rx:resource_link_title",
+          "displayValue": "Link text"
+        },
+        {
+          "value": "rx:page_title",
+          "displayValue": "Title"
+        },
+        {
+          "value": "rx:sys_title",
+          "displayValue": "File Name"
+        },
+        {
+          "value": "rx:sys_contentcreateddate",
+          "displayValue": "Created date"
+        },
+        {
+          "value": "rx:sys_contentpostdate",
+          "displayValue": "Post date"
+        }
+      ]
+    },
+    {
+      "name": "sortDirection",
+      "displayName": "Sort Order",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "desc",
+      "enumValues": [
+        {
+          "value": "desc",
+          "displayValue": "Descending"
+        },
+        {
+          "value": "asc",
+          "displayValue": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "layout",
+      "displayName": "Layout",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "perc-list-vertical",
+      "enumValues": [
+        {
+          "value": "perc-list-horizontal",
+          "displayValue": "Horizontal"
+        },
+        {
+          "value": "perc-list-vertical",
+          "displayValue": "Vertical"
+        }
+      ]
+    },
+    {
+      "name": "totalMaxResults",
+      "displayName": "Maximum number of total results",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "500",
+      "enumValues": []
+    },
+    {
+      "name": "maxlength",
+      "displayName": "Number of posts per page",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "10",
+      "enumValues": []
+    },
+    {
+      "name": "pagingPagesText",
+      "displayName": "Text to use for <em>pages</em> (X of Y <strong>pages</strong>)",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "pages",
+      "enumValues": []
+    },
+    {
+      "name": "summary",
+      "displayName": "Show page summary",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "listAriaLabel",
+      "displayName": "Page Auto List aria-label",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "listAriaRole",
+      "displayName": "Page Auto List aria-role",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "perc_hide_when_empty",
+      "displayName": "Hide auto list when empty",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "target",
+      "displayName": "Link target",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "enable_rss_icon",
+      "displayName": "Include rss icon",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "rssIconPosition",
+      "displayName": "RSS icon position",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "perc-list-top",
+      "enumValues": [
+        {
+          "value": "perc-list-top",
+          "displayValue": "Top of list"
+        },
+        {
+          "value": "perc-list-bottom",
+          "displayValue": "Bottom of list"
+        }
+      ]
+    },
+    {
+      "name": "rssLinkText",
+      "displayName": "Text to use for \"RSS Link\"",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "RSS Link",
+      "enumValues": []
+    },
+    {
+      "name": "showPostDate",
+      "displayName": "Show Post Date",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "postDateTimeFormat",
+      "displayName": "Format of page post date",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "EEEE MM dd, yyyy",
+      "enumValues": []
+    },
+    {
+      "name": "locale",
+      "displayName": "Date Format Locale",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "en-US",
+      "enumValues": [
+        {
+          "value": "sq-AL",
+          "displayValue": "Albanian Albania (AL)"
+        },
+        {
+          "value": "ar-DZ",
+          "displayValue": "Arabic Algeria (DZ)"
+        },
+        {
+          "value": "ar-BH",
+          "displayValue": "Arabic Bahrain (BH)"
+        },
+        {
+          "value": "ar-EG",
+          "displayValue": "Arabic Egypt (EG)"
+        },
+        {
+          "value": "ar-IQ",
+          "displayValue": "Arabic Iraq (IQ)"
+        },
+        {
+          "value": "ar-JO",
+          "displayValue": "Arabic Jordan (JO)"
+        },
+        {
+          "value": "ar-KW",
+          "displayValue": "Arabic Kuwait (KW)"
+        },
+        {
+          "value": "ar-LB",
+          "displayValue": "Arabic Lebanon (LB)"
+        },
+        {
+          "value": "ar-LY",
+          "displayValue": "Arabic Libya (LY)"
+        },
+        {
+          "value": "ar-MA",
+          "displayValue": "Arabic Morocco (MA)"
+        },
+        {
+          "value": "ar-OM",
+          "displayValue": "Arabic Oman (OM)"
+        },
+        {
+          "value": "ar-QA",
+          "displayValue": "Arabic Qatar (QA)"
+        },
+        {
+          "value": "ar-SA",
+          "displayValue": "Arabic Saudi Arabia (SA)"
+        },
+        {
+          "value": "ar-SD",
+          "displayValue": "Arabic Sudan (SD)"
+        },
+        {
+          "value": "ar-SY",
+          "displayValue": "Arabic Syria (SY)"
+        },
+        {
+          "value": "ar-TN",
+          "displayValue": "Arabic Tunisia (TN)"
+        },
+        {
+          "value": "ar-AE",
+          "displayValue": "Arabic United Arab Emirates (AE)"
+        },
+        {
+          "value": "ar-YE",
+          "displayValue": "Arabic Yemen (YE)"
+        },
+        {
+          "value": "be-BY",
+          "displayValue": "Belarusian Belarus (BY)"
+        },
+        {
+          "value": "bg-BG",
+          "displayValue": "Bulgarian Bulgaria (BG)"
+        },
+        {
+          "value": "ca-ES",
+          "displayValue": "Catalan Spain (ES)"
+        },
+        {
+          "value": "zh-CN",
+          "displayValue": "Chinese China (CN)"
+        },
+        {
+          "value": "zh-SG",
+          "displayValue": "Chinese Singapore (SG)"
+        },
+        {
+          "value": "zh-HK",
+          "displayValue": "Chinese Hong Kong (HK)"
+        },
+        {
+          "value": "zh-TW",
+          "displayValue": "Chinese Taiwan (TW)"
+        },
+        {
+          "value": "hr-HR",
+          "displayValue": "Croatian Croatia (HR)"
+        },
+        {
+          "value": "cs-CZ",
+          "displayValue": "Czech Czech Republic (CZ)"
+        },
+        {
+          "value": "da-DK",
+          "displayValue": "Danish Denmark (DK)"
+        },
+        {
+          "value": "nl-BE",
+          "displayValue": "Dutch Belgium (BE)"
+        },
+        {
+          "value": "nl-NL",
+          "displayValue": "Dutch Netherlands (NL)"
+        },
+        {
+          "value": "en-AU",
+          "displayValue": "English Australia (AU)"
+        },
+        {
+          "value": "en-CA",
+          "displayValue": "English Canada (CA)"
+        },
+        {
+          "value": "en-IN",
+          "displayValue": "English India (IN)"
+        },
+        {
+          "value": "en-IE",
+          "displayValue": "English Ireland (IE)"
+        },
+        {
+          "value": "en-MT",
+          "displayValue": "English Malta (MT)"
+        },
+        {
+          "value": "en-NZ",
+          "displayValue": "English New Zealand (NZ)"
+        },
+        {
+          "value": "en-PH",
+          "displayValue": "English Philippines (PH)"
+        },
+        {
+          "value": "en-SG",
+          "displayValue": "English Singapore (SG)"
+        },
+        {
+          "value": "en-ZA",
+          "displayValue": "English South Africa (ZA)"
+        },
+        {
+          "value": "en-GB",
+          "displayValue": "English United Kingdom (GB)"
+        },
+        {
+          "value": "en-US",
+          "displayValue": "English United States (US)"
+        },
+        {
+          "value": "et-EE",
+          "displayValue": "Estonian Estonia (EE)"
+        },
+        {
+          "value": "fi-FI",
+          "displayValue": "Finnish Finland (FI)"
+        },
+        {
+          "value": "fr-BE",
+          "displayValue": "French Belgium (BE)"
+        },
+        {
+          "value": "fr-CA",
+          "displayValue": "French Canada (CA)"
+        },
+        {
+          "value": "fr-FR",
+          "displayValue": "French France (FR)"
+        },
+        {
+          "value": "fr-LU",
+          "displayValue": "French Luxembourg (LU)"
+        },
+        {
+          "value": "fr-CH",
+          "displayValue": "French Switzerland (CH)"
+        },
+        {
+          "value": "de-AT",
+          "displayValue": "German Austria (AT)"
+        },
+        {
+          "value": "de-DE",
+          "displayValue": "German Germany (DE)"
+        },
+        {
+          "value": "de-LU",
+          "displayValue": "German Luxembourg (LU)"
+        },
+        {
+          "value": "de-CH",
+          "displayValue": "German Switzerland (CH)"
+        },
+        {
+          "value": "el-CY",
+          "displayValue": "Greek Cyprus (CY)"
+        },
+        {
+          "value": "el-GR",
+          "displayValue": "Greek Greece (GR)"
+        },
+        {
+          "value": "iw-IL",
+          "displayValue": "Hebrew Israel (IL)"
+        },
+        {
+          "value": "hi-IN",
+          "displayValue": "Hindi India (IN)"
+        },
+        {
+          "value": "hu-HU",
+          "displayValue": "Hungarian Hungary (HU)"
+        },
+        {
+          "value": "is-IS",
+          "displayValue": "Icelandic Iceland (IS)"
+        },
+        {
+          "value": "in-ID",
+          "displayValue": "Indonesian Indonesia (ID)"
+        },
+        {
+          "value": "ga-IE",
+          "displayValue": "Irish Ireland (IE)"
+        },
+        {
+          "value": "it-IT",
+          "displayValue": "Italian Italy (IT)"
+        },
+        {
+          "value": "it-CH",
+          "displayValue": "Italian Switzerland (CH)"
+        },
+        {
+          "value": "ja-JP",
+          "displayValue": "Japanese Japan (JP)"
+        },
+        {
+          "value": "ko-KR",
+          "displayValue": "Korean South Korea (KR)"
+        },
+        {
+          "value": "lv-LV",
+          "displayValue": "Latvian Latvia (LV)"
+        },
+        {
+          "value": "lt-LT",
+          "displayValue": "Lithuanian Lithuania (LT)"
+        },
+        {
+          "value": "mk-MK",
+          "displayValue": "Macedonian Macedonia (MK)"
+        },
+        {
+          "value": "ms-MY",
+          "displayValue": "Malay Malaysia (MY)"
+        },
+        {
+          "value": "mt-MT",
+          "displayValue": "Maltese (mt)    Malta (MT)"
+        },
+        {
+          "value": "no-NO",
+          "displayValue": "Norwegian Norway (NO)"
+        },
+        {
+          "value": "nb-NO",
+          "displayValue": "Norwegian Bokmal Norway (NO)"
+        },
+        {
+          "value": "nn-NO",
+          "displayValue": "Norwegian Nynorsk Norway (NO)"
+        },
+        {
+          "value": "pl-PL",
+          "displayValue": "Polish Poland (PL)"
+        },
+        {
+          "value": "pt-BR",
+          "displayValue": "Portuguese Brazil (BR)"
+        },
+        {
+          "value": "pt-PT",
+          "displayValue": "Portuguese Portugal (PT)"
+        },
+        {
+          "value": "ro-RO",
+          "displayValue": "Romanian Romania (RO)"
+        },
+        {
+          "value": "ru-RU",
+          "displayValue": "Russian Russia (RU)"
+        },
+        {
+          "value": "sr-BA",
+          "displayValue": "Serbian Bosnia and Herzegovina (BA)"
+        },
+        {
+          "value": "sr-ME",
+          "displayValue": "Serbian Montenegro (ME)"
+        },
+        {
+          "value": "sr-RS",
+          "displayValue": "Serbian Serbia (RS)"
+        },
+        {
+          "value": "sk-SK",
+          "displayValue": "Slovak Slovakia (SK)"
+        },
+        {
+          "value": "sl-SI",
+          "displayValue": "Slovenian Slovenia (SI)"
+        },
+        {
+          "value": "es-AR",
+          "displayValue": "Spanish Argentina (AR)"
+        },
+        {
+          "value": "es-BO",
+          "displayValue": "Spanish Bolivia (BO)"
+        },
+        {
+          "value": "es-CL",
+          "displayValue": "Spanish Chile (CL)"
+        },
+        {
+          "value": "es-CO",
+          "displayValue": "Spanish Colombia (CO)"
+        },
+        {
+          "value": "es-CR",
+          "displayValue": "Spanish Costa Rica (CR)"
+        },
+        {
+          "value": "es-DO",
+          "displayValue": "Spanish Dominican Republic (DO)"
+        },
+        {
+          "value": "es-EC",
+          "displayValue": "Spanish Ecuador (EC)"
+        },
+        {
+          "value": "es-SV",
+          "displayValue": "Spanish El Salvador (SV)"
+        },
+        {
+          "value": "es-GT",
+          "displayValue": "Spanish Guatemala (GT)"
+        },
+        {
+          "value": "es-HN",
+          "displayValue": "Spanish Honduras (HN)"
+        },
+        {
+          "value": "es-MX",
+          "displayValue": "Spanish Mexico (MX)"
+        },
+        {
+          "value": "es-NI",
+          "displayValue": "Spanish Nicaragua (NL)"
+        },
+        {
+          "value": "es-PA",
+          "displayValue": "Spanish Panama (PA)"
+        },
+        {
+          "value": "es-PY",
+          "displayValue": "Spanish Paraguay (PY)"
+        },
+        {
+          "value": "es-PE",
+          "displayValue": "Spanish Peru (PE)"
+        },
+        {
+          "value": "es-PR",
+          "displayValue": "Spanish Puerto Rico (PR)"
+        },
+        {
+          "value": "es-ES",
+          "displayValue": "Spanish Spain (ES)"
+        },
+        {
+          "value": "es-US",
+          "displayValue": "Spanish United States (US)"
+        },
+        {
+          "value": "es-UY",
+          "displayValue": "Spanish Uruguay (UY)"
+        },
+        {
+          "value": "es-VE",
+          "displayValue": "Spanish Venezuela (VE)"
+        },
+        {
+          "value": "sv-SE",
+          "displayValue": "Swedish Sweden (SE)"
+        },
+        {
+          "value": "th-TH",
+          "displayValue": "Thai Thailand (TH)"
+        },
+        {
+          "value": "tr-TR",
+          "displayValue": "Turkish Turkey (TR)"
+        },
+        {
+          "value": "uk-UA",
+          "displayValue": "Ukrainian Ukraine (UA)"
+        },
+        {
+          "value": "vi-VN",
+          "displayValue": "Vietnamese Vietnam (VN)"
+        }
+      ]
+    },
+    {
+      "name": "enableCalenderIcon",
+      "displayName": "Enable Calendar Icon",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS root class",
+      "datatype": "string"
+    },
+    {
+      "name": "summaryclass",
+      "displayName": "CSS page summary class",
+      "datatype": "string"
+    }
+  ]
+}

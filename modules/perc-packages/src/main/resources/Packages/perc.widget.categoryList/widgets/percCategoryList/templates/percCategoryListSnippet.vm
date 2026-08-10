@@ -1,0 +1,25 @@
+<div class="$!{rootclass} perc-category-list" data-query="$!{dynamicListData}">
+##This is a hidden div that holds the structure of the list when the category list output structure changes this hidden div and delivery side view
+##should be modified to match the new structure.
+#if ($title && $title.length() > 0)##
+    <div class="perc-category-title">$title</div>
+#end##
+#if($display == "expanded")##
+<div class="perc-category-list-expanded">
+#else##
+<div class="perc-category-list-collapsible" maxCat="$!{maxCat}">
+#end##
+#if( ! $perc.widgetContents.isEmpty() )##
+#if($processedCategories)##
+#if($display == "expanded")##
+#perc_processCategoryNodeExpanded($processedCategories, $maxCat, 0, 0)##
+#else##
+#set($nRow = 0)##
+#perc_processCategoryNodeCollapsible($processedCategories, $maxCat, -1)##
+#end##
+#end##
+#elseif ($perc.isEditMode())##
+#createEmptyWidgetContent("categorylist-sample-content", "This category list widget is showing sample content.")##
+#end###
+</div>
+</div>
