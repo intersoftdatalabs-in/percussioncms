@@ -16,6 +16,7 @@
 
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 import { AdminShell } from "../../../main/ts/admin/AdminShell";
 
@@ -36,15 +37,24 @@ vi.mock("../../../main/ts/admin/tools/ToolsSection", () => ({
   ToolsSection: () => <div data-testid="mock-tools-section">Tools Content</div>,
 }));
 
+function renderShell(ui: React.ReactElement) {
+  return render(
+    <MemoryRouter basename="/cm/app" initialEntries={["/cm/app/admin"]}>
+      {ui}
+    </MemoryRouter>,
+  );
+}
+
 describe("AdminShell", () => {
   it("renders administration shell title and default active tab", () => {
-    render(<AdminShell />);
+    renderShell(<AdminShell />);
     expect(screen.getByTestId("perc-admin-shell")).toBeDefined();
     expect(screen.getByTestId("mock-tasks-section")).toBeDefined();
+    expect(screen.getByTestId("admin-sibling-workflow-link")).toBeDefined();
   });
 
   it("exposes responsive tablist chrome for narrow / portrait layouts", () => {
-    render(<AdminShell />);
+    renderShell(<AdminShell />);
     const shell = screen.getByTestId("perc-admin-shell");
     const tablist = screen.getByTestId("perc-admin-tablist");
     expect(tablist.getAttribute("role")).toBe("tablist");
@@ -58,7 +68,7 @@ describe("AdminShell", () => {
   });
 
   it("switches tabs when nav buttons are clicked", () => {
-    render(<AdminShell />);
+    renderShell(<AdminShell />);
 
     const logsTab = screen.getByTestId("tab-logs");
     fireEvent.click(logsTab);

@@ -200,6 +200,29 @@ describe("App shell", () => {
     await screen.findByTestId("home-shell", {}, { timeout: SHELL_TIMEOUT });
   });
 
+  it("top nav order is Home then Explorer with single Admin (#2702)", async () => {
+    window.history.replaceState({}, "", "/cm/app/home");
+    render(
+      <App bootstrap={bootstrap} entrySearch="?entry=home" basename="/cm/app" />,
+    );
+    const nav = screen.getByTestId("perc-spa-topnav");
+    const home = screen.getByTestId("nav-home");
+    const explorer = screen.getByTestId("nav-explorer");
+    expect(screen.queryByTestId("nav-dashboard")).toBeNull();
+    expect(screen.queryByTestId("nav-workflow")).toBeNull();
+    expect(screen.getByTestId("nav-admin")).toBeTruthy();
+    // Document order: Home immediately before Explorer
+    expect(
+      home.compareDocumentPosition(explorer) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    // No other top-nav link between them
+    let sibling = home.parentElement?.nextElementSibling;
+    expect(sibling?.querySelector("[data-testid='nav-explorer']")).toBeTruthy();
+    await screen.findByTestId("home-shell", {}, { timeout: SHELL_TIMEOUT });
+    expect(nav).toBeTruthy();
+  });
+
   it("loads WorkflowAdminShell for admin entry", async () => {
     window.history.replaceState({}, "", "/cm/app/workflow/roles");
     render(

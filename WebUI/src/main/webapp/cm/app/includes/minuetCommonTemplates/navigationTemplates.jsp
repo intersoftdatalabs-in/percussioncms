@@ -24,10 +24,11 @@
                     <span class="perc-nav-description"><i18n:message key="perc.ui.navMenu.home@Home"/></span>
                 </div>
             </div>
+            <%-- #2702: Explorer after Home; Dashboard removed from top chrome --%>
             <div class="col-6 col-md-4 col-lg-3">
-                <div role="button" title='<i18n:message key="perc.ui.navMenu.dashboard@Dashboard"/>' tabindex="0" data-navmgr="VIEW_DASHBOARD" class="perc-nav-item perc-actions-menu-item text-center">
-                    <i aria-hidden class="perc-nav-icon fas fa-tachometer-alt fa-5x fa-fw"></i>
-                    <span class="perc-nav-description"><i18n:message key="perc.ui.navMenu.dashboard@Dashboard"/></span>
+                <div role="button" title='<i18n:message key="perc.ui.dashboard.modern@Explorer"/>' tabindex="0" data-navmgr="VIEW_EXPLORER" data-spa-href="/cm/app/spa.jsp?entry=explorer" class="perc-nav-item perc-actions-menu-item text-center">
+                    <i aria-hidden class="perc-nav-icon fas fa-folder-open fa-5x fa-fw"></i>
+                    <span class="perc-nav-description"><i18n:message key="perc.ui.dashboard.modern@Explorer"/></span>
                 </div>
             </div>
             <div class="col-6 col-md-4 col-lg-3">

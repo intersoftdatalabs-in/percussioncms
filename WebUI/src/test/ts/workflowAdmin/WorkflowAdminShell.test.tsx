@@ -16,6 +16,7 @@
 
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 import { WorkflowAdminShell } from "../../../main/ts/workflowAdmin/WorkflowAdminShell";
 
@@ -36,15 +37,24 @@ vi.mock("../../../main/ts/workflowAdmin/category/CategoriesSection", () => ({
   CategoriesSection: () => <div data-testid="perc-categories-section">Categories Content</div>,
 }));
 
+function renderShell(ui: React.ReactElement) {
+  return render(
+    <MemoryRouter basename="/cm/app" initialEntries={["/cm/app/workflow"]}>
+      {ui}
+    </MemoryRouter>,
+  );
+}
+
 describe("WorkflowAdminShell", () => {
   it("renders shell title and default active tab", () => {
-    render(<WorkflowAdminShell />);
+    renderShell(<WorkflowAdminShell />);
     expect(screen.getByTestId("perc-workflow-admin-shell")).toBeTruthy();
     expect(screen.getByTestId("mock-workflow-section")).toBeTruthy();
+    expect(screen.getByTestId("admin-sibling-tools-link")).toBeTruthy();
   });
 
   it("exposes responsive tablist chrome for narrow / portrait layouts", () => {
-    render(<WorkflowAdminShell />);
+    renderShell(<WorkflowAdminShell />);
     const shell = screen.getByTestId("perc-workflow-admin-shell");
     const tablist = screen.getByTestId("perc-workflow-admin-tablist");
     expect(tablist.getAttribute("role")).toBe("tablist");
@@ -53,8 +63,8 @@ describe("WorkflowAdminShell", () => {
   });
 
   it("switches tabs when nav buttons are clicked", () => {
-    render(<WorkflowAdminShell />);
-    
+    renderShell(<WorkflowAdminShell />);
+
     const rolesTab = screen.getByTestId("tab-roles");
     fireEvent.click(rolesTab);
     expect(screen.getByTestId("perc-roles-section")).toBeTruthy();
@@ -69,3 +79,4 @@ describe("WorkflowAdminShell", () => {
     expect(screen.getByTestId("perc-categories-section")).toBeTruthy();
   });
 });
+
