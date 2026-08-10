@@ -20,19 +20,26 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.junit.Test;
 
 /**
- * Regression for v8.1.7 PR #722 / #885: GadgetRegistry.xml on classpath with Percussion +
- * Deprecated groups. Also covers issue #715 (Redirect Management gadget removed).
+ * Regression for v8.1.7 PR #722 / #885: Percussion + Deprecated groups. Issue #715 (Redirect
+ * Management removed). Issue #2788 dual-load: prefer {@code gadget-catalog.json}, fall back to
+ * {@code GadgetRegistry.xml}.
  */
 public class GadgetRegistryTest {
 
   @Test
-  public void registryLoadsWithPercussionAndDeprecatedGroups() {
+  public void dualLoadPrefersModernCatalogWhenPresent() {
     Map<String, String> map = GadgetRegistry.loadGadgetTypeMap();
-    assertFalse("GadgetRegistry.xml must be on the classpath", map.isEmpty());
+    assertFalse("gadget type map must load from modern catalog or legacy registry", map.isEmpty());
+    assertEquals(
+        "product ships modern catalog; dual-load must prefer it",
+        GadgetRegistry.Source.MODERN_CATALOG,
+        GadgetRegistry.getLastLoadSource());
 
     assertEquals("Deprecated", map.get("Activity"));
     assertEquals("Deprecated", map.get("Siteimprove"));
@@ -46,6 +53,75 @@ public class GadgetRegistryTest {
 
     assertEquals("Percussion", map.get("Welcome"));
     assertEquals("Percussion", map.get("Bulk Upload"));
+  }
+
+  @Test
+  public void fallsBackToRegistryXmlWhenModernCatalogAbsent() {
+    Map<String, String> map =
+        GadgetRegistry.loadGadgetTypeMap(
+            "com/percussion/webui/gadget/servlets/does-not-exist-catalog.json",
+            GadgetRegistry.REGISTRY_RESOURCE);
+    assertFalse("legacy GadgetRegistry.xml must still be on the classpath", map.isEmpty());
+    assertEquals(GadgetRegistry.Source.LEGACY_REGISTRY_XML, GadgetRegistry.getLastLoadSource());
+
+    assertEquals("Deprecated", map.get("Activity"));
+    assertEquals("Percussion", map.get("Welcome"));
+    assertEquals("Percussion", map.get("Google Setup"));
+    assertFalse(map.containsKey("Redirect Management"));
+  }
+
+  @Test
+  public void emptyWhenBothSourcesMissing() {
+    Map<String, String> map =
+        GadgetRegistry.loadGadgetTypeMap(
+            "com/percussion/webui/gadget/servlets/missing-a.json",
+            "com/percussion/webui/gadget/servlets/missing-b.xml");
+    assertTrue(map.isEmpty());
+    assertEquals(GadgetRegistry.Source.NONE, GadgetRegistry.getLastLoadSource());
+  }
+
+  @Test
+  public void parseCatalogJsonBuildsNameToGroupMap() throws Exception {
+    String json =
+        """
+        {
+          "schemaVersion": "1.0",
+          "gadgets": [
+            { "id": "g1", "name": "Welcome", "group": "Percussion" },
+            { "id": "g2", "name": "Activity", "group": "Deprecated" },
+            { "id": "g3", "name": "", "group": "Percussion" },
+            { "id": "g4", "name": "NoGroup" }
+          ]
+        }
+        """;
+    Map<String, String> map =
+        GadgetRegistry.parseCatalogJson(
+            new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
+    assertEquals(2, map.size());
+    assertEquals("Percussion", map.get("Welcome"));
+    assertEquals("Deprecated", map.get("Activity"));
+    assertFalse(map.containsKey("NoGroup"));
+  }
+
+  @Test
+  public void parseRegistryXmlBuildsNameToGroupMap() throws Exception {
+    String xml =
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <gadgets>
+          <group name="Percussion">
+            <gadget name="Welcome" baseuri="/cm/gadgets/repository/cm1_welcome_gadget" file="x.xml"/>
+          </group>
+          <group name="Deprecated">
+            <gadget name="Activity" baseuri="/cm/gadgets/repository/perc_activity_gadget" file="y.xml"/>
+          </group>
+        </gadgets>
+        """;
+    Map<String, String> map =
+        GadgetRegistry.parseRegistryXml(
+            new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+    assertEquals("Percussion", map.get("Welcome"));
+    assertEquals("Deprecated", map.get("Activity"));
   }
 
   /**
@@ -69,5 +145,12 @@ public class GadgetRegistryTest {
   @Test
   public void deprecatedTypeLookup() {
     assertTrue("Deprecated".equals(GadgetRegistry.getGadgetType("Activity")));
+  }
+
+  @Test
+  public void modernCatalogResourceIsOnClasspath() {
+    assertTrue(
+        "shipped gadget-catalog.json must be on the WebUI classpath",
+        GadgetRegistry.class.getClassLoader().getResource(GadgetRegistry.CATALOG_RESOURCE) != null);
   }
 }
