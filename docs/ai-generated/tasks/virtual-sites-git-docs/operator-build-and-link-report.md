@@ -186,7 +186,7 @@ To keep a review snapshot, copy `outputRoot` to a durable location outside `tmp/
 | Link check | `VirtualLinkChecker` |
 | Site properties | `PSVirtualSiteHelper` |
 | Scripts | `scripts/build-cms-docs.bat`, `scripts/build-cms-docs.sh` |
-| CI smoke (Phase 2 residual 2) | `.github/workflows/product-docs-build.yml` (path-filtered) |
+| CI smoke (Phase 2 residual 2) | Path-filtered workflow lands via #2704 / PR #2707 (`.github/workflows/product-docs-build.yml` + `scripts/ci-smoke-product-docs.*`); until merge, local build is `scripts/build-cms-docs.bat` / `.sh` |
 
 ---
 
