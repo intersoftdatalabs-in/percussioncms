@@ -55,13 +55,14 @@ public class PSFileSystemDriverMetaData implements IPSDriverMetaData {
    * @exception SQLException if an error occurs accessing the servers
    */
   public java.sql.ResultSet getServers() throws SQLException {
-    HashMap cols = new HashMap(1);
+    HashMap<String, Integer> cols = new HashMap<>(1);
     cols.put("SERVER_NAME", Integer.valueOf(1));
 
     /* getting servers for the FileSystem driver is not currently
      * supported, so we're returning an empty result set for now
      */
-    ArrayList[] data = {new ArrayList(0)};
+    @SuppressWarnings("unchecked")
+    ArrayList<Object>[] data = (ArrayList<Object>[]) new ArrayList<?>[] {new ArrayList<>(0)};
     return new PSResultSet(data, cols, ms_getServerRSMeta);
   }
 

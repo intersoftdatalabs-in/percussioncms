@@ -152,7 +152,7 @@ public class PSQueryCacher {
     /* walk through the where clauses in the SQL statement to determine
      * what the keys are for caching SQL results
      */
-    m_keysForResultSet = new java.util.ArrayList();
+    m_keysForResultSet = new java.util.ArrayList<>();
 
     for (int i = 0; i < plan.length; i++) {
       // if this is a statement, get the replacement columns it contains
@@ -165,7 +165,7 @@ public class PSQueryCacher {
      * for the XML document (we will not include style sheet selection
      * in the XML document).
      */
-    m_keysForXmlDocument = new java.util.ArrayList();
+    m_keysForXmlDocument = new java.util.ArrayList<>();
     m_keysForXmlDocument.addAll(m_keysForResultSet); // need all SQL criteria
 
     PSDataMapping map;
@@ -208,13 +208,13 @@ public class PSQueryCacher {
      * piece is correct, then the HTML keys to determine which style sheet
      * to use.
      */
-    m_keysForResultPage = new java.util.ArrayList();
+    m_keysForResultPage = new java.util.ArrayList<>();
     if (ds.isOutputResultPages()) {
       PSResultPageSet pageSet = ds.getOutputResultPages();
       PSCollection pages = (pageSet == null) ? null : pageSet.getResultPages();
       size = (pages == null) ? 0 : pages.size();
 
-      java.util.ArrayList styleKeys;
+      java.util.ArrayList<IPSDataExtractor> styleKeys;
       PSResultPage page;
       PSConditional cond;
       PSCollection conditionals;
@@ -222,7 +222,7 @@ public class PSQueryCacher {
 
       for (int i = 0; i < size; i++) {
         // create the key set for this style sheet
-        styleKeys = new java.util.ArrayList();
+        styleKeys = new java.util.ArrayList<>();
         m_keysForResultPage.add(styleKeys);
 
         // and add in all the params for selecting it
@@ -597,7 +597,7 @@ public class PSQueryCacher {
     return cal.getTime();
   }
 
-  private void addUdfExtractors(List list, PSExtensionCall udfCall)
+  private void addUdfExtractors(List<IPSDataExtractor> list, PSExtensionCall udfCall)
       throws PSIllegalArgumentException {
     if (udfCall == null) return;
 
@@ -608,8 +608,8 @@ public class PSQueryCacher {
     }
   }
 
-  private void addReplacementValueExtractors(List list, IPSReplacementValue value)
-      throws PSIllegalArgumentException {
+  private void addReplacementValueExtractors(
+      List<IPSDataExtractor> list, IPSReplacementValue value) throws PSIllegalArgumentException {
     if (value == null) return;
 
     // store extractors for all params not coming SQL or literals
@@ -695,8 +695,7 @@ public class PSQueryCacher {
     if (m_keysForResultPage.size() != 0) {
       int index = data.getResultPageIndex();
       if ((index != -1) && (index < m_keysForResultPage.size()))
-        addReplacementValuesToKeyBuffer(
-            buf, data, (java.util.ArrayList) m_keysForResultPage.get(index));
+        addReplacementValuesToKeyBuffer(buf, data, m_keysForResultPage.get(index));
     }
 
     return buf.toString();
@@ -716,12 +715,12 @@ public class PSQueryCacher {
 
   /** Append the parameter values to the specified key buffer. */
   private void addReplacementValuesToKeyBuffer(
-      StringBuilder buf, PSExecutionData data, java.util.List params)
+      StringBuilder buf, PSExecutionData data, java.util.List<IPSDataExtractor> params)
       throws com.percussion.data.PSDataExtractionException {
     Object o;
     int size = (params == null) ? 0 : params.size();
     for (int i = 0; i < size; i++) {
-      o = ((IPSDataExtractor) params.get(i)).extract(data);
+      o = params.get(i).extract(data);
       buf.append('[');
       if (o != null) buf.append(o.toString());
       buf.append(']');
@@ -864,9 +863,9 @@ public class PSQueryCacher {
   // these are the keys (IPSDataExtractor objects) which are used to
   // get the key information to determine if we have a matching entry
   // the cached entry may be a HTML page, XML document or SQL result set
-  private List m_keysForResultSet;
-  private List m_keysForXmlDocument;
-  private List m_keysForResultPage;
+  private List<IPSDataExtractor> m_keysForResultSet;
+  private List<IPSDataExtractor> m_keysForXmlDocument;
+  private List<List<IPSDataExtractor>> m_keysForResultPage;
 
   private int m_cacheType;
   private int m_intervalMinutes = 0;

@@ -104,8 +104,8 @@ public class PSUdfCallExtractor extends PSDataExtractor {
     /* we must rebase all the XML fields used by this UDF
      * (part of fix for bug id TGIS-4BTW25)
      */
-    for (Iterator i = m_udfRunner.getExtractors(); i.hasNext(); ) {
-      IPSDataExtractor extr = (IPSDataExtractor) (i.next());
+    for (Iterator<IPSDataExtractor> i = m_udfRunner.getExtractors(); i.hasNext(); ) {
+      IPSDataExtractor extr = i.next();
       if (extr instanceof PSXmlFieldExtractor) ((PSXmlFieldExtractor) extr).setXmlFieldBase(base);
       else if (extr instanceof PSUdfCallExtractor)
         ((PSUdfCallExtractor) extr).setXmlFieldBase(base);
@@ -114,15 +114,14 @@ public class PSUdfCallExtractor extends PSDataExtractor {
 
   private static IPSReplacementValue[] getReplacementValues(PSExtensionCall source) {
     // this is where we'll store the data extractors for the params
-    ArrayList values = new ArrayList();
+    ArrayList<IPSReplacementValue> values = new ArrayList<>();
     /* loop through the parameter value defs and validate them */
     PSExtensionParamValue[] vals = source.getParamValues();
     for (int i = 0; i < vals.length; i++) {
       PSExtensionParamValue val = vals[i];
       values.add((val == null) ? null : val.getValue());
     }
-    IPSReplacementValue[] valueArray = new IPSReplacementValue[values.size()];
-    return (IPSReplacementValue[]) (values.toArray(valueArray));
+    return values.toArray(new IPSReplacementValue[0]);
   }
 
   private IPSUdfProcessor m_udfProcessor;

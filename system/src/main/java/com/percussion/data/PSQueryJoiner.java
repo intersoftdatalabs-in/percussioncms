@@ -67,7 +67,7 @@ public abstract class PSQueryJoiner implements IPSExecutionStep {
     /* build the column name to column index (1-based) mapping
      * as well as the col array which may be required by the optimizer
      */
-    m_columnHash = new HashMap(m_columnCount);
+    m_columnHash = new HashMap<>(m_columnCount);
 
     // we want the index of the join columns so get their names
     // for comparison
@@ -76,8 +76,9 @@ public abstract class PSQueryJoiner implements IPSExecutionStep {
     m_rightColumn = join.getRightColumn().getValueText();
     m_rightColumnIndex = -1;
 
-    HashMap lMap = getColumnMap(lCols, 1); // left is 1 based
-    HashMap rMap = getColumnMap(rCols, lCols.length + 1); // right includes left count (+1 base)
+    HashMap<String, Integer> lMap = getColumnMap(lCols, 1); // left is 1 based
+    HashMap<String, Integer> rMap =
+        getColumnMap(rCols, lCols.length + 1); // right includes left count (+1 base)
 
     // now store the columns we'll be skipping from the SELECT
     m_omitColumns = new boolean[m_columnCount];
@@ -87,7 +88,7 @@ public abstract class PSQueryJoiner implements IPSExecutionStep {
     Integer colPos = null;
     if (lOmitCols != null) {
       for (int i = 0; i < lOmitCols.length; i++) {
-        colPos = (Integer) lMap.get(lOmitCols[i]);
+        colPos = lMap.get(lOmitCols[i]);
         if (colPos != null) {
           omitColCount++;
           m_omitColumns[colPos.intValue() - 1] = true;
@@ -97,7 +98,7 @@ public abstract class PSQueryJoiner implements IPSExecutionStep {
     }
     if (rOmitCols != null) {
       for (int i = 0; i < rOmitCols.length; i++) {
-        colPos = (Integer) rMap.get(rOmitCols[i]);
+        colPos = rMap.get(rOmitCols[i]);
         if (colPos != null) {
           omitColCount++;
           m_omitColumns[colPos.intValue() - 1] = true;
@@ -263,8 +264,8 @@ public abstract class PSQueryJoiner implements IPSExecutionStep {
     }
   }
 
-  private HashMap getColumnMap(String[] cols, int base) {
-    HashMap colMap = new HashMap();
+  private HashMap<String, Integer> getColumnMap(String[] cols, int base) {
+    HashMap<String, Integer> colMap = new HashMap<>();
     for (int i = 0; i < cols.length; i++) colMap.put(cols[i], Integer.valueOf(i + base));
     return colMap;
   }
@@ -325,7 +326,7 @@ public abstract class PSQueryJoiner implements IPSExecutionStep {
   protected String m_rightColumn;
   protected int m_rightColumnIndex;
   protected int m_columnCount;
-  protected HashMap m_columnHash;
+  protected HashMap<String, Integer> m_columnHash;
   protected String[] m_columnNames;
   protected PSUdfCallExtractor m_translator;
   protected boolean[] m_omitColumns;

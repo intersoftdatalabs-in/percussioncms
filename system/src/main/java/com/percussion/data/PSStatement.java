@@ -146,12 +146,10 @@ public abstract class PSStatement implements IPSExecutionStep {
    *
    * @return the list of replacement values
    */
-  public java.util.List getReplacementValueExtractors() {
-    java.util.ArrayList retList = new java.util.ArrayList();
-    java.util.List curList;
+  public java.util.List<IPSDataExtractor> getReplacementValueExtractors() {
+    java.util.ArrayList<IPSDataExtractor> retList = new java.util.ArrayList<>();
     for (int i = 0; i < m_blocks.length; i++) {
-      curList = m_blocks[i].getReplacementValueExtractors();
-      retList.addAll(curList);
+      retList.addAll(m_blocks[i].getReplacementValueExtractors());
     }
 
     return retList;

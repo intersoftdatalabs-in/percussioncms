@@ -261,34 +261,30 @@ public class PSStatementGroup implements IPSStatementBlock {
    *
    * @return the list of replacement values
    */
-  public java.util.List getReplacementValueExtractors() {
-    java.util.ArrayList retList = new java.util.ArrayList();
+  public java.util.List<IPSDataExtractor> getReplacementValueExtractors() {
+    java.util.ArrayList<IPSDataExtractor> retList = new java.util.ArrayList<>();
 
     if (m_leftBlock != null) {
-      java.util.List tempList = m_leftBlock.getReplacementValueExtractors();
-      retList.addAll(tempList);
+      retList.addAll(m_leftBlock.getReplacementValueExtractors());
     }
 
     if (m_rightBlock != null) {
-      java.util.List tempList = m_rightBlock.getReplacementValueExtractors();
-      retList.addAll(tempList);
+      retList.addAll(m_rightBlock.getReplacementValueExtractors());
     }
 
     return retList;
   }
 
   /** */
-  public List getLobStatementColumns() {
-    ArrayList retList = new ArrayList();
+  public List<PSStatementColumn> getLobStatementColumns() {
+    ArrayList<PSStatementColumn> retList = new ArrayList<>();
 
     if (m_leftBlock != null) {
-      List tempList = m_leftBlock.getLobStatementColumns();
-      retList.addAll(tempList);
+      retList.addAll(m_leftBlock.getLobStatementColumns());
     }
 
     if (m_rightBlock != null) {
-      List tempList = m_rightBlock.getLobStatementColumns();
-      retList.addAll(tempList);
+      retList.addAll(m_rightBlock.getLobStatementColumns());
     }
 
     return retList;
