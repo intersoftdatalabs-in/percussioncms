@@ -394,7 +394,8 @@ public class PSChoiceFilter extends PSComponent {
      * Represents a reference to the corresponsing instance of the cataloged LightWeightField, may
      * be <code>null</code>.
      */
-    private PSLightWeightField m_lightWeightField;
+    /** Runtime catalog attachment; not durable objectstore state. */
+    private transient PSLightWeightField m_lightWeightField;
 
     private static final String XML_NODE_NAME = "DependentField";
     private static final String XML_ATTR_fieldRef = "fieldRef";

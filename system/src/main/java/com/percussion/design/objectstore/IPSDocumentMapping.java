@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import java.io.Serializable;
 import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -25,11 +26,16 @@ import org.w3c.dom.Element;
  * The IPSDocumentMapping interface must be implemented by any class which will be used as a
  * document (eg, XML) mapping in a PSDataMapping object.
  *
+ * <p>Extends {@link Serializable} so fields typed as this interface (e.g. {@code
+ * PSDataMapping.m_docMapping}) are valid under {@code -Xlint:serial} serial-field checks.
+ * Product implementors are already serializable via {@link PSComponent}. Wire/XML behavior is
+ * unchanged.
+ *
  * @author Tas Giakouminakis
  * @version 1.0
  * @since 1.0
  */
-public interface IPSDocumentMapping {
+public interface IPSDocumentMapping extends Serializable {
   /**
    * Get the fields which must be retrieved from the back-end(s) in order to use this mapping. The
    * field name syntax is <code>field-name</code>.

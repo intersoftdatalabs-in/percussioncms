@@ -571,7 +571,8 @@ public abstract class PSFile extends PSComponent {
   protected long m_lastModified = -1L;
 
   /** The MIME content with data and type information. */
-  protected IPSMimeContent m_content = null;
+  /** Mime content stream payload; not serializable across JVM boundaries. */
+  protected transient IPSMimeContent m_content = null;
 
   private static final String XFER_ENC = "xferEnc";
   private static final String CHAR_ENC = "charEnc";

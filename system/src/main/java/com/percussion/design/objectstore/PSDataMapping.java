@@ -637,7 +637,11 @@ public class PSDataMapping extends PSComponent {
   private IPSBackEndMapping m_backEndMapping = null;
   private PSCollection m_conditionals = null;
   private IPSDocumentMapping m_docMapping;
-  private java.text.Format m_textFormatter = null;
+  /**
+   * Runtime text formatter; not part of durable objectstore state (XML carries format
+   * configuration separately). Marked transient for Java serialization surface.
+   */
+  private transient java.text.Format m_textFormatter = null;
 
   private static final int MAX_XML_FIELD_NAME_LEN = 255;
 

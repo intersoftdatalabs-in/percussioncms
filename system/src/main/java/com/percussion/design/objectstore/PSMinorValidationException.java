@@ -94,6 +94,9 @@ public class PSMinorValidationException extends PSSystemValidationException {
     return m_sourceComponent;
   }
 
-  protected IPSDocument m_sourceDocument = null;
-  protected IPSComponent m_sourceComponent = null;
+  /** Source document context; not required for serialized exception payload. */
+  protected transient IPSDocument m_sourceDocument = null;
+
+  /** Source component context; not required for serialized exception payload. */
+  protected transient IPSComponent m_sourceComponent = null;
 }
