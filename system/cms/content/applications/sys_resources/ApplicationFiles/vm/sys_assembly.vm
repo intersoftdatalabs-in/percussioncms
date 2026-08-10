@@ -177,7 +177,9 @@ $next_markup</a>##
 #set($sys.currentslot.slot = $sys.asm.findSlotByName($slotname))##
 #if ($sys.currentslot.slot)##
 #set($sys.currentslot.isrelationshipfinder = $rx.asmhelper.isAASlot($sys.currentslot.slot))##
-## ADR-003: expose slot_layout / slot_styles as $sys.slot.layout / $sys.slot.styles
+## ADR-003 (#2629): product-reserved $sys.slot map (layout, styles, schemaVersion, name).
+## Not a free-form customer variable — templates that previously assigned $sys.slot for custom
+## purposes must rename that binding. Prefer $sys.currentslot.layout / .styles aliases below.
 #set($sys.slot = $rx.asmhelper.slotAssemblyContext($sys.currentslot.slot))##
 #set($sys.currentslot.layout = $sys.slot.layout)##
 #set($sys.currentslot.styles = $sys.slot.styles)##
@@ -191,7 +193,7 @@ $next_markup</a>##
 #set($sys.currentslot.slot = $sys.asm.findSlotByName($slotname))
 #if ($sys.currentslot.slot)
 #set($sys.currentslot.active = false)##
-## ADR-003: expose slot_layout / slot_styles as $sys.slot.layout / $sys.slot.styles
+## ADR-003 (#2629): product-reserved $sys.slot (see __slotsetup). Prefer $sys.currentslot.* aliases.
 #set($sys.slot = $rx.asmhelper.slotAssemblyContext($sys.currentslot.slot))##
 #set($sys.currentslot.layout = $sys.slot.layout)##
 #set($sys.currentslot.styles = $sys.slot.styles)##

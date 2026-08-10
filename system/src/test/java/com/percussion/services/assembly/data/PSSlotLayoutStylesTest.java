@@ -17,10 +17,11 @@
 
 package com.percussion.services.assembly.data;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.LinkedHashMap;
@@ -103,5 +104,33 @@ class PSSlotLayoutStylesTest {
     assertEquals(2, PSSlotLayoutStyles.schemaVersionOf(Map.of(PSSlotLayoutStyles.KEY_SCHEMA_VERSION, 2)));
     assertEquals(
         3, PSSlotLayoutStyles.schemaVersionOf(Map.of(PSSlotLayoutStyles.KEY_SCHEMA_VERSION, "3")));
+  }
+
+  @Test
+  void validateStoredJsonAcceptsBlankAndObject() {
+    assertDoesNotThrow(() -> PSSlotLayoutStyles.validateStoredJson(null));
+    assertDoesNotThrow(() -> PSSlotLayoutStyles.validateStoredJson("  "));
+    assertDoesNotThrow(() -> PSSlotLayoutStyles.validateStoredJson("{\"rootclass\":\"x\"}"));
+  }
+
+  @Test
+  void validateStoredJsonRejectsNonObject() {
+    assertThrows(
+        IllegalArgumentException.class, () -> PSSlotLayoutStyles.validateStoredJson("{not-json"));
+    assertThrows(
+        IllegalArgumentException.class, () -> PSSlotLayoutStyles.validateStoredJson("[1,2]"));
+    assertThrows(
+        IllegalArgumentException.class, () -> PSSlotLayoutStyles.validateStoredJson("\"string\""));
+  }
+
+  @Test
+  void encodeSelfReferentialMapThrowsIllegalState() {
+    Map<String, Object> layout = new LinkedHashMap<>();
+    layout.put(PSSlotLayoutStyles.KEY_ORIENTATION, "horizontal");
+    Map<String, Object> cycle = new LinkedHashMap<>();
+    cycle.put("self", cycle);
+    layout.put("cycle", cycle);
+    // Jackson rejects direct self-references; encode must not silently return null.
+    assertThrows(IllegalStateException.class, () -> PSSlotLayoutStyles.encodeLayout(layout));
   }
 }

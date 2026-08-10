@@ -340,10 +340,17 @@ public class PSTemplateSlot
     /**
      * Set raw layout JSON (nullable). Prefer {@link #setSlotLayout(Map)} from Java.
      *
-     * @param json may be {@code null}
+     * <p>Blank/{@code null} clears storage (defaults on next get). Non-blank values are validated as
+     * a JSON object via {@link PSSlotLayoutStyles#validateStoredJson(String)} so corrupt text is not
+     * silently accepted on the write path. Pre-existing corrupt DB rows loaded by field access still
+     * soft-fail to defaults on {@link #getSlotLayout()}.
+     *
+     * @param json may be {@code null} or blank
+     * @throws IllegalArgumentException if non-blank and not a JSON object
      */
     public void setSlotLayoutJson(String json) {
-        slotLayoutJson = json;
+        PSSlotLayoutStyles.validateStoredJson(json);
+        slotLayoutJson = StringUtils.isBlank(json) ? null : json.trim();
     }
 
     /**
@@ -360,10 +367,14 @@ public class PSTemplateSlot
     /**
      * Set raw styles JSON (nullable). Prefer {@link #setSlotStyles(Map)} from Java.
      *
-     * @param json may be {@code null}
+     * <p>Same validation contract as {@link #setSlotLayoutJson(String)}.
+     *
+     * @param json may be {@code null} or blank
+     * @throws IllegalArgumentException if non-blank and not a JSON object
      */
     public void setSlotStylesJson(String json) {
-        slotStylesJson = json;
+        PSSlotLayoutStyles.validateStoredJson(json);
+        slotStylesJson = StringUtils.isBlank(json) ? null : json.trim();
     }
 
     /**

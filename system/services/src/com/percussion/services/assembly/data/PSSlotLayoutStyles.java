@@ -146,6 +146,8 @@ public final class PSSlotLayoutStyles {
    *
    * @param layout may be {@code null}
    * @return JSON text or {@code null}
+   * @throws IllegalStateException if Jackson cannot serialize the map (callers must not assume
+   *     silent clear-to-null on failure)
    */
   public static String encodeLayout(Map<String, Object> layout) {
     return encode(layout, true);
@@ -156,9 +158,36 @@ public final class PSSlotLayoutStyles {
    *
    * @param styles may be {@code null}
    * @return JSON text or {@code null}
+   * @throws IllegalStateException if Jackson cannot serialize the map
    */
   public static String encodeStyles(Map<String, Object> styles) {
     return encode(styles, false);
+  }
+
+  /**
+   * Validate raw JSON intended for {@code SLOT_LAYOUT} / {@code SLOT_STYLES} storage.
+   *
+   * <p>Blank or {@code null} is allowed (means defaults on read). Non-blank text must parse as a
+   * JSON object. On read, {@link #parseLayout(String)} / {@link #parseStyles(String)} still
+   * soft-fail to defaults for pre-existing corrupt rows loaded via field access that bypasses
+   * setters.
+   *
+   * @param json may be {@code null} or blank
+   * @throws IllegalArgumentException if non-blank and not a JSON object
+   */
+  public static void validateStoredJson(String json) {
+    if (StringUtils.isBlank(json)) {
+      return;
+    }
+    try {
+      Map<String, Object> raw = MAPPER.readValue(json.trim(), MAP_TYPE);
+      if (raw == null) {
+        throw new IllegalArgumentException("slot layout/styles JSON must be a JSON object");
+      }
+    } catch (JacksonException e) {
+      throw new IllegalArgumentException(
+          "Invalid slot layout/styles JSON: " + e.getMessage(), e);
+    }
   }
 
   /**
@@ -239,10 +268,7 @@ public final class PSSlotLayoutStyles {
         out.put(e.getKey(), e.getValue());
       }
     }
-    // Always stamp current writer schema when reading unversioned legacy empty objects.
-    if (!out.containsKey(KEY_SCHEMA_VERSION)) {
-      out.put(KEY_SCHEMA_VERSION, SCHEMA_VERSION);
-    }
+    // defaultLayout()/defaultStyles() always stamp KEY_SCHEMA_VERSION into out before the loop.
     return out;
   }
 
@@ -258,9 +284,8 @@ public final class PSSlotLayoutStyles {
     try {
       return MAPPER.writeValueAsString(normalized);
     } catch (JacksonException e) {
-      log.error("Failed to encode slot layout/styles JSON: {}", e.getMessage());
-      log.debug(e);
-      return null;
+      // Do not return null here — callers would clear stored JSON without knowing encode failed.
+      throw new IllegalStateException("Failed to encode slot layout/styles JSON", e);
     }
   }
 }

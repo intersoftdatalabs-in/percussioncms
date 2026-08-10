@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.services.assembly.IPSTemplateSlot;
@@ -169,6 +170,17 @@ class PSTemplateSlotLayoutStylesTest {
     slot.setSlotStyles(styles);
     assertEquals("iface", slot.getSlotStyles().get(PSSlotLayoutStyles.KEY_ROOTCLASS));
     assertNotNull(slot.getSlotLayout());
+  }
+
+  @Test
+  void setSlotLayoutJsonValidatesAndRejectsCorrupt() {
+    PSTemplateSlot slot = newSlot("test.layout.rawjson");
+    slot.setSlotLayoutJson("{\"orientation\":\"horizontal\"}");
+    assertEquals("horizontal", slot.getSlotLayout().get(PSSlotLayoutStyles.KEY_ORIENTATION));
+    slot.setSlotLayoutJson(null);
+    assertNull(slot.getSlotLayoutJson());
+    assertThrows(IllegalArgumentException.class, () -> slot.setSlotLayoutJson("{broken"));
+    assertThrows(IllegalArgumentException.class, () -> slot.setSlotStylesJson("[1]"));
   }
 
   private static PSTemplateSlot newSlot(String name) {
