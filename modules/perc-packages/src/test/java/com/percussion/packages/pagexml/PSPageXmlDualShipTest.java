@@ -20,6 +20,7 @@ package com.percussion.packages.pagexml;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
@@ -219,7 +221,8 @@ class PSPageXmlDualShipTest {
 
     Map<String, String> guids = PSPageXmlDualShip.loadGuidsFromMapping(staging);
     assertEquals("0-4-591", guids.get("perc.base.plain"));
-    assertEquals("0-4-557", guids.get("perc.base.Box"));
+    // Mixed-case product ids are stored under Locale.ROOT lowercase keys.
+    assertEquals("0-4-557", guids.get("perc.base.box"));
     assertFalse(guids.containsKey("perc.base.plain.templateDef.aclDef"));
   }
 
@@ -271,7 +274,8 @@ class PSPageXmlDualShipTest {
 
       PSPageXmlModel install = PSPageXmlParser.parse(def);
       assertEquals(id, install.getName());
-      assertEquals(guids.get(id), install.getGuid(), "GUID for " + id);
+      assertEquals(
+          guids.get(id.toLowerCase(Locale.ROOT)), install.getGuid(), "GUID for " + id);
       assertEquals(
           "Java/global/percussion/assembly/pageAssembler", install.getAssembler(), id);
       assertEquals("Page", install.getOutputFormat(), id);
@@ -319,8 +323,8 @@ class PSPageXmlDualShipTest {
     assertEquals(3, written);
 
     Map<String, String> guids = PSPageXmlDualShip.loadGuidsFromMapping(staging);
-    assertEquals("0-4-597", guids.get("perc.resp.Banded"));
-    assertEquals("0-4-599", guids.get("perc.resp.Basic"));
+    assertEquals("0-4-597", guids.get("perc.resp.banded"));
+    assertEquals("0-4-599", guids.get("perc.resp.basic"));
     assertEquals("0-4-627", guids.get("perc.resp.plain"));
 
     for (PSPageXmlCompileResult r : modern) {
@@ -392,12 +396,12 @@ class PSPageXmlDualShipTest {
 
     Map<String, String> guids = PSPageXmlDualShip.loadGuidsFromMapping(staging);
     assertEquals("0-4-602", guids.get("perc.page"));
-    assertEquals("0-4-604", guids.get("perc.pageDatabase"));
-    assertEquals("0-4-606", guids.get("perc.pageDispatcher"));
-    assertEquals("0-4-608", guids.get("perc.pageXml"));
+    assertEquals("0-4-604", guids.get("perc.pagedatabase"));
+    assertEquals("0-4-606", guids.get("perc.pagedispatcher"));
+    assertEquals("0-4-608", guids.get("perc.pagexml"));
     assertEquals("0-4-610", guids.get("perc.sys.resource"));
     assertEquals("0-4-612", guids.get("perc.widget"));
-    assertEquals("0-4-614", guids.get("perc.widgetDispatcher"));
+    assertEquals("0-4-614", guids.get("perc.widgetdispatcher"));
 
     for (PSPageXmlCompileResult expected : modern) {
       String id = expected.getManifest().getId();
@@ -406,7 +410,8 @@ class PSPageXmlDualShipTest {
 
       PSPageXmlModel install = PSPageXmlParser.parse(def);
       assertEquals(id, install.getName());
-      assertEquals(guids.get(id), install.getGuid(), "GUID for " + id);
+      assertEquals(
+          guids.get(id.toLowerCase(Locale.ROOT)), install.getGuid(), "GUID for " + id);
 
       PSComponentPackageManifest.TemplateRef t = expected.getManifest().getTemplates().get(0);
       assertEquals(
@@ -489,6 +494,60 @@ class PSPageXmlDualShipTest {
         "Java/global/percussion/assembly/pageVariantAssembler", reparsed.getAssembler());
     assertEquals("0-4-608", reparsed.getGuid());
     assertEquals(normalizeNewlines(body), normalizeNewlines(reparsed.getTemplateBody()));
+    assertEquals(
+        "Template used to render the page as XML.",
+        reparsed.getDescription(),
+        "catalog description must survive dual-ship emit");
+  }
+
+  @Test
+  void emit_fallsBackToPackageDescriptionWhenCatalogDescriptionBlank() throws Exception {
+    PSComponentPackageManifest manifest = new PSComponentPackageManifest();
+    manifest.setSchemaVersion(PSComponentPackageManifest.SUPPORTED_SCHEMA_VERSION);
+    manifest.setId("perc.page");
+    manifest.setName("Page");
+    manifest.setVersion("1.0.0");
+    manifest.setDescription("Package-level page description");
+    PSComponentPackageManifest.Catalog catalog = new PSComponentPackageManifest.Catalog();
+    catalog.setKind("page");
+    catalog.setTitle("Page");
+    catalog.setCategory("page");
+    catalog.setPaletteVisible(Boolean.TRUE);
+    manifest.setCatalog(catalog);
+
+    PSComponentPackageManifest.TemplateRef t = new PSComponentPackageManifest.TemplateRef();
+    t.setName("perc.page");
+    t.setType("page");
+    t.setAssembler("pageAssembler");
+    t.setSourceRef("templates/perc.page.vm");
+    manifest.setTemplates(List.of(t));
+    manifest.setSlots(List.of());
+    manifest.setContentTypes(List.of());
+    manifest.setResources(List.of());
+    manifest.setUserPreferences(List.of());
+    manifest.setCssPreferences(List.of());
+    PSComponentPackageManifestValidator.validate(manifest);
+
+    String xml = PSPageXmlTemplateDefEmitter.emit(manifest, "<html/>", "0-4-602");
+    PSPageXmlModel reparsed = PSPageXmlParser.parse(xml);
+    assertEquals(
+        "Package-level page description",
+        reparsed.getDescription(),
+        "package description used when catalog has none");
+  }
+
+  @Test
+  void loadGuidsFromMapping_normalizesMixedCaseTemplateDefKeys() throws Exception {
+    Path staging = tempDir.resolve("mixedCaseGuid-copy");
+    Files.createDirectories(staging);
+    // Mixed-case key must still resolve under lowercase manifest id lookup.
+    Files.writeString(
+        staging.resolve("mixedCaseGuid.mapping.properties"),
+        "perc.Page.templateDef=TemplateDef-99\n",
+        StandardCharsets.UTF_8);
+    Map<String, String> guids = PSPageXmlDualShip.loadGuidsFromMapping(staging);
+    assertEquals("0-4-99", guids.get("perc.page"));
+    assertNull(guids.get("perc.Page"), "map keys are lowercase only");
   }
 
   @Test

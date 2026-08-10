@@ -71,11 +71,13 @@ public final class PSPageXmlTemplateDefEmitter {
             manifest.getName(),
             manifest.getCatalog() != null ? manifest.getCatalog().getTitle() : null,
             name);
-    // Prefer catalog/template description only — package-level description is often a package
-    // summary and was not written into individual product templateDefs.
+    // Prefer catalog description; fall back to package-level description so dual-ship
+    // round-trip preserves descriptions when catalog omits one (e.g. some Baseline pages).
     String description =
         firstNonBlank(
-            manifest.getCatalog() != null ? manifest.getCatalog().getDescription() : null, "");
+            manifest.getCatalog() != null ? manifest.getCatalog().getDescription() : null,
+            manifest.getDescription(),
+            "");
     String assembler = toLegacyAssemblerPath(t.getAssembler());
     String outputFormat = toLegacyOutputFormat(t.getType());
     String body = templateSource != null ? templateSource : "";

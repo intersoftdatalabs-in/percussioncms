@@ -144,8 +144,9 @@ public final class PSPageXmlDualShip {
       if (stem == null || stem.isBlank()) {
         stem = pageDir.getFileName().toString();
       }
+      String stemKey = stem.toLowerCase(Locale.ROOT);
       String templateSource = readTemplateSource(pageDir, manifest);
-      String guid = guidsByStem.get(stem);
+      String guid = guidsByStem.get(stemKey);
       if (guid == null || guid.isBlank()) {
         Path mapping = findMappingProperties(packageDir);
         String mappingHint =
@@ -154,11 +155,12 @@ public final class PSPageXmlDualShip {
             "Missing stable install GUID for modern page stem '"
                 + stem
                 + "'. Expected key '"
-                + stem
+                + stemKey
                 + ".templateDef=TemplateDef-N' in mapping file: "
                 + mappingHint);
       }
       String xml = PSPageXmlTemplateDefEmitter.emit(manifest, templateSource, guid);
+      // Keep on-disk templateDef name aligned with manifest id (product packages use that id).
       Path out = packageDir.resolve(stem + ".templateDef");
       Files.writeString(out, xml, StandardCharsets.UTF_8);
       written++;
@@ -322,7 +324,8 @@ public final class PSPageXmlDualShip {
       if (!km.matches()) {
         continue;
       }
-      String stem = km.group(1);
+      // Normalize to lowercase so mixed-case mapping keys match manifest.getId() stems.
+      String stem = km.group(1).toLowerCase(Locale.ROOT);
       String value = props.getProperty(key);
       if (value == null) {
         continue;
