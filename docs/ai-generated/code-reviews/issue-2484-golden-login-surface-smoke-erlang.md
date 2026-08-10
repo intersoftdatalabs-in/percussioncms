@@ -108,7 +108,7 @@ report missing HEALTHCHECK. The golden/login surface smoke itself
 
 1. `python docker/scripts/perc-devctl.py qa-up --skip-image-build
    --timeout-seconds 1200`
-   → `RESULT:OK STEP:qa-up QA_CMS_HOST_PORT=9993 TEST_CMS_URL=http://127.0.0.1:9993 ADMIN_PASSWORD=5vx$N0Sz9GhX37H4p*`
+   → `RESULT:OK STEP:qa-up QA_CMS_HOST_PORT=9993 TEST_CMS_URL=http://127.0.0.1:9993 ADMIN_PASSWORD=<from qa-up stdout — never commit>`
 2. `npm run test:surface -- --path tests/golden-unattended-smoke.spec.js`
    → `2 passed (9.9s)` (golden-unattended-smoke + Content Explorer shell).
 3. `python docker/scripts/perc-devctl.py qa-down`
