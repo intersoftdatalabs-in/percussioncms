@@ -1,7 +1,7 @@
 # Gap matrix: Desktop Content Explorer → SPA Explorer
 
 **Parent:** #2400  
-**Evidence date:** 2026-08-10 (closeout re-audit #2794 against `origin/main` after #2748 / #2773 / #2775 / #2777 / #2782; re-confirmed #2827 after #2792/#2793 merges)  
+**Evidence date:** 2026-08-10 (closeout re-audit #2794 against `origin/main` after #2748 / #2773 / #2775 / #2777 / #2782; re-confirmed #2827 after #2792/#2793 merges; Object ACL cross-epic pointer #2828)  
 **Rule:** Status reflects **product route** (`ExplorerRoute` → `ContentExplorerShell`), not isolated components in the registry.
 
 Legend: **Present** | **Partial** | **Missing** | **OUT**
@@ -35,7 +35,7 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Capability | DCE source | Explorer / REST today | Status | Slice |
 |------------|------------|------------------------|--------|-------|
 | Folder ACL view/edit | `PSFolderSecurityPanel` | `FolderSecurityPanel` toggle on product shell with identities + saveFolderProperties | **Present** | #2410 · [PR #2599](https://github.com/intersoftdatalabs-in/percussioncms/pull/2599) (merged) · QA [#2600](https://github.com/intersoftdatalabs-in/percussioncms/issues/2600) |
-| Object ACL editor (full) | CE ACL dialogs | Partial other epics (#2274 family) | **Partial** | link existing ACL epics |
+| Object ACL editor (full) | CE ACL dialogs | **Not an Explorer shell residual.** CD-19 product work lives on Developer `ObjectAclSection` mounts (design-object peers). Code slices B1–B5 merged on main; do **not** re-implement under #2400. Status stays **Partial** only while human QA remains open (not Missing / not false Explorer backlog). | **Partial** (cross-epic pointer; code merged; human QA open) | **Cross-epic:** [#2274](https://github.com/intersoftdatalabs-in/percussioncms/issues/2274) (slice B of [#2262](https://github.com/intersoftdatalabs-in/percussioncms/issues/2262)) · grandparent [#1690](https://github.com/intersoftdatalabs-in/percussioncms/issues/1690) · B1–B5 #2281/#2282/#2283/#2604/#2605 merged · residual peer PW #2642 merged · human QA [#2640](https://github.com/intersoftdatalabs-in/percussioncms/issues/2640)/[#2643](https://github.com/intersoftdatalabs-in/percussioncms/issues/2643)/[#2672](https://github.com/intersoftdatalabs-in/percussioncms/issues/2672) open · docs disposition #2828 |
 | Folder properties (community, locale, DF, workflow) | `PSFolder*Panel` | `FolderPropertiesEditor` inside `FolderSecurityPanel` on product shell | **Present** | #2410 · [PR #2599](https://github.com/intersoftdatalabs-in/percussioncms/pull/2599) (merged) · QA [#2600](https://github.com/intersoftdatalabs-in/percussioncms/issues/2600) |
 
 ## Advanced / power user
@@ -60,6 +60,24 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 
 ## Implementation notes
 
+### 2026-08-10 Object ACL cross-epic disposition (#2828)
+
+**Disposition:** Object ACL editor (full) is **not** open Explorer implement backlog under #2400. Product path is Developer-module `ObjectAclSection` under the CD-19 / community-visibility ACL epic chain.
+
+| Layer | Tracker | State (2026-08-10) |
+|-------|---------|-------------------|
+| Grandparent | [#1690](https://github.com/intersoftdatalabs-in/percussioncms/issues/1690) Developer post-P0 | open (broader epic) |
+| Parent | [#2262](https://github.com/intersoftdatalabs-in/percussioncms/issues/2262) Community visibility + full ACL | open |
+| Slice B (CD-19 full ACL) | [#2274](https://github.com/intersoftdatalabs-in/percussioncms/issues/2274) | open tracker; implement children done |
+| B1 specials | #2281 / [PR #2293](https://github.com/intersoftdatalabs-in/percussioncms/pull/2293) | **merged** |
+| B2 default ACL prefs | #2282 / [PR #2294](https://github.com/intersoftdatalabs-in/percussioncms/pull/2294) | **merged** |
+| B3 design/runtime model | #2283 / [PR #2342](https://github.com/intersoftdatalabs-in/percussioncms/pull/2342) | **merged** |
+| B4 peer mounts | #2604 / [PR #2639](https://github.com/intersoftdatalabs-in/percussioncms/pull/2639) | **merged**; QA [#2640](https://github.com/intersoftdatalabs-in/percussioncms/issues/2640) open |
+| B5 prefs + product-path Playwright | #2605 / [PR #2641](https://github.com/intersoftdatalabs-in/percussioncms/pull/2641) | **merged**; QA [#2643](https://github.com/intersoftdatalabs-in/percussioncms/issues/2643) open |
+| Residual peer PW | #2642 / [PR #2671](https://github.com/intersoftdatalabs-in/percussioncms/pull/2671) | **merged**; QA [#2672](https://github.com/intersoftdatalabs-in/percussioncms/issues/2672) open |
+
+**Matrix status rule for this row:** keep **Partial** while human QA is open — do **not** invent **Present** without QA closeout. Do **not** file new Explorer ObjectAclSection work under #2400; track only under #2274 / #2262 / #1690. Folder ACL on Explorer shell (#2410) remains a separate **Present** row.
+
 ### 2026-08-10 Present re-confirm after Subfolder/ContentBrowser merges (#2827)
 
 Re-audited `main` after #2792 / [PR #2796](https://github.com/intersoftdatalabs-in/percussioncms/pull/2796) and #2793 / [PR #2798](https://github.com/intersoftdatalabs-in/percussioncms/pull/2798) landed (and after #2794 / [PR #2800](https://github.com/intersoftdatalabs-in/percussioncms/pull/2800) matrix closeout). **No status flips required** — product-route evidence still matches **Present**:
@@ -69,7 +87,7 @@ Re-audited `main` after #2792 / [PR #2796](https://github.com/intersoftdatalabs-
 | Subfolder copy wizard | **Present** | `ContentExplorerShell` Content → Subfolder Copy (`content-subfolder-copy`) mounts `SubfolderCopyWizard`; Vitest shell/menu + Playwright `explorer-subfolder-copy.spec.js`; human QA #2797 |
 | Search in ContentBrowser hosts | **Present** | `ContentBrowser` mounts shared `SearchPanel` when `enableSearch`; residual host `assetPickerModern.jsp` sets `enableSearch: true`; Vitest `ContentBrowser.test.tsx`; human QA #2799 |
 
-Stale **Partial** / open-PR wording for those two chrome rows is incorrect after merge. Remaining intentional **Partial**: translation in-flight/session under #2411; object ACL under existing ACL epics (#2274 family / residual #2828).
+Stale **Partial** / open-PR wording for those two chrome rows is incorrect after merge. Remaining intentional **Partial**: translation in-flight/session under #2411; object ACL **cross-epic pointer** to #2274 / #2262 / #1690 (B1–B5 merged; human QA open — see #2828 note above), not Explorer implement backlog.
 
 ### 2026-08-10 closeout re-audit (#2794)
 
