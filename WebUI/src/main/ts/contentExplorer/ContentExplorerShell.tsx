@@ -938,8 +938,8 @@ export function ContentExplorerShell({
       )}
       {showRelationships &&
         selection.item &&
-        selection.item.id != null &&
-        String(selection.item.id).trim() !== "" && (
+        selection.item.type !== "folder" &&
+        parseContentId(selection.item.id) != null && (
           <section
             id="explorer-relationships-panel"
             style={sidePanelStyle}
@@ -958,8 +958,8 @@ export function ContentExplorerShell({
       {showRelationships &&
         !(
           selection.item &&
-          selection.item.id != null &&
-          String(selection.item.id).trim() !== ""
+          selection.item.type !== "folder" &&
+          parseContentId(selection.item.id) != null
         ) && (
           <div
             id="explorer-relationships-panel"
