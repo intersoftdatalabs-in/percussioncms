@@ -29,6 +29,10 @@ Exposed to assembly context for JEXL/templates. **Binding names (locked for Phas
 
 Schema helper: `PSSlotLayoutStyles` (`SCHEMA_VERSION = 1`). Persistence: `RXSLOTTYPE.SLOT_LAYOUT` / `SLOT_STYLES` CLOB JSON on `PSTemplateSlot`.
 
+**REST (Developer module / #2691):** slot definition maps are exposed as `slotLayout` / `slotStyles` on `SlotDetail` (`GET/PUT /slots/{idOrName}`). Non-null maps on PUT replace definition values (empty / schema-only clears to defaults).
+
+**Instance overrides:** composition-level sparse maps merge over definition defaults via `PSSlotLayoutStyles.merge(base, overrides, layout)` (instance keys win). `clearOverride` removes a key from the override map so the definition value applies again. `toAssemblyContext(slot, layoutOverrides, stylesOverrides)` builds the effective `$sys.slot` binding. Sparse override JSON: `encodeOverrides` / `parseOverrides`.
+
 ## Rationale
 
 - Layout chrome applies to any content in a hole, not only “widgets.”

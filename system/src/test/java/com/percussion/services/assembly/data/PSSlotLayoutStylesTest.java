@@ -133,4 +133,107 @@ class PSSlotLayoutStylesTest {
     // Jackson rejects direct self-references; encode must not silently return null.
     assertThrows(IllegalStateException.class, () -> PSSlotLayoutStyles.encodeLayout(layout));
   }
+
+  @Test
+  void mergeInstanceOverrideWinsOverDefinition() {
+    Map<String, Object> definition = new LinkedHashMap<>();
+    definition.put(PSSlotLayoutStyles.KEY_ORIENTATION, "vertical");
+    definition.put(PSSlotLayoutStyles.KEY_COLUMNS, "2");
+    definition.put(PSSlotLayoutStyles.KEY_MAX_ITEMS, "5");
+
+    Map<String, Object> instance = new LinkedHashMap<>();
+    instance.put(PSSlotLayoutStyles.KEY_ORIENTATION, "horizontal");
+    instance.put(PSSlotLayoutStyles.KEY_MAX_ITEMS, "10");
+
+    Map<String, Object> effective = PSSlotLayoutStyles.merge(definition, instance, true);
+    assertEquals("horizontal", effective.get(PSSlotLayoutStyles.KEY_ORIENTATION));
+    assertEquals("2", effective.get(PSSlotLayoutStyles.KEY_COLUMNS));
+    assertEquals("10", effective.get(PSSlotLayoutStyles.KEY_MAX_ITEMS));
+    assertEquals(
+        PSSlotLayoutStyles.SCHEMA_VERSION, effective.get(PSSlotLayoutStyles.KEY_SCHEMA_VERSION));
+  }
+
+  @Test
+  void mergeClearOverrideRestoresDefinitionDefault() {
+    Map<String, Object> definition = new LinkedHashMap<>();
+    definition.put(PSSlotLayoutStyles.KEY_ROOTCLASS, "def-root");
+    definition.put(PSSlotLayoutStyles.KEY_ITEMCLASS, "def-item");
+
+    Map<String, Object> instance = new LinkedHashMap<>();
+    instance.put(PSSlotLayoutStyles.KEY_ROOTCLASS, "inst-root");
+
+    Map<String, Object> withOverride = PSSlotLayoutStyles.merge(definition, instance, false);
+    assertEquals("inst-root", withOverride.get(PSSlotLayoutStyles.KEY_ROOTCLASS));
+    assertEquals("def-item", withOverride.get(PSSlotLayoutStyles.KEY_ITEMCLASS));
+
+    PSSlotLayoutStyles.clearOverride(instance, PSSlotLayoutStyles.KEY_ROOTCLASS);
+    Map<String, Object> afterClear = PSSlotLayoutStyles.merge(definition, instance, false);
+    assertEquals("def-root", afterClear.get(PSSlotLayoutStyles.KEY_ROOTCLASS));
+    assertEquals("def-item", afterClear.get(PSSlotLayoutStyles.KEY_ITEMCLASS));
+  }
+
+  @Test
+  void mergeNullOrEmptyOverridesReturnsDefinition() {
+    Map<String, Object> definition = new LinkedHashMap<>();
+    definition.put(PSSlotLayoutStyles.KEY_ORIENTATION, "vertical");
+    Map<String, Object> fromNull = PSSlotLayoutStyles.merge(definition, null, true);
+    Map<String, Object> fromEmpty = PSSlotLayoutStyles.merge(definition, Map.of(), true);
+    assertEquals("vertical", fromNull.get(PSSlotLayoutStyles.KEY_ORIENTATION));
+    assertEquals("vertical", fromEmpty.get(PSSlotLayoutStyles.KEY_ORIENTATION));
+  }
+
+  @Test
+  void instanceOverrideRoundTripEncodeParse() {
+    Map<String, Object> overrides = new LinkedHashMap<>();
+    overrides.put(PSSlotLayoutStyles.KEY_ROOTCLASS, "page-root");
+    overrides.put(PSSlotLayoutStyles.KEY_ORIENTATION, "horizontal");
+
+    String layoutJson = PSSlotLayoutStyles.encodeOverrides(overrides, true);
+    String stylesJson = PSSlotLayoutStyles.encodeOverrides(overrides, false);
+    assertNotNull(layoutJson);
+    assertNotNull(stylesJson);
+
+    Map<String, Object> parsedLayout = PSSlotLayoutStyles.parseOverrides(layoutJson);
+    Map<String, Object> parsedStyles = PSSlotLayoutStyles.parseOverrides(stylesJson);
+    assertEquals("horizontal", parsedLayout.get(PSSlotLayoutStyles.KEY_ORIENTATION));
+    assertEquals("page-root", parsedStyles.get(PSSlotLayoutStyles.KEY_ROOTCLASS));
+
+    Map<String, Object> defLayout = new LinkedHashMap<>();
+    defLayout.put(PSSlotLayoutStyles.KEY_ORIENTATION, "vertical");
+    defLayout.put(PSSlotLayoutStyles.KEY_COLUMNS, "3");
+    Map<String, Object> effective = PSSlotLayoutStyles.merge(defLayout, parsedLayout, true);
+    assertEquals("horizontal", effective.get(PSSlotLayoutStyles.KEY_ORIENTATION));
+    assertEquals("3", effective.get(PSSlotLayoutStyles.KEY_COLUMNS));
+
+    assertNull(PSSlotLayoutStyles.encodeOverrides(null, true));
+    assertNull(PSSlotLayoutStyles.encodeOverrides(Map.of(), false));
+    assertTrue(PSSlotLayoutStyles.parseOverrides(null).isEmpty());
+    assertTrue(PSSlotLayoutStyles.parseOverrides("  ").isEmpty());
+  }
+
+  @Test
+  void toAssemblyContextAppliesInstanceOverrides() {
+    PSTemplateSlot slot = new PSTemplateSlot();
+    slot.setName("testSlot");
+    Map<String, Object> layout = new LinkedHashMap<>();
+    layout.put(PSSlotLayoutStyles.KEY_ORIENTATION, "vertical");
+    slot.setSlotLayout(layout);
+    Map<String, Object> styles = new LinkedHashMap<>();
+    styles.put(PSSlotLayoutStyles.KEY_ROOTCLASS, "def-root");
+    slot.setSlotStyles(styles);
+
+    Map<String, Object> layoutOv = Map.of(PSSlotLayoutStyles.KEY_ORIENTATION, "horizontal");
+    Map<String, Object> stylesOv = Map.of(PSSlotLayoutStyles.KEY_ROOTCLASS, "inst-root");
+    Map<String, Object> ctx = PSSlotLayoutStyles.toAssemblyContext(slot, layoutOv, stylesOv);
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> ctxLayout =
+        (Map<String, Object>) ctx.get(PSSlotLayoutStyles.CTX_LAYOUT);
+    @SuppressWarnings("unchecked")
+    Map<String, Object> ctxStyles =
+        (Map<String, Object>) ctx.get(PSSlotLayoutStyles.CTX_STYLES);
+    assertEquals("horizontal", ctxLayout.get(PSSlotLayoutStyles.KEY_ORIENTATION));
+    assertEquals("inst-root", ctxStyles.get(PSSlotLayoutStyles.KEY_ROOTCLASS));
+    assertEquals("testSlot", ctx.get(PSSlotLayoutStyles.CTX_NAME));
+  }
 }

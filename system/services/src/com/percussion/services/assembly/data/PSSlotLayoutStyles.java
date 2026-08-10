@@ -200,14 +200,129 @@ public final class PSSlotLayoutStyles {
    */
   public static Map<String, Object> toAssemblyContext(IPSTemplateSlot slot) {
     Objects.requireNonNull(slot, "slot");
+    return toAssemblyContext(slot, null, null);
+  }
+
+  /**
+   * Build assembly context merging composition-level instance overrides over slot definition
+   * defaults. Override map keys win; absent override keys keep definition values. Pass {@code
+   * null}/empty override maps to use definition only.
+   *
+   * @param slot never {@code null}
+   * @param layoutOverrides sparse layout overrides (may be {@code null})
+   * @param stylesOverrides sparse styles overrides (may be {@code null})
+   * @return unmodifiable context map; never {@code null}
+   */
+  public static Map<String, Object> toAssemblyContext(
+      IPSTemplateSlot slot,
+      Map<String, Object> layoutOverrides,
+      Map<String, Object> stylesOverrides) {
+    Objects.requireNonNull(slot, "slot");
+    Map<String, Object> layout = merge(slot.getSlotLayout(), layoutOverrides, true);
+    Map<String, Object> styles = merge(slot.getSlotStyles(), stylesOverrides, false);
     Map<String, Object> ctx = new LinkedHashMap<>();
-    Map<String, Object> layout = slot.getSlotLayout();
-    Map<String, Object> styles = slot.getSlotStyles();
-    ctx.put(CTX_LAYOUT, Collections.unmodifiableMap(new LinkedHashMap<>(layout)));
-    ctx.put(CTX_STYLES, Collections.unmodifiableMap(new LinkedHashMap<>(styles)));
+    ctx.put(CTX_LAYOUT, Collections.unmodifiableMap(layout));
+    ctx.put(CTX_STYLES, Collections.unmodifiableMap(styles));
     ctx.put(CTX_SCHEMA_VERSION, SCHEMA_VERSION);
     ctx.put(CTX_NAME, slot.getName());
     return Collections.unmodifiableMap(ctx);
+  }
+
+  /**
+   * Merge definition (base) maps with composition-level instance overrides. Instance keys win.
+   * {@link #KEY_SCHEMA_VERSION} is always set to the max of base/override versions (or {@link
+   * #SCHEMA_VERSION}). Null or empty overrides return a normalized copy of base.
+   *
+   * <p>To <em>clear</em> an override for a key, remove that key from the override map (do not put
+   * {@code null} — null values are ignored). After clear, the definition value shows through.
+   *
+   * @param base definition defaults (may be {@code null} → empty defaults)
+   * @param overrides sparse instance overrides (may be {@code null})
+   * @param layout {@code true} for layout maps, {@code false} for styles
+   * @return new mutable effective map, never {@code null}
+   */
+  public static Map<String, Object> merge(
+      Map<String, Object> base, Map<String, Object> overrides, boolean layout) {
+    Map<String, Object> out = layout ? defaultLayout() : defaultStyles();
+    putNonSchema(out, base);
+    putNonSchema(out, overrides);
+    int ver = Math.max(schemaVersionOf(base), schemaVersionOf(overrides));
+    out.put(KEY_SCHEMA_VERSION, ver >= 1 ? ver : SCHEMA_VERSION);
+    return out;
+  }
+
+  /**
+   * Remove a property from a sparse instance-override map so the definition default applies again
+   * on the next {@link #merge}. Does not modify definition maps. No-op if map or key is null, or
+   * key is absent.
+   *
+   * @param overrides mutable override map (may be {@code null})
+   * @param key property to clear (may be {@code null})
+   * @return the same map instance, or {@code null} if overrides was {@code null}
+   */
+  public static Map<String, Object> clearOverride(Map<String, Object> overrides, String key) {
+    if (overrides == null || key == null) {
+      return overrides;
+    }
+    overrides.remove(key);
+    return overrides;
+  }
+
+  /**
+   * Encode a sparse instance-override map for composition storage. Empty / null / schema-only →
+   * {@code null} (no override stored).
+   *
+   * @param overrides may be {@code null}
+   * @param layout {@code true} for layout, {@code false} for styles
+   * @return JSON text or {@code null}
+   */
+  public static String encodeOverrides(Map<String, Object> overrides, boolean layout) {
+    if (overrides == null || overrides.isEmpty()) {
+      return null;
+    }
+    // Reuse encode path: schema-only collapses to null.
+    return layout ? encodeLayout(overrides) : encodeStyles(overrides);
+  }
+
+  /**
+   * Parse a sparse instance-override JSON blob. Blank/invalid → empty mutable map (no overrides).
+   * Unlike {@link #parseLayout}, does not inject defaults other than schema version when the blob
+   * is non-blank — for blank input returns an empty map (caller merges onto definition).
+   *
+   * @param json may be {@code null} or blank
+   * @return mutable map, never {@code null} (empty when no overrides)
+   */
+  public static Map<String, Object> parseOverrides(String json) {
+    Map<String, Object> raw = parseJson(json);
+    if (raw == null || raw.isEmpty()) {
+      return new LinkedHashMap<>();
+    }
+    Map<String, Object> out = new LinkedHashMap<>();
+    for (Map.Entry<String, Object> e : raw.entrySet()) {
+      if (e.getKey() == null || e.getValue() == null) {
+        continue;
+      }
+      if (KEY_SCHEMA_VERSION.equals(e.getKey())) {
+        out.put(KEY_SCHEMA_VERSION, schemaVersionOf(raw));
+      } else {
+        out.put(e.getKey(), e.getValue());
+      }
+    }
+    return out;
+  }
+
+  private static void putNonSchema(Map<String, Object> out, Map<String, Object> src) {
+    if (src == null || src.isEmpty()) {
+      return;
+    }
+    for (Map.Entry<String, Object> e : src.entrySet()) {
+      if (e.getKey() == null || KEY_SCHEMA_VERSION.equals(e.getKey())) {
+        continue;
+      }
+      if (e.getValue() != null) {
+        out.put(e.getKey(), e.getValue());
+      }
+    }
   }
 
   /**
