@@ -201,6 +201,9 @@ public final class PSPageXmlParser {
     model.setMimeType(childText(root, "mime-type"));
     model.setCharset(childText(root, "charset"));
     model.setActiveAssemblyType(childText(root, "active-assembly-type"));
+    model.setPublishWhen(childText(root, "publish-when"));
+    model.setLocationPrefix(childText(root, "location-prefix"));
+    model.setLocationSuffix(childText(root, "location-suffix"));
 
     Element templateEl = firstChildElement(root, "template");
     String body = templateEl != null ? normalizeBody(textContent(templateEl)) : null;

@@ -44,6 +44,10 @@ public final class PSPageXmlModel {
   private String mimeType;
   private String charset;
   private String activeAssemblyType;
+  /** Legacy {@code publish-when}: Default / Never / Unspecified / … */
+  private String publishWhen;
+  private String locationPrefix;
+  private String locationSuffix;
   private String templateBody;
   private List<Binding> bindings = new ArrayList<>();
   private List<RegionHole> regionHoles = new ArrayList<>();
@@ -134,6 +138,30 @@ public final class PSPageXmlModel {
 
   public void setActiveAssemblyType(String activeAssemblyType) {
     this.activeAssemblyType = activeAssemblyType;
+  }
+
+  public String getPublishWhen() {
+    return publishWhen;
+  }
+
+  public void setPublishWhen(String publishWhen) {
+    this.publishWhen = publishWhen;
+  }
+
+  public String getLocationPrefix() {
+    return locationPrefix;
+  }
+
+  public void setLocationPrefix(String locationPrefix) {
+    this.locationPrefix = locationPrefix;
+  }
+
+  public String getLocationSuffix() {
+    return locationSuffix;
+  }
+
+  public void setLocationSuffix(String locationSuffix) {
+    this.locationSuffix = locationSuffix;
   }
 
   public String getTemplateBody() {

@@ -71,15 +71,21 @@ public final class PSPageXmlTemplateDefEmitter {
             manifest.getName(),
             manifest.getCatalog() != null ? manifest.getCatalog().getTitle() : null,
             name);
-    // Prefer catalog/template description only — package-level description is often a package
-    // summary and was not written into individual product templateDefs.
+    // Prefer catalog description; fall back to package-level description so dual-ship
+    // round-trip preserves descriptions when catalog omits one (e.g. some Baseline pages).
     String description =
         firstNonBlank(
-            manifest.getCatalog() != null ? manifest.getCatalog().getDescription() : null, "");
+            manifest.getCatalog() != null ? manifest.getCatalog().getDescription() : null,
+            manifest.getDescription(),
+            "");
     String assembler = toLegacyAssemblerPath(t.getAssembler());
     String outputFormat = toLegacyOutputFormat(t.getType());
     String body = templateSource != null ? templateSource : "";
     String guidValue = guid != null ? guid.trim() : "";
+    String mime = firstNonBlank(t.getMimeType(), DEFAULT_MIME);
+    String publishWhen = firstNonBlank(t.getPublishWhen(), DEFAULT_PUBLISH_WHEN);
+    String locationPrefix = t.getLocationPrefix() != null ? t.getLocationPrefix() : "";
+    String locationSuffix = t.getLocationSuffix() != null ? t.getLocationSuffix() : "";
 
     StringBuilder xml = new StringBuilder(Math.max(512, body.length() + 512));
     xml.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>  <assembly-template id=\"1\">\n");
@@ -98,12 +104,24 @@ public final class PSPageXmlTemplateDefEmitter {
         .append(DEFAULT_GLOBAL_USAGE)
         .append("</global-template-usage>\n");
     xml.append("    <label>").append(escapeXml(label)).append("</label>\n");
-    xml.append("    <location-prefix/>\n");
-    xml.append("    <location-suffix/>\n");
-    xml.append("    <mime-type>").append(DEFAULT_MIME).append("</mime-type>\n");
+    if (locationPrefix.isEmpty()) {
+      xml.append("    <location-prefix/>\n");
+    } else {
+      xml.append("    <location-prefix>")
+          .append(escapeXml(locationPrefix))
+          .append("</location-prefix>\n");
+    }
+    if (locationSuffix.isEmpty()) {
+      xml.append("    <location-suffix/>\n");
+    } else {
+      xml.append("    <location-suffix>")
+          .append(escapeXml(locationSuffix))
+          .append("</location-suffix>\n");
+    }
+    xml.append("    <mime-type>").append(escapeXml(mime)).append("</mime-type>\n");
     xml.append("    <name>").append(escapeXml(name)).append("</name>\n");
     xml.append("    <output-format>").append(escapeXml(outputFormat)).append("</output-format>\n");
-    xml.append("    <publish-when>").append(DEFAULT_PUBLISH_WHEN).append("</publish-when>\n");
+    xml.append("    <publish-when>").append(escapeXml(publishWhen)).append("</publish-when>\n");
     xml.append("    <style-sheet-path/>\n");
     xml.append("    <template>").append(escapeXml(body)).append("</template>\n");
     xml.append("    <template-type>").append(DEFAULT_TEMPLATE_TYPE).append("</template-type>\n");
@@ -134,6 +152,9 @@ public final class PSPageXmlTemplateDefEmitter {
       case "htmlassembler" -> "Java/global/percussion/assembly/htmlAssembler";
       case "markdownassembler" -> "Java/global/percussion/assembly/markdownAssembler";
       case "legacyassembler", "xslassembler" -> "Java/global/percussion/assembly/legacyAssembler";
+      case "dispatchassembler" -> "Java/global/percussion/assembly/dispatchAssembler";
+      case "resourceassembler" -> "Java/global/percussion/assembly/resourceAssembler";
+      case "pagedatabaseassembler" -> "Java/global/percussion/assembly/pageDatabaseAssembler";
       default -> "Java/global/percussion/assembly/" + leaf;
     };
   }

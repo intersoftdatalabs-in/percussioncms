@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.pageXml",
+  "name": "Page - XML Template",
+  "version": "1.1.15",
+  "description": "Template used to render the page as XML.",
+  "publisher": {
+    "name": "Percussion Software Inc",
+    "url": "www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.baseTemplates",
+      "version": "1.1.5",
+      "implied": false
+    }
+  ],
+  "catalog": {
+    "kind": "page",
+    "title": "Page - XML Template",
+    "category": "page",
+    "description": "Template used to render the page as XML.",
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.pageXml",
+      "type": "snippet",
+      "assembler": "pageVariantAssembler",
+      "sourceRef": "templates/perc.pageXml.vm",
+      "mimeType": "text/xml",
+      "publishWhen": "Never",
+      "locationSuffix": ".xml",
+      "bindings": []
+    }
+  ],
+  "slots": [],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}

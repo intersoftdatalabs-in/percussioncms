@@ -1,0 +1,219 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.pageDatabase",
+  "name": "Page - Database Template",
+  "version": "1.1.15",
+  "publisher": {
+    "name": "Percussion Software Inc",
+    "url": "www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.baseTemplates",
+      "version": "1.1.5",
+      "implied": false
+    }
+  ],
+  "catalog": {
+    "kind": "page",
+    "title": "Page - Database Template",
+    "category": "page",
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.pageDatabase",
+      "type": "snippet",
+      "assembler": "pageDatabaseAssembler",
+      "sourceRef": "templates/perc.pageDatabase.vm",
+      "publishWhen": "Never",
+      "bindings": [
+        {
+          "variable": "$db.action",
+          "expression": "\"r\""
+        },
+        {
+          "variable": "$db.origin",
+          "expression": "\"dbo\""
+        },
+        {
+          "variable": "$db.resource",
+          "expression": "\"jdbc/cmlite_db\""
+        },
+        {
+          "variable": "$db.drivertype",
+          "expression": "\"jtds:sqlserver\""
+        },
+        {
+          "variable": "$db.database",
+          "expression": "\"cmlite_db\""
+        },
+        {
+          "variable": "$db.parent",
+          "expression": "\"PERC_EXPORT_PAGE\""
+        },
+        {
+          "variable": "$row.CONTENT_ID",
+          "expression": "$sys.item.getProperty('sys_contentid')"
+        },
+        {
+          "variable": "$row.PATH",
+          "expression": "$rx.pageutils.itemLink( $perc.getLinkContext(), $perc.getPage())"
+        },
+        {
+          "variable": "$row.SITE_NAME",
+          "expression": "$perc.getLinkContext().getSite().getName()"
+        },
+        {
+          "variable": "$row.RESOURCE_LINK_TITLE",
+          "expression": "$perc.page.linkTitle"
+        },
+        {
+          "variable": "$row.PAGE_SUMMARY",
+          "expression": "$perc.page.summary"
+        },
+        {
+          "variable": "$row.$encoding.PAGE_SUMMARY",
+          "expression": "'base64'"
+        },
+        {
+          "variable": "$row.CONTENT_POST_DATE",
+          "expression": "if ($sys.item.getProperty('rx:sys_contentpostdate').getDate() != null)   $tools.date.format('yyyy-MM-dd HH:mm:ss', $sys.item.getProperty('rx:sys_contentpostdate').getDate())"
+        },
+        {
+          "variable": "$row.PAGE_START_DATE",
+          "expression": "if ($sys.item.getProperty('page_start_date').getDate() != null) $tools.date.format('yyyy-MM-dd HH:mm:ss', $sys.item.getProperty('page_start_date').getDate())"
+        },
+        {
+          "variable": "$row.PAGE_END_DATE",
+          "expression": "if ($sys.item.getProperty('page_end_date').getDate() != null) $tools.date.format('yyyy-MM-dd HH:mm:ss', $sys.item.getProperty('page_end_date').getDate())"
+        },
+        {
+          "variable": "$row.PAGE_TITLE",
+          "expression": "$perc.page.title"
+        },
+        {
+          "variable": "$row.PAGE_DESCRIPTION",
+          "expression": "$sys.item.getProperty('page_description').String"
+        },
+        {
+          "variable": "$row.$encoding.PAGE_DESCRIPTION",
+          "expression": "'base64'"
+        },
+        {
+          "variable": "$row.ADDITIONAL_HEAD_CONTENT",
+          "expression": "$perc.page.additionalHeadContent"
+        },
+        {
+          "variable": "$row.$encoding.ADDITIONAL_HEAD_CONTENT",
+          "expression": "'base64'"
+        },
+        {
+          "variable": "$row.CODE_INSERT_AFTER_BODY_START",
+          "expression": "$perc.page.afterBodyStartContent"
+        },
+        {
+          "variable": "$row.$encoding.CODE_INSERT_AFTER_BODY_START",
+          "expression": "'base64'"
+        },
+        {
+          "variable": "$row.CODE_INSERT_BEFORE_BODY_CLOSE",
+          "expression": "$perc.page.beforeBodyCloseContent"
+        },
+        {
+          "variable": "$row.$encoding.CODE_INSERT_BEFORE_BODY_CLOSE",
+          "expression": "'base64'"
+        },
+        {
+          "variable": "$row.WORKFLOW",
+          "expression": "$rx.pageutils.findWorkflow($perc.page.workflowId).getName()"
+        },
+        {
+          "variable": "$row.TEMPLATE_NAME",
+          "expression": "$perc.template.name"
+        },
+        {
+          "variable": "$row.PAGE_NOINDEX",
+          "expression": "$sys.item.getProperty('page_noindex')"
+        },
+        {
+          "variable": "$db.child[0]",
+          "expression": "'PERC_EXPORT_PAGE_TAG'"
+        },
+        {
+          "variable": "$child[0].CONTENT_ID",
+          "expression": "$sys.item.getProperty('rx:sys_contentid')"
+        },
+        {
+          "variable": "$child[0].TAG",
+          "expression": "$sys.item.getPropertyStringValues('page_tags')"
+        },
+        {
+          "variable": "$db.child[1]",
+          "expression": "'PERC_EXPORT_PAGE_WIDGET'"
+        },
+        {
+          "variable": "$child[1].CONTENT_ID",
+          "expression": "$sys.item.getProperty('rx:sys_contentid')"
+        },
+        {
+          "variable": "$child[1].WIDGET_ID",
+          "expression": "$perc.getRenderResult().getWidgetIds()"
+        },
+        {
+          "variable": "$child[1].WIDGET_NAME",
+          "expression": "$perc.getRenderResult().getWidgetNames()"
+        },
+        {
+          "variable": "$child[1].WIDGET_TYPE",
+          "expression": "$perc.getRenderResult().getWidgetTypes()"
+        },
+        {
+          "variable": "$child[1].REGION_ID",
+          "expression": "$perc.getRenderResult().getRegionIds()"
+        },
+        {
+          "variable": "$child[1].WIDGET_CONTENT",
+          "expression": "$perc.getRenderResult().getWidgetContents()"
+        },
+        {
+          "variable": "$child[1].$encoding.WIDGET_CONTENT",
+          "expression": "'base64'"
+        },
+        {
+          "variable": "$db.child[2]",
+          "expression": "'PERC_EXPORT_PAGE_CATEGORY'"
+        },
+        {
+          "variable": "$child[2].CONTENT_ID",
+          "expression": "$sys.item.getProperty('rx:sys_contentid')"
+        },
+        {
+          "variable": "$child[2].CATEGORY",
+          "expression": "$sys.item.getProperty('page_categories_tree').getValues()"
+        },
+        {
+          "variable": "$db.child[3]",
+          "expression": "'PERC_EXPORT_PAGE_CALENDAR'"
+        },
+        {
+          "variable": "$child[3].CONTENT_ID",
+          "expression": "$sys.item.getProperty('rx:sys_contentid')"
+        },
+        {
+          "variable": "$child[3].CALENDAR",
+          "expression": "$sys.item.getProperty('page_calendar').getValues()"
+        }
+      ]
+    }
+  ],
+  "slots": [],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}

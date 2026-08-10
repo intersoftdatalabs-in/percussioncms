@@ -20,6 +20,7 @@ package com.percussion.packages.pagexml;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
@@ -219,7 +221,8 @@ class PSPageXmlDualShipTest {
 
     Map<String, String> guids = PSPageXmlDualShip.loadGuidsFromMapping(staging);
     assertEquals("0-4-591", guids.get("perc.base.plain"));
-    assertEquals("0-4-557", guids.get("perc.base.Box"));
+    // Mixed-case product ids are stored under Locale.ROOT lowercase keys.
+    assertEquals("0-4-557", guids.get("perc.base.box"));
     assertFalse(guids.containsKey("perc.base.plain.templateDef.aclDef"));
   }
 
@@ -271,7 +274,8 @@ class PSPageXmlDualShipTest {
 
       PSPageXmlModel install = PSPageXmlParser.parse(def);
       assertEquals(id, install.getName());
-      assertEquals(guids.get(id), install.getGuid(), "GUID for " + id);
+      assertEquals(
+          guids.get(id.toLowerCase(Locale.ROOT)), install.getGuid(), "GUID for " + id);
       assertEquals(
           "Java/global/percussion/assembly/pageAssembler", install.getAssembler(), id);
       assertEquals("Page", install.getOutputFormat(), id);
@@ -319,8 +323,8 @@ class PSPageXmlDualShipTest {
     assertEquals(3, written);
 
     Map<String, String> guids = PSPageXmlDualShip.loadGuidsFromMapping(staging);
-    assertEquals("0-4-597", guids.get("perc.resp.Banded"));
-    assertEquals("0-4-599", guids.get("perc.resp.Basic"));
+    assertEquals("0-4-597", guids.get("perc.resp.banded"));
+    assertEquals("0-4-599", guids.get("perc.resp.basic"));
     assertEquals("0-4-627", guids.get("perc.resp.plain"));
 
     for (PSPageXmlCompileResult r : modern) {
@@ -331,6 +335,222 @@ class PSPageXmlDualShipTest {
   }
 
   @Test
+  void productBaseline_modernAuthoring_dualShipInstallParity() throws Exception {
+    Path product = locatePackage("perc.Baseline");
+    if (product == null) {
+      System.err.println("WARN: perc.Baseline not found; skipping product dual-ship test");
+      return;
+    }
+
+    assertTrue(
+        PSPageXmlDualShip.hasModernPageSources(product),
+        "Baseline must author modern pages/ sources (#2805)");
+    assertTrue(
+        PSPageXmlPackageCompiler.listTemplateDefs(product).isEmpty(),
+        "product Baseline must not author root *.templateDef (dual-ship install only)");
+
+    List<PSPageXmlCompileResult> modern = PSPageXmlPackageCompiler.compilePackage(product);
+    assertEquals(7, modern.size(), "Baseline system assembly templates");
+
+    Map<String, PSPageXmlCompileResult> byId =
+        modern.stream()
+            .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
+    for (String expected :
+        List.of(
+            "perc.page",
+            "perc.pageDatabase",
+            "perc.pageDispatcher",
+            "perc.pageXml",
+            "perc.sys.resource",
+            "perc.widget",
+            "perc.widgetDispatcher")) {
+      assertTrue(byId.containsKey(expected), "missing modern package " + expected);
+      PSComponentPackageManifestValidator.validate(byId.get(expected).getManifest());
+    }
+
+    // System assembly fields preserved in modern manifests
+    PSComponentPackageManifest.TemplateRef pageXml =
+        byId.get("perc.pageXml").getManifest().getTemplates().get(0);
+    assertEquals("pageVariantAssembler", pageXml.getAssembler());
+    assertEquals("snippet", pageXml.getType());
+    assertEquals("text/xml", pageXml.getMimeType());
+    assertEquals("Never", pageXml.getPublishWhen());
+    assertEquals(".xml", pageXml.getLocationSuffix());
+
+    PSComponentPackageManifest.TemplateRef page =
+        byId.get("perc.page").getManifest().getTemplates().get(0);
+    assertEquals("velocityAssembler", page.getAssembler());
+    assertEquals("global", page.getType());
+    assertEquals("Unspecified", page.getPublishWhen());
+
+    PSComponentPackageManifest.TemplateRef dispatcher =
+        byId.get("perc.pageDispatcher").getManifest().getTemplates().get(0);
+    assertEquals("dispatchAssembler", dispatcher.getAssembler());
+    assertFalse(dispatcher.getBindings().isEmpty());
+    assertEquals("$sys.template", dispatcher.getBindings().get(0).getVariable());
+
+    Path staging = tempDir.resolve("perc.Baseline-copy");
+    copyTree(product, staging);
+    int written = PSPageXmlDualShip.materializeInstallTemplateDefs(staging);
+    assertEquals(7, written);
+
+    Map<String, String> guids = PSPageXmlDualShip.loadGuidsFromMapping(staging);
+    assertEquals("0-4-602", guids.get("perc.page"));
+    assertEquals("0-4-604", guids.get("perc.pagedatabase"));
+    assertEquals("0-4-606", guids.get("perc.pagedispatcher"));
+    assertEquals("0-4-608", guids.get("perc.pagexml"));
+    assertEquals("0-4-610", guids.get("perc.sys.resource"));
+    assertEquals("0-4-612", guids.get("perc.widget"));
+    assertEquals("0-4-614", guids.get("perc.widgetdispatcher"));
+
+    for (PSPageXmlCompileResult expected : modern) {
+      String id = expected.getManifest().getId();
+      Path def = staging.resolve(id + ".templateDef");
+      assertTrue(Files.isRegularFile(def), "missing dual-ship templateDef for " + id);
+
+      PSPageXmlModel install = PSPageXmlParser.parse(def);
+      assertEquals(id, install.getName());
+      assertEquals(
+          guids.get(id.toLowerCase(Locale.ROOT)), install.getGuid(), "GUID for " + id);
+
+      PSComponentPackageManifest.TemplateRef t = expected.getManifest().getTemplates().get(0);
+      assertEquals(
+          PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath(t.getAssembler()),
+          install.getAssembler(),
+          id);
+      assertEquals(
+          PSPageXmlTemplateDefEmitter.toLegacyOutputFormat(t.getType()),
+          install.getOutputFormat(),
+          id);
+      if (t.getMimeType() != null) {
+        assertEquals(t.getMimeType(), install.getMimeType(), "mime for " + id);
+      }
+      if (t.getPublishWhen() != null) {
+        assertEquals(t.getPublishWhen(), install.getPublishWhen(), "publish-when for " + id);
+      }
+      if (t.getLocationSuffix() != null && !t.getLocationSuffix().isBlank()) {
+        assertEquals(t.getLocationSuffix(), install.getLocationSuffix(), "suffix for " + id);
+      }
+
+      String expectedBody =
+          normalizeNewlines(
+              expected.getTextArtifacts().values().stream().findFirst().orElse(""));
+      assertEquals(
+          expectedBody,
+          normalizeNewlines(install.getTemplateBody() != null ? install.getTemplateBody() : ""),
+          "body parity for " + id);
+
+      // Binding variables survive dual-ship (simple JEXL form)
+      assertEquals(
+          t.getBindings().stream()
+              .map(PSComponentPackageManifest.Binding::getVariable)
+              .collect(Collectors.toList()),
+          install.getBindings().stream()
+              .map(PSPageXmlModel.Binding::getVariable)
+              .collect(Collectors.toList()),
+          "binding variables for " + id);
+    }
+  }
+
+  @Test
+  void emit_preservesMimePublishWhenLocationSuffix() throws Exception {
+    PSComponentPackageManifest manifest = new PSComponentPackageManifest();
+    manifest.setSchemaVersion(PSComponentPackageManifest.SUPPORTED_SCHEMA_VERSION);
+    manifest.setId("perc.pageXml");
+    manifest.setName("Page - XML Template");
+    manifest.setVersion("1.0.0");
+    PSComponentPackageManifest.Catalog catalog = new PSComponentPackageManifest.Catalog();
+    catalog.setKind("page");
+    catalog.setTitle("Page - XML Template");
+    catalog.setDescription("Template used to render the page as XML.");
+    catalog.setCategory("page");
+    catalog.setPaletteVisible(Boolean.TRUE);
+    manifest.setCatalog(catalog);
+
+    PSComponentPackageManifest.TemplateRef t = new PSComponentPackageManifest.TemplateRef();
+    t.setName("perc.pageXml");
+    t.setType("snippet");
+    t.setAssembler("pageVariantAssembler");
+    t.setSourceRef("templates/perc.pageXml.vm");
+    t.setMimeType("text/xml");
+    t.setPublishWhen("Never");
+    t.setLocationSuffix(".xml");
+    manifest.setTemplates(List.of(t));
+    manifest.setSlots(List.of());
+    manifest.setContentTypes(List.of());
+    manifest.setResources(List.of());
+    manifest.setUserPreferences(List.of());
+    manifest.setCssPreferences(List.of());
+    PSComponentPackageManifestValidator.validate(manifest);
+
+    String body = "<?xml version=\"1.0\"?><percPage/>";
+    String xml = PSPageXmlTemplateDefEmitter.emit(manifest, body, "0-4-608");
+    PSPageXmlModel reparsed = PSPageXmlParser.parse(xml);
+    assertEquals("text/xml", reparsed.getMimeType());
+    assertEquals("Never", reparsed.getPublishWhen());
+    assertEquals(".xml", reparsed.getLocationSuffix());
+    assertEquals("Snippet", reparsed.getOutputFormat());
+    assertEquals(
+        "Java/global/percussion/assembly/pageVariantAssembler", reparsed.getAssembler());
+    assertEquals("0-4-608", reparsed.getGuid());
+    assertEquals(normalizeNewlines(body), normalizeNewlines(reparsed.getTemplateBody()));
+    assertEquals(
+        "Template used to render the page as XML.",
+        reparsed.getDescription(),
+        "catalog description must survive dual-ship emit");
+  }
+
+  @Test
+  void emit_fallsBackToPackageDescriptionWhenCatalogDescriptionBlank() throws Exception {
+    PSComponentPackageManifest manifest = new PSComponentPackageManifest();
+    manifest.setSchemaVersion(PSComponentPackageManifest.SUPPORTED_SCHEMA_VERSION);
+    manifest.setId("perc.page");
+    manifest.setName("Page");
+    manifest.setVersion("1.0.0");
+    manifest.setDescription("Package-level page description");
+    PSComponentPackageManifest.Catalog catalog = new PSComponentPackageManifest.Catalog();
+    catalog.setKind("page");
+    catalog.setTitle("Page");
+    catalog.setCategory("page");
+    catalog.setPaletteVisible(Boolean.TRUE);
+    manifest.setCatalog(catalog);
+
+    PSComponentPackageManifest.TemplateRef t = new PSComponentPackageManifest.TemplateRef();
+    t.setName("perc.page");
+    t.setType("page");
+    t.setAssembler("pageAssembler");
+    t.setSourceRef("templates/perc.page.vm");
+    manifest.setTemplates(List.of(t));
+    manifest.setSlots(List.of());
+    manifest.setContentTypes(List.of());
+    manifest.setResources(List.of());
+    manifest.setUserPreferences(List.of());
+    manifest.setCssPreferences(List.of());
+    PSComponentPackageManifestValidator.validate(manifest);
+
+    String xml = PSPageXmlTemplateDefEmitter.emit(manifest, "<html/>", "0-4-602");
+    PSPageXmlModel reparsed = PSPageXmlParser.parse(xml);
+    assertEquals(
+        "Package-level page description",
+        reparsed.getDescription(),
+        "package description used when catalog has none");
+  }
+
+  @Test
+  void loadGuidsFromMapping_normalizesMixedCaseTemplateDefKeys() throws Exception {
+    Path staging = tempDir.resolve("mixedCaseGuid-copy");
+    Files.createDirectories(staging);
+    // Mixed-case key must still resolve under lowercase manifest id lookup.
+    Files.writeString(
+        staging.resolve("mixedCaseGuid.mapping.properties"),
+        "perc.Page.templateDef=TemplateDef-99\n",
+        StandardCharsets.UTF_8);
+    Map<String, String> guids = PSPageXmlDualShip.loadGuidsFromMapping(staging);
+    assertEquals("0-4-99", guids.get("perc.page"));
+    assertNull(guids.get("perc.Page"), "map keys are lowercase only");
+  }
+
+  @Test
   void toLegacyAssemblerPath_knownShortNames() {
     assertEquals(
         "Java/global/percussion/assembly/pageAssembler",
@@ -338,6 +558,15 @@ class PSPageXmlDualShipTest {
     assertEquals(
         "Java/global/percussion/assembly/velocityAssembler",
         PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath("velocityAssembler"));
+    assertEquals(
+        "Java/global/percussion/assembly/dispatchAssembler",
+        PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath("dispatchAssembler"));
+    assertEquals(
+        "Java/global/percussion/assembly/resourceAssembler",
+        PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath("resourceAssembler"));
+    assertEquals(
+        "Java/global/percussion/assembly/pageDatabaseAssembler",
+        PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath("pageDatabaseAssembler"));
     assertEquals(
         "Java/global/percussion/assembly/pageAssembler",
         PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath(

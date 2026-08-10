@@ -569,6 +569,26 @@ public final class PSComponentPackageManifest {
     /** Package-relative path to template source (URL-style separators). */
     private String sourceRef;
     private String contentType;
+    /**
+     * MIME type for dual-ship install ({@code <mime-type>}); optional. When null, install defaults to
+     * {@code text/html}.
+     */
+    private String mimeType;
+    /**
+     * Legacy publish-when for dual-ship install ({@code Default}/{@code Never}/{@code Unspecified});
+     * optional. When null, install defaults to {@code Default}.
+     */
+    private String publishWhen;
+    /**
+     * Legacy location-suffix for dual-ship install (e.g. {@code .xml}); optional. When null/blank,
+     * empty element is emitted.
+     */
+    private String locationSuffix;
+    /**
+     * Legacy location-prefix for dual-ship install; optional. When null/blank, empty element is
+     * emitted.
+     */
+    private String locationPrefix;
     private List<Binding> bindings = new ArrayList<>();
 
     public String getName() {
@@ -611,6 +631,38 @@ public final class PSComponentPackageManifest {
       this.contentType = contentType;
     }
 
+    public String getMimeType() {
+      return mimeType;
+    }
+
+    public void setMimeType(String mimeType) {
+      this.mimeType = mimeType;
+    }
+
+    public String getPublishWhen() {
+      return publishWhen;
+    }
+
+    public void setPublishWhen(String publishWhen) {
+      this.publishWhen = publishWhen;
+    }
+
+    public String getLocationSuffix() {
+      return locationSuffix;
+    }
+
+    public void setLocationSuffix(String locationSuffix) {
+      this.locationSuffix = locationSuffix;
+    }
+
+    public String getLocationPrefix() {
+      return locationPrefix;
+    }
+
+    public void setLocationPrefix(String locationPrefix) {
+      this.locationPrefix = locationPrefix;
+    }
+
     public List<Binding> getBindings() {
       return bindings;
     }
@@ -632,12 +684,26 @@ public final class PSComponentPackageManifest {
           && Objects.equals(assembler, that.assembler)
           && Objects.equals(sourceRef, that.sourceRef)
           && Objects.equals(contentType, that.contentType)
+          && Objects.equals(mimeType, that.mimeType)
+          && Objects.equals(publishWhen, that.publishWhen)
+          && Objects.equals(locationSuffix, that.locationSuffix)
+          && Objects.equals(locationPrefix, that.locationPrefix)
           && Objects.equals(bindings, that.bindings);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(name, type, assembler, sourceRef, contentType, bindings);
+      return Objects.hash(
+          name,
+          type,
+          assembler,
+          sourceRef,
+          contentType,
+          mimeType,
+          publishWhen,
+          locationSuffix,
+          locationPrefix,
+          bindings);
     }
   }
 

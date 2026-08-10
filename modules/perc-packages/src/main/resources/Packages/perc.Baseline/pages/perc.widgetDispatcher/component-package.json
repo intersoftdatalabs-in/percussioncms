@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.widgetDispatcher",
+  "name": "perc.widgetDispatcher",
+  "version": "1.1.15",
+  "description": "The dispatcher template for widgets.",
+  "publisher": {
+    "name": "Percussion Software Inc",
+    "url": "www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.baseTemplates",
+      "version": "1.1.5",
+      "implied": false
+    }
+  ],
+  "catalog": {
+    "kind": "page",
+    "title": "perc.widgetDispatcher",
+    "category": "page",
+    "description": "The dispatcher template for widgets.",
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.widgetDispatcher",
+      "type": "snippet",
+      "assembler": "dispatchAssembler",
+      "sourceRef": "templates/perc.widgetDispatcher.vm",
+      "publishWhen": "Never",
+      "bindings": [
+        {
+          "variable": "$sys.template",
+          "expression": "$rx.pageutils.getWidgetTemplate($sys.item.getGuid())"
+        }
+      ]
+    }
+  ],
+  "slots": [],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}

@@ -37,9 +37,10 @@ import java.util.Objects;
  * PSComponentPackageManifest} plus template source artifacts (Phase 3 / ADR-004 / issue #2770).
  *
  * <p><strong>Scope:</strong> product page layout templates (e.g. {@code perc.baseTemplates}, {@code
- * perc.responsiveTemplates}) and simple Baseline assembly templates. Region holes become slots;
- * assembler extension short-names map to the Component Package Manifest assembler field; Velocity
- * body is the canonical template source.
+ * perc.responsiveTemplates}) and Baseline system assembly templates ({@code perc.page}, dispatchers,
+ * resource, widget). Region holes become slots; assembler extension short-names map to the Component
+ * Package Manifest assembler field; Velocity body is the canonical template source. Dual-ship also
+ * preserves mime type, publish-when, and location suffix when present.
  *
  * <p>Product page layout packages author modern {@code pages/&lt;id&gt;/} sources; install dual-ship
  * emits {@code *.templateDef} at package-build time ({@link PSPageXmlDualShip}, issue #2786). This
@@ -118,6 +119,24 @@ public final class PSPageXmlCompiler {
     template.setType(templateType);
     template.setAssembler(assembler);
     template.setSourceRef(sourceRef);
+    // Dual-ship install fields — only persist when non-default so page-layout packages stay lean
+    // (emitter defaults: text/html, Default, empty location prefix/suffix).
+    if (model.getMimeType() != null
+        && !model.getMimeType().isBlank()
+        && !"text/html".equalsIgnoreCase(model.getMimeType().trim())) {
+      template.setMimeType(model.getMimeType().trim());
+    }
+    if (model.getPublishWhen() != null
+        && !model.getPublishWhen().isBlank()
+        && !"Default".equalsIgnoreCase(model.getPublishWhen().trim())) {
+      template.setPublishWhen(model.getPublishWhen().trim());
+    }
+    if (model.getLocationSuffix() != null && !model.getLocationSuffix().isBlank()) {
+      template.setLocationSuffix(model.getLocationSuffix());
+    }
+    if (model.getLocationPrefix() != null && !model.getLocationPrefix().isBlank()) {
+      template.setLocationPrefix(model.getLocationPrefix());
+    }
     template.setBindings(buildBindings(model));
     List<PSComponentPackageManifest.TemplateRef> templates = new ArrayList<>();
     templates.add(template);
@@ -286,6 +305,15 @@ public final class PSPageXmlCompiler {
       }
       if (leafLower.equals("legacyassembler") || leafLower.equals("xslassembler")) {
         return "legacyAssembler";
+      }
+      if (leafLower.equals("dispatchassembler")) {
+        return "dispatchAssembler";
+      }
+      if (leafLower.equals("resourceassembler")) {
+        return "resourceAssembler";
+      }
+      if (leafLower.equals("pagedatabaseassembler")) {
+        return "pageDatabaseAssembler";
       }
       return leaf;
     }

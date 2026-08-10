@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
  *
  * <p><strong>Authoring truth:</strong> {@code pages/&lt;templateId&gt;/component-package.json} plus
  * template sources under the product package tree (e.g. {@code perc.baseTemplates}, {@code
- * perc.responsiveTemplates}).
+ * perc.responsiveTemplates}, {@code perc.Baseline} system assembly templates).
  *
  * <p><strong>Install path:</strong> package build materializes root-level {@code *.templateDef}
  * files (legacy {@code TemplateDef} dependency) so {@code .ppkg} install parity is preserved until
@@ -144,8 +144,9 @@ public final class PSPageXmlDualShip {
       if (stem == null || stem.isBlank()) {
         stem = pageDir.getFileName().toString();
       }
+      String stemKey = stem.toLowerCase(Locale.ROOT);
       String templateSource = readTemplateSource(pageDir, manifest);
-      String guid = guidsByStem.get(stem);
+      String guid = guidsByStem.get(stemKey);
       if (guid == null || guid.isBlank()) {
         Path mapping = findMappingProperties(packageDir);
         String mappingHint =
@@ -154,11 +155,12 @@ public final class PSPageXmlDualShip {
             "Missing stable install GUID for modern page stem '"
                 + stem
                 + "'. Expected key '"
-                + stem
+                + stemKey
                 + ".templateDef=TemplateDef-N' in mapping file: "
                 + mappingHint);
       }
       String xml = PSPageXmlTemplateDefEmitter.emit(manifest, templateSource, guid);
+      // Keep on-disk templateDef name aligned with manifest id (product packages use that id).
       Path out = packageDir.resolve(stem + ".templateDef");
       Files.writeString(out, xml, StandardCharsets.UTF_8);
       written++;
@@ -251,16 +253,34 @@ public final class PSPageXmlDualShip {
     PSPageXmlModel model = new PSPageXmlModel();
     model.setName(manifest.getId());
     model.setLabel(manifest.getName());
-    model.setDescription(manifest.getDescription());
+    String catalogDesc =
+        manifest.getCatalog() != null ? manifest.getCatalog().getDescription() : null;
+    model.setDescription(
+        catalogDesc != null && !catalogDesc.isBlank() ? catalogDesc : manifest.getDescription());
     model.setSourceFileName(manifest.getId() + ".templateDef");
     if (manifest.getTemplates() != null && !manifest.getTemplates().isEmpty()) {
       PSComponentPackageManifest.TemplateRef t = manifest.getTemplates().get(0);
       model.setAssembler(PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath(t.getAssembler()));
       model.setOutputFormat(PSPageXmlTemplateDefEmitter.toLegacyOutputFormat(t.getType()));
+      if (t.getMimeType() != null && !t.getMimeType().isBlank()) {
+        model.setMimeType(t.getMimeType());
+      } else {
+        model.setMimeType("text/html");
+      }
+      if (t.getPublishWhen() != null && !t.getPublishWhen().isBlank()) {
+        model.setPublishWhen(t.getPublishWhen());
+      }
+      if (t.getLocationSuffix() != null) {
+        model.setLocationSuffix(t.getLocationSuffix());
+      }
+      if (t.getLocationPrefix() != null) {
+        model.setLocationPrefix(t.getLocationPrefix());
+      }
+    } else {
+      model.setMimeType("text/html");
     }
     model.setTemplateBody(templateSource);
     model.setRegionHoles(PSPageXmlParser.extractRegionHoles(templateSource));
-    model.setMimeType("text/html");
     model.setCharset("UTF-8");
     model.setTemplateType("Shared");
     model.setActiveAssemblyType("Normal");
@@ -304,7 +324,8 @@ public final class PSPageXmlDualShip {
       if (!km.matches()) {
         continue;
       }
-      String stem = km.group(1);
+      // Normalize to lowercase so mixed-case mapping keys match manifest.getId() stems.
+      String stem = km.group(1).toLowerCase(Locale.ROOT);
       String value = props.getProperty(key);
       if (value == null) {
         continue;
