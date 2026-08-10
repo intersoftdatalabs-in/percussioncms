@@ -119,6 +119,11 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Client-side preview (full graph pending rest enhancement)",
   RELATIONSHIPS_LOADING: "perc.ui.explorer@Loading IA relationships…",
   RELATIONSHIPS_ERROR: "perc.ui.explorer@Could not load IA relationships",
+  /** Product shell: View → IA Relationships panel (#2769 / #2400). */
+  TOGGLE_RELATIONSHIPS_ARIA: "perc.ui.explorer@Show or hide IA relationships",
+  RELATIONSHIPS_PANEL_REGION: "perc.ui.explorer@IA relationships panel",
+  RELATIONSHIPS_SELECT_ITEM:
+    "perc.ui.explorer@Select a content item to view IA relationships.",
   // US5 P-Search / search panel (FR-017, FR-018, SC-005)
   SEARCH_TITLE: "perc.ui.explorer@Search",
   SEARCH_PLACEHOLDER: "perc.ui.explorer@Type to search…",

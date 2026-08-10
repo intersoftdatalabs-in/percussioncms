@@ -19,8 +19,9 @@
  *
  * <p>Composes DCE-style top menu bar (Content / View / Help), tree, detail
  * list, reduced actions, server-driven action toolbar (with nested MENU
- * dropdowns), context menu, search panel, and display-format selector so the
- * SPA route approaches Desktop Content Explorer parity (#2400 / #2731).</p>
+ * dropdowns), context menu, search panel, IA relationships panel, and
+ * display-format selector so the SPA route approaches Desktop Content Explorer
+ * parity (#2400 / #2731 / #2769).</p>
  */
 
 import React, {
@@ -87,6 +88,7 @@ import {
 } from "./styles";
 import { TranslationsPanel } from "./TranslationsPanel";
 import { SiteCopyWizard } from "./wizards/SiteCopyWizard";
+import { RelationshipsView } from "./views/RelationshipsView";
 import {
   buildWorkflowTransitionMenu,
   mergeWorkflowMenuActions,
@@ -307,6 +309,7 @@ export function ContentExplorerShell({
   const [showTranslations, setShowTranslations] = useState(false);
   /** Content → Site Copy wizard panel (#2767 / parent #2400). */
   const [showSiteCopy, setShowSiteCopy] = useState(false);
+  const [showRelationships, setShowRelationships] = useState(false);
   const [displayFormats, setDisplayFormats] = useState<DisplayFormat[]>([]);
   const [selectedFormatKey, setSelectedFormatKey] = useState<string>("");
   const [menuActions, setMenuActions] = useState<MenuAction[]>([]);
@@ -621,6 +624,9 @@ export function ContentExplorerShell({
         case "view-translations":
           setShowTranslations((v) => !v);
           break;
+        case "view-relationships":
+          setShowRelationships((v) => !v);
+          break;
         case "view-clipboard":
           setShowClipboard((v) => !v);
           break;
@@ -704,6 +710,7 @@ export function ContentExplorerShell({
             showSearch={showSearch}
             showSecurity={showSecurity}
             showTranslations={showTranslations}
+            showRelationships={showRelationships}
             showClipboard={showClipboard}
             showSiteCopy={showSiteCopy}
             multiSelectedCount={multiSelectedIds.size}
@@ -929,6 +936,41 @@ export function ContentExplorerShell({
           {message(EXPLORER_MSG.SITE_COPY_SELECT_SITE)}
         </div>
       )}
+      {showRelationships &&
+        selection.item &&
+        selection.item.id != null &&
+        String(selection.item.id).trim() !== "" && (
+          <section
+            id="explorer-relationships-panel"
+            style={sidePanelStyle}
+            data-testid="explorer-relationships-panel"
+            aria-label={message(EXPLORER_MSG.RELATIONSHIPS_PANEL_REGION)}
+          >
+            <RelationshipsView
+              item={{
+                id: String(selection.item.id),
+                path: selection.item.path,
+                folderPath: selection.folderPath || undefined,
+              }}
+            />
+          </section>
+        )}
+      {showRelationships &&
+        !(
+          selection.item &&
+          selection.item.id != null &&
+          String(selection.item.id).trim() !== ""
+        ) && (
+          <div
+            id="explorer-relationships-panel"
+            style={sidePanelStyle}
+            data-testid="explorer-relationships-hint"
+            role="status"
+            aria-live="polite"
+          >
+            {message(EXPLORER_MSG.RELATIONSHIPS_SELECT_ITEM)}
+          </div>
+        )}
       {contextMenu && (
         <div
           style={{
