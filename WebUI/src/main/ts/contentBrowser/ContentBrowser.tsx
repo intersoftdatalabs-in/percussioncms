@@ -384,10 +384,12 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = (props) => {
 
   /** SearchPanel "Reveal in folder": drive tree/list to the parent path. */
   const handleSearchReveal = useCallback((result: PSItemProperties) => {
+    // Always clear selection/filter error on Reveal (matches handleTreeSelect),
+    // even when the hit has no navigable folderPath — avoids a stale alert.
+    setError(null);
     const folder = result.folderPath?.trim();
     if (folder) {
       setFolderPath(folder);
-      setError(null);
     }
   }, []);
 

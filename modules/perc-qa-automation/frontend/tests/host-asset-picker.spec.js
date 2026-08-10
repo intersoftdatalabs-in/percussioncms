@@ -146,5 +146,9 @@ test.describe("US2 host-asset-picker migration (SC-002)", () => {
         )
         .first(),
     ).toBeVisible({ timeout: 20_000 });
+    // 508 / a11y gate scoped to the SearchPanel host surface (#2793 review).
+    await expectNoSeriousA11yViolations(page, {
+      scope: '[data-testid="content-browser-search-panel"]',
+    });
   });
 });

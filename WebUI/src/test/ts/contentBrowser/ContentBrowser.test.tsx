@@ -343,6 +343,255 @@ describe("ContentBrowser", () => {
       );
     });
   });
+
+  it("search Open rejects hits that fail allowedTypes (filter branch)", async () => {
+    const listSavedSearches = vi.fn().mockResolvedValue([]);
+    const search = vi.fn().mockResolvedValue({
+      children: [
+        {
+          id: "hit-asset",
+          title: "pic.png",
+          name: "pic.png",
+          folderPath: "/Sites/Foo",
+          type: "asset",
+        },
+      ],
+      totalCount: 1,
+      startIndex: 1,
+    });
+    render(
+      <ContentBrowser
+        mode="select"
+        enableSearch
+        listSavedSearches={listSavedSearches}
+        search={search}
+        allowedTypes={["page"]}
+        onConfirm={() => {}}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "pic" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("search-panel-open-hit-asset"));
+    await waitFor(() => {
+      expect(screen.getByTestId("content-browser-error")).toBeInTheDocument();
+    });
+    expect(screen.getByTestId("content-browser-confirm")).toBeDisabled();
+  });
+
+  it("search Open ignores folder hits when allowFolderSelect is false", async () => {
+    const listSavedSearches = vi.fn().mockResolvedValue([]);
+    const search = vi.fn().mockResolvedValue({
+      children: [
+        {
+          id: "hit-folder",
+          title: "Sites",
+          name: "Sites",
+          folderPath: "/",
+          type: "folder",
+        },
+      ],
+      totalCount: 1,
+      startIndex: 1,
+    });
+    render(
+      <ContentBrowser
+        mode="select"
+        enableSearch
+        allowFolderSelect={false}
+        allowItemSelect
+        listSavedSearches={listSavedSearches}
+        search={search}
+        onConfirm={() => {}}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "Sites" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("search-panel-open-hit-folder"));
+    expect(screen.getByTestId("content-browser-confirm")).toBeDisabled();
+    expect(screen.queryByTestId("content-browser-error")).not.toBeInTheDocument();
+  });
+
+  it("search Open ignores item hits when allowItemSelect is false", async () => {
+    const listSavedSearches = vi.fn().mockResolvedValue([]);
+    const search = vi.fn().mockResolvedValue({
+      children: [
+        {
+          id: "hit-page",
+          title: "Home",
+          name: "Home",
+          folderPath: "/Sites",
+          type: "page",
+        },
+      ],
+      totalCount: 1,
+      startIndex: 1,
+    });
+    render(
+      <ContentBrowser
+        mode="select"
+        enableSearch
+        allowFolderSelect
+        allowItemSelect={false}
+        listSavedSearches={listSavedSearches}
+        search={search}
+        onConfirm={() => {}}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "Home" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("search-panel-open-hit-page"));
+    expect(screen.getByTestId("content-browser-confirm")).toBeDisabled();
+  });
+
+  it("search Open in browse mode navigates folderPath without selecting", async () => {
+    const listSavedSearches = vi.fn().mockResolvedValue([]);
+    const search = vi.fn().mockResolvedValue({
+      children: [
+        {
+          id: "hit-browse",
+          title: "Doc",
+          name: "Doc",
+          folderPath: "/Sites/Docs",
+          type: "page",
+        },
+      ],
+      totalCount: 1,
+      startIndex: 1,
+    });
+    const paginated = vi.spyOn(pathApi, "paginatedFolder").mockResolvedValue({
+      children: [],
+      totalCount: 0,
+      startIndex: 0,
+    });
+    render(
+      <ContentBrowser
+        mode="browse"
+        enableSearch
+        initialPath="/Sites"
+        listSavedSearches={listSavedSearches}
+        search={search}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "Doc" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("search-panel-open-hit-browse"));
+    await waitFor(() => {
+      expect(paginated).toHaveBeenCalledWith("/Sites/Docs", expect.anything());
+    });
+    expect(screen.queryByTestId("content-browser-confirm")).not.toBeInTheDocument();
+  });
+
+  it("search Open multiSelect appends without duplicating the same id", async () => {
+    const listSavedSearches = vi.fn().mockResolvedValue([]);
+    const search = vi.fn().mockResolvedValue({
+      children: [
+        {
+          id: "hit-dup",
+          title: "Same",
+          name: "Same",
+          folderPath: "/Sites/Foo",
+          type: "page",
+        },
+      ],
+      totalCount: 1,
+      startIndex: 1,
+    });
+    render(
+      <ContentBrowser
+        mode="select"
+        multiSelect
+        enableSearch
+        listSavedSearches={listSavedSearches}
+        search={search}
+        allowedTypes={["page"]}
+        onConfirm={() => {}}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "Same" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("search-panel-open-hit-dup"));
+    fireEvent.click(screen.getByTestId("search-panel-open-hit-dup"));
+    await waitFor(() => {
+      expect(screen.getByTestId("content-browser-selection-summary")).toHaveTextContent(
+        "1 selected",
+      );
+    });
+  });
+
+  it("search Reveal with empty folderPath still clears a stale filter error", async () => {
+    const listSavedSearches = vi.fn().mockResolvedValue([]);
+    // First hit mismatches filters (sets error); second has no folderPath.
+    const search = vi.fn().mockResolvedValue({
+      children: [
+        {
+          id: "bad-type",
+          title: "AssetX",
+          name: "AssetX",
+          folderPath: "/Sites/A",
+          type: "asset",
+        },
+        {
+          id: "no-folder",
+          title: "Orphan",
+          name: "Orphan",
+          folderPath: "   ",
+          type: "page",
+        },
+      ],
+      totalCount: 2,
+      startIndex: 1,
+    });
+    render(
+      <ContentBrowser
+        mode="select"
+        enableSearch
+        listSavedSearches={listSavedSearches}
+        search={search}
+        allowedTypes={["page"]}
+        onConfirm={() => {}}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "x" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("search-panel-open-bad-type"));
+    await waitFor(() => {
+      expect(screen.getByTestId("content-browser-error")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("search-panel-reveal-no-folder"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("content-browser-error")).not.toBeInTheDocument();
+    });
+  });
 });
 
 describe("selectionItemFromSearchResult", () => {
@@ -358,5 +607,46 @@ describe("selectionItemFromSearchResult", () => {
     expect(sel.path).toBe("/Sites/Demo/Home");
     expect(sel.name).toBe("Home");
     expect(sel.type).toBe("page");
+  });
+
+  it("falls back to title when name is missing and strips trailing slashes", () => {
+    const sel = selectionItemFromSearchResult({
+      id: "7",
+      title: "OnlyTitle",
+      folderPath: "/Sites/Demo///",
+      type: "page",
+    });
+    expect(sel.path).toBe("/Sites/Demo/OnlyTitle");
+    expect(sel.name).toBe("OnlyTitle");
+  });
+
+  it("uses name alone as path when folderPath is empty", () => {
+    const sel = selectionItemFromSearchResult({
+      id: "n1",
+      name: "Loose",
+      folderPath: "",
+      type: "asset",
+    });
+    expect(sel.path).toBe("Loose");
+    expect(sel.name).toBe("Loose");
+    expect(sel.id).toBe("n1");
+  });
+
+  it("coerces numeric id and falls back to unknown when id/name/path empty", () => {
+    const withNumeric = selectionItemFromSearchResult({
+      id: 99 as unknown as string,
+      name: "N",
+      folderPath: "/Sites",
+      type: "page",
+    });
+    expect(withNumeric.id).toBe("99");
+    expect(withNumeric.path).toBe("/Sites/N");
+
+    const bare = selectionItemFromSearchResult({
+      type: "page",
+    } as Parameters<typeof selectionItemFromSearchResult>[0]);
+    expect(bare.id).toBe("unknown");
+    expect(bare.path).toBe("unknown");
+    expect(bare.name).toBe("unknown");
   });
 });
