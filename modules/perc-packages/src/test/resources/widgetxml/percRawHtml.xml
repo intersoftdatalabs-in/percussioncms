@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Widget>
+	<WidgetPrefs title="HTML"
+		contenttype_name="percRawHtmlAsset" category="integration"
+		description="Widget to accept and render raw html code."
+		author="Percussion Software Inc"
+		thumbnail="/rx_resources/widgets/PSWidget_RawHtml/images/widgetIconHtm.png"
+		preferred_editor_width="785" preferred_editor_height="405"
+		is_responsive="true" />
+	<Content type="velocity"><![CDATA[#loadRelatedWidgetContents()##
+#if( ! $perc.widgetContents.isEmpty() )##
+#set( $node = $perc.widgetContents.get(0).node )##
+#set ( $widgetHtml = $node.getProperty('rx:html').getString() )##
+#set ( $widgetHtml = $rx.pageutils.updateManagedLinks($perc.linkContext, $widgetHtml,  $sys.assemblyItem.PubServerId,$node.getProperty('sys_contentid').String ) )##
+#set ( $widgetHtml = $widgetHtml.replace("<PRESERVE>", "" ) )##
+#set ( $widgetHtml = $widgetHtml.replace("</PRESERVE>", "" ) )##
+$!{widgetHtml}
+#elseif ( $perc.isEditMode() )##
+#createEmptyWidgetContent( "html-sample-content", "This HTML widget is showing sample content." )##
+#end##
+]]></Content>
+</Widget>

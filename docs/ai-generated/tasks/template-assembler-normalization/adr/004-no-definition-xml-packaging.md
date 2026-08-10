@@ -35,3 +35,28 @@ Content types + Templates (assembler + JEXL bindings + source)
 - Compiler/upgrade tooling is mandatory before deleting package XML.
 - Widget Builder / Design tools write modern format only.
 - Package install/export paths must understand the new manifest shape (prefer extending existing package system).
+- **Dual-run runtime shim (time-boxed):** selection prefers modern `component-package.json`, falls back to legacy Widget/Page/Gadget definition XML when modern is absent, and fails clearly when neither exists. Implementation: `com.percussion.packages.shim.PSLegacyDefinitionXmlShim` (#2752). Operator policy, entry points, and exit criteria: [dual-run-legacy-definition-xml-shim.md](../dual-run-legacy-definition-xml-shim.md). Product packages must not depend on the shim long-term; Phase 5 (#2632) removes it when metrics allow.
+
+## Component Package Manifest (schema v1.0)
+
+Ship-format model and docs landed as Phase 3 slice 1 (#2750):
+
+| Artifact | Location |
+|----------|----------|
+| Schema / field docs | [../component-package-manifest.md](../component-package-manifest.md) |
+| Java model + IO + validation | `modules/perc-packages/.../manifest/PSComponentPackageManifest*.java` |
+| Minimal fixture | `modules/perc-packages/src/test/resources/manifests/minimal-component-package.json` |
+
+**Upgrade-input XML** remains compiler/shim only; **product ship format** is `component-package.json` plus content types, templates, slots, catalog metadata, and resources.
+
+## Widget XML compiler (slice #2751)
+
+Compiler for upgrade-input Widget XML → Component Package Manifest (baseWidgets / simple subset first):
+
+| Artifact | Location |
+|----------|----------|
+| Parser / compiler / package scanner | `modules/perc-packages/.../widgetxml/PSWidgetXml*.java` |
+| Golden parity (percSimpleText) | `modules/perc-packages/src/test/resources/widgetxml/golden/` |
+| Inventory + residuals | [../widget-xml-inventory.md](../widget-xml-inventory.md) |
+
+High-traffic package conversion and product XML removal remain residual under #2630.
