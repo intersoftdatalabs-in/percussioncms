@@ -52,6 +52,7 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | [widget-xml-inventory.md](./widget-xml-inventory.md) | Product widget matrix (48 defs) |
 | [widget-xml-inventory.csv](./widget-xml-inventory.csv) | Machine-readable inventory |
 | [gadget-definition-inventory.md](./gadget-definition-inventory.md) | Gadget XML / SPA survey |
+| [dual-run-legacy-definition-xml-shim.md](./dual-run-legacy-definition-xml-shim.md) | Phase 3 dual-run operator policy + runtime shim selection (#2752) |
 | [adr/](./adr/) | Architecture decision records |
 | [parity-notes.md](./parity-notes.md) | Region vs slot, pageAssembler vs velocity, etc. |
 | [region-slot-mapping.md](./region-slot-mapping.md) | Phase 2 residual: region↔slot composition + CssPref upgrade (#2690) |
@@ -70,7 +71,9 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | JEXL | `modules/utils/.../jexl/PSScript.java` |
 | CM1 page assembler | `projects/sitemanage/.../assembler/PSPageAssembler.java` |
 | Widget model | `projects/sitemanage/.../data/PSWidgetDefinition.java` |
+| Widget DAO (legacy XML load) | `projects/sitemanage/.../dao/impl/PSWidgetDao.java` (`rxconfig/Widgets`) |
 | Widget packages | `modules/perc-packages/.../rxconfig/Widgets/` |
+| Dual-run definition source shim | `modules/perc-packages/.../shim/PSLegacyDefinitionXmlShim.java` |
 | Gadget registry | `WebUI/src/main/resources/com/percussion/webui/gadget/servlets/GadgetRegistry.xml` |
 
 ## Immediate next work
