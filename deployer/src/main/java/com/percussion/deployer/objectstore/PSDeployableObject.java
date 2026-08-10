@@ -149,9 +149,7 @@ public class PSDeployableObject extends PSDependency {
     root.appendChild(super.toXml(doc));
 
     Element classes = PSXmlDocumentBuilder.addEmptyElement(doc, root, XML_EL_REQUIRED_CLASSES);
-    Iterator classNames = m_classNames.iterator();
-    while (classNames.hasNext()) {
-      String name = (String) classNames.next();
+    for (String name : m_classNames) {
       PSXmlDocumentBuilder.addElement(doc, classes, XML_EL_CLASS_NAME, name);
     }
 
@@ -185,13 +183,21 @@ public class PSDeployableObject extends PSDependency {
     }
     super.fromXml(dep);
     m_classNames.clear();
-    var className = tree.getNextElement(XML_EL_CLASS_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-    while (className != null) {
-      var name = tree.getElementData(className);
-      if (name != null && !name.isBlank()) {
-        m_classNames.add(name);
+    // RequiredClasses is a sibling of PSXDependency under the root element.
+    tree.setCurrent(sourceNode);
+    var classes =
+        tree.getNextElement(XML_EL_REQUIRED_CLASSES, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+    if (classes != null) {
+      var className =
+          tree.getNextElement(XML_EL_CLASS_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+      while (className != null) {
+        var name = PSXmlTreeWalker.getElementData(className);
+        if (name != null && !name.isBlank()) {
+          m_classNames.add(name);
+        }
+        className =
+            tree.getNextElement(XML_EL_CLASS_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
       }
-      className = tree.getNextElement(XML_EL_CLASS_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
     }
   }
 
@@ -223,8 +229,7 @@ public class PSDeployableObject extends PSDependency {
   // overridden to deep copy mutable members
   public Object clone() {
     PSDeployableObject copy = (PSDeployableObject) super.clone();
-    copy.m_classNames = new ArrayList();
-    copy.m_classNames.addAll(m_classNames);
+    copy.m_classNames = new ArrayList<>(m_classNames);
 
     return copy;
   }
@@ -244,13 +249,13 @@ public class PSDeployableObject extends PSDependency {
    * @throws IllegalArgumentException if <code>classNames</code> is <code>null</code>, empty, or
    *     contains an <code>null</code> or empty entry.
    */
-  public void setRequiredClasses(Iterator classNames) {
+  public void setRequiredClasses(Iterator<String> classNames) {
     if (classNames == null || !classNames.hasNext())
       throw new IllegalArgumentException("classNames may not be null or empty");
 
     m_classNames.clear();
     while (classNames.hasNext()) {
-      String name = (String) classNames.next();
+      String name = classNames.next();
       if (name == null || name.trim().length() == 0) {
         m_classNames.clear();
         throw new IllegalArgumentException("classNames may not contain a null or empty entry");
@@ -266,7 +271,7 @@ public class PSDeployableObject extends PSDependency {
    * @return an iterator over zero or more non-<code>null</code> non-empty <code>String</code>
    *     objects specifiying fully qualified class names. Never <code>null</code>.
    */
-  public Iterator getRequiredClasses() {
+  public Iterator<String> getRequiredClasses() {
     return m_classNames.iterator();
   }
 
@@ -277,7 +282,7 @@ public class PSDeployableObject extends PSDependency {
    * List of class names required by this dependency. Never <code>null</code>, empty until contents
    * are modified by a call to {@link #setRequiredClasses(Iterator)}.
    */
-  private List m_classNames = new ArrayList();
+  private List<String> m_classNames = new ArrayList<>();
 
   // private constants for XML serialization
   private static final String XML_EL_REQUIRED_CLASSES = "RequiredClasses";

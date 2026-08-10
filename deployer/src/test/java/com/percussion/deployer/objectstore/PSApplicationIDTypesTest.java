@@ -18,6 +18,8 @@
 package com.percussion.deployer.objectstore;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.deployer.objectstore.idtypes.PSAppCEItemIdContext;
@@ -26,7 +28,11 @@ import com.percussion.server.PSServer;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -322,12 +328,59 @@ public class PSApplicationIDTypesTest {
   }
 
   /**
+   * Behavioral coverage for typed {@link PSApplicationIDTypes#setChoiceFilters(Map)} /
+   * {@link PSApplicationIDTypes#getChoiceFilters()} and null-safe {@link
+   * PSApplicationIDTypes#copyFrom(IPSDeployComponent)} (issue #2417).
+   */
+  @Test
+  public void testChoiceFiltersAndCopyFrom() throws Exception {
+    PSDeployableElement de1 =
+        new PSDeployableElement(
+            PSDependency.TYPE_SHARED,
+            "1",
+            "TestElem",
+            "Test Element",
+            "myTestElement",
+            true,
+            false,
+            false);
+
+    PSAppCEItemIdContext ctx1 = new PSAppCEItemIdContext(PSAppCEItemIdContext.TYPE_DEFAULT_VALUE);
+    PSApplicationIDTypes idTypes = new PSApplicationIDTypes(de1);
+    PSApplicationIDTypeMapping mapping = new PSApplicationIDTypeMapping(ctx1, "42");
+    mapping.setType("ContentType");
+    idTypes.addMapping("res", "elem", mapping);
+
+    Map<String, List<String>> filters = new HashMap<>();
+    List<String> allowed = new ArrayList<>();
+    allowed.add("Slot");
+    allowed.add("Template");
+    filters.put("42", allowed);
+
+    // Current type is not in the filter list → reset to undefined
+    idTypes.setChoiceFilters(filters);
+    assertNotNull(idTypes.getChoiceFilters());
+    assertEquals(1, idTypes.getChoiceFilters().size());
+    assertEquals(PSApplicationIDTypeMapping.TYPE_UNDEFINED, mapping.getType());
+
+    // Null filters are allowed (clears filter map)
+    idTypes.setChoiceFilters(null);
+    assertNull(idTypes.getChoiceFilters());
+
+    // copyFrom with null choice filters must not NPE
+    PSApplicationIDTypes copy = new PSApplicationIDTypes(de1);
+    copy.copyFrom(idTypes);
+    assertNull(copy.getChoiceFilters());
+    assertTrue(copy.containsMapping("res", "elem", ctx1));
+    assertEquals(idTypes.getIds(), copy.getIds());
+  }
+
+  /**
    * Constructs a <code>PSApplicationIDTypes</code> object using the supplied params and catches any
    * exception. For params, see {@link PSApplicationIDTypes} ctor.
    *
    * @return <code>true</code> if no exceptions were caught, <code>false</code> otherwise.
    */
-  @Test
   private boolean testCtorValid(PSDependency dep, String res, String elem) {
     try {
       PSAppCEItemIdContext ctx1 = new PSAppCEItemIdContext(PSAppCEItemIdContext.TYPE_DEFAULT_VALUE);
