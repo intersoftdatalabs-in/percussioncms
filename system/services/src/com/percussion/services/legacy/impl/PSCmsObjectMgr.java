@@ -293,6 +293,62 @@ public class PSCmsObjectMgr
         }
     }
 
+    /**
+     * Builds a cascading menu tree from {@code RXMENUACTION} + {@code RXMENUACTIONRELATION}
+     * so REST consumers receive nested MENU parents instead of a flat dump of every
+     * MENUITEM (#2730).
+     */
+    @Override
+    public List<PSActionMenu> findActionMenusTree() {
+        List<PSActionMenu> all = findActionMenus();
+        if (all == null || all.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<int[]> pairs = new ArrayList<>();
+        Session session = getSession();
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object[]> rows =
+                    session.createNativeQuery(ACTION_MENU_RELATION_SQL).getResultList();
+            if (rows != null) {
+                for (Object[] row : rows) {
+                    if (row == null || row.length < 2 || row[0] == null || row[1] == null) {
+                        continue;
+                    }
+                    pairs.add(
+                            new int[] {
+                                ((Number) row[0]).intValue(), ((Number) row[1]).intValue()
+                            });
+                }
+            }
+        } catch (Exception e) {
+            logger.warn(
+                    "An error occurred while loading action menu relations; returning flat roots: {}",
+                    PSExceptionUtils.getMessageForLog(e));
+        }
+        return com.percussion.services.menus.PSActionMenuTreeAssembler.assemble(all, pairs);
+    }
+
+    /**
+     * Native SQL for {@code RXMENUACTIONRELATION} edges used by {@link #findActionMenusTree()}.
+     * Column/table names match the product schema ({@code RXMENUACTION} cascade tables).
+     * Kept as a single constant so renames are not silent string drift across callers.
+     */
+    static final String ACTION_MENU_RELATION_TABLE = "RXMENUACTIONRELATION";
+
+    static final String ACTION_MENU_RELATION_PARENT_COL = "ACTIONID";
+
+    static final String ACTION_MENU_RELATION_CHILD_COL = "CHILDACTIONID";
+
+    static final String ACTION_MENU_RELATION_SQL =
+            "select "
+                    + ACTION_MENU_RELATION_PARENT_COL
+                    + ", "
+                    + ACTION_MENU_RELATION_CHILD_COL
+                    + " from "
+                    + ACTION_MENU_RELATION_TABLE;
+
     public List<PSActionMenu> findActionMenusByType(String type) {
         Session session = getSession();
 

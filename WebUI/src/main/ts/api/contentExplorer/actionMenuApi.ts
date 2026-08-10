@@ -154,13 +154,17 @@ export async function findAllowedTemplateMenus(
 
 /**
  * Wraps the {@link ActionMenu[]} envelope from the rest layer's
- * {@code find*()} responses into a flattened {@link MenuAction[]} for
+ * {@code find*()} responses into a client {@link MenuAction[]} for
  * the UI (US3 T053 / T054).
  *
- * <p>Children under {@link ActionMenu.children} (the {@code ActionMenuList}
- * envelope on cascading menus) are unwrapped recursively and sorted by
- * {@code sortRank}. The mapper is pure (no side effects, no fetch) and
- * is the natural unit-test surface.</p>
+ * <p>Children under {@link ActionMenu.children} are unwrapped recursively
+ * and sorted by {@code sortRank}. Nested parents remain nested so
+ * {@code ActionToolbar} can render MENU dropdowns (#2730) rather than a
+ * flat button dump. The mapper is pure (no side effects, no fetch).</p>
+ *
+ * <p>Wire-shape note: Jackson typically serializes an {@code ActionMenuList}
+ * field as a JSON <em>array</em>. Root list responses still wrap under
+ * {@code ActionMenuList} / {@code ActionMenu}. Accept both nested forms.</p>
  */
 export function mapActionMenusToMenuActions(
   menus: ActionMenu[],
@@ -171,10 +175,35 @@ export function mapActionMenusToMenuActions(
     .map(mapSingleActionMenu);
 }
 
+/**
+ * Unwrap nested children whether Jackson emitted a raw array or an
+ * {@code ActionMenuList} / {@code ActionMenu} envelope object.
+ */
+export function unwrapActionMenuChildren(
+  children: ActionMenu["children"] | unknown,
+): ActionMenu[] {
+  if (children == null) {
+    return [];
+  }
+  if (Array.isArray(children)) {
+    return children as ActionMenu[];
+  }
+  if (typeof children === "object") {
+    const env = children as Record<string, unknown>;
+    if (Array.isArray(env.ActionMenuList)) {
+      return env.ActionMenuList as ActionMenu[];
+    }
+    if (Array.isArray(env.ActionMenu)) {
+      return env.ActionMenu as ActionMenu[];
+    }
+  }
+  return [];
+}
+
 function mapSingleActionMenu(menu: ActionMenu): MenuAction {
-  const childActions: MenuAction[] = menu.children?.ActionMenuList
-    ? mapActionMenusToMenuActions(menu.children.ActionMenuList)
-    : [];
+  const childActions: MenuAction[] = mapActionMenusToMenuActions(
+    unwrapActionMenuChildren(menu.children),
+  );
   const result: MenuAction = {
     name: menu.name,
     label: menu.label ?? menu.name,

@@ -34,6 +34,7 @@ import com.percussion.rest.acls.TypedPrincipal;
 import com.percussion.rest.acls.UserAccessLevel;
 import com.percussion.rest.acls.UserAccessLevelList;
 import com.percussion.rest.actions.ActionMenu;
+import com.percussion.rest.actions.ActionMenuList;
 import com.percussion.rest.actions.ActionMenuParameter;
 import com.percussion.rest.actions.ActionMenuProperty;
 import com.percussion.rest.actions.ActionMenuVisibilityContext;
@@ -743,8 +744,13 @@ public class ApiUtils {
 
   public static List<ActionMenu> convertPSActionMenuList(List<PSActionMenu> actionMenus) {
     var ret = new ArrayList<ActionMenu>();
+    if (actionMenus == null) {
+      return ret;
+    }
     for (var pa : actionMenus) {
-      ret.add(convertPSActionMenu(pa));
+      if (pa != null) {
+        ret.add(convertPSActionMenu(pa));
+      }
     }
     return ret;
   }
@@ -761,38 +767,52 @@ public class ApiUtils {
     ret.setMenuType(pa.getType());
     ret.setHandler(pa.getHandler());
 
+    // Preserve cascading children for nested Explorer toolbar dropdowns (#2730).
+    // Without this, structured menus (content-type submenus / RXMENUACTIONRELATION
+    // trees) lose hierarchy and ActionToolbar dumps every leaf as a flat button.
+    List<PSActionMenu> childMenus = pa.getChildren();
+    if (childMenus != null && !childMenus.isEmpty()) {
+      ret.setChildren(new ActionMenuList(convertPSActionMenuList(childMenus)));
+    }
+
     ArrayList<ActionMenuProperty> props = new ArrayList<>();
-    for (PSActionMenuProperty pap : pa.getProperties()) {
-      ActionMenuProperty p = new ActionMenuProperty();
-      p.setActionId(pap.getPrimaryKey().getActionId());
-      p.setName(pap.getPrimaryKey().getPropertyName());
-      p.setDescription(pap.getDescription());
-      p.setValue(pap.getValue());
-      props.add(p);
+    if (pa.getProperties() != null) {
+      for (PSActionMenuProperty pap : pa.getProperties()) {
+        ActionMenuProperty p = new ActionMenuProperty();
+        p.setActionId(pap.getPrimaryKey().getActionId());
+        p.setName(pap.getPrimaryKey().getPropertyName());
+        p.setDescription(pap.getDescription());
+        p.setValue(pap.getValue());
+        props.add(p);
+      }
     }
     ActionMenuProperty[] prop_array = new ActionMenuProperty[props.size()];
     ret.setProperties(props.toArray(prop_array));
 
     ArrayList<ActionMenuParameter> params = new ArrayList<>();
-    for (PSActionMenuParam psparam : pa.getParameters()) {
-      ActionMenuParameter p = new ActionMenuParameter();
-      p.setDescription(psparam.getDescription());
-      p.setName(psparam.getActionParamPK().getParamName());
-      p.setValue(psparam.getParamValue());
-      params.add(p);
+    if (pa.getParameters() != null) {
+      for (PSActionMenuParam psparam : pa.getParameters()) {
+        ActionMenuParameter p = new ActionMenuParameter();
+        p.setDescription(psparam.getDescription());
+        p.setName(psparam.getActionParamPK().getParamName());
+        p.setValue(psparam.getParamValue());
+        params.add(p);
+      }
     }
     ActionMenuParameter[] param_array = new ActionMenuParameter[params.size()];
     ret.setParameters(params.toArray(param_array));
 
     ArrayList<ActionMenuVisibilityContext> vis = new ArrayList<>();
-    for (PSActionMenuVisibility v : pa.getVisibility()) {
+    if (pa.getVisibility() != null) {
+      for (PSActionMenuVisibility v : pa.getVisibility()) {
 
-      ActionMenuVisibilityContext vc = new ActionMenuVisibilityContext();
+        ActionMenuVisibilityContext vc = new ActionMenuVisibilityContext();
 
-      vc.setDescription(v.getPrimaryKey().getDescription());
-      vc.setValue(v.getPrimaryKey().getValue());
-      vc.setUiContext(copyUIContext(v.getContext()));
-      vis.add(vc);
+        vc.setDescription(v.getPrimaryKey().getDescription());
+        vc.setValue(v.getPrimaryKey().getValue());
+        vc.setUiContext(copyUIContext(v.getContext()));
+        vis.add(vc);
+      }
     }
 
     ActionMenuVisibilityContext[] ctxes = new ActionMenuVisibilityContext[vis.size()];
