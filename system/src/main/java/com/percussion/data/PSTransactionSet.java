@@ -638,7 +638,7 @@ public class PSTransactionSet implements IPSExecutionStep {
   private void determineNodeIteratorForPlan(IPSExecutionStep[] plan) {
     if (plan == null) return;
 
-    java.util.List tempElements = new java.util.ArrayList();
+    java.util.List<String> tempElements = new java.util.ArrayList<>();
     for (int i = 0; i < plan.length; i++) {
       IPSExecutionStep step = plan[i];
       if (step instanceof PSStatement) {
@@ -649,10 +649,11 @@ public class PSTransactionSet implements IPSExecutionStep {
          */
         if (m_actionTypeXmlField != null) tempElements.add(m_actionTypeXmlField);
 
-        java.util.List extractors = ((PSStatement) step).getReplacementValueExtractors();
+        java.util.List<IPSDataExtractor> extractors =
+            ((PSStatement) step).getReplacementValueExtractors();
         int size = (extractors == null) ? 0 : extractors.size();
         for (int j = 0; j < size; j++) {
-          addXmlFieldNames(tempElements, (IPSDataExtractor) extractors.get(j));
+          addXmlFieldNames(tempElements, extractors.get(j));
         }
 
         if (tempElements.size() > 0) {
@@ -678,7 +679,7 @@ public class PSTransactionSet implements IPSExecutionStep {
                       new Object[] {baseElement, step.toString()}));
 
           for (int j = 0; j < size; j++) {
-            IPSDataExtractor extr = (IPSDataExtractor) extractors.get(j);
+            IPSDataExtractor extr = extractors.get(j);
             if (extr instanceof PSXmlFieldExtractor) {
               ((PSXmlFieldExtractor) extr).setXmlFieldBase(baseElement);
             } else if (extr
@@ -716,7 +717,7 @@ public class PSTransactionSet implements IPSExecutionStep {
     }
   }
 
-  private void addXmlFieldNames(java.util.List xmlList, IPSDataExtractor extr) {
+  private void addXmlFieldNames(java.util.List<String> xmlList, IPSDataExtractor extr) {
     IPSReplacementValue[] values = extr.getSource();
 
     for (int k = 0; k < values.length; k++) {

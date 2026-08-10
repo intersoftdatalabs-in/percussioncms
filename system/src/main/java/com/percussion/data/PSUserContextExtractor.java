@@ -337,16 +337,17 @@ public class PSUserContextExtractor extends PSDataExtractor {
                     if (pos > 0) {
                       String roleName = sourceName.substring(0, pos);
                       String attribName = sourceName.substring(pos + 1);
-                      List values = getRoleSubjectAttributeValues(users[i], roleName, attribName);
+                      List<String> values =
+                          getRoleSubjectAttributeValues(users[i], roleName, attribName);
                       // if attr has more than one value, only return
                       // the first (CSV would not be safe)
-                      Iterator iter = values.iterator();
+                      Iterator<String> iter = values.iterator();
                       if (iter.hasNext()) {
-                        Object objVal = iter.next();
-                        if (objVal != null) valueArray[i] = objVal.toString();
+                        String objVal = iter.next();
+                        if (objVal != null) valueArray[i] = objVal;
                       }
                     } else {
-                      List values = new ArrayList();
+                      List<String> values = new ArrayList<>();
 
                       /* First check subject for the attibute value.  If
                        * not found, check the provider next (subject
@@ -364,10 +365,10 @@ public class PSUserContextExtractor extends PSDataExtractor {
 
                       // if attr has more than one value, only return
                       // the first (CSV would not be safe)
-                      Iterator iter = values.iterator();
+                      Iterator<String> iter = values.iterator();
                       if (iter.hasNext()) {
-                        Object objVal = iter.next();
-                        if (objVal != null) valueArray[i] = objVal.toString();
+                        String objVal = iter.next();
+                        if (objVal != null) valueArray[i] = objVal;
                       }
                     }
 
@@ -392,7 +393,7 @@ public class PSUserContextExtractor extends PSDataExtractor {
               valueArray = new Object[1];
               valueArray[0] = defValue;
             } else {
-              List members = sess.getUserRoles();
+              List<String> members = sess.getUserRoles();
               valueArray = members.toArray();
             }
             value = (Object) (convertToLiteralSet(valueArray));
@@ -408,19 +409,19 @@ public class PSUserContextExtractor extends PSDataExtractor {
             if (null == users || users.length == 0) {
               inclause = "'" + defValue + "'";
             } else {
-              List members = sess.getUserRoles();
+              List<String> members = sess.getUserRoles();
 
               // build the "IN" string
               StringBuilder buf = new StringBuilder();
-              Iterator values = members.iterator();
+              Iterator<String> values = members.iterator();
               while (values.hasNext()) {
-                Object o = values.next();
+                String o = values.next();
                 if (o != null) {
-                  String val = o.toString();
+                  String val = o;
                   if (val.trim().length() != 0) {
                     if (buf.length() != 0) buf.append(", ");
                     buf.append('\'');
-                    buf.append(o.toString());
+                    buf.append(o);
                     buf.append('\'');
                   }
                 }
@@ -643,9 +644,9 @@ public class PSUserContextExtractor extends PSDataExtractor {
       // add an attribute node for each user
       PSUserAttributes attributes = users[i].getAttributes();
       if (attributes != null) {
-        Iterator keys = attributes.keySet().iterator();
+        Iterator<String> keys = attributes.keySet().iterator();
         while (keys.hasNext()) {
-          String key = (String) keys.next();
+          String key = keys.next();
           Element attrib = PSXmlDocumentBuilder.addEmptyElement(doc, user, "Attribute");
           attrib.setAttribute("name", key);
 
@@ -654,26 +655,26 @@ public class PSUserContextExtractor extends PSDataExtractor {
       }
 
       try {
-        List subjects =
+        List<PSSubject> subjects =
             PSRoleManager.getInstance()
                 .getSubjectGlobalAttributes(
                     users[i].getName(), PSSubject.SUBJECT_TYPE_USER, null, null);
 
         if (subjects.size() > 0) {
           /** The call made to get the subject list should only return one entry. */
-          PSSubject subject = (PSSubject) subjects.get(0);
+          PSSubject subject = subjects.get(0);
           PSAttributeList attributeList = subject.getAttributes();
-          Iterator attrs = attributeList.iterator();
+          Iterator<?> attrs = attributeList.iterator();
           while (attrs.hasNext()) {
 
             PSAttribute attr = (PSAttribute) attrs.next();
             Element attrib = PSXmlDocumentBuilder.addEmptyElement(doc, user, "Attribute");
             attrib.setAttribute("name", attr.getName());
 
-            List values = attr.getValues();
-            Iterator valueIter = values.iterator();
+            List<String> values = attr.getValues();
+            Iterator<String> valueIter = values.iterator();
             while (valueIter.hasNext()) {
-              String value = valueIter.next().toString();
+              String value = valueIter.next();
               PSXmlDocumentBuilder.addElement(doc, user, "Value", value);
             }
           }
@@ -692,10 +693,10 @@ public class PSUserContextExtractor extends PSDataExtractor {
     Element roles = PSXmlDocumentBuilder.addEmptyElement(doc, root, "Roles");
     try {
       if (users.length > 0) {
-        List roleList = sess.getUserRoles();
-        Iterator roleIter = roleList.iterator();
+        List<String> roleList = sess.getUserRoles();
+        Iterator<String> roleIter = roleList.iterator();
         while (roleIter.hasNext()) {
-          PSXmlDocumentBuilder.addElement(doc, roles, "Role", roleIter.next().toString());
+          PSXmlDocumentBuilder.addElement(doc, roles, "Role", roleIter.next());
         }
       }
     } catch (PSSecurityException e) {
@@ -766,10 +767,10 @@ public class PSUserContextExtractor extends PSDataExtractor {
    * @return A valid list containing 0 or more values assigned to the specified attribute.
    * @throws PSSecurityException If any problems occur trying to get the meta data.
    */
-  private static List getRoleSubjectAttributeValues(
+  private static List<String> getRoleSubjectAttributeValues(
       PSUserEntry entry, String roleName, String attribName) throws PSSecurityException {
-    List returnList = new ArrayList();
-    List singleSubjectList =
+    List<String> returnList = new ArrayList<>();
+    List<PSSubject> singleSubjectList =
         PSRoleManager.getInstance()
             .getSubjectRoleAttributes(
                 entry.getName(), PSSubject.SUBJECT_TYPE_USER, roleName, attribName);
@@ -778,7 +779,7 @@ public class PSUserContextExtractor extends PSDataExtractor {
     // PSSubjects.  At most one PSSubject with one PSAttribute will be in
     // this List.
     if (singleSubjectList.size() > 0) {
-      PSSubject subject = (PSSubject) singleSubjectList.get(0);
+      PSSubject subject = singleSubjectList.get(0);
       returnList.addAll(subject.getAttributes().getAttribute(attribName).getValues());
     }
     return returnList;
@@ -795,8 +796,8 @@ public class PSUserContextExtractor extends PSDataExtractor {
    */
   public static List<String> getSubjectAttributeValues(PSUserEntry entry, String attribName)
       throws PSSecurityException {
-    List returnList = new ArrayList();
-    List singleSubjectList =
+    List<String> returnList = new ArrayList<>();
+    List<PSSubject> singleSubjectList =
         PSRoleManager.getInstance()
             .getSubjectGlobalAttributes(
                 entry.getName(), PSSubject.SUBJECT_TYPE_USER, null, attribName);
@@ -805,7 +806,7 @@ public class PSUserContextExtractor extends PSDataExtractor {
     // PSSubjects.  At most one PSSubject with one PSAttribute will be in
     // this List.
     if (singleSubjectList.size() > 0) {
-      PSSubject subject = (PSSubject) singleSubjectList.get(0);
+      PSSubject subject = singleSubjectList.get(0);
       returnList.addAll(subject.getAttributes().getAttribute(attribName).getValues());
     }
     return returnList;

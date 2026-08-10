@@ -114,7 +114,7 @@ public class PSMacroUtils {
     if (linkUrl == null || linkUrl.length() < 1) {
       throw new IllegalArgumentException("linkUrl must not be null or empty");
     }
-    Map params = PSParseUrlQueryString.parseParameters(linkUrl);
+    Map<String, Object> params = PSParseUrlQueryString.parseParameters(linkUrl);
     String contentid = (String) params.get(IPSHtmlParameters.SYS_CONTENTID);
     if (contentid == null || contentid.length() < 1) {
       String msg =

@@ -49,8 +49,10 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import org.w3c.dom.Document;
 
@@ -269,9 +271,9 @@ public class PSQueryCacher {
   public void clear() {
     // this is what we sync on for clearAged, so do the same here
     synchronized (m_cacheSizeSync) {
-      java.util.Iterator iterator = m_cacheSortByDate.iterator();
+      Iterator<PSCachedEntry> iterator = m_cacheSortByDate.iterator();
       while (iterator.hasNext()) {
-        PSCachedEntry rmEntry = (PSCachedEntry) iterator.next();
+        PSCachedEntry rmEntry = iterator.next();
 
         // remove the file from disk
         java.io.File file = rmEntry.getFile();
@@ -619,9 +621,9 @@ public class PSQueryCacher {
     }
   }
 
-  private PSCachedEntry getEntryFromCache(ConcurrentHashMap cache, String key)
-      throws PSCacheEntryAgedException {
-    PSCachedEntry entry = (PSCachedEntry) cache.get(key);
+  private PSCachedEntry getEntryFromCache(
+      ConcurrentHashMap<String, PSCachedEntry> cache, String key) throws PSCacheEntryAgedException {
+    PSCachedEntry entry = cache.get(key);
     if (entry != null) {
       if (isCachedEntryStale(entry)) {
         // remove the entry from the cache
@@ -629,7 +631,7 @@ public class PSQueryCacher {
         // we remove from the ConcurrentHashMap by locking it and
         // verifying a new entry wasn't put in the old entries
         // place during our check of its age
-        rmEntry = (PSCachedEntry) cache.remove(key);
+        rmEntry = cache.remove(key);
         if ((rmEntry != null) && !entry.equals(rmEntry)) {
           // guess it's been updated, put it back in and
           // try the date check again
@@ -728,7 +730,8 @@ public class PSQueryCacher {
   }
 
   /** Add an entry to the specified hash. */
-  private void addEntryToCache(ConcurrentHashMap entryHash, String entryKey, PSCachedEntry entry) {
+  private void addEntryToCache(
+      ConcurrentHashMap<String, PSCachedEntry> entryHash, String entryKey, PSCachedEntry entry) {
     /* calculate the size of this entry to see if we've exceeded the
      * max cache size. If so, we need a smart way to move entries out of
      * the cache (least recently used? least accessed? other?).
@@ -741,18 +744,19 @@ public class PSQueryCacher {
          * For now, just throw out entries that have aged.
          * In the future, we may want to factor in hitCount as well
          */
-        SortedSet agedEntries = m_cacheSortByDate.headSet(new Date());
-        java.util.Iterator iterator = agedEntries.iterator();
+        SortedSet<PSCachedEntry> agedEntries =
+            m_cacheSortByDate.headSet(expirationBoundary(new Date()));
+        Iterator<PSCachedEntry> iterator = agedEntries.iterator();
         while (iterator.hasNext()) {
-          PSCachedEntry rmEntry = (PSCachedEntry) iterator.next();
+          PSCachedEntry rmEntry = iterator.next();
 
           /* need to figure out which ConcurrentHashMap this is in and
            * remove it.
            */
-          PSCachedEntry ce = (PSCachedEntry) m_xmlCache.get(entryKey);
+          PSCachedEntry ce = m_xmlCache.get(entryKey);
           if ((ce != null) && (ce == rmEntry)) m_xmlCache.remove(entryKey);
 
-          ce = (PSCachedEntry) m_pageCache.get(entryKey);
+          ce = m_pageCache.get(entryKey);
           if ((ce != null) && (ce == rmEntry)) m_pageCache.remove(entryKey);
 
           // remove the file from disk and decrement the cache size used
@@ -785,7 +789,7 @@ public class PSQueryCacher {
       m_cacheSizeCur += entrySize;
     }
 
-    Object o = entryHash.put(entryKey, entry);
+    PSCachedEntry o = entryHash.put(entryKey, entry);
     if (o != null) // if we're replacing an entry, remove it
     m_cacheSortByDate.remove(o);
     m_cacheSortByDate.add(entry);
@@ -803,6 +807,17 @@ public class PSQueryCacher {
    */
   private boolean wouldExceedSize(long entrySize) {
     return ((m_cacheSizeMax != -1) && (entrySize + m_cacheSizeCur) > m_cacheSizeMax);
+  }
+
+  /**
+   * Boundary key used only with {@link SortedSet#headSet} for expiration cutoffs. Not stored in the
+   * page/xml maps. Replaces the previous heterogeneous {@code headSet(new Date())} pattern once
+   * {@link PSCachedEntry} implements {@link Comparable}{@code <PSCachedEntry>}.
+   */
+  private PSCachedEntry expirationBoundary(Date when) {
+    PSCachedEntry boundary = new PSCachedEntry();
+    boundary.m_expirationTime = when;
+    return boundary;
   }
 
   private void logCacheEntryException(String cacheKey, int errorCode, Exception e) {
@@ -870,9 +885,9 @@ public class PSQueryCacher {
   private int m_cacheType;
   private int m_intervalMinutes = 0;
   private int m_ageTimeOfDay = 0;
-  private ConcurrentHashMap m_xmlCache = new ConcurrentHashMap();
-  private ConcurrentHashMap m_pageCache = new ConcurrentHashMap();
-  private SortedSet m_cacheSortByDate = new java.util.TreeSet();
+  private ConcurrentHashMap<String, PSCachedEntry> m_xmlCache = new ConcurrentHashMap<>();
+  private ConcurrentHashMap<String, PSCachedEntry> m_pageCache = new ConcurrentHashMap<>();
+  private SortedSet<PSCachedEntry> m_cacheSortByDate = new TreeSet<>();
 
   private Object m_cacheSizeSync = new Object();
   private int m_cacheSizeCur = 0;
@@ -886,7 +901,7 @@ public class PSQueryCacher {
 
   private static PSHtmlParameter ms_pagerParam = new PSHtmlParameter("psfirst");
 
-  class PSCachedEntry implements java.io.Serializable, java.lang.Comparable {
+  class PSCachedEntry implements java.io.Serializable, Comparable<PSCachedEntry> {
     // for serialization only
     PSCachedEntry() {
       super();
@@ -967,13 +982,9 @@ public class PSQueryCacher {
     }
 
     // use the Comparable of date to allow for sorting of these by date
-    public int compareTo(Object o) throws ClassCastException {
-      // if it's already a date, compare it straight out
-      if (o instanceof java.util.Date) return m_expirationTime.compareTo((java.util.Date) o);
-
-      // otherwise, assume it's one of ours
-      // (if it's not, ClassCastException is thrown as stated)
-      return m_expirationTime.compareTo(((PSCachedEntry) o).m_expirationTime);
+    @Override
+    public int compareTo(PSCachedEntry o) {
+      return m_expirationTime.compareTo(o.m_expirationTime);
     }
 
     // this is the file that will be cached

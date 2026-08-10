@@ -34,7 +34,7 @@ public class PSTableChangeEvent {
    *     for more information. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
-  public PSTableChangeEvent(String tableName, int actionType, Map columns) {
+  public PSTableChangeEvent(String tableName, int actionType, Map<String, String> columns) {
     if (tableName == null || tableName.trim().length() == 0)
       throw new IllegalArgumentException("tableName may not be null or empty");
 
@@ -81,10 +81,13 @@ public class PSTableChangeEvent {
    *     listener as well. Never <code>null</code>. Changes to this returned <code>Map</code> does
    *     not effect this event object.
    */
-  public Map getColumns() {
-    if (m_columns instanceof HashMap) return (Map) ((HashMap) m_columns).clone();
-    else {
-      Map copy = new HashMap();
+  public Map<String, String> getColumns() {
+    if (m_columns instanceof HashMap) {
+      @SuppressWarnings("unchecked")
+      Map<String, String> copy = (Map<String, String>) ((HashMap<String, String>) m_columns).clone();
+      return copy;
+    } else {
+      Map<String, String> copy = new HashMap<>();
       copy.putAll(m_columns);
       return copy;
     }
@@ -130,5 +133,5 @@ public class PSTableChangeEvent {
    * String</code>, and the value is the object that was used to set the column's value converted to
    * a <code>String</code>. Never <code>null</code> or modified after ctor.
    */
-  private Map m_columns;
+  private Map<String, String> m_columns;
 }

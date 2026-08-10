@@ -139,7 +139,7 @@ public class PSStatementColumn {
       if (value == null) {
         value = new ArrayList();
       } else if (!(value instanceof Collection)) {
-        Collection coll = new ArrayList();
+        Collection<Object> coll = new ArrayList<>();
         coll.add(value);
         value = coll;
       }
@@ -404,7 +404,8 @@ public class PSStatementColumn {
     if (o instanceof PSLiteralSet) o = o.toString();
     else if (o instanceof List) {
       // if this is from a List, only grab the first entry
-      List al = (List) o;
+      @SuppressWarnings("unchecked")
+      List<Object> al = (List<Object>) o;
       if (al.size() == 0) o = defaultValue;
       else o = al.get(0);
     }

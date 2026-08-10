@@ -80,8 +80,8 @@ public class PSFunctionBlock extends PSStatementBlock implements IPSStatementBlo
    */
   private void addDynamicBindParams(PSFunctionCall funcCall) {
     PSDatabaseFunctionDef funcDef = funcCall.getDatabaseFunctionDef();
-    Iterator itDef = funcDef.getParams();
-    Iterator itVal = funcCall.getParameters().iterator();
+    Iterator<?> itDef = funcDef.getParams();
+    Iterator<?> itVal = funcCall.getParameters().iterator();
     while (itDef.hasNext() && itVal.hasNext()) {
       PSDatabaseFunctionDefParam paramDef = (PSDatabaseFunctionDefParam) itDef.next();
       PSFunctionParamValue paramVal = (PSFunctionParamValue) itVal.next();
