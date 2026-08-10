@@ -175,26 +175,25 @@ String json = PSComponentPackageManifestIo.toJson(m);
 - **Today:** `PSPackageBuilder` zips legacy package source trees into `.ppkg` for the deployer (`psx_archiveInfo.xml` / dependency trees). That path remains for install compatibility.
 - **This manifest:** extends the packaging story with an explicit, tool-friendly **component** model that does not require Widget/Page/Gadget XML. Future slices wire compiler output and install recognition; this slice lands model + schema + tests only.
 
-## Widget XML compiler (slices #2751 / #2772)
+## Widget XML compiler (slices #2751 / #2772 / #2789 / #2802)
 
-Upgrade-input path for **baseWidgets** and the **high-traffic residual batch**:
+Upgrade-input path for **baseWidgets**, **high-traffic**, **#2789 residual**, and **#2802 remaining product** batches:
 
 | Type | Role |
 |------|------|
 | `PSWidgetXmlParser` | Secure DOM parse of `<Widget>` definition XML (prefs, code, content, **Resource**) |
 | `PSWidgetXmlCompiler` | XML model → `PSComponentPackageManifest` + template text artifacts |
-| `PSWidgetXmlPackageCompiler` | Scan `sys__UserDependency--rxconfig/Widgets/*.xml` under a package root; `compileHighTrafficPackages` |
-| Golden fixtures | `modules/perc-packages/src/test/resources/widgetxml/golden/` (percSimpleText, percTitle, simplePageAutoList, percNavBreadcrumb) |
+| `PSWidgetXmlPackageCompiler` | Scan `sys__UserDependency--rxconfig/Widgets/*.xml`; `compileHighTrafficPackages`, `compileResidualProductPackages`, `compileRemainingProductPackages` |
+| Golden fixtures | `modules/perc-packages/src/test/resources/widgetxml/golden/` (base + high-traffic + residual + remaining reps) |
 
-Inventory + residual packages: [widget-xml-inventory.md](./widget-xml-inventory.md).
+Inventory: [widget-xml-inventory.md](./widget-xml-inventory.md). All product widget packages (except `perc.Test`) have package-compile coverage; dual-run product XML deletion is Phase 5.
 
 ## Out of scope (sibling / residual)
 
 | Slice | Issue | Role |
 |-------|-------|------|
 | Runtime legacy shim | #2752 | Load customer XML when modern package absent |
-| Remaining high-traffic / long-tail widgets | residual under #2630 | blog, calendar, directory, social, forms, auto-lists, … (see inventory) |
-| Delete product Widget XML from source | later | After install path consumes modern artifacts |
+| Delete product Widget XML from source | Phase 5 / #2632 | After install path consumes modern artifacts |
 
 ## Validation summary
 
