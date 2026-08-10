@@ -70,8 +70,15 @@ public class UserPreferenceSerialDeserialTest {
     // Flat body that WebUI previously sent — root key is "name", not "UserPreference"
     var flat = "{\"name\":\"perc_profile_gravatar_email\",\"value\":\"x\",\"userName\":\"Admin\"}";
     try {
-      mapper.readValue(flat, UserPreference.class);
-      // Some Jackson versions may throw; if not, still not a successful preference shape
+      UserPreference result = mapper.readValue(flat, UserPreference.class);
+      // Must not vacuous-pass: if Jackson did not throw, the result must not look like a
+      // successfully unwrapped preference (name populated from unexpected root).
+      assertTrue(
+          result == null
+              || result.getName() == null
+              || result.getName().isBlank(),
+          "flat body must not deserialize as named UserPreference under UNWRAP_ROOT_VALUE; got name="
+              + (result == null ? "null" : result.getName()));
     } catch (Exception expected) {
       // Expected for UNWRAP_ROOT_VALUE mismatch (#2708 class of failure)
       assertTrue(

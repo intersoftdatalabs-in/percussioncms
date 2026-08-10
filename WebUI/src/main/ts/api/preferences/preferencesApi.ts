@@ -97,12 +97,28 @@ function isUserPreferenceShape(value: unknown): value is UserPreference {
   return typeof o.name === "string";
 }
 
+/** Options for {@link unwrapUserPreference}. */
+export type UnwrapUserPreferenceOptions = {
+  /**
+   * When true (default), accept a flat {@code { name, value }} object if the
+   * Jackson root is missing. Production GET/PUT response parsing uses
+   * {@code false} so a dropped root wrap surfaces as null rather than silently
+   * treating a mis-shaped body as success (#2708 review).
+   */
+  acceptFlat?: boolean;
+};
+
 /**
  * Normalize a PreferenceResource single-pref response or request body to a flat
- * {@link UserPreference}. Accepts Jackson-wrapped
- * {@code { UserPreference: { ... } }} or a flat object (tests / legacy).
+ * {@link UserPreference}. Prefers Jackson-wrapped
+ * {@code { UserPreference: { ... } }}. Flat objects are only accepted when
+ * {@code acceptFlat} is true (tests / explicit callers).
  */
-export function unwrapUserPreference(data: unknown): UserPreference | null {
+export function unwrapUserPreference(
+  data: unknown,
+  options?: UnwrapUserPreferenceOptions,
+): UserPreference | null {
+  const acceptFlat = options?.acceptFlat !== false;
   const root = asRecord(data);
   if (!root) {
     return null;
@@ -110,6 +126,10 @@ export function unwrapUserPreference(data: unknown): UserPreference | null {
   const nested = asRecord(root[USER_PREFERENCE_ROOT]);
   if (nested && isUserPreferenceShape(nested)) {
     return nested;
+  }
+  // Production: do not mask a missing UserPreference root with a flat fallback.
+  if (!acceptFlat) {
+    return null;
   }
   if (isUserPreferenceShape(root)) {
     return root;
@@ -168,7 +188,8 @@ export async function loadUserPreference(
   const key = encodeURIComponent(preferenceName);
   try {
     const data = await get<unknown>(`${PATHS.PREFERENCES}/${key}`);
-    return unwrapUserPreference(data);
+    // Prefer wrapped wire; do not accept flat as a successful production parse.
+    return unwrapUserPreference(data, { acceptFlat: false });
   } catch (err: unknown) {
     if (isNotFound(err)) {
       return null;
@@ -191,11 +212,13 @@ export async function saveUserPreference(
     PATHS.PREFERENCES,
     wrapUserPreferenceForWire(pref),
   );
-  const unwrapped = unwrapUserPreference(data);
+  // Response must be wrapped; flat/mis-shaped bodies fall through to sent fields.
+  const unwrapped = unwrapUserPreference(data, { acceptFlat: false });
   if (unwrapped) {
     return unwrapped;
   }
-  // Defensive: if server returned unexpected shape, surface the fields we sent.
+  // Defensive: if server returned unexpected shape, surface the fields we sent
+  // so UI state stays consistent after a successful HTTP PUT (#2708).
   return {
     name: pref.name,
     value: pref.value ?? "",

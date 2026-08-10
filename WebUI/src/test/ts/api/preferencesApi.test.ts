@@ -110,7 +110,7 @@ describe("preferencesApi (PreferenceResource)", () => {
     expect(wire.UserPreference.name).toBe("perc_profile_gravatar_email");
   });
 
-  it("unwrapUserPreference accepts flat and wrapped shapes", () => {
+  it("unwrapUserPreference accepts flat only when acceptFlat is true", () => {
     expect(
       unwrapUserPreference({
         name: "k",
@@ -118,10 +118,60 @@ describe("preferencesApi (PreferenceResource)", () => {
       })?.value,
     ).toBe("v");
     expect(
+      unwrapUserPreference(
+        {
+          name: "k",
+          value: "v",
+        },
+        { acceptFlat: false },
+      ),
+    ).toBeNull();
+    expect(
       unwrapUserPreference({
         UserPreference: { name: "k", value: "wrapped" },
       })?.value,
     ).toBe("wrapped");
+    expect(
+      unwrapUserPreference(
+        {
+          UserPreference: { name: "k", value: "wrapped" },
+        },
+        { acceptFlat: false },
+      )?.value,
+    ).toBe("wrapped");
     expect(unwrapUserPreference(null)).toBeNull();
+  });
+
+  it("saveUserPreference falls back to sent fields when response is unparseable", async () => {
+    vi.spyOn(client, "put").mockResolvedValueOnce({ unexpected: true });
+    const saved = await saveUserPreference({
+      name: "perc_profile_gravatar_email",
+      value: "avatar@example.com",
+      userName: "Admin",
+      category: "sys_preferences",
+      context: "private",
+    });
+    expect(saved.name).toBe("perc_profile_gravatar_email");
+    expect(saved.value).toBe("avatar@example.com");
+    expect(saved.userName).toBe("Admin");
+    expect(saved.category).toBe("sys_preferences");
+    expect(saved.context).toBe("private");
+  });
+
+  it("saveUserPreference does not treat flat response as success unwrap", async () => {
+    // Flat body is not the production wire; use sent-fields fallback instead.
+    vi.spyOn(client, "put").mockResolvedValueOnce({
+      name: "other",
+      value: "from-flat",
+      userName: "X",
+    });
+    const saved = await saveUserPreference({
+      name: "k",
+      value: "sent",
+      userName: "Admin",
+    });
+    expect(saved.name).toBe("k");
+    expect(saved.value).toBe("sent");
+    expect(saved.userName).toBe("Admin");
   });
 });
