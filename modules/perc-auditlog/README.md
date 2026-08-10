@@ -76,6 +76,12 @@ Production durable store: table `PSX_SYSTEM_AUDIT_LOG` with JPA entity
 `PSSystemAuditLogRepository` (`sys_systemAuditLogRepository`), which registers itself on the
 `DefaultAuditLogService.Holder` at Spring init.
 
+**Retention (AU-11):** Spring bean `sys_systemAuditLogRetentionJob`
+(`PSSystemAuditLogRetentionJob`) deletes rows older than
+`systemAuditLogRetentionDays` from `rxconfig/Server/server.properties` (default **365**).
+Set the property to **0** or a negative value to disable automatic deletion. The job runs
+daily as a daemon worker (same lifecycle style as the design-object audit reaper).
+
 Login smoke path: `PSSystemAuditLogger` / `PSLoginServlet` (success, failure, logout).
 
 Phase 2a migrates production call sites off legacy CADF `PSAuditLogService` to
