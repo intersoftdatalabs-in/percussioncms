@@ -39,6 +39,17 @@ export type UserPreference = {
   extraParam?: string;
 };
 
+/**
+ * Jackson root name for {@code UserPreference} ({@code @XmlRootElement} /
+ * {@code @JsonRootName}). REST {@code JacksonContextResolver} enables
+ * {@code WRAP_ROOT_VALUE} / {@code UNWRAP_ROOT_VALUE}, so PUT/DELETE bodies and
+ * single-pref responses use {@code { "UserPreference": { ... } }}.
+ *
+ * <p>A bare flat body starting with {@code name} is rejected as unexpected root
+ * (JAXB/Jackson: expected {@code UserPreference}) — see #2708.</p>
+ */
+export const USER_PREFERENCE_ROOT = "UserPreference";
+
 /** Default category PreferenceResource applies when omitted on save. */
 export const PREF_CATEGORY_SYS = "sys_preferences";
 
@@ -48,6 +59,13 @@ export const PREF_CONTEXT_PRIVATE = "private";
 function isNotFound(err: unknown): boolean {
   const api = err as ApiError;
   return !!api && typeof api.status === "number" && api.status === 404;
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (value != null && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return null;
 }
 
 function asPreferenceArray(data: unknown): UserPreference[] {
@@ -80,6 +98,49 @@ function isUserPreferenceShape(value: unknown): value is UserPreference {
 }
 
 /**
+ * Normalize a PreferenceResource single-pref response or request body to a flat
+ * {@link UserPreference}. Accepts Jackson-wrapped
+ * {@code { UserPreference: { ... } }} or a flat object (tests / legacy).
+ */
+export function unwrapUserPreference(data: unknown): UserPreference | null {
+  const root = asRecord(data);
+  if (!root) {
+    return null;
+  }
+  const nested = asRecord(root[USER_PREFERENCE_ROOT]);
+  if (nested && isUserPreferenceShape(nested)) {
+    return nested;
+  }
+  if (isUserPreferenceShape(root)) {
+    return root;
+  }
+  return null;
+}
+
+/**
+ * Build the wire JSON body for PreferenceResource PUT/DELETE.
+ *
+ * <p>Must nest fields under {@link USER_PREFERENCE_ROOT} — a flat
+ * {@code { name, value, ... }} body fails server unwrap with unexpected root
+ * {@code name} (#2708).</p>
+ */
+export function wrapUserPreferenceForWire(
+  pref: UserPreference,
+): Record<string, UserPreference> {
+  const dto: UserPreference = {
+    name: pref.name,
+    value: pref.value ?? "",
+    category: pref.category || PREF_CATEGORY_SYS,
+    context: pref.context || PREF_CONTEXT_PRIVATE,
+    userName: pref.userName ?? "",
+  };
+  if (pref.extraParam !== undefined) {
+    dto.extraParam = pref.extraParam;
+  }
+  return { [USER_PREFERENCE_ROOT]: dto };
+}
+
+/**
  * GET /services/preferences/ — all stored prefs for the current user.
  *
  * @returns empty array when none stored (404) or body is empty
@@ -106,7 +167,8 @@ export async function loadUserPreference(
 ): Promise<UserPreference | null> {
   const key = encodeURIComponent(preferenceName);
   try {
-    return await get<UserPreference>(`${PATHS.PREFERENCES}/${key}`);
+    const data = await get<unknown>(`${PATHS.PREFERENCES}/${key}`);
+    return unwrapUserPreference(data);
   } catch (err: unknown) {
     if (isNotFound(err)) {
       return null;
@@ -119,16 +181,27 @@ export async function loadUserPreference(
  * PUT /services/preferences/ — save a single preference for the current user.
  *
  * <p>{@code userName} should be set (server DTO requires it).</p>
+ * <p>Body is Jackson root-wrapped as {@code { UserPreference: { ... } }}
+ * (#2708).</p>
  */
 export async function saveUserPreference(
   pref: UserPreference,
 ): Promise<UserPreference> {
-  return put<UserPreference>(PATHS.PREFERENCES, {
+  const data = await put<unknown>(
+    PATHS.PREFERENCES,
+    wrapUserPreferenceForWire(pref),
+  );
+  const unwrapped = unwrapUserPreference(data);
+  if (unwrapped) {
+    return unwrapped;
+  }
+  // Defensive: if server returned unexpected shape, surface the fields we sent.
+  return {
     name: pref.name,
     value: pref.value ?? "",
     category: pref.category || PREF_CATEGORY_SYS,
     context: pref.context || PREF_CONTEXT_PRIVATE,
     userName: pref.userName ?? "",
     extraParam: pref.extraParam,
-  });
+  };
 }

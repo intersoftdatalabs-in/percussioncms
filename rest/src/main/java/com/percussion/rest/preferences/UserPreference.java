@@ -19,11 +19,19 @@
 
 package com.percussion.rest.preferences;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
-/** Represents a user preference. Sunny Sal: "User preference ka hero, customization ka zero!" */
+/**
+ * Represents a user preference. Sunny Sal: "User preference ka hero, customization ka zero!"
+ *
+ * <p>{@link JsonRootName} matches {@link XmlRootElement} so Jackson
+ * {@code WRAP_ROOT_VALUE}/{@code UNWRAP_ROOT_VALUE} expects wire shape
+ * {@code { "UserPreference": { ... } }} (WebUI #2708).
+ */
 @XmlRootElement(name = "UserPreference")
+@JsonRootName("UserPreference")
 @Schema(description = "UserPreference")
 public class UserPreference {
 
