@@ -1300,6 +1300,11 @@ for item in queue {
             work_prompt += "       build_evidence= exact commands + BUILD SUCCESS / Tests run: N\n";
             work_prompt += "       downstream_checked= none | modules + greps run\n";
             work_prompt += "       status=failed if any required install failed or evidence is missing on pr_opened.\n";
+            work_prompt += "C4) PRODUCT DOCUMENTATION (HARD when product-facing — AGENTS.md Product documentation gate):\n";
+            work_prompt += "   Update or create Markdown under product-docs/ (usually product-docs/8.2/) for any\n";
+            work_prompt += "   operator-, admin-, integrator-, or end-user-facing change (WebUI, REST, install/config,\n";
+            work_prompt += "   publishing, sites, ACL with operator impact, etc.). docs/ engineering notes are NOT enough.\n";
+            work_prompt += "   Pure refactor / test-only / non-product-facing: mark N/A with one-line reason.\n";
             work_prompt += "D) Commit only in-scope files; do not dump monorepo-wide reformat or unrelated churn.\n";
             work_prompt += "E) Commit with a clear message referencing issue " + inum.to_string() + ".\n";
             work_prompt += "F) OPERATOR LABELS (required for daily status - create labels if missing):\n";
@@ -1310,7 +1315,9 @@ for item in queue {
             work_prompt += "   (If this agent is actually Kilo, use operator:kilo + model:<exact model id> instead of grok labels.)\n";
             work_prompt += "G) git push -u origin HEAD and gh pr create --base " + base_branch + "\n";
             work_prompt += "   with --label operator:grok --label operator:night-issue-prs --label model:grok-4.5\n";
-            work_prompt += "   body: Summary, Test plan, C3 evidence (modules_built, build_evidence commands+BUILD SUCCESS, downstream_checked), Fixes or Partial.\n";
+            work_prompt += "   body: Summary, Test plan, Product documentation checklist ([x] updated pages under product-docs/ OR [x] N/A reason),\n";
+            work_prompt += "   C3 evidence (modules_built, build_evidence commands+BUILD SUCCESS, downstream_checked), Fixes or Partial.\n";
+            work_prompt += "   Prefer the checklist shape from .github/pull_request_template.md.\n";
             work_prompt += "   Also put Operator: Grok: night-issue-prs (model grok-4.5) in the PR body.\n";
             work_prompt += "   Link PARENT tracker issue in the PR body when this is a slice.\n";
             work_prompt += "H) Do not merge.\n";
