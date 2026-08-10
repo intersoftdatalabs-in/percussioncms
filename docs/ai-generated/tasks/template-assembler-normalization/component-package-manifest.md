@@ -65,8 +65,8 @@ Paths inside the manifest are **package-relative**, always with `/` separators (
 | `cmsVersion` | object | no | `{ "min", "max" }` compatible CMS range |
 | `dependencies` | array | no | `{ "name", "version", "implied" }` |
 | `catalog` | object | no | Palette / UI metadata (see below) |
-| `contentTypes` | array | * | At least one of `contentTypes` or `templates` required |
-| `templates` | array | * | At least one of `contentTypes` or `templates` required |
+| `contentTypes` | array | * | Required (with templates) for non-gadget packages; optional when `catalog.kind = "gadget"` (#2771) |
+| `templates` | array | * | Required (with contentTypes) for non-gadget packages; optional when `catalog.kind = "gadget"` |
 | `slots` | array | no | Composition holes with optional layout/styles |
 | `resources` | array | no | CSS/JS/images |
 | `userPreferences` | array | no | Transitional from Widget `UserPref` |
@@ -77,8 +77,8 @@ Paths inside the manifest are **package-relative**, always with `/` separators (
 | Field | Type | Notes |
 |-------|------|-------|
 | `kind` | string | Default `component`; also `page`, `gadget`, … |
-| `title` | string | Palette title |
-| `category` | string | e.g. `content` |
+| `title` | string | Palette title (**required** when `kind = "gadget"`) |
+| `category` | string | e.g. `content` (gadget registry **group** maps here) |
 | `description` | string | |
 | `thumbnail` / `icon` | string | Package-relative resource path |
 | `author` | string | |

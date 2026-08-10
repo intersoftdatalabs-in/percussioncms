@@ -82,8 +82,24 @@ Redirect Management gadget assets already removed (issue #715 note in registry).
 3. Do **not** fold gadgets into assembly assemblers — separate “dashboard component catalog” track, same anti-XML packaging goal.
 4. Cross-link Home acceptance / gadget SPA work so this track only owns **packaging/registry** cleanup, not full gadget UX rewrite.
 
+## Gadget registry → catalog / package model (slice #2771)
+
+Compiler for upgrade-input `GadgetRegistry.xml` → modern ship format (landed after cluster #2766):
+
+| Artifact | Location |
+|----------|----------|
+| Parser / compiler / catalog IO | `modules/perc-packages/.../gadgetxml/PSGadgetRegistry*.java`, `PSGadgetCatalog*.java` |
+| Aggregate catalog ship file | `gadget-catalog.json` (`PSGadgetCatalog.DEFAULT_CATALOG_FILE_NAME`) |
+| Product modern catalog (authoring) | `modules/perc-packages/src/main/resources/catalogs/gadgets/gadget-catalog.json` |
+| Per-gadget packages | `component-package.json` with `catalog.kind = "gadget"` (no CT/templates required) |
+| Golden parity | Welcome (`cm1_welcome_gadget`) + full product catalog (21 entries) under `src/test/resources/gadgetxml/golden/` |
+| Validator rule | `PSComponentPackageManifestValidator` — `catalog.kind=gadget` requires `catalog.title`; CT/templates optional |
+
+**Still residual (not this slice):** WebUI runtime dual-load of `gadget-catalog.json` instead of `GadgetRegistry.xml` (SPA Home already has a parallel TS catalog); delete product `GadgetRegistry.xml` only after dual-load + QA.
+
 ## Related docs
 
 - `docs/ai-generated/tasks/completed/GADGET-MODERNIZATION-ANALYSIS.md`
 - `docs/ai-generated/tasks/home-acceptance-status.md`
 - `docs/ai-generated/tasks/design-templates-item-types/README.md` (Home/Gadgets dependencies)
+- [component-package-manifest.md](./component-package-manifest.md) (`catalog.kind = gadget`)

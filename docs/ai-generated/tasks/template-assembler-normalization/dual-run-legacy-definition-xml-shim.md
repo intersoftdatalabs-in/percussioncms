@@ -48,7 +48,7 @@ Hard order for a package root or definition id:
 | Widget definitions (install) | `${rxdeploydir}/rxconfig/Widgets/*.xml` via `PSWidgetDao` (`projects/sitemanage/.../dao/impl/PSWidgetDao`) | Loads legacy Widget XML by file id | Prefer modern package when present; XML remains fallback for unconverted customer defs |
 | Package source trees | `modules/perc-packages/src/main/resources/Packages/<pkg>/` | Ships product `.ppkg` content including `sys__UserDependency--rxconfig/Widgets/*.xml` | Product conversion (#2751+) emits modern manifest; product source of truth moves off XML (ADR-004) |
 | Package staging Widgets | `sys__UserDependency--rxconfig/Widgets/` or `rxconfig/Widgets/` under a package root | Upgrade-input / deploy layout | Shim package-root API resolves either layout |
-| Gadget registry | `WebUI/.../GadgetRegistry.xml` (+ residual definition XML) | Registry; per-gadget XML largely gone | Treat remaining definition XML as legacy only |
+| Gadget registry | `WebUI/.../GadgetRegistry.xml` (+ residual definition XML) | Registry; per-gadget XML largely gone | Modern: `gadget-catalog.json` + per-gadget packages (#2771); dual-load residual for WebUI |
 | Page meta / definition XML | Site/page storage dialects | Composition authoring legacy | Page conversion is Phase 3 residual; shim recognizes `rxconfig/Pages` if present |
 
 **Selection API (no Spring wiring required for unit use):**

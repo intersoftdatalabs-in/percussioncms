@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "1.0",
+  "id": "cm1_welcome_gadget",
+  "name": "Welcome",
+  "version": "8.2.0",
+  "description": "Dashboard gadget package for 'Welcome' (group=Percussion)",
+  "publisher": {
+    "name": "Intersoft Data Labs, Inc.",
+    "url": "https://www.intsof.com"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "gadget",
+    "title": "Welcome",
+    "category": "Percussion",
+    "description": "Dashboard gadget package for 'Welcome' (group=Percussion)",
+    "author": "Intersoft Data Labs, Inc.",
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [],
+  "slots": [],
+  "resources": [
+    {
+      "path": "resources/host-ref.txt",
+      "target": "cm/gadgets/repository/cm1_welcome_gadget",
+      "type": "file"
+    }
+  ],
+  "userPreferences": [],
+  "cssPreferences": []
+}

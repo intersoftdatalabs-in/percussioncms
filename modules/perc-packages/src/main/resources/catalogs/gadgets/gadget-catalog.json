@@ -1,0 +1,198 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.gadgetCatalog",
+  "name": "Product Gadget Catalog",
+  "version": "8.2.0",
+  "description": "Modern product gadget catalog compiled from GadgetRegistry.xml (ADR-004 / #2771)",
+  "gadgets": [
+    {
+      "id": "PercAssetStatusGadget",
+      "name": "Assets By Status",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/PercAssetStatusGadget",
+      "legacyDefinitionFile": "PercAssetStatusGadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/PercAssetStatusGadget/component-package.json"
+    },
+    {
+      "id": "PercBlogsGadget",
+      "name": "Blogs",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/PercBlogsGadget",
+      "legacyDefinitionFile": "PercBlogsGadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/PercBlogsGadget/component-package.json"
+    },
+    {
+      "id": "perc_bulk_file_upload_gadget",
+      "name": "Bulk Upload",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/perc_bulk_file_upload_gadget",
+      "legacyDefinitionFile": "perc_bulk_file_upload_gadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/perc_bulk_file_upload_gadget/component-package.json"
+    },
+    {
+      "id": "perc_comments_gadget",
+      "name": "Comments",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/perc_comments_gadget",
+      "legacyDefinitionFile": "perc_comments_gadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/perc_comments_gadget/component-package.json"
+    },
+    {
+      "id": "perc_cookie_consent_gadget",
+      "name": "Cookie Consent",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/perc_cookie_consent_gadget",
+      "legacyDefinitionFile": "perc_cookie_consent_gadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/perc_cookie_consent_gadget/component-package.json"
+    },
+    {
+      "id": "PercFormTrackerGadget",
+      "name": "Forms Tracker",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/PercFormTrackerGadget",
+      "legacyDefinitionFile": "PercFormTrackerGadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/PercFormTrackerGadget/component-package.json"
+    },
+    {
+      "id": "PercGlobalVariablesGadget",
+      "name": "Global Variables",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/PercGlobalVariablesGadget",
+      "legacyDefinitionFile": "PercGlobalVariablesGadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/PercGlobalVariablesGadget/component-package.json"
+    },
+    {
+      "id": "perc_google_setup_gadget",
+      "name": "Google Setup",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/perc_google_setup_gadget",
+      "legacyDefinitionFile": "perc_google_setup_gadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/perc_google_setup_gadget/component-package.json"
+    },
+    {
+      "id": "perc_iframe_gadget",
+      "name": "Iframe",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/perc_iframe_gadget",
+      "legacyDefinitionFile": "perc_iframe_gadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/perc_iframe_gadget/component-package.json"
+    },
+    {
+      "id": "perc_workflow_status_gadget",
+      "name": "Pages By Status",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/perc_workflow_status_gadget",
+      "legacyDefinitionFile": "perc_workflow_status_gadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/perc_workflow_status_gadget/component-package.json"
+    },
+    {
+      "id": "PercProcessorMonitorGadget",
+      "name": "Process Monitor",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/PercProcessorMonitorGadget",
+      "legacyDefinitionFile": "PercProcessorMonitorGadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/PercProcessorMonitorGadget/component-package.json"
+    },
+    {
+      "id": "perc_reports_gadget",
+      "name": "Reports",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/perc_reports_gadget",
+      "legacyDefinitionFile": "perc_reports_gadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/perc_reports_gadget/component-package.json"
+    },
+    {
+      "id": "perc_seo_gadget",
+      "name": "SEO Audit",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/perc_seo_gadget",
+      "legacyDefinitionFile": "perc_seo_status_gadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/perc_seo_gadget/component-package.json"
+    },
+    {
+      "id": "PercSiteFrameworkGadget",
+      "name": "Sitewide Framework",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/PercSiteFrameworkGadget",
+      "legacyDefinitionFile": "perc_sitewide_framework_gadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/PercSiteFrameworkGadget/component-package.json"
+    },
+    {
+      "id": "perc_traffic_gadget",
+      "name": "Traffic",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/perc_traffic_gadget",
+      "legacyDefinitionFile": "perc_traffic_gadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/perc_traffic_gadget/component-package.json"
+    },
+    {
+      "id": "cm1_welcome_gadget",
+      "name": "Welcome",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/cm1_welcome_gadget",
+      "legacyDefinitionFile": "perc_welcome_gadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/cm1_welcome_gadget/component-package.json"
+    },
+    {
+      "id": "perc_effectiveness_gadget",
+      "name": "What's Working",
+      "group": "Percussion",
+      "baseUri": "/cm/gadgets/repository/perc_effectiveness_gadget",
+      "legacyDefinitionFile": "perc_effectiveness_gadget.xml",
+      "deprecated": false,
+      "componentPackageRef": "gadgets/perc_effectiveness_gadget/component-package.json"
+    },
+    {
+      "id": "perc_activity_gadget",
+      "name": "Activity",
+      "group": "Deprecated",
+      "baseUri": "/cm/gadgets/repository/perc_activity_gadget",
+      "legacyDefinitionFile": "perc_activity_gadget.xml",
+      "deprecated": true,
+      "componentPackageRef": "gadgets/perc_activity_gadget/component-package.json"
+    },
+    {
+      "id": "perc_site_improve_gadget",
+      "name": "Siteimprove",
+      "group": "Deprecated",
+      "baseUri": "/cm/gadgets/repository/perc_site_improve_gadget",
+      "legacyDefinitionFile": "perc_site_improve_gadget.xml",
+      "deprecated": true,
+      "componentPackageRef": "gadgets/perc_site_improve_gadget/component-package.json"
+    },
+    {
+      "id": "perc_membership_gadget",
+      "name": "Membership",
+      "group": "Deprecated",
+      "baseUri": "/cm/gadgets/repository/perc_membership_gadget",
+      "legacyDefinitionFile": "perc_membership_gadget.xml",
+      "deprecated": true,
+      "componentPackageRef": "gadgets/perc_membership_gadget/component-package.json"
+    },
+    {
+      "id": "PercWidgetConfigGadget",
+      "name": "Widget Configuration",
+      "group": "Deprecated",
+      "baseUri": "/cm/gadgets/repository/PercWidgetConfigGadget",
+      "legacyDefinitionFile": "PercWidgetConfigGadget.xml",
+      "deprecated": true,
+      "componentPackageRef": "gadgets/PercWidgetConfigGadget/component-package.json"
+    }
+  ]
+}

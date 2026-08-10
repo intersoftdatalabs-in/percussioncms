@@ -60,3 +60,16 @@ Compiler for upgrade-input Widget XML → Component Package Manifest (baseWidget
 | Inventory + residuals | [../widget-xml-inventory.md](../widget-xml-inventory.md) |
 
 High-traffic package conversion and product XML removal remain residual under #2630.
+
+## Gadget registry compiler (slice #2771)
+
+Compiler for upgrade-input `GadgetRegistry.xml` → aggregate `gadget-catalog.json` + per-gadget `component-package.json` (`catalog.kind = "gadget"`):
+
+| Artifact | Location |
+|----------|----------|
+| Parser / compiler / catalog IO | `modules/perc-packages/.../gadgetxml/PSGadgetRegistry*.java`, `PSGadgetCatalog*.java` |
+| Product modern catalog | `modules/perc-packages/src/main/resources/catalogs/gadgets/gadget-catalog.json` |
+| Golden parity (Welcome + full catalog) | `modules/perc-packages/src/test/resources/gadgetxml/golden/` |
+| Inventory + residuals | [../gadget-definition-inventory.md](../gadget-definition-inventory.md) |
+
+Gadgets are SPA/dashboard hosts (not assembly templates). Validator allows gadget packages without `contentTypes[]` / `templates[]` when `catalog.kind = "gadget"` and `catalog.title` is set. WebUI dual-load of JSON catalog (retire `GadgetRegistry.xml` at runtime) remains residual.
