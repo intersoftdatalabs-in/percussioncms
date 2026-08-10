@@ -18,11 +18,17 @@
 package com.percussion.rest.displayformat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.rest.Guid;
+import com.percussion.rest.JacksonContextResolver;
 import java.io.IOException;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
+@Tag("UnitTest")
 public class TestDisplayFormat {
 
   @Test
@@ -34,14 +40,31 @@ public class TestDisplayFormat {
 
     var mapper = JsonMapper.builder().build();
     var json = mapper.writeValueAsString(f);
-    System.out.println(json);
 
     var d2 = mapper.readValue(json, DisplayFormat.class);
 
     assertEquals("DescriptionTest", d2.getDescription());
     assertEquals("DisplayNameTest", d2.getDisplayName());
     assertEquals("InternalNameTest", d2.getInternalName());
+  }
 
-    // TODO: Finish me - test all the properties
+  /**
+   * Developer SPA reads {@code detail.guid.stringValue} for Object ACL. REST Jackson mapper must
+   * emit {@code stringValue} under the DisplayFormat root wrap (issue #2689).
+   */
+  @Test
+  public void jacksonContextResolver_serializesGuidStringValueUnderRootWrap() {
+    DisplayFormat f = new DisplayFormat();
+    f.setName("By_Author");
+    f.setLabel("By Author");
+    f.setGuid(new Guid("0-11-5"));
+
+    ObjectMapper mapper = new JacksonContextResolver().getContext(DisplayFormat.class);
+    String json = mapper.writeValueAsString(f);
+
+    assertTrue(json.contains("\"DisplayFormat\""), "expected WRAP_ROOT_VALUE: " + json);
+    assertTrue(json.contains("\"stringValue\""), json);
+    assertTrue(json.contains("0-11-5"), json);
+    assertTrue(json.contains("By_Author"), json);
   }
 }

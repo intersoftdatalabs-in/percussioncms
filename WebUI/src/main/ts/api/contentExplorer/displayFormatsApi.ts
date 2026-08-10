@@ -79,10 +79,37 @@ export async function listDisplayFormats(
   return asArray<DisplayFormat>(payload);
 }
 
+/**
+ * Unwrap Jackson root wrap for a single display format
+ * ({@code {"DisplayFormat":{…}}}) so {@code guid.stringValue} is reachable
+ * (issue #2689). Flat payloads pass through.
+ */
+export function unwrapDisplayFormat(payload: unknown): DisplayFormat {
+  if (payload == null) {
+    return {};
+  }
+  if (typeof payload !== "object" || Array.isArray(payload)) {
+    return {};
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.DisplayFormat ?? root.displayFormat;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested as DisplayFormat;
+  }
+  if (Array.isArray(nested) && nested.length > 0) {
+    const first = nested[0];
+    if (first != null && typeof first === "object") {
+      return first as DisplayFormat;
+    }
+  }
+  return root as DisplayFormat;
+}
+
 /** GET /services/displayformats/{idOrName} */
 export async function getDisplayFormatDetail(
   idOrName: string,
 ): Promise<DisplayFormat> {
   const key = encodeURIComponent(idOrName);
-  return get<DisplayFormat>(`${PATHS.DISPLAY_FORMATS}/${key}`);
+  const payload = await get<unknown>(`${PATHS.DISPLAY_FORMATS}/${key}`);
+  return unwrapDisplayFormat(payload);
 }
