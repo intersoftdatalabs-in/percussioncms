@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -113,10 +114,32 @@ public class InstallUtilRunningServerTest {
     assertNull(InstallUtil.resolveTomcatPortToken(null, p));
   }
 
+  /**
+   * UDP-only holders must not make a TCP port look unavailable (install/DTS probes are TCP-only).
+   * Repeat several iterations so intermittent Windows Winsock SO_REUSEADDR+UDP races surface in
+   * CI rather than only occasionally (GH-2779).
+   */
   @Test
   void portAvailable_ignoresUdpBinding() throws Exception {
-    try (DatagramSocket hold = new DatagramSocket(0)) {
-      assertTrue(InstallUtil.portAvailable(hold.getLocalPort()));
+    final int iterations = 25;
+    for (int i = 0; i < iterations; i++) {
+      final int iteration = i;
+      // Bind explicitly (reuse off) so the hold is a pure UDP exclusive binding.
+      try (DatagramSocket hold = new DatagramSocket(null)) {
+        hold.setReuseAddress(false);
+        hold.bind(new InetSocketAddress(0));
+        final int port = hold.getLocalPort();
+        assertTrue(
+            InstallUtil.portAvailable(port),
+            () ->
+                "UDP-only binding on port "
+                    + port
+                    + " must leave TCP available (iteration "
+                    + iteration
+                    + " of "
+                    + iterations
+                    + ")");
+      }
     }
   }
 
@@ -124,10 +147,20 @@ public class InstallUtilRunningServerTest {
   void portAvailable_roundTrip() throws Exception {
     int free = findFreePort();
     assertTrue(InstallUtil.portAvailable(free));
-    try (ServerSocket hold = new ServerSocket(free)) {
-      hold.setReuseAddress(true);
-      assertFalse(InstallUtil.portAvailable(free));
+    try (ServerSocket hold = new ServerSocket()) {
+      // Bind first without reuse so the hold is an exclusive TCP listener (matches product
+      // sockets and avoids Windows dual-SO_REUSEADDR ambiguity).
+      hold.setReuseAddress(false);
+      hold.bind(new InetSocketAddress(free));
+      assertFalse(
+          InstallUtil.portAvailable(free),
+          "exclusive TCP listener must make portAvailable return false");
     }
+    // After close, TIME_WAIT may briefly hold the port; phase-2 SO_REUSEADDR should still
+    // report available so offline detection is not stuck busy.
+    assertTrue(
+        InstallUtil.portAvailable(free),
+        "port must look available again after TCP holder closed (TIME_WAIT tolerant)");
   }
 
   /**
