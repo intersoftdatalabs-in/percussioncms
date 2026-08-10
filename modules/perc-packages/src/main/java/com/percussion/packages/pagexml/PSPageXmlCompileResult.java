@@ -1,0 +1,60 @@
+/*
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.percussion.packages.pagexml;
+
+import com.percussion.packages.manifest.PSComponentPackageManifest;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+
+/**
+ * Output of compiling a single Page {@code *.templateDef}: modern manifest + package-relative text
+ * artifacts (template sources keyed by the same paths referenced from the manifest).
+ */
+public final class PSPageXmlCompileResult {
+
+  private final PSPageXmlModel source;
+  private final PSComponentPackageManifest manifest;
+  /** Package-relative path → UTF-8 text (e.g. {@code templates/perc.base.plain.vm}). */
+  private final Map<String, String> textArtifacts;
+
+  public PSPageXmlCompileResult(
+      PSPageXmlModel source,
+      PSComponentPackageManifest manifest,
+      Map<String, String> textArtifacts) {
+    this.source = Objects.requireNonNull(source, "source");
+    this.manifest = Objects.requireNonNull(manifest, "manifest");
+    this.textArtifacts =
+        textArtifacts == null
+            ? Map.of()
+            : Collections.unmodifiableMap(new LinkedHashMap<>(textArtifacts));
+  }
+
+  public PSPageXmlModel getSource() {
+    return source;
+  }
+
+  public PSComponentPackageManifest getManifest() {
+    return manifest;
+  }
+
+  public Map<String, String> getTextArtifacts() {
+    return textArtifacts;
+  }
+}

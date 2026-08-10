@@ -52,6 +52,7 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | [component-package-manifest.md](./component-package-manifest.md) | Phase 3 ship-format manifest schema v1.0 + Java model |
 | [widget-xml-inventory.md](./widget-xml-inventory.md) | Product widget matrix (48 defs) |
 | [widget-xml-inventory.csv](./widget-xml-inventory.csv) | Machine-readable inventory |
+| [page-definition-inventory.md](./page-definition-inventory.md) | Product page `*.templateDef` inventory + compiler (#2770) |
 | [gadget-definition-inventory.md](./gadget-definition-inventory.md) | Gadget XML / SPA survey |
 | [dual-run-legacy-definition-xml-shim.md](./dual-run-legacy-definition-xml-shim.md) | Phase 3 dual-run operator policy + runtime shim selection (#2752) |
 | [adr/](./adr/) | Architecture decision records |
@@ -76,6 +77,7 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | Widget packages | `modules/perc-packages/.../rxconfig/Widgets/` |
 | Component package manifest | `modules/perc-packages/.../manifest/PSComponentPackageManifest*.java` |
 | Widget XML compiler | `modules/perc-packages/.../widgetxml/PSWidgetXmlCompiler.java` (#2751) |
+| Page templateDef compiler | `modules/perc-packages/.../pagexml/PSPageXmlCompiler.java` (#2770) |
 | Dual-run definition source shim | `modules/perc-packages/.../shim/PSLegacyDefinitionXmlShim.java` |
 | Gadget registry | `WebUI/src/main/resources/com/percussion/webui/gadget/servlets/GadgetRegistry.xml` |
 
