@@ -310,10 +310,7 @@ public class PSCmsObjectMgr
         try {
             @SuppressWarnings("unchecked")
             List<Object[]> rows =
-                    session
-                            .createNativeQuery(
-                                    "select ACTIONID, CHILDACTIONID from RXMENUACTIONRELATION")
-                            .getResultList();
+                    session.createNativeQuery(ACTION_MENU_RELATION_SQL).getResultList();
             if (rows != null) {
                 for (Object[] row : rows) {
                     if (row == null || row.length < 2 || row[0] == null || row[1] == null) {
@@ -332,6 +329,25 @@ public class PSCmsObjectMgr
         }
         return com.percussion.services.menus.PSActionMenuTreeAssembler.assemble(all, pairs);
     }
+
+    /**
+     * Native SQL for {@code RXMENUACTIONRELATION} edges used by {@link #findActionMenusTree()}.
+     * Column/table names match the product schema ({@code RXMENUACTION} cascade tables).
+     * Kept as a single constant so renames are not silent string drift across callers.
+     */
+    static final String ACTION_MENU_RELATION_TABLE = "RXMENUACTIONRELATION";
+
+    static final String ACTION_MENU_RELATION_PARENT_COL = "ACTIONID";
+
+    static final String ACTION_MENU_RELATION_CHILD_COL = "CHILDACTIONID";
+
+    static final String ACTION_MENU_RELATION_SQL =
+            "select "
+                    + ACTION_MENU_RELATION_PARENT_COL
+                    + ", "
+                    + ACTION_MENU_RELATION_CHILD_COL
+                    + " from "
+                    + ACTION_MENU_RELATION_TABLE;
 
     public List<PSActionMenu> findActionMenusByType(String type) {
         Session session = getSession();

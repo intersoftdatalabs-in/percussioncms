@@ -65,8 +65,89 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     var mgr = PSCmsObjectMgrLocator.getObjectManager();
     // Nested tree (roots + children) so Explorer ActionToolbar can render
     // cascading MENUs as dropdowns instead of a flat multi-row button dump (#2730).
-    // Filters name/label/item/dynamic/cascading remain future work on the tree.
-    return ApiUtils.convertPSActionMenuList(mgr.findActionMenusTree());
+    List<ActionMenu> tree = ApiUtils.convertPSActionMenuList(mgr.findActionMenusTree());
+    return filterMenus(tree, name, label, item, dynamic, cascading);
+  }
+
+  /**
+   * Applies REST query filters to a converted menu list (roots only; children stay
+   * attached for matching cascading roots). Package-visible for unit tests.
+   *
+   * <ul>
+   *   <li>{@code name} / {@code label} — case-insensitive substring match
+   *   <li>{@code item} — {@code true} keeps {@code MENUITEM}; {@code false} excludes them
+   *   <li>{@code dynamic} — {@code true} keeps {@code MENU} with non-blank URL; {@code false}
+   *       keeps non-dynamic menus
+   *   <li>{@code cascading} — {@code true} keeps {@code MENU} with blank URL; {@code false}
+   *       excludes cascading menus
+   * </ul>
+   *
+   * Null filter args mean "no constraint". All non-null filters AND together.
+   */
+  static List<ActionMenu> filterMenus(
+      List<ActionMenu> menus,
+      String name,
+      String label,
+      Boolean item,
+      Boolean dynamic,
+      Boolean cascading) {
+    if (menus == null || menus.isEmpty()) {
+      return menus == null ? Collections.emptyList() : menus;
+    }
+    if (name == null
+        && label == null
+        && item == null
+        && dynamic == null
+        && cascading == null) {
+      return menus;
+    }
+    String nameNeedle = name == null ? null : name.trim().toLowerCase();
+    String labelNeedle = label == null ? null : label.trim().toLowerCase();
+    List<ActionMenu> out = new ArrayList<>(menus.size());
+    for (ActionMenu m : menus) {
+      if (m != null && menuMatches(m, nameNeedle, labelNeedle, item, dynamic, cascading)) {
+        out.add(m);
+      }
+    }
+    return out;
+  }
+
+  private static boolean menuMatches(
+      ActionMenu m,
+      String nameNeedle,
+      String labelNeedle,
+      Boolean item,
+      Boolean dynamic,
+      Boolean cascading) {
+    if (nameNeedle != null && !nameNeedle.isEmpty()) {
+      String n = m.getName() == null ? "" : m.getName().toLowerCase();
+      if (!n.contains(nameNeedle)) {
+        return false;
+      }
+    }
+    if (labelNeedle != null && !labelNeedle.isEmpty()) {
+      String l = m.getLabel() == null ? "" : m.getLabel().toLowerCase();
+      if (!l.contains(labelNeedle)) {
+        return false;
+      }
+    }
+    String type = m.getMenuType() == null ? "" : m.getMenuType();
+    boolean isItem = "MENUITEM".equalsIgnoreCase(type);
+    boolean isMenu = "MENU".equalsIgnoreCase(type);
+    String url = m.getUrl() == null ? "" : m.getUrl().trim();
+    boolean isDynamicMenu = isMenu && !url.isEmpty();
+    boolean isCascadingMenu = isMenu && url.isEmpty();
+
+    if (item != null && item.booleanValue() != isItem) {
+      return false;
+    }
+    if (dynamic != null && dynamic.booleanValue() != isDynamicMenu) {
+      return false;
+    }
+    if (cascading != null && cascading.booleanValue() != isCascadingMenu) {
+      return false;
+    }
+    return true;
   }
 
   @Override
