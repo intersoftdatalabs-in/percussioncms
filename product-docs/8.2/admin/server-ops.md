@@ -1,13 +1,13 @@
 ---
 id: admin-server-ops
-title: Server operations
+title: Server Operations
 description: Start, stop, logs, and operational basics for Percussion CMS 8.2
 version: "8.2"
 order: 44
 tags: [admin, operations]
 ---
 
-# Server operations
+# Server Operations
 
 Day-to-day control of the CMS process, logs, and configuration surfaces.
 

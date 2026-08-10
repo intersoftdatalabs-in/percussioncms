@@ -33,7 +33,7 @@ channels (static files, FTP, database, custom locations).
 
 For Git/filesystem Virtual Sites such as product documentation:
 
-- Offline / CI builds use `scripts/build-cms-docs` to emit static HTML without a full CMS UI session.
+- Offline / CI builds use `scripts/build-cms-docs.bat` / `scripts/build-cms-docs.sh` to emit static HTML without a full CMS UI session.
 - Runtime virtual assemble paths (when configured on a Site) participate in normal Site-level publishing configuration where applicable.
 
 See [Virtual Sites](id:developer-virtual-sites) and [Build product docs](id:developer-build-source#product-docs-build).

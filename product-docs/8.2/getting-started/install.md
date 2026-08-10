@@ -53,7 +53,7 @@ Exact wizard screens differ by platform, but the flow is consistent:
 
 ### Docker / evaluation
 
-Repository `docker/` and compose files support evaluation and QA-style environments (including H2
+Repository `docker/` scripts and the root `docker-compose.yml` support evaluation and QA-style environments (including H2
 QA mode for automated testing). Prefer documented `perc-devctl` / compose flows for agent and
 developer QA rather than one-off container recipes.
 
