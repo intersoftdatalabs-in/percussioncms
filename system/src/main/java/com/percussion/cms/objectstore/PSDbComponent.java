@@ -426,9 +426,9 @@ public abstract class PSDbComponent implements IPSDbComponent {
    * #fromXml(Element)} after construction.
    *
    * <p>Resolves the key class from the element node name (PSXFoo → PSFoo) by trying known key
-   * packages in order: {@code com.percussion.cms.objectstore} first (typical {@link PSKey} /
-   * {@link PSSimpleKey}), then {@code com.percussion.design.objectstore} (e.g. {@code PSLocator}).
-   * Virtual {@link #createKey(Element)} overrides remain the path for specialized keys after full
+   * packages in order: {@code com.percussion.cms.objectstore} first (typical {@link PSKey} / {@link
+   * PSSimpleKey}), then {@code com.percussion.design.objectstore} (e.g. {@code PSLocator}). Virtual
+   * {@link #createKey(Element)} overrides remain the path for specialized keys after full
    * construction.
    */
   private PSKey createKeyDefault(Element el) throws PSUnknownNodeTypeException {
@@ -469,9 +469,7 @@ public abstract class PSDbComponent implements IPSDbComponent {
       } catch (InvocationTargetException ite) {
         Throwable origException = ite.getTargetException();
         String msg = origException.getLocalizedMessage();
-        String[] args = {
-          strClassName, typeLabel, origException.getClass().getName() + ": " + msg
-        };
+        String[] args = {strClassName, typeLabel, origException.getClass().getName() + ": " + msg};
         throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
       } catch (NoSuchMethodException nsme) {
         String[] args = {strClassName, typeLabel, nsme.getLocalizedMessage()};

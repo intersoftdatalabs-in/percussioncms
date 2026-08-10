@@ -124,7 +124,9 @@ public class PSItemWorkflowServiceCycleLazyWiringTest {
     Parameter param = findParamOfType(ctor, paramType);
     assertNotNull(
         param,
-        "Expected a " + paramType.getSimpleName() + " constructor parameter on PSItemWorkflowService");
+        "Expected a "
+            + paramType.getSimpleName()
+            + " constructor parameter on PSItemWorkflowService");
     assertTrue(param.isAnnotationPresent(Lazy.class), message);
   }
 

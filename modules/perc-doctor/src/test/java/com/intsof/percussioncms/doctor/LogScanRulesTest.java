@@ -36,8 +36,7 @@ class LogScanRulesTest {
 
   @Test
   void errorLineDetected() {
-    String text =
-        "INFO boot\n" + "2026-08-09 01:00:01,000 ERROR [PSSomething] boom failed\n";
+    String text = "INFO boot\n" + "2026-08-09 01:00:01,000 ERROR [PSSomething] boom failed\n";
     String match = LogScanRules.findStartupError(text);
     assertNotNull(match);
     assertTrue(match.contains("ERROR"));
@@ -57,8 +56,7 @@ class LogScanRulesTest {
         LogScanRules.findStartupError("WARN Failed startup of context Rhythmyx\n")
             .contains("Failed startup of context"));
     assertNotNull(
-        LogScanRules.findStartupError(
-            "BeanCurrentlyInCreationException: folderHelper\n"));
+        LogScanRules.findStartupError("BeanCurrentlyInCreationException: folderHelper\n"));
   }
 
   @Test

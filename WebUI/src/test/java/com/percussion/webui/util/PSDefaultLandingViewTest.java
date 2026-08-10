@@ -87,8 +87,7 @@ public class PSDefaultLandingViewTest {
   @Test
   public void roleOnlyUsersResolveHomeDashEditorWithoutGating() {
     // Contributor / Editor users: Home, Dashboard, Editor always allowed
-    assertEquals(
-        VIEW_HOME, PSDefaultLandingView.resolveAuthorizedView(TYPE_HOME, false, false));
+    assertEquals(VIEW_HOME, PSDefaultLandingView.resolveAuthorizedView(TYPE_HOME, false, false));
     assertEquals(
         VIEW_DASH, PSDefaultLandingView.resolveAuthorizedView(TYPE_DASHBOARD, false, false));
     assertEquals(
@@ -101,16 +100,14 @@ public class PSDefaultLandingViewTest {
         VIEW_HOME, PSDefaultLandingView.resolveAuthorizedView(TYPE_DESIGNER, false, false));
     assertEquals(
         VIEW_HOME, PSDefaultLandingView.resolveAuthorizedView(TYPE_ARCHITECTURE, false, false));
-    assertEquals(
-        VIEW_HOME, PSDefaultLandingView.resolveAuthorizedView(TYPE_PUBLISH, false, false));
+    assertEquals(VIEW_HOME, PSDefaultLandingView.resolveAuthorizedView(TYPE_PUBLISH, false, false));
     assertEquals(
         VIEW_HOME, PSDefaultLandingView.resolveAuthorizedView(TYPE_WIDGET_BUILDER, false, false));
   }
 
   @Test
   public void workflowIsAdminOnlyDesignerCannotOpen() {
-    assertEquals(
-        VIEW_HOME, PSDefaultLandingView.resolveAuthorizedView(TYPE_WORKFLOW, false, true));
+    assertEquals(VIEW_HOME, PSDefaultLandingView.resolveAuthorizedView(TYPE_WORKFLOW, false, true));
     assertEquals(
         VIEW_WORKFLOW, PSDefaultLandingView.resolveAuthorizedView(TYPE_WORKFLOW, true, false));
     assertEquals(

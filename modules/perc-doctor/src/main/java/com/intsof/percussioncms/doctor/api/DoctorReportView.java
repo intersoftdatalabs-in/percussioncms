@@ -109,10 +109,7 @@ public class DoctorReportView {
     for (CleanReport.Entry e : report.getEntries()) {
       list.add(
           new EntryView(
-              e.getPath().toString(),
-              e.getSizeBytes(),
-              e.getStatus().name(),
-              e.getDetail()));
+              e.getPath().toString(), e.getSizeBytes(), e.getStatus().name(), e.getDetail()));
     }
     view.entries = list;
     return view;

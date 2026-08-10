@@ -68,8 +68,7 @@ public class SearchAdaptor implements ISearchAdaptor {
   private final IPSIdMapper idMapper;
 
   @Autowired
-  public SearchAdaptor(
-      IPSUiDesignWs designWs, IPSFolderHelper folderHelper, IPSIdMapper idMapper) {
+  public SearchAdaptor(IPSUiDesignWs designWs, IPSFolderHelper folderHelper, IPSIdMapper idMapper) {
     this.designWs = designWs;
     this.folderHelper = folderHelper;
     this.idMapper = idMapper;
@@ -139,7 +138,8 @@ public class SearchAdaptor implements ISearchAdaptor {
 
       SearchExecuteResult result = new SearchExecuteResult();
       result.setChildren(new ArrayList<>(page.getChildrenInPage()));
-      result.setTotalCount(page.getChildrenCount() != null ? page.getChildrenCount() : allItems.size());
+      result.setTotalCount(
+          page.getChildrenCount() != null ? page.getChildrenCount() : allItems.size());
       result.setStartIndex(page.getStartIndex() != null ? page.getStartIndex() : startIndex);
       result.setSearchName(design.getName());
       result.setDisplayFormatId(design.getDisplayFormatId());
@@ -277,7 +277,8 @@ public class SearchAdaptor implements ISearchAdaptor {
     item.setType(type);
 
     try {
-      var myGuid = PSGuidUtils.makeGuid(Integer.parseInt(contentId.trim()), PSTypeEnum.LEGACY_CONTENT);
+      var myGuid =
+          PSGuidUtils.makeGuid(Integer.parseInt(contentId.trim()), PSTypeEnum.LEGACY_CONTENT);
       String stringId = idMapper.getString(myGuid);
       item.setId(stringId);
       if (folderHelper.getParentFolderId(myGuid, false) == null) {

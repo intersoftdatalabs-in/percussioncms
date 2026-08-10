@@ -19,7 +19,6 @@ package com.percussion.auditlog;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.lang.reflect.Modifier;
@@ -114,9 +113,7 @@ public class AuditEventConstructorsTest {
   void userManagementConstructor() {
     PSUserManagementEvent event =
         new PSUserManagementEvent(
-            request,
-            PSUserManagementEvent.UserEventActions.create,
-            PSActionOutcome.FAILURE);
+            request, PSUserManagementEvent.UserEventActions.create, PSActionOutcome.FAILURE);
     assertEquals(PSUserManagementEvent.UserEventActions.create, event.getAction());
     assertEquals("editor", event.getIniatorName());
     assertEquals("editor", event.getTargetName());

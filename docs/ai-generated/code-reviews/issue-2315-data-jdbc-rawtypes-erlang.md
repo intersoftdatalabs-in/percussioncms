@@ -15,14 +15,14 @@ Also unblocks a **pre-existing** main compile break: `PSNavonNodeInvocationHandl
 
 ## Scope
 
-| Path | Change |
-| --- | --- |
-| `system/.../data/PSResultSet.java` | `HashMap<String,Integer>` name map; `List<?>[]` / `List<Object>[]` column data; typed getters |
+|                           Path                           |                                                    Change                                                     |
+|----------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| `system/.../data/PSResultSet.java`                       | `HashMap<String,Integer>` name map; `List<?>[]` / `List<Object>[]` column data; typed getters                 |
 | `system/.../data/jdbc/PSFileSystemDatabaseMetaData.java` | Typed ArrayLists/HashMaps for getTables/getCatalogs/getTableTypes/getColumns/getPrimaryKeys; typed Comparator |
-| `system/.../data/jdbc/PSXmlDatabaseMetaData.java` | Same pattern for getTables/getTableTypes/getColumns helpers + cgi static lists; typed Comparator |
-| `system/.../nav/PSNavonNodeInvocationHandler.java` | Unchecked cast of `getMap()` for typed HashMap copy (build unblocker) |
-| Tests | `PSResultSetTypedConstructionTest`, `PSFileSystemDatabaseMetaDataTypedTest` |
-| This report | Durable Erlang artifact |
+| `system/.../data/jdbc/PSXmlDatabaseMetaData.java`        | Same pattern for getTables/getTableTypes/getColumns helpers + cgi static lists; typed Comparator              |
+| `system/.../nav/PSNavonNodeInvocationHandler.java`       | Unchecked cast of `getMap()` for typed HashMap copy (build unblocker)                                         |
+| Tests                                                    | `PSResultSetTypedConstructionTest`, `PSFileSystemDatabaseMetaDataTypedTest`                                   |
+| This report                                              | Durable Erlang artifact                                                                                       |
 
 ## Issues
 
@@ -45,15 +45,16 @@ _None at bug severity._
 
 ## Verification
 
-| Check | Result |
-| --- | --- |
-| Focused tests | `PSResultSetTypedConstructionTest` (2), `PSFileSystemDatabaseMetaDataTypedTest` (2) green |
-| `cd system && ../mvnw.cmd clean install` | BUILD SUCCESS |
-| Module surefire | failures=0, errors=0 |
-| Touched production files | residual rawtypes/unchecked cleared on parameterized sites |
+|                  Check                   |                                          Result                                           |
+|------------------------------------------|-------------------------------------------------------------------------------------------|
+| Focused tests                            | `PSResultSetTypedConstructionTest` (2), `PSFileSystemDatabaseMetaDataTypedTest` (2) green |
+| `cd system && ../mvnw.cmd clean install` | BUILD SUCCESS                                                                             |
+| Module surefire                          | failures=0, errors=0                                                                      |
+| Touched production files                 | residual rawtypes/unchecked cleared on parameterized sites                                |
 
 ## Gate
 
 No bugs, behavioral tests present for changed construction logic, portable I/O. **approve**.
 
 > Co-Authored by Grok Build using grok-4.5 with agent main.
+

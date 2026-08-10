@@ -60,22 +60,30 @@ public final class DiagnoseReport {
       this.path = path;
     }
 
-    /** @return stable check id */
+    /**
+     * @return stable check id
+     */
     public String getId() {
       return id;
     }
 
-    /** @return outcome severity */
+    /**
+     * @return outcome severity
+     */
     public CheckStatus getStatus() {
       return status;
     }
 
-    /** @return human-readable detail */
+    /**
+     * @return human-readable detail
+     */
     public String getMessage() {
       return message;
     }
 
-    /** @return related path, or null */
+    /**
+     * @return related path, or null
+     */
     public Path getPath() {
       return path;
     }
@@ -102,12 +110,16 @@ public final class DiagnoseReport {
     checks.add(Objects.requireNonNull(check, "check"));
   }
 
-  /** @return command token */
+  /**
+   * @return command token
+   */
   public String getCommand() {
     return command;
   }
 
-  /** @return install root used for this run */
+  /**
+   * @return install root used for this run
+   */
   public Path getInstallRoot() {
     return installRoot;
   }
@@ -122,32 +134,44 @@ public final class DiagnoseReport {
     return dryRun;
   }
 
-  /** @return unmodifiable checklist */
+  /**
+   * @return unmodifiable checklist
+   */
   public List<Check> getChecks() {
     return Collections.unmodifiableList(checks);
   }
 
-  /** @return number of checks */
+  /**
+   * @return number of checks
+   */
   public int getCheckCount() {
     return checks.size();
   }
 
-  /** @return count of {@link CheckStatus#PASS} */
+  /**
+   * @return count of {@link CheckStatus#PASS}
+   */
   public int getPassCount() {
     return count(CheckStatus.PASS);
   }
 
-  /** @return count of {@link CheckStatus#WARN} */
+  /**
+   * @return count of {@link CheckStatus#WARN}
+   */
   public int getWarnCount() {
     return count(CheckStatus.WARN);
   }
 
-  /** @return count of {@link CheckStatus#FAIL} */
+  /**
+   * @return count of {@link CheckStatus#FAIL}
+   */
   public int getFailCount() {
     return count(CheckStatus.FAIL);
   }
 
-  /** @return count of {@link CheckStatus#INFO} */
+  /**
+   * @return count of {@link CheckStatus#INFO}
+   */
   public int getInfoCount() {
     return count(CheckStatus.INFO);
   }

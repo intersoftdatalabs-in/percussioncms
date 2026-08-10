@@ -43,3 +43,4 @@ None at `bug` severity.
 - `npm test -- --run src/test/js/percFinderRootDisplay.test.js` (8 passed)
 - WebUI `mvnw clean install` (see PR gates evidence)
 - Spotless apply+check on WebUI module (in-scope only)
+

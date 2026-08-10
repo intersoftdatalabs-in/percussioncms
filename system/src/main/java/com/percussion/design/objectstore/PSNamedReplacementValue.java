@@ -33,6 +33,7 @@ public abstract class PSNamedReplacementValue extends PSComponent
     implements IPSMutatableReplacementValue, IPSDocumentMapping, IPSBackEndMapping {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
+
   /**
    * Initializes a newly created <code>PSNamedReplacementValue</code> object, using the specified
    * name.

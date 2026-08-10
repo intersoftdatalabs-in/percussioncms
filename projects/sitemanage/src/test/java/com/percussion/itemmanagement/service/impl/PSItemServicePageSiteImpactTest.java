@@ -166,7 +166,8 @@ class PSItemServicePageSiteImpactTest {
     assertTrue(root.has("templates"));
     assertEquals(2, root.get("pages").size());
     assertEquals(1, root.get("templates").size());
-    assertEquals("Base Template", root.get("templates").get(0).get("template").get("name").asString());
+    assertEquals(
+        "Base Template", root.get("templates").get(0).get("template").get("name").asString());
 
     Set<String> pageNames = new HashSet<>();
     for (JsonNode page : root.get("pages")) {

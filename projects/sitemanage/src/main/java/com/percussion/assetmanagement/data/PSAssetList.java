@@ -31,7 +31,6 @@ import java.util.Collection;
 public class PSAssetList extends ArrayList<PSAsset> {
   private static final long serialVersionUID = 1L;
 
-
   public PSAssetList() {
     super();
   }

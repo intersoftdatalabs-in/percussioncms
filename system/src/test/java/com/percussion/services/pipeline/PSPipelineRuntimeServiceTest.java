@@ -116,8 +116,7 @@ class PSPipelineRuntimeServiceTest {
     irService.save(doc);
 
     IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
-    PipelineExecuteRequest req =
-        PipelineExecuteRequest.ofParams(Map.of("TYPE", "workflow"));
+    PipelineExecuteRequest req = PipelineExecuteRequest.ofParams(Map.of("TYPE", "workflow"));
 
     PipelineExecuteResult result = runtime.execute("lookupApp", "DatasetQ", req);
 
@@ -175,8 +174,7 @@ class PSPipelineRuntimeServiceTest {
 
     IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
     PipelineExecuteResult result =
-        runtime.execute(
-            doc, res, PipelineExecuteRequest.ofParams(Map.of("type", "locale")));
+        runtime.execute(doc, res, PipelineExecuteRequest.ofParams(Map.of("type", "locale")));
 
     assertEquals(1, result.getRowCount());
     assertEquals("locale", result.getRows().get(0).get("Type"));
@@ -190,14 +188,12 @@ class PSPipelineRuntimeServiceTest {
         PSPipelineIrException.class,
         () ->
             PSPipelineSqlPlanner.planQuery(
-                nativeOnlyResource("SELECT 1; DROP TABLE X"),
-                PipelineExecuteRequest.empty()));
+                nativeOnlyResource("SELECT 1; DROP TABLE X"), PipelineExecuteRequest.empty()));
     assertThrows(
         PSPipelineIrException.class,
         () ->
             PSPipelineSqlPlanner.planQuery(
-                nativeOnlyResource("DELETE FROM PSX_ADMINLOOKUP"),
-                PipelineExecuteRequest.empty()));
+                nativeOnlyResource("DELETE FROM PSX_ADMINLOOKUP"), PipelineExecuteRequest.empty()));
   }
 
   @Test
@@ -208,7 +204,8 @@ class PSPipelineRuntimeServiceTest {
             nativeOnlyResource("SELECT * FROM t WHERE name = 'EXEC sp'"),
             PipelineExecuteRequest.empty());
     assertNotNull(plan);
-    assertTrue(plan.getSql().contains("'EXEC sp'") || plan.getSql().toUpperCase().contains("SELECT"));
+    assertTrue(
+        plan.getSql().contains("'EXEC sp'") || plan.getSql().toUpperCase().contains("SELECT"));
   }
 
   @Test
@@ -282,12 +279,10 @@ class PSPipelineRuntimeServiceTest {
 
     selector.setWhereClauses(List.of(typeLike, optionalName));
 
-    PSPipelineSqlPlan plan =
-        PSPipelineSqlPlanner.planQuery(res, PipelineExecuteRequest.empty());
+    PSPipelineSqlPlan plan = PSPipelineSqlPlanner.planQuery(res, PipelineExecuteRequest.empty());
     String sql = plan.getSql();
     assertTrue(sql.contains("\"TYPE\" LIKE ?"), sql);
-    assertFalse(
-        sql.contains("\"NAME\" = ?"), "optional param must not appear in WHERE: " + sql);
+    assertFalse(sql.contains("\"NAME\" = ?"), "optional param must not appear in WHERE: " + sql);
     assertEquals(List.of("work%"), plan.getParameters());
 
     // With param present, both predicates appear
@@ -408,8 +403,7 @@ class PSPipelineRuntimeServiceTest {
 
     assertEquals(2, result.getRowCount());
     assertTrue(
-        result.getRows().stream()
-            .allMatch(r -> String.valueOf(r.get("Type")).equals("workflow")));
+        result.getRows().stream().allMatch(r -> String.valueOf(r.get("Type")).equals("workflow")));
     assertTrue(
         result.getRows().stream()
             .map(r -> String.valueOf(r.get("Note")))
@@ -425,8 +419,7 @@ class PSPipelineRuntimeServiceTest {
     IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
     // locale has no matching PSX_LOOKUP_EXTRA row — INNER would drop it; LEFT keeps it.
     PipelineExecuteResult result =
-        runtime.execute(
-            "leftH2", "LJH", PipelineExecuteRequest.ofParams(Map.of("TYPE", "locale")));
+        runtime.execute("leftH2", "LJH", PipelineExecuteRequest.ofParams(Map.of("TYPE", "locale")));
 
     assertEquals(1, result.getRowCount());
     assertEquals("locale", result.getRows().get(0).get("Type"));
@@ -466,13 +459,11 @@ class PSPipelineRuntimeServiceTest {
     irService.save(doc);
 
     IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
-    PipelineExecuteResult result =
-        runtime.execute("likeH2", "LH", PipelineExecuteRequest.empty());
+    PipelineExecuteResult result = runtime.execute("likeH2", "LH", PipelineExecuteRequest.empty());
 
     assertEquals(2, result.getRowCount());
     assertTrue(
-        result.getRows().stream()
-            .allMatch(r -> String.valueOf(r.get("Name")).startsWith("wf")));
+        result.getRows().stream().allMatch(r -> String.valueOf(r.get("Name")).startsWith("wf")));
   }
 
   @Test
@@ -509,8 +500,7 @@ class PSPipelineRuntimeServiceTest {
         };
 
     IPSPipelineRuntimeService runtime =
-        new PSPipelineRuntimeService(
-            irService, sqlAdapter, List.of(preHook), List.of(postHook));
+        new PSPipelineRuntimeService(irService, sqlAdapter, List.of(preHook), List.of(postHook));
 
     PipelineExecuteResult result =
         runtime.execute(doc, doc.findResource("HQ"), PipelineExecuteRequest.empty());
@@ -556,8 +546,7 @@ class PSPipelineRuntimeServiceTest {
   @Test
   @DisplayName("update: UPDATE when allowUpdate; SET non-keys WHERE keyColumns")
   void executeUpdate_whenAllowed() throws Exception {
-    PipelineIrDocument doc =
-        nativeUpdateDocFlags("updAll", "Upd", true, true, false);
+    PipelineIrDocument doc = nativeUpdateDocFlags("updAll", "Upd", true, true, false);
     IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
 
     Map<String, Object> row = new LinkedHashMap<>();
@@ -586,8 +575,7 @@ class PSPipelineRuntimeServiceTest {
   @Test
   @DisplayName("update: DELETE when allowDelete")
   void executeDelete_whenAllowed() throws Exception {
-    PipelineIrDocument doc =
-        nativeUpdateDocFlags("delApp", "Del", false, false, true);
+    PipelineIrDocument doc = nativeUpdateDocFlags("delApp", "Del", false, false, true);
     IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
 
     Map<String, Object> row = new LinkedHashMap<>();
@@ -660,8 +648,7 @@ class PSPipelineRuntimeServiceTest {
   @Test
   @DisplayName("update: multi-flag resource requires request.operation")
   void execute_multiFlagRequiresOperation() {
-    PipelineIrDocument doc =
-        nativeUpdateDocFlags("multi", "M", true, true, true);
+    PipelineIrDocument doc = nativeUpdateDocFlags("multi", "M", true, true, true);
     IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
     Map<String, Object> row = new LinkedHashMap<>();
     row.put("TYPE", "x");
@@ -672,8 +659,7 @@ class PSPipelineRuntimeServiceTest {
 
     PSPipelineIrException ex =
         assertThrows(
-            PSPipelineIrException.class,
-            () -> runtime.execute(doc, doc.findResource("M"), req));
+            PSPipelineIrException.class, () -> runtime.execute(doc, doc.findResource("M"), req));
     assertTrue(
         ex.getMessage().contains("request.operation is required"),
         () -> "message: " + ex.getMessage());
@@ -682,8 +668,7 @@ class PSPipelineRuntimeServiceTest {
   @Test
   @DisplayName("multi-row transactionMode=all commits all plans together")
   void multiRow_transactionAll_commits() throws Exception {
-    PipelineIrDocument doc =
-        nativeUpdateDocFlags("txAll", "Ins", true, false, false);
+    PipelineIrDocument doc = nativeUpdateDocFlags("txAll", "Ins", true, false, false);
     doc.findResource("Ins").setTransactionMode("all");
     IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
 
@@ -719,7 +704,8 @@ class PSPipelineRuntimeServiceTest {
     try (Connection c = DriverManager.getConnection(jdbcUrl);
         Statement st = c.createStatement()) {
       st.execute(
-          "CREATE TABLE \"TX_STRICT\" (\"ID\" VARCHAR(32) PRIMARY KEY, \"VAL\" VARCHAR(32) NOT NULL)");
+          "CREATE TABLE \"TX_STRICT\" (\"ID\" VARCHAR(32) PRIMARY KEY, \"VAL\" VARCHAR(32) NOT"
+              + " NULL)");
     }
 
     List<Object> okBinds = new ArrayList<>();
@@ -742,8 +728,7 @@ class PSPipelineRuntimeServiceTest {
                 "fail-null"));
 
     PSPipelineIrException ex =
-        assertThrows(
-            PSPipelineIrException.class, () -> sqlAdapter.updateAll(plans, "all"));
+        assertThrows(PSPipelineIrException.class, () -> sqlAdapter.updateAll(plans, "all"));
     assertTrue(
         ex.getMessage().toLowerCase().contains("rolled back")
             || ex.getMessage().toLowerCase().contains("batch failed"),
@@ -877,8 +862,8 @@ class PSPipelineRuntimeServiceTest {
   }
 
   /**
-   * Two-table QUERY IR: {@code L} = PSX_ADMINLOOKUP, {@code X} = PSX_LOOKUP_EXTRA, join on
-   * L.NAME = X.LOOKUP_NAME.
+   * Two-table QUERY IR: {@code L} = PSX_ADMINLOOKUP, {@code X} = PSX_LOOKUP_EXTRA, join on L.NAME =
+   * X.LOOKUP_NAME.
    */
   private static PipelineIrDocument nativeJoinQueryDoc(
       String appName, String resourceName, String joinType) {

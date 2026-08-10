@@ -31,12 +31,12 @@ Repo-wide search for registered files such as `perc_welcome_gadget.xml`, `PercBl
 
 ### What “ship without Gadget XML definition files” should mean
 
-| Artifact | Keep / change |
-|----------|----------------|
-| Classic OpenSocial gadget `*.xml` per gadget | **Eliminate** as product packaging (already largely absent) |
-| `GadgetRegistry.xml` (or equivalent) | **Replace** with a first-class catalog (JSON/YAML in package, or DB + REST) authored by product — not a private gadget XML dialect |
-| SPA gadget components under `WebUI` | **Keep** as the implementation; register via catalog |
-| Shared `repository/common` assets | Keep until SPA gadgets no longer need them |
+|                   Artifact                   |                                                           Keep / change                                                            |
+|----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| Classic OpenSocial gadget `*.xml` per gadget | **Eliminate** as product packaging (already largely absent)                                                                        |
+| `GadgetRegistry.xml` (or equivalent)         | **Replace** with a first-class catalog (JSON/YAML in package, or DB + REST) authored by product — not a private gadget XML dialect |
+| SPA gadget components under `WebUI`          | **Keep** as the implementation; register via catalog                                                                               |
+| Shared `repository/common` assets            | Keep until SPA gadgets no longer need them                                                                                         |
 
 Gadgets are **not** assembly templates. They do not use Velocity/JEXL assembly. They share the broader “XML side-car definition” packaging smell with Widgets/Pages.
 
@@ -44,34 +44,34 @@ Gadgets are **not** assembly templates. They do not use Velocity/JEXL assembly. 
 
 ### Group: Percussion
 
-| Name | baseuri folder | file (registry) |
-|------|----------------|-----------------|
-| Assets By Status | PercAssetStatusGadget | PercAssetStatusGadget.xml |
-| Blogs | PercBlogsGadget | PercBlogsGadget.xml |
-| Bulk Upload | perc_bulk_file_upload_gadget | perc_bulk_file_upload_gadget.xml |
-| Comments | perc_comments_gadget | perc_comments_gadget.xml |
-| Cookie Consent | perc_cookie_consent_gadget | perc_cookie_consent_gadget.xml |
-| Forms Tracker | PercFormTrackerGadget | PercFormTrackerGadget.xml |
-| Global Variables | PercGlobalVariablesGadget | PercGlobalVariablesGadget.xml |
-| Google Setup | perc_google_setup_gadget | perc_google_setup_gadget.xml |
-| Iframe | perc_iframe_gadget | perc_iframe_gadget.xml |
-| Pages By Status | perc_workflow_status_gadget | perc_workflow_status_gadget.xml |
-| Process Monitor | PercProcessorMonitorGadget | PercProcessorMonitorGadget.xml |
-| Reports | perc_reports_gadget | perc_reports_gadget.xml |
-| SEO Audit | perc_seo_gadget | perc_seo_status_gadget.xml |
-| Sitewide Framework | PercSiteFrameworkGadget | perc_sitewide_framework_gadget.xml |
-| Traffic | perc_traffic_gadget | perc_traffic_gadget.xml |
-| Welcome | cm1_welcome_gadget | perc_welcome_gadget.xml |
-| What's Working | perc_effectiveness_gadget | perc_effectiveness_gadget.xml |
+|        Name        |        baseuri folder        |          file (registry)           |
+|--------------------|------------------------------|------------------------------------|
+| Assets By Status   | PercAssetStatusGadget        | PercAssetStatusGadget.xml          |
+| Blogs              | PercBlogsGadget              | PercBlogsGadget.xml                |
+| Bulk Upload        | perc_bulk_file_upload_gadget | perc_bulk_file_upload_gadget.xml   |
+| Comments           | perc_comments_gadget         | perc_comments_gadget.xml           |
+| Cookie Consent     | perc_cookie_consent_gadget   | perc_cookie_consent_gadget.xml     |
+| Forms Tracker      | PercFormTrackerGadget        | PercFormTrackerGadget.xml          |
+| Global Variables   | PercGlobalVariablesGadget    | PercGlobalVariablesGadget.xml      |
+| Google Setup       | perc_google_setup_gadget     | perc_google_setup_gadget.xml       |
+| Iframe             | perc_iframe_gadget           | perc_iframe_gadget.xml             |
+| Pages By Status    | perc_workflow_status_gadget  | perc_workflow_status_gadget.xml    |
+| Process Monitor    | PercProcessorMonitorGadget   | PercProcessorMonitorGadget.xml     |
+| Reports            | perc_reports_gadget          | perc_reports_gadget.xml            |
+| SEO Audit          | perc_seo_gadget              | perc_seo_status_gadget.xml         |
+| Sitewide Framework | PercSiteFrameworkGadget      | perc_sitewide_framework_gadget.xml |
+| Traffic            | perc_traffic_gadget          | perc_traffic_gadget.xml            |
+| Welcome            | cm1_welcome_gadget           | perc_welcome_gadget.xml            |
+| What's Working     | perc_effectiveness_gadget    | perc_effectiveness_gadget.xml      |
 
 ### Group: Deprecated
 
-| Name | baseuri folder | file (registry) |
-|------|----------------|-----------------|
-| Activity | perc_activity_gadget | perc_activity_gadget.xml |
-| Siteimprove | perc_site_improve_gadget | perc_site_improve_gadget.xml |
-| Membership | perc_membership_gadget | perc_membership_gadget.xml |
-| Widget Configuration | PercWidgetConfigGadget | PercWidgetConfigGadget.xml |
+|         Name         |      baseuri folder      |       file (registry)        |
+|----------------------|--------------------------|------------------------------|
+| Activity             | perc_activity_gadget     | perc_activity_gadget.xml     |
+| Siteimprove          | perc_site_improve_gadget | perc_site_improve_gadget.xml |
+| Membership           | perc_membership_gadget   | perc_membership_gadget.xml   |
+| Widget Configuration | PercWidgetConfigGadget   | PercWidgetConfigGadget.xml   |
 
 Redirect Management gadget assets already removed (issue #715 note in registry).
 
@@ -87,3 +87,4 @@ Redirect Management gadget assets already removed (issue #715 note in registry).
 - `docs/ai-generated/tasks/completed/GADGET-MODERNIZATION-ANALYSIS.md`
 - `docs/ai-generated/tasks/home-acceptance-status.md`
 - `docs/ai-generated/tasks/design-templates-item-types/README.md` (Home/Gadgets dependencies)
+

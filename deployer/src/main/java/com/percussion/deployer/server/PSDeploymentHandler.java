@@ -491,7 +491,8 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
     else deps = depList.iterator();
 
     // get the types for all dependencies in our list
-    Iterator<PSApplicationIDTypes> types = PSIdTypeManager.loadIdTypes(req.getSecurityToken(), deps);
+    Iterator<PSApplicationIDTypes> types =
+        PSIdTypeManager.loadIdTypes(req.getSecurityToken(), deps);
 
     // create the response
     Document respDoc = PSXmlDocumentBuilder.createXmlDocument();
@@ -1570,8 +1571,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
 
     IPSDeployComponent comp = null;
     try {
-      Constructor<? extends IPSDeployComponent> compCtor =
-          compClass.getConstructor(Element.class);
+      Constructor<? extends IPSDeployComponent> compCtor = compClass.getConstructor(Element.class);
       comp = compCtor.newInstance(compEl);
     } catch (Exception e) {
       if (e instanceof PSUnknownNodeTypeException) {
@@ -2685,7 +2685,8 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
   }
 
   // Methods generated from interface IPSLoadableRequestHandler
-  public void init(Collection<String> requestRoots, InputStream cfgFileIn) throws PSServerException {
+  public void init(Collection<String> requestRoots, InputStream cfgFileIn)
+      throws PSServerException {
     PSConsole.printMsg(activeSubsystem.name(), "Initializing Deployment Handler");
     m_requestRoots = requestRoots;
 

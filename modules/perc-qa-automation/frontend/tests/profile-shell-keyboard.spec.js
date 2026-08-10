@@ -165,9 +165,7 @@ async function tabUntilFocused(page, target, maxTabs = 80) {
   if (await target.evaluate((el) => document.activeElement === el)) {
     return;
   }
-  throw new Error(
-    `Tab navigation did not reach target within ${maxTabs} tabs`,
-  );
+  throw new Error(`Tab navigation did not reach target within ${maxTabs} tabs`);
 }
 
 test.describe("Profile shell keyboard section-nav @profile @a11y @keyboard", () => {
@@ -280,7 +278,9 @@ test.describe("Profile shell keyboard section-nav @profile @a11y @keyboard", () 
 
     for (let i = 1; i < PROFILE_SECTIONS.length; i += 1) {
       await page.keyboard.press("Tab");
-      await expect(page.getByTestId(PROFILE_SECTIONS[i].navTestId)).toBeFocused();
+      await expect(
+        page.getByTestId(PROFILE_SECTIONS[i].navTestId),
+      ).toBeFocused();
     }
   });
 });

@@ -174,9 +174,11 @@ async function probeWidgetTestPath(request, siteNames) {
     if (pathNamesSuggestWidgetTestFile(topNames)) {
       return {
         hasWidgetTestPath: true,
-        foundPath: `Sites/${topNames.find((n) =>
-          String(n).toLowerCase().includes("widget-test"),
-        ) || topNames[0]}`,
+        foundPath: `Sites/${
+          topNames.find((n) =>
+            String(n).toLowerCase().includes("widget-test"),
+          ) || topNames[0]
+        }`,
       };
     }
     // Drill first site for widget-test-page/file
@@ -251,7 +253,8 @@ async function gateOrSkipFixtures(request) {
   if (!gate.skip && shouldEnforceFileWidgetFixtures()) {
     expect(
       probe.hasFileAssetType,
-      gate.reason || "File asset content type required under EXPECT_FILE_WIDGET_FIXTURES=1",
+      gate.reason ||
+        "File asset content type required under EXPECT_FILE_WIDGET_FIXTURES=1",
     ).toBe(true);
     expect(
       probe.hasSites,
@@ -265,204 +268,198 @@ async function gateOrSkipFixtures(request) {
   return { ready, probe };
 }
 
-test.describe(
-  "File widget recycled chrome residual (#2239 / parent #777 slice 3) @file-widget-recycled-chrome",
-  () => {
-    test("helper contract: selector documents intentional recycled chrome @file-widget-recycled-chrome", async () => {
-      // Always-on: residual selector from #2237 evidence must stay stable.
-      expect(SELECTORS.recycledWidget).toBe(".perc-widget.perc-recycled-asset");
-      expect(hasRecycledAssetChrome("perc-widget perc-recycled-asset")).toBe(
-        true,
-      );
-      expect(isCleanWidgetChrome("perc-widget")).toBe(true);
-      expect(isCleanWidgetChrome("perc-widget perc-recycled-asset")).toBe(
-        false,
-      );
-      expect(PRODUCT_FIX_ISSUE).toBe(2238);
-      expect(RESIDUAL_ISSUE).toBe(2239);
-      expect(PARENT_ISSUE).toBe(777);
-      expect(fileWidgetFixturesSkipReason()).toMatch(/BUG:/);
-      expect(WIDGET_TEST_FILE_PAGE_PATH_CANDIDATES[0]).toMatch(
-        /widget-test-page\/file/,
-      );
-    });
+test.describe("File widget recycled chrome residual (#2239 / parent #777 slice 3) @file-widget-recycled-chrome", () => {
+  test("helper contract: selector documents intentional recycled chrome @file-widget-recycled-chrome", async () => {
+    // Always-on: residual selector from #2237 evidence must stay stable.
+    expect(SELECTORS.recycledWidget).toBe(".perc-widget.perc-recycled-asset");
+    expect(hasRecycledAssetChrome("perc-widget perc-recycled-asset")).toBe(
+      true,
+    );
+    expect(isCleanWidgetChrome("perc-widget")).toBe(true);
+    expect(isCleanWidgetChrome("perc-widget perc-recycled-asset")).toBe(false);
+    expect(PRODUCT_FIX_ISSUE).toBe(2238);
+    expect(RESIDUAL_ISSUE).toBe(2239);
+    expect(PARENT_ISSUE).toBe(777);
+    expect(fileWidgetFixturesSkipReason()).toMatch(/BUG:/);
+    expect(WIDGET_TEST_FILE_PAGE_PATH_CANDIDATES[0]).toMatch(
+      /widget-test-page\/file/,
+    );
+  });
 
-    test("REST: decoration CSS still defines .perc-recycled-asset outline chrome @file-widget-recycled-chrome", async ({
-      request,
-    }) => {
-      test.setTimeout(60_000);
-      const headers = adminBasicAuthHeaders();
-      let cssText = "";
-      let lastStatus = 0;
-      let lastUrl = "";
-      for (const path of DECORATION_CSS_CANDIDATES) {
-        const url = cmsUrl(BASE_URL, path);
-        const res = await request.get(url, { headers });
-        lastStatus = res.status();
-        lastUrl = url;
-        if (res.ok()) {
-          const text = await res.text();
-          if (text && /\.perc-recycled-asset\b/.test(text)) {
-            cssText = text;
-            break;
-          }
-          // Some servers return HTML login shell — keep looking.
-          if (text && !/<html/i.test(text) && text.includes("perc-")) {
-            cssText = text;
-          }
-        }
-      }
-
-      // When CSS is not on a known public path (war packaging differs), fall
-      // back to the documented rule string from product sources shipped in repo
-      // evidence — still assert pure helper against known-good CSS.
-      if (!cssText || !decorationCssDefinesRecycledChrome(cssText)) {
-        const documented =
-          "/* from WebUI perc_decoration.css */\n" +
-          ".perc-recycled-asset {\n" +
-          "  outline-style: dotted;\n" +
-          "  outline-color: red;\n" +
-          "}\n";
-        expect(
-          decorationCssDefinesRecycledChrome(documented),
-          "Documented recycled chrome rule must remain the intentional warning",
-        ).toBe(true);
-        // Soft note: live CSS path may differ by packaging; do not fail stock
-        // H2 if static CSS is not exposed on these URLs.
-        test.info().annotations.push({
-          type: "note",
-          description:
-            `Live decoration CSS not matched at candidates (last ${lastStatus} ${lastUrl}). ` +
-            `Helper contract still enforces intentional .perc-recycled-asset outline rule ` +
-            `(do not delete CSS as the #${PRODUCT_FIX_ISSUE} fix).`,
-        });
-        return;
-      }
-
-      expect(
-        decorationCssDefinesRecycledChrome(cssText),
-        "Product fix must clear relationships (#2238), not remove .perc-recycled-asset CSS",
-      ).toBe(true);
-    });
-
-    test("REST: contenttypes / Sites fixture probe is reachable @file-widget-recycled-chrome", async ({
-      request,
-    }) => {
-      test.setTimeout(60_000);
-      // Always-on probe: Admin REST must answer so soft-skip vs hard-gate is honest.
-      // Does not require File package; documents stock H2 vs fixture cells.
-      const types = await probeContentTypes(request);
-      expect(
-        types.status,
-        `GET contenttypes should not be transport failure; status=${types.status}`,
-      ).toBeGreaterThanOrEqual(200);
-      // 401/403 would mean auth headers broken for residual surface.
-      expect(
-        types.status === 401 || types.status === 403,
-        `Admin basic auth failed for contenttypes (status=${types.status})`,
-      ).toBe(false);
-
-      const sites = await probeSites(request);
-      test.info().annotations.push({
-        type: "fixture-probe",
-        description: JSON.stringify({
-          hasFileAssetType: types.hasFileAssetType,
-          matchedTokens: types.matchedTokens,
-          hasSites: sites.hasSites,
-          siteNames: sites.names,
-          enforce: shouldEnforceFileWidgetFixtures(),
-        }),
-      });
-
-      // When operator enforces fixtures, File package + Sites must be present.
-      if (shouldEnforceFileWidgetFixtures()) {
-        expect(
-          types.hasFileAssetType,
-          fileWidgetFixturesSkipReason({
-            reason: "EXPECT_FILE_WIDGET_FIXTURES=1 but percFileAsset missing",
-          }),
-        ).toBe(true);
-        expect(
-          sites.hasSites,
-          fileWidgetFixturesSkipReason({
-            reason: "EXPECT_FILE_WIDGET_FIXTURES=1 but Sites empty",
-          }),
-        ).toBe(true);
-      }
-    });
-
-    test("REST+UI: after recycle, widget-test File page has no recycled chrome @file-widget-recycled-chrome", async ({
-      request,
-      page,
-    }) => {
-      test.setTimeout(180_000);
-      const { ready, probe } = await gateOrSkipFixtures(request);
-
-      if (!ready) {
-        // Soft-skip when fixtures incomplete and enforcement is off.
-        test.skip(
-          true,
-          fileWidgetFixturesSkipReason({
-            reason: `probe=${JSON.stringify(probe)}`,
-          }),
-        );
-      }
-
-      // Fixtures present: open page and assert no .perc-widget.perc-recycled-asset
-      // after recycle path (post-#2238). Pre-fix cells with fixtures should fail.
-      await loginAsAdmin(page);
-
-      const urls = widgetTestFilePageUrls(BASE_URL);
-      let opened = false;
-      for (const url of urls) {
-        const res = await page.goto(url, {
-          waitUntil: "domcontentloaded",
-          timeout: 45_000,
-        }).catch(() => null);
-        if (!res) {
-          continue;
-        }
-        // Accept editor shell or assembled page with widgets.
-        const hasWidget = (await page.locator(SELECTORS.widget).count()) > 0;
-        const hasEditorChrome =
-          (await page.locator("#frame-main, .perc-ui-content, body").count()) >
-          0;
-        if (hasWidget || hasEditorChrome) {
-          opened = true;
+  test("REST: decoration CSS still defines .perc-recycled-asset outline chrome @file-widget-recycled-chrome", async ({
+    request,
+  }) => {
+    test.setTimeout(60_000);
+    const headers = adminBasicAuthHeaders();
+    let cssText = "";
+    let lastStatus = 0;
+    let lastUrl = "";
+    for (const path of DECORATION_CSS_CANDIDATES) {
+      const url = cmsUrl(BASE_URL, path);
+      const res = await request.get(url, { headers });
+      lastStatus = res.status();
+      lastUrl = url;
+      if (res.ok()) {
+        const text = await res.text();
+        if (text && /\.perc-recycled-asset\b/.test(text)) {
+          cssText = text;
           break;
         }
+        // Some servers return HTML login shell — keep looking.
+        if (text && !/<html/i.test(text) && text.includes("perc-")) {
+          cssText = text;
+        }
       }
+    }
 
+    // When CSS is not on a known public path (war packaging differs), fall
+    // back to the documented rule string from product sources shipped in repo
+    // evidence — still assert pure helper against known-good CSS.
+    if (!cssText || !decorationCssDefinesRecycledChrome(cssText)) {
+      const documented =
+        "/* from WebUI perc_decoration.css */\n" +
+        ".perc-recycled-asset {\n" +
+        "  outline-style: dotted;\n" +
+        "  outline-color: red;\n" +
+        "}\n";
       expect(
-        opened,
-        `Could not open widget-test File page under ${BASE_URL}. ` +
-          `Probe path=${probe.foundPath || "(none)"}. ` +
-          `Product fix: ${REPO_ISSUES}/${PRODUCT_FIX_ISSUE}`,
+        decorationCssDefinesRecycledChrome(documented),
+        "Documented recycled chrome rule must remain the intentional warning",
       ).toBe(true);
+      // Soft note: live CSS path may differ by packaging; do not fail stock
+      // H2 if static CSS is not exposed on these URLs.
+      test.info().annotations.push({
+        type: "note",
+        description:
+          `Live decoration CSS not matched at candidates (last ${lastStatus} ${lastUrl}). ` +
+          `Helper contract still enforces intentional .perc-recycled-asset outline rule ` +
+          `(do not delete CSS as the #${PRODUCT_FIX_ISSUE} fix).`,
+      });
+      return;
+    }
 
-      // If widgets are already assembled in the DOM, assert clean chrome now.
-      // After #2238 recycle clears AA; recreated/published assets must not
-      // paint recycled outline unless still intentionally bound to a recycled id.
-      const recycledCount = await page
-        .locator(SELECTORS.recycledWidget)
-        .count();
-      expect(
-        recycledCount,
-        `Expected 0 ${SELECTORS.recycledWidget} on valid published File widgets ` +
-          `after recycle/recreate path (parent #${PARENT_ISSUE}, fix #${PRODUCT_FIX_ISSUE}). ` +
-          `Found ${recycledCount}. Pre-fix stale AA leaves chrome on recycled content ids.`,
-      ).toBe(0);
+    expect(
+      decorationCssDefinesRecycledChrome(cssText),
+      "Product fix must clear relationships (#2238), not remove .perc-recycled-asset CSS",
+    ).toBe(true);
+  });
 
-      // All remaining .perc-widget nodes should be clean class-wise.
-      const widgets = page.locator(SELECTORS.widget);
-      const n = await widgets.count();
-      for (let i = 0; i < n; i++) {
-        const className = await widgets.nth(i).getAttribute("class");
-        expect(
-          isCleanWidgetChrome(className),
-          `widget[${i}] class="${className}" must not include ${SELECTORS.recycledClass}`,
-        ).toBe(true);
-      }
+  test("REST: contenttypes / Sites fixture probe is reachable @file-widget-recycled-chrome", async ({
+    request,
+  }) => {
+    test.setTimeout(60_000);
+    // Always-on probe: Admin REST must answer so soft-skip vs hard-gate is honest.
+    // Does not require File package; documents stock H2 vs fixture cells.
+    const types = await probeContentTypes(request);
+    expect(
+      types.status,
+      `GET contenttypes should not be transport failure; status=${types.status}`,
+    ).toBeGreaterThanOrEqual(200);
+    // 401/403 would mean auth headers broken for residual surface.
+    expect(
+      types.status === 401 || types.status === 403,
+      `Admin basic auth failed for contenttypes (status=${types.status})`,
+    ).toBe(false);
+
+    const sites = await probeSites(request);
+    test.info().annotations.push({
+      type: "fixture-probe",
+      description: JSON.stringify({
+        hasFileAssetType: types.hasFileAssetType,
+        matchedTokens: types.matchedTokens,
+        hasSites: sites.hasSites,
+        siteNames: sites.names,
+        enforce: shouldEnforceFileWidgetFixtures(),
+      }),
     });
-  },
-);
+
+    // When operator enforces fixtures, File package + Sites must be present.
+    if (shouldEnforceFileWidgetFixtures()) {
+      expect(
+        types.hasFileAssetType,
+        fileWidgetFixturesSkipReason({
+          reason: "EXPECT_FILE_WIDGET_FIXTURES=1 but percFileAsset missing",
+        }),
+      ).toBe(true);
+      expect(
+        sites.hasSites,
+        fileWidgetFixturesSkipReason({
+          reason: "EXPECT_FILE_WIDGET_FIXTURES=1 but Sites empty",
+        }),
+      ).toBe(true);
+    }
+  });
+
+  test("REST+UI: after recycle, widget-test File page has no recycled chrome @file-widget-recycled-chrome", async ({
+    request,
+    page,
+  }) => {
+    test.setTimeout(180_000);
+    const { ready, probe } = await gateOrSkipFixtures(request);
+
+    if (!ready) {
+      // Soft-skip when fixtures incomplete and enforcement is off.
+      test.skip(
+        true,
+        fileWidgetFixturesSkipReason({
+          reason: `probe=${JSON.stringify(probe)}`,
+        }),
+      );
+    }
+
+    // Fixtures present: open page and assert no .perc-widget.perc-recycled-asset
+    // after recycle path (post-#2238). Pre-fix cells with fixtures should fail.
+    await loginAsAdmin(page);
+
+    const urls = widgetTestFilePageUrls(BASE_URL);
+    let opened = false;
+    for (const url of urls) {
+      const res = await page
+        .goto(url, {
+          waitUntil: "domcontentloaded",
+          timeout: 45_000,
+        })
+        .catch(() => null);
+      if (!res) {
+        continue;
+      }
+      // Accept editor shell or assembled page with widgets.
+      const hasWidget = (await page.locator(SELECTORS.widget).count()) > 0;
+      const hasEditorChrome =
+        (await page.locator("#frame-main, .perc-ui-content, body").count()) > 0;
+      if (hasWidget || hasEditorChrome) {
+        opened = true;
+        break;
+      }
+    }
+
+    expect(
+      opened,
+      `Could not open widget-test File page under ${BASE_URL}. ` +
+        `Probe path=${probe.foundPath || "(none)"}. ` +
+        `Product fix: ${REPO_ISSUES}/${PRODUCT_FIX_ISSUE}`,
+    ).toBe(true);
+
+    // If widgets are already assembled in the DOM, assert clean chrome now.
+    // After #2238 recycle clears AA; recreated/published assets must not
+    // paint recycled outline unless still intentionally bound to a recycled id.
+    const recycledCount = await page.locator(SELECTORS.recycledWidget).count();
+    expect(
+      recycledCount,
+      `Expected 0 ${SELECTORS.recycledWidget} on valid published File widgets ` +
+        `after recycle/recreate path (parent #${PARENT_ISSUE}, fix #${PRODUCT_FIX_ISSUE}). ` +
+        `Found ${recycledCount}. Pre-fix stale AA leaves chrome on recycled content ids.`,
+    ).toBe(0);
+
+    // All remaining .perc-widget nodes should be clean class-wise.
+    const widgets = page.locator(SELECTORS.widget);
+    const n = await widgets.count();
+    for (let i = 0; i < n; i++) {
+      const className = await widgets.nth(i).getAttribute("class");
+      expect(
+        isCleanWidgetChrome(className),
+        `widget[${i}] class="${className}" must not include ${SELECTORS.recycledClass}`,
+      ).toBe(true);
+    }
+  });
+});

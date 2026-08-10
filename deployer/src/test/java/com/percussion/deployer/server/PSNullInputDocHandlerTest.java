@@ -28,8 +28,8 @@ import com.percussion.server.PSRequest;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit tests locking the {@code NULL_INPUT_DOC} (error 8) throw sites that Package Installer can hit
- * when the multipart XML part is not bound as the request input document.
+ * Unit tests locking the {@code NULL_INPUT_DOC} (error 8) throw sites that Package Installer can
+ * hit when the multipart XML part is not bound as the request input document.
  *
  * <p>Slice 2 of #955 / #2265 — does not remove these guards; documents expected failure when {@link
  * PSRequest#getInputDocument()} is null.
@@ -52,8 +52,7 @@ public class PSNullInputDocHandlerTest {
     when(req.getInputDocument()).thenReturn(null);
 
     PSDeploymentHandler handler = new PSDeploymentHandler();
-    PSDeployException ex =
-        assertThrows(PSDeployException.class, () -> handler.connect(req));
+    PSDeployException ex = assertThrows(PSDeployException.class, () -> handler.connect(req));
     assertEquals(IPSDeploymentErrors.NULL_INPUT_DOC, ex.getErrorCode());
   }
 

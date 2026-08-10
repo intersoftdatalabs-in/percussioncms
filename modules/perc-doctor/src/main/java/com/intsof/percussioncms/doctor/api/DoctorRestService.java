@@ -30,8 +30,8 @@ import java.util.Objects;
 /**
  * Admin-only HTTP mirror of the perc-doctor CLI.
  *
- * <p>Mounted by the host under the maintenance JAX-RS server, e.g. {@code
- * POST /Rhythmyx/services/maintenance/doctor/{command}} with JSON body {@link DoctorRequest}.
+ * <p>Mounted by the host under the maintenance JAX-RS server, e.g. {@code POST
+ * /Rhythmyx/services/maintenance/doctor/{command}} with JSON body {@link DoctorRequest}.
  *
  * <p><strong>Hard gate:</strong> only Admin users may invoke any command. Anonymous and non-admin
  * callers receive HTTP 403.
@@ -79,8 +79,7 @@ public class DoctorRestService {
   @Path("/{command}")
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  public DoctorReportView runCommand(
-      @PathParam("command") String command, DoctorRequest request) {
+  public DoctorReportView runCommand(@PathParam("command") String command, DoctorRequest request) {
     requireAdmin();
 
     String normalized = DoctorApiService.normalizeCommand(command);

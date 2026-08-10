@@ -81,8 +81,7 @@ class DtsLogrotateSamplePackagingTest {
         xml.contains("${install.src}/logrotate"),
         "installDts must copy from ${install.src}/logrotate");
     assertTrue(
-        xml.contains("/logrotate"),
-        "installDts must land samples under install-root logrotate/");
+        xml.contains("/logrotate"), "installDts must land samples under install-root logrotate/");
     // Expect at least two copy blocks (fresh + upgrade) mentioning logrotate
     int idx = 0;
     int count = 0;

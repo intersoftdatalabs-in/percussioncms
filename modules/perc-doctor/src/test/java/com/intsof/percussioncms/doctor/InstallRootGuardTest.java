@@ -42,7 +42,8 @@ class InstallRootGuardTest {
   @Test
   void requireInstallRootRejectsMissing() {
     Path missing = tempDir.resolve("no-such-dir");
-    assertThrows(IllegalArgumentException.class, () -> InstallRootGuard.requireInstallRoot(missing));
+    assertThrows(
+        IllegalArgumentException.class, () -> InstallRootGuard.requireInstallRoot(missing));
   }
 
   @Test
@@ -147,8 +148,7 @@ class InstallRootGuardTest {
   @Test
   void existingLogDirsOnlyReturnsPresentDirsUnderRoot() throws Exception {
     Path root = Files.createDirectories(tempDir.resolve("cms-logs"));
-    Path jettyLogs =
-        Files.createDirectories(root.resolve("jetty").resolve("base").resolve("logs"));
+    Path jettyLogs = Files.createDirectories(root.resolve("jetty").resolve("base").resolve("logs"));
     // DTS dir intentionally missing
     java.util.List<Path> dirs = InstallRootGuard.existingLogDirs(root);
     assertEquals(1, dirs.size());
@@ -159,8 +159,7 @@ class InstallRootGuardTest {
   void existingTempDirsOnlyReturnsPresentDirsUnderRoot() throws Exception {
     Path root = Files.createDirectories(tempDir.resolve("cms-temp"));
     Path cmsTemp = Files.createDirectories(root.resolve("temp"));
-    Path jettyWork =
-        Files.createDirectories(root.resolve("jetty").resolve("base").resolve("work"));
+    Path jettyWork = Files.createDirectories(root.resolve("jetty").resolve("base").resolve("work"));
     // DTS temp/work intentionally missing
     java.util.List<Path> dirs = InstallRootGuard.existingTempDirs(root);
     assertEquals(2, dirs.size());

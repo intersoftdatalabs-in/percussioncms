@@ -42,9 +42,7 @@ class DoctorCliTest {
     ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
     int code =
         DoctorCli.run(
-            new String[] {
-              "--install-root", root.toString(), "--dry-run", "-v", "clean-heap-dumps"
-            },
+            new String[] {"--install-root", root.toString(), "--dry-run", "-v", "clean-heap-dumps"},
             new PrintStream(outBuf, true, StandardCharsets.UTF_8),
             new PrintStream(errBuf, true, StandardCharsets.UTF_8));
 
@@ -131,9 +129,7 @@ class DoctorCliTest {
     ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
     int code =
         DoctorCli.run(
-            new String[] {
-              "--install-root", root.toString(), "check-logs", "--phase", "startup"
-            },
+            new String[] {"--install-root", root.toString(), "check-logs", "--phase", "startup"},
             new PrintStream(outBuf, true, StandardCharsets.UTF_8),
             new PrintStream(errBuf, true, StandardCharsets.UTF_8));
 
@@ -172,9 +168,7 @@ class DoctorCliTest {
     ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
     int code =
         DoctorCli.run(
-            new String[] {
-              "--install-root", missing.toString(), "--dry-run", "clean-heap-dumps"
-            },
+            new String[] {"--install-root", missing.toString(), "--dry-run", "clean-heap-dumps"},
             new PrintStream(outBuf, true, StandardCharsets.UTF_8),
             new PrintStream(errBuf, true, StandardCharsets.UTF_8));
     assertEquals(DoctorCli.EXIT_ERROR, code);
@@ -235,14 +229,14 @@ class DoctorCliTest {
   @Test
   void cleanLogsDryRunViaCliDoesNotDelete() throws Exception {
     Path root = Files.createDirectories(tempDir.resolve("install-logs"));
-    Path logs =
-        Files.createDirectories(root.resolve("jetty").resolve("base").resolve("logs"));
+    Path logs = Files.createDirectories(root.resolve("jetty").resolve("base").resolve("logs"));
     Path current = logs.resolve("server.log");
     Path rolled = logs.resolve("server-2020-01-01-1.log");
     Files.writeString(current, "cur");
     Files.writeString(rolled, "old");
     Files.setLastModifiedTime(
-        rolled, java.nio.file.attribute.FileTime.from(java.time.Instant.now().minusSeconds(86400L * 30)));
+        rolled,
+        java.nio.file.attribute.FileTime.from(java.time.Instant.now().minusSeconds(86400L * 30)));
 
     ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
     ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
@@ -272,24 +266,23 @@ class DoctorCliTest {
   @Test
   void cleanLogsApplyViaCliKeepsCurrentDeletesAgedRolled() throws Exception {
     Path root = Files.createDirectories(tempDir.resolve("install-logs-apply"));
-    Path logs =
-        Files.createDirectories(root.resolve("jetty").resolve("base").resolve("logs"));
+    Path logs = Files.createDirectories(root.resolve("jetty").resolve("base").resolve("logs"));
     Path current = logs.resolve("server.log");
     Path rolled = logs.resolve("server-2020-02-02-1.log");
     Files.writeString(current, "cur");
     Files.writeString(rolled, "old");
     Files.setLastModifiedTime(
-        rolled, java.nio.file.attribute.FileTime.from(java.time.Instant.now().minusSeconds(86400L * 30)));
+        rolled,
+        java.nio.file.attribute.FileTime.from(java.time.Instant.now().minusSeconds(86400L * 30)));
     Files.setLastModifiedTime(
-        current, java.nio.file.attribute.FileTime.from(java.time.Instant.now().minusSeconds(86400L * 30)));
+        current,
+        java.nio.file.attribute.FileTime.from(java.time.Instant.now().minusSeconds(86400L * 30)));
 
     ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
     ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
     int code =
         DoctorCli.run(
-            new String[] {
-              "--install-root", root.toString(), "clean-logs", "--older-than", "7d"
-            },
+            new String[] {"--install-root", root.toString(), "clean-logs", "--older-than", "7d"},
             new PrintStream(outBuf, true, StandardCharsets.UTF_8),
             new PrintStream(errBuf, true, StandardCharsets.UTF_8));
 
@@ -324,9 +317,7 @@ class DoctorCliTest {
     ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
     int code =
         DoctorCli.run(
-            new String[] {
-              "--install-root", root.toString(), "--dry-run", "-v", "diagnose"
-            },
+            new String[] {"--install-root", root.toString(), "--dry-run", "-v", "diagnose"},
             new PrintStream(outBuf, true, StandardCharsets.UTF_8),
             new PrintStream(errBuf, true, StandardCharsets.UTF_8));
 
@@ -435,9 +426,7 @@ class DoctorCliTest {
     ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
     int code =
         DoctorCli.run(
-            new String[] {
-              "--install-root", root.toString(), "--dry-run", "-v", "clean-temp"
-            },
+            new String[] {"--install-root", root.toString(), "--dry-run", "-v", "clean-temp"},
             new PrintStream(outBuf, true, StandardCharsets.UTF_8),
             new PrintStream(errBuf, true, StandardCharsets.UTF_8));
 
@@ -483,9 +472,7 @@ class DoctorCliTest {
     ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
     int code =
         DoctorCli.run(
-            new String[] {
-              "--install-root", root.toString(), "--dry-run", "-v", "check-config"
-            },
+            new String[] {"--install-root", root.toString(), "--dry-run", "-v", "check-config"},
             new PrintStream(outBuf, true, StandardCharsets.UTF_8),
             new PrintStream(errBuf, true, StandardCharsets.UTF_8));
 
@@ -533,9 +520,7 @@ class DoctorCliTest {
     ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
     int code =
         DoctorCli.run(
-            new String[] {
-              "--install-root", root.toString(), "--dry-run", "-v", "fix-permissions"
-            },
+            new String[] {"--install-root", root.toString(), "--dry-run", "-v", "fix-permissions"},
             new PrintStream(outBuf, true, StandardCharsets.UTF_8),
             new PrintStream(errBuf, true, StandardCharsets.UTF_8));
 

@@ -585,10 +585,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    * java.util.List, com.percussion.design.objectstore.PSLocator)
    */
   public void move(
-      String relationshipTypeName,
-      PSLocator sourceParent,
-      List<?> children,
-      PSLocator targetParent)
+      String relationshipTypeName, PSLocator sourceParent, List<?> children, PSLocator targetParent)
       throws PSCmsException {
     if (children == null) throw new IllegalArgumentException("children must not be null");
     if (sourceParent == null) throw new IllegalArgumentException("sourceParent must not be null");

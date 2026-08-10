@@ -35,8 +35,8 @@ import java.util.Objects;
  * <ul>
  *   <li>{@code AppServer_backup_&lt;timestamp&gt;.zip}
  *   <li>any {@code .bak} file under the install tree
- *   <li>any {@code .backup} file under the install tree (includes known {@code
- *       *.properties.backup} such as {@code Navigation.properties.backup})
+ *   <li>any {@code .backup} file under the install tree (includes known {@code *.properties.backup}
+ *       such as {@code Navigation.properties.backup})
  * </ul>
  *
  * <p>Safety: only allowlisted names; every candidate is re-checked against the install root before
@@ -138,9 +138,7 @@ public final class CleanInstallBackupsCommand {
     if (detail == null || detail.isBlank()) {
       detail = exc != null ? exc.getClass().getSimpleName() : "unknown I/O error";
     }
-    report.add(
-        new CleanReport.Entry(
-            file, 0L, CleanReport.EntryStatus.FAILED, "walk: " + detail));
+    report.add(new CleanReport.Entry(file, 0L, CleanReport.EntryStatus.FAILED, "walk: " + detail));
   }
 
   private static void processCandidate(

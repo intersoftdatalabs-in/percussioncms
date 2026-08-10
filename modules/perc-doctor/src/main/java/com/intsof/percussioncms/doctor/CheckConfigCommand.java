@@ -82,8 +82,7 @@ public final class CheckConfigCommand {
               "password1"));
 
   /** Unresolved Ant / installer style placeholders in property values. */
-  private static final Pattern UNRESOLVED_PLACEHOLDER =
-      Pattern.compile("\\$\\{[^}]+\\}");
+  private static final Pattern UNRESOLVED_PLACEHOLDER = Pattern.compile("\\$\\{[^}]+\\}");
 
   private CheckConfigCommand() {}
 
@@ -374,10 +373,7 @@ public final class CheckConfigCommand {
     } else if ("Y".equals(pwdEncrypted)) {
       report.add(
           new CheckConfigReport.Check(
-              "repo.PWD_ENCRYPTED",
-              CheckConfigReport.CheckStatus.PASS,
-              "PWD_ENCRYPTED=Y",
-              path));
+              "repo.PWD_ENCRYPTED", CheckConfigReport.CheckStatus.PASS, "PWD_ENCRYPTED=Y", path));
     } else if (!pwdEncrypted.isEmpty()) {
       report.add(
           new CheckConfigReport.Check(

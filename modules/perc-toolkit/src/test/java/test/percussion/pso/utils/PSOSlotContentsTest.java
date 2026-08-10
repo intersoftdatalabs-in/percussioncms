@@ -126,9 +126,7 @@ public class PSOSlotContentsTest {
     }
   }
 
-  /**
-   * SlotItemComparator treats all instances as equal; hashCode must be consistent with equals.
-   */
+  /** SlotItemComparator treats all instances as equal; hashCode must be consistent with equals. */
   @Test
   public void testSlotItemComparatorEqualsHashCodeContract() {
     TestableSlotContents contents = new TestableSlotContents();

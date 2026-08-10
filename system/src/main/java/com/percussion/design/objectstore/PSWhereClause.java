@@ -41,6 +41,7 @@ import org.w3c.dom.Element;
 public class PSWhereClause extends PSConditional {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
+
   /**
    * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
    * method for a description of the XML object.

@@ -26,8 +26,8 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 /**
- * Behavioral tests for {@link PSNavTreeSlotMarker} parameter validation after real generics
- * cleanup (issue #2034).
+ * Behavioral tests for {@link PSNavTreeSlotMarker} parameter validation after real generics cleanup
+ * (issue #2034).
  */
 class PSNavTreeSlotMarkerTest {
 

@@ -108,7 +108,8 @@ public class PSBackendCatalogerAttributesTest {
 
   @Test
   void getValuesReturnsNullWhenNoValueNodes() throws Exception {
-    String xml = """
+    String xml =
+        """
         <Attribute name="sys_defaultCommunity"/>
         """;
     Document doc =
@@ -195,7 +196,8 @@ public class PSBackendCatalogerAttributesTest {
 
   @Test
   void processSubjectAttributesRejectsWrongRootElement() throws Exception {
-    String xml = """
+    String xml =
+        """
         <Roles/>
         """;
     Document doc =
@@ -204,8 +206,7 @@ public class PSBackendCatalogerAttributesTest {
             .parse(new InputSource(new StringReader(xml)));
 
     assertThrows(
-        PSSecurityException.class,
-        () -> PSBackendCataloger.processSubjectAttributes(doc, true));
+        PSSecurityException.class, () -> PSBackendCataloger.processSubjectAttributes(doc, true));
   }
 
   @Test

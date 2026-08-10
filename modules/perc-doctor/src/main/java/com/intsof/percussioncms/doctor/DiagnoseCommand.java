@@ -45,25 +45,17 @@ public final class DiagnoseCommand {
    * Expected layout directories relative to install root (forward-slash segments). Critical when
    * missing → {@link DiagnoseReport.CheckStatus#FAIL}; optional → WARN.
    */
-  static final String[] LAYOUT_DIRS_CRITICAL = {
-    "jetty",
-    "jetty/base",
-    "rxconfig"
-  };
+  static final String[] LAYOUT_DIRS_CRITICAL = {"jetty", "jetty/base", "rxconfig"};
 
   /** Optional but common layout dirs (missing → WARN). */
-  static final String[] LAYOUT_DIRS_OPTIONAL = {
-    "bin",
-    "rxconfig/Server",
-    "Deployment"
-  };
+  static final String[] LAYOUT_DIRS_OPTIONAL = {"bin", "rxconfig/Server", "Deployment"};
 
   /**
-   * Key config files relative to install root. Missing → WARN (install may be partial or mid-upgrade).
+   * Key config files relative to install root. Missing → WARN (install may be partial or
+   * mid-upgrade).
    */
   static final String[] KEY_CONFIG_FILES = {
-    "rxconfig/Server/server.properties",
-    "rxconfig/Installer/rxrepository.properties"
+    "rxconfig/Server/server.properties", "rxconfig/Installer/rxrepository.properties"
   };
 
   /** Free space below this many bytes is reported as WARN (1 GiB). */
@@ -98,8 +90,7 @@ public final class DiagnoseCommand {
   public static DiagnoseReport execute(Path installRoot, boolean dryRun, String commandToken)
       throws IOException {
     Path root = InstallRootGuard.requireInstallRoot(installRoot);
-    String token =
-        commandToken != null && !commandToken.isEmpty() ? commandToken : COMMAND_NAME;
+    String token = commandToken != null && !commandToken.isEmpty() ? commandToken : COMMAND_NAME;
     DiagnoseReport report = new DiagnoseReport(token, root, dryRun);
 
     // Always-true once requireInstallRoot succeeds — documents the root for operators.
@@ -166,7 +157,10 @@ public final class DiagnoseCommand {
     if (Files.isDirectory(resolved)) {
       report.add(
           new DiagnoseReport.Check(
-              id, DiagnoseReport.CheckStatus.PASS, "Directory present: " + relativeSlashPath, resolved));
+              id,
+              DiagnoseReport.CheckStatus.PASS,
+              "Directory present: " + relativeSlashPath,
+              resolved));
     } else if (Files.exists(resolved)) {
       report.add(
           new DiagnoseReport.Check(
@@ -246,7 +240,10 @@ public final class DiagnoseCommand {
       if (Files.isDirectory(resolved)) {
         report.add(
             new DiagnoseReport.Check(
-                id, DiagnoseReport.CheckStatus.PASS, "Log directory present: " + relative, resolved));
+                id,
+                DiagnoseReport.CheckStatus.PASS,
+                "Log directory present: " + relative,
+                resolved));
       } else {
         // Missing log dirs are common on fresh or partial trees — warn, do not fail.
         report.add(
@@ -307,8 +304,7 @@ public final class DiagnoseCommand {
             + (home.isEmpty() ? "" : " java.home=" + home)
             + (major > 0 ? " major=" + major : "");
     report.add(
-        new DiagnoseReport.Check(
-            "java.version", DiagnoseReport.CheckStatus.INFO, detail, null));
+        new DiagnoseReport.Check("java.version", DiagnoseReport.CheckStatus.INFO, detail, null));
     if (major > 0 && major < EXPECTED_JAVA_MAJOR) {
       report.add(
           new DiagnoseReport.Check(

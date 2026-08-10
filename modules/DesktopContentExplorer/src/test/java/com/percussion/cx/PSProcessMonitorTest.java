@@ -55,11 +55,8 @@ public class PSProcessMonitorTest {
 
   @Test
   public void computePercentDoneRejectsInvalid() {
-    assertThrows(
-        IllegalArgumentException.class, () -> PSProcessMonitor.computePercentDone(0, 4));
-    assertThrows(
-        IllegalArgumentException.class, () -> PSProcessMonitor.computePercentDone(5, 4));
-    assertThrows(
-        IllegalArgumentException.class, () -> PSProcessMonitor.computePercentDone(1, 0));
+    assertThrows(IllegalArgumentException.class, () -> PSProcessMonitor.computePercentDone(0, 4));
+    assertThrows(IllegalArgumentException.class, () -> PSProcessMonitor.computePercentDone(5, 4));
+    assertThrows(IllegalArgumentException.class, () -> PSProcessMonitor.computePercentDone(1, 0));
   }
 }

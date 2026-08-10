@@ -32,6 +32,7 @@ import org.w3c.dom.Element;
 public class PSContentEditorSharedDef extends PSComponent implements IPSDocument {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
+
   /** Creates a new empty shared content editor definition. */
   public PSContentEditorSharedDef() {}
 

@@ -31,7 +31,6 @@ import java.util.Objects;
 public class PSLightWeightObjectList extends ArrayList<PSLightWeightObject> {
   private static final long serialVersionUID = 1L;
 
-
   public PSLightWeightObjectList(Collection<? extends PSLightWeightObject> c) {
     super(Objects.requireNonNull(c, "Collection cannot be null"));
   }

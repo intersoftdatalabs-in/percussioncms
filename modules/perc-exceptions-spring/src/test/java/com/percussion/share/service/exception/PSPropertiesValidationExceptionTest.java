@@ -27,16 +27,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Behavioral coverage for {@link PSPropertiesValidationException} (issue #2017 serial /
- * this-escape remediation).
+ * Behavioral coverage for {@link PSPropertiesValidationException} (issue #2017 serial / this-escape
+ * remediation).
  */
 public class PSPropertiesValidationExceptionTest {
 
   @Test
   @DisplayName("constructor seeds empty HashMap-backed binding result")
   void constructorSeedsEmptyProperties() {
-    PSPropertiesValidationException ex =
-        new PSPropertiesValidationException(new Object(), "props");
+    PSPropertiesValidationException ex = new PSPropertiesValidationException(new Object(), "props");
 
     assertEquals("props", ex.getObjectName());
     assertTrue(ex.getProperties().isEmpty());
@@ -47,8 +46,7 @@ public class PSPropertiesValidationExceptionTest {
   @Test
   @DisplayName("setProperties replaces map contents and keeps HashMap instance type")
   void setPropertiesReplacesContents() {
-    PSPropertiesValidationException ex =
-        new PSPropertiesValidationException(new Object(), "props");
+    PSPropertiesValidationException ex = new PSPropertiesValidationException(new Object(), "props");
     Map<String, Object> incoming = Map.of("a", 1, "b", "two");
 
     ex.setProperties(incoming);

@@ -171,7 +171,8 @@ public class PSBlogPostVisitService implements IPSBlogPostVisitService, Initiali
   public void trackBlogPost(String pagePath) {
     IPSBlogPostVisit visit = inMemoryVisitMap.get(pagePath);
     if (visit == null) {
-      inMemoryVisitMap.put(pagePath, new PSBlogPostVisit(pagePath, LocalDate.now(), BigInteger.ONE));
+      inMemoryVisitMap.put(
+          pagePath, new PSBlogPostVisit(pagePath, LocalDate.now(), BigInteger.ONE));
     } else {
       visit.setHitCount(visit.getHitCount().add(BigInteger.ONE));
     }

@@ -371,9 +371,9 @@ public class PSRenderLinkService
   /**
    * REST: default preview link (page or asset). Optional {@code titleField} query param.
    *
-   * <p>Exceptions surface as {@link WebApplicationException} from {@link
-   * #renderPreviewLink(String, String, String, String)} (no outer DataService* catch — those
-   * checked types no longer escape the 4-arg method).
+   * <p>Exceptions surface as {@link WebApplicationException} from {@link #renderPreviewLink(String,
+   * String, String, String)} (no outer DataService* catch — those checked types no longer escape
+   * the 4-arg method).
    */
   @GET
   @Path("/preview/{id}/default")
@@ -434,9 +434,7 @@ public class PSRenderLinkService
     }
   }
 
-  /**
-   * Backward-compatible overload without title field (internal callers / BC).
-   */
+  /** Backward-compatible overload without title field (internal callers / BC). */
   public PSInlineRenderLink renderPreviewLink(
       String targetId, String resourceDefinitionId, String thumbResourceDefinitionId) {
     return renderPreviewLink(targetId, resourceDefinitionId, thumbResourceDefinitionId, null);

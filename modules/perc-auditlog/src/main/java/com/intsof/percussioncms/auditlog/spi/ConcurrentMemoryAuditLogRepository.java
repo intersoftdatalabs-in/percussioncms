@@ -26,8 +26,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Process-local durable structure used until a DB {@link AuditLogRepository} is wired (and useful in
- * unit tests). Not a substitute for {@code PSX_SYSTEM_AUDIT_LOG} in production multi-node installs.
+ * Process-local durable structure used until a DB {@link AuditLogRepository} is wired (and useful
+ * in unit tests). Not a substitute for {@code PSX_SYSTEM_AUDIT_LOG} in production multi-node
+ * installs.
  */
 public final class ConcurrentMemoryAuditLogRepository implements AuditLogRepository {
 

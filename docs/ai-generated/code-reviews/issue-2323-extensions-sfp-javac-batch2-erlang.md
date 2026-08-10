@@ -17,12 +17,12 @@ Batch 2 strips residual class-level `@SuppressWarnings({"rawtypes","unchecked",â
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | none found |
+|                  Check                  |                    Result                     |
+|-----------------------------------------|-----------------------------------------------|
+| Bugs                                    | none found                                    |
 | Behavioral unit tests for changed logic | yes (`PSSqlInListTest`, `PSSitePathListTest`) |
-| Portable paths / file I/O | N/A (no path I/O changes) |
-| May commit/push | **yes** |
+| Portable paths / file I/O               | N/A (no path I/O changes)                     |
+| May commit/push                         | **yes**                                       |
 
 Cross-platform path review: no path/file I/O in this diff.
 

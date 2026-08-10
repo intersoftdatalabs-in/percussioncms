@@ -63,19 +63,20 @@ class PSDirectoryWidgetAutoQueryModelTest {
         xml.contains("perc_AutoWidgetContentFinder"),
         "Person list must use perc_AutoWidgetContentFinder (JCR auto query)");
     assertTrue(
-        xml.contains("rx:percPerson"),
-        "Person list query must target rx:percPerson content type");
+        xml.contains("rx:percPerson"), "Person list query must target rx:percPerson content type");
     assertTrue(
         xml.contains("rx:personOrganization"),
         "Person list must filter on personOrganization (not AA relationship to directory)");
     assertTrue(
         xml.contains("rx:sys_contentstateid != 7"),
-        "Person list must retain hard-coded Archive state exclusion (!= 7) until Slice 3 changes it");
+        "Person list must retain hard-coded Archive state exclusion (!= 7) until Slice 3 changes"
+            + " it");
 
     // Guard against accidental AA-style "children of directory asset" membership.
     assertFalse(
         xml.contains("sys_relationship") && xml.contains("percPerson") && xml.contains("owner"),
-        "Directory person list must not switch to relationship-owner AA membership without doc update");
+        "Directory person list must not switch to relationship-owner AA membership without doc"
+            + " update");
   }
 
   @Test
@@ -98,7 +99,8 @@ class PSDirectoryWidgetAutoQueryModelTest {
     }
     assertTrue(
         found >= 4,
-        "Expected at least 4 stock percPerson directory query variants (org/dept combinations), got "
+        "Expected at least 4 stock percPerson directory query variants (org/dept combinations), got"
+            + " "
             + found);
   }
 

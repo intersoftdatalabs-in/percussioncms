@@ -1,10 +1,10 @@
 # Pipeline IR v1.0
 
-| Field | Value |
-|-------|-------|
-| **IR version** | `1.0` (`PipelineIrDocument.CURRENT_IR_VERSION`) |
-| **Issue** | [#2247](https://github.com/intersoftdatalabs-in/percussioncms/issues/2247) (parent [#1690](https://github.com/intersoftdatalabs-in/percussioncms/issues/1690)) |
-| **Code** | `com.percussion.services.pipeline` (`system/services`) |
+|     Field      |                                                                               Value                                                                                |
+|----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **IR version** | `1.0` (`PipelineIrDocument.CURRENT_IR_VERSION`)                                                                                                                    |
+| **Issue**      | [#2247](https://github.com/intersoftdatalabs-in/percussioncms/issues/2247) (parent [#1690](https://github.com/intersoftdatalabs-in/percussioncms/issues/1690))     |
+| **Code**       | `com.percussion.services.pipeline` (`system/services`)                                                                                                             |
 | **Companions** | [data-pipeline-engine-inventory.md](./data-pipeline-engine-inventory.md) §16 Slice A; [data-pipeline-server-runtime-map.md](./data-pipeline-server-runtime-map.md) |
 
 ## Purpose
@@ -103,10 +103,10 @@ Slice A part 1 delivers **IR model + load/save + classic import**. Execution, SQ
 
 ## Storage
 
-| Mode | Location | Notes |
-|------|----------|-------|
-| Classic objectstore XML | Existing `PSServerXmlObjectStore` / application directories | Source for **import** only in this slice |
-| Native IR JSON | `<rxRoot>/ObjectStore/pipeline-ir/<appName>.pipeline.json` | File store via `PSPipelineIrFileStore`; injectable base dir for tests |
+|          Mode           |                          Location                           |                                 Notes                                 |
+|-------------------------|-------------------------------------------------------------|-----------------------------------------------------------------------|
+| Classic objectstore XML | Existing `PSServerXmlObjectStore` / application directories | Source for **import** only in this slice                              |
+| Native IR JSON          | `<rxRoot>/ObjectStore/pipeline-ir/<appName>.pipeline.json`  | File store via `PSPipelineIrFileStore`; injectable base dir for tests |
 
 App names are single path components only (no `/`, `\`, `..`) to prevent path injection — same rule as the Pipelines catalog adaptor.
 
@@ -114,19 +114,19 @@ App names are single path components only (no `/`, `\`, `..`) to prevent path in
 
 From classic `PSApplication` / `PSDataSet` / pipes:
 
-| Classic | IR |
-|---------|-----|
-| App name/id/enabled/hidden/requestRoot/version | `app.*` |
-| `PSQueryPipe` | resource `kind=QUERY` + selector |
-| `PSUpdatePipe` | resource `kind=UPDATE` + updater |
-| `PSContentEditor` | resource `kind=CONTENT_EDITOR` (no deep CE pipe expand) |
-| `PSPageDataTank` | `stages.pageTank` |
-| `PSBackEndDataTank` | `stages.backendTank` (tables + `joins[]` edges + join count) |
-| `PSDataMapper` | `stages.mapper` (field inventory) |
-| `PSDataSelector` | `stages.selector` (method + whereClauses IR + counts) |
-| `PSWhereClause` / `PSConditional` | `selector.whereClauses[]` (COLUMN/PARAM/LITERAL/OTHER) |
-| `PSResultPager` | `stages.pager` |
-| `PSDataSynchronizer` | `stages.updater` |
+|                    Classic                     |                              IR                              |
+|------------------------------------------------|--------------------------------------------------------------|
+| App name/id/enabled/hidden/requestRoot/version | `app.*`                                                      |
+| `PSQueryPipe`                                  | resource `kind=QUERY` + selector                             |
+| `PSUpdatePipe`                                 | resource `kind=UPDATE` + updater                             |
+| `PSContentEditor`                              | resource `kind=CONTENT_EDITOR` (no deep CE pipe expand)      |
+| `PSPageDataTank`                               | `stages.pageTank`                                            |
+| `PSBackEndDataTank`                            | `stages.backendTank` (tables + `joins[]` edges + join count) |
+| `PSDataMapper`                                 | `stages.mapper` (field inventory)                            |
+| `PSDataSelector`                               | `stages.selector` (method + whereClauses IR + counts)        |
+| `PSWhereClause` / `PSConditional`              | `selector.whereClauses[]` (COLUMN/PARAM/LITERAL/OTHER)       |
+| `PSResultPager`                                | `stages.pager`                                               |
+| `PSDataSynchronizer`                           | `stages.updater`                                             |
 
 Not imported in v1 (deferred): join **translators** (edges still import with `translatorPresent=true`; generated planner rejects those edges), exits/hooks, result pages/XSL, ACLs, CE field maps. Unsupported where right-hand kinds stay as `OTHER` (planner requires native SQL for those).
 
@@ -160,8 +160,8 @@ Catalog list remains `GET /services/pipelines`.
 
 ### UPDATE resource mutations (`updater.*` flags)
 
-| Request | Planner | Flag gate |
-|---------|---------|-----------|
+|                   Request                   |    Planner    |   Flag gate   |
+|---------------------------------------------|---------------|---------------|
 | `operation=insert` (or only insert allowed) | `planInserts` | `allowInsert` |
 | `operation=update` (or only update allowed) | `planUpdates` | `allowUpdate` |
 | `operation=delete` (or only delete allowed) | `planDeletes` | `allowDelete` |
@@ -188,24 +188,24 @@ Example update body:
 
 IR field `resource.transactionMode` (`none` | `row` | `all`) is honored for multi-plan mutations via `IPSPipelineSqlAdapter#updateAll`:
 
-| Mode | Behavior |
-|------|----------|
-| `none` (default) | Each plan uses its own connection; auto-commit per plan |
-| `row` | Each plan runs in its own explicit transaction (commit per plan); prior plans stay committed if a later plan fails |
-| `all` | All plans share one connection/transaction; **any failure rolls back the entire batch** |
+|       Mode       |                                                      Behavior                                                      |
+|------------------|--------------------------------------------------------------------------------------------------------------------|
+| `none` (default) | Each plan uses its own connection; auto-commit per plan                                                            |
+| `row`            | Each plan runs in its own explicit transaction (commit per plan); prior plans stay committed if a later plan fails |
+| `all`            | All plans share one connection/transaction; **any failure rolls back the entire batch**                            |
 
 Documented + covered by H2 tests in `PSPipelineRuntimeServiceTest` (`transactionMode=all` commit + rollback; `row` keeps prior commits).
 
 ### Runtime security
 
-| Default | Behavior |
-|---------|----------|
-| Parameterized SQL | Request values bound as JDBC `?` only |
-| Generated identifiers | Table/column must match `[A-Za-z_][A-Za-z0-9_]*` |
-| Native SQL escape hatch | Single `SELECT`/`WITH` only; named `:param`; rejects `;`, DML/DDL keywords |
-| Joins / multi-table QUERY | **Supported** when `backendTank.joins` has edges: ANSI JOIN SELECT with qualified identifiers + parameterized filters. **Rejected** when multi-table / `joinCount > 0` without edges (`JOIN_PRODUCT_LIMIT_MESSAGE`), disconnected graphs, self-joins, or `translatorPresent` edges (`JOIN_TRANSLATOR_LIMIT_MESSAGE`). Use `nativeStatement` for translator joins or exotic SQL. |
-| Joins / multi-table mutations | INSERT/UPDATE/DELETE remain single-table only |
-| Unrestricted DELETE/UPDATE | Rejected (WHERE keys required) |
+|            Default            |                                                                                                                                                                                    Behavior                                                                                                                                                                                     |
+|-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Parameterized SQL             | Request values bound as JDBC `?` only                                                                                                                                                                                                                                                                                                                                           |
+| Generated identifiers         | Table/column must match `[A-Za-z_][A-Za-z0-9_]*`                                                                                                                                                                                                                                                                                                                                |
+| Native SQL escape hatch       | Single `SELECT`/`WITH` only; named `:param`; rejects `;`, DML/DDL keywords                                                                                                                                                                                                                                                                                                      |
+| Joins / multi-table QUERY     | **Supported** when `backendTank.joins` has edges: ANSI JOIN SELECT with qualified identifiers + parameterized filters. **Rejected** when multi-table / `joinCount > 0` without edges (`JOIN_PRODUCT_LIMIT_MESSAGE`), disconnected graphs, self-joins, or `translatorPresent` edges (`JOIN_TRANSLATOR_LIMIT_MESSAGE`). Use `nativeStatement` for translator joins or exotic SQL. |
+| Joins / multi-table mutations | INSERT/UPDATE/DELETE remain single-table only                                                                                                                                                                                                                                                                                                                                   |
+| Unrestricted DELETE/UPDATE    | Rejected (WHERE keys required)                                                                                                                                                                                                                                                                                                                                                  |
 
 Manual raw multi-statement SQL is **not** a product surface.
 
@@ -224,3 +224,4 @@ Manual raw multi-statement SQL is **not** a product surface.
 - Residual #2359: where-clause IR executable path + join product limit documentation (landed).
 - Residual #2391: **join-graph SQL generation** (`backendTank.joins` + multi-table SELECT planner; this work). Refs #1690.
 - Slice B: designer writes native IR (`source=NATIVE`).
+

@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
@@ -253,8 +252,7 @@ class ContentTranslationsAdaptorTest {
     assertTrue(
         !ContentTranslationsAdaptor.isAuthzFailure(
             new IllegalStateException("access to cache denied by config")));
-    RuntimeException wrapped =
-        new RuntimeException("outer", new SecurityException("not allowed"));
+    RuntimeException wrapped = new RuntimeException("outer", new SecurityException("not allowed"));
     assertTrue(ContentTranslationsAdaptor.isAuthzFailure(wrapped));
   }
 

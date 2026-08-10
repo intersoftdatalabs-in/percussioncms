@@ -13,14 +13,14 @@ Parameterizes raw collections and maps in the metadata cluster of `com.percussio
 
 ## Scope
 
-| Path | Change |
-| --- | --- |
-| `system/src/main/java/com/percussion/data/PSDatabaseMetaData.java` | Typed maps/lists/sets; `Map<String,PSDataTypeInfo>` API; `Comparable<ShortTableInfo>` |
-| `system/src/main/java/com/percussion/data/PSTableMetaData.java` | Typed column/key/type maps; `loadDataTypes` → `Map<String,Integer>`; manual `findColumnIndex` |
-| `system/src/main/java/com/percussion/data/PSMetaDataCache.java` | `Iterator<?>` for table refs |
-| `system/src/main/java/com/percussion/data/jdbc/PSDsnReader.java` | `ArrayList<String>` + try-with-resources close |
-| Tests | `PSDatabaseMetaDataTypeMapTest`, `PSDsnReaderTest`, fold-test update |
-| This report | Durable Erlang artifact |
+|                                Path                                |                                            Change                                             |
+|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| `system/src/main/java/com/percussion/data/PSDatabaseMetaData.java` | Typed maps/lists/sets; `Map<String,PSDataTypeInfo>` API; `Comparable<ShortTableInfo>`         |
+| `system/src/main/java/com/percussion/data/PSTableMetaData.java`    | Typed column/key/type maps; `loadDataTypes` → `Map<String,Integer>`; manual `findColumnIndex` |
+| `system/src/main/java/com/percussion/data/PSMetaDataCache.java`    | `Iterator<?>` for table refs                                                                  |
+| `system/src/main/java/com/percussion/data/jdbc/PSDsnReader.java`   | `ArrayList<String>` + try-with-resources close                                                |
+| Tests                                                              | `PSDatabaseMetaDataTypeMapTest`, `PSDsnReaderTest`, fold-test update                          |
+| This report                                                        | Durable Erlang artifact                                                                       |
 
 **Prior / patterns:** Aligns with #2295 / #2296 rawtypes batches (prefer real generics; ≤~40–50 diags; residual child issues).  
 **Cross-platform path review:** PSDsnReader uses `java.io.File` + `FileReader` (platform path strings). Tests use `Path` / `@TempDir` / `Files.writeString` — portable. No hardcoded `C:\` or Unix-only absolutes.
@@ -41,15 +41,16 @@ _None at bug severity._
 
 ## Verification
 
-| Check | Result |
-| --- | --- |
-| Focused tests | `PSDatabaseMetaDataTypeMapTest`, `PSDsnReaderTest`, `PSTableMetaDataIdentifierFoldTest` green |
-| `cd system && ../mvnw.cmd clean install` | BUILD SUCCESS |
-| Module surefire | failures=0, errors=0 |
-| Touched production files | 0 residual rawtypes/unchecked on compile log paths |
+|                  Check                   |                                            Result                                             |
+|------------------------------------------|-----------------------------------------------------------------------------------------------|
+| Focused tests                            | `PSDatabaseMetaDataTypeMapTest`, `PSDsnReaderTest`, `PSTableMetaDataIdentifierFoldTest` green |
+| `cd system && ../mvnw.cmd clean install` | BUILD SUCCESS                                                                                 |
+| Module surefire                          | failures=0, errors=0                                                                          |
+| Touched production files                 | 0 residual rawtypes/unchecked on compile log paths                                            |
 
 ## Gate
 
 No bugs, behavioral tests present for changed logic, portable I/O. **approve**.
 
 > Co-Authored by Grok Build using grok-4.5 with agent main.
+

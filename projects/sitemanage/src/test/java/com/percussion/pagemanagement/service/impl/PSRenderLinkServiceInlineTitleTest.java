@@ -110,14 +110,10 @@ class PSRenderLinkServiceInlineTitleTest {
     asset.setFields(fields);
 
     assertEquals(
-        "Custom Page Title",
-        PSRenderLinkService.resolveAssetInlineLinkTitle(asset, "pagetitle"));
+        "Custom Page Title", PSRenderLinkService.resolveAssetInlineLinkTitle(asset, "pagetitle"));
     assertEquals(
-        "Asset Display",
-        PSRenderLinkService.resolveAssetInlineLinkTitle(asset, "missing"));
-    assertEquals(
-        "Asset Display",
-        PSRenderLinkService.resolveAssetInlineLinkTitle(asset, null));
+        "Asset Display", PSRenderLinkService.resolveAssetInlineLinkTitle(asset, "missing"));
+    assertEquals("Asset Display", PSRenderLinkService.resolveAssetInlineLinkTitle(asset, null));
   }
 
   @Test

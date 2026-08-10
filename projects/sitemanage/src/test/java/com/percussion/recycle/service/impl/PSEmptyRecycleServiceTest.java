@@ -117,8 +117,7 @@ class PSEmptyRecycleServiceTest {
     PSEmptyRecycleResult result = service.emptyRecyclingBin();
 
     assertEquals(1, result.getPurgedItemCount());
-    verify(folderHelper)
-        .removeItem(eq(PSRecycleService.RECYCLING_ROOT), eq("guid-leaf"), eq(true));
+    verify(folderHelper).removeItem(eq(PSRecycleService.RECYCLING_ROOT), eq("guid-leaf"), eq(true));
     verify(pathService, never()).deleteFolder(any());
   }
 

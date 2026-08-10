@@ -61,7 +61,9 @@ test.describe("Developer default ACL preferences (#2282)", () => {
 
     const panel = page.locator('[data-testid="developer-prefs-panel"]');
     await expect(panel).toBeVisible({ timeout: 20_000 });
-    await expect(page.locator('[data-testid="developer-prefs-intro"]')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="developer-prefs-intro"]'),
+    ).toBeVisible();
     await expect(
       page.locator('[data-testid="developer-prefs-security"]'),
     ).toBeVisible();
@@ -81,16 +83,24 @@ test.describe("Developer default ACL preferences (#2282)", () => {
 
     if (await error.isVisible()) {
       // Prefs API may be unavailable in some envs — surface still mounted.
-      await expect(page.locator('[data-testid="developer-prefs-security"]')).toBeVisible();
+      await expect(
+        page.locator('[data-testid="developer-prefs-security"]'),
+      ).toBeVisible();
       return;
     }
 
-    await expect(page.locator('[data-testid="developer-prefs-acl-source"]')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="developer-prefs-acl-source"]'),
+    ).toBeVisible();
     await expect(
       page.locator('[data-testid="developer-prefs-acl-add-form"]'),
     ).toBeVisible();
-    await expect(page.locator('[data-testid="developer-prefs-acl-save"]')).toBeVisible();
-    await expect(page.locator('[data-testid="developer-prefs-acl-reset"]')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="developer-prefs-acl-save"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="developer-prefs-acl-reset"]'),
+    ).toBeVisible();
 
     if (await table.isVisible()) {
       // System default rows (or saved preference with at least one principal input).

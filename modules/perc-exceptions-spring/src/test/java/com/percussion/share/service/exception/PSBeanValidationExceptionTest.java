@@ -34,8 +34,7 @@ public class PSBeanValidationExceptionTest {
   @DisplayName("target+method constructor seeds object name and empty errors")
   void targetMethodConstructorSeedsBindingResult() {
     Object target = new Object();
-    PSBeanValidationException ex =
-        new PSBeanValidationException(target, "com.example.Bean");
+    PSBeanValidationException ex = new PSBeanValidationException(target, "com.example.Bean");
 
     assertEquals("com.example.Bean", ex.getObjectName());
     assertFalse(ex.hasErrors());

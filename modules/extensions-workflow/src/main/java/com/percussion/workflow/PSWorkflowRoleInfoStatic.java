@@ -672,8 +672,7 @@ public class PSWorkflowRoleInfoStatic {
             && null != userAdhocNormalRoles
             && !userAdhocNormalRoles.isEmpty()) {
           userRoleList = getSubjectRoleIDs(userName, src, request);
-          userRoleList =
-              PSTypedWorkflowLists.intersectLists(userAdhocNormalRoles, userRoleList);
+          userRoleList = PSTypedWorkflowLists.intersectLists(userAdhocNormalRoles, userRoleList);
         }
         if (null != userRoleList && !userRoleList.isEmpty()) {
           stateAdhocActorSet.add(userName);

@@ -306,8 +306,7 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
         m_comboFolderCommunity,
         PSContentExploreAppletUtils.getResourceMnemonic(getClass(), "@Folder Community:", 'M'));
     PSCommunityCataloger commCataloger = m_folderMgr.getCommunityCataloger();
-    Iterator<PSCommunityCataloger.Community> itComm =
-        commCataloger.getCommunities().iterator();
+    Iterator<PSCommunityCataloger.Community> itComm = commCataloger.getCommunities().iterator();
 
     /*make an extra instance of the Community class, so that we
       can add a "All" entry to the combo box with the id = -1.

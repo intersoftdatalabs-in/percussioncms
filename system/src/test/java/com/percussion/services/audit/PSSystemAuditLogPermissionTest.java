@@ -29,23 +29,18 @@ class PSSystemAuditLogPermissionTest {
 
   @Test
   void adminAlwaysAllowedEvenWithoutProperty() {
-    assertTrue(
-        PSSystemAuditLogPermission.allows(List.of("Admin"), role -> false));
-    assertTrue(
-        PSSystemAuditLogPermission.allows(List.of("admin"), role -> false));
+    assertTrue(PSSystemAuditLogPermission.allows(List.of("Admin"), role -> false));
+    assertTrue(PSSystemAuditLogPermission.allows(List.of("admin"), role -> false));
   }
 
   @Test
   void grantedRoleWithTruthyPropertyAllowed() {
-    assertTrue(
-        PSSystemAuditLogPermission.allows(
-            List.of("Editor"), role -> "Editor".equals(role)));
+    assertTrue(PSSystemAuditLogPermission.allows(List.of("Editor"), role -> "Editor".equals(role)));
   }
 
   @Test
   void nonAdminWithoutPropertyDenied() {
-    assertFalse(
-        PSSystemAuditLogPermission.allows(List.of("Editor", "Author"), role -> false));
+    assertFalse(PSSystemAuditLogPermission.allows(List.of("Editor", "Author"), role -> false));
   }
 
   @Test

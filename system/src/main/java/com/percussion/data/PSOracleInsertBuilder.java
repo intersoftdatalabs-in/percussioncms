@@ -62,7 +62,8 @@ public class PSOracleInsertBuilder extends PSOracleUpdateBuilder {
    * @throws PSIllegalArgumentException If there are multiple tables or a PSDataExtractionException
    *     occurs.
    */
-  PSUpdateStatement generate(java.util.List<PSBackEndLogin> logins, ConcurrentHashMap<?, Integer> connKeys)
+  PSUpdateStatement generate(
+      java.util.List<PSBackEndLogin> logins, ConcurrentHashMap<?, Integer> connKeys)
       throws PSIllegalArgumentException {
     HashMap<String, Integer> dtHash = new HashMap<>();
 

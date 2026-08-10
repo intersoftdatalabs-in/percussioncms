@@ -50,3 +50,4 @@ None (bug).
 - `cd modules/utils && mvnw clean install` → BUILD SUCCESS
 - Main `src/main/**/*.java` project-Xlint warnings: **0** (was 23)
 - Tests: 311 run, 0 fail, 9 skip
+

@@ -37,8 +37,7 @@ public class PSItemRelationshipsManagerTest {
     assertEquals("", PSItemRelationshipsManager.formatDependencyLabel(null, null));
     assertEquals("Base", PSItemRelationshipsManager.formatDependencyLabel("Base", null));
     assertEquals(
-        "Base",
-        PSItemRelationshipsManager.formatDependencyLabel("Base", Collections.emptyMap()));
+        "Base", PSItemRelationshipsManager.formatDependencyLabel("Base", Collections.emptyMap()));
   }
 
   @Test
@@ -48,8 +47,7 @@ public class PSItemRelationshipsManagerTest {
     row.put("sys_contentid", "42");
 
     assertEquals(
-        "Item (Hello - 42)",
-        PSItemRelationshipsManager.formatDependencyLabel("Item", row));
+        "Item (Hello - 42)", PSItemRelationshipsManager.formatDependencyLabel("Item", row));
   }
 
   @Test
@@ -79,8 +77,7 @@ public class PSItemRelationshipsManagerTest {
     Iterator<PSComponentSummary> all = Arrays.asList(a, b, c).iterator();
 
     List<PSComponentSummary> filtered =
-        PSItemRelationshipsManager.filterSummariesByContentIds(
-            all, Arrays.asList("303", "101"));
+        PSItemRelationshipsManager.filterSummariesByContentIds(all, Arrays.asList("303", "101"));
 
     assertEquals(2, filtered.size());
     assertEquals(101, filtered.get(0).getContentId());
@@ -90,11 +87,9 @@ public class PSItemRelationshipsManagerTest {
   @Test
   public void filterSummariesByContentIdsNullSafe() {
     assertTrue(
-        PSItemRelationshipsManager.filterSummariesByContentIds(null, Arrays.asList("1"))
-            .isEmpty());
+        PSItemRelationshipsManager.filterSummariesByContentIds(null, Arrays.asList("1")).isEmpty());
     assertTrue(
-        PSItemRelationshipsManager.filterSummariesByContentIds(
-                Collections.emptyIterator(), null)
+        PSItemRelationshipsManager.filterSummariesByContentIds(Collections.emptyIterator(), null)
             .isEmpty());
     assertTrue(
         PSItemRelationshipsManager.filterSummariesByContentIds(
@@ -103,14 +98,6 @@ public class PSItemRelationshipsManagerTest {
   }
 
   private static PSComponentSummary summary(int contentId, String name) {
-    return new PSComponentSummary(
-        contentId,
-        1,
-        1,
-        -1,
-        PSComponentSummary.TYPE_ITEM,
-        name,
-        1L,
-        0);
+    return new PSComponentSummary(contentId, 1, 1, -1, PSComponentSummary.TYPE_ITEM, name, 1L, 0);
   }
 }

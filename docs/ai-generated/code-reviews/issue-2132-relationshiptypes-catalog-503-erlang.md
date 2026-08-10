@@ -12,10 +12,10 @@ Align `RelationshipTypeResource.requireAdaptor()` with catalog peers: missing ad
 
 ## Scope
 
-| Path | Change |
-|------|--------|
-| `rest/src/main/java/.../relationshiptypes/RelationshipTypeResource.java` | requireAdaptor → 503; OpenAPI 503; preserve WAE comments |
-| `rest/src/test/java/.../relationshiptypes/RelationshipTypeResourceTest.java` | peer ladder tests |
+|                                     Path                                     |                          Change                          |
+|------------------------------------------------------------------------------|----------------------------------------------------------|
+| `rest/src/main/java/.../relationshiptypes/RelationshipTypeResource.java`     | requireAdaptor → 503; OpenAPI 503; preserve WAE comments |
+| `rest/src/test/java/.../relationshiptypes/RelationshipTypeResourceTest.java` | peer ladder tests                                        |
 
 No file I/O / path handling in this diff.  
 Cross-platform path review: N/A (no path/file I/O).
@@ -28,9 +28,9 @@ Memory patterns: REST resource null-adaptor must map to 503 not 500; catch block
 
 ## Gate
 
-- Bugs: none  
-- Behavioral unit tests for changed logic: present (9 tests, peer ladder)  
-- Portable paths: N/A  
+- Bugs: none
+- Behavioral unit tests for changed logic: present (9 tests, peer ladder)
+- Portable paths: N/A
 - **May commit/push: yes**
 
 ## Issues
@@ -44,3 +44,4 @@ cd rest && ../mvnw clean install
 BUILD SUCCESS
 RelationshipTypeResourceTest: Tests run: 9, Failures: 0, Errors: 0, Skipped: 0
 ```
+

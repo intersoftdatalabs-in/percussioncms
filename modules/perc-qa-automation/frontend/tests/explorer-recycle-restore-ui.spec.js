@@ -65,7 +65,8 @@ const {
   extractPathItemGuid,
   contextDownFailureMessage,
 } = require("./helpers/folder-recycle-smoke");
-const { fuzzyTreeNodeSelector,
+const {
+  fuzzyTreeNodeSelector,
   SELECTORS,
   modernExplorerUrl,
   treeNodeSelectors,
@@ -117,7 +118,10 @@ async function selectTreePath(page, path) {
       `${SELECTORS.explorerTree} ${fuzzyTreeNodeSelector(segment)}`,
     );
     if ((await fuzzy.count()) > 0) {
-      await fuzzy.first().click({ timeout: 10_000 }).catch(() => {});
+      await fuzzy
+        .first()
+        .click({ timeout: 10_000 })
+        .catch(() => {});
       await page.waitForTimeout(500);
       return true;
     }
@@ -142,14 +146,20 @@ async function selectDetailItemByName(page, name) {
   const rows = list.locator('[data-testid^="detail-row-"]');
   const count = await rows.count();
   for (let i = 0; i < count; i++) {
-    const text = await rows.nth(i).innerText().catch(() => "");
+    const text = await rows
+      .nth(i)
+      .innerText()
+      .catch(() => "");
     // Match exact name as a whole line or token in the row text.
     const lines = String(text)
       .split(/\r?\n/)
       .map((l) => l.trim())
       .filter(Boolean);
     if (lines.some((l) => match(l)) || match(text)) {
-      await rows.nth(i).click({ timeout: 5_000 }).catch(() => {});
+      await rows
+        .nth(i)
+        .click({ timeout: 5_000 })
+        .catch(() => {});
       await page.waitForTimeout(400);
       return true;
     }
@@ -157,7 +167,10 @@ async function selectDetailItemByName(page, name) {
   // Fallback: getByText exact under detail list.
   const byText = list.getByText(name, { exact: true });
   if ((await byText.count()) > 0) {
-    await byText.first().click({ timeout: 5_000 }).catch(() => {});
+    await byText
+      .first()
+      .click({ timeout: 5_000 })
+      .catch(() => {});
     await page.waitForTimeout(400);
     return true;
   }
@@ -355,8 +368,7 @@ test.describe("modern Content Explorer UI recycle / restore companion", () => {
         try {
           await expect
             .poll(
-              () =>
-                deleteItemCalls.length > 0 || deleteFolderCalls.length > 0,
+              () => deleteItemCalls.length > 0 || deleteFolderCalls.length > 0,
               { timeout: 20_000 },
             )
             .toBe(true);
@@ -418,9 +430,7 @@ test.describe("modern Content Explorer UI recycle / restore companion", () => {
 
       const control = await findRestoreOrEmptyControl(page);
       if (control.kind === "restore" && control.locator) {
-        const disabled = await control.locator
-          .isDisabled()
-          .catch(() => false);
+        const disabled = await control.locator.isDisabled().catch(() => false);
         const aria =
           (await control.locator.getAttribute("aria-disabled")) || "";
         restoreEnabled = isActionControlEnabled({

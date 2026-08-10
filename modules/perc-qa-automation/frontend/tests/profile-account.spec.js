@@ -67,7 +67,9 @@ test.describe("Profile account @profile @account @smoke", () => {
     await expect(login).not.toHaveText(/^\s*$/);
     await expect(login).not.toHaveText(/not set/i);
 
-    await expect(page.getByTestId("perc-profile-account-provider")).toBeVisible();
+    await expect(
+      page.getByTestId("perc-profile-account-provider"),
+    ).toBeVisible();
     await expect(page.getByTestId("perc-profile-account-roles")).toBeVisible();
     await expect(
       page.getByTestId("perc-profile-account-communities"),
@@ -99,16 +101,16 @@ test.describe("Profile account @profile @account @smoke", () => {
     await expect(
       page.getByTestId("perc-profile-account-email-error"),
     ).toBeVisible();
-    await expect(
-      page.getByTestId("perc-profile-account-success"),
-    ).toHaveCount(0);
+    await expect(page.getByTestId("perc-profile-account-success")).toHaveCount(
+      0,
+    );
 
     // Valid save
     await email.fill(unique);
     await page.getByTestId("perc-profile-account-save").click();
-    await expect(
-      page.getByTestId("perc-profile-account-success"),
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("perc-profile-account-success")).toBeVisible({
+      timeout: 30_000,
+    });
     await expect(email).toHaveValue(unique);
 
     // Best-effort restore original so re-runs stay stable

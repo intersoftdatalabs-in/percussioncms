@@ -1527,9 +1527,9 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
    *
    * <p>{@code @SuppressWarnings("serial")}: {@link Set} is not itself {@link Serializable}, so
    * {@code -Xlint:serial} would warn on this {@link Serializable} outer type. Runtime values are
-   * always {@link HashSet} (initializer) or Hibernate {@code PersistentSet} (both Serializable).
-   * Do <strong>not</strong> widen the field back to concrete {@code HashSet} to silence serial —
-   * that reintroduces the #2488 PersistentSet injection failure.
+   * always {@link HashSet} (initializer) or Hibernate {@code PersistentSet} (both Serializable). Do
+   * <strong>not</strong> widen the field back to concrete {@code HashSet} to silence serial — that
+   * reintroduces the #2488 PersistentSet injection failure.
    */
   @SuppressWarnings({"unused", "serial"})
   @OneToMany(targetEntity = PSRelationshipData.class, fetch = FetchType.LAZY)

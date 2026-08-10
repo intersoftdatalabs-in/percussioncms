@@ -105,7 +105,8 @@ class SampleSiteLocaleStripTest {
             + "</tables>\n";
     Files.writeString(sample, input, StandardCharsets.UTF_8);
 
-    String stripped = SampleSiteLocaleStrip.stripLocaleBlocks(Files.readString(sample, StandardCharsets.UTF_8));
+    String stripped =
+        SampleSiteLocaleStrip.stripLocaleBlocks(Files.readString(sample, StandardCharsets.UTF_8));
     SampleSiteLocaleStrip.stripFile(sample, staging);
 
     assertFalse(
@@ -152,12 +153,14 @@ class SampleSiteLocaleStripTest {
     Path staging = tempDir.resolve("out.xml");
     Files.writeString(
         sample,
-        "<tables><table name=\"RXLOCALE\"><row/></table><table name=\"RXSITES\"><row/></table></tables>",
+        "<tables><table name=\"RXLOCALE\"><row/></table><table"
+            + " name=\"RXSITES\"><row/></table></tables>",
         StandardCharsets.UTF_8);
 
     int code = SampleSiteLocaleStrip.run(new String[] {sample.toString(), staging.toString()});
     assertTrue(code == 0, "expected exit 0, was " + code);
     assertTrue(Files.isRegularFile(staging));
-    assertFalse(RXLOCALE_OPEN_TAG.matcher(Files.readString(staging, StandardCharsets.UTF_8)).find());
+    assertFalse(
+        RXLOCALE_OPEN_TAG.matcher(Files.readString(staging, StandardCharsets.UTF_8)).find());
   }
 }

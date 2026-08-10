@@ -101,8 +101,7 @@ public class ServerConfigsResourceTest {
   @Test
   public void missingAdaptorReturnsServiceUnavailableOnList() {
     ServerConfigsResource bare = new ServerConfigsResource();
-    WebApplicationException ex =
-        assertThrows(WebApplicationException.class, bare::listConfigs);
+    WebApplicationException ex = assertThrows(WebApplicationException.class, bare::listConfigs);
     assertEquals(503, ex.getResponse().getStatus());
   }
 

@@ -27,9 +27,9 @@ import java.util.Iterator;
 import org.junit.jupiter.api.Test;
 
 /**
- * Behavioral coverage for typed {@link PSObjectAcl} as {@link
- * PSDbComponentSet}{@code <PSObjectAclEntry>} (#2442). Verifies typed iterators, lookup helpers, and
- * delete-list set ops without casts.
+ * Behavioral coverage for typed {@link PSObjectAcl} as {@link PSDbComponentSet}{@code
+ * <PSObjectAclEntry>} (#2442). Verifies typed iterators, lookup helpers, and delete-list set ops
+ * without casts.
  */
 public class PSObjectAclTypedTest {
 
@@ -97,8 +97,7 @@ public class PSObjectAclTypedTest {
   @Test
   public void removePersistedEntryAppearsInTypedDeletedIterator() {
     PSObjectAcl acl = new PSObjectAcl();
-    PSObjectAclEntry persisted =
-        persistedUserEntry(42, "admin1", PSObjectAclEntry.ACCESS_ADMIN);
+    PSObjectAclEntry persisted = persistedUserEntry(42, "admin1", PSObjectAclEntry.ACCESS_ADMIN);
     PSObjectAclEntry other = userEntry("qa1", PSObjectAclEntry.ACCESS_READ);
     assertTrue(acl.add(persisted));
     assertTrue(acl.add(other));

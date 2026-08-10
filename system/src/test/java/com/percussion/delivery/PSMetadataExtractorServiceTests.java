@@ -206,17 +206,11 @@ public class PSMetadataExtractorServiceTests {
             "/com/percussion/delivery/unbound-prefix-gcse.html");
     assertNotNull(is, "unbound-prefix-gcse.html fixture must be on the test classpath");
 
-    try (InputStreamReader inputStreamReader =
-        new InputStreamReader(is, StandardCharsets.UTF_8)) {
+    try (InputStreamReader inputStreamReader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
       PSMetadataExtractorService svc = new PSMetadataExtractorService();
       PSMetadataEntry entry =
           assertDoesNotThrow(
-              () ->
-                  svc.process(
-                      inputStreamReader,
-                      "text/html",
-                      "/Sites/test/error.html",
-                      null),
+              () -> svc.process(inputStreamReader, "text/html", "/Sites/test/error.html", null),
               "unbound gcse: prefix must not fail metadata extraction");
 
       assertNotNull(entry);
@@ -254,10 +248,7 @@ public class PSMetadataExtractorServiceTests {
         assertDoesNotThrow(
             () ->
                 svc.process(
-                    new StringReader(html),
-                    "text/html",
-                    "/Sites/test/minimal-gcse.html",
-                    null));
+                    new StringReader(html), "text/html", "/Sites/test/minimal-gcse.html", null));
     assertNotNull(entry);
     assertEquals("page", entry.getType());
     assertEquals("/Sites/test/minimal-gcse.html", entry.getPagepath());

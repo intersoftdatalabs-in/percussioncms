@@ -52,8 +52,8 @@ public final class DoctorCli {
   }
 
   /**
-   * Parse args and execute; returns process exit code without calling {@link System#exit}.
-   * Exposed for tests.
+   * Parse args and execute; returns process exit code without calling {@link System#exit}. Exposed
+   * for tests.
    *
    * @param args command-line arguments (same as {@code main})
    * @param out standard output stream
@@ -105,16 +105,14 @@ public final class DoctorCli {
             : Path.of("").toAbsolutePath().normalize();
 
     // clean-logs-only options: warn (do not hard-fail) when used with other commands.
-    if (parsed.olderThan != null
-        && !CleanLogsCommand.COMMAND_NAME.equals(parsed.command)) {
+    if (parsed.olderThan != null && !CleanLogsCommand.COMMAND_NAME.equals(parsed.command)) {
       err.println(
           "Warning: --older-than is only used by "
               + CleanLogsCommand.COMMAND_NAME
               + "; ignoring for "
               + parsed.command);
     }
-    if (parsed.keepCurrentExplicit
-        && !CleanLogsCommand.COMMAND_NAME.equals(parsed.command)) {
+    if (parsed.keepCurrentExplicit && !CleanLogsCommand.COMMAND_NAME.equals(parsed.command)) {
       err.println(
           "Warning: --keep-current / --no-keep-current are only used by "
               + CleanLogsCommand.COMMAND_NAME
@@ -124,8 +122,7 @@ public final class DoctorCli {
 
     try {
       if (DiagnoseCommand.isDiagnoseCommand(parsed.command)) {
-        DiagnoseReport report =
-            DiagnoseCommand.execute(installRoot, parsed.dryRun, parsed.command);
+        DiagnoseReport report = DiagnoseCommand.execute(installRoot, parsed.dryRun, parsed.command);
         printDiagnoseReport(report, parsed.verbose, out);
         return report.isHealthy() ? EXIT_OK : EXIT_ERROR;
       }
@@ -163,8 +160,7 @@ public final class DoctorCli {
                 parsed.logTailLines,
                 parsed.requireStartupLogs,
                 parsed.requireInstallLogs);
-        CheckLogsReport report =
-            CheckLogsCommand.execute(installRoot, parsed.dryRun, logOpts);
+        CheckLogsReport report = CheckLogsCommand.execute(installRoot, parsed.dryRun, logOpts);
         printCheckLogsReport(report, parsed.verbose, out);
         return report.isHealthy() ? EXIT_OK : EXIT_ERROR;
       }
@@ -212,25 +208,32 @@ public final class DoctorCli {
     boolean verbose;
     boolean help;
     String command;
+
     /** Optional age filter for {@code clean-logs}; null when unset. */
     Duration olderThan;
+
     /** Default true for {@code clean-logs}. */
     boolean keepCurrent = true;
+
     /** True when the user passed {@code --keep-current} or {@code --no-keep-current}. */
     boolean keepCurrentExplicit;
+
     /** {@code check-logs} phase: all | startup | install. */
     String logPhase = CheckLogsCommand.PHASE_ALL;
+
     /** {@code check-logs} tail line count. */
     int logTailLines = CheckLogsCommand.DEFAULT_TAIL_LINES;
+
     /** {@code check-logs}: FAIL when startup server.log missing. */
     boolean requireStartupLogs;
+
     /** {@code check-logs}: FAIL when no install-phase logs present. */
     boolean requireInstallLogs;
   }
 
   /**
-   * Minimal argv parser (no external CLI library). Supports long options and {@code -v}/{@code
-   * -h}. Global and command-specific options may appear before or after the command token.
+   * Minimal argv parser (no external CLI library). Supports long options and {@code -v}/{@code -h}.
+   * Global and command-specific options may appear before or after the command token.
    */
   static ParsedArgs parseArgs(String[] args) {
     ParsedArgs parsed = new ParsedArgs();
@@ -252,8 +255,7 @@ public final class DoctorCli {
         parsed.installRoot = args[++i];
       } else if ("--older-than".equals(a)) {
         if (i + 1 >= args.length) {
-          throw new IllegalArgumentException(
-              "--older-than requires a duration argument (e.g. 7d)");
+          throw new IllegalArgumentException("--older-than requires a duration argument (e.g. 7d)");
         }
         parsed.olderThan = CleanLogsCommand.parseOlderThan(args[++i]);
       } else if ("--keep-current".equals(a)) {
@@ -264,8 +266,7 @@ public final class DoctorCli {
         parsed.keepCurrentExplicit = true;
       } else if ("--phase".equals(a)) {
         if (i + 1 >= args.length) {
-          throw new IllegalArgumentException(
-              "--phase requires all|startup|install");
+          throw new IllegalArgumentException("--phase requires all|startup|install");
         }
         parsed.logPhase = CheckLogsCommand.parsePhase(args[++i]);
       } else if ("--tail-lines".equals(a)) {
@@ -304,7 +305,8 @@ public final class DoctorCli {
             + " clean-temp, check-config, check-logs, fix-permissions).");
     stream.println();
     stream.println("Options:");
-    stream.println("  --install-root <path>  CMS install root (default: current working directory)");
+    stream.println(
+        "  --install-root <path>  CMS install root (default: current working directory)");
     stream.println("  --dry-run              Report only; never delete or write");
     stream.println("  -v, --verbose          Print each candidate path / check detail");
     stream.println("  -h, --help             Show usage");
@@ -317,37 +319,28 @@ public final class DoctorCli {
     stream.println(
         "  clean-install-backups  Remove allowlisted installer/upgrade backups"
             + " (*.bak, *.backup, AppServer_backup_*.zip)");
-    stream.println(
-        "  clean-logs             Remove aged logs under known Jetty/CMS/DTS log dirs");
-    stream.println(
-        "  clean-temp             Remove files under known install temp/work dirs");
+    stream.println("  clean-logs             Remove aged logs under known Jetty/CMS/DTS log dirs");
+    stream.println("  clean-temp             Remove files under known install temp/work dirs");
     stream.println(
         "  check-config           Read-only value/misconfig checks (server + repository props)");
     stream.println(
         "  check-logs             Read-only ERROR/FATAL scan of CMS install/startup logs"
             + " (server.log, InstallPackages, install, tablefactory)");
-    stream.println(
-        "  check-startup-logs     Alias for check-logs");
+    stream.println("  check-startup-logs     Alias for check-logs");
     stream.println(
         "  fix-permissions        Report/fix allowlisted launcher + log-dir modes (POSIX)");
     stream.println();
     stream.println("clean-logs options:");
-    stream.println(
-        "  --older-than <dur>     Only files older than duration (e.g. 7d, 24h, 30m)");
-    stream.println(
-        "  --keep-current         Never delete active current *.log/*.out (default)");
-    stream.println(
-        "  --no-keep-current      Allow deleting active current log basenames");
+    stream.println("  --older-than <dur>     Only files older than duration (e.g. 7d, 24h, 30m)");
+    stream.println("  --keep-current         Never delete active current *.log/*.out (default)");
+    stream.println("  --no-keep-current      Allow deleting active current log basenames");
     stream.println();
     stream.println("check-logs options:");
-    stream.println(
-        "  --phase all|startup|install   Which log groups to scan (default: all)");
+    stream.println("  --phase all|startup|install   Which log groups to scan (default: all)");
     stream.println(
         "  --tail-lines N                Max lines from end of each log (default: 4000)");
-    stream.println(
-        "  --require-startup             FAIL if jetty/base/logs/server.log is missing");
-    stream.println(
-        "  --require-install             FAIL if no install-phase logs are present");
+    stream.println("  --require-startup             FAIL if jetty/base/logs/server.log is missing");
+    stream.println("  --require-install             FAIL if no install-phase logs are present");
     stream.println();
     stream.println("Examples:");
     stream.println("  perc-doctor --install-root /opt/Percussion -v diagnose");
@@ -359,20 +352,14 @@ public final class DoctorCli {
     stream.println("  perc-doctor --install-root C:\\Percussion -v clean-install-backups");
     stream.println(
         "  perc-doctor --install-root /opt/Percussion --dry-run -v clean-logs --older-than 7d");
-    stream.println(
-        "  perc-doctor --install-root C:\\Percussion -v clean-logs --older-than 14d");
-    stream.println(
-        "  perc-doctor --install-root /opt/Percussion --dry-run -v clean-temp");
+    stream.println("  perc-doctor --install-root C:\\Percussion -v clean-logs --older-than 14d");
+    stream.println("  perc-doctor --install-root /opt/Percussion --dry-run -v clean-temp");
     stream.println("  perc-doctor --install-root C:\\Percussion -v clean-temp");
-    stream.println(
-        "  perc-doctor --install-root /opt/Percussion --dry-run -v check-config");
+    stream.println("  perc-doctor --install-root /opt/Percussion --dry-run -v check-config");
     stream.println("  perc-doctor --install-root C:\\Percussion -v check-config");
-    stream.println(
-        "  perc-doctor --install-root /opt/Percussion -v check-logs --require-startup");
-    stream.println(
-        "  perc-doctor --install-root C:\\Percussion -v check-logs --phase install");
-    stream.println(
-        "  perc-doctor --install-root /opt/Percussion --dry-run -v fix-permissions");
+    stream.println("  perc-doctor --install-root /opt/Percussion -v check-logs --require-startup");
+    stream.println("  perc-doctor --install-root C:\\Percussion -v check-logs --phase install");
+    stream.println("  perc-doctor --install-root /opt/Percussion --dry-run -v fix-permissions");
     stream.println("  perc-doctor --install-root C:\\Percussion -v fix-permissions");
   }
 
@@ -410,8 +397,7 @@ public final class DoctorCli {
     if (verbose) {
       for (CleanReport.Entry e : report.getEntries()) {
         String detail = e.getDetail() == null ? "" : " " + e.getDetail();
-        out.println(
-            "  " + e.getStatus() + " " + e.getSizeBytes() + " " + e.getPath() + detail);
+        out.println("  " + e.getStatus() + " " + e.getSizeBytes() + " " + e.getPath() + detail);
       }
     } else if (report.isDryRun() && report.getCandidateCount() > 0) {
       out.println("(use -v/--verbose for path list)");

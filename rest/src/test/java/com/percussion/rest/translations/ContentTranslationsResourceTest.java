@@ -101,8 +101,7 @@ class ContentTranslationsResourceTest {
   void createSecurityMapsTo403() {
     CreateTranslationsRequest body = new CreateTranslationsRequest();
     body.setItemIds(List.of(1L));
-    when(adaptor.createTranslations(any(), any()))
-        .thenThrow(new SecurityException("not allowed"));
+    when(adaptor.createTranslations(any(), any())).thenThrow(new SecurityException("not allowed"));
 
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.createTranslations(body));
@@ -134,8 +133,7 @@ class ContentTranslationsResourceTest {
 
   @Test
   void listSecurityMapsTo403() {
-    when(adaptor.listItemVariants(any(), eq("private")))
-        .thenThrow(new SecurityException("denied"));
+    when(adaptor.listItemVariants(any(), eq("private"))).thenThrow(new SecurityException("denied"));
 
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.listItemVariants("private"));

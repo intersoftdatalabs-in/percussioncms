@@ -40,11 +40,11 @@ import org.springframework.context.annotation.Lazy;
  * Inventory freeze for {@code folderHelper} reverse-edge constructor cycles (#2485 / parent #2423).
  *
  * <p>Live reverse edges into {@link IPSFolderHelper} (beans forced while {@code folderHelper} is
- * still constructing via the recycle subgraph) must carry parameter {@link Lazy @Lazy}. Intermediate
- * cycle-subgraph beans must <em>not</em> construct-require {@code folderHelper} (that would
- * short-circuit the known breaks). Downstream product consumers may inject {@code folderHelper}
- * without param {@code @Lazy}; class-level {@code @Lazy} alone is <strong>false safety</strong> for
- * constructor cycles.
+ * still constructing via the recycle subgraph) must carry parameter {@link Lazy @Lazy}.
+ * Intermediate cycle-subgraph beans must <em>not</em> construct-require {@code folderHelper} (that
+ * would short-circuit the known breaks). Downstream product consumers may inject {@code
+ * folderHelper} without param {@code @Lazy}; class-level {@code @Lazy} alone is <strong>false
+ * safety</strong> for constructor cycles.
  *
  * <pre>
  * Path A: folderHelper → recycle → widgetAsset → assetDao → contentItemDao → folderHelper
@@ -52,11 +52,12 @@ import org.springframework.context.annotation.Lazy;
  * </pre>
  *
  * <p>Does not duplicate hub hardening for pageService / itemWorkflow / templateService / siteData —
- * those are separate residuals (#2476–#2478, #2514–#2521). Full disposition table:
- * {@code docs/ai-generated/tasks/2423-spring-injection-cycle/sitemanage-injection-cycle-inventory.md}.
+ * those are separate residuals (#2476–#2478, #2514–#2521). Full disposition table: {@code
+ * docs/ai-generated/tasks/2423-spring-injection-cycle/sitemanage-injection-cycle-inventory.md}.
  *
- * <p>Peers: {@link PSContentItemDaoCycleLazyWiringTest}, {@link PSPageDaoHelperCycleLazyWiringTest},
- * {@link PSFolderHelperRecycleLazyWiringTest}, {@link PSAssetServicePageServiceNearCycleWiringTest}.
+ * <p>Peers: {@link PSContentItemDaoCycleLazyWiringTest}, {@link
+ * PSPageDaoHelperCycleLazyWiringTest}, {@link PSFolderHelperRecycleLazyWiringTest}, {@link
+ * PSAssetServicePageServiceNearCycleWiringTest}.
  */
 @Tag("UnitTest")
 public class PSFolderHelperReverseEdgeInventoryWiringTest {

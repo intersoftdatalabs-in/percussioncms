@@ -21,12 +21,12 @@ The launchers set `--install-root` to the **parent of `bin/`** (the install root
 
 ### Cross-platform path rules
 
-| Do | Do not |
-|----|--------|
-| Use `<install-root>` (e.g. `/opt/Percussion` or `C:\Percussion`) | Embed a personal profile directory path |
-| Prefer `bin/perc-doctor` / `bin\perc-doctor.bat` from the install | Assume a fixed drive letter or username |
+|                                  Do                                  |                            Do not                            |
+|----------------------------------------------------------------------|--------------------------------------------------------------|
+| Use `<install-root>` (e.g. `/opt/Percussion` or `C:\Percussion`)     | Embed a personal profile directory path                      |
+| Prefer `bin/perc-doctor` / `bin\perc-doctor.bat` from the install    | Assume a fixed drive letter or username                      |
 | Pass `--install-root` only when the tree is not the parent of `bin/` | Embed machine-specific absolute paths in scripts or runbooks |
-| Use JDK 21+ via `JAVA_HOME` or `PATH` | Rely on an optional bundled JRE path that may not exist |
+| Use JDK 21+ via `JAVA_HOME` or `PATH`                                | Rely on an optional bundled JRE path that may not exist      |
 
 ### Alternate: module build / java -jar
 
@@ -48,12 +48,12 @@ java -jar target\perc-doctor-8.2.0-SNAPSHOT.jar --help
 
 ## Global options
 
-| Flag | Meaning |
-|------|---------|
+|          Flag           |                                           Meaning                                            |
+|-------------------------|----------------------------------------------------------------------------------------------|
 | `--install-root <path>` | CMS install root (wrapper default: parent of `bin/`; jar default: current working directory) |
-| `--dry-run` | **Report only** — list what would change; **no deletes / writes** |
-| `-v` / `--verbose` | Path-level detail (recommended with dry-run) |
-| `-h` / `--help` | Usage |
+| `--dry-run`             | **Report only** — list what would change; **no deletes / writes**                            |
+| `-v` / `--verbose`      | Path-level detail (recommended with dry-run)                                                 |
+| `-h` / `--help`         | Usage                                                                                        |
 
 ## Safety first: dry-run then apply
 
@@ -92,9 +92,9 @@ Exit code is non-zero when any check is `FAIL` (e.g. missing `jetty/base` or `rx
 
 Scan CMS install/startup log **content** for ERROR/FATAL/SEVERE and Spring/Jetty context-death markers. Does not delete logs. Prefer after install and after first CMS start.
 
-| Phase | Logs |
-|-------|------|
-| startup | `jetty/base/logs/server.log` |
+|  Phase  |                                                   Logs                                                    |
+|---------|-----------------------------------------------------------------------------------------------------------|
+| startup | `jetty/base/logs/server.log`                                                                              |
 | install | `InstallPackages.log`, `install.log`, `tablefactory.log` (under `rxconfig/Installer` or known alternates) |
 
 ```bash
@@ -163,17 +163,17 @@ bin\perc-doctor.bat --install-root C:\Percussion -v clean-install-backups
 
 Reclaims space under known log directories only:
 
-| Relative path | Role |
-|---------------|------|
-| `jetty/base/logs` | Jetty / CMS logs |
+|             Relative path              |           Role           |
+|----------------------------------------|--------------------------|
+| `jetty/base/logs`                      | Jetty / CMS logs         |
 | `jetty/base/modules/perc-logging/logs` | perc-logging module logs |
-| `Deployment/Server/logs` | DTS Tomcat logs |
+| `Deployment/Server/logs`               | DTS Tomcat logs          |
 
-| Flag | Meaning |
-|------|---------|
-| `--older-than <duration>` | Only files older than duration (`7d`, `24h`, `30m`, …) |
-| `--keep-current` | Default: never delete active current `*.log` / `*.out` basenames |
-| `--no-keep-current` | Allow deleting those basenames (still subject to age filter if set) |
+|           Flag            |                               Meaning                               |
+|---------------------------|---------------------------------------------------------------------|
+| `--older-than <duration>` | Only files older than duration (`7d`, `24h`, `30m`, …)              |
+| `--keep-current`          | Default: never delete active current `*.log` / `*.out` basenames    |
+| `--no-keep-current`       | Allow deleting those basenames (still subject to age filter if set) |
 
 **Dry-run first (keep current logs, older than 7 days):**
 
@@ -199,20 +199,20 @@ bin\perc-doctor.bat --install-root C:\Percussion -v clean-logs --older-than 14d
 
 `clean-logs` is an **age-based purge** of allowlisted files. It does **not** replace OS-level rotation of continuous files such as `catalina.out`. Default samples ship with the product (issue [#2348](https://github.com/intersoftdatalabs-in/percussioncms/issues/2348)):
 
-| Path | Contents |
-|------|----------|
+|                      Path                      |                                  Contents                                  |
+|------------------------------------------------|----------------------------------------------------------------------------|
 | `<install-root>/rxconfig/Installer/logrotate/` | `percussion-cms`, `percussion-dts`, `schedule-clean-logs.ps1`, `README.md` |
-| Standalone DTS: `<dts-root>/logrotate/` | `percussion-dts`, short README |
+| Standalone DTS: `<dts-root>/logrotate/`        | `percussion-dts`, short README                                             |
 
 **Not auto-enabled.** Operators copy the Linux fragments into `/etc/logrotate.d/` only with consent after path substitution and `logrotate -d` dry-run. Prefer **`copytruncate`** so Jetty/Tomcat keep writing without a restart.
 
 Coexistence:
 
-| Layer | Role |
-|-------|------|
-| Log4j2 RollingFile | Size-based app log rollover (CMS perc-logging, DTS service configs) |
-| OS logrotate samples | Daily / 14 compressed archives for `*.log` / `*.out` under known roots |
-| `perc-doctor clean-logs` | Manual or scheduled purge of aged allowlisted files |
+|          Layer           |                                  Role                                  |
+|--------------------------|------------------------------------------------------------------------|
+| Log4j2 RollingFile       | Size-based app log rollover (CMS perc-logging, DTS service configs)    |
+| OS logrotate samples     | Daily / 14 compressed archives for `*.log` / `*.out` under known roots |
+| `perc-doctor clean-logs` | Manual or scheduled purge of aged allowlisted files                    |
 
 **Windows:** schedule `perc-doctor clean-logs --older-than 14d` (Task Scheduler) or use `rxconfig/Installer/logrotate/schedule-clean-logs.ps1` (defaults to dry-run). Full steps: `rxconfig/Installer/logrotate/README.md`.
 
@@ -220,12 +220,12 @@ Coexistence:
 
 Removes **files** under known install temp / work directories only. Prefer stopping CMS / DTS first so files are not locked. Allowlisted roots themselves are retained.
 
-| Relative path | Role |
-|---------------|------|
-| `temp` | CMS install temp |
-| `jetty/base/work` | Jetty work directory |
-| `Deployment/Server/temp` | DTS Tomcat temp |
-| `Deployment/Server/work` | DTS Tomcat work |
+|      Relative path       |         Role         |
+|--------------------------|----------------------|
+| `temp`                   | CMS install temp     |
+| `jetty/base/work`        | Jetty work directory |
+| `Deployment/Server/temp` | DTS Tomcat temp      |
+| `Deployment/Server/work` | DTS Tomcat work      |
 
 **Dry-run first:**
 
@@ -274,11 +274,11 @@ bin\perc-doctor.bat --install-root C:\Percussion -v check-config
 
 Reports (and on POSIX can fix) **allowlisted** mode / access issues only — no shell, no user globs. Prefer dry-run first.
 
-| Target | Fix behavior |
-|--------|----------------|
+|                    Target                    |                       Fix behavior                       |
+|----------------------------------------------|----------------------------------------------------------|
 | `bin/perc-doctor` (+ `.bat` / `.jar` report) | POSIX: add owner-execute on the Unix script when missing |
-| Known log directories | POSIX: ensure owner rwx when the directory exists |
-| Key `rxconfig` property files | POSIX: ensure owner-read when present |
+| Known log directories                        | POSIX: ensure owner rwx when the directory exists        |
+| Key `rxconfig` property files                | POSIX: ensure owner-read when present                    |
 
 On Windows the command reports readable/writable and does **not** rewrite ACLs.
 
@@ -298,16 +298,15 @@ bin\perc-doctor.bat --install-root C:\Percussion --dry-run -v fix-permissions
 ./bin/perc-doctor --install-root /opt/Percussion -v fix-permissions
 ```
 
-
 ## Distribution packaging (developers)
 
 Module `mvnw clean install` attaches:
 
-| Artifact | Role |
-|----------|------|
-| `perc-doctor-<version>.jar` | Runnable Main-Class jar (no runtime deps) |
-| `perc-doctor-<version>-dist.zip` | `bin/perc-doctor`, `bin/perc-doctor.bat`, `bin/perc-doctor.jar` |
-| `target/perc-doctor-<version>-dist/` | Exploded copy of the same layout |
+|               Artifact               |                              Role                               |
+|--------------------------------------|-----------------------------------------------------------------|
+| `perc-doctor-<version>.jar`          | Runnable Main-Class jar (no runtime deps)                       |
+| `perc-doctor-<version>-dist.zip`     | `bin/perc-doctor`, `bin/perc-doctor.bat`, `bin/perc-doctor.jar` |
+| `target/perc-doctor-<version>-dist/` | Exploded copy of the same layout                                |
 
 `modules/perc-distribution-tree` unpacks the `dist` zip into the CMS assembly so operators receive the launchers under `<install-root>/bin`.
 
@@ -317,3 +316,4 @@ Module `mvnw clean install` attaches:
 - Parent epic: [#2213](https://github.com/intersoftdatalabs-in/percussioncms/issues/2213)
 - `clean-temp` slice: [#2232](https://github.com/intersoftdatalabs-in/percussioncms/issues/2232)
 - Admin HTTP API: shipped with MVP cluster ([#2219](https://github.com/intersoftdatalabs-in/percussioncms/issues/2219) / [#2230](https://github.com/intersoftdatalabs-in/percussioncms/pull/2230))
+

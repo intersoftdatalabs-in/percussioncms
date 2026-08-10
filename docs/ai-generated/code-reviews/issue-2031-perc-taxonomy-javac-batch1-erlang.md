@@ -14,12 +14,12 @@ Real-fix cleanup of **~99 project-default javac diagnostics** in `perc-taxonomy`
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | none found |
-| Behavioral unit tests for new/changed non-trivial logic | **pass** (12 tests) |
-| Portable paths / file I/O | N/A (no path I/O in diff) |
-| May commit/push | **yes** |
+|                          Check                          |          Result           |
+|---------------------------------------------------------|---------------------------|
+| Bugs                                                    | none found                |
+| Behavioral unit tests for new/changed non-trivial logic | **pass** (12 tests)       |
+| Portable paths / file I/O                               | N/A (no path I/O in diff) |
+| May commit/push                                         | **yes**                   |
 
 ## Issues
 
@@ -44,3 +44,4 @@ None (blocking).
 - `Session.find` replaces deprecated `Session.get`
 
 > Co-Authored by Grok Build using grok-4.5 with agent main.
+

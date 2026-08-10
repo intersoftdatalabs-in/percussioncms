@@ -15,24 +15,24 @@ Thin verification residual after encodePath (#1680) and formatApiError (#1691). 
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs in new logic | none |
-| Behavioral unit tests for new helpers | yes (`tests/unit/pathmanagement-url.test.js`) |
-| Cross-platform path/file I/O | n/a — pure URL string helpers; no filesystem I/O |
-| Module standalone clean install | `modules/perc-qa-automation` `mvnw clean install` green |
-| Live evidence | H2 qa-up `TEST_CMS_URL=http://127.0.0.1:9993` — 2 Playwright + unit suite green |
+|                 Check                 |                                     Result                                      |
+|---------------------------------------|---------------------------------------------------------------------------------|
+| Bugs in new logic                     | none                                                                            |
+| Behavioral unit tests for new helpers | yes (`tests/unit/pathmanagement-url.test.js`)                                   |
+| Cross-platform path/file I/O          | n/a — pure URL string helpers; no filesystem I/O                                |
+| Module standalone clean install       | `modules/perc-qa-automation` `mvnw clean install` green                         |
+| Live evidence                         | H2 qa-up `TEST_CMS_URL=http://127.0.0.1:9993` — 2 Playwright + unit suite green |
 
 **May commit/push: yes**
 
 ## Scope (files)
 
-| Path | Change |
-|------|--------|
+|                                          Path                                           |                        Change                        |
+|-----------------------------------------------------------------------------------------|------------------------------------------------------|
 | `modules/perc-qa-automation/frontend/tests/bugs/bug-1622-explorer-root-folders.spec.js` | extend REST + UI network / roots / error readability |
-| `modules/perc-qa-automation/frontend/tests/helpers/pathmanagement-url.js` | pure double-slash + human-error helpers |
-| `modules/perc-qa-automation/frontend/tests/unit/pathmanagement-url.test.js` | Node unit coverage |
-| `modules/perc-qa-automation/frontend/package.json` | include unit file in `test:unit` |
+| `modules/perc-qa-automation/frontend/tests/helpers/pathmanagement-url.js`               | pure double-slash + human-error helpers              |
+| `modules/perc-qa-automation/frontend/tests/unit/pathmanagement-url.test.js`             | Node unit coverage                                   |
+| `modules/perc-qa-automation/frontend/package.json`                                      | include unit file in `test:unit`                     |
 
 ## Issues
 

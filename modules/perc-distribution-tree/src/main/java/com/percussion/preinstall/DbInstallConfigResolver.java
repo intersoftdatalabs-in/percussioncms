@@ -487,8 +487,7 @@ public final class DbInstallConfigResolver {
       systemProperties.put("perc.db.cms.name", "");
       systemProperties.put("perc.db.cms.schema", resolvedSchema);
       systemProperties.put(
-          "perc.db.dts.jdbcUrl",
-          "jdbc:oracle:thin:@//" + host + ":" + port + "/" + serviceOrSid);
+          "perc.db.dts.jdbcUrl", "jdbc:oracle:thin:@//" + host + ":" + port + "/" + serviceOrSid);
       systemProperties.put("perc.db.dts.jdbcDriver", ORACLE_DRIVER_CLASS);
       systemProperties.put(
           "perc.db.dts.hibernateDialect", "org.hibernate.dialect.Oracle12cDialect");

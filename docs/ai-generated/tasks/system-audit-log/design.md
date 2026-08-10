@@ -7,14 +7,14 @@
 
 ## Decisions (locked)
 
-| Topic | Decision |
-|-------|----------|
-| Dual write | `server.log` (Log4j) + `PSX_SYSTEM_AUDIT_LOG` (DB); no CADF third sink |
-| Error catalog | Unified `SystemErrorCode` with **`isAuditable`**; package `*ErrorCodes` enums |
-| Placeholders | Sequential `{}` (SLF4J-style) |
-| Permission | Rhythmyx Role model; Role property `sys_securityAuditLogViewer`; Admin always allowed |
-| Log id | UUID string, same id on both sinks |
-| CADF / jcadf | Remove after call-site migration |
+|     Topic     |                                       Decision                                        |
+|---------------|---------------------------------------------------------------------------------------|
+| Dual write    | `server.log` (Log4j) + `PSX_SYSTEM_AUDIT_LOG` (DB); no CADF third sink                |
+| Error catalog | Unified `SystemErrorCode` with **`isAuditable`**; package `*ErrorCodes` enums         |
+| Placeholders  | Sequential `{}` (SLF4J-style)                                                         |
+| Permission    | Rhythmyx Role model; Role property `sys_securityAuditLogViewer`; Admin always allowed |
+| Log id        | UUID string, same id on both sinks                                                    |
+| CADF / jcadf  | Remove after call-site migration                                                      |
 
 ## Architecture
 
@@ -43,21 +43,21 @@ SystemErrorCode (*ErrorCodes) → AuditLogService
 
 **Role property:** `sys_securityAuditLogViewer`
 
-| Setting | Meaning |
-|---------|---------|
-| Role **Admin** | Always allowed to query the system security audit log (even without the property) |
-| Role property `sys_securityAuditLogViewer=true` | Grants query access to members of that role |
-| Truthy values | `true`, `yes`, `y`, `1` (case-insensitive) |
-| Falsy / absent | No access for non-Admin roles |
+|                     Setting                     |                                      Meaning                                      |
+|-------------------------------------------------|-----------------------------------------------------------------------------------|
+| Role **Admin**                                  | Always allowed to query the system security audit log (even without the property) |
+| Role property `sys_securityAuditLogViewer=true` | Grants query access to members of that role                                       |
+| Truthy values                                   | `true`, `yes`, `y`, `1` (case-insensitive)                                        |
+| Falsy / absent                                  | No access for non-Admin roles                                                     |
 
 **Fresh install seed:** installer data registers the property name under `PSX_ADMINLOOKUP` (so Server Admin can assign it) and seeds `true` on the **Admin** role (`PSX_ATTRIBUTE_*` / `PSX_ROLE_ATTRIBUTES`). Existing sites may add the property on Admin or other roles via Server Admin → Roles.
 
 **Public REST (read-only):**
 
-| Method | Path | AuthZ |
-|--------|------|-------|
-| `GET` | `/Rhythmyx/rest/auditlog/entries` | Admin or property |
-| `GET` | `/Rhythmyx/rest/auditlog/entries/{auditId}` | Admin or property |
+| Method |                    Path                     |       AuthZ       |
+|--------|---------------------------------------------|-------------------|
+| `GET`  | `/Rhythmyx/rest/auditlog/entries`           | Admin or property |
+| `GET`  | `/Rhythmyx/rest/auditlog/entries/{auditId}` | Admin or property |
 
 Query parameters on list: `from`, `to` (ISO-8601 instants), `module`, `eventType`, `outcome`, `actor`, `offset`, `limit` (default 50, max 200).
 
@@ -67,18 +67,19 @@ Responses: `200` page/entry, `403` without permission, `404` missing id, `400` b
 
 ## Phase tracking (GitHub)
 
-| Phase | Issue |
-|-------|-------|
-| 0+1 Core API | [#2614](https://github.com/intersoftdatalabs-in/percussioncms/issues/2614) |
-| 2a Call-site migrate | [#2615](https://github.com/intersoftdatalabs-in/percussioncms/issues/2615) |
-| 2b ErrorCodes unification | [#2616](https://github.com/intersoftdatalabs-in/percussioncms/issues/2616) |
+|              Phase              |                                   Issue                                    |
+|---------------------------------|----------------------------------------------------------------------------|
+| 0+1 Core API                    | [#2614](https://github.com/intersoftdatalabs-in/percussioncms/issues/2614) |
+| 2a Call-site migrate            | [#2615](https://github.com/intersoftdatalabs-in/percussioncms/issues/2615) |
+| 2b ErrorCodes unification       | [#2616](https://github.com/intersoftdatalabs-in/percussioncms/issues/2616) |
 | 2c Design auditor + retire CADF | [#2617](https://github.com/intersoftdatalabs-in/percussioncms/issues/2617) |
-| 3 Role property + REST | [#2618](https://github.com/intersoftdatalabs-in/percussioncms/issues/2618) |
-| 4 Admin UI + Playwright | [#2619](https://github.com/intersoftdatalabs-in/percussioncms/issues/2619) |
-| 5 Hardening | [#2620](https://github.com/intersoftdatalabs-in/percussioncms/issues/2620) |
+| 3 Role property + REST          | [#2618](https://github.com/intersoftdatalabs-in/percussioncms/issues/2618) |
+| 4 Admin UI + Playwright         | [#2619](https://github.com/intersoftdatalabs-in/percussioncms/issues/2619) |
+| 5 Hardening                     | [#2620](https://github.com/intersoftdatalabs-in/percussioncms/issues/2620) |
 
 ## References
 
-* Rhythmyx 7.3 Implementation Guide — Roles, communities, folder ACLs  
-* Rhythmyx 7.3 Administration Manual — Role properties (`sys_defaultCommunity`, …)  
-* NIST SP 800-53 Rev. 5 AU family  
+* Rhythmyx 7.3 Implementation Guide — Roles, communities, folder ACLs
+* Rhythmyx 7.3 Administration Manual — Role properties (`sys_defaultCommunity`, …)
+* NIST SP 800-53 Rev. 5 AU family
+

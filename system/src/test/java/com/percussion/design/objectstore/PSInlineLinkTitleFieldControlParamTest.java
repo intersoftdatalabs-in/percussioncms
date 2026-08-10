@@ -65,8 +65,7 @@ public class PSInlineLinkTitleFieldControlParamTest {
     Document doc =
         PSXmlDocumentBuilder.createXmlDocument(
             new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)), false);
-    Element metaEl =
-        (Element) doc.getElementsByTagName(PSControlMeta.XML_NODE_NAME).item(0);
+    Element metaEl = (Element) doc.getElementsByTagName(PSControlMeta.XML_NODE_NAME).item(0);
     PSControlMeta meta = new PSControlMeta(metaEl);
 
     assertEquals(CONTROL_NAME, meta.getName());

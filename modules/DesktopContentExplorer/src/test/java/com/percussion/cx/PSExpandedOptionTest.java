@@ -29,8 +29,7 @@ public class PSExpandedOptionTest {
 
   @Test
   public void constructorAndGetPathsPreserveTypedPaths() {
-    PSExpandedOption option =
-        new PSExpandedOption(Arrays.asList("//Sites/Home", "//Sites/About"));
+    PSExpandedOption option = new PSExpandedOption(Arrays.asList("//Sites/Home", "//Sites/About"));
     Set<String> paths = option.getPaths();
     assertEquals(2, paths.size());
     assertTrue(paths.contains("//Sites/Home"));

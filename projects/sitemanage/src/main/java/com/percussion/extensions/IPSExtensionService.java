@@ -171,8 +171,7 @@ public interface IPSExtensionService {
    * @throws PSNonUniqueException If the extension already exists. Use updateExtension instead. The
    *     defined extension will not be installed.
    */
-  void installExtension(
-      IPSExtensionDef def, Iterator<?> resources, IPSExtensionListener listener)
+  void installExtension(IPSExtensionDef def, Iterator<?> resources, IPSExtensionListener listener)
       throws PSExtensionException, PSNotFoundException, PSNonUniqueException;
 
   /**

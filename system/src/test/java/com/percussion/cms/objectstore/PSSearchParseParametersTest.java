@@ -66,8 +66,7 @@ public class PSSearchParseParametersTest {
   public void mergesIntoSuppliedMapAndSkipsTokensWithoutEquals() {
     Map<String, String> params = new HashMap<>();
     params.put("existing", "value");
-    Map<String, String> result =
-        PSSearch.parseParameters("x?a=1&bare&b=two", params);
+    Map<String, String> result = PSSearch.parseParameters("x?a=1&bare&b=two", params);
     assertSame(params, result);
     assertEquals("value", result.get("existing"));
     assertEquals("1", result.get("a"));

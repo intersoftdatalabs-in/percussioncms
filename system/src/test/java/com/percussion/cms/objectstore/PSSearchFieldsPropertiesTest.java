@@ -48,12 +48,10 @@ public class PSSearchFieldsPropertiesTest {
   @Test
   public void setFieldsReplacesCollectionWithTypedIterator() throws Exception {
     PSSearch search = new PSSearch();
-    search.addField(
-        new PSSearchField("old_field", "Old", "", PSSearchField.TYPE_TEXT, ""));
+    search.addField(new PSSearchField("old_field", "Old", "", PSSearchField.TYPE_TEXT, ""));
 
     List<PSSearchField> replacements = new ArrayList<>();
-    replacements.add(
-        new PSSearchField("new_field", "New", "", PSSearchField.TYPE_NUMBER, ""));
+    replacements.add(new PSSearchField("new_field", "New", "", PSSearchField.TYPE_NUMBER, ""));
     search.setFields(replacements.iterator());
 
     Iterator<PSSearchField> fields = search.getFields();
@@ -65,10 +63,8 @@ public class PSSearchFieldsPropertiesTest {
   @Test
   public void removeFieldsDropsMatchingFields() throws Exception {
     PSSearch search = new PSSearch();
-    PSSearchField keep =
-        new PSSearchField("keep_me", "Keep", "", PSSearchField.TYPE_TEXT, "");
-    PSSearchField drop =
-        new PSSearchField("drop_me", "Drop", "", PSSearchField.TYPE_TEXT, "");
+    PSSearchField keep = new PSSearchField("keep_me", "Keep", "", PSSearchField.TYPE_TEXT, "");
+    PSSearchField drop = new PSSearchField("drop_me", "Drop", "", PSSearchField.TYPE_TEXT, "");
     search.addField(keep);
     search.addField(drop);
 

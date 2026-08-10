@@ -79,7 +79,8 @@ public class PSInstallIoUtilsTest {
 
     assertEquals("file-body", Files.readString(target.resolve("item.txt"), StandardCharsets.UTF_8));
     assertEquals(
-        "child", Files.readString(target.resolve("nested").resolve("child.txt"), StandardCharsets.UTF_8));
+        "child",
+        Files.readString(target.resolve("nested").resolve("child.txt"), StandardCharsets.UTF_8));
   }
 
   @Test

@@ -106,7 +106,8 @@ class PSRecycleServiceClearWidgetRelationshipsTest {
   void clearWidgetRelationships_nullGuid_isNoOp() throws Exception {
     service.clearWidgetRelationshipsForRecycledItem(null);
 
-    verify(widgetAssetRelationshipService, never()).clearAssetWidgetRelationshipsForAsset(anyString());
+    verify(widgetAssetRelationshipService, never())
+        .clearAssetWidgetRelationshipsForAsset(anyString());
   }
 
   @Test
@@ -117,7 +118,8 @@ class PSRecycleServiceClearWidgetRelationshipsTest {
 
     service.clearWidgetRelationshipsForRecycledItem(itemGuid);
 
-    verify(widgetAssetRelationshipService, never()).clearAssetWidgetRelationshipsForAsset(anyString());
+    verify(widgetAssetRelationshipService, never())
+        .clearAssetWidgetRelationshipsForAsset(anyString());
   }
 
   @Test
@@ -162,7 +164,8 @@ class PSRecycleServiceClearWidgetRelationshipsTest {
     // Non-workflowable item → transitionWorkflowItem no-ops
     when(workflowHelper.getTransitions(ASSET_ID)).thenReturn(null);
     // renameIfRequired no-ops on empty load
-    when(contentWs.loadItems(any(), eq(false), eq(false), eq(false), eq(true), eq(false), anyString()))
+    when(contentWs.loadItems(
+            any(), eq(false), eq(false), eq(false), eq(true), eq(false), anyString()))
         .thenReturn(Collections.emptyList());
 
     when(workflowHelper.isAsset(ASSET_ID)).thenReturn(true);

@@ -10,7 +10,9 @@
 
 Adds a durable, operator-readable post-install verification section for the
 selected RDBMS backend after successful silent and interactive installs (parent
-#934 AC-5). Pure formatting from `ResolvedDbConfig` + install path; wired once
+
+# 934 AC-5). Pure formatting from `ResolvedDbConfig` + install path; wired once
+
 in `Main` after ANT success. Unit tests cover embedded H2, external MySQL,
 source labels, and password redaction.
 

@@ -31,9 +31,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
-const {
-  catalogRowSelector,
-} = require("./helpers/developer-catalog-selectors");
+const { catalogRowSelector } = require("./helpers/developer-catalog-selectors");
 
 function developerContentTypesUrl() {
   const q = new URLSearchParams({
@@ -89,7 +87,9 @@ test.describe("Developer Object ACL Default/AnyCommunity specials (#2281)", () =
     ).toBeVisible({ timeout: 5_000 });
     await openBtn.click();
 
-    await expect(page.locator('[data-testid="developer-ct-detail"]')).toBeVisible({
+    await expect(
+      page.locator('[data-testid="developer-ct-detail"]'),
+    ).toBeVisible({
       timeout: 20_000,
     });
 
@@ -104,7 +104,9 @@ test.describe("Developer Object ACL Default/AnyCommunity specials (#2281)", () =
     const aclTable = page.locator('[data-testid="developer-ct-acl-table"]');
     const aclLoading = page.locator('[data-testid="developer-ct-acl-loading"]');
 
-    await expect(aclLoading).toBeHidden({ timeout: 30_000 }).catch(() => {});
+    await expect(aclLoading)
+      .toBeHidden({ timeout: 30_000 })
+      .catch(() => {});
     await expect(aclTable.or(aclEmpty).or(aclError).first()).toBeVisible({
       timeout: 30_000,
     });
@@ -116,7 +118,10 @@ test.describe("Developer Object ACL Default/AnyCommunity specials (#2281)", () =
 
     if (await aclEmpty.isVisible()) {
       // Create path is out of scope for specials UX; skip when object has no ACL.
-      test.skip(true, "Object has no ACL — create-first path not required for #2281");
+      test.skip(
+        true,
+        "Object has no ACL — create-first path not required for #2281",
+      );
       return;
     }
 
@@ -131,7 +136,9 @@ test.describe("Developer Object ACL Default/AnyCommunity specials (#2281)", () =
     const anyRows = page.locator(
       '[data-testid^="developer-ct-acl-row-"][data-special-acl="any-community"]',
     );
-    const addDefault = page.locator('[data-testid="developer-ct-acl-add-default"]');
+    const addDefault = page.locator(
+      '[data-testid="developer-ct-acl-add-default"]',
+    );
     const addAny = page.locator(
       '[data-testid="developer-ct-acl-add-any-community"]',
     );
@@ -154,10 +161,14 @@ test.describe("Developer Object ACL Default/AnyCommunity specials (#2281)", () =
       ).toContainText(/Default/i);
       // Protected: no remove control on Default row
       await expect(
-        defaultRows.first().locator('[data-testid*="developer-ct-acl-remove-"]'),
+        defaultRows
+          .first()
+          .locator('[data-testid*="developer-ct-acl-remove-"]'),
       ).toHaveCount(0);
       await expect(
-        defaultRows.first().locator('[data-testid*="developer-ct-acl-protected-"]'),
+        defaultRows
+          .first()
+          .locator('[data-testid*="developer-ct-acl-protected-"]'),
       ).toBeVisible();
     }
 

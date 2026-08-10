@@ -25,11 +25,11 @@ Windows:
 
 Produces:
 
-| Output | Description |
-|--------|-------------|
-| `target/perc-doctor-8.2.0-SNAPSHOT.jar` | Runnable jar (`Main-Class` = `DoctorCli`; no runtime deps) |
+|                    Output                    |                                   Description                                   |
+|----------------------------------------------|---------------------------------------------------------------------------------|
+| `target/perc-doctor-8.2.0-SNAPSHOT.jar`      | Runnable jar (`Main-Class` = `DoctorCli`; no runtime deps)                      |
 | `target/perc-doctor-8.2.0-SNAPSHOT-dist.zip` | Install layout: `bin/perc-doctor`, `bin/perc-doctor.bat`, `bin/perc-doctor.jar` |
-| `target/perc-doctor-8.2.0-SNAPSHOT-dist/` | Exploded dist layout |
+| `target/perc-doctor-8.2.0-SNAPSHOT-dist/`    | Exploded dist layout                                                            |
 
 CMS distribution (`modules/perc-distribution-tree`) unpacks the `dist` classifier zip into the install assembly so operators get the launchers under `<install-root>/bin`.
 
@@ -65,12 +65,12 @@ target\perc-doctor-8.2.0-SNAPSHOT-dist\bin\perc-doctor.bat --help
 
 ### Global options
 
-| Flag | Meaning |
-|------|---------|
+|          Flag           |                                             Meaning                                              |
+|-------------------------|--------------------------------------------------------------------------------------------------|
 | `--install-root <path>` | CMS install root (default: current working directory for raw jar; parent of `bin/` for wrappers) |
-| `--dry-run` | Report only — **never** deletes or writes |
-| `-v` / `--verbose` | Path-level detail |
-| `-h` / `--help` | Usage |
+| `--dry-run`             | Report only — **never** deletes or writes                                                        |
+| `-v` / `--verbose`      | Path-level detail                                                                                |
+| `-h` / `--help`         | Usage                                                                                            |
 
 ### Commands
 
@@ -80,14 +80,14 @@ Read-only install checklist. **Never deletes or writes.** Alias: `health` is ide
 
 Checks (all path probes stay under `--install-root`):
 
-| Area | What |
-|------|------|
-| Install root | Exists and is a directory |
-| Layout | Critical dirs: `jetty`, `jetty/base`, `rxconfig` (missing → fail). Optional: `bin`, `rxconfig/Server`, `Deployment` (missing → warn) |
-| Key config | Presence of `rxconfig/Server/server.properties`, `rxconfig/Installer/rxrepository.properties` (missing → warn) |
-| Log dirs | Known Jetty/CMS/DTS log dir existence (same roots as `clean-logs`) |
-| Free disk | Usable space on the install root volume (warn below 1 GiB) |
-| Java | Running doctor JVM version/major (info + warn if major &lt; 21) |
+|     Area     |                                                                 What                                                                 |
+|--------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| Install root | Exists and is a directory                                                                                                            |
+| Layout       | Critical dirs: `jetty`, `jetty/base`, `rxconfig` (missing → fail). Optional: `bin`, `rxconfig/Server`, `Deployment` (missing → warn) |
+| Key config   | Presence of `rxconfig/Server/server.properties`, `rxconfig/Installer/rxrepository.properties` (missing → warn)                       |
+| Log dirs     | Known Jetty/CMS/DTS log dir existence (same roots as `clean-logs`)                                                                   |
+| Free disk    | Usable space on the install root volume (warn below 1 GiB)                                                                           |
+| Java         | Running doctor JVM version/major (info + warn if major &lt; 21)                                                                      |
 
 Global `--dry-run` is accepted for flag parity and echoed on the report; diagnose is always non-mutating. Exit code is non-zero when any check is `FAIL`.
 
@@ -144,11 +144,11 @@ Remove allowlisted installer / upgrade backup artifacts left in the install tree
 
 Patterns are documented from `modules/perc-distribution-tree` (`install.xml` `zip_AppServer`, assembly/install `**/*.bak` / `**/*.backup` excludes, and known upgrade copies such as `Navigation.properties.backup`). **No arbitrary user globs.**
 
-| Pattern | Source |
-|---------|--------|
-| `AppServer_backup_<timestamp>.zip` | `install.xml` target `zip_AppServer` |
-| `**/*.bak` | assembly / install excludes (e.g. `ResourceBundle.tmx.bak`) |
-| `**/*.backup` | assembly / install excludes (includes `*.properties.backup`) |
+|              Pattern               |                            Source                            |
+|------------------------------------|--------------------------------------------------------------|
+| `AppServer_backup_<timestamp>.zip` | `install.xml` target `zip_AppServer`                         |
+| `**/*.bak`                         | assembly / install excludes (e.g. `ResourceBundle.tmx.bak`)  |
+| `**/*.backup`                      | assembly / install excludes (includes `*.properties.backup`) |
 
 - **Scope:** only under `--install-root`; paths outside the root are never deleted
 - **Dry-run:** inventories candidates + sizes without deleting
@@ -171,21 +171,21 @@ Reclaim space from **known** log directories under the install root without nuki
 
 ##### Target log locations (relative to `--install-root`)
 
-| Relative path | Role |
-|---------------|------|
-| `jetty/base/logs` | Jetty / CMS logs (`install.xml` mkdirs; Log4j2 `server.log`, rotations, `audit/`) |
-| `jetty/base/modules/perc-logging/logs` | Log4j2 default relative to perc-logging module config |
-| `Deployment/Server/logs` | DTS Tomcat (`catalina.base`/logs — `catalina.log`, gzipped rotations, etc.) |
+|             Relative path              |                                       Role                                        |
+|----------------------------------------|-----------------------------------------------------------------------------------|
+| `jetty/base/logs`                      | Jetty / CMS logs (`install.xml` mkdirs; Log4j2 `server.log`, rotations, `audit/`) |
+| `jetty/base/modules/perc-logging/logs` | Log4j2 default relative to perc-logging module config                             |
+| `Deployment/Server/logs`               | DTS Tomcat (`catalina.base`/logs — `catalina.log`, gzipped rotations, etc.)       |
 
 Missing directories are skipped (not an error). Only files under these roots whose names end with `.log`, `.log.gz`, or `.out` are candidates. **No user-supplied globs; no walk of the entire install for arbitrary logs.**
 
 ##### Options
 
-| Flag | Meaning |
-|------|---------|
-| `--older-than <duration>` | Only files with last-modified **older** than the duration. Units: `s`, `m`, `h`, `d`, `w` (e.g. `7d`, `24h`, `30m`). Omit to ignore age. |
-| `--keep-current` | **Default.** Never delete identifiable active current logs (`server.log`, `catalina.log`, `catalina.out`, … — non-dated `*.log` / `*.out`). |
-| `--no-keep-current` | Allow deleting those active basenames (still subject to `--older-than` if set). |
+|           Flag            |                                                                   Meaning                                                                   |
+|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| `--older-than <duration>` | Only files with last-modified **older** than the duration. Units: `s`, `m`, `h`, `d`, `w` (e.g. `7d`, `24h`, `30m`). Omit to ignore age.    |
+| `--keep-current`          | **Default.** Never delete identifiable active current logs (`server.log`, `catalina.log`, `catalina.out`, … — non-dated `*.log` / `*.out`). |
+| `--no-keep-current`       | Allow deleting those active basenames (still subject to `--older-than` if set).                                                             |
 
 - **Scope:** only under `--install-root` and the allowlisted log dirs
 - **Dry-run:** inventories candidates + sizes without deleting
@@ -222,12 +222,12 @@ Reclaim space from **known** install temp / work directories under the install r
 
 ##### Target temp / work locations (relative to `--install-root`)
 
-| Relative path | Role |
-|---------------|------|
-| `temp` | CMS install temp (`install.xml` creates `${install.dir}/temp`) |
-| `jetty/base/work` | Jetty work directory (assembly / install layout) |
-| `Deployment/Server/temp` | DTS Tomcat `catalina.base`/temp |
-| `Deployment/Server/work` | DTS Tomcat `catalina.base`/work |
+|      Relative path       |                              Role                              |
+|--------------------------|----------------------------------------------------------------|
+| `temp`                   | CMS install temp (`install.xml` creates `${install.dir}/temp`) |
+| `jetty/base/work`        | Jetty work directory (assembly / install layout)               |
+| `Deployment/Server/temp` | DTS Tomcat `catalina.base`/temp                                |
+| `Deployment/Server/work` | DTS Tomcat `catalina.base`/work                                |
 
 Missing directories are skipped (not an error). **Only files under these roots** are candidates. The allowlisted root directories themselves are **never** deleted (empty nested subdirs may be removed best-effort after apply). **No user-supplied globs; no walk of the entire install for arbitrary temp files.**
 
@@ -250,18 +250,18 @@ java -jar target\perc-doctor-8.2.0-SNAPSHOT.jar ^
 
 Read-only scan of known CMS **install and startup logs** for ERROR / FATAL / SEVERE and Rhythmyx context-death markers. **Never deletes or writes.** Alias: `check-startup-logs`.
 
-| Phase | Paths (relative to `--install-root`; first existing alternate wins) |
-|-------|---------------------------------------------------------------------|
-| **startup** | `jetty/base/logs/server.log` |
-| **install** | `rxconfig/Installer/InstallPackages.log` or `logs/InstallPackages.log`; `rxconfig/Installer/install.log`; `rxconfig/Installer/tablefactory.log` or `tablefactory.log` |
-| **all** (default) | startup + install |
+|       Phase       |                                                  Paths (relative to `--install-root`; first existing alternate wins)                                                  |
+|-------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **startup**       | `jetty/base/logs/server.log`                                                                                                                                          |
+| **install**       | `rxconfig/Installer/InstallPackages.log` or `logs/InstallPackages.log`; `rxconfig/Installer/install.log`; `rxconfig/Installer/tablefactory.log` or `tablefactory.log` |
+| **all** (default) | startup + install                                                                                                                                                     |
 
-| Option | Meaning |
-|--------|---------|
-| `--phase all\|startup\|install` | Which groups to scan (default `all`) |
-| `--tail-lines N` | Max lines from the end of each log (default 4000) |
-| `--require-startup` | FAIL if `server.log` is missing |
-| `--require-install` | FAIL if no install-phase logs are present |
+|             Option              |                      Meaning                      |
+|---------------------------------|---------------------------------------------------|
+| `--phase all\|startup\|install` | Which groups to scan (default `all`)              |
+| `--tail-lines N`                | Max lines from the end of each log (default 4000) |
+| `--require-startup`             | FAIL if `server.log` is missing                   |
+| `--require-install`             | FAIL if no install-phase logs are present         |
 
 Missing optional files are **SKIP** (not FAIL) unless require flags are set. Exit non-zero when any FAIL. Emits `RESULT:OK|FAIL STEP:check-logs` for agents. Rules align with Docker `qa-health` (`docker/scripts/rhythmyx_ready.py`).
 
@@ -274,24 +274,24 @@ perc-doctor --install-root C:\Percussion -v check-logs --phase install
 
 Read-only **value / misconfig** checks on documented CMS config files (deeper than presence-only layout checks). Never deletes or writes. Honors `--install-root`, `--dry-run` (echoed only), and `-v`.
 
-| Relative path | Role |
-|---------------|------|
-| `rxconfig/Server/server.properties` | Server flags / bind port |
+|                Relative path                 |           Role           |
+|----------------------------------------------|--------------------------|
+| `rxconfig/Server/server.properties`          | Server flags / bind port |
 | `rxconfig/Installer/rxrepository.properties` | Repository JDBC settings |
 
 Scoped checks (documented; no arbitrary property scans beyond placeholder scan):
 
-| Area | Examples |
-|------|----------|
-| Presence + readable | Missing file → **WARN** (partial install); unreadable → **FAIL** |
-| `enableDebugTools=true` | **WARN** (unsafe for production) |
-| `disableCrossSiteRequestForgeryCheck=true` | **WARN** |
-| `bindPort` | Missing/invalid/out-of-range/unresolved `${...}` → **WARN**/**FAIL** |
-| `requireHTTPS` | **INFO** when false/unset (lab ok); **PASS** when true |
-| Required repo keys | `DB_BACKEND`, `DB_DRIVER_NAME`, `DB_DRIVER_CLASS_NAME`, `DB_SERVER`, `UID` blank/placeholder → **FAIL** |
-| Driver vs backend | H2 vs non-H2 mismatch → **WARN** |
-| `PWD` / `PWD_ENCRYPTED` | Weak/default tokens, empty non-H2 PWD, plaintext storage → **WARN**/**INFO** |
-| Unresolved `${...}` | Other property values → **WARN** (truncated after 5) |
+|                    Area                    |                                                Examples                                                 |
+|--------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| Presence + readable                        | Missing file → **WARN** (partial install); unreadable → **FAIL**                                        |
+| `enableDebugTools=true`                    | **WARN** (unsafe for production)                                                                        |
+| `disableCrossSiteRequestForgeryCheck=true` | **WARN**                                                                                                |
+| `bindPort`                                 | Missing/invalid/out-of-range/unresolved `${...}` → **WARN**/**FAIL**                                    |
+| `requireHTTPS`                             | **INFO** when false/unset (lab ok); **PASS** when true                                                  |
+| Required repo keys                         | `DB_BACKEND`, `DB_DRIVER_NAME`, `DB_DRIVER_CLASS_NAME`, `DB_SERVER`, `UID` blank/placeholder → **FAIL** |
+| Driver vs backend                          | H2 vs non-H2 mismatch → **WARN**                                                                        |
+| `PWD` / `PWD_ENCRYPTED`                    | Weak/default tokens, empty non-H2 PWD, plaintext storage → **WARN**/**INFO**                            |
+| Unresolved `${...}`                        | Other property values → **WARN** (truncated after 5)                                                    |
 
 Exit code is non-zero when any check is **FAIL** (`healthy=false`). Password values are never printed.
 
@@ -311,11 +311,11 @@ java -jar target\perc-doctor-8.2.0-SNAPSHOT.jar ^
 
 Report (and optionally fix) **allowlisted** install mode / access issues. Prefer `--dry-run` first. **Never** runs a shell and never accepts user path globs.
 
-| Target | Behavior |
-|--------|----------|
-| `bin/perc-doctor`, `bin/perc-doctor.bat`, `bin/perc-doctor.jar` | Report readable; on POSIX add **owner-execute** to the Unix `perc-doctor` script when missing |
-| Known log dirs (`jetty/base/logs`, `jetty/base/modules/perc-logging/logs`, `Deployment/Server/logs`) | Report access; on POSIX ensure **owner rwx** when the directory exists |
-| `rxconfig/Server/server.properties`, `rxconfig/Installer/rxrepository.properties` | Report owner-read; on POSIX add **owner-read** when missing |
+|                                                Target                                                |                                           Behavior                                            |
+|------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| `bin/perc-doctor`, `bin/perc-doctor.bat`, `bin/perc-doctor.jar`                                      | Report readable; on POSIX add **owner-execute** to the Unix `perc-doctor` script when missing |
+| Known log dirs (`jetty/base/logs`, `jetty/base/modules/perc-logging/logs`, `Deployment/Server/logs`) | Report access; on POSIX ensure **owner rwx** when the directory exists                        |
+| `rxconfig/Server/server.properties`, `rxconfig/Installer/rxrepository.properties`                    | Report owner-read; on POSIX add **owner-read** when missing                                   |
 
 On Windows (non-POSIX file stores): reports readability/writability and skips mode mutation (Windows ACL repair is out of scope). Dry-run never writes; apply re-checks install-root containment before each mode change.
 
@@ -360,12 +360,12 @@ When the CMS server is running, doctor commands are also available as an **Admin
 
 ### Request body (`DoctorRequest`)
 
-| Field | Type | Default | Meaning |
-|-------|------|---------|---------|
-| `dryRun` | boolean | **`true` when omitted/null** | Report only — **no deletes**. Explicit apply requires `"dryRun": false`. |
-| `installRoot` | string | Server RX install root (`rxdeploydir` / resolved install dir) | Optional; when set must normalize to the **same** path as the host default. Filesystem I/O always uses the host-provided root (never a client path) — arbitrary tree override is rejected (**HTTP 400**) to block path injection. |
-| `olderThan` | string | unset | `clean-logs` only — e.g. `"7d"`, `"24h"` |
-| `keepCurrent` | boolean | `true` when omitted/null | `clean-logs` only — retain active current logs |
+|     Field     |  Type   |                            Default                            |                                                                                                              Meaning                                                                                                              |
+|---------------|---------|---------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `dryRun`      | boolean | **`true` when omitted/null**                                  | Report only — **no deletes**. Explicit apply requires `"dryRun": false`.                                                                                                                                                          |
+| `installRoot` | string  | Server RX install root (`rxdeploydir` / resolved install dir) | Optional; when set must normalize to the **same** path as the host default. Filesystem I/O always uses the host-provided root (never a client path) — arbitrary tree override is rejected (**HTTP 400**) to block path injection. |
+| `olderThan`   | string  | unset                                                         | `clean-logs` only — e.g. `"7d"`, `"24h"`                                                                                                                                                                                          |
+| `keepCurrent` | boolean | `true` when omitted/null                                      | `clean-logs` only — retain active current logs                                                                                                                                                                                    |
 
 **Dry-run is the default on the API** (unlike the CLI, where `--dry-run` is opt-in). This reduces risk of accidental deletes from HTTP clients. Document this to operators: inventory is safe by default; destructive apply is opt-in via `"dryRun": false`.
 

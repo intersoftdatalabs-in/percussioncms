@@ -37,7 +37,6 @@ import com.percussion.recycle.service.IPSRecycleService;
 import com.percussion.recycle.service.impl.PSRecycleService;
 import com.percussion.searchmanagement.service.IPSPageIndexService;
 import com.percussion.searchmanagement.service.impl.PSPageIndexService;
-import com.percussion.share.dao.IPSContentItemDao;
 import com.percussion.share.dao.IPSFolderHelper;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -130,14 +129,15 @@ public class PSWidgetAssetRelationshipServiceHubReverseEdgeWiringTest {
 
   /**
    * Intentional forward fan-in: product hubs on/near the cycle path construct-require widgetAsset.
-   * Freezing these positive edges documents that recycle/page/template → widgetAsset is <em>not</em>
-   * a reverse edge (see inventory #2463 / #2519).
+   * Freezing these positive edges documents that recycle/page/template → widgetAsset is
+   * <em>not</em> a reverse edge (see inventory #2463 / #2519).
    */
   @Test
   public void intentionalConsumersStillConstructRequireWidgetAsset() throws NoSuchMethodException {
     assertNotNull(
         findParamOfType(
-            singlePublicConstructor(PSRecycleService.class), IPSWidgetAssetRelationshipService.class),
+            singlePublicConstructor(PSRecycleService.class),
+            IPSWidgetAssetRelationshipService.class),
         "PSRecycleService must still construct-require IPSWidgetAssetRelationshipService"
             + " (known-cycle path A/B forward edge)");
     assertNotNull(
@@ -182,7 +182,9 @@ public class PSWidgetAssetRelationshipServiceHubReverseEdgeWiringTest {
   public void cyclePathPeersMustNotEagerFieldInjectWidgetAsset() {
     List<String> violations = new ArrayList<>();
     for (Class<?> peer : CYCLE_PATH_REVERSE_PEERS) {
-      for (Class<?> type = peer; type != null && type != Object.class; type = type.getSuperclass()) {
+      for (Class<?> type = peer;
+          type != null && type != Object.class;
+          type = type.getSuperclass()) {
         for (Field field : type.getDeclaredFields()) {
           if (!IPSWidgetAssetRelationshipService.class.isAssignableFrom(field.getType())
               && !PSWidgetAssetRelationshipService.class.isAssignableFrom(field.getType())) {
@@ -212,7 +214,9 @@ public class PSWidgetAssetRelationshipServiceHubReverseEdgeWiringTest {
             + String.join("; ", violations));
   }
 
-  /** Named assertion: reverse of widgetAsset → assetDao would skip the contentItemDao @Lazy break. */
+  /**
+   * Named assertion: reverse of widgetAsset → assetDao would skip the contentItemDao @Lazy break.
+   */
   @Test
   public void assetDaoMustNotConstructRequireWidgetAsset() throws NoSuchMethodException {
     assertNoEagerCtorParam(
@@ -297,8 +301,8 @@ public class PSWidgetAssetRelationshipServiceHubReverseEdgeWiringTest {
   }
 
   /**
-   * The {@code managedLinkService} field is a post-lookup cache only. Eager field {@code
-   * @Autowired} (without {@code @Lazy}) is the same class of reverse edge as a ctor param.
+   * The {@code managedLinkService} field is a post-lookup cache only. Eager field
+   * {@code @Autowired} (without {@code @Lazy}) is the same class of reverse edge as a ctor param.
    */
   @Test
   public void widgetAssetManagedLinkFieldIsNotEagerAutowired() throws NoSuchFieldException {

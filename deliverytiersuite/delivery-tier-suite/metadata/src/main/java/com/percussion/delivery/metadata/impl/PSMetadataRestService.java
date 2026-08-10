@@ -525,8 +525,7 @@ public class PSMetadataRestService extends PSAbstractRestService implements IPSM
     try {
       List<String> promotedPagePaths =
           new ArrayList<>(
-              Arrays.asList(
-                  Objects.toString(visitQuery.getPromotedPagePaths(), "").split(";")));
+              Arrays.asList(Objects.toString(visitQuery.getPromotedPagePaths(), "").split(";")));
 
       for (String path : promotedPagePaths) {
         if (StringUtils.isBlank(path)) {

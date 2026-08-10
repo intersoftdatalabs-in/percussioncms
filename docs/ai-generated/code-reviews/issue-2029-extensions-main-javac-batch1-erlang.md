@@ -23,15 +23,15 @@ Clears all project `-Xlint` javac diagnostics in `modules/extensions-main` (base
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | none found |
-| Behavioral tests for non-trivial logic | present (helper + date UDF) |
-| Portable paths / I/O | N/A (no path changes) |
-| Scope creep | none |
-| New suppressions | none |
-| Module clean install | BUILD SUCCESS, Tests run: 55, Failures: 0; 0 javac `warning:` lines |
-| May commit/push | **yes** |
+|                 Check                  |                               Result                                |
+|----------------------------------------|---------------------------------------------------------------------|
+| Bugs                                   | none found                                                          |
+| Behavioral tests for non-trivial logic | present (helper + date UDF)                                         |
+| Portable paths / I/O                   | N/A (no path changes)                                               |
+| Scope creep                            | none                                                                |
+| New suppressions                       | none                                                                |
+| Module clean install                   | BUILD SUCCESS, Tests run: 55, Failures: 0; 0 javac `warning:` lines |
+| May commit/push                        | **yes**                                                             |
 
 ## Issues
 
@@ -41,3 +41,4 @@ _None at bug/suggestion severity._
 
 - `PSDatabasePublisher` finally-return removal is a correctness fix (exceptions no longer swallowed). Not unit-tested with a full request stack; acceptable for this warning cleanup given private method surface and high fixture cost.
 - Legacy Percussion copyright headers left unchanged on pre-2023 files; new test files use Intersoft 2026 headers per AGENTS.md.
+

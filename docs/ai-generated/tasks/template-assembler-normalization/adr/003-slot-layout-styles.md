@@ -1,9 +1,9 @@
 # ADR-003: Slot layout and slot styles
 
-| Field | Value |
-|-------|--------|
+|   Field    |        Value         |
+|------------|----------------------|
 | **Status** | Accepted (direction) |
-| **Date** | 2026-08-09 |
+| **Date**   | 2026-08-09           |
 
 ## Decision
 
@@ -31,3 +31,4 @@ Exposed to assembly context for JEXL/templates (exact binding names TBD, e.g. `$
 - Upgrade maps widget `CssPref` / layout-ish `UserPref` → slot defaults + instance overrides.
 - Visual Design editor edits these properties on slots.
 - Do not invent an open-ended CSS-in-DB product in v1 — start with CM1-parity property set and version the schema.
+

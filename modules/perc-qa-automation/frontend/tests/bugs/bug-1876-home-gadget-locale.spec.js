@@ -126,7 +126,9 @@ function homeUrl() {
 async function resolveNonEnglishLocale(page) {
   await page.goto(`${BASE_URL}/Rhythmyx/login`);
   await page.waitForLoadState("domcontentloaded");
-  await expect(page.getByTestId("perc-login-page").or(page.getByTestId("perc-login-root"))).toBeVisible({
+  await expect(
+    page.getByTestId("perc-login-page").or(page.getByTestId("perc-login-root")),
+  ).toBeVisible({
     timeout: 20_000,
   });
 
@@ -173,7 +175,9 @@ test.describe("Home gadget locale residual keys (GH-1876) @locale @home @dashboa
 
     const gadgets = page.getByTestId("home-gadgets-section");
     const dashboard = page.getByTestId("dashboard-root");
-    await expect(gadgets.or(dashboard).first()).toBeVisible({ timeout: 45_000 });
+    await expect(gadgets.or(dashboard).first()).toBeVisible({
+      timeout: 45_000,
+    });
 
     // --- Toolbar: Add Gadget button (DASHBOARD_ADD_GADGET / MODAL title key) ---
     const addBtn = page.getByTestId("dashboard-add-gadget");
@@ -204,10 +208,12 @@ test.describe("Home gadget locale residual keys (GH-1876) @locale @home @dashboa
 
     // Close modal (click overlay backdrop or press Escape).
     await page.keyboard.press("Escape");
-    await expect(empty).toBeHidden({ timeout: 5_000 }).catch(async () => {
-      // Backdrop click fallback
-      await page.locator("body").click({ position: { x: 4, y: 4 } });
-    });
+    await expect(empty)
+      .toBeHidden({ timeout: 5_000 })
+      .catch(async () => {
+        // Backdrop click fallback
+        await page.locator("body").click({ position: { x: 4, y: 4 } });
+      });
 
     // --- Sample body keys: Welcome greeting/blurb + Activity title ---
     // Welcome is in DEFAULT_GADGET_IDS; Activity too. Titles/body use message(MSG.*).

@@ -17,7 +17,6 @@
 package com.percussion.cms.objectstore;
 
 import com.percussion.cms.PSCmsException;
-import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.contentmgr.IPSContentMgr;
@@ -248,9 +247,7 @@ public class PSContentTypeTemplate extends PSDbComponent {
     loadFieldsFromXml(sourceNode);
   }
 
-  /**
-   * Loads non-key fields from XML without re-applying key/state (avoids Element double-load).
-   */
+  /** Loads non-key fields from XML without re-applying key/state (avoids Element double-load). */
   private void loadFieldsFromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     m_outputFormat = PSXMLDomUtil.checkAttributeInt(sourceNode, XML_ATTR_outputFormat, true);
 

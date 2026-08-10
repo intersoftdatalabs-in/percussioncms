@@ -19,7 +19,6 @@ package com.percussion.taxonomy.validation;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 import org.apache.commons.validator.util.Flags;
 import org.apache.oro.text.perl.Perl5Util;
 

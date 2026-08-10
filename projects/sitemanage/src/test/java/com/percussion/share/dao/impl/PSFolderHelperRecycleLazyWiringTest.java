@@ -27,8 +27,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Lazy;
 
 /**
- * Regression test for Spring constructor-injection cycles rooted at {@code folderHelper}'s
- * {@code recycleService} dependency (#2423 / #2437).
+ * Regression test for Spring constructor-injection cycles rooted at {@code folderHelper}'s {@code
+ * recycleService} dependency (#2423 / #2437).
  *
  * <pre>
  * folderHelper -&gt; recycleService -&gt; widgetAssetRelationshipService

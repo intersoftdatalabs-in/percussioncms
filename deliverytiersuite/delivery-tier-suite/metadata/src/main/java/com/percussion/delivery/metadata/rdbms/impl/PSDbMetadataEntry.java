@@ -50,7 +50,6 @@ import org.hibernate.annotations.*;
     indexes = {@Index(name = "typeIndex", columnList = "type")})
 public final class PSDbMetadataEntry implements IPSMetadataEntry {
 
-
   /** Hash of {@link #pagepath}; used as the database primary key. */
   @Id
   @Column(length = 40)

@@ -57,3 +57,4 @@ None (bugs / missing behavioral tests / non-portable I/O).
 
 - Partition Spotless out-of-scope rewrites from feature commit
 - Structural packaging tests over live root systemd
+

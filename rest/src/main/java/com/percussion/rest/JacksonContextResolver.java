@@ -34,10 +34,10 @@ import tools.jackson.databind.json.JsonMapper;
  * serialization behavior of the objects passed in. We test that the class has the same ancestor
  * package as this class to ensure we do not modify behavior for other parts of the system.
  *
- * <p>Jackson 3 embeds {@code Optional}/{@code java.time} support in databind — no
- * {@code Jdk8Module} or {@code JavaTimeModule} registration required. Many REST DTOs expose
- * {@code Optional} getters (e.g. ContentType name); without that support, catalog tables serialize
- * empty (hideFromMenu-only payloads).
+ * <p>Jackson 3 embeds {@code Optional}/{@code java.time} support in databind — no {@code
+ * Jdk8Module} or {@code JavaTimeModule} registration required. Many REST DTOs expose {@code
+ * Optional} getters (e.g. ContentType name); without that support, catalog tables serialize empty
+ * (hideFromMenu-only payloads).
  *
  * @author stephenbolton
  */

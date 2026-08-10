@@ -80,8 +80,8 @@ import org.springframework.context.annotation.Lazy;
 public class PSPageServiceCycleWiringTest {
 
   /**
-   * Cycle peers and high-risk intermediates that pageService construct-requires (or that sit on
-   * the known folderHelper→…→contentItemDao chain). None of these may reverse-require {@link
+   * Cycle peers and high-risk intermediates that pageService construct-requires (or that sit on the
+   * known folderHelper→…→contentItemDao chain). None of these may reverse-require {@link
    * IPSPageService} without {@code @Lazy}.
    */
   private static final Class<?>[] CYCLE_PEERS = {
@@ -159,8 +159,8 @@ public class PSPageServiceCycleWiringTest {
    * class of reverse edge as a constructor param (class-level {@code @Lazy} on the peer does not
    * break an eager field edge from a bean already under construction).
    *
-   * <p>Also flags unannotated fields of that type (legacy XML/setter surfaces) unless marked {@code
-   * @Lazy}.
+   * <p>Also flags unannotated fields of that type (legacy XML/setter surfaces) unless marked
+   * {@code @Lazy}.
    */
   @Test
   public void cyclePeersMustNotEagerFieldInjectPageService() {

@@ -338,8 +338,7 @@ public class Main {
       log.info(report);
     } catch (Exception reportEx) {
       System.out.println(
-          "Warning: could not emit post-install DB verification report: "
-              + reportEx.getMessage());
+          "Warning: could not emit post-install DB verification report: " + reportEx.getMessage());
       log.warn("Post-install DB verification report failed", reportEx);
     }
   }

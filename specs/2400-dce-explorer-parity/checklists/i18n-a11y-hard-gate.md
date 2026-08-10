@@ -24,12 +24,12 @@
 
 ### Tests (non-negotiable)
 
-| Layer | Gate |
-|-------|------|
-| Vitest | `renderA11yGate(container)` on new/changed surfaces (`contentExplorer/a11y.ts`) |
-| Vitest | Assert new chrome keys are `perc.ui.explorer@…` when adding shell chrome |
-| Playwright | `expectNoSeriousA11yViolations` on Explorer shell / expanded panels |
-| Playwright | Behavioral coverage of user-visible flows (`perc-qa-automation`) |
+|   Layer    |                                      Gate                                       |
+|------------|---------------------------------------------------------------------------------|
+| Vitest     | `renderA11yGate(container)` on new/changed surfaces (`contentExplorer/a11y.ts`) |
+| Vitest     | Assert new chrome keys are `perc.ui.explorer@…` when adding shell chrome        |
+| Playwright | `expectNoSeriousA11yViolations` on Explorer shell / expanded panels             |
+| Playwright | Behavioral coverage of user-visible flows (`perc-qa-automation`)                |
 
 ## References
 
@@ -39,6 +39,7 @@
 
 ## Sign-off (update per slice PR)
 
-| Slice / PR | i18n keys | Vitest a11y | Playwright a11y | Notes |
-|------------|-----------|-------------|-----------------|-------|
+|       Slice / PR        |                                             i18n keys                                              |          Vitest a11y          |              Playwright a11y              |     Notes     |
+|-------------------------|----------------------------------------------------------------------------------------------------|-------------------------------|-------------------------------------------|---------------|
 | #2407 shell composition | DISPLAY_FORMAT_*, SERVER_ACTIONS_*, VIEW_TOOLS_*, TOGGLE_*, PANEL_REGION_*, SECURITY_SELECT_FOLDER | ContentExplorerShell.test.tsx | us1-core-explorer shell + search expanded | Product shell |
+

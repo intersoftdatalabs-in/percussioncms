@@ -26,7 +26,8 @@ const {
 } = require("./empty-recycling");
 
 /** Pathmanagement restore endpoint (sitemanage PSPathService). */
-const PATH_RESTORE_FOLDER = "/Rhythmyx/services/pathmanagement/path/restoreFolder";
+const PATH_RESTORE_FOLDER =
+  "/Rhythmyx/services/pathmanagement/path/restoreFolder";
 
 /**
  * True when an HTTP status means Rhythmyx / pathmanagement is answering.
@@ -84,10 +85,18 @@ function extractPathItem(body) {
     return {};
   }
   const o = /** @type {Record<string, unknown>} */ (body);
-  if (o.PathItem && typeof o.PathItem === "object" && !Array.isArray(o.PathItem)) {
+  if (
+    o.PathItem &&
+    typeof o.PathItem === "object" &&
+    !Array.isArray(o.PathItem)
+  ) {
     return /** @type {Record<string, unknown>} */ (o.PathItem);
   }
-  if (o.pathItem && typeof o.pathItem === "object" && !Array.isArray(o.pathItem)) {
+  if (
+    o.pathItem &&
+    typeof o.pathItem === "object" &&
+    !Array.isArray(o.pathItem)
+  ) {
     return /** @type {Record<string, unknown>} */ (o.pathItem);
   }
   return o;
@@ -333,7 +342,9 @@ async function recycleFolder(request, baseUrl, headers, folder) {
   const deletePath = String(folder.path || "").startsWith("/")
     ? String(folder.path)
     : `/${folder.path}`;
-  const pathForDelete = deletePath.endsWith("/") ? deletePath : `${deletePath}/`;
+  const pathForDelete = deletePath.endsWith("/")
+    ? deletePath
+    : `${deletePath}/`;
   const delRes = await request.post(cmsUrl(baseUrl, PATH_DELETE_FOLDER), {
     headers: {
       ...headers,

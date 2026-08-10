@@ -60,7 +60,8 @@ public class PSSerializableListWrappersTest {
   }
 
   private static void assertSerialVersionUid(Class<?> type) throws Exception {
-    assertTrue(Serializable.class.isAssignableFrom(type), type.getName() + " should be Serializable");
+    assertTrue(
+        Serializable.class.isAssignableFrom(type), type.getName() + " should be Serializable");
     Field f = type.getDeclaredField("serialVersionUID");
     f.setAccessible(true);
     assertNotNull(f.get(null));

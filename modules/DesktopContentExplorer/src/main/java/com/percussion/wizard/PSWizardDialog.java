@@ -110,8 +110,8 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
   /**
    * Builds the last-page summary body from ordered page summaries, preserving historical append
    * rules: a non-empty summary is appended with a trailing newline only when it is not the last
-   * page index in the wizard (skipped pages are {@code null} entries; empty summaries are
-   * omitted). Pure helper for unit tests.
+   * page index in the wizard (skipped pages are {@code null} entries; empty summaries are omitted).
+   * Pure helper for unit tests.
    *
    * @param summaries ordered by page index; {@code null} entry means the page was skipped
    * @return summary body without the original instruction prefix, never <code>null</code>

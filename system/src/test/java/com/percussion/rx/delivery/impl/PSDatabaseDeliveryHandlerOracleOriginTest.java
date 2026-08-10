@@ -28,8 +28,8 @@ import com.percussion.utils.jdbc.PSJdbcUtils;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit tests for Oracle schema vs connect-UID origin resolution used by
- * database / page-database publishing (#953 / #2245).
+ * Unit tests for Oracle schema vs connect-UID origin resolution used by database / page-database
+ * publishing (#953 / #2245).
  *
  * <p>No live Oracle — pure mapping and SQL qualification assertions only.
  */
@@ -167,8 +167,7 @@ public class PSDatabaseDeliveryHandlerOracleOriginTest {
 
     String origin = PSDatabaseDeliveryHandler.resolveDbmsOrigin(db);
     String qualified =
-        PSSqlHelper.qualifyTableName(
-            "PERC_EXPORT_PAGE", null, origin, PSJdbcUtils.ORACLE_DRIVER);
+        PSSqlHelper.qualifyTableName("PERC_EXPORT_PAGE", null, origin, PSJdbcUtils.ORACLE_DRIVER);
 
     assertEquals("SYSTEM.PERC_EXPORT_PAGE", qualified);
     // Unfixed path would have been ORAPROD.PERC_EXPORT_PAGE → ORA-01918 if user missing.

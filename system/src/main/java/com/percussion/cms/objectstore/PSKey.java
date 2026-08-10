@@ -415,7 +415,8 @@ public class PSKey implements IPSCmsComponent, Serializable {
   private void fromXml(Element src, boolean validate) throws PSUnknownNodeTypeException {
     if (null == src) throw new IllegalArgumentException("src must be supplied");
 
-    // Use class-derived node name (not overridable getNodeName) so Element ctor is this-escape free.
+    // Use class-derived node name (not overridable getNodeName) so Element ctor is this-escape
+    // free.
     PSXMLDomUtil.checkNode(src, nodeNameFor(getClass()));
 
     // get the attributes

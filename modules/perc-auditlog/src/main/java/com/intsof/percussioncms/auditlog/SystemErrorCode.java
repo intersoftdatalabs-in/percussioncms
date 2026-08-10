@@ -19,9 +19,10 @@ package com.intsof.percussioncms.auditlog;
 /**
  * System-wide error / message code implemented by package-local {@code *ErrorCodes} enums.
  *
- * <p>Unifies product error reporting and audit logging. When {@link #isAuditable()} is {@code true},
- * reporting this code dual-writes to {@code server.log} and the durable audit store. When {@code
- * false}, the code is operational only (exception text / app log) and must not create an audit row.
+ * <p>Unifies product error reporting and audit logging. When {@link #isAuditable()} is {@code
+ * true}, reporting this code dual-writes to {@code server.log} and the durable audit store. When
+ * {@code false}, the code is operational only (exception text / app log) and must not create an
+ * audit row.
  *
  * <p>Message templates use sequential {@code {}} placeholders (SLF4J-style).
  */
@@ -34,8 +35,8 @@ public interface SystemErrorCode {
   int numericCode();
 
   /**
-   * User-facing message template with {@code {}} placeholders. Prepared and sanitized for end
-   * users / Admin UI.
+   * User-facing message template with {@code {}} placeholders. Prepared and sanitized for end users
+   * / Admin UI.
    */
   String userMessageTemplate();
 

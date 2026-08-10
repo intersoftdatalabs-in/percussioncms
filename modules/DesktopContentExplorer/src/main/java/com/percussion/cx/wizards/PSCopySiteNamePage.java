@@ -26,7 +26,6 @@ import com.percussion.wizard.PSWizardPanel;
 import com.percussion.wizard.PSWizardValidationError;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -195,8 +194,7 @@ public class PSCopySiteNamePage extends PSWizardPanel {
      * @param folderNames all folder names already existing in the target folder of the copy action
      *     as collection of <code>String</code> objects.
      */
-    public InputData(
-        PSNode source, Collection<PSSite> sites, Collection<String> folderNames) {
+    public InputData(PSNode source, Collection<PSSite> sites, Collection<String> folderNames) {
       if (source == null) throw new IllegalArgumentException("source cannot be null");
 
       if (sites == null) throw new IllegalArgumentException("sites cannot be null");

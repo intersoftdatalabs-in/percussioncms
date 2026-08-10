@@ -10,12 +10,12 @@ Clear `-Xlint:rawtypes` / unchecked on `PSWizardDialog` (wizard + CX copies) and
 
 ## Findings
 
-| Severity | Finding | Disposition |
-|----------|---------|-------------|
-| none | Raw `Map` / `Iterator` / `Class` / `Constructor` on both dialog copies | Fixed: `Map<Integer, IPSWizardPanel>`, typed reflection |
-| none | Summary append semantics | Preserved via pure `collectSummaryBody` matching historical `Iterator.hasNext()` rule |
-| note | Residual non-rawtypes warnings on dialogs (`serialVersionUID`, non-transient fields, this-escape) | Out of scope for this residual; not introduced by typing |
-| note | Duplicate `PSWizardDialog` in `cx` and `wizard` packages | CX delegates pure helpers to wizard package; full consolidation out of scope |
+| Severity |                                              Finding                                              |                                      Disposition                                      |
+|----------|---------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| none     | Raw `Map` / `Iterator` / `Class` / `Constructor` on both dialog copies                            | Fixed: `Map<Integer, IPSWizardPanel>`, typed reflection                               |
+| none     | Summary append semantics                                                                          | Preserved via pure `collectSummaryBody` matching historical `Iterator.hasNext()` rule |
+| note     | Residual non-rawtypes warnings on dialogs (`serialVersionUID`, non-transient fields, this-escape) | Out of scope for this residual; not introduced by typing                              |
+| note     | Duplicate `PSWizardDialog` in `cx` and `wizard` packages                                          | CX delegates pure helpers to wizard package; full consolidation out of scope          |
 
 ## Tests
 

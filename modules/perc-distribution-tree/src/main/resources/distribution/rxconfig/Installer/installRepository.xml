@@ -26,10 +26,10 @@
 		<mkdir dir="${install.dir}/logs" />
 
 		<!-- Fresh H2/Derby installs do not have these upgrade cleanup tables.
-		     MySQL/H2: IF EXISTS avoids noise. Derby has no DROP IF EXISTS — keep
-		     plain DROP + failonerror=false (PSExecSQLStmt maps missing-table to WARN).
-		     failonerror=false on all dialects so first-time matrix cells stay green
-		     under #2556 / qa-up server_log_errors gates. -->
+			MySQL/H2: IF EXISTS avoids noise. Derby has no DROP IF EXISTS — keep plain
+			DROP + failonerror=false (PSExecSQLStmt maps missing-table to WARN). failonerror=false
+			on all dialects so first-time matrix cells stay green under #2556 / qa-up
+			server_log_errors gates. -->
 		<echo>Dropping selected tables...</echo>
 		<PSExecSQLStmt rootDir="${install.dir}"
 			printExceptionStackTrace="true" qualifyViewNames="PSX_QJOB_LISTENERS"
@@ -209,12 +209,13 @@
 
 		<!-- Optional sample sites (Corporate Investments / Enterprise Investments).
 			Driven by the Java preinstall's demo-sites flag, propagated to ANT as -Dinstall.demo.sites=true
-			from Phase-1 options (wizard Yes / demo-sites CLI flag) via Main.execJar (#2192).
-			When true on new installs and upgrades: antcall installSampleSites chains an
-			RxffTableData/RxffTableDef PSTableAction pass that seeds the two sample sites plus
-			their ACLs, content types, nav, etc. RXLOCALE / RXLOCALEFORMAT are protected by
-			stripSampleLocales, not by install-type gating. This in-target guard is defensive
-			so the chain wiring and the system property remain in sync. -->
+			from Phase-1 options (wizard Yes / demo-sites CLI flag) via Main.execJar
+			(#2192). When true on new installs and upgrades: antcall installSampleSites
+			chains an RxffTableData/RxffTableDef PSTableAction pass that seeds the two
+			sample sites plus their ACLs, content types, nav, etc. RXLOCALE / RXLOCALEFORMAT
+			are protected by stripSampleLocales, not by install-type gating. This in-target
+			guard is defensive so the chain wiring and the system property remain in
+			sync. -->
 		<if>
 			<equals arg1="${install.demo.sites}" arg2="true" />
 			<then>
@@ -728,16 +729,15 @@
 	</target>
 
 	<!-- Nested ant does not inherit parent taskdefs; re-register from perc-ant
-		(same pattern as migration_i18n_locales.xml). Pure Java strip: no Nashorn /
-		javax.script (issue 2303). Algorithm lockstep with
-		com.percussion.distribution.install.SampleSiteLocaleStrip. -->
+		(same pattern as migration_i18n_locales.xml). Pure Java strip: no Nashorn
+		/ javax.script (issue 2303). Algorithm lockstep with com.percussion.distribution.install.SampleSiteLocaleStrip. -->
 	<taskdef name="PSStripSampleLocales"
 		classname="com.percussion.ant.install.PSStripSampleLocales" />
 
 	<target name="stripSampleLocales"
 		description="Strip RXLOCALE and RXLOCALEFORMAT table blocks from the sample seed XML to a staging copy. Source file is never modified.">
-		<PSStripSampleLocales inputFile="${sample.input.file}"
-			stagingFile="${sample.staging.file}" />
+		<PSStripSampleLocales
+			inputFile="${sample.input.file}" stagingFile="${sample.staging.file}" />
 	</target>
 
 </project>

@@ -161,7 +161,10 @@ describe("explorer-recycle-restore-ui helpers", () => {
     assert.equal(cssAttrEscape("a\\b"), "a\\\\b");
     assert.equal(cssAttrEscape(null), "");
     assert.equal(cssAttrEscape(undefined), "");
-    assert.equal(fuzzyTreeNodeSelector('seg"ment'), '[data-testid*="seg\\"ment"]');
+    assert.equal(
+      fuzzyTreeNodeSelector('seg"ment'),
+      '[data-testid*="seg\\"ment"]',
+    );
     const [withSlash] = treeNodeSelectors("Assets");
     assert.match(withSlash, /^\[data-testid="/);
     assert.match(withSlash, /Assets/);
@@ -170,7 +173,6 @@ describe("explorer-recycle-restore-ui helpers", () => {
     assert.ok(quoted.startsWith('[data-testid="'));
     assert.ok(quoted.endsWith('"]'));
   });
-
 
   it("recycledFolderExplorerPath builds structural Recycling paths", () => {
     assert.equal(
@@ -181,10 +183,7 @@ describe("explorer-recycle-restore-ui helpers", () => {
       recycledFolderExplorerPath("seed-a", "Sites"),
       "/Recycling/Sites/seed-a",
     );
-    assert.equal(
-      recycledFolderExplorerPath("seed-a", ""),
-      "/Recycling/seed-a",
-    );
+    assert.equal(recycledFolderExplorerPath("seed-a", ""), "/Recycling/seed-a");
     assert.equal(recycledFolderExplorerPath(""), "/Recycling/Assets");
   });
 
@@ -215,10 +214,7 @@ describe("explorer-recycle-restore-ui helpers", () => {
   it("isRestoreEligibleExplorerPath matches Recycling depth rule", () => {
     assert.equal(isRestoreEligibleExplorerPath("/Recycling"), false);
     assert.equal(isRestoreEligibleExplorerPath("/Recycling/Assets"), false);
-    assert.equal(
-      isRestoreEligibleExplorerPath("/Recycling/Assets/seed"),
-      true,
-    );
+    assert.equal(isRestoreEligibleExplorerPath("/Recycling/Assets/seed"), true);
     assert.equal(isRestoreEligibleExplorerPath("/Assets/seed"), false);
   });
 

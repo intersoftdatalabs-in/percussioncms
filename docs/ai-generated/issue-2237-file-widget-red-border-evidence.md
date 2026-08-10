@@ -1,22 +1,22 @@
 # Issue #2237 — File widget red dotted border after recycle/recreate (Slice 1 evidence)
 
-| Field | Value |
-|-------|-------|
-| **Issue** | [#2237](https://github.com/intersoftdatalabs-in/percussioncms/issues/2237) (Slice 1 of [#777](https://github.com/intersoftdatalabs-in/percussioncms/issues/777)) |
+|     Field      |                                                                                         Value                                                                                          |
+|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Issue**      | [#2237](https://github.com/intersoftdatalabs-in/percussioncms/issues/2237) (Slice 1 of [#777](https://github.com/intersoftdatalabs-in/percussioncms/issues/777))                       |
 | **Follow-ups** | Product fix [#2238](https://github.com/intersoftdatalabs-in/percussioncms/issues/2238); Playwright residual [#2239](https://github.com/intersoftdatalabs-in/percussioncms/issues/2239) |
-| **Date (UTC)** | 2026-08-07 |
-| **Operator** | Grok night-issue-prs (model grok-4.5) |
-| **Purpose** | Repro path + root-cause **classification** with code/DOM evidence. **No product fix** in this slice. |
+| **Date (UTC)** | 2026-08-07                                                                                                                                                                             |
+| **Operator**   | Grok night-issue-prs (model grok-4.5)                                                                                                                                                  |
+| **Purpose**    | Repro path + root-cause **classification** with code/DOM evidence. **No product fix** in this slice.                                                                                   |
 
 ## Classification (summary)
 
-| Question | Answer |
-|----------|--------|
-| Orphan / stale relationship? | **Yes (primary).** Widget still binds the page to the **recycled content id** via AA/asset-widget relationship. That dependent still has a `RecycledContent` relationship (`configId = 8`). |
-| Pure UI chrome bug? | **No.** Red dotted outline is **intentional chrome** for recycled assets (class `perc-recycled-asset`). |
-| Both? | **Effectively both surfaces:** data integrity (stale page→asset id) + intentional UI that paints chrome when `isInRecycler(assetId)` is true. Fix belongs in relationship/rebind/recycle lifecycle (#2238), not “delete the CSS class” alone. |
-| Why downloads still work | Recycled items keep binary content until purged; assembly can still resolve a link for the bound (recycled) id. Red outline is independent of download success. |
-| Confirmed workaround (#777) | Purge/delete the old file **from Recycling** → `isInRecycler` becomes false → red outline goes away. |
+|           Question           |                                                                                                                    Answer                                                                                                                     |
+|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Orphan / stale relationship? | **Yes (primary).** Widget still binds the page to the **recycled content id** via AA/asset-widget relationship. That dependent still has a `RecycledContent` relationship (`configId = 8`).                                                   |
+| Pure UI chrome bug?          | **No.** Red dotted outline is **intentional chrome** for recycled assets (class `perc-recycled-asset`).                                                                                                                                       |
+| Both?                        | **Effectively both surfaces:** data integrity (stale page→asset id) + intentional UI that paints chrome when `isInRecycler(assetId)` is true. Fix belongs in relationship/rebind/recycle lifecycle (#2238), not “delete the CSS class” alone. |
+| Why downloads still work     | Recycled items keep binary content until purged; assembly can still resolve a link for the bound (recycled) id. Red outline is independent of download success.                                                                               |
+| Confirmed workaround (#777)  | Purge/delete the old file **from Recycling** → `isInRecycler` becomes false → red outline goes away.                                                                                                                                          |
 
 ## DOM / CSS that paints the red border
 
@@ -79,10 +79,10 @@ public Boolean isInRecycler(String itemId) {
 
 Constants:
 
-| Constant | Value |
-|----------|-------|
+|                   Constant                   |        Value        |
+|----------------------------------------------|---------------------|
 | `PSRelationshipConfig.TYPE_RECYCLED_CONTENT` | `"RecycledContent"` |
-| `PSRelationshipConfig.ID_RECYCLED_CONTENT` | `8` |
+| `PSRelationshipConfig.ID_RECYCLED_CONTENT`   | `8`                 |
 
 Parallel check in `PSRecycleService.isInRecycler`: relationship filter category recycled / dependent = content id.
 
@@ -92,15 +92,15 @@ Parallel check in `PSRecycleService.isInRecycler`: relationship filter category 
 
 When reproducing on a stocked CMS, capture these for one red-bordered File widget:
 
-| Evidence item | How / where |
-|---------------|-------------|
-| Page content id | Editor / path API / `ownerId` on widget div |
-| Widget instance id | `widgetId` attribute on widget div |
-| Bound asset id | `assetId` on widget div (recycled id if bug present) |
-| Recreated asset id | Path under `/Assets/...` after recreate (new content id) |
-| Page↔asset AA row | Dependent = bound asset id; owner = page; widget sys_id/slot props as configured |
-| Recycle row | `PSRelationshipData` where `dependentId = <bound asset content id>` and `configId = 8` (`RecycledContent`) |
-| DOM | `div.perc-widget.perc-recycled-asset`, tooltip `Asset is in Recycle Bin` |
+|   Evidence item    |                                                How / where                                                 |
+|--------------------|------------------------------------------------------------------------------------------------------------|
+| Page content id    | Editor / path API / `ownerId` on widget div                                                                |
+| Widget instance id | `widgetId` attribute on widget div                                                                         |
+| Bound asset id     | `assetId` on widget div (recycled id if bug present)                                                       |
+| Recreated asset id | Path under `/Assets/...` after recreate (new content id)                                                   |
+| Page↔asset AA row  | Dependent = bound asset id; owner = page; widget sys_id/slot props as configured                           |
+| Recycle row        | `PSRelationshipData` where `dependentId = <bound asset content id>` and `configId = 8` (`RecycledContent`) |
+| DOM                | `div.perc-widget.perc-recycled-asset`, tooltip `Asset is in Recycle Bin`                                   |
 
 **Expected under failure:**
 
@@ -148,16 +148,16 @@ Uses Editor + Assets + Recycling (original #777 + recycle/recreate path from tit
 
 ## Live environment notes (2026-08-07, this agent run)
 
-| Item | Observation |
-|------|-------------|
-| Stack | Existing `perc-matrix-cms-h2` (`perc-devctl` qa-up style cell) |
-| URL | `http://127.0.0.1:9993` (host `9993` → container `9992`) |
-| Health | `perc-devctl.py qa-health --url http://127.0.0.1:9993/Rhythmyx/login` → **RESULT:OK HTTP:200** |
-| Auth | Admin + generated password file in container works with Basic + `RX_USEBASICAUTH` |
-| Sites | `GET /Rhythmyx/services/sitemanage/site/` → **`SiteSummary: []` (empty)** |
+|     Item      |                                                        Observation                                                        |
+|---------------|---------------------------------------------------------------------------------------------------------------------------|
+| Stack         | Existing `perc-matrix-cms-h2` (`perc-devctl` qa-up style cell)                                                            |
+| URL           | `http://127.0.0.1:9993` (host `9993` → container `9992`)                                                                  |
+| Health        | `perc-devctl.py qa-health --url http://127.0.0.1:9993/Rhythmyx/login` → **RESULT:OK HTTP:200**                            |
+| Auth          | Admin + generated password file in container works with Basic + `RX_USEBASICAUTH`                                         |
+| Sites         | `GET /Rhythmyx/services/sitemanage/site/` → **`SiteSummary: []` (empty)**                                                 |
 | Content types | **No `percFileAsset`** in `GET /Rhythmyx/services/contenttypes` on this cell (has other assets + `percFileAutoList` only) |
-| Live UI repro | **Blocked** on this cell without reinstalling File widget package + seeding site/page/assets |
-| Screenshots | Use existing attachments on parent **#777** (Layout / Content / Preview red outline) |
+| Live UI repro | **Blocked** on this cell without reinstalling File widget package + seeding site/page/assets                              |
+| Screenshots   | Use existing attachments on parent **#777** (Layout / Content / Preview red outline)                                      |
 
 **Conclusion for live H2 this run:** code-path + #777 QA/workaround evidence are sufficient to classify root cause. Full click-through repro requires a cell with FileAssetWidget + seeded `widget-test-page/file` (or equivalent).
 
@@ -182,16 +182,16 @@ Prefer data integrity over CSS removal:
 
 ## File map (evidence pointers)
 
-| Area | Path |
-|------|------|
-| Red outline CSS | `WebUI/war/css/perc_decoration.css` (`.perc-recycled-asset`) |
-| Class application | `system/cms/.../vm/sys_assembly.vm` |
-| `isInRecycler` (assembly JEXL) | `projects/sitemanage/.../PSPageUtils.java` |
-| Recycler service check | `projects/sitemanage/.../PSRecycleService.java` |
-| Owner/asset id population | `projects/sitemanage/.../PSWidgetAssemblyContext.java` |
-| File widget package | `modules/perc-packages/.../perc.FileAssetWidget/` (`percFile.xml`) |
-| Client set relationship | `WebUI/war/services/PercAssetService.js` (`set_asset_relationship`) |
-| Recycle config constants | `system/.../PSRelationshipConfig.java` (`TYPE_RECYCLED_CONTENT`, `ID_RECYCLED_CONTENT=8`) |
+|              Area              |                                           Path                                            |
+|--------------------------------|-------------------------------------------------------------------------------------------|
+| Red outline CSS                | `WebUI/war/css/perc_decoration.css` (`.perc-recycled-asset`)                              |
+| Class application              | `system/cms/.../vm/sys_assembly.vm`                                                       |
+| `isInRecycler` (assembly JEXL) | `projects/sitemanage/.../PSPageUtils.java`                                                |
+| Recycler service check         | `projects/sitemanage/.../PSRecycleService.java`                                           |
+| Owner/asset id population      | `projects/sitemanage/.../PSWidgetAssemblyContext.java`                                    |
+| File widget package            | `modules/perc-packages/.../perc.FileAssetWidget/` (`percFile.xml`)                        |
+| Client set relationship        | `WebUI/war/services/PercAssetService.js` (`set_asset_relationship`)                       |
+| Recycle config constants       | `system/.../PSRelationshipConfig.java` (`TYPE_RECYCLED_CONTENT`, `ID_RECYCLED_CONTENT=8`) |
 
 ## Acceptance checklist (#2237)
 
@@ -203,3 +203,4 @@ Prefer data integrity over CSS removal:
 - [x] Leave issues unassigned
 
 > Co-Authored by Grok Build using grok-4.5 with agent main.
+

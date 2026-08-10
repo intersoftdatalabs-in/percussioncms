@@ -236,40 +236,40 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
         while (it.hasNext()) {
           PSObjectAclEntry aclEntry = it.next();
           switch (aclEntry.getType()) {
-              case PSObjectAclEntry.ACL_ENTRY_TYPE_USER:
-                // already processed the user.
-                break;
+            case PSObjectAclEntry.ACL_ENTRY_TYPE_USER:
+              // already processed the user.
+              break;
 
-              case PSObjectAclEntry.ACL_ENTRY_TYPE_ROLE:
-                String aclRole = aclEntry.getName();
-                Iterator<?> itRole = m_userInfo.getRoles();
-                while (itRole.hasNext()) {
-                  Object roleObj = itRole.next();
-                  if (!(roleObj instanceof String)) {
-                    continue;
-                  }
-                  String userRole = (String) roleObj;
-                  if (userRole.equalsIgnoreCase(aclRole))
-                    permissions = permissions | aclEntry.getPermissions();
+            case PSObjectAclEntry.ACL_ENTRY_TYPE_ROLE:
+              String aclRole = aclEntry.getName();
+              Iterator<?> itRole = m_userInfo.getRoles();
+              while (itRole.hasNext()) {
+                Object roleObj = itRole.next();
+                if (!(roleObj instanceof String)) {
+                  continue;
                 }
-                break;
+                String userRole = (String) roleObj;
+                if (userRole.equalsIgnoreCase(aclRole))
+                  permissions = permissions | aclEntry.getPermissions();
+              }
+              break;
 
-              case PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL:
-                String virEntryName = aclEntry.getName();
-                if (virEntryName.equalsIgnoreCase(PSObjectAclEntry.ACL_ENTRY_FOLDER_COMMUNITY)) {
-                  int folderCommunity = acl.getCommunityId();
-                  int userCommunity = m_userInfo.getCommunityId();
-                  if ((folderCommunity == userCommunity) || (folderCommunity == -1)) {
-                    permissions = permissions | aclEntry.getPermissions();
-                  }
-                } else if (virEntryName.equalsIgnoreCase(PSObjectAclEntry.ACL_ENTRY_EVERYONE)) {
+            case PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL:
+              String virEntryName = aclEntry.getName();
+              if (virEntryName.equalsIgnoreCase(PSObjectAclEntry.ACL_ENTRY_FOLDER_COMMUNITY)) {
+                int folderCommunity = acl.getCommunityId();
+                int userCommunity = m_userInfo.getCommunityId();
+                if ((folderCommunity == userCommunity) || (folderCommunity == -1)) {
                   permissions = permissions | aclEntry.getPermissions();
                 }
-                break;
+              } else if (virEntryName.equalsIgnoreCase(PSObjectAclEntry.ACL_ENTRY_EVERYONE)) {
+                permissions = permissions | aclEntry.getPermissions();
+              }
+              break;
 
-              default:
-                break;
-            }
+            default:
+              break;
+          }
         }
       }
     }

@@ -13,19 +13,19 @@ Slice 4c under #2022 after #2315 FS/XML meta batch. Parameterizes residual rawty
 
 ## Scope
 
-| Path | Change |
-| --- | --- |
-| `PSErrorCollector` | Typed page maps / field & item error lists |
-| `PSExecutionBlock` | `ArrayList<IPSExecutionStep>` |
-| `PSDataHandler` | Typed extension runner lists + loadExtensions |
-| `PSJoinFormatter` | Typed `getReorderedJoins` |
-| `PSSqlBuilder` / Query / Update + Oracle & sibling builders | `HashMap<String,Integer>` datatype maps; typed login/connKeys |
-| `PSOptimizer.createLoginPlan` | Typed logins + connKeys |
-| `PSQueryOptimizer` / `PSUpdateOptimizer` | Login list types for generate |
-| `jdbc/PSFileSystemStatement` | Typed column name map + Vector columns |
-| Field validation helpers | Typed string lists for error collector API |
-| Tests | `PSErrorCollectorTypedTest`, `PSJoinFormatterReorderTest`, `PSExecutionBlockTypedTest` |
-| This report | Durable Erlang artifact |
+|                            Path                             |                                         Change                                         |
+|-------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| `PSErrorCollector`                                          | Typed page maps / field & item error lists                                             |
+| `PSExecutionBlock`                                          | `ArrayList<IPSExecutionStep>`                                                          |
+| `PSDataHandler`                                             | Typed extension runner lists + loadExtensions                                          |
+| `PSJoinFormatter`                                           | Typed `getReorderedJoins`                                                              |
+| `PSSqlBuilder` / Query / Update + Oracle & sibling builders | `HashMap<String,Integer>` datatype maps; typed login/connKeys                          |
+| `PSOptimizer.createLoginPlan`                               | Typed logins + connKeys                                                                |
+| `PSQueryOptimizer` / `PSUpdateOptimizer`                    | Login list types for generate                                                          |
+| `jdbc/PSFileSystemStatement`                                | Typed column name map + Vector columns                                                 |
+| Field validation helpers                                    | Typed string lists for error collector API                                             |
+| Tests                                                       | `PSErrorCollectorTypedTest`, `PSJoinFormatterReorderTest`, `PSExecutionBlockTypedTest` |
+| This report                                                 | Durable Erlang artifact                                                                |
 
 ## Issues
 
@@ -47,14 +47,15 @@ _None at bug severity._
 
 ## Verification
 
-| Check | Result |
-| --- | --- |
-| Focused tests | PSErrorCollectorTypedTest, PSJoinFormatterReorderTest, PSExecutionBlockTypedTest (4) green |
+|                  Check                   |                                             Result                                             |
+|------------------------------------------|------------------------------------------------------------------------------------------------|
+| Focused tests                            | PSErrorCollectorTypedTest, PSJoinFormatterReorderTest, PSExecutionBlockTypedTest (4) green     |
 | `cd system && ../mvnw.cmd clean install` | BUILD SUCCESS (host socket flake: `PSEc2MetadataClientTest` excluded once; suite 1267/0/0/241) |
-| Touched production files | rawtypes reduced on parameterized sites |
+| Touched production files                 | rawtypes reduced on parameterized sites                                                        |
 
 ## Gate
 
 No bugs found in this batch, behavioral tests present for changed helpers, portable I/O. **approve**.
 
 > Co-Authored by Grok Build using grok-4.5 with agent main.
+

@@ -59,7 +59,9 @@ test.describe("modern React Content Explorer — multi-select + clipboard (#2408
     await page.waitForLoadState("networkidle");
   });
 
-  test("renders the multi-select checkbox column in the detail list", async ({ page }) => {
+  test("renders the multi-select checkbox column in the detail list", async ({
+    page,
+  }) => {
     const shell = page.locator('[data-testid="content-explorer-shell"]');
     await expect(shell).toBeVisible();
     // The list mounts as soon as the Explorer opens a folder; assert
@@ -68,7 +70,9 @@ test.describe("modern React Content Explorer — multi-select + clipboard (#2408
     await expect(header).toBeVisible({ timeout: 10_000 });
   });
 
-  test("selecting two rows surfaces the multi-select count", async ({ page }) => {
+  test("selecting two rows surfaces the multi-select count", async ({
+    page,
+  }) => {
     // Read whichever row ids the live list exposes so the spec does
     // not couple to fixture-specific ids (e.g. "p-1") the server
     // may not return on every CMS install. We click the first two

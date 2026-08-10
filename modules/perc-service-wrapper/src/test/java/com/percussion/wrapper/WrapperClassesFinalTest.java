@@ -36,13 +36,15 @@ public class WrapperClassesFinalTest {
   @TempDir File tempDir;
 
   @Test
-  @DisplayName("DtsStartWrapper is final so StartWrapper methods cannot be overridden by a subclass")
+  @DisplayName(
+      "DtsStartWrapper is final so StartWrapper methods cannot be overridden by a subclass")
   void dtsStartWrapperIsFinal() {
     assertTrue(Modifier.isFinal(DtsStartWrapper.class.getModifiers()));
   }
 
   @Test
-  @DisplayName("JettyStartWrapper is final so StartWrapper methods cannot be overridden by a subclass")
+  @DisplayName(
+      "JettyStartWrapper is final so StartWrapper methods cannot be overridden by a subclass")
   void jettyStartWrapperIsFinal() {
     assertTrue(Modifier.isFinal(JettyStartWrapper.class.getModifiers()));
   }

@@ -19,53 +19,53 @@ All four peer-review findings from PR #2651 are **genuinely fixed** (not just cl
 
 ### Fix 1 — TMX paths + diff-driven staging + no-delete on commit failure (blocking)
 
-| Item | Evidence |
-|------|----------|
-| `TMX_DIR` constant added | `nightly_i18n_refresh.py:64` — `Path("modules/perc-i18n/src/main/resources/i18n")` |
-| `TMX_FILES` full relative paths | `nightly_i18n_refresh.py:65-69` — three entries now begin with `modules/perc-i18n/src/main/resources/i18n/` |
-| `stage_and_commit` enumerates only changed TMX files | `nightly_i18n_refresh.py:451-458` — `git diff --name-only` against `TMX_DIR.glob("*.tmx")` |
-| Commit failure no longer deletes the branch | `nightly_i18n_refresh.py:776-780` — `logger.error("Failed to commit changes; leaving worktree intact for manual recovery"); return 1` (no `delete_branch` call) |
-| Constant test updated | `test_nightly_i18n_refresh.py:333-341` — asserts new full-path tuple |
-| Regression test added | `test_nightly_i18n_refresh.py:166-247` — `TestStagingPathBuilder` with 2 cases against a real temp git repo |
+|                         Item                         |                                                                            Evidence                                                                             |
+|------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `TMX_DIR` constant added                             | `nightly_i18n_refresh.py:64` — `Path("modules/perc-i18n/src/main/resources/i18n")`                                                                              |
+| `TMX_FILES` full relative paths                      | `nightly_i18n_refresh.py:65-69` — three entries now begin with `modules/perc-i18n/src/main/resources/i18n/`                                                     |
+| `stage_and_commit` enumerates only changed TMX files | `nightly_i18n_refresh.py:451-458` — `git diff --name-only` against `TMX_DIR.glob("*.tmx")`                                                                      |
+| Commit failure no longer deletes the branch          | `nightly_i18n_refresh.py:776-780` — `logger.error("Failed to commit changes; leaving worktree intact for manual recovery"); return 1` (no `delete_branch` call) |
+| Constant test updated                                | `test_nightly_i18n_refresh.py:333-341` — asserts new full-path tuple                                                                                            |
+| Regression test added                                | `test_nightly_i18n_refresh.py:166-247` — `TestStagingPathBuilder` with 2 cases against a real temp git repo                                                     |
 
 Verdict: **fixed**. The diff-driven path enumeration is strictly safer than the previous basenames approach — it also handles the (future) case of a new TMX file being added to the directory without a `TMX_FILES` tuple update.
 
 ### Fix 2 — Stale-branch `has_unpushed_commits` guard
 
-| Item | Evidence |
-|------|----------|
-| Guard inserted before `delete_branch` in stale path | `nightly_i18n_refresh.py:728-737` — `if has_unpushed_commits(branch_name, worktree): warn+keep` else `delete_branch(...)` |
-| `has_unpushed_commits` implementation reviewed | `nightly_i18n_refresh.py:282-306` — `git rev-list --count origin/<branch>..<branch>` with `origin/main` fallback for never-pushed branches |
+|                        Item                         |                                                                  Evidence                                                                  |
+|-----------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| Guard inserted before `delete_branch` in stale path | `nightly_i18n_refresh.py:728-737` — `if has_unpushed_commits(branch_name, worktree): warn+keep` else `delete_branch(...)`                  |
+| `has_unpushed_commits` implementation reviewed      | `nightly_i18n_refresh.py:282-306` — `git rev-list --count origin/<branch>..<branch>` with `origin/main` fallback for never-pushed branches |
 
 Verdict: **fixed**. Correctness: if `git rev-list origin/<branch>..<branch>` succeeds but returns 0 (everything pushed), the branch is deleted as before; if returns N>0, we keep with a warning. Fallback to `origin/main..<branch>` is correct for never-pushed branches — a fresh branch's first commit is reachable from origin/main only if main moved, which means the branch would already need rebasing, not deletion.
 
 ### Fix 3 — `branch_age_days` tz fix
 
-| Item | Evidence |
-|------|----------|
+|                       Item                       |           Evidence            |
+|--------------------------------------------------|-------------------------------|
 | `astimezone(UTC)` replaces `replace(tzinfo=UTC)` | `nightly_i18n_refresh.py:213` |
 
 Verdict: **fixed and correct**. `datetime.strptime(..., "%z")` returns an aware datetime in the parsed offset. `.astimezone(timezone.utc)` properly converts the instant to UTC (preserving wall-clock difference), while `.replace(tzinfo=timezone.utc)` would have **relabeled without converting** — i.e., a commit stamped `2026-08-09 02:00:00 +0200` (which is `00:00:00 UTC`) would have been counted as if it were `02:00:00 UTC`, skewing the age by ±1 day for any commit within ±24h of the threshold in non-UTC timezones.
 
 ### Fix 4 — `run_translate` stdout cleanup
 
-| Item | Evidence |
-|------|----------|
-| `captured = {"stdout": ""}` (no `stderr` key) | `nightly_i18n_refresh.py:389` |
+|                        Item                        |                    Evidence                    |
+|----------------------------------------------------|------------------------------------------------|
+| `captured = {"stdout": ""}` (no `stderr` key)      | `nightly_i18n_refresh.py:389`                  |
 | No `captured["stderr"] = captured["stdout"]` write | confirmed — line removed (was 406 in old diff) |
-| `output = captured["stdout"]` (no concatenation) | `nightly_i18n_refresh.py:417` |
-| `stderr=subprocess.STDOUT` still set on Popen | `nightly_i18n_refresh.py:397` |
+| `output = captured["stdout"]` (no concatenation)   | `nightly_i18n_refresh.py:417`                  |
+| `stderr=subprocess.STDOUT` still set on Popen      | `nightly_i18n_refresh.py:397`                  |
 
 Verdict: **fixed and correct**. Because stderr is already merged into stdout at the OS pipe level (`stderr=STDOUT`), each line was previously being captured twice in `captured["stdout"]` and again concatenated with itself in `output`. The doubling was benign for `parse_translate_output` (only `re.search` single-match patterns; `(?m)` MULTILINE re-search would still find the same line at the same position), but it doubled the log-file writes and the parsed string size. `parse_translate_output` (lines 326-355) only reads stdout-merged content and is unaffected by the cleanup.
 
 ## New tests
 
-| Test | Class | Asserts |
-|------|-------|---------|
-| `test_tmx_paths_resolve_against_git_add` | `TestStagingPathBuilder` | Each `TMX_FILES` entry is a valid `git add --dry-run` pathspec against a temp repo that mirrors the real layout |
-| `test_stage_and_commit_uses_diff_only` | `TestStagingPathBuilder` | Touching one TMX file yields exactly that path in `git diff --name-only` against `TMX_DIR` (regression guard against future "stage-all" regressions) |
-| `test_tmx_paths_resolve_on_repo` | `TestModuleConstants` | Every `TMX_FILES` entry actually exists at `repo_root / path` on this checkout, starts with `modules/perc-i18n/`, ends with `.tmx` |
-| `test_tmx_dir_constant` | `TestModuleConstants` | `str(m.TMX_DIR)` equals `modules/perc-i18n/src/main/resources/i18n` |
+|                   Test                   |          Class           |                                                                       Asserts                                                                        |
+|------------------------------------------|--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `test_tmx_paths_resolve_against_git_add` | `TestStagingPathBuilder` | Each `TMX_FILES` entry is a valid `git add --dry-run` pathspec against a temp repo that mirrors the real layout                                      |
+| `test_stage_and_commit_uses_diff_only`   | `TestStagingPathBuilder` | Touching one TMX file yields exactly that path in `git diff --name-only` against `TMX_DIR` (regression guard against future "stage-all" regressions) |
+| `test_tmx_paths_resolve_on_repo`         | `TestModuleConstants`    | Every `TMX_FILES` entry actually exists at `repo_root / path` on this checkout, starts with `modules/perc-i18n/`, ends with `.tmx`                   |
+| `test_tmx_dir_constant`                  | `TestModuleConstants`    | `str(m.TMX_DIR)` equals `modules/perc-i18n/src/main/resources/i18n`                                                                                  |
 
 All four tests pass against the real module constants (no fakes). `test_tmx_paths_resolve_on_repo` runs against the actual repo (worktree root), giving us a live regression net on the basename defect.
 
@@ -99,3 +99,4 @@ None. The fix pack addresses all 4 blocking and non-blocking findings from the P
 - **Dominant risk**: none.
 - **Recommendation**: approve.
 - **Next step**: hand back to Hephaestus (operator) to push the branch and (re-)request review on PR #2651. No follow-up work for Erlang.
+

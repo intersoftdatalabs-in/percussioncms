@@ -12,13 +12,13 @@ tests for `PSMimeContentAdapter`; deviations doc
 
 ## Gates
 
-| Check | Result |
-|-------|--------|
-| Bugs / RT correctness | Pass — `PSSystemDataXmlSerializationTest` 20/20 green (incl. 4 mime tests); `PSMimeContentAdapterTest` 1/1 green |
-| Behavioral unit tests | Pass — golden + inline RT + attachment RT + legacy `<null>` root; interface test JUnit 5 |
-| Cross-platform paths | Pass — no new filesystem path construction (classpath resources + in-memory buffers only) |
-| Change-class companions | Pass — domain annotations, golden fixture, deviations doc; peer pattern matches #1920/#1993 system data batch |
-| Spotless | Pass — module `spotless:apply` then `spotless:check` on system; out-of-scope HierarchyNode reformat discarded |
+|          Check          |                                                      Result                                                      |
+|-------------------------|------------------------------------------------------------------------------------------------------------------|
+| Bugs / RT correctness   | Pass — `PSSystemDataXmlSerializationTest` 20/20 green (incl. 4 mime tests); `PSMimeContentAdapterTest` 1/1 green |
+| Behavioral unit tests   | Pass — golden + inline RT + attachment RT + legacy `<null>` root; interface test JUnit 5                         |
+| Cross-platform paths    | Pass — no new filesystem path construction (classpath resources + in-memory buffers only)                        |
+| Change-class companions | Pass — domain annotations, golden fixture, deviations doc; peer pattern matches #1920/#1993 system data batch    |
+| Spotless                | Pass — module `spotless:apply` then `spotless:check` on system; out-of-scope HierarchyNode reformat discarded    |
 
 ## Notes
 
@@ -38,3 +38,4 @@ tests for `PSMimeContentAdapter`; deviations doc
 - Jackson domain batch: opt-in `@JsonAutoDetect`, root element, golden/RT/legacy-null triad
 - Null-safe setters for BeanUtils XML restore (`setVersion` peer)
 - Binary/content fields: buffer + base64 string property, not raw `InputStream` on the wire
+

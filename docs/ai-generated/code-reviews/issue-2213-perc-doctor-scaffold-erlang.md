@@ -35,3 +35,4 @@ None (bugs). Minor notes (non-blocking):
 - Cross-platform NIO paths for new file I/O
 - Dry-run / apply behavioral split with fixture isolation
 - Containment guard before destructive ops
+

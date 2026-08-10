@@ -33,6 +33,7 @@ import org.w3c.dom.Element;
 public class PSSortedColumn extends PSBackEndColumn {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
+
   /**
    * Construct a PSSortedColumn object from its XML representation. See the {@link #toXml} method
    * for a description of the XML object.

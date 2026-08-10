@@ -63,7 +63,8 @@ public class StartArgsProxyTest {
     assertNull(StartArgsProxy.toStringList(null));
     assertNull(StartArgsProxy.toStringList("not-a-list"));
     assertEquals(Collections.singletonList("x"), StartArgsProxy.toStringList(List.of("x")));
-    // Null elements are not String; reject the payload (avoids NPE for non-null List<String> consumers)
+    // Null elements are not String; reject the payload (avoids NPE for non-null List<String>
+    // consumers)
     assertNull(StartArgsProxy.toStringList(Arrays.asList("a", null, "b")));
     assertNull(StartArgsProxy.toStringList(List.of("ok", 42)));
   }

@@ -1520,9 +1520,9 @@ public class SecureStringUtils {
   }
 
   /**
-   * Validates a JDBC {@code DatabaseMetaData} catalog/schema/table/column name or pattern.
-   * {@code null} and empty strings are preserved (callers and fix-up helpers map empty catalog /
-   * schema to {@code null} as required by driver quirks).
+   * Validates a JDBC {@code DatabaseMetaData} catalog/schema/table/column name or pattern. {@code
+   * null} and empty strings are preserved (callers and fix-up helpers map empty catalog / schema to
+   * {@code null} as required by driver quirks).
    *
    * @param pattern candidate name or pattern, may be null or empty
    * @return the same value when valid

@@ -4,10 +4,10 @@
 
 Standalone DTS ships `logrotate/percussion-dts` at the install root for operators who run DTS on a host without a full CMS tree.
 
-| File | Role |
-|------|------|
+|       File       |                                                Role                                                 |
+|------------------|-----------------------------------------------------------------------------------------------------|
 | `percussion-dts` | Linux `logrotate` fragment for `Deployment/Server/logs` (`*.log`, `*.out` including `catalina.out`) |
-| `README.md` | This note |
+| `README.md`      | This note                                                                                           |
 
 **Not auto-enabled.** Copy to `/etc/logrotate.d/` only with operator consent after substituting the install root and running `logrotate -d`.
 

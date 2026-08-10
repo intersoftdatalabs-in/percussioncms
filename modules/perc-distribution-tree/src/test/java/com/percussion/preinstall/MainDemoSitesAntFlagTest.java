@@ -41,8 +41,7 @@ class MainDemoSitesAntFlagTest {
 
   @BeforeEach
   void captureSysProp() {
-    prevDemoSitesSysProp =
-        System.getProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY);
+    prevDemoSitesSysProp = System.getProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY);
   }
 
   @AfterEach
@@ -50,8 +49,7 @@ class MainDemoSitesAntFlagTest {
     if (prevDemoSitesSysProp == null) {
       System.clearProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY);
     } else {
-      System.setProperty(
-          DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY, prevDemoSitesSysProp);
+      System.setProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY, prevDemoSitesSysProp);
     }
   }
 
@@ -117,13 +115,9 @@ class MainDemoSitesAntFlagTest {
   void truthyAliasesFromWizardOptionsPropagate() {
     System.clearProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY);
 
-    assertTrue(
-        Main.resolveDemoSitesForAnt(
-            Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "yes")));
-    assertTrue(
-        Main.resolveDemoSitesForAnt(Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "Y")));
-    assertTrue(
-        Main.resolveDemoSitesForAnt(Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "1")));
+    assertTrue(Main.resolveDemoSitesForAnt(Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "yes")));
+    assertTrue(Main.resolveDemoSitesForAnt(Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "Y")));
+    assertTrue(Main.resolveDemoSitesForAnt(Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "1")));
   }
 
   @Test

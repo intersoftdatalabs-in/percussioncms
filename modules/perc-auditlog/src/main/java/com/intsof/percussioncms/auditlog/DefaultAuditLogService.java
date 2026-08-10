@@ -116,8 +116,7 @@ public final class DefaultAuditLogService implements AuditLogService {
 
     Object[] safeParams = redactor.redactParams(params == null ? new Object[0] : params);
     String userBody =
-        redactor.redact(
-            MessageTemplateFormatter.format(code.userMessageTemplate(), safeParams));
+        redactor.redact(MessageTemplateFormatter.format(code.userMessageTemplate(), safeParams));
     String logBody =
         redactor.redact(MessageTemplateFormatter.format(code.logMessageTemplate(), safeParams));
 

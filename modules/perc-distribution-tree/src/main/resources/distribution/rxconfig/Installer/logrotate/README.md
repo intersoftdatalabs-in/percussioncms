@@ -7,12 +7,12 @@ These files are **operator samples**. They are **not** auto-enabled on Linux or 
 
 ## Contents
 
-| File | Role |
-|------|------|
-| `percussion-cms` | Linux `logrotate` fragment for CMS Jetty log roots |
-| `percussion-dts` | Linux `logrotate` fragment for DTS Tomcat `Deployment/Server/logs` (includes `catalina.out` via `*.out`) |
-| `schedule-clean-logs.ps1` | Windows sample: scheduled `perc-doctor clean-logs` (14-day default) |
-| `README.md` | This guide |
+|           File            |                                                   Role                                                   |
+|---------------------------|----------------------------------------------------------------------------------------------------------|
+| `percussion-cms`          | Linux `logrotate` fragment for CMS Jetty log roots                                                       |
+| `percussion-dts`          | Linux `logrotate` fragment for DTS Tomcat `Deployment/Server/logs` (includes `catalina.out` via `*.out`) |
+| `schedule-clean-logs.ps1` | Windows sample: scheduled `perc-doctor clean-logs` (14-day default)                                      |
+| `README.md`               | This guide                                                                                               |
 
 Standalone DTS packages also ship `logrotate/percussion-dts` (+ this guide) at the DTS install root for split-host layouts.
 
@@ -20,11 +20,11 @@ Standalone DTS packages also ship `logrotate/percussion-dts` (+ this guide) at t
 
 Aligned with `perc-doctor` `InstallRootGuard.LOG_DIR_RELATIVE` and install layout:
 
-| Product | Relative root | Typical files |
-|---------|---------------|---------------|
-| CMS / Jetty | `jetty/base/logs` | Jetty / request / layout logs, `audit/` |
-| CMS / Jetty | `jetty/base/modules/perc-logging/logs` | Log4j2 app logs (`server.log`, rotations) |
-| DTS / Tomcat | `Deployment/Server/logs` | `catalina.out`, `catalina.*.log`, access / host-manager / manager logs |
+|   Product    |             Relative root              |                             Typical files                              |
+|--------------|----------------------------------------|------------------------------------------------------------------------|
+| CMS / Jetty  | `jetty/base/logs`                      | Jetty / request / layout logs, `audit/`                                |
+| CMS / Jetty  | `jetty/base/modules/perc-logging/logs` | Log4j2 app logs (`server.log`, rotations)                              |
+| DTS / Tomcat | `Deployment/Server/logs`               | `catalina.out`, `catalina.*.log`, access / host-manager / manager logs |
 
 Globs are limited to `*.log` and `*.out` (same spirit as `InstallRootGuard.isLogFileName`).
 
@@ -40,7 +40,6 @@ Globs are limited to `*.log` and `*.out` (same spirit as `InstallRootGuard.isLog
      "${INSTALL_ROOT}/rxconfig/Installer/logrotate/percussion-cms" \
      > /tmp/percussion-cms
    ```
-
 2. Install into `logrotate.d` **only when you intend to enable OS rotation**:
 
    ```bash
@@ -51,14 +50,12 @@ Globs are limited to `*.log` and `*.out` (same spirit as `InstallRootGuard.isLog
      | sudo tee /etc/logrotate.d/percussion-dts >/dev/null
    sudo chmod 0644 /etc/logrotate.d/percussion-dts
    ```
-
 3. Dry-run (no changes):
 
    ```bash
    sudo logrotate -d /etc/logrotate.d/percussion-cms
    sudo logrotate -d /etc/logrotate.d/percussion-dts
    ```
-
 4. Optional one-shot force after dry-run looks correct:
 
    ```bash
@@ -77,11 +74,11 @@ Jetty, Log4j2, and Tomcat often keep log file handles open. `copytruncate` rotat
 
 ## Coexistence: Log4j2, logrotate, perc-doctor
 
-| Layer | Owns | Default behaviour |
-|-------|------|-------------------|
-| **Log4j2 RollingFile** (CMS perc-logging / DTS service configs) | Active application log streams | Size-based rollover (CMS pattern: ~10 MB × keep 10) |
-| **OS logrotate** (these samples) | Continuous `*.log` / `*.out` under known roots, especially `catalina.out` and anything not fully handled by Log4j | Daily, 14 rotations, compress, **copytruncate** |
-| **perc-doctor `clean-logs`** | Allowlisted log **files** under the same roots | Age / keep-current purge — **manual or scheduled CLI**, not a replacement for rotation |
+|                              Layer                              |                                                       Owns                                                        |                                   Default behaviour                                    |
+|-----------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| **Log4j2 RollingFile** (CMS perc-logging / DTS service configs) | Active application log streams                                                                                    | Size-based rollover (CMS pattern: ~10 MB × keep 10)                                    |
+| **OS logrotate** (these samples)                                | Continuous `*.log` / `*.out` under known roots, especially `catalina.out` and anything not fully handled by Log4j | Daily, 14 rotations, compress, **copytruncate**                                        |
+| **perc-doctor `clean-logs`**                                    | Allowlisted log **files** under the same roots                                                                    | Age / keep-current purge — **manual or scheduled CLI**, not a replacement for rotation |
 
 Recommended production posture:
 
@@ -101,14 +98,12 @@ Windows does not use classic `logrotate`. Documented equivalent:
    cd /d C:\Percussion
    bin\perc-doctor.bat --dry-run -v clean-logs --older-than 14d
    ```
-
 2. Or use the sample script (defaults to dry-run):
 
    ```powershell
    cd C:\Percussion\rxconfig\Installer\logrotate
    .\schedule-clean-logs.ps1 -InstallRoot 'C:\Percussion' -DryRun $true
    ```
-
 3. After review, schedule apply with Task Scheduler (example action):
 
    ```text
@@ -117,7 +112,6 @@ Windows does not use classic `logrotate`. Documented equivalent:
      -NoProfile -ExecutionPolicy Bypass -File "C:\Percussion\rxconfig\Installer\logrotate\schedule-clean-logs.ps1" -InstallRoot "C:\Percussion" -OlderThan "14d" -DryRun:$false
    Trigger: Daily (off-hours recommended)
    ```
-
 4. Alternate Task Scheduler action without the script:
 
    ```text
@@ -129,12 +123,12 @@ Always validate with `--dry-run` / `-DryRun $true` before enabling unattended ap
 
 ## Support baseline
 
-| Item | Default |
-|------|---------|
-| Canonical sample path | `<install-root>/rxconfig/Installer/logrotate/` |
-| Linux retention | 14 daily compressed archives, `copytruncate` |
-| Windows retention | `perc-doctor clean-logs --older-than 14d` (keep-current default) |
-| Auto-enable on install | **No** — operator consent required |
+|          Item          |                             Default                              |
+|------------------------|------------------------------------------------------------------|
+| Canonical sample path  | `<install-root>/rxconfig/Installer/logrotate/`                   |
+| Linux retention        | 14 daily compressed archives, `copytruncate`                     |
+| Windows retention      | `perc-doctor clean-logs --older-than 14d` (keep-current default) |
+| Auto-enable on install | **No** — operator consent required                               |
 
 ## Related
 
@@ -142,3 +136,4 @@ Always validate with `--dry-run` / `-DryRun $true` before enabling unattended ap
 - `modules/perc-jetty` — Log4j2 / Jetty logging layout
 - DTS dual-ship systemd notes — `README-systemd.md` (optional postrotate)
 - Parent packaging: `modules/perc-distribution-tree`, `delivery-tier-distribution`
+

@@ -12,14 +12,14 @@ Removes remaining product/test references to JDK `lib/tools.jar` that are not ow
 
 ## Changes reviewed
 
-| Path | Change |
-|------|--------|
-| `system/Tools/RxFix/build.bat` | Dropped `%JAVA_SDK_HOME%\lib\tools.jar` from classpath; REM notes JDK 9+/21 |
-| `system/installResources/install.sh` | Removed commented `#CLASSPATH=.../tools.jar` line; note left |
-| `modules/utils/**/PercussionServer*.lax` (4) | **Deleted** (review: legacy InstallAnywhere fixtures unused) |
-| `modules/perc-ant/**/mockinstall/PercussionServer*.lax` (2) | **Deleted** (same) |
-| `TestUpdateDTSConfiguration.java` | Stopped loading/copying LAX into temp mock root (DTS task does not read LAX) |
-| `specs/.../derby-surface-inventory.md` | Removed inventory rows for deleted LAX fixtures |
+|                            Path                             |                                    Change                                    |
+|-------------------------------------------------------------|------------------------------------------------------------------------------|
+| `system/Tools/RxFix/build.bat`                              | Dropped `%JAVA_SDK_HOME%\lib\tools.jar` from classpath; REM notes JDK 9+/21  |
+| `system/installResources/install.sh`                        | Removed commented `#CLASSPATH=.../tools.jar` line; note left                 |
+| `modules/utils/**/PercussionServer*.lax` (4)                | **Deleted** (review: legacy InstallAnywhere fixtures unused)                 |
+| `modules/perc-ant/**/mockinstall/PercussionServer*.lax` (2) | **Deleted** (same)                                                           |
+| `TestUpdateDTSConfiguration.java`                           | Stopped loading/copying LAX into temp mock root (DTS task does not read LAX) |
+| `specs/.../derby-surface-inventory.md`                      | Removed inventory rows for deleted LAX fixtures                              |
 
 ## Intentionally not changed
 
@@ -45,3 +45,4 @@ None (bugs / missing behavioral tests / non-portable paths).
 - `cd modules/perc-ant && ../../mvnw clean install` — BUILD SUCCESS
 - `mvnw -pl modules/utils,modules/perc-ant spotless:apply` then `spotless:check` — SUCCESS
 - Root `spotless:check` still fails on unrelated baseline docs debt; out-of-scope hits restored, not committed
+

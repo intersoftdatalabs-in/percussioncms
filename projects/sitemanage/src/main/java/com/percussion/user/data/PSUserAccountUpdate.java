@@ -24,8 +24,8 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * Self-service account update payload for the signed-in user only (issue #2395).
  *
  * <p>Does not accept a user name — the server always applies changes to the current session user
- * (no IDOR). Only fields the product may persist for self-service are included (currently email
- * for {@link PSUserProviderType#INTERNAL} users).
+ * (no IDOR). Only fields the product may persist for self-service are included (currently email for
+ * {@link PSUserProviderType#INTERNAL} users).
  */
 @XmlRootElement(name = "UserAccountUpdate")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)

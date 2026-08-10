@@ -11,12 +11,12 @@ Typed generics modernization for security-provider catalog metadata and adjacent
 
 ## Companions checked
 
-| Companion | Status |
-| --- | --- |
+|                                        Companion                                         |                     Status                      |
+|------------------------------------------------------------------------------------------|-------------------------------------------------|
 | Behavioral unit tests for empty/typed result sets + attribute map + multi-auth exception | `PSSecurityProviderMetaDataTypedTest` (6 tests) |
-| Module standalone `mvnw clean install` | Required pre-PR gate (system / perc-system) |
-| Path / file I/O | None in this diff |
-| Spring / ApplicationContext | N/A |
+| Module standalone `mvnw clean install`                                                   | Required pre-PR gate (system / perc-system)     |
+| Path / file I/O                                                                          | None in this diff                               |
+| Spring / ApplicationContext                                                              | N/A                                             |
 
 ## Findings
 

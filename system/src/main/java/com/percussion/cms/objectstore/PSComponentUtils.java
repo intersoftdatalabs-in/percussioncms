@@ -41,8 +41,8 @@ public class PSComponentUtils {
    * @throws PSUnknownNodeTypeException if the attribute exists and its value is not one of the
    *     allowed values.
    */
-  public static String getEnumeratedAttribute(
-      Element el, String attrib, List<String> allowedValues) throws PSUnknownNodeTypeException {
+  public static String getEnumeratedAttribute(Element el, String attrib, List<String> allowedValues)
+      throws PSUnknownNodeTypeException {
     if (el == null) throw new IllegalArgumentException("el may not be null.");
 
     if (attrib == null || attrib.trim().length() == 0)

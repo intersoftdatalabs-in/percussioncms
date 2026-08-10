@@ -52,7 +52,8 @@ import org.w3c.dom.Element;
  * and verifies handlers do not report error 8 when an input document is present.
  *
  * <p>Live residual steps (when a CMS + sample {@code .ppkg} are available) are documented on #2266
- * / #955 and in {@code docs/ai-generated/tasks/955-package-installer-null-input-doc/2266-residual-smoke.md}.
+ * / #955 and in {@code
+ * docs/ai-generated/tasks/955-package-installer-null-input-doc/2266-residual-smoke.md}.
  */
 @DisplayName("Package Installer NULL_INPUT_DOC residual smoke (#2266)")
 public class PSPackageInstallerNullInputDocResidualSmokeTest {
@@ -99,7 +100,11 @@ public class PSPackageInstallerNullInputDocResidualSmokeTest {
     String asText = new String(body, StandardCharsets.ISO_8859_1);
     assertTrue(
         asText.toLowerCase(Locale.ROOT).contains("content-type: application/xml"),
-        () -> "expected application/xml for " + requestType + ", headers:\n" + extractHeaders(asText));
+        () ->
+            "expected application/xml for "
+                + requestType
+                + ", headers:\n"
+                + extractHeaders(asText));
     assertTrue(asText.contains(rootElement), () -> "XML body must include " + rootElement);
     assertEquals("Content-Type", hdrs[0].getName());
     assertTrue(
@@ -168,8 +173,7 @@ public class PSPackageInstallerNullInputDocResidualSmokeTest {
     // validateArchive: null-doc guard must not fire when document is present.
     // Missing archive child fails later — residual gate is only error 8.
     Document valDoc = PSXmlDocumentBuilder.createXmlDocument();
-    Element valRoot =
-        PSXmlDocumentBuilder.createRoot(valDoc, "PSXDeployValidateArchiveRequest");
+    Element valRoot = PSXmlDocumentBuilder.createRoot(valDoc, "PSXDeployValidateArchiveRequest");
     valRoot.setAttribute("checkArchiveRef", "yes");
     valRoot.setAttribute("warnOnBuidMismatch", "no");
     valRoot.setAttribute("warnMissingPackageDep", "no");

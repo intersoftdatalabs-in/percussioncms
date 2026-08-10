@@ -31,10 +31,7 @@
 
 "use strict";
 
-const {
-  SELECTORS: EMPTY_SELECTORS,
-  cmsUrl,
-} = require("./empty-recycling");
+const { SELECTORS: EMPTY_SELECTORS, cmsUrl } = require("./empty-recycling");
 
 const {
   PATH_RESTORE_FOLDER,

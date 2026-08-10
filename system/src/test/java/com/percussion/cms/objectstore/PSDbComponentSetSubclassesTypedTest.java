@@ -132,7 +132,8 @@ public class PSDbComponentSetSubclassesTypedTest {
     assertTrue(set.isVariantAllowed(11));
     assertTrue(set.isVariantAllowed(25));
     assertFalse(set.isVariantAllowed(99));
-    assertThrows(IllegalArgumentException.class, () -> set.isVariantAllowed((PSContentTypeTemplate) null));
+    assertThrows(
+        IllegalArgumentException.class, () -> set.isVariantAllowed((PSContentTypeTemplate) null));
 
     Iterator<PSSlotTypeContentTypeVariant> it = set.iterator();
     PSSlotTypeContentTypeVariant first = it.next();

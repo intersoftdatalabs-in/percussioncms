@@ -33,6 +33,7 @@ import org.w3c.dom.NodeList;
 public class PSControlParameter extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
+
   /**
    * Initializes a newly created <code>PSControlParameter</code> object, from an XML representation.
    * See {@link #toXml(Document)} for the format.

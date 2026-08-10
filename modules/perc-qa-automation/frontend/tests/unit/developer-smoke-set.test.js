@@ -44,7 +44,9 @@ describe("DEVELOPER_SMOKE_SET", () => {
       );
       assert.match(
         entry.bugUrl,
-        new RegExp(`^${REPO_ISSUES.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/\\d+$`),
+        new RegExp(
+          `^${REPO_ISSUES.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/\\d+$`,
+        ),
         `${entry.id} bugUrl must be durable issue URL`,
       );
       assert.ok(
@@ -95,9 +97,6 @@ describe("skipReasonFor", () => {
   });
 
   it("rejects green entries", () => {
-    assert.throws(
-      () => skipReasonFor(getSmokeEntry("rest-slots")),
-      TypeError,
-    );
+    assert.throws(() => skipReasonFor(getSmokeEntry("rest-slots")), TypeError);
   });
 });

@@ -31,9 +31,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-/**
- * Behavioral tests for typed holiday set APIs on {@link PSHolidays} (issue #2035 batch 1).
- */
+/** Behavioral tests for typed holiday set APIs on {@link PSHolidays} (issue #2035 batch 1). */
 class PSHolidaysTest {
 
   private static Date date(int year, int month, int day) {

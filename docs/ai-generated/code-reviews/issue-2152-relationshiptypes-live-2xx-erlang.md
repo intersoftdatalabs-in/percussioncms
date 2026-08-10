@@ -14,7 +14,7 @@
 
 | Severity | Finding | Disposition |
 |----------|---------|-------------|
-| none | N/A | approve |
+| none     | N/A     | approve     |
 
 ### Checklist
 

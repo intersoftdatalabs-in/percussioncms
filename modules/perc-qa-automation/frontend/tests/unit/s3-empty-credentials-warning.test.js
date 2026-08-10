@@ -71,7 +71,9 @@ describe("s3-empty-credentials-warning helpers", () => {
     assert.equal(buildS3EmptyCredentialsWarning([]), null);
     assert.equal(buildS3EmptyCredentialsWarning(null), null);
     const msg = buildS3EmptyCredentialsWarning(["Access Key", "Security Key"]);
-    assert.ok(msg.includes("Amazon S3 fields are empty (Access Key, Security Key)"));
+    assert.ok(
+      msg.includes("Amazon S3 fields are empty (Access Key, Security Key)"),
+    );
     assert.ok(msg.includes("Save will proceed"));
     assert.ok(msg.includes("HttpPutResponseHopLimit >= 2"));
     assert.ok(isS3EmptyCredentialsWarningText(msg));
@@ -91,7 +93,11 @@ describe("s3-empty-credentials-warning helpers", () => {
     );
     assert.deepEqual(empty, ["Zugriffsschlüssel", "Sicherheitsschlüssel"]);
     const msg = buildS3EmptyCredentialsWarning(empty, de);
-    assert.ok(msg.includes("Amazon-S3-Felder sind leer (Zugriffsschlüssel, Sicherheitsschlüssel)"));
+    assert.ok(
+      msg.includes(
+        "Amazon-S3-Felder sind leer (Zugriffsschlüssel, Sicherheitsschlüssel)",
+      ),
+    );
     assert.ok(isS3EmptyCredentialsWarningText(msg, de));
     // en-us matcher must not falsely accept German copy
     assert.equal(isS3EmptyCredentialsWarningText(msg), false);

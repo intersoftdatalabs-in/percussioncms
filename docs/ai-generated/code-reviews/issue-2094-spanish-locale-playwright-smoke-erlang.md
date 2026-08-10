@@ -29,9 +29,10 @@ No new file I/O or path joins. Env URL via existing `resolveCmsBaseUrl` / `BASE_
 
 ## Gates evidence
 
-| Gate | Result |
-|------|--------|
-| Live Playwright (`TEST_CMS_URL=http://127.0.0.1:9993`) | 2 passed |
-| `npm run test:unit` | 48 passed |
-| `cd modules/perc-qa-automation && ../../mvnw clean install` | BUILD SUCCESS |
-| Surface filter list | 2 tests listed |
+|                            Gate                             |     Result     |
+|-------------------------------------------------------------|----------------|
+| Live Playwright (`TEST_CMS_URL=http://127.0.0.1:9993`)      | 2 passed       |
+| `npm run test:unit`                                         | 48 passed      |
+| `cd modules/perc-qa-automation && ../../mvnw clean install` | BUILD SUCCESS  |
+| Surface filter list                                         | 2 tests listed |
+

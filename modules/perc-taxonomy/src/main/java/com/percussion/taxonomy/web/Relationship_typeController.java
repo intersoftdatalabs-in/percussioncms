@@ -17,8 +17,8 @@
 
 package com.percussion.taxonomy.web;
 
-import com.percussion.taxonomy.domain.Relationship_type;
 import com.percussion.taxonomy.TaxonomySecurityHelper;
+import com.percussion.taxonomy.domain.Relationship_type;
 import com.percussion.taxonomy.service.Relationship_typeService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

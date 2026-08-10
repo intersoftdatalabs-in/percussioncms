@@ -17,7 +17,6 @@
 package com.percussion.security;
 
 import com.percussion.design.objectstore.PSDirectorySet;
-import com.percussion.design.objectstore.PSGlobalSubject;
 import com.percussion.design.objectstore.PSRoleProvider;
 import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.design.objectstore.PSSubject;
@@ -28,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;

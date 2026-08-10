@@ -62,8 +62,7 @@ public class ViewResourceTest {
   @Test
   public void missingAdaptorReturnsServiceUnavailableOnList() {
     ViewResource bare = new ViewResource();
-    WebApplicationException ex =
-        assertThrows(WebApplicationException.class, bare::listViews);
+    WebApplicationException ex = assertThrows(WebApplicationException.class, bare::listViews);
     assertEquals(503, ex.getResponse().getStatus());
   }
 

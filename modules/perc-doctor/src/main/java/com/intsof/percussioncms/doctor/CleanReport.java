@@ -57,22 +57,30 @@ public final class CleanReport {
       this.detail = detail;
     }
 
-    /** @return candidate path */
+    /**
+     * @return candidate path
+     */
     public Path getPath() {
       return path;
     }
 
-    /** @return size in bytes when known */
+    /**
+     * @return size in bytes when known
+     */
     public long getSizeBytes() {
       return sizeBytes;
     }
 
-    /** @return outcome status */
+    /**
+     * @return outcome status
+     */
     public EntryStatus getStatus() {
       return status;
     }
 
-    /** @return optional detail message, or null */
+    /**
+     * @return optional detail message, or null
+     */
     public String getDetail() {
       return detail;
     }
@@ -99,32 +107,44 @@ public final class CleanReport {
     entries.add(Objects.requireNonNull(entry, "entry"));
   }
 
-  /** @return command name */
+  /**
+   * @return command name
+   */
   public String getCommand() {
     return command;
   }
 
-  /** @return install root used for this run */
+  /**
+   * @return install root used for this run
+   */
   public Path getInstallRoot() {
     return installRoot;
   }
 
-  /** @return true if no deletes were performed */
+  /**
+   * @return true if no deletes were performed
+   */
   public boolean isDryRun() {
     return dryRun;
   }
 
-  /** @return unmodifiable list of entries */
+  /**
+   * @return unmodifiable list of entries
+   */
   public List<Entry> getEntries() {
     return Collections.unmodifiableList(entries);
   }
 
-  /** @return number of entries (including failed/skipped) */
+  /**
+   * @return number of entries (including failed/skipped)
+   */
   public int getCandidateCount() {
     return entries.size();
   }
 
-  /** @return sum of sizes for non-failed entries */
+  /**
+   * @return sum of sizes for non-failed entries
+   */
   public long getTotalBytes() {
     long total = 0L;
     for (Entry e : entries) {
@@ -136,7 +156,9 @@ public final class CleanReport {
     return total;
   }
 
-  /** @return count of successfully deleted entries */
+  /**
+   * @return count of successfully deleted entries
+   */
   public int getDeletedCount() {
     int n = 0;
     for (Entry e : entries) {
@@ -147,7 +169,9 @@ public final class CleanReport {
     return n;
   }
 
-  /** @return count of failed entries */
+  /**
+   * @return count of failed entries
+   */
   public int getFailedCount() {
     int n = 0;
     for (Entry e : entries) {

@@ -34,7 +34,6 @@ import net.sf.oval.constraint.NotNull;
 public class PSCreateSiteSection extends PSAbstractDataObject {
   private static final long serialVersionUID = 1L;
 
-
   public String getPageName() {
     return pageName;
   }

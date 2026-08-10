@@ -14,8 +14,8 @@ rather than bare English.
 
 ## Scope
 
-| Path | Change |
-|------|--------|
+|                                            Path                                             |       Change        |
+|---------------------------------------------------------------------------------------------|---------------------|
 | `modules/perc-qa-automation/frontend/tests/bugs/bug-1894-dashboard-add-gadget-i18n.spec.js` | New regression spec |
 
 No product/WebUI/TMX source changes. No auth helper API expansion (locale login
@@ -65,3 +65,4 @@ TEST_CMS_URL=… ADMIN_PASSWORD=… npx playwright test \
   tests/bugs/bug-1894-dashboard-add-gadget-i18n.spec.js
 # 1 passed
 ```
+

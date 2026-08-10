@@ -35,8 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
 /**
- * Protection for the {@code assetService ↔ templateService} near-cycle edge (#2423 residual
- * #2521).
+ * Protection for the {@code assetService ↔ templateService} near-cycle edge (#2423 residual #2521).
  *
  * <p>Static inventory (#2463) ranks {@link PSTemplateService} as a high fan-in hub (ctor out ~6 /
  * in ~20) and {@link PSAssetService} as a consumer hub that construct-requires {@link
@@ -55,9 +54,9 @@ import org.springframework.context.annotation.Lazy;
  * <p><strong>Param {@code @Lazy} disposition (forward edge):</strong> {@code PSAssetService} only
  * calls {@code templateService} post-construction ({@code load}/{@code find}); a ctor-body {@code
  * notNull} check is proxy-safe. Param {@code @Lazy} would therefore be <em>safe if added</em>, but
- * is <strong>not required</strong> while the reverse edge remains banned and no closed cycle
- * exists through this pair. Class-level {@code @Lazy} on {@code PSAssetService} is lazy-init only
- * and is not treated as a cycle breaker. Prefer documenting intentional param {@code @Lazy} in the
+ * is <strong>not required</strong> while the reverse edge remains banned and no closed cycle exists
+ * through this pair. Class-level {@code @Lazy} on {@code PSAssetService} is lazy-init only and is
+ * not treated as a cycle breaker. Prefer documenting intentional param {@code @Lazy} in the
  * inventory if product risk later warrants it (#2476 pattern).
  *
  * <p>Peers: {@link PSAssetServicePageServiceNearCycleWiringTest}, {@link

@@ -13,10 +13,10 @@ Parameterizes rawtypes/unchecked in a coherent `com.percussion.cms.objectstore` 
 
 ## Scope
 
-| Area | Change |
-| --- | --- |
-| Production | `PSComponentSummaries`, `PSProcessorCommon`, `PSRemoteProcessor`, `PSLocalProcessor`, `PSDbComponentCollection` |
-| Tests | `PSComponentSummariesTest` (8), `PSDbComponentCollectionEqualsTest` (5) |
+|     Area     |                                                                                Change                                                                                 |
+|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Production   | `PSComponentSummaries`, `PSProcessorCommon`, `PSRemoteProcessor`, `PSLocalProcessor`, `PSDbComponentCollection`                                                       |
+| Tests        | `PSComponentSummariesTest` (8), `PSDbComponentCollectionEqualsTest` (5)                                                                                               |
 | Out of scope | design.objectstore (#2295), this-escape/serial (#2297), data (#2298), remaining cms.objectstore hot files (`PSRemoteAgent`, `PSRelationshipProcessor`, `PSSearch`, …) |
 
 Prior report / memory: sibling #2295 design.objectstore factory batch (PR #2308) — same style (real generics + focused tests + residual).
@@ -38,13 +38,13 @@ None at severity `bug`.
 
 ## Gate checklist
 
-| Check | Result |
-| --- | --- |
-| Bugs | none found |
-| Behavioral tests for changed logic | yes (13 new tests) |
-| Portable paths | N/A |
-| Module clean install | BUILD SUCCESS |
-| Scope confinement | cms.objectstore (+ tightly coupled local/remote processors) |
+|               Check                |                           Result                            |
+|------------------------------------|-------------------------------------------------------------|
+| Bugs                               | none found                                                  |
+| Behavioral tests for changed logic | yes (13 new tests)                                          |
+| Portable paths                     | N/A                                                         |
+| Module clean install               | BUILD SUCCESS                                               |
+| Scope confinement                  | cms.objectstore (+ tightly coupled local/remote processors) |
 
 ## Recommendation
 

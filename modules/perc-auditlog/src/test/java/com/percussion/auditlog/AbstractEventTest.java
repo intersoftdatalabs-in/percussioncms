@@ -41,7 +41,8 @@ public class AbstractEventTest {
   @Test
   @DisplayName("setOutcome remains usable after construction and is final")
   void setOutcomeIsFinalAndWorks() throws Exception {
-    assertTrue(Modifier.isFinal(AbstractEvent.class.getMethod("setOutcome", String.class).getModifiers()));
+    assertTrue(
+        Modifier.isFinal(AbstractEvent.class.getMethod("setOutcome", String.class).getModifiers()));
     AbstractEvent event = new AbstractEvent();
     event.setOutcome(PSActionOutcome.SUCCESS.name());
     assertEquals(PSActionOutcome.SUCCESS.name(), event.getOutcome());

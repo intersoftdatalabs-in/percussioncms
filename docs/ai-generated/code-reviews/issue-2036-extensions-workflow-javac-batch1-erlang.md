@@ -25,14 +25,14 @@ test fixtures). No blanket `@SuppressWarnings` added for rawtypes/unchecked.
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | none found |
-| Behavioral tests for new logic | yes — `PSTypedWorkflowListsTest` (7) |
-| Non-portable paths | none |
-| Module clean install | BUILD SUCCESS; Tests run: 67, Failures: 0, Errors: 0, Skipped: 41 (pre-existing) |
-| Javac warnings (main+test) | **0** (baseline was 54) |
-| May commit/push | **yes** |
+|             Check              |                                      Result                                      |
+|--------------------------------|----------------------------------------------------------------------------------|
+| Bugs                           | none found                                                                       |
+| Behavioral tests for new logic | yes — `PSTypedWorkflowListsTest` (7)                                             |
+| Non-portable paths             | none                                                                             |
+| Module clean install           | BUILD SUCCESS; Tests run: 67, Failures: 0, Errors: 0, Skipped: 41 (pre-existing) |
+| Javac warnings (main+test)     | **0** (baseline was 54)                                                          |
+| May commit/push                | **yes**                                                                          |
 
 ## Issues
 
@@ -62,3 +62,4 @@ cd modules/extensions-workflow
 # Tests run: 67, Failures: 0, Errors: 0, Skipped: 41
 # javac [WARNING] *.java lines: 0
 ```
+

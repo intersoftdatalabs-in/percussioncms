@@ -45,7 +45,9 @@ import org.junit.jupiter.api.Test;
  */
 public class PSCmsObjectStoreSerialVersionUidTest {
 
-  /** All concrete/abstract Serializable types under cms.objectstore (+ client/server exceptions). */
+  /**
+   * All concrete/abstract Serializable types under cms.objectstore (+ client/server exceptions).
+   */
   private static final Class<?>[] SERIALIZABLE_TYPES = {
     PSAaRelationship.class,
     PSAction.class,

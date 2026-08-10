@@ -76,8 +76,8 @@ public class StartArgsProxy {
    * unchecked cast is required.
    *
    * @return the list of command-line arguments assembled by Jetty, or <code>null</code> if the
-   *     underlying Jetty method could not be invoked reflectively or returned a non-list / non-String
-   *     payload
+   *     underlying Jetty method could not be invoked reflectively or returned a non-list /
+   *     non-String payload
    */
   public List<String> getMainArgs() {
     try {
@@ -100,8 +100,8 @@ public class StartArgsProxy {
   }
 
   /**
-   * Converts a reflective {@link List} payload into a parameterized {@code List<String>} without
-   * an unchecked cast, rejecting non-list results and non-{@link String} elements.
+   * Converts a reflective {@link List} payload into a parameterized {@code List<String>} without an
+   * unchecked cast, rejecting non-list results and non-{@link String} elements.
    *
    * @param rawArgs the value returned by Jetty's reflective {@code getArgs()} method; may be {@code
    *     null}
@@ -113,9 +113,7 @@ public class StartArgsProxy {
       return null;
     }
     if (!(rawArgs instanceof List<?>)) {
-      error(
-          "Jetty getArgs did not return a List, got %s",
-          rawArgs.getClass().getName());
+      error("Jetty getArgs did not return a List, got %s", rawArgs.getClass().getName());
       return null;
     }
     List<?> rawList = (List<?>) rawArgs;
@@ -127,9 +125,7 @@ public class StartArgsProxy {
       } else if (item instanceof String) {
         args.add((String) item);
       } else {
-        error(
-            "Unexpected non-String element in Jetty main args: %s",
-            item.getClass().getName());
+        error("Unexpected non-String element in Jetty main args: %s", item.getClass().getName());
         return null;
       }
     }

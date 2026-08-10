@@ -304,7 +304,10 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
    * @throws PSIllegalArgumentException If any support method throws this exception.
    */
   PSSqlBuilderContext getInsertContext(
-      PSBackEndTable table, PSBackEndLogin login, HashMap<String, Integer> dtHash, List<? extends IPSBackEndMapping> columnList)
+      PSBackEndTable table,
+      PSBackEndLogin login,
+      HashMap<String, Integer> dtHash,
+      List<? extends IPSBackEndMapping> columnList)
       throws PSIllegalArgumentException {
     PSSqlBuilderContext context = new PSSqlBuilderContext();
 
@@ -346,7 +349,10 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
    * @throws PSIllegalArgumentException If the builder does not have one table defined, any argument
    *     is invalid or the connection key is undefined.
    */
-  int validateBuilderConnection(HashMap<String, Integer> dtHash, ConcurrentHashMap<?, Integer> connKeys, List<PSBackEndLogin> logins)
+  int validateBuilderConnection(
+      HashMap<String, Integer> dtHash,
+      ConcurrentHashMap<?, Integer> connKeys,
+      List<PSBackEndLogin> logins)
       throws PSIllegalArgumentException {
     int connKey = super.validateBuilderConnection(dtHash, connKeys, logins);
 
@@ -373,7 +379,8 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
    * @throws PSIllegalArgumentException If there are multiple tables or a PSDataExtractionException
    *     occurs.
    */
-  PSUpdateStatement generate(java.util.List<PSBackEndLogin> logins, ConcurrentHashMap<?, Integer> connKeys)
+  PSUpdateStatement generate(
+      java.util.List<PSBackEndLogin> logins, ConcurrentHashMap<?, Integer> connKeys)
       throws PSIllegalArgumentException {
     HashMap<String, Integer> dtHash = new HashMap<>();
 

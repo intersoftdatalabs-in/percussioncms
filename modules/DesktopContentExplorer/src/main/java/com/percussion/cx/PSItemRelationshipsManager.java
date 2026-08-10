@@ -268,8 +268,8 @@ public class PSItemRelationshipsManager {
   }
 
   /**
-   * Returns whether a relationship slot is still allowed (registered template slot or inline).
-   * Pure helper for unit tests.
+   * Returns whether a relationship slot is still allowed (registered template slot or inline). Pure
+   * helper for unit tests.
    *
    * @param slotId the relationship <code>sys_slotid</code>, may be <code>null</code>
    * @param registeredSlots slots registered to the owner content type templates, may be <code>null
@@ -363,7 +363,8 @@ public class PSItemRelationshipsManager {
       }
     }
     PSComponentSummaries allsummaries = m_proxy.getSummaries(filter, false);
-    for (PSComponentSummary sum : filterSummariesByContentIds(allsummaries.getSummaries(), contentIds)) {
+    for (PSComponentSummary sum :
+        filterSummariesByContentIds(allsummaries.getSummaries(), contentIds)) {
       summaries.add(sum);
     }
     return summaries;

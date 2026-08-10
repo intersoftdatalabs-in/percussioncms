@@ -37,8 +37,8 @@ import org.springframework.context.annotation.Lazy;
  *
  * <p>Class-level {@code @Lazy} on {@link PSPageDaoHelper} only defers first request; constructor
  * dependencies still resolve eagerly. The {@code IPSFolderHelper} constructor parameter must be
- * {@link Lazy @Lazy} so Spring injects a proxy and does not re-enter {@code folderHelper} while
- * it is still being created (#2423 / #2437).
+ * {@link Lazy @Lazy} so Spring injects a proxy and does not re-enter {@code folderHelper} while it
+ * is still being created (#2423 / #2437).
  */
 @Tag("UnitTest")
 public class PSPageDaoHelperCycleLazyWiringTest {

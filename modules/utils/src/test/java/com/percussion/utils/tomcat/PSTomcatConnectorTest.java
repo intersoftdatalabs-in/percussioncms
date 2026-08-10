@@ -50,8 +50,7 @@ public class PSTomcatConnectorTest {
   public void schemePortConstructorSeedsFields() {
     Path ctx = Paths.get(".");
     Map<String, String> props = new HashMap<>();
-    PSTomcatConnector connector =
-        new PSTomcatConnector(ctx, IPSConnector.SCHEME_HTTP, 9980, props);
+    PSTomcatConnector connector = new PSTomcatConnector(ctx, IPSConnector.SCHEME_HTTP, 9980, props);
     assertEquals(IPSConnector.SCHEME_HTTP, connector.getScheme());
     assertEquals(9980, connector.getPort());
   }

@@ -11,14 +11,14 @@ Adds `InlineLinkTitleField` control parameter to `sys_tinymce` (ControlMeta + CE
 
 ## Scope
 
-| Path | Change |
-|------|--------|
-| `system/cms/.../sys_Templates.xsl` | ControlMeta param + XSL variable + `perc_tinymce_init` wire |
-| `modules/perc-tinymce/.../rxinline/plugin.js` | `editor.options.register("inlineLinkTitleField")` |
-| `modules/perc-tinymce/.../percadvlink/plugin.js` | same registration (CMS insert plugin) |
-| `modules/perc-tinymce/.../percadvimage/plugin.js` | same registration |
-| `system/src/test/.../controlmeta.xml` | fixture peer param |
-| `system/src/test/.../PSInlineLinkTitleFieldControlParamTest.java` | meta + persist round-trip |
+|                               Path                                |                           Change                            |
+|-------------------------------------------------------------------|-------------------------------------------------------------|
+| `system/cms/.../sys_Templates.xsl`                                | ControlMeta param + XSL variable + `perc_tinymce_init` wire |
+| `modules/perc-tinymce/.../rxinline/plugin.js`                     | `editor.options.register("inlineLinkTitleField")`           |
+| `modules/perc-tinymce/.../percadvlink/plugin.js`                  | same registration (CMS insert plugin)                       |
+| `modules/perc-tinymce/.../percadvimage/plugin.js`                 | same registration                                           |
+| `system/src/test/.../controlmeta.xml`                             | fixture peer param                                          |
+| `system/src/test/.../PSInlineLinkTitleFieldControlParamTest.java` | meta + persist round-trip                                   |
 
 **Out of scope (by design, residual slices):** runtime title resolve (#2242), Playwright (#2243).
 
@@ -47,10 +47,11 @@ None (bug/suggestion/nit empty).
 
 ## Gates evidence
 
-- `modules/perc-tinymce`: `mvnw clean install` — BUILD SUCCESS  
-- `system`: `mvnw clean install -DskipITs` — BUILD SUCCESS (1144 tests, 0 failures; includes `PSInlineLinkTitleFieldControlParamTest` 4/4)  
-- Focused: `-Dtest=PSInlineLinkTitleFieldControlParamTest` — 4 tests green  
+- `modules/perc-tinymce`: `mvnw clean install` — BUILD SUCCESS
+- `system`: `mvnw clean install -DskipITs` — BUILD SUCCESS (1144 tests, 0 failures; includes `PSInlineLinkTitleFieldControlParamTest` 4/4)
+- Focused: `-Dtest=PSInlineLinkTitleFieldControlParamTest` — 4 tests green
 
 ---
 
 > Co-Authored by Grok Build using grok-4.5 with agent main.
+

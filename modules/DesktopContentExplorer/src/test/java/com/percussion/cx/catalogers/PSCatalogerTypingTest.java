@@ -201,10 +201,7 @@ public class PSCatalogerTypingTest {
   public void globalTemplateParseHelper() throws Exception {
     Collection<String> templates =
         PSGlobalTemplateCataloger.parseGlobalTemplates(
-            parse(
-                    "<GlobalTemplates>"
-                        + "<Template name=\"onlyOne\"/>"
-                        + "</GlobalTemplates>")
+            parse("<GlobalTemplates>" + "<Template name=\"onlyOne\"/>" + "</GlobalTemplates>")
                 .getDocumentElement());
     assertEquals(1, templates.size());
     assertTrue(templates.contains("onlyOne"));
@@ -238,8 +235,7 @@ public class PSCatalogerTypingTest {
     assertTrue(compatible.stream().anyMatch(c -> c.getId() == 2));
 
     assertNull(mapper.getCompatibleCommunities(Integer.valueOf(99)));
-    assertThrows(
-        IllegalArgumentException.class, () -> mapper.getCompatibleCommunities(null));
+    assertThrows(IllegalArgumentException.class, () -> mapper.getCompatibleCommunities(null));
   }
 
   @Test
@@ -273,7 +269,8 @@ public class PSCatalogerTypingTest {
 
     PSCommunityCataloger clone = (PSCommunityCataloger) cataloger.clone();
     assertEquals(1, clone.getCommunities().size());
-    assertEquals(cataloger.getCommunities().iterator().next().getId(),
+    assertEquals(
+        cataloger.getCommunities().iterator().next().getId(),
         clone.getCommunities().iterator().next().getId());
   }
 

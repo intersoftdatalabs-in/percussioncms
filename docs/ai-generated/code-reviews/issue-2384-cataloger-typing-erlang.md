@@ -21,13 +21,13 @@ None blocking.
 
 ## Checklist
 
-| Gate | Result |
-|------|--------|
-| Real generics (not blanket suppress) | Yes |
-| Cross-platform paths | N/A (no path I/O change) |
-| Behavioral unit tests | `PSCatalogerTypingTest` (6), `PSDisplayFormatCatalogTest` (1) |
-| Change-class companions | Call sites updated for typed returns |
-| Module clean install | Required before PR |
+|                 Gate                 |                            Result                             |
+|--------------------------------------|---------------------------------------------------------------|
+| Real generics (not blanket suppress) | Yes                                                           |
+| Cross-platform paths                 | N/A (no path I/O change)                                      |
+| Behavioral unit tests                | `PSCatalogerTypingTest` (6), `PSDisplayFormatCatalogTest` (1) |
+| Change-class companions              | Call sites updated for typed returns                          |
+| Module clean install                 | Required before PR                                            |
 
 ## Test evidence
 

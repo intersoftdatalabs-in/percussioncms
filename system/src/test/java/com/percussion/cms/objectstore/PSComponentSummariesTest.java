@@ -34,13 +34,11 @@ import org.junit.jupiter.api.Test;
 public class PSComponentSummariesTest {
 
   private static PSComponentSummary item(int id, String name) {
-    return new PSComponentSummary(
-        id, 1, 1, 1, PSComponentSummary.TYPE_ITEM, name, 301, 0);
+    return new PSComponentSummary(id, 1, 1, 1, PSComponentSummary.TYPE_ITEM, name, 301, 0);
   }
 
   private static PSComponentSummary folder(int id, String name) {
-    return new PSComponentSummary(
-        id, 1, 1, 1, PSComponentSummary.TYPE_FOLDER, name, 101, 3);
+    return new PSComponentSummary(id, 1, 1, 1, PSComponentSummary.TYPE_FOLDER, name, 101, 3);
   }
 
   @Test
@@ -66,13 +64,16 @@ public class PSComponentSummariesTest {
 
   @Test
   public void nullArrayCtorRejected() {
-    assertThrows(IllegalArgumentException.class, () -> new PSComponentSummaries((PSComponentSummary[]) null));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new PSComponentSummaries((PSComponentSummary[]) null));
   }
 
   @Test
   public void getComponentListFiltersByType() {
     PSComponentSummaries summaries =
-        new PSComponentSummaries(new PSComponentSummary[] {item(1, "i1"), folder(2, "f1"), item(3, "i2")});
+        new PSComponentSummaries(
+            new PSComponentSummary[] {item(1, "i1"), folder(2, "f1"), item(3, "i2")});
     List<PSComponentSummary> items = summaries.getComponentList(PSComponentSummary.TYPE_ITEM);
     List<PSComponentSummary> folders = summaries.getComponentList(PSComponentSummary.TYPE_FOLDER);
     assertEquals(2, items.size());

@@ -1296,7 +1296,9 @@ function processServerPropertiesForm(eventData) {
       emptyS3Fields.push(I18N.message("perc.ui.publish.servers.s3@Access Key"));
     }
     if (!secretKeyVal) {
-      emptyS3Fields.push(I18N.message("perc.ui.publish.servers.s3@Security Key"));
+      emptyS3Fields.push(
+        I18N.message("perc.ui.publish.servers.s3@Security Key"),
+      );
     }
     if ($("#useAssumeRole").is(":checked") && !arnRoleVal) {
       emptyS3Fields.push(I18N.message("perc.ui.publish.servers.s3@Role ARN"));
@@ -1304,7 +1306,9 @@ function processServerPropertiesForm(eventData) {
     if (emptyS3Fields.length > 0) {
       var s3Warn = {};
       s3Warn.result = {};
-      s3Warn.source = I18N.message("perc.ui.publish.title@Server Configuration");
+      s3Warn.source = I18N.message(
+        "perc.ui.publish.title@Server Configuration",
+      );
       s3Warn.result.warning = I18N.message(
         "perc.ui.publish.servers.s3@Empty credentials warning",
         [emptyS3Fields.join(", ")],

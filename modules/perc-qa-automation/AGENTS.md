@@ -39,13 +39,10 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
   `QA_CMS_HOST_PORT` / `CMS_HOST_PORT` → `http://127.0.0.1:<port>` >
   `DEV_PERCUSSION_URL` > install discovery > fallback.
 - **Do not hardcode `:9993`** as the only host port (freeport multi-worktree; issues #2005/#2014). Prefer the `TEST_CMS_URL` printed by `qa-up`.
-
 - **Admin creds:** `ADMIN_USERNAME=Admin` (default); password from env / `qa-up`
   output / `docker exec` — **never commit secrets**.
-
 - Pure resolver + unit tests: `frontend/tests/helpers/resolve-cms-env.js`,
   `npm run test:unit` (no live CMS).
-
 - Failure artifact dirs: `frontend/test-results/`, `frontend/playwright-report/`
   (attach runbook: `docs/developer-module/playwright-failure-artifacts.md`).
 

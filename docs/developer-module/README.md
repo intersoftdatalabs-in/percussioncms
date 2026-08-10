@@ -13,8 +13,7 @@ Tool-agnostic reverse engineering of the Rhythmyx 7.3.2 **Workbench** (Eclipse D
 | [workbench-functional-inventory.md](./workbench-functional-inventory.md)     | Primary inventory + functional requirements: IA, object catalog, module FR, cross-cutting platform needs, prioritization, appendices                                                           |
 | [data-pipeline-engine-inventory.md](./data-pipeline-engine-inventory.md)     | **XML Application / E2Designer data pipeline engine** — full stage inventory (tanks, mapper, selector, updater, txn, hooks, value system) + modernization brief (JSON, datasources, hooks, IR) |
 | [data-pipeline-server-runtime-map.md](./data-pipeline-server-runtime-map.md) | **Server runtime map** in this repo — `PSApplicationHandler` → `PSQueryHandler` / `PSUpdateHandler` (+ reuse vs reimplement notes for Slice A)                                                 |
-| [pipeline-ir-v1.md](./pipeline-ir-v1.md) | **Pipeline IR v1.0** schema — versioned app→resource→stages JSON; classic import + native load/save (Slice A part 1 / #2247) |
-
+| [pipeline-ir-v1.md](./pipeline-ir-v1.md)                                     | **Pipeline IR v1.0** schema — versioned app→resource→stages JSON; classic import + native load/save (Slice A part 1 / #2247)                                                                   |
 
 ## Source system (sibling: `rx732patchdev`)
 

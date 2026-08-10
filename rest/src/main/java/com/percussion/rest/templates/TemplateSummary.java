@@ -14,9 +14,9 @@ import jakarta.xml.bind.annotation.XmlType;
  *
  * <p>Wire getters return plain {@link String} types (not {@code Optional}) so Jackson/CXF JSON
  * always emits {@code templateName}, {@code templateLabel}, and {@code templateDescription} when
- * set. Optional-returning getters historically dropped those fields under {@code
- * @JsonInclude(NON_NULL)} when the mapper did not unwrap {@code Optional}, leaving only {@code
- * templateId} on the list wire shape (issue #2189). Matches {@link
+ * set. Optional-returning getters historically dropped those fields under
+ * {@code @JsonInclude(NON_NULL)} when the mapper did not unwrap {@code Optional}, leaving only
+ * {@code templateId} on the list wire shape (issue #2189). Matches {@link
  * com.percussion.rest.contenttypes.ContentType} getter style (issue #1693).
  */
 @XmlRootElement(name = "TemplateSummary")

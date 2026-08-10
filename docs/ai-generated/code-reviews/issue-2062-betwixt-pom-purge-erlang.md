@@ -5,15 +5,15 @@
 
 ## Checklist
 
-| Gate | Result |
-|------|--------|
-| Bugs / dual-engine leftover paths | Pass — facade Jackson-only; `PSBetwixtObjectConverter` deleted |
-| Portable paths | N/A (no new file I/O path construction) |
-| Behavioral unit tests | Pass — utils facade/Jackson tests updated; Betwixt-only cases removed; system engine-property asserts removed |
-| Module clean install | Pass — `modules/utils` then `system` standalone `clean install` |
-| Spotless apply → check | Pass (in-scope only committed) |
-| `commons-betwixt` on utils tree | Pass — `dependency:tree -Dincludes=commons-betwixt*` empty |
-| Residual production `.betwixt` | Pass — 0 under source (non-target) |
+|               Gate                |                                                    Result                                                     |
+|-----------------------------------|---------------------------------------------------------------------------------------------------------------|
+| Bugs / dual-engine leftover paths | Pass — facade Jackson-only; `PSBetwixtObjectConverter` deleted                                                |
+| Portable paths                    | N/A (no new file I/O path construction)                                                                       |
+| Behavioral unit tests             | Pass — utils facade/Jackson tests updated; Betwixt-only cases removed; system engine-property asserts removed |
+| Module clean install              | Pass — `modules/utils` then `system` standalone `clean install`                                               |
+| Spotless apply → check            | Pass (in-scope only committed)                                                                                |
+| `commons-betwixt` on utils tree   | Pass — `dependency:tree -Dincludes=commons-betwixt*` empty                                                    |
+| Residual production `.betwixt`    | Pass — 0 under source (non-target)                                                                            |
 
 ## Companions
 

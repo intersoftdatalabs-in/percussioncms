@@ -64,8 +64,7 @@ public class ActionMenu {
 
   /** Menu type, never {@code null} or empty. */
   @Schema(
-      description =
-          "The menu type, never null or empty, must be a valid menu type.",
+      description = "The menu type, never null or empty, must be a valid menu type.",
       allowableValues =
           PSAction.TYPE_MENU
               + ","

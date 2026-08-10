@@ -34,6 +34,7 @@ import org.w3c.dom.Element;
 public class PSTextLiteral extends PSLiteral implements IPSMutatableReplacementValue {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
+
   /** The value type associated with this instances of this class. */
   public static final String VALUE_TYPE = "TextLiteral";
 

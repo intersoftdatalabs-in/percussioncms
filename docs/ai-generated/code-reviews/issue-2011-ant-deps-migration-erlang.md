@@ -36,3 +36,4 @@ None (bug / missing behavioral tests / non-portable I/O).
 - `cd modules/perc-distribution-tree && ../../mvnw clean install` — BUILD SUCCESS
 - `I18nLocaleMigrationWiringTest` — tests=3, failures=0, errors=0
 - Module `spotless:check` — BUILD SUCCESS (in-scope only)
+

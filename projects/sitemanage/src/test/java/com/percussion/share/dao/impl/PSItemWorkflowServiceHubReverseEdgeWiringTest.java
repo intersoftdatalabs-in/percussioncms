@@ -28,7 +28,6 @@ import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.impl.PSItemWorkflowService;
 import com.percussion.recycle.service.IPSRecycleService;
 import com.percussion.recycle.service.impl.PSRecycleService;
-import com.percussion.share.dao.IPSContentItemDao;
 import com.percussion.share.dao.IPSFolderHelper;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -70,7 +69,8 @@ import org.springframework.context.annotation.Lazy;
  *
  * <p>Peers: {@link PSAssetServicePageServiceNearCycleWiringTest}, {@link
  * PSContentItemDaoCycleLazyWiringTest}, {@code FolderHelperCycleContextTest} (#2436). Inventory:
- * {@code docs/ai-generated/tasks/2423-spring-injection-cycle/sitemanage-injection-cycle-inventory.md}.
+ * {@code
+ * docs/ai-generated/tasks/2423-spring-injection-cycle/sitemanage-injection-cycle-inventory.md}.
  */
 @Tag("UnitTest")
 public class PSItemWorkflowServiceHubReverseEdgeWiringTest {

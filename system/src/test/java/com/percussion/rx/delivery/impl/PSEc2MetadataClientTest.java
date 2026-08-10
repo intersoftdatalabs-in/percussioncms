@@ -36,8 +36,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit tests for {@link PSEc2MetadataClient} using a local {@link HttpServer} to simulate IMDS
- * (no live AWS). Covers IMDSv2 success, IMDSv1-only fallback, v2-required (v1 fails / v2 ok), and
+ * Unit tests for {@link PSEc2MetadataClient} using a local {@link HttpServer} to simulate IMDS (no
+ * live AWS). Covers IMDSv2 success, IMDSv1-only fallback, v2-required (v1 fails / v2 ok), and
  * non-EC2 (connection refused / error) paths.
  */
 class PSEc2MetadataClientTest {
@@ -118,8 +118,7 @@ class PSEc2MetadataClientTest {
     AtomicInteger unauthGets = new AtomicInteger();
 
     server.createContext(
-        PSEc2MetadataClient.TOKEN_PATH,
-        exchange -> respond(exchange, 404, "no token on this AMI"));
+        PSEc2MetadataClient.TOKEN_PATH, exchange -> respond(exchange, 404, "no token on this AMI"));
     server.createContext(
         PSEc2MetadataClient.META_DATA_ROOT,
         exchange -> {
@@ -168,8 +167,7 @@ class PSEc2MetadataClientTest {
 
   @Test
   void nonEc2_errorStatus_returnsFalse() {
-    server.createContext(
-        PSEc2MetadataClient.TOKEN_PATH, exchange -> respond(exchange, 500, "err"));
+    server.createContext(PSEc2MetadataClient.TOKEN_PATH, exchange -> respond(exchange, 500, "err"));
     server.createContext(
         PSEc2MetadataClient.META_DATA_ROOT, exchange -> respond(exchange, 500, "err"));
 

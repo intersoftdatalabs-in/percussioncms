@@ -69,8 +69,7 @@ public class PSCommunityMappingsOutputDataTest {
 
   @Test
   public void buildMappingsFromModel_skipsIdentityAndStopsAtNullRow() {
-    DefaultTableModel model =
-        new DefaultTableModel(new Object[] {"Source", "Target"}, 0);
+    DefaultTableModel model = new DefaultTableModel(new Object[] {"Source", "Target"}, 0);
     model.addRow(new Object[] {community(10, "SrcA"), community(20, "TgtA")});
     model.addRow(new Object[] {community(30, "SrcB"), community(30, "SrcB")}); // identity
     model.addRow(new Object[] {community(40, "SrcC"), community(50, "TgtC")});

@@ -29,8 +29,8 @@ import java.util.Set;
  *
  * <p>Not {@link java.io.Serializable}: JPA entities are managed by the persistence context, and
  * declaring {@code Serializable} forced {@code -Xlint:serial} diagnostics on the Hibernate {@link
- * Set} of answers (the {@code Set} interface is not serializable). Poll state is exchanged via
- * REST DTOs ({@code PSRestPoll}), not Java serialization.
+ * Set} of answers (the {@code Set} interface is not serializable). Poll state is exchanged via REST
+ * DTOs ({@code PSRestPoll}), not Java serialization.
  */
 @Entity
 @Table(name = "PERC_POLLS")

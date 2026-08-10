@@ -16,13 +16,13 @@ rethrow, 503 bare resource on list + get).
 
 ## Scope
 
-| Item | Value |
-|------|--------|
-| Files | `rest/src/main/java/com/percussion/rest/serverconfigs/ServerConfigsResource.java` |
-| | `rest/src/test/java/com/percussion/rest/serverconfigs/ServerConfigsResourceTest.java` |
-| Base | `origin/main` |
-| Prior report / memory | Peer slice C5-style cecontrols (#2130) pattern; catalog requireAdaptor→503 |
-| Cross-platform path review | N/A — no file I/O or path handling in diff |
+|            Item            |                                         Value                                         |
+|----------------------------|---------------------------------------------------------------------------------------|
+| Files                      | `rest/src/main/java/com/percussion/rest/serverconfigs/ServerConfigsResource.java`     |
+|                            | `rest/src/test/java/com/percussion/rest/serverconfigs/ServerConfigsResourceTest.java` |
+| Base                       | `origin/main`                                                                         |
+| Prior report / memory      | Peer slice C5-style cecontrols (#2130) pattern; catalog requireAdaptor→503            |
+| Cross-platform path review | N/A — no file I/O or path handling in diff                                            |
 
 ## Issues
 
@@ -43,13 +43,13 @@ None (no `bug`, no missing behavioral tests for changed logic, no path concerns)
 
 ## Change-class companions
 
-| Companion | Status |
-|-----------|--------|
-| Resource `requireAdaptor` → 503 | Done |
-| OpenAPI 503 responses | Done |
-| Mockito resource unit tests (peer ladder) | Done |
-| Rest Spring `TestServerConfigAdaptor` stub | Pre-existing; unchanged |
-| sitemanage `ServerConfigAdaptor` rework | Out of scope without live stack |
+|                 Companion                  |             Status              |
+|--------------------------------------------|---------------------------------|
+| Resource `requireAdaptor` → 503            | Done                            |
+| OpenAPI 503 responses                      | Done                            |
+| Mockito resource unit tests (peer ladder)  | Done                            |
+| Rest Spring `TestServerConfigAdaptor` stub | Pre-existing; unchanged         |
+| sitemanage `ServerConfigAdaptor` rework    | Out of scope without live stack |
 
 ## Operator
 

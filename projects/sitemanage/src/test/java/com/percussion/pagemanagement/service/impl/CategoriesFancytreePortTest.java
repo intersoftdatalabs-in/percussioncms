@@ -123,9 +123,7 @@ class CategoriesFancytreePortTest {
       assertTrue(
           js.contains("dict.data") && js.contains("$.extend(dict, dict.data)"),
           rel + " must flatten fancytree dict.data into the node dict (GH-758/957)");
-      assertTrue(
-          js.contains("delete dict.data"),
-          rel + " must remove nested data after flatten");
+      assertTrue(js.contains("delete dict.data"), rel + " must remove nested data after flatten");
     }
   }
 
@@ -136,16 +134,13 @@ class CategoriesFancytreePortTest {
       String js = read(rel);
       // Structural: publishToDTS calls editCategories then publishToDTS on success.
       assertTrue(
-          js.contains("controller.editCategories")
-              && js.contains("controller.publishToDTS"),
+          js.contains("controller.editCategories") && js.contains("controller.publishToDTS"),
           rel + " publish flow should save (editCategories) then publish");
       // Must not fire-and-forget publish then save() (race against category.xml).
       Pattern race =
           Pattern.compile(
               "controller\\.publishToDTS\\([^)]*\\)\\s*;\\s*isPublished\\s*=\\s*true\\s*;\\s*save\\s*\\(");
-      assertTrue(
-          !race.matcher(js).find(),
-          rel + " must not publish before save (legacy race)");
+      assertTrue(!race.matcher(js).find(), rel + " must not publish before save (legacy race)");
     }
   }
 

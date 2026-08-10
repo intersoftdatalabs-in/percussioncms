@@ -35,7 +35,8 @@ public class PSOParseUrlQueryStringTest {
 
   @Test
   void repeatedKeysAccumulateInList() throws Exception {
-    Map<String, Object> params = PSOParseUrlQueryString.parseParameters("tag=one&tag=two&tag=three");
+    Map<String, Object> params =
+        PSOParseUrlQueryString.parseParameters("tag=one&tag=two&tag=three");
     Object value = params.get("tag");
     assertInstanceOf(ArrayList.class, value);
     @SuppressWarnings("unchecked")

@@ -15,12 +15,12 @@ Living document for Phase 0–3 implementers. Not a customer-facing guide.
 
 ## 2. Region vs slot
 
-| Concept | CM1 | Classic |
-|---------|-----|---------|
-| Hole | Region (`regionId` in region tree) | Slot (`PSTemplateSlot`, slotid) |
-| Fill | Widget instances + asset relationships | Related content via finders / AA |
-| Allowed types | Widget definition + DnD prefs | Allowed content types / templates on slot |
-| Layout chrome | Widget `CssPref` / `UserPref` | Mostly absent (HTML in template) |
+|    Concept    |                  CM1                   |                  Classic                  |
+|---------------|----------------------------------------|-------------------------------------------|
+| Hole          | Region (`regionId` in region tree)     | Slot (`PSTemplateSlot`, slotid)           |
+| Fill          | Widget instances + asset relationships | Related content via finders / AA          |
+| Allowed types | Widget definition + DnD prefs          | Allowed content types / templates on slot |
+| Layout chrome | Widget `CssPref` / `UserPref`          | Mostly absent (HTML in template)          |
 
 **Target:** one **Slot** abstraction. Regions rename/map to slots. Layout chrome moves to **`slot_layout` / `slot_styles`**.
 

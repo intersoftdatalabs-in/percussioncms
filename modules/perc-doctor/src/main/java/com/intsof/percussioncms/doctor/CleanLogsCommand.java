@@ -222,8 +222,7 @@ public final class CleanLogsCommand {
     if (detail == null || detail.isBlank()) {
       detail = exc != null ? exc.getClass().getSimpleName() : "unknown I/O error";
     }
-    report.add(
-        new CleanReport.Entry(file, 0L, CleanReport.EntryStatus.FAILED, "walk: " + detail));
+    report.add(new CleanReport.Entry(file, 0L, CleanReport.EntryStatus.FAILED, "walk: " + detail));
   }
 
   private static void processCandidate(
@@ -355,9 +354,7 @@ public final class CleanLogsCommand {
     Matcher m = DURATION_PATTERN.matcher(trimmed);
     if (!m.matches()) {
       throw new IllegalArgumentException(
-          "invalid --older-than duration '"
-              + token
-              + "' (expected <number><s|m|h|d|w>, e.g. 7d)");
+          "invalid --older-than duration '" + token + "' (expected <number><s|m|h|d|w>, e.g. 7d)");
     }
     long amount;
     try {

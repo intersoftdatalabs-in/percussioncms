@@ -125,8 +125,8 @@ public final class PSCommunityCataloger {
     }
 
     /**
-     * Constructor that loads from XML via the private apply helper (no overridable method on
-     * {@code this} during construction).
+     * Constructor that loads from XML via the private apply helper (no overridable method on {@code
+     * this} during construction).
      *
      * @param elemRoot the element that contains data for a single community, never <code>null
      *     </code>

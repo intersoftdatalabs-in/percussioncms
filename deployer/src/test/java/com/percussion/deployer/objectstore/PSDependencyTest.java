@@ -45,41 +45,20 @@ public class PSDependencyTest {
   public PSDependencyTest() {}
 
   /**
-   * Behavioral coverage for {@link PSDependency#compareTo(PSDependency)} after
-   * {@code Comparable<PSDependency>} typing (issue #2028 batch 1).
+   * Behavioral coverage for {@link PSDependency#compareTo(PSDependency)} after {@code
+   * Comparable<PSDependency>} typing (issue #2028 batch 1).
    */
   @Test
   public void testCompareToOrdersByDisplayIdentifier() {
     PSDeployableObject lower =
         new PSDeployableObject(
-            PSDependency.TYPE_SHARED,
-            "id-a",
-            "TypeA",
-            "Type A",
-            "alpha",
-            true,
-            false,
-            false);
+            PSDependency.TYPE_SHARED, "id-a", "TypeA", "Type A", "alpha", true, false, false);
     PSDeployableObject higher =
         new PSDeployableObject(
-            PSDependency.TYPE_SHARED,
-            "id-b",
-            "TypeA",
-            "Type A",
-            "beta",
-            true,
-            false,
-            false);
+            PSDependency.TYPE_SHARED, "id-b", "TypeA", "Type A", "beta", true, false, false);
     PSDeployableObject sameDisplayDifferentId =
         new PSDeployableObject(
-            PSDependency.TYPE_SHARED,
-            "id-c",
-            "TypeA",
-            "Type A",
-            "alpha",
-            true,
-            false,
-            false);
+            PSDependency.TYPE_SHARED, "id-c", "TypeA", "Type A", "alpha", true, false, false);
 
     assertTrue(lower.compareTo(higher) < 0);
     assertTrue(higher.compareTo(lower) > 0);
@@ -93,32 +72,18 @@ public class PSDependencyTest {
   }
 
   /**
-   * {@code Comparable<PSDependency>} is safe: no concrete subclass overrides {@code compareTo},
-   * and mixed {@link PSDeployableElement}/{@link PSDeployableObject} instances order correctly via
-   * the base implementation (and via {@link TreeSet}, which is how children are stored).
+   * {@code Comparable<PSDependency>} is safe: no concrete subclass overrides {@code compareTo}, and
+   * mixed {@link PSDeployableElement}/{@link PSDeployableObject} instances order correctly via the
+   * base implementation (and via {@link TreeSet}, which is how children are stored).
    */
   @Test
   public void testCompareToAcrossSubclassesAndTreeSet() {
     PSDeployableElement elem =
         new PSDeployableElement(
-            PSDependency.TYPE_SHARED,
-            "e1",
-            "TypeE",
-            "Type E",
-            "alpha",
-            true,
-            false,
-            false);
+            PSDependency.TYPE_SHARED, "e1", "TypeE", "Type E", "alpha", true, false, false);
     PSDeployableObject obj =
         new PSDeployableObject(
-            PSDependency.TYPE_SHARED,
-            "o1",
-            "TypeO",
-            "Type O",
-            "beta",
-            true,
-            false,
-            false);
+            PSDependency.TYPE_SHARED, "o1", "TypeO", "Type O", "beta", true, false, false);
 
     // Polymorphic typed compare (not Object overload) — both use PSDependency.compareTo
     assertTrue(elem.compareTo(obj) < 0);

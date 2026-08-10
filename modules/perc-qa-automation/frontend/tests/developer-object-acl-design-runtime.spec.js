@@ -31,9 +31,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
-const {
-  catalogRowSelector,
-} = require("./helpers/developer-catalog-selectors");
+const { catalogRowSelector } = require("./helpers/developer-catalog-selectors");
 
 function developerContentTypesUrl() {
   const q = new URLSearchParams({
@@ -89,7 +87,9 @@ test.describe("Developer Object ACL design vs runtime permissions (#2283)", () =
     ).toBeVisible({ timeout: 5_000 });
     await openBtn.click();
 
-    await expect(page.locator('[data-testid="developer-ct-detail"]')).toBeVisible({
+    await expect(
+      page.locator('[data-testid="developer-ct-detail"]'),
+    ).toBeVisible({
       timeout: 20_000,
     });
 
@@ -97,14 +97,18 @@ test.describe("Developer Object ACL design vs runtime permissions (#2283)", () =
     await expect(aclSection).toBeVisible({ timeout: 15_000 });
 
     // Hint mentions design + runtime model
-    await expect(aclSection).toContainText(/Design-time and runtime|Design access|Runtime/i);
+    await expect(aclSection).toContainText(
+      /Design-time and runtime|Design access|Runtime/i,
+    );
 
     const aclError = page.locator('[data-testid="developer-ct-acl-error"]');
     const aclEmpty = page.locator('[data-testid="developer-ct-acl-empty"]');
     const aclTable = page.locator('[data-testid="developer-ct-acl-table"]');
     const aclLoading = page.locator('[data-testid="developer-ct-acl-loading"]');
 
-    await expect(aclLoading).toBeHidden({ timeout: 30_000 }).catch(() => {});
+    await expect(aclLoading)
+      .toBeHidden({ timeout: 30_000 })
+      .catch(() => {});
     await expect(aclTable.or(aclEmpty).or(aclError).first()).toBeVisible({
       timeout: 30_000,
     });
@@ -124,7 +128,10 @@ test.describe("Developer Object ACL design vs runtime permissions (#2283)", () =
 
     await expect(aclTable).toBeVisible();
     await expect(aclTable).toHaveAttribute("data-acl-show-runtime", "true");
-    await expect(aclTable).toHaveAttribute("data-acl-object-kind", "content-type");
+    await expect(aclTable).toHaveAttribute(
+      "data-acl-object-kind",
+      "content-type",
+    );
 
     // Layer group headers
     await expect(
@@ -154,7 +161,9 @@ test.describe("Developer Object ACL design vs runtime permissions (#2283)", () =
       page.locator('[data-testid="developer-ct-acl-perm-header-OWNER"]'),
     ).toContainText(/Modify ACL/i);
     await expect(
-      page.locator('[data-testid="developer-ct-acl-perm-header-RUNTIME_VISIBLE"]'),
+      page.locator(
+        '[data-testid="developer-ct-acl-perm-header-RUNTIME_VISIBLE"]',
+      ),
     ).toContainText(/Visible/i);
 
     // Checkbox-only locators: prefix also matches perm-header-<PERM> <th> cells;

@@ -26,8 +26,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Issue #2220 / parent #2213 slice 5: CMS distribution must ship operator {@code perc-doctor}
- * under {@code bin/} and refresh it on upgrade.
+ * Issue #2220 / parent #2213 slice 5: CMS distribution must ship operator {@code perc-doctor} under
+ * {@code bin/} and refresh it on upgrade.
  *
  * <p>Structural packaging assertions (source POM / install.xml / sibling module scripts) — does not
  * require a full distribution assembly when SNAPSHOT deps are missing.
@@ -71,7 +71,8 @@ class PercDoctorDistPackagingTest {
   @DisplayName("install.xml upgrade.overwrite refreshes bin/perc-doctor{.bat,.jar}")
   void installXmlUpgradeOverwritesPercDoctorBin() throws Exception {
     assertTrue(
-        Files.isRegularFile(INSTALL_XML), () -> "missing " + INSTALL_XML.toAbsolutePath().normalize());
+        Files.isRegularFile(INSTALL_XML),
+        () -> "missing " + INSTALL_XML.toAbsolutePath().normalize());
     String xml = Files.readString(INSTALL_XML, StandardCharsets.UTF_8);
 
     assertTrue(xml.contains("upgrade.overwrite"), "install.xml must define upgrade.overwrite");
@@ -79,7 +80,8 @@ class PercDoctorDistPackagingTest {
         xml.contains("bin/perc-doctor")
             && xml.contains("bin/perc-doctor.bat")
             && xml.contains("bin/perc-doctor.jar"),
-        "upgrade.overwrite must include Unix launcher, Windows .bat, and jar (extensionless script)");
+        "upgrade.overwrite must include Unix launcher, Windows .bat, and jar (extensionless"
+            + " script)");
     assertFalse(
         xml.contains("<exclude name=\"bin/perc-doctor")
             || xml.contains("<exclude name=\"**/perc-doctor"),

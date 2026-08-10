@@ -55,7 +55,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  *
  * @author dougrand
  */
-public final class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCacheItem, IPSProperty {
+public final class PSMultiProperty extends PSPropertyWrapper
+    implements IPSJcrCacheItem, IPSProperty {
   /** The name of this property, never <code>null</code> after construction */
   public String m_name;
 

@@ -3,7 +3,7 @@
 Production and Staging DTS install as native Windows services via Apache Commons
 Daemon **Procrun** (`tomcat11.exe` / `tomcat11w.exe`).
 
-| Installer                  | Default service name      |
+|         Installer          |   Default service name    |
 |----------------------------|---------------------------|
 | `DTSProductionService.bat` | `PercussionProductionDTS` |
 | `DTSStagingService.bat`    | `PercussionStagingDTS`    |
@@ -31,11 +31,11 @@ Java home is resolved via `resolve-java-home.bat` at the DTS install root
 
 ## Where logs go (issue #938)
 
-| Stream | Path |
-|--------|------|
-| Application / console (stdout + stderr) | `Deployment\Server\logs\catalina.log` |
-| Procrun / commons-daemon service log | `Deployment\Server\logs\` (LogPath; prefix defaults to service tooling) |
-| Log4j2 Tomcat + DTS app logs | `Deployment\Server\logs\` (`catalina.log`, `localhost.log`, per-app `*.log`) |
+|                 Stream                  |                                     Path                                     |
+|-----------------------------------------|------------------------------------------------------------------------------|
+| Application / console (stdout + stderr) | `Deployment\Server\logs\catalina.log`                                        |
+| Procrun / commons-daemon service log    | `Deployment\Server\logs\` (LogPath; prefix defaults to service tooling)      |
+| Log4j2 Tomcat + DTS app logs            | `Deployment\Server\logs\` (`catalina.log`, `localhost.log`, per-app `*.log`) |
 
 This matches Linux service installers, which set:
 
@@ -79,3 +79,4 @@ for JUL properties files only).
 * Linux: `README-systemd.md`, `DTSProductionService.sh` / `DTSStagingService.sh`
 * CMS Jetty Windows service is separate (`modules/perc-jetty`); do not conflate
   with DTS Tomcat logging.
+

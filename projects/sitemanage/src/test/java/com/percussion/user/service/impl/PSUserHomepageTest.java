@@ -99,8 +99,7 @@ class PSUserHomepageTest {
       assertEquals(HOMEPAGE_TYPE_DASHBOARD, PSUserService.normalizeHomepageType("Dashboard"));
       assertEquals(HOMEPAGE_TYPE_EDITOR, PSUserService.normalizeHomepageType("Editor"));
       assertEquals(HOMEPAGE_TYPE_DESIGNER, PSUserService.normalizeHomepageType("Designer"));
-      assertEquals(
-          HOMEPAGE_TYPE_ARCHITECTURE, PSUserService.normalizeHomepageType("Architecture"));
+      assertEquals(HOMEPAGE_TYPE_ARCHITECTURE, PSUserService.normalizeHomepageType("Architecture"));
       assertEquals(HOMEPAGE_TYPE_PUBLISH, PSUserService.normalizeHomepageType("Publish"));
       assertEquals(HOMEPAGE_TYPE_WORKFLOW, PSUserService.normalizeHomepageType("Workflow"));
       assertEquals(
@@ -173,8 +172,7 @@ class PSUserHomepageTest {
               HOMEPAGE_TYPE_EDITOR, Set.of(HOMEPAGE_TYPE_HOME, HOMEPAGE_TYPE_DASHBOARD)));
       assertEquals(
           HOMEPAGE_TYPE_DESIGNER,
-          PSRoleService.resolveEffectiveHomepage(
-              "design", Set.of(HOMEPAGE_TYPE_EDITOR)));
+          PSRoleService.resolveEffectiveHomepage("design", Set.of(HOMEPAGE_TYPE_EDITOR)));
     }
 
     @Test
@@ -196,8 +194,7 @@ class PSUserHomepageTest {
           HOMEPAGE_TYPE_DASHBOARD,
           PSRoleService.resolveEffectiveHomepage(
               "", Set.of(HOMEPAGE_TYPE_DASHBOARD, HOMEPAGE_TYPE_EDITOR)));
-      assertEquals(
-          HOMEPAGE_TYPE_HOME, PSRoleService.resolveEffectiveHomepage(null, Set.of()));
+      assertEquals(HOMEPAGE_TYPE_HOME, PSRoleService.resolveEffectiveHomepage(null, Set.of()));
     }
   }
 
@@ -261,8 +258,7 @@ class PSUserHomepageTest {
       doReturn("bob").when(userService).getCurrentUserName();
       doReturn(false).when(userService).isAdminUser("bob");
 
-      assertThrows(
-          PSValidationException.class, () -> userService.getHomepageOverride("alice"));
+      assertThrows(PSValidationException.class, () -> userService.getHomepageOverride("alice"));
       verify(metadataService, never()).find(any());
     }
 
@@ -283,8 +279,7 @@ class PSUserHomepageTest {
       doReturn("bob").when(userService).getCurrentUserName();
       doReturn(false).when(userService).isAdminUser("bob");
 
-      assertThrows(
-          PSValidationException.class, () -> userService.clearHomepageOverride("alice"));
+      assertThrows(PSValidationException.class, () -> userService.clearHomepageOverride("alice"));
       verify(metadataService, never()).delete(any());
       verify(metadataService, never()).find(any());
     }

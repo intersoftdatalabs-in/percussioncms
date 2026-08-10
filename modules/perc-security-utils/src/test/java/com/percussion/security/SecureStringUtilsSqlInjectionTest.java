@@ -96,7 +96,8 @@ class SecureStringUtilsSqlInjectionTest {
   void requireJdbcMetadataPatternOrNullAcceptsIdentifiersAndWildcards() {
     assertNull(SecureStringUtils.requireJdbcMetadataPatternOrNull(null));
     assertEquals("", SecureStringUtils.requireJdbcMetadataPatternOrNull(""));
-    assertEquals("CONTENTSTATUS", SecureStringUtils.requireJdbcMetadataPatternOrNull("CONTENTSTATUS"));
+    assertEquals(
+        "CONTENTSTATUS", SecureStringUtils.requireJdbcMetadataPatternOrNull("CONTENTSTATUS"));
     assertEquals("%", SecureStringUtils.requireJdbcMetadataPatternOrNull("%"));
     assertEquals("PSX_%", SecureStringUtils.requireJdbcMetadataPatternOrNull("PSX_%"));
     assertEquals("col$", SecureStringUtils.requireJdbcMetadataPatternOrNull("col$"));

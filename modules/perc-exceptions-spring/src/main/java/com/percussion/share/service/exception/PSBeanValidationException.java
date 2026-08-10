@@ -56,8 +56,8 @@ public final class PSBeanValidationException extends PSSpringValidationException
   /**
    * Constructs a bean validation exception with a custom message and cause.
    *
-   * <p>The binding result is installed via the parent constructor; when {@code cause} is
-   * non-{@code null} it is recorded as a global rejection during that {@code super} call.
+   * <p>The binding result is installed via the parent constructor; when {@code cause} is non-{@code
+   * null} it is recorded as a global rejection during that {@code super} call.
    *
    * @param target the bean being validated, may be {@code null}.
    * @param methodName the canonical name used to identify the bean in the resulting binding result,

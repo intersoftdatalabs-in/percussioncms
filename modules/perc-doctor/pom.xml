@@ -14,9 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.percussion</groupId>
@@ -24,15 +22,11 @@
         <version>8.2.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
     <artifactId>perc-doctor</artifactId>
     <packaging>jar</packaging>
     <name>Percussion CMS Doctor</name>
-    <description>
-        Operator CLI and admin HTTP API for diagnosing and safely cleaning Percussion CMS
-        install trees (heap dumps, install backups, logs).
-    </description>
-
+    <description>Operator CLI and admin HTTP API for diagnosing and safely cleaning Percussion CMS
+        install trees (heap dumps, install backups, logs).</description>
     <dependencies>
         <!-- JAX-RS annotations for DoctorRestService; provided by the CMS server (CXF).
              Maven "provided" is on the compile and test classpaths. -->
@@ -55,7 +49,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -80,10 +73,10 @@
                 <executions>
                     <execution>
                         <id>perc-doctor-dist</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <descriptors>
                                 <descriptor>src/main/assembly/dist-bin.xml</descriptor>

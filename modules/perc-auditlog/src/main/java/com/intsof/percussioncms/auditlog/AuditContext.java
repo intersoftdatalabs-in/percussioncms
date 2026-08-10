@@ -25,8 +25,8 @@ import java.util.Optional;
 /**
  * Contextual metadata for an audit / error emit (actor, target, network origin, correlation).
  *
- * <p>Values may still contain sensitive data; {@link com.intsof.percussioncms.auditlog.redact.AuditRedactor}
- * runs before sinks.
+ * <p>Values may still contain sensitive data; {@link
+ * com.intsof.percussioncms.auditlog.redact.AuditRedactor} runs before sinks.
  */
 public final class AuditContext {
 

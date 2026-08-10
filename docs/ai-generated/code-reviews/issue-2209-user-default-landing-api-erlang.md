@@ -39,3 +39,4 @@ None at **bug** severity.
 - REST client implementor of `IPSUserService` updated (`PSUserServiceRestClient`)
 - Constructor + mock test call sites updated for `IPSMetadataService`
 - No Spring test context bean gap expected (component scan / constructor autowire of existing `metadataService`)
+

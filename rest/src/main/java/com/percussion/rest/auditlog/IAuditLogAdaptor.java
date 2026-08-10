@@ -19,9 +19,9 @@ package com.percussion.rest.auditlog;
 /**
  * Adaptor contract for the system security audit log query API (Phase 3 / #2618).
  *
- * <p>Implementations enforce AuthZ (Admin role or role property {@code
- * sys_securityAuditLogViewer}) and map domain rows to wire DTOs. Unauthorized callers must surface
- * as {@link SecurityException} (resource maps to HTTP 403).
+ * <p>Implementations enforce AuthZ (Admin role or role property {@code sys_securityAuditLogViewer})
+ * and map domain rows to wire DTOs. Unauthorized callers must surface as {@link SecurityException}
+ * (resource maps to HTTP 403).
  */
 public interface IAuditLogAdaptor {
 

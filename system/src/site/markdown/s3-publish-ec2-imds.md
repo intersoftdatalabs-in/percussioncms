@@ -10,12 +10,12 @@ CMS probes IMDS with an IMDSv2 session token (`PUT /latest/api/token`, then GETs
 
 ## Operator checklist
 
-| Setting | Guidance |
-|---------|----------|
-| **HttpTokens** | Prefer `required` (IMDSv2). CMS no longer needs IMDSv1 optional for EC2 detection. |
-| **HttpPutResponseHopLimit** | On the **EC2 instance**, set to **at least 2** when CMS runs **inside a container** (Docker/Kubernetes). Hop limit `1` blocks the token PUT from the container network namespace. |
-| **S3 form fields** | Access Key, Secret, and Role ARN are **not** hard-required on save. Empty values are allowed for instance-profile / Assume Role setups; the UI shows a non-modal warning if they are empty. |
-| **Bucket / region** | Bucket name remains required. Region can be selected or derived from IMDS when blank on EC2. |
+|           Setting           |                                                                                          Guidance                                                                                           |
+|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **HttpTokens**              | Prefer `required` (IMDSv2). CMS no longer needs IMDSv1 optional for EC2 detection.                                                                                                          |
+| **HttpPutResponseHopLimit** | On the **EC2 instance**, set to **at least 2** when CMS runs **inside a container** (Docker/Kubernetes). Hop limit `1` blocks the token PUT from the container network namespace.           |
+| **S3 form fields**          | Access Key, Secret, and Role ARN are **not** hard-required on save. Empty values are allowed for instance-profile / Assume Role setups; the UI shows a non-modal warning if they are empty. |
+| **Bucket / region**         | Bucket name remains required. Region can be selected or derived from IMDS when blank on EC2.                                                                                                |
 
 ## Temporary workarounds (if needed)
 

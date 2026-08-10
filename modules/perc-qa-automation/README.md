@@ -105,18 +105,18 @@ cd ..\..\..
 python docker\scripts\perc-devctl.py qa-down
 ```
 
-| Item | Value |
-|------|--------|
-| Spec (baseline) | `frontend/tests/golden-unattended-smoke.spec.js` |
-| npm (baseline) | `npm run test:golden` |
-| Tags (baseline) | `@smoke` / `@golden` (also via `npm run test:surface -- --tag golden`) |
-| Specs (extended) | baseline + `folder-recycle-smoke.spec.js` (`@folder-recycle`) + `profile-shell.spec.js` (`@profile`) |
-| npm (extended) | `npm run test:golden-extended` / `npm run test:golden-extended:list` |
-| Inventory helper | `frontend/tests/helpers/golden-unattended-smoke-set.js` (#2490 / #2498) |
-| Failure artifacts | `modules/perc-qa-automation/frontend/test-results/` |
-| HTML report | `modules/perc-qa-automation/frontend/playwright-report/` |
-| Attach runbook | [playwright-failure-artifacts.md](../../docs/developer-module/playwright-failure-artifacts.md) |
-| Stack lifecycle | [workbench-rest-and-qa-modes.md](../../docs/developer-module/workbench-rest-and-qa-modes.md) §2 |
+|       Item        |                                                Value                                                 |
+|-------------------|------------------------------------------------------------------------------------------------------|
+| Spec (baseline)   | `frontend/tests/golden-unattended-smoke.spec.js`                                                     |
+| npm (baseline)    | `npm run test:golden`                                                                                |
+| Tags (baseline)   | `@smoke` / `@golden` (also via `npm run test:surface -- --tag golden`)                               |
+| Specs (extended)  | baseline + `folder-recycle-smoke.spec.js` (`@folder-recycle`) + `profile-shell.spec.js` (`@profile`) |
+| npm (extended)    | `npm run test:golden-extended` / `npm run test:golden-extended:list`                                 |
+| Inventory helper  | `frontend/tests/helpers/golden-unattended-smoke-set.js` (#2490 / #2498)                              |
+| Failure artifacts | `modules/perc-qa-automation/frontend/test-results/`                                                  |
+| HTML report       | `modules/perc-qa-automation/frontend/playwright-report/`                                             |
+| Attach runbook    | [playwright-failure-artifacts.md](../../docs/developer-module/playwright-failure-artifacts.md)       |
+| Stack lifecycle   | [workbench-rest-and-qa-modes.md](../../docs/developer-module/workbench-rest-and-qa-modes.md) §2      |
 
 #### Extended golden multi-path (`@folder-recycle` + `@profile`)
 
@@ -124,10 +124,10 @@ python docker\scripts\perc-devctl.py qa-down
 (#2498 / parent #2374) in the **optional extended** golden/unattended multi-path
 set — not in the minimal default and **not** the full Playwright suite.
 
-| Tier | npm | Specs | When to use |
-|------|-----|-------|-------------|
-| **Baseline** (default) | `npm run test:golden` | `golden-unattended-smoke.spec.js` only | Fastest unattended login + Explorer gate |
-| **Extended** | `npm run test:golden-extended` | baseline + `folder-recycle-smoke.spec.js` + `profile-shell.spec.js` | Overnight recycle REST + profile hub entry without full suite |
+|          Tier          |              npm               |                                Specs                                |                          When to use                          |
+|------------------------|--------------------------------|---------------------------------------------------------------------|---------------------------------------------------------------|
+| **Baseline** (default) | `npm run test:golden`          | `golden-unattended-smoke.spec.js` only                              | Fastest unattended login + Explorer gate                      |
+| **Extended**           | `npm run test:golden-extended` | baseline + `folder-recycle-smoke.spec.js` + `profile-shell.spec.js` | Overnight recycle REST + profile hub entry without full suite |
 
 ```bash
 # List only (no live CMS) — proves surface wiring
@@ -185,13 +185,13 @@ Regression coverage that **Corporate Investments** and **Enterprise Investments*
 appear under **Sites** after a demo-sites install (REST `path/folder/Sites` + Explorer UI).
 Peers of `tests/bugs/bug-1622-explorer-root-folders.spec.js`.
 
-| Item | Value |
-|------|--------|
-| Spec | `frontend/tests/bugs/bug-1750-demo-sites-sample-site.spec.js` |
-| Helpers / unit | `frontend/tests/helpers/demo-sites.js`, `npm run test:unit` |
-| Product fix | Installer seed flag propagation (#2192) must be in the image under test |
-| Soft skip | Without sample data, tests `test.skip` with `BUG:` + issue URL (skip-with-BUG) |
-| Hard fail | Set `EXPECT_DEMO_SITES=1` (alias `TEST_EXPECT_DEMO_SITES`) so empty Sites fails |
+|      Item      |                                      Value                                      |
+|----------------|---------------------------------------------------------------------------------|
+| Spec           | `frontend/tests/bugs/bug-1750-demo-sites-sample-site.spec.js`                   |
+| Helpers / unit | `frontend/tests/helpers/demo-sites.js`, `npm run test:unit`                     |
+| Product fix    | Installer seed flag propagation (#2192) must be in the image under test         |
+| Soft skip      | Without sample data, tests `test.skip` with `BUG:` + issue URL (skip-with-BUG)  |
+| Hard fail      | Set `EXPECT_DEMO_SITES=1` (alias `TEST_EXPECT_DEMO_SITES`) so empty Sites fails |
 
 ```bash
 # After #2192 is in the installer/image: silent H2 with sample sites, then CMS up.
@@ -223,12 +223,12 @@ TEST_CMS_URL=… ADMIN_USERNAME=Admin ADMIN_PASSWORD=… npm run test:developer-
 # list only (no CMS): npm run test:developer-smoke:list
 ```
 
-| Item | Value |
-|------|--------|
-| Specs | golden + login + `developer-catalog-smoke` + `developer-template-source-viewer` |
-| npm | `npm run test:developer-smoke` |
-| Tags | `@smoke` (residuals use `test.skip` + `BUG:` + issue URL) |
-| Open residuals | #2186 content-types selectors; #2189 template list DTO |
+|      Item      |                                      Value                                      |
+|----------------|---------------------------------------------------------------------------------|
+| Specs          | golden + login + `developer-catalog-smoke` + `developer-template-source-viewer` |
+| npm            | `npm run test:developer-smoke`                                                  |
+| Tags           | `@smoke` (residuals use `test.skip` + `BUG:` + issue URL)                       |
+| Open residuals | #2186 content-types selectors; #2189 template list DTO                          |
 
 **Admin creds (QA):** default username `Admin` (`ADMIN_USERNAME`). Password comes
 from `qa-up` output, process env, or `docker exec` into the QA cell — **never
@@ -308,10 +308,10 @@ attachments or gist links.
 Non-required workflow: [`.github/workflows/h2-qa-playwright.yml`](../../.github/workflows/h2-qa-playwright.yml)
 (**H2 QA Playwright (optional)**).
 
-| Mode | When | Runs |
-|------|------|------|
-| **dry-run** / path-filtered PR | Default dispatch + QA-related PR paths | Freeport + `qa-*` dry-run + `test:unit` + surface list (no live CMS) |
-| **live** | Manual `workflow_dispatch` only | Package → `perc-devctl qa-up` → surface Playwright → upload `test-results/` + `playwright-report/` → `qa-down` |
+|              Mode              |                  When                  |                                                      Runs                                                      |
+|--------------------------------|----------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| **dry-run** / path-filtered PR | Default dispatch + QA-related PR paths | Freeport + `qa-*` dry-run + `test:unit` + surface list (no live CMS)                                           |
+| **live**                       | Manual `workflow_dispatch` only        | Package → `perc-devctl qa-up` → surface Playwright → upload `test-results/` + `playwright-report/` → `qa-down` |
 
 - Trigger / env / artifact download / Windows-local parity:
   [workbench-rest-and-qa-modes.md](../../docs/developer-module/workbench-rest-and-qa-modes.md)
@@ -416,11 +416,11 @@ Optional Playwright bug-regression for residual `perc.ui.dashboard.modern@` /
 (prefer `de-de`/`de`, else `hi-in`/`hi`, else `es`). Asserts Add Gadget chrome
 and a sample of Welcome/Activity strings are **not** English fallback.
 
-| Item | Value |
-|------|--------|
-| Spec | `frontend/tests/bugs/bug-1876-home-gadget-locale.spec.js` |
-| Tags | `@locale` `@home` `@dashboard` |
-| Unit (no CMS) | `npm run test:unit` (includes `pick-locale-tag.test.js`) |
+|     Item      |                           Value                           |
+|---------------|-----------------------------------------------------------|
+| Spec          | `frontend/tests/bugs/bug-1876-home-gadget-locale.spec.js` |
+| Tags          | `@locale` `@home` `@dashboard`                            |
+| Unit (no CMS) | `npm run test:unit` (includes `pick-locale-tag.test.js`)  |
 
 ```bash
 # After qa-up — path-filtered only (do not run full suite)
@@ -448,13 +448,13 @@ context is healthy.
 (multi-path with baseline golden). **Not** in default `npm run test:golden`.
 Still available as a standalone surface path/tag below.
 
-| Item | Value |
-|------|--------|
-| Spec | `frontend/tests/folder-recycle-smoke.spec.js` |
-| Tags | `@folder-recycle` `@smoke` |
-| Unit (no CMS) | `npm run test:unit` (includes `folder-recycle-smoke.test.js`, `golden-unattended-smoke-set.test.js`) |
-| Helper | `frontend/tests/helpers/folder-recycle-smoke.js` |
-| Extended golden | `npm run test:golden-extended` / `test:golden-extended:list` |
+|      Item       |                                                Value                                                 |
+|-----------------|------------------------------------------------------------------------------------------------------|
+| Spec            | `frontend/tests/folder-recycle-smoke.spec.js`                                                        |
+| Tags            | `@folder-recycle` `@smoke`                                                                           |
+| Unit (no CMS)   | `npm run test:unit` (includes `folder-recycle-smoke.test.js`, `golden-unattended-smoke-set.test.js`) |
+| Helper          | `frontend/tests/helpers/folder-recycle-smoke.js`                                                     |
+| Extended golden | `npm run test:golden-extended` / `test:golden-extended:list`                                         |
 
 ```bash
 # After qa-up — path-filtered only (do not run full suite)
@@ -485,7 +485,8 @@ Surface-filtered UI companion for the folder+recycle REST smoke (#2464). Exercis
 classic Finder chrome: soft-delete (recycle) a seeded Assets folder, then
 **restore** via `#perc-finder-restore-item` when path/selection allows, else
 **Empty Recycling** via Actions menu (`data-testid="perc-finder-empty-recycling"`,
-#2207 peer). Hard fails when pathmanagement context or Admin login is down.
+
+# 2207 peer). Hard fails when pathmanagement context or Admin login is down.
 
 **#2541 selection reliability:** happy-path recycle uses ordered strategies so
 `#perc-finder-delete` enables without REST soft-delete fallback:
@@ -500,12 +501,12 @@ warning). Residual product chrome gaps: no `data-testid` on miller listings or
 list rows; delete/restore enablement is class-based (`ui-enabled` /
 `ui-disabled`) only — Empty Recycling is the main `data-testid` control.
 
-| Item | Value |
-|------|--------|
-| Spec | `frontend/tests/finder-recycle-restore-ui.spec.js` |
-| Tags | `@finder-recycle-restore` `@folder-recycle` `@smoke` |
+|     Item      |                               Value                                |
+|---------------|--------------------------------------------------------------------|
+| Spec          | `frontend/tests/finder-recycle-restore-ui.spec.js`                 |
+| Tags          | `@finder-recycle-restore` `@folder-recycle` `@smoke`               |
 | Unit (no CMS) | `npm run test:unit` (includes `finder-recycle-restore-ui.test.js`) |
-| Helper | `frontend/tests/helpers/finder-recycle-restore-ui.js` |
+| Helper        | `frontend/tests/helpers/finder-recycle-restore-ui.js`              |
 
 ```bash
 # After qa-up — path-filtered only (do not run full suite)
@@ -536,12 +537,12 @@ when a server/context-menu restore action is present, else **empty Recycling**
 via REST cleanup (classic Finder remains the UI empty peer). Hard fails when
 pathmanagement context or Admin login is down. Does **not** replace #2489.
 
-| Item | Value |
-|------|--------|
-| Spec | `frontend/tests/explorer-recycle-restore-ui.spec.js` |
-| Tags | `@explorer-recycle-restore` `@folder-recycle` `@smoke` |
+|     Item      |                                Value                                 |
+|---------------|----------------------------------------------------------------------|
+| Spec          | `frontend/tests/explorer-recycle-restore-ui.spec.js`                 |
+| Tags          | `@explorer-recycle-restore` `@folder-recycle` `@smoke`               |
 | Unit (no CMS) | `npm run test:unit` (includes `explorer-recycle-restore-ui.test.js`) |
-| Helper | `frontend/tests/helpers/explorer-recycle-restore-ui.js` |
+| Helper        | `frontend/tests/helpers/explorer-recycle-restore-ui.js`              |
 
 ```bash
 # After qa-up — path-filtered only (do not run full suite)
@@ -581,14 +582,14 @@ Title map helper: `tests/helpers/profile-shell-title.js`
 profile entry regressions when operators only run golden-extended (#2498).
 Baseline `test:golden` stays login + Explorer only.
 
-| Item | Value |
-|------|--------|
-| Spec | `frontend/tests/profile-shell.spec.js` |
-| Tags | `@profile` `@smoke` |
-| Golden inventory id | `profile-shell` (tier `extended`) |
-| Locale residual | `#2499` — `--grep "locale"` |
-| Title helper | `tests/helpers/profile-shell-title.js` |
-| Axe helper | `tests/helpers/a11y.js` → `expectNoSeriousA11yViolations` |
+|        Item         |                           Value                           |
+|---------------------|-----------------------------------------------------------|
+| Spec                | `frontend/tests/profile-shell.spec.js`                    |
+| Tags                | `@profile` `@smoke`                                       |
+| Golden inventory id | `profile-shell` (tier `extended`)                         |
+| Locale residual     | `#2499` — `--grep "locale"`                               |
+| Title helper        | `tests/helpers/profile-shell-title.js`                    |
+| Axe helper          | `tests/helpers/a11y.js` → `expectNoSeriousA11yViolations` |
 
 ```bash
 # After qa-up — path-filtered only (do not run full suite)
@@ -623,10 +624,10 @@ Beyond axe: keyboard path Tab → `perc-profile-nav-*` → Enter focuses and
 scrolls `perc-profile-section-*` (`tabIndex={-1}` hash targets); asserts
 focus-visible rings stay usable on nav links after activation.
 
-| Item | Value |
-|------|--------|
-| Spec | `frontend/tests/profile-shell-keyboard.spec.js` |
-| Tags | `@profile` `@a11y` `@keyboard` |
+|        Item        |                                             Value                                              |
+|--------------------|------------------------------------------------------------------------------------------------|
+| Spec               | `frontend/tests/profile-shell-keyboard.spec.js`                                                |
+| Tags               | `@profile` `@a11y` `@keyboard`                                                                 |
 | Product focus ring | `WebUI/.../ProfileShell.module.css` `.sectionNavLink:focus-visible` + `.section:focus-visible` |
 
 ```bash

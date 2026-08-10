@@ -4,14 +4,14 @@
 **Purpose**: Durable proof for US8 / FR-015 and RET-06 packaging retirement.  
 **Status**: Updated 2026-08-05 (#1820 packaging verification prep: redirect stubs + inventory freeze).
 
-|              Slice               | Issue |                              Role                               |   Status    |
-|----------------------------------|-------|-----------------------------------------------------------------|-------------|
-| Parent RET-06                    | #1372 | Packaging: retire residual JSF publishing/pubruntime deep pages | Open        |
-| A — Inventory / consumer audit   | #1817 | Faces-config + grep audit + deletion checklists (this update)   | **Done**    |
-| B — Design deep-page delete      | #1819 | Delete exclusive `ui/publishing/**` deep JSPs (keep redirects)  | Blocked\*   |
-| C — Runtime deep-page delete     | #1818 | Delete exclusive `ui/pubruntime/**` deep JSPs (keep redirects)  | Blocked\*   |
-| D — Packaging / WAR verification | #1820 | Installer/WAR assertions + inventory freeze (prep)              | **Prep**†   |
-| UAT gate                         | #1371 | SC-001 / SC-003 / SC-008 sign-off before product deletes        | Open        |
+|              Slice               | Issue |                              Role                               |  Status   |
+|----------------------------------|-------|-----------------------------------------------------------------|-----------|
+| Parent RET-06                    | #1372 | Packaging: retire residual JSF publishing/pubruntime deep pages | Open      |
+| A — Inventory / consumer audit   | #1817 | Faces-config + grep audit + deletion checklists (this update)   | **Done**  |
+| B — Design deep-page delete      | #1819 | Delete exclusive `ui/publishing/**` deep JSPs (keep redirects)  | Blocked\* |
+| C — Runtime deep-page delete     | #1818 | Delete exclusive `ui/pubruntime/**` deep JSPs (keep redirects)  | Blocked\* |
+| D — Packaging / WAR verification | #1820 | Installer/WAR assertions + inventory freeze (prep)              | **Prep**† |
+| UAT gate                         | #1371 | SC-001 / SC-003 / SC-008 sign-off before product deletes        | Open      |
 
 †Child D **prep** (#1820): packaging unit tests + docs land without product deep-page deletes. Full RET-06 Done still requires #1819+#1818, then enable absence assertions and re-check this table.
 
@@ -348,11 +348,11 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 
 ### Test classes (`modules/perc-distribution-tree`)
 
-| Class | Role |
-|-------|------|
-| `com.percussion.distribution.install.PublishingDeepPagePackagingTest` | **#1820 / PR #2095 primary**: assert `ui/publishing/index.jsp` + `ui/pubruntime/index.jsp` 301 redirect stubs still target modern shell (`/cm/app/?view=publish&section=design\|runtime`); freeze residual Design (28) / Runtime (13) JSP basename inventory; confirm `install.xml` still deletes `publishing-faces-config.xml`; `@Disabled` absence tests ready to enable after #1819/#1818 |
-| `com.percussion.distribution.install.ObsoleteWebInfArtifactsCleanupTest` | Peer: upgrade cleanup target still covers `publishing-faces-config.xml` (+ JSF lib/TLD families) |
-| `com.percussion.distribution.install.PublishNowActionSeedUrlTest` | Peer: Publish_Now / EI_Publish_Now seeds stay on `/publisher/demandpublishing` (not legacy `publish.jsp`) |
+|                                  Class                                   |                                                                                                                                                                                             Role                                                                                                                                                                                             |
+|--------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `com.percussion.distribution.install.PublishingDeepPagePackagingTest`    | **#1820 / PR #2095 primary**: assert `ui/publishing/index.jsp` + `ui/pubruntime/index.jsp` 301 redirect stubs still target modern shell (`/cm/app/?view=publish&section=design\|runtime`); freeze residual Design (28) / Runtime (13) JSP basename inventory; confirm `install.xml` still deletes `publishing-faces-config.xml`; `@Disabled` absence tests ready to enable after #1819/#1818 |
+| `com.percussion.distribution.install.ObsoleteWebInfArtifactsCleanupTest` | Peer: upgrade cleanup target still covers `publishing-faces-config.xml` (+ JSF lib/TLD families)                                                                                                                                                                                                                                                                                             |
+| `com.percussion.distribution.install.PublishNowActionSeedUrlTest`        | Peer: Publish_Now / EI_Publish_Now seeds stay on `/publisher/demandpublishing` (not legacy `publish.jsp`)                                                                                                                                                                                                                                                                                    |
 
 ### Live contract on `main` today
 

@@ -259,9 +259,7 @@ public final class FixPermissionsCommand {
         if (hasOwnerRwx && writable) {
           report.add(
               new FixPermissionsReport.Entry(
-                  dir,
-                  FixPermissionsReport.EntryStatus.OK,
-                  "Log dir has owner rwx: " + relative));
+                  dir, FixPermissionsReport.EntryStatus.OK, "Log dir has owner rwx: " + relative));
           continue;
         }
         if (dryRun) {
@@ -338,9 +336,7 @@ public final class FixPermissionsCommand {
         if (perms.contains(PosixFilePermission.OWNER_READ) && readable) {
           report.add(
               new FixPermissionsReport.Entry(
-                  file,
-                  FixPermissionsReport.EntryStatus.OK,
-                  "Config owner-readable: " + relative));
+                  file, FixPermissionsReport.EntryStatus.OK, "Config owner-readable: " + relative));
           continue;
         }
         if (dryRun) {

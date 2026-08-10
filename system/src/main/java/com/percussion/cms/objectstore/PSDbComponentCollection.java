@@ -203,9 +203,7 @@ public class PSDbComponentCollection extends PSDbComponent {
     this();
     if (null == src) throw new IllegalArgumentException("Source element cannot be null.");
     String effective =
-        (nodeName == null || nodeName.trim().isEmpty())
-            ? defaultNodeNameFor(getClass())
-            : nodeName;
+        (nodeName == null || nodeName.trim().isEmpty()) ? defaultNodeNameFor(getClass()) : nodeName;
     fromXml(src, effective);
   }
 

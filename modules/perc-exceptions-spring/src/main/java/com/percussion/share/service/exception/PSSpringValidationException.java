@@ -30,8 +30,8 @@ import org.springframework.validation.ObjectError;
  * An adapter to Spring Validation Framework.
  *
  * <p>{@link #springValidationErrors} is {@code transient}: Spring's {@link Errors} is not {@link
- * java.io.Serializable}. Validation results are exposed via {@link #getValidationErrors()} for
- * JAXB / REST transport, not via Java serialization of this exception.
+ * java.io.Serializable}. Validation results are exposed via {@link #getValidationErrors()} for JAXB
+ * / REST transport, not via Java serialization of this exception.
  *
  * @author adamgent
  */
@@ -81,8 +81,8 @@ public abstract class PSSpringValidationException extends PSValidationException
 
   /**
    * Constructs a Spring validation exception with message and a pre-built Spring {@link Errors}
-   * container assigned by direct field write (no overridable method calls; {@code this-escape}
-   * free under {@code -Xlint:all}).
+   * container assigned by direct field write (no overridable method calls; {@code this-escape} free
+   * under {@code -Xlint:all}).
    *
    * @param message the detail message, may be {@code null}.
    * @param springValidationErrors the Spring errors container, may be {@code null}.

@@ -82,8 +82,7 @@ public class ExtensionsResourceTest {
     ExtensionsResource bare = new ExtensionsResource();
     bare.setUriInfo(uriInfo);
     WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class, () -> bare.getExtensionCatalogItem("any"));
+        assertThrows(WebApplicationException.class, () -> bare.getExtensionCatalogItem("any"));
     assertEquals(503, ex.getResponse().getStatus());
   }
 
@@ -93,8 +92,7 @@ public class ExtensionsResourceTest {
     when(adaptor.findExtensionByKey(any(), eq("xx"))).thenThrow(mapped);
 
     WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class, () -> resource.getExtensionCatalogItem("xx"));
+        assertThrows(WebApplicationException.class, () -> resource.getExtensionCatalogItem("xx"));
     assertSame(mapped, ex);
     assertEquals(404, ex.getResponse().getStatus());
   }

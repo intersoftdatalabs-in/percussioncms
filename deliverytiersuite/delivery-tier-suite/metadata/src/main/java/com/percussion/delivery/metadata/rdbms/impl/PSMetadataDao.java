@@ -92,10 +92,7 @@ public class PSMetadataDao implements IPSMetadataDao {
     try (Session session = getSession()) {
       String hql = "delete from PSDbMetadataEntry  where pagepathHash in (:paths)";
       tx = session.beginTransaction();
-      session
-          .createMutationQuery(hql)
-          .setParameterList("paths", pagepathHashes)
-          .executeUpdate();
+      session.createMutationQuery(hql).setParameterList("paths", pagepathHashes).executeUpdate();
       tx.commit();
     } catch (Exception e) {
       if (tx != null && tx.isActive()) {

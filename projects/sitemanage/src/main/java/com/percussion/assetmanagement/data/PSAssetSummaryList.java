@@ -28,7 +28,6 @@ import java.util.Collection;
 public class PSAssetSummaryList extends ArrayList<PSAssetSummary> {
   private static final long serialVersionUID = 1L;
 
-
   public PSAssetSummaryList() {
     super();
   }

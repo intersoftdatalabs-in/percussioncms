@@ -20,13 +20,13 @@ handlers. Harden mocked unit tests for list/get success, null-safe list, 404, un
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | none |
-| Behavioral unit tests for changed logic | yes (9 tests, all green) |
-| Non-portable path/file I/O | N/A (no path I/O) |
-| Change-class companions | rest resource + Mockito resource test only; no multi-module ControlAdaptor invent without stack (per issue) |
-| Standalone `rest` clean install | pass |
+|                  Check                  |                                                   Result                                                    |
+|-----------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| Bugs                                    | none                                                                                                        |
+| Behavioral unit tests for changed logic | yes (9 tests, all green)                                                                                    |
+| Non-portable path/file I/O              | N/A (no path I/O)                                                                                           |
+| Change-class companions                 | rest resource + Mockito resource test only; no multi-module ControlAdaptor invent without stack (per issue) |
+| Standalone `rest` clean install         | pass                                                                                                        |
 
 **May commit/push: yes**
 
@@ -40,5 +40,6 @@ Not applicable — HTTP status / adaptor wiring only.
 
 ## Test evidence
 
-- `cd rest && ../mvnw clean install` — BUILD SUCCESS  
+- `cd rest && ../mvnw clean install` — BUILD SUCCESS
 - `ControlsResourceTest`: tests=9, failures=0, errors=0
+

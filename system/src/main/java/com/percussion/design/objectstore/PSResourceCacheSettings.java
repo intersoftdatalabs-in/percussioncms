@@ -29,6 +29,7 @@ import org.w3c.dom.Element;
 public class PSResourceCacheSettings extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
+
   /**
    * Construct the cache settings with default values. This will be caching disabled, and no
    * additional keys or dependencies.

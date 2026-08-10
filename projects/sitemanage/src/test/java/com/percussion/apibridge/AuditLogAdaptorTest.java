@@ -54,11 +54,9 @@ class AuditLogAdaptorTest {
     when(repo.countEntries(isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
         .thenReturn(1L);
 
-    AuditLogAdaptor adaptor =
-        new AuditLogAdaptor(repo, () -> List.of("Admin"), role -> false);
+    AuditLogAdaptor adaptor = new AuditLogAdaptor(repo, () -> List.of("Admin"), role -> false);
 
-    SystemAuditLogPage page =
-        adaptor.query(null, null, null, null, null, null, 0, 50);
+    SystemAuditLogPage page = adaptor.query(null, null, null, null, null, null, 0, 50);
     assertEquals(1, page.getEntries().size());
     assertEquals("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", page.getEntries().get(0).getAuditId());
     assertEquals(1L, page.getTotal());
@@ -68,16 +66,14 @@ class AuditLogAdaptorTest {
   @Test
   void propertyHolderCanQuery() {
     PSSystemAuditLogRepository repo = mock(PSSystemAuditLogRepository.class);
-    when(repo.findEntries(
-            any(), any(), any(), any(), any(), any(), anyInt(), anyInt()))
+    when(repo.findEntries(any(), any(), any(), any(), any(), any(), anyInt(), anyInt()))
         .thenReturn(List.of());
     when(repo.countEntries(any(), any(), any(), any(), any(), any())).thenReturn(0L);
 
     AuditLogAdaptor adaptor =
         new AuditLogAdaptor(repo, () -> List.of("Editor"), role -> "Editor".equals(role));
 
-    SystemAuditLogPage page =
-        adaptor.query(null, null, null, null, null, null, 0, 10);
+    SystemAuditLogPage page = adaptor.query(null, null, null, null, null, null, 0, 10);
     assertNotNull(page);
     assertEquals(0, page.getEntries().size());
   }
@@ -85,21 +81,17 @@ class AuditLogAdaptorTest {
   @Test
   void unauthorizedThrowsSecurityExceptionWithoutTouchingRepo() {
     PSSystemAuditLogRepository repo = mock(PSSystemAuditLogRepository.class);
-    AuditLogAdaptor adaptor =
-        new AuditLogAdaptor(repo, () -> List.of("Author"), role -> false);
+    AuditLogAdaptor adaptor = new AuditLogAdaptor(repo, () -> List.of("Author"), role -> false);
 
     assertThrows(
-        SecurityException.class,
-        () -> adaptor.query(null, null, null, null, null, null, 0, 50));
-    verify(repo, never())
-        .findEntries(any(), any(), any(), any(), any(), any(), anyInt(), anyInt());
+        SecurityException.class, () -> adaptor.query(null, null, null, null, null, null, 0, 50));
+    verify(repo, never()).findEntries(any(), any(), any(), any(), any(), any(), anyInt(), anyInt());
   }
 
   @Test
   void invalidFromIsIllegalArgument() {
     PSSystemAuditLogRepository repo = mock(PSSystemAuditLogRepository.class);
-    AuditLogAdaptor adaptor =
-        new AuditLogAdaptor(repo, () -> List.of("Admin"), role -> false);
+    AuditLogAdaptor adaptor = new AuditLogAdaptor(repo, () -> List.of("Admin"), role -> false);
     assertThrows(
         IllegalArgumentException.class,
         () -> adaptor.query("not-an-instant", null, null, null, null, null, 0, 50));
@@ -111,8 +103,7 @@ class AuditLogAdaptorTest {
     when(repo.findById(eq("missing"))).thenReturn(Optional.empty());
     when(repo.findById(eq("id-1"))).thenReturn(Optional.of(sampleRow()));
 
-    AuditLogAdaptor adaptor =
-        new AuditLogAdaptor(repo, () -> List.of("Admin"), role -> false);
+    AuditLogAdaptor adaptor = new AuditLogAdaptor(repo, () -> List.of("Admin"), role -> false);
 
     assertNull(adaptor.findById("missing"));
     SystemAuditLogEntry found = adaptor.findById("id-1");
@@ -124,8 +115,7 @@ class AuditLogAdaptorTest {
   @Test
   void findByIdUnauthorized() {
     PSSystemAuditLogRepository repo = mock(PSSystemAuditLogRepository.class);
-    AuditLogAdaptor adaptor =
-        new AuditLogAdaptor(repo, () -> List.of("Author"), role -> false);
+    AuditLogAdaptor adaptor = new AuditLogAdaptor(repo, () -> List.of("Author"), role -> false);
     assertThrows(SecurityException.class, () -> adaptor.findById("id-1"));
     verify(repo, never()).findById(anyString());
   }

@@ -92,9 +92,7 @@ public class PSContentEditorDependencyMacroResolver {
    *     Iterator</code> contains objects other than <code>IPSParameter</code>.
    */
   public static void replaceValueWithMacro(
-      PSDisplayMapping context,
-      Iterator<?> templateParameters,
-      Iterator<?> instanceParameters) {
+      PSDisplayMapping context, Iterator<?> templateParameters, Iterator<?> instanceParameters) {
     if (null == context) throw new IllegalArgumentException("context may not be null");
     if (null == templateParameters || null == instanceParameters)
       throw new IllegalArgumentException("neither parameters may be null");

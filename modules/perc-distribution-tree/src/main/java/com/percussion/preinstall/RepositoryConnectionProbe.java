@@ -234,8 +234,7 @@ public final class RepositoryConnectionProbe {
         case "sqlserver" ->
             "jdbc:sqlserver://" + ep.host() + ":" + ep.port() + ";databaseName=" + ep.name();
         // Easy Connect service form (same as DbInstallConfigResolver structured oracle).
-        case "oracle" ->
-            "jdbc:oracle:thin:@//" + ep.host() + ":" + ep.port() + "/" + ep.name();
+        case "oracle" -> "jdbc:oracle:thin:@//" + ep.host() + ":" + ep.port() + "/" + ep.name();
         default -> null;
       };
     }
@@ -313,8 +312,7 @@ public final class RepositoryConnectionProbe {
       case "sqlserver" ->
           "jdbc:sqlserver://" + ep.host() + ":" + ep.port() + ";databaseName=" + ep.name();
       // Prefer Easy Connect service form; pure SID (@host:port:sid) is still parseable below.
-      case "oracle" ->
-          "jdbc:oracle:thin:@//" + ep.host() + ":" + ep.port() + "/" + ep.name();
+      case "oracle" -> "jdbc:oracle:thin:@//" + ep.host() + ":" + ep.port() + "/" + ep.name();
       default -> null;
     };
   }

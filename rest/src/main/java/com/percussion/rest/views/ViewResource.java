@@ -103,7 +103,8 @@ public class ViewResource {
 
   private IViewAdaptor requireAdaptor() {
     if (adaptor == null) {
-      // Misconfiguration — not a transient handler failure (align with Slots/Locales/Keywords/Searches)
+      // Misconfiguration — not a transient handler failure (align with
+      // Slots/Locales/Keywords/Searches)
       throw new WebApplicationException(
           "View adaptor not configured", Response.Status.SERVICE_UNAVAILABLE);
     }

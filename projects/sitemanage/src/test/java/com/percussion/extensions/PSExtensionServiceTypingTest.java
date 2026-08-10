@@ -45,12 +45,14 @@ public class PSExtensionServiceTypingTest {
   @Test
   public void installAndUpdateAcceptWildcardIterator() throws Exception {
     Method install =
-        IPSExtensionService.class.getMethod("installExtension", IPSExtensionDef.class, Iterator.class);
+        IPSExtensionService.class.getMethod(
+            "installExtension", IPSExtensionDef.class, Iterator.class);
     Method installListener =
         IPSExtensionService.class.getMethod(
             "installExtension", IPSExtensionDef.class, Iterator.class, IPSExtensionListener.class);
     Method update =
-        IPSExtensionService.class.getMethod("updateExtension", IPSExtensionDef.class, Iterator.class);
+        IPSExtensionService.class.getMethod(
+            "updateExtension", IPSExtensionDef.class, Iterator.class);
 
     for (Method m : new Method[] {install, installListener, update}) {
       var params = m.getGenericParameterTypes();

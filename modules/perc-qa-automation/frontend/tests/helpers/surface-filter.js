@@ -179,9 +179,7 @@ function formatSurfaceCommand(opts, meta) {
   // Escape backslashes first, then double-quotes (CodeQL js/incomplete-sanitization).
   const quoted = args.map((a) => {
     if (/[\s"'$&|;<>]/.test(a)) {
-      const escaped = String(a)
-        .replace(/\\/g, "\\\\")
-        .replace(/"/g, '\\"');
+      const escaped = String(a).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
       return `"${escaped}"`;
     }
     return a;

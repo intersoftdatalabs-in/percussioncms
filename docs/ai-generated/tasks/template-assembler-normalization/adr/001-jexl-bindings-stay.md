@@ -1,9 +1,9 @@
 # ADR-001: Keep JEXL for template bindings
 
-| Field | Value |
-|-------|--------|
-| **Status** | Accepted |
-| **Date** | 2026-08-09 |
+|    Field    |                 Value                 |
+|-------------|---------------------------------------|
+| **Status**  | Accepted                              |
+| **Date**    | 2026-08-09                            |
 | **Context** | Template/assembler normalization plan |
 
 ## Decision

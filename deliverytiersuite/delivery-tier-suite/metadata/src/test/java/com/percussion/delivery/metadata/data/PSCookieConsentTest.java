@@ -40,8 +40,7 @@ public class PSCookieConsentTest {
   @Test
   public void populatedConstructorAssignsInstantConsentDate() {
     Instant consent = Instant.ofEpochMilli(1_700_000_000_000L);
-    PSCookieConsent entry =
-        new PSCookieConsent("siteA", "analytics", consent, "127.0.0.1", true);
+    PSCookieConsent entry = new PSCookieConsent("siteA", "analytics", consent, "127.0.0.1", true);
 
     assertEquals("siteA", entry.getSiteName());
     assertEquals("analytics", entry.getService());
@@ -63,8 +62,7 @@ public class PSCookieConsentTest {
         IllegalArgumentException.class,
         () -> new PSCookieConsent("site", "svc", null, "1.1.1.1", true));
     assertThrows(
-        IllegalArgumentException.class,
-        () -> new PSCookieConsent("site", "svc", now, null, true));
+        IllegalArgumentException.class, () -> new PSCookieConsent("site", "svc", now, null, true));
   }
 
   @Test

@@ -27,8 +27,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Behavioral coverage for ctor/fromXml this-escape real-fix batch (#2404): private helpers /
- * final setters preserve Element restore and value construction.
+ * Behavioral coverage for ctor/fromXml this-escape real-fix batch (#2404): private helpers / final
+ * setters preserve Element restore and value construction.
  */
 public class PSDesignObjectStoreThisEscapeTest {
 
@@ -145,8 +145,7 @@ public class PSDesignObjectStoreThisEscapeTest {
   @Test
   public void relativeSubjectNameCtorAndElementRoundTrip() throws Exception {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
-    PSRelativeSubject original =
-        new PSRelativeSubject("alice", PSSubject.SUBJECT_TYPE_USER, null);
+    PSRelativeSubject original = new PSRelativeSubject("alice", PSSubject.SUBJECT_TYPE_USER, null);
     Element elem = original.toXml(doc);
 
     PSRelativeSubject restored = new PSRelativeSubject(elem, null, null);
@@ -158,8 +157,7 @@ public class PSDesignObjectStoreThisEscapeTest {
   @Test
   public void globalSubjectNameCtorAndElementRoundTrip() throws Exception {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
-    PSGlobalSubject original =
-        new PSGlobalSubject("editors", PSSubject.SUBJECT_TYPE_GROUP, null);
+    PSGlobalSubject original = new PSGlobalSubject("editors", PSSubject.SUBJECT_TYPE_GROUP, null);
     Element elem = original.toXml(doc);
 
     PSGlobalSubject restored = new PSGlobalSubject(elem, null, null);

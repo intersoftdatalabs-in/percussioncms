@@ -230,8 +230,7 @@ public class PSLocalCataloger implements IPSCataloger {
   public PSRelationshipInfoSet getRelationshipInfoSet() throws PSCmsException {
     PSRelationshipInfoSet infoSet = new PSRelationshipInfoSet();
 
-    Iterator<PSRelationshipConfig> configs =
-        PSRelationshipCommandHandler.getRelationshipConfigs();
+    Iterator<PSRelationshipConfig> configs = PSRelationshipCommandHandler.getRelationshipConfigs();
     while (configs.hasNext()) {
       PSRelationshipConfig config = configs.next();
       PSRelationshipInfo info = new PSRelationshipInfo(config);

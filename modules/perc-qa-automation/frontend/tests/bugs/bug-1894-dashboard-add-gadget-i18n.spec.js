@@ -31,11 +31,7 @@
  */
 
 const { test, expect } = require("@playwright/test");
-const {
-  BASE_URL,
-  ADMIN_USERNAME,
-  ADMIN_PASSWORD,
-} = require("../helpers/auth");
+const { BASE_URL, ADMIN_USERNAME, ADMIN_PASSWORD } = require("../helpers/auth");
 
 /**
  * Expected TMX segments for perc.ui.dashboard.modern@Add Gadget (CmsUi.tmx).

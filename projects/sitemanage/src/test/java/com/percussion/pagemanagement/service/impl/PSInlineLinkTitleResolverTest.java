@@ -43,7 +43,8 @@ class PSInlineLinkTitleResolverTest {
         "Asset Display Title",
         PSInlineLinkTitleResolver.resolve(null, fields, "Asset Display Title"));
     assertEquals(
-        "Asset Display Title", PSInlineLinkTitleResolver.resolve("", fields, "Asset Display Title"));
+        "Asset Display Title",
+        PSInlineLinkTitleResolver.resolve("", fields, "Asset Display Title"));
     assertEquals(
         "Asset Display Title",
         PSInlineLinkTitleResolver.resolve("   ", fields, "Asset Display Title"));
@@ -58,8 +59,7 @@ class PSInlineLinkTitleResolverTest {
     fields.put("resource_link_title", "Link Title");
 
     assertEquals(
-        "Page Title Custom",
-        PSInlineLinkTitleResolver.resolve("pagetitle", fields, "Link Title"));
+        "Page Title Custom", PSInlineLinkTitleResolver.resolve("pagetitle", fields, "Link Title"));
   }
 
   @Test
@@ -105,8 +105,7 @@ class PSInlineLinkTitleResolverTest {
     fields.put("displaytitle", "");
 
     assertEquals(
-        "type-default",
-        PSInlineLinkTitleResolver.resolve("displaytitle", fields, "type-default"));
+        "type-default", PSInlineLinkTitleResolver.resolve("displaytitle", fields, "type-default"));
   }
 
   @Test
@@ -118,9 +117,7 @@ class PSInlineLinkTitleResolverTest {
     fields.put("displaytitle", "Would Be Wrong For Page BC");
 
     // Unset config must match pre-feature: page.getLinkTitle() passed as typeDefault
-    assertEquals(
-        "Nav Title",
-        PSInlineLinkTitleResolver.resolve(null, fields, "Nav Title"));
+    assertEquals("Nav Title", PSInlineLinkTitleResolver.resolve(null, fields, "Nav Title"));
   }
 
   @Test
@@ -130,9 +127,7 @@ class PSInlineLinkTitleResolverTest {
     fields.put("page_title", "");
     // pages often have no shared displaytitle
 
-    assertEquals(
-        "Nav Title",
-        PSInlineLinkTitleResolver.resolve("page_title", fields, "Nav Title"));
+    assertEquals("Nav Title", PSInlineLinkTitleResolver.resolve("page_title", fields, "Nav Title"));
   }
 
   @Test

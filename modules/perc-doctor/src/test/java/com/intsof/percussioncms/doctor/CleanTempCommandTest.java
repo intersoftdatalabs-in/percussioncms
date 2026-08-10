@@ -169,8 +169,7 @@ class CleanTempCommandTest {
   void visitFileFailedRecordsFailedEntryOnReport() {
     CleanReport report = new CleanReport(CleanTempCommand.COMMAND_NAME, installRoot, true);
     Path failed = cmsTemp.resolve("locked.tmp");
-    CleanTempCommand.recordVisitFailure(
-        report, failed, new java.io.IOException("Access denied"));
+    CleanTempCommand.recordVisitFailure(report, failed, new java.io.IOException("Access denied"));
 
     assertEquals(1, report.getFailedCount());
     CleanReport.Entry e = report.getEntries().get(0);

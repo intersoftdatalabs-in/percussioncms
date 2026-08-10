@@ -24,8 +24,14 @@ const {
 
 describe("empty-recycling helpers", () => {
   it("exposes stable selectors and empty API path", () => {
-    assert.equal(SELECTORS.emptyAction, '[data-testid="perc-finder-empty-recycling"]');
-    assert.equal(SELECTORS.confirmDialog, "#perc-finder-empty-recycling-confirm");
+    assert.equal(
+      SELECTORS.emptyAction,
+      '[data-testid="perc-finder-empty-recycling"]',
+    );
+    assert.equal(
+      SELECTORS.confirmDialog,
+      "#perc-finder-empty-recycling-confirm",
+    );
     assert.equal(SELECTORS.confirmOk, "#perc-confirm-generic-ok");
     assert.equal(SELECTORS.confirmCancel, "#perc-confirm-generic-cancel");
     assert.match(RECYCLE_EMPTY_PATH, /\/pathmanagement\/recycle\/empty$/);
@@ -35,16 +41,21 @@ describe("empty-recycling helpers", () => {
     assert.deepEqual(normalizePathItems(null), []);
     assert.deepEqual(normalizePathItems([]), []);
     assert.deepEqual(
-      normalizePathItems([{ name: "a" }, null, { name: "b" }]).map((x) => x.name),
+      normalizePathItems([{ name: "a" }, null, { name: "b" }]).map(
+        (x) => x.name,
+      ),
       ["a", "b"],
     );
     assert.deepEqual(
-      normalizePathItems({ PathItem: [{ name: "Sites" }, { name: "Assets" }] }).map(
-        (x) => x.name,
-      ),
+      normalizePathItems({
+        PathItem: [{ name: "Sites" }, { name: "Assets" }],
+      }).map((x) => x.name),
       ["Sites", "Assets"],
     );
-    assert.deepEqual(normalizePathItems({ PathItem: { name: "only" } })[0].name, "only");
+    assert.deepEqual(
+      normalizePathItems({ PathItem: { name: "only" } })[0].name,
+      "only",
+    );
   });
 
   it("isAlreadyEmptyResult reads root and EmptyRecycleResult wrapper", () => {
@@ -59,10 +70,7 @@ describe("empty-recycling helpers", () => {
 
   it("purgedTotal sums folder + item counts", () => {
     assert.equal(purgedTotal(null), 0);
-    assert.equal(
-      purgedTotal({ purgedFolderCount: 2, purgedItemCount: 3 }),
-      5,
-    );
+    assert.equal(purgedTotal({ purgedFolderCount: 2, purgedItemCount: 3 }), 5);
     assert.equal(
       purgedTotal({
         EmptyRecycleResult: { purgedFolderCount: 1, purgedItemCount: 0 },
@@ -95,17 +103,26 @@ describe("empty-recycling helpers", () => {
     assert.equal(isRecyclingListEmpty([]), true);
     assert.equal(isRecyclingListEmpty([{ name: "Sites" }]), false);
     assert.equal(
-      recyclingHasName([{ name: "qa-folder-1" }, { path: "/Recycling/other" }], "qa-folder-1"),
+      recyclingHasName(
+        [{ name: "qa-folder-1" }, { path: "/Recycling/other" }],
+        "qa-folder-1",
+      ),
       true,
     );
     assert.equal(recyclingHasName([{ name: "other" }], "missing"), false);
     // Exact match only — substring must not count as a hit.
     assert.equal(
-      recyclingHasName([{ name: "qa-empty-recycl-xyz" }], "qa-empty-recycl-abc"),
+      recyclingHasName(
+        [{ name: "qa-empty-recycl-xyz" }],
+        "qa-empty-recycl-abc",
+      ),
       false,
     );
     assert.equal(
-      recyclingHasName([{ path: "/Recycling/Assets/qa-folder-1" }], "qa-folder-1"),
+      recyclingHasName(
+        [{ path: "/Recycling/Assets/qa-folder-1" }],
+        "qa-folder-1",
+      ),
       true,
     );
   });

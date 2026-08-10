@@ -86,8 +86,7 @@ public class PSDatedEntriesHelper {
           }
 
           if (START_DATE_PROPERTY_NAME.equals(prop.getName()) && prop.getDatevalue() != null) {
-            ZonedDateTime start =
-                prop.getDatevalue().atZone(ZoneId.systemDefault());
+            ZonedDateTime start = prop.getDatevalue().atZone(ZoneId.systemDefault());
             event.setStart(FORMATTER.format(start));
           }
 

@@ -234,7 +234,8 @@ public class PSSitePublishServiceHelper implements IPSSitePublishServiceHelper {
         String.format(
             "SELECT DISTINCT CONTENTTYPEID FROM %s WHERE CONTENTTYPENAME NOT IN (%s)",
             qualifyTableName("CONTENTTYPES"), binaryAssetTypesStr);
-    org.hibernate.query.NativeQuery<Integer> query = createIntegerNativeQuery(sess, sql, "CONTENTTYPEID");
+    org.hibernate.query.NativeQuery<Integer> query =
+        createIntegerNativeQuery(sess, sql, "CONTENTTYPEID");
     return query.list();
   }
 
@@ -243,7 +244,8 @@ public class PSSitePublishServiceHelper implements IPSSitePublishServiceHelper {
         String.format(
             "SELECT DISTINCT CONFIG_ID FROM %s WHERE CONFIG_NAME NOT IN (%s)",
             qualifyTableName("PSX_RELATIONSHIPCONFIGNAME"), invalidRelationshipConfigName);
-    org.hibernate.query.NativeQuery<Integer> query = createIntegerNativeQuery(sess, sql, "CONFIG_ID");
+    org.hibernate.query.NativeQuery<Integer> query =
+        createIntegerNativeQuery(sess, sql, "CONFIG_ID");
     return query.list();
   }
 

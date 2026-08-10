@@ -101,10 +101,10 @@ import org.springframework.stereotype.Component;
  * PSWidgetAssetRelationshipServiceHubReverseEdgeWiringTest}.
  *
  * <p><strong>Path C (managedLink — #2527):</strong> {@link IPSManagedLinkService} is resolved via
- * application-context lookup ({@link #getManagedLinkService()}), <em>not</em> constructor or
- * field {@code @Autowired}. A ctor inject would force {@code managedLink → pageService →
- * folderHelper} while {@code folderHelper} may still be creating on paths A/B. Do not "clean up"
- * this lookup into eager DI without a param/field {@code @Lazy} break and inventory update.
+ * application-context lookup ({@link #getManagedLinkService()}), <em>not</em> constructor or field
+ * {@code @Autowired}. A ctor inject would force {@code managedLink → pageService → folderHelper}
+ * while {@code folderHelper} may still be creating on paths A/B. Do not "clean up" this lookup into
+ * eager DI without a param/field {@code @Lazy} break and inventory update.
  */
 @Component("widgetAssetRelationshipService")
 @Lazy
@@ -1003,9 +1003,9 @@ public class PSWidgetAssetRelationshipService implements IPSWidgetAssetRelations
   /**
    * Lazy application-context lookup for {@link IPSManagedLinkService} (path C — #2527).
    *
-   * <p>Must remain a post-construction lookup (or, if converted to DI, must use param/field {@code
-   * @Lazy}). Eager ctor inject of managedLink forces {@code pageService → folderHelper} while this
-   * hub can still be under construction on the folderHelper cycle path.
+   * <p>Must remain a post-construction lookup (or, if converted to DI, must use param/field
+   * {@code @Lazy}). Eager ctor inject of managedLink forces {@code pageService → folderHelper}
+   * while this hub can still be under construction on the folderHelper cycle path.
    */
   private IPSManagedLinkService getManagedLinkService() {
     if (managedLinkService != null) return managedLinkService;

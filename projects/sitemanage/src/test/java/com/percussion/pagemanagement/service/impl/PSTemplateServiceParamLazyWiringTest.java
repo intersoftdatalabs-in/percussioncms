@@ -34,8 +34,8 @@ import org.springframework.context.annotation.Lazy;
  * Belt-and-braces param {@code @Lazy} on {@link PSTemplateService} → forward ctor edges to
  * known-cycle peers (#2423 residual #2520, peer of #2515 itemWorkflow + #2476 assetService→page).
  *
- * <p>Static inventory (#2463 / #2485) ranks {@code PSTemplateService} as a top-3 sitemanage hub.
- * It construct-requires peers on or next to the known cycle subgraph:
+ * <p>Static inventory (#2463 / #2485) ranks {@code PSTemplateService} as a top-3 sitemanage hub. It
+ * construct-requires peers on or next to the known cycle subgraph:
  *
  * <pre>
  * templateService
@@ -53,8 +53,8 @@ import org.springframework.context.annotation.Lazy;
  *
  * <p>Behavior review (#2520): ctor body only field-assigns the four peers listed above; method
  * calls happen only on save / load / template workflow paths post-construction. Lazy proxies are
- * therefore safe for the chosen edges. {@code IPSWidgetService} is intentionally NOT annotated
- * here — the ctor body uses it to construct {@code RegionWidgetValidator}.
+ * therefore safe for the chosen edges. {@code IPSWidgetService} is intentionally NOT annotated here
+ * — the ctor body uses it to construct {@code RegionWidgetValidator}.
  *
  * <p>Inventory: {@code
  * docs/ai-generated/tasks/2423-spring-injection-cycle/sitemanage-injection-cycle-inventory.md}.
@@ -84,9 +84,9 @@ public class PSTemplateServiceParamLazyWiringTest {
   public void templateDaoConstructorParameterIsLazy() throws NoSuchMethodException {
     assertParamLazy(
         IPSTemplateDao.class,
-        "IPSTemplateDao constructor parameter on PSTemplateService must be @Lazy"
-            + " (belt-and-braces cycle-peer protection; see #2520 / #2463)."
-            + " templateDao is only field-assigned in the ctor (used on save / load / find paths).");
+        "IPSTemplateDao constructor parameter on PSTemplateService must be @Lazy (belt-and-braces"
+            + " cycle-peer protection; see #2520 / #2463). templateDao is only field-assigned in"
+            + " the ctor (used on save / load / find paths).");
   }
 
   @Test

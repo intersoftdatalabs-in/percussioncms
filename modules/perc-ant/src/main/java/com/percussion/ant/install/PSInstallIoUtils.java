@@ -26,8 +26,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 /**
- * Portable install-time file I/O helpers replacing deprecated {@code
- * com.percussion.util.IOTools} usage inside perc-ant install tasks.
+ * Portable install-time file I/O helpers replacing deprecated {@code com.percussion.util.IOTools}
+ * usage inside perc-ant install tasks.
  *
  * <p>Semantics for backup/temp helpers match the former IOTools methods used by the installer.
  */

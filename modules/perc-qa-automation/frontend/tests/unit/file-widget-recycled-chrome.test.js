@@ -41,16 +41,16 @@ describe("file-widget-recycled-chrome helpers", () => {
   });
 
   it("hasRecycledAssetChrome / isCleanWidgetChrome classify class tokens", () => {
-    assert.equal(hasRecycledAssetChrome("perc-widget perc-recycled-asset"), true);
+    assert.equal(
+      hasRecycledAssetChrome("perc-widget perc-recycled-asset"),
+      true,
+    );
     assert.equal(hasRecycledAssetChrome("perc-widget"), false);
     assert.equal(hasRecycledAssetChrome(""), false);
     assert.equal(hasRecycledAssetChrome(null), false);
     assert.equal(hasRecycledAssetChrome("perc-recycled-asset-extra"), false);
     assert.equal(isCleanWidgetChrome("perc-widget"), true);
-    assert.equal(
-      isCleanWidgetChrome("perc-widget perc-recycled-asset"),
-      false,
-    );
+    assert.equal(isCleanWidgetChrome("perc-widget perc-recycled-asset"), false);
   });
 
   it("classifyWidgetChrome maps assembly attributes", () => {
@@ -86,7 +86,9 @@ describe("file-widget-recycled-chrome helpers", () => {
     );
     assert.equal(decorationCssDefinesRecycledChrome(""), false);
     assert.equal(
-      decorationCssDefinesRecycledChrome(".perc-recycled-asset { color: blue; }"),
+      decorationCssDefinesRecycledChrome(
+        ".perc-recycled-asset { color: blue; }",
+      ),
       false,
     );
   });
@@ -110,10 +112,9 @@ describe("file-widget-recycled-chrome helpers", () => {
   it("siteSummaryNames normalizes wrappers and arrays", () => {
     assert.deepEqual(siteSummaryNames(null), []);
     assert.deepEqual(siteSummaryNames([]), []);
-    assert.deepEqual(
-      siteSummaryNames([{ name: "Corporate Investments" }]),
-      ["Corporate Investments"],
-    );
+    assert.deepEqual(siteSummaryNames([{ name: "Corporate Investments" }]), [
+      "Corporate Investments",
+    ]);
     assert.deepEqual(
       siteSummaryNames({ SiteSummary: [{ name: "A" }, { siteName: "B" }] }),
       ["A", "B"],

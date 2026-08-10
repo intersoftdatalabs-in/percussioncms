@@ -68,8 +68,7 @@ class PSSystemAuditLogEntryTest {
 
   @Test
   void attributesToJsonEscapesQuotesAndNewlines() {
-    String json =
-        PSSystemAuditLogEntry.attributesToJson(Map.of("note", "line1\nline2 \"quoted\""));
+    String json = PSSystemAuditLogEntry.attributesToJson(Map.of("note", "line1\nline2 \"quoted\""));
     assertTrue(json.contains("\\n"));
     assertTrue(json.contains("\\\""));
     assertTrue(json.startsWith("{"));

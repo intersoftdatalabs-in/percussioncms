@@ -56,9 +56,7 @@ public class PSInlineLinkProcessorContractTest {
                 request, null, relationships, -1, false, false));
     assertThrows(
         IllegalArgumentException.class,
-        () ->
-            PSInlineLinkProcessor.processInlineLinkItem(
-                request, item, null, -1, false, false));
+        () -> PSInlineLinkProcessor.processInlineLinkItem(request, item, null, -1, false, false));
   }
 
   @Test

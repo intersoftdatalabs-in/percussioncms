@@ -108,8 +108,7 @@ export function buildInlineRenderLinkPreviewUrl(
 ) {
   let svcUrl = `${basePreviewPath}/${itemId}/default`;
   if (titleField != null && String(titleField).trim() !== "") {
-    svcUrl +=
-      "?titleField=" + encodeURIComponent(String(titleField).trim());
+    svcUrl += "?titleField=" + encodeURIComponent(String(titleField).trim());
   }
   return svcUrl;
 }
@@ -148,7 +147,10 @@ export function resolveInlineLinkTitleClient(
     return s === "" ? null : s;
   };
 
-  if (configuredFieldName != null && String(configuredFieldName).trim() !== "") {
+  if (
+    configuredFieldName != null &&
+    String(configuredFieldName).trim() !== ""
+  ) {
     const configured = fieldAsString(configuredFieldName);
     if (configured != null) {
       return configured;
@@ -257,9 +259,7 @@ describe("buildInlineRenderLinkPreviewUrl (PercPathService peer)", () => {
         "id1",
         "  custom field  ",
       ),
-    ).toBe(
-      `${RENDER_LINK_PREVIEW}/id1/default?titleField=custom%20field`,
-    );
+    ).toBe(`${RENDER_LINK_PREVIEW}/id1/default?titleField=custom%20field`);
   });
 });
 
@@ -277,7 +277,11 @@ describe("resolveInlineLinkTitleClient (server resolver peer contract)", () => {
     expect(
       resolveInlineLinkTitleClient(
         "pagetitle",
-        { pagetitle: "Custom", displaytitle: "Disp", resource_link_title: "Nav" },
+        {
+          pagetitle: "Custom",
+          displaytitle: "Disp",
+          resource_link_title: "Nav",
+        },
         "Nav",
       ),
     ).toBe("Custom");
@@ -292,11 +296,13 @@ describe("resolveInlineLinkTitleClient (server resolver peer contract)", () => {
       ),
     ).toBe("Disp");
     expect(
-      resolveInlineLinkTitleClient("missing", { resource_link_title: "Nav" }, "Nav"),
+      resolveInlineLinkTitleClient(
+        "missing",
+        { resource_link_title: "Nav" },
+        "Nav",
+      ),
     ).toBe("Nav");
-    expect(
-      resolveInlineLinkTitleClient("missing", {}, null),
-    ).toBe("");
+    expect(resolveInlineLinkTitleClient("missing", {}, null)).toBe("");
   });
 
   it("does not double-apply displaytitle when configured field is displaytitle", () => {
@@ -376,7 +382,9 @@ describe("TinyMCE plugin source contract (inlineLinkTitleField)", () => {
     it(`${plugin.name} registers inlineLinkTitleField with empty default`, () => {
       const src = readFileSync(plugin.path, "utf8");
       expect(src).toContain('inlineLinkTitleField"');
-      expect(src).toMatch(/options\.register\s*\(\s*["']inlineLinkTitleField["']/);
+      expect(src).toMatch(
+        /options\.register\s*\(\s*["']inlineLinkTitleField["']/,
+      );
       // Empty default = product type defaults at resolve time
       expect(src).toMatch(/default:\s*["']["']/);
     });

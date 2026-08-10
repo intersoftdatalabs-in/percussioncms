@@ -37,3 +37,4 @@ cd deliverytiersuite/delivery-tier-suite/delivery-tier-distribution
 ..\..\..\mvnw.cmd validate
 # RequireUpperBoundDeps + DependencyConvergence passed; BUILD SUCCESS
 ```
+

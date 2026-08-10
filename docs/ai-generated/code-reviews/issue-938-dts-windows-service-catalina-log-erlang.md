@@ -16,14 +16,14 @@ CMS Jetty logging untouched.
 
 ## Scope
 
-| Path | Change class |
-|------|----------------|
-| `delivery-tier-distribution/.../DTSProductionService.bat` | Windows service installer |
-| `delivery-tier-distribution/.../DTSStagingService.bat` | Windows service installer |
-| `.../DtsWindowsServiceCatalinaLogTest.java` | Packaging/script assertion peer |
-| `.../README-windows-service.md` | Operator note |
-| `.../README.md` | Module operator note |
-| `docs/ai-generated/code-reviews/...-erlang.md` | This report |
+|                           Path                            |          Change class           |
+|-----------------------------------------------------------|---------------------------------|
+| `delivery-tier-distribution/.../DTSProductionService.bat` | Windows service installer       |
+| `delivery-tier-distribution/.../DTSStagingService.bat`    | Windows service installer       |
+| `.../DtsWindowsServiceCatalinaLogTest.java`               | Packaging/script assertion peer |
+| `.../README-windows-service.md`                           | Operator note                   |
+| `.../README.md`                                           | Module operator note            |
+| `docs/ai-generated/code-reviews/...-erlang.md`            | This report                     |
 
 Cross-platform path review: bat scripts intentionally use Windows `\` and Procrun
 flags (Windows-only entrypoints). Java tests use `Path.of` / UTF-8 reads only. Linux

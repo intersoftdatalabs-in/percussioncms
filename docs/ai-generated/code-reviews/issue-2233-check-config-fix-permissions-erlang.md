@@ -20,12 +20,12 @@ Wiring mirrors `clean-logs`: global `--install-root` / `--dry-run` / `-v`, `Doct
 
 ## Gate
 
-| Gate | Result |
-|------|--------|
-| Bugs | none found |
-| Behavioral unit tests for new logic | yes (`CheckConfigCommandTest` 11, `FixPermissionsCommandTest` 8/2 skipped on Windows, CLI coverage) |
-| Portable path / file I/O | pass — `java.nio.file.Path` / `Files` only; relative segments via `InstallRootGuard.resolveRelativeUnderRoot`; no hardcoded user homes; Windows vs POSIX branched with attribute-view probe |
-| May commit/push | **yes** |
+|                Gate                 |                                                                                           Result                                                                                            |
+|-------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Bugs                                | none found                                                                                                                                                                                  |
+| Behavioral unit tests for new logic | yes (`CheckConfigCommandTest` 11, `FixPermissionsCommandTest` 8/2 skipped on Windows, CLI coverage)                                                                                         |
+| Portable path / file I/O            | pass — `java.nio.file.Path` / `Files` only; relative segments via `InstallRootGuard.resolveRelativeUnderRoot`; no hardcoded user homes; Windows vs POSIX branched with attribute-view probe |
+| May commit/push                     | **yes**                                                                                                                                                                                     |
 
 ## Cross-platform path checklist
 
@@ -50,3 +50,4 @@ None (blocking).
 - Install-root containment for doctor I/O
 - Dry-run / report-first ops commands
 - Prefer `Files` / `Path` over `File` and shell
+

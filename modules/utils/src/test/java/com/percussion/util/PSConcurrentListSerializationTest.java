@@ -43,12 +43,14 @@ public class PSConcurrentListSerializationTest {
     assertTrue(Serializable.class.isAssignableFrom(PSCollection.class));
 
     Field listUid = PSConcurrentList.class.getDeclaredField("serialVersionUID");
-    assertTrue(Modifier.isStatic(listUid.getModifiers()) && Modifier.isFinal(listUid.getModifiers()));
+    assertTrue(
+        Modifier.isStatic(listUid.getModifiers()) && Modifier.isFinal(listUid.getModifiers()));
     listUid.setAccessible(true);
     assertEquals(1L, listUid.getLong(null));
 
     Field collUid = PSCollection.class.getDeclaredField("serialVersionUID");
-    assertTrue(Modifier.isStatic(collUid.getModifiers()) && Modifier.isFinal(collUid.getModifiers()));
+    assertTrue(
+        Modifier.isStatic(collUid.getModifiers()) && Modifier.isFinal(collUid.getModifiers()));
     collUid.setAccessible(true);
     assertEquals(1L, collUid.getLong(null));
   }

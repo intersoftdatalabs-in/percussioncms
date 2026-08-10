@@ -57,7 +57,8 @@ public class PSSqlLockedUpdateBuilder extends PSSqlUpdateBuilder {
    * @return an update statement for the table passed to the ctor, this will never be <code>null
    *     </code>
    */
-  PSUpdateStatement generate(java.util.List<PSBackEndLogin> logins, ConcurrentHashMap<?, Integer> connKeys)
+  PSUpdateStatement generate(
+      java.util.List<PSBackEndLogin> logins, ConcurrentHashMap<?, Integer> connKeys)
       throws PSIllegalArgumentException {
     if (logins == null) {
       throw new IllegalArgumentException("logins must never be null");

@@ -4,8 +4,8 @@
 		issue #1157, obsolete install-root cleanup (including this path and PreInstall)
 		is owned by the preinstall Java helper com.percussion.preinstall.ObsoleteInstallDirCleaner,
 		invoked early on upgrade from Main when the operator confirms or passes the
-		clean-install-dir CLI flag. This target remains a no-op so any antcall to this
-		file does not double-delete or fail. -->
+		clean-install-dir CLI flag. This target remains a no-op so any antcall to
+		this file does not double-delete or fail. -->
 	<target name="remove_PercussionInstallation">
 		<echo>Obsolete _Percussion_Installation cleanup is handled by
 			preinstall ObsoleteInstallDirCleaner (issue #1157); ANT target is a

@@ -137,8 +137,7 @@
         if (status === $.PercServiceUtils.STATUS_ERROR) {
           $.perc_utils.alert_dialog({
             title: I18N.message("perc.ui.publish.title@Error"),
-            content:
-              data || I18N.message("perc.ui.empty.recycling@Error"),
+            content: data || I18N.message("perc.ui.empty.recycling@Error"),
           });
           return;
         }

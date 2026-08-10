@@ -14,13 +14,13 @@ Portrait / narrow Admin chrome was clipped by fixed min-widths and non-wrapping 
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | none found |
-| Behavioral tests | Vitest shell + CSS contract; Playwright bug-945 |
-| Portable paths | Vitest uses `node:path` `resolve` only; no OS-specific path strings |
-| Dual-ship consistency | webapp + war + pages/app JSP; three percWorkflow.css trees |
-| Module clean install | `cd WebUI && ../mvnw clean install` SUCCESS |
+|         Check         |                               Result                                |
+|-----------------------|---------------------------------------------------------------------|
+| Bugs                  | none found                                                          |
+| Behavioral tests      | Vitest shell + CSS contract; Playwright bug-945                     |
+| Portable paths        | Vitest uses `node:path` `resolve` only; no OS-specific path strings |
+| Dual-ship consistency | webapp + war + pages/app JSP; three percWorkflow.css trees          |
+| Module clean install  | `cd WebUI && ../mvnw clean install` SUCCESS                         |
 
 ## Issues
 

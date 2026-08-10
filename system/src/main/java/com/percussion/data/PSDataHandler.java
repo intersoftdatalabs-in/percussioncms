@@ -168,7 +168,8 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
    * @throws PSErrorException any Exceptions (validation/authorization, etc.) wrapped as an
    *     ErrorException.
    */
-  public void runPreProcessingExtensions(PSExecutionData data, Iterator<? extends PSExtensionRunner> extensionRunners)
+  public void runPreProcessingExtensions(
+      PSExecutionData data, Iterator<? extends PSExtensionRunner> extensionRunners)
       throws PSErrorException {
 
     /* Run the pre-processing extensions before validating */
@@ -377,7 +378,10 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
    *     PSExtensionRef as a key.
    */
   public static void loadExtensions(
-      PSApplicationHandler appHandler, PSCollection extCalls, String interfaceName, List<? super PSExtensionRunner> instances)
+      PSApplicationHandler appHandler,
+      PSCollection extCalls,
+      String interfaceName,
+      List<? super PSExtensionRunner> instances)
       throws PSNotFoundException, PSExtensionException {
     final int size = (extCalls == null) ? 0 : extCalls.size();
     for (int i = 0; i < size; i++) {

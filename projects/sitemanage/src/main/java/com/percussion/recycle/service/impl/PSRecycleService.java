@@ -20,6 +20,7 @@ package com.percussion.recycle.service.impl;
 
 import static org.apache.commons.lang3.Validate.notEmpty;
 
+import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.auditlog.PSActionOutcome;
 import com.percussion.auditlog.PSAuditLogService;
 import com.percussion.auditlog.PSContentEvent;
@@ -36,7 +37,6 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipSet;
-import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.itemmanagement.data.PSItemStateTransition;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
@@ -416,13 +416,11 @@ public class PSRecycleService implements IPSRecycleService {
       // Skip non-assets: recycleItem also handles pages, templates, and folders; only assets can
       // be bound as widget dependents. Avoid two loadRelationships hits per non-asset recycle.
       if (workflowHelper != null && !isAssetForWidgetClear(assetId)) {
-        log.debug(
-            "Skipping widget relationship clear for non-asset recycled item {}", itemGuid);
+        log.debug("Skipping widget relationship clear for non-asset recycled item {}", itemGuid);
         return;
       }
       int cleared = widgetAssetRelationshipService.clearAssetWidgetRelationshipsForAsset(assetId);
-      log.debug(
-          "Cleared {} widget relationship(s) for recycled item {}", cleared, itemGuid);
+      log.debug("Cleared {} widget relationship(s) for recycled item {}", cleared, itemGuid);
     } catch (Exception e) {
       log.warn(
           "Recycled item {} but failed to clear page/template widget relationships: {}",
@@ -434,8 +432,8 @@ public class PSRecycleService implements IPSRecycleService {
 
   /**
    * Returns whether {@code itemId} is an asset that may have widget bindings. On type-detection
-   * failure, returns {@code true} so the clear path still runs (empty relationship lists are a
-   * safe no-op for non-assets).
+   * failure, returns {@code true} so the clear path still runs (empty relationship lists are a safe
+   * no-op for non-assets).
    */
   private boolean isAssetForWidgetClear(String itemId) {
     try {

@@ -116,7 +116,8 @@ public class PSDeliveryHttpErrorSupportTest {
   public void shortReasonFromStructuredExceptionPrefersSnippet() {
     PSDeliveryClientException ex =
         new PSDeliveryClientException(
-            "Error when executing method : PUT https://localhost:8443/feeds/rss/rotateKey (HTTP 405): HTTP Status 405",
+            "Error when executing method : PUT https://localhost:8443/feeds/rss/rotateKey (HTTP"
+                + " 405): HTTP Status 405",
             405,
             "PUT",
             "https://localhost:8443/feeds/rss/rotateKey",

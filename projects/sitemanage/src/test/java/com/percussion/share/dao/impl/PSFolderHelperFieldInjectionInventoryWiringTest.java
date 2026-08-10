@@ -31,24 +31,24 @@ import com.percussion.searchmanagement.service.IPSPageIndexService;
 import com.percussion.searchmanagement.service.impl.PSPageIndexService;
 import com.percussion.share.dao.IPSContentItemDao;
 import com.percussion.share.dao.IPSFolderHelper;
+import jakarta.annotation.Resource;
+import jakarta.inject.Inject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.annotation.Resource;
-import jakarta.inject.Inject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Field / setter injection inventory freeze for the {@code folderHelper} recycle subgraph
- * (#2525 / parent #2423).
+ * Field / setter injection inventory freeze for the {@code folderHelper} recycle subgraph (#2525 /
+ * parent #2423).
  *
- * <p>The constructor reverse-edge inventory (#2485) found no remaining live ctor reverse edges
- * into {@link IPSFolderHelper}. This test freezes the equivalent state for field and setter
- * injection: none of the seven cycle-subgraph beans may carry a field-level {@code @Autowired} /
+ * <p>The constructor reverse-edge inventory (#2485) found no remaining live ctor reverse edges into
+ * {@link IPSFolderHelper}. This test freezes the equivalent state for field and setter injection:
+ * none of the seven cycle-subgraph beans may carry a field-level {@code @Autowired} /
  * {@code @Resource} / {@code @Inject} annotation on a target interface, and none may expose a
  * public setter that takes a target interface. Field/setter injection would bypass the constructor
  * {@link Lazy @Lazy} breaks and re-enter the recycle subgraph while {@code folderHelper} is still
@@ -61,9 +61,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  *             → pageIndexService    → pageDaoHelper      → folderHelper
  * </pre>
  *
- * <p>Does not duplicate hub hardening for pageService / itemWorkflow / templateService / siteData
- * — those are separate residuals (#2476–#2478, #2514–#2521). Full disposition table:
- * {@code docs/ai-generated/tasks/2423-spring-injection-cycle/sitemanage-injection-cycle-inventory.md}
+ * <p>Does not duplicate hub hardening for pageService / itemWorkflow / templateService / siteData —
+ * those are separate residuals (#2476–#2478, #2514–#2521). Full disposition table: {@code
+ * docs/ai-generated/tasks/2423-spring-injection-cycle/sitemanage-injection-cycle-inventory.md}
  * (section "folderHelper field / setter injection inventory (#2525)").
  *
  * <p>Peers: {@link PSFolderHelperReverseEdgeInventoryWiringTest}, {@link
@@ -74,28 +74,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class PSFolderHelperFieldInjectionInventoryWiringTest {
 
   /** Cycle interfaces whose field / setter injection would re-enter the recycle subgraph. */
-  private static final List<Class<?>> CYCLE_INTERFACES = List.of(
-      IPSFolderHelper.class,
-      IPSRecycleService.class,
-      IPSWidgetAssetRelationshipService.class,
-      IPSAssetDao.class,
-      IPSContentItemDao.class,
-      IPSPageDaoHelper.class,
-      IPSPageIndexService.class);
+  private static final List<Class<?>> CYCLE_INTERFACES =
+      List.of(
+          IPSFolderHelper.class,
+          IPSRecycleService.class,
+          IPSWidgetAssetRelationshipService.class,
+          IPSAssetDao.class,
+          IPSContentItemDao.class,
+          IPSPageDaoHelper.class,
+          IPSPageIndexService.class);
 
   /**
    * Beans on the recycle subgraph. Forcing any of these to construct while {@code folderHelper} is
    * still creating would close paths A/B. Field / setter injection of a cycle interface on any of
    * these beans is a live reverse field edge.
    */
-  private static final List<Class<?>> CYCLE_SUBGRAPH_BEANS = List.of(
-      PSFolderHelper.class,
-      PSRecycleService.class,
-      PSWidgetAssetRelationshipService.class,
-      PSAssetDao.class,
-      PSContentItemDao.class,
-      PSPageIndexService.class,
-      PSPageDaoHelper.class);
+  private static final List<Class<?>> CYCLE_SUBGRAPH_BEANS =
+      List.of(
+          PSFolderHelper.class,
+          PSRecycleService.class,
+          PSWidgetAssetRelationshipService.class,
+          PSAssetDao.class,
+          PSContentItemDao.class,
+          PSPageIndexService.class,
+          PSPageDaoHelper.class);
 
   @Test
   public void cycleSubgraphBeansMustNotFieldInjectAnyCycleInterface() {
@@ -160,8 +162,8 @@ public class PSFolderHelperFieldInjectionInventoryWiringTest {
 
   /**
    * Verify that none of the cycle subgraph beans expose a public setter that takes a cycle
-   * interface. Setter injection resolves after construction starts and would re-enter the
-   * recycle subgraph.
+   * interface. Setter injection resolves after construction starts and would re-enter the recycle
+   * subgraph.
    */
   private static void assertNoPublicSetterForCycleInterface(Class<?> bean) {
     for (Method m : bean.getDeclaredMethods()) {
@@ -193,9 +195,9 @@ public class PSFolderHelperFieldInjectionInventoryWiringTest {
   }
 
   /**
-   * Each cycle subgraph bean must still construct-require at least one cycle interface (the
-   * forward edge the constructor {@code @Lazy} breaks). This confirms that converting the
-   * subgraph to pure ctor injection did not silently drop the cycle edges.
+   * Each cycle subgraph bean must still construct-require at least one cycle interface (the forward
+   * edge the constructor {@code @Lazy} breaks). This confirms that converting the subgraph to pure
+   * ctor injection did not silently drop the cycle edges.
    */
   private static void assertConstructRequiresCycleInterface(Class<?> bean) {
     boolean found = false;
@@ -229,8 +231,8 @@ public class PSFolderHelperFieldInjectionInventoryWiringTest {
 
   /**
    * Sanity check on the test fixtures themselves: each cycle subgraph bean must be reachable from
-   * at least one declared field type on the recycle subgraph so the {@link #CYCLE_INTERFACES}
-   * list is not silently empty.
+   * at least one declared field type on the recycle subgraph so the {@link #CYCLE_INTERFACES} list
+   * is not silently empty.
    */
   @Test
   public void cycleInterfacesListIsNotEmpty() {

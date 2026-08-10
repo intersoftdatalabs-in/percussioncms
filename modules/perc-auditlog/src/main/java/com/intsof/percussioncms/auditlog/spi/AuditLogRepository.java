@@ -21,8 +21,8 @@ import com.intsof.percussioncms.auditlog.AuditRecord;
 /**
  * SPI for durable audit storage (DB implementation lives in the {@code system} module).
  *
- * <p>Implementations must never throw in a way that fails the business request; the service
- * catches failures and emits {@code AUDIT_SINK_FAILURE} markers.
+ * <p>Implementations must never throw in a way that fails the business request; the service catches
+ * failures and emits {@code AUDIT_SINK_FAILURE} markers.
  */
 public interface AuditLogRepository {
 

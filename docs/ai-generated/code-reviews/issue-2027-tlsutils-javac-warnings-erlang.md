@@ -4,7 +4,7 @@
 **Branch:** fix/issue-2027-tlsutils-javac-warnings  
 **Issue:** #2027 (parent #2200)  
 **Recommendation:** approve  
-**Gate:** May commit/push: yes  
+**Gate:** May commit/push: yes
 
 ## Summary
 
@@ -29,9 +29,10 @@ None (bug/suggestion/nit).
 
 ## Change-class companions
 
-| Companion | Status |
-|-----------|--------|
-| Real generics/API fix vs suppress | done |
-| Javadoc on new helpers | done |
-| Behavioral unit tests | `certificateAlias`, `toUrl` covered |
-| Module clean install | green |
+|             Companion             |               Status                |
+|-----------------------------------|-------------------------------------|
+| Real generics/API fix vs suppress | done                                |
+| Javadoc on new helpers            | done                                |
+| Behavioral unit tests             | `certificateAlias`, `toUrl` covered |
+| Module clean install              | green                               |
+

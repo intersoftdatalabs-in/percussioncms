@@ -29,8 +29,8 @@ import java.util.Objects;
 
 /**
  * Executes doctor clean commands for the HTTP API. Reuses the same command implementations as the
- * CLI ({@link CleanHeapDumpsCommand}, {@link CleanInstallBackupsCommand}, {@link
- * CleanLogsCommand}, {@link CleanTempCommand}).
+ * CLI ({@link CleanHeapDumpsCommand}, {@link CleanInstallBackupsCommand}, {@link CleanLogsCommand},
+ * {@link CleanTempCommand}).
  *
  * <p>Authorization is enforced by the caller ({@link DoctorRestService}); this class only runs
  * commands.
@@ -43,8 +43,7 @@ public final class DoctorApiService {
    * @param installRootProvider default install root when the request omits {@code installRoot}
    */
   public DoctorApiService(DoctorInstallRootProvider installRootProvider) {
-    this.installRootProvider =
-        Objects.requireNonNull(installRootProvider, "installRootProvider");
+    this.installRootProvider = Objects.requireNonNull(installRootProvider, "installRootProvider");
   }
 
   /**

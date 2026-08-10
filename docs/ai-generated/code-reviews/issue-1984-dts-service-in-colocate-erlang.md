@@ -35,7 +35,8 @@ logic but required for verification).
   clean for this slice.**
 
 Prior report / memory: GH-962 / #1977 systemd dual-ship patterns; Gap B residual of
-#1975 inventory.
+
+# 1975 inventory.
 
 ## Issues
 

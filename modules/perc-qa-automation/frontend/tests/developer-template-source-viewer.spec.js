@@ -29,9 +29,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
-const {
-  catalogRowSelector,
-} = require("./helpers/developer-catalog-selectors");
+const { catalogRowSelector } = require("./helpers/developer-catalog-selectors");
 
 function developerTemplatesUrl() {
   const q = new URLSearchParams({

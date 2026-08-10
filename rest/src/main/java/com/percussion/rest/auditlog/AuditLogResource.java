@@ -105,8 +105,7 @@ public class AuditLogResource {
           @DefaultValue("50")
           int limit) {
     try {
-      return requireAdaptor()
-          .query(from, to, module, eventType, outcome, actor, offset, limit);
+      return requireAdaptor().query(from, to, module, eventType, outcome, actor, offset, limit);
     } catch (SecurityException e) {
       throw new WebApplicationException(e.getMessage(), e, Response.Status.FORBIDDEN);
     } catch (IllegalArgumentException e) {

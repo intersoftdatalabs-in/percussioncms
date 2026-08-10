@@ -15,11 +15,11 @@ Companion compile fix: `PSNavonNodeInvocationHandler` copy from `Map<?,?>` (util
 
 ## Scope
 
-| Area | Change |
-| --- | --- |
-| Production | `client/PSRemoteAgent`, `client/PSRelationshipProcessor`, `server/PSRelationshipProcessor`, `server/PSActiveAssemblerProcessor`, `PSRelationshipProcessorProxy`, `PSSearch` (partial), `PSNavonNodeInvocationHandler` (compile companion) |
-| Tests | `PSSearchParseParametersTest` (5) |
-| Out of scope | design.objectstore (#2295/#2309), this-escape/serial (#2297/#2313/#2319), data.jdbc (#2298/#2315), remaining `PSSearch` Iterator fields/APIs, `PSServerFolderProcessor` raw List overrides |
+|     Area     |                                                                                                                  Change                                                                                                                   |
+|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Production   | `client/PSRemoteAgent`, `client/PSRelationshipProcessor`, `server/PSRelationshipProcessor`, `server/PSActiveAssemblerProcessor`, `PSRelationshipProcessorProxy`, `PSSearch` (partial), `PSNavonNodeInvocationHandler` (compile companion) |
+| Tests        | `PSSearchParseParametersTest` (5)                                                                                                                                                                                                         |
+| Out of scope | design.objectstore (#2295/#2309), this-escape/serial (#2297/#2313/#2319), data.jdbc (#2298/#2315), remaining `PSSearch` Iterator fields/APIs, `PSServerFolderProcessor` raw List overrides                                                |
 
 Cross-platform path review: **N/A** — no file I/O or path handling in this diff.
 
@@ -39,13 +39,13 @@ None at severity `bug`.
 
 ## Gate checklist
 
-| Check | Result |
-| --- | --- |
-| Bugs | none found |
-| Behavioral tests for changed logic | yes (5 new tests on pure `parseParameters`) |
-| Portable paths | N/A |
-| Module clean install | BUILD SUCCESS |
-| Scope confinement | cms.objectstore batch + one compile companion in services assembly nav |
+|               Check                |                                 Result                                 |
+|------------------------------------|------------------------------------------------------------------------|
+| Bugs                               | none found                                                             |
+| Behavioral tests for changed logic | yes (5 new tests on pure `parseParameters`)                            |
+| Portable paths                     | N/A                                                                    |
+| Module clean install               | BUILD SUCCESS                                                          |
+| Scope confinement                  | cms.objectstore batch + one compile companion in services assembly nav |
 
 ## Recommendation
 

@@ -10,14 +10,14 @@ Operator-facing structured logging for DTS admin HTTP failures (rotateKey push).
 
 ### Companions delivered
 
-| Artifact | Status |
-|----------|--------|
-| `PSDeliveryHttpErrorSupport` helper | new |
-| `PSDeliveryClient` ERROR truncation + structured exception | done |
-| `PSDeliveryClientException` status/method/url/snippet fields | done |
-| `PSDeliveryInfoService` actionable WARN | done |
-| Unit tests for helper | 8 tests green |
-| Module `mvnw clean install` | BUILD SUCCESS |
+|                           Artifact                           |    Status     |
+|--------------------------------------------------------------|---------------|
+| `PSDeliveryHttpErrorSupport` helper                          | new           |
+| `PSDeliveryClient` ERROR truncation + structured exception   | done          |
+| `PSDeliveryClientException` status/method/url/snippet fields | done          |
+| `PSDeliveryInfoService` actionable WARN                      | done          |
+| Unit tests for helper                                        | 8 tests green |
+| Module `mvnw clean install`                                  | BUILD SUCCESS |
 
 ## Checklist
 

@@ -861,9 +861,8 @@ public class PSJdbcTableFactory {
    * </ol>
    *
    * @param args the command line arguments, see above
-   *
-   * Example com.percussion.tablefactory.PSJdbcTableFactory serverProps.properties
-   * rxdatatypemaps.xml cmstabledef.xml cmstabledata.xml -ld log.txt
+   *     <p>Example com.percussion.tablefactory.PSJdbcTableFactory serverProps.properties
+   *     rxdatatypemaps.xml cmstabledef.xml cmstabledata.xml -ld log.txt
    */
   public static void main(String[] args) {
     if (args.length > 0 && PSJdbcImportExportHelper.OPTION_DB_IMPPORT.equals(args[0])) {

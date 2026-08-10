@@ -30,8 +30,7 @@ public class PSBaseHttpUtilsParseQueryTest {
 
   @Test
   public void multiValuedParamBuildsStringListWithoutUncheckedCast() {
-    Map<String, Object> map =
-        PSBaseHttpUtils.parseQueryParamsString("a=1&a=2&a=3", false, false);
+    Map<String, Object> map = PSBaseHttpUtils.parseQueryParamsString("a=1&a=2&a=3", false, false);
     Object values = map.get("a");
     assertInstanceOf(List.class, values);
     @SuppressWarnings("unchecked")

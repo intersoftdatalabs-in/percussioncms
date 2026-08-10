@@ -19,13 +19,14 @@ package com.percussion.delivery.metadata.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-import com.percussion.delivery.metadata.IPSMetadataProperty.VALUETYPE;
 import com.percussion.delivery.metadata.utils.PSHashCalculator;
 import java.util.List;
 import java.util.Properties;
 import org.junit.jupiter.api.Test;
 
-/** Covers {@link PSMetadataQueryServiceHelper#parseToList} number parsing without deprecated APIs. */
+/**
+ * Covers {@link PSMetadataQueryServiceHelper#parseToList} number parsing without deprecated APIs.
+ */
 public class PSMetadataQueryServiceHelperTest {
 
   @Test

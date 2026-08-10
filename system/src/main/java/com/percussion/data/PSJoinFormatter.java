@@ -110,7 +110,8 @@ public abstract class PSJoinFormatter {
     return new PSSql92JoinFormatter();
   }
 
-  public static java.util.List<PSBackEndJoin> getReorderedJoins(java.util.List<PSBackEndJoin> joins) {
+  public static java.util.List<PSBackEndJoin> getReorderedJoins(
+      java.util.List<PSBackEndJoin> joins) {
     /* when performing multi-table queries, we have a more complex task
      * to build the statement. We need to see if we have outer joins or
      * only inners. When only inners exist, the syntax is similar to

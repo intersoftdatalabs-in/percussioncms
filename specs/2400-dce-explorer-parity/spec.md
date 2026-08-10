@@ -27,12 +27,12 @@ The modern SPA **Explorer** (`WebUI` `ContentExplorerShell`, route `/cm/app/expl
 
 ## Systems
 
-| Side | Path |
-|------|------|
-| DCE (reference) | `modules/DesktopContentExplorer` — menus, dialogs, wizards, clipboard, search, ACL, dependency viewer |
-| Explorer (target UI) | `WebUI/src/main/ts/contentExplorer/*` + `app/routes/ExplorerRoute.tsx` |
-| Public REST | `rest/src/main/java/com/percussion/rest/**` |
-| Domain / apibridge | `projects/sitemanage` pathmanagement + `com.percussion.apibridge.*` |
+|         Side         |                                                 Path                                                  |
+|----------------------|-------------------------------------------------------------------------------------------------------|
+| DCE (reference)      | `modules/DesktopContentExplorer` — menus, dialogs, wizards, clipboard, search, ACL, dependency viewer |
+| Explorer (target UI) | `WebUI/src/main/ts/contentExplorer/*` + `app/routes/ExplorerRoute.tsx`                                |
+| Public REST          | `rest/src/main/java/com/percussion/rest/**`                                                           |
+| Domain / apibridge   | `projects/sitemanage` pathmanagement + `com.percussion.apibridge.*`                                   |
 
 ## Acceptance (program)
 
@@ -50,3 +50,4 @@ The modern SPA **Explorer** (`WebUI` `ContentExplorerShell`, route `/cm/app/expl
 2. **REST first for missing data** — no invented JSON fields; extend `rest` + sitemanage when the wire shape is insufficient.
 3. **Companion closure** — new REST: resource, adaptor interface, apibridge impl, Mockito resource test, Spring stub if scanned, sitemanage adaptor test as peers require.
 4. **Playwright HARD GATE** for product-visible Explorer changes (`modules/perc-qa-automation`).
+

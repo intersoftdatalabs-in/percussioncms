@@ -46,3 +46,4 @@ None (bug).
 - `cd modules/utils && mvnw clean install` → BUILD SUCCESS
 - `PSReflectionHelper.java` / `PSMultiMapIterTest.java`: **0** project-Xlint warnings (was ~31 + ~19)
 - Note: javac/Maven appears to cap displayed `[WARNING] …java:[` lines near **100**, so total remaining is not fully enumerated in one log; residual inventory is by file after this batch
+

@@ -8,15 +8,15 @@
 
 Continues #2022 / #2295 with real generics for rawtypes/unchecked in the design.objectstore **call + param** cluster:
 
-| Area | Change |
-| --- | --- |
-| `PSFunctionCall` | `Collection<PSFunctionParamValue>`, `ArrayList<IPSComponent>`, typed iterators / for-each, `List<IPSComponent>` parents |
-| `PSExtensionCall` | `Collection<PSExtensionParamValue>`, `List<String>` applyTo, typed setParamValues/fromXml |
-| `PS*ParamValue` / `PSAbstractParamValue` | `List<IPSComponent>` ctor/fromXml |
-| `PSNamedReplacementValue` | Align fromXml/ctor with `List<IPSComponent>` |
-| `IPSDependentObject` | `Collection<? extends IPSParameter> getParameters()` |
-| `IPSDocumentMapping` | `List<IPSComponent>` fromXml (match `IPSComponent`) |
-| Macro resolver | `Iterator<?>` for parameter walks (call-site compatibility) |
+|                   Area                   |                                                         Change                                                          |
+|------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| `PSFunctionCall`                         | `Collection<PSFunctionParamValue>`, `ArrayList<IPSComponent>`, typed iterators / for-each, `List<IPSComponent>` parents |
+| `PSExtensionCall`                        | `Collection<PSExtensionParamValue>`, `List<String>` applyTo, typed setParamValues/fromXml                               |
+| `PS*ParamValue` / `PSAbstractParamValue` | `List<IPSComponent>` ctor/fromXml                                                                                       |
+| `PSNamedReplacementValue`                | Align fromXml/ctor with `List<IPSComponent>`                                                                            |
+| `IPSDependentObject`                     | `Collection<? extends IPSParameter> getParameters()`                                                                    |
+| `IPSDocumentMapping`                     | `List<IPSComponent>` fromXml (match `IPSComponent`)                                                                     |
+| Macro resolver                           | `Iterator<?>` for parameter walks (call-site compatibility)                                                             |
 
 No class-level `@SuppressWarnings({"rawtypes","unchecked"})`. Behavioral surface preserved (XML round-trip, clone, equals, applyTo, param arrays).
 
@@ -26,13 +26,13 @@ No class-level `@SuppressWarnings({"rawtypes","unchecked"})`. Behavioral surface
 
 ## Gate
 
-| Check | Result |
-| --- | --- |
-| Bugs | none found |
-| Behavioral unit tests for new/changed logic | yes (`PSFunctionCallTest` 7, `PSExtensionCallTest` 7) |
-| Portable paths / file I/O | N/A (no path I/O) |
-| Scope confined | yes (objectstore call/param cluster + companion interface/resolver typing) |
-| May commit/push | **yes** |
+|                    Check                    |                                   Result                                   |
+|---------------------------------------------|----------------------------------------------------------------------------|
+| Bugs                                        | none found                                                                 |
+| Behavioral unit tests for new/changed logic | yes (`PSFunctionCallTest` 7, `PSExtensionCallTest` 7)                      |
+| Portable paths / file I/O                   | N/A (no path I/O)                                                          |
+| Scope confined                              | yes (objectstore call/param cluster + companion interface/resolver typing) |
+| May commit/push                             | **yes**                                                                    |
 
 ## Issues
 
@@ -56,3 +56,4 @@ None.
 - Tests run: **1204**, Failures: **0**, Errors: **0**, Skipped: **240**
 - Focused: `PSFunctionCallTest` + `PSExtensionCallTest` green
 - Primary production files in batch: **0 residual raw collection decls** (real generics throughout)
+

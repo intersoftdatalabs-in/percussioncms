@@ -40,3 +40,4 @@ None.
 - `mvnw -pl rest clean install` — BUILD SUCCESS, 229 tests, 0 failures
 - Main compile: no `[WARNING]` on `rest/src/**` for this-escape or serial after fixes
 - Zero `@SuppressWarnings` remaining under `rest/`
+

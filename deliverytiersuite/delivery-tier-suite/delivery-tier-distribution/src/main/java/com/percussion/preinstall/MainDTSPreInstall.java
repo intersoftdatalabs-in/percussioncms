@@ -613,10 +613,8 @@ public class MainDTSPreInstall {
       // Easy Connect service form: @//host:port/serviceOrSid — same as CMS DbInstallConfigResolver
       // (multi-tenant PDB service names such as XEPDB1 are not classic SID forms).
       String serviceOrSid = name == null ? "" : name.trim();
-      String resolvedSchema =
-          isBlank(schema) ? (user == null ? "" : user.trim()) : schema.trim();
-      String dtsJdbcUrl =
-          "jdbc:oracle:thin:@//" + host + ":" + port + "/" + serviceOrSid;
+      String resolvedSchema = isBlank(schema) ? (user == null ? "" : user.trim()) : schema.trim();
+      String dtsJdbcUrl = "jdbc:oracle:thin:@//" + host + ":" + port + "/" + serviceOrSid;
       systemProperties.put("perc.db.dts.jdbcUrl", dtsJdbcUrl);
       systemProperties.put("perc.db.dts.jdbcDriver", ORACLE_DRIVER_CLASS);
       systemProperties.put(
@@ -692,8 +690,7 @@ public class MainDTSPreInstall {
     entries.put("db.ssl.enabled", nullToEmpty(systemProperties.get("perc.db.ssl.enabled")));
     entries.put("db.ssl.verify", nullToEmpty(systemProperties.get("perc.db.ssl.verify")));
     entries.put(
-        "db.ssl.allowSelfSigned",
-        nullToEmpty(systemProperties.get("perc.db.ssl.allowSelfSigned")));
+        "db.ssl.allowSelfSigned", nullToEmpty(systemProperties.get("perc.db.ssl.allowSelfSigned")));
     return entries;
   }
 

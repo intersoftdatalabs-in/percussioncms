@@ -10,23 +10,24 @@ Real `-Xlint:this-escape` reduction in `design.objectstore` (+ foundation `PSDbC
 
 ## Findings
 
-| Severity | Finding | Disposition |
-| --- | --- | --- |
-| none | Bugs in ctor/fromXml behavior | Covered by existing XML tests + new `PSDesignObjectStoreThisEscapeTest` (9 tests) |
-| none | Non-portable paths | N/A (no file I/O changes) |
-| note | Residual ~200+ this-escape in design.objectstore | File residual child issues (not suppress) |
-| note | `PSDataSet`/`PSBackEndColumn`/`PSEntry`/`PSUrlRequest` keep overridable `fromXml` for subclasses via private `fromXmlBase` | Correct pattern |
-| note | Leaf types use `final` on methods called from ctors | No subclass overrides verified before finalizing |
+| Severity |                                                          Finding                                                           |                                    Disposition                                    |
+|----------|----------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| none     | Bugs in ctor/fromXml behavior                                                                                              | Covered by existing XML tests + new `PSDesignObjectStoreThisEscapeTest` (9 tests) |
+| none     | Non-portable paths                                                                                                         | N/A (no file I/O changes)                                                         |
+| note     | Residual ~200+ this-escape in design.objectstore                                                                           | File residual child issues (not suppress)                                         |
+| note     | `PSDataSet`/`PSBackEndColumn`/`PSEntry`/`PSUrlRequest` keep overridable `fromXml` for subclasses via private `fromXmlBase` | Correct pattern                                                                   |
+| note     | Leaf types use `final` on methods called from ctors                                                                        | No subclass overrides verified before finalizing                                  |
 
 ## Tests
 
-- `cd system && ../mvnw clean install` — BUILD SUCCESS  
-- Tests run: 1287, Failures: 0, Errors: 0  
-- New: `PSDesignObjectStoreThisEscapeTest` 9/9 pass  
+- `cd system && ../mvnw clean install` — BUILD SUCCESS
+- Tests run: 1287, Failures: 0, Errors: 0
+- New: `PSDesignObjectStoreThisEscapeTest` 9/9 pass
 
 ## Hard gates
 
-- [x] Behavioral unit tests for ctor/fromXml  
-- [x] No suppress-only this-escape  
-- [x] Cross-platform N/A  
-- [x] Module clean install green  
+- [x] Behavioral unit tests for ctor/fromXml
+- [x] No suppress-only this-escape
+- [x] Cross-platform N/A
+- [x] Module clean install green
+

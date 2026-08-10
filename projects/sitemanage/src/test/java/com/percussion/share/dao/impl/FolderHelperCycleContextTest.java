@@ -19,8 +19,8 @@ package com.percussion.share.dao.impl;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.recycle.service.impl.PSRecycleService;
+import com.percussion.share.dao.IPSFolderHelper;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import org.junit.jupiter.api.Tag;
@@ -35,43 +35,36 @@ import org.springframework.context.annotation.Lazy;
  *             -> assetDao        -> contentItemDao       -> folderHelper
  * </pre>
  *
- * <p>Slice A of #2423 (#2435) breaks the cycle by marking the
- * {@code IPSFolderHelper folderHelper} constructor parameter of
- * {@link PSContentItemDao} as {@link Lazy @Lazy}. Without that marker,
- * Spring fails context startup with {@code BeanCurrentlyInCreationException}
- * on Jetty/Rhythmyx startup and the webapp is unusable.
+ * <p>Slice A of #2423 (#2435) breaks the cycle by marking the {@code IPSFolderHelper folderHelper}
+ * constructor parameter of {@link PSContentItemDao} as {@link Lazy @Lazy}. Without that marker,
+ * Spring fails context startup with {@code BeanCurrentlyInCreationException} on Jetty/Rhythmyx
+ * startup and the webapp is unusable.
  *
- * <p>This test (slice B / #2436) is a runtime-witness to that fix at the
- * Java reflection level: it walks every constructor of every cycle bean
- * in the JVM and asserts that the cycle is broken at the constructor
- * parameter level. Specifically:
+ * <p>This test (slice B / #2436) is a runtime-witness to that fix at the Java reflection level: it
+ * walks every constructor of every cycle bean in the JVM and asserts that the cycle is broken at
+ * the constructor parameter level. Specifically:
  *
  * <ul>
- *   <li>The cycle's only back-edge ({@code contentItemDao} -> {@code
- *       folderHelper}) carries {@code @Lazy}.
- *   <li>Every other edge in the cycle is satisfied by an
- *       interface/impl pair that does not depend on a
- *       {@code @Lazy}-breakable cycle edge.
+ *   <li>The cycle's only back-edge ({@code contentItemDao} -> {@code folderHelper}) carries
+ *       {@code @Lazy}.
+ *   <li>Every other edge in the cycle is satisfied by an interface/impl pair that does not depend
+ *       on a {@code @Lazy}-breakable cycle edge.
  * </ul>
  *
- * <p>Why reflection rather than a full {@code ApplicationContext.refresh()}
- * load? The cycle beans each bring field-injected JPA / Hibernate / JCR /
- * Spring-infrastructure collaborators (e.g. {@code @PersistenceContext}
- * on {@code PSWidgetAssetRelationshipDao.emf},
- * {@code @Autowired IPSContentChangeService changeService} on
- * {@code PSWorkflowHelper}). A plain {@code AnnotationConfigApplicationContext}
- * cannot supply those without either a Spring Boot autoconfiguration
- * (this module is not a Spring Boot app — see root {@code AGENTS.md})
- * or an embedded JPA setup that does not exist. Attempting to refresh
- * the context would test Spring's ability to bootstrap the full
- * sitemanage graph, not the cycle fix.
+ * <p>Why reflection rather than a full {@code ApplicationContext.refresh()} load? The cycle beans
+ * each bring field-injected JPA / Hibernate / JCR / Spring-infrastructure collaborators (e.g.
+ * {@code @PersistenceContext} on {@code PSWidgetAssetRelationshipDao.emf}, {@code @Autowired
+ * IPSContentChangeService changeService} on {@code PSWorkflowHelper}). A plain {@code
+ * AnnotationConfigApplicationContext} cannot supply those without either a Spring Boot
+ * autoconfiguration (this module is not a Spring Boot app — see root {@code AGENTS.md}) or an
+ * embedded JPA setup that does not exist. Attempting to refresh the context would test Spring's
+ * ability to bootstrap the full sitemanage graph, not the cycle fix.
  *
- * <p>Slice A's reflection test {@link PSContentItemDaoCycleLazyWiringTest}
- * covers the {@code @Lazy} annotation directly. This slice B test
- * witnesses the fix at the bean-graph level by inspecting the constructor
- * wiring of every cycle bean, so the regression gate spans both layers.
- * Slice C (#2437) is the Docker {@code qa-up} health/login smoke against
- * the running container and exercises the fix in production.
+ * <p>Slice A's reflection test {@link PSContentItemDaoCycleLazyWiringTest} covers the {@code @Lazy}
+ * annotation directly. This slice B test witnesses the fix at the bean-graph level by inspecting
+ * the constructor wiring of every cycle bean, so the regression gate spans both layers. Slice C
+ * (#2437) is the Docker {@code qa-up} health/login smoke against the running container and
+ * exercises the fix in production.
  */
 @Tag("UnitTest")
 public class FolderHelperCycleContextTest {
@@ -127,8 +120,7 @@ public class FolderHelperCycleContextTest {
       }
     }
     assertNotNull(
-        folderHelperParam,
-        "Expected an IPSFolderHelper constructor parameter on PSContentItemDao");
+        folderHelperParam, "Expected an IPSFolderHelper constructor parameter on PSContentItemDao");
     assertTrue(
         folderHelperParam.isAnnotationPresent(Lazy.class),
         "IPSFolderHelper parameter on PSContentItemDao must carry @Lazy to break the "
@@ -136,9 +128,8 @@ public class FolderHelperCycleContextTest {
   }
 
   /**
-   * Returns the single declared constructor (any visibility). Cycle beans are
-   * expected to have exactly one constructor so Spring constructor injection
-   * has an unambiguous wiring path.
+   * Returns the single declared constructor (any visibility). Cycle beans are expected to have
+   * exactly one constructor so Spring constructor injection has an unambiguous wiring path.
    */
   private static Constructor<?> singleDeclaredCtor(Class<?> bean) {
     Constructor<?>[] ctors = bean.getDeclaredConstructors();

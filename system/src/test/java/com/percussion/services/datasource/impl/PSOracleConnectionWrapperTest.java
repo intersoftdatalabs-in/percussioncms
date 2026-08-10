@@ -52,8 +52,8 @@ class PSOracleConnectionWrapperTest {
   }
 
   /**
-   * Minimal stand-in for HikariCP {@code ProxyConnection}: holds a package-visible {@code
-   * delegate} field that the production unwrap walk must discover via reflection.
+   * Minimal stand-in for HikariCP {@code ProxyConnection}: holds a package-visible {@code delegate}
+   * field that the production unwrap walk must discover via reflection.
    */
   private static final class HikariStyleProxy implements Connection {
     @SuppressWarnings("unused") // read via reflection in extractDelegateConnection

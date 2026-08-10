@@ -49,3 +49,4 @@ claiming full E2E install in CI.
 - `npm run test:unit` — 91 pass (includes demo-sites + pathmanagement-url)
 - `npx playwright test --list tests/bugs/bug-1750-demo-sites-sample-site.spec.js` — 2 tests
 - `cd modules/perc-qa-automation && ../../mvnw clean install` — BUILD SUCCESS
+

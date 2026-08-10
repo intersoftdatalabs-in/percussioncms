@@ -42,7 +42,9 @@ test.describe("Developer SE-05 community visibility navigator (#2273)", () => {
     await loginAsAdmin(page);
   });
 
-  test("navigator groups design objects by community visibility", async ({ page }) => {
+  test("navigator groups design objects by community visibility", async ({
+    page,
+  }) => {
     await page.goto(developerCommunityVisibilityUrl(), {
       waitUntil: "networkidle",
     });
@@ -68,12 +70,19 @@ test.describe("Developer SE-05 community visibility navigator (#2273)", () => {
     }
 
     if (await empty.isVisible()) {
-      test.skip(true, "No communities in CMS — cannot exercise SE-05 navigator");
+      test.skip(
+        true,
+        "No communities in CMS — cannot exercise SE-05 navigator",
+      );
       return;
     }
 
-    await expect(page.locator('[data-testid="developer-cvn-tree"]')).toBeVisible();
-    await expect(page.locator('[data-testid="developer-cvn-intro"]')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="developer-cvn-tree"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="developer-cvn-intro"]'),
+    ).toBeVisible();
 
     // First community toggle in the tree (keys are guid/name/id-based).
     const firstToggle = page
@@ -88,7 +97,10 @@ test.describe("Developer SE-05 community visibility navigator (#2273)", () => {
       .first();
     // Resolve key from toggle test id suffix.
     const toggleTestId = await firstToggle.getAttribute("data-testid");
-    const key = (toggleTestId || "").replace("developer-cvn-community-toggle-", "");
+    const key = (toggleTestId || "").replace(
+      "developer-cvn-community-toggle-",
+      "",
+    );
     expect(key.length).toBeGreaterThan(0);
 
     const loading = page.locator(
@@ -104,9 +116,11 @@ test.describe("Developer SE-05 community visibility navigator (#2273)", () => {
       `[data-testid="developer-cvn-community-error-${key}"]`,
     );
 
-    await expect(loading).toBeHidden({ timeout: 30_000 }).catch(() => {
-      // loading may never appear if response was instant
-    });
+    await expect(loading)
+      .toBeHidden({ timeout: 30_000 })
+      .catch(() => {
+        // loading may never appear if response was instant
+      });
     await expect(typeGroups.or(commEmpty).or(commError).first()).toBeVisible({
       timeout: 30_000,
     });
@@ -149,7 +163,9 @@ test.describe("Developer SE-05 community visibility navigator (#2273)", () => {
     // Collapse community again — navigator chrome remains.
     await firstToggle.click();
     await expect(typeGroups).toBeHidden({ timeout: 5_000 });
-    await expect(page.locator('[data-testid="developer-cvn-tree"]')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="developer-cvn-tree"]'),
+    ).toBeVisible();
 
     // Silence unused variable when filter path unused.
     void firstCommunityItem;

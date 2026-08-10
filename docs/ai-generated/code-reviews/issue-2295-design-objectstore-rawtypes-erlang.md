@@ -14,13 +14,13 @@ Parameterizes rawtypes/unchecked in `PSReplacementValueFactory` (~41 diagnostics
 
 ## Gate
 
-| Check | Result |
-| --- | --- |
-| Bugs | none |
-| Behavioral unit tests for new/changed logic | yes (12 tests) |
-| Portable paths / file I/O | N/A (no path I/O) |
-| Scope confined | yes (one production file + one test) |
-| May commit/push | **yes** |
+|                    Check                    |                Result                |
+|---------------------------------------------|--------------------------------------|
+| Bugs                                        | none                                 |
+| Behavioral unit tests for new/changed logic | yes (12 tests)                       |
+| Portable paths / file I/O                   | N/A (no path I/O)                    |
+| Scope confined                              | yes (one production file + one test) |
+| May commit/push                             | **yes**                              |
 
 ## Issues
 
@@ -40,3 +40,4 @@ None.
 - `cd system` → `../mvnw.cmd clean install` → **BUILD SUCCESS**
 - Tests run: **1182**, Failures: **0**, Errors: **0**, Skipped: **240**
 - Touched file rawtypes/unchecked: **41 → 0** (`PSReplacementValueFactory.java`)
+

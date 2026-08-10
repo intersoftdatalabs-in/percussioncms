@@ -26,8 +26,8 @@ import org.junit.jupiter.api.Test;
 /**
  * Guards installer silent-path taskdefs shipped via {@code com/percussion/ant/antlib.xml}.
  *
- * <p>Matrix / {@code perc-devctl qa-up} H2 installs load tasks only through this antlib resource.
- * A task class present on the classpath but missing from antlib fails with {@code failed to create
+ * <p>Matrix / {@code perc-devctl qa-up} H2 installs load tasks only through this antlib resource. A
+ * task class present on the classpath but missing from antlib fails with {@code failed to create
  * task or type &lt;Name&gt;} mid-install (see #2065 golden smoke / #548 repository password).
  */
 @Tag("UnitTest")

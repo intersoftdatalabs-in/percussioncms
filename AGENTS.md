@@ -122,7 +122,7 @@ Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/pro
 | UI feature “done” but QA/E2E missing                                                                     | Vitest/unit only; product screen requires Playwright companion                                                           |
 | REST resource “done” but rest suite broken                                                               | Mockito resource test only; no Spring test stub for adaptor interface; or sitemanage impl without rest interface closure |
 | Works on author machine, fails Windows/Linux CI                                                          | Non-portable paths, wrong separators, case-only assumptions                                                              |
-| PR “fixed” but merge still blocked                                                                       | Code fix without review-thread reply/resolve; incomplete gates                               |
+| PR “fixed” but merge still blocked                                                                       | Code fix without review-thread reply/resolve; incomplete gates                                                           |
 
 ### Mandatory method (every non-trivial change)
 
@@ -163,10 +163,10 @@ Intersoft Data Labs maintains Percussion CMS under the **Apache License 2.0**. C
 
 ### Rule (by file birth year)
 
-| When the file was **first added** to this repo | Copyright line |
-|------------------------------------------------|----------------|
-| **On or after 2023-01-01** (new product/work after the open-source handoff) | `Copyright (c) <YEAR> Intersoft Data Labs, Inc.` |
-| **Before 2023-01-01** (legacy Percussion lineage) | Keep **Percussion Software, Inc.** headers as-is (do not “upgrade” them to Intersoft) |
+|               When the file was **first added** to this repo                |                                    Copyright line                                     |
+|-----------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| **On or after 2023-01-01** (new product/work after the open-source handoff) | `Copyright (c) <YEAR> Intersoft Data Labs, Inc.`                                      |
+| **Before 2023-01-01** (legacy Percussion lineage)                           | Keep **Percussion Software, Inc.** headers as-is (do not “upgrade” them to Intersoft) |
 
 * **`<YEAR>` for new files created today:** use the **current calendar year** (**2026** as of this writing). Do not invent multi-year ranges on brand-new files unless the project already uses a range for that file.
 * **Retroactive corrections:** any file first added **≥ 2023** that still says Percussion Software must be rewritten to Intersoft Data Labs (use the file’s first-add year for `<YEAR>`, or the current year if unknown).

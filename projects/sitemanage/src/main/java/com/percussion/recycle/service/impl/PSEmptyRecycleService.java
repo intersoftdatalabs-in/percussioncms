@@ -127,8 +127,7 @@ public class PSEmptyRecycleService implements IPSEmptyRecycleService {
     return result;
   }
 
-  private void requireAdmin()
-      throws PSDataServiceException, PSEmptyRecycleNotAuthorizedException {
+  private void requireAdmin() throws PSDataServiceException, PSEmptyRecycleNotAuthorizedException {
     var current = userService.getCurrentUser();
     String name = current != null ? current.getName() : null;
     if (StringUtils.isBlank(name) || !userService.isAdminUser(name)) {

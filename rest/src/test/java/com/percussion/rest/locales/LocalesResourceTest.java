@@ -107,8 +107,7 @@ public class LocalesResourceTest {
   @Test
   public void missingAdaptorReturnsServiceUnavailableOnList() {
     LocalesResource bare = newLocalesResourceWithoutAdaptor();
-    WebApplicationException ex =
-        assertThrows(WebApplicationException.class, bare::listLocales);
+    WebApplicationException ex = assertThrows(WebApplicationException.class, bare::listLocales);
     assertEquals(503, ex.getResponse().getStatus());
     // Misconfiguration path must not log as unexpected failure
     verify(mockLog, never()).error(any(String.class), any(), any(), any());
@@ -126,8 +125,7 @@ public class LocalesResourceTest {
 
   @Test
   public void getLocaleRethrowsWebApplicationException() {
-    WebApplicationException mapped =
-        new WebApplicationException("from adaptor", 404);
+    WebApplicationException mapped = new WebApplicationException("from adaptor", 404);
     when(adaptor.getLocale(any(), eq("xx"))).thenThrow(mapped);
 
     WebApplicationException ex =

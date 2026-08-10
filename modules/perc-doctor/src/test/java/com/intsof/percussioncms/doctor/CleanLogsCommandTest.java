@@ -49,8 +49,7 @@ class CleanLogsCommandTest {
   void setUp() throws Exception {
     installRoot = Files.createDirectories(tempDir.resolve("cms-install"));
     jettyLogs =
-        Files.createDirectories(
-            installRoot.resolve("jetty").resolve("base").resolve("logs"));
+        Files.createDirectories(installRoot.resolve("jetty").resolve("base").resolve("logs"));
     dtsLogs =
         Files.createDirectories(
             installRoot.resolve("Deployment").resolve("Server").resolve("logs"));
@@ -82,8 +81,7 @@ class CleanLogsCommandTest {
 
   @Test
   void dryRunNeverDeletesWithAgeAndKeepCurrent() throws Exception {
-    CleanLogsCommand.Options opts =
-        new CleanLogsCommand.Options(Duration.ofDays(7), true);
+    CleanLogsCommand.Options opts = new CleanLogsCommand.Options(Duration.ofDays(7), true);
     CleanReport report = CleanLogsCommand.execute(installRoot, true, opts);
 
     assertTrue(report.isDryRun());
@@ -112,8 +110,7 @@ class CleanLogsCommandTest {
 
   @Test
   void applyDeletesOnlyAgedNonCurrentUnderRoot() throws Exception {
-    CleanLogsCommand.Options opts =
-        new CleanLogsCommand.Options(Duration.ofDays(7), true);
+    CleanLogsCommand.Options opts = new CleanLogsCommand.Options(Duration.ofDays(7), true);
     CleanReport report = CleanLogsCommand.execute(installRoot, false, opts);
 
     assertFalse(report.isDryRun());
@@ -129,8 +126,7 @@ class CleanLogsCommandTest {
 
   @Test
   void keepCurrentFalseAllowsDeletingActiveLogWhenAged() throws Exception {
-    CleanLogsCommand.Options opts =
-        new CleanLogsCommand.Options(Duration.ofDays(7), false);
+    CleanLogsCommand.Options opts = new CleanLogsCommand.Options(Duration.ofDays(7), false);
     CleanReport report = CleanLogsCommand.execute(installRoot, false, opts);
 
     assertFalse(Files.exists(serverLog), "active log deletable when keep-current off and aged");
@@ -232,8 +228,7 @@ class CleanLogsCommandTest {
   @Test
   void optionsRejectNonPositiveOlderThan() {
     assertThrows(
-        IllegalArgumentException.class,
-        () -> new CleanLogsCommand.Options(Duration.ZERO, true));
+        IllegalArgumentException.class, () -> new CleanLogsCommand.Options(Duration.ZERO, true));
     assertThrows(
         IllegalArgumentException.class,
         () -> new CleanLogsCommand.Options(Duration.ofSeconds(-1), true));

@@ -67,14 +67,15 @@ class MainDTSPreInstallResolveDbConfigTest {
     Path propsFile = tempDir.resolve("perc-datasources.properties");
     // Seed a sample default so write merges rather than creating only our keys.
     Files.writeString(
-        propsFile,
-        "jdbcUrl=jdbc:h2:file:./DTSDB/percDB;IFEXISTS=TRUE\njdbcDriver=org.h2.Driver\n");
+        propsFile, "jdbcUrl=jdbc:h2:file:./DTSDB/percDB;IFEXISTS=TRUE\njdbcDriver=org.h2.Driver\n");
     MainDTSPreInstall.writeDtsDatasourceProperties(propsFile, p);
 
     Properties written = loadProps(propsFile);
-    assertEquals("jdbc:postgresql://pg.example.com:5432/percussion", written.getProperty("jdbcUrl"));
+    assertEquals(
+        "jdbc:postgresql://pg.example.com:5432/percussion", written.getProperty("jdbcUrl"));
     assertEquals("org.postgresql.Driver", written.getProperty("jdbcDriver"));
-    assertEquals("org.hibernate.dialect.PostgreSQLDialect", written.getProperty("hibernate.dialect"));
+    assertEquals(
+        "org.hibernate.dialect.PostgreSQLDialect", written.getProperty("hibernate.dialect"));
     assertEquals("public", written.getProperty("db.schema"));
     assertEquals("cms", written.getProperty("db.username"));
     assertEquals("s3cret", written.getProperty("db.password"));
@@ -89,8 +90,7 @@ class MainDTSPreInstallResolveDbConfigTest {
     MainDTSPreInstall.ResolvedDbConfig cfg = MainDTSPreInstall.resolveDbConfig(opts);
     Map<String, String> p = cfg.systemProperties();
     assertEquals("oracle", p.get("perc.db.type"));
-    assertEquals(
-        "jdbc:oracle:thin:@//ora.example.com:1521/ORCL", p.get("perc.db.dts.jdbcUrl"));
+    assertEquals("jdbc:oracle:thin:@//ora.example.com:1521/ORCL", p.get("perc.db.dts.jdbcUrl"));
     assertEquals(MainDTSPreInstall.ORACLE_DRIVER_CLASS, p.get("perc.db.dts.jdbcDriver"));
     assertEquals("org.hibernate.dialect.Oracle12cDialect", p.get("perc.db.dts.hibernateDialect"));
     assertEquals("percuser", p.get("perc.db.dts.schema"));
@@ -123,10 +123,10 @@ class MainDTSPreInstallResolveDbConfigTest {
     Path propsFile = tempDir.resolve("perc-datasources-oracle.properties");
     MainDTSPreInstall.writeDtsDatasourceProperties(propsFile, cfg.systemProperties());
     Properties written = loadProps(propsFile);
-    assertEquals(
-        "jdbc:oracle:thin:@//ora.example.com:1521/XEPDB1", written.getProperty("jdbcUrl"));
+    assertEquals("jdbc:oracle:thin:@//ora.example.com:1521/XEPDB1", written.getProperty("jdbcUrl"));
     assertEquals(MainDTSPreInstall.ORACLE_DRIVER_CLASS, written.getProperty("jdbcDriver"));
-    assertEquals("org.hibernate.dialect.Oracle12cDialect", written.getProperty("hibernate.dialect"));
+    assertEquals(
+        "org.hibernate.dialect.Oracle12cDialect", written.getProperty("hibernate.dialect"));
     assertEquals("PERC", written.getProperty("db.schema"));
   }
 
@@ -135,8 +135,7 @@ class MainDTSPreInstallResolveDbConfigTest {
     Map<String, String> opts = new HashMap<>();
     opts.put("db.type", "cockroach");
     IllegalArgumentException ex =
-        assertThrows(
-            IllegalArgumentException.class, () -> MainDTSPreInstall.resolveDbConfig(opts));
+        assertThrows(IllegalArgumentException.class, () -> MainDTSPreInstall.resolveDbConfig(opts));
     assertTrue(ex.getMessage().contains("cockroach"));
     assertTrue(ex.getMessage().toLowerCase().contains("allowed"));
   }
@@ -147,8 +146,7 @@ class MainDTSPreInstallResolveDbConfigTest {
     opts.put("db.type", "oracle");
     opts.put("db.password", "super-secret-pw");
     IllegalArgumentException ex =
-        assertThrows(
-            IllegalArgumentException.class, () -> MainDTSPreInstall.resolveDbConfig(opts));
+        assertThrows(IllegalArgumentException.class, () -> MainDTSPreInstall.resolveDbConfig(opts));
     assertTrue(ex.getMessage().contains("db.host"));
     assertFalse(ex.getMessage().contains("super-secret-pw"));
   }

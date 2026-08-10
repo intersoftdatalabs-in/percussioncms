@@ -198,7 +198,11 @@ test.describe("Inline link title field residual (#2243 / #946 slice 4)", () => {
     ).toBe(true);
 
     // 4) Custom field name that is often present on pages (page_title)
-    const customUrl = buildRenderLinkPreviewUrl(BASE_URL, item.id, "page_title");
+    const customUrl = buildRenderLinkPreviewUrl(
+      BASE_URL,
+      item.id,
+      "page_title",
+    );
     const customRes = await request.get(customUrl, { headers });
     expect(customRes.status(), "GET preview?titleField=page_title").toBe(200);
     const customTitle = extractTitleFromPreviewBody(await customRes.json());

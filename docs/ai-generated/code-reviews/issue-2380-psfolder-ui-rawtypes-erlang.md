@@ -6,6 +6,7 @@
 **Date:** 2026-08-08
 
 ## Scope
+
 Parameterize Swing list/combo models and iterators in:
 - PSFolderSecurityPanel
 - PSFolderGeneralPanel
@@ -14,6 +15,7 @@ Parameterize Swing list/combo models and iterators in:
 Residual left: PSFolderAclEditorDialog (~90 diags) — follow-up issue.
 
 ## Checklist
+
 - [x] No intentional product behavior change (typing only + extract pure helpers)
 - [x] Real generics preferred over class-level suppress
 - [x] Cross-platform: no path I/O changes
@@ -22,7 +24,9 @@ Residual left: PSFolderAclEditorDialog (~90 diags) — follow-up issue.
 - [x] No new production bugs found in typed conversions (instanceof guards on raw upstream iterators)
 
 ## Findings
+
 None blocking. Optional residual: PSFolderAclEditorDialog still raw; Security panel still depends on raw getResultAclEntries() until that dialog is parameterized.
 
 ## Verdict
+
 **PASS** — ready for commit/PR.

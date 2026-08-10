@@ -26,8 +26,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
- * Behavioral tests for typed metadata result construction in {@link
- * PSFileSystemDatabaseMetaData}.
+ * Behavioral tests for typed metadata result construction in {@link PSFileSystemDatabaseMetaData}.
  */
 @Tag("UnitTest")
 class PSFileSystemDatabaseMetaDataTypedTest {

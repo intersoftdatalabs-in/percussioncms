@@ -51,12 +51,16 @@ public class DoctorRequest {
    */
   private Boolean keepCurrent;
 
-  /** @return dry-run flag as sent by client; may be null */
+  /**
+   * @return dry-run flag as sent by client; may be null
+   */
   public Boolean getDryRun() {
     return dryRun;
   }
 
-  /** @param dryRun dry-run flag; null means default true */
+  /**
+   * @param dryRun dry-run flag; null means default true
+   */
   public void setDryRun(Boolean dryRun) {
     this.dryRun = dryRun;
   }
@@ -70,32 +74,44 @@ public class DoctorRequest {
     return dryRun == null || Boolean.TRUE.equals(dryRun);
   }
 
-  /** @return optional install root path string */
+  /**
+   * @return optional install root path string
+   */
   public String getInstallRoot() {
     return installRoot;
   }
 
-  /** @param installRoot optional install root */
+  /**
+   * @param installRoot optional install root
+   */
   public void setInstallRoot(String installRoot) {
     this.installRoot = installRoot;
   }
 
-  /** @return optional older-than duration token for clean-logs */
+  /**
+   * @return optional older-than duration token for clean-logs
+   */
   public String getOlderThan() {
     return olderThan;
   }
 
-  /** @param olderThan optional duration token */
+  /**
+   * @param olderThan optional duration token
+   */
   public void setOlderThan(String olderThan) {
     this.olderThan = olderThan;
   }
 
-  /** @return keep-current flag; may be null */
+  /**
+   * @return keep-current flag; may be null
+   */
   public Boolean getKeepCurrent() {
     return keepCurrent;
   }
 
-  /** @param keepCurrent keep-current flag for clean-logs */
+  /**
+   * @param keepCurrent keep-current flag for clean-logs
+   */
   public void setKeepCurrent(Boolean keepCurrent) {
     this.keepCurrent = keepCurrent;
   }

@@ -23,7 +23,6 @@ import static com.percussion.utils.request.PSRequestInfoBase.getRequestInfo;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.percussion.content.IPSMimeContentTypes;
-import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.security.IPSSecurityErrors;
 import com.percussion.security.PSAuthenticationFailedException;
@@ -33,6 +32,7 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestParsingException;
 import com.percussion.server.PSServer;
 import com.percussion.server.PSUserSessionManager;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.tools.PSURIEncoder;
 import com.percussion.utils.tools.IPSUtilsConstants;

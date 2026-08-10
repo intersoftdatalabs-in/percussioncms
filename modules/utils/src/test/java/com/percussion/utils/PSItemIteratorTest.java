@@ -54,8 +54,8 @@ public class PSItemIteratorTest {
     /**
      * Ctor
      *
-     * @param things map of values (simple map or multi-map {@code asMap()} view); production accepts
-     *     {@code Map<?, ?>}
+     * @param things map of values (simple map or multi-map {@code asMap()} view); production
+     *     accepts {@code Map<?, ?>}
      * @param filterpattern
      */
     protected TestItemIterator(Map<?, ?> things, String filterpattern) {

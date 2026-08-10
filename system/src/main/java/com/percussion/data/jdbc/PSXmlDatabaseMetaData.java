@@ -1875,13 +1875,11 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
       List<Integer> data_type =
           Collections.nCopies(numRows, Integer.valueOf(java.sql.Types.VARCHAR));
       List<String> type_name = Collections.nCopies(numRows, "java.lang.String");
-      List<Integer> column_size =
-          Collections.nCopies(numRows, Integer.valueOf(Integer.MAX_VALUE));
+      List<Integer> column_size = Collections.nCopies(numRows, Integer.valueOf(Integer.MAX_VALUE));
       List<Integer> buffer_length = Collections.nCopies(numRows, zero);
       List<Integer> decimal_digits = Collections.nCopies(numRows, zero);
       List<Integer> num_prec_radix = Collections.nCopies(numRows, zero);
-      List<Integer> nullable =
-          Collections.nCopies(numRows, Integer.valueOf(columnNoNulls));
+      List<Integer> nullable = Collections.nCopies(numRows, Integer.valueOf(columnNoNulls));
       List<String> remarks = Collections.nCopies(numRows, (String) null);
       List<String> column_def = Collections.nCopies(numRows, (String) null);
       List<Integer> sql_data_type = Collections.nCopies(numRows, zero);
@@ -2687,8 +2685,7 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
    * @param fieldHash The hash to which fields will be added.
    * @deprecated You should call getFields(File)
    */
-  private static void getFields(
-      Element rootElement, String path, Map<String, Boolean> fieldHash) {
+  private static void getFields(Element rootElement, String path, Map<String, Boolean> fieldHash) {
     /* Go through each child c of the rootElement with this strategy:
      *
      * If c is an Element node, then add its path to the hash if not

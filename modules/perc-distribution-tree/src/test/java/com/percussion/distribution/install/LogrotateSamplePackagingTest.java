@@ -30,24 +30,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Issue #2348: CMS distribution ships default Linux logrotate samples + Windows clean-logs
- * guidance under {@code rxconfig/Installer/logrotate/}.
+ * Issue #2348: CMS distribution ships default Linux logrotate samples + Windows clean-logs guidance
+ * under {@code rxconfig/Installer/logrotate/}.
  *
- * <p>Structural source contracts only (no live logrotate, no root). Samples must stay portable
- * (no developer home paths), cover CMS Jetty + DTS Tomcat roots, prefer {@code copytruncate}, and
+ * <p>Structural source contracts only (no live logrotate, no root). Samples must stay portable (no
+ * developer home paths), cover CMS Jetty + DTS Tomcat roots, prefer {@code copytruncate}, and
  * remain opt-in (not auto-enabled).
  */
 class LogrotateSamplePackagingTest {
 
   private static final Path LOGROTATE_DIR =
-      Path.of(
-          "src",
-          "main",
-          "resources",
-          "distribution",
-          "rxconfig",
-          "Installer",
-          "logrotate");
+      Path.of("src", "main", "resources", "distribution", "rxconfig", "Installer", "logrotate");
 
   private static final Path PERCUSSION_CMS = LOGROTATE_DIR.resolve("percussion-cms");
   private static final Path PERCUSSION_DTS = LOGROTATE_DIR.resolve("percussion-dts");
@@ -95,8 +88,7 @@ class LogrotateSamplePackagingTest {
     String text = Files.readString(PERCUSSION_DTS, StandardCharsets.UTF_8);
     assertFalse(HARDCODED_USER_HOME.matcher(text).find(), "DTS policy must not hardcode user home");
     assertTrue(
-        text.contains("Deployment/Server/logs"),
-        "DTS policy must include Deployment/Server/logs");
+        text.contains("Deployment/Server/logs"), "DTS policy must include Deployment/Server/logs");
     assertTrue(text.contains("*.log") && text.contains("*.out"), "DTS globs for log and out");
     assertTrue(
         text.contains("catalina.out") || text.contains("*.out"),
@@ -112,8 +104,7 @@ class LogrotateSamplePackagingTest {
     assertFalse(HARDCODED_USER_HOME.matcher(text).find(), "README must not hardcode user home");
     assertTrue(text.contains("logrotate -d"), "README must document logrotate dry-run");
     assertTrue(text.contains("/etc/logrotate.d"), "README must document logrotate.d install path");
-    assertTrue(
-        text.toLowerCase().contains("copytruncate"), "README must explain copytruncate");
+    assertTrue(text.toLowerCase().contains("copytruncate"), "README must explain copytruncate");
     assertTrue(
         text.contains("Log4j") || text.contains("Log4j2"),
         "README must document Log4j coexistence");
@@ -160,8 +151,7 @@ class LogrotateSamplePackagingTest {
         "doc comment must describe three-level climb");
     // Behavioral path math: three parents of .../rxconfig/Installer/logrotate == install root
     Path installRoot = Path.of("install-root").toAbsolutePath().normalize();
-    Path scriptDir =
-        installRoot.resolve("rxconfig").resolve("Installer").resolve("logrotate");
+    Path scriptDir = installRoot.resolve("rxconfig").resolve("Installer").resolve("logrotate");
     Path resolved = scriptDir.resolve("..").resolve("..").resolve("..").normalize();
     assertEquals(
         installRoot,

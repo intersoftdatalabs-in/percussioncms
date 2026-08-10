@@ -83,7 +83,6 @@ Automated nightly i18n translation refresh for the 16 base locales.
   ```bash
   ./scripts/nightly-i18n-refresh.sh --locale de
   ```
-
 - **Pre-flight checks**: Verifies `trans` (translate-shell) is on PATH, working tree is clean (in the worktree), on `main` branch (or detached HEAD at `origin/main` — git disallows two worktrees on the same branch), and `gh` is authenticated.
 - **Pipeline**: Ensures worktree exists → fetches origin/main → checks for existing PR → creates branch → runs `i18n_translate_direct.py --target <locale>` → runs `i18n_translate_direct.py --target <locale> --fix-matching-en` → commits → pushes → creates PR.
 - **No spotless**: This wrapper does **not** invoke `mvnw spotless:apply`. The perc-i18n spotless config targets JSON (which we exclude due to the 4 MB translation cache) and the eclipseWtp XML formatter hangs on this environment's Eclipse OSGi classloader. TMX formatting is left to the translation script itself per `modules/perc-i18n/AGENTS.md`. The `scripts/cache/**` exclude in `modules/perc-i18n/pom.xml` is kept as defense in depth for manual spotless runs.

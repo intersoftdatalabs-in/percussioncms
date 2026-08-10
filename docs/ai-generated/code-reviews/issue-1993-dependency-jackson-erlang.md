@@ -12,13 +12,13 @@
 
 ## Gates
 
-| Check | Result |
-|-------|--------|
-| Bugs / RT correctness | Pass — `PSSystemDataXmlSerializationTest` 16/16 green; system `clean install` BUILD SUCCESS |
-| Behavioral unit tests | Pass — golden + RT + legacy `<null>` root for both types |
-| Cross-platform paths | Pass — no new filesystem path construction (classpath resources only) |
+|          Check          |                                                           Result                                                           |
+|-------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| Bugs / RT correctness   | Pass — `PSSystemDataXmlSerializationTest` 16/16 green; system `clean install` BUILD SUCCESS                                |
+| Behavioral unit tests   | Pass — golden + RT + legacy `<null>` root for both types                                                                   |
+| Cross-platform paths    | Pass — no new filesystem path construction (classpath resources only)                                                      |
 | Change-class companions | Pass — domain annotations, `addType("dependent")`, goldens, deviations doc; peer pattern matches #1920 `PSAuditTrail` nest |
-| Spotless | Pass — apply then check on in-scope files; out-of-scope reformats discarded |
+| Spotless                | Pass — apply then check on in-scope files; out-of-scope reformats discarded                                                |
 
 ## Notes
 
@@ -35,3 +35,4 @@
 ## Memory patterns hit
 
 - Jackson domain batch: opt-in `@JsonAutoDetect`, root element, nested wrapper + item name, golden/RT/legacy-null triad
+

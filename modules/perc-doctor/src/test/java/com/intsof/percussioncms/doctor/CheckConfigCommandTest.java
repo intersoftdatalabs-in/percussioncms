@@ -50,7 +50,8 @@ class CheckConfigCommandTest {
     // Missing configs are WARN, not FAIL — install may be partial.
     assertTrue(report.isHealthy(), "missing optional configs should be WARN not FAIL");
     assertTrue(report.getWarnCount() >= 2);
-    assertTrue(hasStatusId(report, CheckConfigReport.CheckStatus.WARN, "server.properties.present"));
+    assertTrue(
+        hasStatusId(report, CheckConfigReport.CheckStatus.WARN, "server.properties.present"));
     assertTrue(
         hasStatusId(report, CheckConfigReport.CheckStatus.WARN, "rxrepository.properties.present"));
   }
@@ -166,8 +167,7 @@ class CheckConfigCommandTest {
 
     assertTrue(Files.exists(marker));
     assertEquals(before, Files.walk(installRoot).count());
-    assertEquals(
-        "keep", Files.readString(marker, StandardCharsets.UTF_8));
+    assertEquals("keep", Files.readString(marker, StandardCharsets.UTF_8));
   }
 
   @Test

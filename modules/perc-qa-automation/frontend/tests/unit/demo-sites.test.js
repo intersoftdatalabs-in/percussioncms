@@ -21,8 +21,14 @@ const {
 
 describe("normalizeSiteName", () => {
   it("trims, collapses space, and maps underscores", () => {
-    assert.equal(normalizeSiteName("  Corporate_Investments "), "corporate investments");
-    assert.equal(normalizeSiteName("Enterprise Investments"), "enterprise investments");
+    assert.equal(
+      normalizeSiteName("  Corporate_Investments "),
+      "corporate investments",
+    );
+    assert.equal(
+      normalizeSiteName("Enterprise Investments"),
+      "enterprise investments",
+    );
   });
 
   it("handles empty values", () => {
@@ -80,7 +86,10 @@ describe("hasAllExpectedSampleSites / hasAnyExpectedSampleSite", () => {
 describe("shouldEnforceDemoSites", () => {
   it("accepts truthy aliases on both env keys", () => {
     assert.equal(shouldEnforceDemoSites({ EXPECT_DEMO_SITES: "1" }), true);
-    assert.equal(shouldEnforceDemoSites({ TEST_EXPECT_DEMO_SITES: "true" }), true);
+    assert.equal(
+      shouldEnforceDemoSites({ TEST_EXPECT_DEMO_SITES: "true" }),
+      true,
+    );
     assert.equal(shouldEnforceDemoSites({ EXPECT_DEMO_SITES: "yes" }), true);
     assert.equal(shouldEnforceDemoSites({ EXPECT_DEMO_SITES: "0" }), false);
     assert.equal(shouldEnforceDemoSites({}), false);

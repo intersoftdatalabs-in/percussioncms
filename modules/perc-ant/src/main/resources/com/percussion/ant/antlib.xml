@@ -120,8 +120,8 @@
 		classname="com.percussion.ant.install.PSMakeLasagna" />
 	<taskdef name="PSValidateRepositoryConnection"
 		classname="com.percussion.ant.install.PSValidateRepositoryConnection" />
-	<!-- Silent / H2 matrix installs (#548/#1500): random cmdb.password when unset.
-		Must be registered here — installRepository.xml uses <PSGenerateRepositoryPassword>
+	<!-- Silent / H2 matrix installs (#548/#1500): random cmdb.password when
+		unset. Must be registered here — installRepository.xml uses <PSGenerateRepositoryPassword>
 		via taskdef resource="com/percussion/ant/antlib.xml" (qa-up blocker if missing). -->
 	<taskdef name="PSGenerateRepositoryPassword"
 		classname="com.percussion.ant.install.PSGenerateRepositoryPassword" />
@@ -171,8 +171,8 @@
 	<!-- #1547 one-time i18n locale code rewrite (sys_lang + CONTENTSTATUS.LOCALE) -->
 	<taskdef name="PSMigrateI18nLocaleCodes"
 		classname="com.percussion.ant.install.PSMigrateI18nLocaleCodes" />
-	<!-- #2303 pure-Java strip of RXLOCALE/RXLOCALEFORMAT from demo-site seed XML
-		(replaces Nashorn javax.script javascript in installRepository.xml). -->
+	<!-- #2303 pure-Java strip of RXLOCALE/RXLOCALEFORMAT from demo-site seed
+		XML (replaces Nashorn javax.script javascript in installRepository.xml). -->
 	<taskdef name="PSStripSampleLocales"
 		classname="com.percussion.ant.install.PSStripSampleLocales" />
 	<taskdef name="PSUpgradeEncryption"

@@ -17,8 +17,8 @@
 
 package com.percussion.taxonomy.web;
 
-import com.percussion.taxonomy.domain.Related_node;
 import com.percussion.taxonomy.TaxonomySecurityHelper;
+import com.percussion.taxonomy.domain.Related_node;
 import com.percussion.taxonomy.service.Related_nodeService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -65,9 +65,8 @@ import org.springframework.context.annotation.Lazy;
  *
  * <p>Those peers sit on or next to the known {@code folderHelper → … → contentItemDao →
  * folderHelper} chain (broken by {@code @Lazy} on {@link PSContentItemDao}). A reverse constructor
- * (or eager field) edge from any of those peers / page-item hubs back to {@link
- * IPSSiteDataService} would form a new creation cycle independent of the contentItemDao {@code
- * @Lazy} break:
+ * (or eager field) edge from any of those peers / page-item hubs back to {@link IPSSiteDataService}
+ * would form a new creation cycle independent of the contentItemDao {@code @Lazy} break:
  *
  * <pre>
  * folderHelper → recycle → widgetAsset → assetDao → contentItemDao → folderHelper
@@ -83,9 +82,9 @@ import org.springframework.context.annotation.Lazy;
  * IPSSiteDataService} (ctor or field). Downstream consumers (path items, REST adaptors, publish
  * handlers) remain allowed — they are not cycle fuel.
  *
- * <p>Peers: {@link
- * com.percussion.share.dao.impl.PSItemWorkflowServiceHubReverseEdgeWiringTest}, {@code
- * PSPageServiceCycleWiringTest}, {@code PSContentItemDaoCycleLazyWiringTest}. Inventory: {@code
+ * <p>Peers: {@link com.percussion.share.dao.impl.PSItemWorkflowServiceHubReverseEdgeWiringTest},
+ * {@code PSPageServiceCycleWiringTest}, {@code PSContentItemDaoCycleLazyWiringTest}. Inventory:
+ * {@code
  * docs/ai-generated/tasks/2423-spring-injection-cycle/sitemanage-injection-cycle-inventory.md}.
  */
 @Tag("UnitTest")
@@ -179,8 +178,8 @@ public class PSSiteDataServiceHubReverseEdgeWiringTest {
    * hub is the same class of reverse edge as a constructor param (class-level {@code @Lazy} on the
    * peer does not break an eager field edge from a bean already under construction).
    *
-   * <p>Also flags unannotated fields of that type (legacy XML/setter surfaces) unless marked {@code
-   * @Lazy}.
+   * <p>Also flags unannotated fields of that type (legacy XML/setter surfaces) unless marked
+   * {@code @Lazy}.
    *
    * <p><strong>Intentional exceptions:</strong> none among {@link #CYCLE_PEERS_AND_PAGE_ITEM_HUBS}
    * as of #2516. If a peer later needs a reverse edge, add field/param {@code @Lazy} and document
@@ -242,9 +241,9 @@ public class PSSiteDataServiceHubReverseEdgeWiringTest {
   }
 
   /**
-   * Prefer a single {@code @Autowired} declared constructor (Spring wiring ctor), then fall back
-   * to the single public constructor. Avoids missing a non-public wiring ctor when a public
-   * no-arg also exists (#2516 review).
+   * Prefer a single {@code @Autowired} declared constructor (Spring wiring ctor), then fall back to
+   * the single public constructor. Avoids missing a non-public wiring ctor when a public no-arg
+   * also exists (#2516 review).
    */
   private static Constructor<?> singlePublicConstructor(Class<?> type)
       throws NoSuchMethodException {

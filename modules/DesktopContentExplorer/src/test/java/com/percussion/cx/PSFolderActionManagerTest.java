@@ -32,8 +32,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 /**
- * Behavioral tests for pure helpers on {@link PSFolderActionManager} (CM1 site filter +
- * node/folder conversions) after rawtypes cleanup.
+ * Behavioral tests for pure helpers on {@link PSFolderActionManager} (CM1 site filter + node/folder
+ * conversions) after rawtypes cleanup.
  */
 public class PSFolderActionManagerTest {
 
@@ -44,8 +44,7 @@ public class PSFolderActionManagerTest {
 
     PSNode keep = folder("keep-" + UUID.randomUUID(), "Keep");
     PSNode drop = folder(dropName, dropName);
-    List<PSNode> filtered =
-        PSFolderActionManager.removeCM1SiteFolders(Arrays.asList(keep, drop));
+    List<PSNode> filtered = PSFolderActionManager.removeCM1SiteFolders(Arrays.asList(keep, drop));
 
     assertEquals(1, filtered.size());
     assertEquals(keep.getName(), filtered.get(0).getName());
@@ -86,8 +85,7 @@ public class PSFolderActionManagerTest {
     PSNode n1 = folderWithId("n1", 101);
     PSNode n2 = folderWithId("n2", 202);
 
-    List<PSFolder> folders =
-        PSFolderActionManager.nodesToFolders(Arrays.asList(n1, n2).iterator());
+    List<PSFolder> folders = PSFolderActionManager.nodesToFolders(Arrays.asList(n1, n2).iterator());
     assertEquals(2, folders.size());
     assertEquals(101, folders.get(0).getLocator().getId());
     assertEquals(202, folders.get(1).getLocator().getId());

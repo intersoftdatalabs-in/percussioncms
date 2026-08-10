@@ -4,13 +4,14 @@
 
 Real fixes for the five residual `-Xlint` diagnostics on
 `com.percussion.cx.PSFolderDialog` (parent #2045 / monorepo #2200 / residual of
-#2380):
 
-| Kind | Fix |
-|------|-----|
-| `this-escape` | Class made `final` (no subclasses); early `setResizable(true)` removed (still applied in `initDialog()`) |
-| `serial` (×4) | `m_parentFolderNode`, `m_folderNode`, `m_folderMgr`, `m_userInfo` marked `transient`; `m_applet` also transient for consistency |
-| serialVersionUID | Already present; comment cleaned |
+# 2380):
+
+|       Kind       |                                                               Fix                                                               |
+|------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| `this-escape`    | Class made `final` (no subclasses); early `setResizable(true)` removed (still applied in `initDialog()`)                        |
+| `serial` (×4)    | `m_parentFolderNode`, `m_folderNode`, `m_folderMgr`, `m_userInfo` marked `transient`; `m_applet` also transient for consistency |
+| serialVersionUID | Already present; comment cleaned                                                                                                |
 
 No product behavior change. No class-level `@SuppressWarnings`. Structural unit
 tests in `PSFolderDialogTest` (final + serialVersionUID + transient fields).
@@ -55,3 +56,4 @@ None (bug / missing tests / non-portable paths).
   dependency-analyze only)
 
 > Co-Authored by Grok Build using grok-4.5 with agent main.
+

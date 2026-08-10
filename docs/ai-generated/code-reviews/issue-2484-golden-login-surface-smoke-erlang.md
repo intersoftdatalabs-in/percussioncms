@@ -116,10 +116,10 @@ report missing HEALTHCHECK. The golden/login surface smoke itself
 
 Precheck unit-test evidence (forced `missing` via mock runner):
 - `qa-up --skip-image-build` with stale image → `RESULT:FAIL STEP:qa-up
-  DETAIL:matrix_image_stale IMAGE:percussion-matrix-cell:local HINT:rebuild-image`,
-  exit code `EXIT_SUBPROCESS_FAILED`.
+DETAIL:matrix_image_stale IMAGE:percussion-matrix-cell:local HINT:rebuild-image`,
+exit code `EXIT_SUBPROCESS_FAILED`.
 - `qa-up --skip-image-build` with fresh image → proceeds to normal
-  bring-up (mocked `_run_logged` returns OK, admin banner printed).
+bring-up (mocked `_run_logged` returns OK, admin banner printed).
 
 Full unit-test run: `pytest test_perc_devctl.py -q` → **56 passed in 0.24s**.
 
@@ -139,3 +139,4 @@ reading the docker docs.
   disclosed per Erlang persona; same rigor applied.
 - No durable report update needed beyond this file.
 - Pattern memory unchanged.
+

@@ -58,9 +58,7 @@ test.describe("Admin Users default landing page (#2211)", () => {
     await expect(help).toBeVisible();
 
     // Select Home if available, or leave role default — ensure control is interactive
-    const values = await options.evaluateAll((els) =>
-      els.map((o) => o.value),
-    );
+    const values = await options.evaluateAll((els) => els.map((o) => o.value));
     expect(values).toContain("");
     expect(values).toContain("Home");
     expect(values).toContain("Editor");

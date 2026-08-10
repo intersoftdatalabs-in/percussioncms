@@ -65,7 +65,11 @@ test.describe("golden unattended smoke @smoke @golden", () => {
     expect(ADMIN_USERNAME).toBeTruthy();
     // Prefer QA sources when operators set them; fallback is allowed only for
     // local accidental runs (will fail login without a live CMS).
-    if (process.env.TEST_CMS_URL || process.env.QA_CMS_URL || process.env.CMS_BASE_URL) {
+    if (
+      process.env.TEST_CMS_URL ||
+      process.env.QA_CMS_URL ||
+      process.env.CMS_BASE_URL
+    ) {
       expect(BASE_URL_SOURCE).toBe("TEST_CMS_URL");
     } else if (process.env.QA_CMS_HOST_PORT || process.env.CMS_HOST_PORT) {
       expect(BASE_URL_SOURCE).toBe("CMS_HOST_PORT");

@@ -26,9 +26,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
-const {
-  catalogRowSelector,
-} = require("./helpers/developer-catalog-selectors");
+const { catalogRowSelector } = require("./helpers/developer-catalog-selectors");
 
 function developerCommunitiesUrl() {
   const q = new URLSearchParams({
@@ -84,7 +82,9 @@ test.describe("Developer community visibility polish (#2250)", () => {
     ).toBeVisible({ timeout: 5_000 });
     await openBtn.click();
 
-    await expect(page.locator('[data-testid="developer-comm-detail"]')).toBeVisible({
+    await expect(
+      page.locator('[data-testid="developer-comm-detail"]'),
+    ).toBeVisible({
       timeout: 20_000,
     });
     await expect(
@@ -101,16 +101,24 @@ test.describe("Developer community visibility polish (#2250)", () => {
     ).toBeVisible();
 
     // Wait for loading to settle: table, unfiltered empty, or error.
-    const visTable = page.locator('[data-testid="developer-comm-visibility-table"]');
-    const visEmpty = page.locator('[data-testid="developer-comm-visibility-empty"]');
-    const visErr = page.locator('[data-testid="developer-comm-visibility-error"]');
+    const visTable = page.locator(
+      '[data-testid="developer-comm-visibility-table"]',
+    );
+    const visEmpty = page.locator(
+      '[data-testid="developer-comm-visibility-empty"]',
+    );
+    const visErr = page.locator(
+      '[data-testid="developer-comm-visibility-error"]',
+    );
     const visLoading = page.locator(
       '[data-testid="developer-comm-visibility-loading"]',
     );
 
-    await expect(visLoading).toBeHidden({ timeout: 30_000 }).catch(() => {
-      // loading may never appear if response was instant
-    });
+    await expect(visLoading)
+      .toBeHidden({ timeout: 30_000 })
+      .catch(() => {
+        // loading may never appear if response was instant
+      });
     await expect(visTable.or(visEmpty).or(visErr).first()).toBeVisible({
       timeout: 30_000,
     });
@@ -129,8 +137,12 @@ test.describe("Developer community visibility polish (#2250)", () => {
     const emptyType = page.locator(
       '[data-testid="developer-comm-visibility-empty-type"]',
     );
-    await expect(visLoading).toBeHidden({ timeout: 30_000 }).catch(() => {});
-    await expect(visTable.or(emptyType).or(visEmpty).or(visErr).first()).toBeVisible({
+    await expect(visLoading)
+      .toBeHidden({ timeout: 30_000 })
+      .catch(() => {});
+    await expect(
+      visTable.or(emptyType).or(visEmpty).or(visErr).first(),
+    ).toBeVisible({
       timeout: 30_000,
     });
 
@@ -152,7 +164,9 @@ test.describe("Developer community visibility polish (#2250)", () => {
     }
 
     // Roles section still present for assignment feedback surface
-    await expect(page.locator('[data-testid="developer-comm-roles"]')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="developer-comm-roles"]'),
+    ).toBeVisible();
     await expect(
       page.locator('[data-testid="developer-comm-roles-save"]'),
     ).toBeVisible();

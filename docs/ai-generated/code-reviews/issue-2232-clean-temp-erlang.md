@@ -3,7 +3,7 @@
 **Date:** 2026-08-07  
 **Branch:** `feat/issue-2232-clean-temp`  
 **Scope:** uncommitted / pre-PR changes for `clean-temp` under `modules/perc-doctor`  
-**Parent:** #2213  
+**Parent:** #2213
 
 ## Summary
 
@@ -15,13 +15,13 @@ Adds CLI/API command `clean-temp` that inventories and optionally deletes regula
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | none found |
-| Behavioral unit tests for new logic | yes (`CleanTempCommandTest` 9, CLI + API + InstallRootGuard coverage) |
-| Portable path / file I/O | pass — `java.nio.file.Path` / `Files` only; forward-slash relative allowlist; `resolveRelativeUnderRoot` + case-insensitive Windows containment via existing guard |
-| Change-class companions | CLI + command class + guard allowlist + API dispatch + docs + tests (same class as clean-logs) |
-| May commit/push | **yes** |
+|                Check                |                                                                               Result                                                                               |
+|-------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Bugs                                | none found                                                                                                                                                         |
+| Behavioral unit tests for new logic | yes (`CleanTempCommandTest` 9, CLI + API + InstallRootGuard coverage)                                                                                              |
+| Portable path / file I/O            | pass — `java.nio.file.Path` / `Files` only; forward-slash relative allowlist; `resolveRelativeUnderRoot` + case-insensitive Windows containment via existing guard |
+| Change-class companions             | CLI + command class + guard allowlist + API dispatch + docs + tests (same class as clean-logs)                                                                     |
+| May commit/push                     | **yes**                                                                                                                                                            |
 
 ## Cross-platform path checklist
 
@@ -50,3 +50,4 @@ InstallRootGuardTest: 13 tests, 0 failures
 DoctorApiServiceTest: 9 tests, 0 failures
 Module suite green
 ```
+

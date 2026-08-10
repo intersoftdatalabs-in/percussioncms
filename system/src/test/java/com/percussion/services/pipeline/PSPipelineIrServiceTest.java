@@ -54,7 +54,8 @@ class PSPipelineIrServiceTest {
   }
 
   @Test
-  @DisplayName("classic import: sys_adminCataloger yields query resource with tanks/mapper/selector")
+  @DisplayName(
+      "classic import: sys_adminCataloger yields query resource with tanks/mapper/selector")
   void importClassicAdminCataloger_stageInventory() throws Exception {
     PipelineIrDocument ir;
     try (InputStream in = openFixture()) {
@@ -144,8 +145,7 @@ class PSPipelineIrServiceTest {
     service.save(original);
     assertTrue(service.exists("sys_adminCataloger"));
 
-    Path stored =
-        tempDir.resolve("sys_adminCataloger" + PSPipelineIrFileStore.FILE_SUFFIX);
+    Path stored = tempDir.resolve("sys_adminCataloger" + PSPipelineIrFileStore.FILE_SUFFIX);
     assertTrue(Files.isRegularFile(stored), "expected file at " + stored);
 
     Optional<PipelineIrDocument> loaded = service.load("sys_adminCataloger");

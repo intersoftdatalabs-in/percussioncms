@@ -107,7 +107,10 @@ async function navigateFinderToRecycling(page) {
     if ((await outer.count()) > 0) {
       const collapsed = await outer.first().getAttribute("collapsed");
       if (collapsed === "true") {
-        await expander.first().click().catch(() => {});
+        await expander
+          .first()
+          .click()
+          .catch(() => {});
       }
     }
   }

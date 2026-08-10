@@ -98,7 +98,6 @@ class PSDatabasePoolDatabaseMetaDataSqlInjectionTest {
   @Test
   void getPrimaryKeysRejectsUnsafeTableName() {
     assertThrows(
-        IllegalArgumentException.class,
-        () -> wrapper.getPrimaryKeys(null, null, "t' OR '1'='1"));
+        IllegalArgumentException.class, () -> wrapper.getPrimaryKeys(null, null, "t' OR '1'='1"));
   }
 }

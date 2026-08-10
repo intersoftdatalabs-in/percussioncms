@@ -14,24 +14,24 @@ This is **not** TMX / UI chrome i18n (Explorer string catalog). Content-item **l
 
 ## Legend
 
-| Disposition | Meaning |
-|-------------|---------|
-| **Present** | Public REST (or product Explorer path) already supports the operator outcome |
-| **Partial** | Related surface exists but does not complete the P-Trans acceptance |
-| **Missing** | No public contract / no Explorer product path |
+|   Disposition   |                                              Meaning                                              |
+|-----------------|---------------------------------------------------------------------------------------------------|
+| **Present**     | Public REST (or product Explorer path) already supports the operator outcome                      |
+| **Partial**     | Related surface exists but does not complete the P-Trans acceptance                               |
+| **Missing**     | No public contract / no Explorer product path                                                     |
 | **Legacy-only** | Exists outside modern `rest` (SOAP, CX XML app, extension, DCE) — not SPA-callable without façade |
-| **OUT** | Explicit product non-goal (requires human product sign-off; **none signed off here**) |
+| **OUT**         | Explicit product non-goal (requires human product sign-off; **none signed off here**)             |
 
 ---
 
 ## P-Trans row matrix
 
-| P-Trans capability | Acceptance (992 matrix) | Public REST / Explorer today | DCE / legacy evidence | Disposition | Follow-up |
-|--------------------|-------------------------|------------------------------|------------------------|-------------|-----------|
-| Show item locales (current + available) | Item shows current locale + available locale list | **System catalog only:** `GET /rest/locales`, `GET /rest/locales/{idOrLang}` (`LocalesResource` / `ILocalesAdaptor` / `LocalesAdaptor`). Folder DTO has `locale` default. **No** item-level “variants for content id” list. Relationship summary can report translation **counts** only. | DCE locale cataloger `PSLocaleCataloger` (sys_i18nSupport/languagelookup); item locale on content status; paste-new-translation only for items | **Partial** (catalog Present; **item variant list Missing**) | #2429 item-locale listing if UI needs it; #2430 display |
-| Translate (create new locale variant) | Authorized user creates a new locale for an item | **No** public REST create-variant. `/actions` may list server menus but no dedicated itemmanagement translate resource under `rest`. | SOAP `content.NewTranslations` (`modules/webservices` content.wsdl); CX `sys_CreateTranslations` → `PSCreateTranslations`; workflow `sys_createTranslations`; DCE `ACTION_PASTE_NEW_TRNSL`; XML app `sys_actionTranslate` | **Missing** (public REST) / **Legacy-only** (create path exists) | **#2429 REST façade required** before #2430 can productize create |
-| In-flight translation status | Filter/list `translationState=inFlight` (or equivalent) | **No** `translationState` query on public search/path APIs found; only aspirational matrix text | CE “translation queue” / relationship + workflow state in legacy CE | **Missing** | #2428 product disposition (implement vs OUT); if implement → #2429 + #2430 |
-| Switch source/target locale session context | Selecting locale re-issues path APIs under that content locale | Community switch exists (`/communities/switch/{name}`). UI TMX locale loading is **chrome** strings, not content locale session. No content-locale session REST found for Explorer path APIs. | DCE login locale + change-locale header flows | **Missing** / possible **redesign** | Product decision on #2411/#2428; may OUT or fold into shell locale work |
+|             P-Trans capability              |                    Acceptance (992 matrix)                     |                                                                                                                               Public REST / Explorer today                                                                                                                               |                                                                                                   DCE / legacy evidence                                                                                                   |                           Disposition                            |                                 Follow-up                                  |
+|---------------------------------------------|----------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|----------------------------------------------------------------------------|
+| Show item locales (current + available)     | Item shows current locale + available locale list              | **System catalog only:** `GET /rest/locales`, `GET /rest/locales/{idOrLang}` (`LocalesResource` / `ILocalesAdaptor` / `LocalesAdaptor`). Folder DTO has `locale` default. **No** item-level “variants for content id” list. Relationship summary can report translation **counts** only. | DCE locale cataloger `PSLocaleCataloger` (sys_i18nSupport/languagelookup); item locale on content status; paste-new-translation only for items                                                                            | **Partial** (catalog Present; **item variant list Missing**)     | #2429 item-locale listing if UI needs it; #2430 display                    |
+| Translate (create new locale variant)       | Authorized user creates a new locale for an item               | **No** public REST create-variant. `/actions` may list server menus but no dedicated itemmanagement translate resource under `rest`.                                                                                                                                                     | SOAP `content.NewTranslations` (`modules/webservices` content.wsdl); CX `sys_CreateTranslations` → `PSCreateTranslations`; workflow `sys_createTranslations`; DCE `ACTION_PASTE_NEW_TRNSL`; XML app `sys_actionTranslate` | **Missing** (public REST) / **Legacy-only** (create path exists) | **#2429 REST façade required** before #2430 can productize create          |
+| In-flight translation status                | Filter/list `translationState=inFlight` (or equivalent)        | **No** `translationState` query on public search/path APIs found; only aspirational matrix text                                                                                                                                                                                          | CE “translation queue” / relationship + workflow state in legacy CE                                                                                                                                                       | **Missing**                                                      | #2428 product disposition (implement vs OUT); if implement → #2429 + #2430 |
+| Switch source/target locale session context | Selecting locale re-issues path APIs under that content locale | Community switch exists (`/communities/switch/{name}`). UI TMX locale loading is **chrome** strings, not content locale session. No content-locale session REST found for Explorer path APIs.                                                                                            | DCE login locale + change-locale header flows                                                                                                                                                                             | **Missing** / possible **redesign**                              | Product decision on #2411/#2428; may OUT or fold into shell locale work    |
 
 ---
 
@@ -39,24 +39,24 @@ This is **not** TMX / UI chrome i18n (Explorer string catalog). Content-item **l
 
 ### Present (related, incomplete for P-Trans)
 
-| Path / type | Module | Role vs P-Trans |
-|-------------|--------|-----------------|
-| `GET /rest/locales` | `rest` `LocalesResource` | CMS **locale catalog** (language string, label, status, base flag). Design doc states create/edit/delete and auto-translation settings are **later slices** / unsupported. |
-| `GET /rest/locales/{idOrLang}` | same | Locale detail + optional RXLOCALEFORMAT row. Write unsupported. |
-| `ILocalesAdaptor` / `LocalesAdaptor` | `rest` + `projects/sitemanage` apibridge | Read-only via content design WS `findLocales` / `loadLocales`. Explicit design gaps: no locale CRUD, no auto-translation config. |
-| `Folder.locale` | `rest` folders | Folder **default** locale property — not item translation variants. |
-| `GET /rest/content-explorer/relationships/{itemId}/outgoing` (and incoming/summary/…) | `rest` `RelationshipSummaryResource` | **Counts** including translation relationship category; not create, not per-locale variant DTO. |
-| `GET /rest/actions/...` | `rest` `ActionMenuResource` | Server-driven menus; may expose translate **if** configured — not a typed create-variant contract. |
-| `POST /rest/i18n/corrections` | `rest` `I18nCorrectionsResource` | Crowd-sourced **UI string** corrections — **not** content-item translation. |
+|                                      Path / type                                      |                  Module                  |                                                                              Role vs P-Trans                                                                               |
+|---------------------------------------------------------------------------------------|------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `GET /rest/locales`                                                                   | `rest` `LocalesResource`                 | CMS **locale catalog** (language string, label, status, base flag). Design doc states create/edit/delete and auto-translation settings are **later slices** / unsupported. |
+| `GET /rest/locales/{idOrLang}`                                                        | same                                     | Locale detail + optional RXLOCALEFORMAT row. Write unsupported.                                                                                                            |
+| `ILocalesAdaptor` / `LocalesAdaptor`                                                  | `rest` + `projects/sitemanage` apibridge | Read-only via content design WS `findLocales` / `loadLocales`. Explicit design gaps: no locale CRUD, no auto-translation config.                                           |
+| `Folder.locale`                                                                       | `rest` folders                           | Folder **default** locale property — not item translation variants.                                                                                                        |
+| `GET /rest/content-explorer/relationships/{itemId}/outgoing` (and incoming/summary/…) | `rest` `RelationshipSummaryResource`     | **Counts** including translation relationship category; not create, not per-locale variant DTO.                                                                            |
+| `GET /rest/actions/...`                                                               | `rest` `ActionMenuResource`              | Server-driven menus; may expose translate **if** configured — not a typed create-variant contract.                                                                         |
+| `POST /rest/i18n/corrections`                                                         | `rest` `I18nCorrectionsResource`         | Crowd-sourced **UI string** corrections — **not** content-item translation.                                                                                                |
 
 ### Not found under public `rest`
 
-| Needed for P-Trans | Search result |
-|--------------------|---------------|
-| Create locale variant / NewTranslations | No resource; SOAP + extensions only |
-| List translation variants for content id | No dedicated endpoint |
-| `translationState=inFlight` (or equivalent filter) | No public query parameter / resource |
-| Content-locale session switch for path APIs | No peer to community switch for content locale |
+|                 Needed for P-Trans                 |                 Search result                  |
+|----------------------------------------------------|------------------------------------------------|
+| Create locale variant / NewTranslations            | No resource; SOAP + extensions only            |
+| List translation variants for content id           | No dedicated endpoint                          |
+| `translationState=inFlight` (or equivalent filter) | No public query parameter / resource           |
+| Content-locale session switch for path APIs        | No peer to community switch for content locale |
 
 ### ObjectTypeEnum markers (design vocabulary only)
 
@@ -66,14 +66,14 @@ This is **not** TMX / UI chrome i18n (Explorer string catalog). Content-item **l
 
 ## DCE / legacy create & catalog paths (evidence)
 
-| Surface | Location | Notes |
-|---------|----------|-------|
-| Paste as new translation | `modules/DesktopContentExplorer/.../PSActionManager.java` `ACTION_PASTE_NEW_TRNSL` | Enabled only when selection is **items** and target is **folder** |
-| Locale cataloger | `PSLocaleCataloger` | Loads locales via `../sys_i18nSupport/languagelookup.xml` |
-| CX create translations extension | `modules/extensions-main` `sys_CreateTranslations` → `com.percussion.extensions.cx.PSCreateTranslations` | Result-document processor used by CE actions |
-| Workflow create translations | `sys_createTranslations` → `com.percussion.workflow.PSCreateTranslations` | Config under `rxconfig/I18n/sys_createTranslations.properties` |
-| SOAP NewTranslations | `modules/webservices` content.wsdl; tests in `system/webservices/test/.../ContentTestCase` | Proven create-variant contract for Workbench/SOAP clients |
-| Translate action XML app | `system/cms/content/applications/sys_actionTranslate/` | Legacy CE translate application (CONTENTSTATUS + relationship tables) |
+|             Surface              |                                                 Location                                                 |                                 Notes                                 |
+|----------------------------------|----------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| Paste as new translation         | `modules/DesktopContentExplorer/.../PSActionManager.java` `ACTION_PASTE_NEW_TRNSL`                       | Enabled only when selection is **items** and target is **folder**     |
+| Locale cataloger                 | `PSLocaleCataloger`                                                                                      | Loads locales via `../sys_i18nSupport/languagelookup.xml`             |
+| CX create translations extension | `modules/extensions-main` `sys_CreateTranslations` → `com.percussion.extensions.cx.PSCreateTranslations` | Result-document processor used by CE actions                          |
+| Workflow create translations     | `sys_createTranslations` → `com.percussion.workflow.PSCreateTranslations`                                | Config under `rxconfig/I18n/sys_createTranslations.properties`        |
+| SOAP NewTranslations             | `modules/webservices` content.wsdl; tests in `system/webservices/test/.../ContentTestCase`               | Proven create-variant contract for Workbench/SOAP clients             |
+| Translate action XML app         | `system/cms/content/applications/sys_actionTranslate/`                                                   | Legacy CE translate application (CONTENTSTATUS + relationship tables) |
 
 ---
 
@@ -105,6 +105,7 @@ Record answers on #2411 / #2428; do not hide as silent OUT.
 
 ## Change log
 
-| Date | Note |
-|------|------|
+|    Date    |                                   Note                                   |
+|------------|--------------------------------------------------------------------------|
 | 2026-08-08 | Initial overnight inventory for #2411 split; children #2428–#2430 filed. |
+

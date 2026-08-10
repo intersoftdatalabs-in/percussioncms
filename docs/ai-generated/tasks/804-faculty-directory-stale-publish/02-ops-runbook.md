@@ -11,11 +11,11 @@
 
 The stock **Directory** widget (`perc.widget.directory` / `percDirectory`) does **not** store a list of faculty members on the directory asset.
 
-| What editors often say | What the product actually uses |
-|------------------------|--------------------------------|
-| Faculty Directory **asset** | `percDirectory`: title, placeholder, **organizationSearch**, **departmentID** |
-| Faculty **member** | Separate **`percPerson`** asset |
-| “On the directory” | Person’s **`personOrganization`** / **`personDepartment`** match the directory filters |
+|    What editors often say     |                                   What the product actually uses                                   |
+|-------------------------------|----------------------------------------------------------------------------------------------------|
+| Faculty Directory **asset**   | `percDirectory`: title, placeholder, **organizationSearch**, **departmentID**                      |
+| Faculty **member**            | Separate **`percPerson`** asset                                                                    |
+| “On the directory”            | Person’s **`personOrganization`** / **`personDepartment`** match the directory filters             |
 | “Remove from directory asset” | **Not** an Active Assembly unlink of people — stock UI has no member collection on `percDirectory` |
 
 At **publish/preview assembly**, the widget runs a JCR query over `percPerson` (org/dept + `sys_contentstateid != 7`), then applies the edition **public** item filter. Client `perc-directory.js` only filters/sorts already-rendered HTML.
@@ -48,12 +48,12 @@ Pick **one** of the following on the **person** asset (or change the directory�
 
 ### What does **not** remove someone from the published list
 
-| Action | Result |
-|--------|--------|
-| Edit only the Directory asset title/placeholder without changing person org/dept | Person still matches → **still listed** after full publish (**H1** — correct product behavior) |
-| Clear person fields in tip but leave public revision on old org without Approve | Publish uses public rev → **still listed** (**H2**) |
-| Incremental publish only after person change (no DirectoryIndexTouch / no page in job) | Directory page may not re-assemble → **stale HTML** (**H8**) |
-| Full CMS publish success but CDN still serving old object | Browser/CDN shows old list (**H4**) |
+|                                         Action                                         |                                             Result                                             |
+|----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
+| Edit only the Directory asset title/placeholder without changing person org/dept       | Person still matches → **still listed** after full publish (**H1** — correct product behavior) |
+| Clear person fields in tip but leave public revision on old org without Approve        | Publish uses public rev → **still listed** (**H2**)                                            |
+| Incremental publish only after person change (no DirectoryIndexTouch / no page in job) | Directory page may not re-assemble → **stale HTML** (**H8**)                                   |
+| Full CMS publish success but CDN still serving old object                              | Browser/CDN shows old list (**H4**)                                                            |
 
 ---
 
@@ -77,11 +77,11 @@ Incremental change tracking queues pages that own the changed asset via **relati
 
 ### Job verification checklist
 
-- [ ] Correct **site** and **pub server** selected  
-- [ ] Job type is **full site** (or the directory **page** is explicitly in the edition)  
-- [ ] Job completed successfully  
-- [ ] Pub log shows **assemble + deliver** for the Faculty Directory page after the person change  
-- [ ] Directory page itself is **Public** and under the site root used by the content list  
+- [ ] Correct **site** and **pub server** selected
+- [ ] Job type is **full site** (or the directory **page** is explicitly in the edition)
+- [ ] Job completed successfully
+- [ ] Pub log shows **assemble + deliver** for the Faculty Directory page after the person change
+- [ ] Directory page itself is **Public** and under the site root used by the content list
 
 ---
 
@@ -91,9 +91,9 @@ Published directory HTML is static delivery (file/FTP/S3/etc.). There is no sepa
 
 After a successful CMS publish:
 
-1. Confirm **on-disk / pub-root HTML** for the directory path **does not** contain the removed name.  
-2. Fetch the live URL with cache bypass if available; compare body to disk.  
-3. If disk is clean but HTTP still shows the name → **purge CDN / reverse-proxy cache** for that URL (and related assets if fingerprinted poorly).  
+1. Confirm **on-disk / pub-root HTML** for the directory path **does not** contain the removed name.
+2. Fetch the live URL with cache bypass if available; compare body to disk.
+3. If disk is clean but HTTP still shows the name → **purge CDN / reverse-proxy cache** for that URL (and related assets if fingerprinted poorly).
 4. Hard-refresh browser / private window after purge.
 
 ---
@@ -102,16 +102,16 @@ After a successful CMS publish:
 
 Use when a customer still sees a name (example: “Amy Kern”) after “removal + full publish.”
 
-1. **Directory page** — path + content id.  
-2. **`percDirectory` asset** — `organizationSearch`, `departmentID`.  
-3. **Person asset** — content id; tip vs **public** revision; state; `CONTENTVALID`; `personOrganization` / `personDepartment`; folder (Assets vs Recycling).  
-4. **Would stock query still return them?**  
-   - **Yes** → fix data or approve public rev (**H1** / **H2**); re-publish.  
-   - **No** → continue.  
-5. **Pub log** — directory page assemble/deliver success and timestamp after the person change.  
-6. **On-disk HTML** — name present?  
-7. **HTTP** + cache headers — name present while disk clean → purge (**H4**).  
-8. **Edition type** — full vs incremental; DirectoryIndexTouch on workflow transitions (**H8**).  
+1. **Directory page** — path + content id.
+2. **`percDirectory` asset** — `organizationSearch`, `departmentID`.
+3. **Person asset** — content id; tip vs **public** revision; state; `CONTENTVALID`; `personOrganization` / `personDepartment`; folder (Assets vs Recycling).
+4. **Would stock query still return them?**
+   - **Yes** → fix data or approve public rev (**H1** / **H2**); re-publish.
+   - **No** → continue.
+5. **Pub log** — directory page assemble/deliver success and timestamp after the person change.
+6. **On-disk HTML** — name present?
+7. **HTTP** + cache headers — name present while disk clean → purge (**H4**).
+8. **Edition type** — full vs incremental; DirectoryIndexTouch on workflow transitions (**H8**).
 9. **Second source** — other pages, custom widgets, static mirrors (**H3**).
 
 Detailed hypothesis table: [00-inventory.md](./00-inventory.md). Snapshot classification matrix: [01-classification.md](./01-classification.md) (when present).
@@ -122,12 +122,12 @@ Detailed hypothesis table: [00-inventory.md](./00-inventory.md). Snapshot classi
 
 Do **not** change Directory JCR queries or publish filters without snapshot evidence. Escalate for product only if triage shows:
 
-| Evidence | Likely class | Product direction (gated) |
-|----------|--------------|---------------------------|
-| Person does not match query + public filter; full job assembled page; disk HTML still has name | Rare assembly/query bug | Targeted fix + tests |
-| Custom workflow Archive state ≠ 7 and CONTENTVALID still publishable | **H6** | Query/filter hardening (CONTENTVALID / recycled exclusion) |
-| Incremental-only ops; no DirectoryIndexTouch on Approve | **H8** | Ensure touch action on customer WF **or** keep ops “full/page publish” |
-| Confirmed H1/H2/H4 only | Ops | **No** product query rewrite |
+|                                            Evidence                                            |      Likely class       |                       Product direction (gated)                        |
+|------------------------------------------------------------------------------------------------|-------------------------|------------------------------------------------------------------------|
+| Person does not match query + public filter; full job assembled page; disk HTML still has name | Rare assembly/query bug | Targeted fix + tests                                                   |
+| Custom workflow Archive state ≠ 7 and CONTENTVALID still publishable                           | **H6**                  | Query/filter hardening (CONTENTVALID / recycled exclusion)             |
+| Incremental-only ops; no DirectoryIndexTouch on Approve                                        | **H8**                  | Ensure touch action on customer WF **or** keep ops “full/page publish” |
+| Confirmed H1/H2/H4 only                                                                        | Ops                     | **No** product query rewrite                                           |
 
 **Avoid:** rewriting stock Directory to an AA children membership list without an explicit product decision (breaks org/dept auto-list UX).
 
@@ -137,7 +137,7 @@ Do **not** change Directory JCR queries or publish filters without snapshot evid
 
 Close **#804** only when:
 
-- Customer session or snapshot shows the person **no longer matches** query + public filter **and** re-assembled published HTML **omits** the name after the agreed publish path, **or**  
+- Customer session or snapshot shows the person **no longer matches** query + public filter **and** re-assembled published HTML **omits** the name after the agreed publish path, **or**
 - Customer confirms the ops path (correct person change + Approve + full/page publish + CDN purge) resolved the report.
 
 This runbook alone does **not** close #804.
@@ -154,3 +154,4 @@ modules/extensions-main/.../PSDirectoryIndexTouchWorkflowAction.java
 docs/ai-generated/tasks/804-faculty-directory-stale-publish/00-inventory.md
 docs/ai-generated/tasks/804-faculty-directory-stale-publish/01-classification.md
 ```
+

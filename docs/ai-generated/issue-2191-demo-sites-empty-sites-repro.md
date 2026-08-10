@@ -18,14 +18,14 @@ When the operator opts in to sample sites (`Yes` in the interactive wizard, or `
 
 ## Environment under test
 
-| Item | Value |
-|------|--------|
-| Install root | `C:\Installs\8.2-july-29` |
-| DB | Embedded H2 (`Repository\CMDB.mv.db`) |
-| Operator last-install | `%USERPROFILE%\.intsof\percussion\last-install.properties` |
-| Install log | `rxconfig\Installer\install.log` (ended 2026-08-02 18:17:46) |
-| Install type (ANT) | `install.type=new` |
-| CMS process during probe | Not required; H2 read-only JDBC used |
+|           Item           |                            Value                             |
+|--------------------------|--------------------------------------------------------------|
+| Install root             | `C:\Installs\8.2-july-29`                                    |
+| DB                       | Embedded H2 (`Repository\CMDB.mv.db`)                        |
+| Operator last-install    | `%USERPROFILE%\.intsof\percussion\last-install.properties`   |
+| Install log              | `rxconfig\Installer\install.log` (ended 2026-08-02 18:17:46) |
+| Install type (ANT)       | `install.type=new`                                           |
+| CMS process during probe | Not required; H2 read-only JDBC used                         |
 
 ---
 
@@ -159,11 +159,11 @@ Seed XML contains site rows (not loaded):
 
 Read-only H2 probe (2026-08-06) against `Repository\CMDB`:
 
-| Check | Result |
-|-------|--------|
-| `SELECT COUNT(*) FROM RXSITES` | **0** |
-| `SELECT * FROM RXSITES` | 0 rows (table exists; schema from core `cmsTable*` load) |
-| `PSX_FOLDER` | 11 system folder rows only; no Corporate/Enterprise sample folders |
+|             Check              |                               Result                               |
+|--------------------------------|--------------------------------------------------------------------|
+| `SELECT COUNT(*) FROM RXSITES` | **0**                                                              |
+| `SELECT * FROM RXSITES`        | 0 rows (table exists; schema from core `cmsTable*` load)           |
+| `PSX_FOLDER`                   | 11 system folder rows only; no Corporate/Enterprise sample folders |
 
 Artifacts (local worktree, not required in git): `tmp/issue-2191/h2-probe-rxsites.txt`, `install-log-snippets.txt`, copy of `last-install.properties`.
 
@@ -201,11 +201,11 @@ It **does not** pass `phase1.options()` (where interactive/`--demo-sites` stored
 
 Therefore:
 
-| Operator action | Options map | System property (preinstall JVM) | ANT `-Dinstall.demo.sites` |
-|-----------------|-------------|----------------------------------|----------------------------|
-| Interactive **Yes** | `demo-sites=true` | usually unset | **false** (observed) |
-| CLI `--demo-sites` only | `demo-sites=true` | unset unless outer `-D` | **false** |
-| Outer `java -Dinstall.demo.sites=true …` | may still be true | true | **true** |
+|             Operator action              |    Options map    | System property (preinstall JVM) | ANT `-Dinstall.demo.sites` |
+|------------------------------------------|-------------------|----------------------------------|----------------------------|
+| Interactive **Yes**                      | `demo-sites=true` | usually unset                    | **false** (observed)       |
+| CLI `--demo-sites` only                  | `demo-sites=true` | unset unless outer `-D`          | **false**                  |
+| Outer `java -Dinstall.demo.sites=true …` | may still be true | true                             | **true**                   |
 
 This matches the observed dual state:
 
@@ -223,13 +223,13 @@ Existing tests cover flag **parsing** and wizard prompt/`options` mutation (`Int
 
 ## Classification matrix (slice 2 vs 3)
 
-| Observation | Points to |
-|-------------|-----------|
-| Seed XML on disk with Corporate/Enterprise `RXSITES` rows | Bundle present (not a packaging “file missing” issue alone) |
-| `cms.demo-sites=true` but ANT `install.demo.sites=false` | Flag not wired to seed step |
-| No seed/skip echo in installRepository window | `installSampleSites` never antcall’d |
-| `RXSITES` count = 0 | **Data never seeded** |
-| Parent UI: empty Sites | Consistent with empty site table (not exclusive of a later UI bug) |
+|                        Observation                        |                             Points to                              |
+|-----------------------------------------------------------|--------------------------------------------------------------------|
+| Seed XML on disk with Corporate/Enterprise `RXSITES` rows | Bundle present (not a packaging “file missing” issue alone)        |
+| `cms.demo-sites=true` but ANT `install.demo.sites=false`  | Flag not wired to seed step                                        |
+| No seed/skip echo in installRepository window             | `installSampleSites` never antcall’d                               |
+| `RXSITES` count = 0                                       | **Data never seeded**                                              |
+| Parent UI: empty Sites                                    | Consistent with empty site table (not exclusive of a later UI bug) |
 
 **Conclusion:** Primary failure is **installer seed / flag propagation → #2192**.  
 **Do not start #2193** until a corrected demo-sites install shows non-zero `RXSITES` **and** Explorer still empty.  
@@ -239,16 +239,17 @@ Existing tests cover flag **parsing** and wizard prompt/`options` mutation (`Int
 
 ## Acceptance checklist (#2191)
 
-- [x] Document interactive Yes + silent `--demo-sites` repro on H2  
-- [x] Capture install evidence: flag false / seed path not run  
-- [x] Probe repository for sample sites (empty `RXSITES`; seed names documented)  
-- [x] Note Explorer empty Sites (parent screenshot + empty repo ⇒ no need for live REST for classification)  
-- [x] Comment on #1750 with **pursue slice 2 (#2192)**; mark #2191 done; update Agent progress table  
+- [x] Document interactive Yes + silent `--demo-sites` repro on H2
+- [x] Capture install evidence: flag false / seed path not run
+- [x] Probe repository for sample sites (empty `RXSITES`; seed names documented)
+- [x] Note Explorer empty Sites (parent screenshot + empty repo ⇒ no need for live REST for classification)
+- [x] Comment on #1750 with **pursue slice 2 (#2192)**; mark #2191 done; update Agent progress table
 
 ---
 
 ## Out of scope (honored)
 
-- No changes to installer Java, ANT seed, or Explorer product code in this slice.  
-- No Playwright implementation (#2194).  
+- No changes to installer Java, ANT seed, or Explorer product code in this slice.
+- No Playwright implementation (#2194).
 - Fix implementation belongs on #2192 (and only then #2193 if still needed).
+

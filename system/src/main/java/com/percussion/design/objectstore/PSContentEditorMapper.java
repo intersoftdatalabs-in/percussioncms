@@ -36,6 +36,7 @@ import org.w3c.dom.Node;
 public class PSContentEditorMapper extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
+
   /**
    * Creates a new content editor mapper for the provided parameters.
    *

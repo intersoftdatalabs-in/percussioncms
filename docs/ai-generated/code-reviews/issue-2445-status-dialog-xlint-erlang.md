@@ -6,13 +6,13 @@ Real fixes for residual `-Xlint` diagnostics on
 `com.percussion.cx.PSContentExplorerStatusDialog` (parent #2045 / monorepo #2200 /
 residual of #2384):
 
-| Kind | Fix |
-|------|-----|
-| `this-escape` | Class made `final` (no subclasses); UI init remains in private `initDialog()` |
-| `serial` (non-transient non-serializable fields) | `m_monitor`, `m_applet` marked `transient` |
-| `serial` (anonymous `AbstractAction`) | `serialVersionUID` on cancel action |
-| serialVersionUID (class) | Already present; comment cleaned |
-| pure helper | `resolveErrorMessageView` + `ErrorMessageView` record (behavior-preserving HTML fragment extract) |
+|                       Kind                       |                                                Fix                                                |
+|--------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `this-escape`                                    | Class made `final` (no subclasses); UI init remains in private `initDialog()`                     |
+| `serial` (non-transient non-serializable fields) | `m_monitor`, `m_applet` marked `transient`                                                        |
+| `serial` (anonymous `AbstractAction`)            | `serialVersionUID` on cancel action                                                               |
+| serialVersionUID (class)                         | Already present; comment cleaned                                                                  |
+| pure helper                                      | `resolveErrorMessageView` + `ErrorMessageView` record (behavior-preserving HTML fragment extract) |
 
 No product behavior change. No class-level `@SuppressWarnings`. Structural + pure-helper
 unit tests in `PSContentExplorerStatusDialogTest`.
@@ -58,3 +58,4 @@ None (bug / missing tests / non-portable paths).
   dependency-analyze / other-file serial only)
 
 > Co-Authored by Grok Build using grok-4.5 with agent main.
+

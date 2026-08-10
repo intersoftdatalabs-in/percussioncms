@@ -144,10 +144,7 @@ public class PSFolderProcessorProxy extends PSProcessorProxy implements IPSFolde
 
   // implement the interface method
   public void moveChildren(
-      PSLocator sourceFolderId,
-      List<PSLocator> children,
-      PSLocator targetFolderId,
-      boolean force)
+      PSLocator sourceFolderId, List<PSLocator> children, PSLocator targetFolderId, boolean force)
       throws PSCmsException {
     getProcessor().moveChildren(sourceFolderId, children, targetFolderId, force);
   }

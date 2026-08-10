@@ -100,7 +100,10 @@ test.describe("Publish S3 empty-credentials footer warning (#2284) @s3-empty-cre
     } else if ((await addServerBtn.count()) > 0) {
       await addServerBtn.first().click();
     } else {
-      test.skip(true, s3WarningSurfaceSkipReason("no Add Server / server card"));
+      test.skip(
+        true,
+        s3WarningSurfaceSkipReason("no Add Server / server card"),
+      );
       return;
     }
 
@@ -115,9 +118,11 @@ test.describe("Publish S3 empty-credentials footer warning (#2284) @s3-empty-cre
         (t) => /amazon\s*s3|amazons3/i.test(t) || t.trim() === "AMAZONS3",
       );
       if (s3Option) {
-        await select.selectOption({ label: s3Option.trim() }).catch(async () => {
-          await select.selectOption({ value: "AMAZONS3" }).catch(() => {});
-        });
+        await select
+          .selectOption({ label: s3Option.trim() })
+          .catch(async () => {
+            await select.selectOption({ value: "AMAZONS3" }).catch(() => {});
+          });
       } else {
         // Try value AMAZONS3 directly
         await select.selectOption({ value: "AMAZONS3" }).catch(() => {});
@@ -158,7 +163,10 @@ test.describe("Publish S3 empty-credentials footer warning (#2284) @s3-empty-cre
       "#perc-bucket-name, #bucketName, input[name='bucketName'], #AS3Bucket",
     );
     if ((await bucket.count()) > 0) {
-      const val = await bucket.first().inputValue().catch(() => "");
+      const val = await bucket
+        .first()
+        .inputValue()
+        .catch(() => "");
       if (!String(val || "").trim()) {
         await bucket.first().fill("perc-test-bucket");
       }
@@ -169,7 +177,10 @@ test.describe("Publish S3 empty-credentials footer warning (#2284) @s3-empty-cre
       "input[name='server-name'], #perc-server-name, #serverName",
     );
     if ((await nameInput.count()) > 0) {
-      const n = await nameInput.first().inputValue().catch(() => "");
+      const n = await nameInput
+        .first()
+        .inputValue()
+        .catch(() => "");
       if (!String(n || "").trim()) {
         await nameInput.first().fill("s3-empty-keys-warning-test");
       }
@@ -180,7 +191,10 @@ test.describe("Publish S3 empty-credentials footer warning (#2284) @s3-empty-cre
       "button:has-text('Save'), #perc-save-server, .perc-save-server, button.perc-btn-primary:has-text('Save')",
     );
     if ((await saveBtn.count()) === 0) {
-      test.skip(true, s3WarningSurfaceSkipReason("no Save button on server editor"));
+      test.skip(
+        true,
+        s3WarningSurfaceSkipReason("no Save button on server editor"),
+      );
       return;
     }
     await saveBtn.first().click();

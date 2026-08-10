@@ -10,11 +10,11 @@
 
 ## Inventory
 
-| Metric | Value |
-|--------|-------|
+|                          Metric                          |  Value  |
+|----------------------------------------------------------|---------|
 | Main-source project Xlint (uncapped `-Xmaxwarns`) before | **328** |
-| After batch 1 | **259** |
-| Cleared | **~69** |
+| After batch 1                                            | **259** |
+| Cleared                                                  | **~69** |
 
 ## Changes reviewed
 
@@ -32,14 +32,14 @@
 
 ## Hard gates
 
-| Gate | Result |
-|------|--------|
-| Bugs / logic regressions | None found |
-| Behavioral unit tests for changed logic | Present |
-| Cross-platform path/file I/O | N/A (no path I/O changes) |
-| Change-class companions | List wrappers + extension interface typing stay in sitemanage; no rest API contract changes |
-| Spring/test wiring types | Unchanged bean names/types; only local generic params |
-| Module `mvnw clean install` | **BUILD SUCCESS** — Tests run: **790**, Failures: **0**, Errors: **0**, Skipped: **128** |
+|                  Gate                   |                                           Result                                            |
+|-----------------------------------------|---------------------------------------------------------------------------------------------|
+| Bugs / logic regressions                | None found                                                                                  |
+| Behavioral unit tests for changed logic | Present                                                                                     |
+| Cross-platform path/file I/O            | N/A (no path I/O changes)                                                                   |
+| Change-class companions                 | List wrappers + extension interface typing stay in sitemanage; no rest API contract changes |
+| Spring/test wiring types                | Unchanged bean names/types; only local generic params                                       |
+| Module `mvnw clean install`             | **BUILD SUCCESS** — Tests run: **790**, Failures: **0**, Errors: **0**, Skipped: **128**    |
 
 ## Residual (out of this PR)
 

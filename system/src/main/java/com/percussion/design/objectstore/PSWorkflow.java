@@ -27,6 +27,7 @@ import org.w3c.dom.Element;
 public class PSWorkflow extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
+
   /**
    * Initializes a newly created <code>PSWorkflow</code> object, from an XML representation. See
    * {@link #toXml(Document)} for the format.

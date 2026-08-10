@@ -34,9 +34,10 @@ import org.springframework.context.annotation.Lazy;
  *             -> assetDao        -> contentItemDao       -> folderHelper
  * </pre>
  *
- * <p>The cycle blocks Rhythmyx startup (#2423 / slice A #2435). The fix marks {@code IPSFolderHelper}
- * in {@link PSContentItemDao}'s constructor as {@link Lazy @Lazy} so Spring injects a proxy and does
- * not try to fully resolve {@code folderHelper} while {@code folderHelper} is still being created.
+ * <p>The cycle blocks Rhythmyx startup (#2423 / slice A #2435). The fix marks {@code
+ * IPSFolderHelper} in {@link PSContentItemDao}'s constructor as {@link Lazy @Lazy} so Spring
+ * injects a proxy and does not try to fully resolve {@code folderHelper} while {@code folderHelper}
+ * is still being created.
  *
  * <p>This test fails if the {@code @Lazy} annotation is removed or applied to the wrong parameter,
  * which would re-introduce the {@code BeanCurrentlyInCreationException} on Jetty/Rhythmyx startup.
@@ -46,15 +47,16 @@ public class PSContentItemDaoCycleLazyWiringTest {
 
   @Test
   public void folderHelperConstructorParameterIsLazy() throws NoSuchMethodException {
-    Constructor<PSContentItemDao> ctor = PSContentItemDao.class.getDeclaredConstructor(
-        com.percussion.webservices.content.IPSContentDesignWs.class,
-        com.percussion.webservices.content.IPSContentWs.class,
-        com.percussion.share.service.IPSIdMapper.class,
-        com.percussion.share.service.IPSDataItemSummaryService.class,
-        IPSFolderHelper.class,
-        com.percussion.services.legacy.IPSCmsObjectMgr.class,
-        com.percussion.share.dao.IPSRelationshipCataloger.class,
-        com.percussion.webservices.system.IPSSystemWs.class);
+    Constructor<PSContentItemDao> ctor =
+        PSContentItemDao.class.getDeclaredConstructor(
+            com.percussion.webservices.content.IPSContentDesignWs.class,
+            com.percussion.webservices.content.IPSContentWs.class,
+            com.percussion.share.service.IPSIdMapper.class,
+            com.percussion.share.service.IPSDataItemSummaryService.class,
+            IPSFolderHelper.class,
+            com.percussion.services.legacy.IPSCmsObjectMgr.class,
+            com.percussion.share.dao.IPSRelationshipCataloger.class,
+            com.percussion.webservices.system.IPSSystemWs.class);
 
     assertNotNull(ctor, "PSContentItemDao constructor signature must match");
 

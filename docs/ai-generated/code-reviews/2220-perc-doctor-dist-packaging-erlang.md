@@ -10,12 +10,12 @@ Adds operator distribution packaging for `perc-doctor`: Unix + Windows `bin` lau
 
 ## Scope
 
-| Area | Paths |
-|------|--------|
-| perc-doctor packaging | `modules/perc-doctor/pom.xml`, `src/main/scripts/*`, `src/main/assembly/dist-bin.xml` |
-| perc-doctor docs | `modules/perc-doctor/README.md`, `docs/operator-install-guide.md` |
-| perc-doctor tests | `PercDoctorPackagingTest.java` |
-| dist-tree | `modules/perc-distribution-tree/pom.xml`, `install.xml`, `PercDoctorDistPackagingTest.java` |
+|         Area          |                                            Paths                                            |
+|-----------------------|---------------------------------------------------------------------------------------------|
+| perc-doctor packaging | `modules/perc-doctor/pom.xml`, `src/main/scripts/*`, `src/main/assembly/dist-bin.xml`       |
+| perc-doctor docs      | `modules/perc-doctor/README.md`, `docs/operator-install-guide.md`                           |
+| perc-doctor tests     | `PercDoctorPackagingTest.java`                                                              |
+| dist-tree             | `modules/perc-distribution-tree/pom.xml`, `install.xml`, `PercDoctorDistPackagingTest.java` |
 
 Prior report / Memory: no prior #2220 report. Patterns: packaging lockstep tests (JettyServiceDualShip, BundledGcmNatives), cross-platform paths, no hardcoded user homes.
 
@@ -59,3 +59,4 @@ cd modules/perc-distribution-tree && ../../mvnw clean install
 # BUILD SUCCESS; target/classes/distribution/bin/{perc-doctor,perc-doctor.bat,perc-doctor.jar}
 # java -jar …/perc-doctor.jar --dry-run -v clean-heap-dumps → WOULD_DELETE (smoke)
 ```
+

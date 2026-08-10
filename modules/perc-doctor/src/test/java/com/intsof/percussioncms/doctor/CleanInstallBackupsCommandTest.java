@@ -80,8 +80,7 @@ class CleanInstallBackupsCommandTest {
     for (CleanReport.Entry e : report.getEntries()) {
       assertEquals(CleanReport.EntryStatus.WOULD_DELETE, e.getStatus());
       assertTrue(InstallRootGuard.isUnderInstallRoot(installRoot, e.getPath()));
-      assertTrue(
-          InstallRootGuard.isInstallBackupFileName(e.getPath().getFileName().toString()));
+      assertTrue(InstallRootGuard.isInstallBackupFileName(e.getPath().getFileName().toString()));
     }
 
     long expectedBytes =
@@ -121,8 +120,7 @@ class CleanInstallBackupsCommandTest {
   void executeRejectsMissingInstallRoot() {
     Path missing = tempDir.resolve("missing-root");
     assertThrows(
-        IllegalArgumentException.class,
-        () -> CleanInstallBackupsCommand.execute(missing, true));
+        IllegalArgumentException.class, () -> CleanInstallBackupsCommand.execute(missing, true));
   }
 
   @Test

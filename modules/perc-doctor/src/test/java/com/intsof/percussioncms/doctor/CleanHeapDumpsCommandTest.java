@@ -73,8 +73,7 @@ class CleanHeapDumpsCommandTest {
       assertTrue(InstallRootGuard.isHeapDumpFileName(e.getPath().getFileName().toString()));
     }
 
-    long expectedBytes =
-        Files.size(nestedDump) + Files.size(rootDump);
+    long expectedBytes = Files.size(nestedDump) + Files.size(rootDump);
     assertEquals(expectedBytes, report.getTotalBytes());
   }
 
@@ -104,7 +103,8 @@ class CleanHeapDumpsCommandTest {
   @Test
   void executeRejectsMissingInstallRoot() {
     Path missing = tempDir.resolve("missing-root");
-    assertThrows(IllegalArgumentException.class, () -> CleanHeapDumpsCommand.execute(missing, true));
+    assertThrows(
+        IllegalArgumentException.class, () -> CleanHeapDumpsCommand.execute(missing, true));
   }
 
   @Test

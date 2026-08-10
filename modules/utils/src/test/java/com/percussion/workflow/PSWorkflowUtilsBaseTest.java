@@ -171,7 +171,8 @@ public class PSWorkflowUtilsBaseTest {
 
   @Test
   public void intersectListsOnEmptyReturnsEmpty() {
-    List<?> result = castList(PSWorkflowUtilsBase.intersectLists(new ArrayList<>(), Arrays.asList("a")));
+    List<?> result =
+        castList(PSWorkflowUtilsBase.intersectLists(new ArrayList<>(), Arrays.asList("a")));
     assertNotNull(result);
     assertTrue(result.isEmpty());
   }
@@ -220,8 +221,7 @@ public class PSWorkflowUtilsBaseTest {
         IllegalArgumentException.class,
         () -> PSWorkflowUtilsBase.listToDelimitedString(new ArrayList<>(), ","));
     assertThrows(
-        IllegalArgumentException.class,
-        () -> PSWorkflowUtilsBase.listToDelimitedString(null, ","));
+        IllegalArgumentException.class, () -> PSWorkflowUtilsBase.listToDelimitedString(null, ","));
   }
 
   @Test

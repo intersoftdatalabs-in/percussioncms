@@ -62,8 +62,7 @@ class PSCategoryServiceUtilPublishTest {
     PSCategoryNode c = node("c", "Gamma", null);
 
     JSONArray arr =
-        PSCategoryServiceUtil.findModifiedCategories(
-            List.of(a, b, c), "/Categories", null, false);
+        PSCategoryServiceUtil.findModifiedCategories(List.of(a, b, c), "/Categories", null, false);
 
     assertEquals(1, arr.length(), "only the renamed sibling should produce a pair");
     assertEquals("/Categories/Alpha", arr.getJSONObject(0).getString("previousCategoryName"));
@@ -77,8 +76,7 @@ class PSCategoryServiceUtilPublishTest {
     parent.setChildNodes(List.of(child));
 
     JSONArray arr =
-        PSCategoryServiceUtil.findModifiedCategories(
-            List.of(parent), "/Categories", null, false);
+        PSCategoryServiceUtil.findModifiedCategories(List.of(parent), "/Categories", null, false);
 
     assertEquals(2, arr.length());
     assertEquals("/Categories/ParentOld", arr.getJSONObject(0).getString("previousCategoryName"));
@@ -113,8 +111,7 @@ class PSCategoryServiceUtilPublishTest {
   void onlyTitleChangeWithoutPreviousNameIsNotPublished() throws Exception {
     PSCategoryNode plain = node("p", "JustATitle", null);
     JSONArray arr =
-        PSCategoryServiceUtil.findModifiedCategories(
-            List.of(plain), "/Categories", null, false);
+        PSCategoryServiceUtil.findModifiedCategories(List.of(plain), "/Categories", null, false);
     assertEquals(0, arr.length());
   }
 

@@ -183,4 +183,3 @@ test.describe("GH-1622 explorer root folders (encodePath / no double-slash)", ()
     }
   });
 });
-

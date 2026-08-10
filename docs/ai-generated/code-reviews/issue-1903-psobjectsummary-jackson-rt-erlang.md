@@ -8,13 +8,13 @@
 
 ### Checklist
 
-| Gate | Result |
-|------|--------|
-| Bugs / incorrect assertions | Pass — historical suppress of nested `permissions` restored; `permission-value` string path + `setGUID` restore wire form |
-| Behavioral unit tests | Pass — `PSObjectSummaryTest` write-shape + both equality RTs green (3/3) |
-| Cross-platform paths | Pass — no filesystem path construction |
-| Change-class companions | Pass — peer suppress/`@JsonIgnore` + `setGUID` pattern from #1888/#1889/#1915; SOAP orphan-brace compile fix required for module clean install |
-| Spotless / clean install | Pass — in-scope only; `cd system && ../mvnw clean install` BUILD SUCCESS (Tests run: 1035, Failures: 0) |
+|            Gate             |                                                                     Result                                                                     |
+|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| Bugs / incorrect assertions | Pass — historical suppress of nested `permissions` restored; `permission-value` string path + `setGUID` restore wire form                      |
+| Behavioral unit tests       | Pass — `PSObjectSummaryTest` write-shape + both equality RTs green (3/3)                                                                       |
+| Cross-platform paths        | Pass — no filesystem path construction                                                                                                         |
+| Change-class companions     | Pass — peer suppress/`@JsonIgnore` + `setGUID` pattern from #1888/#1889/#1915; SOAP orphan-brace compile fix required for module clean install |
+| Spotless / clean install    | Pass — in-scope only; `cd system && ../mvnw clean install` BUILD SUCCESS (Tests run: 1035, Failures: 0)                                        |
 
 ### Findings
 
@@ -28,3 +28,4 @@
 - Jackson domain slices: suppress derived getters with `@IPSXmlSerialization` + `@JsonIgnore`
 - GUID as string property via shared `IPSGuid` converter
 - Do not fold monorepo Spotless noise into feature PR
+

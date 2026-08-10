@@ -51,8 +51,7 @@ class FixPermissionsCommandTest {
     Files.writeString(binDir.resolve("perc-doctor.bat"), "@echo off\r\n", StandardCharsets.UTF_8);
     Files.write(binDir.resolve("perc-doctor.jar"), new byte[] {0x50, 0x4b});
     jettyLogs =
-        Files.createDirectories(
-            installRoot.resolve("jetty").resolve("base").resolve("logs"));
+        Files.createDirectories(installRoot.resolve("jetty").resolve("base").resolve("logs"));
     Path serverDir = Files.createDirectories(installRoot.resolve("rxconfig").resolve("Server"));
     Files.writeString(serverDir.resolve("server.properties"), "bindPort=9992\n");
     Path installerDir =
@@ -122,7 +121,8 @@ class FixPermissionsCommandTest {
 
     FixPermissionsReport dry = FixPermissionsCommand.execute(installRoot, true);
     assertTrue(dry.getWouldFixCount() >= 1);
-    assertFalse(Files.getPosixFilePermissions(unixLauncher).contains(PosixFilePermission.OWNER_EXECUTE));
+    assertFalse(
+        Files.getPosixFilePermissions(unixLauncher).contains(PosixFilePermission.OWNER_EXECUTE));
 
     FixPermissionsReport apply = FixPermissionsCommand.execute(installRoot, false);
     assertTrue(apply.getFixedCount() >= 1);
@@ -147,8 +147,7 @@ class FixPermissionsCommandTest {
                         && e.getPath().equals(jettyLogs.toAbsolutePath().normalize())));
 
     FixPermissionsReport apply = FixPermissionsCommand.execute(installRoot, false);
-    assertTrue(
-        Files.getPosixFilePermissions(jettyLogs).contains(PosixFilePermission.OWNER_WRITE));
+    assertTrue(Files.getPosixFilePermissions(jettyLogs).contains(PosixFilePermission.OWNER_WRITE));
     assertTrue(apply.getFixedCount() >= 1);
   }
 

@@ -206,9 +206,7 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
     // Prefer supplied node name; else class-derived default (subclass overrides of getNodeName
     // that match PS→PSX mapping are equivalent; custom constants should pass nodeName explicitly).
     String effective =
-        (nodeName == null || nodeName.trim().isEmpty())
-            ? defaultNodeNameFor(getClass())
-            : nodeName;
+        (nodeName == null || nodeName.trim().isEmpty()) ? defaultNodeNameFor(getClass()) : nodeName;
     fromXmlLoad(src, effective);
   }
 

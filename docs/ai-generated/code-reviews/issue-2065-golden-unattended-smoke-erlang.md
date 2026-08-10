@@ -6,22 +6,22 @@
 
 ## Change class
 
-| Class | Artifacts |
-|-------|-----------|
-| Playwright golden smoke (QA mode) | `tests/golden-unattended-smoke.spec.js`, `npm run test:golden`, README + workbench one-shot docs |
-| Installer antlib task registration | `perc-ant` antlib.xml + unit test (unblock silent H2 `qa-up`) |
+|               Class                |                                            Artifacts                                             |
+|------------------------------------|--------------------------------------------------------------------------------------------------|
+| Playwright golden smoke (QA mode)  | `tests/golden-unattended-smoke.spec.js`, `npm run test:golden`, README + workbench one-shot docs |
+| Installer antlib task registration | `perc-ant` antlib.xml + unit test (unblock silent H2 `qa-up`)                                    |
 
 ## Checklist
 
-| Gate | Result |
-|------|--------|
-| Bugs | No logic bugs found in golden path; reuses `loginAsAdmin` + stable `data-testid` explorer selectors |
-| Portable paths | Docs use `path`-agnostic `python docker/scripts/...`; Windows cmd uses `\` only in examples |
-| Secrets | No passwords committed; placeholders only |
-| Behavioral tests | `AntlibTaskRegistrationTest`; existing `PSGenerateRepositoryPasswordTest`; frontend `test:unit` 48 pass |
-| Module clean install | `perc-ant` BUILD SUCCESS; `perc-qa-automation` BUILD SUCCESS |
-| AGENTS rule commits | None (issue forbids; human-review gate) |
-| Scope | No full suite / surface matrix / CI workflow |
+|         Gate         |                                                 Result                                                  |
+|----------------------|---------------------------------------------------------------------------------------------------------|
+| Bugs                 | No logic bugs found in golden path; reuses `loginAsAdmin` + stable `data-testid` explorer selectors     |
+| Portable paths       | Docs use `path`-agnostic `python docker/scripts/...`; Windows cmd uses `\` only in examples             |
+| Secrets              | No passwords committed; placeholders only                                                               |
+| Behavioral tests     | `AntlibTaskRegistrationTest`; existing `PSGenerateRepositoryPasswordTest`; frontend `test:unit` 48 pass |
+| Module clean install | `perc-ant` BUILD SUCCESS; `perc-qa-automation` BUILD SUCCESS                                            |
+| AGENTS rule commits  | None (issue forbids; human-review gate)                                                                 |
+| Scope                | No full suite / surface matrix / CI workflow                                                            |
 
 ## Live H2 evidence (session)
 

@@ -46,6 +46,7 @@ import org.w3c.dom.Element;
 public class PSRelationshipConfig extends PSComponent implements IPSCatalogSummary, IPSCloneTuner {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
+
   /**
    * Construct a Java object from its XML representation.
    *

@@ -1075,8 +1075,8 @@ public class PSContentEditor extends PSDataSet {
    * A set of PSCustomActionGroup objects. Never <code>null</code>, may be empty. A custom action
    * group allows the designer to add to or replace actions in various parts of the editors
    * (example: the main form button could be replaced with the designer specific action). Declared
-   * as {@link ArrayList} (not {@link Collection}) so the field type is {@link
-   * java.io.Serializable} under {@code -Xlint:serial}.
+   * as {@link ArrayList} (not {@link Collection}) so the field type is {@link java.io.Serializable}
+   * under {@code -Xlint:serial}.
    */
   private ArrayList m_customActionGroups = new ArrayList();
 

@@ -1,13 +1,13 @@
 # Erlang review — issue #2281 Default/AnyCommunity ACL UX
 
-| Field | Value |
-|-------|--------|
-| **Branch** | `fix/issue-2281-default-anycommunity-acl-ux` |
-| **Ticket** | #2281 (parent #2274 / #2262 / #1690) |
-| **Reviewer** | Erlang (pre-commit gate, implementer re-check) |
-| **Date** | 2026-08-07 |
-| **Recommendation** | **approve** |
-| **Gate** | **May commit/push: yes** |
+|       Field        |                     Value                      |
+|--------------------|------------------------------------------------|
+| **Branch**         | `fix/issue-2281-default-anycommunity-acl-ux`   |
+| **Ticket**         | #2281 (parent #2274 / #2262 / #1690)           |
+| **Reviewer**       | Erlang (pre-commit gate, implementer re-check) |
+| **Date**           | 2026-08-07                                     |
+| **Recommendation** | **approve**                                    |
+| **Gate**           | **May commit/push: yes**                       |
 
 ## Summary
 
@@ -39,13 +39,13 @@ Slice B1 adds Workbench-parity **Default** / **AnyCommunity** special principal 
 
 ## Gate checklist
 
-| Check | Result |
-|-------|--------|
-| Bugs | None found after coerce-on-save fix |
+|                Check                |                                Result                                |
+|-------------------------------------|----------------------------------------------------------------------|
+| Bugs                                | None found after coerce-on-save fix                                  |
 | Behavioral unit tests for new logic | Yes (helpers + ObjectAclSection + existing DeveloperShell ACL suite) |
-| Playwright HARD GATE for UI surface | Spec landed; `--list` green; live CMS not run this session |
-| Non-portable paths | None |
-| Module `mvnw clean install` | WebUI BUILD SUCCESS; perc-qa-automation BUILD SUCCESS |
+| Playwright HARD GATE for UI surface | Spec landed; `--list` green; live CMS not run this session           |
+| Non-portable paths                  | None                                                                 |
+| Module `mvnw clean install`         | WebUI BUILD SUCCESS; perc-qa-automation BUILD SUCCESS                |
 
 ## Tests run
 

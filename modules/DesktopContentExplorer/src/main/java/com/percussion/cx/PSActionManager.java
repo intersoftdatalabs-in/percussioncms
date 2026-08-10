@@ -225,9 +225,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     return children;
   }
 
-  /**
-   * Adapts a raw node iterator from managers / older APIs into {@code Iterator<PSNode>}.
-   */
+  /** Adapts a raw node iterator from managers / older APIs into {@code Iterator<PSNode>}. */
   @SuppressWarnings({"rawtypes", "unchecked"})
   private static Iterator<PSNode> asNodes(Iterator children) {
     return children;
@@ -667,7 +665,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     PSMenuAction filterAction = filter((PSMenuAction) action.clone(), selection, isTestMultiSelect);
     if (filterAction == null || !filterAction.getChildren().hasNext()) {
       String label = m_applet.getResourceString(getClass(), "No Entries");
-      setMenuChildren(action, asMenuActions(PSIteratorUtils.iterator(new PSMenuAction(ACTION_NO_ENTRIES, label))));
+      setMenuChildren(
+          action,
+          asMenuActions(PSIteratorUtils.iterator(new PSMenuAction(ACTION_NO_ENTRIES, label))));
     } else action = filterAction;
 
     return action;
@@ -704,9 +704,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         displayId = String.valueOf(format.getDisplayId());
         props.setProperty(PROPERTY_DISPLAYFORMATID, displayId);
 
-        if ((selection.getNodeList().next())
-            .getDisplayFormatId()
-            .equalsIgnoreCase(displayId)) {
+        if ((selection.getNodeList().next()).getDisplayFormatId().equalsIgnoreCase(displayId)) {
           props.setProperty(PROPERTY_MENU_ITEM_CHECKED, PROPERTY_TRUE);
         }
 
@@ -781,7 +779,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       retAction = new PSMenuAction("parent", "parent");
       retAction.setType(PSMenuAction.TYPE_MENU);
       String label = m_applet.getResourceString(getClass(), "No Entries");
-      setMenuChildren(retAction, asMenuActions(PSIteratorUtils.iterator(new PSMenuAction(ACTION_NO_ENTRIES, label))));
+      setMenuChildren(
+          retAction,
+          asMenuActions(PSIteratorUtils.iterator(new PSMenuAction(ACTION_NO_ENTRIES, label))));
 
       // Update the action to return for context menu if we found action
       // children based on mode and uicontext of the selection.
@@ -1103,8 +1103,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @throws PSContentExplorerException if the url is not provided or an exception happened
    *     executing the url
    */
-  private Iterator<PSMenuAction> getActionChildren(PSMenuAction action, String url, PSSelection selection)
-      throws PSContentExplorerException {
+  private Iterator<PSMenuAction> getActionChildren(
+      PSMenuAction action, String url, PSSelection selection) throws PSContentExplorerException {
     try {
       if (StringUtils.isBlank(url)) {
         throw new PSContentExplorerException(
@@ -3830,11 +3830,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       while (nodes.hasNext()) {
         actionUrl =
             appendDynamcParams(
-                action,
-                actionUrl,
-                actionParams,
-                nodes.next(),
-                selection.getMode().getViewMode());
+                action, actionUrl, actionParams, nodes.next(), selection.getMode().getViewMode());
       }
       Iterator<PSNode> tgtNodes = selection.getNodeList();
       while (tgtNodes.hasNext()) {
@@ -3972,11 +3968,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       while (nodes.hasNext()) {
         actionUrl =
             appendDynamcParams(
-                action,
-                actionUrl,
-                actionParams,
-                nodes.next(),
-                selection.getMode().getViewMode());
+                action, actionUrl, actionParams, nodes.next(), selection.getMode().getViewMode());
       }
       Iterator<PSNode> tgtNodes = selection.getNodeList();
       while (tgtNodes.hasNext()) {

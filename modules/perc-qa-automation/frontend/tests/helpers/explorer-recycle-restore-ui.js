@@ -319,7 +319,9 @@ function isRestoreActionName(actionName) {
   if (n.includes("empty")) {
     return false;
   }
-  return n.includes("restore") || n.includes("undelete") || n.includes("recover");
+  return (
+    n.includes("restore") || n.includes("undelete") || n.includes("recover")
+  );
 }
 
 /**

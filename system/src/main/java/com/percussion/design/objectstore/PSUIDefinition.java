@@ -29,6 +29,7 @@ import org.w3c.dom.Node;
 public class PSUIDefinition extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
+
   /**
    * Creates a new UI definition.
    *

@@ -44,10 +44,10 @@ None.
 
 ## Residual suppressions (documented)
 
-| Site | Reason |
-| --- | --- |
-| `PSAbstractBeanValidator.uncheckedCast` | Spring `Validator.validate(Object, Errors)` + type erasure when subclass does not supply `getFullType()` |
-| `PSSpringOvalValidator` OVal `getContext()` | Pre-existing deprecation; OVal API still required for field-context mapping |
+|                    Site                     |                                                  Reason                                                  |
+|---------------------------------------------|----------------------------------------------------------------------------------------------------------|
+| `PSAbstractBeanValidator.uncheckedCast`     | Spring `Validator.validate(Object, Errors)` + type erasure when subclass does not supply `getFullType()` |
+| `PSSpringOvalValidator` OVal `getContext()` | Pre-existing deprecation; OVal API still required for field-context mapping                              |
 
 ## Verification
 
@@ -55,3 +55,4 @@ None.
 - Tests: 19 run, 0 failures
 - Main compile: no this-escape / serial / unchecked `[WARNING]` on changed sources after fixes
 - Class-level `@SuppressWarnings` for this-escape/serial/unchecked removed from #2098 sites
+

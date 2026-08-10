@@ -78,8 +78,7 @@ class PSErrorCollectorTypedTest {
     generic.setAccessible(true);
     assertEquals("generic failure", generic.get(collector));
 
-    org.w3c.dom.Document empty =
-        com.percussion.xml.PSXmlDocumentBuilder.createXmlDocument();
+    org.w3c.dom.Document empty = com.percussion.xml.PSXmlDocumentBuilder.createXmlDocument();
     collector.add(empty);
     assertTrue(collector.hasErrors());
     assertEquals(1, collector.getErrorCount());

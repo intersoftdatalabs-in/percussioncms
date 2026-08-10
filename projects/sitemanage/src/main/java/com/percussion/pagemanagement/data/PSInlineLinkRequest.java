@@ -38,6 +38,7 @@ public class PSInlineLinkRequest extends PSAbstractDataObject {
   @NotNull @NotBlank private String targetId;
   private String resourceDefinitionId;
   private String thumbResourceDefinitionId;
+
   /**
    * Optional content field name for the inline link/image {@code title} attribute (control setting
    * {@code InlineLinkTitleField} / query param {@code titleField}). Empty or null = product default

@@ -216,9 +216,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
 
       if (valueColumn.equals(PROP_DATEVALUE_COLUMN_NAME)) {
         Calendar date = DatatypeConverter.parseDate(value.toString().replace(' ', 'T'));
-        value =
-            LocalDateTime.ofInstant(
-                date.toInstant(), ZoneId.systemDefault());
+        value = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
       }
 
       if ((valueColumn.equals(PROP_STRINGVALUE_COLUMN_NAME)
@@ -309,8 +307,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
           hq.setParameter(key, (LocalDateTime) value);
         } else if (value instanceof Date) {
           hq.setParameter(
-              key,
-              LocalDateTime.ofInstant(((Date) value).toInstant(), ZoneId.systemDefault()));
+              key, LocalDateTime.ofInstant(((Date) value).toInstant(), ZoneId.systemDefault()));
         } else if (value instanceof String) {
           hq.setParameter(key, value.toString());
         }
@@ -538,9 +535,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
 
       if (valueColumn.equals(PROP_DATEVALUE_COLUMN_NAME)) {
         Calendar date = DatatypeConverter.parseDate(value.toString().replace(' ', 'T'));
-        value =
-            LocalDateTime.ofInstant(
-                date.toInstant(), ZoneId.systemDefault());
+        value = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
       }
 
       String useClause = clauseTemplate;
@@ -654,8 +649,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
         q.setParameter(key, (LocalDateTime) value);
       } else if (value instanceof Date) {
         q.setParameter(
-            key,
-            LocalDateTime.ofInstant(((Date) value).toInstant(), ZoneId.systemDefault()));
+            key, LocalDateTime.ofInstant(((Date) value).toInstant(), ZoneId.systemDefault()));
       } else if (value instanceof String) {
         q.setParameter(key, value.toString());
       }

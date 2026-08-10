@@ -122,10 +122,7 @@ async function readFinderDisplayLabels(page, englishRoots) {
           ? window.percFinderRootDisplay
           : null;
     for (const name of roots) {
-      if (
-        api &&
-        typeof api.displayLabelForFinderRoot === "function"
-      ) {
+      if (api && typeof api.displayLabelForFinderRoot === "function") {
         try {
           out[name] = api.displayLabelForFinderRoot(name);
         } catch {
@@ -174,10 +171,9 @@ test.describe("Spanish locale smoke — Finder roots + default gadgets (#2094) @
       .toBe(true);
 
     for (const [english, key] of Object.entries(FINDER_ROOT_KEYS)) {
-      expect(
-        msgs[key],
-        `I18N.message(${key}) after Spanish login`,
-      ).toBe(ES_FINDER_ROOTS[english]);
+      expect(msgs[key], `I18N.message(${key}) after Spanish login`).toBe(
+        ES_FINDER_ROOTS[english],
+      );
       expect(msgs[key]).not.toBe(english);
     }
 
@@ -219,9 +215,7 @@ test.describe("Spanish locale smoke — Finder roots + default gadgets (#2094) @
     // Classic miller-column DOM when still mounted on a residual surface.
     const classicNames = page.locator(".perc-finder-item-name");
     if ((await classicNames.count()) > 0) {
-      const texts = (await classicNames.allTextContents()).map((t) =>
-        t.trim(),
-      );
+      const texts = (await classicNames.allTextContents()).map((t) => t.trim());
       for (const spanish of Object.values(ES_FINDER_ROOTS)) {
         expect(
           texts,

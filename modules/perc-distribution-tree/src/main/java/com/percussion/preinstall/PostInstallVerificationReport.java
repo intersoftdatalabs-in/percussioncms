@@ -93,10 +93,8 @@ public final class PostInstallVerificationReport {
       }
     }
 
-    String database =
-        firstNonBlank(p.get("perc.db.name"), p.get("perc.db.cms.name"));
-    String schema =
-        firstNonBlank(p.get("perc.db.schema"), p.get("perc.db.cms.schema"));
+    String database = firstNonBlank(p.get("perc.db.name"), p.get("perc.db.cms.name"));
+    String schema = firstNonBlank(p.get("perc.db.schema"), p.get("perc.db.cms.schema"));
     if (isEmbedded(type)) {
       // Product default for ship H2 props: empty DB_NAME, schema PUBLIC
       lines.add("Database     : " + (database != null ? database : "(embedded)"));

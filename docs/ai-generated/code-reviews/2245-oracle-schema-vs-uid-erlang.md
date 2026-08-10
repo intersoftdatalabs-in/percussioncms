@@ -11,9 +11,9 @@ Minimal fix at the inventory choke point `PSDatabaseDeliveryHandler.getDbmsInfoF
 
 ## Scope
 
-| Path | Change |
-|------|--------|
-| `system/business/.../PSDatabaseDeliveryHandler.java` | `resolveDbmsOrigin` + wire into `getDbmsInfoFromPubServer` |
+|                                 Path                                 |                                     Change                                      |
+|----------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| `system/business/.../PSDatabaseDeliveryHandler.java`                 | `resolveDbmsOrigin` + wire into `getDbmsInfoFromPubServer`                      |
 | `system/src/test/.../PSDatabaseDeliveryHandlerOracleOriginTest.java` | New JUnit 5 tests (Oracle ≠ UID, default schema, MSSQL owner, qualifyTableName) |
 
 Cross-platform path review: N/A (no path/file I/O).  
@@ -25,13 +25,13 @@ Approve. Residual live Oracle matrix remains #2246 (intentional cross-schema whe
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | None found |
+|                Check                |                         Result                         |
+|-------------------------------------|--------------------------------------------------------|
+| Bugs                                | None found                                             |
 | Behavioral unit tests for new logic | Present (`resolveDbmsOrigin` + property-bag + qualify) |
-| Non-portable paths | None |
-| Module `mvnw clean install` | `system` BUILD SUCCESS |
-| Change-class companions | Tests only; no Spring bean / REST surface |
+| Non-portable paths                  | None                                                   |
+| Module `mvnw clean install`         | `system` BUILD SUCCESS                                 |
+| Change-class companions             | Tests only; no Spring bean / REST surface              |
 
 ## Issues
 

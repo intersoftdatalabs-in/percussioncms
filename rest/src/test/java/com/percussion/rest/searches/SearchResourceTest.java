@@ -64,8 +64,7 @@ public class SearchResourceTest {
   @Test
   public void missingAdaptorReturnsServiceUnavailableOnList() {
     SearchResource bare = new SearchResource();
-    WebApplicationException ex =
-        assertThrows(WebApplicationException.class, bare::listSearches);
+    WebApplicationException ex = assertThrows(WebApplicationException.class, bare::listSearches);
     assertEquals(503, ex.getResponse().getStatus());
   }
 

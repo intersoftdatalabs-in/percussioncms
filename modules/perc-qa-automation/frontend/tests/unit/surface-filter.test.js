@@ -172,9 +172,6 @@ describe("formatSurfaceCommand", () => {
   it("escapes backslashes then quotes inside display quoting", () => {
     const cmd = formatSurfaceCommand({ grep: 'path\\to "file"' });
     // backslash doubled, then embedded " escaped
-    assert.equal(
-      cmd,
-      'npx playwright test --grep "path\\\\to \\"file\\""',
-    );
+    assert.equal(cmd, 'npx playwright test --grep "path\\\\to \\"file\\""');
   });
 });

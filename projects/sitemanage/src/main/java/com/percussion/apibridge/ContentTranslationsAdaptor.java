@@ -260,8 +260,7 @@ public class ContentTranslationsAdaptor implements IContentTranslationsAdaptor {
     if (items == null) {
       return out;
     }
-    Long singleSource =
-        sourceIds != null && sourceIds.size() == 1 ? sourceIds.get(0) : null;
+    Long singleSource = sourceIds != null && sourceIds.size() == 1 ? sourceIds.get(0) : null;
     for (PSCoreItem item : items) {
       if (item == null) {
         continue;

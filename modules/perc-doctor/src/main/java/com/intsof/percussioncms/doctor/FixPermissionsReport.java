@@ -56,17 +56,23 @@ public final class FixPermissionsReport {
       this.detail = detail;
     }
 
-    /** @return candidate path */
+    /**
+     * @return candidate path
+     */
     public Path getPath() {
       return path;
     }
 
-    /** @return outcome status */
+    /**
+     * @return outcome status
+     */
     public EntryStatus getStatus() {
       return status;
     }
 
-    /** @return optional detail message, or null */
+    /**
+     * @return optional detail message, or null
+     */
     public String getDetail() {
       return detail;
     }
@@ -93,32 +99,44 @@ public final class FixPermissionsReport {
     entries.add(Objects.requireNonNull(entry, "entry"));
   }
 
-  /** @return command name */
+  /**
+   * @return command name
+   */
   public String getCommand() {
     return command;
   }
 
-  /** @return install root used for this run */
+  /**
+   * @return install root used for this run
+   */
   public Path getInstallRoot() {
     return installRoot;
   }
 
-  /** @return true if no mode fixes were applied */
+  /**
+   * @return true if no mode fixes were applied
+   */
   public boolean isDryRun() {
     return dryRun;
   }
 
-  /** @return unmodifiable list of entries */
+  /**
+   * @return unmodifiable list of entries
+   */
   public List<Entry> getEntries() {
     return Collections.unmodifiableList(entries);
   }
 
-  /** @return number of entries */
+  /**
+   * @return number of entries
+   */
   public int getCandidateCount() {
     return entries.size();
   }
 
-  /** @return count of successfully fixed entries */
+  /**
+   * @return count of successfully fixed entries
+   */
   public int getFixedCount() {
     int n = 0;
     for (Entry e : entries) {
@@ -129,7 +147,9 @@ public final class FixPermissionsReport {
     return n;
   }
 
-  /** @return count of dry-run would-fix entries */
+  /**
+   * @return count of dry-run would-fix entries
+   */
   public int getWouldFixCount() {
     int n = 0;
     for (Entry e : entries) {
@@ -140,7 +160,9 @@ public final class FixPermissionsReport {
     return n;
   }
 
-  /** @return count of failed entries */
+  /**
+   * @return count of failed entries
+   */
   public int getFailedCount() {
     int n = 0;
     for (Entry e : entries) {

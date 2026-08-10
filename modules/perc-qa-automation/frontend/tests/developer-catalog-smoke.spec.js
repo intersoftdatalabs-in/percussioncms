@@ -43,7 +43,9 @@ const {
   BASE_URL,
   adminBasicAuthHeaders,
 } = require("./helpers/auth");
-const { catalogRowsSelector } = require("./helpers/developer-catalog-selectors");
+const {
+  catalogRowsSelector,
+} = require("./helpers/developer-catalog-selectors");
 
 /**
  * @type {{

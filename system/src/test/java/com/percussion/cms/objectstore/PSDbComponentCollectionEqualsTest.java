@@ -79,7 +79,8 @@ public class PSDbComponentCollectionEqualsTest {
         assertThrows(
             ClassNotFoundException.class,
             () -> new PSDbComponentCollection(String.class.getName(), "String"));
-    assertTrue(ex.getMessage().contains("IPSDbComponent") || ex.getCause() instanceof ClassCastException);
+    assertTrue(
+        ex.getMessage().contains("IPSDbComponent") || ex.getCause() instanceof ClassCastException);
   }
 
   @Test

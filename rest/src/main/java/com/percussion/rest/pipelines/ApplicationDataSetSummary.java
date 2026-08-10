@@ -36,7 +36,10 @@ public class ApplicationDataSetSummary {
   /** Request page URL of the data set. */
   private String requestPage;
 
-  /** Data set kind, e.g. {@code CONTENT_EDITOR} when the data set is a PSContentEditor, otherwise {@code DATASET}. */
+  /**
+   * Data set kind, e.g. {@code CONTENT_EDITOR} when the data set is a PSContentEditor, otherwise
+   * {@code DATASET}.
+   */
   private String kind;
 
   /** No-op constructor. */

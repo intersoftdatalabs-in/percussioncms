@@ -48,7 +48,8 @@ public class PSSqlDeleteBuilder extends PSSqlUpdateBuilder {
    * @return an update statement that deletes the table specified in the ctor for this object, this
    *     will never return <code>null</code>
    */
-  PSUpdateStatement generate(java.util.List<PSBackEndLogin> logins, ConcurrentHashMap<?, Integer> connKeys)
+  PSUpdateStatement generate(
+      java.util.List<PSBackEndLogin> logins, ConcurrentHashMap<?, Integer> connKeys)
       throws PSIllegalArgumentException {
     if (logins == null) {
       throw new IllegalArgumentException("logins must never be null");

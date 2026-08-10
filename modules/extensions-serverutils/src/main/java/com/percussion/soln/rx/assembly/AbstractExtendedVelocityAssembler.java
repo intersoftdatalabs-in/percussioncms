@@ -23,8 +23,8 @@ import com.percussion.services.assembly.impl.plugin.PSVelocityAssembler;
 import com.percussion.utils.jexl.PSJexlEvaluator;
 
 /**
- * Base class for Velocity assemblers that delegate Jexl binding and result handling to an
- * {@link AbstractAssemblyHelper}.
+ * Base class for Velocity assemblers that delegate Jexl binding and result handling to an {@link
+ * AbstractAssemblyHelper}.
  */
 public abstract class AbstractExtendedVelocityAssembler extends PSVelocityAssembler {
 

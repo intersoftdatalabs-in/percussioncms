@@ -17,8 +17,8 @@
 
 package com.percussion.taxonomy.web;
 
-import com.percussion.taxonomy.domain.Attribute_lang;
 import com.percussion.taxonomy.TaxonomySecurityHelper;
+import com.percussion.taxonomy.domain.Attribute_lang;
 import com.percussion.taxonomy.service.Attribute_langService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

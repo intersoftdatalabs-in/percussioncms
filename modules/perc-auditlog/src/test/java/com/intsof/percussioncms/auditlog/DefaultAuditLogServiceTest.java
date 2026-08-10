@@ -55,7 +55,8 @@ class DefaultAuditLogServiceTest {
     assertEquals(fixed, log4j.records().get(0).logId());
     assertEquals(fixed, repo.records().get(0).logId());
     assertTrue(
-        log4j.records()
+        log4j
+            .records()
             .get(0)
             .formattedLine()
             .startsWith("[AUTH-1001]-[11111111-2222-3333-4444-555555555555]"));
@@ -77,8 +78,7 @@ class DefaultAuditLogServiceTest {
   void sinkFailureDoesNotPreventOtherSinks() {
     CapturingAuditLogSink ok = new CapturingAuditLogSink("ok");
     CapturingAuditLogSink bad = new CapturingAuditLogSink("bad", true);
-    DefaultAuditLogService svc =
-        DefaultAuditLogService.builder().addSink(bad).addSink(ok).build();
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(bad).addSink(ok).build();
 
     AuditLogId id =
         svc.log(

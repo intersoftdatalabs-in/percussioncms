@@ -171,18 +171,14 @@ public class PSUpdateOptimizer extends PSOptimizer {
         try {
           curBuilder =
               PSSqlUpdateBuilderFactory.getSqlUpdateBuilder(
-                  planType,
-                  curTable,
-                  logins.get(connKey),
-                  dataSync.isInsertingAllowed());
+                  planType, curTable, logins.get(connKey), dataSync.isInsertingAllowed());
         } catch (NamingException e) {
           throw new SQLException(e.getLocalizedMessage());
         }
 
         builderMaps.put(builderKey, curBuilder);
         @SuppressWarnings("unchecked")
-        List<PSSqlUpdateBuilder> existing =
-            (List<PSSqlUpdateBuilder>) builderMaps.get(curTable);
+        List<PSSqlUpdateBuilder> existing = (List<PSSqlUpdateBuilder>) builderMaps.get(curTable);
         tableBuilders = existing;
         if (tableBuilders == null) tableBuilders = new ArrayList<>();
         tableBuilders.add(curBuilder);

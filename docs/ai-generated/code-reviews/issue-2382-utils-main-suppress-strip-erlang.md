@@ -14,17 +14,17 @@ Batch 5 residual after utils batch 4 (#2362 / PR #2383). Strips **safe** main-so
 
 ## Changes (main)
 
-| Area | Fix |
-|------|-----|
-| `PSIteratorUtils` | Generic `CountedIterator<T>`; drop unchecked cast suppress |
-| `PSMultiMapIterator` | `Predicate<? super Object>` filter; drop cast suppress |
-| `PSItemIterator` | `Predicate<Object>` for shared key/value name filter |
-| `PSBaseValue` | Pattern-match `equals`; drop class rawtypes suppress |
-| `PSNamingContextHelper` | `Map<?, ?>` bindings; drop class rawtypes/unchecked |
-| `PSBaseHttpUtils` | Rebuild multi-value `List<String>` without unchecked list cast |
-| `PSMultiProperty` | Checked `Object → Collection<?>` cast; drop unchecked suppress |
-| `PSAbstractConnector` | Drop class rawtypes/unchecked; pattern-match `HttpsBuilder`; drop unused type param |
-| `PSCopier` | Enhanced for-each / pattern match; keep **one** inherent nested-map unchecked cast |
+|          Area           |                                         Fix                                         |
+|-------------------------|-------------------------------------------------------------------------------------|
+| `PSIteratorUtils`       | Generic `CountedIterator<T>`; drop unchecked cast suppress                          |
+| `PSMultiMapIterator`    | `Predicate<? super Object>` filter; drop cast suppress                              |
+| `PSItemIterator`        | `Predicate<Object>` for shared key/value name filter                                |
+| `PSBaseValue`           | Pattern-match `equals`; drop class rawtypes suppress                                |
+| `PSNamingContextHelper` | `Map<?, ?>` bindings; drop class rawtypes/unchecked                                 |
+| `PSBaseHttpUtils`       | Rebuild multi-value `List<String>` without unchecked list cast                      |
+| `PSMultiProperty`       | Checked `Object → Collection<?>` cast; drop unchecked suppress                      |
+| `PSAbstractConnector`   | Drop class rawtypes/unchecked; pattern-match `HttpsBuilder`; drop unused type param |
+| `PSCopier`              | Enhanced for-each / pattern match; keep **one** inherent nested-map unchecked cast  |
 
 ## Tests added/updated
 
@@ -65,3 +65,4 @@ None (bug).
 - Project-Xlint compiler warnings (rawtypes/unchecked/this-escape noise): **0** new; compile only reports excluded deprecation
 
 > Co-Authored by Grok Build using grok-4.5 with agent main.
+

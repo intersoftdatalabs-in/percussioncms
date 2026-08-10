@@ -61,10 +61,7 @@ public class AuditLogAdaptor implements IAuditLogAdaptor {
 
   @Autowired
   public AuditLogAdaptor(PSSystemAuditLogRepository repository) {
-    this(
-        repository,
-        () -> getUserRoles(),
-        AuditLogAdaptor::roleHasViewerPropertyFromRoleMgr);
+    this(repository, () -> getUserRoles(), AuditLogAdaptor::roleHasViewerPropertyFromRoleMgr);
   }
 
   /** Package-visible test constructor. */
@@ -142,8 +139,7 @@ public class AuditLogAdaptor implements IAuditLogAdaptor {
     try {
       return Instant.parse(raw.trim());
     } catch (DateTimeParseException e) {
-      throw new IllegalArgumentException(
-          fieldName + " is not a valid ISO-8601 instant: " + raw, e);
+      throw new IllegalArgumentException(fieldName + " is not a valid ISO-8601 instant: " + raw, e);
     }
   }
 

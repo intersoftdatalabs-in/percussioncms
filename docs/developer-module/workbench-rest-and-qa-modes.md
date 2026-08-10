@@ -183,17 +183,17 @@ python docker/scripts/perc-devctl.py qa-health
 python docker/scripts/perc-devctl.py qa-down
 ```
 
-|  Output / constant   |                                  Value                                   |
-|----------------------|--------------------------------------------------------------------------|
-| Published base URL   | `TEST_CMS_URL` from `qa-up` (`http://127.0.0.1:<port>`)                  |
-| Preferred baseline   | Host port `9993` when free and no env override                           |
-| Env override         | `QA_CMS_HOST_PORT` or `CMS_HOST_PORT` (matrix docker `-p` uses the same) |
-| Probe path           | `/Rhythmyx/rest/mimetypes` (default #2482; override via `RHYTHMYX_HEALTH_PATH`) |
-| Container name       | `perc-matrix-cms-h2`                                                     |
-| Admin user           | `Admin` (password from install generated passwords)                      |
-| RESULT line contract | `RESULT:OK\|FAIL STEP:qa-up\|qa-health\|qa-down LOG:…`                   |
-| Context fail-fast    | `DETAIL:rhythmyx_context_failed MATCH:…` when Jetty logs show dead Rhythmyx Spring context (#2462); helper `docker/scripts/rhythmyx_ready.py` |
-| Docker Health.Status | `healthy` / `unhealthy` / `starting` via in-image `rhythmyx_healthcheck.py` (#2481); same markers as `rhythmyx_ready` |
+|  Output / constant   |                                                                                                                       Value                                                                                                                       |
+|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Published base URL   | `TEST_CMS_URL` from `qa-up` (`http://127.0.0.1:<port>`)                                                                                                                                                                                           |
+| Preferred baseline   | Host port `9993` when free and no env override                                                                                                                                                                                                    |
+| Env override         | `QA_CMS_HOST_PORT` or `CMS_HOST_PORT` (matrix docker `-p` uses the same)                                                                                                                                                                          |
+| Probe path           | `/Rhythmyx/rest/mimetypes` (default #2482; override via `RHYTHMYX_HEALTH_PATH`)                                                                                                                                                                   |
+| Container name       | `perc-matrix-cms-h2`                                                                                                                                                                                                                              |
+| Admin user           | `Admin` (password from install generated passwords)                                                                                                                                                                                               |
+| RESULT line contract | `RESULT:OK\|FAIL STEP:qa-up\|qa-health\|qa-down LOG:…`                                                                                                                                                                                            |
+| Context fail-fast    | `DETAIL:rhythmyx_context_failed MATCH:…` when Jetty logs show dead Rhythmyx Spring context (#2462); helper `docker/scripts/rhythmyx_ready.py`                                                                                                     |
+| Docker Health.Status | `healthy` / `unhealthy` / `starting` via in-image `rhythmyx_healthcheck.py` (#2481); same markers as `rhythmyx_ready`                                                                                                                             |
 | Probe URL matrix     | See [`../ai-generated/tasks/2482-readiness-signal/rhythmyx-readiness-probe-matrix.md`](../ai-generated/tasks/2482-readiness-signal/rhythmyx-readiness-probe-matrix.md) (#2482); `PROBE_URL_MATRIX` constant in `docker/scripts/rhythmyx_ready.py` |
 
 **Tear-down policy:** `qa-down` runs `docker rm -f` on the QA cell. The install lives **inside** the container (no named multi-GB volume by default), so removing the container frees ports and disk. Prefer `qa-down` after every agent session; do not leave `perc-matrix-cms-h2` running overnight unless debugging.
@@ -243,10 +243,10 @@ Root / module `AGENTS.md` and night-issue workflow rules encode this process (hu
 
 **Rule files (source of truth for agents):**
 
-| File | Content |
-|------|---------|
-| `modules/perc-qa-automation/AGENTS.md` | **QA mode surface filter** — `test:surface`, `TEST_CMS_URL` / `qa-up`, artifacts |
-| Root `AGENTS.md` | Unattended path = H2 QA + surface filter (not permanent Playwright skip) |
+|                      File                       |                                             Content                                             |
+|-------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| `modules/perc-qa-automation/AGENTS.md`          | **QA mode surface filter** — `test:surface`, `TEST_CMS_URL` / `qa-up`, artifacts                |
+| Root `AGENTS.md`                                | Unattended path = H2 QA + surface filter (not permanent Playwright skip)                        |
 | `.grok/workflows/night-issue-prs.rhai` + README | `agent_safe_only`: host-install / secrets still skipped; **QA-mode surface Playwright** allowed |
 
 **Failure artifacts (night-issue attach):** when Playwright fails in QA or dev mode, collect paths under `modules/perc-qa-automation/frontend` (`test-results/`, optional `playwright-report/`, screenshots) and attach them to the PR/issue using the conventions in [playwright-failure-artifacts.md](./playwright-failure-artifacts.md). CI artifact upload is wired in the optional workflow below (#1930).

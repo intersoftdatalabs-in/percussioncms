@@ -96,8 +96,7 @@ public class ContentTranslationsResource {
         @ApiResponse(
             responseCode = "200",
             description = "OK — created variants returned",
-            content =
-                @Content(schema = @Schema(implementation = CreateTranslationsResult.class))),
+            content = @Content(schema = @Schema(implementation = CreateTranslationsResult.class))),
         @ApiResponse(responseCode = "400", description = "Invalid request body / contract"),
         @ApiResponse(responseCode = "403", description = "Not allowed"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
@@ -106,9 +105,7 @@ public class ContentTranslationsResource {
   public CreateTranslationsResult createTranslations(CreateTranslationsRequest body) {
     if (body == null) {
       throw new WebApplicationException(
-          Response.status(Response.Status.BAD_REQUEST)
-              .entity("Request body is required.")
-              .build());
+          Response.status(Response.Status.BAD_REQUEST).entity("Request body is required.").build());
     }
     try {
       return requireAdaptor().createTranslations(baseUri(), body);
@@ -143,8 +140,7 @@ public class ContentTranslationsResource {
         @ApiResponse(
             responseCode = "200",
             description = "OK",
-            content =
-                @Content(schema = @Schema(implementation = ItemTranslationVariants.class))),
+            content = @Content(schema = @Schema(implementation = ItemTranslationVariants.class))),
         @ApiResponse(responseCode = "400", description = "Invalid item id"),
         @ApiResponse(responseCode = "403", description = "Caller cannot read the item"),
         @ApiResponse(responseCode = "404", description = "Item not found"),

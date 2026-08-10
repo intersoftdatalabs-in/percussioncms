@@ -260,7 +260,8 @@ class PipelinesAdaptorTest {
     PipelineExecuteRequest req = PipelineExecuteRequest.ofParams(Map.of("TYPE", "workflow"));
     when(runtime.execute(eq("lookupApp"), eq("DatasetQ"), eq(req))).thenReturn(expected);
 
-    PipelinesAdaptor adaptor = new PipelinesAdaptor(tok -> new PSApplicationSummary[0], () -> runtime);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(tok -> new PSApplicationSummary[0], () -> runtime);
     PipelineExecuteResult out =
         adaptor.execute(URI.create("http://localhost/services/"), "lookupApp", "DatasetQ", req);
 
@@ -277,7 +278,8 @@ class PipelinesAdaptorTest {
     when(runtime.execute(eq("app"), eq("res"), any(PipelineExecuteRequest.class)))
         .thenReturn(expected);
 
-    PipelinesAdaptor adaptor = new PipelinesAdaptor(tok -> new PSApplicationSummary[0], () -> runtime);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(tok -> new PSApplicationSummary[0], () -> runtime);
     assertEquals(
         "query",
         adaptor.execute(URI.create("http://localhost/"), "app", "res", null).getOperation());
@@ -286,7 +288,8 @@ class PipelinesAdaptorTest {
   @Test
   void execute_rejectsUnsafeAppOrResourceNames() {
     IPSPipelineRuntimeService runtime = mock(IPSPipelineRuntimeService.class);
-    PipelinesAdaptor adaptor = new PipelinesAdaptor(tok -> new PSApplicationSummary[0], () -> runtime);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(tok -> new PSApplicationSummary[0], () -> runtime);
 
     WebApplicationException badApp =
         assertThrows(
@@ -316,7 +319,8 @@ class PipelinesAdaptorTest {
     IPSPipelineRuntimeService runtime = mock(IPSPipelineRuntimeService.class);
     when(runtime.execute(anyString(), anyString(), any(PipelineExecuteRequest.class)))
         .thenThrow(new PSPipelineIrException("Pipeline IR not found: missing"));
-    PipelinesAdaptor adaptor = new PipelinesAdaptor(tok -> new PSApplicationSummary[0], () -> runtime);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(tok -> new PSApplicationSummary[0], () -> runtime);
 
     WebApplicationException ex =
         assertThrows(
@@ -336,7 +340,8 @@ class PipelinesAdaptorTest {
     IPSPipelineRuntimeService runtime = mock(IPSPipelineRuntimeService.class);
     when(runtime.execute(anyString(), anyString(), any(PipelineExecuteRequest.class)))
         .thenThrow(new PSPipelineIrException("Insert requires request.rows or request.params"));
-    PipelinesAdaptor adaptor = new PipelinesAdaptor(tok -> new PSApplicationSummary[0], () -> runtime);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(tok -> new PSApplicationSummary[0], () -> runtime);
 
     WebApplicationException ex =
         assertThrows(

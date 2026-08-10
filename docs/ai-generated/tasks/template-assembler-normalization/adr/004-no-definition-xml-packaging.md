@@ -1,9 +1,9 @@
 # ADR-004: No Page / Widget / Gadget XML definition files for product packaging
 
-| Field | Value |
-|-------|--------|
-| **Status** | Accepted |
-| **Date** | 2026-08-09 |
+|   Field    |   Value    |
+|------------|------------|
+| **Status** | Accepted   |
+| **Date**   | 2026-08-09 |
 
 ## Decision
 
@@ -35,3 +35,4 @@ Content types + Templates (assembler + JEXL bindings + source)
 - Compiler/upgrade tooling is mandatory before deleting package XML.
 - Widget Builder / Design tools write modern format only.
 - Package install/export paths must understand the new manifest shape (prefer extending existing package system).
+

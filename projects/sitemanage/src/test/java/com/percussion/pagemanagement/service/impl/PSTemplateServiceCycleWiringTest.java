@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.percussion.assetmanagement.service.IPSAssetService;
-import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.recycle.service.IPSRecycleService;
 import com.percussion.share.dao.IPSContentItemDao;
@@ -44,11 +43,10 @@ import org.springframework.context.annotation.Lazy;
  * Belt-and-braces: class-level {@code @Lazy} on {@link PSTemplateService} defers the bean until
  * first use (cheaper during startup and stops an eager consumer from forcing the cycle path), and
  * the assertions below forbid the reverse edges that would close new cycles via the template
- * service.</p>
+ * service.
  *
- * <p>Peers: {@code PSAssetServicePageServiceNearCycleWiringTest} ({@code
- * PSAssetService} ↔ {@code PSPageService}), {@code PSContentItemDaoCycleLazyWiringTest} (folderHelper
- * cycle break).</p>
+ * <p>Peers: {@code PSAssetServicePageServiceNearCycleWiringTest} ({@code PSAssetService} ↔ {@code
+ * PSPageService}), {@code PSContentItemDaoCycleLazyWiringTest} (folderHelper cycle break).
  */
 @Tag("UnitTest")
 public class PSTemplateServiceCycleWiringTest {
@@ -66,19 +64,27 @@ public class PSTemplateServiceCycleWiringTest {
   public void templateServiceMustNotConstructRequireCyclePeers() throws NoSuchMethodException {
     Constructor<?> ctor = singlePublicConstructor(PSTemplateService.class);
     assertNoCtorParam(
-        ctor, IPSFolderHelper.class, "templateService → folderHelper would close a cycle if a"
+        ctor,
+        IPSFolderHelper.class,
+        "templateService → folderHelper would close a cycle if a"
             + " peer later gains a reverse ctor edge into templateService");
     assertNoCtorParam(
-        ctor, IPSContentItemDao.class, "templateService → contentItemDao would skip the"
+        ctor,
+        IPSContentItemDao.class,
+        "templateService → contentItemDao would skip the"
             + " contentItemDao cycle break and re-cycle via folderHelper");
     assertNoCtorParam(
-        ctor, IPSRecycleService.class, "templateService → recycleService would form a new"
-            + " mid-cycle branch");
+        ctor,
+        IPSRecycleService.class,
+        "templateService → recycleService would form a new" + " mid-cycle branch");
     assertNoCtorParam(
-        ctor, IPSAssetService.class, "templateService → assetService would skip the pageService"
-            + " near-cycle guard");
+        ctor,
+        IPSAssetService.class,
+        "templateService → assetService would skip the pageService" + " near-cycle guard");
     assertNoCtorParam(
-        ctor, IPSPageService.class, "templateService → pageService would form a parallel cycle"
+        ctor,
+        IPSPageService.class,
+        "templateService → pageService would form a parallel cycle"
             + " path with pageService already requiring recycleService / folderHelper");
     // Note: PSTemplateService does construct-require IPSWidgetAssetRelationshipService today
     // (inventory #2463). That edge is mitigated by class-level @Lazy on PSTemplateService above;
@@ -116,8 +122,10 @@ public class PSTemplateServiceCycleWiringTest {
     // Sanity guard: if PSTemplateService ever loses its single public constructor, the assertions
     // above stop being meaningful. The reflection lookups in this class all assume one ctor.
     Constructor<?> ctor = singlePublicConstructor(PSTemplateService.class);
-    assertNotNull(ctor, "PSTemplateService must declare exactly one public constructor for Spring"
-        + " wiring inspection; this test enforces the assumption");
+    assertNotNull(
+        ctor,
+        "PSTemplateService must declare exactly one public constructor for Spring"
+            + " wiring inspection; this test enforces the assumption");
   }
 
   private static Constructor<?> singlePublicConstructor(Class<?> type)
@@ -132,8 +140,7 @@ public class PSTemplateServiceCycleWiringTest {
     return ctors[0];
   }
 
-  private static void assertNoCtorParam(
-      Constructor<?> ctor, Class<?> forbidden, String why) {
+  private static void assertNoCtorParam(Constructor<?> ctor, Class<?> forbidden, String why) {
     for (Parameter p : ctor.getParameters()) {
       if (forbidden.isAssignableFrom(p.getType())) {
         fail(

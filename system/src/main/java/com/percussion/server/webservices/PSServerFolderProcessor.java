@@ -1525,8 +1525,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * description. See {@link #validateKey(PSKey)} for the requirement of the locators, <code>
    * children</code> and <code>sourceParent</code>.
    */
-  public void move(
-      String componentType, PSKey sourceParent, List<?> children, PSKey targetParent)
+  public void move(String componentType, PSKey sourceParent, List<?> children, PSKey targetParent)
       throws PSCmsException {
     moveFolderChildren(sourceParent, toLocatorList(children), targetParent, true);
   }
@@ -3835,10 +3834,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
   // see IPSFolderProcessor
   public void moveChildren(
-      PSLocator sourceFolderId,
-      List<PSLocator> children,
-      PSLocator targetFolderId,
-      boolean force)
+      PSLocator sourceFolderId, List<PSLocator> children, PSLocator targetFolderId, boolean force)
       throws PSCmsException {
     moveFolderChildren(sourceFolderId, children, targetFolderId, force, true);
   }
@@ -4903,8 +4899,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
               // update relationship to new site id
               String originalSiteId = relationship.getProperty(IPSHtmlParameters.SYS_SITEID);
               if (originalSiteId != null && originalSiteId.trim().length() > 0) {
-                Integer newSiteId =
-                    options.getSiteMappings().get(Integer.valueOf(originalSiteId));
+                Integer newSiteId = options.getSiteMappings().get(Integer.valueOf(originalSiteId));
                 if (newSiteId != null) {
                   newRelationship.setProperty(IPSHtmlParameters.SYS_SITEID, newSiteId.toString());
 

@@ -80,9 +80,7 @@ test.describe("Admin portrait layout (GH-945)", () => {
     const shell = page.locator("[data-testid='perc-workflow-admin-shell']");
     await expect(shell).toBeVisible({ timeout: 20_000 });
 
-    const tablist = page.locator(
-      "[data-testid='perc-workflow-admin-tablist']",
-    );
+    const tablist = page.locator("[data-testid='perc-workflow-admin-tablist']");
     await expect(tablist).toBeVisible();
 
     for (const id of [
@@ -99,6 +97,8 @@ test.describe("Admin portrait layout (GH-945)", () => {
     }
 
     await page.locator("[data-testid='tab-users']").click();
-    await expect(page.locator("[data-testid='perc-users-section']")).toBeVisible();
+    await expect(
+      page.locator("[data-testid='perc-users-section']"),
+    ).toBeVisible();
   });
 });

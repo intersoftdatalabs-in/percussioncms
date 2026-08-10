@@ -109,21 +109,21 @@ The legacy Miller-column Finder is hard-cut in 8.2:
 
 ### Modern REACT CHROME — interactive map
 
-|       Component        |         Mount path         |                                      Role                                       |
-|------------------------|----------------------------|---------------------------------------------------------------------------------|
-| `ContentExplorerShell` | SPA `entry=explorer`       | Tree + detail-list + action toolbar + context-menu compose                      |
-| `ExplorerTree`         | inside Shell               | Sites / folders tree; lazy expand                                               |
-| `DetailList`           | inside Shell               | Item list with pagination; SC-005 perf regression                               |
-| `ReducedActions`       | inside Shell               | Per-item menu (open/preview/createFolder/rename/move/copy/delete)               |
-| `ContextMenu`          | inside Shell               | Right-click menu driven by server `actions/...` REST                            |
-| `ActionToolbar`        | inside Shell               | Top toolbar driven by the same server action set                                |
+|       Component        |                 Mount path                  |                                              Role                                              |
+|------------------------|---------------------------------------------|------------------------------------------------------------------------------------------------|
+| `ContentExplorerShell` | SPA `entry=explorer`                        | Tree + detail-list + action toolbar + context-menu compose                                     |
+| `ExplorerTree`         | inside Shell                                | Sites / folders tree; lazy expand                                                              |
+| `DetailList`           | inside Shell                                | Item list with pagination; SC-005 perf regression                                              |
+| `ReducedActions`       | inside Shell                                | Per-item menu (open/preview/createFolder/rename/move/copy/delete)                              |
+| `ContextMenu`          | inside Shell                                | Right-click menu driven by server `actions/...` REST                                           |
+| `ActionToolbar`        | inside Shell                                | Top toolbar driven by the same server action set                                               |
 | `FolderSecurityPanel`  | Explorer shell + `folderSecurityModern.jsp` | ACL + folder properties (community/locale/DF/workflow); `aclLockout.ts` + bootstrap identities |
-| `SearchPanel`          | `searchModern.jsp`         | Extended search with retry / open / reveal                                      |
-| `ClipboardPanel`       | `us7AdvancedModern.jsp`    | Copy / cut / paste to a target folder                                           |
-| `SiteCopyWizard`       | same                       | 5-step site copy wizard                                                         |
-| `SubfolderCopyWizard`  | same                       | 3-step subfolder copy wizard                                                    |
-| `DependencyViewer`     | same                       | 6-dimension dependency summary (AA populated, 5 dimensions client-side preview) |
-| `RelationshipsView`    | same                       | 4 primary IA rows + AA / reverse details (same partial)                         |
+| `SearchPanel`          | `searchModern.jsp`                          | Extended search with retry / open / reveal                                                     |
+| `ClipboardPanel`       | `us7AdvancedModern.jsp`                     | Copy / cut / paste to a target folder                                                          |
+| `SiteCopyWizard`       | same                                        | 5-step site copy wizard                                                                        |
+| `SubfolderCopyWizard`  | same                                        | 3-step subfolder copy wizard                                                                   |
+| `DependencyViewer`     | same                                        | 6-dimension dependency summary (AA populated, 5 dimensions client-side preview)                |
+| `RelationshipsView`    | same                                        | 4 primary IA rows + AA / reverse details (same partial)                                        |
 
 ### Spec / artifacts
 

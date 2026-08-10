@@ -39,8 +39,7 @@ public final class AuditRedactor {
   private static final Pattern JWT =
       Pattern.compile("\\beyJ[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\b");
 
-  private static final Pattern BASIC_AUTH =
-      Pattern.compile("(?i)(basic)\\s+[A-Za-z0-9+/=]{8,}");
+  private static final Pattern BASIC_AUTH = Pattern.compile("(?i)(basic)\\s+[A-Za-z0-9+/=]{8,}");
 
   private static final Pattern URL_CREDENTIALS =
       Pattern.compile("(?i)(://)([^/@\\s:]+):([^/@\\s]+)@");
@@ -48,9 +47,7 @@ public final class AuditRedactor {
   private static final Pattern CONNECTION_PASSWORD =
       Pattern.compile("(?i)(password|pwd)=([^;&\\s]+)");
 
-  /**
-   * Redact a single string value. {@code null} becomes empty string after redaction pipeline.
-   */
+  /** Redact a single string value. {@code null} becomes empty string after redaction pipeline. */
   public String redact(String input) {
     if (input == null || input.isEmpty()) {
       return input == null ? "" : input;

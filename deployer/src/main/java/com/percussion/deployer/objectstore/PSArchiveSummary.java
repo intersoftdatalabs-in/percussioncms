@@ -47,7 +47,8 @@ public class PSArchiveSummary implements IPSDeployComponent {
    *     objects. It may not be <code>null</code> or empty.
    * @throws IllegalArgumentException if any parameter is invalid.
    */
-  public PSArchiveSummary(PSArchiveInfo archiveInfo, Date installDate, Iterator<PSArchivePackage> packageList) {
+  public PSArchiveSummary(
+      PSArchiveInfo archiveInfo, Date installDate, Iterator<PSArchivePackage> packageList) {
     if (archiveInfo == null || archiveInfo.getArchiveDetail() != null)
       throw new IllegalArgumentException(
           "archiveInfo may not be null or may not include PSArchiveDetail");

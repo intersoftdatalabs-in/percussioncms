@@ -46,7 +46,8 @@ class PercDoctorPackagingTest {
    * instructional prose; focus on absolute personal profile paths and this developer's home.
    */
   private static final Pattern HARDCODED_USER_HOME =
-      Pattern.compile("(?i)(C:\\\\Users\\\\[A-Za-z]|/home/[a-zA-Z0-9._-]+|/Users/[A-Za-z]|\\\\Users\\\\Nate)");
+      Pattern.compile(
+          "(?i)(C:\\\\Users\\\\[A-Za-z]|/home/[a-zA-Z0-9._-]+|/Users/[A-Za-z]|\\\\Users\\\\Nate)");
 
   @Test
   @DisplayName("Unix and Windows bin wrappers exist")

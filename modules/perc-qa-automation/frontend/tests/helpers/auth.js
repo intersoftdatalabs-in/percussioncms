@@ -273,7 +273,10 @@ async function selectModernLoginLocale(page, locale) {
   );
   // Avoid Playwright auto-wait on empty locator (would burn the default timeout).
   if ((await hiddenLocale.count()) > 0) {
-    const current = await hiddenLocale.first().inputValue().catch(() => "");
+    const current = await hiddenLocale
+      .first()
+      .inputValue()
+      .catch(() => "");
     if (current === target) {
       return;
     }
@@ -359,7 +362,10 @@ async function fillLoginForm(page, username, password, options = {}) {
 
   // Prefer modern React login (#2065 H2 qa-up ships rxlogin → perc-login-root).
   if ((await modernRoot.count()) > 0 || (await modernForm.count()) > 0) {
-    await modernForm.or(modernRoot).first().waitFor({ state: "visible", timeout: 30_000 });
+    await modernForm
+      .or(modernRoot)
+      .first()
+      .waitFor({ state: "visible", timeout: 30_000 });
     await page.locator('[data-testid="perc-login-username"]').fill(username);
     await page.locator('[data-testid="perc-login-password"]').fill(password);
     // LocaleSelect posts hidden input[name=j_locale]; default bootstrap is en-us.
@@ -371,7 +377,10 @@ async function fillLoginForm(page, username, password, options = {}) {
         'input[type="hidden"][name="j_locale"], input[name="j_locale"]',
       );
       if ((await hiddenLocale.count()) > 0) {
-        const current = await hiddenLocale.first().inputValue().catch(() => "");
+        const current = await hiddenLocale
+          .first()
+          .inputValue()
+          .catch(() => "");
         if (current && current !== "en-us") {
           await selectModernLoginLocale(page, "en-us");
         }

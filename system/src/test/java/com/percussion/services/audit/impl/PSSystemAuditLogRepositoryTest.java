@@ -44,8 +44,8 @@ import org.springframework.transaction.support.SimpleTransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * Proves durable save runs inside a TransactionTemplate (Holder dual-write safe without AOP
- * proxy) and that Phase 3 query helpers clamp paging and bind filters.
+ * Proves durable save runs inside a TransactionTemplate (Holder dual-write safe without AOP proxy)
+ * and that Phase 3 query helpers clamp paging and bind filters.
  */
 class PSSystemAuditLogRepositoryTest {
 

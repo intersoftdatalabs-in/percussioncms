@@ -32,7 +32,8 @@ import org.junit.jupiter.api.Test;
  */
 public class PSAbstractPropertiesValidatorTest {
 
-  private static final class MapValidator extends PSAbstractPropertiesValidator<Map<String, Object>> {
+  private static final class MapValidator
+      extends PSAbstractPropertiesValidator<Map<String, Object>> {
     @Override
     @SuppressWarnings("unchecked")
     protected Class<Map<String, Object>> getType() {

@@ -11,9 +11,9 @@
 
 ## Operator kill-switch
 
-| Property | Default | Effect |
-|----------|---------|--------|
-| `allowExternalAvatarFetch` | `true` | When `false`, SPA bootstrap sets `allowExternalAvatarFetch: false`. UI never builds or loads Gravatar URLs; initials fallback is used. Saved Gravatar email preference is still stored for when the property is re-enabled. |
+|          Property          | Default |                                                                                                           Effect                                                                                                            |
+|----------------------------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `allowExternalAvatarFetch` | `true`  | When `false`, SPA bootstrap sets `allowExternalAvatarFetch: false`. UI never builds or loads Gravatar URLs; initials fallback is used. Saved Gravatar email preference is still stored for when the property is re-enabled. |
 
 Set in `rxconfig/Server/server.properties` (or product equivalent), then **restart** the CMS.
 
@@ -39,3 +39,4 @@ cd WebUI && ../mvnw clean install
 # Playwright surface (QA mode)
 npm run test:surface -- --path tests/profile-avatar.spec.js
 ```
+

@@ -12,11 +12,11 @@ Legacy Finder column view only treated `type === "Folder"` (plus Recycling path)
 
 ## Scope
 
-| Path | Change |
-|------|--------|
+|                              Path                              |                         Change                          |
+|----------------------------------------------------------------|---------------------------------------------------------|
 | `WebUI/src/main/webapp/cm/plugins/perc_finder_root_display.js` | `isFinderRepositoryRoot`, `shouldNavigateOnDoubleClick` |
-| `WebUI/src/main/webapp/cm/widgets/perc_finder.js` | `doubleClick` uses helper (+ fallback) |
-| `WebUI/src/test/js/percFinderRootDisplay.test.js` | behavioral tests + source contract |
+| `WebUI/src/main/webapp/cm/widgets/perc_finder.js`              | `doubleClick` uses helper (+ fallback)                  |
+| `WebUI/src/test/js/percFinderRootDisplay.test.js`              | behavioral tests + source contract                      |
 
 **Cross-platform path review:** no filesystem I/O or path joins added; CMS path segments only (`["", "Sites"]` style). N/A for portability bugs.
 
@@ -41,10 +41,11 @@ None at severity `bug`.
 
 ## Gate checklist
 
-| Check | Result |
-|-------|--------|
-| No bugs | pass |
-| Behavioral unit tests for new logic | pass |
-| Portable paths | N/A / pass |
-| Change-class companions | pure helper + Vitest peers matched |
-| Scope creep | none |
+|                Check                |               Result               |
+|-------------------------------------|------------------------------------|
+| No bugs                             | pass                               |
+| Behavioral unit tests for new logic | pass                               |
+| Portable paths                      | N/A / pass                         |
+| Change-class companions             | pure helper + Vitest peers matched |
+| Scope creep                         | none                               |
+

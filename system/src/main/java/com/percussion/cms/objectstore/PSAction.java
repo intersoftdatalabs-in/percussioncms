@@ -42,7 +42,6 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
 
-
   @Override
   public String getType() {
     return PSTypeEnum.ACTION.name();

@@ -74,9 +74,7 @@ public final class CheckLogsCommand {
         "log.install-packages",
         "Package install log",
         false,
-        new String[] {
-          "rxconfig/Installer/InstallPackages.log", "logs/InstallPackages.log"
-        }),
+        new String[] {"rxconfig/Installer/InstallPackages.log", "logs/InstallPackages.log"}),
     new LogTarget(
         "log.install",
         "Installer session log",
@@ -86,15 +84,14 @@ public final class CheckLogsCommand {
         "log.tablefactory",
         "TableFactory schema/data log",
         false,
-        new String[] {
-          "rxconfig/Installer/tablefactory.log", "tablefactory.log"
-        }),
+        new String[] {"rxconfig/Installer/tablefactory.log", "tablefactory.log"}),
   };
 
   /** One logical log with alternate relative paths (first existing is scanned). */
   static final class LogTarget {
     final String id;
     final String description;
+
     /** When phase requires this target and file is missing → FAIL if required flag set. */
     final boolean startupRole;
 
@@ -187,8 +184,7 @@ public final class CheckLogsCommand {
       throws IOException {
     Path root = InstallRootGuard.requireInstallRoot(installRoot);
     Options opts = options != null ? options : Options.defaults();
-    CheckLogsReport report =
-        new CheckLogsReport(COMMAND_NAME, root, dryRun, opts.getPhase());
+    CheckLogsReport report = new CheckLogsReport(COMMAND_NAME, root, dryRun, opts.getPhase());
 
     report.add(
         new CheckLogsReport.Check(

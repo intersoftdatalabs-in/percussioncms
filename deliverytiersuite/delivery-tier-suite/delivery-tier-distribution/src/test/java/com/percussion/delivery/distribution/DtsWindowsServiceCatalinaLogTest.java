@@ -63,8 +63,7 @@ class DtsWindowsServiceCatalinaLogTest {
           bat.contains("--StdOutput=") || bat.contains("PR_STDOUTPUT="),
           "must set Procrun StdOutput");
       assertTrue(
-          bat.contains("--StdError=") || bat.contains("PR_STDERROR="),
-          "must set Procrun StdError");
+          bat.contains("--StdError=") || bat.contains("PR_STDERROR="), "must set Procrun StdError");
       assertTrue(
           bat.contains("PR_STDOUTPUT=%CATALINA_BASE%\\logs\\catalina.log")
               || bat.contains("--StdOutput=\"%CATALINA_BASE%\\logs\\catalina.log\""),
@@ -86,19 +85,16 @@ class DtsWindowsServiceCatalinaLogTest {
   void bothBats_useLog4jJulManagerAndConfigurationFile() {
     for (String bat : List.of(production, staging)) {
       assertTrue(
-          bat.contains(
-              "java.util.logging.manager=org.apache.logging.log4j.jul.LogManager"),
+          bat.contains("java.util.logging.manager=org.apache.logging.log4j.jul.LogManager"),
           "service JVM options must use Log4j JUL bridge (matches setenv.bat)");
       assertTrue(
-          bat.contains("log4j.configurationFile=")
-              && bat.contains("log4j2-tomcat.xml"),
+          bat.contains("log4j.configurationFile=") && bat.contains("log4j2-tomcat.xml"),
           "must set log4j.configurationFile to log4j2-tomcat.xml");
       assertFalse(
           bat.contains("org.apache.juli.ClassLoaderLogManager"),
           "must not use ClassLoaderLogManager against Log4j2 XML");
       assertFalse(
-          bat.contains("java.util.logging.config.file=")
-              && bat.contains("log4j2-tomcat.xml"),
+          bat.contains("java.util.logging.config.file=") && bat.contains("log4j2-tomcat.xml"),
           "must not pass log4j2-tomcat.xml as java.util.logging.config.file");
     }
   }
@@ -124,8 +120,7 @@ class DtsWindowsServiceCatalinaLogTest {
 
   @Test
   void log4j2TomcatConfig_writesCatalinaLogUnderCatalinaBase() throws IOException {
-    String xml =
-        read(Path.of("src", "main", "tomcat11", "conf", "log4j2-tomcat.xml"));
+    String xml = read(Path.of("src", "main", "tomcat11", "conf", "log4j2-tomcat.xml"));
     assertTrue(xml.contains("${logdir}/catalina.log") || xml.contains("catalina.log"));
     assertTrue(xml.contains("${sys:catalina.base}/logs") || xml.contains("logdir"));
   }

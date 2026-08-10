@@ -22,9 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Read-only log content scan report for {@code check-logs}. Never implies filesystem mutations.
- */
+/** Read-only log content scan report for {@code check-logs}. Never implies filesystem mutations. */
 public final class CheckLogsReport {
 
   /** Outcome severity for a single log file scan. */
@@ -152,7 +150,9 @@ public final class CheckLogsReport {
     return count(CheckStatus.INFO);
   }
 
-  /** @return true when no FAIL entries */
+  /**
+   * @return true when no FAIL entries
+   */
   public boolean isHealthy() {
     return getFailCount() == 0;
   }

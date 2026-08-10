@@ -237,8 +237,7 @@ public class TaxonEditorController extends AbstractTaxonEditorController {
 
     if (referenced_by_ids.size() > 0) {
       Collection<String> referenced_by_node_names = new ArrayList<String>();
-      for (Object[] obj :
-          nodeService.getSomeNodeNames(referenced_by_ids, Language.DEFAUL_LANG)) {
+      for (Object[] obj : nodeService.getSomeNodeNames(referenced_by_ids, Language.DEFAUL_LANG)) {
         referenced_by_node_names.add(obj[2].toString());
       }
       myModel.put("referenced_by_node_names", StringUtils.join(referenced_by_node_names, ","));

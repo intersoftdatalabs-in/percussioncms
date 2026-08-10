@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -64,9 +63,9 @@ import org.mockito.ArgumentCaptor;
 /**
  * Unit tests for self-service account profile update (issue #2395 / parent #2374 slice 2).
  *
- * <p>Covers: email validation helper, INTERNAL self email persist, DIRECTORY rejection, null
- * update rejection, and directory email loading on {@code getCurrentUser()}. Self-only is
- * structural (no target user name accepted).
+ * <p>Covers: email validation helper, INTERNAL self email persist, DIRECTORY rejection, null update
+ * rejection, and directory email loading on {@code getCurrentUser()}. Self-only is structural (no
+ * target user name accepted).
  */
 @DisplayName("Self-service account profile (#2395)")
 class PSUserAccountProfileTest {
@@ -193,7 +192,9 @@ class PSUserAccountProfileTest {
       update.setEmail("new@example.com");
 
       assertThrows(PSValidationException.class, () -> userService.updateMyAccount(update));
-      verify(backEndRoleMgr, never()).setSubjectEmail(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString());
+      verify(backEndRoleMgr, never())
+          .setSubjectEmail(
+              org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString());
     }
 
     @Test
@@ -205,7 +206,9 @@ class PSUserAccountProfileTest {
       update.setEmail("not-valid");
 
       assertThrows(PSValidationException.class, () -> userService.updateMyAccount(update));
-      verify(backEndRoleMgr, never()).setSubjectEmail(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString());
+      verify(backEndRoleMgr, never())
+          .setSubjectEmail(
+              org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString());
     }
 
     @Test

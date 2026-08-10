@@ -31,6 +31,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 public class PSRelationshipPropertyDataPk implements Serializable {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
+
   /** The relationship (or parent) id. */
   @Basic
   @Column(name = "RID")

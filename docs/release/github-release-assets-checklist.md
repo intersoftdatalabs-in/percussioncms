@@ -10,10 +10,10 @@ On **v8.1.7**, the published SHA-256 for `perc-distribution-tree.jar` did not ma
 
 ## Assets to publish
 
-| Artifact | Typical release asset name | Sidecar name(s) |
-|----------|----------------------------|-----------------|
-| CMS installer JAR | `perc-distribution-tree.jar` | Prefer `perc-distribution-tree.jar.sha256` (aligned with JAR). Versioned name `perc-distribution-tree-<version>.jar.sha256` is optional for history. |
-| DTS installer JAR | `delivery-tier-distribution.jar` | `delivery-tier-distribution.jar.sha256` |
+|     Artifact      |    Typical release asset name    |                                                                   Sidecar name(s)                                                                    |
+|-------------------|----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| CMS installer JAR | `perc-distribution-tree.jar`     | Prefer `perc-distribution-tree.jar.sha256` (aligned with JAR). Versioned name `perc-distribution-tree-<version>.jar.sha256` is optional for history. |
+| DTS installer JAR | `delivery-tier-distribution.jar` | `delivery-tier-distribution.jar.sha256`                                                                                                              |
 
 Sidecar content format used historically on releases: a single line of **64 lowercase hex characters** (SHA-256 of the file bytes), no `hash  filename` prefix required. Keep format consistent with sibling assets on the same release.
 
@@ -28,9 +28,11 @@ Sidecar content format used historically on releases: a single line of **64 lowe
 5. Write the hash into the `.sha256` sidecar file(s).
 6. Upload the sidecar asset(s). Prefer names that match the JAR asset (`*.jar.sha256`).
 7. **Verify before calling the release done:**
+
    ```text
    hash(release JAR) == contents of published .sha256 sidecar
    ```
+
    Re-download both assets from the release (or hash the local file you uploaded) and compare. Do not skip this step.
 
 ## Correcting a wrong published checksum
@@ -52,15 +54,16 @@ gh release upload vX.Y.Z perc-distribution-tree.jar.sha256 perc-distribution-tre
 
 ## Do / Don't
 
-| Do | Don't |
-|----|--------|
-| Hash **after** final JAR upload (or of the exact bytes you upload) | Hash an intermediate package build and leave that sidecar after rebuilding the JAR |
-| Verify hash(JAR) == sidecar on the live release | Trust a checksum file produced earlier in the pipeline without a final check |
-| Prefer sidecar names that match the JAR asset name | Leave only a mismatched or version-only sidecar that operators cannot map to the JAR |
-| Note checksum-only corrections on the release | Silently replace sidecars without a short release note |
+|                                 Do                                 |                                        Don't                                         |
+|--------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| Hash **after** final JAR upload (or of the exact bytes you upload) | Hash an intermediate package build and leave that sidecar after rebuilding the JAR   |
+| Verify hash(JAR) == sidecar on the live release                    | Trust a checksum file produced earlier in the pipeline without a final check         |
+| Prefer sidecar names that match the JAR asset name                 | Leave only a mismatched or version-only sidecar that operators cannot map to the JAR |
+| Note checksum-only corrections on the release                      | Silently replace sidecars without a short release note                               |
 
 ## Related modules
 
 - CMS packaging: `modules/perc-distribution-tree`
 - DTS packaging: `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution`
 - Contributing / local install pointers: [CONTRIBUTING.md](../../CONTRIBUTING.md)
+

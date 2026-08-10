@@ -29,7 +29,9 @@ public class DoctorUnknownCommandException extends Exception {
     this.command = command;
   }
 
-  /** @return the unsupported command token */
+  /**
+   * @return the unsupported command token
+   */
   public String getCommand() {
     return command;
   }

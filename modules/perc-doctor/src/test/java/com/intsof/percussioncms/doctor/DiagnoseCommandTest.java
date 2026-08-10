@@ -86,8 +86,7 @@ class DiagnoseCommandTest {
     assertFalse(report.isHealthy(), "missing jetty/rxconfig should fail health");
     assertTrue(report.getFailCount() >= 1);
 
-    DiagnoseReport.Check jettyBase =
-        findCheck(report, "layout.jetty.base");
+    DiagnoseReport.Check jettyBase = findCheck(report, "layout.jetty.base");
     assertNotNull(jettyBase);
     assertEquals(DiagnoseReport.CheckStatus.FAIL, jettyBase.getStatus());
 
@@ -118,8 +117,10 @@ class DiagnoseCommandTest {
 
     DiagnoseReport report = DiagnoseCommand.execute(root, true);
 
-    assertTrue(report.isHealthy(), "full synthetic tree should have zero FAIL: " + summarize(report));
-    assertEquals(DiagnoseReport.CheckStatus.PASS, findCheck(report, "layout.jetty.base").getStatus());
+    assertTrue(
+        report.isHealthy(), "full synthetic tree should have zero FAIL: " + summarize(report));
+    assertEquals(
+        DiagnoseReport.CheckStatus.PASS, findCheck(report, "layout.jetty.base").getStatus());
     assertEquals(DiagnoseReport.CheckStatus.PASS, findCheck(report, "layout.rxconfig").getStatus());
     assertEquals(
         DiagnoseReport.CheckStatus.PASS,
@@ -191,7 +192,11 @@ class DiagnoseCommandTest {
   private static String summarize(DiagnoseReport report) {
     StringBuilder sb = new StringBuilder();
     for (DiagnoseReport.Check c : report.getChecks()) {
-      sb.append(c.getStatus()).append(' ').append(c.getId()).append(' ').append(c.getMessage())
+      sb.append(c.getStatus())
+          .append(' ')
+          .append(c.getId())
+          .append(' ')
+          .append(c.getMessage())
           .append("; ");
     }
     return sb.toString();

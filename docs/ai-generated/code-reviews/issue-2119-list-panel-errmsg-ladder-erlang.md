@@ -28,13 +28,13 @@ Expands seven Developer list-panel Vitest files to the full `panelErrMsg` ladder
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | none |
+|             Check              |                         Result                          |
+|--------------------------------|---------------------------------------------------------|
+| Bugs                           | none                                                    |
 | Behavioral tests for new logic | N/A — tests only; production already uses `panelErrMsg` |
-| Non-portable paths | none |
-| Change-class companions | Mirrors full ladder from Searches/ContentTypes peers |
-| May commit/push | **yes** |
+| Non-portable paths             | none                                                    |
+| Change-class companions        | Mirrors full ladder from Searches/ContentTypes peers    |
+| May commit/push                | **yes**                                                 |
 
 ## Issues
 

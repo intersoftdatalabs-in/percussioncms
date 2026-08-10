@@ -105,7 +105,10 @@ async function navigateFinderPath(page, finderPath) {
     if ((await outer.count()) > 0) {
       const collapsed = await outer.first().getAttribute("collapsed");
       if (collapsed === "true") {
-        await expander.first().click().catch(() => {});
+        await expander
+          .first()
+          .click()
+          .catch(() => {});
       }
     }
   }
@@ -139,11 +142,17 @@ async function preferColumnView(page) {
   if ((await col.count()) === 0) {
     return;
   }
-  const disabled = await col.first().getAttribute("class").catch(() => "");
+  const disabled = await col
+    .first()
+    .getAttribute("class")
+    .catch(() => "");
   if (String(disabled || "").includes("ui-state-disabled")) {
     return;
   }
-  await col.first().click({ timeout: 3_000 }).catch(() => {});
+  await col
+    .first()
+    .click({ timeout: 3_000 })
+    .catch(() => {});
   await page.waitForTimeout(400);
 }
 
@@ -162,7 +171,10 @@ async function selectFinderItemByName(page, name) {
     `${SELECTORS.millerListing}[title="${String(name).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"]`,
   );
   if ((await byTitle.count()) > 0) {
-    await byTitle.first().click({ timeout: 5_000 }).catch(() => {});
+    await byTitle
+      .first()
+      .click({ timeout: 5_000 })
+      .catch(() => {});
     await page.waitForTimeout(500);
     return true;
   }
@@ -171,13 +183,26 @@ async function selectFinderItemByName(page, name) {
   const names = page.locator(SELECTORS.finderItemName);
   const count = await names.count();
   for (let i = 0; i < count; i++) {
-    const text = await names.nth(i).innerText().catch(() => "");
+    const text = await names
+      .nth(i)
+      .innerText()
+      .catch(() => "");
     if (match(text)) {
-      const listing = names.nth(i).locator("xpath=ancestor-or-self::*[contains(@class,'mcol-listing')][1]");
+      const listing = names
+        .nth(i)
+        .locator(
+          "xpath=ancestor-or-self::*[contains(@class,'mcol-listing')][1]",
+        );
       if ((await listing.count()) > 0) {
-        await listing.first().click({ timeout: 5_000 }).catch(() => {});
+        await listing
+          .first()
+          .click({ timeout: 5_000 })
+          .catch(() => {});
       } else {
-        await names.nth(i).click({ timeout: 5_000 }).catch(() => {});
+        await names
+          .nth(i)
+          .click({ timeout: 5_000 })
+          .catch(() => {});
       }
       await page.waitForTimeout(500);
       return true;
@@ -188,13 +213,19 @@ async function selectFinderItemByName(page, name) {
   const rows = page.locator(SELECTORS.listViewRow);
   const rowCount = await rows.count();
   for (let i = 0; i < rowCount; i++) {
-    const text = await rows.nth(i).innerText().catch(() => "");
+    const text = await rows
+      .nth(i)
+      .innerText()
+      .catch(() => "");
     const lines = String(text || "")
       .split(/\r?\n/)
       .map((s) => s.trim())
       .filter(Boolean);
     if (lines.some((line) => match(line)) || match(text)) {
-      await rows.nth(i).click({ timeout: 5_000 }).catch(() => {});
+      await rows
+        .nth(i)
+        .click({ timeout: 5_000 })
+        .catch(() => {});
       await page.waitForTimeout(500);
       return true;
     }
@@ -205,7 +236,10 @@ async function selectFinderItemByName(page, name) {
     .locator(SELECTORS.finderOuter)
     .getByText(name, { exact: true });
   if ((await byText.count()) > 0) {
-    await byText.first().click({ timeout: 5_000 }).catch(() => {});
+    await byText
+      .first()
+      .click({ timeout: 5_000 })
+      .catch(() => {});
     await page.waitForTimeout(500);
     return true;
   }
@@ -265,10 +299,16 @@ async function selectForUiRecycle(page, deleteBtn, target) {
         isDeleteEligiblePath(barAfter);
     } else if (strategy.kind === "listing-id" && strategy.selector) {
       // Ensure parent column is open first so listing exists.
-      await navigateFinderPath(page, normalizeFinderPathInput(target.parentPath || "Assets"));
+      await navigateFinderPath(
+        page,
+        normalizeFinderPathInput(target.parentPath || "Assets"),
+      );
       const listing = page.locator(strategy.selector);
       if ((await listing.count()) > 0) {
-        await listing.first().click({ timeout: 5_000 }).catch(() => {});
+        await listing
+          .first()
+          .click({ timeout: 5_000 })
+          .catch(() => {});
         await page.waitForTimeout(500);
         selected = true;
       }
@@ -277,7 +317,10 @@ async function selectForUiRecycle(page, deleteBtn, target) {
       strategy.kind === "miller-name" ||
       strategy.kind === "list-row"
     ) {
-      await navigateFinderPath(page, normalizeFinderPathInput(target.parentPath || "Assets"));
+      await navigateFinderPath(
+        page,
+        normalizeFinderPathInput(target.parentPath || "Assets"),
+      );
       // Wait briefly for seeded folder to appear in column/list.
       try {
         await expect
@@ -286,7 +329,10 @@ async function selectForUiRecycle(page, deleteBtn, target) {
               const names = page.locator(SELECTORS.finderItemName);
               const n = await names.count();
               for (let i = 0; i < n; i++) {
-                const t = await names.nth(i).innerText().catch(() => "");
+                const t = await names
+                  .nth(i)
+                  .innerText()
+                  .catch(() => "");
                 if (exactFinderItemNameMatcher(target.name)(t)) {
                   return true;
                 }
@@ -294,7 +340,10 @@ async function selectForUiRecycle(page, deleteBtn, target) {
               const rows = page.locator(SELECTORS.listViewRow);
               const rc = await rows.count();
               for (let i = 0; i < rc; i++) {
-                const t = await rows.nth(i).innerText().catch(() => "");
+                const t = await rows
+                  .nth(i)
+                  .innerText()
+                  .catch(() => "");
                 if (String(t || "").includes(target.name)) {
                   return true;
                 }
@@ -473,7 +522,10 @@ test.describe("classic Finder UI recycle / restore companion", () => {
           (await confirm.count()) > 0 &&
           (await confirm.isVisible().catch(() => false))
         ) {
-          await page.locator(SELECTORS.confirmOk).click().catch(() => {});
+          await page
+            .locator(SELECTORS.confirmOk)
+            .click()
+            .catch(() => {});
         }
         try {
           await expect
@@ -555,10 +607,7 @@ test.describe("classic Finder UI recycle / restore companion", () => {
         await assetsNode.click({ timeout: 15_000 }).catch(() => {});
       }
       const detailRow = page
-        .locator(
-          `[data-testid*="detail-row-"]`,
-          { hasText: created.name },
-        )
+        .locator(`[data-testid*="detail-row-"]`, { hasText: created.name })
         .first();
       if ((await detailRow.count()) > 0) {
         const clicked = await detailRow
@@ -582,7 +631,9 @@ test.describe("classic Finder UI recycle / restore companion", () => {
         await expect
           .poll(
             async () => {
-              const disabled = await modernDelete.isDisabled().catch(() => true);
+              const disabled = await modernDelete
+                .isDisabled()
+                .catch(() => true);
               const aria =
                 (await modernDelete.getAttribute("aria-disabled")) || "";
               return isActionControlEnabled({
@@ -603,17 +654,14 @@ test.describe("classic Finder UI recycle / restore companion", () => {
         await modernDelete.click();
         try {
           await expect
-            .poll(
-              () =>
-                deleteCalls.length > 0 || deleteItemCalls.length > 0,
-              { timeout: 20_000 },
-            )
+            .poll(() => deleteCalls.length > 0 || deleteItemCalls.length > 0, {
+              timeout: 20_000,
+            })
             .toBe(true);
         } catch {
           // optional network surface
         }
-        recycledViaUi =
-          deleteCalls.length > 0 || deleteItemCalls.length > 0;
+        recycledViaUi = deleteCalls.length > 0 || deleteItemCalls.length > 0;
         if (!recycledViaUi) {
           const probeBin = await findInRecycling(
             request,
@@ -730,7 +778,11 @@ test.describe("classic Finder UI recycle / restore companion", () => {
               guid: extractPathItemGuid(liveItem),
             }).catch(() => {});
           }
-          const emptied = await emptyRecyclingViaApi(request, BASE_URL, headers);
+          const emptied = await emptyRecyclingViaApi(
+            request,
+            BASE_URL,
+            headers,
+          );
           expect(
             emptied.status >= 200 && emptied.status < 300,
             emptyApiFailureMessage(emptied),

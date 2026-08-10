@@ -14,16 +14,16 @@ Role Homepage is **not** removed; help text documents user override vs role reso
 
 ## Scope
 
-| Path | Role |
-|------|------|
-| `WebUI/src/main/ts/api/client.ts` | `putPlainText` for text/plain PUT |
-| `WebUI/src/main/ts/api/paths.ts` | `USER_HOMEPAGE` path |
-| `WebUI/src/main/ts/api/user/userHomepageApi.ts` | API client |
-| `WebUI/src/main/ts/workflowAdmin/user/landingOptions.ts` | Option matrix + role filter |
-| `WebUI/src/main/ts/workflowAdmin/user/UserEditor.tsx` | UI control load/save |
-| `WebUI/src/main/ts/workflowAdmin/messages.ts` | i18n keys |
-| `WebUI/src/test/ts/workflowAdmin/*` | Vitest |
-| `modules/perc-qa-automation/frontend/tests/bugs/bug-2211-user-default-landing.spec.js` | Playwright |
+|                                          Path                                          |               Role                |
+|----------------------------------------------------------------------------------------|-----------------------------------|
+| `WebUI/src/main/ts/api/client.ts`                                                      | `putPlainText` for text/plain PUT |
+| `WebUI/src/main/ts/api/paths.ts`                                                       | `USER_HOMEPAGE` path              |
+| `WebUI/src/main/ts/api/user/userHomepageApi.ts`                                        | API client                        |
+| `WebUI/src/main/ts/workflowAdmin/user/landingOptions.ts`                               | Option matrix + role filter       |
+| `WebUI/src/main/ts/workflowAdmin/user/UserEditor.tsx`                                  | UI control load/save              |
+| `WebUI/src/main/ts/workflowAdmin/messages.ts`                                          | i18n keys                         |
+| `WebUI/src/test/ts/workflowAdmin/*`                                                    | Vitest                            |
+| `modules/perc-qa-automation/frontend/tests/bugs/bug-2211-user-default-landing.spec.js` | Playwright                        |
 
 **Cross-platform path review:** no filesystem I/O or path joins in this diff (URL encode only). Clean.
 

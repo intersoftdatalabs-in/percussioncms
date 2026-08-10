@@ -25,7 +25,6 @@ package com.percussion.licensemanagement.error;
 public class PSLicenseServiceException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
-
   public static final String ERROR_SAVING_LICENSES =
       "Error occurred while saving the module licenses. Please see log for more details.";
   public static final String ERROR_FINDING_LICENSE =

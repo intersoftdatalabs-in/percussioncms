@@ -487,7 +487,8 @@ public class PSFolderActionManager {
    *     TYPE_FOLDER</code>
    * @throws PSCmsException if an error happens while processing the request.
    */
-  public void copy(PSNode tgtFolderNode, Iterator<? extends PSNode> nodeList) throws PSCmsException {
+  public void copy(PSNode tgtFolderNode, Iterator<? extends PSNode> nodeList)
+      throws PSCmsException {
     validateNodeAsFolder(tgtFolderNode);
     PSLocator targetLocator = PSActionManager.nodeToLocator(tgtFolderNode);
 
@@ -759,7 +760,8 @@ public class PSFolderActionManager {
    *     allowed for parent of type <code>TYPE_FOLDER</code>
    * @throws PSCmsException if an error happens while processing the request.
    */
-  public void purgeAllContent(PSNode parentNode, Iterator<? extends PSNode> nodeList) throws PSCmsException {
+  public void purgeAllContent(PSNode parentNode, Iterator<? extends PSNode> nodeList)
+      throws PSCmsException {
     PSLocator parentLocator = null;
     if (parentNode.isAnyFolderType()) {
       parentLocator = PSActionManager.nodeToLocator(parentNode);

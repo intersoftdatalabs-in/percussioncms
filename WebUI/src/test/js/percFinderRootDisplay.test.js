@@ -159,10 +159,10 @@ describe("percFinderRootDisplay.shouldNavigateOnDoubleClick (issue #960)", () =>
         root,
       ).toBe(true);
       expect(
-        api.shouldNavigateOnDoubleClick(
-          { name: root, leaf: false },
-          ["", root],
-        ),
+        api.shouldNavigateOnDoubleClick({ name: root, leaf: false }, [
+          "",
+          root,
+        ]),
         `${root} leaf:false`,
       ).toBe(true);
     }
@@ -170,40 +170,48 @@ describe("percFinderRootDisplay.shouldNavigateOnDoubleClick (issue #960)", () =>
 
   it("navigates Folder and FSFolder types", () => {
     expect(
-      api.shouldNavigateOnDoubleClick(
-        { type: "Folder", leaf: true },
-        ["", "Sites", "mysite", "folder"],
-      ),
+      api.shouldNavigateOnDoubleClick({ type: "Folder", leaf: true }, [
+        "",
+        "Sites",
+        "mysite",
+        "folder",
+      ]),
     ).toBe(true);
     expect(
-      api.shouldNavigateOnDoubleClick(
-        { type: "FSFolder", leaf: true },
-        ["", "Design", "web_resources"],
-      ),
+      api.shouldNavigateOnDoubleClick({ type: "FSFolder", leaf: true }, [
+        "",
+        "Design",
+        "web_resources",
+      ]),
     ).toBe(true);
   });
 
   it("navigates any explicit non-leaf item (e.g. site)", () => {
     expect(
-      api.shouldNavigateOnDoubleClick(
-        { type: "site", leaf: false },
-        ["", "Sites", "mysite.com"],
-      ),
+      api.shouldNavigateOnDoubleClick({ type: "site", leaf: false }, [
+        "",
+        "Sites",
+        "mysite.com",
+      ]),
     ).toBe(true);
   });
 
   it("opens leaf content items (pages/assets) instead of navigating", () => {
     expect(
-      api.shouldNavigateOnDoubleClick(
-        { type: "percPage", leaf: true },
-        ["", "Sites", "mysite.com", "index.html"],
-      ),
+      api.shouldNavigateOnDoubleClick({ type: "percPage", leaf: true }, [
+        "",
+        "Sites",
+        "mysite.com",
+        "index.html",
+      ]),
     ).toBe(false);
     expect(
-      api.shouldNavigateOnDoubleClick(
-        { type: "percImageAsset", leaf: true },
-        ["", "Assets", "uploads", "logo.png"],
-      ),
+      api.shouldNavigateOnDoubleClick({ type: "percImageAsset", leaf: true }, [
+        "",
+        "Assets",
+        "uploads",
+        "logo.png",
+      ]),
     ).toBe(false);
   });
 

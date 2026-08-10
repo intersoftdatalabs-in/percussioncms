@@ -73,7 +73,6 @@ class PSDtdRelationalMapperTypedTest {
   private static PSDtdTree parseSimpleDtd() throws Exception {
     // Minimal element with character data — yields a root table with a data column.
     String dtd = "<!ELEMENT Item (#PCDATA)>\n";
-    return new PSDtdTree(
-        new ByteArrayInputStream(dtd.getBytes(StandardCharsets.UTF_8)), "Item");
+    return new PSDtdTree(new ByteArrayInputStream(dtd.getBytes(StandardCharsets.UTF_8)), "Item");
   }
 }

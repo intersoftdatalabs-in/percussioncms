@@ -59,8 +59,7 @@ public class PSTransitionsContextLoadFromHibernateTest {
     mf.setAccessible(true);
     mf.setInt(f, f.getModifiers() & ~java.lang.reflect.Modifier.FINAL);
     @SuppressWarnings("unchecked")
-    AtomicReference<IPSWorkflowService> ref =
-        (AtomicReference<IPSWorkflowService>) f.get(null);
+    AtomicReference<IPSWorkflowService> ref = (AtomicReference<IPSWorkflowService>) f.get(null);
     ref.set(mockWf);
   }
 
@@ -72,8 +71,7 @@ public class PSTransitionsContextLoadFromHibernateTest {
     mf.setAccessible(true);
     mf.setInt(f, f.getModifiers() & ~java.lang.reflect.Modifier.FINAL);
     @SuppressWarnings("unchecked")
-    AtomicReference<IPSWorkflowService> ref =
-        (AtomicReference<IPSWorkflowService>) f.get(null);
+    AtomicReference<IPSWorkflowService> ref = (AtomicReference<IPSWorkflowService>) f.get(null);
     ref.set(savedWf);
   }
 

@@ -8,10 +8,10 @@ Inventory: [2264-inventory.md](./2264-inventory.md)
 
 Live Package Installer + CMS was **not** assumed available for overnight agents. Residual automation lives in the `deployer` module:
 
-| Test | Role |
-|------|------|
-| `PSDeploymentServerConnectionXmlMultipartTest` | Slice 2 encode + explicit `application/xml` |
-| `PSNullInputDocHandlerTest` | Slice 2 null-doc → error 8 throw sites |
+|                       Test                        |                                                   Role                                                   |
+|---------------------------------------------------|----------------------------------------------------------------------------------------------------------|
+| `PSDeploymentServerConnectionXmlMultipartTest`    | Slice 2 encode + explicit `application/xml`                                                              |
+| `PSNullInputDocHandlerTest`                       | Slice 2 null-doc → error 8 throw sites                                                                   |
 | `PSPackageInstallerNullInputDocResidualSmokeTest` | Slice 3 residual: install-critical request types, File encode path, MIME gate, handlers with present doc |
 
 ### Run
@@ -67,12 +67,12 @@ Do **not** invent pass results. Run only when a running CMS, Package Installer c
 
 ## Env gap (overnight default)
 
-| Item | Overnight agent |
-|------|-----------------|
-| Live CMS | Not available / not assumed |
-| Package Installer UI | Not driven |
-| Agent-safe multipart + handler smoke | **Run** (see above) |
-| Live pass/fail | Document steps only; do not claim live pass |
+|                 Item                 |               Overnight agent               |
+|--------------------------------------|---------------------------------------------|
+| Live CMS                             | Not available / not assumed                 |
+| Package Installer UI                 | Not driven                                  |
+| Agent-safe multipart + handler smoke | **Run** (see above)                         |
+| Live pass/fail                       | Document steps only; do not claim live pass |
 
 ## Slice closure criteria
 
@@ -82,3 +82,4 @@ Do **not** invent pass results. Run only when a running CMS, Package Installer c
 - [x] Results recorded on #2266 and parent #955 agent progress
 
 > Co-Authored by Grok Build using grok-4.5 with agent main.
+

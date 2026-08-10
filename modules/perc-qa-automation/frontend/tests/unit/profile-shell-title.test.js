@@ -66,7 +66,10 @@ describe("profileTitleMatcher", () => {
 
 describe("constants", () => {
   it("exports preferred de then es order", () => {
-    assert.deepEqual([...PROFILE_TITLE_PREFERRED_LOCALES], ["de-de", "de", "es"]);
+    assert.deepEqual(
+      [...PROFILE_TITLE_PREFERRED_LOCALES],
+      ["de-de", "de", "es"],
+    );
   });
 
   it("ships de and es sample titles", () => {

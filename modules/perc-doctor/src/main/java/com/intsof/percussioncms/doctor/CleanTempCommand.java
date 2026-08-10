@@ -160,16 +160,11 @@ public final class CleanTempCommand {
     if (detail == null || detail.isBlank()) {
       detail = exc != null ? exc.getClass().getSimpleName() : "unknown I/O error";
     }
-    report.add(
-        new CleanReport.Entry(file, 0L, CleanReport.EntryStatus.FAILED, "walk: " + detail));
+    report.add(new CleanReport.Entry(file, 0L, CleanReport.EntryStatus.FAILED, "walk: " + detail));
   }
 
   private static void processCandidate(
-      CleanReport report,
-      Path root,
-      List<Path> tempRoots,
-      Path candidate,
-      boolean dryRun) {
+      CleanReport report, Path root, List<Path> tempRoots, Path candidate, boolean dryRun) {
     Objects.requireNonNull(candidate, "candidate");
     try {
       InstallRootGuard.requireUnderInstallRoot(root, candidate);
@@ -278,8 +273,7 @@ public final class CleanTempCommand {
    * Best-effort empty directory cleanup under allowlisted roots. Never removes the allowlisted
    * roots themselves. Failures are ignored (files are what reclaim space).
    */
-  static void removeEmptyNestedDirs(
-      Path installRoot, List<Path> tempRoots, Set<Path> seedParents) {
+  static void removeEmptyNestedDirs(Path installRoot, List<Path> tempRoots, Set<Path> seedParents) {
     if (tempRoots == null || tempRoots.isEmpty()) {
       return;
     }

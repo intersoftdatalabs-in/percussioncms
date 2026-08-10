@@ -121,10 +121,7 @@ function hasRecycledAssetChrome(className) {
   if (className == null || className === "") {
     return false;
   }
-  const tokens = String(className)
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
+  const tokens = String(className).trim().split(/\s+/).filter(Boolean);
   return tokens.includes(SELECTORS.recycledClass);
 }
 
@@ -172,9 +169,7 @@ function decorationCssDefinesRecycledChrome(cssText) {
     return false;
   }
   // Loose match: outline style/color near the rule (comments allowed).
-  const blockMatch = css.match(
-    /\.perc-recycled-asset\s*\{[^}]*\}/i,
-  );
+  const blockMatch = css.match(/\.perc-recycled-asset\s*\{[^}]*\}/i);
   if (!blockMatch) {
     // Rule present but not a simple block — still count as defined.
     return true;

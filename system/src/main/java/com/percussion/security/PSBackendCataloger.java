@@ -180,7 +180,8 @@ public class PSBackendCataloger {
    * @return a valid list of 0 or more <code>PSAttribute</code> objects. They are ordered in
    *     ascending alpha order by attribute name. The caller takes ownership of the list.
    */
-  protected static List<PSAttribute> getRoleAttributes(String roleName, String attributeNameFilter) {
+  protected static List<PSAttribute> getRoleAttributes(
+      String roleName, String attributeNameFilter) {
     if (roleName == null || roleName.trim().length() == 0)
       throw new IllegalArgumentException("roleName cannot be null or empty");
 

@@ -31,8 +31,7 @@ public class PSMockHttpServletRequestTest {
   @Test
   @DisplayName("two-arg constructor seeds method and request URI")
   void twoArgConstructorSeedsMethodAndUri() {
-    PSMockHttpServletRequest request =
-        new PSMockHttpServletRequest("POST", "/Rhythmyx/content");
+    PSMockHttpServletRequest request = new PSMockHttpServletRequest("POST", "/Rhythmyx/content");
     assertEquals("POST", request.getMethod());
     assertEquals("/Rhythmyx/content", request.getRequestURI());
   }

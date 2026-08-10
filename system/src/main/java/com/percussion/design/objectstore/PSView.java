@@ -32,6 +32,7 @@ public class PSView implements Serializable {
 
   /** Serialization id for {@link Serializable}. */
   private static final long serialVersionUID = 1L;
+
   /**
    * Constructs a view with the specified name and list of fields.
    *

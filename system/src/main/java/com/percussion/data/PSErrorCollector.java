@@ -528,7 +528,8 @@ public class PSErrorCollector {
 
       List<List<Object>> itemErrors = m_itemErrors.get(pageId);
       for (int i = 0; i < itemErrors.size(); i++) {
-        // Historical path cast each stored entry as String (nested list is used by getErrorDocument).
+        // Historical path cast each stored entry as String (nested list is used by
+        // getErrorDocument).
         Object entry = itemErrors.get(i);
         Text errorText = doc.createTextNode((String) entry);
         itemError.appendChild(errorText);

@@ -38,6 +38,7 @@ import org.w3c.dom.Element;
 public class PSNumericLiteral extends PSLiteral {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
+
   /** The value type associated with this instances of this class. */
   public static final String VALUE_TYPE = "NumericLiteral";
 

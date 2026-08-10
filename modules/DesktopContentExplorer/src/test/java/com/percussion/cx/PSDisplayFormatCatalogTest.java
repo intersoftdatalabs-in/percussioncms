@@ -25,6 +25,7 @@ public class PSDisplayFormatCatalogTest {
 
   @Test
   public void getDisplayFormatIdRejectsNull() {
-    assertThrows(IllegalArgumentException.class, () -> PSDisplayFormatCatalog.getDisplayFormatId(null));
+    assertThrows(
+        IllegalArgumentException.class, () -> PSDisplayFormatCatalog.getDisplayFormatId(null));
   }
 }

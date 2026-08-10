@@ -11,8 +11,7 @@
 
 "use strict";
 
-const RECYCLE_EMPTY_PATH =
-  "/Rhythmyx/services/pathmanagement/recycle/empty";
+const RECYCLE_EMPTY_PATH = "/Rhythmyx/services/pathmanagement/recycle/empty";
 const PATH_FOLDER = "/Rhythmyx/services/pathmanagement/path/folder";
 const PATH_ADD_NEW_FOLDER =
   "/Rhythmyx/services/pathmanagement/path/addNewFolder";
@@ -60,7 +59,11 @@ function normalizePathItems(body) {
     return o.pathItem.filter((x) => x && typeof x === "object");
   }
   // Single item wrappers
-  if (o.PathItem && typeof o.PathItem === "object" && !Array.isArray(o.PathItem)) {
+  if (
+    o.PathItem &&
+    typeof o.PathItem === "object" &&
+    !Array.isArray(o.PathItem)
+  ) {
     return [o.PathItem];
   }
   return [];
@@ -99,7 +102,10 @@ function purgedTotal(body) {
       : o;
   const folders = Number(nested.purgedFolderCount || 0);
   const items = Number(nested.purgedItemCount || 0);
-  return (Number.isFinite(folders) ? folders : 0) + (Number.isFinite(items) ? items : 0);
+  return (
+    (Number.isFinite(folders) ? folders : 0) +
+    (Number.isFinite(items) ? items : 0)
+  );
 }
 
 /**
@@ -187,8 +193,7 @@ async function seedRecycledFolder(request, baseUrl, headers, opts = {}) {
     created ||
     {};
   const createdName = createdItem.name || "New Folder";
-  const createdPath =
-    createdItem.path || `/${parent}/${createdName}`;
+  const createdPath = createdItem.path || `/${parent}/${createdName}`;
 
   // Rename to unique name when server used default label.
   let livePath = createdPath;
@@ -219,7 +224,9 @@ async function seedRecycledFolder(request, baseUrl, headers, opts = {}) {
   }
 
   const deletePath = livePath.startsWith("/") ? livePath : `/${livePath}`;
-  const pathForDelete = deletePath.endsWith("/") ? deletePath : `${deletePath}/`;
+  const pathForDelete = deletePath.endsWith("/")
+    ? deletePath
+    : `${deletePath}/`;
   // JAX-RS expects the Jackson root name DeleteFolderCriteria (see PercPathService).
   const delRes = await request.post(cmsUrl(baseUrl, PATH_DELETE_FOLDER), {
     headers: {

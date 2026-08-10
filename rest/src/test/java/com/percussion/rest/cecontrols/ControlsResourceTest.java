@@ -101,8 +101,7 @@ public class ControlsResourceTest {
   @Test
   public void missingAdaptorReturnsServiceUnavailableOnList() {
     ControlsResource bare = new ControlsResource();
-    WebApplicationException ex =
-        assertThrows(WebApplicationException.class, bare::listControls);
+    WebApplicationException ex = assertThrows(WebApplicationException.class, bare::listControls);
     assertEquals(503, ex.getResponse().getStatus());
   }
 

@@ -11,14 +11,14 @@
 
 Your gut is **directionally correct**, with important refinements:
 
-| Instinct | Verdict | Refinement |
-|----------|---------|------------|
-| Migrate CM1 Page templates to Velocity templates on upgrade | **Mostly true already; normalize storage/UI, not invent Velocity** | CM1 pages already assemble via `pageAssembler` → `PSVelocityAssembler`. What is “meta” is the **region tree + widget instances + `#region` macros**, not a separate non-Velocity runtime. |
-| Repackage widgets as content types + snippet template pairs | **Right long-term model** | Many widgets already *are* a content type (asset) + Velocity fragment + JEXL code block. Normalization means making that the **first-class product model**, not a side-car XML definition under `rxconfig/Widgets`. |
-| End state: XSL / Velocity / Markdown / HTML / … assemblers | **Strong fit for existing architecture** | `IPSAssembler` + extension registration already is the plugin seam. Extend it; do not replace with a greenfield pipeline. |
-| Ship without Page / Widget / Gadget **XML definition files** | **Primary packaging goal** | Upgrade converts product + customer definition XML into content types, templates, slots, and catalog metadata. Runtime may keep a short-lived read shim; **shipping product packages should not still be authored as those XML dialects**. |
-| JEXL for bindings | **Keep JEXL** | No binding-language migration in this plan. Expression language stays JEXL. |
-| Layout/style prefs only on widgets | **Promote to slots** | Widget layout properties and styles become **slot-level** `slot_layout` / `slot_styles` (usable for all slot content, not only CM1 widgets). |
+|                           Instinct                           |                              Verdict                               |                                                                                                                 Refinement                                                                                                                 |
+|--------------------------------------------------------------|--------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Migrate CM1 Page templates to Velocity templates on upgrade  | **Mostly true already; normalize storage/UI, not invent Velocity** | CM1 pages already assemble via `pageAssembler` → `PSVelocityAssembler`. What is “meta” is the **region tree + widget instances + `#region` macros**, not a separate non-Velocity runtime.                                                  |
+| Repackage widgets as content types + snippet template pairs  | **Right long-term model**                                          | Many widgets already *are* a content type (asset) + Velocity fragment + JEXL code block. Normalization means making that the **first-class product model**, not a side-car XML definition under `rxconfig/Widgets`.                        |
+| End state: XSL / Velocity / Markdown / HTML / … assemblers   | **Strong fit for existing architecture**                           | `IPSAssembler` + extension registration already is the plugin seam. Extend it; do not replace with a greenfield pipeline.                                                                                                                  |
+| Ship without Page / Widget / Gadget **XML definition files** | **Primary packaging goal**                                         | Upgrade converts product + customer definition XML into content types, templates, slots, and catalog metadata. Runtime may keep a short-lived read shim; **shipping product packages should not still be authored as those XML dialects**. |
+| JEXL for bindings                                            | **Keep JEXL**                                                      | No binding-language migration in this plan. Expression language stays JEXL.                                                                                                                                                                |
+| Layout/style prefs only on widgets                           | **Promote to slots**                                               | Widget layout properties and styles become **slot-level** `slot_layout` / `slot_styles` (usable for all slot content, not only CM1 widgets).                                                                                               |
 
 **Recommended north star for 8.2+:**
 
@@ -34,18 +34,18 @@ Your gut is **directionally correct**, with important refinements:
 
 Registered under `Java/global/percussion/assembly/*` (see `modules/extensions-main/.../Extensions.xml` + Baseline packages):
 
-| Assembler | Role |
-|-----------|------|
-| `velocityAssembler` | Classic Velocity body + JEXL bindings (`PSVelocityAssembler`) |
-| `legacyAssembler` | Proxy to XML app + stylesheet (XSL variants); **skips binding processing** |
-| `binaryAssembler` | Pass-through binary fields |
-| `dispatchAssembler` | Choose another template from bindings |
-| `databaseAssembler` | DB publishing XML |
-| `debugAssembler` | Diagnostics |
-| `pageAssembler` | CM1 page/template assembly (`PSPageAssembler` **extends** `PSVelocityAssembler`) |
-| `pageVariantAssembler` | Page content with an explicitly chosen template |
-| `resourceAssembler` | CM1 resource publishing path |
-| `pageDatabaseAssembler` | CM1 DB export path |
+|        Assembler        |                                       Role                                       |
+|-------------------------|----------------------------------------------------------------------------------|
+| `velocityAssembler`     | Classic Velocity body + JEXL bindings (`PSVelocityAssembler`)                    |
+| `legacyAssembler`       | Proxy to XML app + stylesheet (XSL variants); **skips binding processing**       |
+| `binaryAssembler`       | Pass-through binary fields                                                       |
+| `dispatchAssembler`     | Choose another template from bindings                                            |
+| `databaseAssembler`     | DB publishing XML                                                                |
+| `debugAssembler`        | Diagnostics                                                                      |
+| `pageAssembler`         | CM1 page/template assembly (`PSPageAssembler` **extends** `PSVelocityAssembler`) |
+| `pageVariantAssembler`  | Page content with an explicitly chosen template                                  |
+| `resourceAssembler`     | CM1 resource publishing path                                                     |
+| `pageDatabaseAssembler` | CM1 DB export path                                                               |
 
 **Seam that already matches the target:**
 
@@ -70,13 +70,13 @@ Core types: `IPSAssembler`, `IPSAssemblyTemplate` (page/snippet/global/binary/da
 
 Layer lives primarily in `projects/sitemanage/.../pagemanagement`:
 
-| Concept | Storage / shape | Runtime |
-|---------|-----------------|---------|
-| **Page template** | `PSTemplate`: region tree, body markup, theme/CSS/head fragments; backed by assembly template with `pageAssembler` | Region assembly → inject `$perc` → Velocity |
-| **Page** | Page item + branch overrides of regions/widgets | Same assembler |
-| **Widget definition** | XML under `rxconfig/Widgets` (packaged in `modules/perc-packages`) | `Code` (default **jexl**) + `Content` (default **velocity** / html) |
-| **Widget instance** | On region: definition id, id, user/css prefs | Relationships to assets via widget-asset relationship services |
-| **Asset content types** | Normal CMS content types (e.g. `percRichTextAsset`) | Often 1:1 with creatable widgets |
+|         Concept         |                                                  Storage / shape                                                   |                               Runtime                               |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| **Page template**       | `PSTemplate`: region tree, body markup, theme/CSS/head fragments; backed by assembly template with `pageAssembler` | Region assembly → inject `$perc` → Velocity                         |
+| **Page**                | Page item + branch overrides of regions/widgets                                                                    | Same assembler                                                      |
+| **Widget definition**   | XML under `rxconfig/Widgets` (packaged in `modules/perc-packages`)                                                 | `Code` (default **jexl**) + `Content` (default **velocity** / html) |
+| **Widget instance**     | On region: definition id, id, user/css prefs                                                                       | Relationships to assets via widget-asset relationship services      |
+| **Asset content types** | Normal CMS content types (e.g. `percRichTextAsset`)                                                                | Often 1:1 with creatable widgets                                    |
 
 Example (`percRichText.xml`): JEXL builds CSS class attribute; Velocity loads related asset and emits field — **exactly** “snippet + bindings + content type,” packaged as a Widget.
 
@@ -91,11 +91,11 @@ Macro surface unique to CM1: `#region(...)`, `#loadRelatedWidgetContents()`, edi
 
 Two different “JavaScript” surfaces get confused historically:
 
-| Surface | Engine / mechanism | Used for | Status in this plan |
-|---------|-------------------|----------|---------------------|
-| **Template bindings** | Apache Commons **JEXL 3** via `PSScript` / `PSJexlEvaluator` | Ordered variables on assembly templates; widget `Code` blocks | **Keep JEXL. No migration.** |
+|             Surface              |                                Engine / mechanism                                |                                                              Used for                                                               |                 Status in this plan                  |
+|----------------------------------|----------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------|
+| **Template bindings**            | Apache Commons **JEXL 3** via `PSScript` / `PSJexlEvaluator`                     | Ordered variables on assembly templates; widget `Code` blocks                                                                       | **Keep JEXL. No migration.**                         |
 | **JavaScript extensions / UDFs** | **Rhino** (`org.mozilla:rhino` on the classpath; `PSJavaScriptExtensionHandler`) | Legacy extension handler type `handler="JavaScript"` — exits/UDFs registered like Java extensions (Workbench “JavaScript” category) | **Leave as-is** for this plan; not assembly bindings |
-| **WebUI / client JS** | Browser | Editors, gadgets host, SPA | Unrelated to server assembly bindings |
+| **WebUI / client JS**            | Browser                                                                          | Editors, gadgets host, SPA                                                                                                          | Unrelated to server assembly bindings                |
 
 Evidence:
 
@@ -126,13 +126,13 @@ Root POM: **Velocity Engine 2.4.1**, Velocity Tools 3.1. Help-site still has Vel
 
 **What this should mean in practice:**
 
-| Do | Don’t |
-|----|-------|
-| Treat **assembler source as the canonical render body** (Velocity, HTML-first, Markdown, …) | Pretend CM1 pages are not already Velocity-backed today |
-| Compile/expand region trees into explicit source (or keep region IR that *compiles* for debug/export) | Delete region metadata without a layout story |
-| Point page templates at **`velocityAssembler`** / **htmlAssembler** (or a thin `pageAssembler` that is “assembler + page context bindings”) | Fork a third page-only template table forever |
-| Preserve theme/head/CSS fields as **template properties or include snippets** | Lose SEO/head/protected-region fields in a naïve dump |
-| **Stop shipping Page definition XML** as the package authoring format | Leave a permanent dual storage model |
+|                                                                     Do                                                                      |                          Don’t                          |
+|---------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| Treat **assembler source as the canonical render body** (Velocity, HTML-first, Markdown, …)                                                 | Pretend CM1 pages are not already Velocity-backed today |
+| Compile/expand region trees into explicit source (or keep region IR that *compiles* for debug/export)                                       | Delete region metadata without a layout story           |
+| Point page templates at **`velocityAssembler`** / **htmlAssembler** (or a thin `pageAssembler` that is “assembler + page context bindings”) | Fork a third page-only template table forever           |
+| Preserve theme/head/CSS fields as **template properties or include snippets**                                                               | Lose SEO/head/protected-region fields in a naïve dump   |
+| **Stop shipping Page definition XML** as the package authoring format                                                                       | Leave a permanent dual storage model                    |
 
 **Hard problem:** CM1 templates encode **layout + widget placement**. Classic templates encode **slots** (typed holes filled by relationships/finders). These are related but not identical:
 
@@ -161,20 +161,20 @@ Widget css/layout prefs  →  Slot layout/style properties (see §3.3)
 
 **Ship criterion (user goal):** when 8.2 product packages ship, they are **not** authored/maintained as Page / Widget / Gadget **XML definition files**. Those files may exist only as:
 
-1. **Input** to an upgrade/compile tool, or  
+1. **Input** to an upgrade/compile tool, or
 2. A **temporary runtime shim** for not-yet-converted customer data — not as the ongoing product source of truth.
 
 **Risks / incompleteness if done naïvely**
 
-| Widget concern | Where it lives today | Must land after migration |
-|----------------|----------------------|---------------------------|
-| Palette metadata (icon, category, thumbnail) | Widget XML prefs | Content type / template catalog metadata or extension registry |
-| DnD / drop criteria / allowed asset types | Widget XML + asset services | Slot allowed types + UI policy |
-| CSS / user preferences / layout | Widget instance properties | **Slot** `slot_layout` / `slot_styles` (+ optional instance overrides) — see §3.3 |
-| Edit-mode sample content | Velocity macros + `$perc.isEditMode()` | Snippet bindings + page-editor contract |
-| Multi-asset / auto-list widgets | Complex JEXL + finders | Snippet + slot finders (already classic) or query bindings |
-| Responsive / preferred editor size | Widget prefs | UI chrome metadata, not assembly |
-| Shared vs local asset | Widget-asset relationship service | Relationship types / AA-style related content |
+|                Widget concern                |          Where it lives today          |                             Must land after migration                             |
+|----------------------------------------------|----------------------------------------|-----------------------------------------------------------------------------------|
+| Palette metadata (icon, category, thumbnail) | Widget XML prefs                       | Content type / template catalog metadata or extension registry                    |
+| DnD / drop criteria / allowed asset types    | Widget XML + asset services            | Slot allowed types + UI policy                                                    |
+| CSS / user preferences / layout              | Widget instance properties             | **Slot** `slot_layout` / `slot_styles` (+ optional instance overrides) — see §3.3 |
+| Edit-mode sample content                     | Velocity macros + `$perc.isEditMode()` | Snippet bindings + page-editor contract                                           |
+| Multi-asset / auto-list widgets              | Complex JEXL + finders                 | Snippet + slot finders (already classic) or query bindings                        |
+| Responsive / preferred editor size           | Widget prefs                           | UI chrome metadata, not assembly                                                  |
+| Shared vs local asset                        | Widget-asset relationship service      | Relationship types / AA-style related content                                     |
 
 **Conclusion:** Migration is not “delete Widgets folder on day one of coding.” It is **reify Widget as a packaging profile**, then **stop using the XML dialect**:
 
@@ -188,10 +188,10 @@ Widget Builder (React track `specs/989-react-cui-widget-builder`) should eventua
 
 Widget layout properties and styles were a useful CM1 idea stuck in the wrong layer. They should become **first-class slot features**:
 
-| Property | Intent |
-|----------|--------|
+|     Property      |                                                                    Intent                                                                    |
+|-------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
 | **`slot_layout`** | Structural/layout hints for the hole: e.g. orientation, columns, max items, wrapper class policy, responsive breakpoints, empty-state policy |
-| **`slot_styles`** | Presentational style map/tokens applied to the slot wrapper or items (CSS class roots, inline-safe tokens, theme hooks) |
+| **`slot_styles`** | Presentational style map/tokens applied to the slot wrapper or items (CSS class roots, inline-safe tokens, theme hooks)                      |
 
 **Why on slots, not only on “widgets”:**
 
@@ -216,15 +216,15 @@ Upgrade: map CM1 widget `CssPref` / layout-ish prefs → slot defaults on the sl
 
 ### 3.4 Target assembler set
 
-| Assembler | Status | 8.2 posture |
-|-----------|--------|-------------|
-| **XSL / Legacy** | Exists (`legacyAssembler` + XML apps) | **Support** for existing installs; mark unsupported for *new* design; no feature investment |
-| **Velocity** | Primary modern path | **Keep** for power users and existing packages; improve docs/macros |
-| **HTML-first** | Does not exist | **Add** — primary answer to “Velocity is hard”: HTML (or HTML + limited placeholders) with JEXL bindings supplying variables; optional small include mechanism |
-| **Markdown** | Does not exist | **Add** — Markdown → HTML (CommonMark), bindings apply first |
-| **Binary / Dispatch / Database / Resource** | Exist | Keep as specialized assemblers (not “languages”) |
-| **Future (FreeMarker, Handlebars, …)** | N/A | Only if customer demand; **assembler plugin contract** is the investment |
-| **pageAssembler** | CM1 specialization of Velocity | Fold into **chosen text assembler + standard page context bindings** (`$perc` becomes documented context module) |
+|                  Assembler                  |                Status                 |                                                                          8.2 posture                                                                           |
+|---------------------------------------------|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **XSL / Legacy**                            | Exists (`legacyAssembler` + XML apps) | **Support** for existing installs; mark unsupported for *new* design; no feature investment                                                                    |
+| **Velocity**                                | Primary modern path                   | **Keep** for power users and existing packages; improve docs/macros                                                                                            |
+| **HTML-first**                              | Does not exist                        | **Add** — primary answer to “Velocity is hard”: HTML (or HTML + limited placeholders) with JEXL bindings supplying variables; optional small include mechanism |
+| **Markdown**                                | Does not exist                        | **Add** — Markdown → HTML (CommonMark), bindings apply first                                                                                                   |
+| **Binary / Dispatch / Database / Resource** | Exist                                 | Keep as specialized assemblers (not “languages”)                                                                                                               |
+| **Future (FreeMarker, Handlebars, …)**      | N/A                                   | Only if customer demand; **assembler plugin contract** is the investment                                                                                       |
+| **pageAssembler**                           | CM1 specialization of Velocity        | Fold into **chosen text assembler + standard page context bindings** (`$perc` becomes documented context module)                                               |
 
 **Design principle:**  
 **Language assembler** (how body is interpreted) vs **output/purpose assembler** (binary, dispatch, database) stay distinct.
@@ -390,14 +390,14 @@ Align with `design-templates-item-types` phases D0–D4:
 
 ## 6. Velocity ergonomics + HTML-first (parallel)
 
-| Issue | Direction |
-|-------|-----------|
-| Velocity hard for simple templates | **HTML-first assembler** (and Markdown) as default recommendation for simple snippets |
-| Dual `$sys` / `$rx` / `$perc` | Document as modules; stabilize; avoid adding a fourth |
-| Macro-heavy CM1 templates | Prefer explicit includes + short standard library; keep macros as sugar on Velocity path |
-| Stringly `#region('id' '' '' '' '')` | Replace with structured IR + generated calls / slot markers |
-| Global template `#inner()` pattern | Keep; document as layout shell pattern |
-| Velocity 2.x migration leftovers | Re-audit product packages against 2.4.1; help-site update |
+|                Issue                 |                                        Direction                                         |
+|--------------------------------------|------------------------------------------------------------------------------------------|
+| Velocity hard for simple templates   | **HTML-first assembler** (and Markdown) as default recommendation for simple snippets    |
+| Dual `$sys` / `$rx` / `$perc`        | Document as modules; stabilize; avoid adding a fourth                                    |
+| Macro-heavy CM1 templates            | Prefer explicit includes + short standard library; keep macros as sugar on Velocity path |
+| Stringly `#region('id' '' '' '' '')` | Replace with structured IR + generated calls / slot markers                              |
+| Global template `#inner()` pattern   | Keep; document as layout shell pattern                                                   |
+| Velocity 2.x migration leftovers     | Re-audit product packages against 2.4.1; help-site update                                |
 
 ---
 
@@ -405,14 +405,14 @@ Align with `design-templates-item-types` phases D0–D4:
 
 ### Risks
 
-| Risk | Mitigation |
-|------|------------|
-| Customer template breakage on upgrade | Dual-run shims; golden HTML diffs; keep JEXL and Velocity behavior stable |
-| Visual ↔ source round-trip lossy | Own layout in IR; source generation one-way for freeform templates |
+|                    Risk                    |                                 Mitigation                                  |
+|--------------------------------------------|-----------------------------------------------------------------------------|
+| Customer template breakage on upgrade      | Dual-run shims; golden HTML diffs; keep JEXL and Velocity behavior stable   |
+| Visual ↔ source round-trip lossy           | Own layout in IR; source generation one-way for freeform templates          |
 | Scope explosion (full page editor rewrite) | Split: platform vs SPA Design; 8.2 ships platform + product XML elimination |
-| Mixed CM1/classic sites | Explicit support matrix; no “must convert XSL in 8.2” |
-| Incomplete gadget inventory | Phase 0 gadget survey; convert XML-defined only |
-| Slot layout/styles scope creep | Start with CM1-parity property set; version schema |
+| Mixed CM1/classic sites                    | Explicit support matrix; no “must convert XSL in 8.2”                       |
+| Incomplete gadget inventory                | Phase 0 gadget survey; convert XML-defined only                             |
+| Slot layout/styles scope creep             | Start with CM1-parity property set; version schema                          |
 
 ### Non-goals for this plan
 
@@ -450,21 +450,21 @@ Align with `design-templates-item-types` phases D0–D4:
 
 ## 10. Code anchors (for implementers)
 
-| Area | Path |
-|------|------|
-| Assembler SPI | `system/services/.../assembly/IPSAssembler.java` |
-| Velocity assembler | `.../impl/plugin/PSVelocityAssembler.java` |
-| Legacy/XSL assembler | `.../impl/plugin/PSLegacyAssembler.java` |
-| Template + bindings | `.../data/PSAssemblyTemplate.java`, `PSTemplateBinding.java` |
-| JEXL engine | `modules/utils/.../jexl/PSScript.java`, `PSJexlEvaluator.java` |
+|                  Area                   |                               Path                               |
+|-----------------------------------------|------------------------------------------------------------------|
+| Assembler SPI                           | `system/services/.../assembly/IPSAssembler.java`                 |
+| Velocity assembler                      | `.../impl/plugin/PSVelocityAssembler.java`                       |
+| Legacy/XSL assembler                    | `.../impl/plugin/PSLegacyAssembler.java`                         |
+| Template + bindings                     | `.../data/PSAssemblyTemplate.java`, `PSTemplateBinding.java`     |
+| JEXL engine                             | `modules/utils/.../jexl/PSScript.java`, `PSJexlEvaluator.java`   |
 | JS **extension** handler (not bindings) | `PSJavaScriptExtensionHandler` (+ Rhino dependency in `pom.xml`) |
-| CM1 page assembler | `projects/sitemanage/.../assembler/PSPageAssembler.java` |
-| CM1 page context | `.../PSPageAssemblyContext.java` |
-| Widget model | `.../data/PSWidgetDefinition.java` |
-| Sample widget | `modules/perc-packages/.../Widgets/percRichText.xml` |
-| Extension registration | `modules/extensions-main/.../Extensions.xml` |
-| Workbench inventory | `docs/developer-module/workbench-functional-inventory.md` §7 |
-| Design SPA placeholder | `docs/ai-generated/tasks/design-templates-item-types/` |
+| CM1 page assembler                      | `projects/sitemanage/.../assembler/PSPageAssembler.java`         |
+| CM1 page context                        | `.../PSPageAssemblyContext.java`                                 |
+| Widget model                            | `.../data/PSWidgetDefinition.java`                               |
+| Sample widget                           | `modules/perc-packages/.../Widgets/percRichText.xml`             |
+| Extension registration                  | `modules/extensions-main/.../Extensions.xml`                     |
+| Workbench inventory                     | `docs/developer-module/workbench-functional-inventory.md` §7     |
+| Design SPA placeholder                  | `docs/ai-generated/tasks/design-templates-item-types/`           |
 
 ---
 
@@ -474,10 +474,10 @@ You already have the **right seam** (`IPSAssembler` + templates + ordered **JEXL
 
 **Best 8.2 strategy:**
 
-1. Keep **JEXL** for bindings (and leave Rhino JS **extensions** alone for now).  
-2. Add **HTML-first** and **Markdown** assemblers so people are not forced through Velocity.  
-3. Unify **slots/regions** and put **layout/styles on slots**.  
-4. Repackage widgets as **content type + snippet templates**.  
+1. Keep **JEXL** for bindings (and leave Rhino JS **extensions** alone for now).
+2. Add **HTML-first** and **Markdown** assemblers so people are not forced through Velocity.
+3. Unify **slots/regions** and put **layout/styles on slots**.
+4. Repackage widgets as **content type + snippet templates**.
 5. **Ship product packages free of Page / Widget / Gadget XML definition files**, with upgrade conversion for existing systems.
 
 Rhino in the stack is explained by the **JavaScript extension/UDF handler**, not by template bindings. Bindings have been JEXL; this plan keeps them that way.

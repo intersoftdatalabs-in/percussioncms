@@ -51,8 +51,8 @@ public final class InstallRootGuard {
 
   /**
    * Returns true if {@code candidate} is the install root itself or a descendant of it (after
-   * absolute normalize). Does not follow the candidate as a real path (avoids requiring the file
-   * to exist for the check).
+   * absolute normalize). Does not follow the candidate as a real path (avoids requiring the file to
+   * exist for the check).
    *
    * <p>On Windows (case-insensitive FS), comparison is case-insensitive so {@code c:\percussion}
    * matches descendants resolved as {@code C:\Percussion\...}.
@@ -133,15 +133,15 @@ public final class InstallRootGuard {
   /**
    * Allowlisted installer / upgrade backup file name for {@code clean-install-backups}.
    *
-   * <p>Patterns are drawn from {@code perc-distribution-tree} installer and assembly excludes —
-   * not arbitrary user globs:
+   * <p>Patterns are drawn from {@code perc-distribution-tree} installer and assembly excludes — not
+   * arbitrary user globs:
    *
    * <ul>
    *   <li>{@code AppServer_backup_&lt;timestamp&gt;.zip} (see {@code install.xml} {@code
    *       zip_AppServer})
    *   <li>any file ending with {@code .bak} (assembly / install excludes)
-   *   <li>any file ending with {@code .backup} (assembly / install excludes; includes known
-   *       {@code *.properties.backup} such as {@code Navigation.properties.backup})
+   *   <li>any file ending with {@code .backup} (assembly / install excludes; includes known {@code
+   *       *.properties.backup} such as {@code Navigation.properties.backup})
    * </ul>
    *
    * <p>Matching is case-insensitive. Path separators in {@code fileName} are rejected.
@@ -165,9 +165,7 @@ public final class InstallRootGuard {
     return isAppServerBackupZipName(lower);
   }
 
-  /**
-   * {@code AppServer_backup_<timestamp>.zip} with a non-empty timestamp (case already folded).
-   */
+  /** {@code AppServer_backup_<timestamp>.zip} with a non-empty timestamp (case already folded). */
   static boolean isAppServerBackupZipName(String lowerFileName) {
     final String prefix = "appserver_backup_";
     final String suffix = ".zip";
@@ -184,17 +182,15 @@ public final class InstallRootGuard {
    *
    * <ul>
    *   <li>{@code jetty/base/logs} — Jetty / CMS Log4j2 and install layout ({@code install.xml})
-   *   <li>{@code jetty/base/modules/perc-logging/logs} — Log4j2 default relative to
-   *       perc-logging module config
+   *   <li>{@code jetty/base/modules/perc-logging/logs} — Log4j2 default relative to perc-logging
+   *       module config
    *   <li>{@code Deployment/Server/logs} — DTS / Tomcat ({@code catalina.base}/logs)
    * </ul>
    *
    * <p>Missing directories are skipped at walk time (not an error).
    */
   public static final String[] LOG_DIR_RELATIVE = {
-    "jetty/base/logs",
-    "jetty/base/modules/perc-logging/logs",
-    "Deployment/Server/logs"
+    "jetty/base/logs", "jetty/base/modules/perc-logging/logs", "Deployment/Server/logs"
   };
 
   /**
@@ -208,14 +204,11 @@ public final class InstallRootGuard {
    *   <li>{@code Deployment/Server/work} — DTS Tomcat {@code catalina.base}/work
    * </ul>
    *
-   * <p>Missing directories are skipped at walk time (not an error). Only contents under these
-   * roots are candidates; the allowlisted root directories themselves are never removed.
+   * <p>Missing directories are skipped at walk time (not an error). Only contents under these roots
+   * are candidates; the allowlisted root directories themselves are never removed.
    */
   public static final String[] TEMP_DIR_RELATIVE = {
-    "temp",
-    "jetty/base/work",
-    "Deployment/Server/temp",
-    "Deployment/Server/work"
+    "temp", "jetty/base/work", "Deployment/Server/temp", "Deployment/Server/work"
   };
 
   /**
@@ -265,8 +258,8 @@ public final class InstallRootGuard {
   }
 
   /**
-   * Join a forward-slash relative path under {@code root}. Rejects {@code ..} segments and
-   * absolute relative inputs so the result cannot escape the root via the relative string.
+   * Join a forward-slash relative path under {@code root}. Rejects {@code ..} segments and absolute
+   * relative inputs so the result cannot escape the root via the relative string.
    *
    * @return resolved path under root, or null if the relative path is invalid
    */
@@ -310,9 +303,7 @@ public final class InstallRootGuard {
       return false;
     }
     String lower = fileName.toLowerCase(Locale.ROOT);
-    return lower.endsWith(".log")
-        || lower.endsWith(".log.gz")
-        || lower.endsWith(".out");
+    return lower.endsWith(".log") || lower.endsWith(".log.gz") || lower.endsWith(".out");
   }
 
   /**

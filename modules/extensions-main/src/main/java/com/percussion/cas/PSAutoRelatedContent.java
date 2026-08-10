@@ -164,7 +164,8 @@ public class PSAutoRelatedContent extends PSDefaultExtension implements IPSResul
               request.printTraceMessage(
                   "Skipping non-publishable url \n" + PSXmlDocumentBuilder.toString(resultLink));
               resultLink =
-                  resultWalker.getNextElement(RELATEDLINKURL, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
+                  resultWalker.getNextElement(
+                      RELATEDLINKURL, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
               continue;
             }
 

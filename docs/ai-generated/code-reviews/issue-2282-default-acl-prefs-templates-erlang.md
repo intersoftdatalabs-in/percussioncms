@@ -10,18 +10,18 @@ WebUI product screen / preference surface (companions: pure helpers, Vitest, Pla
 
 ## Checklist
 
-| Item | Result |
-|------|--------|
-| Inventory on parent #2274 before coding | Pass — comment posted |
-| No re-do of B1 special-row UX | Pass |
-| No B3 design/runtime depth | Pass |
-| Wire existing APIs (preferences + ACL bulk) | Pass — no new REST |
-| Behavioral unit tests for helpers + UI + create path | Pass |
-| Playwright for user-visible prefs surface | Pass — `developer-default-acl-preferences.spec.js` |
-| Portable paths / no hardcoded user paths | Pass |
-| Intersoft header on new 2026 sources | Pass |
-| Module `mvnw clean install` (WebUI) | Pass |
-| Module `mvnw clean install` (perc-qa-automation) | Pass (run with PR) |
+|                         Item                         |                       Result                       |
+|------------------------------------------------------|----------------------------------------------------|
+| Inventory on parent #2274 before coding              | Pass — comment posted                              |
+| No re-do of B1 special-row UX                        | Pass                                               |
+| No B3 design/runtime depth                           | Pass                                               |
+| Wire existing APIs (preferences + ACL bulk)          | Pass — no new REST                                 |
+| Behavioral unit tests for helpers + UI + create path | Pass                                               |
+| Playwright for user-visible prefs surface            | Pass — `developer-default-acl-preferences.spec.js` |
+| Portable paths / no hardcoded user paths             | Pass                                               |
+| Intersoft header on new 2026 sources                 | Pass                                               |
+| Module `mvnw clean install` (WebUI)                  | Pass                                               |
+| Module `mvnw clean install` (perc-qa-automation)     | Pass (run with PR)                                 |
 
 ## Findings
 
@@ -41,3 +41,4 @@ No hard-gate bugs found.
 - B3 design vs runtime permission model depth (#2283)
 
 > Co-Authored by Grok Build using grok-4.5 with agent main.
+

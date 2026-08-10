@@ -157,14 +157,14 @@ Applies to **all** work under `WebUI/src/main/ts/contentExplorer/**`,
 `WebUI/src/main/ts/api/contentExplorer/**`, Explorer SPA routes, and Explorer
 Playwright specs (feature **992**, parity **#2400**, and follow-ups).
 
-| Requirement | Rule |
-|-------------|------|
-| **i18n (FR-026)** | Every **product chrome** string (labels, buttons, titles, empty/error states, `aria-label` / `aria-labelledby` text, `role="status"` / `alert` copy) MUST go through `message(EXPLORER_MSG.<KEY>)`. Keys live in `contentExplorer/messages.ts` as `perc.ui.explorer@<English default>`. |
-| **No bare English chrome** | Do **not** hardcode user-visible English in JSX. Server/catalog values (display-format names, action menu labels from REST, CMS path/item titles) may render as data — not as product chrome. |
-| **508 / WCAG** | Keyboard-completable flows; meaningful `aria-*` / roles on toolbars, toggles (`aria-expanded` / `aria-controls` / `aria-pressed`), regions, lists, and dialogs. Prefer labels tied to controls (`htmlFor` / `aria-labelledby`). |
-| **Vitest a11y gate (T082a)** | New or changed Explorer components MUST call `renderA11yGate(container)` from `WebUI/src/test/ts/contentExplorer/a11y.ts` (zero **serious** / **critical** axe violations; WCAG 2.0/2.1 A+AA tags). |
-| **Playwright a11y gate (T082b)** | Product-visible Explorer screen changes MUST keep/extend `expectNoSeriousA11yViolations` in `modules/perc-qa-automation/frontend/tests/` (e.g. `us1-core-explorer.spec.js`) scoped to `[data-testid="content-explorer-shell"]` (or the changed surface). |
-| **Checklists** | `specs/992-react-content-explorer/checklists/a11y-spotcheck.md`, `…/i18n-key-presence.md`; parity program: `specs/2400-dce-explorer-parity/`. |
+|           Requirement            |                                                                                                                                          Rule                                                                                                                                           |
+|----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **i18n (FR-026)**                | Every **product chrome** string (labels, buttons, titles, empty/error states, `aria-label` / `aria-labelledby` text, `role="status"` / `alert` copy) MUST go through `message(EXPLORER_MSG.<KEY>)`. Keys live in `contentExplorer/messages.ts` as `perc.ui.explorer@<English default>`. |
+| **No bare English chrome**       | Do **not** hardcode user-visible English in JSX. Server/catalog values (display-format names, action menu labels from REST, CMS path/item titles) may render as data — not as product chrome.                                                                                           |
+| **508 / WCAG**                   | Keyboard-completable flows; meaningful `aria-*` / roles on toolbars, toggles (`aria-expanded` / `aria-controls` / `aria-pressed`), regions, lists, and dialogs. Prefer labels tied to controls (`htmlFor` / `aria-labelledby`).                                                         |
+| **Vitest a11y gate (T082a)**     | New or changed Explorer components MUST call `renderA11yGate(container)` from `WebUI/src/test/ts/contentExplorer/a11y.ts` (zero **serious** / **critical** axe violations; WCAG 2.0/2.1 A+AA tags).                                                                                     |
+| **Playwright a11y gate (T082b)** | Product-visible Explorer screen changes MUST keep/extend `expectNoSeriousA11yViolations` in `modules/perc-qa-automation/frontend/tests/` (e.g. `us1-core-explorer.spec.js`) scoped to `[data-testid="content-explorer-shell"]` (or the changed surface).                                |
+| **Checklists**                   | `specs/992-react-content-explorer/checklists/a11y-spotcheck.md`, `…/i18n-key-presence.md`; parity program: `specs/2400-dce-explorer-parity/`.                                                                                                                                           |
 
 **Done means** i18n + a11y gates green — not only that a panel mounts.
 

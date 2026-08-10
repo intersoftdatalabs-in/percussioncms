@@ -10,13 +10,13 @@ PR-sized generics parameterization of public iterators and tightly coupled consu
 
 ## Findings
 
-| Severity | Finding | Disposition |
-| --- | --- | --- |
-| none | No behavioral bugs in typed iterator conversion | — |
-| note | `getColumns()` / folder property iterators still bridge `PSDbComponentList` via localized suppress + cast | Acceptable; list container remains `Iterator<IPSDbComponent>` |
-| residual | `IPSComponent` raw `List parentComponents` | Documented for design.objectstore interface work |
-| residual | Server handlers (`PSLocalCataloger`, `PSItemDefManager`, etc.) | Follow-up residual issues |
-| residual | Raw `PSDbComponentSet` subclasses (`PSSlotTypeSet`, etc.) | Follow-up residual |
+| Severity |                                                  Finding                                                  |                          Disposition                          |
+|----------|-----------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+| none     | No behavioral bugs in typed iterator conversion                                                           | —                                                             |
+| note     | `getColumns()` / folder property iterators still bridge `PSDbComponentList` via localized suppress + cast | Acceptable; list container remains `Iterator<IPSDbComponent>` |
+| residual | `IPSComponent` raw `List parentComponents`                                                                | Documented for design.objectstore interface work              |
+| residual | Server handlers (`PSLocalCataloger`, `PSItemDefManager`, etc.)                                            | Follow-up residual issues                                     |
+| residual | Raw `PSDbComponentSet` subclasses (`PSSlotTypeSet`, etc.)                                                 | Follow-up residual                                            |
 
 ## Tests
 

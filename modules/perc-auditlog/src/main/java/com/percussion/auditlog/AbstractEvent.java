@@ -33,7 +33,10 @@ public class AbstractEvent extends AuditContext {
 
   private static final String SYSTEM_OBSERVER = "service/bss/cms";
 
-  /** Action outcome; field-initialized so the no-arg constructor need not call an overridable setter. */
+  /**
+   * Action outcome; field-initialized so the no-arg constructor need not call an overridable
+   * setter.
+   */
   private String outcome = PSActionOutcome.UNKNOWN.name();
 
   /**

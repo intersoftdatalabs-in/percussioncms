@@ -40,7 +40,8 @@ public class PSObjectStoreSerialFieldEditorsTest {
   public void testReplacementValueInterfaceIsSerializable() {
     assertTrue(
         Serializable.class.isAssignableFrom(IPSReplacementValue.class),
-        "IPSReplacementValue must extend Serializable so IPSBackEndMapping/locator fields clear serial-field");
+        "IPSReplacementValue must extend Serializable so IPSBackEndMapping/locator fields clear"
+            + " serial-field");
     assertTrue(Serializable.class.isAssignableFrom(IPSBackEndMapping.class));
   }
 
@@ -92,15 +93,15 @@ public class PSObjectStoreSerialFieldEditorsTest {
   public void testConcreteFieldTypesOnHottestEditors() throws Exception {
     // Reflect declared field types so regressions to Map/List/Collection interfaces fail the suite.
     assertEquals(
-        ArrayList.class,
-        PSContentEditor.class.getDeclaredField("m_customActionGroups").getType());
+        ArrayList.class, PSContentEditor.class.getDeclaredField("m_customActionGroups").getType());
     assertEquals(HashMap.class, PSField.class.getDeclaredField("m_occurrenceSettings").getType());
     assertEquals(HashMap.class, PSField.class.getDeclaredField("m_properties").getType());
     assertEquals(TreeMap.class, PSFieldSet.class.getDeclaredField("m_fields").getType());
     assertEquals(ArrayList.class, PSControlMeta.class.getDeclaredField("m_params").getType());
     assertEquals(ArrayList.class, PSControlMeta.class.getDeclaredField("m_dependencies").getType());
     assertEquals(ArrayList.class, PSControlMeta.class.getDeclaredField("m_files").getType());
-    assertEquals(ArrayList.class, PSControlParameter.class.getDeclaredField("m_choiceList").getType());
+    assertEquals(
+        ArrayList.class, PSControlParameter.class.getDeclaredField("m_choiceList").getType());
     assertEquals(ArrayList.class, PSView.class.getDeclaredField("m_fields").getType());
     assertEquals(HashMap.class, PSViewSet.class.getDeclaredField("m_views").getType());
     assertEquals(HashMap.class, PSViewSet.class.getDeclaredField("m_conditionalViews").getType());

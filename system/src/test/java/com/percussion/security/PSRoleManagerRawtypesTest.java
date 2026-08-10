@@ -65,14 +65,12 @@ public class PSRoleManagerRawtypesTest {
     globalAttrs.setAttribute("email", List.of("global@example.com"));
     globalAttrs.setAttribute("location", List.of("Boston"));
 
-    PSSubject roleSubject =
-        new PSGlobalSubject("alice", PSSubject.SUBJECT_TYPE_USER, roleAttrs);
+    PSSubject roleSubject = new PSGlobalSubject("alice", PSSubject.SUBJECT_TYPE_USER, roleAttrs);
     PSSubject globalSubject =
         new PSGlobalSubject("alice", PSSubject.SUBJECT_TYPE_USER, globalAttrs);
 
     List<PSSubject> merged =
-        PSRoleManager.mergeRoleAndGlobalSubjects(
-            List.of(roleSubject), List.of(globalSubject));
+        PSRoleManager.mergeRoleAndGlobalSubjects(List.of(roleSubject), List.of(globalSubject));
 
     assertEquals(1, merged.size());
     PSSubject result = merged.get(0);
@@ -96,14 +94,11 @@ public class PSRoleManagerRawtypesTest {
     PSAttributeList globalAttrs = new PSAttributeList();
     globalAttrs.setAttribute("globalOnly", List.of("g"));
 
-    PSSubject roleSubject =
-        new PSGlobalSubject("bob", PSSubject.SUBJECT_TYPE_USER, roleAttrs);
-    PSSubject globalOnly =
-        new PSGlobalSubject("carol", PSSubject.SUBJECT_TYPE_USER, globalAttrs);
+    PSSubject roleSubject = new PSGlobalSubject("bob", PSSubject.SUBJECT_TYPE_USER, roleAttrs);
+    PSSubject globalOnly = new PSGlobalSubject("carol", PSSubject.SUBJECT_TYPE_USER, globalAttrs);
 
     List<PSSubject> merged =
-        PSRoleManager.mergeRoleAndGlobalSubjects(
-            List.of(roleSubject), List.of(globalOnly));
+        PSRoleManager.mergeRoleAndGlobalSubjects(List.of(roleSubject), List.of(globalOnly));
 
     assertEquals(2, merged.size());
     // sorted case-insensitive by name: bob, carol
@@ -120,11 +115,9 @@ public class PSRoleManagerRawtypesTest {
         PSRoleManager.mergeRoleAndGlobalSubjects(new ArrayList<>(), new ArrayList<>()));
 
     PSSubject onlyGlobal =
-        new PSGlobalSubject(
-            "dave", PSSubject.SUBJECT_TYPE_USER, new PSAttributeList());
+        new PSGlobalSubject("dave", PSSubject.SUBJECT_TYPE_USER, new PSAttributeList());
     List<PSSubject> globalsOnly =
-        PSRoleManager.mergeRoleAndGlobalSubjects(
-            new ArrayList<>(), List.of(onlyGlobal));
+        PSRoleManager.mergeRoleAndGlobalSubjects(new ArrayList<>(), List.of(onlyGlobal));
     assertEquals(1, globalsOnly.size());
     assertEquals("dave", globalsOnly.get(0).getName());
   }
@@ -136,10 +129,8 @@ public class PSRoleManagerRawtypesTest {
     PSAttributeList groupAttrs = new PSAttributeList();
     groupAttrs.setAttribute("kind", List.of("group"));
 
-    PSSubject user =
-        new PSGlobalSubject("team", PSSubject.SUBJECT_TYPE_USER, userAttrs);
-    PSSubject group =
-        new PSGlobalSubject("team", PSSubject.SUBJECT_TYPE_GROUP, groupAttrs);
+    PSSubject user = new PSGlobalSubject("team", PSSubject.SUBJECT_TYPE_USER, userAttrs);
+    PSSubject group = new PSGlobalSubject("team", PSSubject.SUBJECT_TYPE_GROUP, groupAttrs);
 
     List<PSSubject> merged =
         PSRoleManager.mergeRoleAndGlobalSubjects(List.of(user), List.of(group));

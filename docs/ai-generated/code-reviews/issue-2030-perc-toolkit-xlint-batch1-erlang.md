@@ -28,14 +28,14 @@ PR-sized batch 1 for parent #2200 / issue #2030. Live main-source project `-Xlin
 
 ## Checklist
 
-| Gate | Result |
-|------|--------|
-| Bugs in typed refactors | None found — collections already held typed elements; only declarations/casts updated |
-| Portable paths / file I/O | N/A (no path-string changes) |
-| Behavioral unit tests | New: `PSOMutableUrlTest`, `PSOParseUrlQueryStringTest`; extended `PSOSlotContentsTest`, `UniqueIdLocatorSetTest`; existing image/simplify/wrapper tests cover easy wins |
-| Prefer real fix over suppress | Yes — no new blanket `@SuppressWarnings` |
-| Standalone `mvnw clean install` | BUILD SUCCESS — Tests run: 223, Failures: 0, Errors: 0, Skipped: 16 |
-| Scope confined to perc-toolkit | Yes |
+|              Gate               |                                                                                 Result                                                                                  |
+|---------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Bugs in typed refactors         | None found — collections already held typed elements; only declarations/casts updated                                                                                   |
+| Portable paths / file I/O       | N/A (no path-string changes)                                                                                                                                            |
+| Behavioral unit tests           | New: `PSOMutableUrlTest`, `PSOParseUrlQueryStringTest`; extended `PSOSlotContentsTest`, `UniqueIdLocatorSetTest`; existing image/simplify/wrapper tests cover easy wins |
+| Prefer real fix over suppress   | Yes — no new blanket `@SuppressWarnings`                                                                                                                                |
+| Standalone `mvnw clean install` | BUILD SUCCESS — Tests run: 223, Failures: 0, Errors: 0, Skipped: 16                                                                                                     |
+| Scope confined to perc-toolkit  | Yes                                                                                                                                                                     |
 
 ## Residual issue
 

@@ -172,8 +172,7 @@ public class PSOWFActionDispatcher extends PSDefaultExtension implements IPSWork
       throws PSExtensionException, PSNotFoundException {
     IPSExtension ext = null;
     IPSExtensionManager extMgr = PSServer.getExtensionManager(null);
-    Iterator<?> itr =
-        extMgr.getExtensionNames("Java", null, interfaceName, workflowActionName);
+    Iterator<?> itr = extMgr.getExtensionNames("Java", null, interfaceName, workflowActionName);
     while (itr.hasNext()) {
       PSExtensionRef ref = (PSExtensionRef) itr.next();
       log.debug("found extension {}", ref.getFQN());

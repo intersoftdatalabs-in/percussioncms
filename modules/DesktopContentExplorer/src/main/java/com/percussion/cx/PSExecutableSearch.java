@@ -631,7 +631,8 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
     List<String> categorized = new ArrayList<>();
     List<String> flat = new ArrayList<>();
     List<Map.Entry<String, String>> tableCols = new ArrayList<>();
-    List<Map.Entry<String, String>> colDefs = null; // will be null if no display format, or no columns
+    List<Map.Entry<String, String>> colDefs =
+        null; // will be null if no display format, or no columns
     Map<String, String> colNames = new HashMap<>();
 
     if (df != null) {

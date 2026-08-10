@@ -46,12 +46,10 @@ public class AuditLogResourceTest {
   @Test
   public void queryDelegates() {
     SystemAuditLogPage page = new SystemAuditLogPage(List.of(), 0, 0, 50);
-    when(adaptor.query(
-            isNull(), isNull(), eq("AUTH"), isNull(), isNull(), isNull(), eq(0), eq(50)))
+    when(adaptor.query(isNull(), isNull(), eq("AUTH"), isNull(), isNull(), isNull(), eq(0), eq(50)))
         .thenReturn(page);
 
-    SystemAuditLogPage out =
-        resource.queryEntries(null, null, "AUTH", null, null, null, 0, 50);
+    SystemAuditLogPage out = resource.queryEntries(null, null, "AUTH", null, null, null, 0, 50);
     assertSame(page, out);
     verify(adaptor)
         .query(isNull(), isNull(), eq("AUTH"), isNull(), isNull(), isNull(), eq(0), eq(50));
@@ -59,8 +57,7 @@ public class AuditLogResourceTest {
 
   @Test
   public void queryMapsSecurityExceptionTo403() {
-    when(adaptor.query(
-            isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), eq(0), eq(50)))
+    when(adaptor.query(isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), eq(0), eq(50)))
         .thenThrow(new SecurityException("not allowed"));
 
     WebApplicationException ex =
@@ -72,8 +69,7 @@ public class AuditLogResourceTest {
 
   @Test
   public void queryMapsIllegalArgumentTo400() {
-    when(adaptor.query(
-            eq("bad"), isNull(), isNull(), isNull(), isNull(), isNull(), eq(0), eq(50)))
+    when(adaptor.query(eq("bad"), isNull(), isNull(), isNull(), isNull(), isNull(), eq(0), eq(50)))
         .thenThrow(new IllegalArgumentException("from is not a valid ISO-8601 instant"));
 
     WebApplicationException ex =

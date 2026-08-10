@@ -63,9 +63,7 @@ public final class CleanHeapDumpsCommand {
     return report;
   }
 
-  /**
-   * Inventory {@code *.hprof} under {@code root} without recording walk failures (test helper).
-   */
+  /** Inventory {@code *.hprof} under {@code root} without recording walk failures (test helper). */
   static List<Path> findHeapDumps(Path root) throws IOException {
     List<Path> found = new ArrayList<>();
     walkHeapDumps(root, found, null);
@@ -125,9 +123,7 @@ public final class CleanHeapDumpsCommand {
     if (detail == null || detail.isBlank()) {
       detail = exc != null ? exc.getClass().getSimpleName() : "unknown I/O error";
     }
-    report.add(
-        new CleanReport.Entry(
-            file, 0L, CleanReport.EntryStatus.FAILED, "walk: " + detail));
+    report.add(new CleanReport.Entry(file, 0L, CleanReport.EntryStatus.FAILED, "walk: " + detail));
   }
 
   private static void processCandidate(

@@ -910,9 +910,9 @@ public class PSUserService implements IPSUserService {
   /**
    * Self-service account update for the signed-in user only (issue #2395 / parent #2374).
    *
-   * <p>No user name on the path or body — always mutates the session user (no IDOR). Only email
-   * for {@link PSUserProviderType#INTERNAL} accounts is persisted; directory-managed accounts
-   * reject email changes. Roles, name, password, and provider type are never accepted here.
+   * <p>No user name on the path or body — always mutates the session user (no IDOR). Only email for
+   * {@link PSUserProviderType#INTERNAL} accounts is persisted; directory-managed accounts reject
+   * email changes. Roles, name, password, and provider type are never accepted here.
    */
   @Override
   @PUT
@@ -973,9 +973,7 @@ public class PSUserService implements IPSUserService {
       if (req != null && req.getServletRequest() != null) {
         psUserManagementEvent =
             new PSUserManagementEvent(
-                req.getServletRequest(),
-                PSUserManagementEvent.UserEventActions.update,
-                outcome);
+                req.getServletRequest(), PSUserManagementEvent.UserEventActions.update, outcome);
         psAuditLogService.logUserManagementEvent(psUserManagementEvent);
       }
     } catch (Exception e) {
@@ -1012,11 +1010,11 @@ public class PSUserService implements IPSUserService {
   }
 
   /**
-   * Lightweight email shape check for self-service updates. Empty email is allowed at the call
-   * site (clears stored value) and is rejected here so callers must special-case blank.
+   * Lightweight email shape check for self-service updates. Empty email is allowed at the call site
+   * (clears stored value) and is rejected here so callers must special-case blank.
    *
-   * <p>Domain labels may not start/end with hyphen or contain consecutive dots (rejects e.g.
-   * {@code user@domain..com}, {@code user@-domain.com}, {@code user@domain-.com}).
+   * <p>Domain labels may not start/end with hyphen or contain consecutive dots (rejects e.g. {@code
+   * user@domain..com}, {@code user@-domain.com}, {@code user@domain-.com}).
    */
   static boolean isValidEmailAddress(String email) {
     if (email == null) {
@@ -1093,8 +1091,8 @@ public class PSUserService implements IPSUserService {
   @Path("/homepage/{userName}")
   @Consumes(MediaType.TEXT_PLAIN)
   @Produces(MediaType.TEXT_PLAIN)
-  public String setHomepageOverride(
-      @PathParam("userName") String userName, String homepage) throws PSDataServiceException {
+  public String setHomepageOverride(@PathParam("userName") String userName, String homepage)
+      throws PSDataServiceException {
     PSParameterValidationUtils.rejectIfBlank("setHomepageOverride", "userName", userName);
     assertCanManageHomepage(userName);
     if (isBlank(homepage)) {
@@ -1143,8 +1141,7 @@ public class PSUserService implements IPSUserService {
         metadataService.delete(key);
       }
     } catch (IPSGenericDao.LoadException | IPSGenericDao.DeleteException e) {
-      throw new PSDataServiceException(
-          "Failed to clear homepage override for user " + userName, e);
+      throw new PSDataServiceException("Failed to clear homepage override for user " + userName, e);
     }
   }
 
@@ -1210,8 +1207,8 @@ public class PSUserService implements IPSUserService {
   }
 
   /**
-   * Maps a canonical homepage type to the {@code index.jsp} {@code view} query key. Unknown/blank
-   * → {@code home}.
+   * Maps a canonical homepage type to the {@code index.jsp} {@code view} query key. Unknown/blank →
+   * {@code home}.
    */
   public static String homepageTypeToViewKey(String homepageType) {
     if (isBlank(homepageType)) {
@@ -1234,9 +1231,7 @@ public class PSUserService implements IPSUserService {
     }
   }
 
-  /**
-   * Current user may manage their own homepage; only Admin may manage another user's.
-   */
+  /** Current user may manage their own homepage; only Admin may manage another user's. */
   private void assertCanManageHomepage(String targetUserName) throws PSDataServiceException {
     String current;
     try {

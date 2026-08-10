@@ -40,8 +40,10 @@ public class RestExceptionBase extends WebApplicationException {
   private RestErrorCode errorCode;
   private String message;
   private String detailMessage;
+
   /** In-process error payload; not part of Java serialization. */
   private transient Object errorData;
+
   private Status status;
 
   public RestExceptionBase() {

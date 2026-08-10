@@ -64,8 +64,7 @@ public class PSDbEntityStructureTest {
   @Test
   public void cookieConsentConstructorAssignsFields() {
     Instant consent = Instant.ofEpochMilli(1_700_000_000_000L);
-    PSDbCookieConsent entity =
-        new PSDbCookieConsent("site", "svc", consent, "10.0.0.1", true);
+    PSDbCookieConsent entity = new PSDbCookieConsent("site", "svc", consent, "10.0.0.1", true);
     assertEquals("site", entity.getSiteName());
     assertEquals("svc", entity.getService());
     assertEquals("10.0.0.1", entity.getIP());

@@ -30,7 +30,8 @@ import org.junit.jupiter.api.Test;
  * enough — CXF returns 404 when the ref is missing.
  *
  * <p>Live H2 qa-up (2026-08-06): after adding the ref, GET /Rhythmyx/services/relationshiptypes
- * returned HTTP 200 with a Jackson {@code RelationshipType} array (design-WS findRelationshipTypes).
+ * returned HTTP 200 with a Jackson {@code RelationshipType} array (design-WS
+ * findRelationshipTypes).
  */
 class RelationshipTypesRestJaxrsRegistrationTest {
 
@@ -65,9 +66,7 @@ class RelationshipTypesRestJaxrsRegistrationTest {
     for (String bean : REQUIRED_REFS) {
       assertTrue(
           restBlock.contains("bean=\"" + bean + "\""),
-          "rest-jax-rs serviceBeans must ref "
-              + bean
-              + " (missing → CXF 404 for catalog REST)");
+          "rest-jax-rs serviceBeans must ref " + bean + " (missing → CXF 404 for catalog REST)");
     }
   }
 

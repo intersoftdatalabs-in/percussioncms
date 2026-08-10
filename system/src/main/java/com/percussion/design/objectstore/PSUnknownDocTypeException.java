@@ -31,6 +31,7 @@ import com.percussion.error.PSException;
 public class PSUnknownDocTypeException extends PSException {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
+
   /**
    * Construct an exception for messages taking only a single argument.
    *

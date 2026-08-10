@@ -33,8 +33,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Aggregates multiple {@link X509TrustManager} instances and delegates certificate checks to each in
- * order. Used by the TLS testing utilities to evaluate trust against several trust stores.
+ * Aggregates multiple {@link X509TrustManager} instances and delegates certificate checks to each
+ * in order. Used by the TLS testing utilities to evaluate trust against several trust stores.
  */
 public class WrappedTrustManager implements X509TrustManager {
 

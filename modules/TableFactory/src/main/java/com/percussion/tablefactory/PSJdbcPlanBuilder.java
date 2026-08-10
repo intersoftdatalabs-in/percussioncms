@@ -35,6 +35,7 @@ public class PSJdbcPlanBuilder {
 
   /** No-op constructor. */
   public PSJdbcPlanBuilder() {}
+
   /**
    * Creates an execution plan for processing the table's schema changes.
    *

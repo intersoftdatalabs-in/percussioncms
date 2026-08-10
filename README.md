@@ -28,10 +28,10 @@ Intersoft Data Labs assumed full responsibility for support, maintenance, and on
 
 ## Current Status (August 2026)
 
-| Version     | Status                          | Notes |
-|-------------|----------------------------------|-------|
-| **8.1.7**   | Current stable release           | June 2026 – security hardening, WCAG 2.1 AA accessibility improvements, Google Analytics 4 support, REST API fixes, and dozens of quality-of-life updates |
-| **8.2**     | Active development / modernization | Performance, headless capabilities, UI modernization (including the new login experience shown above), and platform updates |
+|  Version  |               Status               |                                                                           Notes                                                                           |
+|-----------|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **8.1.7** | Current stable release             | June 2026 – security hardening, WCAG 2.1 AA accessibility improvements, Google Analytics 4 support, REST API fixes, and dozens of quality-of-life updates |
+| **8.2**   | Active development / modernization | Performance, headless capabilities, UI modernization (including the new login experience shown above), and platform updates                               |
 
 The 8.1.x line remains fully supported. Work on the 8.2 release is underway on the `development` branch with a focus on platform modernization, improved developer experience, and continued accessibility/security investment.
 

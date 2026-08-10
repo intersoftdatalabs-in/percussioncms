@@ -48,3 +48,4 @@ None (bugs / missing behavioral tests / non-portable I/O).
 
 - Packaging companions: assert both source template and assembly output when possible
 - Installer contract structural tests (string markers) over live root systemctl
+

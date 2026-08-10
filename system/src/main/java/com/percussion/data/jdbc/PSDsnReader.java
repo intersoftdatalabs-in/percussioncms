@@ -85,8 +85,7 @@ public class PSDsnReader {
 
     boolean processingDsnArea = false;
 
-    try (BufferedReader iniReader =
-        new BufferedReader(new FileReader(inputOdbcIniFile))) {
+    try (BufferedReader iniReader = new BufferedReader(new FileReader(inputOdbcIniFile))) {
       /* Process Line by line */
       while (line != null) {
         String nextDsn = null;

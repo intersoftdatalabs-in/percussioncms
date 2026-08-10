@@ -138,7 +138,10 @@ describe("package.json golden scripts lockstep (#2490 / #2498)", () => {
     }
     // Minimal golden must NOT pull extended surfaces by default
     assert.ok(
-      !scriptMentionsPath(scripts["test:golden"], "folder-recycle-smoke.spec.js"),
+      !scriptMentionsPath(
+        scripts["test:golden"],
+        "folder-recycle-smoke.spec.js",
+      ),
       "test:golden must remain minimal (no folder-recycle path)",
     );
     assert.ok(

@@ -770,8 +770,7 @@
   function getInlineRenderLink(itemId, callback, titleField) {
     var svcUrl = $.perc_paths.RENDER_LINK_PREVIEW + "/" + itemId + "/default";
     if (titleField != null && String(titleField).trim() !== "") {
-      svcUrl +=
-        "?titleField=" + encodeURIComponent(String(titleField).trim());
+      svcUrl += "?titleField=" + encodeURIComponent(String(titleField).trim());
     }
 
     $.PercServiceUtils.makeJsonRequest(

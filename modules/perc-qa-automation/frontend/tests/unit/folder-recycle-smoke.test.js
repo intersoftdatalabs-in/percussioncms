@@ -36,14 +36,28 @@ describe("folder-recycle-smoke helpers", () => {
     assert.equal(isContextHealthyStatus(undefined), false);
   });
 
-
   it("isProductPathErrorBody classifies product vs context-down bodies (#2488)", () => {
-    assert.equal(isProductPathErrorBody(404, '{"Errors":{"global":["Path not found"]}}'), true);
-    assert.equal(isProductPathErrorBody(404, "Path not found for Assets"), true);
-    assert.equal(isProductPathErrorBody(500, "Transaction silently rolled back"), true);
+    assert.equal(
+      isProductPathErrorBody(404, '{"Errors":{"global":["Path not found"]}}'),
+      true,
+    );
+    assert.equal(
+      isProductPathErrorBody(404, "Path not found for Assets"),
+      true,
+    );
+    assert.equal(
+      isProductPathErrorBody(500, "Transaction silently rolled back"),
+      true,
+    );
     // Lone parentFolders / PropertyAccessException must not match (docs/noise).
-    assert.equal(isProductPathErrorBody(500, "docs mention parentFolders field"), false);
-    assert.equal(isProductPathErrorBody(500, "PropertyAccessException alone"), false);
+    assert.equal(
+      isProductPathErrorBody(500, "docs mention parentFolders field"),
+      false,
+    );
+    assert.equal(
+      isProductPathErrorBody(500, "PropertyAccessException alone"),
+      false,
+    );
     // #2488 Hibernate stack: both markers required.
     assert.equal(
       isProductPathErrorBody(
@@ -90,10 +104,16 @@ describe("folder-recycle-smoke helpers", () => {
       { path: "/Recycling/Assets/other" },
     ];
     assert.equal(findNamedPathItem(items, "qa-folder-1").name, "qa-folder-1");
-    assert.equal(findNamedPathItem(items, "other").path, "/Recycling/Assets/other");
+    assert.equal(
+      findNamedPathItem(items, "other").path,
+      "/Recycling/Assets/other",
+    );
     assert.equal(findNamedPathItem(items, "missing"), null);
     // Substring must not count.
-    assert.equal(findNamedPathItem([{ name: "qa-folder-10" }], "qa-folder-1"), null);
+    assert.equal(
+      findNamedPathItem([{ name: "qa-folder-10" }], "qa-folder-1"),
+      null,
+    );
   });
 
   it("restoreFolderUrl builds pathmanagement restore URL", () => {
@@ -140,11 +160,16 @@ describe("folder-recycle-smoke helpers", () => {
     const request = {
       get: async (url) => {
         const path = String(url || "");
-        if (path.includes("/folder/Recycling") && !path.includes("Recycling/")) {
+        if (
+          path.includes("/folder/Recycling") &&
+          !path.includes("Recycling/")
+        ) {
           return {
             ok: () => true,
             status: () => 200,
-            json: async () => [{ name: "seed-a", path: "/Recycling/Assets/seed-a" }],
+            json: async () => [
+              { name: "seed-a", path: "/Recycling/Assets/seed-a" },
+            ],
             text: async () => "[]",
           };
         }

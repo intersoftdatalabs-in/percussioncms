@@ -19,7 +19,6 @@ package com.percussion.cms.objectstore;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
@@ -82,12 +81,10 @@ public class PSDbComponentThisEscapeTest {
   @Test
   public void contentTypePublicFromXmlHonorsCreateKeyAfterConstruction() throws Exception {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
-    Element first =
-        sampleContentTypeElement(doc, 1, "a", "A", "../rx_ceA/a.html", true, 1);
+    Element first = sampleContentTypeElement(doc, 1, "a", "A", "../rx_ceA/a.html", true, 1);
     PSContentType target = new PSContentType(first);
 
-    Element second =
-        sampleContentTypeElement(doc, 77, "b", "B", "../rx_ceB/b.html", false, 2);
+    Element second = sampleContentTypeElement(doc, 77, "b", "B", "../rx_ceB/b.html", false, 2);
     target.fromXml(second);
 
     assertEquals(77, target.getTypeId());
@@ -131,10 +128,8 @@ public class PSDbComponentThisEscapeTest {
   @Test
   public void contentTypeSetElementRootCtorRoundTrip() throws Exception {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
-    Element a =
-        sampleContentTypeElement(doc, 3, "t1", "T1", "../rx_ceT1/t1.html", false, 1);
-    Element b =
-        sampleContentTypeElement(doc, 4, "t2", "T2", "../rx_ceT2/t2.html", false, 1);
+    Element a = sampleContentTypeElement(doc, 3, "t1", "T1", "../rx_ceT1/t1.html", false, 1);
+    Element b = sampleContentTypeElement(doc, 4, "t2", "T2", "../rx_ceT2/t2.html", false, 1);
     PSContentTypeSet original = new PSContentTypeSet(new Element[] {a, b});
     Element xml = original.toXml(doc);
 
@@ -209,8 +204,7 @@ public class PSDbComponentThisEscapeTest {
       int objectType) {
     // PSContentType.createKey(Element) expects a PSXKey node (new PSKey(el)), not PSXSimpleKey.
     PSKey key =
-        new PSKey(
-            new String[] {"CONTENTTYPEID"}, new String[] {String.valueOf(typeId)}, true);
+        new PSKey(new String[] {"CONTENTTYPEID"}, new String[] {String.valueOf(typeId)}, true);
 
     Element root = doc.createElement("PSXContentType");
     root.setAttribute("state", IPSDbComponent.STATE_LABELS[IPSDbComponent.DBSTATE_UNMODIFIED]);
@@ -225,8 +219,7 @@ public class PSDbComponentThisEscapeTest {
 
   private static Element sampleSlotTypeElement(Document doc, int slotId, String slotName) {
     // PSSlotType.createKey(Element) expects a PSXKey node (new PSKey(el)).
-    PSKey key =
-        new PSKey(new String[] {"SLOTID"}, new String[] {String.valueOf(slotId)}, true);
+    PSKey key = new PSKey(new String[] {"SLOTID"}, new String[] {String.valueOf(slotId)}, true);
 
     Element root = doc.createElement("PSXSlotType");
     root.setAttribute("state", IPSDbComponent.STATE_LABELS[IPSDbComponent.DBSTATE_UNMODIFIED]);

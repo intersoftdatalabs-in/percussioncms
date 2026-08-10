@@ -50,8 +50,7 @@ class DoctorApiServiceTest {
 
   @Test
   void dryRunDefaultWhenBodyNullInventoriesAndDoesNotDelete() throws Exception {
-    DoctorReportView view =
-        service.execute(CleanHeapDumpsCommand.COMMAND_NAME, null);
+    DoctorReportView view = service.execute(CleanHeapDumpsCommand.COMMAND_NAME, null);
 
     assertTrue(view.isDryRun());
     assertEquals(1, view.getCandidateCount());

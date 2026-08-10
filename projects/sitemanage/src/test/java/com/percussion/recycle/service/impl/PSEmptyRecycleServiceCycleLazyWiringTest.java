@@ -30,8 +30,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Lazy;
 
 /**
- * Belt-and-braces protection for the {@code emptyRecycle / pathService} neighborhood of the
- * {@code folderHelper–recycle} subgraph (#2526, residual of #2485 / parent #2423).
+ * Belt-and-braces protection for the {@code emptyRecycle / pathService} neighborhood of the {@code
+ * folderHelper–recycle} subgraph (#2526, residual of #2485 / parent #2423).
  *
  * <p>{@link PSEmptyRecycleService} is a consumer of {@link IPSFolderHelper} (not on {@code
  * folderHelper}'s construction path). The ctor body only field-assigns {@code folderHelper} — the
@@ -59,8 +59,8 @@ import org.springframework.context.annotation.Lazy;
  * </ul>
  *
  * <p>Peers: {@link com.percussion.share.dao.impl.PSFolderHelperReverseEdgeInventoryWiringTest}
- * (#2485), {@link com.percussion.share.dao.impl.PSContentItemDaoCycleLazyWiringTest} (#2435), {@link
- * com.percussion.share.dao.impl.PSAssetServicePageServiceNearCycleWiringTest} (#2476). Full
+ * (#2485), {@link com.percussion.share.dao.impl.PSContentItemDaoCycleLazyWiringTest} (#2435),
+ * {@link com.percussion.share.dao.impl.PSAssetServicePageServiceNearCycleWiringTest} (#2476). Full
  * inventory: {@code
  * docs/ai-generated/tasks/2423-spring-injection-cycle/sitemanage-injection-cycle-inventory.md}.
  */
@@ -100,9 +100,9 @@ public class PSEmptyRecycleServiceCycleLazyWiringTest {
 
   /**
    * {@code recycleService} must not gain a constructor edge to {@code emptyRecycle} (would pull
-   * {@code pathService} + {@code folderHelper} while {@code folderHelper} is still creating on
-   * the known cycle path A/B). A future reverse edge must use parameter {@code @Lazy} and be
-   * documented in the inventory.
+   * {@code pathService} + {@code folderHelper} while {@code folderHelper} is still creating on the
+   * known cycle path A/B). A future reverse edge must use parameter {@code @Lazy} and be documented
+   * in the inventory.
    */
   @Test
   public void recycleServiceMustNotConstructRequireEmptyRecycleService()
@@ -114,8 +114,8 @@ public class PSEmptyRecycleServiceCycleLazyWiringTest {
   }
 
   /**
-   * {@code recycleService} must not gain a constructor edge to {@code pathService} (would close
-   * a path/recycle cross-wire cycle via {@code pathService} → {@code folderHelper} and {@code
+   * {@code recycleService} must not gain a constructor edge to {@code pathService} (would close a
+   * path/recycle cross-wire cycle via {@code pathService} → {@code folderHelper} and {@code
    * recycleService} → {@code folderHelper} once either is added).
    */
   @Test
@@ -128,12 +128,11 @@ public class PSEmptyRecycleServiceCycleLazyWiringTest {
 
   /**
    * {@code pathService} must not gain a constructor edge back to {@code emptyRecycle} (would
-   * re-enter {@code folderHelper} via {@code emptyRecycle}'s ctor param, even with param {@code
-   * @Lazy}, and would couple two near-cycle hubs).
+   * re-enter {@code folderHelper} via {@code emptyRecycle}'s ctor param, even with param
+   * {@code @Lazy}, and would couple two near-cycle hubs).
    */
   @Test
-  public void pathServiceMustNotConstructRequireEmptyRecycleService()
-      throws NoSuchMethodException {
+  public void pathServiceMustNotConstructRequireEmptyRecycleService() throws NoSuchMethodException {
     assertNoEagerCtorParam(
         PSPathService.class,
         com.percussion.recycle.service.IPSEmptyRecycleService.class,

@@ -9,13 +9,13 @@ deviations doc.
 
 ## Gates
 
-| Check | Result |
-|-------|--------|
-| Bugs / RT correctness | Pass — 15 focused tests green; system `clean install` green (1078 tests, 2 prior failures were stale utils SNAPSHOT) |
-| Behavioral unit tests | Pass — golden + RT + legacy `<null>` root per type |
-| Cross-platform paths | Pass — no new filesystem path construction |
-| Change-class companions | Pass — domain annotations, `addType("audit")`, goldens, deviations doc, betwixt drop with rationale |
-| Spotless | Pass — `mvnw -pl system spotless:apply` then `check`; root `-N` for docs |
+|          Check          |                                                        Result                                                        |
+|-------------------------|----------------------------------------------------------------------------------------------------------------------|
+| Bugs / RT correctness   | Pass — 15 focused tests green; system `clean install` green (1078 tests, 2 prior failures were stale utils SNAPSHOT) |
+| Behavioral unit tests   | Pass — golden + RT + legacy `<null>` root per type                                                                   |
+| Cross-platform paths    | Pass — no new filesystem path construction                                                                           |
+| Change-class companions | Pass — domain annotations, `addType("audit")`, goldens, deviations doc, betwixt drop with rationale                  |
+| Spotless                | Pass — `mvnw -pl system spotless:apply` then `check`; root `-N` for docs                                             |
 
 ## Notes
 
@@ -28,3 +28,4 @@ deviations doc.
 
 - PSDependency / PSDependent
 - PSMimeContentAdapter
+

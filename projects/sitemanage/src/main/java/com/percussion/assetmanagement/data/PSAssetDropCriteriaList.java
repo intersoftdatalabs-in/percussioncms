@@ -28,7 +28,6 @@ import java.util.Collection;
 public class PSAssetDropCriteriaList extends ArrayList<PSAssetDropCriteria> {
   private static final long serialVersionUID = 1L;
 
-
   public PSAssetDropCriteriaList(Collection<? extends PSAssetDropCriteria> c) {
     super(c);
   }

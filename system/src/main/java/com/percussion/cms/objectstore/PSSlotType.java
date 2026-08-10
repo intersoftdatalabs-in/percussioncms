@@ -178,9 +178,7 @@ public class PSSlotType extends PSDbComponent {
     loadFieldsFromXml(sourceNode);
   }
 
-  /**
-   * Loads non-key fields from XML without re-applying key/state (avoids Element double-load).
-   */
+  /** Loads non-key fields from XML without re-applying key/state (avoids Element double-load). */
   private void loadFieldsFromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     m_systemSlot = PSXMLDomUtil.checkAttributeInt(sourceNode, XML_ATTR_systemSlot, false);
 

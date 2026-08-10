@@ -54,9 +54,7 @@ class CheckLogsCommandTest {
         Files.createDirectories(installRoot.resolve("jetty").resolve("base").resolve("logs"))
             .resolve("server.log");
     Files.writeString(
-        log,
-        "2026-08-09 INFO [Server] Started\nINFO [PSServer] ready\n",
-        StandardCharsets.UTF_8);
+        log, "2026-08-09 INFO [Server] Started\nINFO [PSServer] ready\n", StandardCharsets.UTF_8);
 
     CheckLogsReport report =
         CheckLogsCommand.execute(
@@ -73,10 +71,7 @@ class CheckLogsCommandTest {
     Path log =
         Files.createDirectories(installRoot.resolve("jetty").resolve("base").resolve("logs"))
             .resolve("server.log");
-    Files.writeString(
-        log,
-        "INFO start\nERROR [PSX] bean wiring failed\n",
-        StandardCharsets.UTF_8);
+    Files.writeString(log, "INFO start\nERROR [PSX] bean wiring failed\n", StandardCharsets.UTF_8);
 
     CheckLogsReport report =
         CheckLogsCommand.execute(
@@ -92,9 +87,7 @@ class CheckLogsCommandTest {
   void installPhaseScansInstallPackagesAndTableFactory() throws Exception {
     Path installer = Files.createDirectories(installRoot.resolve("rxconfig").resolve("Installer"));
     Files.writeString(
-        installer.resolve("InstallPackages.log"),
-        "INFO package ok\n",
-        StandardCharsets.UTF_8);
+        installer.resolve("InstallPackages.log"), "INFO package ok\n", StandardCharsets.UTF_8);
     Files.writeString(
         installer.resolve("install.log"), "INFO install complete\n", StandardCharsets.UTF_8);
     Files.writeString(

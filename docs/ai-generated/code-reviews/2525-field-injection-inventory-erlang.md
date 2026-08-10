@@ -67,7 +67,9 @@ cross-platform path or file I/O code touched (pure Java reflection).
   (`PSWorkflowHelper`, `IPSMetadataService` — `IPSGenericDao` not imported) that are not
   attributable to the slice. No new `surefire` / `compiler` / `enforcer` warnings introduced.
 - **No duplication of hub ctor work** — Slice does not touch ctor `@Lazy` work covered by
-  #2476–#2478 / #2514–#2521; field-only scope respected.
+
+  # 2476–#2478 / #2514–#2521; field-only scope respected.
+
 - **Documentation-as-data** — Inventory table lists 45 downstream consumer classes with field
   `@Autowired` of a target interface, each marked "Not on folderHelper ctor path" with reasoning
   (consumer / hub / REST facade / importer / etc.). This is the "non-findings scope" of the
@@ -76,16 +78,22 @@ cross-platform path or file I/O code touched (pure Java reflection).
 ## Issues
 
 ### Issue 1 — Severity: suggestion (NOT blocking)
+
 - File: `docs/ai-generated/tasks/2423-spring-injection-cycle/sitemanage-injection-cycle-inventory.md:6`
 - Description: Header date reads "updated 2026-08-08" twice (once for #2485 / #2515 era, then
   again for #2525). Cosmetic; could be consolidated to "updated 2026-08-08 for #2485 / #2515 /
-  #2525".
+
+  # 2525".
+
 - Suggestion: Optionally fold into a single "updated 2026-08-08 for #2485 / #2515 / #2525"
   entry on next pass; not a blocker.
+
 - Status: open (minor)
+
 - Pattern-id: docs.formatting
 
 ### Issue 2 — Severity: suggestion (NOT blocking)
+
 - File: `projects/sitemanage/src/test/java/com/percussion/share/dao/impl/PSFolderHelperFieldInjectionInventoryWiringTest.java:120`
 - Description: `cycleSubgraphBeansKeepConstructorInjectionForCycleInterfaces` declares
   `throws Exception` but only calls APIs that throw `NoSuchMethodException` (already part of the

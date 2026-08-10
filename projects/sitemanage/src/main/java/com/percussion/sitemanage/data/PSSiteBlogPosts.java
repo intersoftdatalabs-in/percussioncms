@@ -31,7 +31,6 @@ import net.sf.oval.constraint.NotEmpty;
 public class PSSiteBlogPosts extends PSAbstractDataObject {
   private static final long serialVersionUID = 1L;
 
-
   @NotEmpty private String blogTitle;
 
   @NotEmpty private String blogSectionPath;
