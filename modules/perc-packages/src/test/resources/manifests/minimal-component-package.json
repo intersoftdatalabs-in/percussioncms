@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.widget.title",
+  "name": "Title",
+  "version": "1.1.4",
+  "description": "Widget to enter the Page title",
+  "publisher": {
+    "name": "Percussion Software Inc",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.9.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.Baseline",
+      "version": "1.0.1",
+      "implied": false
+    }
+  ],
+  "catalog": {
+    "kind": "component",
+    "title": "Title",
+    "category": "content",
+    "description": "Widget to enter the Page title",
+    "thumbnail": "resources/images/widgetTitle.png",
+    "icon": "resources/images/widgetTitle.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 780,
+    "preferredEditorHeight": 302,
+    "createSharedAsset": false,
+    "editableOnTemplate": false,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percTitleAsset",
+      "ref": "contentTypes/percTitleAsset"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percTitleSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percTitleSnippet.vm",
+      "contentType": "percTitleAsset",
+      "bindings": [
+        {
+          "variable": "wrapper",
+          "expression": "$perc.widget.item.properties.get('wrapper')"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "titleContent",
+      "allowedContentTypes": [
+        "percTitleAsset"
+      ],
+      "layout": {
+        "orientation": "vertical"
+      },
+      "styles": {
+        "rootClass": "perc-title-slot"
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/images/widgetTitle.png",
+      "target": "rx_resources/widgets/title/images/widgetTitle.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "wrapper",
+      "displayName": "Choose format",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "h1",
+      "enumValues": [
+        {
+          "value": "h1",
+          "displayValue": "Heading 1"
+        },
+        {
+          "value": "h2",
+          "displayValue": "Heading 2"
+        }
+      ]
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS Root Class",
+      "datatype": "string"
+    }
+  ]
+}

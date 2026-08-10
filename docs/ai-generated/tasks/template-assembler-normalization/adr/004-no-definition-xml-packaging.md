@@ -35,3 +35,15 @@ Content types + Templates (assembler + JEXL bindings + source)
 - Compiler/upgrade tooling is mandatory before deleting package XML.
 - Widget Builder / Design tools write modern format only.
 - Package install/export paths must understand the new manifest shape (prefer extending existing package system).
+
+## Component Package Manifest (schema v1.0)
+
+Ship-format model and docs landed as Phase 3 slice 1 (#2750):
+
+| Artifact | Location |
+|----------|----------|
+| Schema / field docs | [../component-package-manifest.md](../component-package-manifest.md) |
+| Java model + IO + validation | `modules/perc-packages/.../manifest/PSComponentPackageManifest*.java` |
+| Minimal fixture | `modules/perc-packages/src/test/resources/manifests/minimal-component-package.json` |
+
+**Upgrade-input XML** remains compiler/shim only; **product ship format** is `component-package.json` plus content types, templates, slots, catalog metadata, and resources.
