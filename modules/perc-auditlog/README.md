@@ -96,6 +96,16 @@ Production durable store: table `PSX_SYSTEM_AUDIT_LOG` with JPA entity
 `PSSystemAuditLogRepository` (`sys_systemAuditLogRepository`), which registers itself on the
 `DefaultAuditLogService.Holder` at Spring init.
 
+**Durable write TX:** repository `save` / retention deletes use Spring
+`TransactionTemplate` with **`PROPAGATION_REQUIRES_NEW`** + explicit `flush`, so dual-write from
+login (and other Holder call sites) commits independently of any ambient request transaction that
+might roll back or never commit before redirect (#2727).
+
+**Empty-table seed (H2 QA / Admin viewer):** property `systemAuditLogSeedIfEmpty` (default
+`true`) inserts a few clearly labeled `[SEED]` AUTH demo rows when the table is empty at Spring
+start, so Security Audit Log QA is not blocked with “0 of 0” before the first real login event.
+Set `systemAuditLogSeedIfEmpty=false` when synthetic rows are not desired.
+
 **Retention (AU-11):** Spring bean `sys_systemAuditLogRetentionJob`
 (`PSSystemAuditLogRetentionJob`) deletes rows older than
 `systemAuditLogRetentionDays` from `rxconfig/Server/server.properties` (default **365**).

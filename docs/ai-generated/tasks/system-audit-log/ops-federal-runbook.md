@@ -16,6 +16,8 @@ This runbook describes **how to operate and grant access** to the system-wide se
 | Sink | Location | Purpose |
 |------|----------|---------|
 | Durable DB | Table **`PSX_SYSTEM_AUDIT_LOG`** | Queryable security/compliance events (JPA: `PSSystemAuditLogEntry`) |
+| Dual-write TX | `PROPAGATION_REQUIRES_NEW` + flush on repository `save` | Survives ambient login/request TX rollback (#2727) |
+| Empty-table seed | `systemAuditLogSeedIfEmpty` (default true) | Optional `[SEED]` AUTH demo rows for H2 QA / Admin viewer when table empty; set `false` to disable |
 | File / Log4j | **`server.log`** (and any site-specific Log4j routing) | Same event line dual-written for ops/SIEM file shipping |
 
 Each event has a UUID **`AUDIT_ID`** shared on both sinks, UTC **`EVENT_TIME`**, module/message codes, outcome, actor, target, source IP/host, redacted user/log messages, optional correlation id / attributes, and server node.

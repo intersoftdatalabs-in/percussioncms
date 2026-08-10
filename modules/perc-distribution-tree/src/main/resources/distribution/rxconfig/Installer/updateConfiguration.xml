@@ -230,6 +230,7 @@
 				default="perc-auditlog.properties" />
 			<entry key="enableAuditLogging" default="true" />
 			<entry key="systemAuditLogRetentionDays" default="365" />
+			<entry key="systemAuditLogSeedIfEmpty" default="true" />
 			<entry key="optimizePublishWithChecksum" default="false" />
 			<entry key="allowPurgeRevisionsScheduledTask" value="true"
 				default="true" />
