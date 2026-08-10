@@ -1,0 +1,375 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percTwitterSummaryCards",
+  "name": "Twitter Summary Cards",
+  "version": "1.1.4",
+  "description": "Adds support for Twitter cards to the Page or Template.",
+  "publisher": {
+    "name": "Percussion Software, Inc.",
+    "url": "http://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "5.2.5",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Twitter Summary Cards",
+    "category": "social",
+    "description": "Adds support for Twitter cards to the Page or Template.",
+    "thumbnail": "resources/twitter-card-icon.png",
+    "icon": "resources/twitter-card-icon.png",
+    "author": "Nate Chadwick",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 600,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percTwitterCards",
+      "ref": "contentTypes/percTwitterCards"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percTwitterSummaryCardsSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percTwitterSummaryCardsSnippet.vm",
+      "contentType": "percTwitterCards",
+      "bindings": [
+        {
+          "variable": "percPageID",
+          "expression": "$perc.getPage().getId()"
+        },
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "widgetId",
+          "expression": "$perc.widget.item.id"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "\"\""
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "twittercard_type",
+          "expression": "$perc.widget.item.properties.get('twittercard_type')"
+        },
+        {
+          "variable": "twitter_site",
+          "expression": "$perc.widget.item.properties.get('twitter_site')"
+        },
+        {
+          "variable": "twitter_image",
+          "expression": "$perc.widget.item.properties.get('twitter_image')"
+        },
+        {
+          "variable": "twitter_image_alt",
+          "expression": "$perc.widget.item.properties.get('twitter_image_alt')"
+        },
+        {
+          "variable": "summary",
+          "expression": "$sys.assemblyItem.getNode().getProperty(\"rx:page_summary\").value.String"
+        },
+        {
+          "variable": "summary",
+          "expression": "\"\""
+        },
+        {
+          "variable": "description",
+          "expression": "$perc.page.description"
+        },
+        {
+          "variable": "summary_text",
+          "expression": "\"\""
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assetItems.get(0)"
+        },
+        {
+          "variable": "twitter_site_override",
+          "expression": "$assetItem.getNode().getProperty('twitter_site_override').String"
+        },
+        {
+          "variable": "title_override",
+          "expression": "$assetItem.getNode().getProperty('title_override').String"
+        },
+        {
+          "variable": "description_override",
+          "expression": "$assetItem.getNode().getProperty('description_override').String"
+        },
+        {
+          "variable": "image_override",
+          "expression": "$assetItem.getNode().getProperty('image_override').String"
+        },
+        {
+          "variable": "image_override_linkId",
+          "expression": "$assetItem.getNode().getProperty('image_override_linkId').String"
+        },
+        {
+          "variable": "twitter_image_alt_override",
+          "expression": "$assetItem.getNode().getProperty('image_alt_override').String"
+        },
+        {
+          "variable": "use_twitter_site",
+          "expression": "$tools.esc.html($twitter_site_override)"
+        },
+        {
+          "variable": "use_twitter_site",
+          "expression": "$tools.esc.html($twitter_site)"
+        },
+        {
+          "variable": "meta_sitename",
+          "expression": "'<meta property=\"twitter:site\" content=\"' + $use_twitter_site + '\" />'"
+        },
+        {
+          "variable": "use_title",
+          "expression": "$tools.esc.html($title_override)"
+        },
+        {
+          "variable": "use_title",
+          "expression": "$tools.esc.html($perc.page.title)"
+        },
+        {
+          "variable": "meta_title",
+          "expression": "'<meta property=\"twitter:title\" content=\"' + $use_title + '\" />'"
+        },
+        {
+          "variable": "use_type",
+          "expression": "$tools.esc.html($type_override)"
+        },
+        {
+          "variable": "use_type",
+          "expression": "$tools.esc.html($twittercard_type)"
+        },
+        {
+          "variable": "doc",
+          "expression": "$sys.getClass().forName('org.jsoup.Jsoup').parseBodyFragment($summary)"
+        },
+        {
+          "variable": "body",
+          "expression": "$doc.body()"
+        },
+        {
+          "variable": "summary_images",
+          "expression": "$body.getElementsByTag(\"img\")"
+        },
+        {
+          "variable": "summary_image",
+          "expression": "$summary_images.first()"
+        },
+        {
+          "variable": "twitter_image_summary",
+          "expression": "$summary_image.attr(\"src\")"
+        },
+        {
+          "variable": "twitter_image_alt",
+          "expression": "$summary_image.attr(\"alt\")"
+        },
+        {
+          "variable": "summary_text",
+          "expression": "$doc.text()"
+        },
+        {
+          "variable": "use_description",
+          "expression": "$tools.esc.html($description_override)"
+        },
+        {
+          "variable": "use_description",
+          "expression": "$tools.esc.html($description)"
+        },
+        {
+          "variable": "use_description",
+          "expression": "$summary_text"
+        },
+        {
+          "variable": "use_description",
+          "expression": "\"\""
+        },
+        {
+          "variable": "meta_description",
+          "expression": "'<meta property=\"twitter:description\" content=\"' + $use_description + '\" />'"
+        },
+        {
+          "variable": "image_path",
+          "expression": "$rx.pageutils.renderManagedItemPath($perc.linkContext,$image_override_linkId)"
+        },
+        {
+          "variable": "use_image",
+          "expression": "$tools.esc.html($image_path)"
+        },
+        {
+          "variable": "use_image",
+          "expression": "$twitter_image_summary"
+        },
+        {
+          "variable": "use_image",
+          "expression": "$twitter_image"
+        },
+        {
+          "variable": "use_type",
+          "expression": "\"summary\""
+        },
+        {
+          "variable": "meta_type",
+          "expression": "'<meta property=\"twitter:card\" content=\"' + $use_type + '\" />'"
+        },
+        {
+          "variable": "baseURL",
+          "expression": "$perc.linkContext.getSite().getSiteProtocol() + \"://\""
+        },
+        {
+          "variable": "pubSiteName",
+          "expression": "$perc.linkContext.getSite().getName()"
+        },
+        {
+          "variable": "use_image",
+          "expression": "\"/\" + $use_image"
+        },
+        {
+          "variable": "use_image",
+          "expression": "$baseURL + $pubSiteName + $use_image"
+        },
+        {
+          "variable": "meta_image",
+          "expression": "'<meta property=\"twitter:image\" content=\"' + $use_image + '\" />'"
+        },
+        {
+          "variable": "meta_image",
+          "expression": "\"\""
+        },
+        {
+          "variable": "use_twitter_image_alt",
+          "expression": "\"\""
+        },
+        {
+          "variable": "use_twitter_image_alt",
+          "expression": "$tools.esc.html($twitter_image_alt_override)"
+        },
+        {
+          "variable": "use_twitter_image_alt",
+          "expression": "$tools.esc.html($twitter_image_alt)"
+        },
+        {
+          "variable": "meta_imagealt",
+          "expression": "'<meta property=\"twitter:image:alt\" content=\"' + $use_twitter_image_alt + '\" />'"
+        },
+        {
+          "variable": "addlHead",
+          "expression": "\"\""
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "nl",
+          "expression": "\"\""
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$percPageID = $perc.getPage().getId();\n\t   $pageId = $perc.page.id;\n       $widgetId = $perc.widget.item.id;\n       $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n          if (empty($rootclass)) {\n            $rootclass = \"\";\n       }\n\t$assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n\t$perc.setWidgetContents($assetItems);\n\n\n   $twittercard_type = $perc.widget.item.properties.get('twittercard_type');\n   $twitter_site = $perc.widget.item.properties.get('twitter_site');\n   $twitter_image = $perc.widget.item.properties.get('twitter_image');\n   $twitter_image_alt = $perc.widget.item.properties.get('twitter_image_alt');\n   if($sys.assemblyItem.getNode().hasProperty(\"rx:page_summary\")){\n   \t\t$summary = $sys.assemblyItem.getNode().getProperty(\"rx:page_summary\").value.String;\n\t}else{\n\t\t$summary = \"\";\n\t}\n\n   $description = $perc.page.description;\n   $summary_text = \"\";\n\n\t  if ( ! $assetItems.isEmpty() ) {\n        $assetItem = $assetItems.get(0);\n\t\tif(!empty($assetItem)){\n\t\t\t$twitter_site_override = $assetItem.getNode().getProperty('twitter_site_override').String;\n\t\t\t$title_override = $assetItem.getNode().getProperty('title_override').String;\n\t\t\t$description_override = $assetItem.getNode().getProperty('description_override').String;\n\t\t\t$image_override = $assetItem.getNode().getProperty('image_override').String;\n\t\t\t$image_override_linkId = $assetItem.getNode().getProperty('image_override_linkId').String;\n\t\t\t$twitter_image_alt_override = $assetItem.getNode().getProperty('image_alt_override').String;\n\n\t\t}\n\t}\n\n\tif(! empty($twitter_site_override)){\n\t\t\t$use_twitter_site = $tools.esc.html($twitter_site_override);\n\t}else{\n\t\t$use_twitter_site= $tools.esc.html($twitter_site);\n\t}\n    $meta_sitename='<meta property=\"twitter:site\" content=\"' + $use_twitter_site + '\" />';\n\n\tif(! empty($title_override)){\n\t\t$use_title = $tools.esc.html($title_override);\n\t}else{\n\t\t$use_title = $tools.esc.html($perc.page.title);\n\t}\n\t$meta_title = '<meta property=\"twitter:title\" content=\"' + $use_title + '\" />';\n\n\tif(! empty($type_override)){\n\t\t$use_type = $tools.esc.html($type_override);\n\t}else{\n\t\t$use_type = $tools.esc.html($twittercard_type);\n\t}\n\n\tif(! empty($summary)){\n\t\t\t$doc = $sys.getClass().forName('org.jsoup.Jsoup').parseBodyFragment($summary);\n\t\t\t$body = $doc.body();\n\t\t\t$summary_images = $body.getElementsByTag(\"img\");\n\t\t\tif($summary_images.size() > 0){\n\t\t\t\t$summary_image = $summary_images.first();\n\t\t\t$twitter_image_summary = $summary_image.attr(\"src\");\n\t\t\t$twitter_image_alt = $summary_image.attr(\"alt\");\n\t\t\t}\n\t\t\t$summary_text  = $doc.text();\n\t}\n\n\tif(! empty($description_override)){\n\t\t$use_description = $tools.esc.html($description_override);\n\t}else{\n\t\tif(! empty($description))\n\t\t\t$use_description = $tools.esc.html($description);\n\t\telse{\n\t\t\tif(!empty($summary_text)){\n\t\t\t\t$use_description = $summary_text;\n\t\t\t}\n\t\t\telse{\n\t\t\t\t$use_description = \"\";\n\t\t\t}\n\t\t}\n\t}\n\t$meta_description='<meta property=\"twitter:description\" content=\"' + $use_description + '\" />';\n\n\tif(! empty($image_override) && ! empty($image_override_linkId )){\n\n   \t\t    $image_path = $rx.pageutils.renderManagedItemPath($perc.linkContext,$image_override_linkId);\n\t\t\t$use_image = $tools.esc.html($image_path);\n\t}else{\n\t\tif(! empty($twitter_image_summary)){\n\t\t\t$use_image = $twitter_image_summary;\n\t\t}else{\n\t\t\t$use_image = $twitter_image;\n\t\t}\n\t}\n\n\tif(empty($use_image))\n\t\t$use_type=\"summary\";\n\n\t$meta_type='<meta property=\"twitter:card\" content=\"' + $use_type + '\" />';\n\n\t$baseURL = $perc.linkContext.getSite().getSiteProtocol() + \"://\";\n\t$pubSiteName = $perc.linkContext.getSite().getName();\n\n\tif(! empty($use_image)){\n\t\tif(! $use_image.startsWith(\"http\")){\n\n\t\t\tif( ! $use_image.startsWith(\"/\") )\n\t\t\t\t$use_image = \"/\" + $use_image;\n\n\t\t\tif( ! $use_image.startsWith(\"/Rhythmyx/\") ){\n\t\t\t\t$use_image = $baseURL + $pubSiteName + $use_image;\n\t\t\t}\n\t\t}\n\t}\n\tif(!empty($use_image)){\n\t$meta_image='<meta property=\"twitter:image\" content=\"' + $use_image + '\" />';\n\t}else{\n\t\t$meta_image=\"\";\n\t}\n\n\tif(empty($use_image)){\n\t\t$use_twitter_image_alt=\"\";\n\t}else{\n\t\tif(! empty($twitter_image_alt_override)){\n\t\t\t$use_twitter_image_alt = $tools.esc.html($twitter_image_alt_override);\n\t\t}else{\n\t\t\t$use_twitter_image_alt = $tools.esc.html($twitter_image_alt);\n\t\t}\n\t}\n    $meta_imagealt='<meta property=\"twitter:image:alt\" content=\"' + $use_twitter_image_alt + '\" />';\n\n\n\tif( empty($perc.page.getAdditionalHeadContent())){\n\t\t$perc.page.setAdditionalHeadContent(\"\");\n\t\t$addlHead = \"\";\n\t}else{\n\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t}\n\t$nl=\"\";\n\tif(!empty($use_type)){\n\t\t$perc.page.setAdditionalHeadContent($addlHead + $meta_type);\n\t}\n\n\tif(!empty($use_title)){\n\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t\t$perc.page.setAdditionalHeadContent($nl.format(\"%s%n%s\", $addlHead,$meta_title));\n\t}\n\n\tif(!empty($use_description)){\n\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t\t$perc.page.setAdditionalHeadContent($nl.format(\"%s%n%s\", $addlHead,$meta_description));\n\t}\n\n\tif(!empty($use_image)){\n\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t\t$perc.page.setAdditionalHeadContent($nl.format(\"%s%n%s\", $addlHead,$meta_image));\n\t}\n\tif(!empty($use_twitter_image_alt)){\n\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t\t$perc.page.setAdditionalHeadContent($nl.format(\"%s%n%s\", $addlHead, $meta_imagealt));\n\t}\n\t// Single twitter:site emission (v8.1.7 #838 removed a duplicate block; development was missing both).\n\tif(!empty($use_twitter_site)){\n\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t\t$perc.page.setAdditionalHeadContent($nl.format(\"%s%n%s\", $addlHead, $meta_sitename));\n\t}"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percTwitterSummaryCardsContent",
+      "allowedContentTypes": [
+        "percTwitterCards"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/twitter-card-icon.png",
+      "target": "rx_resources/widgets/percTwitterSummaryCards/images/twitter-card-icon.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "twittercard_type",
+      "displayName": "Summary Card Type",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "summary_large_image",
+      "enumValues": [
+        {
+          "value": "summary_large_image",
+          "displayValue": "Summary Card Large Image"
+        },
+        {
+          "value": "summary",
+          "displayValue": "Summary Card"
+        }
+      ]
+    },
+    {
+      "name": "twitter_site",
+      "displayName": "@username",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "twitter_image",
+      "displayName": "Default Image Asset (Path)",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "twitter_image_alt",
+      "displayName": "Default Image Alt Text",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS root class",
+      "datatype": "string"
+    }
+  ]
+}

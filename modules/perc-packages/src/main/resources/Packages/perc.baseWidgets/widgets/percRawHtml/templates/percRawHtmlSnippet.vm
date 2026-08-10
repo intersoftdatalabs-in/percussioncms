@@ -1,0 +1,11 @@
+#loadRelatedWidgetContents()##
+#if( ! $perc.widgetContents.isEmpty() )##
+#set( $node = $perc.widgetContents.get(0).node )##
+#set ( $widgetHtml = $node.getProperty('rx:html').getString() )##
+#set ( $widgetHtml = $rx.pageutils.updateManagedLinks($perc.linkContext, $widgetHtml,  $sys.assemblyItem.PubServerId,$node.getProperty('sys_contentid').String ) )##
+#set ( $widgetHtml = $widgetHtml.replace("<PRESERVE>", "" ) )##
+#set ( $widgetHtml = $widgetHtml.replace("</PRESERVE>", "" ) )##
+$!{widgetHtml}
+#elseif ( $perc.isEditMode() )##
+#createEmptyWidgetContent( "html-sample-content", "This HTML widget is showing sample content." )##
+#end##

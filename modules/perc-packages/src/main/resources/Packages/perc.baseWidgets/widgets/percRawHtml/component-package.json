@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percRawHtml",
+  "name": "HTML",
+  "version": "1.1.9",
+  "description": "Widget to accept and render raw html code.",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "http://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "HTML",
+    "category": "integration",
+    "description": "Widget to accept and render raw html code.",
+    "thumbnail": "resources/widgetIconHtm.png",
+    "icon": "resources/widgetIconHtm.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 785,
+    "preferredEditorHeight": 405,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percRawHtmlAsset",
+      "ref": "contentTypes/percRawHtmlAsset"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percRawHtmlSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percRawHtmlSnippet.vm",
+      "contentType": "percRawHtmlAsset",
+      "bindings": []
+    }
+  ],
+  "slots": [
+    {
+      "name": "percRawHtmlContent",
+      "allowedContentTypes": [
+        "percRawHtmlAsset"
+      ],
+      "layout": {},
+      "styles": {}
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconHtm.png",
+      "target": "rx_resources/widgets/PSWidget_RawHtml/images/widgetIconHtm.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [],
+  "cssPreferences": []
+}

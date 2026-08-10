@@ -34,13 +34,21 @@ import java.util.Objects;
  * by {@code modules/perc-packages}). Covers baseWidgets, high-traffic product packages (#2772), the
  * residual long-tail batch (#2789), the remaining product residual batch (#2802), and the final
  * {@code perc.Test} residual (#2830). Product Widget XML remains dual-run until install consumes
- * modern packages (Phase 5 exit).
+ * modern packages (Phase 5 exit). Dual-ship modern authoring roots for batch A live under {@code
+ * widgets/&lt;stem&gt;/} ({@link PSWidgetXmlDualShip}, issue #2831).
  */
 public final class PSWidgetXmlPackageCompiler {
 
   /** Legacy staging folder name for user-dependency config inside a package source tree. */
   public static final String WIDGETS_RELATIVE =
       "sys__UserDependency--rxconfig/Widgets";
+
+  /**
+   * Dual-ship Widget XML exit batch A package dirs (issue #2831). See {@link
+   * PSWidgetXmlDualShip#BATCH_A_PACKAGE_DIRS}.
+   */
+  public static final List<String> DUAL_SHIP_BATCH_A_PACKAGE_DIRS =
+      PSWidgetXmlDualShip.BATCH_A_PACKAGE_DIRS;
 
   /**
    * Named high-traffic product package directory names under {@code Packages/} covered by the

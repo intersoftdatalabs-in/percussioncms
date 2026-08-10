@@ -1,0 +1,215 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percLocalLang",
+  "name": "Local Language",
+  "version": "2.5.2",
+  "description": "For SEO with International sites. Allows manual selection of alternate language pages to add necessary href-lang markup for Google.",
+  "publisher": {
+    "name": "Percussion Software",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "5.3.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Local Language",
+    "description": "For SEO with International sites. Allows manual selection of alternate language pages to add necessary href-lang markup for Google.",
+    "thumbnail": "resources/percLocalLangIcon.png",
+    "icon": "resources/percLocalLangIcon.png",
+    "author": "Piotr Butkiewicz",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 600,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percLocalLanguage",
+      "ref": "contentTypes/percLocalLanguage"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percLocalLangSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percLocalLangSnippet.vm",
+      "contentType": "percLocalLanguage",
+      "bindings": [
+        {
+          "variable": "linkContext",
+          "expression": "$perc.linkContext"
+        },
+        {
+          "variable": "assets",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "pagelink",
+          "expression": "\"\""
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assets.get(0)"
+        },
+        {
+          "variable": "data",
+          "expression": "$assetItem.Node.getProperty('rx:localLangData').getString()"
+        },
+        {
+          "variable": "json",
+          "expression": "$rx.pageutils.createJsonObject($data)"
+        },
+        {
+          "variable": "jsonArray",
+          "expression": "$json.getJSONArray(\"config\")"
+        },
+        {
+          "variable": "headContent",
+          "expression": "\"\""
+        },
+        {
+          "variable": "previewLinks",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "headLinks",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "testing",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "resultList",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "protocol",
+          "expression": "$j.getString(\"protocol\")"
+        },
+        {
+          "variable": "protocol",
+          "expression": "\"\""
+        },
+        {
+          "variable": "temppath",
+          "expression": "$j.getString(\"pagepath\")"
+        },
+        {
+          "variable": "pagepath",
+          "expression": "$temppath.replace(\"//Sites\", \"\")"
+        },
+        {
+          "variable": "pagename",
+          "expression": "$j.getString(\"pagename\")"
+        },
+        {
+          "variable": "folderpath",
+          "expression": "$temppath.replace($pagename,\"\")"
+        },
+        {
+          "variable": "pageId",
+          "expression": "$j.getString(\"pageId\")"
+        },
+        {
+          "variable": "default",
+          "expression": "$j.getString(\"defLang\")"
+        },
+        {
+          "variable": "default",
+          "expression": "false"
+        },
+        {
+          "variable": "lang",
+          "expression": "$j.getString(\"lang\")"
+        },
+        {
+          "variable": "country",
+          "expression": "$j.getString(\"country\")"
+        },
+        {
+          "variable": "contentId",
+          "expression": "$rx.pageutils.parseGuid($pageId).getUUID()"
+        },
+        {
+          "variable": "countryLang",
+          "expression": "$lang + \"-\" + $country"
+        },
+        {
+          "variable": "countryLang",
+          "expression": "$lang"
+        },
+        {
+          "variable": "query",
+          "expression": "\"select rx:sys_contentid, rx:sys_folderid from rx:percPage where rx:sys_contentid = :contentId\""
+        },
+        {
+          "variable": "params",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "finderName",
+          "expression": "\"Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder\""
+        },
+        {
+          "variable": "relresults",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params)"
+        },
+        {
+          "variable": "pageId",
+          "expression": "$result.id"
+        },
+        {
+          "variable": "tempPath",
+          "expression": "$rx.pageutils.getItemPath($pageId)"
+        },
+        {
+          "variable": "escPath",
+          "expression": "$tools.esc.html($tempPath)"
+        },
+        {
+          "variable": "pageLink",
+          "expression": "$escPath.replace(\"/Sites/\", \"\").toLowerCase()"
+        },
+        {
+          "variable": "xdefault",
+          "expression": "\"<link rel='alternate' hreflang='x-default' href='\" + $protocol + \"://\" + $pageLink + \"'/>\""
+        },
+        {
+          "variable": "relalt",
+          "expression": "\"<link rel='alternate' hreflang='\" + $countryLang + \"' href='\" + $protocol + \"://\" + $pageLink + \"'/>\""
+        },
+        {
+          "variable": "relaltString",
+          "expression": "\"&lt;link rel='alternate' hreflang='\" + $countryLang + \"' href='\" + $protocol + \"://\" + $pageLink + \"' /&gt;\""
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$linkContext = $perc.linkContext;\n\n    $assets = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n    $perc.setWidgetContents($assets);\n    $pagelink=\"\";\n    if ( ! $assets.isEmpty())\n    {\n        $assetItem = $assets.get(0);\n        $data = $assetItem.Node.getProperty('rx:localLangData').getString();\n        $json = $rx.pageutils.createJsonObject($data);\n        $jsonArray = $json.getJSONArray(\"config\");\n        $headContent = \"\";\n        ##\n        $previewLinks = $rx.string.stringToMap(null);\n        $headLinks = $rx.string.stringToMap(null);\n        $testing = $rx.string.stringToMap(null);\n        $resultList = $rx.string.stringToMap(null);\n        ##\n        for ($j : $jsonArray) {\n             if ($j.has(\"protocol\")) {\n                $protocol = $j.getString(\"protocol\");\n            } else {\n                $protocol = \"\";\n            }\n            $temppath = $j.getString(\"pagepath\");\n            $pagepath = $temppath.replace(\"//Sites\", \"\");\n            $pagename = $j.getString(\"pagename\");\n            $folderpath = $temppath.replace($pagename,\"\");\n            ##\n            $pageId = $j.getString(\"pageId\");\n            $default = $j.getString(\"defLang\");\n            if ($default == null) {\n                $default = false;\n            }\n            $lang = $j.getString(\"lang\");\n            $country = $j.getString(\"country\");\n            ##\n            if ($pageId != null && $pageId != \"\") {\n                $contentId = $rx.pageutils.parseGuid($pageId).getUUID();\n            }\n            ##\n            if ($country != null && $country != \"\") {\n                $countryLang = $lang + \"-\" + $country;\n            } else {\n                $countryLang = $lang;\n            }\n            ##\n            if ($folderpath != null && $pagename != null && $contentId != null) {\n                ##\n                $query = \"select rx:sys_contentid, rx:sys_folderid from rx:percPage where rx:sys_contentid = :contentId\";\n                $params = $rx.string.stringToMap(null);\n                $params.put('max_results', 1);\n                $params.put('query', $query);\n                $params.put('contentId', $contentId);\n                $finderName  = \"Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder\";\n                $relresults = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params);\n                if ($relresults != null && $relresults.size()>0) {\n                    for ($result : $relresults) {\n                        $resultList.put($result,$result);\n                        ##\n                        $pageId = $result.id;\n                        if ($pageId != null) {\n                            ##\n                            $tempPath = $rx.pageutils.getItemPath($pageId);\n                            $escPath = $tools.esc.html($tempPath);\n                            $pageLink = $escPath.replace(\"/Sites/\", \"\").toLowerCase();\n                            ##\n                            if($default){\n                                $xdefault = \"<link rel='alternate' hreflang='x-default' href='\" + $protocol + \"://\" + $pageLink + \"'/>\";\n                                $headLinks.put($xdefault,$xdefault);\n                                $previewLinks.put($xdefault,$xdefault);\n                            }\n                            $relalt = \"<link rel='alternate' hreflang='\" + $countryLang + \"' href='\" + $protocol + \"://\" + $pageLink + \"'/>\";\n                            $headLinks.put($relalt, $relalt);\n                            ##\n                            $relaltString = \"&lt;link rel='alternate' hreflang='\" + $countryLang + \"' href='\" + $protocol + \"://\" + $pageLink + \"' /&gt;\";\n                            $previewLinks.put($relaltString,$relaltString);\n                        }\n                    }\n                }\n            }\n        } ## End Foreach loop\n        ##\n      } ## end  ! $assets.isEmpty()"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percLocalLangContent",
+      "allowedContentTypes": [
+        "percLocalLanguage"
+      ],
+      "layout": {},
+      "styles": {}
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/percLocalLangIcon.png",
+      "target": "rx_resources/widgets/percLocalLang/images/percLocalLangIcon.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [],
+  "cssPreferences": []
+}

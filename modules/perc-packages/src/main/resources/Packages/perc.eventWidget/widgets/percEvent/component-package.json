@@ -1,0 +1,280 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percEvent",
+  "name": "Event",
+  "version": "1.1.7",
+  "description": "Display information about an event",
+  "publisher": {
+    "name": "Percussion Software",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Event",
+    "category": "content",
+    "description": "Display information about an event",
+    "thumbnail": "resources/widgetIconEvent.png",
+    "icon": "resources/widgetIconEvent.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 780,
+    "preferredEditorHeight": 710,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percEventAsset",
+      "ref": "contentTypes/percEventAsset"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percEventSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percEventSnippet.vm",
+      "contentType": "percEventAsset",
+      "bindings": [
+        {
+          "variable": "assets",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$rootclass + \" \""
+        },
+        {
+          "variable": "startDateTimeFormat",
+          "expression": "$perc.widget.item.properties.get('startDateTimeFormat')"
+        },
+        {
+          "variable": "endDateTimeFormat",
+          "expression": "$perc.widget.item.properties.get('endDateTimeFormat')"
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assets.get(0)"
+        },
+        {
+          "variable": "eventTitle",
+          "expression": "$rx.pageutils.html($assetItem,'displaytitle')"
+        },
+        {
+          "variable": "eventDescription",
+          "expression": "$rx.pageutils.html($assetItem, 'body')"
+        },
+        {
+          "variable": "eventSummary",
+          "expression": "$rx.pageutils.html($assetItem,'callout')"
+        },
+        {
+          "variable": "eventLocation",
+          "expression": "$rx.pageutils.html($assetItem,'location')"
+        },
+        {
+          "variable": "tmp",
+          "expression": "$assetItem.Node.getProperty('start_time').Date"
+        },
+        {
+          "variable": "ISODateFormat",
+          "expression": "\"yyyy-MM-dd hh:mm a\""
+        },
+        {
+          "variable": "eventStart",
+          "expression": "\"\""
+        },
+        {
+          "variable": "eventStartISO",
+          "expression": "\"\""
+        },
+        {
+          "variable": "eventStart",
+          "expression": "$tools.date.format($startDateTimeFormat,$tmp.Time)"
+        },
+        {
+          "variable": "eventStartISO",
+          "expression": "$tools.date.format($ISODateFormat,$tmp.Time)"
+        },
+        {
+          "variable": "tmp",
+          "expression": "$assetItem.Node.getProperty('end_time').Date"
+        },
+        {
+          "variable": "eventEnd",
+          "expression": "\"\""
+        },
+        {
+          "variable": "eventEndISO",
+          "expression": "\"\""
+        },
+        {
+          "variable": "eventEnd",
+          "expression": "$tools.date.format($endDateTimeFormat,$tmp.Time)"
+        },
+        {
+          "variable": "eventEndISO",
+          "expression": "$tools.date.format($ISODateFormat,$tmp.Time)"
+        },
+        {
+          "variable": "perc_hidefield_displaytitle",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_displaytitle')"
+        },
+        {
+          "variable": "perc_hidefield_callout",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_callout')"
+        },
+        {
+          "variable": "perc_hidefield_body",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_body')"
+        },
+        {
+          "variable": "perc_hidefield_location",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_location')"
+        },
+        {
+          "variable": "perc_hidefield_start_time",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_start_time')"
+        },
+        {
+          "variable": "perc_hidefield_end_time",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_end_time')"
+        },
+        {
+          "variable": "renderEmptyFields",
+          "expression": "$perc.widget.item.properties.get('renderEmptyFields')"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "\"\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\")"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$assets = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n    $perc.setWidgetContents($assets);\n    if (! $assets.isEmpty())\n    {\n        $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n        if (!empty($rootclass))\n            $rootclass = $rootclass + \" \";\n        $startDateTimeFormat = $perc.widget.item.properties.get('startDateTimeFormat');\n        $endDateTimeFormat = $perc.widget.item.properties.get('endDateTimeFormat');\n\n        $assetItem = $assets.get(0);\n        $eventTitle = $rx.pageutils.html($assetItem,'displaytitle');\n        $eventDescription = $rx.pageutils.html($assetItem, 'body');\n        $eventSummary = $rx.pageutils.html($assetItem,'callout');\n        $eventLocation = $rx.pageutils.html($assetItem,'location');\n\n        $tmp = $assetItem.Node.getProperty('start_time').Date;\n        $ISODateFormat=\"yyyy-MM-dd hh:mm a\";\n        if (empty($tmp))\n        {\n            $eventStart = \"\";\n            $eventStartISO = \"\";\n        }\n        else\n        {\n            $eventStart = $tools.date.format($startDateTimeFormat,$tmp.Time);\n            $eventStartISO = $tools.date.format($ISODateFormat,$tmp.Time);\n        }\n\n        $tmp = $assetItem.Node.getProperty('end_time').Date;\n        if (empty($tmp))\n        {\n            $eventEnd = \"\";\n            $eventEndISO = \"\";\n        }\n        else\n        {\n            $eventEnd = $tools.date.format($endDateTimeFormat,$tmp.Time);\n            $eventEndISO = $tools.date.format($ISODateFormat,$tmp.Time);\n        }\n\n        $perc_hidefield_displaytitle = $perc.widget.item.properties.get('perc_hidefield_displaytitle');\n        $perc_hidefield_callout = $perc.widget.item.properties.get('perc_hidefield_callout');\n        $perc_hidefield_body = $perc.widget.item.properties.get('perc_hidefield_body');\n        $perc_hidefield_location = $perc.widget.item.properties.get('perc_hidefield_location');\n        $perc_hidefield_start_time = $perc.widget.item.properties.get('perc_hidefield_start_time');\n        $perc_hidefield_end_time = $perc.widget.item.properties.get('perc_hidefield_end_time');\n        $renderEmptyFields = $perc.widget.item.properties.get('renderEmptyFields');\n\n        $dsUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n        if ($dsUrl.indexOf(\"http://localhost\") != -1 )\n\t\t\t$dsUrl = \"\";\n        $dynamicListData = $tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\");\n    }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percEventContent",
+      "allowedContentTypes": [
+        "percEventAsset"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconEvent.png",
+      "target": "rx_resources/widgets/event/images/widgetIconEvent.png",
+      "type": "image"
+    },
+    {
+      "path": "resources/style.css",
+      "target": "rx_resources/widgets/event/css/style.css",
+      "type": "css",
+      "placement": "head"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "perc_hidefield_displaytitle",
+      "displayName": "Hide title field",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_callout",
+      "displayName": "Hide summary field",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_body",
+      "displayName": "Hide description field",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_location",
+      "displayName": "Hide location field",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_start_time",
+      "displayName": "Hide start date field",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_end_time",
+      "displayName": "Hide end date field",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "renderEmptyFields",
+      "displayName": "Render empty fields",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "startDateTimeFormat",
+      "displayName": "Format of start date",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "M/d/yyyy hh:mm a",
+      "enumValues": []
+    },
+    {
+      "name": "endDateTimeFormat",
+      "displayName": "Format of end date",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "M/d/yyyy hh:mm a",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS Root Class",
+      "datatype": "string"
+    }
+  ]
+}
