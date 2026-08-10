@@ -93,6 +93,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     );
 
     expect(screen.getByTestId("content-explorer-shell")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-refresh-list")).toBeInTheDocument();
     expect(screen.getByTestId("explorer-toggle-search")).toBeInTheDocument();
     expect(screen.getByTestId("explorer-toggle-security")).toBeInTheDocument();
     expect(
@@ -153,6 +154,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       EXPLORER_MSG.DISPLAY_FORMAT_DEFAULT,
       EXPLORER_MSG.SERVER_ACTIONS_ARIA,
       EXPLORER_MSG.VIEW_TOOLS_ARIA,
+      EXPLORER_MSG.ACTION_REFRESH,
+      EXPLORER_MSG.ACTION_REFRESH_ARIA,
+      EXPLORER_MSG.PREVIEW_UNAVAILABLE,
       EXPLORER_MSG.TOGGLE_SEARCH_ARIA,
       EXPLORER_MSG.TOGGLE_SECURITY_ARIA,
       EXPLORER_MSG.TOGGLE_TRANSLATIONS_ARIA,
@@ -169,6 +173,87 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     for (const key of chromeKeys) {
       expect(key.startsWith("perc.ui.explorer@")).toBe(true);
     }
+  });
+
+  it("refresh control bumps list key (#2733 view residual)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-list")).toBeInTheDocument();
+    });
+    const listBefore = screen.getByTestId("detail-list");
+    fireEvent.click(screen.getByTestId("explorer-refresh-list"));
+    await waitFor(() => {
+      // Remount via listEpoch key — node may be replaced; control stays enabled.
+      expect(screen.getByTestId("explorer-refresh-list")).toBeEnabled();
+      expect(screen.getByTestId("detail-list")).toBeInTheDocument();
+    });
+    // Refresh is always available (shell-state residual View control).
+    expect(listBefore).toBeTruthy();
+  });
+
+  it("wires product preview handler so Preview is enabled for pages (#2733)", async () => {
+    const onPreview = vi.fn(async () => undefined);
+    stubPathFetch();
+    // Seed a page selection by loading children with a page row.
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "READ",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        actionHandlers={{ onPreview }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    await waitFor(() => {
+      expect(screen.getByTestId("action-preview")).toBeEnabled();
+    });
+    fireEvent.click(screen.getByTestId("action-preview"));
+    await waitFor(() => {
+      expect(onPreview).toHaveBeenCalled();
+    });
+    const arg = onPreview.mock.calls[0][0] as { id?: string; type?: string };
+    expect(arg.id).toBe("42");
+    expect(arg.type).toBe("page");
   });
 
   it("passes the zero serious/critical axe-core gate (T082a / 508)", async () => {

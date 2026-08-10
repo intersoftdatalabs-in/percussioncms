@@ -57,6 +57,7 @@ import { ExplorerTree } from "./ExplorerTree";
 import { FolderSecurityPanel } from "./FolderSecurityPanel";
 import { EXPLORER_MSG } from "./messages";
 import { openInEditor } from "./openInEditor";
+import { openPreviewItem } from "./previewItem";
 import {
   ReducedActions,
   defaultReducedActionHandlers,
@@ -257,9 +258,21 @@ export function ContentExplorerShell({
       }
       onOpenItem(item);
     },
-    onPreview: actionHandlers?.onPreview ?? (() => undefined),
+    // Product default: Finder-equivalent page/asset preview (#2733). Hosts
+    // may still override via actionHandlers.onPreview.
+    onPreview:
+      actionHandlers?.onPreview ??
+      (async (item) => {
+        await openPreviewItem(item);
+      }),
   };
-  const hasPreviewHandler = Boolean(actionHandlers?.onPreview);
+  // Always true for product shell (built-in openPreviewItem); override still counts.
+  const hasPreviewHandler = true;
+
+  const handleRefreshList = useCallback(() => {
+    setListEpoch((n) => n + 1);
+    setError(null);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -507,6 +520,15 @@ export function ContentExplorerShell({
             role="toolbar"
             aria-label={message(EXPLORER_MSG.VIEW_TOOLS_ARIA)}
           >
+            <button
+              type="button"
+              data-testid="explorer-refresh-list"
+              aria-label={message(EXPLORER_MSG.ACTION_REFRESH_ARIA)}
+              title={message(EXPLORER_MSG.ACTION_REFRESH_ARIA)}
+              onClick={handleRefreshList}
+            >
+              {message(EXPLORER_MSG.ACTION_REFRESH)}
+            </button>
             <button
               type="button"
               data-testid="explorer-toggle-search"

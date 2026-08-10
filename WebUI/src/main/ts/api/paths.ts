@@ -62,9 +62,23 @@ export const PATHS = {
   get PAGE_CREATE() {
     return `${SERVICES_ROOT}/pagemanagement/page`;
   },
+  /**
+   * Page render / product preview by content id (legacy {@code PAGE_PREVIEW}).
+   * Append {@code /{id}} — used by Explorer selection preview (#2733).
+   */
+  get PAGE_PREVIEW() {
+    return `${SERVICES_ROOT}/pagemanagement/render/page`;
+  },
   /** Page-level copy (US7 clipboard paste; PSPageRestService#copy). */
   get PAGE_COPY() {
     return `${SERVICES_ROOT}/pagemanagement/page/copy`;
+  },
+  /**
+   * Asset read-only view URL lookup (legacy {@code ASSET_VIEW_URL_FOR_ASSET_ID}).
+   * Append {@code /{id}}; response is plain text URL.
+   */
+  get ASSET_VIEW_URL() {
+    return `${SERVICES_ROOT}/assetmanagement/asset/assetViewUrl`;
   },
   get MY_CONTENT() {
     return `${SERVICES_ROOT}/itemmanagement/item/mycontent`;

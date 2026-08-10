@@ -16,10 +16,10 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Menu bar (Content / View / Help) | `ContentExplorerMenu.xml` | Not in SPA shell (toolbar/context only) | **Missing** | Deferred shell chrome; no separate child yet (not blocking #2410 / #2409 / #2411) |
 | Server-driven toolbar/context menus | Action manager + server menus | `ActionToolbar` + `ContextMenu` + `actionMenuApi` wired in shell | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) |
 | Reduced create/rename/move/copy/delete | Folder actions | `ReducedActions` in shell | Present | — |
-| Open / preview item | Open handlers | `openInEditor`; preview default no-op | **Partial** | preview polish (no dedicated child; track under future shell residual if product prioritizes) |
+| Open / preview item | Open handlers | `openInEditor` + product `openPreviewItem` (page render / asset view URL) from selection | **Present** | #2733 |
 | Multi-select list | Selection model | `multiSelectedIds` / `DetailList` multi-select in shell | **Present** | #2408 · [PR #2522](https://github.com/intersoftdatalabs-in/percussioncms/pull/2522) (merged) |
 | Display formats for columns | Display format catalog | `GET /rest/displayformats?validForFolder=true` + shell selector + `displayProperties` | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) |
-| View options / refresh | View menu | List reload on path change; no full View menu | **Partial** | shell residual with menu bar if prioritized |
+| View options / refresh | View menu | Refresh list control + view tool toggles in shell; full DCE View menu still OUT | **Partial** (refresh **Present**) | #2733 (refresh); full View menu with #2731 menu bar |
 
 ## Search
 
