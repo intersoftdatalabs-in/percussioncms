@@ -37,9 +37,13 @@ public class PSSFields extends PSDbComponentList {
   /*
    * Ctor for reserializing. See {@link com.percussion.cms.objectstore.PSDbComponentList(Element)}
    * base ctor for more details.
+   *
+   * <p>Passes {@link #XML_NODE_NAME} explicitly: the base Element path uses a class-derived default
+   * ({@code PSXSFields}) to avoid virtual {@link #getNodeName()} during construction (this-escape).
+   * Wire XML and {@link #toXml} use {@code PSX_FIELDS}, so the expected root must be supplied here.
    */
   public PSSFields(Element src) throws PSUnknownNodeTypeException {
-    super(src);
+    super(src, XML_NODE_NAME);
   }
 
   /**
