@@ -23,12 +23,22 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/** List wrapper for UserPreference objects. Sunny Sal: "Preference list ka boss!" */
+/**
+ * List wrapper for UserPreference objects. Sunny Sal: "Preference list ka boss!"
+ *
+ * <p>{@link XmlSeeAlso} registers {@link UserPreference} in the JAXB context so
+ * GET {@code /preferences/} can marshal list elements. Without it, the profile
+ * Preferences load path fails with {@code JAXBException}: {@code UserPreference
+ * nor any of its super class is known to this context} (#2746). Peer pattern:
+ * {@code RoleList}, {@code CommunityList}, ACL list wrappers.
+ */
 @XmlRootElement(name = "UserPreferenceList")
 @ArraySchema(schema = @Schema(implementation = UserPreference.class))
+@XmlSeeAlso(UserPreference.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserPreferenceList extends ArrayList<UserPreference> {
 
