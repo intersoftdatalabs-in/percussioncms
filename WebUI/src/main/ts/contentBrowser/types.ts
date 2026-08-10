@@ -27,7 +27,14 @@ import type {
   SelectionResult,
   SelectionItem,
   PreviewInfo,
+  PSSearchCriteria,
+  PSSearchResults,
 } from "../api/contentExplorer/types";
+import type {
+  SearchDef,
+  SearchExecuteRequest,
+  SearchExecuteResult,
+} from "../api/developer/types";
 
 export type ContentBrowserMode = "select" | "browse";
 export type ContentBrowserRoots = "sites" | "assets" | "all" | string[];
@@ -49,8 +56,27 @@ export interface ContentBrowserProps {
   initialPath?: string | null;
   /** Root set; "all" matches path services default. */
   roots?: ContentBrowserRoots;
-  /** Show search pane when API is available (US5). */
+  /**
+   * When true, mounts the shared {@code SearchPanel} (catalog + free-text +
+   * saved-search execute) using existing Explorer search REST clients.
+   * Default false so pickers that only need tree/list stay compact.
+   */
   enableSearch?: boolean;
+  /**
+   * Test / host seam: free-text search transport (default SearchPanel → searchExtended).
+   */
+  search?: (criteria: PSSearchCriteria) => Promise<PSSearchResults>;
+  /**
+   * Test / host seam: saved-search catalog (default SearchPanel → listSearches).
+   */
+  listSavedSearches?: () => Promise<SearchDef[]>;
+  /**
+   * Test / host seam: design-search execute (default SearchPanel → executeSearch).
+   */
+  executeSavedSearch?: (
+    idOrName: string,
+    request?: SearchExecuteRequest | null,
+  ) => Promise<PSSearchResults | SearchExecuteResult>;
   /** Show preview pane for the focused item (default true). */
   enablePreview?: boolean;
   /** Explicit template/content-type id to render preview with; null = first associated template. */

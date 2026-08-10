@@ -15,7 +15,10 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { appendUniqueById } from "../../../main/ts/contentBrowser/selectionHelpers";
+import {
+  appendUniqueById,
+  selectionItemFromSearchResult,
+} from "../../../main/ts/contentBrowser/selectionHelpers";
 
 describe("appendUniqueById", () => {
   it("appends a new id and ignores repeats", () => {
@@ -23,5 +26,36 @@ describe("appendUniqueById", () => {
     const once = appendUniqueById([], a);
     expect(once).toEqual([a]);
     expect(appendUniqueById(once, a)).toEqual([a]);
+  });
+});
+
+describe("selectionItemFromSearchResult (edge cases)", () => {
+  it("joins folder + name and collapses trailing slashes on folder", () => {
+    const sel = selectionItemFromSearchResult({
+      id: "x",
+      name: "Child",
+      folderPath: "/Sites/Parent/",
+      type: "folder",
+    });
+    expect(sel.path).toBe("/Sites/Parent/Child");
+    expect(sel.category).toBe("folder");
+  });
+
+  it("falls back id to path/name/unknown when id blank", () => {
+    const viaPath = selectionItemFromSearchResult({
+      id: "  ",
+      name: "A",
+      folderPath: "/Sites",
+      type: "page",
+    });
+    expect(viaPath.id).toBe("/Sites/A");
+
+    const viaUnknown = selectionItemFromSearchResult({
+      id: "",
+      name: "",
+      folderPath: "",
+      type: "page",
+    });
+    expect(viaUnknown.id).toBe("unknown");
   });
 });

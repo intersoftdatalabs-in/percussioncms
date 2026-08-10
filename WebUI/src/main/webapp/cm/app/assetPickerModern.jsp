@@ -63,7 +63,8 @@
                 allowFolderSelect: false,
                 allowItemSelect: true,
                 allowedTypes: ["page", "asset"],
-                enableSearch: false,
+                // #2793: mount shared SearchPanel (catalog + execute) in this host.
+                enableSearch: true,
                 enablePreview: true,
                 title: "Pick an asset",
                 onConfirm: function (selection) {
