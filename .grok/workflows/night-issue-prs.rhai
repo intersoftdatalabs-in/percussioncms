@@ -14,9 +14,10 @@
 //   prefer_easy       bool   - within the same pN tier, prefer tech-debt / javadoc / small bugs (default true)
 //   low_priority_quota_pct int - percent of max_issues reserved for p7+p8 labels (default 20).
 //                                Example max_issues=10 → 8 priority-pool (p1–p6/unset) + 2 low (p7/p8).
-//                                HARD: never select p7/p8 while eligible higher-priority work remains;
-//                                never backfill priority_slots with p8. Oversized p1–p6 → create 3
-//                                PR-sized slices into the selection pool instead.
+//                                HARD: never select p7/p8 while eligible higher-priority work remains
+//                                (including oversized p1–p6 expanded into 3 PR-sized slices). Once the
+//                                priority pool is truly empty after that expansion, p7/p8 backfill of
+//                                remaining slots (priority leftovers + low_slots) is allowed.
 //   agent_safe_only   bool   - skip host-install / secrets / full-suite / multi-RDBMS / manual QA
 //                                (default true). H2 Docker QA + surface-filtered Playwright is ALLOWED.
 //                                Also HARD-SKIPS: label "not safe for agents", and large multi-locale
@@ -285,8 +286,9 @@ if max_security_prs > 8 { max_security_prs = 8; }
 if low_priority_quota_pct < 0 { low_priority_quota_pct = 0; }
 if low_priority_quota_pct > 50 { low_priority_quota_pct = 50; }
 
-// Queue split: ~80% priority-pool (p1 first), ~20% reserved p7+p8 ONLY if priority empty.
-// max_issues=10, quota=20 → priority_slots=8, low_slots=2 (low unused while p1–p6 eligible).
+// Queue split: ~80% priority-pool (p1 first), ~20% reserved p7+p8 after priority empty.
+// max_issues=10, quota=20 → priority_slots=8, low_slots=2. Expand oversized p1–p6 into 3 slices
+// first; only then backfill remaining slots with p7/p8.
 let low_slots = max_issues * low_priority_quota_pct / 100;
 let priority_slots = max_issues - low_slots;
 
@@ -609,28 +611,28 @@ triage_prompt += "    sorted by pN rank (p1 first). Sources: implement-ready ite
 triage_prompt += "    slices created/selected from oversized priority work (see OVERSIZED below).\n";
 triage_prompt += "  * low_slots=" + low_slots.to_string()
     + " (" + low_priority_quota_pct.to_string()
-    + "% quota) — p7 or p8 ONLY when the priority pool is truly empty after split expansion.\n";
-triage_prompt += "  Example: max_issues=10, quota=20% → up to 8 from p1–p6/Unset, then up to 2 from p7/p8\n";
-triage_prompt += "  IF AND ONLY IF no higher-priority work remains.\n";
-triage_prompt += "  PRIORITY-FIRST (HARD — no low work while higher work exists):\n";
-triage_prompt += "  - NEVER queue p7/p8 while ANY p1–p6/Unset inventory item remains eligible for\n";
-triage_prompt += "    tonight: implementable, OR too-big-but-sliceable (agent-safe, not hard-skip,\n";
-triage_prompt += "    not In Progress, not assigned when unassigned_only, not blocked on an open PR\n";
-triage_prompt += "    that already covers it). Epics/trackers that can yield 3 PR-sized slices COUNT\n";
-triage_prompt += "    as higher-priority work — do not skip them just to pick p8 tech-debt.\n";
-triage_prompt += "  - NEVER backfill priority_slots with p7/p8. Leave priority slots unused rather than\n";
-triage_prompt += "    promote low priority when higher work exists or can be sliced.\n";
-triage_prompt += "  - low_slots: fill with p7/p8 only after priority expansion cannot produce any more\n";
-triage_prompt += "    implement queue items (including after creating 3-slice children). If priority still\n";
-triage_prompt += "    has work but slots remain empty only because of hard-skips, still do NOT fill with p8\n";
-triage_prompt += "    until zero eligible higher-priority items remain in inventory.\n";
-triage_prompt += "  - If fewer than low_slots p7/p8 when low is allowed: leave low slots empty or fill\n";
-triage_prompt += "    remaining from priority pool only (never the reverse promotion of p8 into priority).\n";
+    + "% quota) — p7 or p8 after the priority pool is truly empty (post slice expansion).\n";
+triage_prompt += "  Example: max_issues=10, quota=20% → fill up to 8 from p1–p6/Unset (incl. 3-slice\n";
+triage_prompt += "  expansions), then p7/p8 may fill remaining slots including unused priority_slots\n";
+triage_prompt += "  AND the reserved low_slots — but ONLY once higher work is exhausted.\n";
+triage_prompt += "  PRIORITY-FIRST then BACKFILL (HARD):\n";
+triage_prompt += "  - Phase A — higher work first: NEVER queue p7/p8 while ANY p1–p6/Unset inventory\n";
+triage_prompt += "    item remains eligible tonight: implementable, OR too-big-but-sliceable\n";
+triage_prompt += "    (agent-safe, not hard-skip, not In Progress, not assigned when unassigned_only,\n";
+triage_prompt += "    not fully covered by an open PR). Epics/trackers that can yield 3 PR-sized slices\n";
+triage_prompt += "    COUNT as higher work — expand them; do not skip them to reach p8 early.\n";
+triage_prompt += "  - Phase B — backfill allowed: AFTER Phase A produces no more priority implement items\n";
+triage_prompt += "    (including after creating/reusing 3-slice children for every remaining eligible\n";
+triage_prompt += "    oversized parent you can still expand into the cap), you MAY fill leftover slots\n";
+triage_prompt += "    (unused priority_slots + low_slots) with implementable p7/p8. That is intentional\n";
+triage_prompt += "    so nights still burn tech-debt when important work is done or fully queued.\n";
+triage_prompt += "  - If fewer than low_slots p7/p8 when backfill is allowed: leave those empty or keep\n";
+triage_prompt += "    more priority items if any appear; do not invent work.\n";
 triage_prompt += "  - Never exceed max_issues.\n";
 triage_prompt += "- prefer_easy=" + prefer_easy.to_string()
     + " — SECONDARY only within the same pN tier (tech-debt/javadoc/small bugs first).\n";
 triage_prompt += "  Do NOT let prefer_easy outrank p1 over p5, or p6 over p8.\n";
-triage_prompt += "  Do NOT use prefer_easy to justify p8 when any p1–p6/Unset eligible work remains.\n";
+triage_prompt += "  Do NOT use prefer_easy to justify p8 during Phase A while higher work remains.\n";
 triage_prompt += "- agent_safe_only=" + agent_safe_only.to_string() + "\n";
 triage_prompt += "  When true, SKIP or SPLIT-only (do not implement) issues that require:\n";
 triage_prompt += "  host CMS install (DEV_PERCUSSION_INSTALL only), multi-RDBMS matrix, secrets,\n";
@@ -735,7 +737,7 @@ triage_prompt += "Emit queue IN FINAL WORK ORDER: priority-pool first (p1→…�
 triage_prompt += "then p7/p8 only if priority-first rules allow low_slots.\n";
 triage_prompt += "Set each queue item's priority string to the resolved label: p1|p2|p3|p4|p5|p6|p7|p8|Unset.\n";
 triage_prompt += "In notes: count selected by pN tier; list parents expanded into 3 slices; state whether\n";
-triage_prompt += "low (p7/p8) quota was used (must be zero while higher eligible work remained).\n";
+triage_prompt += "p7/p8 backfill ran (allowed only after Phase A exhausted higher eligible work).\n";
 triage_prompt += "work_summary must be a concrete agent instruction for the implementer (or splitter).\n";
 triage_prompt += "If the issue is a slice, include PARENT # and 'update parent Agent progress section' in work_summary.\n";
 
@@ -1251,7 +1253,7 @@ for item in queue {
             work_prompt += "6) PREFER implement the FIRST slice in this same agent turn when gates fit tonight\n";
             work_prompt += "   (status=pr_opened); otherwise status=split_only so a later night queues the\n";
             work_prompt += "   unassigned children. Never abandon after zero children.\n";
-            work_prompt += "7) PARENT stays open while children are open. Do not promote unrelated p8 work here.\n";
+            work_prompt += "7) PARENT stays open while children are open.\n";
             work_prompt += "status=split_only (or pr_opened if you also shipped the first slice).\n";
         }
     } else {

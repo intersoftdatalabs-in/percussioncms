@@ -22,14 +22,13 @@ Unattended overnight worker:
 
 **Merge policy:** Work phase still **opens PRs only** (does not auto-merge its own night Work PRs). **Peer PR review** may **squash-merge** eligible other-model / no-model agent PRs after an independent review when checks are green. Oversized issues become child issues, not mega-PRs.
 
-### Priority-first queue (no p8 while higher work exists)
+### Priority-first queue, then p7/p8 backfill
 
 | Rule | Behavior |
 |------|----------|
-| **Priority pool** | p1 → p6 (then Unset): implement-ready items **and** PR-sized **slices** from oversized work |
-| **Low pool** | p7/p8 only when the priority pool is **truly empty** after slice expansion |
-| **No p8 backfill** | Never fill empty priority slots with p7/p8 while any eligible higher-priority issue remains (including large but sliceable epics) |
-| **prefer_easy** | Secondary **within** the same pN tier only — never a reason to pick p8 over p1–p6 |
+| **Phase A — higher work** | p1 → p6 (then Unset): implement-ready items **and** PR-sized **slices** from oversized work. **Never** queue p7/p8 while any eligible higher item remains (including large but sliceable epics) |
+| **Phase B — backfill** | Once Phase A cannot produce more priority items (after 3-slice expansion), **p7/p8 may fill remaining slots** — unused priority_slots **and** reserved `low_slots`. Intentional tech-debt burn when important work is done |
+| **prefer_easy** | Secondary **within** the same pN tier only — never a reason to pick p8 during Phase A |
 
 ### Oversized priority work → 3 slices into the pool
 
