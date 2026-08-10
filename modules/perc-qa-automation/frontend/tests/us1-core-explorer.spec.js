@@ -96,6 +96,35 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     await expect(page.locator('[data-testid="action-toolbar"]')).toBeVisible();
   });
 
+  test("server action toolbar mounts; detail list supports context menu (#2849)", async ({
+    page,
+  }) => {
+    // Product Explorer route: ActionToolbar is always present; right-click
+    // on a detail row opens the ContextMenu anchor (actions may be empty on
+    // a minimal Derby catalog — empty state is still a mounted menu).
+    await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
+    await expect(
+      page.locator('[data-testid="content-explorer-shell"]'),
+    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('[data-testid="action-toolbar"]')).toBeVisible();
+    await expect(page.locator('[data-testid="detail-list"]')).toBeVisible();
+
+    const row = page.locator('[data-testid^="detail-row-"]').first();
+    if ((await row.count()) === 0) {
+      // Empty folder: still assert chrome; context menu needs a row.
+      test.info().annotations.push({
+        type: "note",
+        description:
+          "No detail rows on this CMS folder; skipped context-menu click path",
+      });
+      return;
+    }
+    await row.click({ button: "right" });
+    await expect(page.locator('[data-testid="context-menu"]')).toBeVisible({
+      timeout: 10_000,
+    });
+  });
+
   test("Explorer shell opens search panel from View menu (#2400 / #2731)", async ({
     page,
   }) => {

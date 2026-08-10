@@ -51,5 +51,6 @@ See [Virtual Sites (developer)](id:developer-virtual-sites) and
 
 ## Related
 
+- [Content Explorer](id:admin-content-explorer) — product shell for browsing Sites/folders and running server actions
 - [Publishing](id:admin-publishing)
 - [Users, roles & security](id:admin-users-roles)

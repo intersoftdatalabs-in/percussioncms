@@ -19,9 +19,10 @@
  *
  * <p>Composes DCE-style top menu bar (Content / View / Help), tree, detail
  * list, reduced actions, server-driven action toolbar (with nested MENU
- * dropdowns), context menu, search panel, IA relationships panel, dependency
- * viewer, and display-format selector so the SPA route approaches Desktop
- * Content Explorer parity (#2400 / #2731 / #2768 / #2769).</p>
+ * dropdowns and enablement filtering from {@code rest/actions}), item/folder
+ * context menu, search panel, IA relationships panel, dependency viewer, and
+ * display-format selector so the SPA route approaches Desktop Content Explorer
+ * parity (#2400 / #2407 / #2731 / #2768 / #2769 / #2849).</p>
  */
 
 import React, {
@@ -55,6 +56,10 @@ import type {
 } from "../api/contentExplorer/types";
 import { useSpaBootstrap } from "../app/bootstrap/BootstrapContext";
 import { message } from "../i18n/message";
+import {
+  filterContextMenuActions,
+  filterToolbarActions,
+} from "./actionEnablement";
 import { ActionToolbar } from "./ActionToolbar";
 import { ClipboardPanel } from "./clipboard/ClipboardPanel";
 import { EMPTY_CLIPBOARD, setClipboard as buildClipboard } from "./clipboard/model";
@@ -216,6 +221,18 @@ function isWorkflowEligibleItem(item: PSPathItem | null | undefined): boolean {
   return id.length > 0;
 }
 
+/**
+ * Load the server action catalog for the current selection (#2849).
+ *
+ * <p>When a content item is selected, prefer per-content-type menus from
+ * {@code POST /actions/find/types}. Otherwise load the full cascading tree
+ * from {@code GET /actions/find} (no {@code item=true} filter) so toolbar
+ * dropdown parents ({@code MENU}) remain available — {@code item=true}
+ * would keep only flat {@code MENUITEM} roots and drop nested chrome.</p>
+ *
+ * <p>Desktop-only / surface enablement is applied by the shell after load
+ * via {@link filterToolbarActions} / {@link filterContextMenuActions}.</p>
+ */
 async function defaultLoadMenuActions(
   item: PSPathItem | null,
 ): Promise<MenuAction[]> {
@@ -226,7 +243,7 @@ async function defaultLoadMenuActions(
       return mapActionMenusToMenuActions(menus);
     }
   }
-  const menus = await findActions({ item: true });
+  const menus = await findActions({});
   return mapActionMenusToMenuActions(menus);
 }
 
@@ -408,7 +425,9 @@ export function ContentExplorerShell({
           workflow = null;
         }
         if (cancelled) return;
-        setMenuActions(mergeWorkflowMenuActions(base ?? [], workflow));
+        // Toolbar surface: drop desktop-only URLs and CONTEXTMENU roots (#2849).
+        const merged = mergeWorkflowMenuActions(base ?? [], workflow);
+        setMenuActions(filterToolbarActions(merged));
       } catch {
         if (!cancelled) setMenuActions([]);
       }
@@ -530,8 +549,10 @@ export function ContentExplorerShell({
             workflow = null;
           }
           if (requestId !== contextMenuRequestIdRef.current) return;
+          // Context-menu surface: keep CONTEXTMENU roots; drop desktop-only (#2849).
+          const merged = mergeWorkflowMenuActions(base ?? [], workflow);
           setContextMenu({
-            actions: mergeWorkflowMenuActions(base ?? [], workflow),
+            actions: filterContextMenuActions(merged),
             x: clientX,
             y: clientY,
           });
