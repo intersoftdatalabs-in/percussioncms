@@ -21,16 +21,25 @@ import com.percussion.design.objectstore.server.PSDatabaseComponentLoader;
 import com.percussion.error.PSDatabaseComponentException;
 import com.percussion.error.PSSqlException;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import java.io.Serializable;
 import java.sql.SQLException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This interface is used by Object store components whose state is saved in a database rather than
- * an XML file. The objects are still XML based. The object uses this interface to serialize itself
- * to and from a back end database via a different XML format and a Rx application.
+ * Base for object-store components whose state is saved in a database rather than an XML file. The
+ * objects are still XML based. The object uses this interface to serialize itself to and from a
+ * back end database via a different XML format and a Rx application.
+ *
+ * <p>Also implements {@link Serializable} so holders such as {@link PSRole} (Serializable via {@code
+ * IPSCatalogSummary}) can declare database-component collection fields without {@code
+ * -Xlint:serial} serial-field diagnostics. Java serialization is product-safe for in-process /
+ * session use; wire and XML behavior is unchanged.
  */
-public abstract class PSDatabaseComponent implements IPSDatabaseComponent {
+public abstract class PSDatabaseComponent implements IPSDatabaseComponent, Serializable {
+
+  private static final long serialVersionUID = 1L;
+
   // see interface for description
   public Object clone() {
     PSDatabaseComponent copy = null;

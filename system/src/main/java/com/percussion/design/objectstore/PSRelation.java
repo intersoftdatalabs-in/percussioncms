@@ -30,6 +30,9 @@ import org.w3c.dom.Element;
  * identifies a row in a relationship table in the database.
  */
 public class PSRelation extends PSDatabaseComponent implements Cloneable {
+
+  private static final long serialVersionUID = 1L;
+
   /** Construct a new, empty relation object. */
   public PSRelation() {}
 

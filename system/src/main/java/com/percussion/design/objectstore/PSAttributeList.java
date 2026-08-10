@@ -28,8 +28,14 @@ import org.w3c.dom.Element;
  * This class defines a set of attributes stored as a database component. Each attribute will be
  * defined as a mapping from a name (type <code>String</code>) and a collection of values (The
  * collection will contain <code>String</code> objects.
+ *
+ * <p>Serializable via {@link PSDatabaseComponentCollection} for holders such as {@link PSRole}
+ * attribute lists. Wire/XML behavior is unchanged.
  */
 public class PSAttributeList extends PSDatabaseComponentCollection implements IPSComponent {
+
+  private static final long serialVersionUID = 1L;
+
   /** Constructor for serialization, fromXml, etc. */
   public PSAttributeList() {
     super((new PSAttribute()).getClass(), (new PSAttribute()).getDatabaseAppQueryDatasetName());

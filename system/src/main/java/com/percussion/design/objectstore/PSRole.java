@@ -43,6 +43,9 @@ import org.w3c.dom.Element;
  * @see PSCollectionComponent
  */
 public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalogSummary {
+
+  private static final long serialVersionUID = 1L;
+
   /**
    * Searches for a matching subject in this role.
    *

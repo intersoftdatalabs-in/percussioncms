@@ -35,6 +35,9 @@ import org.w3c.dom.Element;
  * @since 4.0
  */
 public abstract class PSSubject extends PSDatabaseComponent {
+
+  private static final long serialVersionUID = 1L;
+
   /* The SUBJECT_TYPE_xxx values must be flags so they can be OR'd together
   by users of this class. */
 
