@@ -15,10 +15,10 @@
  */
 
 /**
- * Design SPA template library list shell (#2808 / parent #2631).
+ * Design SPA source + JEXL bindings editor (#2809 / parent #2631).
  *
  * Surface-filtered only:
- *   npm run test:surface -- --path tests/design-template-library.spec.js
+ *   npm run test:surface -- --path tests/design-template-source-editor.spec.js
  *
  * QA mode: perc-devctl qa-up → TEST_CMS_URL + ADMIN_* → test:surface → qa-down.
  *
@@ -40,26 +40,20 @@ function designTemplatesUrl() {
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?${q.toString()}`;
 }
 
-test.describe("Design template library list shell (#2808)", () => {
+test.describe("Design template source + JEXL editor (#2809)", () => {
   test.beforeEach(async ({ page }) => {
-    test.setTimeout(90_000);
+    test.setTimeout(120_000);
     await loginAsAdmin(page);
   });
 
-  test("route shell, list or empty/error, optional editor open @smoke @ui", async ({
+  test("open template, edit source, save happy path @smoke @ui", async ({
     page,
   }) => {
     await page.goto(designTemplatesUrl(), { waitUntil: "networkidle" });
 
-    await expect(page.locator('[data-testid="nav-design"]')).toBeVisible({
-      timeout: 20_000,
-    });
     await expect(page.locator('[data-testid="perc-design-shell"]')).toBeVisible({
       timeout: 20_000,
     });
-    await expect(
-      page.locator('[data-testid="tab-design-templates"]'),
-    ).toBeVisible({ timeout: 15_000 });
 
     const error = page.locator('[data-testid="design-tpl-error"]');
     const panel = page.locator('[data-testid="design-tpl-panel"]');
@@ -75,8 +69,7 @@ test.describe("Design template library list shell (#2808)", () => {
     }
 
     if (await empty.isVisible()) {
-      // Empty catalog is a valid shell state on bare CMS images.
-      await expect(empty).toBeVisible();
+      test.skip(true, "No templates in catalog — cannot exercise editor save");
       return;
     }
 
@@ -89,17 +82,40 @@ test.describe("Design template library list shell (#2808)", () => {
     await expect(page.locator('[data-testid="design-tpl-editor"]')).toBeVisible({
       timeout: 20_000,
     });
+    const source = page.locator('[data-testid="design-tpl-editor-source-edit"]');
+    await expect(source).toBeVisible({ timeout: 20_000 });
+
+    const original = await source.inputValue();
+    const marker = `<!-- design-2809-${Date.now()} -->`;
+    // Append a harmless comment-like marker; restore on success path below.
+    const nextSource = original.endsWith("\n")
+      ? `${original}${marker}\n`
+      : `${original}\n${marker}\n`;
+    await source.fill(nextSource);
+
+    const saveBtn = page.locator('[data-testid="design-tpl-editor-save"]');
+    await expect(saveBtn).toBeEnabled({ timeout: 5_000 });
+    await saveBtn.click();
+
     await expect(
-      page.locator('[data-testid="design-tpl-editor-source-edit"]'),
-    ).toBeVisible({ timeout: 20_000 });
+      page.locator('[data-testid="design-tpl-editor-notice"]'),
+    ).toBeVisible({ timeout: 30_000 });
     await expect(
-      page.locator('[data-testid="design-tpl-editor-name"]'),
-    ).toBeVisible();
+      page.locator('[data-testid="design-tpl-editor-error"]'),
+    ).toHaveCount(0);
+
+    // Best-effort restore so repeated QA runs do not accumulate markers.
+    await source.fill(original);
+    if (await saveBtn.isEnabled()) {
+      await saveBtn.click();
+      await expect(
+        page.locator('[data-testid="design-tpl-editor-notice"]'),
+      ).toBeVisible({ timeout: 30_000 });
+    }
 
     await page.locator('[data-testid="design-tpl-editor-back"]').click();
-    await expect(page.locator('[data-testid="design-tpl-editor"]')).toHaveCount(
-      0,
-    );
-    await expect(page.locator('[data-testid="design-tpl-panel"]')).toBeVisible();
+    await expect(page.locator('[data-testid="design-tpl-panel"]')).toBeVisible({
+      timeout: 15_000,
+    });
   });
 });

@@ -67,12 +67,18 @@ export async function getTemplateDetail(
   return get<TemplateDetail>(`${PATHS.TEMPLATES}/${key}`);
 }
 
-/** PUT /services/templates/{idOrName} — label, description, source, optional bindings/slots */
+/**
+ * PUT /services/templates/{idOrName} — label, description, source, optional bindings/slots.
+ * Omitted fields are left unchanged server-side; {@code bindings}/{@code slots} when present
+ * fully replace the collection (including empty list).
+ */
 export async function updateTemplateDetail(
   idOrName: string,
-  body: Pick<
-    TemplateDetail,
-    "label" | "description" | "templateSource" | "bindings" | "slots"
+  body: Partial<
+    Pick<
+      TemplateDetail,
+      "label" | "description" | "templateSource" | "bindings" | "slots"
+    >
   >,
 ): Promise<TemplateDetail> {
   const key = encodeURIComponent(idOrName);

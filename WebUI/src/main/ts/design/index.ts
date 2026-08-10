@@ -19,4 +19,11 @@ export { DesignShell, normalizeDesignSection } from "./DesignShell";
 export type { DesignShellProps, DesignSection } from "./DesignShell";
 export { TemplateLibraryPanel, templateSelectionKey } from "./TemplateLibraryPanel";
 export { TemplateDetailDrawer } from "./TemplateDetailDrawer";
+export { TemplateSourceEditor } from "./TemplateSourceEditor";
+export {
+  bindingsEqual,
+  cloneBindings,
+  normalizeBindingsForSave,
+  validateBindings,
+} from "./templateBindings";
 export { DESIGN_MSG, DESIGN_MSG_KEYS } from "./messages";

@@ -29,6 +29,7 @@ import { DESIGN_MSG } from "../../../main/ts/design/messages";
 vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   listTemplates: vi.fn(),
   getTemplateDetail: vi.fn(),
+  updateTemplateDetail: vi.fn(),
 }));
 
 const listTemplates = assemblyApi.listTemplates as ReturnType<typeof vi.fn>;
@@ -109,7 +110,7 @@ describe("TemplateLibraryPanel (#2808)", () => {
     );
   });
 
-  it("opens read-only detail drawer when a row is opened", async () => {
+  it("opens source + JEXL editor when a row is opened", async () => {
     listTemplates.mockResolvedValue([
       {
         templateId: 7,
@@ -126,6 +127,7 @@ describe("TemplateLibraryPanel (#2808)", () => {
       assembler: "velocityAssembler",
       mimeType: "text/html",
       templateType: "page",
+      templateSource: "$sys.template",
       bindings: [{ variable: "x", expression: "1" }],
       slots: [{ name: "main" }],
     });
@@ -135,24 +137,22 @@ describe("TemplateLibraryPanel (#2808)", () => {
     });
     fireEvent.click(screen.getByTestId("design-tpl-open-0"));
     await waitFor(() => {
-      expect(screen.getByTestId("design-tpl-drawer")).toBeTruthy();
+      expect(screen.getByTestId("design-tpl-editor")).toBeTruthy();
     });
     await waitFor(() => {
-      expect(screen.getByTestId("design-tpl-drawer-body")).toBeTruthy();
+      expect(screen.getByTestId("design-tpl-editor-source-edit")).toBeTruthy();
     });
-    expect(screen.getByTestId("design-tpl-drawer-name").textContent).toContain(
+    expect(screen.getByTestId("design-tpl-editor-name").textContent).toContain(
       "site.base",
     );
-    expect(screen.getByTestId("design-tpl-drawer-assembler").textContent).toContain(
+    expect(screen.getByTestId("design-tpl-editor-assembler").textContent).toContain(
       "velocityAssembler",
     );
-    expect(screen.getByTestId("design-tpl-drawer-bindings").textContent).toBe(
-      "1",
-    );
-    expect(screen.getByTestId("design-tpl-drawer-slots").textContent).toBe("1");
-    fireEvent.click(screen.getByTestId("design-tpl-drawer-close"));
+    expect(screen.getByTestId("design-tpl-editor-bindings-table")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("design-tpl-editor-back"));
     await waitFor(() => {
-      expect(screen.queryByTestId("design-tpl-drawer")).toBeNull();
+      expect(screen.queryByTestId("design-tpl-editor")).toBeNull();
+      expect(screen.getByTestId("design-tpl-table")).toBeTruthy();
     });
   });
 });
