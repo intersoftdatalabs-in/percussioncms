@@ -16,6 +16,7 @@
  */
 package com.percussion.apibridge;
 
+import static com.percussion.webservices.PSWebserviceUtils.getUserName;
 import static com.percussion.webservices.PSWebserviceUtils.getUserRoles;
 
 import com.percussion.rest.auditlog.IAuditLogAdaptor;
@@ -24,6 +25,7 @@ import com.percussion.rest.auditlog.SystemAuditLogExport;
 import com.percussion.rest.auditlog.SystemAuditLogPage;
 import com.percussion.security.IPSPrincipalAttribute;
 import com.percussion.services.audit.PSSystemAuditLogPermission;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.services.audit.data.PSSystemAuditLogEntry;
 import com.percussion.services.audit.impl.PSSystemAuditLogRepository;
 import com.percussion.services.security.IPSRoleMgr;
@@ -49,6 +51,10 @@ import org.springframework.context.annotation.Lazy;
  *
  * <p>AuthZ: {@link PSSystemAuditLogPermission} — Admin always allowed, otherwise role property
  * {@code sys_securityAuditLogViewer}.
+ *
+ * <p>Phase 5 / #2716: list/detail success and explicit deny emit audit-of-audit events via {@link
+ * PSSystemAuditLogger} (dual-write). Nested dual-write is suppressed by the audit service
+ * reentrancy guard.
  */
 @PSSiteManageBean
 @Lazy
@@ -56,16 +62,23 @@ public class AuditLogAdaptor implements IAuditLogAdaptor {
 
   private static final Logger log = LogManager.getLogger(AuditLogAdaptor.class);
 
+  private static final String ACTION_LIST = "list";
+  private static final String ACTION_DETAIL = "detail";
+  private static final String ACTION_EXPORT = "export";
+  private static final String DENY_REASON = "forbidden";
+
   private final PSSystemAuditLogRepository repository;
   private final Supplier<List<String>> userRolesSupplier;
   private final Function<String, Boolean> roleHasViewerProperty;
+  private final Supplier<String> currentUserSupplier;
 
   @Autowired
   public AuditLogAdaptor(PSSystemAuditLogRepository repository) {
     this(
         repository,
         () -> getUserRoles(),
-        AuditLogAdaptor::roleHasViewerPropertyFromRoleMgr);
+        AuditLogAdaptor::roleHasViewerPropertyFromRoleMgr,
+        () -> getUserName());
   }
 
   /** Package-visible test constructor. */
@@ -73,10 +86,21 @@ public class AuditLogAdaptor implements IAuditLogAdaptor {
       PSSystemAuditLogRepository repository,
       Supplier<List<String>> userRolesSupplier,
       Function<String, Boolean> roleHasViewerProperty) {
+    this(repository, userRolesSupplier, roleHasViewerProperty, () -> "test-user");
+  }
+
+  /** Package-visible test constructor with explicit actor. */
+  AuditLogAdaptor(
+      PSSystemAuditLogRepository repository,
+      Supplier<List<String>> userRolesSupplier,
+      Function<String, Boolean> roleHasViewerProperty,
+      Supplier<String> currentUserSupplier) {
     this.repository = Objects.requireNonNull(repository, "repository");
     this.userRolesSupplier = Objects.requireNonNull(userRolesSupplier, "userRolesSupplier");
     this.roleHasViewerProperty =
         Objects.requireNonNull(roleHasViewerProperty, "roleHasViewerProperty");
+    this.currentUserSupplier =
+        Objects.requireNonNull(currentUserSupplier, "currentUserSupplier");
   }
 
   @Override
@@ -89,7 +113,7 @@ public class AuditLogAdaptor implements IAuditLogAdaptor {
       String actor,
       int offset,
       int limit) {
-    requireViewer();
+    requireViewer(ACTION_LIST, summarizeFilters(fromIso, toIso, moduleCode, eventType, outcome, actor));
     Instant from = parseInstant(fromIso, "from");
     Instant to = parseInstant(toIso, "to");
     int safeOffset = Math.max(0, offset);
@@ -104,16 +128,25 @@ public class AuditLogAdaptor implements IAuditLogAdaptor {
     for (PSSystemAuditLogEntry row : rows) {
       entries.add(toDto(row));
     }
+    emitViewerSuccess(
+        ACTION_LIST,
+        summarizeFilters(fromIso, toIso, moduleCode, eventType, outcome, actor)
+            + ",offset="
+            + safeOffset
+            + ",limit="
+            + safeLimit);
     return new SystemAuditLogPage(entries, total, safeOffset, safeLimit);
   }
 
   @Override
   public SystemAuditLogEntry findById(String auditId) {
-    requireViewer();
+    requireViewer(ACTION_DETAIL, StringUtils.defaultString(auditId));
     if (StringUtils.isBlank(auditId)) {
       throw new IllegalArgumentException("auditId is required");
     }
-    Optional<PSSystemAuditLogEntry> found = repository.findById(auditId.trim());
+    String id = auditId.trim();
+    Optional<PSSystemAuditLogEntry> found = repository.findById(id);
+    emitViewerSuccess(ACTION_DETAIL, "auditId=" + id);
     return found.map(AuditLogAdaptor::toDto).orElse(null);
   }
 
@@ -126,7 +159,9 @@ public class AuditLogAdaptor implements IAuditLogAdaptor {
       String outcome,
       String actor,
       int maxRows) {
-    requireViewer();
+    requireViewer(
+        ACTION_EXPORT,
+        summarizeFilters(fromIso, toIso, moduleCode, eventType, outcome, actor));
     Instant from = parseInstant(fromIso, "from");
     Instant to = parseInstant(toIso, "to");
     int cap = SystemAuditLogExport.clampMaxRows(maxRows);
@@ -151,26 +186,90 @@ public class AuditLogAdaptor implements IAuditLogAdaptor {
         break;
       }
     }
+    emitViewerSuccess(
+        ACTION_EXPORT,
+        summarizeFilters(fromIso, toIso, moduleCode, eventType, outcome, actor)
+            + ",maxRows="
+            + cap
+            + ",count="
+            + all.size());
     return all;
   }
 
-  private void requireViewer() {
+  private void requireViewer(String action, String detail) {
     List<String> roles;
     try {
       roles = userRolesSupplier.get();
     } catch (Exception e) {
       log.debug("Could not resolve user roles for audit log access", e);
+      emitViewerDenied(action, "role-resolution-failed");
       throw new SecurityException("Unable to resolve user roles for audit log access");
     }
     boolean allowed =
         PSSystemAuditLogPermission.allows(
             roles, role -> Boolean.TRUE.equals(roleHasViewerProperty.apply(role)));
     if (!allowed) {
+      emitViewerDenied(action, DENY_REASON);
       throw new SecurityException(
           "Not authorized to view the system security audit log (Admin role or "
               + PSSystemAuditLogPermission.ROLE_PROPERTY
               + " required)");
     }
+  }
+
+  private void emitViewerSuccess(String action, String detail) {
+    try {
+      PSSystemAuditLogger.auditViewerAccess(resolveActor(), action, detail);
+    } catch (RuntimeException e) {
+      log.debug("Audit-of-audit viewer success emit failed", e);
+    }
+  }
+
+  private void emitViewerDenied(String action, String reason) {
+    try {
+      PSSystemAuditLogger.auditViewerAccessDenied(resolveActor(), action, reason);
+    } catch (RuntimeException e) {
+      log.debug("Audit-of-audit viewer deny emit failed", e);
+    }
+  }
+
+  private String resolveActor() {
+    try {
+      String user = currentUserSupplier.get();
+      if (user != null && !user.isBlank()) {
+        return user.trim();
+      }
+    } catch (Exception e) {
+      log.debug("Could not resolve current user for audit-of-audit", e);
+    }
+    return "unknown";
+  }
+
+  static String summarizeFilters(
+      String fromIso,
+      String toIso,
+      String moduleCode,
+      String eventType,
+      String outcome,
+      String actor) {
+    StringBuilder sb = new StringBuilder();
+    appendFilter(sb, "from", fromIso);
+    appendFilter(sb, "to", toIso);
+    appendFilter(sb, "module", moduleCode);
+    appendFilter(sb, "eventType", eventType);
+    appendFilter(sb, "outcome", outcome);
+    appendFilter(sb, "actor", actor);
+    return sb.length() == 0 ? "none" : sb.toString();
+  }
+
+  private static void appendFilter(StringBuilder sb, String name, String value) {
+    if (StringUtils.isBlank(value)) {
+      return;
+    }
+    if (sb.length() > 0) {
+      sb.append(',');
+    }
+    sb.append(name).append('=').append(value.trim());
   }
 
   static Instant parseInstant(String raw, String fieldName) {

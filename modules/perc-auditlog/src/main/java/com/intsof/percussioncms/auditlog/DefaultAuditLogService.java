@@ -44,6 +44,13 @@ public final class DefaultAuditLogService implements AuditLogService {
 
   private static final AuditLogId SKIPPED = AuditLogId.of("00000000-0000-0000-0000-000000000000");
 
+  /**
+   * Nested {@link #log} calls (e.g. audit-of-audit re-entering via a sink or access path) are
+   * skipped so dual-write cannot recurse endlessly. One event per outer emit is enough.
+   */
+  private static final ThreadLocal<Boolean> REENTRANT =
+      ThreadLocal.withInitial(() -> Boolean.FALSE);
+
   private final AuditRedactor redactor;
   private final Clock clock;
   private final Supplier<AuditLogId> idSupplier;
@@ -114,6 +121,21 @@ public final class DefaultAuditLogService implements AuditLogService {
       return SKIPPED;
     }
 
+    // Prevent recursive dual-write storms (audit-of-audit / nested sink side-effects).
+    if (Boolean.TRUE.equals(REENTRANT.get())) {
+      return SKIPPED;
+    }
+
+    REENTRANT.set(Boolean.TRUE);
+    try {
+      return writeRecord(code, context, outcome, params);
+    } finally {
+      REENTRANT.set(Boolean.FALSE);
+    }
+  }
+
+  private AuditLogId writeRecord(
+      SystemErrorCode code, AuditContext context, AuditOutcome outcome, Object... params) {
     Object[] safeParams = redactor.redactParams(params == null ? new Object[0] : params);
     String userBody =
         redactor.redact(

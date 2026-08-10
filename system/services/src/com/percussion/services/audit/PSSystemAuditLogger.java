@@ -23,6 +23,7 @@ import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.intsof.percussioncms.auditlog.DefaultAuditLogService;
 import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
 import com.intsof.percussioncms.auditlog.SystemErrorCode;
+import com.intsof.percussioncms.auditlog.codes.AuditSubsystemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.AuthenticationErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
@@ -347,6 +348,85 @@ public final class PSSystemAuditLogger {
   /** Design object delete (DESN-2903). */
   public static void designDelete(String actor, String type, String name, String guid) {
     design(DesignErrorCodes.DELETE, actor, type, name, guid);
+  }
+
+  /**
+   * Audit-of-audit: successful list or detail view of the system security audit log (Phase 5 /
+   * #2716). Nested dual-write is suppressed by {@link DefaultAuditLogService} reentrancy guard.
+   *
+   * @param actor principal who viewed the log (blank → {@code "unknown"})
+   * @param action short action label such as {@code list} or {@code detail}
+   * @param detail free-form filter summary or audit id (may be blank)
+   */
+  public static void auditViewerAccess(String actor, String action, String detail) {
+    String a = blankToUnknown(actor);
+    String act = nullToEmpty(action);
+    String d = nullToEmpty(detail);
+    AuditContext ctx =
+        AuditContext.builder()
+            .actor(a)
+            .target(act)
+            .attribute("action", act)
+            .attribute("detail", d)
+            .build();
+    log(AuditSubsystemErrorCodes.VIEWER_ACCESS, ctx, AuditOutcome.SUCCESS, a, act, d);
+  }
+
+  /**
+   * Audit-of-audit: explicit deny when a principal lacks Admin / {@code
+   * sys_securityAuditLogViewer} for list/detail access.
+   */
+  public static void auditViewerAccessDenied(String actor, String action, String reason) {
+    String a = blankToUnknown(actor);
+    String act = nullToEmpty(action);
+    String r = nullToEmpty(reason);
+    AuditContext ctx =
+        AuditContext.builder()
+            .actor(a)
+            .target(act)
+            .attribute("action", act)
+            .attribute("reason", r)
+            .build();
+    log(AuditSubsystemErrorCodes.VIEWER_ACCESS_DENIED, ctx, AuditOutcome.FAILURE, a, act, r);
+  }
+
+  /**
+   * Audit-of-audit: successful CSV/JSON export of the system security audit log. Ready for the
+   * export API (#2715) to call; does not implement export itself.
+   *
+   * @param format normalized format ({@code csv} / {@code json}); may be blank
+   * @param detail free-form filter summary (may be blank)
+   */
+  public static void auditExportAccess(String actor, String format, String detail) {
+    String a = blankToUnknown(actor);
+    String f = nullToEmpty(format);
+    String d = nullToEmpty(detail);
+    AuditContext ctx =
+        AuditContext.builder()
+            .actor(a)
+            .target(f)
+            .attribute("format", f)
+            .attribute("detail", d)
+            .build();
+    log(AuditSubsystemErrorCodes.EXPORT_ACCESS, ctx, AuditOutcome.SUCCESS, a, f, d);
+  }
+
+  /**
+   * Audit-of-audit: explicit deny on export when the principal is not authorized.
+   */
+  public static void auditExportAccessDenied(String actor, String reason) {
+    String a = blankToUnknown(actor);
+    String r = nullToEmpty(reason);
+    AuditContext ctx =
+        AuditContext.builder().actor(a).attribute("reason", r).build();
+    log(AuditSubsystemErrorCodes.EXPORT_ACCESS_DENIED, ctx, AuditOutcome.FAILURE, a, r);
+  }
+
+  private static String blankToUnknown(String actor) {
+    if (actor == null || actor.isBlank()) {
+      return "unknown";
+    }
+    return actor.trim();
   }
 
   private static AuditContext contentContext(HttpServletRequest request, String guid) {

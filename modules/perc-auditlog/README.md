@@ -86,6 +86,22 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 6, ctx, "5", "jdoe"); // WF access
 
 Non-auditable codes (`isAuditable() == false`) never create audit rows.
 
+### Audit-of-audit (Phase 5 / #2716)
+
+Viewer and export access to the system security audit log is itself auditable:
+
+| Code | Event | When |
+|------|-------|------|
+| `AUDIT-1` `VIEWER_ACCESS` | `AUDIT_VIEW` SUCCESS | List or detail query allowed |
+| `AUDIT-3` `VIEWER_ACCESS_DENIED` | `AUDIT_VIEW` FAILURE | Explicit AuthZ deny on list/detail |
+| `AUDIT-4` `EXPORT_ACCESS` | `AUDIT_EXPORT` SUCCESS | Export allowed (call from export path) |
+| `AUDIT-5` `EXPORT_ACCESS_DENIED` | `AUDIT_EXPORT` FAILURE | Explicit AuthZ deny on export |
+
+Facade: `PSSystemAuditLogger.auditViewerAccess` / `auditViewerAccessDenied` /
+`auditExportAccess` / `auditExportAccessDenied`. Wired for list/detail in
+`com.percussion.apibridge.AuditLogAdaptor`. Nested dual-write during a sink write is
+skipped by `DefaultAuditLogService` reentrancy guard (no recursive storms).
+
 `PSErrorHandler.appendError` calls `PSSystemAuditLogger.logLegacyIfAuditable` for every
 `PSException` so only cataloged auditable codes dual-write on the central error path.
 

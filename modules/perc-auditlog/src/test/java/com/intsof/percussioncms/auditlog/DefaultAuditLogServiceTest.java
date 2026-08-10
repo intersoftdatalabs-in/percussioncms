@@ -19,11 +19,14 @@ package com.intsof.percussioncms.auditlog;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.intsof.percussioncms.auditlog.codes.AuditSubsystemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.AuthenticationErrorCodes;
+import com.intsof.percussioncms.auditlog.sink.AuditLogSink;
 import com.intsof.percussioncms.auditlog.sink.CapturingAuditLogSink;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 class DefaultAuditLogServiceTest {
@@ -111,5 +114,69 @@ class DefaultAuditLogServiceTest {
 
     String logMsg = sink.records().get(0).logMessage();
     assertTrue(logMsg.contains("[REDACTED]") || !logMsg.contains("hunter2"));
+  }
+
+  @Test
+  void nestedLogDuringSinkWriteIsSkippedToPreventRecursion() {
+    CapturingAuditLogSink cap = new CapturingAuditLogSink("cap");
+    AtomicInteger nestedAttempts = new AtomicInteger();
+    DefaultAuditLogService[] holder = new DefaultAuditLogService[1];
+    AuditLogSink recursive =
+        new AuditLogSink() {
+          @Override
+          public String name() {
+            return "recursive";
+          }
+
+          @Override
+          public void write(AuditRecord record) {
+            nestedAttempts.incrementAndGet();
+            // Nested dual-write (audit-of-audit storm path) must not write again.
+            AuditLogId nested =
+                holder[0].log(
+                    AuditSubsystemErrorCodes.VIEWER_ACCESS,
+                    AuditContext.builder().actor("nested").build(),
+                    AuditOutcome.SUCCESS,
+                    "nested",
+                    "list",
+                    "filters");
+            assertEquals("00000000-0000-0000-0000-000000000000", nested.value());
+          }
+        };
+    holder[0] =
+        DefaultAuditLogService.builder().addSink(recursive).addSink(cap).build();
+
+    AuditLogId outer =
+        holder[0].log(
+            AuditSubsystemErrorCodes.VIEWER_ACCESS,
+            AuditContext.builder().actor("admin").build(),
+            AuditOutcome.SUCCESS,
+            "admin",
+            "list",
+            "module=AUTH");
+
+    assertEquals(1, nestedAttempts.get());
+    assertEquals(1, cap.records().size());
+    assertEquals(outer, cap.records().get(0).logId());
+    assertEquals(1, cap.records().get(0).code().numericCode());
+  }
+
+  @Test
+  void auditSubsystemViewerAccessIsAuditable() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    svc.log(
+        AuditSubsystemErrorCodes.VIEWER_ACCESS_DENIED,
+        AuditContext.builder().actor("author").build(),
+        AuditOutcome.FAILURE,
+        "author",
+        "list",
+        "forbidden");
+
+    assertEquals(1, sink.records().size());
+    assertEquals(AuditSubsystemErrorCodes.VIEWER_ACCESS_DENIED, sink.records().get(0).code());
+    assertEquals(AuditOutcome.FAILURE, sink.records().get(0).outcome());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[AUDIT-3]-"));
   }
 }

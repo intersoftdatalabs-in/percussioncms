@@ -25,6 +25,7 @@ import com.intsof.percussioncms.auditlog.AuditContext;
 import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.intsof.percussioncms.auditlog.DefaultAuditLogService;
 import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
+import com.intsof.percussioncms.auditlog.codes.AuditSubsystemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
@@ -263,6 +264,58 @@ class PSSystemAuditLoggerTest {
   void designNullCodeIsNoOp() {
     PSSystemAuditLogger.design(null, "u", "t", "n", "g");
     assertEquals(0, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+  }
+
+  @Test
+  void auditViewerAccessWritesAuditViewEvent() {
+    PSSystemAuditLogger.auditViewerAccess("admin", "list", "module=AUTH,limit=50");
+
+    assertEquals(1, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals(AuditSubsystemErrorCodes.VIEWER_ACCESS, rec.code());
+    assertEquals("AUDIT", rec.code().module().code());
+    assertEquals(1, rec.code().numericCode());
+    assertEquals(AuditOutcome.SUCCESS, rec.outcome());
+    assertEquals("admin", rec.actor().orElse(""));
+    assertTrue(rec.formattedLine().startsWith("[AUDIT-1]-"));
+    assertTrue(rec.logMessage().contains("list"));
+  }
+
+  @Test
+  void auditViewerAccessDeniedWritesFailure() {
+    PSSystemAuditLogger.auditViewerAccessDenied("author", "detail", "forbidden");
+
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals(AuditSubsystemErrorCodes.VIEWER_ACCESS_DENIED, rec.code());
+    assertEquals(AuditOutcome.FAILURE, rec.outcome());
+    assertEquals(3, rec.code().numericCode());
+  }
+
+  @Test
+  void auditExportAccessAndDeniedWriteExportEvents() {
+    PSSystemAuditLogger.auditExportAccess("admin", "csv", "module=AUTH,maxRows=100");
+    PSSystemAuditLogger.auditExportAccessDenied("guest", "forbidden");
+
+    assertEquals(2, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var codes =
+        ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().stream()
+            .map(r -> r.code().numericCode())
+            .collect(java.util.stream.Collectors.toSet());
+    assertTrue(codes.contains(4));
+    assertTrue(codes.contains(5));
+    assertEquals(
+        AuditSubsystemErrorCodes.EXPORT_ACCESS,
+        ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0).code());
+    assertEquals(
+        AuditOutcome.FAILURE,
+        ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(1).outcome());
+  }
+
+  @Test
+  void auditViewerBlankActorBecomesUnknown() {
+    PSSystemAuditLogger.auditViewerAccess("  ", "list", "");
+    assertEquals(
+        "unknown", ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0).actor().orElse(""));
   }
 
   private static HttpServletRequest mockRequest(String user, String ip) {
