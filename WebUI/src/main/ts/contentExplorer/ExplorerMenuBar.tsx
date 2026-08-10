@@ -39,6 +39,7 @@ export interface ExplorerMenuBarProps {
   showSearch: boolean;
   showSecurity: boolean;
   showTranslations: boolean;
+  showRelationships: boolean;
   showClipboard: boolean;
   /** Content → Site Copy panel open (#2767). */
   showSiteCopy?: boolean;
@@ -122,6 +123,7 @@ function isToggleChecked(
     | "showSearch"
     | "showSecurity"
     | "showTranslations"
+    | "showRelationships"
     | "showClipboard"
     | "showSiteCopy"
   >,
@@ -133,6 +135,8 @@ function isToggleChecked(
       return props.showSecurity;
     case "view-translations":
       return props.showTranslations;
+    case "view-relationships":
+      return props.showRelationships;
     case "view-clipboard":
       return props.showClipboard;
     case "content-site-copy":
@@ -165,6 +169,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
     showSearch,
     showSecurity,
     showTranslations,
+    showRelationships,
     showClipboard,
     showSiteCopy = false,
     multiSelectedCount,
@@ -293,6 +298,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                           showSearch,
                           showSecurity,
                           showTranslations,
+                          showRelationships,
                           showClipboard,
                           showSiteCopy,
                         })
@@ -322,13 +328,15 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                                 ? "explorer-security-panel"
                                 : item.id === "view-translations"
                                   ? "explorer-translations-panel"
-                                  : item.id === "view-clipboard"
-                                    ? "explorer-clipboard-panel"
-                                    : item.id === "content-site-copy"
-                                      ? hasSiteContext
-                                        ? "explorer-site-copy-panel"
-                                        : "explorer-site-copy-hint"
-                                      : undefined
+                                  : item.id === "view-relationships"
+                                    ? "explorer-relationships-panel"
+                                    : item.id === "view-clipboard"
+                                      ? "explorer-clipboard-panel"
+                                      : item.id === "content-site-copy"
+                                        ? hasSiteContext
+                                          ? "explorer-site-copy-panel"
+                                          : "explorer-site-copy-hint"
+                                        : undefined
                           }
                           data-testid={
                             item.testId ?? `explorer-menu-item-${item.id}`

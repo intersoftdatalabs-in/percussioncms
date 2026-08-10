@@ -591,6 +591,36 @@ npm run test:surface:list -- --path tests/explorer-translations.spec.js
 npm run test:surface:list -- --tag explorer-translations
 ```
 
+#### Explorer IA relationships (#2769 / parent #2400)
+
+Surface-filtered companion for mounting `RelationshipsView` from product
+Explorer chrome (View → IA Relationships). Consumes public REST
+`GET /rest/content-explorer/relationships/{itemId}/summary`. Asserts shell
+toggle chrome, select-item hint, and optional panel load (4 primary IA rows)
+when a list row with an id is selected. Dependency viewer is a sibling slice
+(#2768) — not this surface.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-relationships.spec.js` |
+| Tags | `@explorer-relationships` `@p-adv` `@smoke` |
+| Vitest peer | `WebUI` `RelationshipsView` / shell / `ExplorerMenuBar` / `menuBarModel` |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/explorer-relationships.spec.js
+
+# Tag form
+npm run test:surface -- --tag explorer-relationships
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/explorer-relationships.spec.js
+npm run test:surface:list -- --tag explorer-relationships
+```
+
 #### Profile shell + axe WCAG + locale title (#2393 / #2425 / #2427 / #2497 / #2498 / #2499 / #2501 / parent #2374)
 
 Smoke opens the **My profile** hub via deep link and user-menu entry (Admin,

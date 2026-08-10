@@ -30,6 +30,7 @@ function renderBar(
       showSearch={false}
       showSecurity={false}
       showTranslations={false}
+      showRelationships={false}
       showClipboard={false}
       multiSelectedCount={0}
       clipboardItemCount={0}
@@ -63,8 +64,16 @@ describe("ExplorerMenuBar (#2731)", () => {
     expect(screen.getByTestId("explorer-menu-view-dropdown")).toBeTruthy();
     expect(screen.getByTestId("explorer-toggle-search")).toBeTruthy();
     expect(screen.getByTestId("explorer-toggle-security")).toBeTruthy();
+    expect(screen.getByTestId("explorer-toggle-relationships")).toBeTruthy();
     fireEvent.click(screen.getByTestId("explorer-toggle-search"));
     expect(onCommand).toHaveBeenCalledWith("view-search");
+  });
+
+  it("View → IA Relationships toggle invokes view-relationships (#2769)", () => {
+    const { onCommand } = renderBar();
+    fireEvent.click(screen.getByTestId("explorer-menu-view"));
+    fireEvent.click(screen.getByTestId("explorer-toggle-relationships"));
+    expect(onCommand).toHaveBeenCalledWith("view-relationships");
   });
 
   it("Content → Add to clipboard is disabled without multi-select", () => {

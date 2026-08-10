@@ -113,6 +113,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(
       screen.getByTestId("explorer-toggle-translations"),
     ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("explorer-toggle-relationships"),
+    ).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar")).toBeInTheDocument();
@@ -598,6 +601,217 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(screen.queryByTestId("site-copy-wizard")).toBeNull();
     // T082a — shell remains accessible when Site Copy is disabled (no panel).
     await renderA11yGate(container);
+  });
+
+  it("relationships toggle shows select-item hint without a selection (#2769)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-relationships"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-relationships-hint"),
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("relationships-view")).toBeNull();
+    expect(screen.queryByTestId("explorer-relationships-panel")).toBeNull();
+  });
+
+  it("relationships panel mounts RelationshipsView for a selected item (#2769)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "READ",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      // RelationshipsView → fetchNodeSummary (content-explorer/relationships)
+      if (url.includes("relationships") && url.includes("/summary")) {
+        return new Response(
+          JSON.stringify({
+            outgoing: { count: 1, byType: [{ type: "related", count: 1 }] },
+            incoming: { count: 0, byType: [] },
+            taxonomy: { count: 0, nodes: [] },
+            local: { count: 0, links: [] },
+            reverse: { count: 0, byType: [] },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("relationships")) {
+        return new Response(
+          JSON.stringify({
+            outgoing: { count: 1, byType: [{ type: "related", count: 1 }] },
+            incoming: { count: 0, byType: [] },
+            taxonomy: { count: 0, nodes: [] },
+            local: { count: 0, links: [] },
+            reverse: { count: 0, byType: [] },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-relationships"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-relationships-panel"),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId("relationships-view")).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("relationships-view")).toHaveAttribute(
+        "data-testid-state",
+        "ok",
+      );
+    });
+    expect(screen.getByTestId("relationships-row-outgoing")).toBeInTheDocument();
+    expect(screen.queryByTestId("explorer-relationships-hint")).toBeNull();
+    // T082a — a11y gate with relationships panel expanded (search-panel peer).
+    await renderA11yGate(container);
+  });
+
+  it("relationships toggle second click turns panel off (#2769)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-relationships"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-relationships-hint"),
+      ).toBeInTheDocument();
+    });
+    // View toggles keep the dropdown open (ExplorerMenuBar) — second click
+    // without re-toggling the View menuitem collapses relationships.
+    fireEvent.click(screen.getByTestId("explorer-toggle-relationships"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("explorer-relationships-hint")).toBeNull();
+      expect(screen.queryByTestId("explorer-relationships-panel")).toBeNull();
+      expect(screen.queryByTestId("relationships-view")).toBeNull();
+    });
+  });
+
+  it("relationships panel shows select-item hint when selection becomes a folder (#2769)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "READ",
+                },
+                {
+                  id: "99",
+                  name: "AssetsFolder",
+                  path: "/Sites/Demo/AssetsFolder",
+                  type: "folder",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 2,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("relationships")) {
+        return new Response(
+          JSON.stringify({
+            outgoing: { count: 1, byType: [{ type: "related", count: 1 }] },
+            incoming: { count: 0, byType: [] },
+            taxonomy: { count: 0, nodes: [] },
+            local: { count: 0, links: [] },
+            reverse: { count: 0, byType: [] },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-relationships"));
+    await waitFor(() => {
+      expect(screen.getByTestId("relationships-view")).toBeInTheDocument();
+    });
+
+    // Switch selection to a folder → content-id panel unmounts, hint appears.
+    fireEvent.click(screen.getByTestId("detail-row-99"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-relationships-hint"),
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("relationships-view")).toBeNull();
+    expect(screen.queryByTestId("explorer-relationships-panel")).toBeNull();
   });
 
   it("security stays on hint when resolveFolderId rejects (#2410)", async () => {
