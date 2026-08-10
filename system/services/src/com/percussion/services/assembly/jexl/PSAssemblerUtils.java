@@ -41,6 +41,7 @@ import com.percussion.services.assembly.IPSSlotContentFinder;
 import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
+import com.percussion.services.assembly.data.PSSlotLayoutStyles;
 import com.percussion.services.assembly.impl.PSTrackAssemblyError;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.filter.PSFilterException;
@@ -239,6 +240,68 @@ public class PSAssemblerUtils extends PSJexlUtilBase
          return true;
       IPSSlotContentFinder finder = asm.loadFinder(slot.getFinderName());
       return finder.getType().equals(IPSSlotContentFinder.Type.ACTIVE_ASSEMBLY);
+   }
+
+   /**
+    * Slot layout definition map ({@code slot_layout}) for JEXL/templates.
+    *
+    * <p>Prefer binding under {@code $sys.slot.layout} via {@link #slotAssemblyContext}.
+    *
+    * @param slot the slot definition, never {@code null}
+    * @return layout map including {@code schemaVersion}, never {@code null}
+    */
+   @IPSJexlMethod(
+       description = "return the slot_layout map for a slot definition (ADR-003)",
+       params = {@IPSJexlParam(name = "slot", description = "the slot definition")},
+       returns = "map of layout properties including schemaVersion")
+   public Map<String, Object> slotLayout(IPSTemplateSlot slot)
+   {
+      if (slot == null)
+      {
+         throw new IllegalArgumentException("slot may not be null");
+      }
+      return slot.getSlotLayout();
+   }
+
+   /**
+    * Slot styles definition map ({@code slot_styles}) for JEXL/templates.
+    *
+    * @param slot the slot definition, never {@code null}
+    * @return styles map including {@code schemaVersion}, never {@code null}
+    */
+   @IPSJexlMethod(
+       description = "return the slot_styles map for a slot definition (ADR-003)",
+       params = {@IPSJexlParam(name = "slot", description = "the slot definition")},
+       returns = "map of style properties including schemaVersion")
+   public Map<String, Object> slotStyles(IPSTemplateSlot slot)
+   {
+      if (slot == null)
+      {
+         throw new IllegalArgumentException("slot may not be null");
+      }
+      return slot.getSlotStyles();
+   }
+
+   /**
+    * Full assembly context for a slot: {@code layout}, {@code styles}, {@code schemaVersion},
+    * {@code name}. Bind as {@code $sys.slot} so templates can use {@code $sys.slot.layout} and
+    * {@code $sys.slot.styles}.
+    *
+    * @param slot the slot definition, never {@code null}
+    * @return unmodifiable context map, never {@code null}
+    */
+   @IPSJexlMethod(
+       description =
+           "assembly context for a slot (layout, styles, schemaVersion, name) — bind as $sys.slot",
+       params = {@IPSJexlParam(name = "slot", description = "the slot definition")},
+       returns = "map with layout, styles, schemaVersion, name")
+   public Map<String, Object> slotAssemblyContext(IPSTemplateSlot slot)
+   {
+      if (slot == null)
+      {
+         throw new IllegalArgumentException("slot may not be null");
+      }
+      return PSSlotLayoutStyles.toAssemblyContext(slot);
    }
 
    /**

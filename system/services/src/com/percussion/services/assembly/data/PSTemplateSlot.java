@@ -18,6 +18,7 @@ package com.percussion.services.assembly.data;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
@@ -37,6 +38,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -101,6 +103,8 @@ import static java.util.stream.Collectors.toSet;
     "label",
     "name",
     "relationshipName",
+    "slot-layout",
+    "slot-styles",
     "slotTypeAssociations",
     "slottype",
     "systemSlot",
@@ -158,6 +162,23 @@ public class PSTemplateSlot
     @Basic
     @Column(name = "FINDER")
     private String finder;
+
+    /**
+     * JSON text for versioned {@code slot_layout} map (ADR-003). Null means defaults on read.
+     */
+    @Lob
+    @Basic(fetch = FetchType.EAGER)
+    @Column(name = "SLOT_LAYOUT")
+    private String slotLayoutJson;
+
+    /**
+     * JSON text for versioned {@code slot_styles} map (ADR-003). Null means defaults on read.
+     */
+    @Lob
+    @Basic(fetch = FetchType.EAGER)
+    @Column(name = "SLOT_STYLES")
+    private String slotStylesJson;
+
     @OneToMany(mappedBy = "containingSlot", targetEntity = PSSlotContentFinderParam.class, cascade =
             {CascadeType.ALL}, fetch = FetchType.EAGER, orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, region = "PSTemplateSlot_Template")
@@ -260,6 +281,100 @@ public class PSTemplateSlot
      */
     public void setFinderName(String f) {
         finder = f;
+    }
+
+    /**
+     * Structural layout map for this slot definition ({@code slot_layout}). Never {@code null}.
+     *
+     * <p>Map form for Java/JEXL; design XML uses {@link #getSlotLayoutJson()} so empty defaults are
+     * omitted.
+     *
+     * @see PSSlotLayoutStyles
+     */
+    @IPSXmlSerialization(suppress = true)
+    @JsonIgnore
+    public Map<String, Object> getSlotLayout() {
+        return PSSlotLayoutStyles.parseLayout(slotLayoutJson);
+    }
+
+    /**
+     * Replace layout definition defaults. {@code null} clears storage (defaults on next get).
+     *
+     * @param layout may be {@code null}
+     */
+    public void setSlotLayout(Map<String, Object> layout) {
+        slotLayoutJson = PSSlotLayoutStyles.encodeLayout(layout);
+    }
+
+    /**
+     * Presentational styles map for this slot definition ({@code slot_styles}). Never {@code null}.
+     *
+     * @see PSSlotLayoutStyles
+     */
+    @IPSXmlSerialization(suppress = true)
+    @JsonIgnore
+    public Map<String, Object> getSlotStyles() {
+        return PSSlotLayoutStyles.parseStyles(slotStylesJson);
+    }
+
+    /**
+     * Replace styles definition defaults. {@code null} clears storage (defaults on next get).
+     *
+     * @param styles may be {@code null}
+     */
+    public void setSlotStyles(Map<String, Object> styles) {
+        slotStylesJson = PSSlotLayoutStyles.encodeStyles(styles);
+    }
+
+    /**
+     * JSON text for design XML / DB column {@code SLOT_LAYOUT}. {@code null} when defaults apply.
+     *
+     * @return JSON or {@code null}
+     */
+    @JsonProperty("slot-layout")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public String getSlotLayoutJson() {
+        return slotLayoutJson;
+    }
+
+    /**
+     * Set raw layout JSON (nullable). Prefer {@link #setSlotLayout(Map)} from Java.
+     *
+     * <p>Blank/{@code null} clears storage (defaults on next get). Non-blank values are validated as
+     * a JSON object via {@link PSSlotLayoutStyles#validateStoredJson(String)} so corrupt text is not
+     * silently accepted on the write path. Pre-existing corrupt DB rows loaded by field access still
+     * soft-fail to defaults on {@link #getSlotLayout()}.
+     *
+     * @param json may be {@code null} or blank
+     * @throws IllegalArgumentException if non-blank and not a JSON object
+     */
+    public void setSlotLayoutJson(String json) {
+        PSSlotLayoutStyles.validateStoredJson(json);
+        slotLayoutJson = StringUtils.isBlank(json) ? null : json.trim();
+    }
+
+    /**
+     * JSON text for design XML / DB column {@code SLOT_STYLES}. {@code null} when defaults apply.
+     *
+     * @return JSON or {@code null}
+     */
+    @JsonProperty("slot-styles")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public String getSlotStylesJson() {
+        return slotStylesJson;
+    }
+
+    /**
+     * Set raw styles JSON (nullable). Prefer {@link #setSlotStyles(Map)} from Java.
+     *
+     * <p>Same validation contract as {@link #setSlotLayoutJson(String)}.
+     *
+     * @param json may be {@code null} or blank
+     * @throws IllegalArgumentException if non-blank and not a JSON object
+     */
+    public void setSlotStylesJson(String json) {
+        PSSlotLayoutStyles.validateStoredJson(json);
+        slotStylesJson = StringUtils.isBlank(json) ? null : json.trim();
     }
 
     /**
@@ -608,6 +723,8 @@ public class PSTemplateSlot
         sb.append(", slottype=").append(slottype);
         sb.append(", relationshipName='").append(relationshipName).append('\'');
         sb.append(", finder='").append(finder).append('\'');
+        sb.append(", slotLayoutJson='").append(slotLayoutJson).append('\'');
+        sb.append(", slotStylesJson='").append(slotStylesJson).append('\'');
         sb.append(", finderArguments=").append(finderArguments);
         sb.append(", slotTemplates=").append(slotTemplates);
         sb.append('}');

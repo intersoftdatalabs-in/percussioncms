@@ -349,6 +349,15 @@
 				<size>1023</size>
 				<allowsnull>yes</allowsnull>
 			</column>
+			<!-- ADR-003 / #2629: versioned JSON maps for slot_layout / slot_styles -->
+			<column action="c" limitSizeForIndex="n" name="SLOT_LAYOUT">
+				<jdbctype>CLOB</jdbctype>
+				<allowsnull>yes</allowsnull>
+			</column>
+			<column action="c" limitSizeForIndex="n" name="SLOT_STYLES">
+				<jdbctype>CLOB</jdbctype>
+				<allowsnull>yes</allowsnull>
+			</column>
 		</row>
 		<primarykey action="c">
 			<name>SLOTID</name>

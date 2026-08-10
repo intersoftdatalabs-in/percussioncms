@@ -17,7 +17,17 @@ Stored as structured maps (JSON) on:
 1. Slot **definition** (defaults)
 2. Slot **instance** on a page/template composition (overrides)
 
-Exposed to assembly context for JEXL/templates (exact binding names TBD, e.g. `$sys.slot.layout`).
+Exposed to assembly context for JEXL/templates. **Binding names (locked for Phase 2):**
+
+| Binding | Meaning |
+|---------|---------|
+| `$sys.slot.layout` | Structural layout map for the current slot |
+| `$sys.slot.styles` | Presentational styles map for the current slot |
+| `$sys.slot.schemaVersion` | Integer schema version |
+| `$sys.currentslot.layout` / `.styles` | Mirrored on Velocity AA slot context |
+| `$rx.asmhelper.slotAssemblyContext(slot)` | Builds the `$sys.slot` map from a definition |
+
+Schema helper: `PSSlotLayoutStyles` (`SCHEMA_VERSION = 1`). Persistence: `RXSLOTTYPE.SLOT_LAYOUT` / `SLOT_STYLES` CLOB JSON on `PSTemplateSlot`.
 
 ## Rationale
 
@@ -27,7 +37,7 @@ Exposed to assembly context for JEXL/templates (exact binding names TBD, e.g. `$
 
 ## Consequences
 
-- Schema/persistence changes for slots.
-- Upgrade maps widget `CssPref` / layout-ish `UserPref` → slot defaults + instance overrides.
-- Visual Design editor edits these properties on slots.
+- Schema/persistence changes for slots (`SLOT_LAYOUT` / `SLOT_STYLES` columns).
+- Upgrade maps widget `CssPref` / layout-ish `UserPref` → slot defaults + instance overrides (residual after first slice).
+- Visual Design editor edits these properties on slots (later phases).
 - Do not invent an open-ended CSS-in-DB product in v1 — start with CM1-parity property set and version the schema.
