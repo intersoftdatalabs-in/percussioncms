@@ -34,6 +34,35 @@ Build the **product documentation Virtual Site** (`product-docs/`) to static HTM
 - **Prereqs**: JDK 21, repo-root `mvnw`/`mvnw.cmd`, network once for Maven deps.
 - **Design docs**: `docs/ai-generated/tasks/virtual-sites-git-docs/`.
 
+### `ci-smoke-product-docs.bat` / `ci-smoke-product-docs.sh`
+
+Path-filtered CI / local **smoke** around `build-cms-docs` (issue #2704).
+
+- **Purpose**: Clean the output dir, run the docs build, and **fail** if no versioned
+  `index.html` is emitted (default check: `tmp/product-docs-site/8.2/index.html`).
+- **CI**: `.github/workflows/product-docs-build.yml` (ubuntu) installs `system` +
+  upstream reactor SNAPSHOTs, then runs the `.sh` smoke script.
+- **Windows operators**: use the `.bat` entrypoint for the same assertions; CI itself
+  stays on ubuntu to control runner cost.
+- **Usage**:
+
+  ```bat
+  scripts\ci-smoke-product-docs.bat
+  scripts\ci-smoke-product-docs.bat C:\path\to\product-docs C:\path\to\out
+  ```
+
+  ```bash
+  scripts/ci-smoke-product-docs.sh
+  scripts/ci-smoke-product-docs.sh /path/to/product-docs /path/to/out
+  ```
+
+- **Failure path**: non-zero build exit (broken md/config/link ids) **or** missing
+  index HTML → exit 1. See `product-docs/README.md` → **CI smoke**.
+- **Failure artifacts**: after wipe, the smoke scripts **recreate** the output root and
+  write `.ci-smoke-meta.txt` so the workflow `if: failure()` upload of
+  `tmp/product-docs-site/` always has a path and at least one file (partial build
+  output is preserved when the builder emits anything before failing).
+
 ### Third-party license inventory (Maven + npm merge)
 
 **Not a Python script.** Merged inventory generation for issue #1689 lives in
