@@ -1,0 +1,22 @@
+site:
+  title: Percussion CMS Documentation
+  url: https://percussioncmshelp.intsof.com
+
+versions:
+  - id: "8.2"
+    label: "8.2 (current)"
+    path: 8.2
+    default: true
+
+nav:
+  - title: Getting Started
+    id: getting-started
+  - title: Administration
+    id: admin
+  - title: Developer
+    id: developer
+  - title: Reference
+    id: reference
+
+theme:
+  layout: page.html
