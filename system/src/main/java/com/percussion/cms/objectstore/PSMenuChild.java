@@ -35,7 +35,7 @@ import org.w3c.dom.Element;
  * @see PSMenuContext
  * @see PSAction
  */
-public class PSMenuChild extends PSDbComponent {
+public final class PSMenuChild extends PSDbComponent {
   /**
    * Create a new relation between a menu and its 'item'. It is only useful once it has been added
    * to an action.

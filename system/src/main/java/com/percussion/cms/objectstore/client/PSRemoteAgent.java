@@ -61,7 +61,7 @@ import org.xml.sax.SAXException;
 /**
  * This class provides convenient methods to communicate with the remote server for various tasks.
  */
-public class PSRemoteAgent {
+public final class PSRemoteAgent {
 
   private static final Logger log = LogManager.getLogger(PSRemoteAgent.class);
 
@@ -78,7 +78,8 @@ public class PSRemoteAgent {
    *     requests. Cannot be <code>null</code>.
    */
   public PSRemoteAgent(IPSRemoteRequester requester) {
-    setRequester(requester);
+    // Private base-load — avoid overridable setRequester during construction (this-escape).
+    applyRequester(requester);
   }
 
   /**
@@ -88,6 +89,15 @@ public class PSRemoteAgent {
    *     requests. Cannot be <code>null</code>.
    */
   protected void setRequester(IPSRemoteRequester requester) {
+    applyRequester(requester);
+  }
+
+  /**
+   * Construction-safe requester assign used by ctor and {@link #setRequester}.
+   *
+   * @param requester never {@code null}
+   */
+  private void applyRequester(IPSRemoteRequester requester) {
     if (requester == null) throw new IllegalArgumentException("Requester cannot be null.");
 
     m_requester = new PSRemoteWsRequester(requester);

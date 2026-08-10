@@ -24,7 +24,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Represents a single column used be a given display format. */
-public class PSDisplayColumn extends PSDbComponent implements IPSSequencedComponent {
+public final class PSDisplayColumn extends PSDbComponent implements IPSSequencedComponent {
   /**
    * ctor, see base for description, sets up this objects key definition, and initializes any class
    * attributes.

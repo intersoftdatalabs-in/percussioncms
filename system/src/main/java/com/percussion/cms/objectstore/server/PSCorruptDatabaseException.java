@@ -25,7 +25,7 @@ import com.percussion.error.PSRuntimeException;
  * The parameters should provide sufficient information so that support staff can track the problem
  * down and fix it.
  */
-public class PSCorruptDatabaseException extends PSRuntimeException {
+public final class PSCorruptDatabaseException extends PSRuntimeException {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

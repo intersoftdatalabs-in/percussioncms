@@ -17,7 +17,7 @@
 package com.percussion.cms.objectstore;
 
 /** The value of an <code>PSItemField</code> that is treated as a <code>String</code> value. */
-public class PSTextValue extends PSFieldValue {
+public final class PSTextValue extends PSFieldValue {
   /**
    * Creates a new instance with the <code>textValue</code> as its value. The text, may be <code>
    * null</code> or empty.

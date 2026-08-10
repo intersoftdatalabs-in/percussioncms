@@ -33,7 +33,7 @@ import org.w3c.dom.Node;
  * Object store implementation for the <code>CloneSiteFolderRequest</code> object as defined in
  * schema sys_FolderParameters.xsd.
  */
-public class PSCloneSiteFolderRequest extends PSComponent {
+public final class PSCloneSiteFolderRequest extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

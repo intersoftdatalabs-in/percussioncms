@@ -47,7 +47,7 @@ import org.w3c.dom.Element;
  * should be in one of the DBSTATE_xxx states. This state decides whether it will be inserted,
  * updated or deleted from the database on serialization.
  */
-public class PSObjectAclEntry extends PSDbComponent {
+public final class PSObjectAclEntry extends PSDbComponent {
   /**
    * Use this for creating a new (non-persisted) ACL entry. This constructor should generally be
    * used for specifying ACL entries for users.

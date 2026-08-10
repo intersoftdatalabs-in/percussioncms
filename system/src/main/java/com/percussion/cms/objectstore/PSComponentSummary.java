@@ -75,7 +75,7 @@ import org.w3c.dom.Element;
 })
 @DynamicInsert
 @DynamicUpdate
-public class PSComponentSummary extends PSDbComponent implements Serializable {
+public final class PSComponentSummary extends PSDbComponent implements Serializable {
   /** Serial id identifies versions of serialized data */
   private static final long serialVersionUID = 1L;
 

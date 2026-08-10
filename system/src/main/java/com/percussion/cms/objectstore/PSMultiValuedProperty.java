@@ -64,7 +64,8 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
    */
   protected PSMultiValuedProperty(Element src) throws PSUnknownNodeTypeException {
     super(getKeyDef(), src.getAttribute(XML_ATTR_PROPNAME));
-    fromXml(src);
+    // Private base-load — avoid overridable fromXml during construction (this-escape).
+    loadFieldsFromXml(src);
   }
 
   /**
@@ -92,13 +93,25 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
 
   // see base class for description
   public void fromXml(Element src) throws PSUnknownNodeTypeException {
+    loadFieldsFromXml(src);
+  }
+
+  /**
+   * Loads multi-value property collection from XML. Construction path uses the source element's
+   * node name (no virtual {@link #getNodeName()}) for this-escape safety.
+   *
+   * @param src never {@code null}
+   */
+  private void loadFieldsFromXml(Element src) throws PSUnknownNodeTypeException {
     if (null == src) throw new IllegalArgumentException("Source cannot be null.");
 
+    // Always use source node name — never virtual getNodeName during load (this-escape).
+    String nodeName = src.getNodeName();
     if (null == m_props) {
-      m_props = new PSDbComponentCollection(src, getNodeName());
+      m_props = new PSDbComponentCollection(src, nodeName);
     } else {
       m_props = new PSDbComponentCollection(m_props.getMemberClass());
-      m_props.fromXml(src, getNodeName());
+      m_props.fromXml(src, nodeName);
     }
   }
 

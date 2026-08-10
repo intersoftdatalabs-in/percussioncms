@@ -58,7 +58,7 @@ import org.w3c.dom.Element;
  *       state information this object can provide.
  * </ol>
  */
-public class PSUserInfo implements IPSCmsComponent {
+public final class PSUserInfo implements IPSCmsComponent {
 
   private static final Logger log = LogManager.getLogger(PSUserInfo.class);
 

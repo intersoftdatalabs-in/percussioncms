@@ -30,7 +30,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /** Security provider instance summary returned by the SecurityProvider cataloger. */
-public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
+public final class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
 
   private static final Logger log = LogManager.getLogger(PSSecurityProviderInstanceSummary.class);
 

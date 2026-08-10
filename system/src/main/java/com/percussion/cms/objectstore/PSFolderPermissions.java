@@ -27,7 +27,7 @@ import java.util.Iterator;
  * This class computes the user's permission on a folder object. This should only be used in the
  * context of a folder object.
  */
-public class PSFolderPermissions extends PSObjectPermissions {
+public final class PSFolderPermissions extends PSObjectPermissions {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

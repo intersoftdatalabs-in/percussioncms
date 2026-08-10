@@ -36,7 +36,7 @@ import org.w3c.dom.Element;
  * @author Paul Howard
  * @version 1.0
  */
-public class PSSaveResults implements IPSCmsComponent {
+public final class PSSaveResults implements IPSCmsComponent {
   /**
    * Create a new instance.
    *

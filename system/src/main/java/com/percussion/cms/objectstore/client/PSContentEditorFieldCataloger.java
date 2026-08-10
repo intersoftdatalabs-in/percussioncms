@@ -38,7 +38,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /** Client side object containing the cataloged content editor fields. */
-public class PSContentEditorFieldCataloger {
+public final class PSContentEditorFieldCataloger {
   /**
    * Construct this cataloger without an initial set of fields. See {@link
    * #PSContentEditorFieldCataloger(IPSFieldCataloger, Set, int)} for more info.

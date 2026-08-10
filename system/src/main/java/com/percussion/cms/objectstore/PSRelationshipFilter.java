@@ -65,7 +65,7 @@ import org.w3c.dom.NodeList;
  *
  * @author RammohanVangapalli
  */
-public class PSRelationshipFilter {
+public final class PSRelationshipFilter {
 
   /** Default constructor */
   public PSRelationshipFilter() {}

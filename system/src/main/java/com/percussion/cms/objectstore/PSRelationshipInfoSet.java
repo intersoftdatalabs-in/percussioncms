@@ -26,7 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** The PSRelationshipInfoSet contains a list of PSRelationshipInfo objects */
-public class PSRelationshipInfoSet implements IPSCmsComponent {
+public final class PSRelationshipInfoSet implements IPSCmsComponent {
   /** Default constructor. */
   public PSRelationshipInfoSet() {}
 

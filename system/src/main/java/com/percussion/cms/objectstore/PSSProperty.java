@@ -25,7 +25,7 @@ import org.w3c.dom.Element;
  * See base class for description. Represents a property of a given {@link
  * com.percussion.cms.objectstore.PSDisplayFormat}.
  */
-public class PSSProperty extends PSCmsProperty {
+public final class PSSProperty extends PSCmsProperty {
   /** Required ctor taking a element */
   public PSSProperty(Element e) throws PSUnknownNodeTypeException {
     super(PSSProperty.createKey(new String[] {}), "dummy");

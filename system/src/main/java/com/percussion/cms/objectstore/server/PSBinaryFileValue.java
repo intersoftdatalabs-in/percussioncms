@@ -20,7 +20,7 @@ import com.percussion.cms.objectstore.PSBinaryValue;
 import com.percussion.content.PSContentFactory;
 import com.percussion.util.IOTools;
 import com.percussion.util.PSPurgableTempFile;
-import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -51,9 +51,18 @@ public class PSBinaryFileValue extends PSBinaryValue {
    * @throws IOException If there is an error reading from or writing to a file.
    */
   public PSBinaryFileValue(File file) throws FileNotFoundException, IOException {
-    super(new FileInputStream(file));
+    // Two-phase via static helper: load bytes without this, then super + temp write from local
+    // array (no overridable getValue — this-escape free for open subclass hierarchy).
+    this(readAllBytes(file), file);
+  }
 
-    // create temp file including source path with normalized separator
+  /**
+   * Construction helper: bytes already loaded off-heap from {@code file}; assigns super data and
+   * creates purgable temp with original path/mime metadata.
+   */
+  private PSBinaryFileValue(byte[] data, File file) throws IOException {
+    super(data);
+
     m_tempFile =
         new PSPurgableTempFile(
             "psx",
@@ -63,18 +72,17 @@ public class PSBinaryFileValue extends PSBinaryValue {
             PSContentFactory.guessMimeType(file),
             null);
 
-    OutputStream out = null;
-    try {
-      out = new FileOutputStream(m_tempFile);
-      IOTools.copyStream(new ByteArrayInputStream((byte[]) getValue()), out);
-    } finally {
-      if (out != null) {
-        try {
-          out.close();
-        } catch (IOException e) {
-          // ignore
-        }
-      }
+    try (OutputStream out = new FileOutputStream(m_tempFile)) {
+      out.write(data != null ? data : new byte[0]);
+    }
+  }
+
+  /** Static file→byte[] load for construction (no {@code this}). */
+  private static byte[] readAllBytes(File file) throws FileNotFoundException, IOException {
+    try (FileInputStream in = new FileInputStream(file);
+        ByteArrayOutputStream buf = new ByteArrayOutputStream(Math.max(32, in.available()))) {
+      IOTools.copyStream(in, buf);
+      return buf.toByteArray();
     }
   }
 

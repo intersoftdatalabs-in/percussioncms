@@ -23,7 +23,7 @@ import java.util.Locale;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 /** The value of an <code>PSItemField</code> that is treated as a date value. */
-public class PSDateValue extends PSFieldValue {
+public final class PSDateValue extends PSFieldValue {
   /**
    * Constructs a new object with the date as the value. Using the default format ("yyyy-MM-dd") and
    * default <code>Locale</code> "en-us". This is a convenience method that is equivalent to calling

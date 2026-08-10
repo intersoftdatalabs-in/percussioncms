@@ -35,7 +35,7 @@ import org.xml.sax.SAXException;
  * A utility class to hold search criteria, build search request and execute it locally to the
  * Rhythmyx server.
  */
-public class PSLocalExecutableSearch extends PSBaseExecutableSearch {
+public final class PSLocalExecutableSearch extends PSBaseExecutableSearch {
   /**
    * Construct an executable search with a search object and a list of result column names.
    *

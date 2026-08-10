@@ -55,6 +55,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
 
     m_itemDefinition = itemDefinition;
     init();
+    // Private base-load: extract def without passing this to external visitor (this-escape).
     extractDef();
   }
 
@@ -68,20 +69,38 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * Populates this item with meta data.
+   * Populates this item with meta data from the item definition without passing {@code this} to
+   * external types during construction ({@code -Xlint:this-escape} / subclass safety).
    *
    * @throws PSCmsException if there is an error populating this item.
    */
   private void extractDef() throws PSCmsException {
-    PSItemDefExtractor.populateItemDefinition(this);
+    applyExtractedDefinition(PSItemDefExtractor.extractDefinition(m_itemDefinition));
   }
 
   /**
-   * Called by the extractor. Accepts an <code>IPSVisitor</code>.
+   * Applies extracted definition parts. Package-visible for {@link
+   * PSItemDefExtractor#populateItemDefinition(PSCoreItem)} after full construction.
+   *
+   * @param parts never {@code null}
+   */
+  final void applyExtractedDefinition(PSItemDefExtractor.DefinitionParts parts) {
+    if (parts == null) throw new IllegalArgumentException("parts must not be null");
+    for (PSItemField field : parts.getFields()) {
+      addField(field);
+    }
+    for (PSItemChild child : parts.getChildren()) {
+      addChild(child);
+    }
+  }
+
+  /**
+   * Called by the extractor / visitors after construction. Final so definition registration cannot
+   * be overridden during subclass init (this-escape).
    *
    * @param visitor must not be <code>null</code>
    */
-  public void accept(IPSVisitor visitor) {
+  public final void accept(IPSVisitor visitor) {
     if (visitor == null) throw new IllegalArgumentException("visitor must not be null");
 
     // if getObject returns null, then no field/child will be added.

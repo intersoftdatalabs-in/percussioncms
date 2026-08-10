@@ -30,7 +30,7 @@ import org.w3c.dom.Element;
  * @deprecated Use the assembly service to load and manipulate variant information
  */
 @Deprecated
-public class PSContentTypeVariantSet extends PSDbComponentSet<PSContentTypeTemplate> {
+public final class PSContentTypeVariantSet extends PSDbComponentSet<PSContentTypeTemplate> {
   /** Default constructor. See {@link PSDbComponentSet#PSDbComponentSet(Class)} for more details. */
   @SuppressWarnings("unused")
   public PSContentTypeVariantSet() throws PSCmsException {

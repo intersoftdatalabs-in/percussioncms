@@ -33,7 +33,7 @@ import org.w3c.dom.Element;
  * @author Paul Howard
  * @version 1.0
  */
-public class PSMenuContext extends PSName {
+public final class PSMenuContext extends PSName {
   /**
    * Since this object is read-only, it can only be instantiated from an existing object, obtained
    * from the processor load method.

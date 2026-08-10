@@ -30,7 +30,7 @@ import org.w3c.dom.Element;
  * This class encapsulates a collection of <code>PSDependent</code> objects as a <code>
  * PSCollectionComponent</code>.
  */
-public class PSDependentSet extends PSCollectionComponent {
+public final class PSDependentSet extends PSCollectionComponent {
   /** Constucts an empty dependent set. */
   public PSDependentSet() {
     super(PSDependent.class);

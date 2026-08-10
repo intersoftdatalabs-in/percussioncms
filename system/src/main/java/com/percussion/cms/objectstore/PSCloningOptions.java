@@ -32,7 +32,7 @@ import org.w3c.dom.Element;
  * Object store implementation to the <code>PSXCloningOptions</code> object as defined in schema
  * sys_FolderParameters.xsd.
  */
-public class PSCloningOptions extends PSComponent {
+public final class PSCloningOptions extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

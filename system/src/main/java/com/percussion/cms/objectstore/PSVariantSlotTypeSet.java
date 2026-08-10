@@ -31,7 +31,7 @@ import org.w3c.dom.Element;
  *
  * @deprecated use the assembly service instead
  */
-public class PSVariantSlotTypeSet extends PSDbComponentSet<PSVariantSlotType> {
+public final class PSVariantSlotTypeSet extends PSDbComponentSet<PSVariantSlotType> {
   /** Default constructor. See {@link PSDbComponentList#PSDbComponentList()} for more details. */
   public PSVariantSlotTypeSet() {
     super(PSVariantSlotType.class);

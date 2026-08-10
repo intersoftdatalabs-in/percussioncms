@@ -32,7 +32,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 /** An object representation of the StandardItem RelatedItem element. */
-public class PSItemRelatedItem extends PSItemComponent {
+public final class PSItemRelatedItem extends PSItemComponent {
   public PSItemRelatedItem() {}
 
   /** Construct using xml nodes */
