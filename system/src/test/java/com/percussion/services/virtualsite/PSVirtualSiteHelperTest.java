@@ -60,4 +60,57 @@ class PSVirtualSiteHelperTest {
     assertEquals("Help", PSVirtualSiteHelper.siteKey(site));
     assertTrue(PSVirtualSiteHelper.rootPath(site).isPresent());
   }
+
+  @Test
+  void repositoryWhenSourceKindExplicitlyRepository() {
+    PSSite site = mock(PSSite.class);
+    PSSiteProperty kind = new PSSiteProperty();
+    kind.setName(PSVirtualSiteHelper.PROP_SOURCE_KIND);
+    kind.setValue("repository");
+    when(site.getProperties()).thenReturn(Set.of(kind));
+    assertEquals(SourceKind.REPOSITORY, PSVirtualSiteHelper.sourceKind(site));
+    assertFalse(PSVirtualSiteHelper.isVirtual(site));
+  }
+
+  @Test
+  void configFileDefaultsAndOverride() {
+    PSSite bare = mock(PSSite.class);
+    when(bare.getProperties()).thenReturn(Set.of());
+    assertEquals(VirtualSiteConfigLoader.DEFAULT_CONFIG_FILE, PSVirtualSiteHelper.configFile(bare));
+
+    PSSite site = mock(PSSite.class);
+    PSSiteProperty cfg = new PSSiteProperty();
+    cfg.setName(PSVirtualSiteHelper.PROP_CONFIG_FILE);
+    cfg.setValue("custom-site.yaml");
+    when(site.getProperties()).thenReturn(Set.of(cfg));
+    assertEquals("custom-site.yaml", PSVirtualSiteHelper.configFile(site));
+  }
+
+  @Test
+  void siteKeyPrefersPropertyThenNameThenDefault() {
+    PSSite withKey = mock(PSSite.class);
+    PSSiteProperty key = new PSSiteProperty();
+    key.setName(PSVirtualSiteHelper.PROP_SITE_KEY);
+    key.setValue("product-docs");
+    when(withKey.getProperties()).thenReturn(Set.of(key));
+    when(withKey.getName()).thenReturn("Help");
+    assertEquals("product-docs", PSVirtualSiteHelper.siteKey(withKey));
+
+    PSSite named = mock(PSSite.class);
+    when(named.getProperties()).thenReturn(Set.of());
+    when(named.getName()).thenReturn("HelpSite");
+    assertEquals("HelpSite", PSVirtualSiteHelper.siteKey(named));
+
+    assertEquals("default", PSVirtualSiteHelper.siteKey(null));
+  }
+
+  @Test
+  void blankRootPathIsAbsent() {
+    PSSite site = mock(PSSite.class);
+    PSSiteProperty root = new PSSiteProperty();
+    root.setName(PSVirtualSiteHelper.PROP_ROOT_PATH);
+    root.setValue("   ");
+    when(site.getProperties()).thenReturn(Set.of(root));
+    assertTrue(PSVirtualSiteHelper.rootPath(site).isEmpty());
+  }
 }
