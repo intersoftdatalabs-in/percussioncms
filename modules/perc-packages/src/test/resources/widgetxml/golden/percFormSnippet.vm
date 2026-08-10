@@ -1,0 +1,47 @@
+#loadRelatedWidgetContents()##
+#if( ! $perc.widgetContents.isEmpty())##
+#set($node = $perc.widgetContents.get(0).node)##
+#end##
+<div class = "perc-form $!{rootclass} $!{labelalignclass}" data="$!{dynamicListData}">
+#if( ! $perc.widgetContents.isEmpty())##
+#set($formString = $node.getProperty('rx:renderedform').getString())##
+#set($returnString = $rx.pageutils.processForm($sys.assemblyItem, $perc.widget, $formString))##
+<div class = "perc-form-name">$returnString </div>
+#set($formData = $node.getProperty('rx:formdata').String)##
+#if($formData.contains('honeypot') || $formData.contains('recaptcha'))##
+<script>
+    function validatePercForm() {
+        var ret = false;
+        #if($formData.contains('honeypot'))##
+        if(!document.getElementById('topyenoh').value) {
+            ret=true;
+        }
+        else {
+            ret=false;
+        }
+        #end##
+        #if($formData.contains('recaptcha'))##
+         if (grecaptcha.getResponse() === '') {
+         	ret = false;
+         }else {
+         	ret = true;
+         }
+        #end##
+        return ret;
+    }
+</script>
+#end##
+
+#elseif ($perc.isEditMode())
+#createEmptyWidgetContent("form-sample-content", "This Form widget is showing sample content.")
+#end
+
+#if($perc.isPreviewMode())
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+jQuery("form").on('submit',function(){return false;});
+jQuery("input[type = 'submit']").attr('disabled', 'disabled');
+});
+</script>
+#end
+</div>

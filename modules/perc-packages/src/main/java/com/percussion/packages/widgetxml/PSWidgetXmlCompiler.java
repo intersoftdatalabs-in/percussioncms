@@ -38,10 +38,11 @@ import java.util.regex.Pattern;
  * Compiles legacy Widget definition XML into a modern {@link PSComponentPackageManifest} plus
  * template source artifacts (Phase 3 / ADR-004 / issues #2751, #2772).
  *
- * <p><strong>Scope:</strong> baseWidgets-shaped widgets plus high-traffic product packages (title,
- * lists, nav chrome, file, image): JEXL code + Velocity content + optional asset content type +
- * UserPref/CssPref + {@code <Resource>} CSS/JS refs. Remaining residual packages (blog, calendar,
- * directory, social, forms, auto-lists, …) are tracked in {@code
+ * <p><strong>Scope:</strong> baseWidgets-shaped widgets, high-traffic product packages (title,
+ * lists, nav chrome, file, image — #2772), and residual long-tail product packages (blog, calendar,
+ * directory, social, forms, poll, login, rss, iframe — #2789): JEXL code + Velocity content +
+ * optional asset content type + UserPref/CssPref + {@code <Resource>} CSS/JS refs. Further residual
+ * packages (auto-lists, jquery, comments, …) remain dual-run Widget XML and are tracked in {@code
  * docs/ai-generated/tasks/template-assembler-normalization/widget-xml-inventory.md}.
  *
  * <p>Assembler mapping: {@code Content type="velocity"} → {@code velocityAssembler}; {@code html}
