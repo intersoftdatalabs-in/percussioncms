@@ -109,11 +109,16 @@ public class PSRequest {
     // Do this early to avoid timing issues
     m_httpSession = req.getSession(true);
 
+    // Bind servlet request before URL parse so Accept negotiation can read headers.
+    // setRequestFileURL still runs with a safe null-check on the wrapper cast path
+    // when called later; during construction we re-apply Accept after binding below
+    // without relying on m_servletRequest being set mid-parse for mock wrappers.
+    m_servletRequest = req;
+    m_servletResponse = resp;
+
     String path = req.getContextPath() + req.getServletPath();
     if (req.getPathInfo() != null) path += req.getPathInfo();
     setRequestFileURL(path);
-    m_servletRequest = req;
-    m_servletResponse = resp;
 
     m_reqHookURL = null;
     m_params = new HashMap<>();
@@ -464,13 +469,17 @@ public class PSRequest {
       return;
     }
 
-    HttpServletRequestWrapper wrapper = (HttpServletRequestWrapper) m_servletRequest;
-    if (wrapper != null && wrapper.getRequest() instanceof PSMockHttpServletRequest) {
-      PSMockHttpServletRequest mockreq = (PSMockHttpServletRequest) wrapper.getRequest();
-      // Strip the first part of the path
-      int cut = PSServer.getRequestRoot().length();
-      if (cut < reqFileURL.length()) {
-        mockreq.setServletPath(reqFileURL.substring(cut));
+    // Only mock wrappers need servlet-path rewriting; avoid ClassCastException on
+    // plain MockHttpServletRequest / production requests that are not wrappers.
+    if (m_servletRequest instanceof HttpServletRequestWrapper) {
+      HttpServletRequestWrapper wrapper = (HttpServletRequestWrapper) m_servletRequest;
+      if (wrapper.getRequest() instanceof PSMockHttpServletRequest) {
+        PSMockHttpServletRequest mockreq = (PSMockHttpServletRequest) wrapper.getRequest();
+        // Strip the first part of the path
+        int cut = PSServer.getRequestRoot().length();
+        if (cut < reqFileURL.length()) {
+          mockreq.setServletPath(reqFileURL.substring(cut));
+        }
       }
     }
 
@@ -539,6 +548,15 @@ public class PSRequest {
       else m_reqPage = reqFileURL.substring(pagePos + 1, extPos);
     }
 
+    /*
+     * Response format selection precedence (classic app query/update):
+     *   1. Known URL extension always wins (.xml / .html / .htm / .txt / .json)
+     *   2. No extension: Accept header may select JSON (application/json or
+     *      application/<suffix>+json) when it is preferred over XML/HTML
+     *   3. Otherwise default remains XML
+     * Unknown extensions stay PAGE_TYPE_UNKNOWN (raw/binary); they do not fall
+     * through to Accept negotiation.
+     */
     if (extPos != -1) {
       String reqExtension = reqFileURL.substring(extPos + 1);
 
@@ -548,7 +566,112 @@ public class PSRequest {
       else if (reqExtension.equalsIgnoreCase("TXT")) m_reqPageType = PAGE_TYPE_TEXT;
       else if (reqExtension.equalsIgnoreCase("JSON")) m_reqPageType = PAGE_TYPE_JSON;
       else m_reqPageType = PAGE_TYPE_UNKNOWN;
-    } else m_reqPageType = PAGE_TYPE_XML;
+    } else {
+      m_reqPageType =
+          prefersJsonFromAcceptHeader() ? PAGE_TYPE_JSON : PAGE_TYPE_XML;
+    }
+  }
+
+  /**
+   * Whether the request {@code Accept} header prefers JSON over XML/HTML for response generation.
+   *
+   * <p>Used only when the request page has <strong>no</strong> extension. Extension-based types
+   * always win. Missing Accept, Accept wildcards, or an equal/higher preference for XML or HTML
+   * leaves the product default (XML).
+   *
+   * <p>Recognized JSON media types: {@code application/json} and structured JSON suffixes such as
+   * {@code application/ld+json}. Quality factors ({@code q=}) are honored; JSON is selected only
+   * when its quality is strictly greater than any competing XML/HTML type.
+   *
+   * @return {@code true} if JSON should be used as the default page type for this extensionless
+   *     request
+   */
+  boolean prefersJsonFromAcceptHeader() {
+    if (m_servletRequest == null) {
+      return false;
+    }
+    String accept = m_servletRequest.getHeader("Accept");
+    if (StringUtils.isBlank(accept)) {
+      return false;
+    }
+
+    double bestJsonQ = -1.0;
+    double bestXmlOrHtmlQ = -1.0;
+
+    // Comma-separated media ranges: type/subtype;q=0.8
+    StringTokenizer ranges = new StringTokenizer(accept, ",");
+    while (ranges.hasMoreTokens()) {
+      String range = ranges.nextToken().trim();
+      if (range.isEmpty()) {
+        continue;
+      }
+
+      double q = 1.0;
+      String mediaType = range;
+      int semi = range.indexOf(';');
+      if (semi >= 0) {
+        mediaType = range.substring(0, semi).trim();
+        String params = range.substring(semi + 1);
+        StringTokenizer paramTok = new StringTokenizer(params, ";");
+        while (paramTok.hasMoreTokens()) {
+          String param = paramTok.nextToken().trim();
+          if (param.regionMatches(true, 0, "q=", 0, 2)) {
+            try {
+              // RFC 7231: q-values are weight in [0, 1]; clamp out-of-range values.
+              q = Math.min(1.0, Math.max(0.0, Double.parseDouble(param.substring(2).trim())));
+            } catch (NumberFormatException e) {
+              q = 1.0;
+            }
+          }
+        }
+      }
+
+      if (q <= 0.0) {
+        continue; // client explicitly rejects this type
+      }
+
+      String type = mediaType.toLowerCase(Locale.ROOT);
+      if (isJsonAcceptMediaType(type)) {
+        if (q > bestJsonQ) {
+          bestJsonQ = q;
+        }
+      } else if (isXmlOrHtmlAcceptMediaType(type)) {
+        if (q > bestXmlOrHtmlQ) {
+          bestXmlOrHtmlQ = q;
+        }
+      }
+      // wildcards and unrelated types do not force JSON or compete as document types
+    }
+
+    return bestJsonQ > 0.0 && bestJsonQ > bestXmlOrHtmlQ;
+  }
+
+  /**
+   * @param mediaType lower-case media type without parameters, never {@code null}
+   * @return {@code true} for {@code application/json} or application types ending in {@code +json}
+   */
+  static boolean isJsonAcceptMediaType(String mediaType) {
+    if ("application/json".equals(mediaType)) {
+      return true;
+    }
+    // Structured suffixes: application/ld+json, application/vnd.api+json, etc.
+    if (mediaType.startsWith("application/") && mediaType.endsWith("+json")) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Competing document types that keep the extensionless default as XML/HTML rather than JSON.
+   *
+   * @param mediaType lower-case media type without parameters, never {@code null}
+   */
+  static boolean isXmlOrHtmlAcceptMediaType(String mediaType) {
+    return "application/xml".equals(mediaType)
+        || "text/xml".equals(mediaType)
+        || "text/html".equals(mediaType)
+        || "application/xhtml+xml".equals(mediaType)
+        || mediaType.endsWith("+xml");
   }
 
   /**
