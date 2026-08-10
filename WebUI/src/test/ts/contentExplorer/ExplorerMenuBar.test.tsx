@@ -70,6 +70,20 @@ describe("ExplorerMenuBar (#2731)", () => {
     expect(onCommand).toHaveBeenCalledWith("view-search");
   });
 
+  it("Content → Search is a menuitemcheckbox wired to explorer-search-panel (#2850)", () => {
+    const { onCommand } = renderBar({ showSearch: true });
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    const contentSearch = screen.getByTestId("explorer-menu-content-search");
+    expect(contentSearch.getAttribute("role")).toBe("menuitemcheckbox");
+    expect(contentSearch.getAttribute("aria-checked")).toBe("true");
+    expect(contentSearch.getAttribute("aria-expanded")).toBe("true");
+    expect(contentSearch.getAttribute("aria-controls")).toBe(
+      "explorer-search-panel",
+    );
+    fireEvent.click(contentSearch);
+    expect(onCommand).toHaveBeenCalledWith("content-search");
+  });
+
   it("View → IA Relationships toggle invokes view-relationships (#2769)", () => {
     const { onCommand } = renderBar();
     fireEvent.click(screen.getByTestId("explorer-menu-view"));

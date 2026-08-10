@@ -703,6 +703,38 @@ npm run test:surface:list -- --path tests/profile-shell.spec.js
 npm run test:surface:list -- --tag profile
 ```
 
+#### Explorer shell chrome composition (#2850 / parent #2407 / #2400)
+
+Surface-filtered companion for product Explorer shell composition: DCE menu bar,
+display-format selector, server action toolbar region, and **Search panel**
+toggle (View → Search and Content → Search). Hard-asserts free-text SearchPanel
+chrome when open; soft-asserts optional toolbar item children when the H2 action
+catalog is empty. Soft-skip **only** when a live QA CMS is unavailable (document
+in the PR / issue) — not when chrome is missing on a healthy CMS.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-shell-chrome.spec.js` |
+| Tags | `@explorer-shell-chrome` `@explorer` `@smoke` `@search` |
+| Unit (no CMS) | `npm run test:unit` (includes `explorer-shell-chrome.test.js`) |
+| Helper | `frontend/tests/helpers/explorer-shell-chrome.js` |
+| Product peer | `WebUI/.../ContentExplorerShell.tsx` + `ExplorerMenuBar` + Vitest |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/explorer-shell-chrome.spec.js
+
+# Tag form
+npm run test:surface -- --tag explorer-shell-chrome
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/explorer-shell-chrome.spec.js
+npm run test:surface:list -- --tag explorer-shell-chrome
+```
+
 #### Explorer saved-search picker (#2507 / parent #2409 / #2400 slice D)
 
 Surface-filtered live-CMS companion to WebUI SearchPanel saved-search picker

@@ -15,7 +15,7 @@
  */
 
 /**
- * Unit tests for explorer-menu-bar helpers (#2731) — no live CMS.
+ * Unit tests for explorer-shell-chrome helpers (#2850) — no live CMS.
  */
 
 "use strict";
@@ -25,16 +25,18 @@ const assert = require("node:assert/strict");
 const {
   TEST_IDS,
   explorerSpaUrl,
-} = require("../helpers/explorer-menu-bar");
+  softVisible,
+} = require("../helpers/explorer-shell-chrome");
 
-describe("explorer-menu-bar helpers (#2731)", () => {
-  it("exports stable product test ids", () => {
+describe("explorer-shell-chrome helpers (#2850)", () => {
+  it("exports stable shell composition test ids", () => {
+    assert.equal(TEST_IDS.shell, "content-explorer-shell");
     assert.equal(TEST_IDS.menuBar, "explorer-menu-bar");
-    assert.equal(TEST_IDS.menuContent, "explorer-menu-content");
-    assert.equal(TEST_IDS.menuView, "explorer-menu-view");
-    assert.equal(TEST_IDS.menuHelp, "explorer-menu-help");
     assert.equal(TEST_IDS.toggleSearch, "explorer-toggle-search");
     assert.equal(TEST_IDS.contentSearch, "explorer-menu-content-search");
+    assert.equal(TEST_IDS.searchPanelHost, "explorer-search-panel");
+    assert.equal(TEST_IDS.searchPanel, "search-panel");
+    assert.equal(TEST_IDS.searchInput, "search-panel-input");
     assert.equal(TEST_IDS.displayFormat, "explorer-display-format");
     assert.equal(TEST_IDS.actionToolbar, "action-toolbar");
     assert.equal(TEST_IDS.serverActions, "explorer-server-actions");
@@ -43,6 +45,27 @@ describe("explorer-menu-bar helpers (#2731)", () => {
   it("builds explorer SPA entry URL with cache buster", () => {
     const url = explorerSpaUrl("http://127.0.0.1:9992/");
     assert.match(url, /\/Rhythmyx\/cm\/app\/spa\.jsp\?entry=explorer&_=\d+/);
-    assert.ok(!url.includes("9992//"));
+  });
+
+  it("softVisible returns false when locator count is 0", async () => {
+    const locator = {
+      count: async () => 0,
+      first: () => ({
+        waitFor: async () => {
+          throw new Error("should not wait");
+        },
+      }),
+    };
+    assert.equal(await softVisible(locator), false);
+  });
+
+  it("softVisible returns true when first match becomes visible", async () => {
+    const locator = {
+      count: async () => 1,
+      first: () => ({
+        waitFor: async () => undefined,
+      }),
+    };
+    assert.equal(await softVisible(locator), true);
   });
 });

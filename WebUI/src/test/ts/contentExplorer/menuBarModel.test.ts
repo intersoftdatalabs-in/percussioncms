@@ -59,6 +59,14 @@ describe("buildExplorerMenuBarGroups (#2731 DCE ContentExplorerMenu.xml)", () =>
     expect(add?.testId).toBe("explorer-clipboard-add");
   });
 
+  it("Content → Search is a toggle sharing the Search panel (#2850)", () => {
+    const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
+    const search = content?.items.find((i) => i.id === "content-search");
+    expect(search?.testId).toBe("explorer-menu-content-search");
+    expect(search?.toggle).toBe(true);
+    expect(search?.ariaLabelKey).toBe(EXPLORER_MSG.TOGGLE_SEARCH_ARIA);
+  });
+
   it("puts Site Copy under Content with site-context disable (#2767)", () => {
     const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
     const siteCopy = content?.items.find((i) => i.id === "content-site-copy");

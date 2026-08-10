@@ -1,27 +1,56 @@
 ---
 id: admin-content-explorer
 title: Content Explorer
-description: Product Content Explorer shell — browse, server actions, and context menus
+description: Product Content Explorer shell — browse, search, display formats, and server actions
 version: "8.2"
 order: 42
-tags: [admin, content explorer, ui]
+tags: [admin, content explorer, ui, search]
 ---
 
 # Content Explorer
 
-The **Content Explorer** is the product web shell for browsing Sites, folders, pages, and
-assets without launching Desktop Content Explorer (DCE). Open it from the SPA at
-`/cm/app/spa.jsp?entry=explorer` (or the Explorer entry in the product navigation).
+The **Content Explorer** is the product web shell for browsing Sites, folders, pages,
+and assets without launching Desktop Content Explorer (DCE). Open it from the SPA at
+`/cm/app/spa.jsp?entry=explorer` (or the **Explorer** entry in the product navigation).
 
 ## What you see
 
 | Chrome | Purpose |
 |--------|---------|
 | **Menu bar** (Content / View / Help) | Product commands: search, clipboard, site/subfolder copy, view tools |
+| **Display format** | Column layout for the folder list (`validForFolder` formats) |
 | **Reduced actions** | Always-available open / preview / create folder / rename / move / copy / delete |
 | **Server action toolbar** | Configuration-driven actions from the CMS action catalog (`rest/actions`) for the current selection |
 | **Tree + detail list** | Folder navigation and list of children; optional display-format columns |
 | **Context menu** | Right-click an item or folder row for the same catalog filtered for the popup surface |
+
+## Search panel
+
+Use **Search** from either:
+
+- **View → Search**, or
+- **Content → Search**
+
+Both commands toggle the same **Search panel** on the product Explorer route.
+
+When the panel is open you can:
+
+1. Enter free-text criteria (scoped to the current folder path when a folder is active).
+2. Submit the search and open a hit or reveal it in its parent folder.
+3. Pick a **saved / design search** from the catalog (when the server exposes one) and run it.
+
+Closing **View → Search** (or **Content → Search**) again hides the panel. Revealing a
+result in its folder also closes the panel so the tree/list can show the destination.
+
+Extended search uses the same sitemanage search services as other product hosts; on
+minimal fixtures without a search index, free-text may show an error state while the
+panel chrome (input, submit, optional saved-search picker) remains available.
+
+## Display format
+
+Use the **display format** selector next to the menu bar to choose list columns for the
+current folder (`validForFolder` formats). Changing the format reloads the detail list with
+the selected columns.
 
 ## Server actions and context menu
 
@@ -29,29 +58,24 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
 
 - When you select a content item, the shell loads allowed menus for that content type.
 - When only a folder is active, the shell loads the cascading action tree for the Explorer UI.
-- **Desktop-only** actions (for example custom application protocols that only DCE can run) are
-  **hidden** in the web shell so operators are not offered controls that cannot succeed in the
-  browser.
+- **Desktop-only** actions (for example custom application protocols that only DCE can run)
+  are **hidden** in the web shell so operators are not offered controls that cannot succeed
+  in the browser.
 - Actions of type **context menu** appear on right-click, not as permanent toolbar buttons.
-- Workflow transition triggers (when available for the selected item) appear as a labeled group
-  on the toolbar and in the context menu.
+- Workflow transition triggers (when available for the selected item) appear as a labeled
+  group on the toolbar and in the context menu.
 
 Selecting a server action either navigates to a product-safe same-origin URL or refreshes the
 list after a client-handled command (for example a workflow transition).
 
-## Display format
+## Other View tools
 
-Use the **display format** selector in the menu bar to choose list columns for the current folder
-(`validForFolder` formats). Changing the format reloads the detail list with the selected columns.
+From the **View** menu you can also toggle:
 
-## Search, security, and advanced tools
-
-From the **View** menu you can toggle:
-
-- **Search** — extended search panel (criteria for the current folder path)
 - **Folder security** — ACL / properties for the selected folder
-- **Translations**, **Relationships**, and **Dependencies** — advanced item tools when a suitable
-  item is selected
+- **Translations**, **Relationships**, and **Dependencies** — advanced item tools when a
+  suitable item is selected
+- **Clipboard** — multi-select copy/cut staging when items are selected
 
 ## Related
 
