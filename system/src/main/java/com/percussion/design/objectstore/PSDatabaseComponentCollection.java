@@ -21,6 +21,7 @@ import com.percussion.error.PSDatabaseComponentException;
 import com.percussion.util.PSCollection;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlTreeWalker;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -33,8 +34,14 @@ import org.w3c.dom.Element;
  * PSDatabaseComponents and maintaining state information on additions, deletions, or modifications
  * to the collection so that the back end database can be updated appropriately. Note: The interface
  * to this "collection" most closely resembles a subset of "List".
+ *
+ * <p>Serializable via {@link PSDatabaseComponent} so {@link PSRole} subject/attribute collection
+ * fields clear {@code -Xlint:serial} serial-field. Contained components are also {@link
+ * Serializable}. Wire/XML behavior is unchanged.
  */
-public class PSDatabaseComponentCollection extends PSDatabaseComponent {
+public class PSDatabaseComponentCollection extends PSDatabaseComponent implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   /**
    * Construct a collection of database components.

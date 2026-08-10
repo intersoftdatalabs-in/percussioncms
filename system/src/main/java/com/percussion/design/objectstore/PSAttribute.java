@@ -39,6 +39,9 @@ import org.w3c.dom.Element;
  */
 @SuppressWarnings(value = {"unchecked"})
 public class PSAttribute extends PSDatabaseComponentCollection {
+
+  private static final long serialVersionUID = 1L;
+
   /**
    * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
    * method for a description of the XML object.
