@@ -195,6 +195,12 @@ public final class PSWidgetXmlParser {
     }
     model.setCssPrefs(cssPrefs);
 
+    List<PSWidgetXmlModel.Resource> resources = new ArrayList<>();
+    for (Element el : childElements(root, "Resource")) {
+      resources.add(parseResource(el));
+    }
+    model.setResources(resources);
+
     Element code = firstChildElement(root, "Code");
     if (code != null) {
       model.setCodeType(attr(code, "type"));
@@ -236,6 +242,14 @@ public final class PSWidgetXmlParser {
     pref.setDatatype(attr(el, "datatype"));
     pref.setDefaultValue(attr(el, "default_value"));
     return pref;
+  }
+
+  private static PSWidgetXmlModel.Resource parseResource(Element el) {
+    PSWidgetXmlModel.Resource resource = new PSWidgetXmlModel.Resource();
+    resource.setHref(attr(el, "href"));
+    resource.setType(attr(el, "type"));
+    resource.setPlacement(attr(el, "placement"));
+    return resource;
   }
 
   private static Element firstChildElement(Element parent, String name) {

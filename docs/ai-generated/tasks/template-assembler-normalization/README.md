@@ -76,7 +76,7 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | Widget DAO (legacy XML load) | `projects/sitemanage/.../dao/impl/PSWidgetDao.java` (`rxconfig/Widgets`) |
 | Widget packages | `modules/perc-packages/.../rxconfig/Widgets/` |
 | Component package manifest | `modules/perc-packages/.../manifest/PSComponentPackageManifest*.java` |
-| Widget XML compiler | `modules/perc-packages/.../widgetxml/PSWidgetXmlCompiler.java` (#2751) |
+| Widget XML compiler | `modules/perc-packages/.../widgetxml/PSWidgetXmlCompiler.java` (#2751 baseWidgets, #2772 high-traffic) |
 | Page templateDef compiler | `modules/perc-packages/.../pagexml/PSPageXmlCompiler.java` (#2770) |
 | Gadget registry compiler | `modules/perc-packages/.../gadgetxml/PSGadgetRegistryCompiler.java` (#2771) |
 | Modern gadget catalog (ship) | `modules/perc-packages/src/main/resources/catalogs/gadgets/gadget-catalog.json` |

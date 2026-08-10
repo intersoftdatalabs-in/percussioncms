@@ -4,15 +4,29 @@
 **Source:** `modules/perc-packages/src/main/resources/Packages/**/rxconfig/Widgets/*.xml`  
 **Machine-readable:** [widget-xml-inventory.csv](./widget-xml-inventory.csv)
 
-## Compiler status (#2751 / parent #2630)
+## Compiler status (#2751 / #2772 / parent #2630)
 
 | Area | Status | Notes |
 |------|--------|-------|
-| **Widget XML → Component Package Manifest compiler** | Landed for **baseWidgets / simple subset** | `com.percussion.packages.widgetxml.PSWidgetXmlCompiler` (+ package scanner) in `modules/perc-packages` |
-| Golden parity | **percSimpleText** (+ package compile of all 3 baseWidgets) | Fixtures under `modules/perc-packages/src/test/resources/widgetxml/` |
-| **Product packages still ship Widget XML** | Yes (this slice) | Compiler produces modern artifacts; does **not** yet remove product `rxconfig/Widgets/*.xml` from source trees |
-| Residual high-traffic packages | Open | nav, blog, lists, rich media lists, forms, calendar, directory, social, etc. — use this inventory as the residual backlog (sibling/follow-on issues under #2630) |
-| Runtime legacy XML shim | Open | #2752 |
+| **Widget XML → Component Package Manifest compiler** | Landed for **baseWidgets + high-traffic batch** | `com.percussion.packages.widgetxml.PSWidgetXmlCompiler` (+ package scanner) in `modules/perc-packages` |
+| Golden parity (baseWidgets) | **percSimpleText** (+ package compile of all 3 baseWidgets) | Fixtures under `modules/perc-packages/src/test/resources/widgetxml/` |
+| Golden parity (high-traffic #2772) | **percTitle**, **simplePageAutoList**, **percNavBreadcrumb** | Plus package compile of title, lists×2, nav×2, file, image (7 widgets) |
+| Compiler extensions (#2772) | `<Resource href/type/placement>`, chrome slots without CT, layout UserPref → slot.layout | CSS/JS resources + nav chrome (no asset CT) |
+| **Product packages still ship Widget XML** | Yes (dual-run) | Compiler produces modern artifacts; does **not** yet remove product `rxconfig/Widgets/*.xml` from source trees |
+| Residual product packages | Open | blog, calendar, directory, social, forms, auto-lists (image/page/file), jquery, poll, login, etc. — see matrix below |
+| Runtime legacy XML shim | Landed (cluster #2766) | #2752 |
+
+### High-traffic batch covered by #2772
+
+| Package | Widgets | Notes |
+|---------|---------|-------|
+| `perc.widget.title` | percTitle | UserPref enum (wrapper) + content CT |
+| `perc.widgets.lists` | simplePageAutoList, simpleTextAutoList | `<Resource>` CSS + layout/maxlength → slot.layout |
+| `perc.widgets.nav` | percNavBar, percNavBreadcrumb | Chrome (no CT); chrome slot + CSS resource on breadcrumb |
+| `perc.FileAssetWidget` | percFile | Content + rich media |
+| `perc.widgets.image` | percImage | Content + rich media + CSS resource |
+
+Measurable reduction: **7** product widget definition XMLs now have a validated modern compile path with goldens (beyond the original 3 baseWidgets).
 
 Ship format: [component-package-manifest.md](./component-package-manifest.md). ADR: [004-no-definition-xml-packaging.md](./adr/004-no-definition-xml-packaging.md).
 

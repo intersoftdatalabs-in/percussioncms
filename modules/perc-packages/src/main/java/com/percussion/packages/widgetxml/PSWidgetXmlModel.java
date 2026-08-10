@@ -47,6 +47,7 @@ public final class PSWidgetXmlModel {
   private String contentBody;
   private List<UserPref> userPrefs = new ArrayList<>();
   private List<CssPref> cssPrefs = new ArrayList<>();
+  private List<Resource> resources = new ArrayList<>();
 
   public String getSourceFileName() {
     return sourceFileName;
@@ -195,6 +196,18 @@ public final class PSWidgetXmlModel {
   }
 
   /**
+   * Parsed {@code <Resource href="..." type="..." placement="..."/>} entries (CSS/JS/etc. declared
+   * on the widget definition). High-traffic widgets (lists, nav, image) commonly declare these.
+   */
+  public List<Resource> getResources() {
+    return resources;
+  }
+
+  public void setResources(List<Resource> resources) {
+    this.resources = resources != null ? resources : new ArrayList<>();
+  }
+
+  /**
    * Widget stem derived from the source file name (e.g. {@code percSimpleText} from {@code
    * percSimpleText.xml}).
    */
@@ -238,7 +251,8 @@ public final class PSWidgetXmlModel {
         && Objects.equals(contentType, that.contentType)
         && Objects.equals(contentBody, that.contentBody)
         && Objects.equals(userPrefs, that.userPrefs)
-        && Objects.equals(cssPrefs, that.cssPrefs);
+        && Objects.equals(cssPrefs, that.cssPrefs)
+        && Objects.equals(resources, that.resources);
   }
 
   @Override
@@ -261,7 +275,8 @@ public final class PSWidgetXmlModel {
         contentType,
         contentBody,
         userPrefs,
-        cssPrefs);
+        cssPrefs,
+        resources);
   }
 
   /** Parsed {@code <UserPref>} element. */
@@ -437,6 +452,57 @@ public final class PSWidgetXmlModel {
     @Override
     public int hashCode() {
       return Objects.hash(name, displayName, datatype, defaultValue);
+    }
+  }
+
+  /**
+   * Parsed {@code <Resource>} element (static CSS/JS/etc. referenced from the widget definition).
+   */
+  public static final class Resource {
+    private String href;
+    private String type;
+    private String placement;
+
+    public String getHref() {
+      return href;
+    }
+
+    public void setHref(String href) {
+      this.href = href;
+    }
+
+    public String getType() {
+      return type;
+    }
+
+    public void setType(String type) {
+      this.type = type;
+    }
+
+    public String getPlacement() {
+      return placement;
+    }
+
+    public void setPlacement(String placement) {
+      this.placement = placement;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof Resource that)) {
+        return false;
+      }
+      return Objects.equals(href, that.href)
+          && Objects.equals(type, that.type)
+          && Objects.equals(placement, that.placement);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(href, type, placement);
     }
   }
 }
