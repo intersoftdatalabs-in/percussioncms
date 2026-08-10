@@ -58,6 +58,10 @@ Path-filtered CI / local **smoke** around `build-cms-docs` (issue #2704).
 
 - **Failure path**: non-zero build exit (broken md/config/link ids) **or** missing
   index HTML → exit 1. See `product-docs/README.md` → **CI smoke**.
+- **Failure artifacts**: after wipe, the smoke scripts **recreate** the output root and
+  write `.ci-smoke-meta.txt` so the workflow `if: failure()` upload of
+  `tmp/product-docs-site/` always has a path and at least one file (partial build
+  output is preserved when the builder emits anything before failing).
 
 ### Third-party license inventory (Maven + npm merge)
 
