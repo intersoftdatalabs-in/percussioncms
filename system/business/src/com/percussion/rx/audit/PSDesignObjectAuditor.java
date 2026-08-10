@@ -122,11 +122,11 @@ public class PSDesignObjectAuditor {
       String name = guidStr;
       PSSystemAuditLogger.design(code, userName, typeName, name, guidStr);
     } catch (RuntimeException ex) {
+      // Pass throwable so stack is retained when debug logging is off (prod).
       log.error(
-          "Failed to dual-write design system audit for action={}: {}",
+          "Failed to dual-write design system audit for action={}",
           data.mi_auditAction,
-          ex.toString());
-      log.debug("Design system audit dual-write failure details", ex);
+          ex);
     }
   }
 

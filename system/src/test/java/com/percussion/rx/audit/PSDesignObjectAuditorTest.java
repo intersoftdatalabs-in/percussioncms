@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
