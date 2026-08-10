@@ -23,6 +23,8 @@ One **Template** object model (page / snippet / global / binary / resource) + or
 | JavaScript extensions / UDFs | Rhino + `PSJavaScriptExtensionHandler` | Legacy extension handler `handler="JavaScript"` — leave alone this track |
 | WebUI / gadgets host | Browser JS | Client only |
 
+Short note (Phase 5): [rhino-js-extension-note.md](./rhino-js-extension-note.md). **Not** an assembler — do not use Rhino for XSL migration targets ([xsl-migration-cookbook.md](./xsl-migration-cookbook.md)).
+
 All **48** product widget definitions use `Code type=jexl` and `Content type=velocity` (see [widget-xml-inventory.md](./widget-xml-inventory.md)).
 
 ## Decision summary (approved)
@@ -49,6 +51,9 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | Doc | Purpose |
 |-----|---------|
 | [plan.md](./plan.md) | Full strategic plan (canonical) |
+| [implementer-guide.md](./implementer-guide.md) | Phase 5 single Assemblers & Templates implementer guide (#2833; when present) |
+| [xsl-migration-cookbook.md](./xsl-migration-cookbook.md) | Phase 5 XSL / `legacyAssembler` support statement + migration cookbook (#2834) |
+| [rhino-js-extension-note.md](./rhino-js-extension-note.md) | Phase 5 optional Rhino JS **extension** note — non-assembly (#2834) |
 | [component-package-manifest.md](./component-package-manifest.md) | Phase 3 ship-format manifest schema v1.0 + Java model |
 | [widget-xml-inventory.md](./widget-xml-inventory.md) | Product widget matrix (48 defs) |
 | [widget-xml-inventory.csv](./widget-xml-inventory.csv) | Machine-readable inventory |
