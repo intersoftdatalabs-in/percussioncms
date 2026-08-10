@@ -16,12 +16,15 @@
  */
 
 /**
- * Primary product top-nav order and role gates (issue #2702).
+ * Primary product top-nav order and role gates (issue #2702 / #2784).
  *
  * Dashboard is intentionally omitted from top chrome (gadgets remain on Home
  * via deep link {@code /home/gadgets}). Administration + Admin tools collapse
- * to a single {@code admin} item whose landing is the workflow admin hub;
- * {@code /admin} remains a deep-linked route for Admin tools.
+ * to a single {@code admin} item.
+ *
+ * <p>Landing is the working <strong>Admin tools</strong> shell at {@code /admin}
+ * (#2784). Workflow administration remains at {@code /workflow} via deep link
+ * and the Admin tools sibling cross-link.</p>
  */
 
 export type TopNavItemId =
@@ -39,6 +42,12 @@ export interface TopNavGates {
   isDesigner?: boolean;
   isWidgetBuilderActive?: boolean;
 }
+
+/**
+ * Client path for the consolidated Admin top-nav NavLink (#2784).
+ * Prefer Admin tools over Workflow administration as the primary landing.
+ */
+export const ADMIN_NAV_LANDING = "/admin";
 
 /**
  * Ordered top-nav item ids for the given role / feature gates.
@@ -66,7 +75,7 @@ export function topNavItemIds(gates: TopNavGates = {}): TopNavItemId[] {
 
 /**
  * Whether a client pathname should mark the consolidated Admin top-nav active.
- * Covers both workflow administration and admin-tools SPA routes.
+ * Covers both admin-tools and workflow administration SPA routes.
  */
 export function isAdminNavPath(pathname: string): boolean {
   const p = pathname || "";

@@ -17,6 +17,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  ADMIN_NAV_LANDING,
   isAdminNavPath,
   topNavItemIds,
 } from "../../../../main/ts/app/layout/topNavConfig";
@@ -78,12 +79,19 @@ describe("topNavItemIds (#2702)", () => {
   });
 });
 
+describe("ADMIN_NAV_LANDING (#2784)", () => {
+  it("points consolidated Admin top-nav at Admin tools shell", () => {
+    expect(ADMIN_NAV_LANDING).toBe("/admin");
+    expect(isAdminNavPath(ADMIN_NAV_LANDING)).toBe(true);
+  });
+});
+
 describe("isAdminNavPath", () => {
-  it("marks workflow and admin-tools SPA paths as Admin-active", () => {
-    expect(isAdminNavPath("/workflow")).toBe(true);
-    expect(isAdminNavPath("/workflow/roles")).toBe(true);
+  it("marks admin-tools and workflow SPA paths as Admin-active", () => {
     expect(isAdminNavPath("/admin")).toBe(true);
     expect(isAdminNavPath("/admin/tools")).toBe(true);
+    expect(isAdminNavPath("/workflow")).toBe(true);
+    expect(isAdminNavPath("/workflow/roles")).toBe(true);
     expect(isAdminNavPath("/home")).toBe(false);
     expect(isAdminNavPath("/explorer")).toBe(false);
   });

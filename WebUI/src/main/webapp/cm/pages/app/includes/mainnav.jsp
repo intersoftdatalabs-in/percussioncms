@@ -123,8 +123,8 @@
         <li role="menuitem" class="perc-actions-menu-item" data-navmgr="VIEW_DESIGN"><i18n:message key="perc.ui.navMenu.design@Design"/></li>
         <li role="menuitem" class="perc-actions-menu-item" data-navmgr="VIEW_PUBLISH"><i18n:message key="perc.ui.navMenu.publish@Publish"/></li>
         <% } %><% if (isAdmin) { %>
-        <%-- Single Admin entry (en-us label already "Admin"); classic Administration surfaces --%>
-        <li role="menuitem" class="perc-actions-menu-item" data-navmgr="VIEW_WORKFLOW"><i18n:message key="perc.ui.navMenu.admin@Administration"/></li>
+        <%-- Single Admin entry (#2702/#2784): SPA Admin tools landing; workflow via sibling in SPA --%>
+        <li role="menuitem" class="perc-actions-menu-item" data-navmgr="VIEW_ADMIN" data-spa-href="/cm/app/spa.jsp?entry=admin"><i18n:message key="perc.ui.navMenu.admin@Administration"/></li>
         <% } %>
         <% if (isWdgActive && (isAdmin || isDesigner)) { %>
         <li role="menuitem" class="perc-actions-menu-item" data-navmgr="VIEW_WIDGET_BUILDER"><i18n:message key="perc.ui.navMenu.admin@Widget Builder"/></li>

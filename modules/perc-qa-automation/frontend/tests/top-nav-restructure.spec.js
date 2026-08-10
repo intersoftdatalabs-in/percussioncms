@@ -16,10 +16,11 @@
  */
 
 /**
- * Top navigation restructure (#2702):
+ * Top navigation restructure (#2702 / #2784):
  * - Dashboard removed from SPA top chrome
  * - Explorer immediately after Home
  * - Single consolidated Admin (no separate Administration + Admin tools)
+ * - Admin lands on working Admin tools shell (/admin); Workflow via sibling
  *
  * Surface-filtered only:
  *   npm run test:surface -- --path tests/top-nav-restructure.spec.js
@@ -75,16 +76,16 @@ test.describe("Top nav restructure (#2702)", () => {
     });
     expect(adjacency).toBe(true);
 
-    // Consolidated Admin lands on workflow hub
+    // Consolidated Admin lands on working Admin tools shell (#2784)
     await admin.click();
-    await expect(page.getByTestId("perc-workflow-admin-shell")).toBeVisible({
+    await expect(page.getByTestId("perc-admin-shell")).toBeVisible({
       timeout: 30_000,
     });
-    // Admin tools still reachable from workflow hub sibling link
-    const toolsLink = page.getByTestId("admin-sibling-tools-link");
-    await expect(toolsLink).toBeVisible();
-    await toolsLink.click();
-    await expect(page.getByTestId("perc-admin-shell")).toBeVisible({
+    // Workflow administration still reachable from Admin tools sibling link
+    const workflowLink = page.getByTestId("admin-sibling-workflow-link");
+    await expect(workflowLink).toBeVisible();
+    await workflowLink.click();
+    await expect(page.getByTestId("perc-workflow-admin-shell")).toBeVisible({
       timeout: 30_000,
     });
   });
