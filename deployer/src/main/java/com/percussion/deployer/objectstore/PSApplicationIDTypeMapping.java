@@ -28,7 +28,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Encapsulates ID and Type mapping information. */
-public class PSApplicationIDTypeMapping implements IPSDeployComponent {
+public final class PSApplicationIDTypeMapping implements IPSDeployComponent {
 
   /**
    * Construct initial ID-Type mapping object.

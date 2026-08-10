@@ -31,7 +31,7 @@ import org.w3c.dom.Element;
  * The result set that represents the catalog request results. This is useful to represent the
  * results data in tabular form.
  */
-public class PSCatalogResultSet implements IPSDeployComponent {
+public final class PSCatalogResultSet implements IPSDeployComponent {
   /** Constructs the result set with <code>null</code> column meta data and empty result set. */
   public PSCatalogResultSet() {}
 

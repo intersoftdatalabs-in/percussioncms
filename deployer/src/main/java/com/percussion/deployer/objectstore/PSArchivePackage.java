@@ -23,7 +23,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Encapsulates a package name, package type and summary's log id. */
-public class PSArchivePackage implements IPSDeployComponent {
+public final class PSArchivePackage implements IPSDeployComponent {
   /**
    * Constructing the object with given parameters.
    *

@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** The class to represent metadata of a column of the cataloged results. */
-public class PSCatalogResultColumn implements IPSDeployComponent {
+public final class PSCatalogResultColumn implements IPSDeployComponent {
   /**
    * Constructs this object from supplied values.
    *

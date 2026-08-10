@@ -30,7 +30,7 @@ import org.w3c.dom.Element;
  * Encapsulates a list of <code>PSValidationResult</code> objects, and a list of absent ancestors
  * (as <code>PSDependency</code>) objects.
  */
-public class PSValidationResults implements IPSDeployComponent {
+public final class PSValidationResults implements IPSDeployComponent {
   /** Constructing the default object. */
   public PSValidationResults() {}
 

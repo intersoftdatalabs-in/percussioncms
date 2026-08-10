@@ -24,7 +24,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Encapsulates the data necessary to construct a <code>PSDeploymentServerConnection</code>. */
-public class PSDeploymentServerConnectionInfo implements IPSDeployComponent {
+public final class PSDeploymentServerConnectionInfo implements IPSDeployComponent {
   /**
    * Constructs the object using the specified parameters.
    *

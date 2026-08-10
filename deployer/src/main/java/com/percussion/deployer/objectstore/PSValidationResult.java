@@ -26,7 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Encapsulates the result of a dependency object. */
-public class PSValidationResult implements IPSDeployComponent {
+public final class PSValidationResult implements IPSDeployComponent {
 
   /**
    * Constructing the object with given parameters. The constructed object is default not to skip

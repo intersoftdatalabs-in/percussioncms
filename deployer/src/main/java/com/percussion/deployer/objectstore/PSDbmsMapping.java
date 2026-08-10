@@ -28,7 +28,7 @@ import org.w3c.dom.Element;
  * This class encapsulates the mapping of source and target datasources, <code>PSXDatasourceMap
  * </code>, from a source to a target.
  */
-public class PSDbmsMapping implements IPSDeployComponent {
+public final class PSDbmsMapping implements IPSDeployComponent {
 
   /**
    * Construct the object from a source database information.

@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** The class to represent a result row in catalog result set. */
-public class PSCatalogResult implements IPSDeployComponent, Comparable<PSCatalogResult> {
+public final class PSCatalogResult implements IPSDeployComponent, Comparable<PSCatalogResult> {
   /**
    * Constructs the catalog result object.
    *

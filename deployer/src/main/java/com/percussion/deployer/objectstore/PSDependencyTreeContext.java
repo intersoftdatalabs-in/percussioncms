@@ -107,7 +107,7 @@ public class PSDependencyTreeContext {
     if (pkg == null) {
       throw new IllegalArgumentException("Package not found for key: " + key);
     }
-    return (PSDeployableElement) pkg;
+    return pkg;
   }
 
   /**
@@ -206,7 +206,7 @@ public class PSDependencyTreeContext {
     if (depKey == null || depKey.trim().length() == 0)
       throw new IllegalArgumentException("depKey may not be null or empty");
 
-    return (PSDependencyContext) m_depCtxMap.get(depKey);
+    return m_depCtxMap.get(depKey);
   }
 
   /**
@@ -276,12 +276,12 @@ public class PSDependencyTreeContext {
           .ifPresent(
               childDeps ->
                   childDeps.forEachRemaining(
-                      childDep -> addPackageDependency((PSDependency) childDep, pkg, true)));
+                      childDep -> addPackageDependency(childDep, pkg, true)));
       Optional.ofNullable(dep.getAncestors())
           .ifPresent(
               ancestors ->
                   ancestors.forEachRemaining(
-                      ancestor -> addPackageDependency((PSDependency) ancestor, pkg, true)));
+                      ancestor -> addPackageDependency(ancestor, pkg, true)));
     }
     return ctx;
   }
@@ -307,14 +307,12 @@ public class PSDependencyTreeContext {
           .ifPresent(
               childDeps ->
                   childDeps.forEachRemaining(
-                      childDep ->
-                          removePackageDependency((PSDependency) childDep, recurse, removeLocal)));
+                      childDep -> removePackageDependency(childDep, recurse, removeLocal)));
       Optional.ofNullable(dep.getAncestors())
           .ifPresent(
               ancestors ->
                   ancestors.forEachRemaining(
-                      ancestor ->
-                          removePackageDependency((PSDependency) ancestor, recurse, removeLocal)));
+                      ancestor -> removePackageDependency(ancestor, recurse, removeLocal)));
     }
   }
 
@@ -338,12 +336,12 @@ public class PSDependencyTreeContext {
         .ifPresent(
             childDeps ->
                 childDeps.forEachRemaining(
-                    childDep -> checkRemoveLocal((PSDependency) childDep, pkg, resultMap)));
+                    childDep -> checkRemoveLocal(childDep, pkg, resultMap)));
     Optional.ofNullable(dep.getAncestors())
         .ifPresent(
             ancestors ->
                 ancestors.forEachRemaining(
-                    ancestor -> checkRemoveLocal((PSDependency) ancestor, pkg, resultMap)));
+                    ancestor -> checkRemoveLocal(ancestor, pkg, resultMap)));
   }
 
   /**

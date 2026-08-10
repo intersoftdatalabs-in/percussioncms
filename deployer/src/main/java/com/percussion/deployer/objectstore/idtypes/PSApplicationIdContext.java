@@ -349,9 +349,9 @@ public abstract class PSApplicationIdContext implements IPSDeployComponent {
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
     // call ctxValueUpdated on all listeners
-    Iterator listeners = m_listeners.iterator();
+    Iterator<PSApplicationIdContext> listeners = m_listeners.iterator();
     while (listeners.hasNext()) {
-      PSApplicationIdContext listener = (PSApplicationIdContext) listeners.next();
+      PSApplicationIdContext listener = listeners.next();
       listener.ctxValueUpdated(ctx);
     }
   }
@@ -365,9 +365,9 @@ public abstract class PSApplicationIdContext implements IPSDeployComponent {
    * @throws UnsupportedOperationException always in the base class.
    */
   protected void ctxValueUpdated(PSApplicationIdContext ctx) {
-    // suppress eclipse warning
-    if (null == ctx)
-      ;
+    if (ctx == null) {
+      throw new IllegalArgumentException("ctx may not be null");
+    }
 
     // would be a bug to call this if not implemented
     throw new UnsupportedOperationException("ctxValueUpdated() not implemented");
@@ -455,5 +455,5 @@ public abstract class PSApplicationIdContext implements IPSDeployComponent {
    * removed by calls to {@link #addCtxChangeListener(PSApplicationIdContext)} and {@link
    * #removeCtxChangeListener(PSApplicationIdContext)}, respectively.
    */
-  private List m_listeners = new ArrayList();
+  private List<PSApplicationIdContext> m_listeners = new ArrayList<>();
 }

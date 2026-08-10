@@ -26,7 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Class to represent a file that is part of the deployable form of a deployable object. */
-public class PSDependencyFile implements IPSDeployComponent {
+public final class PSDependencyFile implements IPSDeployComponent {
 
   /**
    * Construct this object from its members.

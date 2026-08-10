@@ -35,7 +35,7 @@ import org.w3c.dom.Element;
  * Encapsulates information regarding the use of an archive for the installation of packages on the
  * target server.
  */
-public class PSArchiveSummary implements IPSDeployComponent {
+public final class PSArchiveSummary implements IPSDeployComponent {
 
   /**
    * Constructing a object from a set of parameters.

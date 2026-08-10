@@ -29,7 +29,7 @@ import org.w3c.dom.Element;
  * package, as well as any other extra package information related to installing a deployable
  * element and its dependencies.
  */
-public class PSImportPackage implements IPSDeployComponent {
+public final class PSImportPackage implements IPSDeployComponent {
 
   /**
    * Construct an import package with a deployable element.
