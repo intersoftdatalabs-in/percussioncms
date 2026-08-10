@@ -78,6 +78,8 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | Component package manifest | `modules/perc-packages/.../manifest/PSComponentPackageManifest*.java` |
 | Widget XML compiler | `modules/perc-packages/.../widgetxml/PSWidgetXmlCompiler.java` (#2751 baseWidgets, #2772 high-traffic) |
 | Page templateDef compiler | `modules/perc-packages/.../pagexml/PSPageXmlCompiler.java` (#2770) |
+| Page dual-ship / native install | `…/pagexml/PSPageXmlDualShip.java`, `PSPageXmlNativeInstall.java`, `PSPageXmlInstallPolicy.java` (#2786 / #2806) |
+| Dual-ship retirement checklist | [dual-ship-page-template-retirement.md](./dual-ship-page-template-retirement.md) |
 | Gadget registry compiler | `modules/perc-packages/.../gadgetxml/PSGadgetRegistryCompiler.java` (#2771) |
 | Modern gadget catalog (ship) | `modules/perc-packages/src/main/resources/catalogs/gadgets/gadget-catalog.json` |
 | Dual-run definition source shim | `modules/perc-packages/.../shim/PSLegacyDefinitionXmlShim.java` |

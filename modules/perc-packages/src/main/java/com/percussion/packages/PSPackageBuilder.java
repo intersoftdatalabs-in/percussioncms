@@ -19,6 +19,9 @@ package com.percussion.packages;
 
 import com.percussion.packages.pagexml.PSPageXmlDualShip;
 import com.percussion.packages.pagexml.PSPageXmlException;
+import com.percussion.packages.pagexml.PSPageXmlInstallMode;
+import com.percussion.packages.pagexml.PSPageXmlInstallPolicy;
+import com.percussion.packages.pagexml.PSPageXmlNativeInstall;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,8 +41,15 @@ import java.util.zip.ZipOutputStream;
  * haven't changed).
  *
  * <p>Page layout packages that author modern {@code pages/&lt;id&gt;/component-package.json} (ADR-004
- * / #2786) dual-ship install {@code *.templateDef} into the staging copy before zip so deployer
- * {@code TemplateDef} install parity is preserved.
+ * / #2786 / #2806) are staged for deployer {@code TemplateDef} install:
+ *
+ * <ul>
+ *   <li><strong>Dual-ship</strong> (default): materialize root {@code *.templateDef} before reorganize
+ *   <li><strong>Native</strong> (package-local or system property): stage {@code TemplateDef-N/}
+ *       archive folders from modern pages without dual-ship root files — see {@link
+ *       com.percussion.packages.pagexml.PSPageXmlInstallPolicy} / {@link
+ *       com.percussion.packages.pagexml.PSPageXmlNativeInstall}
+ * </ul>
  *
  * <p>Usage: {@code PSPackageBuilder <packagesDir> <outputDir> <tempDir>}
  */
@@ -140,8 +150,8 @@ public final class PSPackageBuilder {
       // Step 1: Copy source files to temp1
       copyDirectory(packageDir, temp1);
 
-      // Step 1b: Dual-ship modern page packages → install *.templateDef (ADR-004 / #2786)
-      dualShipPageTemplateDefs(temp1, dirName);
+      // Step 1b: Modern page packages → deployer TemplateDef install (#2786 / #2806)
+      stageModernPageInstallArtifacts(temp1, temp2, dirName, true);
 
       // Step 2: Read mapping properties
       var propsFile = packageDir.resolve(dirName + MAPPING_EXT);
@@ -155,6 +165,9 @@ public final class PSPackageBuilder {
       // Step 3: Reorganize files from temp1 into temp2 using mapping
       reorganizeFiles(dirName, temp1, temp1.toFile(), temp2, props);
 
+      // Step 3b: Native mode stages TemplateDef-N after reorganize (no dual-ship roots)
+      stageModernPageInstallArtifacts(temp1, temp2, dirName, false);
+
       // Step 4: Zip temp2 into .ppkg
       zipDirectory(temp2, outputFile);
     } finally {
@@ -166,21 +179,44 @@ public final class PSPackageBuilder {
   }
 
   /**
-   * When a package authors modern {@code pages/} component packages, materialize root-level {@code
-   * *.templateDef} for deployer install parity. Fail the package build if dual-ship cannot run.
+   * Stage modern page packages for deployer TemplateDef install.
+   *
+   * @param preReorganize when {@code true}, run dual-ship root materialization only; when {@code
+   *     false}, run native archive staging only
    */
-  private static void dualShipPageTemplateDefs(Path stagingPackageDir, String packageName)
+  private static void stageModernPageInstallArtifacts(
+      Path stagingPackageDir, Path archiveRoot, String packageName, boolean preReorganize)
       throws IOException {
     try {
       if (!PSPageXmlDualShip.hasModernPageSources(stagingPackageDir)) {
         return;
       }
-      int n = PSPageXmlDualShip.materializeInstallTemplateDefs(stagingPackageDir);
+      PSPageXmlInstallMode mode = PSPageXmlInstallPolicy.resolve(stagingPackageDir);
+      if (preReorganize) {
+        if (mode != PSPageXmlInstallMode.DUAL_SHIP) {
+          return;
+        }
+        int n = PSPageXmlDualShip.materializeInstallTemplateDefs(stagingPackageDir);
+        System.out.println(
+            "  dual-ship page templateDefs for " + packageName + ": " + n + " written");
+        return;
+      }
+      // post-reorganize: native archive staging
+      if (mode != PSPageXmlInstallMode.NATIVE) {
+        return;
+      }
+      int n = PSPageXmlNativeInstall.stageArchiveTemplateDefs(stagingPackageDir, archiveRoot);
       System.out.println(
-          "  dual-ship page templateDefs for " + packageName + ": " + n + " written");
+          "  native-install page TemplateDefs for " + packageName + ": " + n + " written");
     } catch (PSPageXmlException e) {
       throw new IOException(
-          "Page dual-ship failed for package " + packageName + ": " + e.getMessage(), e);
+          "Page install staging failed for package "
+              + packageName
+              + " ("
+              + (preReorganize ? "dual-ship" : "native")
+              + "): "
+              + e.getMessage(),
+          e);
     }
   }
 
