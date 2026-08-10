@@ -20,6 +20,7 @@ package com.percussion.packages.pagexml;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.packages.manifest.PSComponentPackageManifest;
@@ -106,6 +107,103 @@ class PSPageXmlDualShipTest {
     assertEquals(
         normalizeNewlines(model.getTemplateBody()),
         normalizeNewlines(installModel.getTemplateBody()));
+  }
+
+  @Test
+  void materializeInstall_missingGuid_failsFastWithClearError() throws Exception {
+    Path packageDir = tempDir.resolve("perc.missingGuid");
+    Files.createDirectories(packageDir);
+    // mapping present but for a different stem — target stem has no GUID entry
+    Files.writeString(
+        packageDir.resolve("perc.missingGuid.mapping.properties"),
+        "other.template.templateDef=TemplateDef-1\n",
+        StandardCharsets.UTF_8);
+
+    Path pageDir = packageDir.resolve(PSPageXmlDualShip.PAGES_DIR_NAME).resolve("perc.base.plain");
+    Files.createDirectories(pageDir);
+    PSPageXmlModel model = PSPageXmlParser.parse(readClasspath(FIXTURE_PLAIN));
+    model.setSourceFileName("perc.base.plain.templateDef");
+    PSPageXmlCompileResult compiled =
+        PSPageXmlCompiler.compile(model, baseTemplatesLikeContext());
+    PSPageXmlCompiler.writeArtifacts(compiled, pageDir);
+
+    PSPageXmlException ex =
+        assertThrows(
+            PSPageXmlException.class,
+            () -> PSPageXmlDualShip.materializeInstallTemplateDefs(packageDir));
+    assertTrue(
+        ex.getMessage().contains("Missing stable install GUID"),
+        "message should name the failure: " + ex.getMessage());
+    assertTrue(
+        ex.getMessage().contains("perc.base.plain"),
+        "message should name the stem: " + ex.getMessage());
+    assertFalse(
+        Files.isRegularFile(packageDir.resolve("perc.base.plain.templateDef")),
+        "must not emit templateDef without a GUID");
+  }
+
+  @Test
+  void loadModernAsCompileResult_readsEachTemplateSourceIndependently() throws Exception {
+    Path pageDir = tempDir.resolve("multi-template-page");
+    Path templates = pageDir.resolve("templates");
+    Files.createDirectories(templates);
+    Files.writeString(templates.resolve("primary.vm"), "PRIMARY-BODY", StandardCharsets.UTF_8);
+    Files.writeString(templates.resolve("secondary.vm"), "SECONDARY-BODY", StandardCharsets.UTF_8);
+
+    String manifestJson =
+        """
+        {
+          "schemaVersion": "1.0",
+          "id": "perc.test.multi",
+          "name": "Multi",
+          "version": "1.0.0",
+          "description": "multi-template dual-ship fixture",
+          "publisher": { "name": "Test", "url": "https://example.test" },
+          "cmsVersion": { "min": "1.0.0", "max": "9.0.0" },
+          "dependencies": [],
+          "catalog": {
+            "kind": "page",
+            "title": "Multi",
+            "category": "page",
+            "paletteVisible": true
+          },
+          "contentTypes": [],
+          "templates": [
+            {
+              "name": "perc.test.multi",
+              "type": "page",
+              "assembler": "pageAssembler",
+              "sourceRef": "templates/primary.vm",
+              "bindings": []
+            },
+            {
+              "name": "perc.test.multi.alt",
+              "type": "page",
+              "assembler": "pageAssembler",
+              "sourceRef": "templates/secondary.vm",
+              "bindings": []
+            }
+          ],
+          "slots": [],
+          "resources": [],
+          "userPreferences": [],
+          "cssPreferences": []
+        }
+        """;
+    Files.writeString(
+        pageDir.resolve(PSComponentPackageManifest.DEFAULT_MANIFEST_FILE_NAME),
+        manifestJson,
+        StandardCharsets.UTF_8);
+
+    PSPageXmlCompileResult result = PSPageXmlDualShip.loadModernAsCompileResult(pageDir);
+    assertEquals("PRIMARY-BODY", normalizeNewlines(result.getSource().getTemplateBody()));
+    assertEquals(
+        "PRIMARY-BODY",
+        normalizeNewlines(result.getTextArtifacts().get("templates/primary.vm")));
+    assertEquals(
+        "SECONDARY-BODY",
+        normalizeNewlines(result.getTextArtifacts().get("templates/secondary.vm")),
+        "each sourceRef must load its own file, not reuse templates[0]");
   }
 
   @Test

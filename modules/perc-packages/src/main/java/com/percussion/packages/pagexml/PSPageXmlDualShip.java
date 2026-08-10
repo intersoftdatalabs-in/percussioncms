@@ -146,6 +146,18 @@ public final class PSPageXmlDualShip {
       }
       String templateSource = readTemplateSource(pageDir, manifest);
       String guid = guidsByStem.get(stem);
+      if (guid == null || guid.isBlank()) {
+        Path mapping = findMappingProperties(packageDir);
+        String mappingHint =
+            mapping != null ? mapping.toString() : "(no *.mapping.properties under package root)";
+        throw new PSPageXmlException(
+            "Missing stable install GUID for modern page stem '"
+                + stem
+                + "'. Expected key '"
+                + stem
+                + ".templateDef=TemplateDef-N' in mapping file: "
+                + mappingHint);
+      }
       String xml = PSPageXmlTemplateDefEmitter.emit(manifest, templateSource, guid);
       Path out = packageDir.resolve(stem + ".templateDef");
       Files.writeString(out, xml, StandardCharsets.UTF_8);
@@ -233,6 +245,7 @@ public final class PSPageXmlDualShip {
           "Invalid modern page package at " + pageDir + ": " + e.getMessage(), e);
     }
 
+    // Primary template (templates[0]) drives the dual-ship model body / install templateDef.
     String templateSource = readTemplateSource(pageDir, manifest);
     // Build a synthetic model so dual-ship emit + tests share one shape.
     PSPageXmlModel model = new PSPageXmlModel();
@@ -252,11 +265,12 @@ public final class PSPageXmlDualShip {
     model.setTemplateType("Shared");
     model.setActiveAssemblyType("Normal");
 
+    // Each template ref keeps its own source — do not reuse templates[0] for siblings.
     Map<String, String> artifacts = new LinkedHashMap<>();
     if (manifest.getTemplates() != null) {
       for (PSComponentPackageManifest.TemplateRef t : manifest.getTemplates()) {
         if (t != null && t.getSourceRef() != null && !t.getSourceRef().isBlank()) {
-          artifacts.put(t.getSourceRef(), templateSource);
+          artifacts.put(t.getSourceRef(), readTemplateSourceByRef(pageDir, t.getSourceRef()));
         }
       }
     }
@@ -355,6 +369,18 @@ public final class PSPageXmlDualShip {
     if (sourceRef == null || sourceRef.isBlank()) {
       throw new PSPageXmlException(
           "Modern page package missing templates[0].sourceRef: " + pageDir);
+    }
+    return readTemplateSourceByRef(pageDir, sourceRef);
+  }
+
+  /**
+   * Read a package-relative template source path under {@code pageDir}. Used so multi-template
+   * modern packages load each {@code sourceRef} independently.
+   */
+  private static String readTemplateSourceByRef(Path pageDir, String sourceRef)
+      throws PSPageXmlException, IOException {
+    if (sourceRef == null || sourceRef.isBlank()) {
+      throw new PSPageXmlException("Blank template sourceRef under " + pageDir);
     }
     Path templatePath = PSPageXmlCompiler.resolvePackageRelative(pageDir, sourceRef);
     if (!Files.isRegularFile(templatePath)) {
