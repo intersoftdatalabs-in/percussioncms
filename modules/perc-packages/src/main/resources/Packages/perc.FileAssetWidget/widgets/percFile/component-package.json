@@ -1,0 +1,192 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percFile",
+  "name": "File",
+  "version": "1.1.6",
+  "description": "Upload a file and display a link to it",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.Baseline",
+      "version": "1.0.3",
+      "implied": true
+    }
+  ],
+  "catalog": {
+    "kind": "component",
+    "title": "File",
+    "category": "content,rich media",
+    "description": "Upload a file and display a link to it",
+    "thumbnail": "resources/widgetIconFile.png",
+    "icon": "resources/widgetIconFile.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 780,
+    "preferredEditorHeight": 340,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percFileAsset",
+      "ref": "contentTypes/percFileAsset"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percFileSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percFileSnippet.vm",
+      "contentType": "percFileAsset",
+      "bindings": [
+        {
+          "variable": "props",
+          "expression": "$perc.widget.item.properties"
+        },
+        {
+          "variable": "referalPolicy",
+          "expression": "$props.get(\"referalPolicy\")"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$rootclass + \" \""
+        },
+        {
+          "variable": "linkNewWindow",
+          "expression": "$perc.widget.item.properties.get('linkNewWindow')"
+        },
+        {
+          "variable": "target",
+          "expression": "\"_blank\""
+        },
+        {
+          "variable": "target",
+          "expression": "\"_self\""
+        },
+        {
+          "variable": "linkContext",
+          "expression": "$perc.linkContext"
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assetItems.get(0)"
+        },
+        {
+          "variable": "link",
+          "expression": "$rx.pageutils.itemLink($linkContext, $assetItem, \"percSystem.fileBinary\")"
+        },
+        {
+          "variable": "title",
+          "expression": "$rx.pageutils.html($assetItem,'displaytitle')"
+        },
+        {
+          "variable": "link",
+          "expression": "$tools.esc.html($link)"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\")"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$props = $perc.widget.item.properties;\n        $referalPolicy = $props.get(\"referalPolicy\");\n        $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n        if(!empty($rootclass)) {\n            $rootclass = $rootclass + \" \";\n        }\n\n        $linkNewWindow = $perc.widget.item.properties.get('linkNewWindow');\n\n\n        if ($linkNewWindow == true) {\n            $target=\"_blank\";\n        }\n        else {\n            $target=\"_self\";\n        }\n        $linkContext = $perc.linkContext;\n        $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n        $perc.setWidgetContents($assetItems);\n        if ( ! $assetItems.isEmpty() ) {\n            $assetItem = $assetItems.get(0);\n            $link = $rx.pageutils.itemLink($linkContext, $assetItem, \"percSystem.fileBinary\");\n            $title = $rx.pageutils.html($assetItem,'displaytitle');\n            $link = $tools.esc.html($link);\n        }\n\n        $dsUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n\n        $dynamicListData = $tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\");"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percFileContent",
+      "allowedContentTypes": [
+        "percFileAsset"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconFile.png",
+      "target": "rx_resources/widgets/file/images/widgetIconFile.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "linkNewWindow",
+      "displayName": "Open link in new window",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "referalPolicy",
+      "displayName": "Referrer-Policy",
+      "datatype": "enum",
+      "required": false,
+      "enumValues": [
+        {
+          "value": "no-referrer",
+          "displayValue": "no-referrer"
+        },
+        {
+          "value": "no-referrer-when-downgrade",
+          "displayValue": "no-referrer-when-downgrade"
+        },
+        {
+          "value": "origin",
+          "displayValue": "origin"
+        },
+        {
+          "value": "origin-when-cross-origin",
+          "displayValue": "origin-when-cross-origin"
+        },
+        {
+          "value": "same-origin",
+          "displayValue": "same-origin"
+        },
+        {
+          "value": "strict-origin",
+          "displayValue": "strict-origin"
+        },
+        {
+          "value": "strict-origin-when-cross-origin",
+          "displayValue": "strict-origin-when-cross-origin"
+        },
+        {
+          "value": "unsafe-url",
+          "displayValue": "unsafe-url"
+        }
+      ]
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS Root Class",
+      "datatype": "string"
+    }
+  ]
+}

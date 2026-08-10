@@ -1,0 +1,17 @@
+#loadRelatedWidgetContents()
+
+    <div aria-busy="true" id="$!{feedId}" $!{ariaRole} aria-live="polite" aria-relevant="additions" aria-atomic="true" class="perc-feed-widget $!{rootclass}" data-query="$!dynamicListData">
+        #if ($perc.isEditMode())
+            #if ($percUrlFeed == "")
+                #createEmptyWidgetContent("feed-sample-content", "This rss widget is showing sample content.")
+            #else
+                #createEmptyWidgetContent("feed-edit-content", "Preview the page or asset to view this rss.")
+            #end
+        #else
+            #if ($percUrlFeed != "" && $perc.isPreviewMode())
+                <${itemElement} class="feed-edit-content" title="Preview the page or asset to view this rss"></$itemElement>
+            #else
+
+            #end
+        #end
+    </div>

@@ -1,0 +1,433 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percOrganization",
+  "name": "Organization",
+  "version": "2.1.0",
+  "description": "This widget is used to store the information details of an Organization.",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "Percussion Software Inc."
+  },
+  "cmsVersion": {
+    "min": "5.3.15",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.Baseline",
+      "version": "1.0.7",
+      "implied": false
+    },
+    {
+      "name": "perc.SystemObjects",
+      "version": "1.0.0",
+      "implied": false
+    }
+  ],
+  "catalog": {
+    "kind": "component",
+    "title": "Organization",
+    "description": "This widget is used to store the information details of an Organization.",
+    "thumbnail": "resources/percOrganizationIcon.png",
+    "icon": "resources/percOrganizationIcon.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 800,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percOrganization",
+      "ref": "contentTypes/percOrganization"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percOrganizationSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percOrganizationSnippet.vm",
+      "contentType": "percOrganization",
+      "bindings": [
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "widgetId",
+          "expression": "$perc.widget.item.id"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "'percOrganization'"
+        },
+        {
+          "variable": "assets",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "orgNameFormat",
+          "expression": "$perc.widget.item.properties.get('orgNameFormat')"
+        },
+        {
+          "variable": "orgNameFormatStartTag",
+          "expression": "'<' + $orgNameFormat + '>'"
+        },
+        {
+          "variable": "orgNameFormatEndTag",
+          "expression": "'</' + $orgNameFormat + '>'"
+        },
+        {
+          "variable": "percHideFieldOrgName",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_organizationName')"
+        },
+        {
+          "variable": "percHideFieldOrgAddress",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_organizationAddress')"
+        },
+        {
+          "variable": "percHideFieldOrgPhone",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_organizationPhone')"
+        },
+        {
+          "variable": "percHideFieldOrgFax",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_organizationFax')"
+        },
+        {
+          "variable": "percHideFieldOrgEmail",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_organizationEmail')"
+        },
+        {
+          "variable": "percHideFieldOrgLogo",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_organizationLogo')"
+        },
+        {
+          "variable": "percHideFieldOrgPage",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_organizationPage')"
+        },
+        {
+          "variable": "assetContentId",
+          "expression": "$assetItem.getNode().getProperty('sys_contentid').String"
+        },
+        {
+          "variable": "pageName",
+          "expression": "$perc.page.name"
+        },
+        {
+          "variable": "folderName",
+          "expression": "$perc.page.folderPaths.get(0)"
+        },
+        {
+          "variable": "temp",
+          "expression": "$folderName.replace(\"//Sites/\",\"\")"
+        },
+        {
+          "variable": "pathArray",
+          "expression": "$temp.split(\"/\")"
+        },
+        {
+          "variable": "siteDomain",
+          "expression": "$pathArray.get(0)"
+        },
+        {
+          "variable": "orgName",
+          "expression": "$assetItem.getNode().getProperty('orgName').String"
+        },
+        {
+          "variable": "parentOrgId",
+          "expression": "$assetItem.getNode().getProperty('parentOrganization').String"
+        },
+        {
+          "variable": "orgAddress1",
+          "expression": "$assetItem.getNode().getProperty('orgAddress1').String"
+        },
+        {
+          "variable": "orgAddress2",
+          "expression": "$assetItem.getNode().getProperty('orgAddress2').String"
+        },
+        {
+          "variable": "orgCity",
+          "expression": "$assetItem.getNode().getProperty('orgCity').String"
+        },
+        {
+          "variable": "orgState",
+          "expression": "$assetItem.getNode().getProperty('orgState').String"
+        },
+        {
+          "variable": "orgPostCode",
+          "expression": "$assetItem.getNode().getProperty('orgPostCode').String"
+        },
+        {
+          "variable": "orgCountry",
+          "expression": "$assetItem.getNode().getProperty('orgCountry').String"
+        },
+        {
+          "variable": "params",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "query",
+          "expression": "'select rx:orgName from rx:percOrganization where rx:sys_contentid = :parentOrgId'"
+        },
+        {
+          "variable": "finderName",
+          "expression": "'Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder'"
+        },
+        {
+          "variable": "parentOrgResult",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params)"
+        },
+        {
+          "variable": "parentOrgName",
+          "expression": "$parentOrgResult.get(0).getNode().getProperty(\"orgName\").String"
+        },
+        {
+          "variable": "orgPhone",
+          "expression": "$assetItem.getNode().getProperty('orgPhone').String"
+        },
+        {
+          "variable": "orgFax",
+          "expression": "$assetItem.getNode().getProperty('orgFax').String"
+        },
+        {
+          "variable": "orgEmail",
+          "expression": "$assetItem.getNode().getProperty('orgEmail').String"
+        },
+        {
+          "variable": "orgAddress3",
+          "expression": "\"\""
+        },
+        {
+          "variable": "orgAddress3",
+          "expression": "$orgAddress3 + $orgCity"
+        },
+        {
+          "variable": "orgAddress3",
+          "expression": "$orgAddress3 + \", \""
+        },
+        {
+          "variable": "orgAddress3",
+          "expression": "$orgAddress3 + $orgState"
+        },
+        {
+          "variable": "orgAddress3",
+          "expression": "$orgAddress3 + \" \" + $orgPostCode"
+        },
+        {
+          "variable": "orgLogo_linkId",
+          "expression": "$assetItem.getNode().getProperty('orgLogo_linkId').String"
+        },
+        {
+          "variable": "orgLogo_path",
+          "expression": "$rx.pageutils.renderManagedItemPath($perc.linkContext, $orgLogo_linkId, $sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "orgLogo_alt_text",
+          "expression": "\"\""
+        },
+        {
+          "variable": "orgLogo_title",
+          "expression": "\"\""
+        },
+        {
+          "variable": "orgLogo_sys_contentId",
+          "expression": "$rx.pageutils.getManagedLinkDependentId($orgLogo_linkId)"
+        },
+        {
+          "variable": "orgLogo_assetMap",
+          "expression": "$rx.pageutils.findItemFieldValues('percImageAsset', 'displaytitle,alttext', $orgLogo_sys_contentId)"
+        },
+        {
+          "variable": "orgLogo_alt_text",
+          "expression": "$orgLogo_assetMap.get('alttext')"
+        },
+        {
+          "variable": "orgLogo_title",
+          "expression": "$orgLogo_assetMap.get('displaytitle')"
+        },
+        {
+          "variable": "orgPage_linkId",
+          "expression": "$assetItem.getNode().getProperty('orgPage_linkId').String"
+        },
+        {
+          "variable": "orgPage_path",
+          "expression": "$rx.pageutils.renderManagedItemPath($perc.linkContext, $orgPage_linkId)"
+        },
+        {
+          "variable": "orgPage_title",
+          "expression": "\"\""
+        },
+        {
+          "variable": "orgPage_sys_contentId",
+          "expression": "$rx.pageutils.getManagedLinkDependentId($orgPage_linkId)"
+        },
+        {
+          "variable": "orgPage_pageMap",
+          "expression": "$rx.pageutils.findItemFieldValues('percPage', 'resource_link_title', $orgPage_sys_contentId)"
+        },
+        {
+          "variable": "orgPage_title",
+          "expression": "$orgPage_pageMap.get('resource_link_title')"
+        },
+        {
+          "variable": "orgPageExt",
+          "expression": "$assetItem.getNode().getProperty('orgPageExt').String"
+        },
+        {
+          "variable": "orgPage_path",
+          "expression": "$orgPageExt"
+        },
+        {
+          "variable": "orgPage_title",
+          "expression": "$orgPageExt"
+        },
+        {
+          "variable": "scriptSchemaId",
+          "expression": "\"perc-organization-schema-\" + $assetContentId"
+        },
+        {
+          "variable": "orgSchema",
+          "expression": "$rx.string.getJSONObject()"
+        },
+        {
+          "variable": "orgAddress",
+          "expression": "$rx.string.getJSONObject()"
+        },
+        {
+          "variable": "orgStreetAddress",
+          "expression": "$orgAddress1 + ' ' + $orgAddress2"
+        },
+        {
+          "variable": "orgURL",
+          "expression": "\"//\" + $siteDomain + $orgPage_path"
+        },
+        {
+          "variable": "orgLogoURL",
+          "expression": "\"//\" + $siteDomain + $orgLogo_path"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$pageId = $perc.page.id;\n       $widgetId = $perc.widget.item.id;\n       $rootclass = 'percOrganization';\n\n       ## Get asset item(s)\n       $assets = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n       $perc.setWidgetContents($assets);\n\n       if (! $assets.isEmpty())\n       {\n            ## Get Widget Layout Properties\n            $orgNameFormat = $perc.widget.item.properties.get('orgNameFormat');\n            if (!empty($orgNameFormat))\n            {\n                $orgNameFormatStartTag = '<' + $orgNameFormat + '>';\n                $orgNameFormatEndTag = '</' + $orgNameFormat + '>';\n            }\n            $percHideFieldOrgName = $perc.widget.item.properties.get('perc_hidefield_organizationName');\n            $percHideFieldOrgAddress = $perc.widget.item.properties.get('perc_hidefield_organizationAddress');\n            $percHideFieldOrgPhone = $perc.widget.item.properties.get('perc_hidefield_organizationPhone');\n            $percHideFieldOrgFax = $perc.widget.item.properties.get('perc_hidefield_organizationFax');\n            $percHideFieldOrgEmail = $perc.widget.item.properties.get('perc_hidefield_organizationEmail');\n            $percHideFieldOrgLogo = $perc.widget.item.properties.get('perc_hidefield_organizationLogo');\n            $percHideFieldOrgPage = $perc.widget.item.properties.get('perc_hidefield_organizationPage');\n\n            ## Get Widget Content Properties\n            $assetItem = $assets.get(0); ## Get first item (which may be only item)\n            $assetContentId = $assetItem.getNode().getProperty('sys_contentid').String;\n\n            ## Get site domain name\n            $pageName = $perc.page.name;\n            $folderName = $perc.page.folderPaths.get(0);\n            $temp = $folderName.replace(\"//Sites/\",\"\");\n            $pathArray = $temp.split(\"/\");\n            $siteDomain = $pathArray.get(0);\n\n            $orgName = $assetItem.getNode().getProperty('orgName').String;\n            $parentOrgId = $assetItem.getNode().getProperty('parentOrganization').String;\n            $orgAddress1 = $assetItem.getNode().getProperty('orgAddress1').String;\n            $orgAddress2 = $assetItem.getNode().getProperty('orgAddress2').String;\n            $orgCity = $assetItem.getNode().getProperty('orgCity').String;\n            $orgState = $assetItem.getNode().getProperty('orgState').String;\n            $orgPostCode = $assetItem.getNode().getProperty('orgPostCode').String;\n            $orgCountry = $assetItem.getNode().getProperty('orgCountry').String;\n\n            if ($parentOrgId != '' && $parentOrgId != null && $parentOrgId != '#') {\n                $params = $rx.string.stringToMap(null);\n                $params.put('parentOrgId', $parentOrgId );\n                $query = 'select rx:orgName from rx:percOrganization where rx:sys_contentid = :parentOrgId';\n                $params.put('max_results', 1);\n                $params.put('query', $query);\n                $finderName = 'Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder';\n                $parentOrgResult = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params);\n\n                if ($parentOrgResult.size() > 0) {\n                    $parentOrgName = $parentOrgResult.get(0).getNode().getProperty(\"orgName\").String;\n                }\n            }\n\n            $orgPhone = $assetItem.getNode().getProperty('orgPhone').String;\n            $orgFax = $assetItem.getNode().getProperty('orgFax').String;\n            $orgEmail = $assetItem.getNode().getProperty('orgEmail').String;\n\n            $orgAddress3 = \"\";\n            if ($orgCity != \"\")\n            {\n                $orgAddress3 = $orgAddress3 + $orgCity;\n            }\n            if ($orgCity != \"\" && $orgState != \"\")\n            {\n                $orgAddress3 = $orgAddress3 + \", \";\n            }\n            if ($orgState != \"\")\n            {\n                $orgAddress3 = $orgAddress3 + $orgState;\n            }\n            if ($orgPostCode != \"\")\n            {\n                $orgAddress3 = $orgAddress3 + \" \" + $orgPostCode;\n            }\n\n            $orgLogo_linkId = $assetItem.getNode().getProperty('orgLogo_linkId').String;\n            $orgLogo_path = $rx.pageutils.renderManagedItemPath($perc.linkContext, $orgLogo_linkId, $sys.assemblyItem.PubServerId);\n            $orgLogo_alt_text=\"\";\n            $orgLogo_title=\"\";\n            $orgLogo_sys_contentId = $rx.pageutils.getManagedLinkDependentId($orgLogo_linkId);\n            if ($orgLogo_sys_contentId != \"\")\n            {\n                $orgLogo_assetMap = $rx.pageutils.findItemFieldValues('percImageAsset', 'displaytitle,alttext', $orgLogo_sys_contentId);\n                $orgLogo_alt_text = $orgLogo_assetMap.get('alttext');\n                $orgLogo_title = $orgLogo_assetMap.get('displaytitle');\n            }\n            $orgPage_linkId = $assetItem.getNode().getProperty('orgPage_linkId').String;\n            $orgPage_path = $rx.pageutils.renderManagedItemPath($perc.linkContext, $orgPage_linkId);\n            $orgPage_title = \"\";\n            $orgPage_sys_contentId = $rx.pageutils.getManagedLinkDependentId($orgPage_linkId);\n            if ($orgPage_sys_contentId != \"\")\n            {\n                $orgPage_pageMap = $rx.pageutils.findItemFieldValues('percPage', 'resource_link_title', $orgPage_sys_contentId);\n                $orgPage_title = $orgPage_pageMap.get('resource_link_title');\n            }\n            $orgPageExt = $assetItem.getNode().getProperty('orgPageExt').String;\n            if ($orgPageExt != \"\"){\n                $orgPage_path = $orgPageExt;\n                $orgPage_title = $orgPageExt;\n            }\n            ##\n            ## Schema.org Definition\n            ##\n            $scriptSchemaId = \"perc-organization-schema-\" + $assetContentId;\n            $orgSchema = $rx.string.getJSONObject();\n            $orgSchema.put(\"@context\", \"http://schema.org\");\n            $orgSchema.put(\"@type\", \"Organization\");\n            $orgSchema.put(\"name\", $orgName);\n            if ($orgName != \"\") {\n                $orgAddress = $rx.string.getJSONObject();\n                    $orgAddress.put(\"@type\", \"PostalAddress\");\n                    $orgStreetAddress = $orgAddress1 + ' ' + $orgAddress2;\n                    if ($orgStreetAddress != \"\"){\n                        $orgAddress.put(\"streetAddress\", $orgStreetAddress);\n                    }\n                    if ($orgCity != \"\"){\n                        $orgAddress.put(\"addressLocality\", $orgCity);\n                    }\n                    if ($orgState != \"\"){\n                        $orgAddress.put(\"addressRegion\", $orgState);\n                    }\n                    if ($orgCountry != \"\"){\n                        $orgAddress.put(\"addressCountry\", $orgCountry);\n                    }\n                    if ($orgPostCode != \"\"){\n                        $orgAddress.put(\"postalCode\", $orgPostCode);\n                    }\n                $orgSchema.put(\"address\", $orgAddress);\n                if ($parentOrgName != '' && $parentOrgName != null) {\n                    $orgSchema.put(\"parentOrganization\", $parentOrgName);\n                }\n                if ($orgPage_path != \"\" && $orgPage_path != \"#\"){\n                    $orgURL = \"//\" + $siteDomain + $orgPage_path;\n                    $orgSchema.put(\"url\", $orgURL);\n                }\n                if ($orgLogo_path != \"\" && $orgLogo_path != \"#\")\n                {\n                    $orgLogoURL = \"//\" + $siteDomain + $orgLogo_path;\n                    $orgSchema.put(\"image\", $orgLogoURL);\n                }\n            }\n            ## End Schema.org Markup\n       }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percOrganizationContent",
+      "allowedContentTypes": [
+        "percOrganization"
+      ],
+      "layout": {},
+      "styles": {}
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/percOrganizationIcon.png",
+      "target": "rx_resources/widgets/percOrganization/images/percOrganizationIcon.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "orgNameFormat",
+      "displayName": "Format of Organization Name",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "h2",
+      "enumValues": [
+        {
+          "value": "p",
+          "displayValue": "Paragraph"
+        },
+        {
+          "value": "div",
+          "displayValue": "Div"
+        },
+        {
+          "value": "h1",
+          "displayValue": "Heading 1"
+        },
+        {
+          "value": "h2",
+          "displayValue": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "displayValue": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "displayValue": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "displayValue": "Heading 5"
+        },
+        {
+          "value": "h6",
+          "displayValue": "Heading 6"
+        }
+      ]
+    },
+    {
+      "name": "perc_hidefield_organizationName",
+      "displayName": "Hide Organization Name",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_organizationAddress",
+      "displayName": "Hide Organization Address",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_organizationPhone",
+      "displayName": "Hide Organization Phone Number",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_organizationFax",
+      "displayName": "Hide Organization Fax Number",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_organizationEmail",
+      "displayName": "Hide Organization Email Address",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_organizationLogo",
+      "displayName": "Hide Organization Logo",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_organizationPage",
+      "displayName": "Hide Organization Page",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": []
+}

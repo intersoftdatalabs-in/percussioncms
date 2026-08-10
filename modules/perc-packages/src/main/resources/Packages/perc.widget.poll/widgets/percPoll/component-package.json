@@ -1,0 +1,239 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percPoll",
+  "name": "Polls",
+  "version": "1.2.0",
+  "description": "Widget to build and render polls.",
+  "publisher": {
+    "name": "Percussion Software Inc",
+    "url": "http://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "2.5.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Polls",
+    "category": "social,blog",
+    "description": "Widget to build and render polls.",
+    "thumbnail": "resources/widgetIconPoll.png",
+    "icon": "resources/widgetIconPoll.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 780,
+    "preferredEditorHeight": 600,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percPollAsset",
+      "ref": "contentTypes/percPollAsset"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percPollSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percPollSnippet.vm",
+      "contentType": "percPollAsset",
+      "bindings": [
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "props",
+          "expression": "$perc.widget.item.properties"
+        },
+        {
+          "variable": "viewResultsLink",
+          "expression": "$props.get(\"viewResultsLink\")"
+        },
+        {
+          "variable": "viewResultsLinkText",
+          "expression": "$props.get(\"viewResultsLinkText\")"
+        },
+        {
+          "variable": "pollSubmitLabel",
+          "expression": "$props.get(\"submitLabel\")"
+        },
+        {
+          "variable": "restrictionType",
+          "expression": "$props.get(\"pollRestrictionType\")"
+        },
+        {
+          "variable": "validationText",
+          "expression": "$props.get(\"validationText\")"
+        },
+        {
+          "variable": "backToPollText",
+          "expression": "$props.get(\"backToPollText\")"
+        },
+        {
+          "variable": "totalVotesText",
+          "expression": "$props.get(\"totalVotesText\")"
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "pollQuestion",
+          "expression": "\"\""
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assetItems.get(0)"
+        },
+        {
+          "variable": "pollName",
+          "expression": "$assetItem.Node.getProperty('rx:sys_title').getString()"
+        },
+        {
+          "variable": "pollTitle",
+          "expression": "$assetItem.Node.getProperty('rx:pollTitle').getString()"
+        },
+        {
+          "variable": "pollQuestion",
+          "expression": "$assetItem.Node.getProperty('rx:pollQuestion').getString()"
+        },
+        {
+          "variable": "qJson",
+          "expression": "$rx.pageutils.createJsonObject($pollQuestion)"
+        },
+        {
+          "variable": "question",
+          "expression": "$qJson.getString(\"question\")"
+        },
+        {
+          "variable": "answerType",
+          "expression": "$qJson.getString(\"answerType\")"
+        },
+        {
+          "variable": "inputType",
+          "expression": "\"radio\""
+        },
+        {
+          "variable": "inputType",
+          "expression": "\"checkbox\""
+        },
+        {
+          "variable": "ansArray",
+          "expression": "$qJson.getJSONArray(\"answerChoices\").toArray()"
+        },
+        {
+          "variable": "dataJson",
+          "expression": "$rx.pageutils.createJsonObject(\"{}\")"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "## Widget Properties\n\t\t\t$rootclass = $perc.widget.item.cssProperties.get('rootclass');\n            $props = $perc.widget.item.properties;\n            $viewResultsLink = $props.get(\"viewResultsLink\");\n            $viewResultsLinkText = $props.get(\"viewResultsLinkText\");\n\t\t\t$pollSubmitLabel = $props.get(\"submitLabel\");\n\t\t\t$restrictionType = $props.get(\"pollRestrictionType\");\n\t\t\t$validationText = $props.get(\"validationText\");\n\t\t\t$backToPollText = $props.get(\"backToPollText\");\n\t\t\t$totalVotesText = $props.get(\"totalVotesText\");\n\n\t\t\t## Asset properties\n\t\t\t$assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n\t\t\t$perc.setWidgetContents($assetItems);\n\t\t\t$pollQuestion = \"\";\n\t        if ( ! $assetItems.isEmpty() ) {\n\t\t\t\t$assetItem = $assetItems.get(0);\n\t\t\t\t$pollName = $assetItem.Node.getProperty('rx:sys_title').getString();\n\t\t\t\t$pollTitle = $assetItem.Node.getProperty('rx:pollTitle').getString();\n\t\t\t\t$pollQuestion = $assetItem.Node.getProperty('rx:pollQuestion').getString();\n\t\t\t\t$qJson = $rx.pageutils.createJsonObject($pollQuestion);\n\t\t\t\t$question = $qJson.getString(\"question\");\n\t\t\t\t$answerType = $qJson.getString(\"answerType\");\n\t\t\t\t$inputType = \"radio\";\n\t\t\t\tif($answerType.equals(\"multi\"))\n\t\t\t\t\t$inputType = \"checkbox\";\n\t\t\t\t$ansArray = $qJson.getJSONArray(\"answerChoices\").toArray();\n\n\t\t\t\t## Create data JSON object\n\t\t\t\t$dataJson = $rx.pageutils.createJsonObject(\"{}\");\n\t\t\t\t$dataJson.put(\"pollName\",$pollName);\n\t\t\t\t$dataJson.put(\"restrictionType\",$restrictionType);\n\t\t\t}\n\n\t\t\t$dsUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percPollContent",
+      "allowedContentTypes": [
+        "percPollAsset"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconPoll.png",
+      "target": "rx_resources/widgets/percPoll/images/widgetIconPoll.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "pollRestrictionType",
+      "displayName": "Restrict poll submission by",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "Unrestricted",
+      "enumValues": [
+        {
+          "value": "Unrestricted",
+          "displayValue": "Unrestricted"
+        },
+        {
+          "value": "Session",
+          "displayValue": "Session"
+        },
+        {
+          "value": "Cookie",
+          "displayValue": "Cookie"
+        }
+      ]
+    },
+    {
+      "name": "submitLabel",
+      "displayName": "Submit button label",
+      "datatype": "string",
+      "required": true,
+      "defaultValue": "Vote",
+      "enumValues": []
+    },
+    {
+      "name": "viewResultsLink",
+      "displayName": "Show view results link",
+      "datatype": "bool",
+      "required": true,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "viewResultsLinkText",
+      "displayName": "Text for view results",
+      "datatype": "string",
+      "required": true,
+      "defaultValue": "View results",
+      "enumValues": []
+    },
+    {
+      "name": "validationText",
+      "displayName": "Validation text",
+      "datatype": "string",
+      "required": true,
+      "defaultValue": "Please choose an answer first!",
+      "enumValues": []
+    },
+    {
+      "name": "totalVotesText",
+      "displayName": "Text for total votes",
+      "datatype": "string",
+      "required": true,
+      "defaultValue": "Total votes",
+      "enumValues": []
+    },
+    {
+      "name": "backToPollText",
+      "displayName": "Text to return",
+      "datatype": "string",
+      "required": true,
+      "defaultValue": "Back to poll",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS Root Class",
+      "datatype": "string"
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "schemaVersion": "1.0",
+  "id": "simpleTextAutoList",
+  "name": "Text Auto List",
+  "version": "1.1.5",
+  "description": "Simple Auto List widget for text blocks",
+  "publisher": {
+    "name": "Percussion Software",
+    "url": "www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Text Auto List",
+    "category": "content,search",
+    "description": "Simple Auto List widget for text blocks",
+    "thumbnail": "resources/widgetIconTextAutoList.png",
+    "icon": "resources/widgetIconTextAutoList.png",
+    "author": "Percussion Software Inc",
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percSimpleAutoList",
+      "ref": "contentTypes/percSimpleAutoList"
+    }
+  ],
+  "templates": [
+    {
+      "name": "simpleTextAutoListSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/simpleTextAutoListSnippet.vm",
+      "contentType": "percSimpleAutoList",
+      "bindings": [
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assetItems.get(0)"
+        },
+        {
+          "variable": "params",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "finderName",
+          "expression": "\"Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder\""
+        },
+        {
+          "variable": "relresults",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params)"
+        },
+        {
+          "variable": "title",
+          "expression": "$rx.pageutils.html($assetItem,'displaytitle')"
+        },
+        {
+          "variable": "rowtag",
+          "expression": "$tools.alternator.auto('.ui-perc-list-odd', '.ui-perc-list-even')"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n   $perc.setWidgetContents($assetItems);\n   if ( ! $assetItems.isEmpty() ) {\n      $assetItem = $assetItems.get(0);\n      $params = $rx.string.stringToMap(null);\n      $params.put('query', $assetItem.getNode().getProperty('query').String);\n      $params.put('max_results', $assetItem.getNode().getProperty('max_results').Long);\n      $finderName = \"Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder\";\n      $relresults =  $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params);\n      $title = $rx.pageutils.html($assetItem,'displaytitle');\n      $rowtag = $tools.alternator.auto('.ui-perc-list-odd', '.ui-perc-list-even');\n   }\n   else {\n      ;\n   }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "simpleTextAutoListContent",
+      "allowedContentTypes": [
+        "percSimpleAutoList"
+      ],
+      "layout": {
+        "maxlength": "0",
+        "layout": ""
+      },
+      "styles": {}
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconTextAutoList.png",
+      "target": "rx_resources/widgets/simpleList/images/widgetIconTextAutoList.png",
+      "type": "image"
+    },
+    {
+      "path": "resources/style.css",
+      "target": "rx_resources/widgets/simpleList/css/style.css",
+      "type": "css",
+      "placement": "head"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "maxlength",
+      "displayName": "Max List Length",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "0",
+      "enumValues": []
+    },
+    {
+      "name": "rootclass",
+      "displayName": "CSS Root Class",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "layout",
+      "displayName": "Layout",
+      "datatype": "string",
+      "required": true,
+      "enumValues": [
+        {
+          "value": "ui-perc-list-horizontal",
+          "displayValue": "Horizontal"
+        },
+        {
+          "value": "ui-perc-list-vertical",
+          "displayValue": "Vertical"
+        }
+      ]
+    }
+  ],
+  "cssPreferences": []
+}

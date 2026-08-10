@@ -17,8 +17,9 @@
 | Compiler extensions (#2772) | `<Resource href/type/placement>`, chrome slots without CT, layout UserPref → slot.layout | CSS/JS resources + nav chrome (no asset CT); residual batches needed no new shapes |
 | **Product packages still ship Widget XML** | Yes (dual-run install) | Compiler produces modern artifacts; install still uses `sys__UserDependency--rxconfig/Widgets/*.xml`; does **not** yet remove product `rxconfig/Widgets/*.xml` from source trees |
 | **Dual-ship modern authoring roots (batch A #2831)** | **Landed for 8 widgets / 5 packages** | `widgets/<stem>/component-package.json` under baseWidgets, defaultLanguage, event, openGraph, twitter; see [dual-ship-widget-xml-exit.md](./dual-ship-widget-xml-exit.md) |
+| **Dual-ship modern authoring roots (batch B #2832)** | **Landed for 20 widgets / 14 packages** | high-traffic (#2772) + residual long-tail (#2789): title/lists/nav/file/image + blog/calendar/directory/social/form/poll/login/rss/iframe |
 | Residual product packages (after #2830) | **None** (full product inventory on modern compile path) | Dual-ship modern roots for remaining widgets + native install + XML delete remain residual / Phase 5 (#2632 / parent #2630) |
-| Runtime legacy XML shim | Landed (cluster #2766); prefers `widgets/` modern (#2831) | #2752 |
+| Runtime legacy XML shim | Landed (cluster #2766); prefers `widgets/` modern (#2831 / #2832) | #2752 |
 
 ### High-traffic batch covered by #2772
 

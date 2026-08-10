@@ -1,0 +1,444 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percPerson",
+  "name": "Person",
+  "version": "2.1.0",
+  "description": "This widget is used to store the details of a Person for use with the Directory widget",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "Percussion Software Inc."
+  },
+  "cmsVersion": {
+    "min": "5.3.15",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.Baseline",
+      "version": "1.0.7",
+      "implied": false
+    },
+    {
+      "name": "perc.SystemObjects",
+      "version": "1.0.0",
+      "implied": false
+    }
+  ],
+  "catalog": {
+    "kind": "component",
+    "title": "Person",
+    "description": "This widget is used to store the details of a Person for use with the Directory widget",
+    "thumbnail": "resources/percPersonIcon.png",
+    "icon": "resources/percPersonIcon.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 800,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percPerson",
+      "ref": "contentTypes/percPerson"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percPersonSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percPersonSnippet.vm",
+      "contentType": "percPerson",
+      "bindings": [
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "widgetId",
+          "expression": "$perc.widget.item.id"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "'percPerson'"
+        },
+        {
+          "variable": "assets",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "assetContentId",
+          "expression": "$assetItem.getNode().getProperty('sys_contentid').String"
+        },
+        {
+          "variable": "pageName",
+          "expression": "$perc.page.name"
+        },
+        {
+          "variable": "folderName",
+          "expression": "$perc.page.folderPaths.get(0)"
+        },
+        {
+          "variable": "temp",
+          "expression": "$folderName.replace(\"//Sites/\",\"\")"
+        },
+        {
+          "variable": "pathArray",
+          "expression": "$temp.split(\"/\")"
+        },
+        {
+          "variable": "siteDomain",
+          "expression": "$pathArray.get(0)"
+        },
+        {
+          "variable": "percHideFieldPersonOrganization",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personOrgField')"
+        },
+        {
+          "variable": "percHideFieldPersonDepartment",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personDptField')"
+        },
+        {
+          "variable": "percHideFieldPersonTitle",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personTitleField')"
+        },
+        {
+          "variable": "percHidefieldPersonPhone",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personPhoneField')"
+        },
+        {
+          "variable": "percHidefieldPersonOfficeLocation",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personOfficeLocation')"
+        },
+        {
+          "variable": "percHidefieldPersonEmail",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personEmailField')"
+        },
+        {
+          "variable": "percHideFieldPersonImage",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personImageField')"
+        },
+        {
+          "variable": "percHideFieldPersonPage",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personPageField')"
+        },
+        {
+          "variable": "percHideFieldPersonCaption",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personCaptionField')"
+        },
+        {
+          "variable": "honorificPrefix",
+          "expression": "$assetItem.getNode().getProperty('honorificPrefix').String"
+        },
+        {
+          "variable": "personFirstName",
+          "expression": "$assetItem.getNode().getProperty('personFirstName').String"
+        },
+        {
+          "variable": "personLastName",
+          "expression": "$assetItem.getNode().getProperty('personLastName').String"
+        },
+        {
+          "variable": "personName",
+          "expression": "\"\""
+        },
+        {
+          "variable": "personName",
+          "expression": "$personName + $honorificPrefix + \" \""
+        },
+        {
+          "variable": "personName",
+          "expression": "$personName + $personFirstName + \" \""
+        },
+        {
+          "variable": "personName",
+          "expression": "$personName + $personLastName"
+        },
+        {
+          "variable": "personPhone",
+          "expression": "$assetItem.getNode().getProperty('personPhone').String"
+        },
+        {
+          "variable": "personEmail",
+          "expression": "$assetItem.getNode().getProperty('personEmail').String"
+        },
+        {
+          "variable": "personOfficeLocation",
+          "expression": "$assetItem.getNode().getProperty('personOfficeLocation').String"
+        },
+        {
+          "variable": "emailFormPage_linkId",
+          "expression": "$assetItem.getNode().getProperty('emailFormPage_linkId').String"
+        },
+        {
+          "variable": "emailFormPage_path",
+          "expression": "$rx.pageutils.renderManagedItemPath($perc.linkContext, $emailFormPage_linkId)"
+        },
+        {
+          "variable": "emailFormPage_title",
+          "expression": "\"\""
+        },
+        {
+          "variable": "emailFormPage_sys_contentId",
+          "expression": "$rx.pageutils.getManagedLinkDependentId($emailFormPage_linkId)"
+        },
+        {
+          "variable": "emailFormPage_pageMap",
+          "expression": "$rx.pageutils.findItemFieldValues('percPage', 'resource_link_title', $emailFormPage_sys_contentId)"
+        },
+        {
+          "variable": "emailFormPage_title",
+          "expression": "$emailFormPage_pageMap.get('resource_link_title')"
+        },
+        {
+          "variable": "sendMailName",
+          "expression": "$personFirstName.trim() + \"-\" + $personLastName.trim()"
+        },
+        {
+          "variable": "sendMailLink",
+          "expression": "$emailFormPage_path + \"?name=\" + $sendMailName"
+        },
+        {
+          "variable": "orgContentId",
+          "expression": "$assetItem.getNode().getProperty('personOrganization').String"
+        },
+        {
+          "variable": "orgName",
+          "expression": "\"\""
+        },
+        {
+          "variable": "params",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "query",
+          "expression": "'select rx:sys_contentid, rx:sys_folderid from rx:percOrganization where rx:sys_contentid = :orgContentId'"
+        },
+        {
+          "variable": "finderName",
+          "expression": "'Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder'"
+        },
+        {
+          "variable": "orgResult",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params)"
+        },
+        {
+          "variable": "orgName",
+          "expression": "$orgResult.get(0).getNode().getProperty(\"orgName\").String"
+        },
+        {
+          "variable": "dptContetnId",
+          "expression": "$assetItem.getNode().getProperty('personDepartment').String"
+        },
+        {
+          "variable": "dptName",
+          "expression": "\"\""
+        },
+        {
+          "variable": "params",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "query",
+          "expression": "'select rx:sys_contentid, rx:sys_folderid from rx:percDepartment where rx:sys_contentid = :dptContetnId'"
+        },
+        {
+          "variable": "finderName",
+          "expression": "'Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder'"
+        },
+        {
+          "variable": "dptResult",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params)"
+        },
+        {
+          "variable": "dptName",
+          "expression": "$dptResult.get(0).getNode().getProperty(\"dptName\").String"
+        },
+        {
+          "variable": "personTitle",
+          "expression": "$assetItem.getNode().getProperty('personTitle').String"
+        },
+        {
+          "variable": "personImage_linkId",
+          "expression": "$assetItem.getNode().getProperty('personImage_linkId').String"
+        },
+        {
+          "variable": "personImage_path",
+          "expression": "$rx.pageutils.renderManagedItemPath($perc.linkContext, $personImage_linkId, $sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "personImage_alt_text",
+          "expression": "\"\""
+        },
+        {
+          "variable": "personImage_title",
+          "expression": "\"\""
+        },
+        {
+          "variable": "personImage_sys_contentId",
+          "expression": "$rx.pageutils.getManagedLinkDependentId($personImage_linkId)"
+        },
+        {
+          "variable": "personImage_assetMap",
+          "expression": "$rx.pageutils.findItemFieldValues('percImageAsset', 'displaytitle,alttext', $personImage_sys_contentId)"
+        },
+        {
+          "variable": "personImage_alt_text",
+          "expression": "$personImage_assetMap.get('alttext')"
+        },
+        {
+          "variable": "personImage_title",
+          "expression": "$personImage_assetMap.get('displaytitle')"
+        },
+        {
+          "variable": "personPage_linkId",
+          "expression": "$assetItem.getNode().getProperty('personPage_linkId').String"
+        },
+        {
+          "variable": "personPage_path",
+          "expression": "$rx.pageutils.renderManagedItemPath($perc.linkContext, $personPage_linkId)"
+        },
+        {
+          "variable": "personPage_title",
+          "expression": "\"\""
+        },
+        {
+          "variable": "personPage_sys_contentId",
+          "expression": "$rx.pageutils.getManagedLinkDependentId($personPage_linkId)"
+        },
+        {
+          "variable": "personPage_pageMap",
+          "expression": "$rx.pageutils.findItemFieldValues('percPage', 'resource_link_title', $personPage_sys_contentId)"
+        },
+        {
+          "variable": "personPage_title",
+          "expression": "$personPage_pageMap.get('resource_link_title')"
+        },
+        {
+          "variable": "personCaption",
+          "expression": "$assetItem.getNode().getProperty('personCaption').String"
+        },
+        {
+          "variable": "scriptSchemaId",
+          "expression": "\"perc-person-schema-\" + $assetContentId"
+        },
+        {
+          "variable": "personSchema",
+          "expression": "$rx.string.getJSONObject()"
+        },
+        {
+          "variable": "personalImageURL",
+          "expression": "\"//\" + $siteDomain + $personImage_path"
+        },
+        {
+          "variable": "personSchemaImage",
+          "expression": "$rx.string.getJSONObject()"
+        },
+        {
+          "variable": "personMailTo",
+          "expression": "\"mailto:\" + $personEmail"
+        },
+        {
+          "variable": "personURL",
+          "expression": "\"//\" + $siteDomain + $personPage_path"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$pageId = $perc.page.id;\n       $widgetId = $perc.widget.item.id;\n       $rootclass = 'percPerson';\n\n       ## Get asset item(s)\n       $assets = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n       $perc.setWidgetContents($assets);\n\n        if (! $assets.isEmpty())\n        {\n            $assetItem = $assets.get(0); ## Get first item (which may be only item)\n            $assetContentId = $assetItem.getNode().getProperty('sys_contentid').String;\n\n            ## Get site domain name\n            $pageName = $perc.page.name;\n            $folderName = $perc.page.folderPaths.get(0);\n            $temp = $folderName.replace(\"//Sites/\",\"\");\n            $pathArray = $temp.split(\"/\");\n            $siteDomain = $pathArray.get(0);\n\n            ## Get Widget Layout Properties\n            $percHideFieldPersonOrganization = $perc.widget.item.properties.get('perc_hidefield_personOrgField');\n            $percHideFieldPersonDepartment = $perc.widget.item.properties.get('perc_hidefield_personDptField');\n            $percHideFieldPersonTitle = $perc.widget.item.properties.get('perc_hidefield_personTitleField');\n            $percHidefieldPersonPhone = $perc.widget.item.properties.get('perc_hidefield_personPhoneField');\n            $percHidefieldPersonOfficeLocation = $perc.widget.item.properties.get('perc_hidefield_personOfficeLocation');\n            $percHidefieldPersonEmail = $perc.widget.item.properties.get('perc_hidefield_personEmailField');\n            $percHideFieldPersonImage = $perc.widget.item.properties.get('perc_hidefield_personImageField');\n            $percHideFieldPersonPage = $perc.widget.item.properties.get('perc_hidefield_personPageField');\n            $percHideFieldPersonCaption = $perc.widget.item.properties.get('perc_hidefield_personCaptionField');\n\n            ## Get Widget Content Properties\n            $honorificPrefix = $assetItem.getNode().getProperty('honorificPrefix').String;\n            $personFirstName = $assetItem.getNode().getProperty('personFirstName').String;\n            $personLastName = $assetItem.getNode().getProperty('personLastName').String;\n            $personName = \"\";\n            if ($honorificPrefix != \"\" && $honorificPrefix != \"#\")\n            {\n                $personName = $personName + $honorificPrefix + \" \";\n            }\n            if ($personFirstName != \"\" && $personFirstName != \"#\")\n            {\n                $personName = $personName + $personFirstName + \" \";\n            }\n            if ($personLastName != \"\" && $personLastName != \"#\")\n            {\n                $personName = $personName + $personLastName;\n            }\n\n            $personPhone = $assetItem.getNode().getProperty('personPhone').String;\n            $personEmail = $assetItem.getNode().getProperty('personEmail').String;\n            $personOfficeLocation = $assetItem.getNode().getProperty('personOfficeLocation').String;\n\n            ##\n            ## Configure form page for Send Email link\n            ##\n            $emailFormPage_linkId = $assetItem.getNode().getProperty('emailFormPage_linkId').String;\n            $emailFormPage_path = $rx.pageutils.renderManagedItemPath($perc.linkContext, $emailFormPage_linkId);\n            $emailFormPage_title = \"\";\n            $emailFormPage_sys_contentId = $rx.pageutils.getManagedLinkDependentId($emailFormPage_linkId);\n            if ($emailFormPage_sys_contentId != \"\")\n            {\n                $emailFormPage_pageMap = $rx.pageutils.findItemFieldValues('percPage', 'resource_link_title', $emailFormPage_sys_contentId);\n                $emailFormPage_title = $emailFormPage_pageMap.get('resource_link_title');\n            }\n            $sendMailName = $personFirstName.trim() + \"-\" + $personLastName.trim();\n            $sendMailLink = $emailFormPage_path + \"?name=\" + $sendMailName;\n\n            ##\n            ## Get Organization Name from contentId\n            ##\n            $orgContentId = $assetItem.getNode().getProperty('personOrganization').String;\n            $orgName = \"\";\n            if ($orgContentId != \"\" && $orgContentId != \"#\")\n            {\n                $params = $rx.string.stringToMap(null);\n                $params.put('orgContentId', $orgContentId );\n                $query = 'select rx:sys_contentid, rx:sys_folderid from rx:percOrganization where rx:sys_contentid = :orgContentId';\n                $params.put('max_results', 1);\n                $params.put('query', $query);\n                $finderName = 'Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder';\n                $orgResult = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params);\n                    if( $orgResult.size() > 0 )\n                    {\n                        $orgName = $orgResult.get(0).getNode().getProperty(\"orgName\").String;\n                    }\n            }\n\n            ##\n            ## Get Department Name from Dept Content Id\n            ##\n            $dptContetnId = $assetItem.getNode().getProperty('personDepartment').String;\n            $dptName = \"\";\n            if ($dptContetnId != \"\" && $dptContetnId != \"#\")\n            {\n                $params = $rx.string.stringToMap(null);\n                $params.put('dptContetnId', $dptContetnId );\n                $query = 'select rx:sys_contentid, rx:sys_folderid from rx:percDepartment where rx:sys_contentid = :dptContetnId';\n                $params.put('max_results', 1);\n                $params.put('query', $query);\n                $finderName = 'Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder';\n                $dptResult = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params);\n                    if( $dptResult.size() > 0 )\n                    {\n                        $dptName = $dptResult.get(0).getNode().getProperty(\"dptName\").String;\n                    }\n            }\n\n            $personTitle = $assetItem.getNode().getProperty('personTitle').String;\n\n            ## Get Image details\n            $personImage_linkId = $assetItem.getNode().getProperty('personImage_linkId').String;\n            $personImage_path = $rx.pageutils.renderManagedItemPath($perc.linkContext, $personImage_linkId, $sys.assemblyItem.PubServerId);\n            $personImage_alt_text = \"\";\n            $personImage_title = \"\";\n            $personImage_sys_contentId = $rx.pageutils.getManagedLinkDependentId($personImage_linkId);\n            if ($personImage_sys_contentId != \"\")\n            {\n                $personImage_assetMap = $rx.pageutils.findItemFieldValues('percImageAsset', 'displaytitle,alttext', $personImage_sys_contentId);\n                $personImage_alt_text = $personImage_assetMap.get('alttext');\n                $personImage_title = $personImage_assetMap.get('displaytitle');\n            }\n\n            ## Get Page details\n            $personPage_linkId = $assetItem.getNode().getProperty('personPage_linkId').String;\n            $personPage_path = $rx.pageutils.renderManagedItemPath($perc.linkContext, $personPage_linkId);\n            $personPage_title = \"\";\n            $personPage_sys_contentId = $rx.pageutils.getManagedLinkDependentId($personPage_linkId);\n            if ($personPage_sys_contentId != \"\")\n            {\n                $personPage_pageMap = $rx.pageutils.findItemFieldValues('percPage', 'resource_link_title', $personPage_sys_contentId);\n                $personPage_title = $personPage_pageMap.get('resource_link_title');\n            }\n\n            $personCaption = $assetItem.getNode().getProperty('personCaption').String;\n\n            ##\n            ## Schema.org Markup\n            ##\n            $scriptSchemaId = \"perc-person-schema-\" + $assetContentId;\n            $personSchema = $rx.string.getJSONObject();\n            $personSchema.put(\"@context\", \"http://schema.org\");\n            $personSchema.put(\"@type\", \"Person\");\n            $personSchema.put(\"givenName\", $personFirstName);\n            $personSchema.put(\"familyName\", $personLastName);\n\n            if ($honorificPrefix != \"\") {\n                $personSchema.put(\"honorificPrefix\", $honorificPrefix);\n            }\n            if ($personOrganization != \"\") {\n                $personSchema.put(\"worksFor\", $orgName);\n            }\n            if ($personTitle != \"\") {\n                $personSchema.put(\"jobTitle\", $personTitle);\n            }\n            if ($personImage_path != \"\" && $personImage_path != \"#\") {\n                $personalImageURL = \"//\" + $siteDomain + $personImage_path;\n                $personSchemaImage = $rx.string.getJSONObject();\n                $personSchemaImage.put(\"@type\", \"ImageObject\");\n                $personSchemaImage.put(\"url\", $personalImageURL);\n                if ($personImage_title != \"\") {\n                    $personSchemaImage.put(\"name\", $personImage_title);\n                }\n                if ($personImage_alt_text != \"\") {\n                    $personSchemaImage.put(\"alternateName\", $personImage_alt_text);\n                }\n                $personSchema.put(\"image\", $personSchemaImage);\n            }\n            if ($personEmail != \"\") {\n                $personMailTo = \"mailto:\" + $personEmail;\n                $personSchema.put(\"email\", $personMailTo);\n            }\n            if ($personPhone != \"\") {\n                $personSchema.put(\"telephone\", $personPhone);\n            }\n            if ($personPage_path != \"\" && $personPage_path != \"#\") {\n                $personURL = \"//\" + $siteDomain + $personPage_path;\n                $personSchema.put(\"url\", $personURL);\n            }\n        }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percPersonContent",
+      "allowedContentTypes": [
+        "percPerson"
+      ],
+      "layout": {},
+      "styles": {}
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/percPersonIcon.png",
+      "target": "rx_resources/widgets/percPerson/images/percPersonIcon.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "perc_hidefield_personOrgField",
+      "displayName": "Hide Organization",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_personDptField",
+      "displayName": "Hide Department",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_personTitleField",
+      "displayName": "Hide Position / Title",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_personPhoneField",
+      "displayName": "Hide Phone Number",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_personOfficeLocation",
+      "displayName": "Hide Office Location",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_personEmailField",
+      "displayName": "Hide 'Send Email' link",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_personImageField",
+      "displayName": "Hide Image",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_personPageField",
+      "displayName": "Hide Personal Page",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_personCaptionField",
+      "displayName": "Hide Personal Caption",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": []
+}

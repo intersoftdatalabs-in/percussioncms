@@ -1,0 +1,73 @@
+<div class="$!rootclass">
+#if( ! $perc.widgetContents.isEmpty() )
+#set($addlHead = $perc.page.getAdditionalHeadContent())##
+## Check for existing Schema if using multiple instances of widget on same page
+#if( !($addlHead.contains($scriptSchemaId)) )##
+$perc.page.setAdditionalHeadContent("$!{addlHead}<script async id='$!{scriptSchemaId}' type='application/ld+json'>$!{personSchema}</script>")##
+#end##
+            <div class="perc-person">
+#if( !($percHideFieldPersonImage) && "$!{personImage_path}" != ""  && "$!{personImage_path}" != "#" )##
+                <div class="perc-person-image">
+#if( !($percHideFieldPersonPage) && "$!{personPage_path}" != ""  && "$!{personPage_path}" != "#" )##
+                    <a href="$personPage_path" title="$personPage_title">
+                        <img src="$personImage_path" title="$personImage_title" alt="$personImage_alt_text" />
+                    </a>
+#else##
+                    <img src="$personImage_path" title="$personImage_title" alt="$personImage_alt_text" />
+#end##
+                </div>
+#end##
+                <div class="perc-person-details">
+#if( !($percHideFieldPersonPage) && "$!{personPage_path}" != ""  && "$!{personPage_path}" != "#" )##
+                    <a href="$personPage_path" title="$personPage_title">
+                        <div class="perc-person-name">$!{personName}</div>
+                    </a>
+#else##
+                    <div class="perc-person-name">$!{personName}</div>
+#end##
+##
+#if( !($percHideFieldPersonOrganization) && "$!{orgName}" != "" && "$!{orgName}" != "#" )##
+                    <div class="perc-person-org"><p>$!{orgName}</p></div>
+#end##
+#if( !($percHideFieldPersonDepartment) && "$!{dptName}" != "" && "$!{dptName}" != "#" )##
+                    <div class="perc-person-dpt"><p>$!{dptName}</p></div>
+#end##
+#if( !($percHideFieldPersonTitle) && "$!{personTitle}" != "" && "$!{personTitle}" != "#" )##
+                    <div class="perc-person-title"><p>$!{personTitle}</p></div>
+#end##
+#if( !($percHidefieldPersonPhone) && "$!{personPhone}" != "" && "$!{personPhone}" != "#" )##
+                    <div class="perc-person-phone"><p>$!{personPhone}</p></div>
+#end##
+#if( !($percHidefieldPersonOfficeLocation) && "$!{personOfficeLocation}" != "" && "$!{personOfficeLocation}" != "#" )##
+                    <div class="perc-person-office-location"><p>$!{personOfficeLocation}</p></div>
+#end##
+
+#if( !($percHidefieldPersonEmail) && "$!{personEmail}" != "" && "$!{emailFormPage_path}" != "" && "$!{emailFormPage_path}" != "#")##
+                    <div class="perc-person-email">
+                        <a href="$sendMailLink" title="Send Email">Send Email</a>
+                    </div>
+#end##
+                </div>
+#if( !($percHideFieldPersonCaption) && "$!{personCaption}" != "" )##
+                <div class="perc-person-caption">$!{personCaption}</div>
+#end##
+            </div>
+## set Dollar symbol for use in embedded jQuery script
+#set( $d = "$" )##
+            <script>
+                window.addEventListener('DOMContentLoaded', function() {
+                    // Presubmit Event handler to encode
+                    ${d}('#percPerson').on('click', '.perc-person-email a', function (element) {
+                        // grab the href value
+                        var url = ${d}(this).attr("href");
+                        // URI encode param
+                        url = encodeURI(url);
+                        // update the element href attribute prior to navigation
+                        ${d}(this).attr("href", url)
+                    });
+                });
+            </script>
+#elseif ($perc.isEditMode())
+#createEmptyWidgetContent("percPerson-empty-style", "This widget is showing sample content")
+#end
+       </div>

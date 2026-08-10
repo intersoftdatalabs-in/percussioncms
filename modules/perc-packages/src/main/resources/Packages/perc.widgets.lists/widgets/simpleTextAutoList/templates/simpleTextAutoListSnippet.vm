@@ -1,0 +1,34 @@
+<div class="$rootclass $layout ui-widget ui-widget-content ui-perc-list-widget">
+#if (!$assetItems.isEmpty())
+    #if($title.length() > 0)##
+       <div class=".ui-perc-list-title">$title</div>
+    #end
+    #if($relresults && $relresults.size() > 0)
+       #if($rendering == "ordered")##
+          <ol class="ui-perc-list-main">##
+       #else##
+          <ul class="ui-perc-list-main">##
+       #end##
+       #foreach($result in $relresults)
+          #if($velocityCount == 1)##
+             #set($firstrow = 'ui-perc-list-first')##
+          #else##
+             #set($firstrow = ' ')##
+          #end##
+          #if($velocityCount == $relresults.size())##
+             #set($lastrow = 'ui-perc-list-last')##
+          #else
+             #set($lastrow = ' ')##
+          #end
+          <li class="$rowtag $firstrow $lastrow ui-perc-list-element">$rx.pageutils.html($result, "text")</li>
+       #end##
+       #if($rendering == "ordered")##
+          </ol>##
+       #else##
+          </ul>##
+       #end##
+    #end##
+#elseif ($perc.isEditMode())
+        Insert list of text blocks based on query here.
+#end
+    </div>
