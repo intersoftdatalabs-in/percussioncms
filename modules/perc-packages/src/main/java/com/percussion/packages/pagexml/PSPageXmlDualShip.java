@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
  *
  * <p><strong>Authoring truth:</strong> {@code pages/&lt;templateId&gt;/component-package.json} plus
  * template sources under the product package tree (e.g. {@code perc.baseTemplates}, {@code
- * perc.responsiveTemplates}).
+ * perc.responsiveTemplates}, {@code perc.Baseline} system assembly templates).
  *
  * <p><strong>Install path:</strong> package build materializes root-level {@code *.templateDef}
  * files (legacy {@code TemplateDef} dependency) so {@code .ppkg} install parity is preserved until
@@ -251,16 +251,34 @@ public final class PSPageXmlDualShip {
     PSPageXmlModel model = new PSPageXmlModel();
     model.setName(manifest.getId());
     model.setLabel(manifest.getName());
-    model.setDescription(manifest.getDescription());
+    String catalogDesc =
+        manifest.getCatalog() != null ? manifest.getCatalog().getDescription() : null;
+    model.setDescription(
+        catalogDesc != null && !catalogDesc.isBlank() ? catalogDesc : manifest.getDescription());
     model.setSourceFileName(manifest.getId() + ".templateDef");
     if (manifest.getTemplates() != null && !manifest.getTemplates().isEmpty()) {
       PSComponentPackageManifest.TemplateRef t = manifest.getTemplates().get(0);
       model.setAssembler(PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath(t.getAssembler()));
       model.setOutputFormat(PSPageXmlTemplateDefEmitter.toLegacyOutputFormat(t.getType()));
+      if (t.getMimeType() != null && !t.getMimeType().isBlank()) {
+        model.setMimeType(t.getMimeType());
+      } else {
+        model.setMimeType("text/html");
+      }
+      if (t.getPublishWhen() != null && !t.getPublishWhen().isBlank()) {
+        model.setPublishWhen(t.getPublishWhen());
+      }
+      if (t.getLocationSuffix() != null) {
+        model.setLocationSuffix(t.getLocationSuffix());
+      }
+      if (t.getLocationPrefix() != null) {
+        model.setLocationPrefix(t.getLocationPrefix());
+      }
+    } else {
+      model.setMimeType("text/html");
     }
     model.setTemplateBody(templateSource);
     model.setRegionHoles(PSPageXmlParser.extractRegionHoles(templateSource));
-    model.setMimeType("text/html");
     model.setCharset("UTF-8");
     model.setTemplateType("Shared");
     model.setActiveAssemblyType("Normal");

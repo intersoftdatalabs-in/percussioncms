@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.pageDispatcher",
+  "name": "Percussion Page Dispatch",
+  "version": "1.1.15",
+  "description": "The dispatch template for page assembly",
+  "publisher": {
+    "name": "Percussion Software Inc",
+    "url": "www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.baseTemplates",
+      "version": "1.1.5",
+      "implied": false
+    }
+  ],
+  "catalog": {
+    "kind": "page",
+    "title": "Percussion Page Dispatch",
+    "category": "page",
+    "description": "The dispatch template for page assembly",
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.pageDispatcher",
+      "type": "page",
+      "assembler": "dispatchAssembler",
+      "sourceRef": "templates/perc.pageDispatcher.vm",
+      "bindings": [
+        {
+          "variable": "$sys.template",
+          "expression": "$rx.pageutils.getPageTemplate($sys.item.getGuid())"
+        }
+      ]
+    }
+  ],
+  "slots": [],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}

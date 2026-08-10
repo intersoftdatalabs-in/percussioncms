@@ -1,0 +1,2 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">@@widget.beforeHtmlStart<html><head>
+<title>#displayfield("page_title") TEST</title>@@widget.head@@template.head@@template.css#displayfield("meta_keywords")###displayfield("header")##</head><body>@@widget.afterBodyStart@@template.body@@widget.beforeBodyEnd#displayfield("footer")##</body></html>

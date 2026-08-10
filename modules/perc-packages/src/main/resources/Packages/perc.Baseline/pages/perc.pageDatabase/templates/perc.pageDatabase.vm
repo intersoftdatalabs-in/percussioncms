@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tabledefset>
+   <tabledef allowSchemaChanges="n" alter="n" create="y" delolddata="n" isView="n" name="PERC_EXPORT_PAGE">
+      <rowdef>
+         <columndef action="c" limitSizeForIndex="n" name="CONTENT_ID">
+            <jdbctype>INTEGER</jdbctype>
+            <allowsnull>no</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="PATH">
+            <jdbctype>VARCHAR</jdbctype>
+            <size>2000</size>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="SITE_NAME">
+            <jdbctype>VARCHAR</jdbctype>
+            <size>255</size>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="RESOURCE_LINK_TITLE">
+            <jdbctype>VARCHAR</jdbctype>
+            <size>512</size>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="PAGE_SUMMARY">
+            <jdbctype>CLOB</jdbctype>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="CONTENT_POST_DATE">
+            <jdbctype>TIMESTAMP</jdbctype>
+            <size/>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="PAGE_START_DATE">
+            <jdbctype>TIMESTAMP</jdbctype>
+            <size/>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="PAGE_END_DATE">
+            <jdbctype>TIMESTAMP</jdbctype>
+            <size/>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="PAGE_TITLE">
+            <jdbctype>VARCHAR</jdbctype>
+            <size>512</size>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="PAGE_DESCRIPTION">
+            <jdbctype>CLOB</jdbctype>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="ADDITIONAL_HEAD_CONTENT">
+            <jdbctype>CLOB</jdbctype>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="CODE_INSERT_AFTER_BODY_START">
+            <jdbctype>CLOB</jdbctype>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="CODE_INSERT_BEFORE_BODY_CLOSE">
+            <jdbctype>CLOB</jdbctype>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="WORKFLOW">
+            <jdbctype>VARCHAR</jdbctype>
+            <size>50</size>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="TEMPLATE_NAME">
+            <jdbctype>VARCHAR</jdbctype>
+            <size>255</size>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="PAGE_NOINDEX">
+            <jdbctype>VARCHAR</jdbctype>
+            <size>50</size>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+      </rowdef>
+      <primarykey action="c">
+         <name>CONTENT_ID</name>
+      </primarykey>
+   </tabledef>
+   <tabledef allowSchemaChanges="n" alter="n" create="y" delolddata="n" isView="n" name="PERC_EXPORT_PAGE_TAG">
+      <rowdef>
+         <columndef action="c" limitSizeForIndex="n" name="CONTENT_ID">
+            <jdbctype>INTEGER</jdbctype>
+            <allowsnull>no</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="TAG">
+            <jdbctype>VARCHAR</jdbctype>
+            <size>255</size>
+            <allowsnull>no</allowsnull>
+         </columndef>
+      </rowdef>
+      <primarykey action="c">
+         <name>CONTENT_ID</name>
+         <name>TAG</name>
+      </primarykey>
+      <foreignkey action="c">
+         <fkColumn>
+            <name>CONTENT_ID</name>
+            <externalTable>PERC_EXPORT_PAGE</externalTable>
+            <externalColumn>CONTENT_ID</externalColumn>
+         </fkColumn>
+      </foreignkey>
+   </tabledef>
+   <tabledef allowSchemaChanges="n" alter="n" create="y" delolddata="n" isView="n" name="PERC_EXPORT_PAGE_CATEGORY">
+      <rowdef>
+         <columndef action="c" limitSizeForIndex="n" name="CONTENT_ID">
+            <jdbctype>INTEGER</jdbctype>
+            <allowsnull>no</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="CATEGORY">
+            <jdbctype>VARCHAR</jdbctype>
+            <size>255</size>
+            <allowsnull>no</allowsnull>
+         </columndef>
+      </rowdef>
+      <primarykey action="c">
+         <name>CONTENT_ID</name>
+         <name>CATEGORY</name>
+      </primarykey>
+      <foreignkey action="c">
+         <fkColumn>
+            <name>CONTENT_ID</name>
+            <externalTable>PERC_EXPORT_PAGE</externalTable>
+            <externalColumn>CONTENT_ID</externalColumn>
+         </fkColumn>
+      </foreignkey>
+   </tabledef>
+   <tabledef allowSchemaChanges="n" alter="n" create="y" delolddata="n" isView="n" name="PERC_EXPORT_PAGE_CALENDAR">
+      <rowdef>
+         <columndef action="c" limitSizeForIndex="n" name="CONTENT_ID">
+            <jdbctype>INTEGER</jdbctype>
+            <allowsnull>no</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="CALENDAR">
+            <jdbctype>VARCHAR</jdbctype>
+            <size>255</size>
+            <allowsnull>no</allowsnull>
+         </columndef>
+      </rowdef>
+      <primarykey action="c">
+         <name>CONTENT_ID</name>
+         <name>CALENDAR</name>
+      </primarykey>
+      <foreignkey action="c">
+         <fkColumn>
+            <name>CONTENT_ID</name>
+            <externalTable>PERC_EXPORT_PAGE</externalTable>
+            <externalColumn>CONTENT_ID</externalColumn>
+         </fkColumn>
+      </foreignkey>
+   </tabledef>
+   <tabledef allowSchemaChanges="n" alter="n" create="y" delolddata="n" isView="n" name="PERC_EXPORT_PAGE_WIDGET">
+      <rowdef>
+         <columndef action="c" limitSizeForIndex="n" name="CONTENT_ID">
+            <jdbctype>INTEGER</jdbctype>
+            <allowsnull>no</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="WIDGET_ID">
+            <jdbctype>BIGINT</jdbctype>
+            <size/>
+            <allowsnull>no</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="WIDGET_NAME">
+            <jdbctype>VARCHAR</jdbctype>
+            <size>255</size>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="WIDGET_TYPE">
+            <jdbctype>VARCHAR</jdbctype>
+            <size>255</size>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="REGION_ID">
+            <jdbctype>VARCHAR</jdbctype>
+            <size>255</size>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+         <columndef action="c" limitSizeForIndex="n" name="WIDGET_CONTENT">
+            <jdbctype>CLOB</jdbctype>
+            <size/>
+            <allowsnull>yes</allowsnull>
+         </columndef>
+      </rowdef>
+      <primarykey action="c">
+         <name>CONTENT_ID</name>
+         <name>WIDGET_ID</name>
+      </primarykey>     
+      <foreignkey action="c">
+         <fkColumn>
+            <name>CONTENT_ID</name>
+            <externalTable>PERC_EXPORT_PAGE</externalTable>
+            <externalColumn>CONTENT_ID</externalColumn>
+         </fkColumn>
+      </foreignkey>
+   </tabledef>      
+</tabledefset>

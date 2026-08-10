@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.page",
+  "name": "Page Template",
+  "version": "1.1.15",
+  "description": "The master page template. This template may referenced by the base template (perc.base....).",
+  "publisher": {
+    "name": "Percussion Software Inc",
+    "url": "www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.baseTemplates",
+      "version": "1.1.5",
+      "implied": false
+    }
+  ],
+  "catalog": {
+    "kind": "page",
+    "title": "Page Template",
+    "category": "page",
+    "description": "The master page template. This template may referenced by the base template (perc.base....).",
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.page",
+      "type": "global",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/perc.page.vm",
+      "publishWhen": "Unspecified",
+      "bindings": []
+    }
+  ],
+  "slots": [],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}
