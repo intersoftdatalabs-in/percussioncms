@@ -24,6 +24,8 @@ Living document for Phase 0–3 implementers. Not a customer-facing guide.
 
 **Target:** one **Slot** abstraction. Regions rename/map to slots. Layout chrome moves to **`slot_layout` / `slot_styles`**.
 
+**Implementation sketch (#2690):** [region-slot-mapping.md](./region-slot-mapping.md) — `PSRegionToSlotCompositionMapper` (`regionId` → slot name, nested regions → nested composition, widgets → ordered items) and `PSWidgetPrefToSlotMapper` (CssPref/UserPref → layout/styles maps).
+
 ## 3. Widget Code vs template bindings
 
 | | Widget `Code` | Template bindings |
