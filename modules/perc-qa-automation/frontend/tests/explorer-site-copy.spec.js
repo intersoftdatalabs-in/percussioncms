@@ -30,6 +30,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 const {
   TEST_IDS,
   explorerSpaUrl,
@@ -58,7 +59,8 @@ async function tryEnterSiteFolder(page) {
     )
     .first();
   if ((await sitesNode.count()) > 0) {
-    await sitesNode.click({ force: true, timeout: 10_000 }).catch(() => {});
+    // No force:true / silent catch — failures must surface as real errors.
+    await sitesNode.click({ timeout: 10_000 });
     await listWaitReady(page);
     await page.waitForLoadState("networkidle").catch(() => {});
   }
@@ -72,11 +74,13 @@ async function tryEnterSiteFolder(page) {
     const first = siteRows.first();
     const name =
       (await first.getAttribute("data-name")) ||
-      (await first.locator("td").first().innerText().catch(() => "")) ||
+      (await first.locator("td").first().innerText()) ||
       null;
-    await first.dblclick({ force: true, timeout: 10_000 }).catch(async () => {
-      await first.click({ force: true, timeout: 10_000 }).catch(() => {});
-    });
+    try {
+      await first.dblclick({ timeout: 10_000 });
+    } catch {
+      await first.click({ timeout: 10_000 });
+    }
     await listWaitReady(page);
     await page.waitForLoadState("networkidle").catch(() => {});
     return name ? String(name).trim() || null : null;
@@ -88,7 +92,7 @@ async function tryEnterSiteFolder(page) {
     .filter({ hasNot: page.locator('[data-testid="tree-node-/Sites"]') })
     .first();
   if ((await siteTree.count()) > 0) {
-    await siteTree.click({ force: true, timeout: 10_000 }).catch(() => {});
+    await siteTree.click({ timeout: 10_000 });
     await listWaitReady(page);
     return null;
   }
@@ -109,6 +113,11 @@ test.describe("modern React Content Explorer — site copy chrome (#2767)", () =
     async ({ page }) => {
       const shell = page.locator(`[data-testid="${TEST_IDS.shell}"]`);
       await expect(shell).toBeVisible({ timeout: 15_000 });
+
+      // T082b / WebUI AGENTS.md — a11y gate on product Explorer shell surface.
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="content-explorer-shell"]',
+      });
 
       await openContentMenu(page);
       const menuItem = page.locator(

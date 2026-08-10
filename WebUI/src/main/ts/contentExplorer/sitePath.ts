@@ -34,14 +34,17 @@ export function resolveSiteNameFromExplorerPath(
   if (path == null) return null;
   let p = path.trim().replace(/\\/g, "/");
   if (p.length === 0) return null;
-  // Collapse leading double-slash (//Sites/Demo → /Sites/Demo).
+  // Strip Windows drive letter (C:/Sites/Demo → /Sites/Demo after join).
+  p = p.replace(/^[A-Za-z]:/, "");
+  // Collapse leading double-slash (//Sites/Demo → /Sites/Demo; also UNC form).
   while (p.startsWith("//")) {
     p = p.slice(1);
   }
   if (!p.startsWith("/")) {
     p = `/${p}`;
   }
-  const match = /^\/Sites\/([^/]+)/i.exec(p);
+  // Prefer path-root /Sites/…; also allow /Sites/ after a prefix (UNC share).
+  const match = /(?:^|\/)Sites\/([^/]+)/i.exec(p);
   if (!match) return null;
   const name = match[1]?.trim() ?? "";
   return name.length > 0 ? name : null;

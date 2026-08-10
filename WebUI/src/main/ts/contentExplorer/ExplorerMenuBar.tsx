@@ -325,7 +325,9 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                                   : item.id === "view-clipboard"
                                     ? "explorer-clipboard-panel"
                                     : item.id === "content-site-copy"
-                                      ? "explorer-site-copy-panel"
+                                      ? hasSiteContext
+                                        ? "explorer-site-copy-panel"
+                                        : "explorer-site-copy-hint"
                                       : undefined
                           }
                           data-testid={

@@ -550,7 +550,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
 
   it("Content → Site Copy mounts wizard with source from /Sites/<name> (#2767)", async () => {
     stubPathFetch();
-    renderShell(
+    const { container } = renderShell(
       <ContentExplorerShell
         initialPath="/Sites/Demo/Home"
         loadDisplayFormats={async () => []}
@@ -574,11 +574,13 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     });
     const source = screen.getByTestId("site-copy-source") as HTMLInputElement;
     expect(source.value).toBe("Demo");
+    // T082a / WebUI AGENTS.md — a11y gate with Site Copy panel open.
+    await renderA11yGate(container);
   });
 
   it("Content → Site Copy is disabled at /Sites root without a site (#2767)", async () => {
     stubPathFetch();
-    renderShell(
+    const { container } = renderShell(
       <ContentExplorerShell
         initialPath="/Sites"
         loadDisplayFormats={async () => []}
@@ -594,6 +596,8 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     ) as HTMLButtonElement;
     expect(siteCopy.disabled).toBe(true);
     expect(screen.queryByTestId("site-copy-wizard")).toBeNull();
+    // T082a — shell remains accessible when Site Copy is disabled (no panel).
+    await renderA11yGate(container);
   });
 
   it("security stays on hint when resolveFolderId rejects (#2410)", async () => {

@@ -42,6 +42,26 @@ describe("resolveSiteNameFromExplorerPath (#2767)", () => {
     expect(resolveSiteNameFromExplorerPath("/sites/Lower")).toBe("Lower");
     expect(resolveSiteNameFromExplorerPath("/SITES/Upper")).toBe("Upper");
   });
+
+  /**
+   * CMS paths always use {@code /}, but callers may pass OS-style separators
+   * (Windows explorer copy/paste, UNC-ish strings). sitePath normalizes
+   * backslashes to forward slashes and strips drive letters before matching.
+   */
+  it("normalizes Windows-style backslash paths before matching", () => {
+    expect(resolveSiteNameFromExplorerPath("\\Sites\\Demo")).toBe("Demo");
+    expect(resolveSiteNameFromExplorerPath("\\Sites\\Demo\\Home")).toBe("Demo");
+    expect(resolveSiteNameFromExplorerPath("C:\\Sites\\Demo")).toBe("Demo");
+    expect(resolveSiteNameFromExplorerPath("C:\\Sites\\Demo\\Home")).toBe(
+      "Demo",
+    );
+    // UNC-style prefix after normalize still finds /Sites/...
+    expect(
+      resolveSiteNameFromExplorerPath("\\\\server\\share\\Sites\\Demo"),
+    ).toBe("Demo");
+    expect(resolveSiteNameFromExplorerPath("\\Sites")).toBeNull();
+    expect(resolveSiteNameFromExplorerPath("\\Assets\\foo")).toBeNull();
+  });
 });
 
 describe("resolveSiteNameFromSelection (#2767)", () => {

@@ -920,7 +920,7 @@ export function ContentExplorerShell({
       )}
       {showSiteCopy && !siteNameForCopy && (
         <div
-          id="explorer-site-copy-panel"
+          id="explorer-site-copy-hint"
           style={sidePanelStyle}
           data-testid="explorer-site-copy-hint"
           role="status"
