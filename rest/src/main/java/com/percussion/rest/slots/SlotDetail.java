@@ -42,6 +42,31 @@ public class SlotDetail {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private Map<String, String> finderArguments;
 
+  /**
+   * Structural {@code slot_layout} map (ADR-003). Keys include {@code schemaVersion} plus layout
+   * properties (e.g. {@code orientation}, {@code columns}, {@code maxItems}). On update, a non-null
+   * map replaces the definition layout; omit or leave null to leave unchanged. Empty / schema-only
+   * maps clear stored layout to defaults.
+   */
+  @Schema(
+      description =
+          "slot_layout map (schemaVersion + structural keys). Non-null on PUT replaces definition"
+              + " layout; null leaves unchanged.")
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  private Map<String, Object> slotLayout;
+
+  /**
+   * Presentational {@code slot_styles} map (ADR-003). Keys include {@code schemaVersion} plus style
+   * tokens (e.g. {@code rootclass}, {@code itemclass}). Same update semantics as {@link
+   * #slotLayout}.
+   */
+  @Schema(
+      description =
+          "slot_styles map (schemaVersion + style tokens). Non-null on PUT replaces definition"
+              + " styles; null leaves unchanged.")
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  private Map<String, Object> slotStyles;
+
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private List<SlotAssociationSummary> associations;
 
@@ -120,6 +145,22 @@ public class SlotDetail {
 
   public void setFinderArguments(Map<String, String> finderArguments) {
     this.finderArguments = finderArguments;
+  }
+
+  public Map<String, Object> getSlotLayout() {
+    return slotLayout;
+  }
+
+  public void setSlotLayout(Map<String, Object> slotLayout) {
+    this.slotLayout = slotLayout;
+  }
+
+  public Map<String, Object> getSlotStyles() {
+    return slotStyles;
+  }
+
+  public void setSlotStyles(Map<String, Object> slotStyles) {
+    this.slotStyles = slotStyles;
   }
 
   public List<SlotAssociationSummary> getAssociations() {

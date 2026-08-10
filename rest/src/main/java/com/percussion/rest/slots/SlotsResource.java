@@ -102,8 +102,9 @@ public class SlotsResource {
   @Operation(
       summary = "Get slot design detail",
       description =
-          "Read-only slot detail including finder metadata and content-type/template"
-              + " associations. Create/update/delete not supported (see designGaps).",
+          "Slot detail including finder metadata, content-type/template associations, and"
+              + " ADR-003 slot_layout / slot_styles maps. Create/delete not supported (see"
+              + " designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -138,9 +139,10 @@ public class SlotsResource {
   @Operation(
       summary = "Update slot design fields",
       description =
-          "Updates mutable slot fields: label and/or description. When associations is present"
-              + " (including empty), replaces the full content-type/template association set."
-              + " Omit associations to leave them unchanged. Name/id is immutable."
+          "Updates mutable slot fields: label, description, slotLayout, and/or slotStyles. When"
+              + " associations is present (including empty), replaces the full content-type/template"
+              + " association set. Non-null slotLayout/slotStyles replace definition maps (empty or"
+              + " schema-only clears to defaults); omit to leave unchanged. Name/id is immutable."
               + " Create/delete/lock remain unsupported (see designGaps).",
       responses = {
         @ApiResponse(

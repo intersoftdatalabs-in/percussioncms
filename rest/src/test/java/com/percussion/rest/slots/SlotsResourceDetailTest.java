@@ -214,4 +214,31 @@ public class SlotsResourceDetailTest {
         "0-2-301",
         result.getAssociations().get(0).getContentTypeGuid().getStringValue().orElse(null));
   }
+
+  @Test
+  public void getSlotReturnsLayoutAndStyles() {
+    SlotDetail d = new SlotDetail();
+    d.setName("styled");
+    d.setSlotLayout(java.util.Map.of("schemaVersion", 1, "orientation", "horizontal"));
+    d.setSlotStyles(java.util.Map.of("schemaVersion", 1, "rootclass", "my-root"));
+    when(adaptor.getSlot(any(), eq("styled"))).thenReturn(d);
+    SlotDetail out = resource.getSlot("styled");
+    assertEquals("horizontal", out.getSlotLayout().get("orientation"));
+    assertEquals("my-root", out.getSlotStyles().get("rootclass"));
+  }
+
+  @Test
+  public void updateSlotWithLayoutAndStyles() {
+    SlotDetail body = new SlotDetail();
+    body.setSlotLayout(java.util.Map.of("orientation", "vertical", "columns", "3"));
+    body.setSlotStyles(java.util.Map.of("rootclass", "updated-root"));
+    SlotDetail updated = new SlotDetail();
+    updated.setName("target");
+    updated.setSlotLayout(body.getSlotLayout());
+    updated.setSlotStyles(body.getSlotStyles());
+    when(adaptor.updateSlot(any(), eq("target"), any())).thenReturn(updated);
+    SlotDetail result = resource.updateSlot("target", body);
+    assertEquals("vertical", result.getSlotLayout().get("orientation"));
+    assertEquals("updated-root", result.getSlotStyles().get("rootclass"));
+  }
 }

@@ -145,6 +145,13 @@ public class SlotsAdaptor implements ISlotsAdaptor {
       if (body.getDescription() != null) {
         slot.setDescription(body.getDescription());
       }
+      // Non-null layout/styles replace definition maps (empty/schema-only clears to defaults).
+      if (body.getSlotLayout() != null) {
+        slot.setSlotLayout(body.getSlotLayout());
+      }
+      if (body.getSlotStyles() != null) {
+        slot.setSlotStyles(body.getSlotStyles());
+      }
       if (body.getAssociations() != null) {
         slot.setSlotAssociations(toAssociationPairs(body.getAssociations()));
       }
@@ -311,6 +318,16 @@ public class SlotsAdaptor implements ISlotsAdaptor {
       d.setFinderArguments(new HashMap<>(args));
     } else {
       d.setFinderArguments(null);
+    }
+
+    // ADR-003 / #2691: expose definition slot_layout / slot_styles on REST wire DTO.
+    Map<String, Object> layout = slot.getSlotLayout();
+    if (layout != null && !layout.isEmpty()) {
+      d.setSlotLayout(new HashMap<>(layout));
+    }
+    Map<String, Object> styles = slot.getSlotStyles();
+    if (styles != null && !styles.isEmpty()) {
+      d.setSlotStyles(new HashMap<>(styles));
     }
 
     List<SlotAssociationSummary> associations = new ArrayList<>();

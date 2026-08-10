@@ -41,6 +41,8 @@ so templates can read `$sys.slot.layout` and `$sys.slot.styles`. JEXL helpers on
 
 Schema constant: `PSSlotLayoutStyles.SCHEMA_VERSION` (v1). Known layout keys: `orientation`, `columns`, `maxItems`, `emptyState`, `wrapperClassPolicy`. Styles (CM1 parity first): `rootclass`, `itemclass`.
 
+**Instance overrides (#2691):** `PSSlotLayoutStyles.merge(definition, overrides, layout|styles)` — override keys win; `clearOverride(overrides, key)` restores definition for that key; `toAssemblyContext(slot, layoutOv, stylesOv)` for effective assembly binding. REST definition maps: `SlotDetail.slotLayout` / `slotStyles`.
+
 ## `$rx` (JEXL tool namespaces)
 
 Java classes annotated with `@IPSJexlMethod` registered under namespaces such as:
