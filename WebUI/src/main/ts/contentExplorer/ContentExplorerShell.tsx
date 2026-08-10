@@ -70,6 +70,7 @@ import { FolderSecurityPanel } from "./FolderSecurityPanel";
 import type { ExplorerMenuCommandId } from "./menuBarModel";
 import { EXPLORER_MSG } from "./messages";
 import { openInEditor } from "./openInEditor";
+import { openPreviewItem } from "./previewItem";
 import {
   ReducedActions,
   defaultReducedActionHandlers,
@@ -336,9 +337,21 @@ export function ContentExplorerShell({
       }
       onOpenItem(item);
     },
-    onPreview: actionHandlers?.onPreview ?? (() => undefined),
+    // Product default: Finder-equivalent page/asset preview (#2733). Hosts
+    // may still override via actionHandlers.onPreview.
+    onPreview:
+      actionHandlers?.onPreview ??
+      (async (item) => {
+        await openPreviewItem(item);
+      }),
   };
-  const hasPreviewHandler = Boolean(actionHandlers?.onPreview);
+  // Always true for product shell (built-in openPreviewItem); override still counts.
+  const hasPreviewHandler = true;
+
+  const handleRefreshList = useCallback(() => {
+    setListEpoch((n) => n + 1);
+    setError(null);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -580,7 +593,7 @@ export function ContentExplorerShell({
           handleAddToClipboard();
           break;
         case "view-refresh":
-          setListEpoch((n) => n + 1);
+          handleRefreshList();
           break;
         case "view-security":
           setShowSecurity((v) => !v);
@@ -610,7 +623,7 @@ export function ContentExplorerShell({
           break;
       }
     },
-    [handleAddToClipboard],
+    [handleAddToClipboard, handleRefreshList],
   );
 
   const folderForActions: PSPathItem | null =
@@ -699,6 +712,23 @@ export function ContentExplorerShell({
               ariaLabel={message(EXPLORER_MSG.SERVER_ACTIONS_ARIA)}
               onInvoke={handleMenuInvoke}
             />
+          </div>
+          {/* Always-visible refresh residual (#2733); View menu also has Refresh (#2731). */}
+          <div
+            style={toolRowStyle}
+            data-testid="explorer-view-tools"
+            role="toolbar"
+            aria-label={message(EXPLORER_MSG.VIEW_TOOLS_ARIA)}
+          >
+            <button
+              type="button"
+              data-testid="explorer-refresh-list"
+              aria-label={message(EXPLORER_MSG.ACTION_REFRESH_ARIA)}
+              title={message(EXPLORER_MSG.ACTION_REFRESH_ARIA)}
+              onClick={handleRefreshList}
+            >
+              {message(EXPLORER_MSG.ACTION_REFRESH)}
+            </button>
           </div>
         </div>
       </header>

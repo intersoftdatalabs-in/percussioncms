@@ -16,10 +16,10 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Menu bar (Content / View / Help) | `ContentExplorerMenu.xml` | `ExplorerMenuBar` on product shell (nested Content/View/Help; view tools under View) | **Present** | #2731 (nested ActionToolbar MENU children also fixed; residual polish under #2730 if any) |
 | Server-driven toolbar/context menus | Action manager + server menus | `ActionToolbar` (nested MENU dropdowns) + `ContextMenu` + `actionMenuApi` wired in shell | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) · nested dropdown fix #2731 |
 | Reduced create/rename/move/copy/delete | Folder actions | `ReducedActions` in shell | Present | — |
-| Open / preview item | Open handlers | `openInEditor`; preview default no-op | **Partial** | preview polish (no dedicated child; track under future shell residual if product prioritizes) |
+| Open / preview item | Open handlers | `openInEditor` + product `openPreviewItem` (page render / asset view URL) from selection | **Present** | #2733 |
 | Multi-select list | Selection model | `multiSelectedIds` / `DetailList` multi-select in shell | **Present** | #2408 · [PR #2522](https://github.com/intersoftdatalabs-in/percussioncms/pull/2522) (merged) |
 | Display formats for columns | Display format catalog | `GET /rest/displayformats?validForFolder=true` + shell selector + `displayProperties` | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) |
-| View options / refresh | View menu | `ExplorerMenuBar` View → Refresh + panel toggles + display format | **Present** | #2731 |
+| View options / refresh | View menu | `ExplorerMenuBar` View → Refresh + panel toggles + display format; always-visible refresh residual | **Present** | #2731 · #2733 |
 
 ## Search
 

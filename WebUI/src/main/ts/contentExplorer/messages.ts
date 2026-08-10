@@ -40,6 +40,12 @@ export const EXPLORER_MSG = {
   COL_WORKFLOW: "perc.ui.explorer@Workflow",
   ACTION_OPEN: "perc.ui.explorer@Open",
   ACTION_PREVIEW: "perc.ui.explorer@Preview",
+  /** View residual: reload detail list for the current folder (#2733). */
+  ACTION_REFRESH: "perc.ui.explorer@Refresh",
+  ACTION_REFRESH_ARIA: "perc.ui.explorer@Refresh the current folder list",
+  PREVIEW_UNAVAILABLE:
+    "perc.ui.explorer@Preview is not available for this item",
+  PREVIEW_OPEN_ERROR: "perc.ui.explorer@Could not open preview",
   ACTION_CREATE_FOLDER: "perc.ui.explorer@Create Folder",
   ACTION_RENAME: "perc.ui.explorer@Rename",
   ACTION_MOVE: "perc.ui.explorer@Move",
