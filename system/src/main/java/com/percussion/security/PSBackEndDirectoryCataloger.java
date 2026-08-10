@@ -53,8 +53,9 @@ public class PSBackEndDirectoryCataloger extends PSDirectoryCataloger {
     PSSubject subject = getAttributes(user, attrs);
     PSAttribute attr = subject.getAttributes().getAttribute(attributeName);
     if (attr != null) {
-      List vals = attr.getValues();
-      if (!vals.isEmpty()) attributeVal = (String) vals.get(0);
+      @SuppressWarnings("unchecked")
+      List<?> vals = attr.getValues();
+      if (!vals.isEmpty()) attributeVal = vals.get(0).toString();
     }
 
     return attributeVal;
@@ -66,21 +67,23 @@ public class PSBackEndDirectoryCataloger extends PSDirectoryCataloger {
   }
 
   // see IPSDirectoryCataloger interface
-  public PSSubject getAttributes(PSSubject user, Collection attributeNames) {
+  public PSSubject getAttributes(PSSubject user, Collection<?> attributeNames) {
     // 1st clear all existing attributes from the supplied subject
     PSAttributeList userAttributes = user.getAttributes();
     while (userAttributes.size() > 0) userAttributes.removeElementAt(0);
 
     if (attributeNames != null) {
-      Iterator attrs = attributeNames.iterator();
-      while (attrs.hasNext()) userAttributes.setAttribute((String) attrs.next(), null);
+      for (Object attrName : attributeNames) {
+        if (attrName != null) userAttributes.setAttribute(attrName.toString(), null);
+      }
     }
 
     PSSubject subject = getMatchingSubject(user.getName(), attributeNames);
     if (subject != null) {
-      Iterator attrs = subject.getAttributes().iterator();
+      @SuppressWarnings("unchecked")
+      Iterator<PSAttribute> attrs = subject.getAttributes().iterator();
       while (attrs.hasNext()) {
-        PSAttribute attr = (PSAttribute) attrs.next();
+        PSAttribute attr = attrs.next();
         userAttributes.setAttribute(attr.getName(), attr.getValues());
       }
     }
@@ -89,8 +92,8 @@ public class PSBackEndDirectoryCataloger extends PSDirectoryCataloger {
   }
 
   // see IPSDirectoryCataloger interface
-  public Collection findUsers(PSConditional[] criteria, Collection attributeNames) {
-    Collection users = new HashSet();
+  public Collection<PSSubject> findUsers(PSConditional[] criteria, Collection<?> attributeNames) {
+    Collection<PSSubject> users = new HashSet<>();
     if (criteria == null || criteria.length == 0) criteria = new PSConditional[] {null};
     for (int i = 0; i < criteria.length; i++) {
       users.addAll(PSBackendCataloger.getSubjects(createFilter(criteria[i]), attributeNames));
@@ -122,7 +125,7 @@ public class PSBackEndDirectoryCataloger extends PSDirectoryCataloger {
    * @param attributeNames Attributes to return with the subject, may be <code>null</code> or empty.
    * @return The subject, or <code>null</code> if not found.
    */
-  private PSSubject getMatchingSubject(String name, Collection attributeNames) {
+  private PSSubject getMatchingSubject(String name, Collection<?> attributeNames) {
     Map<String, String> filters = new HashMap<>();
     filters.put(PSBackendCataloger.FILTER_SUBJECT_NAME, name);
     Set<PSSubject> subjects = PSBackendCataloger.getSubjects(filters, attributeNames);

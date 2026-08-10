@@ -25,7 +25,6 @@ import com.percussion.security.error.PSExceptionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -73,13 +72,12 @@ public class PSDirectoryServerCataloger extends PSDirectoryCataloger {
       throw new IllegalArgumentException("attributeName cannot be empty");
 
     String result = null;
-    Iterator directories = getDirectories().values().iterator();
     String dirName = "";
-    while (result == null && directories.hasNext()) {
+    for (PSDirectoryDefinition directory : getDirectories().values()) {
       try {
-        PSDirectoryDefinition directory = (PSDirectoryDefinition) directories.next();
         dirName = directory.getDirectory().getName();
         result = getAttribute(directory, user.getName(), getObjectAttributeName(), attributeName);
+        if (result != null) break;
       } catch (Exception e) {
         log.error(
             "Error finding users for ldap Directory:{} : Error: {}",
@@ -98,13 +96,11 @@ public class PSDirectoryServerCataloger extends PSDirectoryCataloger {
     if (user == null) throw new IllegalArgumentException("user cannot be null");
 
     // do the search for all configured directories
-    Iterator directories = getDirectories().values().iterator();
     String dirName = "";
-    while (directories.hasNext()) {
+    for (PSDirectoryDefinition directory : getDirectories().values()) {
       try {
-        PSDirectoryDefinition directory = (PSDirectoryDefinition) directories.next();
         dirName = directory.getDirectory().getName();
-        Collection attributeNames = directory.getDirectory().getAttributes();
+        Collection<?> attributeNames = directory.getDirectory().getAttributes();
 
         getAttributes(user, attributeNames);
       } catch (Exception e) {
@@ -121,23 +117,26 @@ public class PSDirectoryServerCataloger extends PSDirectoryCataloger {
   /**
    * @see IPSDirectoryCataloger
    */
-  public PSSubject getAttributes(PSSubject user, Collection attributeNames) {
+  public PSSubject getAttributes(PSSubject user, Collection<?> attributeNames) {
     if (user == null) throw new IllegalArgumentException("user cannot be null");
 
     // prepare returning attributes array
     String[] returningAttrs = null;
-    if (attributeNames != null && !attributeNames.isEmpty())
-      returningAttrs = (String[]) attributeNames.toArray(new String[0]);
+    if (attributeNames != null && !attributeNames.isEmpty()) {
+      List<String> names = new ArrayList<>(attributeNames.size());
+      for (Object attrName : attributeNames) {
+        if (attrName != null) names.add(attrName.toString());
+      }
+      returningAttrs = names.toArray(new String[0]);
+    }
 
     // initialize the search results map
-    Map searchResults = new HashMap();
+    Map<String, List<String>> searchResults = new HashMap<>();
 
     // do the search for all configured directories
-    Iterator directories = getDirectories().values().iterator();
     String dirName = "";
-    while (directories.hasNext()) {
+    for (PSDirectoryDefinition directory : getDirectories().values()) {
       try {
-        PSDirectoryDefinition directory = (PSDirectoryDefinition) directories.next();
         dirName = directory.getDirectory().getName();
         getAttributes(
             directory, user.getName(), getObjectAttributeName(), returningAttrs, searchResults);
@@ -151,10 +150,8 @@ public class PSDirectoryServerCataloger extends PSDirectoryCataloger {
 
     // set attributes in returned subject
     PSAttributeList attributes = user.getAttributes();
-    Iterator keys = searchResults.keySet().iterator();
-    while (keys.hasNext()) {
-      String key = (String) keys.next();
-      attributes.setAttribute(key, (List) searchResults.get(key));
+    for (Map.Entry<String, List<String>> entry : searchResults.entrySet()) {
+      attributes.setAttribute(entry.getKey(), entry.getValue());
     }
 
     return user;
@@ -163,8 +160,8 @@ public class PSDirectoryServerCataloger extends PSDirectoryCataloger {
   /**
    * @see IPSDirectoryCataloger
    */
-  public Collection findUsers(PSConditional[] criteria, Collection attributeNames) {
-    Collection result = new ArrayList();
+  public Collection<PSSubject> findUsers(PSConditional[] criteria, Collection<?> attributeNames) {
+    Collection<PSSubject> result = new ArrayList<>();
 
     if (criteria == null) criteria = new PSConditional[] {null};
 
@@ -174,9 +171,9 @@ public class PSDirectoryServerCataloger extends PSDirectoryCataloger {
       Map<String, String> aFilter = createFilter(criteria[i]);
       for (Map.Entry<String, String> entry : aFilter.entrySet()) {
         String val = PSJndiUtils.processFilter(entry.getValue());
-        List valList = filter.get(entry.getKey());
+        List<String> valList = filter.get(entry.getKey());
         if (valList == null) {
-          valList = new ArrayList<String>();
+          valList = new ArrayList<>();
           filter.put(entry.getKey(), valList);
         }
         valList.add(val);
@@ -186,14 +183,12 @@ public class PSDirectoryServerCataloger extends PSDirectoryCataloger {
       Exception ex = null;
       if ((i % 100 == 0) || i == criteria.length - 1) {
 
-        Iterator directories = getDirectories().values().iterator();
         String dirName = "";
-        while (directories.hasNext()) {
+        for (PSDirectoryDefinition directory : getDirectories().values()) {
           try {
             dirSize++;
-            PSDirectoryDefinition directory = (PSDirectoryDefinition) directories.next();
             dirName = directory.getDirectory().getName();
-            Collection subs = getSubjects(directory, filter, attributeNames);
+            Collection<PSSubject> subs = getSubjects(directory, filter, attributeNames);
             result.addAll(subs);
           } catch (Exception e) {
             log.error(

@@ -77,14 +77,18 @@ public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
    * @see IPSDirectoryCataloger
    */
   public String getAttribute(PSSubject user, String attributeName) {
-    Collection attributeNames = new ArrayList();
+    Collection<String> attributeNames = new ArrayList<>();
     attributeNames.add(attributeName);
 
     PSSubject subject = getAttributes(user, attributeNames);
 
     PSAttribute attribute = subject.getAttributes().getAttribute(attributeName);
-    List values = null;
-    if (attribute != null) values = attribute.getValues();
+    List<?> values = null;
+    if (attribute != null) {
+      @SuppressWarnings("unchecked")
+      List<?> attrValues = attribute.getValues();
+      values = attrValues;
+    }
 
     return (values == null || values.isEmpty()) ? null : values.get(0).toString();
   }
@@ -99,7 +103,7 @@ public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
   /**
    * @see IPSDirectoryCataloger
    */
-  public PSSubject getAttributes(PSSubject user, Collection attributeNames) {
+  public PSSubject getAttributes(PSSubject user, Collection<?> attributeNames) {
     if (user == null) throw new IllegalArgumentException("user may not be null");
 
     // 1st clear all existing attributes from the supplied subject
@@ -107,11 +111,14 @@ public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
     while (attributes.size() > 0) attributes.removeElementAt(0);
 
     // 2nd prepare all requested attributes with null's
-    Iterator attrNames = null;
+    Iterator<?> attrNames;
     if (attributeNames == null || attributeNames.isEmpty())
       attrNames = m_backendConnection.getUserAttributeNames();
     else attrNames = attributeNames.iterator();
-    while (attrNames.hasNext()) attributes.setAttribute((String) attrNames.next(), null);
+    while (attrNames.hasNext()) {
+      Object attrName = attrNames.next();
+      if (attrName != null) attributes.setAttribute(attrName.toString(), null);
+    }
 
     Connection conn = null;
     PreparedStatement stmt = null;
@@ -122,13 +129,14 @@ public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
       result = stmt.executeQuery();
 
       if (result.next()) {
-        Iterator attrs = attributes.iterator();
+        @SuppressWarnings("unchecked")
+        Iterator<PSAttribute> attrs = attributes.iterator();
         while (attrs.hasNext()) {
-          PSAttribute attr = (PSAttribute) attrs.next();
+          PSAttribute attr = attrs.next();
 
           String colName = m_backendConnection.getUserAttribute(attr.getName());
           if (colName != null) {
-            List values = new ArrayList();
+            List<String> values = new ArrayList<>();
             values.add(result.getString(colName));
             attr.setValues(values);
           }
@@ -167,7 +175,7 @@ public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
   /**
    * @see IPSDirectoryCataloger
    */
-  public Collection findUsers(PSConditional[] criteria, Collection attributeNames) {
+  public Collection<PSSubject> findUsers(PSConditional[] criteria, Collection<?> attributeNames) {
     Collection<PSSubject> subjects = new ArrayList<>();
 
     if (criteria == null || criteria.length == 0) criteria = new PSConditional[] {null};
@@ -175,30 +183,32 @@ public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
     Connection conn = null;
     PreparedStatement stmt = null;
     try {
+      Collection<Object> resolvedAttrs;
       if (attributeNames == null || attributeNames.isEmpty()) {
-        attributeNames = new ArrayList();
-        Iterator attrs = m_backendConnection.getUserAttributeNames();
-        while (attrs.hasNext()) attributeNames.add(attrs.next());
+        resolvedAttrs = new ArrayList<>();
+        Iterator<?> attrs = m_backendConnection.getUserAttributeNames();
+        while (attrs.hasNext()) resolvedAttrs.add(attrs.next());
+      } else {
+        resolvedAttrs = new ArrayList<>(attributeNames);
       }
 
       conn = m_backendConnection.getDbConnection();
 
       for (int i = 0; i < criteria.length; i++) {
-        stmt = m_backendConnection.getPreparedStatement(criteria[i], attributeNames, conn);
+        stmt = m_backendConnection.getPreparedStatement(criteria[i], resolvedAttrs, conn);
         if (stmt == null) continue;
 
         ResultSet rs = stmt.executeQuery();
         while (rs.next()) {
           String name = rs.getString(m_backendConnection.getUserColumn());
           PSAttributeList attList = new PSAttributeList();
-          Iterator attrs = attributeNames.iterator();
-          while (attrs.hasNext()) {
-            String attr = (String) attrs.next();
+          for (Object attrObj : resolvedAttrs) {
+            String attr = attrObj.toString();
 
-            List values = null;
+            List<String> values = null;
             String colName = m_backendConnection.getUserAttribute(attr);
             if (colName != null) {
-              values = new ArrayList();
+              values = new ArrayList<>();
               values.add(rs.getString(colName));
             }
 
