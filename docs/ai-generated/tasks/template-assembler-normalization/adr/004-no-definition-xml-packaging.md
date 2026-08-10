@@ -59,3 +59,4 @@ Compiler for upgrade-input Widget XML → Component Package Manifest (baseWidget
 | Inventory + residuals | [../widget-xml-inventory.md](../widget-xml-inventory.md) |
 
 High-traffic package conversion and product XML removal remain residual under #2630; runtime shim is #2752.
+- **Dual-run runtime shim (time-boxed):** selection prefers modern `component-package.json`, falls back to legacy Widget/Page/Gadget definition XML when modern is absent, and fails clearly when neither exists. Implementation: `com.percussion.packages.shim.PSLegacyDefinitionXmlShim` (#2752). Operator policy, entry points, and exit criteria: [dual-run-legacy-definition-xml-shim.md](../dual-run-legacy-definition-xml-shim.md). Product packages must not depend on the shim long-term; Phase 5 (#2632) removes it when metrics allow.
