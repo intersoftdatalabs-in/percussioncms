@@ -21,19 +21,22 @@
  * as a horizontal action bar. Leaf {@code MENUITEM} actions activate on
  * click; parent {@code MENU} (or any action with {@code children[]})
  * opens a nested dropdown instead of dumping every child as a flat
- * button (#2730 / #2731). Server-provided URLs navigate; otherwise the
- * action is delegated to {@link ActionToolbarProps.onInvoke}.</p>
+ * button (#2730 / #2731). The Workflow group (#2732) is a special case:
+ * it renders as a labeled button group so each transition is one-click
+ * invokable. Server-provided URLs navigate; otherwise the action is
+ * delegated to {@link ActionToolbarProps.onInvoke}.</p>
  *
  * <p>Toolbar refreshes when the {@link ActionToolbarProps.actions} prop
  * changes (e.g. on selection change the parent fetches the allowed
- * actions via {@code findAllowedContentTypeMenus} and re-renders this
- * component).</p>
+ * actions via {@code findAllowedContentTypeMenus} + workflow transitions
+ * and re-renders this component).</p>
  */
 
 import React, { useEffect, useId, useRef, useState } from "react";
 import type { MenuAction } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
 import { safeNavigate } from "../util/safeNavigate";
+import { WORKFLOW_MENU_NAME } from "./workflowMenuActions";
 
 export interface ActionToolbarProps {
   actions: MenuAction[];
@@ -83,6 +86,25 @@ const menuItemStyle: React.CSSProperties = {
   background: "transparent",
   cursor: "pointer",
   font: "inherit",
+};
+
+const groupStyle: React.CSSProperties = {
+  display: "inline-flex",
+  flexWrap: "wrap",
+  gap: 4,
+  alignItems: "center",
+  border: "1px solid #e2e8f0",
+  borderRadius: 4,
+  padding: "2px 4px",
+  background: "#f8fafc",
+};
+
+const groupLabelStyle: React.CSSProperties = {
+  fontSize: 11,
+  color: "#64748b",
+  marginRight: 4,
+  textTransform: "uppercase",
+  letterSpacing: "0.02em",
 };
 
 function hasChildren(action: MenuAction): boolean {
@@ -158,6 +180,37 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
         </span>
       ) : (
         actions.map((a) => {
+          // Workflow transitions (#2732): labeled one-click group.
+          if (hasChildren(a) && a.name === WORKFLOW_MENU_NAME) {
+            const children = a.children ?? [];
+            return (
+              <span
+                key={a.name}
+                role="group"
+                aria-label={a.label}
+                data-testid={`action-toolbar-group-${a.name}`}
+                style={groupStyle}
+              >
+                <span style={groupLabelStyle} aria-hidden="true">
+                  {a.label}
+                </span>
+                {children.map((c) => (
+                  <button
+                    type="button"
+                    key={c.name}
+                    data-testid={`action-toolbar-item-${c.name}`}
+                    aria-label={c.label}
+                    title={c.description ?? c.label}
+                    onClick={() => activate(c, baseHref, onInvoke)}
+                    style={buttonStyle}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </span>
+            );
+          }
+          // General MENU parents (#2730/#2731): nested dropdown chrome.
           if (hasChildren(a)) {
             const expanded = openMenu === a.name;
             const menuId = `${baseId}-${a.name}-menu`;

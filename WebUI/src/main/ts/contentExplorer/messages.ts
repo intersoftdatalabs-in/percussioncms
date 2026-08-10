@@ -226,4 +226,9 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Created {count} translation variants",
   TRANSLATIONS_INFLIGHT_OUT:
     "perc.ui.explorer@In-flight translation queue status is not available (product disposition).",
+  // Workflow transitions in Explorer menus (#2732 / parent #2400)
+  WORKFLOW_MENU_LABEL: "perc.ui.explorer@Workflow",
+  WORKFLOW_TRANSITION_FAILED:
+    "perc.ui.explorer@Workflow transition failed",
+  // Success path refreshes the list silently (error banner is fail-only).
 } as const;

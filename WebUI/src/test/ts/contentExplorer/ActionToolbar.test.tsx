@@ -104,4 +104,31 @@ describe("ActionToolbar", () => {
       expect.objectContaining({ name: "new-folder" }),
     );
   });
+
+  it("renders cascading Workflow children as a labeled group (#2732)", () => {
+    const onInvoke = vi.fn();
+    const actions: MenuAction[] = [
+      {
+        name: "workflow",
+        label: "Workflow",
+        sortRank: 9000,
+        menuType: "MENU",
+        children: [
+          {
+            name: "workflow-transition:Submit",
+            label: "Submit",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ],
+      },
+    ];
+    render(<ActionToolbar actions={actions} onInvoke={onInvoke} />);
+    expect(screen.getByTestId("action-toolbar-group-workflow")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("action-toolbar-item-workflow-transition:Submit"));
+    expect(onInvoke).toHaveBeenCalledWith(
+      "workflow-transition:Submit",
+      expect.objectContaining({ label: "Submit" }),
+    );
+  });
 });
