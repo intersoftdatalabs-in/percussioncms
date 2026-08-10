@@ -63,4 +63,6 @@ CM1 templates carry `htmlHeader`, `cssRegion`, `additionalHeadContent`, protecte
 
 ## 7. Legacy XSL variants
 
-`legacyAssembler` proxies XML app + stylesheet. No JEXL bindings. Support-only; no new design investment. Migration cookbook later (outside forced 8.2 cut).
+`legacyAssembler` proxies XML app + stylesheet. No JEXL bindings. Support-only; no new design investment. **Not removed in 8.2.**
+
+**Cookbook (Phase 5 / #2834):** [xsl-migration-cookbook.md](./xsl-migration-cookbook.md) — 8.2 support statement, inventory surfaces, and incremental migration steps toward HTML-first / Velocity / Markdown. Optional non-assembly note: [rhino-js-extension-note.md](./rhino-js-extension-note.md).

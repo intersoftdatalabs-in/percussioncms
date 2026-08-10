@@ -67,7 +67,7 @@ Normalization direction: keep `$perc` as a **documented context module**, not a 
 | Markdown content | `Java/global/percussion/assembly/markdownAssembler` |
 | Macros, loops, `#parse`, AA macros | `Java/global/percussion/assembly/velocityAssembler` |
 | CM1 page with regions | `pageAssembler` (today Velocity + `$perc`; thin context provider) |
-| XSL / XML app | `legacyAssembler` (support only) |
+| XSL / XML app | `legacyAssembler` (support only) — migrate via [xsl-migration-cookbook.md](./xsl-migration-cookbook.md) |
 
 ## Design SPA assembler picker (#2810)
 
