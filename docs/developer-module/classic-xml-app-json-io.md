@@ -79,7 +79,8 @@ Goldens: `system/src/test/resources/com/percussion/data/json-codec/`
 - Same trust boundary as XML input.
 - Embedded file URL attributes (`PSXUrlReferenceAttribute`) are rejected (document cleared), matching `PSXmlContentParser`.
 - No script execution; pure structural transform.
-- Nesting limited by `MAX_DEPTH`.
+- Nesting limited by `MAX_DEPTH` (`PSXmlDocumentJsonCodec.MAX_DEPTH` = 64).
+- **Body intake / size:** `PSJsonContentParser` streams the request body into a purgable temp file in fixed-size chunks (same helper as `PSXmlContentParser`), then decodes with a charset-aware `Reader`. This avoids allocating a single `byte[Content-Length]` for the entire body on the happy path. There is **no additional hard max body size** beyond the Content-Length `int` already used by the classic request parser (same policy as the XML content path). Content-Length mismatches log a server warning and parse what was actually read.
 
 ## Classic apps vs Pipeline IR
 
