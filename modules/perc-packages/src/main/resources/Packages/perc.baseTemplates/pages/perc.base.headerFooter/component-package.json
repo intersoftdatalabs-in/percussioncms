@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.base.headerFooter",
+  "name": "Header Footer",
+  "version": "1.1.5",
+  "description": "Percussion base layout templates.",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "http://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "page",
+    "title": "Header Footer",
+    "category": "page",
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.base.headerFooter",
+      "type": "page",
+      "assembler": "pageAssembler",
+      "sourceRef": "templates/perc.base.headerFooter.vm",
+      "bindings": []
+    }
+  ],
+  "slots": [
+    {
+      "name": "header",
+      "allowedContentTypes": [],
+      "layout": {
+        "orientation": "vertical",
+        "vspan": "2"
+      },
+      "styles": {
+        "rootclass": "perc-region perc-vertical vspan_2"
+      }
+    },
+    {
+      "name": "content",
+      "allowedContentTypes": [],
+      "layout": {
+        "orientation": "vertical",
+        "vspan": "6"
+      },
+      "styles": {
+        "rootclass": "perc-region perc-vertical vspan_6"
+      }
+    },
+    {
+      "name": "footer",
+      "allowedContentTypes": [],
+      "layout": {
+        "orientation": "vertical",
+        "vspan": "2"
+      },
+      "styles": {
+        "rootclass": "perc-region perc-vertical vspan_2"
+      }
+    }
+  ],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}

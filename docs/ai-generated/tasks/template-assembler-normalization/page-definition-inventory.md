@@ -1,8 +1,8 @@
-# Page definition packaging inventory (Phase 3 / #2770)
+# Page definition packaging inventory (Phase 3 / #2770 + #2786)
 
 | Field | Value |
 |-------|--------|
-| **Status** | Inventory + compiler landed (#2770) |
+| **Status** | Compiler (#2770) + modern authoring dual-ship (#2786) for base/responsive templates |
 | **Parent** | #2630 · Grandparent #2626 |
 | **Code** | `modules/perc-packages/.../pagexml/PSPageXml*.java` |
 | **ADR** | [ADR-004](./adr/004-no-definition-xml-packaging.md) |
@@ -23,17 +23,29 @@ There is **no** product tree under `rxconfig/Pages/*.xml` in `modules/perc-packa
 
 CM1 **page item** region trees / widget instances live in site storage (sitemanage domain), not as package `*.templateDef` files. This slice covers **packaged page templates** only; page-item composition upgrade remains a residual under #2630 when storage write-path is ready.
 
-## Product packages with Page layout templateDefs
+## Product packages with Page layout templates
 
-| Package | `*.templateDef` count (approx) | Assembler (typical) | Output format | Notes |
-|---------|--------------------------------:|---------------------|---------------|-------|
-| `perc.baseTemplates` | 20 | `pageAssembler` | Page | Primary golden target (`perc.base.plain`) |
-| `perc.responsiveTemplates` | 3 | `pageAssembler` | Page | Banded / Basic / plain |
-| `perc.Baseline` | 4+ page-related | mix (`pageAssembler`, `velocityAssembler`, …) | Page / Global | System templates (`perc.page`, `perc.pageXml`, …) — convert carefully |
+| Package | Modern `pages/` count | Assembler (typical) | Output format | Notes |
+|---------|----------------------:|---------------------|---------------|-------|
+| `perc.baseTemplates` | 20 | `pageAssembler` | Page | **Modern authoring (#2786)**; dual-ship generates install `*.templateDef` at package build |
+| `perc.responsiveTemplates` | 3 | `pageAssembler` | Page | **Modern authoring (#2786)**; Banded / Basic / plain |
+| `perc.Baseline` | (still `*.templateDef`) | mix (`pageAssembler`, `velocityAssembler`, …) | Page / Global | System templates residual — convert carefully |
 
 Snippet-style `*.templateDef` files also appear inside **widget** packages (e.g. file/image binary templates). Those are **not** page layout packages; leave them to widget conversion residuals unless inventory shows Page `output-format`.
 
-### `perc.baseTemplates` (layout catalog)
+### `perc.baseTemplates` (layout catalog) — modern ship layout
+
+```text
+Packages/perc.baseTemplates/
+  pages/<templateId>/component-package.json
+  pages/<templateId>/templates/<templateId>.vm
+  *.templateDef.aclDef          ← ACL side-cars (unchanged)
+  perc.baseTemplates.mapping.properties
+  psx_archiveInfo.xml
+  sys__UserDependency--rx_resources/…
+```
+
+Install dual-ship (package build): root `*.templateDef` regenerated into staging from `pages/` with GUIDs from mapping (`TemplateDef-N` → `0-4-N`). Product source trees **do not** author root `*.templateDef`.
 
 | Template name | Label (sample) | Regions (`#region`) |
 |---------------|----------------|---------------------|
@@ -45,13 +57,11 @@ Snippet-style `*.templateDef` files also appear inside **widget** packages (e.g.
 | `perc.base.leftSidebar` / `rightSidebar` / `rightLeftSidebar` | sidebars | multi-region |
 | `perc.base.lLeft*` / `lRight*` / `invertedL*` / `cClamp*` | L / clamp layouts | multi-region |
 
-Full file list: `modules/perc-packages/src/main/resources/Packages/perc.baseTemplates/*.templateDef`.
-
-### `perc.responsiveTemplates`
+### `perc.responsiveTemplates` — modern ship layout
 
 | Template name | Label |
 |---------------|-------|
-| `perc.resp.plain` | (plain responsive) |
+| `perc.resp.plain` | Plain |
 | `perc.resp.Basic` | Basic |
 | `perc.resp.Banded` | Banded |
 
@@ -70,24 +80,25 @@ Full file list: `modules/perc-packages/src/main/resources/Packages/perc.baseTemp
 | Matching `id="…" class="perc-region perc-vertical …"` | `slots[].layout.orientation`, `slots[].styles.rootclass` (+ span hints) |
 | `catalog.kind` | always `page` for this compiler |
 
-**Dual-run (documented):** product packages **still ship** `*.templateDef` as install input until a residual removes them. The compiler emits modern `component-package.json` + template sources for upgrade tooling and future authoring; install recognition of the modern format is a follow-on.
+**Dual-ship (install parity, #2786):** product **authors** modern `pages/` only for `perc.baseTemplates` and `perc.responsiveTemplates`. `PSPackageBuilder` calls `PSPageXmlDualShip.materializeInstallTemplateDefs` so `.ppkg` still contains root `*.templateDef` for deployer `TemplateDef` handlers. Semantic parity (name, assembler, body, GUID, slots) is unit-tested in `PSPageXmlDualShipTest`. Native deployer install of `component-package.json` remains a follow-on.
 
 ## Golden fixtures
 
 | Fixture | Path |
 |---------|------|
-| Input | `modules/perc-packages/src/test/resources/pagexml/perc.base.plain.templateDef` |
+| Upgrade-input | `modules/perc-packages/src/test/resources/pagexml/perc.base.plain.templateDef` |
 | Manifest golden | `…/pagexml/golden/perc.base.plain.component-package.json` |
 | Template golden | `…/pagexml/golden/perc.base.plain.vm` |
-| Tests | `com.percussion.packages.pagexml.PSPageXmlCompilerTest` |
+| Compiler tests | `com.percussion.packages.pagexml.PSPageXmlCompilerTest` |
+| Dual-ship tests | `com.percussion.packages.pagexml.PSPageXmlDualShipTest` |
+| Product modern sources | `…/Packages/perc.baseTemplates/pages/`, `…/Packages/perc.responsiveTemplates/pages/` |
 
 ## Residuals (not this PR)
 
-1. **Remove product `*.templateDef` authoring** after install path consumes modern packages (and dual-run exit criteria).
+1. **Native deployer install** of modern page `component-package.json` (then dual-ship generator can retire).
 2. **Thumbnails / resources** wiring for template images into `resources[]`.
 3. **Baseline system templates** conversion matrix (Global / Xml / Database / Dispatcher).
 4. **Page item composition** (site storage region trees) → slot composition IR — depends on Phase 2 storage / REST (#2690 family).
-5. **Gadget registry** conversion (sibling slice).
 
 ## Related
 

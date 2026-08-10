@@ -28,12 +28,13 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * Compiles all Page / assembly {@code *.templateDef} files found in a legacy product package source
- * directory (e.g. {@code perc.baseTemplates}, {@code perc.responsiveTemplates}).
+ * Compiles page layout packages from product package source trees (e.g. {@code perc.baseTemplates},
+ * {@code perc.responsiveTemplates}).
  *
- * <p>Looks for {@code *.templateDef} at the package root (product packaging layout used by {@code
- * modules/perc-packages}). Suitable for simple page layout packages first; full product dual-run
- * removal remains residual under #2630.
+ * <p><strong>Authoring preference (ADR-004 / #2786):</strong> modern {@code pages/&lt;id&gt;/}
+ * component packages. Falls back to root-level {@code *.templateDef} for upgrade-input / dual-run
+ * staging. Package build dual-ships modern → install {@code *.templateDef} via {@link
+ * PSPageXmlDualShip}.
  */
 public final class PSPageXmlPackageCompiler {
 
@@ -42,7 +43,8 @@ public final class PSPageXmlPackageCompiler {
   }
 
   /**
-   * Compile every {@code *.templateDef} under the package root.
+   * Compile every page template in the package: prefer modern {@code pages/*} sources when present;
+   * otherwise compile root-level {@code *.templateDef} (upgrade-input / legacy dual-run).
    *
    * @param packageDir non-null package source root (e.g. {@code …/Packages/perc.baseTemplates})
    * @return compile results sorted by template name (stable for golden tests)
@@ -56,11 +58,15 @@ public final class PSPageXmlPackageCompiler {
       throw new PSPageXmlException("Package directory does not exist: " + packageDir);
     }
 
+    if (PSPageXmlDualShip.hasModernPageSources(packageDir)) {
+      return PSPageXmlDualShip.compileModernPages(packageDir);
+    }
+
     PSPageXmlPackageContext ctx = PSPageXmlPackageContext.fromPackageDir(packageDir);
     List<Path> templateFiles = listTemplateDefs(packageDir);
     if (templateFiles.isEmpty()) {
       throw new PSPageXmlException(
-          "No *.templateDef files found in package root: " + packageDir);
+          "No modern pages/ sources or *.templateDef files found in package: " + packageDir);
     }
 
     List<PSPageXmlCompileResult> results = new ArrayList<>();

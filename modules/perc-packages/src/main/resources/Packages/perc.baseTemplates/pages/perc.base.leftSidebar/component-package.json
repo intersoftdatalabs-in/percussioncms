@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.base.leftSidebar",
+  "name": "Left Sidebar",
+  "version": "1.1.5",
+  "description": "Left Sidebar Base Template",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "http://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "page",
+    "title": "Left Sidebar",
+    "category": "page",
+    "description": "Left Sidebar Base Template",
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.base.leftSidebar",
+      "type": "page",
+      "assembler": "pageAssembler",
+      "sourceRef": "templates/perc.base.leftSidebar.vm",
+      "bindings": []
+    }
+  ],
+  "slots": [
+    {
+      "name": "leftsidebar",
+      "allowedContentTypes": [],
+      "layout": {
+        "orientation": "vertical",
+        "vspan": "8",
+        "hspan": "2"
+      },
+      "styles": {
+        "rootclass": "perc-region perc-vertical vspan_8 hspan_2"
+      }
+    },
+    {
+      "name": "content",
+      "allowedContentTypes": [],
+      "layout": {
+        "orientation": "vertical",
+        "vspan": "8",
+        "hspan": "10"
+      },
+      "styles": {
+        "rootclass": "perc-region perc-vertical vspan_8 hspan_10"
+      }
+    }
+  ],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}

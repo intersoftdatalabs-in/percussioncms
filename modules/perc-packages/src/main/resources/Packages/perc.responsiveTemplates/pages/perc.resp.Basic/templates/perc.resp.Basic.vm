@@ -1,0 +1,24 @@
+#perc_templateHeader()
+<div id="perc-resp-container" class="row perc-region">
+    <div id="perc-resp-top-column" class="large-12 columns perc-region">
+    	<div id="perc-resp-header" class="row perc-region">
+            <div id="perc-resp-header-left" class="large-12 columns perc-region">
+                #region("perc-resp-header-left" '' '' '' '')
+            </div>
+        </div>
+        <div id="perc-resp-body" class="row perc-region">
+            <div id="perc-resp-body-content" class="large-9 columns perc-region">
+                #region("perc-resp-body-content" '' '' '' '')
+            </div>
+            <div id="perc-resp-body-sidebar" class="large-3 columns perc-region">
+                #region("perc-resp-body-sidebar" '' '' '' '')
+            </div>
+        </div>
+        <div id="perc-resp-footer" class="row perc-region">
+            <div id="perc-resp-footer-content" class="large-12 columns perc-region">
+                #region("perc-resp-footer-content" '' '' '' '')
+            </div>
+        </div>
+	</div>
+</div>
+#perc_templateFooter()

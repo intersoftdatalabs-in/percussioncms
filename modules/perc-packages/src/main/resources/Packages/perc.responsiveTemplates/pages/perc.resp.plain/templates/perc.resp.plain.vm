@@ -1,0 +1,7 @@
+#perc_templateHeader()
+<div id="perc-resp-container" class="row perc-region">
+    <div id="perc-resp-top-column" class="large-12 columns perc-region">
+		#region("perc-resp-top-column" '' '' '' '')
+	</div>
+</div>
+#perc_templateFooter()

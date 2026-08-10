@@ -1,0 +1,16 @@
+#perc_templateHeader()##
+  <div id="container" class="perc-region perc-vertical hspan_12">
+     <div class="perc-vertical">
+        <div id="header" class="perc-region perc-vertical vspan_2">
+           <div class="perc-vertical">
+			  #region("header" '' '' '' '')##
+           </div>
+        </div>
+        <div id="content" class="perc-region perc-vertical vspan_6">
+           <div class="perc-vertical">
+			  #region("content" '' '' '' '')##
+           </div>
+        </div>      
+     </div>
+  </div>
+#perc_templateFooter()

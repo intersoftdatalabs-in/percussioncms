@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.resp.plain",
+  "name": "Plain",
+  "version": "1.1.5",
+  "description": "Plain responsive template with a row and a column.",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "3.2.4",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "page",
+    "title": "Plain",
+    "category": "page",
+    "description": "Plain responsive template with a row and a column.",
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.resp.plain",
+      "type": "page",
+      "assembler": "pageAssembler",
+      "sourceRef": "templates/perc.resp.plain.vm",
+      "bindings": []
+    }
+  ],
+  "slots": [
+    {
+      "name": "perc-resp-top-column",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": "large-12 columns perc-region"
+      }
+    }
+  ],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}

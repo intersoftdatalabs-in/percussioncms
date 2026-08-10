@@ -1,0 +1,40 @@
+#perc_templateHeader()
+<div id="perc-resp-container" class="row perc-region">
+    <div id="perc-resp-top-column" class="large-12 columns perc-region">
+        <div id="perc-resp-header" class="row perc-region">
+            <div id="perc-resp-header-left" class="large-3 columns perc-region">
+                #region("perc-resp-header-left" '' '' '' '')
+            </div>
+            <div id="perc-resp-header-right" class="large-9 columns perc-region">
+                #region("perc-resp-header-right" '' '' '' '')
+            </div>
+        </div>
+        <div id="perc-resp-banner" class="row perc-region">
+            <div id="perc-resp-banner-content" class="large-12 columns perc-region">
+                #region("perc-resp-banner-content" '' '' '' '')
+            </div>
+        </div>
+        <div id="perc-resp-content-top" class="row perc-region">
+            <div id="perc-resp-content-top-left" class="large-4 columns perc-region">
+                #region("perc-resp-content-top-left" '' '' '' '')
+            </div>
+            <div id="perc-resp-content-top-right" class="large-8 columns perc-region">
+                #region("perc-resp-content-top-right" '' '' '' '')
+            </div>
+        </div>
+        <div id="perc-resp-content-bottom" class="row perc-region">
+            <div id="perc-resp-content-bottom-left" class="large-8 columns perc-region">
+                #region("perc-resp-content-bottom-left" '' '' '' '')
+            </div>
+            <div id="perc-resp-content-bottom-right" class="large-4 columns perc-region">
+                #region("perc-resp-content-bottom-right" '' '' '' '')
+            </div>
+        </div>
+        <div id="perc-resp-footer" class="row perc-region">
+            <div id="perc-resp-footer-content" class="large-12 columns perc-region">
+                #region("perc-resp-footer-content" '' '' '' '')
+            </div>
+        </div>
+    </div>
+</div>
+#perc_templateFooter()

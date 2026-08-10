@@ -1,0 +1,17 @@
+#perc_templateHeader()##
+  <div id="container" class="perc-region perc-horizontal hspan_12">
+     <div class="perc-horizontal">
+        <div id="content" class="perc-region perc-vertical hspan_10 vspan_8">
+           <div class="perc-vertical">
+			  #region("content" '' '' '' '')##
+           </div>
+        </div>      
+        <div id="rightsidebar" class="perc-region perc-vertical hspan_2 vspan_8">
+           <div class="perc-vertical">
+			  #region("rightsidebar" '' '' '' '')##
+           </div>
+        </div>
+        <div class="clear-float"></div>       
+     </div>
+  </div>
+#perc_templateFooter()

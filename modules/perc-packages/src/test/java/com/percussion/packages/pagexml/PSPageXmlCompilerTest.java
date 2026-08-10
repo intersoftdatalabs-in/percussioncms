@@ -160,6 +160,11 @@ class PSPageXmlCompilerTest {
       return;
     }
 
+    // #2786: product authoring is modern pages/; compilePackage prefers that path.
+    assertTrue(
+        PSPageXmlDualShip.hasModernPageSources(packageDir),
+        "baseTemplates must ship modern pages/ sources");
+
     List<PSPageXmlCompileResult> results = PSPageXmlPackageCompiler.compilePackage(packageDir);
     assertTrue(results.size() >= 20, "baseTemplates should ship many layout templates");
 
