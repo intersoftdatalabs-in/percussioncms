@@ -20,6 +20,21 @@ export type { DesignShellProps, DesignSection } from "./DesignShell";
 export { TemplateLibraryPanel, templateSelectionKey } from "./TemplateLibraryPanel";
 export { TemplateDetailDrawer } from "./TemplateDetailDrawer";
 export { TemplateSourceEditor } from "./TemplateSourceEditor";
+export { AssemblerPicker } from "./AssemblerPicker";
+export { TemplateSlotsPanel, slotRowsDirty, dirtySlotSaves } from "./TemplateSlotsPanel";
+export {
+  ASSEMBLER_OPTIONS,
+  assemblerSelectOptions,
+  isValidAssemblerValue,
+} from "./assemblerOptions";
+export {
+  layoutDraftFromMap,
+  layoutMapFromDraft,
+  stylesDraftFromMap,
+  stylesMapFromDraft,
+  templateSlotKey,
+  SLOT_SCHEMA_VERSION,
+} from "./slotLayoutStyles";
 export {
   bindingsEqual,
   cloneBindings,

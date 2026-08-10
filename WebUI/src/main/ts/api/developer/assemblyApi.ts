@@ -77,7 +77,7 @@ export async function updateTemplateDetail(
   body: Partial<
     Pick<
       TemplateDetail,
-      "label" | "description" | "templateSource" | "bindings" | "slots"
+      "label" | "description" | "templateSource" | "assembler" | "bindings" | "slots"
     >
   >,
 ): Promise<TemplateDetail> {
@@ -100,7 +100,7 @@ export async function getSlotDetail(idOrName: string): Promise<SlotDetail> {
 /** PUT /services/slots/{idOrName} — label, description, optional associations replace */
 export async function updateSlotDetail(
   idOrName: string,
-  body: Pick<SlotDetail, "label" | "description" | "associations">,
+  body: Partial<Pick<SlotDetail, "label" | "description" | "associations" | "slotLayout" | "slotStyles">>,
 ): Promise<SlotDetail> {
   const key = encodeURIComponent(idOrName);
   return put<SlotDetail>(`${PATHS.SLOTS}/${key}`, body);

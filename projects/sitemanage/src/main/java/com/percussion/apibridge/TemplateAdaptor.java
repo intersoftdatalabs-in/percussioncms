@@ -141,6 +141,14 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
       if (body.getTemplateSource() != null) {
         t.setTemplate(body.getTemplateSource());
       }
+      // null = leave unchanged; non-blank string sets assembler extension name
+      if (body.getAssembler() != null) {
+        String assembler = body.getAssembler().trim();
+        if (StringUtils.isBlank(assembler)) {
+          throw new IllegalArgumentException("assembler must not be blank when provided");
+        }
+        t.setAssembler(assembler);
+      }
       // null = leave unchanged; non-null list (including empty) = full replace
       if (body.getBindings() != null) {
         t.setBindings(toBindings(body.getBindings()));

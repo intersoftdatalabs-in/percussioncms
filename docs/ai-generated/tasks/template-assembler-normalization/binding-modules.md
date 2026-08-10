@@ -68,3 +68,11 @@ Normalization direction: keep `$perc` as a **documented context module**, not a 
 | Macros, loops, `#parse`, AA macros | `Java/global/percussion/assembly/velocityAssembler` |
 | CM1 page with regions | `pageAssembler` (today Velocity + `$perc`; thin context provider) |
 | XSL / XML app | `legacyAssembler` (support only) |
+
+## Design SPA assembler picker (#2810)
+
+The Design SPA template editor (`spa.jsp?entry=design&section=templates`) exposes an **Assembler** select wired to `PUT /services/templates/{idOrName}` (`assembler` field). Catalog options match the table above (HTML-first, Markdown, Velocity, page, legacy, binary, dispatch, database). Custom/current values outside the catalog still appear so existing templates can round-trip.
+
+**Slots (layout / styles):** the same editor lists template slots and edits ADR-003 `slot_layout` / `slot_styles` via `GET/PUT /services/slots/{idOrName}`. Structured fields: orientation, columns, maxItems, emptyState, wrapperClassPolicy, rootclass, itemclass. Classic visual designer parity is out of scope for this slice.
+
+

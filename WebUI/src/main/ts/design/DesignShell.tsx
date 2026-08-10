@@ -59,8 +59,8 @@ const tabStyle = (active: boolean): React.CSSProperties => ({
 });
 
 /**
- * Design SPA shell — Phase 4 template library + source/JEXL editor
- * (#2808 / #2809 / parent #2631). Later slices add assembler/slots.
+ * Design SPA shell — Phase 4 template library + source/JEXL + assembler/slots
+ * (#2808 / #2809 / #2810 / parent #2631).
  */
 export const DesignShell: React.FC<DesignShellProps> = ({
   initialSection = "templates",
