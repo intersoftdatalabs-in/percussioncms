@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -220,21 +221,37 @@ class PSSystemAuditLogRetentionJobTest {
     try {
       assertTrue(job.isWorkerStarted());
       Instant expected = FIXED_NOW.minus(30, ChronoUnit.DAYS);
-      long deadline = System.currentTimeMillis() + 5_000L;
-      boolean seen = false;
-      while (System.currentTimeMillis() < deadline) {
-        try {
-          verify(repo).deleteOlderThan(expected);
-          seen = true;
-          break;
-        } catch (AssertionError e) {
-          Thread.sleep(50);
-        }
-      }
-      assertTrue(seen, "worker should call deleteOlderThan within 5s");
+      // Mockito timeout polls internally — avoids a fragile busy-wait loop
+      verify(repo, timeout(5_000)).deleteOlderThan(expected);
     } finally {
       job.shutdown();
+      assertFalse(job.isWorkerStarted(), "worker should be stopped after shutdown");
     }
+  }
+
+  @Test
+  void resolveRetentionDaysCapsExcessiveValue() throws Exception {
+    setServerProp(
+        PSSystemAuditLogRetentionJob.PROP_RETENTION_DAYS, String.valueOf(Integer.MAX_VALUE));
+    assertEquals(
+        PSSystemAuditLogRetentionJob.MAX_RETENTION_DAYS,
+        PSSystemAuditLogRetentionJob.resolveRetentionDays(null));
+  }
+
+  @Test
+  void setRetentionDaysCapsExcessiveValue() {
+    PSSystemAuditLogRetentionJob job = new PSSystemAuditLogRetentionJob();
+    job.setRetentionDays(Integer.MAX_VALUE);
+    assertEquals(PSSystemAuditLogRetentionJob.MAX_RETENTION_DAYS, job.getRetentionDays());
+  }
+
+  @Test
+  void setRetentionDaysStillAllowsDisable() {
+    PSSystemAuditLogRetentionJob job = new PSSystemAuditLogRetentionJob();
+    job.setRetentionDays(0);
+    assertEquals(0, job.getRetentionDays());
+    job.setRetentionDays(-5);
+    assertEquals(-5, job.getRetentionDays());
   }
 
   @Test

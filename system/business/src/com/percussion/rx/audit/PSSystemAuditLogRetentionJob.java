@@ -68,16 +68,27 @@ public class PSSystemAuditLogRetentionJob implements InitializingBean, Disposabl
   /** Default retention when the property is absent or unparsable. */
   public static final int DEFAULT_RETENTION_DAYS = 365;
 
+  /**
+   * Sanity upper bound for retention days (~10 years). Larger configured values are capped to
+   * avoid accidental full-table deletes from misconfiguration (e.g. {@link Integer#MAX_VALUE}).
+   */
+  public static final int MAX_RETENTION_DAYS = 3650;
+
   /** Default sleep between retention runs (24 hours). */
   public static final int DEFAULT_SLEEP_INTERVAL_MINS = 1440;
+
+  /** Max wait for the worker thread to exit after interrupt during {@link #shutdown()}. */
+  private static final long SHUTDOWN_JOIN_MS = 30_000L;
 
   private static final long MINS_TO_MILLIS = 60L * 1000L;
 
   private static final Logger log = LogManager.getLogger(PSSystemAuditLogRetentionJob.class);
 
   private PSSystemAuditLogRepository repository;
-  private int retentionDays = DEFAULT_RETENTION_DAYS;
-  private int sleepIntervalMins = DEFAULT_SLEEP_INTERVAL_MINS;
+  /** Volatile so runtime setters are visible to the worker without holding {@link #monitor}. */
+  private volatile int retentionDays = DEFAULT_RETENTION_DAYS;
+  /** Volatile so runtime interval changes are visible to {@link #runLoop()}. */
+  private volatile int sleepIntervalMins = DEFAULT_SLEEP_INTERVAL_MINS;
   private Clock clock = Clock.systemUTC();
 
   private final Object monitor = new Object();
@@ -96,10 +107,11 @@ public class PSSystemAuditLogRetentionJob implements InitializingBean, Disposabl
   }
 
   /**
-   * @param retentionDays days to keep; {@code <= 0} disables deletion
+   * @param retentionDays days to keep; {@code <= 0} disables deletion; values above {@link
+   *     #MAX_RETENTION_DAYS} are capped with a warning
    */
   public void setRetentionDays(int retentionDays) {
-    this.retentionDays = retentionDays;
+    this.retentionDays = clampRetentionDays(retentionDays);
   }
 
   public int getRetentionDays() {
@@ -107,7 +119,8 @@ public class PSSystemAuditLogRetentionJob implements InitializingBean, Disposabl
   }
 
   /**
-   * Minutes to sleep between retention runs. Must be {@code > 0}.
+   * Minutes to sleep between retention runs. Must be {@code > 0}. Written as a {@code volatile}
+   * field so the worker observes changes without holding {@link #monitor}.
    *
    * @param mins sleep interval in minutes
    */
@@ -148,7 +161,7 @@ public class PSSystemAuditLogRetentionJob implements InitializingBean, Disposabl
       return DEFAULT_RETENTION_DAYS;
     }
     try {
-      return Integer.parseInt(raw.trim());
+      return clampRetentionDays(Integer.parseInt(raw.trim()));
     } catch (NumberFormatException e) {
       log.warn(
           "Invalid {} value '{}'; using default {}",
@@ -157,6 +170,25 @@ public class PSSystemAuditLogRetentionJob implements InitializingBean, Disposabl
           DEFAULT_RETENTION_DAYS);
       return DEFAULT_RETENTION_DAYS;
     }
+  }
+
+  /**
+   * Caps positive retention to {@link #MAX_RETENTION_DAYS}; leaves {@code <= 0} unchanged so
+   * operators can still disable deletion.
+   *
+   * @param days raw retention days
+   * @return clamped days
+   */
+  static int clampRetentionDays(int days) {
+    if (days > MAX_RETENTION_DAYS) {
+      log.warn(
+          "Retention days {} exceeds max {}; capping to {}",
+          days,
+          MAX_RETENTION_DAYS,
+          MAX_RETENTION_DAYS);
+      return MAX_RETENTION_DAYS;
+    }
+    return days;
   }
 
   /**
@@ -269,9 +301,14 @@ public class PSSystemAuditLogRetentionJob implements InitializingBean, Disposabl
     }
   }
 
-  /** Whether a worker has been started (may still be alive after disable). */
+  /**
+   * Whether a worker has been started and is still alive. Reads under {@link #monitor} so values
+   * are consistent with concurrent {@link #startWorkerIfEnabled()} / {@link #shutdown()}.
+   */
   boolean isWorkerStarted() {
-    return started && worker != null && worker.isAlive();
+    synchronized (monitor) {
+      return started && worker != null && worker.isAlive();
+    }
   }
 
   private void runLoop() {
@@ -309,15 +346,34 @@ public class PSSystemAuditLogRetentionJob implements InitializingBean, Disposabl
 
   /**
    * Stops the background worker if running. Safe to call when never started.
+   *
+   * <p>Interrupts under {@link #monitor} so an in-flight {@link #runOnce()} (which also holds the
+   * monitor) is not interrupted mid-delete — matching {@link PSAuditLogReaper#shutdown()}. Joins
+   * the worker <em>outside</em> the monitor so the thread can finish the delete, observe the
+   * interrupt on sleep, and exit.
    */
   public void shutdown() {
+    Thread t;
     synchronized (monitor) {
-      Thread t = worker;
+      t = worker;
       if (t != null) {
         t.interrupt();
-        worker = null;
       }
+      worker = null;
       started = false;
+    }
+    if (t != null) {
+      try {
+        t.join(SHUTDOWN_JOIN_MS);
+        if (t.isAlive()) {
+          log.warn(
+              "System audit log retention worker did not exit within {} ms after interrupt",
+              SHUTDOWN_JOIN_MS);
+        }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        log.warn("Interrupted while waiting for system audit log retention worker to stop");
+      }
     }
   }
 }
