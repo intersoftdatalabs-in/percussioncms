@@ -4,18 +4,19 @@
 **Source:** `modules/perc-packages/src/main/resources/Packages/**/rxconfig/Widgets/*.xml`  
 **Machine-readable:** [widget-xml-inventory.csv](./widget-xml-inventory.csv)
 
-## Compiler status (#2751 / #2772 / #2789 / #2802 / parent #2630)
+## Compiler status (#2751 / #2772 / #2789 / #2802 / #2830 / parent #2630)
 
 | Area | Status | Notes |
 |------|--------|-------|
-| **Widget XML → Component Package Manifest compiler** | Landed for **baseWidgets + high-traffic + residual #2789 + remaining #2802** | `com.percussion.packages.widgetxml.PSWidgetXmlCompiler` (+ package scanner) in `modules/perc-packages` |
+| **Widget XML → Component Package Manifest compiler** | Landed for **baseWidgets + high-traffic + residual #2789 + remaining #2802 + perc.Test #2830** | `com.percussion.packages.widgetxml.PSWidgetXmlCompiler` (+ package scanner) in `modules/perc-packages` |
 | Golden parity (baseWidgets) | **percSimpleText** (+ package compile of all 3 baseWidgets) | Fixtures under `modules/perc-packages/src/test/resources/widgetxml/` |
 | Golden parity (high-traffic #2772) | **percTitle**, **simplePageAutoList**, **percNavBreadcrumb** | Plus package compile of title, lists×2, nav×2, file, image (7 widgets) |
 | Golden parity (residual #2789) | **percForm**, **percPoll**, **percIframe** | Plus package compile of blog/calendar×2/directory×4/social/form/poll/login/rss/iframe (**13** widgets) |
 | Golden parity (remaining #2802) | **percImageAutoList**, **percComments**, **percEvent** | Plus package compile of auto-lists, blog companions, social/comments/cards, event/slider/cookie/jquery, login variants, Result/Redirect, defaultLanguage (**24** widgets / 23 packages) |
+| Golden parity (perc.Test #2830) | **PSWidget_TestProperties** | Final product residual; package compile via `TEST_PRODUCT_PACKAGE_DIRS` / `compileTestProductPackages` |
 | Compiler extensions (#2772) | `<Resource href/type/placement>`, chrome slots without CT, layout UserPref → slot.layout | CSS/JS resources + nav chrome (no asset CT); residual batches needed no new shapes |
 | **Product packages still ship Widget XML** | Yes (dual-run) | Compiler produces modern artifacts; does **not** yet remove product `rxconfig/Widgets/*.xml` from source trees |
-| Residual product packages (after #2802) | **None** (product inventory complete except `perc.Test`) | Dual-run exit / product XML deletion remains Phase 5 (#2632 / parent #2630) |
+| Residual product packages (after #2830) | **None** (full product inventory on modern compile path) | Dual-run exit / product XML deletion remains Phase 5 (#2632 / parent #2630) |
 | Runtime legacy XML shim | Landed (cluster #2766) | #2752 |
 
 ### High-traffic batch covered by #2772
@@ -75,6 +76,14 @@ Measurable reduction (#2789): **+13** product widget definition XMLs on the vali
 | `perc.defaultLanguage` | percDefaultLang, percLocalLang | Multi-widget language package |
 
 Measurable reduction (#2802): **+24** product widget definition XMLs on the validated modern compile path (cumulative product widgets with package compile coverage: **3 + 7 + 13 + 24 = 47**, excluding `perc.Test`; full product inventory of 48 − test = 47).
+
+### Final product residual covered by #2830
+
+| Package | Widgets | Notes |
+|---------|---------|-------|
+| `perc.Test` | PSWidget_TestProperties | Test-harness widget; 4 UserPrefs (bool/enum); golden |
+
+Measurable reduction (#2830): **+1** product widget definition XML on the validated modern compile path (cumulative **3 + 7 + 13 + 24 + 1 = 48** — full product inventory). Dual-run XML remains until Phase 5 (#2632).
 
 Ship format: [component-package-manifest.md](./component-package-manifest.md). ADR: [004-no-definition-xml-packaging.md](./adr/004-no-definition-xml-packaging.md).
 

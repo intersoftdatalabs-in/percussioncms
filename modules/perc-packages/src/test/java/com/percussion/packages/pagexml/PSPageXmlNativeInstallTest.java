@@ -20,6 +20,7 @@ package com.percussion.packages.pagexml;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -226,8 +227,11 @@ class PSPageXmlNativeInstallTest {
     int written = PSPageXmlNativeInstall.stageArchiveTemplateDefs(staging, archive);
     assertEquals(3, written);
 
+    // GUID map keys are lower-cased (same as dual-ship); on-disk templateDef keeps product case.
     Map<String, String> guids = PSPageXmlDualShip.loadGuidsFromMapping(staging);
-    assertEquals("0-4-597", guids.get("perc.resp.Banded"));
+    assertEquals("0-4-597", guids.get("perc.resp.banded"));
+    assertEquals("0-4-599", guids.get("perc.resp.basic"));
+    assertEquals("0-4-627", guids.get("perc.resp.plain"));
     assertTrue(
         Files.isRegularFile(
             archive.resolve("TemplateDef-597").resolve("perc.resp.Banded.templateDef")));
@@ -264,6 +268,45 @@ class PSPageXmlNativeInstallTest {
             () -> PSPageXmlNativeInstall.stageArchiveTemplateDefs(packageDir, archive));
     assertTrue(ex.getMessage().contains("Missing stable install mapping"));
     assertTrue(ex.getMessage().contains("perc.base.plain"));
+  }
+
+  /**
+   * Product packages use mixed-case stems (e.g. {@code perc.base.Box}). Mapping loaders must match
+   * dual-ship lower-case stem keys so native install does not fail GUID/folder lookup.
+   */
+  @Test
+  void mixedCaseStem_mappingLookupIsCaseInsensitive() throws Exception {
+    Path packageDir = tempDir.resolve("mixed-case-pkg");
+    Files.createDirectories(packageDir);
+    Files.writeString(
+        packageDir.resolve("mixed-case-pkg.mapping.properties"),
+        "perc.base.Box.templateDef=TemplateDef-557\n",
+        StandardCharsets.UTF_8);
+
+    Path pageDir = packageDir.resolve(PSPageXmlDualShip.PAGES_DIR_NAME).resolve("perc.base.Box");
+    Files.createDirectories(pageDir);
+    PSPageXmlModel model = PSPageXmlParser.parse(readClasspath(FIXTURE_PLAIN));
+    model.setSourceFileName("perc.base.Box.templateDef");
+    model.setName("perc.base.Box");
+    PSPageXmlCompileResult compiled =
+        PSPageXmlCompiler.compile(model, baseTemplatesLikeContext());
+    // Force manifest id to mixed case (product Box template).
+    compiled.getManifest().setId("perc.base.Box");
+    PSPageXmlCompiler.writeArtifacts(compiled, pageDir);
+
+    Map<String, String> folders =
+        PSPageXmlNativeInstall.loadArchiveFoldersFromMapping(packageDir);
+    assertEquals("TemplateDef-557", folders.get("perc.base.box"));
+    assertNull(folders.get("perc.base.Box"), "folders map keys are lower-cased");
+
+    Path archive = tempDir.resolve("mixed-case-archive");
+    Files.createDirectories(archive);
+    int written = PSPageXmlNativeInstall.stageArchiveTemplateDefs(packageDir, archive);
+    assertEquals(1, written);
+    assertTrue(
+        Files.isRegularFile(
+            archive.resolve("TemplateDef-557").resolve("perc.base.Box.templateDef")),
+        "archive file keeps original mixed-case stem");
   }
 
   @Test

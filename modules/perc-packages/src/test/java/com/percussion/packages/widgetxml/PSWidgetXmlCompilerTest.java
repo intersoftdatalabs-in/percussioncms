@@ -39,7 +39,7 @@ import org.junit.jupiter.api.io.TempDir;
 /**
  * Unit + golden parity tests for Widget XML → Component Package Manifest compiler (#2751
  * baseWidgets, #2772 high-traffic residual batch, #2789 residual product batch, #2802 remaining
- * product residual batch).
+ * product residual batch, #2830 perc.Test residual).
  */
 class PSWidgetXmlCompilerTest {
 
@@ -97,6 +97,13 @@ class PSWidgetXmlCompilerTest {
   private static final String GOLDEN_EVENT_MANIFEST =
       "/widgetxml/golden/percEvent.component-package.json";
   private static final String GOLDEN_EVENT_TEMPLATE = "/widgetxml/golden/percEventSnippet.vm";
+
+  // #2830 perc.Test residual
+  private static final String FIXTURE_TEST_PROPERTIES = "/widgetxml/PSWidget_TestProperties.xml";
+  private static final String GOLDEN_TEST_PROPERTIES_MANIFEST =
+      "/widgetxml/golden/PSWidget_TestProperties.component-package.json";
+  private static final String GOLDEN_TEST_PROPERTIES_TEMPLATE =
+      "/widgetxml/golden/PSWidget_TestPropertiesSnippet.vm";
 
   @TempDir Path tempDir;
 
@@ -833,6 +840,113 @@ class PSWidgetXmlCompilerTest {
           "remaining must not re-list #2789 residual package: " + residual);
     }
     assertEquals(23, PSWidgetXmlPackageCompiler.REMAINING_PRODUCT_PACKAGE_DIRS.size());
+  }
+
+  @Test
+  void parseTestProperties_userPrefsEnumAndVelocityContent() throws Exception {
+    PSWidgetXmlModel model =
+        parseClasspath(FIXTURE_TEST_PROPERTIES, "PSWidget_TestProperties.xml");
+    assertEquals("Test Properties", model.getTitle());
+    assertEquals("PSWidget_TestProperties", model.getContentTypeName());
+    assertEquals("Widget for testing", model.getDescription());
+    assertEquals("velocity", model.getContentType());
+    assertNotNull(model.getContentBody());
+    assertTrue(model.getContentBody().contains("$perc.widget.item.name"));
+    assertTrue(model.getContentBody().contains("day_of_week"));
+    assertEquals(4, model.getUserPrefs().size());
+    assertEquals("show_date", model.getUserPrefs().get(0).getName());
+    assertEquals("bool", model.getUserPrefs().get(0).getDatatype());
+    assertEquals("day_of_week", model.getUserPrefs().get(3).getName());
+    assertEquals("enum", model.getUserPrefs().get(3).getDatatype());
+    assertEquals(5, model.getUserPrefs().get(3).getEnumValues().size());
+    assertEquals("PSWidget_TestProperties", model.widgetStem());
+  }
+
+  @Test
+  void compileTestProperties_matchesGoldenManifestAndTemplate() throws Exception {
+    PSWidgetXmlCompileResult result =
+        assertGoldenParity(
+            FIXTURE_TEST_PROPERTIES,
+            "PSWidget_TestProperties.xml",
+            "perc.Test",
+            GOLDEN_TEST_PROPERTIES_MANIFEST,
+            GOLDEN_TEST_PROPERTIES_TEMPLATE,
+            "templates/PSWidget_TestPropertiesSnippet.vm");
+    assertEquals(
+        "PSWidget_TestProperties",
+        result.getManifest().getContentTypes().get(0).getName());
+    assertEquals(
+        "PSWidget_TestPropertiesContent", result.getManifest().getSlots().get(0).getName());
+    assertEquals(4, result.getManifest().getUserPreferences().size());
+    assertTrue(
+        result.getManifest().getUserPreferences().stream()
+            .anyMatch(
+                p ->
+                    "day_of_week".equals(p.getName())
+                        && p.getEnumValues() != null
+                        && p.getEnumValues().size() == 5));
+    assertEquals("1.0.3", result.getManifest().getVersion());
+    assertEquals("velocityAssembler", result.getManifest().getTemplates().get(0).getAssembler());
+  }
+
+  @Test
+  void compileTestProductPackages_allValidate() throws Exception {
+    Path packagesRoot = locatePackagesRoot();
+    if (packagesRoot == null) {
+      System.err.println("WARN: Packages root not found; skipping perc.Test product package test");
+      return;
+    }
+
+    List<PSWidgetXmlCompileResult> results =
+        PSWidgetXmlPackageCompiler.compileTestProductPackages(packagesRoot);
+    assertEquals(
+        1,
+        results.size(),
+        "perc.Test residual #2830 should compile PSWidget_TestProperties only");
+
+    PSWidgetXmlCompileResult testProps = results.get(0);
+    assertEquals("PSWidget_TestProperties", testProps.getManifest().getId());
+    PSComponentPackageManifestValidator.validate(testProps.getManifest());
+    assertFalse(testProps.getTextArtifacts().isEmpty());
+    assertEquals(
+        "velocityAssembler", testProps.getManifest().getTemplates().get(0).getAssembler());
+    assertEquals(
+        "PSWidget_TestProperties",
+        testProps.getManifest().getContentTypes().get(0).getName());
+    assertEquals(4, testProps.getManifest().getUserPreferences().size());
+    assertEquals("1.0.3", testProps.getManifest().getVersion());
+
+    Path outRoot = tempDir.resolve("test-product-out");
+    PSWidgetXmlPackageCompiler.writeAll(results, outRoot);
+    assertTrue(
+        Files.isRegularFile(
+            outRoot
+                .resolve("PSWidget_TestProperties")
+                .resolve(PSComponentPackageManifest.DEFAULT_MANIFEST_FILE_NAME)),
+        "writeAll missing perc.Test manifest for PSWidget_TestProperties");
+  }
+
+  @Test
+  void testProductPackageDirs_disjointFromPriorBatches() {
+    assertEquals(1, PSWidgetXmlPackageCompiler.TEST_PRODUCT_PACKAGE_DIRS.size());
+    assertTrue(PSWidgetXmlPackageCompiler.TEST_PRODUCT_PACKAGE_DIRS.contains("perc.Test"));
+    assertFalse(
+        PSWidgetXmlPackageCompiler.TEST_PRODUCT_PACKAGE_DIRS.contains("perc.baseWidgets"));
+    for (String high : PSWidgetXmlPackageCompiler.HIGH_TRAFFIC_PACKAGE_DIRS) {
+      assertFalse(
+          PSWidgetXmlPackageCompiler.TEST_PRODUCT_PACKAGE_DIRS.contains(high),
+          "test residual must not re-list high-traffic package: " + high);
+    }
+    for (String residual : PSWidgetXmlPackageCompiler.RESIDUAL_PRODUCT_PACKAGE_DIRS) {
+      assertFalse(
+          PSWidgetXmlPackageCompiler.TEST_PRODUCT_PACKAGE_DIRS.contains(residual),
+          "test residual must not re-list #2789 residual package: " + residual);
+    }
+    for (String remaining : PSWidgetXmlPackageCompiler.REMAINING_PRODUCT_PACKAGE_DIRS) {
+      assertFalse(
+          PSWidgetXmlPackageCompiler.TEST_PRODUCT_PACKAGE_DIRS.contains(remaining),
+          "test residual must not re-list #2802 remaining package: " + remaining);
+    }
   }
 
   private static PSWidgetXmlCompileResult assertGoldenParity(
