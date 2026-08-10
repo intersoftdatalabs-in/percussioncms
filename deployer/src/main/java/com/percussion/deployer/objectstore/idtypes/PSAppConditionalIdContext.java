@@ -32,7 +32,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Context to represent a conditional in an application. */
-public class PSAppConditionalIdContext extends PSApplicationIdContext {
+public final class PSAppConditionalIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from the conditional object it represents.
    *

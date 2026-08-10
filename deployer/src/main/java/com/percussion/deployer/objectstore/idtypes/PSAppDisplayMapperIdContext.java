@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Context to represent a display mapper in a content editor. */
-public class PSAppDisplayMapperIdContext extends PSApplicationIdContext {
+public final class PSAppDisplayMapperIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from its member data.
    *

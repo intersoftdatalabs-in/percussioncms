@@ -31,7 +31,7 @@ import org.w3c.dom.Element;
  * Context to represent an item in a contenteditor that may contain other contexts, but is really a
  * placeholder for other commonly used objects and does not have any data of its own.
  */
-public class PSAppCEItemIdContext extends PSApplicationIdContext {
+public final class PSAppCEItemIdContext extends PSApplicationIdContext {
   /**
    * Construct this context using the supplied type
    *

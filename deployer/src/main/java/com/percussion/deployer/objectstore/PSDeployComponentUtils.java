@@ -298,10 +298,10 @@ public class PSDeployComponentUtils {
    *     <code>String</code>, or a <code>Collection</code> of <code>String</code> values. Never
    *     <code>null</code>, may be empty.
    */
-  public static Map parseParams(String url, StringBuilder base) {
+  public static Map<String, Object> parseParams(String url, StringBuilder base) {
     if (url == null) throw new IllegalArgumentException("url may not be null");
 
-    HashMap params = new HashMap();
+    HashMap<String, Object> params = new HashMap<>();
     int start = url.indexOf("?");
     if (start > -1) {
       if (base != null) base.append(url.substring(0, start));
@@ -328,19 +328,18 @@ public class PSDeployComponentUtils {
    * @return A list of {@link PSParam} objects, never <code>null</code>, or emtpy. Size of list will
    *     be equal to the number of values.
    */
-  public static List convertToParams(Map.Entry entry) {
+  public static List<PSParam> convertToParams(Map.Entry<String, ?> entry) {
     if (entry == null) throw new IllegalArgumentException("entry may not be null");
 
-    List paramList = new ArrayList();
-    String paramName = (String) entry.getKey();
+    List<PSParam> paramList = new ArrayList<>();
+    String paramName = entry.getKey();
     Object val = entry.getValue();
     // handle repeated params
-    if (val instanceof Collection) {
-      Iterator values = ((Collection) val).iterator();
+    if (val instanceof Collection<?> values) {
       int index = 0;
-      while (values.hasNext()) {
+      for (Object value : values) {
         String tmpName = paramName + "[" + index++ + "]";
-        paramList.add(new PSParam(tmpName, new PSTextLiteral((String) values.next())));
+        paramList.add(new PSParam(tmpName, new PSTextLiteral((String) value)));
       }
     } else {
       paramList.add(new PSParam(paramName, new PSTextLiteral((String) val)));

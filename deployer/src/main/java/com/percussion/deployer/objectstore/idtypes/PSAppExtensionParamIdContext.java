@@ -32,7 +32,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** ID Context to represent an extension or function call param */
-public class PSAppExtensionParamIdContext extends PSApplicationIdContext {
+public final class PSAppExtensionParamIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from a call param.
    *

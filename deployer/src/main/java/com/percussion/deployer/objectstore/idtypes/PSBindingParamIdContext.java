@@ -36,7 +36,7 @@ import org.w3c.dom.Element;
  *
  * @author vamsinukala
  */
-public class PSBindingParamIdContext extends PSApplicationIdContext {
+public final class PSBindingParamIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from a binding context.
    *

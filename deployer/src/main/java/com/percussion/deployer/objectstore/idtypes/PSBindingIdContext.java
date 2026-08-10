@@ -34,7 +34,7 @@ import org.w3c.dom.Element;
  *
  * @author vamsinukala
  */
-public class PSBindingIdContext extends PSApplicationIdContext {
+public final class PSBindingIdContext extends PSApplicationIdContext {
   /**
    * Construct a JEXL binding.
    *
