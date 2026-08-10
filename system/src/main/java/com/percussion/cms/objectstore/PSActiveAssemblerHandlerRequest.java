@@ -27,7 +27,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** This class encapsulates a request to the Active Assembler Request handler. */
-public class PSActiveAssemblerHandlerRequest extends PSCmsComponent {
+public final class PSActiveAssemblerHandlerRequest extends PSCmsComponent {
   /**
    * Constructs a new active asembler request for the supplied parameters.
    *

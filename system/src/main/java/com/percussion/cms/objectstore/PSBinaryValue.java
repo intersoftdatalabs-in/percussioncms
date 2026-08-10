@@ -39,7 +39,8 @@ public class PSBinaryValue extends PSFieldValue {
    *     null</code>, a new empty array will be created.
    */
   public PSBinaryValue(byte[] content) {
-    setData(content);
+    // Private base-load — avoid overridable setData during construction (this-escape).
+    applyDataBytes(content);
   }
 
   /**
@@ -50,7 +51,8 @@ public class PSBinaryValue extends PSFieldValue {
    * @throws IOException if there is a problem with the stream.
    */
   public PSBinaryValue(InputStream content) throws IOException {
-    setData(content);
+    // Private base-load — avoid overridable setData during construction (this-escape).
+    applyDataStream(content);
   }
 
   /**
@@ -123,9 +125,17 @@ public class PSBinaryValue extends PSFieldValue {
    *     empty array.
    */
   public void setData(byte[] content) {
-    if (content == null) m_data = new byte[0];
+    applyDataBytes(content);
+  }
 
-    m_data = content;
+  /**
+   * Construction-safe byte assign used by constructors and {@link #setData(byte[])}.
+   *
+   * @param content may be {@code null} (stored as empty array)
+   */
+  private void applyDataBytes(byte[] content) {
+    if (content == null) m_data = new byte[0];
+    else m_data = content;
     m_isDataLoaded = true;
   }
 
@@ -137,6 +147,15 @@ public class PSBinaryValue extends PSFieldValue {
    *     method assumes ownership of the stream and is responsible for closing it.
    */
   public void setData(InputStream content) throws IOException {
+    applyDataStream(content);
+  }
+
+  /**
+   * Construction-safe stream load used by constructors and {@link #setData(InputStream)}.
+   *
+   * @param content never {@code null}
+   */
+  private void applyDataStream(InputStream content) throws IOException {
     if (content == null) throw new IllegalArgumentException("content must not be null");
 
     try {
@@ -144,7 +163,7 @@ public class PSBinaryValue extends PSFieldValue {
       IOTools.copyStream(content, out);
 
       byte[] data = out.toByteArray();
-      setData(data);
+      applyDataBytes(data);
     } finally {
       content.close();
     }
@@ -265,6 +284,16 @@ public class PSBinaryValue extends PSFieldValue {
     }
 
     return m_data;
+  }
+
+  /**
+   * Construction-safe access to already-applied bytes for subclasses (e.g. {@code
+   * PSBinaryFileValue}) without overridable {@link #getValue()} / {@link #getData()}.
+   *
+   * @return never {@code null} (empty array if unset)
+   */
+  protected final byte[] dataBytesForConstruction() {
+    return m_data != null ? m_data : new byte[0];
   }
 
   /**

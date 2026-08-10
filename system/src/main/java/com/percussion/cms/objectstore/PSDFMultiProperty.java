@@ -23,7 +23,8 @@ import org.w3c.dom.Element;
  * See base class for description. Represents a property of a given {@link
  * com.percussion.cms.objectstore.PSDisplayFormat}
  */
-public class PSDFMultiProperty extends PSMultiValuedProperty {
+// Final leaf — Element/named ctors use MultiValuedProperty private load (this-escape free).
+public final class PSDFMultiProperty extends PSMultiValuedProperty {
   /**
    * Required ctor to be contained within a {@link
    * com.percussion.cms.objectstore.PSDbComponentCollection}

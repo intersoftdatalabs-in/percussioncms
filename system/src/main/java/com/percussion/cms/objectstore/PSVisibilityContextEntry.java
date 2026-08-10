@@ -26,7 +26,7 @@ import org.w3c.dom.Element;
  * @author Paul Howard
  * @version 1.0
  */
-public class PSVisibilityContextEntry extends PSCmsProperty {
+public final class PSVisibilityContextEntry extends PSCmsProperty {
   /** no-args constructor */
   public PSVisibilityContextEntry() {}
 

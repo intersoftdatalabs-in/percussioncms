@@ -32,7 +32,7 @@ import org.w3c.dom.Element;
  * @author Paul Howard
  * @version 1.0
  */
-public class PSMenuMode extends PSName {
+public final class PSMenuMode extends PSName {
   /**
    * Since this object is read-only, it can only be instantiated from an existing object, obtained
    * from the processor load method.

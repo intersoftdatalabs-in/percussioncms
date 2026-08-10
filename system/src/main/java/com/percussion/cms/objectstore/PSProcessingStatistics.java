@@ -27,7 +27,7 @@ import org.w3c.dom.Element;
  * @author Paul Howard
  * @version 1.0
  */
-public class PSProcessingStatistics implements IPSCmsComponent {
+public final class PSProcessingStatistics implements IPSCmsComponent {
   /**
    * Creates a new instance with the supplied values.
    *

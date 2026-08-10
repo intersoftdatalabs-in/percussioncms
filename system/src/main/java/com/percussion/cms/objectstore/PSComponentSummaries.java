@@ -29,7 +29,7 @@ import org.w3c.dom.Element;
 /**
  * The PSComponentSummaries is a container class which contains a set of PSComponentSummary objects
  */
-public class PSComponentSummaries extends PSDbComponentSet<PSComponentSummary> {
+public final class PSComponentSummaries extends PSDbComponentSet<PSComponentSummary> {
   /** Default constructor. */
   public PSComponentSummaries() {
     super(PSComponentSummary.class);

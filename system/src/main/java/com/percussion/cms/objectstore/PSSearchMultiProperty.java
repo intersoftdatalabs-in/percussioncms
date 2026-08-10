@@ -25,7 +25,8 @@ import org.w3c.dom.Element;
  * See base class for description. Represents a property of a given {@link
  * com.percussion.cms.objectstore.PSSearch}.
  */
-public class PSSearchMultiProperty extends PSMultiValuedProperty {
+// Final leaf — Element/named ctors use MultiValuedProperty private load (this-escape free).
+public final class PSSearchMultiProperty extends PSMultiValuedProperty {
   /**
    * Required ctor to be contained within a {@link
    * com.percussion.cms.objectstore.PSDbComponentCollection}

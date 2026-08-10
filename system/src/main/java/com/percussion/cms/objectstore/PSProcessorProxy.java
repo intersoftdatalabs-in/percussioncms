@@ -158,7 +158,8 @@ public abstract class PSProcessorProxy {
         if (null != pc) m_processorConfig = pc;
       } while (null != pc);
 
-      if (ctx != null) setProcessorContext(ctx);
+      // Private base-load — avoid overridable setProcessorContext during construction (this-escape).
+      if (ctx != null) applyProcessorContext(ctx);
     } catch (PSUnknownNodeTypeException unte) {
       throw new PSCmsException(unte.getErrorCode(), unte.getErrorArguments());
     } catch (SAXException se) {
@@ -290,6 +291,17 @@ public abstract class PSProcessorProxy {
    *     processor does not require one.
    */
   public void setProcessorContext(Object ctx) {
+    applyProcessorContext(ctx);
+  }
+
+  /**
+   * Construction-safe context assign used by ctor and {@link #setProcessorContext(Object)}.
+   *
+   * @param ctx may be {@code null}
+   */
+  private void applyProcessorContext(Object ctx) {
+    // Same as historic setProcessorContext: flushCache first. Invalid processor type leaves
+    // m_processorConfig null and yields NPE (covered by PSActiveAssemblyProcessorProxyTest).
     m_processorConfig.flushCache();
     m_context = ctx;
   }

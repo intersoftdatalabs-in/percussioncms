@@ -25,32 +25,38 @@ import com.percussion.design.objectstore.PSDisplayMapping;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSUIDefinition;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * This class extracts definition data for <code>PSCoreItem</code> object population. It parses a
  * <code>PSContentEditor</code> object and populates a <code>PSCoreItem</code> object from that
- * definition. This cannot be instantiated explicitely by callers. This also uses a Visitor like
- * pattern, passing itself to acceptable object methods, and those objects understand to call <code>
- * getObject()</code> on this class.
+ * definition. This cannot be instantiated explicitly by callers.
+ *
+ * <p>Definition extraction for construction uses {@link #extractDefinition(PSItemDefinition)} so
+ * {@link PSCoreItem} does not pass {@code this} to an external type while subclasses are still
+ * initializing ({@code -Xlint:this-escape}). The visitor path remains for populating fully
+ * constructed {@link PSItemChildEntry} templates.
  */
 public class PSItemDefExtractor implements IPSVisitor {
   /**
-   * Cannot be instantiated by outsiders. Does any initialization then calls processFieldSet();
+   * Cannot be instantiated by outsiders. Builds field/child lists from the item definition without
+   * holding a {@link PSCoreItem} reference.
    *
-   * @param coreItem - assumed not <code>null</code>
-   * @throws PSCmsException if an error occurs populating the <code>coreItem</code>
+   * @param itemDefinition assumed not <code>null</code>
+   * @throws PSCmsException if an error occurs extracting the definition
    */
-  private PSItemDefExtractor(PSCoreItem coreItem) throws PSCmsException {
-    m_coreItem = coreItem;
-    processFieldSet(getFieldSet(), m_coreItem, false);
+  private PSItemDefExtractor(PSItemDefinition itemDefinition) throws PSCmsException {
+    m_itemDefinition = itemDefinition;
+    m_fields = new ArrayList<>();
+    m_children = new ArrayList<>();
+    processFieldSet(getFieldSet(), null, false);
   }
 
   /**
-   * Populates the <code>PSCoreItem</code> with it's definition. This a utility method that removes
-   * this responsibility from the <code>PSCoreItem</code>. This allows high-cohesion in the <code>
-   * PSCoreItem</code> and lowers the coupling between the <code>PSCoreItem</code> and the <code>
-   * com.percussion.objectstore</code> package.
+   * Populates the <code>PSCoreItem</code> with its definition. Prefer construction via {@link
+   * PSCoreItem}'s private extract path which uses {@link #extractDefinition(PSItemDefinition)}.
    *
    * @param coreItem must not be <code>null</code>.
    * @throws PSCmsException if an error occurs populating the <code>coreItem</code>
@@ -58,7 +64,46 @@ public class PSItemDefExtractor implements IPSVisitor {
   public static void populateItemDefinition(PSCoreItem coreItem) throws PSCmsException {
     if (coreItem == null) throw new IllegalArgumentException("coreItem must not be null");
 
-    PSItemDefExtractor xtr = new PSItemDefExtractor(coreItem);
+    DefinitionParts parts = extractDefinition(coreItem.getItemDefinition());
+    coreItem.applyExtractedDefinition(parts);
+  }
+
+  /**
+   * Extracts field and child definitions from an item definition without a live {@link PSCoreItem}.
+   * Used by {@link PSCoreItem} construction to avoid this-escape.
+   *
+   * @param itemDefinition must not be <code>null</code>
+   * @return extracted parts, never <code>null</code>
+   * @throws PSCmsException if an error occurs extracting the definition
+   */
+  public static DefinitionParts extractDefinition(PSItemDefinition itemDefinition)
+      throws PSCmsException {
+    if (itemDefinition == null) throw new IllegalArgumentException("itemDefinition must not be null");
+
+    PSItemDefExtractor xtr = new PSItemDefExtractor(itemDefinition);
+    return new DefinitionParts(xtr.m_fields, xtr.m_children);
+  }
+
+  /**
+   * Result of definition extraction: parent-level fields and complex children (with template entry
+   * fields already populated).
+   */
+  public static final class DefinitionParts {
+    private final List<PSItemField> fields;
+    private final List<PSItemChild> children;
+
+    DefinitionParts(List<PSItemField> fields, List<PSItemChild> children) {
+      this.fields = fields;
+      this.children = children;
+    }
+
+    public List<PSItemField> getFields() {
+      return fields;
+    }
+
+    public List<PSItemChild> getChildren() {
+      return children;
+    }
   }
 
   /**
@@ -68,13 +113,14 @@ public class PSItemDefExtractor implements IPSVisitor {
    * PSItemChildEntry</code> and then recursively calls itself to add the <code>PSItemFields</code>
    * to the <code>PSItemChildEntry</code>.
    *
-   * <p>The PSCoreItem and the <code>PSItemChildEntry</code> are <code>IPSItemAccessor</code>
-   * objects and this object is a <code>IPSVisitor</code>. This passes itself to the <code>
-   * IPSItemAccessors</code> <code>accept()</code> method. The <code>IPSItemAccessor</code> then
-   * acts upon this object by calling <code>getObject()</code>.
+   * <p>When {@code itemAccessor} is {@code null}, parent-level fields and children are accumulated
+   * into {@link #m_fields} / {@link #m_children} (construction-safe path). When non-null (child
+   * entry population), the visitor {@link IPSItemAccessor#accept} path is used — the accessor is a
+   * fully constructed {@link PSItemChildEntry}.
    *
    * @param fieldSet the fieldset to parse - assumed not <code>null</code>
-   * @param itemAccessor the item on which to add the elements - assumed not <code>null</code>
+   * @param itemAccessor the item on which to add the elements, or {@code null} for parent-level
+   *     accumulation
    * @param isMultiValue <code>true</code> if it is, otherwise <code>false</code>.
    */
   private void processFieldSet(
@@ -89,13 +135,13 @@ public class PSItemDefExtractor implements IPSVisitor {
 
         // Is it multiPropertySimpleChild
         if (childSet.getType() == PSFieldSet.TYPE_MULTI_PROPERTY_SIMPLE_CHILD)
-          // just add the fields to the parent core item
-          processFieldSet(childSet, m_coreItem, false);
+          // just add the fields to the parent level
+          processFieldSet(childSet, itemAccessor, false);
 
         // Is it  simpleChild
         else if (childSet.getType() == PSFieldSet.TYPE_SIMPLE_CHILD)
           // this is a multivalue field, add to parent:
-          processFieldSet(childSet, m_coreItem, true);
+          processFieldSet(childSet, itemAccessor, true);
         else if (childSet.getType() == PSFieldSet.TYPE_COMPLEX_CHILD) {
           mapping = getDisplayMapping(childSet.getName());
           if (mapping == null) continue; // ignore non-mapped fields
@@ -103,19 +149,19 @@ public class PSItemDefExtractor implements IPSVisitor {
           // create child
           PSItemChild child = new PSItemChild(childSet, mapping);
 
-          // create entry (which is item accessor) and add entry to child
+          // create entry (which is item accessor) and populate template fields
           PSItemChildEntry entry = child.createChildEntry();
 
-          // add child to item:
-          m_object = child;
-
           // TODO: SUPPORT CHILDREN OF CHILDREN???
-          itemAccessor.accept(this);
+          if (itemAccessor == null) {
+            m_children.add(child);
+          } else {
+            m_object = child;
+            itemAccessor.accept(this);
+            m_object = null;
+          }
 
-          // null the object:
-          m_object = null;
-
-          // now let's recurse and add the fields to the entry:
+          // populate template entry fields (entry is fully constructed)
           processFieldSet(childSet, entry, false);
         }
       } else if (o instanceof PSField) {
@@ -125,12 +171,14 @@ public class PSItemDefExtractor implements IPSVisitor {
         mapping = getDisplayMapping(field.getSubmitName());
         if (mapping == null) continue; // ignore non-mapped fields
 
-        // create field and set to member
-        m_object = new PSItemField(field, mapping.getUISet(), isMultiValue);
-        // send this object to accessor for extraction
-        itemAccessor.accept(this);
-        // null the value for the next element.
-        m_object = null;
+        PSItemField itemField = new PSItemField(field, mapping.getUISet(), isMultiValue);
+        if (itemAccessor == null) {
+          m_fields.add(itemField);
+        } else {
+          m_object = itemField;
+          itemAccessor.accept(this);
+          m_object = null;
+        }
       }
     }
   }
@@ -174,7 +222,7 @@ public class PSItemDefExtractor implements IPSVisitor {
   private PSFieldSet getFieldSet() throws PSCmsException {
     // get pipe:
     PSContentEditorPipe cePipe =
-        (PSContentEditorPipe) m_coreItem.getItemDefinition().getContentEditor().getPipe();
+        (PSContentEditorPipe) m_itemDefinition.getContentEditor().getPipe();
 
     if (cePipe == null) throw new PSCmsException(IPSCmsErrors.DATA_EXTRACTION_ERROR_NULL_DATAPIPE);
 
@@ -190,18 +238,19 @@ public class PSItemDefExtractor implements IPSVisitor {
   }
 
   /**
-   * The definition to be used to create the <code>PSCoreItem</code>, set by <code>getFieldSet()
-   * </code> and should not change and should not be <code>null</code>.
-   */
-
-  /**
    * The Parent Mapper. The top most mapper of the <code>PSContentEditor</code>, set by <code>
    * getFieldSet()</code>, never <code>null</code>.
    */
   private PSContentEditorMapper m_parentMapper;
 
-  /** The PSCoreItem being populated, set by the ctor, never <code>null</code>. */
-  private PSCoreItem m_coreItem;
+  /** Item definition being extracted, set by the ctor, never <code>null</code>. */
+  private final PSItemDefinition m_itemDefinition;
+
+  /** Parent-level fields accumulated during extraction. */
+  private final List<PSItemField> m_fields;
+
+  /** Complex children accumulated during extraction. */
+  private final List<PSItemChild> m_children;
 
   /** Temporary field. Mostly <code>null</code>. Used in creation of objects. */
   private Object m_object;

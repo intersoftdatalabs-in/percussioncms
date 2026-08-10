@@ -21,7 +21,7 @@ import com.percussion.util.PSXMLDomUtil;
 import org.w3c.dom.Element;
 
 /** The value of an <code>PSItemField</code> that is treated as an XML element. */
-public class PSXmlValue extends PSFieldValue {
+public final class PSXmlValue extends PSFieldValue {
   /**
    * Creates a new instance with the element as the value.
    *

@@ -34,7 +34,7 @@ import org.w3c.dom.Element;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSCmsObject")
 @Table(name = "PSX_OBJECTS")
-public class PSCmsObject implements IPSCmsComponent {
+public final class PSCmsObject implements IPSCmsComponent {
 
   /** Default constructor, which is needed for Hibernate. */
   public PSCmsObject() {}

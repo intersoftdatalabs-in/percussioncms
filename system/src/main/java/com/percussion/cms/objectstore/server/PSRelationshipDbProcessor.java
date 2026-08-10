@@ -80,7 +80,7 @@ import org.apache.logging.log4j.Logger;
  * This class encapsulates all backend operations to create, modify, delete and catalog
  * relationships.
  */
-public class PSRelationshipDbProcessor {
+public final class PSRelationshipDbProcessor {
 
   public PSRelationshipDbProcessor(boolean thread_context) {
     this.thread_context = thread_context;
@@ -95,7 +95,8 @@ public class PSRelationshipDbProcessor {
    *     yet.
    */
   public PSRelationshipDbProcessor(PSRequest request) throws PSCmsException {
-    setRequest(request);
+    // Private base-load — avoid overridable setRequest during construction (this-escape).
+    applyRequest(request);
   }
 
   /**
@@ -107,7 +108,8 @@ public class PSRelationshipDbProcessor {
    *     yet.
    */
   public PSRelationshipDbProcessor(IPSRequestContext context) throws PSCmsException {
-    setRequestContext(context);
+    // Private base-load — avoid overridable setRequestContext during construction (this-escape).
+    applyRequestContext(context);
   }
 
   /**
@@ -1080,6 +1082,15 @@ public class PSRelationshipDbProcessor {
    *     will be used to perform the requests.
    */
   public void setRequest(PSRequest request) {
+    applyRequest(request);
+  }
+
+  /**
+   * Construction-safe request assign used by ctor and {@link #setRequest}.
+   *
+   * @param request may be {@code null}
+   */
+  private void applyRequest(PSRequest request) {
     if (request != null) m_context = new PSRequestContext(request);
     else m_context = null;
   }
@@ -1091,6 +1102,15 @@ public class PSRelationshipDbProcessor {
    *     rhythmyx user will be used to perform the requests.
    */
   public void setRequestContext(IPSRequestContext context) {
+    applyRequestContext(context);
+  }
+
+  /**
+   * Construction-safe context assign used by ctor and {@link #setRequestContext}.
+   *
+   * @param context may be {@code null}
+   */
+  private void applyRequestContext(IPSRequestContext context) {
     m_context = context;
   }
 

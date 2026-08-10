@@ -27,7 +27,7 @@ import com.percussion.util.PSPurgableTempFile;
  * This class facilitates the locating of binary content through the use of internal Rhythmyx
  * objects and returning the data of that binary content.
  */
-public class PSServerBinaryLocator extends PSFieldRetriever implements IPSBinaryLocator {
+public final class PSServerBinaryLocator extends PSFieldRetriever implements IPSBinaryLocator {
   /**
    * Convenience ctor that calls {@link #PSServerBinaryLocator(PSRequest, PSLocator, String, long,
    * int) this(request, locator, fieldName, contentTypeId, -1)}.

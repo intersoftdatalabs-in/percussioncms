@@ -23,7 +23,7 @@ import org.w3c.dom.Element;
  * See base class for description. Represents a property of a given {@link
  * com.percussion.cms.objectstore.PSDisplayFormat}
  */
-public class PSDFProperty extends PSCmsProperty {
+public final class PSDFProperty extends PSCmsProperty {
   /** Empty constructor */
   public PSDFProperty() {}
 

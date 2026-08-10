@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** This object encapsulates a locator together with properties. */
-public class PSDependent extends PSCmsComponent {
+public final class PSDependent extends PSCmsComponent {
   /**
    * Create a new dependent for the supplied relationship id and locator.
    *

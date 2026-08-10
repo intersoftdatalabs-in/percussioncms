@@ -34,7 +34,7 @@ import org.w3c.dom.Element;
  * @see PSMenuContext
  * @see PSAction
  */
-public class PSMenuModeContextMapping extends PSDbComponent {
+public final class PSMenuModeContextMapping extends PSDbComponent {
   /** no-args constructor */
   public PSMenuModeContextMapping() {}
 

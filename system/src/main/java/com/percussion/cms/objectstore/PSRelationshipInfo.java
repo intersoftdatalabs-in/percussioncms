@@ -28,7 +28,7 @@ import org.w3c.dom.Element;
  * This is a read only class, it contains partial information of a specific relationship
  * configuration.
  */
-public class PSRelationshipInfo implements IPSCmsComponent {
+public final class PSRelationshipInfo implements IPSCmsComponent {
   /**
    * Construct a Java object from its XML representation.
    *
