@@ -130,3 +130,7 @@ See **[gaps-from-home.md](./gaps-from-home.md)** for the living list. Summary:
 ---
 
 *Placeholder only. No implementation commitment beyond tracking.*
+
+## Design SPA assembler + slots (#2810)
+
+Phase 4 slice 3: Design SPA template editor includes **assembler picker** and **structured slot_layout/styles** (ADR-003). See [binding-modules.md](../template-assembler-normalization/binding-modules.md#design-spa-assembler-picker-2810).

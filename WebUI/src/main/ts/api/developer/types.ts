@@ -170,6 +170,10 @@ export interface SlotDetail {
   finderName?: string;
   relationshipName?: string;
   finderArguments?: Record<string, string>;
+  /** ADR-003 structural slot_layout map (schemaVersion + layout keys). */
+  slotLayout?: Record<string, unknown>;
+  /** ADR-003 presentational slot_styles map (schemaVersion + style tokens). */
+  slotStyles?: Record<string, unknown>;
   associations?: SlotAssociationSummary[];
   designGaps?: string[];
 }

@@ -214,10 +214,10 @@ public class TemplatesResource {
   @Operation(
       summary = "Update template design fields",
       description =
-          "Updates mutable template fields: label, description, and/or templateSource."
-              + " When bindings or slots is present (including empty), replaces that collection."
-              + " Omit to leave unchanged. Name/id and create/delete remain unsupported"
-              + " (see designGaps).",
+          "Updates mutable template fields: label, description, templateSource, and/or"
+              + " assembler. When assembler is present it must be non-blank. When bindings or"
+              + " slots is present (including empty), replaces that collection. Omit fields to"
+              + " leave unchanged. Name/id and create/delete remain unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",

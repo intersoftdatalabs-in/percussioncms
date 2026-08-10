@@ -120,4 +120,17 @@ public class TemplatesResourceDetailTest {
     when(adaptor.updateTemplate(any(), eq("perc.page"), any())).thenReturn(updated);
     assertEquals(1, resource.updateTemplate("perc.page", body).getBindings().size());
   }
+
+  @Test
+  public void updateTemplateWithAssembler() {
+    TemplateDetail body = new TemplateDetail();
+    body.setAssembler("Java/global/percussion/assembly/htmlAssembler");
+    TemplateDetail updated = new TemplateDetail();
+    updated.setName("perc.page");
+    updated.setAssembler("Java/global/percussion/assembly/htmlAssembler");
+    when(adaptor.updateTemplate(any(), eq("perc.page"), any())).thenReturn(updated);
+    assertEquals(
+        "Java/global/percussion/assembly/htmlAssembler",
+        resource.updateTemplate("perc.page", body).getAssembler());
+  }
 }

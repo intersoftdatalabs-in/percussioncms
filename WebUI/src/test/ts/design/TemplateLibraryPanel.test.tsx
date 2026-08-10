@@ -30,12 +30,15 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   listTemplates: vi.fn(),
   getTemplateDetail: vi.fn(),
   updateTemplateDetail: vi.fn(),
+  getSlotDetail: vi.fn(),
+  updateSlotDetail: vi.fn(),
 }));
 
 const listTemplates = assemblyApi.listTemplates as ReturnType<typeof vi.fn>;
 const getTemplateDetail = assemblyApi.getTemplateDetail as ReturnType<
   typeof vi.fn
 >;
+const getSlotDetail = assemblyApi.getSlotDetail as ReturnType<typeof vi.fn>;
 
 describe("templateSelectionKey", () => {
   it("prefers name then id", () => {
@@ -54,6 +57,12 @@ describe("TemplateLibraryPanel (#2808)", () => {
     };
     listTemplates.mockReset();
     getTemplateDetail.mockReset();
+    getSlotDetail.mockReset();
+    getSlotDetail.mockResolvedValue({
+      name: "main",
+      slotLayout: { schemaVersion: 1 },
+      slotStyles: { schemaVersion: 1 },
+    });
   });
 
   it("lists templates on success", async () => {
@@ -124,7 +133,7 @@ describe("TemplateLibraryPanel (#2808)", () => {
       name: "site.base",
       label: "Base",
       description: "Base template",
-      assembler: "velocityAssembler",
+      assembler: "Java/global/percussion/assembly/velocityAssembler",
       mimeType: "text/html",
       templateType: "page",
       templateSource: "$sys.template",
@@ -145,9 +154,9 @@ describe("TemplateLibraryPanel (#2808)", () => {
     expect(screen.getByTestId("design-tpl-editor-name").textContent).toContain(
       "site.base",
     );
-    expect(screen.getByTestId("design-tpl-editor-assembler").textContent).toContain(
-      "velocityAssembler",
-    );
+    expect(
+      (screen.getByTestId("design-tpl-assembler-select") as HTMLSelectElement).value,
+    ).toContain("velocityAssembler");
     expect(screen.getByTestId("design-tpl-editor-bindings-table")).toBeTruthy();
     fireEvent.click(screen.getByTestId("design-tpl-editor-back"));
     await waitFor(() => {

@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   getTemplateDetail,
+  updateSlotDetail,
   updateTemplateDetail,
 } from "../api/developer/assemblyApi";
 import type {
@@ -37,7 +38,15 @@ import {
   tableHeaderRow,
   tableRow,
 } from "../developer/catalogStyles";
+import { AssemblerPicker } from "./AssemblerPicker";
+import { isValidAssemblerValue } from "./assemblerOptions";
 import { DESIGN_MSG } from "./messages";
+import {
+  dirtySlotSaves,
+  slotRowsDirty,
+  TemplateSlotsPanel,
+  type SlotEditorRow,
+} from "./TemplateSlotsPanel";
 import {
   bindingsEqual,
   cloneBindings,
@@ -90,9 +99,8 @@ function dash(value: string | number | null | undefined): string {
 }
 
 /**
- * Design SPA source + JEXL bindings editor (#2809 / parent #2631).
- * Loads and saves via public REST {@code GET/PUT /services/templates/{idOrName}}.
- * Slots / assembler picker remain later Design slices.
+ * Design SPA template editor (#2809 source/JEXL + #2810 assembler/slots).
+ * Loads and saves via public REST templates + slots endpoints.
  */
 export function TemplateSourceEditor({
   idOrName,
@@ -109,6 +117,12 @@ export function TemplateSourceEditor({
   const [busy, setBusy] = useState(false);
   const [source, setSource] = useState("");
   const [bindings, setBindings] = useState<TemplateBindingSummary[]>([]);
+  const [assembler, setAssembler] = useState("");
+  const [slotRows, setSlotRows] = useState<SlotEditorRow[]>([]);
+
+  const onSlotRowsChange = useCallback((rows: SlotEditorRow[]) => {
+    setSlotRows(rows);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -117,12 +131,14 @@ export function TemplateSourceEditor({
     setValidationError(null);
     setNotice(null);
     setDetail(null);
+    setSlotRows([]);
     getTemplateDetail(idOrName)
       .then((d) => {
         if (cancelled) return;
         setDetail(d);
         setSource(d.templateSource || "");
         setBindings(cloneBindings(d.bindings));
+        setAssembler((d.assembler || "").trim());
       })
       .catch((e: unknown) => {
         if (!cancelled) setError(editorErrMsg(e, DESIGN_MSG.EDITOR_LOAD_ERROR));
@@ -136,10 +152,13 @@ export function TemplateSourceEditor({
   }, [idOrName]);
 
   const initialBindings = cloneBindings(detail?.bindings);
+  const initialAssembler = (detail?.assembler || "").trim();
   const dirty =
     detail != null &&
     (source !== (detail.templateSource || "") ||
-      !bindingsEqual(bindings, initialBindings));
+      assembler !== initialAssembler ||
+      !bindingsEqual(bindings, initialBindings) ||
+      slotRowsDirty(slotRows));
 
   function updateBinding(index: number, patch: Partial<TemplateBindingSummary>) {
     setBindings((prev) => prev.map((b, i) => (i === index ? { ...b, ...patch } : b)));
@@ -167,6 +186,12 @@ export function TemplateSourceEditor({
   }
 
   async function handleSave() {
+    if (!isValidAssemblerValue(assembler)) {
+      setValidationError("Assembler is required");
+      setError(null);
+      setNotice(null);
+      return;
+    }
     const vErr = validateBindings(bindings);
     if (vErr) {
       setValidationError(vErr);
@@ -181,11 +206,45 @@ export function TemplateSourceEditor({
     try {
       const saved = await updateTemplateDetail(idOrName, {
         templateSource: source,
+        assembler: assembler.trim(),
         bindings: normalizeBindingsForSave(bindings),
       });
+
+      const slotPuts = dirtySlotSaves(slotRows);
+      for (const put of slotPuts) {
+        try {
+          await updateSlotDetail(put.key, {
+            slotLayout: put.slotLayout,
+            slotStyles: put.slotStyles,
+          });
+        } catch (slotErr: unknown) {
+          setError(editorErrMsg(slotErr, DESIGN_MSG.EDITOR_SLOT_SAVE_ERROR));
+          // Keep template save; re-sync template state so slots can retry.
+          setDetail(saved);
+          setSource(saved.templateSource || "");
+          setBindings(cloneBindings(saved.bindings));
+          setAssembler((saved.assembler || "").trim());
+          setBusy(false);
+          return;
+        }
+      }
+
       setDetail(saved);
       setSource(saved.templateSource || "");
       setBindings(cloneBindings(saved.bindings));
+      setAssembler((saved.assembler || "").trim());
+      // Refresh slot baselines after successful puts
+      setSlotRows((prev) =>
+        prev.map((r) => {
+          const put = slotPuts.find((p) => p.key === r.key);
+          if (!put) return r;
+          return {
+            ...r,
+            initialLayout: { ...r.layout },
+            initialStyles: { ...r.styles },
+          };
+        }),
+      );
       setNotice(DESIGN_MSG.EDITOR_SAVED);
     } catch (err: unknown) {
       setError(editorErrMsg(err, DESIGN_MSG.EDITOR_SAVE_ERROR));
@@ -203,7 +262,7 @@ export function TemplateSourceEditor({
         aria-label={DESIGN_MSG.EDITOR_BACK_ARIA}
         style={backButton}
       >
-        ← {DESIGN_MSG.EDITOR_BACK}
+        {DESIGN_MSG.EDITOR_BACK}
       </button>
 
       {error ? (
@@ -254,10 +313,6 @@ export function TemplateSourceEditor({
               </span>
             </div>
             <dl style={metaGrid}>
-              <dt style={{ color: catalogColors.muted }}>{DESIGN_MSG.FIELD_ASSEMBLER}</dt>
-              <dd style={{ margin: 0, ...monoCell }} data-testid="design-tpl-editor-assembler">
-                {dash(detail.assembler)}
-              </dd>
               <dt style={{ color: catalogColors.muted }}>{DESIGN_MSG.FIELD_MIME}</dt>
               <dd style={{ margin: 0, ...monoCell }} data-testid="design-tpl-editor-mime">
                 {dash(detail.mimeType)}
@@ -272,6 +327,22 @@ export function TemplateSourceEditor({
               </dd>
             </dl>
           </header>
+
+          <AssemblerPicker
+            value={assembler}
+            disabled={busy}
+            onChange={(next) => {
+              setAssembler(next);
+              setNotice(null);
+              setValidationError(null);
+            }}
+          />
+
+          <TemplateSlotsPanel
+            slots={detail.slots}
+            disabled={busy}
+            onRowsChange={onSlotRowsChange}
+          />
 
           <section style={{ marginBottom: "16px" }} data-testid="design-tpl-editor-bindings">
             <h3 style={{ fontSize: "1rem" }}>{DESIGN_MSG.EDITOR_BINDINGS}</h3>

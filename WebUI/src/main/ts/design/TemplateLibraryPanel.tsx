@@ -51,8 +51,8 @@ function listErrMsg(err: unknown, fallback: string): string {
 }
 
 /**
- * Design template library (#2808 list + #2809 source/JEXL editor): browse catalog,
- * empty/error states, open row to edit source and bindings via public REST.
+ * Design template library (#2808 list + #2809 source/JEXL + #2810 assembler/slots):
+ * browse catalog, empty/error states, open row to edit via public REST.
  */
 export function TemplateLibraryPanel(): React.ReactElement {
   const [items, setItems] = useState<TemplateSummary[] | null>(null);

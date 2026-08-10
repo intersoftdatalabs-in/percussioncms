@@ -25,6 +25,8 @@ import { DESIGN_MSG } from "../../../main/ts/design/messages";
 vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   getTemplateDetail: vi.fn(),
   updateTemplateDetail: vi.fn(),
+  getSlotDetail: vi.fn(),
+  updateSlotDetail: vi.fn(),
 }));
 
 const getTemplateDetail = assemblyApi.getTemplateDetail as ReturnType<
@@ -33,12 +35,13 @@ const getTemplateDetail = assemblyApi.getTemplateDetail as ReturnType<
 const updateTemplateDetail = assemblyApi.updateTemplateDetail as ReturnType<
   typeof vi.fn
 >;
+const getSlotDetail = assemblyApi.getSlotDetail as ReturnType<typeof vi.fn>;
 
 const baseDetail = {
   templateId: 11,
   name: "site.base",
   label: "Base",
-  assembler: "velocityAssembler",
+  assembler: "Java/global/percussion/assembly/velocityAssembler",
   mimeType: "text/html",
   templateType: "page",
   templateSource: "#header()\n$body\n",
@@ -55,6 +58,12 @@ describe("TemplateSourceEditor (#2809)", () => {
     };
     getTemplateDetail.mockReset();
     updateTemplateDetail.mockReset();
+    getSlotDetail.mockReset();
+    getSlotDetail.mockResolvedValue({
+      name: "main",
+      slotLayout: { schemaVersion: 1 },
+      slotStyles: { schemaVersion: 1 },
+    });
     getTemplateDetail.mockResolvedValue({ ...baseDetail });
     updateTemplateDetail.mockImplementation(async (_id, body) => ({
       ...baseDetail,
