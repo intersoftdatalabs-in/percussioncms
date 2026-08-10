@@ -384,7 +384,7 @@ Align with `design-templates-item-types` phases D0–D4:
 ### Phase 5 — Deprecation & cleanup (post-8.2 acceptable if product XML is already gone)
 
 1. Docs: single “Assemblers & Templates” guide; archive dual-model tutorials; Velocity as advanced track; HTML-first/Markdown for simple cases. *(#2833 implementer guide when present.)*
-2. Remove product shims when metrics show zero XML definition loads.
+2. Remove product shims when metrics show zero XML definition loads — **hard gate:** [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) (metrics M1–M3, test gates G1–G6, time-box; inventory snapshot #2835). Do **not** mass-delete while criteria are unmet.
 3. XSL: support statement only; migration cookbook to Velocity/HTML/Markdown. **Done (docs / #2834):** [xsl-migration-cookbook.md](./xsl-migration-cookbook.md) + [rhino-js-extension-note.md](./rhino-js-extension-note.md). No XSL runtime removal in 8.2.
 4. Optional later (not this plan): revisit Rhino JS extension handler health independently of assembly. (Short posture note: [rhino-js-extension-note.md](./rhino-js-extension-note.md).)
 

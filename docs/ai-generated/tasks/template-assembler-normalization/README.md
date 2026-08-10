@@ -60,6 +60,7 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | [page-definition-inventory.md](./page-definition-inventory.md) | Product page `*.templateDef` inventory + compiler (#2770) |
 | [gadget-definition-inventory.md](./gadget-definition-inventory.md) | Gadget XML / SPA survey |
 | [dual-run-legacy-definition-xml-shim.md](./dual-run-legacy-definition-xml-shim.md) | Phase 3 dual-run operator policy + runtime shim selection (#2752) |
+| [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) | Phase 5 shim removal metrics, gates, time-box + inventory (#2835 / #2632) |
 | [adr/](./adr/) | Architecture decision records |
 | [parity-notes.md](./parity-notes.md) | Region vs slot, pageAssembler vs velocity, etc. |
 | [region-slot-mapping.md](./region-slot-mapping.md) | Phase 2 residual: region↔slot composition + CssPref upgrade (#2690) |

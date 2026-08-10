@@ -35,7 +35,7 @@ Content types + Templates (assembler + JEXL bindings + source)
 - Compiler/upgrade tooling is mandatory before deleting package XML.
 - Widget Builder / Design tools write modern format only.
 - Package install/export paths must understand the new manifest shape (prefer extending existing package system).
-- **Dual-run runtime shim (time-boxed):** selection prefers modern `component-package.json`, falls back to legacy Widget/Page/Gadget definition XML when modern is absent, and fails clearly when neither exists. Implementation: `com.percussion.packages.shim.PSLegacyDefinitionXmlShim` (#2752). Operator policy, entry points, and exit criteria: [dual-run-legacy-definition-xml-shim.md](../dual-run-legacy-definition-xml-shim.md). Product packages must not depend on the shim long-term; Phase 5 (#2632) removes it when metrics allow.
+- **Dual-run runtime shim (time-boxed):** selection prefers modern `component-package.json`, falls back to legacy Widget/Page/Gadget definition XML when modern is absent, and fails clearly when neither exists. Implementation: `com.percussion.packages.shim.PSLegacyDefinitionXmlShim` (#2752). Operator policy / entry points: [dual-run-legacy-definition-xml-shim.md](../dual-run-legacy-definition-xml-shim.md). **Removal metrics, test gates, time-box, inventory:** [definition-xml-shim-removal-criteria.md](../definition-xml-shim-removal-criteria.md) (#2835 / Phase 5 #2632). Product packages must not depend on the shim long-term; remove only when those criteria are met with evidence — no unattended mass-delete.
 
 ## Component Package Manifest (schema v1.0)
 

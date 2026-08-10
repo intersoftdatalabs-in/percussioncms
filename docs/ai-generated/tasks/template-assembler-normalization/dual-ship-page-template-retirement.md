@@ -67,7 +67,7 @@ Runtime install still uses `PSTemplateDefDependencyHandler` and assembly-templat
 
 | Concept | Layer | Status |
 |---------|-------|--------|
-| Dual-run **definition XML shim** | Runtime selection modern vs Widget/Page/Gadget XML | Time-boxed; Phase 5 #2632 |
+| Dual-run **definition XML shim** | Runtime selection modern vs Widget/Page/Gadget XML | Time-boxed; Phase 5 #2632 — criteria: [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) |
 | Dual-ship **page templateDef** | Package-build install bridge for page layouts | Optional; native preferred for converted packages |
 | Native **page install** | Package-build stages TemplateDef archive from modern pages | Landed #2806 for base/responsive |
 
