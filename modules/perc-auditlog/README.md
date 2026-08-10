@@ -141,6 +141,16 @@ cd modules\perc-auditlog
 ..\..\mvnw.cmd clean install
 ```
 
+## Phase 5 — Ops / federal runbook + integrity hash (#2620 / #2717)
+
+* **Operator runbook:** `docs/ai-generated/tasks/system-audit-log/ops-federal-runbook.md`  
+  Retention (`systemAuditLogRetentionDays` / `sys_systemAuditLogRetentionJob`), NTP guidance,  
+  `sys_securityAuditLogViewer` grant, export AuthZ, NIST AU control matrix for deployers.
+* **Integrity digest helper:** `com.intsof.percussioncms.auditlog.integrity.AuditIntegrityHash`  
+  Deterministic SHA-256 (lowercase hex) over canonical row fields for export/query verification.  
+  Not a digital signature or DB column — see runbook §7.
+
 ## Design
 
-See `docs/ai-generated/tasks/system-audit-log/design.md`.
+See `docs/ai-generated/tasks/system-audit-log/design.md` and  
+`docs/ai-generated/tasks/system-audit-log/ops-federal-runbook.md`.
