@@ -367,11 +367,10 @@ public class PSProperty extends PSComponent {
   private int m_type = TYPE_STRING;
 
   /**
-   * The value of the property, initialized in the constructor and may be modified through a call to
-   * <code>setValue(Object)</code>, may be <code>
-   * null</code>.
+   * The value of the property (Boolean or String per type), initialized in the constructor and may
+   * be modified through a call to <code>setValue(Object)</code>, may be <code>null</code>. Declared
+   * {@link java.io.Serializable} for the serial-field.
    */
-  /** Property value (Boolean or String per type); declared Serializable for serial-field. */
   private java.io.Serializable m_value = null;
 
   /**
