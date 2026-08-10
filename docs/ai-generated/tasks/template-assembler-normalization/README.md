@@ -73,6 +73,7 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | Widget model | `projects/sitemanage/.../data/PSWidgetDefinition.java` |
 | Widget packages | `modules/perc-packages/.../rxconfig/Widgets/` |
 | Component package manifest | `modules/perc-packages/.../manifest/PSComponentPackageManifest*.java` |
+| Widget XML compiler | `modules/perc-packages/.../widgetxml/PSWidgetXmlCompiler.java` (#2751) |
 | Gadget registry | `WebUI/src/main/resources/com/percussion/webui/gadget/servlets/GadgetRegistry.xml` |
 
 ## Immediate next work

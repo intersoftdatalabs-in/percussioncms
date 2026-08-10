@@ -4,6 +4,18 @@
 **Source:** `modules/perc-packages/src/main/resources/Packages/**/rxconfig/Widgets/*.xml`  
 **Machine-readable:** [widget-xml-inventory.csv](./widget-xml-inventory.csv)
 
+## Compiler status (#2751 / parent #2630)
+
+| Area | Status | Notes |
+|------|--------|-------|
+| **Widget XML → Component Package Manifest compiler** | Landed for **baseWidgets / simple subset** | `com.percussion.packages.widgetxml.PSWidgetXmlCompiler` (+ package scanner) in `modules/perc-packages` |
+| Golden parity | **percSimpleText** (+ package compile of all 3 baseWidgets) | Fixtures under `modules/perc-packages/src/test/resources/widgetxml/` |
+| **Product packages still ship Widget XML** | Yes (this slice) | Compiler produces modern artifacts; does **not** yet remove product `rxconfig/Widgets/*.xml` from source trees |
+| Residual high-traffic packages | Open | nav, blog, lists, rich media lists, forms, calendar, directory, social, etc. — use this inventory as the residual backlog (sibling/follow-on issues under #2630) |
+| Runtime legacy XML shim | Open | #2752 |
+
+Ship format: [component-package-manifest.md](./component-package-manifest.md). ADR: [004-no-definition-xml-packaging.md](./adr/004-no-definition-xml-packaging.md).
+
 ## Summary
 
 | Metric | Value |

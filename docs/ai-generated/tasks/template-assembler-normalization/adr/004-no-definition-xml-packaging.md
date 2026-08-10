@@ -47,3 +47,15 @@ Ship-format model and docs landed as Phase 3 slice 1 (#2750):
 | Minimal fixture | `modules/perc-packages/src/test/resources/manifests/minimal-component-package.json` |
 
 **Upgrade-input XML** remains compiler/shim only; **product ship format** is `component-package.json` plus content types, templates, slots, catalog metadata, and resources.
+
+## Widget XML compiler (slice #2751)
+
+Compiler for upgrade-input Widget XML → Component Package Manifest (baseWidgets / simple subset first):
+
+| Artifact | Location |
+|----------|----------|
+| Parser / compiler / package scanner | `modules/perc-packages/.../widgetxml/PSWidgetXml*.java` |
+| Golden parity (percSimpleText) | `modules/perc-packages/src/test/resources/widgetxml/golden/` |
+| Inventory + residuals | [../widget-xml-inventory.md](../widget-xml-inventory.md) |
+
+High-traffic package conversion and product XML removal remain residual under #2630; runtime shim is #2752.

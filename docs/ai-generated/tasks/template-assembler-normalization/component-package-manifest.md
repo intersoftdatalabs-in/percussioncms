@@ -175,12 +175,26 @@ String json = PSComponentPackageManifestIo.toJson(m);
 - **Today:** `PSPackageBuilder` zips legacy package source trees into `.ppkg` for the deployer (`psx_archiveInfo.xml` / dependency trees). That path remains for install compatibility.
 - **This manifest:** extends the packaging story with an explicit, tool-friendly **component** model that does not require Widget/Page/Gadget XML. Future slices wire compiler output and install recognition; this slice lands model + schema + tests only.
 
-## Out of scope (sibling slices)
+## Widget XML compiler (slice #2751)
+
+Upgrade-input path for simple / **baseWidgets** widgets:
+
+| Type | Role |
+|------|------|
+| `PSWidgetXmlParser` | Secure DOM parse of `<Widget>` definition XML |
+| `PSWidgetXmlCompiler` | XML model → `PSComponentPackageManifest` + template text artifacts |
+| `PSWidgetXmlPackageCompiler` | Scan `sys__UserDependency--rxconfig/Widgets/*.xml` under a package root |
+| Golden fixtures | `modules/perc-packages/src/test/resources/widgetxml/golden/` (percSimpleText) |
+
+Inventory + residual packages: [widget-xml-inventory.md](./widget-xml-inventory.md).
+
+## Out of scope (sibling / residual)
 
 | Slice | Issue | Role |
 |-------|-------|------|
-| Widget XML compiler | #2751 | XML → manifest + artifacts |
 | Runtime legacy shim | #2752 | Load customer XML when modern package absent |
+| High-traffic package conversion | residual under #2630 | nav, blog, lists, forms, … (see inventory) |
+| Delete product Widget XML from source | later | After install path consumes modern artifacts |
 
 ## Validation summary
 
