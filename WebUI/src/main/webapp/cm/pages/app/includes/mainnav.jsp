@@ -52,13 +52,15 @@
         var currentView = '<%=mainNavTab%>';
         var views = {
             home: 'VIEW_HOME',
+            // Dashboard removed from top chrome (#2702); deep link still supported
             dashboard: 'VIEW_DASHBOARD',
             pageeditor: 'VIEW_EDITOR',
             architecture: 'VIEW_SITE_ARCH',
             siteadmin: 'VIEW_DESIGN',
             publish: 'VIEW_PUBLISH',
             workflow: 'VIEW_WORKFLOW',
-            widgetbuilder: 'VIEW_WIDGET_BUILDER'
+            widgetbuilder: 'VIEW_WIDGET_BUILDER',
+            explorer: 'VIEW_EXPLORER'
         };
         function clear (evt) {
             clearTimeout(timerid);
@@ -85,6 +87,13 @@
             $(this).find('.perc-actions-menu').show();
         }).on('click', '.perc-topnav li', function onTopNavOptionClick (event) {
             event.stopPropagation();
+            // SPA surface exit (e.g. Explorer) — not a classic PercNavigationManager view
+            var spaHref = $(this).data('spa-href');
+            if (spaHref) {
+                window.location.href = spaHref;
+                $(this).parents('.perc-actions-menu').hide();
+                return;
+            }
             var view = $(this).data('navmgr');
             var navMgrArguments = [navMgr[view], navMgr.getSiteName(), navMgr.getMode(), null, navMgr.getName(), navMgr.getPath(), navMgr.getPathType(), null];
             navMgr.goToLocation.apply(navMgr, navMgrArguments);
@@ -106,13 +115,15 @@
     <label></label><span class="icon-chevron-down fas fa-chevron-down" role="presentation"></span>
     <ul id="perc-top-menu-bar" class="perc-actions-menu box_shadow_with_padding" role="menubar" aria-label="<i18n:message key="perc.ui.navMenu.topNav@Top Navigation"/>">
         <li role="menuitem" class="perc-actions-menu-item" data-navmgr="VIEW_HOME"><i18n:message key="perc.ui.navMenu.home@Home"/></li>
-        <li role="menuitem" class="perc-actions-menu-item" data-navmgr="VIEW_DASHBOARD"><i18n:message key="perc.ui.navMenu.dashboard@Dashboard"/></li>
+        <%-- #2702: Explorer immediately after Home (SPA deep link); Dashboard removed from top chrome --%>
+        <li role="menuitem" class="perc-actions-menu-item" data-navmgr="VIEW_EXPLORER" data-spa-href="/cm/app/spa.jsp?entry=explorer"><i18n:message key="perc.ui.dashboard.modern@Explorer"/></li>
         <li role="menuitem" class="perc-actions-menu-item" data-navmgr="VIEW_EDITOR"><i18n:message key="perc.ui.navMenu.webmgt@Editor"/></li>
         <% if (isAdmin || isDesigner) { %>
         <li role="menuitem" class="perc-actions-menu-item" data-navmgr="VIEW_SITE_ARCH"><i18n:message key="perc.ui.navMenu.architecture@Architecture"/></li>
         <li role="menuitem" class="perc-actions-menu-item" data-navmgr="VIEW_DESIGN"><i18n:message key="perc.ui.navMenu.design@Design"/></li>
         <li role="menuitem" class="perc-actions-menu-item" data-navmgr="VIEW_PUBLISH"><i18n:message key="perc.ui.navMenu.publish@Publish"/></li>
         <% } %><% if (isAdmin) { %>
+        <%-- Single Admin entry (en-us label already "Admin"); classic Administration surfaces --%>
         <li role="menuitem" class="perc-actions-menu-item" data-navmgr="VIEW_WORKFLOW"><i18n:message key="perc.ui.navMenu.admin@Administration"/></li>
         <% } %>
         <% if (isWdgActive && (isAdmin || isDesigner)) { %>

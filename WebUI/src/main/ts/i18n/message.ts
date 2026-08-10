@@ -209,11 +209,19 @@ export const MSG = {
   NAV_ARCHITECTURE: "perc.ui.navMenu.architecture@Architecture",
   NAV_DEVELOPER: "perc.ui.dashboard.modern@Developer",
   NAV_PUBLISH: "perc.ui.navMenu.publish@Publish",
+  /**
+   * Consolidated top-nav Admin label (#2702). Classic key en-us is already "Admin".
+   * Prefer this for top chrome over separate Administration / Admin tools entries.
+   */
+  NAV_ADMIN: "perc.ui.navMenu.admin@Administration",
+  /** @deprecated Prefer NAV_ADMIN for top chrome; retained for residual page titles. */
   NAV_ADMINISTRATION: "perc.ui.dashboard.modern@Administration",
+  /** @deprecated Prefer NAV_ADMIN for top chrome; Admin tools remain at /admin deep link. */
   NAV_ADMIN_TOOLS: "perc.ui.dashboard.modern@Admin tools",
   NAV_WIDGET_BUILDER: "perc.ui.navMenu.admin@Widget Builder",
   NAV_EXPLORER: "perc.ui.dashboard.modern@Explorer",
   NAV_ARIA_MAIN: "perc.ui.dashboard.modern@Main",
+  /** Page/title for dashboard gadgets (not top-nav; deep link /home/gadgets). */
   NAV_DASHBOARD_TITLE: "perc.ui.dashboard.modern@Dashboard gadgets on Home",
   NAV_DEVELOPER_TITLE: "perc.ui.dashboard.modern@CMS design tools (content types, templates, ...)",
   USER_SIGNED_IN_AS: "perc.ui.dashboard.modern@Signed in as",

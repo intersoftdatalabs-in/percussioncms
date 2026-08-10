@@ -60,7 +60,7 @@ export const ALL_LANDING_OPTIONS: readonly LandingOption[] = [
   },
   {
     value: HOMEPAGE_TYPES.WORKFLOW,
-    // Product "Admin" → Administration / Workflow SPA entry
+    // Product consolidated "Admin" top-nav (#2702) → Workflow SPA entry
     labelKey: "perc.ui.navMenu.admin@Administration",
   },
 ] as const;

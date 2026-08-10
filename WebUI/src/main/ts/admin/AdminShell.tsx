@@ -15,7 +15,8 @@
  */
 
 import React, { useState } from "react";
-import { message } from "../i18n/message";
+import { Link } from "react-router";
+import { message, MSG } from "../i18n/message";
 import { ADMIN_MSG } from "./messages";
 import { TasksSection } from "./TasksSection";
 import { TaskLogsSection } from "./TaskLogsSection";
@@ -70,7 +71,17 @@ export const AdminShell: React.FC<AdminShellProps> = ({
       data-testid="perc-admin-shell"
     >
       <header className={styles.header}>
-        <h1>{message(ADMIN_MSG.ADMIN_TITLE)}</h1>
+        <div className={styles.headerRow}>
+          <h1>{message(ADMIN_MSG.ADMIN_TITLE)}</h1>
+          {/* Top nav consolidates Admin (#2702); keep Workflow admin reachable here. */}
+          <Link
+            to="/workflow"
+            className={styles.siblingLink}
+            data-testid="admin-sibling-workflow-link"
+          >
+            {message(MSG.NAV_ADMINISTRATION)}
+          </Link>
+        </div>
       </header>
 
       <nav

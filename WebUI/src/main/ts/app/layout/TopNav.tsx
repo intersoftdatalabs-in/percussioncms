@@ -16,24 +16,34 @@
  */
 
 import React from "react";
-import { NavLink } from "react-router";
+import { NavLink, useLocation } from "react-router";
 import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
 import { i18nKeyAttr } from "../../i18n/i18nDom";
 import { message, MSG } from "../../i18n/message";
 import { UserMenu } from "./UserMenu";
 import styles from "./AppLayout.module.css";
+import { isAdminNavPath, topNavItemIds } from "./topNavConfig";
 
 /**
  * Product top navigation for the SPA shell.
  * SPA routes use client NavLink; unmigrated surfaces are full-page legacy exits.
+ *
+ * Order / labels: Home → Explorer → … → single Admin (issue #2702).
+ * Dashboard is not a top-nav item (gadgets remain under Home / deep link).
  */
 export function TopNav(): React.ReactElement {
   const { isAdmin, isDesigner, isWidgetBuilderActive } = useSpaBootstrap();
-  const canPublish = isAdmin || isDesigner;
-  const canWb = isWidgetBuilderActive && (isAdmin || isDesigner);
+  const location = useLocation();
+  const itemIds = topNavItemIds({
+    isAdmin,
+    isDesigner,
+    isWidgetBuilderActive,
+  });
 
   const linkClass = ({ isActive }: { isActive: boolean }): string =>
     isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink;
+
+  const adminActive = isAdminNavPath(location.pathname);
 
   return (
     <nav
@@ -42,124 +52,127 @@ export function TopNav(): React.ReactElement {
       data-testid="perc-spa-topnav"
     >
       <ul className={styles.navGroup}>
-        <li>
-          {/* Product default landing after login (not a separate "dashboard" SPA) */}
-          <NavLink
-            to="/home"
-            className={linkClass}
-            end
-            data-testid="nav-home"
-            {...i18nKeyAttr(MSG.NAV_HOME)}
-          >
-            {message(MSG.NAV_HOME)}
-          </NavLink>
-        </li>
-        <li>
-          {/*
-            PR-7 product lock: gadgets live on Home (not a peer SPA /dashboard).
-            Label kept as Dashboard for familiarity; deep link is /home/gadgets.
-          */}
-          <NavLink
-            to="/home/gadgets"
-            className={linkClass}
-            data-testid="nav-dashboard"
-            title={message(MSG.NAV_DASHBOARD_TITLE)}
-            {...i18nKeyAttr(MSG.NAV_DASHBOARD)}
-          >
-            {message(MSG.NAV_DASHBOARD)}
-          </NavLink>
-        </li>
-        <li>
-          <a
-            className={styles.navLink}
-            href="/cm/app/?view=editor"
-            data-testid="nav-editor"
-            {...i18nKeyAttr(MSG.NAV_EDITOR)}
-          >
-            {message(MSG.NAV_EDITOR)}
-          </a>
-        </li>
-        {canPublish ? (
-          <>
-            <li>
-              <a
-                className={styles.navLink}
-                href="/cm/app/?view=arch"
-                data-testid="nav-architecture"
-                {...i18nKeyAttr(MSG.NAV_ARCHITECTURE)}
-              >
-                {message(MSG.NAV_ARCHITECTURE)}
-              </a>
-            </li>
-            <li>
-              <NavLink
-                to="/developer"
-                className={linkClass}
-                data-testid="nav-developer"
-                title={message(MSG.NAV_DEVELOPER_TITLE)}
-                {...i18nKeyAttr(MSG.NAV_DEVELOPER)}
-              >
-                {message(MSG.NAV_DEVELOPER)}
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/publish"
-                className={linkClass}
-                data-testid="nav-publish"
-                {...i18nKeyAttr(MSG.NAV_PUBLISH)}
-              >
-                {message(MSG.NAV_PUBLISH)}
-              </NavLink>
-            </li>
-          </>
-        ) : null}
-        {isAdmin ? (
-          <li>
-            <NavLink
-              to="/workflow"
-              className={linkClass}
-              data-testid="nav-workflow"
-              {...i18nKeyAttr(MSG.NAV_ADMINISTRATION)}
-            >
-              {message(MSG.NAV_ADMINISTRATION)}
-            </NavLink>
-          </li>
-        ) : null}
-        {isAdmin ? (
-          <li>
-            <NavLink
-              to="/admin"
-              className={linkClass}
-              data-testid="nav-admin"
-              {...i18nKeyAttr(MSG.NAV_ADMIN_TOOLS)}
-            >
-              {message(MSG.NAV_ADMIN_TOOLS)}
-            </NavLink>
-          </li>
-        ) : null}
-        {canWb ? (
-          <li>
-            <NavLink
-              to="/widget-builder"
-              className={linkClass}
-              data-testid="nav-widget-builder"
-              {...i18nKeyAttr(MSG.NAV_WIDGET_BUILDER)}
-            >
-              {message(MSG.NAV_WIDGET_BUILDER)}
-            </NavLink>
-          </li>
-        ) : null}
-        <li>
-          <NavLink
-            to="/explorer"
-            className={linkClass}
-            data-testid="nav-explorer"
-            {...i18nKeyAttr(MSG.NAV_EXPLORER)}
-          >
-            {message(MSG.NAV_EXPLORER)}
-          </NavLink>
-        </li>
+        {itemIds.map((id) => {
+          switch (id) {
+            case "home":
+              return (
+                <li key={id}>
+                  <NavLink
+                    to="/home"
+                    className={linkClass}
+                    end
+                    data-testid="nav-home"
+                    {...i18nKeyAttr(MSG.NAV_HOME)}
+                  >
+                    {message(MSG.NAV_HOME)}
+                  </NavLink>
+                </li>
+              );
+            case "explorer":
+              return (
+                <li key={id}>
+                  <NavLink
+                    to="/explorer"
+                    className={linkClass}
+                    data-testid="nav-explorer"
+                    {...i18nKeyAttr(MSG.NAV_EXPLORER)}
+                  >
+                    {message(MSG.NAV_EXPLORER)}
+                  </NavLink>
+                </li>
+              );
+            case "editor":
+              return (
+                <li key={id}>
+                  <a
+                    className={styles.navLink}
+                    href="/cm/app/?view=editor"
+                    data-testid="nav-editor"
+                    {...i18nKeyAttr(MSG.NAV_EDITOR)}
+                  >
+                    {message(MSG.NAV_EDITOR)}
+                  </a>
+                </li>
+              );
+            case "architecture":
+              return (
+                <li key={id}>
+                  <a
+                    className={styles.navLink}
+                    href="/cm/app/?view=arch"
+                    data-testid="nav-architecture"
+                    {...i18nKeyAttr(MSG.NAV_ARCHITECTURE)}
+                  >
+                    {message(MSG.NAV_ARCHITECTURE)}
+                  </a>
+                </li>
+              );
+            case "developer":
+              return (
+                <li key={id}>
+                  <NavLink
+                    to="/developer"
+                    className={linkClass}
+                    data-testid="nav-developer"
+                    title={message(MSG.NAV_DEVELOPER_TITLE)}
+                    {...i18nKeyAttr(MSG.NAV_DEVELOPER)}
+                  >
+                    {message(MSG.NAV_DEVELOPER)}
+                  </NavLink>
+                </li>
+              );
+            case "publish":
+              return (
+                <li key={id}>
+                  <NavLink
+                    to="/publish"
+                    className={linkClass}
+                    data-testid="nav-publish"
+                    {...i18nKeyAttr(MSG.NAV_PUBLISH)}
+                  >
+                    {message(MSG.NAV_PUBLISH)}
+                  </NavLink>
+                </li>
+              );
+            case "admin":
+              // Consolidated Administration + Admin tools entry (#2702).
+              // Landing: workflow admin hub; /admin remains deep-linked.
+              return (
+                <li key={id}>
+                  <NavLink
+                    to="/workflow"
+                    className={() =>
+                      adminActive
+                        ? `${styles.navLink} ${styles.navLinkActive}`
+                        : styles.navLink
+                    }
+                    data-testid="nav-admin"
+                    // NavLink only marks active for /workflow*; force for /admin* too
+                    data-nav-active={adminActive ? "true" : "false"}
+                    aria-current={adminActive ? "page" : undefined}
+                    {...i18nKeyAttr(MSG.NAV_ADMIN)}
+                  >
+                    {message(MSG.NAV_ADMIN)}
+                  </NavLink>
+                </li>
+              );
+            case "widget-builder":
+              return (
+                <li key={id}>
+                  <NavLink
+                    to="/widget-builder"
+                    className={linkClass}
+                    data-testid="nav-widget-builder"
+                    {...i18nKeyAttr(MSG.NAV_WIDGET_BUILDER)}
+                  >
+                    {message(MSG.NAV_WIDGET_BUILDER)}
+                  </NavLink>
+                </li>
+              );
+            default:
+              return null;
+          }
+        })}
       </ul>
       <div className={styles.spacer} />
       <UserMenu />

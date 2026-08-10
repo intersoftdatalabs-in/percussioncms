@@ -71,6 +71,12 @@ function updateNavLocation(newSiteName, newPath) {
 }
 
 function processNavigationRequest(eventObj) {
+  // SPA surface exit (e.g. Explorer after #2702 top-nav restructure)
+  var spaHref = $(eventObj).data("spa-href");
+  if (spaHref) {
+    window.location.href = spaHref;
+    return;
+  }
   var view = $(eventObj).data("navmgr");
   var navMgrArguments = [
     navMgr[view],
