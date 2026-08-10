@@ -361,8 +361,15 @@ public abstract class PSApplicationIdContext implements IPSDeployComponent {
    * #updateCtxValue(Object)} method. Must be overriden by any context overriding {@link
    * #checkAddListener(PSApplicationIdContext)} to be notified of changes to matching contexts.
    *
+   * <p>Null is rejected with {@link IllegalArgumentException} to match other methods on this type
+   * ({@link #notifyCtxChangeListeners}, {@link #removeCtxChangeListener}). Callers that previously
+   * observed {@link UnsupportedOperationException} for a null argument must treat null as invalid
+   * input instead. Production notify paths never pass null (they validate first).
+   *
    * @param ctx The updated context, may not be <code>null</code>.
-   * @throws UnsupportedOperationException always in the base class.
+   * @throws IllegalArgumentException if {@code ctx} is {@code null}
+   * @throws UnsupportedOperationException when {@code ctx} is non-null and this base method is not
+   *     overridden (subclasses that register as listeners must override)
    */
   protected void ctxValueUpdated(PSApplicationIdContext ctx) {
     if (ctx == null) {
