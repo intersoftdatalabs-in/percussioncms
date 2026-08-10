@@ -58,7 +58,8 @@
             </div>
             <% } %><% if (isAdmin) { %>
             <div class="col-6 col-md-4 col-lg-3">
-                <div role="button" title='<i18n:message key="perc.ui.navMenu.admin@Administration"/>' tabindex="0" data-navmgr="VIEW_WORKFLOW" class="perc-nav-item perc-actions-menu-item text-center">
+                <%-- #2784: Admin tools SPA landing (peer of Explorer spa-href exit) --%>
+                <div role="button" title='<i18n:message key="perc.ui.navMenu.admin@Administration"/>' tabindex="0" data-navmgr="VIEW_ADMIN" data-spa-href="/cm/app/spa.jsp?entry=admin" class="perc-nav-item perc-actions-menu-item text-center">
                     <i aria-hidden class="perc-nav-icon fas fa-users-cog fa-5x fa-fw"></i>
                     <span class="perc-nav-description"><i18n:message key="perc.ui.navMenu.admin@Administration"/></span>
                 </div>
