@@ -18,6 +18,7 @@
 | Doc | Purpose |
 |-----|---------|
 | [spec.md](./spec.md) | Product specification |
+| [operator-build-and-link-report.md](./operator-build-and-link-report.md) | Operator: filesystem/Git source, offline build, link report |
 | [adr/](./adr/) | Architecture decision records |
 | [contracts/](./contracts/) | Frontmatter and site config contracts |
 

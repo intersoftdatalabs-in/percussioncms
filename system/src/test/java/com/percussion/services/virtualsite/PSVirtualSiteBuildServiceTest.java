@@ -67,6 +67,61 @@ class PSVirtualSiteBuildServiceTest {
 
     participants.flush("sample");
     assertTrue(Files.isRegularFile(meta.resolve("participants-sample.jsonl")));
+
+    // Link report is always written next to static HTML for operator review
+    Path linkReport = out.resolve("link-report.txt");
+    assertTrue(Files.isRegularFile(linkReport), "missing link-report.txt");
+    String report = Files.readString(linkReport, StandardCharsets.UTF_8);
+    assertTrue(report.contains("OK"), report);
+    assertTrue(result.writtenFiles().contains("link-report.txt"), result.writtenFiles()::toString);
+  }
+
+  @Test
+  void linkReportListsProblemsWhenBrokenLinksPresent() throws Exception {
+    Path siteRoot = tempDir.resolve("broken-site");
+    Path versionDir = siteRoot.resolve("8.2");
+    Files.createDirectories(versionDir);
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: Broken
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        theme:
+          layout: page.html
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body>{{content}}</body></html>",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        versionDir.resolve("index.md"),
+        """
+        ---
+        id: broken-home
+        title: Broken Home
+        ---
+
+        See [missing](nope.md).
+        """,
+        StandardCharsets.UTF_8);
+
+    Path out = tempDir.resolve("broken-out");
+    PSVirtualSiteBuildResult result =
+        new PSVirtualSiteBuildService().build(siteRoot, out, "broken");
+
+    assertTrue(result.hasLinkProblems(), "expected link problems");
+    Path linkReport = out.resolve("link-report.txt");
+    assertTrue(Files.isRegularFile(linkReport));
+    String report = Files.readString(linkReport, StandardCharsets.UTF_8);
+    assertTrue(report.contains("nope.md") || report.contains("nope.html"), report);
+    assertFalse(report.contains("OK: no link problems"), report);
   }
 
   @Test
