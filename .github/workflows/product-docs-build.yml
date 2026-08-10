@@ -1,0 +1,83 @@
+# Path-filtered product-docs Virtual Site build smoke (issue #2704 / epic #2678).
+#
+# Runs only when product-docs content, docs build scripts, Virtual Site Java
+# sources, or this workflow change — avoids full monorepo CI cost on unrelated PRs.
+#
+# On ubuntu: scripts/build-cms-docs.sh (via scripts/ci-smoke-product-docs.sh).
+# Windows operators: use scripts\build-cms-docs.bat / scripts\ci-smoke-product-docs.bat
+# (documented in product-docs/README.md); this job stays on ubuntu for runner cost.
+
+name: product-docs-build
+
+on:
+  pull_request:
+    paths:
+      - "product-docs/**"
+      - "scripts/build-cms-docs.sh"
+      - "scripts/build-cms-docs.bat"
+      - "scripts/ci-smoke-product-docs.sh"
+      - "scripts/ci-smoke-product-docs.bat"
+      - "system/services/src/com/percussion/services/virtualsite/**"
+      - "system/src/test/java/com/percussion/services/virtualsite/**"
+      - "system/src/test/resources/virtualsite/**"
+      - ".github/workflows/product-docs-build.yml"
+  push:
+    branches: [main]
+    paths:
+      - "product-docs/**"
+      - "scripts/build-cms-docs.sh"
+      - "scripts/build-cms-docs.bat"
+      - "scripts/ci-smoke-product-docs.sh"
+      - "scripts/ci-smoke-product-docs.bat"
+      - "system/services/src/com/percussion/services/virtualsite/**"
+      - "system/src/test/java/com/percussion/services/virtualsite/**"
+      - "system/src/test/resources/virtualsite/**"
+      - ".github/workflows/product-docs-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  product-docs-smoke:
+    name: product-docs build smoke
+    runs-on: ubuntu-latest
+    # system + upstream reactor compile is heavier than pure script smoke
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Install system + upstream reactor deps (skip tests)
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Sibling SNAPSHOTs are not published; install also-make chain so
+          # scripts/build-cms-docs.sh can compile/exec PSVirtualSiteBuildMain.
+          # Scoped to system (+ deps), not full monorepo reactor.
+          ./mvnw -B -pl system -am -DskipTests \
+            -Dmaven.javadoc.skip=true \
+            install
+
+      - name: Build product-docs and assert index HTML
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x scripts/build-cms-docs.sh scripts/ci-smoke-product-docs.sh
+          bash scripts/ci-smoke-product-docs.sh
+
+      - name: Upload built site (debug artifact)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: product-docs-site-failed
+          path: tmp/product-docs-site/
+          if-no-files-found: ignore
+          retention-days: 7
