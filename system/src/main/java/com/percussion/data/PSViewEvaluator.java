@@ -48,11 +48,11 @@ public class PSViewEvaluator {
 
     m_viewSet = viewSet;
 
-    Iterator condViewNames = m_viewSet.getConditionalViewNames();
+    Iterator<?> condViewNames = m_viewSet.getConditionalViewNames();
     while (condViewNames.hasNext()) {
       String viewName = (String) condViewNames.next();
-      List evals = new ArrayList();
-      Iterator condViews = m_viewSet.getCondtionalViews(viewName);
+      List<PSConditionalViewEvaluator> evals = new ArrayList<>();
+      Iterator<?> condViews = m_viewSet.getCondtionalViews(viewName);
       while (condViews.hasNext()) {
         PSConditionalView condView = (PSConditionalView) condViews.next();
         evals.add(new PSConditionalViewEvaluator(condView));
@@ -138,11 +138,11 @@ public class PSViewEvaluator {
     PSView curView = null;
 
     // if any conditional views, see if one matches
-    List evalList = (List) m_viewEvaluators.get(viewName.toLowerCase());
+    List<PSConditionalViewEvaluator> evalList = m_viewEvaluators.get(viewName.toLowerCase());
     if (evalList != null) {
-      Iterator evals = evalList.iterator();
+      Iterator<PSConditionalViewEvaluator> evals = evalList.iterator();
       while (evals.hasNext()) {
-        PSConditionalViewEvaluator eval = (PSConditionalViewEvaluator) evals.next();
+        PSConditionalViewEvaluator eval = evals.next();
         if (eval.isMatch(data)) {
           curView = eval.getView();
           break;
@@ -192,7 +192,7 @@ public class PSViewEvaluator {
    * @return <code>true</code> if the specified <code>fieldName</code> can be found in the list of
    *     fields. <code>false</code> otherwise.
    */
-  private boolean isFieldVisible(String fieldName, Iterator fields) {
+  private boolean isFieldVisible(String fieldName, Iterator<?> fields) {
     boolean isVisible = false;
 
     while (fields.hasNext() && !isVisible) {
@@ -212,7 +212,7 @@ public class PSViewEvaluator {
    * as a <code>String</code>, value is a List of <code>PSConditionalViewEvaluator</code> objects.
    * Never <code>null</code>, may be empty.
    */
-  private Map m_viewEvaluators = new HashMap();
+  private Map<String, List<PSConditionalViewEvaluator>> m_viewEvaluators = new HashMap<>();
 
   /**
    * Class to contain a <code>PSConditionalView</code> and its <code>PSConditionalEvaluator</code>.

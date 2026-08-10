@@ -81,7 +81,9 @@ public class PSFunctionCallExtractor extends PSDataExtractor {
         } else if (obj instanceof Collection) {
           // check if this collection contains a non-null value
           text = null;
-          Iterator itCol = ((Collection) obj).iterator();
+          @SuppressWarnings("unchecked")
+          Collection<Object> col = (Collection<Object>) obj;
+          Iterator<Object> itCol = col.iterator();
           while (itCol.hasNext()) {
             if (itCol.next() != null) {
               text = "?";
@@ -104,14 +106,16 @@ public class PSFunctionCallExtractor extends PSDataExtractor {
           if (obj == null) {
             text = null;
           } else if (obj instanceof Collection) {
-            Collection nonNullColl = new ArrayList();
-            Iterator it = ((Collection) obj).iterator();
+            Collection<Object> nonNullColl = new ArrayList<>();
+            @SuppressWarnings("unchecked")
+            Collection<Object> col = (Collection<Object>) obj;
+            Iterator<Object> it = col.iterator();
             while (it.hasNext()) {
               Object o = it.next();
               if (o != null) nonNullColl.add(o);
             }
 
-            Iterator nit = nonNullColl.iterator();
+            Iterator<Object> nit = nonNullColl.iterator();
             boolean hasNext = nit.hasNext();
 
             if (!hasNext) text = null;
@@ -229,13 +233,12 @@ public class PSFunctionCallExtractor extends PSDataExtractor {
   private static IPSReplacementValue[] getReplacementValues(PSFunctionCall funcCall) {
     if (funcCall == null) throw new IllegalArgumentException("funcCall may not be null");
 
-    List values = new ArrayList();
+    List<IPSReplacementValue> values = new ArrayList<>();
     PSFunctionParamValue[] vals = funcCall.getParamValues();
 
     for (int i = 0; i < vals.length; i++) values.add(vals[i].getValue());
 
-    IPSReplacementValue[] valueArray = new IPSReplacementValue[values.size()];
-    return (IPSReplacementValue[]) (values.toArray(valueArray));
+    return values.toArray(new IPSReplacementValue[0]);
   }
 
   /**

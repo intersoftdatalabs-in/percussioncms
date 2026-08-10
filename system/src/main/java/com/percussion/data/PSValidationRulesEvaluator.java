@@ -38,7 +38,7 @@ public class PSValidationRulesEvaluator {
    * @param ah the application handler, not <code>null</code>.
    * @throws IllegalArgumentException if the provided rules is <code>null</code>.
    */
-  public PSValidationRulesEvaluator(Iterator rules, PSApplicationHandler ah)
+  public PSValidationRulesEvaluator(Iterator<?> rules, PSApplicationHandler ah)
       throws PSNotFoundException, PSExtensionException {
     if (rules == null || ah == null)
       throw new IllegalArgumentException("parameters cannot be null");
@@ -70,10 +70,10 @@ public class PSValidationRulesEvaluator {
       throw new IllegalArgumentException("parameters cannot be null");
 
     for (int i = 0; i < m_evals.size(); i++) {
-      PSConditionalExitEvaluator eval = (PSConditionalExitEvaluator) m_evals.get(i);
+      PSConditionalExitEvaluator eval = m_evals.get(i);
 
       if (eval.isMatch(data)) {
-        Iterator exits = eval.getExits().iterator();
+        Iterator<Object> exits = eval.getExits().iterator();
         while (exits.hasNext()) {
           PSExtensionRunner runner = (PSExtensionRunner) exits.next();
           Document doc = runner.processResultDoc(data, item);
@@ -93,5 +93,5 @@ public class PSValidationRulesEvaluator {
    * A list of conditional exit evaluators, initialized during construction, never <code>null</code>
    * after that.
    */
-  private List m_evals = new ArrayList();
+  private List<PSConditionalExitEvaluator> m_evals = new ArrayList<>();
 }

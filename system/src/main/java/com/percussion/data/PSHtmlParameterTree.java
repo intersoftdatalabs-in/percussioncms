@@ -75,14 +75,14 @@ public class PSHtmlParameterTree {
 
     // we will store an array list containing the PSXParam nodes so we
     // can quickly access the parameter for a given parameter level
-    ArrayList paramNodeList = new ArrayList();
+    ArrayList<Element> paramNodeList = new ArrayList<>();
 
-    Map params = request.getBalancedParameters();
+    Map<String, Object> params = request.getBalancedParameters();
     if ((params != null) && (params.size() != 0)) {
-      Iterator ite = params.entrySet().iterator();
+      Iterator<Map.Entry<String, Object>> ite = params.entrySet().iterator();
       while (ite.hasNext()) {
-        Map.Entry entry = (Map.Entry) ite.next();
-        String name = (String) entry.getKey();
+        Map.Entry<String, Object> entry = ite.next();
+        String name = entry.getKey();
         Object value = entry.getValue();
 
         /* Add file support for binary input data (attachments)
@@ -140,7 +140,8 @@ public class PSHtmlParameterTree {
             addParameter(doc, root, paramNodeList, 0, name, value);
           }
         } else if (value instanceof List) {
-          List valueList = (List) value;
+          @SuppressWarnings("unchecked")
+          List<Object> valueList = (List<Object>) value;
           Object lastValue = null;
           for (int i = 0; i < valueList.size(); i++) {
             value = valueList.get(i);
@@ -165,7 +166,7 @@ public class PSHtmlParameterTree {
    * @see #addParameter(Document, Element, List, int, String, Object, String, Object)
    */
   private static void addParameter(
-      Document doc, Element root, List nodeList, int index, String name, Object value) {
+      Document doc, Element root, List<Element> nodeList, int index, String name, Object value) {
     addParameter(doc, root, nodeList, index, name, value, null, null);
   }
 
@@ -192,7 +193,7 @@ public class PSHtmlParameterTree {
   private static void addParameter(
       Document doc,
       Element root,
-      List nodeList,
+      List<Element> nodeList,
       int index,
       String name,
       Object value,
@@ -204,7 +205,7 @@ public class PSHtmlParameterTree {
       nodeList.add(PSXmlDocumentBuilder.addEmptyElement(doc, root, "PSXParam"));
     }
 
-    paramNode = (Element) nodeList.get(index);
+    paramNode = nodeList.get(index);
     Element e =
         PSXmlDocumentBuilder.addElement(
             doc, paramNode, name, ((value == null) ? "" : value.toString()));

@@ -164,33 +164,34 @@ public class PSRequestRedirector implements IPSResultGenerator {
     if (url == null) throw new IllegalArgumentException("Url must be specified for redirection.");
 
     // and we need to set/remove the request type param based on target
-    Map params = request.getParameters();
+    Map<String, Object> params = request.getParameters();
 
     if (params != null) {
       // run through the parameters and tack them onto the url
-      Iterator i = params.entrySet().iterator();
+      Iterator<Map.Entry<String, Object>> i = params.entrySet().iterator();
       String sepStr = "";
 
       if (url.indexOf("?") > -1) sepStr = "&";
       else sepStr = "?";
 
       while (i.hasNext()) {
-        Map.Entry e = (Map.Entry) i.next();
+        Map.Entry<String, Object> e = i.next();
         Object value = e.getValue();
         if (value == null) continue;
 
         if (value instanceof List) {
-          List l = (List) value;
-          Iterator listIt = l.iterator();
+          @SuppressWarnings("unchecked")
+          List<Object> l = (List<Object>) value;
+          Iterator<Object> listIt = l.iterator();
           while (listIt.hasNext()) {
             String entryStr = listIt.next().toString();
-            url += sepStr + e.getKey().toString() + "=" + PSURLEncoder.encodePath(entryStr);
+            url += sepStr + e.getKey() + "=" + PSURLEncoder.encodePath(entryStr);
             if (sepStr.equals("?")) sepStr = "&";
           }
         } else {
           url +=
               sepStr
-                  + e.getKey().toString()
+                  + e.getKey()
                   + "="
                   + PSURLEncoder.encodePath(e.getValue().toString());
         }

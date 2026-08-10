@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -48,15 +49,14 @@ public class PSUrlRequestExtractor extends PSDataExtractor {
     PSExtensionCall call = req.getConverter();
     if (null != call) m_udfExtractor = new PSUdfCallExtractor(call);
     else {
-      Iterator params = req.getQueryParameters();
-      List extractors = new ArrayList(5);
+      Iterator<?> params = req.getQueryParameters();
+      List<IPSDataExtractor> extractors = new ArrayList<>(5);
       while (params.hasNext()) {
         PSParam param = (PSParam) params.next();
         extractors.add(PSDataExtractorFactory.createReplacementValueExtractor(param.getValue()));
       }
       if (extractors.size() > 0) {
-        m_paramExtractors = new IPSDataExtractor[extractors.size()];
-        extractors.toArray(m_paramExtractors);
+        m_paramExtractors = extractors.toArray(new IPSDataExtractor[0]);
       }
     }
   }
@@ -86,16 +86,16 @@ public class PSUrlRequestExtractor extends PSDataExtractor {
     PSUrlRequest req = (PSUrlRequest) m_sourceReplacementValues[0];
     if (null != m_udfExtractor) href = m_udfExtractor.extract(data, defValue).toString();
     else {
-      HashMap paramValueMap = new HashMap();
+      Map<String, String> paramValueMap = new HashMap<>();
       if (null != m_paramExtractors) {
-        Iterator params = req.getQueryParameters();
+        Iterator<?> params = req.getQueryParameters();
         for (int i = 0; i < m_paramExtractors.length; ++i) {
           PSParam param = (PSParam) params.next();
           Object value = m_paramExtractors[i].extract(data);
           if (value != null) paramValueMap.put(param.getName(), value.toString());
         }
       }
-      Set paramValueSet = paramValueMap.entrySet();
+      Set<Map.Entry<String, String>> paramValueSet = paramValueMap.entrySet();
       href = PSUrlUtils.createUrl(req.getHref(), paramValueSet.iterator(), null);
     }
     return href;
