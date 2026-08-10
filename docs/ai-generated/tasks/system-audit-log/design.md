@@ -99,6 +99,16 @@ Responses: `200` page/entry, `403` without permission, `404` missing id, `400` b
 - [x] Document `PSX_DESIGN_AUDIT_LOG` disposition (keep / not CADF; system events on `PSX_SYSTEM_AUDIT_LOG`)
 - [ ] Sibling slices (separate PRs): design auditor dual-write DESN → system store (#2673); retention job wiring (#2674)
 
+## Phase 5 — Hardening / compliance pack (#2620)
+
+| Slice | Issue | Notes |
+|-------|-------|-------|
+| Export CSV/JSON | [#2715](https://github.com/intersoftdatalabs-in/percussioncms/issues/2715) | Same AuthZ as query; see [export.md](./export.md) when present |
+| Audit-of-audit access events | [#2716](https://github.com/intersoftdatalabs-in/percussioncms/issues/2716) | Viewer list/detail (and export) dual-write |
+| **Federal/ops runbook + integrity hash** | [#2717](https://github.com/intersoftdatalabs-in/percussioncms/issues/2717) | **[ops-federal-runbook.md](./ops-federal-runbook.md)**; `AuditIntegrityHash` SHA-256 helper |
+
+Operator/federal deployers: start with **[ops-federal-runbook.md](./ops-federal-runbook.md)** (retention job, NTP, role property grant, export permission, AU control matrix, integrity digest).
+
 ## Phase tracking (GitHub)
 
 | Phase | Issue |
@@ -116,3 +126,5 @@ Responses: `200` page/entry, `403` without permission, `404` missing id, `400` b
 * Rhythmyx 7.3 Implementation Guide — Roles, communities, folder ACLs  
 * Rhythmyx 7.3 Administration Manual — Role properties (`sys_defaultCommunity`, …)  
 * NIST SP 800-53 Rev. 5 AU family  
+* [ops-federal-runbook.md](./ops-federal-runbook.md) — Phase 5 operator / federal AU matrix  
+
