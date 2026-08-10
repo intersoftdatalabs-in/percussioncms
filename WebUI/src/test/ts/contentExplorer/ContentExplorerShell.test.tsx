@@ -548,6 +548,54 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(screen.queryByTestId("translations-panel")).toBeNull();
   });
 
+  it("Content → Site Copy mounts wizard with source from /Sites/<name> (#2767)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo/Home"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    const siteCopy = screen.getByTestId(
+      "explorer-content-site-copy",
+    ) as HTMLButtonElement;
+    expect(siteCopy.disabled).toBe(false);
+    fireEvent.click(siteCopy);
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-site-copy-panel"),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId("site-copy-wizard")).toBeInTheDocument();
+    });
+    const source = screen.getByTestId("site-copy-source") as HTMLInputElement;
+    expect(source.value).toBe("Demo");
+  });
+
+  it("Content → Site Copy is disabled at /Sites root without a site (#2767)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    const siteCopy = screen.getByTestId(
+      "explorer-content-site-copy",
+    ) as HTMLButtonElement;
+    expect(siteCopy.disabled).toBe(true);
+    expect(screen.queryByTestId("site-copy-wizard")).toBeNull();
+  });
+
   it("security stays on hint when resolveFolderId rejects (#2410)", async () => {
     stubPathFetch();
     renderShell(

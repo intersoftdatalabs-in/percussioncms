@@ -40,10 +40,17 @@ export interface ExplorerMenuBarProps {
   showSecurity: boolean;
   showTranslations: boolean;
   showClipboard: boolean;
+  /** Content → Site Copy panel open (#2767). */
+  showSiteCopy?: boolean;
   /** Multi-select size for clipboard-add disable + status badge. */
   multiSelectedCount: number;
   /** Clipboard size — enables View → Clipboard when non-empty. */
   clipboardItemCount: number;
+  /**
+   * True when the current folder/selection is under {@code /Sites/&lt;name&gt;}.
+   * Enables Content → Site Copy (#2767).
+   */
+  hasSiteContext?: boolean;
   displayFormats: ReadonlyArray<DisplayFormat>;
   selectedFormatKey: string;
   onSelectFormat: (key: string) => void;
@@ -112,7 +119,11 @@ function isToggleChecked(
   id: ExplorerMenuCommandId,
   props: Pick<
     ExplorerMenuBarProps,
-    "showSearch" | "showSecurity" | "showTranslations" | "showClipboard"
+    | "showSearch"
+    | "showSecurity"
+    | "showTranslations"
+    | "showClipboard"
+    | "showSiteCopy"
   >,
 ): boolean {
   switch (id) {
@@ -124,6 +135,8 @@ function isToggleChecked(
       return props.showTranslations;
     case "view-clipboard":
       return props.showClipboard;
+    case "content-site-copy":
+      return props.showSiteCopy === true;
     default:
       return false;
   }
@@ -133,12 +146,16 @@ function isItemDisabled(
   item: ExplorerMenuBarItem,
   multiSelectedCount: number,
   clipboardItemCount: number,
+  hasSiteContext: boolean,
 ): boolean {
   if (item.disabledWhen === "noSelection") {
     return multiSelectedCount === 0;
   }
   if (item.disabledWhen === "noClipboardContext") {
     return multiSelectedCount === 0 && clipboardItemCount === 0;
+  }
+  if (item.disabledWhen === "noSiteContext") {
+    return !hasSiteContext;
   }
   return false;
 }
@@ -149,8 +166,10 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
     showSecurity,
     showTranslations,
     showClipboard,
+    showSiteCopy = false,
     multiSelectedCount,
     clipboardItemCount,
+    hasSiteContext = false,
     displayFormats,
     selectedFormatKey,
     onSelectFormat,
@@ -194,12 +213,20 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
   }
 
   function activateItem(item: ExplorerMenuBarItem): void {
-    if (isItemDisabled(item, multiSelectedCount, clipboardItemCount)) {
+    if (
+      isItemDisabled(
+        item,
+        multiSelectedCount,
+        clipboardItemCount,
+        hasSiteContext,
+      )
+    ) {
       return;
     }
     onCommand(item.id);
     // Keep View open for toggles so users can flip multiple panels; close
-    // Content/Help after a one-shot command.
+    // Content/Help after a one-shot command. Site Copy is a Content toggle —
+    // close the Content menu after flip so the panel is not obscured.
     if (item.id.startsWith("view-") && item.toggle) {
       return;
     }
@@ -259,6 +286,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                       item,
                       multiSelectedCount,
                       clipboardItemCount,
+                      hasSiteContext,
                     );
                     const checked = item.toggle
                       ? isToggleChecked(item.id, {
@@ -266,6 +294,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                           showSecurity,
                           showTranslations,
                           showClipboard,
+                          showSiteCopy,
                         })
                       : undefined;
                     const label = message(item.labelKey);
@@ -295,7 +324,9 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                                   ? "explorer-translations-panel"
                                   : item.id === "view-clipboard"
                                     ? "explorer-clipboard-panel"
-                                    : undefined
+                                    : item.id === "content-site-copy"
+                                      ? "explorer-site-copy-panel"
+                                      : undefined
                           }
                           data-testid={
                             item.testId ?? `explorer-menu-item-${item.id}`

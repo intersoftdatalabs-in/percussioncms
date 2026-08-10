@@ -43,7 +43,7 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Capability | DCE source | Explorer / REST today | Status | Slice |
 |------------|------------|------------------------|--------|-------|
 | Clipboard cut/copy/paste multi | `PSClipBoard` | `ClipboardPanel` + multi-select wired in product shell | **Present** | #2408 · [PR #2522](https://github.com/intersoftdatalabs-in/percussioncms/pull/2522) (merged) |
-| Site copy wizard | CE wizards | `SiteCopyWizard` component exists; **not** primary shell chrome | **Partial** | advanced chrome (phase 4; no open child — open only when prioritized) |
+| Site copy wizard | CE wizards | `SiteCopyWizard` on product shell via Content → Site Copy (`content-site-copy`); source prefilled from `/Sites/<name>` | **Present** | #2767 |
 | Subfolder copy wizard | CE wizards | `SubfolderCopyWizard`; not in shell | **Partial** | advanced chrome (phase 4) |
 | Dependency viewer | `PSDependencyViewer` | Components + `rest` relationship summary; not in shell | **Partial** | advanced chrome (phase 4) |
 | IA / relationships view | Managers | `RelationshipsView`; not in shell | **Partial** | advanced chrome (phase 4) |
@@ -59,6 +59,10 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | DCE-only packaging residual | Decommission program after parity |
 
 ## Implementation notes
+
+### 2026-08-10 refresh (site copy shell #2767)
+
+- **#2767 Site copy wizard in Explorer shell chrome:** Content → Site Copy mounts `SiteCopyWizard` on `ContentExplorerShell` when selection is under `/Sites/<name>` (pure `sitePath` helper). Vitest shell/menu wiring + Playwright `explorer-site-copy.spec.js` (soft-skip multi-site submit on H2). Matrix row **Present**.
 
 ### 2026-08-10 refresh (menu bar #2731)
 
