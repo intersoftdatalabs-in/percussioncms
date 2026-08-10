@@ -17,9 +17,10 @@
 /**
  * ContentExplorerShell — product Explorer route shell (feature 992 + #2400).
  *
- * <p>Composes tree, detail list, reduced actions, server-driven action
- * toolbar, context menu, search panel, and display-format selector so the
- * SPA route approaches Desktop Content Explorer parity.</p>
+ * <p>Composes DCE-style top menu bar (Content / View / Help), tree, detail
+ * list, reduced actions, server-driven action toolbar (with nested MENU
+ * dropdowns), context menu, search panel, and display-format selector so the
+ * SPA route approaches Desktop Content Explorer parity (#2400 / #2731).</p>
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -53,8 +54,10 @@ import {
   displayFormatOptionKey,
   toDetailDisplayFormat,
 } from "./displayFormatMap";
+import { ExplorerMenuBar } from "./ExplorerMenuBar";
 import { ExplorerTree } from "./ExplorerTree";
 import { FolderSecurityPanel } from "./FolderSecurityPanel";
+import type { ExplorerMenuCommandId } from "./menuBarModel";
 import { EXPLORER_MSG } from "./messages";
 import { openInEditor } from "./openInEditor";
 import {
@@ -423,6 +426,50 @@ export function ContentExplorerShell({
     }
   }, []);
 
+  const handleMenuBarCommand = useCallback(
+    (id: ExplorerMenuCommandId) => {
+      switch (id) {
+        case "content-search":
+        case "view-search":
+          setShowSearch((v) => !v);
+          break;
+        case "content-clipboard-add":
+          handleAddToClipboard();
+          break;
+        case "view-refresh":
+          setListEpoch((n) => n + 1);
+          break;
+        case "view-security":
+          setShowSecurity((v) => !v);
+          break;
+        case "view-translations":
+          setShowTranslations((v) => !v);
+          break;
+        case "view-clipboard":
+          setShowClipboard((v) => !v);
+          break;
+        case "help-explorer":
+          // Product help site — open in a new tab when available.
+          if (typeof window !== "undefined") {
+            window.open(
+              "https://percussioncmshelp.intsof.com/",
+              "_blank",
+              "noopener,noreferrer",
+            );
+          }
+          break;
+        case "help-about":
+          if (typeof window !== "undefined") {
+            window.alert(message(EXPLORER_MSG.MENU_HELP_ABOUT_BODY));
+          }
+          break;
+        default:
+          break;
+      }
+    },
+    [handleAddToClipboard],
+  );
+
   const folderForActions: PSPathItem | null =
     selection.item?.type === "folder"
       ? selection.item
@@ -477,6 +524,18 @@ export function ContentExplorerShell({
       <header style={headerStyle}>
         <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
           <h1 style={headerTitleStyle}>{message(EXPLORER_MSG.TITLE)}</h1>
+          <ExplorerMenuBar
+            showSearch={showSearch}
+            showSecurity={showSecurity}
+            showTranslations={showTranslations}
+            showClipboard={showClipboard}
+            multiSelectedCount={multiSelectedIds.size}
+            clipboardItemCount={clipboard.items.length}
+            displayFormats={displayFormats}
+            selectedFormatKey={selectedFormatKey}
+            onSelectFormat={setSelectedFormatKey}
+            onCommand={handleMenuBarCommand}
+          />
           <div style={toolRowStyle}>
             <ReducedActions
               item={selection.item}
@@ -500,113 +559,6 @@ export function ContentExplorerShell({
                 setListEpoch((n) => n + 1);
               }}
             />
-          </div>
-          <div
-            style={toolRowStyle}
-            data-testid="explorer-view-tools"
-            role="toolbar"
-            aria-label={message(EXPLORER_MSG.VIEW_TOOLS_ARIA)}
-          >
-            <button
-              type="button"
-              data-testid="explorer-toggle-search"
-              aria-pressed={showSearch}
-              aria-expanded={showSearch}
-              aria-controls="explorer-search-panel"
-              aria-label={message(EXPLORER_MSG.TOGGLE_SEARCH_ARIA)}
-              onClick={() => setShowSearch((v) => !v)}
-            >
-              {message(EXPLORER_MSG.SEARCH_TITLE)}
-            </button>
-            <button
-              type="button"
-              data-testid="explorer-toggle-security"
-              aria-pressed={showSecurity}
-              aria-expanded={showSecurity}
-              aria-controls="explorer-security-panel"
-              aria-label={message(EXPLORER_MSG.TOGGLE_SECURITY_ARIA)}
-              onClick={() => setShowSecurity((v) => !v)}
-            >
-              {message(EXPLORER_MSG.SECURITY_TITLE)}
-            </button>
-            <button
-              type="button"
-              data-testid="explorer-toggle-translations"
-              aria-pressed={showTranslations}
-              aria-expanded={showTranslations}
-              aria-controls="explorer-translations-panel"
-              aria-label={message(EXPLORER_MSG.TOGGLE_TRANSLATIONS_ARIA)}
-              onClick={() => setShowTranslations((v) => !v)}
-            >
-              {message(EXPLORER_MSG.TRANSLATIONS_TITLE)}
-            </button>
-            <button
-              type="button"
-              data-testid="explorer-toggle-clipboard"
-              aria-pressed={showClipboard}
-              aria-expanded={showClipboard}
-              aria-controls="explorer-clipboard-panel"
-              aria-label={message(EXPLORER_MSG.TOGGLE_CLIPBOARD_ARIA)}
-              onClick={() => setShowClipboard((v) => !v)}
-              disabled={multiSelectedIds.size === 0 && clipboard.items.length === 0}
-            >
-              {message(EXPLORER_MSG.CLIPBOARD_TITLE)}
-              {multiSelectedIds.size > 0 ? (
-                <span
-                  data-testid="explorer-multi-select-count"
-                  style={{ marginLeft: 6, color: "#888" }}
-                >
-                  (
-                  {multiSelectedIds.size === 1
-                    ? message(EXPLORER_MSG.SELECTED_COUNT_SINGULAR)
-                    : message(EXPLORER_MSG.SELECTED_COUNT_PLURAL).replace(
-                        "{count}",
-                        String(multiSelectedIds.size),
-                      )}
-                  )
-                </span>
-              ) : null}
-            </button>
-            <button
-              type="button"
-              data-testid="explorer-clipboard-add"
-              disabled={multiSelectedIds.size === 0}
-              onClick={handleAddToClipboard}
-              aria-label={message(EXPLORER_MSG.CLIPBOARD_ADD)}
-            >
-              {message(EXPLORER_MSG.CLIPBOARD_ADD)}
-            </button>
-            <label
-              htmlFor="explorer-display-format"
-              style={{ display: "inline-flex", gap: 6, alignItems: "center" }}
-            >
-              <span id="explorer-display-format-label">
-                {message(EXPLORER_MSG.DISPLAY_FORMAT_LABEL)}
-              </span>
-              <select
-                id="explorer-display-format"
-                data-testid="explorer-display-format"
-                value={selectedFormatKey}
-                onChange={(e) => setSelectedFormatKey(e.target.value)}
-                aria-labelledby="explorer-display-format-label"
-              >
-                <option value="">
-                  {message(EXPLORER_MSG.DISPLAY_FORMAT_DEFAULT)}
-                </option>
-                {displayFormats.map((df) => {
-                  const key = displayFormatOptionKey(df);
-                  if (!key) return null;
-                  // Server catalog labels (displayName/label/name) are
-                  // CMS design data, not product chrome — not TMX keys.
-                  const label = df.displayName || df.label || df.name || key;
-                  return (
-                    <option key={key} value={key}>
-                      {label}
-                    </option>
-                  );
-                })}
-              </select>
-            </label>
           </div>
         </div>
       </header>

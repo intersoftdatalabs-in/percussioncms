@@ -90,10 +90,11 @@ test.describe("modern React Content Explorer — multi-select + clipboard (#2408
     await rowCheckboxes.nth(0).check();
     await rowCheckboxes.nth(1).check();
 
-    // Add to clipboard.
+    // #2731: clipboard-add lives under Content menu; clipboard toggle under View.
+    await page.locator('[data-testid="explorer-menu-content"]').click();
     await page.locator('[data-testid="explorer-clipboard-add"]').click();
 
-    // Open the clipboard panel.
+    await page.locator('[data-testid="explorer-menu-view"]').click();
     await page.locator('[data-testid="explorer-toggle-clipboard"]').click();
     const panel = page.locator('[data-testid="explorer-clipboard-panel"]');
     await expect(panel).toBeVisible();

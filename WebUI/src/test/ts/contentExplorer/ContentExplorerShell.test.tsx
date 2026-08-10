@@ -66,8 +66,13 @@ function stubPathFetch() {
   });
 }
 
+/** Open the DCE-style View menu so nested view-tool items are in the DOM. */
+function openViewMenu(): void {
+  fireEvent.click(screen.getByTestId("explorer-menu-view"));
+}
+
 describe("ContentExplorerShell product composition (#2400)", () => {
-  it("renders search toggle, display format select, and server action toolbar", async () => {
+  it("renders DCE menu bar, nested view tools, and server action toolbar (#2731)", async () => {
     stubPathFetch();
 
     renderShell(
@@ -93,12 +98,19 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     );
 
     expect(screen.getByTestId("content-explorer-shell")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-menu-bar")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-menu-view")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-menu-help")).toBeInTheDocument();
+
+    // Display format is always-visible shell chrome next to the menubar.
+    expect(screen.getByTestId("explorer-display-format")).toBeInTheDocument();
+    openViewMenu();
     expect(screen.getByTestId("explorer-toggle-search")).toBeInTheDocument();
     expect(screen.getByTestId("explorer-toggle-security")).toBeInTheDocument();
     expect(
       screen.getByTestId("explorer-toggle-translations"),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("explorer-display-format")).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar")).toBeInTheDocument();
@@ -153,6 +165,13 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       EXPLORER_MSG.DISPLAY_FORMAT_DEFAULT,
       EXPLORER_MSG.SERVER_ACTIONS_ARIA,
       EXPLORER_MSG.VIEW_TOOLS_ARIA,
+      EXPLORER_MSG.MENU_BAR_ARIA,
+      EXPLORER_MSG.MENU_CONTENT,
+      EXPLORER_MSG.MENU_VIEW,
+      EXPLORER_MSG.MENU_HELP,
+      EXPLORER_MSG.MENU_VIEW_REFRESH,
+      EXPLORER_MSG.MENU_HELP_EXPLORER,
+      EXPLORER_MSG.MENU_HELP_ABOUT,
       EXPLORER_MSG.TOGGLE_SEARCH_ARIA,
       EXPLORER_MSG.TOGGLE_SECURITY_ARIA,
       EXPLORER_MSG.TOGGLE_TRANSLATIONS_ARIA,
@@ -195,8 +214,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       />,
     );
     await waitFor(() =>
-      expect(screen.getByTestId("explorer-toggle-search")).toBeInTheDocument(),
+      expect(screen.getByTestId("explorer-menu-view")).toBeInTheDocument(),
     );
+    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-search"));
     await waitFor(() =>
       expect(screen.getByTestId("explorer-search-panel")).toBeInTheDocument(),
@@ -213,6 +233,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
         resolveFolderId={async () => undefined}
       />,
     );
+    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-security"));
     await waitFor(() => {
       expect(screen.getByTestId("explorer-security-hint")).toBeInTheDocument();
@@ -227,6 +248,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
         loadMenuActions={async () => []}
       />,
     );
+    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-translations"));
     await waitFor(() => {
       expect(
@@ -248,6 +270,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
         }}
       />,
     );
+    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-security"));
     await waitFor(() => {
       expect(screen.getByTestId("explorer-security-hint")).toBeInTheDocument();
@@ -306,6 +329,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       />,
     );
 
+    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-security"));
     await waitFor(() => {
       expect(resolveFolderId).toHaveBeenCalled();

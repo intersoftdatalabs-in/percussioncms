@@ -15,6 +15,9 @@
 /** Stable product test ids for the saved-search surface. */
 const TEST_IDS = Object.freeze({
   shell: "content-explorer-shell",
+  /** #2731: View menu hosts nested view tools (open before toggleSearch). */
+  menuView: "explorer-menu-view",
+  viewDropdown: "explorer-menu-view-dropdown",
   toggleSearch: "explorer-toggle-search",
   searchPanelHost: "explorer-search-panel",
   searchPanel: "search-panel",
