@@ -45,4 +45,22 @@ public class PSFolderPropertiesPanelTest {
     assertEquals("name", PSFolderPropertiesPanel.stringValue("name"));
     assertEquals("42", PSFolderPropertiesPanel.stringValue(Integer.valueOf(42)));
   }
+
+  /**
+   * Documents the onOk contract for null value cells: stringValue leaves null; {@code
+   * PSFolderProperty} then stores empty string. Rows with a non-blank name and null value must not
+   * be skipped (that would delete the property).
+   */
+  @Test
+  public void nullValueCellFlowsAsNullForFolderPropertyEmptyString() {
+    // Mirror onOk cell reads for a named row with unset value/desc cells.
+    String name = PSFolderPropertiesPanel.stringValue("myProp");
+    String value = PSFolderPropertiesPanel.stringValue(null);
+    String desc = PSFolderPropertiesPanel.stringValue(null);
+    assertEquals("myProp", name);
+    assertNull(value);
+    assertNull(desc);
+    // Production path: new PSFolderProperty(name, value, desc) → value becomes "".
+    // Skip-if-null would incorrectly treat this as a removed property.
+  }
 }

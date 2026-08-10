@@ -146,12 +146,14 @@ public class PSFolderPropertiesPanel extends UTPropertiesTablePanel {
 
     for (int i = 0; i < rowCount; i++) {
       String name = stringValue(model.getValueAt(i, 0));
+      // value/desc may be null (e.g. unset DefaultTableModel cells). PSFolderProperty converts
+      // null value/desc to "" — same as the pre-getValueAt raw Vector path. Do not skip null
+      // values: that would delete the property via m_mapLoadedProperties cleanup instead of
+      // saving an empty string.
       String value = stringValue(model.getValueAt(i, 1));
       String desc = stringValue(model.getValueAt(i, 2));
 
       if (name == null || name.trim().length() <= 0) continue;
-
-      if (value == null) continue;
 
       PSFolderProperty prop = new PSFolderProperty(name, value, desc);
 
