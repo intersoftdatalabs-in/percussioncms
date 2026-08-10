@@ -15,6 +15,11 @@
         <skipTests>false</skipTests>
     </properties>
     <dependencies>
+        <!-- Manifest JSON codec for Component Package Manifest (Phase 3 / ADR-004). -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -84,6 +89,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
+            </plugin>
+            <!-- Manifest DTOs are Gson beans; skip -missing doclint noise on accessors. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <doclint>all,-missing</doclint>
+                </configuration>
             </plugin>
         </plugins>
     </build>
