@@ -27,7 +27,14 @@ import java.util.regex.Pattern;
  *
  * <p>Enforces schema version, required identity fields, non-blank nested names, portable
  * package-relative path refs (URL-style {@code /} separators; no absolute OS paths), and the
- * presence of at least one content type or template (a component must ship something installable).
+ * presence of installable material:
+ *
+ * <ul>
+ *   <li>Default components / pages: at least one {@code contentTypes[]} or {@code templates[]}
+ *       entry
+ *   <li>Gadget packages ({@code catalog.kind = "gadget"}): catalog title required; content types /
+ *       templates optional (dashboard gadgets are SPA hosts, not assembly templates) — issue #2771
+ * </ul>
  */
 public final class PSComponentPackageManifestValidator {
 
@@ -121,13 +128,21 @@ public final class PSComponentPackageManifestValidator {
       }
     }
 
+    boolean isGadgetKind = false;
     if (manifest.getCatalog() != null) {
       PSComponentPackageManifest.Catalog cat = manifest.getCatalog();
+      if (cat.getKind() != null && "gadget".equalsIgnoreCase(cat.getKind().trim())) {
+        isGadgetKind = true;
+      }
       if (cat.getThumbnail() != null && !cat.getThumbnail().isBlank()) {
         requireRelativePath(errors, "catalog.thumbnail", cat.getThumbnail());
       }
       if (cat.getIcon() != null && !cat.getIcon().isBlank()) {
         requireRelativePath(errors, "catalog.icon", cat.getIcon());
+      }
+      if (isGadgetKind) {
+        // Dashboard gadgets ship as catalog + optional host resources (no assembly CT/templates).
+        requireText(errors, "catalog.title", cat.getTitle());
       }
     }
 
@@ -233,7 +248,9 @@ public final class PSComponentPackageManifestValidator {
     boolean hasTpl =
         manifest.getTemplates() != null
             && manifest.getTemplates().stream().anyMatch(Objects::nonNull);
-    if (!hasCt && !hasTpl) {
+    // Gadget packages are SPA/dashboard hosts — catalog.kind=gadget + title is sufficient.
+    // Components and pages still require content types or templates.
+    if (!isGadgetKind && !hasCt && !hasTpl) {
       errors.add("manifest must declare at least one contentTypes[] or templates[] entry");
     }
 
