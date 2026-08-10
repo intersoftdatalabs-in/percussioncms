@@ -38,4 +38,11 @@ public class PSFolderPropertiesPanelTest {
     assertNull(PSFolderPropertiesPanel.stringCell(row, 99));
     assertNull(PSFolderPropertiesPanel.stringCell(null, 0));
   }
+
+  @Test
+  public void stringValueNullSafeAndToString() {
+    assertNull(PSFolderPropertiesPanel.stringValue(null));
+    assertEquals("name", PSFolderPropertiesPanel.stringValue("name"));
+    assertEquals("42", PSFolderPropertiesPanel.stringValue(Integer.valueOf(42)));
+  }
 }

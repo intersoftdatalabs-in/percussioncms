@@ -32,6 +32,7 @@ import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
 /**
  * Properties Panel on the Cx Folder Properties Dialog. Allows users to change custom folder
@@ -39,12 +40,6 @@ import javax.swing.table.TableColumnModel;
  */
 @SuppressWarnings("serial")
 public class PSFolderPropertiesPanel extends UTPropertiesTablePanel {
-  /**
-   * The only constructor.
-   *
-   * @param folder shared instance of the PSFolder, never <code>null</code>.
-   * @param editable <code>true</code> if any data can be entered, <code>false</code> otherwise.
-   */
   /**
    * The only constructor.
    *
@@ -104,18 +99,14 @@ public class PSFolderPropertiesPanel extends UTPropertiesTablePanel {
 
   /** loads folder properties into the table. */
   private void loadTableData() {
-    Iterator<?> iter = m_folder.getProperties();
+    Iterator<PSFolderProperty> iter = m_folder.getProperties();
 
     DefaultTableModel model = (DefaultTableModel) getTableModel();
 
     clearAllRows();
 
     while (iter.hasNext()) {
-      Object next = iter.next();
-      if (!(next instanceof PSFolderProperty)) {
-        continue;
-      }
-      PSFolderProperty property = (PSFolderProperty) next;
+      PSFolderProperty property = iter.next();
 
       // skip properties which are handled in other tab's
       if (PSFolder.isDisplayFormatProperty(property)
@@ -148,17 +139,15 @@ public class PSFolderPropertiesPanel extends UTPropertiesTablePanel {
 
     if (!validateData()) return false;
 
-    DefaultTableModel model = (DefaultTableModel) getTableModel();
+    // Prefer TableModel getValueAt over DefaultTableModel#getDataVector() so we avoid the
+    // Swing raw Vector return and keep row iteration fully typed (no rawtypes/unchecked).
+    TableModel model = getTableModel();
+    int rowCount = model.getRowCount();
 
-    @SuppressWarnings("unchecked")
-    Vector<Vector> vRows = model.getDataVector();
-
-    for (int i = 0; i < vRows.size(); i++) {
-      Vector<?> vColumns = vRows.elementAt(i);
-
-      String name = stringCell(vColumns, 0);
-      String value = stringCell(vColumns, 1);
-      String desc = stringCell(vColumns, 2);
+    for (int i = 0; i < rowCount; i++) {
+      String name = stringValue(model.getValueAt(i, 0));
+      String value = stringValue(model.getValueAt(i, 1));
+      String desc = stringValue(model.getValueAt(i, 2));
 
       if (name == null || name.trim().length() <= 0) continue;
 
@@ -199,7 +188,16 @@ public class PSFolderPropertiesPanel extends UTPropertiesTablePanel {
     if (row == null || index < 0 || index >= row.size()) {
       return null;
     }
-    Object cell = row.elementAt(index);
+    return stringValue(row.elementAt(index));
+  }
+
+  /**
+   * Converts a table-model cell to a string (null-safe). Package-visible for unit tests.
+   *
+   * @param cell cell value from {@link TableModel#getValueAt(int, int)}, may be <code>null</code>
+   * @return string value or <code>null</code>
+   */
+  static String stringValue(Object cell) {
     return cell == null ? null : cell.toString();
   }
 
