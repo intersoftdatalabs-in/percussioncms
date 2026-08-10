@@ -97,6 +97,11 @@ Viewer and export access to the system security audit log is itself auditable:
 | `AUDIT-4` `EXPORT_ACCESS` | `AUDIT_EXPORT` SUCCESS | Export allowed (call from export path) |
 | `AUDIT-5` `EXPORT_ACCESS_DENIED` | `AUDIT_EXPORT` FAILURE | Explicit AuthZ deny on export |
 
+**Log message shape (`VIEWER_ACCESS`):** free-text template is
+`Audit log viewed actor={} action={} detail={}` (action = `list` / `detail`). This **replaces**
+the earlier main-line two-arg `actor={} filters={}` template for AUDIT-1. Update SIEM/parser
+rules accordingly; structured audit attributes still carry `action` and `detail`.
+
 Facade: `PSSystemAuditLogger.auditViewerAccess` / `auditViewerAccessDenied` /
 `auditExportAccess` / `auditExportAccessDenied`. Wired for list/detail in
 `com.percussion.apibridge.AuditLogAdaptor`. Nested dual-write during a sink write is

@@ -269,8 +269,20 @@ public class AuditLogAdaptor implements IAuditLogAdaptor {
     if (sb.length() > 0) {
       sb.append(',');
     }
-    sb.append(name).append('=').append(value.trim());
+    sb.append(name).append('=').append(escapeFilterValue(value.trim()));
   }
+
+  /**
+   * Quote filter values that contain commas, equals, or quotes so the comma-delimited
+   * {@link #summarizeFilters} summary stays unambiguous for operators and parsers.
+   */
+  static String escapeFilterValue(String value) {
+    if (value.indexOf(',') < 0 && value.indexOf('=') < 0 && value.indexOf('"') < 0) {
+      return value;
+    }
+    return "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+  }
+
 
   static Instant parseInstant(String raw, String fieldName) {
     if (StringUtils.isBlank(raw)) {

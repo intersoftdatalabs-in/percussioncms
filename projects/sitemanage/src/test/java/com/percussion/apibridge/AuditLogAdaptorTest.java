@@ -279,6 +279,33 @@ class AuditLogAdaptorTest {
         ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0).code());
   }
 
+  @Test
+  void summarizeFiltersOmitsBlanksAndJoinsWithComma() {
+    assertEquals("none", AuditLogAdaptor.summarizeFilters(null, null, null, null, null, null));
+    assertEquals(
+        "from=2026-01-01T00:00:00Z,module=AUTH,actor=admin",
+        AuditLogAdaptor.summarizeFilters(
+            "2026-01-01T00:00:00Z", null, "AUTH", null, null, "admin"));
+  }
+
+  @Test
+  void summarizeFiltersQuotesValuesWithCommasOrQuotes() {
+    // append order is from,to,module,eventType,outcome,actor
+    assertEquals(
+        "module=AUTH,actor=\"Doe, John\"",
+        AuditLogAdaptor.summarizeFilters(null, null, "AUTH", null, null, "Doe, John"));
+    assertEquals(
+        "actor=\"a\\\"b\"", AuditLogAdaptor.summarizeFilters(null, null, null, null, null, "a\"b"));
+    assertEquals(
+        "module=\"x=y\"", AuditLogAdaptor.summarizeFilters(null, null, "x=y", null, null, null));
+  }
+
+  @Test
+  void escapeFilterValueLeavesPlainTokensUnquoted() {
+    assertEquals("admin", AuditLogAdaptor.escapeFilterValue("admin"));
+    assertEquals("\"a,b\"", AuditLogAdaptor.escapeFilterValue("a,b"));
+  }
+
   private static PSSystemAuditLogEntry sampleRow() {
     PSSystemAuditLogEntry e = new PSSystemAuditLogEntry();
     e.setAuditId("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");

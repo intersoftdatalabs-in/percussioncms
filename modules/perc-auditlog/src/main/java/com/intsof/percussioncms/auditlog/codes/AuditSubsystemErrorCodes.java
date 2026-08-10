@@ -30,7 +30,16 @@ import com.intsof.percussioncms.auditlog.SystemErrorCode;
  * guard so access events cannot storm.
  */
 public enum AuditSubsystemErrorCodes implements SystemErrorCode {
-  /** Successful list or detail view of the system security audit log. */
+  /**
+   * Successful list or detail view of the system security audit log.
+   *
+   * <p><strong>Log template note (Phase 5 / #2716):</strong> the durable log message shape is
+   * {@code actor={} action={} detail={}} (action = {@code list}/{@code detail}, detail = filter
+   * summary or audit id). Pre-#2716 main only had a two-arg {@code actor={} filters={}} form with
+   * no list/detail split. SIEM / log parsers for AUDITview success must match the three-arg
+   * template; structured attributes on the audit row still carry {@code action} and {@code detail}
+   * independently of free-text log format.
+   */
   VIEWER_ACCESS(
       1,
       true,
