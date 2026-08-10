@@ -20,6 +20,9 @@ import {
   getAllUserPreferences,
   loadUserPreference,
   saveUserPreference,
+  unwrapUserPreference,
+  wrapUserPreferenceForWire,
+  USER_PREFERENCE_ROOT,
 } from "../../../main/ts/api/preferences/preferencesApi";
 import * as client from "../../../main/ts/api/client";
 
@@ -52,19 +55,123 @@ describe("preferencesApi (PreferenceResource)", () => {
     await expect(loadUserPreference("missing")).resolves.toBeNull();
   });
 
-  it("saveUserPreference puts DTO with defaults", async () => {
+  it("loadUserPreference unwraps Jackson UserPreference root", async () => {
+    vi.spyOn(client, "get").mockResolvedValueOnce({
+      UserPreference: {
+        name: "perc_profile_gravatar_email",
+        value: "avatar@example.com",
+        category: "sys_preferences",
+        context: "private",
+        userName: "Admin",
+      },
+    });
+    const pref = await loadUserPreference("perc_profile_gravatar_email");
+    expect(pref?.name).toBe("perc_profile_gravatar_email");
+    expect(pref?.value).toBe("avatar@example.com");
+  });
+
+  it("saveUserPreference wraps body under UserPreference root (#2708)", async () => {
     const putSpy = vi.spyOn(client, "put").mockResolvedValueOnce({
+      UserPreference: {
+        name: "k",
+        value: "v",
+        category: "sys_preferences",
+        context: "private",
+        userName: "Admin",
+      },
+    });
+    const saved = await saveUserPreference({
       name: "k",
       value: "v",
-      category: "sys_preferences",
-      context: "private",
       userName: "Admin",
     });
-    await saveUserPreference({ name: "k", value: "v", userName: "Admin" });
     expect(putSpy).toHaveBeenCalled();
-    const body = putSpy.mock.calls[0][1] as Record<string, string>;
-    expect(body.category).toBe("sys_preferences");
-    expect(body.context).toBe("private");
-    expect(body.userName).toBe("Admin");
+    const body = putSpy.mock.calls[0][1] as Record<string, Record<string, string>>;
+    // Must not send flat { name, ... } — server UNWRAP_ROOT_VALUE expects UserPreference
+    expect(body).not.toHaveProperty("name");
+    expect(body[USER_PREFERENCE_ROOT]).toBeDefined();
+    expect(body[USER_PREFERENCE_ROOT].name).toBe("k");
+    expect(body[USER_PREFERENCE_ROOT].value).toBe("v");
+    expect(body[USER_PREFERENCE_ROOT].category).toBe("sys_preferences");
+    expect(body[USER_PREFERENCE_ROOT].context).toBe("private");
+    expect(body[USER_PREFERENCE_ROOT].userName).toBe("Admin");
+    expect(saved.name).toBe("k");
+    expect(saved.value).toBe("v");
+  });
+
+  it("wrapUserPreferenceForWire nests Gravatar override fields under root", () => {
+    const wire = wrapUserPreferenceForWire({
+      name: "perc_profile_gravatar_email",
+      value: "avatar@example.com",
+      userName: "Admin",
+    });
+    expect(Object.keys(wire)).toEqual([USER_PREFERENCE_ROOT]);
+    expect(wire.UserPreference.value).toBe("avatar@example.com");
+    expect(wire.UserPreference.name).toBe("perc_profile_gravatar_email");
+  });
+
+  it("unwrapUserPreference accepts flat only when acceptFlat is true", () => {
+    expect(
+      unwrapUserPreference({
+        name: "k",
+        value: "v",
+      })?.value,
+    ).toBe("v");
+    expect(
+      unwrapUserPreference(
+        {
+          name: "k",
+          value: "v",
+        },
+        { acceptFlat: false },
+      ),
+    ).toBeNull();
+    expect(
+      unwrapUserPreference({
+        UserPreference: { name: "k", value: "wrapped" },
+      })?.value,
+    ).toBe("wrapped");
+    expect(
+      unwrapUserPreference(
+        {
+          UserPreference: { name: "k", value: "wrapped" },
+        },
+        { acceptFlat: false },
+      )?.value,
+    ).toBe("wrapped");
+    expect(unwrapUserPreference(null)).toBeNull();
+  });
+
+  it("saveUserPreference falls back to sent fields when response is unparseable", async () => {
+    vi.spyOn(client, "put").mockResolvedValueOnce({ unexpected: true });
+    const saved = await saveUserPreference({
+      name: "perc_profile_gravatar_email",
+      value: "avatar@example.com",
+      userName: "Admin",
+      category: "sys_preferences",
+      context: "private",
+    });
+    expect(saved.name).toBe("perc_profile_gravatar_email");
+    expect(saved.value).toBe("avatar@example.com");
+    expect(saved.userName).toBe("Admin");
+    expect(saved.category).toBe("sys_preferences");
+    expect(saved.context).toBe("private");
+  });
+
+  it("saveUserPreference does not treat flat response as success unwrap", async () => {
+    // Flat body is not the production wire; use sent-fields fallback instead.
+    vi.spyOn(client, "put").mockResolvedValueOnce({
+      name: "other",
+      value: "from-flat",
+      userName: "X",
+    });
+    const saved = await saveUserPreference({
+      name: "k",
+      value: "sent",
+      userName: "Admin",
+    });
+    expect(saved.name).toBe("k");
+    expect(saved.value).toBe("sent");
+    expect(saved.userName).toBe("Admin");
   });
 });
