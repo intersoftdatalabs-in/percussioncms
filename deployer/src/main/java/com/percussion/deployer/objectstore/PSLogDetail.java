@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Encapsulates log detail information. */
-public class PSLogDetail implements IPSDeployComponent {
+public final class PSLogDetail implements IPSDeployComponent {
 
   /**
    * Constructing the object from the given paramaters.

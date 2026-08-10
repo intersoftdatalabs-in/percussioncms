@@ -349,9 +349,9 @@ public abstract class PSApplicationIdContext implements IPSDeployComponent {
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
     // call ctxValueUpdated on all listeners
-    Iterator listeners = m_listeners.iterator();
+    Iterator<PSApplicationIdContext> listeners = m_listeners.iterator();
     while (listeners.hasNext()) {
-      PSApplicationIdContext listener = (PSApplicationIdContext) listeners.next();
+      PSApplicationIdContext listener = listeners.next();
       listener.ctxValueUpdated(ctx);
     }
   }
@@ -361,13 +361,20 @@ public abstract class PSApplicationIdContext implements IPSDeployComponent {
    * #updateCtxValue(Object)} method. Must be overriden by any context overriding {@link
    * #checkAddListener(PSApplicationIdContext)} to be notified of changes to matching contexts.
    *
+   * <p>Null is rejected with {@link IllegalArgumentException} to match other methods on this type
+   * ({@link #notifyCtxChangeListeners}, {@link #removeCtxChangeListener}). Callers that previously
+   * observed {@link UnsupportedOperationException} for a null argument must treat null as invalid
+   * input instead. Production notify paths never pass null (they validate first).
+   *
    * @param ctx The updated context, may not be <code>null</code>.
-   * @throws UnsupportedOperationException always in the base class.
+   * @throws IllegalArgumentException if {@code ctx} is {@code null}
+   * @throws UnsupportedOperationException when {@code ctx} is non-null and this base method is not
+   *     overridden (subclasses that register as listeners must override)
    */
   protected void ctxValueUpdated(PSApplicationIdContext ctx) {
-    // suppress eclipse warning
-    if (null == ctx)
-      ;
+    if (ctx == null) {
+      throw new IllegalArgumentException("ctx may not be null");
+    }
 
     // would be a bug to call this if not implemented
     throw new UnsupportedOperationException("ctxValueUpdated() not implemented");
@@ -455,5 +462,5 @@ public abstract class PSApplicationIdContext implements IPSDeployComponent {
    * removed by calls to {@link #addCtxChangeListener(PSApplicationIdContext)} and {@link
    * #removeCtxChangeListener(PSApplicationIdContext)}, respectively.
    */
-  private List m_listeners = new ArrayList();
+  private List<PSApplicationIdContext> m_listeners = new ArrayList<>();
 }

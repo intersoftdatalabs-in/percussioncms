@@ -23,7 +23,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Encapsulates a transaction for installing a package (or element). */
-public class PSTransactionSummary implements IPSDeployComponent {
+public final class PSTransactionSummary implements IPSDeployComponent {
 
   /**
    * Constructing the object from the given parameters.

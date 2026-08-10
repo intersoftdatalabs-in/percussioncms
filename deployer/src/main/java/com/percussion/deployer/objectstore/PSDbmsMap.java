@@ -30,7 +30,7 @@ import org.w3c.dom.Element;
  * This class encapsulates a list of database information mapping objects, <code>PSDbmsMapping
  * </code>, for a source server.
  */
-public class PSDbmsMap implements IPSDeployComponent {
+public final class PSDbmsMap implements IPSDeployComponent {
   /**
    * Creating an object from a source server name.
    *

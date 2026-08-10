@@ -17,7 +17,6 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.utils.collections.PSIteratorUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -103,17 +102,17 @@ public class PSDependencyContext {
     // get the package && remove the dependency
     boolean isMulti = isMulti();
 
-    Map.Entry entry = getPkgEntry(dep);
+    Entry<String, List<PSDependency>> entry = getPkgEntry(dep);
     if (entry == null) {
       throw new IllegalArgumentException("dep not found in this ctx");
     }
 
-    String pkgKey = (String) entry.getKey();
-    PSDeployableElement pkg = (PSDeployableElement) m_pkgMap.get(pkgKey);
-    List depList = (List) entry.getValue();
+    String pkgKey = entry.getKey();
+    PSDeployableElement pkg = m_pkgMap.get(pkgKey);
+    List<PSDependency> depList = entry.getValue();
 
     // remove same instance from the list and pkg from map if empty
-    Iterator deps = depList.iterator();
+    Iterator<PSDependency> deps = depList.iterator();
     while (deps.hasNext()) {
       if (dep == deps.next()) {
         deps.remove();
@@ -128,11 +127,11 @@ public class PSDependencyContext {
 
     // now deselect others if necessary
     if (removeLocal) {
-      Map removeMap = new HashMap();
+      Map<String, List<PSDependency>> removeMap = new HashMap<>();
       checkRemoveLocal(dep, pkg, removeMap);
-      Iterator affected = getValueLists(removeMap);
+      Iterator<PSDependency> affected = getValueLists(removeMap);
       while (affected.hasNext()) {
-        PSDependency affectedDep = (PSDependency) affected.next();
+        PSDependency affectedDep = affected.next();
         affectedDep.setIsIncluded(false);
       }
     }
@@ -153,18 +152,18 @@ public class PSDependencyContext {
   public void addChildDependencies(PSDependency dep) {
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
-    Map.Entry pkgEntry = getPkgEntry(dep);
+    Entry<String, List<PSDependency>> pkgEntry = getPkgEntry(dep);
     if (pkgEntry == null) {
       throw new IllegalArgumentException("dep not found in this ctx");
     }
 
-    Iterator childDeps = dep.getDependencies();
+    Iterator<PSDependency> childDeps = dep.getDependencies();
     if (childDeps == null) return;
 
-    String pkgKey = (String) pkgEntry.getKey();
-    PSDeployableElement pkg = (PSDeployableElement) m_pkgMap.get(pkgKey);
+    String pkgKey = pkgEntry.getKey();
+    PSDeployableElement pkg = m_pkgMap.get(pkgKey);
     while (childDeps.hasNext()) {
-      PSDependency childDep = (PSDependency) childDeps.next();
+      PSDependency childDep = childDeps.next();
       m_treeCtx.addDependency(childDep, pkg);
     }
   }
@@ -218,9 +217,9 @@ public class PSDependencyContext {
   private boolean canBeIncludedExcluded(boolean allowLocal) {
     boolean canInclude = true;
 
-    Iterator deps = getDependencies();
+    Iterator<PSDependency> deps = getDependencies();
     while (deps.hasNext() && canInclude) {
-      PSDependency dep = (PSDependency) deps.next();
+      PSDependency dep = deps.next();
       canInclude =
           (dep.canBeIncludedExcluded()
               || (allowLocal && dep.getDependencyType() == PSDependency.TYPE_LOCAL));
@@ -240,14 +239,14 @@ public class PSDependencyContext {
     boolean isIncluded = false;
 
     // need to check dependencies within the context of their package
-    Iterator entries = m_depMap.entrySet().iterator();
+    Iterator<Entry<String, List<PSDependency>>> entries = m_depMap.entrySet().iterator();
     while (entries.hasNext() && !isIncluded) {
-      Entry entry = (Entry) entries.next();
-      String pkgKey = (String) entry.getKey();
-      PSDeployableElement pkg = (PSDeployableElement) m_pkgMap.get(pkgKey);
-      Iterator deps = ((List) entry.getValue()).iterator();
+      Entry<String, List<PSDependency>> entry = entries.next();
+      String pkgKey = entry.getKey();
+      PSDeployableElement pkg = m_pkgMap.get(pkgKey);
+      Iterator<PSDependency> deps = entry.getValue().iterator();
       while (deps.hasNext()) {
-        PSDependency dep = (PSDependency) deps.next();
+        PSDependency dep = deps.next();
         // must check if specific instance of this dep is included as pkg
         // may include other instances of the same dep that have not yet
         // been added to the context
@@ -267,7 +266,7 @@ public class PSDependencyContext {
     boolean isMulti = false;
     boolean hasOne = false;
 
-    for (Iterator deps = getDependencies(); deps.hasNext() && !isMulti; deps.next()) {
+    for (Iterator<PSDependency> deps = getDependencies(); deps.hasNext() && !isMulti; deps.next()) {
       if (hasOne) isMulti = true;
       else hasOne = true;
     }
@@ -287,9 +286,9 @@ public class PSDependencyContext {
     boolean canSet = canBeIncluded() && (isIncluded != isIncluded());
 
     if (canSet) {
-      Iterator deps = getDependencies();
+      Iterator<PSDependency> deps = getDependencies();
       while (deps.hasNext()) {
-        PSDependency dep = (PSDependency) deps.next();
+        PSDependency dep = deps.next();
         if (dep.isIncluded() ^ isIncluded) dep.setIsIncluded(isIncluded);
       }
       m_isIncluded = isIncluded;
@@ -322,7 +321,8 @@ public class PSDependencyContext {
    *     a list of matching shared dependencies found in that package as <code>PSDependency</code>
    *     objects. May not be <code>null</code>.
    */
-  public void checkRemoveLocal(PSDependency dep, PSDeployableElement pkg, Map resultMap) {
+  public void checkRemoveLocal(
+      PSDependency dep, PSDeployableElement pkg, Map<String, List<PSDependency>> resultMap) {
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
     if (pkg == null) throw new IllegalArgumentException("pkg may not be null");
@@ -338,23 +338,23 @@ public class PSDependencyContext {
     }
 
     // check other packages
-    Map tmpMap = new HashMap();
+    Map<String, List<PSDependency>> tmpMap = new HashMap<>();
     boolean allShared = true;
-    Iterator entries = m_depMap.entrySet().iterator();
+    Iterator<Entry<String, List<PSDependency>>> entries = m_depMap.entrySet().iterator();
     while (entries.hasNext() && allShared) {
-      Entry entry = (Entry) entries.next();
-      String pkgKey = (String) entry.getKey();
+      Entry<String, List<PSDependency>> entry = entries.next();
+      String pkgKey = entry.getKey();
 
       // skip package being removed
       if (pkgKey.equals(pkg.getKey())) continue;
 
       // build combined list of deps already in result map for this pkg
-      List shared = new ArrayList();
-      List resultList = (List) resultMap.get(pkgKey);
+      List<PSDependency> shared = new ArrayList<>();
+      List<PSDependency> resultList = resultMap.get(pkgKey);
       if (resultList != null) shared.addAll(resultList);
-      Iterator deps = ((List) entry.getValue()).iterator();
+      Iterator<PSDependency> deps = entry.getValue().iterator();
       while (deps.hasNext() && allShared) {
-        PSDependency test = (PSDependency) deps.next();
+        PSDependency test = deps.next();
         if (test.canBeIncludedExcluded()) shared.add(test);
         else allShared = false;
       }
@@ -383,15 +383,8 @@ public class PSDependencyContext {
    * @param valMap The map, assumed not <code>null</code> and to have all <code>List</code> values.
    * @return The iterator over all list entries, never <code>null</code>.
    */
-  private Iterator getValueLists(Map valMap) {
-    Iterator allVals = PSIteratorUtils.emptyIterator();
-    Iterator valLists = valMap.values().iterator();
-    while (valLists.hasNext()) {
-      List depList = (List) valLists.next();
-      allVals = PSIteratorUtils.joinedIterator(allVals, depList.iterator());
-    }
-
-    return allVals;
+  private Iterator<PSDependency> getValueLists(Map<String, List<PSDependency>> valMap) {
+    return valMap.values().stream().flatMap(Collection::stream).iterator();
   }
 
   /**
@@ -401,15 +394,15 @@ public class PSDependencyContext {
    * @param dep The dependency to check for, assumed not <code>null</code>.
    * @return The entry, or <code>null</code> if not found. See {@link #m_depMap} for more info.
    */
-  private Map.Entry getPkgEntry(PSDependency dep) {
-    Map.Entry pkgEntry = null;
-    Iterator entries = m_depMap.entrySet().iterator();
+  private Entry<String, List<PSDependency>> getPkgEntry(PSDependency dep) {
+    Entry<String, List<PSDependency>> pkgEntry = null;
+    Iterator<Entry<String, List<PSDependency>>> entries = m_depMap.entrySet().iterator();
     while (entries.hasNext() && pkgEntry == null) {
-      Entry entry = (Entry) entries.next();
-      List testDeps = (List) entry.getValue();
-      Iterator deps = (testDeps).iterator();
+      Entry<String, List<PSDependency>> entry = entries.next();
+      List<PSDependency> testDeps = entry.getValue();
+      Iterator<PSDependency> deps = testDeps.iterator();
       while (deps.hasNext()) {
-        PSDependency testdep = (PSDependency) deps.next();
+        PSDependency testdep = deps.next();
         if (dep == testdep) {
           pkgEntry = entry;
           break;

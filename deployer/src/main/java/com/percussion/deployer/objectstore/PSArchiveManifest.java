@@ -29,7 +29,7 @@ import org.w3c.dom.Element;
  * Encapsulates a list of <code>PSDependencyFile</code> and <code>PSApplicationIDTypes</code>
  * objects (in pairs), and its related <code>PSDependency</code> object (via its key).
  */
-public class PSArchiveManifest implements IPSDeployComponent {
+public final class PSArchiveManifest implements IPSDeployComponent {
   /** Default constructor. */
   public PSArchiveManifest() {}
 

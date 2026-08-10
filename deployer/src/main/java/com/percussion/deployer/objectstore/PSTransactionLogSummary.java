@@ -27,7 +27,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Encapsulates a list of <code>PSTransactionSummary</code> objects */
-public class PSTransactionLogSummary implements IPSDeployComponent {
+public final class PSTransactionLogSummary implements IPSDeployComponent {
 
   /** Constructing a default object. */
   public PSTransactionLogSummary() {}
