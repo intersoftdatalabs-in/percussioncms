@@ -99,7 +99,7 @@ describe("ReducedActions", () => {
     expect(screen.getByTestId("action-preview")).toBeDisabled();
   });
 
-  it("enables the Preview button when a preview handler is supplied", () => {
+  it("disables Preview for folders even when a handler is present (#2733)", () => {
     const { handlers } = makeHandlers();
     render(
       <ReducedActions
@@ -110,7 +110,24 @@ describe("ReducedActions", () => {
         onError={() => undefined}
       />,
     );
-    expect(screen.getByTestId("action-preview")).toBeEnabled();
+    expect(screen.getByTestId("action-preview")).toBeDisabled();
+  });
+
+  it("enables the Preview button for previewable pages when a handler is supplied (#2733)", () => {
+    const { handlers, calls } = makeHandlers();
+    render(
+      <ReducedActions
+        item={READ_ONLY}
+        folder={FOLDER}
+        handlers={handlers}
+        hasPreviewHandler={true}
+        onError={() => undefined}
+      />,
+    );
+    const btn = screen.getByTestId("action-preview");
+    expect(btn).toBeEnabled();
+    fireEvent.click(btn);
+    expect(calls.onPreview).toHaveLength(1);
   });
 
   it("enables delete only on writable folders", () => {

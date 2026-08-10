@@ -33,6 +33,7 @@ import { formatApiError } from "../api/client";
 import { addNewFolder, deleteItem, moveItem, renameFolder } from "../api/contentExplorer/pathApi";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
+import { isPreviewableItem } from "./previewItem";
 import { canAdmin, canWrite, isFolder } from "./selection";
 import { actionButtonStyle, actionsBarStyle } from "./styles";
 import { EXPLORER_MSG } from "./messages";
@@ -72,10 +73,10 @@ export interface ReducedActionsProps {
   /** Set true to render all buttons disabled (e.g. during a server call). */
   busy?: boolean;
   /**
-   * When true, the Preview button is rendered disabled. US1 ships without
-   * a preview pane (lands in US3 / T055); hosts without an explicit preview
-   * handler should pass {@link hasPreviewHandler}={false} to gray the button
-   * instead of letting it no-op silently.
+   * When false, the Preview button stays disabled even if a selection is
+   * present. Product {@link ContentExplorerShell} always supplies a handler
+   * (#2733); hosts without preview pass {@code false} to gray the control
+   * instead of a silent no-op.
    */
   hasPreviewHandler?: boolean;
   /** Fires when an action returns a server error so the shell can surface it. */
@@ -183,6 +184,8 @@ export function ReducedActions({
   }, [handlers, item, runItemAction]);
 
   const isBusy = busy || pending !== null;
+  const previewEnabled =
+    Boolean(item) && hasPreviewHandler && isPreviewableItem(item) && !isBusy;
 
   return (
     <div
@@ -202,10 +205,16 @@ export function ReducedActions({
       </button>
       <button
         type="button"
-        style={actionButtonStyle(!item || !hasPreviewHandler || isBusy)}
-        disabled={!item || !hasPreviewHandler || isBusy}
+        style={actionButtonStyle(!previewEnabled)}
+        disabled={!previewEnabled}
         onClick={handlePreview}
         data-testid="action-preview"
+        aria-label={message(EXPLORER_MSG.ACTION_PREVIEW)}
+        title={
+          item && hasPreviewHandler && !isPreviewableItem(item)
+            ? message(EXPLORER_MSG.PREVIEW_UNAVAILABLE)
+            : message(EXPLORER_MSG.ACTION_PREVIEW)
+        }
       >
         {message(EXPLORER_MSG.ACTION_PREVIEW)}
       </button>
@@ -270,9 +279,10 @@ export function ReducedActions({
  * content item must override {@link ReducedActionHandlers.onOpen} for
  * non-folder items (e.g. delegate to {@code openInEditor}).</p>
  *
- * <p>{@link ReducedActionHandlers.onPreview} is a no-op in US1; the
- * preview pane lands in US3. UI grays out the Preview button when no
- * preview handler is supplied.</p>
+ * <p>{@link ReducedActionHandlers.onPreview} defaults to a no-op here;
+ * {@link ContentExplorerShell} overrides with product {@code openPreviewItem}
+ * (#2733). UI grays out Preview when no handler is supplied or the selection
+ * is not previewable.</p>
  */
 export function defaultReducedActionHandlers(): ReducedActionHandlers {
   return {
@@ -288,7 +298,8 @@ export function defaultReducedActionHandlers(): ReducedActionHandlers {
       return;
     },
     onPreview: () => {
-      // Preview pane lands in US3 (T055). No-op for US1.
+      // Shell supplies openPreviewItem; isolated hosts without a handler
+      // keep Preview disabled via hasPreviewHandler=false.
     },
     onCreateFolder: async (parent, name) => {
       await addNewFolder(parent.path, name);

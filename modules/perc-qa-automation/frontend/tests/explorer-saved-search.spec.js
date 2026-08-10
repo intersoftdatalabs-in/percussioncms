@@ -82,6 +82,8 @@ test.describe("Explorer saved-search picker (#2507 / #2409)", () => {
     const shell = page.locator(`[data-testid="${TEST_IDS.shell}"]`);
     await expect(shell).toBeVisible({ timeout: 20_000 });
 
+    // #2731: search toggle lives under View menu dropdown.
+    await page.locator(`[data-testid="${TEST_IDS.menuView}"]`).click();
     await page.locator(`[data-testid="${TEST_IDS.toggleSearch}"]`).click();
     await expect(
       page.locator(`[data-testid="${TEST_IDS.searchPanelHost}"]`),
@@ -153,6 +155,7 @@ test.describe("Explorer saved-search picker (#2507 / #2409)", () => {
     await expect(
       page.locator(`[data-testid="${TEST_IDS.shell}"]`),
     ).toBeVisible({ timeout: 20_000 });
+    await page.locator(`[data-testid="${TEST_IDS.menuView}"]`).click();
     await page.locator(`[data-testid="${TEST_IDS.toggleSearch}"]`).click();
     await expect(
       page.locator(`[data-testid="${TEST_IDS.searchPanel}"]`),

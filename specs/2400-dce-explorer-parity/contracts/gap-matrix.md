@@ -13,13 +13,13 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Sites/folders tree | `PSNavigationTree` | `ExplorerTree` + path APIs | Present | — |
 | Detail list of children | Main list | `DetailList` + `paginatedFolder` | Present | — |
 | Full product shell composition | Frame + panels | Shell composes search, menus, DF, security on product route | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) (merged) · QA [#2588](https://github.com/intersoftdatalabs-in/percussioncms/issues/2588) |
-| Menu bar (Content / View / Help) | `ContentExplorerMenu.xml` | Not in SPA shell (toolbar/context only) | **Missing** | Deferred shell chrome; no separate child yet (not blocking #2410 / #2409 / #2411) |
-| Server-driven toolbar/context menus | Action manager + server menus | `ActionToolbar` + `ContextMenu` + `actionMenuApi` wired in shell | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) |
+| Menu bar (Content / View / Help) | `ContentExplorerMenu.xml` | `ExplorerMenuBar` on product shell (nested Content/View/Help; view tools under View) | **Present** | #2731 (nested ActionToolbar MENU children also fixed; residual polish under #2730 if any) |
+| Server-driven toolbar/context menus | Action manager + server menus | `ActionToolbar` (nested MENU dropdowns) + `ContextMenu` + `actionMenuApi` wired in shell | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) · nested dropdown fix #2731 |
 | Reduced create/rename/move/copy/delete | Folder actions | `ReducedActions` in shell | Present | — |
-| Open / preview item | Open handlers | `openInEditor`; preview default no-op | **Partial** | preview polish (no dedicated child; track under future shell residual if product prioritizes) |
+| Open / preview item | Open handlers | `openInEditor` + product `openPreviewItem` (page render / asset view URL) from selection | **Present** | #2733 |
 | Multi-select list | Selection model | `multiSelectedIds` / `DetailList` multi-select in shell | **Present** | #2408 · [PR #2522](https://github.com/intersoftdatalabs-in/percussioncms/pull/2522) (merged) |
 | Display formats for columns | Display format catalog | `GET /rest/displayformats?validForFolder=true` + shell selector + `displayProperties` | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) |
-| View options / refresh | View menu | List reload on path change; no full View menu | **Partial** | shell residual with menu bar if prioritized |
+| View options / refresh | View menu | `ExplorerMenuBar` View → Refresh + panel toggles + display format; always-visible refresh residual | **Present** | #2731 · #2733 |
 
 ## Search
 
@@ -59,6 +59,10 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | DCE-only packaging residual | Decommission program after parity |
 
 ## Implementation notes
+
+### 2026-08-10 refresh (menu bar #2731)
+
+- **#2731 Explorer DCE top menu bar:** `ExplorerMenuBar` (Content / View / Help) on `ContentExplorerShell`; view tools nested under View (not multi-row flat buttons). `ActionToolbar` renders `children[]` as nested dropdowns (coordinates with #2730). Vitest + Playwright `explorer-menu-bar.spec.js`. Matrix row **Present**.
 
 ### 2026-08-09 refresh (P-Trans UI #2430)
 

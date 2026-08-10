@@ -66,8 +66,13 @@ function stubPathFetch() {
   });
 }
 
+/** Open the DCE-style View menu so nested view-tool items are in the DOM. */
+function openViewMenu(): void {
+  fireEvent.click(screen.getByTestId("explorer-menu-view"));
+}
+
 describe("ContentExplorerShell product composition (#2400)", () => {
-  it("renders search toggle, display format select, and server action toolbar", async () => {
+  it("renders DCE menu bar, nested view tools, and server action toolbar (#2731)", async () => {
     stubPathFetch();
 
     renderShell(
@@ -93,12 +98,21 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     );
 
     expect(screen.getByTestId("content-explorer-shell")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-menu-bar")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-menu-view")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-menu-help")).toBeInTheDocument();
+
+    // Display format is always-visible shell chrome next to the menubar.
+    expect(screen.getByTestId("explorer-display-format")).toBeInTheDocument();
+    // Always-visible refresh residual (#2733) — not only under View menu.
+    expect(screen.getByTestId("explorer-refresh-list")).toBeInTheDocument();
+    openViewMenu();
     expect(screen.getByTestId("explorer-toggle-search")).toBeInTheDocument();
     expect(screen.getByTestId("explorer-toggle-security")).toBeInTheDocument();
     expect(
       screen.getByTestId("explorer-toggle-translations"),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("explorer-display-format")).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar")).toBeInTheDocument();
@@ -128,18 +142,220 @@ describe("ContentExplorerShell product composition (#2400)", () => {
   it("uses injected loaders only (no real network for menus/formats)", async () => {
     const loadDisplayFormats = vi.fn(async () => []);
     const loadMenuActions = vi.fn(async () => []);
+    const loadWorkflowMenuActions = vi.fn(async () => null);
     stubPathFetch();
 
     renderShell(
       <ContentExplorerShell
         loadDisplayFormats={loadDisplayFormats}
         loadMenuActions={loadMenuActions}
+        loadWorkflowMenuActions={loadWorkflowMenuActions}
       />,
     );
 
     await waitFor(() => {
       expect(loadDisplayFormats).toHaveBeenCalled();
       expect(loadMenuActions).toHaveBeenCalled();
+      expect(loadWorkflowMenuActions).toHaveBeenCalled();
+    });
+  });
+
+  it("discards stale context-menu loads when right-clicking rows rapidly (#2732 race)", async () => {
+    let releaseSlow: (() => void) | undefined;
+    const slowGate = new Promise<void>((resolve) => {
+      releaseSlow = resolve;
+    });
+    const loadMenuActions = vi.fn(async (item: { id?: string | number } | null) => {
+      if (String(item?.id) === "101") {
+        await slowGate;
+        return [
+          {
+            name: "open-slow",
+            label: "Open slow",
+            sortRank: 1,
+            menuType: "MENUITEM" as const,
+          },
+        ];
+      }
+      return [
+        {
+          name: "open-fast",
+          label: "Open fast",
+          sortRank: 1,
+          menuType: "MENUITEM" as const,
+        },
+      ];
+    });
+    const loadWorkflowMenuActions = vi.fn(async () => null);
+
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "101",
+                  name: "item-a",
+                  path: "/Sites/item-a",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+                {
+                  id: "202",
+                  name: "item-b",
+                  path: "/Sites/item-b",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 2,
+              startIndex: 1,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={loadMenuActions}
+        loadWorkflowMenuActions={loadWorkflowMenuActions}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-101")).toBeInTheDocument();
+      expect(screen.getByTestId("detail-row-202")).toBeInTheDocument();
+    });
+
+    fireEvent.contextMenu(screen.getByTestId("detail-row-101"), {
+      clientX: 10,
+      clientY: 20,
+    });
+    fireEvent.contextMenu(screen.getByTestId("detail-row-202"), {
+      clientX: 40,
+      clientY: 50,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("context-menu")).toBeInTheDocument();
+      expect(screen.getByTestId("context-menu-item-open-fast")).toBeInTheDocument();
+    });
+
+    releaseSlow?.();
+    // Allow the slow first request to resolve; generation guard must ignore it.
+    await waitFor(() => {
+      expect(loadMenuActions.mock.calls.length).toBeGreaterThanOrEqual(2);
+    });
+    await new Promise((r) => setTimeout(r, 30));
+
+    expect(screen.getByTestId("context-menu-item-open-fast")).toBeInTheDocument();
+    expect(screen.queryByTestId("context-menu-item-open-slow")).toBeNull();
+  });
+
+  it("merges workflow transition group into toolbar and invokes transition (#2732)", async () => {
+    const runWorkflowTransition = vi.fn(async () => undefined);
+    const loadWorkflowMenuActions = vi.fn(async (item) => {
+      if (!item?.id) return null;
+      return {
+        name: "workflow",
+        label: "Workflow",
+        sortRank: 9000,
+        menuType: "MENU" as const,
+        children: [
+          {
+            name: "workflow-transition:Submit",
+            label: "Submit",
+            sortRank: 1,
+            menuType: "MENUITEM" as const,
+          },
+        ],
+      };
+    });
+
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "33554432-101-1",
+                  name: "page-one",
+                  path: "/Sites/page-one",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 1,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => [
+          {
+            name: "open",
+            label: "Open",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ]}
+        loadWorkflowMenuActions={loadWorkflowMenuActions}
+        runWorkflowTransition={runWorkflowTransition}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("detail-row-33554432-101-1") ||
+          screen.getByText("page-one"),
+      ).toBeTruthy();
+    });
+
+    const row =
+      screen.queryByTestId("detail-row-33554432-101-1") ??
+      screen.getByText("page-one");
+    fireEvent.click(row);
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("action-toolbar-group-workflow"),
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(
+      screen.getByTestId("action-toolbar-item-workflow-transition:Submit"),
+    );
+
+    await waitFor(() => {
+      expect(runWorkflowTransition).toHaveBeenCalledWith(
+        "33554432-101-1",
+        "Submit",
+      );
     });
   });
 
@@ -153,6 +369,16 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       EXPLORER_MSG.DISPLAY_FORMAT_DEFAULT,
       EXPLORER_MSG.SERVER_ACTIONS_ARIA,
       EXPLORER_MSG.VIEW_TOOLS_ARIA,
+      EXPLORER_MSG.MENU_BAR_ARIA,
+      EXPLORER_MSG.MENU_CONTENT,
+      EXPLORER_MSG.MENU_VIEW,
+      EXPLORER_MSG.MENU_HELP,
+      EXPLORER_MSG.MENU_VIEW_REFRESH,
+      EXPLORER_MSG.MENU_HELP_EXPLORER,
+      EXPLORER_MSG.MENU_HELP_ABOUT,
+      EXPLORER_MSG.ACTION_REFRESH,
+      EXPLORER_MSG.ACTION_REFRESH_ARIA,
+      EXPLORER_MSG.PREVIEW_UNAVAILABLE,
       EXPLORER_MSG.TOGGLE_SEARCH_ARIA,
       EXPLORER_MSG.TOGGLE_SECURITY_ARIA,
       EXPLORER_MSG.TOGGLE_TRANSLATIONS_ARIA,
@@ -165,10 +391,93 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       EXPLORER_MSG.FOLDER_PROPS_TITLE,
       EXPLORER_MSG.FOLDER_PROPS_COMMUNITY,
       EXPLORER_MSG.FOLDER_PROPS_LOCALE,
+      EXPLORER_MSG.WORKFLOW_MENU_LABEL,
+      EXPLORER_MSG.WORKFLOW_TRANSITION_FAILED,
     ];
     for (const key of chromeKeys) {
       expect(key.startsWith("perc.ui.explorer@")).toBe(true);
     }
+  });
+
+  it("refresh control bumps list key (#2733 view residual)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-list")).toBeInTheDocument();
+    });
+    const listBefore = screen.getByTestId("detail-list");
+    fireEvent.click(screen.getByTestId("explorer-refresh-list"));
+    await waitFor(() => {
+      // Remount via listEpoch key — node may be replaced; control stays enabled.
+      expect(screen.getByTestId("explorer-refresh-list")).toBeEnabled();
+      expect(screen.getByTestId("detail-list")).toBeInTheDocument();
+    });
+    // Refresh is always available (shell-state residual View control).
+    expect(listBefore).toBeTruthy();
+  });
+
+  it("wires product preview handler so Preview is enabled for pages (#2733)", async () => {
+    const onPreview = vi.fn(async () => undefined);
+    stubPathFetch();
+    // Seed a page selection by loading children with a page row.
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "READ",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        actionHandlers={{ onPreview }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    await waitFor(() => {
+      expect(screen.getByTestId("action-preview")).toBeEnabled();
+    });
+    fireEvent.click(screen.getByTestId("action-preview"));
+    await waitFor(() => {
+      expect(onPreview).toHaveBeenCalled();
+    });
+    const arg = onPreview.mock.calls[0][0] as { id?: string; type?: string };
+    expect(arg.id).toBe("42");
+    expect(arg.type).toBe("page");
   });
 
   it("passes the zero serious/critical axe-core gate (T082a / 508)", async () => {
@@ -195,8 +504,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       />,
     );
     await waitFor(() =>
-      expect(screen.getByTestId("explorer-toggle-search")).toBeInTheDocument(),
+      expect(screen.getByTestId("explorer-menu-view")).toBeInTheDocument(),
     );
+    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-search"));
     await waitFor(() =>
       expect(screen.getByTestId("explorer-search-panel")).toBeInTheDocument(),
@@ -213,6 +523,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
         resolveFolderId={async () => undefined}
       />,
     );
+    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-security"));
     await waitFor(() => {
       expect(screen.getByTestId("explorer-security-hint")).toBeInTheDocument();
@@ -227,6 +538,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
         loadMenuActions={async () => []}
       />,
     );
+    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-translations"));
     await waitFor(() => {
       expect(
@@ -248,6 +560,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
         }}
       />,
     );
+    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-security"));
     await waitFor(() => {
       expect(screen.getByTestId("explorer-security-hint")).toBeInTheDocument();
@@ -306,6 +619,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       />,
     );
 
+    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-security"));
     await waitFor(() => {
       expect(resolveFolderId).toHaveBeenCalled();

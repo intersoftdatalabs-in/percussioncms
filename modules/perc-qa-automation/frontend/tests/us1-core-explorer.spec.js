@@ -73,7 +73,14 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     await expect(page.locator('[data-testid="action-move"]')).toBeVisible();
     await expect(page.locator('[data-testid="action-copy"]')).toBeVisible();
     await expect(page.locator('[data-testid="action-delete"]')).toBeVisible();
-    // #2400 product shell composition: search, security, display format, server actions
+    // #2400 / #2731 product shell: DCE menu bar + server actions; view tools nest under View.
+    await expect(
+      page.locator('[data-testid="explorer-menu-bar"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="explorer-menu-view"]'),
+    ).toBeVisible();
+    await page.locator('[data-testid="explorer-menu-view"]').click();
     await expect(
       page.locator('[data-testid="explorer-toggle-search"]'),
     ).toBeVisible();
@@ -89,12 +96,13 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     await expect(page.locator('[data-testid="action-toolbar"]')).toBeVisible();
   });
 
-  test("Explorer shell opens search panel from view tools (#2400)", async ({
+  test("Explorer shell opens search panel from View menu (#2400 / #2731)", async ({
     page,
   }) => {
     await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
     const shell = page.locator('[data-testid="content-explorer-shell"]');
     await expect(shell).toBeVisible({ timeout: 15_000 });
+    await page.locator('[data-testid="explorer-menu-view"]').click();
     await page.locator('[data-testid="explorer-toggle-search"]').click();
     await expect(
       page.locator('[data-testid="explorer-search-panel"]'),
@@ -147,6 +155,7 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     await expect(
       page.locator('[data-testid="content-explorer-shell"]'),
     ).toBeVisible({ timeout: 15_000 });
+    await page.locator('[data-testid="explorer-menu-view"]').click();
     await page.locator('[data-testid="explorer-toggle-search"]').click();
     await expect(
       page.locator('[data-testid="explorer-search-panel"]'),

@@ -40,6 +40,12 @@ export const EXPLORER_MSG = {
   COL_WORKFLOW: "perc.ui.explorer@Workflow",
   ACTION_OPEN: "perc.ui.explorer@Open",
   ACTION_PREVIEW: "perc.ui.explorer@Preview",
+  /** View residual: reload detail list for the current folder (#2733). */
+  ACTION_REFRESH: "perc.ui.explorer@Refresh",
+  ACTION_REFRESH_ARIA: "perc.ui.explorer@Refresh the current folder list",
+  PREVIEW_UNAVAILABLE:
+    "perc.ui.explorer@Preview is not available for this item",
+  PREVIEW_OPEN_ERROR: "perc.ui.explorer@Could not open preview",
   ACTION_CREATE_FOLDER: "perc.ui.explorer@Create Folder",
   ACTION_RENAME: "perc.ui.explorer@Rename",
   ACTION_MOVE: "perc.ui.explorer@Move",
@@ -135,6 +141,16 @@ export const EXPLORER_MSG = {
   SERVER_ACTIONS_ARIA: "perc.ui.explorer@Server actions",
   /** Product shell: view tools row (search / security / display format). */
   VIEW_TOOLS_ARIA: "perc.ui.explorer@Explorer view tools",
+  /** DCE-style top menu bar (#2731 / ContentExplorerMenu.xml groups). */
+  MENU_BAR_ARIA: "perc.ui.explorer@Explorer menu bar",
+  MENU_CONTENT: "perc.ui.explorer@Content",
+  MENU_VIEW: "perc.ui.explorer@View",
+  MENU_HELP: "perc.ui.explorer@Help",
+  MENU_VIEW_REFRESH: "perc.ui.explorer@Refresh",
+  MENU_HELP_EXPLORER: "perc.ui.explorer@Content Explorer help",
+  MENU_HELP_ABOUT: "perc.ui.explorer@About Content Explorer",
+  MENU_HELP_ABOUT_BODY:
+    "perc.ui.explorer@Percussion CMS Content Explorer — modern SPA shell (DCE parity program).",
   TOGGLE_SEARCH_ARIA: "perc.ui.explorer@Show or hide search",
   TOGGLE_SECURITY_ARIA: "perc.ui.explorer@Show or hide folder security",
   SEARCH_PANEL_REGION: "perc.ui.explorer@Search panel",
@@ -216,4 +232,9 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Created {count} translation variants",
   TRANSLATIONS_INFLIGHT_OUT:
     "perc.ui.explorer@In-flight translation queue status is not available (product disposition).",
+  // Workflow transitions in Explorer menus (#2732 / parent #2400)
+  WORKFLOW_MENU_LABEL: "perc.ui.explorer@Workflow",
+  WORKFLOW_TRANSITION_FAILED:
+    "perc.ui.explorer@Workflow transition failed",
+  // Success path refreshes the list silently (error banner is fail-only).
 } as const;

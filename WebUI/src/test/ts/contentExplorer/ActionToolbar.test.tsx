@@ -63,4 +63,72 @@ describe("ActionToolbar", () => {
     const { container } = render(<ActionToolbar actions={[]} ariaLabel="Item actions" />);
     await renderA11yGate(container);
   });
+
+  it("renders MENU parents with children as nested dropdowns (#2730/#2731)", () => {
+    const nested: MenuAction[] = [
+      {
+        name: "new",
+        label: "New",
+        sortRank: 0,
+        menuType: "MENU",
+        children: [
+          {
+            name: "new-folder",
+            label: "Folder",
+            sortRank: 0,
+            menuType: "MENUITEM",
+          },
+          {
+            name: "new-page",
+            label: "Page",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ],
+      },
+      { name: "open", label: "Open", sortRank: 1, menuType: "MENUITEM" },
+    ];
+    const onInvoke = vi.fn();
+    render(<ActionToolbar actions={nested} onInvoke={onInvoke} />);
+
+    // Parent is a single toolbar control — not three flat buttons.
+    expect(screen.getByTestId("action-toolbar-item-new")).toBeTruthy();
+    expect(screen.queryByTestId("action-toolbar-item-new-folder")).toBeNull();
+    expect(screen.getByTestId("action-toolbar-item-open")).toBeTruthy();
+
+    fireEvent.click(screen.getByTestId("action-toolbar-item-new"));
+    expect(screen.getByTestId("action-toolbar-menu-new")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("action-toolbar-item-new-folder"));
+    expect(onInvoke).toHaveBeenCalledWith(
+      "new-folder",
+      expect.objectContaining({ name: "new-folder" }),
+    );
+  });
+
+  it("renders cascading Workflow children as a labeled group (#2732)", () => {
+    const onInvoke = vi.fn();
+    const actions: MenuAction[] = [
+      {
+        name: "workflow",
+        label: "Workflow",
+        sortRank: 9000,
+        menuType: "MENU",
+        children: [
+          {
+            name: "workflow-transition:Submit",
+            label: "Submit",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ],
+      },
+    ];
+    render(<ActionToolbar actions={actions} onInvoke={onInvoke} />);
+    expect(screen.getByTestId("action-toolbar-group-workflow")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("action-toolbar-item-workflow-transition:Submit"));
+    expect(onInvoke).toHaveBeenCalledWith(
+      "workflow-transition:Submit",
+      expect.objectContaining({ label: "Submit" }),
+    );
+  });
 });

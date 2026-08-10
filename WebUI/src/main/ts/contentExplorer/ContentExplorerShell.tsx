@@ -17,12 +17,19 @@
 /**
  * ContentExplorerShell — product Explorer route shell (feature 992 + #2400).
  *
- * <p>Composes tree, detail list, reduced actions, server-driven action
- * toolbar, context menu, search panel, and display-format selector so the
- * SPA route approaches Desktop Content Explorer parity.</p>
+ * <p>Composes DCE-style top menu bar (Content / View / Help), tree, detail
+ * list, reduced actions, server-driven action toolbar (with nested MENU
+ * dropdowns), context menu, search panel, and display-format selector so the
+ * SPA route approaches Desktop Content Explorer parity (#2400 / #2731).</p>
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   findActions,
   findAllowedContentTypeMenus,
@@ -33,6 +40,10 @@ import {
   normalizeDisplayFormatColumns,
   type DisplayFormat,
 } from "../api/contentExplorer/displayFormatsApi";
+import {
+  getItemWorkflowTransitions,
+  transitionItem,
+} from "../api/contentExplorer/itemWorkflowApi";
 import { findItemByPath } from "../api/contentExplorer/pathApi";
 import type {
   Clipboard,
@@ -53,10 +64,13 @@ import {
   displayFormatOptionKey,
   toDetailDisplayFormat,
 } from "./displayFormatMap";
+import { ExplorerMenuBar } from "./ExplorerMenuBar";
 import { ExplorerTree } from "./ExplorerTree";
 import { FolderSecurityPanel } from "./FolderSecurityPanel";
+import type { ExplorerMenuCommandId } from "./menuBarModel";
 import { EXPLORER_MSG } from "./messages";
 import { openInEditor } from "./openInEditor";
+import { openPreviewItem } from "./previewItem";
 import {
   ReducedActions,
   defaultReducedActionHandlers,
@@ -71,6 +85,11 @@ import {
   shellStyle,
 } from "./styles";
 import { TranslationsPanel } from "./TranslationsPanel";
+import {
+  buildWorkflowTransitionMenu,
+  mergeWorkflowMenuActions,
+  parseWorkflowTransitionTrigger,
+} from "./workflowMenuActions";
 
 export interface ContentExplorerShellProps {
   /** Folder path to display on mount; defaults to product root. */
@@ -89,6 +108,14 @@ export interface ContentExplorerShellProps {
   /** Test seam: override action menu load. */
   loadMenuActions?: (item: PSPathItem | null) => Promise<MenuAction[]>;
   /**
+   * Test seam: override workflow-transition menu enrichment for a selected
+   * content item (#2732). Default loads triggers via itemmanagement.
+   * Return {@code null} to skip workflow group (folders / no triggers).
+   */
+  loadWorkflowMenuActions?: (
+    item: PSPathItem | null,
+  ) => Promise<MenuAction | null>;
+  /**
    * Identities for folder ACL self-lockout (USER name + ROLE names).
    * When omitted, derived from SPA bootstrap ({@code userName}, admin/designer
    * flags). Tests inject an explicit list so lockout gates stay deterministic.
@@ -99,6 +126,14 @@ export interface ContentExplorerShellProps {
    * Default uses pathmanagement {@link findItemByPath}.
    */
   resolveFolderId?: (path: string) => Promise<string | undefined>;
+  /**
+   * Test seam: execute a workflow transition. Default uses itemmanagement
+   * {@code transitionWithComments}.
+   */
+  runWorkflowTransition?: (
+    itemId: string,
+    trigger: string,
+  ) => Promise<void>;
 }
 
 type ContextMenuState = {
@@ -158,6 +193,14 @@ function parseContentId(id: string | undefined): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/** True when the selection can receive workflow transitions (not a folder). */
+function isWorkflowEligibleItem(item: PSPathItem | null | undefined): boolean {
+  if (!item) return false;
+  if (item.type === "folder") return false;
+  const id = item.id != null ? String(item.id).trim() : "";
+  return id.length > 0;
+}
+
 async function defaultLoadMenuActions(
   item: PSPathItem | null,
 ): Promise<MenuAction[]> {
@@ -170,6 +213,35 @@ async function defaultLoadMenuActions(
   }
   const menus = await findActions({ item: true });
   return mapActionMenusToMenuActions(menus);
+}
+
+/**
+ * Load Workflow cascade from itemmanagement allowed transitions.
+ * Returns {@code null} when the item is ineligible or has no triggers.
+ */
+async function defaultLoadWorkflowMenuActions(
+  item: PSPathItem | null,
+): Promise<MenuAction | null> {
+  if (!isWorkflowEligibleItem(item)) {
+    return null;
+  }
+  try {
+    const state = await getItemWorkflowTransitions(String(item!.id));
+    return buildWorkflowTransitionMenu(state?.transitionTriggers ?? [], {
+      groupLabel: message(EXPLORER_MSG.WORKFLOW_MENU_LABEL),
+      stateName: state?.stateName,
+    });
+  } catch {
+    // Non-fatal: keep server action menus without workflow group.
+    return null;
+  }
+}
+
+async function defaultRunWorkflowTransition(
+  itemId: string,
+  trigger: string,
+): Promise<void> {
+  await transitionItem(itemId, trigger);
 }
 
 /** Stable default — module scope so useEffect deps do not refetch every render. */
@@ -197,8 +269,10 @@ export function ContentExplorerShell({
   onFolderActivated,
   loadDisplayFormats = defaultLoadDisplayFormats,
   loadMenuActions = defaultLoadMenuActions,
+  loadWorkflowMenuActions = defaultLoadWorkflowMenuActions,
   currentUserIdentities: currentUserIdentitiesProp,
   resolveFolderId = defaultResolveFolderId,
+  runWorkflowTransition = defaultRunWorkflowTransition,
 }: ContentExplorerShellProps): React.ReactElement {
   const bootstrap = useSpaBootstrap();
   const currentUserIdentities = useMemo(() => {
@@ -233,6 +307,12 @@ export function ContentExplorerShell({
   const [selectedFormatKey, setSelectedFormatKey] = useState<string>("");
   const [menuActions, setMenuActions] = useState<MenuAction[]>([]);
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
+  /**
+   * Monotonic generation for context-menu loads. Rapid right-clicks on
+   * different rows race two async IIFEs; only the latest generation may
+   * call setContextMenu (avoids stale workflow menus at the first item's XY).
+   */
+  const contextMenuRequestIdRef = useRef(0);
   const [listEpoch, setListEpoch] = useState(0);
   const [multiSelectedIds, setMultiSelectedIds] = useState<ReadonlySet<string>>(
     () => new Set<string>(),
@@ -257,9 +337,21 @@ export function ContentExplorerShell({
       }
       onOpenItem(item);
     },
-    onPreview: actionHandlers?.onPreview ?? (() => undefined),
+    // Product default: Finder-equivalent page/asset preview (#2733). Hosts
+    // may still override via actionHandlers.onPreview.
+    onPreview:
+      actionHandlers?.onPreview ??
+      (async (item) => {
+        await openPreviewItem(item);
+      }),
   };
-  const hasPreviewHandler = Boolean(actionHandlers?.onPreview);
+  // Always true for product shell (built-in openPreviewItem); override still counts.
+  const hasPreviewHandler = true;
+
+  const handleRefreshList = useCallback(() => {
+    setListEpoch((n) => n + 1);
+    setError(null);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -283,17 +375,27 @@ export function ContentExplorerShell({
 
   useEffect(() => {
     let cancelled = false;
-    loadMenuActions(selection.item)
-      .then((actions) => {
-        if (!cancelled) setMenuActions(actions ?? []);
-      })
-      .catch(() => {
+    async function loadMenus(): Promise<void> {
+      try {
+        const base = await loadMenuActions(selection.item);
+        if (cancelled) return;
+        let workflow: MenuAction | null = null;
+        try {
+          workflow = await loadWorkflowMenuActions(selection.item);
+        } catch {
+          workflow = null;
+        }
+        if (cancelled) return;
+        setMenuActions(mergeWorkflowMenuActions(base ?? [], workflow));
+      } catch {
         if (!cancelled) setMenuActions([]);
-      });
+      }
+    }
+    void loadMenus();
     return () => {
       cancelled = true;
     };
-  }, [selection.item, loadMenuActions, listEpoch]);
+  }, [selection.item, loadMenuActions, loadWorkflowMenuActions, listEpoch]);
 
   const selectedFormat = useMemo(() => {
     if (!selectedFormatKey) return null;
@@ -394,15 +496,72 @@ export function ContentExplorerShell({
   const handleItemContextMenu = useCallback(
     (item: PSPathItem, clientX: number, clientY: number) => {
       setSelection((prev) => ({ ...prev, item }));
-      void loadMenuActions(item).then((actions) => {
-        setContextMenu({
-          actions: actions ?? [],
-          x: clientX,
-          y: clientY,
-        });
-      });
+      const requestId = ++contextMenuRequestIdRef.current;
+      void (async () => {
+        try {
+          const base = await loadMenuActions(item);
+          if (requestId !== contextMenuRequestIdRef.current) return;
+          let workflow: MenuAction | null = null;
+          try {
+            workflow = await loadWorkflowMenuActions(item);
+          } catch {
+            workflow = null;
+          }
+          if (requestId !== contextMenuRequestIdRef.current) return;
+          setContextMenu({
+            actions: mergeWorkflowMenuActions(base ?? [], workflow),
+            x: clientX,
+            y: clientY,
+          });
+        } catch {
+          if (requestId !== contextMenuRequestIdRef.current) return;
+          setContextMenu({
+            actions: [],
+            x: clientX,
+            y: clientY,
+          });
+        }
+      })();
     },
-    [loadMenuActions],
+    [loadMenuActions, loadWorkflowMenuActions],
+  );
+
+  /**
+   * Route toolbar / context-menu activations. Workflow transition names are
+   * client-tagged ({@code workflow-transition:Trigger}); other actions fall
+   * through to list refresh (URL actions already navigated in the child).
+   */
+  const handleMenuInvoke = useCallback(
+    (actionName: string, _action: MenuAction) => {
+      const trigger = parseWorkflowTransitionTrigger(actionName);
+      if (trigger != null) {
+        const item = selection.item;
+        const itemId =
+          item?.id != null && isWorkflowEligibleItem(item)
+            ? String(item.id)
+            : "";
+        if (!itemId) {
+          setError(message(EXPLORER_MSG.WORKFLOW_TRANSITION_FAILED));
+          return;
+        }
+        void (async () => {
+          try {
+            await runWorkflowTransition(itemId, trigger);
+            setError(null);
+            setListEpoch((n) => n + 1);
+          } catch (err: unknown) {
+            const detail =
+              err instanceof Error && err.message
+                ? err.message
+                : message(EXPLORER_MSG.WORKFLOW_TRANSITION_FAILED);
+            setError(detail);
+          }
+        })();
+        return;
+      }
+      setListEpoch((n) => n + 1);
+    },
+    [selection.item, runWorkflowTransition],
   );
 
   const handleSearchOpen = useCallback((result: PSItemProperties) => {
@@ -422,6 +581,50 @@ export function ContentExplorerShell({
       setShowSearch(false);
     }
   }, []);
+
+  const handleMenuBarCommand = useCallback(
+    (id: ExplorerMenuCommandId) => {
+      switch (id) {
+        case "content-search":
+        case "view-search":
+          setShowSearch((v) => !v);
+          break;
+        case "content-clipboard-add":
+          handleAddToClipboard();
+          break;
+        case "view-refresh":
+          handleRefreshList();
+          break;
+        case "view-security":
+          setShowSecurity((v) => !v);
+          break;
+        case "view-translations":
+          setShowTranslations((v) => !v);
+          break;
+        case "view-clipboard":
+          setShowClipboard((v) => !v);
+          break;
+        case "help-explorer":
+          // Product help site — open in a new tab when available.
+          if (typeof window !== "undefined") {
+            window.open(
+              "https://percussioncmshelp.intsof.com/",
+              "_blank",
+              "noopener,noreferrer",
+            );
+          }
+          break;
+        case "help-about":
+          if (typeof window !== "undefined") {
+            window.alert(message(EXPLORER_MSG.MENU_HELP_ABOUT_BODY));
+          }
+          break;
+        default:
+          break;
+      }
+    },
+    [handleAddToClipboard, handleRefreshList],
+  );
 
   const folderForActions: PSPathItem | null =
     selection.item?.type === "folder"
@@ -477,6 +680,18 @@ export function ContentExplorerShell({
       <header style={headerStyle}>
         <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
           <h1 style={headerTitleStyle}>{message(EXPLORER_MSG.TITLE)}</h1>
+          <ExplorerMenuBar
+            showSearch={showSearch}
+            showSecurity={showSecurity}
+            showTranslations={showTranslations}
+            showClipboard={showClipboard}
+            multiSelectedCount={multiSelectedIds.size}
+            clipboardItemCount={clipboard.items.length}
+            displayFormats={displayFormats}
+            selectedFormatKey={selectedFormatKey}
+            onSelectFormat={setSelectedFormatKey}
+            onCommand={handleMenuBarCommand}
+          />
           <div style={toolRowStyle}>
             <ReducedActions
               item={selection.item}
@@ -495,12 +710,10 @@ export function ContentExplorerShell({
             <ActionToolbar
               actions={menuActions}
               ariaLabel={message(EXPLORER_MSG.SERVER_ACTIONS_ARIA)}
-              onInvoke={() => {
-                // Server URL actions navigate; client-only refresh list.
-                setListEpoch((n) => n + 1);
-              }}
+              onInvoke={handleMenuInvoke}
             />
           </div>
+          {/* Always-visible refresh residual (#2733); View menu also has Refresh (#2731). */}
           <div
             style={toolRowStyle}
             data-testid="explorer-view-tools"
@@ -509,104 +722,13 @@ export function ContentExplorerShell({
           >
             <button
               type="button"
-              data-testid="explorer-toggle-search"
-              aria-pressed={showSearch}
-              aria-expanded={showSearch}
-              aria-controls="explorer-search-panel"
-              aria-label={message(EXPLORER_MSG.TOGGLE_SEARCH_ARIA)}
-              onClick={() => setShowSearch((v) => !v)}
+              data-testid="explorer-refresh-list"
+              aria-label={message(EXPLORER_MSG.ACTION_REFRESH_ARIA)}
+              title={message(EXPLORER_MSG.ACTION_REFRESH_ARIA)}
+              onClick={handleRefreshList}
             >
-              {message(EXPLORER_MSG.SEARCH_TITLE)}
+              {message(EXPLORER_MSG.ACTION_REFRESH)}
             </button>
-            <button
-              type="button"
-              data-testid="explorer-toggle-security"
-              aria-pressed={showSecurity}
-              aria-expanded={showSecurity}
-              aria-controls="explorer-security-panel"
-              aria-label={message(EXPLORER_MSG.TOGGLE_SECURITY_ARIA)}
-              onClick={() => setShowSecurity((v) => !v)}
-            >
-              {message(EXPLORER_MSG.SECURITY_TITLE)}
-            </button>
-            <button
-              type="button"
-              data-testid="explorer-toggle-translations"
-              aria-pressed={showTranslations}
-              aria-expanded={showTranslations}
-              aria-controls="explorer-translations-panel"
-              aria-label={message(EXPLORER_MSG.TOGGLE_TRANSLATIONS_ARIA)}
-              onClick={() => setShowTranslations((v) => !v)}
-            >
-              {message(EXPLORER_MSG.TRANSLATIONS_TITLE)}
-            </button>
-            <button
-              type="button"
-              data-testid="explorer-toggle-clipboard"
-              aria-pressed={showClipboard}
-              aria-expanded={showClipboard}
-              aria-controls="explorer-clipboard-panel"
-              aria-label={message(EXPLORER_MSG.TOGGLE_CLIPBOARD_ARIA)}
-              onClick={() => setShowClipboard((v) => !v)}
-              disabled={multiSelectedIds.size === 0 && clipboard.items.length === 0}
-            >
-              {message(EXPLORER_MSG.CLIPBOARD_TITLE)}
-              {multiSelectedIds.size > 0 ? (
-                <span
-                  data-testid="explorer-multi-select-count"
-                  style={{ marginLeft: 6, color: "#888" }}
-                >
-                  (
-                  {multiSelectedIds.size === 1
-                    ? message(EXPLORER_MSG.SELECTED_COUNT_SINGULAR)
-                    : message(EXPLORER_MSG.SELECTED_COUNT_PLURAL).replace(
-                        "{count}",
-                        String(multiSelectedIds.size),
-                      )}
-                  )
-                </span>
-              ) : null}
-            </button>
-            <button
-              type="button"
-              data-testid="explorer-clipboard-add"
-              disabled={multiSelectedIds.size === 0}
-              onClick={handleAddToClipboard}
-              aria-label={message(EXPLORER_MSG.CLIPBOARD_ADD)}
-            >
-              {message(EXPLORER_MSG.CLIPBOARD_ADD)}
-            </button>
-            <label
-              htmlFor="explorer-display-format"
-              style={{ display: "inline-flex", gap: 6, alignItems: "center" }}
-            >
-              <span id="explorer-display-format-label">
-                {message(EXPLORER_MSG.DISPLAY_FORMAT_LABEL)}
-              </span>
-              <select
-                id="explorer-display-format"
-                data-testid="explorer-display-format"
-                value={selectedFormatKey}
-                onChange={(e) => setSelectedFormatKey(e.target.value)}
-                aria-labelledby="explorer-display-format-label"
-              >
-                <option value="">
-                  {message(EXPLORER_MSG.DISPLAY_FORMAT_DEFAULT)}
-                </option>
-                {displayFormats.map((df) => {
-                  const key = displayFormatOptionKey(df);
-                  if (!key) return null;
-                  // Server catalog labels (displayName/label/name) are
-                  // CMS design data, not product chrome — not TMX keys.
-                  const label = df.displayName || df.label || df.name || key;
-                  return (
-                    <option key={key} value={key}>
-                      {label}
-                    </option>
-                  );
-                })}
-              </select>
-            </label>
           </div>
         </div>
       </header>
@@ -766,9 +888,9 @@ export function ContentExplorerShell({
           <ContextMenu
             actions={contextMenu.actions}
             onClose={() => setContextMenu(null)}
-            onInvoke={() => {
+            onInvoke={(actionName, action) => {
               setContextMenu(null);
-              setListEpoch((n) => n + 1);
+              handleMenuInvoke(actionName, action);
             }}
           />
         </div>
