@@ -12,7 +12,7 @@ Unattended overnight worker:
 2. **Discover** open GitHub issues — **maintainer authors only** (default) + flag destructive-instruction safety  
 3. **Triage** (implement / split / skip) — **priority-first** (no p7/p8 while higher work exists); oversized p1–p6 → **create 3 PR-sized slices** into the pool; hard-skip non-maintainer / destructive  
 4. **Peer PR review** (optional, default on) - independent code review of open PRs **missing reviews** that are **co-authored by another model** or have **no `model:*` labels** (agent-shaped only); **APPROVE** when solid; **squash-merge** when checks green + threads clear (`allow_peer_squash_merge`, default true)  
-5. **Work** sequential implement or split - **claim-check** maintainer author + safety + **In Progress** just before start; **file residual follow-up issues only when real work remains** (no residual-quota phase / no minimum count)  
+5. **Work** sequential implement or split - **claim-check** maintainer author + safety + **In Progress** just before start; **file residual follow-up issues only when real work remains** (no residual-quota phase / no minimum count); **Maven build gates** (below)  
 6. **PR follow-up POST** - catch PRs opened this run + remaining merge blockers  
 7. **PR cluster** (optional, default on) - absorb same-file thrash into one superseding PR  
 8. **Security audit** (optional, default on) - if open CodeQL code-scanning alerts exist, ensure **one** open tracking issue `[night-issues: Security Audit - Fix Pass]` per `base_branch`, then open capped mitigation PRs  
@@ -29,6 +29,24 @@ Unattended overnight worker:
 | **Phase A — higher work** | p1 → p6 (then Unset): implement-ready items **and** PR-sized **slices** from oversized work. **Never** queue p7/p8 while any eligible higher item remains (including large but sliceable epics) |
 | **Phase B — backfill** | Once Phase A cannot produce more priority items (after 3-slice expansion), **p7/p8 may fill remaining slots** — unused priority_slots **and** reserved `low_slots`. Intentional tech-debt burn when important work is done |
 | **prefer_easy** | Secondary **within** the same pN tier only — never a reason to pick p8 during Phase A |
+
+**p7/p8 does not relax build quality.** Tech-debt / Xlint batches use the same Maven gates as p1 work.
+
+### Work Maven build gates (HARD — 2026-08-10)
+
+Learned from **#2700 / #2761**: making `PSComponentSummary` `final` in **system** greened that module only; **perc-toolkit** `testCompile` failed because tests used double-brace anonymous subclasses. GitHub CI on night PRs is largely CodeQL — not monorepo Maven — so local gates must catch reverse-deps.
+
+| Gate | Requirement |
+|------|-------------|
+| **C1 — changed modules** | For **each** changed Maven module: standalone `mvnw clean install` from the module dir (includes **testCompile** + tests). **No** `-DskipTests` / `-Dmaven.test.skip`. **No** “when practical.” |
+| **C2 — API shape / reverse-deps** | When a type becomes `final`/`sealed`, or public/protected (or package-visible cross-module) API signatures change: (1) monorepo grep for `extends <Type>` and `new <Type>() {`; (2) standalone clean install on **known reverse-deps** (e.g. system/objectstore → `modules/perc-toolkit`; rest → `projects/sitemanage`). |
+| **C3 — evidence** | Structured Work result + PR body must include `modules_built`, `build_evidence` (commands + BUILD SUCCESS / Tests run: N), and `downstream_checked` (`none` only when C2 did not apply). |
+
+Hard bans:
+
+* Open PR after only `compile` (without test-compile) or only a single focused unit test class when the module suite is the gate.
+* Claim “install green” without recording the command in `build_evidence`.
+* Treat p8 as exempt from C1–C3.
 
 ### Oversized priority work → 3 slices into the pool
 

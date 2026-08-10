@@ -121,6 +121,9 @@ let triage_schema = #{
     },
 };
 
+// Work result schema. When status=pr_opened, agents MUST fill build_evidence + modules_built
+// (and downstream_checked when API shape changed). Soft self-reports without commands are a known
+// failure mode (e.g. system final type broke perc-toolkit testCompile — #2700 / #2761).
 let work_schema = #{
     "type": "object",
     "required": ["status", "issue_number", "summary"],
@@ -133,6 +136,12 @@ let work_schema = #{
         "child_issue_urls": #{ "type": "string" },
         "residual_issue_urls": #{ "type": "string" },
         "commit_sha": #{ "type": "string" },
+        // e.g. "cd system && ../../mvnw clean install → BUILD SUCCESS; Tests run: N"
+        "build_evidence": #{ "type": "string" },
+        // comma-separated Maven module dirs that received standalone clean install
+        "modules_built": #{ "type": "string" },
+        // "none" | downstream modules built / greps run for final|signature changes
+        "downstream_checked": #{ "type": "string" },
     },
 };
 
@@ -403,7 +412,11 @@ pr_prompt_core += "   per thread (no multi-minute poll loops). Outdated fixed th
 pr_prompt_core += "   reply+resolve. Never top-level-only substitute.\n";
 pr_prompt_core += "C) Judgment / multi-day / out-of-scope: leave thread OPEN, inline residual issue\n";
 pr_prompt_core += "   URL; do NOT resolve. Count under blocked.\n";
-pr_prompt_core += "Gates when you change code: standalone clean install when practical; module tests.\n";
+pr_prompt_core += "Gates when you change code (HARD — not optional / not 'when practical'):\n";
+pr_prompt_core += "  For each changed Maven module: standalone `mvnw clean install` (cd module).\n";
+pr_prompt_core += "  clean install includes testCompile + tests. Do not open/update a PR if install fails.\n";
+pr_prompt_core += "  If you change a shared type to final/sealed or change a public API signature: also\n";
+pr_prompt_core += "  greps + clean install known reverse-deps (see Work IMPLEMENTATION GATES C2/C3).\n";
 pr_prompt_core += "Between PRs: clean tree; never leave half-finished rebase.\n";
 pr_prompt_core += "When selected PRs are done (or no owned conflict/thread work remains), RETURN\n";
 pr_prompt_core += "immediately so the workflow can enter the next phase.\n\n";
@@ -1264,10 +1277,29 @@ for item in queue {
             work_prompt += "titles in summary, DO NOT commit, push, open a PR, or create issues.\n";
             work_prompt += "status=dry_run\n";
         } else {
-            work_prompt += "IMPLEMENTATION GATES (all required before PR):\n";
+            work_prompt += "IMPLEMENTATION GATES (all required before PR — priority p1–p8 does NOT relax these):\n";
             work_prompt += "A) Implement the change + behavioral unit tests for new/changed logic.\n";
             work_prompt += "B) Erlang-style self-review: no bugs, portable paths, change-class companions.\n";
-            work_prompt += "C) For each changed Maven module: standalone mvnw clean install (cd module).\n";
+            work_prompt += "C) MAVEN BUILD GATES (HARD — never skip; never 'when practical'):\n";
+            work_prompt += "   C1) For EACH changed Maven module: standalone `mvnw clean install` from the module dir\n";
+            work_prompt += "       (path to repo-root mvnw). clean install MUST include test-compile + tests.\n";
+            work_prompt += "       Do NOT use -DskipTests / -Dmaven.test.skip. Do NOT open a PR if install fails.\n";
+            work_prompt += "   C2) API SHAPE / CROSS-MODULE blast radius — required when ANY of these apply:\n";
+            work_prompt += "       - type made `final` or `sealed`\n";
+            work_prompt += "       - public/protected method or ctor signature changed\n";
+            work_prompt += "       - package-visible API used by other modules changed\n";
+            work_prompt += "       Then also: (i) grep monorepo tests/src for `extends <Type>` and `new <Type>() {`\n";
+            work_prompt += "       (double-brace / anonymous subclass — fails testCompile after final);\n";
+            work_prompt += "       (ii) standalone clean install on known reverse-deps that compile against the\n";
+            work_prompt += "       changed type (examples for system/objectstore: modules/perc-toolkit;\n";
+            work_prompt += "       for rest APIs: projects/sitemanage; use reactor dependents when unclear).\n";
+            work_prompt += "       Failure mode this prevents: system-only install green while perc-toolkit\n";
+            work_prompt += "       testCompile breaks (PSComponentSummary final — PR #2700 / fix #2761).\n";
+            work_prompt += "   C3) Record evidence in structured fields AND PR body:\n";
+            work_prompt += "       modules_built= comma-separated module dirs actually installed\n";
+            work_prompt += "       build_evidence= exact commands + BUILD SUCCESS / Tests run: N\n";
+            work_prompt += "       downstream_checked= none | modules + greps run\n";
+            work_prompt += "       status=failed if any required install failed or evidence is missing on pr_opened.\n";
             work_prompt += "D) Commit only in-scope files; do not dump monorepo-wide reformat or unrelated churn.\n";
             work_prompt += "E) Commit with a clear message referencing issue " + inum.to_string() + ".\n";
             work_prompt += "F) OPERATOR LABELS (required for daily status - create labels if missing):\n";
@@ -1278,7 +1310,7 @@ for item in queue {
             work_prompt += "   (If this agent is actually Kilo, use operator:kilo + model:<exact model id> instead of grok labels.)\n";
             work_prompt += "G) git push -u origin HEAD and gh pr create --base " + base_branch + "\n";
             work_prompt += "   with --label operator:grok --label operator:night-issue-prs --label model:grok-4.5\n";
-            work_prompt += "   body: Summary, Test plan, gates evidence, Fixes or Partial for issue.\n";
+            work_prompt += "   body: Summary, Test plan, C3 evidence (modules_built, build_evidence commands+BUILD SUCCESS, downstream_checked), Fixes or Partial.\n";
             work_prompt += "   Also put Operator: Grok: night-issue-prs (model grok-4.5) in the PR body.\n";
             work_prompt += "   Link PARENT tracker issue in the PR body when this is a slice.\n";
             work_prompt += "H) Do not merge.\n";
@@ -1291,7 +1323,8 @@ for item in queue {
             work_prompt += "M) Apply ISSUE LIFECYCLE / CLOSE RULES: QA issue if blocked on human QA; residual\n";
             work_prompt += "   children if more agent work remains; otherwise close #" + inum.to_string()
                 + " when no open children/QA remain.\n";
-            work_prompt += "status=pr_opened on success, status=failed with summary of blockers on failure.\n";
+            work_prompt += "status=pr_opened on success (with modules_built, build_evidence, downstream_checked filled),\n";
+            work_prompt += "status=failed with summary of blockers on failure.\n";
         }
     }
 
@@ -1300,7 +1333,9 @@ for item in queue {
     work_prompt += "- Discard incomplete WIP on the branch if not PR-ready (keep tree clean).\n";
     work_prompt += "- Record the split on PARENT issue progress (P2/P3), not in a new docs markdown file.\n";
     work_prompt += "- Still remove In Progress on this issue before returning (END lifecycle).\n\n";
-    work_prompt += "Return structured status fields. pr_url, branch, residual_issue_urls when applicable.\n";
+    work_prompt += "Return structured status fields: status, issue_number, summary, pr_url, branch,\n";
+    work_prompt += "commit_sha, residual_issue_urls, and for pr_opened: build_evidence, modules_built,\n";
+    work_prompt += "downstream_checked (use 'none' only when C2 did not apply).\n";
     work_prompt += "Before returning structured output: confirm In Progress was removed (unless dry_run/skip).\n";
 
     let work = agent(work_prompt, #{
@@ -1461,7 +1496,7 @@ if include_pr_cluster {
         cl_prompt += "      * smoke/REST matrices: table-driven union of endpoints/tests\n";
         cl_prompt += "      * package.json test:unit: union of unit test paths + keep extra scripts\n";
         cl_prompt += "      * TMX / i18n: union keys\n";
-        cl_prompt += "    After each absorb: build/tests for touched modules when practical.\n";
+        cl_prompt += "    After each absorb: standalone mvnw clean install for each touched Maven module (HARD).\n";
         cl_prompt += "C4) Push cluster branch; open ONE PR to " + base_branch + " with labels\n";
         cl_prompt += "    operator:grok, operator:night-issue-prs, model:grok-4.5.\n";
         cl_prompt += "C5) Cluster PR body MUST include:\n";
@@ -1618,7 +1653,8 @@ if include_security_audit {
         sec_prompt += "    - Do NOT open dismiss-only PRs. Do NOT re-enable CodeQL default setup\n";
         sec_prompt += "      or GitHub Code Quality.\n";
         sec_prompt += "    - Analyzer of record: Advanced CodeQL only (Java + JS/TS).\n";
-        sec_prompt += "    - Module clean install for changed modules when practical.\n";
+        sec_prompt += "    - Module clean install for each changed module (HARD; includes testCompile).\n";
+        sec_prompt += "    - If final/signature/API shape changes: reverse-dep greps + clean install (Work C2).\n";
         sec_prompt += "    - Open PR to " + base_branch + " with labels operator:grok, operator:night-issue-prs,\n";
         sec_prompt += "      model:grok-4.5. Body MUST cite: Parent audit issue, alert number + html_url,\n";
         sec_prompt += "      rule id, disposition step used, test evidence.\n";
