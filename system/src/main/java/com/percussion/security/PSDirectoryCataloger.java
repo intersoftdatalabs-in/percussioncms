@@ -109,7 +109,7 @@ public abstract class PSDirectoryCataloger extends PSCataloger implements IPSDir
   /**
    * @see IPSDirectoryCataloger
    */
-  public PSSubject getAttributes(String userName, Collection attributeNames) {
+  public PSSubject getAttributes(String userName, Collection<?> attributeNames) {
     return getAttributes(createSubject(userName), attributeNames);
   }
 
@@ -196,7 +196,7 @@ public abstract class PSDirectoryCataloger extends PSCataloger implements IPSDir
       String attributeName) {
     String resultString = null;
     DirContext context = null;
-    NamingEnumeration results = null;
+    NamingEnumeration<SearchResult> results = null;
     try {
       context = createContext(directory);
 
@@ -204,15 +204,15 @@ public abstract class PSDirectoryCataloger extends PSCataloger implements IPSDir
       returnAttrs[0] = attributeName;
       SearchControls searchControls = createSearchControls(directory.getDirectory(), returnAttrs);
 
-      Map values = new HashMap();
+      Map<String, Object> values = new HashMap<>();
       values.put(userAttributeName, user);
       values.put(attributeName, null);
 
       results = context.search("", PSJndiUtils.buildFilter(values), searchControls);
       while (results.hasMore()) {
-        SearchResult result = (SearchResult) results.next();
+        SearchResult result = results.next();
 
-        Attribute attr = (Attribute) result.getAttributes().get(attributeName);
+        Attribute attr = result.getAttributes().get(attributeName);
         if (attr != null) {
           resultString = attr.get(0).toString();
           break;
@@ -262,31 +262,31 @@ public abstract class PSDirectoryCataloger extends PSCataloger implements IPSDir
       String user,
       String userAttributeName,
       String[] returnAttrs,
-      Map searchResults) {
+      Map<String, List<String>> searchResults) {
     DirContext context = null;
-    NamingEnumeration results = null;
-    NamingEnumeration attributes = null;
-    NamingEnumeration values = null;
+    NamingEnumeration<SearchResult> results = null;
+    NamingEnumeration<? extends Attribute> attributes = null;
+    NamingEnumeration<?> values = null;
     try {
       context = createContext(directory);
 
       PSDirectory dir = directory.getDirectory();
       SearchControls searchControls = createSearchControls(dir, returnAttrs);
 
-      Map filterValues = new HashMap();
+      Map<String, Object> filterValues = new HashMap<>();
       filterValues.put(userAttributeName, user);
 
       results = context.search("", PSJndiUtils.buildFilter(filterValues), searchControls);
 
       while (results.hasMore()) {
-        SearchResult result = (SearchResult) results.next();
+        SearchResult result = results.next();
         attributes = result.getAttributes().getAll();
         while (attributes.hasMore()) {
-          Attribute attribute = (Attribute) attributes.next();
+          Attribute attribute = attributes.next();
 
-          List resultValues = (List) searchResults.get(attribute.getID());
+          List<String> resultValues = searchResults.get(attribute.getID());
           if (resultValues == null) {
-            resultValues = new ArrayList();
+            resultValues = new ArrayList<>();
             searchResults.put(attribute.getID(), resultValues);
           }
           values = attribute.getAll();

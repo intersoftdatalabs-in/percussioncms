@@ -119,7 +119,7 @@ public interface IPSDirectoryCataloger {
    *
    * @param userName the name of the user as known to Rhythmyx. Never <code>null</code> or empty.
    */
-  public PSSubject getAttributes(String userName, Collection attributeNames);
+  public PSSubject getAttributes(String userName, Collection<?> attributeNames);
 
   /**
    * Searches the directory catalog associated with the supplied subject. If it finds the user, it
@@ -133,7 +133,7 @@ public interface IPSDirectoryCataloger {
    *     attributes. Existing attributes on the supplied subject will be overwritten. Attributes
    *     that are not found are added to the subject with <code>null</code> as value.
    */
-  public PSSubject getAttributes(PSSubject user, Collection attributeNames);
+  public PSSubject getAttributes(PSSubject user, Collection<?> attributeNames);
 
   /**
    * Searches all registered directories for users that match the provided search criteria. For each
@@ -149,7 +149,7 @@ public interface IPSDirectoryCataloger {
    * @return a valid collection of 0 or more <code>PSSubject</code> objects. All attributes are set
    *     on the respective subject as attributes.
    */
-  public Collection findUsers(PSConditional[] criteria, Collection attributeNames);
+  public Collection<PSSubject> findUsers(PSConditional[] criteria, Collection<?> attributeNames);
 
   /**
    * Get this provider's list of group provider objects.

@@ -78,9 +78,10 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
     m_directoryDef = directoryDef;
     m_userObjectAttrName = userObjectAttrName;
 
-    Iterator nodes = m_groupProviderInstance.getGroupNodes();
+    @SuppressWarnings("unchecked")
+    Iterator<String> nodes = m_groupProviderInstance.getGroupNodes();
     while (nodes.hasNext()) {
-      String node = (String) nodes.next();
+      String node = nodes.next();
       m_groupLocationInfo.add(new GroupLocationInfo(node));
     }
 
@@ -183,7 +184,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
     if (searchFilter.trim().length() == 0) return groups;
 
     DirContext ctx = null;
-    NamingEnumeration results = null;
+    NamingEnumeration<SearchResult> results = null;
     try {
       // walk group locations
       for (GroupLocationInfo locationInfo : m_groupLocationInfo) {
@@ -210,7 +211,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
           /* add the group, appending the current context to the relative
            * name returned
            */
-          SearchResult result = (SearchResult) results.next();
+          SearchResult result = results.next();
           CompoundName cn = PSJndiUtils.getCompoundName(result.getName(), node.toString());
           groups.add(cn.toString());
         }
@@ -262,7 +263,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
           PSJndiUtils.createSearchControls(m_directoryDef.getDirectory(), null);
       searchControls.setCountLimit(1);
 
-      Map filter = new HashMap();
+      Map<String, Object> filter = new HashMap<>();
       filter.put(m_userObjectAttrName, userName);
 
       results = context.search("", PSJndiUtils.buildFilter(filter), searchControls);
@@ -330,9 +331,9 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
     List<IPSTypedPrincipal> members = new ArrayList<>();
 
     DirContext ctx = null;
-    NamingEnumeration results = null;
-    NamingEnumeration ae = null;
-    NamingEnumeration attVals = null;
+    NamingEnumeration<SearchResult> results = null;
+    NamingEnumeration<? extends Attribute> ae = null;
+    NamingEnumeration<?> attVals = null;
     try {
       // get group entry
       CompoundName groupCn = PSJndiUtils.getCompoundName(groupName);
@@ -361,14 +362,14 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
        */
       List<Map<String, List<String>>> resultList = new ArrayList<>();
       while (results.hasMore()) {
-        Map<String, List<String>> attrMap = new HashMap();
-        SearchResult result = (SearchResult) results.next();
+        Map<String, List<String>> attrMap = new HashMap<>();
+        SearchResult result = results.next();
         Attributes attrs = result.getAttributes();
         for (ae = attrs.getAll(); ae.hasMore(); ) {
-          Attribute attr = (Attribute) ae.next();
+          Attribute attr = ae.next();
           String attrKey = attr.getID().toLowerCase();
-          List valList = attrMap.get(attrKey);
-          if (valList == null) valList = new ArrayList();
+          List<String> valList = attrMap.get(attrKey);
+          if (valList == null) valList = new ArrayList<>();
           attVals = attr.getAll();
           while (attVals.hasMoreElements()) valList.add(attVals.nextElement().toString());
 
@@ -392,7 +393,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
       List<String> staticMemberList = new ArrayList<>();
       List<String> dynamicMemberList = new ArrayList<>();
 
-      for (Map attrMap : resultList) {
+      for (Map<String, List<String>> attrMap : resultList) {
         members.addAll(filterMemberList(attrMap, staticMemberList, dynamicMemberList));
       }
 
@@ -425,9 +426,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
         members.addAll(getDynamicUsers(dynamicMember));
 
         // get all groups returned by the query and recurse
-        Iterator groupMembers = getDynamicGroupMembers(dynamicMember).iterator();
-        while (groupMembers.hasNext()) {
-          String member = (String) groupMembers.next();
+        for (String member : getDynamicGroupMembers(dynamicMember)) {
           members.addAll(getGroupMembers(member, level));
         }
       }
@@ -514,7 +513,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
     Collection<IPSTypedPrincipal> users = new ArrayList<>();
 
     DirContext ctx = null;
-    NamingEnumeration results = null;
+    NamingEnumeration<SearchResult> results = null;
     try {
       // get entries matching the filter and not the group objectclasses
       String groupCond = getGroupsSearchFilter();
@@ -529,7 +528,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
       ctx = getDirContext(base);
       results = ctx.search("", filter, ctls);
       while (results.hasMore()) {
-        SearchResult result = (SearchResult) results.next();
+        SearchResult result = results.next();
         CompoundName cn = PSJndiUtils.getCompoundName(result.getName(), base);
         users.add(dnToPrincipal(cn.toString(), false));
       }
@@ -569,26 +568,25 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
       throws NamingException {
     List<IPSTypedPrincipal> groupMembers = new ArrayList<>();
 
-    List foundOcs = getObjectClasses(attrMap);
+    List<String> foundOcs = getObjectClasses(attrMap);
     if (foundOcs.isEmpty()) return groupMembers;
 
     // walk supported object classes and see if in the list
-    Iterator defOcs = m_groupProviderInstance.getObjectClassesNames();
+    @SuppressWarnings("unchecked")
+    Iterator<String> defOcs = m_groupProviderInstance.getObjectClassesNames();
     while (defOcs.hasNext()) {
-      String defOc = (String) defOcs.next();
+      String defOc = defOcs.next();
       if (foundOcs.contains(defOc.toLowerCase())) {
         // found a supported objectClass, so get its memberlist attribute
         // values
         String memberAttrName = m_groupProviderInstance.getMemberAttribute(defOc);
         int memberAttrType = m_groupProviderInstance.getMemberAttributeType(defOc);
-        List memberList = attrMap.get(memberAttrName.toLowerCase());
+        List<String> memberList = attrMap.get(memberAttrName.toLowerCase());
 
         // group may have no members
         if (memberList == null) continue;
 
-        Iterator members = memberList.iterator();
-        while (members.hasNext()) {
-          String member = (String) members.next();
+        for (String member : memberList) {
           if (memberAttrType == PSJndiObjectClass.MEMBER_ATTR_STATIC) {
             // check for group, but don't search, as the returned member
             // list is searched on anyhow
@@ -628,7 +626,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
     else if (doSearch) {
       // search for it as a group
       DirContext ctx = null;
-      NamingEnumeration results = null;
+      NamingEnumeration<SearchResult> results = null;
       try {
         // get entries matching the filter and the supported objectClasses
         CompoundName cn = PSJndiUtils.getCompoundName(dn);
@@ -715,9 +713,9 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
     if (++level > MAX_NESTED_GROUPS) return false;
 
     DirContext ctx = null;
-    NamingEnumeration results = null;
-    NamingEnumeration ae = null;
-    NamingEnumeration attVals = null;
+    NamingEnumeration<SearchResult> results = null;
+    NamingEnumeration<? extends Attribute> ae = null;
+    NamingEnumeration<?> attVals = null;
     try {
       // get group entry
       CompoundName groupName = PSJndiUtils.getCompoundName(group);
@@ -741,22 +739,22 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
       results = ctx.search("", searchFilter, ctls);
 
       // set up lists of members that may need to be recursively searched
-      List staticMemberList = new ArrayList();
-      List dynamicMemberList = new ArrayList();
+      List<String> staticMemberList = new ArrayList<>();
+      List<String> dynamicMemberList = new ArrayList<>();
 
       /* walk the results - attributes don't come back in the order in which
        * they are specified, so we need to build a map of each entry's
        * attributes and values.
        */
       while (results.hasMore()) {
-        Map attrMap = new HashMap();
-        SearchResult result = (SearchResult) results.next();
+        Map<String, List<String>> attrMap = new HashMap<>();
+        SearchResult result = results.next();
         Attributes attrs = result.getAttributes();
         for (ae = attrs.getAll(); ae.hasMore(); ) {
-          Attribute attr = (Attribute) ae.next();
+          Attribute attr = ae.next();
           String attrKey = attr.getID().toLowerCase();
-          List valList = (List) attrMap.get(attrKey);
-          if (valList == null) valList = new ArrayList();
+          List<String> valList = attrMap.get(attrKey);
+          if (valList == null) valList = new ArrayList<>();
           attVals = attr.getAll();
           while (attVals.hasMoreElements()) valList.add(attVals.nextElement().toString());
 
@@ -782,20 +780,14 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
        * not an immediate member, need to check any memberlists for group
        * entries - first check static groups
        */
-      Iterator staticMembers = staticMemberList.iterator();
-      while (staticMembers.hasNext()) {
-        String member = (String) staticMembers.next();
+      for (String member : staticMemberList) {
         if (isMember(user, member, level)) return true;
       }
 
       // now check dynamic groups
-      Iterator dynamicMembers = dynamicMemberList.iterator();
-      while (dynamicMembers.hasNext()) {
-        String dynamicMember = (String) dynamicMembers.next();
-        List groupMembers = getDynamicGroupMembers(dynamicMember);
-        Iterator members = groupMembers.iterator();
-        while (members.hasNext()) {
-          String member = (String) members.next();
+      for (String dynamicMember : dynamicMemberList) {
+        List<String> groupMembers = getDynamicGroupMembers(dynamicMember);
+        for (String member : groupMembers) {
           if (isMember(user, member, level)) {
             return true;
           }
@@ -856,28 +848,30 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
    * @throws NamingException if any errors occur parsing names or searching the directory.
    */
   private boolean isUserInMemberList(
-      String user, Map attrMap, List checkedStaticMembers, List checkedDynamicMembers)
+      String user,
+      Map<String, List<String>> attrMap,
+      List<String> checkedStaticMembers,
+      List<String> checkedDynamicMembers)
       throws NamingException {
-    List foundOcs = getObjectClasses(attrMap);
+    List<String> foundOcs = getObjectClasses(attrMap);
     if (foundOcs.isEmpty()) return false;
 
     // walk supported object classes and see if in the list
-    Iterator defOcs = m_groupProviderInstance.getObjectClassesNames();
+    @SuppressWarnings("unchecked")
+    Iterator<String> defOcs = m_groupProviderInstance.getObjectClassesNames();
     while (defOcs.hasNext()) {
-      String defOc = (String) defOcs.next();
+      String defOc = defOcs.next();
       if (foundOcs.contains(defOc.toLowerCase())) {
         // found a supported objectClass, so get its memberlist attribute
         // values
         String memberAttrName = m_groupProviderInstance.getMemberAttribute(defOc);
         int memberAttrType = m_groupProviderInstance.getMemberAttributeType(defOc);
-        List memberList = (List) attrMap.get(memberAttrName.toLowerCase());
+        List<String> memberList = attrMap.get(memberAttrName.toLowerCase());
 
         // group may have no members
         if (memberList == null) continue;
 
-        Iterator members = memberList.iterator();
-        while (members.hasNext()) {
-          String member = (String) members.next();
+        for (String member : memberList) {
           if (memberAttrType == PSJndiObjectClass.MEMBER_ATTR_STATIC) {
             // static list - check for match
             CompoundName memberName = PSJndiUtils.getCompoundName(member);
@@ -911,11 +905,9 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
     // build lowercase list of objectclass names from the directory
     List<String> foundOcs = new ArrayList<>();
 
-    List dirObjClasses = attrMap.get(PSJndiProvider.OBJECT_CLASS_ATTR.toLowerCase());
+    List<String> dirObjClasses = attrMap.get(PSJndiProvider.OBJECT_CLASS_ATTR.toLowerCase());
     if (dirObjClasses != null) {
-      Iterator dirOcs = dirObjClasses.iterator();
-      while (dirOcs.hasNext()) {
-        String dirOc = (String) dirOcs.next();
+      for (String dirOc : dirObjClasses) {
         foundOcs.add(dirOc.toLowerCase());
       }
     }
@@ -937,7 +929,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
     String base = baseBuf.toString();
 
     DirContext ctx = null;
-    NamingEnumeration results = null;
+    NamingEnumeration<SearchResult> results = null;
     try {
       // get entries matching the filter and the member's common name
       CompoundName memberName = PSJndiUtils.getCompoundName(user);
@@ -970,7 +962,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
        */
       boolean hasMatch = false;
       while (results.hasMoreElements() && !hasMatch) {
-        SearchResult result = (SearchResult) results.next();
+        SearchResult result = results.next();
         CompoundName cn =
             PSJndiUtils.getCompoundName(
                 result.getName(), base); // name returned is relative to search context
@@ -1003,14 +995,14 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
    *     are found.
    * @throws NamingException if any errors occur
    */
-  private List getDynamicGroupMembers(String searchUrl) throws NamingException {
+  private List<String> getDynamicGroupMembers(String searchUrl) throws NamingException {
     StringBuilder baseBuf = new StringBuilder();
     String filter = parseSearchUrl(searchUrl, baseBuf);
     String base = baseBuf.toString();
 
-    List members = new ArrayList();
+    List<String> members = new ArrayList<>();
     DirContext ctx = null;
-    NamingEnumeration results = null;
+    NamingEnumeration<SearchResult> results = null;
     try {
       // get entries matching the filter and the supported objectClasses
       String groupCond = getGroupsSearchFilter();
@@ -1025,7 +1017,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
       ctx = getDirContext(base);
       results = ctx.search("", filter, ctls);
       while (results.hasMore()) {
-        SearchResult result = (SearchResult) results.next();
+        SearchResult result = results.next();
         CompoundName cn = PSJndiUtils.getCompoundName(result.getName(), base);
         members.add(cn.toString());
       }
@@ -1120,9 +1112,10 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   private String getGroupsSearchFilter() {
     if (m_groupsSearchFilter == null) {
       StringBuilder buf = new StringBuilder();
-      Iterator ocs = m_groupProviderInstance.getObjectClassesNames();
+      @SuppressWarnings("unchecked")
+      Iterator<String> ocs = m_groupProviderInstance.getObjectClassesNames();
       while (ocs.hasNext()) {
-        String oc = (String) ocs.next();
+        String oc = ocs.next();
         if (buf.length() == 0) buf.append("(|");
 
         buf.append(" (");
@@ -1149,14 +1142,15 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
    */
   private String[] getMemberListAttributes() {
     if (m_memberListAttributes == null) {
-      List attrs = new ArrayList();
-      Iterator ocs = m_groupProviderInstance.getObjectClassesNames();
+      List<String> attrs = new ArrayList<>();
+      @SuppressWarnings("unchecked")
+      Iterator<String> ocs = m_groupProviderInstance.getObjectClassesNames();
       while (ocs.hasNext()) {
-        String oc = (String) ocs.next();
+        String oc = ocs.next();
         attrs.add(m_groupProviderInstance.getMemberAttribute(oc));
       }
 
-      m_memberListAttributes = (String[]) attrs.toArray(new String[attrs.size()]);
+      m_memberListAttributes = attrs.toArray(new String[0]);
     }
 
     return m_memberListAttributes;
@@ -1181,7 +1175,11 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
    * @return The filter portion of the url, never <code>null</code>, may be empty if no filter is
    *     supplied.
    */
-  private static String parseSearchUrl(String url, StringBuilder baseBuffer) {
+  /**
+   * Package-visible so unit tests can cover URL parsing without a live LDAP directory (issue
+   * #2461).
+   */
+  static String parseSearchUrl(String url, StringBuilder baseBuffer) {
     String filter = "";
     String delim = "??sub?";
 
