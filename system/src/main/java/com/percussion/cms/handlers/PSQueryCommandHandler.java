@@ -33,6 +33,7 @@ import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.data.PSMimeContentResult;
 import com.percussion.data.PSStyleSheetMerger;
 import com.percussion.data.PSUnsupportedConversionException;
+import com.percussion.data.PSXmlDocumentJsonCodec;
 import com.percussion.data.PSXslStyleSheetMerger;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSConditionalStylesheet;
@@ -70,6 +71,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -196,7 +198,7 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
           PSExtensionProcessingException,
           PSParameterMismatchException,
           SQLException {
-    // We only support requests for htm?, xml or txt
+    // We only support requests for htm?, xml, txt, or json
     if (PSRequest.PAGE_TYPE_UNKNOWN == req.getRequestPageType()) {
       String pageExt = req.getRequestPageExtension();
       throw new PSUnsupportedConversionException(
@@ -397,6 +399,21 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
             }
           }
         }
+      } else if (PSRequest.PAGE_TYPE_JSON == req.getRequestPageType()) {
+        if (resultDoc == null) {
+          resp.setStatus(IPSHttpErrors.HTTP_NOT_FOUND);
+        } else {
+          String json = PSXmlDocumentJsonCodec.toJson(resultDoc);
+          byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+          if (null == contentHeader) {
+            contentHeader =
+                PSBaseHttpUtils.constructContentTypeHeader(
+                    IPSMimeContentTypes.MIME_TYPE_JSON, StandardCharsets.UTF_8.name());
+          }
+          try (ByteArrayInputStream in = new ByteArrayInputStream(bytes)) {
+            resp.setContent(in, bytes.length, contentHeader, false);
+          }
+        }
       } else {
         if (null == contentHeader) {
           String mimeType = null;
@@ -407,11 +424,8 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
               break;
 
             case PSRequest.PAGE_TYPE_XML:
+            default:
               mimeType = IPSMimeContentTypes.MIME_TYPE_TEXT_XML;
-              break;
-
-            case PSRequest.PAGE_TYPE_JSON:
-              mimeType = IPSMimeContentTypes.MIME_TYPE_JSON;
               break;
           }
 
@@ -454,7 +468,8 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
           // TODO can't get stylesheet so passing "" for now
           err = new PSHtmlProcessingError(m_appHandler.getId(), sessId, errorCode, errorArgs, "");
         } else if ((pageType == PSRequest.PAGE_TYPE_XML)
-            || (pageType == PSRequest.PAGE_TYPE_TEXT)) {
+            || (pageType == PSRequest.PAGE_TYPE_TEXT)
+            || (pageType == PSRequest.PAGE_TYPE_JSON)) {
           // TODO can't get xml element so passing null for now
           err = new PSXmlProcessingError(m_appHandler.getId(), sessId, errorCode, errorArgs, null);
         } else {

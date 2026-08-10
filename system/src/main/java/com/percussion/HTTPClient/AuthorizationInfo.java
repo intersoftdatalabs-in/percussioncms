@@ -69,13 +69,14 @@ public class AuthorizationInfo implements Cloneable {
   // class fields
 
   /** Holds the list of lists of authorization info structures */
-  private static ConcurrentHashMap CntxtList = new ConcurrentHashMap();
+  private static final ConcurrentHashMap<Object, ConcurrentHashMap<AuthorizationInfo, AuthorizationInfo>>
+      CntxtList = new ConcurrentHashMap<>();
 
   /** A pointer to the handler to be called when we need authorization info */
   private static AuthorizationHandler AuthHandler = new DefaultAuthHandler();
 
   static {
-    CntxtList.put(HTTPConnection.getDefaultContext(), new ConcurrentHashMap());
+    CntxtList.put(HTTPConnection.getDefaultContext(), new ConcurrentHashMap<>());
   }
 
   // the instance oriented stuff
@@ -246,12 +247,13 @@ public class AuthorizationInfo implements Cloneable {
    */
   public static synchronized AuthorizationInfo getAuthorization(
       String host, int port, String scheme, String realm, Object context) {
-    ConcurrentHashMap AuthList = Util.getList(CntxtList, context);
+    ConcurrentHashMap<AuthorizationInfo, AuthorizationInfo> AuthList =
+        Util.getList(CntxtList, context);
 
     AuthorizationInfo auth_info =
         new AuthorizationInfo(host, port, scheme, realm, (NVPair[]) null, null);
 
-    return (AuthorizationInfo) AuthList.get(auth_info);
+    return AuthList.get(auth_info);
   }
 
   /**
@@ -295,11 +297,11 @@ public class AuthorizationInfo implements Cloneable {
   static synchronized AuthorizationInfo getAuthorization(
       AuthorizationInfo auth_info, RoRequest req, RoResponse resp, boolean query_auth_h)
       throws AuthSchemeNotImplException, IOException {
-    ConcurrentHashMap AuthList;
+    ConcurrentHashMap<AuthorizationInfo, AuthorizationInfo> AuthList;
     if (req != null) AuthList = Util.getList(CntxtList, req.getConnection().getContext());
     else AuthList = Util.getList(CntxtList, HTTPConnection.getDefaultContext());
 
-    AuthorizationInfo new_info = (AuthorizationInfo) AuthList.get(auth_info);
+    AuthorizationInfo new_info = AuthList.get(auth_info);
 
     if (new_info == null && query_auth_h) new_info = queryAuthHandler(auth_info, req, resp);
 
@@ -355,10 +357,11 @@ public class AuthorizationInfo implements Cloneable {
    * @param context the context to associate this info with
    */
   public static synchronized void addAuthorization(AuthorizationInfo auth_info, Object context) {
-    ConcurrentHashMap AuthList = Util.getList(CntxtList, context);
+    ConcurrentHashMap<AuthorizationInfo, AuthorizationInfo> AuthList =
+        Util.getList(CntxtList, context);
 
     // merge path list
-    AuthorizationInfo old_info = (AuthorizationInfo) AuthList.get(auth_info);
+    AuthorizationInfo old_info = AuthList.get(auth_info);
     if (old_info != null) {
       int ol = old_info.paths.length, al = auth_info.paths.length;
 
@@ -545,7 +548,8 @@ public class AuthorizationInfo implements Cloneable {
    * @param context the context this info is associated with
    */
   public static synchronized void removeAuthorization(AuthorizationInfo auth_info, Object context) {
-    ConcurrentHashMap AuthList = Util.getList(CntxtList, context);
+    ConcurrentHashMap<AuthorizationInfo, AuthorizationInfo> AuthList =
+        Util.getList(CntxtList, context);
     AuthList.remove(auth_info);
   }
 
@@ -593,10 +597,11 @@ public class AuthorizationInfo implements Cloneable {
 
     // First search for an exact match
 
-    ConcurrentHashMap AuthList = Util.getList(CntxtList, req.getConnection().getContext());
-    Enumeration list = AuthList.elements();
+    ConcurrentHashMap<AuthorizationInfo, AuthorizationInfo> AuthList =
+        Util.getList(CntxtList, req.getConnection().getContext());
+    Enumeration<AuthorizationInfo> list = AuthList.elements();
     while (list.hasMoreElements()) {
-      AuthorizationInfo info = (AuthorizationInfo) list.nextElement();
+      AuthorizationInfo info = list.nextElement();
 
       if (!info.host.equals(host) || info.port != port) continue;
 
@@ -614,7 +619,7 @@ public class AuthorizationInfo implements Cloneable {
 
     list = AuthList.elements();
     while (list.hasMoreElements()) {
-      AuthorizationInfo info = (AuthorizationInfo) list.nextElement();
+      AuthorizationInfo info = list.nextElement();
 
       if (!info.host.equals(host) || info.port != port) continue;
 
@@ -721,7 +726,7 @@ public class AuthorizationInfo implements Cloneable {
 
         pos_ref[0] = beg;
         pos_ref[1] = end;
-        Vector params = parseParams(challenge, buf, pos_ref, len, curr);
+        Vector<NVPair> params = parseParams(challenge, buf, pos_ref, len, curr);
         beg = pos_ref[0];
         end = pos_ref[1];
 
@@ -747,7 +752,7 @@ public class AuthorizationInfo implements Cloneable {
     return auth_arr;
   }
 
-  private static final Vector parseParams(
+  private static final Vector<NVPair> parseParams(
       String challenge, char[] buf, int[] pos_ref, int len, AuthorizationInfo curr)
       throws ProtocolException {
     int beg = pos_ref[0];
@@ -755,7 +760,7 @@ public class AuthorizationInfo implements Cloneable {
 
     // get auth-parameters
     boolean first = true;
-    Vector params = new Vector();
+    Vector<NVPair> params = new Vector<>();
     while (true) {
       beg = Util.skipSpace(buf, end);
       if (beg == len) break;

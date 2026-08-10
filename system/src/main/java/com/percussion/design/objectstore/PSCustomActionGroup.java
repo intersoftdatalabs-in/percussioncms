@@ -315,11 +315,15 @@ public class PSCustomActionGroup extends PSComponent {
 
   /**
    * A list of action link references (String objects) to be removed, never <code>null</code>, might
-   * be empty.
+   * be empty. Typed as {@link PSCollection} which is {@link java.io.Serializable} (utils #2450 /
+   * #2452 serial-field residual).
    */
   private PSCollection m_removeActions = new PSCollection(String.class);
 
-  /** A list of new action links, may be <code>null</code>. Not empty if valid. */
+  /**
+   * A list of new action links, may be <code>null</code>. Not empty if valid. {@link
+   * PSActionLinkList} extends {@link PSCollectionComponent} and is Serializable (#2450 / #2452).
+   */
   private PSActionLinkList m_actionLinkList = null;
 
   /**

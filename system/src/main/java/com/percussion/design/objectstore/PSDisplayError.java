@@ -21,6 +21,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -29,8 +30,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-/** This class represents the DisplayError element of the sys_ContentEditor.dtd. */
-public class PSDisplayError {
+/**
+ * This class represents the DisplayError element of the sys_ContentEditor.dtd.
+ *
+ * <p>Implements {@link Serializable} so {@link PSFieldValidationException} can hold this payload
+ * without {@code -Xlint:serial} serial-field diagnostics.
+ */
+public class PSDisplayError implements Serializable {
+
+  /** Serialization id for {@link Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Ctor for constrcting the object from source element.
    *
@@ -145,7 +154,7 @@ public class PSDisplayError {
   /**
    * @see #getDetails()
    */
-  private List<PSDetails> m_details;
+  private ArrayList<PSDetails> m_details;
 
   /**
    * @see #getGenericMessage()

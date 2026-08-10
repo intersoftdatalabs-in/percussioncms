@@ -20,14 +20,20 @@
  * Surface-filtered only — not full suite:
  *   npm run test:surface -- --path tests/profile-avatar.spec.js
  *
+ * Axe form root (#2503 / residual #2427):
+ *   npm run test:surface -- --path tests/profile-avatar.spec.js --grep "axe-core"
+ *
  * QA mode: perc-devctl qa-up → TEST_CMS_URL + ADMIN_* → test:surface → qa-down.
+ *
+ * Axe: zero serious/critical on [data-testid="perc-profile-avatar"].
  */
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
-const PROFILE_SHELL_SCOPE = '[data-testid="perc-profile-shell"]';
+/** Form root for Gravatar / avatar controls (not the whole profile shell). */
+const AVATAR_FORM_SCOPE = '[data-testid="perc-profile-avatar"]';
 const ENGLISH_PROFILE_TITLE = /my profile/i;
 
 function profileDeepLink() {
@@ -82,8 +88,24 @@ test.describe("Profile avatar Gravatar @profile @avatar", () => {
     await expect(
       page.getByTestId("perc-profile-section-avatar-status"),
     ).toHaveCount(0);
+  });
 
-    await expectNoSeriousA11yViolations(page, PROFILE_SHELL_SCOPE);
+  /**
+   * #2503 residual of #2427 — axe serious/critical zero on avatar form root
+   * (preview, use-primary, override email, privacy copy, save). Scope is the
+   * form section; shell-level axe remains in profile-shell.spec.js.
+   * Also fixes a prior call that passed a selector string as opts (scope was
+   * never applied — whole page scanned unintentionally).
+   */
+  test("axe-core a11y gate — avatar form root (#2503)", async ({ page }) => {
+    test.setTimeout(90_000);
+    await loginAsAdmin(page);
+    await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
+    await expectAvatarSectionMounted(page);
+
+    await expectNoSeriousA11yViolations(page, {
+      scope: AVATAR_FORM_SCOPE,
+    });
   });
 
   test("Admin can set Gravatar override email and save", async ({ page }) => {

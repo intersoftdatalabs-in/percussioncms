@@ -31,10 +31,9 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import com.percussion.auditlog.PSActionOutcome;
-import com.percussion.auditlog.PSAuditLogService;
-import com.percussion.auditlog.PSUserManagementEvent;
+import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.percussion.cms.IPSConstants;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.design.objectstore.PSAttribute;
@@ -260,8 +259,6 @@ public class PSUserService implements IPSUserService {
   public static final String DIRECTORY_SET_NAME = "DirectorySet";
 
   public static final List<String> SYSTEM_USERS = asList(RXSERVER_NAME, PERCUSSION_ADMIN_NAME);
-  private final PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
-  private PSUserManagementEvent psUserManagementEvent;
 
   @Autowired
   public PSUserService(
@@ -598,12 +595,7 @@ public class PSUserService implements IPSUserService {
       userLoginDao.remove(name);
     }
     try {
-      psUserManagementEvent =
-          new PSUserManagementEvent(
-              PSSecurityFilter.getCurrentRequest().getServletRequest(),
-              PSUserManagementEvent.UserEventActions.delete,
-              PSActionOutcome.SUCCESS);
-      psAuditLogService.logUserManagementEvent(psUserManagementEvent);
+      PSSystemAuditLogger.userDelete(currentServletRequest(), AuditOutcome.SUCCESS, name);
     } catch (Exception e) {
       // Just handling exception
     }
@@ -781,12 +773,8 @@ public class PSUserService implements IPSUserService {
       rvalue.setEmail(user.getEmail());
     }
     try {
-      psUserManagementEvent =
-          new PSUserManagementEvent(
-              PSSecurityFilter.getCurrentRequest().getServletRequest(),
-              PSUserManagementEvent.UserEventActions.update,
-              PSActionOutcome.SUCCESS);
-      psAuditLogService.logUserManagementEvent(psUserManagementEvent);
+      PSSystemAuditLogger.userUpdate(
+          currentServletRequest(), AuditOutcome.SUCCESS, user.getName(), "update");
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -945,7 +933,7 @@ public class PSUserService implements IPSUserService {
       backEndRoleMgr.setSubjectEmail(current.getName(), email);
     } catch (RuntimeException e) {
       // Persist failed — audit FAILURE so the trail is not silent, then rethrow.
-      logSelfServiceAccountUpdateAudit(PSActionOutcome.FAILURE);
+      logSelfServiceAccountUpdateAudit(AuditOutcome.FAILURE);
       log.error(
           "Self-service email update failed for user {}: {}",
           current.getName(),
@@ -955,7 +943,7 @@ public class PSUserService implements IPSUserService {
     }
 
     // Persist succeeded — only then record SUCCESS (not before end-to-end completion of the write).
-    logSelfServiceAccountUpdateAudit(PSActionOutcome.SUCCESS);
+    logSelfServiceAccountUpdateAudit(AuditOutcome.SUCCESS);
 
     // Return the already-loaded session user with the new email applied. Avoid a second
     // getCurrentUser() which can fail after the write (session/directory) with no rollback.
@@ -967,20 +955,26 @@ public class PSUserService implements IPSUserService {
    * Best-effort audit for self-service account updates. Never throws — audit infrastructure must
    * not mask the primary operation outcome.
    */
-  private void logSelfServiceAccountUpdateAudit(PSActionOutcome outcome) {
+  private void logSelfServiceAccountUpdateAudit(AuditOutcome outcome) {
     try {
       PSRequest req = PSSecurityFilter.getCurrentRequest();
       if (req != null && req.getServletRequest() != null) {
-        psUserManagementEvent =
-            new PSUserManagementEvent(
-                req.getServletRequest(),
-                PSUserManagementEvent.UserEventActions.update,
-                outcome);
-        psAuditLogService.logUserManagementEvent(psUserManagementEvent);
+        String actor = req.getServletRequest().getRemoteUser();
+        PSSystemAuditLogger.userUpdate(
+            req.getServletRequest(), outcome, actor, "self-service-account");
       }
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
+
+  private static jakarta.servlet.http.HttpServletRequest currentServletRequest() {
+    try {
+      PSRequest req = PSSecurityFilter.getCurrentRequest();
+      return req != null ? req.getServletRequest() : null;
+    } catch (Exception e) {
+      return null;
     }
   }
 
@@ -1622,12 +1616,13 @@ public class PSUserService implements IPSUserService {
 
       for (PSExternalUser e : users) {
         userNames.add(e.getName());
-        psUserManagementEvent =
-            new PSUserManagementEvent(
-                PSSecurityFilter.getCurrentRequest().getServletRequest(),
-                PSUserManagementEvent.UserEventActions.create,
-                PSActionOutcome.SUCCESS);
-        psAuditLogService.logUserManagementEvent(psUserManagementEvent);
+        try {
+          PSSystemAuditLogger.userCreate(
+              currentServletRequest(), AuditOutcome.SUCCESS, e.getName());
+        } catch (Exception auditEx) {
+          log.error(PSExceptionUtils.getMessageForLog(auditEx));
+          log.debug(PSExceptionUtils.getDebugMessageForLog(auditEx));
+        }
       }
 
       List<PSImportedUser> importedUsers = importUsers(userNames);

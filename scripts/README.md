@@ -12,6 +12,28 @@ Out of scope for spec 994 (must NOT be touched):
 
 ## Scripts
 
+### `build-cms-docs.bat` / `build-cms-docs.sh`
+
+Build the **product documentation Virtual Site** (`product-docs/`) to static HTML using the
+`system` module Virtual Site build service (`PSVirtualSiteBuildMain`).
+
+- **Purpose**: Offline/CI dogfood of Git-backed docs assembly (Markdown + frontmatter → HTML).
+- **Defaults**: site root = repo `product-docs/`; output = `tmp/product-docs-site/`.
+- **Usage**:
+
+  ```bat
+  scripts\build-cms-docs.bat
+  scripts\build-cms-docs.bat C:\path\to\product-docs C:\path\to\out
+  ```
+
+  ```bash
+  scripts/build-cms-docs.sh
+  scripts/build-cms-docs.sh /path/to/product-docs /path/to/out
+  ```
+
+- **Prereqs**: JDK 21, repo-root `mvnw`/`mvnw.cmd`, network once for Maven deps.
+- **Design docs**: `docs/ai-generated/tasks/virtual-sites-git-docs/`.
+
 ### Third-party license inventory (Maven + npm merge)
 
 **Not a Python script.** Merged inventory generation for issue #1689 lives in

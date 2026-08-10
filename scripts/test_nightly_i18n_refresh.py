@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import datetime
 import importlib.util
+import subprocess
 import sys
 import tempfile
 import types
@@ -162,6 +163,90 @@ class TestUnpushedCommitsDetection(unittest.TestCase):
             self.assertFalse(m.has_unpushed_commits("definitely-not-a-branch", worktree))
 
 
+class TestStagingPathBuilder(unittest.TestCase):
+    """Regression tests for the diff-driven ``git add`` path builder.
+
+    The PR #2651 peer review found that ``stage_and_commit`` was passing
+    basenames (``CmsUi.tmx``) to ``git add``, which fails on the real tree
+    because the canonical paths live under
+    ``modules/perc-i18n/src/main/resources/i18n/``. These tests exercise
+    a real git repo against the real ``TMX_DIR`` to catch path regressions.
+    """
+
+    @staticmethod
+    def _init_repo(td: Path) -> Path:
+        worktree = Path(td)
+        subprocess.run(["git", "init", "-q", "-b", "main"], cwd=worktree, check=True)
+        subprocess.run(
+            ["git", "config", "user.email", "test@example.com"], cwd=worktree, check=True
+        )
+        subprocess.run(
+            ["git", "config", "user.name", "Test"], cwd=worktree, check=True
+        )
+        # Mirror the real repo layout so TMX_DIR resolves.
+        tmx_dir = worktree / m.TMX_DIR
+        tmx_dir.mkdir(parents=True, exist_ok=True)
+        # Cache file lives at modules/perc-i18n/scripts/cache/i18n_translate.json;
+        # CACHE_FILE is absolute, so compute a relative form for the temp repo.
+        cache_rel = Path("modules/perc-i18n/scripts/cache/i18n_translate.json")
+        cache_dir = worktree / cache_rel.parent
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        for path in m.TMX_FILES:
+            (worktree / path).write_text('<tmx/>\n', encoding="utf-8")
+        (worktree / cache_rel).write_text('{"keys": []}\n', encoding="utf-8")
+        subprocess.run(["git", "add", "-A"], cwd=worktree, check=True)
+        subprocess.run(["git", "commit", "-q", "-m", "init"], cwd=worktree, check=True)
+        return worktree
+
+    def test_tmx_paths_resolve_against_git_add(self):
+        """Every entry in ``TMX_FILES`` must be a valid ``git add`` pathspec
+        against the real repo layout."""
+        with tempfile.TemporaryDirectory() as td:
+            worktree = self._init_repo(td)
+            for path in m.TMX_FILES:
+                cp = subprocess.run(
+                    ["git", "add", "--dry-run", path],
+                    cwd=worktree,
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertEqual(
+                    cp.returncode,
+                    0,
+                    f"git add --dry-run failed for {path!r}: {cp.stderr}",
+                )
+
+    def test_stage_and_commit_uses_diff_only(self):
+        """``stage_and_commit`` must only stage paths that actually changed.
+
+        Touches one TMX file and verifies the other two are not staged.
+        Regression test for the basename defect — using basenames would
+        stage all three every run, producing noisy diffs.
+        """
+        # This test asserts the path-builder shape (diff-driven, full paths)
+        # without invoking the full ``stage_and_commit`` (which requires
+        # a pre-existing branch and ``build_commit_message`` plumbing).
+        with tempfile.TemporaryDirectory() as td:
+            worktree = self._init_repo(td)
+            target = worktree / m.TMX_FILES[0]
+            target.write_text('<tmx><tuid id="changed"/></tmx>\n', encoding="utf-8")
+
+            cp = subprocess.run(
+                [
+                    "git",
+                    "diff",
+                    "--name-only",
+                    "--",
+                    *[str(p) for p in (worktree / m.TMX_DIR).glob("*.tmx")],
+                ],
+                cwd=worktree,
+                capture_output=True,
+                text=True,
+            )
+            changed = [f for f in cp.stdout.splitlines() if f]
+            self.assertEqual(changed, [m.TMX_FILES[0]])
+
+
 class TestPreflightChecks(unittest.TestCase):
     """Verify pre-flight check dispatch and failure handling."""
 
@@ -246,7 +331,34 @@ class TestModuleConstants(unittest.TestCase):
         self.assertIn("Automated Co-Authored by", m.CO_AUTHORED_FOOTER)
 
     def test_tmx_files_match_module_agents(self):
-        self.assertEqual(m.TMX_FILES, ("CmsUi.tmx", "SystemResources.tmx", "DeveloperUi.tmx"))
+        self.assertEqual(
+            m.TMX_FILES,
+            (
+                "modules/perc-i18n/src/main/resources/i18n/CmsUi.tmx",
+                "modules/perc-i18n/src/main/resources/i18n/SystemResources.tmx",
+                "modules/perc-i18n/src/main/resources/i18n/DeveloperUi.tmx",
+            ),
+        )
+
+    def test_tmx_paths_resolve_on_repo(self):
+        """``TMX_FILES`` must use full relative paths so ``git add`` resolves
+        against the actual TMX location (``modules/perc-i18n/src/main/resources/i18n/``),
+        not against the worktree root. Regression test for the path basename
+        defect flagged in the PR #2651 peer review."""
+        repo_root = Path(__file__).resolve().parent.parent
+        for path in m.TMX_FILES:
+            self.assertTrue(
+                (repo_root / path).exists(),
+                f"TMX path does not exist on this repo: {path}",
+            )
+            self.assertTrue(path.startswith("modules/perc-i18n/"), path)
+            self.assertTrue(path.endswith(".tmx"), path)
+
+    def test_tmx_dir_constant(self):
+        self.assertEqual(
+            m.TMX_DIR.as_posix(),
+            "modules/perc-i18n/src/main/resources/i18n",
+        )
 
     def test_base_locales_count(self):
         self.assertEqual(len(m.BASE_LOCALES), 16)
@@ -350,6 +462,7 @@ def main() -> int:
     suite.addTests(loader.loadTestsFromTestCase(TestTranslationOutputParsing))
     suite.addTests(loader.loadTestsFromTestCase(TestBranchStaleness))
     suite.addTests(loader.loadTestsFromTestCase(TestUnpushedCommitsDetection))
+    suite.addTests(loader.loadTestsFromTestCase(TestStagingPathBuilder))
     suite.addTests(loader.loadTestsFromTestCase(TestPreflightChecks))
     suite.addTests(loader.loadTestsFromTestCase(TestCommitMessage))
     suite.addTests(loader.loadTestsFromTestCase(TestPRBody))

@@ -17,9 +17,8 @@
  */
 package com.percussion.pathmanagement.service.impl;
 
-import com.percussion.auditlog.PSActionOutcome;
-import com.percussion.auditlog.PSAuditLogService;
-import com.percussion.auditlog.PSContentEvent;
+import com.intsof.percussioncms.auditlog.AuditOutcome;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.pathmanagement.data.PSDeleteFolderCriteria;
@@ -86,8 +85,7 @@ import org.springframework.context.ApplicationContextAware;
 @Path("/path")
 public class PSPathService extends PSDispatchingPathService
     implements IPSPathService, ApplicationContextAware, InitializingBean {
-  private final PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
-  private PSContentEvent psContentEvent;
+
 
   private final IPSFolderHelper folderHelper;
 
@@ -554,15 +552,18 @@ public class PSPathService extends PSDispatchingPathService
           getSiteNameFromFolderPath(criteria.getPath()),
           "deleteFolderService",
           PSSiteCopyUtils.CAN_NOT_DELETE_FOLDER);
-      psContentEvent =
-          new PSContentEvent(
-              criteria.getGuid(),
-              String.valueOf(iGuid),
-              criteria.getPath(),
-              PSContentEvent.ContentEventActions.delete,
-              PSSecurityFilter.getCurrentRequest().getServletRequest(),
-              PSActionOutcome.SUCCESS);
-      psAuditLogService.logContentEvent(psContentEvent);
+      try {
+        var current = PSSecurityFilter.getCurrentRequest();
+        var servletRequest = current != null ? current.getServletRequest() : null;
+        PSSystemAuditLogger.contentDelete(
+            servletRequest,
+            AuditOutcome.SUCCESS,
+            criteria.getGuid(),
+            String.valueOf(iGuid),
+            criteria.getPath());
+      } catch (Exception auditEx) {
+        // audit must not mask primary path delete
+      }
     }
 
     return String.valueOf(super.deleteFolder(criteria));

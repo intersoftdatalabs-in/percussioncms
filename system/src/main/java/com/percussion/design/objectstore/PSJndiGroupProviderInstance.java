@@ -422,7 +422,7 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
   public static final String XML_NODE_NAME = "PSXJnidGroupProviderInstance";
 
   /** List of PSJndiObjectClass objects. Never <code>null</code>, may be empty. */
-  private List m_objectClasses = new ArrayList();
+  private ArrayList m_objectClasses = new ArrayList();
 
   /**
    * Map of objectClasses with the name lowercased as the key (a String) and the corresponding
@@ -430,10 +430,10 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
    * List so as to provide case insensitive named access to an object class, and to maintain an
    * ordered list as well.
    */
-  private Map m_objectClassMap = new HashMap();
+  private HashMap m_objectClassMap = new HashMap();
 
   /** List of group nodes as Strings. Never <code>null</code>, may be empty. */
-  private List m_groupNodes = new ArrayList();
+  private ArrayList m_groupNodes = new ArrayList();
 
   /*
    * The following strings define all elements/attributes used to create the

@@ -27,9 +27,8 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import com.percussion.auditlog.PSActionOutcome;
-import com.percussion.auditlog.PSAuditLogService;
-import com.percussion.auditlog.PSContentEvent;
+import com.intsof.percussioncms.auditlog.AuditOutcome;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSFolder;
@@ -130,8 +129,7 @@ public class PSSiteSectionService implements IPSSiteSectionService {
 
   private static final String NAVON_FIELD_CSSCLASSNAMES = "cssClassNames";
 
-  private PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
-  private PSContentEvent psContentEvent;
+
 
   /** The navigation service, initialized by constructor. */
   private IPSManagedNavService navSrv;
@@ -291,17 +289,12 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     if (sites.get(0).isSecure()) {
       removeSiteTouchedFile(sites.get(0).getName());
     }
-    psContentEvent =
-        new PSContentEvent(
-            section.getId(),
-            section
-                .getId()
-                .substring(section.getId().lastIndexOf("-") + 1, section.getId().length()),
-            section.getFolderPath(),
-            PSContentEvent.ContentEventActions.create,
-            PSSecurityFilter.getCurrentRequest().getServletRequest(),
-            PSActionOutcome.SUCCESS);
-    psAuditLogService.logContentEvent(psContentEvent);
+    auditSection(
+        section.getId(),
+        section.getId().substring(section.getId().lastIndexOf("-") + 1, section.getId().length()),
+        section.getFolderPath(),
+        SectionAuditKind.CREATE,
+        AuditOutcome.SUCCESS);
     return section;
   }
 
@@ -1321,15 +1314,12 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     if (!req.isSiteRootSection() && sites.get(0).isSecure()) {
       removeSiteTouchedFile(sites.get(0).getName());
     }
-    psContentEvent =
-        new PSContentEvent(
-            req.getId(),
-            req.getId().substring(req.getId().lastIndexOf("-") + 1, req.getId().length()),
-            req.getFolderName(),
-            PSContentEvent.ContentEventActions.update,
-            PSSecurityFilter.getCurrentRequest().getServletRequest(),
-            PSActionOutcome.SUCCESS);
-    psAuditLogService.logContentEvent(psContentEvent);
+    auditSection(
+        req.getId(),
+        req.getId().substring(req.getId().lastIndexOf("-") + 1, req.getId().length()),
+        req.getFolderName(),
+        SectionAuditKind.UPDATE,
+        AuditOutcome.SUCCESS);
     return load(req.getId());
   }
 
@@ -1900,17 +1890,36 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     }
     sectionIds.add(idMapper.getGuid(section.getId()));
     contentSrv.deleteItems(sectionIds);
-    psContentEvent =
-        new PSContentEvent(
-            section.getId(),
-            section
-                .getId()
-                .substring(section.getId().lastIndexOf("-") + 1, section.getId().length()),
-            section.getFolderPath(),
-            PSContentEvent.ContentEventActions.delete,
-            PSSecurityFilter.getCurrentRequest().getServletRequest(),
-            PSActionOutcome.SUCCESS);
-    psAuditLogService.logContentEvent(psContentEvent);
+    auditSection(
+        section.getId(),
+        section.getId().substring(section.getId().lastIndexOf("-") + 1, section.getId().length()),
+        section.getFolderPath(),
+        SectionAuditKind.DELETE,
+        AuditOutcome.SUCCESS);
+  }
+
+  private enum SectionAuditKind {
+    CREATE,
+    UPDATE,
+    DELETE
+  }
+
+  private void auditSection(
+      String guid, String contentId, String path, SectionAuditKind kind, AuditOutcome outcome) {
+    try {
+      var current = PSSecurityFilter.getCurrentRequest();
+      var servletRequest = current != null ? current.getServletRequest() : null;
+      switch (kind) {
+        case CREATE ->
+            PSSystemAuditLogger.contentCreate(servletRequest, outcome, guid, contentId, path);
+        case UPDATE ->
+            PSSystemAuditLogger.contentUpdate(servletRequest, outcome, guid, contentId, path);
+        case DELETE ->
+            PSSystemAuditLogger.contentDelete(servletRequest, outcome, guid, contentId, path);
+      }
+    } catch (Exception ignored) {
+      // audit must not mask primary failure
+    }
   }
 
   /**

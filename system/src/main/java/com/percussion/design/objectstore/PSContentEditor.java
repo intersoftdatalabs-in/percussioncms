@@ -1047,7 +1047,10 @@ public class PSContentEditor extends PSDataSet {
     ICON_SOURCE_NONE, ICON_SOURCE_SPECIFIED, ICON_SOURCE_FROMFILEEXT
   };
 
-  /** A collection of PSUrlRequest objects, never <code>null</code>. */
+  /**
+   * A collection of PSUrlRequest objects, never <code>null</code>. Typed as {@link PSCollection}
+   * which is {@link java.io.Serializable} (utils #2450 / #2452 serial-field residual).
+   */
   private PSCollection m_sectionLinkList = new PSCollection(PSUrlRequest.class);
 
   /** The command handler stylesheets, never <code>null</code> after construction. */
@@ -1062,13 +1065,23 @@ public class PSContentEditor extends PSDataSet {
    */
   private PSWorkflowInfo m_workflowInfo = null;
 
-  /** The group validation rules, never <code>null</code> might be empty. */
+  /**
+   * The group validation rules, never <code>null</code> might be empty. {@link PSValidationRules}
+   * extends {@link PSCollectionComponent} and is Serializable (#2450 / #2452).
+   */
   private PSValidationRules m_validationRules = new PSValidationRules();
 
-  /** The group input translations, never <code>null</code> might be empty. */
+  /**
+   * The group input translations, never <code>null</code> might be empty. {@link
+   * PSInputTranslations} extends {@link PSCollectionComponent} and is Serializable (#2450 / #2452).
+   */
   private PSInputTranslations m_inputTranslations = new PSInputTranslations();
 
-  /** The group output translations, never <code>null</code> might be empty. */
+  /**
+   * The group output translations, never <code>null</code> might be empty. {@link
+   * PSOutputTranslations} extends {@link PSCollectionComponent} and is Serializable (#2450 /
+   * #2452).
+   */
   private PSOutputTranslations m_outputTranslations = new PSOutputTranslations();
 
   /**

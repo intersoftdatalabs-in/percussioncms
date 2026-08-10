@@ -24,6 +24,7 @@ import type { DisplayFormat } from "../api/developer/types";
 import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { ObjectAclSection } from "./ObjectAclSection";
 
 export function DisplayFormatDetailPanel({
   idOrName,
@@ -155,6 +156,12 @@ export function DisplayFormatDetailPanel({
               </div>
             )}
           </section>
+
+          <ObjectAclSection
+            objectGuid={detail.guid?.stringValue}
+            objectKind="display-format"
+            testIdPrefix="developer-df-acl"
+          />
 
           <section style={{ marginTop: "16px" }} data-testid="developer-df-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.DF_GAPS}</h3>

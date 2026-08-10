@@ -19,10 +19,9 @@ package com.percussion.cms.handlers;
 
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
-import com.percussion.auditlog.PSActionOutcome;
-import com.percussion.auditlog.PSAuditLogService;
-import com.percussion.auditlog.PSWorkflowEvent;
+import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.percussion.cms.IPSConstants;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.cms.PSApplicationBuilder;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.PSDisplayFieldElementBuilder;
@@ -103,9 +102,6 @@ import org.w3c.dom.Text;
 
 /** This class encapsulates behaviour to handle all workflow related commands. */
 public class PSWorkflowCommandHandler extends PSCommandHandler {
-  private PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
-  private PSWorkflowEvent psWorkflowEvent;
-
   /** Logger */
   private static final Logger ms_logger = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
 
@@ -472,6 +468,24 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
       // Just make sure to reset the flag to null
       req.setPrivateObject(IPSConstants.WF_ACTION_PERFORMED, null);
 
+      // Capture workflow state before transition for accurate audit from→to mapping.
+      String fromStateName = "";
+      try {
+        String contentIdParam = req.getParameter("sys_contentid");
+        if (contentIdParam != null && !contentIdParam.isBlank()) {
+          PSComponentSummary preSummary =
+              PSWebserviceUtils.getItemSummary(Integer.parseInt(contentIdParam));
+          PSWorkflow preWf = PSWebserviceUtils.getWorkflow(preSummary.getWorkflowAppId());
+          PSState preState =
+              PSWebserviceUtils.getStateById(preWf, preSummary.getContentStateId());
+          if (preState != null && preState.getName() != null) {
+            fromStateName = preState.getName();
+          }
+        }
+      } catch (Exception e) {
+        ms_logger.debug("Could not resolve pre-transition workflow state for audit", e);
+      }
+
       // run pre exits, which performs the actual checkin/chkout or
       // workflow transitions (if requested)
       runPreProcessingExtensions(execData);
@@ -528,23 +542,21 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
       PSWorkflow wf = PSWebserviceUtils.getWorkflow(summary.getWorkflowAppId());
       PSState currState = PSWebserviceUtils.getStateById(wf, summary.getContentStateId());
       PSLegacyGuid ps = new PSLegacyGuid(summary.getContentId(), summary.getCurrRevision());
-      String currentState = currState.getName();
+      // Post-transition state is the audit "to" state; "from" was captured before pre-exits.
+      String toStateName = currState != null ? currState.getName() : "";
 
-      if (!wfAction.equalsIgnoreCase("Pending")) {
-        wfAction = "Quick Edit";
+      try {
+        PSSystemAuditLogger.workflowTransition(
+            req.getServletRequest(),
+            AuditOutcome.SUCCESS,
+            req.getParameter("sys_contentid"),
+            ps.toString(),
+            fromStateName,
+            toStateName);
+      } catch (Exception auditEx) {
+        ms_logger.error("Failed to write workflow audit event: {}", auditEx.getMessage());
+        ms_logger.debug(auditEx);
       }
-
-      psWorkflowEvent =
-          new PSWorkflowEvent(
-              wfAction,
-              currentState,
-              PSWorkflowEvent.WorkflowEventActions.update,
-              req.getServletRequest(),
-              req.getParameter("sys_contentid"),
-              ps.toString(),
-              PSActionOutcome.SUCCESS.name());
-
-      psAuditLogService.logWorkflowEvent(psWorkflowEvent);
 
       return execData;
     } finally {

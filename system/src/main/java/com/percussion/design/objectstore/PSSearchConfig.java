@@ -341,7 +341,7 @@ public class PSSearchConfig extends PSComponent {
 
     setAdminMaster(config.isAdminMaster());
     setMaxSearchResult(config.getMaxSearchResult());
-    m_properties = config.getCustomProps();
+    m_properties = (HashMap) config.getCustomProps();
     m_resultProcessingExitSet =
         (PSExtensionCallSet) config.getSearchResultProcessingExtensions().clone();
     Map<String, PSExtensionCall> amap = config.getAnalyzers();
@@ -385,7 +385,7 @@ public class PSSearchConfig extends PSComponent {
     if (m_maxSearchResult != test.m_maxSearchResult) return false;
 
     if (m_properties.size() != test.m_properties.size()) return false;
-    else if (!((HashMap) m_properties).equals(test.m_properties)) return false;
+    else if (!m_properties.equals(test.m_properties)) return false;
 
     if (!m_resultProcessingExitSet.equals(test.m_resultProcessingExitSet)) return false;
 
@@ -495,7 +495,7 @@ public class PSSearchConfig extends PSComponent {
    */
   public Map getCustomProps() {
     // since keys and values are immutable, we don't need to do anything else
-    return (Map) ((HashMap) m_properties).clone();
+    return (Map) m_properties.clone();
   }
 
   /**
@@ -659,16 +659,16 @@ public class PSSearchConfig extends PSComponent {
    * null</code>. Modified by {@link #addCustomProp(String, String)}, {@link
    * #removeCustomProp(String)} and {@link #removeAllCustomProps()}.
    */
-  private Map m_properties;
+  private HashMap m_properties;
 
   /** Search results processing extension set. Never <code>null</code> may be empty. */
   PSExtensionCallSet m_resultProcessingExitSet = new PSExtensionCallSet();
 
   /** Search results processing extension set. Never <code>null</code> may be empty. */
-  Map<String, PSExtensionCall> m_analyzers = new HashMap<>();
+  HashMap<String, PSExtensionCall> m_analyzers = new HashMap<>();
 
   /** Search results processing extension set. Never <code>null</code> may be empty. */
-  Map<String, PSExtensionCall> m_textConverters = new HashMap<>();
+  HashMap<String, PSExtensionCall> m_textConverters = new HashMap<>();
 
   /*
    * Values for the element/attribute names used in the configuration file

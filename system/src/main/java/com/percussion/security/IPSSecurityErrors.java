@@ -19,7 +19,18 @@ package com.percussion.security;
 
 /**
  * The IPSSecurityErrors inteface is provided as a convenient mechanism for accessing the various
- * security related error codes. The error code ranges are:
+ * security related error codes.
+ *
+ * <p><strong>Phase 2b bridge:</strong> all defined ints in this interface (general auth 9001–9026,
+ * host/OS/role providers, directory auth 98xx, cataloger 99xx) are cataloged in {@code
+ * com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes} with explicit {@code isAuditable}.
+ * The reserved ACL range 9301–9500 has no constants today. Int literals remain here so they stay
+ * <em>compile-time constants</em> (required for {@code switch} labels such as {@code case
+ * IPSSecurityErrors.SESS_NOT_AUTHORIZED}). Prefer {@code SecurityErrorCodes} / {@code
+ * LegacyErrorCodeRegistry} for dual-write decisions; keep this interface for legacy {@code
+ * PSException} constructors and message bundles.
+ *
+ * <p>The error code ranges are:
  *
  * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
  * <TR><TH>Range</TH><TH>Component</TH></TR>

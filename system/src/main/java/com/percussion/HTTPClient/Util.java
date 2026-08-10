@@ -177,13 +177,17 @@ public class Util {
    * Helper method for context lists used by modules. Returns the list associated with the context
    * if it exists; otherwise it creates a new list and adds it to the context list.
    *
+   * @param <K> key type of the inner context map
+   * @param <V> value type of the inner context map
    * @param cntxt_list the list of lists indexed by context
    * @param cntxt the context
+   * @return the inner map for {@code cntxt}, never null
    */
-  static final ConcurrentHashMap getList(ConcurrentHashMap cntxt_list, Object cntxt) {
-    ConcurrentHashMap list = (ConcurrentHashMap) cntxt_list.get(cntxt);
+  static final <K, V> ConcurrentHashMap<K, V> getList(
+      ConcurrentHashMap<Object, ConcurrentHashMap<K, V>> cntxt_list, Object cntxt) {
+    ConcurrentHashMap<K, V> list = cntxt_list.get(cntxt);
     if (list == null) {
-      list = new ConcurrentHashMap();
+      list = new ConcurrentHashMap<>();
       cntxt_list.put(cntxt, list);
     }
 
@@ -354,7 +358,7 @@ public class Util {
    *     <var>HttpHeaderElement</var>.
    * @exception ParseException if the syntax rules are violated.
    */
-  public static final Vector parseHeader(String header) throws ParseException {
+  public static final Vector<HttpHeaderElement> parseHeader(String header) throws ParseException {
     return parseHeader(header, true);
   }
 
@@ -388,10 +392,11 @@ public class Util {
    * @exception ParseException if the above syntax rules are violated.
    * @see com.percussion.HTTPClient.HttpHeaderElement
    */
-  public static final Vector parseHeader(String header, boolean dequote) throws ParseException {
+  public static final Vector<HttpHeaderElement> parseHeader(String header, boolean dequote)
+      throws ParseException {
     if (header == null) return null;
     char[] buf = header.toCharArray();
-    Vector elems = new Vector();
+    Vector<HttpHeaderElement> elems = new Vector<>();
     boolean first = true;
     int beg = -1, end = 0, len = buf.length, abeg[] = new int[1];
     String elem_name, elem_value;
@@ -570,10 +575,10 @@ public class Util {
    * @return the request element, or null if none found.
    * @see #parseHeader(java.lang.String)
    */
-  public static final HttpHeaderElement getElement(Vector header, String name) {
+  public static final HttpHeaderElement getElement(Vector<HttpHeaderElement> header, String name) {
     int idx = header.indexOf(new HttpHeaderElement(name));
     if (idx == -1) return null;
-    else return (HttpHeaderElement) header.elementAt(idx);
+    else return header.elementAt(idx);
   }
 
   /**
@@ -591,7 +596,7 @@ public class Util {
    * @exception ParseException if the above syntax rules are violated.
    */
   public static final String getParameter(String param, String hdr) throws ParseException {
-    NVPair[] params = ((HttpHeaderElement) parseHeader(hdr).firstElement()).getParams();
+    NVPair[] params = parseHeader(hdr).firstElement().getParams();
 
     for (int idx = 0; idx < params.length; idx++) {
       if (params[idx].getName().equalsIgnoreCase(param)) return params[idx].getValue();
@@ -607,12 +612,12 @@ public class Util {
    * @param pheader the parsed header
    * @return a string containing the assembled header
    */
-  public static final String assembleHeader(Vector pheader) {
+  public static final String assembleHeader(Vector<HttpHeaderElement> pheader) {
     StringBuilder hdr = new StringBuilder(200);
     int len = pheader.size();
 
     for (int idx = 0; idx < len; idx++) {
-      ((HttpHeaderElement) pheader.elementAt(idx)).appendTo(hdr);
+      pheader.elementAt(idx).appendTo(hdr);
       hdr.append(", ");
     }
     hdr.setLength(hdr.length() - 2);

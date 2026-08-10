@@ -17,16 +17,20 @@
 /**
  * Developer Object ACL — design vs runtime permission model depth (#2283 / #2274 CD-19).
  *
- * Opens a content-type detail panel and asserts ObjectAclSection exposes
- * Workbench-parity Design access vs Runtime visibility column groups and
- * layered permission toggles (Read / Update / Delete / Modify ACL / Visible).
+ * Opens content-type and template detail panels and asserts ObjectAclSection
+ * exposes Workbench-parity Design access vs Runtime visibility column groups
+ * and layered permission toggles (Read / Update / Delete / Modify ACL / Visible).
+ *
+ * Product path (CT + Template + prefs) lives in
+ * developer-object-acl-product-path.spec.js (#2605 B5).
  *
  * Surface filter (H2 QA / agent path):
  *   cd modules/perc-qa-automation/frontend
  *   npx playwright test tests/developer-object-acl-design-runtime.spec.js
+ *   # or: npm run test:surface -- --path tests/developer-object-acl-design-runtime.spec.js
  *
- * Entry: spa.jsp?entry=developer&section=content-types
- * Refs #2283, #2274, #2262, #1690.
+ * Entry: spa.jsp?entry=developer&section=content-types|templates
+ * Refs #2283, #2605, #2274, #2262, #1690.
  */
 
 const { test, expect } = require("@playwright/test");
@@ -35,10 +39,10 @@ const {
   catalogRowSelector,
 } = require("./helpers/developer-catalog-selectors");
 
-function developerContentTypesUrl() {
+function developerSectionUrl(section) {
   const q = new URLSearchParams({
     entry: "developer",
-    section: "content-types",
+    section,
     _: String(Date.now()),
   });
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?${q.toString()}`;
@@ -53,7 +57,9 @@ test.describe("Developer Object ACL design vs runtime permissions (#2283)", () =
   test("content type ACL shows Design access and Runtime visibility columns", async ({
     page,
   }) => {
-    await page.goto(developerContentTypesUrl(), { waitUntil: "networkidle" });
+    await page.goto(developerSectionUrl("content-types"), {
+      waitUntil: "networkidle",
+    });
 
     await expect(page.locator('[data-testid="nav-developer"]')).toBeVisible({
       timeout: 20_000,
@@ -176,5 +182,97 @@ test.describe("Developer Object ACL design vs runtime permissions (#2283)", () =
     // Restore so we leave UI clean if user has dirty state visible
     await firstRead.click();
     await expect(firstRead).toBeChecked({ checked: wasChecked });
+  });
+
+  test("template ACL shows Design access and Runtime visibility columns", async ({
+    page,
+  }) => {
+    await page.goto(developerSectionUrl("templates"), {
+      waitUntil: "networkidle",
+    });
+
+    await expect(page.locator('[data-testid="nav-developer"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(
+      page.locator('[data-testid="tab-developer-templates"]'),
+    ).toBeVisible({ timeout: 15_000 });
+
+    const error = page.locator('[data-testid="developer-tpl-error"]');
+    const panel = page.locator('[data-testid="developer-tpl-panel"]');
+    const empty = page.locator('[data-testid="developer-tpl-empty"]');
+
+    await expect(panel.or(empty).or(error).first()).toBeVisible({
+      timeout: 30_000,
+    });
+
+    if (await error.isVisible()) {
+      const msg = (await error.innerText()).trim();
+      throw new Error(`Templates catalog error: ${msg}`);
+    }
+
+    if (await empty.isVisible()) {
+      test.skip(true, "No templates in CMS — cannot open Object ACL");
+      return;
+    }
+
+    const firstRow = page.locator(catalogRowSelector("developer-tpl-row", 0));
+    await expect(firstRow).toBeVisible({ timeout: 15_000 });
+    const openBtn = firstRow.locator("button");
+    await expect(
+      openBtn,
+      "first template row should expose Open when selectionKey is set",
+    ).toBeVisible({ timeout: 5_000 });
+    await openBtn.click();
+
+    await expect(
+      page.locator('[data-testid="developer-tpl-detail"]'),
+    ).toBeVisible({ timeout: 20_000 });
+
+    const aclSection = page.locator(
+      '[data-testid="developer-tpl-acl-section"]',
+    );
+    await expect(aclSection).toBeVisible({ timeout: 15_000 });
+
+    const aclError = page.locator('[data-testid="developer-tpl-acl-error"]');
+    const aclEmpty = page.locator('[data-testid="developer-tpl-acl-empty"]');
+    const aclTable = page.locator('[data-testid="developer-tpl-acl-table"]');
+    const aclLoading = page.locator(
+      '[data-testid="developer-tpl-acl-loading"]',
+    );
+
+    await expect(aclLoading).toBeHidden({ timeout: 30_000 }).catch(() => {});
+    await expect(aclTable.or(aclEmpty).or(aclError).first()).toBeVisible({
+      timeout: 30_000,
+    });
+
+    if (await aclError.isVisible()) {
+      const msg = (await aclError.innerText()).trim();
+      throw new Error(`Template Object ACL load error: ${msg}`);
+    }
+
+    if (await aclEmpty.isVisible()) {
+      test.skip(
+        true,
+        "Template has no ACL — create-first path not required for design/runtime columns",
+      );
+      return;
+    }
+
+    await expect(aclTable).toBeVisible();
+    await expect(aclTable).toHaveAttribute("data-acl-show-runtime", "true");
+    await expect(aclTable).toHaveAttribute("data-acl-object-kind", "template");
+
+    await expect(
+      page.locator('[data-testid="developer-tpl-acl-layer-design"]'),
+    ).toContainText(/Design access/i);
+    await expect(
+      page.locator('[data-testid="developer-tpl-acl-layer-runtime"]'),
+    ).toContainText(/Runtime visibility/i);
+    await expect(
+      page.locator(
+        '[data-testid="developer-tpl-acl-perm-header-RUNTIME_VISIBLE"]',
+      ),
+    ).toContainText(/Visible/i);
   });
 });

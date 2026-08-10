@@ -33,6 +33,12 @@ import org.springframework.util.StopWatch;
  * The entry point for the assembly service to assemble pages or templates. The assembler can
  * determine if its rendering a page or template safely.
  *
+ * <p><b>Normalization note (8.2 / epic #2626):</b> This class is intentionally a thin context
+ * provider on top of {@link PSVelocityAssembler} — it builds the {@code $perc} page assembly
+ * context, then delegates render to Velocity. Longer term it should bind the same page context
+ * for any text assembler (Velocity, HTML-first, Markdown) rather than remaining a separate
+ * template species. See {@code docs/ai-generated/tasks/template-assembler-normalization/}.
+ *
  * @see PSPageAssemblyContextFactory
  * @author adamgent
  */

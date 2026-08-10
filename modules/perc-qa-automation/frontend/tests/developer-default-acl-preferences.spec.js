@@ -100,6 +100,15 @@ test.describe("Developer default ACL preferences (#2282)", () => {
       await expect(nameInputs.first()).toBeVisible();
       const count = await nameInputs.count();
       expect(count).toBeGreaterThan(0);
+
+      // CD-19 B5 (#2605): Design access / Runtime visibility column groups
+      await expect(table).toHaveAttribute("data-acl-layered", "true");
+      await expect(
+        page.locator('[data-testid="developer-prefs-acl-layer-design"]'),
+      ).toContainText(/Design access/i);
+      await expect(
+        page.locator('[data-testid="developer-prefs-acl-layer-runtime"]'),
+      ).toContainText(/Runtime visibility/i);
     }
   });
 });

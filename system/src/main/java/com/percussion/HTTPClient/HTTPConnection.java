@@ -232,9 +232,9 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   /** The list of hosts for which no proxy is to be used */
   private static CIHashtable non_proxy_host_list = new CIHashtable();
 
-  private static Vector non_proxy_dom_list = new Vector();
-  private static Vector non_proxy_addr_list = new Vector();
-  private static Vector non_proxy_mask_list = new Vector();
+  private static final Vector<String> non_proxy_dom_list = new Vector<>();
+  private static final Vector<byte[]> non_proxy_addr_list = new Vector<>();
+  private static final Vector<byte[]> non_proxy_mask_list = new Vector<>();
 
   /** The socks server to use */
   private SocksClient Socks_client = null;
@@ -291,10 +291,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   private NVPair[] DefaultHeaders = new NVPair[0];
 
   /** The default list of modules (as a Vector of Class objects) */
-  private static Vector DefaultModuleList;
+  private static Vector<Class<?>> DefaultModuleList;
 
   /** The list of modules (as a Vector of Class objects) */
-  private Vector ModuleList;
+  private Vector<Class<?>> ModuleList;
 
   /** controls whether modules are allowed to interact with user */
   private static boolean defaultAllowUI = true;
@@ -387,7 +387,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
       in_applet = true;
     }
 
-    DefaultModuleList = new Vector();
+    DefaultModuleList = new Vector<>();
     String[] list = Util.splitProperty(modules);
     for (int idx = 0; idx < list.length; idx++) {
       try {
@@ -582,7 +582,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
     Socks_client = Default_Socks_client;
     Timeout = DefaultTimeout;
-    ModuleList = (Vector) DefaultModuleList.clone();
+    ModuleList = new Vector<>(DefaultModuleList);
     allowUI = defaultAllowUI;
     if (noKeepAlives) setDefaultHeaders(new NVPair[] {new NVPair("Connection", "close")});
     sslFactory = defaultSSLFactory;
@@ -603,7 +603,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
     // Check domain name list
 
     for (int idx = 0; idx < non_proxy_dom_list.size(); idx++)
-      if (host.endsWith((String) non_proxy_dom_list.elementAt(idx))) return true;
+      if (host.endsWith(non_proxy_dom_list.elementAt(idx))) return true;
 
     // Check IP-address and subnet list
 
@@ -617,8 +617,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
     } // maybe the proxy has better luck
 
     for (int idx = 0; idx < non_proxy_addr_list.size(); idx++) {
-      byte[] addr = (byte[]) non_proxy_addr_list.elementAt(idx);
-      byte[] mask = (byte[]) non_proxy_mask_list.elementAt(idx);
+      byte[] addr = non_proxy_addr_list.elementAt(idx);
+      byte[] mask = non_proxy_mask_list.elementAt(idx);
 
       ip_loop:
       for (int idx2 = 0; idx2 < host_addr.length; idx2++) {
@@ -1502,7 +1502,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    *
    * @return an array of classes
    */
-  public static Class[] getDefaultModules() {
+  public static Class<?>[] getDefaultModules() {
     return getModules(DefaultModuleList);
   }
 
@@ -1542,7 +1542,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    *     <var>HTTPClientModule</var> interface.
    * @exception RuntimeException if <var>module</var> cannot be instantiated.
    */
-  public static boolean addDefaultModule(Class module, int pos) {
+  public static boolean addDefaultModule(Class<?> module, int pos) {
     return addModule(DefaultModuleList, module, pos);
   }
 
@@ -1554,7 +1554,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    * @param module the module's Class object
    * @return true if module was successfully removed; false otherwise
    */
-  public static boolean removeDefaultModule(Class module) {
+  public static boolean removeDefaultModule(Class<?> module) {
     return removeModule(DefaultModuleList, module);
   }
 
@@ -1563,7 +1563,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    *
    * @return an array of classes
    */
-  public Class[] getModules() {
+  public Class<?>[] getModules() {
     return getModules(ModuleList);
   }
 
@@ -1584,7 +1584,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    *     <var>HTTPClientModule</var> interface.
    * @exception RuntimeException if <var>module</var> cannot be instantiated.
    */
-  public boolean addModule(Class module, int pos) {
+  public boolean addModule(Class<?> module, int pos) {
     return addModule(ModuleList, module, pos);
   }
 
@@ -1594,24 +1594,24 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    * @param module the module's Class object
    * @return true if module was successfully removed; false otherwise
    */
-  public boolean removeModule(Class module) {
+  public boolean removeModule(Class<?> module) {
     return removeModule(ModuleList, module);
   }
 
-  private static final Class[] getModules(Vector list) {
+  private static final Class<?>[] getModules(Vector<Class<?>> list) {
     synchronized (list) {
-      Class[] modules = new Class[list.size()];
+      Class<?>[] modules = new Class<?>[list.size()];
       list.copyInto(modules);
       return modules;
     }
   }
 
-  private static final boolean addModule(Vector list, Class module, int pos) {
+  private static final boolean addModule(Vector<Class<?>> list, Class<?> module, int pos) {
     if (module == null) return false;
 
     // check if module implements HTTPClientModule
     try {
-      HTTPClientModule tmp = (HTTPClientModule) module.newInstance();
+      HTTPClientModule tmp = newModuleInstance(module);
     } catch (RuntimeException re) {
       throw re;
     } catch (Exception e) {
@@ -1638,7 +1638,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
     return true;
   }
 
-  private static final boolean removeModule(Vector list, Class module) {
+  private static final boolean removeModule(Vector<Class<?>> list, Class<?> module) {
     if (module == null) return false;
 
     boolean removed = list.removeElement(module);
@@ -1896,8 +1896,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
     ip_loop:
     for (int idx = 0; idx < non_proxy_addr_list.size(); idx++) {
-      byte[] addr = (byte[]) non_proxy_addr_list.elementAt(idx);
-      byte[] mask = (byte[]) non_proxy_mask_list.elementAt(idx);
+      byte[] addr = non_proxy_addr_list.elementAt(idx);
+      byte[] mask = non_proxy_mask_list.elementAt(idx);
       if (addr.length != ip_addr.length) continue;
 
       for (int idx2 = 0; idx2 < addr.length; idx2++) {
@@ -1982,8 +1982,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
     ip_loop:
     for (int idx = 0; idx < non_proxy_addr_list.size(); idx++) {
-      byte[] addr = (byte[]) non_proxy_addr_list.elementAt(idx);
-      byte[] mask = (byte[]) non_proxy_mask_list.elementAt(idx);
+      byte[] addr = non_proxy_addr_list.elementAt(idx);
+      byte[] mask = non_proxy_mask_list.elementAt(idx);
       if (addr.length != ip_addr.length) continue;
 
       for (int idx2 = 0; idx2 < addr.length; idx2++) {
@@ -2204,9 +2204,9 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
       HTTPClientModule[] mod_insts = new HTTPClientModule[ModuleList.size()];
 
       for (int idx = 0; idx < ModuleList.size(); idx++) {
-        Class mod = (Class) ModuleList.elementAt(idx);
+        Class<?> mod = ModuleList.elementAt(idx);
         try {
-          mod_insts[idx] = (HTTPClientModule) mod.newInstance();
+          mod_insts[idx] = newModuleInstance(mod);
         } catch (Exception e) {
           throw new Error(
               "HTTPClient Internal Error: could not "
@@ -2219,6 +2219,20 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
       return mod_insts;
     }
+  }
+
+  /**
+   * Instantiate an {@link HTTPClientModule} via its no-arg constructor.
+   *
+   * <p>Uses {@link Class#getDeclaredConstructor()} (not {@link Class#getConstructor()}) because
+   * several built-in modules are package-private with package-private constructors (e.g. {@code
+   * DefaultModule}, {@code AuthorizationModule}). {@code getConstructor()} only sees public
+   * constructors and would throw {@link NoSuchMethodException} for those classes. Module classes
+   * must declare a no-arg constructor on the concrete class itself (Java default constructors
+   * count; constructors are never inherited from superclasses).
+   */
+  private static HTTPClientModule newModuleInstance(Class<?> module) throws Exception {
+    return (HTTPClientModule) module.getDeclaredConstructor().newInstance();
   }
 
   /**
@@ -2692,7 +2706,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
       throws IOException, ModuleException {
     // copy User-Agent and Proxy-Auth headers from request
 
-    Vector hdrs = new Vector();
+    Vector<NVPair> hdrs = new Vector<>();
     for (int idx = 0; idx < req.getHeaders().length; idx++) {
       String name = req.getHeaders()[idx].getName();
       if (name.equalsIgnoreCase("User-Agent") || name.equalsIgnoreCase("Proxy-Authorization"))
@@ -2926,7 +2940,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
     if (te_idx != -1) {
       dataout.writeBytes("TE: ");
-      Vector pte;
+      Vector<HttpHeaderElement> pte;
       try {
         pte = Util.parseHeader(hdrs[te_idx].getValue());
       } catch (ParseException pe) {
@@ -2977,7 +2991,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
         dataout.writeBytes("Expect: " + con_hdrs[1] + "\r\n");
       }
     } else if (ex_idx != -1) {
-      Vector expect_tokens;
+      Vector<HttpHeaderElement> expect_tokens;
       try {
         expect_tokens = Util.parseHeader(hdrs[ex_idx].getValue());
       } catch (ParseException pe) {

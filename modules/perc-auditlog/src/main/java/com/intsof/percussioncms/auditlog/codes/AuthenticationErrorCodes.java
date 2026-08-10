@@ -22,8 +22,12 @@ import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.intsof.percussioncms.auditlog.SystemErrorCode;
 
 /**
- * Reference package-local error codes for authentication (Phase 1 sample). Production auth codes
- * should eventually live under {@code com.percussion.security} once call sites migrate.
+ * High-level authentication <em>audit events</em> (login success/failure/logout).
+ *
+ * <p>Exception catalog codes that bridge legacy {@code IPSSecurityErrors} ints live in {@link
+ * SecurityErrorCodes} (Phase 2b). Prefer this enum for intentional audit emits from login
+ * servlets; prefer {@link SecurityErrorCodes} / {@code LegacyErrorCodeRegistry} when handling
+ * {@code PSException} error codes.
  *
  * <p>Every constant sets {@link #isAuditable()} explicitly.
  */
@@ -51,6 +55,15 @@ public enum AuthenticationErrorCodes implements SystemErrorCode {
       AuditOutcome.SUCCESS,
       "User {} logged out",
       "Logout actor={} sourceIp={}"),
+
+  /** Session nearing timeout was revoked / released. */
+  SESSION_REVOKE(
+      1004,
+      true,
+      AuditEventType.AUTH_SESSION_TIMEOUT,
+      AuditOutcome.SUCCESS,
+      "Session revoked for user {}",
+      "Session revoke actor={} sourceIp={}"),
 
   /** Non-auditable operational noise example. */
   SESSION_CACHE_MISS(

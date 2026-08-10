@@ -31,10 +31,9 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.assetmanagement.data.PSReportFailedToRunException;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
-import com.percussion.auditlog.PSActionOutcome;
-import com.percussion.auditlog.PSAuditLogService;
-import com.percussion.auditlog.PSContentEvent;
+import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.percussion.cms.IPSConstants;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.content.PSContentFactory;
@@ -193,8 +192,6 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
   private IPSRecycleService recycleService;
 
   private static final String RECYCLED_TYPE = PSRelationshipConfig.TYPE_RECYCLED_CONTENT;
-
-  private PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
 
   @Autowired
   public PSPageService(
@@ -642,15 +639,16 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
     pageChangeEvent.setType(PSPageChangeEventType.PAGE_SAVED);
     notifyPageChange(pageChangeEvent);
     try {
-      PSContentEvent psContentEvent =
-          new PSContentEvent(
-              page.getId(),
-              page.getId().substring(page.getId().lastIndexOf("-") + 1, page.getId().length()),
-              page.getFolderPath(),
-              PSContentEvent.ContentEventActions.create,
-              PSSecurityFilter.getCurrentRequest().getServletRequest(),
-              PSActionOutcome.SUCCESS);
-      psAuditLogService.logContentEvent(psContentEvent);
+      var current = PSSecurityFilter.getCurrentRequest();
+      var servletRequest = current != null ? current.getServletRequest() : null;
+      String contentId =
+          page.getId().substring(page.getId().lastIndexOf("-") + 1, page.getId().length());
+      PSSystemAuditLogger.contentCreate(
+          servletRequest,
+          AuditOutcome.SUCCESS,
+          page.getId(),
+          contentId,
+          page.getFolderPath());
     } catch (Exception e) {
       // Handling exception
     }

@@ -15,6 +15,21 @@ vi.mock("../../../main/ts/api/developer/actionMenusApi", () => ({
   getActionMenuDetail: vi.fn(),
 }));
 
+// ObjectAclSection loads ACL via separate API; stub to isolate detail load + assert wiring.
+vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
+  ObjectAclSection: (props: {
+    objectGuid?: string | null;
+    objectKind?: string | null;
+    testIdPrefix?: string;
+  }) => (
+    <div
+      data-testid={`${props.testIdPrefix ?? "developer-acl"}-stub`}
+      data-object-guid={props.objectGuid ?? ""}
+      data-object-kind={props.objectKind ?? ""}
+    />
+  ),
+}));
+
 const getActionMenuDetail = actionMenusApi.getActionMenuDetail as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
@@ -26,6 +41,7 @@ const sampleDetail = {
   handler: "CLIENT",
   url: "/Rhythmyx/edit",
   sortRank: 10,
+  guid: { stringValue: "0-11-42" },
   parameters: [{ name: "sys_contentid", value: "0" }],
   properties: [{ name: "AcceleratorKey", value: "E" }],
 };
@@ -48,6 +64,9 @@ describe("ActionMenuDetailPanel", () => {
     expect(screen.getByTestId("developer-am-detail-title").textContent).toContain("Edit Item");
     expect(screen.getByTestId("developer-am-params-table")).toBeTruthy();
     expect(screen.getByTestId("developer-am-props-table")).toBeTruthy();
+    const acl = screen.getByTestId("developer-am-acl-stub");
+    expect(acl.getAttribute("data-object-kind")).toBe("action-menu");
+    expect(acl.getAttribute("data-object-guid")).toBe("0-11-42");
     expect(screen.getByTestId("developer-am-gaps")).toBeTruthy();
     expect(getActionMenuDetail).toHaveBeenCalledWith("Edit");
     fireEvent.click(screen.getByTestId("developer-am-back"));

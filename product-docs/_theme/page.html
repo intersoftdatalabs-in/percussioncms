@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>${pageTitle} — ${siteTitle}</title>
+  <meta name="description" content="${description}"/>
+  <link rel="stylesheet" href="/assets/site.css"/>
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">${siteTitle}</div>
+    <div class="version-switcher">${versionSwitcher}</div>
+  </header>
+  <div class="layout">
+    <nav class="sidebar" aria-label="Documentation">
+      ${nav}
+    </nav>
+    <main class="content">
+      <p class="version-label">${versionLabel}</p>
+      <article>
+        ${content}
+      </article>
+    </main>
+  </div>
+</body>
+</html>

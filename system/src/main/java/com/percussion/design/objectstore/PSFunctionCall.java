@@ -700,14 +700,18 @@ public class PSFunctionCall extends PSNamedReplacementValue
    * null</code>, then set in the <code>initialize()</code> method, never <code>null</code> or
    * modified after that
    */
-  private PSDatabaseFunctionDef m_dbFuncDef = null;
+  /**
+   * Resolved function definition after {@code initialize()}; runtime cache, not durable
+   * objectstore state (name is in {@link #m_dbFuncName}).
+   */
+  private transient PSDatabaseFunctionDef m_dbFuncDef = null;
 
   /**
    * A Collection of zero or more non-<code>null</code> <code>PSFunctionParamValue</code> objects.
    * Initialized in ctor, modified in the <code>fromXml()</code> and <code>setParamValues()</code>
    * methods, never <code>null</code> after initialization, may be empty.
    */
-  private Collection<PSFunctionParamValue> m_params;
+  private ArrayList<PSFunctionParamValue> m_params;
 
   /**
    * An array of zero or more columns which need to be mapped in order for the param values to be

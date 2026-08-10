@@ -70,11 +70,27 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
     filter = new PSRelationshipFilter();
   }
 
+  /**
+   * Subclass constructors that know owner/dependent orientation at construction time assign the
+   * field here (no overridable setter call → no this-escape).
+   *
+   * @param isParent {@code true} when the updated item is the relationship owner
+   */
+  protected PSRelationshipBuilder(boolean isParent) {
+    this();
+    this.isParent = isParent;
+  }
+
   public boolean isParent() {
     return isParent;
   }
 
-  public void setParent(boolean isParent) {
+  /**
+   * Final so subclass constructors may call without this-escape (no further override).
+   *
+   * @param isParent {@code true} when the updated item is the relationship owner
+   */
+  public final void setParent(boolean isParent) {
     this.isParent = isParent;
   }
 

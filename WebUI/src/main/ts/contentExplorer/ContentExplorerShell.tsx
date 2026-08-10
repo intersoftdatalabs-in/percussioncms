@@ -70,6 +70,7 @@ import {
   headerTitleStyle,
   shellStyle,
 } from "./styles";
+import { TranslationsPanel } from "./TranslationsPanel";
 
 export interface ContentExplorerShellProps {
   /** Folder path to display on mount; defaults to product root. */
@@ -227,6 +228,7 @@ export function ContentExplorerShell({
   const [showSearch, setShowSearch] = useState(false);
   const [showSecurity, setShowSecurity] = useState(false);
   const [showClipboard, setShowClipboard] = useState(false);
+  const [showTranslations, setShowTranslations] = useState(false);
   const [displayFormats, setDisplayFormats] = useState<DisplayFormat[]>([]);
   const [selectedFormatKey, setSelectedFormatKey] = useState<string>("");
   const [menuActions, setMenuActions] = useState<MenuAction[]>([]);
@@ -529,6 +531,17 @@ export function ContentExplorerShell({
             </button>
             <button
               type="button"
+              data-testid="explorer-toggle-translations"
+              aria-pressed={showTranslations}
+              aria-expanded={showTranslations}
+              aria-controls="explorer-translations-panel"
+              aria-label={message(EXPLORER_MSG.TOGGLE_TRANSLATIONS_ARIA)}
+              onClick={() => setShowTranslations((v) => !v)}
+            >
+              {message(EXPLORER_MSG.TRANSLATIONS_TITLE)}
+            </button>
+            <button
+              type="button"
               data-testid="explorer-toggle-clipboard"
               aria-pressed={showClipboard}
               aria-expanded={showClipboard}
@@ -700,6 +713,45 @@ export function ContentExplorerShell({
           {message(EXPLORER_MSG.SECURITY_SELECT_FOLDER)}
         </div>
       )}
+      {showTranslations &&
+        selection.item &&
+        selection.item.type !== "folder" &&
+        parseContentId(selection.item.id) != null && (
+          <section
+            id="explorer-translations-panel"
+            style={sidePanelStyle}
+            data-testid="explorer-translations-panel"
+            aria-label={message(EXPLORER_MSG.TRANSLATIONS_PANEL_REGION)}
+          >
+            <TranslationsPanel
+              itemId={String(selection.item.id)}
+              itemLabel={
+                selection.item.name ??
+                selection.item.title ??
+                selection.item.path
+              }
+              onCreated={() => {
+                setListEpoch((n) => n + 1);
+              }}
+            />
+          </section>
+        )}
+      {showTranslations &&
+        !(
+          selection.item &&
+          selection.item.type !== "folder" &&
+          parseContentId(selection.item.id) != null
+        ) && (
+          <div
+            id="explorer-translations-panel"
+            style={sidePanelStyle}
+            data-testid="explorer-translations-hint"
+            role="status"
+            aria-live="polite"
+          >
+            {message(EXPLORER_MSG.TRANSLATIONS_SELECT_ITEM)}
+          </div>
+        )}
       {contextMenu && (
         <div
           style={{

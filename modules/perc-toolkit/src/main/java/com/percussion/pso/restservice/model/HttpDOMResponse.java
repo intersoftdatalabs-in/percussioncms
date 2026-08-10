@@ -55,7 +55,8 @@ public class HttpDOMResponse extends BaseHttpResponse {
    * @param head
    */
   public HttpDOMResponse(Document doc, HttpHeaders head) {
-    this.setHeaders(head);
+    // Direct field assignment (headers is package-visible on base) — no this-escape.
+    this.headers = head;
     this.document = doc;
   }
 }

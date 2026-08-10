@@ -269,7 +269,10 @@ public class PSDisplayMapping extends PSComponent {
   /** The UI set, never <code>null</code> after construction. */
   private PSUISet m_uiSet;
 
-  /** The display mapper, may be <code>null</code>. */
+  /**
+   * The display mapper, may be <code>null</code>. {@link PSDisplayMapper} extends {@link
+   * PSCollectionComponent} / {@link PSCollection} and is Serializable (#2450 / #2452 serial-field).
+   */
   private PSDisplayMapper m_displayMapper = null;
 
   /*

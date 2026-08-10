@@ -33,7 +33,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Represents a single search field used in a given search/view. */
-public class PSSearchField extends PSDbComponent implements IPSSequencedComponent {
+// Final leaf — Element/named ctors avoid subclass this-escape risk.
+public final class PSSearchField extends PSDbComponent implements IPSSequencedComponent {
   /** Creates the key required by the super. */
   private PSSearchField() {
     super(new PSKey(new String[] {KEY_COL_FIELDNAME, KEY_COL_SEARCHID}));
@@ -44,8 +45,9 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
    * com.percussion.cms.objectstore.PSDbComponentCollection}
    */
   public PSSearchField(Element src) throws PSUnknownNodeTypeException, PSCmsException {
-    this();
-    fromXml(src);
+    // Key/state via non-virtual Element super path; fields without virtual fromXml (this-escape).
+    super(src);
+    loadFieldsFromXml(src);
   }
 
   /**
@@ -92,15 +94,25 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
     if (strLabel == null || strLabel.trim().isEmpty()) {
       strLabel = strName;
     }
-    setFieldDescription(strDesc);
-    setFieldType(strType);
-    setDisplayName(strLabel);
-    setMnemonic(mnemonic);
+    // Direct field assignment — avoid overridable setters during construction (this-escape).
+    m_strDescription = (strDesc == null) ? "" : strDesc;
+    if (!isValidFieldType(strType))
+      throw new IllegalArgumentException("Invalid field type specified for search field");
+    if (strType.length() > FIELDTYPE_LENGTH)
+      throw new IllegalArgumentException(
+          "field type must not exceed " + FIELDTYPE_LENGTH + "characters");
+    m_strFieldType = strType;
+    if (strLabel.length() > FIELDLABEL_LENGTH)
+      throw new IllegalArgumentException(
+          "display name must not exceed " + FIELDLABEL_LENGTH + "characters");
+    m_strDisplayName = strLabel;
+    m_mnemonic = (mnemonic == null) ? "" : mnemonic;
     m_strFieldName = strName;
     setValues(m_strOperator, null, null);
     PSKey key = getLocator();
     key.setPart(KEY_COL_FIELDNAME, strName);
-    setLocator(key);
+    // setKey is package-private non-overridable; avoid overridable setLocator (this-escape).
+    setKey(key);
   }
 
   // see base class for description
@@ -148,9 +160,16 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
 
   // see base class for description
   public void fromXml(Element e) throws PSUnknownNodeTypeException {
-    // base class handling
+    // After full construction: virtual createKey still honored via super.
     super.fromXml(e);
+    loadFieldsFromXml(e);
+  }
 
+  /**
+   * Loads non-key search-field fields from XML. Used by Element ctor and public {@link
+   * #fromXml(Element)}.
+   */
+  private void loadFieldsFromXml(Element e) throws PSUnknownNodeTypeException {
     // save state so we can restore when finished w/ updates
     int state = getState();
 
@@ -161,17 +180,18 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
     m_strFieldName = getLocator().getPart(KEY_COL_FIELDNAME);
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(e);
+    String nodeName = "PSXSearchField";
 
     Element elOp = tree.getNextElement(XML_NODE_OPERATOR);
     tree.setCurrent(e);
     if (elOp == null) {
-      Object[] args = {getNodeName(), XML_NODE_OPERATOR, "null"};
+      Object[] args = {nodeName, XML_NODE_OPERATOR, "null"};
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     String op = PSXmlTreeWalker.getElementData(elOp);
     if (!isValidOperator(op)) {
-      Object[] args = {getNodeName(), XML_NODE_OPERATOR, op};
+      Object[] args = {nodeName, XML_NODE_OPERATOR, op};
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
     }
 
@@ -183,21 +203,21 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
     Element elFieldType = tree.getNextElement(XML_NODE_FIELDTYPE);
     tree.setCurrent(e);
     if (elFieldType == null) {
-      Object[] args = {getNodeName(), XML_NODE_FIELDTYPE, "null"};
+      Object[] args = {nodeName, XML_NODE_FIELDTYPE, "null"};
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     m_strFieldType = PSXmlTreeWalker.getElementData(elFieldType);
 
     if (!isValidFieldType(m_strFieldType)) {
-      Object[] args = {getNodeName(), XML_NODE_FIELDTYPE, m_strFieldType};
+      Object[] args = {nodeName, XML_NODE_FIELDTYPE, m_strFieldType};
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     Element elFieldLabel = tree.getNextElement(XML_NODE_FIELDLABEL);
     tree.setCurrent(e);
     if (elFieldLabel == null) {
-      Object[] args = {getNodeName(), XML_NODE_FIELDLABEL, "null"};
+      Object[] args = {nodeName, XML_NODE_FIELDLABEL, "null"};
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
     }
 
@@ -205,7 +225,10 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
 
     Element elFieldMnemonic = tree.getNextElement(XML_NODE_FIELDMNEMONIC);
     tree.setCurrent(e);
-    if (elFieldMnemonic != null) setMnemonic(PSXmlTreeWalker.getElementData(elFieldLabel));
+    if (elFieldMnemonic != null) {
+      m_mnemonic = PSXmlTreeWalker.getElementData(elFieldMnemonic);
+      if (m_mnemonic == null) m_mnemonic = "";
+    }
 
     // Optional
     Element elVal = tree.getNextElement(XML_NODE_FIELDVALUE);
@@ -220,7 +243,7 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
         } else values = new ArrayList<>();
       }
     }
-    // method handles all cases
+    // private helper — non-overridable
     setValues(op, extOp, values);
 
     Element elDesc = tree.getNextElement(XML_NODE_DESCRIPTION);

@@ -18,10 +18,8 @@ package com.percussion.servlets;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import com.percussion.auditlog.PSActionOutcome;
-import com.percussion.auditlog.PSAuditLogService;
-import com.percussion.auditlog.PSAuthenticationEvent;
 import com.percussion.cms.IPSConstants;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.security.PSSecurityProvider;
@@ -121,7 +119,6 @@ public class PSSecurityFilter implements Filter {
   protected static final String NON_SECURE_HTTP_BIND_ADDRESS = "perc.http.bind.address";
 
   private final PSSecurityUtility securityUtil = new PSSecurityUtility();
-  private final PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
 
   private static final String ERROR_HEADER_NULL = "headers may not be null";
   private static final String THREAD = "thread ";
@@ -811,14 +808,12 @@ public class PSSecurityFilter implements Filter {
           remaining = 0;
         }
         if (remaining < 500) {
-          PSAuthenticationEvent psAuthenticationEvent =
-              new PSAuthenticationEvent(
-                  PSActionOutcome.SUCCESS.name(),
-                  PSAuthenticationEvent.AuthenticationEventActions.revoke,
-                  request,
-                  request.getRemoteUser());
-          psAuthenticationEvent.setActivity("revoke");
-          psAuditLogService.logAuthenticationEvent(psAuthenticationEvent);
+          try {
+            PSSystemAuditLogger.sessionRevoke(request, request.getRemoteUser());
+          } catch (Exception auditEx) {
+            ms_log.error(PSExceptionUtils.getMessageForLog(auditEx));
+            ms_log.debug(PSExceptionUtils.getDebugMessageForLog(auditEx));
+          }
         }
 
         int warning_s = PSServer.getServerConfiguration().getUserSessionWarning();

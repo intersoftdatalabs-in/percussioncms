@@ -333,6 +333,17 @@
 			<artifactId>velocity-tools-generic</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.commonmark</groupId>
+			<artifactId>commonmark</artifactId>
+		</dependency>
+		<!-- SnakeYAML for Virtual Site frontmatter / _config.yaml (Git-backed docs).
+		     Parent dependencyManagement scopes snakeyaml as runtime-only; we need compile. -->
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>javax.jcr</groupId>
 			<artifactId>jcr</artifactId>
 		</dependency>

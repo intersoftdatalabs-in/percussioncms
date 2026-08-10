@@ -35,7 +35,18 @@ SystemErrorCode (*ErrorCodes) → AuditLogService
 - [x] Entity `PSSystemAuditLogEntry` + `PSSystemAuditLogRepository` (`@PSBaseBean`)
 - [x] Login/logout smoke path via `PSSystemAuditLogger` in `PSLoginServlet`
 - [x] Retention job skeleton `PSSystemAuditLogRetentionJob`
-- [ ] PR merge for #2614
+- [x] PR merge for #2614
+
+## Phase 2b status (auth/security + residual catalogs)
+
+- [x] `SecurityErrorCodes` for full defined `IPSSecurityErrors` ints (9001–9026, host/OS/role, dir 98xx, cataloger 99xx)
+- [x] `PathItemErrorCodes` for CMS path/folder/item (`IPSCmsErrors` subset) with `isAuditable`
+- [x] `DesignErrorCodes` for design lifecycle (2901–2903) + objectstore ACL subset with `isAuditable`
+- [x] `LegacyErrorCodeRegistry` int → `SystemErrorCode` with safe non-auditable default
+- [x] `IPSSecurityErrors` bridged ints; `PSSystemAuditLogger.logLegacyIfAuditable`
+- [x] Central `PSErrorHandler.appendError` dual-writes only when registry marks auditable
+- [x] Unit tests: non-auditable skip dual-write; auditable SEC/path/design dual-write
+- [ ] Follow-on: content/workflow ErrorCodes residual (#2635) when not yet merged; bulk remaining objectstore validation ints as needed
 
 ## Phase 3 — Role property + REST query (#2618)
 
@@ -64,6 +75,16 @@ Query parameters on list: `from`, `to` (ISO-8601 instants), `module`, `eventType
 Responses: `200` page/entry, `403` without permission, `404` missing id, `400` bad dates.
 
 **Not in Phase 3:** Admin WebUI viewer / Playwright (#2619).
+
+## Phase 4 — Admin UI + i18n + Playwright (#2619)
+
+- [x] Admin Tools → **Security Audit Log** viewer (filters, pagination, detail for `userMessage` / `logMessage`)
+- [x] REST client uses existing `GET /services/auditlog/entries` + `…/{auditId}` (no new REST)
+- [x] TMX keys under `perc.ui.admin.auditlog@*` / tools tab chrome in `CmsUi.tmx` (en-us + lou)
+- [x] Vitest: query builder, viewer list/detail/403/filters, tools section
+- [x] Playwright surface: `modules/perc-qa-automation/frontend/tests/admin-security-audit-log.spec.js` (`@security-audit-log`)
+
+**AuthZ (UI):** Admin shell remains Admin-only (`RequireRole gate=admin`). Server REST still enforces Admin **or** `sys_securityAuditLogViewer` for any non-UI clients.
 
 ## Phase tracking (GitHub)
 

@@ -27,10 +27,9 @@ import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.data.PSReportFailedToRunException;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.assetmanagement.service.impl.PSAssetRestService;
-import com.percussion.auditlog.PSActionOutcome;
-import com.percussion.auditlog.PSAuditLogService;
-import com.percussion.auditlog.PSContentEvent;
+import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.percussion.cms.objectstore.PSComponentSummary;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.design.objectstore.PSLocator;
@@ -180,8 +179,6 @@ public class PSItemService implements IPSItemService {
     this.recycleService = recycleService;
   }
 
-  private PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
-  private PSContentEvent psContentEvent;
   private SecureKeyRotationListener secureKeyRotationListener;
 
   @Autowired
@@ -1070,41 +1067,28 @@ public class PSItemService implements IPSItemService {
           guid.toString().substring(guid.toString().lastIndexOf("-") + 1, id.length());
 
       if (!"".equals(startDate)) {
-        psContentEvent =
-            new PSContentEvent(
-                guid.toString(),
-                String.valueOf(dependentId),
-                paths.get(0),
-                PSContentEvent.ContentEventActions.pagePublishSchedule,
-                PSSecurityFilter.getCurrentRequest().getServletRequest(),
-                PSActionOutcome.SUCCESS);
-        psAuditLogService.logContentEvent(psContentEvent);
+        auditSchedule(
+            true,
+            guid.toString(),
+            String.valueOf(dependentId),
+            paths.get(0),
+            AuditOutcome.SUCCESS);
       }
       if (!"".equals(endDate)) {
-        psContentEvent =
-            new PSContentEvent(
-                guid.toString(),
-                String.valueOf(dependentId),
-                paths.get(0),
-                PSContentEvent.ContentEventActions.pageRemovalSchedule,
-                PSSecurityFilter.getCurrentRequest().getServletRequest(),
-                PSActionOutcome.SUCCESS);
-        psAuditLogService.logContentEvent(psContentEvent);
+        auditSchedule(
+            false,
+            guid.toString(),
+            String.valueOf(dependentId),
+            paths.get(0),
+            AuditOutcome.SUCCESS);
       }
     } catch (Exception e) {
       List<String> paths = folderHelper.findPaths(idMapper.getString(guid));
       String dependentId =
           guid.toString().substring(guid.toString().lastIndexOf("-") + 1, id.length());
 
-      psContentEvent =
-          new PSContentEvent(
-              guid.toString(),
-              String.valueOf(dependentId),
-              paths.get(0),
-              PSContentEvent.ContentEventActions.pagePublishSchedule,
-              PSSecurityFilter.getCurrentRequest().getServletRequest(),
-              PSActionOutcome.FAILURE);
-      psAuditLogService.logContentEvent(psContentEvent);
+      auditSchedule(
+          true, guid.toString(), dependentId, paths.get(0), AuditOutcome.FAILURE);
     }
     String comments = req.getComments();
     if (comments == null || comments.trim().equals("")) {
@@ -1122,6 +1106,23 @@ public class PSItemService implements IPSItemService {
       log.error("Unexpected error occurred while approving the item while scheduling page", e);
     }
     return new PSNoContent("Item with id " + id + " has been Updated");
+  }
+
+  private void auditSchedule(
+      boolean publish, String guid, String contentId, String path, AuditOutcome outcome) {
+    try {
+      var current = PSSecurityFilter.getCurrentRequest();
+      var servletRequest = current != null ? current.getServletRequest() : null;
+      if (publish) {
+        PSSystemAuditLogger.pagePublishSchedule(
+            servletRequest, outcome, guid, contentId, path);
+      } else {
+        PSSystemAuditLogger.pageRemovalSchedule(
+            servletRequest, outcome, guid, contentId, path);
+      }
+    } catch (Exception ignored) {
+      // audit must not mask primary failure
+    }
   }
 
   @GET

@@ -40,7 +40,8 @@ import org.w3c.dom.Element;
  * contain the folder relationship information, which is the information about its related child
  * items or folders.
  */
-public class PSFolder extends PSDbComponent implements java.io.Serializable {
+// Final leaf — Element ctor uses non-virtual key restore + loadFieldsFromXml (this-escape free).
+public final class PSFolder extends PSDbComponent implements java.io.Serializable {
   private static final Logger logger = LogManager.getLogger(PSFolder.class);
 
   /**
@@ -185,8 +186,10 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
    *     defined in the <code>fromXml</code> method.
    */
   public PSFolder(Element source) throws PSUnknownNodeTypeException {
-    super(new PSLocator());
-    fromXml(source);
+    // Key/state via non-virtual Element super path (createKeyDefault → PSLocator); fields without
+    // virtual fromXml (this-escape free). Public fromXml still uses createKey after construction.
+    super(source);
+    loadFieldsFromXml(source);
   }
 
   /**
@@ -603,8 +606,16 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /** See {@link IPSDbComponent#fromXml(Element)} */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     super.fromXml(sourceNode); // set data for super class
+    loadFieldsFromXml(sourceNode);
+  }
 
-    PSXMLDomUtil.checkNode(sourceNode, getNodeName());
+  /**
+   * Loads non-key folder fields from XML. Used by Element ctor and public {@link
+   * #fromXml(Element)}.
+   */
+  private void loadFieldsFromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    // Class-derived node name during construction (no virtual getNodeName / this-escape).
+    PSXMLDomUtil.checkNode(sourceNode, "PSXFolder");
 
     m_name = PSXMLDomUtil.checkAttribute(sourceNode, XML_ATTR_NAME, true);
     m_communityId = PSXMLDomUtil.checkAttributeInt(sourceNode, XML_ATTR_COMMUNITYID, true);
@@ -839,9 +850,10 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
     }
   }
 
-  /** See {@link PSDbComponent#createKey(Element)} */
-  protected PSKey createKey(Element keyEl) throws PSUnknownNodeTypeException {
-    return (PSKey) new PSLocator(keyEl);
+  /** See {@link PSDbComponent#createKey(Element)}. Final — leaf type; safe for public fromXml. */
+  @Override
+  protected final PSKey createKey(Element keyEl) throws PSUnknownNodeTypeException {
+    return new PSLocator(keyEl);
   }
 
   /**

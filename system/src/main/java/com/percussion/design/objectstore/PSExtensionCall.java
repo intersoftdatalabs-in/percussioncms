@@ -192,7 +192,7 @@ public class PSExtensionCall extends PSComponent
    *     </CODE>.
    */
   public final void setParamValues(Iterator<? extends PSExtensionParamValue> params) {
-    m_params = new LinkedList<>();
+    m_params = new ArrayList<>();
 
     // build column names which need to be mapped
     ArrayList<String> cols = new ArrayList<>();
@@ -233,7 +233,7 @@ public class PSExtensionCall extends PSComponent
    *     </code> or empty to apply it to all handlers.
    */
   public void setApplyTo(List<String> applyTo) {
-    m_applyTo = applyTo;
+    m_applyTo = applyTo == null ? null : new ArrayList<>(applyTo);
   }
 
   // ************ IPSBackEndMapping Interface Implementation ************
@@ -468,7 +468,7 @@ public class PSExtensionCall extends PSComponent
    * A Collection of zero or more non-<CODE>null</CODE> PSExtensionParamValue objects. Never <CODE>
    * null</CODE>.
    */
-  protected Collection<PSExtensionParamValue> m_params;
+  protected ArrayList<PSExtensionParamValue> m_params;
 
   /**
    * An array of zero or more columns which need to be mapped in order for the param values to be
@@ -482,7 +482,7 @@ public class PSExtensionCall extends PSComponent
    * empty. If the list is empty or <code>null</code>, this exit will be applied to all handlers,
    * otherwise it will only be applied to the handlers in this list.
    */
-  private List<String> m_applyTo = null;
+  private ArrayList<String> m_applyTo = null;
 
   /** Name of the root element of this object's XML representation */
   public static final String ms_NodeType = "PSXExtensionCall";

@@ -15,6 +15,21 @@ vi.mock("../../../main/ts/api/developer/searchesApi", () => ({
   getSearchDetail: vi.fn(),
 }));
 
+// ObjectAclSection loads ACL via separate API; stub to isolate detail load + assert wiring.
+vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
+  ObjectAclSection: (props: {
+    objectGuid?: string | null;
+    objectKind?: string | null;
+    testIdPrefix?: string;
+  }) => (
+    <div
+      data-testid={`${props.testIdPrefix ?? "developer-acl"}-stub`}
+      data-object-guid={props.objectGuid ?? ""}
+      data-object-kind={props.objectKind ?? ""}
+    />
+  ),
+}));
+
 const getSearchDetail = searchesApi.getSearchDetail as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
@@ -24,6 +39,7 @@ const sampleDetail = {
   displayFormatId: "Default",
   maximumResultSize: 100,
   caseSensitive: false,
+  guid: { stringValue: "0-26-7" },
   fields: [{ fieldName: "sys_title", operator: "=", fieldValue: "*", fieldType: "text" }],
   designGaps: ["gap-a"],
 };
@@ -47,6 +63,9 @@ describe("SearchDetailPanel", () => {
     expect(screen.getByTestId("developer-sr-fields-table")).toBeTruthy();
     expect(screen.getByTestId("developer-sr-gaps").textContent).toContain("gap-a");
     expect(getSearchDetail).toHaveBeenCalledWith("All Content");
+    const acl = screen.getByTestId("developer-sr-acl-stub");
+    expect(acl.getAttribute("data-object-kind")).toBe("search");
+    expect(acl.getAttribute("data-object-guid")).toBe("0-26-7");
     fireEvent.click(screen.getByTestId("developer-sr-back"));
     expect(onBack).toHaveBeenCalled();
   });

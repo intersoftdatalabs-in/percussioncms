@@ -364,7 +364,7 @@ public class PSDirectorySet extends PSCollectionComponent {
    * #setEmailAttributeName(String)}. Initialized while constructed, never <code>null</code> or
    * empty after that.
    */
-  private Map m_requiredAttributeNames = null;
+  private HashMap m_requiredAttributeNames = null;
 
   // XML element and attribute constants.
   private static final String XML_ATTR_NAME = "name";

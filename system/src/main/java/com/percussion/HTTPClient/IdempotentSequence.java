@@ -72,7 +72,7 @@ class IdempotentSequence {
   /** trigger analysis of threads */
   private boolean analysis_done = false;
 
-  private ConcurrentHashMap threads = new ConcurrentHashMap();
+  private final ConcurrentHashMap<String, Object> threads = new ConcurrentHashMap<>();
 
   // Constructors
 
@@ -154,9 +154,9 @@ class IdempotentSequence {
     }
 
     // any thread still indeterminate must be idempotent
-    Enumeration te = threads.keys();
+    Enumeration<String> te = threads.keys();
     while (te.hasMoreElements()) {
-      String res = (String) te.nextElement();
+      String res = te.nextElement();
       if (threads.get(res) == INDET) threads.put(res, Boolean.TRUE);
     }
   }

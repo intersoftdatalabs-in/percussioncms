@@ -113,8 +113,9 @@ public abstract class PSCmsProperty extends PSDbComponent {
    * @param src Never <code>null</code>.
    */
   protected PSCmsProperty(Element src) throws PSUnknownNodeTypeException {
-    super(src); // validates src
-    fromXml(src);
+    // Key/state via non-virtual Element super path; fields without virtual fromXml (this-escape).
+    super(src);
+    loadFieldsFromXml(src);
   }
 
   /**
@@ -256,9 +257,17 @@ public abstract class PSCmsProperty extends PSDbComponent {
 
   // see interface for description
   public void fromXml(Element src) throws PSUnknownNodeTypeException {
-    // Base class from xml
+    // After full construction: virtual createKey still honored via super.
     super.fromXml(src);
+    loadFieldsFromXml(src);
+  }
 
+  /**
+   * Loads non-key property fields from XML. Used by Element ctor (after super key/state) and public
+   * {@link #fromXml(Element)}. Multi-valued subclasses that fully override {@code fromXml} do not
+   * use this path.
+   */
+  private void loadFieldsFromXml(Element src) throws PSUnknownNodeTypeException {
     Element kEl = PSXMLDomUtil.getFirstElementChild(src); // skip the key el
 
     m_strName = PSXMLDomUtil.checkAttribute(src, XML_ATTR_PROPERTYNAME, true);
@@ -272,15 +281,26 @@ public abstract class PSCmsProperty extends PSDbComponent {
       el = PSXMLDomUtil.getNextElementSibling(el);
     }
     if (values.isEmpty()) {
-      String[] args = {getNodeName(), "Value", "missing node"};
+      // Class-derived node name during construction (no virtual getNodeName / this-escape).
+      String[] args = {nodeNameFor(getClass()), "Value", "missing node"};
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
     }
 
-    setValues(values);
+    // Direct single-value assign — avoid overridable setValues during construction (this-escape).
+    // Multi-valued subclasses override fromXml entirely and never use this helper.
+    m_strValue = values.iterator().next();
 
     if (el != null && el.getTagName().equals(XML_NODE_DESCRIPTION))
       m_strDescription = PSXMLDomUtil.getElementData(el);
     else m_strDescription = "";
+  }
+
+  /** Default XML node name for a property class without virtual dispatch (PS → PSX). */
+  private static String nodeNameFor(Class<?> clazz) {
+    String name = clazz.getName();
+    name = name.substring(name.lastIndexOf('.') + 1);
+    if (name.startsWith("PS")) name = "PSX" + name.substring(2);
+    return name;
   }
 
   /**

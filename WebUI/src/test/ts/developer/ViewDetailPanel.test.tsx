@@ -15,6 +15,21 @@ vi.mock("../../../main/ts/api/developer/viewsApi", () => ({
   getViewDetail: vi.fn(),
 }));
 
+// ObjectAclSection loads ACL via separate API; stub to isolate detail load + assert wiring.
+vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
+  ObjectAclSection: (props: {
+    objectGuid?: string | null;
+    objectKind?: string | null;
+    testIdPrefix?: string;
+  }) => (
+    <div
+      data-testid={`${props.testIdPrefix ?? "developer-acl"}-stub`}
+      data-object-guid={props.objectGuid ?? ""}
+      data-object-kind={props.objectKind ?? ""}
+    />
+  ),
+}));
+
 const getViewDetail = viewsApi.getViewDetail as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
@@ -24,6 +39,7 @@ const sampleDetail = {
   displayFormatId: "Default",
   maximumResultSize: 50,
   caseSensitive: true,
+  guid: { stringValue: "0-27-3" },
   fields: [{ fieldName: "sys_contentid", operator: "=", fieldValue: "1", fieldType: "number" }],
   designGaps: ["gap-a"],
 };
@@ -47,6 +63,9 @@ describe("ViewDetailPanel", () => {
     expect(screen.getByTestId("developer-vw-fields-table")).toBeTruthy();
     expect(screen.getByTestId("developer-vw-gaps").textContent).toContain("gap-a");
     expect(getViewDetail).toHaveBeenCalledWith("My View");
+    const acl = screen.getByTestId("developer-vw-acl-stub");
+    expect(acl.getAttribute("data-object-kind")).toBe("view");
+    expect(acl.getAttribute("data-object-guid")).toBe("0-27-3");
     fireEvent.click(screen.getByTestId("developer-vw-back"));
     expect(onBack).toHaveBeenCalled();
   });

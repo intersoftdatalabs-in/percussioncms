@@ -85,6 +85,16 @@ public class Field {
    * @param value String
    */
   public void setStringValue(String value) {
+    applyStringValue(value);
+  }
+
+  /**
+   * Applies string value representation without calling overridable setters (safe from
+   * constructors).
+   *
+   * @param value string content; may be {@code null}
+   */
+  private void applyStringValue(String value) {
     if (value == null) {
       this.valueAtt = null;
       this.values = null;
@@ -94,13 +104,19 @@ public class Field {
     if (value.contains("<div class=\"rxbodyfield\">")) {
       Value newVal = new XhtmlValue();
       newVal.setStringValue(value);
-      setValue(newVal);
+      this.valueAtt = null;
+      this.values = null;
+      this.value = newVal;
     } else if (value.length() > 50) {
-      setValueAtt(value);
+      this.value = null;
+      this.values = null;
+      this.valueAtt = value;
     } else {
       Value newVal = new StringValue();
       newVal.setStringValue(value);
-      setValue(newVal);
+      this.valueAtt = null;
+      this.values = null;
+      this.value = newVal;
     }
   }
 
@@ -172,8 +188,9 @@ public class Field {
    */
   public Field(String name, String value) {
     super();
-    this.setName(name);
-    this.setStringValue(value);
+    // Direct field / private helper — avoids this-escape from overridable setters in ctor.
+    this.name = name;
+    applyStringValue(value);
   }
 
   /** Field name. */

@@ -108,6 +108,62 @@ describe("ObjectAclSection special Default / AnyCommunity UX", () => {
     expect(screen.queryByTestId("t-acl-add-default")).toBeNull();
   });
 
+  it("shows specials and runtime columns for display-format peer kind (B4)", async () => {
+    getAclForObject.mockResolvedValue(aclWithBothSpecials);
+    render(
+      <ObjectAclSection
+        objectGuid="0-1-100"
+        objectKind="display-format"
+        testIdPrefix="df-acl"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("df-acl-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("df-acl-table").getAttribute("data-acl-object-kind")).toBe(
+      "display-format",
+    );
+    expect(screen.getByTestId("df-acl-table").getAttribute("data-acl-show-runtime")).toBe(
+      "true",
+    );
+    expect(screen.getByTestId("df-acl-special-badge-default")).toBeTruthy();
+    expect(screen.getByTestId("df-acl-special-badge-any-community")).toBeTruthy();
+    expect(screen.getByTestId("df-acl-layer-runtime")).toBeTruthy();
+  });
+
+  it("exposes kind-aware data-acl attrs on no-guid peer shell (B4 product path #2642)", () => {
+    // Runtime-relevant peer (site): show-runtime true even when guid missing
+    const { unmount } = render(
+      <ObjectAclSection
+        objectGuid={null}
+        objectKind="site"
+        testIdPrefix="developer-site-acl"
+      />,
+    );
+    const siteSection = screen.getByTestId("developer-site-acl-section");
+    expect(siteSection.getAttribute("data-acl-object-kind")).toBe("site");
+    expect(siteSection.getAttribute("data-acl-show-runtime")).toBe("true");
+    expect(siteSection.getAttribute("data-acl-has-guid")).toBe("false");
+    expect(screen.getByTestId("developer-site-acl-no-guid").textContent).toMatch(
+      /GUID not available|cannot load ACL/i,
+    );
+    unmount();
+
+    // Non-runtime kind (keyword): hide runtime columns unless force-show
+    render(
+      <ObjectAclSection
+        objectGuid={undefined}
+        objectKind="keyword"
+        testIdPrefix="developer-kw-acl"
+      />,
+    );
+    const kwSection = screen.getByTestId("developer-kw-acl-section");
+    expect(kwSection.getAttribute("data-acl-object-kind")).toBe("keyword");
+    expect(kwSection.getAttribute("data-acl-show-runtime")).toBe("false");
+    expect(kwSection.getAttribute("data-acl-has-guid")).toBe("false");
+  });
+
   it("groups permission columns under Design access and Runtime visibility (CD-19)", async () => {
     getAclForObject.mockResolvedValue(aclWithBothSpecials);
     render(

@@ -2,9 +2,11 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | Active — Phase 0 inventory / ADRs |
+| **Status** | Active — Phase 1 assemblers in progress |
 | **Created** | 2026-08-09 |
 | **Type** | Product architecture (multi-phase) |
+| **GitHub epic** | [#2626](https://github.com/intersoftdatalabs-in/percussioncms/issues/2626) (all children **p2**) |
+| **Phase issues** | #2627 → #2628 → #2629 → #2630 → #2631 / #2632 |
 | **Related** | [design-templates-item-types](../design-templates-item-types/README.md); Workbench inventory §7 assembly; `specs/989-react-cui-widget-builder` |
 
 ## North star
@@ -33,14 +35,14 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 
 ## Phases
 
-| Phase | Goal | Status |
-|-------|------|--------|
-| **0** | Inventory, ADRs, contracts | In progress |
-| **1** | HTML-first + Markdown assemblers; Velocity docs; golden fixtures | Not started |
-| **2** | Unified slots + `slot_layout` / `slot_styles` | Not started |
-| **3** | Widget/Page/Gadget XML → package model (product first) | Not started |
-| **4** | Design SPA consolidation (depends on Design track) | Not started |
-| **5** | Deprecation cleanup, help rewrite | Later |
+| Phase | Issue | Goal | Status |
+|-------|-------|------|--------|
+| **0** | #2627 | Inventory, ADRs, contracts | PR #2625 |
+| **1** | #2628 | HTML-first + Markdown assemblers | In progress |
+| **2** | #2629 | Unified slots + `slot_layout` / `slot_styles` | Blocked by #2628 |
+| **3** | #2630 | Widget/Page/Gadget XML → package model | Blocked by #2629 |
+| **4** | #2631 | Design SPA consolidation | Blocked by #2630 |
+| **5** | #2632 | Deprecation cleanup / help | Blocked by #2630 |
 
 ## Documents in this folder
 
@@ -52,6 +54,7 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | [gadget-definition-inventory.md](./gadget-definition-inventory.md) | Gadget XML / SPA survey |
 | [adr/](./adr/) | Architecture decision records |
 | [parity-notes.md](./parity-notes.md) | Region vs slot, pageAssembler vs velocity, etc. |
+| [binding-modules.md](./binding-modules.md) | `$sys` / `$rx` / `$perc` + assembler picker guide |
 
 ## Code anchors
 
@@ -59,6 +62,9 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 |------|------|
 | Assembler SPI | `system/services/.../assembly/IPSAssembler.java` |
 | Velocity assembler | `.../impl/plugin/PSVelocityAssembler.java` |
+| HTML-first assembler | `.../impl/plugin/PSHtmlAssembler.java` (`htmlAssembler`) |
+| Markdown assembler | `.../impl/plugin/PSMarkdownAssembler.java` (`markdownAssembler`) |
+| Placeholder renderer | `.../impl/plugin/PSBindingPlaceholderRenderer.java` (`${path}`) |
 | Legacy/XSL | `.../impl/plugin/PSLegacyAssembler.java` |
 | JEXL | `modules/utils/.../jexl/PSScript.java` |
 | CM1 page assembler | `projects/sitemanage/.../assembler/PSPageAssembler.java` |
@@ -68,7 +74,6 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 
 ## Immediate next work
 
-1. Complete ADRs (placeholder syntax, slot schema, packaging manifest).
-2. Spike HTML-first assembler + one simple widget parity test (no Widget XML).
-3. Spike `slot_layout` / `slot_styles` schema sketch.
-4. Align Widget Builder / Design SPA so they author the modern package format.
+1. Land Phase 1 (#2628): HTML-first + Markdown assemblers + tests.
+2. Phase 2 (#2629): `slot_layout` / `slot_styles` schema.
+3. Align Widget Builder / Design SPA with modern package format (Phase 3+).

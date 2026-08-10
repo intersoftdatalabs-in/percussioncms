@@ -17,10 +17,9 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.sitemgr.impl;
 
-import com.percussion.auditlog.PSActionOutcome;
-import com.percussion.auditlog.PSAuditLogService;
-import com.percussion.auditlog.PSContentEvent;
+import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.percussion.cms.PSCmsException;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.security.error.PSExceptionUtils;
@@ -110,8 +109,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Transactional
 public class PSSiteManager implements IPSSiteManager {
 
-    private final PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
-
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -171,16 +168,14 @@ public class PSSiteManager implements IPSSiteManager {
 
         try {
             var currentRequest = PSSecurityFilter.getCurrentRequest();
+            // Match legacy CADF semantics: skip audit when there is no request context.
             if (currentRequest != null && currentRequest.getServletRequest() != null) {
-                var psContentEvent = new PSContentEvent(
-                    newsite.getSiteId().toString(),
-                    newsite.getSiteId().toString(),
-                    newsite.getBaseUrl(),
-                    PSContentEvent.ContentEventActions.create,
+                PSSystemAuditLogger.contentCreate(
                     currentRequest.getServletRequest(),
-                    PSActionOutcome.SUCCESS
-                );
-                psAuditLogService.logContentEvent(psContentEvent);
+                    AuditOutcome.SUCCESS,
+                    newsite.getSiteId().toString(),
+                    newsite.getSiteId().toString(),
+                    newsite.getBaseUrl());
             }
         } catch (Exception e) {
             log.warn("Failed to log content event for site creation: {}", e.getMessage());

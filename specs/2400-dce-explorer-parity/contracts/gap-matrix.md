@@ -47,7 +47,7 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Subfolder copy wizard | CE wizards | `SubfolderCopyWizard`; not in shell | **Partial** | advanced chrome (phase 4) |
 | Dependency viewer | `PSDependencyViewer` | Components + `rest` relationship summary; not in shell | **Partial** | advanced chrome (phase 4) |
 | IA / relationships view | Managers | `RelationshipsView`; not in shell | **Partial** | advanced chrome (phase 4) |
-| Translation workflow | CE translation | Catalog Present (`/rest/locales`); create-variant **Legacy-only** (SOAP/CX); item variants + in-flight **Missing** — see [p-trans-api-inventory.md](../research/p-trans-api-inventory.md) | **Missing** | #2411 → #2428 inventory (PR #2431 merged), #2429 REST, #2430 UI |
+| Translation workflow | CE translation | **REST Present:** `GET|POST /rest/content-explorer/translations` (#2429 / [PR #2601](https://github.com/intersoftdatalabs-in/percussioncms/pull/2601)). **Explorer UI Present (slice C #2430):** `TranslationsPanel` in `ContentExplorerShell` (locale list + create-variant; Vitest + Playwright `explorer-translations.spec.js`). In-flight queue + session content-locale **OUT** pending product sign-off (not exposed by REST). See [p-trans-api-inventory.md](../research/p-trans-api-inventory.md). | **Partial** (item locales + create **Present**; in-flight/session **OUT/Missing**) | #2411 → #2428 inventory, #2429 REST, #2430 UI |
 | Workflow transitions in menus | CE workflow | Actions path partial | **Partial** | workflow actions (under menus / future residual) |
 
 ## Explicit OUT (for now)
@@ -60,12 +60,14 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 
 ## Implementation notes
 
-### 2026-08-09 refresh (docs; no product code)
+### 2026-08-09 refresh (P-Trans UI #2430)
 
+- **#2429 / PR #2601 merged:** public REST create-variant + item-locale list.
+- **#2430 Explorer UI:** `TranslationsPanel` + shell toggle consumes REST; Vitest + surface Playwright. Matrix row **Partial** (Present for locales/create; in-flight + session content-locale still OUT).
 - **#2407 / PR #2412 merged:** product shell composition, server action toolbar/context menu, search panel toggle, folder-valid display formats + column path, folder security toggle → **Present** (human QA still open on #2588).
 - **#2408 / PR #2522 merged:** multi-select list + clipboard panel in shell → **Present**.
 - **#2504 / PR #2579 merged:** saved-search execute disposition = **façade**; matrix row stays **Partial** until #2505–#2507 land execute + UI + Playwright.
-- **Residual children not filed this run** for menu bar / advanced chrome: components mostly exist; next implement slices stay on open children **#2410**, **#2409→#2505–#2507**, **#2411→#2429–#2430**. File PR-sized children only when those land or product prioritizes phase 4.
+- **Residual children not filed this run** for menu bar / advanced chrome: components mostly exist; next implement slices stay on open children **#2410**, **#2409→#2505–#2507**. File PR-sized children only when those land or product prioritizes phase 4.
 
 ### 2026-08-08 baseline
 

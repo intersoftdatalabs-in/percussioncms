@@ -17,17 +17,24 @@
 
 package com.percussion.design.objectstore;
 
+import java.io.Serializable;
+
 /**
  * The IPSResults interface must be implemented by classes which can be used for defining the
  * results a data set will return. There are no methods associated with the object store
  * implementation. It is merely a placeholder to enforce objects of the appropriate type are used.
+ *
+ * <p>Extends {@link Serializable} so fields typed as this interface (e.g. {@code
+ * PSDataSet.m_results}) clear {@code -Xlint:serial} serial-field diagnostics. Implementors
+ * ({@link PSResultPageSet}, {@link PSRequestLink}) are already serializable via {@link
+ * PSComponent}. Wire/XML behavior is unchanged.
  *
  * @see PSDataSet
  * @author Tas Giakouminakis
  * @version 1.0
  * @since 1.0
  */
-public interface IPSResults {
+public interface IPSResults extends Serializable {
   /**
    * Performs a deep copy. Implementing classes must override this method if the class contains
    * objects. clone Interface for IPSResults this method ideally has to be overiden by classes that

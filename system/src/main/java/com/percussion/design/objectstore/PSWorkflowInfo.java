@@ -314,13 +314,13 @@ public class PSWorkflowInfo extends PSComponent {
    *
    * <p>Set in the constructor and never <code>null</code>.
    */
-  private List<Integer> m_values;
+  private ArrayList<Integer> m_values;
 
   /**
-   * Used to obtain workflow IDs dynamically instead of using data stored in this object, may be
-   * <code>null</code> if one has not been set, in which case stored values are used.
+   * Optional dynamic value accessor; runtime-only, not durable objectstore state ({@link
+   * #m_values} holds static values). May be <code>null</code> if one has not been set.
    */
-  private IPSWorkflowInfoValueAccessor m_valueAccessor;
+  private transient IPSWorkflowInfoValueAccessor m_valueAccessor;
 
   // DEBUG
   public static void main(String[] args) {

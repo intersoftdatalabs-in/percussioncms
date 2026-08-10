@@ -112,7 +112,10 @@ public class PSRelationship extends PSComponent {
    * @param config the relationship configuration, not <code>null</code>.
    * @throws IllegalStateException if this relationship has already been assigned a config.
    */
-  public void setConfig(PSRelationshipConfig config) {
+  /**
+   * Final so constructors (e.g. {@code PSAaRelationship}) can assign config without this-escape.
+   */
+  public final void setConfig(PSRelationshipConfig config) {
     if (config == null) throw new IllegalArgumentException("relationship config may not be null");
     m_config = config;
     initUserProperties();
@@ -124,7 +127,7 @@ public class PSRelationship extends PSComponent {
    */
   private void initUserProperties() {
     if (m_config.getUserProperties().isEmpty()) {
-      m_userProperties = Collections.emptyList();
+      m_userProperties = new ArrayList<>();
     } else {
       Set<Map.Entry<String, String>> entries = m_config.getUserProperties().entrySet();
       m_userProperties = new ArrayList<>(entries.size());
@@ -380,7 +383,10 @@ public class PSRelationship extends PSComponent {
    * @return the requested property, might be <code>null</code> if no property for the supplied name
    *     exists.
    */
-  public String getProperty(String name) {
+  /**
+   * Final so constructors can read properties without this-escape (e.g. AA validation).
+   */
+  public final String getProperty(String name) {
     if (name == null || name.trim().length() == 0)
       throw new IllegalArgumentException("name cannot be null");
 
@@ -413,7 +419,10 @@ public class PSRelationship extends PSComponent {
    *     be one of the defined user property name and cannot be one of the system property name.
    * @param value the new value to set, may be <code>null</code> or empty.
    */
-  public void setProperty(String name, String value) {
+  /**
+   * Final so constructors can set user properties without this-escape (slot/variant ids).
+   */
+  public final void setProperty(String name, String value) {
     if (name == null || name.trim().length() == 0)
       throw new IllegalArgumentException("name cannot be null");
 
@@ -909,7 +918,7 @@ public class PSRelationship extends PSComponent {
    * {@link List} for the user properties; otherwise the {@link #equals(Object)} method may not work
    * correctly.
    */
-  private List<PSRelationshipPropertyData> m_userProperties = Collections.emptyList();
+  private ArrayList<PSRelationshipPropertyData> m_userProperties = new ArrayList<>();
 
   /** The logger for this class. */
   private static final Logger log = LogManager.getLogger(PSRelationship.class);

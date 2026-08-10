@@ -1,0 +1,16 @@
+site:
+  title: Sample Docs
+  url: https://example.test/docs
+
+versions:
+  - id: "8.2"
+    label: "8.2 (current)"
+    path: 8.2
+    default: true
+
+nav:
+  - title: Getting Started
+    id: getting-started
+
+theme:
+  layout: page.html

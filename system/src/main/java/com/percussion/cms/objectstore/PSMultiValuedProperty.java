@@ -182,11 +182,27 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
    */
   public void add(String[] values) {
     if (null == values) throw new IllegalArgumentException("Values array cannot be null.");
+    addValuesInternal(values);
+  }
+
+  /**
+   * Construction-safe multi-value insert (non-overridable). Used from subclass constructors to
+   * avoid this-escape via public {@link #add(String[])}.
+   */
+  protected final void addValuesInternal(String[] values) {
+    if (null == values) throw new IllegalArgumentException("Values array cannot be null.");
 
     for (int i = 0; i < values.length; i++) {
       if (null != values[i] && !contains(values[i]))
         m_props.add(createProperty(getName(), values[i]));
     }
+  }
+
+  /**
+   * Construction-safe description assignment without overridable {@link #setDescription(String)}.
+   */
+  protected final void applyDescription(String desc) {
+    m_strDescription = (desc == null) ? "" : desc;
   }
 
   /**

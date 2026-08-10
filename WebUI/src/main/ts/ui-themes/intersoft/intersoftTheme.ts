@@ -92,6 +92,11 @@ const SEMANTIC: SemanticColors = {
   surfaceAlt: "#f5f7fb",
   border: "#d8dee9",
   danger: "#d63637",
+  // AA-friendly danger palette for text/cards on light surfaces (profile forms axe gate).
+  dangerText: "#7a1a12",
+  dangerStrong: "#991b1b",
+  dangerBorder: "#fecaca",
+  dangerSurface: "#fef2f2",
   success: "#1f8a4c",
   warning: "#e09a1f",
   info: "#1dc2ef",

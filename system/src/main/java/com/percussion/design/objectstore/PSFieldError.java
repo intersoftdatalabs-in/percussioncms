@@ -17,12 +17,20 @@
 package com.percussion.design.objectstore;
 
 import com.percussion.xml.PSXmlTreeWalker;
+import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/** This class represents the FieldError element of the sys_ContentEditor.dtd. */
-public class PSFieldError {
+/**
+ * This class represents the FieldError element of the sys_ContentEditor.dtd.
+ *
+ * <p>Implements {@link Serializable} as a companion of {@link PSDisplayError}/{@link PSDetails}.
+ */
+public class PSFieldError implements Serializable {
+
+  /** Serialization id for {@link Serializable}. */
+  private static final long serialVersionUID = 1L;
   /**
    * Ctor
    *

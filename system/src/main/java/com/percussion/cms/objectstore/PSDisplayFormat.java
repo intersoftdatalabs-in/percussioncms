@@ -41,7 +41,8 @@ import org.w3c.dom.Element;
  *
  * @see PSVersionableDbComponent
  */
-public class PSDisplayFormat extends PSVersionableDbComponent
+// Final leaf — default/Element ctors assign without subclass this-escape risk.
+public final class PSDisplayFormat extends PSVersionableDbComponent
     implements IPSCatalogSummary, IPSCloneTuner {
 
   /** Serialization id for {@link java.io.Serializable}. */
@@ -66,14 +67,13 @@ public class PSDisplayFormat extends PSVersionableDbComponent
     } catch (ClassNotFoundException neverHappen) {
     }
 
-    // required elements for validity
+    // required elements for validity — direct fields / private helpers (this-escape)
     String label = "Display Format " + ms_nameCounter++;
-    setDisplayName(label);
-    String name = label.replace(' ', '_');
-    name = name.toLowerCase();
-    setInternalName(name);
+    m_strDisplayName = label;
+    String name = label.replace(' ', '_').toLowerCase();
+    m_strInternalName = name;
 
-    addCommunity(null);
+    applyCommunityAll();
   }
 
   // implements IPSCatalogSummary#getGUID()
@@ -840,6 +840,16 @@ public class PSDisplayFormat extends PSVersionableDbComponent
       removeProperty(PROP_COMMUNITY, null, false);
     }
     setProperty(PROP_COMMUNITY, communityId, true);
+  }
+
+  /**
+   * Construction-only: default community visibility without overridable addCommunity/setProperty
+   * (this-escape).
+   */
+  private void applyCommunityAll() {
+    PSDFMultiProperty mp = new PSDFMultiProperty(PROP_COMMUNITY);
+    mp.add(PROP_COMMUNITY_ALL);
+    m_properties.add(mp);
   }
 
   /**

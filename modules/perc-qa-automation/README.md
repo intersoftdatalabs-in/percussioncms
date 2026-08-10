@@ -562,6 +562,35 @@ npm run test:surface:list -- --tag explorer-recycle-restore
 class as #2464; Admin login that remains on `/Rhythmyx/login` fails with an
 explicit #2542 / #2423 message — do not soft-skip.
 
+#### Explorer translations / P-Trans UI (#2430 / parent #2411)
+
+Surface-filtered companion for content-item locale variants + create-variant in
+the modern React Content Explorer. Consumes public REST
+`GET|POST /rest/content-explorer/translations` (slice B / PR #2601). Asserts
+shell toggle chrome, select-item hint, and optional panel load when a content
+row is selected. In-flight queue is product OUT (panel note only).
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-translations.spec.js` |
+| Tags | `@explorer-translations` `@p-trans` `@smoke` |
+| Vitest peer | `WebUI` `translationsApi` / `TranslationsPanel` / shell tests |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/explorer-translations.spec.js
+
+# Tag form
+npm run test:surface -- --tag explorer-translations
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/explorer-translations.spec.js
+npm run test:surface:list -- --tag explorer-translations
+```
+
 #### Profile shell + axe WCAG + locale title (#2393 / #2425 / #2427 / #2497 / #2498 / #2499 / #2501 / parent #2374)
 
 Smoke opens the **My profile** hub via deep link and user-menu entry (Admin,
@@ -617,6 +646,42 @@ npm run test:surface:list -- --path tests/profile-shell.spec.js
 npm run test:surface:list -- --tag profile
 ```
 
+#### Explorer saved-search picker (#2507 / parent #2409 / #2400 slice D)
+
+Surface-filtered live-CMS companion to WebUI SearchPanel saved-search picker
+(#2506). Opens modern Content Explorer (`spa.jsp?entry=explorer`) → toggles
+SearchPanel → asserts catalog chrome (picker / empty / error) → when the
+fixture has a runnable design search, selects it and asserts post-execute
+results list, empty, or error region wiring.
+
+**Soft-skip:** if `GET /services/searches` has no non-custom-URL design search,
+the execute-path test soft-skips after catalog UI assertions (documented for
+minimal H2 fixtures). Shell open + catalog settle remain hard.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-saved-search.spec.js` |
+| Tags | `@saved-search` `@explorer-saved-search` `@explorer` |
+| Unit (no CMS) | `npm run test:unit` (includes `explorer-saved-search.test.js`) |
+| Helper | `frontend/tests/helpers/explorer-saved-search.js` |
+| Product peer | `WebUI/.../SearchPanel.tsx` + Vitest `SearchPanel.test.tsx` |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/explorer-saved-search.spec.js
+
+# Tag form
+npm run test:surface -- --tag saved-search
+npm run test:surface -- --tag explorer-saved-search
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/explorer-saved-search.spec.js
+npm run test:surface:list -- --tag saved-search
+```
+
 #### Profile shell keyboard section-nav / focus (#2502 / residual #2427)
 
 Beyond axe: keyboard path Tab → `perc-profile-nav-*` → Enter focuses and
@@ -643,6 +708,53 @@ npm run test:surface -- --path tests/profile-shell.spec.js \
 # List only (no live CMS)
 npm run test:surface:list -- --path tests/profile-shell-keyboard.spec.js
 npm run test:surface:list -- --tag keyboard
+```
+
+#### Profile form axe WCAG (account / preferences / avatar) (#2503 / residual #2427 / parent #2374)
+
+When profile **form** slices land, extend the shell axe pattern
+(`expectNoSeriousA11yViolations`) to each **form root** testid — not only the
+hub chrome (`perc-profile-shell`).
+
+| Surface | Spec | Form root scope | Product issue |
+|---------|------|-----------------|---------------|
+| Account edit | `tests/profile-account.spec.js` | `[data-testid="perc-profile-account"]` | #2395 |
+| Preferences | `tests/profile-preferences.spec.js` | `[data-testid="perc-profile-preferences"]` | #2396 |
+| Avatar / Gravatar | `tests/profile-avatar.spec.js` | `[data-testid="perc-profile-avatar"]` | #2397 |
+| Password (local auth) | *not on main yet* | — | #2394 (still open) — residual when form lands |
+
+Account also scans after a client email-validation error so `aria-invalid` /
+error live region stay free of serious/critical issues. Password form axe is
+intentionally out of scope until #2394 merges.
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/profile-account.spec.js --grep "axe-core"
+
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/profile-preferences.spec.js --grep "axe-core"
+
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/profile-avatar.spec.js --grep "axe-core"
+
+# Multi-path landed form surfaces (axe only)
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- \
+    --path tests/profile-account.spec.js \
+    --path tests/profile-preferences.spec.js \
+    --path tests/profile-avatar.spec.js \
+    --grep "axe-core"
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/profile-account.spec.js
+npm run test:surface:list -- --path tests/profile-preferences.spec.js
+npm run test:surface:list -- --path tests/profile-avatar.spec.js
 ```
 
 **`run-surface` refuses the full suite** unless you pass `--allow-full` (agents must

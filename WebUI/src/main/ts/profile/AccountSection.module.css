@@ -100,7 +100,8 @@
 .fieldError,
 .formError {
   margin: 0;
-  color: var(--color-danger, #b42318);
+  /* Theme token --color-danger-text is AA on white (darker than --color-danger). */
+  color: var(--color-danger-text, #7a1a12);
   font-size: 0.85rem;
   line-height: 1.4;
 }
@@ -167,14 +168,17 @@
   gap: 0.65rem;
   padding: 0.75rem 0.9rem;
   border-radius: 8px;
-  border: 1px solid var(--color-danger, #b42318);
-  background: #fef3f2;
-  color: var(--color-danger, #b42318);
+  /* Theme danger surface tokens (AA contrast on light — axe color-contrast). */
+  border: 1px solid var(--color-danger-border, #fecaca);
+  background: var(--color-danger-surface, #fef2f2);
+  color: var(--color-danger-strong, #991b1b);
 }
 
 .errorBox p {
   margin: 0;
   line-height: 1.45;
+  color: var(--color-danger-strong, #991b1b);
+  word-break: break-word;
 }
 
 .statusRegion {

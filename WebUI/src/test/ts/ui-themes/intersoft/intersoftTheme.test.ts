@@ -72,6 +72,10 @@ describe("intersoftTheme", () => {
     expect(vars["--color-text-inverse"]).toBe("#ffffff");
     expect(vars["--color-border"]).toBe("#d8dee9");
     expect(vars["--color-danger"]).toBe("#d63637");
+    expect(vars["--color-danger-text"]).toBe("#7a1a12");
+    expect(vars["--color-danger-strong"]).toBe("#991b1b");
+    expect(vars["--color-danger-border"]).toBe("#fecaca");
+    expect(vars["--color-danger-surface"]).toBe("#fef2f2");
     expect(vars["--font-font-family"]).toContain("Inter");
     expect(vars["--font-font-family-heading"]).toContain("Rubik");
     expect(vars["--font-font-size-base"]).toBe("14");

@@ -422,7 +422,8 @@ public class PSConfig extends PSComponent {
    * The object representation of the configuration. Initialized in ctor, never <code>null</code>
    * after that.
    */
-  @Transient private Object m_configObj = null;
+  /** Parsed config cache; durable form is {@link #m_configString}. Java + JPA transient. */
+  @Transient private transient Object m_configObj = null;
 
   /** A description for this server configuration, might be empty but never <code>null</code>. */
   @Basic

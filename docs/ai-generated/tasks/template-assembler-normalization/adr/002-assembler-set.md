@@ -19,15 +19,19 @@ Invest in these **text/render assemblers**:
 
 `pageAssembler` is **not** a separate language — it is page context + a text assembler.
 
-## HTML-first placeholder syntax
+## HTML-first / Markdown placeholder syntax — **LOCKED (Phase 1)**
 
-**Open (must lock before Phase 1 code):** choose one substitution style, e.g.:
+**Choice: `${dotted.path}` only** (implemented by `PSBindingPlaceholderRenderer`).
 
-1. `${name}` only (from JEXL binding map)
-2. Mustache-like `{{name}}`
-3. Velocity-compatible `$name` / `${name}` without directives
+| Rule | Detail |
+|------|--------|
+| Form | `${title}`, `${sys.mimetype}` |
+| Not supported | Bare `$title` (avoids HTML/JS false positives), Mustache `{{ }}`, Velocity directives |
+| Lookup | Binding key `title` or `$title`; nested maps via `sys` / `$sys` then child keys |
+| Missing | Empty string |
+| Implementation | `com.percussion.services.assembly.impl.plugin.PSBindingPlaceholderRenderer` |
 
-Prefer the smallest surface that is hard to confuse with customer HTML/JS.
+Rationale: smallest surface, hard to confuse with customer scripts, easy to document.
 
 ## Consequences
 
