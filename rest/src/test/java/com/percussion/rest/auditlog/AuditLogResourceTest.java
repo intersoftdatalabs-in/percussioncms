@@ -19,6 +19,7 @@ package com.percussion.rest.auditlog;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
@@ -26,6 +27,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -115,5 +119,70 @@ public class AuditLogResourceTest {
             WebApplicationException.class,
             () -> bare.queryEntries(null, null, null, null, null, null, 0, 50));
     assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void exportJsonAuthorizedShape() {
+    SystemAuditLogEntry entry = new SystemAuditLogEntry();
+    entry.setAuditId("id-export-1");
+    entry.setEventTime(Instant.parse("2026-08-09T12:00:00Z"));
+    entry.setModuleCode("AUTH");
+    entry.setOutcome("SUCCESS");
+    when(adaptor.export(
+            isNull(), isNull(), eq("AUTH"), isNull(), isNull(), isNull(), eq(100)))
+        .thenReturn(List.of(entry));
+
+    Response response =
+        resource.exportEntries("json", null, null, "AUTH", null, null, null, 100);
+    assertEquals(200, response.getStatus());
+    assertEquals(MediaType.APPLICATION_JSON, response.getMediaType().toString());
+    String body = String.valueOf(response.getEntity());
+    assertTrue(body.contains("id-export-1"));
+    assertTrue(body.contains("AUTH"));
+    assertTrue(String.valueOf(response.getHeaderString("Content-Disposition")).contains(".json"));
+    verify(adaptor)
+        .export(isNull(), isNull(), eq("AUTH"), isNull(), isNull(), isNull(), eq(100));
+  }
+
+  @Test
+  public void exportCsvAuthorizedShape() {
+    SystemAuditLogEntry entry = new SystemAuditLogEntry();
+    entry.setAuditId("id-csv-1");
+    entry.setModuleCode("AUTH");
+    entry.setUserMessage("ok");
+    when(adaptor.export(
+            isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), eq(0)))
+        .thenReturn(List.of(entry));
+
+    Response response =
+        resource.exportEntries("csv", null, null, null, null, null, null, 0);
+    assertEquals(200, response.getStatus());
+    assertEquals("text/csv", response.getMediaType().toString());
+    String body = String.valueOf(response.getEntity());
+    assertTrue(body.startsWith("auditId,") || body.replace("\r\n", "\n").startsWith("auditId,"));
+    assertTrue(body.contains("id-csv-1"));
+    assertTrue(String.valueOf(response.getHeaderString("Content-Disposition")).contains(".csv"));
+  }
+
+  @Test
+  public void exportMapsSecurityExceptionTo403() {
+    when(adaptor.export(
+            isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), eq(0)))
+        .thenThrow(new SecurityException("not allowed"));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.exportEntries("json", null, null, null, null, null, null, 0));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void exportInvalidFormatIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.exportEntries("xml", null, null, null, null, null, null, 0));
+    assertEquals(400, ex.getResponse().getStatus());
   }
 }

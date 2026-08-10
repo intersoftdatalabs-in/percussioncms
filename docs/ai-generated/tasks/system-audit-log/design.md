@@ -72,10 +72,13 @@ SystemErrorCode (*ErrorCodes) → AuditLogService
 |--------|------|-------|
 | `GET` | `/Rhythmyx/rest/auditlog/entries` | Admin or property |
 | `GET` | `/Rhythmyx/rest/auditlog/entries/{auditId}` | Admin or property |
+| `GET` | `/Rhythmyx/rest/auditlog/export?format=csv\|json` | Admin or property (Phase 5 / #2715) |
 
 Query parameters on list: `from`, `to` (ISO-8601 instants), `module`, `eventType`, `outcome`, `actor`, `offset`, `limit` (default 50, max 200).
 
-Responses: `200` page/entry, `403` without permission, `404` missing id, `400` bad dates.
+Export uses the same filters plus `format` (`csv`/`json`) and `maxRows` (default 5000, max 10000). See [export.md](export.md).
+
+Responses: `200` page/entry/export body, `403` without permission, `404` missing id, `400` bad dates/format.
 
 **Not in Phase 3:** Admin WebUI viewer / Playwright (#2619).
 
