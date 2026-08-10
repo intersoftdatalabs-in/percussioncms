@@ -248,15 +248,18 @@ public final class PSGadgetRegistryCompiler {
             Files.createDirectories(parent);
           }
           // host-ref.txt body is the package-relative install target (URL-style).
-          Files.writeString(artifact, res.getTarget() + System.lineSeparator());
+          Files.writeString(artifact, res.getTarget() + "\n");
         }
       }
     }
   }
 
   /**
-   * Strip leading {@code /cm/gadgets/repository/} (or any leading slash) so the target is a
-   * package-relative install path using {@code /} separators only.
+   * Normalize a gadget registry {@code baseUri} to a package-relative host path using {@code /}
+   * separators only. Strips all leading slashes (so both {@code /cm/gadgets/repository/x} and
+   * {@code cm/gadgets/repository/x} work). Rejects blank paths and any segment containing
+   * {@code ..}. Does not rewrite or inject the {@code cm/gadgets/repository/} prefix — the
+   * registry {@code baseUri} is expected to already identify the install target.
    */
   static String toPackageRelativeHostPath(String baseUri) {
     if (baseUri == null || baseUri.isBlank()) {
@@ -269,7 +272,6 @@ public final class PSGadgetRegistryCompiler {
     if (p.isEmpty() || p.contains("..")) {
       return null;
     }
-    // Prefer cm/gadgets/repository/<id> as install target when that prefix is present.
     return p;
   }
 

@@ -129,9 +129,9 @@ public final class PSGadgetCatalogIo {
     if (parent != null) {
       Files.createDirectories(parent);
     }
+    // UTF-8 JSON body only (no trailing newline) — matches PSComponentPackageManifestIo.write.
     try (Writer w = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
       GSON.toJson(catalog, w);
-      w.write(System.lineSeparator());
     }
   }
 }
