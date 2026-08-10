@@ -1,0 +1,2 @@
+$perc.widget.item.name
+		$perc.widget.item.properties.get('day_of_week')

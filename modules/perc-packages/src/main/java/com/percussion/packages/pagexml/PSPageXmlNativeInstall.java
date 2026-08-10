@@ -168,8 +168,11 @@ public final class PSPageXmlNativeInstall {
     Path manifestPath = pageDir.resolve(PSComponentPackageManifest.DEFAULT_MANIFEST_FILE_NAME);
     PSComponentPackageManifest manifest = readManifest(manifestPath, pageDir);
     String stem = resolveStem(manifest, pageDir);
-    String guid = guidsByStem.get(stem);
-    String archiveFolder = foldersByStem.get(stem);
+    // Mapping loaders key stems lower-case (Windows/macOS case-insensitive product history;
+    // dual-ship uses the same policy). Preserve original stem for on-disk templateDef names.
+    String stemKey = stem.toLowerCase(Locale.ROOT);
+    String guid = guidsByStem.get(stemKey);
+    String archiveFolder = foldersByStem.get(stemKey);
     if (guid == null || guid.isBlank() || archiveFolder == null || archiveFolder.isBlank()) {
       Path mapping = PSPageXmlDualShip.findMappingProperties(packageDir);
       String mappingHint =
@@ -189,7 +192,7 @@ public final class PSPageXmlNativeInstall {
 
   /**
    * Mapping value {@code TemplateDef-N} by stem (for archive folder names). Same keys as GUID
-   * loader.
+   * loader — stem keys are lower-cased for case-insensitive match against manifest ids.
    */
   public static Map<String, String> loadArchiveFoldersFromMapping(Path packageDir)
       throws IOException {
@@ -211,7 +214,7 @@ public final class PSPageXmlNativeInstall {
       if (!km.matches()) {
         continue;
       }
-      String stem = km.group(1);
+      String stem = km.group(1).toLowerCase(Locale.ROOT);
       String value = props.getProperty(key);
       if (value == null) {
         continue;

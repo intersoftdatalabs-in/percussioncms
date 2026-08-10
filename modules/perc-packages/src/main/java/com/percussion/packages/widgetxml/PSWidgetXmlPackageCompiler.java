@@ -32,8 +32,9 @@ import java.util.Objects;
  *
  * <p>Looks under {@code sys__UserDependency--rxconfig/Widgets/*.xml} (product packaging layout used
  * by {@code modules/perc-packages}). Covers baseWidgets, high-traffic product packages (#2772), the
- * residual long-tail batch (#2789), and the remaining product residual batch (#2802). Product Widget
- * XML remains dual-run until install consumes modern packages (Phase 5 exit).
+ * residual long-tail batch (#2789), the remaining product residual batch (#2802), and the final
+ * {@code perc.Test} residual (#2830). Product Widget XML remains dual-run until install consumes
+ * modern packages (Phase 5 exit).
  */
 public final class PSWidgetXmlPackageCompiler {
 
@@ -75,8 +76,9 @@ public final class PSWidgetXmlPackageCompiler {
    * Remaining product package directory names under {@code Packages/} covered by issue #2802
    * (auto-lists, blog/list companions, social/comments cards, event/slider/cookie/jquery, login
    * variants, Result/Redirect, defaultLanguage). Beyond {@link #RESIDUAL_PRODUCT_PACKAGE_DIRS},
-   * {@link #HIGH_TRAFFIC_PACKAGE_DIRS}, and {@code perc.baseWidgets}. Excludes {@code perc.Test}.
-   * Dual-run: product Widget XML remains until install consumes modern packages.
+   * {@link #HIGH_TRAFFIC_PACKAGE_DIRS}, and {@code perc.baseWidgets}. Excludes {@code perc.Test}
+   * (covered by {@link #TEST_PRODUCT_PACKAGE_DIRS} / #2830). Dual-run: product Widget XML remains
+   * until install consumes modern packages.
    */
   public static final List<String> REMAINING_PRODUCT_PACKAGE_DIRS =
       List.of(
@@ -107,6 +109,13 @@ public final class PSWidgetXmlPackageCompiler {
           "perc.widget.Result",
           "perc.widgets.Redirect",
           "perc.defaultLanguage");
+
+  /**
+   * Final product package residual under {@code Packages/} covered by issue #2830 ({@code
+   * perc.Test} / {@code PSWidget_TestProperties}). Beyond {@link #REMAINING_PRODUCT_PACKAGE_DIRS}.
+   * Dual-run: product Widget XML remains until install consumes modern packages (Phase 5 exit).
+   */
+  public static final List<String> TEST_PRODUCT_PACKAGE_DIRS = List.of("perc.Test");
 
   private PSWidgetXmlPackageCompiler() {
     // utility
@@ -202,6 +211,21 @@ public final class PSWidgetXmlPackageCompiler {
   public static List<PSWidgetXmlCompileResult> compileRemainingProductPackages(Path packagesRoot)
       throws PSWidgetXmlException, IOException {
     return compileNamedPackages(packagesRoot, REMAINING_PRODUCT_PACKAGE_DIRS);
+  }
+
+  /**
+   * Compile the final {@code perc.Test} product package residual under a {@code Packages/} root
+   * directory (issue #2830 — residual after #2802). Missing package directories are soft-skipped
+   * (same policy as prior batches).
+   *
+   * @param packagesRoot non-null directory containing package folders
+   * @return compile results sorted by package then widget stem (may be empty if none present)
+   * @throws PSWidgetXmlException on parse/compile failure of a present package
+   * @throws IOException on I/O failure
+   */
+  public static List<PSWidgetXmlCompileResult> compileTestProductPackages(Path packagesRoot)
+      throws PSWidgetXmlException, IOException {
+    return compileNamedPackages(packagesRoot, TEST_PRODUCT_PACKAGE_DIRS);
   }
 
   /**
