@@ -297,18 +297,22 @@ class PSSystemAuditLoggerTest {
     PSSystemAuditLogger.auditExportAccessDenied("guest", "forbidden");
 
     assertEquals(2, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var all = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll();
     var codes =
-        ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().stream()
+        all.stream()
             .map(r -> r.code().numericCode())
             .collect(java.util.stream.Collectors.toSet());
     assertTrue(codes.contains(4));
     assertTrue(codes.contains(5));
-    assertEquals(
-        AuditSubsystemErrorCodes.EXPORT_ACCESS,
-        ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0).code());
-    assertEquals(
-        AuditOutcome.FAILURE,
-        ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(1).outcome());
+    // findAll() is not insertion-ordered (concurrent memory repo); assert by code/outcome.
+    assertTrue(
+        all.stream().anyMatch(r -> r.code() == AuditSubsystemErrorCodes.EXPORT_ACCESS));
+    assertTrue(
+        all.stream()
+            .anyMatch(
+                r ->
+                    r.code() == AuditSubsystemErrorCodes.EXPORT_ACCESS_DENIED
+                        && r.outcome() == AuditOutcome.FAILURE));
   }
 
   @Test

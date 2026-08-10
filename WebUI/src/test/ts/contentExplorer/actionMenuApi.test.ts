@@ -21,6 +21,7 @@ import {
   findAllowedContentTypeMenus,
   findAllowedTemplateMenus,
   mapActionMenusToMenuActions,
+  unwrapActionMenuChildren,
 } from "../../../main/ts/api/contentExplorer/actionMenuApi";
 import { PATHS } from "../../../main/ts/api/paths";
 
@@ -49,7 +50,7 @@ describe("mapActionMenusToMenuActions", () => {
     expect(actions.map((a) => a.name)).toEqual(["open", "rename", "delete"]);
   });
 
-  it("flattens cascading children under each parent menu", () => {
+  it("nests cascading children under each parent menu (envelope wire)", () => {
     const menus: ActionMenu[] = [
       makeMenu({
         name: "file",
@@ -65,6 +66,36 @@ describe("mapActionMenusToMenuActions", () => {
     ];
     const [file] = mapActionMenusToMenuActions(menus);
     expect(file?.children?.map((c) => c.name)).toEqual(["save", "saveAs"]);
+  });
+
+  it("nests cascading children when Jackson emits a raw children array (#2730)", () => {
+    const menus: ActionMenu[] = [
+      makeMenu({
+        name: "file",
+        menuType: "MENU",
+        sortRank: 0,
+        children: [
+          makeMenu({ name: "save", sortRank: 1 }),
+          makeMenu({ name: "saveAs", sortRank: 2 }),
+        ],
+      }),
+    ];
+    const [file] = mapActionMenusToMenuActions(menus);
+    expect(file?.children?.map((c) => c.name)).toEqual(["save", "saveAs"]);
+    // Parent stays one toolbar control — children are not top-level.
+    expect(mapActionMenusToMenuActions(menus).map((a) => a.name)).toEqual(["file"]);
+  });
+
+  it("unwrapActionMenuChildren accepts array and envelope forms", () => {
+    expect(unwrapActionMenuChildren(undefined)).toEqual([]);
+    expect(
+      unwrapActionMenuChildren([makeMenu({ name: "a" })]).map((m) => m.name),
+    ).toEqual(["a"]);
+    expect(
+      unwrapActionMenuChildren({
+        ActionMenuList: [makeMenu({ name: "b" })],
+      }).map((m) => m.name),
+    ).toEqual(["b"]);
   });
 
   it("falls back to name when label is absent", () => {

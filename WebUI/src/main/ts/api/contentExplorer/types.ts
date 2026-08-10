@@ -426,13 +426,14 @@ export interface ActionMenuModeUIContext {
 }
 
 /**
- * Server children envelope. Server's {@code ActionMenu.children} is
- * the {@code ActionMenuList extends ArrayList<ActionMenu>} type with
- * {@code @XmlRootElement(name = "ActionMenuList")}, so the wire is
- * {@code {"ActionMenuList": ActionMenu[]}}.
+ * Server children envelope. Root list responses wrap under
+ * {@code ActionMenuList}; nested {@code ActionMenu.children} often arrives
+ * as a raw JSON array because {@code ActionMenuList extends ArrayList}.
+ * Accept both (see {@code unwrapActionMenuChildren}).
  */
 export interface ActionMenuListEnvelope {
   ActionMenuList?: ActionMenu[];
+  ActionMenu?: ActionMenu[];
 }
 
 /**
@@ -453,7 +454,11 @@ export interface ActionMenu {
   menuType: ActionMenuType;
   /** Marker for client-handled vs server-handled actions. */
   handler?: string;
-  children?: ActionMenuListEnvelope;
+  /**
+   * Cascading children. Wire may be a raw array (Jackson ArrayList field)
+   * or an {@link ActionMenuListEnvelope} object.
+   */
+  children?: ActionMenuListEnvelope | ActionMenu[];
   parameters?: ActionMenuParameter[];
   visibilityContexts?: ActionMenuVisibilityContext[];
   uiContexts?: ActionMenuModeUIContext[];

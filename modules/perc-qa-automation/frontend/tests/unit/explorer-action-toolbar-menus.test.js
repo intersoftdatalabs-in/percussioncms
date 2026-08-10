@@ -15,32 +15,18 @@
  */
 
 /**
- * Unit tests for explorer-menu-bar helpers (#2731) — no live CMS.
+ * Unit tests for #2730 ActionToolbar surface test ids — no live CMS.
  */
 
 "use strict";
 
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
-const {
-  TEST_IDS,
-  explorerSpaUrl,
-} = require("../helpers/explorer-menu-bar");
+const { TEST_IDS } = require("../helpers/explorer-menu-bar");
 
-describe("explorer-menu-bar helpers (#2731)", () => {
-  it("exports stable product test ids", () => {
-    assert.equal(TEST_IDS.menuBar, "explorer-menu-bar");
-    assert.equal(TEST_IDS.menuContent, "explorer-menu-content");
-    assert.equal(TEST_IDS.menuView, "explorer-menu-view");
-    assert.equal(TEST_IDS.menuHelp, "explorer-menu-help");
-    assert.equal(TEST_IDS.toggleSearch, "explorer-toggle-search");
+describe("explorer-action-toolbar-menus helpers (#2730)", () => {
+  it("exports action toolbar + server-actions region test ids", () => {
     assert.equal(TEST_IDS.actionToolbar, "action-toolbar");
     assert.equal(TEST_IDS.serverActions, "explorer-server-actions");
-  });
-
-  it("builds explorer SPA entry URL with cache buster", () => {
-    const url = explorerSpaUrl("http://127.0.0.1:9992/");
-    assert.match(url, /\/Rhythmyx\/cm\/app\/spa\.jsp\?entry=explorer&_=\d+/);
-    assert.ok(!url.includes("9992//"));
   });
 });

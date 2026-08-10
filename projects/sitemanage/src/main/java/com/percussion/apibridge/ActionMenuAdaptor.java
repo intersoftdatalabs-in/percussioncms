@@ -63,7 +63,10 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       String name, String label, Boolean item, Boolean dynamic, Boolean cascading)
       throws PSErrorResultsException {
     var mgr = PSCmsObjectMgrLocator.getObjectManager();
-    return ApiUtils.convertPSActionMenuList(mgr.findActionMenus());
+    // Nested tree (roots + children) so Explorer ActionToolbar can render
+    // cascading MENUs as dropdowns instead of a flat multi-row button dump (#2730).
+    // Filters name/label/item/dynamic/cascading remain future work on the tree.
+    return ApiUtils.convertPSActionMenuList(mgr.findActionMenusTree());
   }
 
   @Override

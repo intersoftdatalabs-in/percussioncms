@@ -240,9 +240,28 @@ public interface IPSCmsObjectMgr extends IPSCmsContentSummaries {
      * {@link com.percussion.services.menus.PSActionMenu}, which lives in the
      * <code>services</code> package rather than the old cms.objectstore namespace.
      *
+     * <p>Returns a <strong>flat</strong> list of every row in {@code RXMENUACTION}
+     * (including entries that are only ever children of cascading menus). Prefer
+     * {@link #findActionMenusTree()} for UI toolbar/context surfaces that must
+     * render nested menus rather than a dumped button list (#2730).
+     *
      * @return never {@code null}
      */
     List<PSActionMenu> findActionMenus();
+
+    /**
+     * Retrieve root action menus with cascading children attached from
+     * {@code RXMENUACTIONRELATION}.
+     *
+     * <p>Only menus that are <em>not</em> listed as a {@code CHILDACTIONID} are
+     * returned at the top level. Each parent's {@link PSActionMenu#getChildren()}
+     * is populated (and sorted by sort order) so REST conversion can preserve
+     * nested structure for modern Explorer {@code ActionToolbar} dropdowns
+     * (#2730 residual after #2748).
+     *
+     * @return never {@code null}; may be empty
+     */
+    List<PSActionMenu> findActionMenusTree();
 
     /**
      * Finds content IDs by content type with Stream support.

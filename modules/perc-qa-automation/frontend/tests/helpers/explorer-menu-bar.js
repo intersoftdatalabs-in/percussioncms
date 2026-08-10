@@ -18,7 +18,10 @@ const TEST_IDS = Object.freeze({
   helpDropdown: "explorer-menu-help-dropdown",
   toggleSearch: "explorer-toggle-search",
   searchPanel: "explorer-search-panel",
+  /** Server-driven ActionToolbar (#2730 nested MENU dropdowns). */
   actionToolbar: "action-toolbar",
+  /** Shell region wrapping ActionToolbar under ExplorerMenuBar. */
+  serverActions: "explorer-server-actions",
 });
 
 /**

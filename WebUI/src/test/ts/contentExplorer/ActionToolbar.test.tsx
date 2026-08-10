@@ -93,8 +93,13 @@ describe("ActionToolbar", () => {
 
     // Parent is a single toolbar control — not three flat buttons.
     expect(screen.getByTestId("action-toolbar-item-new")).toBeTruthy();
+    expect(
+      screen.getByTestId("action-toolbar-item-new").getAttribute("aria-haspopup"),
+    ).toBe("menu");
     expect(screen.queryByTestId("action-toolbar-item-new-folder")).toBeNull();
     expect(screen.getByTestId("action-toolbar-item-open")).toBeTruthy();
+    // Only two top-level controls (New dropdown + Open), not three flat buttons.
+    expect(screen.getAllByRole("button").length).toBe(2);
 
     fireEvent.click(screen.getByTestId("action-toolbar-item-new"));
     expect(screen.getByTestId("action-toolbar-menu-new")).toBeTruthy();
@@ -103,6 +108,37 @@ describe("ActionToolbar", () => {
       "new-folder",
       expect.objectContaining({ name: "new-folder" }),
     );
+  });
+
+  it("does not dump multi-level MENU grandchildren as top-level toolbar buttons (#2730)", () => {
+    const nested: MenuAction[] = [
+      {
+        name: "content",
+        label: "Content",
+        sortRank: 0,
+        menuType: "MENU",
+        children: [
+          {
+            name: "new",
+            label: "New",
+            sortRank: 0,
+            menuType: "MENU",
+            children: [
+              {
+                name: "new-folder",
+                label: "Folder",
+                sortRank: 0,
+                menuType: "MENUITEM",
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    render(<ActionToolbar actions={nested} />);
+    expect(screen.getByTestId("action-toolbar-item-content")).toBeTruthy();
+    expect(screen.queryByTestId("action-toolbar-item-new")).toBeNull();
+    expect(screen.queryByTestId("action-toolbar-item-new-folder")).toBeNull();
   });
 
   it("renders cascading Workflow children as a labeled group (#2732)", () => {
