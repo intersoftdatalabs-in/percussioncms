@@ -3,7 +3,7 @@
 """pytest coverage for scripts/verify-no-cadf-legacy-auditlog.py.
 
 Exercises PASS on a clean tree and FAIL when a tracked production path
-reintroduces ``com.ibm.cadf`` (probe file cleaned in finally).
+reintroduces ``com.ibm.cadf`` (negative probes use ``tmp_path`` only).
 """
 from __future__ import annotations
 
@@ -31,6 +31,33 @@ def _run(*args: str, cwd: Path | None = None) -> subprocess.CompletedProcess:
     )
 
 
+def _init_fake_git_repo(fake_root: Path) -> None:
+    """Minimal git repo so ``git grep`` works under a temp root."""
+    fake_root.mkdir(parents=True, exist_ok=True)
+    subprocess.run(
+        ["git", "init"],
+        shell=False,
+        check=True,
+        cwd=str(fake_root),
+        capture_output=True,
+    )
+    # Identity required on some CI hosts before git add of content.
+    subprocess.run(
+        ["git", "config", "user.email", "gate-test@example.com"],
+        shell=False,
+        check=True,
+        cwd=str(fake_root),
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "cadf-gate-test"],
+        shell=False,
+        check=True,
+        cwd=str(fake_root),
+        capture_output=True,
+    )
+
+
 def test_help_exits_zero_and_prints_usage() -> None:
     result = _run("--help")
     assert result.returncode == 0, result.stderr
@@ -44,10 +71,16 @@ def test_clean_repo_passes() -> None:
     assert "PASS" in result.stdout
 
 
-def test_stray_cadf_reference_fails() -> None:
-    """Introduce a tracked Java file with ``com.ibm.cadf``, then clean up."""
+def test_stray_cadf_reference_fails(tmp_path: Path) -> None:
+    """Tracked Java with ``com.ibm.cadf`` under a fake repo must fail the gate.
+
+    Uses ``tmp_path`` only — never stages or writes under the real monorepo
+    (interrupted runs must not leave the worktree dirty).
+    """
+    fake_root = tmp_path / "repo"
+    _init_fake_git_repo(fake_root)
     probe = (
-        REPO_ROOT
+        fake_root
         / "modules"
         / "perc-auditlog"
         / "src"
@@ -60,31 +93,23 @@ def test_stray_cadf_reference_fails() -> None:
         / "CadfGateProbe.java"
     )
     probe.parent.mkdir(parents=True, exist_ok=True)
-    rel = str(probe.relative_to(REPO_ROOT)).replace("\\", "/")
-    try:
-        probe.write_text(
-            "// probe for verify-no-cadf-legacy-auditlog: import com.ibm.cadf.model.Event;\n",
-            encoding="utf-8",
-        )
-        subprocess.run(
-            ["git", "add", "--", rel],
-            shell=False,
-            check=False,
-            cwd=str(REPO_ROOT),
-        )
-        result = _run("--repo-root", str(REPO_ROOT))
-        assert result.returncode == 1, result.stdout + result.stderr
-        combined = result.stdout + result.stderr
-        assert "com.ibm.cadf" in combined
-        assert "FAIL" in combined
-    finally:
-        subprocess.run(
-            ["git", "reset", "--", rel],
-            shell=False,
-            check=False,
-            cwd=str(REPO_ROOT),
-        )
-        probe.unlink(missing_ok=True)
+    probe.write_text(
+        "// probe for verify-no-cadf-legacy-auditlog: import com.ibm.cadf.model.Event;\n",
+        encoding="utf-8",
+    )
+    rel = str(probe.relative_to(fake_root)).replace("\\", "/")
+    subprocess.run(
+        ["git", "add", "--", rel],
+        shell=False,
+        check=True,
+        cwd=str(fake_root),
+        capture_output=True,
+    )
+    result = _run("--repo-root", str(fake_root))
+    assert result.returncode == 1, result.stdout + result.stderr
+    combined = result.stdout + result.stderr
+    assert "com.ibm.cadf" in combined
+    assert "FAIL" in combined
 
 
 def test_reintroduced_module_dir_fails(tmp_path: Path) -> None:
@@ -92,16 +117,8 @@ def test_reintroduced_module_dir_fails(tmp_path: Path) -> None:
     # Use a temporary fake repo root with only the forbidden directory so we do
     # not recreate jcadf under the real monorepo (would break parallel work).
     fake_root = tmp_path / "repo"
-    fake_root.mkdir()
+    _init_fake_git_repo(fake_root)
     (fake_root / "modules" / "jcadf-master").mkdir(parents=True)
-    # Initialize a minimal git repo so git grep does not error hard.
-    subprocess.run(
-        ["git", "init"],
-        shell=False,
-        check=True,
-        cwd=str(fake_root),
-        capture_output=True,
-    )
     result = _run("--repo-root", str(fake_root))
     assert result.returncode == 1, result.stdout + result.stderr
     assert "jcadf-master" in (result.stdout + result.stderr)
