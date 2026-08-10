@@ -71,12 +71,9 @@ public class DefaultPageTemplateBeanTest {
         };
     IPSGuid t1ID = new PSGuid(PSTypeEnum.TEMPLATE, 1L);
     IPSGuid ctypeId = new PSGuid(PSTypeEnum.NODEDEF, 42L);
-    PSComponentSummary summ =
-        new PSComponentSummary() {
-          {
-            setContentTypeId(42L);
-          }
-        };
+    // PSComponentSummary is final (this-escape #2700) — do not double-brace subclass.
+    PSComponentSummary summ = new PSComponentSummary();
+    summ.setContentTypeId(42L);
     IPSSite site = mock(IPSSite.class);
     IPSGuid contentId = mock(IPSGuid.class);
 
@@ -125,12 +122,9 @@ public class DefaultPageTemplateBeanTest {
     IPSGuid t2ID = new PSGuid(PSTypeEnum.TEMPLATE, 2L);
     IPSGuid t3ID = new PSGuid(PSTypeEnum.TEMPLATE, 3L);
     IPSGuid ctypeId = new PSGuid(PSTypeEnum.NODEDEF, 42L);
-    PSComponentSummary summ =
-        new PSComponentSummary() {
-          {
-            setContentTypeId(42L);
-          }
-        };
+    // PSComponentSummary is final (this-escape #2700) — do not double-brace subclass.
+    PSComponentSummary summ = new PSComponentSummary();
+    summ.setContentTypeId(42L);
     IPSSite site = mock(IPSSite.class);
     IPSGuid contentId = mock(IPSGuid.class);
     Set<IPSAssemblyTemplate> siteTemplates =
@@ -201,12 +195,9 @@ public class DefaultPageTemplateBeanTest {
     IPSGuid t2ID = new PSGuid(PSTypeEnum.TEMPLATE, 2L);
     IPSGuid t3ID = new PSGuid(PSTypeEnum.TEMPLATE, 3L);
     IPSGuid ctypeId = new PSGuid(PSTypeEnum.NODEDEF, 42L);
-    PSComponentSummary summ =
-        new PSComponentSummary() {
-          {
-            setContentTypeId(42L);
-          }
-        };
+    // PSComponentSummary is final (this-escape #2700) — do not double-brace subclass.
+    PSComponentSummary summ = new PSComponentSummary();
+    summ.setContentTypeId(42L);
     IPSSite site = mock(IPSSite.class);
     IPSGuid contentId = mock(IPSGuid.class);
     Set<IPSAssemblyTemplate> siteTemplates =
