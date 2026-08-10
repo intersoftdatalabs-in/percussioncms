@@ -73,3 +73,6 @@ Operators: prefer the smoke wrappers before opening a docs-only PR so CI does no
 
 Add or update Markdown here when features land so documentation stays in lockstep with the product.
 Keep frontmatter `id` values stable when paths rename.
+
+**Agent gate:** root `AGENTS.md` → **Product documentation (HARD GATE)** — product-feature work
+must update or create pages under this tree in the same PR (not only `docs/` engineering notes).

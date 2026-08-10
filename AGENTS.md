@@ -120,6 +120,7 @@ Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/pro
 | “My new unit test passed” but module suite fails                                                         | Verified only the new class, not the **module** clean install / shared contexts                                          |
 | Reflection / mock `IllegalArgumentException` on static fields                                            | Stubbed with a **supertype or wrong type** (e.g. `Properties` where field is `PSProperties`)                             |
 | UI feature “done” but QA/E2E missing                                                                     | Vitest/unit only; product screen requires Playwright companion                                                           |
+| Feature “done” but operators/devs have no product doc                                                    | Code/tests only; missed `product-docs/` companion for the user-visible or operator-facing surface                        |
 | REST resource “done” but rest suite broken                                                               | Mockito resource test only; no Spring test stub for adaptor interface; or sitemanage impl without rest interface closure |
 | Works on author machine, fails Windows/Linux CI                                                          | Non-portable paths, wrong separators, case-only assumptions                                                              |
 | PR “fixed” but merge still blocked                                                                       | Code fix without review-thread reply/resolve; incomplete gates                               |
@@ -140,13 +141,68 @@ Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/pro
 
 |                        Change class                         |                                                                    Companions agents routinely under-deliver                                                                    |
 |-------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| New `rest` `@PSSiteManageBean` resource + adaptor interface | Wire DTOs; sitemanage apibridge impl; Mockito resource test; **Spring test stub adaptor** on rest test classpath; sitemanage adaptor tests; full `rest` module test suite green |
-| WebUI product screen / user-visible flow                    | Component tests **and** Playwright under `modules/perc-qa-automation/`                                                                                                          |
-| Feature gated on `PSServer` / server.properties             | Config keys documented; unit tests that stub **`PSProperties`** (not bare `Properties`) and restore statics in `@AfterEach`                                                     |
+| New `rest` `@PSSiteManageBean` resource + adaptor interface | Wire DTOs; sitemanage apibridge impl; Mockito resource test; **Spring test stub adaptor** on rest test classpath; sitemanage adaptor tests; full `rest` module test suite green; **product-docs** REST/admin notes when the surface is operator/integrator-facing |
+| WebUI product screen / user-visible flow                    | Component tests **and** Playwright under `modules/perc-qa-automation/`; **product-docs** admin/getting-started page for the user-visible behavior                                                                 |
+| Feature gated on `PSServer` / server.properties             | Config keys documented in **product-docs** (and engineering notes if needed); unit tests that stub **`PSProperties`** (not bare `Properties`) and restore statics in `@AfterEach` |
 | New locale / i18n surface                                   | TMX / locale matrix peers; UI + server + QA pieces that existing locales already touch                                                                                          |
-| Installer / packaging / deployer                            | Lockstep scripts, fixtures, and platform entrypoints (`.bat`/`.cmd` where required)                                                                                             |
+| Installer / packaging / deployer                            | Lockstep scripts, fixtures, and platform entrypoints (`.bat`/`.cmd` where required); **product-docs** install/upgrade/admin pages when operator steps change                    |
+| Product feature (any operator/user/API surface)             | Matching **`product-docs/`** Markdown under the current product line (see **Product documentation (HARD GATE)**)                                                                  |
 
 Module `AGENTS.md` files may specialize this table; they do not replace the method above.
+
+## Product documentation (HARD GATE)
+
+**Product features must ship with product documentation.** Engineering notes under `docs/` (AI tasks, policies, developer-module writeups) are **not** a substitute for the customer/operator-facing tree.
+
+### Where product docs live
+
+| Path | Role |
+|------|------|
+| `product-docs/` | Git-backed **product documentation** (Virtual Site source). Audience: operators, admins, integrators, end users of the product. |
+| `product-docs/8.2/` | Current product-line content (getting-started, admin, developer, reference). Prefer this tree for new 8.2 work. |
+| `docs/` | Engineering / AI / policy / internal task notes — **not** product help. |
+
+Layout, frontmatter (`id:` stability), and build: `product-docs/README.md`. Build/smoke: `scripts/build-cms-docs.*`, `scripts/ci-smoke-product-docs.*`.
+
+### When this gate applies (MUST update or create)
+
+Agents **MUST** create or update Markdown under `product-docs/` (current line, usually `product-docs/8.2/`) in the **same change set / PR** when the work changes **product behavior** that operators, admins, integrators, or end users need to know about. Examples:
+
+* WebUI product screens, wizards, chrome, or user-visible flows
+* Admin / publishing / sites / users-roles / server operations behavior
+* Public REST (or other integration) surfaces and contracts operators or integrators call
+* Install, upgrade, packaging, or configuration steps that change how the product is run
+* New or changed server.properties / feature flags that operators configure
+* Security, ACL, or workflow behavior with operator-facing consequences
+
+**Default:** if the PR is a product feature and you cannot name an existing `product-docs` page that already describes the new behavior accurately, the gate is **not** met — add or update a page.
+
+### How to update (minimum bar)
+
+1. **Find the peer page** under `product-docs/8.2/` (admin / developer / getting-started / reference) that already covers the same surface; prefer editing it over inventing a parallel page.
+2. **Update or create** Markdown so the documented behavior matches what the code ships (procedures, screens, options, limits, config keys).
+3. **Keep frontmatter `id` values stable** when renaming or moving pages (see `product-docs/8.2/reference/frontmatter.md`). New pages need a unique stable `id` and nav placement consistent with `_config.yaml` / section indexes.
+4. **Link with `id:` references** where the tree already uses them; do not break existing `id:` or relative links.
+5. **Do not** put product help only in PR bodies, issue comments, or `docs/ai-generated/**` — those are not the product doc site.
+6. When `product-docs/**` changes, prefer a local smoke (`scripts/ci-smoke-product-docs.bat` / `.sh` or `scripts/build-cms-docs.*`) before PR when practical; CI also runs path-filtered `product-docs-build`.
+7. **PR checklist** — mark the **Product documentation** item in `.github/pull_request_template.md` (checked when pages were updated; or **N/A** with a one-line reason when the change is not product-facing). Agents that build PR bodies programmatically (e.g. night-issue-prs) must include the same checkbox language.
+
+### Explicit exceptions (product-docs not required)
+
+* Pure refactors with **no** behavior/UX/API/config/operator-step change
+* Test-only, CI-only, or agent-instruction-only changes (`AGENTS.md`, workflows, skills)
+* Internal engineering fixes with **no** operator-, admin-, integrator-, or end-user-visible surface
+* Docs-only PRs that **only** touch `product-docs/` (still follow frontmatter/build rules)
+
+When unsure whether a change is product-facing: **update product-docs** (or ask the human). Omitting product docs because “engineering README is enough” is a defect.
+
+### Hard bans
+
+* Claiming a product feature “done” with code + unit tests but **no** `product-docs/` update when the surface is operator/user/API-facing
+* Using only `docs/` engineering notes as the product documentation companion
+* Inventing parallel help trees outside `product-docs/` for customer/operator content
+* Breaking stable frontmatter `id` values without a deliberate migration
+* Opening a product-feature PR without the **Product documentation** checklist item checked (or an explicit **N/A** reason)
 
 ## Formatting (optional — not a hard gate)
 
@@ -363,6 +419,7 @@ Kilo rule: `.kilo/rules/worktree-hygiene.md`. Script docs: `scripts/README.md`.
 * ALWAYS update relevant script dir `README.md` files with doc on script purpose and usage scanrios when creating/editing scripts.
 * ALWAYS document your work in comments, README, or maven site documentation.
 * **IMPORTANT** you must ALWAYS update or create unit tests for any code change that you make, new or edited. And the tests must pass. No exceptions. Unit tests for the new class alone do **not** replace module-suite / shared-context verification when the change class participates in those contexts.
+* **IMPORTANT — Product documentation:** When working on a **product feature** (operator-, admin-, integrator-, or end-user-facing behavior — WebUI screens, REST/API surfaces, install/upgrade/config, publishing, sites, security/ACL with operator impact, etc.), agents **MUST** create or update the matching pages under **`product-docs/`** (current line: `product-docs/8.2/`) in the same change set. Engineering notes under `docs/` are **not** a substitute. See **Product documentation (HARD GATE)** above. Pure refactors, test-only, and non-product-facing internal fixes are exempt.
 * **IMPORTANT — WebUI + Playwright:** When changing a **product UI screen** under `WebUI/` (React SPA, login, shell chrome, user-visible flows), agents **MUST** also create or update Playwright specs in `modules/perc-qa-automation/` for the changed behavior. Vitest alone is not sufficient for screen work. See `WebUI/AGENTS.md` → **Playwright (HARD GATE)** and `modules/perc-qa-automation/AGENTS.md`.
 * **IMPORTANT — Unattended Playwright path (not permanent skip):** For overnight / agent UI validation, prefer **QA mode**: `perc-devctl qa-up` → `TEST_CMS_URL` → **surface-filtered** Playwright (`npm run test:surface` path/grep/tag) → `qa-down`. Do **not** blanket-skip Playwright solely because `agent_safe_only` is true when that H2 path is available. Still skip host-install-only, secrets, multi-RDBMS matrix, and full-suite runs by default. Details: `docs/developer-module/workbench-rest-and-qa-modes.md`, `modules/perc-qa-automation/AGENTS.md` → **QA mode surface filter**.
 * **IMPORTANT — Copyright headers:** New source files (first added **2023+**) must use `Copyright (c) <YEAR> Intersoft Data Labs, Inc.` with the **current year** (2026 now) plus the standard Apache 2.0 block. Do **not** use Percussion Software on new files. Do **not** rewrite pre-2023 Percussion headers to Intersoft. See **Copyright / Apache license headers (HARD GATE)** above.
