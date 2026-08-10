@@ -29,6 +29,7 @@ export type TopNavItemId =
   | "explorer"
   | "editor"
   | "architecture"
+  | "design"
   | "developer"
   | "publish"
   | "admin"
@@ -53,7 +54,7 @@ export function topNavItemIds(gates: TopNavGates = {}): TopNavItemId[] {
 
   const items: TopNavItemId[] = ["home", "explorer", "editor"];
   if (canPublish) {
-    items.push("architecture", "developer", "publish");
+    items.push("architecture", "design", "developer", "publish");
   }
   if (isAdmin) {
     items.push("admin");

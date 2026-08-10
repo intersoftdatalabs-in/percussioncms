@@ -57,6 +57,7 @@ describe("topNavItemIds (#2702)", () => {
       "explorer",
       "editor",
       "architecture",
+      "design",
       "developer",
       "publish",
       "admin",
@@ -72,6 +73,7 @@ describe("topNavItemIds (#2702)", () => {
       "explorer",
       "editor",
       "architecture",
+      "design",
       "developer",
       "publish",
     ]);

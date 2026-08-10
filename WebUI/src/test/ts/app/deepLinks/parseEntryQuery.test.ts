@@ -66,6 +66,19 @@ describe("parseEntryQuery", () => {
     expect(parseClientPath("/developer/pipelines").section).toBe("pipelines");
   });
 
+  it("maps design entry and section aliases (#2808)", () => {
+    expect(parseEntryQuery("?entry=design").entry).toBe("design");
+    expect(parseEntryQuery("?entry=design").clientPath).toBe("/design");
+    expect(
+      parseEntryQuery("?entry=design&section=templates").clientPath,
+    ).toBe("/design/templates");
+    expect(parseEntryQuery("?entry=design&section=library").section).toBe(
+      "templates",
+    );
+    expect(parseClientPath("/design/templates").entry).toBe("design");
+    expect(parseClientPath("/design/templates").section).toBe("templates");
+  });
+
   it("unknown entry falls back to home", () => {
     expect(parseEntryQuery("?entry=nope").entry).toBe("home");
   });

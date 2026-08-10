@@ -18,6 +18,7 @@
 import {
   isSpaEntry,
   normalizeAdminTab,
+  normalizeDesignSection,
   normalizeDeveloperSection,
   normalizeExplorerPath,
   normalizeHomeSection,
@@ -108,6 +109,14 @@ export function parseEntryQuery(
         entry,
         section,
         clientPath: section ? `/developer/${section}` : "/developer",
+      };
+    }
+    case "design": {
+      const section = normalizeDesignSection(sectionParam ?? tabParam);
+      return {
+        entry,
+        section,
+        clientPath: section ? `/design/${section}` : "/design",
       };
     }
     case "explorer": {
@@ -212,6 +221,14 @@ export function parseClientPath(
     }
     case "widget-builder":
       return { entry, clientPath: "/widget-builder" };
+    case "design": {
+      const section = normalizeDesignSection(second);
+      return {
+        entry,
+        section,
+        clientPath: section ? `/design/${section}` : "/design",
+      };
+    }
     case "developer": {
       const section = normalizeDeveloperSection(second);
       return {
