@@ -30,9 +30,9 @@ import {
 } from "../developer/CatalogTable";
 import { monoCell, mutedCell, openButtonStyle } from "../developer/catalogStyles";
 import { DESIGN_MSG } from "./messages";
-import { TemplateDetailDrawer } from "./TemplateDetailDrawer";
+import { TemplateSourceEditor } from "./TemplateSourceEditor";
 
-/** Open-key for detail drawer; null when the row is not selectable. */
+/** Open-key for source editor; null when the row is not selectable. */
 export function templateSelectionKey(t: TemplateSummary): string | null {
   if (t.templateName) return t.templateName;
   if (t.templateId != null) return String(t.templateId);
@@ -51,8 +51,8 @@ function listErrMsg(err: unknown, fallback: string): string {
 }
 
 /**
- * Design template library list (#2808): browse catalog, empty/error states,
- * read-only detail drawer. Reuses public REST {@code GET /services/templates}.
+ * Design template library (#2808 list + #2809 source/JEXL editor): browse catalog,
+ * empty/error states, open row to edit source and bindings via public REST.
  */
 export function TemplateLibraryPanel(): React.ReactElement {
   const [items, setItems] = useState<TemplateSummary[] | null>(null);
@@ -85,6 +85,15 @@ export function TemplateLibraryPanel(): React.ReactElement {
       ),
     );
   }, [items]);
+
+  if (selected) {
+    return (
+      <TemplateSourceEditor
+        idOrName={selected}
+        onBack={() => setSelected(null)}
+      />
+    );
+  }
 
   if (error) {
     return (
@@ -149,12 +158,6 @@ export function TemplateLibraryPanel(): React.ReactElement {
           };
         })}
       />
-      {selected && (
-        <TemplateDetailDrawer
-          idOrName={selected}
-          onClose={() => setSelected(null)}
-        />
-      )}
     </div>
   );
 }
