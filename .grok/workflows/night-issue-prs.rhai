@@ -1703,7 +1703,7 @@ report_prompt += "Security audit result (JSON, may be empty):\n" + json_encode(s
 report_prompt += "Include:\n";
 report_prompt += "1) Table: issue | author | pN priority | status | PR | child/residual | parent | summary\n";
 report_prompt += "   (include status=skipped_in_progress when claim-check lost the race;\n";
-report_prompt += "    skipped_non_maintainer_author; skipped_destructive_instructions; skipped_not_safe)\n";
+report_prompt += "    skipped_non_maintainer_author; skipped_destructive_instructions; skipped_not_safe; skipped_large_i18n)\n";
 report_prompt += "   Note maintainer_authors_only / require_issue_safety_check outcomes in triage notes.\n";
 report_prompt += "2) Table: open PRs followed up | conflicts | threads resolved | residual issues filed\n";
 report_prompt += "3) Peer PR review: prs_reviewed / approved / merged (squash) / changes_requested / skipped\n";
