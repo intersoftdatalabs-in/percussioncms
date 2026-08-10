@@ -60,3 +60,15 @@ Compiler for upgrade-input Widget XML → Component Package Manifest (baseWidget
 | Inventory + residuals | [../widget-xml-inventory.md](../widget-xml-inventory.md) |
 
 High-traffic package conversion and product XML removal remain residual under #2630.
+
+## Page templateDef compiler (slice #2770)
+
+Compiler for upgrade-input Page / assembly `*.templateDef` → Component Package Manifest (product page layout packages first):
+
+| Artifact | Location |
+|----------|----------|
+| Parser / compiler / package scanner | `modules/perc-packages/.../pagexml/PSPageXml*.java` |
+| Golden parity (`perc.base.plain`) | `modules/perc-packages/src/test/resources/pagexml/golden/` |
+| Inventory + dual-run note | [../page-definition-inventory.md](../page-definition-inventory.md) |
+
+Product packages may still **ship** `*.templateDef` during dual-run; modern `component-package.json` is the compiler output and future authoring format. Full product dual-run exit (delete package templateDefs) remains residual under #2630.

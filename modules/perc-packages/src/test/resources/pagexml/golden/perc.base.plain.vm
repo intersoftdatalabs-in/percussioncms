@@ -1,0 +1,11 @@
+#perc_templateHeader()##
+  <div id="perc-container" class="perc-region perc-vertical">
+      <div class="perc-vertical">
+		<div id="perc-content" class="perc-region perc-vertical">
+			<div class="perc-vertical">
+                        #region("perc-content" '' '' '' '')##
+			</div>
+		</div>
+	  </div>
+  </div>
+#perc_templateFooter()
