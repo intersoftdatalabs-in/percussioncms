@@ -16,8 +16,10 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  getDisplayFormatDetail,
   listDisplayFormats,
   normalizeDisplayFormatColumns,
+  unwrapDisplayFormat,
 } from "../../../main/ts/api/contentExplorer/displayFormatsApi";
 import { mockFetch } from "./setup";
 
@@ -48,5 +50,35 @@ describe("displayFormatsApi", () => {
       }),
     ).toHaveLength(2);
     expect(normalizeDisplayFormatColumns(undefined)).toEqual([]);
+  });
+
+  it("unwrapDisplayFormat exposes guid under Jackson root wrap (#2689)", () => {
+    const df = unwrapDisplayFormat({
+      DisplayFormat: {
+        name: "By_Author",
+        guid: { stringValue: "0-11-5" },
+      },
+    });
+    expect(df.name).toBe("By_Author");
+    expect(df.guid?.stringValue).toBe("0-11-5");
+  });
+
+  it("getDisplayFormatDetail unwraps wrapped body", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      expect(url).toContain("/displayformats/By_Author");
+      return new Response(
+        JSON.stringify({
+          DisplayFormat: {
+            name: "By_Author",
+            guid: { stringValue: "0-11-5" },
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const detail = await getDisplayFormatDetail("By_Author");
+    expect(detail.name).toBe("By_Author");
+    expect(detail.guid?.stringValue).toBe("0-11-5");
   });
 });

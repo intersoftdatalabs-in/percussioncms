@@ -1,0 +1,102 @@
+/*
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  getDisplayFormatDetail,
+  unwrapDisplayFormat,
+} from "../../../../main/ts/api/developer/displayFormatsApi";
+
+describe("unwrapDisplayFormat", () => {
+  it("unwraps Jackson DisplayFormat root envelope so guid is reachable (#2689)", () => {
+    const unwrapped = unwrapDisplayFormat({
+      DisplayFormat: {
+        name: "By_Author",
+        label: "By Author",
+        guid: { stringValue: "0-11-5", type: 11, uuid: 5 },
+        columns: [{ source: "sys_title" }],
+      },
+    });
+    expect(unwrapped.name).toBe("By_Author");
+    expect(unwrapped.guid?.stringValue).toBe("0-11-5");
+    expect(unwrapped.columns).toHaveLength(1);
+  });
+
+  it("unwraps camelCase displayFormat envelope", () => {
+    const unwrapped = unwrapDisplayFormat({
+      displayFormat: {
+        name: "Default",
+        guid: { stringValue: "0-11-1" },
+      },
+    });
+    expect(unwrapped.name).toBe("Default");
+    expect(unwrapped.guid?.stringValue).toBe("0-11-1");
+  });
+
+  it("passes through flat payloads without wrap", () => {
+    const flat = {
+      name: "FolderList",
+      guid: { stringValue: "0-11-2" },
+    };
+    expect(unwrapDisplayFormat(flat)).toEqual(flat);
+  });
+
+  it("takes first element when envelope holds a singleton array", () => {
+    const unwrapped = unwrapDisplayFormat({
+      DisplayFormat: [{ name: "only", guid: { stringValue: "0-11-9" } }],
+    });
+    expect(unwrapped.name).toBe("only");
+    expect(unwrapped.guid?.stringValue).toBe("0-11-9");
+  });
+
+  it("returns empty object for null/non-object payloads", () => {
+    expect(unwrapDisplayFormat(null)).toEqual({});
+    expect(unwrapDisplayFormat(undefined)).toEqual({});
+    expect(unwrapDisplayFormat("x")).toEqual({});
+    expect(unwrapDisplayFormat([])).toEqual({});
+  });
+});
+
+describe("getDisplayFormatDetail", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("unwraps wrapped REST body before returning detail", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        return new Response(
+          JSON.stringify({
+            DisplayFormat: {
+              name: "By_Author",
+              guid: { stringValue: "0-11-5" },
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }),
+    );
+
+    const detail = await getDisplayFormatDetail("By_Author");
+    expect(detail.name).toBe("By_Author");
+    expect(detail.guid?.stringValue).toBe("0-11-5");
+    expect(fetch).toHaveBeenCalled();
+    const calledUrl = String((fetch as ReturnType<typeof vi.fn>).mock.calls[0][0]);
+    expect(calledUrl).toContain("/displayformats/");
+    expect(calledUrl).toContain("By_Author");
+  });
+});

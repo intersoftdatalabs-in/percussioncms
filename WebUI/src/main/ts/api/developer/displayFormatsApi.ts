@@ -35,6 +35,37 @@ function asArray<T>(payload: unknown): T[] {
   return [];
 }
 
+/**
+ * Unwrap Jackson {@code WRAP_ROOT_VALUE} envelopes for a single display format.
+ *
+ * <p>REST {@code JacksonContextResolver} wraps DTOs as
+ * {@code {"DisplayFormat":{…}}}. Without unwrapping, detail panels read
+ * {@code detail.guid} as undefined and Object ACL shows
+ * "Object GUID not available" even though the server supplied a GUID
+ * (issue #2689). Flat payloads (no wrap) pass through unchanged.
+ */
+export function unwrapDisplayFormat(payload: unknown): DisplayFormat {
+  if (payload == null) {
+    return {};
+  }
+  if (typeof payload !== "object" || Array.isArray(payload)) {
+    return {};
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.DisplayFormat ?? root.displayFormat;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested as DisplayFormat;
+  }
+  if (Array.isArray(nested) && nested.length > 0) {
+    const first = nested[0];
+    if (first != null && typeof first === "object") {
+      return first as DisplayFormat;
+    }
+  }
+  // Flat body (WRAP_ROOT_VALUE off or already unwrapped)
+  return root as DisplayFormat;
+}
+
 export function normalizeColumns(
   columns: DisplayFormat["columns"],
 ): DisplayFormatColumn[] {
@@ -54,5 +85,6 @@ export async function listDisplayFormats(): Promise<DisplayFormat[]> {
 /** GET /services/displayformats/{idOrName} */
 export async function getDisplayFormatDetail(idOrName: string): Promise<DisplayFormat> {
   const key = encodeURIComponent(idOrName);
-  return get<DisplayFormat>(`${PATHS.DISPLAY_FORMATS}/${key}`);
+  const payload = await get<unknown>(`${PATHS.DISPLAY_FORMATS}/${key}`);
+  return unwrapDisplayFormat(payload);
 }

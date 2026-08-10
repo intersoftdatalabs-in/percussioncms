@@ -366,7 +366,12 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
       "developer-df-acl",
       "display-format",
     );
-    expect(["table", "no-guid", "empty"]).toContain(mode);
+    // Issue #2689: detail client must unwrap Jackson DisplayFormat root so
+    // objectGuid is present — no-guid shell is a product defect for DF detail.
+    expect(
+      ["table", "empty"],
+      `display-format Object ACL must load with GUID (got mode=${mode})`,
+    ).toContain(mode);
   });
 
   test("preferences default ACL template shows Design/Runtime column groups", async ({
