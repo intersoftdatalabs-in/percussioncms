@@ -38,6 +38,6 @@ Schema helper: `PSSlotLayoutStyles` (`SCHEMA_VERSION = 1`). Persistence: `RXSLOT
 ## Consequences
 
 - Schema/persistence changes for slots (`SLOT_LAYOUT` / `SLOT_STYLES` columns).
-- Upgrade maps widget `CssPref` / layout-ish `UserPref` → slot defaults + instance overrides (residual after first slice).
+- Upgrade maps widget `CssPref` / layout-ish `UserPref` → slot defaults + instance overrides — implemented as offline mappers in #2690 (`PSWidgetPrefToSlotMapper`, `PSRegionToSlotCompositionMapper`; see [region-slot-mapping.md](../region-slot-mapping.md)).
 - Visual Design editor edits these properties on slots (later phases).
 - Do not invent an open-ended CSS-in-DB product in v1 — start with CM1-parity property set and version the schema.

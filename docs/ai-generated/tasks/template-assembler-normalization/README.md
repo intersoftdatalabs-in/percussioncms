@@ -54,6 +54,7 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | [gadget-definition-inventory.md](./gadget-definition-inventory.md) | Gadget XML / SPA survey |
 | [adr/](./adr/) | Architecture decision records |
 | [parity-notes.md](./parity-notes.md) | Region vs slot, pageAssembler vs velocity, etc. |
+| [region-slot-mapping.md](./region-slot-mapping.md) | Phase 2 residual: region↔slot composition + CssPref upgrade (#2690) |
 | [binding-modules.md](./binding-modules.md) | `$sys` / `$rx` / `$perc` + assembler picker guide |
 
 ## Code anchors
