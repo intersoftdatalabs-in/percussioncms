@@ -72,12 +72,12 @@ test.describe("Admin Security Audit Log @security-audit-log @admin", () => {
     await expect(page.getByTestId("audit-filter-apply")).toBeVisible();
     await expect(page.getByTestId("audit-log-table")).toBeVisible();
 
-    // Either empty state or at least one row after load settles.
-    await expect(
-      page
-        .getByTestId("audit-log-empty")
-        .or(page.locator("[data-testid^='audit-log-row-']").first()),
-    ).toBeVisible({ timeout: 20_000 });
+    // #2727: dual-write (login) and/or empty-table [SEED] demo rows must yield
+    // at least one durable row so QA can exercise filters/detail.
+    await expect(page.locator("[data-testid^='audit-log-row-']").first()).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(page.getByTestId("audit-log-empty")).toHaveCount(0);
   });
 
   test("Admin can apply module filter without error chrome", async ({
@@ -93,6 +93,10 @@ test.describe("Admin Security Audit Log @security-audit-log @admin", () => {
     await page.waitForTimeout(500);
     await expect(page.getByTestId("audit-log-error")).toHaveCount(0);
     await expect(page.getByTestId("audit-log-table")).toBeVisible();
+    // AUTH module filter should still show seed/login dual-write rows.
+    await expect(page.locator("[data-testid^='audit-log-row-']").first()).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test("non-Admin is denied Admin tools (redirect away from shell)", async ({
