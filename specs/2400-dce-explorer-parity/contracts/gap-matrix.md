@@ -44,7 +44,7 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 |------------|------------|------------------------|--------|-------|
 | Clipboard cut/copy/paste multi | `PSClipBoard` | `ClipboardPanel` + multi-select wired in product shell | **Present** | #2408 · [PR #2522](https://github.com/intersoftdatalabs-in/percussioncms/pull/2522) (merged) |
 | Site copy wizard | CE wizards | `SiteCopyWizard` on product shell via Content → Site Copy (`content-site-copy`); source prefilled from `/Sites/<name>` | **Present** | #2767 |
-| Subfolder copy wizard | CE wizards | `SubfolderCopyWizard`; not in shell | **Partial** | advanced chrome (phase 4) |
+| Subfolder copy wizard | CE wizards | `SubfolderCopyWizard` on product shell via Content → Subfolder Copy (`content-subfolder-copy`); source prefilled from active/selected folder path | **Present** | #2792 |
 | Dependency viewer | `PSDependencyViewer` | `DependencyViewer` + relationship summary REST mounted in product Explorer shell (View → Dependencies; #2768) | **Present** | #2768 · advanced chrome (phase 4) |
 | IA / relationships view | Managers | `RelationshipsView` on product shell (View → IA Relationships; selected item + REST summary) | **Present** | #2769 · advanced chrome (phase 4) |
 | Translation workflow | CE translation | **REST Present:** `GET|POST /rest/content-explorer/translations` (#2429 / [PR #2601](https://github.com/intersoftdatalabs-in/percussioncms/pull/2601)). **Explorer UI Present (slice C #2430):** `TranslationsPanel` in `ContentExplorerShell` (locale list + create-variant; Vitest + Playwright `explorer-translations.spec.js`). In-flight queue + session content-locale **OUT** pending product sign-off (not exposed by REST). See [p-trans-api-inventory.md](../research/p-trans-api-inventory.md). | **Partial** (item locales + create **Present**; in-flight/session **OUT/Missing**) | #2411 → #2428 inventory, #2429 REST, #2430 UI |
@@ -63,6 +63,10 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 ### 2026-08-10 refresh (site copy shell #2767)
 
 - **#2767 Site copy wizard in Explorer shell chrome:** Content → Site Copy mounts `SiteCopyWizard` on `ContentExplorerShell` when selection is under `/Sites/<name>` (pure `sitePath` helper). Vitest shell/menu wiring + Playwright `explorer-site-copy.spec.js` (soft-skip multi-site submit on H2). Matrix row **Present**.
+
+### 2026-08-10 refresh (subfolder copy shell #2792)
+
+- **#2792 Subfolder copy wizard in Explorer shell chrome:** Content → Subfolder Copy mounts `SubfolderCopyWizard` on `ContentExplorerShell` when a non-root folder path is in context (pure `folderPath` helper; prefers selected folder row). Submit remains existing `pathApi.moveItem({copy:true})`. Vitest shell/menu wiring + Playwright `explorer-subfolder-copy.spec.js` (soft-skip multi-folder submit on H2). Matrix row **Present**.
 
 ### 2026-08-10 refresh (dependency viewer #2768)
 

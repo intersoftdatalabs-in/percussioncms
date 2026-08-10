@@ -606,6 +606,58 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
+  it("Content → Subfolder Copy mounts wizard with source from folder path (#2792)", async () => {
+    stubPathFetch();
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo/Home"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    const subCopy = screen.getByTestId(
+      "explorer-content-subfolder-copy",
+    ) as HTMLButtonElement;
+    expect(subCopy.disabled).toBe(false);
+    fireEvent.click(subCopy);
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-subfolder-copy-panel"),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId("subfolder-copy-wizard")).toBeInTheDocument();
+    });
+    const source = screen.getByTestId(
+      "subfolder-copy-source",
+    ) as HTMLInputElement;
+    expect(source.value).toBe("/Sites/Demo/Home");
+    // T082a / WebUI AGENTS.md — a11y gate with Subfolder Copy panel open.
+    await renderA11yGate(container);
+  });
+
+  it("Content → Subfolder Copy is disabled without a folder path (#2792)", async () => {
+    stubPathFetch();
+    const { container } = renderShell(
+      <ContentExplorerShell
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    const subCopy = screen.getByTestId(
+      "explorer-content-subfolder-copy",
+    ) as HTMLButtonElement;
+    expect(subCopy.disabled).toBe(true);
+    expect(screen.queryByTestId("subfolder-copy-wizard")).toBeNull();
+    await renderA11yGate(container);
+  });
+
   it("relationships toggle shows select-item hint without a selection (#2769)", async () => {
     stubPathFetch();
     renderShell(

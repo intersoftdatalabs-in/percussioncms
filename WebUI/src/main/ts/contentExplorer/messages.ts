@@ -102,6 +102,12 @@ export const EXPLORER_MSG = {
   SUBFOLDER_COPY_STEP_SOURCE: "perc.ui.explorer@Source folder",
   SUBFOLDER_COPY_STEP_TARGET: "perc.ui.explorer@Target folder",
   SUBFOLDER_COPY_STEP_CONFIRM: "perc.ui.explorer@Confirm",
+  /** Product shell: Content → Subfolder Copy panel region (#2792). */
+  SUBFOLDER_COPY_PANEL_REGION: "perc.ui.explorer@Subfolder copy panel",
+  TOGGLE_SUBFOLDER_COPY_ARIA:
+    "perc.ui.explorer@Show or hide subfolder copy wizard",
+  SUBFOLDER_COPY_SELECT_FOLDER:
+    "perc.ui.explorer@Open a folder to copy it to another location.",
 
   DEPENDENCY_TITLE: "perc.ui.explorer@Dependencies",
   DEPENDENCY_OUTGOING: "perc.ui.explorer@Outgoing relationships",

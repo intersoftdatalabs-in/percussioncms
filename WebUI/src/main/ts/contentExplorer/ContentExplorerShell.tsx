@@ -79,6 +79,7 @@ import {
 } from "./ReducedActions";
 import { SearchPanel } from "./SearchPanel";
 import { EMPTY_SELECTION, type Selection } from "./selection";
+import { resolveFolderPathFromSelection } from "./folderPath";
 import { resolveSiteNameFromSelection } from "./sitePath";
 import {
   errorStateStyle,
@@ -88,6 +89,7 @@ import {
 } from "./styles";
 import { TranslationsPanel } from "./TranslationsPanel";
 import { SiteCopyWizard } from "./wizards/SiteCopyWizard";
+import { SubfolderCopyWizard } from "./wizards/SubfolderCopyWizard";
 import { RelationshipsView } from "./views/RelationshipsView";
 import { DependencyViewer } from "./views/DependencyViewer";
 import type { PSNodeRelationshipSummary } from "../api/contentExplorer/relationship";
@@ -319,6 +321,8 @@ export function ContentExplorerShell({
   const [showTranslations, setShowTranslations] = useState(false);
   /** Content → Site Copy wizard panel (#2767 / parent #2400). */
   const [showSiteCopy, setShowSiteCopy] = useState(false);
+  /** Content → Subfolder Copy wizard panel (#2792 / parent #2400). */
+  const [showSubfolderCopy, setShowSubfolderCopy] = useState(false);
   const [showRelationships, setShowRelationships] = useState(false);
   const [showDependencies, setShowDependencies] = useState(false);
   const [displayFormats, setDisplayFormats] = useState<DisplayFormat[]>([]);
@@ -609,6 +613,16 @@ export function ContentExplorerShell({
     [selection.folderPath, selection.item?.path],
   );
   const hasSiteContext = siteNameForCopy != null;
+  const sourceFolderPathForCopy = useMemo(
+    () =>
+      resolveFolderPathFromSelection(
+        selection.folderPath,
+        selection.item?.path,
+        selection.item?.type,
+      ),
+    [selection.folderPath, selection.item?.path, selection.item?.type],
+  );
+  const hasFolderContext = sourceFolderPathForCopy != null;
   const hasDependencyItem =
     selection.item != null &&
     selection.item.type !== "folder" &&
@@ -629,6 +643,12 @@ export function ContentExplorerShell({
           // Only open when a site is in context; menu item is disabled otherwise.
           if (siteNameForCopy) {
             setShowSiteCopy((v) => !v);
+          }
+          break;
+        case "content-subfolder-copy":
+          // Only open when a folder is in context; menu item is disabled otherwise.
+          if (sourceFolderPathForCopy) {
+            setShowSubfolderCopy((v) => !v);
           }
           break;
         case "view-refresh":
@@ -668,7 +688,12 @@ export function ContentExplorerShell({
           break;
       }
     },
-    [handleAddToClipboard, handleRefreshList, siteNameForCopy],
+    [
+      handleAddToClipboard,
+      handleRefreshList,
+      siteNameForCopy,
+      sourceFolderPathForCopy,
+    ],
   );
 
   const folderForActions: PSPathItem | null =
@@ -734,9 +759,11 @@ export function ContentExplorerShell({
             hasDependencyItem={hasDependencyItem}
             showClipboard={showClipboard}
             showSiteCopy={showSiteCopy}
+            showSubfolderCopy={showSubfolderCopy}
             multiSelectedCount={multiSelectedIds.size}
             clipboardItemCount={clipboard.items.length}
             hasSiteContext={hasSiteContext}
+            hasFolderContext={hasFolderContext}
             displayFormats={displayFormats}
             selectedFormatKey={selectedFormatKey}
             onSelectFormat={setSelectedFormatKey}
@@ -955,6 +982,39 @@ export function ContentExplorerShell({
           aria-live="polite"
         >
           {message(EXPLORER_MSG.SITE_COPY_SELECT_SITE)}
+        </div>
+      )}
+      {showSubfolderCopy && sourceFolderPathForCopy && (
+        <section
+          id="explorer-subfolder-copy-panel"
+          style={sidePanelStyle}
+          data-testid="explorer-subfolder-copy-panel"
+          aria-label={message(EXPLORER_MSG.SUBFOLDER_COPY_PANEL_REGION)}
+        >
+          {/*
+            key remounts wizard when source folder changes so initialSource
+            seeds the first step (useState does not re-apply props).
+          */}
+          <SubfolderCopyWizard
+            key={`subfolder-copy-${sourceFolderPathForCopy}`}
+            initialSource={sourceFolderPathForCopy}
+            onSettled={(ok) => {
+              if (ok) {
+                setListEpoch((n) => n + 1);
+              }
+            }}
+          />
+        </section>
+      )}
+      {showSubfolderCopy && !sourceFolderPathForCopy && (
+        <div
+          id="explorer-subfolder-copy-hint"
+          style={sidePanelStyle}
+          data-testid="explorer-subfolder-copy-hint"
+          role="status"
+          aria-live="polite"
+        >
+          {message(EXPLORER_MSG.SUBFOLDER_COPY_SELECT_FOLDER)}
         </div>
       )}
       {showRelationships &&

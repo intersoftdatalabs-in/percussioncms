@@ -67,4 +67,13 @@ describe("buildExplorerMenuBarGroups (#2731 DCE ContentExplorerMenu.xml)", () =>
     expect(siteCopy?.toggle).toBe(true);
     expect(siteCopy?.labelKey).toBe(EXPLORER_MSG.SITE_COPY_TITLE);
   });
+
+  it("puts Subfolder Copy under Content with folder-context disable (#2792)", () => {
+    const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
+    const sub = content?.items.find((i) => i.id === "content-subfolder-copy");
+    expect(sub?.testId).toBe("explorer-content-subfolder-copy");
+    expect(sub?.disabledWhen).toBe("noFolderContext");
+    expect(sub?.toggle).toBe(true);
+    expect(sub?.labelKey).toBe(EXPLORER_MSG.SUBFOLDER_COPY_TITLE);
+  });
 });
