@@ -31,6 +31,7 @@ function renderBar(
       showSecurity={false}
       showTranslations={false}
       showRelationships={false}
+      showDependencies={false}
       showClipboard={false}
       multiSelectedCount={0}
       clipboardItemCount={0}

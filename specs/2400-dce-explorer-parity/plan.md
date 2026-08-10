@@ -23,7 +23,7 @@ Wire existing Explorer panels into `ContentExplorerShell` so `/cm/app/explorer` 
 | 1.3 | Display format selector + columns | `rest/displayformats`, `DetailList` FR-027 hooks, `pathApi.paginatedFolder(displayFormatId)` | **Done** — #2407 · PR #2412 |
 | 1.4 | Folder security side panel | `FolderSecurityPanel`, path folderProperties | **Partial in shell** (toggle landed #2412); polish + properties → **#2410** |
 | 1.5 | Clipboard + multi-select | `ClipboardPanel`, selection model | **Done** — #2408 · [PR #2522](https://github.com/intersoftdatalabs-in/percussioncms/pull/2522) |
-| 1.6 | Advanced tools | DependencyViewer, RelationshipsView, site/subfolder wizards | **Open** — secondary chrome; no child filed yet (phase 4 priority) |
+| 1.6 | Advanced tools | DependencyViewer, RelationshipsView, site/subfolder wizards | **Partial** — DependencyViewer shell chrome **Present** (#2768); RelationshipsView + site/subfolder wizards still not primary shell chrome |
 
 **Phase 1 exit:** Operator can navigate, act via server menus, search, and change list columns without DCE.  
 **Exit status (2026-08-09):** Met for primary chrome (1.1–1.3, 1.5). 1.4 polish and 1.6 remain. Human QA for shell: #2588.

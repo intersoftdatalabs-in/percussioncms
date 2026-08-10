@@ -113,6 +113,11 @@ export const EXPLORER_MSG = {
   DEPENDENCY_CLIENT_SIDE_PREVIEW: "perc.ui.explorer@Client-side preview",
   DEPENDENCY_LOADING: "perc.ui.explorer@Loading relationship summary…",
   DEPENDENCY_ERROR: "perc.ui.explorer@Could not load relationship summary",
+  /** Shell chrome: View → Dependencies toggle (#2768 / parent #2400). */
+  TOGGLE_DEPENDENCIES_ARIA: "perc.ui.explorer@Show or hide dependency viewer",
+  DEPENDENCY_PANEL_REGION: "perc.ui.explorer@Dependency viewer panel",
+  DEPENDENCY_SELECT_ITEM:
+    "perc.ui.explorer@Select a content item to view its dependencies.",
 
   RELATIONSHIPS_TITLE: "perc.ui.explorer@IA Relationships",
   RELATIONSHIPS_CLIENT_SIDE_PREVIEW:

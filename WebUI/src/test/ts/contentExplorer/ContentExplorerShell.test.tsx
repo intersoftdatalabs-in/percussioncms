@@ -116,6 +116,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(
       screen.getByTestId("explorer-toggle-relationships"),
     ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("explorer-toggle-dependencies"),
+    ).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar")).toBeInTheDocument();
@@ -812,6 +815,97 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     });
     expect(screen.queryByTestId("relationships-view")).toBeNull();
     expect(screen.queryByTestId("explorer-relationships-panel")).toBeNull();
+  });
+
+  it("dependencies toggle shows select-item hint without a content selection (#2768)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-dependencies"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-dependencies-hint"),
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("dependency-viewer")).toBeNull();
+    expect(screen.queryByTestId("explorer-dependencies-panel")).toBeNull();
+  });
+
+  it("dependencies toggle mounts DependencyViewer for a selected content item (#2768)", async () => {
+    const loadDependencySummary = vi.fn(async () => ({
+      outgoing: { count: 2, byType: [{ type: "translation", count: 2 }] },
+      incoming: { count: 1, byType: [{ type: "translation", count: 1 }] },
+      taxonomy: { count: 0, nodes: [] as string[] },
+      local: { count: 0, links: [] as { type: string; targetId: string }[] },
+      reverse: { count: 0, byType: [] as { type: string; count: number }[] },
+    }));
+
+    // DetailList loads folder children — return one page so we can select it.
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "1001",
+                  name: "Home",
+                  path: "/Sites/Home",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        loadDependencySummary={loadDependencySummary}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-1001")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-1001"));
+
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-dependencies"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-dependencies-panel"),
+      ).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("dependency-viewer")).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(loadDependencySummary).toHaveBeenCalledWith("1001");
+    });
+    expect(screen.queryByTestId("explorer-dependencies-hint")).toBeNull();
+    // T082a — a11y gate with dependencies panel expanded (search-panel peer).
+    await renderA11yGate(container);
   });
 
   it("security stays on hint when resolveFolderId rejects (#2410)", async () => {

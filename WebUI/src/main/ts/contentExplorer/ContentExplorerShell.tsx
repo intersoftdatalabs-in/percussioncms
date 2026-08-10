@@ -19,9 +19,9 @@
  *
  * <p>Composes DCE-style top menu bar (Content / View / Help), tree, detail
  * list, reduced actions, server-driven action toolbar (with nested MENU
- * dropdowns), context menu, search panel, IA relationships panel, and
- * display-format selector so the SPA route approaches Desktop Content Explorer
- * parity (#2400 / #2731 / #2769).</p>
+ * dropdowns), context menu, search panel, IA relationships panel, dependency
+ * viewer, and display-format selector so the SPA route approaches Desktop
+ * Content Explorer parity (#2400 / #2731 / #2768 / #2769).</p>
  */
 
 import React, {
@@ -89,6 +89,8 @@ import {
 import { TranslationsPanel } from "./TranslationsPanel";
 import { SiteCopyWizard } from "./wizards/SiteCopyWizard";
 import { RelationshipsView } from "./views/RelationshipsView";
+import { DependencyViewer } from "./views/DependencyViewer";
+import type { PSNodeRelationshipSummary } from "../api/contentExplorer/relationship";
 import {
   buildWorkflowTransitionMenu,
   mergeWorkflowMenuActions,
@@ -138,6 +140,13 @@ export interface ContentExplorerShellProps {
     itemId: string,
     trigger: string,
   ) => Promise<void>;
+  /**
+   * Test seam: load consolidated relationship summary for DependencyViewer
+   * (#2768). Default uses {@code fetchNodeSummary} via the viewer.
+   */
+  loadDependencySummary?: (
+    itemId: string,
+  ) => Promise<PSNodeRelationshipSummary>;
 }
 
 type ContextMenuState = {
@@ -277,6 +286,7 @@ export function ContentExplorerShell({
   currentUserIdentities: currentUserIdentitiesProp,
   resolveFolderId = defaultResolveFolderId,
   runWorkflowTransition = defaultRunWorkflowTransition,
+  loadDependencySummary,
 }: ContentExplorerShellProps): React.ReactElement {
   const bootstrap = useSpaBootstrap();
   const currentUserIdentities = useMemo(() => {
@@ -310,6 +320,7 @@ export function ContentExplorerShell({
   /** Content → Site Copy wizard panel (#2767 / parent #2400). */
   const [showSiteCopy, setShowSiteCopy] = useState(false);
   const [showRelationships, setShowRelationships] = useState(false);
+  const [showDependencies, setShowDependencies] = useState(false);
   const [displayFormats, setDisplayFormats] = useState<DisplayFormat[]>([]);
   const [selectedFormatKey, setSelectedFormatKey] = useState<string>("");
   const [menuActions, setMenuActions] = useState<MenuAction[]>([]);
@@ -598,6 +609,11 @@ export function ContentExplorerShell({
     [selection.folderPath, selection.item?.path],
   );
   const hasSiteContext = siteNameForCopy != null;
+  const hasDependencyItem =
+    selection.item != null &&
+    selection.item.type !== "folder" &&
+    selection.item.id != null &&
+    String(selection.item.id).trim().length > 0;
 
   const handleMenuBarCommand = useCallback(
     (id: ExplorerMenuCommandId) => {
@@ -626,6 +642,9 @@ export function ContentExplorerShell({
           break;
         case "view-relationships":
           setShowRelationships((v) => !v);
+          break;
+        case "view-dependencies":
+          setShowDependencies((v) => !v);
           break;
         case "view-clipboard":
           setShowClipboard((v) => !v);
@@ -711,6 +730,8 @@ export function ContentExplorerShell({
             showSecurity={showSecurity}
             showTranslations={showTranslations}
             showRelationships={showRelationships}
+            showDependencies={showDependencies}
+            hasDependencyItem={hasDependencyItem}
             showClipboard={showClipboard}
             showSiteCopy={showSiteCopy}
             multiSelectedCount={multiSelectedIds.size}
@@ -969,6 +990,34 @@ export function ContentExplorerShell({
             aria-live="polite"
           >
             {message(EXPLORER_MSG.RELATIONSHIPS_SELECT_ITEM)}
+          </div>
+        )}
+      {showDependencies && hasDependencyItem && (
+          <section
+            id="explorer-dependencies-panel"
+            style={sidePanelStyle}
+            data-testid="explorer-dependencies-panel"
+            aria-label={message(EXPLORER_MSG.DEPENDENCY_PANEL_REGION)}
+          >
+            <DependencyViewer
+              item={{
+                id: String(selection.item!.id),
+                path: selection.item!.path,
+                folderPath: selection.folderPath ?? undefined,
+              }}
+              loadServerSummary={loadDependencySummary}
+            />
+          </section>
+        )}
+      {showDependencies && !hasDependencyItem && (
+          <div
+            id="explorer-dependencies-hint"
+            style={sidePanelStyle}
+            data-testid="explorer-dependencies-hint"
+            role="status"
+            aria-live="polite"
+          >
+            {message(EXPLORER_MSG.DEPENDENCY_SELECT_ITEM)}
           </div>
         )}
       {contextMenu && (

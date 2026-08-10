@@ -45,7 +45,7 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Clipboard cut/copy/paste multi | `PSClipBoard` | `ClipboardPanel` + multi-select wired in product shell | **Present** | #2408 · [PR #2522](https://github.com/intersoftdatalabs-in/percussioncms/pull/2522) (merged) |
 | Site copy wizard | CE wizards | `SiteCopyWizard` on product shell via Content → Site Copy (`content-site-copy`); source prefilled from `/Sites/<name>` | **Present** | #2767 |
 | Subfolder copy wizard | CE wizards | `SubfolderCopyWizard`; not in shell | **Partial** | advanced chrome (phase 4) |
-| Dependency viewer | `PSDependencyViewer` | Components + `rest` relationship summary; not in shell | **Partial** | advanced chrome (phase 4) |
+| Dependency viewer | `PSDependencyViewer` | `DependencyViewer` + relationship summary REST mounted in product Explorer shell (View → Dependencies; #2768) | **Present** | #2768 · advanced chrome (phase 4) |
 | IA / relationships view | Managers | `RelationshipsView` on product shell (View → IA Relationships; selected item + REST summary) | **Present** | #2769 · advanced chrome (phase 4) |
 | Translation workflow | CE translation | **REST Present:** `GET|POST /rest/content-explorer/translations` (#2429 / [PR #2601](https://github.com/intersoftdatalabs-in/percussioncms/pull/2601)). **Explorer UI Present (slice C #2430):** `TranslationsPanel` in `ContentExplorerShell` (locale list + create-variant; Vitest + Playwright `explorer-translations.spec.js`). In-flight queue + session content-locale **OUT** pending product sign-off (not exposed by REST). See [p-trans-api-inventory.md](../research/p-trans-api-inventory.md). | **Partial** (item locales + create **Present**; in-flight/session **OUT/Missing**) | #2411 → #2428 inventory, #2429 REST, #2430 UI |
 | Workflow transitions in menus | CE workflow | Actions path partial | **Partial** | workflow actions (under menus / future residual) |
@@ -64,10 +64,14 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 
 - **#2767 Site copy wizard in Explorer shell chrome:** Content → Site Copy mounts `SiteCopyWizard` on `ContentExplorerShell` when selection is under `/Sites/<name>` (pure `sitePath` helper). Vitest shell/menu wiring + Playwright `explorer-site-copy.spec.js` (soft-skip multi-site submit on H2). Matrix row **Present**.
 
+### 2026-08-10 refresh (dependency viewer #2768)
+
+- **#2768 Dependency viewer in Explorer shell:** View → Dependencies toggle on `ExplorerMenuBar`; `ContentExplorerShell` mounts `DependencyViewer` for the selected content item (relationship summary REST loaders reused; optional `loadDependencySummary` test seam). Select-item hint when no eligible selection. Unique panel/hint ids (`explorer-dependencies-panel` / `explorer-dependencies-hint`) mirror site-copy aria-controls. Vitest shell wiring + Playwright `explorer-dependencies.spec.js` (soft-skip deep counts without fixtures). Matrix row **Present**.
+
 ### 2026-08-10 refresh (menu bar #2731 + relationships #2769)
 
 - **#2731 Explorer DCE top menu bar:** `ExplorerMenuBar` (Content / View / Help) on `ContentExplorerShell`; view tools nested under View (not multi-row flat buttons). `ActionToolbar` renders `children[]` as nested dropdowns (coordinates with #2730). Vitest + Playwright `explorer-menu-bar.spec.js`. Matrix row **Present**.
-- **#2769 Relationships view in Explorer shell:** View → IA Relationships toggles `RelationshipsView` for the selected item (REST `/content-explorer/relationships/{id}/summary`); select-item hint when none. Vitest shell + menu bar; Playwright `explorer-relationships.spec.js`. Matrix row **Present**. Sibling DependencyViewer shell mount remains **Partial** (#2768).
+- **#2769 Relationships view in Explorer shell:** View → IA Relationships toggles `RelationshipsView` for the selected item (REST `/content-explorer/relationships/{id}/summary`); select-item hint when none. Vitest shell + menu bar; Playwright `explorer-relationships.spec.js`. Matrix row **Present**. Sibling DependencyViewer shell mount is **Present** (#2768).
 
 ### 2026-08-09 refresh (P-Trans UI #2430)
 
