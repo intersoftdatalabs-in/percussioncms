@@ -1,7 +1,7 @@
 # Gap matrix: Desktop Content Explorer → SPA Explorer
 
 **Parent:** #2400  
-**Evidence date:** 2026-08-10 (closeout re-audit #2794 against `origin/main` after #2748 / #2773 / #2775 / #2777 / #2782; re-confirmed #2827 after #2792/#2793 merges; Object ACL cross-epic pointer #2828)  
+**Evidence date:** 2026-08-10 (closeout re-audit #2794 against `origin/main` after #2748 / #2773 / #2775 / #2777 / #2782; re-confirmed #2827 after #2792/#2793 merges; Object ACL cross-epic pointer #2828; P-Trans OUT sign-off #2829)  
 **Rule:** Status reflects **product route** (`ExplorerRoute` → `ContentExplorerShell`), not isolated components in the registry.
 
 Legend: **Present** | **Partial** | **Missing** | **OUT**
@@ -47,7 +47,7 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Subfolder copy wizard | CE wizards | `SubfolderCopyWizard` on product shell via Content → Subfolder Copy (`content-subfolder-copy`); source prefilled from active/selected folder path | **Present** | #2792 · [PR #2796](https://github.com/intersoftdatalabs-in/percussioncms/pull/2796) (merged) |
 | Dependency viewer | `PSDependencyViewer` | `DependencyViewer` + relationship summary REST mounted in product Explorer shell (View → Dependencies; #2768) | **Present** | #2768 · [PR #2775](https://github.com/intersoftdatalabs-in/percussioncms/pull/2775) (merged) · advanced chrome (phase 4) |
 | IA / relationships view | Managers | `RelationshipsView` on product shell (View → IA Relationships; selected item + REST summary) | **Present** | #2769 · [PR #2777](https://github.com/intersoftdatalabs-in/percussioncms/pull/2777) (merged) · advanced chrome (phase 4) |
-| Translation workflow | CE translation | **REST Present:** `GET|POST /rest/content-explorer/translations` (#2429 / [PR #2601](https://github.com/intersoftdatalabs-in/percussioncms/pull/2601)). **Explorer UI Present (slice C #2430):** `TranslationsPanel` in `ContentExplorerShell` (locale list + create-variant; Vitest + Playwright `explorer-translations.spec.js`). In-flight queue + session content-locale **OUT** pending product sign-off (not exposed by REST). See [p-trans-api-inventory.md](../research/p-trans-api-inventory.md). | **Partial** (item locales + create **Present**; in-flight/session **OUT/Missing**) | #2411 → #2428 inventory, #2429 REST, #2430 UI |
+| Translation workflow | CE translation | **REST Present:** `GET|POST /rest/content-explorer/translations` (#2429 / [PR #2601](https://github.com/intersoftdatalabs-in/percussioncms/pull/2601)). **Explorer UI Present (slice C #2430):** `TranslationsPanel` in `ContentExplorerShell` (locale list + create-variant; Vitest + Playwright `explorer-translations.spec.js`). In-flight queue + content-locale session are intentional **OUT** (signed #2829 — [p-trans-out-disposition.md](../research/p-trans-out-disposition.md)). Inventory: [p-trans-api-inventory.md](../research/p-trans-api-inventory.md). Human QA [#2649](https://github.com/intersoftdatalabs-in/percussioncms/issues/2649). | **Present** (locales + create; OUT rows under Explicit OUT) | #2411 → #2428 / #2429 / #2430 · OUT residual #2829 |
 | Workflow transitions in menus | CE workflow | `itemWorkflowApi` + `workflowMenuActions` merge Workflow group into toolbar/context menus; invoke `transitionWithComments` for `workflow-transition:*` triggers | **Present** | #2732 · absorbed [PR #2748](https://github.com/intersoftdatalabs-in/percussioncms/pull/2748) · QA [#2743](https://github.com/intersoftdatalabs-in/percussioncms/issues/2743) |
 
 ## Explicit OUT (for now)
@@ -57,6 +57,8 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | JavaFX desktop window / native file chooser parity | Platform desktop; web redesign for file ops |
 | DCE help JavaHelp topics 1:1 | Product help site / in-app help later |
 | DCE-only packaging residual | Decommission program after parity |
+| In-flight translation queue (`translationState=inFlight`) | **OUT** signed #2829 — not 8.2 SPA parity; reopen only with product sign-off + typed REST/search contract. See [p-trans-out-disposition.md](../research/p-trans-out-disposition.md). |
+| Content-locale session context (path APIs re-issued under content locale) | **OUT** signed #2829 — per-item locale + create-variant sufficient; session model is redesign. Same OUT note. |
 
 ## Implementation notes
 
@@ -78,6 +80,13 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 
 **Matrix status rule for this row:** keep **Partial** while human QA is open — do **not** invent **Present** without QA closeout. Do **not** file new Explorer ObjectAclSection work under #2400; track only under #2274 / #2262 / #1690. Folder ACL on Explorer shell (#2410) remains a separate **Present** row.
 
+### 2026-08-10 P-Trans OUT disposition + matrix Present (#2829)
+
+- **#2829 residual (docs):** formal product **OUT** for in-flight translation queue + content-locale session under #2411. Research note: [p-trans-out-disposition.md](../research/p-trans-out-disposition.md). Inventory + residual questions updated.
+- **Translation workflow** matrix row flipped **Partial → Present** for in-scope operator surface (item locales + create-variant). OUT capabilities listed under **Explicit OUT** — not silent Partial debt.
+- **No implement** of translation queue / session without product re-open. Human QA for Present surface remains **#2649**.
+- **Epic #2400 remaining-open criteria** documented in the OUT note (human QA set + product OUT; no agent implement spam for OUT rows).
+
 ### 2026-08-10 Present re-confirm after Subfolder/ContentBrowser merges (#2827)
 
 Re-audited `main` after #2792 / [PR #2796](https://github.com/intersoftdatalabs-in/percussioncms/pull/2796) and #2793 / [PR #2798](https://github.com/intersoftdatalabs-in/percussioncms/pull/2798) landed (and after #2794 / [PR #2800](https://github.com/intersoftdatalabs-in/percussioncms/pull/2800) matrix closeout). **No status flips required** — product-route evidence still matches **Present**:
@@ -87,7 +96,7 @@ Re-audited `main` after #2792 / [PR #2796](https://github.com/intersoftdatalabs-
 | Subfolder copy wizard | **Present** | `ContentExplorerShell` Content → Subfolder Copy (`content-subfolder-copy`) mounts `SubfolderCopyWizard`; Vitest shell/menu + Playwright `explorer-subfolder-copy.spec.js`; human QA #2797 |
 | Search in ContentBrowser hosts | **Present** | `ContentBrowser` mounts shared `SearchPanel` when `enableSearch`; residual host `assetPickerModern.jsp` sets `enableSearch: true`; Vitest `ContentBrowser.test.tsx`; human QA #2799 |
 
-Stale **Partial** / open-PR wording for those two chrome rows is incorrect after merge. Remaining intentional **Partial**: translation in-flight/session under #2411; object ACL **cross-epic pointer** to #2274 / #2262 / #1690 (B1–B5 merged; human QA open — see #2828 note above), not Explorer implement backlog.
+Stale **Partial** / open-PR wording for those two chrome rows is incorrect after merge. Remaining intentional **Partial**: object ACL **cross-epic pointer** to #2274 / #2262 / #1690 (B1–B5 merged; human QA open — see #2828 note above), not Explorer implement backlog. Translation in-flight/session moved to **Explicit OUT** (#2829).
 
 ### 2026-08-10 closeout re-audit (#2794)
 
@@ -104,7 +113,7 @@ Re-audited product route on `main` after thrash merges. Matrix flips / cite upda
 | Folder ACL + folder properties | Partial | **Present** | #2410 / [PR #2599](https://github.com/intersoftdatalabs-in/percussioncms/pull/2599) merged |
 | Subfolder copy | Partial | **Present** | #2792 / [PR #2796](https://github.com/intersoftdatalabs-in/percussioncms/pull/2796) merged on product shell |
 | ContentBrowser host search | Partial | **Present** | #2793 / [PR #2798](https://github.com/intersoftdatalabs-in/percussioncms/pull/2798) merged |
-| Translation (in-flight/session) | Partial | **Partial** | Intentional OUT residual under #2411 |
+| Translation (in-flight/session) | Partial | **Present** + Explicit OUT | #2829 signed OUT for queue/session; locales+create Present (#2430) |
 
 No product code residual filed this run — all Present rows above have product-route evidence on `main`.
 
@@ -132,7 +141,7 @@ No product code residual filed this run — all Present rows above have product-
 ### 2026-08-09 refresh (P-Trans UI #2430)
 
 - **#2429 / PR #2601 merged:** public REST create-variant + item-locale list.
-- **#2430 Explorer UI:** `TranslationsPanel` + shell toggle consumes REST; Vitest + surface Playwright. Matrix row **Partial** (Present for locales/create; in-flight + session content-locale still OUT).
+- **#2430 Explorer UI:** `TranslationsPanel` + shell toggle consumes REST; Vitest + surface Playwright. Later #2829: matrix **Present** for locales/create; in-flight + session under Explicit OUT.
 - **#2407 / PR #2412 merged:** product shell composition, server action toolbar/context menu, search panel toggle, folder-valid display formats + column path, folder security toggle → **Present** (human QA still open on #2588).
 - **#2408 / PR #2522 merged:** multi-select list + clipboard panel in shell → **Present**.
 - **#2504 / PR #2579 merged:** saved-search execute disposition = **façade**; later slices #2505–#2507 completed execute + UI + Playwright → matrix **Present** as of #2794 closeout.
@@ -142,4 +151,4 @@ No product code residual filed this run — all Present rows above have product-
 - Highest leverage was **compose shell** using existing components + `rest/actions` + `rest/displayformats` (landed).
 - REST enhancement: `GET /rest/displayformats?validForFolder=true` (and optional `validForViewsAndSearches`).
 - Re-audit after each slice merges; flip Partial → Present only when product route demonstrates the capability.
-- **P-Trans (#2411):** inventory under `research/p-trans-api-inventory.md` (PR #2431). Public REST create-variant + item-locale list landed; Explorer UI locales/create Present; in-flight queue + session content-locale still OUT.
+- **P-Trans (#2411):** inventory under `research/p-trans-api-inventory.md` (PR #2431). Public REST create-variant + item-locale list landed; Explorer UI locales/create Present; in-flight queue + session content-locale **OUT** signed #2829 ([p-trans-out-disposition.md](../research/p-trans-out-disposition.md)).
