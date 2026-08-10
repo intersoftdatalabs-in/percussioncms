@@ -162,7 +162,7 @@ public class PSFolderContentsDescriptorBuilder {
    * @return set of <code>String</code>, each representing the key of a <code>PSDependency</code>;
    *     never <code>null</code>, may be empty.
    */
-  public Set getExcludedDependencies() {
+  public Set<String> getExcludedDependencies() {
     return m_excludedDependencies;
   }
 
@@ -188,8 +188,7 @@ public class PSFolderContentsDescriptorBuilder {
   private PSDeployableElement getTopFolderElement() throws PSDeployException {
 
     Iterator<PSDeployableElement> rawElements =
-        (Iterator<PSDeployableElement>)
-            m_sourceMgr.getDeployableElements(IPSDeployConstants.DEP_OBJECT_TYPE_FOLDER);
+        m_sourceMgr.getDeployableElements(IPSDeployConstants.DEP_OBJECT_TYPE_FOLDER);
     List<PSDeployableElement> deployableElements = PSIteratorUtils.cloneList(rawElements);
     return deployableElements.stream()
         .filter(element -> m_sourceFolderId.startsWith(element.getDisplayName()))
@@ -227,15 +226,16 @@ public class PSFolderContentsDescriptorBuilder {
    *     user-provided class does not define all id types.
    */
   private void defineIdTypes(PSDependency dep) throws PSDeployException {
-    Iterator depIDTypes = m_sourceMgr.getIdTypes(Collections.singleton(dep).iterator());
+    Iterator<PSApplicationIDTypes> depIDTypes =
+        m_sourceMgr.getIdTypes(Collections.singleton(dep).iterator());
     while (depIDTypes.hasNext()) {
-      PSApplicationIDTypes types = (PSApplicationIDTypes) depIDTypes.next();
+      PSApplicationIDTypes types = depIDTypes.next();
       /*
        * run like client's "typical" mode: only undefined id types are
        * processed
        */
       boolean incompleteOnly = true;
-      Iterator mappings = types.getAllMappings(incompleteOnly);
+      Iterator<PSApplicationIDTypeMapping> mappings = types.getAllMappings(incompleteOnly);
       if (mappings.hasNext()) {
         // pass undefined mappings to user-provided class for resolution
         if (m_idTyper != null) {
@@ -245,7 +245,7 @@ public class PSFolderContentsDescriptorBuilder {
         // make sure all ids have been typed
         mappings = types.getAllMappings(incompleteOnly);
         if (mappings.hasNext()) {
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
           throw new PSDeployException(
               IPSDeploymentErrors.INCOMPLETE_ID_TYPE_MAPPING,
               new Object[] {

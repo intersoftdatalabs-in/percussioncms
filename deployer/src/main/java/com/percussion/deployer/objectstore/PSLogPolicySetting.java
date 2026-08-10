@@ -22,7 +22,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Encapsulates log policy setting */
-public class PSLogPolicySetting extends PSAppPolicySetting {
+public final class PSLogPolicySetting extends PSAppPolicySetting {
   /**
    * Default constructor. Default to disable the log policy, {@link #isLoggingEnabled()} return
    * <code>false</code>.

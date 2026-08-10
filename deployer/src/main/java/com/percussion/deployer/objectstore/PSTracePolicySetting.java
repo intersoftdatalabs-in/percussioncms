@@ -22,7 +22,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Encapsulates trace policy setting */
-public class PSTracePolicySetting extends PSAppPolicySetting {
+public final class PSTracePolicySetting extends PSAppPolicySetting {
   /**
    * Default constructor. Default to disable the trace, {@link #isTraceEnabled()} return <code>false
    * </code>.

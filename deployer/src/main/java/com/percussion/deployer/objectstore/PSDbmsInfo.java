@@ -44,7 +44,7 @@ import org.w3c.dom.Element;
  */
 // todo: reconcile differences with
 // system/src/main/java/com/percussion/deploy/objectstore/PSDbmsInfo.java and merge
-public class PSDbmsInfo implements IPSDeployComponent {
+public final class PSDbmsInfo implements IPSDeployComponent {
   private static final Logger logger = LogManager.getLogger(PSDbmsInfo.class);
 
   /**

@@ -24,7 +24,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** This class represents a mapping within a {@link PSIdMap}. */
-public class PSIdMapping implements IPSDeployComponent {
+public final class PSIdMapping implements IPSDeployComponent {
   /**
    * Constructing the object with the given source ID, source name, type and parent id and type. The
    * constructed object will default to not a new object.

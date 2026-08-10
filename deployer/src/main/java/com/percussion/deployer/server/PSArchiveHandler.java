@@ -234,7 +234,7 @@ public class PSArchiveHandler {
    */
   private boolean hasUniquePath(File location, Iterator<PSDependencyFile> depFiles) {
     while (depFiles.hasNext()) {
-      PSDependencyFile depFile = (PSDependencyFile) depFiles.next();
+      PSDependencyFile depFile = depFiles.next();
       if (location.getPath().equals(depFile.getArchiveLocation().getPath())) return false;
     }
     return true;

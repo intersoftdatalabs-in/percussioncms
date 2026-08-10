@@ -28,7 +28,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Descriptor used to run an import job to install objects from a deployment archive. */
-public class PSImportDescriptor extends PSDescriptor {
+public final class PSImportDescriptor extends PSDescriptor {
 
   /**
    * Construct this object from its XML representation. See {@link #toXml(Document)} for the format
@@ -94,12 +94,7 @@ public class PSImportDescriptor extends PSDescriptor {
 
       archiveDetail
           .getPackages()
-          .forEachRemaining(
-              obj -> {
-                if (obj instanceof PSDeployableElement) {
-                  packages.add(new PSImportPackage((PSDeployableElement) obj));
-                }
-              });
+          .forEachRemaining(obj -> packages.add(new PSImportPackage(obj)));
     }
 
     return desc;

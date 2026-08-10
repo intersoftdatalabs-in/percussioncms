@@ -43,7 +43,7 @@ import org.w3c.dom.Element;
  * Class to use to create and manage an archive, store and retrieve files to and from it, and
  * extract manifest and version information.
  */
-public class PSArchive {
+public final class PSArchive {
 
   private static final Logger log = LogManager.getLogger(PSArchive.class);
 
@@ -291,7 +291,7 @@ public class PSArchive {
             updateDbmsInfoList(dep, infoSet);
           }
         }
-        detail.setDbmsInfoList(pkg, new ArrayList(infoSet));
+        detail.setDbmsInfoList(pkg, new ArrayList<>(infoSet));
       }
     }
   }

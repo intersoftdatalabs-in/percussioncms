@@ -38,7 +38,7 @@ import org.w3c.dom.Element;
  * Map that defines all supported dependency types, and maintains parent and child relations between
  * them.
  */
-public class PSDependencyMap {
+public final class PSDependencyMap {
   private static final Logger log = LogManager.getLogger(IPSConstants.PACKAGING_LOG);
 
   /**

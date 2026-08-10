@@ -116,7 +116,7 @@ public class PSArchiveTest {
     PSArchiveDetail detail1 = info1.getArchiveDetail();
     Iterator pkgs = detail1.getPackages();
     while (pkgs.hasNext()) {
-      detail1.setDbmsInfoList((PSDeployableElement) pkgs.next(), new ArrayList());
+      detail1.setDbmsInfoList((PSDeployableElement) pkgs.next(), new ArrayList<>());
     }
 
     // archive ref will now be filename

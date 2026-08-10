@@ -27,7 +27,7 @@ import org.w3c.dom.Element;
  * A private object to hold the mapping information. Initially, the sourceDataSource is valid, and
  * if a target datasource is mapped then this tuple can be used.
  */
-public class PSDatasourceMap implements IPSDeployComponent {
+public final class PSDatasourceMap implements IPSDeployComponent {
 
   /**
    * Creates a new datasource map from the supplied source and target.

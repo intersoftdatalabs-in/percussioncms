@@ -23,7 +23,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Encapsulates app enable policy. */
-public class PSAppEnabledPolicySetting extends PSAppPolicySetting {
+public final class PSAppEnabledPolicySetting extends PSAppPolicySetting {
   /**
    * Default constructor. Defaults to disabling the log policy, {@link #isAppEnabled()} returns
    * <code>false</code>.

@@ -31,7 +31,7 @@ import org.w3c.dom.Element;
 /** Contains all high level info describing an archive file. */
 // TODO: reconcile differences with
 // system/src/main/java/com/percussion/deploy/objectstore/PSArchiveInfo.java
-public class PSArchiveInfo implements IPSDeployComponent {
+public final class PSArchiveInfo implements IPSDeployComponent {
 
   /**
    * Construct this object from its XML representation.
