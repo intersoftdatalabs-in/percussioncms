@@ -25,7 +25,8 @@
  *
  * QA mode: perc-devctl qa-up → TEST_CMS_URL + ADMIN_* → test:surface → qa-down.
  *
- * Covers: Preferences form mounts; change default landing; reload persists.
+ * Covers: Preferences form mounts (no #2746 load JAXB / retry error);
+ * change default landing; reload persists.
  * Axe: zero serious/critical on [data-testid="perc-profile-preferences"].
  */
 
@@ -56,6 +57,13 @@ async function expectPreferencesMounted(page) {
   await expect(page.getByTestId("perc-profile-preferences")).toBeVisible({
     timeout: 30_000,
   });
+  // #2746: GET /preferences/ JAXB failure left load-error + Try again.
+  await expect(
+    page.getByTestId("perc-profile-preferences-load-error"),
+  ).toHaveCount(0);
+  await expect(page.getByTestId("perc-profile-preferences-retry")).toHaveCount(
+    0,
+  );
   await expect(
     page.getByTestId("perc-profile-preferences-landing"),
   ).toBeVisible({ timeout: 30_000 });
