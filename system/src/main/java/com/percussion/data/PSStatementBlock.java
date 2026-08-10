@@ -275,8 +275,11 @@ public class PSStatementBlock implements IPSStatementBlock {
   }
 
   private boolean m_isStatic;
-  /** Heterogeneous block list: static SQL {@link String}s and {@link PSStatementColumn}s. */
-  protected List<Object> m_blocks;
+  /**
+   * Heterogeneous block list: static SQL {@link String}s and {@link PSStatementColumn}s. Initialized
+   * in the constructor and never reassigned (contents may grow via addText/addReplacementField).
+   */
+  protected final List<Object> m_blocks;
 
   /**
    * A place to store the statement columns for LOB-based columns. These need to be accessed by
