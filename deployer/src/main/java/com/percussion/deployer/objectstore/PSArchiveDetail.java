@@ -37,7 +37,7 @@ import org.w3c.dom.Element;
  * Class to encapsulate low-level archive detail added at completion of creating all export
  * packages.
  */
-public class PSArchiveDetail implements IPSDeployComponent {
+public final class PSArchiveDetail implements IPSDeployComponent {
   /**
    * Construct this class from its member info.
    *
@@ -64,9 +64,9 @@ public class PSArchiveDetail implements IPSDeployComponent {
   public PSArchiveDetail(Element source) throws PSUnknownNodeTypeException, PSDeployException {
     if (source == null) throw new IllegalArgumentException("source may not be null");
 
+    // fromXml restores the export descriptor and DBMS info map; do not re-init
+    // (that would clear datasource mappings loaded from XML).
     fromXml(source);
-
-    initDbmsInfoMap(m_exportDescriptor);
   }
 
   /**
@@ -79,16 +79,16 @@ public class PSArchiveDetail implements IPSDeployComponent {
    *     </code>, may be empty.
    * @throws IllegalArgumentException if any param is invalid.
    */
-  public void setDbmsInfoList(PSDeployableElement pkg, List infoList) {
+  public void setDbmsInfoList(PSDeployableElement pkg, List<PSDatasourceMap> infoList) {
     if (pkg == null) throw new IllegalArgumentException("pkg may not be null");
 
     if (infoList == null) throw new IllegalArgumentException("infoList may not be null");
 
-    List dbmsList = (List) m_externalDbmsMap.get(pkg.getKey());
+    List<PSDatasourceMap> dbmsList = m_externalDbmsMap.get(pkg.getKey());
     if (dbmsList == null) {
       // export descriptor may have changed, refresh the map and try again
       refreshDbmsInfoMap();
-      dbmsList = (List) m_externalDbmsMap.get(pkg.getKey());
+      dbmsList = m_externalDbmsMap.get(pkg.getKey());
       if (dbmsList == null)
         throw new IllegalArgumentException("pkg not found in export descriptor");
     }
@@ -150,19 +150,15 @@ public class PSArchiveDetail implements IPSDeployComponent {
 
     refreshDbmsInfoMap();
     Element mapEl = PSXmlDocumentBuilder.addEmptyElement(doc, root, XML_EL_DBMS_INFO_MAP);
-    Iterator entries = m_externalDbmsMap.entrySet().iterator();
-    while (entries.hasNext()) {
-      Map.Entry entry = (Map.Entry) entries.next();
-      String pkgKey = (String) entry.getKey();
-      List dbmsList = (List) entry.getValue();
+    for (Map.Entry<String, List<PSDatasourceMap>> entry : m_externalDbmsMap.entrySet()) {
+      String pkgKey = entry.getKey();
+      List<PSDatasourceMap> dbmsList = entry.getValue();
 
       Element mappingEl =
           PSXmlDocumentBuilder.addEmptyElement(doc, mapEl, XML_EL_DBMS_INFO_MAPPING);
       mappingEl.setAttribute(XML_ATTR_PKGKEY, pkgKey);
 
-      Iterator infos = dbmsList.iterator();
-      while (infos.hasNext()) {
-        PSDatasourceMap dsMap = (PSDatasourceMap) infos.next();
+      for (PSDatasourceMap dsMap : dbmsList) {
         Element dsElem = dsMap.toXml(doc);
         mappingEl.appendChild(dsElem);
       }
@@ -222,7 +218,7 @@ public class PSArchiveDetail implements IPSDeployComponent {
       String pkgKey = PSDeployComponentUtils.getRequiredAttribute(mappingEl, XML_ATTR_PKGKEY);
 
       // find that pkg in the dbms info map
-      List dbmsList = (List) m_externalDbmsMap.get(pkgKey);
+      List<PSDatasourceMap> dbmsList = m_externalDbmsMap.get(pkgKey);
       if (dbmsList == null) {
         Object[] args = {XML_EL_DBMS_INFO_MAPPING, XML_ATTR_PKGKEY, pkgKey};
         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
@@ -259,6 +255,7 @@ public class PSArchiveDetail implements IPSDeployComponent {
     if (this == o) return true;
     if (!(o instanceof PSArchiveDetail)) return false;
     PSArchiveDetail that = (PSArchiveDetail) o;
+    // Map value type is List<PSDatasourceMap>; utility API is Map<String, List<?>>
     return Objects.equals(m_exportDescriptor, that.m_exportDescriptor)
         && PSMapUtils.areEqualWithArrayListValue(
             (Map<String, List<?>>) (Map<?, ?>) m_externalDbmsMap,

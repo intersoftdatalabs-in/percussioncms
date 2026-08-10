@@ -30,7 +30,7 @@ import org.w3c.dom.Element;
  * Represents a file dependency that must be specified by the user as it may not be automatically
  * discovered by the Rhythmyx server.
  */
-public class PSUserDependency extends PSDeployableObject {
+public final class PSUserDependency extends PSDeployableObject {
 
   /**
    * Package private ctor. User dependencies should always be created using {@link

@@ -106,7 +106,7 @@ public final class PSValidationResults implements IPSDeployComponent {
    * @return List of zero or more <code>PSDependency</code> objects. It will never be <code>null
    *     </code>, but may be empty.
    */
-  public Iterator getAbsentAncestors() {
+  public Iterator<PSDependency> getAbsentAncestors() {
     return m_absentAncestors.iterator();
   }
 

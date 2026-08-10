@@ -177,7 +177,7 @@ public class PSDeploymentManager {
    * @throws PSDeployException if the <code>type</code> provided is invalid, if there are any other
    *     errors.
    */
-  public Iterator getDeployableElements(String type) throws PSDeployException {
+  public Iterator<PSDeployableElement> getDeployableElements(String type) throws PSDeployException {
     if (type == null || type.trim().length() == 0)
       throw new IllegalArgumentException("type may not be null or empty");
 
@@ -228,7 +228,8 @@ public class PSDeploymentManager {
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any other errors.
    */
-  public Iterator getDependencies(String type, String parentId) throws PSDeployException {
+  public Iterator<PSDependency> getDependencies(String type, String parentId)
+      throws PSDeployException {
     if (type == null || type.trim().length() == 0)
       throw new IllegalArgumentException("type may not be null or empty");
 
@@ -238,7 +239,7 @@ public class PSDeploymentManager {
     String reqType = getDeployReqType("getDependencies");
 
     try {
-      List results = new ArrayList();
+      List<PSDependency> results = new ArrayList<>();
 
       Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
       Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXDeployGetDependenciesRequest");
@@ -331,12 +332,12 @@ public class PSDeploymentManager {
    *     empty.
    * @throws PSDeployException if there are any errors.
    */
-  public Map getParentTypes() throws PSDeployException {
+  public Map<String, String> getParentTypes() throws PSDeployException {
     String reqType = getDeployReqType("getParentTypes");
     String searchEl = "entry";
 
     try {
-      Map types = new HashMap();
+      Map<String, String> types = new HashMap<>();
 
       Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
       PSXmlDocumentBuilder.createRoot(reqDoc, "PSXDeployGetParentTypesRequest");
@@ -421,7 +422,7 @@ public class PSDeploymentManager {
       String reqRootName,
       String attrName,
       String attrValue,
-      Class compClass,
+      Class<? extends IPSDeployComponent> compClass,
       String xmlNodeName)
       throws PSDeployException {
     String reqType = getDeployReqType(reqTypeName);
@@ -440,8 +441,9 @@ public class PSDeploymentManager {
         throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_MISSING, args);
       }
 
-      Constructor compCtor = compClass.getConstructor(new Class[] {Element.class});
-      comp = (IPSDeployComponent) compCtor.newInstance(new Object[] {childEl});
+      Constructor<? extends IPSDeployComponent> compCtor =
+          compClass.getConstructor(Element.class);
+      comp = compCtor.newInstance(childEl);
     } catch (Exception e) {
       if (e instanceof PSUnknownNodeTypeException) {
         Object args[] = {reqType, xmlNodeName, e.getLocalizedMessage()};
@@ -632,7 +634,8 @@ public class PSDeploymentManager {
    * @throws IllegalArgumentException If <code>deps</code> is invalid.
    * @throws PSDeployException if there are any errors.
    */
-  public Iterator getIdTypes(Iterator deps) throws PSDeployException {
+  public Iterator<PSApplicationIDTypes> getIdTypes(Iterator<? extends PSDependency> deps)
+      throws PSDeployException {
     String reqType = getDeployReqType("getIdTypes");
 
     try {
@@ -640,17 +643,16 @@ public class PSDeploymentManager {
       Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXDeployGetIdTypesRequest");
       if (deps != null) {
         while (deps.hasNext()) {
-          Object o = deps.next();
-          if (!(o instanceof PSDeployableObject))
+          PSDependency dep = deps.next();
+          if (!(dep instanceof PSDeployableObject))
             throw new IllegalArgumentException("deps may only contain PSDeployableObjects");
-          PSDeployableObject dep = (PSDeployableObject) o;
           root.appendChild(dep.toXml(reqDoc));
         }
       }
 
       Document respDoc = m_conn.execute(reqType, reqDoc);
 
-      List retList = new ArrayList();
+      List<PSApplicationIDTypes> retList = new ArrayList<>();
       PSXmlTreeWalker tree = new PSXmlTreeWalker(respDoc);
       Element typeEl =
           tree.getNextElement(
@@ -681,7 +683,7 @@ public class PSDeploymentManager {
    * @throws IllegalArgumentException If <code>idTypes</code> is <code>null</code> or empty.
    * @throws PSDeployException if there are any other errors.
    */
-  public void saveIdTypes(Iterator idTypes) throws PSDeployException {
+  public void saveIdTypes(Iterator<PSApplicationIDTypes> idTypes) throws PSDeployException {
     if (idTypes == null || (!idTypes.hasNext()))
       throw new IllegalArgumentException("idTypes may not be null or empty");
 
@@ -691,10 +693,9 @@ public class PSDeploymentManager {
       Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
       Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXDeploySaveIdTypesRequest");
       while (idTypes.hasNext()) {
-        Object o = idTypes.next();
-        if (!(o instanceof PSApplicationIDTypes))
+        PSApplicationIDTypes idType = idTypes.next();
+        if (idType == null)
           throw new IllegalArgumentException("deps may only contain PSApplicationIDTypes");
-        PSApplicationIDTypes idType = (PSApplicationIDTypes) o;
         root.appendChild(idType.toXml(reqDoc));
       }
 
@@ -1108,7 +1109,7 @@ public class PSDeploymentManager {
 
     final String reqType = getDeployReqType("saveArchiveFile");
 
-    final Map params = new HashMap();
+    final Map<String, String> params = new HashMap<>();
     params.put("archiveRef", archiveRef);
 
     // create job controller
@@ -1160,7 +1161,7 @@ public class PSDeploymentManager {
 
     final String reqType = getDeployReqType("saveConfigFile");
 
-    final Map params = new HashMap();
+    final Map<String, String> params = new HashMap<>();
     params.put("configRef", configRef);
     params.put(IPSHtmlParameters.REQ_XML_DOC_FLAG, IPSHtmlParameters.XML_DOC_AS_TEXT);
 
@@ -1583,18 +1584,14 @@ public class PSDeploymentManager {
                 PSImportDescriptor.XML_NODE_NAME);
 
     // create map of package names and validation results
-    Map resultMap = new HashMap();
-    Iterator pkgs = resultDesc.getImportPackageList().iterator();
-    while (pkgs.hasNext()) {
-      PSImportPackage pkg = (PSImportPackage) pkgs.next();
+    Map<String, PSValidationResults> resultMap = new HashMap<>();
+    for (PSImportPackage pkg : resultDesc.getImportPackageList()) {
       resultMap.put(pkg.getPackage().getKey(), pkg.getValidationResults());
     }
 
     // now walk supplied package list and set results on each
-    pkgs = desc.getImportPackageList().iterator();
-    while (pkgs.hasNext()) {
-      PSImportPackage pkg = (PSImportPackage) pkgs.next();
-      PSValidationResults results = (PSValidationResults) resultMap.get(pkg.getPackage().getKey());
+    for (PSImportPackage pkg : desc.getImportPackageList()) {
+      PSValidationResults results = resultMap.get(pkg.getPackage().getKey());
       if (results == null) {
         // this would be a bug, just throw unexpected exeption
         throw new PSDeployException(
@@ -1806,7 +1803,7 @@ public class PSDeploymentManager {
       Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
       PSXmlDocumentBuilder.replaceRoot(reqDoc, desc.toXml(reqDoc));
 
-      Map params = new HashMap();
+      Map<String, String> params = new HashMap<>();
       params.put("sys_jobCategory", "deployer");
       params.put("sys_jobType", jobType);
 

@@ -70,7 +70,7 @@ import org.w3c.dom.Element;
  * Represents a connection to the Rx server and a session theirin. Is used to execute requests to
  * the deployment and job handlers on the server.
  */
-public class PSDeploymentServerConnection {
+public final class PSDeploymentServerConnection {
   /**
    * Constructs a connection using the http protocol. Calls
    *

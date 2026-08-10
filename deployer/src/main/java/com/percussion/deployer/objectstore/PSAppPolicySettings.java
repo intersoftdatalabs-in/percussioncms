@@ -24,7 +24,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Encapsulates all policy settings. */
-public class PSAppPolicySettings implements IPSDeployComponent {
+public final class PSAppPolicySettings implements IPSDeployComponent {
 
   /** Default constructor with default settings. */
   public PSAppPolicySettings() {}

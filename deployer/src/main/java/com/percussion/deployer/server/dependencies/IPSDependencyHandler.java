@@ -17,6 +17,7 @@
 
 package com.percussion.deployer.server.dependencies;
 
+import com.percussion.deployer.objectstore.PSDatasourceMap;
 import com.percussion.deployer.objectstore.PSDependency;
 import com.percussion.deployer.objectstore.PSDependencyFile;
 import com.percussion.deployer.objectstore.PSIdMap;
@@ -158,7 +159,7 @@ public interface IPSDependencyHandler {
    *     </code>, may be empty.
    * @throws PSDeployException if there are any errors.
    */
-  Iterator getDependencies(PSSecurityToken tok, String parentType, String parentId)
+  Iterator<PSDependency> getDependencies(PSSecurityToken tok, String parentType, String parentId)
       throws PSDeployException;
 
   /**
@@ -212,7 +213,7 @@ public interface IPSDependencyHandler {
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  Iterator getChildTypes();
+  Iterator<String> getChildTypes();
 
   /**
    * Must be overriden by derived classes to supply the correct type.
@@ -328,7 +329,8 @@ public interface IPSDependencyHandler {
    * @return A list of external DBMS info objects, never <code>null</code>, may be empty.
    * @throws PSDeployException if there are any errors.
    */
-  List getExternalDbmsInfoList(PSSecurityToken tok, PSDependency dep) throws PSDeployException;
+  List<PSDatasourceMap> getExternalDbmsInfoList(PSSecurityToken tok, PSDependency dep)
+      throws PSDeployException;
 
   /**
    * Returns the id mapping for the supplied id under the supplied parent.
