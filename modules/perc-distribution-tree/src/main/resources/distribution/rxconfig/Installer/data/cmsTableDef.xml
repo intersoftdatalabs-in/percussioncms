@@ -1827,6 +1827,17 @@
                 <size>1023</size>
                 <allowsnull>yes</allowsnull>
             </column>
+            <!-- ADR-003 / #2629: versioned JSON maps for slot_layout / slot_styles -->
+            <column name="SLOT_LAYOUT">
+                <jdbctype>CLOB</jdbctype>
+                <size/>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="SLOT_STYLES">
+                <jdbctype>CLOB</jdbctype>
+                <size/>
+                <allowsnull>yes</allowsnull>
+            </column>
         </row>
         <primarykey>
             <name>SLOTID</name>

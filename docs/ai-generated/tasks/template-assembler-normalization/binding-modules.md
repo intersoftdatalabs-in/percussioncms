@@ -15,8 +15,31 @@ Populated by the assembly framework before/during template render. Common keys (
 | `$sys.assemblyItem` | Current assembly item |
 | `$sys.part.*` | Partial assembly (Velocity AA parts) |
 | `$sys.currentslot` | Slot context map (Velocity path) |
+| `$sys.slot` | Slot layout/styles assembly context (ADR-003 / Phase 2 #2629) |
+| `$sys.slot.layout` | Structural `slot_layout` map for the current slot (`schemaVersion` + layout keys) |
+| `$sys.slot.styles` | Presentational `slot_styles` map (`schemaVersion` + class tokens, e.g. `rootclass`) |
+| `$sys.slot.schemaVersion` | Integer schema version of the layout/styles maps |
+| `$sys.currentslot.layout` / `.styles` | Same maps mirrored on Velocity AA `$sys.currentslot` when a slot is initialized |
 
 HTML-first / Markdown assemblers read `$sys.template` (or fall back to the template object source) and `$sys.mimetype` / `$sys.charset` after JEXL bindings run.
+
+### Slot layout / styles (ADR-003)
+
+Definition defaults live on `IPSTemplateSlot` / `PSTemplateSlot` as versioned JSON maps (`SLOT_LAYOUT` / `SLOT_STYLES` columns). When Velocity AA macros initialize a slot (`#initslot` / `__slotsetup`), they bind:
+
+```text
+$sys.slot = $rx.asmhelper.slotAssemblyContext(slot)
+```
+
+so templates can read `$sys.slot.layout` and `$sys.slot.styles`. JEXL helpers on `$rx.asmhelper`:
+
+| Method | Returns |
+|--------|---------|
+| `slotLayout(slot)` | `slot_layout` map |
+| `slotStyles(slot)` | `slot_styles` map |
+| `slotAssemblyContext(slot)` | `{ layout, styles, schemaVersion, name }` |
+
+Schema constant: `PSSlotLayoutStyles.SCHEMA_VERSION` (v1). Known layout keys: `orientation`, `columns`, `maxItems`, `emptyState`, `wrapperClassPolicy`. Styles (CM1 parity first): `rootclass`, `itemclass`.
 
 ## `$rx` (JEXL tool namespaces)
 

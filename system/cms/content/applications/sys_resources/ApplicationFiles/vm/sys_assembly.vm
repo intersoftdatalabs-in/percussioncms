@@ -177,6 +177,10 @@ $next_markup</a>##
 #set($sys.currentslot.slot = $sys.asm.findSlotByName($slotname))##
 #if ($sys.currentslot.slot)##
 #set($sys.currentslot.isrelationshipfinder = $rx.asmhelper.isAASlot($sys.currentslot.slot))##
+## ADR-003: expose slot_layout / slot_styles as $sys.slot.layout / $sys.slot.styles
+#set($sys.slot = $rx.asmhelper.slotAssemblyContext($sys.currentslot.slot))##
+#set($sys.currentslot.layout = $sys.slot.layout)##
+#set($sys.currentslot.styles = $sys.slot.styles)##
 #set($completeparams = $rx.asmhelper.combine($sys.params,$params))##
 #else##
 <h3 style="color: red">Cannot find slot: $slotname</h3>##
@@ -187,6 +191,10 @@ $next_markup</a>##
 #set($sys.currentslot.slot = $sys.asm.findSlotByName($slotname))
 #if ($sys.currentslot.slot)
 #set($sys.currentslot.active = false)##
+## ADR-003: expose slot_layout / slot_styles as $sys.slot.layout / $sys.slot.styles
+#set($sys.slot = $rx.asmhelper.slotAssemblyContext($sys.currentslot.slot))##
+#set($sys.currentslot.layout = $sys.slot.layout)##
+#set($sys.currentslot.styles = $sys.slot.styles)##
 #set($completeparams = $rx.asmhelper.combine($sys.params,$params))
 #set($sys.currentslot.relresults = $rx.paginate.getSlotPage($sys.assemblyItem,$slotname,$itemsPerPage,$pageNumber,$completeparams))
 #else

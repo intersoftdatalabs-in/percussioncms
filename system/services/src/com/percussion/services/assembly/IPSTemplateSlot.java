@@ -227,4 +227,38 @@ public interface IPSTemplateSlot extends IPSCatalogItem
     */
    Set<IPSAssemblyTemplate> getSlotTemplates();
 
+   /**
+    * Structural layout hints for this slot definition (ADR-003 / {@code slot_layout}).
+    *
+    * <p>Never {@code null}. Always includes {@code schemaVersion}. Defaults when unset.
+    * Exposed to assembly as {@code $sys.slot.layout} when a slot context is bound.
+    *
+    * @return mutable map copy of the definition defaults; never {@code null}
+    */
+   Map<String, Object> getSlotLayout();
+
+   /**
+    * Replace slot layout definition defaults. {@code null} or empty clears to defaults.
+    *
+    * @param layout layout properties, may be {@code null}
+    */
+   void setSlotLayout(Map<String, Object> layout);
+
+   /**
+    * Presentational style tokens for this slot definition (ADR-003 / {@code slot_styles}).
+    *
+    * <p>Never {@code null}. Always includes {@code schemaVersion}. Defaults when unset.
+    * CM1-parity keys first (e.g. {@code rootclass}). Exposed as {@code $sys.slot.styles}.
+    *
+    * @return mutable map copy of the definition defaults; never {@code null}
+    */
+   Map<String, Object> getSlotStyles();
+
+   /**
+    * Replace slot styles definition defaults. {@code null} or empty clears to defaults.
+    *
+    * @param styles style properties, may be {@code null}
+    */
+   void setSlotStyles(Map<String, Object> styles);
+
 }
