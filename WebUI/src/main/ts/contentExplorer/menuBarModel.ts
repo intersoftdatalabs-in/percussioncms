@@ -35,6 +35,7 @@ export type ExplorerMenuCommandId =
   | "view-security"
   | "view-translations"
   | "view-relationships"
+  | "view-dependencies"
   | "view-clipboard"
   | "help-explorer"
   | "help-about";
@@ -136,6 +137,13 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           labelKey: EXPLORER_MSG.RELATIONSHIPS_TITLE,
           ariaLabelKey: EXPLORER_MSG.TOGGLE_RELATIONSHIPS_ARIA,
           testId: "explorer-toggle-relationships",
+          toggle: true,
+        },
+        {
+          id: "view-dependencies",
+          labelKey: EXPLORER_MSG.DEPENDENCY_TITLE,
+          ariaLabelKey: EXPLORER_MSG.TOGGLE_DEPENDENCIES_ARIA,
+          testId: "explorer-toggle-dependencies",
           toggle: true,
         },
         {

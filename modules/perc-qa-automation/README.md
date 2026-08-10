@@ -621,6 +621,33 @@ npm run test:surface:list -- --path tests/explorer-relationships.spec.js
 npm run test:surface:list -- --tag explorer-relationships
 ```
 
+#### Explorer dependency viewer (#2768 / parent #2400)
+
+View → Dependencies shell chrome + optional DependencyViewer mount for a
+selected content item (reuses relationship summary REST). Soft-skip deep
+relationship count assertions when the QA fixture has no selectable row.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-dependencies.spec.js` |
+| Tags | `@explorer-dependencies` `@p-adv` `@smoke` |
+| Vitest peer | `WebUI` `DependencyViewer` / shell / `ExplorerMenuBar` / `menuBarModel` |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/explorer-dependencies.spec.js
+
+# Tag form
+npm run test:surface -- --tag explorer-dependencies
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/explorer-dependencies.spec.js
+npm run test:surface:list -- --tag explorer-dependencies
+```
+
 #### Profile shell + axe WCAG + locale title (#2393 / #2425 / #2427 / #2497 / #2498 / #2499 / #2501 / parent #2374)
 
 Smoke opens the **My profile** hub via deep link and user-menu entry (Admin,

@@ -40,6 +40,9 @@ export interface ExplorerMenuBarProps {
   showSecurity: boolean;
   showTranslations: boolean;
   showRelationships: boolean;
+  showDependencies: boolean;
+  /** True when a content item is selected (for deps aria-controls). */
+  hasDependencyItem?: boolean;
   showClipboard: boolean;
   /** Content → Site Copy panel open (#2767). */
   showSiteCopy?: boolean;
@@ -124,6 +127,8 @@ function isToggleChecked(
     | "showSecurity"
     | "showTranslations"
     | "showRelationships"
+    | "showDependencies"
+    | "hasDependencyItem"
     | "showClipboard"
     | "showSiteCopy"
   >,
@@ -137,6 +142,8 @@ function isToggleChecked(
       return props.showTranslations;
     case "view-relationships":
       return props.showRelationships;
+    case "view-dependencies":
+      return props.showDependencies;
     case "view-clipboard":
       return props.showClipboard;
     case "content-site-copy":
@@ -170,6 +177,8 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
     showSecurity,
     showTranslations,
     showRelationships,
+    showDependencies,
+    hasDependencyItem = false,
     showClipboard,
     showSiteCopy = false,
     multiSelectedCount,
@@ -299,6 +308,8 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                           showSecurity,
                           showTranslations,
                           showRelationships,
+                          showDependencies,
+                          hasDependencyItem,
                           showClipboard,
                           showSiteCopy,
                         })
@@ -330,13 +341,17 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                                   ? "explorer-translations-panel"
                                   : item.id === "view-relationships"
                                     ? "explorer-relationships-panel"
-                                    : item.id === "view-clipboard"
-                                      ? "explorer-clipboard-panel"
-                                      : item.id === "content-site-copy"
-                                        ? hasSiteContext
-                                          ? "explorer-site-copy-panel"
-                                          : "explorer-site-copy-hint"
-                                        : undefined
+                                    : item.id === "view-dependencies"
+                                      ? hasDependencyItem
+                                        ? "explorer-dependencies-panel"
+                                        : "explorer-dependencies-hint"
+                                      : item.id === "view-clipboard"
+                                        ? "explorer-clipboard-panel"
+                                        : item.id === "content-site-copy"
+                                          ? hasSiteContext
+                                            ? "explorer-site-copy-panel"
+                                            : "explorer-site-copy-hint"
+                                          : undefined
                           }
                           data-testid={
                             item.testId ?? `explorer-menu-item-${item.id}`
