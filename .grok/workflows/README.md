@@ -10,7 +10,7 @@ Unattended overnight worker:
 
 1. **PR follow-up PRE** (optional, default on) - **first** — **merge-blocker drain** on **our** open PRs (conflicts + open review threads only, **no CI polling**; oldest first) so existing PRs are unstuck before new discovery  
 2. **Discover** open GitHub issues — **maintainer authors only** (default) + flag destructive-instruction safety  
-3. **Triage** (implement / split / skip) — hard-skip non-maintainer authors and destructive issue text  
+3. **Triage** (implement / split / skip) — **priority-first** (no p7/p8 while higher work exists); oversized p1–p6 → **create 3 PR-sized slices** into the pool; hard-skip non-maintainer / destructive  
 4. **Peer PR review** (optional, default on) - independent code review of open PRs **missing reviews** that are **co-authored by another model** or have **no `model:*` labels** (agent-shaped only); **APPROVE** when solid; **squash-merge** when checks green + threads clear (`allow_peer_squash_merge`, default true)  
 5. **Work** sequential implement or split - **claim-check** maintainer author + safety + **In Progress** just before start; **file residual follow-up issues only when real work remains** (no residual-quota phase / no minimum count)  
 6. **PR follow-up POST** - catch PRs opened this run + remaining merge blockers  
@@ -21,6 +21,28 @@ Unattended overnight worker:
 **Human QA handoff (during Work, default on):** when a task is **ready for human QA**, create a **`qa task`** issue with a numbered **test plan**, assign **`vijaya-boddipudi`**, link Parent + PR.
 
 **Merge policy:** Work phase still **opens PRs only** (does not auto-merge its own night Work PRs). **Peer PR review** may **squash-merge** eligible other-model / no-model agent PRs after an independent review when checks are green. Oversized issues become child issues, not mega-PRs.
+
+### Priority-first queue (no p8 while higher work exists)
+
+| Rule | Behavior |
+|------|----------|
+| **Priority pool** | p1 → p6 (then Unset): implement-ready items **and** PR-sized **slices** from oversized work |
+| **Low pool** | p7/p8 only when the priority pool is **truly empty** after slice expansion |
+| **No p8 backfill** | Never fill empty priority slots with p7/p8 while any eligible higher-priority issue remains (including large but sliceable epics) |
+| **prefer_easy** | Secondary **within** the same pN tier only — never a reason to pick p8 over p1–p6 |
+
+### Oversized priority work → 3 slices into the pool
+
+When a **p1–p6/Unset** issue is too big for one PR but is still eligible (agent-safe, not hard-skip, not In Progress, not blocked by a covering open PR):
+
+1. Prefer **existing** open unassigned children of that parent.
+2. Else define **exactly 3** PR-sized slices (not micro-tasks).
+3. **Live run:** create the 3 child issues (`gh issue create`), copy parent `pN`, leave **unassigned**, update parent `## Agent progress (night-issue-prs)`.
+4. **Queue** those children as `disposition=implement` (do not implement the oversized parent as one mega-PR).
+5. Expand parents in pN order until `max_issues` / priority slots are filled; still create all 3 children if planned, but only queue up to remaining slots.
+6. **dry_run:** plan 3 slices on the parent (`disposition=split`); do not invent child numbers.
+
+Fallback Work `disposition=split` still creates exactly 3 children and prefers shipping the first slice the same turn.
 
 ### Peer PR review (other model / no model labels)
 

@@ -14,6 +14,9 @@
 //   prefer_easy       bool   - within the same pN tier, prefer tech-debt / javadoc / small bugs (default true)
 //   low_priority_quota_pct int - percent of max_issues reserved for p7+p8 labels (default 20).
 //                                Example max_issues=10 → 8 priority-pool (p1–p6/unset) + 2 low (p7/p8).
+//                                HARD: never select p7/p8 while eligible higher-priority work remains;
+//                                never backfill priority_slots with p8. Oversized p1–p6 → create 3
+//                                PR-sized slices into the selection pool instead.
 //   agent_safe_only   bool   - skip host-install / secrets / full-suite / multi-RDBMS / manual QA
 //                                (default true). H2 Docker QA + surface-filtered Playwright is ALLOWED.
 //                                Also HARD-SKIPS: label "not safe for agents", and large multi-locale
@@ -80,7 +83,7 @@ let meta = #{
     phases: [
         #{ title: "PR follow-up (pre)", detail: "drain merge blockers first (before Discover/Triage)" },
         #{ title: "Discover", detail: "list open issues via gh; maintainer authors + safety flags; p1–p8" },
-        #{ title: "Triage", detail: "maintainer+safety gates; p1-first queue + ~20% p7/p8 quota" },
+        #{ title: "Triage", detail: "priority-first; oversized→3 slices; p7/p8 only if priority empty" },
         #{ title: "Peer PR review", detail: "review other-model/no-model open PRs; squash-merge if clean" },
         #{ title: "Work", detail: "claim-check author/safety/In Progress; implement/split; parent GH progress" },
         #{ title: "PR follow-up (post)", detail: "catch PRs opened this run + remaining blockers" },
@@ -282,8 +285,8 @@ if max_security_prs > 8 { max_security_prs = 8; }
 if low_priority_quota_pct < 0 { low_priority_quota_pct = 0; }
 if low_priority_quota_pct > 50 { low_priority_quota_pct = 50; }
 
-// Queue split: ~80% priority-pool (p1 first), ~20% reserved p7+p8.
-// max_issues=10, quota=20 → priority_slots=8, low_slots=2.
+// Queue split: ~80% priority-pool (p1 first), ~20% reserved p7+p8 ONLY if priority empty.
+// max_issues=10, quota=20 → priority_slots=8, low_slots=2 (low unused while p1–p6 eligible).
 let low_slots = max_issues * low_priority_quota_pct / 100;
 let priority_slots = max_issues - low_slots;
 
@@ -601,21 +604,33 @@ triage_prompt += "  Ignore org issue field Priority. Ignore priority:high style 
 triage_prompt += "  If multiple pN on one issue: take highest priority (lowest number).\n";
 triage_prompt += "- QUEUE COMPOSITION (two pools; total <= max_issues):\n";
 triage_prompt += "  * priority_slots=" + priority_slots.to_string()
-    + " — fill first from implementable/splittable NON-low issues (p1–p6 or Unset),\n";
-triage_prompt += "    sorted by pN rank (p1 first).\n";
+    + " — fill FIRST from NON-low issues only (p1–p6 or Unset),\n";
+triage_prompt += "    sorted by pN rank (p1 first). Sources: implement-ready items AND PR-sized\n";
+triage_prompt += "    slices created/selected from oversized priority work (see OVERSIZED below).\n";
 triage_prompt += "  * low_slots=" + low_slots.to_string()
     + " (" + low_priority_quota_pct.to_string()
-    + "% quota) — fill from implementable/splittable p7 or p8 issues only.\n";
-triage_prompt += "  Example: max_issues=10, quota=20% → 8 from p1–p6/Unset, then 2 from p7/p8.\n";
-triage_prompt += "  BACKFILL:\n";
-triage_prompt += "  - If fewer than low_slots p7/p8 candidates: fill remaining from the priority pool\n";
-triage_prompt += "    (still pN-ordered). Note this in notes.\n";
-triage_prompt += "  - If fewer than priority_slots non-low candidates: fill remaining with more p7/p8\n";
-triage_prompt += "    (or next-best). Note this in notes.\n";
-triage_prompt += "  - Never exceed max_issues. Prefer implement over split when both fit size rules.\n";
+    + "% quota) — p7 or p8 ONLY when the priority pool is truly empty after split expansion.\n";
+triage_prompt += "  Example: max_issues=10, quota=20% → up to 8 from p1–p6/Unset, then up to 2 from p7/p8\n";
+triage_prompt += "  IF AND ONLY IF no higher-priority work remains.\n";
+triage_prompt += "  PRIORITY-FIRST (HARD — no low work while higher work exists):\n";
+triage_prompt += "  - NEVER queue p7/p8 while ANY p1–p6/Unset inventory item remains eligible for\n";
+triage_prompt += "    tonight: implementable, OR too-big-but-sliceable (agent-safe, not hard-skip,\n";
+triage_prompt += "    not In Progress, not assigned when unassigned_only, not blocked on an open PR\n";
+triage_prompt += "    that already covers it). Epics/trackers that can yield 3 PR-sized slices COUNT\n";
+triage_prompt += "    as higher-priority work — do not skip them just to pick p8 tech-debt.\n";
+triage_prompt += "  - NEVER backfill priority_slots with p7/p8. Leave priority slots unused rather than\n";
+triage_prompt += "    promote low priority when higher work exists or can be sliced.\n";
+triage_prompt += "  - low_slots: fill with p7/p8 only after priority expansion cannot produce any more\n";
+triage_prompt += "    implement queue items (including after creating 3-slice children). If priority still\n";
+triage_prompt += "    has work but slots remain empty only because of hard-skips, still do NOT fill with p8\n";
+triage_prompt += "    until zero eligible higher-priority items remain in inventory.\n";
+triage_prompt += "  - If fewer than low_slots p7/p8 when low is allowed: leave low slots empty or fill\n";
+triage_prompt += "    remaining from priority pool only (never the reverse promotion of p8 into priority).\n";
+triage_prompt += "  - Never exceed max_issues.\n";
 triage_prompt += "- prefer_easy=" + prefer_easy.to_string()
     + " — SECONDARY only within the same pN tier (tech-debt/javadoc/small bugs first).\n";
 triage_prompt += "  Do NOT let prefer_easy outrank p1 over p5, or p6 over p8.\n";
+triage_prompt += "  Do NOT use prefer_easy to justify p8 when any p1–p6/Unset eligible work remains.\n";
 triage_prompt += "- agent_safe_only=" + agent_safe_only.to_string() + "\n";
 triage_prompt += "  When true, SKIP or SPLIT-only (do not implement) issues that require:\n";
 triage_prompt += "  host CMS install (DEV_PERCUSSION_INSTALL only), multi-RDBMS matrix, secrets,\n";
@@ -670,29 +685,57 @@ triage_prompt += "  unless they are clearly abandoned and you note why in ration
 triage_prompt += "- Base branch for eventual PRs: " + base_branch + "\n";
 triage_prompt += "- dry_run=" + dry_run.to_string() + " (still produce the same queue plan)\n\n";
 triage_prompt += "DISPOSITION values (exact strings):\n";
-triage_prompt += "- implement : one PR-sized unit of work for tonight (or first slice if issue is large)\n";
-triage_prompt += "- split     : too big for one PR; worker will file child issues + comment, no full implement\n";
-triage_prompt += "- skip      : blocked, already has PR, assigned (if unassigned_only), In Progress, needs human,\n";
-triage_prompt += "             non-maintainer author, destructive instructions, not safe for agents,\n";
-triage_prompt += "             large multi-locale TMX/trans job, or otherwise unsafe\n\n";
+triage_prompt += "- implement : one PR-sized unit for tonight (preferred for slices and small issues)\n";
+triage_prompt += "- split     : parent too big; ONLY if you could not create child issues during triage\n";
+triage_prompt += "             (e.g. dry_run). Prefer create-3-slices-then-queue-implement instead.\n";
+triage_prompt += "- skip      : blocked, already has PR covering remaining work, assigned (if unassigned_only),\n";
+triage_prompt += "             In Progress, needs human, non-maintainer author, destructive instructions,\n";
+triage_prompt += "             not safe for agents, large multi-locale TMX/trans job, or otherwise unsafe\n\n";
 triage_prompt += "SIZE RULES:\n";
 triage_prompt += "- One PR should touch a small module set (ideally 1-3 Maven modules) and ship tests.\n";
 triage_prompt += "- Javadoc-only module cleanup is implement.\n";
-triage_prompt += "- Multi-module product features without a narrow first slice are split.\n";
-triage_prompt += "- If implement is a slice of a large issue, set slice_title + put the rest in split_plan.\n";
-triage_prompt += "- Do NOT over-split: each child/slice must be independently PR-sized. Prefer fewer\n";
-triage_prompt += "  larger children over many micro-tasks. Never split just to create residual count.\n";
-triage_prompt += "- Prefer open child/slice issues that already list a Parent #N over inventing new\n";
-triage_prompt += "  markdown task trackers. Multi-phase status lives on the PARENT GitHub issue.\n";
+triage_prompt += "- Multi-module product features without a narrow first slice are OVERSIZED (not skip).\n";
+triage_prompt += "- If implement is a slice of a large issue, set slice_title + PARENT in work_summary.\n";
+triage_prompt += "- Prefer open child/slice issues that already list a Parent #N over inventing new ones.\n";
+triage_prompt += "  Multi-phase status lives on the PARENT GitHub issue.\n";
 triage_prompt += "- Large multi-locale TMX is NOT split into Work tonight under agent_safe_only: disposition=skip\n";
 triage_prompt += "  (humans/other sessions file one-locale slices if desired). Do not invent residual micro-TMX\n";
 triage_prompt += "  spam just to pad the queue.\n\n";
-triage_prompt += "Use tools (gh issue view, codebase grep/read) to refine scope before deciding.\n";
+triage_prompt += "OVERSIZED PRIORITY WORK → CREATE 3 SLICES INTO THE SELECTION POOL (HARD):\n";
+triage_prompt += "When a p1–p6/Unset issue is too big for one PR but is eligible (agent-safe, not hard-skip,\n";
+triage_prompt += "not In Progress, not assigned when unassigned_only, not fully covered by an open PR):\n";
+triage_prompt += "  1) Do NOT skip it merely because it is large. Do NOT leave priority slots for p8 instead.\n";
+triage_prompt += "  2) Prefer EXISTING open unassigned children/slices of that parent first (re-check gh).\n";
+triage_prompt += "     Queue those as disposition=implement (copy parent pN).\n";
+triage_prompt += "  3) If no suitable open children: define EXACTLY 3 PR-sized slices (not 2, not 10, not micro).\n";
+triage_prompt += "     Each slice: independently shippable, tests, ideally 1–3 modules, clear acceptance.\n";
+triage_prompt += "  4) dry_run=false: CREATE the 3 child issues NOW with gh issue create --repo " + repo + ":\n";
+triage_prompt += "       title: issue <parent> slice N: <short>\n";
+triage_prompt += "       body: Parent: #<parent>, slice goal, out of scope, acceptance criteria\n";
+triage_prompt += "       labels: operator:grok, operator:night-issue-prs, model:grok-4.5 + parent pN\n";
+triage_prompt += "       leave unassigned; do NOT add In Progress\n";
+triage_prompt += "     Upsert parent ## Agent progress (night-issue-prs) rows for the three slices;\n";
+triage_prompt += "     comment once on parent with child numbers.\n";
+triage_prompt += "  5) ADD the three new (or existing) slice issue numbers to the selection pool as\n";
+triage_prompt += "     disposition=implement queue items (real issue_number values). Do not queue the\n";
+triage_prompt += "     oversized parent as implement.\n";
+triage_prompt += "  6) Expand oversized parents in pN order (p1 first) until priority_slots / max_issues\n";
+triage_prompt += "     is filled or no more eligible oversized parents remain. If three slices would\n";
+triage_prompt += "     exceed remaining slots, still create all 3 children (backlog for later) but only\n";
+triage_prompt += "     QUEUE up to remaining max_issues slots (highest-value / first slices first).\n";
+triage_prompt += "  7) dry_run=true: do NOT create issues; put disposition=split on the parent with\n";
+triage_prompt += "     split_plan listing exactly 3 slice titles + work_summary; do not invent child numbers.\n";
+triage_prompt += "  8) Truly blocked (waiting on unmerged dependency with no parallel slice possible):\n";
+triage_prompt += "     disposition=skip and say why — then continue to next priority item, not to p8,\n";
+triage_prompt += "     while other higher work remains.\n\n";
+triage_prompt += "Use tools (gh issue view/create, codebase grep/read) to refine scope before deciding.\n";
 triage_prompt += "Re-check pN labels on candidates if inventory looks incomplete.\n";
-triage_prompt += "Do not invent issue numbers not in the inventory.\n";
-triage_prompt += "Emit queue IN FINAL WORK ORDER: priority-pool first (p1→…→p6/Unset), then p7/p8 quota.\n";
+triage_prompt += "Queue implement items must use real open issue numbers (inventory or children you created).\n";
+triage_prompt += "Emit queue IN FINAL WORK ORDER: priority-pool first (p1→…→p6/Unset slices/items),\n";
+triage_prompt += "then p7/p8 only if priority-first rules allow low_slots.\n";
 triage_prompt += "Set each queue item's priority string to the resolved label: p1|p2|p3|p4|p5|p6|p7|p8|Unset.\n";
-triage_prompt += "In notes: count selected by pN tier and whether low (p7/p8) quota was filled or backfilled.\n";
+triage_prompt += "In notes: count selected by pN tier; list parents expanded into 3 slices; state whether\n";
+triage_prompt += "low (p7/p8) quota was used (must be zero while higher eligible work remained).\n";
 triage_prompt += "work_summary must be a concrete agent instruction for the implementer (or splitter).\n";
 triage_prompt += "If the issue is a slice, include PARENT # and 'update parent Agent progress section' in work_summary.\n";
 
@@ -1186,29 +1229,29 @@ for item in queue {
         work_prompt += "a short clarification helps humans; prefer no comment if nothing useful.\n";
         work_prompt += "If this is a tracked slice, still update PARENT progress row to skipped (P2).\n";
     } else if disp == "split" {
-        work_prompt += "ACTION: disposition is split (multi-phase plan on the PARENT issue).\n";
+        work_prompt += "ACTION: disposition is split (fallback — triage should usually create 3 slices and\n";
+        work_prompt += "queue them as implement). PARENT is the oversized tracker.\n";
         if dry_run {
-            work_prompt += "dry_run=true: write the split plan + residual follow-up titles in summary;\n";
+            work_prompt += "dry_run=true: write EXACTLY 3 PR-sized slice titles + acceptance in summary;\n";
             work_prompt += "do NOT create issues or edit issue bodies. status=dry_run\n";
         } else {
-            work_prompt += "1) PARENT = #" + inum.to_string() + " (this issue is the epic tracker).\n";
-            work_prompt += "2) Create child issues with gh issue create --repo " + repo + " for each slice\n";
-            work_prompt += "   (title like issue " + inum.to_string() + " slice N: <short>), body:\n";
-            work_prompt += "   Parent: #" + inum.to_string() + ", slice goal, out of scope, acceptance.\n";
+            work_prompt += "1) PARENT = #" + inum.to_string() + " (this issue is the epic/oversized tracker).\n";
+            work_prompt += "2) Prefer EXISTING open unassigned children first (gh search Parent #"
+                + inum.to_string() + ").\n";
+            work_prompt += "3) If fewer than 3 open PR-sized children: CREATE children until there are\n";
+            work_prompt += "   EXACTLY 3 PR-sized slices total for tonight's plan (not micro-tasks).\n";
+            work_prompt += "   gh issue create --repo " + repo + " title like issue " + inum.to_string()
+                + " slice N: <short>\n";
+            work_prompt += "   body: Parent: #" + inum.to_string() + ", slice goal, out of scope, acceptance.\n";
             work_prompt += "   Labels: operator:grok, operator:night-issue-prs, model:grok-4.5 (create if missing).\n";
             work_prompt += "   Copy this issue's pN priority label onto children when present.\n";
             work_prompt += "   Leave children unassigned. Do not label children In Progress. Record URLs in child_issue_urls.\n";
-            work_prompt += "3) Upsert PARENT body section ## Agent progress (night-issue-prs) with the full\n";
-            work_prompt += "   slice table (all children open, PRs empty). Do NOT put the plan only in a\n";
-            work_prompt += "   markdown file under docs/.\n";
-            work_prompt += "4) Comment on PARENT summarizing the split + child issue numbers.\n";
-            work_prompt += "5) Do NOT implement code in this step unless the FIRST slice is tiny AND you\n";
-            work_prompt += "   can finish gates tonight; default is split-only.\n";
-            work_prompt += "6) If you ship a first-slice PR, update that row to pr_opened + PR link on PARENT,\n";
-            work_prompt += "   and file residual issues for remaining slices if not already children.\n";
-            work_prompt += "7) PARENT must not remain open without open children: after filing children, leave\n";
-            work_prompt += "   PARENT open; if you somehow created zero children and have no more steps, CLOSE\n";
-            work_prompt += "   PARENT only after re-checking lifecycle (should not happen on a true split).\n";
+            work_prompt += "4) Upsert PARENT body section ## Agent progress (night-issue-prs) with the slice table.\n";
+            work_prompt += "5) Comment on PARENT summarizing the 3 slices + child issue numbers.\n";
+            work_prompt += "6) PREFER implement the FIRST slice in this same agent turn when gates fit tonight\n";
+            work_prompt += "   (status=pr_opened); otherwise status=split_only so a later night queues the\n";
+            work_prompt += "   unassigned children. Never abandon after zero children.\n";
+            work_prompt += "7) PARENT stays open while children are open. Do not promote unrelated p8 work here.\n";
             work_prompt += "status=split_only (or pr_opened if you also shipped the first slice).\n";
         }
     } else {
