@@ -77,6 +77,14 @@ describe("TopNav (#2702)", () => {
     expect(screen.getByTestId("nav-admin").textContent).toMatch(/Admin/i);
   });
 
+  it("lands consolidated Admin on Admin tools shell path (#2784)", () => {
+    renderNav();
+    const admin = screen.getByTestId("nav-admin");
+    // React Router NavLink href is basename-relative under MemoryRouter
+    const href = admin.getAttribute("href") || "";
+    expect(href === "/admin" || href.endsWith("/admin")).toBe(true);
+  });
+
   it("hides Admin for non-admin", () => {
     bootstrapState.isAdmin = false;
     bootstrapState.isDesigner = false;
@@ -86,13 +94,13 @@ describe("TopNav (#2702)", () => {
     expect(screen.getByTestId("nav-explorer")).toBeTruthy();
   });
 
-  it("marks Admin active on workflow and admin-tools routes", () => {
-    const { unmount } = renderNav("/cm/app/workflow/roles");
+  it("marks Admin active on admin-tools and workflow routes", () => {
+    const { unmount } = renderNav("/cm/app/admin/tools");
     expect(screen.getByTestId("nav-admin").getAttribute("data-nav-active")).toBe(
       "true",
     );
     unmount();
-    renderNav("/cm/app/admin/tools");
+    renderNav("/cm/app/workflow/roles");
     expect(screen.getByTestId("nav-admin").getAttribute("data-nav-active")).toBe(
       "true",
     );

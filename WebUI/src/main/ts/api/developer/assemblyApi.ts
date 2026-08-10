@@ -67,12 +67,18 @@ export async function getTemplateDetail(
   return get<TemplateDetail>(`${PATHS.TEMPLATES}/${key}`);
 }
 
-/** PUT /services/templates/{idOrName} — label, description, source, optional bindings/slots */
+/**
+ * PUT /services/templates/{idOrName} — label, description, source, optional bindings/slots.
+ * Omitted fields are left unchanged server-side; {@code bindings}/{@code slots} when present
+ * fully replace the collection (including empty list).
+ */
 export async function updateTemplateDetail(
   idOrName: string,
-  body: Pick<
-    TemplateDetail,
-    "label" | "description" | "templateSource" | "bindings" | "slots"
+  body: Partial<
+    Pick<
+      TemplateDetail,
+      "label" | "description" | "templateSource" | "assembler" | "bindings" | "slots"
+    >
   >,
 ): Promise<TemplateDetail> {
   const key = encodeURIComponent(idOrName);
@@ -94,7 +100,7 @@ export async function getSlotDetail(idOrName: string): Promise<SlotDetail> {
 /** PUT /services/slots/{idOrName} — label, description, optional associations replace */
 export async function updateSlotDetail(
   idOrName: string,
-  body: Pick<SlotDetail, "label" | "description" | "associations">,
+  body: Partial<Pick<SlotDetail, "label" | "description" | "associations" | "slotLayout" | "slotStyles">>,
 ): Promise<SlotDetail> {
   const key = encodeURIComponent(idOrName);
   return put<SlotDetail>(`${PATHS.SLOTS}/${key}`, body);

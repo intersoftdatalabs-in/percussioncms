@@ -207,6 +207,10 @@ export const MSG = {
   NAV_DASHBOARD: "perc.ui.navMenu.dashboard@Dashboard",
   NAV_EDITOR: "perc.ui.navMenu.webmgt@Editor",
   NAV_ARCHITECTURE: "perc.ui.navMenu.architecture@Architecture",
+  /** Design SPA top-nav (#2808) — classic key already en-us "Design". */
+  NAV_DESIGN: "perc.ui.navMenu.design@Design",
+  NAV_DESIGN_TITLE:
+    "perc.ui.design.modern@Template library and design tools",
   NAV_DEVELOPER: "perc.ui.dashboard.modern@Developer",
   NAV_PUBLISH: "perc.ui.navMenu.publish@Publish",
   /**

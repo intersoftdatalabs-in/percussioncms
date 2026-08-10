@@ -22,7 +22,11 @@ import { i18nKeyAttr } from "../../i18n/i18nDom";
 import { message, MSG } from "../../i18n/message";
 import { UserMenu } from "./UserMenu";
 import styles from "./AppLayout.module.css";
-import { isAdminNavPath, topNavItemIds } from "./topNavConfig";
+import {
+  ADMIN_NAV_LANDING,
+  isAdminNavPath,
+  topNavItemIds,
+} from "./topNavConfig";
 
 /**
  * Product top navigation for the SPA shell.
@@ -107,6 +111,20 @@ export function TopNav(): React.ReactElement {
                   </a>
                 </li>
               );
+            case "design":
+              return (
+                <li key={id}>
+                  <NavLink
+                    to="/design"
+                    className={linkClass}
+                    data-testid="nav-design"
+                    title={message(MSG.NAV_DESIGN_TITLE)}
+                    {...i18nKeyAttr(MSG.NAV_DESIGN)}
+                  >
+                    {message(MSG.NAV_DESIGN)}
+                  </NavLink>
+                </li>
+              );
             case "developer":
               return (
                 <li key={id}>
@@ -135,19 +153,19 @@ export function TopNav(): React.ReactElement {
                 </li>
               );
             case "admin":
-              // Consolidated Administration + Admin tools entry (#2702).
-              // Landing: workflow admin hub; /admin remains deep-linked.
+              // Consolidated Administration + Admin tools entry (#2702 / #2784).
+              // Landing: working Admin tools shell; /workflow remains deep-linked.
               return (
                 <li key={id}>
                   <NavLink
-                    to="/workflow"
+                    to={ADMIN_NAV_LANDING}
                     className={() =>
                       adminActive
                         ? `${styles.navLink} ${styles.navLinkActive}`
                         : styles.navLink
                     }
                     data-testid="nav-admin"
-                    // NavLink only marks active for /workflow*; force for /admin* too
+                    // NavLink only marks active for /admin*; force for /workflow* too
                     data-nav-active={adminActive ? "true" : "false"}
                     aria-current={adminActive ? "page" : undefined}
                     {...i18nKeyAttr(MSG.NAV_ADMIN)}
