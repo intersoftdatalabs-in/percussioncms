@@ -277,9 +277,9 @@ public class PSImportCtx {
     if (pkg == null) throw new IllegalArgumentException("pkg may not be null");
 
     String depKey = dep.getKey();
-    Set pkgSet = (Set) m_installedPkgDeps.get(depKey);
+    Set<String> pkgSet = m_installedPkgDeps.get(depKey);
     if (pkgSet == null) {
-      pkgSet = new HashSet();
+      pkgSet = new HashSet<>();
       m_installedPkgDeps.put(depKey, pkgSet);
     }
     if (!pkgSet.add(pkg.getKey()))
@@ -314,7 +314,7 @@ public class PSImportCtx {
 
     boolean installed = false;
 
-    Set pkgSet = (Set) m_installedPkgDeps.get(dep.getKey());
+    Set<String> pkgSet = m_installedPkgDeps.get(dep.getKey());
     if (pkgSet != null) installed = pkgSet.contains(pkg.getKey());
 
     return installed;

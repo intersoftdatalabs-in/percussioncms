@@ -419,11 +419,9 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
     // get all registered content types
     List<PSDependency> deps = new ArrayList<>();
 
-    for (com.percussion.util.PSEntrySet entry :
+    for (com.percussion.util.PSEntrySet<String, String> entry :
         PSDbmsHelper.getInstance().getRegistrationEntries(table, idCol, nameCol, null)) {
-
-      Map.Entry<String, String> stringStringEntry = (Map.Entry<String, String>) entry;
-      deps.add(createDependency(m_def, stringStringEntry));
+      deps.add(createDependency(m_def, entry));
     }
 
     return deps.iterator();
@@ -454,12 +452,10 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
       throw new IllegalArgumentException("nameCol may not be null or empty");
 
     // get all registered content types
-    List deps = new ArrayList();
+    List<PSDependency> deps = new ArrayList<>();
 
-    Iterator regEntries =
-        PSDbmsHelper.getInstance().getRegistrationEntries(table, idCol, nameCol, filter).iterator();
-    while (regEntries.hasNext()) {
-      Map.Entry entry = (Map.Entry) regEntries.next();
+    for (com.percussion.util.PSEntrySet<String, String> entry :
+        PSDbmsHelper.getInstance().getRegistrationEntries(table, idCol, nameCol, filter)) {
       deps.add(createDependency(m_def, entry));
     }
 
@@ -530,12 +526,12 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
       filter = filters;
     }
 
-    List results = PSDbmsHelper.getInstance().getRegistrationEntries(table, idCol, nameCol, filter);
+    List<com.percussion.util.PSEntrySet<String, String>> results =
+        PSDbmsHelper.getInstance().getRegistrationEntries(table, idCol, nameCol, filter);
 
     // should only get back one, take the first if found
     if (!results.isEmpty()) {
-      Map.Entry entry = (Map.Entry) results.get(0);
-      dep = createDependency(m_def, entry);
+      dep = createDependency(m_def, results.get(0));
     }
 
     return dep;

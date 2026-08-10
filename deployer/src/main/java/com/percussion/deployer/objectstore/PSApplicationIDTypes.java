@@ -207,11 +207,13 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
     PSApplicationIDTypeMapping mapping = null;
-    List idTypeList = getIdTypeMappingsList(resourceName, elementName, false);
-    Iterator mappings = idTypeList.iterator();
-    while (mappings.hasNext() && mapping == null) {
-      PSApplicationIDTypeMapping test = (PSApplicationIDTypeMapping) mappings.next();
-      if (ctx.equals(test.getContext())) mapping = test;
+    List<PSApplicationIDTypeMapping> idTypeList =
+        getIdTypeMappingsList(resourceName, elementName, false);
+    for (PSApplicationIDTypeMapping test : idTypeList) {
+      if (ctx.equals(test.getContext())) {
+        mapping = test;
+        break;
+      }
     }
 
     return mapping;
@@ -223,9 +225,8 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    * @return <code>true</code> if all IDs have been mapped to a type.
    */
   public boolean isComplete() {
-    Iterator resList = m_resourceMap.keySet().iterator();
-    while (resList.hasNext()) {
-      if (!isComplete((String) resList.next())) return false;
+    for (String resName : m_resourceMap.keySet()) {
+      if (!isComplete(resName)) return false;
     }
     return true;
   }
@@ -244,10 +245,10 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
 
     // Get the whole list, but do the check here, so that we don't walk
     // through the whole list, less expensive
-    Iterator elemList = getElementList(resourceName, false);
+    Iterator<String> elemList = getElementList(resourceName, false);
 
     while (elemList.hasNext()) {
-      if (!isComplete(resourceName, (String) elemList.next())) return false;
+      if (!isComplete(resourceName, elemList.next())) return false;
     }
     return true;
   }
@@ -275,7 +276,8 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    *     may not be <code>null</code>.
    * @throws IllegalArgumentException if any parameter is invalid.
    */
-  public void addMappings(String resourceName, String elementName, Iterator mappings) {
+  public void addMappings(
+      String resourceName, String elementName, Iterator<PSApplicationIDTypeMapping> mappings) {
     if (resourceName == null || resourceName.trim().length() == 0)
       throw new IllegalArgumentException("resourceName may not be null or empty");
 
@@ -285,7 +287,7 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
     if (mappings == null) throw new IllegalArgumentException("mappings may not be null");
 
     while (mappings.hasNext()) {
-      addMapping(resourceName, elementName, (PSApplicationIDTypeMapping) mappings.next());
+      addMapping(resourceName, elementName, mappings.next());
     }
   }
 
@@ -308,20 +310,20 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
 
     if (mapping == null) throw new IllegalArgumentException("mapping may not be null");
 
-    Map resElements = (Map) m_resourceMap.get(resourceName);
+    Map<String, List<PSApplicationIDTypeMapping>> resElements = m_resourceMap.get(resourceName);
     if (resElements == null) // add a new resource/element name
     {
-      List idtypeList = new ArrayList();
+      List<PSApplicationIDTypeMapping> idtypeList = new ArrayList<>();
       idtypeList.add(mapping);
-      Map elemMap = new HashMap();
+      Map<String, List<PSApplicationIDTypeMapping>> elemMap = new HashMap<>();
       elemMap.put(elementName, idtypeList);
       m_resourceMap.put(resourceName, elemMap);
     } else // append to existing list
     {
-      List idTypeList = (List) resElements.get(elementName);
+      List<PSApplicationIDTypeMapping> idTypeList = resElements.get(elementName);
       if (idTypeList == null) // add a new element in current resource
       {
-        idTypeList = new ArrayList();
+        idTypeList = new ArrayList<>();
         idTypeList.add(mapping);
         resElements.put(elementName, idTypeList);
       } else // add to existing ID Type mapping list
@@ -347,12 +349,13 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
   public PSApplicationIDTypeMapping removeMapping(
       String resource, String element, PSApplicationIdContext ctx) {
     // NOTE: getIdTypeMappings() will check the parameters
-    List idTypeList = getIdTypeMappingsList(resource, element);
-    Iterator idTypeIterator = idTypeList.iterator();
+    List<PSApplicationIDTypeMapping> idTypeList = getIdTypeMappingsList(resource, element);
 
     PSApplicationIDTypeMapping result = null;
-    while (idTypeIterator.hasNext() && result == null) {
-      PSApplicationIDTypeMapping currIDType = (PSApplicationIDTypeMapping) idTypeIterator.next();
+    for (PSApplicationIDTypeMapping currIDType : new ArrayList<>(idTypeList)) {
+      if (result != null) {
+        break;
+      }
       if (ctx.equals(currIDType.getContext())) {
         idTypeList.remove(currIDType);
         // clear listeners
@@ -362,9 +365,13 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
 
       // clean up map entries
       if (idTypeList.isEmpty()) {
-        Map elementMap = (Map) m_resourceMap.get(resource);
-        if (elementMap != null) elementMap.remove(element);
-        if (elementMap.isEmpty()) m_resourceMap.remove(resource);
+        Map<String, List<PSApplicationIDTypeMapping>> elementMap = m_resourceMap.get(resource);
+        if (elementMap != null) {
+          elementMap.remove(element);
+          if (elementMap.isEmpty()) {
+            m_resourceMap.remove(resource);
+          }
+        }
       }
     }
     return result;
@@ -382,11 +389,9 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    * @throws IllegalArgumentException If any param is invalid.
    */
   public boolean containsMapping(String resource, String element, PSApplicationIdContext ctx) {
-    List idTypeList = getIdTypeMappingsList(resource, element);
-    Iterator idTypeIterator = idTypeList.iterator();
+    List<PSApplicationIDTypeMapping> idTypeList = getIdTypeMappingsList(resource, element);
 
-    while (idTypeIterator.hasNext()) {
-      PSApplicationIDTypeMapping currIDType = (PSApplicationIDTypeMapping) idTypeIterator.next();
+    for (PSApplicationIDTypeMapping currIDType : idTypeList) {
       if (ctx.equals(currIDType.getContext())) return true;
     }
 
@@ -412,7 +417,7 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    *     never <code>null</code>. Supplied map may not be <code>null</code>. Must have at least one
    *     entry.
    */
-  public void setChoiceFilters(Map filters) {
+  public void setChoiceFilters(Map<String, List<String>> filters) {
     if (filters != null && filters.isEmpty())
       throw new IllegalArgumentException("filters may not be empty");
 
@@ -421,20 +426,13 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
     // fixup mappings based on filters if provided
     if (m_choiceFilters == null) return;
 
-    Iterator resources = m_resourceMap.values().iterator();
-    while (resources.hasNext()) {
-      Map elementMap = (Map) resources.next();
-      Iterator elements = elementMap.values().iterator();
-      while (elements.hasNext()) {
-        List mappingList = (List) elements.next();
-        Iterator mappings = mappingList.iterator();
-        while (mappings.hasNext()) {
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
-
+    for (Map<String, List<PSApplicationIDTypeMapping>> elementMap : m_resourceMap.values()) {
+      for (List<PSApplicationIDTypeMapping> mappingList : elementMap.values()) {
+        for (PSApplicationIDTypeMapping mapping : mappingList) {
           // only care if not undefined and set to an actual type
           if (mapping.isComplete() && mapping.isIdType()) {
             String id = mapping.getValue();
-            List types = (List) m_choiceFilters.get(id);
+            List<String> types = m_choiceFilters.get(id);
 
             // if we have a filter and the current type isn't in it, set
             // to undefined
@@ -453,7 +451,7 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    *     that all ids in the filter map are included in the mappings held by this object, or that
    *     all mappings have corresponding ids in the filter map. Never empty.
    */
-  public Map getChoiceFilters() {
+  public Map<String, List<String>> getChoiceFilters() {
     return m_choiceFilters;
   }
 
@@ -518,10 +516,9 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
     Element root = doc.createElement(XML_NODE_NAME);
     root.appendChild(m_dep.toXml(doc));
 
-    Iterator resEntryList = m_resourceMap.entrySet().iterator();
-    while (resEntryList.hasNext()) {
-      Map.Entry resEntry = (Map.Entry) resEntryList.next();
-      Element resXml = toXmlResource((String) resEntry.getKey(), (Map) resEntry.getValue(), doc);
+    for (Map.Entry<String, Map<String, List<PSApplicationIDTypeMapping>>> resEntry :
+        m_resourceMap.entrySet()) {
+      Element resXml = toXmlResource(resEntry.getKey(), resEntry.getValue(), doc);
 
       root.appendChild(resXml);
     }
@@ -566,7 +563,7 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
     while (resEl != null) {
       String resName = PSDeployComponentUtils.getRequiredAttribute(resEl, XML_ATTR_RESOURCE_NAME);
 
-      Map elemMap = getMappingElementsFromXml(tree);
+      Map<String, List<PSApplicationIDTypeMapping>> elemMap = getMappingElementsFromXml(tree);
       m_resourceMap.put(resName, elemMap);
 
       tree.setCurrent(resEl); // get back to previous position
@@ -583,7 +580,9 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
 
   // see IPSDeployComponent interface
   public int hashCode() {
-    return m_dep.hashCode() + m_resourceMap.hashCode() + m_choiceFilters.hashCode();
+    return m_dep.hashCode()
+        + m_resourceMap.hashCode()
+        + (m_choiceFilters == null ? 0 : m_choiceFilters.hashCode());
   }
 
   // see IPSDeployComponent interface
@@ -619,8 +618,12 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
     m_dep = objSrc.m_dep;
     m_resourceMap.clear();
     m_resourceMap.putAll(objSrc.m_resourceMap);
-    m_choiceFilters.clear();
-    m_choiceFilters.putAll(objSrc.m_choiceFilters);
+    if (objSrc.m_choiceFilters == null) {
+      m_choiceFilters = null;
+    } else {
+      m_choiceFilters = new HashMap<>();
+      m_choiceFilters.putAll(objSrc.m_choiceFilters);
+    }
   }
 
   /**
@@ -637,15 +640,13 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    * @param doc The Document for creating XML Element. Assumed not <code>null</code>.
    * @return the newly created XML Element
    */
-  private Element toXmlResource(String resName, Map resElement, Document doc) {
+  private Element toXmlResource(
+      String resName, Map<String, List<PSApplicationIDTypeMapping>> resElement, Document doc) {
     Element root = doc.createElement(XML_NODE_MAPPING_RESOURCE);
     root.setAttribute(XML_ATTR_RESOURCE_NAME, resName);
 
-    Iterator elemEntryList = resElement.entrySet().iterator();
-    while (elemEntryList.hasNext()) {
-      Map.Entry elemEntry = (Map.Entry) elemEntryList.next();
-      Element elemXml =
-          toXmlMappingElement((String) elemEntry.getKey(), (List) elemEntry.getValue(), doc);
+    for (Map.Entry<String, List<PSApplicationIDTypeMapping>> elemEntry : resElement.entrySet()) {
+      Element elemXml = toXmlMappingElement(elemEntry.getKey(), elemEntry.getValue(), doc);
 
       root.appendChild(elemXml);
     }
@@ -666,14 +667,12 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    * @param doc The Document for creating XML Element. Assumed not <code>null</code>.
    * @return the newly created XML Element, never <code>null</code>
    */
-  private Element toXmlMappingElement(String elementName, List mappingList, Document doc) {
+  private Element toXmlMappingElement(
+      String elementName, List<PSApplicationIDTypeMapping> mappingList, Document doc) {
     Element root = doc.createElement(XML_NODE_MAPPING_ELEMENT);
     root.setAttribute(XML_ATTR_ELEMENT_NAME, elementName);
 
-    Iterator idtypeList = mappingList.iterator();
-    while (idtypeList.hasNext()) {
-      PSApplicationIDTypeMapping idtype = (PSApplicationIDTypeMapping) idtypeList.next();
-
+    for (PSApplicationIDTypeMapping idtype : mappingList) {
       root.appendChild(idtype.toXml(doc));
     }
     return root;
@@ -688,20 +687,16 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    * @param doc The document to use, assumed not <code>null</code>.
    * @return The element, never <code>null</code>.
    */
-  private Element toXmlFilters(Map filterMap, Document doc) {
+  private Element toXmlFilters(Map<String, List<String>> filterMap, Document doc) {
     Element root = doc.createElement(XML_NODE_CHOICE_FILTERS);
 
-    Iterator filters = filterMap.entrySet().iterator();
-    while (filters.hasNext()) {
-      Map.Entry filterEntry = (Map.Entry) filters.next();
+    for (Map.Entry<String, List<String>> filterEntry : filterMap.entrySet()) {
       Element filter = PSXmlDocumentBuilder.addEmptyElement(doc, root, XML_NODE_FILTER);
-      filter.setAttribute(XML_ATTR_FILTER_ID, filterEntry.getKey().toString());
-      Object typeVal = filterEntry.getValue();
-      if (typeVal instanceof List) {
-        Iterator types = ((List) typeVal).iterator();
-        while (types.hasNext()) {
-          filter.appendChild(
-              PSXmlDocumentBuilder.addElement(doc, filter, XML_NODE_TYPE, types.next().toString()));
+      filter.setAttribute(XML_ATTR_FILTER_ID, filterEntry.getKey());
+      List<String> typeVal = filterEntry.getValue();
+      if (typeVal != null) {
+        for (String type : typeVal) {
+          filter.appendChild(PSXmlDocumentBuilder.addElement(doc, filter, XML_NODE_TYPE, type));
         }
       }
     }
@@ -716,7 +711,8 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    * @return A list of element in a <code>Map</code>. It will not be <code>null</code>
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
-  private Map getMappingElementsFromXml(PSXmlTreeWalker tree) throws PSUnknownNodeTypeException {
+  private Map<String, List<PSApplicationIDTypeMapping>> getMappingElementsFromXml(
+      PSXmlTreeWalker tree) throws PSUnknownNodeTypeException {
     // walk the element in current resource
     Element elemEl = tree.getNextElement(XML_NODE_MAPPING_ELEMENT, FIRST_FLAGS);
     // need to have at least one
@@ -724,11 +720,11 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
       throw new PSUnknownNodeTypeException(
           IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_MAPPING_ELEMENT);
     }
-    Map elemMap = new HashMap();
+    Map<String, List<PSApplicationIDTypeMapping>> elemMap = new HashMap<>();
 
     while (elemEl != null) {
       String elemName = PSDeployComponentUtils.getRequiredAttribute(elemEl, XML_ATTR_ELEMENT_NAME);
-      List idTypeList = getMappingListFromXml(tree);
+      List<PSApplicationIDTypeMapping> idTypeList = getMappingListFromXml(tree);
       elemMap.put(elemName, idTypeList);
       tree.setCurrent(elemEl);
       elemEl = tree.getNextElement(XML_NODE_MAPPING_ELEMENT, NEXT_FLAGS);
@@ -744,7 +740,8 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    *     never be <code>null</code> or empty.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
-  private List getMappingListFromXml(PSXmlTreeWalker tree) throws PSUnknownNodeTypeException {
+  private List<PSApplicationIDTypeMapping> getMappingListFromXml(PSXmlTreeWalker tree)
+      throws PSUnknownNodeTypeException {
     // walk the mapping list in current element
     Element mappingEl = tree.getNextElement(PSApplicationIDTypeMapping.XML_NODE_NAME, FIRST_FLAGS);
     // need to have at least one
@@ -752,7 +749,7 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
       throw new PSUnknownNodeTypeException(
           IPSObjectStoreErrors.XML_ELEMENT_NULL, PSApplicationIDTypeMapping.XML_NODE_NAME);
     }
-    List mappingList = new ArrayList();
+    List<PSApplicationIDTypeMapping> mappingList = new ArrayList<>();
 
     while (mappingEl != null) {
       // need to set change listeners
@@ -773,8 +770,9 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    * @return The map, never <code>null</code> or empty.
    * @throws PSUnknownNodeTypeException if there xml format is invalid.
    */
-  private Map getFiltersFromXml(PSXmlTreeWalker tree) throws PSUnknownNodeTypeException {
-    Map filterMap = new HashMap();
+  private Map<String, List<String>> getFiltersFromXml(PSXmlTreeWalker tree)
+      throws PSUnknownNodeTypeException {
+    Map<String, List<String>> filterMap = new HashMap<>();
 
     // must have at least one filter
     Element filterEl = tree.getNextElement(XML_NODE_FILTER, FIRST_FLAGS);
@@ -783,7 +781,7 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
     }
 
     while (filterEl != null) {
-      List typeList = new ArrayList();
+      List<String> typeList = new ArrayList<>();
 
       String id = PSXMLDomUtil.checkAttribute(filterEl, XML_ATTR_FILTER_ID, true);
 
@@ -858,11 +856,8 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    * @return <code>true</code> if one of the object (<code>PSApplicationIDTypeMapping</code>) does
    *     not have a type; otherwise <code>false</code>.
    */
-  private boolean hasInCompleteIdTypes(List idTypeList) {
-    Iterator itIDTypes = idTypeList.iterator();
-
-    while (itIDTypes.hasNext()) {
-      PSApplicationIDTypeMapping idType = (PSApplicationIDTypeMapping) itIDTypes.next();
+  private boolean hasInCompleteIdTypes(List<PSApplicationIDTypeMapping> idTypeList) {
+    for (PSApplicationIDTypeMapping idType : idTypeList) {
       if (!idType.hasDefinedType()) return true;
     }
     return false;
@@ -877,10 +872,9 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    *     not <code>null</code>.
    * @param idTypeList The list of mappings to use, assumed not <code>null</code>.
    */
-  private void setContextListeners(PSApplicationIDTypeMapping mapping, List idTypeList) {
-    Iterator types = idTypeList.iterator();
-    while (types.hasNext()) {
-      PSApplicationIDTypeMapping otherMapping = (PSApplicationIDTypeMapping) types.next();
+  private void setContextListeners(
+      PSApplicationIDTypeMapping mapping, List<PSApplicationIDTypeMapping> idTypeList) {
+    for (PSApplicationIDTypeMapping otherMapping : idTypeList) {
       mapping.getContext().setListeners(otherMapping.getContext());
     }
   }
@@ -894,10 +888,9 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    *     assumed not <code>null</code>.
    * @param idTypeList The list of mappings to use, assumed not <code>null</code>.
    */
-  private void clearContextListeners(PSApplicationIDTypeMapping mapping, List idTypeList) {
-    Iterator types = idTypeList.iterator();
-    while (types.hasNext()) {
-      PSApplicationIDTypeMapping otherMapping = (PSApplicationIDTypeMapping) types.next();
+  private void clearContextListeners(
+      PSApplicationIDTypeMapping mapping, List<PSApplicationIDTypeMapping> idTypeList) {
+    for (PSApplicationIDTypeMapping otherMapping : idTypeList) {
       mapping.getContext().clearListeners(otherMapping.getContext());
     }
   }
@@ -941,9 +934,9 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
 
   /**
    * Map of possible type choices for literal ids found in this map. Initially <code>null</code>,
-   * set by calls to {@link #setChoiceFilters(Object)}.
+   * set by calls to {@link #setChoiceFilters(Map)}.
    */
-  private Map m_choiceFilters = null;
+  private Map<String, List<String>> m_choiceFilters = null;
 
   /** flags to walk to a child node of a XML tree */
   private static final int FIRST_FLAGS =

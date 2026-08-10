@@ -117,7 +117,7 @@ public class PSDbmsHelper {
    * @throws IllegalArgumentException If any param is invalid.
    * @throws PSDeployException if any errors occur.
    */
-  public List<PSEntrySet> getRegistrationEntries(
+  public List<PSEntrySet<String, String>> getRegistrationEntries(
       String table, String idCol, String nameCol, PSJdbcSelectFilter filter)
       throws PSDeployException {
     if (table == null || table.isBlank()) {
@@ -130,7 +130,7 @@ public class PSDbmsHelper {
       throw new IllegalArgumentException("nameCol may not be null or empty");
     }
 
-    var result = new ArrayList<PSEntrySet>();
+    var result = new ArrayList<PSEntrySet<String, String>>();
     var data = catalogTableData(table, new String[] {idCol, nameCol}, filter);
 
     if (data != null) {
@@ -151,7 +151,7 @@ public class PSDbmsHelper {
               new Object[] {table, nameCol, name.getValue()});
         }
 
-        result.add(new PSEntrySet(id.getValue(), name.getValue()));
+        result.add(new PSEntrySet<>(id.getValue(), name.getValue()));
       }
     }
 
@@ -681,7 +681,7 @@ public class PSDbmsHelper {
    * @throws IllegalArgumentException if a parameter is invalid.
    * @throws PSDeployException if an error occurs.
    */
-  public void setUpdateKeyForSchema(Iterator columns, PSJdbcTableSchema schema)
+  public void setUpdateKeyForSchema(Iterator<String> columns, PSJdbcTableSchema schema)
       throws PSDeployException {
     if (columns == null || !columns.hasNext())
       throw new IllegalArgumentException("columns may not be null or empty");
@@ -729,7 +729,7 @@ public class PSDbmsHelper {
    * @return Generated IN filter, will never be <code>null</code> or empty.
    * @throws IllegalArgumentException if any parameter is invalid
    */
-  public PSJdbcSelectFilter getFilterInFromIds(Iterator ids, String idCol) {
+  public PSJdbcSelectFilter getFilterInFromIds(Iterator<String> ids, String idCol) {
     if (ids == null || !ids.hasNext())
       throw new IllegalArgumentException("ids may not be null or empty");
     if (idCol == null || idCol.trim().length() == 0)
@@ -738,7 +738,7 @@ public class PSDbmsHelper {
     StringBuilder sIds = new StringBuilder(0);
 
     while (ids.hasNext()) {
-      String id = (String) ids.next();
+      String id = ids.next();
       if (sIds.length() == 0) sIds.append("(").append(id);
       else sIds.append(",").append(id);
     }
@@ -997,9 +997,9 @@ public class PSDbmsHelper {
       try {
         PSJdbcTableSchemaCollection schemaColl =
             new PSJdbcTableSchemaCollection(schemaDoc, getDataTypeMap());
-        Iterator schemas = schemaColl.iterator();
+        Iterator<PSJdbcTableSchema> schemas = schemaColl.iterator();
         while (schemas.hasNext()) {
-          PSJdbcTableSchema schema = (PSJdbcTableSchema) schemas.next();
+          PSJdbcTableSchema schema = schemas.next();
           m_systemTables.add(schema.getName());
         }
       } catch (PSJdbcTableFactoryException e) {
@@ -1017,10 +1017,10 @@ public class PSDbmsHelper {
     if (m_tableTypes == null) {
       m_tableTypes = new HashMap<>();
       ResourceBundle bundle = getBundle();
-      Enumeration tables = bundle.getKeys();
+      Enumeration<String> tables = bundle.getKeys();
       try {
         while (tables.hasMoreElements()) {
-          String key = (String) tables.nextElement();
+          String key = tables.nextElement();
           m_tableTypes.put(key, Integer.valueOf(bundle.getString(key)));
         }
       } catch (NumberFormatException e) {
