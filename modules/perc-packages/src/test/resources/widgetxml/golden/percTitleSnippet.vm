@@ -1,0 +1,13 @@
+<div>
+#loadRelatedWidgetContents()##
+#if( ! $perc.widgetContents.isEmpty() )##
+#set($node = $perc.widgetContents.get(0).node)##
+#end##
+#if(! $sys.assemblyItem.getNode().hasProperty("resource_link_title"))##
+#createEmptyWidgetContent("title-sample-content", "This title widget is showing sample content.")##
+#elseif ($assets.isEmpty())##
+<$!{wrapper}$!{classAttribute}>$tools.esc.html($!{perc.page.linkTitle})</$!{wrapper}>
+#else##
+<$!{wrapper}$!{classAttribute}>$rx.pageutils.html($node,'rx:text')</$!{wrapper}>
+#end##
+</div>

@@ -36,11 +36,13 @@ import java.util.regex.Pattern;
 
 /**
  * Compiles legacy Widget definition XML into a modern {@link PSComponentPackageManifest} plus
- * template source artifacts (Phase 3 / ADR-004 / issue #2751).
+ * template source artifacts (Phase 3 / ADR-004 / issues #2751, #2772).
  *
- * <p><strong>Scope:</strong> simple / baseWidgets-shaped widgets (JEXL code + Velocity content +
- * optional asset content type + UserPref/CssPref). High-traffic packages (nav, blog, lists) remain
- * residual work; see {@code docs/ai-generated/tasks/template-assembler-normalization/widget-xml-inventory.md}.
+ * <p><strong>Scope:</strong> baseWidgets-shaped widgets plus high-traffic product packages (title,
+ * lists, nav chrome, file, image): JEXL code + Velocity content + optional asset content type +
+ * UserPref/CssPref + {@code <Resource>} CSS/JS refs. Remaining residual packages (blog, calendar,
+ * directory, social, forms, auto-lists, …) are tracked in {@code
+ * docs/ai-generated/tasks/template-assembler-normalization/widget-xml-inventory.md}.
  *
  * <p>Assembler mapping: {@code Content type="velocity"} → {@code velocityAssembler}; {@code html}
  * → {@code htmlAssembler}; {@code markdown} → {@code markdownAssembler}. Code language is always
@@ -153,27 +155,34 @@ public final class PSWidgetXmlCompiler {
     templates.add(template);
     manifest.setTemplates(templates);
 
-    // Default slot for the asset content type (simple widgets).
+    // Default slot: asset content type when present; chrome/logic widgets (nav) still get a styles
+    // slot when CssPref is declared so ADR-003 layout/styles has a home without inventing a CT.
+    Map<String, Object> styles = cssPrefStyles(model);
+    Map<String, Object> layout = layoutFromUserPrefs(model);
     if (ctName != null && !ctName.isBlank()) {
       PSComponentPackageManifest.SlotRef slot = new PSComponentPackageManifest.SlotRef();
       slot.setName(stem + "Content");
       List<String> allowed = new ArrayList<>();
       allowed.add(ctName);
       slot.setAllowedContentTypes(allowed);
-      // CssPrefs that look like class names land in slot styles (ADR-003 direction).
-      Map<String, Object> styles = new LinkedHashMap<>();
-      for (PSWidgetXmlModel.CssPref css : model.getCssPrefs()) {
-        if (css != null && css.getName() != null && !css.getName().isBlank()) {
-          styles.put(css.getName(), css.getDefaultValue() != null ? css.getDefaultValue() : "");
-        }
-      }
       slot.setStyles(styles);
+      slot.setLayout(layout);
+      List<PSComponentPackageManifest.SlotRef> slots = new ArrayList<>();
+      slots.add(slot);
+      manifest.setSlots(slots);
+    } else if (!styles.isEmpty() || !layout.isEmpty()) {
+      PSComponentPackageManifest.SlotRef slot = new PSComponentPackageManifest.SlotRef();
+      slot.setName(stem + "Chrome");
+      slot.setAllowedContentTypes(new ArrayList<>());
+      slot.setStyles(styles);
+      slot.setLayout(layout);
       List<PSComponentPackageManifest.SlotRef> slots = new ArrayList<>();
       slots.add(slot);
       manifest.setSlots(slots);
     }
 
-    // Resources: thumbnail as installable image when present.
+    // Resources: thumbnail + <Resource href=…> (CSS/JS) declared on high-traffic widgets.
+    List<PSComponentPackageManifest.ResourceRef> resources = new ArrayList<>();
     if (packageRelativeThumbnail != null) {
       PSComponentPackageManifest.ResourceRef res = new PSComponentPackageManifest.ResourceRef();
       // Package-local staging path for the resource (URL-style separators).
@@ -181,13 +190,36 @@ public final class PSWidgetXmlCompiler {
       res.setPath(localPath);
       res.setTarget(packageRelativeThumbnail);
       res.setType(guessResourceType(packageRelativeThumbnail));
-      List<PSComponentPackageManifest.ResourceRef> resources = new ArrayList<>();
       resources.add(res);
-      manifest.setResources(resources);
       // Point catalog at the package-local staging path (validator prefers relative refs).
       catalog.setThumbnail(localPath);
       catalog.setIcon(localPath);
     }
+    for (PSWidgetXmlModel.Resource declared : model.getResources()) {
+      if (declared == null) {
+        continue;
+      }
+      String packageRelative = toPackageRelativePath(declared.getHref());
+      if (packageRelative == null) {
+        continue;
+      }
+      PSComponentPackageManifest.ResourceRef res = new PSComponentPackageManifest.ResourceRef();
+      final String candidatePath = "resources/" + fileNameOf(packageRelative);
+      // Avoid duplicate path keys when thumbnail and Resource share a file name (rare).
+      final String localPath =
+          resources.stream().anyMatch(r -> candidatePath.equals(r.getPath()))
+              ? "resources/" + packageRelative.replace('/', '_')
+              : candidatePath;
+      res.setPath(localPath);
+      res.setTarget(packageRelative);
+      String type =
+          declared.getType() != null && !declared.getType().isBlank()
+              ? declared.getType().trim().toLowerCase(Locale.ROOT)
+              : guessResourceType(packageRelative);
+      res.setType(type);
+      resources.add(res);
+    }
+    manifest.setResources(resources);
 
     // Transitional UserPref / CssPref mirrors.
     List<PSComponentPackageManifest.UserPreference> userPrefs = new ArrayList<>();
@@ -353,6 +385,35 @@ public final class PSWidgetXmlCompiler {
     full.setExpression(normalized);
     bindings.add(full);
     return bindings;
+  }
+
+  /** CssPrefs that look like class names land in slot styles (ADR-003 direction). */
+  static Map<String, Object> cssPrefStyles(PSWidgetXmlModel model) {
+    Map<String, Object> styles = new LinkedHashMap<>();
+    for (PSWidgetXmlModel.CssPref css : model.getCssPrefs()) {
+      if (css != null && css.getName() != null && !css.getName().isBlank()) {
+        styles.put(css.getName(), css.getDefaultValue() != null ? css.getDefaultValue() : "");
+      }
+    }
+    return styles;
+  }
+
+  /**
+   * Map layout-ish UserPrefs ({@code layout}, {@code maxlength}) into the slot {@code layout} map
+   * (region-slot mapping guidance for list widgets).
+   */
+  static Map<String, Object> layoutFromUserPrefs(PSWidgetXmlModel model) {
+    Map<String, Object> layout = new LinkedHashMap<>();
+    for (PSWidgetXmlModel.UserPref up : model.getUserPrefs()) {
+      if (up == null || up.getName() == null || up.getName().isBlank()) {
+        continue;
+      }
+      String name = up.getName().trim();
+      if ("layout".equalsIgnoreCase(name) || "maxlength".equalsIgnoreCase(name)) {
+        layout.put(name, up.getDefaultValue() != null ? up.getDefaultValue() : "");
+      }
+    }
+    return layout;
   }
 
   static String mapAssembler(String contentType) {

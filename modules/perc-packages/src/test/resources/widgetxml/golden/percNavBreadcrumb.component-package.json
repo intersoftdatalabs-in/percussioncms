@@ -1,0 +1,164 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percNavBreadcrumb",
+  "name": "Breadcrumb",
+  "version": "1.3.3",
+  "description": "Display a navigation breadcrumb in your site",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Breadcrumb",
+    "category": "navigation",
+    "description": "Display a navigation breadcrumb in your site",
+    "thumbnail": "resources/widgetIconBreadcrumb.png",
+    "icon": "resources/widgetIconBreadcrumb.png",
+    "author": "Percussion Software Inc",
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "percNavBreadcrumbSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percNavBreadcrumbSnippet.vm",
+      "bindings": [
+        {
+          "variable": "linkContext",
+          "expression": "$perc.linkContext"
+        },
+        {
+          "variable": "showHome",
+          "expression": "$perc.widget.item.properties.get('showHome')"
+        },
+        {
+          "variable": "showCurrentPage",
+          "expression": "$perc.widget.item.properties.get('showCurrentPage')"
+        },
+        {
+          "variable": "ariaLabel",
+          "expression": "$perc.widget.item.properties.get('ariaLabel')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$rootclass + \" \""
+        },
+        {
+          "variable": "separator",
+          "expression": "$perc.widget.item.properties.get('separator')"
+        },
+        {
+          "variable": "finderName",
+          "expression": "\"Java/global/percussion/widgetcontentfinder/perc_NavWidgetContentFinder\""
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, null, true)"
+        },
+        {
+          "variable": "navSelf",
+          "expression": "$assetItems.get(0).getNode()"
+        },
+        {
+          "variable": "sampleTooltip",
+          "expression": "''"
+        },
+        {
+          "variable": "navTooltip",
+          "expression": "$rx.pageutils.getWidgetTooltip($perc, $perc.widget, \"This navBreadCrumb is showing sample content.\")"
+        },
+        {
+          "variable": "sampleTooltip",
+          "expression": "' title=\"' + $navTooltip + '\"'"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$linkContext = $perc.linkContext;\n    $showHome = $perc.widget.item.properties.get('showHome');\n    $showCurrentPage = $perc.widget.item.properties.get('showCurrentPage');\n    $ariaLabel = $perc.widget.item.properties.get('ariaLabel');\n    $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n    if (!empty($rootclass))\n        $rootclass = $rootclass + \" \";\n    $separator = $perc.widget.item.properties.get('separator');\n    $finderName=\"Java/global/percussion/widgetcontentfinder/perc_NavWidgetContentFinder\";\n    $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, null, true);\n    if ( ! $assetItems.isEmpty() ) {\n        $navSelf = $assetItems.get(0).getNode();\n        $sampleTooltip = '';\n    }\n    else if ($perc.isEditMode()){\n\t\t$navTooltip = $rx.pageutils.getWidgetTooltip($perc, $perc.widget, \"This navBreadCrumb is showing sample content.\");\n        $sampleTooltip = ' title=\"' + $navTooltip + '\"';\n    }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percNavBreadcrumbChrome",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconBreadcrumb.png",
+      "target": "web_resources/widgets/navBar/images/widgetIconBreadcrumb.png",
+      "type": "image"
+    },
+    {
+      "path": "resources/breadcrumb.css",
+      "target": "web_resources/widgets/navBar/css/breadcrumb.css",
+      "type": "css"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "showHome",
+      "displayName": "Show home",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "showCurrentPage",
+      "displayName": "Show current page",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "separator",
+      "displayName": "Separator",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": " > ",
+      "enumValues": []
+    },
+    {
+      "name": "ariaLabel",
+      "displayName": "Aria Label",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "navLabel",
+      "displayName": "Navigation Label",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "Breadcrumb Navigation",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS root class",
+      "datatype": "string"
+    }
+  ]
+}

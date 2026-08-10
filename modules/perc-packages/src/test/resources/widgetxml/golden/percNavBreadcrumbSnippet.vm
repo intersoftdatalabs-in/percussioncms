@@ -1,0 +1,69 @@
+<div class="$!{rootclass}perc-breadcrumb" aria-label="$!{ariaLabel}" role="navigation">
+#if ($navSelf)##
+#set($ancestors = $navSelf.getAncestors())##
+#if($ancestors.size()>0 && !$showHome)##
+#set($d=$ancestors.remove(0))##
+#end##
+#if($showCurrentPage)##
+#set($d=$ancestors.add($navSelf))##
+#end##
+#if ($ancestors.size() > 0)##
+<nav aria-label="$!{navLabel}">
+<ul class="perc-breadcrumb-main">
+#foreach($node in $ancestors)##
+#set($liclass="perc-list-element")##
+#if ($velocityCount==1)##
+#set($liclass="$liclass perc-list-first")##
+#end##
+#if ($velocityCount == $ancestors.size())##
+#set($liclass="$liclass perc-list-last")##
+#end##
+#if ($velocityCount % 2 == 0)##
+#set($liclass="$liclass perc-list-even")##
+#else##
+#set($liclass="$liclass perc-list-odd")##
+#end##
+#set($landing_page = $tools.esc.html($rx.pageutils.navLink($linkContext, $node)))##
+#set($title = $rx.pageutils.html($node,"displaytitle"))##
+<li class="$liclass">##
+#if ($velocityCount > 1 )$separator#end##
+#if($velocityCount == $ancestors.size() && $showCurrentPage)##
+<a href="$landing_page">$!{title}</a>##
+#else##
+<a href="$landing_page">$!{title}</a>##
+#end##
+</li>
+#end##
+</ul>
+</nav>
+#end##
+#elseif ($perc.isEditMode())##
+<nav aria-label="$!{navLabel}">
+<ul class="perc-breadcrumb-main" $sampleTooltip>
+#set ($sampleContent = ["Section 1", "Section 2"])##
+#foreach($node in $sampleContent)##
+#set($liclass="perc-list-element")##
+#if ($velocityCount==1)##
+#set($liclass="$liclass perc-list-first")##
+#end##
+#if ($velocityCount == $sampleContent.size())##
+#set($liclass="$liclass perc-list-last")##
+#end##
+#if ($velocityCount % 2 == 0)##
+#set($liclass="$liclass perc-list-even")##
+#else##
+#set($liclass="$liclass perc-list-odd")##
+#end##
+#set($title = $node)##
+<li class="$liclass">##
+#if ($velocityCount > 1 )$separator#end##
+#if($velocityCount == $ancestors.size() && $showCurrentPage)##
+$!{title}
+#else##
+<a href="#">$title</a>##
+#end</li>##
+#end##
+</ul>
+</nav>
+#end##
+</div>
