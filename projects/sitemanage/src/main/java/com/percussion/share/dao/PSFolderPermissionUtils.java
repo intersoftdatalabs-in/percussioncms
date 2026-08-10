@@ -70,6 +70,12 @@ public class PSFolderPermissionUtils {
 
     var permission = new PSFolderPermission();
     var acl = folder.getAcl();
+    // Empty/null ACL → default ADMIN so Folder Security open never returns a
+    // half-built DTO that later fails setFolderPermission on save (#2749).
+    if (acl == null) {
+      permission.setAccessLevel(Access.ADMIN);
+      return permission;
+    }
     setAclEntry(acl, PSObjectAclEntry.ACL_ENTRY_TYPE_ROLE, DESIGNER_ROLE, ADMIN_ACCESS);
     var aclEntry = getVirtualAcl(acl);
 
@@ -77,6 +83,10 @@ public class PSFolderPermissionUtils {
       if (aclEntry.hasAdminAccess()) permission.setAccessLevel(Access.ADMIN);
       else if (aclEntry.hasWriteAccess()) permission.setAccessLevel(Access.WRITE);
       else if (aclEntry.hasReadAccess()) permission.setAccessLevel(Access.READ);
+      else permission.setAccessLevel(Access.ADMIN);
+    } else {
+      // No virtual Everyone entry — treat as ADMIN (legacy default).
+      permission.setAccessLevel(Access.ADMIN);
     }
 
     var adminPrincipals = new ArrayList<Principal>();
@@ -86,17 +96,18 @@ public class PSFolderPermissionUtils {
     var iter = acl.iterator();
     while (iter.hasNext()) {
       var entry = iter.next();
-      if (entry.isUser()) {
-        var p = new Principal();
-        p.setName(entry.getName());
-        p.setType(PrincipalType.USER);
-        if (entry.hasAdminAccess()) {
-          adminPrincipals.add(p);
-        } else if (entry.hasWriteAccess()) {
-          writePrincipals.add(p);
-        } else if (entry.hasReadAccess()) {
-          readPrincipals.add(p);
-        }
+      if (entry == null || !entry.isUser()) {
+        continue;
+      }
+      var p = new Principal();
+      p.setName(entry.getName());
+      p.setType(PrincipalType.USER);
+      if (entry.hasAdminAccess()) {
+        adminPrincipals.add(p);
+      } else if (entry.hasWriteAccess()) {
+        writePrincipals.add(p);
+      } else if (entry.hasReadAccess()) {
+        readPrincipals.add(p);
       }
     }
 
@@ -233,9 +244,16 @@ public class PSFolderPermissionUtils {
     notNull(folder);
     notNull(perm);
 
-    setFolderPermission(folder, perm.getAccessLevel());
+    // Jackson / partial clients may omit accessLevel; default ADMIN rather than
+    // Validate.notNull → "The validated object is null" (#2749).
+    Access level = perm.getAccessLevel() != null ? perm.getAccessLevel() : Access.ADMIN;
+    setFolderPermission(folder, level);
 
     var acl = folder.getAcl();
+    if (acl == null) {
+      // PSFolder.getAcl() is documented never-null; guard for defensive completeness.
+      return;
+    }
 
     setUserAcls(acl, perm.getReadPrincipals(), READ_ACCESS);
     setUserAcls(acl, perm.getWritePrincipals(), WRITE_ACCESS);

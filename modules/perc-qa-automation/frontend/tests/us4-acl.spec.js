@@ -148,4 +148,31 @@ test.describe("US4 P-ACL — folder security panel (SC-004)", () => {
     await page.locator('[data-testid="explorer-toggle-security"]').click();
     await expect(page.locator(".perc-mcol")).toHaveCount(0);
   });
+
+  /**
+   * #2749 — when a real folderId is supplied on the pilot host, the panel
+   * must not surface a server "validated object is null" hard failure as the
+   * only outcome. Loading, ready panel, or a structured error (invalid id)
+   * are all acceptable; the security panel region must remain mounted.
+   */
+  test("FolderSecurityPanel with folderId stays mounted (no chrome crash) (#2749)", async ({
+    page,
+  }) => {
+    // Use a plausible legacy guid shape; H2 QA may 400/500 for unknown ids —
+    // assert mount + absence of miller-column, not a successful ACL payload.
+    await page.goto(aclUrl("16777215-101-703"), { waitUntil: "networkidle" });
+    const root = page.locator('[data-testid="perc-folder-security-root"]');
+    await expect(root).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator(".perc-mcol")).toHaveCount(0);
+    // Loading, ready panel, error, or no-access — any stable surface is OK.
+    const surface = page.locator(
+      [
+        '[data-testid="folder-security-loading"]',
+        '[data-testid="folder-security-panel"]',
+        '[data-testid="folder-security-error"]',
+        '[data-testid="folder-security-no-access"]',
+      ].join(", "),
+    );
+    await expect(surface.first()).toBeVisible({ timeout: 20_000 });
+  });
 });

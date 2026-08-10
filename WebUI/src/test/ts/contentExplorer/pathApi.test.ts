@@ -21,10 +21,15 @@ import {
   encodePath,
   findChildren,
   findItemByPath,
+  folderProperties,
+  FOLDER_PROPERTIES_ROOT,
   joinPathUrl,
   lastExisting,
   paginatedFolder,
+  saveFolderProperties,
+  unwrapFolderProperties,
   validatePath,
+  wrapFolderProperties,
 } from "../../../main/ts/api/contentExplorer/pathApi";
 import { mockFetch } from "./setup";
 
@@ -194,5 +199,139 @@ describe("pathmanagement URL shape (no double-slash)", () => {
     await lastExisting("/Sites/Missing");
     expect(cap.lastUrl()).toContain("/path/lastExisting/Sites/Missing");
     expect(cap.lastUrl()).not.toContain("lastExisting//");
+  });
+});
+
+/**
+ * #2749 — Jackson WRAP_ROOT_VALUE / UNWRAP_ROOT_VALUE for PSFolderProperties.
+ * GET must unwrap FolderProperties; POST must wrap so server id is non-null.
+ */
+describe("folderProperties Jackson root wrap (#2749)", () => {
+  it("unwrapFolderProperties prefers FolderProperties root", () => {
+    const props = unwrapFolderProperties({
+      [FOLDER_PROPERTIES_ROOT]: {
+        id: "16777215-101-703",
+        name: "Design",
+        permission: { accessLevel: "ADMIN" },
+        locale: "en-us",
+      },
+    });
+    expect(props).not.toBeNull();
+    expect(props!.id).toBe("16777215-101-703");
+    expect(props!.name).toBe("Design");
+    expect(props!.permission?.accessLevel).toBe("ADMIN");
+    expect(props!.locale).toBe("en-us");
+  });
+
+  it("unwrapFolderProperties accepts flat body for tests", () => {
+    const props = unwrapFolderProperties({
+      id: "1-101-1",
+      name: "Flat",
+      permission: { accessLevel: "WRITE" },
+    });
+    expect(props?.id).toBe("1-101-1");
+    expect(props?.permission?.accessLevel).toBe("WRITE");
+  });
+
+  it("unwrapFolderProperties returns null for empty envelope", () => {
+    expect(unwrapFolderProperties({})).toBeNull();
+    expect(unwrapFolderProperties(null)).toBeNull();
+    expect(unwrapFolderProperties({ [FOLDER_PROPERTIES_ROOT]: {} })).toBeNull();
+  });
+
+  it("wrapFolderProperties nests under FolderProperties root", () => {
+    const wrapped = wrapFolderProperties({
+      id: "9-101-1",
+      name: "Assets",
+      permission: { accessLevel: "ADMIN" },
+    });
+    expect(Object.keys(wrapped)).toEqual([FOLDER_PROPERTIES_ROOT]);
+    expect(wrapped[FOLDER_PROPERTIES_ROOT].id).toBe("9-101-1");
+  });
+
+  it("folderProperties GET unwraps Jackson FolderProperties envelope", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      expect(url).toContain("/path/folderProperties/16777215-101-703");
+      return new Response(
+        JSON.stringify({
+          FolderProperties: {
+            id: "16777215-101-703",
+            name: "Design",
+            permission: { accessLevel: "ADMIN", adminPrincipals: [] },
+            communityId: 1001,
+            locale: "en-us",
+            workflowId: -1,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const props = await folderProperties("16777215-101-703");
+    expect(props.id).toBe("16777215-101-703");
+    expect(props.name).toBe("Design");
+    expect(props.permission?.accessLevel).toBe("ADMIN");
+    expect(props.locale).toBe("en-us");
+  });
+
+  it("folderProperties rejects blank id client-side", async () => {
+    await expect(folderProperties("")).rejects.toThrow(/non-empty folder id/);
+    await expect(folderProperties("   ")).rejects.toThrow(/non-empty folder id/);
+  });
+
+  it("saveFolderProperties POSTs wrapped FolderProperties body with id", async () => {
+    let posted: unknown;
+    mockFetch(async (input, init) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      expect(url).toContain("/path/saveFolderProperties");
+      posted = JSON.parse(String(init?.body ?? "{}"));
+      return new Response(JSON.stringify({ NoContent: { operation: "saveFolderProperties" } }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await saveFolderProperties({
+      id: "16777215-101-703",
+      name: "Design",
+      permission: {
+        accessLevel: "ADMIN",
+        adminPrincipals: [{ type: "USER", name: "Admin" }],
+      },
+      locale: "en-us",
+    });
+    expect(posted).toEqual({
+      FolderProperties: {
+        id: "16777215-101-703",
+        name: "Design",
+        permission: {
+          accessLevel: "ADMIN",
+          adminPrincipals: [{ type: "USER", name: "Admin" }],
+        },
+        locale: "en-us",
+      },
+    });
+  });
+
+  it("saveFolderProperties defaults missing permission and rejects missing id", async () => {
+    let posted: unknown;
+    mockFetch(async (_input, init) => {
+      posted = JSON.parse(String(init?.body ?? "{}"));
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await saveFolderProperties({
+      id: "1-101-2",
+      name: "NoPerm",
+    });
+    expect(
+      (posted as { FolderProperties: { permission: { accessLevel: string } } })
+        .FolderProperties.permission.accessLevel,
+    ).toBe("ADMIN");
+
+    await expect(
+      saveFolderProperties({ id: "", name: "x" } as { id: string; name: string }),
+    ).rejects.toThrow(/props\.id/);
   });
 });
