@@ -293,7 +293,7 @@ public class PSTableChangeData {
    * <code>null
    * </code> or modified after that.
    */
-  private List<IPSTableChangeListener> m_listeners;
+  private final List<IPSTableChangeListener> m_listeners;
 
   /**
    * The map of listener interested column changes with {@link IPSTableChangeListener} as key and

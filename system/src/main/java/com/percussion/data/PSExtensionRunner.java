@@ -207,8 +207,14 @@ public class PSExtensionRunner {
    * Gets an iterator over the extractors that correspond to the extension call with which this
    * runner was constructed.
    *
-   * @return An Iterator over 0 or more possibly <CODE>null</CODE> IPSDataExtractor objects. Never
-   *     <CODE>null</CODE>.
+   * <p><b>Nullability:</b> the element type is {@link IPSDataExtractor}, but individual elements may
+   * still be {@code null} when the corresponding {@link
+   * com.percussion.design.objectstore.PSExtensionParamValue} was null in the call (see {@link
+   * #buildExtractors}). Callers must null-check each element; the generic type does not imply
+   * non-null values.
+   *
+   * @return An Iterator over 0 or more possibly {@code null} {@link IPSDataExtractor} objects. Never
+   *     {@code null}.
    */
   public Iterator<IPSDataExtractor> getExtractors() {
     return m_extractors.iterator();

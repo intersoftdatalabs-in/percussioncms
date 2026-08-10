@@ -17,8 +17,12 @@
 package com.percussion.data;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.design.objectstore.PSTextLiteral;
+import java.sql.Types;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -56,5 +60,24 @@ class PSStatementBlockTypedTest {
 
     assertEquals(0, extractors.size());
     assertEquals(0, lobCols.size());
+  }
+
+  @Test
+  void populatedReplacementFieldsYieldTypedExtractorsAndLobColumns() {
+    PSStatementBlock block = new PSStatementBlock(false);
+    block.addText("UPDATE t SET c=");
+    block.addReplacementField(new PSTextLiteral("plain"), Types.VARCHAR, null);
+    block.addReplacementField(new PSTextLiteral("blob-payload"), Types.BLOB, null);
+    block.addReplacementField(new PSTextLiteral("clob-payload"), Types.CLOB, null);
+
+    List<IPSDataExtractor> extractors = block.getReplacementValueExtractors();
+    List<PSStatementColumn> lobCols = block.getLobStatementColumns();
+
+    assertEquals(3, extractors.size());
+    for (IPSDataExtractor extractor : extractors) {
+      assertNotNull(extractor);
+    }
+    assertEquals(2, lobCols.size());
+    assertFalse(block.isStaticBlock());
   }
 }

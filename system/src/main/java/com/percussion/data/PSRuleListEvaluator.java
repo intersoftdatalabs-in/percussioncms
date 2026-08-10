@@ -58,7 +58,12 @@ public class PSRuleListEvaluator {
     List<PSRuleEvaluator> andRules = null;
     if (rules != null) {
       while (rules.hasNext()) {
-        PSRule rule = (PSRule) rules.next();
+        Object next = rules.next();
+        if (!(next instanceof PSRule rule)) {
+          throw new IllegalArgumentException(
+              "rules iterator must contain only PSRule elements, got: "
+                  + (next == null ? "null" : next.getClass().getName()));
+        }
         PSRuleEvaluator evaluator = new PSRuleEvaluator(rule);
 
         if (rules.hasNext()) {
