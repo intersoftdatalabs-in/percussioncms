@@ -105,11 +105,13 @@ public final class PSWidgetXmlPackageCompiler {
 
   /**
    * Compile every high-traffic product package under a {@code Packages/} root directory.
+   * Missing package directories under the root are skipped (soft) so partial checkouts can
+   * still exercise available packages.
    *
    * @param packagesRoot non-null directory containing package folders (e.g. {@code
    *     src/main/resources/Packages})
-   * @return compile results sorted by package then widget stem
-   * @throws PSWidgetXmlException on parse/compile failure
+   * @return compile results sorted by package then widget stem (may be empty if none present)
+   * @throws PSWidgetXmlException on parse/compile failure of a present package
    * @throws IOException on I/O failure
    */
   public static List<PSWidgetXmlCompileResult> compileHighTrafficPackages(Path packagesRoot)
@@ -121,9 +123,10 @@ public final class PSWidgetXmlPackageCompiler {
     List<PSWidgetXmlCompileResult> all = new ArrayList<>();
     for (String dirName : HIGH_TRAFFIC_PACKAGE_DIRS) {
       Path packageDir = packagesRoot.resolve(dirName);
+      // Soft-skip missing package dirs so partial checkouts / CI fixtures still exercise
+      // the packages that are present (matches baseWidgets soft-skip tests).
       if (!Files.isDirectory(packageDir)) {
-        throw new PSWidgetXmlException(
-            "High-traffic package directory missing under Packages root: " + dirName);
+        continue;
       }
       all.addAll(compilePackage(packageDir));
     }

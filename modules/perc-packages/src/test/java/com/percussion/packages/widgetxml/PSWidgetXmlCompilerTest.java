@@ -395,11 +395,22 @@ class PSWidgetXmlCompilerTest {
 
     Path outRoot = tempDir.resolve("high-traffic-out");
     PSWidgetXmlPackageCompiler.writeAll(results, outRoot);
-    assertTrue(
-        Files.isRegularFile(
-            outRoot
-                .resolve("percTitle")
-                .resolve(PSComponentPackageManifest.DEFAULT_MANIFEST_FILE_NAME)));
+    for (String stem :
+        List.of(
+            "percTitle",
+            "simplePageAutoList",
+            "simpleTextAutoList",
+            "percNavBar",
+            "percNavBreadcrumb",
+            "percFile",
+            "percImage")) {
+      assertTrue(
+          Files.isRegularFile(
+              outRoot
+                  .resolve(stem)
+                  .resolve(PSComponentPackageManifest.DEFAULT_MANIFEST_FILE_NAME)),
+          "writeAll missing manifest for " + stem);
+    }
   }
 
   private static PSWidgetXmlCompileResult assertGoldenParity(

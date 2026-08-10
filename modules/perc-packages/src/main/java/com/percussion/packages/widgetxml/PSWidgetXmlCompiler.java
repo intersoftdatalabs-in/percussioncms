@@ -217,6 +217,9 @@ public final class PSWidgetXmlCompiler {
               ? declared.getType().trim().toLowerCase(Locale.ROOT)
               : guessResourceType(packageRelative);
       res.setType(type);
+      if (declared.getPlacement() != null && !declared.getPlacement().isBlank()) {
+        res.setPlacement(declared.getPlacement().trim());
+      }
       resources.add(res);
     }
     manifest.setResources(resources);

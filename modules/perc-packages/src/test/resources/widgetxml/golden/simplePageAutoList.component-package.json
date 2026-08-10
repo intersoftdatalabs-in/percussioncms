@@ -109,7 +109,8 @@
     {
       "path": "resources/style.css",
       "target": "rx_resources/widgets/simpleList/css/style.css",
-      "type": "css"
+      "type": "css",
+      "placement": "head"
     }
   ],
   "userPreferences": [

@@ -750,6 +750,8 @@ public final class PSComponentPackageManifest {
     private String path;
     private String target;
     private String type;
+    /** Optional HTML placement (e.g. {@code head}, {@code body}) from Widget XML Resource. */
+    private String placement;
 
     public String getPath() {
       return path;
@@ -775,6 +777,14 @@ public final class PSComponentPackageManifest {
       this.type = type;
     }
 
+    public String getPlacement() {
+      return placement;
+    }
+
+    public void setPlacement(String placement) {
+      this.placement = placement;
+    }
+
     @Override
     public boolean equals(Object o) {
       if (this == o) {
@@ -785,12 +795,13 @@ public final class PSComponentPackageManifest {
       }
       return Objects.equals(path, that.path)
           && Objects.equals(target, that.target)
-          && Objects.equals(type, that.type);
+          && Objects.equals(type, that.type)
+          && Objects.equals(placement, that.placement);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(path, target, type);
+      return Objects.hash(path, target, type, placement);
     }
   }
 

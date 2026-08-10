@@ -110,7 +110,8 @@
     {
       "path": "resources/breadcrumb.css",
       "target": "web_resources/widgets/navBar/css/breadcrumb.css",
-      "type": "css"
+      "type": "css",
+      "placement": "head"
     }
   ],
   "userPreferences": [
