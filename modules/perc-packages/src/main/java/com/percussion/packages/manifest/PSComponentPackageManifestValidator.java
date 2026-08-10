@@ -35,10 +35,12 @@ public final class PSComponentPackageManifestValidator {
 
   /**
    * Package-relative path: non-empty, no drive letter / UNC / leading root, no backslashes, no
-   * {@code ..} segments. URL / zip entry style only.
+   * {@code ..} path segments. URL / zip entry style only. Double-dot <em>filenames</em> (e.g.
+   * {@code logo..png}) are allowed; only segment-shaped {@code ..} is rejected.
    */
   private static final Pattern RELATIVE_PACKAGE_PATH =
-      Pattern.compile("^(?!/)(?!\\\\)(?![A-Za-z]:)(?!\\\\\\\\)(?!.*\\.\\.)[A-Za-z0-9_./\\-]+$");
+      Pattern.compile(
+          "^(?!/)(?!\\\\)(?![A-Za-z]:)(?!\\\\\\\\)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./\\-]+$");
 
   private PSComponentPackageManifestValidator() {
     // utility
@@ -96,9 +98,14 @@ public final class PSComponentPackageManifestValidator {
           && manifest.getPublisher().getName().isBlank()) {
         errors.add("publisher.name must not be blank when present");
       }
-      if (manifest.getPublisher().getUrl() != null && containsBackslash(manifest.getPublisher().getUrl())) {
-        // URL may use http(s); backslash is never valid in URLs we accept
-        errors.add("publisher.url must not contain backslash characters");
+      if (manifest.getPublisher().getUrl() != null) {
+        if (manifest.getPublisher().getUrl().isBlank()) {
+          // Present but empty — reject so we do not store meaningless empty values
+          errors.add("publisher.url must not be blank when present");
+        } else if (containsBackslash(manifest.getPublisher().getUrl())) {
+          // URL may use http(s); backslash is never valid in URLs we accept
+          errors.add("publisher.url must not contain backslash characters");
+        }
       }
     }
 
@@ -245,8 +252,8 @@ public final class PSComponentPackageManifestValidator {
       errors.add(
           field
               + " must be a package-relative path using '/' separators"
-              + " (no absolute OS paths, no '..', no backslashes): '"
-              + path
+              + " (no absolute OS paths, no '..' segments, no backslashes): '"
+              + p
               + "'");
     }
   }

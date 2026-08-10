@@ -160,6 +160,64 @@ class PSComponentPackageManifestTest {
     assertTrue(
         backslashErrors.stream().anyMatch(e -> e.contains("resources[0].path")),
         () -> "expected backslash path error, got: " + backslashErrors);
+
+    // Unix absolute path (cross-platform regression)
+    manifest.getResources().get(0).setPath("/etc/passwd");
+    List<String> unixAbsoluteErrors =
+        PSComponentPackageManifestValidator.validateCollecting(manifest);
+    assertTrue(
+        unixAbsoluteErrors.stream().anyMatch(e -> e.contains("resources[0].path")),
+        () -> "expected Unix absolute path error, got: " + unixAbsoluteErrors);
+
+    // Windows UNC path (cross-platform regression)
+    manifest.getResources().get(0).setPath("\\\\server\\share\\evil.png");
+    List<String> uncErrors = PSComponentPackageManifestValidator.validateCollecting(manifest);
+    assertTrue(
+        uncErrors.stream().anyMatch(e -> e.contains("resources[0].path")),
+        () -> "expected UNC path error, got: " + uncErrors);
+  }
+
+  @Test
+  void validate_allowsDoubleDotFilenamesButRejectsDotDotSegments() throws Exception {
+    PSComponentPackageManifest manifest = parseFixture();
+    // Double-dot in a filename is legal (not a path segment)
+    manifest.getResources().get(0).setPath("assets/logo..png");
+    List<String> ok = PSComponentPackageManifestValidator.validateCollecting(manifest);
+    assertTrue(
+        ok.stream().noneMatch(e -> e.contains("resources[0].path")),
+        () -> "expected logo..png allowed, got: " + ok);
+
+    // Segment-shaped .. must still be rejected
+    manifest.getResources().get(0).setPath("assets/../evil.png");
+    List<String> segmentErrors =
+        PSComponentPackageManifestValidator.validateCollecting(manifest);
+    assertTrue(
+        segmentErrors.stream().anyMatch(e -> e.contains("resources[0].path")),
+        () -> "expected .. segment rejection, got: " + segmentErrors);
+  }
+
+  @Test
+  void validate_rejectsBlankPublisherUrlWhenPresent() throws Exception {
+    PSComponentPackageManifest manifest = parseFixture();
+    manifest.getPublisher().setUrl("");
+    List<String> errors = PSComponentPackageManifestValidator.validateCollecting(manifest);
+    assertTrue(
+        errors.stream().anyMatch(e -> e.contains("publisher.url") && e.contains("blank")),
+        () -> "expected blank publisher.url error, got: " + errors);
+  }
+
+  @Test
+  void validate_relativePathErrorUsesTrimmedValue() throws Exception {
+    PSComponentPackageManifest manifest = parseFixture();
+    // Leading/trailing whitespace: validation trims; error message must quote the trimmed form
+    manifest.getResources().get(0).setPath("  /etc/passwd  ");
+    List<String> errors = PSComponentPackageManifestValidator.validateCollecting(manifest);
+    assertTrue(
+        errors.stream().anyMatch(e -> e.contains("'/etc/passwd'")),
+        () -> "expected trimmed path in error message, got: " + errors);
+    assertTrue(
+        errors.stream().noneMatch(e -> e.contains("'  /etc/passwd  '")),
+        () -> "untrimmed path should not appear in error, got: " + errors);
   }
 
   @Test
