@@ -73,7 +73,7 @@ public class SystemAuditLogExportTest {
 
   @Test
   public void emptyExportShapes() {
-    assertTrue(SystemAuditLogExport.toJson(List.of()).equals("[]") || SystemAuditLogExport.toJson(List.of()).contains("[]"));
+    assertEquals("[]", SystemAuditLogExport.toJson(List.of()));
     String csv = SystemAuditLogExport.toCsv(List.of());
     assertTrue(csv.replace("\r\n", "\n").startsWith("auditId,eventTime"));
   }
