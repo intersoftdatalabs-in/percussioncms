@@ -56,6 +56,16 @@ public class PSDesignObjectAuditServiceLocator {
    }
 
    /**
+    * Override the cached service — primarily for unit tests. Pass {@code null} to clear (same as
+    * {@link #clearCache()}).
+    *
+    * @param service replacement instance, or {@code null} to force reinitialization
+    */
+   public static void setAuditService(IPSDesignObjectAuditService service) {
+      AUDIT_SERVICE_REF.set(service);
+   }
+
+   /**
     * Clear the cached service instance - primarily for testing purposes.
     * This method is thread-safe and will force reinitialization on next access.
     */

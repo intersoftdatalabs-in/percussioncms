@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,92 @@
  */
 package com.percussion.rx.audit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.intsof.percussioncms.auditlog.DefaultAuditLogService;
+import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
+import com.intsof.percussioncms.auditlog.spi.ConcurrentMemoryAuditLogRepository;
 import com.percussion.rx.audit.PSDesignObjectAuditor.PSAuditData;
+import com.percussion.services.audit.IPSDesignObjectAuditConfig;
+import com.percussion.services.audit.IPSDesignObjectAuditService;
+import com.percussion.services.audit.PSDesignObjectAuditServiceLocator;
+import com.percussion.services.audit.data.PSAuditLogEntry;
 import com.percussion.services.audit.data.PSAuditLogEntry.AuditTypes;
 import com.percussion.services.catalog.IPSCatalogIdentifier;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.request.PSRequestInfo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.Signature;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-/** Unit test for the {@link PSDesignObjectAuditor} class. */
-public class PSDesignObjectAuditorTest {
-  /**
-   * Test the logic of the {@link PSDesignObjectAuditor} for a method name and argument. Does not
-   * test actual AOP joinpoint processing or persisting of audit data.
-   */
-  public void testExtractAuditData() {
+/**
+ * Unit tests for {@link PSDesignObjectAuditor}: extract audit data and dual-write through {@link
+ * DesignErrorCodes} / system audit log when design auditing is enabled.
+ */
+class PSDesignObjectAuditorTest {
+
+  private IPSDesignObjectAuditService auditService;
+  private IPSDesignObjectAuditConfig auditConfig;
+  private List<Collection<PSAuditLogEntry>> savedBatches;
+
+  @BeforeEach
+  void setUp() {
+    ConcurrentMemoryAuditLogRepository.INSTANCE.clear();
+    DefaultAuditLogService.Holder.resetToDefault();
+    if (PSRequestInfo.isInited()) {
+      PSRequestInfo.resetRequestInfo();
+    }
+
+    auditService = mock(IPSDesignObjectAuditService.class);
+    auditConfig = mock(IPSDesignObjectAuditConfig.class);
+    when(auditService.getConfig()).thenReturn(auditConfig);
+    when(auditConfig.isEnabled()).thenReturn(true);
+    when(auditService.createAuditLogEntry()).thenAnswer(inv -> new PSAuditLogEntry());
+    savedBatches = new ArrayList<>();
+    org.mockito.Mockito.doAnswer(
+            inv -> {
+              @SuppressWarnings("unchecked")
+              Collection<PSAuditLogEntry> batch = inv.getArgument(0);
+              savedBatches.add(new ArrayList<>(batch));
+              return null;
+            })
+        .when(auditService)
+        .saveAuditLogEntries(any());
+
+    PSDesignObjectAuditServiceLocator.setAuditService(auditService);
+  }
+
+  @AfterEach
+  void tearDown() {
+    PSDesignObjectAuditServiceLocator.clearCache();
+    ConcurrentMemoryAuditLogRepository.INSTANCE.clear();
+    DefaultAuditLogService.Holder.resetToDefault();
+    if (PSRequestInfo.isInited()) {
+      PSRequestInfo.resetRequestInfo();
+    }
+  }
+
+  @Test
+  void createAuditDataExtractsSaveAndDeleteGuids() {
     PSDesignObjectAuditor auditor = new PSDesignObjectAuditor();
 
-    // test non-audited inputs
     assertTrue(auditor.createAuditData(null, null).isEmpty());
     assertTrue(auditor.createAuditData("", null).isEmpty());
     assertTrue(auditor.createAuditData("findSomething", null).isEmpty());
@@ -48,10 +110,8 @@ public class PSDesignObjectAuditorTest {
     assertTrue(auditor.createAuditData("saveSomething", "Test").isEmpty());
 
     IPSGuid guid = new PSGuid(PSTypeEnum.CONTENT_LIST, 301);
-
     assertTrue(auditor.createAuditData("findSomething", guid).isEmpty());
 
-    // test delete with guid and identifier
     Collection<PSAuditData> auditData = auditor.createAuditData("deleteSomething", guid);
     assertFalse(auditData.isEmpty());
     PSAuditData data = auditData.iterator().next();
@@ -65,20 +125,20 @@ public class PSDesignObjectAuditorTest {
     auditData = auditor.createAuditData("deleteSomething", id);
     assertFalse(auditData.isEmpty());
     data = auditData.iterator().next();
-    assertNotNull(data);
     assertEquals(guid, data.getGuid());
     assertEquals(AuditTypes.DELETE, data.getAction());
 
-    // test update
     id.mi_version = Integer.valueOf(2);
     auditData = auditor.createAuditData("saveSomething", id);
     assertFalse(auditData.isEmpty());
     data = auditData.iterator().next();
-    assertNotNull(data);
     assertEquals(AuditTypes.SAVE, data.getAction());
+  }
 
-    // test collections
-    List<Object> coll = new ArrayList<Object>();
+  @Test
+  void createAuditDataHandlesCollections() {
+    PSDesignObjectAuditor auditor = new PSDesignObjectAuditor();
+    List<Object> coll = new ArrayList<>();
 
     PSMockCatalogIdentifier id1 = new PSMockCatalogIdentifier();
     PSMockCatalogIdentifier id2 = new PSMockCatalogIdentifier();
@@ -95,7 +155,7 @@ public class PSDesignObjectAuditorTest {
     coll.add(id2);
     coll.add(id3);
 
-    auditData = auditor.createAuditData("saveSomething", coll);
+    Collection<PSAuditData> auditData = auditor.createAuditData("saveSomething", coll);
     assertEquals(coll.size(), auditData.size());
     validateAuditedCollection(coll, auditData);
 
@@ -104,7 +164,6 @@ public class PSDesignObjectAuditorTest {
     assertEquals(coll.size() - 1, auditData.size());
     validateAuditedCollection(coll, auditData);
 
-    // test mix for delete
     coll.clear();
     coll.add(id1.mi_guid);
     coll.add(id2.mi_guid);
@@ -115,29 +174,193 @@ public class PSDesignObjectAuditorTest {
     validateAuditedCollection(coll, auditData);
   }
 
-  /**
-   * Validates that each object in the collection that should be audited has a corresponding and
-   * correct result in the audit data. Assumes the method call was a "save".
-   *
-   * @param coll The collection of objects that may or may not be instances of {@link
-   *     PSMockCatalogIdentifier} or {@link IPSGuid}, assumed not <code>null</code>.
-   * @param auditData The resulting audit data to validate, assumed not <code>null</code>.
-   */
+  @Test
+  void enabledSaveDualWritesUpdateAndLegacyEntry() throws Throwable {
+    Map<String, Object> initial = new HashMap<>();
+    initial.put(PSRequestInfo.KEY_USER, "designer");
+    PSRequestInfo.initRequestInfo(initial);
+
+    PSMockCatalogIdentifier id = new PSMockCatalogIdentifier();
+    id.mi_guid = new PSGuid(PSTypeEnum.CONTENT_LIST, 401);
+    id.mi_version = 1;
+
+    PSDesignObjectAuditor auditor = new PSDesignObjectAuditor();
+    auditor.audit(joinPoint("saveContentList", id));
+
+    assertEquals(1, savedBatches.size());
+    assertEquals(1, savedBatches.get(0).size());
+    PSAuditLogEntry legacy = savedBatches.get(0).iterator().next();
+    assertEquals(AuditTypes.SAVE, legacy.getAction());
+    assertEquals("designer", legacy.getUserName());
+
+    assertEquals(1, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals(DesignErrorCodes.UPDATE, rec.code());
+    assertEquals("DESN", rec.code().module().code());
+    assertEquals(2902, rec.code().numericCode());
+    assertEquals("designer", rec.actor().orElse(""));
+    assertTrue(rec.formattedLine().startsWith("[DESN-2902]-"));
+  }
+
+  @Test
+  void enabledDeleteDualWritesDeleteCode() throws Throwable {
+    Map<String, Object> initial = new HashMap<>();
+    initial.put(PSRequestInfo.KEY_USER, "admin");
+    PSRequestInfo.initRequestInfo(initial);
+
+    IPSGuid guid = new PSGuid(PSTypeEnum.TEMPLATE, 55);
+    PSDesignObjectAuditor auditor = new PSDesignObjectAuditor();
+    auditor.audit(joinPoint("deleteTemplate", guid));
+
+    assertEquals(1, savedBatches.size());
+    assertEquals(AuditTypes.DELETE, savedBatches.get(0).iterator().next().getAction());
+
+    assertEquals(1, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals(DesignErrorCodes.DELETE, rec.code());
+    assertEquals(2903, rec.code().numericCode());
+    assertEquals("admin", rec.actor().orElse(""));
+  }
+
+  @Test
+  void multiObjectCollectionDualWritesEach() throws Throwable {
+    Map<String, Object> initial = new HashMap<>();
+    initial.put(PSRequestInfo.KEY_USER, "bulkuser");
+    PSRequestInfo.initRequestInfo(initial);
+
+    List<Object> coll = new ArrayList<>();
+    coll.add(new PSGuid(PSTypeEnum.CONTENT_LIST, 501));
+    coll.add(new PSGuid(PSTypeEnum.CONTENT_LIST, 502));
+    coll.add(new PSGuid(PSTypeEnum.CONTENT_LIST, 503));
+
+    PSDesignObjectAuditor auditor = new PSDesignObjectAuditor();
+    auditor.audit(joinPoint("deleteMany", coll));
+
+    assertEquals(1, savedBatches.size());
+    assertEquals(3, savedBatches.get(0).size());
+    assertEquals(3, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    assertTrue(
+        ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().stream()
+            .allMatch(r -> r.code() == DesignErrorCodes.DELETE));
+  }
+
+  @Test
+  void disabledAuditingWritesNothing() throws Throwable {
+    when(auditConfig.isEnabled()).thenReturn(false);
+
+    Map<String, Object> initial = new HashMap<>();
+    initial.put(PSRequestInfo.KEY_USER, "designer");
+    PSRequestInfo.initRequestInfo(initial);
+
+    PSMockCatalogIdentifier id = new PSMockCatalogIdentifier();
+    id.mi_guid = new PSGuid(PSTypeEnum.CONTENT_LIST, 601);
+    id.mi_version = 1;
+
+    PSDesignObjectAuditor auditor = new PSDesignObjectAuditor();
+    auditor.audit(joinPoint("saveContentList", id));
+
+    verify(auditService, never()).saveAuditLogEntries(any());
+    verify(auditService, never()).createAuditLogEntry();
+    assertEquals(0, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    assertTrue(savedBatches.isEmpty());
+  }
+
+  @Test
+  void blankUserMapsToUnknownOnBothPaths() throws Throwable {
+    // No KEY_USER and no KEY_PSREQUEST → unknown
+    Map<String, Object> initial = new HashMap<>();
+    PSRequestInfo.initRequestInfo(initial);
+
+    IPSGuid guid = new PSGuid(PSTypeEnum.SITE, 9);
+    PSDesignObjectAuditor auditor = new PSDesignObjectAuditor();
+    auditor.audit(joinPoint("saveSite", guid));
+
+    assertEquals(1, savedBatches.size());
+    assertEquals("unknown", savedBatches.get(0).iterator().next().getUserName());
+
+    assertEquals(1, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals("unknown", rec.actor().orElse(""));
+    assertEquals(DesignErrorCodes.UPDATE, rec.code());
+  }
+
+  @Test
+  void resolveUserNameBlankWithoutRequestInfoIsUnknown() {
+    // PSRequestInfo not inited — getRequestInfo returns null
+    PSDesignObjectAuditor auditor = new PSDesignObjectAuditor();
+    assertEquals("unknown", auditor.resolveUserName());
+  }
+
+  @Test
+  void dualWriteSystemAuditUsesUpdateForSaveAction() {
+    PSDesignObjectAuditor auditor = new PSDesignObjectAuditor();
+    Collection<PSAuditData> data =
+        auditor.createAuditData("saveX", new PSGuid(PSTypeEnum.CONTENT_LIST, 1));
+    auditor.dualWriteSystemAudit("u1", data.iterator().next());
+
+    assertEquals(1, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    assertEquals(
+        DesignErrorCodes.UPDATE, ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0).code());
+  }
+
+  @Test
+  void dualWriteSystemAuditUsesDeleteForDeleteAction() {
+    PSDesignObjectAuditor auditor = new PSDesignObjectAuditor();
+    Collection<PSAuditData> data =
+        auditor.createAuditData("deleteX", new PSGuid(PSTypeEnum.CONTENT_LIST, 2));
+    auditor.dualWriteSystemAudit("u2", data.iterator().next());
+
+    assertEquals(
+        DesignErrorCodes.DELETE, ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0).code());
+  }
+
+  @Test
+  void nonAuditedMethodDoesNotWrite() throws Throwable {
+    Map<String, Object> initial = new HashMap<>();
+    initial.put(PSRequestInfo.KEY_USER, "designer");
+    PSRequestInfo.initRequestInfo(initial);
+
+    IPSGuid guid = new PSGuid(PSTypeEnum.CONTENT_LIST, 701);
+    PSDesignObjectAuditor auditor = new PSDesignObjectAuditor();
+    auditor.audit(joinPoint("findContentList", guid));
+
+    verify(auditService, never()).saveAuditLogEntries(any());
+    assertEquals(0, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+  }
+
+  @Test
+  void resolveTypeNameUsesTypeEnum() {
+    IPSGuid guid = new PSGuid(PSTypeEnum.CONTENT_LIST, 1);
+    assertEquals("CONTENT_LIST", PSDesignObjectAuditor.resolveTypeName(guid));
+    assertEquals("", PSDesignObjectAuditor.resolveTypeName(null));
+  }
+
+  private static JoinPoint joinPoint(String methodName, Object firstArg) {
+    JoinPoint jp = mock(JoinPoint.class);
+    Signature sig = mock(Signature.class);
+    when(jp.getSignature()).thenReturn(sig);
+    when(sig.getName()).thenReturn(methodName);
+    when(jp.getArgs()).thenReturn(new Object[] {firstArg});
+    return jp;
+  }
+
   private void validateAuditedCollection(List<Object> coll, Collection<PSAuditData> auditData) {
-    PSMockCatalogIdentifier id;
-    Map<IPSGuid, PSAuditData> resultMap = new HashMap<IPSGuid, PSAuditData>();
+    Map<IPSGuid, PSAuditData> resultMap = new HashMap<>();
     for (PSAuditData result : auditData) {
       resultMap.put(result.getGuid(), result);
     }
 
     for (Object object : coll) {
       if (object instanceof PSMockCatalogIdentifier) {
-        id = (PSMockCatalogIdentifier) object;
+        PSMockCatalogIdentifier id = (PSMockCatalogIdentifier) object;
         PSAuditData result = resultMap.get(id.getGUID());
         assertNotNull(result);
         Integer version = id.getVersion();
-        if (version == null) assertEquals(AuditTypes.DELETE, result.getAction());
-        else assertEquals(AuditTypes.SAVE, result.getAction());
+        if (version == null) {
+          assertEquals(AuditTypes.DELETE, result.getAction());
+        } else {
+          assertEquals(AuditTypes.SAVE, result.getAction());
+        }
       } else if (object instanceof IPSGuid) {
         PSAuditData result = resultMap.get(object);
         assertNotNull(result);
@@ -146,34 +369,16 @@ public class PSDesignObjectAuditorTest {
     }
   }
 
-  /**
-   * Mock implementation of the {@link IPSCatalogIdentifier} interface that also provides a <code>
-   * getVersion()</code> method.
-   */
-  public class PSMockCatalogIdentifier implements IPSCatalogIdentifier {
-    /** The guid of the identifier, may be <code>null</code>. */
+  /** Mock implementation of {@link IPSCatalogIdentifier} with optional Hibernate version. */
+  static class PSMockCatalogIdentifier implements IPSCatalogIdentifier {
     private IPSGuid mi_guid;
-
-    /**
-     * The version of the identifier, may be <code>null</code>, used to provide a value for the
-     * {@link #getVersion()} method. A <code>null</code> is used by the test to expect a delete.
-     */
     private Integer mi_version;
 
-    /**
-     * Get the guid of this object
-     *
-     * @return The guid, may be <code>null</code>.
-     */
+    @Override
     public IPSGuid getGUID() {
       return mi_guid;
     }
 
-    /**
-     * Get the Hibernate version of this object.
-     *
-     * @return The version, may be <code>null</code>.
-     */
     public Integer getVersion() {
       return mi_version;
     }

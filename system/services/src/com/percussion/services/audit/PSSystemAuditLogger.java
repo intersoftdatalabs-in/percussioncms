@@ -25,6 +25,7 @@ import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
 import com.intsof.percussioncms.auditlog.SystemErrorCode;
 import com.intsof.percussioncms.auditlog.codes.AuthenticationErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.UserManagementErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
 import jakarta.servlet.http.HttpServletRequest;
@@ -297,6 +298,56 @@ public final class PSSystemAuditLogger {
             .attribute("toState", to)
             .build();
     log(WorkflowErrorCodes.TRANSITION, ctx, o, cid, g, from, to);
+  }
+
+  /**
+   * Design-object lifecycle dual-write (DESN-2901..2903). Used by {@code PSDesignObjectAuditor} so
+   * design save/delete events land in {@code PSX_SYSTEM_AUDIT_LOG} (and Log4j) alongside the legacy
+   * design audit table.
+   *
+   * <p>Message params match {@link DesignErrorCodes} templates: {@code type}, {@code name}, {@code
+   * guid}.
+   *
+   * @param code one of {@link DesignErrorCodes#CREATE}, {@link DesignErrorCodes#UPDATE}, or {@link
+   *     DesignErrorCodes#DELETE}
+   * @param actor authenticated operator; blank becomes {@code "unknown"}
+   * @param type design object type label (e.g. {@code CONTENT_LIST})
+   * @param name design object name when known; may be blank
+   * @param guid string form of the design object GUID
+   */
+  public static void design(
+      DesignErrorCodes code, String actor, String type, String name, String guid) {
+    if (code == null) {
+      return;
+    }
+    String a = (actor == null || actor.isBlank()) ? "unknown" : actor.trim();
+    String t = nullToEmpty(type);
+    String n = nullToEmpty(name);
+    String g = nullToEmpty(guid);
+    AuditOutcome o = code.defaultOutcome() != null ? code.defaultOutcome() : AuditOutcome.SUCCESS;
+    AuditContext ctx =
+        AuditContext.builder()
+            .actor(a)
+            .target(g.isEmpty() ? t : g)
+            .attribute("type", t)
+            .attribute("name", n)
+            .build();
+    log(code, ctx, o, t, n, g);
+  }
+
+  /** Design object create (DESN-2901). */
+  public static void designCreate(String actor, String type, String name, String guid) {
+    design(DesignErrorCodes.CREATE, actor, type, name, guid);
+  }
+
+  /** Design object update/save (DESN-2902). */
+  public static void designUpdate(String actor, String type, String name, String guid) {
+    design(DesignErrorCodes.UPDATE, actor, type, name, guid);
+  }
+
+  /** Design object delete (DESN-2903). */
+  public static void designDelete(String actor, String type, String name, String guid) {
+    design(DesignErrorCodes.DELETE, actor, type, name, guid);
   }
 
   private static AuditContext contentContext(HttpServletRequest request, String guid) {

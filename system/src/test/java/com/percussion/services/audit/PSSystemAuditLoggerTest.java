@@ -223,6 +223,48 @@ class PSSystemAuditLoggerTest {
     assertEquals(3, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
   }
 
+  @Test
+  void designUpdateWritesDesnUpdateCode() {
+    PSSystemAuditLogger.designUpdate("designer", "CONTENT_LIST", "list-1", "guid-d1");
+
+    assertEquals(1, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals(DesignErrorCodes.UPDATE, rec.code());
+    assertEquals("DESN", rec.code().module().code());
+    assertEquals(2902, rec.code().numericCode());
+    assertEquals("designer", rec.actor().orElse(""));
+    assertEquals("guid-d1", rec.target().orElse(""));
+    assertTrue(rec.formattedLine().startsWith("[DESN-2902]-"));
+  }
+
+  @Test
+  void designDeleteAndCreateWriteLifecycleCodes() {
+    PSSystemAuditLogger.designCreate("u1", "TEMPLATE", "t1", "g-c");
+    PSSystemAuditLogger.designDelete("u2", "TEMPLATE", "t1", "g-d");
+
+    assertEquals(2, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var codes =
+        ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().stream()
+            .map(r -> r.code().numericCode())
+            .collect(java.util.stream.Collectors.toSet());
+    assertTrue(codes.contains(2901));
+    assertTrue(codes.contains(2903));
+  }
+
+  @Test
+  void designBlankActorBecomesUnknown() {
+    PSSystemAuditLogger.design(DesignErrorCodes.UPDATE, "  ", "SITE", "", "g-x");
+
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals("unknown", rec.actor().orElse(""));
+  }
+
+  @Test
+  void designNullCodeIsNoOp() {
+    PSSystemAuditLogger.design(null, "u", "t", "n", "g");
+    assertEquals(0, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+  }
+
   private static HttpServletRequest mockRequest(String user, String ip) {
     HttpServletRequest request = mock(HttpServletRequest.class);
     when(request.getRemoteUser()).thenReturn(user);
