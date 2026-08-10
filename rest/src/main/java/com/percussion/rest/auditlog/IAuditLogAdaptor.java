@@ -16,8 +16,11 @@
  */
 package com.percussion.rest.auditlog;
 
+import java.util.List;
+
 /**
- * Adaptor contract for the system security audit log query API (Phase 3 / #2618).
+ * Adaptor contract for the system security audit log query and export API (Phase 3 / #2618, Phase 5
+ * export / #2715).
  *
  * <p>Implementations enforce AuthZ (Admin role or role property {@code
  * sys_securityAuditLogViewer}) and map domain rows to wire DTOs. Unauthorized callers must surface
@@ -56,4 +59,28 @@ public interface IAuditLogAdaptor {
    *     return null so the resource can map 404
    */
   SystemAuditLogEntry findById(String auditId);
+
+  /**
+   * Export durable audit rows matching the same filters as {@link #query}, up to a server-clamped
+   * max row count (newest first). Same AuthZ as query.
+   *
+   * @param fromIso optional inclusive lower bound (ISO-8601 instant); null/blank ignored
+   * @param toIso optional exclusive upper bound (ISO-8601 instant); null/blank ignored
+   * @param moduleCode optional module filter (e.g. AUTH)
+   * @param eventType optional event type filter
+   * @param outcome optional outcome filter (SUCCESS / FAILURE / …)
+   * @param actor optional actor (user name) filter; case-insensitive
+   * @param maxRows requested max rows (clamped server-side; non-positive → default)
+   * @return entries newest first (never null; may be empty)
+   * @throws SecurityException when the caller is not allowed
+   * @throws IllegalArgumentException when date filters are invalid
+   */
+  List<SystemAuditLogEntry> export(
+      String fromIso,
+      String toIso,
+      String moduleCode,
+      String eventType,
+      String outcome,
+      String actor,
+      int maxRows);
 }

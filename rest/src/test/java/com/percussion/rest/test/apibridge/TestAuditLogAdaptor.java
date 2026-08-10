@@ -43,4 +43,16 @@ public class TestAuditLogAdaptor implements IAuditLogAdaptor {
   public SystemAuditLogEntry findById(String auditId) {
     return null;
   }
+
+  @Override
+  public List<SystemAuditLogEntry> export(
+      String fromIso,
+      String toIso,
+      String moduleCode,
+      String eventType,
+      String outcome,
+      String actor,
+      int maxRows) {
+    return List.of();
+  }
 }

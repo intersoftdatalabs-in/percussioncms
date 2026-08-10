@@ -130,6 +130,64 @@ class AuditLogAdaptorTest {
     verify(repo, never()).findById(anyString());
   }
 
+  @Test
+  void exportAdminPagesThroughRepositoryAndMaps() {
+    PSSystemAuditLogRepository repo = mock(PSSystemAuditLogRepository.class);
+    when(repo.findEntries(
+            isNull(), isNull(), eq("AUTH"), isNull(), isNull(), isNull(), eq(0), eq(50)))
+        .thenReturn(List.of(sampleRow()));
+
+    AuditLogAdaptor adaptor =
+        new AuditLogAdaptor(repo, () -> List.of("Admin"), role -> false);
+
+    List<SystemAuditLogEntry> out =
+        adaptor.export(null, null, "AUTH", null, null, null, 50);
+    assertEquals(1, out.size());
+    assertEquals("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", out.get(0).getAuditId());
+    assertEquals("AUTH", out.get(0).getModuleCode());
+    verify(repo)
+        .findEntries(
+            isNull(), isNull(), eq("AUTH"), isNull(), isNull(), isNull(), eq(0), eq(50));
+  }
+
+  @Test
+  void exportUnauthorizedDoesNotTouchRepo() {
+    PSSystemAuditLogRepository repo = mock(PSSystemAuditLogRepository.class);
+    AuditLogAdaptor adaptor =
+        new AuditLogAdaptor(repo, () -> List.of("Author"), role -> false);
+
+    assertThrows(
+        SecurityException.class,
+        () -> adaptor.export(null, null, null, null, null, null, 100));
+    verify(repo, never())
+        .findEntries(any(), any(), any(), any(), any(), any(), anyInt(), anyInt());
+  }
+
+  @Test
+  void exportPropertyHolderAllowed() {
+    PSSystemAuditLogRepository repo = mock(PSSystemAuditLogRepository.class);
+    when(repo.findEntries(any(), any(), any(), any(), any(), any(), anyInt(), anyInt()))
+        .thenReturn(List.of());
+
+    AuditLogAdaptor adaptor =
+        new AuditLogAdaptor(repo, () -> List.of("Editor"), role -> "Editor".equals(role));
+
+    List<SystemAuditLogEntry> out =
+        adaptor.export(null, null, null, null, null, null, 10);
+    assertNotNull(out);
+    assertEquals(0, out.size());
+  }
+
+  @Test
+  void exportInvalidFromIsIllegalArgument() {
+    PSSystemAuditLogRepository repo = mock(PSSystemAuditLogRepository.class);
+    AuditLogAdaptor adaptor =
+        new AuditLogAdaptor(repo, () -> List.of("Admin"), role -> false);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> adaptor.export("not-an-instant", null, null, null, null, null, 10));
+  }
+
   private static PSSystemAuditLogEntry sampleRow() {
     PSSystemAuditLogEntry e = new PSSystemAuditLogEntry();
     e.setAuditId("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");

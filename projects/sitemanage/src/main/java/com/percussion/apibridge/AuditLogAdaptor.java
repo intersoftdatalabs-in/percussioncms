@@ -20,6 +20,7 @@ import static com.percussion.webservices.PSWebserviceUtils.getUserRoles;
 
 import com.percussion.rest.auditlog.IAuditLogAdaptor;
 import com.percussion.rest.auditlog.SystemAuditLogEntry;
+import com.percussion.rest.auditlog.SystemAuditLogExport;
 import com.percussion.rest.auditlog.SystemAuditLogPage;
 import com.percussion.security.IPSPrincipalAttribute;
 import com.percussion.services.audit.PSSystemAuditLogPermission;
@@ -44,7 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
 /**
- * sitemanage apibridge for system audit log query API (#2618).
+ * sitemanage apibridge for system audit log query (#2618) and export (#2715).
  *
  * <p>AuthZ: {@link PSSystemAuditLogPermission} — Admin always allowed, otherwise role property
  * {@code sys_securityAuditLogViewer}.
@@ -114,6 +115,43 @@ public class AuditLogAdaptor implements IAuditLogAdaptor {
     }
     Optional<PSSystemAuditLogEntry> found = repository.findById(auditId.trim());
     return found.map(AuditLogAdaptor::toDto).orElse(null);
+  }
+
+  @Override
+  public List<SystemAuditLogEntry> export(
+      String fromIso,
+      String toIso,
+      String moduleCode,
+      String eventType,
+      String outcome,
+      String actor,
+      int maxRows) {
+    requireViewer();
+    Instant from = parseInstant(fromIso, "from");
+    Instant to = parseInstant(toIso, "to");
+    int cap = SystemAuditLogExport.clampMaxRows(maxRows);
+
+    // Page through repository (query hard-cap 200) until export cap or end of result set.
+    List<SystemAuditLogEntry> all = new ArrayList<>(Math.min(cap, 256));
+    int offset = 0;
+    while (all.size() < cap) {
+      int pageSize =
+          Math.min(PSSystemAuditLogRepository.MAX_PAGE_SIZE, cap - all.size());
+      List<PSSystemAuditLogEntry> rows =
+          repository.findEntries(
+              from, to, moduleCode, eventType, outcome, actor, offset, pageSize);
+      if (rows == null || rows.isEmpty()) {
+        break;
+      }
+      for (PSSystemAuditLogEntry row : rows) {
+        all.add(toDto(row));
+      }
+      offset += rows.size();
+      if (rows.size() < pageSize) {
+        break;
+      }
+    }
+    return all;
   }
 
   private void requireViewer() {

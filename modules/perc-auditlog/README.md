@@ -113,10 +113,11 @@ Phase 2a migrated production call sites to `PSSystemAuditLogger` helpers + packa
 
 **REST** (public adaptor pattern):
 
-* Resource: `com.percussion.rest.auditlog.AuditLogResource` → `/auditlog/entries`
-* Interface: `IAuditLogAdaptor`
+* Resource: `com.percussion.rest.auditlog.AuditLogResource` → `/auditlog/entries`, `/auditlog/entries/{auditId}`, `/auditlog/export`
+* Interface: `IAuditLogAdaptor` (query + export)
 * Impl: `com.percussion.apibridge.AuditLogAdaptor` (sitemanage) → `PSSystemAuditLogRepository` query helpers
 * Seed: installer `cmsTableData.xml` registers the property and seeds Admin=`true`
+* Export (#2715): `GET /auditlog/export?format=csv|json` with the same AuthZ and filters; see `docs/ai-generated/tasks/system-audit-log/export.md`
 
 Unauthorized callers receive HTTP **403**. Admin UI for browsing is Phase 4 (#2619).
 
