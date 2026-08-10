@@ -55,6 +55,8 @@ test.describe("modern React Content Explorer — translations (P-Trans #2430)", 
       const shell = page.locator('[data-testid="content-explorer-shell"]');
       await expect(shell).toBeVisible({ timeout: 15_000 });
 
+      // #2731: translations toggle lives under the View menu dropdown.
+      await page.locator('[data-testid="explorer-menu-view"]').click();
       const toggle = page.locator('[data-testid="explorer-toggle-translations"]');
       await expect(toggle).toBeVisible();
       await expect(toggle).toHaveAttribute("aria-expanded", "false");
@@ -104,6 +106,7 @@ test.describe("modern React Content Explorer — translations (P-Trans #2430)", 
       const enabledCount = await enabledRows.count();
       const anyCount = await anyRows.count();
       if (enabledCount === 0 && anyCount === 0) {
+        await page.locator('[data-testid="explorer-menu-view"]').click();
         await page.locator('[data-testid="explorer-toggle-translations"]').click();
         await expect(
           page.locator('[data-testid="explorer-translations-hint"]'),
@@ -120,6 +123,7 @@ test.describe("modern React Content Explorer — translations (P-Trans #2430)", 
         await again.click({ force: true, timeout: 10_000 }).catch(() => {});
       });
 
+      await page.locator('[data-testid="explorer-menu-view"]').click();
       await page.locator('[data-testid="explorer-toggle-translations"]').click();
 
       // Either full panel (numeric content id) or select-item hint (folder / no id).

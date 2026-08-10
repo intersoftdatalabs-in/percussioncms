@@ -63,4 +63,45 @@ describe("ActionToolbar", () => {
     const { container } = render(<ActionToolbar actions={[]} ariaLabel="Item actions" />);
     await renderA11yGate(container);
   });
+
+  it("renders MENU parents with children as nested dropdowns (#2730/#2731)", () => {
+    const nested: MenuAction[] = [
+      {
+        name: "new",
+        label: "New",
+        sortRank: 0,
+        menuType: "MENU",
+        children: [
+          {
+            name: "new-folder",
+            label: "Folder",
+            sortRank: 0,
+            menuType: "MENUITEM",
+          },
+          {
+            name: "new-page",
+            label: "Page",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ],
+      },
+      { name: "open", label: "Open", sortRank: 1, menuType: "MENUITEM" },
+    ];
+    const onInvoke = vi.fn();
+    render(<ActionToolbar actions={nested} onInvoke={onInvoke} />);
+
+    // Parent is a single toolbar control — not three flat buttons.
+    expect(screen.getByTestId("action-toolbar-item-new")).toBeTruthy();
+    expect(screen.queryByTestId("action-toolbar-item-new-folder")).toBeNull();
+    expect(screen.getByTestId("action-toolbar-item-open")).toBeTruthy();
+
+    fireEvent.click(screen.getByTestId("action-toolbar-item-new"));
+    expect(screen.getByTestId("action-toolbar-menu-new")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("action-toolbar-item-new-folder"));
+    expect(onInvoke).toHaveBeenCalledWith(
+      "new-folder",
+      expect.objectContaining({ name: "new-folder" }),
+    );
+  });
 });

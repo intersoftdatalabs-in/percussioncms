@@ -135,6 +135,16 @@ export const EXPLORER_MSG = {
   SERVER_ACTIONS_ARIA: "perc.ui.explorer@Server actions",
   /** Product shell: view tools row (search / security / display format). */
   VIEW_TOOLS_ARIA: "perc.ui.explorer@Explorer view tools",
+  /** DCE-style top menu bar (#2731 / ContentExplorerMenu.xml groups). */
+  MENU_BAR_ARIA: "perc.ui.explorer@Explorer menu bar",
+  MENU_CONTENT: "perc.ui.explorer@Content",
+  MENU_VIEW: "perc.ui.explorer@View",
+  MENU_HELP: "perc.ui.explorer@Help",
+  MENU_VIEW_REFRESH: "perc.ui.explorer@Refresh",
+  MENU_HELP_EXPLORER: "perc.ui.explorer@Content Explorer help",
+  MENU_HELP_ABOUT: "perc.ui.explorer@About Content Explorer",
+  MENU_HELP_ABOUT_BODY:
+    "perc.ui.explorer@Percussion CMS Content Explorer — modern SPA shell (DCE parity program).",
   TOGGLE_SEARCH_ARIA: "perc.ui.explorer@Show or hide search",
   TOGGLE_SECURITY_ARIA: "perc.ui.explorer@Show or hide folder security",
   SEARCH_PANEL_REGION: "perc.ui.explorer@Search panel",
