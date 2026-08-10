@@ -18,7 +18,6 @@ package com.percussion.webservices.ui.impl;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.objectstore.IPSDbComponent;
-import com.percussion.cms.objectstore.PSAction;
 import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSInternalRequest;
@@ -163,8 +162,10 @@ public class PSUiBaseWs
       {
 
          int code = IPSWebserviceErrors.FIND_FAILED;
+         // Report the requested component type (search/view/action/display format), not a hardcoded
+         // PSAction — callers use this for PSSearch and others; wrong type misled GH-2712 triage.
          PSErrorException error = new PSErrorException(code, PSWebserviceErrors
-            .createErrorMessage(code, PSAction.class.getName(), name, label, e
+            .createErrorMessage(code, objClass.getName(), name, label, e
                .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
          throw error;
       }

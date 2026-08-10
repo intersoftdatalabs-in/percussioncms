@@ -28,9 +28,16 @@ public class PSSProperties extends PSDbComponentCollection {
     super(PSSearchMultiProperty.class);
   }
 
-  /** See base class {@link com.percussion.cms.objectstore.PSDbComponentList} for description. */
+  /**
+   * See base class {@link com.percussion.cms.objectstore.PSDbComponentCollection} for description.
+   *
+   * <p>Passes {@link #XML_NODE_NAME} explicitly: the base Element path uses a class-derived default
+   * ({@code PSXSProperties}) to avoid virtual {@link #getNodeName()} during construction
+   * (this-escape). Wire XML and {@link #toXml} use {@code PSX_PROPERTIES}, so the expected root
+   * must be supplied here.
+   */
   public PSSProperties(Element source) throws PSUnknownNodeTypeException {
-    super(source);
+    super(source, XML_NODE_NAME);
   }
 
   /**

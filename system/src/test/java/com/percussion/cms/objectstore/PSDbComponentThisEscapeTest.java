@@ -184,6 +184,65 @@ public class PSDbComponentThisEscapeTest {
   }
 
   /**
+   * GH-2712: subclasses whose wire root differs from {@code PS + simpleName} (underscore names)
+   * must pass {@code XML_NODE_NAME} into the base Element ctor so construction-safe load does not
+   * expect {@code PSXSFields}/{@code PSXSProperties}.
+   */
+  @Test
+  public void pssFieldsAndPropertiesElementCtorHonorCustomWireNodeNames() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+
+    Element fieldsRoot = doc.createElement(PSSFields.XML_NODE_NAME);
+    fieldsRoot.setAttribute("className", PSSearchField.class.getName());
+    fieldsRoot.setAttribute("ordered", "yes");
+    fieldsRoot.setAttribute("state", IPSDbComponent.STATE_LABELS[IPSDbComponent.DBSTATE_UNMODIFIED]);
+    PSKey fieldKey =
+        new PSKey(
+            new String[] {"FIELDNAME", "SEARCHID"}, new String[] {"sys_title", "1"}, true);
+    Element fieldEl = doc.createElement("PSXSearchField");
+    fieldEl.setAttribute("state", IPSDbComponent.STATE_LABELS[IPSDbComponent.DBSTATE_UNMODIFIED]);
+    fieldEl.appendChild(fieldKey.toXml(doc));
+    PSXmlDocumentBuilder.addElement(doc, fieldEl, "FIELDTYPE", PSSearchField.TYPE_TEXT);
+    PSXmlDocumentBuilder.addElement(doc, fieldEl, "FIELDVALUE", "");
+    PSXmlDocumentBuilder.addElement(doc, fieldEl, "FIELDDESCRIPTION", "");
+    PSXmlDocumentBuilder.addElement(doc, fieldEl, "FIELDLABEL", "Title");
+    PSXmlDocumentBuilder.addElement(doc, fieldEl, "OPERATOR", "like");
+    PSXmlDocumentBuilder.addElement(doc, fieldEl, "EXTOPERATOR", "");
+    fieldsRoot.appendChild(fieldEl);
+
+    PSSFields fields = new PSSFields(fieldsRoot);
+    assertEquals(1, fields.size());
+    assertEquals("sys_title", ((PSSearchField) fields.get(0)).getFieldName());
+
+    Element propsRoot = doc.createElement(PSSProperties.XML_NODE_NAME);
+    propsRoot.setAttribute("className", PSSearchMultiProperty.class.getName());
+    propsRoot.setAttribute("ordered", "no");
+    propsRoot.setAttribute("state", IPSDbComponent.STATE_LABELS[IPSDbComponent.DBSTATE_UNMODIFIED]);
+    Element multi = doc.createElement(PSSearchMultiProperty.XML_NODE_NAME);
+    multi.setAttribute("className", PSSProperty.class.getName());
+    multi.setAttribute("ordered", "no");
+    multi.setAttribute("propName", "cxNewSearch");
+    multi.setAttribute("state", IPSDbComponent.STATE_LABELS[IPSDbComponent.DBSTATE_UNMODIFIED]);
+    Element leaf = doc.createElement("PSXSProperty");
+    leaf.setAttribute("propName", "cxNewSearch");
+    leaf.setAttribute("state", IPSDbComponent.STATE_LABELS[IPSDbComponent.DBSTATE_UNMODIFIED]);
+    PSKey propKey =
+        new PSKey(
+            new String[] {"PROPERTYNAME", "PROPERTYVALUE", "SEARCHID"},
+            new String[] {"cxNewSearch", "n", "1"},
+            true,
+            false);
+    leaf.appendChild(propKey.toXml(doc));
+    PSXmlDocumentBuilder.addElement(doc, leaf, "Value", "n");
+    PSXmlDocumentBuilder.addElement(doc, leaf, "Description", "");
+    multi.appendChild(leaf);
+    propsRoot.appendChild(multi);
+
+    PSSProperties props = new PSSProperties(propsRoot);
+    assertEquals(1, props.size());
+  }
+
+  /**
    * Builds a minimal {@code PSXVariantSlotType} document matching {@link
    * PSVariantSlotType#toXml(Document)} / super key serialization.
    */
