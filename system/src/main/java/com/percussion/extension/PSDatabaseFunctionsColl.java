@@ -117,7 +117,7 @@ public class PSDatabaseFunctionsColl {
 
     Element root = doc.createElement(NODE_NAME);
 
-    Iterator it = m_dbFuncs.entrySet().iterator();
+    Iterator<Map.Entry<String, PSDatabaseFunction>> it = m_dbFuncs.entrySet().iterator();
     while (it.hasNext()) {
       Map.Entry item = (Map.Entry) it.next();
       PSDatabaseFunction dbFunc = (PSDatabaseFunction) item.getValue();
@@ -191,7 +191,7 @@ public class PSDatabaseFunctionsColl {
    */
   private boolean compareDatabaseFunctions(PSDatabaseFunctionsColl dbFuncsColl, boolean full) {
     boolean equals = true;
-    Iterator it = m_dbFuncs.entrySet().iterator();
+    Iterator<Map.Entry<String, PSDatabaseFunction>> it = m_dbFuncs.entrySet().iterator();
     while (it.hasNext()) {
       Map.Entry item = (Map.Entry) it.next();
       String dbFuncName = (String) item.getKey();
@@ -217,7 +217,7 @@ public class PSDatabaseFunctionsColl {
    */
   private int getDatabaseFunctionDefsHashCode(boolean full) {
     int code = 0;
-    Iterator it = m_dbFuncs.entrySet().iterator();
+    Iterator<Map.Entry<String, PSDatabaseFunction>> it = m_dbFuncs.entrySet().iterator();
     while (it.hasNext()) {
       Map.Entry item = (Map.Entry) it.next();
       PSDatabaseFunction dbFunc = (PSDatabaseFunction) item.getValue();
@@ -319,14 +319,14 @@ public class PSDatabaseFunctionsColl {
    *     </code>, may be empty if no database function has been defined for the specified driver.
    * @throws IllegalArgumentException if <code>driver</code> is <code>null</code> or empty
    */
-  public Iterator getDatabaseFunctionsDef(String driver) {
+  public Iterator<PSDatabaseFunctionDef> getDatabaseFunctionsDef(String driver) {
     if ((driver == null) || (driver.trim().length() < 1))
       throw new IllegalArgumentException("driver may not be null or empty");
 
     PSDatabaseFunction dbFunc = null;
     PSDatabaseFunctionDef dbFuncDef = null;
-    List funcList = new ArrayList();
-    Iterator it = m_dbFuncs.entrySet().iterator();
+    List<PSDatabaseFunctionDef> funcList = new ArrayList<>();
+    Iterator<Map.Entry<String, PSDatabaseFunction>> it = m_dbFuncs.entrySet().iterator();
     while (it.hasNext()) {
       Map.Entry item = (Map.Entry) it.next();
       dbFunc = (PSDatabaseFunction) item.getValue();
@@ -486,7 +486,7 @@ public class PSDatabaseFunctionsColl {
    * @return an iterator over over a collection of <code>PSDatabaseFunction</code> objects, never
    *     <code>null</code>, the collection may be empty.
    */
-  public Iterator iterator() {
+  public Iterator<PSDatabaseFunction> iterator() {
     return m_dbFuncs.values().iterator();
   }
 
@@ -500,7 +500,7 @@ public class PSDatabaseFunctionsColl {
    * </code> and <code>add()</code> and <code>remove()</code> and <code>clear()</code> methods.
    * Never <code>null</code>, may be empty.
    */
-  private Map m_dbFuncs = new HashMap();
+  private Map<String, PSDatabaseFunction> m_dbFuncs = new HashMap<>();
 
   /**
    * type of database functions, initialized in the ctor, never modified after initialization, valid

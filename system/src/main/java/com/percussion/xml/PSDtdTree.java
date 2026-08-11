@@ -916,7 +916,7 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
    *     identifier will be used.
    * @return List A list of strings containing the catalog info.
    */
-  public List getCatalog(String separator, String attribQualifier) {
+  public List<String> getCatalog(String separator, String attribQualifier) {
 
     if (m_catalogList != null) {
       return m_catalogList;
@@ -926,14 +926,14 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
     if (rootElement == null) {
       return null;
     } else {
-      m_catalogList = new ArrayList();
+      m_catalogList = new ArrayList<>();
 
       if (separator == null) separator = CANONICAL_PATH_SEP;
 
       if (attribQualifier == null) attribQualifier = CANONICAL_ATTRIBUTE_PREFIX;
 
       // Use a HashMap for a stack for recursion checks
-      HashMap catStack = new HashMap();
+      HashMap<Object, Object> catStack = new HashMap<>();
       rootElement.catalog(catStack, m_catalogList, "", separator, attribQualifier);
     }
 
@@ -1903,10 +1903,10 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   PSDtdElementEntry rootElement;
 
   /** HashMap for all elements */
-  HashMap m_elements;
+  HashMap<String, PSDtdElement> m_elements;
 
   /** Catalog list holder, for future calls, this will be cached */
-  List m_catalogList;
+  List<String> m_catalogList;
 
   /** Need some sort of overflow condition for cataloging, DTDs can be very complex */
   public static final int MAX_CATALOG_SIZE = 1000;

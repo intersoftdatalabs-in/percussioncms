@@ -193,7 +193,7 @@ public class PSModifyXmlHierarchyExtension implements IPSResultDocumentProcessor
       /* now we can locate all the parent nodes, which we'll store in
        * the specified hash
        */
-      HashMap parents = new HashMap();
+      HashMap<String, Element> parents = new HashMap<>();
 
       PSXmlTreeWalker tree = new PSXmlTreeWalker(resultDoc);
       Element el = tree.getNextElement(parentNode, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
@@ -220,7 +220,7 @@ public class PSModifyXmlHierarchyExtension implements IPSResultDocumentProcessor
        * a list. We will then walk the list to do the tree fixup.
        */
 
-      ArrayList kids = new ArrayList();
+      ArrayList<Element> kids = new ArrayList<>();
 
       // move back to the root to do the second pass of the tree
       tree.setCurrent(root);

@@ -67,9 +67,9 @@ public class PSJavaScriptUdfExtension implements IPSUdfProcessor {
     }*/
     m_extensionDef = def;
     // extract the param definitions for use during processing
-    Iterator iter = def.getRuntimeParameterNames();
-    ArrayList pdefs = new ArrayList();
-    while (iter.hasNext()) pdefs.add(def.getRuntimeParameter((String) iter.next()));
+    Iterator<String> iter = def.getRuntimeParameterNames();
+    ArrayList<IPSExtensionParamDef> pdefs = new ArrayList<>();
+    while (iter.hasNext()) pdefs.add(def.getRuntimeParameter(iter.next()));
     m_paramDefs = new IPSExtensionParamDef[pdefs.size()];
     pdefs.toArray(m_paramDefs);
   }

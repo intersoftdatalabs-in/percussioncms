@@ -201,7 +201,7 @@ public class PSWebdavConfigDef extends PSWebdavComponent
     * @return collection of all <code>PSWebdavContentType</code> objects.
     * Never <code>null</code>, may be empty.
     */
-   public Iterator getContentTypes()
+   public Iterator<PSWebdavContentType> getContentTypes()
    {
       return m_contenttypes.iterator();
    }
@@ -263,7 +263,7 @@ public class PSWebdavConfigDef extends PSWebdavComponent
     * @return an iterator over zero or more <code>String</code> objects, 
     *    never <code>null</code>, but may by empty.
     */
-   public Iterator getExcludeFolderProperties()
+   public Iterator<String> getExcludeFolderProperties()
    {
       return m_excludeFolderProperties.iterator();
    }
@@ -515,7 +515,7 @@ public class PSWebdavConfigDef extends PSWebdavComponent
       // exists.
       boolean gotDefault = false;
       m_contenttypes.clear();
-      ArrayList typeNames = new ArrayList();
+      ArrayList<String> typeNames = new ArrayList<>();
       Element contentTypeEl = PSXMLDomUtil.getFirstElementChild(src,
             IPSRxWebDavDTD.ELEM_CONTENTTYPE);
       while (contentTypeEl != null)
@@ -685,6 +685,6 @@ public class PSWebdavConfigDef extends PSWebdavComponent
     * when creating a folder. It is a set of zero or more <code>String</code>
     * objects, never <code>null</code>, but may be empty.
     */
-   private Set m_excludeFolderProperties = new HashSet();
+   private Set<String> m_excludeFolderProperties = new HashSet<>();
 }
 

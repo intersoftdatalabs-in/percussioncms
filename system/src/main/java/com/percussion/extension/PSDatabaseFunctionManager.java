@@ -253,16 +253,19 @@ public class PSDatabaseFunctionManager {
    *     </code>, may be empty if no database function has been defined of the specified type (for
    *     example, if there are no user defined functions).
    */
-  public Iterator getDatabaseFunctions(int type) {
-    Iterator itUserFunc = PSIteratorUtils.emptyIterator();
-    Iterator itSysFunc = PSIteratorUtils.emptyIterator();
+  public Iterator<PSDatabaseFunction> getDatabaseFunctions(int type) {
+    Iterator<PSDatabaseFunction> itUserFunc = PSIteratorUtils.emptyIterator();
+    Iterator<PSDatabaseFunction> itSysFunc = PSIteratorUtils.emptyIterator();
 
     if ((type & FUNCTION_TYPE_USER) == FUNCTION_TYPE_USER) itUserFunc = m_dbUserFuncColl.iterator();
 
     if ((type & FUNCTION_TYPE_SYSTEM) == FUNCTION_TYPE_SYSTEM)
       itSysFunc = m_dbSysFuncColl.iterator();
 
-    return PSIteratorUtils.joinedIterator(itUserFunc, itSysFunc);
+    @SuppressWarnings("unchecked")
+    Iterator<PSDatabaseFunction> joined =
+        (Iterator<PSDatabaseFunction>) (Iterator<?>) PSIteratorUtils.joinedIterator(itUserFunc, itSysFunc);
+    return joined;
   }
 
   /**
@@ -277,12 +280,12 @@ public class PSDatabaseFunctionManager {
    *     </code>, may be empty if no database function has been defined for the specified driver.
    * @throws IllegalArgumentException if <code>driver</code> is <code>null</code> or empty
    */
-  public Iterator getDatabaseFunctionsDef(int type, String driver) {
+  public Iterator<PSDatabaseFunctionDef> getDatabaseFunctionsDef(int type, String driver) {
     if ((driver == null) || (driver.trim().length() < 1))
       throw new IllegalArgumentException("driver may not be null or empty");
 
-    Iterator itUserFuncDef = PSIteratorUtils.emptyIterator();
-    Iterator itSysFuncDef = PSIteratorUtils.emptyIterator();
+    Iterator<PSDatabaseFunctionDef> itUserFuncDef = PSIteratorUtils.emptyIterator();
+    Iterator<PSDatabaseFunctionDef> itSysFuncDef = PSIteratorUtils.emptyIterator();
 
     if ((type & FUNCTION_TYPE_USER) == FUNCTION_TYPE_USER)
       itUserFuncDef = m_dbUserFuncColl.getDatabaseFunctionsDef(driver);
@@ -290,7 +293,11 @@ public class PSDatabaseFunctionManager {
     if ((type & FUNCTION_TYPE_SYSTEM) == FUNCTION_TYPE_SYSTEM)
       itSysFuncDef = m_dbSysFuncColl.getDatabaseFunctionsDef(driver);
 
-    return PSIteratorUtils.joinedIterator(itUserFuncDef, itSysFuncDef);
+    @SuppressWarnings("unchecked")
+    Iterator<PSDatabaseFunctionDef> joined =
+        (Iterator<PSDatabaseFunctionDef>)
+            (Iterator<?>) PSIteratorUtils.joinedIterator(itUserFuncDef, itSysFuncDef);
+    return joined;
   }
 
   /**

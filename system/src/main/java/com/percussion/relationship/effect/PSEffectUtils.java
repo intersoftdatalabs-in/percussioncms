@@ -51,7 +51,7 @@ public class PSEffectUtils {
       throws PSInternalRequestCallException, PSNotFoundException {
     String resource = SYS_PSXRELATIONSHIPSUPPORT + "/" + GET_CURRENTSTATE;
 
-    Map params = new HashMap();
+    Map<String, Object> params = new HashMap<>();
     params.put(IPSHtmlParameters.SYS_CONTENTID, Integer.toString(contentId));
 
     IPSInternalRequest ir = request.getInternalRequest(resource, params, false);
@@ -81,11 +81,11 @@ public class PSEffectUtils {
    * @throws PSNotFoundException if a required resource cannot be found.
    */
   public static Document getWorkflowStates(
-      IPSRequestContext request, Collection contentIds, String name)
+      IPSRequestContext request, Collection<?> contentIds, String name)
       throws PSInternalRequestCallException, PSNotFoundException {
     String resource = SYS_PSXRELATIONSHIPSUPPORT + "/" + GET_CURRENTSTATE;
 
-    Map params = new HashMap();
+    Map<String, Object> params = new HashMap<>();
     params.put("sys_contentids", contentIds);
 
     IPSInternalRequest ir = request.getInternalRequest(resource, params, false);

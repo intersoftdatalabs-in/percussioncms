@@ -225,7 +225,7 @@ public class PSXPathEvaluator {
     if (xpath == null || xpath.trim().length() == 0)
       throw new IllegalArgumentException("xpath may not be null or empty");
 
-    List list = new ArrayList();
+    List<Node> list = new ArrayList<>();
 
     Expression expr = Expression.make(xpath, m_standAloneContext);
     NodeEnumeration ne = null;

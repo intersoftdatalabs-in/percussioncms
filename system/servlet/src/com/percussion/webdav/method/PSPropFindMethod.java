@@ -153,9 +153,9 @@ public class PSPropFindMethod extends PSWebdavMethod
     * @return A list over zero or more <code>Element</code> objects, never
     *    <code>null</code>.
     */
-   private List getRequestedPropertyNames(Element propEl)
+   private List<Element> getRequestedPropertyNames(Element propEl)
    {
-      List names = new ArrayList();
+      List<Element> names = new ArrayList<>();
       Element childEl = PSXMLDomUtil.getFirstElementChild(propEl);
       while (childEl != null)
       {
@@ -257,9 +257,9 @@ public class PSPropFindMethod extends PSWebdavMethod
     * 
     * @throws PSWebdavException if an error occurs.
     */
-   private List getComponents() throws PSWebdavException
+   private List<ComponentStatus> getComponents() throws PSWebdavException
    {
-      List compList = new ArrayList();
+      List<ComponentStatus> compList = new ArrayList<>();
       // get the component from the request path
       String compPath = getRxVirtualPath();
       String uri = getRequest().getRequestURI();
@@ -315,13 +315,13 @@ public class PSPropFindMethod extends PSWebdavMethod
     * 
     * @throws PSCmsException if an error occurs.
     */
-   private List getFolderChildren(
+   private List<ComponentStatus> getFolderChildren(
       int depth,
       PSComponentSummary folder,
       String parentURI)
       throws PSCmsException
    {
-      List compList = new ArrayList();
+      List<ComponentStatus> compList = new ArrayList<>();
       if ((depth > 0) && folder.isFolder())
       {
          PSComponentSummary[] children = getChildSummaries(folder);
@@ -364,7 +364,7 @@ public class PSPropFindMethod extends PSWebdavMethod
     * 
     * @throws PSSearchException if an error occurs.
     */
-   private void setComponentValues(List compList) throws PSSearchException
+   private void setComponentValues(List<ComponentStatus> compList) throws PSSearchException
    {
       SearchParameters parameters = new SearchParameters(compList);
 
@@ -401,7 +401,7 @@ public class PSPropFindMethod extends PSWebdavMethod
     * @return The component with the specified id. It may be <code>null</code>
     *    if the component not exist in the component list.
     */
-   private ComponentStatus getComponent(int contentId, Iterator comps)
+   private ComponentStatus getComponent(int contentId, Iterator<ComponentStatus> comps)
    {
       while (comps.hasNext())
       {
@@ -421,7 +421,7 @@ public class PSPropFindMethod extends PSWebdavMethod
     * @param mappings An interator over zero or more 
     *    <code>PSPropertyFieldNameMapping</code> objects.
     */
-   private void addFieldNames(Set fieldNameSet, Iterator mappings)
+   private void addFieldNames(Set<String> fieldNameSet, Iterator<?> mappings)
    {
       PSPropertyFieldNameMapping mapping = null;
       while (mappings.hasNext())
@@ -443,7 +443,7 @@ public class PSPropFindMethod extends PSWebdavMethod
     *    conformed with the <code>multistatus</code> XML element specified in
     *    the WebDAV spec, [RFC 2518].
     */
-   private Document getMultiStatusDocument(Iterator compList)
+   private Document getMultiStatusDocument(Iterator<ComponentStatus> compList)
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
       Element root = createWebdavRootElement(doc, E_MULTISTATUS);
@@ -496,8 +496,8 @@ public class PSPropFindMethod extends PSWebdavMethod
       responseEl.appendChild(hrefEl);
       if (m_propFindType == FIND_BY_PROPERTY)
       {
-         List unknownProperties = new ArrayList();
-         List mappings = getKnownMappings(comp, unknownProperties);
+         List<Element> unknownProperties = new ArrayList<>();
+         List<?> mappings = getKnownMappings(comp, unknownProperties);
          Element propstatEl = null;
          if (!mappings.isEmpty())
          {
@@ -531,7 +531,7 @@ public class PSPropFindMethod extends PSWebdavMethod
     * 
     * @return The created XML element, never <code>null</code>.
     */
-   private Element getUnknownPropstatElement(List properties, Document doc)
+   private Element getUnknownPropstatElement(List<Element> properties, Document doc)
    {
       // create the "prop" element first
       Element propEl = createWebdavElement(doc, E_PROP);
@@ -577,9 +577,9 @@ public class PSPropFindMethod extends PSWebdavMethod
     * @return A list of <code>PSPropertyFieldNameMapping</code>, never
     *    <code>null</code>.
     */
-   private List getKnownMappings(ComponentStatus comp, List unknownProps)
+   private List<?> getKnownMappings(ComponentStatus comp, List<Element> unknownProps)
    {
-      List mappingList = new ArrayList();
+      List<Object> mappingList = new ArrayList<>();
       Iterator requestProps = m_requestedPropertyNames.iterator();
       PSPropertyFieldNameMapping mapping = null;
       while (requestProps.hasNext())
@@ -834,7 +834,7 @@ public class PSPropFindMethod extends PSWebdavMethod
     * objects. This is only used when the propfind type is
     * <code>FIND_BY_PROPERTY</code>.
     */
-   private List m_requestedPropertyNames;
+   private List<Element> m_requestedPropertyNames;
    /**
     * The depth of the request.
     */

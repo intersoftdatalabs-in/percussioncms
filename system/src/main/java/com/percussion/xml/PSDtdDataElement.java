@@ -64,7 +64,7 @@ public class PSDtdDataElement extends PSDtdNode {
    * @param sep the element separator string
    * @param attribId the string used to identify an attribute entry
    */
-  public void catalog(HashMap stack, List catalogList, String cur, String sep, String attribId) {
+  public void catalog(HashMap<Object, Object> stack, List<String> catalogList, String cur, String sep, String attribId) {
     //      if (catalogList.size() >= PSDtdTree.MAX_CATALOG_SIZE)
     //      {
     //         catalogList.add("TRUNCATED!");

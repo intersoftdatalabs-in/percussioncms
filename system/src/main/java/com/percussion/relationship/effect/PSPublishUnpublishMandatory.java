@@ -159,9 +159,9 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
      * between, and the relationship types are the same, then skip
      */
     if (context.getProcessedRelationships() != null) {
-      Iterator rels = context.getProcessedRelationships().iterator();
+      Iterator<PSRelationship> rels = context.getProcessedRelationships().iterator();
       while (rels.hasNext()) {
-        PSRelationship rel = (PSRelationship) rels.next();
+        PSRelationship rel = rels.next();
         PSLocator o1 = relationship.getOwner();
         PSLocator o2 = rel.getOwner();
         PSLocator d1 = relationship.getDependent();

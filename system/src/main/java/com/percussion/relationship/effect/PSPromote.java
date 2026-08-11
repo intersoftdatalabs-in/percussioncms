@@ -245,7 +245,7 @@ public class PSPromote extends PSEffect {
       boolean forceDependent)
       throws PSExtensionProcessingException {
     try {
-      Map params = new HashMap();
+      Map<String, Object> params = new HashMap<>();
       params.put(IPSHtmlParameters.SYS_COMMAND, PSWorkflowCommandHandler.COMMAND_NAME);
       params.put(IPSConstants.DEFAULT_ACTION_TRIGGER_NAME, transition);
       params.put(IPSHtmlParameters.SYS_CONTENTID, Integer.toString(item.getId()));
@@ -308,7 +308,7 @@ public class PSPromote extends PSEffect {
               + "/"
               + PSRelationshipUtils.GET_CURRENTSTATE;
 
-      Map params = new HashMap();
+      Map<String, Object> params = new HashMap<>();
       params.put(IPSHtmlParameters.SYS_CONTENTID, "" + locator.getId());
 
       IPSInternalRequest ir = request.getInternalRequest(resource, params, false);
@@ -403,9 +403,9 @@ public class PSPromote extends PSEffect {
      * repoint outbound relationships by making the PV item
      * a new owner of each of the found outbound relationships.
      */
-    Iterator itOutboundRel = outboundRelationships.iterator();
+    Iterator<PSRelationship> itOutboundRel = outboundRelationships.iterator();
     while (itOutboundRel.hasNext()) {
-      PSRelationship rs = (PSRelationship) itOutboundRel.next();
+      PSRelationship rs = itOutboundRel.next();
 
       if (rs.getConfig().isPromotable()) continue; // do not touch promotable relations
 
@@ -430,9 +430,9 @@ public class PSPromote extends PSEffect {
      * repoint inbound relationships by making the PV a dependent
      * item of each of the found inbound relationships.
      */
-    Iterator itInboundRel = inboundRelationships.iterator();
+    Iterator<PSRelationship> itInboundRel = inboundRelationships.iterator();
     while (itInboundRel.hasNext()) {
-      PSRelationship rs = (PSRelationship) itInboundRel.next();
+      PSRelationship rs = itInboundRel.next();
 
       if (rs.isPromotable() || rs.isSkipPromotion()) continue; // do not touch promotable relations
 
@@ -477,9 +477,9 @@ public class PSPromote extends PSEffect {
     PSRelationshipFilter filter = new PSRelationshipFilter();
     filter.setDependentId(pvDependentItem.getId());
     PSRelationshipSet existing = processor.getRelationships(filter);
-    Iterator iter = relationshipsToModify.iterator();
+    Iterator<PSRelationship> iter = relationshipsToModify.iterator();
     while (iter.hasNext()) {
-      PSRelationship rel = (PSRelationship) iter.next();
+      PSRelationship rel = iter.next();
       if (existing.contains(rel)) {
         removeThese.add(rel);
       }
