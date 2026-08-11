@@ -31,6 +31,7 @@ import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.LocaleErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.LuceneErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.MailErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
@@ -845,6 +846,58 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(16311).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(1801).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(3501).isPresent());
+  }
+
+  // --- ObjectStore batch A residual (#2898) ---
+
+  @Test
+  void objectStoreBatchACodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2011));
+    assertSame(
+        ObjectStoreErrorCodes.XML_ELEMENT_NULL, LegacyErrorCodeRegistry.find(2011).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2102));
+    assertSame(ObjectStoreErrorCodes.CONN_OBJ_NULL, LegacyErrorCodeRegistry.find(2102).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2260));
+    assertSame(
+        ObjectStoreErrorCodes.NOTIFIER_FROM_TOO_BIG,
+        LegacyErrorCodeRegistry.find(2260).orElseThrow());
+  }
+
+  @Test
+  void objectStoreNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE.numericCode(),
+            AuditContext.empty(),
+            "expected",
+            "actual");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void designOwnedObjectStoreAclIntsRemainDesignErrorCodes() {
+    // ObjectStore batch A must not steal Design ACL flat ownership (auditable dual-write path).
+    assertSame(
+        DesignErrorCodes.APP_ACL_NO_MANAGER, LegacyErrorCodeRegistry.find(2203).orElseThrow());
+    assertSame(DesignErrorCodes.SRV_ACL_NO_ADMIN, LegacyErrorCodeRegistry.find(2353).orElseThrow());
+    assertTrue(LegacyErrorCodeRegistry.isAuditable(2353));
+    assertSame(
+        DesignErrorCodes.ACL_ENTRYLIST_NULL, LegacyErrorCodeRegistry.find(2201).orElseThrow());
+  }
+
+  @Test
+  void registryCoversObjectStoreBatchA() {
+    // Prior catalogs (~380+) plus ObjectStore batch A (63 non-colliding ints).
+    assertTrue(LegacyErrorCodeRegistry.size() >= 440);
+    assertTrue(LegacyErrorCodeRegistry.find(2011).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2209).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2260).isPresent());
   }
 
 }

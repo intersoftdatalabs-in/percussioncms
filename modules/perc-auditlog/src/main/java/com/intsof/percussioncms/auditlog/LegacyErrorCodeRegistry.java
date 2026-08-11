@@ -26,6 +26,7 @@ import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.LocaleErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.LuceneErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.MailErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
@@ -55,9 +56,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * package-local ints, non-colliding {@link WebserviceErrorCodes} package-local ints (28–73), fully
  * unique {@link ServerWebServicesErrorCodes} / {@link WebdavErrorCodes} / {@link ServletErrorCodes},
  * fully unique {@link SearchErrorCodes} / {@link LuceneErrorCodes} / {@link LocaleErrorCodes} /
- * {@link MailErrorCodes}, and bootstrap-only {@link TransformationErrorCodes} / {@link
- * DeliveryErrorCodes} (no flat register). Residual slices may register additional catalogs via
- * {@link #register(int, SystemErrorCode)}.
+ * {@link MailErrorCodes}, non-colliding {@link ObjectStoreErrorCodes} batch A (skips Design-owned
+ * ACL ints), and bootstrap-only {@link TransformationErrorCodes} / {@link DeliveryErrorCodes} (no
+ * flat register). Residual slices may register additional catalogs via {@link #register(int,
+ * SystemErrorCode)}.
  */
 public final class LegacyErrorCodeRegistry {
 
@@ -72,14 +74,16 @@ public final class LegacyErrorCodeRegistry {
   /**
    * Ensure Phase 2b catalogs are loaded (auth/security, content, workflow, path/item, design,
    * server, HTTP, assembly, extension, delivery, job, webservices, WebDAV, servlet, search,
-   * Lucene, locale, mail, transformation). Safe to call repeatedly; catalogs register themselves
-   * in their own static initializers. {@link AssemblyErrorCodes} and {@link JobErrorCodes} skip
-   * package-local ints {@code 1–10} that collide with {@link WorkflowErrorCodes}. {@link
-   * JobErrorCodes} is bootstrapped after assembly so flat int {@code 11} ({@code
-   * CONFIG_FILE_NOT_FOUND}) wins over assembly package-local {@code MISSING_SLOT} (prefer enum for
-   * assembly {@code 11}). {@link WebserviceErrorCodes} skips package-local ints {@code 1–27};
-   * {@link TransformationErrorCodes} and {@link DeliveryErrorCodes} do not flat-register. Search /
-   * Lucene / Locale / Mail ints are globally unique and fully registered.
+   * Lucene, locale, mail, objectstore batch A, transformation). Safe to call repeatedly; catalogs
+   * register themselves in their own static initializers. {@link AssemblyErrorCodes} and {@link
+   * JobErrorCodes} skip package-local ints {@code 1–10} that collide with {@link
+   * WorkflowErrorCodes}. {@link JobErrorCodes} is bootstrapped after assembly so flat int {@code
+   * 11} ({@code CONFIG_FILE_NOT_FOUND}) wins over assembly package-local {@code MISSING_SLOT}
+   * (prefer enum for assembly {@code 11}). {@link WebserviceErrorCodes} skips package-local ints
+   * {@code 1–27}; {@link TransformationErrorCodes} and {@link DeliveryErrorCodes} do not
+   * flat-register. Search / Lucene / Locale / Mail ints are globally unique and fully registered.
+   * {@link ObjectStoreErrorCodes} is registered after {@link DesignErrorCodes} and skips Design-owned
+   * ACL ints so Design keeps flat ownership of auditable ACL failures.
    */
   public static void bootstrap() {
     if (BOOTSTRAPPED.compareAndSet(false, true)) {
@@ -109,6 +113,8 @@ public final class LegacyErrorCodeRegistry {
       LuceneErrorCodes.ensureRegistered();
       LocaleErrorCodes.ensureRegistered();
       MailErrorCodes.ensureRegistered();
+      // ObjectStore batch A (#2898): after Design so ACL ownership stays on DesignErrorCodes.
+      ObjectStoreErrorCodes.ensureRegistered();
     }
   }
 

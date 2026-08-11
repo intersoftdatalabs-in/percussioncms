@@ -18,7 +18,9 @@ System-wide Percussion CMS audit logging and unified error-code support.
   `WebserviceErrorCodes` (package-local 28–73), `ServerWebServicesErrorCodes`, `WebdavErrorCodes`,
   `ServletErrorCodes`, `TransformationErrorCodes` (enum-only),
   `SearchErrorCodes` (`IPSSearchErrors`; auth failure dual-write), `LuceneErrorCodes`,
-  `LocaleErrorCodes`, `MailErrorCodes` (all non-auditable)
+  `LocaleErrorCodes`, `MailErrorCodes` (all non-auditable),
+  `ObjectStoreErrorCodes` batch A (`IPSObjectStoreErrors` general/PSObjectStore/early objects;
+  all non-auditable; skips Design-owned ACL ints)
   + `LegacyErrorCodeRegistry` bridge legacy `IPS*Errors` ints. Non-auditable / unregistered ints never
   dual-write. Central `PSErrorHandler.appendError` dual-writes only when the registry marks the legacy
   int auditable.
@@ -74,6 +76,7 @@ import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.LocaleErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.LuceneErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.MailErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
@@ -102,7 +105,9 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 1001, ctx); // SYS native — non-
 LegacyErrorCodeRegistry.logIfAuditable(audit, 401, ctx); // HTTP status — non-auditable skip
 LegacyErrorCodeRegistry.logIfAuditable(audit, 16052, ctx); // search auth failed — dual-write
 LegacyErrorCodeRegistry.logIfAuditable(audit, 16311, ctx); // Lucene index dir — non-auditable skip
+LegacyErrorCodeRegistry.logIfAuditable(audit, 2011, ctx); // objectstore XML null — non-auditable skip
 // Prefer JobErrorCodes enum for job ints 1–10 (flat registry keeps WF ownership of 1–10)
+// Prefer DesignErrorCodes for objectstore ACL ints (2201–2208, 2213–2214, 2218, 2351–2356)
 // Provider/config/conversion/path/design/server/http/job/assembly/extension/webservice noise (isAuditable=false) and unknown ints → no dual-write
 ```
 
@@ -128,6 +133,7 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 16311, ctx); // Lucene index dir �
 | `LuceneErrorCodes` | 16311–16456 (`IPSLuceneErrors`) | All non-auditable index/query codes |
 | `LocaleErrorCodes` | 1801–1804 (`IPSLocaleErrors`) | All non-auditable |
 | `MailErrorCodes` | 3501–3508 (`IPSMailErrors`) | All non-auditable |
+| `ObjectStoreErrorCodes` | batch A: 2011–2021, 2101–2103, 2200, 2209–2260 (skip Design ACL) | All non-auditable; Design owns ACL ints |
 
 Non-auditable codes (`isAuditable() == false`) never create audit rows.
 
