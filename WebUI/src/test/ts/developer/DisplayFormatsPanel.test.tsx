@@ -14,6 +14,19 @@ vi.mock("../../../main/ts/api/developer/displayFormatsApi", () => ({
   listDisplayFormats: vi.fn(),
   getDisplayFormatDetail: vi.fn(),
   normalizeColumns: (c: unknown) => (Array.isArray(c) ? c : []),
+  objectGuidString: (guid: unknown) => {
+    if (guid == null) return undefined;
+    if (typeof guid === "string") {
+      const t = guid.trim();
+      return t || undefined;
+    }
+    if (typeof guid !== "object" || Array.isArray(guid)) return undefined;
+    const g = guid as { stringValue?: string };
+    if (typeof g.stringValue === "string" && g.stringValue.trim()) {
+      return g.stringValue.trim();
+    }
+    return undefined;
+  },
 }));
 
 const listDisplayFormats = displayFormatsApi.listDisplayFormats as ReturnType<typeof vi.fn>;

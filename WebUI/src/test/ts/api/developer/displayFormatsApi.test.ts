@@ -17,8 +17,39 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   getDisplayFormatDetail,
+  listDisplayFormats,
+  objectGuidString,
   unwrapDisplayFormat,
 } from "../../../../main/ts/api/developer/displayFormatsApi";
+
+describe("objectGuidString", () => {
+  it("reads stringValue when present", () => {
+    expect(objectGuidString({ stringValue: "0-11-5" })).toBe("0-11-5");
+  });
+
+  it("accepts plain string GUID", () => {
+    expect(objectGuidString(" 0-11-7 ")).toBe("0-11-7");
+  });
+
+  it("synthesizes host-type-uuid when stringValue missing (#2951)", () => {
+    expect(
+      objectGuidString({ hostId: 0, type: 11, uuid: 5, longValue: 5 }),
+    ).toBe("0-11-5");
+  });
+
+  it("unwraps nested Guid envelope", () => {
+    expect(
+      objectGuidString({ Guid: { stringValue: "0-11-9", type: 11, uuid: 9 } }),
+    ).toBe("0-11-9");
+  });
+
+  it("returns undefined for empty payloads", () => {
+    expect(objectGuidString(null)).toBeUndefined();
+    expect(objectGuidString(undefined)).toBeUndefined();
+    expect(objectGuidString({})).toBeUndefined();
+    expect(objectGuidString("")).toBeUndefined();
+  });
+});
 
 describe("unwrapDisplayFormat", () => {
   it("unwraps Jackson DisplayFormat root envelope so guid is reachable (#2689)", () => {
@@ -33,6 +64,17 @@ describe("unwrapDisplayFormat", () => {
     expect(unwrapped.name).toBe("By_Author");
     expect(unwrapped.guid?.stringValue).toBe("0-11-5");
     expect(unwrapped.columns).toHaveLength(1);
+  });
+
+  it("synthesizes guid.stringValue from numeric parts under root wrap (#2951)", () => {
+    const unwrapped = unwrapDisplayFormat({
+      DisplayFormat: {
+        name: "By_Author",
+        guid: { hostId: 0, type: 11, uuid: 301, longValue: 301 },
+      },
+    });
+    expect(unwrapped.name).toBe("By_Author");
+    expect(unwrapped.guid?.stringValue).toBe("0-11-301");
   });
 
   it("unwraps camelCase displayFormat envelope", () => {
@@ -98,5 +140,52 @@ describe("getDisplayFormatDetail", () => {
     const calledUrl = String((fetch as ReturnType<typeof vi.fn>).mock.calls[0][0]);
     expect(calledUrl).toContain("/displayformats/");
     expect(calledUrl).toContain("By_Author");
+  });
+
+  it("fills stringValue when detail guid has only parts (#2951)", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        return new Response(
+          JSON.stringify({
+            DisplayFormat: {
+              name: "By_Author",
+              guid: { hostId: 0, type: 11, uuid: 5 },
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }),
+    );
+
+    const detail = await getDisplayFormatDetail("By_Author");
+    expect(detail.guid?.stringValue).toBe("0-11-5");
+  });
+});
+
+describe("listDisplayFormats", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("normalizes guid on each list item", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        return new Response(
+          JSON.stringify({
+            DisplayFormat: [
+              { name: "By_Author", guid: { hostId: 0, type: 11, uuid: 5 } },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }),
+    );
+
+    const list = await listDisplayFormats();
+    expect(list).toHaveLength(1);
+    expect(list[0].name).toBe("By_Author");
+    expect(list[0].guid?.stringValue).toBe("0-11-5");
   });
 });

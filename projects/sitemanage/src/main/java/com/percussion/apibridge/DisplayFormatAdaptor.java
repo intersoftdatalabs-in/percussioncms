@@ -113,18 +113,36 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     ret.setLabel(f.getLabel());
     ret.setDescription(f.getDescription());
     ret.setDisplayName(f.getDisplayName());
+    // Always map GUID so Developer detail / Object ACL can bind objectGuid
+    // (issues #2689 / #2951). PSDisplayFormat#getGUID never returns null.
     ret.setGuid(copyGuid(f.getGUID()));
     return ret;
   }
 
+  /**
+   * Copy a design-object GUID into the REST {@link Guid} DTO with a guaranteed
+   * {@code stringValue} ({@code host-type-uuid}) for SPA Object ACL binding.
+   */
   private Guid copyGuid(IPSGuid guid) {
+    if (guid == null) {
+      return null;
+    }
     var g = new Guid();
     g.setHostId(guid.getHostId());
     g.setLongValue(guid.longValue());
-    g.setStringValue(guid.toString());
     g.setType(guid.getType());
     g.setUuid(guid.getUUID());
-    g.setUntypedString(guid.toStringUntyped());
+    String asString = guid.toString();
+    if (asString == null || asString.isBlank()) {
+      // Defensive: synthesize the same wire form PSGuid#toString uses.
+      asString = guid.getHostId() + "-" + guid.getType() + "-" + guid.getUUID();
+    }
+    g.setStringValue(asString);
+    try {
+      g.setUntypedString(guid.toStringUntyped());
+    } catch (RuntimeException e) {
+      log.debug("Could not copy untyped GUID string: {}", e.toString());
+    }
     return g;
   }
 

@@ -406,6 +406,7 @@ vi.mock("../../../main/ts/api/developer/displayFormatsApi", () => ({
     columns: [],
   }),
   normalizeColumns: () => [],
+  objectGuidString: () => undefined,
 }));
 
 vi.mock("../../../main/ts/api/developer/actionMenusApi", () => ({

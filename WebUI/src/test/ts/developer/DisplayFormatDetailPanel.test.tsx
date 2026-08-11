@@ -14,6 +14,22 @@ vi.mock("../../../main/ts/api/developer/displayFormatsApi", () => ({
   listDisplayFormats: vi.fn(),
   getDisplayFormatDetail: vi.fn(),
   normalizeColumns: (c: unknown) => (Array.isArray(c) ? c : []),
+  objectGuidString: (guid: unknown) => {
+    if (guid == null) return undefined;
+    if (typeof guid === "string") {
+      const t = guid.trim();
+      return t || undefined;
+    }
+    if (typeof guid !== "object" || Array.isArray(guid)) return undefined;
+    const g = guid as { stringValue?: string; hostId?: number; type?: number; uuid?: number };
+    if (typeof g.stringValue === "string" && g.stringValue.trim()) {
+      return g.stringValue.trim();
+    }
+    if (g.hostId != null && g.type != null && g.uuid != null) {
+      return `${g.hostId}-${g.type}-${g.uuid}`;
+    }
+    return undefined;
+  },
 }));
 
 // ObjectAclSection loads ACL via separate API; stub to isolate detail load + assert wiring.
@@ -80,6 +96,43 @@ describe("DisplayFormatDetailPanel", () => {
     const acl = screen.getByTestId("developer-df-acl-stub");
     expect(acl.getAttribute("data-object-kind")).toBe("display-format");
     expect(acl.getAttribute("data-object-guid")).toBe("0-1-100");
+    expect(screen.getByTestId("developer-df-detail-guid").textContent).toBe("0-1-100");
+  });
+
+  it("uses catalogGuid fallback when detail guid has no stringValue (#2951)", async () => {
+    getDisplayFormatDetail.mockResolvedValue({
+      ...sampleDetail,
+      guid: undefined,
+    });
+    render(
+      <DisplayFormatDetailPanel
+        idOrName="By_Author"
+        catalogGuid="0-11-5"
+        onBack={() => undefined}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-df-detail-guid").textContent).toBe("0-11-5");
+    expect(screen.getByTestId("developer-df-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-11-5",
+    );
+  });
+
+  it("synthesizes object guid from host/type/uuid parts on detail (#2951)", async () => {
+    getDisplayFormatDetail.mockResolvedValue({
+      ...sampleDetail,
+      guid: { hostId: 0, type: 11, uuid: 301 },
+    });
+    render(<DisplayFormatDetailPanel idOrName="By_Author" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-df-detail-guid").textContent).toBe("0-11-301");
+    expect(screen.getByTestId("developer-df-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-11-301",
+    );
   });
 
   it("shows empty columns section when detail has none", async () => {

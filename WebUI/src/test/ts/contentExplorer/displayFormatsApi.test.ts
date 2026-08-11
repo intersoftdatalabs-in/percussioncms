@@ -63,6 +63,16 @@ describe("displayFormatsApi", () => {
     expect(df.guid?.stringValue).toBe("0-11-5");
   });
 
+  it("unwrapDisplayFormat synthesizes stringValue from guid parts (#2951)", () => {
+    const df = unwrapDisplayFormat({
+      DisplayFormat: {
+        name: "By_Author",
+        guid: { hostId: 0, type: 11, uuid: 5 },
+      },
+    });
+    expect(df.guid?.stringValue).toBe("0-11-5");
+  });
+
   it("getDisplayFormatDetail unwraps wrapped body", async () => {
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
