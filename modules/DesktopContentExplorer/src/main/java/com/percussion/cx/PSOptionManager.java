@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -131,20 +130,16 @@ public class PSOptionManager {
    *     </code>.
    * @param doc - on which to create elements, must not be <code>null</code>.
    * @param col - must not be <code>null</code>, must contain objects of <code>IPSClientObjects
-   *     </code>, may be empty.
+   *     </code>, may be empty. Null elements are rejected with {@link IllegalArgumentException} to
+   *     match historical raw-collection validation.
    */
-  static void toXmlCollection(Element el, Document doc, Collection col) {
+  static void toXmlCollection(Element el, Document doc, Collection<? extends IPSClientObjects> col) {
     if (el == null || doc == null || col == null)
       throw new IllegalArgumentException("arguments must not be null");
 
-    Iterator it = col.iterator();
-    IPSClientObjects comp = null;
-    while (it.hasNext()) {
-      Object o = it.next();
-      if (!(o instanceof IPSClientObjects))
+    for (IPSClientObjects comp : col) {
+      if (comp == null)
         throw new IllegalArgumentException("Collection must contain only IPSClientObjects values");
-
-      comp = (IPSClientObjects) o;
       el.appendChild(comp.toXml(doc));
     }
   }
@@ -188,7 +183,7 @@ public class PSOptionManager {
               + "updateTimeout="
               + updateSessionTimeout;
 
-      Map params = new HashMap();
+      Map<String, String> params = new HashMap<>();
       params.put(SESSIONOBJECT_CXOPTIONS, PSXmlDocumentBuilder.toString(postDoc));
 
       m_applet.getActionManager().postData(appPath, params);
