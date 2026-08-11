@@ -44,6 +44,8 @@ export interface ExplorerMenuBarProps {
   /** True when a content item is selected (for deps aria-controls). */
   hasDependencyItem?: boolean;
   showClipboard: boolean;
+  /** Content → Create Site panel open (#3002). */
+  showSiteCreate?: boolean;
   /** Content → Site Copy panel open (#2767). */
   showSiteCopy?: boolean;
   /** Content → Subfolder Copy panel open (#2792). */
@@ -137,6 +139,7 @@ function isToggleChecked(
     | "showDependencies"
     | "hasDependencyItem"
     | "showClipboard"
+    | "showSiteCreate"
     | "showSiteCopy"
     | "showSubfolderCopy"
   >,
@@ -155,6 +158,8 @@ function isToggleChecked(
       return props.showDependencies;
     case "view-clipboard":
       return props.showClipboard;
+    case "content-create-site":
+      return props.showSiteCreate === true;
     case "content-site-copy":
       return props.showSiteCopy === true;
     case "content-subfolder-copy":
@@ -195,6 +200,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
     showDependencies,
     hasDependencyItem = false,
     showClipboard,
+    showSiteCreate = false,
     showSiteCopy = false,
     showSubfolderCopy = false,
     multiSelectedCount,
@@ -335,6 +341,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                           showDependencies,
                           hasDependencyItem,
                           showClipboard,
+                          showSiteCreate,
                           showSiteCopy,
                           showSubfolderCopy,
                         })
@@ -373,15 +380,17 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                                         : "explorer-dependencies-hint"
                                       : item.id === "view-clipboard"
                                         ? "explorer-clipboard-panel"
-                                        : item.id === "content-site-copy"
-                                          ? hasSiteContext
-                                            ? "explorer-site-copy-panel"
-                                            : "explorer-site-copy-hint"
-                                          : item.id === "content-subfolder-copy"
-                                            ? hasFolderContext
-                                              ? "explorer-subfolder-copy-panel"
-                                              : "explorer-subfolder-copy-hint"
-                                            : undefined
+                                        : item.id === "content-create-site"
+                                          ? "explorer-site-create-panel"
+                                          : item.id === "content-site-copy"
+                                            ? hasSiteContext
+                                              ? "explorer-site-copy-panel"
+                                              : "explorer-site-copy-hint"
+                                            : item.id === "content-subfolder-copy"
+                                              ? hasFolderContext
+                                                ? "explorer-subfolder-copy-panel"
+                                                : "explorer-subfolder-copy-hint"
+                                              : undefined
                           }
                           data-testid={
                             item.testId ?? `explorer-menu-item-${item.id}`

@@ -98,6 +98,30 @@ export const EXPLORER_MSG = {
   SITE_COPY_SELECT_SITE:
     "perc.ui.explorer@Open a site under Sites to copy it.",
 
+  // Create Site (#3002 / parent #2989) — traditional repository default
+  SITE_CREATE_TITLE: "perc.ui.explorer@Create Site",
+  SITE_CREATE_STEP_DETAILS: "perc.ui.explorer@Site details",
+  SITE_CREATE_STEP_TEMPLATE: "perc.ui.explorer@Base template",
+  SITE_CREATE_STEP_CONFIRM: "perc.ui.explorer@Confirm",
+  SITE_CREATE_STEP_PROGRESS: "perc.ui.explorer@Progress",
+  SITE_CREATE_PANEL_REGION: "perc.ui.explorer@Create site panel",
+  TOGGLE_SITE_CREATE_ARIA: "perc.ui.explorer@Show or hide create site wizard",
+  SITE_CREATE_NAME_LABEL: "perc.ui.explorer@Site name",
+  SITE_CREATE_DESCRIPTION_LABEL: "perc.ui.explorer@Description",
+  SITE_CREATE_TEMPLATE_NAME_LABEL: "perc.ui.explorer@Template name",
+  SITE_CREATE_BASE_TEMPLATE_LABEL: "perc.ui.explorer@Base template",
+  SITE_CREATE_TRADITIONAL_NOTE:
+    "perc.ui.explorer@Creates a traditional repository site (default).",
+  SITE_CREATE_REPOSITORY_KIND: "perc.ui.explorer@Repository",
+  SITE_CREATE_TRADITIONAL: "perc.ui.explorer@Traditional",
+  SITE_CREATE_TEMPLATES_LOADING: "perc.ui.explorer@Loading base templates…",
+  SITE_CREATE_TEMPLATES_ERROR: "perc.ui.explorer@Could not load base templates",
+  SITE_CREATE_VALIDATION:
+    "perc.ui.explorer@Enter a valid site name, template name, and base template",
+  SITE_CREATE_SUBMIT: "perc.ui.explorer@Create site",
+  SITE_CREATE_SUBMITTING: "perc.ui.explorer@Creating site…",
+  SITE_CREATE_SUCCESS: "perc.ui.explorer@Site {name} created",
+
   SUBFOLDER_COPY_TITLE: "perc.ui.explorer@Subfolder Copy",
   SUBFOLDER_COPY_STEP_SOURCE: "perc.ui.explorer@Source folder",
   SUBFOLDER_COPY_STEP_TARGET: "perc.ui.explorer@Target folder",

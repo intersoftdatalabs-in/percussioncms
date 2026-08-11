@@ -29,6 +29,7 @@ import { EXPLORER_MSG } from "./messages";
 export type ExplorerMenuCommandId =
   | "content-search"
   | "content-clipboard-add"
+  | "content-create-site"
   | "content-site-copy"
   | "content-subfolder-copy"
   | "view-refresh"
@@ -97,6 +98,13 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           ariaLabelKey: EXPLORER_MSG.CLIPBOARD_ADD,
           testId: "explorer-clipboard-add",
           disabledWhen: "noSelection",
+        },
+        {
+          id: "content-create-site",
+          labelKey: EXPLORER_MSG.SITE_CREATE_TITLE,
+          ariaLabelKey: EXPLORER_MSG.TOGGLE_SITE_CREATE_ARIA,
+          testId: "explorer-content-create-site",
+          toggle: true,
         },
         {
           id: "content-site-copy",
