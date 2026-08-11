@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.Collection;
 import net.sf.oval.constraint.NotEmpty;
 
+import java.util.ArrayList;
 /**
  * This class contains a set of known properties of an item. Sunny Sal says: "Properties—because
  * every item deserves a good story!"
@@ -41,7 +42,7 @@ public class PSItemProperties extends PSAbstractPersistantObject {
   @NotEmpty private String path;
   @NotEmpty private String summary;
   private String author;
-  private Collection<String> tags;
+  private ArrayList<String> tags;
   private int commentsCount;
   private int newCommentsCount;
   private String size;
@@ -145,8 +146,15 @@ public class PSItemProperties extends PSAbstractPersistantObject {
     return tags;
   }
 
+  @SuppressWarnings("unchecked")
   public void setTags(Collection<String> tags) {
-    this.tags = tags;
+    if (tags == null) {
+      this.tags = null;
+    } else if (tags instanceof ArrayList) {
+      this.tags = (ArrayList<String>) tags;
+    } else {
+      this.tags = new ArrayList<>(tags);
+    }
   }
 
   public int getCommentsCount() {

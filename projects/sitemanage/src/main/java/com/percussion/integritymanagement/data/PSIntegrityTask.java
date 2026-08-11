@@ -75,7 +75,7 @@ public class PSIntegrityTask extends PSAbstractDataObject {
   @JoinColumn(name = "TASKID", nullable = false, insertable = false, updatable = false)
   @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, region = "PSIntegrityTaskProperty")
   @Fetch(FetchMode.SUBSELECT)
-  private Set<PSIntegrityTaskProperty> taskProperties = new HashSet<>();
+  private HashSet<PSIntegrityTaskProperty> taskProperties = new HashSet<>();
 
   public long getTaskId() {
     return taskId;
@@ -129,8 +129,15 @@ public class PSIntegrityTask extends PSAbstractDataObject {
     return taskProperties;
   }
 
+  @SuppressWarnings("unchecked")
   public void setTaskProperties(Set<PSIntegrityTaskProperty> taskProperties) {
-    this.taskProperties = taskProperties == null ? new HashSet<>() : new HashSet<>(taskProperties);
+    if (taskProperties == null) {
+      this.taskProperties = new HashSet<>();
+    } else if (taskProperties instanceof HashSet) {
+      this.taskProperties = (HashSet<PSIntegrityTaskProperty>) taskProperties;
+    } else {
+      this.taskProperties = new HashSet<>(taskProperties);
+    }
   }
 
   @Override

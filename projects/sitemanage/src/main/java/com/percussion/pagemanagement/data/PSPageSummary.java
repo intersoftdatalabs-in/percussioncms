@@ -21,6 +21,7 @@ import java.util.List;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
+import java.util.ArrayList;
 /**
  * The base class for all page-related classes. Contains summary information for a page.
  *
@@ -39,7 +40,7 @@ public class PSPageSummary extends PSDataItemSummarySingleFolderPath {
 
   private String noindex;
   private String author;
-  private List<String> tags;
+  private ArrayList<String> tags;
   private String templateContentMigrationVersion = "0";
   private boolean migrationEmptyWidgetFlag = false;
   private String description;
@@ -166,8 +167,15 @@ public class PSPageSummary extends PSDataItemSummarySingleFolderPath {
    *
    * @param tags the page tags to set
    */
+  @SuppressWarnings("unchecked")
   public void setTags(List<String> tags) {
-    this.tags = tags;
+    if (tags == null) {
+      this.tags = null;
+    } else if (tags instanceof ArrayList) {
+      this.tags = (ArrayList<String>) tags;
+    } else {
+      this.tags = new ArrayList<>(tags);
+    }
   }
 
   /**

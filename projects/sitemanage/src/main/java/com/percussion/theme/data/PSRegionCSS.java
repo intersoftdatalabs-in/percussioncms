@@ -43,7 +43,7 @@ public class PSRegionCSS extends PSAbstractDataObject
 
   @NotBlank @NotNull private String outerRegionName;
 
-  private List<Property> properties = new ArrayList<>();
+  private ArrayList<Property> properties = new ArrayList<>();
 
   /** Represents a CSS property for a region. */
   public static class Property extends PSAbstractDataObject implements Serializable {
@@ -144,9 +144,14 @@ public class PSRegionCSS extends PSAbstractDataObject
     return properties;
   }
 
+  @SuppressWarnings("unchecked")
   public void setProperties(List<Property> props) {
     notNull(props);
-    properties = props;
+    if (props instanceof ArrayList) {
+      properties = (ArrayList<Property>) props;
+    } else {
+      properties = new ArrayList<>(props);
+    }
   }
 
   /**

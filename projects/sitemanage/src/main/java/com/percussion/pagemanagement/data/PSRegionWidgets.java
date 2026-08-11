@@ -43,7 +43,7 @@ public class PSRegionWidgets extends PSAbstractPersistantObject {
 
   @NotNull @NotBlank private String regionId;
 
-  @AssertValid private List<PSWidgetItem> widgetItems = new ArrayList<>();
+  @AssertValid private ArrayList<PSWidgetItem> widgetItems = new ArrayList<>();
 
   /**
    * The id of the region.
@@ -72,8 +72,15 @@ public class PSRegionWidgets extends PSAbstractPersistantObject {
     return widgetItems;
   }
 
+  @SuppressWarnings("unchecked")
   public void setWidgetItems(List<PSWidgetItem> widgetItems) {
-    this.widgetItems = widgetItems;
+    if (widgetItems == null) {
+      this.widgetItems = null;
+    } else if (widgetItems instanceof ArrayList) {
+      this.widgetItems = (ArrayList<PSWidgetItem>) widgetItems;
+    } else {
+      this.widgetItems = new ArrayList<>(widgetItems);
+    }
   }
 
   @Override

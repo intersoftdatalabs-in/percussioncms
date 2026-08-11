@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.ArrayList;
 /** A request object used for getting the content traffic data from the rest service. */
 @JsonRootName(value = "ContentTrafficRequest")
 public class PSContentTrafficRequest extends PSTrafficDetailsRequest implements Serializable {
@@ -30,7 +31,7 @@ public class PSContentTrafficRequest extends PSTrafficDetailsRequest implements 
   private static final long serialVersionUID = 1L;
 
   private String granularity;
-  private List<String> trafficRequested;
+  private ArrayList<String> trafficRequested;
 
   /**
    * Get granularity of date list.
@@ -64,7 +65,14 @@ public class PSContentTrafficRequest extends PSTrafficDetailsRequest implements 
    *
    * @param trafficRequested
    */
+  @SuppressWarnings("unchecked")
   public void setTrafficRequested(List<String> trafficRequested) {
-    this.trafficRequested = trafficRequested;
+    if (trafficRequested == null) {
+      this.trafficRequested = null;
+    } else if (trafficRequested instanceof ArrayList) {
+      this.trafficRequested = (ArrayList<String>) trafficRequested;
+    } else {
+      this.trafficRequested = new ArrayList<>(trafficRequested);
+    }
   }
 }

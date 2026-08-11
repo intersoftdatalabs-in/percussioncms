@@ -33,7 +33,7 @@ public class PSItemStateTransition extends PSAbstractDataObject {
   private String stateId;
   private String stateName;
   private String workflowId;
-  private List<String> transitionTriggers = new ArrayList<>();
+  private ArrayList<String> transitionTriggers = new ArrayList<>();
 
   public String getItemId() {
     return itemId;
@@ -73,7 +73,7 @@ public class PSItemStateTransition extends PSAbstractDataObject {
 
   public void setTransitionTriggers(List<String> triggers) {
     if (triggers != null) {
-      transitionTriggers = triggers;
+      transitionTriggers = new ArrayList<>(triggers);
     } else {
       transitionTriggers.clear();
     }

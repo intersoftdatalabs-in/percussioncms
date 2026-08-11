@@ -52,7 +52,7 @@ public class PSPathItem extends PSDataItemSummary implements IPSItemSummary, IPS
 
   @XmlElement(name = "columnData")
   @XmlJavaTypeAdapter(PSMapAdapter.class)
-  protected Map<String, String> displayProperties = new HashMap<>();
+  protected HashMap<String, String> displayProperties = new HashMap<>();
 
   /** Used to return properties that are specific to the type of item the path item represents. */
   private PSMapWrapper typeProperties = new PSMapWrapper();
@@ -192,8 +192,15 @@ public class PSPathItem extends PSDataItemSummary implements IPSItemSummary, IPS
     return displayProperties;
   }
 
+  @SuppressWarnings("unchecked")
   public void setDisplayProperties(Map<String, String> value) {
-    this.displayProperties = value;
+    if (value == null) {
+      this.displayProperties = null;
+    } else if (value instanceof HashMap) {
+      this.displayProperties = (HashMap<String, String>) value;
+    } else {
+      this.displayProperties = new HashMap<>(value);
+    }
   }
 
   private static final long serialVersionUID = -1L;

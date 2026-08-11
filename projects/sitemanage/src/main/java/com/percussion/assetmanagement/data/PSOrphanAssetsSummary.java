@@ -29,7 +29,7 @@ public class PSOrphanAssetsSummary extends PSAbstractDataObject {
 
   private static final long serialVersionUID = 1L;
 
-  private List<PSAssetWidgetRelationship> assetWidgetRelationship = new ArrayList<>();
+  private ArrayList<PSAssetWidgetRelationship> assetWidgetRelationship = new ArrayList<>();
 
   /**
    * @return List of PSAssetWidgetRelationship objects, may be empty but never <code>null</code>.
@@ -41,7 +41,14 @@ public class PSOrphanAssetsSummary extends PSAbstractDataObject {
   /**
    * @param assetWidgetRelationship the list of assetWidgetRelationship to set.
    */
+  @SuppressWarnings("unchecked")
   public void setAssetWidgetRelationship(List<PSAssetWidgetRelationship> assetWidgetRelationship) {
-    this.assetWidgetRelationship = assetWidgetRelationship;
+    if (assetWidgetRelationship == null) {
+      this.assetWidgetRelationship = null;
+    } else if (assetWidgetRelationship instanceof ArrayList) {
+      this.assetWidgetRelationship = (ArrayList<PSAssetWidgetRelationship>) assetWidgetRelationship;
+    } else {
+      this.assetWidgetRelationship = new ArrayList<>(assetWidgetRelationship);
+    }
   }
 }

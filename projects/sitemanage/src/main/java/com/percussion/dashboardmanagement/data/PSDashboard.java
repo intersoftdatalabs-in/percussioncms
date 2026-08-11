@@ -22,10 +22,11 @@ import java.util.List;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
+import java.util.ArrayList;
 @XmlRootElement(name = "Dashboard")
 public class PSDashboard extends PSAbstractPersistantObject {
 
-  @NotNull @NotBlank private List<PSGadget> gadgets;
+  @NotNull @NotBlank private ArrayList<PSGadget> gadgets;
 
   private PSDashboardConfiguration config;
 
@@ -35,8 +36,15 @@ public class PSDashboard extends PSAbstractPersistantObject {
     return gadgets;
   }
 
+  @SuppressWarnings("unchecked")
   public void setGadgets(List<PSGadget> gadgets) {
-    this.gadgets = gadgets;
+    if (gadgets == null) {
+      this.gadgets = null;
+    } else if (gadgets instanceof ArrayList) {
+      this.gadgets = (ArrayList<PSGadget>) gadgets;
+    } else {
+      this.gadgets = new ArrayList<>(gadgets);
+    }
   }
 
   public PSDashboardConfiguration getDashboardConfiguration() {

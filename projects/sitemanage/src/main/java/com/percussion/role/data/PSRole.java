@@ -48,7 +48,7 @@ public class PSRole extends PSAbstractNamedObject {
   private String description;
   private String homepage;
 
-  @NotNull private List<String> users = new ArrayList<>();
+  @NotNull private ArrayList<String> users = new ArrayList<>();
 
   @Override
   @IsInvariant
@@ -86,8 +86,15 @@ public class PSRole extends PSAbstractNamedObject {
     return users == null ? List.of() : Collections.unmodifiableList(users);
   }
 
+  @SuppressWarnings("unchecked")
   public void setUsers(List<String> users) {
-    this.users = users == null ? new ArrayList<>() : new ArrayList<>(users);
+    if (users == null) {
+      this.users = new ArrayList<>();
+    } else if (users instanceof ArrayList) {
+      this.users = (ArrayList<String>) users;
+    } else {
+      this.users = new ArrayList<>(users);
+    }
   }
 
   @Override

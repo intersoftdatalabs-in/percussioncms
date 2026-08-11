@@ -25,6 +25,7 @@ import java.util.List;
 // Optional import removed
 import net.sf.oval.constraint.NotEmpty;
 
+import java.util.ArrayList;
 /** This class contains post information for a blog. */
 @XmlRootElement(name = "SiteBlogPosts")
 @JsonRootName("SiteBlogPosts")
@@ -36,7 +37,7 @@ public class PSSiteBlogPosts extends PSAbstractDataObject {
 
   @NotEmpty private String blogSectionPath;
 
-  private List<PSItemProperties> posts;
+  private ArrayList<PSItemProperties> posts;
 
   @NotEmpty private String blogPostTemplateId;
 
@@ -78,8 +79,15 @@ public class PSSiteBlogPosts extends PSAbstractDataObject {
   /**
    * @param posts the blog posts to set
    */
+  @SuppressWarnings("unchecked")
   public void setPosts(List<PSItemProperties> posts) {
-    this.posts = posts;
+    if (posts == null) {
+      this.posts = null;
+    } else if (posts instanceof ArrayList) {
+      this.posts = (ArrayList<PSItemProperties>) posts;
+    } else {
+      this.posts = new ArrayList<>(posts);
+    }
   }
 
   /**

@@ -80,7 +80,7 @@ public class PSCategoryNode extends PSAbstractDataObject
   @JsonProperty private boolean deleted = false;
 
   @JsonProperty("children")
-  private List<PSCategoryNode> childNodes = new ArrayList<>();
+  private ArrayList<PSCategoryNode> childNodes = new ArrayList<>();
 
   @JsonProperty private boolean selected = false;
 
@@ -97,8 +97,15 @@ public class PSCategoryNode extends PSAbstractDataObject
     return childNodes;
   }
 
+  @SuppressWarnings("unchecked")
   public void setChildNodes(List<PSCategoryNode> children) {
-    this.childNodes = children;
+    if (children == null) {
+      this.childNodes = null;
+    } else if (children instanceof ArrayList) {
+      this.childNodes = (ArrayList<PSCategoryNode>) children;
+    } else {
+      this.childNodes = new ArrayList<>(children);
+    }
   }
 
   @XmlAttribute(name = "id")

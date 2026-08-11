@@ -38,7 +38,7 @@ public class PSSectionNode extends PSAbstractPersistantObject {
 
   private static final long serialVersionUID = 1L;
 
-  private List<PSSectionNode> childNodes = new ArrayList<>();
+  private ArrayList<PSSectionNode> childNodes = new ArrayList<>();
   private String title;
   private String folderPath;
   private String id;
@@ -105,8 +105,15 @@ public class PSSectionNode extends PSAbstractPersistantObject {
    *
    * @param nodes the new list of child nodes, null treated as empty list.
    */
+  @SuppressWarnings("unchecked")
   public void setChildNodes(List<PSSectionNode> nodes) {
-    this.childNodes = nodes == null ? new ArrayList<>() : nodes;
+    if (nodes == null) {
+      this.childNodes = new ArrayList<>();
+    } else if (nodes instanceof ArrayList) {
+      this.childNodes = (ArrayList<PSSectionNode>) nodes;
+    } else {
+      this.childNodes = new ArrayList<>(nodes);
+    }
   }
 
   public boolean isRequiresLogin() {

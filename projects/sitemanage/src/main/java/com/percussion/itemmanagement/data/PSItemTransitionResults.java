@@ -31,7 +31,7 @@ public class PSItemTransitionResults extends PSAbstractDataObject {
   private static final long serialVersionUID = 1L;
 
   private String itemId;
-  private List<PSDataItemSummary> failedAssets = new ArrayList<>();
+  private ArrayList<PSDataItemSummary> failedAssets = new ArrayList<>();
 
   public String getItemId() {
     return itemId;
@@ -47,7 +47,7 @@ public class PSItemTransitionResults extends PSAbstractDataObject {
 
   public void setFailedAssets(List<PSDataItemSummary> assets) {
     if (assets != null) {
-      failedAssets = assets;
+      failedAssets = new ArrayList<>(assets);
     } else {
       failedAssets.clear();
     }

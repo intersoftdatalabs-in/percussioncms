@@ -37,7 +37,7 @@ public class PSEnumVals implements Serializable {
 
   private static final long serialVersionUID = 1496690238764003673L;
 
-  @NotNull private List<EnumVal> entries = new ArrayList<>();
+  @NotNull private ArrayList<EnumVal> entries = new ArrayList<>();
 
   /**
    * @return list of entry objects, never null, may be empty.
@@ -46,8 +46,15 @@ public class PSEnumVals implements Serializable {
     return entries;
   }
 
+  @SuppressWarnings("unchecked")
   public void setEntries(List<EnumVal> entries) {
-    this.entries = entries;
+    if (entries == null) {
+      this.entries = null;
+    } else if (entries instanceof ArrayList) {
+      this.entries = (ArrayList<EnumVal>) entries;
+    } else {
+      this.entries = new ArrayList<>(entries);
+    }
   }
 
   /**

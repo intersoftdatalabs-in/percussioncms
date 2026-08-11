@@ -36,7 +36,7 @@ public class PSCurrentUser extends PSUser {
   private boolean designerUser = false;
 
   /** Role-resolved community names for the signed-in user (read-only summary). */
-  private List<String> communities = new ArrayList<>();
+  private ArrayList<String> communities = new ArrayList<>();
 
   /** Active community name for the current session, or empty when unknown. */
   private String currentCommunity = "";
@@ -81,8 +81,15 @@ public class PSCurrentUser extends PSUser {
     return communities;
   }
 
+  @SuppressWarnings("unchecked")
   public void setCommunities(List<String> communities) {
-    this.communities = communities != null ? communities : new ArrayList<>();
+    if (communities == null) {
+      this.communities = new ArrayList<>();
+    } else if (communities instanceof ArrayList) {
+      this.communities = (ArrayList<String>) communities;
+    } else {
+      this.communities = new ArrayList<>(communities);
+    }
   }
 
   public String getCurrentCommunity() {

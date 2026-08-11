@@ -36,7 +36,7 @@ public class PSMetadataDocType extends PSAbstractDataObject {
   private static final long serialVersionUID = 1L;
 
   private String selected = "";
-  private List<PSMetadataDocTypeOptions> options = new ArrayList<>();
+  private ArrayList<PSMetadataDocTypeOptions> options = new ArrayList<>();
 
   /** Default constructor, sets default doc type to HTML5. */
   public PSMetadataDocType() {
@@ -75,8 +75,15 @@ public class PSMetadataDocType extends PSAbstractDataObject {
    *
    * @param options the doc type options
    */
+  @SuppressWarnings("unchecked")
   public void setOptions(List<PSMetadataDocTypeOptions> options) {
-    this.options = options;
+    if (options == null) {
+      this.options = null;
+    } else if (options instanceof ArrayList) {
+      this.options = (ArrayList<PSMetadataDocTypeOptions>) options;
+    } else {
+      this.options = new ArrayList<>(options);
+    }
   }
 
   @Override

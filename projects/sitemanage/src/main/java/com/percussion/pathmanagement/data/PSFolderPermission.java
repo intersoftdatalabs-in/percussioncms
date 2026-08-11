@@ -21,6 +21,7 @@ import com.percussion.share.data.PSAbstractDataObject;
 import java.util.List;
 import java.util.Objects;
 
+import java.util.ArrayList;
 /**
  * Represents the permissions of a folder.
  *
@@ -85,10 +86,10 @@ public class PSFolderPermission extends PSAbstractDataObject {
   }
 
   private Access accessLevel = Access.ADMIN;
-  private List<Principal> adminPrincipals;
-  private List<Principal> writePrincipals;
-  private List<Principal> readPrincipals;
-  private List<Principal> viewPrincipals;
+  private ArrayList<Principal> adminPrincipals;
+  private ArrayList<Principal> writePrincipals;
+  private ArrayList<Principal> readPrincipals;
+  private ArrayList<Principal> viewPrincipals;
 
   /**
    * Gets the access level applied to unspecified principals. Defaults to {@link Access#ADMIN} if
@@ -123,8 +124,15 @@ public class PSFolderPermission extends PSAbstractDataObject {
    *
    * @param principals the new list, may be null or empty
    */
+  @SuppressWarnings("unchecked")
   public void setAdminPrincipals(List<Principal> principals) {
-    this.adminPrincipals = principals;
+    if (principals == null) {
+      this.adminPrincipals = null;
+    } else if (principals instanceof ArrayList) {
+      this.adminPrincipals = (ArrayList<Principal>) principals;
+    } else {
+      this.adminPrincipals = new ArrayList<>(principals);
+    }
   }
 
   /**
@@ -141,8 +149,15 @@ public class PSFolderPermission extends PSAbstractDataObject {
    *
    * @param principals the new list, may be null or empty
    */
+  @SuppressWarnings("unchecked")
   public void setWritePrincipals(List<Principal> principals) {
-    this.writePrincipals = principals;
+    if (principals == null) {
+      this.writePrincipals = null;
+    } else if (principals instanceof ArrayList) {
+      this.writePrincipals = (ArrayList<Principal>) principals;
+    } else {
+      this.writePrincipals = new ArrayList<>(principals);
+    }
   }
 
   /**
@@ -159,8 +174,15 @@ public class PSFolderPermission extends PSAbstractDataObject {
    *
    * @param principals the new list, may be null or empty
    */
+  @SuppressWarnings("unchecked")
   public void setReadPrincipals(List<Principal> principals) {
-    this.readPrincipals = principals;
+    if (principals == null) {
+      this.readPrincipals = null;
+    } else if (principals instanceof ArrayList) {
+      this.readPrincipals = (ArrayList<Principal>) principals;
+    } else {
+      this.readPrincipals = new ArrayList<>(principals);
+    }
   }
 
   /**
@@ -177,8 +199,15 @@ public class PSFolderPermission extends PSAbstractDataObject {
    *
    * @param viewPrincipals the new list, may be null or empty
    */
+  @SuppressWarnings("unchecked")
   public void setViewPrincipals(List<Principal> viewPrincipals) {
-    this.viewPrincipals = viewPrincipals;
+    if (viewPrincipals == null) {
+      this.viewPrincipals = null;
+    } else if (viewPrincipals instanceof ArrayList) {
+      this.viewPrincipals = (ArrayList<Principal>) viewPrincipals;
+    } else {
+      this.viewPrincipals = new ArrayList<>(viewPrincipals);
+    }
   }
 
   @Override

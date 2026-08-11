@@ -49,8 +49,8 @@ public class PSWidgetItem extends PSAbstractPersistantObject {
 
   @NotNull @NotBlank private String definitionId;
 
-  private Map<String, Object> properties = new HashMap<>();
-  private Map<String, Object> cssProperties = new HashMap<>();
+  private HashMap<String, Object> properties = new HashMap<>();
+  private HashMap<String, Object> cssProperties = new HashMap<>();
 
   @Override
   @NotBlank
@@ -93,8 +93,15 @@ public class PSWidgetItem extends PSAbstractPersistantObject {
     return Collections.unmodifiableMap(properties);
   }
 
+  @SuppressWarnings("unchecked")
   public void setProperties(Map<String, Object> properties) {
-    this.properties = (properties == null) ? new HashMap<>() : new HashMap<>(properties);
+    if (properties == null) {
+      this.properties = new HashMap<>();
+    } else if (properties instanceof HashMap) {
+      this.properties = (HashMap<String, Object>) properties;
+    } else {
+      this.properties = new HashMap<>(properties);
+    }
   }
 
   /**
@@ -107,8 +114,15 @@ public class PSWidgetItem extends PSAbstractPersistantObject {
     return Collections.unmodifiableMap(cssProperties);
   }
 
+  @SuppressWarnings("unchecked")
   public void setCssProperties(Map<String, Object> css) {
-    this.cssProperties = (css == null) ? new HashMap<>() : new HashMap<>(css);
+    if (css == null) {
+      this.cssProperties = new HashMap<>();
+    } else if (css instanceof HashMap) {
+      this.cssProperties = (HashMap<String, Object>) css;
+    } else {
+      this.cssProperties = new HashMap<>(css);
+    }
   }
 
   @Override

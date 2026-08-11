@@ -30,6 +30,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Set;
 
+import java.util.HashSet;
 /**
  * Represents a comment in Percussion CMS. Provides all comment metadata and supports XML
  * serialization.
@@ -47,11 +48,11 @@ public class PSComment extends PSAbstractDataObject implements IPSEditableItem {
   private String commentApprovalState;
   private Boolean commentModerated;
   private Boolean commentViewed;
-  private Set<String> commentTags;
+  private HashSet<String> commentTags;
   private Integer commentParentId;
   private String siteName;
   private String pagePath;
-  private Set<String> pageTags;
+  private HashSet<String> pageTags;
   private String userName;
   private String userLinkUrl;
   private String userEmail;
@@ -144,8 +145,15 @@ public class PSComment extends PSAbstractDataObject implements IPSEditableItem {
     return commentTags;
   }
 
+  @SuppressWarnings("unchecked")
   public void setCommentTags(Set<String> commentTags) {
-    this.commentTags = commentTags;
+    if (commentTags == null) {
+      this.commentTags = null;
+    } else if (commentTags instanceof HashSet) {
+      this.commentTags = (HashSet<String>) commentTags;
+    } else {
+      this.commentTags = new HashSet<>(commentTags);
+    }
   }
 
   @XmlElement(name = "site")
@@ -171,8 +179,15 @@ public class PSComment extends PSAbstractDataObject implements IPSEditableItem {
     return pageTags;
   }
 
+  @SuppressWarnings("unchecked")
   public void setPageTags(Set<String> pageTags) {
-    this.pageTags = pageTags;
+    if (pageTags == null) {
+      this.pageTags = null;
+    } else if (pageTags instanceof HashSet) {
+      this.pageTags = (HashSet<String>) pageTags;
+    } else {
+      this.pageTags = new HashSet<>(pageTags);
+    }
   }
 
   @XmlElement(name = "parent")

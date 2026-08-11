@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.util.ArrayList;
 /** Wrapper class to hold the list of {@link PSApprovableItem}s and their processing status. */
 @XmlRootElement(name = "ApprovableItems")
 public class PSApprovableItems extends PSAbstractDataObject {
@@ -29,13 +30,13 @@ public class PSApprovableItems extends PSAbstractDataObject {
   private static final long serialVersionUID = 1L;
 
   /** List of approvable items associated to the gadget. */
-  private List<PSApprovableItem> approvableItems;
+  private ArrayList<PSApprovableItem> approvableItems;
 
   /** List of items that have been processed. */
-  private List<PSApprovableItem> processedItems;
+  private ArrayList<PSApprovableItem> processedItems;
 
   /** Map of errors encountered during processing. */
-  private Map<String, String> errors = new HashMap<>();
+  private HashMap<String, String> errors = new HashMap<>();
 
   public PSApprovableItems() {
     // Default constructor for JAX-RS
@@ -45,23 +46,44 @@ public class PSApprovableItems extends PSAbstractDataObject {
     return approvableItems;
   }
 
+  @SuppressWarnings("unchecked")
   public void setApprovableItems(List<PSApprovableItem> approvableItems) {
-    this.approvableItems = approvableItems;
+    if (approvableItems == null) {
+      this.approvableItems = null;
+    } else if (approvableItems instanceof ArrayList) {
+      this.approvableItems = (ArrayList<PSApprovableItem>) approvableItems;
+    } else {
+      this.approvableItems = new ArrayList<>(approvableItems);
+    }
   }
 
   public Map<String, String> getErrors() {
     return errors;
   }
 
+  @SuppressWarnings("unchecked")
   public void setErrors(Map<String, String> errors) {
-    this.errors = errors;
+    if (errors == null) {
+      this.errors = null;
+    } else if (errors instanceof HashMap) {
+      this.errors = (HashMap<String, String>) errors;
+    } else {
+      this.errors = new HashMap<>(errors);
+    }
   }
 
   public List<PSApprovableItem> getProcessedItems() {
     return processedItems;
   }
 
+  @SuppressWarnings("unchecked")
   public void setProcessedItems(List<PSApprovableItem> processedItems) {
-    this.processedItems = processedItems;
+    if (processedItems == null) {
+      this.processedItems = null;
+    } else if (processedItems instanceof ArrayList) {
+      this.processedItems = (ArrayList<PSApprovableItem>) processedItems;
+    } else {
+      this.processedItems = new ArrayList<>(processedItems);
+    }
   }
 }

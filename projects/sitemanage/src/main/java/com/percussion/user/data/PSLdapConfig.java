@@ -27,6 +27,7 @@ import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
+import java.util.HashSet;
 /**
  * Directory Service Configuration loaded from a configuration file.
  *
@@ -87,7 +88,7 @@ public class PSLdapConfig extends PSAbstractDataObject {
 
     private String emailAttributeName;
 
-    @NotNull @NotEmpty private Set<String> organizationalUnits;
+    @NotNull @NotEmpty private HashSet<String> organizationalUnits;
 
     private boolean secure;
 
@@ -174,8 +175,15 @@ public class PSLdapConfig extends PSAbstractDataObject {
       return organizationalUnits;
     }
 
+    @SuppressWarnings("unchecked")
     public void setOrganizationalUnits(Set<String> organizationalUnits) {
-      this.organizationalUnits = organizationalUnits;
+      if (organizationalUnits == null) {
+        this.organizationalUnits = null;
+      } else if (organizationalUnits instanceof HashSet) {
+        this.organizationalUnits = (HashSet<String>) organizationalUnits;
+      } else {
+        this.organizationalUnits = new HashSet<>(organizationalUnits);
+      }
     }
 
     public Boolean getSecure() {

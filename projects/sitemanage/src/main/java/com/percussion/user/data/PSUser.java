@@ -54,7 +54,7 @@ public class PSUser extends PSAbstractNamedObject {
   private boolean isCreateUser;
 
   /** A user has to be in at least one role. */
-  @NotEmpty @NotNull private List<String> roles;
+  @NotEmpty @NotNull private ArrayList<String> roles;
 
   public PSUser() {
     roles = new ArrayList<>();
@@ -119,8 +119,15 @@ public class PSUser extends PSAbstractNamedObject {
   }
 
   /** Sets the roles. */
+  @SuppressWarnings("unchecked")
   public void setRoles(List<String> roles) {
-    this.roles = roles;
+    if (roles == null) {
+      this.roles = null;
+    } else if (roles instanceof ArrayList) {
+      this.roles = (ArrayList<String>) roles;
+    } else {
+      this.roles = new ArrayList<>(roles);
+    }
   }
 
   /**

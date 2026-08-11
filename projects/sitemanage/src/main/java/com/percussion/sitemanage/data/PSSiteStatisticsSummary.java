@@ -35,7 +35,7 @@ public class PSSiteStatisticsSummary extends PSAbstractDataObject {
 
   private PSSiteStatistics statistics;
 
-  private List<PSSiteIssueSummary> issues = new ArrayList<>();
+  private ArrayList<PSSiteIssueSummary> issues = new ArrayList<>();
 
   private String abridgedErrorMessage;
 
@@ -67,8 +67,15 @@ public class PSSiteStatisticsSummary extends PSAbstractDataObject {
     return issues;
   }
 
+  @SuppressWarnings("unchecked")
   public void setIssues(List<PSSiteIssueSummary> issues) {
-    this.issues = issues == null ? new ArrayList<>() : issues;
+    if (issues == null) {
+      this.issues = new ArrayList<>();
+    } else if (issues instanceof ArrayList) {
+      this.issues = (ArrayList<PSSiteIssueSummary>) issues;
+    } else {
+      this.issues = new ArrayList<>(issues);
+    }
   }
 
   public void setAbridgedErrorMessage(String message) {

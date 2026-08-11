@@ -35,7 +35,7 @@ import java.util.List;
 @JsonRootName("UserList")
 public class PSUserList extends PSAbstractDataObject {
   private static final long serialVersionUID = 1L;
-  private List<String> users;
+  private ArrayList<String> users;
 
   public PSUserList() {
     users = new ArrayList<>();
@@ -47,7 +47,14 @@ public class PSUserList extends PSAbstractDataObject {
   }
 
   /** Sets the users. */
+  @SuppressWarnings("unchecked")
   public void setUsers(List<String> users) {
-    this.users = users;
+    if (users == null) {
+      this.users = null;
+    } else if (users instanceof ArrayList) {
+      this.users = (ArrayList<String>) users;
+    } else {
+      this.users = new ArrayList<>(users);
+    }
   }
 }

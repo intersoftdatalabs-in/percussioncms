@@ -39,7 +39,7 @@ public class PSUiWorkflowStepRole extends PSAbstractDataObject {
   private String roleName;
   private Integer roleId;
   private Boolean enableNotification = false;
-  private List<PSUiWorkflowStepRoleTransition> roleTransitions = new ArrayList<>();
+  private ArrayList<PSUiWorkflowStepRoleTransition> roleTransitions = new ArrayList<>();
 
   public PSUiWorkflowStepRole() {
     super();
@@ -81,8 +81,15 @@ public class PSUiWorkflowStepRole extends PSAbstractDataObject {
   }
 
   /** Sets the transitions of the role. May be empty but never {@code null}. */
+  @SuppressWarnings("unchecked")
   public void setRoleTransitions(List<PSUiWorkflowStepRoleTransition> roleTransitions) {
-    this.roleTransitions = (roleTransitions == null) ? new ArrayList<>() : roleTransitions;
+    if (roleTransitions == null) {
+      this.roleTransitions = new ArrayList<>();
+    } else if (roleTransitions instanceof ArrayList) {
+      this.roleTransitions = (ArrayList<PSUiWorkflowStepRoleTransition>) roleTransitions;
+    } else {
+      this.roleTransitions = new ArrayList<>(roleTransitions);
+    }
   }
 
   public Boolean isEnableNotification() {

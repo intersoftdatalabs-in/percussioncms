@@ -32,7 +32,7 @@ public class PSWidgetBuilderFieldsListData extends PSAbstractDataObject {
 
   private static final long serialVersionUID = 1L;
 
-  private List<PSWidgetBuilderFieldData> fields = new ArrayList<>();
+  private ArrayList<PSWidgetBuilderFieldData> fields = new ArrayList<>();
 
   public PSWidgetBuilderFieldsListData() {
     // Default constructor
@@ -60,9 +60,14 @@ public class PSWidgetBuilderFieldsListData extends PSAbstractDataObject {
    *
    * @param fields The fields, not {@code null}, may be empty.
    */
+  @SuppressWarnings("unchecked")
   public void setFields(List<PSWidgetBuilderFieldData> fields) {
     Objects.requireNonNull(fields, "fields must not be null");
-    this.fields = fields;
+    if (fields instanceof ArrayList) {
+      this.fields = (ArrayList<PSWidgetBuilderFieldData>) fields;
+    } else {
+      this.fields = new ArrayList<>(fields);
+    }
   }
 
   @Override

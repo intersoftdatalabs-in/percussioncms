@@ -35,7 +35,7 @@ public class PSGadget extends PSAbstractDataObject {
 
   @XmlTransient private boolean expanded = true;
 
-  private Map<String, String> settings = new HashMap<>();
+  private HashMap<String, String> settings = new HashMap<>();
 
   public Integer getInstanceId() {
     return instanceId;
@@ -81,8 +81,15 @@ public class PSGadget extends PSAbstractDataObject {
     return settings;
   }
 
+  @SuppressWarnings("unchecked")
   public void setSettings(Map<String, String> settings) {
-    this.settings = settings;
+    if (settings == null) {
+      this.settings = null;
+    } else if (settings instanceof HashMap) {
+      this.settings = (HashMap<String, String>) settings;
+    } else {
+      this.settings = new HashMap<>(settings);
+    }
   }
 
   @Override

@@ -41,7 +41,7 @@ public class PSProxyAssemblyTemplate implements IPSAssemblyTemplate, Cloneable {
 
   private PSAssemblyTemplate assemblyTemplate;
   private String template;
-  private List<PSTemplateBinding> bindings = new Vector<>();
+  private Vector<PSTemplateBinding> bindings = new Vector<>();
   private String assembler;
   private String name;
 
@@ -79,8 +79,15 @@ public class PSProxyAssemblyTemplate implements IPSAssemblyTemplate, Cloneable {
     return bindings;
   }
 
+  @SuppressWarnings("unchecked")
   public void setBindings(List<PSTemplateBinding> bindings) {
-    this.bindings = bindings;
+    if (bindings == null) {
+      this.bindings = null;
+    } else if (bindings instanceof Vector) {
+      this.bindings = (Vector<PSTemplateBinding>) bindings;
+    } else {
+      this.bindings = new Vector<>(bindings);
+    }
   }
 
   public void addBinding(PSTemplateBinding binding) {

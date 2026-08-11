@@ -36,7 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 public abstract class PSRegionWidgetAssociations implements Serializable {
   private static final long serialVersionUID = 1L;
 
-  @AssertValid private Set<PSRegionWidgets> regionWidgetAssociations = new HashSet<>();
+  @AssertValid private HashSet<PSRegionWidgets> regionWidgetAssociations = new HashSet<>();
 
   protected PSRegionWidgetAssociations() {
     super();
