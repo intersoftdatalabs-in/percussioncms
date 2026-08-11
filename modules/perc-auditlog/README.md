@@ -19,8 +19,8 @@ System-wide Percussion CMS audit logging and unified error-code support.
   `ServletErrorCodes`, `TransformationErrorCodes` (enum-only),
   `SearchErrorCodes` (`IPSSearchErrors`; auth failure dual-write), `LuceneErrorCodes`,
   `LocaleErrorCodes`, `MailErrorCodes` (all non-auditable),
-  `ObjectStoreErrorCodes` batches A–C (`IPSObjectStoreErrors` general/PSObjectStore/structure
-  through 2380; all non-auditable; skips Design-owned ACL ints)
+  `ObjectStoreErrorCodes` batches A–D (`IPSObjectStoreErrors` general/PSObjectStore/structure
+  through content-editor 2475; all non-auditable; skips Design-owned ACL ints)
   + `LegacyErrorCodeRegistry` bridge legacy `IPS*Errors` ints. Non-auditable / unregistered ints never
   dual-write. Central `PSErrorHandler.appendError` dual-writes only when the registry marks the legacy
   int auditable.
@@ -107,6 +107,7 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 16052, ctx); // search auth failed
 LegacyErrorCodeRegistry.logIfAuditable(audit, 16311, ctx); // Lucene index dir — non-auditable skip
 LegacyErrorCodeRegistry.logIfAuditable(audit, 2011, ctx); // objectstore XML null — non-auditable skip
 LegacyErrorCodeRegistry.logIfAuditable(audit, 2380, ctx); // objectstore app login page — non-auditable skip
+LegacyErrorCodeRegistry.logIfAuditable(audit, 2475, ctx); // objectstore CE choice filter — non-auditable skip
 // Prefer JobErrorCodes enum for job ints 1–10 (flat registry keeps WF ownership of 1–10)
 // Prefer DesignErrorCodes for objectstore ACL ints (2201–2208, 2213–2214, 2218, 2351–2356)
 // Provider/config/conversion/path/design/server/http/job/assembly/extension/webservice noise (isAuditable=false) and unknown ints → no dual-write
@@ -134,7 +135,7 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 2380, ctx); // objectstore app log
 | `LuceneErrorCodes` | 16311–16456 (`IPSLuceneErrors`) | All non-auditable index/query codes |
 | `LocaleErrorCodes` | 1801–1804 (`IPSLocaleErrors`) | All non-auditable |
 | `MailErrorCodes` | 3501–3508 (`IPSMailErrors`) | All non-auditable |
-| `ObjectStoreErrorCodes` | A+B+C: 2011–2021, 2101–2103, 2200, 2209–2330, 2350, 2357–2380 (skip Design ACL) | All non-auditable; Design owns ACL ints; residual content-editor 2401+ / handlers 2801+ |
+| `ObjectStoreErrorCodes` | A+B+C+D: 2011–2021, 2101–2103, 2200, 2209–2330, 2350, 2357–2380, 2401–2475 (skip Design ACL) | All non-auditable; Design owns ACL ints; residual handlers 2801–2848 (batch E) |
 
 Non-auditable codes (`isAuditable() == false`) never create audit rows.
 

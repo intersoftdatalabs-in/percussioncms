@@ -25,7 +25,7 @@ import com.intsof.percussioncms.auditlog.SystemErrorCode;
 /**
  * Object-store error catalog bridging legacy {@code
  * com.percussion.design.objectstore.IPSObjectStoreErrors} general + PSObjectStore + object-store
- * structure / validation ints (batches A–C).
+ * structure / validation ints (batches A–D).
  *
  * <p><strong>Batch A scope</strong> (issue #2898):
  *
@@ -56,6 +56,16 @@ import com.intsof.percussioncms.auditlog.SystemErrorCode;
  *       database functions / JDBC-JNDI datasource / legacy app login/creds (24 codes)
  * </ul>
  *
+ * <p><strong>Batch D scope</strong> (issue #2917):
+ *
+ * <ul>
+ *   <li>{@code 2401–2475} — content-editor structure cluster: field/fieldset uniqueness and
+ *       types, choices/sort, shared def, application flow / command-handler stylesheets and
+ *       redirects, mapper/pipe/control refs, display mapping, table locator/set, UI definition,
+ *       form action links, CE merge/override/shared-group validation, choice-filter dependents
+ *       (75 codes; no Design collisions)
+ * </ul>
+ *
  * <p><strong>Collision / ownership notes:</strong>
  *
  * <ul>
@@ -65,8 +75,8 @@ import com.intsof.percussioncms.auditlog.SystemErrorCode;
  *       ints so Design keeps flat-registry ownership.
  *   <li>{@link ContentErrorCodes} lifecycle ints {@code 2001–2006} are intentionally outside
  *       objectstore general range (objectstore starts at {@code 2011}).
- *   <li>Remaining objectstore ranges after batch C: content-editor {@code 2401–2500}, handlers
- *       {@code 2801–2848} (max legacy constant) → residual batches D/E.
+ *   <li>Remaining objectstore ranges after batch D: handlers {@code 2801–2848} (max legacy
+ *       constant) → residual batch E.
  * </ul>
  *
  * <p>Every constant in this catalog sets {@link #isAuditable()} to {@code false}: XML parse /
@@ -1330,7 +1340,607 @@ public enum ObjectStoreErrorCodes implements SystemErrorCode {
       null,
       AuditOutcome.UNKNOWN,
       "App Login Page Not Supported",
-      "App Login Page Not Supported");
+      "App Login Page Not Supported"),
+
+  FIELD_NAME_NOT_UNIQUE(
+      2401,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Field Name Not Unique",
+      "Field Name Not Unique"),
+
+  UNSUPPORTED_FIELD_TYPE(
+      2402,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Field Type",
+      "Unsupported Field Type"),
+
+  UNSUPPORTED_OCCURRENCE_DIMENSION(
+      2403,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Occurrence Dimension",
+      "Unsupported Occurrence Dimension"),
+
+  UNSUPPORTED_OCCURRENCE_MULTI_VALUED_TYPE(
+      2404,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Occurrence Multi Valued Type",
+      "Unsupported Occurrence Multi Valued Type"),
+
+  INVALID_CONTENT_TYPE(
+      2405,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Content Type",
+      "Invalid Content Type"),
+
+  INVALID_WORKFLOW_ID(
+      2406,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Workflow Id",
+      "Invalid Workflow Id"),
+
+  INVALID_CONTENT_EDITOR_SHARED_DEF(
+      2407,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Content Editor Shared Def",
+      "Invalid Content Editor Shared Def"),
+
+  UNSUPPORTED_CHOICE_TYPE(
+      2408,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Choice Type",
+      "Unsupported Choice Type"),
+
+  UNSUPPORTED_SORT_ORDER(
+      2409,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Sort Order",
+      "Unsupported Sort Order"),
+
+  INVALID_GLOBAL_TABLE_ID(
+      2410,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Global Table Id",
+      "Invalid Global Table Id"),
+
+  LOCAL_CHOICES_NULL_OR_EMPTY(
+      2411,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Local Choices Null Or Empty",
+      "Local Choices Null Or Empty"),
+
+  LOOKUP_CHOICES_NULL(
+      2412,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lookup Choices Null",
+      "Lookup Choices Null"),
+
+  INVALID_APPLICATION_FLOW(
+      2413,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Application Flow",
+      "Invalid Application Flow"),
+
+  INVALID_COMMAND_HANDLER_STYLESHEETS(
+      2414,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Command Handler Stylesheets",
+      "Invalid Command Handler Stylesheets"),
+
+  INVALID_CONDITIONAL_EXIT(
+      2415,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Conditional Exit",
+      "Invalid Conditional Exit"),
+
+  INVALID_CONDITIONAL_REQUEST(
+      2416,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Conditional Request",
+      "Invalid Conditional Request"),
+
+  INVALID_CONDITIONAL_STYLESHEET(
+      2417,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Conditional Stylesheet",
+      "Invalid Conditional Stylesheet"),
+
+  INVALID_CONTAINER_LOCATOR(
+      2418,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Container Locator",
+      "Invalid Container Locator"),
+
+  INVALD_COMMAND_HANDLER_REFERENCE(
+      2419,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invald Command Handler Reference",
+      "Invald Command Handler Reference"),
+
+  INVALD_REDIRECT(
+      2420,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invald Redirect",
+      "Invald Redirect"),
+
+  INVALID_COMMAND_HANDLER_REDIRECTS(
+      2421,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Command Handler Redirects",
+      "Invalid Command Handler Redirects"),
+
+  INVALID_URL_REQUEST(
+      2422,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Url Request",
+      "Invalid Url Request"),
+
+  INVALID_CONTENT_EDITOR_MAPPER(
+      2423,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Content Editor Mapper",
+      "Invalid Content Editor Mapper"),
+
+  INVALID_CONTENT_EDITOR_PIPE(
+      2424,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Content Editor Pipe",
+      "Invalid Content Editor Pipe"),
+
+  INVALID_CONTROL_REF(
+      2425,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Control Ref",
+      "Invalid Control Ref"),
+
+  UNSUPPORTED_DEFAULT_SELECTED_TYPE(
+      2426,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Default Selected Type",
+      "Unsupported Default Selected Type"),
+
+  INVALID_DEFAULT_SELECTED(
+      2427,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Default Selected",
+      "Invalid Default Selected"),
+
+  UNSUPPORTED_FIELD_SET_TYPE(
+      2428,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Field Set Type",
+      "Unsupported Field Set Type"),
+
+  UNSUPPORTED_FIELD_SET_REPEATABILITY(
+      2429,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Field Set Repeatability",
+      "Unsupported Field Set Repeatability"),
+
+  INVALID_FIELD_SET_NAME(
+      2430,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Field Set Name",
+      "Invalid Field Set Name"),
+
+  INVALID_DISPLAY_MAPPER(
+      2431,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Display Mapper",
+      "Invalid Display Mapper"),
+
+  INVALID_DISPLAY_MAPPING(
+      2432,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Display Mapping",
+      "Invalid Display Mapping"),
+
+  INVALID_DISPLAY_TEXT(
+      2433,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Display Text",
+      "Invalid Display Text"),
+
+  INVALID_ENTRY(
+      2434,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Entry",
+      "Invalid Entry"),
+
+  INVALID_FIELD(
+      2435,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Field",
+      "Invalid Field"),
+
+  INVALID_FIELD_TRANSLATION(
+      2436,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Field Translation",
+      "Invalid Field Translation"),
+
+  UNSUPPORTED_INCLUDE_WHEN(
+      2437,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Include When",
+      "Unsupported Include When"),
+
+  INVALID_PARAM(
+      2438,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Param",
+      "Invalid Param"),
+
+  INVALID_SHARED_FIELD_GROUP(
+      2439,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Shared Field Group",
+      "Invalid Shared Field Group"),
+
+  INVALID_STYLESHEET(
+      2440,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Stylesheet",
+      "Invalid Stylesheet"),
+
+  INVALID_TABLE_LOCATOR(
+      2441,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Table Locator",
+      "Invalid Table Locator"),
+
+  INVALID_TABLE_REF(
+      2442,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Table Ref",
+      "Invalid Table Ref"),
+
+  INVALID_TABLE_SET(
+      2443,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Table Set",
+      "Invalid Table Set"),
+
+  INVALID_UI_DEFINITION(
+      2444,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Ui Definition",
+      "Invalid Ui Definition"),
+
+  UNSUPPORTED_DATA_HIDING(
+      2445,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Data Hiding",
+      "Unsupported Data Hiding"),
+
+  INVALID_FORM_ACTION(
+      2446,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Form Action",
+      "Invalid Form Action"),
+
+  INVALID_ACTION_LINK(
+      2447,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Action Link",
+      "Invalid Action Link"),
+
+  INVALID_LOCATION(
+      2448,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Location",
+      "Invalid Location"),
+
+  INVALID_CUSTOM_ACTION_GROUP(
+      2449,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Custom Action Group",
+      "Invalid Custom Action Group"),
+
+  SYSTEM_TABLE_NOT_FOUND(
+      2450,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "System Table Not Found",
+      "System Table Not Found"),
+
+  CE_INCORRECT_FIELD_COUNT(
+      2451,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Incorrect Field Count",
+      "Ce Incorrect Field Count"),
+
+  CE_CANNOT_HAVE_FIELDSETS(
+      2452,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Cannot Have Fieldsets",
+      "Ce Cannot Have Fieldsets"),
+
+  CE_NOT_EXIST_TABLES(
+      2453,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Not Exist Tables",
+      "Ce Not Exist Tables"),
+
+  CREATE_TABLE_EXISTS(
+      2454,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Create Table Exists",
+      "Create Table Exists"),
+
+  CE_SYSTEM_DEF_NOT_FOUND(
+      2455,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce System Def Not Found",
+      "Ce System Def Not Found"),
+
+  CE_SHARED_DEF_NOT_FOUND(
+      2456,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Shared Def Not Found",
+      "Ce Shared Def Not Found"),
+
+  CE_MISSING_FIELD_ELEMENT(
+      2457,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Missing Field Element",
+      "Ce Missing Field Element"),
+
+  CE_INCLUDED_GROUP_INVALID(
+      2458,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Included Group Invalid",
+      "Ce Included Group Invalid"),
+
+  CE_SHARED_GROUP_NO_DEF(
+      2459,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Shared Group No Def",
+      "Ce Shared Group No Def"),
+
+  CE_SHARED_EXCLUDE_INVALID(
+      2460,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Shared Exclude Invalid",
+      "Ce Shared Exclude Invalid"),
+
+  CE_SYSTEM_EXCLUDE_INVALID(
+      2461,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce System Exclude Invalid",
+      "Ce System Exclude Invalid"),
+
+  CE_EXCLUDED_FIELD_MISSING(
+      2462,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Excluded Field Missing",
+      "Ce Excluded Field Missing"),
+
+  CE_MAPPING_INVALID_CHILD(
+      2463,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Mapping Invalid Child",
+      "Ce Mapping Invalid Child"),
+
+  CE_MAPPING_INVALID_CHILD_FIELDS(
+      2464,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Mapping Invalid Child Fields",
+      "Ce Mapping Invalid Child Fields"),
+
+  CE_MAPPING_INVALID_DEFAULT_UISET(
+      2465,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Mapping Invalid Default Uiset",
+      "Ce Mapping Invalid Default Uiset"),
+
+  CE_DUPLICATE_MERGED_FIELD_NAME(
+      2466,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Duplicate Merged Field Name",
+      "Ce Duplicate Merged Field Name"),
+
+  CE_INVALID_FIELD_OVERRIDE(
+      2467,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Invalid Field Override",
+      "Ce Invalid Field Override"),
+
+  CE_UNUSED_MAPPER(
+      2468,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Unused Mapper",
+      "Ce Unused Mapper"),
+
+  CE_INVALID_SHARED_FIELDSET_TYPE(
+      2469,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Invalid Shared Fieldset Type",
+      "Ce Invalid Shared Fieldset Type"),
+
+  CE_MISSING_OR_INVALID_CHILD_DISPLAY_MAPPING(
+      2470,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Missing Or Invalid Child Display Mapping",
+      "Ce Missing Or Invalid Child Display Mapping"),
+
+  CE_GROUPNAME_AND_FIELDSETNAME_MUST_MATCH(
+      2471,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Groupname And Fieldsetname Must Match",
+      "Ce Groupname And Fieldsetname Must Match"),
+
+  CE_FIELDSETNAME_AND_FIELDSETREF_MUST_MATCH(
+      2472,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Fieldsetname And Fieldsetref Must Match",
+      "Ce Fieldsetname And Fieldsetref Must Match"),
+
+  CE_MISSING_CHILD_DISPLAY_MAPPING(
+      2473,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Missing Child Display Mapping",
+      "Ce Missing Child Display Mapping"),
+
+  CHOICE_FILTER_MISSING_REQUIRED_CHILD(
+      2474,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Choice Filter Missing Required Child",
+      "Choice Filter Missing Required Child"),
+
+  CHOICE_FILTER_DEPENDENT_FIELD_MISSING_ATTR(
+      2475,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Choice Filter Dependent Field Missing Attr",
+      "Choice Filter Dependent Field Missing Attr");
 
   private final int numericCode;
   private final boolean auditable;

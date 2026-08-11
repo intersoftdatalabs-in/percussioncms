@@ -56,7 +56,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * package-local ints, non-colliding {@link WebserviceErrorCodes} package-local ints (28–73), fully
  * unique {@link ServerWebServicesErrorCodes} / {@link WebdavErrorCodes} / {@link ServletErrorCodes},
  * fully unique {@link SearchErrorCodes} / {@link LuceneErrorCodes} / {@link LocaleErrorCodes} /
- * {@link MailErrorCodes}, non-colliding {@link ObjectStoreErrorCodes} batches A–B (skips
+ * {@link MailErrorCodes}, non-colliding {@link ObjectStoreErrorCodes} batches A–D (skips
  * Design-owned ACL ints), and bootstrap-only {@link TransformationErrorCodes} / {@link
  * DeliveryErrorCodes} (no flat register). Residual slices may register additional catalogs via
  * {@link #register(int, SystemErrorCode)}.
@@ -74,7 +74,7 @@ public final class LegacyErrorCodeRegistry {
   /**
    * Ensure Phase 2b catalogs are loaded (auth/security, content, workflow, path/item, design,
    * server, HTTP, assembly, extension, delivery, job, webservices, WebDAV, servlet, search,
-   * Lucene, locale, mail, objectstore batches A–B, transformation). Safe to call repeatedly;
+   * Lucene, locale, mail, objectstore batches A–D, transformation). Safe to call repeatedly;
    * catalogs register themselves in their own static initializers. {@link AssemblyErrorCodes} and
    * {@link JobErrorCodes} skip package-local ints {@code 1–10} that collide with {@link
    * WorkflowErrorCodes}. {@link JobErrorCodes} is bootstrapped after assembly so flat int {@code
@@ -113,7 +113,7 @@ public final class LegacyErrorCodeRegistry {
       LuceneErrorCodes.ensureRegistered();
       LocaleErrorCodes.ensureRegistered();
       MailErrorCodes.ensureRegistered();
-      // ObjectStore A+B+C (#2898/#2899/#2912): after Design so ACL ownership stays on DesignErrorCodes.
+      // ObjectStore A+B+C+D (#2898/#2899/#2912/#2917): after Design so ACL ownership stays on Design.
       ObjectStoreErrorCodes.ensureRegistered();
     }
   }

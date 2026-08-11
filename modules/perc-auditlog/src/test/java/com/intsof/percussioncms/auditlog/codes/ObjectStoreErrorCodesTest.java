@@ -35,14 +35,14 @@ class ObjectStoreErrorCodesTest {
     for (ObjectStoreErrorCodes code : ObjectStoreErrorCodes.values()) {
       assertEquals(AuditModule.DESN, code.module());
       assertTrue(code.numericCode() >= 2011, code.name());
-      assertTrue(code.numericCode() <= 2380, code.name());
+      assertTrue(code.numericCode() <= 2475, code.name());
       assertTrue(seen.add(code.numericCode()), "duplicate numeric: " + code.numericCode());
       assertNotNull(code.userMessageTemplate());
       assertNotNull(code.logMessageTemplate());
       assertTrue(code.qualifiedCode().startsWith("DESN-"));
     }
-    // Batch A (63) + batch B (60) + batch C (34) = 157 non-colliding IPSObjectStoreErrors ints.
-    assertEquals(157, ObjectStoreErrorCodes.values().length);
+    // Batch A (63) + B (60) + C (34) + D (75) = 232 non-colliding IPSObjectStoreErrors ints.
+    assertEquals(232, ObjectStoreErrorCodes.values().length);
   }
 
   @Test
@@ -80,6 +80,13 @@ class ObjectStoreErrorCodesTest {
     assertEquals(2369, ObjectStoreErrorCodes.APP_ROLES_NOT_SUPPORTED.numericCode());
     assertEquals(2376, ObjectStoreErrorCodes.NO_JDBC_DRIVER_CONFIG.numericCode());
     assertEquals(2380, ObjectStoreErrorCodes.APP_LOGIN_PAGE_NOT_SUPPORTED.numericCode());
+    // Batch D anchors (content-editor)
+    assertEquals(2401, ObjectStoreErrorCodes.FIELD_NAME_NOT_UNIQUE.numericCode());
+    assertEquals(2410, ObjectStoreErrorCodes.INVALID_GLOBAL_TABLE_ID.numericCode());
+    assertEquals(2425, ObjectStoreErrorCodes.INVALID_CONTROL_REF.numericCode());
+    assertEquals(2450, ObjectStoreErrorCodes.SYSTEM_TABLE_NOT_FOUND.numericCode());
+    assertEquals(2466, ObjectStoreErrorCodes.CE_DUPLICATE_MERGED_FIELD_NAME.numericCode());
+    assertEquals(2475, ObjectStoreErrorCodes.CHOICE_FILTER_DEPENDENT_FIELD_MISSING_ATTR.numericCode());
   }
 
   @Test
@@ -122,6 +129,21 @@ class ObjectStoreErrorCodesTest {
     }
     for (int designOwned = 2351; designOwned <= 2356; designOwned++) {
       assertFalse(batchC.contains(designOwned), "Design-owned " + designOwned);
+    }
+  }
+
+  @Test
+  void batchDContentEditorCodesAreContiguousFrom2401Through2475() {
+    Set<Integer> batchD = new HashSet<>();
+    for (ObjectStoreErrorCodes code : ObjectStoreErrorCodes.values()) {
+      int n = code.numericCode();
+      if (n >= 2401 && n <= 2475) {
+        batchD.add(n);
+      }
+    }
+    assertEquals(75, batchD.size());
+    for (int expected = 2401; expected <= 2475; expected++) {
+      assertTrue(batchD.contains(expected), "missing batch D int " + expected);
     }
   }
 
