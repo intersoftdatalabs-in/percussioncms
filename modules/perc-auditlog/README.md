@@ -86,6 +86,10 @@ import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.UtilErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.XmlErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.RemoteErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SystemServiceErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
@@ -180,6 +184,10 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 2011, ctx); // objectstore XML nul
 | `JBossErrorCodes` | package-local 1 (no flat register) | Legacy JBoss container; WF owns bare 1 |
 | `SiteManageErrorCodes` | 18252 (`IPSSiteManageErrors`) | All non-auditable site-service noise |
 | `ObjectStoreErrorCodes` | batch A: 2011–2021, 2101–2103, 2200, 2209–2260 (skip Design ACL) | All non-auditable; Design owns ACL ints |
+| `CmsErrorCodes` | residual `IPSCmsErrors` 13001–14000 | All non-auditable; skips PathItem-owned ints + SQL 1002 (Server) |
+| `ContentExplorerErrorCodes` | 20001–20011 (`IPSContentExplorerErrors`) | All non-auditable UI/client codes |
+| `RemoteErrorCodes` | 15001–15002 (`IPSRemoteErrors`) | All non-auditable SOAP/transport |
+| `SystemServiceErrorCodes` | package-local 1, 4 (`IPSSystemErrors`) | Enum-only; WF owns bare 1/4 in flat registry |
 
 Non-auditable codes (`isAuditable() == false`) never create audit rows.
 

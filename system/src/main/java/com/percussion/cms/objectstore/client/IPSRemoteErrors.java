@@ -17,7 +17,13 @@
 
 package com.percussion.cms.objectstore.client;
 
-/** Error codes for the <code>PSRemoteAgent</code> class. */
+/**
+ * Error codes for the <code>PSRemoteAgent</code> class.
+ *
+ * <p><strong>Phase 2b bridge:</strong> cataloged in {@code
+ * com.intsof.percussioncms.auditlog.codes.RemoteErrorCodes} with explicit {@code isAuditable} (all
+ * non-auditable). Prefer that enum / {@code LegacyErrorCodeRegistry} for dual-write decisions.
+ */
 public interface IPSRemoteErrors {
   /**
    * Got wrong soap response while communicating with remote server

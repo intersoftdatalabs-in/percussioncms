@@ -21,6 +21,11 @@ package com.percussion.cx.error;
  * system related error codes. The error code messages are defined in the
  * PSContentExplorerErrorStringBundle.properties file.
  *
+ * <p><strong>Phase 2b bridge:</strong> cataloged in {@code
+ * com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes} with explicit {@code
+ * isAuditable} (all non-auditable). Prefer that enum / {@code LegacyErrorCodeRegistry} for
+ * dual-write decisions.
+ *
  * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>20001 - 21000</TD><TD>All content explorer error</TD></TR>

@@ -21,8 +21,10 @@ import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.BeansErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.CloneErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ConnectionErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
@@ -40,6 +42,7 @@ import com.intsof.percussioncms.auditlog.codes.NavigationErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PublisherErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.RemoteErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
@@ -47,6 +50,7 @@ import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServletErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SiteManageErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SiteManagerErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SystemServiceErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.TransformationErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.UiErrorCodes;
@@ -62,6 +66,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 
 
@@ -1474,5 +1479,120 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(2260).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(2261).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(2320).isPresent());
+  }
+
+@Test
+  void residualCmsCodeIsRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(13001));
+    assertSame(
+        CmsErrorCodes.CORRUPT_DATABASE_ENTRY, LegacyErrorCodeRegistry.find(13001).orElseThrow());
+    assertFalse(CmsErrorCodes.CORRUPT_DATABASE_ENTRY.isAuditable());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(13250));
+    assertSame(
+        CmsErrorCodes.FAILED_GET_NAVON_CIRCULAR_AA_RELATIONSHIP,
+        LegacyErrorCodeRegistry.find(13250).orElseThrow());
+  }
+
+@Test
+  void residualCmsNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            CmsErrorCodes.CMS_INTERNAL_REQUEST_ERROR.numericCode(),
+            AuditContext.builder().actor("jdoe").build(),
+            "app/resource",
+            "boom");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+@Test
+  void pathItemStillOwnsFolderPermissionDeniedAfterCmsResidual() {
+    // PathItem registered before CmsErrorCodes; residual CMS skips 13007.
+    assertSame(
+        PathItemErrorCodes.FOLDER_PERMISSION_DENIED,
+        LegacyErrorCodeRegistry.find(13007).orElseThrow());
+    assertTrue(LegacyErrorCodeRegistry.isAuditable(13007));
+  }
+
+@Test
+  void contentExplorerCodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(20001));
+    assertSame(
+        ContentExplorerErrorCodes.GENERAL_ERROR, LegacyErrorCodeRegistry.find(20001).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(20011));
+    assertSame(
+        ContentExplorerErrorCodes.SITEDEF_UPDATE_FAILURES,
+        LegacyErrorCodeRegistry.find(20011).orElseThrow());
+  }
+
+@Test
+  void contentExplorerNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            ContentExplorerErrorCodes.SEARCH_ERROR.numericCode(),
+            AuditContext.builder().actor("jdoe").build(),
+            "search failed");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+@Test
+  void remoteCodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(15001));
+    assertSame(
+        RemoteErrorCodes.REMOTE_WRONG_SOAP_RESP, LegacyErrorCodeRegistry.find(15001).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(15002));
+    assertSame(
+        RemoteErrorCodes.REMOTE_UNEXPECTED_ERROR,
+        LegacyErrorCodeRegistry.find(15002).orElseThrow());
+  }
+
+@Test
+  void remoteNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            RemoteErrorCodes.REMOTE_UNEXPECTED_ERROR.numericCode(),
+            AuditContext.empty(),
+            "timeout");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+@Test
+  void systemServicePackageLocalDoesNotClobberWorkflowInFlatRegistry() {
+    // SystemService ints 1 and 4 intentionally not registered; Workflow owns bare 1–10.
+    assertSame(
+        WorkflowErrorCodes.WORKFLOW_NOT_FOUND, LegacyErrorCodeRegistry.find(1).orElseThrow());
+    assertEquals(1, SystemServiceErrorCodes.MISSING_SHARED_PROPERTY.numericCode());
+    assertFalse(SystemServiceErrorCodes.MISSING_SHARED_PROPERTY.isAuditable());
+    assertEquals(4, SystemServiceErrorCodes.ERROR_DETERMINING_FOLDER_READ.numericCode());
+    assertFalse(SystemServiceErrorCodes.ERROR_DETERMINING_FOLDER_READ.isAuditable());
+  }
+
+@Test
+  void registryCoversCmsContentExplorerRemoteAndSystemService() {
+    assertTrue(LegacyErrorCodeRegistry.size() >= 470);
+    assertTrue(LegacyErrorCodeRegistry.find(13001).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(13007).isPresent()); // PathItem
+    assertTrue(LegacyErrorCodeRegistry.find(15001).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(20001).isPresent());
+    // SystemService not flat-registered:
+    assertSame(
+        WorkflowErrorCodes.WORKFLOW_NOT_FOUND, LegacyErrorCodeRegistry.find(1).orElseThrow());
   }
 }
