@@ -63,6 +63,17 @@ public class TemplatesResourceDetailTest {
   }
 
   @Test
+  public void getTemplateReturnsTemplateSource() {
+    TemplateDetail d = new TemplateDetail();
+    d.setName("perc.page");
+    d.setTemplateSource("#header()\n$body\n");
+    when(adaptor.getTemplate(any(), eq("perc.page"))).thenReturn(d);
+
+    TemplateDetail out = resource.getTemplate("perc.page");
+    assertEquals("#header()\n$body\n", out.getTemplateSource());
+  }
+
+  @Test
   public void getTemplateReturnsStructuredDesignGaps() {
     TemplateDetail d = new TemplateDetail();
     d.setName("perc.page");

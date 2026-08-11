@@ -18,6 +18,7 @@
 package com.percussion.rest.slots;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,8 +26,14 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Map;
 
-/** Assembly slot design detail for the Developer module (read + partial write). */
+/**
+ * Assembly slot design detail for the Developer module (read + partial write).
+ *
+ * <p>Wire root {@code SlotDetail} matches {@code WRAP_ROOT_VALUE}/{@code
+ * UNWRAP_ROOT_VALUE} (see TemplateDetail / issue #3039 companion).
+ */
 @XmlRootElement(name = "SlotDetail")
+@JsonRootName("SlotDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Slot detail with finder and content-type/template associations")
 public class SlotDetail {
