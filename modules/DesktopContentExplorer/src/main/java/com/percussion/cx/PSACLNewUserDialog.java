@@ -49,7 +49,10 @@ public class PSACLNewUserDialog extends PSDialog implements ItemListener {
    * @param applet the content explorer applet that owns this dialog and supplies its resources. May
    *     not be <code>null</code>.
    */
-  public PSACLNewUserDialog(Dialog dialog, Iterator providers, PSContentExplorerApplet applet) {
+  public PSACLNewUserDialog(
+      Dialog dialog,
+      Iterator<PSSecurityProviderInstanceSummary> providers,
+      PSContentExplorerApplet applet) {
     super(dialog, applet.getResourceString(PSACLNewUserDialog.class, "New User ACL Entry"));
 
     if (applet == null) throw new IllegalArgumentException("applet may not be null");
@@ -67,7 +70,10 @@ public class PSACLNewUserDialog extends PSDialog implements ItemListener {
    * @param applet the content explorer applet that owns this dialog and supplies its resources. May
    *     not be <code>null</code>.
    */
-  public PSACLNewUserDialog(Frame frame, Iterator providers, PSContentExplorerApplet applet) {
+  public PSACLNewUserDialog(
+      Frame frame,
+      Iterator<PSSecurityProviderInstanceSummary> providers,
+      PSContentExplorerApplet applet) {
     super(frame, applet.getResourceString(PSACLNewUserDialog.class, "New User ACL Entry"));
 
     if (applet == null) throw new IllegalArgumentException("applet may not be null");
@@ -82,6 +88,7 @@ public class PSACLNewUserDialog extends PSDialog implements ItemListener {
    * @return returns the selected provider. May be <code>null</code>.
    */
   public PSSecurityProviderInstanceSummary getSelectedProvider() {
+    // JComboBox#getSelectedItem remains Object-typed even on JComboBox<E>
     return (PSSecurityProviderInstanceSummary) m_instanceComboBox.getSelectedItem();
   }
 
@@ -99,16 +106,16 @@ public class PSACLNewUserDialog extends PSDialog implements ItemListener {
    *
    * @param providers the iterator of security provider instances.
    */
-  private void initDialog(Iterator providers) {
+  private void initDialog(Iterator<PSSecurityProviderInstanceSummary> providers) {
     JPanel mainPanel = new JPanel(new BorderLayout());
 
     PSPropertyPanel propPanel = new PSPropertyPanel();
     propPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 10));
 
-    m_typeComboBox = new JComboBox();
+    m_typeComboBox = new JComboBox<>();
     m_typeComboBox.addActionListener(new PSAccessibleActionListener());
     m_typeComboBox.addItemListener(this);
-    m_instanceComboBox = new JComboBox();
+    m_instanceComboBox = new JComboBox<>();
     m_instanceComboBox.addActionListener(new PSAccessibleActionListener());
     m_instanceComboBox.addItemListener(this);
     m_nameTextField = new JTextField();
@@ -161,9 +168,10 @@ public class PSACLNewUserDialog extends PSDialog implements ItemListener {
    */
   private void loadInstances(ProviderType provider) {
     if (null == provider) return;
-    Iterator it = provider.getInstances();
     m_instanceComboBox.removeAllItems();
-    while (it.hasNext()) m_instanceComboBox.addItem(it.next());
+    for (PSSecurityProviderInstanceSummary instance : provider.getInstances()) {
+      m_instanceComboBox.addItem(instance);
+    }
   }
 
   /**
@@ -171,27 +179,43 @@ public class PSACLNewUserDialog extends PSDialog implements ItemListener {
    *
    * @param providers. May be <code>null</code>.
    */
-  private void loadComboBoxes(Iterator providers) {
+  private void loadComboBoxes(Iterator<PSSecurityProviderInstanceSummary> providers) {
     if (null == providers) return;
 
-    PSSecurityProviderInstanceSummary provider = null;
-    List temp = new ArrayList();
-    ProviderType type = null;
+    List<ProviderType> temp = groupProvidersByType(providers);
+    for (ProviderType type : temp) {
+      m_typeComboBox.addItem(type);
+    }
+
+    loadInstances((ProviderType) m_typeComboBox.getSelectedItem());
+  }
+
+  /**
+   * Groups security provider instances by provider type for the type combo box. Package-visible for
+   * unit tests. Preserves historic {@link ProviderType#equals(Object)} / list membership behavior.
+   *
+   * @param providers iterator of provider summaries; may be <code>null</code>
+   * @return ordered list of provider type groups; never <code>null</code>
+   */
+  static List<ProviderType> groupProvidersByType(
+      Iterator<PSSecurityProviderInstanceSummary> providers) {
+    List<ProviderType> temp = new ArrayList<>();
+    if (providers == null) {
+      return temp;
+    }
     while (providers.hasNext()) {
-      provider = (PSSecurityProviderInstanceSummary) providers.next();
-      type = new ProviderType(provider.getTypeId(), provider.getTypeName());
-      if (temp.contains(type)) {
-        type = (ProviderType) temp.get(temp.indexOf(type));
+      PSSecurityProviderInstanceSummary provider = providers.next();
+      ProviderType type = new ProviderType(provider.getTypeId(), provider.getTypeName());
+      int existingIndex = temp.indexOf(type);
+      if (existingIndex >= 0) {
+        type = temp.get(existingIndex);
         type.addInstance(provider);
       } else {
         type.addInstance(provider);
         temp.add(type);
       }
     }
-    Iterator it = temp.iterator();
-    while (it.hasNext()) m_typeComboBox.addItem(it.next());
-
-    loadInstances((ProviderType) m_typeComboBox.getSelectedItem());
+    return temp;
   }
 
   // see ItemListener interface for details
@@ -203,8 +227,11 @@ public class PSACLNewUserDialog extends PSDialog implements ItemListener {
     }
   }
 
-  /** Convenience inner class to represent a provider type group */
-  class ProviderType {
+  /**
+   * Convenience nested class to represent a provider type group. Static so grouping helpers can
+   * construct instances without a dialog.
+   */
+  static class ProviderType {
 
     /**
      * Construct new ProviderType object
@@ -228,12 +255,12 @@ public class PSACLNewUserDialog extends PSDialog implements ItemListener {
     }
 
     /**
-     * Returns iterator of instances
+     * Returns instances of this provider type.
      *
-     * @return iterator of instances. Never <code>null</code>.
+     * @return list of instances. Never <code>null</code>.
      */
-    public Iterator getInstances() {
-      return m_instances.iterator();
+    public List<PSSecurityProviderInstanceSummary> getInstances() {
+      return m_instances;
     }
 
     /**
@@ -244,10 +271,7 @@ public class PSACLNewUserDialog extends PSDialog implements ItemListener {
      */
     PSSecurityProviderInstanceSummary getInstance(String name) {
       if (null == name) throw new IllegalArgumentException("Instance name cannot be null.");
-      Iterator it = m_instances.iterator();
-      PSSecurityProviderInstanceSummary inst = null;
-      while (it.hasNext()) {
-        inst = (PSSecurityProviderInstanceSummary) it.next();
+      for (PSSecurityProviderInstanceSummary inst : m_instances) {
         if (inst.getInstanceName().equals(name)) return inst;
       }
       return null;
@@ -287,7 +311,7 @@ public class PSACLNewUserDialog extends PSDialog implements ItemListener {
     }
 
     /** The list of provider instances. Never <code>null</code>, may be empty. */
-    protected List m_instances = new ArrayList();
+    protected List<PSSecurityProviderInstanceSummary> m_instances = new ArrayList<>();
 
     /** The provider type id */
     protected int m_typeId;
@@ -300,13 +324,13 @@ public class PSACLNewUserDialog extends PSDialog implements ItemListener {
    * Security provider type combo box. Initialized in {@link #initDialog(Iterator)}, never <code>
    * null</code> after that.
    */
-  private JComboBox m_typeComboBox;
+  private JComboBox<ProviderType> m_typeComboBox;
 
   /**
    * Provider instance combo box. Initialized in {@link #initDialog(Iterator)}, never <code>null
    * </code> after that.
    */
-  private JComboBox m_instanceComboBox;
+  private JComboBox<PSSecurityProviderInstanceSummary> m_instanceComboBox;
 
   /**
    * User name text field. Initialized in {@link #initDialog(Iterator)}, never <code>null</code>
