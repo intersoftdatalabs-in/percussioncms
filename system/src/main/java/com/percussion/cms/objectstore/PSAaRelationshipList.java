@@ -51,7 +51,7 @@ public final class PSAaRelationshipList extends PSCollectionComponent {
    * @param parentComponents the parent objects of this object, may be {@code null}.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSAaRelationshipList(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSAaRelationshipList(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     super(PSAaRelationship.class);
     // Private load avoids virtual fromXml/add during construction (this-escape).
@@ -62,7 +62,7 @@ public final class PSAaRelationshipList extends PSCollectionComponent {
    * @see IPSComponent
    */
   @Override
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXmlLoad(sourceNode, parentDoc, parentComponents);
   }
@@ -72,7 +72,7 @@ public final class PSAaRelationshipList extends PSCollectionComponent {
    * full construction when called from public {@link #fromXml}; during Element ctor the collection
    * is empty and only non-overridable list storage is used.
    */
-  private void fromXmlLoad(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  private void fromXmlLoad(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
@@ -93,7 +93,7 @@ public final class PSAaRelationshipList extends PSCollectionComponent {
       node = tree.getNextElement(PSRelationship.XML_NODE_NAME, firstFlags);
       while (node != null) {
         PSRelationship relationship =
-            new PSRelationship(node, parentDoc, (List<IPSComponent>) parentComponents);
+            new PSRelationship(node, parentDoc, parentComponents);
         // Direct list insert — avoid overridable add() during construction (this-escape).
         super.add(relationship);
         node = tree.getNextElement(PSRelationship.XML_NODE_NAME, nextFlags);
