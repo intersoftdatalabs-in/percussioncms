@@ -28,7 +28,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** A container class to encapsulate a schema and a table data for a dependency object. */
-public class PSDependencyData implements IPSDeployComponent {
+public final class PSDependencyData implements IPSDeployComponent {
 
   /**
    * Constructing the object with the given parameters.
@@ -68,7 +68,8 @@ public class PSDependencyData implements IPSDeployComponent {
     if (source == null) throw new IllegalArgumentException("source may not be null");
     if (typeMap == null) throw new IllegalArgumentException("typeMap may not be null");
 
-    fromXml(source, typeMap);
+    // final class + private load helper for Element-ctor this-escape
+    readFromXml(source, typeMap);
   }
 
   /**
@@ -129,6 +130,15 @@ public class PSDependencyData implements IPSDeployComponent {
    * @throws PSUnknownNodeTypeException if the XML is malformed.
    */
   public void fromXml(Element sourceNode, PSJdbcDataTypeMap typeMap)
+      throws PSUnknownNodeTypeException {
+    readFromXml(sourceNode, typeMap);
+  }
+
+  /**
+   * Restores schema and table data from XML. Private so the Element constructor can call it without
+   * a this-escape via the public {@link #fromXml(Element, PSJdbcDataTypeMap)}.
+   */
+  private void readFromXml(Element sourceNode, PSJdbcDataTypeMap typeMap)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null || typeMap == null) {
       throw new IllegalArgumentException("sourceNode and typeMap may not be null");

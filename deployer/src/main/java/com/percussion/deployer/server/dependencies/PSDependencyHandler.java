@@ -56,11 +56,17 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
   /**
    * Construct a dependency handler.
    *
+   * <p>Calls abstract {@link #getType()} to validate {@code def}. That is intentional for handler
+   * registration (subclasses return a constant type string). javac {@code this-escape} cannot be
+   * cleared via a private helper here without changing the abstract type API of every handler
+   * subclass; suppress is scoped to this constructor only.
+   *
    * @param def The def for the type supported by this handler. May not be <code>null</code> and
    *     must be of the type supported by this class. See {@link #getType()} for more info.
    * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
+  @SuppressWarnings("this-escape")
   public PSDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
     if (def == null) throw new IllegalArgumentException("def may not be null");
 

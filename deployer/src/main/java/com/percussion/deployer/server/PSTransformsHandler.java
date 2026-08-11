@@ -226,10 +226,10 @@ public class PSTransformsHandler {
     }
 
     PSDependency parent = null;
-    Iterator childDeps = root.getDependencies();
+    Iterator<PSDependency> childDeps = root.getDependencies();
     if (childDeps != null) {
       while (childDeps.hasNext() && parent != null) {
-        parent = getParentDependency(dep, parentType, (PSDependency) childDeps.next());
+        parent = getParentDependency(dep, parentType, childDeps.next());
       }
     }
 
@@ -248,10 +248,10 @@ public class PSTransformsHandler {
   private void getSupportedIdMapDependencies(
       PSDependency dependency, List<PSDependency> idMapDeps) {
     if (dependency.supportsIDMapping()) idMapDeps.add(dependency);
-    Iterator childDeps = dependency.getDependencies();
+    Iterator<PSDependency> childDeps = dependency.getDependencies();
     if (childDeps != null) {
       while (childDeps.hasNext()) {
-        getSupportedIdMapDependencies((PSDependency) childDeps.next(), idMapDeps);
+        getSupportedIdMapDependencies(childDeps.next(), idMapDeps);
       }
     }
   }
@@ -452,9 +452,9 @@ public class PSTransformsHandler {
     }
 
     Set<String> usedElements = new HashSet<>();
-    Iterator mappings = m_idMap.getMappings();
+    Iterator<PSIdMapping> mappings = m_idMap.getMappings();
     while (mappings.hasNext()) {
-      PSIdMapping mapping = (PSIdMapping) mappings.next();
+      PSIdMapping mapping = mappings.next();
       if (mapping.getObjectType().equals(objectType) && mapping.getTargetId() != null) {
         usedElements.add(
             mapping.getTargetId()
@@ -492,10 +492,11 @@ public class PSTransformsHandler {
       throws PSDeployException, PSNotFoundException {
     Set<PSMappingElement> mapElems = new HashSet<>();
 
-    Iterator iter = PSDependencyManager.getInstance().getDependencies(m_tok, type);
+    Iterator<PSDependency> iter =
+        PSDependencyManager.getInstance().getDependencies(m_tok, type);
 
     while (iter.hasNext()) {
-      PSDependency dep = (PSDependency) iter.next();
+      PSDependency dep = iter.next();
       PSMappingElement element =
           new PSMappingElement(dep.getObjectType(), dep.getDependencyId(), dep.getDisplayName());
       mapElems.add(element);
@@ -542,10 +543,10 @@ public class PSTransformsHandler {
         Iterator<PSMappingElement> parentIter = getElementsByType(parentType);
         while (parentIter.hasNext()) {
           PSMappingElement parentElement = parentIter.next();
-          Iterator childElements =
+          Iterator<PSDependency> childElements =
               PSDependencyManager.getInstance().getDependencies(m_tok, type, parentElement.getId());
           while (childElements.hasNext()) {
-            PSDependency element = (PSDependency) childElements.next();
+            PSDependency element = childElements.next();
             PSMappingElement childElement =
                 new PSMappingElement(
                     element.getObjectType(), element.getDependencyId(), element.getDisplayName());
@@ -572,7 +573,7 @@ public class PSTransformsHandler {
    * @return See {@link PSDependencyManager#getParentTypes()}.
    * @throws PSDeployException
    */
-  private Map getParentTypes() throws PSDeployException {
+  private Map<String, String> getParentTypes() throws PSDeployException {
     return PSDependencyManager.getInstance().getParentTypes();
   }
 
@@ -597,8 +598,8 @@ public class PSTransformsHandler {
    * @throws PSDeployException if an error happens getting parent types.
    */
   private String getParentType(String type) throws PSDeployException {
-    Map parentTypes = getParentTypes();
-    return (String) parentTypes.get(type);
+    Map<String, String> parentTypes = getParentTypes();
+    return parentTypes.get(type);
   }
 
   /**
@@ -611,9 +612,9 @@ public class PSTransformsHandler {
     if (m_idTypes == null) {
       m_idTypes = new HashSet<>();
       PSDependencyManager mgr = PSDependencyManager.getInstance();
-      Iterator idTypes = mgr.getObjectTypes();
+      Iterator<PSDependencyDef> idTypes = mgr.getObjectTypes();
       while (idTypes.hasNext()) {
-        PSDependencyDef def = (PSDependencyDef) idTypes.next();
+        PSDependencyDef def = idTypes.next();
         if (def.supportsIdMapping()) {
           m_idTypes.add(def);
         }
@@ -632,9 +633,9 @@ public class PSTransformsHandler {
    */
   private PSIdMap getValidMappings(PSIdMap idMap) {
     PSIdMap copy = new PSIdMap(idMap.getSourceServer());
-    Iterator mappings = idMap.getMappings();
+    Iterator<PSIdMapping> mappings = idMap.getMappings();
     while (mappings.hasNext()) {
-      PSIdMapping mapping = (PSIdMapping) mappings.next();
+      PSIdMapping mapping = mappings.next();
       if (mapping.isMapped()) copy.addMapping(mapping);
     }
 

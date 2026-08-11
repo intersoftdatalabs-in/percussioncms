@@ -115,7 +115,8 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
    * @param srcNode The element to search, may not be <code>null</code>.
    * @throws PSDeployException if there are any errors creating the dependencies.
    */
-  protected void addApplicationDependencies(PSSecurityToken tok, Set childDeps, Element srcNode)
+  protected void addApplicationDependencies(
+      PSSecurityToken tok, Set<PSDependency> childDeps, Element srcNode)
       throws PSDeployException, com.percussion.services.error.PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -243,13 +244,13 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
-  protected List getLiteralPathDependencies(PSSecurityToken tok, Element srcNode)
+  protected List<PSDependency> getLiteralPathDependencies(PSSecurityToken tok, Element srcNode)
       throws PSDeployException, com.percussion.services.error.PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     if (srcNode == null) throw new IllegalArgumentException("srcNode may not be null");
 
-    List childDeps = new ArrayList();
+    List<PSDependency> childDeps = new ArrayList<>();
 
     NodeList lits = srcNode.getElementsByTagName(PSTextLiteral.ms_NodeType);
     for (int i = 0; i < lits.getLength(); i++) {
@@ -429,9 +430,9 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
       int fileStart = path.indexOf(appName) + appName.length() + 1;
       if (fileStart < path.length()) {
         String filePath = path.substring(fileStart);
-        Iterator appFiles = getAppFiles(tok, appName);
+        Iterator<File> appFiles = getAppFiles(tok, appName);
         while (appFiles.hasNext() && appFile == null) {
-          File test = (File) appFiles.next();
+          File test = appFiles.next();
           if (compareFiles(test.getPath(), filePath)) appFile = test;
         }
       }
@@ -542,18 +543,19 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any errors occur.
    */
-  protected Iterator getAppFiles(PSSecurityToken tok, String appName) throws PSDeployException {
+  protected Iterator<File> getAppFiles(PSSecurityToken tok, String appName)
+      throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     if (appName == null || appName.trim().length() == 0)
       throw new IllegalArgumentException("appName may not be null or empty");
 
     try {
-      List appFiles = new ArrayList();
+      List<File> appFiles = new ArrayList<>();
       PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
-      Iterator files = os.getApplicationFiles(appName);
+      Iterator<File> files = os.getApplicationFiles(appName);
       while (files.hasNext()) {
-        File file = (File) files.next();
+        File file = files.next();
 
         // ignore files in AA temp dirs
         if (isValidAppFile(file, appName)) appFiles.add(file);
@@ -633,8 +635,8 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
    * @return An iterator over zero or more filepaths as <code>String</code> objects, never <code>
    *     null</code>.
    */
-  private Iterator getVarPaths(Document doc, Map varMap) {
-    Set pathSet = new HashSet();
+  private Iterator<String> getVarPaths(Document doc, Map<String, String> varMap) {
+    Set<String> pathSet = new HashSet<>();
 
     if (!varMap.isEmpty()) {
       // walk all nodes and check for var use
@@ -656,7 +658,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
         String var = path.substring(path.indexOf(CONCAT_START) + CONCAT_START.length(), iSep);
 
         // see if its in the map
-        String replVal = (String) varMap.get(var);
+        String replVal = varMap.get(var);
         if (replVal == null) continue;
 
         // get the file

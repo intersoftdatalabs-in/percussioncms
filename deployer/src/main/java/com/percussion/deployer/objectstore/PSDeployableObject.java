@@ -114,15 +114,23 @@ public class PSDeployableObject extends PSDependency {
   /**
    * Constructs this object from its XML representation.
    *
+   * <p>Uses a private load helper (not overridable {@link #fromXml(Element)}). Remaining {@code
+   * this-escape} is from nested child linking inside {@link #restoreDependencyFromXml(Element)}
+   * ({@code setParentDependency(this)}), which is intentional for the dependency tree and cannot be
+   * deferred without behavior change. Class is not {@code final} because {@link PSUserDependency}
+   * extends it.
+   *
    * @param src The source element. Format expected is defined by {@link #toXml(Document)}.
    * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
    *     by the class.
    */
+  @SuppressWarnings("this-escape")
   public PSDeployableObject(Element src) throws PSUnknownNodeTypeException {
     if (src == null) throw new IllegalArgumentException("src may not be null");
 
-    fromXml(src);
+    // private helper avoids overridable fromXml this-escape
+    readFromXml(src);
   }
 
   /** Parameterless ctor for use by derived classes only. */
@@ -166,6 +174,14 @@ public class PSDeployableObject extends PSDependency {
    *     by the class.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    readFromXml(sourceNode);
+  }
+
+  /**
+   * Restores state from XML. Private so the Element constructor can call it without a this-escape
+   * via the overridable {@link #fromXml(Element)}.
+   */
+  private void readFromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
       throw new IllegalArgumentException("sourceNode may not be null");
     }
@@ -181,7 +197,8 @@ public class PSDeployableObject extends PSDependency {
       throw new PSUnknownNodeTypeException(
           IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDependency.XML_NODE_NAME);
     }
-    super.fromXml(dep);
+    // final helper — avoid overridable super.fromXml this-escape from Element ctor
+    restoreDependencyFromXml(dep);
     m_classNames.clear();
     // RequiredClasses is a sibling of PSXDependency under the root element.
     tree.setCurrent(sourceNode);

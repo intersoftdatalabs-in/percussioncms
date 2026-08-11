@@ -125,9 +125,8 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
       if (pipe == null) continue;
       var tank = pipe.getBackEndDataTank();
       if (tank == null) continue;
-      Iterator dsTableIter = tank.getTables().iterator();
-      while (dsTableIter.hasNext()) {
-        var table = (PSBackEndTable) dsTableIter.next();
+      for (Object rawTable : tank.getTables()) {
+        var table = (PSBackEndTable) rawTable;
         var schemaDep =
             getDependencyHandler(PSSchemaDependencyHandler.DEPENDENCY_TYPE)
                 .getDependency(tok, table.getTable());
@@ -170,9 +169,8 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
     boolean gotCE = false;
     PSCollection dataSetColl = app.getDataSets();
     if (dataSetColl != null) {
-      Iterator datasets = dataSetColl.iterator();
-      while (datasets.hasNext()) {
-        PSDataSet ds = (PSDataSet) datasets.next();
+      for (Object rawDsObj : dataSetColl) {
+        PSDataSet ds = (PSDataSet) rawDsObj;
         // get tables from tank
         PSPipe pipe = ds.getPipe();
         if (pipe == null) continue;
@@ -180,9 +178,8 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
         PSBackEndDataTank tank = pipe.getBackEndDataTank();
         if (tank == null) continue;
 
-        Iterator tables = tank.getTables().iterator();
-        while (tables.hasNext()) {
-          PSBackEndTable table = (PSBackEndTable) tables.next();
+        for (Object rawTable : tank.getTables()) {
+          PSBackEndTable table = (PSBackEndTable) rawTable;
           PSDependency schemaDep = schemaHandler.getDependency(tok, table.getTable());
           if (schemaDep != null) {
             if (schemaDep.getDependencyType() == PSDependency.TYPE_SHARED) {
@@ -198,7 +195,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
         // check for function defs and child resource cache dependencies
         if (pipe instanceof PSQueryPipe) {
           PSQueryPipe qPipe = (PSQueryPipe) pipe;
-          Iterator childResources = qPipe.getCacheSettings().getDependencies();
+          Iterator<?> childResources = qPipe.getCacheSettings().getDependencies();
           while (childResources.hasNext()) {
             String child = (String) childResources.next();
             PSDependency appDep = getDepFromPath(tok, child);
@@ -209,9 +206,8 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
           if (selector != null) {
             PSCollection whereColl = selector.getWhereClauses();
             if (whereColl != null) {
-              Iterator wheres = whereColl.iterator();
-              while (wheres.hasNext()) {
-                PSWhereClause where = (PSWhereClause) wheres.next();
+              for (Object rawWhere : whereColl) {
+                PSWhereClause where = (PSWhereClause) rawWhere;
                 IPSReplacementValue[] vars = {where.getValue(), where.getVariable()};
 
                 PSDependencyHandler funcHandler =
@@ -248,9 +244,9 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
       var doc = os.getApplicationDoc(dep.getDependencyId(), tok);
       files.add(new PSDependencyFile(PSDependencyFile.TYPE_APPLICATION_XML, createXmlFile(doc)));
 
-      Iterator appFilesIter = getAppFiles(tok, dep.getDependencyId());
+      Iterator<File> appFilesIter = getAppFiles(tok, dep.getDependencyId());
       while (appFilesIter.hasNext()) {
-        File appFile = (File) appFilesIter.next();
+        File appFile = appFilesIter.next();
         File tmpFile = getFileFromApp(tok, dep.getDependencyId(), appFile);
         files.add(new PSDependencyFile(PSDependencyFile.TYPE_APPLICATION_FILE, tmpFile, appFile));
       }
@@ -281,9 +277,8 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
       PSCollection dataSetColl = app.getDataSets();
       if (dataSetColl == null) return infoList;
 
-      Iterator datasets = dataSetColl.iterator();
-      while (datasets.hasNext()) {
-        PSDataSet ds = (PSDataSet) datasets.next();
+      for (Object rawDs : dataSetColl) {
+        PSDataSet ds = (PSDataSet) rawDs;
 
         PSPipe pipe = ds.getPipe();
         if (pipe == null) continue;
@@ -291,9 +286,8 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
         PSBackEndDataTank tank = pipe.getBackEndDataTank();
         if (tank == null) continue;
 
-        Iterator tables = tank.getTables().iterator();
-        while (tables.hasNext()) {
-          PSBackEndTable table = (PSBackEndTable) tables.next();
+        for (Object rawTable : tank.getTables()) {
+          PSBackEndTable table = (PSBackEndTable) rawTable;
           String dataSrc = table.getDataSource();
 
           // see if datasource is not blank
@@ -327,10 +321,10 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
 
     String appName = dep.getDependencyId();
     Document appDoc = null;
-    List appFileList = new ArrayList();
-    Iterator files = archive.getFiles(dep);
+    List<PSDependencyFile> appFileList = new ArrayList<>();
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
     while (files.hasNext()) {
-      PSDependencyFile file = (PSDependencyFile) files.next();
+      PSDependencyFile file = files.next();
       if (file.getType() == PSDependencyFile.TYPE_APPLICATION_XML) {
         String archivePath =
             file.getArchiveLocation() != null ? file.getArchiveLocation().getPath() : null;
@@ -390,18 +384,16 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
 
       // if app exists, get current app files to determine if adding or
       // overwriting files
-      List curFileList = new ArrayList();
+      List<File> curFileList = new ArrayList<>();
       if (exists) {
-        Iterator curFiles = getAppFiles(tok, app.getName());
+        Iterator<File> curFiles = getAppFiles(tok, app.getName());
         while (curFiles.hasNext()) curFileList.add(curFiles.next());
       }
 
       // save the application files
-      Iterator appFiles = appFileList.iterator();
-      while (appFiles.hasNext()) {
+      for (PSDependencyFile appFile : appFileList) {
         int transAction = PSTransactionSummary.ACTION_CREATED;
 
-        PSDependencyFile appFile = (PSDependencyFile) appFiles.next();
         File origFile = normalizePathSep(appFile.getOriginalFile());
         PSXmlObjectStoreLockerId filelockId = null;
         try {
@@ -428,10 +420,8 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
       }
 
       // remaining files have to be deleted and logged
-      Iterator it = curFileList.iterator();
       File appDir = new File(PSServer.getRxDir(), appName);
-      while (it.hasNext()) {
-        File f = (File) it.next();
+      for (File f : curFileList) {
         File appFile = new File(appDir, f.getPath());
 
         if (os.removeApplicationFile(app, appFile, lockId, tok))
@@ -490,11 +480,12 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
   }
 
   // see base class
-  public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException {
+  @Override
+  public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     // get all applications
-    List deps = new ArrayList();
+    List<PSDependency> deps = new ArrayList<>();
     PSApplicationSummary[] sums =
         PSServerXmlObjectStore.getInstance().getApplicationSummaryObjects(tok, false);
     for (int i = 0; i < sums.length; i++) {
@@ -553,7 +544,8 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  @Override
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -599,10 +591,9 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
       PSCollection dataSetColl = app.getDataSets();
       if (dataSetColl == null) return idTypes;
 
-      Iterator datasets = dataSetColl.iterator();
-      while (datasets.hasNext()) {
-        List mappings = new ArrayList();
-        PSDataSet ds = (PSDataSet) datasets.next();
+      for (Object rawDs : dataSetColl) {
+        List<PSApplicationIDTypeMapping> mappings = new ArrayList<>();
+        PSDataSet ds = (PSDataSet) rawDs;
         String reqName = getResourceName(ds);
 
         // check page selection/validation properties
@@ -633,9 +624,8 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
             PSCollection pageColl = pageSet.getResultPages();
             if (pageColl != null) {
               mappings.clear();
-              Iterator pages = pageColl.iterator();
-              while (pages.hasNext()) {
-                PSAppTransformer.checkResultPage(mappings, (PSResultPage) pages.next(), null);
+              for (Object rawPage : pageColl) {
+                PSAppTransformer.checkResultPage(mappings, (PSResultPage) rawPage, null);
               }
 
               idTypes.addMappings(
@@ -693,18 +683,19 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
     PSApplication app = (PSApplication) object;
 
     // walk id types and perform any transforms
-    Iterator resources = idTypes.getResourceList(false);
+    Iterator<String> resources = idTypes.getResourceList(false);
     while (resources.hasNext()) {
-      String resource = (String) resources.next();
+      String resource = resources.next();
       PSDataSet ds = getResource(app, resource);
       if (ds == null) continue;
 
-      Iterator elements = idTypes.getElementList(resource, false);
+      Iterator<String> elements = idTypes.getElementList(resource, false);
       while (elements.hasNext()) {
-        String element = (String) elements.next();
-        Iterator mappings = idTypes.getIdTypeMappings(resource, element, false);
+        String element = elements.next();
+        Iterator<PSApplicationIDTypeMapping> mappings =
+            idTypes.getIdTypeMappings(resource, element, false);
         while (mappings.hasNext()) {
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
 
           if (mapping.getType().equals(PSApplicationIDTypeMapping.TYPE_NONE)) {
             continue;
@@ -734,10 +725,8 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
                 if (pageSet != null) {
                   PSCollection pageColl = pageSet.getResultPages();
                   if (pageColl != null) {
-                    Iterator pages = pageColl.iterator();
-                    while (pages.hasNext()) {
-                      PSAppTransformer.transformResultPage(
-                          (PSResultPage) pages.next(), mapping, idMap);
+                    for (Object rawPage : pageColl) {
+                      PSAppTransformer.transformResultPage((PSResultPage) rawPage, mapping, idMap);
                     }
                   }
                 }
@@ -840,22 +829,20 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
     PSCollection dataSetColl = app.getDataSets();
     if (dataSetColl == null) return;
 
-    Iterator datasets = dataSetColl.iterator();
-    while (datasets.hasNext()) {
-      PSDataSet ds = (PSDataSet) datasets.next();
+    for (Object rawDs : dataSetColl) {
+      PSDataSet ds = (PSDataSet) rawDs;
       PSPipe pipe = ds.getPipe();
       if (pipe == null) continue;
 
       PSBackEndDataTank tank = pipe.getBackEndDataTank();
       if (tank == null) continue;
 
-      Iterator tables = tank.getTables().iterator();
-      while (tables.hasNext()) {
-        PSBackEndTable table = (PSBackEndTable) tables.next();
+      for (Object rawTable : tank.getTables()) {
+        PSBackEndTable table = (PSBackEndTable) rawTable;
         if (srcRep != null && dbmsMap != null && StringUtils.isNotEmpty(table.getDataSource())) {
-          Iterator mappings = dbmsMap.getMappings();
+          Iterator<PSDbmsMapping> mappings = dbmsMap.getMappings();
           while (mappings.hasNext()) {
-            PSDbmsMapping mapping = (PSDbmsMapping) mappings.next();
+            PSDbmsMapping mapping = mappings.next();
             String srcInfo = mapping.getSourceInfo();
             String tgtInfo = mapping.getTargetInfo();
             if (tgtInfo == null) continue;
@@ -958,9 +945,9 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
 
     PSCollection dataSetColl = app.getDataSets();
     if (dataSetColl != null) {
-      Iterator datasets = dataSetColl.iterator();
-      while (datasets.hasNext() && ds == null) {
-        PSDataSet test = (PSDataSet) datasets.next();
+      for (Object rawDs : dataSetColl) {
+        if (ds != null) break;
+        PSDataSet test = (PSDataSet) rawDs;
         if (getResourceName(test).equals(resourceName)) ds = test;
       }
     }
@@ -982,9 +969,8 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
     IPSBackEndRoleMgr beRoleMgr = PSRoleMgrLocator.getBackEndRoleManager();
     PSAcl acl = app.getAcl();
     PSCollection coll = acl.getEntries();
-    Iterator<PSAclEntry> iter = coll.iterator();
-    while (iter.hasNext()) {
-      PSAclEntry aclEntry = iter.next();
+    for (Object rawEntry : coll) {
+      PSAclEntry aclEntry = (PSAclEntry) rawEntry;
       if (aclEntry.isRole()) {
         String name = aclEntry.getName();
         beRoleMgr.createRole(name);
@@ -999,13 +985,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
   private static final String SYS_PREFIX = "sys_";
 
   /** List of child types supported by this handler, never <code>null</code> or empty. */
-  private static List<String> ms_childTypes = new ArrayList<>();
-
-  /**
-   * Set of all child types supported by this handler, including any type supporting idType mapping,
-   * never <code>null</code> or empty.
-   */
-  private Set m_childTypes = new HashSet();
+  private static final List<String> ms_childTypes = new ArrayList<>();
 
   static {
     ms_childTypes.add(DEPENDENCY_TYPE);
