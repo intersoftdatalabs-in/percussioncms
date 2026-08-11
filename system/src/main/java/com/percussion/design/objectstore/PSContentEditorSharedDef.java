@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.util.PSCollection;
@@ -267,7 +269,7 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
   // see IPSDocument
   public final void fromXml(Document doc) throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
     if (null == doc)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
     Element sourceNode = doc.getDocumentElement();
     fromXml(sourceNode, null, null);
   }
@@ -279,11 +281,11 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
       Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -357,7 +359,7 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
         Iterator it = getFieldGroups();
         while (it.hasNext()) ((IPSComponent) it.next()).validate(context);
       } else
-        context.validationError(this, IPSObjectStoreErrors.INVALID_CONTENT_EDITOR_SHARED_DEF, null);
+        context.validationError(this, ObjectStoreErrorCodes.INVALID_CONTENT_EDITOR_SHARED_DEF, null);
     } finally {
       context.popParent();
     }

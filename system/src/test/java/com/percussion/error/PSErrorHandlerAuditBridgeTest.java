@@ -28,9 +28,11 @@ import com.intsof.percussioncms.auditlog.AuditLogService;
 import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.intsof.percussioncms.auditlog.DefaultAuditLogService;
 import com.intsof.percussioncms.auditlog.SystemErrorCode;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.spi.ConcurrentMemoryAuditLogRepository;
+import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.security.IPSSecurityErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.utils.request.PSRequestInfo;
@@ -92,6 +94,37 @@ class PSErrorHandlerAuditBridgeTest {
         new PSException(IPSSecurityErrors.PROVIDER_UNKNOWN, new Object[] {"Directory", "ldap1"});
 
     PSErrorHandler.fillErrorResponse(ex);
+
+    assertEquals(0, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+  }
+
+  @Test
+  void typedAuditableErrorCodeDualWritesWithoutLegacyInt() {
+    PSException ex =
+        new PSException(
+            SecurityErrorCodes.AUTHENTICATION_FAILED,
+            new Object[] {"Directory", "ldap1", "jdoe"});
+
+    assertEquals(SecurityErrorCodes.AUTHENTICATION_FAILED, ex.getTypedErrorCode());
+    assertTrue(ex.isAuditable());
+
+    PSErrorHandler.logLegacyExceptionIfAuditable(ex);
+
+    assertEquals(1, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
+    var rec = ConcurrentMemoryAuditLogRepository.INSTANCE.findAll().get(0);
+    assertEquals(SecurityErrorCodes.AUTHENTICATION_FAILED, rec.code());
+  }
+
+  @Test
+  void typedObjectStoreErrorCodeSkipsDualWrite() {
+    PSUnknownNodeTypeException ex =
+        new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, "PSXContentEditor");
+
+    assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ex.getTypedErrorCode());
+    assertEquals(2011, ex.getErrorCode());
+    assertTrue(!ex.isAuditable());
+
+    PSErrorHandler.logLegacyExceptionIfAuditable(ex);
 
     assertEquals(0, ConcurrentMemoryAuditLogRepository.INSTANCE.size());
   }

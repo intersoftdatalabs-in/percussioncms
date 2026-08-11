@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+import com.percussion.error.IPSErrorCode;
+
 /**
  * PSMinorValidationException is thrown when a recoverable validation error occurs. This usually
  * occurs when an application is being opened by a workbench and an invalid value is detected.
@@ -37,6 +39,16 @@ public class PSMinorValidationException extends PSSystemValidationException {
   }
 
   /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSMinorValidationException(IPSErrorCode code, Object singleArg) {
+    super(code, singleArg);
+  }
+
+  /**
    * Construct an exception for messages taking an array of arguments. Be sure to store the
    * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
@@ -48,12 +60,31 @@ public class PSMinorValidationException extends PSSystemValidationException {
   }
 
   /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSMinorValidationException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
    * Construct an exception for messages taking no arguments.
    *
    * @param msgCode the error string to load
    */
   public PSMinorValidationException(int msgCode) {
     super(msgCode);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSMinorValidationException(IPSErrorCode code) {
+    super(code);
   }
 
   /**

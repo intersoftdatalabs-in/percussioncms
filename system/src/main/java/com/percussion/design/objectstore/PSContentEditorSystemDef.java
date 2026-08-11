@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.util.PSCollection;
@@ -404,7 +406,7 @@ public final class PSContentEditorSystemDef implements IPSDocument {
    */
   public final void fromXml(Document doc) throws PSUnknownNodeTypeException, PSUnknownDocTypeException {
     if (null == doc)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     Element sourceNode = doc.getDocumentElement();
     PSComponent.validateElementName(sourceNode, XML_NODE_NAME);
@@ -417,7 +419,7 @@ public final class PSContentEditorSystemDef implements IPSDocument {
       } catch (NumberFormatException e) {
         Object[] args = {XML_NODE_NAME, ATTR_CACHE_TIMEOUT, timeOut};
 
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
     }
 
@@ -435,7 +437,7 @@ public final class PSContentEditorSystemDef implements IPSDocument {
     Element systemLocator = tree.getNextElement(ELEMENT_SYSTEM_LOCATOR, firstFlags);
     if (systemLocator == null)
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, ELEMENT_SYSTEM_LOCATOR);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, ELEMENT_SYSTEM_LOCATOR);
 
     loadSystemLocator(systemLocator);
 
@@ -444,7 +446,7 @@ public final class PSContentEditorSystemDef implements IPSDocument {
 
     if (styleSheets == null)
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, PSCommandHandlerStylesheets.XML_NODE_NAME);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, PSCommandHandlerStylesheets.XML_NODE_NAME);
 
     m_styleSheets = new PSCommandHandlerStylesheets(styleSheets, null, null);
 
@@ -453,7 +455,7 @@ public final class PSContentEditorSystemDef implements IPSDocument {
 
     if (appFlow == null)
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, PSApplicationFlow.XML_NODE_NAME);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, PSApplicationFlow.XML_NODE_NAME);
 
     m_appFlow = new PSApplicationFlow(appFlow, null, null);
 
@@ -625,7 +627,7 @@ public final class PSContentEditorSystemDef implements IPSDocument {
         exits.getNodeName(), ATTR_COMMAND_NAME, (cmdName == null ? "null" : cmdName)
       };
 
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(exits);
@@ -638,7 +640,7 @@ public final class PSContentEditorSystemDef implements IPSDocument {
 
     if (inputDataExits == null)
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, ELEMENT_INPUT_DATA_EXITS);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, ELEMENT_INPUT_DATA_EXITS);
 
     // within this element must be the extension call set
     Element inputCallSetEl = tree.getNextElement(firstFlags);
@@ -650,7 +652,7 @@ public final class PSContentEditorSystemDef implements IPSDocument {
 
     if (resultDataExits == null)
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, ELEMENT_RESULT_DATA_EXITS);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, ELEMENT_RESULT_DATA_EXITS);
 
     // within this element must be the extension call set
     Element resultCallSetEl = tree.getNextElement(firstFlags);
@@ -681,7 +683,7 @@ public final class PSContentEditorSystemDef implements IPSDocument {
     String searchEl = PSParam.XML_NODE_NAME;
     Element paramEl = tree.getNextElement(searchEl, firstFlags);
     if (paramEl == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, searchEl);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, searchEl);
     while (paramEl != null) {
       // create the param object
       PSParam param = new PSParam(paramEl, null, null);
@@ -690,7 +692,7 @@ public final class PSContentEditorSystemDef implements IPSDocument {
       String curVal = (String) m_paramNames.get(param.getName());
       if (curVal != null) {
         Object[] args = {ELEMENT_SYSTEM_PARAM_NAMES, searchEl, param.getName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       // store in map
@@ -726,7 +728,7 @@ public final class PSContentEditorSystemDef implements IPSDocument {
     Element cmdNameEl = tree.getNextElement(searchEl, firstFlags);
     if (cmdNameEl == null) {
       Object[] args = {ELEMENT_INIT_PARAMS, ELEMENT_COMMAND_NAME, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     while (cmdNameEl != null) {
@@ -740,7 +742,7 @@ public final class PSContentEditorSystemDef implements IPSDocument {
     Element paramEl = tree.getNextElement(searchEl, nextFlags);
     if (paramEl == null) {
       Object[] args = {ELEMENT_INIT_PARAMS, PSParam.XML_NODE_NAME, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     while (paramEl != null) {
@@ -804,7 +806,7 @@ public final class PSContentEditorSystemDef implements IPSDocument {
       else if (fieldSet == null) badEl = PSFieldSet.XML_NODE_NAME;
       else badEl = PSUIDefinition.XML_NODE_NAME;
 
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, badEl);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, badEl);
     } else if (containerLocator != null) {
       // this means we have found them all
       m_containerLocator = new PSContainerLocator(containerLocator, null, null);
@@ -835,7 +837,7 @@ public final class PSContentEditorSystemDef implements IPSDocument {
     if (containerLocator == null) {
       Object[] args = {ELEMENT_SYSTEM_LOCATOR, PSContainerLocator.XML_NODE_NAME, "null"};
 
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     m_systemLocator = new PSContainerLocator(containerLocator, null, null);

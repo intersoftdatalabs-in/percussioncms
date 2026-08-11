@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.cms.objectstore.PSCmsObject;
 import com.percussion.data.IPSInternalRequestHandler;
 import com.percussion.data.PSExecutionData;
@@ -630,11 +632,11 @@ public final class PSContentEditor extends PSDataSet {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -650,7 +652,7 @@ public final class PSContentEditor extends PSDataSet {
         m_contentType = Long.parseLong(data);
       } catch (Exception e) {
         Object[] args = {XML_NODE_NAME, CONTENT_TYPE_ATTR, ((data == null) ? "null" : data)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       // REQUIRED: get the worflow ID attribute
@@ -659,7 +661,7 @@ public final class PSContentEditor extends PSDataSet {
         m_workflowId = Integer.parseInt(data);
       } catch (Exception e) {
         Object[] args = {XML_NODE_NAME, WORKFLOW_ID_ATTR, ((data == null) ? "null" : data)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       // OPTIONAL: get the enableRelatedContent flag, defaults to disabled
@@ -684,7 +686,7 @@ public final class PSContentEditor extends PSDataSet {
           m_objectType = objectType;
         } catch (Exception e) {
           Object[] args = {XML_NODE_NAME, OBJECT_TYPE_ATTR, data};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       } else m_objectType = PSCmsObject.TYPE_ITEM;
 
@@ -698,7 +700,7 @@ public final class PSContentEditor extends PSDataSet {
           m_iconSource = data;
         } catch (Exception e) {
           Object[] args = {XML_NODE_NAME, ICON_SOURCE_ATTR, data};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       } else {
         m_iconSource = ICON_SOURCE_NONE;
@@ -712,7 +714,7 @@ public final class PSContentEditor extends PSDataSet {
           m_iconValue = data;
         } else {
           Object[] args = {XML_NODE_NAME, ICON_VALUE_ATTR, data};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
 
       } else {
@@ -845,11 +847,11 @@ public final class PSContentEditor extends PSDataSet {
     // simple: workflow ids are positive, contentid can't be zero
     if (m_contentType == 0) {
       context.validationError(
-          this, IPSObjectStoreErrors.INVALID_CONTENT_TYPE, String.valueOf(m_contentType));
+          this, ObjectStoreErrorCodes.INVALID_CONTENT_TYPE, String.valueOf(m_contentType));
     }
     if (cmsObject != null && cmsObject.isWorkflowable() && (m_workflowId <= 0)) {
       context.validationError(
-          this, IPSObjectStoreErrors.INVALID_WORKFLOW_ID, String.valueOf(m_workflowId));
+          this, ObjectStoreErrorCodes.INVALID_WORKFLOW_ID, String.valueOf(m_workflowId));
     }
 
     // complex: ensure content type id is registered in the CMS
@@ -864,7 +866,7 @@ public final class PSContentEditor extends PSDataSet {
           ResultSet rs = data.getNextResultSet();
           if (!(rs != null && data.readRow())) {
             context.validationError(
-                this, IPSObjectStoreErrors.INVALID_CONTENT_TYPE, String.valueOf(m_contentType));
+                this, ObjectStoreErrorCodes.INVALID_CONTENT_TYPE, String.valueOf(m_contentType));
           }
         }
       } catch (RuntimeException e) {
@@ -882,7 +884,7 @@ public final class PSContentEditor extends PSDataSet {
     if (pipe == null || !(pipe instanceof PSContentEditorPipe)) {
       String arg = (pipe == null) ? "null" : pipe.getClass().getName();
       Object[] args = {arg};
-      context.validationError(this, IPSObjectStoreErrors.INVALID_CONTENT_EDITOR_PIPE, args);
+      context.validationError(this, ObjectStoreErrorCodes.INVALID_CONTENT_EDITOR_PIPE, args);
     }
 
     // do children

@@ -18,6 +18,7 @@
 package com.percussion.error;
 
 import com.intsof.percussioncms.auditlog.AuditContext;
+import com.intsof.percussioncms.auditlog.SystemErrorCode;
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.data.PSConversionException;
 import com.percussion.data.PSStyleSheetMerger;
@@ -183,6 +184,20 @@ public class PSErrorHandler {
     try {
       AuditContext context = auditContextFromThreadLocal();
       Object[] args = exception.getErrorArguments();
+      // Prefer typed SystemErrorCode when the exception was built with ObjectStoreErrorCodes /
+      // other *ErrorCodes enums (IPSErrorCode). Non-auditable typed codes short-circuit without
+      // registry lookup. Legacy int construction still goes through LegacyErrorCodeRegistry.
+      if (exception.getTypedErrorCode() instanceof SystemErrorCode typed) {
+        if (!typed.isAuditable()) {
+          return;
+        }
+        if (args == null || args.length == 0) {
+          PSSystemAuditLogger.log(typed, context, typed.defaultOutcome());
+        } else {
+          PSSystemAuditLogger.log(typed, context, typed.defaultOutcome(), args);
+        }
+        return;
+      }
       if (args == null || args.length == 0) {
         PSSystemAuditLogger.logLegacyIfAuditable(exception.getErrorCode(), context);
       } else {

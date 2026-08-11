@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -42,6 +43,16 @@ public class PSSystemValidationException extends PSException {
   }
 
   /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSSystemValidationException(IPSErrorCode code, Object singleArg) {
+    super(code, singleArg);
+  }
+
+  /**
    * Construct an exception for messages taking an array of arguments. Be sure to store the
    * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
@@ -53,12 +64,31 @@ public class PSSystemValidationException extends PSException {
   }
 
   /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSSystemValidationException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
    * Construct an exception for messages taking no arguments.
    *
    * @param msgCode the error string to load
    */
   public PSSystemValidationException(int msgCode) {
     super(msgCode);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSSystemValidationException(IPSErrorCode code) {
+    super(code);
   }
 
   public PSSystemValidationException(
