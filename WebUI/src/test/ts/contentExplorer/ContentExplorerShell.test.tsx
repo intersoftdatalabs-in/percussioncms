@@ -269,6 +269,101 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(screen.queryByTestId("context-menu-item-open-slow")).toBeNull();
   });
 
+  it("filters desktop-only actions from toolbar and mounts context menu for items (#2849)", async () => {
+    const loadMenuActions = vi.fn(async () => [
+      {
+        name: "open",
+        label: "Open",
+        sortRank: 1,
+        menuType: "MENUITEM" as const,
+      },
+      {
+        name: "desktop-cx",
+        label: "Desktop only",
+        sortRank: 2,
+        menuType: "MENUITEM" as const,
+        url: "rxapp://launch-cx",
+      },
+      {
+        name: "cx-popup",
+        label: "CX popup",
+        sortRank: 3,
+        menuType: "CONTEXTMENU" as const,
+        children: [
+          {
+            name: "cx-edit",
+            label: "Edit in CX",
+            sortRank: 1,
+            menuType: "MENUITEM" as const,
+          },
+        ],
+      },
+    ]);
+
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "501",
+                  name: "page-five",
+                  path: "/Sites/page-five",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 1,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={loadMenuActions}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("action-toolbar")).toBeInTheDocument();
+      expect(screen.getByTestId("action-toolbar-item-open")).toBeInTheDocument();
+    });
+    // Desktop-only URL and CONTEXTMENU roots must not appear on the toolbar.
+    expect(screen.queryByTestId("action-toolbar-item-desktop-cx")).toBeNull();
+    expect(screen.queryByTestId("action-toolbar-item-cx-popup")).toBeNull();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-501")).toBeInTheDocument();
+    });
+    fireEvent.contextMenu(screen.getByTestId("detail-row-501"), {
+      clientX: 12,
+      clientY: 24,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("context-menu")).toBeInTheDocument();
+      expect(screen.getByTestId("context-menu-item-open")).toBeInTheDocument();
+      // CONTEXTMENU roots are allowed on the context-menu surface.
+      expect(screen.getByTestId("context-menu-item-cx-popup")).toBeInTheDocument();
+    });
+    // Desktop-only URL still filtered from context menu.
+    expect(screen.queryByTestId("context-menu-item-desktop-cx")).toBeNull();
+  });
+
   it("merges workflow transition group into toolbar and invokes transition (#2732)", async () => {
     const runWorkflowTransition = vi.fn(async () => undefined);
     const loadWorkflowMenuActions = vi.fn(async (item) => {

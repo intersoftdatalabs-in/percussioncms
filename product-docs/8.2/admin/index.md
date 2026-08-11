@@ -15,6 +15,7 @@ day-two server operations.
 ## Topics
 
 - [Sites & content structure](id:admin-sites)
+- [Content Explorer](id:admin-content-explorer)
 - [Users, roles & security](id:admin-users-roles)
 - [Publishing](id:admin-publishing)
 - [Server operations](id:admin-server-ops)

@@ -96,6 +96,92 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     await expect(page.locator('[data-testid="action-toolbar"]')).toBeVisible();
   });
 
+  test("server action toolbar mounts; detail list supports context menu (#2849)", async ({
+    page,
+  }) => {
+    // Product Explorer route: ActionToolbar is always present; right-click
+    // on a detail row opens the ContextMenu anchor (actions may be empty on
+    // a minimal Derby catalog — empty state is still a mounted menu).
+    //
+    // Enablement (#2849): inject a desktop-only action into the live
+    // /actions/find* responses so the E2E path exercises
+    // filterToolbarActions / filterContextMenuActions (absence of the
+    // known desktop-only item). Vitest covers the pure helpers exhaustively.
+    const DESKTOP_ONLY_NAME = "night-desktop-only-cx";
+    const desktopOnlyWire = {
+      id: 9_000_001,
+      name: DESKTOP_ONLY_NAME,
+      label: "Desktop CX only (night probe)",
+      sortRank: 9999,
+      menuType: "MENUITEM",
+      url: "rxapp://launch-cx",
+    };
+
+    await page.route("**/Rhythmyx/rest/actions/find**", async (route) => {
+      const response = await route.fetch();
+      const contentType = response.headers()["content-type"] || "";
+      if (!contentType.includes("application/json")) {
+        return route.fulfill({ response });
+      }
+      let body;
+      try {
+        body = await response.json();
+      } catch {
+        return route.fulfill({ response });
+      }
+      if (Array.isArray(body?.ActionMenu)) {
+        body = {
+          ...body,
+          ActionMenu: [...body.ActionMenu, desktopOnlyWire],
+        };
+      } else if (Array.isArray(body?.ActionMenuList)) {
+        body = {
+          ...body,
+          ActionMenuList: [...body.ActionMenuList, desktopOnlyWire],
+        };
+      }
+      return route.fulfill({
+        status: response.status(),
+        headers: {
+          ...response.headers(),
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+    });
+
+    await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
+    await expect(
+      page.locator('[data-testid="content-explorer-shell"]'),
+    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('[data-testid="action-toolbar"]')).toBeVisible();
+    await expect(page.locator('[data-testid="detail-list"]')).toBeVisible();
+
+    // Desktop-only probe must never appear on the toolbar (filtered).
+    await expect(
+      page.locator(`[data-testid="action-toolbar-item-${DESKTOP_ONLY_NAME}"]`),
+    ).toHaveCount(0);
+
+    const row = page.locator('[data-testid^="detail-row-"]').first();
+    if ((await row.count()) === 0) {
+      // Empty folder: still assert chrome; context menu needs a row.
+      test.info().annotations.push({
+        type: "note",
+        description:
+          "No detail rows on this CMS folder; skipped context-menu click path",
+      });
+      return;
+    }
+    await row.click({ button: "right" });
+    await expect(page.locator('[data-testid="context-menu"]')).toBeVisible({
+      timeout: 10_000,
+    });
+    // Filtered out on context-menu surface as well.
+    await expect(
+      page.locator(`[data-testid="context-menu-item-${DESKTOP_ONLY_NAME}"]`),
+    ).toHaveCount(0);
+  });
+
   test("Explorer shell opens search panel from View menu (#2400 / #2731)", async ({
     page,
   }) => {
