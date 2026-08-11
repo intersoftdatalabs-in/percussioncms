@@ -33,9 +33,21 @@ describe("Admin portrait layout contract (GH-945)", () => {
     const text = readFileSync(path, "utf8");
     expect(text).toMatch(/flex-wrap:\s*wrap/);
     expect(text).toMatch(/overflow-x:\s*auto/);
+    // GH-2957: overflow-x alone would compute overflow-y to auto (spurious v-scroll)
+    expect(text).toMatch(/overflow-y:\s*hidden/);
     expect(text).toMatch(/min-width:\s*0/);
     expect(text).toMatch(/@media\s*\(max-width:\s*640px\)/);
     expect(text).toMatch(/orientation:\s*portrait/);
+  });
+
+  it("AdminChrome .tabNav block pairs overflow-x auto with overflow-y hidden (GH-2957)", () => {
+    const path = resolve(tsRoot, "admin/AdminChrome.module.css");
+    const text = readFileSync(path, "utf8");
+    const tabNavMatch = text.match(/\.tabNav\s*\{([^}]+)\}/);
+    expect(tabNavMatch, ".tabNav rule present").not.toBeNull();
+    const block = tabNavMatch![1];
+    expect(block).toMatch(/overflow-x:\s*auto/);
+    expect(block).toMatch(/overflow-y:\s*hidden/);
   });
 
   it("classic adminWorkflow.jsp drops fixed min-width:500px (dual-ship)", () => {
