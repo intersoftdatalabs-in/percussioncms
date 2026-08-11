@@ -66,6 +66,51 @@ interface PSSearchCriteriaRequest {
 }
 
 /**
+ * Classic finder / Home use system list display format id {@code 9} when
+ * the active format is not yet resolved. {@code PSSearchService.searchForIds}
+ * rejects a missing {@code formatId} with IllegalArgumentException → HTTP 400
+ * (see GH-2950 Explorer Search).
+ */
+export const DEFAULT_SEARCH_FORMAT_ID = 9;
+
+/**
+ * Normalize client criteria to the shape {@code PSSearchRestService} /
+ * {@code PSSearchService} accept for a minimal free-text search.
+ *
+ * <ul>
+ *   <li>{@code formatId} defaults to {@link DEFAULT_SEARCH_FORMAT_ID} (required server-side)</li>
+ *   <li>{@code startIndex} coerced to ≥ 1 (1-based paging; server also treats &lt;1 as 1)</li>
+ *   <li>{@code maxResults} left as provided (panel/home set their own defaults)</li>
+ *   <li>Does not mutate the caller's object</li>
+ *   <li>Omits non-wire client-only fields such as {@code caseSensitive}</li>
+ * </ul>
+ */
+export function normalizeSearchCriteria(
+  criteria: PSSearchCriteria,
+): PSSearchCriteria {
+  const startRaw =
+    typeof criteria.startIndex === "number" ? criteria.startIndex : 1;
+  const startIndex = startRaw >= 1 ? startRaw : 1;
+  const formatId =
+    typeof criteria.formatId === "number" && Number.isFinite(criteria.formatId)
+      ? criteria.formatId
+      : DEFAULT_SEARCH_FORMAT_ID;
+
+  const out: PSSearchCriteria = {
+    query: criteria.query,
+    searchType: criteria.searchType,
+    startIndex,
+    maxResults: criteria.maxResults,
+    sortColumn: criteria.sortColumn,
+    sortOrder: criteria.sortOrder,
+    formatId,
+    searchFields: criteria.searchFields,
+    folderPath: criteria.folderPath,
+  };
+  return out;
+}
+
+/**
  * Server-backed extended search. Wraps the {@link PSSearchCriteria}
  * body in the {@code {"SearchCriteria": ...}} envelope, hits the
  * sitemanage search endpoint, and unwraps the response into the
@@ -78,11 +123,15 @@ interface PSSearchCriteriaRequest {
  * ({@code SecureStringUtils.removeInvalidSQLObjectNameCharacters})
  * before searching; this is documented behavior per the server
  * {@code sanitizeCriteria} method.</p>
+ *
+ * <p>GH-2950: callers often omit {@code formatId}; {@link normalizeSearchCriteria}
+ * supplies the classic default so the server does not 400 on valid text queries.</p>
  */
 export async function searchExtended(
   criteria: PSSearchCriteria,
 ): Promise<PSSearchResults> {
-  const body: PSSearchCriteriaRequest = { SearchCriteria: criteria };
+  const normalized = normalizeSearchCriteria(criteria);
+  const body: PSSearchCriteriaRequest = { SearchCriteria: normalized };
   const res = await post<PSPagedItemPropertiesListEnvelope>(
     PATHS.FINDER_SEARCH_EXTENDED,
     body,
@@ -93,13 +142,13 @@ export async function searchExtended(
     return {
       children: [],
       totalCount: 0,
-      startIndex: criteria.startIndex ?? 1,
+      startIndex: normalized.startIndex ?? 1,
     };
   }
   return {
     children: envelope.childrenInPage ?? [],
     totalCount: envelope.childrenCount,
-    startIndex: envelope.startIndex ?? criteria.startIndex ?? 1,
+    startIndex: envelope.startIndex ?? normalized.startIndex ?? 1,
   };
 }
 

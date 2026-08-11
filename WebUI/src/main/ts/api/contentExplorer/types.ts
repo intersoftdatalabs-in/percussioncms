@@ -309,8 +309,13 @@ export interface NodeRelationshipSummary {
  * <p>Mirrors {@code com.percussion.searchmanagement.data.PSSearchCriteria}.
  * The wire is wrapped under `SearchCriteria` (the DTO's
  * {@code @XmlRootElement(name = "SearchCriteria")} triggers Jackson's
- * root-name wrapping); the helper {@code searchExtended} unwraps the
- * envelope before sending the request.</p>
+ * root-name wrapping); the helper {@code searchExtended} wraps the
+ * envelope after {@code normalizeSearchCriteria}.</p>
+ *
+ * <p><strong>Required for a successful free-text search:</strong>
+ * {@code formatId} (classic system list format {@code 9} when omitted —
+ * enforced by {@code normalizeSearchCriteria} / server {@code sanitizeCriteria};
+ * missing value was HTTP 400 GH-2950). {@code startIndex} is 1-based.</p>
  */
 export interface PSSearchCriteria {
   query?: string;
@@ -319,10 +324,19 @@ export interface PSSearchCriteria {
   maxResults?: number;
   sortColumn?: string;
   sortOrder?: string;
+  /**
+   * Display format id. Required by {@code PSSearchService.searchForIds}.
+   * Prefer omitting and letting {@code searchExtended} default to 9, or set
+   * explicitly when a finder display format is known.
+   */
   formatId?: number;
   /** Per-field constraint map; matches `PSSearchCriteria.searchFields`. */
   searchFields?: Record<string, string>;
   folderPath?: string;
+  /**
+   * Client-only hint — not present on the Java DTO. Stripped by
+   * {@code normalizeSearchCriteria} before POST (do not send on the wire).
+   */
   caseSensitive?: boolean;
 }
 

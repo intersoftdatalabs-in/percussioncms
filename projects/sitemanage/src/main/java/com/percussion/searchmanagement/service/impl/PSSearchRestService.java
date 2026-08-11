@@ -55,6 +55,14 @@ public class PSSearchRestService {
   private static final String SEARCH_TYPE_MY_PAGES = "MyPages";
   private static final Logger log = LogManager.getLogger(PSSearchRestService.class);
 
+  /**
+   * Default display-format id used by classic finder / Home when the active format is not
+   * resolved. Matches WebUI {@code DEFAULT_SEARCH_FORMAT_ID} and integration tests (format id 9).
+   * Required by {@code PSSearchService.searchForIds} — missing value → IllegalArgumentException →
+   * HTTP 400 (GH-2950).
+   */
+  static final int DEFAULT_SEARCH_FORMAT_ID = 9;
+
   private final IPSSearchService searchService;
   private final IPSItemService itemService;
   private final IPSSystemService systemService;
@@ -95,6 +103,14 @@ public class PSSearchRestService {
           && !SecureStringUtils.isValidCMSPathString(
               criteria.getFolderPath(), PSOperationContext.SEARCH)) {
         criteria.setFolderPath(null);
+      }
+
+      // Minimal free-text criteria (query + paging only) is valid; supply classic default format.
+      if (criteria.getFormatId() == null) {
+        criteria.setFormatId(DEFAULT_SEARCH_FORMAT_ID);
+      }
+      if (criteria.getStartIndex() == null || criteria.getStartIndex() < 1) {
+        criteria.setStartIndex(1);
       }
     }
   }

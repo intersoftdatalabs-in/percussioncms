@@ -209,4 +209,66 @@ test.describe("Explorer shell chrome composition (#2850 / #2407)", () => {
       });
     },
   );
+
+  /**
+   * GH-2950: free-text Search must not 400. Minimal criteria (query only)
+   * previously omitted formatId → IllegalArgumentException → HTTP 400.
+   * Assert the extendedresults POST is 2xx/non-400 and the panel reaches a
+   * terminal ready/empty state (not the HTTP 400 error chrome).
+   */
+  test(
+    "free-text Search POST extendedresults is not HTTP 400 (GH-2950)",
+    {
+      tag: [
+        "@explorer-shell-chrome",
+        "@explorer",
+        "@search",
+        "@smoke",
+        "@issue-2950",
+      ],
+    },
+    async ({ page }) => {
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.shell}"]`),
+      ).toBeVisible({ timeout: 20_000 });
+
+      await openViewMenu(page);
+      await page.locator(`[data-testid="${TEST_IDS.toggleSearch}"]`).click();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.searchPanel}"]`),
+      ).toBeVisible({ timeout: 10_000 });
+
+      const responsePromise = page.waitForResponse(
+        (res) =>
+          res.request().method() === "POST" &&
+          res.url().includes("/searchmanagement/search/get/extendedresults"),
+        { timeout: 30_000 },
+      );
+
+      const input = page.locator(`[data-testid="${TEST_IDS.searchInput}"]`);
+      await input.fill("a");
+      await page.locator(`[data-testid="${TEST_IDS.searchSubmit}"]`).click();
+
+      const response = await responsePromise;
+      expect(
+        response.status(),
+        `extendedresults must not be 400 (body shape / formatId); got ${response.status()}`,
+      ).not.toBe(400);
+      expect(
+        response.ok(),
+        `extendedresults expected 2xx for simple query "a"; got ${response.status()}`,
+      ).toBeTruthy();
+
+      // Terminal UI: results, empty, or (non-400) error — never "HTTP 400 Bad Request"
+      await expect(
+        page.locator(
+          `[data-testid="search-panel-results"], [data-testid="search-panel-empty"], [data-testid="search-panel-error"]`,
+        ),
+      ).toBeVisible({ timeout: 15_000 });
+      const err = page.locator(`[data-testid="search-panel-error"]`);
+      if ((await err.count()) > 0 && (await err.isVisible())) {
+        await expect(err).not.toContainText(/HTTP 400/i);
+      }
+    },
+  );
 });

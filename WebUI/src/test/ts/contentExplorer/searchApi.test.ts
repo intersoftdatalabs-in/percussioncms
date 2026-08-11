@@ -16,6 +16,8 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  DEFAULT_SEARCH_FORMAT_ID,
+  normalizeSearchCriteria,
   sanitizeQuery,
   searchExtended,
 } from "../../../main/ts/api/contentExplorer/searchApi";
@@ -23,6 +25,38 @@ import { PATHS } from "../../../main/ts/api/paths";
 
 afterEach(() => {
   vi.restoreAllMocks();
+});
+
+describe("normalizeSearchCriteria (GH-2950)", () => {
+  it("defaults formatId and coerces startIndex < 1 for minimal free-text criteria", () => {
+    const out = normalizeSearchCriteria({ query: "a", maxResults: 25 });
+    expect(out.formatId).toBe(DEFAULT_SEARCH_FORMAT_ID);
+    expect(out.startIndex).toBe(1);
+    expect(out.query).toBe("a");
+    expect(out.maxResults).toBe(25);
+  });
+
+  it("preserves explicit formatId and valid startIndex", () => {
+    const out = normalizeSearchCriteria({
+      query: "x",
+      formatId: 12,
+      startIndex: 5,
+    });
+    expect(out.formatId).toBe(12);
+    expect(out.startIndex).toBe(5);
+  });
+
+  it("does not mutate the input object and omits client-only caseSensitive", () => {
+    const input = {
+      query: "Original",
+      startIndex: 0,
+      caseSensitive: true,
+    };
+    const out = normalizeSearchCriteria(input);
+    expect(input.startIndex).toBe(0);
+    expect(out.startIndex).toBe(1);
+    expect(out).not.toHaveProperty("caseSensitive");
+  });
 });
 
 describe("searchExtended wire shape", () => {
@@ -34,7 +68,7 @@ describe("searchExtended wire shape", () => {
           JSON.stringify({
             PagedItemPropertiesList: {
               childrenCount: 1,
-              startIndex: 0,
+              startIndex: 1,
               childrenInPage: [
                 {
                   id: "1",
@@ -58,17 +92,19 @@ describe("searchExtended wire shape", () => {
     expect(typeof url).toBe("string");
     expect(String(url)).toBe(PATHS.FINDER_SEARCH_EXTENDED);
     expect(init?.method).toBe("POST");
+    // GH-2950: formatId required server-side; startIndex 0 coerced to 1
     expect(JSON.parse(String(init?.body))).toEqual({
       SearchCriteria: {
         query: "Test",
-        startIndex: 0,
+        startIndex: 1,
         maxResults: 10,
+        formatId: DEFAULT_SEARCH_FORMAT_ID,
       },
     });
     expect(result.children).toHaveLength(1);
     expect(result.children[0]?.title).toBe("Test Page");
     expect(result.totalCount).toBe(1);
-    expect(result.startIndex).toBe(0);
+    expect(result.startIndex).toBe(1);
   });
 
   it("returns empty shape on envelope miss / empty body", async () => {
@@ -126,11 +162,34 @@ describe("searchExtended wire shape", () => {
     };
     await searchExtended(criteria);
     expect(criteria.query).toBe("Original");
-    // Fetch was called with a wrapped body but our local `criteria` is
-    // untouched (sanity check; the wrapper is a fresh object).
+    expect(criteria.startIndex).toBe(0);
+    // Fetch was called with a wrapped + normalized body; local criteria untouched.
     const init = fetchMock.mock.calls[0]?.[1];
     const body = JSON.parse(String(init?.body));
     expect(body.SearchCriteria.query).toBe("Original");
+    expect(body.SearchCriteria.formatId).toBe(DEFAULT_SEARCH_FORMAT_ID);
+    expect(body.SearchCriteria.startIndex).toBe(1);
+  });
+
+  it("sends formatId on a simple query-only search (Explorer GH-2950 shape)", async () => {
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          PagedItemPropertiesList: { childrenCount: 0, childrenInPage: [] },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    await searchExtended({ query: "a", startIndex: 1, maxResults: 25 });
+    const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    expect(body).toEqual({
+      SearchCriteria: {
+        query: "a",
+        startIndex: 1,
+        maxResults: 25,
+        formatId: DEFAULT_SEARCH_FORMAT_ID,
+      },
+    });
   });
 });
 
