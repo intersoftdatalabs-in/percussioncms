@@ -19,7 +19,7 @@ package com.percussion.server.cache;
 
 import com.percussion.data.PSExecutionData;
 import com.percussion.data.PSRuleListEvaluator;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSRule;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSNotFoundException;
@@ -90,7 +90,7 @@ public class PSKeyRules {
     // validate the root
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     int firstFlags =
@@ -106,7 +106,7 @@ public class PSKeyRules {
       String keyName = keyRuleEl.getAttribute(KEY_NAME_ATTR);
       if (keyName.trim().length() == 0) {
         Object[] args = {XML_NODE_NAME, KEY_NAME_ATTR, keyName};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       // get the list of the rules
@@ -116,7 +116,7 @@ public class PSKeyRules {
       // must have at least one rule
       if (ruleEl == null) {
         Object[] args = {XML_NODE_NAME, PSRule.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       // add each rule to the list

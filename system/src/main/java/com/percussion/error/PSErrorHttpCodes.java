@@ -17,6 +17,7 @@
 
 package com.percussion.error;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.log.PSLogInformation;
 import com.percussion.util.PSMapClassToObject;
 import java.util.Enumeration;
@@ -89,7 +90,7 @@ public class PSErrorHttpCodes {
             Object[] args = {key, com.percussion.error.PSException.getStackTraceAsString(cnf)};
             com.percussion.log.PSLogManager.write(
                 new com.percussion.log.PSLogServerWarning(
-                    com.percussion.design.objectstore.IPSObjectStoreErrors.APP_NOT_FOUND,
+                    ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(),
                     args,
                     true,
                     "HttpErrorCodesLoader"));

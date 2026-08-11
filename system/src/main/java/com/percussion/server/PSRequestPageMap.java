@@ -18,7 +18,7 @@ package com.percussion.server;
 
 import com.percussion.data.PSConditionalEvaluator;
 import com.percussion.data.PSExecutionData;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSDataSet;
 import com.percussion.design.objectstore.PSRequestor;
 import com.percussion.design.objectstore.PSResultPage;
@@ -57,7 +57,7 @@ public class PSRequestPageMap {
     PSRequestor requestor = dataSet.getRequestor();
 
     if (requestor == null)
-      throw new PSIllegalArgumentException(IPSObjectStoreErrors.DATASET_REQUESTOR_NULL);
+      throw new PSIllegalArgumentException(ObjectStoreErrorCodes.DATASET_REQUESTOR_NULL.numericCode());
 
     m_reqPage = requestor.getRequestPage();
     m_reqHandler = rh;

@@ -27,7 +27,7 @@ import com.percussion.data.PSUpdateHandler;
 import com.percussion.debug.PSDebugLogHandler;
 import com.percussion.debug.PSDebugManager;
 import com.percussion.debug.PSTraceMessageFactory;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSContentEditor;
@@ -1641,7 +1641,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
             m_name, err.getErrorCode(), ((url == null) ? "" : url.toExternalForm()), e.toString()
           };
           throw new PSSystemValidationException(
-              IPSObjectStoreErrors.CUSTOM_ERROR_URL_INVALID, args, m_application, errPages);
+              ObjectStoreErrorCodes.CUSTOM_ERROR_URL_INVALID.numericCode(), args, m_application, errPages);
         }
       }
       m_errorHandler = new PSErrorHandler(errPages, app.getNotifier(), app.getLogger());
