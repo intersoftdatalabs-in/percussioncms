@@ -63,7 +63,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  *
  * @author dougrand
  */
-@SuppressWarnings("this-escape")
 public class PSGuid extends Number implements IPSGuid {
   /** */
   private static final long serialVersionUID = 3134898757562243271L;
@@ -320,7 +319,7 @@ public class PSGuid extends Number implements IPSGuid {
    *
    * @see com.percussion.utils.guid.IPSGuid#getHostId()
    */
-  public long getHostId() {
+  public final long getHostId() {
     return doGetHostId(m_guid);
   }
 
@@ -344,7 +343,7 @@ public class PSGuid extends Number implements IPSGuid {
    *
    * @see com.percussion.utils.guid.IPSGuid#getType()
    */
-  public short getType() {
+  public final short getType() {
     return doGetType(m_guid);
   }
 
@@ -367,7 +366,7 @@ public class PSGuid extends Number implements IPSGuid {
    *
    * @see com.percussion.utils.guid.IPSGuid#getUUID()
    */
-  public int getUUID() {
+  public final int getUUID() {
     return doGetUUID(m_guid);
   }
 

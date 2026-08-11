@@ -22,10 +22,12 @@ import java.util.Date;
 
 /**
  * A file filter that allows filtering on attributes, length, last modified, and name pattern
- * matching
+ * matching.
+ *
+ * <p>Final so constructors may call the {@code final} configuration setters without {@code
+ * this-escape} diagnostics.
  */
-@SuppressWarnings("this-escape")
-public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter {
+public final class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter {
   /** Bit fields for allowable attributes */
   public static final int IS_DIRECTORY = 1;
 

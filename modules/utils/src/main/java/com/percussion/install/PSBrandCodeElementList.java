@@ -25,9 +25,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/** This class stores an array of <code>PSBrandCodeElement</code> objects. */
-@SuppressWarnings("this-escape")
-public class PSBrandCodeElementList {
+/**
+ * This class stores an array of <code>PSBrandCodeElement</code> objects.
+ *
+ * <p>Final so the XML constructor may call {@link #fromXml(Element)} without {@code this-escape}.
+ */
+public final class PSBrandCodeElementList {
   /**
    * Constructor.
    *

@@ -338,10 +338,10 @@ public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
       super();
     }
 
-    @SuppressWarnings("this-escape")
     public HttpsBuilder(Builder connectorBuilder) {
       super(connectorBuilder);
-      setHttps();
+      // Direct field assign — avoid overridable setHttps() during construction (this-escape)
+      this.scheme = PSAbstractConnector.SCHEME_HTTPS;
       this.connectorFileContext = connectorBuilder.connectorFileContext;
     }
 
