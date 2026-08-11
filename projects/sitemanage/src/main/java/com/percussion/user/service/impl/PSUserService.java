@@ -260,6 +260,11 @@ public class PSUserService implements IPSUserService {
 
   public static final List<String> SYSTEM_USERS = asList(RXSERVER_NAME, PERCUSSION_ADMIN_NAME);
 
+  /**
+   * Intentional publish-to-registry via inner server-startup listener. Justified {@code
+   * this-escape} suppress (lifecycle registration at construction).
+   */
+  @SuppressWarnings("this-escape")
   @Autowired
   public PSUserService(
       IPSUserLoginDao userLoginDao,
@@ -290,9 +295,11 @@ public class PSUserService implements IPSUserService {
   /**
    * Registers {@link PSCreatePercussionUserNotificationListener} for server startup.
    *
+   * <p>Final so subclass constructors cannot override registration order.
+   *
    * @param notificationService never <code>null</code>.
    */
-  protected void setupServerStartupListener(IPSNotificationService notificationService) {
+  protected final void setupServerStartupListener(IPSNotificationService notificationService) {
     if (notificationService != null) {
       PSCreatePercussionUserNotificationListener listener =
           new PSCreatePercussionUserNotificationListener();

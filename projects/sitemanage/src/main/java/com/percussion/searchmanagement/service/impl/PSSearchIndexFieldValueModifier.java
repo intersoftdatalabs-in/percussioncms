@@ -46,6 +46,11 @@ public class PSSearchIndexFieldValueModifier
   private final IPSFolderHelper folderHelper;
   private final IPSIdMapper idMapper;
 
+  /**
+   * Intentional publish-to-registry of {@code this} for server-initialized notification. Justified
+   * {@code this-escape} suppress: listener registration is required at bean construction.
+   */
+  @SuppressWarnings("this-escape")
   @Autowired
   public PSSearchIndexFieldValueModifier(
       IPSFolderHelper folderHelper,

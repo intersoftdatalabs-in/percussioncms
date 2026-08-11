@@ -43,9 +43,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Servlet that returns the content of a specific template's import log. */
+/**
+ * Servlet that returns the content of a specific template's import log.
+ *
+ * <p>Final so the constructor may call Spring dependency injection with {@code this} without {@code
+ * this-escape}.
+ */
 @Transactional
-public class PSSiteImportLogViewer extends HttpServlet {
+public final class PSSiteImportLogViewer extends HttpServlet {
 
   private static final long serialVersionUID = 1L;
   private static final Logger log = LogManager.getLogger(PSSiteImportLogViewer.class);

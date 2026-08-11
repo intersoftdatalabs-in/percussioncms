@@ -58,7 +58,7 @@ public class PSSearchPathItemService extends PSPathItemService {
         pageService,
         listViewHelper,
         userService);
-    this.setRootName("Search");
+    this.rootName = "Search";
   }
 
   // Not implemented: search path service does not support folder root operations.

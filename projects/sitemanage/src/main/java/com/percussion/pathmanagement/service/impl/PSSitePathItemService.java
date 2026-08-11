@@ -97,7 +97,7 @@ public class PSSitePathItemService extends PSPathItemService {
     this.siteDataService = siteDataService;
     this.navService = navService;
     this.pageService = pageService;
-    this.setRootName("Sites");
+    this.rootName = "Sites";
   }
 
   @Override

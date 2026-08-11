@@ -193,6 +193,11 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
 
   private static final String RECYCLED_TYPE = PSRelationshipConfig.TYPE_RECYCLED_CONTENT;
 
+  /**
+   * Inner validators and the default page-change handler capture outer {@code this} at
+   * construction (register-on-construct). Justified {@code this-escape} suppress.
+   */
+  @SuppressWarnings("this-escape")
   @Autowired
   public PSPageService(
       IPSFolderHelper folderHelperWs,
@@ -1004,7 +1009,7 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
 
   @Override
   /** {@link #addPageChangeListener(IPSPageService)} */
-  public void addPageChangeListener(IPSPageChangeListener pageChangeListener) {
+  public final void addPageChangeListener(IPSPageChangeListener pageChangeListener) {
     pageChangeListeners.add(pageChangeListener);
   }
 

@@ -28,10 +28,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-/** Assists in loading locators into the search index queue using a background thread. */
+/**
+ * Assists in loading locators into the search index queue using a background thread.
+ *
+ * <p>Final so the constructor may start a daemon thread with {@code this} as the runnable without
+ * {@code this-escape}.
+ */
 @Component("indexHelper")
 @Singleton
-public class PSIndexHelper implements Runnable {
+public final class PSIndexHelper implements Runnable {
   private static final Logger log = LogManager.getLogger(PSIndexHelper.class);
 
   private final PSSearchIndexEventQueue queue = PSSearchIndexEventQueue.getInstance();

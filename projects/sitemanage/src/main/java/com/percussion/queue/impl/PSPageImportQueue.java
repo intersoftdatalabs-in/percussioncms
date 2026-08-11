@@ -78,6 +78,12 @@ public class PSPageImportQueue extends PSAbstractEventQueue<PSSiteQueue>
 
   private IPSPerformPageImport pageImporter = this;
 
+  /**
+   * Intentional publish-to-registry of {@code this} as a notification listener during
+   * construction. Justified {@code this-escape} suppress: not made {@code final} because the bean
+   * is {@code @Transactional} (CGLIB-friendly); registration is required for server lifecycle.
+   */
+  @SuppressWarnings("this-escape")
   @Autowired
   public PSPageImportQueue(
       @Qualifier("pageImportService") IPSSiteImportService importService,

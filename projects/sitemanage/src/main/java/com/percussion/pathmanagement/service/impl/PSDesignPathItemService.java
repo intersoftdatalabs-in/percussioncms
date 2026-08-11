@@ -42,14 +42,15 @@ public class PSDesignPathItemService extends PSDispatchingPathService {
       IPSRecycleService recycleService) {
     super(uiService, userService, defaultListViewHelper, recycleService, folderHelper);
     this.folderHelper = folderHelper;
-    setRootName("Design");
+    this.rootName = "Design";
   }
 
   public String getRootName() {
     return rootName;
   }
 
-  public void setRootName(String rootName) {
+  /** Final so the constructor may set the root name without {@code this-escape}. */
+  public final void setRootName(String rootName) {
     this.rootName = rootName;
   }
 

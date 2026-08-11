@@ -93,7 +93,8 @@ public abstract class PSFileSystemPathItemService implements IPSPathService {
     return rootName;
   }
 
-  public void setRootName(String rootName) {
+  /** Final so constructors may set the root name without {@code this-escape}. */
+  public final void setRootName(String rootName) {
     this.rootName = rootName;
   }
 

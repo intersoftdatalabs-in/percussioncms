@@ -33,9 +33,12 @@ import org.xml.sax.SAXException;
  * A decorator around the real assembly template to enhance performance with cloning and memory
  * footprint. The template, bindings, and assembler properties are not wrapped.
  *
+ * <p>Final so the decorator constructor may seed template/bindings/assembler without {@code
+ * this-escape}.
+ *
  * @author adamgent
  */
-public class PSProxyAssemblyTemplate implements IPSAssemblyTemplate, Cloneable {
+public final class PSProxyAssemblyTemplate implements IPSAssemblyTemplate, Cloneable {
 
   private static final long serialVersionUID = 1L;
 
@@ -53,9 +56,10 @@ public class PSProxyAssemblyTemplate implements IPSAssemblyTemplate, Cloneable {
   public PSProxyAssemblyTemplate(PSAssemblyTemplate assemblyTemplate) {
     super();
     this.assemblyTemplate = assemblyTemplate;
-    setTemplate(assemblyTemplate.getTemplate());
-    setBindings(assemblyTemplate.getBindings());
-    setAssembler(assemblyTemplate.getAssembler());
+    // Direct field seeds (final setters available for post-construction use).
+    this.template = assemblyTemplate.getTemplate();
+    this.bindings = copyBindings(assemblyTemplate.getBindings());
+    this.assembler = assemblyTemplate.getAssembler();
     this.name = assemblyTemplate.getName();
   }
 
@@ -63,7 +67,7 @@ public class PSProxyAssemblyTemplate implements IPSAssemblyTemplate, Cloneable {
     return assembler;
   }
 
-  public void setAssembler(String assembler) {
+  public final void setAssembler(String assembler) {
     this.assembler = assembler;
   }
 
@@ -71,7 +75,7 @@ public class PSProxyAssemblyTemplate implements IPSAssemblyTemplate, Cloneable {
     return template;
   }
 
-  public void setTemplate(String template) {
+  public final void setTemplate(String template) {
     this.template = template;
   }
 
@@ -79,15 +83,19 @@ public class PSProxyAssemblyTemplate implements IPSAssemblyTemplate, Cloneable {
     return bindings;
   }
 
+  public final void setBindings(List<PSTemplateBinding> bindings) {
+    this.bindings = copyBindings(bindings);
+  }
+
   @SuppressWarnings("unchecked")
-  public void setBindings(List<PSTemplateBinding> bindings) {
+  private static Vector<PSTemplateBinding> copyBindings(List<PSTemplateBinding> bindings) {
     if (bindings == null) {
-      this.bindings = null;
-    } else if (bindings instanceof Vector) {
-      this.bindings = (Vector<PSTemplateBinding>) bindings;
-    } else {
-      this.bindings = new Vector<>(bindings);
+      return null;
     }
+    if (bindings instanceof Vector) {
+      return (Vector<PSTemplateBinding>) bindings;
+    }
+    return new Vector<>(bindings);
   }
 
   public void addBinding(PSTemplateBinding binding) {

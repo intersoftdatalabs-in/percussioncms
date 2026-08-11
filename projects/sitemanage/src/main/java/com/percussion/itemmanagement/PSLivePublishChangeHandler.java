@@ -74,6 +74,11 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler {
   private IPSPageTemplateService pageTemplateService;
   private IPSResourceDefinitionService resourceDefinitionService;
 
+  /**
+   * Intentional publish-to-registry of {@code this} as a content-change handler. Justified {@code
+   * this-escape} suppress: handler must be registered when the Spring bean is constructed.
+   */
+  @SuppressWarnings("this-escape")
   @Autowired
   public PSLivePublishChangeHandler(
       IPSContentChangeService changeSvc,
