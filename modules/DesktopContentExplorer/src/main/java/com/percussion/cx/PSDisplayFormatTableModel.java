@@ -62,13 +62,13 @@ public class PSDisplayFormatTableModel extends PSTableModel {
 
     m_root = node;
 
-    Iterator children = node.getChildren();
+    Iterator<PSNode> children = node.getChildren();
     if (children != null && children.hasNext()) {
-      Vector columnNames = new Vector();
-      Vector columnTypes = new Vector();
+      Vector<String> columnNames = new Vector<>();
+      Vector<String> columnTypes = new Vector<>();
 
       // Get the column names
-      Iterator tableFormat = node.getChildrenDisplayFormat();
+      Iterator<Map.Entry<String, String>> tableFormat = node.getChildrenDisplayFormat();
 
       int titleIndex = -1;
       if (tableFormat != null) {
@@ -84,7 +84,7 @@ public class PSDisplayFormatTableModel extends PSTableModel {
 
       if (tableFormat != null) {
         while (tableFormat.hasNext()) {
-          Map.Entry columnDef = (Map.Entry) tableFormat.next();
+          Map.Entry<String, String> columnDef = tableFormat.next();
           columnNames.add(columnDef.getKey());
           columnTypes.add(columnDef.getValue());
         }
@@ -92,17 +92,17 @@ public class PSDisplayFormatTableModel extends PSTableModel {
 
       m_colTypes = columnTypes;
 
-      Vector tableData = new Vector();
+      Vector<Vector<Object>> tableData = new Vector<>();
       while (children.hasNext()) {
-        PSNode childNode = (PSNode) children.next();
-        Vector rowVector = new Vector();
+        PSNode childNode = children.next();
+        Vector<Object> rowVector = new Vector<>();
 
         if (tableFormat != null) {
-          Map rowData = childNode.getRowData();
+          Map<String, Object> rowData = childNode.getRowData();
           if (rowData != null) {
             // Get all dynamic column names
-            Iterator colNames = null;
-            Iterator colTypes = null;
+            Iterator<String> colNames = null;
+            Iterator<String> colTypes = null;
             if (titleIndex < 0) {
               colNames = columnNames.subList(1, columnNames.size()).iterator();
               colTypes = columnTypes.subList(1, columnTypes.size()).iterator();
@@ -119,25 +119,8 @@ public class PSDisplayFormatTableModel extends PSTableModel {
 
               Object obj = rowData.get(colNames.next());
               if (obj != null) {
-                String colType = (String) colTypes.next();
-                if (PSNode.DATA_TYPE_DATE.equals(colType)) {
-                  if (obj.toString().trim().length() > 0) {
-                    // extract a date from the raw string
-                    obj = PSDataTypeConverter.parseStringToDate((String) obj);
-                  }
-                } else if (PSNode.DATA_TYPE_NUMBER.equals(colType)) {
-                  if (((String) obj).length() > 0) {
-                    try {
-                      obj = Integer.valueOf((String) obj);
-                    } catch (NumberFormatException e) {
-                      /*
-                       * Let it be string. Some times the column type
-                       * is number but the display value could be
-                       * string.
-                       */
-                    }
-                  }
-                }
+                String colType = colTypes.next();
+                obj = convertCellValue(obj, colType);
               }
               rowVector.add(obj);
             }
@@ -156,6 +139,39 @@ public class PSDisplayFormatTableModel extends PSTableModel {
   }
 
   /**
+   * Converts a raw cell value according to the column data type. Same conversion rules as
+   * historically applied in {@link #setRoot(PSNode)}. Package-visible for unit tests.
+   *
+   * @param obj the raw value, may be <code>null</code>
+   * @param colType one of {@link PSNode#DATA_TYPE_DATE}, {@link PSNode#DATA_TYPE_NUMBER}, or other
+   *     (left unchanged)
+   * @return converted value (Date, Integer, or original), may be <code>null</code>
+   */
+  static Object convertCellValue(Object obj, String colType) {
+    if (obj == null) return null;
+
+    if (PSNode.DATA_TYPE_DATE.equals(colType)) {
+      if (obj.toString().trim().length() > 0) {
+        // extract a date from the raw string
+        return PSDataTypeConverter.parseStringToDate((String) obj);
+      }
+    } else if (PSNode.DATA_TYPE_NUMBER.equals(colType)) {
+      if (((String) obj).length() > 0) {
+        try {
+          return Integer.valueOf((String) obj);
+        } catch (NumberFormatException e) {
+          /*
+           * Let it be string. Some times the column type is number but the
+           * display value could be string.
+           */
+          return obj;
+        }
+      }
+    }
+    return obj;
+  }
+
+  /**
    * Get the last root node set on this model by {@link #setRoot(PSNode)}
    *
    * @return The root, or <code>null</code> if one has not been set.
@@ -170,13 +186,14 @@ public class PSDisplayFormatTableModel extends PSTableModel {
    * @return the class, or {@link Object#getClass()} if there is no column type defined for the
    *     supplied index. (base class behavior)
    */
-  public Class getColumnClass(int columnIndex) {
-    Class cls = Object.class;
+  @Override
+  public Class<?> getColumnClass(int columnIndex) {
+    Class<?> cls = Object.class;
 
     // title column is the PSNode itself, so let that return Object
     // image type should also return object
     if (m_colTypes != null && columnIndex < m_colTypes.size() && columnIndex != m_titleCol) {
-      String type = (String) m_colTypes.get(columnIndex);
+      String type = m_colTypes.get(columnIndex);
       if (PSNode.DATA_TYPE_DATE.equals(type)) cls = Date.class;
       else if (PSNode.DATA_TYPE_NUMBER.equals(type)) cls = Integer.class;
       else if (PSNode.DATA_TYPE_TEXT.equals(type)) cls = String.class;
@@ -207,14 +224,6 @@ public class PSDisplayFormatTableModel extends PSTableModel {
   }
 
   /**
-   * Checks supplied <code>PSNode</code>to see if the sys_title field is present in its associated
-   * <code>PSDisplayFormat</code>
-   *
-   * @param node the node in which the check will be made, is <code>null</code> <code>-1</code> will
-   *     be returned.
-   * @return the index of sys_title, <code>-1</code> if not found.
-   */
-  /**
    * Checks supplied <code>PSNode</code> to see if the sys_title field is present in its associated
    * <code>PSDisplayFormat</code>.
    *
@@ -239,11 +248,10 @@ public class PSDisplayFormatTableModel extends PSTableModel {
 
       if (format == null) return hasTitle;
 
-      Iterator it = format.getColumns();
+      Iterator<PSDisplayColumn> it = format.getColumns();
       int index = 0;
       while (it.hasNext() && hasTitle < 0) {
-        if (((PSDisplayColumn) it.next()).getSource().equalsIgnoreCase("sys_title"))
-          hasTitle = index;
+        if (it.next().getSource().equalsIgnoreCase("sys_title")) hasTitle = index;
 
         index++;
       }
@@ -261,12 +269,13 @@ public class PSDisplayFormatTableModel extends PSTableModel {
    * @return the data, an iterator over zero or more <code>PSNode</code> objects, never <code>null
    *     </code>.
    */
-  public Iterator getData() {
-    List data = new ArrayList();
+  @Override
+  public Iterator<Object> getData() {
+    List<Object> data = new ArrayList<>();
 
-    Iterator rows = getDataVector().iterator();
-    while (rows.hasNext()) {
-      Vector rowData = (Vector) rows.next();
+    for (Object rowObj : getDataVector()) {
+      @SuppressWarnings("unchecked")
+      Vector<Object> rowData = (Vector<Object>) rowObj;
       if (!rowData.isEmpty()) data.add(rowData.get(0));
     }
 
@@ -280,6 +289,7 @@ public class PSDisplayFormatTableModel extends PSTableModel {
    * @return the data node (<code>PSNode</code>), never <code>null</code>
    * @throws IllegalArgumentException if row index is invalid.
    */
+  @Override
   public Object getData(int row) {
     checkRow(row);
 
@@ -287,6 +297,7 @@ public class PSDisplayFormatTableModel extends PSTableModel {
   }
 
   // overridden to return <code>false</code> always.
+  @Override
   public boolean isCellEditable(int row, int col) {
     return false;
   }
@@ -308,7 +319,7 @@ public class PSDisplayFormatTableModel extends PSTableModel {
    * PSNode.DATA_TYPE_xxx</code> values. Modified by {@link #setRoot(PSNode)}, may be <code>null
    * </code> if that method has not been called.
    */
-  private Vector m_colTypes;
+  private Vector<String> m_colTypes;
 
   /**
    * Root node used to supply the data for this model. Modified by {@link #setRoot(PSNode)}, may be
