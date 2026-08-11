@@ -54,6 +54,7 @@ export function LocaleDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-loc-back"
+        aria-label="Back to locales list"
         style={backButton}
       >
         ← {DEV_MSG.LOC_BACK}

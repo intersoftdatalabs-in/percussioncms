@@ -59,7 +59,9 @@ describe("ContentTypeDetailPanel", () => {
     expect(screen.getByTestId("developer-ct-fields-table")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-wf-empty")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-tpl-empty")).toBeTruthy();
-    fireEvent.click(screen.getByTestId("developer-ct-back"));
+    const back = screen.getByTestId("developer-ct-back");
+    expect(back.getAttribute("aria-label")).toBe("Back to content types list");
+    fireEvent.click(back);
     expect(onBack).toHaveBeenCalled();
   });
 

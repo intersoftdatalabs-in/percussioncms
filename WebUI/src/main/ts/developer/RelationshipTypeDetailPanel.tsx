@@ -43,7 +43,13 @@ export function RelationshipTypeDetailPanel({
 
   return (
     <div data-testid="developer-rt-detail">
-      <button type="button" onClick={onBack} data-testid="developer-rt-back" style={backButton}>
+      <button
+        type="button"
+        onClick={onBack}
+        data-testid="developer-rt-back"
+        aria-label="Back to relationship types list"
+        style={backButton}
+      >
         ← {DEV_MSG.RT_BACK}
       </button>
 

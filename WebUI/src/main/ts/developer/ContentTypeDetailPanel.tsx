@@ -333,6 +333,7 @@ export function ContentTypeDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-ct-back"
+        aria-label="Back to content types list"
         style={{
           marginBottom: "12px",
           background: "transparent",

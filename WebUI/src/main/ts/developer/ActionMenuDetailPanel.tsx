@@ -43,7 +43,13 @@ export function ActionMenuDetailPanel({
 
   return (
     <div data-testid="developer-am-detail">
-      <button type="button" onClick={onBack} data-testid="developer-am-back" style={backButton}>
+      <button
+        type="button"
+        onClick={onBack}
+        data-testid="developer-am-back"
+        aria-label="Back to action menus list"
+        style={backButton}
+      >
         ← {DEV_MSG.AM_BACK}
       </button>
 

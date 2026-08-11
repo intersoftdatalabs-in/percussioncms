@@ -58,7 +58,9 @@ describe("SiteDetailPanel", () => {
     const acl = screen.getByTestId("developer-site-acl-stub");
     expect(acl.getAttribute("data-object-kind")).toBe("site");
     expect(acl.getAttribute("data-object-guid")).toBe("0-10-1");
-    fireEvent.click(screen.getByTestId("developer-site-back"));
+    const back = screen.getByTestId("developer-site-back");
+    expect(back.getAttribute("aria-label")).toBe("Back to sites list");
+    fireEvent.click(back);
     expect(onBack).toHaveBeenCalled();
   });
 

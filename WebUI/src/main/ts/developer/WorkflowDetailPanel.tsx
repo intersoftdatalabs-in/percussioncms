@@ -40,7 +40,13 @@ export function WorkflowDetailPanel({
 
   return (
     <div data-testid="developer-wf-detail">
-      <button type="button" onClick={onBack} data-testid="developer-wf-back" style={backButton}>
+      <button
+        type="button"
+        onClick={onBack}
+        data-testid="developer-wf-back"
+        aria-label="Back to workflows list"
+        style={backButton}
+      >
         ← {DEV_MSG.WF_BACK}
       </button>
 

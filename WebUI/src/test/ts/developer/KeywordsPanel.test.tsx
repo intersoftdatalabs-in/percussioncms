@@ -40,6 +40,9 @@ describe("KeywordsPanel", () => {
     });
     expect(screen.getByTestId("developer-kw-table").textContent).toContain("Priority");
     expect(screen.getByTestId("developer-kw-table").textContent).toContain("priority");
+    const open = screen.getByTestId("developer-kw-open");
+    expect(open.getAttribute("aria-label")).toBe("Open Priority");
+    expect(open.getAttribute("type")).toBe("button");
   });
 
   it("shows empty state when API returns no keywords", async () => {

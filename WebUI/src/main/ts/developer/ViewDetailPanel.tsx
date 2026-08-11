@@ -41,7 +41,13 @@ export function ViewDetailPanel({
 
   return (
     <div data-testid="developer-vw-detail">
-      <button type="button" onClick={onBack} data-testid="developer-vw-back" style={backButton}>
+      <button
+        type="button"
+        onClick={onBack}
+        data-testid="developer-vw-back"
+        aria-label="Back to views list"
+        style={backButton}
+      >
         ← {DEV_MSG.VW_BACK}
       </button>
 

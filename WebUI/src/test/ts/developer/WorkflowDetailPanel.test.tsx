@@ -63,7 +63,9 @@ describe("WorkflowDetailPanel", () => {
     expect(screen.getByTestId("developer-wf-steps-table")).toBeTruthy();
     expect(screen.getByTestId("developer-wf-gaps").textContent).toContain("gap-a");
     expect(getWorkflowDetail).toHaveBeenCalledWith("Simple Workflow");
-    fireEvent.click(screen.getByTestId("developer-wf-back"));
+    const back = screen.getByTestId("developer-wf-back");
+    expect(back.getAttribute("aria-label")).toBe("Back to workflows list");
+    fireEvent.click(back);
     expect(onBack).toHaveBeenCalled();
   });
 
