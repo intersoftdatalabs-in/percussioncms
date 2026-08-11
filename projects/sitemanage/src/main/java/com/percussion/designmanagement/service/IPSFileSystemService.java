@@ -182,15 +182,25 @@ public interface IPSFileSystemService {
    */
   boolean containsInvalidChars(String name);
 
-  public static class PSFolderOperationException extends Exception {}
+  public static class PSFolderOperationException extends Exception {
+    private static final long serialVersionUID = 1L;
+  }
 
-  public static class PSFolderNameLengthLimitException extends PSFolderOperationException {}
+  public static class PSFolderNameLengthLimitException extends PSFolderOperationException {
+    private static final long serialVersionUID = 1L;
+  }
 
-  public static class PSInvalidFolderNameException extends PSFolderOperationException {}
+  public static class PSInvalidFolderNameException extends PSFolderOperationException {
+    private static final long serialVersionUID = 1L;
+  }
 
-  public static class PSExistingFolderException extends PSFolderOperationException {}
+  public static class PSExistingFolderException extends PSFolderOperationException {
+    private static final long serialVersionUID = 1L;
+  }
 
   public static class PSInvalidCharacterInFolderNameException extends PSFolderOperationException {
+    private static final long serialVersionUID = 1L;
+
     private String invalidChars;
 
     public PSInvalidCharacterInFolderNameException(String chars) {
@@ -207,6 +217,8 @@ public interface IPSFileSystemService {
   }
 
   public static class PSFileOperationException extends Exception {
+    private static final long serialVersionUID = 1L;
+
     public PSFileOperationException(String message, Exception ex) {
       super(message, ex);
     }
@@ -217,30 +229,40 @@ public interface IPSFileSystemService {
   }
 
   public static class PSFileAlreadyExistsException extends PSFileOperationException {
+    private static final long serialVersionUID = 1L;
+
     public PSFileAlreadyExistsException(String message) {
       super(message);
     }
   }
 
   public static class PSFileNameInUseByFolderException extends PSFileOperationException {
+    private static final long serialVersionUID = 1L;
+
     public PSFileNameInUseByFolderException(String message) {
       super(message);
     }
   }
 
   public static class PSReservedFileNameException extends PSFileOperationException {
+    private static final long serialVersionUID = 1L;
+
     public PSReservedFileNameException(String message) {
       super(message);
     }
   }
 
   public static class PSInvalidCharacterInFileNameException extends PSFileOperationException {
+    private static final long serialVersionUID = 1L;
+
     public PSInvalidCharacterInFileNameException(String message) {
       super(message);
     }
   }
 
   public static class PSFileSizeExceededException extends PSFileOperationException {
+    private static final long serialVersionUID = 1L;
+
     public PSFileSizeExceededException(String message) {
       super(message);
     }

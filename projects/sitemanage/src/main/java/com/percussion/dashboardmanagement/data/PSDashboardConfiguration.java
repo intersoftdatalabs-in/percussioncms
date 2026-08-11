@@ -26,6 +26,8 @@ import java.util.List;
     name = "",
     propOrder = {"gadgets"})
 public class PSDashboardConfiguration extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
+
   private List<PSGadget> gadgets;
 
   public List<PSGadget> getGadgets() {

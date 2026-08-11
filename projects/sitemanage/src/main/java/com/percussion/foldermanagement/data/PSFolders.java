@@ -28,6 +28,8 @@ import java.util.List;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PSFolders extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
+
   @XmlElement(name = "child")
   private List<PSFolderItem> children;
 

@@ -47,6 +47,46 @@ public class PSSerializableListWrappersTest {
     assertSerialVersionUid(PSPublishingActionList.class);
   }
 
+  /**
+   * Guards serialVersionUID for residual DTO / nested-exception types cleaned in issue #2421 batch
+   * 2 (after #2032 batch 1).
+   */
+  @Test
+  public void residualDtoAndExceptionTypesDefineSerialVersionUid() throws Exception {
+    assertSerialVersionUid(PSEnumVals.EnumVal.class);
+    assertSerialVersionUid(com.percussion.pathmanagement.data.PSGenerateSiteMapOptions.class);
+    assertSerialVersionUid(com.percussion.foldermanagement.data.PSFolderItem.class);
+    assertSerialVersionUid(com.percussion.foldermanagement.data.PSFolders.class);
+    assertSerialVersionUid(
+        com.percussion.foldermanagement.data.PSGetAssignedFoldersJobStatus.class);
+    assertSerialVersionUid(com.percussion.user.data.PSCurrentUser.class);
+    assertSerialVersionUid(com.percussion.assetmanagement.data.PSContentEditCriteria.class);
+    assertSerialVersionUid(com.percussion.itemmanagement.data.PSItemDates.class);
+    assertSerialVersionUid(com.percussion.itemmanagement.data.PSSoProMetadata.class);
+    assertSerialVersionUid(com.percussion.itemmanagement.data.PSRevision.class);
+    assertSerialVersionUid(com.percussion.itemmanagement.data.PSComment.class);
+    assertSerialVersionUid(com.percussion.assetmanagement.data.PSUnusedAssetSummary.class);
+    assertSerialVersionUid(com.percussion.category.data.PSCategory.class);
+    assertSerialVersionUid(com.percussion.category.data.PSCategoryNode.class);
+    assertSerialVersionUid(com.percussion.dashboardmanagement.data.PSDashboardConfiguration.class);
+    assertSerialVersionUid(com.percussion.sitemanage.importer.data.PSImportLogEntry.class);
+    assertSerialVersionUid(com.percussion.licensemanagement.data.PSLicenseStatus.class);
+    assertSerialVersionUid(com.percussion.redirect.data.PSCreateRedirectRequest.class);
+    assertSerialVersionUid(
+        com.percussion.designmanagement.service.IPSFileSystemService.PSFolderOperationException
+            .class);
+    assertSerialVersionUid(
+        com.percussion.designmanagement.service.IPSFileSystemService.PSFileOperationException
+            .class);
+    assertSerialVersionUid(
+        com.percussion.designmanagement.service.IPSFileSystemService.PSFileAlreadyExistsException
+            .class);
+    assertSerialVersionUid(
+        com.percussion.cloudservice.IPSCloudService.PSCloudServiceException.class);
+    assertSerialVersionUid(
+        com.percussion.pageoptimizer.IPSPageOptimizerService.PageOptimizerException.class);
+  }
+
   @Test
   public void itemPropertiesListPreservesOrderAndContents() {
     var a = new PSItemProperties();

@@ -28,6 +28,7 @@ import net.sf.oval.constraint.NotEmpty;
  */
 @XmlRootElement(name = "Comment")
 public class PSComment extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
 
   private String comment;
   @NotEmpty private String commenter;

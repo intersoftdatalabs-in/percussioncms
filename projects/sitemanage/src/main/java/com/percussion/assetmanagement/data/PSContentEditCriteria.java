@@ -32,6 +32,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "ContentEditCriteria")
 public class PSContentEditCriteria extends PSAssetEditor {
+  private static final long serialVersionUID = 1L;
 
   private boolean producesResource = false;
   private String contentName = "";

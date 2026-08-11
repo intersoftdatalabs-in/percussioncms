@@ -33,6 +33,7 @@ import net.sf.oval.constraint.NotEmpty;
 @XmlRootElement(name = "Revision")
 @JsonRootName("Revision")
 public class PSRevision extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
 
   private int revId;
 

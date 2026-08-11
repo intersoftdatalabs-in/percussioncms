@@ -40,6 +40,7 @@ import tools.jackson.databind.json.JsonMapper;
 @JsonInclude()
 public class PSCategoryNode extends PSAbstractDataObject
     implements Comparable<PSCategoryNode>, Cloneable {
+  private static final long serialVersionUID = 1L;
 
   @JsonProperty("id")
   private String id;
