@@ -155,7 +155,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
 
   // see base class
   @Override
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -261,7 +261,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
    * @return iterator on a set of names
    * @throws PSDeployException if there are any errors loading the names.
    */
-  public Iterator getContentListNames(String nameFilter) throws PSDeployException {
+  public Iterator<String> getContentListNames(String nameFilter) throws PSDeployException {
     init();
     return m_publisherHelper.getAllContentListNames(nameFilter).iterator();
   }
@@ -276,19 +276,17 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
     m_publisherHelper
         .getNamedContentListMap()
         .forEach(
-            (key, value) -> {
-              var cList = (IPSContentList) value;
-              deps.add(
-                  createDeployableElement(
-                      m_def, String.valueOf(cList.getGUID().longValue()), cList.getName()));
-            });
+            (key, cList) ->
+                deps.add(
+                    createDeployableElement(
+                        m_def, String.valueOf(cList.getGUID().longValue()), cList.getName())));
 
     return deps.iterator();
   }
 
   // see base class
   @Override
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -388,8 +386,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
       ((PSContentList) cList).setVersion(null);
     }
     // retrieve data, followed by its child data if any
-    PSDependencyFile depFile =
-        (PSDependencyFile) getContentListDependecyFilesFromArchive(archive, dep).next();
+    PSDependencyFile depFile = getContentListDependecyFilesFromArchive(archive, dep).next();
     cList = generateContentListFromFile(archive, depFile, cList);
     doTransforms(dep, ctx, cList, isNew);
     saveContentList(cList, ver);
@@ -436,12 +433,12 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
    * @throws PSDeployException if there is no dependency file in the archive for the specified
    *     dependency object, or any other error occurs.
    */
-  protected Iterator getContentListDependecyFilesFromArchive(
+  protected Iterator<PSDependencyFile> getContentListDependecyFilesFromArchive(
       PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
     if (archive == null) throw new IllegalArgumentException("archive may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
 
     if (!files.hasNext()) {
       Object[] args = {
@@ -457,7 +454,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
 
   // see base class
   @Override
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -503,18 +500,13 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
     String url = cList.getUrl();
     if (url != null) {
       // parse params
-      Map paramMap = PSDeployComponentUtils.parseParams(url, null);
-      List mappings = new ArrayList();
+      Map<String, Object> paramMap = PSDeployComponentUtils.parseParams(url, null);
+      List<PSApplicationIDTypeMapping> mappings = new ArrayList<>();
 
       // check each param for idtypes
-      Iterator entries = paramMap.entrySet().iterator();
-      while (entries.hasNext()) {
-        Map.Entry entry = (Map.Entry) entries.next();
-
+      for (Map.Entry<String, Object> entry : paramMap.entrySet()) {
         // convert to PSParam to leverage existing transformer code
-        Iterator params = PSDeployComponentUtils.convertToParams(entry).iterator();
-        while (params.hasNext()) {
-          PSParam param = (PSParam) params.next();
+        for (PSParam param : PSDeployComponentUtils.convertToParams(entry)) {
           PSAppTransformer.checkParam(mappings, param, null);
         }
       }
@@ -546,14 +538,9 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
     Map<String, String> paramMap = cList.getExpanderParams();
     List<PSApplicationIDTypeMapping> mappings = new ArrayList<>();
     // check each param for idtypes
-    Iterator<Map.Entry<String, String>> entries = paramMap.entrySet().iterator();
-    while (entries.hasNext()) {
-      Map.Entry<String, String> entry = entries.next();
-
+    for (Map.Entry<String, String> entry : paramMap.entrySet()) {
       // convert to PSParam to leverage existing transformer code
-      Iterator params = PSDeployComponentUtils.convertToParams(entry).iterator();
-      while (params.hasNext()) {
-        PSParam param = (PSParam) params.next();
+      for (PSParam param : PSDeployComponentUtils.convertToParams(entry)) {
         PSAppTransformer.checkParam(mappings, param, null);
       }
     }
@@ -563,22 +550,12 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
         mappings.iterator());
 
     // Add any generator params
-    paramMap.clear();
-    paramMap = null;
-    mappings.clear();
-    mappings = null;
-
     paramMap = cList.getGeneratorParams();
     mappings = new ArrayList<>();
     // check each param for idtypes
-    entries = paramMap.entrySet().iterator();
-    while (entries.hasNext()) {
-      Map.Entry<String, String> entry = entries.next();
-
+    for (Map.Entry<String, String> entry : paramMap.entrySet()) {
       // convert to PSParam to leverage existing transformer code
-      Iterator params = PSDeployComponentUtils.convertToParams(entry).iterator();
-      while (params.hasNext()) {
-        PSParam param = (PSParam) params.next();
+      for (PSParam param : PSDeployComponentUtils.convertToParams(entry)) {
         PSAppTransformer.checkParam(mappings, param, null);
       }
     }
@@ -588,30 +565,19 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
         mappings.iterator());
 
     // Add any filter params
-    paramMap.clear();
-    paramMap = null;
-    mappings.clear();
-    mappings = null;
     IPSItemFilter f = cList.getFilter();
     try {
       if (f != null) {
         // ADD ANY EXPANDER PARAMS THAT ARE ID-TYPED
         Set<IPSItemFilterRuleDef> ruleDefSet = f.getRuleDefs();
-        Iterator<IPSItemFilterRuleDef> iter = ruleDefSet.iterator();
-        while (iter.hasNext()) {
-          IPSItemFilterRuleDef ruleDef = iter.next();
+        for (IPSItemFilterRuleDef ruleDef : ruleDefSet) {
           paramMap = ruleDef.getParams();
 
           mappings = new ArrayList<>();
           // check each param for idtypes
-          entries = paramMap.entrySet().iterator();
-          while (entries.hasNext()) {
-            Map.Entry<String, String> entry = entries.next();
-
+          for (Map.Entry<String, String> entry : paramMap.entrySet()) {
             // convert to PSParam to leverage existing transformer code
-            Iterator params = PSDeployComponentUtils.convertToParams(entry).iterator();
-            while (params.hasNext()) {
-              PSParam param = (PSParam) params.next();
+            for (PSParam param : PSDeployComponentUtils.convertToParams(entry)) {
               PSAppTransformer.checkParam(mappings, param, null);
             }
           }
@@ -644,58 +610,34 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
       throw new IllegalArgumentException("invalid object type");
     }
 
-    Map paramMap = (Map) object;
+    @SuppressWarnings("unchecked")
+    Map<String, Object> paramMap = (Map<String, Object>) object;
     // walk id types and perform any transforms
-    Iterator resources = idTypes.getResourceList(false);
+    Iterator<String> resources = idTypes.getResourceList(false);
     while (resources.hasNext()) {
-      String resource = (String) resources.next();
-      Iterator elements = idTypes.getElementList(resource, false);
+      String resource = resources.next();
+      Iterator<String> elements = idTypes.getElementList(resource, false);
       while (elements.hasNext()) {
-        String element = (String) elements.next();
-        Iterator mappings = idTypes.getIdTypeMappings(resource, element, false);
+        String element = elements.next();
+        Iterator<PSApplicationIDTypeMapping> mappings =
+            idTypes.getIdTypeMappings(resource, element, false);
         while (mappings.hasNext()) {
 
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
 
           if (mapping.getType().equals(PSApplicationIDTypeMapping.TYPE_NONE)) {
             continue;
           }
 
           if (element.equals(IPSDeployConstants.ID_TYPE_ELEMENT_CONTENTLIST_EXPANDER_PARAMS)
-              || element.equals(IPSDeployConstants.ID_TYPE_ELEMENT_CONTENTLIST_GENERATOR_PARAMS)) {
+              || element.equals(IPSDeployConstants.ID_TYPE_ELEMENT_CONTENTLIST_GENERATOR_PARAMS)
+              || element.equals(IPSDeployConstants.ID_TYPE_ELEMENT_URL_PARAMS)) {
             // transform the params
-            Iterator entries = paramMap.entrySet().iterator();
-            while (entries.hasNext()) {
+            for (Map.Entry<String, Object> entry : paramMap.entrySet()) {
               // convert to PSParam(s) to leverage existing code
               List<String> valList = new ArrayList<>();
-              Map.Entry entry = (Map.Entry) entries.next();
-              List paramList = PSDeployComponentUtils.convertToParams(entry);
-              Iterator params = paramList.iterator();
-              while (params.hasNext()) {
-                PSParam param = (PSParam) params.next();
-
-                // transform
-                PSAppTransformer.transformParam(param, mapping, idMap);
-                valList.add(param.getValue().getValueText());
-              }
-              Object newVal;
-              if (valList.size() > 1) newVal = valList;
-              else newVal = valList.get(0);
-
-              entry.setValue(newVal);
-            }
-          } else if (element.equals(IPSDeployConstants.ID_TYPE_ELEMENT_URL_PARAMS)) {
-            // transform the params
-            Iterator entries = paramMap.entrySet().iterator();
-            while (entries.hasNext()) {
-              // convert to PSParam(s) to leverage existing code
-              List<String> valList = new ArrayList<String>();
-              Map.Entry entry = (Map.Entry) entries.next();
-              List paramList = PSDeployComponentUtils.convertToParams(entry);
-              Iterator params = paramList.iterator();
-              while (params.hasNext()) {
-                PSParam param = (PSParam) params.next();
-
+              List<PSParam> paramList = PSDeployComponentUtils.convertToParams(entry);
+              for (PSParam param : paramList) {
                 // transform
                 PSAppTransformer.transformParam(param, mapping, idMap);
                 valList.add(param.getValue().getValueText());
@@ -829,7 +771,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
     PSIdMap idMap = ctx.getCurrentIdMap();
     String url = cList.getUrl();
     StringBuilder base = new StringBuilder();
-    Map params = PSDeployComponentUtils.parseParams(url, base);
+    Map<String, Object> params = PSDeployComponentUtils.parseParams(url, base);
 
     if (!params.isEmpty()) {
       // tranform params using idtypes
