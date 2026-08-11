@@ -123,6 +123,12 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar")).toBeInTheDocument();
     });
+    // #2972: labeled Server actions chrome is always mounted for QA/operators.
+    expect(screen.getByTestId("explorer-server-actions")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("explorer-server-actions-label"),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("action-toolbar-item-open")).toBeInTheDocument();
 
     const searchToggle = screen.getByTestId("explorer-toggle-search");
     expect(searchToggle.getAttribute("aria-expanded")).toBe("false");
@@ -164,6 +170,37 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       expect(loadMenuActions).toHaveBeenCalled();
       expect(loadWorkflowMenuActions).toHaveBeenCalled();
     });
+  });
+
+  it("keeps server-actions chrome and surfaces load error without wiping region (#2972)", async () => {
+    stubPathFetch();
+    const loadMenuActions = vi.fn(async () => {
+      throw new Error("actions down");
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        loadDisplayFormats={async () => []}
+        loadMenuActions={loadMenuActions}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(loadMenuActions).toHaveBeenCalled();
+      expect(
+        screen.getByTestId("explorer-server-actions"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("explorer-server-actions-label"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("explorer-server-actions-error"),
+      ).toBeInTheDocument();
+    });
+    // Empty toolbar placeholder still mounts under the labeled region.
+    expect(screen.getByTestId("action-toolbar")).toBeInTheDocument();
+    expect(screen.getByTestId("action-toolbar-empty")).toBeInTheDocument();
   });
 
   it("discards stale context-menu loads when right-clicking rows rapidly (#2732 race)", async () => {
@@ -469,6 +506,8 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       EXPLORER_MSG.DISPLAY_FORMAT_LABEL,
       EXPLORER_MSG.DISPLAY_FORMAT_DEFAULT,
       EXPLORER_MSG.SERVER_ACTIONS_ARIA,
+      EXPLORER_MSG.SERVER_ACTIONS_LABEL,
+      EXPLORER_MSG.SERVER_ACTIONS_LOAD_ERROR,
       EXPLORER_MSG.VIEW_TOOLS_ARIA,
       EXPLORER_MSG.MENU_BAR_ARIA,
       EXPLORER_MSG.MENU_CONTENT,

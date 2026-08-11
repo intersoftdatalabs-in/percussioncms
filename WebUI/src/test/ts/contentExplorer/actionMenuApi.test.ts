@@ -22,6 +22,7 @@ import {
   findAllowedTemplateMenus,
   mapActionMenusToMenuActions,
   unwrapActionMenuChildren,
+  unwrapActionMenuListPayload,
 } from "../../../main/ts/api/contentExplorer/actionMenuApi";
 import { PATHS } from "../../../main/ts/api/paths";
 
@@ -182,6 +183,37 @@ describe("actionMenuApi REST wrappers", () => {
     );
     const result = await findActions();
     expect(result).toEqual([]);
+  });
+
+  it("findActions unwraps a raw JSON array wire shape (#2972)", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(
+        JSON.stringify([
+          makeMenu({ name: "open", sortRank: 1 }),
+          makeMenu({ name: "rename", sortRank: 2 }),
+        ]),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const result = await findActions();
+    expect(result.map((m) => m.name)).toEqual(["open", "rename"]);
+  });
+
+  it("unwrapActionMenuListPayload accepts ActionMenu / ActionMenuList / raw array", () => {
+    expect(unwrapActionMenuListPayload(null)).toEqual([]);
+    expect(
+      unwrapActionMenuListPayload([makeMenu({ name: "a" })]).map((m) => m.name),
+    ).toEqual(["a"]);
+    expect(
+      unwrapActionMenuListPayload({
+        ActionMenu: [makeMenu({ name: "b" })],
+      }).map((m) => m.name),
+    ).toEqual(["b"]);
+    expect(
+      unwrapActionMenuListPayload({
+        ActionMenuList: [makeMenu({ name: "c" })],
+      }).map((m) => m.name),
+    ).toEqual(["c"]);
   });
 
   it("findAllowedContentTypeMenus posts the {contentIds} body and unwraps ActionMenuList", async () => {

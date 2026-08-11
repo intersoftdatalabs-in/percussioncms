@@ -55,12 +55,32 @@ test.describe("modern React Content Explorer — nested ActionToolbar menus (#27
       await expect(
         page.locator(`[data-testid="${TEST_IDS.menuBar}"]`),
       ).toBeVisible();
+      // #2972: labeled Server actions chrome is always visible product chrome.
       await expect(
         page.locator('[data-testid="explorer-server-actions"]'),
       ).toBeVisible({ timeout: 15_000 });
       await expect(
+        page.locator('[data-testid="explorer-server-actions-label"]'),
+      ).toBeVisible();
+      await expect(
         page.locator(`[data-testid="${TEST_IDS.actionToolbar}"]`),
       ).toBeVisible();
+      // Either at least one server action button OR the empty-state placeholder.
+      const items = page.locator(
+        `[data-testid="${TEST_IDS.actionToolbar}"] [data-testid^="action-toolbar-item-"]`,
+      );
+      const empty = page.locator('[data-testid="action-toolbar-empty"]');
+      const loadError = page.locator(
+        '[data-testid="explorer-server-actions-error"]',
+      );
+      await expect
+        .poll(async () => {
+          const n = await items.count();
+          const e = await empty.count();
+          const err = await loadError.count();
+          return n > 0 || e > 0 || err > 0;
+        })
+        .toBe(true);
     },
   );
 

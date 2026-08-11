@@ -24,6 +24,10 @@ const TEST_IDS = Object.freeze({
   actionToolbar: "action-toolbar",
   /** Shell region wrapping ActionToolbar under ExplorerMenuBar. */
   serverActions: "explorer-server-actions",
+  /** Visible chrome label for the server-actions region (#2972). */
+  serverActionsLabel: "explorer-server-actions-label",
+  /** Non-fatal load error under the server-actions region (#2972). */
+  serverActionsError: "explorer-server-actions-error",
   // display-format lives on shell chrome only — see explorer-shell-chrome.js
 });
 

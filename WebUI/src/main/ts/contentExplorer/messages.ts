@@ -158,8 +158,13 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Custom URL searches cannot be run from Explorer",
   DISPLAY_FORMAT_LABEL: "perc.ui.explorer@Display format",
   DISPLAY_FORMAT_DEFAULT: "perc.ui.explorer@Default columns",
-  /** Product shell: server-driven action toolbar (US3 / #2400). */
+  /** Product shell: server-driven action toolbar (US3 / #2400 / #2972). */
   SERVER_ACTIONS_ARIA: "perc.ui.explorer@Server actions",
+  /** Visible chrome label so QA/operators can identify the toolbar region. */
+  SERVER_ACTIONS_LABEL: "perc.ui.explorer@Server actions",
+  /** Non-fatal load failure for the server action catalog. */
+  SERVER_ACTIONS_LOAD_ERROR:
+    "perc.ui.explorer@Could not load server actions",
   /** Product shell: view tools row (search / security / display format). */
   VIEW_TOOLS_ARIA: "perc.ui.explorer@Explorer view tools",
   /** DCE-style top menu bar (#2731 / ContentExplorerMenu.xml groups). */
