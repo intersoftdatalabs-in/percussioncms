@@ -10,19 +10,28 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
 import { get } from "../client";
+import {
+  normalizeDisplayFormatGuid,
+  objectGuidString,
+  unwrapDisplayFormat,
+} from "../displayFormatGuid";
 import { PATHS } from "../paths";
 import type { DisplayFormat, DisplayFormatColumn } from "./types";
 
-function asArray<T>(payload: unknown): T[] {
+// Re-export shared GUID helpers so existing developer imports keep working.
+export { normalizeDisplayFormatGuid, objectGuidString, unwrapDisplayFormat };
+
+function asArray(payload: unknown): DisplayFormat[] {
   if (payload == null) return [];
-  if (Array.isArray(payload)) return payload as T[];
-  if (typeof payload === "object") {
+  let rawList: unknown[] = [];
+  if (Array.isArray(payload)) {
+    rawList = payload;
+  } else if (typeof payload === "object") {
     const obj = payload as Record<string, unknown>;
     const raw =
       obj.DisplayFormat ??
@@ -30,40 +39,12 @@ function asArray<T>(payload: unknown): T[] {
       obj.DisplayFormatList ??
       obj.displayFormatList;
     if (raw == null) return [];
-    return Array.isArray(raw) ? (raw as T[]) : [raw as T];
+    rawList = Array.isArray(raw) ? raw : [raw];
+  } else {
+    return [];
   }
-  return [];
-}
-
-/**
- * Unwrap Jackson {@code WRAP_ROOT_VALUE} envelopes for a single display format.
- *
- * <p>REST {@code JacksonContextResolver} wraps DTOs as
- * {@code {"DisplayFormat":{…}}}. Without unwrapping, detail panels read
- * {@code detail.guid} as undefined and Object ACL shows
- * "Object GUID not available" even though the server supplied a GUID
- * (issue #2689). Flat payloads (no wrap) pass through unchanged.
- */
-export function unwrapDisplayFormat(payload: unknown): DisplayFormat {
-  if (payload == null) {
-    return {};
-  }
-  if (typeof payload !== "object" || Array.isArray(payload)) {
-    return {};
-  }
-  const root = payload as Record<string, unknown>;
-  const nested = root.DisplayFormat ?? root.displayFormat;
-  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
-    return nested as DisplayFormat;
-  }
-  if (Array.isArray(nested) && nested.length > 0) {
-    const first = nested[0];
-    if (first != null && typeof first === "object") {
-      return first as DisplayFormat;
-    }
-  }
-  // Flat body (WRAP_ROOT_VALUE off or already unwrapped)
-  return root as DisplayFormat;
+  // Normalize each element (Jackson may wrap list items or omit guid.stringValue).
+  return rawList.map((item) => unwrapDisplayFormat(item));
 }
 
 export function normalizeColumns(
@@ -79,7 +60,7 @@ export function normalizeColumns(
 /** GET /services/displayformats */
 export async function listDisplayFormats(): Promise<DisplayFormat[]> {
   const payload = await get<unknown>(PATHS.DISPLAY_FORMATS);
-  return asArray<DisplayFormat>(payload);
+  return asArray(payload);
 }
 
 /** GET /services/displayformats/{idOrName} */

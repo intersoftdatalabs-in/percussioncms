@@ -50,7 +50,7 @@ public class TestDisplayFormat {
 
   /**
    * Developer SPA reads {@code detail.guid.stringValue} for Object ACL. REST Jackson mapper must
-   * emit {@code stringValue} under the DisplayFormat root wrap (issue #2689).
+   * emit {@code stringValue} under the DisplayFormat root wrap (issue #2689 / #2951).
    */
   @Test
   public void jacksonContextResolver_serializesGuidStringValueUnderRootWrap() {
@@ -66,5 +66,30 @@ public class TestDisplayFormat {
     assertTrue(json.contains("\"stringValue\""), json);
     assertTrue(json.contains("0-11-5"), json);
     assertTrue(json.contains("By_Author"), json);
+    // Nested Guid must not re-wrap under WRAP_ROOT_VALUE (would hide stringValue from SPA)
+    assertTrue(
+        json.contains("\"guid\":{") || json.contains("\"guid\" : {"),
+        "guid should be a nested object, not re-wrapped: " + json);
+  }
+
+  @Test
+  public void jacksonContextResolver_serializesGuidPartsAndStringValue() {
+    Guid g = new Guid();
+    g.setHostId(0);
+    g.setType((short) 11);
+    g.setUuid(301);
+    g.setLongValue(301L);
+    g.setStringValue("0-11-301");
+
+    DisplayFormat f = new DisplayFormat();
+    f.setName("By_Author");
+    f.setGuid(g);
+
+    ObjectMapper mapper = new JacksonContextResolver().getContext(DisplayFormat.class);
+    String json = mapper.writeValueAsString(f);
+
+    assertTrue(json.contains("\"stringValue\""), json);
+    assertTrue(json.contains("0-11-301"), json);
+    assertTrue(json.contains("\"uuid\""), json);
   }
 }
