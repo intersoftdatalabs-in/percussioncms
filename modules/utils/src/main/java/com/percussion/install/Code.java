@@ -47,9 +47,11 @@ import org.w3c.dom.Element;
  * The Code class handles Rhythmyx Installer's brand code issue. This class should not use any
  * com.percussion classes in order to avoid circular dependencies. This is the first class to be
  * build during the build procedure.
+ *
+ * <p>Final so constructors may call private {@code init()} / {@code fromString} without {@code
+ * this-escape}.
  */
-@SuppressWarnings("this-escape")
-public class Code {
+public final class Code {
 
   private static final Logger log = LogManager.getLogger(Code.class);
 

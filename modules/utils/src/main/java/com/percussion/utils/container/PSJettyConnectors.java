@@ -33,7 +33,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.math.NumberUtils;
 
-public class PSJettyConnectors extends PSAbstractConnectors {
+/** Final so copy ctor may call {@code mergeConnectors} without {@code this-escape}. */
+public final class PSJettyConnectors extends PSAbstractConnectors {
 
   public static final String KEYSTORE_FILE_ATTR = "jetty.sslContext.keyStorePath";
   public static final String KEYSTORE_PASS_ATTR = "jetty.sslContext.keyStorePassword";
@@ -61,7 +62,6 @@ public class PSJettyConnectors extends PSAbstractConnectors {
     rxRootDir = rxDir;
   }
 
-  @SuppressWarnings("this-escape")
   public PSJettyConnectors(Path rxDir, PSAbstractConnectors connectorInfo) {
     this(rxDir);
     mergeConnectors(connectorInfo.getConnectors());

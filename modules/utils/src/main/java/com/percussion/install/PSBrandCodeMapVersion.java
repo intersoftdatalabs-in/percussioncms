@@ -28,9 +28,12 @@ import java.util.Set;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/** This class represents a single version of the brand code map. */
-@SuppressWarnings("this-escape")
-public class PSBrandCodeMapVersion {
+/**
+ * This class represents a single version of the brand code map.
+ *
+ * <p>Final so the XML constructor may call {@link #fromXml(Element)} without {@code this-escape}.
+ */
+public final class PSBrandCodeMapVersion {
   /**
    * Constructor
    *

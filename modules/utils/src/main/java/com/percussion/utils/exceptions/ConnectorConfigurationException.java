@@ -67,11 +67,14 @@ public class ConnectorConfigurationException extends Exception {
    * @param arrayArgs The array of arguments to use as the arguments in the error message. May be
    *     <code>null</code>, and may contain <code>null</code> elements.
    */
-  @SuppressWarnings("this-escape")
   public ConnectorConfigurationException(int msgCode, Throwable cause, Object... arrayArgs) {
-    this(msgCode, arrayArgs);
-    fillInStackTrace();
-    initCause(cause);
+    // Pass cause to Exception super first (no post-construction initCause / this-escape)
+    super(cause);
+    for (int i = 0; arrayArgs != null && i < arrayArgs.length; i++) {
+      if (arrayArgs[i] == null) arrayArgs[i] = "";
+    }
+    m_code = msgCode;
+    m_args = arrayArgs;
   }
 
   /**

@@ -28,9 +28,10 @@ import org.w3c.dom.Element;
 /**
  * This class stores the tag name of the wrapped element and the name and value of all the attribute
  * of this element defined in the component map xml.
+ *
+ * <p>Final so the XML constructor may call {@link #fromXml(Element)} without {@code this-escape}.
  */
-@SuppressWarnings("this-escape")
-public class PSBrandCodeElement {
+public final class PSBrandCodeElement {
   /**
    * Constructor.
    *

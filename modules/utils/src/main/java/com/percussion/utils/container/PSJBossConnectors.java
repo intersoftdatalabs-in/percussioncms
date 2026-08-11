@@ -32,7 +32,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.xml.sax.SAXException;
 
-public class PSJBossConnectors extends PSAbstractXmlConnectors {
+/** Final so copy ctor may call {@code setConnectors} without {@code this-escape}. */
+public final class PSJBossConnectors extends PSAbstractXmlConnectors {
 
   private static final Path JBOSS_APPSERVER_PATH = Paths.get("AppServer");
   private static final Path JBOSS_SERVER_XML_PATH =
@@ -52,7 +53,6 @@ public class PSJBossConnectors extends PSAbstractXmlConnectors {
     this.laxFile = rxRootDir.resolve(CM1_LEGACY_LAX_FILE);
   }
 
-  @SuppressWarnings("this-escape")
   public PSJBossConnectors(File rxDir, PSAbstractConnectors connectorInfo) {
     this(rxDir);
     setConnectors(connectorInfo.getConnectors());

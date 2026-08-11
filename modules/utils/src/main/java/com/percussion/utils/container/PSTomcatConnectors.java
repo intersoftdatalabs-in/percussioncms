@@ -44,14 +44,15 @@ public class PSTomcatConnectors extends PSAbstractXmlConnectors {
 
   private Path dtsRoot;
 
-  @SuppressWarnings("this-escape")
   public PSTomcatConnectors(Path rxDir, Path dtsRoot) {
     super(rxDir.resolve(dtsRoot.resolve("Server")));
     // dtsRoot = rxDir.resolve(dtsRoot);
     rxRootDir = rxDir;
     this.serverFile = dtsRoot.resolve(SERVER_XML_PATH);
 
-    if (getOperatingSystem().toUpperCase().contains("WINDOWS")) {
+    // Resolve OS name via System property (not an overridable instance method) to avoid this-escape
+    String osName = System.getProperty("os.name");
+    if (osName != null && osName.toUpperCase().contains("WINDOWS")) {
       this.laxFile = rxDir.resolve(CM1_LEGACY_LAX_FILE);
     } else {
       this.laxFile = rxDir.resolve(CM1_LEGACY_LAX_FILE_LINUX);
@@ -61,7 +62,7 @@ public class PSTomcatConnectors extends PSAbstractXmlConnectors {
     PSLogger.logInfo("Perc-Catalina properties file*********" + this.propertiesFile);
   }
 
-  public String getOperatingSystem() {
+  public final String getOperatingSystem() {
     String os = System.getProperty("os.name");
     return os;
   }

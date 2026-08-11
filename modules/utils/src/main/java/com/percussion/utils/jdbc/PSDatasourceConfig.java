@@ -24,13 +24,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/** Class to describe the configuration used to obtain and use a database connection. */
-public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, Cloneable {
+/**
+ * Class to describe the configuration used to obtain and use a database connection.
+ *
+ * <p>Final so constructors may call {@link #fromXml(Element)} / {@link
+ * #copyFrom(IPSDatasourceConfig)} / mutators without {@code this-escape}.
+ */
+public final class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, Cloneable {
   /**
    * Empty ctor only for use by Spring framework. If used, an invalid object may result if all
    * required members are not subsequently set on this object before its first use.
    */
-  @SuppressWarnings("this-escape")
   public PSDatasourceConfig() {}
 
   /**
@@ -45,7 +49,6 @@ public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, C
    * @param database The database name to use when qualifying statements against this datasource,
    *     may be <code>null</code> or empty.
    */
-  @SuppressWarnings("this-escape")
   public PSDatasourceConfig(String name, String dsName, String origin, String database) {
     if (StringUtils.isEmpty(name))
       throw new IllegalArgumentException("name may not be null or empty");
@@ -55,8 +58,9 @@ public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, C
 
     m_name = name;
     m_dsName = dsName;
-    setOrigin(origin);
-    setDatabase(database);
+    // Direct field init (avoid overridable mutators during construction)
+    m_origin = origin == null ? "" : origin.trim();
+    m_database = database == null ? "" : database.trim();
   }
 
   /**
@@ -66,7 +70,6 @@ public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, C
    * @param sourceNode The source element, may not be <code>null</code>.
    * @throws PSInvalidXmlException if the supplied element does not conform to the expected DTD.
    */
-  @SuppressWarnings("this-escape")
   public PSDatasourceConfig(Element sourceNode) throws PSInvalidXmlException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
@@ -79,7 +82,6 @@ public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, C
    *
    * @param config The config, may not be <code>null</code>.
    */
-  @SuppressWarnings("this-escape")
   public PSDatasourceConfig(IPSDatasourceConfig config) {
     if (config == null) throw new IllegalArgumentException("config may not be null");
 
@@ -111,7 +113,7 @@ public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, C
    *
    * @param name The name, may not be <code>null</code> or empty.
    */
-  public void setName(String name) {
+  public final void setName(String name) {
     if (StringUtils.isBlank(name))
       throw new IllegalArgumentException("name may not be null or empty");
 
@@ -123,7 +125,7 @@ public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, C
    *
    * @param dataSource The datasource name, may not be <code>null</code> or empty.
    */
-  public void setDataSource(String dataSource) {
+  public final void setDataSource(String dataSource) {
     if (StringUtils.isBlank(dataSource))
       throw new IllegalArgumentException("dataSource may not be null or empty");
 
@@ -135,7 +137,7 @@ public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, C
    *
    * @param origin The origin or schema name, may be <code>null</code> or empty.
    */
-  public void setOrigin(String origin) {
+  public final void setOrigin(String origin) {
     m_origin = origin == null ? "" : origin.trim();
   }
 
@@ -144,7 +146,7 @@ public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, C
    *
    * @param database The database name, may be <code>null</code> or empty.
    */
-  public void setDatabase(String database) {
+  public final void setDatabase(String database) {
     m_database = database == null ? "" : database.trim();
   }
 
@@ -154,7 +156,7 @@ public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, C
    *
    * @param config Config to copy, must never be <code>null</code>
    */
-  public void copyFrom(IPSDatasourceConfig config) {
+  public final void copyFrom(IPSDatasourceConfig config) {
     if (config == null) {
       throw new IllegalArgumentException("config must never be null");
     }
@@ -180,7 +182,7 @@ public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, C
   }
 
   // see IPSBeanConfig interface
-  public void fromXml(Element source) throws PSInvalidXmlException {
+  public final void fromXml(Element source) throws PSInvalidXmlException {
     if (source == null) throw new IllegalArgumentException("source may not be null");
 
     // need to get name first

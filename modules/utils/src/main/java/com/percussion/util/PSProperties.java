@@ -41,9 +41,11 @@ import org.apache.logging.log4j.Logger;
  * https://www.dreamincode.net/forums/topic/53734-java-code-to-modify-properties-file-and-preserve-comments/
  *
  * <p>Written for Java version 1.4
+ *
+ * <p>Final so the file constructor may call {@link #load(InputStream)} (and thereby {@link
+ * #put(Object, Object)}) without {@code this-escape}.
  */
-@SuppressWarnings("this-escape")
-public class PSProperties extends java.util.Properties {
+public final class PSProperties extends java.util.Properties {
 
   private static final Logger log = LogManager.getLogger(PSProperties.class);
   private static final long serialVersionUID = 1L;
@@ -152,7 +154,8 @@ public class PSProperties extends java.util.Properties {
    *
    * @param inStream The InputStream to read.
    */
-  public void load(InputStream inStream) throws IOException {
+  @Override
+  public final void load(InputStream inStream) throws IOException {
     // The spec says that the file must be encoded using ISO-8859-1.
     try (BufferedReader reader =
         new BufferedReader(new InputStreamReader(inStream, "ISO-8859-1"))) {
@@ -384,7 +387,7 @@ public class PSProperties extends java.util.Properties {
    * @param value The value of this Property.
    */
   @Override
-  public synchronized Object put(Object keyString, Object value) {
+  public final synchronized Object put(Object keyString, Object value) {
     // add new entries at end but just update existing entries.
     if (!this.containsKey(keyString)) {
       lineData.add("");

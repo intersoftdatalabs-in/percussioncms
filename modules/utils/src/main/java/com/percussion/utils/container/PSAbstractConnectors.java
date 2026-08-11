@@ -108,19 +108,23 @@ public class PSAbstractConnectors implements IPSConnectorInfo<IPSConnector>, Con
   }
 
   @Override
-  public void setConnectors(List<IPSConnector> connectors) {
+  public final void setConnectors(List<IPSConnector> connectors) {
     this.connectors = connectors;
   }
 
-  public Optional<IPSConnector> getHttpsConnector() {
+  public final Optional<IPSConnector> getHttpsConnector() {
     return this.connectors.stream().filter(IPSConnector::isHttps).findFirst();
   }
 
-  public Optional<IPSConnector> getHttpConnector() {
+  public final Optional<IPSConnector> getHttpConnector() {
     return this.connectors.stream().filter(IPSConnector::isHttp).findFirst();
   }
 
-  protected void mergeConnectors(List<IPSConnector> existingConnectors) {
+  /**
+   * Merge existing connectors into this list. Final so subclass constructors may call without
+   * {@code this-escape}.
+   */
+  protected final void mergeConnectors(List<IPSConnector> existingConnectors) {
     List<IPSConnector> newConnectors = new ArrayList<>();
     for (IPSConnector connector : existingConnectors) {
       IPSConnector connectorToAdd = connector;

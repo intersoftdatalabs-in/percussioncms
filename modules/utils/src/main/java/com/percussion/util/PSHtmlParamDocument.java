@@ -39,9 +39,10 @@ import org.w3c.dom.Text;
  * element name will be the parameter name and the value of the element is the value of the
  * parameter. There can be multiple elelements with the same name so that multi-valued HTML
  * parameter is supported.
+ *
+ * <p>Final so the map constructor may call {@link #setParams(Map)} without {@code this-escape}.
  */
-@SuppressWarnings("this-escape")
-public class PSHtmlParamDocument {
+public final class PSHtmlParamDocument {
   private static final Logger log = LogManager.getLogger(PSHtmlParamDocument.class);
 
   /** Default Constructor. */
