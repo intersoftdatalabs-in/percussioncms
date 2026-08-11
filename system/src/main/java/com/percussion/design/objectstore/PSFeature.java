@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -89,13 +91,13 @@ public class PSFeature {
    */
   public PSFeature(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_nodeName);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_nodeName);
     }
 
     // make sure we got the correct type node
     if (false == ms_nodeName.equals(sourceNode.getNodeName())) {
       Object[] args = {ms_nodeName, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -104,7 +106,7 @@ public class PSFeature {
     String sTemp = tree.getElementData("Name");
     if (sTemp == null) {
       Object[] args = {ms_nodeName, "Name", "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     } else m_featureName = sTemp;
 
     int firstFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN;
@@ -124,7 +126,7 @@ public class PSFeature {
     } else {
       // must be at least one
       Object[] args = {ms_nodeName, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
   }
 

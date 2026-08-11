@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.extension.PSExtensionRef;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -364,11 +366,11 @@ public class PSExtensionCall extends PSComponent
     int parentSize = parentComponents.size() - 1;
 
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     if (false == ms_NodeType.equals(sourceNode.getNodeName())) {
       Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -378,7 +380,7 @@ public class PSExtensionCall extends PSComponent
       m_id = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
 
     // Find the exit and check its name for validity
@@ -387,7 +389,7 @@ public class PSExtensionCall extends PSComponent
     if (exitName == null || (!(PSExtensionRef.isValidFullName(exitName)))) {
       Object[] args = {ms_NodeType, "'name'", ((exitName == null) ? "null" : exitName)};
 
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     m_ext = new PSExtensionRef(exitName);
@@ -432,7 +434,7 @@ public class PSExtensionCall extends PSComponent
     if (!cxt.startValidation(this, null)) return;
 
     if (m_columns == null)
-      cxt.validationError(this, IPSObjectStoreErrors.EXT_CALL_PARAM_VALUE_NULL, null);
+      cxt.validationError(this, ObjectStoreErrorCodes.EXT_CALL_PARAM_VALUE_NULL, null);
 
     if (m_params != null) {
       cxt.pushParent(this);

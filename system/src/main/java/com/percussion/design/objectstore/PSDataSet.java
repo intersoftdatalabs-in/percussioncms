@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -671,11 +673,11 @@ public class PSDataSet extends PSComponent {
   private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     if (!ms_NodeType.equals(sourceNode.getNodeName())) {
       Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -685,7 +687,7 @@ public class PSDataSet extends PSComponent {
       m_id = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
 
     try { // private          String          m_name = "";
@@ -711,7 +713,7 @@ public class PSDataSet extends PSComponent {
         m_transactionType = DS_TRANSACTION_ALL_ROWS;
       else {
         Object[] args = {ms_NodeType, "transactionType", sTemp};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     } else m_transactionType = DS_TRANSACTION_DISABLED;
 
@@ -798,7 +800,7 @@ public class PSDataSet extends PSComponent {
             if ((requestLinkCheck != null) && (!requestLinkCheck.equals(requestLink)))
               cxt.validationError(
                   this,
-                  IPSObjectStoreErrors.DATASET_XMLFIELD_MULTI_LINK_ERROR,
+                  ObjectStoreErrorCodes.DATASET_XMLFIELD_MULTI_LINK_ERROR,
                   requestLink.getXmlField());
             fieldLinks.put(requestLink.getXmlField(), requestLink);
           }

@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
@@ -274,11 +276,11 @@ public class PSEntry extends PSComponent {
   private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     int firstFlags =
@@ -312,7 +314,7 @@ public class PSEntry extends PSComponent {
     node = tree.getNextElement(PSDisplayText.XML_NODE_NAME, firstFlags);
     if (node == null) {
       Object[] args = {XML_NODE_NAME, PSDisplayText.XML_NODE_NAME, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     m_label = new PSDisplayText(node, parentDoc, parentComponents);
 
@@ -320,7 +322,7 @@ public class PSEntry extends PSComponent {
     node = tree.getNextElement(VALUE_ELEM, nextFlags);
     if (node == null) {
       Object[] args = {XML_NODE_NAME, VALUE_ELEM, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     m_value = tree.getElementData(node);
   }
@@ -348,14 +350,14 @@ public class PSEntry extends PSComponent {
     if (!context.startValidation(this, null)) return;
 
     if (m_value == null) {
-      context.validationError(this, IPSObjectStoreErrors.INVALID_ENTRY, null);
+      context.validationError(this, ObjectStoreErrorCodes.INVALID_ENTRY, null);
     }
 
     // do children
     context.pushParent(this);
     try {
       if (m_label == null) {
-        context.validationError(this, IPSObjectStoreErrors.INVALID_ENTRY, null);
+        context.validationError(this, ObjectStoreErrorCodes.INVALID_ENTRY, null);
       } else m_label.validate(context);
     } finally {
       context.popParent();

@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.extension.IPSExtensionParamDef;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -238,11 +240,11 @@ public class PSExtensionParamDef extends PSComponent implements IPSExtensionPara
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     if (!ms_NodeType.equals(sourceNode.getNodeName())) {
       Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -252,7 +254,7 @@ public class PSExtensionParamDef extends PSComponent implements IPSExtensionPara
       m_id = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
 
     try { // private      String          m_name = "";

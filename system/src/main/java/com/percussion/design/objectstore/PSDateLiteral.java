@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Date;
@@ -225,12 +227,12 @@ public class PSDateLiteral extends PSLiteral {
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     // make sure we got the ACL type node
     if (false == ms_NodeType.equals(sourceNode.getNodeName())) {
       Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -240,34 +242,34 @@ public class PSDateLiteral extends PSLiteral {
       m_id = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
 
     // get the date format object first
     String format = tree.getElementData("format");
     if ((format == null) || (format.length() == 0)) {
       Object[] args = {ms_NodeType, "format", "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     try {
 
       m_format = FastDateFormat.getInstance(format);
     } catch (Throwable t) {
       Object[] args = {ms_NodeType, "format", (format + " (Exception: " + t.toString() + ")")};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     // then get the date and parse it using the formatter
     sTemp = tree.getElementData("date");
     if ((sTemp == null) || (sTemp.length() == 0)) {
       Object[] args = {ms_NodeType, "date", "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     try {
       m_date = m_format.parse(sTemp);
     } catch (Throwable t) {
       Object[] args = {ms_NodeType, "date", (format + " (Exception: " + t.toString() + ")")};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
   }
 

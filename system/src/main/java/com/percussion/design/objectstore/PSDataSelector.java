@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -646,11 +648,11 @@ public final class PSDataSelector extends PSComponent {
 
     try {
       if (sourceNode == null)
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
       if (false == ms_NodeType.equals(sourceNode.getNodeName())) {
         Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -660,7 +662,7 @@ public final class PSDataSelector extends PSComponent {
         m_id = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       sTemp = tree.getElementData("unique");
@@ -671,12 +673,12 @@ public final class PSDataSelector extends PSComponent {
       sTemp = tree.getElementData("method");
       if (sTemp == null) {
         Object[] args = {ms_NodeType, "method", ""};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       } else if (sTemp.equals(XML_FLAG_METHOD_WHERE)) m_selector |= DS_BY_WHERE_CLAUSE;
       else if (sTemp.equals(XML_FLAG_METHOD_NATIVE)) m_selector |= DS_BY_NATIVE_STATEMENT;
       else {
         Object[] args = {ms_NodeType, "method", sTemp};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       int firstFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN;
@@ -736,7 +738,7 @@ public final class PSDataSelector extends PSComponent {
 
         sTemp = tree.getElementData("type", false);
         if ((sTemp == null) && m_caching)
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.DATASEL_CACHE_TYPE_REQD);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.DATASEL_CACHE_TYPE_REQD);
         else if (sTemp != null) {
           if (sTemp.equals(XML_FLAG_CACHE_TYPE_INTERVAL)) m_cacheType = DS_CACHE_TYPE_INTERVAL;
           else if (sTemp.equals(XML_FLAG_CACHE_TYPE_TIME)) m_cacheType = DS_CACHE_TYPE_TIME;
@@ -745,7 +747,7 @@ public final class PSDataSelector extends PSComponent {
           else {
             Object[] args = {ms_NodeType, "Caching/type", sTemp};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
           }
         }
 
@@ -757,7 +759,7 @@ public final class PSDataSelector extends PSComponent {
           } catch (NumberFormatException e) {
             Object[] args = {ms_NodeType, "Caching/ageInterval", sTemp};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
           }
         }
 
@@ -771,7 +773,7 @@ public final class PSDataSelector extends PSComponent {
               ms_NodeType, "Caching/ageTime", "(Value: " + sTemp + ") " + e.toString()
             };
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
           }
         }
       }
@@ -801,7 +803,7 @@ public final class PSDataSelector extends PSComponent {
       if ((0 != (DS_BY_WHERE_CLAUSE & m_selector))
           && (0 != (DS_BY_NATIVE_STATEMENT & m_selector))) {
         args = new Object[] {"" + m_selector};
-        cxt.validationError(this, IPSObjectStoreErrors.DATASEL_SEL_TYPE_INVALID, args);
+        cxt.validationError(this, ObjectStoreErrorCodes.DATASEL_SEL_TYPE_INVALID, args);
       }
 
       // turn on all invalid bits and make sure none of them are specified
@@ -809,7 +811,7 @@ public final class PSDataSelector extends PSComponent {
 
       if (0 != (m_selector & all_flags_compliment)) {
         args = new Object[] {"" + m_selector};
-        cxt.validationError(this, IPSObjectStoreErrors.DATASEL_SEL_TYPE_INVALID, args);
+        cxt.validationError(this, ObjectStoreErrorCodes.DATASEL_SEL_TYPE_INVALID, args);
       }
     }
 
@@ -836,12 +838,12 @@ public final class PSDataSelector extends PSComponent {
               }
             }
 
-            cxt.validationError(this, IPSObjectStoreErrors.DATASEL_CACHE_AGE_TIME_REQUIRED, dsName);
+            cxt.validationError(this, ObjectStoreErrorCodes.DATASEL_CACHE_AGE_TIME_REQUIRED, dsName);
           }
           break; // end valid cache types
         default:
           cxt.validationError(
-              this, IPSObjectStoreErrors.DATASEL_CACHE_TYPE_INVALID, "" + m_cacheType);
+              this, ObjectStoreErrorCodes.DATASEL_CACHE_TYPE_INVALID, "" + m_cacheType);
       }
     }
 
@@ -851,7 +853,7 @@ public final class PSDataSelector extends PSComponent {
 
     if (m_cacheAgeInterval < 0)
       cxt.validationError(
-          this, IPSObjectStoreErrors.DATASEL_CACHE_AGE_INTERVAL_INVALID, "" + m_cacheAgeInterval);
+          this, ObjectStoreErrorCodes.DATASEL_CACHE_AGE_INTERVAL_INVALID, "" + m_cacheAgeInterval);
 
     // validate children
     cxt.pushParent(this);

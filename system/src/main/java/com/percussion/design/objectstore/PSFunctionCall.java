@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.data.PSDataExtractionException;
 import com.percussion.data.PSMetaDataCache;
 import com.percussion.extension.PSDatabaseFunctionDef;
@@ -302,7 +304,7 @@ public class PSFunctionCall extends PSNamedReplacementValue
     if (funcDef == null) {
       Object[] args = new Object[] {dbFuncName, driver};
       throw new PSDataExtractionException(
-          IPSObjectStoreErrors.DATABASE_FUNCTION_DEFINITION_NOT_FOUND, args);
+          ObjectStoreErrorCodes.DATABASE_FUNCTION_DEFINITION_NOT_FOUND.numericCode(), args);
     }
 
     PSFunctionParamValue[] params = getParamValues();
@@ -316,7 +318,7 @@ public class PSFunctionCall extends PSNamedReplacementValue
             Integer.valueOf(providedParamsCount), dbFuncName, Integer.valueOf(reqParamsCount)
           };
       throw new PSDataExtractionException(
-          IPSObjectStoreErrors.DATABASE_FUNCTION_CALL_PARAM_COUNT_MISMATCH, args);
+          ObjectStoreErrorCodes.DATABASE_FUNCTION_CALL_PARAM_COUNT_MISMATCH.numericCode(), args);
     }
 
     m_dbFuncDef = funcDef;
@@ -413,11 +415,11 @@ public class PSFunctionCall extends PSNamedReplacementValue
 
     try {
       if (sourceNode == null)
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, getNodeName());
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, getNodeName());
 
       if (false == (getNodeName().equals(sourceNode.getNodeName()))) {
         Object[] args = {getNodeName(), sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       String sTemp = sourceNode.getAttribute(ATTR_ID);
@@ -425,7 +427,7 @@ public class PSFunctionCall extends PSNamedReplacementValue
         m_id = Integer.parseInt(sTemp);
       } catch (NumberFormatException e) {
         Object[] args = {getNodeName(), ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -441,7 +443,7 @@ public class PSFunctionCall extends PSNamedReplacementValue
 
       if ((sTemp == null) || (sTemp.trim().length() < 1)) {
         Object[] args = {getNodeName(), EL_NAME, ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       m_dbFuncName = sTemp;
 
@@ -475,7 +477,7 @@ public class PSFunctionCall extends PSNamedReplacementValue
     if (!cxt.startValidation(this, null)) return;
 
     if (m_columns == null)
-      cxt.validationError(this, IPSObjectStoreErrors.EXT_CALL_PARAM_VALUE_NULL, null);
+      cxt.validationError(this, ObjectStoreErrorCodes.EXT_CALL_PARAM_VALUE_NULL, null);
 
     cxt.pushParent(this);
     try {

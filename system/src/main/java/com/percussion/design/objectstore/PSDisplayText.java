@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -121,11 +123,11 @@ public class PSDisplayText extends PSComponent {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -157,7 +159,7 @@ public class PSDisplayText extends PSComponent {
     if (!context.startValidation(this, null)) return;
 
     if (m_text == null) {
-      context.validationError(this, IPSObjectStoreErrors.INVALID_DISPLAY_TEXT, null);
+      context.validationError(this, ObjectStoreErrorCodes.INVALID_DISPLAY_TEXT, null);
     }
   }
 

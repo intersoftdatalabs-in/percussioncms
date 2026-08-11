@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
@@ -122,11 +124,11 @@ public class PSDisplayFieldRef extends PSComponent implements IPSMutatableReplac
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -141,13 +143,13 @@ public class PSDisplayFieldRef extends PSComponent implements IPSMutatableReplac
         m_id = Integer.parseInt(data);
       } catch (Exception e) {
         Object[] args = {XML_NODE_NAME, ((data == null) ? "null" : data)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       m_fieldRef = tree.getElementData(FIELD_REF_ELEM);
       if (m_fieldRef == null) {
         Object[] args = {XML_NODE_NAME, FIELD_REF_ELEM, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     } finally {
       resetParentList(parentComponents, parentSize);
@@ -170,7 +172,7 @@ public class PSDisplayFieldRef extends PSComponent implements IPSMutatableReplac
     if (!context.startValidation(this, null)) return;
 
     if (m_fieldRef == null || m_fieldRef.trim().length() == 0)
-      context.validationError(this, IPSObjectStoreErrors.INVALID_FIELD, null);
+      context.validationError(this, ObjectStoreErrorCodes.INVALID_FIELD, null);
   }
 
   /** The value type associated with instances of this class. */

@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.server.PSDatabaseComponentLoader;
 import com.percussion.error.PSDatabaseComponentException;
 import com.percussion.util.PSCollection;
@@ -165,7 +167,7 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent implement
     m_deletes.clear();
 
     if (sourceNode == null) {
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);

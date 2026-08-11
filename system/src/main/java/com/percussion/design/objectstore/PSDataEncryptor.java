@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
@@ -227,11 +229,11 @@ public class PSDataEncryptor extends PSComponent {
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     if (!ms_NodeType.equals(sourceNode.getNodeName())) {
       Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -241,7 +243,7 @@ public class PSDataEncryptor extends PSComponent {
       m_id = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
 
     // is SSL (encryption) required?
@@ -251,13 +253,13 @@ public class PSDataEncryptor extends PSComponent {
     // what's the key strength?
     sTemp = tree.getElementData("keyStrength");
     if ((sTemp == null) && m_encryption) {
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.DATAENC_KEY_STRENGTH_REQD);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.DATAENC_KEY_STRENGTH_REQD);
     } else if (sTemp != null) {
       try {
         m_keyStrength = Integer.parseInt(sTemp);
       } catch (NumberFormatException e) {
         Object[] args = {ms_NodeType, "keyStrength", sTemp};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     }
   }

@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.data.PSIdGenerator;
 import com.percussion.design.objectstore.server.PSDatabaseComponentLoader;
 import com.percussion.error.PSDatabaseComponentException;
@@ -304,7 +306,7 @@ public abstract class PSDatabaseComponent implements IPSDatabaseComponent, Seria
     } catch (Exception ex) {
       Object[] args = {c.getName(), ex.toString()};
       throw new PSDatabaseComponentException(
-          IPSObjectStoreErrors.DB_COMPONENT_LOAD_EXCEPTION, args);
+          ObjectStoreErrorCodes.DB_COMPONENT_LOAD_EXCEPTION.numericCode(), args);
     }
 
     component.fromDatabaseXml(e, cl, rc);
@@ -342,7 +344,7 @@ public abstract class PSDatabaseComponent implements IPSDatabaseComponent, Seria
         m_componentState = Integer.parseInt(sTemp);
       } catch (NumberFormatException ex) {
         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, XML_COMPONENT_STATE_ATTR);
+            ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, XML_COMPONENT_STATE_ATTR);
       }
     }
 
@@ -350,14 +352,14 @@ public abstract class PSDatabaseComponent implements IPSDatabaseComponent, Seria
     sTemp = e.getAttribute(DATABASE_COMPONENT_ID_XML_ATTR_NAME);
     if (sTemp == null || sTemp.trim().length() == 0) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, DATABASE_COMPONENT_ID_XML_ATTR_NAME);
+          ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, DATABASE_COMPONENT_ID_XML_ATTR_NAME);
     }
 
     try {
       m_databaseComponentId = Integer.parseInt(sTemp);
     } catch (Exception ex) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, DATABASE_COMPONENT_ID_XML_ATTR_NAME);
+          ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, DATABASE_COMPONENT_ID_XML_ATTR_NAME);
     }
   }
 
@@ -377,7 +379,7 @@ public abstract class PSDatabaseComponent implements IPSDatabaseComponent, Seria
 
     if ((dbId == null) || (dbId.length() == 0))
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, DATABASE_COMPONENT_ID_XML_ATTR_NAME);
+          ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, DATABASE_COMPONENT_ID_XML_ATTR_NAME);
 
     return dbId;
   }
@@ -391,7 +393,7 @@ public abstract class PSDatabaseComponent implements IPSDatabaseComponent, Seria
       m_databaseComponentId = PSIdGenerator.getNextId(getComponentType());
     } catch (SQLException e) {
       throw new PSDatabaseComponentException(
-          IPSObjectStoreErrors.DB_COMPONENT_NEW_ID, PSSqlException.getFormattedExceptionText(e));
+          ObjectStoreErrorCodes.DB_COMPONENT_NEW_ID.numericCode(), PSSqlException.getFormattedExceptionText(e));
     }
   }
 

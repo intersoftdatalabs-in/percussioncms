@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
 import java.util.Objects;
@@ -138,11 +140,11 @@ public class PSDefaultSelected extends PSComponent {
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -171,7 +173,7 @@ public class PSDefaultSelected extends PSComponent {
         }
         if (!found) {
           Object[] args = {XML_NODE_NAME, TYPE_ATTR, data};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       }
 
@@ -180,14 +182,14 @@ public class PSDefaultSelected extends PSComponent {
         if (sourceNode == null) {
           Object[] args = {XML_NODE_NAME, "Default Number", "null"};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
         m_sequence = Integer.parseInt(tree.getElementData(sourceNode));
       } else if (m_type == TYPE_TEXT) {
         if (sourceNode == null) {
           Object[] args = {XML_NODE_NAME, "Default Text", "null"};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
         m_text = tree.getElementData(sourceNode);
       }
@@ -219,13 +221,13 @@ public class PSDefaultSelected extends PSComponent {
 
     if (m_type != TYPE_NULL_ENTRY && m_type != TYPE_SEQUENCE && m_type != TYPE_TEXT) {
       Object[] args = {TYPE_ENUM};
-      context.validationError(this, IPSObjectStoreErrors.UNSUPPORTED_DEFAULT_SELECTED_TYPE, args);
+      context.validationError(this, ObjectStoreErrorCodes.UNSUPPORTED_DEFAULT_SELECTED_TYPE, args);
     }
 
     if (m_type == TYPE_SEQUENCE && m_sequence < 0) {
-      context.validationError(this, IPSObjectStoreErrors.INVALID_DEFAULT_SELECTED, null);
+      context.validationError(this, ObjectStoreErrorCodes.INVALID_DEFAULT_SELECTED, null);
     } else if (m_type == TYPE_TEXT && (m_text == null || m_text.trim().length() == 0)) {
-      context.validationError(this, IPSObjectStoreErrors.INVALID_DEFAULT_SELECTED, null);
+      context.validationError(this, ObjectStoreErrorCodes.INVALID_DEFAULT_SELECTED, null);
     }
   }
 
