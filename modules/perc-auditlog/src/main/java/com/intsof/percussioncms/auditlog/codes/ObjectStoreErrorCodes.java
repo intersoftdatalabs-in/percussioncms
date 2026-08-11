@@ -25,7 +25,7 @@ import com.intsof.percussioncms.auditlog.SystemErrorCode;
 /**
  * Object-store error catalog bridging legacy {@code
  * com.percussion.design.objectstore.IPSObjectStoreErrors} general + PSObjectStore + object-store
- * structure / validation ints (batches A–B).
+ * structure / validation ints (batches A–C).
  *
  * <p><strong>Batch A scope</strong> (issue #2898):
  *
@@ -45,6 +45,17 @@ import com.intsof.percussioncms.auditlog.SystemErrorCode;
  *       backend conn / login webpage / logger / notifier recipients / update-pipe sync (60 codes)
  * </ul>
  *
+ * <p><strong>Batch C scope</strong> (issue #2912):
+ *
+ * <ul>
+ *   <li>{@code 2321–2330} (skip Design {@code 2327}) — conditionals / UDF / tank joins / data mapping
+ *       / cache age / sync columns / XML param / relationship / macro (9 codes)
+ *   <li>{@code 2350} — server request root length
+ *   <li>{@code 2357–2380} (skip Design {@code 2351–2356}) — app version / Java exit / datasets /
+ *       request roots / extension call / query pipe / custom error URL / subject type / app roles /
+ *       database functions / JDBC-JNDI datasource / legacy app login/creds (24 codes)
+ * </ul>
+ *
  * <p><strong>Collision / ownership notes:</strong>
  *
  * <ul>
@@ -54,9 +65,8 @@ import com.intsof.percussioncms.auditlog.SystemErrorCode;
  *       ints so Design keeps flat-registry ownership.
  *   <li>{@link ContentErrorCodes} lifecycle ints {@code 2001–2006} are intentionally outside
  *       objectstore general range (objectstore starts at {@code 2011}).
- *   <li>Remaining objectstore ranges after batch B: {@code 2321–2330} (skip Design {@code 2327}),
- *       {@code 2350}, {@code 2357–2380+}, content-editor {@code 2401–2500}, handlers {@code 2801–3000}
- *       → residual batch C+.
+ *   <li>Remaining objectstore ranges after batch C: content-editor {@code 2401–2500}, handlers
+ *       {@code 2801–2848} (max legacy constant) → residual batches D/E.
  * </ul>
  *
  * <p>Every constant in this catalog sets {@link #isAuditable()} to {@code false}: XML parse /
@@ -1048,7 +1058,279 @@ public enum ObjectStoreErrorCodes implements SystemErrorCode {
       null,
       AuditOutcome.UNKNOWN,
       "Updatepipe No Sync Types",
-      "Updatepipe No Sync Types");
+      "Updatepipe No Sync Types"),
+
+  COND_VALUE_NULL(
+      2321,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Cond Value Null",
+      "Cond Value Null"),
+
+  UDFCALL_EXIT_UNDEFINED(
+      2322,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Udfcall Exit Undefined",
+      "Udfcall Exit Undefined"),
+
+  BE_TANK_JOINS_REQUIRED(
+      2323,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Be Tank Joins Required",
+      "Be Tank Joins Required"),
+
+  DATAMAPPING_GROUP_ID_INVALID(
+      2324,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Datamapping Group Id Invalid",
+      "Datamapping Group Id Invalid"),
+
+  DATASEL_CACHE_AGE_TIME_REQUIRED(
+      2325,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Datasel Cache Age Time Required",
+      "Datasel Cache Age Time Required"),
+
+  SYNC_NO_UPDATE_COLUMNS(
+      2326,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Sync No Update Columns",
+      "Sync No Update Columns"),
+
+  XML_PARAM_INVALID(
+      2328,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Xml Param Invalid",
+      "Xml Param Invalid"),
+
+  RELATIONSHIP_PROPERTY_NAME_EMPTY(
+      2329,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Relationship Property Name Empty",
+      "Relationship Property Name Empty"),
+
+  MACRO_NAME_EMPTY(
+      2330,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Macro Name Empty",
+      "Macro Name Empty"),
+
+  SRV_ROOT_TOO_BIG(
+      2350,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Srv Root Too Big",
+      "Srv Root Too Big"),
+
+  APP_VERSION_INVALID(
+      2357,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Version Invalid",
+      "App Version Invalid"),
+
+  JAVA_EXIT_HANDLER_NULL(
+      2358,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Java Exit Handler Null",
+      "Java Exit Handler Null"),
+
+  JAVA_EXIT_HANDLER_NULL_PARAM_DEF(
+      2359,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Java Exit Handler Null Param Def",
+      "Java Exit Handler Null Param Def"),
+
+  APP_NO_DATASETS(
+      2360,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App No Datasets",
+      "App No Datasets"),
+
+  APP_REQUEST_ROOTS_DUP(
+      2361,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Request Roots Dup",
+      "App Request Roots Dup"),
+
+  APP_DATASET_NAMES_DUP(
+      2362,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Dataset Names Dup",
+      "App Dataset Names Dup"),
+
+  EXT_CALL_PARAM_VALUE_NULL(
+      2363,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ext Call Param Value Null",
+      "Ext Call Param Value Null"),
+
+  HETERO_NATIVE_SELECT_NOT_SUPPORTED(
+      2364,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Hetero Native Select Not Supported",
+      "Hetero Native Select Not Supported"),
+
+  QPIPE_DATA_SELECTOR_NULL(
+      2365,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Qpipe Data Selector Null",
+      "Qpipe Data Selector Null"),
+
+  CUSTOM_ERROR_URL_INVALID(
+      2366,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Custom Error Url Invalid",
+      "Custom Error Url Invalid"),
+
+  DATASET_XMLFIELD_MULTI_LINK_ERROR(
+      2367,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Dataset Xmlfield Multi Link Error",
+      "Dataset Xmlfield Multi Link Error"),
+
+  SUBJECT_TYPE_INVALID(
+      2368,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Subject Type Invalid",
+      "Subject Type Invalid"),
+
+  APP_ROLES_NOT_SUPPORTED(
+      2369,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Roles Not Supported",
+      "App Roles Not Supported"),
+
+  DATABASE_FUNCTION_CALL_PARAM_COUNT_MISMATCH(
+      2370,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Database Function Call Param Count Mismatch",
+      "Database Function Call Param Count Mismatch"),
+
+  DATABASE_FUNCTION_PARAM_VALUE_NULL(
+      2371,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Database Function Param Value Null",
+      "Database Function Param Value Null"),
+
+  DATABASE_FUNCTION_DEFINITION_NOT_FOUND(
+      2372,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Database Function Definition Not Found",
+      "Database Function Definition Not Found"),
+
+  UNSUPPORTED_DATABASE_FUNCTION_PARAMETER_TYPE(
+      2373,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Database Function Parameter Type",
+      "Unsupported Database Function Parameter Type"),
+
+  DATABASE_FUNCTION_PARSE_ERROR(
+      2374,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Database Function Parse Error",
+      "Database Function Parse Error"),
+
+  REQUEST_NAME_DUP(
+      2375,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Request Name Dup",
+      "Request Name Dup"),
+
+  NO_JDBC_DRIVER_CONFIG(
+      2376,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "No Jdbc Driver Config",
+      "No Jdbc Driver Config"),
+
+  NO_JNDI_DATASOURCE(
+      2377,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "No Jndi Datasource",
+      "No Jndi Datasource"),
+
+  NO_DATASOURCE_CONNECTION(
+      2378,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "No Datasource Connection",
+      "No Datasource Connection"),
+
+  APP_BACKEND_CREDS_NOT_SUPPORTED(
+      2379,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Backend Creds Not Supported",
+      "App Backend Creds Not Supported"),
+
+  APP_LOGIN_PAGE_NOT_SUPPORTED(
+      2380,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Login Page Not Supported",
+      "App Login Page Not Supported");
 
   private final int numericCode;
   private final boolean auditable;

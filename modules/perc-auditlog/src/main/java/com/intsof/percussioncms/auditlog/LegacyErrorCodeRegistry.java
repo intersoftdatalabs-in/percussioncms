@@ -113,7 +113,7 @@ public final class LegacyErrorCodeRegistry {
       LuceneErrorCodes.ensureRegistered();
       LocaleErrorCodes.ensureRegistered();
       MailErrorCodes.ensureRegistered();
-      // ObjectStore A+B (#2898/#2899): after Design so ACL ownership stays on DesignErrorCodes.
+      // ObjectStore A+B+C (#2898/#2899/#2912): after Design so ACL ownership stays on DesignErrorCodes.
       ObjectStoreErrorCodes.ensureRegistered();
     }
   }

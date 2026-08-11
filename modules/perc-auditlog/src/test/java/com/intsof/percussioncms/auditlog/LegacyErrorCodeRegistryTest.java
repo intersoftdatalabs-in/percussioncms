@@ -848,7 +848,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(3501).isPresent());
   }
 
-  // --- ObjectStore batch A/B residual (#2898 / #2899) ---
+  // --- ObjectStore batch A/B/C residual (#2898 / #2899 / #2912) ---
 
   @Test
   void objectStoreBatchACodesAreRegisteredButNotAuditable() {
@@ -911,6 +911,42 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
+
+  @Test
+  void objectStoreBatchCCodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2321));
+    assertSame(
+        ObjectStoreErrorCodes.COND_VALUE_NULL, LegacyErrorCodeRegistry.find(2321).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2350));
+    assertSame(
+        ObjectStoreErrorCodes.SRV_ROOT_TOO_BIG, LegacyErrorCodeRegistry.find(2350).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2377));
+    assertSame(
+        ObjectStoreErrorCodes.NO_JNDI_DATASOURCE, LegacyErrorCodeRegistry.find(2377).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2380));
+    assertSame(
+        ObjectStoreErrorCodes.APP_LOGIN_PAGE_NOT_SUPPORTED,
+        LegacyErrorCodeRegistry.find(2380).orElseThrow());
+  }
+
+  @Test
+  void objectStoreBatchCNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            ObjectStoreErrorCodes.NO_DATASOURCE_CONNECTION.numericCode(),
+            AuditContext.empty(),
+            "jndi",
+            "db",
+            "origin");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
   @Test
   void designOwnedObjectStoreAclIntsRemainDesignErrorCodes() {
     // ObjectStore batches must not steal Design ACL flat ownership (auditable dual-write path).
@@ -920,7 +956,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(2353));
     assertSame(
         DesignErrorCodes.ACL_ENTRYLIST_NULL, LegacyErrorCodeRegistry.find(2201).orElseThrow());
-    // Design-owned mid-range ACL type (2327) still not claimed by ObjectStore batch B.
+    // Design-owned mid-range ACL type (2327) still not claimed by ObjectStore batch C.
     assertSame(DesignErrorCodes.ACL_TYPE_INVALID, LegacyErrorCodeRegistry.find(2327).orElseThrow());
   }
 
@@ -933,6 +969,22 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(2260).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(2261).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(2320).isPresent());
+  }
+
+  @Test
+  void registryCoversObjectStoreBatchAThroughC() {
+    // Prior catalogs (~380+) plus ObjectStore A+B+C (157 non-colliding ints).
+    assertTrue(LegacyErrorCodeRegistry.size() >= 530);
+    assertTrue(LegacyErrorCodeRegistry.find(2011).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2261).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2320).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2321).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2350).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2357).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2380).isPresent());
+    // Design still owns 2327 / 2351-2356
+    assertSame(DesignErrorCodes.ACL_TYPE_INVALID, LegacyErrorCodeRegistry.find(2327).orElseThrow());
+    assertSame(DesignErrorCodes.SRV_ACL_NO_ADMIN, LegacyErrorCodeRegistry.find(2353).orElseThrow());
   }
 
 }
