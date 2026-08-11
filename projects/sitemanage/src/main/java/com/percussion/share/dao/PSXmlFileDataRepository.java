@@ -17,12 +17,13 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.share.dao;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Collectors;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,18 +48,17 @@ public abstract class PSXmlFileDataRepository<T, ITEM> extends PSFileDataReposit
 
   protected ITEM fileToObject(PSFileDataRepository.PSFileEntry fileEntry)
       throws IOException, PSXmlFileDataRepositoryException {
-    var data = fileEntry.getInputStream();
     ITEM object;
     try {
       var p = Paths.get(fileEntry.getFileName());
       if (isContainBOM(p)) {
         removeBom(p);
       }
-      var text =
-          new BufferedReader(new InputStreamReader(data)).lines().collect(Collectors.joining("\n"));
-      object = PSSerializerUtils.unmarshal(text.trim(), type);
+      // Portable close: Files.readString (not a leaked FileInputStream). Windows locks open files.
+      var text = Files.readString(p).trim();
+      object = PSSerializerUtils.unmarshal(text, type);
       if (object == null) {
-        log.debug("Unable to process XML {}", data);
+        log.debug("Unable to process XML {}", fileEntry.getFileName());
       }
     } catch (Exception e) {
       throw new PSXmlFileDataRepositoryException(

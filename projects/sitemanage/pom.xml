@@ -74,6 +74,12 @@
             <artifactId>perc-deployer</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <!-- Dual-run definition source selection (PSLegacyDefinitionXmlShim) for PSWidgetDao #3024 -->
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-packages</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>utils</artifactId>

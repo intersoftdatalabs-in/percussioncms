@@ -46,7 +46,7 @@ Hard order for a package root or definition id:
 
 | Surface | Path / class | Role today | Dual-run note |
 |---------|--------------|------------|---------------|
-| Widget definitions (install) | `${rxdeploydir}/rxconfig/Widgets/*.xml` via `PSWidgetDao` (`projects/sitemanage/.../dao/impl/PSWidgetDao`) | Loads legacy Widget XML by file id | Prefer modern package when present; XML remains fallback for unconverted customer defs |
+| Widget definitions (install) | `${rxdeploydir}/rxconfig/Widgets/*.xml` via `PSWidgetDao` (`projects/sitemanage/.../dao/impl/PSWidgetDao`) | Loads install Widget XML by file id; dual-run selection via `PSLegacyDefinitionXmlShim` (#3024) | Prefer modern when `widgetDao.modernPackageRoots` has a matching `component-package.json`; selection kind test-visible; XML content remains install wire / customer fallback |
 | Package source trees | `modules/perc-packages/src/main/resources/Packages/<pkg>/` | Ships product `.ppkg` content including `sys__UserDependency--rxconfig/Widgets/*.xml` | Product conversion (#2751+) emits modern manifest; batch A dual-ships modern `widgets/<stem>/` (#2831) while install XML remains; product source of truth moves off XML (ADR-004) |
 | Package staging Widgets | `sys__UserDependency--rxconfig/Widgets/` or `rxconfig/Widgets/` under a package root | Upgrade-input / deploy layout | Shim package-root API resolves either layout |
 | Gadget registry | `WebUI/.../GadgetRegistry.xml` (+ residual definition XML) | Registry; per-gadget XML largely gone | Modern: `gadget-catalog.json` + per-gadget packages (#2771); dual-load residual for WebUI |
@@ -57,8 +57,7 @@ Hard order for a package root or definition id:
 - `PSLegacyDefinitionXmlShim.selectByPresence(...)` — pure flags (tests / metrics)
 - `PSLegacyDefinitionXmlShim.selectForPackageRoot(Path)` — package directory
 - `PSLegacyDefinitionXmlShim.selectDefinition(id, modernRoots, widgetsDir, pagesDir, gadgetsDir)` — dual-run by id
-
-Deep rewiring of `PSWidgetDao` to call the shim for every load is **incremental** and may land with residual wiring after modern packages appear on disk; this slice ships the **policy + tested selection** and operator docs.
+- **Production wire (#3024):** `PSWidgetDao.selectDefinitionSource(id)` and poll-time `recordSelectionKinds` call `selectDefinition`; optional Spring `widgetDao.modernPackageRoots` (`File.pathSeparator` list); `getLastSelectionKind()` / `getSelectionKindsById()` for tests and support.
 
 ## Time box / deprecation
 
@@ -92,7 +91,7 @@ The dual-run window ends when **all** of the following hold. **Authoritative met
 - [x] Product **page layout** packages `perc.baseTemplates` / `perc.responsiveTemplates` are **not** authored as `*.templateDef` (#2786; native install mode #2806 — dual-ship roots off).
 - [ ] Remaining product packages in repo/install are **not** authored as Page / Widget / Gadget definition XML (ADR-004 ship bar) — Baseline page templates done; **widget dual-ship batch A** modern roots landed (#2831, 8 widgets); remaining ~40 product widgets still dual-ship XML as install authoring until further batches + native install. **Inventory detail:** product Widget definition XMLs under Packages (`sys__UserDependency--rxconfig/Widgets`) — see [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md).
 - [ ] Customer upgrade path documented and used for remaining XML (window still open for 8.2 dual-run).
-- [ ] Runtime metrics (or support inventory) show no production dependence on legacy definition XML loads — or remaining cases are explicitly waived. **Snapshot:** selection API un-wired into `PSWidgetDao`; no M2 metrics yet.
+- [ ] Runtime metrics (or support inventory) show no production dependence on legacy definition XML loads — or remaining cases are explicitly waived. **Snapshot (#3024):** `PSWidgetDao` logs dual-run counts and exposes selection kinds; M2 still open until modern roots are configured in product installs and legacy rate is zero/waived.
 - [ ] Phase 5 (#2632) removes or hard-disables the shim and updates help — **blocked** until criteria doc M1–M3 + G1–G6 pass; residual tracks the deletion PR.
 
 **Do not** mass-delete the customer-facing shim while any box above is open.
