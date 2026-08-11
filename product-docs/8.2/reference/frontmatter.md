@@ -30,7 +30,7 @@ deprecated: false
 
 | Field | Required | Notes |
 |-------|----------|-------|
-| `id` | **Yes** | Stable identity for virtual participants / links. Unique within a version. |
+| `id` | **Yes** | Stable identity for virtual participants / links. Unique within a version. Registered at build time as id → published path; see [Virtual Sites](id:developer-virtual-sites) (registry lifetime). |
 | `title` | **Yes** | Page title. |
 | `description` | No | Short summary. |
 | `version` | No | Inherited from version folder name when omitted. |

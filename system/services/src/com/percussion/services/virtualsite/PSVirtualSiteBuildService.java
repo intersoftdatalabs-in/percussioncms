@@ -74,6 +74,10 @@ public class PSVirtualSiteBuildService {
       throws IOException, VirtualSiteException {
     Files.createDirectories(outputRoot);
 
+    // Full rebuild replaces this site's registry so removed pages do not linger and all current
+    // frontmatter ids are re-registered (see IPSVirtualParticipantService lifetime notes).
+    participants.clear(config.siteKey());
+
     List<VirtualItemRef> refs = source.discover(config);
     List<VirtualItem> items = new ArrayList<>();
     for (VirtualItemRef ref : refs) {
