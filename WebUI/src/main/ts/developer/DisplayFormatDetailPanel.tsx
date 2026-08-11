@@ -19,6 +19,7 @@ import React, { useEffect, useState } from "react";
 import {
   getDisplayFormatDetail,
   normalizeColumns,
+  objectGuidString,
 } from "../api/developer/displayFormatsApi";
 import type { DisplayFormat } from "../api/developer/types";
 import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
@@ -28,9 +29,12 @@ import { ObjectAclSection } from "./ObjectAclSection";
 
 export function DisplayFormatDetailPanel({
   idOrName,
+  catalogGuid,
   onBack,
 }: {
   idOrName: string;
+  /** GUID from catalog list row when detail wire omits stringValue (#2951). */
+  catalogGuid?: string | null;
   onBack: () => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<DisplayFormat | null>(null);
@@ -54,6 +58,11 @@ export function DisplayFormatDetailPanel({
 
   const columns =
     detail != null ? normalizeColumns(detail.columns) : [];
+  // Prefer detail GUID (after unwrap/normalize); fall back to catalog list GUID.
+  const objectGuid =
+    (detail != null ? objectGuidString(detail.guid) : undefined) ||
+    (catalogGuid && catalogGuid.trim() ? catalogGuid.trim() : undefined) ||
+    undefined;
 
   return (
     <div data-testid="developer-df-detail">
@@ -61,6 +70,7 @@ export function DisplayFormatDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-df-back"
+        aria-label={DEV_MSG.DF_BACK}
         style={backButton}
       >
         ← {DEV_MSG.DF_BACK}
@@ -89,8 +99,11 @@ export function DisplayFormatDetailPanel({
               <dt>{DEV_MSG.DF_COL_NAME}</dt>
               <dd style={{ margin: 0, ...monoCell }}>{detail.name || "—"}</dd>
               <dt>{DEV_MSG.DF_COL_GUID}</dt>
-              <dd style={{ margin: 0, ...monoCell }}>
-                {detail.guid?.stringValue || "—"}
+              <dd
+                style={{ margin: 0, ...monoCell }}
+                data-testid="developer-df-detail-guid"
+              >
+                {objectGuid || "—"}
               </dd>
               <dt>{DEV_MSG.DF_COL_USAGE}</dt>
               <dd style={{ margin: 0 }}>
@@ -158,7 +171,7 @@ export function DisplayFormatDetailPanel({
           </section>
 
           <ObjectAclSection
-            objectGuid={detail.guid?.stringValue}
+            objectGuid={objectGuid}
             objectKind="display-format"
             testIdPrefix="developer-df-acl"
           />

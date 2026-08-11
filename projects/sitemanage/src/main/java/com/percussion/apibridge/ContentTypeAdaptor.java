@@ -20,16 +20,24 @@ package com.percussion.apibridge;
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
+import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSContentEditorPipe;
 import com.percussion.design.objectstore.PSControlRef;
 import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSDisplayMapping;
+import com.percussion.design.objectstore.PSExtensionCall;
+import com.percussion.design.objectstore.PSExtensionCallSet;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSFieldTranslation;
+import com.percussion.design.objectstore.PSFieldValidationRules;
+import com.percussion.design.objectstore.PSParam;
+import com.percussion.design.objectstore.PSRule;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.PSUISet;
+import com.percussion.design.objectstore.PSVisibilityRules;
 import com.percussion.design.objectstore.PSWorkflowInfo;
+import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
@@ -172,17 +180,18 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     detail.setGuid(ApiUtils.convertGuid(new PSGuid(PSTypeEnum.NODEDEF, def.getTypeId())));
 
     Map<String, String> controlByField = new HashMap<>();
-    boolean controlsResolved = mapControls(def, controlByField);
+    Map<String, List<String>> controlPropsByField = new HashMap<>();
+    boolean controlsResolved = mapControls(def, controlByField, controlPropsByField);
     List<ContentTypeField> fields = new ArrayList<>();
     List<String> childSets = new ArrayList<>();
 
     PSFieldSet parentFs = def.getFieldSet();
     if (parentFs != null) {
-      addFieldsFromSet(parentFs, null, controlByField, fields);
+      addFieldsFromSet(parentFs, null, controlByField, controlPropsByField, fields);
       for (PSFieldSet child : def.getComplexChildren()) {
         if (child != null && StringUtils.isNotBlank(child.getName())) {
           childSets.add(child.getName());
-          addFieldsFromSet(child, child.getName(), controlByField, fields);
+          addFieldsFromSet(child, child.getName(), controlByField, controlPropsByField, fields);
         }
       }
     }
@@ -198,27 +207,50 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
     detail.setAllowedTemplates(loadTemplates(ctGuid));
 
-    List<String> gaps = new ArrayList<>();
-    gaps.add(
-        "Field rule flags are exposed (validation/visibility/transforms present); full rule"
-            + " expressions and control properties are not");
-    gaps.add("Item-level pre/post exits not exposed");
-    gaps.add(
-        "Create / delete not supported; update uses design lock for label/description/enabled,"
-            + " field searchable/occurrence, workflows (+ default), and templates");
-    gaps.add("Shared/system field inclusion editing not supported");
-    gaps.add(
-        "Workflow/template associations: full replace when lists are supplied on PUT; omit lists"
-            + " to leave unchanged; empty allowedWorkflows clears associations");
-    gaps.add(
-        "Template association save is a separate design write after content-type save; if it"
-            + " fails, meta/field/workflow changes may already be committed");
-    gaps.add("Field display labels and control properties are not writable via this API");
-    if (!controlsResolved) {
-      gaps.add("Display control/label resolution failed for this content type");
-    }
-    detail.setDesignGaps(gaps);
+    detail.setDesignGaps(contentTypeDesignGaps(controlsResolved));
     return detail;
+  }
+
+  /**
+   * Structured designGaps for content-type detail (REST-GAPS-01). Package-visible for unit tests.
+   */
+  static List<DesignGap> contentTypeDesignGaps(boolean controlsResolved) {
+    List<DesignGap> gaps = new ArrayList<>();
+    gaps.add(
+        DesignGap.of(
+              "CT_FIELD_RULE_EXPR",
+              "Field rule expressions and control property names are read-only; rule write/save and"
+                  + " full control property catalogs/values are not supported"));
+    gaps.add(DesignGap.of("CT_ITEM_EXITS", "Item-level pre/post exits not exposed"));
+    gaps.add(
+        DesignGap.of(
+            "CT_CREATE_DELETE",
+            "Create / delete not supported; update uses design lock for label/description/enabled,"
+                + " field searchable/occurrence, workflows (+ default), and templates"));
+    gaps.add(
+        DesignGap.of(
+            "CT_SHARED_FIELD_INCLUSION", "Shared/system field inclusion editing not supported"));
+    gaps.add(
+        DesignGap.of(
+            "CT_WF_TEMPLATE_ASSOC_SEMANTICS",
+            "Workflow/template associations: full replace when lists are supplied on PUT; omit"
+                + " lists to leave unchanged; empty allowedWorkflows clears associations"));
+    gaps.add(
+        DesignGap.of(
+            "CT_TEMPLATE_ASSOC_SAVE_ORDER",
+            "Template association save is a separate design write after content-type save; if it"
+                + " fails, meta/field/workflow changes may already be committed"));
+    gaps.add(
+        DesignGap.of(
+            "CT_FIELD_LABELS_WRITE",
+            "Field display labels and control properties are not writable via this API"));
+    if (!controlsResolved) {
+      gaps.add(
+          DesignGap.of(
+              "CT_CONTROL_RESOLUTION",
+              "Display control/label resolution failed for this content type"));
+    }
+    return gaps;
   }
 
   @Override
@@ -608,6 +640,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       PSFieldSet fieldSet,
       String fieldSetName,
       Map<String, String> controlByField,
+      Map<String, List<String>> controlPropsByField,
       List<ContentTypeField> out) {
     if (fieldSet == null) {
       return;
@@ -643,6 +676,14 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
           field.getVisibilityRules() != null && !field.getVisibilityRules().isEmpty());
       f.setHasInputTranslation(hasTranslation(field.getInputTranslation()));
       f.setHasOutputTranslation(hasTranslation(field.getOutputTranslation()));
+      f.setValidationExpression(summarizeValidationRules(field.getValidationRules()));
+      f.setVisibilityExpression(summarizeVisibilityRules(field.getVisibilityRules()));
+      f.setInputTranslationExpression(summarizeTranslation(field.getInputTranslation()));
+      f.setOutputTranslationExpression(summarizeTranslation(field.getOutputTranslation()));
+      List<String> propNames = controlPropsByField.get(field.getSubmitName());
+      if (propNames != null && !propNames.isEmpty()) {
+        f.setControlPropertyNames(List.copyOf(propNames));
+      }
       out.add(f);
     }
   }
@@ -676,16 +717,147 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   /**
+   * Package-visible for unit tests. Summarizes validation rules as a human-readable expression
+   * string, or {@code null} when empty.
+   */
+  static String summarizeValidationRules(PSFieldValidationRules rules) {
+    if (rules == null) {
+      return null;
+    }
+    List<String> parts = new ArrayList<>();
+    for (Iterator<?> it = rules.getRules(); it.hasNext(); ) {
+      Object o = it.next();
+      if (o instanceof PSRule rule) {
+        String s = summarizeRule(rule);
+        if (StringUtils.isNotBlank(s)) {
+          parts.add(s);
+        }
+      }
+    }
+    for (Iterator<?> it = rules.getRuleReferences(); it.hasNext(); ) {
+      Object ref = it.next();
+      if (ref != null && StringUtils.isNotBlank(ref.toString())) {
+        parts.add("ref:" + ref.toString().trim());
+      }
+    }
+    if (parts.isEmpty()) {
+      return null;
+    }
+    return String.join("; ", parts);
+  }
+
+  /**
+   * Package-visible for unit tests. Summarizes visibility rules, or {@code null} when empty.
+   */
+  static String summarizeVisibilityRules(PSVisibilityRules rules) {
+    if (rules == null || rules.isEmpty()) {
+      return null;
+    }
+    List<String> parts = new ArrayList<>();
+    for (Object o : rules) {
+      if (o instanceof PSRule rule) {
+        String s = summarizeRule(rule);
+        if (StringUtils.isNotBlank(s)) {
+          parts.add(s);
+        }
+      }
+    }
+    if (parts.isEmpty()) {
+      return null;
+    }
+    return String.join("; ", parts);
+  }
+
+  /**
+   * Package-visible for unit tests. Summarizes translation extension calls, or {@code null} when
+   * empty.
+   */
+  static String summarizeTranslation(PSFieldTranslation translation) {
+    if (!hasTranslation(translation)) {
+      return null;
+    }
+    return summarizeExtensionCalls(translation.getTranslations());
+  }
+
+  /**
+   * Package-visible for unit tests. Summarizes a single design rule (conditionals or extension
+   * set).
+   */
+  static String summarizeRule(PSRule rule) {
+    if (rule == null) {
+      return null;
+    }
+    if (rule.isExtensionSetRule()) {
+      return summarizeExtensionCalls(rule.getExtensionRules());
+    }
+    List<String> conds = new ArrayList<>();
+    for (Iterator<?> it = rule.getConditionalRules(); it.hasNext(); ) {
+      Object o = it.next();
+      if (o instanceof PSConditional conditional) {
+        String text = conditional.toString();
+        if (StringUtils.isNotBlank(text)) {
+          conds.add(text.trim());
+        }
+      }
+    }
+    if (conds.isEmpty()) {
+      return null;
+    }
+    return String.join(" ", conds);
+  }
+
+  /** Package-visible for unit tests. Summarizes extension calls as {@code name(args)}. */
+  static String summarizeExtensionCalls(PSExtensionCallSet callSet) {
+    if (callSet == null || callSet.isEmpty()) {
+      return null;
+    }
+    List<String> calls = new ArrayList<>();
+    for (Object o : callSet) {
+      if (o instanceof PSExtensionCall call) {
+        String text = call.toString();
+        if (StringUtils.isNotBlank(text)) {
+          calls.add(text.trim());
+        }
+      }
+    }
+    if (calls.isEmpty()) {
+      return null;
+    }
+    return String.join("; ", calls);
+  }
+
+  /**
+   * Package-visible for unit tests. Collects control parameter names (not values) from a control
+   * ref.
+   */
+  static List<String> controlPropertyNames(PSControlRef control) {
+    if (control == null) {
+      return List.of();
+    }
+    List<String> names = new ArrayList<>();
+    for (Iterator<?> it = control.getParameters(); it.hasNext(); ) {
+      Object o = it.next();
+      if (o instanceof PSParam param && StringUtils.isNotBlank(param.getName())) {
+        names.add(param.getName());
+      }
+    }
+    return names;
+  }
+
+  /**
    * Walk parent display mapper for control names and labels keyed by field ref.
    *
    * @return {@code true} when the display mapper was walked successfully; {@code false} when
    *     resolution failed (caller should surface a design gap).
    */
-  private boolean mapControls(PSItemDefinition def, Map<String, String> map) {
+  private boolean mapControls(
+      PSItemDefinition def,
+      Map<String, String> map,
+      Map<String, List<String>> controlPropsByField) {
     try {
       PSContentEditorPipe pipe = (PSContentEditorPipe) def.getContentEditor().getPipe();
       PSDisplayMapper dmapper = pipe.getMapper().getUIDefinition().getDisplayMapper();
-      walkDisplayMapper(dmapper, map);
+      walkDisplayMapper(dmapper, map, controlPropsByField);
       return true;
     } catch (Exception e) {
       log.warn("Could not resolve display controls for {}: {}", def.getName(), e.getMessage(), e);
@@ -693,7 +865,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
   }
 
-  private void walkDisplayMapper(PSDisplayMapper dmapper, Map<String, String> map) {
+  private void walkDisplayMapper(
+      PSDisplayMapper dmapper,
+      Map<String, String> map,
+      Map<String, List<String>> controlPropsByField) {
     if (dmapper == null) {
       return;
     }
@@ -712,11 +887,15 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
           PSControlRef control = ui.getControl();
           if (control != null && StringUtils.isNotBlank(control.getName())) {
             map.put(fieldRef, control.getName());
+            List<String> propNames = controlPropertyNames(control);
+            if (!propNames.isEmpty()) {
+              controlPropsByField.put(fieldRef, propNames);
+            }
           }
         }
       }
       if (entry.getDisplayMapper() != null) {
-        walkDisplayMapper(entry.getDisplayMapper(), map);
+        walkDisplayMapper(entry.getDisplayMapper(), map, controlPropsByField);
       }
     }
   }

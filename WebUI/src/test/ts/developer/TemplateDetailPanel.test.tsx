@@ -81,6 +81,46 @@ describe("TemplateDetailPanel", () => {
     expect(onBack).toHaveBeenCalled();
   });
 
+  it("shows Show more for long binding expressions and toggles expand", async () => {
+    const longExpr =
+      "$sys.item.fields.title + $sys.item.fields.summary + $sys.variables.site + $sys.page";
+    getTemplateDetailMock.mockResolvedValue({
+      name: "perc.page",
+      label: "Page",
+      templateSource: multiLineSource,
+      bindings: [
+        { executionOrder: 1, variable: "$short", expression: "1" },
+        { executionOrder: 2, variable: "$long", expression: longExpr },
+      ],
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-binding-expr-1")).toBeTruthy();
+    });
+
+    // Short expression: no expand control
+    expect(screen.queryByTestId("developer-tpl-binding-expr-expand-0")).toBeNull();
+
+    // Long expression: Show more present, aria-expanded false
+    const expandBtn = screen.getByTestId("developer-tpl-binding-expr-expand-1");
+    expect(expandBtn.textContent).toMatch(/Show more/i);
+    expect(expandBtn.getAttribute("aria-expanded")).toBe("false");
+
+    const expr = screen.getByTestId("developer-tpl-binding-expr-1") as HTMLTextAreaElement;
+    expect(expr.value).toBe(longExpr);
+    expect(expr.style.maxWidth).toBe("320px");
+    expect(expr.style.overflow).toBe("hidden");
+
+    fireEvent.click(expandBtn);
+    expect(expandBtn.getAttribute("aria-expanded")).toBe("true");
+    expect(expandBtn.textContent).toMatch(/Show less/i);
+    expect(expr.style.overflow).toBe("auto");
+
+    fireEvent.click(expandBtn);
+    expect(expandBtn.getAttribute("aria-expanded")).toBe("false");
+    expect(expandBtn.textContent).toMatch(/Show more/i);
+  });
+
   it("shows empty bindings slots and source sections when detail has none", async () => {
     getTemplateDetailMock.mockResolvedValue({
       name: "perc.empty",

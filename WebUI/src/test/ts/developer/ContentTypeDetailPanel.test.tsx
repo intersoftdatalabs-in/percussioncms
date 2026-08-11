@@ -36,7 +36,7 @@ const sampleDetail = {
   fields: [],
   allowedWorkflows: [],
   allowedTemplates: [],
-  designGaps: [],
+  designGaps: [] as Array<string | { code?: string; message?: string }>,
 };
 
 describe("ContentTypeDetailPanel", () => {
@@ -59,7 +59,9 @@ describe("ContentTypeDetailPanel", () => {
     expect(screen.getByTestId("developer-ct-fields-table")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-wf-empty")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-tpl-empty")).toBeTruthy();
-    fireEvent.click(screen.getByTestId("developer-ct-back"));
+    const back = screen.getByTestId("developer-ct-back");
+    expect(back.getAttribute("aria-label")).toBe("Back to list");
+    fireEvent.click(back);
     expect(onBack).toHaveBeenCalled();
   });
 
@@ -125,5 +127,25 @@ describe("ContentTypeDetailPanel", () => {
     expect(screen.getByTestId("developer-ct-detail-error").textContent).toBe(
       DEV_MSG.CT_DETAIL_ERROR,
     );
+  });
+
+  it("renders structured designGaps message with data-gap-code (REST-GAPS-01)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      designGaps: [
+        { code: "CT_ITEM_EXITS", message: "Item-level pre/post exits not exposed" },
+        "legacy free-text gap",
+      ],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-gaps")).toBeTruthy();
+    });
+    const gaps = screen.getByTestId("developer-ct-gaps");
+    expect(gaps.textContent).toContain("Item-level pre/post exits not exposed");
+    expect(gaps.textContent).toContain("legacy free-text gap");
+    const coded = gaps.querySelector('[data-gap-code="CT_ITEM_EXITS"]');
+    expect(coded).toBeTruthy();
+    expect(coded?.textContent).toBe("Item-level pre/post exits not exposed");
   });
 });

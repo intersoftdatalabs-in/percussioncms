@@ -27,7 +27,8 @@ public class ControlAdaptor implements IControlAdaptor {
 
   private static final Logger log = LogManager.getLogger(ControlAdaptor.class);
 
-  private static final List<String> DESIGN_GAPS =
+  /** Catalog-level capability notes (same for every control). Exposed on detail only. */
+  static final List<String> DESIGN_GAPS =
       List.of(
           "User control create / edit / delete not supported via this API",
           "Control XSL source editing not supported via this API",
@@ -37,19 +38,8 @@ public class ControlAdaptor implements IControlAdaptor {
 
   @Override
   public List<ControlDef> listControls() {
-    Map<String, ControlDef> byName = new LinkedHashMap<>();
-    for (ControlDef c : loadScope("system")) {
-      if (c.getName() != null) {
-        byName.putIfAbsent(c.getName().toLowerCase(), c);
-      }
-    }
-    for (ControlDef c : loadScope("user")) {
-      if (c.getName() != null) {
-        // User overrides system when same name appears in both catalogs.
-        byName.put(c.getName().toLowerCase(), c);
-      }
-    }
-    return new ArrayList<>(byName.values());
+    // REST-GAPS-02: omit identical designGaps on every list row; detail re-attaches them.
+    return loadCatalog(false);
   }
 
   @Override
@@ -58,7 +48,7 @@ public class ControlAdaptor implements IControlAdaptor {
       return null;
     }
     String key = name.trim();
-    for (ControlDef c : listControls()) {
+    for (ControlDef c : loadCatalog(true)) {
       if (c != null && key.equalsIgnoreCase(c.getName())) {
         return c;
       }
@@ -66,7 +56,23 @@ public class ControlAdaptor implements IControlAdaptor {
     return null;
   }
 
-  private List<ControlDef> loadScope(String scope) {
+  private List<ControlDef> loadCatalog(boolean includeDesignGaps) {
+    Map<String, ControlDef> byName = new LinkedHashMap<>();
+    for (ControlDef c : loadScope("system", includeDesignGaps)) {
+      if (c.getName() != null) {
+        byName.putIfAbsent(c.getName().toLowerCase(), c);
+      }
+    }
+    for (ControlDef c : loadScope("user", includeDesignGaps)) {
+      if (c.getName() != null) {
+        // User overrides system when same name appears in both catalogs.
+        byName.put(c.getName().toLowerCase(), c);
+      }
+    }
+    return new ArrayList<>(byName.values());
+  }
+
+  private List<ControlDef> loadScope(String scope, boolean includeDesignGaps) {
     List<ControlDef> out = new ArrayList<>();
     try {
       List<PSControlMeta> metas;
@@ -80,7 +86,7 @@ public class ControlAdaptor implements IControlAdaptor {
       }
       for (PSControlMeta meta : metas) {
         if (meta != null) {
-          out.add(copyMeta(meta, scope));
+          out.add(copyMeta(meta, scope, includeDesignGaps));
         }
       }
     } catch (IllegalStateException e) {
@@ -93,7 +99,7 @@ public class ControlAdaptor implements IControlAdaptor {
     return out;
   }
 
-  private ControlDef copyMeta(PSControlMeta meta, String scope) {
+  private ControlDef copyMeta(PSControlMeta meta, String scope, boolean includeDesignGaps) {
     ControlDef d = new ControlDef();
     d.setName(meta.getName());
     d.setDisplayName(meta.getDisplayName());
@@ -104,7 +110,8 @@ public class ControlAdaptor implements IControlAdaptor {
     d.setDeprecated(meta.isDeprecated());
     d.setDeprecatedReplacement(meta.getDeprecatedReplacementName());
     d.setParameters(copyParams(meta.getParams()));
-    d.setDesignGaps(new ArrayList<>(DESIGN_GAPS));
+    // null + NON_NULL omits designGaps on list rows; detail attaches the shared catalog list.
+    d.setDesignGaps(includeDesignGaps ? new ArrayList<>(DESIGN_GAPS) : null);
     return d;
   }
 

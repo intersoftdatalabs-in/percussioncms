@@ -22,69 +22,52 @@ package com.percussion.rest.sites;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+/**
+ * Spring test stub for {@link ISiteAdaptor} so rest {@code MainTest} / shared contexts can inject a
+ * bean. Production wiring is {@code SitesAdaptor} in sitemanage.
+ */
 @Component
 @Lazy
 public class SitesTestAdaptor implements ISiteAdaptor {
 
-  /**
-   * Find all sites.
-   *
-   * @return SiteList
-   */
   @Override
   public SiteList findAllSites() {
-    return null;
+    return new SiteList();
   }
 
-  /**
-   * Save a site.
-   *
-   * @param site the site to save
-   */
   @Override
   public void saveSite(Site site) {
     // No-op for test adaptor
   }
 
-  /**
-   * Find site by name.
-   *
-   * @param name the site name
-   * @return the site, or null if not found
-   */
   @Override
   public Site findByName(String name) {
     return null;
   }
 
-  /**
-   * Find site by GUID.
-   *
-   * @param guid the site GUID
-   * @return the site, or null if not found
-   */
   @Override
   public Site findByGuid(String guid) {
     return null;
   }
 
-  /**
-   * Delete the site.
-   *
-   * @param site the site to delete
-   */
   @Override
   public void deleteSite(Site site) {
     // No-op for test adaptor
   }
 
-  /**
-   * Create a new site.
-   *
-   * @return the new site
-   */
   @Override
   public Site createSite() {
     return null;
+  }
+
+  @Override
+  public VirtualSiteProperties getVirtualSiteProperties(String nameOrId) {
+    return new VirtualSiteProperties();
+  }
+
+  @Override
+  public VirtualSiteProperties updateVirtualSiteProperties(
+      String nameOrId, VirtualSiteProperties props) {
+    return props != null ? props : new VirtualSiteProperties();
   }
 }

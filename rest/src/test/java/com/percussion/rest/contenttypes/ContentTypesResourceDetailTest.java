@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import com.percussion.rest.JacksonContextResolver;
 import jakarta.ws.rs.WebApplicationException;
@@ -94,6 +95,47 @@ public class ContentTypesResourceDetailTest {
     d.setName("percPage");
     when(adaptor.getContentType(any(), eq("percPage"))).thenReturn(d);
     assertEquals("percPage", resource.getContentType("percPage").getName());
+  }
+
+  @Test
+  public void getContentTypeReturnsStructuredDesignGaps() {
+    ContentTypeDetail d = new ContentTypeDetail();
+    d.setName("percPage");
+    d.setDesignGaps(List.of(DesignGap.of("CT_ITEM_EXITS", "Item-level pre/post exits not exposed")));
+    when(adaptor.getContentType(any(), eq("percPage"))).thenReturn(d);
+
+    ContentTypeDetail out = resource.getContentType("percPage");
+    assertNotNull(out.getDesignGaps());
+    assertEquals(1, out.getDesignGaps().size());
+    assertEquals("CT_ITEM_EXITS", out.getDesignGaps().get(0).getCode());
+    assertEquals("Item-level pre/post exits not exposed", out.getDesignGaps().get(0).getMessage());
+  }
+
+  @Test
+  public void fieldRuleExpressionsSerializeWhenPresentAndOmitWhenEmpty() throws Exception {
+    ContentTypeField withRules = new ContentTypeField();
+    withRules.setName("sys_title");
+    withRules.setHasValidation(true);
+    withRules.setValidationExpression("sys_title <>  AND");
+    withRules.setControlPropertyNames(List.of("height", "width"));
+
+    ContentTypeField emptyRules = new ContentTypeField();
+    emptyRules.setName("page_title");
+    emptyRules.setHasValidation(false);
+
+    ContentTypeDetail d = new ContentTypeDetail();
+    d.setName("percPage");
+    d.setFields(List.of(withRules, emptyRules));
+
+    ObjectMapper mapper = new JacksonContextResolver().getContext(ContentTypeDetail.class);
+    String json = mapper.writeValueAsString(d);
+
+    assertTrue(json.contains("\"validationExpression\""), json);
+    assertTrue(json.contains("sys_title <>"), json);
+    assertTrue(json.contains("\"controlPropertyNames\""), json);
+    assertTrue(json.contains("height"), json);
+    // empty expression fields must not force empty-string noise for the second field
+    assertTrue(json.contains("page_title"), json);
   }
 
   private static ContentType sampleContentType() {

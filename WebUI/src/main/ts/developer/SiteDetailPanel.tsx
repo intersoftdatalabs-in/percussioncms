@@ -7,6 +7,7 @@ import type { SiteDef } from "../api/developer/types";
 import { catalogColors, backButton, metaGrid, monoCell } from "./catalogStyles";
 import { DEV_MSG } from "./messages";
 import { ObjectAclSection } from "./ObjectAclSection";
+import { VirtualSiteSourcePanel } from "./VirtualSiteSourcePanel";
 
 export function SiteDetailPanel({
   site,
@@ -16,6 +17,7 @@ export function SiteDetailPanel({
   onBack: () => void;
 }): React.ReactElement {
   const name = typeof site.name === "string" ? site.name : "—";
+  const siteKey = typeof site.name === "string" ? site.name.trim() : "";
   const gaps =
     site.designGaps && site.designGaps.length
       ? site.designGaps
@@ -23,7 +25,13 @@ export function SiteDetailPanel({
 
   return (
     <div data-testid="developer-site-detail">
-      <button type="button" onClick={onBack} data-testid="developer-site-back" style={backButton}>
+      <button
+        type="button"
+        onClick={onBack}
+        data-testid="developer-site-back"
+        aria-label={DEV_MSG.SITE_BACK}
+        style={backButton}
+      >
         ← {DEV_MSG.SITE_BACK}
       </button>
 
@@ -50,6 +58,8 @@ export function SiteDetailPanel({
           </dd>
         </dl>
       </header>
+
+      {siteKey ? <VirtualSiteSourcePanel siteName={siteKey} /> : null}
 
       <ObjectAclSection
         objectGuid={site.guid?.stringValue}

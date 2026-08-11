@@ -361,6 +361,18 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
     });
     if (!opened) return;
 
+    // Issue #2951: detail header must render a real GUID (not em-dash) so
+    // ObjectAclSection receives objectGuid — catalog fallback + wire normalize.
+    const guidCell = page.locator('[data-testid="developer-df-detail-guid"]');
+    await expect(guidCell).toBeVisible({ timeout: 15_000 });
+    const guidText = (await guidCell.innerText()).trim();
+    expect(
+      guidText && guidText !== "—" && guidText !== "-",
+      `display-format detail GUID must be synthesized/normalized (got "${guidText}")`,
+    ).toBeTruthy();
+    // host-type-uuid wire form or other non-empty string from REST
+    expect(guidText.length).toBeGreaterThan(2);
+
     const mode = await assertLayeredObjectAcl(
       page,
       "developer-df-acl",

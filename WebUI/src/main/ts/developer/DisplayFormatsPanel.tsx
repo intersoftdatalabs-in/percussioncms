@@ -16,7 +16,11 @@
  */
 
 import React, { useEffect, useMemo, useState } from "react";
-import { listDisplayFormats, normalizeColumns } from "../api/developer/displayFormatsApi";
+import {
+  listDisplayFormats,
+  normalizeColumns,
+  objectGuidString,
+} from "../api/developer/displayFormatsApi";
 import type { DisplayFormat } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
@@ -24,13 +28,19 @@ import { panelErrMsg } from "./errors";
 import { DisplayFormatDetailPanel } from "./DisplayFormatDetailPanel";
 import { DEV_MSG } from "./messages";
 
+type SelectedFormat = {
+  idOrName: string;
+  /** List-row GUID fallback when detail payload omits stringValue (#2951). */
+  catalogGuid?: string;
+};
+
 /**
  * P0.11 — display format catalog + read-only detail (UI-05 read).
  */
 export function DisplayFormatsPanel(): React.ReactElement {
   const [items, setItems] = useState<DisplayFormat[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<SelectedFormat | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,9 +69,22 @@ export function DisplayFormatsPanel(): React.ReactElement {
     );
   }, [items]);
 
+  const openFormat = (f: DisplayFormat) => {
+    const idOrName = f.name || f.internalName || objectGuidString(f.guid) || "";
+    if (!idOrName) return;
+    setSelected({
+      idOrName,
+      catalogGuid: objectGuidString(f.guid),
+    });
+  };
+
   if (selected) {
     return (
-      <DisplayFormatDetailPanel idOrName={selected} onBack={() => setSelected(null)} />
+      <DisplayFormatDetailPanel
+        idOrName={selected.idOrName}
+        catalogGuid={selected.catalogGuid}
+        onBack={() => setSelected(null)}
+      />
     );
   }
 
@@ -92,7 +115,8 @@ export function DisplayFormatsPanel(): React.ReactElement {
           DEV_MSG.DF_COL_DESCRIPTION,
         ]}
         rows={sorted.map((f, index) => {
-          const openKey = f.name || f.internalName || f.guid?.stringValue || "";
+          const openKey =
+            f.name || f.internalName || objectGuidString(f.guid) || "";
           const interactive = openKey.length > 0;
           const colCount = normalizeColumns(f.columns).length;
           const usage: string[] = [];
@@ -100,8 +124,8 @@ export function DisplayFormatsPanel(): React.ReactElement {
           if (f.validForViewsAndSearches) usage.push(DEV_MSG.DF_USAGE_VIEWS);
           if (f.validForRelatedContent) usage.push(DEV_MSG.DF_USAGE_RELATED);
           return {
-            key: f.guid?.stringValue || f.name || `df-${index}`,
-            onClick: interactive ? () => setSelected(openKey) : undefined,
+            key: objectGuidString(f.guid) || f.name || `df-${index}`,
+            onClick: interactive ? () => openFormat(f) : undefined,
             cells: [
               interactive ? (
                 <button
@@ -111,7 +135,7 @@ export function DisplayFormatsPanel(): React.ReactElement {
                   aria-label={`Open ${f.name || openKey}`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSelected(openKey);
+                    openFormat(f);
                   }}
                   style={{ ...openButtonStyle, fontFamily: "monospace" }}
                 >

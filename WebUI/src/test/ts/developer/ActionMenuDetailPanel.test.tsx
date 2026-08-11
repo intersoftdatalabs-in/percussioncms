@@ -69,7 +69,9 @@ describe("ActionMenuDetailPanel", () => {
     expect(acl.getAttribute("data-object-guid")).toBe("0-11-42");
     expect(screen.getByTestId("developer-am-gaps")).toBeTruthy();
     expect(getActionMenuDetail).toHaveBeenCalledWith("Edit");
-    fireEvent.click(screen.getByTestId("developer-am-back"));
+    const back = screen.getByTestId("developer-am-back");
+    expect(back.getAttribute("aria-label")).toBe("Back to list");
+    fireEvent.click(back);
     expect(onBack).toHaveBeenCalled();
   });
 

@@ -22,18 +22,32 @@
  * {@code GET /Rhythmyx/rest/displayformats}. Optional query filters
  * {@code validForFolder} and {@code validForViewsAndSearches} are applied
  * server-side.</p>
+ *
+ * <p>GUID unwrap / synthesis is shared with the Developer API via
+ * {@link ../displayFormatGuid} (#2689 / #2951).</p>
  */
 
 import { get } from "../client";
+import {
+  normalizeDisplayFormatGuid,
+  objectGuidString,
+  unwrapDisplayFormat,
+} from "../displayFormatGuid";
 import { PATHS } from "../paths";
 import type { DisplayFormat, DisplayFormatColumn } from "../developer/types";
 
 export type { DisplayFormat, DisplayFormatColumn };
 
-function asArray<T>(payload: unknown): T[] {
+// Re-export shared GUID helpers so Content Explorer callers (and tests) share
+// one implementation with the Developer API.
+export { normalizeDisplayFormatGuid, objectGuidString, unwrapDisplayFormat };
+
+function asArray(payload: unknown): DisplayFormat[] {
   if (payload == null) return [];
-  if (Array.isArray(payload)) return payload as T[];
-  if (typeof payload === "object") {
+  let rawList: unknown[] = [];
+  if (Array.isArray(payload)) {
+    rawList = payload;
+  } else if (typeof payload === "object") {
     const obj = payload as Record<string, unknown>;
     const raw =
       obj.DisplayFormat ??
@@ -41,9 +55,11 @@ function asArray<T>(payload: unknown): T[] {
       obj.DisplayFormatList ??
       obj.displayFormatList;
     if (raw == null) return [];
-    return Array.isArray(raw) ? (raw as T[]) : [raw as T];
+    rawList = Array.isArray(raw) ? raw : [raw];
+  } else {
+    return [];
   }
-  return [];
+  return rawList.map((item) => unwrapDisplayFormat(item));
 }
 
 export function normalizeDisplayFormatColumns(
@@ -76,33 +92,7 @@ export async function listDisplayFormats(
   const payload = await get<unknown>(
     `${PATHS.DISPLAY_FORMATS}${qs ? `?${qs}` : ""}`,
   );
-  return asArray<DisplayFormat>(payload);
-}
-
-/**
- * Unwrap Jackson root wrap for a single display format
- * ({@code {"DisplayFormat":{…}}}) so {@code guid.stringValue} is reachable
- * (issue #2689). Flat payloads pass through.
- */
-export function unwrapDisplayFormat(payload: unknown): DisplayFormat {
-  if (payload == null) {
-    return {};
-  }
-  if (typeof payload !== "object" || Array.isArray(payload)) {
-    return {};
-  }
-  const root = payload as Record<string, unknown>;
-  const nested = root.DisplayFormat ?? root.displayFormat;
-  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
-    return nested as DisplayFormat;
-  }
-  if (Array.isArray(nested) && nested.length > 0) {
-    const first = nested[0];
-    if (first != null && typeof first === "object") {
-      return first as DisplayFormat;
-    }
-  }
-  return root as DisplayFormat;
+  return asArray(payload);
 }
 
 /** GET /services/displayformats/{idOrName} */

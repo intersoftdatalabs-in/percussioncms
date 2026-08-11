@@ -18,6 +18,7 @@
 package com.percussion.rest.slots;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -70,8 +71,19 @@ public class SlotDetail {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private List<SlotAssociationSummary> associations;
 
+  /**
+   * Structured design capability gaps (REST-GAPS-01).
+   *
+   * <p><strong>BREAKING wire change:</strong> previously {@code string[]}; now {@link DesignGap}
+   * objects {@code {code,message}}. See product-docs {@code developer/rest.md}.
+   */
+  @Schema(
+      description =
+          "BREAKING (REST-GAPS-01): designGaps is DesignGap[] objects {code,message}, not"
+              + " free-text string[]. Structured capability notes vs full Workbench slot design."
+              + " See product-docs developer/rest.md.")
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  private List<String> designGaps;
+  private List<DesignGap> designGaps;
 
   public SlotDetail() {}
 
@@ -171,11 +183,11 @@ public class SlotDetail {
     this.associations = associations;
   }
 
-  public List<String> getDesignGaps() {
+  public List<DesignGap> getDesignGaps() {
     return designGaps;
   }
 
-  public void setDesignGaps(List<String> designGaps) {
+  public void setDesignGaps(List<DesignGap> designGaps) {
     this.designGaps = designGaps;
   }
 }

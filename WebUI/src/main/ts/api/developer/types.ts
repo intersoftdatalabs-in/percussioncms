@@ -15,6 +15,11 @@
  * limitations under the License.
  */
 
+import type { DesignGap, DesignGapWire } from "./designGaps";
+
+export type { DesignGap, DesignGapWire } from "./designGaps";
+export { designGapCode, designGapKey, formatDesignGap } from "./designGaps";
+
 /** Guid DTO from public REST (subset used by Developer module). */
 export interface RestGuid {
   stringValue?: string;
@@ -84,7 +89,8 @@ export interface ContentTypeDetail {
   allowedWorkflows?: NamedObjectRef[];
   defaultWorkflow?: NamedObjectRef | null;
   allowedTemplates?: NamedObjectRef[];
-  designGaps?: string[];
+  /** Structured {code,message} on CT detail (REST-GAPS-01); wire may still be legacy string. */
+  designGaps?: DesignGapWire[];
 }
 
 export interface KeywordChoiceSummary {
@@ -145,7 +151,8 @@ export interface TemplateDetail {
   templateSource?: string;
   bindings?: TemplateBindingSummary[];
   slots?: TemplateSlotSummary[];
-  designGaps?: string[];
+  /** Structured {code,message} on template detail (REST-GAPS-01). */
+  designGaps?: DesignGapWire[];
 }
 
 export interface SlotSummary {
@@ -175,7 +182,8 @@ export interface SlotDetail {
   /** ADR-003 presentational slot_styles map (schemaVersion + style tokens). */
   slotStyles?: Record<string, unknown>;
   associations?: SlotAssociationSummary[];
-  designGaps?: string[];
+  /** Structured {code,message} on slot detail (REST-GAPS-01). */
+  designGaps?: DesignGapWire[];
 }
 
 export interface CommunitySummary {
@@ -658,5 +666,23 @@ export interface SiteDef {
   canonical?: boolean;
   guid?: RestGuid;
   designGaps?: string[];
+  /** Nested virtual.* when loaded via site detail GET (optional on list). */
+  virtual?: VirtualSiteProperties;
+}
+
+/**
+ * Wire DTO for Virtual Site source properties
+ * ({@code GET|PUT /services/sites/{nameOrId}/virtual}).
+ *
+ * <p>Blank / missing {@code sourceKind} (or value {@code repository}) means a
+ * traditional repository Site. Phase 1 virtual adapter: {@code git-filesystem}.
+ */
+export interface VirtualSiteProperties {
+  sourceKind?: string | null;
+  rootPath?: string | null;
+  configFile?: string | null;
+  siteKey?: string | null;
+  /** Read-only on responses; ignored on write. */
+  virtual?: boolean | null;
 }
 
