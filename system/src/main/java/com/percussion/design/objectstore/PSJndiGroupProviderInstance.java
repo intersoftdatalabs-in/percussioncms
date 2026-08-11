@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
@@ -155,7 +157,7 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
     if (root == null) {
       String parentName = source.getNodeName();
       Object[] args = {parentName, XML_NODE_NAME, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     // load object classes
@@ -163,7 +165,7 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
     Element objectClasses = tree.getNextElement(OBJECT_CLASSES_ELEMENT, firstFlags);
     if (objectClasses == null) {
       Object[] args = {XML_NODE_NAME, OBJECT_CLASSES_ELEMENT, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     Element objectClass = tree.getNextElement(OBJECT_CLASS_ELEMENT, firstFlags);
@@ -171,13 +173,13 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
       String name = objectClass.getAttribute(NAME_ATTR);
       if (name == null || name.trim().length() == 0) {
         Object[] args = {OBJECT_CLASS_ELEMENT, NAME_ATTR, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       String memberAttr = objectClass.getAttribute(MEMBER_ATTR);
       if (memberAttr == null || memberAttr.trim().length() == 0) {
         Object[] args = {OBJECT_CLASS_ELEMENT, MEMBER_ATTR, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       int type = -1;
@@ -192,7 +194,7 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
 
         if (type == -1) {
           Object[] args = {OBJECT_CLASS_ELEMENT, MEMBER_ATTR, attrType};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       }
 
@@ -206,7 +208,7 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
     Element groupNodes = tree.getNextElement(GROUP_NODES_ELEMENT, nextFlags);
     if (groupNodes == null) {
       Object[] args = {XML_NODE_NAME, GROUP_NODES_ELEMENT, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     Element groupNode = tree.getNextElement(GROUP_NODE_ELEMENT, firstFlags);
@@ -214,7 +216,7 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
       String node = tree.getElementData(groupNode);
       if (node.trim().length() == 0) {
         Object[] args = {GROUP_NODES_ELEMENT, GROUP_NODE_ELEMENT, node};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       m_groupNodes.add(node);

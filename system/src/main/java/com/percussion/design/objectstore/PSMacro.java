@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -119,7 +121,7 @@ public class PSMacro extends PSNamedReplacementValue {
 
   // see base class for description
   protected int getErrorCode() {
-    return IPSObjectStoreErrors.MACRO_NAME_EMPTY;
+    return ObjectStoreErrorCodes.MACRO_NAME_EMPTY.numericCode();
   }
 
   /** The value type associated with this instances of this class. */

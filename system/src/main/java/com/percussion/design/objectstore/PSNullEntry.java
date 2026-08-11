@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
 import org.w3c.dom.Document;
@@ -146,11 +148,11 @@ public final class PSNullEntry extends PSEntry {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -179,7 +181,7 @@ public final class PSNullEntry extends PSEntry {
         }
         if (!found) {
           Object[] args = {XML_NODE_NAME, SORT_ORDER_ATTR, data};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       }
 
@@ -196,7 +198,7 @@ public final class PSNullEntry extends PSEntry {
         }
         if (!found) {
           Object[] args = {XML_NODE_NAME, INCLUDE_WHEN_ATTR, data};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       }
 
@@ -230,12 +232,12 @@ public final class PSNullEntry extends PSEntry {
         && m_sortOrder != SORT_ORDER_LAST
         && m_sortOrder != SORT_ORDER_SORTED) {
       Object[] args = {SORT_ORDER_ENUM};
-      context.validationError(this, IPSObjectStoreErrors.UNSUPPORTED_SORT_ORDER, args);
+      context.validationError(this, ObjectStoreErrorCodes.UNSUPPORTED_SORT_ORDER, args);
     }
 
     if (m_includeWhen != INCLUDE_WHEN_ALWAYS && m_includeWhen != INCLUDE_WHEN_ONLY_IF_NULL) {
       Object[] args = {INCLUDE_WHEN_ENUM};
-      context.validationError(this, IPSObjectStoreErrors.UNSUPPORTED_INCLUDE_WHEN, args);
+      context.validationError(this, ObjectStoreErrorCodes.UNSUPPORTED_INCLUDE_WHEN, args);
     }
 
     super.validate(context);

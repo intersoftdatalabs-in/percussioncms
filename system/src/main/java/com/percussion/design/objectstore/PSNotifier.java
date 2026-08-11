@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.error.PSException;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.util.PSCollection;
@@ -108,8 +110,7 @@ public class PSNotifier extends PSComponent {
   private static PSIllegalArgumentException validateProviderType(int provider) {
     if (provider != MP_TYPE_SMTP) {
       Object[] args = {Integer.valueOf(provider)};
-      return new PSIllegalArgumentException(
-          IPSObjectStoreErrors.NOTIFIER_PROVIDER_TYPE_INVALID, args);
+      return new PSIllegalArgumentException(ObjectStoreErrorCodes.NOTIFIER_PROVIDER_TYPE_INVALID.numericCode(), args);
     }
 
     return null;
@@ -140,10 +141,10 @@ public class PSNotifier extends PSComponent {
 
   private static PSIllegalArgumentException validateServer(String name) {
     if ((null == name) || (name.length() == 0))
-      return new PSIllegalArgumentException(IPSObjectStoreErrors.NOTIFIER_SERVER_NULL);
+      return new PSIllegalArgumentException(ObjectStoreErrorCodes.NOTIFIER_SERVER_NULL.numericCode());
     else if (name.length() > SERVER_NAME_MAX_LEN) {
       Object[] args = {Integer.valueOf(SERVER_NAME_MAX_LEN), Integer.valueOf(name.length())};
-      return new PSIllegalArgumentException(IPSObjectStoreErrors.NOTIFIER_SERVER_TOO_BIG, args);
+      return new PSIllegalArgumentException(ObjectStoreErrorCodes.NOTIFIER_SERVER_TOO_BIG.numericCode(), args);
     }
 
     return null;
@@ -178,7 +179,7 @@ public class PSNotifier extends PSComponent {
   private static PSIllegalArgumentException validateFrom(String from) {
     if (from.length() > FROM_NAME_MAX_LEN) {
       Object[] args = {Integer.valueOf(FROM_NAME_MAX_LEN), Integer.valueOf(from.length())};
-      return new PSIllegalArgumentException(IPSObjectStoreErrors.NOTIFIER_FROM_TOO_BIG, args);
+      return new PSIllegalArgumentException(ObjectStoreErrorCodes.NOTIFIER_FROM_TOO_BIG.numericCode(), args);
     }
 
     return null;
@@ -219,7 +220,7 @@ public class PSNotifier extends PSComponent {
       if (!com.percussion.design.objectstore.PSRecipient.class.isAssignableFrom(
           recipients.getMemberClassType())) {
         Object[] args = {"Recipient", "PSRecipient", recipients.getMemberClassName()};
-        return new PSIllegalArgumentException(IPSObjectStoreErrors.COLL_BAD_CONTENT_TYPE, args);
+        return new PSIllegalArgumentException(ObjectStoreErrorCodes.COLL_BAD_CONTENT_TYPE.numericCode(), args);
       }
     }
     return null;
@@ -330,11 +331,11 @@ public class PSNotifier extends PSComponent {
 
     try {
       if (sourceNode == null)
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
       if (false == ms_NodeType.equals(sourceNode.getNodeName())) {
         Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -344,18 +345,18 @@ public class PSNotifier extends PSComponent {
         m_id = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       // better be our only supported provider type
       sTemp = tree.getElementData("providerType");
       if (sTemp == null) {
         Object[] args = {ms_NodeType, "providerType", ""};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       } else if (sTemp.equalsIgnoreCase(XML_FLAG_SMTP)) m_providerType = MP_TYPE_SMTP;
       else {
         Object[] args = {ms_NodeType, "providerType", sTemp};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       try { // which server should we send mail through?
@@ -421,7 +422,7 @@ public class PSNotifier extends PSComponent {
 
     try {
       if (m_recipients == null)
-        cxt.validationWarning(this, IPSObjectStoreErrors.NOTIFIER_RECIPIENTS_EMPTY, null);
+        cxt.validationWarning(this, ObjectStoreErrorCodes.NOTIFIER_RECIPIENTS_EMPTY.numericCode(), null);
       else {
         for (int i = 0; i < m_recipients.size(); i++) {
           Object o = m_recipients.get(i);

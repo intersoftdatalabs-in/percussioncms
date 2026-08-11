@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -115,11 +117,11 @@ public class PSProcessCheck extends PSComponent {
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -139,27 +141,27 @@ public class PSProcessCheck extends PSComponent {
       m_name = tree.getElementData(NAME_ATTR);
       if (m_name == null || m_name.trim().length() == 0) {
         Object[] args = {XML_NODE_NAME, NAME_ATTR, (m_name == null) ? "null" : "empty"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       // REQUIRED: context attribute
       m_context = tree.getElementData(CONTEXT_ATTR);
       if (m_context == null || m_context.trim().length() == 0) {
         Object[] args = {XML_NODE_NAME, CONTEXT_ATTR, (m_context == null) ? "null" : "empty"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       // REQUIRED: sequence attribute
       data = tree.getElementData(SEQUENCE_ATTR);
       if (data == null) {
         Object[] args = {XML_NODE_NAME, SEQUENCE_ATTR, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
       try {
         m_sequence = Integer.parseInt(data);
       } catch (NumberFormatException e) {
         Object[] args = {XML_NODE_NAME, SEQUENCE_ATTR, data};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       Node current = tree.getCurrent();

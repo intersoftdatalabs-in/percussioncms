@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -235,31 +237,31 @@ public class PSJavaPlugin implements IPSJavaPlugin {
 
     if (m_osKey.trim().length() < 1) {
       Object[] args = {XML_NODE_NAME, ATTR_OSKEY, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     m_browserKey = sourceNode.getAttribute(ATTR_BROWSERKEY);
     if (m_browserKey.trim().length() < 1) {
       Object[] args = {XML_NODE_NAME, ATTR_BROWSERKEY, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     m_versionToUse = sourceNode.getAttribute(ATTR_VERSIONTOUSE);
     if (m_versionToUse.trim().length() < 1) {
       Object[] args = {XML_NODE_NAME, ATTR_VERSIONTOUSE, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     m_versioningType = sourceNode.getAttribute(ATTR_VERSIONINGTYPE);
     if (m_versioningType.trim().length() < 1) {
       Object[] args = {XML_NODE_NAME, ATTR_VERSIONINGTYPE, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     m_downloadLocation = sourceNode.getAttribute(ATTR_DOWNLOADLOCATION);
     if (m_downloadLocation.trim().length() < 1) {
       Object[] args = {XML_NODE_NAME, ATTR_DOWNLOADLOCATION, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
   }
 

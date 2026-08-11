@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
 import org.w3c.dom.Document;
@@ -203,11 +205,11 @@ public class PSParam extends PSComponent implements IPSParameter {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -227,19 +229,19 @@ public class PSParam extends PSComponent implements IPSParameter {
       m_name = tree.getElementData(NAME_ATTR);
       if (m_name == null || m_name.trim().length() == 0) {
         Object[] args = {XML_NODE_NAME, NAME_ATTR, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       // REQUIRED: get the parameter value
       node = tree.getNextElement(DATA_LOCATOR_ELEM, firstFlags);
       if (node == null) {
         Object[] args = {XML_NODE_NAME, DATA_LOCATOR_ELEM, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       node = tree.getNextElement(true);
       if (node == null) {
         Object[] args = {XML_NODE_NAME, DATA_LOCATOR_ELEM, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       m_value =
           PSReplacementValueFactory.getReplacementValueFromXml(
@@ -269,14 +271,14 @@ public class PSParam extends PSComponent implements IPSParameter {
     if (!context.startValidation(this, null)) return;
 
     if (m_name == null || m_name.trim().length() == 0)
-      context.validationError(this, IPSObjectStoreErrors.INVALID_PARAM, null);
+      context.validationError(this, ObjectStoreErrorCodes.INVALID_PARAM, null);
 
     // do children
     context.pushParent(this);
     try {
       if (m_value != null) {
         if (m_value instanceof IPSComponent) ((IPSComponent) m_value).validate(context);
-      } else context.validationError(this, IPSObjectStoreErrors.INVALID_PARAM, null);
+      } else context.validationError(this, ObjectStoreErrorCodes.INVALID_PARAM, null);
     } finally {
       context.popParent();
     }

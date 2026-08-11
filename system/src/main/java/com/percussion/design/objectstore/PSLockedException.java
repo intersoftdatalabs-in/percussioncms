@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.error.PSException;
 
 /**
@@ -79,41 +81,40 @@ public class PSLockedException extends PSException {
   }
 
   public void constructArguments() {
-    switch (m_code) {
-      case IPSObjectStoreErrors.LOCK_ALREADY_HELD:
-        /**
-         * The object was already exclusively locked by someone else.
-         *
-         * <p>The arguments passed in for this message are:
-         *
-         * <TABLE BORDER="1">
-         * <TR><TH>Arg</TH><TH>Description</TH></TR>
-         * <TR><TD>0</TD><TD>The name of the locked object</TD></TR>
-         * <TR><TD>1</TD><TD>The name of the user currently holding the lock</TD></TR>
-         * <TR><TD>2</TD><TD>How many minutes from now the lock will expire if the
-         * user does not renew it</TD></TR>
-         * </TABLE>
-         */
-        m_args = new Object[] {m_objectName, m_user, "" + m_minutes};
-        break;
-      case IPSObjectStoreErrors.LOCK_ALREADY_HELD_SAME_USER:
-      default:
-        /**
-         * The object was already exclusively locked by the user requesting the lock, but under a
-         * different user session.
-         *
-         * <p>The arguments passed in for this message are:
-         *
-         * <TABLE BORDER="1">
-         * <TR><TH>Arg</TH><TH>Description</TH></TR>
-         * <TR><TD>0</TD><TD>The name of the locked object</TD></TR>
-         * <TR><TD>1</TD><TD>The name of the user currently holding the lock</TD></TR>
-         * <TR><TD>2</TD><TD>How many minutes from now the lock will expire if the
-         * user does not renew it</TD></TR>
-         * <TR><TD>3</TD><TD>The session id of the session holding the lock</TD></TR>
-         * </TABLE>
-         */
-        m_args = new Object[] {m_objectName, m_user, "" + m_minutes, m_sessionId};
+    // numericCode() is not a switch-case constant expression; compare via if/else.
+    if (m_code == ObjectStoreErrorCodes.LOCK_ALREADY_HELD.numericCode()) {
+      /**
+       * The object was already exclusively locked by someone else.
+       *
+       * <p>The arguments passed in for this message are:
+       *
+       * <TABLE BORDER="1">
+       * <TR><TH>Arg</TH><TH>Description</TH></TR>
+       * <TR><TD>0</TD><TD>The name of the locked object</TD></TR>
+       * <TR><TD>1</TD><TD>The name of the user currently holding the lock</TD></TR>
+       * <TR><TD>2</TD><TD>How many minutes from now the lock will expire if the
+       * user does not renew it</TD></TR>
+       * </TABLE>
+       */
+      m_args = new Object[] {m_objectName, m_user, "" + m_minutes};
+    } else {
+      // LOCK_ALREADY_HELD_SAME_USER and any other lock code: include session id.
+      /**
+       * The object was already exclusively locked by the user requesting the lock, but under a
+       * different user session.
+       *
+       * <p>The arguments passed in for this message are:
+       *
+       * <TABLE BORDER="1">
+       * <TR><TH>Arg</TH><TH>Description</TH></TR>
+       * <TR><TD>0</TD><TD>The name of the locked object</TD></TR>
+       * <TR><TD>1</TD><TD>The name of the user currently holding the lock</TD></TR>
+       * <TR><TD>2</TD><TD>How many minutes from now the lock will expire if the
+       * user does not renew it</TD></TR>
+       * <TR><TD>3</TD><TD>The session id of the session holding the lock</TD></TR>
+       * </TABLE>
+       */
+      m_args = new Object[] {m_objectName, m_user, "" + m_minutes, m_sessionId};
     }
   }
 

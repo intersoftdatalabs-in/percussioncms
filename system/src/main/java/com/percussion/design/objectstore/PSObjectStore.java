@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.conn.IPSConnectionErrors;
 import com.percussion.conn.PSDesignerConnection;
 import com.percussion.conn.PSServerException;
@@ -283,7 +285,7 @@ public class PSObjectStore {
     Document respDoc = makeRequest("design-objectstore-datasource-conndetail", request);
     Element respRoot = respDoc.getDocumentElement();
     if (respRoot == null) {
-      throw new PSServerException(IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT, null);
+      throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(), null);
     }
     return new PSConnectionDetail(
         respRoot.getAttribute("datasource"),
@@ -363,8 +365,7 @@ public class PSObjectStore {
           throw new PSServerException(e);
         }
       } else {
-        throw new PSServerException(
-            IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT, respRoot.getNodeName());
+        throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(), respRoot.getNodeName());
       }
 
       return config;
@@ -834,8 +835,7 @@ public class PSObjectStore {
           throw new PSServerException(e);
         }
       } else {
-        throw new PSServerException(
-            IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT,
+        throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(),
             new Object[] {PSApplication.ms_NodeType, null});
       }
       return app;
@@ -877,7 +877,7 @@ public class PSObjectStore {
           PSAuthenticationFailedException,
           PSNotFoundException {
     Object[] args = {appName, startTime, endTime};
-    throw new PSNotFoundException(IPSObjectStoreErrors.GET_APP_LOG_NO_DATA, args);
+    throw new PSNotFoundException(ObjectStoreErrorCodes.GET_APP_LOG_NO_DATA.numericCode(), args);
   }
 
   /**
@@ -1233,8 +1233,7 @@ public class PSObjectStore {
           try {
             app.setId(Integer.parseInt(appId));
           } catch (NumberFormatException e) {
-            throw new PSServerException(
-                IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT,
+            throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(),
                 respDoc.getDocumentElement().getNodeName());
           }
           Element historyEl = respWalker.getNextElement("PSXRevisionHistory");
@@ -2036,8 +2035,7 @@ public class PSObjectStore {
             throw new PSServerException(e);
           }
         } else {
-          throw new PSServerException(
-              IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT, root.getNodeName());
+          throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(), root.getNodeName());
         }
       }
 
@@ -2236,8 +2234,7 @@ public class PSObjectStore {
           throw new PSServerException(e);
         }
       } else {
-        throw new PSServerException(
-            IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT, respRoot.getNodeName());
+        throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(), respRoot.getNodeName());
       }
 
       return config;
@@ -2469,8 +2466,7 @@ public class PSObjectStore {
           throw new PSServerException(e);
         }
       } else {
-        throw new PSServerException(
-            IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT, respRoot.getNodeName());
+        throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(), respRoot.getNodeName());
       }
 
       return featureSet;
@@ -2505,8 +2501,7 @@ public class PSObjectStore {
 
       Element respRoot = respDoc.getDocumentElement();
       if (!respRoot.getNodeName().equals("PSXGetJndiDatasourcesResults")) {
-        throw new PSServerException(
-            IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT, respRoot.getNodeName());
+        throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(), respRoot.getNodeName());
       }
 
       PSXmlTreeWalker tree = new PSXmlTreeWalker(respDoc);
@@ -2568,8 +2563,7 @@ public class PSObjectStore {
 
       Element respRoot = respDoc.getDocumentElement();
       if (!respRoot.getNodeName().equals("PSXSaveJndiDatasourcesResults")) {
-        throw new PSServerException(
-            IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT, respRoot.getNodeName());
+        throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(), respRoot.getNodeName());
       }
     } catch (PSServerException e) {
       PSException throwExc = e.getOriginatingException();
@@ -2602,8 +2596,7 @@ public class PSObjectStore {
 
       Element respRoot = respDoc.getDocumentElement();
       if (!respRoot.getNodeName().equals("PSXGetDatasourceConfigsResults")) {
-        throw new PSServerException(
-            IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT, respRoot.getNodeName());
+        throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(), respRoot.getNodeName());
       }
 
       PSXmlTreeWalker tree = new PSXmlTreeWalker(respDoc);
@@ -2614,8 +2607,7 @@ public class PSObjectStore {
                 PSDatasourceResolver.BEAN_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
 
         if (dsEl == null)
-          throw new PSServerException(
-              IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT, respRoot.getNodeName());
+          throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(), respRoot.getNodeName());
 
         PSDatasourceResolver resolver = new PSDatasourceResolver();
         resolver.fromXml(dsEl);
@@ -2657,8 +2649,7 @@ public class PSObjectStore {
 
       Element respRoot = respDoc.getDocumentElement();
       if (!respRoot.getNodeName().equals("PSXSaveDatasourceConfigsResults")) {
-        throw new PSServerException(
-            IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT, respRoot.getNodeName());
+        throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(), respRoot.getNodeName());
       }
     } catch (PSServerException e) {
       PSException throwExc = e.getOriginatingException();
@@ -2691,8 +2682,7 @@ public class PSObjectStore {
 
       Element respRoot = respDoc.getDocumentElement();
       if (!respRoot.getNodeName().equals("PSXGetHibernateDialectsResults")) {
-        throw new PSServerException(
-            IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT, respRoot.getNodeName());
+        throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(), respRoot.getNodeName());
       }
 
       PSXmlTreeWalker tree = new PSXmlTreeWalker(respDoc);
@@ -2702,8 +2692,7 @@ public class PSObjectStore {
             tree.getNextElement(PSDatasourceResolver.BEAN_NODE_NAME, tree.GET_NEXT_ALLOW_CHILDREN);
 
         if (cfgEl == null)
-          throw new PSServerException(
-              IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT, respRoot.getNodeName());
+          throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(), respRoot.getNodeName());
 
         PSHibernateDialectConfig config = new PSHibernateDialectConfig();
         config.fromXml(cfgEl);
@@ -2745,8 +2734,7 @@ public class PSObjectStore {
 
       Element respRoot = respDoc.getDocumentElement();
       if (!respRoot.getNodeName().equals("PSXSaveHibernateDialectsResults")) {
-        throw new PSServerException(
-            IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT, respRoot.getNodeName());
+        throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(), respRoot.getNodeName());
       }
     } catch (PSServerException e) {
       PSException throwExc = e.getOriginatingException();
@@ -2779,8 +2767,7 @@ public class PSObjectStore {
 
       Element respRoot = respDoc.getDocumentElement();
       if (!respRoot.getNodeName().equals("PSXGetCatalogerConfigsResults")) {
-        throw new PSServerException(
-            IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT, respRoot.getNodeName());
+        throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(), respRoot.getNodeName());
       }
 
       PSXmlTreeWalker tree = new PSXmlTreeWalker(respDoc);
@@ -2855,8 +2842,7 @@ public class PSObjectStore {
 
       Element respRoot = respDoc.getDocumentElement();
       if (!respRoot.getNodeName().equals("PSXSaveCatalogerConfigsResults")) {
-        throw new PSServerException(
-            IPSObjectStoreErrors.MALFORMED_RESPONSE_DOCUMENT, respRoot.getNodeName());
+        throw new PSServerException(ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode(), respRoot.getNodeName());
       }
     } catch (PSServerException e) {
       PSException throwExc = e.getOriginatingException();
