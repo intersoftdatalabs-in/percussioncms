@@ -23,8 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
 import com.intsof.percussioncms.auditlog.sink.CapturingAuditLogSink;
 import org.junit.jupiter.api.BeforeEach;
@@ -314,4 +317,132 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(2001).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(6).isPresent());
   }
+
+  // --- Server / HTTP / Job residual (#2863) ---
+
+  @Test
+  void serverAuthFailureLegacyCodeIsAuditableAndResolves() {
+    assertTrue(LegacyErrorCodeRegistry.isAuditable(1101));
+    assertSame(
+        ServerErrorCodes.AUTHORIZATION_ERROR, LegacyErrorCodeRegistry.find(1101).orElseThrow());
+    assertTrue(ServerErrorCodes.AUTHORIZATION_ERROR.isAuditable());
+
+    assertTrue(LegacyErrorCodeRegistry.isAuditable(1105));
+    assertSame(
+        ServerErrorCodes.TOO_MANY_LOGIN_ATTEMPTS, LegacyErrorCodeRegistry.find(1105).orElseThrow());
+    assertTrue(LegacyErrorCodeRegistry.isAuditable(1247));
+    assertSame(
+        ServerErrorCodes.COMMUNITIES_AUTHENTICATION_FAILED_INVALID_COMMUNITY,
+        LegacyErrorCodeRegistry.find(1247).orElseThrow());
+  }
+
+  @Test
+  void serverOperationalNoiseIsRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(1001));
+    assertSame(ServerErrorCodes.NATIVE_ERROR, LegacyErrorCodeRegistry.find(1001).orElseThrow());
+    assertFalse(ServerErrorCodes.NATIVE_ERROR.isAuditable());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(1308));
+    assertSame(
+        ServerErrorCodes.REQUEST_HANDLER_NOT_FOUND,
+        LegacyErrorCodeRegistry.find(1308).orElseThrow());
+  }
+
+  @Test
+  void nonAuditableServerCodeSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc, ServerErrorCodes.NATIVE_ERROR.numericCode(), AuditContext.empty(), "db", "err");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void auditableServerCodeDualWrites() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            ServerErrorCodes.AUTHORIZATION_ERROR.numericCode(),
+            AuditContext.builder().actor("jdoe").build(),
+            "sess1",
+            "/Rhythmyx/app");
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(1, sink.records().size());
+    assertEquals(ServerErrorCodes.AUTHORIZATION_ERROR, sink.records().get(0).code());
+  }
+
+  @Test
+  void httpStatusCodesAreRegisteredButNeverAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(401));
+    assertSame(HttpErrorCodes.HTTP_UNAUTHORIZED, LegacyErrorCodeRegistry.find(401).orElseThrow());
+    assertFalse(HttpErrorCodes.HTTP_UNAUTHORIZED.isAuditable());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(403));
+    assertSame(HttpErrorCodes.HTTP_FORBIDDEN, LegacyErrorCodeRegistry.find(403).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(500));
+    assertSame(
+        HttpErrorCodes.HTTP_INTERNAL_SERVER_ERROR, LegacyErrorCodeRegistry.find(500).orElseThrow());
+  }
+
+  @Test
+  void nonAuditableHttpCodeSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc, HttpErrorCodes.HTTP_UNAUTHORIZED.numericCode(), AuditContext.empty());
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void jobConfigFileNotFoundIsRegisteredNonAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(11));
+    assertSame(
+        JobErrorCodes.CONFIG_FILE_NOT_FOUND, LegacyErrorCodeRegistry.find(11).orElseThrow());
+    assertFalse(JobErrorCodes.CONFIG_FILE_NOT_FOUND.isAuditable());
+  }
+
+  @Test
+  void jobPackageLocalIntsDoNotClobberWorkflowInFlatRegistry() {
+    // Job ints 1–10 intentionally not registered; Workflow owns bare 1–10.
+    assertSame(WorkflowErrorCodes.ACCESS_DENIED, LegacyErrorCodeRegistry.find(6).orElseThrow());
+    assertTrue(LegacyErrorCodeRegistry.isAuditable(6));
+    assertSame(
+        WorkflowErrorCodes.WORKFLOW_NOT_FOUND, LegacyErrorCodeRegistry.find(1).orElseThrow());
+    assertEquals(1, JobErrorCodes.JOB_DEFINITION_NOT_FOUND.numericCode());
+    assertFalse(JobErrorCodes.JOB_DEFINITION_NOT_FOUND.isAuditable());
+  }
+
+  @Test
+  void nonAuditableJobCodeSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc, JobErrorCodes.CONFIG_FILE_NOT_FOUND.numericCode(), AuditContext.empty(), "cfg.xml");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void registryCoversServerHttpAndJob() {
+    // prior catalogs + full IPSServerErrors (295) + IPSHttpErrors (37) + job int 11
+    assertTrue(LegacyErrorCodeRegistry.size() >= 350);
+    assertTrue(LegacyErrorCodeRegistry.find(1101).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(401).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(11).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(1001).isPresent());
+  }
 }
+

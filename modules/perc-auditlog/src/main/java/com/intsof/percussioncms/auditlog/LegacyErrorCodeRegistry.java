@@ -18,8 +18,11 @@ package com.intsof.percussioncms.auditlog;
 
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
 import java.util.Map;
 import java.util.Objects;
@@ -33,9 +36,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * <p>Phase 2b registers {@link SecurityErrorCodes} (full SEC range), {@link ContentErrorCodes}
  * (content lifecycle + conversion), {@link WorkflowErrorCodes} (workflow transition + service),
- * {@link PathItemErrorCodes} (CMS path/item/folder), and {@link DesignErrorCodes} (design lifecycle
- * + objectstore ACL). Residual slices may register additional catalogs via {@link #register(int,
- * SystemErrorCode)}.
+ * {@link PathItemErrorCodes} (CMS path/item/folder), {@link DesignErrorCodes} (design lifecycle +
+ * objectstore ACL), {@link ServerErrorCodes} ({@code IPSServerErrors}), {@link HttpErrorCodes}
+ * ({@code IPSHttpErrors}, all non-auditable), and non-colliding {@link JobErrorCodes} ints. Residual
+ * slices may register additional catalogs via {@link #register(int, SystemErrorCode)}.
  */
 public final class LegacyErrorCodeRegistry {
 
@@ -48,8 +52,10 @@ public final class LegacyErrorCodeRegistry {
   private LegacyErrorCodeRegistry() {}
 
   /**
-   * Ensure Phase 2b catalogs are loaded (auth/security, content, workflow, path/item, design). Safe
-   * to call repeatedly; catalogs register themselves in their own static initializers.
+   * Ensure Phase 2b catalogs are loaded (auth/security, content, workflow, path/item, design,
+   * server, HTTP, job). Safe to call repeatedly; catalogs register themselves in their own static
+   * initializers. {@link JobErrorCodes} skips package-local ints {@code 1–10} that collide with
+   * {@link WorkflowErrorCodes} in this flat map.
    */
   public static void bootstrap() {
     if (BOOTSTRAPPED.compareAndSet(false, true)) {
@@ -58,6 +64,9 @@ public final class LegacyErrorCodeRegistry {
       WorkflowErrorCodes.ensureRegistered();
       PathItemErrorCodes.ensureRegistered();
       DesignErrorCodes.ensureRegistered();
+      ServerErrorCodes.ensureRegistered();
+      HttpErrorCodes.ensureRegistered();
+      JobErrorCodes.ensureRegistered();
     }
   }
 
