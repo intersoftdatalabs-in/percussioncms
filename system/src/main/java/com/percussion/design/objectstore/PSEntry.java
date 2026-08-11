@@ -61,6 +61,7 @@ public class PSEntry extends PSComponent {
   public PSEntry(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     // Private path avoids virtual fromXml dispatch before subclass fields initialize.
+    // Construction must not reach updateParentList (non-final type / -Xlint:this-escape).
     fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
 
@@ -254,13 +255,21 @@ public class PSEntry extends PSComponent {
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
-    fromXmlBase(sourceNode, parentDoc, parentComponents);
+    // Post-construction: safe to publish this on the parent list.
+    parentComponents = updateParentList(parentComponents);
+    int parentSize = parentComponents.size() - 1;
+    try {
+      fromXmlBase(sourceNode, parentDoc, parentComponents);
+    } finally {
+      resetParentList(parentComponents, parentSize);
+    }
   }
 
   /**
-   * Shared load for {@link #fromXml} and the Element constructor. Keeps construction free of
-   * virtual {@code fromXml} dispatch so subclasses (e.g. {@link PSNullEntry}) can initialize
-   * safely.
+   * Private field load for Element construction and {@link #fromXml}. Never calls {@link
+   * #updateParentList} so Element constructors of this non-final type stay free of {@code
+   * -Xlint:this-escape}; callers that need self-registration wrap this method (see {@link
+   * #fromXml}).
    */
   private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
@@ -272,9 +281,6 @@ public class PSEntry extends PSComponent {
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
     }
 
-    parentComponents = updateParentList(parentComponents);
-    int parentSize = parentComponents.size() - 1;
-
     int firstFlags =
         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
     int nextFlags =
@@ -282,45 +288,41 @@ public class PSEntry extends PSComponent {
 
     String data = null;
     Element node = null;
-    try {
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
+    PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
 
-      // OPTIONAL: get sequence attribute
-      data = tree.getElementData(SEQUENCE_ATTR);
-      if (data != null) {
-        // If the data is not a number catch NumberFormatException and
-        // continue assuming sequence attribute is not specified
-        int test = -1;
-        try {
-          test = Integer.parseInt(data);
-        } catch (NumberFormatException nfe) {
-          // ignore the exception
-        }
-        m_sequence = test;
+    // OPTIONAL: get sequence attribute
+    data = tree.getElementData(SEQUENCE_ATTR);
+    if (data != null) {
+      // If the data is not a number catch NumberFormatException and
+      // continue assuming sequence attribute is not specified
+      int test = -1;
+      try {
+        test = Integer.parseInt(data);
+      } catch (NumberFormatException nfe) {
+        // ignore the exception
       }
-
-      // OPTIONAL: get default attribute
-      data = tree.getElementData(DEFAULT_ATTR);
-      if (data != null) m_default = data.equalsIgnoreCase(BOOLEAN_ENUM[0]) ? true : false;
-
-      // REQUIRED: get the label
-      node = tree.getNextElement(PSDisplayText.XML_NODE_NAME, firstFlags);
-      if (node == null) {
-        Object[] args = {XML_NODE_NAME, PSDisplayText.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
-      }
-      m_label = new PSDisplayText(node, parentDoc, parentComponents);
-
-      // REQUIRED: get the entry value
-      node = tree.getNextElement(VALUE_ELEM, nextFlags);
-      if (node == null) {
-        Object[] args = {XML_NODE_NAME, VALUE_ELEM, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
-      }
-      m_value = tree.getElementData(node);
-    } finally {
-      resetParentList(parentComponents, parentSize);
+      m_sequence = test;
     }
+
+    // OPTIONAL: get default attribute
+    data = tree.getElementData(DEFAULT_ATTR);
+    if (data != null) m_default = data.equalsIgnoreCase(BOOLEAN_ENUM[0]) ? true : false;
+
+    // REQUIRED: get the label
+    node = tree.getNextElement(PSDisplayText.XML_NODE_NAME, firstFlags);
+    if (node == null) {
+      Object[] args = {XML_NODE_NAME, PSDisplayText.XML_NODE_NAME, "null"};
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+    }
+    m_label = new PSDisplayText(node, parentDoc, parentComponents);
+
+    // REQUIRED: get the entry value
+    node = tree.getNextElement(VALUE_ELEM, nextFlags);
+    if (node == null) {
+      Object[] args = {XML_NODE_NAME, VALUE_ELEM, "null"};
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+    }
+    m_value = tree.getElementData(node);
   }
 
   /**

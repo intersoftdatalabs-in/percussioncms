@@ -1977,7 +1977,10 @@ public final class PSApplication implements IPSDocument {
       }
 
       do {
-        dataSet = new PSDataSet((Element) tree.getCurrent(), this, parentComponents);
+        // Empty + fromXml so parent-list registration runs after construction (PSDataSet is
+        // non-final; Element ctor skips self-registration to avoid -Xlint:this-escape).
+        dataSet = new PSDataSet();
+        dataSet.fromXml((Element) tree.getCurrent(), this, parentComponents);
         m_dataSets.add(dataSet);
       } while (tree.getNextElement(PSDataSet.ms_NodeType, walkerFlags) != null);
     }
