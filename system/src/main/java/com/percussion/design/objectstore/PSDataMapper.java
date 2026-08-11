@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
 import org.w3c.dom.Document;
@@ -124,11 +126,11 @@ public final class PSDataMapper extends PSCollectionComponent {
 
     try {
       if (sourceNode == null)
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
       if (!ms_NodeType.equals(sourceNode.getNodeName())) {
         Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -142,7 +144,7 @@ public final class PSDataMapper extends PSCollectionComponent {
         m_id = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       // clear any mappings, then read in the new mappings
@@ -180,7 +182,7 @@ public final class PSDataMapper extends PSCollectionComponent {
     if (!cxt.startValidation(this, null)) return;
 
     if (super.isEmpty()) {
-      cxt.validationError(this, IPSObjectStoreErrors.APP_MAPPER_EMPTY, null);
+      cxt.validationError(this, ObjectStoreErrorCodes.APP_MAPPER_EMPTY, null);
     }
 
     super.validate(cxt);

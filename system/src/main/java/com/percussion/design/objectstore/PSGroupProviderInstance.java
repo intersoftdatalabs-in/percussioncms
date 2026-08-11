@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.security.PSSecurityProvider;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
@@ -109,7 +111,7 @@ public abstract class PSGroupProviderInstance extends PSComponent
       m_id = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {XML_NODE_NAME, ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
 
     m_name = getRequiredElement(tree, NAME_ATTR);
@@ -117,7 +119,7 @@ public abstract class PSGroupProviderInstance extends PSComponent
     sTemp = getRequiredElement(tree, CLASSNAME_ATTR);
     if (!validateClass(sTemp)) {
       Object[] args = {XML_NODE_NAME, CLASSNAME_ATTR, sTemp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     m_className = sTemp;
 
@@ -125,7 +127,7 @@ public abstract class PSGroupProviderInstance extends PSComponent
     int type = PSSecurityProvider.getSecurityProviderTypeFromXmlFlag(sTemp);
     if (type == 0) {
       Object[] args = {XML_NODE_NAME, TYPE_ATTR, sTemp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     m_type = type;
 
@@ -204,7 +206,7 @@ public abstract class PSGroupProviderInstance extends PSComponent
 
     if (newInstance == null) {
       Object[] args = {XML_NODE_NAME, CLASSNAME_ATTR, className};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     newInstance.fromXml(source, null, null);

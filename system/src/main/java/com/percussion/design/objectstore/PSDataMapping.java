@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.security.validation.SerializationValidation;
 import com.percussion.util.PSCharSets;
 import com.percussion.util.PSCollection;
@@ -390,11 +392,11 @@ public final class PSDataMapping extends PSComponent {
 
     try {
       if (sourceNode == null)
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
       if (!ms_NodeType.equals(sourceNode.getNodeName())) {
         Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -404,7 +406,7 @@ public final class PSDataMapping extends PSComponent {
         m_id = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       sTemp = tree.getElementData("groupId");
@@ -413,7 +415,7 @@ public final class PSDataMapping extends PSComponent {
         else m_groupId = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {ms_NodeType, "groupId", ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       // A document mapping will represent the front end now.
@@ -421,7 +423,7 @@ public final class PSDataMapping extends PSComponent {
       Element node = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
       if (node == null) {
         Object[] args = {ms_NodeType, "documentMapping", ""};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       try {
@@ -439,7 +441,7 @@ public final class PSDataMapping extends PSComponent {
           } catch (Exception e) { // should only be a class cast, but...
             Object[] args = {ms_NodeType, "documentMapping", node.getTagName()};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
           }
         }
       } catch (IllegalArgumentException e) {
@@ -450,7 +452,7 @@ public final class PSDataMapping extends PSComponent {
       node = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
       if (node == null) {
         Object[] args = {ms_NodeType, "backEndMapping", ""};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       try {
@@ -459,7 +461,7 @@ public final class PSDataMapping extends PSComponent {
                 createMappingObject(node, "backEndMapping", parentDoc, parentComponents);
       } catch (Exception e) { // should only be a class cast, but...
         Object[] args = {ms_NodeType, "backEndMapping", node.getTagName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       int firstFlags =
@@ -514,7 +516,7 @@ public final class PSDataMapping extends PSComponent {
           } catch (Exception e) {
             Object[] args = {ms_NodeType, "textFormatter", e.toString()};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
           }
         }
       }
@@ -571,7 +573,7 @@ public final class PSDataMapping extends PSComponent {
     if (ex != null) cxt.validationError(this, 0, ex.getLocalizedMessage());
 
     if (m_docMapping == null) {
-      cxt.validationError(this, IPSObjectStoreErrors.DATAMAPPING_XML_FIELD_EMPTY, null);
+      cxt.validationError(this, ObjectStoreErrorCodes.DATAMAPPING_XML_FIELD_EMPTY, null);
     }
 
     ex = validateGroupId(m_groupId);

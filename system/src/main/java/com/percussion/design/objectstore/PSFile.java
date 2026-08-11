@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.content.IPSMimeContent;
 import com.percussion.content.PSContentFactory;
 import com.percussion.content.PSMimeContentAdapter;
@@ -302,7 +304,7 @@ public abstract class PSFile extends PSComponent {
    */
   public IPSMimeContent getContent() throws PSIllegalStateException {
     if (m_content == null) {
-      int errCode = IPSObjectStoreErrors.APP_FILE_STREAM_EXHAUSTED;
+      int errCode = ObjectStoreErrorCodes.APP_FILE_STREAM_EXHAUSTED.numericCode();
       throw new PSIllegalStateException(errCode);
     }
 
@@ -364,7 +366,7 @@ public abstract class PSFile extends PSComponent {
         content = out.toString("US-ASCII");
       } catch (IOException e) {
         Object[] args = new Object[] {m_url, e.getMessage()};
-        throw new PSRuntimeException(IPSObjectStoreErrors.APP_FILE_IO_ERROR, args);
+        throw new PSRuntimeException(ObjectStoreErrorCodes.APP_FILE_IO_ERROR.numericCode(), args);
       } finally {
         try {
           if (in != null) in.close();
@@ -428,7 +430,7 @@ public abstract class PSFile extends PSComponent {
       // do the metadata
       if ((nodeType == null) || (!nodeType.equals(sourceNode.getNodeName()))) {
         Object[] args = {nodeType, sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       PSXmlTreeWalker walker = new PSXmlTreeWalker(sourceNode);
@@ -452,7 +454,7 @@ public abstract class PSFile extends PSComponent {
         // {
         //    Object[] args = { CONTENT, XFER_ENC, xferEnc };
         //    throw new PSUnknownNodeTypeException(
-        //       IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        //       ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         // }
 
         String mimeType = contentEl.getAttribute(MIME_TYPE);
@@ -482,10 +484,10 @@ public abstract class PSFile extends PSComponent {
       throw new RuntimeException("Unrecoverable error in PSFile.fromXML(): " + e.toString());
     } catch (NumberFormatException e) {
       Object[] args = {nodeType, LAST_MOD, lastModified};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     } catch (IOException e) {
       Object[] args = new Object[] {m_url, e.getMessage()};
-      throw new PSRuntimeException(IPSObjectStoreErrors.APP_FILE_IO_ERROR, args);
+      throw new PSRuntimeException(ObjectStoreErrorCodes.APP_FILE_IO_ERROR.numericCode(), args);
     }
   }
 
@@ -495,7 +497,7 @@ public abstract class PSFile extends PSComponent {
     String val = walker.getElementData(elementName);
     if (val == null || val.length() == 0) {
       Object[] args = {nodeType, elementName, ""};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     return val;
   }

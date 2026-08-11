@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.utils.types.PSPair;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
@@ -154,11 +156,11 @@ public final class PSDisplayMapper extends PSCollectionComponent {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -175,14 +177,14 @@ public final class PSDisplayMapper extends PSCollectionComponent {
         m_id = Integer.parseInt(data);
       } catch (Exception e) {
         Object[] args = {XML_NODE_NAME, ((data == null) ? "null" : data)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       // REQUIRED: get the fieldSetRef attribute
       m_fieldSetRef = tree.getElementData(FIELD_SET_REF_ATTR);
       if (m_fieldSetRef == null) {
         Object[] args = {XML_NODE_NAME, FIELD_SET_REF_ATTR, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       int firstFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN;
@@ -228,11 +230,11 @@ public final class PSDisplayMapper extends PSCollectionComponent {
     if (!context.startValidation(this, null)) return;
 
     if (getId() == 0) {
-      context.validationError(this, IPSObjectStoreErrors.INVALID_DISPLAY_MAPPER, null);
+      context.validationError(this, ObjectStoreErrorCodes.INVALID_DISPLAY_MAPPER, null);
     }
 
     if (m_fieldSetRef == null || m_fieldSetRef.trim().length() == 0) {
-      context.validationError(this, IPSObjectStoreErrors.INVALID_DISPLAY_MAPPER, null);
+      context.validationError(this, ObjectStoreErrorCodes.INVALID_DISPLAY_MAPPER, null);
     }
 
     super.validate(context);
@@ -407,7 +409,7 @@ public final class PSDisplayMapper extends PSCollectionComponent {
       if (!usedMappings.contains(fieldRef)) {
         /* No placeholder in this mapper for merging with child mapper.
          */
-        throw new PSSystemValidationException(IPSObjectStoreErrors.CE_UNUSED_MAPPER, fieldRef);
+        throw new PSSystemValidationException(ObjectStoreErrorCodes.CE_UNUSED_MAPPER, fieldRef);
       }
     } else {
       // add mappings that are not already there.
@@ -728,7 +730,7 @@ public final class PSDisplayMapper extends PSCollectionComponent {
     if ((targetChildMapper != null) && (sourceChildMapper == null)) {
       // target cannot have a child if source does not
       throw new PSSystemValidationException(
-          IPSObjectStoreErrors.CE_MAPPING_INVALID_CHILD, targetMapping.getFieldRef());
+          ObjectStoreErrorCodes.CE_MAPPING_INVALID_CHILD, targetMapping.getFieldRef());
     } else if (sourceChildMapper != null) {
       if (targetChildMapper == null) {
         // recursively add, which will apply source defaults as well
@@ -801,7 +803,7 @@ public final class PSDisplayMapper extends PSCollectionComponent {
       } else {
         // target may not contain fields not in the source
         throw new PSSystemValidationException(
-            IPSObjectStoreErrors.CE_MAPPING_INVALID_CHILD_FIELDS,
+            ObjectStoreErrorCodes.CE_MAPPING_INVALID_CHILD_FIELDS,
             targetChildMapper.getFieldSetRef());
       }
     }
@@ -863,7 +865,7 @@ public final class PSDisplayMapper extends PSCollectionComponent {
       if (!isMatch) {
         // a default set specified that does not exist!
         throw new PSSystemValidationException(
-            IPSObjectStoreErrors.CE_MAPPING_INVALID_DEFAULT_UISET, defaultName);
+            ObjectStoreErrorCodes.CE_MAPPING_INVALID_DEFAULT_UISET, defaultName);
       }
     }
 
@@ -1034,7 +1036,7 @@ public final class PSDisplayMapper extends PSCollectionComponent {
     if ((targetChildMapper != null) && (sourceChildMapper == null)) {
       // target cannot have a child if source does not
       throw new PSSystemValidationException(
-          IPSObjectStoreErrors.CE_MAPPING_INVALID_CHILD, targetMapping.getFieldRef());
+          ObjectStoreErrorCodes.CE_MAPPING_INVALID_CHILD, targetMapping.getFieldRef());
     } else if (sourceChildMapper != null && targetChildMapper != null) {
       resultMapping.setDisplayMapper(
           getDemergedChildMapper(
@@ -1104,7 +1106,7 @@ public final class PSDisplayMapper extends PSCollectionComponent {
         // definition of this child mapper
         // target may not contain fields not in the source
         throw new PSSystemValidationException(
-            IPSObjectStoreErrors.CE_MAPPING_INVALID_CHILD_FIELDS,
+            ObjectStoreErrorCodes.CE_MAPPING_INVALID_CHILD_FIELDS,
             targetChildMapper.getFieldSetRef());
       }
     }
@@ -1159,7 +1161,7 @@ public final class PSDisplayMapper extends PSCollectionComponent {
       if (!isMatch) {
         // a default set specified that does not exist!
         throw new PSSystemValidationException(
-            IPSObjectStoreErrors.CE_MAPPING_INVALID_DEFAULT_UISET, defaultName);
+            ObjectStoreErrorCodes.CE_MAPPING_INVALID_DEFAULT_UISET, defaultName);
       }
     }
 

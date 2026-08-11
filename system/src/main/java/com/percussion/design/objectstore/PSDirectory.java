@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -347,11 +349,11 @@ public final class PSDirectory extends PSComponent {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -374,12 +376,12 @@ public final class PSDirectory extends PSComponent {
     Element authentication = tree.getNextElement(XML_ELEM_AUTHENTICATION);
     if (authentication == null) {
       Object[] args = {XML_ELEM_AUTHENTICATION, null};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     Element reference = tree.getNextElement(PSReference.XML_NODE_NAME);
     if (reference == null) {
       Object[] args = {PSReference.XML_NODE_NAME, null};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     m_authenticationRef = new PSReference(reference, parentDoc, parentComponents);
 
@@ -418,7 +420,7 @@ public final class PSDirectory extends PSComponent {
         if (groupProvider == null || groupProvider.trim().length() == 0) {
           Object[] args = {GROUP_PROVIDERS_ELEMENT, GROUP_NAME_ELEMENT, "null"};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
         m_groupProviderNames.add(groupProvider);
         groupName = tree.getNextElement(GROUP_NAME_ELEMENT, nextFlags);

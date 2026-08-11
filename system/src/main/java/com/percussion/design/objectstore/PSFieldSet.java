@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
@@ -247,19 +249,19 @@ public final class PSFieldSet extends PSComponent {
     Iterator fields = getAll();
     if (!fields.hasNext()) {
       String[] args = {getName(), "" + 1, "" + 1};
-      throw new PSSystemValidationException(IPSObjectStoreErrors.CE_INCORRECT_FIELD_COUNT, args);
+      throw new PSSystemValidationException(ObjectStoreErrorCodes.CE_INCORRECT_FIELD_COUNT, args);
     }
 
     Object o = fields.next();
     if (!(o instanceof PSField)) {
       throw new PSSystemValidationException(
-          IPSObjectStoreErrors.CE_CANNOT_HAVE_FIELDSETS, getName());
+          ObjectStoreErrorCodes.CE_CANNOT_HAVE_FIELDSETS, getName());
     }
 
     PSField field = (PSField) o;
     if (fields.hasNext()) {
       String[] args = {getName(), "" + 0, "" + 1};
-      throw new PSSystemValidationException(IPSObjectStoreErrors.CE_INCORRECT_FIELD_COUNT, args);
+      throw new PSSystemValidationException(ObjectStoreErrorCodes.CE_INCORRECT_FIELD_COUNT, args);
     }
 
     return field;
@@ -726,11 +728,11 @@ public final class PSFieldSet extends PSComponent {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -750,7 +752,7 @@ public final class PSFieldSet extends PSComponent {
       m_name = tree.getElementData(NAME_ATTR);
       if (m_name == null) {
         Object[] args = {XML_NODE_NAME, NAME_ATTR, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       // OPTIONAL: get the type attribute
@@ -766,7 +768,7 @@ public final class PSFieldSet extends PSComponent {
         }
         if (!found) {
           Object[] args = {XML_NODE_NAME, TYPE_ATTR, data};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       }
 
@@ -783,7 +785,7 @@ public final class PSFieldSet extends PSComponent {
         }
         if (!found) {
           Object[] args = {XML_NODE_NAME, REPEATABILITY_ATTR, data};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       }
 
@@ -792,17 +794,17 @@ public final class PSFieldSet extends PSComponent {
         data = tree.getElementData(COUNT_ATTR);
         if (data == null) {
           Object[] args = {XML_NODE_NAME, COUNT_ATTR, "null"};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
         try {
           m_count = Integer.parseInt(data);
         } catch (NumberFormatException e) {
           Object[] args = {XML_NODE_NAME, COUNT_ATTR, e.toString()};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
         if (m_count <= 0) {
           Object[] args = {XML_NODE_NAME, COUNT_ATTR, Integer.toString(m_count)};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       }
 
@@ -959,18 +961,18 @@ public final class PSFieldSet extends PSComponent {
 
     if (!isValidType(m_type)) {
       Object[] args = {TYPE_ENUM};
-      context.validationError(this, IPSObjectStoreErrors.UNSUPPORTED_FIELD_SET_TYPE, args);
+      context.validationError(this, ObjectStoreErrorCodes.UNSUPPORTED_FIELD_SET_TYPE, args);
     }
 
     if (m_repeatability != REPEATABILITY_ONE_OR_MORE
         && m_repeatability != REPEATABILITY_ZERO_OR_MORE
         && m_repeatability != REPEATABILITY_COUNT) {
       Object[] args = {REPEATABILITY_ENUM};
-      context.validationError(this, IPSObjectStoreErrors.UNSUPPORTED_FIELD_SET_REPEATABILITY, args);
+      context.validationError(this, ObjectStoreErrorCodes.UNSUPPORTED_FIELD_SET_REPEATABILITY, args);
     }
 
     if (m_name == null || m_name.trim().length() == 0) {
-      context.validationError(this, IPSObjectStoreErrors.INVALID_FIELD_SET_NAME, null);
+      context.validationError(this, ObjectStoreErrorCodes.INVALID_FIELD_SET_NAME, null);
     }
 
     // do children
@@ -1033,7 +1035,7 @@ public final class PSFieldSet extends PSComponent {
         else {
           // throw error
           throw new PSSystemValidationException(
-              IPSObjectStoreErrors.CE_DUPLICATE_MERGED_FIELD_NAME, name);
+              ObjectStoreErrorCodes.CE_DUPLICATE_MERGED_FIELD_NAME, name);
         }
       }
 
@@ -1093,7 +1095,7 @@ public final class PSFieldSet extends PSComponent {
         else {
           // throw error
           throw new PSSystemValidationException(
-              IPSObjectStoreErrors.CE_DUPLICATE_MERGED_FIELD_NAME, name);
+              ObjectStoreErrorCodes.CE_DUPLICATE_MERGED_FIELD_NAME, name);
         }
       }
 
@@ -1150,7 +1152,7 @@ public final class PSFieldSet extends PSComponent {
         if (!contains(exclude)) {
           Object[] args = {exclude, getName()};
           throw new PSSystemValidationException(
-              IPSObjectStoreErrors.CE_EXCLUDED_FIELD_MISSING, args);
+              ObjectStoreErrorCodes.CE_EXCLUDED_FIELD_MISSING, args);
         }
       }
     }
@@ -1193,7 +1195,7 @@ public final class PSFieldSet extends PSComponent {
             PSBackEndTable table =
                 (PSBackEndTable) tables.get(col.getTable().getAlias().toLowerCase());
             if (null == table) {
-              throw new PSSystemValidationException(IPSObjectStoreErrors.BE_TABLE_NULL);
+              throw new PSSystemValidationException(ObjectStoreErrorCodes.BE_TABLE_NULL);
             }
             col.setTable(table);
           }

@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -62,16 +64,16 @@ public class PSFeatureSet {
   public void fromXml(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
     if (null == sourceDoc)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_nodeName);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_nodeName);
 
     Element root = sourceDoc.getDocumentElement();
     if (root == null)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_nodeName);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_nodeName);
 
     // make sure we got the correct root node tag
     if (!ms_nodeName.equals(root.getNodeName())) {
       Object[] args = {ms_nodeName, root.getNodeName()};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // Read in all of the features

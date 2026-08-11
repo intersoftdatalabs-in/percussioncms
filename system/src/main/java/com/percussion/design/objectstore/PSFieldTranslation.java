@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
 import java.util.Objects;
@@ -130,11 +132,11 @@ public final class PSFieldTranslation extends PSComponent {
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -155,7 +157,7 @@ public final class PSFieldTranslation extends PSComponent {
         m_translations = new PSExtensionCallSet(node, parentDoc, parentComponents);
       } else {
         Object[] args = {XML_NODE_NAME, PSExtensionCallSet.ms_NodeType, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       // OPTIONAL: the error message (ErrorLabel/PSXDisplayText)
@@ -167,7 +169,7 @@ public final class PSFieldTranslation extends PSComponent {
         } else {
           Object[] args = {PSExtensionCallSet.ms_NodeType, ERROR_LABEL_ELEM, "null"};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       }
     } finally {
@@ -204,7 +206,7 @@ public final class PSFieldTranslation extends PSComponent {
     context.pushParent(this);
     try {
       if (m_translations != null) m_translations.validate(context);
-      else context.validationError(this, IPSObjectStoreErrors.INVALID_FIELD_TRANSLATION, null);
+      else context.validationError(this, ObjectStoreErrorCodes.INVALID_FIELD_TRANSLATION, null);
 
       if (m_errorMessage != null) m_errorMessage.validate(context);
     } finally {

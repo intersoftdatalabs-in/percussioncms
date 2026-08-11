@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
 import org.w3c.dom.Document;
@@ -111,7 +113,7 @@ public class PSDependency extends PSComponent {
     else if (status.equals("setupOptional")) m_status = SETUP_OPTIONAL_STATUS;
     else {
       Object[] args = {XML_NODE_NAME, XATTR_STATUS, status};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     // @occurrence
@@ -120,7 +122,7 @@ public class PSDependency extends PSComponent {
     else if (occurrence.equals("multiple")) m_occurrence = MULTIPLE_OCCURRENCE;
     else {
       Object[] args = {XML_NODE_NAME, XATTR_OCCURRENCE, occurrence};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     // default
@@ -129,7 +131,7 @@ public class PSDependency extends PSComponent {
       // make sure this node has the right name
       if (!defaultChildElement.getNodeName().equals(XELEM_DEFAULT)) {
         Object[] args = {XML_NODE_NAME, XELEM_DEFAULT, defaultChildElement};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       Element child = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
@@ -144,11 +146,11 @@ public class PSDependency extends PSComponent {
       if (dependent instanceof IPSDependentObject) setDependent((IPSDependentObject) dependent);
       else {
         Object[] args = {XML_NODE_NAME, XELEM_DEFAULT, dependent};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     } else {
       Object[] args = {XML_NODE_NAME, XELEM_DEFAULT, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
   }
 

@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -1584,11 +1586,11 @@ public final class PSField extends PSComponent {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
     m_userProps.clear();
     parentComponents = updateParentList(parentComponents);
@@ -1612,7 +1614,7 @@ public final class PSField extends PSComponent {
       m_submitName = tree.getElementData(NAME_ATTR);
       if (m_submitName == null) {
         Object[] args = {XML_NODE_NAME, NAME_ATTR, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       // OPTIONAL: get the mime type attribute
@@ -1706,7 +1708,7 @@ public final class PSField extends PSComponent {
           if (!node.getTagName().equals(DATA_LOCATOR_ELEM)) {
             Object[] args = {DEFAULT_VALUE_ELEM, DATA_LOCATOR_ELEM, "null"};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
           }
           node = tree.getNextElement(true);
           m_default =
@@ -1736,7 +1738,7 @@ public final class PSField extends PSComponent {
             if (!found) {
               Object[] args = {OCCURRENCE_ELEM, OCCURRENCE_DIMENSION_ATTR, data};
               throw new PSUnknownNodeTypeException(
-                  IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+                  ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
             }
           }
 
@@ -1749,7 +1751,7 @@ public final class PSField extends PSComponent {
               } catch (NumberFormatException e) {
                 Object[] args = {XML_NODE_NAME, OCCURRENCE_ELEM, data};
                 throw new PSUnknownNodeTypeException(
-                    IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                    ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
               }
             }
           }
@@ -1773,7 +1775,7 @@ public final class PSField extends PSComponent {
             if (!found) {
               Object[] args = {OCCURRENCE_ELEM, OCCURRENCE_MULTI_VALUED_TYPE_ATTR, data};
               throw new PSUnknownNodeTypeException(
-                  IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+                  ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
             }
           }
 
@@ -1790,7 +1792,7 @@ public final class PSField extends PSComponent {
             } catch (NumberFormatException e) {
               Object[] args = {OCCURRENCE_ELEM, TRANSITION_ID_ATTR, data};
               throw new PSUnknownNodeTypeException(
-                  IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+                  ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
             }
           }
 
@@ -2054,7 +2056,7 @@ public final class PSField extends PSComponent {
     }
 
     if (m_submitName == null || m_submitName.trim().length() == 0) {
-      context.validationError(this, IPSObjectStoreErrors.INVALID_FIELD, null);
+      context.validationError(this, ObjectStoreErrorCodes.INVALID_FIELD, null);
     }
 
     // do children
@@ -2081,7 +2083,7 @@ public final class PSField extends PSComponent {
    */
   public static void validateType(int type) throws PSSystemValidationException {
     if (type != TYPE_SYSTEM && type != TYPE_SHARED && type != TYPE_LOCAL)
-      throw new PSSystemValidationException(IPSObjectStoreErrors.UNSUPPORTED_FIELD_TYPE, TYPE_ENUM);
+      throw new PSSystemValidationException(ObjectStoreErrorCodes.UNSUPPORTED_FIELD_TYPE, TYPE_ENUM);
   }
 
   /**
@@ -2185,7 +2187,7 @@ public final class PSField extends PSComponent {
       else if (fbOverride) setting = "force binary";
       PSSystemValidationException ex =
           new PSSystemValidationException(
-              IPSObjectStoreErrors.CE_INVALID_FIELD_OVERRIDE,
+              ObjectStoreErrorCodes.CE_INVALID_FIELD_OVERRIDE,
               new Object[] {getSubmitName(), TYPE_ENUM[source.getType()], setting});
       ms_logger.warn(ex.getMessage());
     }
@@ -2205,12 +2207,12 @@ public final class PSField extends PSComponent {
 
         if (!local.doesMatch(other)) {
           throw new PSSystemValidationException(
-              IPSObjectStoreErrors.CE_INVALID_FIELD_OVERRIDE,
+              ObjectStoreErrorCodes.CE_INVALID_FIELD_OVERRIDE,
               new Object[] {getSubmitName(), TYPE_ENUM[source.getType()], "backend data locator"});
         }
       } else // the locator instances itself didn't match
       throw new PSSystemValidationException(
-            IPSObjectStoreErrors.CE_INVALID_FIELD_OVERRIDE,
+            ObjectStoreErrorCodes.CE_INVALID_FIELD_OVERRIDE,
             new Object[] {getSubmitName(), TYPE_ENUM[source.getType()], "data locator"});
     }
 
@@ -3054,7 +3056,7 @@ public final class PSField extends PSComponent {
           && dimension != OCCURRENCE_DIMENSION_REQUIRED
           && dimension != OCCURRENCE_DIMENSION_ZERO_OR_MORE)
         throw new PSSystemValidationException(
-            IPSObjectStoreErrors.UNSUPPORTED_OCCURRENCE_DIMENSION, OCCURRENCE_DIMENSION_ENUM);
+            ObjectStoreErrorCodes.UNSUPPORTED_OCCURRENCE_DIMENSION, OCCURRENCE_DIMENSION_ENUM);
     }
 
     /**
@@ -3069,7 +3071,7 @@ public final class PSField extends PSComponent {
       if (multiValuedType != OCCURRENCE_MULTI_VALUED_TYPE_DELIMITED
           && multiValuedType != OCCURRENCE_MULTI_VALUED_TYPE_SEPARATE)
         throw new PSSystemValidationException(
-            IPSObjectStoreErrors.UNSUPPORTED_OCCURRENCE_MULTI_VALUED_TYPE,
+            ObjectStoreErrorCodes.UNSUPPORTED_OCCURRENCE_MULTI_VALUED_TYPE,
             OCCURRENCE_MULTI_VALUED_TYPE_ENUM);
     }
 

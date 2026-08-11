@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
@@ -67,7 +69,7 @@ public class PSFileDescriptor extends PSComponent {
     m_name = sourceNode.getAttribute(XML_ATTR_NAME);
     if (m_name == null || m_name.trim().length() == 0) {
       Object[] args = {sourceNode.getTagName(), XML_ATTR_NAME, "empty"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     m_type = getEnumeratedAttribute(tree, XML_ATTR_TYPE, TYPE_ENUM);
