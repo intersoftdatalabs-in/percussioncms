@@ -229,7 +229,11 @@ public class PSMainDisplayPanel extends JScrollPane
               // save sorting info if we have any
               PSNode root = getDataModel().getRoot();
               if (root != null) {
-                root.setLastSortColumns(m_childViewTableModel.getSortingColumns());
+                // PSTableSorter still exposes raw List of Integer column indices
+                @SuppressWarnings("unchecked")
+                List<Integer> sortCols =
+                    (List<Integer>) m_childViewTableModel.getSortingColumns();
+                root.setLastSortColumns(sortCols);
                 root.setLastSortedAsc(m_childViewTableModel.isAscending());
               }
             }
@@ -337,7 +341,7 @@ public class PSMainDisplayPanel extends JScrollPane
     PSDisplayFormat df = null;
 
     // see if new node has sorting info saved
-    List sortingInfo = node.getLastSortColumns();
+    List<Integer> sortingInfo = node.getLastSortColumns();
     boolean sortAscending = node.getLastSortedAsc();
 
     // if no previous sort info, try to get initial sort column
@@ -377,7 +381,7 @@ public class PSMainDisplayPanel extends JScrollPane
 
     // Create a new model and set that, saving selection for later restore
     Iterator<PSNode> curSelIter = getSelectedRowNodes();
-    Collection<PSNode> curSel = new ArrayList<PSNode>();
+    Collection<PSNode> curSel = new ArrayList<>();
     while (curSelIter.hasNext()) curSel.add(curSelIter.next());
     PSDisplayFormatTableModel tableModel = new PSDisplayFormatTableModel(m_applet);
     tableModel.setLocale(m_applet.getUserInfo().getLocale());
@@ -435,7 +439,7 @@ public class PSMainDisplayPanel extends JScrollPane
   private void resetColumnWidths(PSNode node, PSDisplayFormat df) {
     if (node == null) throw new IllegalArgumentException("node must not be null");
 
-    List widths = m_actManager.getApplet().getColumnWidthsFromOptions(node);
+    List<String> widths = m_actManager.getApplet().getColumnWidthsFromOptions(node);
 
     // if no stored column widths or if the number of column widths that were
     // stored is different than the current table model, check the display
@@ -448,11 +452,11 @@ public class PSMainDisplayPanel extends JScrollPane
 
     if (widths == null || (widths.size() != numCols)) {
       if (df != null) {
-        widths = new ArrayList(numCols);
+        widths = new ArrayList<>(numCols);
         colIndex = 0;
-        Iterator cols = df.getColumns();
+        Iterator<PSDisplayColumn> cols = df.getColumns();
         while (cols.hasNext() && colIndex < numCols) {
-          PSDisplayColumn dfCol = (PSDisplayColumn) cols.next();
+          PSDisplayColumn dfCol = cols.next();
           String strColWidth = null; // will add null value if not specd
           int colWidth = dfCol.getWidth();
           if (colWidth != -1) {
@@ -476,10 +480,8 @@ public class PSMainDisplayPanel extends JScrollPane
     }
 
     colIndex = 0;
-    Iterator i = widths.iterator();
-    while (i.hasNext()) {
+    for (String width : widths) {
       int useWidth;
-      String width = (String) i.next();
       if (width == null) // using display format, no width for this col
       {
         useWidth = (defaultColWidth > MIN_COL_WIDTH) ? defaultColWidth : MIN_COL_WIDTH;
@@ -632,7 +634,7 @@ public class PSMainDisplayPanel extends JScrollPane
         for (int col = 0; col < count; col++) {
           // if any of the column widths have changed, save the widths
           if (mi_saveColWidths[col] != colModel.getColumn(col).getWidth()) {
-            List widths = new ArrayList();
+            List<String> widths = new ArrayList<>();
             for (int i = 0; i < count; i++) widths.add("" + colModel.getColumn(i).getWidth());
 
             // save the current column widths to the applet persistance
@@ -802,7 +804,7 @@ public class PSMainDisplayPanel extends JScrollPane
 
     PSDisplayFormatTableModel model = getDataModel();
 
-    List<PSNode> selNodes = new ArrayList<PSNode>();
+    List<PSNode> selNodes = new ArrayList<>();
     if (rows != null && rows.length > 0) {
       for (int i = 0; i < rows.length; i++) {
         int modelRow = m_childViewTableModel.getModelRow(rows[i]);
@@ -840,7 +842,7 @@ public class PSMainDisplayPanel extends JScrollPane
 
     PSDisplayFormatTableModel model = getDataModel();
 
-    List<PSNode> draggableNodes = new ArrayList<PSNode>();
+    List<PSNode> draggableNodes = new ArrayList<>();
     if (rows != null && rows.length > 0) {
       for (int i = 0; i < rows.length; i++) {
         int modelRow = m_childViewTableModel.getModelRow(rows[i]);
@@ -965,7 +967,7 @@ public class PSMainDisplayPanel extends JScrollPane
 
         getAccessibleContext().setAccessibleName(data.getName());
       } else {
-        Iterator cols = m_parentNode.getChildrenDisplayFormat();
+        Iterator<Map.Entry<String, String>> cols = m_parentNode.getChildrenDisplayFormat();
         String colType = null;
         // If the column is not default column (column data loaded from server)
         // check whether this represents an image data and display icon
@@ -974,7 +976,7 @@ public class PSMainDisplayPanel extends JScrollPane
           // Get list of columns and get the definition of the column
           // corresponding to the column index - 1 (reduce index because
           // default column is not in the list.
-          List colDefs = PSIteratorUtils.cloneList(cols);
+          List<Map.Entry<String, String>> colDefs = PSIteratorUtils.cloneList(cols);
 
           // this is a hack for now, what we really need to do is to
           // be sure that folders always have the display format
@@ -982,8 +984,8 @@ public class PSMainDisplayPanel extends JScrollPane
           if (PSDisplayFormatTableModel.getSysTitleIndex(m_parentNode, m_actManager) < 0
               && column > 0) column--;
 
-          Map.Entry columnDef = (Map.Entry) colDefs.get(column);
-          colType = (String) columnDef.getValue();
+          Map.Entry<String, String> columnDef = colDefs.get(column);
+          colType = columnDef.getValue();
         }
 
         // Show tool tip if there is an image to explain that image.
@@ -1537,7 +1539,7 @@ public class PSMainDisplayPanel extends JScrollPane
   private static final int MIN_COL_WIDTH = 15;
 
   /** A map of display names to icon names. Map keys and values are of type <code>String</code>. */
-  private static final Map<String, String> ms_displayNameToIconName = new HashMap<String, String>();
+  private static final Map<String, String> ms_displayNameToIconName = new HashMap<>();
 
   static {
     ms_displayNameToIconName.put(

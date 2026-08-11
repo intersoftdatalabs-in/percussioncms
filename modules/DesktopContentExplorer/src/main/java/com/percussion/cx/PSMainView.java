@@ -74,7 +74,7 @@ public class PSMainView extends JSplitPane
    * addSelectionListener(IPSSelectionListener)</code>. Never <code>null</code> after
    * initialization.
    */
-  private List m_selListeners = new ArrayList();
+  private final List<IPSSelectionListener> m_selListeners = new ArrayList<>();
 
   /**
    * The current view of UI, initialized in the constructor and never <code>
@@ -220,7 +220,7 @@ public class PSMainView extends JSplitPane
 
       PSUiMode mode = new PSUiMode(m_view, PSUiMode.TYPE_MODE_NAV);
       PSNode parent = m_navTree.getSelectedParentNode();
-      Iterator selection = PSIteratorUtils.iterator(selNode);
+      Iterator<PSNode> selection = PSIteratorUtils.iterator(selNode);
       PSNavigationalSelection sel = new PSNavigationalSelection(mode, parent, selection, path);
 
       informListeners(sel);
@@ -280,10 +280,7 @@ public class PSMainView extends JSplitPane
    * @param selection the new selection, assumed not <code>null</code>
    */
   private void informListeners(PSSelection selection) {
-    Iterator listeners = m_selListeners.iterator();
-
-    while (listeners.hasNext()) {
-      IPSSelectionListener listener = (IPSSelectionListener) listeners.next();
+    for (IPSSelectionListener listener : m_selListeners) {
       listener.selectionChanged(selection);
     }
   }
@@ -296,7 +293,7 @@ public class PSMainView extends JSplitPane
    * @param node The node whose children may need to be refreshed, assumed not <code>null</code>.
    */
   private void refreshChildNodes(TreePath treePath, PSNode node) {
-    Iterator children = node.getChildren();
+    Iterator<PSNode> children = node.getChildren();
 
     // don't check for dirty if option is not enabled in server config
     if ((children == null)
@@ -319,7 +316,7 @@ public class PSMainView extends JSplitPane
       return;
     }
 
-    Iterator selNodes = m_mainDisplayPanel.getSelectedRowNodes();
+    Iterator<PSNode> selNodes = m_mainDisplayPanel.getSelectedRowNodes();
 
     if (selNodes.hasNext()) {
       PSNode parent = m_navTree.getSelectedNode();
@@ -356,12 +353,12 @@ public class PSMainView extends JSplitPane
         m_navTree.selectNode(nodeToRefresh);
       }
     } else if (refreshHint.equals(PSActionEvent.REFRESH_NODES)) {
-      Iterator nodes = event.getRefreshNodes();
+      Iterator<?> nodes = event.getRefreshNodes();
       PSNode oldNode = null;
       PSNode newNode = null;
       boolean wasExpanded = false;
 
-      while (nodes.hasNext()) {
+      while (nodes != null && nodes.hasNext()) {
         oldNode = (PSNode) nodes.next();
         wasExpanded = oldNode.shouldExpand();
 
@@ -382,12 +379,10 @@ public class PSMainView extends JSplitPane
       // try to locate and dirty current nodes
       // if none found, insert new dirty node into each view/search/folder
       // so the new items/folders may appear on selective refresh
-      List dirtyList = PSIteratorUtils.cloneList(event.getRefreshNodes());
-      Iterator dirtyNodes = dirtyList.iterator();
-
-      while (dirtyNodes.hasNext()) {
-        PSNode node = (PSNode) dirtyNodes.next();
-        List types = new ArrayList();
+      List<?> dirtyList = PSIteratorUtils.cloneList(event.getRefreshNodes());
+      for (Object dirtyObj : dirtyList) {
+        PSNode node = (PSNode) dirtyObj;
+        List<String> types = new ArrayList<>();
         types.addAll(PSNode.getFolderTypes());
         types.addAll(PSNode.getSearchTypes());
         m_navTree.dirtyChildNodes(node, types);
@@ -455,10 +450,10 @@ public class PSMainView extends JSplitPane
           // This will always have only one entry because, double-click removes
           // the previous selection and makes the clicked row alone as selected.
           // even if multiple rows comes, take the first one.
-          Iterator selNodes = m_mainDisplayPanel.getSelectedRowNodes();
+          Iterator<PSNode> selNodes = m_mainDisplayPanel.getSelectedRowNodes();
 
           if (selNodes.hasNext()) {
-            selNode = (PSNode) selNodes.next();
+            selNode = selNodes.next();
           } else {
             return;
           }
@@ -547,4 +542,3 @@ public class PSMainView extends JSplitPane
     }
   }
 }
-;
