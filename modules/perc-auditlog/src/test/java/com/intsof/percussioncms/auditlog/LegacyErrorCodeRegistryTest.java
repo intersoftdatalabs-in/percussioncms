@@ -18,6 +18,7 @@ package com.intsof.percussioncms.auditlog;
 
 import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.BeansErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.CloneErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ConnectionErrorCodes;
@@ -29,6 +30,7 @@ import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.FilterServiceErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.JBossErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.LocaleErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.LockErrorCodes;
@@ -42,12 +44,16 @@ import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServletErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SiteManageErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SiteManagerErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.TransformationErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.UiErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.UtilErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.XmlErrorCodes;
 import com.intsof.percussioncms.auditlog.sink.CapturingAuditLogSink;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +61,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 
 import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
@@ -1256,5 +1263,121 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(18009).isPresent());
     // WF ownership of package-local low ints preserved
     assertSame(WorkflowErrorCodes.ACCESS_DENIED, LegacyErrorCodeRegistry.find(6).orElseThrow());
+  }
+
+@Test
+  void utilCodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(10001));
+    assertSame(
+        UtilErrorCodes.BASE64_ENCODING_EXCEPTION,
+        LegacyErrorCodeRegistry.find(10001).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(10203));
+    assertSame(UtilErrorCodes.POST_DATA_ERROR, LegacyErrorCodeRegistry.find(10203).orElseThrow());
+  }
+
+@Test
+  void utilNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            UtilErrorCodes.BASE64_DECODING_EXCEPTION.numericCode(),
+            AuditContext.empty(),
+            "input",
+            "detail");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+@Test
+  void systemXmlCodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(6001));
+    assertSame(XmlErrorCodes.RAW_XML_DUMP, LegacyErrorCodeRegistry.find(6001).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(6028));
+    assertSame(
+        XmlErrorCodes.DTD_ELEMENT_NOTFOUND_ERROR,
+        LegacyErrorCodeRegistry.find(6028).orElseThrow());
+  }
+
+@Test
+  void systemXmlNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc, XmlErrorCodes.XML_PROCESSING_ERROR.numericCode(), AuditContext.empty(), "sess");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+@Test
+  void utilsXmlPackageLocalOneRemainsWorkflowInFlatRegistry() {
+    assertSame(WorkflowErrorCodes.WORKFLOW_NOT_FOUND, LegacyErrorCodeRegistry.find(1).orElseThrow());
+    assertEquals(1, XmlErrorCodes.XML_ELEMENT_MISSING.numericCode());
+    assertFalse(XmlErrorCodes.XML_ELEMENT_MISSING.isAuditable());
+    assertEquals(6, XmlErrorCodes.XML_RESTORE_ERROR.numericCode());
+    assertSame(WorkflowErrorCodes.ACCESS_DENIED, LegacyErrorCodeRegistry.find(6).orElseThrow());
+  }
+
+@Test
+  void beansNotFlatRegisteredButEnumIsNonAuditable() {
+    assertSame(ServerErrorCodes.NATIVE_ERROR, LegacyErrorCodeRegistry.find(1001).orElseThrow());
+    assertFalse(BeansErrorCodes.XML_PROCESSING_ERROR.isAuditable());
+    assertEquals(1001, BeansErrorCodes.XML_PROCESSING_ERROR.numericCode());
+  }
+
+@Test
+  void tableFactoryNotFlatRegisteredButEnumIsNonAuditable() {
+    // Server owns flat 1001/1101/1201/1301 ranges
+    assertSame(ServerErrorCodes.NATIVE_ERROR, LegacyErrorCodeRegistry.find(1001).orElseThrow());
+    assertSame(
+        ServerErrorCodes.AUTHORIZATION_ERROR, LegacyErrorCodeRegistry.find(1101).orElseThrow());
+    assertFalse(TableFactoryErrorCodes.XML_ELEMENT_NULL.isAuditable());
+    assertEquals(1001, TableFactoryErrorCodes.XML_ELEMENT_NULL.numericCode());
+    assertEquals(1310, TableFactoryErrorCodes.DATA_HANDLER_CLASS_NOT_FOUND.numericCode());
+  }
+
+@Test
+  void jbossNotFlatRegisteredButEnumIsNonAuditable() {
+    assertSame(WorkflowErrorCodes.WORKFLOW_NOT_FOUND, LegacyErrorCodeRegistry.find(1).orElseThrow());
+    assertFalse(JBossErrorCodes.APP_POLICY_ELEMENT_MISSING.isAuditable());
+    assertEquals(1, JBossErrorCodes.APP_POLICY_ELEMENT_MISSING.numericCode());
+  }
+
+@Test
+  void siteManageCodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(18252));
+    assertSame(
+        SiteManageErrorCodes.SITE_MANAGE_SERVICE_DELETING_BAD_SITE_RECORD,
+        LegacyErrorCodeRegistry.find(18252).orElseThrow());
+    assertFalse(SiteManageErrorCodes.SITE_MANAGE_SERVICE_DELETING_BAD_SITE_RECORD.isAuditable());
+  }
+
+@Test
+  void siteManageNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            SiteManageErrorCodes.SITE_MANAGE_SERVICE_DELETING_BAD_SITE_RECORD.numericCode(),
+            AuditContext.empty());
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+@Test
+  void registryCoversUtilXmlAndSiteManage() {
+    assertTrue(LegacyErrorCodeRegistry.size() >= 390);
+    assertTrue(LegacyErrorCodeRegistry.find(10001).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(6001).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(18252).isPresent());
   }
 }

@@ -79,6 +79,12 @@ import com.intsof.percussioncms.auditlog.codes.LockErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.NavigationErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PublisherErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.UiErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.BeansErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.JBossErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SiteManageErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.UtilErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.XmlErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
@@ -126,6 +132,9 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 74, ctx, "1.0", "1.1"); // deploy 
 LegacyErrorCodeRegistry.logIfAuditable(audit, 4101, ctx, "prop"); // catalog design — non-auditable
 // Prefer JobErrorCodes enum for job ints 1–10 (flat registry keeps WF ownership of 1–10)
 // Provider/config/conversion/path/design/server/http/job/assembly/extension/webservice/data noise (isAuditable=false) and unknown ints → no dual-write
+LegacyErrorCodeRegistry.logIfAuditable(audit, 10001, ctx); // util Base64 — non-auditable skip
+LegacyErrorCodeRegistry.logIfAuditable(audit, 6001, ctx); // system XML dump — non-auditable skip
+LegacyErrorCodeRegistry.logIfAuditable(audit, 18252, ctx); // site manage bad site — non-auditable skip
 ```
 
 | Catalog | Ranges | Notes |
@@ -162,6 +171,12 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 4101, ctx, "prop"); // catalog des
 | `DeploymentErrorCodes` | package-local 1–85 (flat-registers 74–85) | Prefer enum for lock 46/47/53; version/config flat |
 | `NavigationErrorCodes` | 18001–18009 full flat | All non-auditable nav structure |
 | `UiErrorCodes` | package-local 1–8 (no flat register) | Prefer enum; ACCESS_DENIED dual-write |
+| `UtilErrorCodes` | 10001–10203 (`IPSUtilErrors`) | All non-auditable util/encode/HTTP |
+| `XmlErrorCodes` | utils 1–6 (enum-only) + system 6001–6028 | Flat-registers system only; WF owns 1–6 |
+| `BeansErrorCodes` | package-local 1001 (no flat register) | Server owns flat 1001; all non-auditable |
+| `TableFactoryErrorCodes` | package-local 1001–1310 (no flat register) | Server range collision; prefer enum |
+| `JBossErrorCodes` | package-local 1 (no flat register) | Legacy JBoss container; WF owns bare 1 |
+| `SiteManageErrorCodes` | 18252 (`IPSSiteManageErrors`) | All non-auditable site-service noise |
 
 Non-auditable codes (`isAuditable() == false`) never create audit rows.
 
