@@ -44,6 +44,11 @@ class PSInstallPackageTypedTest {
   @AfterEach
   void clearPluginResponses() {
     RxUpgrade.ms_pluginResponses = new ArrayList<>();
+    // Defense-in-depth: drop test probe if a prior test aborted mid-mutation.
+    Set<String> apps = PSPreUpgradePluginDeprecatedSysApps.getDeprecatedSysApps();
+    if (apps != null) {
+      apps.remove("sys_testOnly.xml");
+    }
   }
 
   @Test
@@ -111,9 +116,14 @@ class PSInstallPackageTypedTest {
     Set<String> apps = PSPreUpgradePluginDeprecatedSysApps.getDeprecatedSysApps();
     assertNotNull(apps);
     // empty until process() scans ObjectStore; still a live mutable String set
-    apps.add("sys_testOnly.xml");
-    assertTrue(PSPreUpgradePluginDeprecatedSysApps.getDeprecatedSysApps().contains("sys_testOnly.xml"));
-    apps.remove("sys_testOnly.xml");
+    final String probe = "sys_testOnly.xml";
+    try {
+      apps.add(probe);
+      assertTrue(
+          PSPreUpgradePluginDeprecatedSysApps.getDeprecatedSysApps().contains(probe));
+    } finally {
+      apps.remove(probe);
+    }
   }
 
   @Test
