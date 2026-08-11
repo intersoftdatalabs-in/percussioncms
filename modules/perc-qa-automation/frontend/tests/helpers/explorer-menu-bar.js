@@ -17,11 +17,14 @@ const TEST_IDS = Object.freeze({
   viewDropdown: "explorer-menu-view-dropdown",
   helpDropdown: "explorer-menu-help-dropdown",
   toggleSearch: "explorer-toggle-search",
+  /** Content → Search (#2850) — same panel as View → Search. */
+  contentSearch: "explorer-menu-content-search",
   searchPanel: "explorer-search-panel",
   /** Server-driven ActionToolbar (#2730 nested MENU dropdowns). */
   actionToolbar: "action-toolbar",
   /** Shell region wrapping ActionToolbar under ExplorerMenuBar. */
   serverActions: "explorer-server-actions",
+  // display-format lives on shell chrome only — see explorer-shell-chrome.js
 });
 
 /**

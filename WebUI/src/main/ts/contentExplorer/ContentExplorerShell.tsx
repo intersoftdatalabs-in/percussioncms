@@ -82,7 +82,7 @@ import {
   defaultReducedActionHandlers,
   type ReducedActionHandlers,
 } from "./ReducedActions";
-import { SearchPanel } from "./SearchPanel";
+import { SearchPanel, type SearchPanelProps } from "./SearchPanel";
 import { EMPTY_SELECTION, type Selection } from "./selection";
 import { resolveFolderPathFromSelection } from "./folderPath";
 import { resolveSiteNameFromSelection } from "./sitePath";
@@ -154,6 +154,21 @@ export interface ContentExplorerShellProps {
   loadDependencySummary?: (
     itemId: string,
   ) => Promise<PSNodeRelationshipSummary>;
+  /**
+   * Test / host seam: free-text search transport for the product Search panel
+   * (#2850 / #2407). Default {@link SearchPanel} → searchExtended.
+   */
+  search?: SearchPanelProps["search"];
+  /**
+   * Test / host seam: saved-search catalog for the product Search panel.
+   * Default {@link SearchPanel} → listSearches.
+   */
+  listSavedSearches?: SearchPanelProps["listSavedSearches"];
+  /**
+   * Test / host seam: design-search execute for the product Search panel.
+   * Default {@link SearchPanel} → executeSearch.
+   */
+  executeSavedSearch?: SearchPanelProps["executeSavedSearch"];
 }
 
 type ContextMenuState = {
@@ -306,6 +321,9 @@ export function ContentExplorerShell({
   resolveFolderId = defaultResolveFolderId,
   runWorkflowTransition = defaultRunWorkflowTransition,
   loadDependencySummary,
+  search: searchTransport,
+  listSavedSearches,
+  executeSavedSearch,
 }: ContentExplorerShellProps): React.ReactElement {
   const bootstrap = useSpaBootstrap();
   const currentUserIdentities = useMemo(() => {
@@ -867,6 +885,9 @@ export function ContentExplorerShell({
           <SearchPanel
             onOpen={handleSearchOpen}
             onReveal={handleSearchReveal}
+            search={searchTransport}
+            listSavedSearches={listSavedSearches}
+            executeSavedSearch={executeSavedSearch}
             initialCriteria={
               selection.folderPath
                 ? { folderPath: selection.folderPath }

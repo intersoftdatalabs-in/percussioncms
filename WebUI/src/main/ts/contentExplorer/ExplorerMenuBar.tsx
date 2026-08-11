@@ -142,6 +142,7 @@ function isToggleChecked(
   >,
 ): boolean {
   switch (id) {
+    case "content-search":
     case "view-search":
       return props.showSearch;
     case "view-security":
@@ -255,10 +256,15 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
       return;
     }
     onCommand(item.id);
-    // Keep View open for toggles so users can flip multiple panels; close
-    // Content/Help after a one-shot command. Site/Subfolder Copy are Content
-    // toggles — close the Content menu after flip so the panel is not obscured.
-    if (item.id.startsWith("view-") && item.toggle) {
+    // Keep View open for toggles so users can flip multiple panels. Content →
+    // Search (#2850) shares the same Search panel and also stays open so
+    // aria-expanded updates remain visible. Site/Subfolder Copy close the
+    // Content menu after flip so the panel is not obscured. Help / one-shot
+    // Content commands close the menu.
+    if (
+      (item.id.startsWith("view-") || item.id === "content-search") &&
+      item.toggle
+    ) {
       return;
     }
     close();
@@ -352,7 +358,8 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                             item.toggle ? (checked ? true : false) : undefined
                           }
                           aria-controls={
-                            item.id === "view-search"
+                            item.id === "view-search" ||
+                            item.id === "content-search"
                               ? "explorer-search-panel"
                               : item.id === "view-security"
                                 ? "explorer-security-panel"

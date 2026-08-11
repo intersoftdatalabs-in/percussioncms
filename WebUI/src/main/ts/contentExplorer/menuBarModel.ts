@@ -88,6 +88,8 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           labelKey: EXPLORER_MSG.SEARCH_TITLE,
           ariaLabelKey: EXPLORER_MSG.TOGGLE_SEARCH_ARIA,
           testId: "explorer-menu-content-search",
+          /** Same panel as View → Search (#2850 / #2407 slice 3). */
+          toggle: true,
         },
         {
           id: "content-clipboard-add",

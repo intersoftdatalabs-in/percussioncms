@@ -1137,4 +1137,181 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       expect(screen.getByTestId("folder-properties")).toBeInTheDocument();
     });
   });
+
+  it("View → Search toggle opens and closes the product Search panel (#2850)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        listSavedSearches={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-view")).toBeInTheDocument(),
+    );
+    expect(screen.queryByTestId("explorer-search-panel")).toBeNull();
+
+    openViewMenu();
+    const viewToggle = screen.getByTestId("explorer-toggle-search");
+    expect(viewToggle.getAttribute("aria-expanded")).toBe("false");
+    expect(viewToggle.getAttribute("aria-controls")).toBe(
+      "explorer-search-panel",
+    );
+    fireEvent.click(viewToggle);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-search-panel")).toBeInTheDocument();
+      expect(screen.getByTestId("search-panel")).toBeInTheDocument();
+      expect(screen.getByTestId("search-panel-input")).toBeInTheDocument();
+    });
+    expect(viewToggle.getAttribute("aria-expanded")).toBe("true");
+
+    // View menu stays open for view toggles — flip Search off without re-clicking View
+    // (re-clicking View would collapse the dropdown and hide the test id).
+    fireEvent.click(screen.getByTestId("explorer-toggle-search"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("explorer-search-panel")).toBeNull();
+    });
+  });
+
+  it("Content → Search opens the same Search panel (#2850)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        listSavedSearches={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    const contentSearch = screen.getByTestId("explorer-menu-content-search");
+    expect(contentSearch.getAttribute("role")).toBe("menuitemcheckbox");
+    expect(contentSearch.getAttribute("aria-controls")).toBe(
+      "explorer-search-panel",
+    );
+    expect(contentSearch.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(contentSearch);
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-search-panel")).toBeInTheDocument();
+      expect(screen.getByTestId("search-panel-submit")).toBeInTheDocument();
+    });
+    expect(contentSearch.getAttribute("aria-expanded")).toBe("true");
+
+    // Content menu stays open for view-style toggles — flip Search off in place.
+    fireEvent.click(screen.getByTestId("explorer-menu-content-search"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("explorer-search-panel")).toBeNull();
+    });
+    expect(
+      screen.getByTestId("explorer-menu-content-search").getAttribute(
+        "aria-expanded",
+      ),
+    ).toBe("false");
+  });
+
+  it("injects free-text search transport into the product Search panel (#2850)", async () => {
+    stubPathFetch();
+    const search = vi.fn(async () => ({
+      children: [
+        {
+          id: "99",
+          name: "Hit",
+          title: "Hit",
+          folderPath: "/Sites/Demo",
+          type: "page",
+        },
+      ],
+      totalCount: 1,
+      startIndex: 1,
+    }));
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        listSavedSearches={async () => []}
+        search={search}
+      />,
+    );
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-search"));
+    await waitFor(() =>
+      expect(screen.getByTestId("search-panel-input")).toBeInTheDocument(),
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "demo page" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(search).toHaveBeenCalled();
+    });
+    const criteria = search.mock.calls[0][0] as {
+      query?: string;
+      folderPath?: string;
+    };
+    expect(criteria.query).toBe("demo page");
+    expect(criteria.folderPath).toBe("/Sites/Demo");
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
+    });
+  });
+
+  it("passes listSavedSearches and executeSavedSearch into SearchPanel (#2850)", async () => {
+    stubPathFetch();
+    const listSavedSearches = vi.fn(async () => [
+      {
+        name: "All Content",
+        label: "All Content",
+        standardSearch: true,
+      },
+    ]);
+    const executeSavedSearch = vi.fn(async () => ({
+      children: [
+        {
+          id: "saved-1",
+          name: "Saved Hit",
+          title: "Saved Hit",
+          folderPath: "/Sites/Demo",
+          type: "page",
+        },
+      ],
+      totalCount: 1,
+      startIndex: 1,
+    }));
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        listSavedSearches={listSavedSearches}
+        executeSavedSearch={executeSavedSearch}
+      />,
+    );
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-search"));
+    await waitFor(() => {
+      expect(listSavedSearches).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-saved-picker")).toBeInTheDocument();
+      expect(screen.getByTestId("search-panel-saved-select")).toBeInTheDocument();
+    });
+    fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
+      target: { value: "All Content" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-saved-run"));
+    await waitFor(() => {
+      expect(executeSavedSearch).toHaveBeenCalled();
+    });
+    expect(executeSavedSearch.mock.calls[0][0]).toBe("All Content");
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
+    });
+  });
 });
