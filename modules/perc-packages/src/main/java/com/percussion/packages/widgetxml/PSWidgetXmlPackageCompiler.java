@@ -32,7 +32,7 @@ import java.util.Objects;
  *
  * <p>Looks under {@code sys__UserDependency--rxconfig/Widgets/*.xml} when present (product packaging
  * layout used by {@code modules/perc-packages}). When install Widget XML is absent but modern {@code
- * widgets/&lt;stem&gt;/} roots exist (batch B ship-exit #2884; batch A ship-exit #2883), compiles
+ * widgets/&lt;stem&gt;/} roots exist (batch A+B+C ship-exit #2883/#2884/#2885), compiles
  * from modern authoring sources instead. Covers baseWidgets, high-traffic product packages (#2772),
  * the residual long-tail batch (#2789), the remaining product residual batch (#2802), and the final
  * {@code perc.Test} residual (#2830). Dual-ship modern authoring roots live under {@code
@@ -175,7 +175,7 @@ public final class PSWidgetXmlPackageCompiler {
           Comparator.comparing(p -> p.getFileName().toString().toLowerCase(Locale.ROOT)));
     }
 
-    // Modern-only ship packages (batch B #2884 / batch A #2883): no committed Widget XML.
+    // Modern-only ship packages \(batch A+B+C #2883/#2884/#2885\): no committed Widget XML.
     if (widgetFiles.isEmpty()) {
       if (PSWidgetXmlDualShip.hasModernWidgetSources(packageDir)) {
         return PSWidgetXmlDualShip.compileModernWidgets(packageDir);

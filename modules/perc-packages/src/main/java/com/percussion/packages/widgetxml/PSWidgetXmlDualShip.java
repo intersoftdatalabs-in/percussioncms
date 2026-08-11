@@ -35,7 +35,7 @@ import java.util.Objects;
 
 /**
  * Dual-ship bridge for product Widget packages (ADR-004 / issues #2831 batch A, #2832 batch B,
- * #2844 batch C, #2883/#2884 batch A+B ship-exit, parent #2630).
+ * #2844 batch C, #2883/#2884/#2885 batch A+B+C ship-exit, parent #2630).
  *
  * <p><strong>Authoring truth (modern):</strong> {@code widgets/&lt;widgetStem&gt;/component-package.json}
  * plus template sources under the product package tree (e.g. {@code perc.baseWidgets}).
@@ -49,8 +49,8 @@ import java.util.Objects;
  *       PSWidgetXmlInstallEmitter#materializeInstallWidgetXml(Path)}.
  *   <li><strong>Batch B ship-exit (#2884):</strong> high-traffic + residual long-tail packages use
  *       the same modern-only + package-build materialize path.
- *   <li><strong>Batch C (still dual-ship):</strong> packages still commit install Widget XML
- *       alongside modern roots until ship-exit residual #2885.
+ *   <li><strong>Batch C ship-exit (#2885):</strong> remaining product residual packages use the same
+ *       path. {@code perc.Test} may still dual-ship committed Widget XML (explicit waiver).
  * </ul>
  *
  * <p>Modern roots are committed so selection prefers Component Package Manifest when both exist
@@ -65,9 +65,10 @@ import java.util.Objects;
  * long-tail (#2789) product packages — title/lists/nav/file/image +
  * blog/calendar/directory/social/form/poll/login/rss/iframe (20 widgets / 14 packages).
  *
- * <p>Batch C (#2844): remaining product residual (#2802) after A/B — auto-lists, blog companions,
- * comments/liked/commentForm, imageSlider, cookieConsent, jquery/jqueryUI, registration/secureLogin,
- * Result/Redirect (19 widgets / 19 packages). Excludes {@code perc.Test} (#2830).
+ * <p>Batch C (#2844 modern roots / #2885 stop shipping XML): remaining product residual (#2802)
+ * after A/B — auto-lists, blog companions, comments/liked/commentForm, imageSlider, cookieConsent,
+ * jquery/jqueryUI, registration/secureLogin, Result/Redirect (19 widgets / 19 packages). Excludes
+ * {@code perc.Test} (#2830).
  *
  * @see PSWidgetXmlCompiler
  * @see PSWidgetXmlPackageCompiler

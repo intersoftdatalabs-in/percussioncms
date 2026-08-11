@@ -54,7 +54,7 @@ import java.util.zip.ZipOutputStream;
  * </ul>
  *
  * <p>Widget packages that author modern {@code widgets/&lt;stem&gt;/component-package.json} without
- * committed install Widget XML (batch B ship-exit #2884; batch A ship-exit #2883 peer) materialize
+ * committed install Widget XML (batch A+B+C ship-exit #2883/#2884/#2885) materialize
  * {@code sys__UserDependency--rxconfig/Widgets/*.xml} before reorganize so deployer / {@code
  * PSWidgetDao} still receive the legacy install wire format. Dual-ship packages that still commit
  * Widget XML are left unchanged.
@@ -158,7 +158,7 @@ public final class PSPackageBuilder {
       // Step 1: Copy source files to temp1
       copyDirectory(packageDir, temp1);
 
-      // Step 1a: Modern-only widget packages → install Widget XML (#2884 batch B / #2883 batch A)
+      // Step 1a: Modern-only widget packages → install Widget XML (#2883/#2884/#2885 batch A+B+C)
       stageModernWidgetInstallArtifacts(temp1, dirName);
 
       // Step 1b: Modern page packages → deployer TemplateDef install (#2786 / #2806)
@@ -191,7 +191,7 @@ public final class PSPackageBuilder {
 
   /**
    * Stage install Widget XML from modern {@code widgets/} when the package no longer commits
-   * definition XML (batch B ship-exit #2884; batch A peer #2883).
+   * definition XML (batch A+B+C ship-exit #2883/#2884/#2885).
    */
   private static void stageModernWidgetInstallArtifacts(Path stagingPackageDir, String packageName)
       throws IOException {

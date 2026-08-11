@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Behavioral tests for modern → install Widget XML materialization (issues #2884 batch B / #2883 batch A ship-exit).
+ * Behavioral tests for modern → install Widget XML materialization (issues #2883/#2884/#2885 batch A+B+C ship-exit).
  */
 class PSWidgetXmlInstallEmitterTest {
 
