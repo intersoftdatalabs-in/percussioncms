@@ -70,4 +70,19 @@ public class SitesTestAdaptor implements ISiteAdaptor {
       String nameOrId, VirtualSiteProperties props) {
     return props != null ? props : new VirtualSiteProperties();
   }
+
+  @Override
+  public VirtualSiteBuildResult buildVirtualSite(
+      String nameOrId, VirtualSiteBuildRequest request) {
+    VirtualSiteBuildResult result = new VirtualSiteBuildResult();
+    result.setSiteName(nameOrId);
+    result.setSiteKey(nameOrId);
+    result.setPagesWritten(0);
+    result.setLinkProblemCount(0);
+    result.setHasLinkProblems(false);
+    if (request != null && request.getOutputRoot().isPresent()) {
+      result.setOutputPath(request.getOutputRoot().get());
+    }
+    return result;
+  }
 }

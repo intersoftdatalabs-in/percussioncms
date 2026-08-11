@@ -52,3 +52,16 @@ extensions:
           "path-injection",
           "manual",
         ]
+      # Virtual Site build outputRoot: requireSafeOutputRoot rejects empty / '.' / remaining '..'
+      # after normalize (PSVirtualSiteHelper.isSafeRootPath). Used by SitesAdaptor.buildVirtualSite.
+      - [
+          "com.percussion.apibridge",
+          "SitesAdaptor",
+          false,
+          "requireSafeOutputRoot",
+          "(java.nio.file.Path)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
