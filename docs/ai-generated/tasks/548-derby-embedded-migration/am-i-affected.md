@@ -1,7 +1,8 @@
 # Am I affected by the Derby → H2 change?
 
 **Audience:** Operators, support, and upgrade planners (SC-008 / US6 / T092).  
-**Goal:** Answer “Am I affected?” with a **yes/no path** without engineering escalation for the common case.
+**Goal:** Answer “Am I affected?” with a **yes/no path** without engineering escalation for the common case.  
+**Updated:** 2026-08-11 — paths and outcomes reconciled with `main` (H2 default + Derby→H2 migrator shipped; FR-021 window still GA + 1).
 
 ---
 

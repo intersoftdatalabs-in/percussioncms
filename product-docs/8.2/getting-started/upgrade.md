@@ -42,6 +42,29 @@ and installer guidance for the exact build you are deploying.
 7. Start services; run smoke tests (login, open Site, edit page, publish sample, DTS widgets if used).
 8. Monitor logs for extension load failures and missing resources.
 
+## Default embedded repository (Derby → H2)
+
+Apache Derby is retired upstream. Percussion CMS and DTS **new installs** default to multiuser **H2** (no Derby Network Server / port **1527** on the default path).
+
+| Your repository backend | On 8.2 upgrade |
+|-------------------------|----------------|
+| **Product-managed Derby** (embedded or ClientDriver) | Automatic **Derby → H2** migration after a required **backup gate** |
+| **Already on H2** | No re-migration |
+| **MySQL / SQL Server** (or other external enterprise DB) | **Unchanged** — no embedded migrator pump/cutover |
+
+If you are on product-managed Derby:
+
+1. Schedule a maintenance window sized for repository volume.
+2. Satisfy the backup gate: product offline pre-migration backup **or** a verified external offline backup plus  
+   `-Dperc.migration.externalBackupConfirmed=true`.
+3. Complete the supported upgrade; confirm the durable migration report outcome (for example under `rxconfig/Installer/migration-report-CMS.properties`).
+4. Keep pre-migration Derby files until you deliberately clean them up (the product does not auto-delete residue).
+
+New defaults do **not** promise Derby Network Server / DRDA remote access. Steady-state backup for the default embedded repository remains **offline only**.
+
+Engineering release-note draft and support FAQ (Am I affected?): see repository folder  
+`docs/ai-generated/tasks/548-derby-embedded-migration/` (issue **#548**).
+
 ## Post-upgrade smoke tests
 
 - [ ] Login and role-based navigation work.

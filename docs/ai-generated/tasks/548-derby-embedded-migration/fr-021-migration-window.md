@@ -21,12 +21,14 @@ Derby jars on the product classpath are **migration/upgrade scoped** only during
 | # |                                                  Item                                                   |       Owner       |           Target            |                                 Status                                 |
 |---|---------------------------------------------------------------------------------------------------------|-------------------|-----------------------------|------------------------------------------------------------------------|
 | 1 | Record **GA product line name/version** that ships H2 default + migrator                                | Product / Release | When 8.2 GA ships with #548 | **Open** — pending GA tag                                              |
-| 2 | Keep automated migration tests green on GA line (CMS + DTS paths)                                       | Engineering       | Continuous on GA            | **In progress** (unit/IT on development; full install smoke T038 open) |
+| 2 | Keep automated migration tests green on GA line (CMS + DTS paths)                                       | Engineering       | Continuous on GA            | **Unit/IT green on `main`** (#1494–#1499); full OS install smoke **T038** → **#2332** open |
 | 3 | Identify **next product line** after GA (GA+1) that still ships migrator                                | Product           | After GA named              | **Open**                                                               |
 | 4 | Keep migration tests green on GA+1                                                                      | Engineering       | GA+1                        | **Open**                                                               |
 | 5 | Publish **deprecation notice** in GA+1 (or earlier) release notes: Derby migration ends after this line | Product / Docs    | Before last supporting line | **Open** — draft language below                                        |
 | 6 | Remove Derby migration entry points, Derby packaging, and FR-021 capability after window                | Engineering       | First line **after** GA+1   | **Open**                                                               |
 | 7 | Close QC-027 / SC-012 when removal PR merges + docs updated                                             | Engineering       | After removal               | **Open**                                                               |
+
+**Related residual issues (not FR-021 policy itself):** US6/Phase 9 docs freeze **#3065**; QC-023 hard **#2333** closed; T038 **#2332** open.
 
 ## Deprecation notice (template)
 

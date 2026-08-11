@@ -1,7 +1,7 @@
 # Packaging audit — H2 default vs Derby migration scope (T095 / QC-013 / SC-009)
 
-**Date:** 2026-07-24  
-**Branch context:** post-merge stack #1494–#1499 on `development`  
+**Date:** 2026-07-24 (updated 2026-08-11)  
+**Branch context:** stack #1494–#1499 + US6 #1504 on **`main`**; residual QC freeze #3065  
 **Goal:** New default installs do not require Derby as the **live** repository engine; H2 is present; Derby is migration-scoped (FR-021 window).
 
 ## Live defaults (PASS)
@@ -38,23 +38,23 @@ Automated packaging tests (non-exhaustive):
 | **Soft (current)**                     | Stamps are historical package archive metadata, not Jetty/CMS live `rxrepository` defaults. They do **not** by themselves force new installs onto Derby as the live engine.                  |
 | **Hard before claiming QC-023 closed** | Representative package **install** on an H2 default instance must succeed without requiring Derby as the live driver. Re-stamp packages only if install validation fails on driver identity. |
 
-**Action for this closeout PR:** Document only (no mass XML rewrite). Follow-up PR if package install IT fails on H2.
+**Action (docs closeout):** Soft stamps documented only (no mass XML rewrite). Hard representative install tracked as human QA **#2333**.
 
 ## OS full-install smoke (T038)
 
-Packaging **unit** evidence: PASS on Linux (see `os-smoke-matrix.md`).  
-Full CMS login + DTS health on Windows/Linux/macOS: **pending** distribution artifact / agent runs. Not blocked by packaging defaults above.
+Packaging **unit** evidence: PASS (see `os-smoke-matrix.md`).  
+Full CMS login + DTS health on Windows/Linux/macOS: **open** human QA **#2332** (not agent multi-OS matrix). Packaging defaults above are not the blocker.
 
 ## Residual risks
 
 1. DTS distribution may still carry Derby coordinates for migration/legacy paths — confirm start scripts use H2 home (QC-024), not only `derby.system.home`.
-2. **QC-001 freeze is met** — inventory reports **0 `unknown`** disposition rows (`python3 scripts/derby-surface-inventory.py --fail-on-unknown`; see `derby-surface-inventory.md`). Residual triage is disposition *quality* (soft/docs-only stamps, minified-JS false positives already reclassified), not an open unknown count.
+2. **QC-001 freeze is met** — inventory re-run **2026-08-11** reports **0 `unknown`** disposition rows (`python scripts/derby-surface-inventory.py --fail-on-unknown`; see `derby-surface-inventory.md`). Residual triage is disposition *quality* (soft/docs-only stamps, minified-JS false positives already reclassified), not an open unknown count.
 
 ## Sign-off
 
-|                      QC                      |                                  Status                                  |
-|----------------------------------------------|--------------------------------------------------------------------------|
-| QC-013 / SC-009 (new default not live Derby) | **Met** for source defaults + packaging unit tests                       |
-| QC-023 package install on H2                 | **Open** soft — stamps documented; install IT not re-run in this docs PR |
-| T038 full OS smoke                           | **Open**                                                                 |
+|                      QC                      |                                         Status                                         |
+|----------------------------------------------|----------------------------------------------------------------------------------------|
+| QC-013 / SC-009 (new default not live Derby) | **Met** for source defaults + packaging unit tests                                     |
+| QC-023 package install on H2                 | Soft **met**; hard **passed** human QA **#2333** (2026-08-11, @vijaya-boddipudi)       |
+| T038 full OS smoke                           | **Open** — human QA **#2332**                                                          |
 

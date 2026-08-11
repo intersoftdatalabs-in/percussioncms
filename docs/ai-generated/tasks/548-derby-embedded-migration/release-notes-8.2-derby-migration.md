@@ -1,10 +1,10 @@
 # Release notes draft — Derby retirement and multiuser H2 default (8.2)
 
-**Status:** Draft for product / release packaging (US6 / T091).  
+**Status:** Ready for product / release packaging copy (US6 / T091; engineering docs on `main` via #1504 + residual #3065).  
 **Tracking:** [GitHub #548](https://github.com/intersoftdatalabs-in/percussioncms/issues/548)  
 **Engine:** Multiuser **H2** is the locked default embedded repository (bake-off passed; HSQL not required).
 
-Use this text as the source for official release notes and upgrade guides. Operator deep-dives live in this folder (links below).
+Use this text as the source for official release notes and upgrade guides. Operator deep-dives live in this folder (links below). Product-line upgrade overview also summarizes the embedded-repository change under `product-docs/8.2/getting-started/upgrade.md`.
 
 ---
 
@@ -84,9 +84,17 @@ Tracking checklist on issue **#548** (and [fr-021-migration-window.md](./fr-021-
 
 ## Engineering / verification (summary)
 
-Shipped under #548 work packages (PRs #1494–#1499 family): H2 platform foundation, new-install defaults, CMS+DTS migrator with gate/lock/cutover, external-DB skip tests, multiuser harness, operator docs.
+Shipped under #548 work packages on **`main`**:
 
-Remaining GA hardening (packaging audit freeze, OS full-install smoke matrix, inventory disposition freeze) continues under the same issue—not required to read this release-note draft.
+| Slice | PRs / issues |
+|-------|----------------|
+| Foundation → multiuser | #1494–#1499 |
+| US6 release comms + Phase 9 packaging notes | #1504 |
+| Residual QC freeze (inventory re-run, gate docs) | #3065 |
+| QC-023 hard package install on H2 | **#2333** closed (QA Passed) |
+| T038 full multi-OS install/login smoke | **#2332** open (human QA) |
+
+Operators do **not** need the residual trackers to apply this release-note content. Support FAQ: [am-i-affected.md](./am-i-affected.md).
 
 ---
 
