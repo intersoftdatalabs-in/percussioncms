@@ -307,6 +307,8 @@ python docker/scripts/perc-devctl.py down
 
 Starts an ephemeral **CMS + H2** matrix cell (same stack as `matrix-install-smoke.py --product cms --db h2 --keep`), waits for docker `Health.Status=healthy` **and** the resolved host probe URL (`http://127.0.0.1:<QA_CMS_HOST_PORT>/Rhythmyx/login`) with host log scan, prints `TEST_CMS_URL` / admin username (password from generated install file when available), and tears down with `docker rm -f perc-matrix-cms-h2` so ports and disk are freed (no multi-GB named volume by default). Full operator flow: [workbench-rest-and-qa-modes.md](../docs/developer-module/workbench-rest-and-qa-modes.md) → **QA mode** section. Concurrent freeport checklist: **Two-worktree concurrent freeport smoke** above.
 
+**Sample sites under Explorer `/Sites` (#3001 / #2989):** CMS+H2 matrix cells pass installer `--demo-sites` by default (`docker/matrix/cell-entrypoint.py` → ANT `installSampleSites`) so `GET …/path/folder/Sites` and the modern Explorer tree list Corporate/Enterprise Investments after a fresh `qa-up`. Opt out with env `DEMO_SITES=false` or cell flag `--no-demo-sites`. External-DB matrix cells stay off unless `DEMO_SITES=true`. Requires a **new** silent install (re-run `qa-up` after image/entrypoint change); an already-installed empty `RXSITES` cell is not backfilled.
+
 ##### Rhythmyx ApplicationContext fail-fast (#2462 / #2480 / #2423)
 
 Jetty can report the HTTP connector **Started** while the ROOT/Rhythmyx Spring `ApplicationContext` failed (e.g. `BeanCurrentlyInCreationException` / circular `folderHelper` wiring). A port-up or HTTP-only probe is **not** sufficient. The same markers apply to **QA matrix cells** and the **cms-dts compose stack**.

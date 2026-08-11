@@ -16,6 +16,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  isStrictCmsPathDescendant,
   normalizeExplorerFolderPath,
   resolveFolderPathFromSelection,
 } from "../../../main/ts/contentExplorer/folderPath";
@@ -42,6 +43,37 @@ describe("normalizeExplorerFolderPath (#2792)", () => {
       "/Sites/Demo/Home",
     );
     expect(normalizeExplorerFolderPath("C:\\Sites\\Demo")).toBe("/Sites/Demo");
+  });
+});
+
+describe("isStrictCmsPathDescendant (#3001)", () => {
+  it("accepts site id children under /Sites with either slash form", () => {
+    expect(
+      isStrictCmsPathDescendant("/Sites", "/Sites/16777215-101-703/"),
+    ).toBe(true);
+    expect(
+      isStrictCmsPathDescendant("/Sites/", "/Sites/16777215-101-703/"),
+    ).toBe(true);
+    expect(
+      isStrictCmsPathDescendant("//Sites/", "//Sites/Corporate_Investments"),
+    ).toBe(true);
+    expect(
+      isStrictCmsPathDescendant("/Sites", "//Sites/Enterprise_Investments"),
+    ).toBe(true);
+  });
+
+  it("rejects self, siblings, and non-descendants", () => {
+    expect(isStrictCmsPathDescendant("/Sites", "/Sites")).toBe(false);
+    expect(isStrictCmsPathDescendant("/Sites/", "/Sites/")).toBe(false);
+    expect(isStrictCmsPathDescendant("/Sites", "/Assets/x")).toBe(false);
+    expect(isStrictCmsPathDescendant("/Sites/Foo", "/Sites/Bar")).toBe(false);
+    expect(isStrictCmsPathDescendant("/Sites", "")).toBe(false);
+    expect(isStrictCmsPathDescendant("/Sites", null)).toBe(false);
+  });
+
+  it("treats any non-root path as a child of root", () => {
+    expect(isStrictCmsPathDescendant("/", "/Sites/")).toBe(true);
+    expect(isStrictCmsPathDescendant("/", "/")).toBe(false);
   });
 });
 

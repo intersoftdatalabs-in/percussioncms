@@ -692,6 +692,125 @@ class InstallArgvTests(unittest.TestCase):
         self.assertNotIn("--db.host=ignored", argv)
         self.assertNotIn("--db.ssl.enabled=false", argv)
 
+    def test_cms_h2_seeds_demo_sites_by_default(self):
+        """#3001: stock H2 QA matrix must pass --demo-sites so /Sites is non-empty."""
+        # Clear env override so default CMS+H2 path is exercised.
+        prev = os.environ.pop("DEMO_SITES", None)
+        try:
+            argv = cell.build_install_argv(
+                java="java",
+                installer_jar=Path("/installer/installer.jar"),
+                install_root=Path("/opt/Percussion"),
+                product="cms",
+                db_type="h2",
+                db_host="",
+                db_port="",
+                db_name="",
+                db_user="",
+                db_password="",
+                db_schema="",
+                silent=True,
+            )
+            self.assertIn("--demo-sites", argv)
+        finally:
+            if prev is not None:
+                os.environ["DEMO_SITES"] = prev
+
+    def test_cms_h2_demo_sites_explicit_false(self):
+        prev = os.environ.pop("DEMO_SITES", None)
+        try:
+            argv = cell.build_install_argv(
+                java="java",
+                installer_jar=Path("/installer/installer.jar"),
+                install_root=Path("/opt/Percussion"),
+                product="cms",
+                db_type="h2",
+                db_host="",
+                db_port="",
+                db_name="",
+                db_user="",
+                db_password="",
+                db_schema="",
+                silent=True,
+                demo_sites=False,
+            )
+            self.assertNotIn("--demo-sites", argv)
+        finally:
+            if prev is not None:
+                os.environ["DEMO_SITES"] = prev
+
+    def test_cms_postgres_demo_sites_off_by_default(self):
+        prev = os.environ.pop("DEMO_SITES", None)
+        try:
+            argv = cell.build_install_argv(
+                java="java",
+                installer_jar=Path("/installer/installer.jar"),
+                install_root=Path("/opt/Percussion"),
+                product="cms",
+                db_type="postgresql",
+                db_host="postgres",
+                db_port="5432",
+                db_name="percdb",
+                db_user="percuser",
+                db_password="test-db-password",
+                db_schema="public",
+                silent=True,
+            )
+            self.assertNotIn("--demo-sites", argv)
+        finally:
+            if prev is not None:
+                os.environ["DEMO_SITES"] = prev
+
+    def test_dts_never_demo_sites(self):
+        prev = os.environ.pop("DEMO_SITES", None)
+        try:
+            argv = cell.build_install_argv(
+                java="java",
+                installer_jar=Path("/installer/installer.jar"),
+                install_root=Path("/opt/Percussion"),
+                product="dts",
+                db_type="h2",
+                db_host="",
+                db_port="",
+                db_name="",
+                db_user="",
+                db_password="",
+                db_schema="",
+                silent=True,
+                demo_sites=True,  # explicit still ignored by resolve for non-cms…
+            )
+            # Explicit True still allowed if caller forces it (product check is
+            # inside resolve_demo_sites; demo_sites=True wins over product).
+            self.assertIn("--demo-sites", argv)
+            self.assertTrue(
+                cell.resolve_demo_sites(product="dts", db_type="h2", demo_sites=True)
+            )
+            self.assertFalse(
+                cell.resolve_demo_sites(product="dts", db_type="h2", demo_sites=None)
+            )
+        finally:
+            if prev is not None:
+                os.environ["DEMO_SITES"] = prev
+
+    def test_resolve_demo_sites_env_override(self):
+        prev = os.environ.get("DEMO_SITES")
+        try:
+            os.environ["DEMO_SITES"] = "false"
+            self.assertFalse(
+                cell.resolve_demo_sites(product="cms", db_type="h2", demo_sites=None)
+            )
+            os.environ["DEMO_SITES"] = "true"
+            self.assertTrue(
+                cell.resolve_demo_sites(
+                    product="cms", db_type="postgresql", demo_sites=None
+                )
+            )
+        finally:
+            if prev is None:
+                os.environ.pop("DEMO_SITES", None)
+            else:
+                os.environ["DEMO_SITES"] = prev
+
     def test_oracle_install_argv_service_schema_ssl_off(self):
         """Oracle cell: host/port/service/user/password/schema + SSL off (compose)."""
         argv = cell.build_install_argv(
@@ -707,6 +826,7 @@ class InstallArgvTests(unittest.TestCase):
             db_password="test-db-password",
             db_schema="percuser",
             silent=True,
+            demo_sites=False,
         )
         self.assertIn("--db.type=oracle", argv)
         self.assertIn("--db.host=oracle", argv)
@@ -719,6 +839,7 @@ class InstallArgvTests(unittest.TestCase):
         self.assertIn("--db.ssl.verify=false", argv)
         self.assertIn("--silent", argv)
         self.assertIn("--no-tty", argv)
+        self.assertNotIn("--demo-sites", argv)
 
 
 class ProbeUrlTests(unittest.TestCase):

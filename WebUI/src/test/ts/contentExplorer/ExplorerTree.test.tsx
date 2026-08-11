@@ -83,6 +83,38 @@ describe("ExplorerTree", () => {
     );
   });
 
+  it("renders site-type children with id paths under /Sites (#3001)", async () => {
+    // Wire shape from PSSitePathItemService: type=site, path=/Sites/{id}/
+    const SITE_CHILD: PSPathItem = {
+      id: "16777215-101-703",
+      path: "/Sites/16777215-101-703/",
+      name: "Corporate_Investments",
+      type: "site",
+      leaf: false,
+      hasFolderChildren: true,
+    };
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.endsWith("/pathmanagement/path/folder/Sites")) {
+        return pathItemListResponse([SITE_CHILD]);
+      }
+      return pathItemListResponse([]);
+    });
+    render(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath={null}
+        onSelectFolder={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("tree-node-/Sites/16777215-101-703/"),
+      ).toBeInTheDocument(),
+    );
+    expect(screen.getByText("Corporate_Investments")).toBeInTheDocument();
+  });
+
   it("loads children on first expand (lazy)", async () => {
     let rootCalls = 0;
     let childCalls = 0;
