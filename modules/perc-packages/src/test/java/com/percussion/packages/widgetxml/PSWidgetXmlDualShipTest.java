@@ -41,12 +41,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Dual-ship modern widget authoring tests (issues #2831 batch A, #2832 batch B, #2844 batch C /
- * parent #2630).
+ * Dual-ship / ship-exit modern widget authoring tests (issues #2831 batch A, #2832 batch B, #2844
+ * batch C, #2883/#2884/#2885 batch A+B+C stop-shipping install XML / parent #2630).
  *
- * <p>Product packages keep install Widget XML under {@code
- * sys__UserDependency--rxconfig/Widgets} while committing modern {@code widgets/&lt;stem&gt;/}
- * roots. Selection prefers modern when both exist.
+ * <p>Batches A/B/C product packages author modern {@code widgets/&lt;stem&gt;/} only (no committed
+ * install Widget XML). Selection prefers modern when both exist; install materialization regenerates
+ * Widget XML at package-build time for modern-only packages. {@code perc.Test} remains residual.
  */
 class PSWidgetXmlDualShipTest {
 
@@ -61,33 +61,11 @@ class PSWidgetXmlDualShipTest {
             .resolve("Widgets");
     Files.createDirectories(widgetsXml);
 
-    // Minimal valid-shaped simple text fixture if product package unavailable.
-    Path product = locatePackage("perc.baseWidgets");
-    if (product != null) {
-      Path src =
-          product
-              .resolve("sys__UserDependency--rxconfig")
-              .resolve("Widgets")
-              .resolve("percSimpleText.xml");
-      Files.copy(src, widgetsXml.resolve("percSimpleText.xml"), StandardCopyOption.REPLACE_EXISTING);
-      // Copy package props so context version matches product
-      Path props = product.resolve("psx_archiveInfo.xml");
-      if (Files.isRegularFile(props)) {
-        Files.copy(props, packageDir.resolve("psx_archiveInfo.xml"), StandardCopyOption.REPLACE_EXISTING);
-      }
-    } else {
-      Files.writeString(
-          widgetsXml.resolve("percSimpleText.xml"),
-          """
-          <Widget>
-            <Title>Simple Text</Title>
-            <Content type="velocity"><![CDATA[#loadRelatedWidgetContents()]]></Content>
-            <Code type="jexl"><![CDATA[$x = 1;]]></Code>
-            <contenttype_name>percSimpleTextAsset</contenttype_name>
-            <Category>content</Category>
-          </Widget>
-          """,
-          StandardCharsets.UTF_8);
+    // Upgrade-input fixture (product batch A no longer commits Widget XML — #2883).
+    try (var in =
+        PSWidgetXmlDualShipTest.class.getResourceAsStream("/widgetxml/percSimpleText.xml")) {
+      assertNotNull(in, "classpath fixture /widgetxml/percSimpleText.xml");
+      Files.write(widgetsXml.resolve("percSimpleText.xml"), in.readAllBytes());
     }
 
     int written = PSWidgetXmlDualShip.materializeModernWidgetSources(packageDir);
@@ -107,15 +85,16 @@ class PSWidgetXmlDualShipTest {
   }
 
   @Test
-  void productBatchA_modernAuthoringRoots_presentAndParityWithXmlCompile() throws Exception {
+  void productBatchA_modernOnly_noCommittedXml_installMaterializeRoundTrip() throws Exception {
     Path packagesRoot = locatePackagesRoot();
     if (packagesRoot == null) {
-      System.err.println("WARN: Packages root not found; skipping product batch A dual-ship test");
+      System.err.println("WARN: Packages root not found; skipping product batch A ship-exit test");
       return;
     }
 
     Set<String> foundStems = new HashSet<>();
     int packagesWithModern = 0;
+    int installXmlWritten = 0;
 
     for (String pkgName : PSWidgetXmlDualShip.BATCH_A_PACKAGE_DIRS) {
       Path product = packagesRoot.resolve(pkgName);
@@ -128,55 +107,75 @@ class PSWidgetXmlDualShipTest {
           PSWidgetXmlDualShip.hasModernWidgetSources(product),
           pkgName + " must author modern widgets/ sources (#2831 batch A)");
 
-      // Dual-run: install Widget XML remains until native install path (do not mass-delete).
-      Path xmlDir = PSWidgetXmlPackageCompiler.resolveWidgetsDir(product);
-      assertTrue(Files.isDirectory(xmlDir), pkgName + " still dual-ships Widget XML for install");
+      // Ship-exit (#2883): product source no longer commits install Widget XML.
+      assertFalse(
+          PSWidgetXmlInstallEmitter.hasCommittedWidgetXml(product),
+          pkgName + " must not commit sys__UserDependency--rxconfig/Widgets/*.xml (#2883)");
 
-      List<PSWidgetXmlCompileResult> fromXml = PSWidgetXmlPackageCompiler.compilePackage(product);
       List<PSWidgetXmlCompileResult> fromModern = PSWidgetXmlDualShip.compileModernWidgets(product);
+      // compilePackage falls back to modern when XML absent.
+      List<PSWidgetXmlCompileResult> fromPackage =
+          PSWidgetXmlPackageCompiler.compilePackage(product);
       assertEquals(
-          fromXml.size(),
           fromModern.size(),
-          pkgName + " modern widget count must match Widget XML count");
+          fromPackage.size(),
+          pkgName + " package compile must equal modern widget count");
 
-      Map<String, PSWidgetXmlCompileResult> xmlById =
-          fromXml.stream()
-              .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
       Map<String, PSWidgetXmlCompileResult> modernById =
           fromModern.stream()
               .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
+      for (String id : modernById.keySet()) {
+        foundStems.add(id);
+        PSComponentPackageManifestValidator.validate(modernById.get(id).getManifest());
+      }
 
-      for (Map.Entry<String, PSWidgetXmlCompileResult> e : xmlById.entrySet()) {
+      // Staging materialize: install XML regenerated from modern for deployer wire format.
+      Path staging = tempDir.resolve("batch-a-stage-" + pkgName);
+      copyTree(product, staging);
+      int written = PSWidgetXmlDualShip.materializeInstallWidgetXml(staging);
+      assertEquals(
+          fromModern.size(),
+          written,
+          pkgName + " materialize-install must write one XML per modern widget");
+      assertTrue(PSWidgetXmlInstallEmitter.hasCommittedWidgetXml(staging));
+      installXmlWritten += written;
+
+      List<PSWidgetXmlCompileResult> fromMaterialized =
+          PSWidgetXmlPackageCompiler.compilePackage(staging);
+      assertEquals(fromModern.size(), fromMaterialized.size(), pkgName + " install XML count");
+
+      Map<String, PSWidgetXmlCompileResult> xmlById =
+          fromMaterialized.stream()
+              .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
+      for (Map.Entry<String, PSWidgetXmlCompileResult> e : modernById.entrySet()) {
         String id = e.getKey();
-        assertTrue(modernById.containsKey(id), pkgName + " missing modern widget " + id);
-        PSComponentPackageManifest expected = e.getValue().getManifest();
-        PSComponentPackageManifest actual = modernById.get(id).getManifest();
-        // Reparse both so map/list equality is stable.
-        PSComponentPackageManifest expectedRound =
-            PSComponentPackageManifestIo.parse(PSComponentPackageManifestIo.toJson(expected));
-        PSComponentPackageManifest actualRound =
-            PSComponentPackageManifestIo.parse(PSComponentPackageManifestIo.toJson(actual));
-        assertEquals(expectedRound, actualRound, "modern manifest parity for " + id);
-
+        assertTrue(xmlById.containsKey(id), pkgName + " missing install widget " + id);
+        // Core identity + template body parity after reverse emit → recompile.
+        assertEquals(
+            e.getValue().getManifest().getId(), xmlById.get(id).getManifest().getId());
+        assertEquals(
+            e.getValue().getManifest().getName(), xmlById.get(id).getManifest().getName());
         String templateKey =
-            expected.getTemplates().isEmpty()
+            e.getValue().getManifest().getTemplates().isEmpty()
                 ? null
-                : expected.getTemplates().get(0).getSourceRef();
+                : e.getValue().getManifest().getTemplates().get(0).getSourceRef();
         if (templateKey != null) {
           assertEquals(
               normalizeNewlines(e.getValue().getTextArtifacts().get(templateKey)),
-              normalizeNewlines(modernById.get(id).getTextArtifacts().get(templateKey)),
-              "template parity for " + id);
+              normalizeNewlines(xmlById.get(id).getTextArtifacts().get(templateKey)),
+              "template parity after install materialize for " + id);
         }
-        foundStems.add(id);
       }
+
+      // Second materialize is a no-op while committed XML is present on staging.
+      assertEquals(0, PSWidgetXmlDualShip.materializeInstallWidgetXml(staging));
 
       // Shim: package root with modern widgets/ prefers modern over legacy XML.
       PSDefinitionSourceSelection sel = PSLegacyDefinitionXmlShim.selectForPackageRoot(product);
       assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, sel.getKind(), pkgName);
       assertFalse(
           PSLegacyDefinitionXmlShim.wouldUseLegacyShim(product),
-          pkgName + " dual-ship modern roots should win selection");
+          pkgName + " modern roots should win selection without dual-ship XML");
 
       packagesWithModern++;
     }
@@ -189,6 +188,10 @@ class PSWidgetXmlDualShipTest {
         new HashSet<>(PSWidgetXmlDualShip.BATCH_A_WIDGET_STEMS),
         foundStems,
         "batch A must cover the 8 named widget stems");
+    assertEquals(
+        PSWidgetXmlDualShip.BATCH_A_WIDGET_STEMS.size(),
+        installXmlWritten,
+        "batch A install materialize must cover 8 widgets");
   }
 
   @Test
@@ -229,15 +232,16 @@ class PSWidgetXmlDualShipTest {
   }
 
   @Test
-  void productBatchB_modernAuthoringRoots_presentAndParityWithXmlCompile() throws Exception {
+  void productBatchB_modernOnly_noCommittedXml_installMaterializeRoundTrip() throws Exception {
     Path packagesRoot = locatePackagesRoot();
     if (packagesRoot == null) {
-      System.err.println("WARN: Packages root not found; skipping product batch B dual-ship test");
+      System.err.println("WARN: Packages root not found; skipping product batch B ship-exit test");
       return;
     }
 
     Set<String> foundStems = new HashSet<>();
     int packagesWithModern = 0;
+    int installXmlWritten = 0;
 
     for (String pkgName : PSWidgetXmlDualShip.BATCH_B_PACKAGE_DIRS) {
       Path product = packagesRoot.resolve(pkgName);
@@ -250,53 +254,73 @@ class PSWidgetXmlDualShipTest {
           PSWidgetXmlDualShip.hasModernWidgetSources(product),
           pkgName + " must author modern widgets/ sources (#2832 batch B)");
 
-      // Dual-run: install Widget XML remains until native install path (do not mass-delete).
-      Path xmlDir = PSWidgetXmlPackageCompiler.resolveWidgetsDir(product);
-      assertTrue(Files.isDirectory(xmlDir), pkgName + " still dual-ships Widget XML for install");
+      // Ship-exit (#2884): product source no longer commits install Widget XML.
+      assertFalse(
+          PSWidgetXmlInstallEmitter.hasCommittedWidgetXml(product),
+          pkgName + " must not commit sys__UserDependency--rxconfig/Widgets/*.xml (#2884)");
 
-      List<PSWidgetXmlCompileResult> fromXml = PSWidgetXmlPackageCompiler.compilePackage(product);
       List<PSWidgetXmlCompileResult> fromModern = PSWidgetXmlDualShip.compileModernWidgets(product);
+      // compilePackage falls back to modern when XML absent.
+      List<PSWidgetXmlCompileResult> fromPackage =
+          PSWidgetXmlPackageCompiler.compilePackage(product);
       assertEquals(
-          fromXml.size(),
           fromModern.size(),
-          pkgName + " modern widget count must match Widget XML count");
+          fromPackage.size(),
+          pkgName + " package compile must equal modern widget count");
 
-      Map<String, PSWidgetXmlCompileResult> xmlById =
-          fromXml.stream()
-              .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
       Map<String, PSWidgetXmlCompileResult> modernById =
           fromModern.stream()
               .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
+      for (String id : modernById.keySet()) {
+        foundStems.add(id);
+        PSComponentPackageManifestValidator.validate(modernById.get(id).getManifest());
+      }
 
-      for (Map.Entry<String, PSWidgetXmlCompileResult> e : xmlById.entrySet()) {
+      // Staging materialize: install XML regenerated from modern for deployer wire format.
+      Path staging = tempDir.resolve("batch-b-stage-" + pkgName);
+      copyTree(product, staging);
+      int written = PSWidgetXmlDualShip.materializeInstallWidgetXml(staging);
+      assertEquals(
+          fromModern.size(),
+          written,
+          pkgName + " materialize-install must write one XML per modern widget");
+      assertTrue(PSWidgetXmlInstallEmitter.hasCommittedWidgetXml(staging));
+      installXmlWritten += written;
+
+      List<PSWidgetXmlCompileResult> fromMaterialized =
+          PSWidgetXmlPackageCompiler.compilePackage(staging);
+      assertEquals(fromModern.size(), fromMaterialized.size(), pkgName + " install XML count");
+
+      Map<String, PSWidgetXmlCompileResult> xmlById =
+          fromMaterialized.stream()
+              .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
+      for (Map.Entry<String, PSWidgetXmlCompileResult> e : modernById.entrySet()) {
         String id = e.getKey();
-        assertTrue(modernById.containsKey(id), pkgName + " missing modern widget " + id);
-        PSComponentPackageManifest expected = e.getValue().getManifest();
-        PSComponentPackageManifest actual = modernById.get(id).getManifest();
-        PSComponentPackageManifest expectedRound =
-            PSComponentPackageManifestIo.parse(PSComponentPackageManifestIo.toJson(expected));
-        PSComponentPackageManifest actualRound =
-            PSComponentPackageManifestIo.parse(PSComponentPackageManifestIo.toJson(actual));
-        assertEquals(expectedRound, actualRound, "modern manifest parity for " + id);
-
+        assertTrue(xmlById.containsKey(id), pkgName + " missing install widget " + id);
+        assertEquals(
+            e.getValue().getManifest().getId(), xmlById.get(id).getManifest().getId());
+        assertEquals(
+            e.getValue().getManifest().getName(), xmlById.get(id).getManifest().getName());
         String templateKey =
-            expected.getTemplates().isEmpty()
+            e.getValue().getManifest().getTemplates().isEmpty()
                 ? null
-                : expected.getTemplates().get(0).getSourceRef();
+                : e.getValue().getManifest().getTemplates().get(0).getSourceRef();
         if (templateKey != null) {
           assertEquals(
               normalizeNewlines(e.getValue().getTextArtifacts().get(templateKey)),
-              normalizeNewlines(modernById.get(id).getTextArtifacts().get(templateKey)),
-              "template parity for " + id);
+              normalizeNewlines(xmlById.get(id).getTextArtifacts().get(templateKey)),
+              "template parity after install materialize for " + id);
         }
-        foundStems.add(id);
       }
+
+      // Second materialize is a no-op while committed XML is present on staging.
+      assertEquals(0, PSWidgetXmlDualShip.materializeInstallWidgetXml(staging));
 
       PSDefinitionSourceSelection sel = PSLegacyDefinitionXmlShim.selectForPackageRoot(product);
       assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, sel.getKind(), pkgName);
       assertFalse(
           PSLegacyDefinitionXmlShim.wouldUseLegacyShim(product),
-          pkgName + " dual-ship modern roots should win selection");
+          pkgName + " modern roots should win selection without dual-ship XML");
 
       packagesWithModern++;
     }
@@ -309,6 +333,10 @@ class PSWidgetXmlDualShipTest {
         new HashSet<>(PSWidgetXmlDualShip.BATCH_B_WIDGET_STEMS),
         foundStems,
         "batch B must cover the 20 named widget stems");
+    assertEquals(
+        PSWidgetXmlDualShip.BATCH_B_WIDGET_STEMS.size(),
+        installXmlWritten,
+        "batch B install materialize must cover 20 widgets");
   }
 
   @Test
@@ -334,15 +362,16 @@ class PSWidgetXmlDualShipTest {
   }
 
   @Test
-  void productBatchC_modernAuthoringRoots_presentAndParityWithXmlCompile() throws Exception {
+  void productBatchC_modernOnly_noCommittedXml_installMaterializeRoundTrip() throws Exception {
     Path packagesRoot = locatePackagesRoot();
     if (packagesRoot == null) {
-      System.err.println("WARN: Packages root not found; skipping product batch C dual-ship test");
+      System.err.println("WARN: Packages root not found; skipping product batch C ship-exit test");
       return;
     }
 
     Set<String> foundStems = new HashSet<>();
     int packagesWithModern = 0;
+    int installXmlWritten = 0;
 
     for (String pkgName : PSWidgetXmlDualShip.BATCH_C_PACKAGE_DIRS) {
       Path product = packagesRoot.resolve(pkgName);
@@ -353,55 +382,75 @@ class PSWidgetXmlDualShipTest {
 
       assertTrue(
           PSWidgetXmlDualShip.hasModernWidgetSources(product),
-          pkgName + " must author modern widgets/ sources (#2844 batch C)");
+          pkgName + " must author modern widgets/ sources (#2844 / #2885 batch C)");
 
-      // Dual-run: install Widget XML remains until native install path (do not mass-delete).
-      Path xmlDir = PSWidgetXmlPackageCompiler.resolveWidgetsDir(product);
-      assertTrue(Files.isDirectory(xmlDir), pkgName + " still dual-ships Widget XML for install");
+      // Ship-exit (#2885): product source no longer commits install Widget XML.
+      assertFalse(
+          PSWidgetXmlInstallEmitter.hasCommittedWidgetXml(product),
+          pkgName + " must not commit sys__UserDependency--rxconfig/Widgets/*.xml (#2885)");
 
-      List<PSWidgetXmlCompileResult> fromXml = PSWidgetXmlPackageCompiler.compilePackage(product);
       List<PSWidgetXmlCompileResult> fromModern = PSWidgetXmlDualShip.compileModernWidgets(product);
+      // compilePackage falls back to modern when XML absent.
+      List<PSWidgetXmlCompileResult> fromPackage =
+          PSWidgetXmlPackageCompiler.compilePackage(product);
       assertEquals(
-          fromXml.size(),
           fromModern.size(),
-          pkgName + " modern widget count must match Widget XML count");
+          fromPackage.size(),
+          pkgName + " package compile must equal modern widget count");
 
-      Map<String, PSWidgetXmlCompileResult> xmlById =
-          fromXml.stream()
-              .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
       Map<String, PSWidgetXmlCompileResult> modernById =
           fromModern.stream()
               .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
+      for (String id : modernById.keySet()) {
+        foundStems.add(id);
+        PSComponentPackageManifestValidator.validate(modernById.get(id).getManifest());
+      }
 
-      for (Map.Entry<String, PSWidgetXmlCompileResult> e : xmlById.entrySet()) {
+      // Staging materialize: install XML regenerated from modern for deployer wire format.
+      Path staging = tempDir.resolve("batch-c-stage-" + pkgName);
+      copyTree(product, staging);
+      int written = PSWidgetXmlDualShip.materializeInstallWidgetXml(staging);
+      assertEquals(
+          fromModern.size(),
+          written,
+          pkgName + " materialize-install must write one XML per modern widget");
+      assertTrue(PSWidgetXmlInstallEmitter.hasCommittedWidgetXml(staging));
+      installXmlWritten += written;
+
+      List<PSWidgetXmlCompileResult> fromMaterialized =
+          PSWidgetXmlPackageCompiler.compilePackage(staging);
+      assertEquals(fromModern.size(), fromMaterialized.size(), pkgName + " install XML count");
+
+      Map<String, PSWidgetXmlCompileResult> xmlById =
+          fromMaterialized.stream()
+              .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
+      for (Map.Entry<String, PSWidgetXmlCompileResult> e : modernById.entrySet()) {
         String id = e.getKey();
-        assertTrue(modernById.containsKey(id), pkgName + " missing modern widget " + id);
-        PSComponentPackageManifest expected = e.getValue().getManifest();
-        PSComponentPackageManifest actual = modernById.get(id).getManifest();
-        PSComponentPackageManifest expectedRound =
-            PSComponentPackageManifestIo.parse(PSComponentPackageManifestIo.toJson(expected));
-        PSComponentPackageManifest actualRound =
-            PSComponentPackageManifestIo.parse(PSComponentPackageManifestIo.toJson(actual));
-        assertEquals(expectedRound, actualRound, "modern manifest parity for " + id);
-
+        assertTrue(xmlById.containsKey(id), pkgName + " missing install widget " + id);
+        assertEquals(
+            e.getValue().getManifest().getId(), xmlById.get(id).getManifest().getId());
+        assertEquals(
+            e.getValue().getManifest().getName(), xmlById.get(id).getManifest().getName());
         String templateKey =
-            expected.getTemplates().isEmpty()
+            e.getValue().getManifest().getTemplates().isEmpty()
                 ? null
-                : expected.getTemplates().get(0).getSourceRef();
+                : e.getValue().getManifest().getTemplates().get(0).getSourceRef();
         if (templateKey != null) {
           assertEquals(
               normalizeNewlines(e.getValue().getTextArtifacts().get(templateKey)),
-              normalizeNewlines(modernById.get(id).getTextArtifacts().get(templateKey)),
-              "template parity for " + id);
+              normalizeNewlines(xmlById.get(id).getTextArtifacts().get(templateKey)),
+              "template parity after install materialize for " + id);
         }
-        foundStems.add(id);
       }
+
+      // Second materialize is a no-op while committed XML is present on staging.
+      assertEquals(0, PSWidgetXmlDualShip.materializeInstallWidgetXml(staging));
 
       PSDefinitionSourceSelection sel = PSLegacyDefinitionXmlShim.selectForPackageRoot(product);
       assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, sel.getKind(), pkgName);
       assertFalse(
           PSLegacyDefinitionXmlShim.wouldUseLegacyShim(product),
-          pkgName + " dual-ship modern roots should win selection");
+          pkgName + " modern-only package should not require legacy shim");
 
       packagesWithModern++;
     }
@@ -414,6 +463,10 @@ class PSWidgetXmlDualShipTest {
         new HashSet<>(PSWidgetXmlDualShip.BATCH_C_WIDGET_STEMS),
         foundStems,
         "batch C must cover the 19 named widget stems");
+    assertEquals(
+        PSWidgetXmlDualShip.BATCH_C_WIDGET_STEMS.size(),
+        installXmlWritten,
+        "install materialize should write 19 Widget XML files across batch C staging");
   }
 
   @Test
@@ -451,6 +504,28 @@ class PSWidgetXmlDualShipTest {
 
   private static String normalizeNewlines(String s) {
     return s == null ? null : s.replace("\r\n", "\n").replace('\r', '\n');
+  }
+
+  private static void copyTree(Path source, Path target) throws Exception {
+    Files.walk(source)
+        .forEach(
+            path -> {
+              try {
+                Path rel = source.relativize(path);
+                Path dest = target.resolve(rel.toString());
+                if (Files.isDirectory(path)) {
+                  Files.createDirectories(dest);
+                } else {
+                  Path parent = dest.getParent();
+                  if (parent != null) {
+                    Files.createDirectories(parent);
+                  }
+                  Files.copy(path, dest, StandardCopyOption.REPLACE_EXISTING);
+                }
+              } catch (Exception e) {
+                throw new RuntimeException(e);
+              }
+            });
   }
 
   private static Path locatePackage(String packageDirName) {

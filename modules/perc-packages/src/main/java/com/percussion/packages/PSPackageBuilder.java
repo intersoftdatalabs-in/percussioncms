@@ -22,6 +22,8 @@ import com.percussion.packages.pagexml.PSPageXmlException;
 import com.percussion.packages.pagexml.PSPageXmlInstallMode;
 import com.percussion.packages.pagexml.PSPageXmlInstallPolicy;
 import com.percussion.packages.pagexml.PSPageXmlNativeInstall;
+import com.percussion.packages.widgetxml.PSWidgetXmlDualShip;
+import com.percussion.packages.widgetxml.PSWidgetXmlException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -50,6 +52,12 @@ import java.util.zip.ZipOutputStream;
  *       com.percussion.packages.pagexml.PSPageXmlInstallPolicy} / {@link
  *       com.percussion.packages.pagexml.PSPageXmlNativeInstall}
  * </ul>
+ *
+ * <p>Widget packages that author modern {@code widgets/&lt;stem&gt;/component-package.json} without
+ * committed install Widget XML (batch A+B+C ship-exit #2883/#2884/#2885) materialize
+ * {@code sys__UserDependency--rxconfig/Widgets/*.xml} before reorganize so deployer / {@code
+ * PSWidgetDao} still receive the legacy install wire format. Dual-ship packages that still commit
+ * Widget XML are left unchanged.
  *
  * <p>Usage: {@code PSPackageBuilder <packagesDir> <outputDir> <tempDir>}
  */
@@ -150,6 +158,9 @@ public final class PSPackageBuilder {
       // Step 1: Copy source files to temp1
       copyDirectory(packageDir, temp1);
 
+      // Step 1a: Modern-only widget packages → install Widget XML (#2883/#2884/#2885 batch A+B+C)
+      stageModernWidgetInstallArtifacts(temp1, dirName);
+
       // Step 1b: Modern page packages → deployer TemplateDef install (#2786 / #2806)
       stageModernPageInstallArtifacts(temp1, temp2, dirName, true);
 
@@ -176,6 +187,27 @@ public final class PSPackageBuilder {
     }
 
     built++;
+  }
+
+  /**
+   * Stage install Widget XML from modern {@code widgets/} when the package no longer commits
+   * definition XML (batch A+B+C ship-exit #2883/#2884/#2885).
+   */
+  private static void stageModernWidgetInstallArtifacts(Path stagingPackageDir, String packageName)
+      throws IOException {
+    try {
+      if (!PSWidgetXmlDualShip.hasModernWidgetSources(stagingPackageDir)) {
+        return;
+      }
+      int n = PSWidgetXmlDualShip.materializeInstallWidgetXml(stagingPackageDir);
+      if (n > 0) {
+        System.out.println(
+            "  install Widget XML from modern for " + packageName + ": " + n + " written");
+      }
+    } catch (PSWidgetXmlException e) {
+      throw new IOException(
+          "Widget install staging failed for package " + packageName + ": " + e.getMessage(), e);
+    }
   }
 
   /**
