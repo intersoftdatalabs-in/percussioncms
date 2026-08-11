@@ -158,6 +158,51 @@ describe("DeveloperPreferencesPanel", () => {
     });
   });
 
+  /**
+   * #2948 — after Save, a full remount (reload Preferences) must rehydrate
+   * RUNTIME_VISIBLE from the preference payload, not fall back to system default
+   * without Visible on Default.
+   */
+  it("reload shows RUNTIME_VISIBLE on Default after save→load round-trip (#2948)", async () => {
+    renderPanel();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-prefs-acl-table")).toBeTruthy();
+    });
+
+    const runtimeOnDefault = screen.getByTestId(
+      "developer-prefs-acl-perm-row:0:Default:USER-RUNTIME_VISIBLE",
+    ) as HTMLInputElement;
+    expect(runtimeOnDefault.checked).toBe(false);
+    fireEvent.click(runtimeOnDefault);
+
+    fireEvent.click(screen.getByTestId("developer-prefs-acl-save"));
+    await waitFor(() => {
+      expect(saveDefaultAclTemplate).toHaveBeenCalled();
+    });
+    const [savedTemplate] = vi.mocked(saveDefaultAclTemplate).mock.calls[0];
+    expect(savedTemplate.entries[0].permissions).toContain("RUNTIME_VISIBLE");
+
+    cleanup();
+
+    // Simulate remount after page reload: load returns the saved preference value.
+    vi.mocked(loadDefaultAclTemplate).mockResolvedValue({
+      template: savedTemplate,
+      fromPreference: true,
+    });
+
+    renderPanel();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-prefs-acl-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-prefs-acl-source").textContent).toMatch(
+      /saved/i,
+    );
+    const reloaded = screen.getByTestId(
+      "developer-prefs-acl-perm-row:0:Default:USER-RUNTIME_VISIBLE",
+    ) as HTMLInputElement;
+    expect(reloaded.checked).toBe(true);
+  });
+
   it("adds a template entry from the add form", async () => {
     renderPanel();
     await waitFor(() => {

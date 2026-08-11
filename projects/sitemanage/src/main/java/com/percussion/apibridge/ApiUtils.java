@@ -713,14 +713,17 @@ public class ApiUtils {
     return ret;
   }
 
+  /**
+   * Convert a persisted property to a REST {@link UserPreference}.
+   *
+   * <p>Must include {@code value} — {@link PreferencesAdaptor#loadPreference} uses this path for
+   * {@code GET /preferences/{name}}. Dropping value caused Developer default ACL template
+   * {@code RUNTIME_VISIBLE} (and any other stored payload) to be lost on reload (#2948).
+   *
+   * <p>Delegates to {@link #convertPSPersistentProperty} so list/get/save converters stay aligned.
+   */
   public static UserPreference convertUserProperty(PSPersistentProperty p) {
-    UserPreference u = new UserPreference();
-    u.setCategory(p.getCategory());
-    u.setContext(p.getContext());
-    u.setExtraParam(p.getExtraParam());
-    u.setName(p.getName());
-    u.setUserName(p.getUserName());
-    return u;
+    return convertPSPersistentProperty(p);
   }
 
   public static IPSTypedPrincipal convertPrincipalType(TypedPrincipal owner) {
