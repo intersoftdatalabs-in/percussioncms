@@ -101,6 +101,31 @@ Example create body:
 - The Developer SPA Keyword editor uses these endpoints; integrators can call the same surface
   without the UI.
 
+## Content types (design catalog)
+
+| Operation | Path | Notes |
+|-----------|------|--------|
+| List | `GET /services/contenttypes` | Name, label, description, guid |
+| Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `designGaps` |
+
+### Field rule expressions (read-only)
+
+Content type **detail** field rows include boolean rule **flags** and, when rules exist,
+human-readable **expression summaries**:
+
+| Field | Meaning |
+|-------|---------|
+| `hasValidation` / `validationExpression` | Validation rules present / summary of conditionals or extension calls |
+| `hasVisibilityRules` / `visibilityExpression` | Visibility rules present / summary |
+| `hasInputTranslation` / `inputTranslationExpression` | Input transform present / extension call summary |
+| `hasOutputTranslation` / `outputTranslationExpression` | Output transform present / extension call summary |
+| `control` | Display control name |
+| `controlPropertyNames` | Control parameter **names** only (values and full choice catalogs not exposed) |
+
+These expression fields are **null/omitted when empty** (`NON_NULL` JSON). They are **not**
+writable via `PUT` — rule write/save and full control property editors remain Workbench /
+future design APIs. `designGaps` on detail still calls out write and catalog gaps.
+
 ## Design capability gaps (`designGaps`)
 
 Some Developer detail payloads include a **`designGaps`** array so clients know what the REST

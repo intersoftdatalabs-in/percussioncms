@@ -19,6 +19,7 @@
 - name, label, description, enabled, hideFromMenu, appName, editorUrl, guid
 - fields: name, label (display), origin (local/system/shared), dataType, control, searchable, fieldSet, required
 - fields **P0.2c rule flags**: readOnly, occurrence, hasValidation, hasVisibilityRules, hasInputTranslation, hasOutputTranslation
+- fields **CD-05–07 read-only expressions** (issue #2920): `validationExpression`, `visibilityExpression`, `inputTranslationExpression`, `outputTranslationExpression`, `controlPropertyNames[]` (names only; no values)
 - child field set names
 - **allowedWorkflows[]** + **defaultWorkflow** (P0.2b)
 - **allowedTemplates[]** (P0.2b)
@@ -43,8 +44,8 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 
 |                         Gap                          |    FR IDs    |                       Notes                       |
 |------------------------------------------------------|--------------|---------------------------------------------------|
-| Full field rule **expressions** / control properties | CD-05–CD-07  | Flags present (P0.2c); expressions not serialized |
-| Control property + choice configuration              | CD-07        | Only control **name** today                       |
+| Full field rule **expressions** / control properties | CD-05–CD-07  | **Read-only expressions + control property names** shipped (#2920); write/save + full catalogs still open |
+| Control property + choice configuration              | CD-07        | Control **name** + **property names** (read-only); values/choices not exposed |
 | Item-level pre/post exits & validations              | CD-09        | Properties tab                                    |
 | Edit workflow/template associations                  | CD-08, CD-12 | **Read-only lists available**                     |
 | Enable/disable as design action                      | CD-13        | Read `enabled` only                               |
@@ -58,10 +59,11 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 ## Recommended next API work
 
 1. ~~Optional JSON projection of field rules (read-only)~~ **Done P0.2c (flags only)**
-2. Design-session lock + `PUT` save via thin REST over `IPSContentDesignWs`
-3. ~~Keyword create/update/delete~~ **Done CD-17** (REST write + design WS + SPA editor)
-4. Full rule-expression serialization + control property catalogs
-5. Templates/slots design editors
+2. ~~Read-only field rule expressions + control property names~~ **Done CD-05-07 read path (#2920)**
+3. Design-session lock + `PUT` save via thin REST over `IPSContentDesignWs`
+4. ~~Keyword create/update/delete~~ **Done CD-17** (REST write + design WS + SPA editor)
+5. Control property value/choice catalogs + rule write/save
+6. Templates/slots design editors
 
 ## Client behavior
 
