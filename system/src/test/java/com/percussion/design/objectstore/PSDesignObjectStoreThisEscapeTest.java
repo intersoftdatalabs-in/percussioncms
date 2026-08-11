@@ -347,4 +347,111 @@ public class PSDesignObjectStoreThisEscapeTest {
     assertEquals(original.getColumnWidth(), restored.getColumnWidth());
     assertEquals(original.isTraceEnabled(), restored.isTraceEnabled());
   }
+
+  // --- #2465 app/editor config residual batch ---
+
+  @Test
+  public void applicationNameCtorSetsNameAndRequestRoot() {
+    // Package-visible / protected name ctor uses applyName/applyRequestRoot (this-escape safe).
+    PSApplication app = new PSApplication("DemoApp");
+    assertEquals("DemoApp", app.getName());
+    assertEquals("DemoApp", app.getRequestRoot());
+  }
+
+  @Test
+  public void relationshipIdCtorAndCopyCtor() {
+    PSLocator owner = new PSLocator(10, 1);
+    PSLocator dependent = new PSLocator(20, 1);
+    PSRelationshipConfig config =
+        new PSRelationshipConfig("ActiveAssembly", PSRelationshipConfig.RS_TYPE_SYSTEM);
+    PSRelationship original = new PSRelationship(42, owner, dependent, config);
+    assertEquals(42, original.getId());
+    assertEquals(owner, original.getOwner());
+    assertEquals(dependent, original.getDependent());
+
+    PSRelationship copy = new PSRelationship(99, original);
+    assertEquals(99, copy.getId());
+    assertEquals(owner, copy.getOwner());
+    assertEquals(config.getName(), copy.getConfig().getName());
+  }
+
+  @Test
+  public void relationshipConfigNameTypeCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSRelationshipConfig original =
+        new PSRelationshipConfig(
+            "ActiveAssembly",
+            PSRelationshipConfig.RS_TYPE_SYSTEM,
+            PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
+    Element elem = original.toXml(doc);
+
+    PSRelationshipConfig restored = new PSRelationshipConfig(elem, null, null);
+    assertEquals(original.getName(), restored.getName());
+    assertEquals(original.getType(), restored.getType());
+    assertEquals(original.getCategory(), restored.getCategory());
+  }
+
+  @Test
+  public void queryPipeNameCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSQueryPipe original = new PSQueryPipe("qpipe1");
+    Element elem = original.toXml(doc);
+
+    PSQueryPipe restored = new PSQueryPipe(elem, null, null);
+    assertEquals(original.getName(), restored.getName());
+  }
+
+  @Test
+  public void updatePipeNameCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSUpdatePipe original = new PSUpdatePipe("upipe1");
+    Element elem = original.toXml(doc);
+
+    PSUpdatePipe restored = new PSUpdatePipe(elem, null, null);
+    assertEquals(original.getName(), restored.getName());
+  }
+
+  @Test
+  public void dataMappingCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    // PSBackEndColumn implements IPSBackEndMapping for mapping construction.
+    PSBackEndTable table = new PSBackEndTable("CT_TABLE");
+    PSBackEndColumn col = new PSBackEndColumn(table, "TITLE");
+    PSDataMapping original = new PSDataMapping(new PSXmlField("title"), col);
+    Element elem = original.toXml(doc);
+
+    PSDataMapping restored = new PSDataMapping(elem, null, null);
+    assertEquals(original.getXmlField(), restored.getXmlField());
+  }
+
+  @Test
+  public void workflowInfoTypeCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSWorkflowInfo original =
+        new PSWorkflowInfo(PSWorkflowInfo.TYPE_INCLUSIONARY, java.util.List.of(1, 2, 3));
+    Element elem = original.toXml(doc);
+
+    PSWorkflowInfo restored = new PSWorkflowInfo(elem);
+    assertEquals(original.getType(), restored.getType());
+    java.util.List<Integer> restoredValues = new java.util.ArrayList<>();
+    restored.getValues().forEachRemaining(restoredValues::add);
+    assertEquals(java.util.List.of(1, 2, 3), restoredValues);
+  }
+
+  @Test
+  public void sharedFieldGroupNameCtor() {
+    PSSharedFieldGroup group = new PSSharedFieldGroup("sharedBody", "sharedBody.xml");
+    assertEquals("sharedBody", group.getName());
+    assertEquals("sharedBody.xml", group.getFilename());
+  }
+
+  @Test
+  public void resultPageStyleSheetCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSResultPage original = new PSResultPage(new java.net.URL("https://example.intsof/out.xsl"));
+    Element elem = original.toXml(doc);
+
+    PSResultPage restored = new PSResultPage(elem, null, null);
+    assertEquals(original.getStyleSheet().toExternalForm(), restored.getStyleSheet().toExternalForm());
+  }
 }

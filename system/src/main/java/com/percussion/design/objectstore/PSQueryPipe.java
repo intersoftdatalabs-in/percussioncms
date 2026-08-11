@@ -50,6 +50,7 @@ public final class PSQueryPipe extends PSPipe {
   public PSQueryPipe(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     this();
+    // Final fromXml on this leaf type is this-escape safe once updateParentList is final.
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
@@ -68,7 +69,7 @@ public final class PSQueryPipe extends PSPipe {
    */
   public PSQueryPipe(java.lang.String name) {
     super();
-    setName(name);
+    applyName(name);
   }
 
   /**
@@ -234,7 +235,7 @@ public final class PSQueryPipe extends PSPipe {
    *
    * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXQueryPipe
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

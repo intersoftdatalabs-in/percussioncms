@@ -261,7 +261,7 @@ public class PSRelationshipConfigSet extends PSCollectionComponent implements IP
    * @see com.percussion.design.objectstore.IPSComponent#fromXml(org.w3c.dom.Element, com.percussion.design.objectstore.IPSDocument, java.util.ArrayList)
    */
   @Override
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

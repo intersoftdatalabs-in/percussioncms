@@ -59,7 +59,8 @@ public class PSRelationship extends PSComponent {
     if (owner == null || dependent == null || config == null)
       throw new IllegalArgumentException("paramters cannot be null");
 
-    setId(id);
+    // Direct field write avoids virtual setId during construction (this-escape).
+    m_id = id;
     m_owner = owner;
     m_dependent = dependent;
     m_config = config;
@@ -99,7 +100,8 @@ public class PSRelationship extends PSComponent {
     if (owner == null || dependent == null)
       throw new IllegalArgumentException("neither owner nor dependent may be null");
 
-    setId(id);
+    // Direct field write avoids virtual setId during construction (this-escape).
+    m_id = id;
     m_owner = owner;
     m_dependent = dependent;
   }
@@ -179,7 +181,8 @@ public class PSRelationship extends PSComponent {
       PSRelationshipConfig config)
       throws PSUnknownNodeTypeException {
     m_config = config;
-    fromXml(sourceNode, parentDoc, parentComponents);
+    // Private path avoids virtual fromXml dispatch during construction (this-escape).
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
 
   /**
@@ -191,9 +194,10 @@ public class PSRelationship extends PSComponent {
   public PSRelationship(int id, PSRelationship source) {
     if (source == null) throw new IllegalArgumentException("source may not be null");
 
-    copyFrom(source);
+    // Non-virtual copy for this-escape safety.
+    copyFromBase(source);
 
-    setId(id);
+    m_id = id;
   }
 
   /**
@@ -203,11 +207,17 @@ public class PSRelationship extends PSComponent {
    * @param c a valid <code>PSRelationship</code>, not <code>null</code>.
    */
   public void copyFrom(PSRelationship c) {
-    try {
-      super.copyFrom(c);
-    } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException(e.getLocalizedMessage());
-    }
+    copyFromBase(c);
+  }
+
+  /**
+   * Shared shallow copy for {@link #copyFrom(PSRelationship)} and copy constructors (this-escape
+   * safe; non-virtual).
+   */
+  private void copyFromBase(PSRelationship c) {
+    if (null == c) throw new IllegalArgumentException("Invalid object for copy");
+    // Direct field write — avoid super.copyFrom virtual setId path (this-escape).
+    m_id = c.m_id;
 
     m_config = c.getConfig();
     m_dependent = c.getDependent();
@@ -698,6 +708,17 @@ public class PSRelationship extends PSComponent {
       @SuppressWarnings("unused") IPSDocument parentDoc,
       List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
+  }
+
+  /**
+   * Shared load for {@link #fromXml} and Element constructors (this-escape safe; non-virtual).
+   */
+  private void fromXmlBase(
+      Element sourceNode,
+      @SuppressWarnings("unused") IPSDocument parentDoc,
+      List<IPSComponent> parentComponents)
+      throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
 
@@ -724,7 +745,7 @@ public class PSRelationship extends PSComponent {
         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
       }
       try {
-        setId(Integer.parseInt(data));
+        applyId(Integer.parseInt(data));
       } catch (NumberFormatException e) {
         Object[] args = {XML_NODE_NAME, ATTR_ID, data};
         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);

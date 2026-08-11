@@ -79,7 +79,7 @@ public final class PSMacroDefinition extends PSComponent {
    *
    * @param name the new macro name, not <code>null</code> or empty.
    */
-  public void setName(String name) {
+  public final void setName(String name) {
     if (name == null) throw new IllegalArgumentException("name cannot be null");
 
     name = name.trim();
@@ -141,7 +141,7 @@ public final class PSMacroDefinition extends PSComponent {
    * @param parentComponents may be <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format.
    */
-  public void fromXml(Element source, IPSDocument parent, List parentComponents)
+  public final void fromXml(Element source, IPSDocument parent, List parentComponents)
       throws PSUnknownNodeTypeException {
     PSXmlTreeWalker tree = new PSXmlTreeWalker(source);
 

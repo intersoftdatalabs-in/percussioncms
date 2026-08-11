@@ -402,7 +402,7 @@ public final class PSContentEditorSystemDef implements IPSDocument {
    * @throws PSUnknownNodeTypeException if an XML element node is missing or is not of the
    *     appropriate type.
    */
-  public void fromXml(Document doc) throws PSUnknownNodeTypeException, PSUnknownDocTypeException {
+  public final void fromXml(Document doc) throws PSUnknownNodeTypeException, PSUnknownDocTypeException {
     if (null == doc)
       throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
 

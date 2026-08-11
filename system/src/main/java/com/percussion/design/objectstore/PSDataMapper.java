@@ -117,7 +117,7 @@ public final class PSDataMapper extends PSCollectionComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXDataMapper
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

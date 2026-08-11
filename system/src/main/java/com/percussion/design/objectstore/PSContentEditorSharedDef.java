@@ -186,7 +186,7 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
    * @param fieldGroups the new collection of PSSharedFieldGroup objects, never <code>null</code>,
    *     may be empty.
    */
-  public void setFieldGroups(PSCollection fieldGroups) {
+  public final void setFieldGroups(PSCollection fieldGroups) {
     if (fieldGroups == null) throw new IllegalArgumentException("the field groups cannot be null");
 
     if (!fieldGroups.getMemberClassName().equals(m_fieldGroups.getMemberClassName()))
@@ -265,7 +265,7 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
   }
 
   // see IPSDocument
-  public void fromXml(Document doc) throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
+  public final void fromXml(Document doc) throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
     if (null == doc)
       throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
     Element sourceNode = doc.getDocumentElement();
@@ -275,7 +275,7 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
   /**
    * @see IPSComponent
    */
-  public void fromXml(
+  public final void fromXml(
       Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)

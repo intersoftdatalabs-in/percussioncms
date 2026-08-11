@@ -158,7 +158,7 @@ public final class PSResultPageSet extends PSComponent implements IPSResults {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXResults
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

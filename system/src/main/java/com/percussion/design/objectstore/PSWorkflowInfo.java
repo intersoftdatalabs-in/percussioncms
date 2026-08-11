@@ -70,7 +70,7 @@ public final class PSWorkflowInfo extends PSComponent {
    * @param parentComponents ignored.
    * @throws PSUnknownNodeTypeException if an expected XML element is missing, or <code>null</code>
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     validateElementName(sourceNode, XML_NODE_NAME);
 
@@ -232,7 +232,7 @@ public final class PSWorkflowInfo extends PSComponent {
    *     <p>The specified List is copied before assignment, so changes to the List will not affect
    *     this Object.
    */
-  public void setValues(List values) {
+  public final void setValues(List values) {
     if (null == values) throw new IllegalArgumentException("values cannot be null");
 
     m_values = new ArrayList();
@@ -265,7 +265,7 @@ public final class PSWorkflowInfo extends PSComponent {
    * @param type either {@link #TYPE_EXCLUSIONARY} or {@link #TYPE_INCLUSIONARY}, never <code>null
    *     </code>.
    */
-  public void setType(String type) {
+  public final void setType(String type) {
     if (null == type) throw new IllegalArgumentException("type cannot be null");
 
     if (!(type.equals(TYPE_EXCLUSIONARY) || type.equals(TYPE_INCLUSIONARY)))
