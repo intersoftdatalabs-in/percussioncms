@@ -66,7 +66,7 @@ extensions:
           "manual",
         ]
       # Offline build service: same isSafeRootPath barrier for outputRoot / asset dest.
-      # CodeQL #1956–#1960 / #1966.
+      # CodeQL #1956–#1960 / #1966 / residual thrash #1973–#1976.
       - [
           "com.percussion.services.virtualsite",
           "PSVirtualSiteBuildService",
@@ -78,13 +78,49 @@ extensions:
           "path-injection",
           "manual",
         ]
-      # Durable participant store directory barrier. CodeQL #1962–#1965.
+      # Href resolution under barrier-checked root (rejects .. / NUL / absolute).
+      - [
+          "com.percussion.services.virtualsite",
+          "PSVirtualSiteBuildService",
+          false,
+          "resolveHref",
+          "(java.nio.file.Path,String)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      # Asset relative resolve under barrier-checked dest.
+      - [
+          "com.percussion.services.virtualsite",
+          "PSVirtualSiteBuildService",
+          false,
+          "resolveUnder",
+          "(java.nio.file.Path,java.nio.file.Path)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      # Durable participant store directory barrier. CodeQL #1962–#1965 / thrash #1969–#1972.
       - [
           "com.percussion.services.virtualsite",
           "PSInMemoryVirtualParticipantService",
           false,
           "requireSafeStoreDirectory",
           "(java.nio.file.Path)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      # Single-segment siteKey sanitizer for participants-*.jsonl file names.
+      - [
+          "com.percussion.services.virtualsite",
+          "PSInMemoryVirtualParticipantService",
+          false,
+          "sanitize",
+          "(String)",
           "",
           "ReturnValue",
           "path-injection",

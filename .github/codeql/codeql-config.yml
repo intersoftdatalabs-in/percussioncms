@@ -305,7 +305,8 @@ query-filters:
         Documented multi-pass T043 residuals after structural guards (includes
         PSThemeService from PR #1361 + broader residual batch PR #1362) plus
         Virtual Site build SitesAdaptor (#1951/#1952/#1961 thrash #1967/#1968)
-        and offline Virtual Site services (#1956–#1960/#1962–#1966).
+        and offline Virtual Site services (#1956–#1960/#1962–#1966 thrash
+        #1969–#1976 on PR #3078).
         Each product sink is gated by PSPathInjectionGuard or file-local
         validatePath / requireSafeFilePath / requireSafeOutputRoot /
         requireSafeBuildRoot / requireSafeStoreDirectory before File
@@ -317,7 +318,7 @@ query-filters:
         PSCSSParserPathInjectionTest, PSImportThemeHelperPathInjectionTest,
         SitesAdaptorTest requireSafeOutputRoot / buildVirtualSite,
         PSVirtualSiteBuildServiceTest / PSInMemoryVirtualParticipantServiceTest
-        path-injection barriers, etc.).
+        path-injection barriers, etc.). Do not re-edit sinks only to chase IDs.
   # --- js/xss-through-dom residuals (imageSlider thumbnail src from DOM title) ---
   # Structural: safeThumbnailSrc rejects javascript:/data:/vbscript:; img built
   # without user data in factory map; src set via .attr after sanitize.
