@@ -706,21 +706,16 @@ public class PSContentNode implements IPSNode, IPSJcrCacheItem, Serializable
       else if (m_parent instanceof PSContentNode)
       {
          PSContentNode parent = (PSContentNode) m_parent;
+         // ArrayListValuedHashMap#get never returns null for a missing name key —
+         // it yields an empty collection. indexOf(this) on that collection is -1
+         // when this node is not a same-name sibling under the parent (JCR
+         // "not found" sentinel). Present non-empty collections yield the
+         // 0-based sibling index.
          Collection<Node> childNodes = parent.m_children.get(getName());
-         // Match pre-generics behavior: missing name key → 0; present collection
-         // (including empty) → indexOf(this), which is -1 when this node is not a
-         // same-name sibling under the parent (JCR "not found" sentinel).
-         if (childNodes != null)
-         {
-            List<Node> children = childNodes instanceof List
-                  ? (List<Node>) childNodes
-                  : new ArrayList<>(childNodes);
-            m_index = children.indexOf(this);
-         }
-         else
-         {
-            m_index = 0;
-         }
+         List<Node> children = childNodes instanceof List
+               ? (List<Node>) childNodes
+               : new ArrayList<>(childNodes);
+         m_index = children.indexOf(this);
       }
       return m_index;
    }
