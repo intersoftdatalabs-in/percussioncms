@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -55,7 +55,7 @@ public class PSComponentUtils {
 
     if (value != null && value.trim().length() != 0 && !allowedValues.contains(value)) {
       Object[] args = {el.getTagName(), attrib, value};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     if (value == null || value.trim().length() == 0) value = allowedValues.get(0);
@@ -83,7 +83,7 @@ public class PSComponentUtils {
 
     if (value == null && value.trim().length() == 0) {
       Object[] args = {el.getTagName(), "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     return value;
@@ -111,7 +111,7 @@ public class PSComponentUtils {
     Iterator<Element> list = getChildElements(el, childName);
     if (!list.hasNext() && required) {
       Object[] args = {el.getTagName(), "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     Element child = null;

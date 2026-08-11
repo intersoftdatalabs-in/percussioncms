@@ -16,7 +16,7 @@
  */
 package com.percussion.cx.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
 import java.util.ArrayList;
@@ -102,7 +102,7 @@ public class PSMenuAction implements IPSComponent, Cloneable {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // attributes
@@ -141,7 +141,7 @@ public class PSMenuAction implements IPSComponent, Cloneable {
     Iterator actions = PSComponentUtils.getChildElements(sourceNode, XML_NODE_NAME);
     if (isMenuItem() && actions.hasNext()) {
       Object[] args = {sourceNode.getTagName(), "has child for menuitem"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     } else if (isMenu()) {
       while (actions.hasNext()) m_children.add(new PSMenuAction((Element) actions.next()));
     }

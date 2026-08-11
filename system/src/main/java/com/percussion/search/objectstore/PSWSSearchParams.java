@@ -16,7 +16,7 @@
  */
 package com.percussion.search.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSXMLDomUtil;
@@ -499,7 +499,7 @@ public class PSWSSearchParams {
           } catch (NumberFormatException e) {
             Object[] args = {XML_NODE_NAME, EL_CONTENT_TYPE, ct};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
           }
         }
       } else if (unqualifiedName.equals(EL_FULLTEXTQUERY)) {

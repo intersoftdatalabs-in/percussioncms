@@ -17,7 +17,7 @@
 
 package com.percussion.error;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -127,7 +127,7 @@ public abstract class PSStandaloneException extends Exception {
 
     if (!getXmlNodeName().equals(source.getNodeName())) {
       Object[] args = {getXmlNodeName(), source.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // get message code
@@ -137,7 +137,7 @@ public abstract class PSStandaloneException extends Exception {
       m_code = Integer.parseInt(sTemp);
     } catch (NumberFormatException e) {
       Object[] args = {getXmlNodeName(), XML_ATTR_MSG_CODE, sTemp == null ? "null" : sTemp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     // get optional exception class

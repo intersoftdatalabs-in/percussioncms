@@ -16,7 +16,7 @@
  */
 package com.percussion.cx.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -70,7 +70,7 @@ public class PSMenuBar implements IPSComponent {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     Element propsEl =
@@ -82,7 +82,7 @@ public class PSMenuBar implements IPSComponent {
     Iterator list = PSComponentUtils.getChildElements(sourceNode, PSMenuAction.XML_NODE_NAME);
     if (!list.hasNext()) {
       Object[] args = {XML_NODE_NAME, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     while (list.hasNext()) {
@@ -90,7 +90,7 @@ public class PSMenuBar implements IPSComponent {
       if (action.isMenu()) m_actions.add(action);
       else {
         Object[] args = {XML_NODE_NAME, PSMenuAction.XML_NODE_NAME, PSMenuAction.TYPE_MENUITEM};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     }
   }
