@@ -18,6 +18,7 @@
 package com.percussion.design.objectstore;
 
 import com.percussion.design.objectstore.server.IPSObjectStoreHandler;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.server.PSUserSession;
 import java.util.List;
 
@@ -175,6 +176,38 @@ public interface IPSValidationContext {
    */
   public void validationError(IPSComponent component, int errorCode, Object arg)
       throws PSSystemValidationException;
+
+  /**
+   * Typed overload: registers a validation error using a catalogued {@link IPSErrorCode}. Default
+   * delegates to the legacy int form via {@link IPSErrorCode#numericCode()}.
+   *
+   * @param component component under validation
+   * @param errorCode catalogued code, never {@code null}
+   * @param args message arguments; may be {@code null}
+   */
+  default void validationError(IPSComponent component, IPSErrorCode errorCode, Object[] args)
+      throws PSSystemValidationException {
+    if (errorCode == null) {
+      throw new IllegalArgumentException("errorCode may not be null");
+    }
+    validationError(component, errorCode.numericCode(), args);
+  }
+
+  /**
+   * Typed overload with a single message argument. Default delegates to the int form via {@link
+   * IPSErrorCode#numericCode()}.
+   *
+   * @param component component under validation
+   * @param errorCode catalogued code, never {@code null}
+   * @param arg single message argument; may be {@code null}
+   */
+  default void validationError(IPSComponent component, IPSErrorCode errorCode, Object arg)
+      throws PSSystemValidationException {
+    if (errorCode == null) {
+      throw new IllegalArgumentException("errorCode may not be null");
+    }
+    validationError(component, errorCode.numericCode(), arg);
+  }
 
   /**
    * Marks the start of an object's validation. Returns <CODE>true</CODE> if this component should

@@ -18,6 +18,7 @@ package com.percussion.design.objectstore;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,33 @@ public class PSContainerLocatorTest {
     // create a new object and populate it from our testTo element
     PSContainerLocator testFrom = new PSContainerLocator(elem, null, null);
     assertTrue(testTo.equals(testFrom));
+  }
+
+  /**
+   * Batch G: null source for fromXml must surface typed {@link ObjectStoreErrorCodes} (not bare
+   * legacy ints).
+   */
+  @Test
+  public void fromXmlNullSourceUsesTypedObjectStoreErrorCode() {
+    PSUnknownNodeTypeException ex =
+        assertThrows(
+            PSUnknownNodeTypeException.class,
+            () -> new PSContainerLocator((Element) null, null, null));
+    assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_NULL.numericCode(), ex.getErrorCode());
+    assertSame(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  /** Batch G: wrong root element type uses typed {@code XML_ELEMENT_WRONG_TYPE}. */
+  @Test
+  public void fromXmlWrongTypeUsesTypedObjectStoreErrorCode() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element wrong = PSXmlDocumentBuilder.createRoot(doc, "NotContainerLocator");
+    PSUnknownNodeTypeException ex =
+        assertThrows(
+            PSUnknownNodeTypeException.class, () -> new PSContainerLocator(wrong, null, null));
+    assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE.numericCode(), ex.getErrorCode());
+    assertSame(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, ex.getTypedErrorCode());
   }
 
   // JUnit 5 uses test discovery; explicit suite() removed.

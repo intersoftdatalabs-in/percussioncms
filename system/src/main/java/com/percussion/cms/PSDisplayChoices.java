@@ -18,7 +18,7 @@ package com.percussion.cms;
 
 // REFACTORED: CP-JAVA11
 // REFACTORED: CP-JAVA11
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSChoiceFilter;
 import com.percussion.design.objectstore.PSDisplayText;
 import com.percussion.design.objectstore.PSEntry;
@@ -72,7 +72,7 @@ public class PSDisplayChoices implements Cloneable {
 
     if (!XML_NODE_NAME.equals(src.getNodeName())) {
       Object[] args = {XML_NODE_NAME, src.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(src);

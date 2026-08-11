@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.server.IPSServerErrors;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -334,11 +336,11 @@ public final class PSContainerLocator extends PSComponent {
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -357,7 +359,7 @@ public final class PSContainerLocator extends PSComponent {
       node = tree.getNextElement(PSTableSet.XML_NODE_NAME, firstFlags);
       if (node == null) {
         Object[] args = {XML_NODE_NAME, PSTableSet.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       while (node != null) {
         m_tableSets.add(new PSTableSet(node, parentDoc, parentComponents));
@@ -390,7 +392,7 @@ public final class PSContainerLocator extends PSComponent {
     context.pushParent(this);
     try {
       if (m_tableSets == null) {
-        context.validationError(this, IPSObjectStoreErrors.INVALID_CONTAINER_LOCATOR, null);
+        context.validationError(this, ObjectStoreErrorCodes.INVALID_CONTAINER_LOCATOR, null);
       } else {
         Iterator it = getTableSets();
         while (it.hasNext()) ((PSTableSet) it.next()).validate(context);

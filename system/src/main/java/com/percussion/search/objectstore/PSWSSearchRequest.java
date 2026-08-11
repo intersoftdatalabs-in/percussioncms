@@ -16,7 +16,7 @@
  */
 package com.percussion.search.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -213,7 +213,7 @@ public class PSWSSearchRequest {
     Element child = walker.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (child == null) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, PSWSSearchParams.XML_NODE_NAME);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, PSWSSearchParams.XML_NODE_NAME);
     }
 
     boolean internalSearch = false;
@@ -253,7 +253,7 @@ public class PSWSSearchRequest {
     // bad element
     else {
       Object[] args = {PSWSSearchParams.XML_NODE_NAME, PSXMLDomUtil.getUnqualifiedNodeName(child)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
   }
 

@@ -23,7 +23,7 @@ import com.percussion.data.PSDataExtractorFactory;
 import com.percussion.data.PSExecutionData;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.data.PSUdfCallExtractor;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSChoiceFilter;
 import com.percussion.design.objectstore.PSChoices;
@@ -1085,7 +1085,7 @@ public class PSChoiceBuilder {
 
     if (!DISPLAYCHOICES_NAME.equals(src.getNodeName())) {
       Object[] args = {DISPLAYCHOICES_NAME, src.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(src);
@@ -1099,7 +1099,7 @@ public class PSChoiceBuilder {
       if (valEl != null) val = tree.getElementData();
       if (val == null || val.trim().length() == 0) {
         Object[] args = {DISPLAYENTRY_NAME, DISPLAYVALUE_NAME, val};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       tree.setCurrent(entryEl);
 
@@ -1109,7 +1109,7 @@ public class PSChoiceBuilder {
       if (labelEl != null) label = tree.getElementData();
       if (label == null || label.trim().length() == 0) {
         Object[] args = {DISPLAYENTRY_NAME, DISPLAYLABEL_NAME, label};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       tree.setCurrent(entryEl);
 

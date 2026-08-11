@@ -91,6 +91,7 @@ public class PSException extends java.lang.Exception implements IPSException {
       m_args = psException.getErrorArguments();
       m_lang = psException.getLanguageString();
       m_overridingMessage = psException.m_overridingMessage;
+      m_typedErrorCode = psException.m_typedErrorCode;
     }
   }
 
@@ -211,6 +212,52 @@ public class PSException extends java.lang.Exception implements IPSException {
   }
 
   /**
+   * Typed construction from a catalogued {@link IPSErrorCode} (e.g. package {@code *ErrorCodes}
+   * enums). Sets the legacy numeric code for message lookup / dual-write registry and retains the
+   * typed code for {@link #getTypedErrorCode()} / {@link #isAuditable()}.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSException(IPSErrorCode code) {
+    this(requireCode(code).numericCode());
+    m_typedErrorCode = code;
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg sole message argument; may be {@code null}
+   */
+  public PSException(IPSErrorCode code, Object singleArg) {
+    this(requireCode(code).numericCode(), singleArg);
+    m_typedErrorCode = code;
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   */
+  public PSException(IPSErrorCode code, Object[] arrayArgs) {
+    this(requireCode(code).numericCode(), arrayArgs);
+    m_typedErrorCode = code;
+  }
+
+  /**
+   * Typed construction with message arguments and a cause.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   * @param cause causal throwable; may be {@code null}
+   */
+  public PSException(IPSErrorCode code, Object[] arrayArgs, Throwable cause) {
+    this(requireCode(code).numericCode(), arrayArgs, cause);
+    m_typedErrorCode = code;
+  }
+
+  /**
    * Create a chained exception with a specific message
    *
    * @param message message to use in exception. If <code>null</code> then use the localized message
@@ -255,6 +302,7 @@ public class PSException extends java.lang.Exception implements IPSException {
     m_args = e.m_args;
     m_lang = e.m_lang;
     m_overridingMessage = e.m_overridingMessage;
+    m_typedErrorCode = e.m_typedErrorCode;
   }
 
   public static void setErrorManager(IPSErrorManager errorManager) {
@@ -331,6 +379,7 @@ public class PSException extends java.lang.Exception implements IPSException {
    */
   public final void setErrorCode(int code) {
     m_code = code;
+    m_typedErrorCode = null;
   }
 
   /**
@@ -340,6 +389,29 @@ public class PSException extends java.lang.Exception implements IPSException {
    */
   public int getErrorCode() {
     return m_code;
+  }
+
+  /**
+   * Typed error code when this exception was constructed via {@link #PSException(IPSErrorCode)} (or
+   * overloads); otherwise {@code null} for legacy int construction.
+   */
+  public IPSErrorCode getTypedErrorCode() {
+    return m_typedErrorCode;
+  }
+
+  /**
+   * Whether dual-write should consider this exception auditable. Prefer the typed code when present;
+   * legacy int construction returns {@code false} (handlers resolve auditability via the registry).
+   */
+  public boolean isAuditable() {
+    return m_typedErrorCode != null && m_typedErrorCode.isAuditable();
+  }
+
+  private static IPSErrorCode requireCode(IPSErrorCode code) {
+    if (code == null) {
+      throw new IllegalArgumentException("code may not be null");
+    }
+    return code;
   }
 
   /**
@@ -368,6 +440,21 @@ public class PSException extends java.lang.Exception implements IPSException {
    */
   public void setArgs(int msgCode, Object[] errorArgs) {
     m_code = msgCode;
+    m_typedErrorCode = null;
+    setArgs(errorArgs);
+  }
+
+  /**
+   * Set the arguments for this exception from a typed error code.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param errorArgs the array of arguments to use as the arguments in the error message. May be
+   *     <code>null</code>, but no entry may be <code>null</code>.
+   */
+  public void setArgs(IPSErrorCode code, Object[] errorArgs) {
+    requireCode(code);
+    m_code = code.numericCode();
+    m_typedErrorCode = code;
     setArgs(errorArgs);
   }
 
@@ -441,6 +528,12 @@ public class PSException extends java.lang.Exception implements IPSException {
   protected int m_code;
   protected transient Object[] m_args;
   protected String m_lang;
+
+  /**
+   * Optional typed catalog code retained when constructed via {@link IPSErrorCode} overloads.
+   * Cleared when the numeric code is replaced via legacy {@code int} setters.
+   */
+  protected transient IPSErrorCode m_typedErrorCode;
 
   /**
    * @see #setOverridingMessage(String)

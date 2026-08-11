@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.error.PSException;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -229,11 +231,11 @@ public final class PSContentEditorPipe extends PSPipe {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -255,7 +257,7 @@ public final class PSContentEditorPipe extends PSPipe {
         m_id = Integer.parseInt(data);
       } catch (Exception e) {
         Object[] args = {XML_NODE_NAME, ((data == null) ? "null" : data)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       // REQUIRED: pipe name
@@ -308,7 +310,7 @@ public final class PSContentEditorPipe extends PSPipe {
         m_locator = new PSContainerLocator(node, parentDoc, parentComponents);
       } else {
         Object[] args = {XML_NODE_NAME, PSContainerLocator.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       // REQUIRED: get the mappeer
@@ -317,7 +319,7 @@ public final class PSContentEditorPipe extends PSPipe {
         m_mapper = new PSContentEditorMapper(node, parentDoc, parentComponents);
       } else {
         Object[] args = {XML_NODE_NAME, PSContentEditorMapper.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       tree.setCurrent(current);
@@ -419,10 +421,10 @@ public final class PSContentEditorPipe extends PSPipe {
     context.pushParent(this);
     try {
       if (m_locator != null) m_locator.validate(context);
-      else context.validationError(this, IPSObjectStoreErrors.INVALID_CONTENT_EDITOR_PIPE, null);
+      else context.validationError(this, ObjectStoreErrorCodes.INVALID_CONTENT_EDITOR_PIPE, null);
 
       if (m_mapper != null) m_mapper.validate(context);
-      else context.validationError(this, IPSObjectStoreErrors.INVALID_CONTENT_EDITOR_PIPE, null);
+      else context.validationError(this, ObjectStoreErrorCodes.INVALID_CONTENT_EDITOR_PIPE, null);
     } finally {
       context.popParent();
     }

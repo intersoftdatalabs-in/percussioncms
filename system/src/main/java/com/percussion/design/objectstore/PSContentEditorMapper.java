@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -265,11 +267,11 @@ public final class PSContentEditorMapper extends PSComponent {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -328,7 +330,7 @@ public final class PSContentEditorMapper extends PSComponent {
         m_fieldSet = new PSFieldSet(node, parentDoc, parentComponents);
       } else {
         Object[] args = {XML_NODE_NAME, PSFieldSet.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       // REQUIRED: get the UI definition
@@ -337,7 +339,7 @@ public final class PSContentEditorMapper extends PSComponent {
         m_uiDefinition = new PSUIDefinition(node, parentDoc, parentComponents);
       } else {
         Object[] args = {XML_NODE_NAME, PSUIDefinition.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     } finally {
       resetParentList(parentComponents, parentSize);
@@ -404,10 +406,10 @@ public final class PSContentEditorMapper extends PSComponent {
     context.pushParent(this);
     try {
       if (m_fieldSet != null) m_fieldSet.validate(context);
-      else context.validationError(this, IPSObjectStoreErrors.INVALID_CONTENT_EDITOR_MAPPER, null);
+      else context.validationError(this, ObjectStoreErrorCodes.INVALID_CONTENT_EDITOR_MAPPER, null);
 
       if (m_uiDefinition != null) m_uiDefinition.validate(context);
-      else context.validationError(this, IPSObjectStoreErrors.INVALID_CONTENT_EDITOR_MAPPER, null);
+      else context.validationError(this, ObjectStoreErrorCodes.INVALID_CONTENT_EDITOR_MAPPER, null);
     } finally {
       context.popParent();
     }
@@ -568,7 +570,7 @@ public final class PSContentEditorMapper extends PSComponent {
         if (groupFields.getType() == PSFieldSet.TYPE_PARENT) {
           Object[] args = {group.getName(), groupFields.getName()};
           throw new PSSystemValidationException(
-              IPSObjectStoreErrors.CE_INVALID_SHARED_FIELDSET_TYPE, args);
+              ObjectStoreErrorCodes.CE_INVALID_SHARED_FIELDSET_TYPE, args);
         }
 
         // remove exluded shared fields
@@ -1008,7 +1010,7 @@ public final class PSContentEditorMapper extends PSComponent {
         if (groupFields.getType() == PSFieldSet.TYPE_PARENT) {
           Object[] args = {group.getName(), groupFields.getName()};
           throw new PSSystemValidationException(
-              IPSObjectStoreErrors.CE_INVALID_SHARED_FIELDSET_TYPE, args);
+              ObjectStoreErrorCodes.CE_INVALID_SHARED_FIELDSET_TYPE, args);
         }
 
         groupFields = groupFields.removeFields(m_sharedFieldExcludes, false);
@@ -1113,7 +1115,7 @@ public final class PSContentEditorMapper extends PSComponent {
       if (null == sharedDef) {
         // get name for error message
         include = (String) includes.next();
-        throw new PSSystemValidationException(IPSObjectStoreErrors.CE_SHARED_GROUP_NO_DEF, include);
+        throw new PSSystemValidationException(ObjectStoreErrorCodes.CE_SHARED_GROUP_NO_DEF, include);
       } else {
         PSCollection sharedGroups = new PSCollection(sharedDef.getFieldGroups());
         while (includes.hasNext()) {
@@ -1137,7 +1139,7 @@ public final class PSContentEditorMapper extends PSComponent {
                 Object[] args = {groupName};
                 warnings.add(
                     new PSSystemValidationException(
-                        IPSObjectStoreErrors.CE_GROUPNAME_AND_FIELDSETNAME_MUST_MATCH, args));
+                        ObjectStoreErrorCodes.CE_GROUPNAME_AND_FIELDSETNAME_MUST_MATCH, args));
               }
 
               // Validate that the fieldSet name matches the Display
@@ -1146,7 +1148,7 @@ public final class PSContentEditorMapper extends PSComponent {
                 Object[] args = {groupName};
                 warnings.add(
                     new PSSystemValidationException(
-                        IPSObjectStoreErrors.CE_FIELDSETNAME_AND_FIELDSETREF_MUST_MATCH, args));
+                        ObjectStoreErrorCodes.CE_FIELDSETNAME_AND_FIELDSETREF_MUST_MATCH, args));
               } else if (type == PSFieldSet.TYPE_SIMPLE_CHILD) {
                 // Validate that simple child fields have the required
                 // child display mapping.
@@ -1186,7 +1188,7 @@ public final class PSContentEditorMapper extends PSComponent {
                   Object[] args = {fieldSetRef};
                   warnings.add(
                       new PSSystemValidationException(
-                          IPSObjectStoreErrors.CE_MISSING_OR_INVALID_CHILD_DISPLAY_MAPPING, args));
+                          ObjectStoreErrorCodes.CE_MISSING_OR_INVALID_CHILD_DISPLAY_MAPPING, args));
                 }
               }
 
@@ -1205,7 +1207,7 @@ public final class PSContentEditorMapper extends PSComponent {
 
           if (!hasMatch) {
             throw new PSSystemValidationException(
-                IPSObjectStoreErrors.CE_INCLUDED_GROUP_INVALID, include);
+                ObjectStoreErrorCodes.CE_INCLUDED_GROUP_INVALID, include);
           }
         }
       }
@@ -1221,7 +1223,7 @@ public final class PSContentEditorMapper extends PSComponent {
         buf.append((String) excludes.next());
       }
       Object[] args = {buf.toString()};
-      throw new PSSystemValidationException(IPSObjectStoreErrors.CE_SHARED_EXCLUDE_INVALID, args);
+      throw new PSSystemValidationException(ObjectStoreErrorCodes.CE_SHARED_EXCLUDE_INVALID, args);
     }
 
     return warnings.iterator();
@@ -1308,7 +1310,7 @@ public final class PSContentEditorMapper extends PSComponent {
                 Object args[] = {sharedFieldName, duplicateGroups};
 
                 throw new PSMinorValidationException(
-                    IPSObjectStoreErrors.DUPLICATE_SHARED_FIELD_VALIDATION_WARNING, args);
+                    ObjectStoreErrorCodes.DUPLICATE_SHARED_FIELD_VALIDATION_WARNING, args);
               }
             } else {
               sharedGroupNames = new HashSet<>();
@@ -1350,7 +1352,7 @@ public final class PSContentEditorMapper extends PSComponent {
         buf.append((String) excludes.next());
       }
       Object[] args = {buf.toString()};
-      throw new PSSystemValidationException(IPSObjectStoreErrors.CE_SYSTEM_EXCLUDE_INVALID, args);
+      throw new PSSystemValidationException(ObjectStoreErrorCodes.CE_SYSTEM_EXCLUDE_INVALID, args);
     }
   }
 

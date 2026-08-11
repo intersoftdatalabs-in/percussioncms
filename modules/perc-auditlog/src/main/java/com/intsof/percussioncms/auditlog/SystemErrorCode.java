@@ -16,6 +16,8 @@
  */
 package com.intsof.percussioncms.auditlog;
 
+import com.percussion.error.IPSErrorCode;
+
 /**
  * System-wide error / message code implemented by package-local {@code *ErrorCodes} enums.
  *
@@ -23,9 +25,12 @@ package com.intsof.percussioncms.auditlog;
  * reporting this code dual-writes to {@code server.log} and the durable audit store. When {@code
  * false}, the code is operational only (exception text / app log) and must not create an audit row.
  *
+ * <p>Extends {@link IPSErrorCode} so exceptions in {@code utils}/{@code system} can take typed
+ * catalog codes without a reverse dependency on this module beyond the implementing enums.
+ *
  * <p>Message templates use sequential {@code {}} placeholders (SLF4J-style).
  */
-public interface SystemErrorCode {
+public interface SystemErrorCode extends IPSErrorCode {
 
   /** Module that owns this code (drives the {@code [PUB-…]} prefix). */
   AuditModule module();

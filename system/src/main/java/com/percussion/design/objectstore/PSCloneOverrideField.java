@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.cms.objectstore.PSComponentUtils;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -104,11 +106,11 @@ public class PSCloneOverrideField extends PSComponent {
     parentComponents = updateParentList(parentComponents);
 
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     try {
@@ -130,7 +132,7 @@ public class PSCloneOverrideField extends PSComponent {
     } catch (IllegalArgumentException e) {
       Object[] args = {XML_NODE_NAME, "value", "null or not PSXExtensionCall"};
 
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     m_rules.clear();

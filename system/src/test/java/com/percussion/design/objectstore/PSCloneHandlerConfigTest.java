@@ -18,6 +18,7 @@ package com.percussion.design.objectstore;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.InputStream;
@@ -74,6 +75,21 @@ public class PSCloneHandlerConfigTest {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       fail("PSCloneHandlerConfigSet toXml failed");
     }
+  }
+
+  /**
+   * Batch G: null source for {@link PSCloneHandlerConfigSet} must use typed {@link
+   * ObjectStoreErrorCodes}.
+   */
+  @Test
+  public void fromXmlNullSourceUsesTypedObjectStoreErrorCode() {
+    PSUnknownNodeTypeException ex =
+        assertThrows(
+            PSUnknownNodeTypeException.class,
+            () -> new PSCloneHandlerConfigSet(null, null, null));
+    assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_NULL.numericCode(), ex.getErrorCode());
+    assertSame(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
   }
 
   // collect all tests into a TestSuite and return it - see base class
