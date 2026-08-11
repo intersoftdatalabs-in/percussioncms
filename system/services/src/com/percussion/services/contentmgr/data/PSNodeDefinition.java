@@ -1080,8 +1080,8 @@ public class PSNodeDefinition implements IPSNodeDefinition {
        * curTmps - newTmps 3. delete removeTmps from curTmps 4. delete
        * commonTmps from newTmps
        */
-      Collection common = CollectionUtils.intersection(curTmps, newTmps);
-      Collection remove = CollectionUtils.subtract(curTmps, newTmps);
+      Collection<IPSGuid> common = CollectionUtils.intersection(curTmps, newTmps);
+      Collection<IPSGuid> remove = CollectionUtils.subtract(curTmps, newTmps);
       curTmps.removeAll(remove);
       newTmps.removeAll(common);
       curTmps.addAll(newTmps);

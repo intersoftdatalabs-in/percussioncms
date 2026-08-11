@@ -561,7 +561,7 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
     * @param data the map data, may be <code>null</code> or empty
     */
 
-   private void outputMap(String title, PrintWriter pw, Map data)
+   private void outputMap(String title, PrintWriter pw, Map<?, ?> data)
    {
       pw.print("<h2>" + title + "</h2>");
       outputMapNoHeader(pw, data);
@@ -575,17 +575,17 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
     * @param data the map data, may be <code>null</code> or empty
     */
 
-   private void outputMapNoHeader(PrintWriter pw, Map data)
+   private void outputMapNoHeader(PrintWriter pw, Map<?, ?> data)
    {
       if (data == null)
       {
          pw.println("[[empty map]]");
          return;
       }
-      Iterator<Map.Entry> iter = data.entrySet().iterator();
+      Iterator<? extends Map.Entry<?, ?>> iter = data.entrySet().iterator();
       while (iter.hasNext())
       {
-         Map.Entry p = iter.next();
+         Map.Entry<?, ?> p = iter.next();
 
          String name = p.getKey().toString();
          Object value = p.getValue();
@@ -602,7 +602,7 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
             b.append(name);
             b.append(" [");
             String iname = null;
-            for (Class c : value.getClass().getInterfaces())
+            for (Class<?> c : value.getClass().getInterfaces())
             {
                // Find the first interface (if any) that isn't a java.lang
                // marker

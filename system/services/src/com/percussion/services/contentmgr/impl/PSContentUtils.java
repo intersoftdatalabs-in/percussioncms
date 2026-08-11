@@ -49,7 +49,7 @@ public class PSContentUtils
     *         fields contentid and revision. If the field cannot be resolved
     *         then <code>null</code> is returned.
     */
-   public static PSPair<String, Class> resolveFieldReference(String fieldname,
+   public static PSPair<String, Class<?>> resolveFieldReference(String fieldname,
          PSTypeConfiguration type)
    {
       if (StringUtils.isBlank(fieldname))
@@ -80,7 +80,7 @@ public class PSContentUtils
          for (PSTypeConfiguration.ImplementingClass c : type
                .getImplementingClasses())
          {
-            Class clazz = c.getImplementingClass();
+            Class<?> clazz = c.getImplementingClass();
             List<String> props = type.getProperties().get(clazz);
             if (props != null && props.contains(fieldname))
             {
@@ -216,8 +216,8 @@ public class PSContentUtils
     *           <code>null</code>
     * @return the reference, never <code>null</code>
     */
-   public static String makeQueryRef(PSPair<String, Class> ref,
-         List<Class> classes)
+   public static String makeQueryRef(PSPair<String, Class<?>> ref,
+         List<Class<?>> classes)
    {
       if (ref == null)
       {

@@ -650,7 +650,8 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
          ms_log.error("$sys is not a map");
          return null;
       }
-      Map sysmap = (Map) sys;
+      @SuppressWarnings("unchecked")
+      Map<String, Object> sysmap = (Map<String, Object>) sys;
 
 
       Object metadata = sysmap.get("metadata");

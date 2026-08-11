@@ -66,7 +66,7 @@ public class PSContentNode implements IPSNode, IPSJcrCacheItem, Serializable
     * Interfaces to ignore when "figuring out" the body access class argument
     * classes
     */
-   private static Set<Class> ms_ignoredClasses = new HashSet<>();
+   private static Set<Class<?>> ms_ignoredClasses = new HashSet<>();
 
    static
    {
@@ -83,7 +83,7 @@ public class PSContentNode implements IPSNode, IPSJcrCacheItem, Serializable
     * Holds children. Children are held in named collections, implemented by the
     * multimap
     */
-   private MultiValuedMap m_children = new ArrayListValuedHashMap<>();
+   private MultiValuedMap<String, Node> m_children = new ArrayListValuedHashMap<>();
 
    /**
     * Remembers if children have been loaded
@@ -423,18 +423,21 @@ public class PSContentNode implements IPSNode, IPSJcrCacheItem, Serializable
       }
       int index = path.getIndex(0);
       String name = path.getName(0);
-      List children = (List) m_children.get(name);
-      if (children == null)
+      Collection<Node> childNodes = m_children.get(name);
+      if (childNodes == null || childNodes.isEmpty())
       {
          throw new PathNotFoundException("Child " + name + " was not found");
       }
+      List<Node> children = childNodes instanceof List
+            ? (List<Node>) childNodes
+            : new ArrayList<>(childNodes);
       if (index < 0)
          index = 0;
       if (index >= children.size())
       {
          throw new PathNotFoundException("Index out of range: " + index);
       }
-      Node specificChild = (Node) children.get(index);
+      Node specificChild = children.get(index);
       if (path.getCount() > 1)
       {
          PSPath rest = path.getRest();
@@ -703,15 +706,16 @@ public class PSContentNode implements IPSNode, IPSJcrCacheItem, Serializable
       else if (m_parent instanceof PSContentNode)
       {
          PSContentNode parent = (PSContentNode) m_parent;
-         List children = (List) parent.m_children.get(getName());
-         if (children != null)
-         {
-            m_index = children.indexOf(this);
-         }
-         else
-         {
-            m_index = 0;
-         }
+         // ArrayListValuedHashMap#get never returns null for a missing name key —
+         // it yields an empty collection. indexOf(this) on that collection is -1
+         // when this node is not a same-name sibling under the parent (JCR
+         // "not found" sentinel). Present non-empty collections yield the
+         // 0-based sibling index.
+         Collection<Node> childNodes = parent.m_children.get(getName());
+         List<Node> children = childNodes instanceof List
+               ? (List<Node>) childNodes
+               : new ArrayList<>(childNodes);
+         m_index = children.indexOf(this);
       }
       return m_index;
    }
@@ -1356,7 +1360,7 @@ public class PSContentNode implements IPSNode, IPSJcrCacheItem, Serializable
          }
       }
       
-      for(Object n : m_children.values())
+      for (Node n : m_children.values())
       {
          if (n instanceof IPSJcrCacheItem)
          {

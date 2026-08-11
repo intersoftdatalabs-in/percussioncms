@@ -429,7 +429,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
       Object columnValue = null;
       if (value instanceof List)
       {
-         columnValue = ((List) value).get(i);
+         columnValue = ((List<?>) value).get(i);
       }
       else if (value instanceof Value[])
       {
@@ -559,7 +559,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
             }
             else if (value instanceof List)
             {
-               outval = ((List) value).get(0).toString();
+               outval = ((List<?>) value).get(0).toString();
             }
             else
             {
@@ -639,7 +639,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
          {
             if (entry.getValue() instanceof List)
             {
-               count = ((List) entry.getValue()).size();
+               count = ((List<?>) entry.getValue()).size();
             }
             else if (entry.getValue() instanceof Value[])
             {
@@ -648,7 +648,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
          }
          if (entry.getValue() instanceof List)
          {
-            int candidate = ((List) entry.getValue()).size();
+            int candidate = ((List<?>) entry.getValue()).size();
             if (count != candidate)
             {
                throw new IllegalStateException("Found a " + candidate
@@ -690,7 +690,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
     *           <code>null</code>
     */
 
-   private void checkType(String propertyname, Object value, Class clazz,
+   private void checkType(String propertyname, Object value, Class<?> clazz,
          boolean required)
    {
       if (StringUtils.isBlank(propertyname))

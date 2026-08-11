@@ -130,7 +130,7 @@ public class PSNavHelper
    /**
     * Interfaces for JSR-170 node
     */
-   public static Class ms_interfaces[] = new Class[]
+   public static Class<?> ms_interfaces[] = new Class<?>[]
    {IPSProxyNode.class};
 
    /**
@@ -952,7 +952,7 @@ public class PSNavHelper
     * @throws PSFilterException
     */
 
-   public MultiValuedMap findNavChildren(PSNavAxisEnum axis, IPSNode parentNode)
+   public MultiValuedMap<String, Node> findNavChildren(PSNavAxisEnum axis, IPSNode parentNode)
          throws PSCmsException, RepositoryException, PSFilterException
    {
       if (axis == null)
@@ -1009,7 +1009,7 @@ public class PSNavHelper
                  guids);
       }
 
-      MultiValuedMap rval = new ArrayListValuedHashMap<>();
+      MultiValuedMap<String, Node> rval = new ArrayListValuedHashMap<>();
       if (guids.isEmpty())
          return rval;
 

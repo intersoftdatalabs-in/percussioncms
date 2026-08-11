@@ -94,12 +94,12 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
             .getTarget();
       PSRelationshipSet rset = event.getRelationships();
 
-      Iterator it = rset.iterator();
-      // de-dup owner IDs
+      // de-dup owner IDs (typed iterator — PSRelationshipSet is not Iterable<PSRelationship>)
       Set<PSLegacyGuid> ownerIds = new HashSet<>();
+      Iterator<PSRelationship> it = rset.iterator();
       while (it.hasNext())
       {
-         PSRelationship rel = (PSRelationship)it.next();
+         PSRelationship rel = it.next();
          PSLegacyGuid id = new PSLegacyGuid(rel.getOwner());
          ownerIds.add(id);
       }

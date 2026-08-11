@@ -125,7 +125,7 @@ public class PSNavonNodeInvocationHandler implements InvocationHandler
     * Related children for image and managed nav submenu. Initialized on first
     * access.
     */
-   private MultiValuedMap m_children = null;
+   private MultiValuedMap<String, Node> m_children = null;
 
    /**
     * Navigation configuration, never <code>null</code> after ctor

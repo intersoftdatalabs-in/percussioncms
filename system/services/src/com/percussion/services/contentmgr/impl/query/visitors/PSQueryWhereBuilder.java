@@ -104,7 +104,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
    /**
     * The classes in use in the query, see {@link #getInuse()} for details.
     */
-   List<Class> m_inuse = new ArrayList<>();
+   List<Class<?>> m_inuse = new ArrayList<>();
 
    /**
     * The parameter name counter
@@ -232,7 +232,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
     * @return the inuse classes from the type definition, never
     *         <code>null</code> but may be empty in some cases
     */
-   public List<Class> getInuse()
+   public List<Class<?>> getInuse()
    {
       return m_inuse;
    }
@@ -343,7 +343,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
    public IPSQueryNode visitIdentifier(PSQueryNodeIdentifier identifier)
    {
       String name = identifier.getName();
-      PSPair<String, Class> fieldref = PSContentUtils.resolveFieldReference(
+      PSPair<String, Class<?>> fieldref = PSContentUtils.resolveFieldReference(
             identifier.getName(), m_type);
       if (fieldref == null)
       {
@@ -378,7 +378,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
     * @param classref the reference to the instance class, if <code>null</code>
     * then do nothing.
     */
-   private void checkAndRegisterInUse(Class classref)
+   private void checkAndRegisterInUse(Class<?> classref)
    {
       if (classref == null) return;
 
@@ -531,7 +531,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
       if (left instanceof PSQueryNodeIdentifier)
       {
          PSQueryNodeIdentifier id = (PSQueryNodeIdentifier) left;
-         PSPair<String, Class> fieldref = PSContentUtils.resolveFieldReference(
+         PSPair<String, Class<?>> fieldref = PSContentUtils.resolveFieldReference(
                id.getName(), m_type);
          if (m_type.getSimpleChildProperties().contains(fieldref.getFirst()))
          {
@@ -634,7 +634,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
             }
             return;
          }
-         PSPair<String, Class> fieldref = PSContentUtils.resolveFieldReference(
+         PSPair<String, Class<?>> fieldref = PSContentUtils.resolveFieldReference(
                name, m_type);
          if (fieldref == null)
          {
@@ -660,7 +660,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
       for (PSPair<PSQueryNodeIdentifier, SortOrder> sorter : sortFields)
       {
          if(sorter != null) {
-            PSPair<String, Class> fieldref = PSContentUtils.resolveFieldReference(
+            PSPair<String, Class<?>> fieldref = PSContentUtils.resolveFieldReference(
                     sorter.getFirst().getName(), m_type);
             if (fieldref == null) {
                continue; // There are valid cases for this

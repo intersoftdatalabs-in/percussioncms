@@ -1206,7 +1206,7 @@ public class PSPublisherService
       if (isIncremental)
       {
          swTemp = new Timer();
-         List<Integer> movedIds = findMovedItems(siteId, false);
+         List<Integer> movedIds = findMovedContentIds(siteId);
          swTemp.logElapsed("Find " + movedIds.size() + " moved items");
 
          PSIncrementalPublishingFilter incremental = 
@@ -1746,7 +1746,7 @@ public class PSPublisherService
       q.setParameter("context", deliveryContext);
 
       Timer swTemp = new Timer();
-      List<Integer> contentIds = (idset != 0) ? (List)executeQuery(q) : q.list();
+      List<Integer> contentIds = castIntegerList((idset != 0) ? executeQuery(q) : q.list());
 
       // dedupe IDs
       Set<Integer> results = new HashSet<>();
@@ -1795,7 +1795,7 @@ public class PSPublisherService
       // 
 
       Timer swTemp = new Timer();      
-      List<Integer> contentIds = (idset != 0) ? (List)executeQuery(q) : q.list();
+      List<Integer> contentIds = castIntegerList((idset != 0) ? executeQuery(q) : q.list());
 
       // dedupe IDs
       Set<Integer> results = new HashSet<>();
@@ -1944,7 +1944,7 @@ public class PSPublisherService
             q.setParameter("idset", idset);
          }
          q.setParameter("siteid", siteid.longValue());
-         return (idset != 0) ? (List)executeQuery(q) : q.list();
+         return castLongList((idset != 0) ? executeQuery(q) : q.list());
          
       }
       finally
@@ -3877,8 +3877,8 @@ public class PSPublisherService
       q.setParameter("operation", (short) operation.ordinal() );
       q.setParameter("status", (short) status.ordinal());
       q.setParameterList("ids", Collections.singleton(pubstatus.getStatusId()));
-      List result = q.list();
-      for(Object r : result)
+      List<?> result = q.list();
+      for (Object r : result)
       {
          Object arr[] = (Object[]) r;
          // Number sid = (Number) arr[0];
@@ -3902,7 +3902,7 @@ public class PSPublisherService
    public IPSGuid findEditionIdForJob(long jobid)
    {
       IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-      List results = 
+      List<?> results = 
               getSession().createQuery(
                "select s.editionId from PSPubStatus s " +
                "where s.statusId = :statusid").setParameter(
@@ -3918,7 +3918,7 @@ public class PSPublisherService
 
    public IPSPubStatus findPubStatusForJob(long jobid)
    {
-      List results = getSession().createQuery(
+      List<?> results = getSession().createQuery(
             "select s from PSPubStatus s where s.statusId = :sid").setParameter(
             "sid", jobid).list();
       if (results != null && !results.isEmpty())
@@ -4030,9 +4030,9 @@ public class PSPublisherService
          log.debug("Found purged items for unpublish: " + purgedItems.size());
          
          // Items not in their original folder
-         List movedItems = new ArrayList<Long>();
+         List<Long> movedItems = new ArrayList<>();
          if (isHandleChangedLocation())
-            movedItems = findMovedItems(objectId, true);
+            movedItems = findMovedReferenceIds(objectId);
          
          log.debug("Found moved items for unpublish: " + movedItems.size());
          
@@ -4058,41 +4058,73 @@ public class PSPublisherService
       return rval;
    }
 
-   /*
-    * Finds a list of items that have been moved from its original folder
-    * since last publishing run for a given site.
-    * @param site the site in question, assumed not <code>null</code>.
-    * @param isGetReferenceId it is <code>true</code> if getting the reference
-    *    ID of the moved item from the Site Item table; otherwise getting
-    *    the content ID of the moved item from Pub Doc table. 
-    * @return <code>List<Long></code> of reference IDs or 
-    *    <code>List<Integer></code> of content IDs. Never <code>null</code>, 
-    *    but may be empty. 
+   @SuppressWarnings("unchecked")
+   private static List<Integer> castIntegerList(List<?> source)
+   {
+      return (List<Integer>) source;
+   }
+
+   @SuppressWarnings("unchecked")
+   private static List<Long> castLongList(List<?> source)
+   {
+      return (List<Long>) source;
+   }
+
+   /**
+    * Content IDs of items moved from their original folder since the last
+    * publishing run for the given server/site.
+    *
+    * @return never {@code null}, may be empty
     */
-   private List findMovedItems(IPSGuid serverId, boolean isGetReferenceId)
+   private List<Integer> findMovedContentIds(IPSGuid serverId)
+   {
+      return castIntegerList(queryMovedItemIds(serverId, false));
+   }
+
+   /**
+    * Site-item reference IDs of items moved from their original folder since
+    * the last publishing run for the given server/site.
+    *
+    * @return never {@code null}, may be empty
+    */
+   private List<Long> findMovedReferenceIds(IPSGuid serverId)
+   {
+      return castLongList(queryMovedItemIds(serverId, true));
+   }
+
+   /**
+    * Hibernate query for moved-item ids. Element type is contentId
+    * ({@link Integer}) when {@code isGetReferenceId} is false, else referenceId
+    * ({@link Long}). Callers use {@link #findMovedContentIds} /
+    * {@link #findMovedReferenceIds} rather than a misleading type parameter.
+    */
+   private List<?> queryMovedItemIds(IPSGuid serverId, boolean isGetReferenceId)
    {
       Session s = getSession();
 
-         // Note that in all cases, we're looking for either successfully 
-         // published, or unsuccessfully unpublished items. This means that
-         // the operation value and the status value will be equal.
-         //
-         // Items not in their original folder
-         s.enableFilter("relationshipConfigFilter");
-         String idRef = isGetReferenceId ? "s.referenceId" : "s.contentId";
-         Query q = s.createQuery("select " + idRef + " " +
-               "from PSSiteItem s " +
-               "where s.serverId = :serverid " +
-               "AND s.status = s.operation " +
-               "AND (select count(cs.m_contentId) " +
-               "     from PSComponentSummary cs " +
-               "     where cs.m_contentId = s.contentId AND " +
-               "           s.folderId in (select pfolder.owner_id " +
-               "                          from cs.parentFolders pfolder)) = 0");
-         q.setParameter("serverid", serverId.longValue());
-         return q.list();
-
-      }
+      // Note that in all cases, we're looking for either successfully
+      // published, or unsuccessfully unpublished items. This means that
+      // the operation value and the status value will be equal.
+      //
+      // Items not in their original folder
+      s.enableFilter("relationshipConfigFilter");
+      String idRef = isGetReferenceId ? "s.referenceId" : "s.contentId";
+      Query q =
+          s.createQuery(
+              "select "
+                  + idRef
+                  + " "
+                  + "from PSSiteItem s "
+                  + "where s.serverId = :serverid "
+                  + "AND s.status = s.operation "
+                  + "AND (select count(cs.m_contentId) "
+                  + "     from PSComponentSummary cs "
+                  + "     where cs.m_contentId = s.contentId AND "
+                  + "           s.folderId in (select pfolder.owner_id "
+                  + "                          from cs.parentFolders pfolder)) = 0");
+      q.setParameter("serverid", serverId.longValue());
+      return q.list();
+   }
 
    public List<IPSPubItemStatus> findPubItemStatusForReferenceIds(
          List<Long> refs)
