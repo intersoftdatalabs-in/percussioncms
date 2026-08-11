@@ -85,7 +85,36 @@ rejected by server validation with clear error messages.
 
 Validation matches the server helper (`PSVirtualSiteHelper`): allow-listed source kinds,
 required root path when virtual, and safe path/config names. After root or config changes,
-re-run the offline docs build or the CMS publish path to verify links.
+re-run the offline docs build, the in-product **Build Virtual Site** action (below), or the
+CMS publish path to verify links.
+
+### Build a Virtual Site from the product UI
+
+When **Source kind** is **Git filesystem** (Virtual), the Site detail panel shows a
+**Build Virtual Site** control. Traditional **Repository** Sites do **not** show this control
+(no misleading virtual-build chrome).
+
+1. Sign in as an **Admin** (the build REST operation requires Admin).
+2. Open **Developer** → **Sites** and open the Virtual Site detail.
+3. Confirm **Virtual Site source** is saved as **Git filesystem** with a valid **Root path**
+   that exists on the CMS host. If you just edited properties, choose **Save Virtual Site source**
+   first — the build uses the **saved** server properties, not unsaved form fields.
+4. Choose **Build Virtual Site**.
+5. Wait for the busy indicator, then review:
+   - **Success** — pages written, absolute output path (default under
+     `{install}/tmp/virtual-sites/{siteKey}` when no custom output is set).
+   - **Link problems** — reported in the result panel when internal links fail
+     (the build may still complete with HTTP 200).
+   - **Error** — clear message when the Site is not virtual, the root is missing/invalid,
+     or the caller lacks Admin (for example 400/403 from REST).
+
+Integrators can call the same operation over REST:
+`POST /sites/{nameOrId}/virtual/build` (optional JSON body `outputRoot`). See
+[Site configuration reference](id:reference-site-config) and
+[Virtual Sites (developer)](id:developer-virtual-sites).
+
+Offline scripts (`scripts/build-cms-docs.*`) remain available for developer workstations
+without a running CMS.
 
 See [Virtual Sites (developer)](id:developer-virtual-sites) and
 [Site configuration reference](id:reference-site-config) for full contract and offline build steps.

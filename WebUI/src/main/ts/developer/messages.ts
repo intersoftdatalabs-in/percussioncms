@@ -758,6 +758,17 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Root path must not contain '..' path segments.",
   SITE_VIRT_ERR_CONFIG_UNSAFE:
     "perc.ui.developer@Config file must be a simple file name (no path separators or '..').",
+  SITE_VIRT_BUILD: "perc.ui.developer@Build Virtual Site",
+  SITE_VIRT_BUILDING: "perc.ui.developer@Building Virtual Site...",
+  SITE_VIRT_BUILD_HINT:
+    "perc.ui.developer@Runs the CMS static build for this Virtual Site using the saved source properties (save first if you changed them). Requires Admin. Output defaults to the server tmp/virtual-sites tree.",
+  SITE_VIRT_BUILD_ERROR: "perc.ui.developer@Could not build Virtual Site.",
+  SITE_VIRT_BUILD_SUCCESS: "perc.ui.developer@Virtual Site build completed.",
+  SITE_VIRT_BUILD_PAGES: "perc.ui.developer@Pages written",
+  SITE_VIRT_BUILD_OUTPUT: "perc.ui.developer@Output path",
+  SITE_VIRT_BUILD_LINK_PROBLEMS: "perc.ui.developer@Link problems",
+  SITE_VIRT_BUILD_SAVE_FIRST:
+    "perc.ui.developer@Save Virtual Site source before building so the server uses the latest properties.",
   PLACEHOLDER_TITLE: "perc.ui.developer@Not implemented yet",
   PLACEHOLDER_BODY: "perc.ui.developer@This section is planned for Developer P0. See docs/ai-generated/tasks/developer-module-p0 and docs/developer-module.",
 } as const;

@@ -686,3 +686,30 @@ export interface VirtualSiteProperties {
   virtual?: boolean | null;
 }
 
+/**
+ * Optional body for {@code POST /services/sites/{nameOrId}/virtual/build}.
+ * When omitted or empty, the server chooses a default output directory.
+ */
+export interface VirtualSiteBuildRequest {
+  /** Absolute or host-relative output directory; blank uses server default. */
+  outputRoot?: string | null;
+}
+
+/**
+ * Outcome of a CMS-integrated Virtual Site static build
+ * ({@code POST /services/sites/{nameOrId}/virtual/build}).
+ *
+ * <p>HTTP 200 may still report link problems via {@code hasLinkProblems}.
+ */
+export interface VirtualSiteBuildResult {
+  siteName?: string | null;
+  siteKey?: string | null;
+  /** Absolute filesystem path of the static HTML output root. */
+  outputPath?: string | null;
+  pagesWritten?: number | null;
+  linkProblemCount?: number | null;
+  hasLinkProblems?: boolean | null;
+  linkProblems?: string[] | null;
+  writtenFiles?: string[] | null;
+}
+

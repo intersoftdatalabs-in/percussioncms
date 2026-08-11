@@ -17,9 +17,11 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import {
+  buildVirtualSite,
   getVirtualSiteProperties,
   updateVirtualSiteProperties,
 } from "../api/developer/sitesApi";
+import type { VirtualSiteBuildResult } from "../api/developer/types";
 import {
   catalogColors,
   errorAlert,
@@ -28,6 +30,10 @@ import {
 } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import {
+  formatVirtualSiteBuildSummary,
+  shouldShowVirtualBuildChrome,
+} from "./virtualSiteBuild";
 import {
   SOURCE_KIND_GIT_FILESYSTEM,
   SOURCE_KIND_REPOSITORY,
@@ -68,10 +74,47 @@ const primaryButton: React.CSSProperties = {
   fontSize: "0.9rem",
 };
 
+const secondaryButton: React.CSSProperties = {
+  background: "#fff",
+  color: catalogColors.text,
+  border: `1px solid ${catalogColors.softBorder}`,
+  borderRadius: "4px",
+  padding: "8px 14px",
+  cursor: "pointer",
+  fontSize: "0.9rem",
+};
+
 const disabledButton: React.CSSProperties = {
   ...primaryButton,
   background: catalogColors.disabled,
   cursor: "not-allowed",
+};
+
+const disabledSecondaryButton: React.CSSProperties = {
+  ...secondaryButton,
+  color: catalogColors.disabled,
+  borderColor: catalogColors.softBorder,
+  cursor: "not-allowed",
+};
+
+const successNotice: React.CSSProperties = {
+  color: catalogColors.accent,
+  marginTop: "8px",
+  fontSize: "0.9rem",
+};
+
+const buildResultBox: React.CSSProperties = {
+  marginTop: "10px",
+  padding: "10px 12px",
+  border: `1px solid ${catalogColors.headerBorder}`,
+  borderRadius: "4px",
+  background: "#f7fafc",
+  fontSize: "0.9rem",
+};
+
+const buildResultMono: React.CSSProperties = {
+  fontFamily: "monospace",
+  wordBreak: "break-all",
 };
 
 function validationMessage(
@@ -85,7 +128,8 @@ function validationMessage(
 
 /**
  * Site detail section: view/edit Virtual Site source fields via public Site REST
- * ({@code GET|PUT /services/sites/{name}/virtual}).
+ * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
+ * build ({@code POST …/virtual/build}) when source kind is Virtual.
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -95,12 +139,15 @@ export function VirtualSiteSourcePanel({
   const [form, setForm] = useState<VirtualSiteFormModel>(emptyVirtualSiteForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [building, setBuilding] = useState(false);
   /** Load-time failure (hides form; retry reloads). */
   const [loadError, setLoadError] = useState<string | null>(null);
   /** Save / client validation failure (keeps form mounted). */
   const [formError, setFormError] = useState<string | null>(null);
   const [savedNotice, setSavedNotice] = useState<string | null>(null);
   const [isVirtual, setIsVirtual] = useState(false);
+  const [buildError, setBuildError] = useState<string | null>(null);
+  const [buildResult, setBuildResult] = useState<VirtualSiteBuildResult | null>(null);
 
   const load = useCallback(() => {
     if (!siteName.trim()) {
@@ -113,6 +160,8 @@ export function VirtualSiteSourcePanel({
     setLoadError(null);
     setFormError(null);
     setSavedNotice(null);
+    setBuildError(null);
+    setBuildResult(null);
     getVirtualSiteProperties(siteName)
       .then((props) => {
         if (cancelled) return;
@@ -147,6 +196,7 @@ export function VirtualSiteSourcePanel({
     setSaving(true);
     setFormError(null);
     setSavedNotice(null);
+    setBuildError(null);
     try {
       const body = formToVirtualProps(form);
       const saved = await updateVirtualSiteProperties(siteName, body);
@@ -160,7 +210,34 @@ export function VirtualSiteSourcePanel({
     }
   }
 
+  async function onBuild(): Promise<void> {
+    // Build uses *saved* server properties — validate form only as a soft gate
+    // so operators see client-side issues before a wasted POST.
+    const clientErr = validateVirtualSiteForm(form);
+    if (clientErr) {
+      setBuildError(validationMessage(clientErr));
+      setBuildResult(null);
+      return;
+    }
+    setBuilding(true);
+    setBuildError(null);
+    setBuildResult(null);
+    setFormError(null);
+    try {
+      const result = await buildVirtualSite(siteName);
+      setBuildResult(result);
+    } catch (e: unknown) {
+      setBuildError(panelErrMsg(e, DEV_MSG.SITE_VIRT_BUILD_ERROR));
+    } finally {
+      setBuilding(false);
+    }
+  }
+
   const virtualMode = isVirtualSourceKind(form.sourceKind);
+  /** Build chrome only for virtual source kinds (never for repository). */
+  const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
+  const busy = saving || building;
+  const buildSummary = buildResult ? formatVirtualSiteBuildSummary(buildResult) : null;
 
   return (
     <section
@@ -224,6 +301,7 @@ export function VirtualSiteSourcePanel({
                 }))
               }
               style={inputStyle}
+              disabled={busy}
             >
               <option value={SOURCE_KIND_REPOSITORY}>{DEV_MSG.SITE_VIRT_KIND_REPOSITORY}</option>
               <option value={SOURCE_KIND_GIT_FILESYSTEM}>
@@ -245,6 +323,7 @@ export function VirtualSiteSourcePanel({
                   style={inputStyle}
                   autoComplete="off"
                   spellCheck={false}
+                  disabled={busy}
                 />
               </div>
               <div style={formRow}>
@@ -259,6 +338,7 @@ export function VirtualSiteSourcePanel({
                   placeholder="_config.yaml"
                   autoComplete="off"
                   spellCheck={false}
+                  disabled={busy}
                 />
               </div>
               <div style={formRow}>
@@ -272,17 +352,18 @@ export function VirtualSiteSourcePanel({
                   style={inputStyle}
                   autoComplete="off"
                   spellCheck={false}
+                  disabled={busy}
                 />
               </div>
             </>
           ) : null}
 
-          <div style={{ display: "flex", gap: "12px", alignItems: "center", marginTop: "8px" }}>
+          <div style={{ display: "flex", gap: "12px", alignItems: "center", marginTop: "8px", flexWrap: "wrap" }}>
             <button
               type="button"
               data-testid="developer-site-virtual-save"
-              style={saving ? disabledButton : primaryButton}
-              disabled={saving}
+              style={busy ? disabledButton : primaryButton}
+              disabled={busy}
               onClick={() => void onSave()}
             >
               {saving ? DEV_MSG.SITE_VIRT_SAVING : DEV_MSG.SITE_VIRT_SAVE}
@@ -293,6 +374,80 @@ export function VirtualSiteSourcePanel({
               </span>
             ) : null}
           </div>
+
+          {/* Build chrome: only when form source kind is Virtual (never for repository). */}
+          {showBuildChrome ? (
+            <div
+              data-testid="developer-site-virtual-build-section"
+              style={{
+                marginTop: "16px",
+                paddingTop: "12px",
+                borderTop: `1px dashed ${catalogColors.headerBorder}`,
+              }}
+            >
+              <p style={{ ...mutedHintText, margin: "0 0 8px" }} data-testid="developer-site-virtual-build-hint">
+                {DEV_MSG.SITE_VIRT_BUILD_HINT}
+              </p>
+              <p style={{ ...mutedHintText, margin: "0 0 10px" }} data-testid="developer-site-virtual-build-save-first">
+                {DEV_MSG.SITE_VIRT_BUILD_SAVE_FIRST}
+              </p>
+              <button
+                type="button"
+                data-testid="developer-site-virtual-build"
+                style={busy ? disabledSecondaryButton : secondaryButton}
+                disabled={busy}
+                onClick={() => void onBuild()}
+              >
+                {building ? DEV_MSG.SITE_VIRT_BUILDING : DEV_MSG.SITE_VIRT_BUILD}
+              </button>
+
+              {building ? (
+                <div data-testid="developer-site-virtual-build-busy" style={{ ...mutedText, marginTop: "10px" }}>
+                  {DEV_MSG.SITE_VIRT_BUILDING}
+                </div>
+              ) : null}
+
+              {buildError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-site-virtual-build-error"
+                  style={{ ...errorAlert, marginTop: "10px" }}
+                >
+                  {buildError}
+                </div>
+              ) : null}
+
+              {buildResult && buildSummary ? (
+                <div data-testid="developer-site-virtual-build-result" style={buildResultBox}>
+                  <div data-testid="developer-site-virtual-build-success" style={successNotice}>
+                    {DEV_MSG.SITE_VIRT_BUILD_SUCCESS}
+                  </div>
+                  <div style={{ marginTop: "6px" }}>
+                    <span>{DEV_MSG.SITE_VIRT_BUILD_PAGES}: </span>
+                    <span data-testid="developer-site-virtual-build-pages" style={buildResultMono}>
+                      {buildSummary.pagesLine}
+                    </span>
+                  </div>
+                  {buildSummary.outputLine ? (
+                    <div style={{ marginTop: "4px" }}>
+                      <span>{DEV_MSG.SITE_VIRT_BUILD_OUTPUT}: </span>
+                      <span data-testid="developer-site-virtual-build-output" style={buildResultMono}>
+                        {buildSummary.outputLine}
+                      </span>
+                    </div>
+                  ) : null}
+                  {buildSummary.hasLinkProblems && buildSummary.linkLine ? (
+                    <div
+                      data-testid="developer-site-virtual-build-link-problems"
+                      style={{ marginTop: "4px", color: catalogColors.error }}
+                    >
+                      {DEV_MSG.SITE_VIRT_BUILD_LINK_PROBLEMS}: {buildSummary.linkLine}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       ) : null}
     </section>
