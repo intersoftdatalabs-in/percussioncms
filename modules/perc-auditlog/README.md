@@ -169,7 +169,7 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 2848, ctx); // objectstore lookup 
 | `LuceneErrorCodes` | 16311–16456 (`IPSLuceneErrors`) | All non-auditable index/query codes |
 | `LocaleErrorCodes` | 1801–1804 (`IPSLocaleErrors`) | All non-auditable |
 | `MailErrorCodes` | 3501–3508 (`IPSMailErrors`) | All non-auditable |
-| `DataErrorCodes` | 5201–5267, 6003–6046 (`IPSDataErrors`) | All non-auditable data/XML pipeline codes |
+| `DataErrorCodes` | 5201–5269, 6003–6046 (`IPSDataErrors`) | All non-auditable data/XML pipeline codes |
 | `BackEndErrorCodes` | 5001–5057, 5401–5402, 5999 (`IPSBackEndErrors`) | Only `AUTHORIZATION_ERROR` dual-writes |
 | `ConnectionErrorCodes` | 3001–3012, 3101–3107 (`IPSConnectionErrors`) | Only `UNAUTHORIZED` dual-writes; 3001–3005 overlap USER package-local (USER not flat-registered) |
 | `CloneErrorCodes` | 17501–17506 (`IPSCloneErrors`) | `NOT_AUTHENTICACATED` / `NOT_AUTHORIZED` dual-write |

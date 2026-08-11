@@ -28,8 +28,8 @@ import com.intsof.percussioncms.auditlog.SystemErrorCode;
  *
  * <p>Path / folder / item permission codes remain owned by {@link PathItemErrorCodes} (registered
  * first; this catalog skips those ints). Legacy {@code SQL_EXCEPTION_WRAPPER = 1002} collides with
- * {@link ServerErrorCodes#SQL_PROBLEM} and is not re-registered here — prefer Server for flat
- * dual-write of 1002.
+ * {@link ServerErrorCodes#RAW_DUMP} ({@code 1002}; not {@link ServerErrorCodes#SQL_PROBLEM} which is
+ * {@code 1014}) and is not re-registered here — prefer Server for flat dual-write of 1002.
  *
  * <p>Every constant sets {@link #isAuditable()} to {@code false}: residual CMS codes are operational
  * objectstore / AA / relationship noise. Security dual-write for folder/community denials stays on
