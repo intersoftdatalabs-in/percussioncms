@@ -84,7 +84,7 @@
 - [x] T035 [US1] Port Liquibase `dbms="derby"` changesets to H2 (or db-agnostic) in `deliverytiersuite/delivery-tier-suite/metadata/src/main/resources/changeLogIndex*.xml` and related — **QC-012** start
 - [x] T036 [US1] Update `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution` packaging, cargo DS, and start scripts (`TomcatStartup.*`, service bats) to H2 home properties — **QC-024** start
 - [x] T037 [US1] Replace DTS Hibernate `DerbyDialect` hardcodes with H2 dialect class names in beans/xml configs (inventory-driven)
-- [ ] T038 [US1] **OS matrix smoke (SC-001)**: document and execute new default CMS login + DTS health smoke on **Windows, Linux, and macOS** (skip only with product-owner waiver recorded on #548 for unsupported component/OS); capture commands/results in `specs/548-derby-embedded-migration/checklists/os-smoke-matrix.md` — checklist + packaging unit evidence PASS 2026-07-24; **full install smoke still pending** distribution artifact
+- [ ] T038 [US1] **OS matrix smoke (SC-001)**: document and execute new default CMS login + DTS health smoke on **Windows, Linux, and macOS** (skip only with product-owner waiver recorded on #548 for unsupported component/OS); capture commands/results in `specs/548-derby-embedded-migration/checklists/os-smoke-matrix.md` — checklist + packaging unit evidence PASS; **full install smoke** human QA **#2332** (open)
 - [x] T039 [US1] **FR-010 copy audit**: grep installer/distribution docs and default templates for contradictory “Derby default” new-install guidance; fix remaining new-install messaging to H2/new default — see `checklists/fr010-copy-audit.md`
 - [x] T040 [US1] Standalone `mvnw clean install` for each changed module in this story; record evidence for PR body — **QC-018** — completed via PR #1495 and stacked successors
 - [x] T041 [US1] Commit US1 changes; open PR “548 US1 new-install H2 defaults”; pause for review — **merged** [#1495](https://github.com/intersoftdatalabs-in/percussioncms/pull/1495)
@@ -209,7 +209,7 @@
 - [x] T091 [P] [US6] Draft release notes at `docs/ai-generated/tasks/548-derby-embedded-migration/release-notes-8.2-derby-migration.md`: Derby retired, auto-migrate, external DB unchanged, offline backup, GA+1 migration window, no DRDA promise, link sizing + backup docs
 - [x] T092 [P] [US6] Draft upgrade guide “Am I affected?” decision tree at `docs/ai-generated/tasks/548-derby-embedded-migration/am-i-affected.md` (Derby default vs MySQL/MSSQL) — **SC-008** support FAQ path
 - [x] T093 [US6] Add FR-021 tracking checklist items on GitHub #548 for next product line + deprecation notice — **QC-027**, **SC-012** — repo checklist `docs/.../fr-021-migration-window.md` + issue comment
-- [x] T094 [US6] Commit; PR “548 US6 release comms”; review/merge
+- [x] T094 [US6] Commit; PR “548 US6 release comms”; review/merge — **merged** [#1504](https://github.com/intersoftdatalabs-in/percussioncms/pull/1504); residual QC freeze / main reconcile [#3065](https://github.com/intersoftdatalabs-in/percussioncms/issues/3065)
 
 ---
 
@@ -221,14 +221,14 @@
 - [x] T095 [P] Packaging audit: new default installs do not require Derby on live runtime classpath; H2 present; Derby migration-scoped — document in `specs/548-derby-embedded-migration/checklists/packaging-audit.md` — **QC-013**, **SC-009**
 - [x] T096 [P] Audit `.ppkg` / `modules/perc-packages/**/psx_archiveInfo.xml` Derby driver stamps; fix runtime-impacting cases; soft/hard per QC-023 — **QC-023** soft disposition documented in packaging-audit (41 stamps; no mass rewrite)
 - [x] T097 Verify Windows service/Procrun and shell start scripts use H2 home after upgrade; document service reinstall/update steps — **QC-024** — `checklists/windows-service-h2-notes.md`
-- [x] T098 Walk [checklists/quality-gates.md](checklists/quality-gates.md) and mark every hard QC `[x]` or record product-owner waiver on #548 with rationale; **confirm T050/QC-029 and T038 OS matrix** before close — QC checklist updated 2026-07-24; T050/QC-029 met; T038 full install still open (called out in QC doc)
-- [x] T099 Update [checklists/derby-surface-inventory.md](checklists/derby-surface-inventory.md) so disposition has zero `unknown` rows — **QC-001** freeze — 0 unknown after heuristic disposition upgrade (`--fail-on-unknown`)
+- [x] T098 Walk [checklists/quality-gates.md](checklists/quality-gates.md) and mark every hard QC `[x]` or record product-owner waiver on #548 with rationale; **confirm T050/QC-029 and T038 OS matrix** before close — QC checklist updated 2026-08-11; T050/QC-029 met; QC-023 hard closed via #2333; T038 full install still open on **#2332**
+- [x] T099 Update [checklists/derby-surface-inventory.md](checklists/derby-surface-inventory.md) so disposition has zero `unknown` rows — **QC-001** freeze — re-run 2026-08-11 on `main` — **0 unknown** (`--fail-on-unknown`)
 - [x] T100 [P] Spotless / formatting on all touched Java modules via module `mvnw` spotless goals as project standard — **N/A** this closeout slice (docs/script only; Java landed in prior PRs)
 - [x] T101 Security pass: no password logging; backup dir permission notes in docs; redaction tests still green — **QC-022** — `checklists/security-pass.md`
 - [x] T102 Final standalone `clean install` on every module changed across the feature; attach command list + BUILD SUCCESS to #548 and final PR — **QC-018** — satisfied on implementation PRs #1494–#1499; docs/script PR N/A
 - [x] T103 Erlang pre-commit review for last code PR per AGENTS; fix hard-gate findings before merge — **N/A** docs/script closeout (no product Java in this PR); prior code PRs used Kilo/Erlang gates
-- [x] T104 Update GitHub issue #548 body checkboxes; link plan/tasks/QC checklist; do **not** close until all hard QCs and runtime smoke agreed for release — body refreshed 2026-07-24; leave issue open for T038 / GA packaging
-- [x] T105 Optional: `/speckit-taskstoissues` or manually file WP-scoped GitHub issues if team wants tracker split beyond #548 — **skipped** (single #548 tracker + #1500 Postgres backlog)
+- [x] T104 Update GitHub issue #548 body checkboxes; link plan/tasks/QC checklist; do **not** close until all hard QCs and runtime smoke agreed for release — body + residual QA table 2026-08-07 (#2332/#2333); US6 residual #3065; leave #548 open until T038 (#2332) or waiver
+- [x] T105 Optional: `/speckit-taskstoissues` or manually file WP-scoped GitHub issues if team wants tracker split beyond #548 — **done as residuals** (#2332 T038 QA, #2333 QC-023 QA closed, #3065 US6/Phase 9 docs residual; Postgres still #1500)
 
 ---
 

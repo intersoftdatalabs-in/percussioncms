@@ -2,13 +2,13 @@
 
 **Purpose**: Hard/soft verification gates before GA and per implementation PR. Sourced from Sherlock design review (`sherlock-design-review.md`) plus spec success criteria.  
 **Created**: 2026-07-23  
-**Updated**: 2026-07-24 (post-merge stack #1494–#1499 + US6/Phase 9 docs)  
+**Updated**: 2026-08-11 (main reality: stack #1494–#1499 + US6 #1504; residual #3065 QC freeze; human QA #2332/#2333)  
 **Feature**: [spec.md](../spec.md) | [plan.md](../plan.md) | [quickstart.md](../quickstart.md)  
 **Review**: [sherlock-design-review.md](sherlock-design-review.md)
 
 **Legend**: `- [ ]` open · `- [x]` done · Gate **hard** blocks GA (or blocks stated WP) · **soft** should not slip past release without explicit waiver in PR body.
 
-**Evidence PRs**: #1494 foundation · #1495 US1 · #1496 US2 · #1497 US3 · #1498 US5 · #1499 US4 · US6/Phase 9 docs PR.
+**Evidence PRs**: #1494 foundation · #1495 US1 · #1496 US2 · #1497 US3 · #1498 US5 · #1499 US4 · #1504 US6/Phase 9 docs · residual QC freeze #3065.
 
 ---
 
@@ -17,11 +17,11 @@
 - [x] **QC-001** Full Derby surface inventory freeze (hard)
   - Maps to: FR-010, Sherlock Issue 3
   - Verify: Scripted repo search → dispositioned checklist; **zero unknown** rows
-  - **Evidence**: `derby-surface-inventory.md` regenerated 2026-07-24 — **0 unknown** (`scripts/derby-surface-inventory.py --fail-on-unknown`)
+  - **Evidence**: `derby-surface-inventory.md` regenerated **2026-08-11** on `main` — **0 unknown** (`python scripts/derby-surface-inventory.py --fail-on-unknown`); residual re-freeze under #3065
 - [x] **QC-014** Installer path without Derby NetworkServerControl (or approved H2 multi-process) (hard)
   - Maps to: FR-001, Sherlock Issue 2
   - Verify: Default install path does not require listen port **1527**
-  - **Evidence**: US1 install redesign + packaging unit tests (`DefaultEmbeddedH2PackagingTest`); full OS install smoke still **T038 open**
+  - **Evidence**: US1 install redesign + packaging unit tests (`DefaultEmbeddedH2PackagingTest`); full OS install/login smoke still **T038 open** → human QA **#2332**
 - [x] **QC-026** Every install `sqlDerby` that still runs post-cutover has `sqlH2` (or generic) (hard)
   - Maps to: FR-010, Issue 3
   - **Evidence**: US1 sqlH2 / install resource work (#1495)
@@ -101,22 +101,24 @@
 - [x] **QC-022** Secrets redaction in migration logs (hard)
   - **Evidence**: [security-pass.md](./security-pass.md); `PSMigrationSecretsRedactor` tests
 - [x] **QC-023** Package install on H2 default (soft → hard if driver-validated)
-  - **Evidence**: Soft disposition in [packaging-audit.md](./packaging-audit.md) — archive stamps; no hard install IT failure known. **Hard install IT deferred** until distribution package-install run.
+  - **Evidence**: Soft disposition in [packaging-audit.md](./packaging-audit.md) — archive stamps. **Hard** representative package install on H2: human QA **#2333** **CLOSED** 2026-08-11 (`QA: Passed` by @vijaya-boddipudi).
 - [x] **QC-024** Windows service JVM options after upgrade (hard for DTS GA)
   - **Evidence**: [windows-service-h2-notes.md](./windows-service-h2-notes.md) + DTS/Jetty H2 defaults (#1495)
 - [x] **QC-027** Migration support window checklist FR-021 (soft until near window end; hard before Derby removal)
-  - **Evidence**: [fr-021-migration-window.md](../../../docs/ai-generated/tasks/548-derby-embedded-migration/fr-021-migration-window.md) + #548 issue comment (tracking open for GA naming)
+  - **Evidence**: [fr-021-migration-window.md](../../../docs/ai-generated/tasks/548-derby-embedded-migration/fr-021-migration-window.md) + #548 FR-021 comment (GA line name still open until release locks)
 
 ---
 
 ## Still open for product GA (not QC text freeze)
 
-|                Item                |      Task      |                                 Notes                                 |
-|------------------------------------|----------------|-----------------------------------------------------------------------|
-| Full OS install login/health smoke | T038 / SC-001  | Packaging unit PASS; full install pending distribution artifact       |
-| QC-023 hard package install IT     | T096 follow-up | Soft met; run representative `.ppkg` install on H2 default when ready |
-| FR-021 GA line name                | T093           | Checklist open until GA version locks                                 |
-| Issue #548 body checkbox refresh   | T104           | Update when ready to close or milestone                               |
+|                Item                |      Task      |                                 Notes / tracker                                 |
+|------------------------------------|----------------|---------------------------------------------------------------------------------|
+| Full OS install login/health smoke | T038 / SC-001  | Packaging unit PASS; full multi-OS install/login → human QA **#2332** (open)    |
+| QC-023 hard package install IT     | T096 follow-up | **Closed** — #2333 passed 2026-08-11                                            |
+| FR-021 GA line name                | T093           | Checklist open until GA version locks (policy + deprecation template ready)     |
+| Issue #548 close                   | T104           | Leave open until T038 (#2332) done or product-owner waiver on #548              |
+
+Agent-safe US6 residual inventory/QC freeze: **#3065** (docs only; does not replace #2332).
 
 ---
 
@@ -149,5 +151,5 @@ Track residual GA items in the table above and GitHub #548.
 ## Notes
 
 - Do **not** mark #548 complete until all **hard** gates above are checked or explicitly waived with product owner sign-off in the issue.
-- Full OS install smoke (T038) and hard QC-023 package install IT remain open for GA; see residual table above.
+- Engineering stack + US6 docs are on **main**. Remaining product-GA blocker tracked as human QA: **T038 full OS install smoke (#2332)**. QC-023 hard is closed (#2333).
 

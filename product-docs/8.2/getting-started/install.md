@@ -28,7 +28,7 @@ shipped for your platform rather than hard-coding Unix-only paths.
 | Requirement | Notes |
 |-------------|--------|
 | **JDK 21** | Runtime and toolchain for the 8.2 line. Set `JAVA_HOME` to a JDK 21 installation. |
-| **Supported RDBMS** (production) | Use the database drivers and schemas documented for your release; evaluation/dev often uses H2. |
+| **Supported RDBMS** (production) | Use the database drivers and schemas documented for your release. **New installs** default the product-managed embedded repository to multiuser **H2** (not Derby). External MySQL / SQL Server remain supported. Upgrades from product-managed Derby: see [Upgrade Overview](id:upgrade-overview). |
 | **Disk & ports** | Enough space for install tree, content repository, and publish targets; free HTTP(S) ports (defaults vary by install; common developer CMS UI ports include the install-time configured Jetty ports). |
 | **Permissions** | Installer/service account needs write access under the install directory and configured data/publish paths. |
 

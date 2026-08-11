@@ -1,8 +1,10 @@
 # OS smoke matrix — new default H2 install (T038 / SC-001)
 
 **Feature**: #548 Derby embedded migration  
-**Branch**: `548-derby-embedded-migration`  
+**Integration branch**: `main` (implementation stack merged; residual human QA **#2332**)  
 **Purpose**: Document and capture CMS login + DTS health smoke on **Windows, Linux, and macOS** for clean installs accepting defaults (H2, no port 1527).
+
+> **Agent note:** Full multi-OS install/login is **human QA** (#2332). Overnight agents re-verify packaging unit evidence only; they do not claim T038 closed without host installs.
 
 ## Commands (cross-platform outline)
 
@@ -32,9 +34,17 @@
 
 None recorded. Unsupported component/OS pairs must be waived on GitHub #548 before skipping.
 
+## Residual tracker
+
+| Residual | Issue | Status (as of 2026-08-11) |
+|----------|-------|---------------------------|
+| T038 full OS install/login/health | **#2332** | open — assignee @vijaya-boddipudi |
+| QC-023 hard package install on H2 | **#2333** | closed — QA Passed |
+
 ## Related
 
 - Packaging tests: `modules/perc-distribution-tree/.../DefaultEmbeddedH2PackagingTest`
 - DTS: `deliverytiersuite/.../metadata/.../DefaultH2BeansPackagingTest`
 - Contracts: `contracts/repository-config.md`
+- Quality gates residual table: `checklists/quality-gates.md`
 
