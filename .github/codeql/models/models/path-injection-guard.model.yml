@@ -65,3 +65,28 @@ extensions:
           "path-injection",
           "manual",
         ]
+      # Offline build service: same isSafeRootPath barrier for outputRoot / asset dest.
+      # CodeQL #1956–#1960 / #1966.
+      - [
+          "com.percussion.services.virtualsite",
+          "PSVirtualSiteBuildService",
+          false,
+          "requireSafeBuildRoot",
+          "(java.nio.file.Path)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      # Durable participant store directory barrier. CodeQL #1962–#1965.
+      - [
+          "com.percussion.services.virtualsite",
+          "PSInMemoryVirtualParticipantService",
+          false,
+          "requireSafeStoreDirectory",
+          "(java.nio.file.Path)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]

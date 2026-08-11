@@ -299,19 +299,25 @@ query-filters:
         - "system/src/main/java/com/percussion/xml/PSDtdTree.java"
         - "system/src/main/java/com/percussion/server/PSServer.java"
         - "projects/sitemanage/src/main/java/com/percussion/apibridge/SitesAdaptor.java"
+        - "system/services/src/com/percussion/services/virtualsite/PSVirtualSiteBuildService.java"
+        - "system/services/src/com/percussion/services/virtualsite/PSInMemoryVirtualParticipantService.java"
       reason: >-
         Documented multi-pass T043 residuals after structural guards (includes
         PSThemeService from PR #1361 + broader residual batch PR #1362) plus
-        Virtual Site build SitesAdaptor (#1951/#1952/#1961 thrash #1967/#1968).
+        Virtual Site build SitesAdaptor (#1951/#1952/#1961 thrash #1967/#1968)
+        and offline Virtual Site services (#1956–#1960/#1962–#1966).
         Each product sink is gated by PSPathInjectionGuard or file-local
-        validatePath / requireSafeFilePath / requireSafeOutputRoot before File
+        validatePath / requireSafeFilePath / requireSafeOutputRoot /
+        requireSafeBuildRoot / requireSafeStoreDirectory before File
         or NIO I/O. CodeQL Advanced + auto-injected scans still residual-flag
         File.exists/delete/mkdirs/streams, Files.createDirectories, and Path.resolve
         after those barriers even with same-line // codeql[java/path-injection].
         Path excludes + sink-line suppressions + behavioral security tests
         (PSThemeServiceSecurityTest, PSRegionCSSFileServiceSecurityTest,
         PSCSSParserPathInjectionTest, PSImportThemeHelperPathInjectionTest,
-        SitesAdaptorTest requireSafeOutputRoot / buildVirtualSite, etc.).
+        SitesAdaptorTest requireSafeOutputRoot / buildVirtualSite,
+        PSVirtualSiteBuildServiceTest / PSInMemoryVirtualParticipantServiceTest
+        path-injection barriers, etc.).
   # --- js/xss-through-dom residuals (imageSlider thumbnail src from DOM title) ---
   # Structural: safeThumbnailSrc rejects javascript:/data:/vbscript:; img built
   # without user data in factory map; src set via .attr after sanitize.
