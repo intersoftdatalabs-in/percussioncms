@@ -68,6 +68,16 @@ class PSVirtualSiteBuildServiceTest {
     participants.flush("sample");
     assertTrue(Files.isRegularFile(meta.resolve("participants-sample.jsonl")));
 
+    // Second build replaces site registry (stale ids gone; current ids retained)
+    participants.upsert(
+        new VirtualParticipant("sample", "stale-only", "8.2", "8.2/stale.html", "8.2/stale.md"));
+    PSVirtualSiteBuildResult second = service.build(sample, out, "sample");
+    assertEquals(3, second.pageCount());
+    assertTrue(participants.find("sample", "install-overview").isPresent());
+    assertTrue(
+        participants.find("sample", "stale-only").isEmpty(),
+        "full rebuild must clear site then re-register only current pages");
+
     // Link report is always written next to static HTML for operator review
     Path linkReport = out.resolve("link-report.txt");
     assertTrue(Files.isRegularFile(linkReport), "missing link-report.txt");

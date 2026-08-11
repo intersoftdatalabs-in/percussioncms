@@ -51,6 +51,21 @@ See [Installation](id:install-overview).
 
 Details: [Frontmatter reference](id:reference-frontmatter).
 
+## Virtual participant registry lifetime
+
+During a Virtual Site build, each page’s frontmatter **`id`** is registered against its published
+HTML path in the **virtual participant registry** (`IPSVirtualParticipantService`). Phase 1 does
+**not** create CMS content IDs or `PSX_MANAGEDLINK` rows.
+
+| Mode | Behavior |
+|------|----------|
+| **Process-scoped (default)** | Registrations live in memory until the process exits, or until `clear(siteKey)` / `clearAll()` is called (SPI reset API). Unit tests and one-shot builds use this mode when no store directory is supplied. |
+| **Path-backed (optional)** | Construct the registry with a portable `java.nio.file.Path` base (CLI uses `outputRoot/_meta`). Existing `participants-<siteKey>.jsonl` files are loaded on construct; `flush(siteKey)` rewrites that site’s file. Survives JVM restart when the same Path base is reused. |
+| **Full rebuild** | A complete site build **clears** that site key, then upserts every discovered page, then flushes. A second build therefore does not keep pages removed from the source tree, and does not lose current ids. |
+
+Operators can treat the JSONL under the build meta directory as a diagnostic dump of stable ids after
+an offline docs build. The registry is **not** a substitute for Git as the system of record.
+
 ## Site properties (CMS)
 
 When a Percussion Site is configured as virtual (Phase 1 property contract — no new `RXSITES`
