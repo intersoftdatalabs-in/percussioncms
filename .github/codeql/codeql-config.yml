@@ -246,6 +246,7 @@ query-filters:
       id: java/xss
       paths:
         - "projects/sitemanage/src/main/java/com/percussion/sitemanage/service/impl/PSSiteDataRestService.java"
+        - "rest/src/main/java/com/percussion/rest/sites/SitesResource.java"
         - "projects/sitemanage/src/main/java/com/percussion/assetmanagement/service/impl/PSAssetRestService.java"
         - "projects/sitemanage/src/main/java/com/percussion/dashboardmanagement/service/impl/PSDashboardService.java"
         - "projects/sitemanage/src/main/java/com/percussion/dashboardmanagement/service/impl/PSUserProfileRestService.java"
