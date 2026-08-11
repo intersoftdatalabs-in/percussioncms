@@ -69,16 +69,15 @@ public class PSItemAssemblyManager {
    * @param nodeList the list of nodes to insert at the specified target/targetParent, must not be
    *     <code>null</code>
    */
-  public void insert(PSNode targetParent, PSNode target, Iterator nodeList) {
+  public void insert(PSNode targetParent, PSNode target, Iterator<PSNode> nodeList) {
     if (targetParent == null) throw new IllegalArgumentException("targetParent must not be null");
 
     if (target == null) throw new IllegalArgumentException("target must not be null");
 
     if (nodeList == null) throw new IllegalArgumentException("nodeList must not be null");
 
-    int index = Integer.MAX_VALUE;
-    if (target.getType().equals(PSNode.TYPE_SLOT)) targetParent = target;
-    else index = target.getSortRank();
+    int index = resolveDropIndex(target);
+    if (isSlotTarget(target)) targetParent = target;
 
     PSActiveAssemblerHandlerRequest req = buildRequest(targetParent, nodeList);
 
@@ -98,7 +97,7 @@ public class PSItemAssemblyManager {
    * @param nodeList the list of <code>PSNode</code>s identifying the items, may not be <code>null
    *     </code> or empty.
    */
-  public void insert(String ownerContentId, String slotId, Iterator nodeList) {
+  public void insert(String ownerContentId, String slotId, Iterator<PSNode> nodeList) {
     PSActiveAssemblerHandlerRequest req = buildRequest(ownerContentId, slotId, nodeList);
 
     processActiveAssemblerRequest(req, "insert");
@@ -111,7 +110,7 @@ public class PSItemAssemblyManager {
    * @param nodeList this is the list of nodes to delete, must not be <code>
    * null</code>
    */
-  public void delete(PSNode target, Iterator nodeList) {
+  public void delete(PSNode target, Iterator<PSNode> nodeList) {
     if (target == null) throw new IllegalArgumentException("target must not be null");
 
     if (nodeList == null) throw new IllegalArgumentException("nodeList must not be null");
@@ -130,28 +129,13 @@ public class PSItemAssemblyManager {
   public void reorder(PSSelection selection, int direction) {
     if (selection == null) throw new IllegalArgumentException("selection must not be null");
 
-    boolean moveDown = (direction > 0);
-    if (moveDown) // move down requires 1 more because
-    direction++; // we move 1 above the index specified
-
-    int newIndex = (moveDown) ? 0 : Integer.MAX_VALUE;
     if (selection.getNodeListSize() > 0) {
-      Iterator iter = selection.getNodeList();
-      while (iter.hasNext()) {
-        PSNode node = (PSNode) iter.next();
-        int sortRank = node.getSortRank();
-        if (moveDown) {
-          if (sortRank > newIndex) newIndex = sortRank;
-        } else // moveUp
-        {
-          if (sortRank < newIndex) newIndex = sortRank;
-        }
-      }
+      int dropIndex = resolveReorderDropIndex(selection.getNodeList(), direction);
       PSActiveAssemblerHandlerRequest req =
           buildRequest(selection.getParent(), selection.getNodeList());
 
       // set the drop location index
-      req.setIndex(newIndex + direction);
+      req.setIndex(dropIndex);
 
       processActiveAssemblerRequest(req, "reorder");
     }
@@ -168,16 +152,15 @@ public class PSItemAssemblyManager {
    * @param nodeList the list of nodes to update at the specified target/targetParent, must not be
    *     <code>null</code>
    */
-  public void update(PSNode targetParent, PSNode target, Iterator nodeList) {
+  public void update(PSNode targetParent, PSNode target, Iterator<PSNode> nodeList) {
     if (targetParent == null) throw new IllegalArgumentException("targetParent must not be null");
 
     if (target == null) throw new IllegalArgumentException("target must not be null");
 
     if (nodeList == null) throw new IllegalArgumentException("nodeList must not be null");
 
-    int index = Integer.MAX_VALUE;
-    if (target.getType().equals(PSNode.TYPE_SLOT)) targetParent = target;
-    else index = target.getSortRank();
+    int index = resolveDropIndex(target);
+    if (isSlotTarget(target)) targetParent = target;
 
     PSActiveAssemblerHandlerRequest req = buildRequest(targetParent, nodeList);
 
@@ -198,7 +181,7 @@ public class PSItemAssemblyManager {
    * @param nodeList the list of nodes to reorder at the specified target/targetParent, must not be
    *     <code>null</code>
    */
-  public void reorder(PSNode targetParent, PSNode target, Iterator nodeList) {
+  public void reorder(PSNode targetParent, PSNode target, Iterator<PSNode> nodeList) {
     if (targetParent == null) throw new IllegalArgumentException("targetParent must not be null");
 
     if (target == null) throw new IllegalArgumentException("target must not be null");
@@ -207,13 +190,86 @@ public class PSItemAssemblyManager {
 
     PSActiveAssemblerHandlerRequest req = buildRequest(targetParent, nodeList);
 
-    int index = Integer.MAX_VALUE;
-    if (!target.getType().equals(PSNode.TYPE_SLOT)) index = target.getSortRank();
+    int index = resolveDropIndex(target);
 
     // set the drop location index
     req.setIndex(index);
 
     processActiveAssemblerRequest(req, "reorder");
+  }
+
+  /**
+   * Whether the target is a slot node (append at end; parent becomes the slot itself for
+   * insert/update).
+   *
+   * @param target node to check, may be <code>null</code>
+   * @return <code>true</code> if target is non-null and of type slot
+   */
+  static boolean isSlotTarget(PSNode target) {
+    return target != null && PSNode.TYPE_SLOT.equals(target.getType());
+  }
+
+  /**
+   * Resolve the drop index for insert/update/reorder against a target node. Slot targets append at
+   * the end ({@link Integer#MAX_VALUE}); item targets use {@link PSNode#getSortRank()}.
+   *
+   * @param target the drop target, must not be <code>null</code>
+   * @return drop index, always &gt; 0 for valid ranks or {@link Integer#MAX_VALUE} for slots
+   */
+  static int resolveDropIndex(PSNode target) {
+    if (target == null) throw new IllegalArgumentException("target must not be null");
+    if (isSlotTarget(target)) return Integer.MAX_VALUE;
+    return target.getSortRank();
+  }
+
+  /**
+   * Compute the active-assembler reorder drop index from selected nodes and move direction.
+   *
+   * <p>Historical behavior: move down uses the max sort rank among selected nodes and increments
+   * {@code direction} by one before adding; move up uses the min sort rank and adds {@code
+   * direction} unchanged.
+   *
+   * @param nodes selected nodes (consumed), must not be <code>null</code>
+   * @param direction &gt; 0 is move down, &lt;= 0 is move up
+   * @return computed drop index
+   */
+  static int resolveReorderDropIndex(Iterator<PSNode> nodes, int direction) {
+    if (nodes == null) throw new IllegalArgumentException("nodes must not be null");
+
+    boolean moveDown = (direction > 0);
+    if (moveDown) // move down requires 1 more because
+    direction++; // we move 1 above the index specified
+
+    int newIndex = (moveDown) ? 0 : Integer.MAX_VALUE;
+    while (nodes.hasNext()) {
+      PSNode node = nodes.next();
+      int sortRank = node.getSortRank();
+      if (moveDown) {
+        if (sortRank > newIndex) newIndex = sortRank;
+      } else // moveUp
+      {
+        if (sortRank < newIndex) newIndex = sortRank;
+      }
+    }
+    return newIndex + direction;
+  }
+
+  /**
+   * Build the POST parameter map for the active assembly app. Pure helper for typing and tests.
+   *
+   * @param action active assembly command (insert/delete/update/reorder), must not be <code>null
+   *     </code>
+   * @param inputDocXml XML string of the request document, must not be <code>null</code>
+   * @return mutable map with {@code sys_command} and {@link #INPUT_DOC} entries
+   */
+  static Map<String, String> buildActiveAssemblerParams(String action, String inputDocXml) {
+    if (action == null) throw new IllegalArgumentException("action must not be null");
+    if (inputDocXml == null) throw new IllegalArgumentException("inputDocXml must not be null");
+
+    Map<String, String> params = new HashMap<>();
+    params.put("sys_command", action);
+    params.put(INPUT_DOC, inputDocXml);
+    return params;
   }
 
   /**
@@ -228,7 +284,8 @@ public class PSItemAssemblyManager {
    * @return an active assembler object that can be transformed to XML and posted to the active
    *     assembler handler
    */
-  private PSActiveAssemblerHandlerRequest buildRequest(PSNode targetSlot, Iterator nodeList) {
+  private PSActiveAssemblerHandlerRequest buildRequest(
+      PSNode targetSlot, Iterator<PSNode> nodeList) {
     return buildRequest(targetSlot.getContentId(), targetSlot.getSlotId(), nodeList);
   }
 
@@ -244,7 +301,7 @@ public class PSItemAssemblyManager {
    * @return the request, never <code>null</code>
    */
   private PSActiveAssemblerHandlerRequest buildRequest(
-      String ownerContentId, String slotId, Iterator nodeList) {
+      String ownerContentId, String slotId, Iterator<PSNode> nodeList) {
     if (ownerContentId == null || ownerContentId.trim().length() == 0)
       throw new IllegalArgumentException("ownerContentId may not be null or empty.");
 
@@ -275,7 +332,7 @@ public class PSItemAssemblyManager {
 
     PSDependentSet dependents = new PSDependentSet();
     while (nodeList.hasNext()) {
-      PSNode src = (PSNode) nodeList.next();
+      PSNode src = nodeList.next();
       PSLocator loc = new PSLocator(src.getContentId(), src.getRevision());
 
       PSPropertySet props = new PSPropertySet();
@@ -326,9 +383,8 @@ public class PSItemAssemblyManager {
 
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
 
-    Map params = new HashMap();
-    params.put("sys_command", action);
-    params.put(INPUT_DOC, PSXmlDocumentBuilder.toString(req.toXml(doc)));
+    Map<String, String> params =
+        buildActiveAssemblerParams(action, PSXmlDocumentBuilder.toString(req.toXml(doc)));
 
     try {
       m_actionManager.postData(ACTIVE_ASSEMBLY_APP, params);
