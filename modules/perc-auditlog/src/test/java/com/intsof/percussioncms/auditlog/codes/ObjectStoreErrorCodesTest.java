@@ -35,18 +35,19 @@ class ObjectStoreErrorCodesTest {
     for (ObjectStoreErrorCodes code : ObjectStoreErrorCodes.values()) {
       assertEquals(AuditModule.DESN, code.module());
       assertTrue(code.numericCode() >= 2011, code.name());
-      assertTrue(code.numericCode() <= 2260, code.name());
+      assertTrue(code.numericCode() <= 2320, code.name());
       assertTrue(seen.add(code.numericCode()), "duplicate numeric: " + code.numericCode());
       assertNotNull(code.userMessageTemplate());
       assertNotNull(code.logMessageTemplate());
       assertTrue(code.qualifiedCode().startsWith("DESN-"));
     }
-    assertEquals(63, ObjectStoreErrorCodes.values().length);
+    // Batch A (63) + batch B (60) = 123 non-colliding IPSObjectStoreErrors ints.
+    assertEquals(123, ObjectStoreErrorCodes.values().length);
   }
 
   @Test
-  void allBatchACodesAreNonAuditable() {
-    // Auditable ACL dual-write remains on DesignErrorCodes; batch A is XML/structure noise.
+  void allCatalogCodesAreNonAuditable() {
+    // Auditable ACL dual-write remains on DesignErrorCodes; ObjectStore is structure noise.
     for (ObjectStoreErrorCodes code : ObjectStoreErrorCodes.values()) {
       assertFalse(code.isAuditable(), code.name());
       assertNull(code.eventType(), code.name());
@@ -64,12 +65,35 @@ class ObjectStoreErrorCodesTest {
     assertEquals(2209, ObjectStoreErrorCodes.APP_NAME_EMPTY.numericCode());
     assertEquals(2238, ObjectStoreErrorCodes.DATAENC_KEY_STRENGTH_REQD.numericCode());
     assertEquals(2260, ObjectStoreErrorCodes.NOTIFIER_FROM_TOO_BIG.numericCode());
+    // Batch B anchors
+    assertEquals(2261, ObjectStoreErrorCodes.ROLE_NAME_EMPTY.numericCode());
+    assertEquals(2274, ObjectStoreErrorCodes.ROLESET_PROVIDER_TYPE_INVALID.numericCode());
+    assertEquals(2294, ObjectStoreErrorCodes.LITERAL_DATE_INVALID.numericCode());
+    assertEquals(2309, ObjectStoreErrorCodes.JDBC_DRIVER_CLASS_LOAD_ERROR.numericCode());
+    assertEquals(2320, ObjectStoreErrorCodes.UPDATEPIPE_NO_SYNC_TYPES.numericCode());
+  }
+
+  @Test
+  void batchBRangeIsContiguousFrom2261Through2320() {
+    Set<Integer> batchB = new HashSet<>();
+    for (ObjectStoreErrorCodes code : ObjectStoreErrorCodes.values()) {
+      int n = code.numericCode();
+      if (n >= 2261 && n <= 2320) {
+        batchB.add(n);
+      }
+    }
+    assertEquals(60, batchB.size());
+    for (int expected = 2261; expected <= 2320; expected++) {
+      assertTrue(batchB.contains(expected), "missing batch B int " + expected);
+    }
   }
 
   @Test
   void doesNotIncludeDesignOwnedAclInts() {
     Set<Integer> designOwned =
-        Set.of(2201, 2202, 2203, 2204, 2205, 2206, 2207, 2208, 2213, 2214, 2218);
+        Set.of(
+            2201, 2202, 2203, 2204, 2205, 2206, 2207, 2208, 2213, 2214, 2218, 2327, 2351, 2352,
+            2353, 2354, 2355, 2356);
     for (ObjectStoreErrorCodes code : ObjectStoreErrorCodes.values()) {
       assertFalse(
           designOwned.contains(code.numericCode()),

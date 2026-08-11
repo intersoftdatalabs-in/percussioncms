@@ -19,8 +19,8 @@ System-wide Percussion CMS audit logging and unified error-code support.
   `ServletErrorCodes`, `TransformationErrorCodes` (enum-only),
   `SearchErrorCodes` (`IPSSearchErrors`; auth failure dual-write), `LuceneErrorCodes`,
   `LocaleErrorCodes`, `MailErrorCodes` (all non-auditable),
-  `ObjectStoreErrorCodes` batch A (`IPSObjectStoreErrors` general/PSObjectStore/early objects;
-  all non-auditable; skips Design-owned ACL ints)
+  `ObjectStoreErrorCodes` batches A–B (`IPSObjectStoreErrors` general/PSObjectStore/structure
+  through 2320; all non-auditable; skips Design-owned ACL ints)
   + `LegacyErrorCodeRegistry` bridge legacy `IPS*Errors` ints. Non-auditable / unregistered ints never
   dual-write. Central `PSErrorHandler.appendError` dual-writes only when the registry marks the legacy
   int auditable.
@@ -133,7 +133,7 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 2011, ctx); // objectstore XML nul
 | `LuceneErrorCodes` | 16311–16456 (`IPSLuceneErrors`) | All non-auditable index/query codes |
 | `LocaleErrorCodes` | 1801–1804 (`IPSLocaleErrors`) | All non-auditable |
 | `MailErrorCodes` | 3501–3508 (`IPSMailErrors`) | All non-auditable |
-| `ObjectStoreErrorCodes` | batch A: 2011–2021, 2101–2103, 2200, 2209–2260 (skip Design ACL) | All non-auditable; Design owns ACL ints |
+| `ObjectStoreErrorCodes` | A+B: 2011–2021, 2101–2103, 2200, 2209–2320 (skip Design ACL) | All non-auditable; Design owns ACL ints; residual 2321+ / 2401+ / 2801+ |
 
 Non-auditable codes (`isAuditable() == false`) never create audit rows.
 
