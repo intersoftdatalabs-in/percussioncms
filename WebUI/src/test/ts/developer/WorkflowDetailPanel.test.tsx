@@ -64,7 +64,7 @@ describe("WorkflowDetailPanel", () => {
     expect(screen.getByTestId("developer-wf-gaps").textContent).toContain("gap-a");
     expect(getWorkflowDetail).toHaveBeenCalledWith("Simple Workflow");
     const back = screen.getByTestId("developer-wf-back");
-    expect(back.getAttribute("aria-label")).toBe("Back to workflows list");
+    expect(back.getAttribute("aria-label")).toBe("Back to list");
     fireEvent.click(back);
     expect(onBack).toHaveBeenCalled();
   });

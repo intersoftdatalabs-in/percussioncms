@@ -47,7 +47,7 @@ export function RelationshipTypeDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-rt-back"
-        aria-label="Back to relationship types list"
+        aria-label={DEV_MSG.RT_BACK}
         style={backButton}
       >
         ← {DEV_MSG.RT_BACK}

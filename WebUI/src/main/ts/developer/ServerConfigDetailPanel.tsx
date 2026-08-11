@@ -46,7 +46,7 @@ export function ServerConfigDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-cfg-back"
-        aria-label="Back to server configs list"
+        aria-label={DEV_MSG.CFG_BACK}
         style={backButton}
       >
         ← {DEV_MSG.CFG_BACK}

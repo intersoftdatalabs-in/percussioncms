@@ -60,7 +60,7 @@ describe("ContentTypeDetailPanel", () => {
     expect(screen.getByTestId("developer-ct-wf-empty")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-tpl-empty")).toBeTruthy();
     const back = screen.getByTestId("developer-ct-back");
-    expect(back.getAttribute("aria-label")).toBe("Back to content types list");
+    expect(back.getAttribute("aria-label")).toBe("Back to list");
     fireEvent.click(back);
     expect(onBack).toHaveBeenCalled();
   });

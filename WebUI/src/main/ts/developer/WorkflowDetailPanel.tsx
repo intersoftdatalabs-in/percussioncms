@@ -44,7 +44,7 @@ export function WorkflowDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-wf-back"
-        aria-label="Back to workflows list"
+        aria-label={DEV_MSG.WF_BACK}
         style={backButton}
       >
         ← {DEV_MSG.WF_BACK}

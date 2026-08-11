@@ -27,7 +27,7 @@ export function SiteDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-site-back"
-        aria-label="Back to sites list"
+        aria-label={DEV_MSG.SITE_BACK}
         style={backButton}
       >
         ← {DEV_MSG.SITE_BACK}

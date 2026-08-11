@@ -70,7 +70,7 @@ describe("ActionMenuDetailPanel", () => {
     expect(screen.getByTestId("developer-am-gaps")).toBeTruthy();
     expect(getActionMenuDetail).toHaveBeenCalledWith("Edit");
     const back = screen.getByTestId("developer-am-back");
-    expect(back.getAttribute("aria-label")).toBe("Back to action menus list");
+    expect(back.getAttribute("aria-label")).toBe("Back to list");
     fireEvent.click(back);
     expect(onBack).toHaveBeenCalled();
   });

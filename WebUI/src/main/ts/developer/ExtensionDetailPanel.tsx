@@ -50,7 +50,7 @@ export function ExtensionDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-ex-back"
-        aria-label="Back to extensions list"
+        aria-label={DEV_MSG.EX_BACK}
         style={backButton}
       >
         ← {DEV_MSG.EX_BACK}

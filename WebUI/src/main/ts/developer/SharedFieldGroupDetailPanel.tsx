@@ -54,7 +54,7 @@ export function SharedFieldGroupDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-sf-back"
-        aria-label="Back to shared fields list"
+        aria-label={DEV_MSG.SF_BACK}
         style={backButton}
       >
         ← {DEV_MSG.SF_BACK}

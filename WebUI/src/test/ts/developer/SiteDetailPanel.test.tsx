@@ -59,7 +59,7 @@ describe("SiteDetailPanel", () => {
     expect(acl.getAttribute("data-object-kind")).toBe("site");
     expect(acl.getAttribute("data-object-guid")).toBe("0-10-1");
     const back = screen.getByTestId("developer-site-back");
-    expect(back.getAttribute("aria-label")).toBe("Back to sites list");
+    expect(back.getAttribute("aria-label")).toBe("Back to list");
     fireEvent.click(back);
     expect(onBack).toHaveBeenCalled();
   });

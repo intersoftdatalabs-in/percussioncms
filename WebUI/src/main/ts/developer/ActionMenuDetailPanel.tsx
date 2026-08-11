@@ -47,7 +47,7 @@ export function ActionMenuDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-am-back"
-        aria-label="Back to action menus list"
+        aria-label={DEV_MSG.AM_BACK}
         style={backButton}
       >
         ← {DEV_MSG.AM_BACK}

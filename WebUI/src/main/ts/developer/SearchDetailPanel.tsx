@@ -45,7 +45,7 @@ export function SearchDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-sr-back"
-        aria-label="Back to searches list"
+        aria-label={DEV_MSG.SR_BACK}
         style={backButton}
       >
         ← {DEV_MSG.SR_BACK}

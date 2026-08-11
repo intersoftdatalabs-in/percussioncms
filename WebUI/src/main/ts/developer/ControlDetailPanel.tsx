@@ -48,7 +48,7 @@ export function ControlDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-ctl-back"
-        aria-label="Back to controls list"
+        aria-label={DEV_MSG.CTL_BACK}
         style={backButton}
       >
         ← {DEV_MSG.CTL_BACK}

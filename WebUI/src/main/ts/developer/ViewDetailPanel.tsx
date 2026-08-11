@@ -45,7 +45,7 @@ export function ViewDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-vw-back"
-        aria-label="Back to views list"
+        aria-label={DEV_MSG.VW_BACK}
         style={backButton}
       >
         ← {DEV_MSG.VW_BACK}
