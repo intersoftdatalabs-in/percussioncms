@@ -229,6 +229,7 @@ class PSPageXmlNativeInstallTest {
 
     // GUID map keys are lower-cased (same as dual-ship); on-disk templateDef keeps product case.
     Map<String, String> guids = PSPageXmlDualShip.loadGuidsFromMapping(staging);
+    // GUID map keys are Locale.ROOT lowercase (mixed-case product ids).
     assertEquals("0-4-597", guids.get("perc.resp.banded"));
     assertEquals("0-4-599", guids.get("perc.resp.basic"));
     assertEquals("0-4-627", guids.get("perc.resp.plain"));

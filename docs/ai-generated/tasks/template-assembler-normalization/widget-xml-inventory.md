@@ -15,9 +15,10 @@
 | Golden parity (remaining #2802) | **percImageAutoList**, **percComments**, **percEvent** | Plus package compile of auto-lists, blog companions, social/comments/cards, event/slider/cookie/jquery, login variants, Result/Redirect, defaultLanguage (**24** widgets / 23 packages) |
 | Golden parity (perc.Test #2830) | **PSWidget_TestProperties** | Final product residual; package compile via `TEST_PRODUCT_PACKAGE_DIRS` / `compileTestProductPackages` |
 | Compiler extensions (#2772) | `<Resource href/type/placement>`, chrome slots without CT, layout UserPref → slot.layout | CSS/JS resources + nav chrome (no asset CT); residual batches needed no new shapes |
-| **Product packages still ship Widget XML** | Yes (dual-run) | Compiler produces modern artifacts; does **not** yet remove product `rxconfig/Widgets/*.xml` from source trees |
-| Residual product packages (after #2830) | **None** (full product inventory on modern compile path) | Dual-run exit / product XML deletion remains Phase 5 (#2632 / parent #2630) |
-| Runtime legacy XML shim | Landed (cluster #2766) | #2752 |
+| **Product packages still ship Widget XML** | Yes (dual-run install) | Compiler produces modern artifacts; install still uses `sys__UserDependency--rxconfig/Widgets/*.xml`; does **not** yet remove product `rxconfig/Widgets/*.xml` from source trees |
+| **Dual-ship modern authoring roots (batch A #2831)** | **Landed for 8 widgets / 5 packages** | `widgets/<stem>/component-package.json` under baseWidgets, defaultLanguage, event, openGraph, twitter; see [dual-ship-widget-xml-exit.md](./dual-ship-widget-xml-exit.md) |
+| Residual product packages (after #2830) | **None** (full product inventory on modern compile path) | Dual-ship modern roots for remaining widgets + native install + XML delete remain residual / Phase 5 (#2632 / parent #2630) |
+| Runtime legacy XML shim | Landed (cluster #2766); prefers `widgets/` modern (#2831) | #2752 |
 
 ### High-traffic batch covered by #2772
 

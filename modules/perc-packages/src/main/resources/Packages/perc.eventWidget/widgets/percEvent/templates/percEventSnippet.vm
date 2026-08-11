@@ -1,0 +1,25 @@
+#if ($assetItem)
+   <div class="$!{rootclass} perc-event" data="$!{dynamicListData}">
+##  don't need to check for empty on title because it is required
+   #if(! $perc_hidefield_displaytitle)
+      <div class="perc-event-title" >$eventTitle</div>
+   #end
+   #if(!($perc_hidefield_callout || ($eventSummary == "" && ! $renderEmptyFields)))
+      <div class="summary">$eventSummary</div>
+   #end
+   #if(!($perc_hidefield_body || ($eventDescription == "" && ! $renderEmptyFields)))
+      <div class="description">$eventDescription</div>
+   #end
+   #if(!($perc_hidefield_location || ($eventLocation == "" && ! $renderEmptyFields)))
+      <div class="location">$eventLocation</div>
+   #end
+   #if(!($perc_hidefield_start_time || ($eventStart == "" && ! $renderEmptyFields)))
+      <div class="perc-event-date"><abbr class="dtstart" title="$eventStartISO">$eventStart</abbr></div>
+   #end
+   #if(!($perc_hidefield_end_time || ($eventEnd == "" && ! $renderEmptyFields)))
+      <div class="perc-event-date"><abbr class="dtend" title="$eventEndISO">$eventEnd</abbr></div>
+   #end
+   </div>
+#elseif ($perc.isEditMode())  ## if ($assetItem)
+   #createEmptyWidgetContent("event-sample-content", "This event widget is showing sample content.")
+#end

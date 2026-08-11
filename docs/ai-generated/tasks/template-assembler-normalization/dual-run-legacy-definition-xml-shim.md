@@ -46,7 +46,7 @@ Hard order for a package root or definition id:
 | Surface | Path / class | Role today | Dual-run note |
 |---------|--------------|------------|---------------|
 | Widget definitions (install) | `${rxdeploydir}/rxconfig/Widgets/*.xml` via `PSWidgetDao` (`projects/sitemanage/.../dao/impl/PSWidgetDao`) | Loads legacy Widget XML by file id | Prefer modern package when present; XML remains fallback for unconverted customer defs |
-| Package source trees | `modules/perc-packages/src/main/resources/Packages/<pkg>/` | Ships product `.ppkg` content including `sys__UserDependency--rxconfig/Widgets/*.xml` | Product conversion (#2751+) emits modern manifest; product source of truth moves off XML (ADR-004) |
+| Package source trees | `modules/perc-packages/src/main/resources/Packages/<pkg>/` | Ships product `.ppkg` content including `sys__UserDependency--rxconfig/Widgets/*.xml` | Product conversion (#2751+) emits modern manifest; batch A dual-ships modern `widgets/<stem>/` (#2831) while install XML remains; product source of truth moves off XML (ADR-004) |
 | Package staging Widgets | `sys__UserDependency--rxconfig/Widgets/` or `rxconfig/Widgets/` under a package root | Upgrade-input / deploy layout | Shim package-root API resolves either layout |
 | Gadget registry | `WebUI/.../GadgetRegistry.xml` (+ residual definition XML) | Registry; per-gadget XML largely gone | Modern: `gadget-catalog.json` + per-gadget packages (#2771); dual-load residual for WebUI |
 | Page meta / definition XML | Site/page storage dialects | Composition authoring legacy | Product layout packages (`perc.baseTemplates`, `perc.responsiveTemplates`) author modern `pages/` (#2786); native package install stages archive `TemplateDef-N/` without dual-ship roots (#2806). Shim recognizes `rxconfig/Pages` if present for customer defs |
@@ -89,7 +89,7 @@ Deep rewiring of `PSWidgetDao` to call the shim for every load is **incremental*
 The dual-run window ends when **all** of the following hold:
 
 - [x] Product **page layout** packages `perc.baseTemplates` / `perc.responsiveTemplates` are **not** authored as `*.templateDef` (#2786; native install mode #2806 — dual-ship roots off).
-- [ ] Remaining product packages in repo/install are **not** authored as Page / Widget / Gadget definition XML (ADR-004 ship bar) — Baseline page templates, widgets, etc. still residual.
+- [ ] Remaining product packages in repo/install are **not** authored as Page / Widget / Gadget definition XML (ADR-004 ship bar) — Baseline page templates done; **widget dual-ship batch A** modern roots landed (#2831, 8 widgets); remaining ~40 product widgets still dual-ship XML as install authoring until further batches + native install.
 - [ ] Customer upgrade path documented and used for remaining XML.
 - [ ] Runtime metrics (or support inventory) show no production dependence on legacy definition XML loads — or remaining cases are explicitly waived.
 - [ ] Phase 5 (#2632) removes or hard-disables the shim and updates help.

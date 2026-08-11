@@ -115,6 +115,27 @@ class PSLegacyDefinitionXmlShimTest {
   }
 
   @Test
+  void selectForPackageRoot_prefersDualShipWidgetsDirOverLegacyXml() throws Exception {
+    Path pkg = tempDir.resolve("perc.baseWidgets");
+    Path modernWidget = pkg.resolve("widgets").resolve("percSimpleText");
+    Files.createDirectories(modernWidget);
+    Path manifest = modernWidget.resolve(PSLegacyDefinitionXmlShim.MODERN_MANIFEST_FILE_NAME);
+    Files.writeString(
+        manifest,
+        "{\"schemaVersion\":\"1.0\",\"id\":\"percSimpleText\",\"name\":\"Simple Text\",\"version\":\"1.0.0\"}",
+        StandardCharsets.UTF_8);
+
+    Path widgets = pkg.resolve("sys__UserDependency--rxconfig").resolve("Widgets");
+    Files.createDirectories(widgets);
+    Files.writeString(widgets.resolve("percSimpleText.xml"), "<Widget/>", StandardCharsets.UTF_8);
+
+    PSDefinitionSourceSelection s = PSLegacyDefinitionXmlShim.selectForPackageRoot(pkg);
+    assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, s.getKind());
+    assertEquals(manifest, s.getPrimaryPath().orElseThrow());
+    assertFalse(PSLegacyDefinitionXmlShim.wouldUseLegacyShim(pkg));
+  }
+
+  @Test
   void selectForPackageRoot_installRelativeWidgetsPath() throws Exception {
     Path pkg = tempDir.resolve("installStyle");
     Path widgets = pkg.resolve("rxconfig").resolve("Widgets");

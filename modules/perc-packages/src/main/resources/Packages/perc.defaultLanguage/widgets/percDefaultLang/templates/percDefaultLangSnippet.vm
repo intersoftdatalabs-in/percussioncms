@@ -1,0 +1,13 @@
+#if($perc.isEditMode())##
+<div style="height: 32px;background: transparent url(/Rhythmyx/rx_resources/widgets/percDefaultLang/images/percDefaultLangPlaceholder.png) no-repeat scroll center center;filter: alpha(opacity=50);opacity: .50;" title="Default Language Widget">
+#if( "$!configured}" != "" && "$!{percPageID}" != "" )##
+<b>Configured International Sites:</b> ($!{configured})
+#end##
+</div>
+#end##
+#set( $newline="
+")##
+#foreach($l in $headLinks)##
+#set($addlHead = $perc.page.getAdditionalHeadContent())##
+$perc.page.setAdditionalHeadContent("$!{addlHead}$!{newline}$!{l}")##
+#end##

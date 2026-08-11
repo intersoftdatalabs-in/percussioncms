@@ -1,0 +1,3 @@
+#if($perc.isEditMode())##
+<img src="/Rhythmyx/rx_resources/widgets/percOpenGraph/images/open-graph-placeholder-small.png" alt="Facebook Open Graph Tags" title="Facebook Open Graph Tags" />
+#end##

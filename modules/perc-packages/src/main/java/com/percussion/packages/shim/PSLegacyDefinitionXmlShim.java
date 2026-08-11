@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -118,9 +119,10 @@ public final class PSLegacyDefinitionXmlShim {
   /**
    * Select source for a single product / customer <strong>package root</strong> directory.
    *
-   * <p>Modern wins if {@link #MODERN_MANIFEST_FILE_NAME} exists under the root. Otherwise legacy
-   * Widget XML under package staging or install-relative Widgets is preferred over page/gadget
-   * markers when both exist in the same tree (widgets are the primary dual-run surface).
+   * <p>Modern wins if {@link #MODERN_MANIFEST_FILE_NAME} exists under the root <em>or</em> under a
+   * dual-ship {@code widgets/&lt;stem&gt;/} child package (batch A / #2831). Otherwise legacy Widget
+   * XML under package staging or install-relative Widgets is preferred over page/gadget markers when
+   * both exist in the same tree (widgets are the primary dual-run surface).
    *
    * @param packageRoot package source or install package directory (must not be null)
    * @return selection with primary path set to the manifest or first legacy XML found
@@ -138,6 +140,13 @@ public final class PSLegacyDefinitionXmlShim {
     if (Files.isRegularFile(modernManifest)) {
       return new PSDefinitionSourceSelection(
           PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, packageName, modernManifest);
+    }
+
+    // Dual-ship multi-widget authoring: widgets/<stem>/component-package.json (#2831)
+    Optional<Path> modernWidget = findFirstModernWidgetManifest(root);
+    if (modernWidget.isPresent()) {
+      return new PSDefinitionSourceSelection(
+          PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, packageName, modernWidget.get());
     }
 
     Optional<Path> widgetXml = findFirstXml(resolvePackageWidgetsDir(root));
@@ -219,6 +228,13 @@ public final class PSLegacyDefinitionXmlShim {
         return new PSDefinitionSourceSelection(
             PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, definitionId, manifest);
       }
+      // Dual-ship multi-widget package root: widgets/<definitionId>/component-package.json (#2831)
+      Path nested =
+          normalized.resolve("widgets").resolve(definitionId).resolve(MODERN_MANIFEST_FILE_NAME);
+      if (Files.isRegularFile(nested)) {
+        return new PSDefinitionSourceSelection(
+            PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, definitionId, nested);
+      }
     }
 
     Path widgetXml = resolveLegacyXmlFile(legacyWidgetsDir, definitionId);
@@ -288,6 +304,43 @@ public final class PSLegacyDefinitionXmlShim {
       return staging;
     }
     return packageRoot.resolve("rxconfig").resolve("Widgets");
+  }
+
+  /**
+   * First modern dual-ship widget manifest under {@code packageRoot/widgets/&lt;stem&gt;/component-package.json}
+   * (stable order by folder name). Empty when no modern widget authoring tree is present.
+   */
+  static Optional<Path> findFirstModernWidgetManifest(Path packageRoot) throws IOException {
+    Path widgets = packageRoot.resolve("widgets");
+    if (!Files.isDirectory(widgets)) {
+      return Optional.empty();
+    }
+    List<Path> manifests = new ArrayList<>();
+    try (DirectoryStream<Path> stream = Files.newDirectoryStream(widgets)) {
+      for (Path child : stream) {
+        if (!Files.isDirectory(child)) {
+          continue;
+        }
+        Path manifest = child.resolve(MODERN_MANIFEST_FILE_NAME);
+        if (Files.isRegularFile(manifest)) {
+          manifests.add(manifest);
+        }
+      }
+    }
+    manifests.sort(
+        (a, b) -> {
+          String an =
+              a.getParent() != null && a.getParent().getFileName() != null
+                  ? a.getParent().getFileName().toString()
+                  : a.toString();
+          String bn =
+              b.getParent() != null && b.getParent().getFileName() != null
+                  ? b.getParent().getFileName().toString()
+                  : b.toString();
+          // Locale.ROOT for stable order with PSWidgetXmlDualShip.listModernWidgetDirs
+          return an.toLowerCase(Locale.ROOT).compareTo(bn.toLowerCase(Locale.ROOT));
+        });
+    return manifests.isEmpty() ? Optional.empty() : Optional.of(manifests.get(0));
   }
 
   private static Path resolveLegacyXmlFile(Path dir, String definitionId) {

@@ -1,0 +1,24 @@
+#if($perc.isEditMode())##
+<div style="background: transparent url(/Rhythmyx/rx_resources/widgets/percLocalLang/images/percLocalLangPlaceholder.png) no-repeat scroll center center;filter: alpha(opacity=50);opacity: .50;" title="Default Language Widget">
+##
+#if("$!previewLinks}" != "")##
+<b>Local Language alternate pages:</b><br/>
+<br />
+#foreach($link in $previewLinks)##
+<div>$link</div>
+#end##
+#else##
+<b>Local Language alternate pages:</b><br/>
+<div>No pages selected</div>
+#end##
+</div>
+#end## End if perc.isEditMode()
+##
+#set( $newline="
+")##
+#if("$!headLinks}" != "")##
+#foreach($l in $headLinks)##
+#set($addlHead = $perc.page.getAdditionalHeadContent())##
+$perc.page.setAdditionalHeadContent("$!{addlHead}$!{newline}$!{l}")##
+#end##
+#end##
