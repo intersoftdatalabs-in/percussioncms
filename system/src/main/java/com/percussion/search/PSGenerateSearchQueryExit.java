@@ -394,8 +394,8 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     Element searchFields = PSXmlDocumentBuilder.addEmptyElement(doc, root, "SearchFields");
     root.appendChild(searchFields);
 
-    Map keyFieldMap = new HashMap();
-    Map fieldFilterMap = null; // for lazy load if required
+    Map<String, PSKeywordField> keyFieldMap = new HashMap<>();
+    Map<String, PSSearchFieldFilter> fieldFilterMap = null; // for lazy load if required
 
     log.debug("walk each field and add display field for it ...");
 
@@ -407,7 +407,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
 
       String name = field.getFieldName();
       String type = field.getFieldType();
-      List values = PSSearchFieldOperators.getInputValues(field);
+      List<String> values = PSSearchFieldOperators.getInputValues(field);
       boolean useExternal = search.useExternalSearch();
 
       PSDisplayChoices choices = fieldCat.getDisplayChoices(name, type);
@@ -429,7 +429,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
        * selections and values for specified field values.  Also filter
        * choices based on slotid if supplied.
        */
-      List selected = null;
+      List<String> selected = null;
       if (choices != null) {
         selected = values;
         values = null;
@@ -441,14 +441,14 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
                 getSearchFieldFilterMap(request, String.valueOf(slotType.getSlotId()))
                     .getFilterMap();
           }
-          filter = (PSSearchFieldFilter) fieldFilterMap.get(name);
+          filter = fieldFilterMap.get(name);
         }
 
         if (filter != null) {
           // filter the choices
-          List keywords = new ArrayList();
+          List<PSEntry> keywords = new ArrayList<>();
           Iterator choiceIter = choices.getChoices();
-          while (choiceIter.hasNext()) keywords.add(choiceIter.next());
+          while (choiceIter.hasNext()) keywords.add((PSEntry) choiceIter.next());
 
           choices =
               new PSDisplayChoices(
@@ -460,7 +460,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
         keyFieldMap.put(name, keywordField);
       } else if (!useExternal) {
         choices = getOperatorChoices(field, locale);
-        selected = new ArrayList();
+        selected = new ArrayList<>();
         selected.add(PSSearchFieldOperators.getInputOperator(field));
       }
 
@@ -480,20 +480,15 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     log.debug("build the keyword dependencies data ...");
 
     // now build the keyword dependencies data
-    List processedList = new ArrayList(); // to prevent infinite loops
-    Iterator filteredKeyFields;
-    filteredKeyFields = keyFieldMap.values().iterator();
-    while (filteredKeyFields.hasNext()) {
-      PSKeywordField keyField = (PSKeywordField) filteredKeyFields.next();
+    List<String> processedList = new ArrayList<>(); // to prevent infinite loops
+    for (PSKeywordField keyField : keyFieldMap.values()) {
       if (keyField.missingKeyData()) loadKeyFieldData(req, keyField, keyFieldMap, processedList);
     }
 
     // append keyfielddata xml
     Element keywordDependencies = doc.createElement("KeywordDependencies");
     boolean hadKeyData = false;
-    filteredKeyFields = keyFieldMap.values().iterator();
-    while (filteredKeyFields.hasNext()) {
-      PSKeywordField keyField = (PSKeywordField) filteredKeyFields.next();
+    for (PSKeywordField keyField : keyFieldMap.values()) {
       if (keyField.hasKeyData()) {
         keywordDependencies.appendChild(keyField.toXml(doc));
         hadKeyData = true;
@@ -515,17 +510,20 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
    *     looping, intial call should pass an empty list.
    */
   private void loadKeyFieldData(
-      PSRequest req, PSKeywordField keyField, Map keyFieldFiltersMap, List processedList) {
+      PSRequest req,
+      PSKeywordField keyField,
+      Map<String, PSKeywordField> keyFieldFiltersMap,
+      List<String> processedList) {
     // avoid infinite loops
     if (processedList.contains(keyField.getName())) return;
     else processedList.add(keyField.getName());
 
     // get parent choices
-    List parentChoices = new ArrayList();
-    Iterator parents = keyField.getParentFields();
+    List<List<String>> parentChoices = new ArrayList<>();
+    Iterator<String> parents = keyField.getParentFields();
     while (parents.hasNext()) {
-      String parentName = (String) parents.next();
-      PSKeywordField parentKeyField = (PSKeywordField) keyFieldFiltersMap.get(parentName);
+      String parentName = parents.next();
+      PSKeywordField parentKeyField = keyFieldFiltersMap.get(parentName);
       if (parentKeyField == null) {
         // for some reason parent isn't included (may be optional)
         keyField.setNoKeyDataAvailable(true);
@@ -535,7 +533,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
       if (parentKeyField.missingKeyData())
         loadKeyFieldData(req, parentKeyField, keyFieldFiltersMap, processedList);
 
-      List possibleValues = new ArrayList(parentKeyField.getPossibleValues());
+      List<String> possibleValues = new ArrayList<>(parentKeyField.getPossibleValues());
       if (possibleValues.isEmpty()) {
         // can't get choices if no parent values
         keyField.setNoKeyDataAvailable(true);
@@ -548,12 +546,12 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     // have all possible parent values, so build cross product of all
     // combinations and set as key data - if none can be built, set as no
     // key data available
-    Iterator values = new PSValueListIterator(parentChoices);
+    PSValueListIterator values = new PSValueListIterator(parentChoices);
     while (values.hasNext()) {
-      List valueList = (List) values.next();
-      List choices = executeChoiceFilter(req, keyField, valueList);
+      List<String> valueList = values.next();
+      List<PSEntry> choices = executeChoiceFilter(req, keyField, valueList);
       if (!choices.isEmpty()) keyField.addKeyData(valueList, choices);
-      else keyField.addKeyData(valueList, new ArrayList());
+      else keyField.addKeyData(valueList, new ArrayList<>());
     }
 
     // if we didn't add any key data, set as none available so we don't try
@@ -572,15 +570,16 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
    * @return A list of <code>PSEntry</code> objects, never <code>null</code>, may be empty if none
    *     could be obtained.
    */
-  private List executeChoiceFilter(PSRequest req, PSKeywordField keyField, List values) {
-    List choices = new ArrayList();
+  private List<PSEntry> executeChoiceFilter(
+      PSRequest req, PSKeywordField keyField, List<String> values) {
+    List<PSEntry> choices = new ArrayList<>();
 
     try {
       PSUrlRequest urlReq = keyField.getUrlRequest();
       if (urlReq != null) {
-        Map extraParams = new HashMap();
+        Map<String, String> extraParams = new HashMap<>();
         int index = 0;
-        Iterator parentFields = keyField.getParentFields();
+        Iterator<String> parentFields = keyField.getParentFields();
         while (parentFields.hasNext()) {
           extraParams.put(parentFields.next(), values.get(index++));
         }
@@ -591,7 +590,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
           Document result = intReq.getResultDoc();
           PSDisplayChoices dispChoices = new PSDisplayChoices(result.getDocumentElement());
           Iterator choicesIter = dispChoices.getChoices();
-          while (choicesIter.hasNext()) choices.add(choicesIter.next());
+          while (choicesIter.hasNext()) choices.add((PSEntry) choicesIter.next());
         }
       }
     } catch (PSException e) {
@@ -640,7 +639,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     // add all other html params
     Iterator entries = request.getParametersIterator();
     while (entries.hasNext()) {
-      Entry entry = (Entry) entries.next();
+      Entry<?, ?> entry = (Entry<?, ?>) entries.next();
       String paramName = entry.getKey().toString();
       extraSettings.appendChild(
           PSDisplayFieldElementBuilder.createHiddenFieldElement(
@@ -660,12 +659,12 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
    * @return The choices, never <code>null</code> or empty.
    */
   private PSDisplayChoices getOperatorChoices(PSSearchField field, String locale) {
-    new ArrayList();
-
-    List choiceList = Arrays.asList(PSSearchFieldOperators.getOperators(field, null, locale));
-    PSDisplayChoices choices = new PSDisplayChoices(choiceList.iterator(), null);
-
-    return choices;
+    Object[] ops = PSSearchFieldOperators.getOperators(field, null, locale);
+    List<PSEntry> choiceList = new ArrayList<>(ops.length);
+    for (Object op : ops) {
+      choiceList.add((PSEntry) op);
+    }
+    return new PSDisplayChoices(choiceList.iterator(), null);
   }
 
   /**
@@ -762,9 +761,8 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
             null);
     if (value != null) {
       if (value instanceof List) {
-        Iterator values = ((List) value).iterator();
-        while (values.hasNext()) {
-          PSDisplayFieldElementBuilder.addDataElement(doc, ctrlEl, (String) values.next());
+        for (Object v : (List<?>) value) {
+          PSDisplayFieldElementBuilder.addDataElement(doc, ctrlEl, (String) v);
         }
       } else {
         PSDisplayFieldElementBuilder.addDataElement(doc, ctrlEl, value.toString());
@@ -775,11 +773,12 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
       PSDisplayFieldElementBuilder.addChoiceElement(doc, ctrlEl, choices.toXml(doc));
 
       if (selected != null) {
-        List selectList;
+        List<?> selectList;
         if (!(selected instanceof List)) {
-          selectList = new ArrayList();
-          selectList.add(selected.toString());
-        } else selectList = (List) selected;
+          List<String> single = new ArrayList<>();
+          single.add(selected.toString());
+          selectList = single;
+        } else selectList = (List<?>) selected;
 
         /*
          * Special handling if this is the community id field. If the
@@ -792,8 +791,9 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
           Properties serverProp = PSServer.getServerProps();
           String restrict = serverProp.getProperty("RestrictUserSearchToCommunityContent", "");
           if (restrict.equalsIgnoreCase("yes")) {
-            selectList = new ArrayList();
-            selectList.add(communityId);
+            List<String> restricted = new ArrayList<>();
+            restricted.add(communityId);
+            selectList = restricted;
             ctrlEl.setAttribute("isReadOnly", "yes");
           }
         }
@@ -1060,7 +1060,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
       PSChoiceFilter choiceFilter = choices.getChoiceFilter();
       PSDisplayChoices defaultChoices = choices.getChoices().hasNext() ? choices : null;
 
-      List parentFields = new ArrayList();
+      List<String> parentFields = new ArrayList<>();
       if (choiceFilter != null) {
         for (Object o : choiceFilter.getDependentFields()) {
           DependentField depField = (DependentField) o;
@@ -1099,7 +1099,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
      * @return Iterator over one or more parent field names as <code>String</code> objects, never
      *     <code>null</code>, may be empty if no parent fields are supplied.
      */
-    public Iterator getParentFields() {
+    public Iterator<String> getParentFields() {
       return mi_parentFields.iterator();
     }
 
@@ -1132,13 +1132,13 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
      *     </code>, each is a <code>PSEntry</code> object. A copy of this list is stored in this
      *     object.
      */
-    public void addKeyData(List keys, List choices) {
+    public void addKeyData(List<String> keys, List<PSEntry> choices) {
       if (mi_noKeyDataAvailable) throw new IllegalStateException("cannot add key data");
 
       if (mi_fieldFilter != null) choices = mi_fieldFilter.getFilteredList(choices);
-      else choices = new ArrayList(choices);
+      else choices = new ArrayList<>(choices);
 
-      mi_keyData.add(new PSMapPair(new ArrayList(keys), choices));
+      mi_keyData.add(new PSMapPair(new ArrayList<>(keys), choices));
     }
 
     /**
@@ -1169,16 +1169,17 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
      * @return A collection of possbile values as <code>String</code> objects.
      * @throws IllegalStateException if {@link #missingKeyData()} returns <code>true</code>.
      */
-    public Collection getPossibleValues() {
+    @SuppressWarnings("unchecked")
+    public Collection<String> getPossibleValues() {
       if (missingKeyData())
         throw new IllegalStateException("cannot get possible values if missing key data");
 
-      Set values = new HashSet();
-      Iterator keyData = mi_keyData.iterator();
-      while (keyData.hasNext()) {
-        PSMapPair data = (PSMapPair) keyData.next();
-        Iterator choices = ((List) data.getValue()).iterator();
-        while (choices.hasNext()) values.add(((PSEntry) choices.next()).getValue());
+      Set<String> values = new HashSet<>();
+      for (PSMapPair data : mi_keyData) {
+        List<PSEntry> choiceList = (List<PSEntry>) data.getValue();
+        for (PSEntry entry : choiceList) {
+          values.add(entry.getValue());
+        }
       }
 
       if (mi_defaultChoices != null) {
@@ -1203,22 +1204,21 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
       root.setAttribute("name", mi_name);
 
       // add parent field names
-      for (Object mi_parentField : mi_parentFields) {
-        PSXmlDocumentBuilder.addElement(doc, root, "ParentField", (String) mi_parentField);
+      for (String parentField : mi_parentFields) {
+        PSXmlDocumentBuilder.addElement(doc, root, "ParentField", parentField);
       }
 
       // add key data
-      Iterator keyData = mi_keyData.iterator();
-      while (keyData.hasNext()) {
-        PSMapPair pair = (PSMapPair) keyData.next();
-        List keyList = (List) pair.getKey();
-        List choiceList = (List) pair.getValue();
+      for (PSMapPair pair : mi_keyData) {
+        @SuppressWarnings("unchecked")
+        List<String> keyList = (List<String>) pair.getKey();
+        @SuppressWarnings("unchecked")
+        List<PSEntry> choiceList = (List<PSEntry>) pair.getValue();
         PSDisplayChoices dispChoices = new PSDisplayChoices(choiceList.iterator(), null);
 
         Element keyDataEl = PSXmlDocumentBuilder.addEmptyElement(doc, root, "KeywordData");
-        Iterator keys = keyList.iterator();
-        while (keys.hasNext()) {
-          PSXmlDocumentBuilder.addElement(doc, keyDataEl, "Key", (String) keys.next());
+        for (String key : keyList) {
+          PSXmlDocumentBuilder.addElement(doc, keyDataEl, "Key", key);
         }
 
         keyDataEl.appendChild(dispChoices.toXml(doc));
@@ -1246,7 +1246,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
      * List of parent field names as <code>String</code> objects, supplied to ctor, never <code>null
      * </code> or empty or modified.
      */
-    private List mi_parentFields;
+    private List<String> mi_parentFields;
 
     /**
      * List of keyword data, each entry is a <code>PSMapPair</code> where the key is a <code>List
@@ -1255,7 +1255,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
      * #addKeyData(List, List)}. Number of parent values is assumed to match the size of {@link
      * #mi_parentFields}.
      */
-    private List mi_keyData = new ArrayList();
+    private final List<PSMapPair> mi_keyData = new ArrayList<>();
 
     /**
      * Flag to indicate that an attempt was made to load key data for this keyword, but none was
@@ -1282,7 +1282,8 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
    * Provides iterator functionality over all possible combinations of each element across a list of
    * lists.
    */
-  private class PSValueListIterator implements Iterator {
+  /** Package-visible for unit tests covering cartesian parent-value combinations. */
+  static class PSValueListIterator implements Iterator<List<String>> {
     /**
      * Construct with list of value lists.
      *
@@ -1291,18 +1292,14 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
      *     </code>. This implementation does not check for concurrent modifications, so the provided
      *     data should not be modified after supplied to this constructor.
      */
-    public PSValueListIterator(List values) {
-      if (values == null || values.size() == 0)
+    public PSValueListIterator(List<List<String>> values) {
+      if (values == null || values.isEmpty())
         throw new IllegalArgumentException("values may not be null or empty");
 
-      Iterator lists = values.iterator();
-      while (lists.hasNext()) {
-        Object obj = lists.next();
-        if (!(obj instanceof List)) {
+      for (List<String> valList : values) {
+        if (valList == null) {
           throw new IllegalArgumentException("values may only contain List objects");
         }
-
-        List valList = (List) obj;
         if (valList.isEmpty()) {
           throw new IllegalArgumentException("values may only contain non-empty List objects");
         }
@@ -1334,13 +1331,13 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
      * @return The next combination as a <code>List</code> containing one element from each of the
      *     lists provided during construction, never <code>null</code> or empty.
      */
-    public Object next() {
+    public List<String> next() {
       if (!mi_hasNext) throw new NoSuchElementException("no more values");
 
-      List values = new ArrayList();
+      List<String> values = new ArrayList<>();
 
       for (int i = 0; i < mi_counters.length; i++) {
-        List cur = (List) mi_values.get(i);
+        List<String> cur = mi_values.get(i);
         int index = mi_counters[i];
         values.add(cur.get(index));
       }
@@ -1360,7 +1357,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     private boolean incrementCounter() {
       boolean hasNext = false;
       for (int i = 0; i < mi_counters.length; i++) {
-        List cur = (List) mi_values.get(i);
+        List<String> cur = mi_values.get(i);
         int index = mi_counters[i];
 
         if (++index < cur.size()) {
@@ -1385,7 +1382,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     private boolean mi_hasNext;
 
     /** The list of values supplied during ctor, never modified after that. */
-    private List mi_values;
+    private final List<List<String>> mi_values;
 
     /**
      * Array of indexes into each list contained by {@link #mi_values}. Each value represents the

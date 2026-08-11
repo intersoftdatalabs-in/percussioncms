@@ -76,10 +76,11 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
       Object[] params, IPSRequestContext request, Document resultDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
     try {
-      Map exitParameters = getParameters(params);
+      Map<String, String> exitParameters = getParameters(params);
 
-      Map searchFields = new HashMap();
-      Map parameters = parseParameters(request.getParametersIterator(), searchFields);
+      Map<String, SearchField> searchFields = new HashMap<>();
+      Map<String, Object> parameters =
+          parseParameters(request.getParametersIterator(), searchFields);
 
       String locale = request.getUserLocale();
       createActions(locale);
@@ -163,15 +164,14 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
       }
 
       // set search field values and operator
-      Iterator fields = search.getFields();
+      Iterator<PSSearchField> fields = search.getFields();
       while (fields.hasNext()) {
-        PSSearchField field = (PSSearchField) fields.next();
-        SearchField searchField =
-            (SearchField) searchFields.get(field.getFieldName().toLowerCase());
+        PSSearchField field = fields.next();
+        SearchField searchField = searchFields.get(field.getFieldName().toLowerCase());
 
         // no search field means no params came in, so we need to clear
         // values so we don't search on it
-        List values = null;
+        List<String> values = null;
         String op = PSSearchField.OP_EQUALS;
         if (searchField != null) {
           values = searchField.getValues(field);
@@ -189,7 +189,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
         }
       }
 
-      List resultColumns = new ArrayList();
+      List<String> resultColumns = new ArrayList<>();
       Iterator<PSDisplayColumn> columns = displayFormat.getColumns();
       while (columns.hasNext()) resultColumns.add(columns.next().getSource());
 
@@ -237,15 +237,16 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
    * @return a map with all standard HTML parameters where the key is the parameter name as <code>
    *     String</code> and the value is the parameter value as <code>String</code>.
    */
-  private Map parseParameters(Iterator params, Map searchFields) {
+  /** Package-visible for unit tests covering typed parameter parsing. */
+  Map<String, Object> parseParameters(Iterator params, Map<String, SearchField> searchFields) {
     if (params == null) throw new IllegalArgumentException("params cannot be null");
 
     if (searchFields == null) throw new IllegalArgumentException("searchFields cannot be null");
 
-    Map parameters = new HashMap();
+    Map<String, Object> parameters = new HashMap<>();
 
     while (params.hasNext()) {
-      Map.Entry param = (Map.Entry) params.next();
+      Map.Entry<?, ?> param = (Map.Entry<?, ?>) params.next();
       String name = param.getKey().toString().toLowerCase();
 
       boolean consumed = false;
@@ -253,7 +254,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
         // find search field operators
         String fieldName = name.substring(0, name.lastIndexOf(OP_DELIMITER));
 
-        SearchField field = (SearchField) searchFields.get(fieldName);
+        SearchField field = searchFields.get(fieldName);
         if (field == null) {
           field = new SearchField(fieldName);
           searchFields.put(fieldName, field);
@@ -271,7 +272,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
 
             String fieldName = name.substring(0, pos);
 
-            SearchField field = (SearchField) searchFields.get(fieldName);
+            SearchField field = searchFields.get(fieldName);
             if (field == null) {
               field = new SearchField(fieldName);
               searchFields.put(fieldName, field);
@@ -286,7 +287,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
 
       if (!consumed) {
         // all other parameters
-        parameters.put(param.getKey(), param.getValue());
+        parameters.put(param.getKey().toString(), param.getValue());
       }
     }
 
@@ -360,8 +361,8 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
       IPSRequestContext request,
       PSDisplayFormat displayFormat,
       Iterator rows,
-      Map parameters,
-      Map exitParameters)
+      Map<String, Object> parameters,
+      Map<String, String> exitParameters)
       throws PSException {
     Document doc = PSXmlDocumentBuilder.createXmlDocument(SEARCH_RESULTS_ELEM, null, null);
 
@@ -377,7 +378,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
      * Create a list of displayed columns in display order. Categories first in order of their
      * level, then all other columns.
      */
-    List displayedColumns = new ArrayList();
+    List<PSDisplayColumn> displayedColumns = new ArrayList<>();
     Iterator<PSDisplayColumn> columns = displayFormat.getColumns();
     while (columns.hasNext()) addColumn(displayedColumns, columns.next());
 
@@ -385,7 +386,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
     Element header = PSXmlDocumentBuilder.addEmptyElement(doc, root, HEADER_ELEM);
     int[] columnWidth = getColumnWidth(displayedColumns);
     for (int i = 0; i < displayedColumns.size(); i++) {
-      PSDisplayColumn column = (PSDisplayColumn) displayedColumns.get(i);
+      PSDisplayColumn column = displayedColumns.get(i);
 
       Element headerColumn = PSXmlDocumentBuilder.addEmptyElement(doc, header, HEADER_COLUMN_ELEM);
 
@@ -403,18 +404,18 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
     }
 
     // create the results element
-    List sortedRows = getSortedRows(rows, displayedColumns);
+    List<IPSSearchResultRow> sortedRows = getSortedRows(rows, displayedColumns);
     sortedRows = sortByCategories(displayedColumns, sortedRows);
     if (sortedRows.size() > 0) {
-      List categoryPath = new ArrayList();
+      List<String> categoryPath = new ArrayList<>();
       Element results = PSXmlDocumentBuilder.addEmptyElement(doc, root, RESULTS_ELEM);
       for (int i = 0; i < sortedRows.size(); i++) {
-        IPSSearchResultRow rowData = (IPSSearchResultRow) sortedRows.get(i);
+        IPSSearchResultRow rowData = sortedRows.get(i);
 
         Element row = PSXmlDocumentBuilder.addEmptyElement(doc, results, ROW_ELEM);
 
         String baseAssemblyUrl = null;
-        Map assemblyParams = new HashMap();
+        Map<String, String> assemblyParams = new HashMap<>();
         String variantid = (String) rowData.getColumnValue(IPSHtmlParameters.SYS_VARIANTID);
         try {
           Integer.parseInt(variantid);
@@ -489,9 +490,9 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
                 script.append("javascript:window.open('");
                 script.append(baseAssemblyUrl);
                 script.append(baseAssemblyUrl.indexOf('?') == -1 ? "?" : "&");
-                Iterator params = assemblyParams.entrySet().iterator();
+                Iterator<Entry<String, String>> params = assemblyParams.entrySet().iterator();
                 while (params.hasNext()) {
-                  Entry entry = (Entry) params.next();
+                  Entry<String, String> entry = params.next();
                   script.append(entry.getKey());
                   script.append("=");
                   script.append(entry.getValue());
@@ -508,18 +509,14 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
           }
         }
 
-        Set propSet = new HashSet(PSBaseExecutableSearch.ms_cxRCPropSet);
-        Iterator cols = displayedColumns.iterator();
-        while (cols.hasNext()) {
-          PSDisplayColumn col = (PSDisplayColumn) cols.next();
+        Set<String> propSet = new HashSet<>(PSBaseExecutableSearch.ms_cxRCPropSet);
+        for (PSDisplayColumn col : displayedColumns) {
           propSet.add(col.getSource());
         }
         // now add properties
-        Iterator props = propSet.iterator();
         Element propsEl = PSXmlDocumentBuilder.addEmptyElement(doc, row, PROPERTIES_ELEM);
         Element propEl;
-        while (props.hasNext()) {
-          String propName = (String) props.next();
+        for (String propName : propSet) {
           propEl =
               PSXmlDocumentBuilder.addElement(
                   doc, propsEl, PROPERTY_ELEM, (String) rowData.getColumnValue(propName));
@@ -600,11 +597,10 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
     // add the pass through parameters
     Element passThroughParameters =
         PSXmlDocumentBuilder.addEmptyElement(doc, root, PASS_TROUGH_PARAMETERS_ELEM);
-    Iterator keys = parameters.keySet().iterator();
-    while (keys.hasNext()) {
-      String key = (String) keys.next();
-      String value = (String) parameters.get(key);
-      if (value == null) value = "";
+    for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+      String key = entry.getKey();
+      Object raw = entry.getValue();
+      String value = raw == null ? "" : raw.toString();
 
       Element parameter =
           PSXmlDocumentBuilder.addEmptyElement(doc, passThroughParameters, PARAMETER_ELEM);
@@ -624,12 +620,12 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
    *     </code> and that all entries are or type <code>PSDisplayColumn</code>.
    * @param column the column to be added to the supplied list, assumed not <code>null</code>.
    */
-  private void addColumn(List columns, PSDisplayColumn column) {
+  private void addColumn(List<PSDisplayColumn> columns, PSDisplayColumn column) {
     boolean isCategory = column.isCategorized();
 
     boolean added = false;
     for (int i = 0; i < columns.size(); i++) {
-      PSDisplayColumn test = (PSDisplayColumn) columns.get(i);
+      PSDisplayColumn test = columns.get(i);
 
       if (isCategory) {
         if (!test.isCategorized()) {
@@ -661,11 +657,11 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
    *     For lists this will return the first element and for files the <code>toString()</code>
    *     value.
    */
-  private String getParameter(String name, String defaultValue, Map parameters) {
+  private String getParameter(String name, String defaultValue, Map<String, Object> parameters) {
     Object value = parameters.get(name);
     if (value == null) value = defaultValue;
 
-    if (value instanceof List) value = ((List) value).get(0);
+    if (value instanceof List) value = ((List<?>) value).get(0);
 
     return value == null ? null : value.toString();
   }
@@ -698,17 +694,18 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
    * @param displayColumns a list over all displayed columns, assumed not <code>null</code>.
    * @return a sorted list with all rows, never <code>null</code>, may be empty.
    */
-  private List getSortedRows(Iterator rows, List displayColumns) {
+  private List<IPSSearchResultRow> getSortedRows(
+      Iterator rows, List<PSDisplayColumn> displayColumns) {
     PSDisplayColumn sortedColumn = null;
-    for (int i = 0; i < displayColumns.size(); i++) {
-      PSDisplayColumn column = (PSDisplayColumn) displayColumns.get(i);
+    for (PSDisplayColumn column : displayColumns) {
       if (!column.isCategorized() && (column.isAscendingSort() || column.isDescendingSort())) {
         sortedColumn = column;
         break;
       }
     }
 
-    List sortedRows = PSIteratorUtils.cloneList(rows);
+    @SuppressWarnings("unchecked")
+    List<IPSSearchResultRow> sortedRows = PSIteratorUtils.cloneList(rows);
     if (sortedColumn != null) Collections.sort(sortedRows, new RowComparator(sortedColumn));
 
     return sortedRows;
@@ -723,37 +720,36 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
    *     empty.
    * @return a list of rows sorted by category, never <code>null</code>, may be empty.
    */
-  private List sortByCategories(List displayedColumns, List rows) {
-    List categoryPath = new ArrayList();
-    for (int i = 0; i < displayedColumns.size(); i++) {
-      PSDisplayColumn column = (PSDisplayColumn) displayedColumns.get(i);
+  private List<IPSSearchResultRow> sortByCategories(
+      List<PSDisplayColumn> displayedColumns, List<IPSSearchResultRow> rows) {
+    List<String> categoryPath = new ArrayList<>();
+    for (PSDisplayColumn column : displayedColumns) {
       if (column.isCategorized()) categoryPath.add(column.getSource());
     }
     if (categoryPath.isEmpty()) return rows;
 
-    Map categories =
-        new TreeMap(new PSStringComparator(PSStringComparator.SORT_CASE_INSENSITIVE_ASC));
-    for (int i = 0; i < rows.size(); i++) {
-      IPSSearchResultRow rowData = (IPSSearchResultRow) rows.get(i);
-
+    Map<String, List<IPSSearchResultRow>> categories =
+        new TreeMap<>(new PSStringComparator(PSStringComparator.SORT_CASE_INSENSITIVE_ASC));
+    for (IPSSearchResultRow rowData : rows) {
       String path = "";
-      for (int j = 0; j < categoryPath.size(); j++) {
+      for (String category : categoryPath) {
         if (path.length() > 0) path += ":";
 
-        path += (String) rowData.getColumnDisplayValue(categoryPath.get(j).toString());
+        path += (String) rowData.getColumnDisplayValue(category);
       }
 
-      List categoryList = (List) categories.get(path);
+      List<IPSSearchResultRow> categoryList = categories.get(path);
       if (categoryList == null) {
-        categoryList = new ArrayList();
+        categoryList = new ArrayList<>();
         categories.put(path, categoryList);
       }
       categoryList.add(rowData);
     }
 
-    List categorizedRows = new ArrayList();
-    Iterator walker = categories.values().iterator();
-    while (walker.hasNext()) categorizedRows.addAll((List) walker.next());
+    List<IPSSearchResultRow> categorizedRows = new ArrayList<>();
+    for (List<IPSSearchResultRow> categoryList : categories.values()) {
+      categorizedRows.addAll(categoryList);
+    }
 
     return categorizedRows;
   }
@@ -769,7 +765,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
    *     Category columns are not considered for the calculation, it's size is set to -1. The array
    *     index correlates with the column index of the supplied column list.
    */
-  private int[] getColumnWidth(List columns) {
+  private int[] getColumnWidth(List<PSDisplayColumn> columns) {
     int size = columns.size();
     int[] percentageWidth = new int[size];
 
@@ -778,7 +774,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
     int totalCount = size;
     int remainingCount = 0;
     for (int i = 0; i < size; i++) {
-      PSDisplayColumn column = (PSDisplayColumn) columns.get(i);
+      PSDisplayColumn column = columns.get(i);
 
       if (column.isCategorized()) {
         percentageWidth[i] = -1;
@@ -797,7 +793,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
     }
 
     for (int i = 0; i < size; i++) {
-      PSDisplayColumn column = (PSDisplayColumn) columns.get(i);
+      PSDisplayColumn column = columns.get(i);
 
       int width = column.getWidth();
       if (!column.isCategorized() && width > 0) {
@@ -847,9 +843,9 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
 
   /**
    * Container class to hold all information for one search field retrieved from the request
-   * parameters.
+   * parameters. Package-visible for unit tests.
    */
-  private class SearchField {
+  static class SearchField {
     /**
      * Construct a new search field for the supplied name.
      *
@@ -902,9 +898,10 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
       if (index > mi_values.size()) index = mi_values.size();
 
       if (value instanceof String) {
-        mi_values.add(index, value);
+        mi_values.add(index, (String) value);
       } else if (value instanceof List) {
-        List listValue = (List) value;
+        @SuppressWarnings("unchecked")
+        List<String> listValue = (List<String>) value;
         mi_values.addAll(index, listValue);
       } else throw new IllegalArgumentException("only String's and List's are supported");
     }
@@ -960,12 +957,12 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
      * @return a list of search field values as <code>String</code> objects, never <code>null</code>
      *     , may be empty. The caller takes ownership of the returned list.
      */
-    public List getValues(PSSearchField field) {
+    public List<String> getValues(PSSearchField field) {
       if (field == null) throw new IllegalArgumentException("field cannot be null");
 
-      List clone = (List) ((ArrayList) mi_values).clone();
+      List<String> clone = new ArrayList<>(mi_values);
       for (int i = 0; i < clone.size(); i++) {
-        String value = (String) clone.get(i);
+        String value = clone.get(i);
 
         if (mi_operator != null)
           value = PSSearchFieldOperators.getOutputValue(value, mi_operator, field);
@@ -992,11 +989,11 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
      * A list of search field values as <code>String</code>, never <code>null</code>, may be empty.
      * The values in this list are guaranteed not <code>null</code> and not empty.
      */
-    private List mi_values = new ArrayList();
+    private final List<String> mi_values = new ArrayList<>();
   }
 
   /** Comparator used for search result rows. */
-  private class RowComparator implements Comparator {
+  private class RowComparator implements Comparator<IPSSearchResultRow> {
     /**
      * Create a new comparator for the supplied column.
      *
@@ -1013,16 +1010,11 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
      * of the provided row maps. Columns are compared using their <code>String</code> values of
      * display values.
      *
-     * @param o1 the first row used for the compare, assumed not <code>null</code> and of type
-     *     <code>IPSSearchResultRow</code>.
-     * @param o2 the second row used for the compare, assumed not <code>null</code> and of type
-     *     <code>IPSSearchResultRow</code>.
+     * @param row1 the first row used for the compare, assumed not <code>null</code>.
+     * @param row2 the second row used for the compare, assumed not <code>null</code>.
      * @see Comparator#compare(Object, Object) for more information.
      */
-    public int compare(Object o1, Object o2) {
-      IPSSearchResultRow row1 = (IPSSearchResultRow) o1;
-      IPSSearchResultRow row2 = (IPSSearchResultRow) o2;
-
+    public int compare(IPSSearchResultRow row1, IPSSearchResultRow row2) {
       String column1 = (String) row1.getColumnDisplayValue(mi_sortedColumn.getSource());
       String column2 = (String) row2.getColumnDisplayValue(mi_sortedColumn.getSource());
 
@@ -1118,7 +1110,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
   }
 
   /** A list with all actions that will be added to each produced results document. */
-  private static List ms_actions = new ArrayList();
+  private static final List<Action> ms_actions = new ArrayList<>();
 
   /**
    * The delimiter used to mark request parameters as search field parameters. Search field
