@@ -13,6 +13,10 @@ INSTALL_ROOT     install directory (default: /opt/Percussion)
 DB_TYPE          h2 | postgresql | mysql | sqlserver | oracle
 DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, DB_SCHEMA
 SILENT           true (default) → pass --silent --no-tty
+DEMO_SITES       optional; when unset, CMS+H2 silent installs pass ``--demo-sites``
+                 so Explorer /Sites is non-empty after qa-up (#3001 / #2989).
+                 Set ``DEMO_SITES=false`` to skip sample-site seed. Explicit
+                 true/false always wins. DTS product never seeds demo sites.
 KEEP_ALIVE       true (default) → stream logs after start so the container stays up
 
 Exit codes
@@ -54,6 +58,35 @@ def _env_bool(name: str, default: bool = False) -> bool:
     return raw.strip().lower() in ("1", "true", "yes", "y", "on")
 
 
+def resolve_demo_sites(
+    *,
+    product: str,
+    db_type: str,
+    demo_sites: Optional[bool] = None,
+) -> bool:
+    """Whether the silent installer should receive ``--demo-sites`` (#3001).
+
+    Stock H2 QA / matrix CMS installs historically left RXSITES empty because
+    silent install never opted into sample sites. Path REST
+    ``GET …/path/folder/Sites`` then correctly returned an empty list and
+    Explorer showed "No items in this folder". Default: seed demo sites for
+    CMS+H2 so /Sites lists Corporate/Enterprise Investments after qa-up.
+
+    Precedence:
+    1. Explicit ``demo_sites`` argument (CLI / unit tests)
+    2. ``DEMO_SITES`` env when set (true/false)
+    3. Default True for product=cms and db_type=h2; else False
+    """
+    if demo_sites is not None:
+        return bool(demo_sites)
+    if product is None or str(product).strip().lower() != "cms":
+        return False
+    raw = os.environ.get("DEMO_SITES")
+    if raw is not None and str(raw).strip() != "":
+        return _env_bool("DEMO_SITES", False)
+    return str(db_type or "").strip().lower() == "h2"
+
+
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Matrix cell: install + start CMS or DTS")
     p.add_argument(
@@ -83,6 +116,17 @@ def _build_parser() -> argparse.ArgumentParser:
         action=argparse.BooleanOptionalAction,
         default=_env_bool("SILENT", True),
     )
+    # None = resolve via resolve_demo_sites (CMS+H2 default on). Explicit
+    # --demo-sites / --no-demo-sites override env and product/db defaults.
+    p.add_argument(
+        "--demo-sites",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help=(
+            "Pass --demo-sites to the CMS installer (sample sites under /Sites). "
+            "Default: on for CMS+H2; off otherwise. Env DEMO_SITES when set."
+        ),
+    )
     p.add_argument(
         "--keep-alive",
         action=argparse.BooleanOptionalAction,
@@ -106,7 +150,7 @@ def build_install_argv(
     java: str,
     installer_jar: Path,
     install_root: Path,
-    product: str,  # noqa: ARG001 — reserved for product-specific flags later
+    product: str,
     db_type: str,
     db_host: str,
     db_port: str,
@@ -115,10 +159,13 @@ def build_install_argv(
     db_password: str,
     db_schema: str,
     silent: bool,
+    demo_sites: Optional[bool] = None,
 ) -> List[str]:
     """Build ``java -jar <installer> <installRoot> --db.* ...`` argv.
 
-    Pure function for unit tests.
+    Pure function for unit tests. When resolve_demo_sites is true for CMS
+    installs, appends ``--demo-sites`` so ANT installSampleSites runs
+    (#2192 flag wiring + #3001 H2 QA empty /Sites).
     """
     # Always POSIX path form for java argv: this entrypoint runs in a Linux
     # container; unit tests may import this module on Windows hosts where
@@ -151,6 +198,8 @@ def build_install_argv(
         # encrypt=true fail with "Communications link failure" against plain Docker DBs.
         argv.append("--db.ssl.enabled=false")
         argv.append("--db.ssl.verify=false")
+    if resolve_demo_sites(product=product, db_type=db_type, demo_sites=demo_sites):
+        argv.append("--demo-sites")
     return argv
 
 
@@ -349,6 +398,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         db_password=args.db_password,
         db_schema=args.db_schema,
         silent=args.silent,
+        demo_sites=args.demo_sites,
     )
     rc = run_install(install_argv, dry_run=args.dry_run)
     if rc != EXIT_OK:

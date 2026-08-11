@@ -28,6 +28,7 @@ import { findChildren } from "../api/contentExplorer/pathApi";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { MKD_LANG_IGNORE_ATTR } from "../i18n/mkdLangIgnore";
 import { message } from "../i18n/message";
+import { isStrictCmsPathDescendant } from "./folderPath";
 import { isFolder } from "./selection";
 import {
   emptyStateStyle,
@@ -178,13 +179,9 @@ export function ExplorerTree({
           isOpen &&
           state.children
             // Guard against self-path or ancestor cycles from a bad API payload
-            // (would recurse forever in render).
-            .filter(
-              (child) =>
-                child.path &&
-                child.path !== path &&
-                child.path.startsWith(path.endsWith("/") ? path : `${path}/`),
-            )
+            // (would recurse forever in render). Normalize //Sites vs /Sites and
+            // trailing slashes so site id children are not dropped (#3001).
+            .filter((child) => isStrictCmsPathDescendant(path, child.path))
             .map((child) => renderNode(child, depth + 1))}
       </div>
     );

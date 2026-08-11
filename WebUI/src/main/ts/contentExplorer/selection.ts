@@ -38,7 +38,9 @@ export const EMPTY_SELECTION: Selection = {
 
 export function isFolder(item: PSPathItem | null): boolean {
   if (!item) return false;
-  if (item.type === "folder") return true;
+  // Site nodes from pathmanagement (TYPE_SITE = "site") are expandable
+  // containers under /Sites (#3001). Treat like folders when leaf is unset.
+  if (item.type === "folder" || item.type === "site") return true;
   if (item.leaf === true) return false;
   if (item.leaf === false) return true;
   // Fallback heuristic: folders lack an "id" with content semantics; they

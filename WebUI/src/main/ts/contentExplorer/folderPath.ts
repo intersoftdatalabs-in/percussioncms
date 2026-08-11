@@ -40,9 +40,66 @@ export function normalizeExplorerFolderPath(
   if (!p.startsWith("/")) {
     p = `/${p}`;
   }
+  // Collapse accidental internal double-slashes (not repository // prefix).
+  p = p.replace(/\/{2,}/g, "/");
   // Root alone is not a useful subfolder copy source.
   if (p === "/") return null;
   return p;
+}
+
+/**
+ * Whether {@code childPath} is a strict descendant of {@code parentPath} in
+ * the CMS path tree (URL-style {@code /} segments).
+ *
+ * <p>Used by ExplorerTree to drop self/ancestor cycles from a bad API payload.
+ * Normalizes leading double-slash repository form ({@code //Sites/…}) and
+ * trailing slashes so {@code /Sites} matches children {@code /Sites/id/} or
+ * legacy {@code //Sites/Name} (#3001).</p>
+ */
+export function isStrictCmsPathDescendant(
+  parentPath: string | null | undefined,
+  childPath: string | null | undefined,
+): boolean {
+  if (childPath == null || String(childPath).trim().length === 0) {
+    return false;
+  }
+  // Allow root "/" as parent even though normalizeExplorerFolderPath returns null.
+  let parent = parentPath == null ? "" : String(parentPath).trim().replace(/\\/g, "/");
+  parent = parent.replace(/^[A-Za-z]:/, "");
+  while (parent.startsWith("//")) {
+    parent = parent.slice(1);
+  }
+  parent = parent.replace(/\/{2,}/g, "/");
+  if (parent.length === 0) {
+    parent = "/";
+  } else if (!parent.startsWith("/")) {
+    parent = `/${parent}`;
+  }
+
+  let child = String(childPath).trim().replace(/\\/g, "/");
+  child = child.replace(/^[A-Za-z]:/, "");
+  while (child.startsWith("//")) {
+    child = child.slice(1);
+  }
+  child = child.replace(/\/{2,}/g, "/");
+  if (!child.startsWith("/")) {
+    child = `/${child}`;
+  }
+
+  // Strip trailing slashes except for pure root.
+  const stripTrail = (p: string): string =>
+    p === "/" ? "/" : p.replace(/\/+$/, "");
+  parent = stripTrail(parent);
+  child = stripTrail(child);
+
+  if (child === parent) {
+    return false;
+  }
+  if (parent === "/") {
+    // Any non-root path is a child of root.
+    return child.startsWith("/");
+  }
+  return child.startsWith(`${parent}/`);
 }
 
 /**
