@@ -28,7 +28,7 @@ import org.w3c.dom.Element;
  * Represents the metadata for a content editor control, as defined by the
  * &lt;psxctl:ControlMeta&gt; node in <code>sys_LibraryControlDef.dtd</code>
  */
-public class PSControlMeta extends PSComponent {
+public final class PSControlMeta extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**

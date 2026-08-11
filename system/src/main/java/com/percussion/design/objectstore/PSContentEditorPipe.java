@@ -29,7 +29,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /** Implements the PSXContentEditorPipe DTD defined in ContentEditorLocalDef.dtd. */
-public class PSContentEditorPipe extends PSPipe {
+public final class PSContentEditorPipe extends PSPipe {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**

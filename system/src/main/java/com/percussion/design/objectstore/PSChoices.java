@@ -27,7 +27,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /** Implements the PSXChoices DTD in BasicObjects.dtd. */
-public class PSChoices extends PSComponent {
+public final class PSChoices extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

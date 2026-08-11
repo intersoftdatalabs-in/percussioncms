@@ -34,7 +34,7 @@ import org.w3c.dom.Node;
  * A component that holds one directory definition used to catalog information from directory
  * servers.
  */
-public class PSDirectory extends PSComponent {
+public final class PSDirectory extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

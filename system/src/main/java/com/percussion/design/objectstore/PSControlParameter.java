@@ -30,7 +30,7 @@ import org.w3c.dom.NodeList;
  * &lt;psxctl:Param&gt; node in <code>
  * sys_LibraryControlDef.dtd</code>
  */
-public class PSControlParameter extends PSComponent {
+public final class PSControlParameter extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**

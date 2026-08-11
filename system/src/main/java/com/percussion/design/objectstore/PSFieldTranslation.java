@@ -23,7 +23,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implementation for the PSXFieldTranslation DTD in BasicObjects.dtd. */
-public class PSFieldTranslation extends PSComponent {
+public final class PSFieldTranslation extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

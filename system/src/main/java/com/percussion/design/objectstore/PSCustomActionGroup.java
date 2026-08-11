@@ -27,7 +27,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /** Implementation for the PSCustomActionGroup DTD in BasicObjects.dtd. */
-public class PSCustomActionGroup extends PSComponent {
+public final class PSCustomActionGroup extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**

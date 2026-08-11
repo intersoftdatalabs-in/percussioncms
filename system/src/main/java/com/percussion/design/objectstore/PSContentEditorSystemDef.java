@@ -37,7 +37,7 @@ import org.w3c.dom.Element;
  * This class wraps the system def xml document and provides access to the objectstore objects
  * defined within it.
  */
-public class PSContentEditorSystemDef implements IPSDocument {
+public final class PSContentEditorSystemDef implements IPSDocument {
   /**
    * Constructor for this class that takes a source document.
    *

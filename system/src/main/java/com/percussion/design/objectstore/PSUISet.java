@@ -26,7 +26,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /** Implementation for the PSXUISet DTD in BasicObjects.dtd. */
-public class PSUISet extends PSComponent {
+public final class PSUISet extends PSComponent {
   /** */
   private static final long serialVersionUID = 1L;
 

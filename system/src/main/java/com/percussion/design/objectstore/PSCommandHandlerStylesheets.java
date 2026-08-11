@@ -35,7 +35,7 @@ import org.w3c.dom.Node;
  * evaluating to <code>true</code>.
  */
 @SuppressWarnings("serial")
-public class PSCommandHandlerStylesheets extends PSComponent {
+public final class PSCommandHandlerStylesheets extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**

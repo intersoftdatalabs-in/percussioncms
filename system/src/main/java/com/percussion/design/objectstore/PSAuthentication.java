@@ -39,7 +39,7 @@ import org.w3c.dom.Node;
  * A component that holds one authentication definition used to connect with directory servers. See
  * the toXml(Document) method for the DTD description.
  */
-public class PSAuthentication extends PSComponent {
+public final class PSAuthentication extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
