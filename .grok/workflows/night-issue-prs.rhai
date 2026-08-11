@@ -505,9 +505,11 @@ if dry_run {
         stale_prompt += "4) Do NOT invent issue numbers. Only act on issues returned by gh.\n";
         stale_prompt += "5) Cap: clear at most 40 issues this pass (log if more were stale).\n\n";
         stale_prompt += "LABEL NAMES:\n";
-        stale_prompt += "  Prefer exact label \"In Progress\". If list-by-label returns empty, also try\n";
-        stale_prompt += "  \"in progress\" (case / spacing variants). Use the exact name returned by the API\n";
-        stale_prompt += "  when removing. Record label_name_used in the result.\n\n";
+        stale_prompt += "  Prefer exact label \"In Progress\". GitHub label search is case-insensitive,\n";
+        stale_prompt += "  so do NOT retry the same list with only case changes. If the first list is empty,\n";
+        stale_prompt += "  try a distinct name variant (e.g. hyphenated \"in-progress\") only if that label\n";
+        stale_prompt += "  exists in the repo. Use the exact name from the issue's labels JSON when removing.\n";
+        stale_prompt += "  Record label_name_used in the result.\n\n";
         stale_prompt += "WHAT COUNTS AS TOUCHED:\n";
         stale_prompt += "  Use the issue's updatedAt from gh JSON (ISO-8601). If updatedAt is within the last\n";
         stale_prompt += "  " + stale_in_progress_hours.to_string() + " hours (relative to now / UTC), KEEP In Progress.\n";
@@ -516,13 +518,16 @@ if dry_run {
         stale_prompt += "  Comments, edits, label changes, and linked activity all bump updatedAt — that is\n";
         stale_prompt += "  the intended signal that someone is still active on the issue.\n\n";
         stale_prompt += "TASK:\n";
-        stale_prompt += "A) List open issues with the In Progress label:\n";
-        stale_prompt += "   gh issue list --repo " + repo
-            + " --state open --label \"In Progress\" --limit 100 \\\n";
-        stale_prompt += "     --json number,title,updatedAt,labels,assignees\n";
-        stale_prompt += "   If zero results, retry with --label \"in progress\".\n";
+        stale_prompt += "A) List open issues with the In Progress label. Paginate so nothing is silently\n";
+        stale_prompt += "   truncated at 100:\n";
+        stale_prompt += "   - Prefer: gh issue list --repo " + repo
+            + " --state open --label \"In Progress\" --limit 300 \\\n";
+        stale_prompt += "       --json number,title,updatedAt,labels,assignees\n";
+        stale_prompt += "   - If the tool/API still pages at 100, loop with --limit 100 until a page\n";
+        stale_prompt += "     returns empty (or use Search API pagination). Merge unique issue numbers.\n";
+        stale_prompt += "   - Do not re-query the same label with only different casing.\n";
         stale_prompt += "B) For each issue, compute age from updatedAt vs now.\n";
-        stale_prompt += "C) For STALE issues only (live run):\n";
+        stale_prompt += "C) For STALE issues only (live run), clear at most 40 this pass:\n";
         stale_prompt += "   - gh issue edit <n> --repo " + repo + " --remove-label \"<exact label name>\"\n";
         stale_prompt += "   - gh issue comment <n> --repo " + repo + " --body with a short note like:\n";
         stale_prompt += "     \"night-issue-prs: removed stale In Progress (no issue activity for >= "
@@ -541,6 +546,33 @@ if dry_run {
 
         if stale_agent != () && stale_agent.success && stale_agent.output != () {
             stale_in_progress_result = stale_agent.output;
+            // Parent-side enforcement of the 40-issue clear cap (prompt alone is not enough).
+            let cleared_n = 0;
+            if stale_in_progress_result.issues_cleared != () {
+                cleared_n = stale_in_progress_result.issues_cleared;
+            }
+            if cleared_n > 40 {
+                log("WARNING: stale In Progress cleanup reported issues_cleared="
+                    + cleared_n.to_string()
+                    + " which exceeds the hard cap of 40; capping reported value and flagging blocked.");
+                stale_in_progress_result.issues_cleared = 40;
+                let prior_blocked = "";
+                if stale_in_progress_result.blocked != () {
+                    prior_blocked = stale_in_progress_result.blocked;
+                }
+                if prior_blocked == "" {
+                    stale_in_progress_result.blocked = "cleared_cap_exceeded";
+                } else {
+                    stale_in_progress_result.blocked = prior_blocked + ";cleared_cap_exceeded";
+                }
+                let prior_summary = "";
+                if stale_in_progress_result.summary != () {
+                    prior_summary = stale_in_progress_result.summary;
+                }
+                stale_in_progress_result.summary = prior_summary
+                    + " [parent: issues_cleared capped from "
+                    + cleared_n.to_string() + " to 40]";
+            }
             log("Stale In Progress cleanup: " + stale_in_progress_result.summary);
         } else {
             stale_in_progress_result = #{
