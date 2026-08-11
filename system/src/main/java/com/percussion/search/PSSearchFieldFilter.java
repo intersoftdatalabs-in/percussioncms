@@ -65,8 +65,10 @@ public class PSSearchFieldFilter {
     if (keywords == null) {
       throw new IllegalArgumentException("keywords must not be null");
     }
-    for (PSEntry entry : keywords) {
-      if (entry == null) {
+    // Iterate as Object so raw-list callers still get IllegalArgumentException (not CCE)
+    // when a non-PSEntry element is present — preserves pre-generics defensive contract.
+    for (Object entry : keywords) {
+      if (!(entry instanceof PSEntry)) {
         throw new IllegalArgumentException("keywords list should contain PSEntry objects only");
       }
     }

@@ -103,4 +103,17 @@ public class PSSearchFieldFilterTypedTest {
             PSSearchFieldFilter.SEARCH_FILTER_TYPE_REPLACE);
     assertThrows(IllegalArgumentException.class, () -> filter.getFilteredList(null));
   }
+
+  @Test
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public void rawListNonPsEntryRejectedWithIae() {
+    List raw = new ArrayList();
+    raw.add(new PSEntry("1", "One"));
+    raw.add("not-an-entry");
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new PSSearchFieldFilter(
+                "sys_contenttypeid", raw, PSSearchFieldFilter.SEARCH_FILTER_TYPE_REPLACE));
+  }
 }

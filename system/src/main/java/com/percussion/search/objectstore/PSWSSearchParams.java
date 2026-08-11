@@ -181,12 +181,14 @@ public class PSWSSearchParams {
     if (searchFields == null) throw new IllegalArgumentException("searchFields may not be null");
 
     m_searchFields.clear();
-    for (PSWSSearchField field : searchFields) {
-      if (field == null)
+    // Object iteration preserves IllegalArgumentException for raw-list non-PSWSSearchField
+    // elements (pre-generics defensive contract; avoids ClassCastException at for-each).
+    for (Object field : searchFields) {
+      if (!(field instanceof PSWSSearchField))
         throw new IllegalArgumentException(
             "searchFields must contian " + "only PSWSSearchField objects");
 
-      m_searchFields.add(field);
+      m_searchFields.add((PSWSSearchField) field);
     }
   }
 
@@ -210,11 +212,13 @@ public class PSWSSearchParams {
     if (resultFields == null) throw new IllegalArgumentException("resultFields may not be null");
 
     m_resultFields.clear();
-    for (String field : resultFields) {
-      if (field == null)
+    // Object iteration preserves IllegalArgumentException for raw-collection non-String
+    // elements (pre-generics defensive contract).
+    for (Object field : resultFields) {
+      if (!(field instanceof String))
         throw new IllegalArgumentException("searchFields must contian " + "only String objects");
 
-      m_resultFields.add(field);
+      m_resultFields.add((String) field);
     }
   }
 
@@ -239,13 +243,15 @@ public class PSWSSearchParams {
     if (props == null) throw new IllegalArgumentException("props may not be null");
 
     m_props.clear();
-    for (Entry<String, String> entry : props.entrySet()) {
-      if (entry.getKey() == null || entry.getValue() == null) {
+    // Raw Map may carry non-String keys/values; restore instanceof guards so callers
+    // get IllegalArgumentException rather than silent bad types or CCE later.
+    for (Entry<?, ?> entry : ((Map<?, ?>) props).entrySet()) {
+      if (!(entry.getKey() instanceof String && entry.getValue() instanceof String)) {
         throw new IllegalArgumentException(
             "props must have" + "only String objects for keys and values");
       }
 
-      m_props.put(entry.getKey(), entry.getValue());
+      m_props.put((String) entry.getKey(), (String) entry.getValue());
     }
   }
 
