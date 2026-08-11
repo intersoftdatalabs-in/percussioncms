@@ -24,7 +24,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import org.w3c.dom.Element;
 
@@ -60,12 +59,11 @@ public class PSPreUpgradePluginCustomProperty implements IPSUpgradePlugin {
 
     for (int i = 0; i < m_actionProps.length; i++) m_nonCustomProps.add(m_actionProps[i]);
 
-    Set results = new HashSet();
+    Set<String> results = new HashSet<>();
     int respType = PSPluginResponse.SUCCESS;
     String respMessage = "The following Server Objects use custom properties:" + "\n\n";
     String endMessage = "\nPlease remove these properties.\n\n";
     String bodyMessage = "";
-    Iterator iter;
     String log = config.getLogFile();
 
     try {
@@ -81,10 +79,8 @@ public class PSPreUpgradePluginCustomProperty implements IPSUpgradePlugin {
 
       if (results.size() > 0) {
         bodyMessage += "Views/Searches:\n\n";
-        iter = results.iterator();
-
-        while (iter.hasNext()) {
-          bodyMessage += (String) iter.next() + "\n";
+        for (String name : results) {
+          bodyMessage += name + "\n";
         }
       }
 
@@ -100,10 +96,8 @@ public class PSPreUpgradePluginCustomProperty implements IPSUpgradePlugin {
 
       if (results.size() > 0) {
         bodyMessage += "\nDisplay Formats:\n\n";
-        iter = results.iterator();
-
-        while (iter.hasNext()) {
-          bodyMessage += (String) iter.next() + "\n";
+        for (String name : results) {
+          bodyMessage += name + "\n";
         }
       }
 
@@ -119,10 +113,8 @@ public class PSPreUpgradePluginCustomProperty implements IPSUpgradePlugin {
 
       if (results.size() > 0) {
         bodyMessage += "\nActions:\n\n";
-        iter = results.iterator();
-
-        while (iter.hasNext()) {
-          bodyMessage += (String) iter.next() + "\n";
+        for (String name : results) {
+          bodyMessage += name + "\n";
         }
       }
 
@@ -159,7 +151,7 @@ public class PSPreUpgradePluginCustomProperty implements IPSUpgradePlugin {
    * @return set containing names of any objects which use custom properties, empty if none are
    *     found.
    */
-  private Set checkCustomProps(
+  private Set<String> checkCustomProps(
       String propTable,
       String propColumn,
       String propIdColumn,
@@ -167,8 +159,8 @@ public class PSPreUpgradePluginCustomProperty implements IPSUpgradePlugin {
       String nameColumn,
       String idColumn)
       throws Exception {
-    Set ids = new HashSet();
-    Set names = new HashSet();
+    Set<Integer> ids = new HashSet<>();
+    Set<String> names = new HashSet<>();
     Connection conn = RxUpgrade.getJdbcConnection();
     PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(RxUpgrade.getRxRepositoryProps());
 
@@ -210,10 +202,8 @@ public class PSPreUpgradePluginCustomProperty implements IPSUpgradePlugin {
         PSSqlHelper.qualifyTableName(
             table, dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
 
-    Iterator iter = ids.iterator();
-
-    while (iter.hasNext()) {
-      int id = ((Integer) iter.next()).intValue();
+    for (Integer idObj : ids) {
+      int id = idObj.intValue();
       queryStmt =
           "SELECT "
               + qualTableName
@@ -278,5 +268,5 @@ public class PSPreUpgradePluginCustomProperty implements IPSUpgradePlugin {
       };
 
   /** Set of all non-custom properties */
-  private Set m_nonCustomProps = new HashSet();
+  private Set<String> m_nonCustomProps = new HashSet<>();
 }

@@ -136,14 +136,14 @@ public class PSUpgradePluginCheckDuplicateKeysInTables implements IPSUpgradePlug
     PSJdbcTableData cvData = cvSchema.getTableData();
 
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
-    Iterator rows = cvData.getRows();
+    Iterator<PSJdbcRowData> rows = cvData.getRows();
     PSJdbcRowData tRow = null;
-    Set cvKeys = new HashSet();
-    Set dupKeys = new HashSet();
+    Set<String> cvKeys = new HashSet<>();
+    Set<String> dupKeys = new HashSet<>();
 
     // Since a Set forbids dups we can catch if primary key violations occur
     while (rows.hasNext()) {
-      tRow = (PSJdbcRowData) rows.next();
+      tRow = rows.next();
       String value = tRow.getColumn(getTableColumn()).getValue();
       // collect all the dup keys
       if (cvKeys.add(value) == false) dupKeys.add(value);
@@ -161,16 +161,16 @@ public class PSUpgradePluginCheckDuplicateKeysInTables implements IPSUpgradePlug
    *
    * @param set, list of duplicate keys found in the table
    */
-  private void displayErrorMessage(Set dupKeys) {
+  private void displayErrorMessage(Set<String> dupKeys) {
     String msg = "Primary key constraint violation occurred: duplicate \n";
     msg += "keys were found in table: " + getTableName() + ", in the ";
     msg += "column: " + getTableColumn();
 
     String dupMsg;
-    Iterator iter = dupKeys.iterator();
-    dupMsg = (String) iter.next();
+    Iterator<String> iter = dupKeys.iterator();
+    dupMsg = iter.next();
     while (iter.hasNext()) {
-      dupMsg += ", " + (String) iter.next();
+      dupMsg += ", " + iter.next();
     }
 
     msg += "\nDuplicate keys found are: {" + dupMsg + "}\n";

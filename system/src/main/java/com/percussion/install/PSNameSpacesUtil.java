@@ -36,7 +36,7 @@ public class PSNameSpacesUtil {
    * @param names all existing names to check for clash against. Never <code>null</code>.
    * @return the corrected name. If this name is applied caller should add it to the names set.
    */
-  public static String removeWhitespacesFromName(final String name, Set names) {
+  public static String removeWhitespacesFromName(final String name, Set<?> names) {
     final StringBuilder buf = new StringBuilder();
     for (int i = 0; i < name.length(); i++) {
       final char ch = name.charAt(i);

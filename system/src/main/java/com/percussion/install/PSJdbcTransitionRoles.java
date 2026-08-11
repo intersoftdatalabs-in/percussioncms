@@ -186,9 +186,9 @@ public class PSJdbcTransitionRoles implements IPSJdbcTableDataHandler {
                   rolesTblFilter,
                   PSJdbcRowData.ACTION_INSERT);
           if (roleTblData != null) {
-            Iterator it = roleTblData.getRows();
+            Iterator<PSJdbcRowData> it = roleTblData.getRows();
             if (it.hasNext()) {
-              PSJdbcRowData insertRow = (PSJdbcRowData) it.next();
+              PSJdbcRowData insertRow = it.next();
               String roleId = getRequiredColumnValue(insertRow, TBL_ROLES, COL_ROLEID);
 
               // create "TRANSITIONROLEID" column

@@ -133,7 +133,7 @@ public abstract class PSUpgradePluginModifyColumnBase implements IPSUpgradePlugi
    * @param value current value.
    * @param allValues all the existing values.
    */
-  protected String constructNewValue(final String value, final Set allValues) {
+  protected String constructNewValue(final String value, final Set<String> allValues) {
     String newValue = value;
     int idx = 1;
     while (allValues.contains(newValue)) {
@@ -182,9 +182,9 @@ public abstract class PSUpgradePluginModifyColumnBase implements IPSUpgradePlugi
   }
 
   /** Loads all the names from the database. */
-  protected Set loadValues(final Connection conn, String column, final String valuesQuery)
+  protected Set<String> loadValues(final Connection conn, String column, final String valuesQuery)
       throws SQLException {
-    final Set allValues = new HashSet();
+    final Set<String> allValues = new HashSet<>();
     final Statement statement = conn.createStatement();
     try {
       final ResultSet resultSet = statement.executeQuery(valuesQuery);

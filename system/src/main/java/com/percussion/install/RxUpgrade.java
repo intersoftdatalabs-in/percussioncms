@@ -143,7 +143,7 @@ public class RxUpgrade {
    *
    * @return the pre-upgrade plugin response objects
    */
-  public static ArrayList getResponses() {
+  public static ArrayList<PSPluginResponse> getResponses() {
     return ms_pluginResponses;
   }
 
@@ -156,9 +156,9 @@ public class RxUpgrade {
     if (upgradeConfig == null) throw new IllegalArgumentException("upgradeConfig may not be null");
 
     // initialize plugin response object store
-    ms_pluginResponses = new ArrayList();
+    ms_pluginResponses = new ArrayList<>();
 
-    Iterator iter = null;
+    Iterator<?> iter = null;
     IPSUpgradeModule moduleConfig = null;
     try {
       iter = upgradeConfig.getModuleList();
@@ -393,13 +393,13 @@ public class RxUpgrade {
           String dtd = elemFile.getAttribute("DTD");
           String xslTransform = getUpgradeRoot() + elemFile.getAttribute("transformxsl");
 
-          Iterator it =
+          Iterator<String> it =
               getXmlFiles(
                   elemFile.getAttribute("path"),
                   elemFile.getAttribute("type"),
                   config.getLogStream());
           while (it.hasNext()) {
-            String xmlFile = (String) it.next();
+            String xmlFile = it.next();
             config.getLogStream().println("Processing file: " + xmlFile + "...");
             Document newDoc = transformXML(xmlFile, xslTransform);
             config.getLogStream().println("Saving the transformed file: " + xmlFile + "...");
@@ -428,7 +428,7 @@ public class RxUpgrade {
    *     be empty
    * @throws IllegalArgumentException if any param is invalid
    */
-  private Iterator getXmlFiles(String file, String type, PrintStream ps) {
+  private Iterator<String> getXmlFiles(String file, String type, PrintStream ps) {
     if ((file == null) || (file.trim().length() < 1))
       throw new IllegalArgumentException("file may not be null or empty");
 
@@ -438,7 +438,7 @@ public class RxUpgrade {
       else throw new IllegalArgumentException("invalid type specified");
     }
 
-    List xmlFiles = new ArrayList();
+    List<String> xmlFiles = new ArrayList<>();
     File f = new File(m_RxRootDir, file);
     File[] files = new File[] {f};
 
@@ -883,7 +883,7 @@ public class RxUpgrade {
   public static boolean ms_bPreUpgrade = false;
 
   /** Pre-upgrade plugin response object storage */
-  public static ArrayList ms_pluginResponses = new ArrayList();
+  public static ArrayList<PSPluginResponse> ms_pluginResponses = new ArrayList<>();
 
   /** The objectstore property name in server.properties */
   private static final String PROPS_OBJECT_STORE_VAR = "objectStoreProperties";

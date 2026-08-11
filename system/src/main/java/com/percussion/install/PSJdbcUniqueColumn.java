@@ -254,7 +254,7 @@ public class PSJdbcUniqueColumn implements IPSJdbcTableDataHandler {
    * </code> passed as argument to the <code>execute()</code> method. Column values are stored as
    * <code>String</code> objects in UPPERCASE. This list is never <code>null</code>, may be empty.
    */
-  private Set m_colValues = new HashSet();
+  private Set<String> m_colValues = new HashSet<>();
 
   // Xml elements and attributes
   protected static final String COLUMN_EL = "column";

@@ -23,7 +23,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import org.w3c.dom.Element;
 
@@ -55,7 +54,7 @@ public class PSUpgradePluginFixGlobalTemplateNames implements IPSUpgradePlugin {
               + " FROM "
               + qualTableName;
 
-      Map gtMap = new HashMap();
+      Map<String, String> gtMap = new HashMap<>();
 
       Statement selStmt = conn.createStatement();
       ResultSet resultSet = null;
@@ -72,10 +71,9 @@ public class PSUpgradePluginFixGlobalTemplateNames implements IPSUpgradePlugin {
             Integer.toString(resultSet.getInt("SITEID")), resultSet.getString("GLOBALTEMPLATE"));
       }
 
-      Iterator iter = gtMap.keySet().iterator();
-      while (iter.hasNext()) {
-        String siteid = (String) iter.next();
-        String gtName = (String) gtMap.get(siteid);
+      for (Map.Entry<String, String> entry : gtMap.entrySet()) {
+        String siteid = entry.getKey();
+        String gtName = entry.getValue();
         if (gtName != null && gtName.toLowerCase().endsWith(".xsl")) {
           String newGtName = gtName.substring(0, gtName.length() - 4);
           String upSqlSt =

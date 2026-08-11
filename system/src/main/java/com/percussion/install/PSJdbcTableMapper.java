@@ -31,7 +31,6 @@ import com.percussion.tablefactory.PSJdbcTableSchema;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -119,12 +118,10 @@ public class PSJdbcTableMapper implements IPSJdbcTableDataHandler {
       PSJdbcRowData srcRow = step.next();
       while (srcRow != null) {
         // process the row mappings
-        List rowList = tableMapping.processRow(conn, srcRow);
+        List<PSJdbcRowData> rowList = tableMapping.processRow(conn, srcRow);
         if (rowList != null) {
-          Iterator it = rowList.iterator();
-          while (it.hasNext()) {
+          for (PSJdbcRowData destRow : rowList) {
             // create the insert statement
-            PSJdbcRowData destRow = (PSJdbcRowData) it.next();
             PSJdbcExecutionStep insertStep =
                 PSJdbcStatementFactory.getInsertStatement(m_dbmsDef, destSchema, destRow);
             insertStep.execute(conn);

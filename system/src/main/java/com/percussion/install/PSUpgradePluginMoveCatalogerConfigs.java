@@ -82,7 +82,7 @@ public class PSUpgradePluginMoveCatalogerConfigs implements IPSUpgradePlugin {
       Element subCatEl =
           PSSpringBeanUtils.getNextPropertyElement(roleMgrEl, null, "subjectCatalogers");
 
-      List configs = new ArrayList();
+      List<PSCatalogerConfig> configs = new ArrayList<>();
       configs.addAll(getCatalogerList(subCatEl, ConfigTypes.SUBJECT));
 
       // copy subject catalogers to cataloger beans
@@ -119,9 +119,9 @@ public class PSUpgradePluginMoveCatalogerConfigs implements IPSUpgradePlugin {
    * @throws PSInvalidXmlException If the supplied element does not represent a list of beans that
    *     can be represented by a {@link PSCatalogerConfig}.
    */
-  private Collection getCatalogerList(Element source, ConfigTypes type)
+  private Collection<PSCatalogerConfig> getCatalogerList(Element source, ConfigTypes type)
       throws PSInvalidXmlException {
-    List configs = new ArrayList();
+    List<PSCatalogerConfig> configs = new ArrayList<>();
 
     Element catEl = PSSpringBeanUtils.getNextPropertyListElement(source, null);
     while (catEl != null) {

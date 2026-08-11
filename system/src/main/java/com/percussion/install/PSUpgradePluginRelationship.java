@@ -1192,8 +1192,9 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    *     empty.
    * @throws Exception if error occurs.
    */
-  List queryStringList(PrintStream logger, Connection conn, String sqlStmt) throws Exception {
-    List result = new ArrayList();
+  List<String> queryStringList(PrintStream logger, Connection conn, String sqlStmt)
+      throws Exception {
+    List<String> result = new ArrayList<>();
     Statement stmt = null;
     ResultSet rs = null;
     try {

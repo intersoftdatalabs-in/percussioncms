@@ -22,7 +22,6 @@ import com.percussion.services.filter.IPSItemFilterRuleDef;
 import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.filter.PSFilterServiceLocator;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 import org.w3c.dom.Element;
 
@@ -60,8 +59,8 @@ public class PSUpgradePluginItemFilters implements IPSUpgradePlugin {
     String respMsg = "";
 
     try {
-      checkAndAddRule(PREVIEW_FILTER, PREVIEW_FILTER_RULE, Collections.EMPTY_MAP);
-      checkAndAddRule(PUBLIC_FILTER, PUBLIC_FILTER_RULE, Collections.EMPTY_MAP);
+      checkAndAddRule(PREVIEW_FILTER, PREVIEW_FILTER_RULE, Collections.emptyMap());
+      checkAndAddRule(PUBLIC_FILTER, PUBLIC_FILTER_RULE, Collections.emptyMap());
     } catch (Exception e) {
       respType = PSPluginResponse.EXCEPTION;
       respMsg = e.getMessage();
@@ -79,13 +78,11 @@ public class PSUpgradePluginItemFilters implements IPSUpgradePlugin {
    * @param rulename the name of the rule, assumed never <code>null</code> or empty.
    * @param params the parameters, may be <code>null</code>.
    */
-  private void checkAndAddRule(String filtername, String rulename, Map params) {
+  private void checkAndAddRule(String filtername, String rulename, Map<String, String> params) {
     try {
       IPSItemFilter filter = fsvc.findFilterByName(filtername);
       boolean found = false;
-      Iterator fiter = filter.getRuleDefs().iterator();
-      while (fiter.hasNext()) {
-        IPSItemFilterRuleDef def = (IPSItemFilterRuleDef) fiter.next();
+      for (IPSItemFilterRuleDef def : filter.getRuleDefs()) {
         if (def.getRuleName().equals(rulename)) {
           found = true;
           break;

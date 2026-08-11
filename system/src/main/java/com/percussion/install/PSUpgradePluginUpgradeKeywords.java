@@ -21,7 +21,6 @@ import com.percussion.services.content.PSContentServiceLocator;
 import com.percussion.services.content.data.PSKeyword;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -40,12 +39,11 @@ public class PSUpgradePluginUpgradeKeywords extends PSSpringUpgradePluginBase
     m_config = config;
     log("Fixing Keyword Names");
 
-    final List keywords = getContentService().findKeywordsByLabel(null, null);
-    final List keywordsToFixNames = findKeywordsToFixNames(keywords);
-    final Set keywordNames = getKeywordNames(keywords);
+    final List<PSKeyword> keywords = getContentService().findKeywordsByLabel(null, null);
+    final List<PSKeyword> keywordsToFixNames = findKeywordsToFixNames(keywords);
+    final Set<String> keywordNames = getKeywordNames(keywords);
 
-    for (Iterator i = keywordsToFixNames.iterator(); i.hasNext(); ) {
-      final PSKeyword keyword = (PSKeyword) i.next();
+    for (PSKeyword keyword : keywordsToFixNames) {
       keyword.setName(PSNameSpacesUtil.removeWhitespacesFromName(keyword.getName(), keywordNames));
       keywordNames.add(keyword.getName());
       getContentService().saveKeyword(keyword);
@@ -55,10 +53,9 @@ public class PSUpgradePluginUpgradeKeywords extends PSSpringUpgradePluginBase
   }
 
   /** Selects keywords from the list which need their names to be fixed. */
-  private List findKeywordsToFixNames(final List keywords) {
-    final List keywordsToFixNames = new ArrayList();
-    for (Iterator i = keywords.iterator(); i.hasNext(); ) {
-      final PSKeyword keyword = (PSKeyword) i.next();
+  private List<PSKeyword> findKeywordsToFixNames(final List<PSKeyword> keywords) {
+    final List<PSKeyword> keywordsToFixNames = new ArrayList<>();
+    for (PSKeyword keyword : keywords) {
       final String name = keyword.getName();
       if (!name.equals(StringUtils.deleteWhitespace(name))) {
         keywordsToFixNames.add(keyword);
@@ -68,10 +65,9 @@ public class PSUpgradePluginUpgradeKeywords extends PSSpringUpgradePluginBase
   }
 
   /** Set of keyword names extracted from the provided keywords. */
-  private Set getKeywordNames(final List keywords) {
-    final Set names = new HashSet();
-    for (Iterator i = keywords.iterator(); i.hasNext(); ) {
-      final PSKeyword keyword = (PSKeyword) i.next();
+  private Set<String> getKeywordNames(final List<PSKeyword> keywords) {
+    final Set<String> names = new HashSet<>();
+    for (PSKeyword keyword : keywords) {
       names.add(keyword.getName());
     }
     return names;

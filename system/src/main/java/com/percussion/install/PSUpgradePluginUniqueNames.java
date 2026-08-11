@@ -74,9 +74,9 @@ public class PSUpgradePluginUniqueNames extends PSUpgradePluginModifyColumnBase 
     int rowsModified = 0;
 
     try {
-      final Set allValues = loadValues(conn, column, valuesQuery);
+      final Set<String> allValues = loadValues(conn, column, valuesQuery);
       {
-        final Set valuesSoFar = new HashSet();
+        final Set<String> valuesSoFar = new HashSet<>();
         final Statement statement =
             conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
         try {

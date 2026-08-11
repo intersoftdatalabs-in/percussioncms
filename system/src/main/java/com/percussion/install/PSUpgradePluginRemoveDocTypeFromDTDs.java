@@ -31,7 +31,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.Iterator;
 import java.util.List;
 import org.w3c.dom.Element;
 
@@ -56,7 +55,7 @@ public class PSUpgradePluginRemoveDocTypeFromDTDs implements IPSUpgradePlugin {
     FileInputStream fis = null;
 
     try {
-      List fileList = null;
+      List<File> fileList = null;
 
       File root = new File(RxUpgrade.getRxRoot());
 
@@ -68,10 +67,7 @@ public class PSUpgradePluginRemoveDocTypeFromDTDs implements IPSUpgradePlugin {
       PSFilteredFileList lister = new PSFilteredFileList(filter);
       fileList = lister.getFiles(root);
 
-      Iterator iter = fileList.iterator();
-      while (iter.hasNext()) {
-        File dtdFile = (File) iter.next();
-
+      for (File dtdFile : fileList) {
         String fileName = dtdFile.getName();
 
         // check if this DTD has a DOCTYPE that we want to remove
