@@ -95,7 +95,7 @@ Compiler for upgrade-input `GadgetRegistry.xml` → modern ship format (landed a
 | Golden parity | Welcome (`cm1_welcome_gadget`) + full product catalog (21 entries) under `src/test/resources/gadgetxml/golden/` |
 | Validator rule | `PSComponentPackageManifestValidator` — `catalog.kind=gadget` requires `catalog.title`; CT/templates optional |
 
-**Still residual (not this slice):** WebUI runtime dual-load of `gadget-catalog.json` instead of `GadgetRegistry.xml` (SPA Home already has a parallel TS catalog); delete product `GadgetRegistry.xml` only after dual-load + QA.
+**WebUI dual-load (#2788 / #3025):** runtime prefers `gadget-catalog.json` with legacy `GadgetRegistry.xml` fallback; INFO selection metrics and test-visible last-load source/entry count. **Still residual:** delete product/legacy `GadgetRegistry.xml` fallback only when Phase 5 criteria pass (#2852 / M2–M3) — not unattended mass-delete.
 
 ## Related docs
 

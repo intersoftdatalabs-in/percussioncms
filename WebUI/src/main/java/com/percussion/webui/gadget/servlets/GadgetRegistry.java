@@ -36,11 +36,16 @@ import tools.jackson.core.json.JsonFactory;
  * Loads dashboard gadget name → group map for Percussion vs Deprecated grouping (v8.1.7 PR #722 /
  * #885).
  *
- * <p><strong>Dual-load policy (ADR-004 / #2788 / #2630 residual):</strong> prefer modern {@code
- * gadget-catalog.json} on the classpath; fall back to legacy {@code GadgetRegistry.xml} when the
- * modern catalog is absent or unreadable. Selection is intentional dual-run shim so product can
- * retire XML as the sole runtime source without breaking installs that still ship only the
- * registry.
+ * <p><strong>Dual-load policy (ADR-004 / #2788 / #3025 / parent #2630):</strong> prefer modern
+ * {@code gadget-catalog.json} on the classpath; fall back to legacy {@code GadgetRegistry.xml}
+ * when the modern catalog is absent, empty, or unreadable. Selection is intentional dual-run so
+ * product can retire XML as the sole runtime source without breaking installs that still ship only
+ * the registry. Do <strong>not</strong> delete the legacy fallback until Phase 5 removal criteria
+ * pass (#2852).
+ *
+ * <p>Each dual-load records {@link #getLastLoadSource()} and logs INFO selection metrics ({@code
+ * modern=} / {@code legacyRegistryXml=} / {@code none=} / {@code entries=}) for Phase 5 exit
+ * visibility (parity with {@code PSWidgetDao} dual-run metrics).
  */
 public final class GadgetRegistry {
 
@@ -69,6 +74,9 @@ public final class GadgetRegistry {
 
   private static final AtomicReference<Source> LAST_SOURCE = new AtomicReference<>(Source.NONE);
 
+  /** Entry count from the most recent successful dual-load (0 when {@link Source#NONE}). */
+  private static final AtomicReference<Integer> LAST_ENTRY_COUNT = new AtomicReference<>(0);
+
   private static final JsonFactory JSON_FACTORY = JsonFactory.builder().build();
 
   private GadgetRegistry() {}
@@ -80,6 +88,15 @@ public final class GadgetRegistry {
    */
   public static Source getLastLoadSource() {
     return LAST_SOURCE.get();
+  }
+
+  /**
+   * Number of name→group entries produced by the most recent dual-load attempt.
+   *
+   * @return non-negative count (0 when last source was {@link Source#NONE})
+   */
+  public static int getLastLoadEntryCount() {
+    return LAST_ENTRY_COUNT.get();
   }
 
   /**
@@ -104,11 +121,7 @@ public final class GadgetRegistry {
     if (catalogResource != null && !catalogResource.isBlank()) {
       Map<String, String> fromCatalog = tryLoadCatalog(catalogResource);
       if (!fromCatalog.isEmpty()) {
-        LAST_SOURCE.set(Source.MODERN_CATALOG);
-        log.debug(
-            "Loaded gadget type map from modern catalog {} ({} entries)",
-            catalogResource,
-            fromCatalog.size());
+        recordSelection(Source.MODERN_CATALOG, fromCatalog.size(), catalogResource, registryResource);
         return fromCatalog;
       }
     }
@@ -116,21 +129,47 @@ public final class GadgetRegistry {
     if (registryResource != null && !registryResource.isBlank()) {
       Map<String, String> fromXml = tryLoadRegistryXml(registryResource);
       if (!fromXml.isEmpty()) {
-        LAST_SOURCE.set(Source.LEGACY_REGISTRY_XML);
-        log.debug(
-            "Loaded gadget type map from legacy registry {} ({} entries)",
-            registryResource,
-            fromXml.size());
+        recordSelection(
+            Source.LEGACY_REGISTRY_XML, fromXml.size(), catalogResource, registryResource);
         return fromXml;
       }
     }
 
-    LAST_SOURCE.set(Source.NONE);
-    log.error(
-        "No gadget type map available: modern catalog [{}] and legacy registry [{}] both missing or empty",
-        catalogResource,
-        registryResource);
+    recordSelection(Source.NONE, 0, catalogResource, registryResource);
     return Collections.emptyMap();
+  }
+
+  /**
+   * Publish last-load source/entry count and INFO selection metrics (modern / legacy / none).
+   * Package-visible pattern mirrors {@code PSWidgetDao} dual-run INFO counts for Phase 5 M2.
+   */
+  private static void recordSelection(
+      Source source, int entries, String catalogResource, String registryResource) {
+    LAST_SOURCE.set(source);
+    LAST_ENTRY_COUNT.set(entries);
+    int modern = source == Source.MODERN_CATALOG ? 1 : 0;
+    int legacy = source == Source.LEGACY_REGISTRY_XML ? 1 : 0;
+    int none = source == Source.NONE ? 1 : 0;
+    log.info(
+        "Gadget registry dual-load selection: modern={}, legacyRegistryXml={}, none={}, entries={}, source={}",
+        modern,
+        legacy,
+        none,
+        entries,
+        source);
+    if (source == Source.NONE) {
+      log.error(
+          "No gadget type map available: modern catalog [{}] and legacy registry [{}] both missing or empty",
+          catalogResource,
+          registryResource);
+    } else if (log.isDebugEnabled()) {
+      log.debug(
+          "Gadget dual-load resolved via {} (catalogResource={}, registryResource={}, entries={})",
+          source,
+          catalogResource,
+          registryResource,
+          entries);
+    }
   }
 
   /**
