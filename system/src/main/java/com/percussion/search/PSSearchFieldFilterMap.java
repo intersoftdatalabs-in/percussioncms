@@ -56,13 +56,12 @@ public abstract class PSSearchFieldFilterMap {
    *     corresponding display text.
    * @throws IOException if there are any errors.
    */
-  private List getSlotContentTypes(String slotid) throws IOException {
-    List ctypes = null;
+  private List<PSEntry> getSlotContentTypes(String slotid) throws IOException {
     if (slotid == null || slotid.trim().length() == 0) {
       throw new IllegalArgumentException("slotid must not be null or empty");
     }
 
-    ctypes = new ArrayList();
+    List<PSEntry> ctypes = new ArrayList<>();
     String url = SLOT_CTYPE_URL + "?" + IPSHtmlParameters.SYS_SLOTID + "=" + slotid;
     Document doc = getDocumentFromServer(url);
     NodeList nl = doc.getElementsByTagName(PSEntry.XML_NODE_NAME);
@@ -86,15 +85,15 @@ public abstract class PSSearchFieldFilterMap {
    *     <code>PSSearchFieldFilter</code>, never <code>null</code>, may be empty.
    * @throws IOException if there are any errors.
    */
-  public Map getFilterMap() throws IOException {
+  public Map<String, PSSearchFieldFilter> getFilterMap() throws IOException {
     if (m_filterMap == null) {
-      List slotContent = getSlotContentTypes(m_slotId);
+      List<PSEntry> slotContent = getSlotContentTypes(m_slotId);
       PSSearchFieldFilter filter =
           new PSSearchFieldFilter(
               IPSHtmlParameters.SYS_CONTENTTYPEID,
               slotContent,
               PSSearchFieldFilter.SEARCH_FILTER_TYPE_INTERSECTION);
-      m_filterMap = new HashMap();
+      m_filterMap = new HashMap<>();
       m_filterMap.put(filter.getSearchFieldName(), filter);
     }
     return Collections.unmodifiableMap(m_filterMap);
@@ -121,7 +120,7 @@ public abstract class PSSearchFieldFilterMap {
    * populated by first call to {@link #getFilterMap()}, never <code>null</code> or modified after
    * that, may be empty.
    */
-  private Map m_filterMap = null;
+  private Map<String, PSSearchFieldFilter> m_filterMap = null;
 
   /**
    * The slot id supplied during construction used to build the filter for sys_contenttypeid. Never

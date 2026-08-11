@@ -25,7 +25,6 @@ import com.percussion.system.utils.IPSHtmlParameters;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -51,13 +50,12 @@ public class PSCleanFolderSearchResultsExit implements IPSSearchResultsProcessor
    * java.lang.Object[],
    *      java.util.List, com.percussion.server.IPSRequestContext)
    */
-  public List processRows(Object[] params, List rows, IPSRequestContext request)
+  public List<Object> processRows(Object[] params, List<Object> rows, IPSRequestContext request)
       throws PSExtensionProcessingException {
-    Iterator it = rows.iterator();
     String[] disallowedFields = null;
 
-    while (it.hasNext()) {
-      IPSSearchResultRow row = (IPSSearchResultRow) it.next();
+    for (Object rowObj : rows) {
+      IPSSearchResultRow row = (IPSSearchResultRow) rowObj;
 
       if (disallowedFields == null) disallowedFields = getDisallowedFields(row);
 
@@ -80,17 +78,15 @@ public class PSCleanFolderSearchResultsExit implements IPSSearchResultsProcessor
    * @return an array of disallowed fields, never <code>null</code> may be empty.
    */
   private String[] getDisallowedFields(IPSSearchResultRow row) {
-    List results = new ArrayList();
-    Collection allowed = getAllowedFields();
+    List<String> results = new ArrayList<>();
+    Collection<String> allowed = getAllowedFields();
     // "sys_title" and "sys_contentid" must always be allowed
     if (!allowed.contains("sys_title")) allowed.add("sys_title");
     if (!allowed.contains("sys_contentid")) allowed.add("sys_contentid");
-    Iterator it = row.getColumnNames().iterator();
-    while (it.hasNext()) {
-      String colName = (String) it.next();
+    for (String colName : row.getColumnNames()) {
       if (!allowed.contains(colName)) results.add(colName);
     }
-    return (String[]) results.toArray(new String[results.size()]);
+    return results.toArray(new String[results.size()]);
   }
 
   /**
@@ -100,8 +96,8 @@ public class PSCleanFolderSearchResultsExit implements IPSSearchResultsProcessor
    *
    * @return a list of field names, should never be <code>null</code> or empty.
    */
-  protected Collection getAllowedFields() {
-    List allowed = new ArrayList(9);
+  protected Collection<String> getAllowedFields() {
+    List<String> allowed = new ArrayList<>(9);
     allowed.add("sys_contentlastmodifier");
     allowed.add("sys_contenttypeid");
     allowed.add("sys_contenttypename"); // deprecated column

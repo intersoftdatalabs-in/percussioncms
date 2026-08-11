@@ -51,7 +51,7 @@ public class PSExecutableSearchFactory {
    * @return The executable search, never <code>null</code>.
    */
   public static IPSExecutableSearch createExecutableSearch(
-      Object context, Collection columnNames, PSSearch search) {
+      Object context, Collection<?> columnNames, PSSearch search) {
     if (context == null) throw new IllegalArgumentException("context may not be null");
 
     if (columnNames == null) throw new IllegalArgumentException("columnNames must not be null");
@@ -86,7 +86,7 @@ public class PSExecutableSearchFactory {
    *     be <code>null</code> or empty.
    */
   public static IPSExecutableSearch createExecutableSearch(
-      Object context, Collection columnNames, Collection contentIds) {
+      Object context, Collection<?> columnNames, Collection<?> contentIds) {
     if (context == null) throw new IllegalArgumentException("context must not be null");
 
     if (columnNames == null) throw new IllegalArgumentException("columnNames must not be null");

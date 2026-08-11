@@ -123,7 +123,7 @@ public class PSWSExecutableSearch extends PSBaseExecutableSearch {
     * @throws IOException if an I/O error occurs
     * @throws SAXException if parsing fails
     */
-   protected Document getSearchResults(Document searchDoc, Map params)
+   protected Document getSearchResults(Document searchDoc, Map<String, String> params)
       throws IOException, SAXException {
     Document doc;
     params.put("inputDocument", PSXmlDocumentBuilder.toString(searchDoc));

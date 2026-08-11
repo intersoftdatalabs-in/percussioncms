@@ -64,10 +64,8 @@ public class PSSearchResultRow implements IPSSearchResultRow {
    */
   public IPSSearchResultRow cloneRow() {
     PSSearchResultRow clone = new PSSearchResultRow();
-    Iterator iter = m_fields.keySet().iterator();
-    while (iter.hasNext()) {
-      String key = (String) iter.next();
-      PSSearchResultColumn element = (PSSearchResultColumn) m_fields.get(key);
+    for (Map.Entry<String, PSSearchResultColumn> entry : m_fields.entrySet()) {
+      PSSearchResultColumn element = entry.getValue();
       clone.m_fields.put(element.getName(), (PSSearchResultColumn) element.clone());
     }
     return clone;
@@ -83,7 +81,7 @@ public class PSSearchResultRow implements IPSSearchResultRow {
     if (colName == null || colName.length() == 0) {
       throw new IllegalArgumentException("colName must not be null or empty");
     }
-    PSSearchResultColumn field = (PSSearchResultColumn) m_fields.get(colName);
+    PSSearchResultColumn field = m_fields.get(colName);
     if (field != null) {
       return field.getDisplayValue();
     }
@@ -104,7 +102,7 @@ public class PSSearchResultRow implements IPSSearchResultRow {
     }
 
     if (!hasColumn(colName)) return;
-    PSSearchResultColumn field = (PSSearchResultColumn) m_fields.get(colName);
+    PSSearchResultColumn field = m_fields.get(colName);
     field.setDisplayValue(colDisplayValue);
   }
 
@@ -118,7 +116,7 @@ public class PSSearchResultRow implements IPSSearchResultRow {
     if (colName == null || colName.length() == 0) {
       throw new IllegalArgumentException("colName must not be null or empty");
     }
-    PSSearchResultColumn field = (PSSearchResultColumn) m_fields.get(colName);
+    PSSearchResultColumn field = m_fields.get(colName);
     if (field != null) return field.getValue();
 
     return null;
@@ -137,7 +135,7 @@ public class PSSearchResultRow implements IPSSearchResultRow {
     }
 
     if (!hasColumn(colName)) return;
-    PSSearchResultColumn field = (PSSearchResultColumn) m_fields.get(colName);
+    PSSearchResultColumn field = m_fields.get(colName);
     field.setValue(colValue);
   }
 
@@ -185,10 +183,7 @@ public class PSSearchResultRow implements IPSSearchResultRow {
     if (doc == null) throw new IllegalArgumentException("doc must not be null");
 
     Element rowElem = doc.createElement(XML_NODE_NAME);
-    Iterator iter = m_fields.keySet().iterator();
-    while (iter.hasNext()) {
-      String key = (String) iter.next();
-      PSSearchResultColumn element = (PSSearchResultColumn) m_fields.get(key);
+    for (PSSearchResultColumn element : m_fields.values()) {
       rowElem.appendChild(element.toXml(doc));
     }
     return rowElem;
@@ -233,11 +228,9 @@ public class PSSearchResultRow implements IPSSearchResultRow {
     PSSearchResultRow s2 = (PSSearchResultRow) obj;
     if (m_fields.size() != s2.m_fields.size()) return false;
 
-    Iterator iter = m_fields.keySet().iterator();
-    while (iter.hasNext()) {
-      String key = (String) iter.next();
-      PSSearchResultColumn f1 = (PSSearchResultColumn) m_fields.get(key);
-      PSSearchResultColumn f2 = (PSSearchResultColumn) s2.m_fields.get(key);
+    for (Map.Entry<String, PSSearchResultColumn> entry : m_fields.entrySet()) {
+      PSSearchResultColumn f1 = entry.getValue();
+      PSSearchResultColumn f2 = s2.m_fields.get(entry.getKey());
       if (!f1.equals(f2)) return false;
     }
     return true;
@@ -249,10 +242,8 @@ public class PSSearchResultRow implements IPSSearchResultRow {
    * @see java.lang.Object#hashCode()
    */
   public int hashCode() {
-    Iterator iter = m_fields.values().iterator();
     int hash = super.hashCode();
-    while (iter.hasNext()) {
-      PSSearchResultColumn f = (PSSearchResultColumn) iter.next();
+    for (PSSearchResultColumn f : m_fields.values()) {
       hash += f.hashCode();
     }
     return hash;
@@ -273,7 +264,7 @@ public class PSSearchResultRow implements IPSSearchResultRow {
    * field and the value is {@link PSSearchResultColumn} object. Never <code>null</code> may be
    * empty.
    */
-  private Map<String, PSSearchResultColumn> m_fields = new HashMap<String, PSSearchResultColumn>();
+  private Map<String, PSSearchResultColumn> m_fields = new HashMap<>();
 
   /** The name of the root element of the XML representation of the object. */
   public static final String XML_NODE_NAME = "Result";

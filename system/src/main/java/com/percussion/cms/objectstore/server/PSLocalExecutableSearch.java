@@ -98,7 +98,7 @@ public final class PSLocalExecutableSearch extends PSBaseExecutableSearch {
 
   // see base class
   @Override
-  protected Document getSearchResults(Document searchDoc, Map params)
+  protected Document getSearchResults(Document searchDoc, Map<String, String> params)
       throws IOException, SAXException {
     // clone the request in case it gets modified
     PSRequest req = m_request.cloneRequest();

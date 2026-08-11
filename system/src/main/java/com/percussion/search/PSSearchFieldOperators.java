@@ -24,7 +24,6 @@ import com.percussion.i18n.PSI18nUtils;
 import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -51,11 +50,11 @@ public class PSSearchFieldOperators {
       PSSearchField field, PSI18NTranslationKeyValues translator, String locale) {
     if (field == null) throw new IllegalArgumentException("field cannot be null");
 
-    List operators = getOperatorsList(field);
+    List<String> operators = getOperatorsList(field);
 
     Object[] results = new PSEntry[operators.size()];
     for (int i = 0; i < results.length; i++) {
-      String operator = (String) operators.get(i);
+      String operator = operators.get(i);
       String label = null;
       if (translator == null) {
         if (locale != null && locale.trim().length() > 0) label = PSI18nUtils.getString(operator);
@@ -86,9 +85,9 @@ public class PSSearchFieldOperators {
     key = key.trim();
     if (key.length() == 0) throw new IllegalArgumentException("key cannot be empty");
 
-    List operators = getOperatorsList(field);
+    List<String> operators = getOperatorsList(field);
     for (int i = 0; i < operators.size(); i++) {
-      String operator = (String) operators.get(i);
+      String operator = operators.get(i);
       if (operator.equalsIgnoreCase(key)) return new PSEntry(operator, operator);
     }
 
@@ -215,9 +214,9 @@ public class PSSearchFieldOperators {
   public static String getInputValue(PSSearchField field) {
     if (field == null) throw new IllegalArgumentException("field cannot be null");
 
-    List values = getInputValues(field);
+    List<String> values = getInputValues(field);
 
-    return values.isEmpty() ? "" : (String) values.get(0);
+    return values.isEmpty() ? "" : values.get(0);
   }
 
   /**
@@ -228,10 +227,10 @@ public class PSSearchFieldOperators {
    * @return the converted values based on the search field type, never <code>null</code>, may be
    *     empty. The caller takes ownership of the returned list.
    */
-  public static List getInputValues(PSSearchField field) {
+  public static List<String> getInputValues(PSSearchField field) {
     if (field == null) throw new IllegalArgumentException("field cannot be null");
 
-    List values = field.getFieldValues();
+    List<String> values = field.getFieldValues();
     String operator = field.getOperator();
 
     if (field.isDateValue()) {
@@ -240,10 +239,8 @@ public class PSSearchFieldOperators {
       // noop
     } else if (field.isTextValue()) {
       if (operator.length() > 0 && !operator.equals(PSSearchField.OP_EQUALS)) {
-        List newVals = new ArrayList();
-        Iterator iter = values.iterator();
-        while (iter.hasNext()) {
-          String value = (String) iter.next();
+        List<String> newVals = new ArrayList<>();
+        for (String value : values) {
           if (value.startsWith("%") && value.endsWith("%")) {
             if (value.length() > 1) value = value.substring(1, value.length() - 1);
             else value = "";
@@ -326,9 +323,8 @@ public class PSSearchFieldOperators {
 
     if (!field.usesExternalOperator()
         && field.getFieldType().equalsIgnoreCase(PSSearchField.TYPE_NUMBER)) {
-      Iterator values = field.getFieldValues().iterator();
-      while (values.hasNext() && msg == null) {
-        String val = values.next().toString();
+      for (String val : field.getFieldValues()) {
+        if (msg != null) break;
         if (val.trim().length() == 0) continue;
 
         try {
@@ -361,8 +357,8 @@ public class PSSearchFieldOperators {
    * @return a list of I18N key's with all operators supported for the supplied search field, never
    *     <code>null</code>, may be empty if the type of the supplied search field is not supported.
    */
-  private static List getOperatorsList(PSSearchField field) {
-    List operators = new ArrayList();
+  private static List<String> getOperatorsList(PSSearchField field) {
+    List<String> operators = new ArrayList<>();
 
     if (field.isDateValue()) operators = ms_dateOperators;
     else if (field.isNumberValue()) operators = ms_numberOperators;
@@ -375,7 +371,7 @@ public class PSSearchFieldOperators {
    * A list of operators used for search fields of type <code>Date</code>. The list contains the
    * I18N key's used to lookup the localized strings used in user interfaces.
    */
-  private static final List ms_dateOperators = new ArrayList();
+  private static final List<String> ms_dateOperators = new ArrayList<>();
 
   static {
     ms_dateOperators.add(PSCommonSearchUtils.OP_ON);
@@ -383,14 +379,13 @@ public class PSSearchFieldOperators {
     ms_dateOperators.add(PSCommonSearchUtils.OP_AFTER);
     ms_dateOperators.add(PSCommonSearchUtils.OP_BETWEEN);
   }
-  ;
 
   /**
    * A list of operators used for search fields of type number.
    *
    * @see PSSearchFieldOperators#ms_dateOperators for more info.
    */
-  private static final List ms_numberOperators = new ArrayList();
+  private static final List<String> ms_numberOperators = new ArrayList<>();
 
   static {
     ms_numberOperators.add(PSCommonSearchUtils.OP_EQUALS);
@@ -398,14 +393,13 @@ public class PSSearchFieldOperators {
     ms_numberOperators.add(PSCommonSearchUtils.OP_LESS_THAN);
     ms_numberOperators.add(PSCommonSearchUtils.OP_BETWEEN);
   }
-  ;
 
   /**
    * A list of operators used for search fields of type text.
    *
    * @see PSSearchFieldOperators#ms_dateOperators for more info.
    */
-  private static final List ms_textOperators = new ArrayList();
+  private static final List<String> ms_textOperators = new ArrayList<>();
 
   static {
     ms_textOperators.add(PSCommonSearchUtils.OP_STARTS_WITH);
@@ -413,5 +407,4 @@ public class PSSearchFieldOperators {
     ms_textOperators.add(PSCommonSearchUtils.OP_ENDS_WITH);
     ms_textOperators.add(PSCommonSearchUtils.OP_EXACT);
   }
-  ;
 }
