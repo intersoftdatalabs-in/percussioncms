@@ -138,9 +138,9 @@ public class PSUpgradePluginRelationshipParentChainTest {
   }
 
   @Test
-  public void testNoRemainingRawParentComponentsInSystemMain() throws Exception {
-    // Guardrail: monorepo system main sources must not keep raw List parentComponents
-    // signatures after closeout (tmp/ probe trees excluded by scanning classpath types only).
+  public void testKeyParentComponentsSignaturesAreTyped() throws Exception {
+    // Guardrail: key production signatures (interface + config set factory) must stay
+    // List<IPSComponent>, not raw List. This is not a full source-tree scan.
     Method fromXml =
         IPSComponent.class.getMethod("fromXml", Element.class, IPSDocument.class, List.class);
     Type[] params = fromXml.getGenericParameterTypes();

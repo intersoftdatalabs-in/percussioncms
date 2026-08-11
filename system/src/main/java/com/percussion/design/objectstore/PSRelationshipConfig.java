@@ -848,7 +848,8 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
   /**
    * Shared load for {@link #fromXml} and the Element constructor (this-escape safe; non-virtual).
    */
-  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  private void fromXmlBase(
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

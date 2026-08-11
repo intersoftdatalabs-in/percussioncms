@@ -520,7 +520,8 @@ public class PSDesignObjectStoreThisEscapeTest {
     }
 
     @Override
-    public void fromXml(Element sourceNode, IPSDocument parentDoc, java.util.List parentComponents) {
+    public void fromXml(
+        Element sourceNode, IPSDocument parentDoc, java.util.List<IPSComponent> parentComponents) {
       // no-op for unit test
     }
 
