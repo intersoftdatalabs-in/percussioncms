@@ -123,6 +123,16 @@ class PSThisEscapeDtoConstructorTest {
     assertEquals("note.txt", bin.getFileName());
     assertEquals("text/plain", bin.getFileType());
 
+    // Spaces in file names must become hyphens (real space, not a bogus "\\x20" literal).
+    var spaced =
+        new PSBinaryAssetRequest(
+            "/Assets/uploads",
+            AssetType.FILE,
+            "my file name.txt",
+            "text/plain",
+            new ByteArrayInputStream(new byte[0]));
+    assertEquals("my-file-name.txt", spaced.getFileName());
+
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -138,11 +148,12 @@ class PSThisEscapeDtoConstructorTest {
         new PSExtractedAssetRequest(
             "/Assets/html",
             AssetType.HTML,
-            "page.html",
+            "page with spaces.html",
             new ByteArrayInputStream(new byte[0]),
             "div.main",
             true);
     assertEquals(AssetType.HTML, ext.getType());
+    assertEquals("page-with-spaces.html", ext.getFileName());
     assertEquals("div.main", ext.getSelector());
     assertTrue(ext.shouldIncludeOuterHtml());
     assertThrows(
@@ -198,14 +209,14 @@ class PSThisEscapeDtoConstructorTest {
 
     var src = new PSUser();
     src.setName("editor");
-    src.setPassword("secret");
+    src.setPassword("test-password-value");
     src.setEmail("e@example.test");
     src.setProviderType(PSUserProviderType.INTERNAL);
     src.setRoles(List.of("Editor", "Author"));
 
     var current = new PSCurrentUser(src);
     assertEquals("editor", current.getName());
-    assertEquals("secret", current.getPassword());
+    assertEquals("test-password-value", current.getPassword());
     assertEquals("e@example.test", current.getEmail());
     assertEquals(PSUserProviderType.INTERNAL, current.getProviderType());
     assertEquals(List.of("Editor", "Author"), current.getRoles());

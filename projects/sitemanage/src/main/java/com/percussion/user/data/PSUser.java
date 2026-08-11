@@ -48,13 +48,15 @@ public class PSUser extends PSAbstractNamedObject {
   private static final String NAME_LENGTH_ERROR_MSG =
       "The maximum length of a user name is 50 characters.";
 
-  protected String password;
-  protected String email = "";
-  protected PSUserProviderType providerType = PSUserProviderType.INTERNAL;
+  /** Package-private for same-package {@link PSCurrentUser} constructor seeding. */
+  String password;
+
+  String email = "";
+  PSUserProviderType providerType = PSUserProviderType.INTERNAL;
   private boolean isCreateUser;
 
   /** A user has to be in at least one role. */
-  @NotEmpty @NotNull protected ArrayList<String> roles;
+  @NotEmpty @NotNull ArrayList<String> roles;
 
   public PSUser() {
     roles = new ArrayList<>();

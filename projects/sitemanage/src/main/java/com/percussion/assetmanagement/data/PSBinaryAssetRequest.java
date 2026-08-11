@@ -55,7 +55,7 @@ public class PSBinaryAssetRequest extends PSAbstractAssetRequest {
     }
     this.folderPath = folderPath;
     this.type = type;
-    this.fileName = fileName.replace("\\x20", "-");
+    this.fileName = sanitizeFileName(fileName);
     this.fileType = fileType;
     this.fileContents = fileContents;
   }

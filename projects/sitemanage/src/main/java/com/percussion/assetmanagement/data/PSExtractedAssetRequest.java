@@ -59,7 +59,7 @@ public class PSExtractedAssetRequest extends PSAbstractAssetRequest {
     }
     this.folderPath = folderPath;
     this.type = type;
-    this.fileName = fileName.replace("\\x20", "-");
+    this.fileName = sanitizeFileName(fileName);
     this.fileContents = fileContents;
     this.selector = selector;
     this.includeOuterHtml = includeOuterHtml;

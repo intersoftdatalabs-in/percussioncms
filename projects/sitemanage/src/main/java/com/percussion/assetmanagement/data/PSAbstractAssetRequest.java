@@ -38,10 +38,12 @@ public abstract class PSAbstractAssetRequest {
     SIMPLE_TEXT
   }
 
-  protected String folderPath;
-  protected AssetType type;
-  protected String fileName;
-  protected InputStream fileContents;
+  /** Package-private for same-package subclass constructors (this-escape safe seed). */
+  String folderPath;
+
+  AssetType type;
+  String fileName;
+  InputStream fileContents;
 
   /**
    * Gets the type of asset this request will be used to create.
@@ -103,7 +105,15 @@ public abstract class PSAbstractAssetRequest {
     if (StringUtils.isBlank(fileName)) {
       throw new IllegalArgumentException("fileName may not be blank");
     }
-    this.fileName = fileName.replace("\\x20", "-");
+    this.fileName = sanitizeFileName(fileName);
+  }
+
+  /**
+   * Replaces spaces with hyphens for stored asset file names. Shared by setters and subclass
+   * constructors so space sanitization stays consistent.
+   */
+  static String sanitizeFileName(String fileName) {
+    return fileName.replace(' ', '-');
   }
 
   /**

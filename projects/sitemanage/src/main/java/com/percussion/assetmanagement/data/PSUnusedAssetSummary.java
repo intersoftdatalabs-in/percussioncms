@@ -67,7 +67,6 @@ public class PSUnusedAssetSummary extends PSDataItemSummary
   /**
    * @param summary
    */
-  @SuppressWarnings("unchecked")
   public PSUnusedAssetSummary(PSDataItemSummary summary) {
     super();
     this.name = summary.getName();
@@ -75,15 +74,8 @@ public class PSUnusedAssetSummary extends PSDataItemSummary
     this.label = summary.getLabel();
     this.icon = summary.getIcon();
     this.category = summary.getCategory();
-    // Match setFolderPaths null/copy semantics without overridable call.
-    var paths = summary.getFolderPaths();
-    if (paths == null) {
-      this.folderPaths = null;
-    } else if (paths instanceof java.util.ArrayList) {
-      this.folderPaths = (java.util.ArrayList<String>) paths;
-    } else {
-      this.folderPaths = new java.util.ArrayList<>(paths);
-    }
+    // Shared final helper: same null/copy semantics as setFolderPaths without overridable call.
+    initFolderPaths(summary.getFolderPaths());
     this.type = summary.getType();
     this.revisionable = summary.isRevisionable();
   }

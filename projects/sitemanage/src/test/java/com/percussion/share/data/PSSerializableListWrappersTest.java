@@ -244,7 +244,11 @@ public class PSSerializableListWrappersTest {
     assertTrue(
         !fieldType.isInterface(),
         type.getName() + "#" + fieldName + " must not be a bare collection interface");
-    // keep modifiers readable for future audits
-    assertTrue(Modifier.isPrivate(f.getModifiers()) || Modifier.isProtected(f.getModifiers()));
+    // Encapsulation: not public. private, protected, or package-private are all fine for
+    // same-package constructor seeding without widening to public.
+    int mods = f.getModifiers();
+    assertTrue(
+        Modifier.isPrivate(mods) || Modifier.isProtected(mods) || !Modifier.isPublic(mods),
+        type.getName() + "#" + fieldName + " must not be public");
   }
 }
