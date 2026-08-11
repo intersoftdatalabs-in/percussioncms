@@ -216,6 +216,8 @@ export const DEV_MSG_KEYS = {
   TPL_BINDINGS_HINT: "perc.ui.developer@JEXL bindings executed in order. Add, edit, or remove rows, then save (full replace).",
   TPL_BINDING_ADD: "perc.ui.developer@Add binding",
   TPL_BINDING_REMOVE: "perc.ui.developer@Remove",
+  TPL_EXPRESSION_SHOW_MORE: "perc.ui.developer@Show more",
+  TPL_EXPRESSION_SHOW_LESS: "perc.ui.developer@Show less",
   TPL_SLOTS: "perc.ui.developer@Slots",
   TPL_SLOTS_HINT: "perc.ui.developer@Check slots contained by this template, then save (full replace).",
   TPL_SOURCE: "perc.ui.developer@Template source",

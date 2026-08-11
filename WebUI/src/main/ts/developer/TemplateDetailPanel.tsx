@@ -32,6 +32,11 @@ import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { ObjectAclSection } from "./ObjectAclSection";
 import {
+  EXPRESSION_CLAMP_MAX_WIDTH_PX,
+  bindingExpressionEditorStyle,
+  isLongBindingExpression,
+} from "./bindingExpressionPreview";
+import {
   SOURCE_TOKEN_COLORS,
   copyTextToClipboard,
   highlightTemplateSource,
@@ -94,6 +99,74 @@ function cloneBindings(list: TemplateBindingSummary[] | undefined): TemplateBind
   }));
 }
 
+function BindingExpressionCell({
+  index,
+  value,
+  busy,
+  expanded,
+  onChange,
+  onToggleExpand,
+}: {
+  index: number;
+  value: string;
+  busy: boolean;
+  expanded: boolean;
+  onChange: (next: string) => void;
+  onToggleExpand: () => void;
+}): React.ReactElement {
+  const long = isLongBindingExpression(value);
+  const effectiveExpanded = long ? expanded : true;
+  const exprStyle = bindingExpressionEditorStyle(effectiveExpanded);
+  return (
+    <td
+      style={{
+        padding: "8px",
+        maxWidth: EXPRESSION_CLAMP_MAX_WIDTH_PX,
+        verticalAlign: "top",
+      }}
+    >
+      <textarea
+        data-testid={`developer-tpl-binding-expr-${index}`}
+        aria-expanded={long ? expanded : undefined}
+        rows={long && !expanded ? 2 : 3}
+        style={{
+          ...inputStyle,
+          fontFamily: "monospace",
+          width: "100%",
+          minHeight: long && !expanded ? 40 : 56,
+          ...exprStyle,
+        }}
+        value={value}
+        disabled={busy}
+        spellCheck={false}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      {long ? (
+        <button
+          type="button"
+          data-testid={`developer-tpl-binding-expr-expand-${index}`}
+          aria-expanded={expanded}
+          disabled={busy}
+          onClick={onToggleExpand}
+          style={{
+            marginTop: 4,
+            background: "transparent",
+            border: "none",
+            padding: 0,
+            color: catalogColors.accent,
+            cursor: busy ? "not-allowed" : "pointer",
+            font: "inherit",
+            fontSize: "0.85rem",
+            textDecoration: "underline",
+          }}
+        >
+          {expanded ? DEV_MSG.TPL_EXPRESSION_SHOW_LESS : DEV_MSG.TPL_EXPRESSION_SHOW_MORE}
+        </button>
+      ) : null}
+    </td>
+  );
+}
+
 function bindingsEqual(a: TemplateBindingSummary[], b: TemplateBindingSummary[]): boolean {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) {
@@ -144,6 +217,10 @@ export function TemplateDetailPanel({
   /** When true, show editable textarea; otherwise highlighted preview. */
   const [sourceEditing, setSourceEditing] = useState(true);
   const [copyFeedback, setCopyFeedback] = useState<"idle" | "ok" | "err">("idle");
+  /** Row indices with expanded long binding expressions (UI-SRC-02). */
+  const [expandedExprRows, setExpandedExprRows] = useState<Set<number>>(
+    () => new Set(),
+  );
   const copyFeedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const gutterRef = useRef<HTMLDivElement | null>(null);
 
@@ -168,6 +245,7 @@ export function TemplateDetailPanel({
         setDescription(d.description || "");
         setSource(d.templateSource || "");
         setBindings(cloneBindings(d.bindings));
+        setExpandedExprRows(new Set());
         setSlotKeys(
           new Set(
             (d.slots || [])
@@ -208,6 +286,14 @@ export function TemplateDetailPanel({
 
   function removeBinding(index: number) {
     setBindings((prev) => prev.filter((_, i) => i !== index));
+    setExpandedExprRows((prev) => {
+      const next = new Set<number>();
+      for (const i of prev) {
+        if (i < index) next.add(i);
+        else if (i > index) next.add(i - 1);
+      }
+      return next;
+    });
     setNotice(null);
   }
 
@@ -221,6 +307,15 @@ export function TemplateDetailPanel({
       },
     ]);
     setNotice(null);
+  }
+
+  function toggleExprExpanded(index: number) {
+    setExpandedExprRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
   }
 
   function toggleSlot(key: string) {
@@ -472,15 +567,14 @@ export function TemplateDetailPanel({
                             onChange={(e) => updateBinding(i, { variable: e.target.value })}
                           />
                         </td>
-                        <td style={{ padding: "8px" }}>
-                          <input
-                            data-testid={`developer-tpl-binding-expr-${i}`}
-                            style={{ ...inputStyle, fontFamily: "monospace" }}
-                            value={b.expression || ""}
-                            disabled={busy}
-                            onChange={(e) => updateBinding(i, { expression: e.target.value })}
-                          />
-                        </td>
+                        <BindingExpressionCell
+                          index={i}
+                          value={b.expression || ""}
+                          busy={busy}
+                          expanded={expandedExprRows.has(i)}
+                          onChange={(next) => updateBinding(i, { expression: next })}
+                          onToggleExpand={() => toggleExprExpanded(i)}
+                        />
                         <td style={{ padding: "8px" }}>
                           <button
                             type="button"
