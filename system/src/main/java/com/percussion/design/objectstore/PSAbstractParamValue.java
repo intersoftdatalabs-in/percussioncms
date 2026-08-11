@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
@@ -201,11 +203,11 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
 
     try {
       if (sourceNode == null)
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, getNodeName());
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, getNodeName());
 
       if (false == getNodeName().equals(sourceNode.getNodeName())) {
         Object[] args = {getNodeName(), sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       String sTemp = sourceNode.getAttribute(ATTR_ID);
@@ -213,7 +215,7 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
         m_id = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {getNodeName(), ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -226,7 +228,7 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
         if (node == null) {
           Object[] args = {getNodeName(), EL_VALUE, "null"};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
 
         // now figure out which type it is

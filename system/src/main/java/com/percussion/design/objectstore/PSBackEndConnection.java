@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -437,11 +439,11 @@ public class PSBackEndConnection extends PSComponent {
 
     try {
       if (sourceNode == null)
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
       if (false == ms_NodeType.equals(sourceNode.getNodeName())) {
         Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -451,14 +453,14 @@ public class PSBackEndConnection extends PSComponent {
         m_id = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       // get the driver name
       sTemp = tree.getElementData("jdbcDriverName");
       if ((sTemp == null) || (sTemp.length() == 0)) {
         Object[] args = {ms_NodeType, "jdbcDriverName", ""};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       m_jdbcDriverName = sTemp;
 
@@ -466,7 +468,7 @@ public class PSBackEndConnection extends PSComponent {
       sTemp = tree.getElementData("jdbcClassName");
       if ((sTemp == null) || (sTemp.length() == 0)) {
         Object[] args = {ms_NodeType, "jdbcClassName", ""};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       m_jdbcClassName = sTemp;
 
@@ -484,7 +486,7 @@ public class PSBackEndConnection extends PSComponent {
         m_connMin = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {ms_NodeType, "connectionMin", ((sTemp == null) ? "" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       // read max connection count
@@ -493,7 +495,7 @@ public class PSBackEndConnection extends PSComponent {
         m_connMax = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {ms_NodeType, "connectionMax", ((sTemp == null) ? "" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       // read idle connection timeout (in seconds)
@@ -502,7 +504,7 @@ public class PSBackEndConnection extends PSComponent {
         m_idleTimeoutSeconds = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {ms_NodeType, "connectionIdleTimeout", ((sTemp == null) ? "" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       // read refresh period (in seconds) -- optional
@@ -512,7 +514,7 @@ public class PSBackEndConnection extends PSComponent {
           setRefreshPeriodSeconds(Integer.parseInt(sTemp));
         } catch (Exception e) {
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD,
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD,
               new Object[] {ms_NodeType, "connectionRefreshPeriod", sTemp});
         }
     } finally {
@@ -554,7 +556,7 @@ public class PSBackEndConnection extends PSComponent {
       Class.forName(m_jdbcClassName);
     } catch (Exception e) {
       Object[] args = new Object[] {m_jdbcClassName, e.toString()};
-      cxt.validationError(this, IPSObjectStoreErrors.JDBC_DRIVER_CLASS_LOAD_ERROR, args);
+      cxt.validationError(this, ObjectStoreErrorCodes.JDBC_DRIVER_CLASS_LOAD_ERROR, args);
     }
   }
 

@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import java.util.List;
 import org.w3c.dom.Element;
 
@@ -55,7 +57,7 @@ public class PSCookie extends PSNamedReplacementValue {
 
   // see base class for description
   protected int getErrorCode() {
-    return IPSObjectStoreErrors.COOKIE_NAME_EMPTY;
+    return ObjectStoreErrorCodes.COOKIE_NAME_EMPTY.numericCode();
   }
 
   /**

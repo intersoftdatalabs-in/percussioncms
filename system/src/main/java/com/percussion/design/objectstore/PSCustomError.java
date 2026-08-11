@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -116,7 +118,7 @@ public class PSCustomError extends PSComponent {
 
   private static PSIllegalArgumentException validateErrorCode(String error) {
     if ((error == null) || (error.length() == 0))
-      return new PSIllegalArgumentException(IPSObjectStoreErrors.CUSTOM_ERROR_CODE_EMPTY);
+      return new PSIllegalArgumentException(ObjectStoreErrorCodes.CUSTOM_ERROR_CODE_EMPTY.numericCode());
 
     return null;
   }
@@ -192,11 +194,11 @@ public class PSCustomError extends PSComponent {
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     if (!ms_NodeType.equals(sourceNode.getNodeName())) {
       Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -206,7 +208,7 @@ public class PSCustomError extends PSComponent {
       m_id = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
 
     try { // get the error code
@@ -219,13 +221,13 @@ public class PSCustomError extends PSComponent {
     sTemp = tree.getElementData("url");
     if ((sTemp == null) || (sTemp.length() == 0)) {
       Object[] args = {ms_NodeType, "url", ""};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     try {
       m_url = new URL(sTemp);
     } catch (java.net.MalformedURLException e) {
       Object[] args = {ms_NodeType, "url", "(URL: " + sTemp + ") " + e.getMessage()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
   }
 
@@ -246,7 +248,7 @@ public class PSCustomError extends PSComponent {
     PSException ex = validateErrorCode(m_error);
     if (ex != null) cxt.validationError(this, ex.getErrorCode(), ex.getErrorArguments());
 
-    if (m_url == null) cxt.validationError(this, IPSObjectStoreErrors.CUSTOM_ERROR_URL_EMPTY, null);
+    if (m_url == null) cxt.validationError(this, ObjectStoreErrorCodes.CUSTOM_ERROR_URL_EMPTY, null);
   }
 
   @Override

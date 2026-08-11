@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.util.PSCollection;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -194,11 +196,11 @@ public final class PSCustomActionGroup extends PSComponent {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -220,7 +222,7 @@ public final class PSCustomActionGroup extends PSComponent {
       node = tree.getNextElement(PSLocation.XML_NODE_NAME, firstFlags);
       if (node == null) {
         Object[] args = {XML_NODE_NAME, PSLocation.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       } else m_location = new PSLocation(node, parentDoc, parentComponents);
 
       Node current = tree.getCurrent();
@@ -242,7 +244,7 @@ public final class PSCustomActionGroup extends PSComponent {
       node = tree.getNextElement(PSFormAction.XML_NODE_NAME, nextFlags);
       if (node == null && !foundRemovals) {
         Object[] args = {XML_NODE_NAME, PSFormAction.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       } else if (node != null) {
         m_formAction = new PSFormAction(node, parentDoc, parentComponents);
       }
@@ -251,7 +253,7 @@ public final class PSCustomActionGroup extends PSComponent {
       node = tree.getNextElement(PSActionLinkList.XML_NODE_NAME, nextFlags);
       if (node == null) {
         Object[] args = {XML_NODE_NAME, PSActionLinkList.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       m_actionLinkList = new PSActionLinkList(node, parentDoc, parentComponents);
     } finally {
@@ -295,13 +297,13 @@ public final class PSCustomActionGroup extends PSComponent {
     context.pushParent(this);
     try {
       if (m_location != null) ((IPSComponent) m_location).validate(context);
-      else context.validationError(this, IPSObjectStoreErrors.INVALID_CUSTOM_ACTION_GROUP, null);
+      else context.validationError(this, ObjectStoreErrorCodes.INVALID_CUSTOM_ACTION_GROUP, null);
 
       if (m_actionLinkList != null) ((IPSComponent) m_actionLinkList).validate(context);
-      else context.validationError(this, IPSObjectStoreErrors.INVALID_CUSTOM_ACTION_GROUP, null);
+      else context.validationError(this, ObjectStoreErrorCodes.INVALID_CUSTOM_ACTION_GROUP, null);
 
       if (m_formAction != null) ((IPSComponent) m_formAction).validate(context);
-      else context.validationError(this, IPSObjectStoreErrors.INVALID_CUSTOM_ACTION_GROUP, null);
+      else context.validationError(this, ObjectStoreErrorCodes.INVALID_CUSTOM_ACTION_GROUP, null);
     } finally {
       context.popParent();
     }

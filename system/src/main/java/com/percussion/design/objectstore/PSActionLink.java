@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Iterator;
@@ -187,11 +189,11 @@ public class PSActionLink extends PSComponent {
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -218,7 +220,7 @@ public class PSActionLink extends PSComponent {
       node = tree.getNextElement(PSDisplayText.XML_NODE_NAME, firstFlags);
       if (node == null) {
         Object[] args = {XML_NODE_NAME, PSDisplayText.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       } else m_displayText = new PSDisplayText(node, parentDoc, parentComponents);
 
       // OPTIONAL: get the parameters
@@ -258,7 +260,7 @@ public class PSActionLink extends PSComponent {
     context.pushParent(this);
     try {
       if (m_displayText != null) ((IPSComponent) m_displayText).validate(context);
-      else context.validationError(this, IPSObjectStoreErrors.INVALID_ACTION_LINK, null);
+      else context.validationError(this, ObjectStoreErrorCodes.INVALID_ACTION_LINK, null);
     } finally {
       context.popParent();
     }

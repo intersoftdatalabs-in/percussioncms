@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.cms.objectstore.PSCmsObject;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -79,18 +81,18 @@ public class PSContentType extends PSComponent {
     String objectType = sourceNode.getAttribute(OBJECT_TYPE_ATTR);
     if (objectType == null) {
       Object[] args = {XML_NODE_NAME, OBJECT_TYPE_ATTR, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     try {
       int type = Integer.parseInt(objectType);
       if (!PSCmsObject.isValidType(type)) {
         Object[] args = {XML_NODE_NAME, OBJECT_TYPE_ATTR, "" + type};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       } else m_objectType = type;
     } catch (NumberFormatException e) {
       Object[] args = {XML_NODE_NAME, OBJECT_TYPE_ATTR, "invalid number"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     // get the optional elements

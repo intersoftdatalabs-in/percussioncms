@@ -17,7 +17,7 @@
 
 package com.percussion.design.objectstore.legacy;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSJdbcDriverConfig;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.legacy.security.deprecated.PSCryptographer;
@@ -275,21 +275,21 @@ public abstract class PSBaseDSConverter {
     // locate matching driver
     PSJdbcDriverConfig driver = getDriver(driverName);
     if (driver == null) {
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.NO_JDBC_DRIVER_CONFIG, driverName);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.NO_JDBC_DRIVER_CONFIG, driverName);
     }
 
     // locate matching datsource
     IPSJndiDatasource ds = getJndiDatasource(driver, server);
     if (ds == null) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.NO_JNDI_DATASOURCE, new String[] {driver.getDriverName(), server});
+          ObjectStoreErrorCodes.NO_JNDI_DATASOURCE, new String[] {driver.getDriverName(), server});
     }
 
     // locate matching connection
     String dsName = getDatasourceName(ds, database, origin);
     if (dsName == null) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.NO_DATASOURCE_CONNECTION,
+          ObjectStoreErrorCodes.NO_DATASOURCE_CONNECTION,
           new String[] {ds.getName(), database, origin});
     }
 

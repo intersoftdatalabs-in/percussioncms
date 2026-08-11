@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.legacy.security.deprecated.PSCryptographer;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptionException;
@@ -349,11 +351,11 @@ public final class PSAuthentication extends PSComponent {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -366,7 +368,7 @@ public final class PSAuthentication extends PSComponent {
     Element credentials = tree.getNextElement(XML_ELEM_CREDENTIALS);
     if (credentials == null) {
       Object[] args = {XML_ELEM_CREDENTIALS, null};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     String data = tree.getElementData(XML_ELEM_USER, false);
@@ -375,7 +377,7 @@ public final class PSAuthentication extends PSComponent {
     Element user = tree.getNextElement(XML_ELEM_USER);
     if (user == null) {
       Object[] args = {XML_ELEM_USER, null};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     String appendBaseDn = tree.getElementData(XML_ATTR_APPENDBASEDN, false);
     if (appendBaseDn != null) setAppendBaseDn(appendBaseDn.equalsIgnoreCase(XML_ATTRVALUE_YES));
@@ -386,7 +388,7 @@ public final class PSAuthentication extends PSComponent {
     Element password = tree.getNextElement(XML_ELEM_PASSWORD);
     if (password == null) {
       Object[] args = {XML_ELEM_PASSWORD, null};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     String encryptedValue = tree.getElementData(XML_ATTR_ENCRYPTED, false);

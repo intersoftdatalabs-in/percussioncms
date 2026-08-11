@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.util.PSStringOperation;
 import java.util.List;
 import org.w3c.dom.Element;
@@ -130,7 +132,7 @@ public class PSContentItemStatus extends PSNamedReplacementValue {
 
   // see base class for description
   public int getErrorCode() {
-    return IPSObjectStoreErrors.RELATIONSHIP_PROPERTY_NAME_EMPTY;
+    return ObjectStoreErrorCodes.RELATIONSHIP_PROPERTY_NAME_EMPTY.numericCode();
   }
 
   /** The value type associated with instances of this class. */

@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Iterator;
@@ -178,14 +180,14 @@ public final class PSControlRef extends PSComponent {
           m_id = Integer.parseInt(sTemp);
         } catch (NumberFormatException e) {
           Object[] args = {XML_NODE_NAME, sTemp};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
         }
 
       // REQUIRED: get the name attribute
       m_name = tree.getElementData(NAME_ATTR);
       if (m_name == null || m_name.trim().length() == 0) {
         Object[] args = {XML_NODE_NAME, NAME_ATTR, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       // OPTIONAL: get all parameters
@@ -219,7 +221,7 @@ public final class PSControlRef extends PSComponent {
 
     // the name is required
     if (m_name == null || m_name.trim().length() == 0)
-      context.validationError(this, IPSObjectStoreErrors.INVALID_CONTROL_REF, null);
+      context.validationError(this, ObjectStoreErrorCodes.INVALID_CONTROL_REF, null);
 
     // do children
     context.pushParent(this);

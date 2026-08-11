@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -428,11 +430,11 @@ public class PSConditional extends PSComponent {
 
     try {
       if (sourceNode == null)
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
       if (false == ms_NodeType.equals(sourceNode.getNodeName())) {
         Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -442,7 +444,7 @@ public class PSConditional extends PSComponent {
         m_id = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       int firstFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN;
@@ -538,15 +540,15 @@ public class PSConditional extends PSComponent {
         || m_operator.equalsIgnoreCase(OPTYPE_LIKE)
         || m_operator.equalsIgnoreCase(OPTYPE_NOTLIKE)) {
     } else {
-      cxt.validationError(this, IPSObjectStoreErrors.COND_OPTYPE_UNKNOWN, m_operator);
+      cxt.validationError(this, ObjectStoreErrorCodes.COND_OPTYPE_UNKNOWN, m_operator);
     }
 
     if (!m_boolean.equals(OPBOOL_AND) && !m_boolean.equals(OPBOOL_OR)) {
-      cxt.validationError(this, IPSObjectStoreErrors.COND_BOOL_UNKNOWN, m_boolean);
+      cxt.validationError(this, ObjectStoreErrorCodes.COND_BOOL_UNKNOWN, m_boolean);
     }
 
     if (m_value == null && !isUnaryOp(m_operator)) {
-      cxt.validationError(this, IPSObjectStoreErrors.COND_VALUE_NULL, m_operator);
+      cxt.validationError(this, ObjectStoreErrorCodes.COND_VALUE_NULL, m_operator);
     }
 
     cxt.pushParent(this);
