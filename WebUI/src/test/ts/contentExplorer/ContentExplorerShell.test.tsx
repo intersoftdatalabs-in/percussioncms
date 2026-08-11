@@ -1202,6 +1202,17 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       expect(screen.getByTestId("search-panel-submit")).toBeInTheDocument();
     });
     expect(contentSearch.getAttribute("aria-expanded")).toBe("true");
+
+    // Content menu stays open for view-style toggles — flip Search off in place.
+    fireEvent.click(screen.getByTestId("explorer-menu-content-search"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("explorer-search-panel")).toBeNull();
+    });
+    expect(
+      screen.getByTestId("explorer-menu-content-search").getAttribute(
+        "aria-expanded",
+      ),
+    ).toBe("false");
   });
 
   it("injects free-text search transport into the product Search panel (#2850)", async () => {
@@ -1246,6 +1257,59 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     };
     expect(criteria.query).toBe("demo page");
     expect(criteria.folderPath).toBe("/Sites/Demo");
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
+    });
+  });
+
+  it("passes listSavedSearches and executeSavedSearch into SearchPanel (#2850)", async () => {
+    stubPathFetch();
+    const listSavedSearches = vi.fn(async () => [
+      {
+        name: "All Content",
+        label: "All Content",
+        standardSearch: true,
+      },
+    ]);
+    const executeSavedSearch = vi.fn(async () => ({
+      children: [
+        {
+          id: "saved-1",
+          name: "Saved Hit",
+          title: "Saved Hit",
+          folderPath: "/Sites/Demo",
+          type: "page",
+        },
+      ],
+      totalCount: 1,
+      startIndex: 1,
+    }));
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        listSavedSearches={listSavedSearches}
+        executeSavedSearch={executeSavedSearch}
+      />,
+    );
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-search"));
+    await waitFor(() => {
+      expect(listSavedSearches).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-saved-picker")).toBeInTheDocument();
+      expect(screen.getByTestId("search-panel-saved-select")).toBeInTheDocument();
+    });
+    fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
+      target: { value: "All Content" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-saved-run"));
+    await waitFor(() => {
+      expect(executeSavedSearch).toHaveBeenCalled();
+    });
+    expect(executeSavedSearch.mock.calls[0][0]).toBe("All Content");
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
     });

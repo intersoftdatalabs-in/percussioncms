@@ -20,12 +20,11 @@ const TEST_IDS = Object.freeze({
   /** Content → Search (#2850) — same panel as View → Search. */
   contentSearch: "explorer-menu-content-search",
   searchPanel: "explorer-search-panel",
-  /** Always-visible display-format selector next to the menubar. */
-  displayFormat: "explorer-display-format",
   /** Server-driven ActionToolbar (#2730 nested MENU dropdowns). */
   actionToolbar: "action-toolbar",
   /** Shell region wrapping ActionToolbar under ExplorerMenuBar. */
   serverActions: "explorer-server-actions",
+  // display-format lives on shell chrome only — see explorer-shell-chrome.js
 });
 
 /**

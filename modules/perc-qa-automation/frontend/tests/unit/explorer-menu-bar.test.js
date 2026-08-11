@@ -35,9 +35,10 @@ describe("explorer-menu-bar helpers (#2731)", () => {
     assert.equal(TEST_IDS.menuHelp, "explorer-menu-help");
     assert.equal(TEST_IDS.toggleSearch, "explorer-toggle-search");
     assert.equal(TEST_IDS.contentSearch, "explorer-menu-content-search");
-    assert.equal(TEST_IDS.displayFormat, "explorer-display-format");
     assert.equal(TEST_IDS.actionToolbar, "action-toolbar");
     assert.equal(TEST_IDS.serverActions, "explorer-server-actions");
+    // displayFormat is shell-chrome only (explorer-shell-chrome.test.js)
+    assert.equal(TEST_IDS.displayFormat, undefined);
   });
 
   it("builds explorer SPA entry URL with cache buster", () => {

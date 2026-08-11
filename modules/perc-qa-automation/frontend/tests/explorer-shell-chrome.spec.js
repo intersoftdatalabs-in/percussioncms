@@ -179,8 +179,10 @@ test.describe("Explorer shell chrome composition (#2850 / #2407)", () => {
         "aria-controls",
         "explorer-search-panel",
       );
+      await expect(contentSearch).toHaveAttribute("aria-expanded", "false");
 
       await contentSearch.click();
+      await expect(contentSearch).toHaveAttribute("aria-expanded", "true");
       await expect(
         page.locator(`[data-testid="${TEST_IDS.searchPanelHost}"]`),
       ).toBeVisible({ timeout: 10_000 });
