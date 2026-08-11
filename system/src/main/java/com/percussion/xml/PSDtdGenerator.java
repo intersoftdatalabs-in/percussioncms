@@ -53,7 +53,7 @@ public class PSDtdGenerator {
     try {
       for (int i = 0; i < args.length; i++) {
         StringTokenizer tok = new StringTokenizer(args[i], ",;");
-        ArrayList documents = new ArrayList(3);
+        ArrayList<Document> documents = new ArrayList<>(3);
         while (tok.hasMoreTokens()) {
           Document doc =
               PSXmlDocumentBuilder.createXmlDocument(
@@ -61,11 +61,11 @@ public class PSDtdGenerator {
           documents.add(doc);
         }
         PSDtdGenerator gen = new PSDtdGenerator();
-        List fields = null;
+        List<String> fields = null;
 
         if (documents.size() == 1) {
-          gen.generateDtd((Document) documents.get(0));
-          PSDtdTree tree = PSDtdGenerator.generate((Document) documents.get(0));
+          gen.generateDtd(documents.get(0));
+          PSDtdTree tree = PSDtdGenerator.generate(documents.get(0));
           fields = tree.getCatalog("/", "@");
         } else {
           Document[] exemplars = new Document[documents.size()];
@@ -78,8 +78,8 @@ public class PSDtdGenerator {
 
         if (fields != null) {
           log.info("\n\nFields for above DTD: ");
-          for (Iterator k = fields.iterator(); k.hasNext(); ) {
-            log.info(k.next().toString());
+          for (Iterator<String> k = fields.iterator(); k.hasNext(); ) {
+            log.info(k.next());
           }
         } else {
           log.info("Could not catalog fields.");
@@ -189,8 +189,8 @@ public class PSDtdGenerator {
    * @see #generateDtd(Document)
    */
   public void generateDtd(Document[] exemplars) {
-    m_elMap = new HashMap();
-    m_elements = new ArrayList();
+    m_elMap = new HashMap<>();
+    m_elements = new ArrayList<>();
 
     if (exemplars == null || exemplars.length == 0) {
       throw new IllegalArgumentException("No exemplar documents given");
@@ -250,10 +250,10 @@ public class PSDtdGenerator {
     writer.newLine();
 
     // for each element that is defined
-    Iterator i = m_elements.iterator();
+    Iterator<ElementDefinition> i = m_elements.iterator();
     int elementNumber = 0;
     while (i.hasNext()) {
-      ElementDefinition elDef = (ElementDefinition) i.next();
+      ElementDefinition elDef = i.next();
       String elName = elDef.getName();
 
       // we have added a dummy element for PCDATA to simplify
@@ -261,7 +261,7 @@ public class PSDtdGenerator {
       // we only mark its presence as a child (see below)
       if (elName.equals("#PCDATA")) continue;
 
-      TreeMap childDefs = elDef.getChildOccurrences();
+      TreeMap<String, ChildSequenceDefinition> childDefs = elDef.getChildOccurrences();
 
       // EMPTY content
       if (childDefs.size() == 0) {
@@ -278,11 +278,11 @@ public class PSDtdGenerator {
       } else // has children, so either element content or mixed content
       {
         writer.write("<!ELEMENT " + elName + " ( ");
-        List elSeqChildren = elDef.getSequencedChildren();
+        List<ChildSequenceDefinition> elSeqChildren = elDef.getSequencedChildren();
         final int size = elSeqChildren.size();
         final int sizeMinusOne = size - 1;
         for (int j = 0; j < size; j++) {
-          ChildSequenceDefinition child = (ChildSequenceDefinition) elSeqChildren.get(j);
+          ChildSequenceDefinition child = elSeqChildren.get(j);
 
           // print out that the element can contain one of these
           writer.write(child.getName());
@@ -317,8 +317,8 @@ public class PSDtdGenerator {
       }
 
       // now do the attributes
-      Set attributeNames = elDef.getAttributeNames();
-      Iterator j = attributeNames.iterator();
+      Set<String> attributeNames = elDef.getAttributeNames();
+      Iterator<String> j = attributeNames.iterator();
 
       // open the ATTLIST
       if (j.hasNext()) {
@@ -327,7 +327,7 @@ public class PSDtdGenerator {
       }
 
       while (j.hasNext()) {
-        String attrName = (String) j.next();
+        String attrName = j.next();
         AttributeDefinition attrDef = elDef.getAttribute(attrName);
 
         // if the attribute is always present, then treat it as required
@@ -369,7 +369,7 @@ public class PSDtdGenerator {
       nodeName = "#PCDATA";
     }
 
-    ElementDefinition elDef = (ElementDefinition) m_elMap.get(nodeName);
+    ElementDefinition elDef = m_elMap.get(nodeName);
 
     if (elDef == null) {
       // this is the first time we have ever seen this element anywhere
@@ -404,10 +404,10 @@ public class PSDtdGenerator {
       String parentName = parent.getNodeName();
 
       // get the sequence information for this element as it occurs in the parent
-      ElementDefinition parentElDef = (ElementDefinition) m_elMap.get(parentName);
-      TreeMap parentChildren = parentElDef.getChildOccurrences();
-      List parentChildSequence = parentElDef.getSequencedChildren();
-      ChildSequenceDefinition elSeqDef = (ChildSequenceDefinition) parentChildren.get(nodeName);
+      ElementDefinition parentElDef = m_elMap.get(parentName);
+      TreeMap<String, ChildSequenceDefinition> parentChildren = parentElDef.getChildOccurrences();
+      List<ChildSequenceDefinition> parentChildSequence = parentElDef.getSequencedChildren();
+      ChildSequenceDefinition elSeqDef = parentChildren.get(nodeName);
 
       if (isTextNode) {
         parentElDef.setHasCharacterContent(true);
@@ -443,7 +443,7 @@ public class PSDtdGenerator {
 
     // now do all the child elements recursively
     NodeList elChildren = node.getChildNodes();
-    HashMap map = new HashMap(elChildren.getLength());
+    HashMap<String, Boolean> map = new HashMap<>(elChildren.getLength());
     boolean firstOfName = false;
     int numChildren = elChildren.getLength();
 
@@ -492,9 +492,9 @@ public class PSDtdGenerator {
     // children were present. For those that weren't, make them
     // optional.
     if (elDef.isSequenced()) {
-      List childSeq = elDef.getSequencedChildren();
+      List<ChildSequenceDefinition> childSeq = elDef.getSequencedChildren();
       for (int i = 0; i < childSeq.size(); i++) {
-        ChildSequenceDefinition cDef = (ChildSequenceDefinition) childSeq.get(i);
+        ChildSequenceDefinition cDef = childSeq.get(i);
         if (map.get(cDef.getName()) == null) cDef.setOptional(true);
       }
     }
@@ -504,7 +504,7 @@ public class PSDtdGenerator {
     public AttributeDefinition(String name) {
       m_name = name;
       m_occurrences = 0;
-      m_values = new TreeMap();
+      m_values = new TreeMap<>();
     }
 
     public String getName() {
@@ -545,17 +545,20 @@ public class PSDtdGenerator {
     }
 
     /**
-     * @author unascribed
-     * @version 1.0 1999/6/1
-     * @return Iterator An iterator over the possible values that this attribute can have.
+     * Possible attribute values stored as map keys ({@code Boolean.TRUE} placeholders as map
+     * values). Returns the keys — the actual allowed value strings — matching the method name and
+     * historical intent. (Previously iterated map values, i.e. {@code Boolean} flags; no in-tree
+     * callers depend on that.)
+     *
+     * @return iterator over the possible attribute value strings
      */
-    public Iterator getValuesIterator() {
-      return m_values.values().iterator();
+    public Iterator<String> getValuesIterator() {
+      return m_values.keySet().iterator();
     }
 
     private String m_name;
     private int m_occurrences;
-    private TreeMap m_values;
+    private TreeMap<String, Boolean> m_values;
     private boolean m_allValuesAreValidNames;
     private boolean m_allValuesAreValidNMTokens;
   }
@@ -566,9 +569,9 @@ public class PSDtdGenerator {
       m_occurrences = 0;
       m_hasCharacterContent = false;
       m_isSequenced = true;
-      m_childOccurrences = new TreeMap();
-      m_childSequence = new ArrayList();
-      m_attributes = new TreeMap();
+      m_childOccurrences = new TreeMap<>();
+      m_childSequence = new ArrayList<>();
+      m_attributes = new TreeMap<>();
     }
 
     public String getName() {
@@ -593,14 +596,14 @@ public class PSDtdGenerator {
     }
 
     public AttributeDefinition getAttribute(String name) {
-      return (AttributeDefinition) m_attributes.get(name);
+      return m_attributes.get(name);
     }
 
-    public Set getAttributeNames() {
+    public Set<String> getAttributeNames() {
       return m_attributes.keySet();
     }
 
-    public TreeMap getChildOccurrences() {
+    public TreeMap<String, ChildSequenceDefinition> getChildOccurrences() {
       return m_childOccurrences;
     }
 
@@ -612,7 +615,7 @@ public class PSDtdGenerator {
       m_isSequenced = sequenced;
     }
 
-    public List getSequencedChildren() {
+    public List<ChildSequenceDefinition> getSequencedChildren() {
       return m_childSequence;
     }
 
@@ -628,9 +631,9 @@ public class PSDtdGenerator {
     private int m_occurrences;
     private boolean m_hasCharacterContent;
     private boolean m_isSequenced;
-    private TreeMap m_childOccurrences;
-    private TreeMap m_attributes;
-    private List m_childSequence;
+    private TreeMap<String, ChildSequenceDefinition> m_childOccurrences;
+    private TreeMap<String, AttributeDefinition> m_attributes;
+    private List<ChildSequenceDefinition> m_childSequence;
   }
 
   private class ChildSequenceDefinition {
@@ -679,6 +682,6 @@ public class PSDtdGenerator {
     private boolean m_isOptional;
   }
 
-  private Map m_elMap;
-  private List m_elements; // in the order they were added
+  private Map<String, ElementDefinition> m_elMap;
+  private List<ElementDefinition> m_elements; // in the order they were added
 }

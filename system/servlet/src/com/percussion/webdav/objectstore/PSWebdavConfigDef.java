@@ -163,7 +163,7 @@ public class PSWebdavConfigDef extends PSWebdavComponent
     * @throws PSWebdavException if any error occurs while reading or parsing
     *    the xml file.
     */
-   public PSWebdavConfigDef(InputStream in, boolean capture, List captureList)
+   public PSWebdavConfigDef(InputStream in, boolean capture, List<Object> captureList)
          throws PSWebdavException, PSUnknownNodeTypeException
    {
       if (null == in)
@@ -214,10 +214,10 @@ public class PSWebdavConfigDef extends PSWebdavComponent
    public PSWebdavContentType getDefaultContentType()
    {
       PSWebdavContentType contentType = null;
-      Iterator it = getContentTypes();
+      Iterator<PSWebdavContentType> it = getContentTypes();
       while (it.hasNext())
       {
-         contentType = (PSWebdavContentType) it.next();
+         contentType = it.next();
          if (contentType.isDefault())
             break;
          else
@@ -334,7 +334,7 @@ public class PSWebdavConfigDef extends PSWebdavComponent
                IPSRxWebDavDTD.ATTR_VALUE_PURGE);
       }
 
-      Iterator it = getContentTypes();
+      Iterator<PSWebdavContentType> it = getContentTypes();
       while (it.hasNext())
          rootEl.appendChild(((PSWebdavContentType) it.next()).toXml(doc));
 

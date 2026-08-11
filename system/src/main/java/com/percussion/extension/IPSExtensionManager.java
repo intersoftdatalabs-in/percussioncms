@@ -19,6 +19,7 @@ package com.percussion.extension;
 import com.percussion.error.PSNonUniqueException;
 import com.percussion.error.PSNotFoundException;
 import java.io.File;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Properties;
 
@@ -117,7 +118,7 @@ public interface IPSExtensionManager {
    * @return A non-<CODE>null</CODE> Iterator over 0 or more non-<CODE>null</CODE> PSExtensionRef
    *     objects.
    */
-  public Iterator getExtensionHandlerNames();
+  public Iterator<PSExtensionRef> getExtensionHandlerNames();
 
   /**
    * Gets the names of all extensions which meet the specified criteria.
@@ -140,7 +141,7 @@ public interface IPSExtensionManager {
    *     from starting.
    * @throws IllegalArgumentException If any param is invalid.
    */
-  public Iterator getExtensionNames(
+  public Iterator<PSExtensionRef> getExtensionNames(
       String handlerNamePattern,
       String context,
       String interfacePattern,
@@ -215,7 +216,7 @@ public interface IPSExtensionManager {
    * @throws PSNonUniqueException If the extension already exists. Use updateExtension instead. The
    *     defined extension will not be installed.
    */
-  public void installExtension(IPSExtensionDef def, Iterator resources)
+  public void installExtension(IPSExtensionDef def, Iterator<?> resources)
       throws PSExtensionException, PSNotFoundException, PSNonUniqueException;
 
   /**
@@ -228,7 +229,8 @@ public interface IPSExtensionManager {
    * @param resources An Iterator over 0 or more non-<CODE>null</CODE> named IPSMimeContent objects
    *     specifying any resources that should be saved along with the extension. The resources may
    *     or may not correspond to the URLs returned from the def's <CODE>getResourceLocations()
-   *     </CODE> method. Must not be <CODE>null</CODE>.
+   *     </CODE> method. Must not be <CODE>null</CODE>. Wildcard {@code Iterator<?>} preserves
+   *     source compatibility with legacy call sites that still pass untyped or URL iterators.
    * @param listener An optional extension listener. Can be <CODE>null</CODE>.
    * @throws PSExtensionException If the extension definition fails the handler's validation rules
    *     or if the extension could not be loaded (some implementations may defer loading until
@@ -240,7 +242,7 @@ public interface IPSExtensionManager {
    *     defined extension will not be installed.
    */
   public void installExtension(
-      IPSExtensionDef def, Iterator resources, IPSExtensionListener listener)
+      IPSExtensionDef def, Iterator<?> resources, IPSExtensionListener listener)
       throws PSExtensionException, PSNotFoundException, PSNonUniqueException;
 
   /**
@@ -272,7 +274,7 @@ public interface IPSExtensionManager {
    * @see #removeExtension
    * @see #installExtension
    */
-  public void updateExtension(IPSExtensionDef def, Iterator resources)
+  public void updateExtension(IPSExtensionDef def, Iterator<?> resources)
       throws PSExtensionException, PSNotFoundException;
 
   /**
@@ -323,7 +325,7 @@ public interface IPSExtensionManager {
    * @throws IllegalArgumentException If ref is <code>null</code>.
    * @throws PSExtensionException If there is an error attempting to locate the files.
    */
-  public Iterator getExtensionFiles(PSExtensionRef ref)
+  public Iterator<URL> getExtensionFiles(PSExtensionRef ref)
       throws PSNotFoundException, PSExtensionException;
 
   /**

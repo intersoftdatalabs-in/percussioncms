@@ -18,6 +18,7 @@ package com.percussion.extension;
 
 import com.percussion.error.PSNotFoundException;
 import java.io.File;
+import java.net.URL;
 import java.util.Iterator;
 
 /**
@@ -92,7 +93,7 @@ public interface IPSExtensionHandler extends IPSExtension {
    *
    * @return A non-<CODE>null</CODE> Iterator over 0 or more non-<CODE>null</CODE> PSExtensionRefs.
    */
-  public Iterator getExtensionNames();
+  public Iterator<PSExtensionRef> getExtensionNames();
 
   /**
    * Gets the names of all extensions installed within the given context in this extension handler.
@@ -102,7 +103,7 @@ public interface IPSExtensionHandler extends IPSExtension {
    *     null</CODE> if the given context does not exist in this handler.
    * @throws IllegalArgumentException If any param is invalid.
    */
-  public Iterator getExtensionNames(String context);
+  public Iterator<PSExtensionRef> getExtensionNames(String context);
 
   /**
    * Returns <CODE>true</CODE> if and only if the given extension ref refers to an installed
@@ -143,7 +144,7 @@ public interface IPSExtensionHandler extends IPSExtension {
    * @throws PSExtensionException If the extension is invalid.
    * @throws IllegalArgumentException If any param is invalid.
    */
-  public void install(IPSExtensionDef def, Iterator resources) throws PSExtensionException;
+  public void install(IPSExtensionDef def, Iterator<?> resources) throws PSExtensionException;
 
   /**
    * Atomically removes and re-installs the given extension. Currently this method is not guaranteed
@@ -153,7 +154,8 @@ public interface IPSExtensionHandler extends IPSExtension {
    * @param resources An Iterator over 0 or more non-<CODE>null</CODE> named IPSMimeContent objects
    *     specifying any resources that should be saved along with the extension. The resources may
    *     or may not correspond to the URLs returned from the def's <CODE>getResourceLocations()
-   *     </CODE> method. Must not be <CODE>null</CODE>.
+   *     </CODE> method. Must not be <CODE>null</CODE>. Wildcard {@code Iterator<?>} preserves
+   *     source compatibility with legacy call sites.
    * @throws PSNotFoundException If the appropriate extension does not exist. The defined extension
    *     will not be installed.
    * @throws PSExtensionException If the extension definition fails the handler's validation rules
@@ -162,7 +164,7 @@ public interface IPSExtensionHandler extends IPSExtension {
    * @see #remove
    * @see #install
    */
-  public void update(IPSExtensionDef def, Iterator resources)
+  public void update(IPSExtensionDef def, Iterator<?> resources)
       throws PSExtensionException, PSNotFoundException;
 
   /**
@@ -187,7 +189,7 @@ public interface IPSExtensionHandler extends IPSExtension {
    * @throws IllegalArgumentException if def is <code>null</code>.
    * @throws PSExtensionException if the files cannot be located.
    */
-  public Iterator getResources(IPSExtensionDef def) throws PSExtensionException;
+  public Iterator<URL> getResources(IPSExtensionDef def) throws PSExtensionException;
 
   /**
    * Returns the directory in which the given extension and all of its resources would be stored.

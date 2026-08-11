@@ -78,7 +78,7 @@ public class PSDtdTreeMergeManager {
 
       // test using: java -Djava.compiler=none com/percussion/xml/PSDtdTreeMergeManager test.dtd
       // test1.dtd
-      Iterator iterator = masterTree.elementKeyIterator();
+      Iterator<String> iterator = masterTree.elementKeyIterator();
 
       PSDtdTreeMergeManager mergeObj = new PSDtdTreeMergeManager(masterTree);
       masterTree = mergeObj.updateTreeForUserMod(masterTree, slaveTree);
@@ -110,7 +110,7 @@ public class PSDtdTreeMergeManager {
    * @deprecated This could be optimized quite a bit.
    */
   public PSDtdTree updateTreeForUserMod(PSDtdTree master, PSDtdTree slave) {
-    List paths = slave.getCatalog(null, null);
+    List<String> paths = slave.getCatalog(null, null);
 
     PSDtdTree workingTree = null;
 
@@ -133,10 +133,10 @@ public class PSDtdTreeMergeManager {
     nodes as well. To get these, we break down each path and add the
     components to a hash. The resulting hash will include all of the sub-paths,
     in addition to the full paths. */
-    HashMap allPaths = new HashMap(50);
-    Iterator iter = paths.listIterator();
+    HashMap<String, Object> allPaths = new HashMap<>(50);
+    Iterator<String> iter = paths.listIterator();
     while (iter.hasNext()) {
-      String path = (String) iter.next();
+      String path = iter.next();
       if (!PSDtdTree.isAttributePath(path, PSDtdTree.CANONICAL_ATTRIBUTE_PREFIX)) {
         allPaths.put(path, null);
         int lastOccurrence = path.lastIndexOf(PSDtdTree.CANONICAL_PATH_SEP);
@@ -148,12 +148,12 @@ public class PSDtdTreeMergeManager {
       } else allPaths.put(path, null);
     }
 
-    Set finalPaths = allPaths.keySet();
+    Set<String> finalPaths = allPaths.keySet();
 
     // reset the iterator for the complete path list
     iter = finalPaths.iterator();
     while (iter.hasNext()) {
-      String path = (String) iter.next();
+      String path = iter.next();
       if (!PSDtdTree.isAttributePath(path, PSDtdTree.CANONICAL_ATTRIBUTE_PREFIX)) {
         PSDtdElementEntry masterEntry = workingTree.getEntryForName(path);
         if (null != masterEntry) {
@@ -190,9 +190,9 @@ public class PSDtdTreeMergeManager {
     m_slaveTree = slaveTree;
 
     //      System.out.println( "---------- Slave Tree -------------" );
-    Iterator iterator = m_slaveTree.elementKeyIterator();
+    Iterator<String> iterator = m_slaveTree.elementKeyIterator();
     while (iterator.hasNext()) {
-      String key = (String) iterator.next();
+      String key = iterator.next();
       //         System.out.println( "     "+key );
       mergeElement(key);
     }
@@ -244,7 +244,7 @@ public class PSDtdTreeMergeManager {
     } else // case 3
     {
       // put all master list of attributes
-      HashMap map = new HashMap();
+      HashMap<String, PSDtdAttribute> map = new HashMap<>();
       for (int i = 0; i < master.getNumAttributes(); i++) {
         PSDtdAttribute attribute = master.getAttribute(i);
         map.put(attribute.getName(), attribute);
@@ -257,7 +257,7 @@ public class PSDtdTreeMergeManager {
         String name = attribute.getName();
         if (map.containsKey(name)) // if attribute already exists, merge
         {
-          PSDtdAttribute mAttribute = (PSDtdAttribute) map.get(name);
+          PSDtdAttribute mAttribute = map.get(name);
           int occur =
               mergeAttributeOccurrence(mAttribute.getOccurrence(), attribute.getOccurrence());
           mAttribute.setOccurrence(occur);
@@ -266,9 +266,9 @@ public class PSDtdTreeMergeManager {
         map.put(attribute.getName(), attribute);
       }
       master.resetAttributes();
-      Iterator iterator = map.values().iterator();
+      Iterator<PSDtdAttribute> iterator = map.values().iterator();
       while (iterator.hasNext()) {
-        master.addAttribute((PSDtdAttribute) iterator.next());
+        master.addAttribute(iterator.next());
       }
     }
     // update element in m_masterTree
@@ -592,7 +592,7 @@ public class PSDtdTreeMergeManager {
 
         boolean bNeedFix = false;
         // store nodes from master nodelist into a hashmap
-        HashMap mMap = new HashMap();
+        HashMap<String, PSDtdNode> mMap = new HashMap<>();
         for (int i = 0; i < mNodeList.getNumberOfNodes(); i++) {
           PSDtdNode node = mNodeList.getNode(i);
           String nodeName = null;
@@ -614,8 +614,8 @@ public class PSDtdTreeMergeManager {
         PSDtdNodeList tempList = null;
         if (!m_bNodeInList) {
           tempList = new PSDtdNodeList(mNodeList.getType(), mNodeList.getOccurrenceType());
-          Iterator iterator = mMap.values().iterator();
-          while (iterator.hasNext()) tempList.add((PSDtdNode) iterator.next());
+          Iterator<PSDtdNode> iterator = mMap.values().iterator();
+          while (iterator.hasNext()) tempList.add(iterator.next());
           // mContent = tempList;
         }
 
@@ -690,7 +690,7 @@ public class PSDtdTreeMergeManager {
    *     This has to be the slave NodeList.
    * @return boolean <CODE>true</CODE> if contains a PCDATA.
    */
-  private boolean addNodeListIntoMap(HashMap mMap, PSDtdNodeList sNodeList) {
+  private boolean addNodeListIntoMap(HashMap<String, PSDtdNode> mMap, PSDtdNodeList sNodeList) {
     boolean bHasPCDATA = false;
     for (int i = 0; i < sNodeList.getNumberOfNodes(); i++) {
       PSDtdNode sInnerNode = sNodeList.getNode(i);
@@ -707,7 +707,7 @@ public class PSDtdTreeMergeManager {
         String elementName = sEntry.getElement().getName();
 
         if (mMap.containsKey(elementName)) {
-          PSDtdElementEntry mEntry = (PSDtdElementEntry) mMap.get(elementName);
+          PSDtdElementEntry mEntry = (PSDtdElementEntry) mMap.get(elementName);  // typed map holds PSDtdNode
           PSDtdNode mNode = mEntry.getElement().getContent();
           PSDtdNode sNode = sEntry.getElement().getContent();
 

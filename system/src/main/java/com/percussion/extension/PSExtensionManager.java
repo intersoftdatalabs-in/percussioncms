@@ -21,6 +21,7 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.util.PSSortTool;
 import com.percussion.utils.tools.PSPatternMatcher;
 import java.io.File;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -135,7 +136,7 @@ public class PSExtensionManager implements IPSExtensionManager {
    * @return A non-<CODE>null</CODE> Iterator over 0 or more non-<CODE>null</CODE> PSExtensionRef
    *     objects.
    */
-  public synchronized Iterator getExtensionHandlerNames() {
+  public synchronized Iterator<PSExtensionRef> getExtensionHandlerNames() {
     checkState();
     return m_extHandlerHandler.getExtensionNames();
   }
@@ -188,8 +189,8 @@ public class PSExtensionManager implements IPSExtensionManager {
 
     Collection<PSExtensionRef> matches = new LinkedList<>(); // store matches in here
     // for all extension handlers
-    for (Iterator i = getExtensionHandlerNames(); i.hasNext(); ) {
-      PSExtensionRef handlerRef = (PSExtensionRef) (i.next());
+    for (Iterator<PSExtensionRef> i = getExtensionHandlerNames(); i.hasNext(); ) {
+      PSExtensionRef handlerRef = i.next();
       String hName = handlerRef.getExtensionName();
       if ((hPatMat != null) && (!hPatMat.doesMatchPattern(hName))) {
         continue;
@@ -201,12 +202,12 @@ public class PSExtensionManager implements IPSExtensionManager {
             (IPSExtensionHandler) (m_extHandlerHandler.prepare(handlerRef));
 
         // for all extensions in this handler (optionally within context)
-        Iterator j = null;
+        Iterator<PSExtensionRef> j = null;
         if (context != null) j = extHandler.getExtensionNames(context);
         else j = extHandler.getExtensionNames();
 
         while (j != null && j.hasNext()) {
-          PSExtensionRef ref = (PSExtensionRef) j.next();
+          PSExtensionRef ref = j.next();
           String eName = ref.getExtensionName();
           if ((ePatMat != null) && (!ePatMat.doesMatchPattern(eName))) {
             continue;
@@ -214,8 +215,8 @@ public class PSExtensionManager implements IPSExtensionManager {
 
           // for all interfaces implemented by this extension
           IPSExtensionDef def = extHandler.getExtensionDef(ref);
-          for (Iterator k = def.getInterfaces(); k.hasNext(); ) {
-            String iName = (String) k.next();
+          for (Iterator<String> k = def.getInterfaces(); k.hasNext(); ) {
+            String iName = k.next();
             if ((iPatMat != null) && (!iPatMat.doesMatchPattern(iName))) {
               continue;
             }
@@ -252,14 +253,14 @@ public class PSExtensionManager implements IPSExtensionManager {
    * @throws IllegalArgumentException If ref is <code>null</code>.
    * @throws PSExtensionException If there is an error attempting to locate the files.
    */
-  public Iterator getExtensionFiles(PSExtensionRef ref)
+  public Iterator<URL> getExtensionFiles(PSExtensionRef ref)
       throws PSNotFoundException, PSExtensionException {
     if (ref == null) throw new IllegalArgumentException("ref may not be null.");
 
     IPSExtensionDef def = getExtensionDef(ref);
 
     // get the supplied resource list.  If null, we need to catalog the list
-    Iterator resources = def.getSuppliedResources();
+    Iterator<URL> resources = def.getSuppliedResources();
     if (resources == null) {
       // get the handler
       IPSExtensionHandler handler;
@@ -394,7 +395,7 @@ public class PSExtensionManager implements IPSExtensionManager {
    * @throws PSNonUniqueException If the extension already exists. Use updateExtension instead. The
    *     defined extension will not be installed.
    */
-  public synchronized void installExtension(IPSExtensionDef def, Iterator resources)
+  public synchronized void installExtension(IPSExtensionDef def, Iterator<?> resources)
       throws PSExtensionException, PSNotFoundException, PSNonUniqueException {
     checkState();
     installExtension(def, resources, null);
@@ -422,7 +423,7 @@ public class PSExtensionManager implements IPSExtensionManager {
    *     defined extension will not be installed.
    */
   public synchronized void installExtension(
-      IPSExtensionDef def, Iterator resources, IPSExtensionListener listener)
+      IPSExtensionDef def, Iterator<?> resources, IPSExtensionListener listener)
       throws PSExtensionException, PSNotFoundException, PSNonUniqueException {
     checkState();
     if (def == null) throw new IllegalArgumentException("def cannot be null");
@@ -494,7 +495,7 @@ public class PSExtensionManager implements IPSExtensionManager {
    * @see #removeExtension
    * @see #installExtension
    */
-  public synchronized void updateExtension(IPSExtensionDef def, Iterator resources)
+  public synchronized void updateExtension(IPSExtensionDef def, Iterator<?> resources)
       throws PSExtensionException, PSNotFoundException {
     checkState();
     if (def == null) throw new IllegalArgumentException("def cannot be null");
@@ -707,8 +708,8 @@ public class PSExtensionManager implements IPSExtensionManager {
    * This class is used to convert an Iterator over PSExtensionRefs into an Iterator over the
    * extension names from those refs.
    */
-  static class PSExtensionRefNameIterator implements Iterator {
-    public PSExtensionRefNameIterator(Iterator refs) {
+  static class PSExtensionRefNameIterator implements Iterator<String> {
+    public PSExtensionRefNameIterator(Iterator<PSExtensionRef> refs) {
       m_refs = refs;
     }
 
@@ -716,8 +717,8 @@ public class PSExtensionManager implements IPSExtensionManager {
       return m_refs.hasNext();
     }
 
-    public Object next() {
-      PSExtensionRef ref = (PSExtensionRef) m_refs.next();
+    public String next() {
+      PSExtensionRef ref = m_refs.next();
       return ref.getExtensionName();
     }
 
@@ -725,7 +726,7 @@ public class PSExtensionManager implements IPSExtensionManager {
       throw new UnsupportedOperationException();
     }
 
-    private Iterator m_refs;
+    private final Iterator<PSExtensionRef> m_refs;
   }
 
   /** <CODE>true</CODE> if and only if this manager has been initialized */
