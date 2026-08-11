@@ -90,7 +90,7 @@ public class PSSiteSummary extends PSDataItemSummarySingleFolderPath
   private Long siteId;
 
   {
-    setType(PSDataItemSummary.TYPE_SITE);
+    this.type = PSDataItemSummary.TYPE_SITE;
   }
 
   @Override

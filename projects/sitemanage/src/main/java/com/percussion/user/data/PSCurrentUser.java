@@ -45,12 +45,20 @@ public class PSCurrentUser extends PSUser {
     super();
   }
 
+  @SuppressWarnings("unchecked")
   public PSCurrentUser(PSUser user) {
-    setName(user.getName());
-    setPassword(user.getPassword());
-    setEmail(user.getEmail());
-    setProviderType(user.getProviderType());
-    setRoles(user.getRoles());
+    this.name = user.getName();
+    this.password = user.getPassword();
+    this.email = user.getEmail();
+    this.providerType = user.getProviderType();
+    var r = user.getRoles();
+    if (r == null) {
+      this.roles = null;
+    } else if (r instanceof ArrayList) {
+      this.roles = (ArrayList<String>) r;
+    } else {
+      this.roles = new ArrayList<>(r);
+    }
   }
 
   public boolean isAccessibilityUser() {

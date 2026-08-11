@@ -49,10 +49,10 @@ public class PSComment extends PSAbstractDataObject {
    * @param commentDate date of comment, never blank
    */
   public PSComment(String comment, String commenter, String commentType, Date commentDate) {
-    setComment(comment);
-    setCommenter(commenter);
-    setCommentType(commentType);
-    setCommentDate(commentDate);
+    this.comment = comment;
+    this.commenter = commenter;
+    this.commentType = commentType;
+    this.commentDate = commentDate;
   }
 
   public String getComment() {

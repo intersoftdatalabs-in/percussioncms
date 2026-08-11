@@ -69,14 +69,15 @@ public class PSUnusedAssetSummary extends PSDataItemSummary
    */
   public PSUnusedAssetSummary(PSDataItemSummary summary) {
     super();
-    setName(summary.getName());
-    setId(summary.getId());
-    setLabel(summary.getLabel());
-    setIcon(summary.getIcon());
-    setCategory(summary.getCategory());
-    setFolderPaths(summary.getFolderPaths());
-    setType(summary.getType());
-    setRevisionable(summary.isRevisionable());
+    this.name = summary.getName();
+    this.id = summary.getId();
+    this.label = summary.getLabel();
+    this.icon = summary.getIcon();
+    this.category = summary.getCategory();
+    // Shared final helper: same null/copy semantics as setFolderPaths without overridable call.
+    initFolderPaths(summary.getFolderPaths());
+    this.type = summary.getType();
+    this.revisionable = summary.isRevisionable();
   }
 
   @NotNull

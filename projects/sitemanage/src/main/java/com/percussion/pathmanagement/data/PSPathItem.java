@@ -60,7 +60,7 @@ public class PSPathItem extends PSDataItemSummary implements IPSItemSummary, IPS
   private String folderPath;
 
   {
-    setFolderPaths(new ArrayList<>());
+    this.folderPaths = new ArrayList<>();
   }
 
   public PSMapWrapper getTypeProperties() {

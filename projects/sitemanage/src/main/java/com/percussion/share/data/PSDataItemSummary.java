@@ -54,19 +54,19 @@ import java.util.ArrayList;
 @XmlRootElement
 public class PSDataItemSummary extends PSAbstractPersistantObject implements IPSItemSummary {
 
-  private String id;
-  private String name;
-  private ArrayList<String> folderPaths;
-  private String icon;
-  private Category category;
-  private boolean revisionable = false;
+  protected String id;
+  protected String name;
+  protected ArrayList<String> folderPaths;
+  protected String icon;
+  protected Category category;
+  protected boolean revisionable = false;
   private static final long serialVersionUID = 1L;
 
   /** See {@link #getType()} for detail. */
-  private String type;
+  protected String type;
 
   /** See {@link #getLabel()} for detail. */
-  private String label;
+  protected String label;
 
   /**
    * All tags associated with the item. Historically this was called "folderPaths" and we keep the
@@ -192,6 +192,48 @@ public class PSDataItemSummary extends PSAbstractPersistantObject implements IPS
 
   public void setRevisionable(boolean revisionable) {
     this.revisionable = revisionable;
+  }
+
+  /**
+   * Subclass-safe field assignment helpers (avoid this-escape from overridable setters).
+   */
+  protected final void initId(String id) {
+    this.id = id;
+  }
+
+  protected final void initName(String name) {
+    this.name = name;
+  }
+
+  protected final void initType(String type) {
+    this.type = type;
+  }
+
+  protected final void initLabel(String label) {
+    this.label = label;
+  }
+
+  protected final void initIcon(String icon) {
+    this.icon = icon;
+  }
+
+  protected final void initCategory(Category category) {
+    this.category = category;
+  }
+
+  protected final void initRevisionable(boolean revisionable) {
+    this.revisionable = revisionable;
+  }
+
+  @SuppressWarnings("unchecked")
+  protected final void initFolderPaths(List<String> paths) {
+    if (paths == null) {
+      this.folderPaths = null;
+    } else if (paths instanceof ArrayList) {
+      this.folderPaths = (ArrayList<String>) paths;
+    } else {
+      this.folderPaths = new ArrayList<>(paths);
+    }
   }
 
   /** The type for a site item summary. */

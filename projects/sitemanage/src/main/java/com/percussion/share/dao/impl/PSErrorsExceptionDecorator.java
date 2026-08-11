@@ -27,6 +27,11 @@ import com.percussion.webservices.PSErrorsException;
 public class PSErrorsExceptionDecorator extends PSExceptionDecorator {
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Wraps the multi-error container (stack/cause published via {@link #wrap(Throwable)} during
+   * construction). Justified {@code this-escape} suppress for intentional Throwable API use.
+   */
+  @SuppressWarnings("this-escape")
   public PSErrorsExceptionDecorator(PSErrorsException e) {
     if (e.getErrors() != null && !e.getErrors().isEmpty()) {
       var error = e.getErrors().entrySet().iterator().next().getValue();

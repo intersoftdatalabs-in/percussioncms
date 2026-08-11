@@ -78,7 +78,7 @@ public class PSAnalyticsProviderConfig implements Serializable {
     }
     var extraParamsClass = new ExtraParamsClass();
     extraParamsClass.setEntry(pairList);
-    this.setExtraParams(extraParamsClass);
+    this.extraParams = extraParamsClass;
   }
 
   public String getUserid() {

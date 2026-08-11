@@ -30,7 +30,7 @@ public abstract class PSAbstractUser extends PSAbstractDataObject
     implements Comparable<PSAbstractUser> {
 
   private static final long serialVersionUID = 1L;
-  private String name;
+  protected String name;
 
   /**
    * Gets the user name that uniquely identifies the user.
@@ -41,7 +41,7 @@ public abstract class PSAbstractUser extends PSAbstractDataObject
     return name;
   }
 
-  public void setName(String name) {
+  public final void setName(String name) {
     this.name = name;
   }
 

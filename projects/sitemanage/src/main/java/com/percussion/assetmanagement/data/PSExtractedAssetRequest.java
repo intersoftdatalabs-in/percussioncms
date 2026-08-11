@@ -45,16 +45,28 @@ public class PSExtractedAssetRequest extends PSAbstractAssetRequest {
       String selector,
       boolean includeOuterHtml) {
     super();
-    setFolderPath(folderPath);
-    setType(type);
-    setFileName(fileName);
-    setFileContents(fileContents);
-    setSelector(selector);
-    setIncludeOuterHtml(includeOuterHtml);
+    if (folderPath == null || folderPath.isBlank()) {
+      throw new IllegalArgumentException("folderPath may not be blank");
+    }
+    if (type != AssetType.HTML && type != AssetType.RICH_TEXT && type != AssetType.SIMPLE_TEXT) {
+      throw new IllegalArgumentException("unsupported asset type : " + type);
+    }
+    if (fileName == null || fileName.isBlank()) {
+      throw new IllegalArgumentException("fileName may not be blank");
+    }
+    if (selector == null || selector.isBlank()) {
+      throw new IllegalArgumentException("selector may not be blank");
+    }
+    this.folderPath = folderPath;
+    this.type = type;
+    this.fileName = sanitizeFileName(fileName);
+    this.fileContents = fileContents;
+    this.selector = selector;
+    this.includeOuterHtml = includeOuterHtml;
   }
 
   @Override
-  public void setType(AssetType type) {
+  public final void setType(AssetType type) {
     if (type != AssetType.HTML && type != AssetType.RICH_TEXT && type != AssetType.SIMPLE_TEXT) {
       throw new IllegalArgumentException("unsupported asset type : " + type);
     }
@@ -75,7 +87,7 @@ public class PSExtractedAssetRequest extends PSAbstractAssetRequest {
    *
    * @param selector may not be {@code null} or empty.
    */
-  public void setSelector(String selector) {
+  public final void setSelector(String selector) {
     if (StringUtils.isBlank(selector)) {
       throw new IllegalArgumentException("selector may not be blank");
     }
@@ -98,7 +110,7 @@ public class PSExtractedAssetRequest extends PSAbstractAssetRequest {
    * @param includeOuterHtml {@code true} if the selector element should be included, {@code false}
    *     otherwise.
    */
-  public void setIncludeOuterHtml(boolean includeOuterHtml) {
+  public final void setIncludeOuterHtml(boolean includeOuterHtml) {
     this.includeOuterHtml = includeOuterHtml;
   }
 }

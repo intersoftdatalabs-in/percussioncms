@@ -41,7 +41,7 @@ public class PSContentTraffic {
   public PSContentTraffic() {}
 
   public PSContentTraffic(String site) {
-    setSite(site);
+    this.site = site;
   }
 
   public Optional<String> getSite() {

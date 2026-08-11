@@ -38,10 +38,12 @@ public abstract class PSAbstractAssetRequest {
     SIMPLE_TEXT
   }
 
-  private String folderPath;
-  private AssetType type;
-  private String fileName;
-  private InputStream fileContents;
+  /** Package-private for same-package subclass constructors (this-escape safe seed). */
+  String folderPath;
+
+  AssetType type;
+  String fileName;
+  InputStream fileContents;
 
   /**
    * Gets the type of asset this request will be used to create.
@@ -78,7 +80,7 @@ public abstract class PSAbstractAssetRequest {
    *
    * @param folderPath the new asset folder path; must not be {@code null} or empty.
    */
-  protected void setFolderPath(String folderPath) {
+  protected final void setFolderPath(String folderPath) {
     if (StringUtils.isBlank(folderPath)) {
       throw new IllegalArgumentException("folderPath may not be blank");
     }
@@ -99,11 +101,19 @@ public abstract class PSAbstractAssetRequest {
    *
    * @param fileName must not be {@code null} or empty.
    */
-  protected void setFileName(String fileName) {
+  protected final void setFileName(String fileName) {
     if (StringUtils.isBlank(fileName)) {
       throw new IllegalArgumentException("fileName may not be blank");
     }
-    this.fileName = fileName.replace("\\x20", "-");
+    this.fileName = sanitizeFileName(fileName);
+  }
+
+  /**
+   * Replaces spaces with hyphens for stored asset file names. Shared by setters and subclass
+   * constructors so space sanitization stays consistent.
+   */
+  static String sanitizeFileName(String fileName) {
+    return fileName.replace(' ', '-');
   }
 
   /**
@@ -120,7 +130,7 @@ public abstract class PSAbstractAssetRequest {
    *
    * @param fileContents may not be {@code null}.
    */
-  protected void setFileContents(InputStream fileContents) {
+  protected final void setFileContents(InputStream fileContents) {
     this.fileContents = fileContents;
   }
 }

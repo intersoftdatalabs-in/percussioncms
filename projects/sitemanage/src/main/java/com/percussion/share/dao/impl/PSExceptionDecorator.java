@@ -34,7 +34,7 @@ public class PSExceptionDecorator extends RuntimeException {
   private static final long serialVersionUID = 1L;
   private String message;
 
-  protected void wrap(Throwable cause) {
+  protected final void wrap(Throwable cause) {
     notNull(cause);
     setMessage(cause.getMessage());
     setStackTrace(cause.getStackTrace());
@@ -46,7 +46,7 @@ public class PSExceptionDecorator extends RuntimeException {
     return message;
   }
 
-  protected void setMessage(String message) {
+  protected final void setMessage(String message) {
     this.message = message;
   }
 }

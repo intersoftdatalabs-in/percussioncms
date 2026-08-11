@@ -53,8 +53,11 @@ public class PSIntegrityTaskProperty extends PSAbstractDataObject {
   }
 
   public PSIntegrityTaskProperty(String name, String value) {
-    setName(name);
-    setValue(value);
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("name may not be null or empty");
+    }
+    this.name = name;
+    this.value = value;
   }
 
   @Override

@@ -30,7 +30,7 @@ public abstract class PSAbstractNamedObject extends PSAbstractDataObject
 
   private static final long serialVersionUID = 1L;
 
-  private String name;
+  protected String name;
 
   /**
    * Gets the name that uniquely identifies the object.
@@ -46,7 +46,7 @@ public abstract class PSAbstractNamedObject extends PSAbstractDataObject
    *
    * @param name the name to set
    */
-  public void setName(String name) {
+  public final void setName(String name) {
     this.name = name;
   }
 
