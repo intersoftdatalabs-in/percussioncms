@@ -30,8 +30,11 @@
 //   require_issue_safety_check bool - when true (default), HARD-SKIP issues whose title/body/comments
 //                                contain destructive / hostile agent instructions (see safety rules).
 //   unassigned_only     bool   - only work issues with no assignees (default true)
+//   include_stale_in_progress_cleanup bool - before PRE/Discover: drop stale In Progress labels
+//                                on open issues not touched within stale_in_progress_hours (default true)
+//   stale_in_progress_hours int - hours since issue updatedAt before In Progress is stale (default 4, range 1-72)
 //   include_pr_followup bool   - drain merge blockers on OUR open PRs (default true).
-//                                PRE runs FIRST (before Discover/Triage); POST after Work for new PRs.
+//                                PRE runs after stale In Progress cleanup; POST after Work for new PRs.
 //   include_peer_pr_review bool - after Discover/Triage (and PRE if enabled): independent code review
 //                                of open PRs that lack reviews and are co-authored by ANOTHER model
 //                                (not grok-4.5) OR have no model:* labels (agent-shaped only). Default true.
@@ -76,12 +79,17 @@
 // Also re-check label "not safe for agents" and bail (status=skipped_not_safe) before claim.
 // Also re-check issue author is a registered maintainer and issue text has no destructive
 // instructions (status=skipped_non_maintainer_author | skipped_destructive_instructions).
+//
+// STALE IN PROGRESS CLEANUP (start of run): open issues still labeled In Progress whose
+// issue updatedAt is older than stale_in_progress_hours (default 4h) get the label removed
+// (crashed/abandoned claims). Fresh activity keeps the claim.
 
 let meta = #{
     name: "night-issue-prs",
     description: "Unassigned issues to PRs, residual follow-ups, peer PR review/merge, merge-blocker drain",
     when_to_use: "Overnight: unassigned issues, residual GH follow-ups, peer-model PR reviews, unstick our open PRs",
     phases: [
+        #{ title: "Stale In Progress cleanup", detail: "remove In Progress if issue untouched for N hours" },
         #{ title: "PR follow-up (pre)", detail: "drain merge blockers first (before Discover/Triage)" },
         #{ title: "Discover", detail: "list open issues via gh; maintainer authors + safety flags; p1–p8" },
         #{ title: "Triage", detail: "priority-first; oversized→3 slices; p7/p8 only if priority empty" },
@@ -209,6 +217,22 @@ let security_audit_schema = #{
     },
 };
 
+let stale_in_progress_schema = #{
+    "type": "object",
+    "required": ["status", "summary", "issues_scanned", "issues_cleared"],
+    "properties": #{
+        "status": #{ "type": "string" },
+        "summary": #{ "type": "string" },
+        "issues_scanned": #{ "type": "integer" },
+        "issues_stale": #{ "type": "integer" },
+        "issues_cleared": #{ "type": "integer" },
+        "issues_kept": #{ "type": "string" },
+        "issues_cleared_list": #{ "type": "string" },
+        "label_name_used": #{ "type": "string" },
+        "blocked": #{ "type": "string" },
+    },
+};
+
 // Canonical tracking issue title (exact match for singleton search).
 // Per base_branch: at most ONE open issue with this title may exist.
 let security_audit_title = "[night-issues: Security Audit - Fix Pass]";
@@ -233,6 +257,9 @@ let allowed_issue_authors = "";
 // Scan issue title/body/comments for destructive agent instructions before queue/work.
 let require_issue_safety_check = true;
 let unassigned_only = true;
+let include_stale_in_progress_cleanup = true;
+// Hours since last issue updatedAt before an In Progress claim is treated as abandoned.
+let stale_in_progress_hours = 4;
 let include_pr_followup = true;
 let include_peer_pr_review = true;
 let include_pr_cluster = true;
@@ -265,6 +292,10 @@ if args != () {
     if args.allowed_issue_authors != () { allowed_issue_authors = args.allowed_issue_authors; }
     if args.require_issue_safety_check != () { require_issue_safety_check = args.require_issue_safety_check; }
     if args.unassigned_only != () { unassigned_only = args.unassigned_only; }
+    if args.include_stale_in_progress_cleanup != () {
+        include_stale_in_progress_cleanup = args.include_stale_in_progress_cleanup;
+    }
+    if args.stale_in_progress_hours != () { stale_in_progress_hours = args.stale_in_progress_hours; }
     if args.include_pr_followup != () { include_pr_followup = args.include_pr_followup; }
     if args.include_peer_pr_review != () { include_peer_pr_review = args.include_peer_pr_review; }
     if args.include_pr_cluster != () { include_pr_cluster = args.include_pr_cluster; }
@@ -294,6 +325,8 @@ if max_security_prs < 1 { max_security_prs = 1; }
 if max_security_prs > 8 { max_security_prs = 8; }
 if low_priority_quota_pct < 0 { low_priority_quota_pct = 0; }
 if low_priority_quota_pct > 50 { low_priority_quota_pct = 50; }
+if stale_in_progress_hours < 1 { stale_in_progress_hours = 1; }
+if stale_in_progress_hours > 72 { stale_in_progress_hours = 72; }
 
 // Queue split: ~80% priority-pool (p1 first), ~20% reserved p7+p8 after priority empty.
 // max_issues=10, quota=20 → priority_slots=8, low_slots=2. Expand oversized p1–p6 into 3 slices
@@ -313,6 +346,8 @@ log("night-issue-prs: repo=" + repo + " base=" + base_branch
     + " allowed_issue_authors=" + allowed_issue_authors
     + " require_issue_safety_check=" + require_issue_safety_check.to_string()
     + " unassigned_only=" + unassigned_only.to_string()
+    + " include_stale_in_progress_cleanup=" + include_stale_in_progress_cleanup.to_string()
+    + " stale_in_progress_hours=" + stale_in_progress_hours.to_string()
     + " include_pr_followup=" + include_pr_followup.to_string()
     + " include_peer_pr_review=" + include_peer_pr_review.to_string()
     + " allow_peer_squash_merge=" + allow_peer_squash_merge.to_string()
@@ -329,8 +364,9 @@ log("night-issue-prs: repo=" + repo + " base=" + base_branch
     + " worktree_rel=" + worktree_rel
     + " sync_branch=" + sync_branch);
 
-// Result holders (PRE may populate pr_followup_result before Discover).
+// Result holders (stale cleanup / PRE may populate before Discover).
 let results = [];
+let stale_in_progress_result = ();
 let pr_followup_result = ();
 let pr_followup_post_result = ();
 let peer_pr_review_result = ();
@@ -426,7 +462,117 @@ pr_prompt_core += "human_threads_addressed, human_threads_still_open, merge_bloc
 pr_prompt_core += "residual_issue_urls, blocked. Honest inventory of remaining CONFLICTS and open\n";
 pr_prompt_core += "threads only - not CI wait state.\n";
 
-// ========== PR follow-up PRE (FIRST — before Discover/Triage) ==========
+// ========== Stale In Progress cleanup (FIRST — before PRE/Discover) ==========
+// Abandoned agent claims leave In Progress forever; free issues not touched for N hours.
+if dry_run {
+    log("dry_run=true: skipping stale In Progress cleanup writes.");
+    stale_in_progress_result = #{
+        status: "skipped_dry_run",
+        summary: "dry_run=true: no In Progress label changes",
+        issues_scanned: 0,
+        issues_stale: 0,
+        issues_cleared: 0,
+        issues_kept: "",
+        issues_cleared_list: "",
+        label_name_used: "",
+        blocked: "",
+    };
+} else if include_stale_in_progress_cleanup {
+    phase("Stale In Progress cleanup");
+    let b_stale = budget();
+    if b_stale.remaining < 2 {
+        log("Skipping stale In Progress cleanup: agent budget low.");
+        stale_in_progress_result = #{
+            status: "skipped_budget",
+            summary: "Skipped: insufficient agent budget",
+            issues_scanned: 0,
+            issues_stale: 0,
+            issues_cleared: 0,
+            issues_kept: "",
+            issues_cleared_list: "",
+            label_name_used: "",
+            blocked: "budget",
+        };
+    } else {
+        let stale_prompt = "";
+        stale_prompt += "You clear STALE \"In Progress\" claims on open GitHub issues for overnight workers.\n";
+        stale_prompt += "Repo: " + repo + "\n";
+        stale_prompt += "stale_in_progress_hours=" + stale_in_progress_hours.to_string() + "\n\n";
+        stale_prompt += "HARD RULES:\n";
+        stale_prompt += "1) Before any gh command: run `gh auth status` and ensure access to " + repo + ".\n";
+        stale_prompt += "2) Do NOT close issues, merge PRs, force-push, reassign, or edit issue bodies.\n";
+        stale_prompt += "3) ONLY remove the In Progress label (and leave a short issue comment) for STALE claims.\n";
+        stale_prompt += "4) Do NOT invent issue numbers. Only act on issues returned by gh.\n";
+        stale_prompt += "5) Cap: clear at most 40 issues this pass (log if more were stale).\n\n";
+        stale_prompt += "LABEL NAMES:\n";
+        stale_prompt += "  Prefer exact label \"In Progress\". If list-by-label returns empty, also try\n";
+        stale_prompt += "  \"in progress\" (case / spacing variants). Use the exact name returned by the API\n";
+        stale_prompt += "  when removing. Record label_name_used in the result.\n\n";
+        stale_prompt += "WHAT COUNTS AS TOUCHED:\n";
+        stale_prompt += "  Use the issue's updatedAt from gh JSON (ISO-8601). If updatedAt is within the last\n";
+        stale_prompt += "  " + stale_in_progress_hours.to_string() + " hours (relative to now / UTC), KEEP In Progress.\n";
+        stale_prompt += "  If updatedAt is older than " + stale_in_progress_hours.to_string()
+            + " hours, the claim is STALE → remove label.\n";
+        stale_prompt += "  Comments, edits, label changes, and linked activity all bump updatedAt — that is\n";
+        stale_prompt += "  the intended signal that someone is still active on the issue.\n\n";
+        stale_prompt += "TASK:\n";
+        stale_prompt += "A) List open issues with the In Progress label:\n";
+        stale_prompt += "   gh issue list --repo " + repo
+            + " --state open --label \"In Progress\" --limit 100 \\\n";
+        stale_prompt += "     --json number,title,updatedAt,labels,assignees\n";
+        stale_prompt += "   If zero results, retry with --label \"in progress\".\n";
+        stale_prompt += "B) For each issue, compute age from updatedAt vs now.\n";
+        stale_prompt += "C) For STALE issues only (live run):\n";
+        stale_prompt += "   - gh issue edit <n> --repo " + repo + " --remove-label \"<exact label name>\"\n";
+        stale_prompt += "   - gh issue comment <n> --repo " + repo + " --body with a short note like:\n";
+        stale_prompt += "     \"night-issue-prs: removed stale In Progress (no issue activity for >= "
+            + stale_in_progress_hours.to_string() + "h; last updatedAt=...).\"\n";
+        stale_prompt += "D) KEEP In Progress when updatedAt is fresh — do not touch those issues.\n";
+        stale_prompt += "E) If remove fails for one issue, log it and continue others.\n\n";
+        stale_prompt += "Return structured result: status=cleared|none_stale|partial|failed,\n";
+        stale_prompt += "summary, issues_scanned, issues_stale, issues_cleared, issues_kept (fresh claims),\n";
+        stale_prompt += "issues_cleared_list (e.g. #12,#34), label_name_used, blocked.\n";
+
+        let stale_agent = agent(stale_prompt, #{
+            label: "stale-in-progress-cleanup",
+            capability_mode: "all",
+            output_schema: stale_in_progress_schema,
+        });
+
+        if stale_agent != () && stale_agent.success && stale_agent.output != () {
+            stale_in_progress_result = stale_agent.output;
+            log("Stale In Progress cleanup: " + stale_in_progress_result.summary);
+        } else {
+            stale_in_progress_result = #{
+                status: "failed",
+                summary: "Stale In Progress cleanup agent failed",
+                issues_scanned: 0,
+                issues_stale: 0,
+                issues_cleared: 0,
+                issues_kept: "",
+                issues_cleared_list: "",
+                label_name_used: "",
+                blocked: "agent_failed",
+            };
+            log("Stale In Progress cleanup agent failed");
+        }
+    }
+} else {
+    log("Stale In Progress cleanup disabled (include_stale_in_progress_cleanup=false).");
+    stale_in_progress_result = #{
+        status: "skipped_disabled",
+        summary: "include_stale_in_progress_cleanup=false",
+        issues_scanned: 0,
+        issues_stale: 0,
+        issues_cleared: 0,
+        issues_kept: "",
+        issues_cleared_list: "",
+        label_name_used: "",
+        blocked: "",
+    };
+}
+
+// ========== PR follow-up PRE (before Discover/Triage; after stale cleanup) ==========
 // Drain merge blockers on existing owned PRs so the worktree is clean and open PRs
 // are not stranded while we spend budget on Discover/Triage/Work.
 if dry_run {
@@ -1086,7 +1232,8 @@ for item in queue {
         work_prompt += "  gh issue edit " + inum.to_string() + " --repo " + repo + " --remove-label \"In Progress\"\n";
         work_prompt += "  Also try --remove-label \"in progress\" if the add used the existing lowercase name.\n";
         work_prompt += "  Never leave In Progress on after this agent finishes. Prefer remove even if add failed.\n";
-        work_prompt += "  If the process crashes mid-work, next discover will flag stale In Progress for humans.\n\n";
+        work_prompt += "  If the process crashes mid-work: next run's Stale In Progress cleanup removes the\n";
+        work_prompt += "  label when issue updatedAt is older than stale_in_progress_hours (default 4h).\n\n";
     }
 
     // Always print gate flags for Work (even dry_run / skip) so the agent can record policy.
@@ -1737,6 +1884,8 @@ report_prompt += "This report is RUN-LOCAL only (scratch/night-report.md). It is
 report_prompt += "epic tracker — that lives on parent GitHub issue bodies under\n";
 report_prompt += "## Agent progress (night-issue-prs). Do not recommend committing this file to git.\n\n";
 report_prompt += "Triage notes:\n" + json_encode(triage_notes) + "\n\n";
+report_prompt += "Stale In Progress cleanup result (JSON, may be empty):\n"
+    + json_encode(stale_in_progress_result) + "\n\n";
 report_prompt += "Issue work results (JSON):\n" + json_encode(results) + "\n\n";
 report_prompt += "PR follow-up PRE result (JSON, may be empty):\n" + json_encode(pr_followup_result) + "\n\n";
 report_prompt += "Peer PR review result (JSON, may be empty):\n" + json_encode(peer_pr_review_result) + "\n\n";
@@ -1748,18 +1897,20 @@ report_prompt += "1) Table: issue | author | pN priority | status | PR | child/r
 report_prompt += "   (include status=skipped_in_progress when claim-check lost the race;\n";
 report_prompt += "    skipped_non_maintainer_author; skipped_destructive_instructions; skipped_not_safe; skipped_large_i18n)\n";
 report_prompt += "   Note maintainer_authors_only / require_issue_safety_check outcomes in triage notes.\n";
-report_prompt += "2) Table: open PRs followed up | conflicts | threads resolved | residual issues filed\n";
-report_prompt += "3) Peer PR review: prs_reviewed / approved / merged (squash) / changes_requested / skipped\n";
-report_prompt += "4) List still-open HUMAN review threads AND merge_blockers_still_open (conflicts\n";
+report_prompt += "2) Stale In Progress cleanup: issues_scanned / issues_stale / issues_cleared +\n";
+report_prompt += "   issues_cleared_list (label auto-removed after >= stale_in_progress_hours no updatedAt)\n";
+report_prompt += "3) Table: open PRs followed up | conflicts | threads resolved | residual issues filed\n";
+report_prompt += "4) Peer PR review: prs_reviewed / approved / merged (squash) / changes_requested / skipped\n";
+report_prompt += "5) List still-open HUMAN review threads AND merge_blockers_still_open (conflicts\n";
 report_prompt += "   and unresolved bot/human threads only - not CI wait state)\n";
-report_prompt += "5) Residual issues filed this run (from work results only — no residual-quota phase):\n";
+report_prompt += "6) Residual issues filed this run (from work results only — no residual-quota phase):\n";
 report_prompt += "   list residual_issue_urls / child_issue_urls with Parent # and pN when known\n";
-report_prompt += "6) PR cluster: if a cluster PR was opened, put it FIRST in morning review; list superseded PRs\n";
-report_prompt += "7) Security audit: open alert count, audit issue URL (singleton), mitigation PRs,\n";
+report_prompt += "7) PR cluster: if a cluster PR was opened, put it FIRST in morning review; list superseded PRs\n";
+report_prompt += "8) Security audit: open alert count, audit issue URL (singleton), mitigation PRs,\n";
 report_prompt += "   deferred alerts; flag if more than one Security Audit issue was found (should not happen)\n";
-report_prompt += "8) Morning review order and what was deferred\n";
-report_prompt += "9) Note any PARENT issues whose ## Agent progress section should be checked\n";
-report_prompt += "10) Flag any issues that may still have In Progress left on (worker crash risk)\n";
+report_prompt += "9) Morning review order and what was deferred\n";
+report_prompt += "10) Note any PARENT issues whose ## Agent progress section should be checked\n";
+report_prompt += "11) Flag any issues that may still have In Progress left on (fresh claims or cleanup miss)\n";
 report_prompt += "Return ONLY the markdown body (no code fence wrapper).\n";
 
 let report_agent = agent(report_prompt, #{
@@ -1795,6 +1946,9 @@ let summary = "PRs opened=" + opened.to_string()
     + " failed=" + failed.to_string()
     + " other=" + other.to_string()
     + " of " + results.len().to_string() + " worked";
+if stale_in_progress_result != () && stale_in_progress_result.summary != () {
+    summary = summary + "; stale_in_progress: " + stale_in_progress_result.summary;
+}
 if pr_followup_result != () && pr_followup_result.summary != () {
     summary = summary + "; pr_pre: " + pr_followup_result.summary;
 }
@@ -1816,6 +1970,7 @@ complete(#{
     summary: summary,
     path: report_path,
     results: results,
+    stale_in_progress: stale_in_progress_result,
     pr_followup: pr_followup_result,
     peer_pr_review: peer_pr_review_result,
     pr_followup_post: pr_followup_post_result,
