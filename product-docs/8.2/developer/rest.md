@@ -46,7 +46,7 @@ endpoints chosen only because they “look REST.” See repository
 
 Keyword definitions (Workbench **Keywords** / content design) are exposed under `/services/keywords`.
 The REST layer is a thin contract over the content **design** web service (`IPSContentDesignWs`) —
-create, update, and delete use the same design locks and session identity classic tools used.
+create, update, and delete use the same design locks and session identity classic tools use.
 
 | Method | Path | Purpose |
 |--------|------|---------|

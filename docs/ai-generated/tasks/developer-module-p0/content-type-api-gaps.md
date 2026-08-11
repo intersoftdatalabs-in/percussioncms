@@ -30,7 +30,9 @@
 |------------------------------------|----------------------------------------------|
 | List keywords (+ optional choices) | `GET /services/keywords?includeChoices=true` |
 | Get one keyword (+ choices)        | `GET /services/keywords/{idOrValue}`         |
-| Create / update / delete           | `POST` / `PUT` / `DELETE` `/services/keywords[/{id}]` |
+| Create keyword                     | `POST /services/keywords`                             |
+| Update keyword                     | `PUT /services/keywords/{id}`                         |
+| Delete keyword                     | `DELETE /services/keywords/{id}`                      |
 
 **CD-17 Keyword write shipped** (PR #1612 SPA+REST; design-WS path PR #1701; product-docs #2919).
 Adaptor: `IKeywordsAdaptor` → `KeywordsAdaptor` via `IPSContentDesignWs` (create/save/delete with
