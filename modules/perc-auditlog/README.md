@@ -19,7 +19,11 @@ System-wide Percussion CMS audit logging and unified error-code support.
   `ServletErrorCodes`, `TransformationErrorCodes` (enum-only),
   `SearchErrorCodes` (`IPSSearchErrors`; auth failure dual-write), `LuceneErrorCodes`,
   `LocaleErrorCodes`, `MailErrorCodes` (all non-auditable),
-  `DataErrorCodes` / `BackEndErrorCodes` / `ConnectionErrorCodes` / `CloneErrorCodes` (data-plane)
+  `DataErrorCodes` / `BackEndErrorCodes` / `ConnectionErrorCodes` / `CloneErrorCodes` (data-plane),
+  `PublisherErrorCodes` / `SiteManagerErrorCodes` / `FilterServiceErrorCodes` / `LockErrorCodes` /
+  `UiErrorCodes` (enum-only package-local collisions), `CatalogErrorCodes` (design 4101–4311 flat;
+  service 1–6 enum-only), `DeploymentErrorCodes` (74–85 flat; lock codes enum-only),
+  `NavigationErrorCodes` (18001–18009 full flat)
   + `LegacyErrorCodeRegistry` bridge legacy `IPS*Errors` ints. Non-auditable / unregistered ints never
   dual-write. Central `PSErrorHandler.appendError` dual-writes only when the registry marks the legacy
   int auditable.
@@ -69,6 +73,12 @@ import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.CloneErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ConnectionErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.LockErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.NavigationErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.PublisherErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.UiErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
@@ -111,6 +121,9 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 5001, ctx, "host", "user", "driver
 LegacyErrorCodeRegistry.logIfAuditable(audit, 5201, ctx); // data query — non-auditable skip
 LegacyErrorCodeRegistry.logIfAuditable(audit, 3107, ctx); // connection unauthorized dual-write
 LegacyErrorCodeRegistry.logIfAuditable(audit, 17503, ctx, "msg"); // clone not authorized dual-write
+LegacyErrorCodeRegistry.logIfAuditable(audit, 18001, ctx, "/Sites/x"); // nav — non-auditable
+LegacyErrorCodeRegistry.logIfAuditable(audit, 74, ctx, "1.0", "1.1"); // deploy version — non-auditable
+LegacyErrorCodeRegistry.logIfAuditable(audit, 4101, ctx, "prop"); // catalog design — non-auditable
 // Prefer JobErrorCodes enum for job ints 1–10 (flat registry keeps WF ownership of 1–10)
 // Provider/config/conversion/path/design/server/http/job/assembly/extension/webservice/data noise (isAuditable=false) and unknown ints → no dual-write
 ```
@@ -141,6 +154,14 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 17503, ctx, "msg"); // clone not a
 | `BackEndErrorCodes` | 5001–5057, 5401–5402, 5999 (`IPSBackEndErrors`) | Only `AUTHORIZATION_ERROR` dual-writes |
 | `ConnectionErrorCodes` | 3001–3012, 3101–3107 (`IPSConnectionErrors`) | Only `UNAUTHORIZED` dual-writes; 3001–3005 overlap USER package-local (USER not flat-registered) |
 | `CloneErrorCodes` | 17501–17506 (`IPSCloneErrors`) | `NOT_AUTHENTICACATED` / `NOT_AUTHORIZED` dual-write |
+| `PublisherErrorCodes` | package-local 10–24 (no flat register) | Prefer enum; job/item publish failures auditable |
+| `SiteManagerErrorCodes` | package-local 1–9 (no flat register) | All non-auditable; prefer enum |
+| `FilterServiceErrorCodes` | package-local 1–8 (no flat register) | All non-auditable; prefer enum |
+| `LockErrorCodes` | package-local 1–9 (no flat register) | Prefer enum; session/permission dual-write |
+| `CatalogErrorCodes` | service 1–6 enum-only; design 4101–4311 flat | All non-auditable catalog protocol |
+| `DeploymentErrorCodes` | package-local 1–85 (flat-registers 74–85) | Prefer enum for lock 46/47/53; version/config flat |
+| `NavigationErrorCodes` | 18001–18009 full flat | All non-auditable nav structure |
+| `UiErrorCodes` | package-local 1–8 (no flat register) | Prefer enum; ACCESS_DENIED dual-write |
 
 Non-auditable codes (`isAuditable() == false`) never create audit rows.
 

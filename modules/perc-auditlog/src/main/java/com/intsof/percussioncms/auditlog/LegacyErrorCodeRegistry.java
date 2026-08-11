@@ -18,25 +18,33 @@ package com.intsof.percussioncms.auditlog;
 
 import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.CloneErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ConnectionErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.FilterServiceErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.LocaleErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.LockErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.LuceneErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.MailErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.NavigationErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.PublisherErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServletErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SiteManagerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.TransformationErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.UiErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
@@ -60,8 +68,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * unique {@link ServerWebServicesErrorCodes} / {@link WebdavErrorCodes} / {@link ServletErrorCodes},
  * fully unique {@link SearchErrorCodes} / {@link LuceneErrorCodes} / {@link LocaleErrorCodes} /
  * {@link MailErrorCodes}, data-plane {@link DataErrorCodes} / {@link BackEndErrorCodes} / {@link
- * ConnectionErrorCodes} / {@link CloneErrorCodes}, and bootstrap-only {@link
- * TransformationErrorCodes} / {@link DeliveryErrorCodes} (no flat register). Residual slices may
+ * ConnectionErrorCodes} / {@link CloneErrorCodes}, bootstrap-only {@link TransformationErrorCodes} /
+ * {@link DeliveryErrorCodes} / {@link PublisherErrorCodes} / {@link SiteManagerErrorCodes} / {@link
+ * FilterServiceErrorCodes} / {@link LockErrorCodes} / {@link UiErrorCodes} (package-local collisions —
+ * no flat register), design range of {@link CatalogErrorCodes} (4101–4311), non-colliding {@link
+ * DeploymentErrorCodes} (74–85), and fully unique {@link NavigationErrorCodes}. Residual slices may
  * register additional catalogs via {@link #register(int, SystemErrorCode)}.
  */
 public final class LegacyErrorCodeRegistry {
@@ -77,19 +88,23 @@ public final class LegacyErrorCodeRegistry {
   /**
    * Ensure Phase 2b catalogs are loaded (auth/security, content, workflow, path/item, design,
    * server, HTTP, assembly, extension, delivery, job, webservices, WebDAV, servlet, search,
-   * Lucene, locale, mail, transformation, data/back-end/connection/clone). Safe to call
-   * repeatedly; catalogs register themselves in their own static initializers. {@link
-   * AssemblyErrorCodes} and {@link JobErrorCodes} skip package-local ints {@code 1–10} that
-   * collide with {@link WorkflowErrorCodes}. {@link JobErrorCodes} is bootstrapped after assembly
-   * so flat int {@code 11} ({@code CONFIG_FILE_NOT_FOUND}) wins over assembly package-local
-   * {@code MISSING_SLOT} (prefer enum for assembly {@code 11}). {@link WebserviceErrorCodes}
-   * skips package-local ints {@code 1–27}; {@link TransformationErrorCodes} and {@link
-   * DeliveryErrorCodes} do not flat-register. Search / Lucene / Locale / Mail ints are globally
-   * unique and fully registered. Data-plane catalogs ({@link DataErrorCodes}, {@link
-   * BackEndErrorCodes}, {@link ConnectionErrorCodes}, {@link CloneErrorCodes}) use globally unique
-   * legacy ranges and fully flat-register (connection 3001–3005 overlap Phase-2a {@code
-   * UserManagementErrorCodes} package-local numbers only — those USER codes are not
-   * flat-registered).
+   * Lucene, locale, mail, transformation, data/back-end/connection/clone, publisher/site/filter/
+   * lock/catalog/deployment/navigation/UI). Safe to call repeatedly; catalogs register themselves
+   * in their own static initializers. {@link AssemblyErrorCodes} and {@link JobErrorCodes} skip
+   * package-local ints {@code 1–10} that collide with {@link WorkflowErrorCodes}. {@link
+   * JobErrorCodes} is bootstrapped after assembly so flat int {@code 11} ({@code
+   * CONFIG_FILE_NOT_FOUND}) wins over assembly package-local {@code MISSING_SLOT} (prefer enum
+   * for assembly {@code 11}). {@link WebserviceErrorCodes} skips package-local ints {@code 1–27};
+   * {@link TransformationErrorCodes} and {@link DeliveryErrorCodes} do not flat-register. Search /
+   * Lucene / Locale / Mail ints are globally unique and fully registered. Data-plane catalogs
+   * ({@link DataErrorCodes}, {@link BackEndErrorCodes}, {@link ConnectionErrorCodes}, {@link
+   * CloneErrorCodes}) use globally unique legacy ranges and fully flat-register (connection
+   * 3001–3005 overlap Phase-2a {@code UserManagementErrorCodes} package-local numbers only — those
+   * USER codes are not flat-registered). {@link PublisherErrorCodes}, {@link SiteManagerErrorCodes},
+   * {@link FilterServiceErrorCodes}, {@link LockErrorCodes}, and {@link UiErrorCodes} are enum-only
+   * (package-local collisions). {@link CatalogErrorCodes} flat-registers design range 4101–4311 only.
+   * {@link DeploymentErrorCodes} flat-registers 74–85. {@link NavigationErrorCodes} is fully unique
+   * and fully registered.
    */
   public static void bootstrap() {
     if (BOOTSTRAPPED.compareAndSet(false, true)) {
@@ -124,6 +139,18 @@ public final class LegacyErrorCodeRegistry {
       BackEndErrorCodes.ensureRegistered();
       ConnectionErrorCodes.ensureRegistered();
       CloneErrorCodes.ensureRegistered();
+      // Publisher/site/filter/lock/UI: enum-only (package-local collisions with WF/assembly/job).
+      PublisherErrorCodes.ensureRegistered();
+      SiteManagerErrorCodes.ensureRegistered();
+      FilterServiceErrorCodes.ensureRegistered();
+      LockErrorCodes.ensureRegistered();
+      UiErrorCodes.ensureRegistered();
+      // Catalog: design range 4101–4311 only (service 1–6 collide with WF).
+      CatalogErrorCodes.ensureRegistered();
+      // Deployment after webservice so only non-colliding 74–85 enter the flat map.
+      DeploymentErrorCodes.ensureRegistered();
+      // Navigation: globally unique 18001–18009.
+      NavigationErrorCodes.ensureRegistered();
     }
   }
 

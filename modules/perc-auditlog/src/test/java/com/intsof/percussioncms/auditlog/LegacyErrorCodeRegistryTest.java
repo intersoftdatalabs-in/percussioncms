@@ -16,10 +16,46 @@
  */
 package com.intsof.percussioncms.auditlog;
 
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.CloneErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ConnectionErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.FilterServiceErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.LocaleErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.LockErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.LuceneErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.MailErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.NavigationErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.PublisherErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServletErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SiteManagerErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.TransformationErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.UiErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
+import com.intsof.percussioncms.auditlog.sink.CapturingAuditLogSink;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
@@ -66,7 +102,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(SecurityErrorCodes.AUTHENTICATION_FAILED.isAuditable());
   }
 
-  @Test
+@Test
   void providerConfigLegacyCodeIsNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(9011));
     assertSame(
@@ -74,14 +110,14 @@ class LegacyErrorCodeRegistryTest {
     assertFalse(SecurityErrorCodes.PROVIDER_UNKNOWN.isAuditable());
   }
 
-  @Test
+@Test
   void unregisteredLegacyCodeIsNotAuditable() {
     // Sentinel outside all cataloged ranges (webservice package-local now claims 42).
     assertFalse(LegacyErrorCodeRegistry.isAuditable(999_999));
     assertTrue(LegacyErrorCodeRegistry.find(999_999).isEmpty());
   }
 
-  @Test
+@Test
   void nonAuditableLegacyCodeSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -98,7 +134,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void auditableLegacyCodeDualWrites() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -118,7 +154,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().get(0).formattedLine().startsWith("[SEC-9002]-"));
   }
 
-  @Test
+@Test
   void genericAuthFailedIsAuditable() {
     assertTrue(SecurityErrorCodes.GENERIC_AUTHENTICATION_FAILED.isAuditable());
     assertTrue(
@@ -126,7 +162,7 @@ class LegacyErrorCodeRegistryTest {
             SecurityErrorCodes.GENERIC_AUTHENTICATION_FAILED.numericCode()));
   }
 
-  @Test
+@Test
   void securityNotInitializedIsNotAuditable() {
     assertFalse(SecurityErrorCodes.SECURITY_NOT_INITIALIZED.isAuditable());
     assertFalse(
@@ -134,19 +170,19 @@ class LegacyErrorCodeRegistryTest {
             SecurityErrorCodes.SECURITY_NOT_INITIALIZED.numericCode()));
   }
 
-  @Test
+@Test
   void registryContainsAuthSecuritySlice() {
     assertTrue(LegacyErrorCodeRegistry.size() >= 30);
   }
 
-  @Test
+@Test
   void contentLifecycleLegacyCodeIsAuditableAndResolves() {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(2001));
     assertSame(ContentErrorCodes.CREATE, LegacyErrorCodeRegistry.find(2001).orElseThrow());
     assertTrue(ContentErrorCodes.CREATE.isAuditable());
   }
 
-  @Test
+@Test
   void contentConversionLegacyCodeIsNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(17001));
     assertSame(
@@ -155,7 +191,7 @@ class LegacyErrorCodeRegistryTest {
     assertFalse(ContentErrorCodes.UNSUPPORTED_FILE_TYPE.isAuditable());
   }
 
-  @Test
+@Test
   void contentConversionNonAuditableSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -170,7 +206,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void contentCreateAuditableDualWrites() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -190,14 +226,14 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().get(0).formattedLine().startsWith("[CONT-2001]-"));
   }
 
-  @Test
+@Test
   void workflowAccessDeniedIsAuditableAndResolves() {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(6));
     assertSame(WorkflowErrorCodes.ACCESS_DENIED, LegacyErrorCodeRegistry.find(6).orElseThrow());
     assertTrue(WorkflowErrorCodes.ACCESS_DENIED.isAuditable());
   }
 
-  @Test
+@Test
   void workflowNotFoundIsNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(1));
     assertSame(
@@ -205,7 +241,7 @@ class LegacyErrorCodeRegistryTest {
     assertFalse(WorkflowErrorCodes.WORKFLOW_NOT_FOUND.isAuditable());
   }
 
-  @Test
+@Test
   void workflowNotFoundNonAuditableSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -221,7 +257,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void workflowAccessDeniedDualWrites() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -240,13 +276,13 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().get(0).formattedLine().startsWith("[WF-6]-"));
   }
 
-  @Test
+@Test
   void workflowTransitionHighLevelIsAuditable() {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(4001));
     assertSame(WorkflowErrorCodes.TRANSITION, LegacyErrorCodeRegistry.find(4001).orElseThrow());
   }
 
-  @Test
+@Test
   void residualOsImpersonateIsAuditableAndResolves() {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(9601));
     assertSame(
@@ -254,7 +290,7 @@ class LegacyErrorCodeRegistryTest {
         LegacyErrorCodeRegistry.find(9601).orElseThrow());
   }
 
-  @Test
+@Test
   void residualHostFilterIsNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(9501));
     assertSame(
@@ -262,7 +298,7 @@ class LegacyErrorCodeRegistryTest {
         LegacyErrorCodeRegistry.find(9501).orElseThrow());
   }
 
-  @Test
+@Test
   void folderPermissionDeniedDualWrites() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -279,7 +315,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().get(0).formattedLine().startsWith("[CONT-13007]-"));
   }
 
-  @Test
+@Test
   void invalidFolderIdSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -295,7 +331,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void designAclNoAdminDualWrites() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -311,7 +347,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().get(0).formattedLine().startsWith("[DESN-2353]-"));
   }
 
-  @Test
+@Test
   void designAclEntryNullSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -324,7 +360,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void registryCoversContentWorkflowSecPathAndDesign() {
     // SEC residual + CONT + WF + path/item + design ACL (well beyond first-slice 30)
     assertTrue(LegacyErrorCodeRegistry.size() >= 70);
@@ -335,9 +371,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(6).isPresent());
   }
 
-  // --- Server / HTTP / Job residual (#2863) ---
-
-  @Test
+@Test
   void serverAuthFailureLegacyCodeIsAuditableAndResolves() {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(1101));
     assertSame(
@@ -353,7 +387,7 @@ class LegacyErrorCodeRegistryTest {
         LegacyErrorCodeRegistry.find(1247).orElseThrow());
   }
 
-  @Test
+@Test
   void serverOperationalNoiseIsRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(1001));
     assertSame(ServerErrorCodes.NATIVE_ERROR, LegacyErrorCodeRegistry.find(1001).orElseThrow());
@@ -364,7 +398,7 @@ class LegacyErrorCodeRegistryTest {
         LegacyErrorCodeRegistry.find(1308).orElseThrow());
   }
 
-  @Test
+@Test
   void nonAuditableServerCodeSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -377,7 +411,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void auditableServerCodeDualWrites() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -395,7 +429,7 @@ class LegacyErrorCodeRegistryTest {
     assertEquals(ServerErrorCodes.AUTHORIZATION_ERROR, sink.records().get(0).code());
   }
 
-  @Test
+@Test
   void httpStatusCodesAreRegisteredButNeverAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(401));
     assertSame(HttpErrorCodes.HTTP_UNAUTHORIZED, LegacyErrorCodeRegistry.find(401).orElseThrow());
@@ -407,7 +441,7 @@ class LegacyErrorCodeRegistryTest {
         HttpErrorCodes.HTTP_INTERNAL_SERVER_ERROR, LegacyErrorCodeRegistry.find(500).orElseThrow());
   }
 
-  @Test
+@Test
   void nonAuditableHttpCodeSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -420,7 +454,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void jobConfigFileNotFoundIsRegisteredNonAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(11));
     assertSame(
@@ -428,7 +462,7 @@ class LegacyErrorCodeRegistryTest {
     assertFalse(JobErrorCodes.CONFIG_FILE_NOT_FOUND.isAuditable());
   }
 
-  @Test
+@Test
   void jobPackageLocalIntsDoNotClobberWorkflowInFlatRegistry() {
     // Job ints 1–10 intentionally not registered; Workflow owns bare 1–10.
     assertSame(WorkflowErrorCodes.ACCESS_DENIED, LegacyErrorCodeRegistry.find(6).orElseThrow());
@@ -439,7 +473,7 @@ class LegacyErrorCodeRegistryTest {
     assertFalse(JobErrorCodes.JOB_DEFINITION_NOT_FOUND.isAuditable());
   }
 
-  @Test
+@Test
   void nonAuditableJobCodeSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -452,7 +486,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void registryCoversServerHttpJobExtensionAssemblyAndWebservices() {
     // prior catalogs + server/http/job + extension + assembly non-colliding ints
     assertTrue(LegacyErrorCodeRegistry.size() >= 350);
@@ -472,9 +506,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(10151).isPresent()); // servlet
   }
 
-  // --- Assembly / Extension / Delivery residual (#2864) ---
-
-  @Test
+@Test
   void extensionCheckoutNotAllowedIsAuditableAndResolves() {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(7442));
     assertSame(
@@ -483,7 +515,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(ExtensionErrorCodes.CHECKOUT_NOT_ALLOWED.isAuditable());
   }
 
-  @Test
+@Test
   void extensionParamNoiseIsNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(7007));
     assertSame(
@@ -492,7 +524,7 @@ class LegacyErrorCodeRegistryTest {
     assertFalse(ExtensionErrorCodes.EXT_PARAM_VALUE_INVALID.isAuditable());
   }
 
-  @Test
+@Test
   void extensionNonAuditableSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -507,7 +539,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void extensionAuditableDualWrites() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -525,7 +557,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-7442]-"));
   }
 
-  @Test
+@Test
   void assemblyNonCollidingLegacyCodeIsRegisteredButNotAuditable() {
     // 12 is package-local MISSING_FINDER; non-colliding with WF 1–10 so flat-registered
     assertFalse(LegacyErrorCodeRegistry.isAuditable(12));
@@ -533,7 +565,7 @@ class LegacyErrorCodeRegistryTest {
     assertFalse(AssemblyErrorCodes.MISSING_FINDER.isAuditable());
   }
 
-  @Test
+@Test
   void assemblyNonAuditableSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -548,14 +580,14 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void assemblyPackageLocalOneRemainsWorkflowInFlatRegistry() {
     // Bare int 1 is WorkflowErrorCodes.WORKFLOW_NOT_FOUND, not Assembly TEMPLATE_MISSING
     assertSame(WorkflowErrorCodes.WORKFLOW_NOT_FOUND, LegacyErrorCodeRegistry.find(1).orElseThrow());
     assertEquals(1, AssemblyErrorCodes.TEMPLATE_MISSING.numericCode());
   }
 
-  @Test
+@Test
   void deliveryDecryptCredentialsNotFlatRegisteredButEnumIsAuditable() {
     // package-local 7 collides with WF; flat registry keeps WorkflowErrorCodes
     assertSame(WorkflowErrorCodes.TRANSITION_NOT_FOUND, LegacyErrorCodeRegistry.find(7).orElseThrow());
@@ -563,10 +595,7 @@ class LegacyErrorCodeRegistryTest {
     assertEquals(7, DeliveryErrorCodes.COULD_NOT_DECRYPT_CREDENTIALS.numericCode());
   }
 
-
-  // --- Webservices / WebDAV / Servlet residual (#2865) ---
-
-  @Test
+@Test
   void webserviceAccessControlIsAuditableAndResolves() {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(32));
     assertSame(
@@ -575,7 +604,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(WebserviceErrorCodes.ACCESS_CONTROL_ERROR.isAuditable());
   }
 
-  @Test
+@Test
   void webserviceNotAuthorizedDualWrites() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -595,7 +624,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-72]-"));
   }
 
-  @Test
+@Test
   void webserviceSaveFailedIsNotAuditableButRegistered() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(28));
     assertSame(
@@ -604,7 +633,7 @@ class LegacyErrorCodeRegistryTest {
     assertFalse(WebserviceErrorCodes.FAILED_SAVE_RELATIONSHIPS.isAuditable());
   }
 
-  @Test
+@Test
   void webserviceSaveFailedNonAuditableSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -620,7 +649,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void webservicePackageLocalOneRemainsWorkflowInFlatRegistry() {
     // Bare int 1 is WorkflowErrorCodes.WORKFLOW_NOT_FOUND, not Webservice INVALID_CONTRACT
     assertSame(WorkflowErrorCodes.WORKFLOW_NOT_FOUND, LegacyErrorCodeRegistry.find(1).orElseThrow());
@@ -629,7 +658,7 @@ class LegacyErrorCodeRegistryTest {
     assertEquals(3, WebserviceErrorCodes.INVALID_SESSION.numericCode());
   }
 
-  @Test
+@Test
   void serverWebServicesLoginFailureIsAuditableAndResolves() {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(14010));
     assertSame(
@@ -637,7 +666,7 @@ class LegacyErrorCodeRegistryTest {
         LegacyErrorCodeRegistry.find(14010).orElseThrow());
   }
 
-  @Test
+@Test
   void serverWebServicesLoginFailureDualWrites() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -656,7 +685,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-14010]-"));
   }
 
-  @Test
+@Test
   void serverWebServicesContentNotFoundSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -673,14 +702,14 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void webdavUnsupportedMethodIsRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(70101));
     assertSame(WebdavErrorCodes.UNSUPPORTED_METHOD, LegacyErrorCodeRegistry.find(70101).orElseThrow());
     assertFalse(WebdavErrorCodes.UNSUPPORTED_METHOD.isAuditable());
   }
 
-  @Test
+@Test
   void webdavNonAuditableSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -696,22 +725,20 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void servletConnectionErrorIsRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(10151));
     assertSame(ServletErrorCodes.CONNECTION_ERROR, LegacyErrorCodeRegistry.find(10151).orElseThrow());
   }
 
-  @Test
+@Test
   void transformationNotFlatRegisteredButEnumIsNonAuditable() {
     assertSame(WorkflowErrorCodes.WORKFLOW_NOT_FOUND, LegacyErrorCodeRegistry.find(1).orElseThrow());
     assertFalse(TransformationErrorCodes.NO_CONVERTER_FOUND.isAuditable());
     assertEquals(1, TransformationErrorCodes.NO_CONVERTER_FOUND.numericCode());
   }
 
-  // --- Search / Lucene / Locale / Mail residual (#2880) ---
-
-  @Test
+@Test
   void searchAuthenticationFailedIsAuditableAndResolves() {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(16052));
     assertSame(
@@ -720,7 +747,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(SearchErrorCodes.SEARCH_ENGINE_AUTHENTICATION_FAILED.isAuditable());
   }
 
-  @Test
+@Test
   void searchAuthenticationFailedDualWrites() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -738,7 +765,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-16052]-"));
   }
 
-  @Test
+@Test
   void searchOperationalCodeIsRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(16001));
     assertSame(
@@ -747,7 +774,7 @@ class LegacyErrorCodeRegistryTest {
     assertFalse(SearchErrorCodes.SEARCH_ENGINE_UNIMPLEMENTED_OPERATION.isAuditable());
   }
 
-  @Test
+@Test
   void searchNonAuditableSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -762,7 +789,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void luceneIndexCodesAreRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(16311));
     assertSame(
@@ -774,7 +801,7 @@ class LegacyErrorCodeRegistryTest {
         LegacyErrorCodeRegistry.find(16451).orElseThrow());
   }
 
-  @Test
+@Test
   void luceneNonAuditableSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -789,7 +816,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void localeCodesAreRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(1801));
     assertSame(
@@ -800,7 +827,7 @@ class LegacyErrorCodeRegistryTest {
         LegacyErrorCodeRegistry.find(1804).orElseThrow());
   }
 
-  @Test
+@Test
   void localeNonAuditableSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -816,7 +843,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void mailCodesAreRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(3501));
     assertSame(MailErrorCodes.MAIL_ADDRESS_EMPTY, LegacyErrorCodeRegistry.find(3501).orElseThrow());
@@ -826,7 +853,7 @@ class LegacyErrorCodeRegistryTest {
         LegacyErrorCodeRegistry.find(3507).orElseThrow());
   }
 
-  @Test
+@Test
   void mailNonAuditableSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -842,7 +869,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void registryCoversSearchLuceneLocaleAndMail() {
     assertTrue(LegacyErrorCodeRegistry.size() >= 380);
     assertTrue(LegacyErrorCodeRegistry.find(16052).isPresent());
@@ -851,9 +878,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(3501).isPresent());
   }
 
-  // --- Data / BackEnd / Connection / Clone residual (#2881) ---
-
-  @Test
+@Test
   void dataQueryProcessingIsRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(5201));
     assertSame(
@@ -861,7 +886,7 @@ class LegacyErrorCodeRegistryTest {
     assertFalse(DataErrorCodes.QUERY_PROCESSING_ERROR.isAuditable());
   }
 
-  @Test
+@Test
   void dataNonAuditableSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -877,7 +902,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void backEndAuthorizationIsAuditableAndResolves() {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(5001));
     assertSame(
@@ -885,7 +910,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(BackEndErrorCodes.AUTHORIZATION_ERROR.isAuditable());
   }
 
-  @Test
+@Test
   void backEndAuthorizationDualWrites() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -906,7 +931,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-5001]-"));
   }
 
-  @Test
+@Test
   void backEndJdbcNoiseIsRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(5008));
     assertSame(
@@ -914,7 +939,7 @@ class LegacyErrorCodeRegistryTest {
     assertFalse(BackEndErrorCodes.JDBC_DRIVER_LOAD_FAILED.isAuditable());
   }
 
-  @Test
+@Test
   void backEndJdbcNonAuditableSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -931,14 +956,14 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void connectionUnauthorizedIsAuditableAndResolves() {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(3107));
     assertSame(ConnectionErrorCodes.UNAUTHORIZED, LegacyErrorCodeRegistry.find(3107).orElseThrow());
     assertTrue(ConnectionErrorCodes.UNAUTHORIZED.isAuditable());
   }
 
-  @Test
+@Test
   void connectionUnauthorizedDualWrites() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -955,7 +980,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-3107]-"));
   }
 
-  @Test
+@Test
   void connectionPortInvalidIsRegisteredButNotAuditable() {
     // 3001 overlaps Phase-2a UserManagementErrorCodes.CREATE package-local int; USER codes are
     // not flat-registered, so connection owns the flat registry key.
@@ -965,7 +990,7 @@ class LegacyErrorCodeRegistryTest {
     assertFalse(ConnectionErrorCodes.PORT_NUMBER_INVALID.isAuditable());
   }
 
-  @Test
+@Test
   void connectionPortInvalidNonAuditableSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -978,7 +1003,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void cloneNotAuthenticatedIsAuditableAndResolves() {
     assertTrue(LegacyErrorCodeRegistry.isAuditable(17502));
     assertSame(
@@ -986,7 +1011,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(CloneErrorCodes.NOT_AUTHENTICACATED.isAuditable());
   }
 
-  @Test
+@Test
   void cloneNotAuthorizedDualWrites() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -1004,7 +1029,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-17503]-"));
   }
 
-  @Test
+@Test
   void cloneInvalidSourceIdIsRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(17501));
     assertSame(
@@ -1012,7 +1037,7 @@ class LegacyErrorCodeRegistryTest {
     assertFalse(CloneErrorCodes.INVALID_CLONESOURCEID.isAuditable());
   }
 
-  @Test
+@Test
   void cloneInvalidSourceIdNonAuditableSkipsDualWrite() {
     CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
     DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
@@ -1029,7 +1054,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(sink.records().isEmpty());
   }
 
-  @Test
+@Test
   void registryCoversDataBackEndConnectionAndClone() {
     // prior catalogs + data (108) + backend (60) + connection (19) + clone (6)
     assertTrue(LegacyErrorCodeRegistry.size() >= 540);
@@ -1041,4 +1066,195 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(17503).isPresent());
   }
 
+@Test
+  void publisherPackageLocalNotFlatRegisteredButJobFailedIsAuditableViaEnum() {
+    // 19 is assembly FINDER_ERROR; flat registry does not claim publisher JOB_FAILED
+    assertSame(AssemblyErrorCodes.FINDER_ERROR, LegacyErrorCodeRegistry.find(19).orElseThrow());
+    assertTrue(PublisherErrorCodes.JOB_FAILED.isAuditable());
+    assertEquals(19, PublisherErrorCodes.JOB_FAILED.numericCode());
+    assertTrue(PublisherErrorCodes.ITEM_PUBLISH_FAILED.isAuditable());
+  }
+
+@Test
+  void publisherAuditableViaServiceLogDualWrites() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        svc.log(
+            PublisherErrorCodes.JOB_FAILED,
+            AuditContext.builder().actor("jdoe").build(),
+            "job-9",
+            "boom");
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(1, sink.records().size());
+    assertEquals(PublisherErrorCodes.JOB_FAILED, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[PUB-19]-"));
+  }
+
+@Test
+  void siteManagerAndFilterPackageLocalRemainWorkflowInFlatRegistry() {
+    assertSame(WorkflowErrorCodes.WORKFLOW_NOT_FOUND, LegacyErrorCodeRegistry.find(1).orElseThrow());
+    assertEquals(1, SiteManagerErrorCodes.SITE_ID_NOT_EXIST.numericCode());
+    assertFalse(SiteManagerErrorCodes.SITE_ID_NOT_EXIST.isAuditable());
+    assertEquals(1, FilterServiceErrorCodes.FILTER_MISSING.numericCode());
+    assertFalse(FilterServiceErrorCodes.FILTER_MISSING.isAuditable());
+  }
+
+@Test
+  void lockPermissionDeniedAuditableViaEnumNotFlatRegistered() {
+    // bare 9 remains WorkflowErrorCodes.CONFIGURATION_ERROR in the flat map
+    assertSame(
+        WorkflowErrorCodes.CONFIGURATION_ERROR, LegacyErrorCodeRegistry.find(9).orElseThrow());
+    assertTrue(LockErrorCodes.PERMISSION_DENIED.isAuditable());
+    assertEquals(9, LockErrorCodes.PERMISSION_DENIED.numericCode());
+  }
+
+@Test
+  void lockPermissionDeniedDualWritesViaEnum() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        svc.log(
+            LockErrorCodes.PERMISSION_DENIED, AuditContext.builder().actor("jdoe").build());
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(LockErrorCodes.PERMISSION_DENIED, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-9]-"));
+  }
+
+@Test
+  void uiAccessDeniedAuditableViaEnumNotFlatRegistered() {
+    assertSame(WorkflowErrorCodes.INVALID_TRANSITION, LegacyErrorCodeRegistry.find(8).orElseThrow());
+    assertTrue(UiErrorCodes.ACCESS_DENIED.isAuditable());
+    assertEquals(8, UiErrorCodes.ACCESS_DENIED.numericCode());
+  }
+
+@Test
+  void uiAccessDeniedDualWritesViaEnum() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        svc.log(
+            UiErrorCodes.ACCESS_DENIED,
+            AuditContext.builder().actor("jdoe").build(),
+            "delete",
+            "node-1");
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(UiErrorCodes.ACCESS_DENIED, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-8]-"));
+  }
+
+@Test
+  void catalogDesignRangeIsRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(4101));
+    assertSame(
+        CatalogErrorCodes.REQD_PROP_NOT_SPECIFIED,
+        LegacyErrorCodeRegistry.find(4101).orElseThrow());
+    assertFalse(CatalogErrorCodes.REQD_PROP_NOT_SPECIFIED.isAuditable());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(4310));
+    assertSame(CatalogErrorCodes.CATALOG_ERROR, LegacyErrorCodeRegistry.find(4310).orElseThrow());
+  }
+
+@Test
+  void catalogServicePackageLocalRemainsWorkflowInFlatRegistry() {
+    assertSame(WorkflowErrorCodes.WORKFLOW_NOT_FOUND, LegacyErrorCodeRegistry.find(1).orElseThrow());
+    assertEquals(1, CatalogErrorCodes.SUMMARY_ERROR.numericCode());
+  }
+
+@Test
+  void catalogNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc, CatalogErrorCodes.REQD_PROP_NOT_SPECIFIED.numericCode(), AuditContext.empty(), "p");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+@Test
+  void deploymentNonCollidingVersionCodeIsRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(74));
+    assertSame(
+        DeploymentErrorCodes.VERSION_LOWER_THAN_INSTALLED,
+        LegacyErrorCodeRegistry.find(74).orElseThrow());
+    assertFalse(DeploymentErrorCodes.VERSION_LOWER_THAN_INSTALLED.isAuditable());
+    assertSame(
+        DeploymentErrorCodes.WRONG_FORMAT_FOR_PAIRID_DEP_ID,
+        LegacyErrorCodeRegistry.find(85).orElseThrow());
+  }
+
+@Test
+  void deploymentLockCodesNotFlatRegisteredButAuditableViaEnum() {
+    // 46 is webservice FAILED_FIND_FOLDER_CHILDREN in the flat map
+    assertSame(
+        WebserviceErrorCodes.FAILED_FIND_FOLDER_CHILDREN,
+        LegacyErrorCodeRegistry.find(46).orElseThrow());
+    assertTrue(DeploymentErrorCodes.LOCK_ALREADY_HELD.isAuditable());
+    assertEquals(46, DeploymentErrorCodes.LOCK_ALREADY_HELD.numericCode());
+  }
+
+@Test
+  void deploymentLockAlreadyHeldDualWritesViaEnum() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        svc.log(
+            DeploymentErrorCodes.LOCK_ALREADY_HELD,
+            AuditContext.builder().actor("jdoe").build());
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(DeploymentErrorCodes.LOCK_ALREADY_HELD, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-46]-"));
+  }
+
+@Test
+  void navigationCodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(18001));
+    assertSame(
+        NavigationErrorCodes.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH,
+        LegacyErrorCodeRegistry.find(18001).orElseThrow());
+    assertFalse(
+        NavigationErrorCodes.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH.isAuditable());
+    assertSame(
+        NavigationErrorCodes.NAVIGATION_SERVICE_CANNOT_FIND_NAVTREE_FOR_SITE,
+        LegacyErrorCodeRegistry.find(18009).orElseThrow());
+  }
+
+@Test
+  void navigationNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            NavigationErrorCodes.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH.numericCode(),
+            AuditContext.builder().actor("jdoe").build(),
+            "/Sites/x");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+@Test
+  void registryCoversCatalogDeploymentAndNavigationResidual() {
+    assertTrue(LegacyErrorCodeRegistry.size() >= 370);
+    assertTrue(LegacyErrorCodeRegistry.find(4101).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(4311).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(74).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(85).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(18001).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(18009).isPresent());
+    // WF ownership of package-local low ints preserved
+    assertSame(WorkflowErrorCodes.ACCESS_DENIED, LegacyErrorCodeRegistry.find(6).orElseThrow());
+  }
 }
