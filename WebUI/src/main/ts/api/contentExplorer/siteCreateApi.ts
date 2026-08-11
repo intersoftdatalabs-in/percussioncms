@@ -153,6 +153,8 @@ export function parseBaseTemplateList(payload: unknown): BaseTemplateSummary[] {
   for (const row of rows) {
     if (row == null || typeof row !== "object") continue;
     const r = row as Record<string, unknown>;
+    // Require string name (or Name). Non-string name values are intentionally
+    // skipped so a single bad catalog row cannot break the create-site wizard.
     const name =
       typeof r.name === "string"
         ? r.name.trim()

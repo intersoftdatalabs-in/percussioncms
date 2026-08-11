@@ -49,6 +49,22 @@ describe("siteCreateApi helpers (#3002)", () => {
     });
   });
 
+  it("parseCreatedSite accepts lowercase site wrapper (Jackson variant)", () => {
+    expect(parseCreatedSite({ site: { name: "C", id: "3" } })).toEqual({
+      name: "C",
+      id: "3",
+      label: undefined,
+    });
+  });
+
+  it("parseCreatedSite accepts capitalized Name/Id/Label Jackson properties", () => {
+    expect(parseCreatedSite({ Name: "D", Id: "4", Label: "Dee" })).toEqual({
+      name: "D",
+      id: "4",
+      label: "Dee",
+    });
+  });
+
   it("parseCreatedSite rejects missing name", () => {
     expect(() => parseCreatedSite({})).toThrow(/missing site name/i);
   });
@@ -63,6 +79,17 @@ describe("siteCreateApi helpers (#3002)", () => {
     expect(list).toHaveLength(2);
     expect(list[0]?.name).toBe("perc.base.plain");
     expect(list[1]?.label).toBe("Other");
+  });
+
+  it("parseBaseTemplateList skips non-string name rows without throwing", () => {
+    const list = parseBaseTemplateList({
+      TemplateSummary: [
+        { name: 42, id: "bad" },
+        { name: "ok", id: "good" },
+        { Name: null, id: "also-bad" },
+      ],
+    });
+    expect(list).toEqual([{ id: "good", name: "ok", label: undefined, thumbPath: undefined }]);
   });
 
   it("pickDefaultBaseTemplate prefers plain base", () => {
