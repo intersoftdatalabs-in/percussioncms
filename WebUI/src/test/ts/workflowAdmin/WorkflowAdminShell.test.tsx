@@ -46,11 +46,16 @@ function renderShell(ui: React.ReactElement) {
 }
 
 describe("WorkflowAdminShell", () => {
-  it("renders shell title and default active tab", () => {
+  it("renders shell title and Admin tools sibling (#2953)", () => {
     renderShell(<WorkflowAdminShell />);
     expect(screen.getByTestId("perc-workflow-admin-shell")).toBeTruthy();
     expect(screen.getByTestId("mock-workflow-section")).toBeTruthy();
-    expect(screen.getByTestId("admin-sibling-tools-link")).toBeTruthy();
+    expect(screen.getByTestId("perc-workflow-admin-shell-title")).toBeTruthy();
+    const sibling = screen.getByTestId("admin-sibling-tools-link");
+    expect(sibling).toBeTruthy();
+    expect(sibling.textContent).toMatch(/Admin tools/i);
+    const href = sibling.getAttribute("href") || "";
+    expect(href === "/admin" || href.endsWith("/admin")).toBe(true);
   });
 
   it("exposes responsive tablist chrome for narrow / portrait layouts", () => {

@@ -72,8 +72,10 @@ export const AdminShell: React.FC<AdminShellProps> = ({
     >
       <header className={styles.header}>
         <div className={styles.headerRow}>
-          <h1>{message(ADMIN_MSG.ADMIN_TITLE)}</h1>
-          {/* Top nav lands on Admin tools (#2784); keep Workflow admin reachable. */}
+          <h1 data-testid="perc-admin-shell-title">
+            {message(ADMIN_MSG.ADMIN_TITLE)}
+          </h1>
+          {/* Top nav lands on Admin tools (#2784/#2953); keep Workflow admin reachable. */}
           <Link
             to="/workflow"
             className={styles.siblingLink}

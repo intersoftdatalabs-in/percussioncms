@@ -15,7 +15,12 @@
  */
 
 export const ADMIN_MSG = {
-  ADMIN_TITLE: "perc.ui.admin@Administration",
+  /**
+   * Shell page title for Admin tools (#2784 / #2953).
+   * Reuses the localized dashboard modern key so operators see "Admin tools"
+   * (not "Administration") when top-nav Admin lands on {@code /admin}.
+   */
+  ADMIN_TITLE: "perc.ui.dashboard.modern@Admin tools",
   TAB_TASKS: "perc.ui.admin@Scheduled Tasks",
   TAB_LOGS: "perc.ui.admin@Execution Logs",
   TAB_NOTIFICATIONS: "perc.ui.admin@Notification Settings",
