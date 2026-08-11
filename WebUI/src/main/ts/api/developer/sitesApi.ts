@@ -2,9 +2,9 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { get } from "../client";
+import { get, put } from "../client";
 import { PATHS } from "../paths";
-import type { SiteDef } from "./types";
+import type { SiteDef, VirtualSiteProperties } from "./types";
 
 /** Honest design gaps for Developer SY-04 site browse (not full site design). */
 export const SITE_DESIGN_GAPS: string[] = [
@@ -51,4 +51,51 @@ function withGaps(s: SiteDef): SiteDef {
 export async function listSites(): Promise<SiteDef[]> {
   const payload = await get<unknown>(PATHS.SITES);
   return parseSiteList(payload).map(withGaps);
+}
+
+/**
+ * Normalize virtual properties payload (Jackson root wrap or plain DTO).
+ */
+export function parseVirtualSiteProperties(payload: unknown): VirtualSiteProperties {
+  if (payload == null || typeof payload !== "object") {
+    return {};
+  }
+  const obj = payload as Record<string, unknown>;
+  const root =
+    (obj.VirtualSiteProperties as Record<string, unknown> | undefined) ??
+    (obj.virtualSiteProperties as Record<string, unknown> | undefined) ??
+    obj;
+  return {
+    sourceKind: asNullableString(root.sourceKind),
+    rootPath: asNullableString(root.rootPath),
+    configFile: asNullableString(root.configFile),
+    siteKey: asNullableString(root.siteKey),
+    virtual: typeof root.virtual === "boolean" ? root.virtual : undefined,
+  };
+}
+
+/** GET /services/sites/{nameOrId}/virtual */
+export async function getVirtualSiteProperties(
+  nameOrId: string,
+): Promise<VirtualSiteProperties> {
+  const key = encodeURIComponent(nameOrId.trim());
+  const payload = await get<unknown>(`${PATHS.SITES}/${key}/virtual`);
+  return parseVirtualSiteProperties(payload);
+}
+
+/** PUT /services/sites/{nameOrId}/virtual */
+export async function updateVirtualSiteProperties(
+  nameOrId: string,
+  props: VirtualSiteProperties,
+): Promise<VirtualSiteProperties> {
+  const key = encodeURIComponent(nameOrId.trim());
+  const payload = await put<unknown>(`${PATHS.SITES}/${key}/virtual`, props);
+  return parseVirtualSiteProperties(payload);
+}
+
+function asNullableString(value: unknown): string | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value === "string") return value;
+  return undefined;
 }

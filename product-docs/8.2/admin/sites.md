@@ -44,6 +44,27 @@ and Markdown tooling, not the classic page editor.
 Invalid combinations (unknown source kind, missing root, unsafe path, config path traversal) are
 rejected by server validation with clear error messages.
 
+### Configure Virtual Site source in the product UI
+
+1. Sign in as an administrator (or a role that can open **Developer**).
+2. Open **Developer** → **Sites** (SPA entry `spa.jsp?entry=developer&section=sites`).
+3. Select a Site row to open **Site detail**.
+4. In the **Virtual Site source** section:
+   - **Source kind** — leave **Repository (traditional)** for ordinary CMS Sites
+     (blank/`repository` on the server). Choose **Git filesystem** for Phase 1 Virtual Sites.
+   - **Root path** — absolute or install-relative path to the documentation tree
+     (required when source kind is Virtual). Do not use `..` path segments.
+   - **Config file** (optional) — simple file name under the root (default `_config.yaml`
+     when unset). No path separators.
+   - **Site key** (optional) — participant registry key; defaults to the Site name when blank.
+5. Choose **Save Virtual Site source**. Reload the Site detail to confirm values persisted.
+6. To return a Virtual Site to traditional repository mode, set source kind back to
+   **Repository (traditional)** and save (clears `virtual.*` properties).
+
+Validation matches the server helper (`PSVirtualSiteHelper`): allow-listed source kinds,
+required root path when virtual, and safe path/config names. After root or config changes,
+re-run the offline docs build or the CMS publish path to verify links.
+
 See [Virtual Sites (developer)](id:developer-virtual-sites) and
 [Site configuration reference](id:reference-site-config) for full contract and offline build steps.
 
