@@ -19,6 +19,12 @@ package com.percussion.services.system;
 /**
  * Error numbers for use with the bundle
  * <code>PSSystemErrorStringBundle.properties</code>
+ *
+ * <p><strong>Phase 2b bridge:</strong> cataloged in {@code
+ * com.intsof.percussioncms.auditlog.codes.SystemServiceErrorCodes} with explicit {@code
+ * isAuditable} (all non-auditable). Package-local ints {@code 1} and {@code 4} collide with
+ * workflow service codes in the flat {@code LegacyErrorCodeRegistry}; prefer the enum directly for
+ * dual-write decisions.
  */
 public interface IPSSystemErrors
 {
