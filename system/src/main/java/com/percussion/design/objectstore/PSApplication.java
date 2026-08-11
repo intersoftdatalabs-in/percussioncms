@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.legacy.IPSComponentConverter;
 import com.percussion.error.PSException;
 import com.percussion.extension.PSExtensionRef;
@@ -1740,16 +1742,16 @@ public final class PSApplication implements IPSDocument {
   private void fromXmlBase(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
     if (null == sourceDoc)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     Element root = sourceDoc.getDocumentElement();
     if (root == null)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     // make sure we got the correct root node tag
     if (!ms_NodeType.equals(root.getNodeName())) {
       Object[] args = {ms_NodeType, root.getNodeName()};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // Read PSXApplication object attributes
@@ -1771,7 +1773,7 @@ public final class PSApplication implements IPSDocument {
       } catch (Exception e) {
         Object[] args = {"1.0", "1.1", e.toString()};
         throw new PSUnknownDocTypeException(
-            IPSObjectStoreErrors.DOC_CONVERSION_FAILED
+            ObjectStoreErrorCodes.DOC_CONVERSION_FAILED
             /*code*/
             ,
             args);
@@ -1783,7 +1785,7 @@ public final class PSApplication implements IPSDocument {
       m_id = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
 
     sTemp = tree.getElementData(ATTR_APPLICATION_TYPE);
@@ -1807,7 +1809,7 @@ public final class PSApplication implements IPSDocument {
       if (null != sTemp) m_startPriority = Integer.parseInt(sTemp);
     } catch (NumberFormatException e) {
       Object[] args = {ms_NodeType + "/@" + STARTPRIORITY_ATTRNAME, sTemp};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     // get application name element
@@ -1881,7 +1883,7 @@ public final class PSApplication implements IPSDocument {
         m_maxThreads = Integer.parseInt(sTemp);
       } catch (NumberFormatException e) {
         Object[] args = {ms_NodeType, "maxThreads", sTemp};
-        throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     }
 
@@ -1893,7 +1895,7 @@ public final class PSApplication implements IPSDocument {
         m_maxRequestTime = Integer.parseInt(sTemp);
       } catch (NumberFormatException e) {
         Object[] args = {ms_NodeType, "maxRequestTime", sTemp};
-        throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     }
 
@@ -1905,7 +1907,7 @@ public final class PSApplication implements IPSDocument {
         m_maxRequestsInQueue = Integer.parseInt(sTemp);
       } catch (NumberFormatException e) {
         Object[] args = {ms_NodeType, "maxRequestsInQueue", sTemp};
-        throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     }
 
@@ -1921,7 +1923,7 @@ public final class PSApplication implements IPSDocument {
         m_sessionTimeout = Integer.parseInt(sTemp);
       } catch (NumberFormatException e) {
         Object[] args = {ms_NodeType, "userSessionTimeout", sTemp};
-        throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     }
 
@@ -2018,7 +2020,7 @@ public final class PSApplication implements IPSDocument {
         // warn that custom login page is ignored
         PSConsole.printInfoMsg(
             "Server",
-            IPSObjectStoreErrors.APP_LOGIN_PAGE_NOT_SUPPORTED,
+            ObjectStoreErrorCodes.APP_LOGIN_PAGE_NOT_SUPPORTED.numericCode(),
             new Object[] {m_name},
             Level.INFO);
       }
@@ -2033,7 +2035,7 @@ public final class PSApplication implements IPSDocument {
     // Check for old backend credentials declaration
     if (tree.getNextElement(PSBackEndCredential.ms_NodeType, walkerFlags) != null) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.APP_BACKEND_CREDS_NOT_SUPPORTED, m_name);
+          ObjectStoreErrorCodes.APP_BACKEND_CREDS_NOT_SUPPORTED, m_name);
     }
 
     // are logins allowed to pass through to the back end?
@@ -2053,7 +2055,7 @@ public final class PSApplication implements IPSDocument {
       } while (tree.getNextElement("PSXRole", walkerFlags) != null);
 
       Object[] args = {roleNames};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.APP_ROLES_NOT_SUPPORTED, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.APP_ROLES_NOT_SUPPORTED, args);
     }
 
     // create PSNotifier elements
@@ -2200,7 +2202,7 @@ public final class PSApplication implements IPSDocument {
     if (m_dataSets != null) {
       if (m_dataSets.size() == 0) {
         // no data sets; the app won't do anything useful
-        cxt.validationWarning(null, IPSObjectStoreErrors.APP_NO_DATASETS, m_name);
+        cxt.validationWarning(null, ObjectStoreErrorCodes.APP_NO_DATASETS.numericCode(), m_name);
       }
 
       // to keep track of possible request page duplicates
@@ -2225,7 +2227,7 @@ public final class PSApplication implements IPSDocument {
           // Error
           Object[] args = new Object[] {set.getRequestor().getRequestPage(), m_name};
 
-          cxt.validationError(null, IPSObjectStoreErrors.REQUEST_NAME_DUP, args);
+          cxt.validationError(null, ObjectStoreErrorCodes.REQUEST_NAME_DUP, args);
         } else {
           requestKeys.add(key);
         }
@@ -2233,12 +2235,12 @@ public final class PSApplication implements IPSDocument {
         if (null != dsNames.get(dsName)) {
           Object[] args = new Object[] {m_name, dsName};
 
-          cxt.validationError(null, IPSObjectStoreErrors.APP_DATASET_NAMES_DUP, args);
+          cxt.validationError(null, ObjectStoreErrorCodes.APP_DATASET_NAMES_DUP, args);
         } else dsNames.put(dsName, dsName);
       }
     } else {
       // no data sets; the app won't do anything useful
-      cxt.validationWarning(null, IPSObjectStoreErrors.APP_NO_DATASETS, m_name);
+      cxt.validationWarning(null, ObjectStoreErrorCodes.APP_NO_DATASETS.numericCode(), m_name);
     }
 
     if (m_logger != null) m_logger.validate(cxt);

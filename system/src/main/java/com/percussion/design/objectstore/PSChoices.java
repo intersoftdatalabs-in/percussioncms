@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -351,11 +353,11 @@ public final class PSChoices extends PSComponent {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -384,7 +386,7 @@ public final class PSChoices extends PSComponent {
         }
         if (!found) {
           Object[] args = {XML_NODE_NAME, TYPE_ATTR, data};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       }
 
@@ -401,7 +403,7 @@ public final class PSChoices extends PSComponent {
         }
         if (!found) {
           Object[] args = {XML_NODE_NAME, SORT_ORDER_ATTR, data};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       }
 
@@ -416,14 +418,14 @@ public final class PSChoices extends PSComponent {
         } catch (NumberFormatException e) {
           Object[] args = {XML_NODE_NAME, CHOICE_LIST_KEY_ELEM, key == null ? "null" : key};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       } else if (m_type == TYPE_LOCAL) {
         node = tree.getNextElement(PSEntry.XML_NODE_NAME, firstFlags);
         if (node == null) {
           Object[] args = {XML_NODE_NAME, PSEntry.XML_NODE_NAME, "null"};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
         Node current = tree.getCurrent();
         while (node != null) {
@@ -436,7 +438,7 @@ public final class PSChoices extends PSComponent {
         if (node == null) {
           Object[] args = {XML_NODE_NAME, PSUrlRequest.XML_NODE_NAME, "null"};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
         m_lookup = new PSUrlRequest(node, parentDoc, parentComponents);
       } else if (m_type == TYPE_TABLE_INFO) {
@@ -444,7 +446,7 @@ public final class PSChoices extends PSComponent {
         if (node == null) {
           Object[] args = {XML_NODE_NAME, PSChoiceTableInfo.XML_NODE_NAME, "null"};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
         m_tableInfo = new PSChoiceTableInfo(node, parentDoc, parentComponents);
       }
@@ -522,14 +524,14 @@ public final class PSChoices extends PSComponent {
         && m_type != TYPE_INTERNAL_LOOKUP
         && m_type != TYPE_TABLE_INFO) {
       Object[] args = {TYPE_ENUM};
-      context.validationError(this, IPSObjectStoreErrors.UNSUPPORTED_CHOICE_TYPE, args);
+      context.validationError(this, ObjectStoreErrorCodes.UNSUPPORTED_CHOICE_TYPE, args);
     }
 
     if (m_sortOrder != SORT_ORDER_ASCENDING
         && m_sortOrder != SORT_ORDER_DESCENDING
         && m_sortOrder != SORT_ORDER_USER) {
       Object[] args = {SORT_ORDER_ENUM};
-      context.validationError(this, IPSObjectStoreErrors.UNSUPPORTED_SORT_ORDER, args);
+      context.validationError(this, ObjectStoreErrorCodes.UNSUPPORTED_SORT_ORDER, args);
     }
 
     // do children
@@ -538,22 +540,22 @@ public final class PSChoices extends PSComponent {
       if (m_type == TYPE_GLOBAL) {
         if (m_global < 0) {
           Object[] args = {Integer.toString(m_global)};
-          context.validationError(this, IPSObjectStoreErrors.INVALID_GLOBAL_TABLE_ID, args);
+          context.validationError(this, ObjectStoreErrorCodes.INVALID_GLOBAL_TABLE_ID, args);
         }
       } else if (m_type == TYPE_LOCAL) {
         if (m_local == null || m_local.isEmpty()) {
-          context.validationError(this, IPSObjectStoreErrors.LOCAL_CHOICES_NULL_OR_EMPTY, null);
+          context.validationError(this, ObjectStoreErrorCodes.LOCAL_CHOICES_NULL_OR_EMPTY, null);
         } else {
           Iterator it = getLocal();
           while (it.hasNext()) ((PSEntry) it.next()).validate(context);
         }
       } else if (m_type == TYPE_TABLE_INFO) {
         if (m_tableInfo == null) {
-          context.validationError(this, IPSObjectStoreErrors.LOOKUP_TABLE_INFO_NULL, null);
+          context.validationError(this, ObjectStoreErrorCodes.LOOKUP_TABLE_INFO_NULL, null);
         }
       } else {
         if (m_lookup == null) {
-          context.validationError(this, IPSObjectStoreErrors.LOOKUP_CHOICES_NULL, null);
+          context.validationError(this, ObjectStoreErrorCodes.LOOKUP_CHOICES_NULL, null);
         } else m_lookup.validate(context);
       }
 

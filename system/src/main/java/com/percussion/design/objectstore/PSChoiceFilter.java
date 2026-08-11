@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.cms.objectstore.client.PSLightWeightField;
 import com.percussion.util.PSCollection;
 import java.util.Iterator;
@@ -67,11 +69,11 @@ public class PSChoiceFilter extends PSComponent {
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     boolean hasDependentField = false;
@@ -100,13 +102,13 @@ public class PSChoiceFilter extends PSComponent {
     if (!hasDependentField) {
       Object[] args = {XML_NODE_NAME, DependentField.XML_NODE_NAME, "null"};
 
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     if (!hasPSXUrlRequest) {
       Object[] args = {XML_NODE_NAME, PSUrlRequest.XML_NODE_NAME, "null"};
 
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
   }
 
@@ -117,7 +119,7 @@ public class PSChoiceFilter extends PSComponent {
     if (m_dependentFields.size() <= 0) {
       Object[] args = {DependentField.XML_NODE_NAME};
       context.validationError(
-          this, IPSObjectStoreErrors.CHOICE_FILTER_MISSING_REQUIRED_CHILD, args);
+          this, ObjectStoreErrorCodes.CHOICE_FILTER_MISSING_REQUIRED_CHILD, args);
     } else {
       for (int i = 0; i < m_dependentFields.size(); i++) {
         DependentField df = (DependentField) m_dependentFields.elementAt(i);
@@ -128,7 +130,7 @@ public class PSChoiceFilter extends PSComponent {
     if (m_lookup == null) {
       Object[] args = {PSUrlRequest.XML_NODE_NAME};
       context.validationError(
-          this, IPSObjectStoreErrors.CHOICE_FILTER_MISSING_REQUIRED_CHILD, args);
+          this, ObjectStoreErrorCodes.CHOICE_FILTER_MISSING_REQUIRED_CHILD, args);
     } else {
       m_lookup.validate(context);
     }
@@ -260,24 +262,24 @@ public class PSChoiceFilter extends PSComponent {
     public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
         throws PSUnknownNodeTypeException {
       if (sourceNode == null)
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
       if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
         Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       m_fieldRef = sourceNode.getAttribute(XML_ATTR_fieldRef);
       if (m_fieldRef == null || m_fieldRef.trim().length() <= 0) {
         Object[] args = {XML_NODE_NAME, XML_ATTR_fieldRef, "null"};
 
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       m_dependencyType = sourceNode.getAttribute(XML_ATTR_dependencyType);
       if (m_dependencyType == null || m_dependencyType.trim().length() <= 0) {
         Object[] args = {XML_NODE_NAME, XML_ATTR_dependencyType, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
     }
 
@@ -290,14 +292,14 @@ public class PSChoiceFilter extends PSComponent {
       if (m_fieldRef == null || m_fieldRef.trim().length() <= 0) {
         Object[] args = {XML_ATTR_fieldRef};
         context.validationError(
-            this, IPSObjectStoreErrors.CHOICE_FILTER_DEPENDENT_FIELD_MISSING_ATTR, args);
+            this, ObjectStoreErrorCodes.CHOICE_FILTER_DEPENDENT_FIELD_MISSING_ATTR, args);
       }
 
       // REQUIRED: dependencyType attr
       if (m_dependencyType == null || m_dependencyType.trim().length() <= 0) {
         Object[] args = {XML_ATTR_dependencyType};
         context.validationError(
-            this, IPSObjectStoreErrors.CHOICE_FILTER_DEPENDENT_FIELD_MISSING_ATTR, args);
+            this, ObjectStoreErrorCodes.CHOICE_FILTER_DEPENDENT_FIELD_MISSING_ATTR, args);
       }
     }
 

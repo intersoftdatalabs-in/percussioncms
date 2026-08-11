@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
 import java.util.Objects;
@@ -393,7 +395,7 @@ public class PSBackEndJoin extends PSComponent {
         m_id = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       sTemp = tree.getElementData("joinType");
@@ -412,7 +414,7 @@ public class PSBackEndJoin extends PSComponent {
       // left column, private PSBackEndColumn m_leftColumn = null;
       if (tree.getNextElement("leftColumn", firstFlags) == null) {
         Object[] args = {ms_NodeType, "leftColumn", "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       } else {
         /* need a new tree rooted on the leftColumn so we don't jump to
          * the right column's data accidentally
@@ -421,7 +423,7 @@ public class PSBackEndJoin extends PSComponent {
         if (t2.getNextElement(PSBackEndColumn.ms_NodeType, firstFlags) == null) {
           Object[] args = {ms_NodeType + "/leftColumn", PSBackEndColumn.ms_NodeType, "null"};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
 
         m_leftColumn = new PSBackEndColumn((Element) t2.getCurrent(), parentDoc, parentComponents);
@@ -432,7 +434,7 @@ public class PSBackEndJoin extends PSComponent {
       // right column private PSBackEndColumn m_rightColumn = null;
       if (tree.getNextElement("rightColumn", firstFlags) == null) {
         Object[] args = {ms_NodeType, "rightColumn", "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       } else {
         /* need a new tree rooted on the rightColumn so we don't jump to
          * the some other data accidentally
@@ -441,7 +443,7 @@ public class PSBackEndJoin extends PSComponent {
         if (t2.getNextElement(PSBackEndColumn.ms_NodeType, firstFlags) == null) {
           Object[] args = {ms_NodeType + "/rightColumn", PSBackEndColumn.ms_NodeType, "null"};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
         m_rightColumn = new PSBackEndColumn((Element) t2.getCurrent(), parentDoc, parentComponents);
       }
@@ -489,14 +491,14 @@ public class PSBackEndJoin extends PSComponent {
         // ok
         break;
       default:
-        cxt.validationError(this, IPSObjectStoreErrors.BE_JOIN_UNKNOWN_TYPE, "" + m_joinType);
+        cxt.validationError(this, ObjectStoreErrorCodes.BE_JOIN_UNKNOWN_TYPE, "" + m_joinType);
     }
 
     if (m_leftColumn == null)
-      cxt.validationError(this, IPSObjectStoreErrors.BE_JOIN_LCOL_NULL, null);
+      cxt.validationError(this, ObjectStoreErrorCodes.BE_JOIN_LCOL_NULL, null);
 
     if (m_rightColumn == null)
-      cxt.validationError(this, IPSObjectStoreErrors.BE_JOIN_RCOL_NULL, null);
+      cxt.validationError(this, ObjectStoreErrorCodes.BE_JOIN_RCOL_NULL, null);
 
     // do children
     cxt.pushParent(this);

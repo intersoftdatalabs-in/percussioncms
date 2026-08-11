@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.util.PSCollection;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -285,11 +287,11 @@ public final class PSCommandHandlerStylesheets extends PSComponent {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -312,7 +314,7 @@ public final class PSCommandHandlerStylesheets extends PSComponent {
       node = tree.getNextElement(COMMAND_HANDLER_ELEM, firstFlags);
       if (node == null) {
         Object[] args = {XML_NODE_NAME, COMMAND_HANDLER_ELEM, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       while (node != null) {
         Node current = tree.getCurrent();
@@ -320,7 +322,7 @@ public final class PSCommandHandlerStylesheets extends PSComponent {
         String name = node.getAttribute(COMMAND_HANDLER_NAME_ATTR);
         if (name == null || name.trim().length() == 0) {
           Object[] args = {COMMAND_HANDLER_ELEM, COMMAND_HANDLER_NAME_ATTR, "null"};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
 
         // OPTIONAL: get all stylesheets
@@ -338,7 +340,7 @@ public final class PSCommandHandlerStylesheets extends PSComponent {
         if (node == null) {
           Object[] args = {XML_NODE_NAME, PSStylesheet.XML_NODE_NAME, "null"};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
         PSStylesheet stylesheet = new PSStylesheet(node, parentDoc, parentComponents);
 
@@ -403,7 +405,7 @@ public final class PSCommandHandlerStylesheets extends PSComponent {
         Iterator it = getStylesheets((String) names.next());
         if (!it.hasNext()) {
           context.validationError(
-              this, IPSObjectStoreErrors.INVALID_COMMAND_HANDLER_STYLESHEETS, null);
+              this, ObjectStoreErrorCodes.INVALID_COMMAND_HANDLER_STYLESHEETS, null);
         }
         while (it.hasNext()) ((PSConditionalStylesheet) it.next()).validate(context);
       }

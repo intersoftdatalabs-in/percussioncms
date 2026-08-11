@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -521,13 +523,13 @@ public class PSAclEntry extends PSComponent {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
     }
 
     // make sure we got the ACL type node
     if (false == ms_NodeType.equals(sourceNode.getNodeName())) {
       Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -537,20 +539,20 @@ public class PSAclEntry extends PSComponent {
       m_id = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
 
     // get the ACLEntry type element from attribute
     sTemp = tree.getElementData("type");
     if ((sTemp == null) || (sTemp.length() == 0)) {
       Object[] args = {ms_NodeType, "type", "empty"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     } else if (sTemp.equals(XML_FLAG_TYPE_USER)) m_type = ACE_TYPE_USER;
     else if (sTemp.equals(XML_FLAG_TYPE_GROUP)) m_type = ACE_TYPE_GROUP;
     else if (sTemp.equals(XML_FLAG_TYPE_ROLE)) m_type = ACE_TYPE_ROLE;
     else {
       Object[] args = {ms_NodeType, "type", sTemp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     // Read name element of the ACLEntry
@@ -635,7 +637,7 @@ public class PSAclEntry extends PSComponent {
 
     if (m_id < 0) {
       Object[] args = {ms_NodeType, "" + m_id};
-      cxt.validationWarning(this, IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      cxt.validationWarning(this, ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID.numericCode(), args);
     }
 
     // validate that only server access level flags are set if this is a

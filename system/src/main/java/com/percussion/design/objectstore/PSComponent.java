@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.legacy.IPSComponentConverter;
 import com.percussion.design.objectstore.legacy.IPSComponentUpdater;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -284,7 +286,7 @@ public abstract class PSComponent implements IPSComponent, Serializable {
       throws PSUnknownNodeTypeException {
     if (null == expectedName) throw new IllegalArgumentException("expectedName cannot be null");
     if (null == elem)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, expectedName);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, expectedName);
 
     // TODO: support namespaces correctly (requires DOM level 2)
     // String localName = elem.getLocalName();
@@ -293,7 +295,7 @@ public abstract class PSComponent implements IPSComponent, Serializable {
 
     if (!expectedName.equals(localName)) {
       Object[] args = {expectedName, localName};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
   }
 
@@ -365,7 +367,7 @@ public abstract class PSComponent implements IPSComponent, Serializable {
       if (!found) {
         String parentName = tree.getCurrent().getNodeName();
         Object[] args = {parentName, attrName, data};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
     }
 
@@ -395,7 +397,7 @@ public abstract class PSComponent implements IPSComponent, Serializable {
     if (data == null || data.trim().length() == 0) {
       String parentName = tree.getCurrent().getNodeName();
       Object[] args = {parentName, elemName, "null or empty"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     return data;
@@ -449,7 +451,7 @@ public abstract class PSComponent implements IPSComponent, Serializable {
       setId(Integer.parseInt(data));
     } catch (NumberFormatException e) {
       String[] args = {source.getNodeName(), ((data == null) ? "null" : data)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
   }
 
