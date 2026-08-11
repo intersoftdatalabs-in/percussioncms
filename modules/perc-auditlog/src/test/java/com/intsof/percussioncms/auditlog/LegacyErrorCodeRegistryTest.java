@@ -66,6 +66,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 
+
 import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
@@ -1431,5 +1432,47 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(2011).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(2209).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(2260).isPresent());
+  }
+
+@Test
+  void objectStoreBatchBCodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2261));
+    assertSame(
+        ObjectStoreErrorCodes.ROLE_NAME_EMPTY, LegacyErrorCodeRegistry.find(2261).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2309));
+    assertSame(
+        ObjectStoreErrorCodes.JDBC_DRIVER_CLASS_LOAD_ERROR,
+        LegacyErrorCodeRegistry.find(2309).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2320));
+    assertSame(
+        ObjectStoreErrorCodes.UPDATEPIPE_NO_SYNC_TYPES,
+        LegacyErrorCodeRegistry.find(2320).orElseThrow());
+  }
+
+@Test
+  void objectStoreBatchBNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            ObjectStoreErrorCodes.ROLESET_PROVIDER_TYPE_INVALID.numericCode(),
+            AuditContext.empty(),
+            "badProvider");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+@Test
+  void registryCoversObjectStoreBatchAAndB() {
+    // Prior catalogs (~380+) plus ObjectStore A+B (123 non-colliding ints).
+    assertTrue(LegacyErrorCodeRegistry.size() >= 500);
+    assertTrue(LegacyErrorCodeRegistry.find(2011).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2209).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2260).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2261).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2320).isPresent());
   }
 }
