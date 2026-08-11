@@ -19,9 +19,43 @@ import {
   getDisplayFormatDetail,
   listDisplayFormats,
   normalizeDisplayFormatColumns,
+  objectGuidString,
   unwrapDisplayFormat,
 } from "../../../main/ts/api/contentExplorer/displayFormatsApi";
 import { mockFetch } from "./setup";
+
+/**
+ * Content Explorer re-exports the shared GUID helpers — keep a dedicated
+ * describe so CE and Developer cannot diverge without a red test (#2951 review).
+ */
+describe("objectGuidString (contentExplorer re-export)", () => {
+  it("reads stringValue when present", () => {
+    expect(objectGuidString({ stringValue: "0-11-5" })).toBe("0-11-5");
+  });
+
+  it("accepts plain string GUID", () => {
+    expect(objectGuidString(" 0-11-7 ")).toBe("0-11-7");
+  });
+
+  it("synthesizes host-type-uuid when stringValue missing (#2951)", () => {
+    expect(
+      objectGuidString({ hostId: 0, type: 11, uuid: 5, longValue: 5 }),
+    ).toBe("0-11-5");
+  });
+
+  it("unwraps nested Guid envelope", () => {
+    expect(
+      objectGuidString({ Guid: { stringValue: "0-11-9", type: 11, uuid: 9 } }),
+    ).toBe("0-11-9");
+  });
+
+  it("returns undefined for empty payloads", () => {
+    expect(objectGuidString(null)).toBeUndefined();
+    expect(objectGuidString(undefined)).toBeUndefined();
+    expect(objectGuidString({})).toBeUndefined();
+    expect(objectGuidString("")).toBeUndefined();
+  });
+});
 
 describe("displayFormatsApi", () => {
   it("listDisplayFormats unwraps array envelope and passes filters", async () => {
