@@ -39,9 +39,12 @@ import org.w3c.dom.Element;
 /**
  * Represents a Jetty specific JNDI datasource file.
  *
+ * <p>Final so the {@link Properties} constructor may assign name / connection-test / password
+ * without {@code this-escape} diagnostics under {@code -Xlint}.
+ *
  * @author natechadwick
  */
-public class PSJettyJndiDatasource extends PSJBossJndiDatasource {
+public final class PSJettyJndiDatasource extends PSJBossJndiDatasource {
   // additional fields for jetty only
   private String resourceName;
 
@@ -53,9 +56,14 @@ public class PSJettyJndiDatasource extends PSJBossJndiDatasource {
     super(source);
   }
 
-  @SuppressWarnings("this-escape")
+  /**
+   * Build from Jetty install properties. Uses direct field assignment after the multi-arg super
+   * constructor so construction does not call overridable setters ({@code this-escape}).
+   *
+   * @param props install properties, may not be {@code null}
+   */
   public PSJettyJndiDatasource(Properties props) {
-    this(
+    super(
         props.getProperty(DB_NAME_PROPERTY),
         props.getProperty(DB_DRIVER_NAME_PROPERTY),
         props.getProperty(DB_DRIVER_CLASS_NAME_PROPERTY),
@@ -63,13 +71,14 @@ public class PSJettyJndiDatasource extends PSJBossJndiDatasource {
         props.getProperty(UID_PROPERTY),
         props.getProperty(PWD_PROPERTY));
 
-    // add jetty only properties
-    this.setName(props.getProperty(DB_RESOURCE_NAME));
-    this.setConnectionTestQuery(props.getProperty(DB_CONNECTION_TEST_QUERY));
+    // Jetty resource name + connection test: assign protected / local fields directly
+    this.name = props.getProperty(DB_RESOURCE_NAME);
+    this.resourceName = this.name;
+    this.connectionTestQuery = props.getProperty(DB_CONNECTION_TEST_QUERY);
 
     String pwd = props.getProperty(PWD_PROPERTY);
-    String encrypted = props.getProperty(PWD_ENCRYPTED_PROPERTY);
-    if (encrypted != null && encrypted.equalsIgnoreCase("Y")) {
+    String encryptedFlag = props.getProperty(PWD_ENCRYPTED_PROPERTY);
+    if (encryptedFlag != null && encryptedFlag.equalsIgnoreCase("Y")) {
       this.encrypted = true;
       try {
         pwd =
@@ -93,7 +102,7 @@ public class PSJettyJndiDatasource extends PSJBossJndiDatasource {
                     null);
       }
     }
-    this.setPassword(pwd);
+    this.password = pwd;
   }
 
   public PSJettyJndiDatasource(
