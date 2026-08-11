@@ -443,6 +443,9 @@ class PSWidgetXmlDualShipTest {
         }
       }
 
+      // Second materialize is a no-op while committed XML is present on staging.
+      assertEquals(0, PSWidgetXmlDualShip.materializeInstallWidgetXml(staging));
+
       PSDefinitionSourceSelection sel = PSLegacyDefinitionXmlShim.selectForPackageRoot(product);
       assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, sel.getKind(), pkgName);
       assertFalse(
