@@ -41,6 +41,14 @@ import com.intsof.percussioncms.auditlog.codes.TransformationErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.FilterServiceErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.LockErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.NavigationErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.PublisherErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SiteManagerErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.UiErrorCodes;
 import com.intsof.percussioncms.auditlog.sink.CapturingAuditLogSink;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -845,6 +853,200 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(16311).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(1801).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(3501).isPresent());
+  }
+
+// --- Publisher / SiteMgr / Filter / Lock / Catalog / Deployment / Nav / UI residual (#2882) ---
+
+  @Test
+  void publisherPackageLocalNotFlatRegisteredButJobFailedIsAuditableViaEnum() {
+    // 19 is assembly FINDER_ERROR; flat registry does not claim publisher JOB_FAILED
+    assertSame(AssemblyErrorCodes.FINDER_ERROR, LegacyErrorCodeRegistry.find(19).orElseThrow());
+    assertTrue(PublisherErrorCodes.JOB_FAILED.isAuditable());
+    assertEquals(19, PublisherErrorCodes.JOB_FAILED.numericCode());
+    assertTrue(PublisherErrorCodes.ITEM_PUBLISH_FAILED.isAuditable());
+  }
+
+  @Test
+  void publisherAuditableViaServiceLogDualWrites() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        svc.log(
+            PublisherErrorCodes.JOB_FAILED,
+            AuditContext.builder().actor("jdoe").build(),
+            "job-9",
+            "boom");
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(1, sink.records().size());
+    assertEquals(PublisherErrorCodes.JOB_FAILED, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[PUB-19]-"));
+  }
+
+  @Test
+  void siteManagerAndFilterPackageLocalRemainWorkflowInFlatRegistry() {
+    assertSame(WorkflowErrorCodes.WORKFLOW_NOT_FOUND, LegacyErrorCodeRegistry.find(1).orElseThrow());
+    assertEquals(1, SiteManagerErrorCodes.SITE_ID_NOT_EXIST.numericCode());
+    assertFalse(SiteManagerErrorCodes.SITE_ID_NOT_EXIST.isAuditable());
+    assertEquals(1, FilterServiceErrorCodes.FILTER_MISSING.numericCode());
+    assertFalse(FilterServiceErrorCodes.FILTER_MISSING.isAuditable());
+  }
+
+  @Test
+  void lockPermissionDeniedAuditableViaEnumNotFlatRegistered() {
+    // bare 9 remains WorkflowErrorCodes.CONFIGURATION_ERROR in the flat map
+    assertSame(
+        WorkflowErrorCodes.CONFIGURATION_ERROR, LegacyErrorCodeRegistry.find(9).orElseThrow());
+    assertTrue(LockErrorCodes.PERMISSION_DENIED.isAuditable());
+    assertEquals(9, LockErrorCodes.PERMISSION_DENIED.numericCode());
+  }
+
+  @Test
+  void lockPermissionDeniedDualWritesViaEnum() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        svc.log(
+            LockErrorCodes.PERMISSION_DENIED, AuditContext.builder().actor("jdoe").build());
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(LockErrorCodes.PERMISSION_DENIED, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-9]-"));
+  }
+
+  @Test
+  void uiAccessDeniedAuditableViaEnumNotFlatRegistered() {
+    assertSame(WorkflowErrorCodes.INVALID_TRANSITION, LegacyErrorCodeRegistry.find(8).orElseThrow());
+    assertTrue(UiErrorCodes.ACCESS_DENIED.isAuditable());
+    assertEquals(8, UiErrorCodes.ACCESS_DENIED.numericCode());
+  }
+
+  @Test
+  void uiAccessDeniedDualWritesViaEnum() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        svc.log(
+            UiErrorCodes.ACCESS_DENIED,
+            AuditContext.builder().actor("jdoe").build(),
+            "delete",
+            "node-1");
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(UiErrorCodes.ACCESS_DENIED, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-8]-"));
+  }
+
+  @Test
+  void catalogDesignRangeIsRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(4101));
+    assertSame(
+        CatalogErrorCodes.REQD_PROP_NOT_SPECIFIED,
+        LegacyErrorCodeRegistry.find(4101).orElseThrow());
+    assertFalse(CatalogErrorCodes.REQD_PROP_NOT_SPECIFIED.isAuditable());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(4310));
+    assertSame(CatalogErrorCodes.CATALOG_ERROR, LegacyErrorCodeRegistry.find(4310).orElseThrow());
+  }
+
+  @Test
+  void catalogServicePackageLocalRemainsWorkflowInFlatRegistry() {
+    assertSame(WorkflowErrorCodes.WORKFLOW_NOT_FOUND, LegacyErrorCodeRegistry.find(1).orElseThrow());
+    assertEquals(1, CatalogErrorCodes.SUMMARY_ERROR.numericCode());
+  }
+
+  @Test
+  void catalogNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc, CatalogErrorCodes.REQD_PROP_NOT_SPECIFIED.numericCode(), AuditContext.empty(), "p");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void deploymentNonCollidingVersionCodeIsRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(74));
+    assertSame(
+        DeploymentErrorCodes.VERSION_LOWER_THAN_INSTALLED,
+        LegacyErrorCodeRegistry.find(74).orElseThrow());
+    assertFalse(DeploymentErrorCodes.VERSION_LOWER_THAN_INSTALLED.isAuditable());
+    assertSame(
+        DeploymentErrorCodes.WRONG_FORMAT_FOR_PAIRID_DEP_ID,
+        LegacyErrorCodeRegistry.find(85).orElseThrow());
+  }
+
+  @Test
+  void deploymentLockCodesNotFlatRegisteredButAuditableViaEnum() {
+    // 46 is webservice FAILED_FIND_FOLDER_CHILDREN in the flat map
+    assertSame(
+        WebserviceErrorCodes.FAILED_FIND_FOLDER_CHILDREN,
+        LegacyErrorCodeRegistry.find(46).orElseThrow());
+    assertTrue(DeploymentErrorCodes.LOCK_ALREADY_HELD.isAuditable());
+    assertEquals(46, DeploymentErrorCodes.LOCK_ALREADY_HELD.numericCode());
+  }
+
+  @Test
+  void deploymentLockAlreadyHeldDualWritesViaEnum() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        svc.log(
+            DeploymentErrorCodes.LOCK_ALREADY_HELD,
+            AuditContext.builder().actor("jdoe").build());
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(DeploymentErrorCodes.LOCK_ALREADY_HELD, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-46]-"));
+  }
+
+  @Test
+  void navigationCodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(18001));
+    assertSame(
+        NavigationErrorCodes.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH,
+        LegacyErrorCodeRegistry.find(18001).orElseThrow());
+    assertFalse(
+        NavigationErrorCodes.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH.isAuditable());
+    assertSame(
+        NavigationErrorCodes.NAVIGATION_SERVICE_CANNOT_FIND_NAVTREE_FOR_SITE,
+        LegacyErrorCodeRegistry.find(18009).orElseThrow());
+  }
+
+  @Test
+  void navigationNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            NavigationErrorCodes.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH.numericCode(),
+            AuditContext.builder().actor("jdoe").build(),
+            "/Sites/x");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void registryCoversCatalogDeploymentAndNavigationResidual() {
+    assertTrue(LegacyErrorCodeRegistry.size() >= 370);
+    assertTrue(LegacyErrorCodeRegistry.find(4101).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(4311).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(74).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(85).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(18001).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(18009).isPresent());
+    // WF ownership of package-local low ints preserved
+    assertSame(WorkflowErrorCodes.ACCESS_DENIED, LegacyErrorCodeRegistry.find(6).orElseThrow());
   }
 
 }

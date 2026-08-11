@@ -19,6 +19,10 @@ System-wide Percussion CMS audit logging and unified error-code support.
   `ServletErrorCodes`, `TransformationErrorCodes` (enum-only),
   `SearchErrorCodes` (`IPSSearchErrors`; auth failure dual-write), `LuceneErrorCodes`,
   `LocaleErrorCodes`, `MailErrorCodes` (all non-auditable)
+  `PublisherErrorCodes` / `SiteManagerErrorCodes` / `FilterServiceErrorCodes` / `LockErrorCodes` /
+  `UiErrorCodes` (enum-only package-local collisions), `CatalogErrorCodes` (design 4101–4311 flat;
+  service 1–6 enum-only), `DeploymentErrorCodes` (74–85 flat; lock codes enum-only),
+  `NavigationErrorCodes` (18001–18009 full flat)
   + `LegacyErrorCodeRegistry` bridge legacy `IPS*Errors` ints. Non-auditable / unregistered ints never
   dual-write. Central `PSErrorHandler.appendError` dual-writes only when the registry marks the legacy
   int auditable.
@@ -65,8 +69,10 @@ audit.log(
 ```java
 import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
 import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
@@ -76,11 +82,15 @@ import com.intsof.percussioncms.auditlog.codes.LuceneErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.MailErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.LockErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.NavigationErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.PublisherErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServletErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.TransformationErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.UiErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
@@ -92,6 +102,10 @@ audit.log(WorkflowErrorCodes.ACCESS_DENIED, ctx, "5", "jdoe");
 audit.log(PathItemErrorCodes.FOLDER_PERMISSION_DENIED, ctx);
 audit.log(DesignErrorCodes.SRV_ACL_NO_ADMIN, ctx);
 audit.log(ServerErrorCodes.AUTHORIZATION_ERROR, ctx, "sess", "/app");
+audit.log(PublisherErrorCodes.JOB_FAILED, ctx, "job-9", "detail");
+audit.log(LockErrorCodes.PERMISSION_DENIED, ctx);
+audit.log(UiErrorCodes.ACCESS_DENIED, ctx, "delete", "node-1");
+audit.log(DeploymentErrorCodes.LOCK_ALREADY_HELD, ctx);
 
 // Central handlers with only a legacy int (e.g. PSException.getErrorCode()):
 LegacyErrorCodeRegistry.logIfAuditable(audit, 9002, ctx, "Directory", "ldap1", "jdoe"); // SEC
@@ -103,6 +117,11 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 401, ctx); // HTTP status — non-
 LegacyErrorCodeRegistry.logIfAuditable(audit, 16052, ctx); // search auth failed — dual-write
 LegacyErrorCodeRegistry.logIfAuditable(audit, 16311, ctx); // Lucene index dir — non-auditable skip
 // Prefer JobErrorCodes enum for job ints 1–10 (flat registry keeps WF ownership of 1–10)
+LegacyErrorCodeRegistry.logIfAuditable(audit, 4101, ctx, "prop"); // catalog design — non-auditable
+LegacyErrorCodeRegistry.logIfAuditable(audit, 74, ctx, "1.0", "1.1"); // deploy version — non-auditable
+LegacyErrorCodeRegistry.logIfAuditable(audit, 18001, ctx, "/Sites/x"); // nav — non-auditable
+// Prefer JobErrorCodes / PublisherErrorCodes / LockErrorCodes enum for colliding package-local ints
+// (flat registry keeps WF ownership of 1–10, assembly/job 11–27, webservice 28–73)
 // Provider/config/conversion/path/design/server/http/job/assembly/extension/webservice noise (isAuditable=false) and unknown ints → no dual-write
 ```
 
@@ -128,6 +147,14 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 16311, ctx); // Lucene index dir �
 | `LuceneErrorCodes` | 16311–16456 (`IPSLuceneErrors`) | All non-auditable index/query codes |
 | `LocaleErrorCodes` | 1801–1804 (`IPSLocaleErrors`) | All non-auditable |
 | `MailErrorCodes` | 3501–3508 (`IPSMailErrors`) | All non-auditable |
+| `PublisherErrorCodes` | package-local 10–24 (no flat register) | Prefer enum; job/item publish failures auditable |
+| `SiteManagerErrorCodes` | package-local 1–9 (no flat register) | All non-auditable; prefer enum |
+| `FilterServiceErrorCodes` | package-local 1–8 (no flat register) | All non-auditable; prefer enum |
+| `LockErrorCodes` | package-local 1–9 (no flat register) | Prefer enum; session/permission dual-write |
+| `CatalogErrorCodes` | service 1–6 enum-only; design 4101–4311 flat | All non-auditable catalog protocol |
+| `DeploymentErrorCodes` | package-local 1–85 (flat-registers 74–85) | Prefer enum for lock 46/47/53; version/config flat |
+| `NavigationErrorCodes` | 18001–18009 full flat | All non-auditable nav structure |
+| `UiErrorCodes` | package-local 1–8 (no flat register) | Prefer enum; ACCESS_DENIED dual-write |
 
 Non-auditable codes (`isAuditable() == false`) never create audit rows.
 
