@@ -12,7 +12,11 @@ System-wide Percussion CMS audit logging and unified error-code support.
 * **Phase 2b:** `SecurityErrorCodes` (full SEC range), `ContentErrorCodes`, `WorkflowErrorCodes`,
   `PathItemErrorCodes` (CMS path/item/folder), `DesignErrorCodes` (design lifecycle + objectstore ACL),
   `ServerErrorCodes` (`IPSServerErrors`), `HttpErrorCodes` (`IPSHttpErrors`, all non-auditable),
-  `JobErrorCodes` (`IPSJobErrors`; only non-colliding int `11` in flat registry)
+  `JobErrorCodes` (`IPSJobErrors`; only non-colliding int `11` in flat registry),
+  `ExtensionErrorCodes` (globally unique; auth/checkout dual-write),
+  `AssemblyErrorCodes` (package-local 11–27 flat-registered), `DeliveryErrorCodes` (enum-only),
+  `WebserviceErrorCodes` (package-local 28–73), `ServerWebServicesErrorCodes`, `WebdavErrorCodes`,
+  `ServletErrorCodes`, `TransformationErrorCodes` (enum-only)
   + `LegacyErrorCodeRegistry` bridge legacy `IPS*Errors` ints. Non-auditable / unregistered ints never
   dual-write. Central `PSErrorHandler.appendError` dual-writes only when the registry marks the legacy
   int auditable.
@@ -58,13 +62,21 @@ audit.log(
 
 ```java
 import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServletErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.TransformationErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
 
 // Prefer enum when available:
@@ -83,7 +95,7 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 1101, ctx, "sess", "/app"); // SYS
 LegacyErrorCodeRegistry.logIfAuditable(audit, 1001, ctx); // SYS native — non-auditable skip
 LegacyErrorCodeRegistry.logIfAuditable(audit, 401, ctx); // HTTP status — non-auditable skip
 // Prefer JobErrorCodes enum for job ints 1–10 (flat registry keeps WF ownership of 1–10)
-// Provider/config/conversion/path/design/server/http/job noise (isAuditable=false) and unknown ints → no dual-write
+// Provider/config/conversion/path/design/server/http/job/assembly/extension/webservice noise (isAuditable=false) and unknown ints → no dual-write
 ```
 
 | Catalog | Ranges | Notes |
@@ -95,7 +107,15 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 401, ctx); // HTTP status — non-
 | `DesignErrorCodes` | Design lifecycle + objectstore ACL (e.g. 2353) | Design server ACL bridge |
 | `ServerErrorCodes` | 1001–1709 (`IPSServerErrors`) | Authz/login/community auditable; rest operational |
 | `HttpErrorCodes` | HTTP status (`IPSHttpErrors`) | All non-auditable protocol codes |
-| `JobErrorCodes` | 1–11 (`IPSJobErrors`) | All non-auditable; registry only int `11` (1–10 = WF) |
+| `JobErrorCodes` | 1–11 (`IPSJobErrors`) | All non-auditable; registry only int `11` (1–10 = WF; wins flat 11 over assembly) |
+| `ExtensionErrorCodes` | 7001–7039, 7301–7304, 7401–7480, 7621–7636 | Globally unique; auth/checkout dual-write |
+| `AssemblyErrorCodes` | package-local 1–27 (flat-registers 11–27 only) | WF owns bare 1–10; all non-auditable; prefer enum for 11 |
+| `DeliveryErrorCodes` | package-local 1–12 (no flat register) | Prefer enum; decrypt-credentials auditable |
+| `WebserviceErrorCodes` | package-local 1–73 (flat-registers 28–73) | Authz dual-write; skip 1–27 (WF/assembly) |
+| `ServerWebServicesErrorCodes` | 14001+ (`IPSWebServicesErrors`) | Login/auth dual-write; content not-found skip |
+| `WebdavErrorCodes` | 70101+ (`IPSWebdavErrors`) | All non-auditable protocol/ops codes |
+| `ServletErrorCodes` | 10151+ (`IPSServletErrors`) | All non-auditable |
+| `TransformationErrorCodes` | package-local (no flat register) | Prefer enum; WF collision on bare 1 |
 
 Non-auditable codes (`isAuditable() == false`) never create audit rows.
 
