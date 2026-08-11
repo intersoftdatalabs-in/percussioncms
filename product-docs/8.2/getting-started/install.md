@@ -62,7 +62,9 @@ developer QA rather than one-off container recipes.
 - [ ] Process is running; no fatal errors in server logs under the install tree.
 - [ ] Login page loads over the configured host/port.
 - [ ] Admin user can authenticate.
-- [ ] At least one Site is visible (sample or newly created).
+- [ ] At least one Site is visible under **Explorer → Sites** (sample sites from installer
+      **Install sample sites** / silent `--demo-sites`, or a site you create via
+      **Content → Create Site** — see [Sites & content structure](id:admin-sites)).
 - [ ] Version information matches 8.2 (About box or `Version.properties` under the install root).
 
 ## Build from source (developers)

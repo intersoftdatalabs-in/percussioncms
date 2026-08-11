@@ -17,12 +17,34 @@ and assets without launching Desktop Content Explorer (DCE). Open it from the SP
 
 | Chrome | Purpose |
 |--------|---------|
-| **Menu bar** (Content / View / Help) | Product commands: search, clipboard, site/subfolder copy, view tools |
+| **Menu bar** (Content / View / Help) | Product commands: search, create site, clipboard, site/subfolder copy, view tools |
 | **Display format** | Column layout for the folder list (`validForFolder` formats) |
 | **Reduced actions** | Always-available open / preview / create folder / rename / move / copy / delete |
 | **Server actions** (labeled toolbar) | Configuration-driven actions from the CMS action catalog (`rest/actions`) for the current selection. Always shown as a labeled chrome region under the reduced actions row — even when the catalog is empty or temporarily fails to load |
 | **Tree + detail list** | Folder navigation and list of children; optional display-format columns |
 | **Context menu** | Right-click an item or folder row for the same catalog filtered for the popup surface |
+
+## Sites list and Create Site
+
+Under the tree root **Sites** you see traditional site folders available to your community
+(sample sites after a demo-sites install, plus any sites you create). Expand **Sites** and
+select a site to browse its pages and folders in the detail list.
+
+To create a new **traditional** repository Site from Explorer:
+
+1. Choose **Content → Create Site** (available without selecting an existing site).
+2. Complete the wizard: site name → base template → confirm → create.
+3. On success, Explorer navigates to `/Sites/<new-site-name>`.
+
+This wizard creates repository Sites only. Configure **Virtual Site** source properties
+(Git/filesystem) from **Developer → Sites** / Site detail — see
+[Sites & content structure](id:admin-sites) and [Virtual Sites](id:developer-virtual-sites).
+
+Related Content menu commands:
+
+- **Create Site** — new traditional Site (no site context required)
+- **Site Copy** / **Subfolder Copy** — copy workflows when a site or folder is in context
+- **Search** — same Search panel as **View → Search**
 
 ## Search panel
 

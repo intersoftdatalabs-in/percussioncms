@@ -21,6 +21,28 @@ Traditional Sites store pages and assets in the Percussion **content repository*
 - Workflow, ACL permissions, and revisions apply to repository items.
 - Publishing assembles templates/variants and delivers to filesystem, FTP, or other pub locations.
 
+### Browse Sites in Content Explorer
+
+1. Sign in as an administrator (or a role that can open **Explorer**).
+2. Open **Content Explorer** (`spa.jsp?entry=explorer` or the **Explorer** product navigation entry).
+3. In the tree, expand **Sites**.
+4. Select a site folder to browse its pages and folders in the detail list.
+
+After a standard install with **sample sites** (installer **Install sample sites** / silent `--demo-sites`), the Sites tree typically includes stock demo sites such as **Corporate Investments** and **Enterprise Investments**. Fresh evaluation or H2 QA stacks without sample seed may show an empty Sites list until you create a site or reinstall with sample data.
+
+### Create a traditional Site from Explorer
+
+Use **Content Explorer** when you need a new traditional (repository) Site without leaving the product shell:
+
+1. Open **Content Explorer**.
+2. Choose **Content → Create Site**.
+3. On **Details**, enter a unique **Site name**, optional description, and the site **template name** (defaults from the site name).
+4. On **Base template**, pick a base template from the catalog (or accept the default when the catalog is empty).
+5. On **Confirm**, review the summary (repository kind is **Traditional** — this flow does not create Virtual Sites).
+6. Choose **Create** and wait for progress to complete. Explorer opens the new site under `/Sites/<name>`.
+
+Virtual Site source settings (Git/filesystem) are configured later on the Site properties / Developer Sites surface — not in this Create Site wizard. See [Virtual Sites (developer)](id:developer-virtual-sites) and the Virtual Sites section below.
+
 ## Virtual Sites (8.2)
 
 A **Virtual Site** is a Site whose content originates **outside** the traditional repository
