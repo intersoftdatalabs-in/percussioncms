@@ -130,10 +130,9 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
       throws Exception {
     boolean isValidated = true;
 
-    Iterator configs = configSet.iterator();
+    Iterator<PSRelationshipConfig> configs = configSet.iterator();
     while (configs.hasNext()) {
-      if (!validateUnknownRelationshipProperties(
-          logger, (PSRelationshipConfig) configs.next(), conn, util)) {
+      if (!validateUnknownRelationshipProperties(logger, configs.next(), conn, util)) {
         isValidated = false;
       }
     }
@@ -152,7 +151,7 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
       PSUpgradePluginRelationship util)
       throws Exception {
     // collect all property names, both system and user
-    Collection pnames = getPropertyNames(config.getSysProperties());
+    Collection<String> pnames = getPropertyNames(config.getSysProperties());
     pnames.addAll(getPropertyNames(config.getUserDefProperties()));
 
     // query the database, see if there is additional property names
@@ -160,11 +159,11 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
 
     // build the name IN clause
     StringBuilder buf = new StringBuilder();
-    Iterator pnamesIt = pnames.iterator();
+    Iterator<String> pnamesIt = pnames.iterator();
     while (pnamesIt.hasNext()) {
       if (buf.length() != 0) buf.append(",");
       buf.append("'");
-      buf.append((String) pnamesIt.next());
+      buf.append(pnamesIt.next());
       buf.append("'");
     }
 
@@ -181,7 +180,7 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
             + buf.toString()
             + ")";
 
-    List unknownNames = util.queryStringList(logger, conn, sqlStmt);
+    List<String> unknownNames = util.queryStringList(logger, conn, sqlStmt);
 
     // remove all required property names for Active Assembly config
     if ((!unknownNames.isEmpty())
@@ -198,11 +197,10 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
               + "the unknown properties are not used; otherwise they must be "
               + "specified in the relationship configuration before the "
               + "upgrade. The unknown properties are: ");
-      Iterator names = unknownNames.iterator();
       boolean firstTime = true;
-      while (names.hasNext()) {
+      for (String name : unknownNames) {
         if (!firstTime) msgBuffer.append(",");
-        msgBuffer.append("'" + (String) names.next() + "'");
+        msgBuffer.append("'" + name + "'");
         firstTime = false;
       }
       msgBuffer.append("");
@@ -222,11 +220,10 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
    *     may be empty.
    * @return the property names, never <code>null</code>.
    */
-  private Collection getPropertyNames(Iterator props) {
-    List names = new ArrayList();
-    PSProperty prop;
+  private Collection<String> getPropertyNames(Iterator<?> props) {
+    List<String> names = new ArrayList<>();
     while (props.hasNext()) {
-      prop = (PSProperty) props.next();
+      PSProperty prop = (PSProperty) props.next();
       names.add(prop.getName());
     }
     return names;
@@ -333,10 +330,9 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
   private boolean validateEmptyExpiretime(PrintStream logger, PSRelationshipConfigSet configSet) {
     boolean emptyExpiretime = true;
 
-    Iterator configs = configSet.iterator();
-    PSRelationshipConfig config;
+    Iterator<PSRelationshipConfig> configs = configSet.iterator();
     while (configs.hasNext()) {
-      config = (PSRelationshipConfig) configs.next();
+      PSRelationshipConfig config = configs.next();
       PSProperty prop = config.getSysProperty("rs_expirationtime");
       if (prop != null) {
         String value = (String) prop.getValue();
@@ -381,10 +377,8 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
     boolean isValidated = true;
     String sqlStmt = "SELECT DISTINCT CONFIG FROM " + util.getOldRelMainTable();
 
-    List rs = util.queryStringList(logger, conn, sqlStmt);
-    Iterator names = rs.iterator();
-    while (names.hasNext()) {
-      String name = (String) names.next();
+    List<String> rs = util.queryStringList(logger, conn, sqlStmt);
+    for (String name : rs) {
       if (configs.getConfig(name) == null) {
         logWarningMsg(
             logger,

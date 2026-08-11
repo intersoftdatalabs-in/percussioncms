@@ -859,7 +859,7 @@ public class PSUpgradeConfig implements IPSUpgradeConfig {
    *
    * @return module iterator
    */
-  public Iterator getModuleList() {
+  public Iterator<?> getModuleList() {
     return m_modules.iterator();
   }
 
@@ -867,7 +867,7 @@ public class PSUpgradeConfig implements IPSUpgradeConfig {
    * Arraylist intended to hold the valid modules. When initialized must be empty but never be
    * <code>null</code>.
    */
-  private ArrayList m_modules = new ArrayList();
+  private ArrayList<IPSUpgradeModule> m_modules = new ArrayList<>();
 
   private static boolean ms_isUpgrade;
 

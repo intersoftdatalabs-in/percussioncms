@@ -35,11 +35,11 @@ public class PSPreUpgradePluginDeprecatedSysApps implements IPSUpgradePlugin {
   public PSPreUpgradePluginDeprecatedSysApps() {}
 
   private static void staticInit() {
-    ms_sysApps = new HashSet();
+    ms_sysApps = new HashSet<>();
 
     for (int i = 0; i < SYS_APPS.length; i++) ms_sysApps.add(SYS_APPS[i]);
 
-    ms_deprecatedSysApps = new HashSet();
+    ms_deprecatedSysApps = new HashSet<>();
   }
 
   /**
@@ -89,7 +89,7 @@ public class PSPreUpgradePluginDeprecatedSysApps implements IPSUpgradePlugin {
   }
 
   /** Returns the deprecated system applications found in the current installation. */
-  public static Set getDeprecatedSysApps() {
+  public static Set<String> getDeprecatedSysApps() {
     if (ms_deprecatedSysApps == null || ms_deprecatedSysApps.size() == 0) staticInit();
     return ms_deprecatedSysApps;
   }
@@ -101,13 +101,13 @@ public class PSPreUpgradePluginDeprecatedSysApps implements IPSUpgradePlugin {
    * Set of 6.0 system application names. Initialized in ctor, never <code>null</code> or empty
    * after that.
    */
-  private static Set ms_sysApps = null;
+  private static Set<String> ms_sysApps = null;
 
   /**
    * Deprecated system applications which exist in the current installation. Always initialized in
    * static block, never <code>null</code>, may be empty.
    */
-  private static Set ms_deprecatedSysApps = null;
+  private static Set<String> ms_deprecatedSysApps = null;
 
   /** Array containing the current 6.0 system application names. */
   public static final String[] SYS_APPS =
