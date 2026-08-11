@@ -20,7 +20,7 @@ package com.percussion.cms.objectstore;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.PSDisplayChoices;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSStringOperation;
 import com.percussion.util.PSXMLDomUtil;
@@ -186,13 +186,13 @@ public final class PSSearchField extends PSDbComponent implements IPSSequencedCo
     tree.setCurrent(e);
     if (elOp == null) {
       Object[] args = {nodeName, XML_NODE_OPERATOR, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     String op = PSXmlTreeWalker.getElementData(elOp);
     if (!isValidOperator(op)) {
       Object[] args = {nodeName, XML_NODE_OPERATOR, op};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     // this one is optional for backward compatibility
@@ -204,21 +204,21 @@ public final class PSSearchField extends PSDbComponent implements IPSSequencedCo
     tree.setCurrent(e);
     if (elFieldType == null) {
       Object[] args = {nodeName, XML_NODE_FIELDTYPE, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     m_strFieldType = PSXmlTreeWalker.getElementData(elFieldType);
 
     if (!isValidFieldType(m_strFieldType)) {
       Object[] args = {nodeName, XML_NODE_FIELDTYPE, m_strFieldType};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     Element elFieldLabel = tree.getNextElement(XML_NODE_FIELDLABEL);
     tree.setCurrent(e);
     if (elFieldLabel == null) {
       Object[] args = {nodeName, XML_NODE_FIELDLABEL, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     m_strDisplayName = PSXmlTreeWalker.getElementData(elFieldLabel);

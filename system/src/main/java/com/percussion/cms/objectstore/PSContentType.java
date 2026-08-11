@@ -18,7 +18,7 @@
 package com.percussion.cms.objectstore;
 
 import com.percussion.cms.PSCmsException;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
@@ -254,7 +254,7 @@ public class PSContentType extends PSDbComponent {
     if (!verifyUrlFormat(m_queryRequest)) {
       // Fixed node name for error args (loadFieldsFromXml may run from Element ctor).
       Object[] args = {"PSXContentType", XML_ELEM_QueryRequest, m_queryRequest};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     walker.setCurrent(sourceNode);

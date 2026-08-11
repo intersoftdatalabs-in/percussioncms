@@ -18,7 +18,7 @@ package com.percussion.cms.objectstore;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
@@ -418,7 +418,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
         field = (PSItemField) m_fieldNameFieldMap.get(fieldName);
         if (field == null) {
           Object[] args = {name, fieldName, PSItemFieldMeta.ATTR_NAME};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
         field.loadXmlData(el);
       } else if (name.equals(PSItemChild.EL_CHILD)) {
@@ -426,7 +426,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
         child = (PSItemChild) m_childNameChildMap.get(childName);
         if (child == null) {
           Object[] args = {name, childName, PSItemChild.ATTR_NAME};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
         child.loadXmlData(el, clearValues);
       } else if (name.equals(EL_RELATED_ITEMS)) {

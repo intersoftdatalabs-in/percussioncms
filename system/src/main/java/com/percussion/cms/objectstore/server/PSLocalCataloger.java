@@ -28,7 +28,7 @@ import com.percussion.cms.objectstore.PSRelationshipInfo;
 import com.percussion.cms.objectstore.PSRelationshipInfoSet;
 import com.percussion.data.PSDataExtractionException;
 import com.percussion.data.PSExecutionData;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSChoices;
 import com.percussion.design.objectstore.PSContentEditorMapper;
 import com.percussion.design.objectstore.PSContentEditorPipe;
@@ -683,7 +683,7 @@ public class PSLocalCataloger implements IPSCataloger {
 
           String msg =
               PSErrorManager.createMessage(
-                  IPSObjectStoreErrors.INVALID_CE_FIELD_CHOICES_ERROR, args);
+                  ObjectStoreErrorCodes.INVALID_CE_FIELD_CHOICES_ERROR.numericCode(), args);
 
           // log it
           PSServerLogHandler.logException(msg, e);

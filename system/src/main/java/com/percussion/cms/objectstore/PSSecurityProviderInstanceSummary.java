@@ -17,7 +17,7 @@
 
 package com.percussion.cms.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSSecurityProviderInstance;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.security.PSSecurityProvider;
@@ -120,7 +120,7 @@ public final class PSSecurityProviderInstanceSummary implements IPSCmsComponent 
     NodeList nodes = src.getElementsByTagName(XML_ELEMENT_NAME);
     if (null == nodes) {
       String[] array = {"PSSecurityProviderInstanceSummary.fromXml node: " + XML_ELEMENT_NAME};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, array);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, array);
     }
     m_instance = ((Text) nodes.item(0).getFirstChild()).getData();
   }

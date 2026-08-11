@@ -17,7 +17,7 @@
 package com.percussion.cms.objectstore;
 
 import com.percussion.cms.PSCmsException;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -243,12 +243,12 @@ public final class PSAction extends PSVersionableDbComponent implements IPSCatal
       int ver = Integer.parseInt(PSComponentUtils.getRequiredAttribute(sourceNode, VERSION_ATTR));
       if (ver < 0) {
         Object[] args = {getNodeNameSafe(), VERSION_ATTR, "negative"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
       m_version = ver;
     } catch (NumberFormatException e) {
       Object[] args = {getNodeNameSafe(), VERSION_ATTR, e.getLocalizedMessage()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     m_description = "";

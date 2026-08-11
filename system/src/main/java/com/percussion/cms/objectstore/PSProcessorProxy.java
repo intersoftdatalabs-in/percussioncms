@@ -18,7 +18,7 @@ package com.percussion.cms.objectstore;
 
 import com.percussion.cms.IPSCmsErrors;
 import com.percussion.cms.PSCmsException;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -149,7 +149,7 @@ public abstract class PSProcessorProxy {
       if (null == root || !root.getNodeName().equals(rootName)) {
         // use error codes for PSUnknownDocTypeException
         String[] args = {rootName, root.getNodeName()};
-        throw new PSCmsException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSCmsException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       ProcessorConfig pc = null;

@@ -19,7 +19,7 @@ package com.percussion.cms.objectstore;
 
 import com.percussion.design.objectstore.IPSComponent;
 import com.percussion.design.objectstore.IPSDocument;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -296,7 +296,7 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
     final String nodeName = getNodeName();
     if (false == nodeName.equals(source.getNodeName())) {
       Object[] args = {nodeName, source.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(source);
@@ -305,7 +305,7 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
     temp = walker.getElementData(attrName);
     if (null == temp || temp.trim().length() == 0) {
       Object[] args = {nodeName, attrName, temp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     } else m_name = temp;
 
     attrName = "label";
@@ -320,13 +320,13 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
     temp = walker.getElementData(attrName);
     if (null == temp || temp.trim().length() == 0) {
       Object[] args = {nodeName, attrName, temp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     } else {
       try {
         m_typeId = Integer.parseInt(temp);
       } catch (NumberFormatException nfe) {
         Object[] args = {nodeName, attrName, temp};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
     }
 
@@ -342,7 +342,7 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
     temp = walker.getElementData(attrName);
     if (null == temp || temp.trim().length() == 0) {
       Object[] args = {nodeName, attrName, temp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     } else m_editorUrl = temp;
 
     String desc = walker.getElementData("Description");

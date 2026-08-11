@@ -16,6 +16,7 @@
  */
 package com.percussion.cms;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 import java.util.Objects;
 
@@ -32,6 +33,15 @@ public class PSCmsException extends PSException {
    */
   public PSCmsException(int msgCode) {
     super(msgCode);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSCmsException(IPSErrorCode code) {
+    super(code);
   }
 
   /**
@@ -91,6 +101,17 @@ public class PSCmsException extends PSException {
   }
 
   /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleMessage the sole argument to use as the arguments in the error message, may be
+   *     {@code null}
+   */
+  public PSCmsException(IPSErrorCode code, String singleMessage) {
+    super(code, singleMessage);
+  }
+
+  /**
    * Construct an exception for messages taking multiple arguments.
    *
    * @param msgCode the error string to load
@@ -99,6 +120,17 @@ public class PSCmsException extends PSException {
    */
   public PSCmsException(int msgCode, Object[] arrayArgs) {
     super(msgCode, arrayArgs);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message, may be
+   *     {@code null}
+   */
+  public PSCmsException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
   }
 
   /**
@@ -111,5 +143,17 @@ public class PSCmsException extends PSException {
    */
   public PSCmsException(int msgCode, Object[] arrayArgs, Throwable cause) {
     super(msgCode, arrayArgs, cause);
+  }
+
+  /**
+   * Typed construction with message arguments and a cause.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message, may be
+   *     {@code null}
+   * @param cause the underlying cause, may be {@code null}
+   */
+  public PSCmsException(IPSErrorCode code, Object[] arrayArgs, Throwable cause) {
+    super(code, arrayArgs, cause);
   }
 }

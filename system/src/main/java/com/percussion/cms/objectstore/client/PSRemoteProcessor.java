@@ -20,7 +20,7 @@ import com.percussion.cms.IPSCmsErrors;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSProcessingStatistics;
 import com.percussion.cms.objectstore.PSProcessorCommon;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.util.IPSRemoteRequester;
@@ -138,7 +138,7 @@ public class PSRemoteProcessor extends PSProcessorCommon {
       Map<String, Object> params = toRequestParams(ids);
       Document doc = m_conn.getDocument(resourceName, params);
       if (null == doc || null == doc.getDocumentElement()) {
-        throw new PSCmsException(IPSObjectStoreErrors.XML_ELEMENT_NULL, "PSXExecStatistics");
+        throw new PSCmsException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, "PSXExecStatistics");
       }
 
       PSProcessingStatistics stats = new PSProcessingStatistics(root);
@@ -171,7 +171,7 @@ public class PSRemoteProcessor extends PSProcessorCommon {
       Document doc = m_conn.getDocument("sys_psxCms/idgen.xml", params);
       String nodeName = "PSXIdGenerator";
       if (null == doc || null == doc.getDocumentElement()) {
-        throw new PSCmsException(IPSObjectStoreErrors.XML_ELEMENT_NULL, nodeName);
+        throw new PSCmsException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, nodeName);
       }
 
       Element root = doc.getDocumentElement();

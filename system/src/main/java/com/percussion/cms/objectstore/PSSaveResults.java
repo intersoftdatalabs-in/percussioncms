@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -131,7 +131,7 @@ public final class PSSaveResults implements IPSCmsComponent {
     Element stats = w.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (null == stats) {
       String[] args = {getNodeName(), PSProcessingStatistics.XML_NODE_NAME, "missing node"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     m_stats = new PSProcessingStatistics(stats);
 

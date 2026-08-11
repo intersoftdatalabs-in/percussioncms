@@ -19,7 +19,7 @@ package com.percussion.cms.objectstore;
 import com.percussion.cms.objectstore.ws.PSRemoteFolderProcessor;
 import com.percussion.design.objectstore.IPSComponent;
 import com.percussion.design.objectstore.IPSDocument;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSComponent;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
@@ -153,11 +153,11 @@ public final class PSCloneSiteFolderRequest extends PSComponent {
   public void fromXml(Element source, IPSDocument parent, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (source == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(source.getNodeName())) {
       Object[] args = {XML_NODE_NAME, source.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(source);
@@ -165,7 +165,7 @@ public final class PSCloneSiteFolderRequest extends PSComponent {
     Element sourceElem = walker.getNextElement(true);
     if (sourceElem == null) {
       Object[] args = {XML_NODE_NAME, SOURCE_ELEM, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     Node current = walker.getCurrent();
     m_source = new PSLocator(walker.getNextElement(true));
@@ -174,7 +174,7 @@ public final class PSCloneSiteFolderRequest extends PSComponent {
     Element targetElem = walker.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
     if (targetElem == null) {
       Object[] args = {XML_NODE_NAME, TARGET_ELEM, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     current = walker.getCurrent();
     m_target = new PSLocator(walker.getNextElement(true));
@@ -183,7 +183,7 @@ public final class PSCloneSiteFolderRequest extends PSComponent {
     Element optionsElem = walker.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
     if (optionsElem == null) {
       Object[] args = {XML_NODE_NAME, PSCloningOptions.XML_NODE_NAME, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     m_options = new PSCloningOptions(optionsElem, parent, parentComponents);
   }
