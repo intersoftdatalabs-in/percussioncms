@@ -20,7 +20,6 @@ import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.util.PSXMLDomUtil;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -88,10 +87,9 @@ public class PSDisplayFormatOption implements IPSClientObjects {
     // create temp element
     Element el = null;
 
-    Iterator iter = m_map.keySet().iterator();
-    while (iter.hasNext()) {
-      String itemPath = (String) iter.next();
-      String displayFormatId = (String) m_map.get(itemPath);
+    for (Map.Entry<String, String> entry : m_map.entrySet()) {
+      String itemPath = entry.getKey();
+      String displayFormatId = entry.getValue();
 
       el = doc.createElement(ELEM_ITEM);
       el.setAttribute(ATTR_ITEM_PATH, itemPath);
@@ -145,7 +143,7 @@ public class PSDisplayFormatOption implements IPSClientObjects {
     if (itemPath == null || itemPath.trim().length() == 0)
       throw new IllegalArgumentException("itemPath must not be null or empty");
 
-    return (String) m_map.get(itemPath);
+    return m_map.get(itemPath);
   }
 
   /**
@@ -189,7 +187,7 @@ public class PSDisplayFormatOption implements IPSClientObjects {
    * The map representing the items display formats, set to an empty map here, may be changed. The
    * key is the item path, the value is the display format for the specific item.
    */
-  private Map m_map = new HashMap();
+  private final Map<String, String> m_map = new HashMap<>();
 
   /** Name of the Root element of the XML document representing a item display format option. */
   private static final String ELEM_DISPLAY_FORMAT_OPTION = "PSXDisplayFormatOption";
