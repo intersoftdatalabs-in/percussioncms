@@ -16,8 +16,11 @@
  */
 package com.intsof.percussioncms.auditlog;
 
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
@@ -33,9 +36,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * <p>Phase 2b registers {@link SecurityErrorCodes} (full SEC range), {@link ContentErrorCodes}
  * (content lifecycle + conversion), {@link WorkflowErrorCodes} (workflow transition + service),
- * {@link PathItemErrorCodes} (CMS path/item/folder), and {@link DesignErrorCodes} (design lifecycle
- * + objectstore ACL). Residual slices may register additional catalogs via {@link #register(int,
- * SystemErrorCode)}.
+ * {@link PathItemErrorCodes} (CMS path/item/folder), {@link DesignErrorCodes} (design lifecycle +
+ * objectstore ACL), {@link ExtensionErrorCodes} (globally unique extension ints), and non-colliding
+ * {@link AssemblyErrorCodes} package-local ints. {@link DeliveryErrorCodes} is bootstrapped for
+ * symmetry but does not flat-register (package-local collision with workflow/assembly). Residual
+ * slices may register additional catalogs via {@link #register(int, SystemErrorCode)}.
  */
 public final class LegacyErrorCodeRegistry {
 
@@ -48,8 +53,9 @@ public final class LegacyErrorCodeRegistry {
   private LegacyErrorCodeRegistry() {}
 
   /**
-   * Ensure Phase 2b catalogs are loaded (auth/security, content, workflow, path/item, design). Safe
-   * to call repeatedly; catalogs register themselves in their own static initializers.
+   * Ensure Phase 2b catalogs are loaded (auth/security, content, workflow, path/item, design,
+   * assembly, extension, delivery). Safe to call repeatedly; catalogs register themselves in their
+   * own static initializers.
    */
   public static void bootstrap() {
     if (BOOTSTRAPPED.compareAndSet(false, true)) {
@@ -58,6 +64,11 @@ public final class LegacyErrorCodeRegistry {
       WorkflowErrorCodes.ensureRegistered();
       PathItemErrorCodes.ensureRegistered();
       DesignErrorCodes.ensureRegistered();
+      // Assembly after Workflow so package-local 11–27 do not fight WF ownership of 1–10.
+      AssemblyErrorCodes.ensureRegistered();
+      ExtensionErrorCodes.ensureRegistered();
+      // Delivery: no-op flat register (WF/assembly collisions); enum still loadable.
+      DeliveryErrorCodes.ensureRegistered();
     }
   }
 

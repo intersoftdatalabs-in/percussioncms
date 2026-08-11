@@ -83,6 +83,9 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 6, ctx, "5", "jdoe"); // WF access
 | `WorkflowErrorCodes` | 4001 transition; 1–10 service | Aligns Phase 2a transition numbering |
 | `PathItemErrorCodes` | CMS path/item/folder (e.g. 13007) | Folder/path permission bridge |
 | `DesignErrorCodes` | Design lifecycle + objectstore ACL (e.g. 2353) | Design server ACL bridge |
+| `ExtensionErrorCodes` | 7001–7039, 7301–7304, 7401–7480, 7621–7636 | Globally unique; auth/checkout dual-write |
+| `AssemblyErrorCodes` | package-local 1–27 (flat-registers 11–27 only) | WF owns bare 1–10; all non-auditable |
+| `DeliveryErrorCodes` | package-local 1–12 (no flat register) | Prefer enum; decrypt-credentials auditable |
 
 Non-auditable codes (`isAuditable() == false`) never create audit rows.
 

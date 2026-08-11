@@ -21,8 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
@@ -313,5 +316,103 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(2353).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(2001).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(6).isPresent());
+  }
+
+  @Test
+  void extensionCheckoutNotAllowedIsAuditableAndResolves() {
+    assertTrue(LegacyErrorCodeRegistry.isAuditable(7442));
+    assertSame(
+        ExtensionErrorCodes.CHECKOUT_NOT_ALLOWED,
+        LegacyErrorCodeRegistry.find(7442).orElseThrow());
+    assertTrue(ExtensionErrorCodes.CHECKOUT_NOT_ALLOWED.isAuditable());
+  }
+
+  @Test
+  void extensionParamNoiseIsNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(7007));
+    assertSame(
+        ExtensionErrorCodes.EXT_PARAM_VALUE_INVALID,
+        LegacyErrorCodeRegistry.find(7007).orElseThrow());
+    assertFalse(ExtensionErrorCodes.EXT_PARAM_VALUE_INVALID.isAuditable());
+  }
+
+  @Test
+  void extensionNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            ExtensionErrorCodes.EXT_PARAM_VALUE_INVALID.numericCode(),
+            AuditContext.builder().actor("jdoe").build());
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void extensionAuditableDualWrites() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            ExtensionErrorCodes.CHECKOUT_NOT_ALLOWED.numericCode(),
+            AuditContext.builder().actor("jdoe").build(),
+            "detail");
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(1, sink.records().size());
+    assertEquals(ExtensionErrorCodes.CHECKOUT_NOT_ALLOWED, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-7442]-"));
+  }
+
+  @Test
+  void assemblyNonCollidingLegacyCodeIsRegisteredButNotAuditable() {
+    // 12 is package-local MISSING_FINDER; non-colliding with WF 1–10 so flat-registered
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(12));
+    assertSame(AssemblyErrorCodes.MISSING_FINDER, LegacyErrorCodeRegistry.find(12).orElseThrow());
+    assertFalse(AssemblyErrorCodes.MISSING_FINDER.isAuditable());
+  }
+
+  @Test
+  void assemblyNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            AssemblyErrorCodes.MISSING_FINDER.numericCode(),
+            AuditContext.builder().actor("jdoe").build());
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void assemblyPackageLocalOneRemainsWorkflowInFlatRegistry() {
+    // Bare int 1 is WorkflowErrorCodes.WORKFLOW_NOT_FOUND, not Assembly TEMPLATE_MISSING
+    assertSame(WorkflowErrorCodes.WORKFLOW_NOT_FOUND, LegacyErrorCodeRegistry.find(1).orElseThrow());
+    assertEquals(1, AssemblyErrorCodes.TEMPLATE_MISSING.numericCode());
+  }
+
+  @Test
+  void deliveryDecryptCredentialsNotFlatRegisteredButEnumIsAuditable() {
+    // package-local 7 collides with WF; flat registry keeps WorkflowErrorCodes
+    assertSame(WorkflowErrorCodes.TRANSITION_NOT_FOUND, LegacyErrorCodeRegistry.find(7).orElseThrow());
+    assertTrue(DeliveryErrorCodes.COULD_NOT_DECRYPT_CREDENTIALS.isAuditable());
+    assertEquals(7, DeliveryErrorCodes.COULD_NOT_DECRYPT_CREDENTIALS.numericCode());
+  }
+
+  @Test
+  void registryCoversExtensionAndAssembly() {
+    assertTrue(LegacyErrorCodeRegistry.size() >= 200);
+    assertTrue(LegacyErrorCodeRegistry.find(7442).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(7007).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(12).isPresent()); // assembly MISSING_FINDER
+    assertTrue(LegacyErrorCodeRegistry.find(27).isPresent()); // assembly INLINE_LINK_ERROR
   }
 }
