@@ -126,7 +126,8 @@ public class PSContentDependencyHandler extends PSDataObjectDependencyHandler {
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  @Override
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -184,7 +185,7 @@ public class PSContentDependencyHandler extends PSDataObjectDependencyHandler {
   private PSDependencyHandler m_ctHandler = null;
 
   /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
-  private static List ms_childTypes = new ArrayList();
+  private static final List<String> ms_childTypes = new ArrayList<>();
 
   private static final String CONTENT_ID = "CONTENTID";
   private static final String CONTENTTYPE_ID = "CONTENTTYPEID";
