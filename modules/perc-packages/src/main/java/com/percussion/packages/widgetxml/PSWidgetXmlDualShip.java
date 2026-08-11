@@ -35,7 +35,7 @@ import java.util.Objects;
 
 /**
  * Dual-ship bridge for product Widget packages (ADR-004 / issues #2831 batch A, #2832 batch B,
- * #2844 batch C, #2883 batch A ship-exit, parent #2630).
+ * #2844 batch C, #2883/#2884 batch A+B ship-exit, parent #2630).
  *
  * <p><strong>Authoring truth (modern):</strong> {@code widgets/&lt;widgetStem&gt;/component-package.json}
  * plus template sources under the product package tree (e.g. {@code perc.baseWidgets}).
@@ -43,12 +43,14 @@ import java.util.Objects;
  * <p><strong>Install path:</strong>
  *
  * <ul>
- *   <li><strong>Batch A ship-exit (#2883):</strong> product source trees no longer commit {@code
- *       sys__UserDependency--rxconfig/Widgets/*.xml}. Package build materializes install Widget XML
- *       from modern roots via {@link PSWidgetXmlInstallEmitter#materializeInstallWidgetXml(Path)} so
- *       deployer / {@code PSWidgetDao} wire format stays intact.
- *   <li><strong>Batches B/C (still dual-ship):</strong> packages still commit install Widget XML
- *       alongside modern roots until their ship-exit residuals (#2884 / #2885).
+ *   <li><strong>Batch A ship-exit (#2883):</strong> base/core product source trees no longer commit
+ *       {@code sys__UserDependency--rxconfig/Widgets/*.xml}. Package build materializes install
+ *       Widget XML from modern roots via {@link
+ *       PSWidgetXmlInstallEmitter#materializeInstallWidgetXml(Path)}.
+ *   <li><strong>Batch B ship-exit (#2884):</strong> high-traffic + residual long-tail packages use
+ *       the same modern-only + package-build materialize path.
+ *   <li><strong>Batch C (still dual-ship):</strong> packages still commit install Widget XML
+ *       alongside modern roots until ship-exit residual #2885.
  * </ul>
  *
  * <p>Modern roots are committed so selection prefers Component Package Manifest when both exist
@@ -59,9 +61,9 @@ import java.util.Objects;
  * perc.defaultLanguage}, {@code perc.eventWidget}, {@code perc.openGraphWidget}, {@code
  * perc.twitterSummaryCards} (8 widgets).
  *
- * <p>Batch B (#2832): high-traffic (#2772) + residual long-tail (#2789) product packages —
- * title/lists/nav/file/image + blog/calendar/directory/social/form/poll/login/rss/iframe (20
- * widgets / 14 packages).
+ * <p>Batch B (#2832 modern roots / #2884 stop shipping XML): high-traffic (#2772) + residual
+ * long-tail (#2789) product packages — title/lists/nav/file/image +
+ * blog/calendar/directory/social/form/poll/login/rss/iframe (20 widgets / 14 packages).
  *
  * <p>Batch C (#2844): remaining product residual (#2802) after A/B — auto-lists, blog companions,
  * comments/liked/commentForm, imageSlider, cookieConsent, jquery/jqueryUI, registration/secureLogin,

@@ -37,12 +37,17 @@ import org.junit.jupiter.api.Test;
  * assertions guard that model so a future package edit cannot silently reintroduce a different
  * membership mechanism without updating the stale-publish classification.
  *
+ * <p>After batch B ship-exit (#2884), product source no longer commits install Widget XML; authoring
+ * truth is modern {@code widgets/percDirectory/component-package.json} (bindings hold the Jexl
+ * query model).
+ *
  * @see docs/ai-generated/tasks/804-faculty-directory-stale-publish/01-classification.md
  */
 class PSDirectoryWidgetAutoQueryModelTest {
 
-  private static final String DIRECTORY_WIDGET_RESOURCE =
-      "/Packages/perc.widget.directory/sys__UserDependency--rxconfig/Widgets/percDirectory.xml";
+  /** Modern authoring truth for percDirectory (batch B ship-exit #2884). */
+  private static final String DIRECTORY_MODERN_MANIFEST =
+      "/Packages/perc.widget.directory/widgets/percDirectory/component-package.json";
 
   private static final Pattern PERSON_QUERY =
       Pattern.compile(
@@ -51,37 +56,39 @@ class PSDirectoryWidgetAutoQueryModelTest {
 
   @Test
   void percDirectory_listsPeopleViaJcrAutoQueryNotAaChildren() throws IOException {
-    String xml = readClasspathResource(DIRECTORY_WIDGET_RESOURCE);
+    String source = readClasspathResource(DIRECTORY_MODERN_MANIFEST);
 
     assertTrue(
-        xml.contains("organizationSearch"),
+        source.contains("organizationSearch"),
         "Directory asset must drive membership via organizationSearch field");
     assertTrue(
-        xml.contains("departmentID"),
+        source.contains("departmentID"),
         "Directory asset must drive membership via departmentID field");
     assertTrue(
-        xml.contains("perc_AutoWidgetContentFinder"),
+        source.contains("perc_AutoWidgetContentFinder"),
         "Person list must use perc_AutoWidgetContentFinder (JCR auto query)");
     assertTrue(
-        xml.contains("rx:percPerson"),
+        source.contains("rx:percPerson"),
         "Person list query must target rx:percPerson content type");
     assertTrue(
-        xml.contains("rx:personOrganization"),
+        source.contains("rx:personOrganization"),
         "Person list must filter on personOrganization (not AA relationship to directory)");
     assertTrue(
-        xml.contains("rx:sys_contentstateid != 7"),
+        source.contains("rx:sys_contentstateid != 7"),
         "Person list must retain hard-coded Archive state exclusion (!= 7) until Slice 3 changes it");
 
     // Guard against accidental AA-style "children of directory asset" membership.
     assertFalse(
-        xml.contains("sys_relationship") && xml.contains("percPerson") && xml.contains("owner"),
+        source.contains("sys_relationship")
+            && source.contains("percPerson")
+            && source.contains("owner"),
         "Directory person list must not switch to relationship-owner AA membership without doc update");
   }
 
   @Test
   void percDirectory_personQueriesAllExcludeState7AndOrderByLastName() throws IOException {
-    String xml = readClasspathResource(DIRECTORY_WIDGET_RESOURCE);
-    Matcher m = PERSON_QUERY.matcher(xml);
+    String source = readClasspathResource(DIRECTORY_MODERN_MANIFEST);
+    Matcher m = PERSON_QUERY.matcher(source);
     int found = 0;
     while (m.find()) {
       found++;

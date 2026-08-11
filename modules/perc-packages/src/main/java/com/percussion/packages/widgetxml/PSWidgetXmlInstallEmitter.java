@@ -28,8 +28,8 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * Install-side Widget definition XML emitter for modern-only product packages (ADR-004 / issue
- * #2883 batch A ship-exit, parent #2630).
+ * Install-side Widget definition XML emitter for modern-only product packages (ADR-004 / issues
+ * #2884 batch B ship-exit, #2883 batch A ship-exit peer, parent #2630).
  *
  * <p><strong>Authoring truth:</strong> {@code widgets/&lt;stem&gt;/component-package.json} +
  * templates.
@@ -40,8 +40,8 @@ import java.util.Objects;
  * longer commit that XML.
  *
  * <p>Policy: materialize only when modern widget packages are present <em>and</em> the package has
- * no committed install Widget XML (so dual-ship batches B/C keep authored XML until their ship-exit
- * slices). Keep {@code PSLegacyDefinitionXmlShim} and upgrade-input compilers.
+ * no committed install Widget XML (so dual-ship batch C keeps authored XML until ship-exit #2885).
+ * Keep {@code PSLegacyDefinitionXmlShim} and upgrade-input compilers.
  *
  * @see PSWidgetXmlDualShip
  * @see PSWidgetXmlPackageCompiler
@@ -91,7 +91,7 @@ public final class PSWidgetXmlInstallEmitter {
     if (!PSWidgetXmlDualShip.hasModernWidgetSources(packageDir)) {
       return 0;
     }
-    // Dual-ship packages still commit install XML — leave them alone until their ship-exit slice.
+    // Dual-ship packages still commit install XML — leave them alone until ship-exit (#2885 C).
     if (hasCommittedWidgetXml(packageDir)) {
       return 0;
     }
