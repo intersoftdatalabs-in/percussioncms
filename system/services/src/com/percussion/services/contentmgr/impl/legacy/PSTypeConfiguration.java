@@ -127,7 +127,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
       /**
        * The class, never <code>null</code>
        */
-      private Class m_clazz;
+      private Class<?> m_clazz;
 
       /**
        * The hibernate configuration string, never <code>null</code>
@@ -148,7 +148,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
        *           <code>null</code> or empty
        * @param lazy if <code>true</code>, the class is lazy loaded
        */
-      public ImplementingClass(Class clazz, String config, boolean lazy)
+      public ImplementingClass(Class<?> clazz, String config, boolean lazy)
       {
          if (clazz == null)
             throw new IllegalArgumentException("clazz may be not null.");
@@ -182,7 +182,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
       /**
        * @return Returns the clazz.
        */
-      public Class getImplementingClass()
+      public Class<?> getImplementingClass()
       {
          return m_clazz;
       }
@@ -232,7 +232,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * @return <code>true</code> if the names of both classes have the same
     *    base name; otherwise return <code>false</code>.
     */
-   private static boolean isSameBaseName(Class c1, Class c2)
+   private static boolean isSameBaseName(Class<?> c1, Class<?> c2)
    {
       String c1Name = stripAddedTailNumber(c1.getName());
       String c2Name = stripAddedTailNumber(c2.getName());
@@ -334,13 +334,13 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * Each class maps to a list of properties, the properties are used to create
     * properties elements in the content node when loading an item.
     */
-   private Map<Class, List<String>> m_properties =
+   private Map<Class<?>, List<String>> m_properties =
       new HashMap<>();
 
    /**
     * Tracks the loading mechanism used for each class
     */
-   private Map<Class, IDType> m_loadpolicy =
+   private Map<Class<?>, IDType> m_loadpolicy =
       new HashMap<>();
 
    /**
@@ -368,11 +368,11 @@ public class PSTypeConfiguration implements NodeType, Serializable
     */
    private boolean m_sortedChild;
 
-   public Map<String, Class> getM_fieldToType() {
+   public Map<String, Class<?>> getM_fieldToType() {
       return m_fieldToType;
    }
 
-   public void setM_fieldToType(Map<String, Class> m_fieldToType) {
+   public void setM_fieldToType(Map<String, Class<?>> m_fieldToType) {
       this.m_fieldToType = m_fieldToType;
    }
 
@@ -380,7 +380,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * A map that associates a specific property with a type. The type is a basic
     * Java type such as date, string, float, etc.
     */
-   private Map<String, Class> m_fieldToType;
+   private Map<String, Class<?>> m_fieldToType;
 
    /**
     * A map that associates a property name to the original PSField. Used to
@@ -415,7 +415,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * not in this map, then the translation isn't meaningful. Used for search
     * mechanism.
     */
-   private static Map<String,Class> ms_hibernateTypeMap =
+   private static Map<String,Class<?>> ms_hibernateTypeMap =
       new HashMap<>();
    /*
     * Initialize type map
@@ -557,13 +557,13 @@ public class PSTypeConfiguration implements NodeType, Serializable
     *
     * @return <code>true</code> the maps are equal.
     */
-   private boolean isEqualMap(Map<Class, ? extends Object> m1,
-         Map<Class, ? extends Object> m2)
+   private boolean isEqualMap(Map<Class<?>, ? extends Object> m1,
+         Map<Class<?>, ? extends Object> m2)
    {
       if (m1.size() != m2.size())
          return false;
 
-      for (Class k : m1.keySet())
+      for (Class<?> k : m1.keySet())
       {
          Object v2 = getMapValue(k, m2);
          if (v2 == null || (!v2.equals(m1.get(k))) )
@@ -585,9 +585,9 @@ public class PSTypeConfiguration implements NodeType, Serializable
     *    supplied key. It may be <code>null</code> if cannot find one in the map.
     */
 
-   private Object getMapValue(Class srcKey, Map<Class, ? extends Object> m)
+   private Object getMapValue(Class<?> srcKey, Map<Class<?>, ? extends Object> m)
    {
-      for (Class k : m.keySet())
+      for (Class<?> k : m.keySet())
       {
          if (isSameBaseName(srcKey, k))
             return m.get(k);
@@ -608,7 +608,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
          PSContentInternalLocator.getLegacyRepository();
       Set<String> systemFields = rep.getUnmappedSystemFields();
       PSFieldSet systemDefFields = systemDef.getFieldSet();
-      Iterator fiter = systemDefFields.getEveryField();
+      Iterator<?> fiter = systemDefFields.getEveryField();
       while(fiter.hasNext())
       {
          PSField field = (PSField) fiter.next();
@@ -638,7 +638,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     */
    private void processFields(PSItemDefinition definition,
          Iterator<PSField> fiter, Map<String, List<String>> fieldsByTable,
-         Map<String, String> fieldToColumnName, Map<String, Class> fieldToType,
+         Map<String, String> fieldToColumnName, Map<String, Class<?>> fieldToType,
          Set<String> tableNames, boolean isComplexChild)
    {
       while (fiter.hasNext())
@@ -651,7 +651,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
             // Simple children
             // There will be one field, which will give us the table, column
             // and property name for the simple child
-            Iterator childfields = simpleChildSet.getAll();
+            Iterator<?> childfields = simpleChildSet.getAll();
             PSField childField = (PSField) childfields.next();
             String parts[] = getFieldColumns(childField);
             String prop = childField.getSubmitName();
@@ -690,7 +690,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
                   .getSubmitName()));
          }
          fieldToColumnName.put(field.getSubmitName(), column);
-         Class fieldType = calculateType(field);
+         Class<?> fieldType = calculateType(field);
          fieldToType.put(field.getSubmitName(), fieldType);
          m_fieldToField.put(field.getSubmitName(), field);
          if (fieldType.equals(Clob.class) || fieldType.equals(Blob.class))
@@ -731,7 +731,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * @param field the field, assumed never <code>null</code>
     * @return the class that represents the given field's data type
     */
-   private Class calculateType(PSField field)
+   private Class<?> calculateType(PSField field)
    {
       String type = field.getDataType();
       if (type.equals(PSField.DT_BINARY) || type.equals(PSField.DT_IMAGE))
@@ -846,7 +846,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     */
    private void calculateConfiguration(Set<String> tableNames,
          Map<String, List<String>> fieldsByTable,
-         Map<String, String> fieldToColumnName, Map<String, Class> fieldToType,
+         Map<String, String> fieldToColumnName, Map<String, Class<?>> fieldToType,
          boolean sortedchild, boolean isEmbeddedFileStore)
    {
       String firstTable = m_firstTable;
@@ -870,7 +870,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
       // Add PSComponentSummary
       if (isParent())
       {
-         Class cs = PSComponentSummary.class;
+         Class<?> cs = PSComponentSummary.class;
          m_implementingClasses.add(new ImplementingClass(cs, null, false));
          m_properties.put(cs, fieldsByTable.get(CONTENTSTATUS));
          m_loadpolicy.put(cs, IDType.CONTENTID);
@@ -894,7 +894,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     */
    private void handleImplementationClass(Set<String> tableNames,
          Map<String, List<String>> fieldsByTable,
-         Map<String, String> fieldToColumnName, Map<String, Class> fieldToType,
+         Map<String, String> fieldToColumnName, Map<String, Class<?>> fieldToType,
          boolean sortedchild, String firstTable, boolean lazyFields,
          boolean isEmbeddedFileStore)
    {
@@ -940,7 +940,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
          handleChildId(sortedchild, hibProps, hibId, gen);
       }
 
-      Class beanClass = gen.createClass();
+      Class<?> beanClass = gen.createClass();
       String hibConfig = buildHibernateConfiguration(firstTable, hibProps,
             hibId, hibJoin, beanClass);
 
@@ -969,7 +969,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * derby database.
     */
    private void handleProperties(Map<String, List<String>> fieldsByTable,
-         Map<String, String> fieldToColumnName, Map<String, Class> fieldToType,
+         Map<String, String> fieldToColumnName, Map<String, Class<?>> fieldToType,
          String firstTable, List<String> props, StringBuilder hibProps,
          PSBeanGenerator gen, String table, StringBuilder pertableprops,
          boolean lazyFields, boolean isEmbeddedFileStore)
@@ -990,7 +990,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
             continue;
 
          // Add the field to the generated class bean.
-         Class type = fieldToType.get(field);
+         Class<?> type = fieldToType.get(field);
 
          if (isEmbeddedFileStore)
          {
@@ -1203,7 +1203,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * @param extras
     */
    private void addHibernateManyToOne(StringBuilder builder, String property,
-         Class targetentity, String column, String extras)
+         Class<?> targetentity, String column, String extras)
    {
       builder.append("<many-to-one name=\"");
       builder.append(property);
@@ -1296,7 +1296,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     */
 
    private void addHibernateProperty(String field, String column,
-         StringBuilder builder, boolean isLazy, Class type)
+         StringBuilder builder, boolean isLazy, Class<?> type)
    {
       builder.append("<property name=\"");
       builder.append(field);
@@ -1392,7 +1392,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
    /**
     * @return Returns the loadpolicy.
     */
-   public Map<Class, IDType> getLoadpolicy()
+   public Map<Class<?>, IDType> getLoadpolicy()
    {
       return m_loadpolicy;
    }
@@ -1400,7 +1400,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
    /**
     * @return Returns the properties.
     */
-   public Map<Class, List<String>> getProperties()
+   public Map<Class<?>, List<String>> getProperties()
    {
       return m_properties;
    }
@@ -1412,7 +1412,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     *           empty
     * @return the type, never <code>null</code>
     */
-   public Class getPropertyType(String property)
+   public Class<?> getPropertyType(String property)
    {
       if (StringUtils.isBlank(property))
       {
@@ -1443,7 +1443,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
          return Long.class;
       }
 
-      Class type = m_fieldToType.get(property);
+      Class<?> type = m_fieldToType.get(property);
       // Try simple children
       if (m_simpleChildTypes.containsKey(property))
       {
@@ -1601,7 +1601,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * @return the implementation class, never <code>null</code> for a valid
     *         configuration
     */
-   public Class getMainClass()
+   public Class<?> getMainClass()
    {
       for (ImplementingClass c : m_implementingClasses)
       {
@@ -1629,7 +1629,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * @return the class or <code>null</code> if this configuration did not
     *         require a lazy loader
     */
-   public Class getLazyLoadClass()
+   public Class<?> getLazyLoadClass()
    {
       for (ImplementingClass c : m_implementingClasses)
       {

@@ -1128,7 +1128,7 @@ public class PSNavConfig
     * @return the cached NavTree object, may be <code>null</code> if cannot
     *   find the cached NavTree.
     */
-   public Document retrieveNavTreeXML(Map intParams)
+   public Document retrieveNavTreeXML(Map<String, ?> intParams)
    {
       if (intParams == null)
          throw new IllegalArgumentException("intParams may not be null");
@@ -1213,11 +1213,17 @@ public class PSNavConfig
     *
     * @return the cache key, never <code>null</code> or empty.
     */
-   private String getNavTreeKeyXML(Map intParams)
+   private static String stringParam(Map<String, ?> params, String key)
    {
-      String contentid = (String)intParams.get(IPSHtmlParameters.SYS_CONTENTID);
-      String revision = (String)intParams.get(IPSHtmlParameters.SYS_REVISION);
-      String authtype = (String)intParams.get(IPSHtmlParameters.SYS_AUTHTYPE);
+      Object v = params.get(key);
+      return v == null ? null : v.toString();
+   }
+
+   private String getNavTreeKeyXML(Map<String, ?> intParams)
+   {
+      String contentid = stringParam(intParams, IPSHtmlParameters.SYS_CONTENTID);
+      String revision = stringParam(intParams, IPSHtmlParameters.SYS_REVISION);
+      String authtype = stringParam(intParams, IPSHtmlParameters.SYS_AUTHTYPE);
 
       return contentid + "," + revision + "," + authtype;
    }
@@ -1227,7 +1233,7 @@ public class PSNavConfig
     * {@link #getNavTreeKey(IPSRequestContext)}; the map value is the cached
     * <code>PSNavTree</code> object.
     */
-   private Map m_navTreeCache = new HashMap<>();
+   private Map<String, PSNavTree> m_navTreeCache = new HashMap<>();
 
    /**
     * Used to cache the PSNavTree. The map key is a String object, created by
@@ -1245,7 +1251,7 @@ public class PSNavConfig
     *
     * @param intParams the parameter mapp, never <code>null</code>.
     */
-   public void storeNavTreeXML(Document navTreeXML, Map intParams)
+   public void storeNavTreeXML(Document navTreeXML, Map<String, ?> intParams)
    {
       if (intParams == null)
          throw new IllegalArgumentException("intParams may not be null");
@@ -1306,7 +1312,7 @@ public class PSNavConfig
       if (req == null)
          throw new IllegalArgumentException("req may not be null");
 
-      return (PSNavTree) m_navTreeCache.get(getNavTreeKey(req));
+      return m_navTreeCache.get(getNavTreeKey(req));
    }
 
    /**

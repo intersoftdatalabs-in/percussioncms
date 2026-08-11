@@ -53,7 +53,8 @@ public class PSBinaryAssembler extends PSAssemblerBase
          return getFailureResult(item, "$sys was not bound to a map.");
       }
 
-      Map sysmap = (Map) sys;
+      @SuppressWarnings("unchecked")
+      Map<String, Object> sysmap = (Map<String, Object>) sys;
       Object mtype = sysmap.get("mimetype");
       Object data = sysmap.get("binary");
       String mimetype;

@@ -1746,7 +1746,7 @@ public class PSPublisherService
       q.setParameter("context", deliveryContext);
 
       Timer swTemp = new Timer();
-      List<Integer> contentIds = (idset != 0) ? (List)executeQuery(q) : q.list();
+      List<Integer> contentIds = castIntegerList((idset != 0) ? executeQuery(q) : q.list());
 
       // dedupe IDs
       Set<Integer> results = new HashSet<>();
@@ -1795,7 +1795,7 @@ public class PSPublisherService
       // 
 
       Timer swTemp = new Timer();      
-      List<Integer> contentIds = (idset != 0) ? (List)executeQuery(q) : q.list();
+      List<Integer> contentIds = castIntegerList((idset != 0) ? executeQuery(q) : q.list());
 
       // dedupe IDs
       Set<Integer> results = new HashSet<>();
@@ -1944,7 +1944,7 @@ public class PSPublisherService
             q.setParameter("idset", idset);
          }
          q.setParameter("siteid", siteid.longValue());
-         return (idset != 0) ? (List)executeQuery(q) : q.list();
+         return castLongList((idset != 0) ? executeQuery(q) : q.list());
          
       }
       finally
@@ -3877,8 +3877,8 @@ public class PSPublisherService
       q.setParameter("operation", (short) operation.ordinal() );
       q.setParameter("status", (short) status.ordinal());
       q.setParameterList("ids", Collections.singleton(pubstatus.getStatusId()));
-      List result = q.list();
-      for(Object r : result)
+      List<?> result = q.list();
+      for (Object r : result)
       {
          Object arr[] = (Object[]) r;
          // Number sid = (Number) arr[0];
@@ -3902,7 +3902,7 @@ public class PSPublisherService
    public IPSGuid findEditionIdForJob(long jobid)
    {
       IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-      List results = 
+      List<?> results = 
               getSession().createQuery(
                "select s.editionId from PSPubStatus s " +
                "where s.statusId = :statusid").setParameter(
@@ -3918,7 +3918,7 @@ public class PSPublisherService
 
    public IPSPubStatus findPubStatusForJob(long jobid)
    {
-      List results = getSession().createQuery(
+      List<?> results = getSession().createQuery(
             "select s from PSPubStatus s where s.statusId = :sid").setParameter(
             "sid", jobid).list();
       if (results != null && !results.isEmpty())
@@ -4030,7 +4030,7 @@ public class PSPublisherService
          log.debug("Found purged items for unpublish: " + purgedItems.size());
          
          // Items not in their original folder
-         List movedItems = new ArrayList<Long>();
+         List<Long> movedItems = new ArrayList<>();
          if (isHandleChangedLocation())
             movedItems = findMovedItems(objectId, true);
          
@@ -4069,7 +4069,20 @@ public class PSPublisherService
     *    <code>List<Integer></code> of content IDs. Never <code>null</code>, 
     *    but may be empty. 
     */
-   private List findMovedItems(IPSGuid serverId, boolean isGetReferenceId)
+   @SuppressWarnings("unchecked")
+   private static List<Integer> castIntegerList(List<?> source)
+   {
+      return (List<Integer>) source;
+   }
+
+   @SuppressWarnings("unchecked")
+   private static Collection<Long> castLongList(List<?> source)
+   {
+      return (Collection<Long>) source;
+   }
+
+   @SuppressWarnings("unchecked")
+   private <T extends Number> List<T> findMovedItems(IPSGuid serverId, boolean isGetReferenceId)
    {
       Session s = getSession();
 

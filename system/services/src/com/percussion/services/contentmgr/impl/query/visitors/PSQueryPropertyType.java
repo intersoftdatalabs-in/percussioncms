@@ -72,7 +72,7 @@ public class PSQueryPropertyType extends PSQueryNodeVisitor
       String name = identifier.getName();
       if (!PSContentUtils.isNonPropertyRef(name))
       {
-         Class type = m_tc.getPropertyType(name);
+         Class<?> type = m_tc.getPropertyType(name);
          identifier.setType(calculateType(type));
       }
       return identifier;
@@ -85,7 +85,7 @@ public class PSQueryPropertyType extends PSQueryNodeVisitor
     * @return the type value
     * @throws InvalidQueryException
     */
-   private int calculateType(Class typeClass) throws InvalidQueryException
+   private int calculateType(Class<?> typeClass) throws InvalidQueryException
    {
       if (typeClass == byte[].class || typeClass == Blob.class)
       {

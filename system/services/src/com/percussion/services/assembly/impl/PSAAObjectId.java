@@ -428,12 +428,11 @@ public class PSAAObjectId
          throw new IllegalArgumentException("item must not be null");
       }
       Map<String, String> params = new HashMap<>();
-      Map oldParams = item.getParameters();
-      Iterator iter = oldParams.keySet().iterator();
-      while (iter.hasNext())
+      Map<String, String[]> oldParams = item.getParameters();
+      for (Map.Entry<String, String[]> entry : oldParams.entrySet())
       {
-         String key = (String) iter.next();
-         String[] val = (String[]) oldParams.get(key);
+         String key = entry.getKey();
+         String[] val = entry.getValue();
          if (val != null && val.length > 0)
             params.put(key, val[0]);
       }
@@ -457,7 +456,7 @@ public class PSAAObjectId
     * @throws PSAssemblyException
     */
    static private Map<String, String> parseCommonParams(IPSAssemblyItem item,
-      Map params)
+      Map<String, ?> params)
       throws PSAssemblyException, PSMissingBeanConfigurationException
    {
       Map<String, String> id = new HashMap<>();
@@ -523,7 +522,8 @@ public class PSAAObjectId
       id.put(IPSHtmlParameters.SYS_AUTHTYPE, temp);
 
       // Content type id get it from component summary
-      String cid = (String) params.get(IPSHtmlParameters.SYS_CONTENTID);
+      String cid = params.get(IPSHtmlParameters.SYS_CONTENTID) == null
+            ? null : params.get(IPSHtmlParameters.SYS_CONTENTID).toString();
       PSComponentSummary sum = getItemSummary(Integer.parseInt(cid));
       id.put(IPSHtmlParameters.SYS_CONTENTTYPEID, String.valueOf(sum
             .getContentTypeId()));
@@ -552,7 +552,7 @@ public class PSAAObjectId
     *            resolved to <code>null</code> or empty via parameter map or
     *            defualt value.
     */
-   static private String parseParam(Map params, String name, String defValue,
+   static private String parseParam(Map<String, ?> params, String name, String defValue,
          boolean isRequired)
    {
       String val = defValue;

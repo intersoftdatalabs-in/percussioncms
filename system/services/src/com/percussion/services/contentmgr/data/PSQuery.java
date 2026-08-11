@@ -325,7 +325,7 @@ public class PSQuery implements Query
     * @param classes the classes in use by the query, never <code>null</code> 
     * @return the final projection string
     */
-   public String getProjection(PSTypeConfiguration type, List<Class> classes)
+   public String getProjection(PSTypeConfiguration type, List<Class<?>> classes)
    {
       String columns[];
       if (hasStarProjection())
@@ -397,9 +397,9 @@ public class PSQuery implements Query
     *          property was processed
     */
    private boolean mapProjectionParam(StringBuilder rval, boolean first,
-         String col, PSTypeConfiguration type, List<Class> classes)
+         String col, PSTypeConfiguration type, List<Class<?>> classes)
    {
-      PSPair<String,Class> resolvedref 
+      PSPair<String, Class<?>> resolvedref 
          = PSContentUtils.resolveFieldReference(col, type);
       if (resolvedref != null)
       {
@@ -462,7 +462,7 @@ public class PSQuery implements Query
     * @param classes the inuse classes, used to calculate the field reference
     * @return the order by string, never <code>null</code>, but can be empty
     */
-   public String getSortClause(PSTypeConfiguration type, List<Class> classes)
+   public String getSortClause(PSTypeConfiguration type, List<Class<?>> classes)
    {
       if (type == null)
       {
@@ -482,7 +482,7 @@ public class PSQuery implements Query
          if(sf != null) {
             String prop = sf.getFirst().getName();
             if (fields.contains(prop)) {
-               PSPair<String, Class> resolvedref =
+               PSPair<String, Class<?>> resolvedref =
                        PSContentUtils.resolveFieldReference(prop, type);
                String queryref = PSContentUtils.makeQueryRef(resolvedref, classes);
                if (resolvedref != null) {

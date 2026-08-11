@@ -765,7 +765,7 @@ public class PSContentRepository
                                    PSTypeConfiguration config, PSContentMgrConfig cconfig,
                                    PSContentPropertyLoader loader)
     {
-        Class lazyClass = config.getLazyLoadClass();
+        Class<?> lazyClass = config.getLazyLoadClass();
         if (lazyClass == null)
             return;
 
@@ -868,7 +868,7 @@ public class PSContentRepository
             throws RepositoryException
     {
         Map<PSLegacyGuid, GeneratedClassBase> rval = new HashMap<>();
-        Map<Long, Class> typeToClassMap = new HashMap<>();
+        Map<Long, Class<?>> typeToClassMap = new HashMap<>();
         MultiMap typeToIdsMap = new MultiHashMap();
         for (IPSGuid g : guids)
         {
@@ -900,7 +900,7 @@ public class PSContentRepository
         }
         // Now we have the ids grouped per type, we can load them in groups
         // using hibernate
-        for (Map.Entry<Long, Class> type : typeToClassMap.entrySet())
+        for (Map.Entry<Long, Class<?>> type : typeToClassMap.entrySet())
         {
             Class<?> iclass = typeToClassMap.get(type.getKey());
             List<PSLegacyCompositeId> ids = (List<PSLegacyCompositeId>) typeToIdsMap
@@ -1022,7 +1022,7 @@ public class PSContentRepository
             {
                 query.append(" order by sys_sortrank asc");
             }
-            List children = getSession().createQuery(
+            List<?> children = getSession().createQuery(
                     query.toString()).setParameter("cid",content_id).setParameter("rev",revision).list();
             for (Object rep : children)
             {
@@ -1054,7 +1054,7 @@ public class PSContentRepository
      * @return the id
      */
     private int getSysId(Object rep) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-            Method m = rep.getClass().getMethod("getSys_sysid", new Class[]{});
+            Method m = rep.getClass().getMethod("getSys_sysid", new Class<?>[]{});
             return (Integer) m.invoke(rep, new Object[]{});
 
     }
@@ -1467,7 +1467,7 @@ public class PSContentRepository
                     (PSTypeConfiguration) results[1]);
             getChangedConfigs().collectAddedConfig((IPSTypeKey) results[0],
                     (PSTypeConfiguration) results[1]);
-            Iterator children = item.getAllChildren();
+            Iterator<?> children = item.getAllChildren();
             while (children.hasNext())
             {
                 PSItemChild child = (PSItemChild) children.next();
@@ -1640,7 +1640,7 @@ public class PSContentRepository
                 PSNotificationHelper.notifyEvent(EventType.CONTENT_CHANGED,
                         legacyguid);
                 PSComponentSummary s = summarymap.get(legacyguid.getContentId());
-                List<Class> affectedclasses = new ArrayList<>();
+                List<Class<?>> affectedclasses = new ArrayList<>();
 
                 // If the component summary is not there, we've never loaded
                 // this item through the repository interface, or the second
@@ -1676,7 +1676,7 @@ public class PSContentRepository
 
                 // Evict any associated collections. Doesn't try to preserve
                 // other possible objects
-                for (Class c : affectedclasses)
+                for (Class<?> c : affectedclasses)
                 {
                     fact.getCache().evictEntityData(c);
                 }
@@ -2047,7 +2047,7 @@ public class PSContentRepository
         querystr.append(" from PSComponentSummary as cs ");
         querystr.append(" left outer join cs.parentFolders as f");
         int i = 0;
-        for(Class c : wherebuilder.getInuse())
+        for (Class<?> c : wherebuilder.getInuse())
         {
             if (c.equals(PSComponentSummary.class)) continue;
             querystr.append(',');
@@ -2057,7 +2057,7 @@ public class PSContentRepository
         }
         querystr.append(" where ");
         i = 0;
-        for(Class c : wherebuilder.getInuse())
+        for (Class<?> c : wherebuilder.getInuse())
         {
             if (c.equals(PSComponentSummary.class)) continue;
             if (i == 0)
@@ -2132,10 +2132,10 @@ public class PSContentRepository
      * not <code>null</code>.
      */
 
-    private void gatherQueryResults(List<Map> results, PSQueryResult rval)
+    private void gatherQueryResults(List<Map<String, Object>> results, PSQueryResult rval)
     {
         // The results are a map. Create a row for each result
-        for (Map result : results)
+        for (Map<String, Object> result : results)
         {
             // Handle folder info, replace "sys_folderid" with "rx:sys_folderid"
             Integer fid = (Integer) result.get(IPSHtmlParameters.SYS_FOLDERID);
@@ -2280,11 +2280,15 @@ public class PSContentRepository
 
                     PSStopwatch sw = new PSStopwatch();
                     sw.start();
-                    List<Map> results;
+                    List<Map<String, Object>> results;
                     if (!collectionIds.isEmpty()) {
-                        results = (List) executeQuery(q);
+                        @SuppressWarnings("unchecked")
+                        List<Map<String, Object>> tmp = (List<Map<String, Object>>) executeQuery(q);
+                        results = tmp;
                     } else {
-                      results = q.list();
+                      @SuppressWarnings("unchecked")
+                      List<Map<String, Object>> tmp = q.list();
+                      results = tmp;
                    }
 
                     sw.stop();
@@ -2388,7 +2392,7 @@ public class PSContentRepository
             PSContentPropertyLoader loader = cn.getLazyLoader();
             PSTypeConfiguration type = cn.getConfiguration();
             PSLegacyGuid lg = (PSLegacyGuid) cn.getGuid();
-            Class ic = type.getLazyLoadClass();
+            Class<?> ic = type.getLazyLoadClass();
             if (ic == null)
                 continue;
             Object data = null;
@@ -2427,7 +2431,7 @@ public class PSContentRepository
                     query.append(" where ab.sys_id.sys_contentid = :cid ").append(
                             "and ab.sys_id.sys_revision = :rev");
 
-                    List datas = s.createQuery(query.toString()).setParameter("cid",id.getSys_contentid())
+                    List<?> datas = s.createQuery(query.toString()).setParameter("cid",id.getSys_contentid())
                             .setParameter("rev", id.getSys_revision()).setResultTransformer(Transformers.aliasToBean(ic)).list();
 
                     if (datas.isEmpty()) continue;
