@@ -90,6 +90,36 @@ class PSExceptionTypedErrorCodeTest {
   }
 
   @Test
+  void typedSingleArgCtorRejectsNullCode() {
+    assertThrows(
+        IllegalArgumentException.class, () -> new PSException((IPSErrorCode) null, "arg"));
+  }
+
+  @Test
+  void typedArrayCtorRejectsNullCode() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new PSException((IPSErrorCode) null, new Object[] {"a"}));
+  }
+
+  @Test
+  void typedCauseCtorRejectsNullCode() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new PSException(
+                (IPSErrorCode) null, new Object[] {"a"}, new RuntimeException("cause")));
+  }
+
+  @Test
+  void setArgsTypedRejectsNullCode() {
+    PSException ex = new PSException(2011);
+    assertThrows(
+        IllegalArgumentException.class, () -> ex.setArgs((IPSErrorCode) null, new Object[] {"a"}));
+    assertThrows(IllegalArgumentException.class, () -> ex.setArgs((IPSErrorCode) null, "a"));
+  }
+
+  @Test
   void legacyIntCtorHasNoTypedCode() {
     PSException ex = new PSException(2011, "x");
     assertEquals(2011, ex.getErrorCode());
@@ -107,12 +137,32 @@ class PSExceptionTypedErrorCodeTest {
   }
 
   @Test
+  void setArgsLegacyIntClearsTypedCode() {
+    PSException ex = new PSException(SAMPLE, "orig");
+    assertSame(SAMPLE, ex.getTypedErrorCode());
+    ex.setArgs(2012, new Object[] {"legacy"});
+    assertEquals(2012, ex.getErrorCode());
+    assertNull(ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
   void setArgsTypedRetainsCode() {
     PSException ex = new PSException(2011);
     ex.setArgs(AUDITABLE, new Object[] {"Directory", "ldap1", "jdoe"});
     assertEquals(9002, ex.getErrorCode());
     assertSame(AUDITABLE, ex.getTypedErrorCode());
     assertTrue(ex.isAuditable());
+  }
+
+  @Test
+  void setArgsTypedSingleArgConvenience() {
+    PSException ex = new PSException(2011);
+    ex.setArgs(AUDITABLE, "only");
+    assertEquals(9002, ex.getErrorCode());
+    assertSame(AUDITABLE, ex.getTypedErrorCode());
+    assertEquals(1, ex.getErrorArguments().length);
+    assertEquals("only", ex.getErrorArguments()[0]);
   }
 
   @Test
