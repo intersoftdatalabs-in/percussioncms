@@ -17,7 +17,10 @@
 import React from "react";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { WorkflowSection } from "../../../main/ts/workflowAdmin/workflow/WorkflowSection";
+import {
+  toWorkflowDefinition,
+  WorkflowSection,
+} from "../../../main/ts/workflowAdmin/workflow/WorkflowSection";
 import * as client from "../../../main/ts/api/client";
 
 vi.mock("../../../main/ts/api/client", () => ({
@@ -27,22 +30,65 @@ vi.mock("../../../main/ts/api/client", () => ({
   del: vi.fn(),
 }));
 
+function mockGets(workflowPayload: unknown, roles: string[] = ["Editor", "Publisher"]) {
+  vi.mocked(client.get).mockImplementation(async (url: string) => {
+    if (url.includes("user/roles") || url.includes("/roles")) {
+      return { RoleList: { roles } };
+    }
+    return workflowPayload;
+  });
+}
+
+describe("toWorkflowDefinition", () => {
+  it("maps admin shape fields", () => {
+    expect(
+      toWorkflowDefinition({
+        name: "Default Workflow",
+        isDefault: true,
+        stagingRoleId: "Editor",
+        steps: [],
+      }),
+    ).toEqual({
+      name: "Default Workflow",
+      isDefault: true,
+      stagingRoleId: "Editor",
+      steps: [],
+    });
+  });
+
+  it("maps PSUiWorkflow / WorkflowDef fields", () => {
+    expect(
+      toWorkflowDefinition({
+        workflowName: "Default Workflow",
+        defaultWorkflow: true,
+        stagingRoleNames: "Editor;Publisher",
+        workflowSteps: [{ stepName: "Draft", stepRoles: [{ roleName: "Author" }] }],
+      }),
+    ).toEqual({
+      name: "Default Workflow",
+      isDefault: true,
+      stagingRoleId: "Editor;Publisher",
+      steps: [{ name: "Draft", roleNames: ["Author"], position: 0 }],
+    });
+  });
+
+  it("handles null / empty", () => {
+    expect(toWorkflowDefinition(null)).toEqual({ name: "", isDefault: false, steps: [] });
+    expect(toWorkflowDefinition(undefined)).toEqual({ name: "", isDefault: false, steps: [] });
+  });
+});
+
 describe("WorkflowSection", () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
 
-  it("renders workflow list after loading", async () => {
+  it("renders workflow list after loading bare array", async () => {
     const mockWorkflows = [
       { name: "Default Workflow", isDefault: true, stagingRoleId: "Editor", steps: [] },
       { name: "Blog Workflow", isDefault: false, stagingRoleId: "Publisher", steps: [] },
     ];
-    vi.mocked(client.get).mockImplementation(async (url: string) => {
-      if (url.includes("user/roles") || url.includes("/roles")) {
-        return { RoleList: { roles: ["Editor", "Publisher"] } };
-      }
-      return mockWorkflows;
-    });
+    mockGets(mockWorkflows);
 
     render(<WorkflowSection />);
     expect(screen.getByText(/loading/i)).toBeTruthy();
@@ -58,13 +104,57 @@ describe("WorkflowSection", () => {
     expect(getUrls.some((u) => u.includes("user/roles") || u.endsWith("/roles"))).toBe(true);
   });
 
-  it("opens create editor when Create Workflow button is clicked", async () => {
-    vi.mocked(client.get).mockImplementation(async (url: string) => {
-      if (url.includes("user/roles") || url.includes("/roles")) {
-        return { RoleList: { roles: [] } };
-      }
-      return [];
+  it("unwraps Jackson Workflow root wrapper without throwing (#2959)", async () => {
+    mockGets({
+      Workflow: [
+        {
+          workflowName: "Default Workflow",
+          defaultWorkflow: true,
+          stagingRoleNames: "Editor",
+        },
+        {
+          workflowName: "Simple Workflow",
+          defaultWorkflow: false,
+          stagingRoleNames: "",
+        },
+      ],
     });
+
+    render(<WorkflowSection />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-workflow-section")).toBeTruthy();
+      expect(screen.getByTestId("workflow-row-Default Workflow")).toBeTruthy();
+      expect(screen.getByTestId("workflow-row-Simple Workflow")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("route-error")).toBeNull();
+  });
+
+  it("renders empty state for empty array payload", async () => {
+    mockGets([]);
+
+    render(<WorkflowSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-workflow-section")).toBeTruthy();
+      expect(screen.getByTestId("create-workflow-button")).toBeTruthy();
+    });
+    expect(screen.queryByTestId(/^workflow-row-/)).toBeNull();
+  });
+
+  it("shows error and does not crash for unexpected non-array object (#2959)", async () => {
+    mockGets({ unexpected: true, foo: 1 });
+
+    render(<WorkflowSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-workflow-section")).toBeTruthy();
+    });
+    // Generic error path — no TypeError / no workflow rows
+    expect(screen.queryByTestId(/^workflow-row-/)).toBeNull();
+    expect(screen.getByTestId("create-workflow-button")).toBeTruthy();
+  });
+
+  it("opens create editor when Create Workflow button is clicked", async () => {
+    mockGets([]);
 
     render(<WorkflowSection />);
     await waitFor(() => {
@@ -76,12 +166,10 @@ describe("WorkflowSection", () => {
   });
 
   it("loads available roles from USER_ROLES and does not post PSStringWrapper shape { name }", async () => {
-    vi.mocked(client.get).mockImplementation(async (url: string) => {
-      if (String(url).includes("user/roles")) {
-        return { RoleList: { roles: ["Admin", "Editor"] } };
-      }
-      return [{ name: "Default Workflow", isDefault: true, stagingRoleId: "Admin", steps: [] }];
-    });
+    mockGets(
+      [{ name: "Default Workflow", isDefault: true, stagingRoleId: "Admin", steps: [] }],
+      ["Admin", "Editor"],
+    );
 
     render(<WorkflowSection />);
     await waitFor(() => {

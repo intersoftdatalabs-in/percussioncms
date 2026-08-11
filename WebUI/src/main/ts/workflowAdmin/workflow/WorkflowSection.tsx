@@ -16,10 +16,55 @@
 
 import React, { useEffect, useState } from "react";
 import { get, post, put, del } from "../../api/client";
+import { parseWorkflowList } from "../../api/developer/workflowsApi";
+import type { WorkflowDef } from "../../api/developer/types";
 import { PATHS } from "../../api/paths";
 import { message } from "../../i18n/message";
 import { WF_ADMIN_MSG } from "../messages";
 import { WorkflowDefinition, WorkflowEditor } from "./WorkflowEditor";
+import type { WorkflowStep } from "./WorkflowStepList";
+
+/**
+ * Map a workflowmanagement row (PSUiWorkflow / WorkflowDef, or legacy admin shape)
+ * into the WorkflowSection editor model.
+ */
+export function toWorkflowDefinition(
+  item: WorkflowDef | Record<string, unknown> | null | undefined,
+): WorkflowDefinition {
+  if (item == null || typeof item !== "object") {
+    return { name: "", isDefault: false, steps: [] };
+  }
+  const o = item as Record<string, unknown>;
+  const name = String(o.name ?? o.workflowName ?? "").trim();
+  const isDefault = Boolean(o.isDefault ?? o.defaultWorkflow ?? false);
+  const stagingRaw = o.stagingRoleId ?? o.stagingRoleNames;
+  const stagingRoleId =
+    typeof stagingRaw === "string" && stagingRaw.trim().length > 0
+      ? stagingRaw
+      : undefined;
+
+  let steps: WorkflowStep[] = [];
+  if (Array.isArray(o.steps)) {
+    steps = o.steps as WorkflowStep[];
+  } else if (Array.isArray(o.workflowSteps)) {
+    steps = (o.workflowSteps as Record<string, unknown>[]).map((s, i) => {
+      const roleNames = Array.isArray(s.roleNames)
+        ? (s.roleNames as string[])
+        : Array.isArray(s.stepRoles)
+          ? (s.stepRoles as { roleName?: string }[])
+              .map((r) => (typeof r?.roleName === "string" ? r.roleName : ""))
+              .filter((n) => n.length > 0)
+          : [];
+      return {
+        name: String(s.name ?? s.stepName ?? "").trim(),
+        roleNames,
+        position: typeof s.position === "number" ? s.position : i,
+      };
+    });
+  }
+
+  return { name, isDefault, stagingRoleId, steps };
+}
 
 export const WorkflowSection: React.FC = () => {
   const [workflows, setWorkflows] = useState<WorkflowDefinition[]>([]);
@@ -37,13 +82,21 @@ export const WorkflowSection: React.FC = () => {
       // role/find. POST role/find expects PSStringWrapper root "psstring"
       // ({ psstring: { value } }); a bare { name: "" } body fails Jackson with
       // "Root name ('name') does not match expected ('psstring')" (#2701).
-      const [wfList, rolesRes] = await Promise.all([
-        get<WorkflowDefinition[]>(PATHS.WORKFLOW_METADATA),
+      //
+      // Workflow metadata is often a Jackson root wrapper ({ Workflow: [...] }),
+      // not a bare array — parseWorkflowList unwraps before map (#2959).
+      const [wfPayload, rolesRes] = await Promise.all([
+        get<unknown>(PATHS.WORKFLOW_METADATA),
         get<{ RoleList: { roles: string[] } }>(PATHS.USER_ROLES).catch(() => null),
       ]);
-      setWorkflows(wfList || []);
+      const parsed = parseWorkflowList(wfPayload);
+      const list = Array.isArray(parsed)
+        ? parsed.map((row) => toWorkflowDefinition(row))
+        : [];
+      setWorkflows(list);
       setAvailableRoles(rolesRes?.RoleList?.roles || []);
     } catch (err) {
+      setWorkflows([]);
       setError(message(WF_ADMIN_MSG.ERROR_GENERIC));
     } finally {
       setIsLoading(false);
