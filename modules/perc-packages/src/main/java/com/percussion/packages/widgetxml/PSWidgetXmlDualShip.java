@@ -95,19 +95,25 @@ public final class PSWidgetXmlDualShip {
    * </ul>
    */
   public static void main(String[] args) throws Exception {
+    final String usage =
+        "Usage: PSWidgetXmlDualShip materialize-modern|materialize-modern-batch-a <path>";
     if (args.length < 2) {
-      System.err.println(
-          "Usage: PSWidgetXmlDualShip materialize-modern|materialize-modern-batch-a <path>");
+      System.err.println(usage);
       System.exit(1);
     }
     String cmd = args[0].trim().toLowerCase(Locale.ROOT);
     Path path = Path.of(args[1]).toAbsolutePath().normalize();
-    int n =
-        switch (cmd) {
-          case "materialize-modern" -> materializeModernWidgetSources(path);
-          case "materialize-modern-batch-a" -> materializeModernBatchA(path);
-          default -> throw new IllegalArgumentException("Unknown command: " + args[0]);
-        };
+    int n;
+    switch (cmd) {
+      case "materialize-modern" -> n = materializeModernWidgetSources(path);
+      case "materialize-modern-batch-a" -> n = materializeModernBatchA(path);
+      default -> {
+        System.err.println("Unknown command: " + args[0]);
+        System.err.println(usage);
+        System.exit(1);
+        return;
+      }
+    }
     System.out.println(cmd + " wrote " + n + " modern widget package(s) under " + path);
   }
 
@@ -311,27 +317,11 @@ public final class PSWidgetXmlDualShip {
 
   /**
    * Resolve a package-relative path under {@code root} without accepting absolute or {@code ..}
-   * escapes (portable; uses {@link Path} segments).
+   * escapes. Delegates to {@link PSWidgetXmlCompiler#resolvePackageRelative(Path, String)} so widget
+   * dual-ship and the Widget XML compiler share one implementation.
    */
   static Path resolvePackageRelative(Path root, String relative) {
     Objects.requireNonNull(root, "root");
-    if (relative == null || relative.isBlank()) {
-      throw new IllegalArgumentException("relative path must be non-blank");
-    }
-    String normalized = relative.replace('\\', '/');
-    while (normalized.startsWith("/")) {
-      normalized = normalized.substring(1);
-    }
-    Path p = root;
-    for (String segment : normalized.split("/")) {
-      if (segment.isEmpty() || ".".equals(segment)) {
-        continue;
-      }
-      if ("..".equals(segment)) {
-        throw new IllegalArgumentException("relative path must not contain '..': " + relative);
-      }
-      p = p.resolve(segment);
-    }
-    return p;
+    return PSWidgetXmlCompiler.resolvePackageRelative(root, relative);
   }
 }

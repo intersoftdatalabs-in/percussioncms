@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -336,7 +337,8 @@ public final class PSLegacyDefinitionXmlShim {
               b.getParent() != null && b.getParent().getFileName() != null
                   ? b.getParent().getFileName().toString()
                   : b.toString();
-          return an.compareToIgnoreCase(bn);
+          // Locale.ROOT for stable order with PSWidgetXmlDualShip.listModernWidgetDirs
+          return an.toLowerCase(Locale.ROOT).compareTo(bn.toLowerCase(Locale.ROOT));
         });
     return manifests.isEmpty() ? Optional.empty() : Optional.of(manifests.get(0));
   }
