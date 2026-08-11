@@ -90,6 +90,13 @@ test.describe("GH-1622 explorer root folders (encodePath / no double-slash)", ()
       `GET ${PATH_FOLDER}/Sites must not 400 (folder//Sites was the bug)`,
     ).toBe(200);
 
+    // Classic //Folders root (#3044): must resolve like Sites/Assets/Design.
+    const folders = await request.get(`${PATH_FOLDER}/Folders`, { headers });
+    expect(
+      folders.status(),
+      `GET ${PATH_FOLDER}/Folders should be 200 (classic Folders root #3044)`,
+    ).toBe(200);
+
     const bad = await request.get(`${PATH_FOLDER}//Sites`, { headers });
     // Document the server contract the SPA must avoid.
     expect(bad.status()).toBe(400);

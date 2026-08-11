@@ -50,6 +50,12 @@ public class PSPathUtilsTest {
     assertEquals(folderPath, PSPathUtils.getFolderPath(finderPath));
     assertEquals(finderPath, PSPathUtils.getFinderPath("////path"));
     assertEquals(folderPath, PSPathUtils.getFolderPath("////path"));
+
+    // Classic //Folders root (#3044): finder form is /Folders; folder form is //Folders.
+    assertEquals("/Folders", PSPathUtils.getFinderPath("//Folders"));
+    assertEquals("//Folders", PSPathUtils.getFolderPath("/Folders"));
+    assertEquals("/Folders/$System$", PSPathUtils.getFinderPath("//Folders/$System$"));
+    assertEquals("//Folders/$System$", PSPathUtils.getFolderPath("/Folders/$System$"));
   }
 
   @Test

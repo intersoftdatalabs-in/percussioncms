@@ -99,8 +99,9 @@ describe("isHumanReadableErrorText", () => {
 });
 
 describe("EXPECTED_ROOT_FOLDER_NAMES", () => {
-  it("includes Sites, Assets, Design", () => {
+  it("includes Sites, Folders, Assets, Design (#3044)", () => {
     assert.ok(EXPECTED_ROOT_FOLDER_NAMES.includes("Sites"));
+    assert.ok(EXPECTED_ROOT_FOLDER_NAMES.includes("Folders"));
     assert.ok(EXPECTED_ROOT_FOLDER_NAMES.includes("Assets"));
     assert.ok(EXPECTED_ROOT_FOLDER_NAMES.includes("Design"));
   });
