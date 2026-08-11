@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public class PSPathResolver extends PSBasicResolver {
   // see base class
-  public String resolve(String var, Map ctx) throws PSResolveException {
+  public String resolve(String var, Map<String, ?> ctx) throws PSResolveException {
     // use super to check contract
     boolean isDoubleQuoted = false;
 

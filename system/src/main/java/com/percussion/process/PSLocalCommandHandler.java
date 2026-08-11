@@ -61,7 +61,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
    * @throws PSProcessException If the content of the config file doesn't conform to dtd as
    *     specified in {@link PSProcessManager} description.
    */
-  public PSLocalCommandHandler(Map env, File config)
+  public PSLocalCommandHandler(Map<String, String> env, File config)
       throws IOException, SAXException, PSProcessException {
     setEnvironment(env);
     validatePath(config, "PSLocalCommandHandler");
@@ -78,14 +78,15 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
    *     these variables, then the <code>extraParams</code> are added. The final result is used for
    *     the process execution context.
    */
-  public void setEnvironment(Map env) {
-    m_environment = null == env ? new HashMap() : env;
+  public void setEnvironment(Map<String, String> env) {
+    m_environment = null == env ? new HashMap<>() : env;
   }
 
   // see base class method for details
   public PSProcessRequestResult executeProcess(
-      String procName, Map extraParams, int wait, boolean terminate) throws PSProcessException {
-    Map vars = new HashMap();
+      String procName, Map<String, String> extraParams, int wait, boolean terminate)
+      throws PSProcessException {
+    Map<String, String> vars = new HashMap<>();
     vars.putAll(m_environment);
     // supplied vars have highest precedence
     if (null != extraParams) vars.putAll(extraParams);
@@ -162,7 +163,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
   static PSProcessRequestResult doExecuteProcess(
       PSProcessManager mgr,
       String procName,
-      Map params,
+      Map<String, String> params,
       int wait,
       boolean terminate,
       Logger outputSink) {
@@ -181,8 +182,8 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
     String resultText = "";
     int spawnedActionHandle = -1;
     try {
-      Map vars = new HashMap();
-      if (null != params) vars.putAll(params);
+      Map<String, String> vars = new HashMap<>();
+      vars.putAll(params);
 
       IPSProcess proc = mgr.getProcess(procName);
       if (null == proc) {
@@ -291,7 +292,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
    * @return The originally stored action, or <code>null</code> if the handle is not in the map.
    */
   private static PSProcessAction getAction(int handle) {
-    return (PSProcessAction) ms_spawnedActions.get(Integer.valueOf(handle));
+    return ms_spawnedActions.get(Integer.valueOf(handle));
   }
 
   /**
@@ -302,7 +303,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
    *     handle.
    */
   private static PSProcessAction removeAction(int handle) {
-    return (PSProcessAction) ms_spawnedActions.remove(Integer.valueOf(handle));
+    return ms_spawnedActions.remove(Integer.valueOf(handle));
   }
 
   /**
@@ -318,7 +319,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
    * Integer</code> whose value is the next available value of <code>ms_nextHandle</code>. The value
    * is the <code>PSProcessAction</code> that was spawned. Never <code>null</code>.
    */
-  private static Map ms_spawnedActions = new HashMap();
+  private static final Map<Integer, PSProcessAction> ms_spawnedActions = new HashMap<>();
 
   /**
    * Removes the file or directory specified by <code>path</code>. If <code>path</code> is a
@@ -577,7 +578,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
    * Set during construction, then never <code>null</code> or modified after that. See ctor param
    * <code>env</code> description for details.
    */
-  private Map m_environment;
+  private Map<String, String> m_environment;
 
   /**
    * Set in ctor, then never <code>null</code> or modified after that. It is used to fulfill

@@ -96,11 +96,11 @@ public class PSSimpleProcess implements IPSProcess {
   // see interface
   public PSProcessDef getProcessDef() {
     int os = PSProcessManager.getOS();
-    return (PSProcessDef) m_processDefs.get(Integer.valueOf(os));
+    return m_processDefs.get(Integer.valueOf(os));
   }
 
   // see interface
-  public PSProcessAction start(Map ctx) throws PSProcessException {
+  public PSProcessAction start(Map<String, String> ctx) throws PSProcessException {
     if (ctx == null) throw new IllegalArgumentException("process context may not be null");
     PSProcessDef pdef = getProcessDef();
     String[] cmdArray = getCommand(pdef, ctx);
@@ -120,7 +120,8 @@ public class PSSimpleProcess implements IPSProcess {
    *     directory is defined.
    * @throws PSProcessException if any error occurs resolving the working directory
    */
-  protected File getWorkingDir(PSProcessDef pdef, Map ctx) throws PSProcessException {
+  protected File getWorkingDir(PSProcessDef pdef, Map<String, String> ctx)
+      throws PSProcessException {
     if (pdef == null) throw new IllegalArgumentException("process definition may not be null");
 
     if (ctx == null) throw new IllegalArgumentException("process context may not be null");
@@ -140,7 +141,8 @@ public class PSSimpleProcess implements IPSProcess {
    * @throws PSProcessException if any error occurs resolving the executable or the command
    *     parameters
    */
-  protected String[] getCommand(PSProcessDef pdef, Map ctx) throws PSProcessException {
+  protected String[] getCommand(PSProcessDef pdef, Map<String, String> ctx)
+      throws PSProcessException {
     if (pdef == null) throw new IllegalArgumentException("process definition may not be null");
 
     if (ctx == null) throw new IllegalArgumentException("process context may not be null");
@@ -170,7 +172,7 @@ public class PSSimpleProcess implements IPSProcess {
    *     setting is specified.
    * @throws PSProcessException if any error occurs resolving the environment parameters
    */
-  protected String[] getEnv(PSProcessDef pdef, Map ctx) throws PSProcessException {
+  protected String[] getEnv(PSProcessDef pdef, Map<String, String> ctx) throws PSProcessException {
     if (ctx == null) throw new IllegalArgumentException("process context may not be null");
 
     if (pdef == null) throw new IllegalArgumentException("process definition may not be null");
@@ -188,7 +190,7 @@ public class PSSimpleProcess implements IPSProcess {
    * Map for storing the process definition (<code>PSProcessDef</code>) as value and the supported
    * OS (as <code>Integer</code>) as key. Never <code>null</code>.
    */
-  protected Map m_processDefs = new HashMap();
+  protected final Map<Integer, PSProcessDef> m_processDefs = new HashMap<>();
 
   /**
    * Stores the type of the function, initialized in the <code>fromXml</code> method, never modified

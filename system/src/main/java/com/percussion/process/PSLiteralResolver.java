@@ -28,7 +28,7 @@ public class PSLiteralResolver extends PSBasicResolver {
    * Just returns the supplied template except if it was <code>null</code>, in which case "" is
    * returned.
    */
-  protected String resolve(String template, Map ctx) throws PSResolveException {
+  protected String resolve(String template, Map<String, ?> ctx) throws PSResolveException {
     if ((template == null)) {
       template = "";
     }

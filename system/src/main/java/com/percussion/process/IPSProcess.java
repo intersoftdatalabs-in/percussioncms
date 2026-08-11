@@ -75,7 +75,7 @@ public interface IPSProcess {
    *     </code>.
    * @throws PSProcessException if any error occurs starting the process
    */
-  public PSProcessAction start(Map ctx) throws PSProcessException;
+  public PSProcessAction start(Map<String, String> ctx) throws PSProcessException;
 
   /**
    * Tag name of the root node for the element which can be specified in the <code>fromXml</code>

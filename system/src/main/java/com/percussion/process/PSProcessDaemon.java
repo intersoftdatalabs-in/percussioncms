@@ -38,10 +38,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -368,11 +366,10 @@ public class PSProcessDaemon extends Thread {
     m_pathRoot = filePath;
 
     // pull out all process environment props and store in separate map
-    Enumeration iter = props.propertyNames();
-    while (iter.hasMoreElements()) {
-      String prop = (String) iter.nextElement();
-      if (prop.startsWith(PROC_ENV_PREFIX))
-        m_procEnv.put(prop.substring(PROC_ENV_PREFIX.length()), props.get(prop));
+    for (String prop : props.stringPropertyNames()) {
+      if (prop.startsWith(PROC_ENV_PREFIX)) {
+        m_procEnv.put(prop.substring(PROC_ENV_PREFIX.length()), props.getProperty(prop));
+      }
     }
 
     String procDefFilename = props.getProperty("procDefFilename");
@@ -424,7 +421,7 @@ public class PSProcessDaemon extends Thread {
    *     If a non-zero value is returned, result will contain the error text.
    */
   public static int sendCommand(
-      String server, int port, String cmdName, List params, StringBuilder result)
+      String server, int port, String cmdName, List<?> params, StringBuilder result)
       throws IOException {
     if (null == server || server.trim().length() == 0)
       throw new IllegalArgumentException("server can't be null or empty");
@@ -448,8 +445,7 @@ public class PSProcessDaemon extends Thread {
       // assume there are no funky chars in the cmd name
       dos.write(cmdName.getBytes());
 
-      for (Iterator iter = params.iterator(); iter.hasNext(); ) {
-        Object o = iter.next();
+      for (Object o : params) {
         InputStream is;
         byte[] buf;
         int count;
@@ -625,7 +621,7 @@ public class PSProcessDaemon extends Thread {
 
         // get all params
         boolean done = false;
-        List params = new ArrayList();
+        List<byte[]> params = new ArrayList<>();
         do {
           int bytes = dis.readInt();
           if (bytes == -1) {
@@ -705,7 +701,7 @@ public class PSProcessDaemon extends Thread {
      * @throws SAXException If the byte[] supplied as the first param cannot be parsed as a UTF8
      *     encoded xml document.
      */
-    private String handleExecProcess(List params) throws SAXException {
+    private String handleExecProcess(List<byte[]> params) throws SAXException {
       if (params.isEmpty()) {
         // let the processing below handle the error
         params.add(0, new byte[0]);
@@ -713,7 +709,7 @@ public class PSProcessDaemon extends Thread {
 
       String result = "";
       try {
-        byte[] buf = (byte[]) params.get(0);
+        byte[] buf = params.get(0);
         String request = new String(buf, "UTF8");
         Document inputDoc =
             PSXmlDocumentBuilder.createXmlDocument(new StringReader(request), false);
@@ -744,7 +740,7 @@ public class PSProcessDaemon extends Thread {
      *     PSXProcessRequestResult.dtd.
      * @throws Exception If the byte[] supplied as the params cannot be parsed as integers.
      */
-    private String handleWaitForProcess(List params) throws Exception {
+    private String handleWaitForProcess(List<byte[]> params) throws Exception {
       if (params.size() != 2) {
         throw new RuntimeException(
             "Command requires 2 parameters, " + params.size() + " supplied.");
@@ -752,8 +748,8 @@ public class PSProcessDaemon extends Thread {
 
       String result = "";
       try {
-        int handle = Integer.parseInt(new String((byte[]) params.get(0), "UTF8"));
-        int wait = Integer.parseInt(new String((byte[]) params.get(1), "UTF8"));
+        int handle = Integer.parseInt(new String(params.get(0), "UTF8"));
+        int wait = Integer.parseInt(new String(params.get(1), "UTF8"));
 
         PSProcessRequestResult processResult = PSLocalCommandHandler.doWaitOnProcess(handle, wait);
 
@@ -779,9 +775,8 @@ public class PSProcessDaemon extends Thread {
      * @throws Exception if the supplied path is not valid or all specified directories cannot be
      *     created.
      */
-    private String handleRm(List params) throws Exception {
-      StringBuilder validateResult = new StringBuilder(1000);
-      File path = validatePath((byte[]) params.get(0));
+    private String handleRm(List<byte[]> params) throws Exception {
+      File path = validatePath(params.get(0));
       PSLocalCommandHandler.doRemoveFileSystemObject(path);
       return "";
     }
@@ -796,9 +791,8 @@ public class PSProcessDaemon extends Thread {
      *     the file system or "0" otherwise.
      * @throws Exception if the supplied path is not valid.
      */
-    private String handleCheckFSObject(List params) throws Exception {
-      StringBuilder validateResult = new StringBuilder(1000);
-      File path = validatePath((byte[]) params.get(0));
+    private String handleCheckFSObject(List<byte[]> params) throws Exception {
+      File path = validatePath(params.get(0));
       return path.exists() ? "1" : "0";
     }
 
@@ -812,9 +806,8 @@ public class PSProcessDaemon extends Thread {
      * @throws Exception if the supplied path is not valid or all specified directories cannot be
      *     created.
      */
-    private String handleMkdir(List params) throws Exception {
-      StringBuilder validateResult = new StringBuilder(1000);
-      File dirs = validatePath((byte[]) params.get(0));
+    private String handleMkdir(List<byte[]> params) throws Exception {
+      File dirs = validatePath(params.get(0));
       PSLocalCommandHandler.doMakeDirectories(dirs);
       return "";
     }
@@ -870,9 +863,9 @@ public class PSProcessDaemon extends Thread {
      * @throws Exception if the supplied path is not valid or the file cannot be written for any
      *     reason.
      */
-    private String handlePut(List params) throws Exception {
-      File path = validatePath((byte[]) params.get(0));
-      String content = new String((byte[]) params.get(1), "UTF8");
+    private String handlePut(List<byte[]> params) throws Exception {
+      File path = validatePath(params.get(0));
+      String content = new String(params.get(1), "UTF8");
       PSLocalCommandHandler.doSaveTextFile(path, content);
       return "";
     }
@@ -887,9 +880,9 @@ public class PSProcessDaemon extends Thread {
      * @throws Exception if the supplied path is not valid or the file cannot be written for any
      *     reason.
      */
-    private String handlePutBinary(List params) throws Exception {
-      File path = validatePath((byte[]) params.get(0));
-      InputStream content = new ByteArrayInputStream((byte[]) params.get(1));
+    private String handlePutBinary(List<byte[]> params) throws Exception {
+      File path = validatePath(params.get(0));
+      InputStream content = new ByteArrayInputStream(params.get(1));
       PSLocalCommandHandler.doSaveBinaryFile(path, content);
       return "";
     }
@@ -904,8 +897,8 @@ public class PSProcessDaemon extends Thread {
      * @throws Exception if the supplied path is not valid or the file cannot be read for any
      *     reason.
      */
-    private String handleGet(List params) throws Exception {
-      File path = validatePath((byte[]) params.get(0));
+    private String handleGet(List<byte[]> params) throws Exception {
+      File path = validatePath(params.get(0));
       return PSLocalCommandHandler.doGetTextFile(path);
     }
 
@@ -934,7 +927,7 @@ public class PSProcessDaemon extends Thread {
         }
         PSProcessRequest req = new PSProcessRequest(root);
         procName = req.getName();
-        Map env = new HashMap(m_procEnv);
+        Map<String, String> env = new HashMap<>(m_procEnv);
         env.putAll(req.getParams());
         resultObj =
             PSLocalCommandHandler.doExecuteProcess(
@@ -1002,7 +995,7 @@ public class PSProcessDaemon extends Thread {
    * This map holds the parameters used when processing the process defininitions. Each entry has a
    * key and value as <code>String</code>. Never <code>null</code>, may be empty.
    */
-  private Map m_procEnv = new HashMap();
+  private final Map<String, String> m_procEnv = new HashMap<>();
 
   /** Contains the process definitions. Set in ctor, then never <code>null</code> or modified. */
   private PSProcessManager m_procMgr;
@@ -1019,7 +1012,7 @@ public class PSProcessDaemon extends Thread {
    * </code> in the dot notation of an IP address, e.g. 144.122.111.1. If empty, all remote
    * addresses are allowed.
    */
-  private Set m_remoteIpFilters = new HashSet();
+  private final Set<String> m_remoteIpFilters = new HashSet<>();
 
   /**
    * The log4j logger for this class. Initialized in <code>main</code>, then never <code>null</code>
