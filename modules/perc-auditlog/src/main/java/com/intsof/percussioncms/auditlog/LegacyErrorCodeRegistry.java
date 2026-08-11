@@ -23,7 +23,11 @@ import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.LocaleErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.LuceneErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.MailErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
@@ -50,9 +54,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * ExtensionErrorCodes} (globally unique extension ints), non-colliding {@link AssemblyErrorCodes}
  * package-local ints, non-colliding {@link WebserviceErrorCodes} package-local ints (28–73), fully
  * unique {@link ServerWebServicesErrorCodes} / {@link WebdavErrorCodes} / {@link ServletErrorCodes},
- * and bootstrap-only {@link TransformationErrorCodes} / {@link DeliveryErrorCodes} (no flat
- * register). Residual slices may register additional catalogs via {@link #register(int,
- * SystemErrorCode)}.
+ * fully unique {@link SearchErrorCodes} / {@link LuceneErrorCodes} / {@link LocaleErrorCodes} /
+ * {@link MailErrorCodes}, and bootstrap-only {@link TransformationErrorCodes} / {@link
+ * DeliveryErrorCodes} (no flat register). Residual slices may register additional catalogs via
+ * {@link #register(int, SystemErrorCode)}.
  */
 public final class LegacyErrorCodeRegistry {
 
@@ -66,14 +71,15 @@ public final class LegacyErrorCodeRegistry {
 
   /**
    * Ensure Phase 2b catalogs are loaded (auth/security, content, workflow, path/item, design,
-   * server, HTTP, assembly, extension, delivery, job, webservices, WebDAV, servlet,
-   * transformation). Safe to call repeatedly; catalogs register themselves in their own static
-   * initializers. {@link AssemblyErrorCodes} and {@link JobErrorCodes} skip package-local ints
-   * {@code 1–10} that collide with {@link WorkflowErrorCodes}. {@link JobErrorCodes} is
-   * bootstrapped after assembly so flat int {@code 11} ({@code CONFIG_FILE_NOT_FOUND}) wins over
-   * assembly package-local {@code MISSING_SLOT} (prefer enum for assembly {@code 11}). {@link
-   * WebserviceErrorCodes} skips package-local ints {@code 1–27}; {@link TransformationErrorCodes}
-   * and {@link DeliveryErrorCodes} do not flat-register.
+   * server, HTTP, assembly, extension, delivery, job, webservices, WebDAV, servlet, search,
+   * Lucene, locale, mail, transformation). Safe to call repeatedly; catalogs register themselves
+   * in their own static initializers. {@link AssemblyErrorCodes} and {@link JobErrorCodes} skip
+   * package-local ints {@code 1–10} that collide with {@link WorkflowErrorCodes}. {@link
+   * JobErrorCodes} is bootstrapped after assembly so flat int {@code 11} ({@code
+   * CONFIG_FILE_NOT_FOUND}) wins over assembly package-local {@code MISSING_SLOT} (prefer enum for
+   * assembly {@code 11}). {@link WebserviceErrorCodes} skips package-local ints {@code 1–27};
+   * {@link TransformationErrorCodes} and {@link DeliveryErrorCodes} do not flat-register. Search /
+   * Lucene / Locale / Mail ints are globally unique and fully registered.
    */
   public static void bootstrap() {
     if (BOOTSTRAPPED.compareAndSet(false, true)) {
@@ -98,6 +104,11 @@ public final class LegacyErrorCodeRegistry {
       ServletErrorCodes.ensureRegistered();
       // Transformation: no-op flat register (WF collision on bare int 1).
       TransformationErrorCodes.ensureRegistered();
+      // Search/Lucene/Locale/Mail residual (#2880): globally unique ranges, full register.
+      SearchErrorCodes.ensureRegistered();
+      LuceneErrorCodes.ensureRegistered();
+      LocaleErrorCodes.ensureRegistered();
+      MailErrorCodes.ensureRegistered();
     }
   }
 
