@@ -178,7 +178,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       throw new Error("actions down");
     });
 
-    renderShell(
+    const { container } = renderShell(
       <ContentExplorerShell
         loadDisplayFormats={async () => []}
         loadMenuActions={loadMenuActions}
@@ -201,6 +201,8 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     // Empty toolbar placeholder still mounts under the labeled region.
     expect(screen.getByTestId("action-toolbar")).toBeInTheDocument();
     expect(screen.getByTestId("action-toolbar-empty")).toBeInTheDocument();
+    // T082a: new load-error DOM (status region) must pass axe serious/critical.
+    await renderA11yGate(container);
   });
 
   it("discards stale context-menu loads when right-clicking rows rapidly (#2732 race)", async () => {

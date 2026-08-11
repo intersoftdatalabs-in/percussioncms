@@ -77,6 +77,10 @@ export function unwrapActionMenuListPayload(payload: unknown): ActionMenu[] {
   }
   if (typeof payload === "object") {
     const obj = payload as Record<string, unknown>;
+    // Observed Jackson/@XmlRootElement keys are PascalCase (ActionMenu /
+    // ActionMenuList). Lowercase keys are accepted only as a defensive
+    // unwrap for accidental camelCase serializers or proxies — not as a
+    // documented wire contract. Prefer the uppercase keys first.
     const raw =
       obj.ActionMenu ??
       obj.ActionMenuList ??

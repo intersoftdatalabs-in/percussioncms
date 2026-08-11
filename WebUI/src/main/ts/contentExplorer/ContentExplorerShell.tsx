@@ -276,7 +276,7 @@ function isWorkflowEligibleItem(item: PSPathItem | null | undefined): boolean {
  * <p>Desktop-only / surface enablement is applied by the shell after load
  * via {@link filterToolbarActions} / {@link filterContextMenuActions}.</p>
  */
-export async function defaultLoadMenuActions(
+async function defaultLoadMenuActions(
   item: PSPathItem | null,
 ): Promise<MenuAction[]> {
   const contentId = parseContentId(item?.id);
@@ -884,6 +884,7 @@ export function ContentExplorerShell({
                 <div
                   data-testid="explorer-server-actions-error"
                   role="status"
+                  aria-live="polite"
                   style={{ color: "#b00020", fontSize: "0.85rem", padding: "4px 0" }}
                 >
                   {message(EXPLORER_MSG.SERVER_ACTIONS_LOAD_ERROR)}
