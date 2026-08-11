@@ -15,10 +15,11 @@
  */
 
 /**
- * Developer Sites → Virtual Site source panel (#2956 / epic #2678).
+ * Developer Sites → Virtual Site source panel (#2956 / #3020 / epic #2678).
  *
  * Opens Sites catalog detail and asserts the Virtual Site source section mounts
- * with source-kind control (repository default) and save chrome.
+ * with source-kind control (repository default), save chrome, and Build Virtual
+ * Site chrome only when source kind is virtual (never for repository).
  *
  * Surface-filtered QA mode:
  * <pre>
@@ -45,7 +46,7 @@ function developerSectionUrl(section) {
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?${q.toString()}`;
 }
 
-test.describe("Developer Site Virtual Site source panel (#2956)", () => {
+test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(90_000);
     await loginAsAdmin(page);
@@ -112,11 +113,37 @@ test.describe("Developer Site Virtual Site source panel (#2956)", () => {
       await expect(kind).toHaveValue(/repository|git-filesystem/);
       await expect(page.locator('[data-testid="developer-site-virtual-save"]')).toBeVisible();
 
-      // Switch to git-filesystem reveals root path field
+      // Repository mode: Build chrome must not appear (no misleading virtual-build UI)
+      const current = await kind.inputValue();
+      if (current === "repository" || current === "") {
+        await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
+        await expect(
+          page.locator('[data-testid="developer-site-virtual-build-section"]'),
+        ).toHaveCount(0);
+      }
+
+      // Switch to git-filesystem reveals root path + Build control
       await kind.selectOption("git-filesystem");
       await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-build-hint"]')).toBeVisible();
+
+      // Optional: click Build without save — expect client validation or API error chrome
+      // (H2 QA rarely has a saved virtual root; do not require full build success)
+      await page.locator('[data-testid="developer-site-virtual-build"]').click();
+      const buildChrome = page.locator(
+        [
+          '[data-testid="developer-site-virtual-build-error"]',
+          '[data-testid="developer-site-virtual-build-result"]',
+          '[data-testid="developer-site-virtual-build-busy"]',
+        ].join(", "),
+      );
+      await expect(buildChrome.first()).toBeVisible({ timeout: 20_000 });
+
       // Restore repository to avoid leaving QA site dirty when save is not exercised
       await kind.selectOption("repository");
+      await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
     }
   });
 });

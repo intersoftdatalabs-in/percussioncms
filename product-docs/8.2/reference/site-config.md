@@ -69,10 +69,31 @@ Integrators can read and write these keys via public Site REST:
 
 - `GET /sites/{nameOrId}/virtual`
 - `PUT /sites/{nameOrId}/virtual` (JSON body: `sourceKind`, `rootPath`, `configFile`, `siteKey`)
+- `POST /sites/{nameOrId}/virtual/build` (optional JSON body: `outputRoot`)
 
 Site detail (`GET /sites/{nameOrId}`) also returns a nested `virtual` object. Validation is
 enforced server-side (allow-listed source kinds, required root path when virtual, portable
 path safety).
+
+#### Build Virtual Site (`POST …/virtual/build`)
+
+Runs the Phase 1 static build for a Site configured with `virtual.sourceKind=git-filesystem`
+and a valid `virtual.rootPath` (directory must exist on the CMS host). Requires **Admin**.
+
+| Status | When |
+|--------|------|
+| `200` | Build finished; response includes `pagesWritten`, `linkProblemCount`, `linkProblems`, `outputPath`, `hasLinkProblems` |
+| `400` | Traditional repository Site, unknown/invalid virtual config, missing root directory, or unsafe `outputRoot` |
+| `403` | Caller is not Admin |
+| `404` | Site not found |
+
+Optional body field `outputRoot` overrides the default output directory
+(`{install}/tmp/virtual-sites/{siteKey}`, or the JVM temp tree when the install root is
+unavailable). Link problems are reported in the JSON result (and in `link-report.txt` under
+the output root) without failing the HTTP status when the build itself succeeds.
+
+The Developer Sites UI exposes this operation as **Build Virtual Site** when source kind is
+Virtual (never for traditional repository Sites). See [Sites & content structure](id:admin-sites).
 
 ## Related
 

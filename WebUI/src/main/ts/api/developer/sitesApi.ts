@@ -2,9 +2,14 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { get, put } from "../client";
+import { get, post, put } from "../client";
 import { PATHS } from "../paths";
-import type { SiteDef, VirtualSiteProperties } from "./types";
+import type {
+  SiteDef,
+  VirtualSiteBuildRequest,
+  VirtualSiteBuildResult,
+  VirtualSiteProperties,
+} from "./types";
 
 /** Honest design gaps for Developer SY-04 site browse (not full site design). */
 export const SITE_DESIGN_GAPS: string[] = [
@@ -93,9 +98,71 @@ export async function updateVirtualSiteProperties(
   return parseVirtualSiteProperties(payload);
 }
 
+/**
+ * Normalize Virtual Site build result (Jackson root wrap or plain DTO).
+ */
+export function parseVirtualSiteBuildResult(payload: unknown): VirtualSiteBuildResult {
+  if (payload == null || typeof payload !== "object") {
+    return {};
+  }
+  const obj = payload as Record<string, unknown>;
+  const root =
+    (obj.VirtualSiteBuildResult as Record<string, unknown> | undefined) ??
+    (obj.virtualSiteBuildResult as Record<string, unknown> | undefined) ??
+    obj;
+  return {
+    siteName: asNullableString(root.siteName),
+    siteKey: asNullableString(root.siteKey),
+    outputPath: asNullableString(root.outputPath),
+    pagesWritten: asNullableNumber(root.pagesWritten),
+    linkProblemCount: asNullableNumber(root.linkProblemCount),
+    hasLinkProblems:
+      typeof root.hasLinkProblems === "boolean" ? root.hasLinkProblems : undefined,
+    linkProblems: asStringArray(root.linkProblems),
+    writtenFiles: asStringArray(root.writtenFiles),
+  };
+}
+
+/**
+ * POST /services/sites/{nameOrId}/virtual/build
+ *
+ * <p>Uses the Site's <em>saved</em> virtual.* properties on the server. Optional
+ * {@code outputRoot} overrides the default install tmp path. Requires Admin.
+ * Traditional repository Sites return 4xx.
+ */
+export async function buildVirtualSite(
+  nameOrId: string,
+  request?: VirtualSiteBuildRequest | null,
+): Promise<VirtualSiteBuildResult> {
+  const key = encodeURIComponent(nameOrId.trim());
+  const body =
+    request && typeof request.outputRoot === "string" && request.outputRoot.trim()
+      ? { outputRoot: request.outputRoot.trim() }
+      : {};
+  const payload = await post<unknown>(`${PATHS.SITES}/${key}/virtual/build`, body);
+  return parseVirtualSiteBuildResult(payload);
+}
+
 function asNullableString(value: unknown): string | null | undefined {
   if (value === undefined) return undefined;
   if (value === null) return null;
   if (typeof value === "string") return value;
   return undefined;
+}
+
+function asNullableNumber(value: unknown): number | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim() !== "") {
+    const n = Number(value);
+    if (Number.isFinite(n)) return n;
+  }
+  return undefined;
+}
+
+function asStringArray(value: unknown): string[] | undefined {
+  if (value == null) return undefined;
+  if (!Array.isArray(value)) return undefined;
+  return value.filter((v): v is string => typeof v === "string");
 }

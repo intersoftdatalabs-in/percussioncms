@@ -109,6 +109,30 @@ scripts/build-cms-docs.sh
 Default output: `tmp/product-docs-site/`. The build fails non-zero when internal `id:` or relative
 Markdown links cannot be resolved.
 
+## CMS-integrated build (REST and WebUI)
+
+When a CMS Site has Virtual properties configured, an **Admin** can trigger the same build path
+from the running server:
+
+```http
+POST /sites/{nameOrId}/virtual/build
+Content-Type: application/json
+
+{
+  "outputRoot": "C:/tmp/product-docs-site"
+}
+```
+
+The body is optional. Without `outputRoot`, the server writes under
+`{install}/tmp/virtual-sites/{siteKey}` (portable NIO paths). The response summarizes
+`pagesWritten`, link problems, and the absolute `outputPath`. Traditional repository Sites and
+invalid/missing virtual configuration return **400**.
+
+Operators can run the same operation from **Developer → Sites → Site detail → Build Virtual Site**
+(visible only when source kind is Virtual). Save Virtual Site source before building so the server
+uses the latest properties. See [Sites & content structure](id:admin-sites) and
+[Site configuration](id:reference-site-config).
+
 ## What is not in Phase 1
 
 - CMS UI editing of Virtual items as normal content types
