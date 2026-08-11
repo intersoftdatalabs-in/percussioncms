@@ -574,9 +574,9 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
       boolean indexParent = false;
       boolean deleteParent = false;
       boolean reindex = false;
-      Set binaryFields = new HashSet<>();
-      Map childRows = new HashMap<>();
-      List childDeletes = new ArrayList<>();
+      Set<String> binaryFields = new HashSet<>();
+      Map<PSItemChildLocator, Set<String>> childRows = new HashMap<>();
+      List<PSItemChildLocator> childDeletes = new ArrayList<>();
       long contentTypeId = -1;
       boolean commit = false;
       int revision = -1;
@@ -657,7 +657,7 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
              * NOTE: this assumes that we never reuse content ids
              */
             if (!childDeletes.contains(childLoc)) {
-              Set childBinFields = (Set) childRows.get(childLoc);
+              Set<String> childBinFields = childRows.get(childLoc);
               if (childBinFields == null) {
                 childBinFields = new HashSet<>();
                 childRows.put(childLoc, childBinFields);
@@ -696,7 +696,7 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
 
           // now load the item and index the necessary parts
           if (indexParent || !childRows.isEmpty()) {
-            Map itemChanges = new HashMap();
+            Map<PSKey, Set<String>> itemChanges = new HashMap<>();
 
             // determine load flags
             if (indexParent) {
@@ -709,9 +709,7 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
               loadFlags |= PSServerItem.TYPE_CHILD;
 
               // walk childrows and check for binary fields
-              Iterator childRowValues = childRows.values().iterator();
-              while (childRowValues.hasNext()) {
-                Set childBinFields = (Set) childRowValues.next();
+              for (Set<String> childBinFields : childRows.values()) {
                 if (!childBinFields.isEmpty()) {
                   loadFlags |= PSServerItem.TYPE_BINARY;
                   break;
@@ -802,18 +800,18 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
     PSServerItem item = loadItem(req, parentLoc, loadFlags);
 
     // get parent bin fields
-    Map itemChanges = new HashMap();
+    Map<PSKey, Set<String>> itemChanges = new HashMap<>();
     itemChanges.put(parentLoc, getBinFieldNames(item.getAllFields()));
 
     // get list of children and their binfields
-    Iterator children = item.getAllChildren();
+    Iterator<PSItemChild> children = item.getAllChildren();
     while (children.hasNext()) {
       // use first entry of child to get bin field names
-      Set binFields = null;
-      PSItemChild child = (PSItemChild) children.next();
-      Iterator entries = child.getAllEntries();
+      Set<String> binFields = null;
+      PSItemChild child = children.next();
+      Iterator<PSItemChildEntry> entries = child.getAllEntries();
       if (entries.hasNext()) {
-        PSItemChildEntry entry = (PSItemChildEntry) entries.next();
+        PSItemChildEntry entry = entries.next();
         if (binFields == null) {
           binFields = getBinFieldNames(entry.getAllFields());
         }
@@ -872,10 +870,10 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    *     <code>null</code>.
    * @return A set of binary field names, never <code>null</code>, may be empty.
    */
-  private Set getBinFieldNames(Iterator fields) {
-    Set binFields = new HashSet();
+  private Set<String> getBinFieldNames(Iterator<PSItemField> fields) {
+    Set<String> binFields = new HashSet<>();
     while (fields.hasNext()) {
-      PSItemField field = (PSItemField) fields.next();
+      PSItemField field = fields.next();
       if (field.getItemFieldMeta().isBinary()) binFields.add(field.getName());
     }
 
@@ -898,7 +896,10 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    * @throws PSException if there are any other errors.
    */
   private void indexItemChanges(
-      PSKey contentType, PSServerItem item, Map itemChanges, boolean commit)
+      PSKey contentType,
+      PSServerItem item,
+      Map<PSKey, Set<String>> itemChanges,
+      boolean commit)
       throws PSSearchException, PSCmsException, PSException {
     PSSearchEngine engine = PSSearchEngine.getInstance();
     PSSearchIndexer indexer = engine.getSearchIndexer();
@@ -906,12 +907,10 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
 
     try {
       PSSearchKey unitId = null;
-      Map fragment = null;
-      Iterator entries = itemChanges.entrySet().iterator();
-      while (entries.hasNext()) {
-        Map.Entry entry = (Entry) entries.next();
-        PSKey key = (PSKey) entry.getKey();
-        Set binFields = (Set) entry.getValue();
+      Map<String, Object> fragment = null;
+      for (Entry<PSKey, Set<String>> entry : itemChanges.entrySet()) {
+        PSKey key = entry.getKey();
+        Set<String> binFields = entry.getValue();
         if (key instanceof PSLocator) {
           unitId = new PSSearchKey(contentType, (PSLocator) key, null);
 
@@ -922,15 +921,15 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
            * editor xml and the field names are lost. This will add them to
            * the item with the system field names.
            */
-          fragment = loadSystemFields((PSLocator) key);
-          if (fragment == null) {
+          Map<String, String> systemFields = loadSystemFields((PSLocator) key);
+          if (systemFields == null) {
             // didn't find the item? should not be possible
             throw new RuntimeException(
                 "failed to locate system field info for item with id: "
                     + ((PSLocator) key).getId());
           }
-          Iterator fields = item.getAllFields();
-          fragment.putAll(extractItemFragment(fields, binFields));
+          fragment = new HashMap<>(systemFields);
+          fragment.putAll(extractItemFragment(item.getAllFields(), binFields));
 
           // add additional fields which are searchable
           fragment.putAll(loadAdditionalFields(item));
@@ -939,7 +938,7 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
           unitId = new PSSearchKey(contentType, itemKey, childLocator);
           int childId = Integer.parseInt(childLocator.getChildContentType());
           int childRowId = Integer.parseInt(childLocator.getChildRowId());
-          fragment = new HashMap();
+          fragment = new HashMap<>();
           PSItemChild itemChild = item.getChildById(childId);
           if (itemChild != null) {
             PSItemChildEntry childEntry = itemChild.getChildEntryByRowId(childRowId);
@@ -998,7 +997,7 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    *     found.
    * @throws PSSearchException if the system field values cannot be obtained.
    */
-  private Map loadSystemFields(PSLocator key) throws PSSearchException {
+  private Map<String, String> loadSystemFields(PSLocator key) throws PSSearchException {
     // get system field catalog
     PSRequest req = PSRequest.getContextForRequest();
     PSLocalCataloger cat = new PSLocalCataloger(req);
@@ -1006,7 +1005,7 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
         cat.getSystemFields(
             IPSFieldCataloger.FLAG_USER_SEARCH | IPSFieldCataloger.FLAG_INCLUDE_HIDDEN);
 
-    Map fields = loadFields(key.getId(), systemFieldNames);
+    Map<String, String> fields = loadFields(key.getId(), systemFieldNames);
 
     return (!fields.isEmpty()) ? fields : null;
   }
@@ -1042,7 +1041,8 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    *     the value is the field value, also as a <code>String</code>.
    * @throws PSSearchException if the field values cannot be obtained.
    */
-  private Map<String, String> loadFields(int contentId, Set fieldNames) throws PSSearchException {
+  private Map<String, String> loadFields(int contentId, Set<String> fieldNames)
+      throws PSSearchException {
     Map<String, String> fields = new HashMap<>();
 
     PSRequest req = PSRequest.getContextForRequest();
@@ -1057,10 +1057,8 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
     // only one row returned per item
     if (rows.hasNext()) {
       IPSSearchResultRow row = (IPSSearchResultRow) rows.next();
-      Iterator iter = row.getColumnValueMap().entrySet().iterator();
-      while (iter.hasNext()) {
-        Map.Entry entry = (Map.Entry) iter.next();
-        fields.put(entry.getKey().toString(), entry.getValue().toString());
+      for (Map.Entry<String, Object> entry : row.getColumnValueMap().entrySet()) {
+        fields.put(entry.getKey(), entry.getValue().toString());
       }
     }
 
@@ -1078,10 +1076,11 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    *     the value is an object representing the value.
    * @throws PSCmsException if there is an error getting a field value.
    */
-  private Map extractItemFragment(Iterator fields, Set binFields) throws PSCmsException {
-    Map fragment = new HashMap();
+  private Map<String, Object> extractItemFragment(
+      Iterator<PSItemField> fields, Set<String> binFields) throws PSCmsException {
+    Map<String, Object> fragment = new HashMap<>();
     while (fields.hasNext()) {
-      PSItemField itemField = (PSItemField) fields.next();
+      PSItemField itemField = fields.next();
       if (itemField.getItemFieldMeta().isBinary()) {
         // only add binary fields to the fragment if it was modified
         if (binFields.contains(itemField.getName())) {
@@ -1094,11 +1093,11 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
       } else {
         // build space delimited list of string values (words)
         StringBuilder val = new StringBuilder();
-        Iterator values = itemField.getAllValues();
+        Iterator<IPSFieldValue> values = itemField.getAllValues();
         while (values.hasNext()) {
           String value = null;
 
-          IPSFieldValue fieldVal = (IPSFieldValue) values.next();
+          IPSFieldValue fieldVal = values.next();
           if (fieldVal != null) value = fieldVal.getValueAsString();
 
           if (value != null && value.trim().length() > 0) {
@@ -1123,7 +1122,8 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    *     delete the parent item, which will cascade to all child index entries as well.
    * @throws PSSearchException if there are any errors.
    */
-  private void indexItemDeletion(PSKey contentType, PSLocator itemId, List childIds)
+  private void indexItemDeletion(
+      PSKey contentType, PSLocator itemId, List<PSItemChildLocator> childIds)
       throws PSSearchException {
     PSSearchEngine engine = PSSearchEngine.getInstance();
     PSSearchIndexer indexer = engine.getSearchIndexer();
@@ -1142,10 +1142,7 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
         PSSearchKey unitId = new PSSearchKey(contentType, itemId, null);
         unitIds.add(unitId);
       } else {
-        Iterator children = childIds.iterator();
-        while (children.hasNext()) {
-          PSItemChildLocator childLoc = (PSItemChildLocator) children.next();
-
+        for (PSItemChildLocator childLoc : childIds) {
           if (engine.isTraceEnabled() && log.isInfoEnabled()) {
             StringBuilder buf = new StringBuilder();
             buf.append("delete from index: \n");
@@ -1337,9 +1334,9 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
             e.getActionType(), e.getContentId(), e.getRevisionId(), e.getContentTypeId(), true);
     ev.setPriority(e.getPriority());
     List<String> fields = new ArrayList<>();
-    Iterator it = e.getBinaryFields();
+    Iterator<String> it = e.getBinaryFields();
     while (it.hasNext()) {
-      fields.add((String) it.next());
+      fields.add(it.next());
     }
     ev.setBinaryFields(fields);
 
