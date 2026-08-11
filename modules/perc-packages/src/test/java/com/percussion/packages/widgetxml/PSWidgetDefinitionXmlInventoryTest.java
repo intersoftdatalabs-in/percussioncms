@@ -89,8 +89,10 @@ class PSWidgetDefinitionXmlInventoryTest {
             .resolve("sys__UserDependency--rxconfig")
             .resolve("Widgets");
     Files.createDirectories(widgets);
+    Path xmlFile =
+        widgets.resolve("PSWidget_TestProperties.xml");
     Files.writeString(
-        widgets.resolve("PSWidget_TestProperties.xml"),
+        xmlFile,
         "<Widget id=\"PSWidget_TestProperties\"/>",
         StandardCharsets.UTF_8);
 
@@ -103,7 +105,43 @@ class PSWidgetDefinitionXmlInventoryTest {
     assertEquals(0, report.nonWaived().size());
     assertEquals(1, report.waived().size());
     assertTrue(report.isClean());
+    Path expectedAbs = xmlFile.toAbsolutePath().normalize();
+    assertEquals(expectedAbs, report.waived().get(0).xmlPath());
+    assertTrue(report.waived().get(0).xmlPath().isAbsolute());
+    assertTrue(report.waived().get(0).xmlPath().startsWith(widgets.toAbsolutePath().normalize()));
     PSWidgetDefinitionXmlInventory.assertNoNonWaivedWidgetDefinitionXml(packages);
+  }
+
+  /**
+   * Finding paths must be anchored under the scanned Widgets dir even when {@code packagesRoot} is
+   * a relative path (not pre-absolutized). Regression for review: bare {@code
+   * xml.toAbsolutePath()} must not leave paths only relative to CWD / outside widgetsDir.
+   */
+  @Test
+  void findingXmlPath_relativePackagesRoot_isAbsoluteUnderWidgetsDir() throws Exception {
+    Path packages = tempDir.resolve("Packages");
+    Path widgets =
+        packages
+            .resolve("perc.Test")
+            .resolve("sys__UserDependency--rxconfig")
+            .resolve("Widgets");
+    Files.createDirectories(widgets);
+    Path xmlFile = widgets.resolve("PSWidget_TestProperties.xml");
+    Files.writeString(xmlFile, "<Widget/>", StandardCharsets.UTF_8);
+
+    // Relative packages root (same tree as absolute tempDir path, different Path form).
+    Path relativePackages =
+        Path.of(".").toAbsolutePath().normalize().relativize(packages.toAbsolutePath().normalize());
+    assertFalse(relativePackages.isAbsolute(), "precondition: packages root is relative");
+
+    PSWidgetDefinitionXmlInventory.Report report =
+        PSWidgetDefinitionXmlInventory.scan(relativePackages);
+    assertEquals(1, report.all().size());
+    Path found = report.all().get(0).xmlPath();
+    assertTrue(found.isAbsolute());
+    assertEquals(xmlFile.toAbsolutePath().normalize(), found);
+    assertTrue(found.startsWith(widgets.toAbsolutePath().normalize()));
+    assertTrue(Files.isRegularFile(found));
   }
 
   @Test

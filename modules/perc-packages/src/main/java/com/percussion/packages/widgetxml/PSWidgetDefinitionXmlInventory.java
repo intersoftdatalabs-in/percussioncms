@@ -119,7 +119,13 @@ public final class PSWidgetDefinitionXmlInventory {
         try (DirectoryStream<Path> xmls = Files.newDirectoryStream(widgetsDir, "*.xml")) {
           for (Path xml : xmls) {
             if (Files.isRegularFile(xml)) {
-              all.add(new Finding(packageDirName, xml.toAbsolutePath().normalize(), waived));
+              // Anchor on widgetsDir + file name so Finding paths stay under the scanned
+              // directory regardless of CWD. DirectoryStream entries are typically already
+              // dir.resolve(name); using getFileName() avoids double-nesting and never
+              // resolves a bare relative entry against the JVM working directory alone.
+              Path absXml =
+                  widgetsDir.resolve(xml.getFileName()).toAbsolutePath().normalize();
+              all.add(new Finding(packageDirName, absXml, waived));
             }
           }
         }
