@@ -28,6 +28,7 @@ import net.sf.oval.constraint.NotNull;
  */
 @XmlRootElement(name = "SoProMetadata")
 public class PSSoProMetadata extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
 
   @NotNull @NotEmpty private String itemId;
   private String metadata;

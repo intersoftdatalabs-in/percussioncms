@@ -101,6 +101,8 @@ public class PSEnumVals implements Serializable {
 
   /** Encapsulates an enumerated value, which consists of a value and display value (label). */
   public static class EnumVal implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @NotNull private String value;
     private String displayValue;
 

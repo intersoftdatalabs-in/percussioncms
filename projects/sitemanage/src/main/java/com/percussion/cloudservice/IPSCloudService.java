@@ -89,6 +89,8 @@ public interface IPSCloudService {
 
   /** Runtime exception thrown when an error occurs in this service. */
   class PSCloudServiceException extends PSDataServiceException {
+    private static final long serialVersionUID = 1L;
+
     public PSCloudServiceException() {
       super();
     }

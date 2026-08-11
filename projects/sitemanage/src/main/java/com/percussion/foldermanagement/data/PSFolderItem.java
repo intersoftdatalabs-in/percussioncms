@@ -32,6 +32,8 @@ import org.apache.commons.lang3.StringUtils;
     propOrder = {"name", "id", "workflowName", "allChildrenAssociatedWithWorkflow", "children"})
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PSFolderItem extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
+
   /** The name of the folder or site. */
   private String name;
 

@@ -34,6 +34,7 @@ import tools.jackson.databind.json.JsonMapper;
 @JsonRootName(value = "CategoryTree")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PSCategory extends PSAbstractDataObject implements Cloneable {
+  private static final long serialVersionUID = 1L;
 
   @JsonProperty private String title;
 

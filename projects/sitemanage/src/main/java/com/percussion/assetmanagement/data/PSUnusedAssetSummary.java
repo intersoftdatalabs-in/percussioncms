@@ -37,6 +37,7 @@ import net.sf.oval.constraint.NotNull;
 @JsonRootName("UnusedAssetSummary")
 public class PSUnusedAssetSummary extends PSDataItemSummary
     implements IPSItemSummary, Comparable<PSUnusedAssetSummary> {
+  private static final long serialVersionUID = 1L;
 
   /**
    * This field is used to label the asset on the UI, in the unused assets tray. The items will have

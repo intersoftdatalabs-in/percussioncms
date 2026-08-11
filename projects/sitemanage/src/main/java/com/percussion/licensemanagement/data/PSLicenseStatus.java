@@ -55,6 +55,7 @@ import org.apache.commons.lang3.StringUtils;
     })
 @XmlRootElement(name = "licenseStatus")
 public class PSLicenseStatus implements Serializable {
+  private static final long serialVersionUID = 1L;
 
   private String company;
   private String licenseType;

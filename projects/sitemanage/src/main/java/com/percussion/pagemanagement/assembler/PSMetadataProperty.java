@@ -267,6 +267,7 @@ public class PSMetadataProperty {
  */
 @Embeddable
 class PropertyId implements Serializable {
+  private static final long serialVersionUID = 1L;
 
   private static final HashCalculator hashCalculator = new HashCalculator();
 

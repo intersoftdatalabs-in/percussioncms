@@ -51,6 +51,8 @@ public interface IPSPageOptimizerService {
 
   /** Exception thrown when an error occurs in this service. */
   class PageOptimizerException extends PSDataServiceException {
+    private static final long serialVersionUID = 1L;
+
     public PageOptimizerException() {
       super();
     }

@@ -27,6 +27,8 @@ import java.util.List;
  */
 @XmlRootElement(name = "GetAssignedFoldersJobStatus")
 public class PSGetAssignedFoldersJobStatus extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
+
   private List<PSFolderItem> folderItems;
   private String status;
   private String message;

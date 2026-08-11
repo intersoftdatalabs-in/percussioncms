@@ -25,6 +25,8 @@ import com.percussion.share.data.PSAbstractDataObject;
  * @author yubingchen
  */
 public class PSGenerateSiteMapOptions extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
+
   private String generateSitemapExcludeImage;
   private String generateSitemap;
 

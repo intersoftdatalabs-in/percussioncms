@@ -29,6 +29,8 @@ import java.util.List;
 @XmlRootElement(name = "CurrentUser")
 @JsonRootName("CurrentUser")
 public class PSCurrentUser extends PSUser {
+  private static final long serialVersionUID = 1L;
+
   private boolean accessibilityUser = false;
   private boolean adminUser = false;
   private boolean designerUser = false;

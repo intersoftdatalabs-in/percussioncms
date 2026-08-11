@@ -33,6 +33,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSImportLogEntry")
 @Table(name = "PSX_IMPORTLOGENTRY")
 public class PSImportLogEntry extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
 
   @Id
   @Column(name = "LOGENTRYID")

@@ -30,6 +30,7 @@ import net.sf.oval.constraint.NotNull;
  */
 @XmlRootElement(name = "ItemDates")
 public class PSItemDates extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
 
   @NotNull @NotEmpty private String itemId;
   private String startDate;

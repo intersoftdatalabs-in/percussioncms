@@ -22,9 +22,9 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
 /** Encapsulates a request for a new redirect. Used for creating or updating redirect rules. */
-@SuppressWarnings("serial")
 @XmlRootElement
 public class PSCreateRedirectRequest implements Serializable {
+  private static final long serialVersionUID = 1L;
 
   private String category;
   private String condition;
