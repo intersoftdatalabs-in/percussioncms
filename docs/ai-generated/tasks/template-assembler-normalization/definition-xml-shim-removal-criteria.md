@@ -52,11 +52,13 @@ This document is the **hard gate** for deleting or hard-disabling the legacy def
 | Legacy selection rate | `wouldUseLegacyShim(packageRoot) == false` for all product package roots in install/staging | Unit / integration probe using `PSLegacyDefinitionXmlShim.wouldUseLegacyShim` |
 | Runtime selection kind | No production log/metric for `LEGACY_WIDGET_XML` / `LEGACY_PAGE_XML` / `LEGACY_GADGET_XML` over agreed window (see time-box), **or** remaining hits are **explicitly waived** with owner + sunset date | Log field or counter on selection kind when DAO wiring is complete |
 | Widget DAO path | Production widget load no longer depends solely on `${rxdeploydir}/rxconfig/Widgets/*.xml` for product widgets | Code + install smoke |
-| Gadget registry dual-load | WebUI `GadgetRegistry` last load source is modern catalog in product installs (legacy XML only for waived customer cases) | `GadgetRegistry.getLastLoadSource()` / tests |
+| Gadget registry dual-load | WebUI `GadgetRegistry` last load source is modern catalog in product installs (legacy XML only for waived customer cases) | `GadgetRegistry.getLastLoadSource()` / `getLastLoadEntryCount()` / INFO metrics / tests |
 
 **Snapshot 2026-08-11:** **FAIL M2** — selection API existed and was unit-tested, but **no production caller** outside `modules/perc-packages` shim package + javadoc cross-refs wired `PSLegacyDefinitionXmlShim` into live load paths. `PSWidgetDao` still bound only `@Value("${rxdeploydir}/rxconfig/Widgets")`. `GadgetRegistry` dual-load (modern catalog preferred, legacy `GadgetRegistry.xml` fallback) is still active.
 
-**Snapshot 2026-08-11 (slice #3024):** **PARTIAL M2** — `PSWidgetDao` now wires `PSLegacyDefinitionXmlShim.selectDefinition` (modern-first) with test-visible `getLastSelectionKind()` / `getSelectionKindsById()` and INFO metrics `modern=` / `legacyWidgetXml=`. Optional Spring property `widgetDao.modernPackageRoots` (`File.pathSeparator` list). Content still loads install Widget XML (materialized wire format); selection kind reports MODERN when a modern package root is present for the id. **M2 still FAIL overall** until production installs configure modern roots and runtime metrics show zero (or waived) `LEGACY_WIDGET_XML` over the time-box, and gadget dual-load residual (#3025) closes. Shim **must remain** (#2852).
+**Snapshot 2026-08-11 (slice #3024):** **PARTIAL M2** — `PSWidgetDao` now wires `PSLegacyDefinitionXmlShim.selectDefinition` (modern-first) with test-visible `getLastSelectionKind()` / `getSelectionKindsById()` and INFO metrics `modern=` / `legacyWidgetXml=`. Optional Spring property `widgetDao.modernPackageRoots` (`File.pathSeparator` list). Content still loads install Widget XML (materialized wire format); selection kind reports MODERN when a modern package root is present for the id. **M2 still FAIL overall** until production installs configure modern roots and runtime metrics show zero (or waived) `LEGACY_WIDGET_XML` over the time-box. Shim **must remain** (#2852).
+
+**Snapshot 2026-08-11 (slice #3025):** **PARTIAL M2 (gadget dual-load hardened)** — WebUI `GadgetRegistry` dual-load already preferred `gadget-catalog.json` with `GadgetRegistry.xml` fallback (#2788). Hardening adds INFO selection metrics `modern=` / `legacyRegistryXml=` / `none=` / `entries=` (parity with `PSWidgetDao`), test-visible `getLastLoadEntryCount()`, and edge-case tests (empty/unreadable modern → legacy; blank/null modern resource; successive last-load updates). Product classpath still reports `MODERN_CATALOG`. **Legacy fallback retained** (#2852). **M2 still FAIL overall** until widget modern roots + runtime legacy rate criteria and remaining dual-run exit evidence land.
 
 ### M3 — Customer upgrade window closed (or accepted residual)
 
@@ -146,7 +148,7 @@ Javadoc-only alignment references:
 | Widget XML compilers | `…/widgetxml/PSWidgetXml*` | Upgrade-input compilers; keep after runtime shim exit | **No** (upgrade input OK) |
 | Page dual-ship / native | `…/pagexml/PSPageXmlDualShip`, `PSPageXmlNativeInstall`, `PSPageXmlInstallPolicy` | Native for base/responsive; dual-ship default elsewhere | Separate checklist ([dual-ship-page-template-retirement.md](./dual-ship-page-template-retirement.md)) |
 | Gadget catalog ship | `modules/perc-packages/.../catalogs/gadgets/gadget-catalog.json` | Modern catalog present | Preferred path |
-| Gadget WebUI dual-load | `WebUI/.../GadgetRegistry.java` (modern catalog → legacy `GadgetRegistry.xml`) | **Live** dual-load | Related dual-run; own residual or same removal epic when M2 covers gadgets |
+| Gadget WebUI dual-load | `WebUI/.../GadgetRegistry.java` (modern catalog → legacy `GadgetRegistry.xml`) | **Live** dual-load; INFO metrics + `getLastLoadSource()` / `getLastLoadEntryCount()` (#3025) | Related dual-run; keep legacy fallback until M2/M3 + #2852 removal criteria; product installs already prefer modern |
 | Gadget registry compiler | `…/gadgetxml/PSGadgetRegistry*` | Upgrade-input / build | Keep as compiler |
 | Component package manifest | `…/manifest/PSComponentPackageManifest*` | Modern ship format | Keep |
 
@@ -175,7 +177,7 @@ rg -n "LEGACY_REGISTRY_XML|gadget-catalog.json|GadgetRegistry.xml" --glob "*.{ja
 |-----------|-------|-------------------|
 | Entire `PSLegacyDefinitionXmlShim` package | **No** — policy + tests; future wiring target | Keep |
 | `PSWidgetDao` Widgets path | **No** — production load path | Keep |
-| `GadgetRegistry` legacy fallback | **No** — dual-load still required until product dual-load residual closes | Keep |
+| `GadgetRegistry` legacy fallback | **No** — dual-load hardened (#3025) but fallback still required for customer/legacy classpath until M2/M3 + #2852 | Keep |
 | Page dual-ship default for non-native packages | **No** — still default for non-opted packages | Keep (separate doc) |
 
 **Conclusion:** no thin proven-dead removal in #2835.

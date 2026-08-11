@@ -27,10 +27,15 @@ import org.junit.Test;
 
 /**
  * Regression for v8.1.7 PR #722 / #885: Percussion + Deprecated groups. Issue #715 (Redirect
- * Management removed). Issue #2788 dual-load: prefer {@code gadget-catalog.json}, fall back to
- * {@code GadgetRegistry.xml}.
+ * Management removed). Issue #2788 / #3025 dual-load: prefer {@code gadget-catalog.json}, fall
+ * back to {@code GadgetRegistry.xml}; last-load source + entry count + INFO metrics.
  */
 public class GadgetRegistryTest {
+
+  private static final String EMPTY_CATALOG_RESOURCE =
+      "com/percussion/webui/gadget/servlets/empty-gadget-catalog.json";
+  private static final String INVALID_CATALOG_RESOURCE =
+      "com/percussion/webui/gadget/servlets/invalid-gadget-catalog.json";
 
   @Test
   public void dualLoadPrefersModernCatalogWhenPresent() {
@@ -40,6 +45,9 @@ public class GadgetRegistryTest {
         "product ships modern catalog; dual-load must prefer it",
         GadgetRegistry.Source.MODERN_CATALOG,
         GadgetRegistry.getLastLoadSource());
+    assertTrue(
+        "modern catalog entry count must be positive", GadgetRegistry.getLastLoadEntryCount() > 0);
+    assertEquals(map.size(), GadgetRegistry.getLastLoadEntryCount());
 
     assertEquals("Deprecated", map.get("Activity"));
     assertEquals("Deprecated", map.get("Siteimprove"));
@@ -63,11 +71,32 @@ public class GadgetRegistryTest {
             GadgetRegistry.REGISTRY_RESOURCE);
     assertFalse("legacy GadgetRegistry.xml must still be on the classpath", map.isEmpty());
     assertEquals(GadgetRegistry.Source.LEGACY_REGISTRY_XML, GadgetRegistry.getLastLoadSource());
+    assertEquals(map.size(), GadgetRegistry.getLastLoadEntryCount());
 
     assertEquals("Deprecated", map.get("Activity"));
     assertEquals("Percussion", map.get("Welcome"));
     assertEquals("Percussion", map.get("Google Setup"));
     assertFalse(map.containsKey("Redirect Management"));
+  }
+
+  @Test
+  public void fallsBackToRegistryXmlWhenModernCatalogEmpty() {
+    Map<String, String> map =
+        GadgetRegistry.loadGadgetTypeMap(EMPTY_CATALOG_RESOURCE, GadgetRegistry.REGISTRY_RESOURCE);
+    assertFalse("empty modern catalog must fall back to legacy registry", map.isEmpty());
+    assertEquals(GadgetRegistry.Source.LEGACY_REGISTRY_XML, GadgetRegistry.getLastLoadSource());
+    assertTrue(GadgetRegistry.getLastLoadEntryCount() > 0);
+    assertEquals("Percussion", map.get("Welcome"));
+  }
+
+  @Test
+  public void fallsBackToRegistryXmlWhenModernCatalogUnreadable() {
+    Map<String, String> map =
+        GadgetRegistry.loadGadgetTypeMap(
+            INVALID_CATALOG_RESOURCE, GadgetRegistry.REGISTRY_RESOURCE);
+    assertFalse("unreadable modern catalog must fall back to legacy registry", map.isEmpty());
+    assertEquals(GadgetRegistry.Source.LEGACY_REGISTRY_XML, GadgetRegistry.getLastLoadSource());
+    assertEquals(map.size(), GadgetRegistry.getLastLoadEntryCount());
   }
 
   @Test
@@ -78,6 +107,53 @@ public class GadgetRegistryTest {
             "com/percussion/webui/gadget/servlets/missing-b.xml");
     assertTrue(map.isEmpty());
     assertEquals(GadgetRegistry.Source.NONE, GadgetRegistry.getLastLoadSource());
+    assertEquals(0, GadgetRegistry.getLastLoadEntryCount());
+  }
+
+  @Test
+  public void blankCatalogResourceSkipsModernAndUsesLegacy() {
+    Map<String, String> map =
+        GadgetRegistry.loadGadgetTypeMap("   ", GadgetRegistry.REGISTRY_RESOURCE);
+    assertFalse(map.isEmpty());
+    assertEquals(GadgetRegistry.Source.LEGACY_REGISTRY_XML, GadgetRegistry.getLastLoadSource());
+  }
+
+  @Test
+  public void nullCatalogResourceSkipsModernAndUsesLegacy() {
+    Map<String, String> map =
+        GadgetRegistry.loadGadgetTypeMap(null, GadgetRegistry.REGISTRY_RESOURCE);
+    assertFalse(map.isEmpty());
+    assertEquals(GadgetRegistry.Source.LEGACY_REGISTRY_XML, GadgetRegistry.getLastLoadSource());
+  }
+
+  @Test
+  public void lastLoadSourceUpdatesAcrossSuccessiveLoads() {
+    GadgetRegistry.loadGadgetTypeMap(
+        "com/percussion/webui/gadget/servlets/missing-a.json",
+        "com/percussion/webui/gadget/servlets/missing-b.xml");
+    assertEquals(GadgetRegistry.Source.NONE, GadgetRegistry.getLastLoadSource());
+    assertEquals(0, GadgetRegistry.getLastLoadEntryCount());
+
+    GadgetRegistry.loadGadgetTypeMap(
+        "com/percussion/webui/gadget/servlets/does-not-exist-catalog.json",
+        GadgetRegistry.REGISTRY_RESOURCE);
+    assertEquals(GadgetRegistry.Source.LEGACY_REGISTRY_XML, GadgetRegistry.getLastLoadSource());
+    assertTrue(GadgetRegistry.getLastLoadEntryCount() > 0);
+
+    GadgetRegistry.loadGadgetTypeMap();
+    assertEquals(GadgetRegistry.Source.MODERN_CATALOG, GadgetRegistry.getLastLoadSource());
+    assertTrue(GadgetRegistry.getLastLoadEntryCount() > 0);
+  }
+
+  @Test
+  public void modernPreferredEvenWhenLegacyAlsoPresent() {
+    // Product classpath has both; dual-load must still report modern, not legacy.
+    Map<String, String> map =
+        GadgetRegistry.loadGadgetTypeMap(
+            GadgetRegistry.CATALOG_RESOURCE, GadgetRegistry.REGISTRY_RESOURCE);
+    assertFalse(map.isEmpty());
+    assertEquals(GadgetRegistry.Source.MODERN_CATALOG, GadgetRegistry.getLastLoadSource());
+    assertEquals(map.size(), GadgetRegistry.getLastLoadEntryCount());
   }
 
   @Test
