@@ -56,8 +56,13 @@
   margin-bottom: 20px;
   min-width: 0;
   max-width: 100%;
-  /* Horizontal scroll only if tabs cannot wrap for any reason */
+  /*
+   * Horizontal scroll only if tabs cannot wrap. Must pair with overflow-y:
+   * hidden — CSS treats overflow-x:auto + overflow-y:visible as both auto,
+   * which paints a spurious vertical scrollbar (GH-2957).
+   */
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
 }
 
