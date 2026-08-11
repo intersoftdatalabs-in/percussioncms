@@ -18,7 +18,8 @@ System-wide Percussion CMS audit logging and unified error-code support.
   `WebserviceErrorCodes` (package-local 28–73), `ServerWebServicesErrorCodes`, `WebdavErrorCodes`,
   `ServletErrorCodes`, `TransformationErrorCodes` (enum-only),
   `SearchErrorCodes` (`IPSSearchErrors`; auth failure dual-write), `LuceneErrorCodes`,
-  `LocaleErrorCodes`, `MailErrorCodes` (all non-auditable)
+  `LocaleErrorCodes`, `MailErrorCodes` (all non-auditable),
+  `DataErrorCodes` / `BackEndErrorCodes` / `ConnectionErrorCodes` / `CloneErrorCodes` (data-plane)
   + `LegacyErrorCodeRegistry` bridge legacy `IPS*Errors` ints. Non-auditable / unregistered ints never
   dual-write. Central `PSErrorHandler.appendError` dual-writes only when the registry marks the legacy
   int auditable.
@@ -65,7 +66,11 @@ audit.log(
 ```java
 import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
 import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.CloneErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ConnectionErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
@@ -102,8 +107,12 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 1001, ctx); // SYS native — non-
 LegacyErrorCodeRegistry.logIfAuditable(audit, 401, ctx); // HTTP status — non-auditable skip
 LegacyErrorCodeRegistry.logIfAuditable(audit, 16052, ctx); // search auth failed — dual-write
 LegacyErrorCodeRegistry.logIfAuditable(audit, 16311, ctx); // Lucene index dir — non-auditable skip
+LegacyErrorCodeRegistry.logIfAuditable(audit, 5001, ctx, "host", "user", "driver", "srv"); // BE authz
+LegacyErrorCodeRegistry.logIfAuditable(audit, 5201, ctx); // data query — non-auditable skip
+LegacyErrorCodeRegistry.logIfAuditable(audit, 3107, ctx); // connection unauthorized dual-write
+LegacyErrorCodeRegistry.logIfAuditable(audit, 17503, ctx, "msg"); // clone not authorized dual-write
 // Prefer JobErrorCodes enum for job ints 1–10 (flat registry keeps WF ownership of 1–10)
-// Provider/config/conversion/path/design/server/http/job/assembly/extension/webservice noise (isAuditable=false) and unknown ints → no dual-write
+// Provider/config/conversion/path/design/server/http/job/assembly/extension/webservice/data noise (isAuditable=false) and unknown ints → no dual-write
 ```
 
 | Catalog | Ranges | Notes |
@@ -128,6 +137,10 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 16311, ctx); // Lucene index dir �
 | `LuceneErrorCodes` | 16311–16456 (`IPSLuceneErrors`) | All non-auditable index/query codes |
 | `LocaleErrorCodes` | 1801–1804 (`IPSLocaleErrors`) | All non-auditable |
 | `MailErrorCodes` | 3501–3508 (`IPSMailErrors`) | All non-auditable |
+| `DataErrorCodes` | 5201–5267, 6003–6046 (`IPSDataErrors`) | All non-auditable data/XML pipeline codes |
+| `BackEndErrorCodes` | 5001–5057, 5401–5402, 5999 (`IPSBackEndErrors`) | Only `AUTHORIZATION_ERROR` dual-writes |
+| `ConnectionErrorCodes` | 3001–3012, 3101–3107 (`IPSConnectionErrors`) | Only `UNAUTHORIZED` dual-writes; 3001–3005 overlap USER package-local (USER not flat-registered) |
+| `CloneErrorCodes` | 17501–17506 (`IPSCloneErrors`) | `NOT_AUTHENTICACATED` / `NOT_AUTHORIZED` dual-write |
 
 Non-auditable codes (`isAuditable() == false`) never create audit rows.
 

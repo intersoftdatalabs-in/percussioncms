@@ -41,6 +41,10 @@ import com.intsof.percussioncms.auditlog.codes.TransformationErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.CloneErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ConnectionErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.intsof.percussioncms.auditlog.sink.CapturingAuditLogSink;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -845,6 +849,196 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(16311).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(1801).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(3501).isPresent());
+  }
+
+  // --- Data / BackEnd / Connection / Clone residual (#2881) ---
+
+  @Test
+  void dataQueryProcessingIsRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(5201));
+    assertSame(
+        DataErrorCodes.QUERY_PROCESSING_ERROR, LegacyErrorCodeRegistry.find(5201).orElseThrow());
+    assertFalse(DataErrorCodes.QUERY_PROCESSING_ERROR.isAuditable());
+  }
+
+  @Test
+  void dataNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            DataErrorCodes.QUERY_PROCESSING_ERROR.numericCode(),
+            AuditContext.builder().actor("jdoe").build(),
+            "sess1");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void backEndAuthorizationIsAuditableAndResolves() {
+    assertTrue(LegacyErrorCodeRegistry.isAuditable(5001));
+    assertSame(
+        BackEndErrorCodes.AUTHORIZATION_ERROR, LegacyErrorCodeRegistry.find(5001).orElseThrow());
+    assertTrue(BackEndErrorCodes.AUTHORIZATION_ERROR.isAuditable());
+  }
+
+  @Test
+  void backEndAuthorizationDualWrites() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            BackEndErrorCodes.AUTHORIZATION_ERROR.numericCode(),
+            AuditContext.builder().actor("jdoe").sourceIp("10.0.0.1").build(),
+            "10.0.0.1",
+            "jdoe",
+            "jtds",
+            "dbserver");
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(1, sink.records().size());
+    assertEquals(BackEndErrorCodes.AUTHORIZATION_ERROR, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-5001]-"));
+  }
+
+  @Test
+  void backEndJdbcNoiseIsRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(5008));
+    assertSame(
+        BackEndErrorCodes.JDBC_DRIVER_LOAD_FAILED, LegacyErrorCodeRegistry.find(5008).orElseThrow());
+    assertFalse(BackEndErrorCodes.JDBC_DRIVER_LOAD_FAILED.isAuditable());
+  }
+
+  @Test
+  void backEndJdbcNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            BackEndErrorCodes.JDBC_DRIVER_LOAD_FAILED.numericCode(),
+            AuditContext.builder().actor("jdoe").build(),
+            "driver",
+            "detail");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void connectionUnauthorizedIsAuditableAndResolves() {
+    assertTrue(LegacyErrorCodeRegistry.isAuditable(3107));
+    assertSame(ConnectionErrorCodes.UNAUTHORIZED, LegacyErrorCodeRegistry.find(3107).orElseThrow());
+    assertTrue(ConnectionErrorCodes.UNAUTHORIZED.isAuditable());
+  }
+
+  @Test
+  void connectionUnauthorizedDualWrites() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            ConnectionErrorCodes.UNAUTHORIZED.numericCode(),
+            AuditContext.builder().actor("jdoe").build());
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(1, sink.records().size());
+    assertEquals(ConnectionErrorCodes.UNAUTHORIZED, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-3107]-"));
+  }
+
+  @Test
+  void connectionPortInvalidIsRegisteredButNotAuditable() {
+    // 3001 overlaps Phase-2a UserManagementErrorCodes.CREATE package-local int; USER codes are
+    // not flat-registered, so connection owns the flat registry key.
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(3001));
+    assertSame(
+        ConnectionErrorCodes.PORT_NUMBER_INVALID, LegacyErrorCodeRegistry.find(3001).orElseThrow());
+    assertFalse(ConnectionErrorCodes.PORT_NUMBER_INVALID.isAuditable());
+  }
+
+  @Test
+  void connectionPortInvalidNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc, ConnectionErrorCodes.PORT_NUMBER_INVALID.numericCode(), AuditContext.empty(), "abc");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void cloneNotAuthenticatedIsAuditableAndResolves() {
+    assertTrue(LegacyErrorCodeRegistry.isAuditable(17502));
+    assertSame(
+        CloneErrorCodes.NOT_AUTHENTICACATED, LegacyErrorCodeRegistry.find(17502).orElseThrow());
+    assertTrue(CloneErrorCodes.NOT_AUTHENTICACATED.isAuditable());
+  }
+
+  @Test
+  void cloneNotAuthorizedDualWrites() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            CloneErrorCodes.NOT_AUTHORIZED.numericCode(),
+            AuditContext.builder().actor("jdoe").build(),
+            "denied");
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(1, sink.records().size());
+    assertEquals(CloneErrorCodes.NOT_AUTHORIZED, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-17503]-"));
+  }
+
+  @Test
+  void cloneInvalidSourceIdIsRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(17501));
+    assertSame(
+        CloneErrorCodes.INVALID_CLONESOURCEID, LegacyErrorCodeRegistry.find(17501).orElseThrow());
+    assertFalse(CloneErrorCodes.INVALID_CLONESOURCEID.isAuditable());
+  }
+
+  @Test
+  void cloneInvalidSourceIdNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            CloneErrorCodes.INVALID_CLONESOURCEID.numericCode(),
+            AuditContext.builder().actor("jdoe").build(),
+            "x",
+            "parse");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void registryCoversDataBackEndConnectionAndClone() {
+    // prior catalogs + data (108) + backend (60) + connection (19) + clone (6)
+    assertTrue(LegacyErrorCodeRegistry.size() >= 540);
+    assertTrue(LegacyErrorCodeRegistry.find(5201).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(5001).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(3001).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(3107).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(17502).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(17503).isPresent());
   }
 
 }
