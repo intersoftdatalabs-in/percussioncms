@@ -106,6 +106,14 @@ public class ServerConfigSummary {
     this.contentLength = contentLength;
   }
 
+  /**
+   * Catalog-level capability notes. Present on detail; omitted on list rows when null
+   * (REST-GAPS-02 payload dedup; class uses NON_NULL).
+   */
+  @Schema(
+      description =
+          "Honest design gaps for this surface. Present on detail GET; typically omitted on"
+              + " list rows to avoid repeating the same catalog-level array")
   public List<String> getDesignGaps() {
     return designGaps;
   }

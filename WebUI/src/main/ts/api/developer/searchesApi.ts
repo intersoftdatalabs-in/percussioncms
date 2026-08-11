@@ -23,6 +23,16 @@ import type {
   SearchResultItem,
 } from "./types";
 
+/**
+ * Catalog-level design gaps (REST-GAPS-02). Server omits these on list rows;
+ * detail re-attaches or SPA falls back via this constant.
+ */
+export const SEARCH_DESIGN_GAPS: string[] = [
+  "Search create / update / delete not supported via this API",
+  "Search field criterion editing not supported via this API",
+  "Views are a separate catalog (Developer Views / UI-07)",
+];
+
 function asArray<T>(payload: unknown): T[] {
   if (payload == null) return [];
   if (Array.isArray(payload)) return payload as T[];
@@ -33,6 +43,14 @@ function asArray<T>(payload: unknown): T[] {
     return Array.isArray(raw) ? (raw as T[]) : [raw as T];
   }
   return [];
+}
+
+function withGaps(s: SearchDef): SearchDef {
+  return {
+    ...s,
+    designGaps:
+      s.designGaps && s.designGaps.length > 0 ? s.designGaps : [...SEARCH_DESIGN_GAPS],
+  };
 }
 
 /**
@@ -78,7 +96,8 @@ export async function listSearches(): Promise<SearchDef[]> {
 /** GET /services/searches/{idOrName} */
 export async function getSearchDetail(idOrName: string): Promise<SearchDef> {
   const key = encodeURIComponent(idOrName);
-  return get<SearchDef>(`${PATHS.SEARCHES}/${key}`);
+  const detail = await get<SearchDef>(`${PATHS.SEARCHES}/${key}`);
+  return withGaps(detail);
 }
 
 /**

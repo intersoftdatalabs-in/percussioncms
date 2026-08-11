@@ -54,7 +54,8 @@ public class SearchAdaptor implements ISearchAdaptor {
   /** Product default page size when design max is unset/unlimited and client omits maxResults. */
   static final int DEFAULT_PAGE_SIZE = 25;
 
-  private static final List<String> DESIGN_GAPS =
+  /** Catalog-level capability notes. Attached on detail only (REST-GAPS-02 list dedup). */
+  static final List<String> DESIGN_GAPS =
       List.of(
           "Search create / update / delete not supported via this API",
           "Search field criterion editing not supported via this API",
@@ -82,7 +83,8 @@ public class SearchAdaptor implements ISearchAdaptor {
       List<SearchDef> out = new ArrayList<>();
       for (PSSearch s : loaded) {
         if (s != null) {
-          out.add(toDef(s));
+          // REST-GAPS-02: list rows omit identical designGaps; detail re-attaches them.
+          out.add(toDef(s, false));
         }
       }
       out.sort(
@@ -102,7 +104,7 @@ public class SearchAdaptor implements ISearchAdaptor {
     }
     try {
       PSSearch found = findPsSearchByKey(idOrName.trim());
-      return found != null ? toDef(found) : null;
+      return found != null ? toDef(found, true) : null;
     } catch (RuntimeException e) {
       // list failures already wrap; propagate for 500
       throw e;
@@ -367,7 +369,15 @@ public class SearchAdaptor implements ISearchAdaptor {
     }
   }
 
+  /** Maps design search meta; includes designGaps by default (detail / unit-test path). */
   static SearchDef toDef(PSSearch s) {
+    return toDef(s, true);
+  }
+
+  /**
+   * @param includeDesignGaps when false, omits the shared static gap list (list-catalog path)
+   */
+  static SearchDef toDef(PSSearch s, boolean includeDesignGaps) {
     SearchDef d = new SearchDef();
     if (s.getGUID() != null) {
       d.setGuid(copyGuid(s.getGUID()));
@@ -387,7 +397,7 @@ public class SearchAdaptor implements ISearchAdaptor {
     d.setUserCustomizable(s.isUserCustomizable());
     d.setCaseSensitive(s.isCaseSensitive());
     d.setFields(mapFields(s.getFieldContainer()));
-    d.setDesignGaps(new ArrayList<>(DESIGN_GAPS));
+    d.setDesignGaps(includeDesignGaps ? new ArrayList<>(DESIGN_GAPS) : null);
     return d;
   }
 

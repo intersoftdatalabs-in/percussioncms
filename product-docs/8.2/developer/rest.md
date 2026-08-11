@@ -42,6 +42,28 @@ Developer-module (Workbench replacement) endpoints should map design operations 
 endpoints chosen only because they “look REST.” See repository
 `docs/developer-module/workbench-rest-and-qa-modes.md` for the engineering contract.
 
+## Design gaps on Developer catalogs
+
+Many Developer (Workbench-replacement) catalog objects expose a `designGaps` array so clients can
+show honest “what this REST surface does not support yet” notes.
+
+### List vs detail (payload dedup)
+
+Catalog-level gaps are **shared** across every object of a type (they are not per-item data). To
+avoid repeating the same large string array on every list row:
+
+| Response | `designGaps` |
+|----------|--------------|
+| **List** (`GET …/searches`, `…/views`, `…/cecontrols`, `…/serverconfigs`, `…/relationshiptypes`, …) | Typically **omitted** (null / empty → not serialized) |
+| **Detail** (`GET …/{idOrName}`) | **Present** with the full catalog-level list |
+
+SPA detail panels already fall back to local constants when the server omits gaps. Integrators
+should treat missing `designGaps` on list rows as “use the detail resource (or known catalog
+constants), not as ‘no gaps’.”
+
+Content-type detail may still include **extra** per-item gaps (for example control-resolution
+failures); those remain on the detail payload only.
+
 ## Testing tips
 
 - Unit-test resources with Mockito and provide Spring test stubs for new adaptor interfaces on the

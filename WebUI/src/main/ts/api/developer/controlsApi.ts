@@ -6,6 +6,16 @@ import { get } from "../client";
 import { PATHS } from "../paths";
 import type { ControlDef } from "./types";
 
+/**
+ * Catalog-level design gaps (REST-GAPS-02). Server omits these on list rows;
+ * detail re-attaches or SPA falls back via this constant.
+ */
+export const CONTROL_DESIGN_GAPS: string[] = [
+  "User control create / edit / delete not supported via this API",
+  "Control XSL source editing not supported via this API",
+  "System controls are read-only packaged defaults",
+];
+
 const LIST_WRAPPER_KEYS = [
   "ControlDef",
   "controlDef",
@@ -42,7 +52,15 @@ function parseControlList(payload: unknown): ControlDef[] {
   throw new Error("Unexpected control list payload type");
 }
 
-/** GET /services/cecontrols */
+function withGaps(c: ControlDef): ControlDef {
+  return {
+    ...c,
+    designGaps:
+      c.designGaps && c.designGaps.length > 0 ? c.designGaps : [...CONTROL_DESIGN_GAPS],
+  };
+}
+
+/** GET /services/cecontrols — list omits designGaps on the wire (REST-GAPS-02). */
 export async function listControls(): Promise<ControlDef[]> {
   const payload = await get<unknown>(PATHS.CE_CONTROLS);
   return parseControlList(payload);
@@ -58,5 +76,5 @@ export async function getControlDetail(name: string): Promise<ControlDef> {
   if (!detail.name || !String(detail.name).trim()) {
     throw new Error("Control response missing name");
   }
-  return detail;
+  return withGaps(detail);
 }

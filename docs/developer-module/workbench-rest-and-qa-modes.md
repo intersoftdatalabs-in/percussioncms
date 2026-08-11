@@ -45,7 +45,9 @@ perc-system / objectstore / services
 2. Use **SOAP / `IPS*DesignWs` method lists** as the reference for operations, locks, and failure modes.
 3. Implement adaptors that call those design/system APIs when they exist (see audit matrix).
 4. Keep sitemanage as **glue**, not a second design product.
-5. Document `designGaps[]` when REST is thinner than Workbench.
+5. Document `designGaps[]` when REST is thinner than Workbench. Catalog-level gaps
+   belong on **detail** only (omit identical arrays on list rows — REST-GAPS-02); SPA
+   may use constants when the wire omits them.
 
 ### DO NOT
 

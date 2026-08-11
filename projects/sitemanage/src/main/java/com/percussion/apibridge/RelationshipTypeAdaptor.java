@@ -49,7 +49,8 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
 
   private static final Logger log = LogManager.getLogger(RelationshipTypeAdaptor.class);
 
-  private static final List<String> DESIGN_GAPS =
+  /** Catalog-level capability notes. Attached on detail only (REST-GAPS-02 list dedup). */
+  static final List<String> DESIGN_GAPS =
       List.of(
           "Relationship type create / update / delete not supported via this API",
           "Cloning field override editor not supported via this API",
@@ -90,7 +91,8 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
       if (configs != null) {
         for (PSRelationshipConfig cfg : configs) {
           if (cfg != null) {
-            out.add(copyConfig(cfg));
+            // REST-GAPS-02: list rows omit identical designGaps; detail re-attaches them.
+            out.add(copyConfig(cfg, false));
           }
         }
       }
@@ -116,12 +118,12 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
         continue;
       }
       if (key.equalsIgnoreCase(t.getName())) {
-        return t;
+        return withDesignGaps(t);
       }
       if (t.getGuid() != null) {
         String guidStr = t.getGuid().getStringValue().orElse(null);
         if (guidStr != null && key.equalsIgnoreCase(guidStr)) {
-          return t;
+          return withDesignGaps(t);
         }
       }
     }
@@ -136,7 +138,7 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
             && t.getGuid() != null
             && t.getGuid().getUuid() == uuid
             && t.getGuid().getType() == type) {
-          return t;
+          return withDesignGaps(t);
         }
       }
     } catch (IllegalArgumentException e) {
@@ -145,7 +147,7 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
     return null;
   }
 
-  private RelationshipType copyConfig(PSRelationshipConfig cfg) {
+  private RelationshipType copyConfig(PSRelationshipConfig cfg, boolean includeDesignGaps) {
     RelationshipType ret = new RelationshipType();
     ret.setName(cfg.getName());
     ret.setLabel(cfg.getLabel());
@@ -174,8 +176,17 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
 
     ret.setSystemProperties(mapToProps(cfg.getSystemProperties()));
     ret.setUserProperties(mapToProps(cfg.getUserProperties()));
-    ret.setDesignGaps(new ArrayList<>(DESIGN_GAPS));
+    ret.setDesignGaps(includeDesignGaps ? new ArrayList<>(DESIGN_GAPS) : null);
     return ret;
+  }
+
+  /** Attach catalog designGaps to a list projection for the detail response. */
+  static RelationshipType withDesignGaps(RelationshipType listRow) {
+    if (listRow == null) {
+      return null;
+    }
+    listRow.setDesignGaps(new ArrayList<>(DESIGN_GAPS));
+    return listRow;
   }
 
   private RelationshipTypeEffect copyEffect(PSConditionalEffect ce) {

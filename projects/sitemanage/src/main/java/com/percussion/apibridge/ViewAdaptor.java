@@ -31,7 +31,8 @@ public class ViewAdaptor implements IViewAdaptor {
 
   private static final Logger log = LogManager.getLogger(ViewAdaptor.class);
 
-  private static final List<String> DESIGN_GAPS =
+  /** Catalog-level capability notes. Attached on detail only (REST-GAPS-02 list dedup). */
+  static final List<String> DESIGN_GAPS =
       List.of(
           "View create / update / delete not supported via this API",
           "View field criterion editing not supported via this API",
@@ -67,7 +68,8 @@ public class ViewAdaptor implements IViewAdaptor {
       if (loaded != null) {
         for (PSSearch s : loaded) {
           if (s != null) {
-            out.add(toDef(s));
+            // REST-GAPS-02: list rows omit identical designGaps; detail re-attaches them.
+            out.add(toDef(s, false));
           }
         }
       }
@@ -92,17 +94,12 @@ public class ViewAdaptor implements IViewAdaptor {
         if (s == null) {
           continue;
         }
-        if (key.equalsIgnoreCase(s.getName())) {
-          return s;
-        }
-        if (s.getGuid() != null) {
-          String gsv = s.getGuid().getStringValue().orElse(null);
-          if (key.equalsIgnoreCase(gsv)) {
-            return s;
-          }
-        }
-        if (String.valueOf(s.getId()).equals(key)) {
-          return s;
+        if (key.equalsIgnoreCase(s.getName())
+            || String.valueOf(s.getId()).equals(key)
+            || (s.getGuid() != null
+                && key.equalsIgnoreCase(s.getGuid().getStringValue().orElse(null)))) {
+          // Detail path: re-map with designGaps (list projection omits them).
+          return withDesignGaps(s);
         }
       }
       return null;
@@ -112,7 +109,15 @@ public class ViewAdaptor implements IViewAdaptor {
     }
   }
 
+  /** Maps design view meta; includes designGaps by default (detail / unit-test path). */
   static ViewDef toDef(PSSearch s) {
+    return toDef(s, true);
+  }
+
+  /**
+   * @param includeDesignGaps when false, omits the shared static gap list (list-catalog path)
+   */
+  static ViewDef toDef(PSSearch s, boolean includeDesignGaps) {
     ViewDef d = new ViewDef();
     if (s.getGUID() != null) {
       d.setGuid(copyGuid(s.getGUID()));
@@ -132,8 +137,17 @@ public class ViewAdaptor implements IViewAdaptor {
     d.setUserCustomizable(s.isUserCustomizable());
     d.setCaseSensitive(s.isCaseSensitive());
     d.setFields(mapFields(s.getFieldContainer()));
-    d.setDesignGaps(new ArrayList<>(DESIGN_GAPS));
+    d.setDesignGaps(includeDesignGaps ? new ArrayList<>(DESIGN_GAPS) : null);
     return d;
+  }
+
+  /** Attach catalog designGaps to a list projection for the detail response. */
+  static ViewDef withDesignGaps(ViewDef listRow) {
+    if (listRow == null) {
+      return null;
+    }
+    listRow.setDesignGaps(new ArrayList<>(DESIGN_GAPS));
+    return listRow;
   }
 
   static List<ViewFieldSummary> mapFields(PSSFields fields) {
