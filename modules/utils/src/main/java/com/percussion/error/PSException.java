@@ -432,7 +432,14 @@ public class PSException extends java.lang.Exception implements IPSException {
   }
 
   /**
-   * Set the arguments for this exception.
+   * Set the arguments for this exception using a legacy numeric message code.
+   *
+   * <p><strong>Typed-code contract:</strong> this mutator always clears {@link #getTypedErrorCode()}
+   * (sets it to {@code null}), matching {@link #setErrorCode(int)}. Callers that previously mixed
+   * typed construction with this legacy setter and still expected a non-null typed code must switch
+   * to {@link #setArgs(IPSErrorCode, Object[])} or {@link #setArgs(IPSErrorCode, Object)} to retain
+   * catalog metadata / auditability. Dual-write handlers resolve auditability via the numeric
+   * registry when the typed field is absent.
    *
    * @param msgCode the error string to load
    * @param errorArgs the array of arguments to use as the arguments in the error message. May be
@@ -445,7 +452,19 @@ public class PSException extends java.lang.Exception implements IPSException {
   }
 
   /**
-   * Set the arguments for this exception from a typed error code.
+   * Convenience method that calls {@link #setArgs(IPSErrorCode, Object[]) setArgs(code, null ==
+   * errorArg ? null : new Object[] { errorArg })}.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param errorArg sole message argument; may be {@code null}
+   */
+  public void setArgs(IPSErrorCode code, Object errorArg) {
+    setArgs(code, null == errorArg ? null : new Object[] {errorArg});
+  }
+
+  /**
+   * Set the arguments for this exception from a typed error code. Retains {@code code} for {@link
+   * #getTypedErrorCode()} / {@link #isAuditable()}.
    *
    * @param code catalogued error code, never {@code null}
    * @param errorArgs the array of arguments to use as the arguments in the error message. May be
