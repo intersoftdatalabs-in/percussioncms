@@ -23,6 +23,11 @@ public class PSSynFeedTranscript {
 
   private Text[] transcript;
 
+  /**
+   * Creates a new PSSynFeedTranscript.
+   *
+   * @param arg the arg
+   */
   public PSSynFeedTranscript(Text[] arg) {
     this.transcript = arg;
   }

@@ -37,11 +37,20 @@ public class PreviewUrlBuilder implements UrlBuilder, Cloneable {
 
   private String multipleLocationUrl;
 
-  /** */
-  public PreviewUrlBuilder() {}
+        /**
+     * Creates a new PreviewUrlBuilder.
+     */
+    public PreviewUrlBuilder() {}
 
   /**
+   * See referenced member.
    * @see UrlBuilder#buildUrl(IPSAssemblyTemplate, Map, SiteFolderLocation, boolean)
+   * @param template the template
+   * @param urlParams the url params
+   * @param location the location
+   * @param useMultiple the use multiple
+   * @return the result
+   * @throws Exception if an error occurs
    */
   public String buildUrl(
       IPSAssemblyTemplate template,
@@ -77,7 +86,7 @@ public class PreviewUrlBuilder implements UrlBuilder, Cloneable {
   /**
    * Find the template id for the given template.
    *
-   * @param template
+   * @param template the template
    * @return the template id.
    */
   protected String findTemplateId(IPSAssemblyTemplate template) {
@@ -103,6 +112,7 @@ public class PreviewUrlBuilder implements UrlBuilder, Cloneable {
   protected static final String DEFAULT_ASSY_URL = "/Rhythmyx/assembler/render";
 
   /**
+   * Returns the defaultLocationUrl.
    * @return the defaultLocationUrl
    */
   public String getDefaultLocationUrl() {
@@ -110,6 +120,7 @@ public class PreviewUrlBuilder implements UrlBuilder, Cloneable {
   }
 
   /**
+   * Sets the defaultLocationUrl.
    * @param defaultLocationUrl the defaultLocationUrl to set
    */
   public void setDefaultLocationUrl(String defaultLocationUrl) {
@@ -117,6 +128,7 @@ public class PreviewUrlBuilder implements UrlBuilder, Cloneable {
   }
 
   /**
+   * Returns the multipleLocationUrl.
    * @return the multipleLocationUrl
    */
   public String getMultipleLocationUrl() {
@@ -124,6 +136,7 @@ public class PreviewUrlBuilder implements UrlBuilder, Cloneable {
   }
 
   /**
+   * Sets the multipleLocationUrl.
    * @param multipleLocationUrl the multipleLocationUrl to set
    */
   public void setMultipleLocationUrl(String multipleLocationUrl) {

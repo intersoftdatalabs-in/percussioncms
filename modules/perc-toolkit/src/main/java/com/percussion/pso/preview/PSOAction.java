@@ -39,11 +39,18 @@ public class PSOAction implements Comparable<PSOAction> {
   private String description;
   private Properties properties;
 
-  /** Default constructor */
+  /**
+   * Default constructor
+   * Creates a new PSOAction.
+   *
+   */
   public PSOAction() {}
 
   /**
+   * See referenced member.
    * @see Comparable#compareTo(Object)
+   * @param other the other
+   * @return the result
    */
   public int compareTo(PSOAction other) {
     if (this == other) return 0;
@@ -51,18 +58,32 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * See referenced member.
    * @see Object#equals(Object)
+   * @param obj the obj
+   * @return the result
    */
   @Override
   public boolean equals(Object obj) {
     return super.equals(obj);
   }
 
+  /**
+   * hashCode operation.
+   *
+   * @return the result
+   */
   @Override
   public int hashCode() {
     return super.hashCode();
   }
 
+  /**
+   * toXml operation.
+   *
+   * @param doc the doc
+   * @return the result
+   */
   @SuppressWarnings("unused")
   public Element toXml(Document doc) {
     Element root = doc.createElement("Action");
@@ -95,6 +116,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Returns the handler.
    * @return the handler
    */
   public String getHandler() {
@@ -102,6 +124,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Sets the handler.
    * @param handler the handler to set
    */
   public void setHandler(String handler) {
@@ -109,6 +132,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Returns the label.
    * @return the label
    */
   public String getLabel() {
@@ -116,6 +140,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Sets the label.
    * @param label the label to set
    */
   public void setLabel(String label) {
@@ -123,6 +148,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Returns the name.
    * @return the name
    */
   public String getName() {
@@ -130,6 +156,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Sets the name.
    * @param name the name to set
    */
   public void setName(String name) {
@@ -137,6 +164,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Returns the url.
    * @return the url
    */
   public String getUrl() {
@@ -144,6 +172,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Sets the url.
    * @param url the url to set
    */
   public void setUrl(String url) {
@@ -151,6 +180,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Returns the type.
    * @return the type
    */
   public String getType() {
@@ -158,6 +188,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Sets the type.
    * @param type the type to set
    */
   public void setType(String type) {
@@ -165,6 +196,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Returns the sortrank.
    * @return the sortrank
    */
   public int getSortrank() {
@@ -172,6 +204,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Sets the sortrank.
    * @param sortrank the sortrank to set
    */
   public void setSortrank(int sortrank) {
@@ -179,6 +212,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Returns the description.
    * @return the description
    */
   public String getDescription() {
@@ -186,6 +220,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Sets the description.
    * @param description the description to set
    */
   public void setDescription(String description) {
@@ -193,6 +228,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Returns the properties.
    * @return the properties
    */
   public Properties getProperties() {
@@ -200,6 +236,7 @@ public class PSOAction implements Comparable<PSOAction> {
   }
 
   /**
+   * Sets the properties.
    * @param properties the properties to set
    */
   public void setProperties(Properties properties) {

@@ -31,8 +31,17 @@ import org.apache.logging.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.io.DocumentResult;
 
-/** */
+/**
+ * Helpers for mapping between REST item models and server content services.
+ */
 public class ItemServiceHelper {
+  /**
+   * Creates a new ItemServiceHelper.
+   */
+  public ItemServiceHelper() {
+    // default
+  }
+
 
   private static final Logger log = LogManager.getLogger(ItemServiceHelper.class);
 
@@ -64,7 +73,7 @@ public class ItemServiceHelper {
    *
    * @param is InputStream
    * @return Item
-   * @throws JAXBException
+   * @throws JAXBException if an error occurs
    */
   public static Item getItemFromXml(InputStream is) throws JAXBException {
     JAXBContext jc = JAXBContext.newInstance(Item.class);
@@ -78,7 +87,7 @@ public class ItemServiceHelper {
    *
    * @param is InputStream
    * @return Items
-   * @throws JAXBException
+   * @throws JAXBException if an error occurs
    */
   public static Items getItemsFromXml(InputStream is) throws JAXBException {
     JAXBContext jc = JAXBContext.newInstance(Items.class);
@@ -92,7 +101,7 @@ public class ItemServiceHelper {
    *
    * @param string String
    * @return Item
-   * @throws JAXBException
+   * @throws JAXBException if an error occurs
    */
   public static Item getItemFromXml(String string) throws JAXBException {
     ByteArrayInputStream input = new ByteArrayInputStream(string.getBytes());
@@ -104,7 +113,7 @@ public class ItemServiceHelper {
    *
    * @param string String
    * @return Items
-   * @throws JAXBException
+   * @throws JAXBException if an error occurs
    */
   public static Items getItemsFromXml(String string) throws JAXBException {
     ByteArrayInputStream input = new ByteArrayInputStream(string.getBytes());

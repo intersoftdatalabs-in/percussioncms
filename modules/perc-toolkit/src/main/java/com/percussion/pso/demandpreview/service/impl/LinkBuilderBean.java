@@ -36,10 +36,21 @@ import org.apache.commons.lang3.StringUtils;
 public class LinkBuilderBean implements LinkBuilderService {
   String linkSuffix = null;
 
+  /**
+   * Creates a new LinkBuilderBean.
+   */
   public LinkBuilderBean() {}
 
   /***
+   * buildLinkUrl operation.
+   *
    * @see LinkBuilderService
+   * @param site the site
+   * @param template the template
+   * @param content the content
+   * @param folder the folder
+   * @param context the context
+   * @return the result
    */
   public String buildLinkUrl(
       IPSSite site,
@@ -68,6 +79,17 @@ public class LinkBuilderBean implements LinkBuilderService {
     this.linkSuffix = linkSuffix;
   }
 
+  /**
+   * buildLinkUrl operation.
+   *
+   * @param site the site
+   * @param template the template
+   * @param content the content
+   * @param folder the folder
+   * @param context the context
+   * @param contextVar the context var
+   * @return the result
+   */
   public String buildLinkUrl(
       IPSSite site,
       IPSAssemblyTemplate template,

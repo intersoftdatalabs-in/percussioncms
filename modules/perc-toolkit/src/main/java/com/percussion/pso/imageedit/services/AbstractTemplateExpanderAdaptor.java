@@ -67,6 +67,13 @@ import org.apache.logging.log4j.Logger;
 public abstract class AbstractTemplateExpanderAdaptor implements IPSTemplateExpander {
   private static final Logger log = LogManager.getLogger(AbstractTemplateExpanderAdaptor.class);
 
+  /**
+   * Creates a template expander with default settings.
+   */
+  protected AbstractTemplateExpanderAdaptor() {
+    // default
+  }
+
   private boolean NeedsContentNode = false;
 
   private static IPSGuidManager gmgr = null;
@@ -82,12 +89,22 @@ public abstract class AbstractTemplateExpanderAdaptor implements IPSTemplateExpa
   }
 
   /**
+   * See referenced member.
    * @see com.percussion.extension.IPSExtension#init(IPSExtensionDef, File)
+   * @param def the def
+   * @param codeRoot the code root
+   * @throws PSExtensionException if an error occurs
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
   /**
+   * See referenced member.
    * @see IPSTemplateExpander#expand(QueryResult, Map, Map)
+   * @param results the results
+   * @param parameters the parameters
+   * @param summaryMap the summary map
+   * @return the result
+   * @throws PSPublisherException if an error occurs
    */
   public List<PSContentListItem> expand(
       QueryResult results,
@@ -225,7 +242,7 @@ public abstract class AbstractTemplateExpanderAdaptor implements IPSTemplateExpa
    * @param summaryMap the map of component summaries. Never <code>null</code>. This map is
    *     guaranteed to contain all items referenced in the query result.
    * @return the map of Nodes.
-   * @throws RepositoryException
+   * @throws RepositoryException if content nodes cannot be loaded
    */
   protected Map<IPSGuid, Node> buildNodeMap(
       QueryResult result, Map<Integer, PSComponentSummary> summaryMap) throws RepositoryException {
@@ -265,28 +282,36 @@ public abstract class AbstractTemplateExpanderAdaptor implements IPSTemplateExpa
   }
 
   /**
-   * @return the needsContentNode
+   * Returns whether content nodes must be loaded for template selection.
+   *
+   * @return {@code true} if content nodes are required
    */
   protected boolean isNeedsContentNode() {
     return NeedsContentNode;
   }
 
   /**
-   * @param needsContentNode the needsContentNode to set
+   * Sets whether content nodes must be loaded for template selection.
+   *
+   * @param needsContentNode {@code true} if content nodes are required
    */
   protected void setNeedsContentNode(boolean needsContentNode) {
     NeedsContentNode = needsContentNode;
   }
 
   /**
-   * @param gmgr the gmgr to set
+   * Sets the GUID manager. Used for unit testing.
+   *
+   * @param gmgr the GUID manager to set
    */
   public static void setGmgr(IPSGuidManager gmgr) {
     AbstractTemplateExpanderAdaptor.gmgr = gmgr;
   }
 
   /**
-   * @param cmgr the cmgr to set
+   * Sets the content manager. Used for unit testing.
+   *
+   * @param cmgr the content manager to set
    */
   public static void setCmgr(IPSContentMgr cmgr) {
     AbstractTemplateExpanderAdaptor.cmgr = cmgr;

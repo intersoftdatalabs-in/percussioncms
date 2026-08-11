@@ -57,6 +57,13 @@ public class PSOSetFieldOnSlottedItemTransform
     implements IPSItemInputTransformer,
         IPSRequestPreProcessor,
         com.percussion.extension.IPSResultDocumentProcessor {
+  /**
+   * Creates a new PSOSetFieldOnSlottedItemTransform.
+   */
+  public PSOSetFieldOnSlottedItemTransform() {
+    // default
+  }
+
 
   private static final Logger log = LogManager.getLogger(PSOSetFieldOnSlottedItemTransform.class);
   private IPSGuidManager mGmgr;
@@ -70,14 +77,19 @@ public class PSOSetFieldOnSlottedItemTransform
    */
   private class ConfiguredParams {
 
+    /** field name. */
     protected String fieldName;
+    /** value if empty. */
     protected String valueIfEmpty;
+    /** value if not empty. */
     protected String valueIfNotEmpty;
+    /** slot name. */
     protected String slotName;
 
     /***
      * Constructor to initialize a new parameter object
-     * @param params
+     * @param params the params
+     * @return the result
      */
     protected ConfiguredParams(Object[] params) {
 
@@ -123,6 +135,16 @@ public class PSOSetFieldOnSlottedItemTransform
     }
   }
 
+  /**
+   * preProcessRequest operation.
+   *
+   * @param params the params
+   * @param request the request
+   * @throws PSAuthorizationException if an error occurs
+   * @throws PSRequestValidationException if an error occurs
+   * @throws PSParameterMismatchException if an error occurs
+   * @throws PSExtensionProcessingException if an error occurs
+   */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,
           PSRequestValidationException,
@@ -225,15 +247,37 @@ public class PSOSetFieldOnSlottedItemTransform
     return mCws;
   }
 
+  /**
+   * init operation.
+   *
+   * @param arg0 the arg0
+   * @param arg1 the arg1
+   * @throws PSExtensionException if an error occurs
+   */
   public void init(IPSExtensionDef arg0, File arg1) throws PSExtensionException {
     log.info("Extension Initialized.");
   }
 
+  /**
+   * canModifyStyleSheet operation.
+   *
+   * @return the result
+   */
   public boolean canModifyStyleSheet() {
     // TODO Auto-generated method stub
     return false;
   }
 
+  /**
+   * processResultDocument operation.
+   *
+   * @param arg0 the arg0
+   * @param arg1 the arg1
+   * @param arg2 the arg2
+   * @return the result
+   * @throws PSParameterMismatchException if an error occurs
+   * @throws PSExtensionProcessingException if an error occurs
+   */
   public Document processResultDocument(Object[] arg0, IPSRequestContext arg1, Document arg2)
       throws PSParameterMismatchException, PSExtensionProcessingException {
     // TODO Auto-generated method stub

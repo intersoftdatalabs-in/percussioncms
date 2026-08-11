@@ -52,7 +52,11 @@ public abstract class PSOAbstractItemValidationExit extends PSOItemXMLSupport
 
   private IPSOWorkflowInfoFinder finder = null;
 
-  /** Default constructor. */
+  /**
+   * Default constructor.
+   * Creates a new PSOAbstractItemValidationExit.
+   *
+   */
   protected PSOAbstractItemValidationExit() {}
 
   /** Initialize the service pointers. */
@@ -63,16 +67,26 @@ public abstract class PSOAbstractItemValidationExit extends PSOItemXMLSupport
   }
 
   /**
+   * See referenced member.
    * @see com.percussion.extension.IPSResultDocumentProcessor#canModifyStyleSheet()
+   * @return the result
    */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
   /**
+   * processResultDocument operation.
+   *
    * @see
    *     com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
    *     com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
+   * @param params the params
+   * @param request the request
+   * @param resultDoc the result doc
+   * @return the result
+   * @throws PSParameterMismatchException if an error occurs
+   * @throws PSExtensionProcessingException if an error occurs
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
@@ -93,6 +107,15 @@ public abstract class PSOAbstractItemValidationExit extends PSOItemXMLSupport
     return null;
   }
 
+  /**
+   * validateDocs operation.
+   *
+   * @param inputDoc the input doc
+   * @param errorDoc the error doc
+   * @param req the req
+   * @param params the params
+   * @throws Exception if an error occurs
+   */
   protected abstract void validateDocs(
       Document inputDoc, Document errorDoc, IPSRequestContext req, Object[] params)
       throws Exception;
@@ -129,7 +152,7 @@ public abstract class PSOAbstractItemValidationExit extends PSOItemXMLSupport
    * @param transitionid the transition id
    * @param allowedStates the list of destination state names that match.
    * @return <code>true</code> when a match occurs,<code>false</code> otherwise.
-   * @throws PSException
+   * @throws PSException if an error occurs
    */
   protected boolean matchDestinationState(
       String contentid, String transitionid, String allowedStates) throws PSException {
@@ -149,10 +172,23 @@ public abstract class PSOAbstractItemValidationExit extends PSOItemXMLSupport
     return allowed.contains(state.getName());
   }
 
+  /**
+   * splitAndTrim operation.
+   *
+   * @param input the input
+   * @return the result
+   */
   protected List<String> splitAndTrim(String input) {
     return splitAndTrim(input, ",");
   }
 
+  /**
+   * splitAndTrim operation.
+   *
+   * @param input the input
+   * @param delimiter the delimiter
+   * @return the result
+   */
   protected List<String> splitAndTrim(String input, String delimiter) {
     List<String> result = new ArrayList<>();
     if (StringUtils.isBlank(input)) return result;
@@ -166,12 +202,18 @@ public abstract class PSOAbstractItemValidationExit extends PSOItemXMLSupport
   }
 
   /**
+   * init operation.
+   *
    * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef,
    *     java.io.File)
+   * @param def the def
+   * @param codeRoot the code root
+   * @throws PSExtensionException if an error occurs
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
   /**
+   * Sets the finder.
    * @param finder the finder to set. Used only for unit test.
    */
   protected void setFinder(IPSOWorkflowInfoFinder finder) {

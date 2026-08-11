@@ -46,6 +46,10 @@ public class ValidatingContentAssemblerMerge {
 
   /*
    * Handles merging the assembled content and pushing them through JTIDY
+   * @param def the def
+   * @param result the result
+   * @return the result
+   * @throws Exception if an error occurs
    */
   public static IPSAssemblyResult merge(IPSExtensionDef def, IPSAssemblyResult result)
       throws Exception {

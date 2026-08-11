@@ -120,7 +120,7 @@ public class PSOExtensionParamsHelper {
    * Gets a parameter by first trying to get it from the request then followed by the parameters
    * passed to the extension.
    *
-   * @param paramName
+   * @param paramName the param name
    * @return The value of the parameter, or null if the parameter is not found.
    */
   public String getParameter(String paramName) {
@@ -171,10 +171,22 @@ public class PSOExtensionParamsHelper {
     return null;
   }
 
+  /**
+   * Returns the required parameter as number.
+   *
+   * @param paramName the param name
+   * @return the result
+   */
   public Number getRequiredParameterAsNumber(String paramName) {
     return paramToNumber(paramName, getRequiredParameter(paramName));
   }
 
+  /**
+   * Returns the required parameter as boolean.
+   *
+   * @param paramName the param name
+   * @return the result
+   */
   public Boolean getRequiredParameterAsBoolean(String paramName) {
     return paramToBoolean(paramName, getRequiredParameter(paramName));
   }
@@ -184,7 +196,7 @@ public class PSOExtensionParamsHelper {
    *
    * @param paramName Name of the parameter.
    * @return value of the parameter never null or empty.
-   * @throws IllegalArgumentException
+   * @throws IllegalArgumentException if an error occurs
    */
   public String getRequiredParameter(String paramName) {
     String value = getParameter(paramName);
@@ -196,10 +208,24 @@ public class PSOExtensionParamsHelper {
     return value;
   }
 
+  /**
+   * Returns the optional parameter as number.
+   *
+   * @param paramName the param name
+   * @param defaultValue the default value
+   * @return the result
+   */
   public Number getOptionalParameterAsNumber(String paramName, String defaultValue) {
     return paramToNumber(paramName, getOptionalParameter(paramName, defaultValue));
   }
 
+  /**
+   * Returns the optional parameter as boolean.
+   *
+   * @param paramName the param name
+   * @param defaultValue the default value
+   * @return the result
+   */
   public Boolean getOptionalParameterAsBoolean(String paramName, Boolean defaultValue) {
     String b = (defaultValue.booleanValue()) ? "true" : "false";
     return paramToBoolean(paramName, getOptionalParameter(paramName, b));
@@ -221,12 +247,25 @@ public class PSOExtensionParamsHelper {
     return value;
   }
 
+  /**
+   * errorOnParameter operation.
+   *
+   * @param paramName the param name
+   * @param reason the reason
+   */
   public void errorOnParameter(String paramName, String reason) {
     String error = "Parameter: " + paramName + " is invalid." + " Reason: " + reason;
     log.error(error);
     throw new IllegalArgumentException(error);
   }
 
+  /**
+   * paramToNumber operation.
+   *
+   * @param paramName the param name
+   * @param param the param
+   * @return the result
+   */
   public Number paramToNumber(String paramName, String param) {
     try {
       return NumberUtils.createNumber(param);
@@ -237,6 +276,13 @@ public class PSOExtensionParamsHelper {
     }
   }
 
+  /**
+   * paramToBoolean operation.
+   *
+   * @param paramName the param name
+   * @param param the param
+   * @return the result
+   */
   public Boolean paramToBoolean(String paramName, String param) {
     Converter cvt = new BooleanConverter();
     try {

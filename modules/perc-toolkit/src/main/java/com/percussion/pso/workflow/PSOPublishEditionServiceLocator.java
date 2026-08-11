@@ -26,12 +26,19 @@ import com.percussion.services.PSBaseServiceLocator;
  *
  */
 /**
+ * Service locator for the PSO publish edition service.
+ *
  * @author DavidBenua
  */
 public class PSOPublishEditionServiceLocator extends PSBaseServiceLocator {
   /** static methods only, never constructed. */
   private PSOPublishEditionServiceLocator() {}
 
+  /**
+   * Returns the publish edition service.
+   *
+   * @return the result
+   */
   public static PublishEditionService getPublishEditionService() {
     return (PublishEditionService) getBean(PSOPUBLISHSERVICEBEAN);
   }

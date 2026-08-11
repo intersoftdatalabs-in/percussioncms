@@ -16,7 +16,9 @@
  */
 package com.percussion.pso.restservice.model;
 
-/** */
+/**
+ * Marker interface for typed field values in the REST item model.
+ */
 public interface Value {
   /** Type constant. */
   public static final int TYPE = -1;

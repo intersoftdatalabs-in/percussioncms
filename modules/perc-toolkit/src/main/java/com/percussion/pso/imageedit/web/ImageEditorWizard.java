@@ -56,6 +56,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
+/**
+ * ImageEditorWizard class.
+ */
 public class ImageEditorWizard {
   private static final Logger log = LogManager.getLogger(ImageEditorWizard.class);
   private ImageCacheManager imageCacheManager = null;
@@ -67,8 +70,16 @@ public class ImageEditorWizard {
   private int maxDisplayHeight = 1500;
   private int maxDisplayWidth = 2000;
 
+  /**
+   * Creates a new ImageEditorWizard.
+   */
   public ImageEditorWizard() {}
 
+  /**
+   * init operation.
+   *
+   * @throws Exception if an error occurs
+   */
   public void init() throws Exception {
     if (imageCacheManager == null) {
       imageCacheManager = ImageCacheManagerLocator.getImageCacheManager();
@@ -110,6 +121,16 @@ public class ImageEditorWizard {
             + "  ----------------------------");
   }
 
+  /**
+   * processFinish operation.
+   *
+   * @param command the command
+   * @param errors the errors
+   * @param modelMap the model map
+   * @param status the status
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   @RequestMapping(params = "_finish")
   protected ModelAndView processFinish(
       final @ModelAttribute("command") Object command,
@@ -173,6 +194,12 @@ public class ImageEditorWizard {
     return null;
   }
 
+  /**
+   * cleanEmptySizedImages operation.
+   *
+   * @param inmap the inmap
+   * @return the result
+   */
   protected Map<String, SizedImageMetaData> cleanEmptySizedImages(
       Map<String, SizedImageMetaData> inmap) {
     Map<String, SizedImageMetaData> outmap = new LinkedHashMap<String, SizedImageMetaData>();
@@ -190,6 +217,15 @@ public class ImageEditorWizard {
     return outmap;
   }
 
+  /**
+   * processCancel operation.
+   *
+   * @param request the request
+   * @param response the response
+   * @param status the status
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   @RequestMapping(params = "_cancel")
   protected ModelAndView processCancel(
       final HttpServletRequest request,
@@ -212,6 +248,14 @@ public class ImageEditorWizard {
     return new ModelAndView(new RedirectView("imageeditor?openImed=true" + folderParam));
   }
 
+  /**
+   * onBind operation.
+   *
+   * @param request the request
+   * @param command the command
+   * @param errors the errors
+   * @throws Exception if an error occurs
+   */
   protected void onBind(HttpServletRequest request, Object command, BindException errors)
       throws Exception {
     /*
@@ -350,6 +394,13 @@ public class ImageEditorWizard {
 
   }
 
+  /**
+   * Sets the up display image.
+   *
+   * @param mimd the mimd
+   * @param usd the usd
+   * @throws Exception if an error occurs
+   */
   protected void setupDisplayImage(MasterImageMetaData mimd, UserSessionData usd) throws Exception {
     log.debug(
         "height is {} width is {}", mimd.getMetaData().getHeight(), mimd.getMetaData().getWidth());
@@ -367,6 +418,15 @@ public class ImageEditorWizard {
     usd.setDisplayImage(displayImage);
   }
 
+  /**
+   * resizeSimpleImage operation.
+   *
+   * @param image the image
+   * @param imageKey the image key
+   * @param cropBox the crop box
+   * @param size the size
+   * @throws Exception if an error occurs
+   */
   protected void resizeSimpleImage(
       SimpleImageMetaData image, String imageKey, Rectangle cropBox, Dimension size)
       throws Exception {
@@ -380,6 +440,14 @@ public class ImageEditorWizard {
     image.setMetaData(imd);
   }
 
+  /**
+   * createScaledImage operation.
+   *
+   * @param mimd the mimd
+   * @param scaleFactor the scale factor
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   protected SimpleImageMetaData createScaledImage(MasterImageMetaData mimd, double scaleFactor)
       throws Exception {
     ImageMetaData imageData = mimd.getMetaData();
@@ -391,6 +459,14 @@ public class ImageEditorWizard {
     return output;
   }
 
+  /**
+   * scaledRectangle operation.
+   *
+   * @param rect the rect
+   * @param scaleFactor the scale factor
+   * @param imageSize the image size
+   * @return the result
+   */
   protected Rectangle scaledRectangle(Rectangle rect, double scaleFactor, Dimension imageSize) {
     long x = Math.max(Math.round(rect.getX() * scaleFactor), 0l);
     long y = Math.max(Math.round(rect.getY() * scaleFactor), 0l);
@@ -400,6 +476,13 @@ public class ImageEditorWizard {
     return out;
   }
 
+  /**
+   * Sets the up sized images.
+   *
+   * @param request the request
+   * @param sizedImages the sized images
+   * @param mimd the mimd
+   */
   public void setupSizedImages(
       HttpServletRequest request, String sizedImages, MasterImageMetaData mimd) {
     Collection<SizedImageMetaData> simds = mimd.getSizedImages().values();
@@ -470,6 +553,14 @@ public class ImageEditorWizard {
     }
   }
 
+  /**
+   * postProcessPage operation.
+   *
+   * @param currentPage the current page
+   * @param command the command
+   * @param response the response
+   * @throws Exception if an error occurs
+   */
   @RequestMapping(method = RequestMethod.POST)
   protected void postProcessPage(
       @RequestParam("_page") final int currentPage,
@@ -500,6 +591,9 @@ public class ImageEditorWizard {
    * Gets the target page number. Overridden to limit the target page to those pages that actually
    * exist. If the target is "off the end", this routine returns the last page, which should be the
    * confirm page.
+   * @param request the request
+   * @param currentPage the current page
+   * @return the result
    */
   protected int getTargetPage(HttpServletRequest request, int currentPage) {
     /*
@@ -521,6 +615,13 @@ public class ImageEditorWizard {
     return -1;
   }
 
+  /**
+   * Returns the page count.
+   *
+   * @param request the request
+   * @param command the command
+   * @return the result
+   */
   protected int getPageCount(HttpServletRequest request, Object command) {
     /*
     int pageCount;
@@ -538,6 +639,12 @@ public class ImageEditorWizard {
     return -1;
   }
 
+  /**
+   * Sets the pages dynamically.
+   *
+   * @param request the request
+   * @param sizedImages the sized images
+   */
   public void setPagesDynamically(HttpServletRequest request, String sizedImages) {
     int maxSize = 2;
     String[] wizardPages = new String[maxSize];
@@ -575,6 +682,12 @@ public class ImageEditorWizard {
     usd.setPages(wizardPages);
   }
 
+  /**
+   * storeImage operation.
+   *
+   * @param mimd the mimd
+   * @param mpFile the mp file
+   */
   protected void storeImage(MasterImageMetaData mimd, MultipartFile mpFile) {
     try {
       InputStream imageStream = mpFile.getInputStream();
@@ -604,6 +717,13 @@ public class ImageEditorWizard {
     }
   }
 
+  /**
+   * Returns the current sized image.
+   *
+   * @param mimd the mimd
+   * @param currPage the curr page
+   * @return the result
+   */
   protected SizedImageMetaData getCurrentSizedImage(MasterImageMetaData mimd, int currPage) {
     log.debug("getCurrentSizedImage: creating array of size: " + mimd.getSizedImages().size());
     List<SizedImageMetaData> simds =
@@ -611,6 +731,14 @@ public class ImageEditorWizard {
     return simds.get(currPage);
   }
 
+  /**
+   * Returns the view name.
+   *
+   * @param request the request
+   * @param command the command
+   * @param page the page
+   * @return the result
+   */
   protected String getViewName(HttpServletRequest request, Object command, int page) {
     UserSessionData usd = getUserSessionData(request);
     log.debug("getViewName: got usd: {}", usd);
@@ -633,6 +761,13 @@ public class ImageEditorWizard {
     return MAIN_PAGE;
   }
 
+  /**
+   * validatePage operation.
+   *
+   * @param command the command
+   * @param errors the errors
+   * @param page the page
+   */
   protected void validatePage(Object command, Errors errors, int page) {
     log.debug("validatePage: doing validatePage...");
     ImageBean ib = (ImageBean) command;
@@ -668,6 +803,14 @@ public class ImageEditorWizard {
         "validatePage: Looking at page {} nothing needs to be validated here (yet)... ", page);
   }
 
+  /**
+   * ValidateFieldLength operation.
+   *
+   * @param errors the errors
+   * @param fieldName the field name
+   * @param length the length
+   * @param fieldValue the field value
+   */
   protected void ValidateFieldLength(
       Errors errors, String fieldName, int length, String fieldValue) {
     if (StringUtils.isBlank(fieldValue)) { // field is null or empty
@@ -680,6 +823,13 @@ public class ImageEditorWizard {
     }
   }
 
+  /**
+   * formBackingObject operation.
+   *
+   * @param request the request
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   protected Object formBackingObject(HttpServletRequest request) throws Exception {
     /*
     Object cmd = "Exists";
@@ -786,6 +936,16 @@ public class ImageEditorWizard {
     return null;
   }
 
+  /**
+   * referenceData operation.
+   *
+   * @param request the request
+   * @param command the command
+   * @param errors the errors
+   * @param page the page
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   protected Map<String, Object> referenceData(
       HttpServletRequest request, Object command, Errors errors, int page) throws Exception {
     /*
@@ -856,6 +1016,12 @@ public class ImageEditorWizard {
     return null;
   }
 
+  /**
+   * buildAllSizesList operation.
+   *
+   * @param mimd the mimd
+   * @return the result
+   */
   protected List<Map<String, String>> buildAllSizesList(MasterImageMetaData mimd) {
     List<Map<String, String>> allSizes = new ArrayList<Map<String, String>>();
     Map<String, SizedImageMetaData> sizedImages = mimd.getSizedImages();
@@ -873,6 +1039,12 @@ public class ImageEditorWizard {
     return allSizes;
   }
 
+  /**
+   * buildMasterImageDisplay operation.
+   *
+   * @param mimd the mimd
+   * @return the result
+   */
   protected Map<String, String> buildMasterImageDisplay(MasterImageMetaData mimd) {
     ImageMetaData md = mimd.getMetaData();
     Map<String, String> masterData = new HashMap<String, String>();
@@ -888,6 +1060,12 @@ public class ImageEditorWizard {
     return masterData;
   }
 
+  /**
+   * buildCropBox operation.
+   *
+   * @param simd the simd
+   * @return the result
+   */
   protected Map<String, String> buildCropBox(SizedImageMetaData simd) {
     Map<String, String> box = new HashMap<String, String>();
     ImageSizeDefinition size = simd.getSizeDefinition();
@@ -909,6 +1087,12 @@ public class ImageEditorWizard {
     return box;
   }
 
+  /**
+   * buildDisplayImage operation.
+   *
+   * @param usd the usd
+   * @return the result
+   */
   protected Map<String, String> buildDisplayImage(UserSessionData usd) {
     MasterImageMetaData mimd = usd.getMimd();
     Map<String, String> displayImage = new HashMap<String, String>();
@@ -930,6 +1114,12 @@ public class ImageEditorWizard {
     return displayImage;
   }
 
+  /**
+   * buildAllSizedImagesDisplay operation.
+   *
+   * @param sizedImages the sized images
+   * @return the result
+   */
   protected List<Map<String, String>> buildAllSizedImagesDisplay(
       Map<String, SizedImageMetaData> sizedImages) {
     List<Map<String, String>> l = new ArrayList<Map<String, String>>();
@@ -950,6 +1140,13 @@ public class ImageEditorWizard {
     return l;
   }
 
+  /**
+   * computeScaleFactor operation.
+   *
+   * @param height the height
+   * @param width the width
+   * @return the result
+   */
   protected double computeScaleFactor(int height, int width) {
     if (height <= maxDisplayHeight
         && width < maxDisplayWidth) { // image is small enough that we don't need to scale it.
@@ -960,6 +1157,12 @@ public class ImageEditorWizard {
     return Math.max(hr, wr);
   }
 
+  /**
+   * Returns the user session data.
+   *
+   * @param request the request
+   * @return the result
+   */
   public UserSessionData getUserSessionData(HttpServletRequest request) {
     UserSessionData usd = (UserSessionData) request.getSession().getAttribute("userData");
     if (usd == null) {
@@ -979,43 +1182,90 @@ public class ImageEditorWizard {
     return usd;
   }
 
+  /**
+   * Sets the user session data.
+   *
+   * @param request the request
+   * @param usd the usd
+   */
   public void setUserSessionData(HttpServletRequest request, UserSessionData usd) {
     request.getSession().setAttribute("userData", usd);
   }
 
+  /**
+   * Returns the file upload field.
+   *
+   * @return the result
+   */
   public String getFILE_UPLOAD_FIELD() {
     return FILE_UPLOAD_FIELD;
   }
 
+  /**
+   * Sets the file upload field.
+   *
+   * @param file_upload_field the file upload field
+   */
   public void setFILE_UPLOAD_FIELD(String file_upload_field) {
     FILE_UPLOAD_FIELD = file_upload_field;
   }
 
+  /**
+   * Returns the main page.
+   *
+   * @return the result
+   */
   public String getMAIN_PAGE() {
     return MAIN_PAGE;
   }
 
+  /**
+   * Sets the main page.
+   *
+   * @param main_page the main page
+   */
   public void setMAIN_PAGE(String main_page) {
     MAIN_PAGE = main_page;
   }
 
+  /**
+   * Returns the confirm page.
+   *
+   * @return the result
+   */
   public String getCONFIRM_PAGE() {
     return CONFIRM_PAGE;
   }
 
+  /**
+   * Sets the confirm page.
+   *
+   * @param confirm_page the confirm page
+   */
   public void setCONFIRM_PAGE(String confirm_page) {
     CONFIRM_PAGE = confirm_page;
   }
 
+  /**
+   * Returns the size page.
+   *
+   * @return the result
+   */
   public String getSIZE_PAGE() {
     return SIZE_PAGE;
   }
 
+  /**
+   * Sets the size page.
+   *
+   * @param size_page the size page
+   */
   public void setSIZE_PAGE(String size_page) {
     SIZE_PAGE = size_page;
   }
 
   /**
+   * Returns the maxDisplayHeight.
    * @return the maxDisplayHeight
    */
   public int getMaxDisplayHeight() {
@@ -1023,6 +1273,7 @@ public class ImageEditorWizard {
   }
 
   /**
+   * Sets the maxDisplayHeight.
    * @param maxDisplayHeight the maxDisplayHeight to set
    */
   public void setMaxDisplayHeight(int maxDisplayHeight) {
@@ -1030,6 +1281,7 @@ public class ImageEditorWizard {
   }
 
   /**
+   * Returns the maxDisplayWidth.
    * @return the maxDisplayWidth
    */
   public int getMaxDisplayWidth() {
@@ -1037,16 +1289,27 @@ public class ImageEditorWizard {
   }
 
   /**
+   * Sets the maxDisplayWidth.
    * @param maxDisplayWidth the maxDisplayWidth to set
    */
   public void setMaxDisplayWidth(int maxDisplayWidth) {
     this.maxDisplayWidth = maxDisplayWidth;
   }
 
+  /**
+   * Returns the url builder.
+   *
+   * @return the result
+   */
   public ImageUrlBuilder getUrlBuilder() {
     return urlBuilder;
   }
 
+  /**
+   * Sets the url builder.
+   *
+   * @param urlBuilder the url builder
+   */
   public void setUrlBuilder(ImageUrlBuilder urlBuilder) {
     this.urlBuilder = urlBuilder;
   }
@@ -1057,6 +1320,7 @@ public class ImageEditorWizard {
   private String SIZE_PAGE = "sizeimage";
 
   /**
+   * Returns the imageResizeMgr.
    * @return the imageResizeMgr
    */
   public ImageResizeManager getImageResizeMgr() {
@@ -1064,21 +1328,33 @@ public class ImageEditorWizard {
   }
 
   /**
+   * Sets the imageResizeMgr.
    * @param imageResizeMgr the imageResizeMgr to set
    */
   public void setImageResizeMgr(ImageResizeManager imageResizeMgr) {
     this.imageResizeMgr = imageResizeMgr;
   }
 
+  /**
+   * Returns the image persistence manager.
+   *
+   * @return the result
+   */
   public ImagePersistenceManager getImagePersistenceManager() {
     return imagePersistenceManager;
   }
 
+  /**
+   * Sets the image persistence manager.
+   *
+   * @param imagePersistenceManager the image persistence manager
+   */
   public void setImagePersistenceManager(ImagePersistenceManager imagePersistenceManager) {
     this.imagePersistenceManager = imagePersistenceManager;
   }
 
   /**
+   * Sets the imageCacheManager.
    * @param imageCacheManager the imageCacheManager to set
    */
   protected void setImageCacheManager(ImageCacheManager imageCacheManager) {
@@ -1086,6 +1362,7 @@ public class ImageEditorWizard {
   }
 
   /**
+   * Sets the imageSizeDefMgr.
    * @param imageSizeDefMgr the imageSizeDefMgr to set
    */
   protected void setImageSizeDefMgr(ImageSizeDefinitionManager imageSizeDefMgr) {

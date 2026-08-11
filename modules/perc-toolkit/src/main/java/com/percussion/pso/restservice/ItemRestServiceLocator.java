@@ -19,8 +19,17 @@ package com.percussion.pso.restservice;
 // REFACTORED: CP-JAVA11
 import com.percussion.services.PSBaseServiceLocator;
 
-/** */
+/**
+ * Service locator for the item REST service bean.
+ */
 public class ItemRestServiceLocator extends PSBaseServiceLocator {
+  /**
+   * Creates a new ItemRestServiceLocator.
+   */
+  public ItemRestServiceLocator() {
+    // default
+  }
+
 
   /**
    * Method getItemServiceBase.

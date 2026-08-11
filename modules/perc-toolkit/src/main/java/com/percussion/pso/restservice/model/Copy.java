@@ -16,5 +16,12 @@
  */
 package com.percussion.pso.restservice.model;
 
-/** */
-public class Copy extends Relationship {}
+/**
+ * REST model representing a content copy relationship.
+ */
+public class Copy extends Relationship {
+  /**
+   * Creates an empty copy relationship.
+   */
+  public Copy() {}
+}

@@ -75,17 +75,34 @@ import org.apache.logging.log4j.Logger;
 public class PSOWFActionDispatcher extends PSDefaultExtension implements IPSWorkflowAction {
   private static final Logger log = LogManager.getLogger(PSOWFActionDispatcher.class);
 
+  /**
+   * Creates a new PSOWFActionDispatcher.
+   */
   public PSOWFActionDispatcher() {
     m_extensionDef = null;
     m_codeRoot = null;
   }
 
+  /**
+   * init operation.
+   *
+   * @param extensionDef the extension def
+   * @param codeRoot the code root
+   * @throws PSExtensionException if an error occurs
+   */
   public void init(IPSExtensionDef extensionDef, File codeRoot) throws PSExtensionException {
     log.debug("Initializing WFActionDispatcher...");
     m_extensionDef = extensionDef;
     m_codeRoot = codeRoot;
   }
 
+  /**
+   * performAction operation.
+   *
+   * @param wfContext the wf context
+   * @param request the request
+   * @throws PSExtensionProcessingException if an error occurs
+   */
   public void performAction(IPSWorkFlowContext wfContext, IPSRequestContext request)
       throws PSExtensionProcessingException {
     String sName = "performAction";

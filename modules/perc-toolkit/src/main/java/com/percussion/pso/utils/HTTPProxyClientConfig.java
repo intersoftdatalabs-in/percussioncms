@@ -45,18 +45,38 @@ public class HTTPProxyClientConfig {
   private String proxyServer;
   private String proxyPort;
 
+  /**
+   * Sets the proxy server.
+   *
+   * @param proxyServer the proxy server
+   */
   public void setProxyServer(String proxyServer) {
     this.proxyServer = proxyServer;
   }
 
+  /**
+   * Returns the proxy server.
+   *
+   * @return the result
+   */
   public String getProxyServer() {
     return proxyServer;
   }
 
+  /**
+   * Sets the proxy port.
+   *
+   * @param proxyPort the proxy port
+   */
   public void setProxyPort(String proxyPort) {
     this.proxyPort = proxyPort;
   }
 
+  /**
+   * Returns the proxy port.
+   *
+   * @return the result
+   */
   public String getProxyPort() {
     return proxyPort;
   }

@@ -39,9 +39,16 @@ import java.util.List;
       PSEffectContext.PRE_DESTRUCTION,
       PSEffectContext.PRE_UPDATE
     })
+/**
+ * PSFolderFollowerEffect class.
+ */
 public class PSFolderFollowerEffect extends PSAbstractFolderEffect implements IPSEffect {
 
-  /** Default constructor. */
+  /**
+   * Default constructor.
+   * Creates a new PSFolderFollowerEffect.
+   *
+   */
   public PSFolderFollowerEffect() {}
 
   /**
@@ -50,7 +57,7 @@ public class PSFolderFollowerEffect extends PSAbstractFolderEffect implements IP
    * @param loc the item locator
    * @return the List of relationships to parent folders. Never <code>null</code> but may be <code>
    *     empty</code>
-   * @throws PSErrorException
+   * @throws PSErrorException if an error occurs
    */
   protected List<PSRelationship> getFolderParents(PSLocator loc) throws PSErrorException {
     initServices();
@@ -69,7 +76,7 @@ public class PSFolderFollowerEffect extends PSAbstractFolderEffect implements IP
    * where the owner resides (and removed from folders the owner does not reside).
    *
    * @param current the current relationship.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   public void processRelations(PSRelationship current) throws Exception {
     List<PSRelationship> ownerFolders = getFolderParents(current.getOwner());
@@ -86,7 +93,7 @@ public class PSFolderFollowerEffect extends PSAbstractFolderEffect implements IP
    *
    * @param item the locator for the item.
    * @param missingList the list of relationships where the item is missing from the folder.
-   * @throws PSErrorException
+   * @throws PSErrorException if an error occurs
    */
   protected void addMissing(PSLocator item, List<PSRelationship> missingList)
       throws PSErrorException {
@@ -102,8 +109,8 @@ public class PSFolderFollowerEffect extends PSAbstractFolderEffect implements IP
    * Removes extra items from a folder
    *
    * @param extras the extra relationships
-   * @throws PSErrorsException
-   * @throws PSErrorException
+   * @throws PSErrorsException if an error occurs
+   * @throws PSErrorException if an error occurs
    */
   protected void removeExtra(List<PSRelationship> extras)
       throws PSErrorsException, PSErrorException {
@@ -142,7 +149,15 @@ public class PSFolderFollowerEffect extends PSAbstractFolderEffect implements IP
   }
 
   /**
+   * attempt operation.
+   *
    * @see IPSEffect#attempt(Object[], IPSRequestContext, IPSExecutionContext, PSEffectResult)
+   * @param params the params
+   * @param req the req
+   * @param exCtx the ex ctx
+   * @param result the result
+   * @throws PSExtensionProcessingException if an error occurs
+   * @throws PSParameterMismatchException if an error occurs
    */
   public void attempt(
       Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)

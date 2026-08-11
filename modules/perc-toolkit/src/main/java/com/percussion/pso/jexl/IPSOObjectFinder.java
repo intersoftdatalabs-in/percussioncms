@@ -25,6 +25,9 @@ import com.percussion.services.contentmgr.IPSNode;
 import com.percussion.utils.guid.IPSGuid;
 import javax.jcr.RepositoryException;
 
+/**
+ * IPSOObjectFinder interface.
+ */
 public interface IPSOObjectFinder {
   /**
    * Gets the Legacy Component Summary for an item by GUID.
@@ -36,6 +39,13 @@ public interface IPSOObjectFinder {
   @IPSJexlMethod(
       description = "get the Legacy Component Summary for an item",
       params = {@IPSJexlParam(name = "guid", description = "the item GUID")})
+  /**
+   * Returns the component summary.
+   *
+   * @param guid the guid
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public PSComponentSummary getComponentSummary(IPSGuid guid) throws PSException;
 
   /**
@@ -43,11 +53,18 @@ public interface IPSOObjectFinder {
    *
    * @param contentid the content id
    * @return the Component Summary for the item. Never <code>null</code>
-   * @throws PSException
+   * @throws PSException if an error occurs
    */
   @IPSJexlMethod(
       description = "get the Legacy Component Summary for an item",
       params = {@IPSJexlParam(name = "content", description = "the content id")})
+  /**
+   * Returns the component summary by id.
+   *
+   * @param contentid the contentid
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public PSComponentSummary getComponentSummaryById(String contentid) throws PSException;
 
   /**
@@ -59,6 +76,12 @@ public interface IPSOObjectFinder {
   @IPSJexlMethod(
       description = "get the content type summary for a specified type",
       params = {@IPSJexlParam(name = "guid", description = "the content type GUID")})
+  /**
+   * Returns the content type summary.
+   *
+   * @param guid the guid
+   * @return the result
+   */
   public PSContentTypeSummary getContentTypeSummary(IPSGuid guid);
 
   /**
@@ -71,6 +94,11 @@ public interface IPSOObjectFinder {
   @IPSJexlMethod(
       description = "Get the JSESSIONID value for the current request",
       params = {})
+  /**
+   * Returns the jsession id.
+   *
+   * @return the result
+   */
   public String getJSessionId();
 
   /**
@@ -81,6 +109,11 @@ public interface IPSOObjectFinder {
   @IPSJexlMethod(
       description = "Get the PSSESSIONID value for the current request",
       params = {})
+  /**
+   * Returns the pssession id.
+   *
+   * @return the result
+   */
   public String getPSSessionId();
 
   /**
@@ -91,6 +124,11 @@ public interface IPSOObjectFinder {
   @IPSJexlMethod(
       description = "get the users current locale",
       params = {})
+  /**
+   * Returns the user locale.
+   *
+   * @return the result
+   */
   public String getUserLocale();
 
   /**
@@ -101,6 +139,11 @@ public interface IPSOObjectFinder {
   @IPSJexlMethod(
       description = "get the users current community name",
       params = {})
+  /**
+   * Returns the user community.
+   *
+   * @return the result
+   */
   public String getUserCommunity();
 
   /**
@@ -111,6 +154,11 @@ public interface IPSOObjectFinder {
   @IPSJexlMethod(
       description = "get the users current community id",
       params = {})
+  /**
+   * Returns the user community id.
+   *
+   * @return the result
+   */
   public String getUserCommunityId();
 
   /**
@@ -126,6 +174,13 @@ public interface IPSOObjectFinder {
         @IPSJexlParam(name = "contentid", description = "the content id"),
         @IPSJexlParam(name = "revision", description = "the revision")
       })
+  /**
+   * Returns the guid by id.
+   *
+   * @param contentid the contentid
+   * @param revision the revision
+   * @return the result
+   */
   public IPSGuid getGuidById(String contentid, String revision);
 
   /**
@@ -137,6 +192,12 @@ public interface IPSOObjectFinder {
   @IPSJexlMethod(
       description = "get the GUID by Content Id",
       params = {@IPSJexlParam(name = "contentid", description = "the content id")})
+  /**
+   * Returns the guid by id.
+   *
+   * @param contentid the contentid
+   * @return the result
+   */
   public IPSGuid getGuidById(String contentid);
 
   /**
@@ -144,11 +205,18 @@ public interface IPSOObjectFinder {
    *
    * @param guid the content item GUID
    * @return the Node, or <code>null</code> if the node was not found.
-   * @throws RepositoryException
+   * @throws RepositoryException if an error occurs
    */
   @IPSJexlMethod(
       description = "get the node for a particular guid",
       params = {@IPSJexlParam(name = "guid", description = "the GUID for the item")})
+  /**
+   * Returns the node by guid.
+   *
+   * @param guid the guid
+   * @return the result
+   * @throws RepositoryException if an error occurs
+   */
   public IPSNode getNodeByGuid(IPSGuid guid) throws RepositoryException;
 
   /**
@@ -160,6 +228,12 @@ public interface IPSOObjectFinder {
   @IPSJexlMethod(
       description = "get the site guid for a given id",
       params = {@IPSJexlParam(name = "siteid", description = "the id for the site")})
+  /**
+   * Returns the site guid.
+   *
+   * @param siteid the siteid
+   * @return the result
+   */
   public IPSGuid getSiteGuid(int siteid);
 
   /**
@@ -171,6 +245,12 @@ public interface IPSOObjectFinder {
   @IPSJexlMethod(
       description = "get the template guid for a given id",
       params = {@IPSJexlParam(name = "template", description = "the id for the template")})
+  /**
+   * Returns the template guid.
+   *
+   * @param templateid the templateid
+   * @return the result
+   */
   public IPSGuid getTemplateGuid(int templateid);
 
   /**
@@ -182,5 +262,11 @@ public interface IPSOObjectFinder {
   @IPSJexlMethod(
       description = "get the community name for a  given community id",
       params = {@IPSJexlParam(name = "communityId", description = "the id for the community")})
+  /**
+   * Returns the community name.
+   *
+   * @param communityId the community id
+   * @return the result
+   */
   public String getCommunityName(int communityId);
 }

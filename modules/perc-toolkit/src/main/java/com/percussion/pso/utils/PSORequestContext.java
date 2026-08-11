@@ -63,6 +63,7 @@ public final class PSORequestContext extends PSRequestContext {
    * no home application.
    *
    * @see com.percussion.server.IPSRequestContext#isTraceEnabled()
+   * @return the result
    */
   @Override
   public boolean isTraceEnabled() {

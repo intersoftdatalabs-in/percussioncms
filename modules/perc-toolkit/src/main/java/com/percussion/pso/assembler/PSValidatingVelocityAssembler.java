@@ -33,6 +33,9 @@ import org.apache.logging.log4j.Logger;
  * re-form content based on the supplied tidy properties file. Located in
  * @author NateChadwick
  */
+/**
+ * PSValidatingVelocityAssembler class.
+ */
 public class PSValidatingVelocityAssembler extends PSVelocityAssembler implements IPSAssembler {
 
   private IPSExtensionDef m_def = null;
@@ -40,14 +43,23 @@ public class PSValidatingVelocityAssembler extends PSVelocityAssembler implement
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSValidatingVelocityAssembler.class);
 
-  /** Constructor */
+  /**
+   * Constructor
+   * Creates a new PSValidatingVelocityAssembler.
+   *
+   */
   public PSValidatingVelocityAssembler() {
     super();
   }
 
   /**
+   * doAssembleSingle operation.
+   *
    * @see
    *     com.percussion.services.assembly.impl.plugin.PSAssemblerBase#doAssembleSingle(com.percussion.services.assembly.IPSAssemblyItem)
+   * @param item the item
+   * @return the result
+   * @throws Exception if an error occurs
    */
   @Override
   protected IPSAssemblyResult doAssembleSingle(IPSAssemblyItem item) throws Exception {
@@ -57,8 +69,13 @@ public class PSValidatingVelocityAssembler extends PSVelocityAssembler implement
   }
 
   /**
+   * init operation.
+   *
    * @see
    *     com.percussion.services.assembly.impl.plugin.PSAssemblerBase#doAssembleSingle(com.percussion.services.assembly.IPSAssemblyItem)
+   * @param arg0 the arg0
+   * @param arg1 the arg1
+   * @throws PSExtensionException if an error occurs
    */
   @Override
   public void init(IPSExtensionDef arg0, File arg1) throws PSExtensionException {

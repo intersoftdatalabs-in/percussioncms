@@ -34,6 +34,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * Workflow action that publishes content by invoking a publish edition.
+ *
  * @author DavidBenua
  */
 public class PSOPublishContent extends PSDefaultExtension implements IPSWorkflowAction {
@@ -42,8 +44,10 @@ public class PSOPublishContent extends PSDefaultExtension implements IPSWorkflow
 
   private static PublishEditionService svc = null;
 
-  /** */
-  public PSOPublishContent() {
+    /**
+     * Creates a new PSOPublishContent.
+     */
+    public PSOPublishContent() {
     super();
   }
 
@@ -54,9 +58,14 @@ public class PSOPublishContent extends PSDefaultExtension implements IPSWorkflow
   }
 
   /**
+   * performAction operation.
+   *
    * @see
    *     com.percussion.extension.IPSWorkflowAction#performAction(com.percussion.extension.IPSWorkFlowContext,
    *     com.percussion.server.IPSRequestContext)
+   * @param wfContext the wf context
+   * @param request the request
+   * @throws PSExtensionProcessingException if an error occurs
    */
   public void performAction(IPSWorkFlowContext wfContext, IPSRequestContext request)
       throws PSExtensionProcessingException {

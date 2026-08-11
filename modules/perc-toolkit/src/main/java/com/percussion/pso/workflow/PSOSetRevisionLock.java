@@ -59,9 +59,7 @@ public class PSOSetRevisionLock extends PSDefaultExtension implements IPSWorkflo
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOSetRevisionLock.class);
 
-  /** */
-
-  /**
+    /**
    * Initializes system services. Used to prevent references to these services during extension
    * registration.
    */
@@ -73,6 +71,9 @@ public class PSOSetRevisionLock extends PSDefaultExtension implements IPSWorkflo
     }
   }
 
+  /**
+   * Creates a new PSOSetRevisionLock.
+   */
   public PSOSetRevisionLock() {
     super();
   }
@@ -83,6 +84,9 @@ public class PSOSetRevisionLock extends PSDefaultExtension implements IPSWorkflo
    * @see
    *     com.percussion.extension.IPSWorkflowAction#performAction(com.percussion.extension.IPSWorkFlowContext,
    *     com.percussion.server.IPSRequestContext)
+   * @param wfCtx the wf ctx
+   * @param req the req
+   * @throws PSExtensionProcessingException if an error occurs
    */
   public void performAction(IPSWorkFlowContext wfCtx, IPSRequestContext req)
       throws PSExtensionProcessingException {

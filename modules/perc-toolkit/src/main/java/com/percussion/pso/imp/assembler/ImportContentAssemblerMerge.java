@@ -53,7 +53,7 @@ public class ImportContentAssemblerMerge {
    * @param def IPSExtensionDef
    * @param result IPSAssemblyResult
    * @return IPSAssemblyResult
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   public static IPSAssemblyResult merge(IPSExtensionDef def, IPSAssemblyResult result)
       throws Exception {

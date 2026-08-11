@@ -45,8 +45,15 @@ import org.apache.commons.lang3.StringUtils;
  */
 @PSHandlesEffectContext(required = {PSEffectContext.PRE_CONSTRUCTION, PSEffectContext.PRE_UPDATE})
 // REFACTORED: CP-JAVA11
+/**
+ * PSFolderOwnerSubfolderEffect class.
+ */
 public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect {
-  /** Default constructor. */
+  /**
+   * Default constructor.
+   * Creates a new PSFolderOwnerSubfolderEffect.
+   *
+   */
   public PSFolderOwnerSubfolderEffect() {
     super();
   }
@@ -57,7 +64,7 @@ public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect {
    * @param current the current relationship.
    * @param subfolderPath the desired subfolder path.
    * @param userName the user name who caused this event.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   protected void processRelations(PSRelationship current, String subfolderPath, String userName)
       throws Exception {
@@ -86,7 +93,7 @@ public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect {
    * @param contentId the content id of the dependent item.
    * @param userName the user name
    * @return the set of folder paths.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   protected Set<String> getFolderPaths(int contentId, String userName) throws Exception {
     IPSGuid guid = gmgr.makeGuid(new PSLocator(contentId));
@@ -103,7 +110,7 @@ public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect {
    * @param subfolderPath the subfolder path.
    * @param userName the user name
    * @return the path of the subfolder.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   protected String findOrCreateChildFolder(String folderPath, String subfolderPath, String userName)
       throws Exception {
@@ -122,7 +129,15 @@ public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect {
   }
 
   /**
+   * attempt operation.
+   *
    * @see IPSEffect#attempt(Object[], IPSRequestContext, IPSExecutionContext, PSEffectResult)
+   * @param params the params
+   * @param req the req
+   * @param exCtx the ex ctx
+   * @param result the result
+   * @throws PSExtensionProcessingException if an error occurs
+   * @throws PSParameterMismatchException if an error occurs
    */
   public void attempt(
       Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)

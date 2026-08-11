@@ -48,8 +48,10 @@ public class ImageSizeDefinitionLookupController extends ParameterizableViewCont
 
   private ImageSizeDefinitionManager defmgr = null;
 
-  /** */
-  public ImageSizeDefinitionLookupController() {}
+    /**
+     * Creates a new ImageSizeDefinitionLookupController.
+     */
+    public ImageSizeDefinitionLookupController() {}
 
   private void initServices() {
     if (defmgr == null) {
@@ -58,8 +60,14 @@ public class ImageSizeDefinitionLookupController extends ParameterizableViewCont
   }
 
   /**
+   * handleRequestInternal operation.
+   *
    * @see ParameterizableViewController#handleRequestInternal(HttpServletRequest,
    *     HttpServletResponse)
+   * @param request the request
+   * @param response the response
+   * @return the result
+   * @throws Exception if an error occurs
    */
   @Override
   protected ModelAndView handleRequestInternal(

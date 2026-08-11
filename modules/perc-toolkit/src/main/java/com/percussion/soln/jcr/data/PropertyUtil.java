@@ -19,7 +19,23 @@ package com.percussion.soln.jcr.data;
 
 import static com.percussion.soln.jcr.data.ValueUtil.*;
 
+/**
+ * PropertyUtil class.
+ */
 public class PropertyUtil {
+  /**
+   * Creates a new PropertyUtil.
+   */
+  public PropertyUtil() {
+    // default
+  }
+
+  /**
+   * createPropertyData operation.
+   *
+   * @param obj the obj
+   * @return the result
+   */
   public static PropertyData createPropertyData(Object obj) {
     return new PropertyData(createValueData(obj));
   }

@@ -132,15 +132,28 @@ public class PSOSQLContentFinder extends PSBaseSlotContentFinder implements IPSS
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOSQLContentFinder.class);
 
-  /** Default Constructor */
+  /**
+   * Default Constructor
+   * Creates a new PSOSQLContentFinder.
+   *
+   */
   public PSOSQLContentFinder() {
     super();
   }
 
   /**
+   * Returns the slot items.
+   *
    * @see
    *     com.percussion.services.assembly.impl.finder.PSBaseSlotContentFinder#getSlotItems(com.percussion.services.assembly.IPSAssemblyItem,
    *     com.percussion.services.assembly.IPSTemplateSlot, java.util.Map)
+   * @param sourceItem the source item
+   * @param slot the slot
+   * @param selectors the selectors
+   * @return the result
+   * @throws RepositoryException if an error occurs
+   * @throws PSFilterException if an error occurs
+   * @throws PSAssemblyException if an error occurs
    */
   @Override
   protected Set<SlotItem> getSlotItems(
@@ -237,6 +250,7 @@ public class PSOSQLContentFinder extends PSBaseSlotContentFinder implements IPSS
    * This finder is an AUTOSLOT finder.
    *
    * @see com.percussion.services.assembly.IPSSlotContentFinder#getType()
+   * @return the result
    */
   public Type getType() {
     return IPSSlotContentFinder.Type.AUTOSLOT;
@@ -249,7 +263,7 @@ public class PSOSQLContentFinder extends PSBaseSlotContentFinder implements IPSS
    *
    * @param template the template name or id.
    * @return the template GUID or <code>null</code> if the template was not found.
-   * @throws PSAssemblyException
+   * @throws PSAssemblyException if an error occurs
    */
   protected IPSGuid findTemplateFromIdOrName(Object template) throws PSAssemblyException {
 
@@ -279,6 +293,7 @@ public class PSOSQLContentFinder extends PSBaseSlotContentFinder implements IPSS
     }
   }
 
+  /** param sqlparams. */
   public static final String PARAM_SQLPARAMS = "sqlparams";
 
   private static final String PARAM_MAY_HAVE_CROSS_SITE_LINKS = "mayHaveCrossSiteLinks";

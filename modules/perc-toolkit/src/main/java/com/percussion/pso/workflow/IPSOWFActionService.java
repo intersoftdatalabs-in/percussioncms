@@ -77,7 +77,7 @@ public interface IPSOWFActionService {
    * @param workflowid the workflow id.
    * @param transitionid the transition id.
    * @return a list of workflow actions. The actions are already loaded and ready for execution.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   public List<IPSWorkflowAction> getActions(int workflowid, int transitionid) throws Exception;
 
@@ -86,8 +86,8 @@ public interface IPSOWFActionService {
    *
    * @param workflowActionName the name of the workflow action
    * @return the workflow action. May be <code>null</code> if the extension was not found.
-   * @throws PSExtensionException
-   * @throws PSNotFoundException
+   * @throws PSExtensionException if an error occurs
+   * @throws PSNotFoundException if an error occurs
    */
   public IPSWorkflowAction getWorkflowAction(String workflowActionName)
       throws PSExtensionException, PSNotFoundException;

@@ -18,8 +18,17 @@ package com.percussion.pso.restservice.model;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 
-/** */
+/**
+ * REST model that references another content item by id or path.
+ */
 public class ItemRef {
+  /**
+   * Creates a new ItemRef.
+   */
+  public ItemRef() {
+    // default
+  }
+
   /** Field contentId. */
   private Integer contentId;
 
@@ -145,10 +154,20 @@ public class ItemRef {
     return contentType;
   }
 
+  /**
+   * Sets the title.
+   *
+   * @param title the title
+   */
   public void setTitle(String title) {
     this.title = title;
   }
 
+  /**
+   * Returns the title.
+   *
+   * @return the result
+   */
   public String getTitle() {
     return title;
   }

@@ -41,12 +41,25 @@ import org.apache.logging.log4j.Logger;
  * @author davidbenua
  */
 public class PSODateAdjust extends PSDefaultExtension implements IPSFieldInputTransformer {
+  /**
+   * Creates a new PSODateAdjust.
+   */
+  public PSODateAdjust() {
+    // default
+  }
+
   private static final Logger log = LogManager.getLogger(PSODateAdjust.class);
   private IPSExtensionDef extDef = null;
 
   /**
+   * processUdf operation.
+   *
    * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[],
    *     com.percussion.server.IPSRequestContext)
+   * @param params the params
+   * @param request the request
+   * @return the result
+   * @throws PSConversionException if an error occurs
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {
@@ -81,16 +94,29 @@ public class PSODateAdjust extends PSDefaultExtension implements IPSFieldInputTr
     return new Timestamp(cal.getTime().getTime());
   }
 
+  /**
+   * init operation.
+   *
+   * @param def the def
+   * @param ifile the ifile
+   * @throws PSExtensionException if an error occurs
+   */
   @Override
   public void init(IPSExtensionDef def, File ifile) throws PSExtensionException {
     super.init(def, ifile);
     extDef = def;
   }
 
+  /** years. */
   public static final String YEARS = "years";
+  /** months. */
   public static final String MONTHS = "months";
+  /** days. */
   public static final String DAYS = "days";
+  /** hours. */
   public static final String HOURS = "hours";
+  /** minutes. */
   public static final String MINUTES = "minutes";
+  /** seconds. */
   public static final String SECONDS = "seconds";
 }

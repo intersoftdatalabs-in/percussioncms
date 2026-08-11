@@ -16,6 +16,7 @@
  */
 
 /**
+ * Member documentation.
  * @author Stephen Bolton
  */
 package com.percussion.pso.tasks;
@@ -134,6 +135,13 @@ import org.apache.logging.log4j.Logger;
  */
 @Deprecated()
 public class TrashTask implements IPSTask {
+  /**
+   * Creates a new TrashTask.
+   */
+  public TrashTask() {
+    // default
+  }
+
   /** logger for this class. */
   private static final Logger log = LogManager.getLogger(TrashTask.class);
 
@@ -355,9 +363,9 @@ public class TrashTask implements IPSTask {
    *
    * @param trashfolder String
    * @param req PSRequest
-   * @throws FatalTaskException
+   * @throws FatalTaskException if an error occurs
    * @throws PSException * @throws PSErrorException * @throws NamingException * @throws
-   *     PSORMException * @throws PSErrorResultsException * @throws SQLException
+   *     PSORMException * @throws PSErrorResultsException * @throws SQLException if an error occurs
    */
   private int cleanupOrphans(String trashfolder, PSRequest req) throws FatalTaskException {
 
@@ -470,7 +478,7 @@ public class TrashTask implements IPSTask {
    * Method dedupeTitles.
    *
    * @param pageSumms List<PSComponentSummary>
-   * @throws FatalTaskException * @throws PSORMException
+   * @throws FatalTaskException * @throws PSORMException if an error occurs
    */
   private void dedupeTitles(List<PSComponentSummary> pageSumms) throws FatalTaskException {
     // REFACTORED: CP-JAVA11
@@ -577,8 +585,9 @@ public class TrashTask implements IPSTask {
   }
 
   /**
-   * @return Map<Integer,Set<Integer>> * @throws FatalTaskException
-   * @throws NamingException * @throws SQLException
+   * Returns Map<Integer,Set<Integer>> * @throws FatalTaskException if an error occurs.
+   * @return Map<Integer,Set<Integer>> * @throws FatalTaskException if an error occurs
+   * @throws NamingException * @throws SQLException if an error occurs
    */
   private Map<Integer, Set<Integer>> getOrphanedItems() throws FatalTaskException {
     final Map<Integer, Set<Integer>> orphanIds = new HashMap<Integer, Set<Integer>>();
@@ -644,7 +653,7 @@ public class TrashTask implements IPSTask {
    *
    * @param state String
    * @param numberOfDays int
-   * @throws FatalTaskException
+   * @throws FatalTaskException if an error occurs
    * @throws PSErrorsException * @throws NamingException * @throws SQLException * @throws
    *     PSErrorException
    */
@@ -709,10 +718,10 @@ public class TrashTask implements IPSTask {
    * Method transitionItems.
    *
    * @param contentid int
-   * @return boolean * @throws FatalTaskException
+   * @return boolean * @throws FatalTaskException if an error occurs
    * @throws PSExtensionProcessingException * @throws PSAuthorizationException * @throws
-   *     PSNotFoundException * @throws PSExtensionException * @throws PSParameterMismatchException
-   *     * @throws PSRequestValidationException
+   *     PSNotFoundException * @throws PSExtensionException * @throws PSParameterMismatchException if an error occurs
+   *     * @throws PSRequestValidationException if an error occurs
    */
   private boolean transitionItems(int contentid) throws FatalTaskException {
     final IPSRequestContext ctx = new PSRequestContext(req);
@@ -784,11 +793,11 @@ public class TrashTask implements IPSTask {
    * Method trasitionFolderItems.
    *
    * @param trashFolderLocator PSLocator
-   * @throws FatalTaskException
+   * @throws FatalTaskException if an error occurs
    * @throws PSRequestValidationException * @throws PSExtensionProcessingException * @throws
    *     PSParameterMismatchException * @throws PSCmsException * @throws PSErrorException * @throws
-   *     PSErrorsException * @throws PSAuthorizationException * @throws PSNotFoundException
-   *     * @throws PSExtensionException
+   *     PSErrorsException * @throws PSAuthorizationException * @throws PSNotFoundException if an error occurs
+   *     * @throws PSExtensionException if an error occurs
    */
   private void trasitionFolderItems(PSLocator trashFolderLocator) throws FatalTaskException {
     trasitionFolderItems(trashFolderLocator, 0);
@@ -804,11 +813,11 @@ public class TrashTask implements IPSTask {
    *
    * @param folder PSLocator
    * @param level int
-   * @return boolean * @throws FatalTaskException
+   * @return boolean * @throws FatalTaskException if an error occurs
    * @throws PSParameterMismatchException * @throws PSAuthorizationException * @throws
    *     PSExtensionException * @throws PSErrorException * @throws PSCmsException * @throws
-   *     PSNotFoundException * @throws PSExtensionProcessingException * @throws PSErrorsException
-   *     * @throws PSRequestValidationException
+   *     PSNotFoundException * @throws PSExtensionProcessingException * @throws PSErrorsException if an error occurs
+   *     * @throws PSRequestValidationException if an error occurs
    */
   private boolean trasitionFolderItems(PSLocator folder, int level) throws FatalTaskException {
     boolean containsItems = false;
@@ -901,14 +910,16 @@ public class TrashTask implements IPSTask {
    *
    * @param arg0 IPSExtensionDef
    * @param arg1 File
-   * @throws PSExtensionException
+   * @throws PSExtensionException if an error occurs
    * @see com.percussion.extension.IPSExtension#init(IPSExtensionDef, File)
    */
   public void init(IPSExtensionDef arg0, File arg1) throws PSExtensionException {
     // TODO Auto-generated method stub
   }
 
-  /** */
+  /**
+   * Exception that aborts the trash task when a non-recoverable error occurs.
+   */
   public class FatalTaskException extends Exception {
     private static final long serialVersionUID = 1L;
 

@@ -28,11 +28,19 @@ import java.util.StringTokenizer;
  */
 public class PSOParseUrlQueryString {
   /**
+   * Creates a new PSOParseUrlQueryString.
+   */
+  public PSOParseUrlQueryString() {
+    // default
+  }
+
+  /**
    * Add the request parameters defined in the specified parameter string to the specified hash map.
    *
    * @param paramString the URL query string, may not be <code>null</code>, can be empty.
    * @throws IllegalArgumentException if paramString is <code>null</code>
    * @throws PSRequestParsingException if an error occurs parsing the parameters.
+   * @return the result
    */
   public static Map<String, Object> parseParameters(String paramString)
       throws PSRequestParsingException {

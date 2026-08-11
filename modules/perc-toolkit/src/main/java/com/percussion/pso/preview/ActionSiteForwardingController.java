@@ -52,6 +52,13 @@ public class ActionSiteForwardingController extends AbstractMenuController imple
 
   private static final Logger log = LogManager.getLogger(ActionSiteForwardingController.class);
 
+  /**
+   * Creates a site-forwarding menu controller.
+   */
+  public ActionSiteForwardingController() {
+    // default
+  }
+
   private String baseUrl = null;
 
   private String contentIdParam = IPSHtmlParameters.SYS_CONTENTID;
@@ -63,7 +70,12 @@ public class ActionSiteForwardingController extends AbstractMenuController imple
   private String siteIdParam = IPSHtmlParameters.SYS_SITEID;
 
   /**
+   * See referenced member.
    * @see AbstractMenuController#handleRequestInternal(HttpServletRequest, HttpServletResponse)
+   * @param request the request
+   * @param response the response
+   * @return the result
+   * @throws Exception if an error occurs
    */
   @Override
   protected ModelAndView handleRequestInternal(
@@ -113,7 +125,7 @@ public class ActionSiteForwardingController extends AbstractMenuController imple
    *
    * @param pmap the HTML parameters that define the item.
    * @return the sites that this item appears on.
-   * @throws Exception
+   * @throws Exception if site folder locations cannot be resolved
    */
   protected Set<IPSSite> findSitesForItem(Map<String, String> pmap) throws Exception {
     String contentid = StringUtils.defaultString(pmap.get(contentIdParam));

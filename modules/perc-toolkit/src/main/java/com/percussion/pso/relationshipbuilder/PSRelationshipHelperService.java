@@ -65,7 +65,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * PSRelationshipHelperService class.
+ */
 public class PSRelationshipHelperService implements IPSRelationshipHelperService {
+  /**
+   * Creates a new PSRelationshipHelperService.
+   */
+  public PSRelationshipHelperService() {
+    // default
+  }
+
 
   private IPSRelationshipService m_relationshipService;
   private IPSAssemblyService m_assemblyService;
@@ -76,7 +86,11 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
   /** Content manager service */
   private IPSContentMgr m_contentManager;
 
-  /** Wires up all the service components when in Rhythmyx. */
+  /**
+   * Wires up all the service components when in Rhythmyx.
+   * init operation.
+   *
+   */
   public void init() {
 
     if (m_cmsObjectManager == null) m_cmsObjectManager = PSCmsObjectMgrLocator.getObjectManager();
@@ -133,6 +147,13 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
     }
   }
 
+  /**
+   * deleteFolderRelationships operation.
+   *
+   * @param folderIds the folder ids
+   * @param itemIds the item ids
+   * @throws PSException if an error occurs
+   */
   public void deleteFolderRelationships(Collection<Integer> folderIds, Collection<Integer> itemIds)
       throws PSException {
     Collection<IPSGuid> folderGuids = asGuids(folderIds);
@@ -169,6 +190,8 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
 
   /* (non-Javadoc)
    * @see com.percussion.pso.relationshipbuilder.IPSRelationshipHelperService#saveRelationships(java.util.Collection)
+   * @param toBeSaved the to be saved
+   * @throws PSException if an error occurs
    */
   public void saveRelationships(Collection<PSRelationship> toBeSaved) throws PSException {
     if (toBeSaved.size() > 0) {
@@ -234,6 +257,12 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
 
   /* (non-Javadoc)
    * @see com.percussion.pso.relationshipbuilder.IPSRelationshipHelperService#addRelationships(java.util.Collection, java.util.Collection, java.util.Collection, java.lang.String, java.lang.String)
+   * @param ownerIds the owner ids
+   * @param dependentIds the dependent ids
+   * @param slotName the slot name
+   * @param templateName the template name
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
    */
   public void addRelationships(
       Collection<Integer> ownerIds,
@@ -268,6 +297,13 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
     saveRelationships(relationshipSet);
   }
 
+  /**
+   * addFolderRelationships operation.
+   *
+   * @param folderIds the folder ids
+   * @param itemIds the item ids
+   * @throws PSException if an error occurs
+   */
   public void addFolderRelationships(Collection<Integer> folderIds, Collection<Integer> itemIds)
       throws PSException {
     List<IPSGuid> folderGuids = asGuids(folderIds);
@@ -282,10 +318,20 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
     }
   }
 
+  /**
+   * Returns the assembly service.
+   *
+   * @return the result
+   */
   public IPSAssemblyService getAssemblyService() {
     return m_assemblyService;
   }
 
+  /**
+   * Sets the assembly service.
+   *
+   * @param assemblyService the assembly service
+   */
   public void setAssemblyService(IPSAssemblyService assemblyService) {
     m_assemblyService = assemblyService;
   }
@@ -316,7 +362,7 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
    * Validates that the slot is setup correctly to add relationships to. Emits log messages to help
    * the user find errors.
    *
-   * @param slot
+   * @param  the slot
    * @return 0 if successful, non-zero otherwise.
    */
   private int validateSlot(IPSTemplateSlot slot) {
@@ -354,10 +400,22 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
     return idLocators;
   }
 
+  /**
+   * asLocators operation.
+   *
+   * @param ids the ids
+   * @return the result
+   */
   protected List<PSLocator> asLocators(Integer... ids) {
     return asLocators(Arrays.asList(ids));
   }
 
+  /**
+   * asLocatorsNoRev operation.
+   *
+   * @param ids the ids
+   * @return the result
+   */
   protected List<PSLocator> asLocatorsNoRev(Collection<Integer> ids) {
     List<PSLocator> idLocators = new ArrayList<PSLocator>(ids.size());
     for (Integer id : ids) {
@@ -367,10 +425,22 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
     return idLocators;
   }
 
+  /**
+   * asLocatorsNoRev operation.
+   *
+   * @param ids the ids
+   * @return the result
+   */
   protected List<PSLocator> asLocatorsNoRev(Integer... ids) {
     return asLocatorsNoRev(Arrays.asList(ids));
   }
 
+  /**
+   * asGuids operation.
+   *
+   * @param ids the ids
+   * @return the result
+   */
   protected List<IPSGuid> asGuids(Collection<Integer> ids) {
     List<IPSGuid> guids = new ArrayList<IPSGuid>(ids.size());
     Collection<PSLocator> locators = asLocators(ids);
@@ -381,10 +451,10 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
   }
 
   /**
-   * @param relationships
-   * @param ids
-   * @param trueKeepOnlyIdsFalseRemoveOnlyIds
-   * @param trueOwnerIdsFalseDependentIds
+   * @param  the relationships
+   * @param  the ids
+   * @param  the true keep only ids false remove only ids
+   * @param  the true owner ids false dependent ids
    */
   private void filterRelationships(
       Collection<PSRelationship> relationships,
@@ -417,22 +487,53 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
   /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSRelationshipHelperService.class);
 
+  /**
+   * Returns the cms object manager.
+   *
+   * @return the result
+   */
   public IPSCmsObjectMgr getCmsObjectManager() {
     return m_cmsObjectManager;
   }
 
+  /**
+   * Sets the cms object manager.
+   *
+   * @param cmsObjectManager the cms object manager
+   */
   public void setCmsObjectManager(IPSCmsObjectMgr cmsObjectManager) {
     m_cmsObjectManager = cmsObjectManager;
   }
 
+  /**
+   * Returns the relationship service.
+   *
+   * @return the result
+   */
   public IPSRelationshipService getRelationshipService() {
     return m_relationshipService;
   }
 
+  /**
+   * Sets the relationship service.
+   *
+   * @param relationshipService the relationship service
+   */
   public void setRelationshipService(IPSRelationshipService relationshipService) {
     m_relationshipService = relationshipService;
   }
 
+  /**
+   * Returns the relationships.
+   *
+   * @param owners the owners
+   * @param dependents the dependents
+   * @param slotName the slot name
+   * @param templateName the template name
+   * @return the result
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
+   */
   protected Collection<PSRelationship> getRelationships(
       Collection<Integer> owners,
       Collection<Integer> dependents,
@@ -466,6 +567,15 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
     return relationships;
   }
 
+  /**
+   * deleteRelationships operation.
+   *
+   * @param owners the owners
+   * @param dependents the dependents
+   * @param slotName the slot name
+   * @param templateName the template name
+   * @throws PSException if an error occurs
+   */
   public void deleteRelationships(
       Collection<Integer> owners,
       Collection<Integer> dependents,
@@ -503,6 +613,15 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
     return message;
   }
 
+  /**
+   * Returns the dependents.
+   *
+   * @param ownerId the owner id
+   * @param slotName the slot name
+   * @param templateName the template name
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public Collection<Integer> getDependents(int ownerId, String slotName, String templateName)
       throws PSException {
     log.debug(
@@ -523,6 +642,15 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
     return extractDependentIds(relationships);
   }
 
+  /**
+   * Returns the owners.
+   *
+   * @param dependentId the dependent id
+   * @param slotName the slot name
+   * @param templateName the template name
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public Collection<Integer> getOwners(int dependentId, String slotName, String templateName)
       throws PSException {
     log.debug(

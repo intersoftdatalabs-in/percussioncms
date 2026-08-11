@@ -42,6 +42,9 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * PSRelationshipBuilder class.
+ */
 public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
 
   private boolean isParent = true;
@@ -56,7 +59,11 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
   private boolean init = false;
   private PSRelationshipFilter filter;
 
-  /** Wires up all the service components when in Rhythmyx. */
+  /**
+   * Wires up all the service components when in Rhythmyx.
+   * init operation.
+   *
+   */
   public void init() {
     if (m_assemblyService == null)
       m_assemblyService = PSAssemblyServiceLocator.getAssemblyService();
@@ -66,6 +73,9 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
     init = true;
   }
 
+  /**
+   * Creates a new PSRelationshipBuilder.
+   */
   public PSRelationshipBuilder() {
     filter = new PSRelationshipFilter();
   }
@@ -81,6 +91,11 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
     this.isParent = isParent;
   }
 
+  /**
+   * Returns whether parent.
+   *
+   * @return the result
+   */
   public boolean isParent() {
     return isParent;
   }
@@ -94,6 +109,12 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
     this.isParent = isParent;
   }
 
+  /**
+   * Sets the up filter.
+   *
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
+   */
   protected void setupFilter() throws PSAssemblyException, PSException {
     return;
   }
@@ -125,7 +146,9 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
   }
 
   /**
-   * @param relationships
+   * saveRelationships operation.
+   *
+   * @param relationships the relationships
    */
   private Collection<PSRelationship> filterRelationships(Collection<PSRelationship> relationships)
       throws PSAssemblyException, PSException {
@@ -209,6 +232,14 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
     }
 
     return filteredRelationships;
+  /**
+   * retrieve operation.
+   *
+   * @param sourceId the source id
+   * @return the result
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
+   */
   }
 
   public Collection<Integer> retrieve(int sourceId) throws PSAssemblyException, PSException {
@@ -217,6 +248,14 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
     log.debug("Set id to {}", sourceId);
     populateRelationships();
     return resultIds;
+  /**
+   * synchronize operation.
+   *
+   * @param sourceId the source id
+   * @param targetIds the target ids
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
+   */
   }
 
   public void synchronize(int sourceId, Set<Integer> targetIds)
@@ -225,14 +264,29 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
     populateRelationships();
     deleteRelationships(relationships);
     addRelationships(targetIds);
+  /**
+   * Returns the id.
+   *
+   * @return the result
+   */
   }
 
   public int getId() {
     return id;
+  /**
+   * Sets the id.
+   *
+   * @param id the id
+   */
   }
 
   public void setId(int id) {
     this.id = id;
+  /**
+   * Returns the cms object manager.
+   *
+   * @return the result
+   */
   }
 
   public IPSCmsObjectMgr getCmsObjectManager() {
@@ -246,6 +300,13 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
     if (toBeDeleted.size() > 0) {
       m_relationshipService.deleteRelationship(toBeDeleted);
     }
+  /**
+   * addRelationships operation.
+   *
+   * @param ids the ids
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
+   */
   }
 
   public void addRelationships(Collection<Integer> ids) throws PSAssemblyException, PSException {
@@ -255,6 +316,7 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
 
   /* (non-Javadoc)
    * @see com.percussion.pso.relationshipbuilder.IPSRelationshipHelperService#createEmptyRelationshipCollection()
+   * @return the result
    */
 
   @SuppressWarnings("unchecked")
@@ -265,6 +327,8 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
 
   /* (non-Javadoc)
    * @see com.percussion.pso.relationshipbuilder.IPSRelationshipHelperService#saveRelationships(java.util.Collection)
+   * @param toBeSaved the to be saved
+   * @throws PSException if an error occurs
    */
   public void saveRelationships(Collection<PSRelationship> toBeSaved) throws PSException {
     if (!init) init();
@@ -273,6 +337,12 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
     }
   }
 
+  /**
+   * asLocators operation.
+   *
+   * @param ids the ids
+   * @return the result
+   */
   protected List<PSLocator> asLocators(Collection<Integer> ids) {
     if (!init) init();
     List<PSLocator> idLocators = new ArrayList<PSLocator>(ids.size());
@@ -285,6 +355,12 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
     return idLocators;
   }
 
+  /**
+   * asLocatorsNoRev operation.
+   *
+   * @param ids the ids
+   * @return the result
+   */
   protected List<PSLocator> asLocatorsNoRev(Collection<Integer> ids) {
     List<PSLocator> idLocators = new ArrayList<PSLocator>(ids.size());
     for (Integer id : ids) {
@@ -297,46 +373,101 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
   /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSRelationshipBuilder.class);
 
+  /**
+   * Returns the relationships.
+   *
+   * @return the result
+   */
   public Collection<PSRelationship> getRelationships() {
     return relationships;
   }
 
+  /**
+   * Sets the relationships.
+   *
+   * @param relationships the relationships
+   */
   public void setRelationships(Collection<PSRelationship> relationships) {
     this.relationships = relationships;
   }
 
+  /**
+   * Returns the result ids.
+   *
+   * @return the result
+   */
   public Collection<Integer> getResultIds() {
     return resultIds;
   }
 
+  /**
+   * Sets the result ids.
+   *
+   * @param resultIds the result ids
+   */
   public void setResultIds(Collection<Integer> resultIds) {
     this.resultIds = resultIds;
   }
 
+  /**
+   * Returns whether cleanup broken rels.
+   *
+   * @return the result
+   */
   public boolean isCleanupBrokenRels() {
     return cleanupBrokenRels;
   }
 
+  /**
+   * Sets the cleanup broken rels.
+   *
+   * @param cleanupBrokenRels the cleanup broken rels
+   */
   public void setCleanupBrokenRels(boolean cleanupBrokenRels) {
     this.cleanupBrokenRels = cleanupBrokenRels;
   }
 
+  /**
+   * Returns the m assembly service.
+   *
+   * @return the result
+   */
   public IPSAssemblyService getM_assemblyService() {
     return m_assemblyService;
   }
 
+  /**
+   * Sets the m assembly service.
+   *
+   * @param service the service
+   */
   public void setM_assemblyService(IPSAssemblyService service) {
     m_assemblyService = service;
   }
 
+  /**
+   * Sets the relationship service.
+   *
+   * @param service the service
+   */
   public void setRelationshipService(IPSRelationshipService service) {
     m_relationshipService = service;
   }
 
+  /**
+   * Sets the cms object manager.
+   *
+   * @param objectManager the object manager
+   */
   public void setCmsObjectManager(IPSCmsObjectMgr objectManager) {
     m_cmsObjectManager = objectManager;
   }
 
+  /**
+   * Returns the filter.
+   *
+   * @return the result
+   */
   public PSRelationshipFilter getFilter() {
     return filter;
   }

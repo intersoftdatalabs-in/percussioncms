@@ -26,10 +26,19 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 /**
+ * AOP interceptor that caches results of selected service methods.
+ *
  * @author stephenbolton
  * @version $Revision: 1.0 $
  */
 public class MethodCacheInterceptor implements MethodInterceptor, InitializingBean {
+  /**
+   * Creates a new MethodCacheInterceptor.
+   */
+  public MethodCacheInterceptor() {
+    // default
+  }
+
   /** Field logger. */
   private static final Logger logger = LogManager.getLogger(MethodCacheInterceptor.class);
 
@@ -48,7 +57,7 @@ public class MethodCacheInterceptor implements MethodInterceptor, InitializingBe
   /**
    * Checks if required attributes are provided.
    *
-   * @throws Exception
+   * @throws Exception if an error occurs
    * @see InitializingBean#afterPropertiesSet()
    */
   public void afterPropertiesSet() throws Exception {
@@ -61,7 +70,7 @@ public class MethodCacheInterceptor implements MethodInterceptor, InitializingBe
    *
    * @param invocation MethodInvocation
    * @return Object
-   * @throws Throwable
+   * @throws Throwable if an error occurs
    * @see MethodInterceptor#invoke(MethodInvocation)
    */
   public Object invoke(MethodInvocation invocation) throws Throwable {

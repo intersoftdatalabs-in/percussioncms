@@ -20,25 +20,55 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import java.util.List;
 
+/**
+ * REST model for a folder ACL and its entries.
+ */
 public class FolderAcl {
 
+  /** ACL entries for the folder. */
   private List<AclItem> entries;
+  /** Community name associated with this folder ACL. */
   private String communityName;
 
+  /**
+   * Creates an empty folder ACL.
+   */
+  public FolderAcl() {}
+
+  /**
+   * Returns the ACL entries.
+   *
+   * @return the entries
+   */
   @XmlElement(name = "AclEntry")
   public List<AclItem> getEntries() {
     return entries;
   }
 
+  /**
+   * Sets the ACL entries.
+   *
+   * @param entries the entries
+   */
   public void setEntries(List<AclItem> entries) {
     this.entries = entries;
   }
 
+  /**
+   * Returns the community name.
+   *
+   * @return the community name
+   */
   @XmlAttribute
   public String getCommunityName() {
     return communityName;
   }
 
+  /**
+   * Sets the community name.
+   *
+   * @param communityName the community name
+   */
   public void setCommunityName(String communityName) {
     this.communityName = communityName;
   }

@@ -42,25 +42,49 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
+/**
+ * Abstract exit that builds or selects relationships for content items based on extension mode.
+ */
 public abstract class PSAbstractBuildRelationshipsExtension extends PSDefaultExtension
     implements IPSUdfProcessor,
         IPSFieldOutputTransformer,
         IPSResultDocumentProcessor,
         IPSItemOutputTransformer {
 
+  /** Init-parameter name that selects BUILD vs SELECT mode. */
   private static final String MODE_INIT_PARAM = "com.percussion.extension.relationshipbuilder.mode";
   // private static IPSRelationshipHelperService m_relationshipHelperService;
+  /** Current operating mode for this extension instance. */
   private Mode m_mode;
 
   /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger log =
       LogManager.getLogger(PSAbstractBuildRelationshipsExtension.class);
 
+  /**
+   * Operating modes for relationship-builder exits.
+   */
   public enum Mode {
+    /** Build relationships from field data. */
     BUILD,
+    /** Select relationships for display. */
     SELECT
-  };
+  }
 
+  /**
+   * Creates a relationship-builder exit instance.
+   */
+  protected PSAbstractBuildRelationshipsExtension() {
+    // default
+  }
+
+  /**
+   * Initializes the extension and resolves BUILD/SELECT mode from init parameters.
+   *
+   * @param def the extension definition
+   * @param codeRoot the extension code root
+   * @throws PSExtensionException if required init parameters are missing or invalid
+   */
   @Override
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
     super.init(def, codeRoot);
@@ -108,11 +132,27 @@ public abstract class PSAbstractBuildRelationshipsExtension extends PSDefaultExt
       m_relationshipHelperService = relationshipHelperService;
   }
   */
+
+  /**
+   * Returns whether this exit can modify the stylesheet.
+   *
+   * @return {@code false}; this exit does not modify stylesheets
+   */
   public boolean canModifyStyleSheet() {
     // TODO Auto-generated method stub
     return false;
   }
 
+  /**
+   * Builds or selects relationships and updates the result document when appropriate.
+   *
+   * @param params extension parameters
+   * @param request the request context
+   * @param resultDoc the result document to update
+   * @return the (possibly updated) result document
+   * @throws PSParameterMismatchException if parameters are invalid
+   * @throws PSExtensionProcessingException if processing fails
+   */
   public final Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -141,6 +181,14 @@ public abstract class PSAbstractBuildRelationshipsExtension extends PSDefaultExt
     return resultDoc;
   }
 
+  /**
+   * UDF entry that retrieves related ids for selection mode.
+   *
+   * @param params UDF parameters
+   * @param request the request context
+   * @return related id payload
+   * @throws PSConversionException if builder creation fails
+   */
   public final Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {
 

@@ -22,28 +22,33 @@ package com.percussion.pso.imageedit.data;
  * @author DavidBenua
  */
 public class ImageEditorException extends RuntimeException {
-  /** */
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
+  /**
+   * Creates a new ImageEditorException.
+   */
   public ImageEditorException() {}
 
   /**
-   * @param message
+   * Sets the message.
+   * @param message the message
    */
   public ImageEditorException(String message) {
     super(message);
   }
 
   /**
-   * @param cause
+   * Sets the cause.
+   * @param cause the cause
    */
   public ImageEditorException(Throwable cause) {
     super(cause);
   }
 
   /**
-   * @param message
-   * @param cause
+   * Sets the message.
+   * @param message the message
+   * @param cause the cause
    */
   public ImageEditorException(String message, Throwable cause) {
     super(message, cause);

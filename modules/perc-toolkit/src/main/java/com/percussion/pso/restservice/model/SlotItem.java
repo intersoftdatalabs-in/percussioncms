@@ -19,8 +19,17 @@ package com.percussion.pso.restservice.model;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlTransient;
 
-/** */
+/**
+ * REST model for an item placed in an assembly slot.
+ */
 public class SlotItem extends Relationship implements Comparable<SlotItem> {
+  /**
+   * Creates a new SlotItem.
+   */
+  public SlotItem() {
+    // default
+  }
+
   /** Field template. */
   private String template;
 
@@ -119,6 +128,11 @@ public class SlotItem extends Relationship implements Comparable<SlotItem> {
     return this.sortRank - o.sortRank;
   }
 
+  /**
+   * hashCode operation.
+   *
+   * @return the result
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -130,6 +144,12 @@ public class SlotItem extends Relationship implements Comparable<SlotItem> {
     return result;
   }
 
+  /**
+   * equals operation.
+   *
+   * @param obj the obj
+   * @return the result
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj) return true;

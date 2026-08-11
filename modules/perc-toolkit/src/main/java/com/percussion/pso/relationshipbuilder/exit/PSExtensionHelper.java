@@ -54,6 +54,7 @@ import org.w3c.dom.NodeList;
  */
 public class PSExtensionHelper {
 
+  /** ids field name. */
   public static final String IDS_FIELD_NAME = "fieldName";
 
   private static final String DEFAULT_OUTPUT = "";
@@ -64,8 +65,16 @@ public class PSExtensionHelper {
 
   private final transient IPSRequestContext m_request;
 
+  /** array delimeter. */
   public static final String ARRAY_DELIMETER = ";";
 
+  /**
+   * Creates a new PSExtensionHelper.
+   *
+   * @param builder the builder
+   * @param parameters the parameters
+   * @param m_request the m request
+   */
   public PSExtensionHelper(
       IPSRelationshipBuilder builder, Map<String, String> parameters, IPSRequestContext m_request) {
     super();
@@ -80,9 +89,9 @@ public class PSExtensionHelper {
    * but rather our sys_Lookup query resource we need to set all the display choices that it returns
    * selected to "yes".
    *
-   * @param resultDoc
-   * @param selectAll
-   * @throws PSExtensionProcessingException
+   * @param resultDoc the result doc
+   * @param selectAll the select all
+   * @throws PSExtensionProcessingException if an error occurs
    */
   public void updateDisplayChoices(Document resultDoc, boolean selectAll)
       throws PSExtensionProcessingException {
@@ -308,6 +317,16 @@ public class PSExtensionHelper {
     }
   }
 
+  /**
+   * buildFromFieldValues operation.
+   *
+   * @param m_builder the m builder
+   * @param cid the cid
+   * @param fieldName the field name
+   * @param fieldValues the field values
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
+   */
   public void buildFromFieldValues(
       IPSRelationshipBuilder m_builder, int cid, String fieldName, Object[] fieldValues)
       throws PSAssemblyException, PSException {
@@ -333,6 +352,11 @@ public class PSExtensionHelper {
     }
   }
 
+  /**
+   * logRequestCommand operation.
+   *
+   * @param request the request
+   */
   public static void logRequestCommand(IPSRequestContext request) {
     String command = request.getParameter(IPSHtmlParameters.SYS_COMMAND);
     String page = request.getParameter(PSContentEditorHandler.PAGE_ID_PARAM_NAME);
@@ -342,6 +366,12 @@ public class PSExtensionHelper {
         "Command is: {}, page is: {}, processInlineLink is: {}", command, page, processInlineLink);
   }
 
+  /**
+   * Returns whether request to be processed for building.
+   *
+   * @param request the request
+   * @return the result
+   */
   public static boolean isRequestToBeProcessedForBuilding(IPSRequestContext request) {
     Map<String, String> noParams = new HashMap<String, String>();
     PSOExtensionParamsHelper helper = new PSOExtensionParamsHelper(noParams, request, null);
@@ -357,6 +387,12 @@ public class PSExtensionHelper {
         && (processInlineLink == null || !processInlineLink.equals("yes")));
   }
 
+  /**
+   * Returns whether request to be processed for selecting.
+   *
+   * @param request the request
+   * @return the result
+   */
   public static boolean isRequestToBeProcessedForSelecting(IPSRequestContext request) {
     Map<String, String> noParams = new HashMap<String, String>();
     PSOExtensionParamsHelper helper = new PSOExtensionParamsHelper(noParams, request, null);
@@ -371,6 +407,12 @@ public class PSExtensionHelper {
         && (processInlineLink == null || !processInlineLink.equals("yes")));
   }
 
+  /**
+   * convertToFieldValue operation.
+   *
+   * @param ids the ids
+   * @return the result
+   */
   public static String convertToFieldValue(Collection<Integer> ids) {
     StringBuilder idsStringBuilder = new StringBuilder();
     if (ids != null && ids.size() > 0) {
@@ -394,7 +436,7 @@ public class PSExtensionHelper {
    * Converts an array of objects to a list of integers. Non-parsable elements indicies in the
    * inputIds array are returned.
    *
-   * @param inputIds
+   * @param inputIds the input ids
    * @param output list of converted ids
    * @return the collection of objects that failed to convert.
    */

@@ -20,8 +20,17 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import java.util.List;
 
-/** */
+/**
+ * REST model for a single row within a child field group.
+ */
 public class ChildRow {
+
+  /**
+   * Creates a new ChildRow.
+   */
+  public ChildRow() {
+    // default
+  }
   /** Field fields. */
   private List<Field> fields = null;
 

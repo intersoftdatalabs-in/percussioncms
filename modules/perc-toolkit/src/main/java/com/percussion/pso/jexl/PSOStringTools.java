@@ -43,7 +43,11 @@ public class PSOStringTools extends PSJexlUtilBase implements IPSJexlExpression 
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOStringTools.class);
 
-  /** Default constructor. */
+  /**
+   * Default constructor.
+   * Creates a new PSOStringTools.
+   *
+   */
   public PSOStringTools() {}
 
   /**
@@ -56,6 +60,12 @@ public class PSOStringTools extends PSJexlUtilBase implements IPSJexlExpression 
   @IPSJexlMethod(
       description = "gets a StringBuilder for concatenating strings",
       params = {@IPSJexlParam(name = "value", description = "initial value")})
+  /**
+   * Returns the string builder.
+   *
+   * @param value the value
+   * @return the result
+   */
   public StringBuilder getStringBuilder(String value) {
     return new StringBuilder(value);
   }
@@ -69,6 +79,11 @@ public class PSOStringTools extends PSJexlUtilBase implements IPSJexlExpression 
   @IPSJexlMethod(
       description = "gets a StringBuilder for concatenating strings",
       params = {})
+  /**
+   * Returns the string builder.
+   *
+   * @return the result
+   */
   public StringBuilder getStringBuilder() {
     return new StringBuilder();
   }
@@ -83,6 +98,12 @@ public class PSOStringTools extends PSJexlUtilBase implements IPSJexlExpression 
   @IPSJexlMethod(
       description = "gets a java.util.Locale based on the String representation",
       params = {@IPSJexlParam(name = "locString", description = "locale as a String")})
+  /**
+   * Returns the locale.
+   *
+   * @param locString the loc string
+   * @return the result
+   */
   public Locale getLocale(String locString) {
     return PSI18nUtils.getLocaleFromString(locString);
   }
@@ -90,6 +111,14 @@ public class PSOStringTools extends PSJexlUtilBase implements IPSJexlExpression 
   @IPSJexlMethod(
       description = "Removes XML markup from a string.",
       params = {@IPSJexlParam(name = "body", description = "A string with xml markup.")})
+  /**
+   * removeXml operation.
+   *
+   * @param body the body
+   * @return the result
+   * @throws IOException if an error occurs
+   * @throws SAXException if an error occurs
+   */
   public String removeXml(String body) throws IOException, SAXException {
     String wrapper = "<wrapper>" + body + "</wrapper>";
     StringReader reader = new StringReader(wrapper);
@@ -107,6 +136,13 @@ public class PSOStringTools extends PSJexlUtilBase implements IPSJexlExpression 
         @IPSJexlParam(name = "body", description = "the string to truncate"),
         @IPSJexlParam(name = "maxWords", description = "The maximum number of words")
       })
+  /**
+   * truncateByWords operation.
+   *
+   * @param body the body
+   * @param maxWords the max words
+   * @return the result
+   */
   public String truncateByWords(String body, Number maxWords) {
     int size = body.length();
     int words = 0;
@@ -144,6 +180,18 @@ public class PSOStringTools extends PSJexlUtilBase implements IPSJexlExpression 
             name = "forceExtension",
             description = "Add or replace extension with this value")
       })
+  /**
+   * cleanupPath operation.
+   *
+   * @param path the path
+   * @param forceLower the force lower
+   * @param includesExtension the includes extension
+   * @param stripExtension the strip extension
+   * @param prefix the prefix
+   * @param suffix the suffix
+   * @param forceExtension the force extension
+   * @return the result
+   */
   public String cleanupPath(
       String path,
       boolean forceLower,

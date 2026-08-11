@@ -19,32 +19,46 @@ package com.percussion.pso.restservice.model;
 import java.net.http.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Base type for HTTP responses that carry headers and an optional existing item.
+ */
 public abstract class BaseHttpResponse {
 
+  /** Optional previously loaded item associated with the response. */
   private Item existingItem;
 
   /** Package-visible for subclass single-shot constructors (avoids this-escape). */
   HttpHeaders headers;
 
-  /***
-   * Sets the HTTP Headers collection for this response.
-   * @param headers
+  /**
+   * Creates an empty HTTP response holder.
+   */
+  protected BaseHttpResponse() {
+    // default
+  }
+
+  /**
+   * Sets the HTTP headers collection for this response.
+   *
+   * @param headers the response headers
    */
   public final void setHeaders(HttpHeaders headers) {
     this.headers = headers;
   }
 
-  /***
-   * Gets the HTTP Headers collection for this response.
+  /**
+   * Gets the HTTP headers collection for this response.
    *
+   * @return the headers, or {@code null} if not set
    */
   public HttpHeaders getHeaders() {
     return headers;
   }
 
-  /***
-   * Will return the ETag header if it is set or the empty string.
+  /**
+   * Returns the ETag header if set, otherwise the empty string.
    *
+   * @return the ETag value or empty string
    */
   public String getETag() {
     if (headers == null) {
@@ -53,9 +67,10 @@ public abstract class BaseHttpResponse {
     return headers.firstValue("ETag").orElse("");
   }
 
-  /***
-   * Will return the last modified header if it is set or the empty string.
+  /**
+   * Returns the last-modified header if set, otherwise the Date header, otherwise empty string.
    *
+   * @return the last-modified timestamp string or empty string
    */
   public String getLastModified() {
     String ret = "";
@@ -74,10 +89,20 @@ public abstract class BaseHttpResponse {
     return ret;
   }
 
+  /**
+   * Sets the existing item associated with this response.
+   *
+   * @param existingItem the existing item
+   */
   public void setExistingItem(Item existingItem) {
     this.existingItem = existingItem;
   }
 
+  /**
+   * Returns the existing item associated with this response.
+   *
+   * @return the existing item, or {@code null}
+   */
   public Item getExistingItem() {
     return existingItem;
   }

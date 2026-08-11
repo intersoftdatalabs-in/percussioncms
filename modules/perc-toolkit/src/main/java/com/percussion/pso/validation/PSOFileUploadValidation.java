@@ -37,6 +37,13 @@ import org.apache.logging.log4j.Logger;
  * @version 1.0
  */
 public class PSOFileUploadValidation implements IPSFieldValidator {
+  /**
+   * Creates a new PSOFileUploadValidation.
+   */
+  public PSOFileUploadValidation() {
+    // default
+  }
+
   // REFACTORED: CP-JAVA11
   // Constants
   private final String CLASSNAME = getClass().getName();
@@ -47,6 +54,8 @@ public class PSOFileUploadValidation implements IPSFieldValidator {
   private long maxFileSize = 0;
 
   /**
+   * init operation.
+   *
    * @param extensionDef default extension definition
    * @param codeRoot the 'root' directory for this extension.
    * @throws PSExtensionException if the codeRoot does not exist, or is not accessible. Also thrown
@@ -59,6 +68,8 @@ public class PSOFileUploadValidation implements IPSFieldValidator {
   }
 
   /**
+   * processUdf operation.
+   *
    * @param params list of parameters
    *     <ul>
    *       <li><code>fieldName</code> - the name attribute of the PSXField that is mapped to a

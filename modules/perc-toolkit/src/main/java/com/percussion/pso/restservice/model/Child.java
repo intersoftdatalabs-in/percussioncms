@@ -21,9 +21,18 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
-/** */
+/**
+ * REST model for a child field group on a content item.
+ */
 @XmlRootElement(name = "Child")
 public class Child {
+
+  /**
+   * Creates a new Child.
+   */
+  public Child() {
+    // default
+  }
   /** Field name. */
   private String name;
 

@@ -54,8 +54,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** */
+/**
+ * Default implementation of import item system info.
+ */
 public class ImportItemSystemInfoImpl implements IImportItemSystemInfo {
+  /**
+   * Creates a new ImportItemSystemInfoImpl.
+   */
+  public ImportItemSystemInfoImpl() {
+    // default
+  }
+
 
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(ImportItemSystemInfoImpl.class);
@@ -295,6 +304,12 @@ public class ImportItemSystemInfoImpl implements IImportItemSystemInfo {
     return name;
   }
 
+  /**
+   * Returns the community id.
+   *
+   * @param name the name
+   * @return the result
+   */
   public int getCommunityId(String name) {
     initServices();
     List<PSCommunity> comms = rolemgr.findCommunitiesByName(name);
@@ -310,7 +325,7 @@ public class ImportItemSystemInfoImpl implements IImportItemSystemInfo {
    *
    * @param contentType String
    * @return PSItemDefinition
-   * @throws PSInvalidContentTypeException
+   * @throws PSInvalidContentTypeException if an error occurs
    * @see IImportItemSystemInfo#getItemDefinition(String)
    */
   public PSItemDefinition getItemDefinition(String contentType)

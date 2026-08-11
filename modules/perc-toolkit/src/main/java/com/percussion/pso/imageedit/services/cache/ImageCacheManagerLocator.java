@@ -25,8 +25,20 @@ import com.percussion.services.PSBaseServiceLocator;
  * @author DavidBenua
  */
 public class ImageCacheManagerLocator extends PSBaseServiceLocator {
+  /**
+   * Creates a new ImageCacheManagerLocator.
+   */
+  public ImageCacheManagerLocator() {
+    // default
+  }
+
   private static final String IMAGE_CACHE_BEAN = "imedImageMetaDataCacheImpl";
 
+  /**
+   * Returns the image cache manager.
+   *
+   * @return the result
+   */
   public static ImageCacheManager getImageCacheManager() {
     return (ImageCacheManager) getBean(IMAGE_CACHE_BEAN);
   }

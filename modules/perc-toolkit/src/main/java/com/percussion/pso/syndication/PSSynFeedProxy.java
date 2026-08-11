@@ -55,6 +55,7 @@ public class PSSynFeedProxy {
    * Returns the name of the first feed author in the collection of authors.
    *
    *
+   * @return the result
    */
   public String getAuthor() {
     return feed.getAuthor();
@@ -63,6 +64,7 @@ public class PSSynFeedProxy {
   /***
    *  Returns the feed authors.
    *
+   * @return the result
    */
   public List<SyndPerson> getAuthorList() {
     return feed.getAuthors();
@@ -71,6 +73,7 @@ public class PSSynFeedProxy {
   /***
    * Convenience method that returns the list of Authors as a comma separated string.
    *
+   * @return the result
    */
   public String getAuthors() {
     String ret = "";
@@ -90,6 +93,7 @@ public class PSSynFeedProxy {
   /***
    * Returns the feed categories.
    *
+   * @return the result
    */
   public List<?> getCategoriesList() {
     return feed.getCategories();
@@ -98,6 +102,7 @@ public class PSSynFeedProxy {
   /***
    * Returns the feed categories as a comma separated string.
    *
+   * @return the result
    */
   public String getCategories() {
     String ret = "";
@@ -115,6 +120,7 @@ public class PSSynFeedProxy {
   /***
    * the feed author.
    *
+   * @return the result
    */
   public String getContributors() {
     String ret = "";
@@ -131,6 +137,11 @@ public class PSSynFeedProxy {
     return ret;
   }
 
+  /**
+   * Returns the contributors list.
+   *
+   * @return the result
+   */
   public List<SyndPerson> getContributorsList() {
     return feed.getContributors();
   }
@@ -138,6 +149,7 @@ public class PSSynFeedProxy {
   /***
    * Returns the feed copyright.
    *
+   * @return the result
    */
   public String getCopyright() {
     return feed.getCopyright();
@@ -146,6 +158,7 @@ public class PSSynFeedProxy {
   /***
    * Returns the feed description.
    *
+   * @return the result
    */
   public String getDescription() {
     // @TODO: Add Ext Description support.
@@ -155,6 +168,7 @@ public class PSSynFeedProxy {
   /***
    * Returns the charset encoding of a the feed.
    *
+   * @return the result
    */
   public String getEncoding() {
     return feed.getEncoding();
@@ -163,6 +177,7 @@ public class PSSynFeedProxy {
   /***
    * Returns the feed entries.
    *
+   * @return the result
    */
   public List<PSSynFeedEntry> getEntries() {
 
@@ -177,6 +192,7 @@ public class PSSynFeedProxy {
   /***
    * Returns the wire feed type the feed had/will-have when coverted from/to a WireFeed.
    *
+   * @return the result
    */
   public String getFeedType() {
     return feed.getFeedType();
@@ -185,6 +201,7 @@ public class PSSynFeedProxy {
   /***
    * Returns the feed image.
    *
+   * @return the result
    */
   public PSSynFeedImage getImage() {
     return new PSSynFeedImage(feed.getImage());
@@ -201,6 +218,7 @@ public class PSSynFeedProxy {
   /***
    * Returns the feed link.
    *
+   * @return the result
    */
   public String getLink() {
     return feed.getLink();
@@ -209,6 +227,7 @@ public class PSSynFeedProxy {
   /***
    * Returns the entry links
    *
+   * @return the result
    */
   public List<String> getLinks() {
     ArrayList<String> ret = new ArrayList<String>();
@@ -222,6 +241,7 @@ public class PSSynFeedProxy {
   /***
    * Returns the feed published date.
    *
+   * @return the result
    */
   public Date getPublishedDate() {
     return feed.getPublishedDate();
@@ -230,6 +250,7 @@ public class PSSynFeedProxy {
   /***
    * Returns the feed title.
    *
+   * @return the result
    */
   public String getTitle() {
     // @TODO: Add support for title EX.
@@ -239,6 +260,7 @@ public class PSSynFeedProxy {
   /***
    * Returns the feed URI.
    *
+   * @return the result
    */
   public String getUri() {
     return feed.getUri();
@@ -247,9 +269,10 @@ public class PSSynFeedProxy {
   /***
    * Initializes this instances of the proxy with the specified feed url.
    *
-   * @param urlString
-   * @throws IOException
-   * @throws IllegalArgumentException
+   * @param urlString the url string
+   * @throws IOException if an error occurs
+   * @throws IllegalArgumentException if an error occurs
+   * @throws FeedException if an error occurs
    */
   public PSSynFeedProxy(String urlString)
       throws IOException, IllegalArgumentException, FeedException {
@@ -275,6 +298,16 @@ public class PSSynFeedProxy {
     }
   }
 
+  /**
+   * Creates a new PSSynFeedProxy.
+   *
+   * @param urlString the url string
+   * @param eTag the e tag
+   * @param lastModified the last modified
+   * @throws IllegalArgumentException if an error occurs
+   * @throws FeedException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public PSSynFeedProxy(String urlString, String eTag, String lastModified)
       throws IllegalArgumentException, FeedException, IOException {
     // Set up the proxy server if there is one.

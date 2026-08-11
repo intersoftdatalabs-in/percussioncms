@@ -67,8 +67,17 @@ import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
 import org.xml.sax.XMLReader;
 
-/** */
+/**
+ * JEXL expression helpers used during REST-based content import.
+ */
 public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
+  /**
+   * Creates a new PSOImportJexl.
+   */
+  public PSOImportJexl() {
+    // default
+  }
+
 
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOImportJexl.class);
@@ -87,6 +96,12 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
       description =
           "Gets html posted to the template and converts it to tidied xml compliant output ",
       params = {})
+  /**
+   * Returns the post body as dom.
+   *
+   * @return the result
+   * @throws IOException if an error occurs
+   */
   public Document getPostBodyAsDom() throws IOException {
     PSRequest req = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
     HttpServletRequest sreq = req.getServletRequest();
@@ -116,6 +131,12 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "Extracts html from a url and convert to dom",
       params = {@IPSJexlParam(name = "url", description = "the url to connect to")})
+  /**
+   * Returns the http as dom.
+   *
+   * @param url the url
+   * @return the result
+   */
   public Document getHttpAsDom(String url) {
     Document doc = null;
     HttpClient client = createHttpClient();
@@ -173,6 +194,14 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
             name = "contextroot",
             description = "The root path within the system where this item may already be stored.")
       })
+  /**
+   * Returns the http as dom.
+   *
+   * @param url the url
+   * @param keyfield the keyfield
+   * @param contextRoot the context root
+   * @return the result
+   */
   public HttpDOMResponse getHttpAsDom(String url, String keyfield, String contextRoot) {
     HttpDOMResponse ret = null;
     Document doc = null;
@@ -243,11 +272,17 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
    * Method getPostBody.
    *
    * @return String
-   * @throws IOException
+   * @throws IOException if an error occurs
    */
   @IPSJexlMethod(
       description = "Gets posted body as string",
       params = {})
+  /**
+   * Returns the post body.
+   *
+   * @return the result
+   * @throws IOException if an error occurs
+   */
   public String getPostBody() throws IOException {
     PSRequest req = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
     HttpServletRequest sreq = req.getServletRequest();
@@ -297,11 +332,17 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
    * Method getPostDom.
    *
    * @return Document
-   * @throws IOException
+   * @throws IOException if an error occurs
    */
   @IPSJexlMethod(
       description = "Gets posted body as DOM",
       params = {})
+  /**
+   * Returns the post dom.
+   *
+   * @return the result
+   * @throws IOException if an error occurs
+   */
   public Document getPostDom() throws IOException {
     PSRequest req = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
     HttpServletRequest sreq = req.getServletRequest();
@@ -324,11 +365,18 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
    *
    * @param string String
    * @return Document
-   * @throws IOException
+   * @throws IOException if an error occurs
    */
   @IPSJexlMethod(
       description = "Gets Dom from String",
       params = {@IPSJexlParam(name = "string", description = "the xml string ")})
+  /**
+   * Returns the dom from string.
+   *
+   * @param string the string
+   * @return the result
+   * @throws IOException if an error occurs
+   */
   public Document getDomFromString(String string) throws IOException {
 
     Document document = null;
@@ -360,6 +408,14 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "xpath", description = "the xpath string"),
         @IPSJexlParam(name = "namespaces", description = "a map of namespace prefixes")
       })
+  /**
+   * xpathSelectSingleNode operation.
+   *
+   * @param doc the doc
+   * @param xpathString the xpath string
+   * @param namespaces the namespaces
+   * @return the result
+   */
   public Node xpathSelectSingleNode(
       Object doc, String xpathString, Map<String, String> namespaces) {
     Node nd = (Node) doc;
@@ -385,6 +441,14 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "xpath", description = "the xpath string"),
         @IPSJexlParam(name = "namespaces", description = "a map of namespace prefixes")
       })
+  /**
+   * xpathSelectNodes operation.
+   *
+   * @param doc the doc
+   * @param xpathString the xpath string
+   * @param namespaces the namespaces
+   * @return the result
+   */
   public List<?> xpathSelectNodes(Object doc, String xpathString, Map<String, String> namespaces) {
     XPath xpath = DocumentHelper.createXPath(xpathString);
     xpath.setNamespaceURIs(namespaces);
@@ -401,6 +465,12 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "Gets gets the xml for an existing content item by id",
       params = {@IPSJexlParam(name = "contentId", description = "the id for the Item")})
+  /**
+   * Returns the item xml.
+   *
+   * @param contentId the content id
+   * @return the result
+   */
   public Document getItemXml(int contentId) {
     IItemRestService itemservice = ItemRestServiceLocator.getItemServiceBase();
     /*	ItemRestService itemservice = JAXRSClientFactory.create("http://localhost:9992/Rhythmyx/services",ItemRestService.class,"admin1","demo",null);
@@ -446,6 +516,14 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
             name = "contextroot",
             description = "The root path within the system where this item may already be stored.")
       })
+  /**
+   * Returns the wild html as dom.
+   *
+   * @param url the url
+   * @param keyfield the keyfield
+   * @param contextRoot the context root
+   * @return the result
+   */
   public HttpHtmlResponse getWildHtmlAsDom(String url, String keyfield, String contextRoot) {
     HttpHtmlResponse ret = null;
     org.jsoup.nodes.Document doc = null;
@@ -556,6 +634,13 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "url", description = "The base url"),
         @IPSJexlParam(name = "html", description = "The body content")
       })
+  /**
+   * cleanRelativeLinks operation.
+   *
+   * @param url the url
+   * @param html the html
+   * @return the result
+   */
   public String cleanRelativeLinks(String url, String html) {
 
     String ret = html;
@@ -582,6 +667,12 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "Returns a SHA-1 hash for the specified string.",
       params = {@IPSJexlParam(name = "data", description = "The data to hash")})
+  /**
+   * Returns the hash.
+   *
+   * @param data the data
+   * @return the result
+   */
   public String getHash(String data) {
     String ret = String.valueOf(data.hashCode());
 

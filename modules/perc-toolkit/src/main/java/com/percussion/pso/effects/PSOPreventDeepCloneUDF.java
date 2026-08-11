@@ -55,7 +55,9 @@ public class PSOPreventDeepCloneUDF extends PSSimpleJavaUdfExtension implements 
     }
   }
 
-  /** */
+  /**
+   * Creates a new PSOPreventDeepCloneUDF.
+   */
   public PSOPreventDeepCloneUDF() {
     super();
   }
@@ -68,6 +70,8 @@ public class PSOPreventDeepCloneUDF extends PSSimpleJavaUdfExtension implements 
    * @param request the callers request context
    * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[],
    *     com.percussion.server.IPSRequestContext)
+   * @return the result
+   * @throws PSConversionException if an error occurs
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

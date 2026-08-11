@@ -67,8 +67,10 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
   private static IPSOParentFinder parFinder = null;
   private static PSRelationshipProcessorProxy proxy = null;
 
-  /** */
-  public PSONavTools() {
+    /**
+     * Creates a new PSONavTools.
+     */
+    public PSONavTools() {
     super();
   }
 
@@ -119,11 +121,18 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param selfNode the self node, usually <code>$nav.self</code>
    * @return The list of ancestors, including the self node. Never <code>null</code> or <code>empty
    *     </code>.
-   * @throws PSExtensionProcessingException
+   * @throws PSExtensionProcessingException if an error occurs
    */
   @IPSJexlMethod(
       description = "get the ancestors for this node",
       params = {@IPSJexlParam(name = "selfNode", description = "the current item")})
+  /**
+   * Returns the ancestors.
+   *
+   * @param selfNode the self node
+   * @return the result
+   * @throws PSExtensionProcessingException if an error occurs
+   */
   public List<Node> getAncestors(Node selfNode) throws PSExtensionProcessingException {
     if (selfNode == null) {
       String emsg = "Self Node cannot be null";
@@ -167,11 +176,18 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
    *
    * @param folderid the folder id
    * @return the navon as a node. Will return <code>null</code> if the navon cannot be found.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   @IPSJexlMethod(
       description = "find the navon node based on the folder id",
       params = {@IPSJexlParam(name = "folderid", description = "folder id")})
+  /**
+   * findNavNodeForFolder operation.
+   *
+   * @param folderid the folderid
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public IPSNode findNavNodeForFolder(String folderid) throws Exception {
     initServices();
     PSRelationshipFilter filter = new PSRelationshipFilter();
@@ -207,11 +223,18 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
    *
    * @param navonId the content id of the current navon
    * @return the parent navon node, or <code>null</code> if the navon has no parent.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   @IPSJexlMethod(
       description = "finds the parent of a Navon",
       params = {@IPSJexlParam(name = "navonId", description = "Content id of current navon")})
+  /**
+   * findParentNavonNode operation.
+   *
+   * @param navonId the navon id
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public IPSNode findParentNavonNode(String navonId) throws Exception {
     PSLocator loc = new PSLocator(navonId);
     return findParentNavonNode(loc);
@@ -224,11 +247,18 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
    *
    * @param navonGuid the GUID of the current navon.
    * @return the parent navon node, or <code>null</code> if the navon has no parent.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   @IPSJexlMethod(
       description = "finds the parent of a Navon",
       params = {@IPSJexlParam(name = "navonGuid", description = "Guid of current navon")})
+  /**
+   * findParentNavonNode operation.
+   *
+   * @param navonGuid the navon guid
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public IPSNode findParentNavonNode(IPSGuid navonGuid) throws Exception {
     PSLocator loc = gmgr.makeLocator(navonGuid);
     return findParentNavonNode(loc);
@@ -240,11 +270,18 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
    *
    * @param navonLoc the locator for the current navon.
    * @return the parent navon node, or <code>null</code> if the navon has no parent.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   @IPSJexlMethod(
       description = "finds the parent of a Navon",
       params = {@IPSJexlParam(name = "navonLoc", description = "Locator of current navon")})
+  /**
+   * findParentNavonNode operation.
+   *
+   * @param navonLoc the navon loc
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public IPSNode findParentNavonNode(PSLocator navonLoc) throws Exception {
     initServices();
     Set<PSLocator> parents = new HashSet<>();
@@ -275,7 +312,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param folderid the folder id where the current navon is located.
    * @param propertyName the property name.
    * @return the nearest value, or <code>null</code> if no values can be located.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   @IPSJexlMethod(
       description = "finds the nearest non-empty value for a property",
@@ -283,6 +320,14 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "folderid", description = "content id of folder"),
         @IPSJexlParam(name = "propertyName", description = "name of property")
       })
+  /**
+   * findNearestNavonPropertyValue operation.
+   *
+   * @param folderid the folderid
+   * @param propertyName the property name
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public Value findNearestNavonPropertyValue(String folderid, String propertyName)
       throws Exception {
     IPSNode navonNode = findNavNodeForFolder(folderid);
@@ -299,6 +344,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
+   * Sets the gmgr.
    * @param gmgr the gmgr to set
    */
   public static void setGmgr(IPSGuidManager gmgr) {
@@ -306,6 +352,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
+   * Sets the navConfig.
    * @param navConfig the navConfig to set
    */
   public static void setNavConfig(PSNavConfig navConfig) {
@@ -313,6 +360,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
+   * Sets the objFinder.
    * @param objFinder the objFinder to set
    */
   public static void setObjFinder(IPSOObjectFinder objFinder) {
@@ -320,6 +368,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
+   * Sets the parFinder.
    * @param parFinder the parFinder to set
    */
   public static void setParFinder(IPSOParentFinder parFinder) {
@@ -327,6 +376,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
+   * Sets the proxy.
    * @param proxy the proxy to set
    */
   public static void setProxy(PSRelationshipProcessorProxy proxy) {

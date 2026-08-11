@@ -40,6 +40,8 @@ import org.springframework.web.servlet.mvc.Controller;
 import org.springframework.web.servlet.mvc.ParameterizableViewController;
 
 /**
+ * Controller that resolves multi-site preview locations for a content item.
+ *
  * @author DavidBenua
  */
 public class MultiSiteResolutionController extends ParameterizableViewController
@@ -53,8 +55,10 @@ public class MultiSiteResolutionController extends ParameterizableViewController
   private static IPSGuidManager gmgr = null;
   private static IPSAssemblyService asm = null;
 
-  /** */
-  public MultiSiteResolutionController() {}
+    /**
+     * Creates a new MultiSiteResolutionController.
+     */
+    public MultiSiteResolutionController() {}
 
   private static void initServices() {
     if (asm == null) {
@@ -64,9 +68,15 @@ public class MultiSiteResolutionController extends ParameterizableViewController
   }
 
   /**
+   * handleRequestInternal operation.
+   *
    * @see
    *     org.springframework.web.servlet.mvc.AbstractController#handleRequestInternal(HttpServletRequest,
    *     HttpServletResponse)
+   * @param request the request
+   * @param response the response
+   * @return the result
+   * @throws Exception if an error occurs
    */
   @Override
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -113,6 +123,13 @@ public class MultiSiteResolutionController extends ParameterizableViewController
     return mav;
   }
 
+  /**
+   * findTemplate operation.
+   *
+   * @param templateid the templateid
+   * @return the result
+   * @throws PSAssemblyException if an error occurs
+   */
   protected IPSAssemblyTemplate findTemplate(String templateid) throws PSAssemblyException {
     initServices();
     long tid = Long.parseLong(templateid);
@@ -123,6 +140,7 @@ public class MultiSiteResolutionController extends ParameterizableViewController
   }
 
   /**
+   * Returns the siteFolderFinder.
    * @return the siteFolderFinder
    */
   public SiteFolderFinder getSiteFolderFinder() {
@@ -130,6 +148,7 @@ public class MultiSiteResolutionController extends ParameterizableViewController
   }
 
   /**
+   * Sets the siteFolderFinder.
    * @param siteFolderFinder the siteFolderFinder to set
    */
   public void setSiteFolderFinder(SiteFolderFinder siteFolderFinder) {
@@ -137,6 +156,7 @@ public class MultiSiteResolutionController extends ParameterizableViewController
   }
 
   /**
+   * Returns the gmgr.
    * @return the gmgr
    */
   public static IPSGuidManager getGmgr() {
@@ -144,6 +164,7 @@ public class MultiSiteResolutionController extends ParameterizableViewController
   }
 
   /**
+   * Sets the gmgr.
    * @param gmgr the gmgr to set
    */
   public static void setGmgr(IPSGuidManager gmgr) {
@@ -151,6 +172,7 @@ public class MultiSiteResolutionController extends ParameterizableViewController
   }
 
   /**
+   * Returns the asm.
    * @return the asm
    */
   public static IPSAssemblyService getAsm() {
@@ -158,6 +180,7 @@ public class MultiSiteResolutionController extends ParameterizableViewController
   }
 
   /**
+   * Sets the asm.
    * @param asm the asm to set
    */
   public static void setAsm(IPSAssemblyService asm) {
@@ -165,6 +188,7 @@ public class MultiSiteResolutionController extends ParameterizableViewController
   }
 
   /**
+   * Returns the urlBuilder.
    * @return the urlBuilder
    */
   public UrlBuilder getUrlBuilder() {
@@ -172,6 +196,7 @@ public class MultiSiteResolutionController extends ParameterizableViewController
   }
 
   /**
+   * Sets the urlBuilder.
    * @param urlBuilder the urlBuilder to set
    */
   public void setUrlBuilder(UrlBuilder urlBuilder) {

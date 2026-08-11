@@ -29,6 +29,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 import org.springframework.web.servlet.mvc.Controller;
 
+/**
+ * Controller that streams binary image data for the image editor.
+ */
 @org.springframework.stereotype.Controller
 public class BinaryImageController extends AbstractController implements Controller {
   private static final Logger log = LogManager.getLogger(BinaryImageController.class);
@@ -37,6 +40,9 @@ public class BinaryImageController extends AbstractController implements Control
 
   private ImageCacheManager cacheMgr = null;
 
+    /**
+   * Creates a new BinaryImageController.
+   */
   public BinaryImageController() {}
 
   private void initServices() {
@@ -46,6 +52,13 @@ public class BinaryImageController extends AbstractController implements Control
   }
 
   @Override
+  /**
+   * handleRequestInternal operation.
+   * @param request the request
+   * @param response the response
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   protected ModelAndView handleRequestInternal(
       HttpServletRequest request, HttpServletResponse response) throws Exception {
     String emsg;
@@ -88,6 +101,7 @@ public class BinaryImageController extends AbstractController implements Control
   }
 
   /**
+   * Returns the urlBuilder.
    * @return the urlBuilder
    */
   public ImageUrlBuilder getUrlBuilder() {
@@ -95,6 +109,7 @@ public class BinaryImageController extends AbstractController implements Control
   }
 
   /**
+   * Sets the urlBuilder.
    * @param urlBuilder the urlBuilder to set
    */
   public void setUrlBuilder(ImageUrlBuilder urlBuilder) {
@@ -102,6 +117,7 @@ public class BinaryImageController extends AbstractController implements Control
   }
 
   /**
+   * Sets the cacheMgr.
    * @param cacheMgr the cacheMgr to set
    */
   public void setCacheMgr(ImageCacheManager cacheMgr) {

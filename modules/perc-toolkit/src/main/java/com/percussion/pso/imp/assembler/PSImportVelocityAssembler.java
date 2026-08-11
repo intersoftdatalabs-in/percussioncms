@@ -33,7 +33,9 @@ import org.apache.logging.log4j.Logger;
  * re-form content based on the supplied tidy properties file. Located in
  * @author NateChadwick
  */
-/** */
+/**
+ * Velocity-based assembler used during content import.
+ */
 public class PSImportVelocityAssembler extends PSVelocityAssembler implements IPSAssembler {
 
   /** Field m_def. */
@@ -42,15 +44,21 @@ public class PSImportVelocityAssembler extends PSVelocityAssembler implements IP
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSImportVelocityAssembler.class);
 
-  /** Constructor */
+  /**
+   * Constructor
+   * Creates a new PSImportVelocityAssembler.
+   *
+   */
   public PSImportVelocityAssembler() {
     super();
   }
 
   /**
+   * doAssembleSingle operation.
+   *
    * @param item IPSAssemblyItem
    * @return IPSAssemblyResult
-   * @throws Exception
+   * @throws Exception if an error occurs
    * @see
    *     com.percussion.services.assembly.impl.plugin.PSAssemblerBase#doAssembleSingle(IPSAssemblyItem)
    */
@@ -62,9 +70,11 @@ public class PSImportVelocityAssembler extends PSVelocityAssembler implements IP
   }
 
   /**
+   * init operation.
+   *
    * @param arg0 IPSExtensionDef
    * @param arg1 File
-   * @throws PSExtensionException
+   * @throws PSExtensionException if an error occurs
    * @see
    *     com.percussion.services.assembly.impl.plugin.PSAssemblerBase#doAssembleSingle(IPSAssemblyItem)
    */

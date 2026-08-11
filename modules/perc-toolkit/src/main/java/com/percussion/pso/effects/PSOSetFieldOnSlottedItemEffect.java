@@ -69,6 +69,13 @@ import org.apache.logging.log4j.Logger;
  */
 @PSHandlesEffectContext(required = PSEffectContext.ALL)
 public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
+  /**
+   * Creates a new PSOSetFieldOnSlottedItemEffect.
+   */
+  public PSOSetFieldOnSlottedItemEffect() {
+    // default
+  }
+
 
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOSetFieldOnSlottedItemEffect.class);
@@ -79,6 +86,7 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
   /***
    * Returns a valid ContentWS instance
    *
+   * @return the result
    */
   protected static IPSContentWs getContentService() {
     if (mCws == null) mCws = PSContentWsLocator.getContentWebservice();
@@ -89,6 +97,7 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
   /***
    * Returns a valid Guid Manager instance.
    *
+   * @return the result
    */
   protected static IPSGuidManager getGuidManager() {
     if (mGmgr == null) mGmgr = PSGuidManagerLocator.getGuidMgr();
@@ -102,15 +111,21 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
    */
   private class ConfiguredParams {
 
+    /** field name. */
     protected String fieldName;
+    /** value if empty. */
     protected String valueIfEmpty;
+    /** value if not empty. */
     protected String valueIfNotEmpty;
+    /** slot name. */
     protected String slotName;
+    /** slot id. */
     protected int slotId;
 
     /***
      * Constructor to initialize a new parameter object
-     * @param params
+     * @param params the params
+     * @return the result
      */
     protected ConfiguredParams(Object[] params) {
 
@@ -270,7 +285,8 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
 
     /***
      * Convenience constructor
-     * @param props
+     * @param props the props
+     * @return the result
      */
     protected RelationshipParams(Map<String, String> props) {
 
@@ -286,6 +302,13 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
     }
   }
 
+  /**
+   * init operation.
+   *
+   * @param def the def
+   * @param f the f
+   * @throws PSExtensionException if an error occurs
+   */
   public void init(IPSExtensionDef def, File f) throws PSExtensionException {
     log.debug("Initializing...");
 
@@ -299,6 +322,12 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
   /***
    * This is called when the Effect is being executed.  Note, this will be called for every item in a slot
    * during a save request.
+   * @param params the params
+   * @param request the request
+   * @param context the context
+   * @param result the result
+   * @throws PSExtensionProcessingException if an error occurs
+   * @throws PSParameterMismatchException if an error occurs
    */
   public void attempt(
       Object[] params,
@@ -413,6 +442,16 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
     result.setSuccess();
   }
 
+  /**
+   * recover operation.
+   *
+   * @param params the params
+   * @param request the request
+   * @param context the context
+   * @param e the e
+   * @param result the result
+   * @throws PSExtensionProcessingException if an error occurs
+   */
   @Override
   public void recover(
       Object[] params,
@@ -424,6 +463,16 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
     // TODO: Implement me
   }
 
+  /**
+   * test operation.
+   *
+   * @param params the params
+   * @param request the request
+   * @param context the context
+   * @param result the result
+   * @throws PSExtensionProcessingException if an error occurs
+   * @throws PSParameterMismatchException if an error occurs
+   */
   public void test(
       Object[] params,
       IPSRequestContext request,
@@ -479,6 +528,7 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
     return newValue;
   }
 
+  /** processed flag. */
   public static String PROCESSED_FLAG = "PSOSetFieldOnSlottedItemProcessedFlag";
 
   /***
@@ -486,7 +536,7 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
    * input transform doesn't overwrite the output of the effect when running
    * in non Content Editor contexts.
    *
-   * @param ctx
+   * @param  the ctx
    */
   private void setProcessedFlag(IPSRequestContext ctx) {
     ctx.setParameter(PROCESSED_FLAG, true);

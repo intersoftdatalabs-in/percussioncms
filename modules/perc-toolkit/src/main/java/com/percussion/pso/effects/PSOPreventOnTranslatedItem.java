@@ -63,16 +63,33 @@ import org.apache.logging.log4j.Logger;
       PSEffectContext.PRE_CLONE,
       PSEffectContext.PRE_WORKFLOW
     })
+/**
+ * PSOPreventOnTranslatedItem class.
+ */
 public class PSOPreventOnTranslatedItem implements IPSEffect {
+  /**
+   * Creates a new PSOPreventOnTranslatedItem.
+   */
+  public PSOPreventOnTranslatedItem() {
+    // default
+  }
+
 
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOPreventOnTranslatedItem.class);
 
+  /** cws. */
   protected static IPSContentWs cws = null;
+  /** sws. */
   protected static IPSSystemWs sws = null;
+  /** gmgr. */
   protected static IPSGuidManager gmgr = null;
 
-  /** Initialize service pointers. */
+  /**
+   * Initialize service pointers.
+   * initServices operation.
+   *
+   */
   protected static void initServices() {
     if (cws == null) {
       cws = PSContentWsLocator.getContentWebservice();
@@ -81,7 +98,17 @@ public class PSOPreventOnTranslatedItem implements IPSEffect {
     }
   }
 
-  /** Tests if this relationship owner is a translation of some other item. */
+  /**
+   * Tests if this relationship owner is a translation of some other item.
+   * test operation.
+   * @param params the params
+   * @param req the req
+   * @param exCtx the ex ctx
+   * @param result the result
+   * @throws PSExtensionProcessingException if an error occurs
+   * @throws PSParameterMismatchException if an error occurs
+   *
+   */
   public void test(
       Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
       throws PSExtensionProcessingException, PSParameterMismatchException {
@@ -109,6 +136,16 @@ public class PSOPreventOnTranslatedItem implements IPSEffect {
   private static final String MSG_TRANSLATED_ITEM =
       "This operation is not valid on translated items";
 
+  /**
+   * attempt operation.
+   *
+   * @param params the params
+   * @param request the request
+   * @param context the context
+   * @param result the result
+   * @throws PSExtensionProcessingException if an error occurs
+   * @throws PSParameterMismatchException if an error occurs
+   */
   public void attempt(
       Object[] params,
       IPSRequestContext request,
@@ -118,6 +155,16 @@ public class PSOPreventOnTranslatedItem implements IPSEffect {
     result.setSuccess();
   }
 
+  /**
+   * recover operation.
+   *
+   * @param params the params
+   * @param request the request
+   * @param exCtx the ex ctx
+   * @param e the e
+   * @param result the result
+   * @throws PSExtensionProcessingException if an error occurs
+   */
   @Override
   public void recover(
       Object[] params,
@@ -129,8 +176,22 @@ public class PSOPreventOnTranslatedItem implements IPSEffect {
     result.setSuccess();
   }
 
+  /**
+   * init operation.
+   *
+   * @param def the def
+   * @param codeRoot the code root
+   * @throws PSExtensionException if an error occurs
+   */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
+  /**
+   * findTranslationOwner operation.
+   *
+   * @param id the id
+   * @return the result
+   * @throws PSErrorException if an error occurs
+   */
   public int findTranslationOwner(int id) throws PSErrorException {
 
     var filter = new PSRelationshipFilter();

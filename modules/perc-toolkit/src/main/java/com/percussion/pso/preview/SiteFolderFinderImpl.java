@@ -52,7 +52,11 @@ public class SiteFolderFinderImpl implements SiteFolderFinder {
 
   private boolean testCommunityVisibility = true;
 
-  /** Default constructor */
+  /**
+   * Default constructor
+   * Creates a new SiteFolderFinderImpl.
+   *
+   */
   public SiteFolderFinderImpl() {
     super();
   }
@@ -68,7 +72,13 @@ public class SiteFolderFinderImpl implements SiteFolderFinder {
   }
 
   /**
+   * See referenced member.
    * @see SiteFolderFinder#findSiteFolderLocations(String, String, String)
+   * @param contentid the contentid
+   * @param folderid the folderid
+   * @param siteid the siteid
+   * @return the result
+   * @throws Exception if an error occurs
    */
   public List<SiteFolderLocation> findSiteFolderLocations(
       String contentid, String folderid, String siteid) throws Exception {
@@ -184,20 +194,38 @@ public class SiteFolderFinderImpl implements SiteFolderFinder {
     return visible;
   }
 
+  /**
+   * findFolderTitle operation.
+   *
+   * @param folderid the folderid
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public String findFolderTitle(String folderid) throws Exception {
     PSComponentSummary summ = finder.getComponentSummaryById(folderid);
     return summ.getName();
   }
 
+  /**
+   * Sets the gmgr.
+   *
+   * @param gmgr the gmgr
+   */
   public static void setGmgr(IPSGuidManager gmgr) {
     SiteFolderFinderImpl.gmgr = gmgr;
   }
 
+  /**
+   * Sets the cws.
+   *
+   * @param cws the cws
+   */
   public static void setCws(IPSContentWs cws) {
     SiteFolderFinderImpl.cws = cws;
   }
 
   /**
+   * Sets the secws.
    * @param secws the secws to set
    */
   public static void setSecws(IPSSecurityWs secws) {
@@ -205,6 +233,7 @@ public class SiteFolderFinderImpl implements SiteFolderFinder {
   }
 
   /**
+   * Returns the testCommunityVisibility.
    * @return the testCommunityVisibility
    */
   public boolean isTestCommunityVisibility() {
@@ -212,6 +241,7 @@ public class SiteFolderFinderImpl implements SiteFolderFinder {
   }
 
   /**
+   * Sets the testCommunityVisibility.
    * @param testCommunityVisibility the testCommunityVisibility to set
    */
   public void setTestCommunityVisibility(boolean testCommunityVisibility) {
@@ -219,6 +249,7 @@ public class SiteFolderFinderImpl implements SiteFolderFinder {
   }
 
   /**
+   * Returns the siteLoader.
    * @return the siteLoader
    */
   public SiteLoader getSiteLoader() {
@@ -226,6 +257,7 @@ public class SiteFolderFinderImpl implements SiteFolderFinder {
   }
 
   /**
+   * Sets the siteLoader.
    * @param siteLoader the siteLoader to set
    */
   public void setSiteLoader(SiteLoader siteLoader) {
@@ -233,6 +265,7 @@ public class SiteFolderFinderImpl implements SiteFolderFinder {
   }
 
   /**
+   * Sets the finder.
    * @param finder the finder to set
    */
   public static void setFinder(PSOObjectFinder finder) {

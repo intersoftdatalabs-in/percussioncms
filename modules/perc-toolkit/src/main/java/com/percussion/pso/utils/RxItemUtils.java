@@ -42,6 +42,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * Utility methods for working with Rhythmyx content items and fields.
+ *
  * @author DavidBenua
  */
 public class RxItemUtils {
@@ -80,7 +82,7 @@ public class RxItemUtils {
    * @param fieldName the field name
    * @return the value as an <code>Object</code>. Will be <code>null</code> if the field does not
    *     exist or has no values.
-   * @throws PSCmsException
+   * @throws PSCmsException if an error occurs
    */
   public static Object getFieldValueRaw(IPSItemAccessor item, String fieldName)
       throws PSCmsException {
@@ -163,7 +165,7 @@ public class RxItemUtils {
    * @param fieldName the field name
    * @return the date value. Will be <code>null</code> if the field does not exist, has no values or
    *     is not a date.
-   * @throws PSCmsException
+   * @throws PSCmsException if an error occurs
    */
   public static Date getFieldDate(IPSItemAccessor item, String fieldName) throws PSCmsException {
     PSItemField fld = item.getFieldByName(fieldName);
@@ -183,6 +185,14 @@ public class RxItemUtils {
     return null;
   }
 
+  /**
+   * Returns the field binary.
+   *
+   * @param item the item
+   * @param fieldName the field name
+   * @return the result
+   * @throws PSCmsException if an error occurs
+   */
   public static byte[] getFieldBinary(IPSItemAccessor item, String fieldName)
       throws PSCmsException {
     PSItemField fld = item.getFieldByName(fieldName);
@@ -202,6 +212,14 @@ public class RxItemUtils {
     return null;
   }
 
+  /**
+   * Returns the field values.
+   *
+   * @param item the item
+   * @param fieldName the field name
+   * @return the result
+   * @throws PSCmsException if an error occurs
+   */
   public static List<String> getFieldValues(IPSItemAccessor item, String fieldName)
       throws PSCmsException {
     List<String> list = new ArrayList<String>();
@@ -219,6 +237,13 @@ public class RxItemUtils {
     return list;
   }
 
+  /**
+   * Sets the field value.
+   *
+   * @param item the item
+   * @param fieldName the field name
+   * @param value the value
+   */
   public static void setFieldValue(IPSItemAccessor item, String fieldName, IPSFieldValue value) {
     PSItemField fld = item.getFieldByName(fieldName);
     if (fld == null) {
@@ -230,18 +255,39 @@ public class RxItemUtils {
     fld.addValue(value);
   }
 
+  /**
+   * Sets the field value.
+   *
+   * @param item the item
+   * @param fieldName the field name
+   * @param textValue the text value
+   */
   public static void setFieldValue(IPSItemAccessor item, String fieldName, String textValue) {
     log.debug("setting field " + fieldName + " value " + textValue);
     IPSFieldValue val = new PSTextValue(textValue);
     setFieldValue(item, fieldName, val);
   }
 
+  /**
+   * Sets the field value.
+   *
+   * @param item the item
+   * @param fieldName the field name
+   * @param dateValue the date value
+   */
   public static void setFieldValue(IPSItemAccessor item, String fieldName, Date dateValue) {
     log.debug("setting field " + fieldName + " value " + dateValue);
     IPSFieldValue val = new PSDateValue(dateValue);
     setFieldValue(item, fieldName, val);
   }
 
+  /**
+   * Sets the field value.
+   *
+   * @param item the item
+   * @param fieldName the field name
+   * @param numbValue the numb value
+   */
   public static void setFieldValue(IPSItemAccessor item, String fieldName, Number numbValue) {
     log.debug("setting field " + fieldName + " value " + numbValue);
     String textValue = String.valueOf(numbValue);
@@ -249,6 +295,13 @@ public class RxItemUtils {
     setFieldValue(item, fieldName, val);
   }
 
+  /**
+   * Sets the field value.
+   *
+   * @param item the item
+   * @param fieldName the field name
+   * @param data the data
+   */
   public static void setFieldValue(IPSItemAccessor item, String fieldName, DataSource data) {
     log.debug("setting binary field " + fieldName);
     try {
@@ -259,6 +312,13 @@ public class RxItemUtils {
     }
   }
 
+  /**
+   * Sets the field value.
+   *
+   * @param item the item
+   * @param fieldName the field name
+   * @param streamValue the stream value
+   */
   public static void setFieldValue(
       IPSItemAccessor item, String fieldName, InputStream streamValue) {
     IPSFieldValue val;
@@ -271,6 +331,13 @@ public class RxItemUtils {
     }
   }
 
+  /**
+   * Sets the field value.
+   *
+   * @param item the item
+   * @param fieldName the field name
+   * @param listValue the list value
+   */
   public static void setFieldValue(IPSItemAccessor item, String fieldName, List<String> listValue) {
     log.debug("setting mult-value field " + fieldName);
     PSItemField fld = item.getFieldByName(fieldName);

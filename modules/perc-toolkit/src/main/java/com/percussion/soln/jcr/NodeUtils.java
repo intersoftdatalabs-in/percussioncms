@@ -38,12 +38,31 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * NodeUtils class.
+ */
 public class NodeUtils {
+  /**
+   * Creates a new NodeUtils.
+   */
+  public NodeUtils() {
+    // default
+  }
+
 
   public abstract static class BeanPropertyToNodePropertyNameTranslator {
+    /**
+     * Returns the property name.
+     *
+     * @param d the d
+     * @return the result
+     */
     public abstract String getPropertyName(PropertyDescriptor d);
   }
 
+  /**
+   * DefaultTranslator class.
+   */
   public static class DefaultTranslator extends BeanPropertyToNodePropertyNameTranslator {
 
     // REFACTORED: CP-JAVA11
@@ -51,6 +70,13 @@ public class NodeUtils {
     private Collection<String> ignoreFields;
     private Map<String, String> nameMap;
 
+    /**
+     * Creates a new DefaultTranslator.
+     *
+     * @param fieldPrefix the field prefix
+     * @param ignoreFields the ignore fields
+     * @param nameMap the name map
+     */
     public DefaultTranslator(
         String fieldPrefix, Collection<String> ignoreFields, Map<String, String> nameMap) {
       super();
@@ -59,6 +85,12 @@ public class NodeUtils {
       this.nameMap = nameMap;
     }
 
+    /**
+     * Returns the property name.
+     *
+     * @param d the d
+     * @return the result
+     */
     @Override
     public String getPropertyName(PropertyDescriptor d) {
       String name = d.getName();
@@ -68,6 +100,13 @@ public class NodeUtils {
     }
   }
 
+  /**
+   * copyFromNode operation.
+   *
+   * @param node the node
+   * @param object the object
+   * @param t the t
+   */
   public static <T> void copyFromNode(
       Node node, T object, BeanPropertyToNodePropertyNameTranslator t) {
     notNull(node);
@@ -114,6 +153,13 @@ public class NodeUtils {
     }
   }
 
+  /**
+   * Returns the string.
+   *
+   * @param node the node
+   * @param name the name
+   * @return the result
+   */
   public static String getString(Node node, String name) {
     notNull(node);
     notEmpty(name);
@@ -124,6 +170,13 @@ public class NodeUtils {
     }
   }
 
+  /**
+   * Returns the date.
+   *
+   * @param node the node
+   * @param name the name
+   * @return the result
+   */
   public static Date getDate(Node node, String name) {
     notNull(node);
     notEmpty(name);
@@ -134,6 +187,12 @@ public class NodeUtils {
     }
   }
 
+  /**
+   * Returns the content type.
+   *
+   * @param node the node
+   * @return the result
+   */
   public static String getContentType(Node node) {
     try {
       String contentType = ((IPSNodeDefinition) node.getDefinition()).getInternalName();
@@ -143,11 +202,28 @@ public class NodeUtils {
     }
   }
 
+  /**
+   * copyFromNode operation.
+   *
+   * @param node the node
+   * @param object the object
+   * @param propertyPrefix the property prefix
+   * @param ignoreProperties the ignore properties
+   */
   public static <T> void copyFromNode(
       Node node, T object, String propertyPrefix, Collection<String> ignoreProperties) {
     copyFromNode(node, object, new DefaultTranslator(propertyPrefix, ignoreProperties, null));
   }
 
+  /**
+   * copyFromNode operation.
+   *
+   * @param node the node
+   * @param object the object
+   * @param propertyPrefix the property prefix
+   * @param ignoreProperties the ignore properties
+   * @param nameMap the name map
+   */
   public static <T> void copyFromNode(
       Node node,
       T object,
@@ -157,18 +233,37 @@ public class NodeUtils {
     copyFromNode(node, object, new DefaultTranslator(propertyPrefix, ignoreProperties, nameMap));
   }
 
+  /**
+   * NodeUtilsException class.
+   */
   public static class NodeUtilsException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Creates a new NodeUtilsException.
+     *
+     * @param message the message
+     */
     public NodeUtilsException(String message) {
       super(message);
     }
 
+    /**
+     * Creates a new NodeUtilsException.
+     *
+     * @param message the message
+     * @param cause the cause
+     */
     public NodeUtilsException(String message, Throwable cause) {
       super(message, cause);
     }
 
+    /**
+     * Creates a new NodeUtilsException.
+     *
+     * @param cause the cause
+     */
     public NodeUtilsException(Throwable cause) {
       super(cause);
     }

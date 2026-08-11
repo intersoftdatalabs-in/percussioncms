@@ -18,6 +18,9 @@ package com.percussion.pso.preview;
 
 import java.util.List;
 
+/**
+ * SiteFolderFinder interface.
+ */
 public interface SiteFolderFinder {
   /**
    * Find the possible site folder previews for an item. The set of possible site id / folder id
@@ -27,9 +30,9 @@ public interface SiteFolderFinder {
    *
    * @param contentid the content id of the selected item. Must not be null or empty.
    * @param folderid the folder id, if known. Leave this blank if you do not know the folder id.
-   * @param siteid
+   * @param siteid the siteid
    * @return the List of possible site folders.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   public List<SiteFolderLocation> findSiteFolderLocations(
       String contentid, String folderid, String siteid) throws Exception;

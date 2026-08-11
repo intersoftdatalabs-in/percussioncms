@@ -18,8 +18,17 @@ package com.percussion.pso.restservice.model;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 
-/** */
+/**
+ * REST model for a translation relationship.
+ */
 public class Translation extends Relationship {
+  /**
+   * Creates a new Translation.
+   */
+  public Translation() {
+    // default
+  }
+
   /** Field locale. */
   private String locale;
 

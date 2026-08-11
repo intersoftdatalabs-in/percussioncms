@@ -16,7 +16,17 @@
  */
 package com.percussion.pso.imageedit.data;
 
+/**
+ * UserSessionData class.
+ */
 public class UserSessionData {
+  /**
+   * Creates a new UserSessionData.
+   */
+  public UserSessionData() {
+    // default
+  }
+
 
   MasterImageMetaData mimd = null;
   String[] pages = null;
@@ -29,23 +39,44 @@ public class UserSessionData {
 
   // Map<String, Dimension> resizeDetails = new HashMap<String, Dimension>();
 
+  /**
+   * Returns the mimd.
+   *
+   * @return the result
+   */
   public MasterImageMetaData getMimd() {
     return mimd;
   }
 
+  /**
+   * Sets the mimd.
+   *
+   * @param mimd the mimd
+   */
   public void setMimd(MasterImageMetaData mimd) {
     this.mimd = mimd;
   }
 
+  /**
+   * Returns the pages.
+   *
+   * @return the result
+   */
   public String[] getPages() {
     return pages;
   }
 
+  /**
+   * Sets the pages.
+   *
+   * @param pages the pages
+   */
   public void setPages(String[] pages) {
     this.pages = pages;
   }
 
   /**
+   * Returns the scaleFactor.
    * @return the scaleFactor
    */
   public double getScaleFactor() {
@@ -53,6 +84,7 @@ public class UserSessionData {
   }
 
   /**
+   * Sets the scaleFactor.
    * @param scaleFactor the scaleFactor to set
    */
   public void setScaleFactor(double scaleFactor) {
@@ -60,6 +92,7 @@ public class UserSessionData {
   }
 
   /**
+   * Returns the displayImage.
    * @return the displayImage
    */
   public SimpleImageMetaData getDisplayImage() {
@@ -67,16 +100,27 @@ public class UserSessionData {
   }
 
   /**
+   * Sets the displayImage.
    * @param displayImage the displayImage to set
    */
   public void setDisplayImage(SimpleImageMetaData displayImage) {
     this.displayImage = displayImage;
   }
 
+  /**
+   * Returns whether dirty.
+   *
+   * @return the result
+   */
   public boolean isDirty() {
     return dirty;
   }
 
+  /**
+   * Sets the dirty.
+   *
+   * @param dirty the dirty
+   */
   public void setDirty(boolean dirty) {
     this.dirty = dirty;
   }

@@ -25,6 +25,11 @@ public class PSSynFeedMediaGroup {
 
   // @TODO: Implement ME
 
+  /**
+   * Creates a new PSSynFeedMediaGroup.
+   *
+   * @param arg the arg
+   */
   public PSSynFeedMediaGroup(MediaGroup arg) {
     group = arg;
   }

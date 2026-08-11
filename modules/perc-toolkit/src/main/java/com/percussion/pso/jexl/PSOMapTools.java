@@ -32,7 +32,17 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * PSOMapTools class.
+ */
 public class PSOMapTools extends PSJexlUtilBase {
+  /**
+   * Creates a new PSOMapTools.
+   */
+  public PSOMapTools() {
+    // default
+  }
+
 
   @IPSJexlMethod(
       description = "creates a map from a default map with a custom map overlayed",
@@ -43,6 +53,13 @@ public class PSOMapTools extends PSJexlUtilBase {
             description = "the map to overlay on top of the previous argument")
       },
       returns = "an overlayed map")
+  /**
+   * overlay operation.
+   *
+   * @param defaultOptions the default options
+   * @param customOptions the custom options
+   * @return the result
+   */
   public Map<String, Object> overlay(
       Map<String, Object> defaultOptions, Map<String, Object> customOptions) {
     Map<String, Object> m = new HashMap<String, Object>();
@@ -55,11 +72,27 @@ public class PSOMapTools extends PSJexlUtilBase {
     return m;
   }
 
+  /**
+   * get operation.
+   *
+   * @param m the m
+   * @param key the key
+   * @param d the d
+   * @return the result
+   */
   public Object get(Map<String, Object> m, String key, Object d) {
     Object rvalue = m.get(key);
     return rvalue == null ? d : rvalue;
   }
 
+  /**
+   * Returns the first defined.
+   *
+   * @param m the m
+   * @param keys the keys
+   * @param d the d
+   * @return the result
+   */
   public Object getFirstDefined(Map<String, Object> m, List<String> keys, Object d) {
     for (String k : keys) {
       Object rvalue = m.get(k);
@@ -70,6 +103,14 @@ public class PSOMapTools extends PSJexlUtilBase {
     return d;
   }
 
+  /**
+   * Returns the first defined.
+   *
+   * @param m the m
+   * @param keys the keys
+   * @param d the d
+   * @return the result
+   */
   public Object getFirstDefined(Map<String, Object> m, String keys, Object d) {
     return getFirstDefined(m, asList(keys.split(",")), d);
   }
@@ -78,6 +119,14 @@ public class PSOMapTools extends PSJexlUtilBase {
       description = "loads properties from a properties file.",
       params = {@IPSJexlParam(name = "file", description = "location of properties file.")},
       returns = "java.util.properties")
+  /**
+   * loadPropertiesFile operation.
+   *
+   * @param file the file
+   * @return the result
+   * @throws FileNotFoundException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public Properties loadPropertiesFile(String file) throws FileNotFoundException, IOException {
     File f = new File(file);
     log.debug("Trying to load properties file: " + f.toURI().toString());
@@ -93,6 +142,13 @@ public class PSOMapTools extends PSJexlUtilBase {
         @IPSJexlParam(name = "values", description = "list of objects")
       },
       returns = "map")
+  /**
+   * create operation.
+   *
+   * @param keys the keys
+   * @param values the values
+   * @return the result
+   */
   public Map<String, Object> create(List<String> keys, List<? extends Object> values) {
     if (keys == null) {
       throw new IllegalArgumentException("Keys cannot be null");
@@ -113,6 +169,11 @@ public class PSOMapTools extends PSJexlUtilBase {
 
   // @IPSJexlMethod(description = "creates a map from a default map with a custom map overlayed",
   // params = {}, returns = "a new map.")
+  /**
+   * create operation.
+   *
+   * @return the result
+   */
   public Map<String, Object> create() {
     return new HashMap<String, Object>();
   }

@@ -44,8 +44,10 @@ public class PSOTransform extends PSJexlUtilBase implements IPSJexlExpression {
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOTransform.class);
 
-  /** */
-  public PSOTransform() {
+    /**
+     * Creates a new PSOTransform.
+     */
+    public PSOTransform() {
     super();
   }
 
@@ -65,6 +67,13 @@ public class PSOTransform extends PSJexlUtilBase implements IPSJexlExpression {
             type = "String",
             description = "the URI of the stylesheet to apply")
       })
+  /**
+   * transform operation.
+   *
+   * @param source the source
+   * @param stylesheetName the stylesheet name
+   * @return the result
+   */
   public String transform(String source, String stylesheetName) {
     Map<String, Object> params = new HashMap<String, Object>();
     return transform(source, stylesheetName, params);
@@ -95,6 +104,14 @@ public class PSOTransform extends PSJexlUtilBase implements IPSJexlExpression {
             description = "the file: URL of the stylesheet to apply"),
         @IPSJexlParam(name = "params", description = "XSLT parameters for stylesheet")
       })
+  /**
+   * transform operation.
+   *
+   * @param source the source
+   * @param stylesheetName the stylesheet name
+   * @param params the params
+   * @return the result
+   */
   public String transform(String source, String stylesheetName, Map<String, Object> params) {
     URL styleFile;
     PSCachedStylesheet styleCached = null;

@@ -47,6 +47,8 @@ public class MultipartFileDataSource implements DataSource {
 
   /*
    * @see jakarta.activation.DataSource#getInputStream()
+   * @return the result
+   * @throws IOException if an error occurs
    */
   public InputStream getInputStream() throws IOException {
     return file.getInputStream();
@@ -54,6 +56,8 @@ public class MultipartFileDataSource implements DataSource {
 
   /*
    * @see jakarta.activation.DataSource#getOutputStream()
+   * @return the result
+   * @throws IOException if an error occurs
    */
   public OutputStream getOutputStream() throws IOException {
     throw new IOException("OutputStreams not supported");
@@ -61,6 +65,7 @@ public class MultipartFileDataSource implements DataSource {
 
   /*
    * @see jakarta.activation.DataSource#getContentType()
+   * @return the result
    */
   public String getContentType() {
     return file.getContentType();
@@ -68,6 +73,7 @@ public class MultipartFileDataSource implements DataSource {
 
   /*
    * @see jakarta.activation.DataSource#getName()
+   * @return the result
    */
   public String getName() {
     return file.getName();

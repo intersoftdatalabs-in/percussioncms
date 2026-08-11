@@ -32,6 +32,13 @@ import org.apache.logging.log4j.Logger;
  * @since 6.0
  */
 public abstract class PSAbstractRelationshipBuilder implements IPSRelationshipBuilder {
+  /**
+   * Creates a new PSAbstractRelationshipBuilder.
+   */
+  protected PSAbstractRelationshipBuilder() {
+    // default
+  }
+
 
   /**
    * Creates a new list of the elements in <code>retain</code> that are not in <code>suppress</code>
@@ -55,7 +62,15 @@ public abstract class PSAbstractRelationshipBuilder implements IPSRelationshipBu
     return complement;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   * synchronize operation.
+   * @param sourceId the source id
+   * @param targetIds the target ids
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
+   *
+   */
   public void synchronize(int sourceId, Set<Integer> targetIds)
       throws PSAssemblyException, PSException {
     log.debug("\tdesired ids: {}", targetIds);
@@ -88,8 +103,8 @@ public abstract class PSAbstractRelationshipBuilder implements IPSRelationshipBu
    * @see IPSRelationshipBuilder#synchronize(int, Set)
    * @param sourceId the id to be related from.
    * @param targetIds the ids to be related to.
-   * @throws PSAssemblyException
-   * @throws PSException
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
    */
   public abstract void add(int sourceId, Collection<Integer> targetIds)
       throws PSAssemblyException, PSException;
@@ -100,22 +115,40 @@ public abstract class PSAbstractRelationshipBuilder implements IPSRelationshipBu
    *
    * @param sourceId the id to be related from.
    * @param targetIds the ids to be related.
-   * @throws PSAssemblyException
-   * @throws PSException
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
    */
   public abstract void delete(int sourceId, Collection<Integer> targetIds)
       throws PSAssemblyException, PSException;
 
+  /** m relationship helper service. */
   protected IPSRelationshipHelperService m_relationshipHelperService;
 
+  /**
+   * Returns the relationship helper service.
+   *
+   * @return the result
+   */
   public IPSRelationshipHelperService getRelationshipHelperService() {
     return m_relationshipHelperService;
   }
 
+  /**
+   * Sets the relationship helper service.
+   *
+   * @param relationshipHelper the relationship helper
+   */
   public void setRelationshipHelperService(IPSRelationshipHelperService relationshipHelper) {
     m_relationshipHelperService = relationshipHelper;
   }
 
+  /**
+   * addRelationships operation.
+   *
+   * @param ids the ids
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
+   */
   public void addRelationships(Collection<Integer> ids) throws PSAssemblyException, PSException {
     log.debug("addRelationships in PSAbstractRelationshipBuilder does nothing");
   }

@@ -39,19 +39,34 @@ import com.rometools.modules.mediarss.types.Category;
  */
 public class PSSynFeedCategory {
 
+  /** sceheme flickr tags. */
   public static final String SCEHEME_FLICKR_TAGS = Category.SCHEME_FLICKR_TAGS;
 
   private Category category;
 
+  /**
+   * Creates a new PSSynFeedCategory.
+   *
+   * @param arg the arg
+   */
   public PSSynFeedCategory(Category arg) {
     this.category = arg;
   }
 
-  /** */
+  /**
+   * Returns the scheme.
+   *
+   * @return the result
+   */
   public String getScheme() {
     return category.getScheme();
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public String getValue() {
     return category.getValue();
   }
@@ -59,11 +74,17 @@ public class PSSynFeedCategory {
   /***
    * label is the human readable label that can be displayed in end user applications. It is an optional attribute.
    *
+   * @return the result
    */
   public String getLabel() {
     return category.getLabel();
   }
 
+  /**
+   * toString operation.
+   *
+   * @return the result
+   */
   @Override
   public String toString() {
     return category.getLabel();

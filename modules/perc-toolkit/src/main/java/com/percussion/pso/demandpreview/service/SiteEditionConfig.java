@@ -31,7 +31,11 @@ public class SiteEditionConfig {
   private String contextURLRootVar;
   private int assemblyContext;
 
-  /** Default Constructor. */
+  /**
+   * Default Constructor.
+   * Creates a new SiteEditionConfig.
+   *
+   */
   public SiteEditionConfig() {}
 
   /**

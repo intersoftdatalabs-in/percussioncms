@@ -17,23 +17,44 @@
 
 package com.percussion.pso.demandpreview.exception;
 
+/**
+ * SiteLookUpException class.
+ */
 public class SiteLookUpException extends RuntimeException {
 
-  /** */
-  private static final long serialVersionUID = -13455678L;
+    private static final long serialVersionUID = -13455678L;
 
+  /**
+   * Creates a new SiteLookUpException.
+   */
   public SiteLookUpException() {
     super();
   }
 
+  /**
+   * Creates a new SiteLookUpException.
+   *
+   * @param message the message
+   * @param cause the cause
+   */
   public SiteLookUpException(String message, Throwable cause) {
     super(message, cause);
   }
 
+  /**
+   * Creates a new SiteLookUpException.
+   *
+   * @param message the message
+   */
   public SiteLookUpException(String message) {
     super(message);
   }
 
+  /**
+   * Creates a new SiteLookUpException.
+   *
+   * @param cause the cause
+   */
   public SiteLookUpException(Throwable cause) {
     super(cause);
   }

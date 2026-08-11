@@ -67,7 +67,11 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
   private IPSContentWs contentWs;
   private IPSGuidManager guidManager;
 
-  /** Extensions manager will use this constructor. */
+  /**
+   * Extensions manager will use this constructor.
+   * Creates a new FolderTools.
+   *
+   */
   public FolderTools() {
     super();
   }
@@ -83,7 +87,13 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
     init(contentWs, guidManager);
   }
 
-  /** Final so the preferred constructor may call without this-escape. */
+  /**
+   * Final so the preferred constructor may call without this-escape.
+   * init operation.
+   * @param contentWs the content ws
+   * @param guidManager the guid manager
+   *
+   */
   protected final void init(IPSContentWs contentWs, IPSGuidManager guidManager) {
     this.contentWs = contentWs;
     this.guidManager = guidManager;
@@ -95,12 +105,20 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param itemId the GUID for the item
    * @return the parent folder path. If there are multiple paths, the first one will be returned.
    *     Will be return empty list if the item is not in any folders.
-   * @throws PSErrorException
-   * @throws PSExtensionProcessingException
+   * @throws PSErrorException if an error occurs
+   * @throws PSExtensionProcessingException if an error occurs
    */
   @IPSJexlMethod(
       description = "get the folder path for this item",
       params = {@IPSJexlParam(name = "itemId", description = "the item GUID")})
+  /**
+   * Returns the parent folder paths.
+   *
+   * @param itemId the item id
+   * @return the result
+   * @throws PSErrorException if an error occurs
+   * @throws PSExtensionProcessingException if an error occurs
+   */
   public List<String> getParentFolderPaths(IPSGuid itemId)
       throws PSErrorException, PSExtensionProcessingException {
     String errmsg;
@@ -132,12 +150,20 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param itemId the GUID for the item
    * @return the parent folder path. If there are multiple paths, the first one will be returned.
    *     Will be <code>null</code> if the item is not in any folders.
-   * @throws PSErrorException
-   * @throws PSExtensionProcessingException
+   * @throws PSErrorException if an error occurs
+   * @throws PSExtensionProcessingException if an error occurs
    */
   @IPSJexlMethod(
       description = "get the folder path for this item",
       params = {@IPSJexlParam(name = "itemId", description = "the item GUID")})
+  /**
+   * Returns the parent folder path.
+   *
+   * @param itemId the item id
+   * @return the result
+   * @throws PSErrorException if an error occurs
+   * @throws PSExtensionProcessingException if an error occurs
+   */
   public String getParentFolderPath(IPSGuid itemId)
       throws PSErrorException, PSExtensionProcessingException {
     String errmsg;
@@ -162,14 +188,23 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
    *
    * @param assemblyItem the assembly item whose parent folder will be fetched.
    * @return the folder path of the containing folder.
-   * @throws PSErrorResultsException
-   * @throws PSExtensionProcessingException
-   * @throws PSErrorException
+   * @throws PSErrorResultsException if an error occurs
+   * @throws PSExtensionProcessingException if an error occurs
+   * @throws PSErrorException if an error occurs
    */
   @IPSJexlMethod(
       description = "get the folder path for this item",
       params = {@IPSJexlParam(name = "assemblyItem", description = "$sys.assemblyItem")},
       returns = "the path of the folder that contains this item")
+  /**
+   * Returns the parent folder path.
+   *
+   * @param assemblyItem the assembly item
+   * @return the result
+   * @throws PSErrorResultsException if an error occurs
+   * @throws PSExtensionProcessingException if an error occurs
+   * @throws PSErrorException if an error occurs
+   */
   public String getParentFolderPath(IPSAssemblyItem assemblyItem)
       throws PSErrorResultsException, PSExtensionProcessingException, PSErrorException {
     int id = assemblyItem.getFolderId();
@@ -235,6 +270,12 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
       description = "Gets the folder properties of a folder.",
       params = {@IPSJexlParam(name = "path", description = "folder path")},
       returns = "The folder properties (Map)")
+  /**
+   * Returns the folder properties.
+   *
+   * @param path the path
+   * @return the result
+   */
   public Map<String, String> getFolderProperties(String path) {
     try {
       PSFolder folder = getContentWs().loadFolders(new String[] {path}).get(0);
@@ -251,6 +292,13 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
     }
   }
 
+  /**
+   * init operation.
+   *
+   * @param def the def
+   * @param codeRoot the code root
+   * @throws PSExtensionException if an error occurs
+   */
   @Override
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
     super.init(def, codeRoot);
@@ -259,18 +307,38 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
     init(contentWs, guidManager);
   }
 
+  /**
+   * Returns the content ws.
+   *
+   * @return the result
+   */
   public IPSContentWs getContentWs() {
     return contentWs;
   }
 
+  /**
+   * Sets the content ws.
+   *
+   * @param contentWs the content ws
+   */
   public void setContentWs(IPSContentWs contentWs) {
     this.contentWs = contentWs;
   }
 
+  /**
+   * Returns the guid manager.
+   *
+   * @return the result
+   */
   public IPSGuidManager getGuidManager() {
     return guidManager;
   }
 
+  /**
+   * Sets the guid manager.
+   *
+   * @param guidManager the guid manager
+   */
   public void setGuidManager(IPSGuidManager guidManager) {
     this.guidManager = guidManager;
   }

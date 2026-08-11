@@ -184,7 +184,9 @@ import org.dom4j.Document;
 import org.dom4j.io.DocumentResult;
 import org.springframework.stereotype.Service;
 
-/** */
+/**
+ * Default implementation of the item REST service.
+ */
 @Service(value = "restItemService")
 @Path("/Content/")
 @Produces("text/xml")
@@ -245,7 +247,11 @@ public class ItemRestServiceImpl implements IItemRestService {
     this.uri = uri;
   }
 
-  /** Constructor for ItemRestServiceImpl. */
+  /**
+   * Constructor for ItemRestServiceImpl.
+   * Creates a new ItemRestServiceImpl.
+   *
+   */
   public ItemRestServiceImpl() {
     super();
   }
@@ -409,6 +415,12 @@ public class ItemRestServiceImpl implements IItemRestService {
     return item;
   }
 
+  /**
+   * updateItem operation.
+   *
+   * @param item the item
+   * @return the result
+   */
   public Item updateItem(Item item) {
     return updateItem(item, false);
   }
@@ -419,6 +431,7 @@ public class ItemRestServiceImpl implements IItemRestService {
    * @param item Item
    * @return Item
    * @see IItemRestService#updateItem(Item)
+   * @param updateOnly the update only
    */
   @POST
   @Path("/")
@@ -812,7 +825,7 @@ public class ItemRestServiceImpl implements IItemRestService {
    * @param itemdef PSItemDefinition
    * @param child boolean
    * @return Field
-   * @throws RepositoryException
+   * @throws RepositoryException if an error occurs
    */
   private Field convertPSFieldtoField(
       Property field, Node parentNode, PSField psfield, PSItemDefinition itemdef, boolean child)
@@ -1151,7 +1164,7 @@ public class ItemRestServiceImpl implements IItemRestService {
    * Method locateItem.
    *
    * @param item Item
-   * @throws ItemRestException
+   * @throws ItemRestException if an error occurs
    */
   public void locateItem(Item item) throws ItemRestException {
     int foundId = -1;
@@ -1475,7 +1488,7 @@ public class ItemRestServiceImpl implements IItemRestService {
    *
    * @param is InputStream
    * @return Item
-   * @throws JAXBException
+   * @throws JAXBException if an error occurs
    */
   public Item getItemFromStream(InputStream is) throws JAXBException {
     JAXBContext jc = JAXBContext.newInstance(Item.class);
@@ -1601,10 +1614,10 @@ public class ItemRestServiceImpl implements IItemRestService {
    *
    * @param item Item
    * @param psItem PSCoreItem
-   * @throws IOException
-   * @throws FileNotFoundException
-   * @throws ItemRestException
-   * @throws ItemRestNotModifiedException
+   * @throws IOException if an error occurs
+   * @throws FileNotFoundException if an error occurs
+   * @throws ItemRestException if an error occurs
+   * @throws ItemRestNotModifiedException if an error occurs
    */
   private void updateFields(Item item, PSCoreItem psItem)
       throws IOException, ItemRestException, ItemRestNotModifiedException {
@@ -1633,8 +1646,8 @@ public class ItemRestServiceImpl implements IItemRestService {
    *
    * @param field Field
    * @param psField PSItemField
-   * @throws ItemRestException
-   * @throws ItemRestNotModifiedException
+   * @throws ItemRestException if an error occurs
+   * @throws ItemRestNotModifiedException if an error occurs
    */
   private void updateFieldValue(Field field, PSItemField psField)
       throws ItemRestException, ItemRestNotModifiedException {
@@ -1666,12 +1679,12 @@ public class ItemRestServiceImpl implements IItemRestService {
    * Method getFieldValue.
    *
    * @param value Value
-   * @param psField
+   * @param psField the ps field
    * @return IPSFieldValue
-   * @throws ItemRestException
-   * @throws ItemRestNotModifiedException
-   * @throws IOException
-   * @throws FileNotFoundException
+   * @throws ItemRestException if an error occurs
+   * @throws ItemRestNotModifiedException if an error occurs
+   * @throws IOException if an error occurs
+   * @throws FileNotFoundException if an error occurs
    */
   private IPSFieldValue getFieldValue(Value value, PSItemField psField)
       throws ItemRestException, ItemRestNotModifiedException {
@@ -1943,6 +1956,12 @@ public class ItemRestServiceImpl implements IItemRestService {
     return item;
   }
 
+  /**
+   * PurgeAllFolderContent operation.
+   *
+   * @param target the target
+   * @return the result
+   */
   @DELETE
   @Path("/PurgeFolder/{target:.*}")
   public Response PurgeAllFolderContent(@PathParam("target") String target) {
@@ -1965,6 +1984,7 @@ public class ItemRestServiceImpl implements IItemRestService {
    * @param body String
    * @param debug boolean
    * @return Items
+   * @param param the param
    */
   @POST
   @Path("import/{template}")
@@ -2089,11 +2109,25 @@ public class ItemRestServiceImpl implements IItemRestService {
   @GET
   // On upgrade use @Path("/Sites/{search:.*}") remove limited
   // @Path(value="/Sites/{search}", limited=false)
+  /**
+   * Returns the items.
+   *
+   * @param path the path
+   * @param n the n
+   * @return the result
+   */
   @Path("/Sites/{search:.*}")
   public PagedResult getItems(@PathParam("search") String path, @QueryParam("n") Integer n) {
     return jcrSearch("select rx:sys_contentid from nt:base ", n, "/Sites/" + path + "%");
   }
 
+  /**
+   * Returns the type items.
+   *
+   * @param type the type
+   * @param n the n
+   * @return the result
+   */
   @GET
   @Path("/Type/{typename}")
   public PagedResult getTypeItems(@PathParam("typename") String type, @QueryParam("n") Integer n) {
@@ -2134,6 +2168,7 @@ public class ItemRestServiceImpl implements IItemRestService {
    * @param contentid int
    * @param revision int
    * @return String
+   * @param field the field
    */
   public String generateFileLink(int contentid, int revision, String field) {
     // builder starts with current URI and has appended path of getCustomer
@@ -2172,6 +2207,13 @@ public class ItemRestServiceImpl implements IItemRestService {
     return builder.build().toASCIIString();
   }
 
+  /**
+   * Returns the file.
+   *
+   * @param id the id
+   * @param field the field
+   * @return the result
+   */
   @GET
   @Path("{id}/field/{fieldname}")
   @Produces("*/*")
@@ -2184,6 +2226,14 @@ public class ItemRestServiceImpl implements IItemRestService {
     return getFile(head.getId(), head.getRevision(), field);
   }
 
+  /**
+   * Returns the file.
+   *
+   * @param id the id
+   * @param revision the revision
+   * @param field the field
+   * @return the result
+   */
   @GET
   @Path("{id}/{rev}/field/{fieldname}")
   @Produces("*/*")
@@ -2222,6 +2272,12 @@ public class ItemRestServiceImpl implements IItemRestService {
     return rb.build();
   }
 
+  /**
+   * switchCommunity operation.
+   *
+   * @param communityid the communityid
+   * @throws PSUserNotMemberOfCommunityException if an error occurs
+   */
   public void switchCommunity(int communityid) throws PSUserNotMemberOfCommunityException {
     PSRequest req = (PSRequest) PSRequestInfo.getRequestInfo(KEY_PSREQUEST);
 
@@ -2273,6 +2329,13 @@ public class ItemRestServiceImpl implements IItemRestService {
     return navonId;
   }
 
+  /**
+   * updateItems operation.
+   *
+   * @param debug the debug
+   * @param content_type the content type
+   * @return the result
+   */
   @GET
   @Path("/importfeeds/")
   public Response updateItems(
@@ -2326,6 +2389,10 @@ public class ItemRestServiceImpl implements IItemRestService {
   /***
    * Given the specified content id, will load the Feed Definition
    * parameters and execute the import template specified by the feed.
+   * @param debug the debug
+   * @param sys_contentid the sys contentid
+   * @param sys_folderid the sys folderid
+   * @return the result
    */
   @GET
   @Path("/importfeed/")
@@ -2558,6 +2625,14 @@ public class ItemRestServiceImpl implements IItemRestService {
     return builder.build();
   }
 
+  /**
+   * findByKeyField operation.
+   *
+   * @param value the value
+   * @param keyfield the keyfield
+   * @param contextRoot the context root
+   * @return the result
+   */
   @GET
   @Path("/find/v/{value}/k/{keyfield}/p/{contextRoot}/")
   public Item findByKeyField(String value, String keyfield, String contextRoot) {

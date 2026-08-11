@@ -49,6 +49,9 @@ public class ImageSizeTemplateExpander extends AbstractTemplateExpanderAdaptor
   /** Default constructor. */
   @SuppressWarnings("this-escape")
   // Safe because setNeedsContentNode is final or not overridden in subclasses
+  /**
+   * Creates a new ImageSizeTemplateExpander.
+   */
   public ImageSizeTemplateExpander() {
     super.setNeedsContentNode(true);
   }
@@ -68,6 +71,14 @@ public class ImageSizeTemplateExpander extends AbstractTemplateExpanderAdaptor
    *
    * @see AbstractTemplateExpanderAdaptor#findTemplates(IPSGuid, IPSGuid, IPSGuid, int,
    *     PSComponentSummary, Node, Map)
+   * @param itemGuid the item guid
+   * @param folderGuid the folder guid
+   * @param siteGuid the site guid
+   * @param context the context
+   * @param summary the summary
+   * @param contentNode the content node
+   * @param parameters the parameters
+   * @return the result
    */
   @Override
   protected List<IPSGuid> findTemplates(

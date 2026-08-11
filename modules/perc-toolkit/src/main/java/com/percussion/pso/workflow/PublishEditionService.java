@@ -67,7 +67,11 @@ public class PublishEditionService implements InitializingBean {
   private Map<String, Map<String, Map<String, String>>> workflows =
       new HashMap<String, Map<String, Map<String, String>>>();
 
-  /** Default constructor. */
+  /**
+   * Default constructor.
+   * Creates a new PublishEditionService.
+   *
+   */
   public PublishEditionService() {}
 
   private void initServices() {
@@ -80,12 +84,19 @@ public class PublishEditionService implements InitializingBean {
   }
 
   /**
+   * See referenced member.
    * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
+   * @throws Exception if an error occurs
    */
   public void afterPropertiesSet() throws Exception {
     initServices();
   }
 
+  /**
+   * runQueuedEdition operation.
+   *
+   * @param ed the ed
+   */
   @SuppressWarnings("deprecation")
   public void runQueuedEdition(QueuedEdition ed) {
     runEdition(ed.getEditionId());
@@ -102,11 +113,24 @@ public class PublishEditionService implements InitializingBean {
     rps.startPublishingJob(guid, null);
   }
 
+  /**
+   * retryQueuedEdition operation.
+   *
+   * @param ed the ed
+   */
   @SuppressWarnings("deprecation")
   public void retryQueuedEdition(QueuedEdition ed) {
     log.info("retryQueuedEdition is no longer used");
   }
 
+  /**
+   * findEdition operation.
+   *
+   * @param workflow the workflow
+   * @param transition the transition
+   * @param community the community
+   * @return the result
+   */
   public int findEdition(int workflow, int transition, int community) {
     String workKey = String.valueOf(workflow);
     Map<String, Map<String, String>> workMap = workflows.get(workKey);
@@ -142,9 +166,10 @@ public class PublishEditionService implements InitializingBean {
   /**
    * Makes a Queued Edition. This is no longer necessary, but supported for backwards compatibility
    *
-   * @param editionId
-   * @param sessionId
+   * @param editionId the edition id
+   * @param sessionId the session id
    * @deprecated
+   * @return the result
    */
   @Deprecated
   @SuppressWarnings("deprecation")
@@ -201,6 +226,7 @@ public class PublishEditionService implements InitializingBean {
   }
 
   /**
+   * Returns Returns the workflows..
    * @return Returns the workflows.
    */
   public Map<String, Map<String, Map<String, String>>> getWorkflows() {
@@ -208,6 +234,7 @@ public class PublishEditionService implements InitializingBean {
   }
 
   /**
+   * Sets the workflows.
    * @param workflows The workflows to set.
    */
   public void setWorkflows(Map<String, Map<String, Map<String, String>>> workflows) {
@@ -273,6 +300,7 @@ public class PublishEditionService implements InitializingBean {
   }
 
   /**
+   * Returns Returns the retryCount..
    * @return Returns the retryCount.
    * @deprecated
    */
@@ -282,6 +310,7 @@ public class PublishEditionService implements InitializingBean {
   }
 
   /**
+   * Sets the retryCount.
    * @param retryCount The retryCount to set.
    * @deprecated
    */

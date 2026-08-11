@@ -34,7 +34,7 @@ public interface UrlBuilder {
    * @param location the site folder location
    * @param useMultiple does this URL point to the appropriate multisiteresolver?
    * @return the URL. Never <code>null</code>
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   public String buildUrl(
       IPSAssemblyTemplate template,

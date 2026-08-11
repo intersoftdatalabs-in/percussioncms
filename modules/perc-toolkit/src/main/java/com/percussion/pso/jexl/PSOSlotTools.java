@@ -52,7 +52,11 @@ public class PSOSlotTools extends PSJexlUtilBase implements IPSJexlExpression {
 
   private static final Logger ms_log = LogManager.getLogger(PSOListTools.class);
 
-  /** Ctor. */
+  /**
+   * Ctor.
+   * Creates a new PSOSlotTools.
+   *
+   */
   public PSOSlotTools() {
     super();
   }
@@ -65,7 +69,7 @@ public class PSOSlotTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param params the combined map of parameters to pass to the slot finder. Never <code>null
    *     </code> may be <code>empty</code>
    * @return a list of results
-   * @throws Throwable
+   * @throws Throwable if an error occurs
    */
   @IPSJexlMethod(
       description = "Get the contents of a slot as a list of assembly items",
@@ -75,6 +79,15 @@ public class PSOSlotTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "params", description = "extra parameters to the process")
       },
       returns = "list of assembly items")
+  /**
+   * Returns the slot contents.
+   *
+   * @param item the item
+   * @param slotName the slot name
+   * @param params the params
+   * @return the result
+   * @throws Throwable if an error occurs
+   */
   public List<IPSAssemblyItem> getSlotContents(
       IPSAssemblyItem item, String slotName, Map<String, Object> params) throws Throwable {
     try {
@@ -134,7 +147,7 @@ public class PSOSlotTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param propertyName the name of the desired property. Must not be <code>null</code> or <code>
    *     blank</code>
    * @return a list of String values. Never <code>null</code> but may be <code>empty</code>
-   * @throws RepositoryException
+   * @throws RepositoryException if an error occurs
    */
   @IPSJexlMethod(
       description = "gets all property values across the contents of a slot",
@@ -142,6 +155,14 @@ public class PSOSlotTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "slotcontent", description = "contents of the slot"),
         @IPSJexlParam(name = "propertyName", description = "name of the property to fetch")
       })
+  /**
+   * Returns the slot property values.
+   *
+   * @param slotcontents the slotcontents
+   * @param propertyName the property name
+   * @return the result
+   * @throws RepositoryException if an error occurs
+   */
   public List<String> getSlotPropertyValues(List<IPSAssemblyItem> slotcontents, String propertyName)
       throws RepositoryException {
     Validate.notEmpty(propertyName, "the property name must be specified.");

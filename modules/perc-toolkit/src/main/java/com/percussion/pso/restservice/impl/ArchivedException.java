@@ -17,15 +17,31 @@
 
 package com.percussion.pso.restservice.impl;
 
+/**
+ * Exception indicating the requested item is archived.
+ */
 public class ArchivedException extends Exception {
   private static final long serialVersionUID = 1L;
 
   private String message;
 
+  /**
+   * Creates a new ArchivedException.
+   */
+  /**
+   * Creates an exception with the given message.
+   *
+   * @param message the detail message
+   */
   public ArchivedException(String message) {
     this.message = message;
   }
 
+  /**
+   * Returns the Message.
+   *
+   * @return the value
+   */
   public String getMessage() {
     return message;
   }

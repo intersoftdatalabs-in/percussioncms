@@ -23,7 +23,9 @@ import com.percussion.pso.restservice.model.results.PagedResult;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 
-/** */
+/**
+ * REST contract for creating, reading, and updating PSO content items.
+ */
 @Path("/Content/")
 public interface IItemRestService {
   /**
@@ -34,6 +36,13 @@ public interface IItemRestService {
    */
   public Item updateItem(Item item);
 
+  /**
+   * updateItem operation.
+   *
+   * @param item the item
+   * @param updateOnly the update only
+   * @return the result
+   */
   @POST
   @Path("/")
   @Consumes("text/xml")
@@ -83,6 +92,12 @@ public interface IItemRestService {
   @Path("{id}")
   public Item purgeItem(@PathParam("id") int id);
 
+  /**
+   * PurgeAllFolderContent operation.
+   *
+   * @param target the target
+   * @return the result
+   */
   @DELETE
   @Path("/PurgeFolder/{target:.*}")
   public Response PurgeAllFolderContent(@PathParam("target") String target);
@@ -94,6 +109,7 @@ public interface IItemRestService {
    * @param body String
    * @param debug boolean
    * @return Items
+   * @param param the param
    */
   @POST
   @Path("import/{template}")
@@ -133,18 +149,47 @@ public interface IItemRestService {
   @GET
   // On upgrade use @Path("/Sites/{search:.*}") remove limited
   // @Path(value="/Sites/{search}", limited=false)
+  /**
+   * Returns the items.
+   *
+   * @param path the path
+   * @param n the n
+   * @return the result
+   */
   @Path("/Sites/{search:.*}")
   public PagedResult getItems(@PathParam("search") String path, @QueryParam("n") Integer n);
 
+  /**
+   * Returns the type items.
+   *
+   * @param type the type
+   * @param n the n
+   * @return the result
+   */
   @Path("/Type/{typename}")
   public PagedResult getTypeItems(@PathParam("typename") String type, @QueryParam("n") Integer n);
 
   // REFACTORED: CP-JAVA11
 
+  /**
+   * Returns the file.
+   *
+   * @param id the id
+   * @param revision the revision
+   * @param field the field
+   * @return the result
+   */
   @GET
   @Path("{id}/{rev}/field/{fieldname}")
   @Produces("*/*")
   public Response getFile(
+  /**
+   * Returns the file.
+   *
+   * @param id the id
+   * @param field the field
+   * @return the result
+   */
       @PathParam("id") int id,
       @PathParam("rev") int revision,
       @PathParam("fieldname") String field);
@@ -154,6 +199,13 @@ public interface IItemRestService {
   @Produces("*/*")
   public Response getFile(@PathParam("id") int id, @PathParam("fieldname") String field);
 
+  /**
+   * updateItems operation.
+   *
+   * @param debug the debug
+   * @param content_type the content type
+   * @return the result
+   */
   @GET
   @Path("/importfeeds/")
   public Response updateItems(
@@ -162,10 +214,11 @@ public interface IItemRestService {
   /***
    * Given a content id for a Feed Definition will import the specified feed.
    *
-   * @param  debug
-   * @param contentId
-   * @param folderId
+   * @param debug the debug
+   * @param contentId the content id
+   * @param folderId the folder id
    *
+   * @return the result
    */
   @GET
   @Path("/importfeed/")
@@ -177,6 +230,9 @@ public interface IItemRestService {
   /***
    * Finds an item by a key field.
    * @return null or the Item.
+   * @param value the value
+   * @param keyfield the keyfield
+   * @param contextRoot the context root
    */
   @GET
   @Path("/find/v/{value}/k/{keyfield}/p/{contextRoot}/")

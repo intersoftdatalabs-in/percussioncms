@@ -47,7 +47,7 @@ public class RxServerUtils {
    * <p><em>WARNING:</em> This method works only on Windows, and should not be relied upon in cross
    * platform code.
    *
-   * @throws InterruptedException
+   * @throws InterruptedException if an error occurs
    */
   public static void waitForServerReady() throws InterruptedException {
     FileLock lock = null;
@@ -85,8 +85,8 @@ public class RxServerUtils {
   /***
    * Get the value of the PERCUSSION_HOME environment variable or null if it is not set.
    *
-   * @author natechadwick
    *
+   * @return the result
    */
   public static String getRhythmyxHome() {
 

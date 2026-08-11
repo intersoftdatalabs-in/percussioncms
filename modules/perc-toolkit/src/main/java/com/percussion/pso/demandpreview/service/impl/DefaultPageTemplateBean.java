@@ -41,11 +41,26 @@ import org.apache.logging.log4j.Logger;
  */
 public class DefaultPageTemplateBean implements ItemTemplateService {
 
+  /**
+   * Creates a new DefaultPageTemplateBean.
+   */
+  public DefaultPageTemplateBean() {
+    // default
+  }
+
   private static final Logger log = LogManager.getLogger(DefaultPageTemplateBean.class);
 
   private IPSTemplateService tempSvc = null;
   private IPSOObjectFinder objFinder = null;
 
+  /**
+   * init operation.
+   */
+  /**
+   * Initializes dependencies.
+   *
+   * @throws Exception if initialization fails
+   */
   public void init() throws Exception {
     if (tempSvc == null) {
       tempSvc = PSAssemblyServiceLocator.getAssemblyService();
@@ -108,6 +123,17 @@ public class DefaultPageTemplateBean implements ItemTemplateService {
     }
   }
 
+  /**
+   * Returns the SiteTemplates.
+   *
+   * @return the value
+   */
+  /**
+   * Returns template GUIDs associated with the site.
+   *
+   * @param site the site
+   * @return the template GUIDs
+   */
   protected Set<IPSGuid> getSiteTemplates(IPSSite site) {
     Set<IPSGuid> results = new HashSet<IPSGuid>();
     for (IPSAssemblyTemplate tp : site.getAssociatedTemplates()) {
@@ -118,12 +144,21 @@ public class DefaultPageTemplateBean implements ItemTemplateService {
   }
 
   /**
+   * Sets the tempSvc.
    * @param tempSvc the tempSvc to set
    */
   protected void setTempSvc(IPSTemplateService tempSvc) {
     this.tempSvc = tempSvc;
   }
 
+  /**
+   * Sets the ObjFinder.
+   */
+  /**
+   * Sets the object finder used for testing.
+   *
+   * @param objFinder the object finder
+   */
   protected void setObjFinder(IPSOObjectFinder objFinder) {
     this.objFinder = objFinder;
   }

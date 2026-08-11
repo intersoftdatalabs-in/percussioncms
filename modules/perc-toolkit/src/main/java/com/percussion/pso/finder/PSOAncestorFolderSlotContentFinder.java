@@ -61,12 +61,17 @@ public class PSOAncestorFolderSlotContentFinder extends PSBaseSlotContentFinder 
   private PSOFolderTools folderTools;
   private IPSContentWs contentWs;
 
+  /** param contenttype. */
   public static final String PARAM_CONTENTTYPE = "contenttype";
 
   /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSOAncestorFolderSlotContentFinder.class);
 
-  /** Constructor for Extensions Manager. */
+  /**
+   * Constructor for Extensions Manager.
+   * Creates a new PSOAncestorFolderSlotContentFinder.
+   *
+   */
   public PSOAncestorFolderSlotContentFinder() {}
 
   /**
@@ -80,11 +85,28 @@ public class PSOAncestorFolderSlotContentFinder extends PSBaseSlotContentFinder 
     init(contentWs, folderTools);
   }
 
+  /**
+   * init operation.
+   *
+   * @param contentWs the content ws
+   * @param folderTools the folder tools
+   */
   protected final void init(IPSContentWs contentWs, PSOFolderTools folderTools) {
     this.contentWs = contentWs;
     this.folderTools = folderTools;
   }
 
+  /**
+   * Returns the slot items.
+   *
+   * @param assemblyItem the assembly item
+   * @param slot the slot
+   * @param params the params
+   * @return the result
+   * @throws RepositoryException if an error occurs
+   * @throws PSFilterException if an error occurs
+   * @throws PSAssemblyException if an error occurs
+   */
   @Override
   public Set<SlotItem> getSlotItems(
       IPSAssemblyItem assemblyItem, IPSTemplateSlot slot, Map<String, Object> params)
@@ -140,10 +162,22 @@ public class PSOAncestorFolderSlotContentFinder extends PSBaseSlotContentFinder 
     return null;
   }
 
+  /**
+   * Returns the type.
+   *
+   * @return the result
+   */
   public Type getType() {
     return Type.AUTOSLOT;
   }
 
+  /**
+   * init operation.
+   *
+   * @param extDef the ext def
+   * @param file the file
+   * @throws PSExtensionException if an error occurs
+   */
   public void init(IPSExtensionDef extDef, File file) throws PSExtensionException {
     super.init(extDef, file);
     IPSContentWs cws = PSContentWsLocator.getContentWebservice();
@@ -153,18 +187,38 @@ public class PSOAncestorFolderSlotContentFinder extends PSBaseSlotContentFinder 
     init(cws, ft);
   }
 
+  /**
+   * Returns the folder tools.
+   *
+   * @return the result
+   */
   public PSOFolderTools getFolderTools() {
     return folderTools;
   }
 
+  /**
+   * Sets the folder tools.
+   *
+   * @param folderTools the folder tools
+   */
   public void setFolderTools(PSOFolderTools folderTools) {
     this.folderTools = folderTools;
   }
 
+  /**
+   * Returns the content ws.
+   *
+   * @return the result
+   */
   public IPSContentWs getContentWs() {
     return contentWs;
   }
 
+  /**
+   * Sets the content ws.
+   *
+   * @param contentWs the content ws
+   */
   public void setContentWs(IPSContentWs contentWs) {
     this.contentWs = contentWs;
   }

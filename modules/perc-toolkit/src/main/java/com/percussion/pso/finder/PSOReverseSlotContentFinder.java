@@ -85,15 +85,28 @@ public class PSOReverseSlotContentFinder extends PSBaseSlotContentFinder
     }
   }
 
-  /** Default Constructor. */
+  /**
+   * Default Constructor.
+   * Creates a new PSOReverseSlotContentFinder.
+   *
+   */
   public PSOReverseSlotContentFinder() {
     super();
   }
 
   /**
+   * Returns the slot items.
+   *
    * @see
    *     com.percussion.services.assembly.impl.finder.PSBaseSlotContentFinder#getSlotItems(com.percussion.services.assembly.IPSAssemblyItem,
    *     com.percussion.services.assembly.IPSTemplateSlot, java.util.Map)
+   * @param sourceItem the source item
+   * @param slot the slot
+   * @param selectors the selectors
+   * @return the result
+   * @throws RepositoryException if an error occurs
+   * @throws PSFilterException if an error occurs
+   * @throws PSAssemblyException if an error occurs
    */
   @Override
   protected Set<SlotItem> getSlotItems(
@@ -195,6 +208,7 @@ public class PSOReverseSlotContentFinder extends PSBaseSlotContentFinder
    * Returns the slot type. Reverse slots are Computed slots.
    *
    * @see com.percussion.services.assembly.IPSSlotContentFinder#getType()
+   * @return the result
    */
   public Type getType() {
     return com.percussion.services.assembly.IPSSlotContentFinder.Type.COMPUTED;
@@ -213,6 +227,8 @@ public class PSOReverseSlotContentFinder extends PSBaseSlotContentFinder
   public static final String PARAM_LIMITPUBLIC = "limit_public";
 
   /**
+   * Sets the asm.
+   *
    * @param asm The asm to set. Only for use in Unit Tests
    */
   public static void setAsm(IPSAssemblyService asm) {
@@ -220,6 +236,8 @@ public class PSOReverseSlotContentFinder extends PSBaseSlotContentFinder
   }
 
   /**
+   * Sets the gmgr.
+   *
    * @param gmgr The gmgr to set. Only for use in Unit Tests
    */
   public static void setGmgr(IPSGuidManager gmgr) {

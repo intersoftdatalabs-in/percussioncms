@@ -74,7 +74,11 @@ public class PSOSlotContents {
   private static IPSGuidManager gmgr = null;
   private static IPSAssemblyService mAss;
 
-  /** Default constructor. */
+  /**
+   * Default constructor.
+   * Creates a new PSOSlotContents.
+   *
+   */
   public PSOSlotContents() {}
 
   /**
@@ -84,7 +88,7 @@ public class PSOSlotContents {
    * @param slot the slot
    * @return all relationships in the given slot for this parent. Never <code>null</code>. May be
    *     <code>empty</code>.
-   * @throws PSErrorException
+   * @throws PSErrorException if an error occurs
    */
   public List<PSAaRelationship> getSlotContents(IPSGuid parentItem, IPSGuid slot)
       throws PSErrorException {
@@ -141,12 +145,18 @@ public class PSOSlotContents {
    * @author DavidBenua
    */
   protected class SlotItemComparator implements Comparator<PSAaRelationship> {
+    /**
+     * Creates a new SlotItemComparator.
+     */
     public SlotItemComparator() {}
 
     /**
      * Compares PSAaRelationships by sort rank.
      *
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+     * @param rel1 the rel1
+     * @param rel2 the rel2
+     * @return the result
      */
     public int compare(PSAaRelationship rel1, PSAaRelationship rel2) {
       if (rel1 == null || rel2 == null) {
@@ -166,6 +176,8 @@ public class PSOSlotContents {
      * All SlotItemComparators return the same order.
      *
      * @see java.lang.Object#equals(java.lang.Object)
+     * @param obj the obj
+     * @return the result
      */
     @Override
     public boolean equals(Object obj) {
@@ -177,6 +189,7 @@ public class PSOSlotContents {
 
     /**
      * All instances of this comparator are equal, so all share one hash code.
+     * @return the result
      */
     @Override
     public int hashCode() {
@@ -185,6 +198,7 @@ public class PSOSlotContents {
   }
 
   /**
+   * Sets the cws.
    * @param cws the cws to set. Used for testing.
    */
   public void setCws(IPSContentWs cws) {
@@ -192,6 +206,7 @@ public class PSOSlotContents {
   }
 
   /**
+   * Sets the gmgr.
    * @param gmgr the gmgr to set. Used for testing
    */
   public void setGmgr(IPSGuidManager gmgr) {
@@ -216,6 +231,11 @@ public class PSOSlotContents {
     return ret;
   }
 
+  /**
+   * Returns the assembly service.
+   *
+   * @return the result
+   */
   protected static IPSAssemblyService getAssemblyService() {
     if (mAss == null) {
       mAss = PSAssemblyServiceLocator.getAssemblyService();

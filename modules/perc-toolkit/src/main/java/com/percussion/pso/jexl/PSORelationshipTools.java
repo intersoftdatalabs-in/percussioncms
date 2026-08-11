@@ -48,6 +48,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * JEXL tools for inspecting and manipulating content relationships.
+ *
  * @author MikeStarck
  */
 public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpression {
@@ -56,8 +58,10 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
 
   private static IPSGuidManager gmgr = null;
 
-  /** */
-  public PSORelationshipTools() {
+    /**
+     * Creates a new PSORelationshipTools.
+     */
+    public PSORelationshipTools() {
     super();
   }
 
@@ -80,6 +84,16 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
             type = "String",
             description = "the userName with which to make the request")
       })
+  /**
+   * Returns the relationships.
+   *
+   * @param itemId the item id
+   * @param contenttypename the contenttypename
+   * @param userName the user name
+   * @return the result
+   * @throws PSErrorException if an error occurs
+   * @throws PSExtensionProcessingException if an error occurs
+   */
   public List<PSItemSummary> getRelationships(
       IPSGuid itemId, String contenttypename, String userName)
       throws PSErrorException, PSExtensionProcessingException {
@@ -130,6 +144,14 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "slotName", description = "the slot name")
       },
       returns = "a list of all parent GUIDs")
+  /**
+   * findAllParentIds operation.
+   *
+   * @param guid the guid
+   * @param slotName the slot name
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public List<IPSGuid> findAllParentIds(IPSGuid guid, String slotName) throws Exception {
     initServices();
     String id = gmgr.makeLocator(guid).getPart(PSLocator.KEY_ID);
@@ -143,6 +165,14 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "slotName", description = "the slot name")
       },
       returns = "a list of all parent GUIDs")
+  /**
+   * findAllParentIds operation.
+   *
+   * @param contentid the contentid
+   * @param slotName the slot name
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public List<IPSGuid> findAllParentIds(String contentid, String slotName) throws Exception {
     initServices();
 
@@ -163,6 +193,15 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "usePublic", description = "use last public revision?")
       },
       returns = "a list of all parent GUIDs")
+  /**
+   * findParentIds operation.
+   *
+   * @param guid the guid
+   * @param slotName the slot name
+   * @param usePublic the use public
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public List<IPSGuid> findParentIds(IPSGuid guid, String slotName, boolean usePublic)
       throws Exception {
     initServices();
@@ -178,6 +217,15 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "usePublic", description = "use last public revision?")
       },
       returns = "a list of all parent GUIDs")
+  /**
+   * findParentIds operation.
+   *
+   * @param contentid the contentid
+   * @param slotName the slot name
+   * @param usePublic the use public
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public List<IPSGuid> findParentIds(String contentid, String slotName, boolean usePublic)
       throws Exception {
     initServices();
@@ -199,13 +247,20 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
    *
    * @param contentid the content id
    * @return <code>true</code> if this page has a public navon parent in the landing page slot.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   @IPSJexlMethod(
       description = "is this page referenced in the landing page slot",
       params = {
         @IPSJexlParam(name = "contentid", description = "the content id of the current page")
       })
+  /**
+   * Returns whether landing page.
+   *
+   * @param contentid the contentid
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public boolean isLandingPage(String contentid) throws Exception {
     IPSOParentFinder relFinder = new PSOParentFinder();
     PSNavConfig nc = PSNavConfig.getInstance();
@@ -231,6 +286,14 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "contentid", description = "the content id of the current page"),
         @IPSJexlParam(name = "folderid", description = "the folder id of the current folder")
       })
+  /**
+   * Returns whether landing page in folder.
+   *
+   * @param contentid the contentid
+   * @param folderid the folderid
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public boolean isLandingPageInFolder(String contentid, String folderid) throws Exception {
     initServices();
     IPSOParentFinder relFinder = new PSOParentFinder();
@@ -271,6 +334,13 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
   @IPSJexlMethod(
       description = "is this page referenced in the landing page slot",
       params = {@IPSJexlParam(name = "guid", description = "the current item guid")})
+  /**
+   * Returns whether landing page guid.
+   *
+   * @param guid the guid
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public boolean isLandingPageGuid(IPSGuid guid) throws Exception {
     initServices();
     String id = gmgr.makeLocator(guid).getPart(PSLocator.KEY_ID);
@@ -291,6 +361,14 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "contentGuid", description = "the current item guid"),
         @IPSJexlParam(name = "folderGuid", description = "the folder guid")
       })
+  /**
+   * Returns whether landing page in folder guid.
+   *
+   * @param contentGuid the content guid
+   * @param folderGuid the folder guid
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public boolean isLandingPageInFolderGuid(IPSGuid contentGuid, IPSGuid folderGuid)
       throws Exception {
     initServices();
@@ -305,6 +383,14 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "contentid", description = "the current item id"),
         @IPSJexlParam(name = "folderid", description = "the folder id")
       })
+  /**
+   * Returns whether landing page in folder int.
+   *
+   * @param contentid the contentid
+   * @param folderid the folderid
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public boolean isLandingPageInFolderInt(int contentid, int folderid) throws Exception {
     String cid = String.valueOf(contentid);
     String fid = String.valueOf(folderid);
@@ -318,7 +404,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
    * @param guid the current content item guid.
    * @param slotName the slot name
    * @return <code>true</code> if all ancestors in the slot are public.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   @IPSJexlMethod(
       description = "Does this item have any non-public ancestors",
@@ -326,6 +412,14 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "guid", description = "the content item GUID"),
         @IPSJexlParam(name = "slotName", description = "slotName")
       })
+  /**
+   * hasOnlyPublicAncestors operation.
+   *
+   * @param guid the guid
+   * @param slotName the slot name
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public boolean hasOnlyPublicAncestors(IPSGuid guid, String slotName) throws Exception {
     initServices();
     String contentid = gmgr.makeLocator(guid).getPart(PSLocator.KEY_ID);
@@ -343,7 +437,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
    * @param validFlags the validity flags considered public as a comma separated list. Defaults to
    *     &quot;y,i&quot;
    * @return <code>true</code> if all ancestors in the slot are public.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   @IPSJexlMethod(
       description = "Does this item have any non-public ancestors",
@@ -354,6 +448,15 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
             name = "validFlags",
             description = "validity flags considered public. Defaults to y,i")
       })
+  /**
+   * hasOnlyPublicAncestors operation.
+   *
+   * @param contentId the content id
+   * @param slotName the slot name
+   * @param validFlags the valid flags
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public boolean hasOnlyPublicAncestors(String contentId, String slotName, String validFlags)
       throws Exception {
     if (StringUtils.isBlank(validFlags)) {
@@ -368,6 +471,12 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
   @IPSJexlMethod(
       description = "Return a list of slots that are populated for this item",
       params = {@IPSJexlParam(name = "owner", description = "guid for this item")})
+  /**
+   * Returns the item slots.
+   *
+   * @param owner the owner
+   * @return the result
+   */
   public List<String> getItemSlots(IPSGuid owner) {
     initServices();
     PSRelationshipFilter filter = new PSRelationshipFilter();
@@ -384,6 +493,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
   }
 
   /**
+   * Sets the gmgr.
    * @param gmgr the gmgr to set
    */
   public static void setGmgr(IPSGuidManager gmgr) {

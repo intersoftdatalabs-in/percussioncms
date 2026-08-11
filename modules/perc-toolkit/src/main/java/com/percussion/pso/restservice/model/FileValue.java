@@ -20,9 +20,18 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlValue;
 
-/** */
+/**
+ * REST model for a file or binary field value.
+ */
 @XmlRootElement(name = "FileValue")
 public class FileValue implements Value {
+
+  /**
+   * Creates a new FileValue.
+   */
+  public FileValue() {
+    // default
+  }
 
   /** Field stringValue. */
   private String stringValue;

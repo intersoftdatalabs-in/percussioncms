@@ -34,6 +34,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * PSActiveAssemblyRelationshipBuilder class.
+ */
 public abstract class PSActiveAssemblyRelationshipBuilder extends PSRelationshipBuilder {
 
   /** The log instance to use for this class, never <code>null</code>. */
@@ -44,9 +47,14 @@ public abstract class PSActiveAssemblyRelationshipBuilder extends PSRelationship
 
   private IPSAssemblyService m_assemblyService;
 
+  /**
+   * Creates a new PSActiveAssemblyRelationshipBuilder.
+   */
   public PSActiveAssemblyRelationshipBuilder() {}
 
   /**
+   * Creates a new PSActiveAssemblyRelationshipBuilder.
+   *
    * @param isParent {@code true} when the updated item is the relationship owner
    * @see PSRelationshipBuilder#PSRelationshipBuilder(boolean)
    */
@@ -54,6 +62,9 @@ public abstract class PSActiveAssemblyRelationshipBuilder extends PSRelationship
     super(isParent);
   }
 
+  /**
+   * init operation.
+   */
   public void init() {
     if (m_assemblyService == null) {
       m_assemblyService = PSAssemblyServiceLocator.getAssemblyService();
@@ -61,6 +72,12 @@ public abstract class PSActiveAssemblyRelationshipBuilder extends PSRelationship
     super.init();
   }
 
+  /**
+   * Sets the up filter.
+   *
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
+   */
   protected void setupFilter() throws PSAssemblyException, PSException {
     if (slotName != null) {
       IPSTemplateSlot slot = findSlot(slotName);
@@ -77,22 +94,49 @@ public abstract class PSActiveAssemblyRelationshipBuilder extends PSRelationship
     super.setupFilter();
   }
 
+  /**
+   * Returns the slot name.
+   *
+   * @return the result
+   */
   public String getSlotName() {
     return slotName;
   }
 
+  /**
+   * Sets the slot name.
+   *
+   * @param slotName the slot name
+   */
   public void setSlotName(String slotName) {
     this.slotName = slotName;
   }
 
+  /**
+   * Returns the template name.
+   *
+   * @return the result
+   */
   public String getTemplateName() {
     return templateName;
   }
 
+  /**
+   * Sets the template name.
+   *
+   * @param templateName the template name
+   */
   public void setTemplateName(String templateName) {
     this.templateName = templateName;
   }
 
+  /**
+   * addRelationships operation.
+   *
+   * @param ids the ids
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
+   */
   public void addRelationships(Collection<Integer> ids) throws PSAssemblyException, PSException {
     IPSAssemblyTemplate template = findTemplate(templateName);
     IPSTemplateSlot slot = findSlot(slotName);
@@ -127,7 +171,7 @@ public abstract class PSActiveAssemblyRelationshipBuilder extends PSRelationship
    * Validates that the slot is setup correctly to add relationships to. Emits log messages to help
    * the user find errors.
    *
-   * @param slot
+   * @param  the slot
    * @return 0 if successful, non-zero otherwise.
    */
   private int validateSlot(IPSTemplateSlot slot) {

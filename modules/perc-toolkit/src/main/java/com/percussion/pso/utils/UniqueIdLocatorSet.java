@@ -38,35 +38,43 @@ public class UniqueIdLocatorSet extends HashSet<PSLocator>
     implements Set<PSLocator>, Iterable<PSLocator> {
   private static final long serialVersionUID = 1L;
 
-  /** */
-  public UniqueIdLocatorSet() {
+    /**
+     * Creates a new UniqueIdLocatorSet.
+     */
+    public UniqueIdLocatorSet() {
     super();
   }
 
   /**
-   * @param c
+   * Sets the c.
+   * @param c the c
    */
   public UniqueIdLocatorSet(Collection<? extends PSLocator> c) {
     super(c);
   }
 
   /**
-   * @param initialCapacity
+   * Sets the initialCapacity.
+   * @param initialCapacity the initial capacity
    */
   public UniqueIdLocatorSet(int initialCapacity) {
     super(initialCapacity);
   }
 
   /**
-   * @param initialCapacity
-   * @param loadFactor
+   * Sets the initialCapacity.
+   * @param initialCapacity the initial capacity
+   * @param loadFactor the load factor
    */
   public UniqueIdLocatorSet(int initialCapacity, float loadFactor) {
     super(initialCapacity, loadFactor);
   }
 
   /**
+   * See referenced member.
    * @see java.util.HashSet#add(java.lang.Object)
+   * @param loc the loc
+   * @return the result
    */
   @Override
   public boolean add(PSLocator loc) {
@@ -77,7 +85,10 @@ public class UniqueIdLocatorSet extends HashSet<PSLocator>
   }
 
   /**
+   * See referenced member.
    * @see java.util.HashSet#contains(java.lang.Object)
+   * @param o the o
+   * @return the result
    */
   @Override
   public boolean contains(Object o) {
@@ -86,7 +97,10 @@ public class UniqueIdLocatorSet extends HashSet<PSLocator>
   }
 
   /**
+   * See referenced member.
    * @see java.util.HashSet#remove(java.lang.Object)
+   * @param o the o
+   * @return the result
    */
   @Override
   public boolean remove(Object o) {
@@ -114,7 +128,7 @@ public class UniqueIdLocatorSet extends HashSet<PSLocator>
   /**
    * Gets the locator with the specified content id.
    *
-   * @param id
+   * @param id the id
    * @return the locator, or <code>null</code> if there is no locator in the set with this id.
    */
   protected PSLocator getLocatorById(int id) {

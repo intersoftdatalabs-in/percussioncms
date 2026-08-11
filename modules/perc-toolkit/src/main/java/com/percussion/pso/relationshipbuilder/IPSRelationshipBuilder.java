@@ -23,6 +23,9 @@ import com.percussion.services.assembly.PSAssemblyException;
 import java.util.Collection;
 import java.util.Set;
 
+/**
+ * IPSRelationshipBuilder interface.
+ */
 public interface IPSRelationshipBuilder {
 
   /**
@@ -36,6 +39,7 @@ public interface IPSRelationshipBuilder {
    *     slot
    * @throws PSCmsException propagated from relationship API, if there are problems querying
    *     relationships
+   * @throws PSException if an error occurs
    */
   public abstract Collection<Integer> retrieve(int sourceId)
       throws PSAssemblyException, PSException;
@@ -51,9 +55,17 @@ public interface IPSRelationshipBuilder {
    * @param targetIds items that should be related to sourceId
    * @throws PSCmsException propagated from relationship api errors
    * @throws PSAssemblyException if the slot or template cannot be found by assembly service.
+   * @throws PSException if an error occurs
    */
   public abstract void synchronize(int sourceId, Set<Integer> targetIds)
       throws PSAssemblyException, PSException;
 
+  /**
+   * addRelationships operation.
+   *
+   * @param ids the ids
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
+   */
   public void addRelationships(Collection<Integer> ids) throws PSAssemblyException, PSException;
 }

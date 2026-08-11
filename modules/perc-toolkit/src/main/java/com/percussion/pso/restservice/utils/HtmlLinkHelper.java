@@ -34,17 +34,24 @@ import org.jsoup.select.Elements;
  * @author natechadwick
  */
 public class HtmlLinkHelper {
+  /**
+   * Creates a new HtmlLinkHelper.
+   */
+  public HtmlLinkHelper() {
+    // default
+  }
+
 
   private static final Logger log = LogManager.getLogger(HtmlLinkHelper.class);
 
   /***
    * Given the specified base url, will convert the supplied link from relative
    * to abolute and return a string the result.
-   * @param base
-   * @param src
+   * @param base the base
+   * @param src the src
    * @return An absolute version of the supplied url
-   * @throws URISyntaxException
-   * @throws MalformedURLException
+   * @throws URISyntaxException if an error occurs
+   * @throws MalformedURLException if an error occurs
    */
   public static String convertToAbsoluteLink(String base, String src)
       throws URISyntaxException, MalformedURLException {
@@ -57,10 +64,11 @@ public class HtmlLinkHelper {
 
   /***
    * Returns the base link
-   * @param link
+   * @param link the link
    *
-   * @throws URISyntaxException
-   * @throws MalformedURLException
+   * @throws URISyntaxException if an error occurs
+   * @throws MalformedURLException if an error occurs
+   * @return the result
    */
   public static String getBaseLink(String link) throws URISyntaxException, MalformedURLException {
 
@@ -69,6 +77,15 @@ public class HtmlLinkHelper {
     return u.getScheme() + "://" + u.getAuthority() + "/";
   }
 
+  /**
+   * convertLinksToAbsolute operation.
+   *
+   * @param link the link
+   * @param doc the doc
+   * @return the result
+   * @throws MalformedURLException if an error occurs
+   * @throws URISyntaxException if an error occurs
+   */
   public static org.jsoup.nodes.Document convertLinksToAbsolute(
       String link, org.jsoup.nodes.Document doc) throws MalformedURLException, URISyntaxException {
 
@@ -108,11 +125,12 @@ public class HtmlLinkHelper {
 
   /***
    * Converts all links in the specified string to absolute.
-   * @param link
-   * @param text
+   * @param link the link
+   * @param text the text
    *
-   * @throws MalformedURLException
-   * @throws URISyntaxException
+   * @throws MalformedURLException if an error occurs
+   * @throws URISyntaxException if an error occurs
+   * @return the result
    */
   public static String convertLinksToAbsolute(String link, String text)
       throws MalformedURLException, URISyntaxException {

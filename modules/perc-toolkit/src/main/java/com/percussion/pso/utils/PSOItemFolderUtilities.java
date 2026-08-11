@@ -54,12 +54,28 @@ public class PSOItemFolderUtilities {
     return Arrays.asList(ret);
   }
 
+  /**
+   * Returns the folder path.
+   *
+   * @param id the id
+   * @return the result
+   * @throws PSCmsException if an error occurs
+   * @throws PSNotFoundException if an error occurs
+   */
   public static String getFolderPath(int id) throws PSCmsException, PSNotFoundException {
     PSServerFolderProcessor folderproc = PSServerFolderProcessor.getInstance();
     String[] ret = folderproc.getItemPaths(new PSLocator(id, -1));
     return (ret.length > 0) ? ret[0] : null;
   }
 
+  /**
+   * Returns the parent folder id.
+   *
+   * @param itemId the item id
+   * @return the result
+   * @throws PSCmsException if an error occurs
+   * @throws PSNotFoundException if an error occurs
+   */
   public static int getParentFolderId(int itemId) throws PSCmsException, PSNotFoundException {
     PSServerFolderProcessor folderproc = PSServerFolderProcessor.getInstance();
     return folderproc.getIdByPath(getFolderPath(itemId));
@@ -70,7 +86,9 @@ public class PSOItemFolderUtilities {
    *
    * @param id The Content ID of the item
    *
-   * @throws PSCmsException
+   * @throws PSCmsException if an error occurs
+   * @return the result
+   * @throws PSNotFoundException if an error occurs
    */
   public static String getItemFolderPath(int id) throws PSCmsException, PSNotFoundException {
     PSServerFolderProcessor folderproc = PSServerFolderProcessor.getInstance();
@@ -83,6 +101,14 @@ public class PSOItemFolderUtilities {
     return (ret.length > 0) ? ret[0] : null;
   }
 
+  /**
+   * Returns the item parent folder id.
+   *
+   * @param itemId the item id
+   * @return the result
+   * @throws PSCmsException if an error occurs
+   * @throws PSNotFoundException if an error occurs
+   */
   public static int getItemParentFolderId(int itemId) throws PSCmsException, PSNotFoundException {
     PSServerFolderProcessor folderproc = PSServerFolderProcessor.getInstance();
     return folderproc.getIdByPath(getItemFolderPath(itemId));

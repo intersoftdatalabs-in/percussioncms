@@ -34,6 +34,13 @@ import org.w3c.dom.Element;
  * @author DavidBenua
  */
 public class PSOItemXMLSupport {
+  /**
+   * Creates a new PSOItemXMLSupport.
+   */
+  public PSOItemXMLSupport() {
+    // default
+  }
+
   // REFACTORED: CP-JAVA11
   private static final Logger log = LogManager.getLogger(PSOItemXMLSupport.class);
 
@@ -124,6 +131,12 @@ public class PSOItemXMLSupport {
     return false;
   }
 
+  /**
+   * Returns the field values.
+   *
+   * @param field the field
+   * @return the result
+   */
   public List<String> getFieldValues(Element field) {
     List<String> values = new ArrayList<String>();
 

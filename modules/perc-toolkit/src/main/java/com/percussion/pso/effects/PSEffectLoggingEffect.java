@@ -43,6 +43,9 @@ import org.apache.logging.log4j.Logger;
 
 @PSHandlesEffectContext()
 // REFACTORED: CP-JAVA11
+/**
+ * PSEffectLoggingEffect class.
+ */
 public class PSEffectLoggingEffect implements IPSEffect {
 
   /**
@@ -66,11 +69,18 @@ public class PSEffectLoggingEffect implements IPSEffect {
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSEffectLoggingEffect.class);
 
+  /** sws. */
   protected static IPSSystemWs sws = null;
+  /** gmgr. */
   protected static IPSGuidManager gmgr = null;
+  /** cws. */
   protected static IPSContentWs cws = null;
 
-  /** Initialize service pointers. */
+  /**
+   * Initialize service pointers.
+   * initServices operation.
+   *
+   */
   protected static void initServices() {
     if (sws == null) {
       sws = PSSystemWsLocator.getSystemWebservice();
@@ -79,7 +89,11 @@ public class PSEffectLoggingEffect implements IPSEffect {
     }
   }
 
-  /** Default constructor. */
+  /**
+   * Default constructor.
+   * Creates a new PSEffectLoggingEffect.
+   *
+   */
   public PSEffectLoggingEffect() {
     super();
   }
@@ -89,6 +103,9 @@ public class PSEffectLoggingEffect implements IPSEffect {
    * the effect implementation.
    *
    * <p>See <code>IPSExtension</code> for description.
+   * @param def the def
+   * @param codeRoot the code root
+   * @throws PSExtensionException if an error occurs
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
     if (def == null || codeRoot == null)
@@ -99,6 +116,16 @@ public class PSEffectLoggingEffect implements IPSEffect {
     m_name = def.getRef().toString();
   }
 
+  /**
+   * recover operation.
+   *
+   * @param params the params
+   * @param req the req
+   * @param exCtx the ex ctx
+   * @param ex the ex
+   * @param result the result
+   * @throws PSExtensionProcessingException if an error occurs
+   */
   public void recover(
       Object[] params,
       IPSRequestContext req,
@@ -109,6 +136,16 @@ public class PSEffectLoggingEffect implements IPSEffect {
     result.setSuccess();
   }
 
+  /**
+   * test operation.
+   *
+   * @param params the params
+   * @param req the req
+   * @param exCtx the ex ctx
+   * @param result the result
+   * @throws PSExtensionProcessingException if an error occurs
+   * @throws PSParameterMismatchException if an error occurs
+   */
   public void test(
       Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
       throws PSExtensionProcessingException, PSParameterMismatchException {
@@ -176,7 +213,15 @@ public class PSEffectLoggingEffect implements IPSEffect {
   }
 
   /**
+   * attempt operation.
+   *
    * @see IPSEffect#attempt(Object[], IPSRequestContext, IPSExecutionContext, PSEffectResult)
+   * @param params the params
+   * @param req the req
+   * @param exCtx the ex ctx
+   * @param result the result
+   * @throws PSExtensionProcessingException if an error occurs
+   * @throws PSParameterMismatchException if an error occurs
    */
   public void attempt(
       Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)

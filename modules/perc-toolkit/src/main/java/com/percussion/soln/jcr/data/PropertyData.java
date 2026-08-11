@@ -21,6 +21,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * PropertyData class.
+ */
 public class PropertyData implements Serializable {
 
   /** Safe to serialize */
@@ -36,13 +39,17 @@ public class PropertyData implements Serializable {
 
   private String name;
 
-  /** Constructor for Serializers. */
+  /**
+   * Constructor for Serializers.
+   * Creates a new PropertyData.
+   *
+   */
   public PropertyData() {}
 
   /**
    * Constructor for Single value property.
    *
-   * @param data
+   * @param data the data
    */
   public PropertyData(ValueData data) {
     if ((data) == null) throw new IllegalArgumentException("Value Data cannot be null");
@@ -51,26 +58,56 @@ public class PropertyData implements Serializable {
     values.add(data);
   }
 
+  /**
+   * Returns whether multiple.
+   *
+   * @return the result
+   */
   public boolean isMultiple() {
     return multiple;
   }
 
+  /**
+   * Sets the multiple.
+   *
+   * @param multiple the multiple
+   */
   public void setMultiple(boolean multiple) {
     this.multiple = multiple;
   }
 
+  /**
+   * Returns the values.
+   *
+   * @return the result
+   */
   public List<ValueData> getValues() {
     return values;
   }
 
+  /**
+   * Sets the values.
+   *
+   * @param values the values
+   */
   public void setValues(List<ValueData> values) {
     this.values = values == null ? null : new ArrayList<>(values);
   }
 
+  /**
+   * Returns the name.
+   *
+   * @return the result
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Sets the name.
+   *
+   * @param name the name
+   */
   public void setName(String name) {
     this.name = name;
   }

@@ -19,9 +19,18 @@ package com.percussion.pso.restservice.model;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlValue;
 
-/** */
+/**
+ * REST model for a simple string field value.
+ */
 @XmlRootElement(name = "Value")
 public class StringValue implements Value {
+
+  /**
+   * Creates a new StringValue.
+   */
+  public StringValue() {
+    // default
+  }
 
   /** Field stringValue. */
   private String stringValue;

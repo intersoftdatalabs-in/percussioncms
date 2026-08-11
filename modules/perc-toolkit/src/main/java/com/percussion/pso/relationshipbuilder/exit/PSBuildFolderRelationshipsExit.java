@@ -26,12 +26,31 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * PSBuildFolderRelationshipsExit class.
+ */
 public class PSBuildFolderRelationshipsExit extends PSAbstractBuildRelationshipsExtension
     implements IPSResultDocumentProcessor {
+  /**
+   * Creates a new PSBuildFolderRelationshipsExit.
+   */
+  public PSBuildFolderRelationshipsExit() {
+    // default
+  }
+
 
   /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSBuildFolderRelationshipsExit.class);
 
+  /**
+   * createRelationshipBuilder operation.
+   *
+   * @param paramMap the param map
+   * @param request the request
+   * @param mode the mode
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   */
   @Override
   public IPSRelationshipBuilder createRelationshipBuilder(
       Map<String, String> paramMap, IPSRequestContext request, Mode mode)

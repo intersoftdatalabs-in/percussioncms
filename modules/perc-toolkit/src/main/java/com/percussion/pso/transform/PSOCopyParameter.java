@@ -47,11 +47,24 @@ public class PSOCopyParameter implements IPSItemInputTransformer, IPSRequestPreP
 
   private static final Logger log = LogManager.getLogger(PSOCopyParameter.class);
 
+  /**
+   * Creates a new PSOCopyParameter.
+   */
   public PSOCopyParameter() {
     // nothing to do
   }
 
   // see IPSRequestPreProcessor
+  /**
+   * preProcessRequest operation.
+   *
+   * @param params the params
+   * @param request the request
+   * @throws PSAuthorizationException if an error occurs
+   * @throws PSRequestValidationException if an error occurs
+   * @throws PSParameterMismatchException if an error occurs
+   * @throws PSExtensionProcessingException if an error occurs
+   */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,
           PSRequestValidationException,
@@ -146,6 +159,13 @@ public class PSOCopyParameter implements IPSItemInputTransformer, IPSRequestPreP
   }
 
   // see IPSRequestPreProcessor
+  /**
+   * init operation.
+   *
+   * @param def the def
+   * @param codeRoot the code root
+   * @throws PSExtensionException if an error occurs
+   */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
     // nothing to do
   }

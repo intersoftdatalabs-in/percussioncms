@@ -31,6 +31,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * Normalizes servlet parameter maps into simple string maps for extensions.
+ *
  * @author DavidBenua
  */
 public class SimplifyParameters {
@@ -40,6 +42,12 @@ public class SimplifyParameters {
   /** Static methods only */
   private SimplifyParameters() {}
 
+  /**
+   * simplifyMap operation.
+   *
+   * @param input the input
+   * @return the result
+   */
   public static Map<String, String> simplifyMap(Map<String, Object> input) {
     Map<String, String> outMap = new LinkedHashMap<String, String>();
 
@@ -53,6 +61,12 @@ public class SimplifyParameters {
     return outMap;
   }
 
+  /**
+   * simplifyMapStringStringArray operation.
+   *
+   * @param input the input
+   * @return the result
+   */
   public static Map<String, String> simplifyMapStringStringArray(Map<String, String[]> input) {
     Map<String, String> outMap = new LinkedHashMap<String, String>();
 
@@ -66,6 +80,12 @@ public class SimplifyParameters {
     return outMap;
   }
 
+  /**
+   * simplifyValue operation.
+   *
+   * @param value the value
+   * @return the result
+   */
   public static String simplifyValue(Object value) {
     if (value == null) {
       log.debug("null value");
@@ -95,6 +115,12 @@ public class SimplifyParameters {
     return sval;
   }
 
+  /**
+   * Returns the value as list.
+   *
+   * @param value the value
+   * @return the result
+   */
   public static List<String> getValueAsList(Object value) {
     List<String> result = new ArrayList<String>();
     if (value == null) {

@@ -29,12 +29,15 @@ public class ImageData extends ImageMetaData implements Serializable {
   private static final long serialVersionUID = -135423469L;
   private byte[] binary;
 
-  /** */
-  public ImageData() {
+    /**
+     * Creates a new ImageData.
+     */
+    public ImageData() {
     super();
   }
 
   /**
+   * Returns the binary.
    * @return the binary
    */
   public byte[] getBinary() {
@@ -42,12 +45,18 @@ public class ImageData extends ImageMetaData implements Serializable {
   }
 
   /**
+   * Sets the binary.
    * @param binary the binary to set
    */
   public void setBinary(byte[] binary) {
     this.binary = binary;
   }
 
+  /**
+   * toString operation.
+   *
+   * @return the result
+   */
   @Override
   public String toString() {
     return super.toString();

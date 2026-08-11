@@ -50,15 +50,24 @@ public class PSORequiredFieldsItemValidation extends PSOAbstractItemValidationEx
   // REFACTORED: CP-JAVA11
   private static final Logger log = LogManager.getLogger(PSORequiredFieldsItemValidation.class);
 
-  /** */
-  public PSORequiredFieldsItemValidation() {
+    /**
+     * Creates a new PSORequiredFieldsItemValidation.
+     */
+    public PSORequiredFieldsItemValidation() {
     super();
   }
 
   /**
+   * validateDocs operation.
+   *
    * @see
    *     com.percussion.pso.validation.PSOAbstractItemValidationExit#validateDocs(org.w3c.dom.Document,
    *     org.w3c.dom.Document, com.percussion.server.IPSRequestContext, java.lang.Object[])
+   * @param inputDoc the input doc
+   * @param errorDoc the error doc
+   * @param req the req
+   * @param params the params
+   * @throws Exception if an error occurs
    */
   @Override
   protected void validateDocs(

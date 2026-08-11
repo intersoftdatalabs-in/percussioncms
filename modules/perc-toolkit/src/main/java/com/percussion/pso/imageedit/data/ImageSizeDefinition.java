@@ -23,6 +23,13 @@ package com.percussion.pso.imageedit.data;
  * @author DavidBenua
  */
 public class ImageSizeDefinition {
+  /**
+   * Creates a new ImageSizeDefinition.
+   */
+  public ImageSizeDefinition() {
+    // default
+  }
+
   private String code;
   private String label;
   private int height;
@@ -31,6 +38,7 @@ public class ImageSizeDefinition {
   private String binaryTemplate;
 
   /**
+   * Returns the code.
    * @return the code
    */
   public String getCode() {
@@ -38,6 +46,7 @@ public class ImageSizeDefinition {
   }
 
   /**
+   * Sets the code.
    * @param code the code to set
    */
   public void setCode(String code) {
@@ -45,6 +54,7 @@ public class ImageSizeDefinition {
   }
 
   /**
+   * Returns the label.
    * @return the label
    */
   public String getLabel() {
@@ -52,6 +62,7 @@ public class ImageSizeDefinition {
   }
 
   /**
+   * Sets the label.
    * @param label the label to set
    */
   public void setLabel(String label) {
@@ -59,6 +70,7 @@ public class ImageSizeDefinition {
   }
 
   /**
+   * Returns the height.
    * @return the height
    */
   public int getHeight() {
@@ -66,6 +78,7 @@ public class ImageSizeDefinition {
   }
 
   /**
+   * Sets the height.
    * @param height the height to set
    */
   public void setHeight(int height) {
@@ -73,6 +86,7 @@ public class ImageSizeDefinition {
   }
 
   /**
+   * Returns the width.
    * @return the width
    */
   public int getWidth() {
@@ -80,6 +94,7 @@ public class ImageSizeDefinition {
   }
 
   /**
+   * Sets the width.
    * @param width the width to set
    */
   public void setWidth(int width) {
@@ -87,6 +102,7 @@ public class ImageSizeDefinition {
   }
 
   /**
+   * Returns the snippetTemplate.
    * @return the snippetTemplate
    */
   public String getSnippetTemplate() {
@@ -94,6 +110,7 @@ public class ImageSizeDefinition {
   }
 
   /**
+   * Sets the snippetTemplate.
    * @param snippetTemplate the snippetTemplate to set
    */
   public void setSnippetTemplate(String snippetTemplate) {
@@ -101,6 +118,7 @@ public class ImageSizeDefinition {
   }
 
   /**
+   * Returns the binaryTemplate.
    * @return the binaryTemplate
    */
   public String getBinaryTemplate() {
@@ -108,12 +126,18 @@ public class ImageSizeDefinition {
   }
 
   /**
+   * Sets the binaryTemplate.
    * @param binaryTemplate the binaryTemplate to set
    */
   public void setBinaryTemplate(String binaryTemplate) {
     this.binaryTemplate = binaryTemplate;
   }
 
+  /**
+   * toString operation.
+   *
+   * @return the result
+   */
   @Override
   public String toString() {
     final StringBuffer sb = new StringBuffer("ImageSizeDefinition{");

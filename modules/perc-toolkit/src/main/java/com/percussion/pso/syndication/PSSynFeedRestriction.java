@@ -73,12 +73,22 @@ public class PSSynFeedRestriction {
 
   private Restriction r;
 
+  /**
+   * Returns the relationship.
+   *
+   * @return the result
+   */
   public String getRelationship() {
 
     if (r.getRelationship().equals(Restriction.Relationship.ALLOW)) return "allow";
     else return "deny";
   }
 
+  /**
+   * Returns the type.
+   *
+   * @return the result
+   */
   public String getType() {
     if (r.getType().equals(Restriction.Type.COUNTRY)) {
       return "country";
@@ -87,14 +97,29 @@ public class PSSynFeedRestriction {
     }
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public String getValue() {
     return r.getValue();
   }
 
+  /**
+   * Creates a new PSSynFeedRestriction.
+   *
+   * @param arg the arg
+   */
   public PSSynFeedRestriction(Restriction arg) {
     r = arg;
   }
 
+  /**
+   * toString operation.
+   *
+   * @return the result
+   */
   @Override
   public String toString() {
     String ret = "";

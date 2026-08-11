@@ -54,17 +54,35 @@ import org.springframework.web.servlet.mvc.ParameterizableViewController;
  */
 public abstract class AbstractMenuController extends ParameterizableViewController
     implements Controller {
+  /** Logger for menu controller subclasses. */
   private static final Logger log = LogManager.getLogger(AbstractMenuController.class);
+  /** Finds site-folder locations for content items. */
   protected SiteFolderFinder siteFolderFinder = null;
+  /** Assembly service used to resolve templates. */
   protected static IPSAssemblyService asm = null;
+  /** Security web service used for community visibility checks. */
   protected static IPSSecurityWs secws = null;
 
+  /** Object finder used to load component summaries. */
   protected static PSOObjectFinder objectFinder = null;
   private boolean testCommunityVisibility = true;
 
   /**
+   * Creates a menu controller with default community-visibility filtering enabled.
+   */
+  protected AbstractMenuController() {
+    // default
+  }
+
+  /**
+   * handleRequestInternal operation.
+   *
    * @see ParameterizableViewController#handleRequestInternal(HttpServletRequest,
    *     HttpServletResponse)
+   * @param request the request
+   * @param response the response
+   * @return the result
+   * @throws Exception if an error occurs
    */
   protected ModelAndView handleRequestInternal(
       HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -74,11 +92,11 @@ public abstract class AbstractMenuController extends ParameterizableViewControll
   /**
    * Find the visible templates for a given item
    *
-   * @param contentid
-   * @param sites
+   * @param contentid the content id of the item
+   * @param sites the sites used to filter visible templates
    * @return the list of templates. Never <code>null</code> but may be <code>empty</code>
-   * @throws PSException
-   * @throws PSAssemblyException
+   * @throws PSException if the item summary cannot be loaded
+   * @throws PSAssemblyException if templates cannot be resolved
    */
   protected List<IPSAssemblyTemplate> findVisibleTemplates(String contentid, Set<IPSSite> sites)
       throws PSException, PSAssemblyException {
@@ -183,7 +201,11 @@ public abstract class AbstractMenuController extends ParameterizableViewControll
     return siteFolderFinder;
   }
 
-  /** Initialize the service pointers. */
+  /**
+   * Initialize the service pointers.
+   * initServices operation.
+   *
+   */
   protected static void initServices() {
     if (asm == null) {
       secws = PSSecurityWsLocator.getSecurityWebservice();
@@ -193,6 +215,8 @@ public abstract class AbstractMenuController extends ParameterizableViewControll
   }
 
   /**
+   * Sets the site folder finder used by this controller.
+   *
    * @param siteFolderFinder the siteFolderFinder to set
    */
   public void setSiteFolderFinder(SiteFolderFinder siteFolderFinder) {

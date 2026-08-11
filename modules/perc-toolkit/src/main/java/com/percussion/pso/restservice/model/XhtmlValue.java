@@ -22,9 +22,18 @@ import jakarta.xml.bind.annotation.XmlValue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** */
+/**
+ * REST model for an XHTML/rich-text field value.
+ */
 @XmlRootElement(name = "XmlValue")
 public class XhtmlValue implements Value {
+
+  /**
+   * Creates a new XhtmlValue.
+   */
+  public XhtmlValue() {
+    // default
+  }
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(XhtmlValue.class);
 

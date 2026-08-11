@@ -50,6 +50,13 @@ import org.springframework.web.servlet.mvc.ParameterizableViewController;
  */
 public class DemandPreviewController extends ParameterizableViewController implements Controller {
 
+  /**
+   * Creates a new DemandPreviewController.
+   */
+  public DemandPreviewController() {
+    // default
+  }
+
   private static final Logger log = LogManager.getLogger(DemandPreviewController.class);
 
   private String errorViewName = "error";
@@ -61,6 +68,11 @@ public class DemandPreviewController extends ParameterizableViewController imple
 
   private IPSGuidManager gmgr = null;
 
+  /**
+   * Initializes service dependencies if they have not been injected.
+   *
+   * @throws Exception if initialization fails
+   */
   public void init() throws Exception {
     if (gmgr == null) {
       gmgr = PSGuidManagerLocator.getGuidMgr();
@@ -71,6 +83,13 @@ public class DemandPreviewController extends ParameterizableViewController imple
   }
 
   @Override
+  /**
+   * handleRequestInternal operation.
+   * @param request the request
+   * @param response the response
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   protected ModelAndView handleRequestInternal(
       HttpServletRequest request, HttpServletResponse response) throws Exception {
     String emsg;
@@ -101,6 +120,17 @@ public class DemandPreviewController extends ParameterizableViewController imple
     return mav;
   }
 
+  /**
+   * Publishes the item for on-demand preview and returns the preview URL.
+   *
+   * @param contentId the content id to publish
+   * @param folderId the folder id context
+   * @param siteId the site id for edition lookup
+   * @return the preview redirect URL
+   * @throws PSAssemblyException if template assembly fails
+   * @throws TimeoutException if the publish wait times out
+   * @throws PSException if content lookup fails
+   */
   protected String doPublishForPreview(String contentId, String folderId, String siteId)
       throws PSAssemblyException, TimeoutException, PSException {
     String redirectTo = null;
@@ -130,50 +160,110 @@ public class DemandPreviewController extends ParameterizableViewController imple
     return redirectTo;
   }
 
+  /**
+   * Returns the ErrorViewName.
+   *
+   * @return the value
+   */
   public String getErrorViewName() {
     return errorViewName;
   }
 
+  /**
+   * Sets the ErrorViewName.
+   *
+   * @param errorViewName the errorViewName
+   */
   public void setErrorViewName(String errorViewName) {
     this.errorViewName = errorViewName;
   }
 
+  /**
+   * Returns the DemandPublisherService.
+   *
+   * @return the value
+   */
   public DemandPublisherService getDemandPublisherService() {
     return demandPublisherService;
   }
 
+  /**
+   * Sets the DemandPublisherService.
+   *
+   * @param demandPublisherService the demandPublisherService
+   */
   public void setDemandPublisherService(DemandPublisherService demandPublisherService) {
     this.demandPublisherService = demandPublisherService;
   }
 
+  /**
+   * Returns the ItemTemplateService.
+   *
+   * @return the value
+   */
   public ItemTemplateService getItemTemplateService() {
     return itemTemplateService;
   }
 
+  /**
+   * Sets the ItemTemplateService.
+   *
+   * @param itemTemplateService the itemTemplateService
+   */
   public void setItemTemplateService(ItemTemplateService itemTemplateService) {
     this.itemTemplateService = itemTemplateService;
   }
 
+  /**
+   * Returns the LinkBuilderService.
+   *
+   * @return the value
+   */
   public LinkBuilderService getLinkBuilderService() {
     return linkBuilderService;
   }
 
+  /**
+   * Sets the LinkBuilderService.
+   *
+   * @param linkBuilderService the linkBuilderService
+   */
   public void setLinkBuilderService(LinkBuilderService linkBuilderService) {
     this.linkBuilderService = linkBuilderService;
   }
 
+  /**
+   * Returns the SiteEditionLookUpService.
+   *
+   * @return the value
+   */
   public SiteEditionLookUpService getSiteEditionLookUpService() {
     return siteEditionLookUpService;
   }
 
+  /**
+   * Sets the SiteEditionLookUpService.
+   *
+   * @param siteEditionLookUpService the siteEditionLookUpService
+   */
   public void setSiteEditionLookUpService(SiteEditionLookUpService siteEditionLookUpService) {
     this.siteEditionLookUpService = siteEditionLookUpService;
   }
 
+  /**
+   * Sets the Gmgr.
+   *
+   * @param gmgr the gmgr
+   */
   protected void setGmgr(IPSGuidManager gmgr) {
     this.gmgr = gmgr;
   }
 
+  /**
+   * Sets the IsFinder.
+   *
+   * @param isFinder the isFinder
+   */
   protected void setIsFinder(IPSOItemSummaryFinder isFinder) {
     this.isFinder = isFinder;
   }

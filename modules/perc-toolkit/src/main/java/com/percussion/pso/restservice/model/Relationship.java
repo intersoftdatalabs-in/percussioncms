@@ -18,8 +18,17 @@ package com.percussion.pso.restservice.model;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 
-/** */
+/**
+ * Base REST model for a relationship between content items.
+ */
 public class Relationship extends ItemRef {
+  /**
+   * Creates a new Relationship.
+   */
+  public Relationship() {
+    // default
+  }
+
 
   /** Field relId. */
   private int relId;

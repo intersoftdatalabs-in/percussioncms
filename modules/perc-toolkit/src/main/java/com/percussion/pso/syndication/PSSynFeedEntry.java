@@ -40,6 +40,7 @@ public class PSSynFeedEntry {
   /***
    * Returns the name of the first entry author in the collection of authors.
    *
+   * @return the result
    */
   public String getAuthor() {
     String ret = "";
@@ -51,6 +52,7 @@ public class PSSynFeedEntry {
   /***
    * Returns the entry authors.
    *
+   * @return the result
    */
   public List<SyndPerson> getAuthorsList() {
     return entry.getAuthors();
@@ -59,6 +61,7 @@ public class PSSynFeedEntry {
   /***
    * Returns a comma seperated list of the entry authors.
    *
+   * @return the result
    */
   public String getAuthors() {
     String ret = "";
@@ -78,6 +81,7 @@ public class PSSynFeedEntry {
   /***
    * Returns the feed categories.
    *
+   * @return the result
    */
   public List<SyndCategory> getCategoriesList() {
     return entry.getCategories();
@@ -86,6 +90,7 @@ public class PSSynFeedEntry {
   /***
    * Returns the feed categories as a comma separated string.
    *
+   * @return the result
    */
   public String getCategories() {
     String ret = "";
@@ -103,6 +108,7 @@ public class PSSynFeedEntry {
   /***
    * the feed author.
    *
+   * @return the result
    */
   public String getContributors() {
     String ret = "";
@@ -119,6 +125,11 @@ public class PSSynFeedEntry {
     return ret;
   }
 
+  /**
+   * Returns the contributors list.
+   *
+   * @return the result
+   */
   public List<SyndPerson> getContributorsList() {
     return entry.getContributors();
   }
@@ -126,6 +137,7 @@ public class PSSynFeedEntry {
   /***
    * Returns the entry contents.
    *
+   * @return the result
    */
   public String getContents() {
     String ret = "";
@@ -140,6 +152,7 @@ public class PSSynFeedEntry {
   /***
    * Returns the entry description.
    *
+   * @return the result
    */
   public String getDescription() {
     String ret = "";
@@ -150,6 +163,11 @@ public class PSSynFeedEntry {
     return ret;
   }
 
+  /**
+   * Returns the enclosures.
+   *
+   * @return the result
+   */
   public List<PSSynFeedEnclosure> getEnclosures() {
     ArrayList<PSSynFeedEnclosure> ret = new ArrayList<PSSynFeedEnclosure>();
 
@@ -161,6 +179,7 @@ public class PSSynFeedEntry {
 
   /***
    *  Returns the entry link.
+   * @return the result
    */
   public String getLink() {
     String ret = "";
@@ -173,12 +192,18 @@ public class PSSynFeedEntry {
   /***
    * Returns the entry links
    *
+   * @return the result
    */
   public List<SyndLink> getLinks() {
     List<SyndLink> links = entry.getLinks();
     return links;
   }
 
+  /**
+   * Returns the media rsscontent.
+   *
+   * @return the result
+   */
   public List<PSSynFeedMediaContent> getMediaRSSContent() {
     MediaEntryModule mediaModule = null;
 
@@ -198,6 +223,7 @@ public class PSSynFeedEntry {
   /***
    * Returns the entry published date.
    *
+   * @return the result
    */
   public Date getPublishedDate() {
     return entry.getPublishedDate();
@@ -206,6 +232,7 @@ public class PSSynFeedEntry {
   /***
    *  Returns the entry title.
    *
+   * @return the result
    */
   public String getTitle() {
     String ret = "";
@@ -216,6 +243,7 @@ public class PSSynFeedEntry {
   /***
    *  Returns the entry updated date.
    *
+   * @return the result
    */
   public Date getUpdatedDate() {
     if (entry.getUpdatedDate() != null) {
@@ -227,10 +255,20 @@ public class PSSynFeedEntry {
     }
   }
 
+  /**
+   * Returns the uri.
+   *
+   * @return the result
+   */
   public String getUri() {
     return entry.getUri();
   }
 
+  /**
+   * Creates a new PSSynFeedEntry.
+   *
+   * @param arg the arg
+   */
   public PSSynFeedEntry(SyndEntry arg) {
     entry = arg;
   }

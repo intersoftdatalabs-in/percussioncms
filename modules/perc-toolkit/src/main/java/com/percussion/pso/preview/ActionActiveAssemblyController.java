@@ -28,6 +28,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.mvc.Controller;
 
 /**
+ * Spring MVC controller for Active Assembly menu actions in preview.
+ *
  * @author DavidBenua
  */
 public class ActionActiveAssemblyController extends ActionPreviewController implements Controller {
@@ -36,7 +38,9 @@ public class ActionActiveAssemblyController extends ActionPreviewController impl
 
   private boolean showSnippets = true;
 
-  /** */
+    /**
+   * Creates an Active Assembly menu controller.
+   */
   public ActionActiveAssemblyController() {}
 
   /**
@@ -45,6 +49,11 @@ public class ActionActiveAssemblyController extends ActionPreviewController impl
    * in the Active Assembly menu. The default is <code>true</code>.
    *
    * @see ActionPreviewController#findVisibleTemplates(String, Set)
+   * @param contentid the contentid
+   * @param sites the sites
+   * @return the result
+   * @throws PSException if an error occurs
+   * @throws PSAssemblyException if an error occurs
    */
   @Override
   protected List<IPSAssemblyTemplate> findVisibleTemplates(String contentid, Set<IPSSite> sites)
