@@ -69,7 +69,7 @@ public class PSOSlotRelations {
    * @param slot the Slot template
    * @param session the Percussion CMS session id.
    * @return a List of PSAaRelations. Never <code>null</code> but may be empty.
-   * @throws PSCmsException
+   * @throws PSCmsException if an error occurs
    */
   public static List<PSAaRelationship> getSlotRelations(
       IPSGuid owner, IPSTemplateSlot slot, String session) throws PSCmsException {
@@ -88,7 +88,7 @@ public class PSOSlotRelations {
    *
    * @param relations the list of relationships;
    * @param session the Percussion CMS session id. Never <code>null</code>
-   * @throws PSCmsException
+   * @throws PSCmsException if an error occurs
    */
   public static void saveSlotRelations(List<PSAaRelationship> relations, String session)
       throws PSCmsException {
@@ -103,7 +103,7 @@ public class PSOSlotRelations {
    *
    * @param relations a list of new relationships to add.
    * @param session the Percussion CMS session id;
-   * @throws PSCmsException
+   * @throws PSCmsException if an error occurs
    */
   public static void addSlotRelations(List<PSAaRelationship> relations, String session)
       throws PSCmsException {
@@ -117,7 +117,7 @@ public class PSOSlotRelations {
    *
    * @param relations the relations to remove
    * @param session the Percussion CMS session id.
-   * @throws PSCmsException
+   * @throws PSCmsException if an error occurs
    */
   public static void removeSlotRelations(List<PSAaRelationship> relations, String session)
       throws PSCmsException {
@@ -133,7 +133,7 @@ public class PSOSlotRelations {
    * @param top if <code>true</code> move the relationships to the top of the slot. Otherwise, they
    *     will be placed at the end of the slot.
    * @param session the Percussion CMS session id.
-   * @throws PSCmsException
+   * @throws PSCmsException if an error occurs
    */
   public static void reorderSlotRelations(
       List<PSAaRelationship> relations, boolean top, String session) throws PSCmsException {
@@ -148,7 +148,7 @@ public class PSOSlotRelations {
    *
    * @param session the Percussion CMS session id. Never <code>null</code>
    * @return the proxy to use.
-   * @throws PSCmsException
+   * @throws PSCmsException if an error occurs
    */
   private static PSActiveAssemblyProcessorProxy getProxy(String session) throws PSCmsException {
     PSActiveAssemblyProcessorProxy proxy = null;
@@ -179,7 +179,7 @@ public class PSOSlotRelations {
    *
    * @param relList the relationship list.
    * @return the List of relations, never <code>null</code> but may be <code>empty</code>
-   * @throws PSCmsException
+   * @throws PSCmsException if an error occurs
    */
   private static List<PSAaRelationship> fromRelList(PSAaRelationshipList relList)
       throws PSCmsException {

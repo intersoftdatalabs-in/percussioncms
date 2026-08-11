@@ -98,7 +98,9 @@ public class FopAssembler extends PSVelocityAssembler implements IPSAssembler {
   private final TransformerFactory xfactory;
   private FopFactory fopFactory = null;
 
-  /** */
+  /**
+   * Creates a new FopAssembler.
+   */
   public FopAssembler() {
     super();
     xfactory = PSSecureXMLUtils.getSecuredTransformerFactory();
@@ -125,7 +127,12 @@ public class FopAssembler extends PSVelocityAssembler implements IPSAssembler {
   }
 
   /**
+   * init operation.
+   *
    * @see PSVelocityAssembler#init(IPSExtensionDef, File)
+   * @param def the def
+   * @param codeRoot the code root
+   * @throws PSExtensionException if an error occurs
    */
   @Override
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
@@ -135,8 +142,13 @@ public class FopAssembler extends PSVelocityAssembler implements IPSAssembler {
   }
 
   /**
+   * doAssembleSingle operation.
+   *
    * @see
    *     com.percussion.services.assembly.impl.plugin.PSAssemblerBase#doAssembleSingle(IPSAssemblyItem)
+   * @param item the item
+   * @return the result
+   * @throws Exception if an error occurs
    */
   @Override
   protected IPSAssemblyResult doAssembleSingle(IPSAssemblyItem item) throws Exception {

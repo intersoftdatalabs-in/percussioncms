@@ -36,7 +36,9 @@ public class PSONextNumberUDF extends PSSimpleJavaUdfExtension implements IPSUdf
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSONextNumberUDF.class);
 
-  /** */
+  /**
+   * Creates a new PSONextNumberUDF.
+   */
   public PSONextNumberUDF() {
     super();
   }
@@ -49,6 +51,8 @@ public class PSONextNumberUDF extends PSSimpleJavaUdfExtension implements IPSUdf
    * @param request the callers request context
    * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[],
    *     com.percussion.server.IPSRequestContext)
+   * @return the result
+   * @throws PSConversionException if an error occurs
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

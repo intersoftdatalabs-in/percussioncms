@@ -23,21 +23,40 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 // Work in progress
+/**
+ * InputStreamValue class.
+ */
 public class InputStreamValue extends PSFieldValue {
 
   private InputStream is;
   private PSPurgableTempFile ptf;
 
+  /**
+   * Creates a new InputStreamValue.
+   *
+   * @param is the is
+   */
   public InputStreamValue(InputStream is) {
     this.is = is;
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   @Override
   public Object getValue() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /**
+   * Returns the value as string.
+   *
+   * @return the result
+   * @throws PSCmsException if an error occurs
+   */
   @Override
   public String getValueAsString() throws PSCmsException {
     // TODO Auto-generated method stub
@@ -45,6 +64,11 @@ public class InputStreamValue extends PSFieldValue {
   }
 
   // see IPSFieldValue#clone() interface for description
+  /**
+   * clone operation.
+   *
+   * @return the result
+   */
   public Object clone() {
     PSFieldValue copy = null;
     copy = (PSFieldValue) super.clone();
@@ -70,6 +94,8 @@ public class InputStreamValue extends PSFieldValue {
    * compared with case ignored. Are they equal?
    *
    * @return <code>true</code>if they are, otherwise <code>false</code>.
+   * @param a the a
+   * @param b the b
    */
   protected boolean compare(Object a, Object b) {
     if (a == null || b == null) {
@@ -84,12 +110,23 @@ public class InputStreamValue extends PSFieldValue {
     return true;
   }
 
+  /**
+   * equals operation.
+   *
+   * @param obj the obj
+   * @return the result
+   */
   @Override
   public boolean equals(Object obj) {
     // TODO Auto-generated method stub
     return false;
   }
 
+  /**
+   * hashCode operation.
+   *
+   * @return the result
+   */
   @Override
   public int hashCode() {
     // TODO Auto-generated method stub

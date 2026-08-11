@@ -99,12 +99,20 @@ public class PSOWFActionService implements IPSOWFActionService {
    */
   private Map<String, Map<String, List<String>>> transitionActions;
 
-  /** Default Constructor. */
+  /**
+   * Default Constructor.
+   * Creates a new PSOWFActionService.
+   *
+   */
   public PSOWFActionService() {
     transitionActions = new HashMap<String, Map<String, List<String>>>(); // add empty map.
   }
 
-  /** Initialization method. Should be called from Spring after initialization is complete. */
+  /**
+   * Initialization method. Should be called from Spring after initialization is complete.
+   * init operation.
+   *
+   */
   public void init() {
     /*
      * The reason for this complexity is that when the init method
@@ -115,6 +123,9 @@ public class PSOWFActionService implements IPSOWFActionService {
      */
     Thread t =
         new Thread() {
+          /**
+           * run operation.
+           */
           @Override
           public void run() {
             try {
@@ -145,7 +156,12 @@ public class PSOWFActionService implements IPSOWFActionService {
   }
 
   /**
+   * See referenced member.
    * @see com.percussion.pso.workflow.IPSOWFActionService#getActions(int, int)
+   * @param workflowid the workflowid
+   * @param transitionid the transitionid
+   * @return the result
+   * @throws Exception if an error occurs
    */
   public List<IPSWorkflowAction> getActions(int workflowid, int transitionid) throws Exception {
     initServices();
@@ -178,7 +194,12 @@ public class PSOWFActionService implements IPSOWFActionService {
   }
 
   /**
+   * See referenced member.
    * @see com.percussion.pso.workflow.IPSOWFActionService#getWorkflowAction(java.lang.String)
+   * @param workflowActionName the workflow action name
+   * @return the result
+   * @throws PSExtensionException if an error occurs
+   * @throws PSNotFoundException if an error occurs
    */
   public IPSWorkflowAction getWorkflowAction(String workflowActionName)
       throws PSExtensionException, PSNotFoundException {

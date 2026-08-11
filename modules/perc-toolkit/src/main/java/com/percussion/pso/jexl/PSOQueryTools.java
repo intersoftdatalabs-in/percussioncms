@@ -49,8 +49,10 @@ public class PSOQueryTools extends PSJexlUtilBase implements IPSJexlExpression {
 
   private static IPSContentMgr cmgr = null;
 
-  /** */
-  public PSOQueryTools() {}
+    /**
+     * Creates a new PSOQueryTools.
+     */
+    public PSOQueryTools() {}
 
   /**
    * Executes a JCR Query. The results are returned as a List. Each element of the list is a Map
@@ -62,8 +64,8 @@ public class PSOQueryTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param locale the locale used for sorting results.
    * @return a list of result rows. Each Row is a map of name and value pairs. never <code>null
    *     </code> but may be <code>empty</code>.
-   * @throws InvalidQueryException
-   * @throws RepositoryException
+   * @throws InvalidQueryException if an error occurs
+   * @throws RepositoryException if an error occurs
    */
   @IPSJexlMethod(
       description = "executes a JCR Query",
@@ -73,6 +75,17 @@ public class PSOQueryTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "params", description = "parameters for query"),
         @IPSJexlParam(name = "locale", description = "locale for collating results")
       })
+  /**
+   * executeQuery operation.
+   *
+   * @param query the query
+   * @param maxRows the max rows
+   * @param params the params
+   * @param locale the locale
+   * @return the result
+   * @throws InvalidQueryException if an error occurs
+   * @throws RepositoryException if an error occurs
+   */
   public List<Map<String, Value>> executeQuery(
       String query, int maxRows, Map<String, ? extends Object> params, String locale)
       throws InvalidQueryException, RepositoryException {
@@ -104,7 +117,7 @@ public class PSOQueryTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param params the the parameters to pass to the query.
    * @param locale the locale. Defaults to the JVM system locale if not present.
    * @return the Nodes from the query. Never <code>null</code> but may be <code>empty</code>.
-   * @throws RepositoryException
+   * @throws RepositoryException if an error occurs
    */
   @IPSJexlMethod(
       description = "executes a JCR Query and returns the Nodes",
@@ -114,6 +127,16 @@ public class PSOQueryTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "params", description = "parameters for query"),
         @IPSJexlParam(name = "locale", description = "locale for collating results")
       })
+  /**
+   * executeQueryNodes operation.
+   *
+   * @param query the query
+   * @param maxRows the max rows
+   * @param params the params
+   * @param locale the locale
+   * @return the result
+   * @throws RepositoryException if an error occurs
+   */
   public NodeIterator executeQueryNodes(
       String query, int maxRows, Map<String, ? extends Object> params, String locale)
       throws RepositoryException {

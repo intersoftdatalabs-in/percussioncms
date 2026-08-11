@@ -57,6 +57,13 @@ import org.w3c.dom.NodeList;
  */
 public class PSParameterizedLegacyAutoSlotContentFinder extends PSBaseSlotContentFinder
     implements IPSSlotContentFinder {
+  /**
+   * Creates a new PSParameterizedLegacyAutoSlotContentFinder.
+   */
+  public PSParameterizedLegacyAutoSlotContentFinder() {
+    // default
+  }
+
   private static final Logger log =
       LogManager.getLogger(PSParameterizedLegacyAutoSlotContentFinder.class.getName());
 
@@ -64,6 +71,12 @@ public class PSParameterizedLegacyAutoSlotContentFinder extends PSBaseSlotConten
    * This method returns a set of SlotItems retrieved from a legacy XML query resource. The resource
    * output should conform to sys_AssemblerInfo.dtd, but only the content ID (linkurl/@contentid)
    * and the template ID (linkurl/@variantid) are of import to this routine.
+   * @param item the item
+   * @param slot the slot
+   * @param params the params
+   * @return the result
+   * @throws RepositoryException if an error occurs
+   * @throws PSFilterException if an error occurs
    */
   protected Set<SlotItem> getSlotItems(
       IPSAssemblyItem item, IPSTemplateSlot slot, Map<String, Object> params)
@@ -149,6 +162,11 @@ public class PSParameterizedLegacyAutoSlotContentFinder extends PSBaseSlotConten
     return hits;
   }
 
+  /**
+   * Returns the type.
+   *
+   * @return the result
+   */
   public Type getType() {
     return com.percussion.services.assembly.IPSSlotContentFinder.Type.AUTOSLOT;
   }

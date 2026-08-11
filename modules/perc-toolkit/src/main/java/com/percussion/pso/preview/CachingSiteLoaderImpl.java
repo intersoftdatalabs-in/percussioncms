@@ -46,6 +46,7 @@ public class CachingSiteLoaderImpl implements InitializingBean, SiteLoader {
 
   private static IPSSiteManager siteMgr = null;
 
+  /** allSites field. */
   protected List<IPSSite> allSites = null;
 
   /**
@@ -54,6 +55,9 @@ public class CachingSiteLoaderImpl implements InitializingBean, SiteLoader {
    */
   private long siteReloadDelay = 0;
 
+    /**
+   * Creates a new CachingSiteLoaderImpl.
+   */
   public CachingSiteLoaderImpl() {}
 
   private static void initServices() {
@@ -63,7 +67,9 @@ public class CachingSiteLoaderImpl implements InitializingBean, SiteLoader {
   }
 
   /**
+   * See referenced member.
    * @see InitializingBean#afterPropertiesSet()
+   * @throws Exception if an error occurs
    */
   public void afterPropertiesSet() throws Exception {
     allSites = loadAllSites();
@@ -74,6 +80,15 @@ public class CachingSiteLoaderImpl implements InitializingBean, SiteLoader {
     }
   }
 
+  /**
+   * loadAllSites operation.
+   */
+  /**
+   * Loads all sites from the site manager.
+   *
+   * @return the list of sites
+   * @throws PSSiteManagerException if sites cannot be loaded
+   */
   protected List<IPSSite> loadAllSites() throws PSSiteManagerException {
     initServices();
     log.debug("Loading all sites");
@@ -86,7 +101,10 @@ public class CachingSiteLoaderImpl implements InitializingBean, SiteLoader {
   }
 
   /**
+   * See referenced member.
    * @see SiteLoader#findAllSites()
+   * @return the result
+   * @throws PSSiteManagerException if an error occurs
    */
   public synchronized List<IPSSite> findAllSites() throws PSSiteManagerException {
     if (allSites == null || siteReloadDelay < 0) {
@@ -122,10 +140,23 @@ public class CachingSiteLoaderImpl implements InitializingBean, SiteLoader {
     CachingSiteLoaderImpl.siteMgr = siteMgr;
   }
 
+  /**
+   * Returns the AllSites.
+   *
+   * @return the value
+   */
   protected synchronized List<IPSSite> getAllSites() {
     return allSites;
   }
 
+  /**
+   * Sets the AllSites.
+   */
+  /**
+   * Sets the cached site list.
+   *
+   * @param allSites the sites to cache
+   */
   protected synchronized void setAllSites(List<IPSSite> allSites) {
     this.allSites = allSites;
   }
@@ -133,6 +164,7 @@ public class CachingSiteLoaderImpl implements InitializingBean, SiteLoader {
   private class SiteReloader implements Runnable {
 
     /**
+     * See referenced member.
      * @see Runnable#run()
      */
     public void run() {

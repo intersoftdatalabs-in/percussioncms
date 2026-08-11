@@ -45,11 +45,18 @@ public abstract class PSAbstractFolderEffect implements IPSEffect {
   /** Logger for this class */
   protected static final Logger log = LogManager.getLogger(PSFolderFollowerEffect.class);
 
+  /** sws. */
   protected static IPSSystemWs sws = null;
+  /** gmgr. */
   protected static IPSGuidManager gmgr = null;
+  /** cws. */
   protected static IPSContentWs cws = null;
 
-  /** Initialize service pointers. */
+  /**
+   * Initialize service pointers.
+   * initServices operation.
+   *
+   */
   protected static void initServices() {
     if (sws == null) {
       sws = PSSystemWsLocator.getSystemWebservice();
@@ -58,6 +65,16 @@ public abstract class PSAbstractFolderEffect implements IPSEffect {
     }
   }
 
+  /**
+   * recover operation.
+   *
+   * @param params the params
+   * @param req the req
+   * @param exCtx the ex ctx
+   * @param ex the ex
+   * @param result the result
+   * @throws PSExtensionProcessingException if an error occurs
+   */
   public void recover(
       Object[] params,
       IPSRequestContext req,
@@ -68,16 +85,37 @@ public abstract class PSAbstractFolderEffect implements IPSEffect {
     result.setSuccess();
   }
 
+  /**
+   * test operation.
+   *
+   * @param params the params
+   * @param req the req
+   * @param exCtx the ex ctx
+   * @param result the result
+   * @throws PSExtensionProcessingException if an error occurs
+   * @throws PSParameterMismatchException if an error occurs
+   */
   public void test(
       Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
       throws PSExtensionProcessingException, PSParameterMismatchException { // nothing to do here
     result.setSuccess();
   }
 
-  /** Default constructor. */
+  /**
+   * Default constructor.
+   * Creates a new PSAbstractFolderEffect.
+   *
+   */
   public PSAbstractFolderEffect() {
     super();
   }
 
+  /**
+   * init operation.
+   *
+   * @param arg0 the arg0
+   * @param arg1 the arg1
+   * @throws PSExtensionException if an error occurs
+   */
   public void init(IPSExtensionDef arg0, File arg1) throws PSExtensionException {}
 }

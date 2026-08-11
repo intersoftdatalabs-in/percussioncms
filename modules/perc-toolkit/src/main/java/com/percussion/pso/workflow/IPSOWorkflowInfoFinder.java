@@ -24,6 +24,9 @@ import com.percussion.services.workflow.data.PSTransitionBase;
 import com.percussion.services.workflow.data.PSWorkflow;
 import java.util.Collection;
 
+/**
+ * IPSOWorkflowInfoFinder interface.
+ */
 public interface IPSOWorkflowInfoFinder {
   /**
    * Finds a workflow by id.
@@ -119,7 +122,7 @@ public interface IPSOWorkflowInfoFinder {
    * @param contentId the content id for the item
    * @param validFlags the list of valid flags.
    * @return <code>true</code> if the content valid value is one of the listed ones.
-   * @throws PSException
+   * @throws PSException if an error occurs
    */
   public boolean IsWorkflowValid(String contentId, Collection<String> validFlags)
       throws PSException;
@@ -132,7 +135,7 @@ public interface IPSOWorkflowInfoFinder {
    * @param transitionId the transition id
    * @return the state where the transition goes. May be <code>null</code> if the transition is not
    *     found.
-   * @throws PSException
+   * @throws PSException if an error occurs
    */
   public PSState findDestinationState(String contentId, String transitionId) throws PSException;
 
@@ -143,7 +146,7 @@ public interface IPSOWorkflowInfoFinder {
    * @param state the current workflow state
    * @param transitionId the transition id
    * @return the destination state. May be <code>null</code> if the transition id is not found.
-   * @throws PSException
+   * @throws PSException if an error occurs
    */
   public PSState findDestinationState(PSState state, String transitionId) throws PSException;
 }

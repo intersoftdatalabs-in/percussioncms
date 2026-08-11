@@ -22,14 +22,29 @@ import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
+/**
+ * REST model for folder metadata and ACL.
+ */
 @XmlRootElement
 public class FolderInfo {
+
+  /**
+   * Creates a new FolderInfo.
+   */
+  public FolderInfo() {
+    // default
+  }
 
   private FolderAcl folderAcl;
   private String pubFileName;
   private String globalTemplate;
 
   List<ItemRef> folderItems;
+  /**
+   * Returns the FolderItems.
+   *
+   * @return the value
+   */
 
   @XmlElementWrapper(name = "Contents")
   @XmlElement(name = "Item")
@@ -37,31 +52,62 @@ public class FolderInfo {
     return folderItems;
   }
 
+  /**
+   * Sets the FolderItems.
+   * @param folderItems the folder items
+   */
   public void setFolderItems(List<ItemRef> folderItems) {
     this.folderItems = folderItems;
   }
 
+  /**
+   * Sets the FolderAcl.
+   * @param folderAcl the folder acl
+   */
   public void setFolderAcl(FolderAcl folderAcl) {
     this.folderAcl = folderAcl;
   }
+  /**
+   * Returns the FolderAcl.
+   *
+   * @return the value
+   */
 
   @XmlElement
   public FolderAcl getFolderAcl() {
     return folderAcl;
   }
 
+  /**
+   * Sets the PubFileName.
+   * @param pubFileName the pub file name
+   */
   public void setPubFileName(String pubFileName) {
     this.pubFileName = pubFileName;
   }
+  /**
+   * Returns the PubFileName.
+   *
+   * @return the value
+   */
 
   @XmlAttribute
   public String getPubFileName() {
     return pubFileName;
   }
 
+  /**
+   * Sets the GlobalTemplate.
+   * @param globalTemplate the global template
+   */
   public void setGlobalTemplate(String globalTemplate) {
     this.globalTemplate = globalTemplate;
   }
+  /**
+   * Returns the GlobalTemplate.
+   *
+   * @return the value
+   */
 
   @XmlAttribute
   public String getGlobalTemplate() {

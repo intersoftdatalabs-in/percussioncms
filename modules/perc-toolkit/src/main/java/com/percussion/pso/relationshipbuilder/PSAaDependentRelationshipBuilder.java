@@ -29,6 +29,9 @@ package com.percussion.pso.relationshipbuilder;
  */
 public final class PSAaDependentRelationshipBuilder extends PSActiveAssemblyRelationshipBuilder {
 
+  /**
+   * Creates a new PSAaDependentRelationshipBuilder.
+   */
   public PSAaDependentRelationshipBuilder() {
     super(false);
   }

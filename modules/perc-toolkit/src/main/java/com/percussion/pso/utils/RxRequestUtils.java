@@ -53,7 +53,7 @@ public class RxRequestUtils {
   /**
    * Convience function to get the rx username from a servlet request.
    *
-   * @param req
+   * @param req the req
    * @return the user name
    */
   public static String getUserName(ServletRequest req) {
@@ -61,6 +61,12 @@ public class RxRequestUtils {
     return irq.getUserName();
   }
 
+  /**
+   * Returns the session id.
+   *
+   * @param req the req
+   * @return the result
+   */
   public static String getSessionId(ServletRequest req) {
     IPSRequestContext irq = getRequest(req);
     if (irq == null) {
@@ -74,5 +80,6 @@ public class RxRequestUtils {
     return sessionid;
   }
 
+  /** request attribute. */
   public static final String REQUEST_ATTRIBUTE = "RX_REQUEST_CONTEXT";
 }

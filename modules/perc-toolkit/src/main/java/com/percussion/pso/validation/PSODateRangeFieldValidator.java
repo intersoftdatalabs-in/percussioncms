@@ -34,9 +34,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * Field validator that checks a date value falls within a configured range.
+ *
  * @author davidbenua
  */
 public class PSODateRangeFieldValidator extends PSDefaultExtension implements IPSFieldValidator {
+  /**
+   * Creates a new PSODateRangeFieldValidator.
+   */
+  public PSODateRangeFieldValidator() {
+    // default
+  }
+
   // REFACTORED: CP-JAVA11
 
   private static final Logger log = LogManager.getLogger(PSODateRangeFieldValidator.class);
@@ -44,8 +53,14 @@ public class PSODateRangeFieldValidator extends PSDefaultExtension implements IP
   private IPSExtensionDef extDef = null;
 
   /**
+   * processUdf operation.
+   *
    * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[],
    *     com.percussion.server.IPSRequestContext)
+   * @param params the params
+   * @param request the request
+   * @return the result
+   * @throws PSConversionException if an error occurs
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {
@@ -92,14 +107,25 @@ public class PSODateRangeFieldValidator extends PSDefaultExtension implements IP
     return Boolean.TRUE; // validation succeeds
   }
 
+  /**
+   * init operation.
+   *
+   * @param def the def
+   * @param ifile the ifile
+   * @throws PSExtensionException if an error occurs
+   */
   @Override
   public void init(IPSExtensionDef def, File ifile) throws PSExtensionException {
     super.init(def, ifile);
     extDef = def;
   }
 
+  /** current field. */
   public static final String CURRENT_FIELD = "currentField";
+  /** source field. */
   public static final String SOURCE_FIELD = "sourceFieldName";
+  /** min days. */
   public static final String MIN_DAYS = "minDays";
+  /** max days. */
   public static final String MAX_DAYS = "maxDays";
 }

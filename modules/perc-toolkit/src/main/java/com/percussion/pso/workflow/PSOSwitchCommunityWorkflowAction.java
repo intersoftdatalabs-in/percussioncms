@@ -72,6 +72,13 @@ import org.apache.logging.log4j.Logger;
  * @author natechadwick
  */
 public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction {
+  /**
+   * Creates a new PSOSwitchCommunityWorkflowAction.
+   */
+  public PSOSwitchCommunityWorkflowAction() {
+    // default
+  }
+
 
   /** The name of the default community to switch the item to. */
   public static final String DEFAULT_COMMUNITY_NAME = "defaultCommunityName";
@@ -88,6 +95,7 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction {
    * OverrideVisibility determines if the community switch will ignore
    * visbility problems with the Workflow and State
    *
+   * @return the result
    */
   public boolean getOverrideVisibility() {
     return overrideVisibility;
@@ -96,12 +104,19 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction {
   /***
    * A boolean value that when true, will ignore validation of visibility rules.
    * False by default.
-   * @param overrideVisibility
+   * @param overrideVisibility the override visibility
    */
   public void setOverrideVisibility(boolean overrideVisibility) {
     this.overrideVisibility = overrideVisibility;
   }
 
+  /**
+   * init operation.
+   *
+   * @param exDef the ex def
+   * @param arg1 the arg1
+   * @throws PSExtensionException if an error occurs
+   */
   public void init(IPSExtensionDef exDef, File arg1) throws PSExtensionException {
     log.debug("Initializing Services..");
     initServices();
@@ -114,6 +129,13 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction {
     }
   }
 
+  /**
+   * performAction operation.
+   *
+   * @param wfCtx the wf ctx
+   * @param request the request
+   * @throws PSExtensionProcessingException if an error occurs
+   */
   public void performAction(IPSWorkFlowContext wfCtx, IPSRequestContext request)
       throws PSExtensionProcessingException {
 
@@ -283,7 +305,7 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction {
 
   /***
    * Locate the given community by name.
-   * @param name
+   * @param name the name
    *
    */
   private PSCommunity findCommunityByName(String name) {

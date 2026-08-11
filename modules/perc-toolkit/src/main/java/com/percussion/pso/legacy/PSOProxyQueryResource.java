@@ -57,6 +57,13 @@ import org.xml.sax.SAXException;
  */
 public class PSOProxyQueryResource extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
+  /**
+   * Creates a new PSOProxyQueryResource.
+   */
+  public PSOProxyQueryResource() {
+    // default
+  }
+
 
   private static final String PARAM_PASSWORD = "password";
   private static final String PARAM_USER = "user";
@@ -65,10 +72,25 @@ public class PSOProxyQueryResource extends PSDefaultExtension
   /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSOProxyQueryResource.class);
 
+  /**
+   * canModifyStyleSheet operation.
+   *
+   * @return the result
+   */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
+  /**
+   * processResultDocument operation.
+   *
+   * @param params the params
+   * @param request the request
+   * @param resultDoc the result doc
+   * @return the result
+   * @throws PSParameterMismatchException if an error occurs
+   * @throws PSExtensionProcessingException if an error occurs
+   */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {

@@ -21,14 +21,27 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * ImageUrlBuilderImpl class.
+ */
 public class ImageUrlBuilderImpl implements ImageUrlBuilder {
+  /**
+   * Creates a new ImageUrlBuilderImpl.
+   */
+  public ImageUrlBuilderImpl() {
+    // default
+  }
+
   private static final Logger log = LogManager.getLogger(ImageUrlBuilderImpl.class);
 
   private String baseUrl;
   private String suffix = "jpg";
 
   /**
+   * See referenced member.
    * @see ImageUrlBuilder#buildUrl(String)
+   * @param imageKey the image key
+   * @return the result
    */
   public String buildUrl(String imageKey) {
     StringBuilder sb = new StringBuilder();
@@ -44,7 +57,10 @@ public class ImageUrlBuilderImpl implements ImageUrlBuilder {
   }
 
   /**
+   * See referenced member.
    * @see ImageUrlBuilder#extractKey(String)
+   * @param url the url
+   * @return the result
    */
   public String extractKey(String url) {
     String emsg;
@@ -61,6 +77,7 @@ public class ImageUrlBuilderImpl implements ImageUrlBuilder {
   }
 
   /**
+   * Returns the baseUrl.
    * @return the baseUrl
    */
   public String getBaseUrl() {
@@ -68,6 +85,7 @@ public class ImageUrlBuilderImpl implements ImageUrlBuilder {
   }
 
   /**
+   * Sets the baseUrl.
    * @param baseUrl the baseUrl to set
    */
   public void setBaseUrl(String baseUrl) {
@@ -75,6 +93,7 @@ public class ImageUrlBuilderImpl implements ImageUrlBuilder {
   }
 
   /**
+   * Returns the suffix.
    * @return the suffix
    */
   public String getSuffix() {
@@ -82,6 +101,7 @@ public class ImageUrlBuilderImpl implements ImageUrlBuilder {
   }
 
   /**
+   * Sets the suffix.
    * @param suffix the suffix to set
    */
   public void setSuffix(String suffix) {

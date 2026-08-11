@@ -52,18 +52,38 @@ public class PSSynFeedRating {
 
   private Rating rating;
 
+  /**
+   * Returns the scheme.
+   *
+   * @return the result
+   */
   public String getScheme() {
     return rating.getScheme();
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public String getValue() {
     return rating.getValue();
   }
 
+  /**
+   * Creates a new PSSynFeedRating.
+   *
+   * @param arg the arg
+   */
   public PSSynFeedRating(Rating arg) {
     rating = arg;
   }
 
+  /**
+   * toString operation.
+   *
+   * @return the result
+   */
   @Override
   public String toString() {
     return rating.getValue();

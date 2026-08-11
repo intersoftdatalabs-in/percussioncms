@@ -27,9 +27,30 @@ import javax.jcr.ValueFactory;
 import javax.jcr.ValueFormatException;
 import org.apache.jackrabbit.value.ValueFactoryImpl;
 
+/**
+ * ValueUtil class.
+ */
 public class ValueUtil {
+  /**
+   * Creates a new ValueUtil.
+   */
+  public ValueUtil() {
+    // default
+  }
+
+  /**
+   * Returns the instance.
+   *
+   * @return the result
+   */
   public static ValueFactory valueFactory = ValueFactoryImpl.getInstance();
 
+  /**
+   * dataToJCRValue operation.
+   *
+   * @param data the data
+   * @return the result
+   */
   public static Value dataToJCRValue(ValueData data) {
     if (data == null) throw new IllegalArgumentException("Data cannot be null");
     switch (data.getType()) {
@@ -48,6 +69,12 @@ public class ValueUtil {
     }
   }
 
+  /**
+   * dataToJCRValues operation.
+   *
+   * @param data the data
+   * @return the result
+   */
   public static Value[] dataToJCRValues(List<ValueData> data) {
     if (data == null && data.isEmpty())
       throw new IllegalArgumentException("Data cannot be null or empty");
@@ -61,6 +88,12 @@ public class ValueUtil {
     return values;
   }
 
+  /**
+   * jcrValueToData operation.
+   *
+   * @param data the data
+   * @return the result
+   */
   public static ValueData jcrValueToData(Value data) {
     if (data == null) throw new IllegalArgumentException("Data cannot be null");
     try {
@@ -88,6 +121,12 @@ public class ValueUtil {
     }
   }
 
+  /**
+   * createValueData operation.
+   *
+   * @param obj the obj
+   * @return the result
+   */
   public static ValueData createValueData(Object obj) {
 
     if (obj == null) {

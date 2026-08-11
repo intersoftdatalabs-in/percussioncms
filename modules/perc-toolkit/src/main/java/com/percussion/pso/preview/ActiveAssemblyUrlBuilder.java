@@ -33,12 +33,25 @@ import org.apache.logging.log4j.Logger;
  */
 public class ActiveAssemblyUrlBuilder extends PreviewUrlBuilder implements UrlBuilder, Cloneable {
 
+  /**
+   * Creates a new ActiveAssemblyUrlBuilder.
+   */
+  public ActiveAssemblyUrlBuilder() {
+    // default
+  }
+
   private static final Logger log = LogManager.getLogger(ActiveAssemblyUrlBuilder.class);
 
   /**
    * Builds the active assembly URL.
    *
    * @see PreviewUrlBuilder#buildUrl(IPSAssemblyTemplate, Map, SiteFolderLocation, boolean)
+   * @param template the template
+   * @param urlParams the url params
+   * @param location the location
+   * @param useMultiple the use multiple
+   * @return the result
+   * @throws Exception if an error occurs
    */
   @Override
   public String buildUrl(
@@ -76,5 +89,6 @@ public class ActiveAssemblyUrlBuilder extends PreviewUrlBuilder implements UrlBu
     return url.toString();
   }
 
+  /** BASE_AA_URL field. */
   protected static final String BASE_AA_URL = "/Rhythmyx/sys_action/checkoutaapage.xml";
 }

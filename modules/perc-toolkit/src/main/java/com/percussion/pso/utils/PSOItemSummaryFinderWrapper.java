@@ -34,60 +34,99 @@ import com.percussion.utils.guid.IPSGuid;
  * @author DavidBenua
  */
 public class PSOItemSummaryFinderWrapper implements IPSOItemSummaryFinder {
-  /** Default constructor. */
+  /**
+   * Default constructor.
+   * Creates a new PSOItemSummaryFinderWrapper.
+   *
+   */
   public PSOItemSummaryFinderWrapper() {}
 
   /**
+   * Returns the current or edit locator.
+   *
    * @see
    *     com.percussion.pso.utils.IPSOItemSummaryFinder#getCurrentOrEditLocator(com.percussion.utils.guid.IPSGuid)
+   * @param guid the guid
+   * @return the result
+   * @throws PSException if an error occurs
    */
   public PSLocator getCurrentOrEditLocator(IPSGuid guid) throws PSException {
     return PSOItemSummaryFinder.getCurrentOrEditLocator(guid);
   }
 
   /**
+   * See referenced member.
    * @see com.percussion.pso.utils.IPSOItemSummaryFinder#getCurrentOrEditLocator(java.lang.String)
+   * @param contentId the content id
+   * @return the result
+   * @throws PSException if an error occurs
    */
   public PSLocator getCurrentOrEditLocator(String contentId) throws PSException {
     return PSOItemSummaryFinder.getCurrentOrEditLocator(contentId);
   }
 
   /**
+   * See referenced member.
    * @see com.percussion.pso.utils.IPSOItemSummaryFinder#getCurrentOrEditLocator(int)
+   * @param id the id
+   * @return the result
+   * @throws PSException if an error occurs
    */
   public PSLocator getCurrentOrEditLocator(int id) throws PSException {
     return PSOItemSummaryFinder.getCurrentOrEditLocator(id);
   }
 
+  /** checkout none. */
   public static final int CHECKOUT_NONE = 1;
+  /** checkout by me. */
   public static final int CHECKOUT_BY_ME = 2;
+  /** checkout by other. */
   public static final int CHECKOUT_BY_OTHER = 3;
 
   /**
+   * Returns the checkout status.
+   *
    * @see com.percussion.pso.utils.IPSOItemSummaryFinder#getCheckoutStatus(java.lang.String,
    *     java.lang.String)
+   * @param contentId the content id
+   * @param userName the user name
+   * @return the result
+   * @throws PSException if an error occurs
    */
   public int getCheckoutStatus(String contentId, String userName) throws PSException {
     return PSOItemSummaryFinder.getCheckoutStatus(contentId, userName);
   }
 
   /**
+   * See referenced member.
    * @see com.percussion.pso.utils.IPSOItemSummaryFinder#getSummary(java.lang.String)
+   * @param contentId the content id
+   * @return the result
+   * @throws PSException if an error occurs
    */
   public PSComponentSummary getSummary(String contentId) throws PSException {
     return PSOItemSummaryFinder.getSummary(contentId);
   }
 
   /**
+   * Returns the summary.
+   *
    * @see
    *     com.percussion.pso.utils.IPSOItemSummaryFinder#getSummary(com.percussion.utils.guid.IPSGuid)
+   * @param guid the guid
+   * @return the result
+   * @throws PSException if an error occurs
    */
   public PSComponentSummary getSummary(IPSGuid guid) throws PSException {
     return PSOItemSummaryFinder.getSummary(guid);
   }
 
   /**
+   * See referenced member.
    * @see com.percussion.pso.utils.IPSOItemSummaryFinder#getSummary(int)
+   * @param id the id
+   * @return the result
+   * @throws PSException if an error occurs
    */
   public PSComponentSummary getSummary(int id) throws PSException {
     return PSOItemSummaryFinder.getSummary(id);

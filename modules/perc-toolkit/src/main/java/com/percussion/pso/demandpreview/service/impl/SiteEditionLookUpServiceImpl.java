@@ -60,13 +60,17 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
   private IPSAssemblyService asm = null;
   private Map<String, SiteEditionConfig> siteLookUpMap;
 
-  /** Default Constructor */
+  /**
+   * Default Constructor
+   * Creates a new SiteEditionLookUpServiceImpl.
+   *
+   */
   public SiteEditionLookUpServiceImpl() {}
 
   /**
    * Initialize the service bean. Must be called from Spring before any of the service methods.
    *
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   public void init() throws Exception {
     if (siteManager == null) {
@@ -104,6 +108,13 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
     return LookUpSiteEdition(siteGuid);
   }
 
+  /**
+   * LookUpSiteEdition operation.
+   *
+   * @param siteId the site id
+   * @return the result
+   * @throws SiteLookUpException if an error occurs
+   */
   public SiteEditionHolder LookUpSiteEdition(IPSGuid siteId) throws SiteLookUpException {
     String emsg;
     String pSiteName = null;
@@ -190,9 +201,9 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
   /**
    * Gets the edition
    *
-   * @param editionName
+   * @param editionName the edition name
    * @return the edition. Never <code>null</code>
-   * @throws SiteLookUpException
+   * @throws SiteLookUpException if an error occurs
    */
   protected IPSEdition getEdition(String editionName) throws SiteLookUpException {
     String emsg;
@@ -218,7 +229,7 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
   /**
    * Sets the site look up map instance.
    *
-   * @param siteLookUpMap
+   * @param siteLookUpMap the site look up map
    */
   public void setSiteLookUpMap(Map<String, SiteEditionConfig> siteLookUpMap) {
     this.siteLookUpMap = siteLookUpMap;
@@ -227,7 +238,7 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
   /**
    * This method is only for testing purpose.
    *
-   * @param siteManager
+   * @param siteManager the site manager
    */
   protected void setSiteManager(IPSSiteManager siteManager) {
     this.siteManager = siteManager;
@@ -236,7 +247,7 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
   /**
    * Sets the publisher service. This method is only for testing purpose.
    *
-   * @param publisherService
+   * @param publisherService the publisher service
    */
   protected void setPubisherService(IPSPublisherService publisherService) {
     this.publisherService = publisherService;
@@ -245,7 +256,7 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
   /**
    * This method is only for testing purpose.
    *
-   * @param guidManager
+   * @param guidManager the guid manager
    */
   protected void setGuidManager(IPSGuidManager guidManager) {
     this.guidManager = guidManager;

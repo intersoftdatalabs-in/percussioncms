@@ -34,31 +34,57 @@ public class ByteArrayDataSource implements DataSource {
   String name;
   String contentType;
 
-  /** */
-  public ByteArrayDataSource() {
+        /**
+     * Creates a new ByteArrayDataSource.
+     */
+    public ByteArrayDataSource() {
     store = new ByteArrayOutputStream();
   }
 
+  /**
+   * Creates a new ByteArrayDataSource.
+   */
+  /**
+   * Creates a data source for the given name and content type.
+   *
+   * @param name the data source name
+   * @param contentType the MIME content type
+   */
   public ByteArrayDataSource(String name, String contentType) {
     this();
     this.name = name;
     this.contentType = contentType;
   }
 
+  /**
+   * Creates a new ByteArrayDataSource.
+   */
+  /**
+   * Creates a data source with an initial buffer size.
+   *
+   * @param name the data source name
+   * @param contentType the MIME content type
+   * @param size the initial buffer size
+   */
   public ByteArrayDataSource(String name, String contentType, int size) {
     this(name, contentType);
     store = new ByteArrayOutputStream(size);
   }
 
   /**
+   * See referenced member.
    * @see DataSource#getContentType()
+   * @return the result
    */
   public String getContentType() {
     return contentType;
   }
 
   /**
+   * See referenced member.
    * @see DataSource#getInputStream()
+   * @return the result
+   * @throws IOException if an error occurs
    */
   public InputStream getInputStream() throws IOException {
     ByteArrayInputStream bis = new ByteArrayInputStream(store.toByteArray());
@@ -66,14 +92,19 @@ public class ByteArrayDataSource implements DataSource {
   }
 
   /**
+   * See referenced member.
    * @see DataSource#getName()
+   * @return the result
    */
   public String getName() {
     return name;
   }
 
   /**
+   * See referenced member.
    * @see DataSource#getOutputStream()
+   * @return the result
+   * @throws IOException if an error occurs
    */
   public OutputStream getOutputStream() throws IOException {
     return store;

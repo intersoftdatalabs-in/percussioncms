@@ -20,36 +20,68 @@ import com.percussion.pso.restservice.model.Error.ErrorCode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * ItemRestException class.
+ */
 public class ItemRestException extends Exception {
 
-  /** */
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
   private static final Logger log = LogManager.getLogger(ItemRestException.class);
   private ErrorCode errorCode = ErrorCode.UNKNOWN_ERROR;
 
+  /**
+   * Creates a new ItemRestException.
+   */
   public ItemRestException() {}
 
+  /**
+   * Creates a new ItemRestException.
+   *
+   * @param errorCode the error code
+   * @param msg the msg
+   */
   public ItemRestException(ErrorCode errorCode, String msg) {
     super(msg);
     this.errorCode = errorCode;
     log.debug("Rest exception {}", msg);
   }
 
+  /**
+   * Creates a new ItemRestException.
+   *
+   * @param msg the msg
+   */
   public ItemRestException(String msg) {
     super(msg);
     log.debug("Rest exception {}", msg);
   }
 
+  /**
+   * Creates a new ItemRestException.
+   *
+   * @param msg the msg
+   * @param e the e
+   */
   public ItemRestException(String msg, Exception e) {
     super(msg, e);
     log.debug("Rest exception {} {}", msg, e);
   }
 
+  /**
+   * Sets the error code.
+   *
+   * @param errorCode the error code
+   */
   public void setErrorCode(ErrorCode errorCode) {
     this.errorCode = errorCode;
   }
 
+  /**
+   * Returns the error code.
+   *
+   * @return the result
+   */
   public ErrorCode getErrorCode() {
     return errorCode;
   }

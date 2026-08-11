@@ -26,38 +26,80 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Items class.
+ */
 @XmlRootElement(name = "Items")
 public class Items {
+  /**
+   * Creates a new Items.
+   */
+  public Items() {
+    // default
+  }
+
   private List<Item> items = new ArrayList<>();
   private List<Error> errors = null;
 
+  /**
+   * Returns the items.
+   *
+   * @return the result
+   */
   @XmlElement(name = "Item")
   public List<Item> getItems() {
     return items;
   }
 
+  /**
+   * Sets the items.
+   *
+   * @param items the items
+   */
   public void setItems(List<Item> items) {
     this.items = items;
   }
 
   private static final Logger log = LogManager.getLogger(Items.class);
 
+  /**
+   * Returns the errors.
+   *
+   * @return the result
+   */
   @XmlElement(name = "Error")
   @XmlElementWrapper(name = "Errors")
   public List<Error> getErrors() {
     return errors;
   }
 
+  /**
+   * Sets the errors.
+   *
+   * @param errors the errors
+   */
   public void setErrors(List<Error> errors) {
     this.errors = errors;
   }
 
+  /**
+   * addError operation.
+   *
+   * @param error the error
+   * @param message the message
+   */
   public void addError(Error.ErrorCode error, String message) {
     if (errors == null) errors = new ArrayList<>();
     errors.add(new Error(error, message));
     log.debug("Error is: {}", message);
   }
 
+  /**
+   * addError operation.
+   *
+   * @param error the error
+   * @param e the e
+   */
   public void addError(Error.ErrorCode error, Exception e) {
     if (errors == null) errors = new ArrayList<>();
     String message = e.getMessage();
@@ -66,6 +108,13 @@ public class Items {
     errors.add(new Error(error, message + ":" + sw));
   }
 
+  /**
+   * addError operation.
+   *
+   * @param error the error
+   * @param message the message
+   * @param e the e
+   */
   public void addError(Error.ErrorCode error, String message, Exception e) {
     if (errors == null) errors = new ArrayList<>();
     String messageex = e.getMessage() + "\n";
@@ -75,12 +124,23 @@ public class Items {
     log.debug("Error is: {}", message);
   }
 
+  /**
+   * addError operation.
+   *
+   * @param error the error
+   */
   public void addError(Error.ErrorCode error) {
     if (errors == null) errors = new ArrayList<>();
     errors.add(new Error(error));
     log.debug("Error is: {}", error);
   }
 
+  /**
+   * hasError operation.
+   *
+   * @param error the error
+   * @return the result
+   */
   public boolean hasError(Error.ErrorCode error) {
     if (errors != null) {
       for (Error errorTest : errors) {
@@ -92,6 +152,11 @@ public class Items {
     return false;
   }
 
+  /**
+   * hasItems operation.
+   *
+   * @return the result
+   */
   public boolean hasItems() {
     if (items != null && !items.isEmpty()) {
       return true;
@@ -99,6 +164,11 @@ public class Items {
     return false;
   }
 
+  /**
+   * hasErrors operation.
+   *
+   * @return the result
+   */
   public boolean hasErrors() {
     if (errors != null && !errors.isEmpty()) {
       return true;

@@ -20,8 +20,17 @@ package com.percussion.pso.restservice;
 import com.percussion.pso.restservice.impl.ItemRestServiceImpl;
 import com.percussion.services.PSBaseServiceLocator;
 
-/** */
+/**
+ * Service locator for the item REST client bean.
+ */
 public class ItemRestClientLocator extends PSBaseServiceLocator {
+  /**
+   * Creates a new ItemRestClientLocator.
+   */
+  public ItemRestClientLocator() {
+    // default
+  }
+
 
   /**
    * Method getItemServiceBase.

@@ -22,29 +22,57 @@ package com.percussion.pso.imageedit.data;
  * @author DavidBenua
  */
 public class SizedImageMetaData extends SimpleImageMetaData {
+  /**
+   * Creates a new SizedImageMetaData.
+   */
+  public SizedImageMetaData() {
+    // default
+  }
+
   private ImageSizeDefinition sizeDefinition;
 
   private int x = 0;
   private int y = 0;
   private Boolean constraint = true;
 
+  /**
+   * Returns the x.
+   *
+   * @return the result
+   */
   public int getX() {
     return x;
   }
 
+  /**
+   * Sets the x.
+   *
+   * @param x the x
+   */
   public void setX(int x) {
     this.x = x;
   }
 
+  /**
+   * Returns the y.
+   *
+   * @return the result
+   */
   public int getY() {
     return y;
   }
 
+  /**
+   * Sets the y.
+   *
+   * @param y the y
+   */
   public void setY(int y) {
     this.y = y;
   }
 
   /**
+   * Returns the sizeDefinition.
    * @return the sizeDefinition
    */
   public ImageSizeDefinition getSizeDefinition() {
@@ -52,12 +80,18 @@ public class SizedImageMetaData extends SimpleImageMetaData {
   }
 
   /**
+   * Sets the sizeDefinition.
    * @param sizeDefinition the sizeDefinition to set
    */
   public void setSizeDefinition(ImageSizeDefinition sizeDefinition) {
     this.sizeDefinition = sizeDefinition;
   }
 
+  /**
+   * toString operation.
+   *
+   * @return the result
+   */
   @Override
   public String toString() {
     final StringBuffer sb = new StringBuffer("SizedImageMetaData{");
@@ -69,10 +103,20 @@ public class SizedImageMetaData extends SimpleImageMetaData {
     return sb.toString();
   }
 
+  /**
+   * Returns whether constraint.
+   *
+   * @return the result
+   */
   public Boolean isConstraint() {
     return constraint;
   }
 
+  /**
+   * Sets the constraint.
+   *
+   * @param constraint the constraint
+   */
   public void setConstraint(Boolean constraint) {
     this.constraint = constraint;
   }

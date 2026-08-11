@@ -52,6 +52,9 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
       HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
   private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
+  /**
+   * Creates a new PSORemoteContentTools.
+   */
   public PSORemoteContentTools() {
     super();
   }
@@ -59,10 +62,10 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   /**
    * This gets remote JSON content and returns a JSONobject.
    *
-   * @param urlString
+   * @param urlString the url string
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
    */
   // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") //Is an api specifically for
   // pulling remote content
@@ -74,6 +77,14 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
             description = "url to pull content from, include query params if desired")
       },
       returns = "Returns an integer status code")
+  /**
+   * Returns the httpstatus code.
+   *
+   * @param urlString the url string
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public int getHTTPStatusCode(String urlString) throws IllegalArgumentException, IOException {
     return executeGet(urlString, null, null, null).statusCode();
   }
@@ -81,12 +92,12 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   /**
    * This gets remote JSON content and returns a JSONobject.
    *
-   * @param urlString
-   * @param username
-   * @param password
+   * @param urlString the url string
+   * @param username the username
+   * @param password the password
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
    */
   @IPSJexlMethod(
       description = "Returns a status code for a url",
@@ -98,6 +109,16 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns a integer status code")
+  /**
+   * Returns the httpstatus code.
+   *
+   * @param urlString the url string
+   * @param username the username
+   * @param password the password
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public int getHTTPStatusCode(String urlString, String username, String password)
       throws IllegalArgumentException, IOException {
     return executeGet(urlString, null, username, password).statusCode();
@@ -106,11 +127,11 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   /**
    * This gets remote JSON content and returns a JSONobject.
    *
-   * @param urlString
-   * @param headers
+   * @param urlString the url string
+   * @param headers the headers
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
    */
   @IPSJexlMethod(
       description = "Returns status code based on url",
@@ -121,6 +142,15 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "headers", description = "map of headers to set")
       },
       returns = "Returns a integer status code")
+  /**
+   * Returns the httpstatus code.
+   *
+   * @param urlString the url string
+   * @param headers the headers
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public int getHTTPStatusCode(String urlString, Map<String, String> headers)
       throws IllegalArgumentException, IOException {
     return executeGet(urlString, headers, null, null).statusCode();
@@ -129,13 +159,13 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   /**
    * This gets a status code for a url.
    *
-   * @param urlString
-   * @param headers
-   * @param username
-   * @param password
+   * @param urlString the url string
+   * @param headers the headers
+   * @param username the username
+   * @param password the password
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
    */
   @IPSJexlMethod(
       description = "Returns status code based on a URL.",
@@ -148,6 +178,17 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns a integer status code")
+  /**
+   * Returns the httpstatus code.
+   *
+   * @param urlString the url string
+   * @param headers the headers
+   * @param username the username
+   * @param password the password
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public int getHTTPStatusCode(
       String urlString, Map<String, String> headers, String username, String password)
       throws IllegalArgumentException, IOException {
@@ -157,10 +198,10 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   /**
    * This gets remote JSON content and returns a JSONobject.
    *
-   * @param urlString
+   * @param urlString the url string
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
    */
   // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") //Is an API method for
   // returning remote JSON content in a template.
@@ -172,6 +213,14 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
             description = "url to pull content from, include query params if desired")
       },
       returns = "Returns parsed JSON as Object (Map for objects, List for arrays)")
+  /**
+   * Returns the remote jsoncontent.
+   *
+   * @param urlString the url string
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public Object getRemoteJSONContent(String urlString)
       throws IllegalArgumentException, IOException {
     HttpResponse<String> response = executeGet(urlString, null, null, null);
@@ -188,12 +237,12 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   /**
    * This gets remote JSON content and returns a JSONobject.
    *
-   * @param urlString
-   * @param username
-   * @param password
+   * @param urlString the url string
+   * @param username the username
+   * @param password the password
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
    */
   // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") //Is an API
   @IPSJexlMethod(
@@ -206,6 +255,16 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns parsed JSON as Object (Map for objects, List for arrays)")
+  /**
+   * Returns the remote jsoncontent.
+   *
+   * @param urlString the url string
+   * @param username the username
+   * @param password the password
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public Object getRemoteJSONContent(String urlString, String username, String password)
       throws IllegalArgumentException, IOException {
     HttpResponse<String> response = executeGet(urlString, null, username, password);
@@ -222,11 +281,11 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   /**
    * This gets remote JSON content and returns a JSONobject.
    *
-   * @param urlString
-   * @param headers
+   * @param urlString the url string
+   * @param headers the headers
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
    */
   @IPSJexlMethod(
       description = "Returns parsed JSON content (object or array) from a URL with headers.",
@@ -237,6 +296,15 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "headers", description = "map of headers to set")
       },
       returns = "Returns parsed JSON as Object (Map for objects, List for arrays)")
+  /**
+   * Returns the remote jsoncontent.
+   *
+   * @param urlString the url string
+   * @param headers the headers
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public Object getRemoteJSONContent(String urlString, Map<String, String> headers)
       throws IllegalArgumentException, IOException {
     HttpResponse<String> response = executeGet(urlString, headers, null, null);
@@ -249,13 +317,13 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   /**
    * This gets remote JSON content and returns a JSONobject.
    *
-   * @param urlString
-   * @param headers
-   * @param username
-   * @param password
+   * @param urlString the url string
+   * @param headers the headers
+   * @param username the username
+   * @param password the password
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
    */
   // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") // Is an api method for getting
   // remote data by url
@@ -271,6 +339,17 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns parsed JSON as Object (Map for objects, List for arrays)")
+  /**
+   * Returns the remote jsoncontent.
+   *
+   * @param urlString the url string
+   * @param headers the headers
+   * @param username the username
+   * @param password the password
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public Object getRemoteJSONContent(
       String urlString, Map<String, String> headers, String username, String password)
       throws IllegalArgumentException, IOException {
@@ -317,10 +396,10 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   /**
    * This gets remote XML content and returns a JSOUP Document object.
    *
-   * @param urlString
+   * @param urlString the url string
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
    */
   @IPSJexlMethod(
       description = "Returns JSOUP document with xml content, returns a JSoup Document element.",
@@ -330,6 +409,14 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
             description = "url to pull content from, include query params if desired")
       },
       returns = "Returns a JSOUP document")
+  /**
+   * Returns the remote xmlcontent.
+   *
+   * @param urlString the url string
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public Document getRemoteXMLContent(String urlString)
       throws IllegalArgumentException, IOException {
 
@@ -339,12 +426,12 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   /**
    * This gets remote XML content with basic authentication and returns a JSOUP Document object.
    *
-   * @param urlString
-   * @param username
-   * @param password
+   * @param urlString the url string
+   * @param username the username
+   * @param password the password
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
    */
   @IPSJexlMethod(
       description = "Returns JSOUP document with xml content, returns a JSoup Document element.",
@@ -356,6 +443,16 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns a JSOUP document")
+  /**
+   * Returns the remote xmlcontent.
+   *
+   * @param urlString the url string
+   * @param username the username
+   * @param password the password
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public org.jsoup.nodes.Document getRemoteXMLContent(
       String urlString, String username, String password)
       throws IllegalArgumentException, IOException {
@@ -368,11 +465,11 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   /**
    * This gets remote XML content with map of headers and returns a JSOUP Document object.
    *
-   * @param urlString
-   * @param headers
+   * @param urlString the url string
+   * @param headers the headers
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
    */
   @IPSJexlMethod(
       description = "Returns JSOUP document with xml content, returns a JSoup Document element.",
@@ -383,6 +480,15 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "headers", description = "Map of headers")
       },
       returns = "Returns a JSOUP document")
+  /**
+   * Returns the remote xmlcontent.
+   *
+   * @param urlString the url string
+   * @param headers the headers
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public Document getRemoteXMLContent(String urlString, Map<String, String> headers)
       throws IllegalArgumentException, IOException {
     Connection connection = Jsoup.connect(urlString);
@@ -396,11 +502,11 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
    * This gets remote XML content with map of headers, username, and password then returns a JSOUP
    * Document object.
    *
-   * @param urlString
-   * @param headers
+   * @param urlString the url string
+   * @param headers the headers
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
    */
   @IPSJexlMethod(
       description = "Returns JSOUP document with xml content, returns a JSoup Document element.",
@@ -413,6 +519,17 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns a JSOUP document")
+  /**
+   * Returns the remote xmlcontent.
+   *
+   * @param urlString the url string
+   * @param headers the headers
+   * @param username the username
+   * @param password the password
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public Document getRemoteXMLContent(
       String urlString, Map<String, String> headers, String username, String password)
       throws IllegalArgumentException, IOException {
@@ -430,10 +547,10 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   /**
    * This is an aliased method for getRemoteXMLContent
    *
-   * @param urlString
+   * @param urlString the url string
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
    */
   @IPSJexlMethod(
       description =
@@ -445,6 +562,14 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
             description = "url to pull content from, include query params if desired")
       },
       returns = "Returns a JSOUP document")
+  /**
+   * Returns the remote htmlcontent.
+   *
+   * @param urlString the url string
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public Document getRemoteHTMLContent(String urlString)
       throws IllegalArgumentException, IOException {
     return getRemoteXMLContent(urlString);
@@ -453,12 +578,12 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   /**
    * This is an aliased method for getRemoteXMLContent, with basic authorization
    *
-   * @param urlString
-   * @param username
-   * @param password
+   * @param urlString the url string
+   * @param username the username
+   * @param password the password
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
    */
   @IPSJexlMethod(
       description = "Returns JSOUP document with xml content, returns a JSoup Document element.",
@@ -470,6 +595,16 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns a JSOUP document")
+  /**
+   * Returns the remote htmlcontent.
+   *
+   * @param urlString the url string
+   * @param username the username
+   * @param password the password
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public Document getRemoteHTMLContent(String urlString, String username, String password)
       throws IllegalArgumentException, IOException {
     return getRemoteXMLContent(urlString, username, password);
@@ -478,11 +613,11 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   /**
    * This is an aliased method for getRemoteXMLContent, with headers
    *
-   * @param urlString
-   * @param headers
+   * @param urlString the url string
+   * @param headers the headers
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
    */
   @IPSJexlMethod(
       description = "Returns JSOUP document with xml content, returns a JSoup Document element.",
@@ -493,6 +628,15 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "headers", description = "Map of headers")
       },
       returns = "Returns a JSOUP document")
+  /**
+   * Returns the remote htmlcontent.
+   *
+   * @param urlString the url string
+   * @param headers the headers
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public Document getRemoteHTMLContent(String urlString, Map<String, String> headers)
       throws IllegalArgumentException, IOException {
     return getRemoteXMLContent(urlString, headers);
@@ -520,6 +664,17 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns a JSOUP document")
+  /**
+   * Returns the remote htmlcontent.
+   *
+   * @param urlString the url string
+   * @param headers the headers
+   * @param username the username
+   * @param password the password
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public Document getRemoteHTMLContent(
       String urlString, Map<String, String> headers, String username, String password)
       throws IllegalArgumentException, IOException {

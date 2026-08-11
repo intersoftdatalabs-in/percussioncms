@@ -25,6 +25,9 @@ import com.percussion.services.contentmgr.IPSNode;
 import com.percussion.utils.guid.IPSGuid;
 import javax.jcr.RepositoryException;
 
+/**
+ * IPSOObjectFinder interface.
+ */
 public interface IPSOObjectFinder {
   /**
    * Gets the Legacy Component Summary for an item by GUID.
@@ -43,7 +46,7 @@ public interface IPSOObjectFinder {
    *
    * @param contentid the content id
    * @return the Component Summary for the item. Never <code>null</code>
-   * @throws PSException
+   * @throws PSException if an error occurs
    */
   @IPSJexlMethod(
       description = "get the Legacy Component Summary for an item",
@@ -144,7 +147,7 @@ public interface IPSOObjectFinder {
    *
    * @param guid the content item GUID
    * @return the Node, or <code>null</code> if the node was not found.
-   * @throws RepositoryException
+   * @throws RepositoryException if an error occurs
    */
   @IPSJexlMethod(
       description = "get the node for a particular guid",

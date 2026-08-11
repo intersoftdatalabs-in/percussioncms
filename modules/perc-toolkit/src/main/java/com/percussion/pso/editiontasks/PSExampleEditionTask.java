@@ -31,18 +31,53 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * PSExampleEditionTask class.
+ */
 public class PSExampleEditionTask implements IPSEditionTask {
+  /**
+   * Creates a new PSExampleEditionTask.
+   */
+  public PSExampleEditionTask() {
+    // default
+  }
+
 
   private static final Logger logger = LogManager.getLogger(PSExampleEditionTask.class);
 
+  /**
+   * init operation.
+   *
+   * @param def the def
+   * @param codeRoot the code root
+   */
   public void init(IPSExtensionDef def, File codeRoot) {
     // No initialization required
   }
 
+  /**
+   * Returns the type.
+   *
+   * @return the result
+   */
   public TaskType getType() {
     return TaskType.POSTEDITION;
   }
 
+  /**
+   * perform operation.
+   *
+   * @param edition the edition
+   * @param site the site
+   * @param starTime the star time
+   * @param endTime the end time
+   * @param jobId the job id
+   * @param duration the duration
+   * @param success the success
+   * @param params the params
+   * @param status the status
+   * @throws Exception if an error occurs
+   */
   public void perform(
       IPSEdition edition,
       IPSSite site,

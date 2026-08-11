@@ -38,6 +38,9 @@ public class PSODateTools extends PSJexlUtilBase implements IPSJexlExpression {
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSODateTools.class);
 
+  /**
+   * Creates a new PSODateTools.
+   */
   public PSODateTools() {}
 
   @IPSJexlMethod(
@@ -47,6 +50,14 @@ public class PSODateTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "format", description = "format string"),
         @IPSJexlParam(name = "date_value", description = "the date value")
       })
+  /**
+   * formatDate operation.
+   *
+   * @param format the format
+   * @param date_value the date value
+   * @return the result
+   * @throws ParseException if an error occurs
+   */
   public String formatDate(String format, Object date_value) throws ParseException {
     SimpleDateFormat fmt = new SimpleDateFormat(format);
 

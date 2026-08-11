@@ -48,7 +48,11 @@ public class PSONodeCataloger {
 
   private IPSContentMgr cmgr = null;
 
-  /** Sole constructor. */
+  /**
+   * Sole constructor.
+   * Creates a new PSONodeCataloger.
+   *
+   */
   public PSONodeCataloger() {}
 
   /** Initialize service pointers. */
@@ -62,7 +66,7 @@ public class PSONodeCataloger {
    * Get Content Type Names
    *
    * @return return the list of content type names defined in the system.
-   * @throws RepositoryException
+   * @throws RepositoryException if an error occurs
    */
   public List<String> getContentTypeNames() throws RepositoryException {
     init();
@@ -114,8 +118,8 @@ public class PSONodeCataloger {
    *
    * @param typeName the type name. If the typename does not begive with "rx:", it will be added.
    * @return the list of field names. Never <code>null</code> but may be <code>empty</code>
-   * @throws NoSuchNodeTypeException
-   * @throws RepositoryException
+   * @throws NoSuchNodeTypeException if an error occurs
+   * @throws RepositoryException if an error occurs
    */
   public List<String> getFieldNamesForContentType(String typeName)
       throws NoSuchNodeTypeException, RepositoryException {

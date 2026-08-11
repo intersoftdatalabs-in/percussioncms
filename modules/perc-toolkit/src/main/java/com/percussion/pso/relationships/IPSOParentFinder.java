@@ -23,6 +23,9 @@ import com.percussion.services.assembly.PSAssemblyException;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * IPSOParentFinder interface.
+ */
 public interface IPSOParentFinder {
   /**
    * Finds all parents for an item. Convenience method for {@link #findAllParents(PSLocator,
@@ -31,8 +34,8 @@ public interface IPSOParentFinder {
    * @param contentid the item content id
    * @param slotName the slot name
    * @return the set of parent locators. Never <code>null</code> but may be <code>empty</code>.
-   * @throws PSAssemblyException
-   * @throws PSCmsException
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSCmsException if an error occurs
    */
   public Set<PSLocator> findAllParents(String contentid, String slotName)
       throws PSAssemblyException, PSCmsException;
@@ -44,8 +47,8 @@ public interface IPSOParentFinder {
    * @param dependent the dependent item.
    * @param slotName the slot name. Must not be null or empty.
    * @return the set of parent locators. Never <code>null</code> but may be <code>empty</code>.
-   * @throws PSAssemblyException
-   * @throws PSCmsException
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSCmsException if an error occurs
    */
   public Set<PSLocator> findAllParents(PSLocator dependent, String slotName)
       throws PSAssemblyException, PSCmsException;
@@ -58,8 +61,8 @@ public interface IPSOParentFinder {
    * @param slotName the slot name.
    * @param usePublic the public revision flag.
    * @return the set of parent locators. Never <code>null</code> but may be <code>empty</code>.
-   * @throws PSAssemblyException
-   * @throws PSCmsException
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSCmsException if an error occurs
    */
   public Set<PSLocator> findParents(String contentid, String slotName, boolean usePublic)
       throws PSAssemblyException, PSCmsException;
@@ -68,13 +71,13 @@ public interface IPSOParentFinder {
    * Finds the
    *
    * @param dependent the locator for the dependent item.
-   * @param slotName
+   * @param slotName the slot name
    * @param usePublic the public revision flag. If <code>true</code>, only relationships where the
    *     owner is the public revision will be considered. If<code>false</code>, only relationships
    *     where the owner is the current or edit revision will be considered.
    * @return the set of parent locators. Never <code>null</code> but may be <code>empty</code>.
-   * @throws PSAssemblyException
-   * @throws PSCmsException
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSCmsException if an error occurs
    */
   public Set<PSLocator> findParents(PSLocator dependent, String slotName, boolean usePublic)
       throws PSAssemblyException, PSCmsException;
@@ -89,8 +92,8 @@ public interface IPSOParentFinder {
    * @param slotName the name of the slot.
    * @param validFlags the list of valid flags.
    * @return <code>true</code> if all of the items ancestors in the slot are public.
-   * @throws PSAssemblyException
-   * @throws PSException
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
    */
   public boolean hasOnlyPublicAncestors(String contentId, String slotName, List<String> validFlags)
       throws PSAssemblyException, PSException;

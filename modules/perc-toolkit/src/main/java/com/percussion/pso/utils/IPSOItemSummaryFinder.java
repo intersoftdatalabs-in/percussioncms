@@ -22,13 +22,45 @@ import com.percussion.error.PSException;
 import com.percussion.utils.guid.IPSGuid;
 
 // REFACTORED: CP-JAVA11
+/**
+ * IPSOItemSummaryFinder interface.
+ */
 public interface IPSOItemSummaryFinder {
+  /**
+   * Returns the current or edit locator.
+   *
+   * @param guid the guid
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public PSLocator getCurrentOrEditLocator(IPSGuid guid) throws PSException;
 
+  /**
+   * Returns the current or edit locator.
+   *
+   * @param contentId the content id
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public PSLocator getCurrentOrEditLocator(String contentId) throws PSException;
 
+  /**
+   * Returns the current or edit locator.
+   *
+   * @param id the id
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public PSLocator getCurrentOrEditLocator(int id) throws PSException;
 
+  /**
+   * Returns the checkout status.
+   *
+   * @param contentId the content id
+   * @param userName the user name
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public int getCheckoutStatus(String contentId, String userName) throws PSException;
 
   /**
@@ -40,7 +72,21 @@ public interface IPSOItemSummaryFinder {
    */
   public PSComponentSummary getSummary(String contentId) throws PSException;
 
+  /**
+   * Returns the summary.
+   *
+   * @param guid the guid
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public PSComponentSummary getSummary(IPSGuid guid) throws PSException;
 
+  /**
+   * Returns the summary.
+   *
+   * @param id the id
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public PSComponentSummary getSummary(int id) throws PSException;
 }

@@ -46,6 +46,13 @@ import org.apache.logging.log4j.Logger;
  * @author DavidBenua
  */
 public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpression {
+  /**
+   * Creates a new ImageEditorTools.
+   */
+  public ImageEditorTools() {
+    // default
+  }
+
 
   private static final Logger log = LogManager.getLogger(ImageEditorTools.class);
   private ImageSizeDefinitionManager isdm = null;
@@ -66,6 +73,12 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
   @IPSJexlMethod(
       description = "get image size definition by code",
       params = {@IPSJexlParam(name = "code", description = "size code")})
+  /**
+   * Returns the image size definition.
+   *
+   * @param code the code
+   * @return the result
+   */
   public ImageSizeDefinition getImageSizeDefinition(String code) {
     initServices();
     return isdm.getImageSize(code);
@@ -79,7 +92,7 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
    * @param sizeCode the desired size code. Must not be <code>null</code>.
    * @return the image child node of the desired size. May be <code>null</code> if the child node
    *     does not exist in this item.
-   * @throws RepositoryException
+   * @throws RepositoryException if an error occurs
    */
   @IPSJexlMethod(
       description = "gets a child node of the appropriate size",
@@ -87,6 +100,14 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
         @IPSJexlParam(name = "itemNode", type = "javax.jcr.Node", description = "item node"),
         @IPSJexlParam(name = "sizeCode", description = "desired size code")
       })
+  /**
+   * Returns the sized node.
+   *
+   * @param itemNode the item node
+   * @param sizeCode the size code
+   * @return the result
+   * @throws RepositoryException if an error occurs
+   */
   public Object getSizedNode(Node itemNode, String sizeCode) throws RepositoryException {
     String emsg;
     initServices();
@@ -132,6 +153,14 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
             type = "java.lang.String",
             description = "desired size code")
       })
+  /**
+   * hasSizedNode operation.
+   *
+   * @param itemNode the item node
+   * @param sizeCode the size code
+   * @return the result
+   * @throws RepositoryException if an error occurs
+   */
   public boolean hasSizedNode(Node itemNode, String sizeCode) throws RepositoryException {
     Node child = (Node) getSizedNode(itemNode, sizeCode);
     if (child != null) {
@@ -144,6 +173,11 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
       description =
           "gets the URL of the failure image defined in the image editor configuration file.",
       params = {})
+  /**
+   * Returns the failure image url.
+   *
+   * @return the result
+   */
   public String getFailureImageURL() {
     initServices();
     String path = isdm.getFailureImagePath();
@@ -153,6 +187,12 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
   @IPSJexlMethod(
       description = "gets the failure image as a stream.",
       params = {})
+  /**
+   * Returns the failure image stream.
+   *
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public InputStream getFailureImageStream() throws Exception {
     initServices();
     InputStream stream = null;
@@ -170,6 +210,12 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
   @IPSJexlMethod(
       description = "gets the failure image as a byte array.",
       params = {})
+  /**
+   * Returns the failure image binary.
+   *
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public byte[] getFailureImageBinary() throws Exception {
     InputStream stream = this.getFailureImageStream();
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -177,6 +223,12 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
     return baos.toByteArray();
   }
 
+  /**
+   * logRequestAttributes operation.
+   *
+   * @param request the request
+   * @param message the message
+   */
   public static void logRequestAttributes(HttpServletRequest request, String message) {
     if (!log.isDebugEnabled()) return;
     log.debug("logging request attributes for " + message);

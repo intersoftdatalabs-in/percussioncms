@@ -37,7 +37,7 @@ public interface ImageResizeManager {
    * @param size the desired image size. If <code>null</code> the image size will be the size of the
    *     crop box (or the original image size if the crop box is also <code>null</code>
    * @return the resulting image metadata.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   public ImageData generateImage(InputStream input, Rectangle cropBox, Dimension size)
       throws Exception;

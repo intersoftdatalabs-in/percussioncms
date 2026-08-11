@@ -62,6 +62,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Node;
 
+/**
+ * PSOThumbnailGenerator class.
+ */
 public class PSOThumbnailGenerator extends PSFileInfo
     implements IPSItemInputTransformer, IPSRequestPreProcessor {
 
@@ -86,6 +89,9 @@ public class PSOThumbnailGenerator extends PSFileInfo
 
   private float compression = 0.85f;
 
+  /**
+   * Creates a new PSOThumbnailGenerator.
+   */
   public PSOThumbnailGenerator() {}
 
   /**
@@ -113,10 +119,10 @@ public class PSOThumbnailGenerator extends PSFileInfo
    *
    * @param params - parameters
    * @param request - IPSRequestContext
-   * @throws PSAuthorizationException
-   * @throws PSRequestValidationException
-   * @throws PSParameterMismatchException
-   * @throws PSExtensionProcessingException
+   * @throws PSAuthorizationException if an error occurs
+   * @throws PSRequestValidationException if an error occurs
+   * @throws PSParameterMismatchException if an error occurs
+   * @throws PSExtensionProcessingException if an error occurs
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,
@@ -280,6 +286,7 @@ public class PSOThumbnailGenerator extends PSFileInfo
    * @param width the desired width of the thumbnail.
    * @param height the desired height of the thumbnail.
    * @return the thumbnail as a file. Will be <code>null</code> if any errors occur.
+   * @param useOriginalType the use original type
    */
   public PSPurgableTempFile makeThumbFile(
       InputStream imageStream,
@@ -327,6 +334,10 @@ public class PSOThumbnailGenerator extends PSFileInfo
    *     JPEG.
    * @param instream the source image as a byte stream.
    * @param maxDim The width and height of the thumbnail must be maxDim pixels or less.
+   * @param width the width
+   * @param height the height
+   * @param useOriginalType the use original type
+   * @throws IOException if an error occurs
    */
   protected void createThumbnail(
       OutputStream outstream,
@@ -557,8 +568,13 @@ public class PSOThumbnailGenerator extends PSFileInfo
   }
 
   /**
+   * init operation.
+   *
    * @see com.percussion.extension.PSDefaultExtension#init(com.percussion.extension.IPSExtensionDef,
    *     java.io.File)
+   * @param extDef the ext def
+   * @param initFile the init file
+   * @throws PSExtensionException if an error occurs
    */
   @Override
   public void init(IPSExtensionDef extDef, File initFile) throws PSExtensionException {
@@ -588,6 +604,14 @@ public class PSOThumbnailGenerator extends PSFileInfo
     }
   }
 
+  /**
+   * createBufferedImage operation.
+   *
+   * @param width the width
+   * @param height the height
+   * @param baseImage the base image
+   * @return the result
+   */
   protected BufferedImage createBufferedImage(int width, int height, BufferedImage baseImage) {
     boolean transparency = isTransparent(baseImage);
     log.debug("image transparency is " + transparency);
@@ -607,6 +631,12 @@ public class PSOThumbnailGenerator extends PSFileInfo
     return outImage;
   }
 
+  /**
+   * Returns the graphics.
+   *
+   * @param image the image
+   * @return the result
+   */
   protected Graphics2D getGraphics(BufferedImage image) {
     Graphics2D g2d = image.createGraphics();
     g2d.setRenderingHint(
@@ -626,6 +656,15 @@ public class PSOThumbnailGenerator extends PSFileInfo
     return g2d;
   }
 
+  /**
+   * Returns the transparent metadata.
+   *
+   * @param image the image
+   * @param riter the riter
+   * @param riteParam the rite param
+   * @return the result
+   * @throws IIOInvalidTreeException if an error occurs
+   */
   protected IIOMetadata getTransparentMetadata(
       BufferedImage image, ImageWriter riter, ImageWriteParam riteParam)
       throws IIOInvalidTreeException {
@@ -647,6 +686,11 @@ public class PSOThumbnailGenerator extends PSFileInfo
     return metadata;
   }
 
+  /**
+   * logXml operation.
+   *
+   * @param node the node
+   */
   protected void logXml(Node node) {
     if (!log.isDebugEnabled()) return;
 
@@ -654,6 +698,12 @@ public class PSOThumbnailGenerator extends PSFileInfo
     log.debug(xstr);
   }
 
+  /**
+   * Returns whether transparent.
+   *
+   * @param image the image
+   * @return the result
+   */
   protected boolean isTransparent(BufferedImage image) {
     if (image.getTransparency() == Transparency.OPAQUE) {
       return false;
@@ -694,6 +744,8 @@ public class PSOThumbnailGenerator extends PSFileInfo
   }
 
   /**
+   * Returns the step factor.
+   *
    * @return the stepFactor
    */
   public int getStepFactor() {
@@ -701,6 +753,8 @@ public class PSOThumbnailGenerator extends PSFileInfo
   }
 
   /**
+   * Sets the step factor.
+   *
    * @param stepFactor the stepFactor to set
    */
   public void setStepFactor(int stepFactor) {
@@ -708,6 +762,8 @@ public class PSOThumbnailGenerator extends PSFileInfo
   }
 
   /**
+   * Returns the max interpolation size.
+   *
    * @return the maxInterpolationSize
    */
   public int getMaxInterpolationSize() {
@@ -715,6 +771,8 @@ public class PSOThumbnailGenerator extends PSFileInfo
   }
 
   /**
+   * Sets the max interpolation size.
+   *
    * @param maxInterpolationSize the maxInterpolationSize to set
    */
   public void setMaxInterpolationSize(int maxInterpolationSize) {
@@ -722,6 +780,8 @@ public class PSOThumbnailGenerator extends PSFileInfo
   }
 
   /**
+   * Returns the image format.
+   *
    * @return the imageFormat
    */
   public String getImageFormat() {
@@ -729,6 +789,8 @@ public class PSOThumbnailGenerator extends PSFileInfo
   }
 
   /**
+   * Sets the image format.
+   *
    * @param imageFormat the imageFormat to set
    */
   public void setImageFormat(String imageFormat) {
@@ -736,6 +798,8 @@ public class PSOThumbnailGenerator extends PSFileInfo
   }
 
   /**
+   * Returns the compression.
+   *
    * @return the compression
    */
   public float getCompression() {
@@ -743,6 +807,8 @@ public class PSOThumbnailGenerator extends PSFileInfo
   }
 
   /**
+   * Sets the compression.
+   *
    * @param compression the compression to set
    */
   public void setCompression(float compression) {

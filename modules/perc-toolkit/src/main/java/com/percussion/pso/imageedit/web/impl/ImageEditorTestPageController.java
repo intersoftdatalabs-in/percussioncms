@@ -45,13 +45,23 @@ public class ImageEditorTestPageController extends ParameterizableViewController
 
   private ImageUrlBuilder urlBuilder;
 
-  /** Default constructor */
+  /**
+   * Default constructor
+   * Creates a new ImageEditorTestPageController.
+   *
+   */
   public ImageEditorTestPageController() {}
 
   /**
+   * handleRequestInternal operation.
+   *
    * @see
    *     org.springframework.web.servlet.mvc.AbstractController#handleRequestInternal(HttpServletRequest,
    *     HttpServletResponse)
+   * @param request the request
+   * @param response the response
+   * @return the result
+   * @throws Exception if an error occurs
    */
   @Override
   protected ModelAndView handleRequestInternal(
@@ -77,6 +87,7 @@ public class ImageEditorTestPageController extends ParameterizableViewController
   }
 
   /**
+   * Returns the imagePersistenceManager.
    * @return the imagePersistenceManager
    */
   public ImagePersistenceManager getImagePersistenceManager() {
@@ -84,6 +95,7 @@ public class ImageEditorTestPageController extends ParameterizableViewController
   }
 
   /**
+   * Sets the imagePersistenceManager.
    * @param imagePersistenceManager the imagePersistenceManager to set
    */
   public void setImagePersistenceManager(ImagePersistenceManager imagePersistenceManager) {
@@ -91,6 +103,7 @@ public class ImageEditorTestPageController extends ParameterizableViewController
   }
 
   /**
+   * Returns the urlBuilder.
    * @return the urlBuilder
    */
   public ImageUrlBuilder getUrlBuilder() {
@@ -98,6 +111,7 @@ public class ImageEditorTestPageController extends ParameterizableViewController
   }
 
   /**
+   * Sets the urlBuilder.
    * @param urlBuilder the urlBuilder to set
    */
   public void setUrlBuilder(ImageUrlBuilder urlBuilder) {

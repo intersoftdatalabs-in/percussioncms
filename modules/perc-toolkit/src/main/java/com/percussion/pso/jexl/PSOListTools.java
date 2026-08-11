@@ -47,6 +47,9 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOListTools.class);
 
+  /**
+   * Creates a new PSOListTools.
+   */
   public PSOListTools() {
     super();
   }
@@ -124,6 +127,14 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "end", description = "the end index (exclusive)")
       },
       returns = "a subset of collection as a list")
+  /**
+   * sublist operation.
+   *
+   * @param c the c
+   * @param start the start
+   * @param end the end
+   * @return the result
+   */
   public <T> List<T> sublist(Collection<T> c, int start, int end) {
     log.debug("processing sublist(Collection c, int start, int end)");
     List<T> rvalue = new ArrayList<>();
@@ -164,10 +175,11 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
+   * See referenced member.
    * @see #sublist(Collection, int, int)
-   * @param c
-   * @param start
-   * @param end
+   * @param c the c
+   * @param start the start
+   * @param end the end
    * @return a subset of the collection never <code>null</code>
    */
   public <T> List<T> sublist(Collection<T> c, String start, String end) {
@@ -177,10 +189,11 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
+   * See referenced member.
    * @see #sublist(Collection, int, int)
-   * @param c
-   * @param start
-   * @param end
+   * @param c the c
+   * @param start the start
+   * @param end the end
    * @return a subset of the collection never <code>null</code>.
    */
   public <T> List<T> sublist(Collection<T> c, Number start, Number end) {
@@ -190,10 +203,11 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
+   * See referenced member.
    * @see #sublist(Collection, int, int)
-   * @param c
-   * @param start
-   * @param end
+   * @param c the c
+   * @param start the start
+   * @param end the end
    * @return a subset of the collection never <code>null</code>.
    */
   public <T> List<T> sublist(T[] c, int start, int end) {
@@ -209,9 +223,10 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
-   * @param c
-   * @param start
-   * @param end
+   * Sets the c.
+   * @param c the c
+   * @param start the start
+   * @param end the end
    * @return a subset of the collection never <code>null</code>.
    * @see #sublist(Collection, int, int)
    */
@@ -235,6 +250,12 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
               + " the item.",
       params = {@IPSJexlParam(name = "value", description = "value ")},
       returns = "a list")
+  /**
+   * asList operation.
+   *
+   * @param single the single
+   * @return the result
+   */
   @SuppressWarnings({"unchecked", "rawtypes"})
   public List<Object> asList(Object single) {
     if (single == null) {
@@ -268,6 +289,13 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "size", description = "size of the array to return")
       },
       returns = "T[]")
+  /**
+   * asList operation.
+   *
+   * @param value the value
+   * @param size the size
+   * @return the result
+   */
   public <T> List<T> asList(T value, int size) {
     List<T> rvalue = new ArrayList<T>();
     for (int i = 0; i < size; i++) {
@@ -293,6 +321,13 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "second", description = "second object")
       },
       returns = "a list")
+  /**
+   * asPair operation.
+   *
+   * @param first the first
+   * @param second the second
+   * @return the result
+   */
   public <A, B> PSPair<A, B> asPair(A first, B second) {
     PSPair<A, B> pair = new PSPair<A, B>(first, second);
     return pair;
@@ -301,8 +336,8 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
   /**
    * Validates and converts start and end to integers.
    *
-   * @param start
-   * @param end
+   * @param start the start
+   * @param end the end
    * @return an two index (length = 2) integer array with start first and end last.
    */
   private int[] convertIndexs(String start, String end) {
@@ -322,8 +357,8 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
   /**
    * Validates and converts start and end to integers.
    *
-   * @param start
-   * @param end
+   * @param start the start
+   * @param end the end
    * @return an two index (length = 2) integer array with start first and end last.
    */
   private int[] convertIndexs(Number start, Number end) {
@@ -343,12 +378,18 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
       params = {
         @IPSJexlParam(name = "list", description = "the list whose elements are to be reversed.")
       })
+  /**
+   * reverse operation.
+   *
+   * @param list the list
+   */
   public void reverse(List<?> list) {
     Collections.reverse(list);
   }
 
   /* (non-Javadoc)
    * @see java.lang.Object#toString()
+   * @return the result
    */
   @Override
   public String toString() {

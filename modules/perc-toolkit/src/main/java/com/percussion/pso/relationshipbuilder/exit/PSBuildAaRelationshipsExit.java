@@ -36,6 +36,13 @@ import org.apache.logging.log4j.Logger;
  * @since 6.0
  */
 public class PSBuildAaRelationshipsExit extends PSAbstractBuildRelationshipsExtension {
+  /**
+   * Creates a new PSBuildAaRelationshipsExit.
+   */
+  public PSBuildAaRelationshipsExit() {
+    // default
+  }
+
   private static final String SOURCE_ITEM_TYPE_PARAM_DEPENDENT = "DEPENDENT";
   private static final String SOURCE_ITEM_TYPE_PARAM_OWNER = "OWNER";
   private static final String SOURCE_ITEM_TYPE_PARAM = "sourceItemType";
@@ -55,6 +62,8 @@ public class PSBuildAaRelationshipsExit extends PSAbstractBuildRelationshipsExte
    *
    * @param request the current request context, not <code>null</code>..
    * @return a {@link IPSRelationshipBuilder}
+   * @param paramMap the param map
+   * @param mode the mode
    */
   @Override
   public IPSRelationshipBuilder createRelationshipBuilder(

@@ -56,13 +56,23 @@ public class PSORevisionCorrectingItemFilter extends PSBaseFilter implements IPS
   private static IPSGuidManager gmgr = null;
   private static IPSCmsContentSummaries summ = null;
 
-  /** Default constructor */
+  /**
+   * Default constructor
+   * Creates a new PSORevisionCorrectingItemFilter.
+   *
+   */
   public PSORevisionCorrectingItemFilter() {
     super();
   }
 
   /**
+   * filter operation.
+   *
    * @see com.percussion.services.filter.IPSItemFilterRule#filter(java.util.List, java.util.Map)
+   * @param items the items
+   * @param params the params
+   * @return the result
+   * @throws PSFilterException if an error occurs
    */
   public List<IPSFilterItem> filter(List<IPSFilterItem> items, Map<String, String> params)
       throws PSFilterException {
@@ -123,6 +133,8 @@ public class PSORevisionCorrectingItemFilter extends PSBaseFilter implements IPS
   public static final String WORKFLOW_STATES = "workflow_states";
 
   /**
+   * Sets the gmgr.
+   *
    * @param gmgr The gmgr to set. Used only in unit tests.
    */
   public static void setGmgr(IPSGuidManager gmgr) {
@@ -130,6 +142,8 @@ public class PSORevisionCorrectingItemFilter extends PSBaseFilter implements IPS
   }
 
   /**
+   * Sets the summ.
+   *
    * @param summ The summ to set.
    */
   public static void setSumm(IPSCmsContentSummaries summ) {
@@ -137,6 +151,8 @@ public class PSORevisionCorrectingItemFilter extends PSBaseFilter implements IPS
   }
 
   /**
+   * Sets the work.
+   *
    * @param work The work to set.
    */
   public static void setWork(IPSWorkflowService work) {

@@ -59,8 +59,6 @@ import org.apache.logging.log4j.Logger;
  * <p>This class makes no attempt to handle complex datatypes. Longs, CLOBs, Blobs, etc. are not
  * handled.
  *
- * <p>
- *
  * @author DavidBenua
  */
 public class PSOSimpleSqlQuery {
@@ -80,8 +78,8 @@ public class PSOSimpleSqlQuery {
    * @param params a list of Objects that represent the placeholders in the SQL. Never <code>null
    *     </code>. May be <code>empty</code>.
    * @return a List of Object[] representing the rows of the result set.
-   * @throws SQLException
-   * @throws NamingException
+   * @throws SQLException if an error occurs
+   * @throws NamingException if an error occurs
    */
   public static List<Object[]> doQuery(String query, List<? extends Object> params)
       throws SQLException, NamingException {
@@ -119,8 +117,8 @@ public class PSOSimpleSqlQuery {
    *
    * @param ir the internal request.
    * @return a List of Object[] representing the rows of the result set.
-   * @throws PSInternalRequestCallException
-   * @throws SQLException
+   * @throws PSInternalRequestCallException if an error occurs
+   * @throws SQLException if an error occurs
    */
   public static List<Object[]> doQuery(IPSInternalRequest ir)
       throws PSInternalRequestCallException, SQLException {
@@ -155,8 +153,8 @@ public class PSOSimpleSqlQuery {
    * @param params a List of Objects that represent the parameters.
    * @return an Object[] that represents the first row returned from the query. May be <code>null
    *     </code>.
-   * @throws SQLException
-   * @throws NamingException
+   * @throws SQLException if an error occurs
+   * @throws NamingException if an error occurs
    */
   public static Object[] doSingleRowQuery(String query, List<? extends Object> params)
       throws SQLException, NamingException {
@@ -191,8 +189,8 @@ public class PSOSimpleSqlQuery {
    *
    * @param ir the Internal Request.
    * @return an Object[] representing the columns returned by the query. May be <code>null</code>
-   * @throws SQLException
-   * @throws PSInternalRequestCallException
+   * @throws SQLException if an error occurs
+   * @throws PSInternalRequestCallException if an error occurs
    */
   public static Object[] doSingleRowQuery(IPSInternalRequest ir)
       throws SQLException, PSInternalRequestCallException {
@@ -251,7 +249,7 @@ public class PSOSimpleSqlQuery {
    * @param stmt the prepared statement. Must not be <code>null</code>
    * @param params a List of Object suitable for the parameters. Must not be <code>null</code> but
    *     may be <code>empty</code>
-   * @throws SQLException
+   * @throws SQLException if an error occurs
    */
   private static void setInternalParams(PreparedStatement stmt, List<? extends Object> params)
       throws SQLException {
@@ -269,7 +267,7 @@ public class PSOSimpleSqlQuery {
    *
    * @param rs the result set. Must not be <code>null</code>
    * @return the array of objects representing the current row of the result set.
-   * @throws SQLException
+   * @throws SQLException if an error occurs
    */
   private static Object[] buildRowResult(ResultSet rs) throws SQLException {
     ResultSetMetaData meta = rs.getMetaData();

@@ -20,7 +20,17 @@ import java.util.Locale;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
+/**
+ * NamespacedInternalResourceViewResolver class.
+ */
 public class NamespacedInternalResourceViewResolver extends InternalResourceViewResolver {
+  /**
+   * Creates a new NamespacedInternalResourceViewResolver.
+   */
+  public NamespacedInternalResourceViewResolver() {
+    // default
+  }
+
 
   private String m_namespace;
 
@@ -30,6 +40,14 @@ public class NamespacedInternalResourceViewResolver extends InternalResourceView
    * @see
    * org.springframework.web.servlet.view.UrlBasedViewResolver#loadView(java
    * .lang.String, java.util.Locale)
+   */
+  /**
+   * loadView operation.
+   *
+   * @param viewName the view name
+   * @param locale the locale
+   * @return the result
+   * @throws Exception if an error occurs
    */
   @Override
   protected View loadView(String viewName, Locale locale) throws Exception {
@@ -44,6 +62,8 @@ public class NamespacedInternalResourceViewResolver extends InternalResourceView
   }
 
   /**
+   * Returns the namespace.
+   *
    * @return the namespace
    */
   public String getNamespace() {
@@ -51,6 +71,8 @@ public class NamespacedInternalResourceViewResolver extends InternalResourceView
   }
 
   /**
+   * Sets the namespace.
+   *
    * @param namespace the namespace to set
    */
   public void setNamespace(String namespace) {

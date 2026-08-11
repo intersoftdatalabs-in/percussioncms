@@ -20,8 +20,17 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import java.util.List;
 
-/** */
+/**
+ * REST model container for the relationships of a content item.
+ */
 public class Relationships {
+  /**
+   * Creates a new Relationships.
+   */
+  public Relationships() {
+    // default
+  }
+
   /** Field slots. */
   List<Slot> slots = null;
 

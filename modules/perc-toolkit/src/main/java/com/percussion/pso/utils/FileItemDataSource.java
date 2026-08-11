@@ -48,6 +48,7 @@ public class FileItemDataSource implements DataSource {
    *
    * @return the stream
    * @see jakarta.activation.DataSource#getInputStream()
+   * @throws IOException if an error occurs
    */
   public InputStream getInputStream() throws IOException {
     return item.getInputStream();
@@ -58,6 +59,7 @@ public class FileItemDataSource implements DataSource {
    *
    * @return the stream.
    * @see jakarta.activation.DataSource#getOutputStream()
+   * @throws IOException if an error occurs
    */
   public OutputStream getOutputStream() throws IOException {
     return item.getOutputStream();
@@ -80,6 +82,11 @@ public class FileItemDataSource implements DataSource {
    * @see jakarta.activation.DataSource#getName()
    */
   // TODO: Remove me @SuppressFBWarnings("FILE_UPLOAD_FILENAME")
+  /**
+   * Returns the name.
+   *
+   * @return the result
+   */
   public String getName() {
     return item.getName();
   }

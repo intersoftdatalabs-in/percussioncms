@@ -74,6 +74,13 @@ import org.w3c.dom.Document;
  */
 public class PSOValidateRelatedItems extends PSDefaultExtension
     implements IPSResultDocumentProcessor, IPSItemValidator {
+  /**
+   * Creates a new PSOValidateRelatedItems.
+   */
+  public PSOValidateRelatedItems() {
+    // default
+  }
+
   /** Logger for this class */
   private static final Logger logger = LogManager.getLogger(PSOValidateRelatedItems.class);
 
@@ -97,6 +104,7 @@ public class PSOValidateRelatedItems extends PSDefaultExtension
    * @param mustOccur - the mustOccur operation value.
    * @param numoftimes - the number of times value.
    * @throws PSParameterMismatchException when mustOccur is not MORE_THAN, LESS_THAN or EXACTLY.
+   * @return the result
    */
   protected boolean isValid(int slotSize, String mustOccur, int numoftimes)
       throws PSParameterMismatchException {
@@ -110,12 +118,24 @@ public class PSOValidateRelatedItems extends PSDefaultExtension
     }
   }
 
-  /** Method implemented by IPSResultDocumentProcessor interface */
+  /**
+   * Method implemented by IPSResultDocumentProcessor interface
+   * canModifyStyleSheet operation.
+   * @return the result
+   *
+   */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
-  /** Initialize extension method implemented by class PSDefaultExtension */
+  /**
+   * Initialize extension method implemented by class PSDefaultExtension
+   * init operation.
+   * @param extensionDef the extension def
+   * @param codeRoot the code root
+   * @throws PSExtensionException if an error occurs
+   *
+   */
   public void init(IPSExtensionDef extensionDef, java.io.File codeRoot)
       throws PSExtensionException {
     System.out.println("2- Initializing PSOValidateRelatedItems exit");
@@ -158,11 +178,13 @@ public class PSOValidateRelatedItems extends PSDefaultExtension
    * The sixth and tenth is the number of items.
    *
    * @param params Parameters must be passed in the following order: 1 - url to query resource
-   * @param request
-   * @param resultDoc
+   * @param request the request
+   * @param resultDoc the result doc
    * @return an XML document - Error page if validation fails, null if not.
    * @exception PSParameterMismatchException
    * @exception PSExtensionProcessingException
+   * @throws PSParameterMismatchException if an error occurs
+   * @throws PSExtensionProcessingException if an error occurs
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)

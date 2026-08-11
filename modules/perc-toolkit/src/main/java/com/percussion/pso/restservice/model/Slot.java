@@ -21,9 +21,18 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
-/** */
+/**
+ * REST model for an assembly slot and its items.
+ */
 @XmlRootElement(name = "Slot")
 public class Slot implements Comparable<Slot> {
+
+  /**
+   * Creates a new Slot.
+   */
+  public Slot() {
+    // default
+  }
 
   /** Field name. */
   String name;

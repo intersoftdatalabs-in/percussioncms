@@ -57,14 +57,25 @@ public class PSOParentFinder implements IPSOParentFinder {
 
   private static final Logger log = LogManager.getLogger(PSOParentFinder.class);
 
-  /** Default constructor. */
+  /**
+   * Default constructor.
+   * Creates a new PSOParentFinder.
+   *
+   */
   public PSOParentFinder() {
     workflow = new PSOWorkflowInfoFinder();
   }
 
   /**
+   * findAllParents operation.
+   *
    * @see com.percussion.pso.relationships.IPSOParentFinder#findAllParents(java.lang.String,
    *     java.lang.String)
+   * @param contentid the contentid
+   * @param slotName the slot name
+   * @return the result
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSCmsException if an error occurs
    */
   public Set<PSLocator> findAllParents(String contentid, String slotName)
       throws PSAssemblyException, PSCmsException {
@@ -73,9 +84,16 @@ public class PSOParentFinder implements IPSOParentFinder {
   }
 
   /**
+   * findAllParents operation.
+   *
    * @see
    *     com.percussion.pso.relationships.IPSOParentFinder#findAllParents(com.percussion.design.objectstore.PSLocator,
    *     java.lang.String)
+   * @param dependent the dependent
+   * @param slotName the slot name
+   * @return the result
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSCmsException if an error occurs
    */
   public Set<PSLocator> findAllParents(PSLocator dependent, String slotName)
       throws PSAssemblyException, PSCmsException {
@@ -88,8 +106,16 @@ public class PSOParentFinder implements IPSOParentFinder {
   }
 
   /**
+   * findParents operation.
+   *
    * @see com.percussion.pso.relationships.IPSOParentFinder#findParents(java.lang.String,
    *     java.lang.String, boolean)
+   * @param contentid the contentid
+   * @param slotName the slot name
+   * @param usePublic the use public
+   * @return the result
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSCmsException if an error occurs
    */
   public Set<PSLocator> findParents(String contentid, String slotName, boolean usePublic)
       throws PSAssemblyException, PSCmsException {
@@ -98,9 +124,17 @@ public class PSOParentFinder implements IPSOParentFinder {
   }
 
   /**
+   * findParents operation.
+   *
    * @see
    *     com.percussion.pso.relationships.IPSOParentFinder#findParents(com.percussion.design.objectstore.PSLocator,
    *     java.lang.String, boolean)
+   * @param dependent the dependent
+   * @param slotName the slot name
+   * @param usePublic the use public
+   * @return the result
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSCmsException if an error occurs
    */
   public Set<PSLocator> findParents(PSLocator dependent, String slotName, boolean usePublic)
       throws PSAssemblyException, PSCmsException {
@@ -129,8 +163,16 @@ public class PSOParentFinder implements IPSOParentFinder {
   }
 
   /**
+   * hasOnlyPublicAncestors operation.
+   *
    * @see com.percussion.pso.relationships.IPSOParentFinder#hasOnlyPublicAncestors(java.lang.String,
    *     java.lang.String, java.util.List)
+   * @param contentId the content id
+   * @param slotName the slot name
+   * @param validFlags the valid flags
+   * @return the result
+   * @throws PSAssemblyException if an error occurs
+   * @throws PSException if an error occurs
    */
   public boolean hasOnlyPublicAncestors(String contentId, String slotName, List<String> validFlags)
       throws PSAssemblyException, PSException {
@@ -182,6 +224,8 @@ public class PSOParentFinder implements IPSOParentFinder {
   }
 
   /**
+   * Sets the proxy.
+   *
    * @param proxy the proxy to set
    */
   public void setProxy(PSRelationshipProcessorProxy proxy) {
@@ -189,6 +233,8 @@ public class PSOParentFinder implements IPSOParentFinder {
   }
 
   /**
+   * Sets the gmgr.
+   *
    * @param gmgr the gmgr to set
    */
   public void setGmgr(IPSGuidManager gmgr) {
@@ -196,6 +242,8 @@ public class PSOParentFinder implements IPSOParentFinder {
   }
 
   /**
+   * Sets the asm.
+   *
    * @param asm the asm to set
    */
   public void setAsm(IPSAssemblyService asm) {

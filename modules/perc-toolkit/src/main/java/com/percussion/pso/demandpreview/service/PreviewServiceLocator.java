@@ -25,6 +25,13 @@ import com.percussion.services.PSBaseServiceLocator;
  * @author davidbenua
  */
 public class PreviewServiceLocator extends PSBaseServiceLocator {
+  /**
+   * Creates a new PreviewServiceLocator.
+   */
+  public PreviewServiceLocator() {
+    // default
+  }
+
 
   /**
    * Gets the Site Edition lookup service.

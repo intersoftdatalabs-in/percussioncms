@@ -23,37 +23,77 @@ import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
+/**
+ * PagedResult class.
+ */
 @XmlRootElement(name = "Results")
 public class PagedResult {
+  /**
+   * Creates a new PagedResult.
+   */
+  public PagedResult() {
+    // default
+  }
+
 
   List<ItemRef> itemRefs;
   String next;
   Integer nextId;
 
+  /**
+   * Returns the next id.
+   *
+   * @return the result
+   */
   @XmlAttribute
   public Integer getNextId() {
     return nextId;
   }
 
+  /**
+   * Sets the next id.
+   *
+   * @param nextId the next id
+   */
   public void setNextId(Integer nextId) {
     this.nextId = nextId;
   }
 
+  /**
+   * Returns the next.
+   *
+   * @return the result
+   */
   @XmlElement
   public String getNext() {
     return next;
   }
 
+  /**
+   * Sets the next.
+   *
+   * @param next the next
+   */
   public void setNext(String next) {
     this.next = next;
   }
 
+  /**
+   * Returns the item refs.
+   *
+   * @return the result
+   */
   @XmlElement(name = "Item")
   @XmlElementWrapper(name = "Items")
   public List<ItemRef> getItemRefs() {
     return itemRefs;
   }
 
+  /**
+   * Sets the item refs.
+   *
+   * @param itemRefs the item refs
+   */
   public void setItemRefs(List<ItemRef> itemRefs) {
     this.itemRefs = itemRefs;
   }

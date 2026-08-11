@@ -45,6 +45,9 @@ public class PSOFeedTools extends PSJexlUtilBase implements IPSJexlExpression {
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOFeedTools.class);
 
+  /**
+   * Creates a new PSOFeedTools.
+   */
   public PSOFeedTools() {
     super();
   }
@@ -55,6 +58,13 @@ public class PSOFeedTools extends PSJexlUtilBase implements IPSJexlExpression {
               + " url: 'http://rss.news.yahoo.com/rss/yahoonewsroom', targetFolder:"
               + " '//Sites/EnterpriseInvestments/News'",
       params = {@IPSJexlParam(name = "params", description = "The feed parameters")})
+  /**
+   * Returns the feed parameters.
+   *
+   * @param params the params
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   */
   public Map<String, String> getFeedParameters(String params) throws IllegalArgumentException {
 
     log.debug(params);
@@ -80,6 +90,15 @@ public class PSOFeedTools extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "Returns a ROME SyndFeed instance for the given URL",
       params = {@IPSJexlParam(name = "url", description = "The URL of the feed to download.")})
+  /**
+   * Returns the feed.
+   *
+   * @param urlString the url string
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws FeedException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public PSSynFeedProxy getFeed(String urlString)
       throws IllegalArgumentException, FeedException, IOException {
     return new PSSynFeedProxy(urlString);
@@ -96,6 +115,17 @@ public class PSOFeedTools extends PSJexlUtilBase implements IPSJexlExpression {
             name = "lastModified",
             description = "A cached HTTP LastModified Header for the feed. ")
       })
+  /**
+   * Returns the feed.
+   *
+   * @param urlString the url string
+   * @param eTag the e tag
+   * @param lastModified the last modified
+   * @return the result
+   * @throws IllegalArgumentException if an error occurs
+   * @throws FeedException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public PSSynFeedProxy getFeed(String urlString, String eTag, String lastModified)
       throws IllegalArgumentException, FeedException, IOException {
 
@@ -105,6 +135,12 @@ public class PSOFeedTools extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "Does a little cleanup of the sys_title.  URL encoding it if possible.",
       params = {@IPSJexlParam(name = "title", description = "The sys_title to cleanup")})
+  /**
+   * cleanupItemTitle operation.
+   *
+   * @param title the title
+   * @return the result
+   */
   public String cleanupItemTitle(String title) {
     String ret = title;
     URLCodec codec = new URLCodec();
@@ -122,6 +158,12 @@ public class PSOFeedTools extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "Returns a ROME MediaEntryModule to handle Media RSS content.",
       params = {@IPSJexlParam(name = "entry", description = "A ROME SyndEntry instance.")})
+  /**
+   * Returns the media rssmodule content.
+   *
+   * @param entry the entry
+   * @return the result
+   */
   public List<MediaContent> getMediaRSSModuleContent(Object entry) {
     SyndEntry item = (SyndEntry) entry;
     List<MediaContent> contents = new ArrayList<MediaContent>();
@@ -142,6 +184,12 @@ public class PSOFeedTools extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "Returns a boolean if the specified module is available.",
       params = {@IPSJexlParam(name = "entry", description = "A ROME SyndEntry instance.")})
+  /**
+   * Returns whether media rsscontent available.
+   *
+   * @param entry the entry
+   * @return the result
+   */
   public boolean isMediaRSSContentAvailable(Object entry) {
     boolean ret = false;
     SyndEntry e = (SyndEntry) entry;
@@ -174,6 +222,12 @@ public class PSOFeedTools extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "Returns the base filename portion for a given url.",
       params = {@IPSJexlParam(name = "entry", description = "A valid url")})
+  /**
+   * Returns the base filename.
+   *
+   * @param url the url
+   * @return the result
+   */
   public String getBaseFilename(String url) {
     String ret = "";
 
@@ -191,6 +245,12 @@ public class PSOFeedTools extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "Returns a folder name of the right length.",
       params = {@IPSJexlParam(name = "folder", description = "Folder name")})
+  /**
+   * Returns the clean foldername.
+   *
+   * @param folder the folder
+   * @return the result
+   */
   public String getCleanFoldername(String folder) {
     if (folder.length() > 100) {
       return folder.substring(0, 100);
@@ -219,6 +279,16 @@ public class PSOFeedTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "subject", description = "The subject of the message."),
         @IPSJexlParam(name = "body", description = "The text of the message.")
       })
+  /**
+   * sendEmail operation.
+   *
+   * @param from_line the from line
+   * @param to_line the to line
+   * @param cc_line the cc line
+   * @param bcc_line the bcc line
+   * @param subject the subject
+   * @param body the body
+   */
   public void sendEmail(
       String from_line,
       String to_line,

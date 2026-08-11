@@ -33,6 +33,13 @@ import org.springframework.web.multipart.support.StandardServletMultipartResolve
  * @author DavidBenua
  */
 public class MultipartResolverEncoding extends StandardServletMultipartResolver {
+  /**
+   * Creates a new MultipartResolverEncoding.
+   */
+  public MultipartResolverEncoding() {
+    // default
+  }
+
 
   private static final Logger log = LogManager.getLogger(MultipartResolverEncoding.class);
 
@@ -61,17 +68,30 @@ public class MultipartResolverEncoding extends StandardServletMultipartResolver 
    * Override resolveMultipart so we can clean up any malformed charset values sent by the Content
    * Explorer applet. The standard resolver does not expose determineEncoding, so we wrap the
    * request and sanitize the values before delegating.
+   * @param request the request
+   * @return the result
+   * @throws MultipartException if an error occurs
    */
   @Override
   public MultipartHttpServletRequest resolveMultipart(HttpServletRequest request)
       throws MultipartException {
     HttpServletRequestWrapper cleaned =
         new HttpServletRequestWrapper(request) {
+          /**
+           * Returns the character encoding.
+           *
+           * @return the result
+           */
           @Override
           public String getCharacterEncoding() {
             return determineEncoding(this);
           }
 
+          /**
+           * Returns the content type.
+           *
+           * @return the result
+           */
           @Override
           public String getContentType() {
             String type = super.getContentType();
@@ -84,6 +104,11 @@ public class MultipartResolverEncoding extends StandardServletMultipartResolver 
     return super.resolveMultipart(cleaned);
   }
 
+  /**
+   * cleanupMultipart operation.
+   *
+   * @param request the request
+   */
   @Override
   public void cleanupMultipart(MultipartHttpServletRequest request) {
     super.cleanupMultipart(request);

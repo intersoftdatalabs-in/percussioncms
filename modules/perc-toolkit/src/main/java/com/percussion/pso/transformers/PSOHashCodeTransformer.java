@@ -27,11 +27,29 @@ import java.io.File;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * PSOHashCodeTransformer class.
+ */
 public class PSOHashCodeTransformer extends PSDefaultExtension implements IPSFieldInputTransformer {
+  /**
+   * Creates a new PSOHashCodeTransformer.
+   */
+  public PSOHashCodeTransformer() {
+    // default
+  }
+
   private static final Logger log = LogManager.getLogger(PSOHashCodeTransformer.class);
 
   private IPSExtensionDef extDef = null;
 
+  /**
+   * processUdf operation.
+   *
+   * @param params the params
+   * @param request the request
+   * @return the result
+   * @throws PSConversionException if an error occurs
+   */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {
 
@@ -40,6 +58,13 @@ public class PSOHashCodeTransformer extends PSDefaultExtension implements IPSFie
     return helper.getParameter("source").hashCode();
   }
 
+  /**
+   * init operation.
+   *
+   * @param def the def
+   * @param codeRoot the code root
+   * @throws PSExtensionException if an error occurs
+   */
   @Override
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
     super.init(def, codeRoot);

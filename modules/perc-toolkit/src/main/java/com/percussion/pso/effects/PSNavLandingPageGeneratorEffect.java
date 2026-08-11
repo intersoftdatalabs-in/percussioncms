@@ -80,8 +80,17 @@ import org.apache.logging.log4j.Logger;
  */
 @PSHandlesEffectContext(required = PSEffectContext.PRE_CONSTRUCTION)
 public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
+  /**
+   * Creates a new PSNavLandingPageGeneratorEffect.
+   */
+  public PSNavLandingPageGeneratorEffect() {
+    // default
+  }
 
+
+  /** default landing contenttype. */
   public static String DEFAULT_LANDING_CONTENTTYPE = "navon.landingpage.default.ct";
+  /** default landing title template. */
   public static String DEFAULT_LANDING_TITLE_TEMPLATE = "navon.landingpage.default.title.template";
   public static String DEFAULT_LANDING_DISPLAYTITLE_FIELD =
       "navon.landingpage.default.displaytitle.field";
@@ -91,6 +100,7 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
       "navon.landingpage.default.required.fields.names";
   public static String DEFAULT_LANDING_REQUIRED_FIELD_VALUES =
       "navon.landingpage.default.required.fields.values";
+  /** default landing communityid. */
   public static String DEFAULT_LANDING_COMMUNITYID = "navon.landingpage.default.communityid";
 
   private static final Logger log = LogManager.getLogger(PSNavLandingPageGeneratorEffect.class);
@@ -104,6 +114,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   private long m_contentTypeId = 0;
 
   /**
+   * Returns the default landing community id.
+   *
    * @return the m_defaultLandingCommunityId
    */
   public Integer getDefaultLandingCommunityId() {
@@ -111,6 +123,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   }
 
   /**
+   * Sets the default landing community id.
+   *
    * @param m_defaultLandingCommunityId the m_defaultLandingCommunityId to set
    */
   public void setDefaultLandingCommunityId(Integer m_defaultLandingCommunityId) {
@@ -118,6 +132,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   }
 
   /**
+   * Returns the default landing required values.
+   *
    * @return the m_defaultLandingRequiredValues
    */
   public String[] getDefaultLandingRequiredValues() {
@@ -125,6 +141,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   }
 
   /**
+   * Sets the default landing required values.
+   *
    * @param m_defaultLandingRequiredValues the m_defaultLandingRequiredValues to set
    */
   public void setDefaultLandingRequiredValues(String[] m_defaultLandingRequiredValues) {
@@ -132,6 +150,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   }
 
   /**
+   * Returns the default landing required fields.
+   *
    * @return the m_defaultLandingRequiredFields
    */
   public String[] getDefaultLandingRequiredFields() {
@@ -139,6 +159,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   }
 
   /**
+   * Sets the default landing required fields.
+   *
    * @param m_defaultLandingRequiredFields the m_defaultLandingRequiredFields to set
    */
   public void setDefaultLandingRequiredFields(String[] m_defaultLandingRequiredFields) {
@@ -146,6 +168,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   }
 
   /**
+   * Returns the default landing display title format.
+   *
    * @return the m_defaultLandingDisplayTitleFormat
    */
   public String getDefaultLandingDisplayTitleFormat() {
@@ -153,6 +177,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   }
 
   /**
+   * Sets the default landing display title format.
+   *
    * @param m_defaultLandingDisplayTitleFormat the m_defaultLandingDisplayTitleFormat to set
    */
   public void setDefaultLandingDisplayTitleFormat(String m_defaultLandingDisplayTitleFormat) {
@@ -160,6 +186,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   }
 
   /**
+   * Returns the default landing display title field.
+   *
    * @return the m_defaultLandingDisplayTitleField
    */
   public String getDefaultLandingDisplayTitleField() {
@@ -167,6 +195,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   }
 
   /**
+   * Sets the default landing display title field.
+   *
    * @param m_defaultLandingDisplayTitleField the m_defaultLandingDisplayTitleField to set
    */
   public void setDefaultLandingDisplayTitleField(String m_defaultLandingDisplayTitleField) {
@@ -174,6 +204,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   }
 
   /**
+   * Returns the default landing title template.
+   *
    * @return the m_defaultLandingTitleTemplate
    */
   public String getDefaultLandingTitleTemplate() {
@@ -181,6 +213,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   }
 
   /**
+   * Sets the default landing title template.
+   *
    * @param m_defaultLandingTitleTemplate the m_defaultLandingTitleTemplate to set
    */
   public void setDefaultLandingTitleTemplate(String m_defaultLandingTitleTemplate) {
@@ -188,6 +222,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   }
 
   /**
+   * Returns the default content type.
+   *
    * @return the m_defaultContentType
    */
   public String getDefaultContentType() {
@@ -195,6 +231,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   }
 
   /**
+   * Sets the default content type.
+   *
    * @param m_defaultContentType the m_defaultContentType to set
    */
   public void setDefaultContentType(String m_defaultContentType) {
@@ -205,6 +243,9 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
    * Handle initilization parameters.  The Content Type configured
    * as the
    *
+   * @param extDef the ext def
+   * @param codeRoot the code root
+   * @throws PSExtensionException if an error occurs
    */
   @Override
   public void init(com.percussion.extension.IPSExtensionDef extDef, java.io.File codeRoot)
@@ -212,6 +253,16 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
     super.init(extDef, codeRoot);
   }
 
+  /**
+   * attempt operation.
+   *
+   * @param params the params
+   * @param req the req
+   * @param excontext the excontext
+   * @param result the result
+   * @throws PSExtensionProcessingException if an error occurs
+   * @throws PSParameterMismatchException if an error occurs
+   */
   @Override
   public void attempt(
       Object[] params, IPSRequestContext req, IPSExecutionContext excontext, PSEffectResult result)
@@ -341,7 +392,7 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   /***
    * Responsible for creating the landing page and adding it to
    * the same Folder as the NavOn.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   private PSLocator createLandingPage(
       IPSRequestContext req, PSComponentSummary folder, PSComponentSummary navon, int communityId)
@@ -454,7 +505,7 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
    * @param navon  Locator for the NavOn
    * @param lp Locator for the Landing Page
    * @param landingSlotName Name of the NavOn Landing Page slot
-   * @throws PSNavException
+   * @throws PSNavException if an error occurs
    */
   private void createNavOnLandingPageRelationship(
       IPSRequestContext req, PSComponentSummary navon, PSLocator lp, String landingSlotName)
@@ -551,7 +602,7 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
 
   /***
    * Attempts a simple parse of the specified string to return CSV string represented as an array.
-   * @param arg
+   * @param arg the arg
    * @return Returns an array of strings holding the parameters. If no params are found, returns null.
    */
   public String[] getCSVList(String arg) {

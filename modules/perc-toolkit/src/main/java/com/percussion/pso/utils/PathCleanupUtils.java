@@ -19,8 +19,30 @@ package com.percussion.pso.utils;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * PathCleanupUtils class.
+ */
 public class PathCleanupUtils {
+  /**
+   * Creates a new PathCleanupUtils.
+   */
+  public PathCleanupUtils() {
+    // default
+  }
 
+
+  /**
+   * cleanupPathPart operation.
+   *
+   * @param path the path
+   * @param forceLower the force lower
+   * @param includesExtension the includes extension
+   * @param stripExtension the strip extension
+   * @param prefix the prefix
+   * @param suffix the suffix
+   * @param forceExtension the force extension
+   * @return the result
+   */
   public static String cleanupPathPart(
       String path,
       boolean forceLower,
@@ -59,6 +81,14 @@ public class PathCleanupUtils {
     return path;
   }
 
+  /**
+   * cleanupPathPart operation.
+   *
+   * @param path the path
+   * @param forceLower the force lower
+   * @param includesExtension the includes extension
+   * @return the result
+   */
   public static String cleanupPathPart(String path, boolean forceLower, boolean includesExtension) {
     return cleanupPathPart(path, forceLower, includesExtension, false, "", "", "");
   }

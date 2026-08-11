@@ -33,7 +33,17 @@ import javax.mail.internet.MimeMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * PSOEmailUtils class.
+ */
 public class PSOEmailUtils {
+  /**
+   * Creates a new PSOEmailUtils.
+   */
+  public PSOEmailUtils() {
+    // default
+  }
+
 
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOEmailUtils.class);
@@ -41,9 +51,9 @@ public class PSOEmailUtils {
   /***
    * Takes a comma seperated list of email addresses and returns a list of
    * Address instances.
-   * @param list
+   * @param list the list
    *
-   * @throws AddressException
+   * @throws AddressException if an error occurs
    */
   private static List<InternetAddress> splitEmailAddresses(final String list)
       throws AddressException {
@@ -67,14 +77,24 @@ public class PSOEmailUtils {
    * Sends an email using the specified parameters and the SMTP configuration
    * defined in the system /Workflow/rxworkflow.properties file,(the default) or some oether properties file
    *
-   * @param from_line
-   * @param to_line
-   * @param cc_line
-   * @param bcc_line
-   * @param subject
-   * @param body
+   * @param from_line the from line
+   * @param to_line the to line
+   * @param cc_line the cc line
+   * @param bcc_line the bcc line
+   * @param subject the subject
+   * @param body the body
    */
   // TODO: Remove me @SuppressFBWarnings("PATH_TRAVERSAL_IN")
+  /**
+   * sendEmail operation.
+   *
+   * @param from_line the from line
+   * @param to_line the to line
+   * @param cc_line the cc line
+   * @param bcc_line the bcc line
+   * @param subject the subject
+   * @param body the body
+   */
   public static void sendEmail(
       String from_line,
       String to_line,

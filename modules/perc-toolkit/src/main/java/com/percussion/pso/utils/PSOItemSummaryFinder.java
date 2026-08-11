@@ -32,6 +32,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * PSOItemSummaryFinder class.
+ */
 public class PSOItemSummaryFinder {
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOItemSummaryFinder.class);
@@ -47,11 +50,25 @@ public class PSOItemSummaryFinder {
     }
   }
 
+  /**
+   * Returns the current or edit locator.
+   *
+   * @param guid the guid
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public static PSLocator getCurrentOrEditLocator(IPSGuid guid) throws PSException {
     int id = guid.getUUID();
     return getCurrentOrEditLocator(id);
   }
 
+  /**
+   * Returns the current or edit locator.
+   *
+   * @param contentId the content id
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public static PSLocator getCurrentOrEditLocator(String contentId) throws PSException {
     if (StringUtils.isBlank(contentId) || !StringUtils.isNumeric(contentId)) {
       String emsg = "Content id must be numeric " + contentId;
@@ -62,6 +79,13 @@ public class PSOItemSummaryFinder {
     return getCurrentOrEditLocator(id);
   }
 
+  /**
+   * Returns the current or edit locator.
+   *
+   * @param id the id
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public static PSLocator getCurrentOrEditLocator(int id) throws PSException {
     PSComponentSummary cs = getSummary(id);
     PSLocator loc = cs.getCurrentLocator();
@@ -72,10 +96,21 @@ public class PSOItemSummaryFinder {
     return loc;
   }
 
+  /** checkout none. */
   public static final int CHECKOUT_NONE = 1;
+  /** checkout by me. */
   public static final int CHECKOUT_BY_ME = 2;
+  /** checkout by other. */
   public static final int CHECKOUT_BY_OTHER = 3;
 
+  /**
+   * Returns the checkout status.
+   *
+   * @param contentId the content id
+   * @param userName the user name
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public static int getCheckoutStatus(String contentId, String userName) throws PSException {
     if (StringUtils.isBlank(userName)) {
       String emsg = "User name must not be blank";
@@ -98,7 +133,7 @@ public class PSOItemSummaryFinder {
    *
    * @param contentId the content id
    * @return the component summary. Never <code>null</code>
-   * @throws PSException
+   * @throws PSException if an error occurs
    */
   public static PSComponentSummary getSummary(String contentId) throws PSException {
     if (StringUtils.isBlank(contentId) || !StringUtils.isNumeric(contentId)) {
@@ -110,11 +145,25 @@ public class PSOItemSummaryFinder {
     return getSummary(id);
   }
 
+  /**
+   * Returns the summary.
+   *
+   * @param guid the guid
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public static PSComponentSummary getSummary(IPSGuid guid) throws PSException {
     int id = guid.getUUID();
     return getSummary(id);
   }
 
+  /**
+   * Returns the summary.
+   *
+   * @param id the id
+   * @return the result
+   * @throws PSException if an error occurs
+   */
   public static PSComponentSummary getSummary(int id) throws PSException {
     initServices();
 

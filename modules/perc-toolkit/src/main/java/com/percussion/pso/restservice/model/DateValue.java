@@ -26,10 +26,19 @@ import java.util.Date;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** */
+/**
+ * REST model for a date field value.
+ */
 @XmlRootElement(name = "DateValue")
 @XmlAccessorType(XmlAccessType.NONE)
 public class DateValue implements Value {
+
+  /**
+   * Creates a new DateValue.
+   */
+  public DateValue() {
+    // default
+  }
 
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(DateValue.class);

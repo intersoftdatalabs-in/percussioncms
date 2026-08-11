@@ -43,19 +43,47 @@ import java.util.regex.Pattern;
 import javax.jcr.Node;
 import org.apache.commons.collections.Predicate;
 
+/**
+ * RssJexl class.
+ */
 public class RssJexl implements IPSJexlExpression {
+  /**
+   * Creates a new RssJexl.
+   */
+  public RssJexl() {
+    // default
+  }
+
 
   private PSLocationUtils locationUtils;
   private IPSAssemblyService assemblyService;
 
+  /**
+   * createEntries operation.
+   *
+   * @return the result
+   */
   public List<SyndEntry> createEntries() {
     return new ArrayList<>();
   }
 
+  /**
+   * createFeed operation.
+   *
+   * @return the result
+   */
   public SyndFeed createFeed() {
     return new SyndFeedImpl();
   }
 
+  /**
+   * createFeed operation.
+   *
+   * @param node the node
+   * @param titleFields the title fields
+   * @param bodyFields the body fields
+   * @return the result
+   */
   public SyndFeed createFeed(Node node, String titleFields, String bodyFields) {
     SyndFeed feed = createFeed();
     String title = getValue(node, titleFields);
@@ -65,10 +93,23 @@ public class RssJexl implements IPSJexlExpression {
     return feed;
   }
 
+  /**
+   * createEntry operation.
+   *
+   * @return the result
+   */
   public SyndEntry createEntry() {
     return new SyndEntryImpl();
   }
 
+  /**
+   * createEntry operation.
+   *
+   * @param node the node
+   * @param titleFields the title fields
+   * @param bodyFields the body fields
+   * @return the result
+   */
   public SyndEntry createEntry(Node node, String titleFields, String bodyFields) {
     SyndEntry entry = createEntry();
     String title = getValue(node, titleFields);
@@ -83,24 +124,60 @@ public class RssJexl implements IPSJexlExpression {
     return entry;
   }
 
+  /**
+   * Returns the value.
+   *
+   * @param node the node
+   * @param titleFields the title fields
+   * @return the result
+   */
   protected String getValue(Node node, String titleFields) {
     return locationUtils.getFirstDefined(node, titleFields, "");
   }
 
+  /**
+   * createContent operation.
+   *
+   * @return the result
+   */
   public SyndContent createContent() {
     return new SyndContentImpl();
   }
 
+  /**
+   * Returns the rss.
+   *
+   * @param feed the feed
+   * @return the result
+   * @throws IOException if an error occurs
+   * @throws FeedException if an error occurs
+   */
   public String getRss(SyndFeed feed) throws IOException, FeedException {
     feed.setFeedType("rss_2.0");
     return feedToString(feed);
   }
 
+  /**
+   * Returns the atom.
+   *
+   * @param feed the feed
+   * @return the result
+   * @throws IOException if an error occurs
+   * @throws FeedException if an error occurs
+   */
   public String getAtom(SyndFeed feed) throws IOException, FeedException {
     feed.setFeedType("atom_1.0");
     return feedToString(feed);
   }
 
+  /**
+   * feedToString operation.
+   *
+   * @param feed the feed
+   * @return the result
+   * @throws IOException if an error occurs
+   * @throws FeedException if an error occurs
+   */
   public String feedToString(SyndFeed feed) throws IOException, FeedException {
     StringWriter writer = new StringWriter();
     SyndFeedOutput output = new SyndFeedOutput();
@@ -109,19 +186,43 @@ public class RssJexl implements IPSJexlExpression {
     return writer.getBuffer().toString();
   }
 
+  /**
+   * init operation.
+   *
+   * @param arg0 the arg0
+   * @param arg1 the arg1
+   * @throws PSExtensionException if an error occurs
+   */
   public void init(IPSExtensionDef arg0, File arg1) throws PSExtensionException {
     setLocationUtils(new PSLocationUtils());
     setAssemblyService(PSAssemblyServiceLocator.getAssemblyService());
   }
 
+  /**
+   * Sets the assembly service.
+   *
+   * @param assemblyService the assembly service
+   */
   public void setAssemblyService(IPSAssemblyService assemblyService) {
     this.assemblyService = assemblyService;
   }
 
+  /**
+   * Sets the location utils.
+   *
+   * @param locationUtils the location utils
+   */
   public void setLocationUtils(PSLocationUtils locationUtils) {
     this.locationUtils = locationUtils;
   }
 
+  /**
+   * findEntryTemplate operation.
+   *
+   * @param node the node
+   * @return the result
+   * @throws PSAssemblyException if an error occurs
+   */
   public String findEntryTemplate(Node node) throws PSAssemblyException {
     String contentType = getContentType(node);
     Collection<IPSAssemblyTemplate> templates =
@@ -129,6 +230,13 @@ public class RssJexl implements IPSJexlExpression {
     return pickTemplate(templates);
   }
 
+  /**
+   * findFeedTemplate operation.
+   *
+   * @param node the node
+   * @return the result
+   * @throws PSAssemblyException if an error occurs
+   */
   public String findFeedTemplate(Node node) throws PSAssemblyException {
     String contentType = getContentType(node);
     Collection<IPSAssemblyTemplate> templates =
@@ -136,6 +244,12 @@ public class RssJexl implements IPSJexlExpression {
     return pickTemplate(templates);
   }
 
+  /**
+   * Returns the content type.
+   *
+   * @param node the node
+   * @return the result
+   */
   protected String getContentType(Node node) {
     return NodeUtils.getContentType(node);
   }
@@ -145,6 +259,16 @@ public class RssJexl implements IPSJexlExpression {
     return templates.iterator().next().getName();
   }
 
+  /**
+   * findTemplates operation.
+   *
+   * @param name the name
+   * @param description the description
+   * @param mimeType the mime type
+   * @param format the format
+   * @return the result
+   * @throws PSAssemblyException if an error occurs
+   */
   public Collection<IPSAssemblyTemplate> findTemplates(
       final String name, final String description, final String mimeType, final OutputFormat format)
       throws PSAssemblyException {
@@ -160,6 +284,12 @@ public class RssJexl implements IPSJexlExpression {
     filter(
         templates,
         new TemplatePredicate() {
+          /**
+           * evalTemplate operation.
+           *
+           * @param t the t
+           * @return the result
+           */
           @Override
           public boolean evalTemplate(IPSAssemblyTemplate t) {
             String name = fix(t.getName());
@@ -175,6 +305,12 @@ public class RssJexl implements IPSJexlExpression {
     return templates;
   }
 
+  /**
+   * findAllTemplates operation.
+   *
+   * @return the result
+   * @throws PSAssemblyException if an error occurs
+   */
   protected Collection<IPSAssemblyTemplate> findAllTemplates() throws PSAssemblyException {
     return assemblyService.findAllTemplates();
   }
@@ -186,10 +322,22 @@ public class RssJexl implements IPSJexlExpression {
 
   public abstract static class TemplatePredicate implements Predicate {
 
+    /**
+     * evaluate operation.
+     *
+     * @param t the t
+     * @return the result
+     */
     public boolean evaluate(Object t) {
       return evalTemplate((IPSAssemblyTemplate) t);
     }
 
+    /**
+     * evalTemplate operation.
+     *
+     * @param t the t
+     * @return the result
+     */
     public abstract boolean evalTemplate(IPSAssemblyTemplate t);
   }
 }

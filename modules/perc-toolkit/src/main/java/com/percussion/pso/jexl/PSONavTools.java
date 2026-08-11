@@ -67,8 +67,10 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
   private static IPSOParentFinder parFinder = null;
   private static PSRelationshipProcessorProxy proxy = null;
 
-  /** */
-  public PSONavTools() {
+    /**
+     * Creates a new PSONavTools.
+     */
+    public PSONavTools() {
     super();
   }
 
@@ -119,7 +121,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param selfNode the self node, usually <code>$nav.self</code>
    * @return The list of ancestors, including the self node. Never <code>null</code> or <code>empty
    *     </code>.
-   * @throws PSExtensionProcessingException
+   * @throws PSExtensionProcessingException if an error occurs
    */
   @IPSJexlMethod(
       description = "get the ancestors for this node",
@@ -167,7 +169,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
    *
    * @param folderid the folder id
    * @return the navon as a node. Will return <code>null</code> if the navon cannot be found.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   @IPSJexlMethod(
       description = "find the navon node based on the folder id",
@@ -207,7 +209,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
    *
    * @param navonId the content id of the current navon
    * @return the parent navon node, or <code>null</code> if the navon has no parent.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   @IPSJexlMethod(
       description = "finds the parent of a Navon",
@@ -224,7 +226,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
    *
    * @param navonGuid the GUID of the current navon.
    * @return the parent navon node, or <code>null</code> if the navon has no parent.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   @IPSJexlMethod(
       description = "finds the parent of a Navon",
@@ -240,7 +242,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
    *
    * @param navonLoc the locator for the current navon.
    * @return the parent navon node, or <code>null</code> if the navon has no parent.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   @IPSJexlMethod(
       description = "finds the parent of a Navon",
@@ -275,7 +277,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param folderid the folder id where the current navon is located.
    * @param propertyName the property name.
    * @return the nearest value, or <code>null</code> if no values can be located.
-   * @throws Exception
+   * @throws Exception if an error occurs
    */
   @IPSJexlMethod(
       description = "finds the nearest non-empty value for a property",
@@ -299,6 +301,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
+   * Sets the gmgr.
    * @param gmgr the gmgr to set
    */
   public static void setGmgr(IPSGuidManager gmgr) {
@@ -306,6 +309,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
+   * Sets the navConfig.
    * @param navConfig the navConfig to set
    */
   public static void setNavConfig(PSNavConfig navConfig) {
@@ -313,6 +317,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
+   * Sets the objFinder.
    * @param objFinder the objFinder to set
    */
   public static void setObjFinder(IPSOObjectFinder objFinder) {
@@ -320,6 +325,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
+   * Sets the parFinder.
    * @param parFinder the parFinder to set
    */
   public static void setParFinder(IPSOParentFinder parFinder) {
@@ -327,6 +333,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
+   * Sets the proxy.
    * @param proxy the proxy to set
    */
   public static void setProxy(PSRelationshipProcessorProxy proxy) {

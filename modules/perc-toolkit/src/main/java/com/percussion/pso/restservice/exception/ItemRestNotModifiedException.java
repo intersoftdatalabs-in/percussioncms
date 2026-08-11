@@ -16,15 +16,25 @@
  */
 package com.percussion.pso.restservice.exception;
 
+/**
+ * ItemRestNotModifiedException class.
+ */
 public class ItemRestNotModifiedException extends Exception {
 
-  /** */
-  private static final long serialVersionUID = 3648810270110415531L;
+    private static final long serialVersionUID = 3648810270110415531L;
 
+  /**
+   * Creates a new ItemRestNotModifiedException.
+   */
   public ItemRestNotModifiedException() {
     super();
   }
 
+  /**
+   * Creates a new ItemRestNotModifiedException.
+   *
+   * @param msg the msg
+   */
   public ItemRestNotModifiedException(String msg) {
     super(msg);
   }

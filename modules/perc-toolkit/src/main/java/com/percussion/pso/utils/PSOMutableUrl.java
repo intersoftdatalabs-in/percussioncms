@@ -34,8 +34,13 @@ public class PSOMutableUrl {
   private String m_base = null;
   Map<String, Object> m_param = new HashMap<String, Object>();
 
-  /** */
-  public PSOMutableUrl(String Url) throws PSRequestParsingException {
+    /**
+     * Creates a new PSOMutableUrl.
+     *
+     * @param Url the url
+     * @throws PSRequestParsingException if an error occurs
+     */
+    public PSOMutableUrl(String Url) throws PSRequestParsingException {
     int sepPos = Url.indexOf(QUERY_SEP);
     String queryString = "";
     if (sepPos < 0) {
@@ -51,6 +56,7 @@ public class PSOMutableUrl {
   }
 
   /**
+   * Returns Returns the m_base..
    * @return Returns the m_base.
    */
   public String getBase() {
@@ -58,20 +64,38 @@ public class PSOMutableUrl {
   }
 
   /**
+   * Sets the base.
    * @param base The base to set.
    */
   public void setBase(String base) {
     this.m_base = base;
   }
 
+  /**
+   * Sets the param.
+   *
+   * @param pName the p name
+   * @param pValue the p value
+   */
   public void setParam(String pName, String pValue) {
     this.m_param.put(pName, pValue);
   }
 
+  /**
+   * Sets the param list.
+   *
+   * @param newParams the new params
+   */
   public void setParamList(Map<String, Object> newParams) {
     this.m_param.putAll(newParams);
   }
 
+  /**
+   * Returns the param.
+   *
+   * @param pName the p name
+   * @return the result
+   */
   public String getParam(String pName) {
     Object obj = this.m_param.get(pName);
     if (obj == null) {
@@ -80,14 +104,29 @@ public class PSOMutableUrl {
     return obj.toString();
   }
 
+  /**
+   * dropParam operation.
+   *
+   * @param pName the p name
+   */
   public void dropParam(String pName) {
     this.m_param.remove(pName);
   }
 
+  /**
+   * Returns the param map.
+   *
+   * @return the result
+   */
   public Map<String, Object> getParamMap() {
     return m_param;
   }
 
+  /**
+   * toString operation.
+   *
+   * @return the result
+   */
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append(m_base);

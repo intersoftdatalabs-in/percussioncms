@@ -32,10 +32,24 @@ import javax.imageio.ImageIO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Utilities for processing file fields on content items.
+ */
 public class FileProcessor {
+
+  /**
+   * Creates a new FileProcessor.
+   */
+  private FileProcessor() {
+    // default
+  }
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(FileProcessor.class);
 
+  /**
+   * process operation.
+   * @param psItem the ps item
+   */
   public static void process(PSCoreItem psItem) {
     log.debug("Processing Files");
     Iterator<PSItemField> iterator = psItem.getAllFields();

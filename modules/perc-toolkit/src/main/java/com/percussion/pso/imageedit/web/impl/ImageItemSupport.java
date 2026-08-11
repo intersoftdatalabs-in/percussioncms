@@ -50,7 +50,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * ImageItemSupport class.
+ */
 public class ImageItemSupport {
+  /**
+   * Creates a new ImageItemSupport.
+   */
+  public ImageItemSupport() {
+    // default
+  }
+
   private static final String _WIDTH = "_width";
 
   private static final String _HEIGHT = "_height";
@@ -65,11 +75,18 @@ public class ImageItemSupport {
 
   private static final Logger log = LogManager.getLogger(ImageItemSupport.class);
 
+  /** cws. */
   protected IPSContentWs cws = null;
+  /** gmgr. */
   protected IPSGuidManager gmgr = null;
+  /** isdm. */
   protected ImageSizeDefinitionManager isdm = null;
+  /** cache. */
   protected ImageCacheManager cache = null;
 
+  /**
+   * initServices operation.
+   */
   protected void initServices() {
     if (cws == null) {
       isdm = ImageSizeDefinitionManagerLocator.getImageSizeDefinitionManager();
@@ -97,6 +114,12 @@ public class ImageItemSupport {
     return clist.get(0);
   }
 
+  /**
+   * Returns the child.
+   *
+   * @param item the item
+   * @return the result
+   */
   protected PSItemChild getChild(PSCoreItem item) {
     initServices();
     String emsg;
@@ -115,6 +138,11 @@ public class ImageItemSupport {
     return child;
   }
 
+  /**
+   * Returns the child name.
+   *
+   * @return the result
+   */
   protected String getChildName() {
     log.debug("getChildName: getting child name...");
     log.debug("getChildName: isdm: " + isdm);
@@ -123,11 +151,25 @@ public class ImageItemSupport {
     return childName;
   }
 
+  /**
+   * Returns the child entries.
+   *
+   * @param contentid the contentid
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   protected List<PSItemChildEntry> getChildEntries(String contentid) throws Exception {
     IPSGuid itemGuid = gmgr.makeGuid(new PSLocator(contentid));
     return getChildEntries(itemGuid);
   }
 
+  /**
+   * Returns the child entries.
+   *
+   * @param itemGuid the item guid
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   protected List<PSItemChildEntry> getChildEntries(IPSGuid itemGuid) throws Exception {
     initServices();
     String childName = getChildName();
@@ -135,11 +177,25 @@ public class ImageItemSupport {
     return children;
   }
 
+  /**
+   * createChildEntry operation.
+   *
+   * @param contentid the contentid
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   protected PSItemChildEntry createChildEntry(String contentid) throws Exception {
     IPSGuid itemGuid = gmgr.makeGuid(new PSLocator(contentid));
     return createChildEntry(itemGuid);
   }
 
+  /**
+   * createChildEntry operation.
+   *
+   * @param itemGuid the item guid
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   protected PSItemChildEntry createChildEntry(IPSGuid itemGuid) throws Exception {
     List<PSItemChildEntry> elist = cws.createChildEntries(itemGuid, getChildName(), 1);
     PSItemChildEntry entry = elist.get(0);
@@ -180,6 +236,12 @@ public class ImageItemSupport {
     return null;
   }
 
+  /**
+   * buildGuidList operation.
+   *
+   * @param entries the entries
+   * @return the result
+   */
   protected List<IPSGuid> buildGuidList(List<PSItemChildEntry> entries) {
     List<IPSGuid> glist = new ArrayList<IPSGuid>();
     for (PSItemChildEntry entry : entries) {
@@ -188,6 +250,14 @@ public class ImageItemSupport {
     return glist;
   }
 
+  /**
+   * readMetaData operation.
+   *
+   * @param item the item
+   * @param bean the bean
+   * @param fieldMap the field map
+   * @throws Exception if an error occurs
+   */
   protected void readMetaData(IPSItemAccessor item, Object bean, Map<String, String> fieldMap)
       throws Exception {
     for (Map.Entry<String, String> entry : fieldMap.entrySet()) {
@@ -238,6 +308,14 @@ public class ImageItemSupport {
     }
   }
 
+  /**
+   * writeMetaData operation.
+   *
+   * @param item the item
+   * @param bean the bean
+   * @param fieldMap the field map
+   * @throws Exception if an error occurs
+   */
   protected void writeMetaData(IPSItemAccessor item, Object bean, Map<String, String> fieldMap)
       throws Exception {
     String emsg;
@@ -292,6 +370,14 @@ public class ImageItemSupport {
     }
   }
 
+  /**
+   * readBinaryMetaData operation.
+   *
+   * @param item the item
+   * @param image the image
+   * @param fieldName the field name
+   * @throws Exception if an error occurs
+   */
   protected void readBinaryMetaData(IPSItemAccessor item, ImageMetaData image, String fieldName)
       throws Exception {
     log.debug("reading binary metadata");
@@ -303,6 +389,14 @@ public class ImageItemSupport {
     image.setWidth(RxItemUtils.getFieldNumeric(item, fieldName + _WIDTH).intValue());
   }
 
+  /**
+   * writeBinaryMetaData operation.
+   *
+   * @param item the item
+   * @param image the image
+   * @param fieldName the field name
+   * @throws Exception if an error occurs
+   */
   protected void writeBinaryMetaData(IPSItemAccessor item, ImageMetaData image, String fieldName)
       throws Exception {
     log.debug(
@@ -316,6 +410,7 @@ public class ImageItemSupport {
   }
 
   /**
+   * Sets the cws.
    * @param cws the cws to set
    */
   public void setCws(IPSContentWs cws) {
@@ -323,17 +418,24 @@ public class ImageItemSupport {
   }
 
   /**
+   * Sets the isdm.
    * @param isdm the isdm to set
    */
   public void setIsdm(ImageSizeDefinitionManager isdm) {
     this.isdm = isdm;
   }
 
+  /**
+   * Sets the gmgr.
+   *
+   * @param gmgr the gmgr
+   */
   public void setGmgr(IPSGuidManager gmgr) {
     this.gmgr = gmgr;
   }
 
   /**
+   * Sets the cache.
    * @param cache the cache to set
    */
   public void setCache(ImageCacheManager cache) {

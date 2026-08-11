@@ -29,7 +29,11 @@ public class SimpleImageMetaData extends AbstractImageMetaData {
   /** height in pixels. */
   private int height = 0;
 
-  /** Default constructor. */
+  /**
+   * Default constructor.
+   * Creates a new SimpleImageMetaData.
+   *
+   */
   public SimpleImageMetaData() {}
 
   /**
@@ -40,6 +44,11 @@ public class SimpleImageMetaData extends AbstractImageMetaData {
   @SuppressWarnings("this-escape")
   // Safe because setImageKey and setMetaData are final in practice (not overridden in this class)
   // and only set superclass fields, not accessing subclass state.
+  /**
+   * Creates a new SimpleImageMetaData.
+   *
+   * @param data the data
+   */
   public SimpleImageMetaData(AbstractImageMetaData data) {
     this.setImageKey(data.getImageKey());
     this.setMetaData(data.getMetaData());

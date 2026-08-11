@@ -30,7 +30,7 @@ public class HttpDOMResponse extends BaseHttpResponse {
 
   /***
    * Sets the DOM Document for the content returned in this response.
-   * @param document
+   * @param document the document
    */
   public void setDocument(Document document) {
     this.document = document;
@@ -39,6 +39,7 @@ public class HttpDOMResponse extends BaseHttpResponse {
   /***
    * Gets the DOM document for this response.
    *
+   * @return the result
    */
   public Document getDocument() {
     return document;
@@ -51,8 +52,8 @@ public class HttpDOMResponse extends BaseHttpResponse {
 
   /***
    * Single Shot Constructor
-   * @param doc
-   * @param head
+   * @param doc the doc
+   * @param head the head
    */
   public HttpDOMResponse(Document doc, HttpHeaders head) {
     // Direct field assignment (headers is package-visible on base) — no this-escape.

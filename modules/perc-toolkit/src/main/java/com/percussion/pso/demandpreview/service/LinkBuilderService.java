@@ -42,6 +42,7 @@ public interface LinkBuilderService {
    * @param context the assembly context that is being used for the content generation
    * @param contextVar the context variable that contains the URL root for the context.
    *
+   * @return the result
    */
   public String buildLinkUrl(
       IPSSite site,

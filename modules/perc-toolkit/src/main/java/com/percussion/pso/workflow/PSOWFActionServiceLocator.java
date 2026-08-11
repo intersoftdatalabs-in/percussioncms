@@ -28,6 +28,13 @@ import com.percussion.services.PSBaseServiceLocator;
  */
 public class PSOWFActionServiceLocator extends PSBaseServiceLocator {
   /**
+   * Creates a new PSOWFActionServiceLocator.
+   */
+  public PSOWFActionServiceLocator() {
+    // default
+  }
+
+  /**
    * Gets the PSO Workflow Action Service bean.
    *
    * @return the PSO Workflow Action Service bean.
@@ -36,5 +43,6 @@ public class PSOWFActionServiceLocator extends PSBaseServiceLocator {
     return (IPSOWFActionService) PSBaseServiceLocator.getBean(PSO_WF_ACTION_SERVICE_BEAN);
   }
 
+  /** pso wf action service bean. */
   public static final String PSO_WF_ACTION_SERVICE_BEAN = "psoWFActionService";
 }

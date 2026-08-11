@@ -19,6 +19,9 @@ package com.percussion.pso.imageedit.data;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * MasterImageMetaData class.
+ */
 public class MasterImageMetaData extends AbstractImageMetaData {
   private String sysTitle;
   private String displayTitle;
@@ -26,12 +29,16 @@ public class MasterImageMetaData extends AbstractImageMetaData {
   private String alt;
   private Map<String, SizedImageMetaData> sizedImages;
 
+  /**
+   * Creates a new MasterImageMetaData.
+   */
   public MasterImageMetaData() {
     super();
     sizedImages = new LinkedHashMap<String, SizedImageMetaData>();
   }
 
   /**
+   * Returns the sysTitle.
    * @return the sysTitle
    */
   public String getSysTitle() {
@@ -39,6 +46,7 @@ public class MasterImageMetaData extends AbstractImageMetaData {
   }
 
   /**
+   * Sets the sysTitle.
    * @param sysTitle the sysTitle to set
    */
   public void setSysTitle(String sysTitle) {
@@ -46,6 +54,7 @@ public class MasterImageMetaData extends AbstractImageMetaData {
   }
 
   /**
+   * Returns the displayTitle.
    * @return the displayTitle
    */
   public String getDisplayTitle() {
@@ -53,6 +62,7 @@ public class MasterImageMetaData extends AbstractImageMetaData {
   }
 
   /**
+   * Sets the displayTitle.
    * @param displayTitle the displayTitle to set
    */
   public void setDisplayTitle(String displayTitle) {
@@ -60,6 +70,7 @@ public class MasterImageMetaData extends AbstractImageMetaData {
   }
 
   /**
+   * Returns the description.
    * @return the description
    */
   public String getDescription() {
@@ -67,6 +78,7 @@ public class MasterImageMetaData extends AbstractImageMetaData {
   }
 
   /**
+   * Sets the description.
    * @param description the description to set
    */
   public void setDescription(String description) {
@@ -74,6 +86,7 @@ public class MasterImageMetaData extends AbstractImageMetaData {
   }
 
   /**
+   * Returns the alt.
    * @return the alt
    */
   public String getAlt() {
@@ -81,6 +94,7 @@ public class MasterImageMetaData extends AbstractImageMetaData {
   }
 
   /**
+   * Sets the alt.
    * @param alt the alt to set
    */
   public void setAlt(String alt) {
@@ -97,6 +111,7 @@ public class MasterImageMetaData extends AbstractImageMetaData {
   }
 
   /**
+   * Sets the sizedImages.
    * @param sizedImages the sizedImages to set
    */
   public void setSizedImages(Map<String, SizedImageMetaData> sizedImages) {
@@ -113,10 +128,18 @@ public class MasterImageMetaData extends AbstractImageMetaData {
     this.sizedImages.put(key, sizedImage);
   }
 
+  /**
+   * clearSizedImages operation.
+   */
   public void clearSizedImages() {
     this.sizedImages = new LinkedHashMap<String, SizedImageMetaData>();
   }
 
+  /**
+   * toString operation.
+   *
+   * @return the result
+   */
   @Override
   public String toString() {
     final StringBuffer sb = new StringBuffer("MasterImageMetaData{");

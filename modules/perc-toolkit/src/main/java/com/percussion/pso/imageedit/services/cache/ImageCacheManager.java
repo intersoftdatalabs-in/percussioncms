@@ -19,6 +19,9 @@ package com.percussion.pso.imageedit.services.cache;
 import com.percussion.pso.imageedit.data.ImageData;
 import com.percussion.pso.imageedit.data.ImageMetaData;
 
+/**
+ * ImageCacheManager interface.
+ */
 public interface ImageCacheManager {
   /**
    * Adds an image to the cache.

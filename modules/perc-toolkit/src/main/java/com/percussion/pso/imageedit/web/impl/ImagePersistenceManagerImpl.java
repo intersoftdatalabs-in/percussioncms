@@ -55,10 +55,19 @@ public class ImagePersistenceManagerImpl extends ImageItemSupport
   private Map<String, String> masterFieldMap;
   private Map<String, String> childFieldMap;
 
+  /**
+   * Creates a new ImagePersistenceManagerImpl.
+   */
   public ImagePersistenceManagerImpl() {}
 
   /**
+   * See referenced member.
    * @see ImagePersistenceManager#CreateImage(MasterImageMetaData, String, boolean)
+   * @param master the master
+   * @param folderid the folderid
+   * @param checkin the checkin
+   * @return the result
+   * @throws Exception if an error occurs
    */
   public String CreateImage(MasterImageMetaData master, String folderid, boolean checkin)
       throws Exception {
@@ -95,7 +104,12 @@ public class ImagePersistenceManagerImpl extends ImageItemSupport
   }
 
   /**
+   * See referenced member.
    * @see ImagePersistenceManager#validateSystemTitleUnique(String, String)
+   * @param sysTitle the sys title
+   * @param folderId the folder id
+   * @return the result
+   * @throws Exception if an error occurs
    */
   public boolean validateSystemTitleUnique(String sysTitle, String folderId) throws Exception {
     initServices();
@@ -121,7 +135,11 @@ public class ImagePersistenceManagerImpl extends ImageItemSupport
   }
 
   /**
+   * See referenced member.
    * @see ImagePersistenceManager#OpenImage(String)
+   * @param contentid the contentid
+   * @return the result
+   * @throws Exception if an error occurs
    */
   public OpenImageResult OpenImage(String contentid) throws Exception {
     log.debug("OpenImage: Starting to open image");
@@ -149,7 +167,12 @@ public class ImagePersistenceManagerImpl extends ImageItemSupport
   }
 
   /**
+   * See referenced member.
    * @see ImagePersistenceManager#UpdateImage(MasterImageMetaData, String, PSItemStatus)
+   * @param image the image
+   * @param contentid the contentid
+   * @param itemStatus the item status
+   * @throws Exception if an error occurs
    */
   public void UpdateImage(MasterImageMetaData image, String contentid, PSItemStatus itemStatus)
       throws Exception {
@@ -248,6 +271,7 @@ public class ImagePersistenceManagerImpl extends ImageItemSupport
   }
 
   /**
+   * Returns the imageContentType.
    * @return the imageContentType
    */
   public String getImageContentType() {
@@ -255,24 +279,45 @@ public class ImagePersistenceManagerImpl extends ImageItemSupport
   }
 
   /**
+   * Sets the imageContentType.
    * @param imageContentType the imageContentType to set
    */
   public void setImageContentType(String imageContentType) {
     this.imageContentType = imageContentType;
   }
 
+  /**
+   * Returns the master field map.
+   *
+   * @return the result
+   */
   public Map<String, String> getMasterFieldMap() {
     return masterFieldMap;
   }
 
+  /**
+   * Sets the master field map.
+   *
+   * @param masterFieldMap the master field map
+   */
   public void setMasterFieldMap(Map<String, String> masterFieldMap) {
     this.masterFieldMap = masterFieldMap;
   }
 
+  /**
+   * Returns the child field map.
+   *
+   * @return the result
+   */
   public Map<String, String> getChildFieldMap() {
     return childFieldMap;
   }
 
+  /**
+   * Sets the child field map.
+   *
+   * @param childFieldMap the child field map
+   */
   public void setChildFieldMap(Map<String, String> childFieldMap) {
     this.childFieldMap = childFieldMap;
   }

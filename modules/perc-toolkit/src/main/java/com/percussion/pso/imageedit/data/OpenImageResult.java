@@ -27,8 +27,17 @@ public class OpenImageResult {
   private MasterImageMetaData masterImage;
   private PSItemStatus itemStatus;
 
+  /**
+   * Creates a new OpenImageResult.
+   */
   public OpenImageResult() {}
 
+  /**
+   * Creates a new OpenImageResult.
+   *
+   * @param masterImage the master image
+   * @param itemStatus the item status
+   */
   public OpenImageResult(MasterImageMetaData masterImage, PSItemStatus itemStatus) {
     this();
     this.masterImage = masterImage;
@@ -36,6 +45,7 @@ public class OpenImageResult {
   }
 
   /**
+   * Returns the masterImage.
    * @return the masterImage
    */
   public MasterImageMetaData getMasterImage() {
@@ -43,6 +53,7 @@ public class OpenImageResult {
   }
 
   /**
+   * Returns the itemStatus.
    * @return the itemStatus
    */
   public PSItemStatus getItemStatus() {

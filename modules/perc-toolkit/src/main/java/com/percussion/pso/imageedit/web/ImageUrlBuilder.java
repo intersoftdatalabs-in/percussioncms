@@ -16,8 +16,23 @@
  */
 package com.percussion.pso.imageedit.web;
 
+/**
+ * ImageUrlBuilder interface.
+ */
 public interface ImageUrlBuilder {
+  /**
+   * buildUrl operation.
+   *
+   * @param imageKey the image key
+   * @return the result
+   */
   public String buildUrl(String imageKey);
 
+  /**
+   * extractKey operation.
+   *
+   * @param url the url
+   * @return the result
+   */
   public String extractKey(String url);
 }

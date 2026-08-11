@@ -45,7 +45,22 @@ import java.util.Map;
  * @author DavidBenua
  */
 public class PSOJexlEvaluatorUDF extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
+  /**
+   * Creates a new PSOJexlEvaluatorUDF.
+   */
+  public PSOJexlEvaluatorUDF() {
+    // default
+  }
 
+
+  /**
+   * processUdf operation.
+   *
+   * @param params the params
+   * @param req the req
+   * @return the result
+   * @throws PSConversionException if an error occurs
+   */
   public Object processUdf(Object[] params, IPSRequestContext req) throws PSConversionException {
     PSExtensionParams ep = new PSExtensionParams(params);
     String expression = ep.getStringParam(0, null, true);

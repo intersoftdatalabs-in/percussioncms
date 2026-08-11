@@ -42,8 +42,16 @@ public class QueuedEdition {
   private String listenerPort;
   private int retryCount = 0;
 
-  /** */
-  public QueuedEdition(String uri, String port, String editionId, boolean local, int retries) {
+    /**
+     * Creates a new QueuedEdition.
+     *
+     * @param uri the uri
+     * @param port the port
+     * @param editionId the edition id
+     * @param local the local
+     * @param retries the retries
+     */
+    public QueuedEdition(String uri, String port, String editionId, boolean local, int retries) {
     this.uri = uri;
     this.listenerPort = port;
     this.editionId = editionId;
@@ -52,6 +60,7 @@ public class QueuedEdition {
   }
 
   /**
+   * Returns Returns the cmsPassword..
    * @return Returns the cmsPassword.
    */
   public String getCmsPassword() {
@@ -59,6 +68,7 @@ public class QueuedEdition {
   }
 
   /**
+   * Sets the cmsPassword.
    * @param cmsPassword The cmsPassword to set.
    */
   public void setCmsPassword(String cmsPassword) {
@@ -66,6 +76,7 @@ public class QueuedEdition {
   }
 
   /**
+   * Returns Returns the cmsUser..
    * @return Returns the cmsUser.
    */
   public String getCmsUser() {
@@ -73,6 +84,7 @@ public class QueuedEdition {
   }
 
   /**
+   * Sets the cmsUser.
    * @param cmsUser The cmsUser to set.
    */
   public void setCmsUser(String cmsUser) {
@@ -80,6 +92,7 @@ public class QueuedEdition {
   }
 
   /**
+   * Returns Returns the editionId..
    * @return Returns the editionId.
    */
   public String getEditionId() {
@@ -87,6 +100,7 @@ public class QueuedEdition {
   }
 
   /**
+   * Sets the editionId.
    * @param editionId The editionId to set.
    */
   public void setEditionId(String editionId) {
@@ -94,6 +108,7 @@ public class QueuedEdition {
   }
 
   /**
+   * Returns Returns the sessionId..
    * @return Returns the sessionId.
    */
   public String getSessionId() {
@@ -101,6 +116,7 @@ public class QueuedEdition {
   }
 
   /**
+   * Sets the sessionId.
    * @param sessionId The sessionId to set.
    */
   public void setSessionId(String sessionId) {
@@ -108,6 +124,7 @@ public class QueuedEdition {
   }
 
   /**
+   * Returns Returns the uri..
    * @return Returns the uri.
    */
   public String getUri() {
@@ -115,6 +132,7 @@ public class QueuedEdition {
   }
 
   /**
+   * Sets the uri.
    * @param uri The uri to set.
    */
   public void setUri(String uri) {
@@ -122,6 +140,7 @@ public class QueuedEdition {
   }
 
   /**
+   * Returns Returns the local flag..
    * @return Returns the local flag.
    */
   public boolean isLocal() {
@@ -129,18 +148,25 @@ public class QueuedEdition {
   }
 
   /**
+   * Returns Returns the retryCount..
    * @return Returns the retryCount.
    */
   public int getRetryCount() {
     return retryCount;
   }
 
+  /**
+   * decrementAndTestRetries operation.
+   *
+   * @return the result
+   */
   public boolean decrementAndTestRetries() {
     retryCount--;
     return (retryCount > 0);
   }
 
   /**
+   * Returns Returns the listenerPort..
    * @return Returns the listenerPort.
    */
   public String getListenerPort() {

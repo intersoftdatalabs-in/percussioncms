@@ -109,7 +109,10 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
+   * See referenced member.
    * @see jakarta.servlet.ServletRequestWrapper#getParameter(java.lang.String)
+   * @param name the name
+   * @return the result
    */
   @Override
   public String getParameter(String name) {
@@ -121,7 +124,9 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
+   * See referenced member.
    * @see jakarta.servlet.ServletRequestWrapper#getParameterMap()
+   * @return the result
    */
   @Override
   public Map<String, String[]> getParameterMap() {
@@ -129,7 +134,9 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
+   * See referenced member.
    * @see jakarta.servlet.ServletRequestWrapper#getParameterNames()
+   * @return the result
    */
   @Override
   public Enumeration<String> getParameterNames() {
@@ -137,7 +144,10 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
+   * See referenced member.
    * @see jakarta.servlet.ServletRequestWrapper#getParameterValues(java.lang.String)
+   * @param name the name
+   * @return the result
    */
   @Override
   public String[] getParameterValues(String name) {
@@ -145,7 +155,10 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
+   * See referenced member.
    * @see jakarta.servlet.http.HttpServletRequestWrapper#getHeader(java.lang.String)
+   * @param name the name
+   * @return the result
    */
   @Override
   public String getHeader(String name) {
@@ -162,7 +175,9 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
+   * See referenced member.
    * @see jakarta.servlet.http.HttpServletRequestWrapper#getHeaderNames()
+   * @return the result
    */
   @Override
   public Enumeration<String> getHeaderNames() {
@@ -180,7 +195,10 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
+   * See referenced member.
    * @see jakarta.servlet.http.HttpServletRequestWrapper#getHeaders(java.lang.String)
+   * @param name the name
+   * @return the result
    */
   @Override
   public Enumeration<String> getHeaders(String name) {
@@ -194,7 +212,10 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
+   * See referenced member.
    * @see jakarta.servlet.http.HttpServletRequestWrapper#getIntHeader(java.lang.String)
+   * @param name the name
+   * @return the result
    */
   @Override
   public int getIntHeader(String name) {
@@ -208,7 +229,10 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
+   * See referenced member.
    * @see jakarta.servlet.http.HttpServletRequestWrapper#getDateHeader(java.lang.String)
+   * @param name the name
+   * @return the result
    */
   @Override
   public long getDateHeader(String name) {

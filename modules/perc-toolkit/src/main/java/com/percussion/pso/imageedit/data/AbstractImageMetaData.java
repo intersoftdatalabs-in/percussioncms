@@ -16,37 +16,53 @@
  */
 package com.percussion.pso.imageedit.data;
 
+/**
+ * Base holder for image editor session key and image metadata.
+ */
 public class AbstractImageMetaData {
+  /** Session or cache key for the image being edited. */
   private String imageKey;
+  /** Associated image metadata. */
   private ImageMetaData metaData;
 
+  /**
+   * Creates an empty metadata holder.
+   */
   public AbstractImageMetaData() {
     super();
   }
 
   /**
-   * @return the imageKey
+   * Returns the image session key.
+   *
+   * @return the image key
    */
   public String getImageKey() {
     return imageKey;
   }
 
   /**
-   * @param imageKey the imageKey to set
+   * Sets the image session key.
+   *
+   * @param imageKey the image key to set
    */
   public void setImageKey(String imageKey) {
     this.imageKey = imageKey;
   }
 
   /**
-   * @return the metaData
+   * Returns the image metadata.
+   *
+   * @return the metadata
    */
   public ImageMetaData getMetaData() {
     return metaData;
   }
 
   /**
-   * @param metaData the metaData to set
+   * Sets the image metadata.
+   *
+   * @param metaData the metadata to set
    */
   public void setMetaData(ImageMetaData metaData) {
     this.metaData = metaData;

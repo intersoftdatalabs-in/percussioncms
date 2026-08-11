@@ -19,7 +19,9 @@ package com.percussion.pso.restservice.model;
 import jakarta.xml.bind.annotation.*;
 import java.util.List;
 
-/** */
+/**
+ * REST model for a content item field and its value(s).
+ */
 @XmlRootElement
 @XmlSeeAlso({StringValue.class, XhtmlValue.class, DateValue.class, FileValue.class})
 public class Field {
@@ -143,6 +145,11 @@ public class Field {
     @XmlElementRef(type = DateValue.class),
     @XmlElementRef(type = FileValue.class)
   })
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public Value getValue() {
     return value;
   }
@@ -171,11 +178,20 @@ public class Field {
     @XmlElementRef(type = DateValue.class),
     @XmlElementRef(type = FileValue.class)
   })
+  /**
+   * Returns the values.
+   *
+   * @return the result
+   */
   public List<Value> getValues() {
     return values;
   }
 
-  /** Constructor for Field. */
+  /**
+   * Constructor for Field.
+   * Creates a new Field.
+   *
+   */
   public Field() {
     super();
   }

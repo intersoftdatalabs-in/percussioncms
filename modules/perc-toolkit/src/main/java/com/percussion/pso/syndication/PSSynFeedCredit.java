@@ -83,24 +83,45 @@ public class PSSynFeedCredit {
 
   private Credit credit;
 
+  /**
+   * Returns the name.
+   *
+   * @return the result
+   */
   public String getName() {
     return credit.getName();
   }
 
+  /**
+   * Returns the role.
+   *
+   * @return the result
+   */
   public String getRole() {
     return credit.getRole();
   }
 
+  /**
+   * Returns the scheme.
+   *
+   * @return the result
+   */
   public String getScheme() {
     return credit.getScheme();
   }
 
+  /**
+   * Creates a new PSSynFeedCredit.
+   *
+   * @param arg the arg
+   */
   public PSSynFeedCredit(Credit arg) {
     credit = arg;
   }
 
   /***
    * Returns in &lt;Role&gt;: &lt;Name&gt; format.
+   * @return the result
    */
   @Override
   public String toString() {

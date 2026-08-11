@@ -40,6 +40,13 @@ import org.apache.logging.log4j.Logger;
  * @author DavidBenua
  */
 public class ImageResizeManagerImpl implements ImageResizeManager {
+  /**
+   * Creates a new ImageResizeManagerImpl.
+   */
+  public ImageResizeManagerImpl() {
+    // default
+  }
+
   private static final Logger log = LogManager.getLogger(ImageResizeManagerImpl.class);
 
   private String imageFormat = "jpeg";
@@ -63,7 +70,13 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
   private int maxInterpolationSize = 1000000;
 
   /**
+   * See referenced member.
    * @see ImageResizeManager#generateImage(InputStream, Rectangle, Dimension)
+   * @param input the input
+   * @param cropBox the crop box
+   * @param size the size
+   * @return the result
+   * @throws Exception if an error occurs
    */
   public ImageData generateImage(InputStream input, Rectangle cropBox, Dimension size)
       throws Exception {
@@ -142,6 +155,14 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
     }
   }
 
+  /**
+   * scaleImage3 operation.
+   *
+   * @param inImage the in image
+   * @param sourceBox the source box
+   * @param outsize the outsize
+   * @return the result
+   */
   protected BufferedImage scaleImage3(
       BufferedImage inImage, Rectangle sourceBox, Dimension outsize) {
     log.debug("Scale image method 3");
@@ -167,6 +188,14 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
     return outImage;
   }
 
+  /**
+   * scaleImage operation.
+   *
+   * @param inImage the in image
+   * @param sourceBox the source box
+   * @param outSize the out size
+   * @return the result
+   */
   protected BufferedImage scaleImage(
       BufferedImage inImage, Rectangle sourceBox, Dimension outSize) {
     log.debug("Scaling image");
@@ -205,6 +234,12 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
     return outImage;
   }
 
+  /**
+   * halfImage operation.
+   *
+   * @param inImage the in image
+   * @return the result
+   */
   protected BufferedImage halfImage(BufferedImage inImage) {
     long timer = System.currentTimeMillis();
     int height = inImage.getHeight() / stepFactor;
@@ -236,6 +271,13 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
     return halfImage;
   }
 
+  /**
+   * computeSizeFromAspectRatio operation.
+   *
+   * @param box the box
+   * @param size the size
+   * @return the result
+   */
   public Dimension computeSizeFromAspectRatio(Rectangle box, Dimension size) {
     // Validate.isTrue(box.height > 0 && box.width > 0);
     Validate.isTrue(size.height > 0 || size.width > 0);
@@ -269,6 +311,7 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
   }
 
   /**
+   * Returns the imageFormat.
    * @return the imageFormat
    */
   public String getImageFormat() {
@@ -276,6 +319,7 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
   }
 
   /**
+   * Sets the imageFormat.
    * @param imageFormat the imageFormat to set
    */
   public void setImageFormat(String imageFormat) {
@@ -283,6 +327,7 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
   }
 
   /**
+   * Returns the extension.
    * @return the extension
    */
   public String getExtension() {
@@ -290,6 +335,7 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
   }
 
   /**
+   * Sets the extension.
    * @param extension the extension to set
    */
   public void setExtension(String extension) {
@@ -297,6 +343,7 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
   }
 
   /**
+   * Returns the contentType.
    * @return the contentType
    */
   public String getContentType() {
@@ -304,6 +351,7 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
   }
 
   /**
+   * Sets the contentType.
    * @param contentType the contentType to set
    */
   public void setContentType(String contentType) {
@@ -311,6 +359,7 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
   }
 
   /**
+   * Returns the compression.
    * @return the compression
    */
   public float getCompression() {
@@ -318,6 +367,7 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
   }
 
   /**
+   * Sets the compression.
    * @param compression the compression to set
    */
   public void setCompression(float compression) {
@@ -325,6 +375,7 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
   }
 
   /**
+   * Returns the stepFactor.
    * @return the stepFactor
    */
   public int getStepFactor() {
@@ -332,6 +383,7 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
   }
 
   /**
+   * Sets the stepFactor.
    * @param stepFactor the stepFactor to set
    */
   public void setStepFactor(int stepFactor) {
@@ -339,6 +391,7 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
   }
 
   /**
+   * Returns the maxInterpolationSize.
    * @return the maxInterpolationSize
    */
   public int getMaxInterpolationSize() {
@@ -346,6 +399,7 @@ public class ImageResizeManagerImpl implements ImageResizeManager {
   }
 
   /**
+   * Sets the maxInterpolationSize.
    * @param maxInterpolationSize the maxInterpolationSize to set
    */
   public void setMaxInterpolationSize(int maxInterpolationSize) {

@@ -46,11 +46,20 @@ public class SimpleXmlView extends AbstractView implements View {
 
   private String resultKey = "result";
 
-  /** Default constructor */
+  /**
+   * Default constructor
+   * Creates a new SimpleXmlView.
+   *
+   */
   public SimpleXmlView() {}
 
   /**
+   * See referenced member.
    * @see AbstractView#renderMergedOutputModel(Map, HttpServletRequest, HttpServletResponse)
+   * @param model the model
+   * @param request the request
+   * @param response the response
+   * @throws Exception if an error occurs
    */
   @Override
   @SuppressWarnings({"rawtypes"})
@@ -114,6 +123,7 @@ public class SimpleXmlView extends AbstractView implements View {
   }
 
   /**
+   * Returns the encoding.
    * @return the encoding
    */
   public String getEncoding() {
@@ -121,6 +131,7 @@ public class SimpleXmlView extends AbstractView implements View {
   }
 
   /**
+   * Sets the encoding.
    * @param encoding the encoding to set
    */
   public void setEncoding(String encoding) {
@@ -128,6 +139,7 @@ public class SimpleXmlView extends AbstractView implements View {
   }
 
   /**
+   * Returns the resultKey.
    * @return the resultKey
    */
   public String getResultKey() {
@@ -135,6 +147,7 @@ public class SimpleXmlView extends AbstractView implements View {
   }
 
   /**
+   * Sets the resultKey.
    * @param resultKey the resultKey to set
    */
   public void setResultKey(String resultKey) {

@@ -68,6 +68,14 @@ public class ImageSizeTemplateExpander extends AbstractTemplateExpanderAdaptor
    *
    * @see AbstractTemplateExpanderAdaptor#findTemplates(IPSGuid, IPSGuid, IPSGuid, int,
    *     PSComponentSummary, Node, Map)
+   * @param itemGuid the item guid
+   * @param folderGuid the folder guid
+   * @param siteGuid the site guid
+   * @param context the context
+   * @param summary the summary
+   * @param contentNode the content node
+   * @param parameters the parameters
+   * @return the result
    */
   @Override
   protected List<IPSGuid> findTemplates(

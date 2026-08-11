@@ -54,6 +54,7 @@ public class PSSynFeedMediaContent {
   /***
    * channels is number of audio channels in the media object.
    *
+   * @return the result
    */
   public Integer getAudioChannels() {
     Integer ret = 0;
@@ -66,6 +67,7 @@ public class PSSynFeedMediaContent {
   /***
    * bitrate is the kilobits per second rate of media.
    *
+   * @return the result
    */
   public Float getBitrate() {
     Float ret = (float) 0;
@@ -78,6 +80,7 @@ public class PSSynFeedMediaContent {
   /***
    * duration is the number of seconds the media object plays.
    *
+   * @return the result
    */
   public Long getDuration() {
     Long ret = (long) 0;
@@ -90,6 +93,7 @@ public class PSSynFeedMediaContent {
   /***
    * expression determines if the object is a sample or the full version of the object, or even if it is a continuous stream (sample | full | nonstop).
    *
+   * @return the result
    */
   public String getExpression() {
     String ret = "";
@@ -103,6 +107,7 @@ public class PSSynFeedMediaContent {
   /***
    * fileSize is the number of bytes of the media object.
    *
+   * @return the result
    */
   public Long getFileSize() {
     Long ret = (long) 0;
@@ -115,6 +120,7 @@ public class PSSynFeedMediaContent {
   /***
    * framerate is the number of frames per second for the media object.
    *
+   * @return the result
    */
   public Float getFramerate() {
     Float ret = (float) 0;
@@ -127,6 +133,7 @@ public class PSSynFeedMediaContent {
   /***
    * height is the height of the media object.
    *
+   * @return the result
    */
   public Integer getHeight() {
     Integer ret = 0;
@@ -139,6 +146,7 @@ public class PSSynFeedMediaContent {
   /***
    * lang is the primary language encapsulated in the media object.
    *
+   * @return the result
    */
   public String getLanguage() {
     String ret = "";
@@ -151,6 +159,7 @@ public class PSSynFeedMediaContent {
    * The player or URL reference for the item
    * &lt;media:player&gt;
    *
+   * @return the result
    */
   public String getPlayerUrl() {
     String ret = "";
@@ -161,6 +170,11 @@ public class PSSynFeedMediaContent {
     return ret;
   }
 
+  /**
+   * Returns the target url.
+   *
+   * @return the result
+   */
   public String getTargetUrl() {
     String ret = "";
 
@@ -172,6 +186,7 @@ public class PSSynFeedMediaContent {
   /***
    * samplingrate is the number of samples per second taken to create the media object.
    *
+   * @return the result
    */
   public Float getSamplingrate() {
     Float ret = (float) 0;
@@ -184,6 +199,7 @@ public class PSSynFeedMediaContent {
   /***
    * type is the standard MIME type of the object.
    *
+   * @return the result
    */
   public String getType() {
     String ret = "";
@@ -196,6 +212,7 @@ public class PSSynFeedMediaContent {
   /***
    * Width is the width of the media object.
    *
+   * @return the result
    */
   public Integer getWidth() {
     Integer ret = 0;
@@ -208,6 +225,7 @@ public class PSSynFeedMediaContent {
   /***
    * isDefault determines if this is the default object that should be used
    *
+   * @return the result
    */
   public boolean isDefaultContent() {
     boolean ret = false;
@@ -220,6 +238,7 @@ public class PSSynFeedMediaContent {
   // Meta Data
   /***
    * &lt;media:category&gt;
+   * @return the result
    */
   public List<PSSynFeedCategory> getCategoriesList() {
     ArrayList<PSSynFeedCategory> ret = new ArrayList<PSSynFeedCategory>();
@@ -231,6 +250,11 @@ public class PSSynFeedMediaContent {
     return ret;
   }
 
+  /**
+   * Returns the categories.
+   *
+   * @return the result
+   */
   public String getCategories() {
     String ret = "";
 
@@ -250,6 +274,7 @@ public class PSSynFeedMediaContent {
   /***
    * &lt;media:copyright&gt;
    *
+   * @return the result
    */
   public String getCopyright() {
     String ret = "";
@@ -265,6 +290,7 @@ public class PSSynFeedMediaContent {
   /***
    * &lt;media:credit&gt;
    *
+   * @return the result
    */
   public List<PSSynFeedCredit> getCreditList() {
     ArrayList<PSSynFeedCredit> ret = new ArrayList<PSSynFeedCredit>();
@@ -275,6 +301,11 @@ public class PSSynFeedMediaContent {
     return ret;
   }
 
+  /**
+   * Returns the credits.
+   *
+   * @return the result
+   */
   public String getCredits() {
     String ret = "";
 
@@ -293,6 +324,7 @@ public class PSSynFeedMediaContent {
   /***
    * &lt;media:copyright&gt;
    *
+   * @return the result
    */
   public String getCopyrightUrl() {
     String ret = "";
@@ -307,6 +339,7 @@ public class PSSynFeedMediaContent {
   /***
    * &lt;media:description&gt;
    *
+   * @return the result
    */
   public String getDescription() {
     String ret = "";
@@ -319,9 +352,10 @@ public class PSSynFeedMediaContent {
     return ret;
   }
 
-  /***
+  /**
+   * Returns the description type.
    *
-   *
+   * @return the result
    */
   public String getDescriptionType() {
     String ret = "";
@@ -336,6 +370,7 @@ public class PSSynFeedMediaContent {
   /***
    *    &lt;media:hash&gt;
    *
+   * @return the result
    */
   public String getHash() {
     String ret = "";
@@ -352,6 +387,7 @@ public class PSSynFeedMediaContent {
   /***
    * Returns the Algorith used to creat the hash.
    *
+   * @return the result
    */
   public String getHashAlgorithm() {
     String ret = "";
@@ -367,6 +403,7 @@ public class PSSynFeedMediaContent {
   /***
    *  &lt;media:keywords&gt;
    *
+   * @return the result
    */
   public List<String> getKeywordsList() {
     ArrayList<String> ret = new ArrayList<String>();
@@ -377,6 +414,11 @@ public class PSSynFeedMediaContent {
     return ret;
   }
 
+  /**
+   * Returns the keywords.
+   *
+   * @return the result
+   */
   public String getKeywords() {
     String ret = "";
 
@@ -399,6 +441,7 @@ public class PSSynFeedMediaContent {
   /***
    * &lt;media:rating&gt;
    *
+   * @return the result
    */
   public List<PSSynFeedRating> getRatingsList() {
     ArrayList<PSSynFeedRating> ret = new ArrayList<PSSynFeedRating>();
@@ -410,6 +453,11 @@ public class PSSynFeedMediaContent {
     return ret;
   }
 
+  /**
+   * Returns the ratings.
+   *
+   * @return the result
+   */
   public String getRatings() {
     return ""; // @TODO: Implement Me
   }
@@ -417,6 +465,7 @@ public class PSSynFeedMediaContent {
   /***
    *  &lt;media:restriction&gt;
    *
+   * @return the result
    */
   public List<PSSynFeedRestriction> getRestrictionsList() {
     ArrayList<PSSynFeedRestriction> ret = new ArrayList<PSSynFeedRestriction>();
@@ -427,6 +476,11 @@ public class PSSynFeedMediaContent {
     return ret;
   }
 
+  /**
+   * Returns the restrictions.
+   *
+   * @return the result
+   */
   public String getRestrictions() {
     return ""; // @TODO: Implement Restrictions.
   }
@@ -450,20 +504,36 @@ public class PSSynFeedMediaContent {
    *
    * end specifies the end time that the text is relevant. If this attribute is not provided, and a start time is used, it is expected that the end time is either the end of the clip or the start of the next &lt;media:text&gt; element.
    *
+   * @return the result
    */
   public String getTranscript() {
     // @TODO: Implement me.
     return "";
   }
 
+  /**
+   * Returns the transcript start.
+   *
+   * @return the result
+   */
   public String getTranscriptStart() {
     return "";
   }
 
+  /**
+   * Returns the transcript end.
+   *
+   * @return the result
+   */
   public String getTranscriptEnd() {
     return "";
   }
 
+  /**
+   * Returns the transcript type.
+   *
+   * @return the result
+   */
   public String getTranscriptType() {
     return "";
   }
@@ -471,6 +541,7 @@ public class PSSynFeedMediaContent {
   /***
    * &lt;media:thumbnail&gt;
    *
+   * @return the result
    */
   public String getThumbnailUrl() {
 
@@ -485,6 +556,11 @@ public class PSSynFeedMediaContent {
     return ret;
   }
 
+  /**
+   * Returns the thumbnail height.
+   *
+   * @return the result
+   */
   public Integer getThumbnailHeight() {
     Integer ret = 0;
 
@@ -497,6 +573,11 @@ public class PSSynFeedMediaContent {
     return ret;
   }
 
+  /**
+   * Returns the thumbnail width.
+   *
+   * @return the result
+   */
   public Integer getThumbnailWidth() {
     Integer ret = 0;
 
@@ -509,6 +590,11 @@ public class PSSynFeedMediaContent {
     return ret;
   }
 
+  /**
+   * Returns the filename.
+   *
+   * @return the result
+   */
   public String getFilename() {
     String ret = "";
 
@@ -527,6 +613,11 @@ public class PSSynFeedMediaContent {
     return ret;
   }
 
+  /**
+   * Returns the file extension.
+   *
+   * @return the result
+   */
   public String getFileExtension() {
     String ret = "";
 
@@ -537,6 +628,11 @@ public class PSSynFeedMediaContent {
     return ret;
   }
 
+  /**
+   * Returns the thumbnail filename.
+   *
+   * @return the result
+   */
   public String getThumbnailFilename() {
     String ret = "";
 
@@ -559,6 +655,11 @@ public class PSSynFeedMediaContent {
     return ret;
   }
 
+  /**
+   * Returns the title.
+   *
+   * @return the result
+   */
   public String getTitle() {
     return content.getMetadata().getTitle();
   }
@@ -566,11 +667,17 @@ public class PSSynFeedMediaContent {
   /***
    * &lt;media:title&gt;
    *
+   * @return the result
    */
   public String getTitleType() {
     return content.getMetadata().getTitleType();
   }
 
+  /**
+   * Creates a new PSSynFeedMediaContent.
+   *
+   * @param arg the arg
+   */
   public PSSynFeedMediaContent(MediaContent arg) {
     content = arg;
   }

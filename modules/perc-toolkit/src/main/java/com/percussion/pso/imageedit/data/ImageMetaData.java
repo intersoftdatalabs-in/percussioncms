@@ -19,6 +19,9 @@ package com.percussion.pso.imageedit.data;
 import java.io.Serializable;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+/**
+ * ImageMetaData class.
+ */
 public class ImageMetaData implements Serializable {
 
   private static final long serialVersionUID = -13542359L;
@@ -31,7 +34,11 @@ public class ImageMetaData implements Serializable {
   private int width = 0;
   private int height = 0;
 
-  /** Default constructor. */
+  /**
+   * Default constructor.
+   * Creates a new ImageMetaData.
+   *
+   */
   public ImageMetaData() {
     super();
   }
@@ -51,6 +58,7 @@ public class ImageMetaData implements Serializable {
   }
 
   /**
+   * Returns the mimeType.
    * @return the mimeType
    */
   public String getMimeType() {
@@ -58,6 +66,7 @@ public class ImageMetaData implements Serializable {
   }
 
   /**
+   * Sets the mimeType.
    * @param mimeType the mimeType to set
    */
   public void setMimeType(String mimeType) {
@@ -65,6 +74,7 @@ public class ImageMetaData implements Serializable {
   }
 
   /**
+   * Returns the ext.
    * @return the ext
    */
   public String getExt() {
@@ -72,6 +82,7 @@ public class ImageMetaData implements Serializable {
   }
 
   /**
+   * Sets the ext.
    * @param ext the ext to set
    */
   public void setExt(String ext) {
@@ -79,6 +90,7 @@ public class ImageMetaData implements Serializable {
   }
 
   /**
+   * Returns the filename.
    * @return the filename
    */
   public String getFilename() {
@@ -86,6 +98,7 @@ public class ImageMetaData implements Serializable {
   }
 
   /**
+   * Sets the filename.
    * @param filename the filename to set
    */
   public void setFilename(String filename) {
@@ -93,6 +106,7 @@ public class ImageMetaData implements Serializable {
   }
 
   /**
+   * Returns the size.
    * @return the size
    */
   public long getSize() {
@@ -100,6 +114,7 @@ public class ImageMetaData implements Serializable {
   }
 
   /**
+   * Sets the size.
    * @param size the size to set
    */
   public void setSize(long size) {
@@ -107,6 +122,7 @@ public class ImageMetaData implements Serializable {
   }
 
   /**
+   * Returns the width.
    * @return the width
    */
   public int getWidth() {
@@ -114,6 +130,7 @@ public class ImageMetaData implements Serializable {
   }
 
   /**
+   * Sets the width.
    * @param width the width to set
    */
   public void setWidth(int width) {
@@ -121,6 +138,7 @@ public class ImageMetaData implements Serializable {
   }
 
   /**
+   * Returns the height.
    * @return the height
    */
   public int getHeight() {
@@ -128,12 +146,18 @@ public class ImageMetaData implements Serializable {
   }
 
   /**
+   * Sets the height.
    * @param height the height to set
    */
   public void setHeight(int height) {
     this.height = height;
   }
 
+  /**
+   * toString operation.
+   *
+   * @return the result
+   */
   public String toString() {
     return new ToStringBuilder(this)
         .append("filename", filename)

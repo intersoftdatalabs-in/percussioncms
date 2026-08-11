@@ -31,7 +31,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * ListBuilderJexl class.
+ */
 public class ListBuilderJexl implements IPSJexlExpression {
+  /**
+   * Creates a new ListBuilderJexl.
+   */
+  public ListBuilderJexl() {
+    // default
+  }
+
   // REFACTORED: CP-JAVA11
 
   private static final String PROPERTY_PREFIX = "rx:soln_list_";
@@ -42,6 +52,13 @@ public class ListBuilderJexl implements IPSJexlExpression {
       description = "Creates a Query Builder from a Node",
       params = {@IPSJexlParam(name = "node", description = "$sys.assemblyItem")},
       returns = "List builder item")
+  /**
+   * Returns the list builder item.
+   *
+   * @param assemblyItem the assembly item
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   public ListBuilderItem getListBuilderItem(IPSAssemblyItem assemblyItem) throws Exception {
     ListBuilderItem item = new ListBuilderItem();
     NodeUtils.copyFromNode(assemblyItem.getNode(), item, PROPERTY_PREFIX, null);
@@ -50,6 +67,13 @@ public class ListBuilderJexl implements IPSJexlExpression {
     return item;
   }
 
+  /**
+   * Returns the folder path.
+   *
+   * @param assemblyItem the assembly item
+   * @return the result
+   * @throws Exception if an error occurs
+   */
   protected String getFolderPath(IPSAssemblyItem assemblyItem) throws Exception {
     return folderTools.getParentFolderPath(assemblyItem);
   }
@@ -63,6 +87,12 @@ public class ListBuilderJexl implements IPSJexlExpression {
       description = "Creates a Query Builder from a List builder",
       params = {@IPSJexlParam(name = "lbn", description = "getListBuilderItem($sys.item)")},
       returns = "JCRQueryBuilder")
+  /**
+   * Returns the query builder.
+   *
+   * @param lbn the lbn
+   * @return the result
+   */
   public JCRQueryBuilder getQueryBuilder(ListBuilderItem lbn) {
     notNull(lbn);
     JCRQueryBuilder b = new JCRQueryBuilder();
@@ -87,11 +117,22 @@ public class ListBuilderJexl implements IPSJexlExpression {
     return b;
   }
 
+  /**
+   * resolveQuery operation.
+   *
+   * @param lbn the lbn
+   */
   public void resolveQuery(ListBuilderItem lbn) {
     JCRQueryBuilder b = getQueryBuilder(lbn);
     resolveQuery(lbn, b);
   }
 
+  /**
+   * resolveQuery operation.
+   *
+   * @param lbn the lbn
+   * @param b the b
+   */
   public void resolveQuery(ListBuilderItem lbn, JCRQueryBuilder b) {
     notNull(lbn);
     notNull(b);
@@ -102,6 +143,12 @@ public class ListBuilderJexl implements IPSJexlExpression {
       description = "Creates slot parameters from a list builder",
       params = {@IPSJexlParam(name = "lbn", description = "getListBuilderItem($sys.item)")},
       returns = "Map of slot parameters")
+  /**
+   * Returns the slot parameters.
+   *
+   * @param lbn the lbn
+   * @return the result
+   */
   public Map<String, String> getSlotParameters(ListBuilderItem lbn) {
     notNull(lbn);
     Map<String, String> params = new HashMap<>();
@@ -116,10 +163,22 @@ public class ListBuilderJexl implements IPSJexlExpression {
     map.entrySet().removeIf(e -> isBlank(e.getValue()));
   }
 
+  /**
+   * Sets the folder tools.
+   *
+   * @param folderTools the folder tools
+   */
   public void setFolderTools(FolderTools folderTools) {
     this.folderTools = folderTools;
   }
 
+  /**
+   * init operation.
+   *
+   * @param def the def
+   * @param file the file
+   * @throws PSExtensionException if an error occurs
+   */
   public void init(IPSExtensionDef def, File file) throws PSExtensionException {
     FolderTools ft = new FolderTools();
     ft.init(def, file);

@@ -23,34 +23,99 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 
+/**
+ * Convenience base that implements JCR property accessors via {@link #getValue()}.
+ */
 public abstract class AbstractSimplyProperty {
 
+  /**
+   * Creates a property helper.
+   */
+  protected AbstractSimplyProperty() {
+    // default
+  }
+
   // REFACTORED: CP-JAVA11
+  /**
+   * Returns this property as a boolean.
+   *
+   * @return the boolean value
+   * @throws ValueFormatException if conversion fails
+   * @throws RepositoryException if a repository error occurs
+   */
   public boolean getBoolean() throws ValueFormatException, RepositoryException {
     return getValue().getBoolean();
   }
 
+  /**
+   * Returns this property as a date.
+   *
+   * @return the calendar value
+   * @throws ValueFormatException if conversion fails
+   * @throws RepositoryException if a repository error occurs
+   */
   public Calendar getDate() throws ValueFormatException, RepositoryException {
     return getValue().getDate();
   }
 
+  /**
+   * Returns this property as a double.
+   *
+   * @return the double value
+   * @throws ValueFormatException if conversion fails
+   * @throws RepositoryException if a repository error occurs
+   */
   public double getDouble() throws ValueFormatException, RepositoryException {
     return getValue().getDouble();
   }
 
+  /**
+   * Returns this property as a long.
+   *
+   * @return the long value
+   * @throws ValueFormatException if conversion fails
+   * @throws RepositoryException if a repository error occurs
+   */
   public long getLong() throws ValueFormatException, RepositoryException {
     return getValue().getLong();
   }
 
+  /**
+   * Returns this property as a string.
+   *
+   * @return the string value
+   * @throws ValueFormatException if conversion fails
+   * @throws RepositoryException if a repository error occurs
+   */
   public String getString() throws ValueFormatException, RepositoryException {
     return getValue().getString();
   }
 
+  /**
+   * Returns the JCR property type of this property.
+   *
+   * @return the property type constant
+   * @throws RepositoryException if a repository error occurs
+   */
   public int getType() throws RepositoryException {
     return getValue().getType();
   }
 
+  /**
+   * Returns the single value for this property.
+   *
+   * @return the value
+   * @throws ValueFormatException if conversion fails
+   * @throws RepositoryException if a repository error occurs
+   */
   public abstract Value getValue() throws ValueFormatException, RepositoryException;
 
+  /**
+   * Returns all values for this multi-valued property.
+   *
+   * @return the values
+   * @throws ValueFormatException if conversion fails
+   * @throws RepositoryException if a repository error occurs
+   */
   public abstract Value[] getValues() throws ValueFormatException, RepositoryException;
 }

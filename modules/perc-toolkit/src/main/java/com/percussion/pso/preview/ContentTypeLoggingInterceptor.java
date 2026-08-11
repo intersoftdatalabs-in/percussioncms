@@ -36,20 +36,36 @@ public class ContentTypeLoggingInterceptor implements HandlerInterceptor {
 
   private static final Logger log = LogManager.getLogger(ContentTypeLoggingInterceptor.class);
 
-  /** */
-  public ContentTypeLoggingInterceptor() {}
+    /**
+     * Creates a new ContentTypeLoggingInterceptor.
+     */
+    public ContentTypeLoggingInterceptor() {}
 
   /**
+   * afterCompletion operation.
+   *
    * @see HandlerInterceptor#afterCompletion(HttpServletRequest, HttpServletResponse, Object,
    *     Exception)
+   * @param request the request
+   * @param response the response
+   * @param handler the handler
+   * @param ex the ex
+   * @throws Exception if an error occurs
    */
   public void afterCompletion(
       HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
       throws Exception {}
 
   /**
+   * postHandle operation.
+   *
    * @see HandlerInterceptor#postHandle(HttpServletRequest, HttpServletResponse, Object,
    *     ModelAndView)
+   * @param request the request
+   * @param response the response
+   * @param handler the handler
+   * @param modelAndView the model and view
+   * @throws Exception if an error occurs
    */
   public void postHandle(
       HttpServletRequest request,
@@ -59,7 +75,13 @@ public class ContentTypeLoggingInterceptor implements HandlerInterceptor {
       throws Exception {}
 
   /**
+   * See referenced member.
    * @see HandlerInterceptor#preHandle(HttpServletRequest, HttpServletResponse, Object)
+   * @param request the request
+   * @param response the response
+   * @param handler the handler
+   * @return the result
+   * @throws Exception if an error occurs
    */
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
       throws Exception {

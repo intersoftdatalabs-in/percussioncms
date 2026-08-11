@@ -28,6 +28,11 @@ public class ImageSizeDefinitionManagerLocator extends PSBaseServiceLocator {
   /** Static methods only */
   private ImageSizeDefinitionManagerLocator() {}
 
+  /**
+   * Returns the image size definition manager.
+   *
+   * @return the result
+   */
   public static ImageSizeDefinitionManager getImageSizeDefinitionManager() {
     return (ImageSizeDefinitionManager) getBean(IMAGE_SIZE_DEFINITION_MANAGER_BEAN);
   }

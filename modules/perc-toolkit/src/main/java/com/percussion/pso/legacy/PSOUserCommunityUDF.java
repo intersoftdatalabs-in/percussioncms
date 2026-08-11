@@ -30,10 +30,21 @@ import com.percussion.server.IPSRequestContext;
  */
 public class PSOUserCommunityUDF extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
   /**
+   * Creates a new PSOUserCommunityUDF.
+   */
+  public PSOUserCommunityUDF() {
+    // default
+  }
+
+  /**
    * Gets the user community from user session.
    *
    * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[],
    *     com.percussion.server.IPSRequestContext)
+   * @param arg0 the arg0
+   * @param arg1 the arg1
+   * @return the result
+   * @throws PSConversionException if an error occurs
    */
   public Object processUdf(Object[] arg0, IPSRequestContext arg1) throws PSConversionException {
     PSOObjectFinder finder = new PSOObjectFinder();

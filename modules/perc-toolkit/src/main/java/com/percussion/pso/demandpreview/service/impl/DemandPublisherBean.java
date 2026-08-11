@@ -37,6 +37,13 @@ import org.apache.logging.log4j.Logger;
  * @author davidbenua
  */
 public class DemandPublisherBean implements DemandPublisherService {
+
+  /**
+   * Creates a new DemandPublisherBean.
+   */
+  public DemandPublisherBean() {
+    // default
+  }
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(DemandPublisherBean.class);
 

@@ -24,6 +24,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * Site loader implementation that loads sites from configuration.
+ *
  * @author DavidBenua
  */
 public class ConfigurableSiteLoaderImpl extends CachingSiteLoaderImpl implements SiteLoader {
@@ -32,11 +34,18 @@ public class ConfigurableSiteLoaderImpl extends CachingSiteLoaderImpl implements
 
   private List<String> allowedSites;
 
-  /** */
-  public ConfigurableSiteLoaderImpl() {
+        /**
+     * Creates a new ConfigurableSiteLoaderImpl.
+     */
+    public ConfigurableSiteLoaderImpl() {
     super();
     allowedSites = new ArrayList<String>();
   }
+  /**
+   * loadAllSites operation.
+   * @return the result
+   * @throws PSSiteManagerException if an error occurs
+   */
 
   @Override
   public synchronized List<IPSSite> loadAllSites() throws PSSiteManagerException {
@@ -55,10 +64,23 @@ public class ConfigurableSiteLoaderImpl extends CachingSiteLoaderImpl implements
     return mySites;
   }
 
+  /**
+   * Returns the AllowedSites.
+   *
+   * @return the value
+   */
   public List<String> getAllowedSites() {
     return allowedSites;
   }
 
+  /**
+   * Sets the AllowedSites.
+   */
+  /**
+   * Sets the list of allowed site names.
+   *
+   * @param allowedSites the allowed site names
+   */
   public void setAllowedSites(List<String> allowedSites) {
     this.allowedSites = allowedSites;
   }

@@ -42,20 +42,27 @@ public class ImageSizeDefinitionManagerImpl implements ImageSizeDefinitionManage
   /** The path name of the image to be displayed when there is no image. */
   private String failureImagePath;
 
-  /** */
-  public ImageSizeDefinitionManagerImpl() {
+    /**
+     * Creates a new ImageSizeDefinitionManagerImpl.
+     */
+    public ImageSizeDefinitionManagerImpl() {
     sizes = new ArrayList<ImageSizeDefinition>();
   }
 
   /**
+   * See referenced member.
    * @see ImageSizeDefinitionManager#getAllImageSizes()
+   * @return the result
    */
   public List<ImageSizeDefinition> getAllImageSizes() {
     return sizes;
   }
 
   /**
+   * See referenced member.
    * @see ImageSizeDefinitionManager#getImageSize(String)
+   * @param code the code
+   * @return the result
    */
   public ImageSizeDefinition getImageSize(String code) {
     if (StringUtils.isEmpty(code)) {
@@ -71,6 +78,7 @@ public class ImageSizeDefinitionManagerImpl implements ImageSizeDefinitionManage
   }
 
   /**
+   * Returns the sizes.
    * @return the sizes
    */
   public List<ImageSizeDefinition> getSizes() {
@@ -78,6 +86,7 @@ public class ImageSizeDefinitionManagerImpl implements ImageSizeDefinitionManage
   }
 
   /**
+   * Sets the sizes.
    * @param sizes the sizes to set
    */
   public void setSizes(List<ImageSizeDefinition> sizes) {
@@ -85,6 +94,7 @@ public class ImageSizeDefinitionManagerImpl implements ImageSizeDefinitionManage
   }
 
   /**
+   * Returns the sizedImageNodeName.
    * @return the sizedImageNodeName
    */
   public String getSizedImageNodeName() {
@@ -92,6 +102,7 @@ public class ImageSizeDefinitionManagerImpl implements ImageSizeDefinitionManage
   }
 
   /**
+   * Sets the sizedImageNodeName.
    * @param sizedImageNodeName the sizedImageNodeName to set
    */
   public void setSizedImageNodeName(String sizedImageNodeName) {
@@ -99,6 +110,7 @@ public class ImageSizeDefinitionManagerImpl implements ImageSizeDefinitionManage
   }
 
   /**
+   * Returns the sizedImagePropertyName.
    * @return the sizedImagePropertyName
    */
   public String getSizedImagePropertyName() {
@@ -106,6 +118,7 @@ public class ImageSizeDefinitionManagerImpl implements ImageSizeDefinitionManage
   }
 
   /**
+   * Sets the sizedImagePropertyName.
    * @param sizedImagePropertyName the sizedImagePropertyName to set
    */
   public void setSizedImagePropertyName(String sizedImagePropertyName) {
@@ -113,6 +126,7 @@ public class ImageSizeDefinitionManagerImpl implements ImageSizeDefinitionManage
   }
 
   /**
+   * Returns the failureImagePath.
    * @return the failureImagePath
    */
   public String getFailureImagePath() {
@@ -120,6 +134,7 @@ public class ImageSizeDefinitionManagerImpl implements ImageSizeDefinitionManage
   }
 
   /**
+   * Sets the failureImagePath.
    * @param failureImagePath the failureImagePath to set
    */
   public void setFailureImagePath(String failureImagePath) {

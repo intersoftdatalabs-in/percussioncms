@@ -33,14 +33,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * JEXL helper for Base64 encoding and decoding of content values.
+ *
  * @author DavidBenua
  */
 public class PSOBase64Codec extends PSJexlUtilBase implements IPSJexlExpression {
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOBase64Codec.class);
 
-  /** */
-  public PSOBase64Codec() {
+    /**
+     * Creates a new PSOBase64Codec.
+     */
+    public PSOBase64Codec() {
     super();
   }
 
@@ -49,14 +53,24 @@ public class PSOBase64Codec extends PSJexlUtilBase implements IPSJexlExpression 
    *
    * @param jcrProperty the property to encode
    * @return a base 64 encoded String representing the property value.
-   * @throws ValueFormatException
-   * @throws RepositoryException
-   * @throws IOException
-   * @throws UnsupportedEncodingException
+   * @throws ValueFormatException if an error occurs
+   * @throws RepositoryException if an error occurs
+   * @throws IOException if an error occurs
+   * @throws UnsupportedEncodingException if an error occurs
    */
   @IPSJexlMethod(
       description = "Encode a binary property",
       params = {@IPSJexlParam(name = "source", description = "binary property to encode")})
+  /**
+   * encode operation.
+   *
+   * @param jcrProperty the jcr property
+   * @return the result
+   * @throws ValueFormatException if an error occurs
+   * @throws RepositoryException if an error occurs
+   * @throws UnsupportedEncodingException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public String encode(Property jcrProperty)
       throws ValueFormatException, RepositoryException, UnsupportedEncodingException, IOException {
     if (jcrProperty == null) {
@@ -71,12 +85,20 @@ public class PSOBase64Codec extends PSJexlUtilBase implements IPSJexlExpression 
    *
    * @param stream the byte stream to be encoded.
    * @return a base 64 encoded String representing the binary value.
-   * @throws IOException
-   * @throws UnsupportedEncodingException
+   * @throws IOException if an error occurs
+   * @throws UnsupportedEncodingException if an error occurs
    */
   @IPSJexlMethod(
       description = "Encode a binary stream",
       params = {@IPSJexlParam(name = "source", description = "binary stream to encode")})
+  /**
+   * encode operation.
+   *
+   * @param stream the stream
+   * @return the result
+   * @throws UnsupportedEncodingException if an error occurs
+   * @throws IOException if an error occurs
+   */
   public String encode(InputStream stream) throws UnsupportedEncodingException, IOException {
     return encode(streamToBytes(stream));
   }
@@ -91,6 +113,13 @@ public class PSOBase64Codec extends PSJexlUtilBase implements IPSJexlExpression 
   @IPSJexlMethod(
       description = "copy a binary stream to a byte array",
       params = {@IPSJexlParam(name = "stream", description = "binary stream to copy")})
+  /**
+   * streamToBytes operation.
+   *
+   * @param stream the stream
+   * @return the result
+   * @throws IOException if an error occurs
+   */
   public byte[] streamToBytes(InputStream stream) throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try {
@@ -119,6 +148,13 @@ public class PSOBase64Codec extends PSJexlUtilBase implements IPSJexlExpression 
   @IPSJexlMethod(
       description = "Encode a binary byte array",
       params = {@IPSJexlParam(name = "source", description = "binary byte array to encode")})
+  /**
+   * encode operation.
+   *
+   * @param bytes the bytes
+   * @return the result
+   * @throws UnsupportedEncodingException if an error occurs
+   */
   public String encode(byte[] bytes) throws UnsupportedEncodingException {
     byte[] out = Base64.encodeBase64(bytes);
     try {

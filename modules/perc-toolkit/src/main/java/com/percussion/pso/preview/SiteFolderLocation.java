@@ -33,7 +33,11 @@ public class SiteFolderLocation {
   private int folderid;
   private IPSSite site;
 
-  /** Default Constructor */
+  /**
+   * Default Constructor
+   * Creates a new SiteFolderLocation.
+   *
+   */
   public SiteFolderLocation() {}
 
   /**
@@ -51,9 +55,9 @@ public class SiteFolderLocation {
   /**
    * Fixes a URL by applying the parameters in the map
    *
-   * @param baseUrl
+   * @param baseUrl the base url
    * @return the url with the parameters added.
-   * @throws PSRequestParsingException
+   * @throws PSRequestParsingException if an error occurs
    */
   public String fixUrl(String baseUrl) throws PSRequestParsingException {
     PSOMutableUrl url = new PSOMutableUrl(baseUrl);
@@ -62,6 +66,7 @@ public class SiteFolderLocation {
   }
 
   /**
+   * Returns the siteName.
    * @return the siteName
    */
   public String getSiteName() {
@@ -69,6 +74,7 @@ public class SiteFolderLocation {
   }
 
   /**
+   * Returns the folderPath.
    * @return the folderPath
    */
   public String getFolderPath() {
@@ -76,6 +82,7 @@ public class SiteFolderLocation {
   }
 
   /**
+   * Sets the folderPath.
    * @param folderPath the folderPath to set
    */
   public void setFolderPath(String folderPath) {
@@ -83,6 +90,7 @@ public class SiteFolderLocation {
   }
 
   /**
+   * Returns the siteid.
    * @return the siteid
    */
   public long getSiteid() {
@@ -90,6 +98,7 @@ public class SiteFolderLocation {
   }
 
   /**
+   * Returns the folderid.
    * @return the folderid
    */
   public int getFolderid() {
@@ -97,6 +106,7 @@ public class SiteFolderLocation {
   }
 
   /**
+   * Sets the folderid.
    * @param folderid the folderid to set
    */
   public void setFolderid(int folderid) {
@@ -104,6 +114,7 @@ public class SiteFolderLocation {
   }
 
   /**
+   * Returns the site.
    * @return the site
    */
   public IPSSite getSite() {
@@ -111,6 +122,7 @@ public class SiteFolderLocation {
   }
 
   /**
+   * Sets the site.
    * @param site the site to set
    */
   public void setSite(IPSSite site) {

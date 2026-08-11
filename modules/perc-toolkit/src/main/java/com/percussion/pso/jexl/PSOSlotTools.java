@@ -52,7 +52,11 @@ public class PSOSlotTools extends PSJexlUtilBase implements IPSJexlExpression {
 
   private static final Logger ms_log = LogManager.getLogger(PSOListTools.class);
 
-  /** Ctor. */
+  /**
+   * Ctor.
+   * Creates a new PSOSlotTools.
+   *
+   */
   public PSOSlotTools() {
     super();
   }
@@ -65,7 +69,7 @@ public class PSOSlotTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param params the combined map of parameters to pass to the slot finder. Never <code>null
    *     </code> may be <code>empty</code>
    * @return a list of results
-   * @throws Throwable
+   * @throws Throwable if an error occurs
    */
   @IPSJexlMethod(
       description = "Get the contents of a slot as a list of assembly items",
@@ -134,7 +138,7 @@ public class PSOSlotTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param propertyName the name of the desired property. Must not be <code>null</code> or <code>
    *     blank</code>
    * @return a list of String values. Never <code>null</code> but may be <code>empty</code>
-   * @throws RepositoryException
+   * @throws RepositoryException if an error occurs
    */
   @IPSJexlMethod(
       description = "gets all property values across the contents of a slot",

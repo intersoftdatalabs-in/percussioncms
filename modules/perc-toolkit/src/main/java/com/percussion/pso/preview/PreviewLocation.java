@@ -28,10 +28,16 @@ public class PreviewLocation implements Comparable<PreviewLocation> {
   String path;
   String url;
 
+  /**
+   * Creates a new PreviewLocation.
+   */
   public PreviewLocation() {}
 
   /**
+   * See referenced member.
    * @see Comparable#compareTo(Object)
+   * @param other the other
+   * @return the result
    */
   public int compareTo(PreviewLocation other) {
     if (this == other) return 0;
@@ -44,19 +50,28 @@ public class PreviewLocation implements Comparable<PreviewLocation> {
   }
 
   /**
+   * See referenced member.
    * @see Object#equals(Object)
+   * @param obj the obj
+   * @return the result
    */
   @Override
   public boolean equals(Object obj) {
     return super.equals(obj);
   }
 
+  /**
+   * hashCode operation.
+   *
+   * @return the result
+   */
   @Override
   public int hashCode() {
     return super.hashCode();
   }
 
   /**
+   * Returns the siteName.
    * @return the siteName
    */
   public String getSiteName() {
@@ -64,6 +79,7 @@ public class PreviewLocation implements Comparable<PreviewLocation> {
   }
 
   /**
+   * Sets the siteName.
    * @param siteName the siteName to set
    */
   public void setSiteName(String siteName) {
@@ -71,6 +87,7 @@ public class PreviewLocation implements Comparable<PreviewLocation> {
   }
 
   /**
+   * Returns the path.
    * @return the path
    */
   public String getPath() {
@@ -78,6 +95,7 @@ public class PreviewLocation implements Comparable<PreviewLocation> {
   }
 
   /**
+   * Sets the path.
    * @param path the path to set
    */
   public void setPath(String path) {
@@ -85,6 +103,7 @@ public class PreviewLocation implements Comparable<PreviewLocation> {
   }
 
   /**
+   * Returns the url.
    * @return the url
    */
   public String getUrl() {
@@ -92,6 +111,7 @@ public class PreviewLocation implements Comparable<PreviewLocation> {
   }
 
   /**
+   * Sets the url.
    * @param url the url to set
    */
   public void setUrl(String url) {

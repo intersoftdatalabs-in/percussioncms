@@ -40,12 +40,21 @@ public class PSOSpringWorkflowActionDispatcher extends PSDefaultExtension
   private static final Logger log = LogManager.getLogger(PSOSpringWorkflowActionDispatcher.class);
   IPSOWFActionService asvc = null;
 
-  /** Default constructor */
+  /**
+   * Default constructor
+   * Creates a new PSOSpringWorkflowActionDispatcher.
+   *
+   */
   public PSOSpringWorkflowActionDispatcher() {}
 
   /**
+   * init operation.
+   *
    * @see com.percussion.extension.PSDefaultExtension#init(com.percussion.extension.IPSExtensionDef,
    *     java.io.File)
+   * @param extensionDef the extension def
+   * @param codeRoot the code root
+   * @throws PSExtensionException if an error occurs
    */
   public void init(IPSExtensionDef extensionDef, File codeRoot) throws PSExtensionException {
     super.init(extensionDef, codeRoot);
@@ -62,6 +71,9 @@ public class PSOSpringWorkflowActionDispatcher extends PSDefaultExtension
    * @see
    *     com.percussion.extension.IPSWorkflowAction#performAction(com.percussion.extension.IPSWorkFlowContext,
    *     com.percussion.server.IPSRequestContext)
+   * @param wfContext the wf context
+   * @param request the request
+   * @throws PSExtensionProcessingException if an error occurs
    */
   public void performAction(IPSWorkFlowContext wfContext, IPSRequestContext request)
       throws PSExtensionProcessingException {
@@ -84,6 +96,7 @@ public class PSOSpringWorkflowActionDispatcher extends PSDefaultExtension
   }
 
   /**
+   * Sets the asvc.
    * @param asvc the asvc to set. Used for unit test only.
    */
   protected void setAsvc(IPSOWFActionService asvc) {

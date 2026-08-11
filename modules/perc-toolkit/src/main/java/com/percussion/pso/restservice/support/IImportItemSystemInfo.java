@@ -19,7 +19,9 @@ package com.percussion.pso.restservice.support;
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSItemDefinition;
 
-/** */
+/**
+ * Provides system metadata used while importing items via the REST service.
+ */
 public interface IImportItemSystemInfo {
 
   // Helper methods
@@ -88,6 +90,12 @@ public interface IImportItemSystemInfo {
    */
   public String getCommunityName(int id);
 
+  /**
+   * Returns the community id.
+   *
+   * @param name the name
+   * @return the result
+   */
   public int getCommunityId(String name);
 
   /**
@@ -95,7 +103,7 @@ public interface IImportItemSystemInfo {
    *
    * @param contentType String
    * @return PSItemDefinition
-   * @throws PSInvalidContentTypeException
+   * @throws PSInvalidContentTypeException if an error occurs
    */
   public PSItemDefinition getItemDefinition(String contentType)
       throws PSInvalidContentTypeException;

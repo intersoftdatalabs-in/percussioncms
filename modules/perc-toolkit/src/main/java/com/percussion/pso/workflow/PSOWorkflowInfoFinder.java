@@ -54,7 +54,11 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
   private IPSGuidManager gmgr = null;
   private List<PSWorkflow> workflows = null;
 
-  /** Creates a new finder. */
+  /**
+   * Creates a new finder.
+   * Creates a new PSOWorkflowInfoFinder.
+   *
+   */
   public PSOWorkflowInfoFinder() {
     super();
   }
@@ -73,7 +77,10 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
   }
 
   /**
+   * See referenced member.
    * @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflow(int)
+   * @param id the id
+   * @return the result
    */
   public PSWorkflow findWorkflow(int id) {
     initServices();
@@ -86,9 +93,14 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
   }
 
   /**
+   * findWorkflowState operation.
+   *
    * @see
    *     com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflowState(com.percussion.services.workflow.data.PSWorkflow,
    *     int)
+   * @param wf the wf
+   * @param state the state
+   * @return the result
    */
   public PSState findWorkflowState(PSWorkflow wf, int state) {
     for (PSState st : wf.getStates()) {
@@ -101,7 +113,11 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
   }
 
   /**
+   * See referenced member.
    * @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflowTransition(int, int)
+   * @param workflow the workflow
+   * @param transid the transid
+   * @return the result
    */
   public PSTransition findWorkflowTransition(int workflow, int transid) {
     PSWorkflow wf = findWorkflow(workflow);
@@ -114,7 +130,11 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
   }
 
   /**
+   * See referenced member.
    * @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflowAnyTransition(int, int)
+   * @param workflow the workflow
+   * @param transid the transid
+   * @return the result
    */
   public PSTransitionBase findWorkflowAnyTransition(int workflow, int transid) {
     PSWorkflow wf = findWorkflow(workflow);
@@ -127,18 +147,38 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
   }
 
   /**
+   * findWorkflowTransition operation.
+   *
    * @see
    *     com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflowTransition(com.percussion.services.workflow.data.PSWorkflow,
    *     int)
+   * @param wf the wf
+   * @param transid the transid
+   * @return the result
    */
   public PSTransition findWorkflowTransition(PSWorkflow wf, int transid) {
     return (PSTransition) findWorkflowAnyTransitionInternal(wf, transid, false);
   }
 
+  /**
+   * findWorkflowAnyTransition operation.
+   *
+   * @param wf the wf
+   * @param transid the transid
+   * @return the result
+   */
   public PSTransitionBase findWorkflowAnyTransition(PSWorkflow wf, int transid) {
     return findWorkflowAnyTransitionInternal(wf, transid, true);
   }
 
+  /**
+   * findWorkflowAnyTransitionInternal operation.
+   *
+   * @param wf the wf
+   * @param transid the transid
+   * @param includeAging the include aging
+   * @return the result
+   */
   protected PSTransitionBase findWorkflowAnyTransitionInternal(
       PSWorkflow wf, int transid, boolean includeAging) {
     PSTransitionBase result = null;
@@ -165,7 +205,11 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
   }
 
   /**
+   * See referenced member.
    * @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflowState(int, int)
+   * @param workflow the workflow
+   * @param state the state
+   * @return the result
    */
   public PSState findWorkflowState(int workflow, int state) {
     PSWorkflow wf = this.findWorkflow(workflow);
@@ -178,7 +222,11 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
   }
 
   /**
+   * See referenced member.
    * @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflowState(java.lang.String)
+   * @param contentId the content id
+   * @return the result
+   * @throws PSException if an error occurs
    */
   public PSState findWorkflowState(String contentId) throws PSException {
     PSComponentSummary sum = PSOItemSummaryFinder.getSummary(contentId);
@@ -188,7 +236,11 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
   }
 
   /**
+   * See referenced member.
    * @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflowStateName(java.lang.String)
+   * @param contentId the content id
+   * @return the result
+   * @throws PSException if an error occurs
    */
   public String findWorkflowStateName(String contentId) throws PSException {
     PSState state = findWorkflowState(contentId);
@@ -201,8 +253,14 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
   }
 
   /**
+   * IsWorkflowValid operation.
+   *
    * @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#IsWorkflowValid(java.lang.String,
    *     java.util.Collection)
+   * @param contentId the content id
+   * @param validFlags the valid flags
+   * @return the result
+   * @throws PSException if an error occurs
    */
   public boolean IsWorkflowValid(String contentId, Collection<String> validFlags)
       throws PSException {
@@ -222,8 +280,14 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
   }
 
   /**
+   * findDestinationState operation.
+   *
    * @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findDestinationState(java.lang.String,
    *     java.lang.String)
+   * @param contentId the content id
+   * @param transitionId the transition id
+   * @return the result
+   * @throws PSException if an error occurs
    */
   public PSState findDestinationState(String contentId, String transitionId) throws PSException {
     PSState state = findWorkflowState(contentId);
@@ -231,9 +295,15 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
   }
 
   /**
+   * findDestinationState operation.
+   *
    * @see
    *     com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findDestinationState(com.percussion.services.workflow.data.PSState,
    *     java.lang.String)
+   * @param state the state
+   * @param transitionId the transition id
+   * @return the result
+   * @throws PSException if an error occurs
    */
   public PSState findDestinationState(PSState state, String transitionId) throws PSException {
     String emsg;

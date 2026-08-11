@@ -74,6 +74,13 @@ import org.apache.logging.log4j.Logger;
  * @author adamgent
  */
 public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
+  /**
+   * Creates a new PSOUniqueFieldWithInFoldersValidator.
+   */
+  public PSOUniqueFieldWithInFoldersValidator() {
+    // default
+  }
+
 
   private IPSExtensionDef extensionDef = null;
   private IPSContentWs contentWs = null;
@@ -82,6 +89,14 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
   private PSONodeCataloger nodeCataloger = null;
   private IPSSystemWs systemWs = null;
 
+  /**
+   * processUdf operation.
+   *
+   * @param params the params
+   * @param request the request
+   * @return the result
+   * @throws PSConversionException if an error occurs
+   */
   public Boolean processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {
     String cmd = request.getParameter(IPSHtmlParameters.SYS_COMMAND);
@@ -157,9 +172,10 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
    * @param fieldName field name to check for uniqueness.
    * @param fieldValue the value of the field.
    * @return true if its unique
-   * @throws PSErrorException
-   * @throws InvalidQueryException
-   * @throws RepositoryException
+   * @throws PSErrorException if an error occurs
+   * @throws InvalidQueryException if an error occurs
+   * @throws RepositoryException if an error occurs
+   * @param typeList the type list
    */
   public boolean isFieldValueUniqueInFolderForExistingItem(
       int contentId, String fieldName, String fieldValue, String typeList)
@@ -176,9 +192,10 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
    * @param fieldValue the value of the field.
    * @param path If set will check this path for uniqueness, can use % to check subfolders
    * @return true if its unique
-   * @throws PSErrorException
-   * @throws InvalidQueryException
-   * @throws RepositoryException
+   * @throws PSErrorException if an error occurs
+   * @throws InvalidQueryException if an error occurs
+   * @throws RepositoryException if an error occurs
+   * @param typeList the type list
    */
   public boolean isFieldValueUniqueInFolderForExistingItem(
       int contentId, String fieldName, String fieldValue, String typeList, String path)
@@ -227,10 +244,11 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
    * @param fieldName name of the field
    * @param fieldValue the desired value of the field for the new item.
    * @return true if its unique.
-   * @throws PSErrorException
-   * @throws InvalidQueryException
-   * @throws RepositoryException
-   * @throws PSErrorResultsException
+   * @throws PSErrorException if an error occurs
+   * @throws InvalidQueryException if an error occurs
+   * @throws RepositoryException if an error occurs
+   * @throws PSErrorResultsException if an error occurs
+   * @param typeList the type list
    */
   public boolean isFieldValueUniqueInFolder(
       int folderId, String fieldName, String fieldValue, String typeList)
@@ -246,10 +264,11 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
    * @param fieldValue the desired value of the field for the new item.
    * @param path If set will check this path for uniqueness, can use % to check subfolders
    * @return true if its unique.
-   * @throws PSErrorException
-   * @throws InvalidQueryException
-   * @throws RepositoryException
-   * @throws PSErrorResultsException
+   * @throws PSErrorException if an error occurs
+   * @throws InvalidQueryException if an error occurs
+   * @throws RepositoryException if an error occurs
+   * @throws PSErrorResultsException if an error occurs
+   * @param typeList the type list
    */
   public boolean isFieldValueUniqueInFolder(
       int folderId, String fieldName, String fieldValue, String typeList, String path)
@@ -291,6 +310,16 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
     return unique;
   }
 
+  /**
+   * Returns the query for value in folders.
+   *
+   * @param contentId the content id
+   * @param fieldName the field name
+   * @param fieldValue the field value
+   * @param path the path
+   * @param typeList the type list
+   * @return the result
+   */
   public String getQueryForValueInFolders(
       int contentId, String fieldName, String fieldValue, String path, String typeList) {
     String jcrQuery =
@@ -307,6 +336,15 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
     return jcrQuery;
   }
 
+  /**
+   * Returns the query for value in folder.
+   *
+   * @param fieldName the field name
+   * @param fieldValue the field value
+   * @param path the path
+   * @param typeList the type list
+   * @return the result
+   */
   public String getQueryForValueInFolder(
       String fieldName, String fieldValue, String path, String typeList) {
     return format(
@@ -319,6 +357,12 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
         fieldName, fieldValue, path, typeList);
   }
 
+  /**
+   * Returns the folder id.
+   *
+   * @param request the request
+   * @return the result
+   */
   protected Integer getFolderId(IPSRequestContext request) {
     // get the target parent folder id from the redirect url
     String folderId = null;
@@ -344,6 +388,13 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
     return rvalue;
   }
 
+  /**
+   * makeTypeList operation.
+   *
+   * @param fieldname the fieldname
+   * @return the result
+   * @throws RepositoryException if an error occurs
+   */
   protected String makeTypeList(String fieldname) throws RepositoryException {
     List<String> types = nodeCataloger.getContentTypeNamesWithField(fieldname);
     StringBuilder sb = new StringBuilder();
@@ -364,7 +415,7 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
    *
    * @param contentid the content id for the item
    * @return <code>true</code> if a PV relationship is found.
-   * @throws PSErrorException
+   * @throws PSErrorException if an error occurs
    */
   protected boolean isPromotable(int contentid) throws PSErrorException {
     if (contentid == 0) {
@@ -382,6 +433,13 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
     return (rels.size() > 0) ? true : false;
   }
 
+  /**
+   * init operation.
+   *
+   * @param extensionDef the extension def
+   * @param arg1 the arg1
+   * @throws PSExtensionException if an error occurs
+   */
   public void init(IPSExtensionDef extensionDef, File arg1) throws PSExtensionException {
     setExtensionDef(extensionDef);
     if (contentManager == null) setContentManager(PSContentMgrLocator.getContentMgr());
@@ -391,10 +449,20 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
     if (systemWs == null) setSystemWs(PSSystemWsLocator.getSystemWebservice());
   }
 
+  /**
+   * Returns the extension def.
+   *
+   * @return the result
+   */
   public IPSExtensionDef getExtensionDef() {
     return extensionDef;
   }
 
+  /**
+   * Sets the extension def.
+   *
+   * @param extensionDef the extension def
+   */
   public void setExtensionDef(IPSExtensionDef extensionDef) {
     this.extensionDef = extensionDef;
   }
@@ -403,19 +471,35 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
   private static final Logger log =
       LogManager.getLogger(PSOUniqueFieldWithInFoldersValidator.class);
 
+  /**
+   * Sets the content ws.
+   *
+   * @param contentWs the content ws
+   */
   public void setContentWs(IPSContentWs contentWs) {
     this.contentWs = contentWs;
   }
 
+  /**
+   * Sets the guid manager.
+   *
+   * @param guidManager the guid manager
+   */
   public void setGuidManager(IPSGuidManager guidManager) {
     this.guidManager = guidManager;
   }
 
+  /**
+   * Sets the content manager.
+   *
+   * @param contentManager the content manager
+   */
   public void setContentManager(IPSContentMgr contentManager) {
     this.contentManager = contentManager;
   }
 
   /**
+   * Sets the nodeCataloger.
    * @param nodeCataloger the nodeCataloger to set
    */
   public void setNodeCataloger(PSONodeCataloger nodeCataloger) {
@@ -423,6 +507,7 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
   }
 
   /**
+   * Sets the systemWs.
    * @param systemWs the systemWs to set
    */
   public void setSystemWs(IPSSystemWs systemWs) {

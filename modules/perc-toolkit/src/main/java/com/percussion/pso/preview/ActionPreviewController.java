@@ -41,6 +41,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
+ * Spring MVC controller that builds preview menu actions for content items.
+ *
  * @author DavidBenua
  */
 public class ActionPreviewController extends AbstractMenuController implements Controller {
@@ -51,15 +53,25 @@ public class ActionPreviewController extends AbstractMenuController implements C
 
   private UrlBuilder urlBuilder = null;
 
-  /** Default constructor */
+  /**
+   * Default constructor
+   * Creates a new ActionPreviewController.
+   *
+   */
   public ActionPreviewController() {
     super();
   }
 
   /**
+   * handleRequestInternal operation.
+   *
    * @see
    *     org.springframework.web.servlet.mvc.AbstractController#handleRequestInternal(HttpServletRequest,
    *     HttpServletResponse)
+   * @param request the request
+   * @param response the response
+   * @return the result
+   * @throws Exception if an error occurs
    */
   @Override
   protected ModelAndView handleRequestInternal(
@@ -145,6 +157,18 @@ public class ActionPreviewController extends AbstractMenuController implements C
     return mav;
   }
 
+  /**
+   * Builds menu actions from the given assembly templates.
+   *
+   * @param actions destination list that receives new actions
+   * @param templates templates to convert into actions
+   * @param properties base action properties
+   * @param urlParams URL parameters for the preview link
+   * @param location site-folder location for the item
+   * @param useMulti whether multi-site URL building is enabled
+   * @return the actions list (same instance as {@code actions})
+   * @throws Exception if a URL cannot be built
+   */
   protected List<PSOAction> makeActionsFromTemplates(
       List<PSOAction> actions,
       List<IPSAssemblyTemplate> templates,
@@ -183,6 +207,12 @@ public class ActionPreviewController extends AbstractMenuController implements C
     return actions;
   }
 
+  /**
+   * Serializes the action list to an XML document for the menu response.
+   *
+   * @param actions actions to include
+   * @return XML document with an {@code ActionList} root
+   */
   protected Document buildActionListXml(List<PSOAction> actions) {
     Document output = PSXmlDocumentBuilder.createXmlDocument();
     Element root = PSXmlDocumentBuilder.createRoot(output, "ActionList");
@@ -194,28 +224,36 @@ public class ActionPreviewController extends AbstractMenuController implements C
   }
 
   /**
-   * @return the snippetTargetStyle
+   * Returns the target style applied to snippet previews.
+   *
+   * @return the snippet target style
    */
   public String getSnippetTargetStyle() {
     return snippetTargetStyle;
   }
 
   /**
-   * @param snippetTargetStyle the snippetTargetStyle to set
+   * Sets the target style applied to snippet previews.
+   *
+   * @param snippetTargetStyle the snippet target style to set
    */
   public void setSnippetTargetStyle(String snippetTargetStyle) {
     this.snippetTargetStyle = snippetTargetStyle;
   }
 
   /**
-   * @return the urlBuilder
+   * Returns the URL builder used for preview links.
+   *
+   * @return the URL builder
    */
   public UrlBuilder getUrlBuilder() {
     return urlBuilder;
   }
 
   /**
-   * @param urlBuilder the urlBuilder to set
+   * Sets the URL builder used for preview links.
+   *
+   * @param urlBuilder the URL builder to set
    */
   public void setUrlBuilder(UrlBuilder urlBuilder) {
     this.urlBuilder = urlBuilder;
