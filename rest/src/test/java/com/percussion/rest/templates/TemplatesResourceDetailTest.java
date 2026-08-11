@@ -18,16 +18,19 @@
 package com.percussion.rest.templates;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.percussion.rest.DesignGap;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.UriInfo;
 import java.lang.reflect.Field;
 import java.net.URI;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -57,6 +60,22 @@ public class TemplatesResourceDetailTest {
 
     TemplateDetail out = resource.getTemplate("perc.page");
     assertEquals("perc.page", out.getName());
+  }
+
+  @Test
+  public void getTemplateReturnsStructuredDesignGaps() {
+    TemplateDetail d = new TemplateDetail();
+    d.setName("perc.page");
+    d.setDesignGaps(
+        List.of(DesignGap.of("TPL_CREATE_DELETE_LOCK", "Create / delete / lock not supported via this API")));
+    when(adaptor.getTemplate(any(), eq("perc.page"))).thenReturn(d);
+
+    TemplateDetail out = resource.getTemplate("perc.page");
+    assertNotNull(out.getDesignGaps());
+    assertEquals(1, out.getDesignGaps().size());
+    assertEquals("TPL_CREATE_DELETE_LOCK", out.getDesignGaps().get(0).getCode());
+    assertEquals(
+        "Create / delete / lock not supported via this API", out.getDesignGaps().get(0).getMessage());
   }
 
   @Test

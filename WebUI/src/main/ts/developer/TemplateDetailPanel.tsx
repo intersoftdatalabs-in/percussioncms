@@ -21,6 +21,7 @@ import {
   listSlots,
   updateTemplateDetail,
 } from "../api/developer/assemblyApi";
+import { designGapCode, designGapKey, formatDesignGap } from "../api/developer/designGaps";
 import type {
   SlotSummary,
   TemplateBindingSummary,
@@ -730,8 +731,10 @@ export function TemplateDetailPanel({
             <section data-testid="developer-tpl-gaps">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.TPL_GAPS}</h3>
               <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
-                {(detail.designGaps || []).map((g) => (
-                  <li key={g}>{g}</li>
+                {(detail.designGaps || []).map((g, i) => (
+                  <li key={designGapKey(g, i)} data-gap-code={designGapCode(g)}>
+                    {formatDesignGap(g)}
+                  </li>
                 ))}
               </ul>
             </section>

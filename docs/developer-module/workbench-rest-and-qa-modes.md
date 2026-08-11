@@ -45,7 +45,9 @@ perc-system / objectstore / services
 2. Use **SOAP / `IPS*DesignWs` method lists** as the reference for operations, locks, and failure modes.
 3. Implement adaptors that call those design/system APIs when they exist (see audit matrix).
 4. Keep sitemanage as **glue**, not a second design product.
-5. Document `designGaps[]` when REST is thinner than Workbench.
+5. Document `designGaps[]` when REST is thinner than Workbench. Prefer structured
+   `{ code, message }` objects on detail DTOs (REST-GAPS-01: ContentType / Template / Slot
+   first); free-text string arrays remain only on unmigrated peers.
 
 ### DO NOT
 

@@ -18,6 +18,7 @@
 package com.percussion.rest.slots;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -70,8 +71,12 @@ public class SlotDetail {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private List<SlotAssociationSummary> associations;
 
+  @Schema(
+      description =
+          "Structured capability notes (code + message) vs full Workbench slot design"
+              + " (REST-GAPS-01). Wire shape is objects, not free-text strings.")
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  private List<String> designGaps;
+  private List<DesignGap> designGaps;
 
   public SlotDetail() {}
 
@@ -171,11 +176,11 @@ public class SlotDetail {
     this.associations = associations;
   }
 
-  public List<String> getDesignGaps() {
+  public List<DesignGap> getDesignGaps() {
     return designGaps;
   }
 
-  public void setDesignGaps(List<String> designGaps) {
+  public void setDesignGaps(List<DesignGap> designGaps) {
     this.designGaps = designGaps;
   }
 }

@@ -18,6 +18,7 @@
 package com.percussion.rest.slots;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,6 +28,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.percussion.rest.DesignGap;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
@@ -118,6 +120,25 @@ public class SlotsResourceDetailTest {
     d.setName("target");
     when(adaptor.getSlot(any(), eq("target"))).thenReturn(d);
     assertEquals("target", resource.getSlot("target").getName());
+  }
+
+  @Test
+  public void getSlotReturnsStructuredDesignGaps() {
+    SlotDetail d = new SlotDetail();
+    d.setName("target");
+    d.setDesignGaps(
+        List.of(
+            DesignGap.of(
+                "SLOT_CREATE_DELETE",
+                "Create / delete not supported via this REST API (use design WS"
+                    + " createSlots/deleteSlots)")));
+    when(adaptor.getSlot(any(), eq("target"))).thenReturn(d);
+
+    SlotDetail out = resource.getSlot("target");
+    assertNotNull(out.getDesignGaps());
+    assertEquals(1, out.getDesignGaps().size());
+    assertEquals("SLOT_CREATE_DELETE", out.getDesignGaps().get(0).getCode());
+    assertTrue(out.getDesignGaps().get(0).getMessage().contains("Create / delete"));
   }
 
   @Test

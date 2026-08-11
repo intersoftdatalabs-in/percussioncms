@@ -30,6 +30,7 @@ import com.percussion.design.objectstore.PSFieldTranslation;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.PSUISet;
 import com.percussion.design.objectstore.PSWorkflowInfo;
+import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
@@ -198,27 +199,50 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
     detail.setAllowedTemplates(loadTemplates(ctGuid));
 
-    List<String> gaps = new ArrayList<>();
-    gaps.add(
-        "Field rule flags are exposed (validation/visibility/transforms present); full rule"
-            + " expressions and control properties are not");
-    gaps.add("Item-level pre/post exits not exposed");
-    gaps.add(
-        "Create / delete not supported; update uses design lock for label/description/enabled,"
-            + " field searchable/occurrence, workflows (+ default), and templates");
-    gaps.add("Shared/system field inclusion editing not supported");
-    gaps.add(
-        "Workflow/template associations: full replace when lists are supplied on PUT; omit lists"
-            + " to leave unchanged; empty allowedWorkflows clears associations");
-    gaps.add(
-        "Template association save is a separate design write after content-type save; if it"
-            + " fails, meta/field/workflow changes may already be committed");
-    gaps.add("Field display labels and control properties are not writable via this API");
-    if (!controlsResolved) {
-      gaps.add("Display control/label resolution failed for this content type");
-    }
-    detail.setDesignGaps(gaps);
+    detail.setDesignGaps(contentTypeDesignGaps(controlsResolved));
     return detail;
+  }
+
+  /**
+   * Structured designGaps for content-type detail (REST-GAPS-01). Package-visible for unit tests.
+   */
+  static List<DesignGap> contentTypeDesignGaps(boolean controlsResolved) {
+    List<DesignGap> gaps = new ArrayList<>();
+    gaps.add(
+        DesignGap.of(
+            "CT_FIELD_RULE_EXPR",
+            "Field rule flags are exposed (validation/visibility/transforms present); full rule"
+                + " expressions and control properties are not"));
+    gaps.add(DesignGap.of("CT_ITEM_EXITS", "Item-level pre/post exits not exposed"));
+    gaps.add(
+        DesignGap.of(
+            "CT_CREATE_DELETE",
+            "Create / delete not supported; update uses design lock for label/description/enabled,"
+                + " field searchable/occurrence, workflows (+ default), and templates"));
+    gaps.add(
+        DesignGap.of(
+            "CT_SHARED_FIELD_INCLUSION", "Shared/system field inclusion editing not supported"));
+    gaps.add(
+        DesignGap.of(
+            "CT_WF_TEMPLATE_ASSOC_SEMANTICS",
+            "Workflow/template associations: full replace when lists are supplied on PUT; omit"
+                + " lists to leave unchanged; empty allowedWorkflows clears associations"));
+    gaps.add(
+        DesignGap.of(
+            "CT_TEMPLATE_ASSOC_SAVE_ORDER",
+            "Template association save is a separate design write after content-type save; if it"
+                + " fails, meta/field/workflow changes may already be committed"));
+    gaps.add(
+        DesignGap.of(
+            "CT_FIELD_LABELS_WRITE",
+            "Field display labels and control properties are not writable via this API"));
+    if (!controlsResolved) {
+      gaps.add(
+          DesignGap.of(
+              "CT_CONTROL_RESOLUTION",
+              "Display control/label resolution failed for this content type"));
+    }
+    return gaps;
   }
 
   @Override

@@ -18,6 +18,7 @@
 package com.percussion.rest.contenttypes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -78,9 +79,10 @@ public class ContentTypeDetail {
 
   @Schema(
       description =
-          "Capability notes for clients — what this payload includes vs full Workbench design"
-              + " object")
-  private List<String> designGaps = new ArrayList<>();
+          "Structured capability notes (code + message) for what this payload includes vs full"
+              + " Workbench design object. Wire shape is objects, not free-text strings"
+              + " (REST-GAPS-01).")
+  private List<DesignGap> designGaps = new ArrayList<>();
 
   public ContentTypeDetail() {}
 
@@ -188,11 +190,11 @@ public class ContentTypeDetail {
     this.allowedTemplates = allowedTemplates;
   }
 
-  public List<String> getDesignGaps() {
+  public List<DesignGap> getDesignGaps() {
     return designGaps;
   }
 
-  public void setDesignGaps(List<String> designGaps) {
+  public void setDesignGaps(List<DesignGap> designGaps) {
     this.designGaps = designGaps != null ? designGaps : new ArrayList<>();
   }
 }

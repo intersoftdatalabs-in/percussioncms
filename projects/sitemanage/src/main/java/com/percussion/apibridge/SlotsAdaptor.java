@@ -16,6 +16,7 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.rest.DesignGap;
 import com.percussion.rest.slots.ISlotsAdaptor;
 import com.percussion.rest.slots.SlotAssociationSummary;
 import com.percussion.rest.slots.SlotDetail;
@@ -55,10 +56,15 @@ public class SlotsAdaptor implements ISlotsAdaptor {
 
   private static final Logger log = LogManager.getLogger(SlotsAdaptor.class);
 
-  public static final List<String> SLOT_DESIGN_GAPS =
+  public static final List<DesignGap> SLOT_DESIGN_GAPS =
       List.of(
-          "Create / delete not supported via this REST API (use design WS createSlots/deleteSlots)",
-          "Content-type and template names not resolved (GUIDs only)");
+          DesignGap.of(
+              "SLOT_CREATE_DELETE",
+              "Create / delete not supported via this REST API (use design WS"
+                  + " createSlots/deleteSlots)"),
+          DesignGap.of(
+              "SLOT_ASSOC_GUIDS_ONLY",
+              "Content-type and template names not resolved (GUIDs only)"));
 
   private final IPSAssemblyDesignWs designWs;
 
